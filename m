@@ -1,79 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269229AbRHMU5Y>; Mon, 13 Aug 2001 16:57:24 -0400
+	id <S269119AbRHMVCy>; Mon, 13 Aug 2001 17:02:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269119AbRHMU5F>; Mon, 13 Aug 2001 16:57:05 -0400
-Received: from teranet244-12-200.monarch.net ([24.244.12.200]:50938 "HELO
-	lustre.dyn.ca.clusterfilesystem.com") by vger.kernel.org with SMTP
-	id <S269229AbRHMU45>; Mon, 13 Aug 2001 16:56:57 -0400
-Date: Mon, 13 Aug 2001 14:56:22 -0600
-From: "Peter J. Braam" <braam@clusterfilesystem.com>
-To: Joseph Cheek <joseph@cheek.com>
-Cc: Johannes Erdfelt <johannes@erdfelt.com>, linux-kernel@vger.kernel.org,
-        linux-usb-users@lists.sourceforge.net
-Subject: Re: [Linux-usb-users] Re: 2.4.8-ac2 USB keyboard capslock hang
-Message-ID: <20010813145621.A1863@lustre.dyn.ca.clusterfilesystem.com>
-In-Reply-To: <E15WM1P-0007uJ-00@the-village.bc.nu> <3B782D38.3080600@cheek.com>
-Mime-Version: 1.0
+	id <S269144AbRHMVCo>; Mon, 13 Aug 2001 17:02:44 -0400
+Received: from [145.254.148.185] ([145.254.148.185]:18927 "HELO
+	schottelius.org") by vger.kernel.org with SMTP id <S269119AbRHMVCY>;
+	Mon, 13 Aug 2001 17:02:24 -0400
+Message-ID: <3B784027.A30C369F@pcsystems.de>
+Date: Mon, 13 Aug 2001 23:01:27 +0200
+From: Nico Schottelius <nicos@pcsystems.de>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: PinkFreud <pf-kernel@mirkwood.net>
+CC: linux-kernel@vger.kernel.org
+Subject: A warning (was: Re: Are we going too fast?)
+In-Reply-To: <Pine.LNX.4.20.0108130303120.1037-100000@eriador.mirkwood.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B782D38.3080600@cheek.com>; from joseph@cheek.com on Mon, Aug 13, 2001 at 12:40:40PM -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ah - but I don't have the difficulties with the Linux beta kernel in
-Rosswell (2.4.6-ac?? + red hat patches). 
+One last word to this email:
 
-It's 100% reproducible here on 2.4.8-ac2 for example - but it does
-freeze the system pretty much. What can I do to help?
+- Linux is kind of stable for _normal_ use
+- PinkFreud did actually warn us. It is important to
+include latest hardware support into the kernel, but we
+should always aim to have a stable Linux.
 
-- Peter -
+So all guys herein do the best work they can do and I am
+impressed everyday, what a great OS Linux was, is and will be.
 
-On Mon, Aug 13, 2001 at 12:40:40PM -0700, Joseph Cheek wrote:
-> this bug has been around since 2.4.3-ac *at least*, and the linux-usb 
-> folks are aware of it [but can't get a repro].  i've had repros since 
-> 2.4.3-ac.
-> 
-> this is the first time afaik that this bug has been reported on a non 
-> ms-natural-pro keyboard tho.
-> 
-> Alan Cox wrote:
-> 
-> >>On Mon, Aug 13, 2001 at 06:56:48PM +0100, Alan Cox wrote:
-> >>
-> >>>Roswell is the Red Hat 7.2 beta, so its probably another bug that was fixed
-> >>>in the USB and input updates in -ac
-> >>>
-> >>It hangs on 2.4.8-ac2, so was this bug fix lost perhaps? 
-> >>
-> >
-> >It would be useful to know if 2.4.7ac3 say works and if so which one after
-> >that it broke at
-> >
-> >-
-> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> >the body of a message to majordomo@vger.kernel.org
-> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> >Please read the FAQ at  http://www.tux.org/lkml/
-> >
-> 
-> -- 
-> thanks!
-> 
-> joe
-> 
-> --
-> Joseph Cheek, CTO, Redmond Linux Corp.
-> joseph@redmondlinux.org, www.redmondlinux.org
-> Redmond Linux.  Linux is for everyone.
-> 
-> 
-> 
-> 
-> _______________________________________________
-> Linux-usb-users@lists.sourceforge.net
-> To unsubscribe, use the last form field at:
-> http://lists.sourceforge.net/lists/listinfo/linux-usb-users
+Have a nice day,
 
--- 
+Nico
+

@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265051AbUIIXlV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264919AbUIIXlg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265051AbUIIXlV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 19:41:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265795AbUIIXlT
+	id S264919AbUIIXlg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 19:41:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266582AbUIIXlf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 19:41:19 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57224 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265051AbUIIXhn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 19:37:43 -0400
-Date: Thu, 9 Sep 2004 19:12:38 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cacheline align pagevec structure
-Message-ID: <20040909221238.GA6182@logos.cnet>
-References: <20040909163929.GA4484@logos.cnet> <20040909155226.714dc704.akpm@osdl.org> <20040909230905.GO3106@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040909230905.GO3106@holomorphy.com>
-User-Agent: Mutt/1.5.5.1i
+	Thu, 9 Sep 2004 19:41:35 -0400
+Received: from ns1.lanforge.com ([66.165.47.210]:1185 "EHLO www.lanforge.com")
+	by vger.kernel.org with ESMTP id S264919AbUIIXih (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 19:38:37 -0400
+Message-ID: <4140E96F.3080202@candelatech.com>
+Date: Thu, 09 Sep 2004 16:38:23 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Woodhouse <dwmw2@infradead.org>
+CC: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: netwinder or ARM build platform
+References: <200409091759.i89HxHI2023135@work.bitmover.com> <1094772143.9144.42.camel@imladris.demon.co.uk>
+In-Reply-To: <1094772143.9144.42.camel@imladris.demon.co.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 09, 2004 at 04:09:05PM -0700, William Lee Irwin III wrote:
-> Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
-> >> I do not see a problem with changing pagevec to "15" page pointers either, 
-> >> Andrew, is there a special reason for that "16"? Is intentional to align
-> >> to 64 kbytes (IO device alignment)? I dont think that matters much because
-> >> of the elevator which sorts and merges requests anyway?
+David Woodhouse wrote:
+> On Thu, 2004-09-09 at 10:59 -0700, Larry McVoy wrote:
 > 
-> On Thu, Sep 09, 2004 at 03:52:26PM -0700, Andrew Morton wrote:
-> > No, it was just a randomly-chosen batching factor.
-> > The tradeoff here is between
-> > a) lock acquisition frequency versus lock hold time (increasing the size
-> >    helps).
-> > b) icache misses versus dcache misses. (increasing the size probably hurts).
-> > I suspect that some benefit would be seen from making the size very small
-> > (say, 4). And on some machines, making it larger might help.
-> 
-> Reducing arrival rates by an Omega(NR_CPUS) factor would probably help,
-> though that may blow the stack on e.g. larger Altixen. Perhaps
-> O(lg(NR_CPUS)), e.g. NR_CPUS > 1 ? 4*lg(NR_CPUS) : 4 etc., will suffice,
-> though we may have debates about how to evaluate lg(n) at compile-time...
-> Would be nice if calls to sufficiently simple __attribute__((pure))
-> functions with constant args were considered constant expressions by gcc.
+>>BK found another bad hard drive today, on our netwinder.  The disk is dieing
+>>badly unfortunately and I don't have installation media for this beast.
+>>I suspect I can go find it but does anyone know of a faster build platform
+>>for arm?  Russell uses bk on arms (no kidding, that's amazing) and so we
+>>continue to support it but that netwinder is just amazingly slow.  If there
+>>is a faster platform we want one.
 
-Let me see if I get you right - basically what you're suggesting is 
-to depend PAGEVEC_SIZE on NR_CPUS?
+Maybe a zaurus with a WiFi NIC, mounting the file systems via NFS?
+
+I can't hardly imagine that being faster than a NetWinder though!
+
+Ben
+
+-- 
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
+

@@ -1,65 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310258AbSCaAjh>; Sat, 30 Mar 2002 19:39:37 -0500
+	id <S310501AbSCaBA1>; Sat, 30 Mar 2002 20:00:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310241AbSCaAj2>; Sat, 30 Mar 2002 19:39:28 -0500
-Received: from CPE-203-51-25-11.nsw.bigpond.net.au ([203.51.25.11]:63733 "EHLO
-	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
-	id <S311203AbSCaAjQ>; Sat, 30 Mar 2002 19:39:16 -0500
-Message-ID: <3CA65AAE.4917313E@eyal.emu.id.au>
-Date: Sun, 31 Mar 2002 10:39:10 +1000
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4-ac2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.19-pre5: hotplug config
-In-Reply-To: <Pine.LNX.4.21.0203291842530.6417-100000@freak.distro.conectiva>
-Content-Type: multipart/mixed;
- boundary="------------85BC3090E144680B4E71D91C"
+	id <S310515AbSCaBAQ>; Sat, 30 Mar 2002 20:00:16 -0500
+Received: from p017.as-l031.contactel.cz ([212.65.234.209]:4100 "EHLO
+	ppc.vc.cvut.cz") by vger.kernel.org with ESMTP id <S310501AbSCaBAF>;
+	Sat, 30 Mar 2002 20:00:05 -0500
+Date: Sun, 31 Mar 2002 01:46:28 +0100
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: Denis Zaitsev <zzz@cd-club.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] matroxfb_base.c - not a so little patch
+Message-ID: <20020331004628.GB1552@ppc.vc.cvut.cz>
+In-Reply-To: <2F43B06E5F@vcnet.vc.cvut.cz> <20020330214006.B1264@natasha.zzz.zzz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------85BC3090E144680B4E71D91C
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
-Marcelo Tosatti wrote:
+On Sat, Mar 30, 2002 at 09:40:06PM +0500, Denis Zaitsev wrote:
+> On Fri, Mar 22, 2002 at 01:17:04PM +0100, Petr Vandrovec wrote:
+> > On 22 Mar 02 at 16:47, Denis Zaitsev wrote:
+> > > 
+> > > The patch is against 2.5.5.  It seems that matroxfb_base.c is still
+> > > the same since that time.  And I assume matroxfb_base.c with
+> > > <if (var->bits_per_pixel == 4)> branch present, i.e. without my
+> > > previous little fix.
+> > 
+> > Did you verified effects on generated code/data size? 
+> > 
+> > > +   for (p= &table[0].bpp; *p < bpp; p+= sizeof table[0]);
+> > > +   var->red   .offset= *++p; var->red   .length= *++p;
+> > > +   var->green .offset= *++p; var->green .length= *++p;
+> > > +   var->blue  .offset= *++p; var->blue  .length= *++p;
+> > > +   var->transp.offset= *++p; var->transp.length= *++p;
+> > 
+> > Please no. Access fields by their names, and do not assume anything
+> > about padding.
+> >                                                 Petr Vandrovec
+> >                                                 vandrove@vc.cvut.cz
+> >                                                 
 > 
-> Hi,
-> 
-> Here goes pre5.
+> I'm sorry, Petr, why don't you answer anything to me?  I'd sent the
+> cured patch a week ago...
 
-While we are cleaning up configs, here is another one (I think
-mentioned a while ago) that removes the unresolved ref to
-	IO_APIC_get_PCI_irq_vector
-from ibmphp.o if IO_APIC is not selected.
-
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
---------------85BC3090E144680B4E71D91C
-Content-Type: text/plain; charset=us-ascii;
- name="2.4.19-pre5-ibmphp.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="2.4.19-pre5-ibmphp.patch"
-
---- linux/drivers/hotplug/Config.in.orig	Sun Mar 31 10:04:45 2002
-+++ linux/drivers/hotplug/Config.in	Sun Mar 31 10:06:01 2002
-@@ -8,7 +8,9 @@
- 
- dep_tristate '  Compaq PCI Hotplug driver' CONFIG_HOTPLUG_PCI_COMPAQ $CONFIG_HOTPLUG_PCI $CONFIG_X86
- dep_mbool '    Save configuration into NVRAM on Compaq servers' CONFIG_HOTPLUG_PCI_COMPAQ_NVRAM $CONFIG_HOTPLUG_PCI_COMPAQ
--dep_tristate '  IBM PCI Hotplug driver' CONFIG_HOTPLUG_PCI_IBM $CONFIG_HOTPLUG_PCI $CONFIG_X86_IO_APIC $CONFIG_X86
-+if [ "$CONFIG_X86_IO_APIC" = "y" ]; then
-+   dep_tristate '  IBM PCI Hotplug driver' CONFIG_HOTPLUG_PCI_IBM $CONFIG_HOTPLUG_PCI $CONFIG_X86
-+fi
- dep_tristate '  ACPI PCI Hotplug driver' CONFIG_HOTPLUG_PCI_ACPI $CONFIG_ACPI $CONFIG_HOTPLUG_PCI
- 
- endmenu
-
---------------85BC3090E144680B4E71D91C--
-
+What I should answer? Linus is not here, AFAIK, so patch sits on my
+harddrive.
+					Petr Vandrovec
+					vandrove@vc.cvut.cz

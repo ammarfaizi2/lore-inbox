@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266599AbTGGLzL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 07:55:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266942AbTGGLzL
+	id S266957AbTGGMHy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 08:07:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266960AbTGGMHy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 07:55:11 -0400
-Received: from imf.math.ku.dk ([130.225.103.32]:62107 "EHLO imf.math.ku.dk")
-	by vger.kernel.org with ESMTP id S266599AbTGGLzI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 07:55:08 -0400
-Date: Mon, 7 Jul 2003 14:09:41 +0200 (CEST)
-From: Peter Berg Larsen <pebl@math.ku.dk>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [PATCH] Synaptics: support for pass-through port (stick)
-In-Reply-To: <Pine.LNX.4.40.0307071308310.28730-100000@shannon.math.ku.dk>
-Message-ID: <Pine.LNX.4.40.0307071400140.28730-100000@shannon.math.ku.dk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 7 Jul 2003 08:07:54 -0400
+Received: from mail.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:12301 "EHLO
+	krusty.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S266957AbTGGMHv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jul 2003 08:07:51 -0400
+Date: Mon, 7 Jul 2003 14:22:23 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: C99 types VS Linus types
+Message-ID: <20030707122222.GE10021@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel <linux-kernel@vger.kernel.org>
+References: <1057579305.747.79.camel@cube>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1057579305.747.79.camel@cube>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 07 Jul 2003, Albert Cahalan wrote:
 
-On Mon, 7 Jul 2003, Peter Berg Larsen wrote:
+> > Speaking of shifting forward to standards:
+> >
+> > unsigned char foo = 42;
+> > char bar[42];
+> > sprintf(bar, "%ju", (uintmax_t)foo); // see IEEE Std 1003.1-2001
+> >
+> > If that's too ugly, write your own [u]intmax_t-to-char[]
+> > converter, then only the stack is nasty if uintmax_t is 128
+> > bits wide and you're printing an array uint8_t. :-P
+> 
+> Yes, that is too ugly. It's idealistic code.
+> Readability matters more than worrying about
+> something which won't happen for over 40 years,
+> and won't cause Y2K-style problems even then.
 
-Replying to myself.
+sprintf doesn't lend itself too well to readibility anyways, and we have
+these crutches in gcc to check argument types and all that, not to speak
+of %n and other time bombs.
 
-> > button reporting (only left and right as I am not sure to which buttons
-> > up/down should be mapped),
->
-> hmm. You dont know what the guest protocol, so you can't just | the
-> button information. However, reallity is that this will work for nearly
-> anybody now.
-
-This is not the greatest idea as the guest sometimes does not recieve the
-button release. This is bad only if the userdriver multiplex the
-micebuttons from different mice, because it would then seem as the user
-holds the button down.
-
-
-Peter
-
-
-
+-- 
+Matthias Andree

@@ -1,66 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129180AbQJ0HfQ>; Fri, 27 Oct 2000 03:35:16 -0400
+	id <S129357AbQJ0Hqd>; Fri, 27 Oct 2000 03:46:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129128AbQJ0HfG>; Fri, 27 Oct 2000 03:35:06 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:8456 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129226AbQJ0Hex>; Fri, 27 Oct 2000 03:34:53 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: missing mxcsr initialization
-Date: 27 Oct 2000 00:34:47 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <8tbb6n$85r$1@cesium.transmeta.com>
-In-Reply-To: <20001026021731.B23895@athlon.random> <E13oy7T-00043v-00@the-village.bc.nu>
+	id <S129460AbQJ0HqY>; Fri, 27 Oct 2000 03:46:24 -0400
+Received: from Cantor.suse.de ([194.112.123.193]:32005 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129357AbQJ0HqQ>;
+	Fri, 27 Oct 2000 03:46:16 -0400
+Date: Fri, 27 Oct 2000 09:46:13 +0200
+From: Andi Kleen <ak@suse.de>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: "Jeff V. Merkey" <jmerkey@timpanogas.org>, kumon@flab.fujitsu.co.jp,
+        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: Negative scalability by removal of lock_kernel()?(Was: Strange performance behavior of 2.4.0-test9)
+Message-ID: <20001027094613.A18382@gruyere.muc.suse.de>
+In-Reply-To: <39F92187.A7621A09@timpanogas.org> <Pine.GSO.4.21.0010270257550.18660-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.4.21.0010270257550.18660-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Fri, Oct 27, 2000 at 03:13:33AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-X-Comment-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
+On Fri, Oct 27, 2000 at 03:13:33AM -0400, Alexander Viro wrote:
+> I didn't look into recent changes in fs/locks.c, but I have quite problem
+> inventing a scenario when _adding_ BKL (without reverting other changes)
+> might give an absolute improvement. Well, I see a couple of really perverted
+> scenarios, but... Seriously, folks, could you compare the 4 variants above
+> and gather the contention data for the -test9 on your loads? That would help
+> a lot.
 
-Followup to:  <E13oy7T-00043v-00@the-village.bc.nu>
-By author:    Alan Cox <alan@lxorguk.ukuu.org.uk>
-In newsgroup: linux.dev.kernel
->
-> > > corrected for include the facts that the XMM feature bit is an Intel specific
-> > > bit that other vendors may use for other things, so you need to test vendor ==
-> > 			 ^^^
-> > Note that they shouldn't do that! I would consider a very bad thing if they
-> > goes out of sync on those bits.
-> 
-> CPUID is vendor specific. Every bit in those fields is vendor specific. Every
-> piece of documentation tells you to check the CPU vendor.  Every time we didnt 
-> bother we got burned.
-> 
-> I keep hearing people saying things like 'bad thing' 'assume standards'. Well
-> all I can say is cite a vendor issued document which says 'dont bother checking
-> the vendor'. 
-> 
+I think it is easy to see.  Switching between CPUs for criticial section
+always has an latency because the lock/data update needs some time to cross
+the bus
 
-Intel does it because they want every other chip out there to act like
-a 486.
+When you have two CPUs contending on common paths it is better to do: 
 
-> 
-> And when you can't find that document, put the checks in so we dont crash on
-> an Athlon or when using MTRR on a Cyrix III etc
-> 
+	CPU #0                               CPU #1
 
-Chips that don't implement what they claim to implement are buggy and
-should be treated as such.  SPECIAL-CASE THE BUGGY CHIPS, NOT THE
-PROPERLY FUNCTIONING ONES.
-
-	-hpa
+	grab big lock                        spin
+        do thing 
+	release big lock ----> latency --->  grab big lock
+					     do thing
+        do other things                      ....
 
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+than to do 
+
+ 	grab small lock 1                    spin
+	do small thing	
+	release small lock 1 --> latency --> get small lock
+                                             do small thing
+                                             release lock
+                            <--- latency --- 
+        get small lock, fetch data
+        do small thing
+        release lock
+                            ---> latency ---> get small lock
+                                              do small thing
+                                              release lock
+                            <--- latency ----
+
+etc. The latencies add up and they're long because they're bus limited.
+For common paths it is definitely useful to have bigger lock sections. 
+
+-Andi
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

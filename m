@@ -1,97 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263792AbTKRWWI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Nov 2003 17:22:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263800AbTKRWWI
+	id S263801AbTKRWZL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Nov 2003 17:25:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263806AbTKRWZL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Nov 2003 17:22:08 -0500
-Received: from gprs150-18.eurotel.cz ([160.218.150.18]:1920 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S263792AbTKRWWD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Nov 2003 17:22:03 -0500
-Date: Tue, 18 Nov 2003 23:22:26 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Pontus Fuchs <pof@users.sourceforge.net>
-Cc: linux-kernel@vger.kernel.org, hubicka@atrey.karlin.mff.cuni.cz
-Subject: Re: Announce: ndiswrapper
-Message-ID: <20031118222226.GA282@elf.ucw.cz>
-References: <1069153340.2200.28.camel@dhcp-225.mlm.tactel.se>
-Mime-Version: 1.0
+	Tue, 18 Nov 2003 17:25:11 -0500
+Received: from mail005.syd.optusnet.com.au ([211.29.132.54]:50314 "EHLO
+	mail005.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S263801AbTKRWZF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Nov 2003 17:25:05 -0500
+From: Peter Chubb <peter@chubb.wattle.id.au>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1069153340.2200.28.camel@dhcp-225.mlm.tactel.se>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16314.39961.545212.446223@wombat.chubb.wattle.id.au>
+Date: Wed, 19 Nov 2003 09:24:25 +1100
+To: kernwek jalsl <edityacomm@yahoo.com>
+Cc: root@chaos.analogic.com, linux-kernel@vger.kernel.org
+Subject: Re: softirqd
+In-Reply-To: <20031118063551.25057.qmail@web20710.mail.yahoo.com>
+References: <Pine.LNX.4.53.0311170914580.22131@chaos>
+	<20031118063551.25057.qmail@web20710.mail.yahoo.com>
+X-Mailer: VM 7.14 under 21.4 (patch 14) "Reasonable Discussion" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> Since some vendors refuses to release specs or even a binary
-> Linux-driver for their WLAN cards I desided to try to solve it myself by
-> making a kernel module that can load Ndis (windows network driver API)
-> drivers. I'm not trying to implement all of the Ndis API but rather
-> implement the functions needed to get these unsupported cards working.
-> 
-> Currently it works fine with my Broadcom 4301 but I would like to get in
-> touch with people that have similar cards that are willing to do some
-> testing/hacking.
-
-Wow, works for me, Broadcom 94306. [Well, I do not have second wifi to
-test right now, but module loads, I can iwconfig it etc.] I'd add this
-to the docs:
 
 
-Index: README
-===================================================================
-RCS file: /cvsroot/ndiswrapper/ndiswrapper/README,v
-retrieving revision 1.1
-diff -u -u -r1.1 README
---- README	17 Nov 2003 13:23:36 -0000	1.1
-+++ README	18 Nov 2003 22:19:22 -0000
-@@ -4,8 +4,11 @@
- 1. Compile the driver
- ---------------------
- * You need kernel 2.6.0-test8 or higher!
--* Make sure your kernel complied without framepointer and Sleep-inside-spinlock debugging
--  See the kernel hacking menu
-+* Make sure your kernel complied without framepointer
-+  (CONFIG_FRAME_POINTER unset) and Sleep-inside-spinlock 
-+  debugging (CONFIG_DEBUG_SPINLOCK unset). (See the kernel hacking menu)
-+* do make modules_install
-+* make sure you are not cross-compiling
- > cd driver
- > make
- 
 
-And perhaps this script gets usefull? [Fancy version might download
-that package using wget then unzip it ;-).]
+Kernwek Jalsl said:
 
-								Pavel
+Kernwek> Sorry in case I was not very clear with my
+Kernwek> requirements.   With real time interrupt I meant a
+Kernwek> real time task waiting for IO from this interrupt.
+Kernwek> Assume that I have a high priority interrupt and a
+Kernwek> real time task waiting for it. Well followimg are the
+Kernwek> various latencies involved:
+Kernwek> L1- interrupt latency
+Kernwek> L2- hard and soft IRQ completion
+Kernwek> L3 - scheduler latency
+Kernwek> L4 - scheduler completion
 
-#!/bin/bash
-if zcat /proc/config.gz | grep CONFIG_FRAME_POINTER=y; then
-	echo Turn off CONFIG_FRAME_POINTER
-	fi
-if zcat /proc/config.gz | grep CONFIG_DEBUG_SPINLOCK=y; then
-	echo Turn off CONFIG_DEBUG_SPINLOCK
-	fi
-(
-	cd driver
-	make
-)
-(
-	cd utils
-	make
-)
-if lspci | grep "Broadcom Corporation BCM94306"; then
-	echo "This one should work, good."
-	insmod driver/ndiswrapper.ko
-	echo "Get R65194.EXE and unpack it here."
-	utils/loaddriver 14e4 4320 R65194/TMSetup/bcmwl5.sys R65194/TMSetup/bcmwl5.inf
-	fi
+Kernwek> L1 is pretty acceptable on Linux. 
 
+I've been trying to measure this.  On IA64 I'm measuring around
+2.5microseconds (on a 900MHz machine).  I personally think that this
+is too big, and could be reduced.
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+One thing I think we need to do early in 2.7 is to merge all those
+architecture-dependent arch/XXX/kernel/irq.c files, and try to reduce
+the amount of duplicated work done in the new merged file and the
+lower level architecture-specific files.
+
+--
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+The technical we do immediately,  the political takes *forever*
+

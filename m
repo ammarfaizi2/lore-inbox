@@ -1,51 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292329AbSBBRg0>; Sat, 2 Feb 2002 12:36:26 -0500
+	id <S292328AbSBBRc5>; Sat, 2 Feb 2002 12:32:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292330AbSBBRgQ>; Sat, 2 Feb 2002 12:36:16 -0500
-Received: from pubnix.org ([204.80.221.10]:17107 "EHLO pubnix.org")
-	by vger.kernel.org with ESMTP id <S292329AbSBBRgJ>;
-	Sat, 2 Feb 2002 12:36:09 -0500
-Date: Sat, 2 Feb 2002 12:33:03 -0500 (EST)
-From: syzygy <syzygy@pubnix.org>
-To: linux-kernel@vger.kernel.org
-Subject: SCSI + IDE = HANG
-Message-ID: <Pine.GSO.4.21.0202021219250.13444-100000@pubnix.org>
+	id <S292329AbSBBRcq>; Sat, 2 Feb 2002 12:32:46 -0500
+Received: from mailc.telia.com ([194.22.190.4]:29404 "EHLO mailc.telia.com")
+	by vger.kernel.org with ESMTP id <S292328AbSBBRch>;
+	Sat, 2 Feb 2002 12:32:37 -0500
+Message-Id: <200202021732.g12HWMU25229@mailc.telia.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Roger Larsson <roger.larsson@norran.net>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Subject: Re: Errors in the VM - detailed (or is it Tux? or rmap? or those together...)
+Date: Sat, 2 Feb 2002 18:29:19 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <Pine.LNX.4.30.0202021751430.11143-100000@mustard.heime.net>
+In-Reply-To: <Pine.LNX.4.30.0202021751430.11143-100000@mustard.heime.net>
+Cc: Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@zip.com.au>,
+        <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have had a few random hangs with my machine since I added a maxtor 27
-gig IDE drive to it.  I kept trying different combinations of bus
-positions etc.  I figured it was flacky hardware or something.  I added
-the drive in the early 2.4 series.  Recently I became slightly suspicious
-of my Adaptec 2940U2W after reading all of the problems it had in the
-early 2.4.  So I upgraded the bios and got kernel 2.4.17.  Though the
-problem seems diminished it is certainly not gone...
+Hi again Roy,
 
-Now for the kicker...  I found a 99% guarenteed way to hard lock my
-box.  I tried ripping two cds at a time.  One on the ide bus and one on
-the scsi.  Just a note the data is being stored to the maxtor 27 gig
-mentioned above.  The reason I point to the IDE + SCSI combo is that I can
-do two scsi cdroms ripping to the maxtor and it works much more
-reliably.  I am under the impression that IDE CDROMs use the ide bus quite
-heavily under ripping...
+> er..
+> 
+> # grep queue_nr_requests /usr/src/packed/k/2.4.17-rmap-11c
+> #
+Andrew did supply a patch for Riel but he did not accept all of it?
 
-General notes:
-Motherboard: Supermicro P6DBU w/onboard 2940U2W
-CPU: Dual PII 350mhz
-SCSI Bus: 0: IBM 9gig U2W, 1: IBM 4gig U2W, 2: Pioneer DVDROM (used for
-	ripping)
-IDE BUS 0: Maxtor 27 gig
-IDE BUS 1: Teac IDE CDRom
+Lets see again. Do I understand you correctly:
+rmap 11c fixes the problem #1 but not 11b? are all later
+rmaps good?
 
-Also happens with Teac Slaved to Maxtor
+rmap 11c:
+  - oom_kill race locking fix                             (Andres Salomon)
+  - elevator improvement                                  (Andrew Morton)
+  - dirty buffer writeout speedup (hopefully ;))          (me)
+  - small documentation updates                           (me)
+  - page_launder() never does synchronous IO, kswapd
+    and the processes calling it sleep on higher level    (me)
+  - deadlock fix in touch_page()                          (me)
+rmap 11b:
 
-Questions, Comments, Ideas?
+Lets see, not oom condition, no dirty buffers (read "only"),
+not documentation, page_launder (no dirty...), not deadlock.
+Remaining is the elevator... And that can really be it!
+(read ahead related too...)
 
-Keith Baker	
-Email:	Syzygy@pubnix.org
+and 2.4.18-pre2 (or later) does not fix it?
 
-Life is a sexually transmitted disease with 100% mortality. 
+2.4.18-pre2:
+- ...
+- Fix elevator insertion point on failed
+  request merge					(Jens Axboe)
+- ...
+pre1:
 
+-- 
+Roger Larsson
+Skellefteå
+Sweden

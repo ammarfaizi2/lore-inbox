@@ -1,54 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280743AbRKGDVh>; Tue, 6 Nov 2001 22:21:37 -0500
+	id <S280648AbRKGDYh>; Tue, 6 Nov 2001 22:24:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280750AbRKGDV2>; Tue, 6 Nov 2001 22:21:28 -0500
-Received: from zok.SGI.COM ([204.94.215.101]:14794 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S280663AbRKGDVY>;
-	Tue, 6 Nov 2001 22:21:24 -0500
-Date: Wed, 7 Nov 2001 14:19:56 +1100
-From: Nathan Scott <nathans@sgi.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Andreas Gruenbacher <ag@bestbits.at>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, acl-devel@bestbits.at,
-        linux-xfs@oss.sgi.com
-Subject: Re: [RFC][PATCH] extended attributes
-Message-ID: <20011107141956.F591676@wobbly.melbourne.sgi.com>
-In-Reply-To: <20011107111224.C591676@wobbly.melbourne.sgi.com> <20011107023218.A4754@wotan.suse.de>
+	id <S280751AbRKGDY1>; Tue, 6 Nov 2001 22:24:27 -0500
+Received: from alcove.wittsend.com ([130.205.0.10]:64132 "EHLO
+	alcove.wittsend.com") by vger.kernel.org with ESMTP
+	id <S280648AbRKGDYT>; Tue, 6 Nov 2001 22:24:19 -0500
+Date: Tue, 6 Nov 2001 22:24:07 -0500
+From: "Michael H. Warfield" <mhw@wittsend.com>
+To: Anuradha Ratnaweera <anuradha@gnu.org>
+Cc: Robert Love <rml@tech9.net>, torvalds@transmeta.com,
+        Mike Fedyk <mfedyk@matchmail.com>, Terminator <jimmy@mtc.dhs.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Are -final releases realy FINAL? (Was Re: kernel 2.4.14 compiling fail for loop device)
+Message-ID: <20011106222407.A6360@alcove.wittsend.com>
+Mail-Followup-To: Anuradha Ratnaweera <anuradha@gnu.org>,
+	Robert Love <rml@tech9.net>, torvalds@transmeta.com,
+	Mike Fedyk <mfedyk@matchmail.com>, Terminator <jimmy@mtc.dhs.org>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0111051936090.18663-100000@www.mtc.dhs.org> <20011105194316.B665@mikef-linux.matchmail.com> <1005019360.897.2.camel@phantasy> <20011107091314.A11202@bee.lk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011107023218.A4754@wotan.suse.de>; from ak@suse.de on Wed, Nov 07, 2001 at 02:32:18AM +0100
+In-Reply-To: <20011107091314.A11202@bee.lk>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello again Andi,
+On Wed, Nov 07, 2001 at 09:13:14AM +0600, Anuradha Ratnaweera wrote:
+> On Mon, Nov 05, 2001 at 11:02:36PM -0500, Robert Love wrote:
+> >
+> > On Mon, 2001-11-05 at 22:43, Mike Fedyk wrote:
+> > >
+> > > Did anyone have this problem with pre8???
 
-On Wed, Nov 07, 2001 at 02:32:18AM +0100, Andi Kleen wrote:
-> I think it would be better to have a statefull readdir instead.
-> The kernel supports it via the ->private_data field of struct file
-> (not through fork,but that looks like a generic vfs bug) 
+	No, there was a different problem that required hand patching.
+
+> > Nope, it was added post-pre8 to final.  The deactivate_page function was
+> > removed completely.
 > 
-> EA_FIRST_ENTRY to reset the fd the first entry, EA_READ_ENTRY to 
-> read the next one.
+> Look, Linus.  Things should _not_ happen this way.
 
-I'm not sure this would work for the extattr/lextattr variants where
-we don't have an fd to hold the state.  Should the list operation
-be restricted to the fextattr variant, perhaps?  I'm not sure about
-all the implications of that, will have to see what everyone else
-thinks I guess.
+> Why do we add non-trivial changes when going from last -preX of a test kernel
+> series to -final?
 
-eg. the opening of the file before allowing a list operation could
-have implications for XFSs DMAPI support (open might recall data from
-tape), where the management tools need to be able to list these DMAPI
-related attributes without affecting the backing storage, I believe -
-I'll have to ask some DMAPI gurus about that one though.
+> Please make the last stable -preX the -final _without_ any changes.  This is
+> the third time this caused problem in recent times (2.4.11-dontuse, parport
+> compile problems and now loop.o), and why don't we learn from previous
+> mistakes?
 
-Thanks for the input.
+> Isn't it stupid that some tarballs in the /pub/linux/kernel/v2.4/ do not even
+> compile, while those in /pub/linux/kernel/testing/ does?
 
-cheers.
+	linux-2.4.14-pre8 did not compile either if rd.o or loop.o
+were compiled as modules, but the names were changed to protect the
+guilty (different symbol name, one that wasn't exported).
 
+	Maybe there should have been another -pre.  But the only reason
+I was staying on top of the -pre kernels was because I had several major
+changes in there, this time around.
+
+> Regards,
+
+> Anuradha
+
+> -- 
+
+> Debian GNU/Linux (kernel 2.4.14-pre7)
+
+	-pre7 actually did compile.  -pre8 did not (not without adding
+a line to ksyms.c).
+
+> I cannot conceive that anybody will require multiplications at the rate
+> of 40,000 or even 4,000 per hour ...
+> 		-- F. H. Wales (1936)
+
+	Mike
 -- 
-Nathan
+ Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
+  /\/\|=mhw=|\/\/       |  (678) 463-0932   |  http://www.wittsend.com/mhw/
+  NIC whois:  MHW9      |  An optimist believes we live in the best of all
+ PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!

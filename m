@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264367AbRFSQCx>; Tue, 19 Jun 2001 12:02:53 -0400
+	id <S264371AbRFSQFn>; Tue, 19 Jun 2001 12:05:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264374AbRFSQCn>; Tue, 19 Jun 2001 12:02:43 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:61597 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S264367AbRFSQC3>;
-	Tue, 19 Jun 2001 12:02:29 -0400
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15151.30600.896238.78222@pizda.ninka.net>
-Date: Tue, 19 Jun 2001 09:02:16 -0700 (PDT)
-To: Dan Kegel <dank@kegel.com>
-Cc: ognen@gene.pbi.nrc.ca,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        laughing@shared-source.org
-Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
-In-Reply-To: <3B2F769C.DCDB790E@kegel.com>
-In-Reply-To: <Pine.LNX.4.30.0106190940420.28643-100000@gene.pbi.nrc.ca>
-	<3B2F769C.DCDB790E@kegel.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+	id <S264380AbRFSQFd>; Tue, 19 Jun 2001 12:05:33 -0400
+Received: from mailf.telia.com ([194.22.194.25]:50900 "EHLO mailf.telia.com")
+	by vger.kernel.org with ESMTP id <S264371AbRFSQF0>;
+	Tue, 19 Jun 2001 12:05:26 -0400
+Date: Tue, 19 Jun 2001 18:11:48 +0200
+From: =?iso-8859-1?Q?Andr=E9?= Dahlqvist <andre.dahlqvist@telia.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: random errors with bzip2
+Message-ID: <20010619181148.A24734@telia.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <lxiths7aqf.fsf@pixie.isr.ist.utl.pt>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <lxiths7aqf.fsf@pixie.isr.ist.utl.pt>
+User-Agent: Mutt/1.3.18i
+X-Unexpected-Header: The Spanish Inquisition
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rodrigo Ventura <yoda@isr.ist.utl.pt> wrote:
 
-Dan Kegel writes:
- > Alan, did you really say that, or are people taking your name in vain?
+> - it could be a memory problem, but if it were, lots of kernel
+> oops were expected, right?
 
-He did say it, and I for one agree with him. :-)
+This certainly sounds like a memory problem. I experienced almost the same
+behaviour with a box some years ago, and it turned out to be memory. The
+kernel didn't oops, and I actually had to run several kernel compiles at
+the same time to have gcc die.
 
-Later,
-David S. Miller
-davem@redhat.com
+Try memtest86 on the suspect box.
+-- 
+
+André Dahlqvist <andre.dahlqvist@telia.com>

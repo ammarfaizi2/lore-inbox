@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131809AbRCOThn>; Thu, 15 Mar 2001 14:37:43 -0500
+	id <S131794AbRCOTbN>; Thu, 15 Mar 2001 14:31:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131810AbRCOThd>; Thu, 15 Mar 2001 14:37:33 -0500
-Received: from [63.95.87.168] ([63.95.87.168]:9988 "HELO xi.linuxpower.cx")
-	by vger.kernel.org with SMTP id <S131809AbRCOThX>;
-	Thu, 15 Mar 2001 14:37:23 -0500
-Date: Thu, 15 Mar 2001 14:36:11 -0500
-From: Gregory Maxwell <greg@linuxpower.cx>
-To: J Sloan <jjs@toyota.com>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: How to optimize routing performance
-Message-ID: <20010315143611.E30509@xi.linuxpower.cx>
-In-Reply-To: <Pine.LNX.4.33.0103152304570.1320-100000@duckman.distro.conectiva> <3AB1153F.802BEBA9@toyota.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.8i
-In-Reply-To: <3AB1153F.802BEBA9@toyota.com>; from jjs@toyota.com on Thu, Mar 15, 2001 at 11:17:19AM -0800
+	id <S131796AbRCOTaz>; Thu, 15 Mar 2001 14:30:55 -0500
+Received: from fep02-0.kolumbus.fi ([193.229.0.44]:25032 "EHLO
+	fep02-app.kolumbus.fi") by vger.kernel.org with ESMTP
+	id <S131794AbRCOTan>; Thu, 15 Mar 2001 14:30:43 -0500
+Date: Thu, 15 Mar 2001 21:30:03 +0200 (EET)
+From: Kai Makisara <Kai.Makisara@kolumbus.fi>
+X-X-Sender: <makisara@kai.makisara.local>
+To: Byron Stanoszek <gandalf@skylab.winds.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Need help with allocating a 2M buffer size
+In-Reply-To: <Pine.LNX.4.31.0103151040280.2983-100000@skylab.winds.org>
+Message-ID: <Pine.LNX.4.33.0103152121170.638-100000@kai.makisara.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 15, 2001 at 11:17:19AM -0800, J Sloan wrote:
-> Rik van Riel wrote:
-> > On Thu, 15 Mar 2001, J Sloan wrote:
-> >
-> > > There are some scheduler patches that are not part of the
-> > > main kernel tree at this point (mostly since they have yet to
-> > > be optimized for the common case) which make quite a big
-> > > difference under heavy load - you might want to check out:
-> > >
-> > >     http://lse.sourceforge.net/scheduling/
-> >
-> > Unrelated.   Fun, but unrelated to networking...
-> 
-> under high load, where the sheer numbet of interrupts
-> per second begins to overwhelm the kernel, might it
-[snip]
-> Or are you saying that the bottleneck is somewhere
-> else completely, or that there wouldn't be a bottleneck
-> in this case if certain kernel parameters were correctly
-> set?
+On Thu, 15 Mar 2001, Byron Stanoszek wrote:
 
-The scheduler schedules tasks not interrupts. Unless it manages to thrash the
-cache, the scheduler can not affect routing performance.
+> I have a real picky tape drive (DLT series) that likes to be fed large chunks
+> of data at once, otherwise after every 2-4KB of data it halts and rewinds
+> itself because its cache for writing to the tape is empty.
+>
+> My best solution to this problem was to use 'tar -b 4096', which sends 4096 x
+> 512-byte blocks at once for a total of a 2MB buffer size. This worked fine for
+> several weeks, until 2 days ago I got this message (and the backup fails):
+>
+> st: failed to enlarge buffer to 2097152 bytes.
+>
+The default maximum number of scatter/gather segments in the tape driver
+is 16. This means that big chunks of memory are needed to allocate a 2 MB
+buffer. You can increase the number of segments up to, e.g., 128. This
+means that only 16 kB chunks are needed to make up a 2 MB buffer. The
+number of scatter/gather segments is also limited by your SCSI adapter
+driver. Note that even with 16 kB segments you may find problems at
+some time because multi-page allocations are needed.
+
+You can increase the number of scatter/gather segments at system
+startup/module loading or when compiling the driver. See the file
+linux/drivers/scsi/README.st for the syntax and st_options.h for the
+compile-time definition.
+
+	Kai
+
 

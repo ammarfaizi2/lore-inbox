@@ -1,56 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276249AbRKOL7v>; Thu, 15 Nov 2001 06:59:51 -0500
+	id <S280597AbRKOMLm>; Thu, 15 Nov 2001 07:11:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280597AbRKOL7l>; Thu, 15 Nov 2001 06:59:41 -0500
-Received: from marao.utad.pt ([193.136.40.3]:53511 "EHLO marao.utad.pt")
-	by vger.kernel.org with ESMTP id <S276249AbRKOL7a>;
-	Thu, 15 Nov 2001 06:59:30 -0500
-Subject: Re: How to set speed for EEPro100 ?
-From: Alvaro Lopes <alvieboy@alvie.com>
-To: Marco Schwarz <mschwarz_contron@yahoo.de>
+	id <S280618AbRKOMLd>; Thu, 15 Nov 2001 07:11:33 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:34565 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S280597AbRKOMLP>;
+	Thu, 15 Nov 2001 07:11:15 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Martin Persson <martin@cendio.se>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011115114301.51726.qmail@web10307.mail.yahoo.com>
-In-Reply-To: <20011115114301.51726.qmail@web10307.mail.yahoo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.0 (Preview Release)
-Date: 15 Nov 2001 11:57:23 +0000
-Message-Id: <1005825444.3016.0.camel@dwarf>
+Subject: Re: Problem with Linux 2.4.15-pre4 on an IBM ThinkPad 
+In-Reply-To: Your message of "15 Nov 2001 10:25:34 BST."
+             <vwk7wsv10x.fsf@akrulino.lkpg.cendio.se> 
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 15 Nov 2001 22:57:09 +1100
+Message-ID: <1292.1005825429@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On 15 Nov 2001 10:25:34 +0100, 
+Martin Persson <martin@cendio.se> wrote:
+>However (there's always a however), now I have other problems with my
+>laptop. The network comes right up and everything works just fine,
+>except when I try to scp files on a few Mbytes from the laptop. When I
+>try that, sometimes the scp just works nicely up to 99% where it
+>stalls, sometimes it continues after a few seconds, sometimes it
+>stalls infinitely (or at least for more than 10 minutes, I interrupted
+>it).
 
-Use a simple tool called mii-diag
-Download it at http://www.scyld.com/diag/index.html
+I would suspect the Xircom driver (RBEM56G, right?).  I have similar
+symptoms with RBEM56G in a Compaq laptop, ssh hangs during bulk
+transfers and is sensitive to which direction the transfer was started.
+"ifconfig eth0 -promisc" a few times will usually restart the transfer,
+sometimes it takes "/etc/rc.d/init.d/pcmcia restart" to fix the
+problem, then wait until TCP retransmission picks up again.
 
-On Qui, 2001-11-15 at 11:43, Marco Schwarz wrote:
-> Hi,
-> 
-> I am having some problems with my EEPro 100 card.
-> Seems like my dual speed hub doesnt like it when some
-> of the cards are 10 MB and some others are 100 ....
-> 
-> How can I force the card to use 10 MB instead of 100MB
-> or auto detect ? I am using the driver included in
-> kernel 2.4.9, and I couldnt find any infos on how to
-> do this ... 
-> 
-> Thanks in advance
-> 
-> Marco Schwarz
-> 
-> 
-> __________________________________________________________________
-> 
-> Gesendet von Yahoo! Mail - http://mail.yahoo.de
-> Ihre E-Mail noch individueller? - http://domains.yahoo.de
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+I don't believe ssh is at fault, it just causes the right set of
+activity to trip the driver problem.  ifconfig eth0 -promisc reloads
+CSR6 on the card and the problem goes away, without me touching the ssh
+transfers.
 
+This was on my list of problems to debug (after modutils, kdb, xfs,
+kbuild 2.5, ...) but I managed to trip over the Ethernet cable and
+completely broke the card.  The Realport cards are more resilient than
+most PCMCIA network cards but they have their limits.
 

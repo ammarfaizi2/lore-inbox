@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262977AbSJ1Hjg>; Mon, 28 Oct 2002 02:39:36 -0500
+	id <S262981AbSJ1HlL>; Mon, 28 Oct 2002 02:41:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262981AbSJ1Hjg>; Mon, 28 Oct 2002 02:39:36 -0500
-Received: from daimi.au.dk ([130.225.16.1]:59790 "EHLO daimi.au.dk")
-	by vger.kernel.org with ESMTP id <S262977AbSJ1Hjg>;
-	Mon, 28 Oct 2002 02:39:36 -0500
-Message-ID: <3DBCEB2E.BC3956FD@daimi.au.dk>
-Date: Mon, 28 Oct 2002 08:45:50 +0100
-From: Kasper Dupont <kasperd@daimi.au.dk>
-Organization: daimi.au.dk
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.18-17.7.xsmp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [CFT] kexec syscall for 2.5.43 (linux booting linux)
-References: <m1k7kfzffk.fsf@frodo.biederman.org>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S263016AbSJ1HlL>; Mon, 28 Oct 2002 02:41:11 -0500
+Received: from tapu.f00f.org ([66.60.186.129]:49117 "EHLO tapu.f00f.org")
+	by vger.kernel.org with ESMTP id <S262981AbSJ1HlK>;
+	Mon, 28 Oct 2002 02:41:10 -0500
+Date: Sun, 27 Oct 2002 23:47:30 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: One for the Security Guru's
+Message-ID: <20021028074730.GA22228@tapu.f00f.org>
+References: <1035453664.1035.11.camel@syntax.dstl.gov.uk> <ap97nr$h6e$1@forge.intermeta.de> <1035479086.9935.6.camel@gby.benyossef.com> <1035539042.23977.24.camel@forge> <apcaub$ov5$1@cesium.transmeta.com> <apdrkh$h8n$1@forge.intermeta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <apdrkh$h8n$1@forge.intermeta.de>
+User-Agent: Mutt/1.4i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Eric W. Biederman" wrote:
-> 
-> +static void i8259A_remove(struct device *dev)
-> +{
-> +       /* Restore the i8259A to it's legacy dos setup.
-> +        * The kernel won't be using it any more, and it
-> +        * just might make reboots, and kexec type applications
-> +        * more stable.
-> +        */
-> +       outb(0xff, 0x21);       /* mask all of 8259A-1 */
-> +       outb(0xff, 0xA1);       /* mask all of 8259A-1 */
-> +
-> +       outb_p(0x11, 0x20);     /* ICW1: select 8259A-1 init */
-> +       outb_p(0x08, 0x21);     /* ICW2: 8259A-1 IR0-7 mappend to 0x8-0xf */
-> +       outb_p(0x01, 0x21);     /* Normal 8086 auto EOI mode */
-> +
-> +       outb_p(0x11, 0xA0);     /* ICW1: select 8259A-2 init */
-> +       outb_p(0x08, 0xA1);     /* ICW2: 8259A-2 IR0-7 mappend to 0x70-0x77 */
-                 ^^^^                                               ^^^^
+On Sat, Oct 26, 2002 at 10:43:29AM +0000, Henning P. Schmiedehausen
+wrote:
 
-This looks wrong to me.
+> But my point is, that these beasts normally don't run a general
+> purpose operating system and that they're much less prone to buffer
+> overflow or similar attacks, simply because they don't use popular
+> software with known bugs (e.g.  OpenSSL) or these functions (like
+> doing crypto) are in hardware.
 
--- 
-Kasper Dupont -- der bruger for meget tid på usenet.
-For sending spam use mailto:aaarep@daimi.au.dk
-Don't do this at home kids: touch -- -rf
+As someone who has worked on a couple of these which are presently on
+the market I can assure you that many of these things have plenty of
+'popular software' in them... albeit hacked up and mangled to bits at
+times... but it's there, and often vulnerable to many of the same
+problems you would have under Linux/Apache/whatever.
+
+
+  --cw
+

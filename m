@@ -1,77 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313698AbSEARZe>; Wed, 1 May 2002 13:25:34 -0400
+	id <S313717AbSEARmo>; Wed, 1 May 2002 13:42:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313715AbSEARZd>; Wed, 1 May 2002 13:25:33 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:30227 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S313698AbSEARZd>; Wed, 1 May 2002 13:25:33 -0400
-Message-ID: <3CD0165D.6090901@evision-ventures.com>
-Date: Wed, 01 May 2002 18:22:53 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] reworked IDE/general tagged command queueing
-In-Reply-To: <20020501123705.GI837@suse.de>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+	id <S313724AbSEARmn>; Wed, 1 May 2002 13:42:43 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:14738 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S313717AbSEARmm>;
+	Wed, 1 May 2002 13:42:42 -0400
+Date: Wed, 1 May 2002 19:42:37 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Erik Steffl <steffl@bigfoot.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ide <-> via VT82C693A/694x problems?
+Message-ID: <20020501194237.A26336@ucw.cz>
+In-Reply-To: <Pine.LNX.4.10.10204301754310.2107-100000@master.linux-ide.org> <3CCF4BFD.6C7F67EB@bigfoot.com> <1020239797.10097.68.camel@nomade> <3CCFAEEE.AE586B9A@bigfoot.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-U¿ytkownik Jens Axboe napisa³:
-> Hi,
+On Wed, May 01, 2002 at 02:01:34AM -0700, Erik Steffl wrote:
+> Xavier Bestel wrote:
+> > 
+> > Le mer 01/05/2002 à 03:59, Erik Steffl a écrit :
+> > >   the MB uses via chips so I included via82cxxx driver (as a module). is
+> > > that correct?
+> > >
+> > >   however, I just checked and via82cxxx is NOT loaded. What do I need to
+> > > do to make ide driver is using via82cxxx module?
+> > >
+> > >   I have ide driver compiled in (booting from ide hd), does via82cxxx
+> > > have to be compiled in?
+> > 
+> > You mean the ide module is on the ide drive ? And you want it to be
+> > loaded before any ide access ?
 > 
-> I've rewritten parts of the IDE TCQ stuff to be, well, a lot better in
-> my oppinion. I had to accept that the ata_request and rq->special usage
-> sucked, it was just one big mess.
+>   ide is compiled in (not a module), via82cxxx is a module.
 > 
-> So following a suggestion from Martin and Linus, I implemented some
-> basic tagged command queueing back end in the block layer. This is what
-> the new IDE TCQ core is build on, and what potentially others can use as
-> well. I'll start by describing the new API:
+>   via82cxxx is never loaded - what do I need to do to actually use this
+> module? Most other modules are loaded either automatically or an alias
+> is needed, however I have no idea what to do to make kernel use
+> via82cxxx (would ide module use it?). I thought that as long as I
+> configure it in kernel make xconfig as a module it will be used, but
+> it's not loaded (so I guess it's not used).
+> 
+>   I suspect that it might be the reason why my cd drive does not rip
+> audio cds...
 
+via82cxxx cannot be compiled as a module - Config.in doesn't allow that.
+And not only that - it doesn't support it in the source - it has to be
+compiled into the IDE driver to work.
 
-Looking at the IDE part we can now see that pushing the
-generic functions one level up the impact on the code flow
-on the IDE side is now:
-
-1. Low (most of stuff is due to the ugly /proc special-ide-interface.
-
-2. Nicely isolated.
-
-Great work Jens! (just my humble opinnion).
-However I see a note about the need
-to unify the DMA parts, so I will se what can be done on this
-side becouse I have always planned to get rid of the
-silly switch(ide_dma_function_t) on the dmaproc-path.
-
-May I ask you as well to just call ide-tcq.c simple tcq.c?
-The ide- is entierly redundant and I see no need to stick
-to the previous "convention" here. It is just a leftover from
-the days where the IDE stuff didn't sit in his own directory.
-In general  I rather prefer the prefix ata_ instead of ide_ becouse
-we are on the command level and on the host here -
-ide resides on the disk and the whole world
-outside linux calls it ata_. Finally ata_ is far better
-grep-able overall becouse the ide letter combination is very
-common :-) But that's a minor nit of course.
-
-My convention is to prefix functions with the module specific prefix
-only if they are exported, which means:
-
-1. They are directly external.
-
-2. They are hiddenly exported by setting some methods in structs to them.
-
-Otherwise I stick to the most convenient semantically related
-name without the fear that it could sound too generic...
-so queue_data() is meant to be local for example and it doesn't
-clash with the generic bio_queue_data() or whatever.
-
-For me this convention turned out to help narrowing the focus
-during reading code...
-
+-- 
+Vojtech Pavlik
+SuSE Labs

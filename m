@@ -1,68 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261837AbUKTLnf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262660AbUKTLt7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261837AbUKTLnf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 06:43:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262728AbUKTLnf
+	id S262660AbUKTLt7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 06:49:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262728AbUKTLt7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 06:43:35 -0500
-Received: from gw01.mail.saunalahti.fi ([195.197.172.115]:50342 "EHLO
-	gw01.mail.saunalahti.fi") by vger.kernel.org with ESMTP
-	id S261837AbUKTLn3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 06:43:29 -0500
-Date: Sat, 20 Nov 2004 13:43:27 +0200
-From: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <syrjala@sci.fi>
-To: Meelis Roos <mroos@linux.ee>
-Cc: matthieu castet <castet.matthieu@free.fr>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Jean Tourrilhes <jt@bougret.hpl.hp.com>, Adam Belay <ambx1@neo.rr.com>,
-       "Li, Shaohua" <shaohua.li@intel.com>, acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] Re: [PATCH] smsc-ircc2: Add PnP support.
-Message-ID: <20041120114327.GA11797@sci.fi>
-Mail-Followup-To: Meelis Roos <mroos@linux.ee>,
-	matthieu castet <castet.matthieu@free.fr>,
-	Linux Kernel list <linux-kernel@vger.kernel.org>,
-	Jean Tourrilhes <jt@bougret.hpl.hp.com>,
-	Adam Belay <ambx1@neo.rr.com>, "Li, Shaohua" <shaohua.li@intel.com>,
-	acpi-devel@lists.sourceforge.net
-References: <E1CVAfT-0002n9-Rn@rhn.tartu-labor> <419E16E5.1000601@free.fr> <419E17FF.1000503@free.fr> <Pine.SOC.4.61.0411191822030.9059@math.ut.ee> <419E2D2B.4020804@free.fr> <Pine.SOC.4.61.0411191934070.29328@math.ut.ee> <419E3B7A.4000904@free.fr> <Pine.SOC.4.61.0411200102580.12992@math.ut.ee>
+	Sat, 20 Nov 2004 06:49:59 -0500
+Received: from holomorphy.com ([207.189.100.168]:37253 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262660AbUKTLtK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Nov 2004 06:49:10 -0500
+Date: Sat, 20 Nov 2004 03:45:47 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] 2.6.10-rc2-mm2: OSS ac97_codec.h: #include pci.h
+Message-ID: <20041120114547.GU2714@holomorphy.com>
+References: <20041118021538.5764d58c.akpm@osdl.org> <20041118124220.GB2268@holomorphy.com> <20041120113545.GC2754@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.SOC.4.61.0411200102580.12992@math.ut.ee>
-User-Agent: Mutt/1.4.2i
+In-Reply-To: <20041120113545.GC2754@stusta.de>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 20, 2004 at 01:09:36AM +0200, Meelis Roos wrote:
-> 
-> I tried it with pnpbios (acpi=off) and it started to work after auto and 
-> activate (but not with auto alone):
-> 
-> nartsiss:/# modprobe smsc-ircc2
-> found SMC SuperIO Chip (devid=0x5a rev=00 base=0x002e): LPC47N227
-> smsc_superio_flat(): IrDA not enabled
-> smsc_superio_flat(): fir: 0x00, sir: 0x00, dma: 15, irq: 0, mode: 0x02
-> FATAL: Error inserting smsc_ircc2 
-> (/lib/modules/2.6.10-rc2/kernel/drivers/net/irda/smsc-ircc2.ko): No such 
-> device
-> nartsiss:/# echo activate > resources
-> pnp: Device 00:0f activated.
-> nartsiss:/# modprobe smsc-ircc2
-> found SMC SuperIO Chip (devid=0x5a rev=00 base=0x002e): LPC47N227
-> smsc_superio_flat(): fir: 0x2e8, sir: 0x100, dma: 03, irq: 5, mode: 0x0e
-> SMsC IrDA Controller found
->  IrCC version 2.0, firport 0x2e8, sirport 0x100 dma=3, irq=5
-> No transceiver found. Defaulting to Fast pin select
-> IrDA: Registered device irda0
+On Thu, Nov 18, 2004 at 04:42:20AM -0800, William Lee Irwin III wrote:
+>> +struct pci_dev;
+>>  extern int ac97_tune_hardware(struct pci_dev *pdev, struct ac97_quirk *quirk, int override);
+>>  
+>>  #endif /* _AC97_CODEC_H_ */
 
-It is using the legacy probe instead of the pnp probe. Did you actually 
-apply the pnp patch?
+On Sat, Nov 20, 2004 at 12:35:45PM +0100, Adrian Bunk wrote:
+> Wouldn't it be better to simply #include pci.h?
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-I'm not entirely sure what has been discussed since somebody removed 
-me from the CC list...
+Could be; I opted for avoiding header tangling by default, but if most
+includers will use pci.h anyway, so be it.
 
--- 
-Ville Syrjälä
-syrjala@sci.fi
-http://www.sci.fi/~syrjala/
+
+-- wli

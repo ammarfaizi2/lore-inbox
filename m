@@ -1,78 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269188AbUINHlo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269189AbUINHnc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269188AbUINHlo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 03:41:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269189AbUINHlo
+	id S269189AbUINHnc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 03:43:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269190AbUINHnb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 03:41:44 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:3131 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S269188AbUINHll
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 03:41:41 -0400
-Message-ID: <4146A09A.9010207@zensonic.dk>
-Date: Tue, 14 Sep 2004 09:41:14 +0200
-From: "Thomas S. Iversen" <zensonic@zensonic.dk>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040830)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Losing too many ticks! .... on a VIA epia board
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 14 Sep 2004 03:43:31 -0400
+Received: from mxfep01.bredband.com ([195.54.107.70]:29641 "EHLO
+	mxfep01.bredband.com") by vger.kernel.org with ESMTP
+	id S269189AbUINHnZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 03:43:25 -0400
+Subject: Re: segfault and multiple traps on x86_64
+From: Alexander Nyberg <alexn@dsv.su.se>
+To: Leonid Kalmankin <lvk@mashcenter.ru>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040914013117.3bda812d.lvk@mashcenter.ru>
+References: <20040914013117.3bda812d.lvk@mashcenter.ru>
+Content-Type: text/plain
+Message-Id: <1095147803.701.3.camel@boxen>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 14 Sep 2004 09:43:23 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi There
+On Mon, 2004-09-13 at 23:31, Leonid Kalmankin wrote:
+> Greetings!
+> 
+> In dmesg I see stuff like:
+> 
+> rpmbuild[3842] trap int3 rip:402d9e rsp:7fbfffb540 error:0
+> rpmbuild[3842] trap int3 rip:4026d1 rsp:7fbfffb538 error:0
+> sh[3843] trap int3 rip:415f39 rsp:7fbffff8c8 error:0
+> sh[3843]: segfault at 0000000000000000 rip 0000000000000000 rsp 0000007fbffff8b8 error 14
+> rpmbuild[3842] trap int3 rip:402dea rsp:7fbfffb540 error:0
+> rpmbuild[3842] trap int3 rip:4025d1 rsp:7fbfffb538 error:0
+> rpmbuild[3842] trap int3 rip:402ced rsp:7fbfffb540 error:0
+> rpmbuild[3842] trap int3 rip:4027c1 rsp:7fbffff688 error:0
+> 
 
-I have just hooked up my new via mainboard 
-(http://www.viaembedded.com/product/epia_ms_spec.jsp?motherboardId=281)
+They just chose to show a small message in the log when some program
+behaves badly. Nothing to worry about, more than your programs
+misbehaving.
 
-and installed the latest linux kernel on the system (2.6.8). 
-Unfortiunatly something is misbehaving with the timer/kernel interaction.
-
-A snippet from dmesg:
-
-agpgart: Detected VIA CLE266 chipset
-agpgart: Maximum main memory to use for agp memory: 424M
-agpgart: AGP aperture is 4M @ 0xe7000000
-Losing some ticks... checking if CPU frequency changed.
-e100: eth0: e100_watchdog: link up, 100Mbps, full-duplex
-NET: Registered protocol family 17
-Linux Kernel Card Services
-  options:  [pci] [cardbus] [pm]
-Losing some ticks... checking if CPU frequency changed.
-NET: Registered protocol family 10
-Disabled Privacy Extensions on device c0340d60(lo)
-IPv6 over IPv4 tunneling driver
-Losing some ticks... checking if CPU frequency changed.
-eth0: no IPv6 routers present
-apm: BIOS version 1.2 Flags 0x07 (Driver version 1.16ac)
-apm: overridden by ACPI.
-mtrr: 0xe0000000,0x1000000 overlaps existing 0xe0000000,0x800000
-Losing some ticks... checking if CPU frequency changed.
-padlock: Using VIA PadLock ACE for AES algorithm (multiblock).
-Losing some ticks... checking if CPU frequency changed.
-Losing some ticks... checking if CPU frequency changed.
-Losing some ticks... checking if CPU frequency changed.
-Losing some ticks... checking if CPU frequency changed.
-.....
-and then finally
-
-Losing some ticks... checking if CPU frequency changed.
-Losing some ticks... checking if CPU frequency changed.
-Losing too many ticks!
-TSC cannot be used as a timesource. 
-Possible reasons for this are:
-  You're running with Speedstep,
-  You don't have DMA enabled for your hard disk (see hdparm),
-  Incorrect TSC synchronization on an SMP system (see dmesg).
-Falling back to a sane timesource now.
-
-
-Furthermore editors like jed and emacs takes forever to start. A "strace 
-emacs /somefile" shows that it hangs in a poll right after gettimeofday.
-
-Any clues to what is wrong and how I go about fixing it?!
-
-Regards Thomas, Denmark
+Alex
 

@@ -1,49 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261659AbUJaVNv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261660AbUJaVO6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261659AbUJaVNv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 16:13:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbUJaVNu
+	id S261660AbUJaVO6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 16:14:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbUJaVO6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 16:13:50 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:39397 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261659AbUJaVNe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 16:13:34 -0500
-Date: Sun, 31 Oct 2004 22:13:26 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Z Smith <plinius@comcast.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: code bloat [was Re: Semaphore assembly-code bug]
-In-Reply-To: <41855483.2090906@comcast.net>
-Message-ID: <Pine.LNX.4.53.0410312213080.18107@yvahk01.tjqt.qr>
-References: <417550FB.8020404@drdos.com.suse.lists.linux.kernel>
- <200410310000.38019.vda@port.imtp.ilyichevsk.odessa.ua>
- <1099170891.1424.1.camel@krustophenia.net> <200410310111.07086.vda@port.imtp.ilyichevsk.odessa.ua>
- <20041030222720.GA22753@hockin.org> <Pine.LNX.4.53.0410310744210.3581@yvahk01.tjqt.qr>
- <41855483.2090906@comcast.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+	Sun, 31 Oct 2004 16:14:58 -0500
+Received: from ipcop.bitmover.com ([192.132.92.15]:28132 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S261660AbUJaVOt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 16:14:49 -0500
+Date: Sun, 31 Oct 2004 13:14:36 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Ram?n Rey Vicente <ramon.rey@hispalinux.es>,
+       Xavier Bestel <xavier.bestel@free.fr>,
+       James Bruce <bruce@andrew.cmu.edu>, Linus Torvalds <torvalds@osdl.org>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       Andrea Arcangeli <andrea@novell.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: BK kernel workflow
+Message-ID: <20041031211436.GE27728@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Pavel Machek <pavel@suse.cz>,
+	Ram?n Rey Vicente <ramon.rey@hispalinux.es>,
+	Xavier Bestel <xavier.bestel@free.fr>,
+	James Bruce <bruce@andrew.cmu.edu>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Roman Zippel <zippel@linux-m68k.org>,
+	Andrea Arcangeli <andrea@novell.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0410251732500.427@ppc970.osdl.org> <Pine.LNX.4.61.0410270223080.877@scrub.home> <Pine.LNX.4.58.0410261931540.28839@ppc970.osdl.org> <4180B9E9.3070801@andrew.cmu.edu> <20041028135348.GA18099@work.bitmover.com> <1098972379.3109.24.camel@gonzales> <20041028151004.GA3934@work.bitmover.com> <41827B89.4070809@hispalinux.es> <20041029173642.GA5318@work.bitmover.com> <20041031210323.GG5578@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041031210323.GG5578@elf.ucw.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> FBUI does not have 3d acceleration?
->
->The problem is 3d non-acceleration i.e. VESA and VGA
->would still have to be supported. I'm no 3d expert but
->I think there must be some software-based 3d function
->would require using floating point, which isn't allowed
->in the kernel.
->
->Also, might not software 3d open the kernel up to
->patent issues?
+On Sun, Oct 31, 2004 at 10:03:23PM +0100, Pavel Machek wrote:
+> Hi!
+> 
+> > > In Spain, reverse engineering is allowed for interoperability.
+> > 
+> > And in lots of other places.  Which has been mentioned in this and other
+> > instances of this discussion for the last 5 years.  And the response is
+> > that BK already gives you documented ways to interoperate, extensively
+> > documented, in fact.  You can get data and/or metadata into and out of
+> > BK from the command line.  You could create your own network protocol,
+> > client, and server using the documented interfaces that BK has.  You
+> > could create your own CVS2BK tool, your own BK2CVS tool, etc., all
+> > using documented interfaces.
+> 
+> Actually, I probably could not, due to legal reasons. Or do you tell
+> me that it is okay for people to develop BK2ARCH importer tool, using
+> documented interfaces, with free version of bitkeeper?
 
-Whatever you do, 3D at the software level is slow, even with a fast comp.
-See MESA.
-
-
-
-Jan Engelhardt
+Pavel, you've burned up any goodwill you may have once had.
+You getting an exception to the BK license is about as likely as 
+you getting a date with Halle Berry.  If that happens, swing by 
+to introduce me and I'll be happy to reconsider.
 -- 
-Gesellschaft für Wissenschaftliche Datenverarbeitung
-Am Fassberg, 37077 Göttingen, www.gwdg.de
+---
+Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com

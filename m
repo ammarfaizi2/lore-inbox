@@ -1,59 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264308AbTLYO70 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Dec 2003 09:59:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264310AbTLYO70
+	id S264314AbTLYPMy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Dec 2003 10:12:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264315AbTLYPMy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Dec 2003 09:59:26 -0500
-Received: from [66.98.192.92] ([66.98.192.92]:16288 "EHLO svr44.ehostpros.com")
-	by vger.kernel.org with ESMTP id S264308AbTLYO7Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Dec 2003 09:59:25 -0500
-From: "Amit S. Kale" <amitkale@emsyssoft.com>
-Organization: EmSysSoft
-To: Daniel Jacobowitz <dan@debian.org>
-Subject: Re: KGDB: automatic loading of modules in gdb
-Date: Thu, 25 Dec 2003 20:29:14 +0530
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <200312231818.03072.amitkale@emsyssoft.com> <20031224173205.GA27219@nevyn.them.org>
-In-Reply-To: <20031224173205.GA27219@nevyn.them.org>
+	Thu, 25 Dec 2003 10:12:54 -0500
+Received: from mail.parknet.co.jp ([210.171.160.6]:64522 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S264314AbTLYPMw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Dec 2003 10:12:52 -0500
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, <lse-tech@lists.sourceforge.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC,PATCH] use rcu for fasync_lock
+References: <Pine.LNX.4.44.0312250213120.13730-100000@dbl.q-ag.de>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Fri, 26 Dec 2003 00:11:51 +0900
+In-Reply-To: <Pine.LNX.4.44.0312250213120.13730-100000@dbl.q-ag.de>
+Message-ID: <873cb9c4p4.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312252029.14667.amitkale@emsyssoft.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - emsyssoft.com
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am going to be sending these patches to gdb developers also for 
-review/feedback. I'll work on this feature myself for gdb.
+Manfred Spraul <manfred@colorfullife.com> writes:
 
-On Wednesday 24 Dec 2003 11:02 pm, Daniel Jacobowitz wrote:
-> On Tue, Dec 23, 2003 at 06:18:02PM +0530, Amit S. Kale wrote:
-> > Hi,
-> >
-> > I have integrated a couple of kgdb features from TimeSys Linux
-> > distribution.
-> >
-> > 1.  Automatic loading of module files in gdb:
-> > A special version of gdb is provided with this feature. It can detect
-> > loading and unloading of modules in a kernel. Whenever a module is
-> > loaded, gdb loads the module object file and makes it available for
-> > debugging. loadmodule.sh script is no longer needed.
->
-> Have you or TimeSys, oh, I don't know, considered sending information
-> about this feature to the GDB developers so that KGDB does not require
-> a custom version of the GDB client?
+> --- 2.6/fs/fcntl.c	2003-12-04 19:44:38.000000000 +0100
+> +++ build-2.6/fs/fcntl.c	2003-12-24 00:15:16.000000000 +0100
+> @@ -609,9 +609,15 @@
+> 
+>  void kill_fasync(struct fasync_struct **fp, int sig, int band)
+>  {
+> -	read_lock(&fasync_lock);
+> -	__kill_fasync(*fp, sig, band);
+> -	read_unlock(&fasync_lock);
+> +	/* First a quick test without locking: usually
+> +	 * the list is empty.
+> +	 */
+> +	if (*fp) {
+> +		read_lock(&fasync_lock);
+> +		/* reread *fp after obtaining the lock */
+> +		__kill_fasync(*fp, sig, band);
+> +		read_unlock(&fasync_lock);
+> +	}
+>  }
 
+Looks good to me. This should be the enough effect for usual path.
+
+Thanks.
 -- 
-Amit Kale
-EmSysSoft (http://www.emsyssoft.com)
-KGDB: Linux Kernel Source Level Debugger (http://kgdb.sourceforge.net)
-
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

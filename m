@@ -1,56 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263770AbUJETt4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbUJETt5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263770AbUJETt4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 15:49:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263743AbUJETr1
+	id S261875AbUJETt5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 15:49:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266221AbUJETrB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 15:47:27 -0400
-Received: from quechua.inka.de ([193.197.184.2]:8391 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S263770AbUJETqZ (ORCPT
+	Tue, 5 Oct 2004 15:47:01 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:51138 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265127AbUJETmi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 15:46:25 -0400
-Subject: block till hotplug is done?
-From: Andreas Jellinghaus <aj@dungeon.inka.de>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1097005927.4953.4.camel@simulacron>
+	Tue, 5 Oct 2004 15:42:38 -0400
+Date: Tue, 5 Oct 2004 21:42:08 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: "Johnson, Richard" <rjohnson@analogic.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.6.5-1.358 and Fedora
+Message-ID: <20041005194208.GE11254@devserv.devel.redhat.com>
+References: <1097004565.9975.25.camel@laptop.fenrus.com> <Pine.LNX.4.61.0410052140150.2913@dragon.hygekrogen.localhost>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 05 Oct 2004 21:52:07 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="LyciRD1jyfeSSjG0"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0410052140150.2913@dragon.hygekrogen.localhost>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-is there any way to block till all hotplug events are handled/
-the hotplug processes terminated?
+--LyciRD1jyfeSSjG0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-For example
-	fdisk
-	mkfs
-fails, because after fdisk create a partition, and the kernel
-reread the partition table, called hotplug, hotplug called udev
-and udev created the matching /dev file, all of that might be
-too slow and mkfs might fail in the mean time.
 
-even
-	fdisk
-	sleep 2
-	mkfs
-sometimes failes with machines I'm installing.
+On Tue, Oct 05, 2004 at 09:46:18PM +0200, Jesper Juhl wrote:
+> On Tue, 5 Oct 2004, Arjan van de Ven wrote:
+> 
+> > If Richard overwrote his modules anyway he must have hacked the Makefile
+> > himself to deliberately cause this, at which point... well saw wind
+> > harvest storm ;)
+> > 
+> While I lack specific Fedora knowledge and thus can't provide exact 
+> details for it I'd say it should still be pretty simple to recover. On 
+> Slackware I'd simply boot a kernel from the install CD and tell it to 
+> mount the installed system on my HD, then you'll have a running system and 
+> can easily clean out the broken modules etc and install the original ones 
+> from your CD and be right back where you started in 5 min. Surely 
+> something similar is possible with Fedora, reinstalling from scratch (as 
+> he said he did) seems like massive overkill to me.
 
-so I can either randomly increase the delay everytime the installation
-fails because the device isn't created in time, or I can create the
-devices myself with mkdev, which defeats the whole purpose of hotplug
-and udev. Or - preferable - I would want to wait till something
-tells me the device is there. some way to sleep till not kernel
-triggered hotlug process is running any more, that would be nice.
-does the kernel keep track of it's hotplug processes? is there such
-a way to wait till they are all done? 
+yeah there is rescue mode for that reason on the first cd
 
-(and would that work, if hotplug spawned some child process/daemon, i.e.
-not wait for the daemon to end?)
+--LyciRD1jyfeSSjG0
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Regards, Andreas
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
+iD8DBQFBYvkQxULwo51rQBIRApxdAJ9XeWCZdVamUZ8f8+kuC6nyswbAHQCdHSRH
+awWqoVN9bNXTeLR4CR9/UPo=
+=lnip
+-----END PGP SIGNATURE-----
+
+--LyciRD1jyfeSSjG0--

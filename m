@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263193AbUDEUxe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 16:53:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263195AbUDEUxe
+	id S263058AbUDEUxV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 16:53:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263193AbUDEUxU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 16:53:34 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:58121 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S263193AbUDEUxa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 16:53:30 -0400
-Message-ID: <4071CC1F.4000502@techsource.com>
-Date: Mon, 05 Apr 2004 17:14:07 -0400
-From: Timothy Miller <miller@techsource.com>
+	Mon, 5 Apr 2004 16:53:20 -0400
+Received: from rtlab.med.cornell.edu ([140.251.145.175]:29638 "EHLO
+	openlab.rtlab.org") by vger.kernel.org with ESMTP id S263058AbUDEUxR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 16:53:17 -0400
+Date: Mon, 5 Apr 2004 16:53:16 -0400 (EDT)
+From: "Calin A. Culianu" <calin@ajvar.org>
+X-X-Sender: <calin@rtlab.med.cornell.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: Stupid question re: register_cdrom()
+Message-ID: <Pine.LNX.4.33L2.0404051649510.16268-100000@rtlab.med.cornell.edu>
 MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-CC: Sergiy Lozovsky <serge_lozovsky@yahoo.com>,
-       Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
-Subject: Re: kernel stack challenge
-References: <20040405175940.94093.qmail@web40509.mail.yahoo.com> <200404051927.i35JR2EN017101@turing-police.cc.vt.edu>
-In-Reply-To: <200404051927.i35JR2EN017101@turing-police.cc.vt.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Let's say I was coding a cdrom emulator in software for kernel 2.4.  I
+am unclear about register_cdrom().  Does register_cdrom() in
+cdrom.c take care of telling the kernel that my kdev_t major/minor
+combination in fact leads to a real driver?  Or do I need to take care of
+that outside of regsiter_cdrom()?
 
-Valdis.Kletnieks@vt.edu wrote:
+If not.. how do I tell the kernel data structures that my driver's major
+number does in fact point to a cdrom driver.  Basically, I want my
+driver's major number to show up in /proc/devices..
 
-> 
-> So you're including a much bigger interface for little gain.  The total
-> footprint of the two solutions is about the same, but SELinux the vast majority
-> of it is in userspace, and only costs you when you're actually compiling/
-> loading a new policy, whereas yours takes up 100K of kernel space all the
-> time....
-> 
+This might be a stupid question, but I am not a linux kernel expert...
 
+Thanks for your patience!
 
-The key concept here is "in userspace".
+-Calin
 

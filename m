@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262774AbSIPSQO>; Mon, 16 Sep 2002 14:16:14 -0400
+	id <S262772AbSIPSPl>; Mon, 16 Sep 2002 14:15:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262773AbSIPSQL>; Mon, 16 Sep 2002 14:16:11 -0400
-Received: from vti01.vertis.nl ([145.66.4.26]:11019 "EHLO vti01.vertis.nl")
-	by vger.kernel.org with ESMTP id <S262774AbSIPSQK>;
-	Mon, 16 Sep 2002 14:16:10 -0400
-Message-Id: <200209161820.g8GIK5004509@fokkensr.vertis.nl>
-Content-Type: text/plain; charset=US-ASCII
-From: Rolf Fokkens <fokkensr@fokkensr.vertis.nl>
-To: Adrian Bunk <bunk@fs.tum.de>
-Subject: Re: Linux 2.5.35 xtime locking
-Date: Mon, 16 Sep 2002 20:20:01 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.NEB.4.44.0209161347591.14886-100000@mimas.fachschaften.tu-muenchen.de>
-In-Reply-To: <Pine.NEB.4.44.0209161347591.14886-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S262773AbSIPSPk>; Mon, 16 Sep 2002 14:15:40 -0400
+Received: from 62-190-202-185.pdu.pipex.net ([62.190.202.185]:2311 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S262772AbSIPSPk>; Mon, 16 Sep 2002 14:15:40 -0400
+From: jbradford@dial.pipex.com
+Message-Id: <200209161827.g8GIRndk001827@darkstar.example.net>
+Subject: Re: Hi is this critical??
+To: nuitari@balthasar.nuitari.net (Nuitari)
+Date: Mon, 16 Sep 2002 19:27:49 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, venom@sns.it, xavier.bestel@free.fr,
+       mark@veltzer.org
+In-Reply-To: <Pine.LNX.4.44.0209161921090.14787-100000@balthasar.nuitari.net> from "Nuitari" at Sep 16, 2002 07:23:32 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 16 September 2002 13:52, Adrian Bunk wrote:
->
-> This change results in a compile error in the ATM drivers:
->
-Yep, There are even many other places where xtime is used which may result in 
-the same kind of compilation problems. Two possible solutions come to mind:
+> > If so, why not to use S.M.A.R.T with smartd and smartctl?
+> > I think you will like them (loock on freshmeat for the link).
+> 
+> I don't think S.M.A.R.T should be the all mighty god of dying hard drive 
+> detections. Many times I had dying IDE drives that wouldn't show much 
+> difference on S.M.A.R.T tests and would stay in operationnal parameters 
+> until it refuses to spin up or was just covered in bad sectors.
 
-* Maintain both the ordinary xtime (timeval) and an xtime_nsec (timespec). 
-xtime may then be a timeval shadow value of xtime_nsec.
-* Just fix it everywhere.
+S.M.A.R.T. is useful to prove that a drive is dying, but it is not useful to prove that it is not.
 
-I cannot tell fore sure which option Linus prefers, but I think ...
+I.E. if you get a S.M.A.R.T. message saying that the drive is dying, then believe it, and back up your data, but don't rely solely on S.M.A.R.T. to detect a dying drive.
 
-Some places may even have other problems as well (e.g. ATM drivers): xtime is 
-a complex data type which needs  read_lock / read_unlock, but there's no 
-locking in many places.
+In any case, though, check out:
+
+http://csl.cse.ucsc.edu/smart.shtml
+
+John.

@@ -1,64 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261787AbTE2Azv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 20:55:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261788AbTE2Azv
+	id S261788AbTE2A5u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 20:57:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbTE2A5u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 20:55:51 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:19142 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id S261787AbTE2Azu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 20:55:50 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: pee@erkkila.org
-Date: Thu, 29 May 2003 11:08:20 +1000
+	Wed, 28 May 2003 20:57:50 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58769 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261788AbTE2A5t
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 20:57:49 -0400
+Message-ID: <3ED55E1E.90004@pobox.com>
+Date: Wed, 28 May 2003 21:10:54 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Jason Papadopoulos <jasonp@boo.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.21-rc3 : IDE pb on Alpha
+References: <5.2.1.1.2.20030527211552.00a47190@boo.net> <20030527123152.GA24849@alpha.home.local> <5.2.1.1.2.20030526232835.00a468e0@boo.net> <20030527045302.GA545@alpha.home.local> <20030527134017.B3408@jurassic.park.msu.ru> <20030527123152.GA24849@alpha.home.local> <5.2.1.1.2.20030527211552.00a47190@boo.net> <5.2.1.1.2.20030528203353.02367ec0@boo.net>
+In-Reply-To: <5.2.1.1.2.20030528203353.02367ec0@boo.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <16085.23940.164807.702704@notabene.cse.unsw.edu.au>
-Cc: Helge Hafting <helgehaf@aitel.hist.no>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.5.70-mm1 bootcrash, possibly RAID-1
-In-Reply-To: message from Paul E. Erkkila on Wednesday May 28
-References: <20030408042239.053e1d23.akpm@digeo.com>
-	<3ED49A14.2020704@aitel.hist.no>
-	<20030528111345.GU8978@holomorphy.com>
-	<3ED49EB8.1080506@aitel.hist.no>
-	<20030528113544.GV8978@holomorphy.com>
-	<20030528225913.GA1103@hh.idb.hist.no>
-	<3ED54685.5020706@erkkila.org>
-X-Mailer: VM 7.15 under Emacs 21.3.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jason Papadopoulos wrote:
+> At 11:12 PM 5/27/03 -0400, Jeff Garzik wrote:
+>  >
+>  >FWIW, udma2 is the best you can do without accurate cable detection and
+>  >an 80-conductor cable.
+>  >
+> 
+> Well, even with a drive capable of ATA66, an 80-pin cable, and a kernel
+> configured to force assumption of higher UDMA modes, the best I've ever
+> done with this stupid ALI controller is udma2. I think it's deliberately
+> crippled.
 
-Greetings all.
 
-I think this might fix the bug, but I haven't looked very closely
-yet.  I will expore it more deeply when I get time.
+"configured to force the assumption" does no good if the host controller 
+driver isn't detecting the cable correctly, or is not programming 80c 
+cable info into the host controller correctly.  That's a code change not 
+a configuration thing.
 
-NeilBrown
+	Jeff
 
 
 
- ----------- Diffstat output ------------
- ./drivers/md/raid1.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-diff ./drivers/md/raid1.c~current~ ./drivers/md/raid1.c
---- ./drivers/md/raid1.c~current~	2003-05-29 11:05:03.000000000 +1000
-+++ ./drivers/md/raid1.c	2003-05-29 11:05:08.000000000 +1000
-@@ -137,7 +137,7 @@ static void put_all_bios(conf_t *conf, r
- 			BUG();
- 		bio_put(r1_bio->read_bio);
- 		r1_bio->read_bio = NULL;
--	}
-+	} else
- 	for (i = 0; i < conf->raid_disks; i++) {
- 		struct bio **bio = r1_bio->write_bios + i;
- 		if (*bio) {

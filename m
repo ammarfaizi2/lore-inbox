@@ -1,46 +1,131 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262738AbTIFCS5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 22:18:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263094AbTIFCS5
+	id S263579AbTIFCcL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 22:32:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263598AbTIFCcL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 22:18:57 -0400
-Received: from ns.aratech.co.kr ([61.34.11.200]:62619 "EHLO ns.aratech.co.kr")
-	by vger.kernel.org with ESMTP id S262738AbTIFCS4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 22:18:56 -0400
-Date: Sat, 6 Sep 2003 11:18:49 +0900
-From: Tejun Huh <tejun@aratech.co.kr>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Tejun Huh <tejun@aratech.co.kr>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ide task_map_rq() preempt count imbalance
-Message-ID: <20030906021849.GA2789@atj.dyndns.org>
-References: <20030903055257.GA31635@atj.dyndns.org> <200309031753.04535.bzolnier@elka.pw.edu.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 5 Sep 2003 22:32:11 -0400
+Received: from auth22.inet.co.th ([203.150.14.104]:23826 "EHLO
+	auth22.inet.co.th") by vger.kernel.org with ESMTP id S263579AbTIFCcF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 22:32:05 -0400
+From: Michael Frank <mhf@linuxmail.org>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [linux-usb-devel] 2.6.0-test4 - PL2303 OOPS - see also 2.4.22: OOPS on disconnect PL2303 adapter
+Date: Sat, 6 Sep 2003 10:31:19 +0800
+User-Agent: KMail/1.5.2
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-usb-devel@lists.sourceforge.net
+References: <200309020139.08248.mhf@linuxmail.org> <200309031432.17209.mhf@linuxmail.org> <20030905230852.GA18196@kroah.com>
+In-Reply-To: <20030905230852.GA18196@kroah.com>
+X-OS: KDE 3 on GNU/Linux
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <200309031753.04535.bzolnier@elka.pw.edu.pl>
-User-Agent: Mutt/1.5.4i
+Message-Id: <200309060932.47136.mhf@linuxmail.org>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 03, 2003 at 05:53:04PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> 
-> As Jens pointed out its not a proper fix.  Please try attached patch.
-> 
-> You are using PIO mode with "IDE taskfile IO" option enabled.
-> Please also check if this preempt count bug happens with taskfile IO
-> disabled (from quick look at the code it shouldn't but...).
-> 
-> Do you have any other IDE problems?
-> Do multi-sector PIO transfers with taskfile IO work for you (hdparm -m)?
+On Saturday 06 September 2003 07:08, Greg KH wrote:
+> On Wed, Sep 03, 2003 at 02:32:16PM +0800, Michael Frank wrote:
+> > On Wednesday 03 September 2003 07:52, Greg KH wrote:
+> > > Try the patch below and let me know if this solves it for you or not.
+> >
+> > If it is meant to reset the buffers, it has _no_ effect.
+> >
+> > Some more observations:
+> >
+> > Besides it just stopping without obvious reason:
+> >
+> > 1) It does not like when something is typed on cu and not received by the
+> > serial port side connected to PL2303 (CTS low). It tends to hang and the
+> > trouble starts....
+> >
+> > Sep  3 12:52:15 mhfl2 kernel: ttyUSB0: 1 input overrun(s)
+> > Sep  3 12:54:30 mhfl2 last message repeated 2 times
+>
+> Hm, what is causing this?
+>
 
- Hello Bartlomiej,
+I don't understand why it get's Input overruns when it sends a single key.
+"Input" seems not to have any problem.
 
- Sorry for late response.  Your patch works perfectly.  Disabling
-taskfile doesn't hurt anything and multi-sector is turned on by
-default(16) and seems OK.  Thanks.
+Could there be an event meant for output misrouted to input - messing things
+up?
 
--- 
-tejun
+> That is probably why cu is getting confused, right?
+
+I think so. Once this message shows up, it is essentially unusable.
+
+> > plug in
+> > Sep  3 12:55:47 mhfl2 kernel: hub 1-0:0: debounce: port 2: delay 100ms stable 4 status 0x101
+> > Sep  3 12:55:48 mhfl2 kernel: hub 1-0:0: new USB device on port 2, assigned address 3
+> > Sep  3 12:55:48 mhfl2 kernel: usb 1-2: device not accepting address 3, error -110
+
+> That's showing either you don't have good pci interrupt routing going
+> on, or a messed up device.
+
+Interrupts - no, I copied gigabytes to/from USB hard disk, 
+eth0 and yenta on PCI are fine too.
+
+Device - how to verify?
+
+Could it be a "misunderstanding" between device and driver?
+ - driver (seing new device) want's  to assign address to device
+ - device (plugged in, reset), sees a line status changed and 
+   want's to send respective event to driver
+
+> > _disconnect_ serial port side of PL2303
+> >
+> > plug in - OK
+> > Sep  3 12:56:07 mhfl2 kernel: usbserial 1-2:0: PL-2303 converter detected
+> > Sep  3 12:56:07 mhfl2 kernel: usb 1-2: PL-2303 converter now attached to
+> > ttyUSB0 (or usb/tts/0 for devfs)
+>
+> Heh, ok, it looks like you have a wierd device.
+
+Could it be that - device (plugged in, reset), sees _no_ line status changed
+and has nothing to send. 
+
+Perhaps there is a sequencing problem somewhere, and it works by chance.
+
+>> After a while it hang again, this time unloaded USB _without_ exit cu
+
+> Hm, how can you do this?  There should be a reference on the pl2303
+> driver as you have the port open.  Or are you just removing the host
+> controller driver here?
+
+It's not loaded on boot, but only when needed. The scripts:
+
+usb1)
+  if [ ! -e /proc/bus/usb ]; then
+    echo Loading USB
+    modprobe usbcore
+    mount -t usbdevfs usbdevfs /proc/bus/usb
+    modprobe ohci_hcd
+    modprobe sd_mod
+    modprobe pl2303 
+    modprobe lp
+  fi
+  ;;
+
+usb0)
+  echo Unloading USB
+  rmmod  usb-storage sd_mod scsi-mod
+  rmmod pl2303 usbserial
+  rmmod  lp parport
+  rmmod  ohci_hcd 
+  umount usbdevfs
+  rmmod  usbcore
+  ;;
+
+Perhaps this is too dumb and I should do some checking along the way,
+however joe user should be unable to oops things up...
+
+
+Regards
+Michael
+
 

@@ -1,33 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315760AbSGJNWW>; Wed, 10 Jul 2002 09:22:22 -0400
+	id <S315198AbSGJNna>; Wed, 10 Jul 2002 09:43:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315762AbSGJNWV>; Wed, 10 Jul 2002 09:22:21 -0400
-Received: from smtp.intrex.net ([209.42.192.250]:26896 "EHLO intrex.net")
-	by vger.kernel.org with ESMTP id <S315760AbSGJNWU>;
-	Wed, 10 Jul 2002 09:22:20 -0400
-Date: Wed, 10 Jul 2002 09:31:01 -0400
-From: jlnance@intrex.net
-To: linux-kernel@vger.kernel.org
-Subject: Re: BKL removal
-Message-ID: <20020710093101.C1446@tricia.dyndns.org>
-References: <1026249175.1033.1178.camel@sinai> <E17S3MM-0005qO-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S315265AbSGJNn3>; Wed, 10 Jul 2002 09:43:29 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:15372 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S315198AbSGJNn0>; Wed, 10 Jul 2002 09:43:26 -0400
+Subject: Re: oops in 2.4.19-rc1
+To: generica@email.com (Brett)
+Date: Wed, 10 Jul 2002 15:09:02 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0207102259150.7269-100000@bad-sports.com> from "Brett" at Jul 10, 2002 11:01:44 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E17S3MM-0005qO-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Jul 09, 2002 at 11:21:25PM +0100
-X-Declude-Sender: jlnance@intrex.net [216.181.42.97]
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17SI9O-00077J-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 09, 2002 at 11:21:25PM +0100, Alan Cox wrote:
-> 
-> There are lots of them hiding 8)
+> Yes, the kernel is tainted, thanks to NVdriver
+> I booted with it, changed X to use nv driver and restarted X, so kernel 
+> stayed tainted, but module is no longer loaded.
 
-Just out of curisoty.  If I remember correctly SMP came to Linux when
-Caldera hired you to make it work.  Did you invent the BKL?
-
-Thanks,
-
-Jim
+The module could have done the damage already. Do this from a cold
+boot never loading the NV driver. The crash looks like memory corruption
+so its important to do this and may also be worth running memtest86 a bit

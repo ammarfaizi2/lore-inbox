@@ -1,44 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282413AbRK0Aby>; Mon, 26 Nov 2001 19:31:54 -0500
+	id <S282878AbRK0I5z>; Tue, 27 Nov 2001 03:57:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282444AbRK0Abk>; Mon, 26 Nov 2001 19:31:40 -0500
-Received: from chac.inf.utfsm.cl ([200.1.19.54]:26890 "EHLO chac.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id <S282413AbRK0Abc>;
-	Mon, 26 Nov 2001 19:31:32 -0500
-Message-Id: <200111260250.fAQ2oPlf017988@sleipnir.valparaiso.cl>
-To: Patrick McFarland <unknown@panax.com>
-cc: "Mohammad A. Haque" <mhaque@haque.net>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.16-pre1 
-In-Reply-To: Your message of "Sun, 25 Nov 2001 20:33:30 CDT."
-             <20011125203330.P238@localhost> 
-X-mailer: MH [Version 6.8.4]
-X-charset: ISO_8859-1
-Date: Sun, 25 Nov 2001 23:50:25 -0300
-From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
+	id <S282880AbRK0I5p>; Tue, 27 Nov 2001 03:57:45 -0500
+Received: from bartok.tm.edu.ro ([193.226.8.238]:18845 "EHLO bartok.tm.edu.ro")
+	by vger.kernel.org with ESMTP id <S282878AbRK0I5h>;
+	Tue, 27 Nov 2001 03:57:37 -0500
+Date: Mon, 26 Nov 2001 20:04:34 +0200 (EET)
+From: Valkai Elod <elod@bartok.tm.edu.ro>
+To: Mark Hymers <markh@linuxfromscratch.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: How do I add a drive to the DMA blacklist?
+In-Reply-To: <20011126002257.A507@markcomp.blaydon.hymers.org.uk>
+Message-ID: <Pine.LNX.4.33.0111262001290.13196-100000@bartok.tm.edu.ro>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick McFarland <unknown@panax.com> said:
+On Mon, 26 Nov 2001, Mark Hymers wrote:
 
-> No, you are. Sorry to say that but you are. Im probably maybe one of 10
-> people on this whole planet that would like to see the kernel become more
-> than it is,
+> On Sun, 25, Nov, 2001 at 06:17:08PM -0500, Jonathan Kamens spoke thus..
+> > How do I get a drive added to the DMA blacklists in ide-dma.c?  I sent
+> > E-mail to Andre Hedrick in August about a drive that claims to support
+> > DMA but flakes out as soon as the kernel tries to use it -- the "WDC
+> > AC31000H".  This is not surprising, since all the other WDC drives of
+> > this vintage have the same problem.  I included a patch to add this
+> > drive to the two blacklists in ide-dma.c.  Andre never responded to my
+> > E-mail, and the drive still hasn't been added to the blacklists.
+> >
+> > Am I doing something wrong?  What do I need to do to get this drive
+> > added to the blacklists?
+> Actually, while this subject is being brought up, if I don't do:
+> /sbin/hdparm -d0 /dev/hdc
+> on bootup, my system locks up randomly.  Looks like a DMA issue with my
+> hdc drive.. Details are:
+>
+> /proc/ide/hdc/model:
+> QUANTUM FIREBALLlct08 26
 
-Last time I knew, there were a few tens of _thousands_ of people lon
-lkml...
+This seems to confirm my doubts about Quantum lct drives' sanity. I'm
+having two drives: a Quantum CX 13G, and a Maxtor 40G@5400. Both work with
+UDMA33 (mb doesn't support more). When i put a QUANTUM FIREBALL lct20 20G
+drive in my rack, random lockups occur. I'd put all Quantum LCT drives on
+the blacklist!
 
->             and would actually help doing it.
-
-... and many of them did test new kernels, and reported bugs, and supplied
-patches. You are way off base here.
-
->                                               Obviously, the whole damn
-> community is having problems with me disagreeing with it, so screw
-> it. You guys blew it.
-
-Either you work _in_ the community (and abide by its rules) or you get out.
-Or you are just a troll that I feeding...
 -- 
-Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
-Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616
+
+========================.~.===============================================
+Elod VALKAI             /V\               "Linux is like a wigwam -
+elod@bartok.tm.edu.ro  // \\                no windows, no gates,
+                      /(   )\                  apache inside!"
+==netadmin@bartok===== ^`~'^ ==---phone:(+40)56 221273 (195913-home)---===
+

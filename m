@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261289AbSITHka>; Fri, 20 Sep 2002 03:40:30 -0400
+	id <S261348AbSITHnp>; Fri, 20 Sep 2002 03:43:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261291AbSITHka>; Fri, 20 Sep 2002 03:40:30 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:31122 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S261289AbSITHk3>;
-	Fri, 20 Sep 2002 03:40:29 -0400
-Date: Fri, 20 Sep 2002 09:52:39 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Ulrich Drepper <drepper@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 100,000 threads? [was: [ANNOUNCE] Native POSIX Thread Library
- 0.1]
-In-Reply-To: <Pine.LNX.4.44L.0209192258010.1857-100000@imladris.surriel.com>
-Message-ID: <Pine.LNX.4.44.0209200942030.27825-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261395AbSITHnp>; Fri, 20 Sep 2002 03:43:45 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:34015 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261348AbSITHnn>;
+	Fri, 20 Sep 2002 03:43:43 -0400
+Message-Id: <200209200747.g8K7la9B174532@northrelay01.pok.ibm.com>
+User-Agent: Pan/0.11.2 (Unix)
+From: "Maneesh Soni" <maneesh@in.ibm.com>
+To: "William Lee Irwin III" <wli@holomorphy.com>,
+       Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       viro@math.psu.edu
+Subject: Re: 2.5.36-mm1 dbench 512 profiles
+Date: Fri, 20 Sep 2002 13:29:28 +0530
+References: <20020919223007.GP28202@holomorphy.com> <68630000.1032477517@w-hlinder> <3D8A5FE6.4C5DE189@digeo.com> <20020920000815.GC3530@holomorphy.com>
+Reply-To: maneesh@in.ibm.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 20 Sep 2002 05:48:38 +0530, William Lee Irwin III wrote:
 
-On Thu, 19 Sep 2002, Rik van Riel wrote:
+> Hanna Linder wrote:
+>>> Looks like fastwalk might not behave so well on this 32 cpu numa
+>>> system...
+> 
+> On Thu, Sep 19, 2002 at 04:38:14PM -0700, Andrew Morton wrote:
+>> I've rather lost the plot.  Have any of the dcache speedup patches been
+>> merged into 2.5?
+> 
+> As far as the dcache goes, I'll stick to observing and reporting. I'll
+> rerun with dcache patches applied, though.
+> 
+..
+> Thanks,
+> Bill
+> -
 
-> So, where did you put those 800 MB of kernel stacks needed for 100,000
-> threads ?
+For a 32-way system fastwalk will perform badly from dcache_lock point of 
+view, basically due to increased lock hold time. dcache_rcu-12 should reduce
+dcache_lock contention and hold time. The patch uses RCU infrastructer patch and
+read_barrier_depends patch. The patches are available in Read-Copy-Update
+section on lse site at
 
-With the default split and kernel stack we can start up 94,000 threads on
-x86. With Ben's/Dave's patch we can have up to 188,000 threads. With a 2:2
-GB VM split configured we can start 376,000 threads. If someone's that
-desperate then with a 1:3 split we can start up 564,000 threads.
+http://sourceforge.net/projects/lse
 
-Anton tested 1 million concurrent threads on one of his bigger PowerPC
-boxes, which started up in around 30 seconds. I think he saw a load
-average of around 200 thousand. [ie. the runqueue was probably a few
-hundred thousand entries long at times.]
+Regards
+Maneesh
 
-> If you used the standard 3:1 user/kernel split you'd be using all of
-> ZONE_NORMAL for kernel stacks, but if you use a 2:2 split you'll end up
-> with a lot less user space (bad if you want to have many threads in the
-> same address space).
-
-the extreme high-end of threading typically uses very controlled
-applications and very small user level stacks.
-
-as to the question of why so many threads, the answer is because we can :)
-This, besides demonstrating some of the recent scalability advances, gives
-us the warm fuzzy feeling that things are right in this area. I mean,
-there are architectures where Linux could map a petabyte of RAM just fine,
-even though that might not be something we desperately need today.
-
-	Ingo
-
+-- 
+Maneesh Soni
+IBM Linux Technology Center, 
+IBM India Software Lab, Bangalore.
+Phone: +91-80-5044999 email: maneesh@in.ibm.com
+http://lse.sourceforge.net/

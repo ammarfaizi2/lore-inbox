@@ -1,35 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292293AbSCIBXH>; Fri, 8 Mar 2002 20:23:07 -0500
+	id <S292329AbSCIB3p>; Fri, 8 Mar 2002 20:29:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292324AbSCIBWq>; Fri, 8 Mar 2002 20:22:46 -0500
-Received: from acolyte.thorsen.se ([193.14.93.247]:51718 "HELO
-	acolyte.hack.org") by vger.kernel.org with SMTP id <S292325AbSCIBWn>;
-	Fri, 8 Mar 2002 20:22:43 -0500
-From: Christer Weinigel <wingel@acolyte.hack.org>
-To: fryman@cc.gatech.edu
-Cc: davej@suse.de, gone@us.ibm.com, linux-kernel@vger.kernel.org,
-        lse-tech@lists.sourceforge.net
-In-Reply-To: <20020308201518.533dc16a.fryman@cc.gatech.edu> (message from Josh
-	Fryman on Fri, 8 Mar 2002 20:15:18 -0500)
-Subject: Re: [RFC] modularization of i386 setup_arch and mem_init in 2.4.18
-In-Reply-To: <200203082108.g28L8I504672@w-gaughen.des.beaverton.ibm.com>
-	<20020308223330.A15106@suse.de>
-	<20020308234811.3F003F5B@acolyte.hack.org> <20020308201518.533dc16a.fryman@cc.gatech.edu>
-Message-Id: <20020309012240.84734F5B@acolyte.hack.org>
-Date: Sat,  9 Mar 2002 02:22:40 +0100 (CET)
+	id <S292330AbSCIB3g>; Fri, 8 Mar 2002 20:29:36 -0500
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:55217 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S292329AbSCIB31>; Fri, 8 Mar 2002 20:29:27 -0500
+Date: Fri, 08 Mar 2002 17:30:55 -0800
+From: Hanna Linder <hannal@us.ibm.com>
+To: Paul Menage <pmenage@ensim.com>
+cc: Hanna Linder <hannal@us.ibm.com>, viro@math.psu.edu,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.6-pre3 Fast Walk Dcache
+Message-ID: <30770000.1015637455@w-hlinder.des>
+In-Reply-To: <E16jRuZ-00076W-00@pmenage-dt.ensim.com>
+In-Reply-To: <E16jRuZ-00076W-00@pmenage-dt.ensim.com>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Josh Fryman <fryman@cc.gatech.edu> wrote:
-> excuse me for intruding a bit, but in the restructuring of kernel 2.5.x, is
-> there any notion of separating the build directories from the source 
-> directories?  if you're all hacking up the tree org anyway, this would be a
-> nice feature... (somewhat like gcc, i guess)
 
-<emulates Keith Owens>kbuild-2.5 will allow you to do that</>
+--On Friday, March 08, 2002 13:28:23 -0800 Paul Menage <pmenage@ensim.com> wrote:
 
-  /Christer
+> 
+> 1) You're missing parentheses in cached_lookup_nd() and path_lookup():
+> 
+	Oops. Operator precedence strikes again. They are in 
+	cached_lookup_nd() and link_path_walk(). I have made 
+	the changes. 
 
--- 
-"Just how much can I get away with and still go to heaven?"
+> 2) Since cached_lookup_nd() calls __d_lookup() and hence
+> __dget_locked(), it's not clear how you actually avoid incrementing the
+> d_count values of the dentries, other than the root/cwd dentries. Can
+> you explain the logic in a little more detail?
+
+	The frequency with which root/cwd dentries are in any given path 
+	probably cause the majority of the cacheline bouncing of d_count.
+	So the logic there is clear. However, you make a good point and
+	I'm looking at this.
+
+> 3) If you replace walk_init_root() and path_lookup() with something
+> like the following, you can pull the ugliness of walk_init_root() out
+> of path_lookup(). Basically, make walk_init_root() recognise
+> LOOKUP_LOCKED and take the dcache_lock rather than grabbing refcounts. 
+> walk_init_root() drops the LOOKUP_LOCKED flag if necessary while
+> calling __emul_lookup_dentry() to avoid additional complexity. If
+> walk_init_root() returns 0, then the dcache lock wasn't taken,
+> regardless of whether the nd.flags had LOOKUP_LOCKED set.
+> 
+> static inline int
+> walk_init_root(const char *name, struct nameidata *nd)
+> {
+> 	unsigned int flags = nd->flags;
+> 	read_lock(&current->fs->lock);
+> 	if (current->fs->altroot && !(nd->flags & LOOKUP_NOALT)) {
+> 
+> 		if(flags & LOOKUP_LOCKED)
+> 			nd->flags &= ~LOOKUP_LOCKED;
+> 
+> 		nd->mnt = mntget(current->fs->altrootmnt);
+> 		nd->dentry = dget(current->fs->altroot);
+
+	The first reaction I have is that it breaks the consistancy 
+	between a flag and what the flag represents. Having the dcache_lock
+	held without the LOOKUP_LOCKED flag in this part of the code might
+	cause deadlocks or lead to hard-to-maintain code. 
+
+	I appreciate you taking the time to provide such thoughtful and
+	deatailed comments and I will look at the whole patch again with 
+	these comments in mind. Next week expect a new and improved
+	version!
+
+	Thanks.
+
+	Hanna
+
+
+
+
+

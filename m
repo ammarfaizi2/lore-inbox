@@ -1,74 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262690AbVA0RxA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262006AbVA0SEJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262690AbVA0RxA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 12:53:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262682AbVA0Rws
+	id S262006AbVA0SEJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 13:04:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262681AbVA0SEJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 12:52:48 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:14811 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262690AbVA0RwN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 12:52:13 -0500
-Message-ID: <41F92A48.2010100@watson.ibm.com>
-Date: Thu, 27 Jan 2005 12:52:08 -0500
-From: Shailabh Nagar <nagar@watson.ibm.com>
-Reply-To: nagar@watson.ibm.com
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+	Thu, 27 Jan 2005 13:04:09 -0500
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:55778 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S262006AbVA0SEC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 13:04:02 -0500
+Message-ID: <41F92D2B.4090302@comcast.net>
+Date: Thu, 27 Jan 2005 13:04:27 -0500
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: ckrm-tech <ckrm-tech@lists.sourceforge.net>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: ckrm-e17
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Arjan van de Ven <arjan@infradead.org>
+CC: linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
+Subject: Re: Patch 4/6  randomize the stack pointer
+References: <20050127101117.GA9760@infradead.org>	 <20050127101322.GE9760@infradead.org>  <41F92721.1030903@comcast.net> <1106848051.5624.110.camel@laptopd505.fenrus.org>
+In-Reply-To: <1106848051.5624.110.camel@laptopd505.fenrus.org>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Version e17 of the Class-based Kernel Resource Management
-is now available for download from
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-http://sourceforge.net/project/showfiles.php?group_id=85838&package_id=94608
-	
-The major updates since the previous version include:
-1. Numerous bugfixes
-2. Control over rate of process forks through the numtasks controller.
-The rate of forking is a single systemwide parameter affecting all 
-classes. Existing share-based control over total number of forks allowed 
-per class remains the same.
-3. Interface change: The "target" file has been removed from the RCFS 
-interface. The same functionality can now be obtained by writing to the 
-"members" file of any class.
+What the hell?
 
-Files released:
+So instead of bringing something in that works, you bring something in
+that does significantly less, and gives no savings on overhead or patch
+complexity why?  So you can later come out and say "We're so great now
+we've increased the randomization by tweaking one variable aren't we
+cool!!!"?
 
-ckrm-e17.2610.patch
-	Combined patch against 2.6.10. Includes the numtasks and 		 
-listenaq controllers.
-e17-incr.tar.bz2
-	Tarball of broken down patches. First 10 patches constitute
-	the e16 release and subsequent ones contain the updates since
-	then.
-cpu.ckrm-e17.v10.patch
-	CPU controller.
+Red Hat is all smoke and mirrors anyway when it comes to security, just
+like Microsoft.  This just reaffirms that.
 
+Arjan van de Ven wrote:
+> On Thu, 2005-01-27 at 12:38 -0500, John Richard Moser wrote:
+> 
+>>-----BEGIN PGP SIGNED MESSAGE-----
+>>Hash: SHA1
+>>
+>>
+>>
+>>Arjan van de Ven wrote:
+>>
+>>>The patch below replaces the existing 8Kb randomisation of the userspace
+>>>stack pointer (which is currently only done for Hyperthreaded P-IVs) with a 
+>>>more general randomisation over a 64Kb range.
+>>>
+>>
+>>64k of stack randomization is trivial to evade. 
+> 
+> 
+> I think you're focussing on the 64k number WAY too much. Yes it's too
+> small. But it's an initial number to show the infrastructure and get it
+> tested. Yes it should and will be increased later on in the patch
+> series.
+> 
+> Same for the other heap randomisation.
+> 
+> This thing is about getting the infrastructure in place and used. The
+> actual numbers are mere finetuning that can be done near the end.
+> 
+> 
+> 
 
-Still to come:
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
 
-memory controller
-I/O controller
-test packages
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-
-Please note that updates to CKRM based on the feedback from lkml on
-the previous release (http://lkml.org/lkml/2004/11/29/152) are in 
-progress and will be included in the next release.
-
-Testing and feedback welcome.
-
---Shailabh
-
-
-
-
-
-
+iD8DBQFB+S0qhDd4aOud5P8RAquRAJ9FoWdhW6bpurTA6jObM6XEixTPFQCfbLvi
+14Vp5H3Y//5kylroWGQRKek=
+=o0Ra
+-----END PGP SIGNATURE-----

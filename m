@@ -1,57 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278085AbRJ3Uva>; Tue, 30 Oct 2001 15:51:30 -0500
+	id <S278170AbRJ3VMM>; Tue, 30 Oct 2001 16:12:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278136AbRJ3UvV>; Tue, 30 Oct 2001 15:51:21 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:3716 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S278085AbRJ3UvF>;
-	Tue, 30 Oct 2001 15:51:05 -0500
-Date: Tue, 30 Oct 2001 12:51:34 -0800 (PST)
-Message-Id: <20011030.125134.93645850.davem@redhat.com>
-To: csr21@cam.ac.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SPARC and SA_SIGINFO signal handling
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20011029190027.A21372@cam.ac.uk>
-In-Reply-To: <20011029190027.A21372@cam.ac.uk>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S277823AbRJ3VMC>; Tue, 30 Oct 2001 16:12:02 -0500
+Received: from hermes.toad.net ([162.33.130.251]:17118 "EHLO hermes.toad.net")
+	by vger.kernel.org with ESMTP id <S278325AbRJ3VL6>;
+	Tue, 30 Oct 2001 16:11:58 -0500
+Subject: Re: What is standing in the way of opening the 2.5 tree?
+From: Thomas Hood <jdthood@mail.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.15 (Preview Release)
+Date: 30 Oct 2001 16:11:56 -0500
+Message-Id: <1004476317.4367.24.camel@thanatos>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus has waited long enough to open up 2.5 that both he
+and Alan are failing to resist the temptation to make
+destabilizing changes in 2.4, with the result that
+the day of branching is perpetually postponed.
 
-You're doing something really wrong, it works perfectly
-fine here:
+What we have learned from the present experience is that
+no kernel branch is really stable until it is entirely in
+Alan Cox's hands.  Prior to that time, both Linus and Alan
+are in "let's play with this" mode.  This has some benefits.
+I think it's safe to say, though, that having two semi-stable
+branches is inferior to having one stable branch that we
+can rely on and one development branch that we can work on.
 
-? cat test.c
-#include <stdlib.h>
-#include <sys/ucontext.h>
-#include <signal.h>
+Perhaps a better approach in the future would be for Linus
+to turn the kernel over to Alan as of 2.6.0 and to open 2.7.0
+immediately.  That would be an incentive for Linus to refrain
+from calling unstable kernels "stable" ones, and would allow
+Alan to maintain 2.6 with the single aim of increasing
+stability, according to one person's idea of what it takes
+to do that.  Alan's "-ac" kernels would take the place of
+Linus's "pre" kernels.  Linus would no longer produce "pre"
+kernels because he's worse than Alan at maintaining a stable
+kernel (as he admits) and anyway he would be busy with 2.7.
 
-void sigsegv_handler (int signo, siginfo_t *info, void *data) {
-	if (info != 0)
-		exit(1);
-	exit(0);
-}
+Having suggested, this, I'll remind everyone that Linus
+and Alan can do whatever the hell the like.  Which is
+what I like about Linux.
 
-int main () {
-  int *foo;
-  struct sigaction sa;
+--
+Thomas Hood
 
-  sa.sa_sigaction = sigsegv_handler;
-  sa.sa_flags = SA_SIGINFO | SA_RESTART;
-  sigaction(SIGSEGV, &sa, NULL);
-
-  foo = NULL;
-  *foo = 3;
-  return 0;
-}
-? gcc -o test test.c
-? ./test
-? echo $?
-1
-? uname -a
-Linux pizda.ninka.net 2.4.14-pre4 #1 SMP Mon Oct 29 18:55:18 PST 2001 sparc64 unknown
-?

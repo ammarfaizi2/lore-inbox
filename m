@@ -1,54 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315233AbSEBSdk>; Thu, 2 May 2002 14:33:40 -0400
+	id <S315256AbSEBSh7>; Thu, 2 May 2002 14:37:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315256AbSEBSdj>; Thu, 2 May 2002 14:33:39 -0400
-Received: from dsl-213-023-038-046.arcor-ip.net ([213.23.38.46]:28064 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S315233AbSEBSdi>;
-	Thu, 2 May 2002 14:33:38 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
+	id <S315344AbSEBSh6>; Thu, 2 May 2002 14:37:58 -0400
+Received: from mail.sonytel.be ([193.74.243.200]:44507 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S315256AbSEBSh6>;
+	Thu, 2 May 2002 14:37:58 -0400
+Date: Thu, 2 May 2002 20:35:41 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Roman Zippel <zippel@linux-m68k.org>
+cc: Andrea Arcangeli <andrea@suse.de>, Ralf Baechle <ralf@uni-koblenz.de>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Russell King <rmk@arm.linux.org.uk>,
+        Linux Kernel Development <linux-kernel@vger.kernel.org>
 Subject: Re: discontiguous memory platforms
-Date: Thu, 2 May 2002 20:32:07 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Andrea Arcangeli <andrea@suse.de>, Ralf Baechle <ralf@uni-koblenz.de>,
-        Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0205021539460.23113-100000@serv> <E172yOR-00026G-00@starship> <3CD184BB.ED7F349F@linux-m68k.org>
+In-Reply-To: <Pine.LNX.4.21.0205021041570.23113-100000@serv>
+Message-ID: <Pine.GSO.4.21.0205022032280.27986-100000@vervain.sonytel.be>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E173LNK-00027F-00@starship>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 02 May 2002 20:26, Roman Zippel wrote:
-> Hi,
+On Thu, 2 May 2002, Roman Zippel wrote:
+> On Thu, 2 May 2002, Andrea Arcangeli wrote:
+> > What I
+> > care about is not to clobber the common code with additional overlapping
+> > common code abstractions.
 > 
-> Daniel Phillips wrote:
-> 
-> > > Most of the time there are only a few nodes, I just don't know where and
-> > > how big they are, so I don't think a hash based approach will be a lot
-> > > faster. When I'm going to change this, I'd rather try the dynamic table
-> > > approach.
-> > 
-> > Which dynamic table approach is that?
-> 
-> I mean calculating the lookup table and patching the kernel at startup.
+> Just to throw in an alternative: On m68k we map currently everything
+> together into a single virtual area. This means the virtual<->physical
+> conversion is a bit more expensive and mem_map is simply indexed by the
+> the virtual address.
+> It works nicely, it just needs two small patches in the initializition
+> code, which aren't integrated yet. I think it's very close to what Daniel
+> wants, only that the logical and virtual address are identical.
 
-Patching the kernel how, and where?
+I also want to add that the order (by address) of the virtual chunk is not
+necessarily the same as the order (by address) of the physical chunks.
 
-Calculating the lookup table automatically at startup is definitely planned,
-and yes, essential to avoid an unmanageble proliferation of configuration
-files.  It's also possible to pass the configuration as a list of
-mem=size@physaddr kernel command line entries, which is a pragmatic solution
-for configurations with unusual memory mappings, but not too many of them.
+So it's perfect possible to put the kernel in the second physical chunk, in
+which case the first physical chunk (with a lower physical address) ends up in
+the virtual list behind the first physical chunk.
 
-> Anyway, I agree with Andrea, that another mapping isn't really needed.
-> Clever use of the mmu should give you almost the same result.
+IIRC (/me no Linux mm whizard), the above reason was the main reason why the
+current zone system doesn't work well for m68k boxes (mainly talking about
+Amiga).
 
-We *are* making clever use of the mmu in config_nonlinear, it is doing the
-nonlinear kernel virtual mapping for us.  Did you have something more clever
-in mind?
+Gr{oetje,eeting}s,
 
--- 
-Daniel
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

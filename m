@@ -1,118 +1,157 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263669AbTJZWDH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Oct 2003 17:03:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263676AbTJZWDH
+	id S262101AbTJZWbG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Oct 2003 17:31:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262117AbTJZWbG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Oct 2003 17:03:07 -0500
-Received: from viefep15-int.chello.at ([213.46.255.19]:28497 "EHLO
-	viefep15-int.chello.at") by vger.kernel.org with ESMTP
-	id S263669AbTJZWDB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Oct 2003 17:03:01 -0500
-From: Simon Roscic <simon.roscic@chello.at>
+	Sun, 26 Oct 2003 17:31:06 -0500
+Received: from smtp1.server.rpi.edu ([128.113.2.1]:35207 "EHLO
+	smtp1.server.rpi.edu") by vger.kernel.org with ESMTP
+	id S262101AbTJZWa7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Oct 2003 17:30:59 -0500
+Message-Id: <200310262230.h9QMUtPP014673@smtp1.server.rpi.edu>
+Content-Type: multipart/mixed; boundary="----------=_1067207455-28580-0"
 To: linux-kernel@vger.kernel.org
-Subject: [2.6.0-test8/9] ethertap oops
-Date: Sun, 26 Oct 2003 23:02:57 +0100
-User-Agent: KMail/1.5.4
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200310262302.57320.simon.roscic@chello.at>
+From: thambj@rpi.edu
+X-Originating-Ip: 24.29.53.200
+Mime-Version: 1.0
+Reply-To: thambj@rpi.edu
+Date: Sun, 26 Oct 2003 17:30:55 EST
+X-Mailer: EMUmail 4.00
+Subject: Logitech MX 700 worse after 2.6.0-test6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(please cc me, as i´m not subscribed to lkml - thanks)
+This is a multi-part message in MIME format...
 
-hi,
+------------=_1067207455-28580-0
+Content-Type: text/plain
+Content-Disposition: inline
+Content-Transfer-Encoding: base64
 
-last week i started playing around with -test8, wich was working
-very well on my machine, except ethertap, wich oopsed ...
-i tried again with -test9, and as i expected (changelog doesnt
-mention ethertap changes) i got the same oops.
+CkkganVzdCBib3VnaHQgYSBMb2dpdGVjaCBDb3JkbGVzcyBNWCBEdW8gKHRo
+ZSBtb3VzZSBpcyBNWCA3MDApLiAgSW4KMi42LjAtdGVzdDksIHRoZSBzbWFs
+bCBidXR0b24gYWJvdmUgdGhlIHdoZWVsICh0aGF0IHJlcGVhdHMgb25lIG9m
+IHRoZQp3aGVlbCBidXR0b25zIHdoaWxlIGl0IGlzIGhlbGQgZG93bikgZG9l
+cyBub3Qgd29yayBwcm9wZXJseS4gIEp1c3QgYmVmb3JlCnJlcGVhdGluZywg
+YSB0aHVtYi1idXR0b24gcHJlc3MgaXMgcmVhZCBieSBYIGFuZCB0aGVuIG9u
+Y2UgYWdhaW4gYWZ0ZXIgdGhlCmJ1dHRvbiBpcyByZWxlYXNlZC4gIFRoaXMg
+ZnVuY3Rpb25hbGl0eSB3b3JrZWQgdW50aWwgMi42LjAtdGVzdDYuICBJCnRy
+YWNrZWQgdGhlIHByb2JsZW0gZG93biB0byB0aGUgYXR0YWNoZWQgcGF0Y2gs
+IHdoaWNoIG11c3QgYmUgYXBwbGllZCBpbgpyZXZlcnNlIHRvIDIuNi4wLXRl
+c3Q5IGZvciBjb3JyZWN0IE1YIDcwMCBmdW5jdGlvbmFsaXR5LiAgVGhlIG1v
+dXNlCihyZWNpZXZlcikgaXMgY29ubmVjdGVkIHZpYSBVU0IuICBUaGUgbW91
+c2Ugd29ya3MgY29ycmVjdGx5IGluIGFsbCBjYXNlcwp3aGVuIGl0IGlzIGNv
+bm5lY3RlZCB2aWEgdGhlIFBTLzIgcG9ydC4NCg0KQXMgYSBzaWRlIG5vdGUs
+IHdoaWxlIEkgd2FzIGV4cGVyaWVuY2luZyB0aGUgcHJvYmxlbSBpbiAyLjYu
+MC10ZXN0OSwgdGhlCnZlcnkgYm90dG9tIHNtYWxsIGJ1dHRvbiBiZW5lYXRo
+IHRoZSB3aGVlbCBkZWxpdmVyZWQgc2lnbmFscyB0byBYIGFzIGlmIGl0Cndl
+cmUgYnV0dG9uLTEuCUFmdGVyIHJldmVydGluZyAyLjYuMC10ZXN0OSB3aXRo
+IHRoZSBhdHRhY2hlZCBwYXRjaCAoYW5kIGluCjIuNi4wLXRlc3Q1KSwgdGhl
+IGxvd2VzdCBzbWFsbCBidXR0b24gc3RvcHBlZCBnaXZpbmcgYW55IHJlc3Bv
+bnNlLg0KDQotLUpvbmF0aGFuIFRoYW1iaWR1cmFpDQoNCnAucy4gUGxlYXNl
+IENDIG1lIGFzIEkgZG9uJ3Qgc3Vic2NyaWJlIHRvIHRoZSBsaXN0Lg0KDQoK
+Cgo=
 
-i need ethertap for the vpn software (phion vpn) we use
-at the office, the phion vpn client uses the ethertap
-device and works well with kernel 2.4 series, but 
-on 2.6 it doesn't work. (tried with -test8 & 9)
-the initial connect seems to work, i see the vpn motd 
-(the vpn client is an ncurses program), but as soon
-as i try to do something eg. ping, or as soon as 
-network traffic is going to / coming from the vpn, 
-i get the following oops:
+------------=_1067207455-28580-0
+Content-Type: application/octet-stream; name="patch-2.6.0-test6.mousedev.c"
+Content-Disposition: inline; filename="patch-2.6.0-test6.mousedev.c"
+Content-Transfer-Encoding: base64
 
-Unable to handle kernel paging request at virtual address 0000885e
- printing eip:
-e18792d1
-*pde = 00000000
-Oops: 0002 [#1]
-CPU:    0
-EIP:    0060:[<e18792d1>]    Not tainted
-EFLAGS: 00010246
-EIP is at ethertap_rx+0x131/0x2a0 [ethertap]
-eax: 00000000   ebx: df344840   ecx: 00000000   edx: 00000800
-esi: 0000885a   edi: df3448a4   ebp: 00000048   esp: de421d84
-ds: 007b   es: 007b   ss: 0068
-Process phionvpn (pid: 553, threadinfo=de420000 task=df746080)
-Stack: df344840 de579ecc 00000011 dffcdc04 de420000 de579ecc dffcdbc0 de420000
-       dffcdbc0 df633c80 c030d979 dffcdbc0 00000048 df344840 c030d050 dffcdbc0
-       00000048 7fffffff 00000010 00000048 00000000 df746080 c0117370 00000000
-Call Trace:
- [<c030d979>] netlink_data_ready+0x59/0x70
- [<c030d050>] netlink_unicast+0x290/0x340
- [<c0117370>] default_wake_function+0x0/0x30
- [<c0117370>] default_wake_function+0x0/0x30
- [<c02fd267>] alloc_skb+0x47/0xe0
- [<c030d632>] netlink_sendmsg+0x202/0x2f0
- [<c0117099>] schedule+0x2f9/0x580
- [<c02f980e>] sock_sendmsg+0x9e/0xd0
- [<c030e590>] netlink_write+0x0/0x80
- [<c030e600>] netlink_write+0x70/0x80
- [<c014d128>] vfs_write+0xb8/0x130
- [<c014d252>] sys_write+0x42/0x70
- [<c01091db>] syscall_call+0x7/0xb
+ZGlmZiAtTnJ1IGEvZHJpdmVycy9pbnB1dC9tb3VzZWRldi5jIGIvZHJpdmVy
+cy9pbnB1dC9tb3VzZWRldi5jCi0tLSBhL2RyaXZlcnMvaW5wdXQvbW91c2Vk
+ZXYuYwlTYXQgU2VwIDI3IDE3OjUxOjM2IDIwMDMKKysrIGIvZHJpdmVycy9p
+bnB1dC9tb3VzZWRldi5jCVNhdCBTZXAgMjcgMTc6NTE6MzYgMjAwMwpAQCAt
+NTgsNiArNTgsNyBAQAogCXVuc2lnbmVkIGxvbmcgYnV0dG9uczsKIAl1bnNp
+Z25lZCBjaGFyIHJlYWR5LCBidWZmZXIsIGJ1ZnNpejsKIAl1bnNpZ25lZCBj
+aGFyIG1vZGUsIGltZXhzZXEsIGltcHNzZXE7CisJaW50IGZpbmdlcjsKIH07
+CiAKICNkZWZpbmUgTU9VU0VERVZfU0VRX0xFTgk2CkBAIC03MywxMiArNzQs
+NTggQEAKIHN0YXRpYyBpbnQgeHJlcyA9IENPTkZJR19JTlBVVF9NT1VTRURF
+Vl9TQ1JFRU5fWDsKIHN0YXRpYyBpbnQgeXJlcyA9IENPTkZJR19JTlBVVF9N
+T1VTRURFVl9TQ1JFRU5fWTsKIAorc3RhdGljIHZvaWQgbW91c2VkZXZfYWJz
+X2V2ZW50KHN0cnVjdCBpbnB1dF9oYW5kbGUgKmhhbmRsZSwgc3RydWN0IG1v
+dXNlZGV2X2xpc3QgKmxpc3QsIHVuc2lnbmVkIGludCBjb2RlLCBpbnQgdmFs
+dWUpCit7CisJaW50IHNpemU7CisKKwkvKiBJZ25vcmUgam95c3RpY2tzICov
+CisJaWYgKHRlc3RfYml0KEJUTl9UUklHR0VSLCBoYW5kbGUtPmRldi0+a2V5
+Yml0KSkKKwkJcmV0dXJuOworCisJLyogSGFuZGxlIHRvdWNocGFkIGRhdGEg
+Ki8KKwlpZiAodGVzdF9iaXQoQlROX1RPT0xfRklOR0VSLCBoYW5kbGUtPmRl
+di0+a2V5Yml0KSkgeworCisJCWlmIChsaXN0LT5maW5nZXIgJiYgbGlzdC0+
+ZmluZ2VyIDwgMykKKwkJCWxpc3QtPmZpbmdlcisrOworCisJCXN3aXRjaCAo
+Y29kZSkgeworCQkJY2FzZSBBQlNfWDoKKwkJCQlpZiAobGlzdC0+ZmluZ2Vy
+ID09IDMpCisJCQkJCWxpc3QtPmR4ICs9ICh2YWx1ZSAtIGxpc3QtPm9sZHgp
+IC8gODsKKwkJCQlsaXN0LT5vbGR4ID0gdmFsdWU7CisJCQkJcmV0dXJuOwor
+CQkJY2FzZSBBQlNfWToKKwkJCQlpZiAobGlzdC0+ZmluZ2VyID09IDMpCisJ
+CQkJCWxpc3QtPmR5IC09ICh2YWx1ZSAtIGxpc3QtPm9sZHkpIC8gODsKKwkJ
+CQlsaXN0LT5vbGR5ID0gdmFsdWU7CisJCQkJcmV0dXJuOworCQl9CisJCXJl
+dHVybjsKKwl9CisKKwkvKiBIYW5kbGUgdGFibGV0IGRhdGEgKi8KKwlzd2l0
+Y2ggKGNvZGUpIHsKKwkJY2FzZSBBQlNfWDoKKwkJCXNpemUgPSBoYW5kbGUt
+PmRldi0+YWJzbWF4W0FCU19YXSAtIGhhbmRsZS0+ZGV2LT5hYnNtaW5bQUJT
+X1hdOworCQkJaWYgKHNpemUgPT0gMCkgc2l6ZSA9IHhyZXM7CisJCQlsaXN0
+LT5keCArPSAodmFsdWUgKiB4cmVzIC0gbGlzdC0+b2xkeCkgLyBzaXplOwor
+CQkJbGlzdC0+b2xkeCArPSBsaXN0LT5keCAqIHNpemU7CisJCQlyZXR1cm47
+CisJCWNhc2UgQUJTX1k6CisJCQlzaXplID0gaGFuZGxlLT5kZXYtPmFic21h
+eFtBQlNfWV0gLSBoYW5kbGUtPmRldi0+YWJzbWluW0FCU19ZXTsKKwkJCWlm
+IChzaXplID09IDApIHNpemUgPSB5cmVzOworCQkJbGlzdC0+ZHkgLT0gKHZh
+bHVlICogeXJlcyAtIGxpc3QtPm9sZHkpIC8gc2l6ZTsKKwkJCWxpc3QtPm9s
+ZHkgLT0gbGlzdC0+ZHkgKiBzaXplOworCQkJcmV0dXJuOworCX0KK30KKwog
+c3RhdGljIHZvaWQgbW91c2VkZXZfZXZlbnQoc3RydWN0IGlucHV0X2hhbmRs
+ZSAqaGFuZGxlLCB1bnNpZ25lZCBpbnQgdHlwZSwgdW5zaWduZWQgaW50IGNv
+ZGUsIGludCB2YWx1ZSkKIHsKIAlzdHJ1Y3QgbW91c2VkZXYgKm1vdXNlZGV2
+c1szXSA9IHsgaGFuZGxlLT5wcml2YXRlLCAmbW91c2VkZXZfbWl4LCBOVUxM
+IH07CiAJc3RydWN0IG1vdXNlZGV2ICoqbW91c2VkZXYgPSBtb3VzZWRldnM7
+CiAJc3RydWN0IG1vdXNlZGV2X2xpc3QgKmxpc3Q7Ci0JaW50IGluZGV4LCBz
+aXplLCB3YWtlOworCWludCBpbmRleCwgd2FrZTsKIAogCXdoaWxlICgqbW91
+c2VkZXYpIHsKIApAQCAtODcsMzEgKzEzNCw3IEBACiAJCWxpc3RfZm9yX2Vh
+Y2hfZW50cnkobGlzdCwgJigqbW91c2VkZXYpLT5saXN0LCBub2RlKQogCQkJ
+c3dpdGNoICh0eXBlKSB7CiAJCQkJY2FzZSBFVl9BQlM6Ci0JCQkJCWlmICh0
+ZXN0X2JpdChCVE5fVFJJR0dFUiwgaGFuZGxlLT5kZXYtPmtleWJpdCkpCi0J
+CQkJCQlicmVhazsKLQkJCQkJc3dpdGNoIChjb2RlKSB7Ci0JCQkJCQljYXNl
+IEFCU19YOgkKLQkJCQkJCQlzaXplID0gaGFuZGxlLT5kZXYtPmFic21heFtB
+QlNfWF0gLSBoYW5kbGUtPmRldi0+YWJzbWluW0FCU19YXTsKLQkJCQkJCQlp
+ZiAoc2l6ZSAhPSAwKSB7Ci0JCQkJCQkJCWxpc3QtPmR4ICs9ICh2YWx1ZSAq
+IHhyZXMgLSBsaXN0LT5vbGR4KSAvIHNpemU7Ci0JCQkJCQkJCWxpc3QtPm9s
+ZHggKz0gbGlzdC0+ZHggKiBzaXplOwotCQkJCQkJCX0gZWxzZSB7Ci0JCQkJ
+CQkJCWxpc3QtPmR4ICs9IHZhbHVlIC0gbGlzdC0+b2xkeDsKLQkJCQkJCQkJ
+bGlzdC0+b2xkeCArPSBsaXN0LT5keDsKLQkJCQkJCQl9Ci0JCQkJCQkJYnJl
+YWs7Ci0KLQkJCQkJCWNhc2UgQUJTX1k6Ci0JCQkJCQkJc2l6ZSA9IGhhbmRs
+ZS0+ZGV2LT5hYnNtYXhbQUJTX1ldIC0gaGFuZGxlLT5kZXYtPmFic21pbltB
+QlNfWV07Ci0JCQkJCQkJaWYgKHNpemUgIT0gMCkgewotCQkJCQkJCQlsaXN0
+LT5keSAtPSAodmFsdWUgKiB5cmVzIC0gbGlzdC0+b2xkeSkgLyBzaXplOwot
+CQkJCQkJCQlsaXN0LT5vbGR5IC09IGxpc3QtPmR5ICogc2l6ZTsKLQkJCQkJ
+CQl9IGVsc2UgewotCQkJCQkJCQlsaXN0LT5keSAtPSB2YWx1ZSAtIGxpc3Qt
+Pm9sZHk7Ci0JCQkJCQkJCWxpc3QtPm9sZHkgLT0gbGlzdC0+ZHk7Ci0JCQkJ
+CQkJfQotCQkJCQkJCWJyZWFrOwotCQkJCQl9CisJCQkJCW1vdXNlZGV2X2Fi
+c19ldmVudChoYW5kbGUsIGxpc3QsIGNvZGUsIHZhbHVlKTsKIAkJCQkJYnJl
+YWs7CiAKIAkJCQljYXNlIEVWX1JFTDoKQEAgLTEyNCw4ICsxNDcsMTMgQEAK
+IAogCQkJCWNhc2UgRVZfS0VZOgogCQkJCQlzd2l0Y2ggKGNvZGUpIHsKKwkJ
+CQkJCWNhc2UgQlROX1RPVUNIOiAvKiBIYW5kbGUgdG91Y2hwYWQgZGF0YSAq
+LworCQkJCQkJCWlmICh0ZXN0X2JpdChCVE5fVE9PTF9GSU5HRVIsIGhhbmRs
+ZS0+ZGV2LT5rZXliaXQpKSB7CisJCQkJCQkJCWxpc3QtPmZpbmdlciA9IHZh
+bHVlOworCQkJCQkJCQlyZXR1cm47CisJCQkJCQkJfQogCQkJCQkJY2FzZSBC
+VE5fMDoKLQkJCQkJCWNhc2UgQlROX1RPVUNIOgorCQkJCQkJY2FzZSBCVE5f
+Rk9SV0FSRDoKIAkJCQkJCWNhc2UgQlROX0xFRlQ6ICAgaW5kZXggPSAwOyBi
+cmVhazsKIAkJCQkJCWNhc2UgQlROXzQ6CiAJCQkJCQljYXNlIEJUTl9FWFRS
+QTogIGlmIChsaXN0LT5tb2RlID09IDIpIHsgaW5kZXggPSA0OyBicmVhazsg
+fQpAQCAtMTMzLDYgKzE2MSw3IEBACiAJCQkJCQljYXNlIEJUTl8xOgogCQkJ
+CQkJY2FzZSBCVE5fUklHSFQ6ICBpbmRleCA9IDE7IGJyZWFrOwogCQkJCQkJ
+Y2FzZSBCVE5fMzoKKwkJCQkJCWNhc2UgQlROX0JBQ0s6CiAJCQkJCQljYXNl
+IEJUTl9TSURFOiAgIGlmIChsaXN0LT5tb2RlID09IDIpIHsgaW5kZXggPSAz
+OyBicmVhazsgfQogCQkJCQkJY2FzZSBCVE5fMjoKIAkJCQkJCWNhc2UgQlRO
+X1NUWUxVUzI6CkBAIC0yOTEsNyArMzIwLDcgQEAKIHsKIAlzdHJ1Y3QgbW91
+c2VkZXZfbGlzdCAqbGlzdCA9IGZpbGUtPnByaXZhdGVfZGF0YTsKIAl1bnNp
+Z25lZCBjaGFyIGM7Ci0JaW50IGk7CisJdW5zaWduZWQgaW50IGk7CiAKIAlm
+b3IgKGkgPSAwOyBpIDwgY291bnQ7IGkrKykgewogCkBAIC00NzIsNiArNTAx
+LDEyIEBACiAJCS5rZXliaXQgPSB7IFtMT05HKEJUTl9UT1VDSCldID0gQklU
+KEJUTl9UT1VDSCkgfSwKIAkJLmFic2JpdCA9IHsgQklUKEFCU19YKSB8IEJJ
+VChBQlNfWSkgfSwKIAl9LAkvKiBBIHRhYmxldCBsaWtlIGRldmljZSwgYXQg
+bGVhc3QgdG91Y2ggZGV0ZWN0aW9uLCB0d28gYWJzb2x1dGUgYXhlcyAqLwor
+CXsKKwkJLmZsYWdzID0gSU5QVVRfREVWSUNFX0lEX01BVENIX0VWQklUIHwg
+SU5QVVRfREVWSUNFX0lEX01BVENIX0tFWUJJVCB8IElOUFVUX0RFVklDRV9J
+RF9NQVRDSF9BQlNCSVQsCisJCS5ldmJpdCA9IHsgQklUKEVWX0tFWSkgfCBC
+SVQoRVZfQUJTKSB9LAorCQkua2V5Yml0ID0geyBbTE9ORyhCVE5fVE9PTF9G
+SU5HRVIpXSA9IEJJVChCVE5fVE9PTF9GSU5HRVIpIH0sCisJCS5hYnNiaXQg
+PSB7IEJJVChBQlNfWCkgfCBCSVQoQUJTX1kpIHwgQklUKEFCU19QUkVTU1VS
+RSkgfCBCSVQoQUJTX1RPT0xfV0lEVEgpIH0sCisJfSwJLyogQSB0b3VjaHBh
+ZCAqLwogCiAJeyB9LCAJLyogVGVybWluYXRpbmcgZW50cnkgKi8KIH07Cg==
 
-Code: ff 46 04 01 6e 0c 89 1c 24 e8 51 85 a8 de 8b 54 24 14 a1 80
-
-i´ve put up further information here:
-
-kernel 2.6.0-test9 (vanilla+con`s swappiness autoregulation patch):
-
-kernel .config:
-http://segfault.info/simon/ethertap-oops/2.6.0-test9/kernel-2.6.0-test9.config
-dmesg output:
-http://segfault.info/simon/ethertap-oops/2.6.0-test9/dmesg-2.6.0-test9
-ksymoops (useless on 2.6? - i remember there was some discussion on lkml a while back):
-http://segfault.info/simon/ethertap-oops/2.6.0-test9/ksymoops-2.6.0-test9
-the oops:
-http://segfault.info/simon/ethertap-oops/2.6.0-test9/oops-2.6.0-test9
-strace of the phion vpn client, one on kernel 2.4.22, and one on kernel 2.6.0-test9:
-http://segfault.info/simon/ethertap-oops/2.6.0-test9/phion-strace-2.4.22
-http://segfault.info/simon/ethertap-oops/2.6.0-test9/phion-strace-2.6.0-test9
-ver_linux output:
-http://segfault.info/simon/ethertap-oops/2.6.0-test9/ver_linux
-
-kernel 2.6.0-test8 (vanilla, without any other patches):
-
-kernel .config:
-http://segfault.info/simon/ethertap-oops/2.6.0-test8/kernel-2.6.0-test8.config
-ksymoops (useless on 2.6? - i remember there was some discussion on lkml a while back):
-http://segfault.info/simon/ethertap-oops/2.6.0-test8/ksymoops-2.6.0-test8
-the oops:
-http://segfault.info/simon/ethertap-oops/2.6.0-test8/oops-2.6.0-test8
-strace of the phion vpn client, one on kernel 2.4.22, and one on kernel 2.6.0-test8:
-http://segfault.info/simon/ethertap-oops/2.6.0-test8/phion-strace-2.4.22
-http://segfault.info/simon/ethertap-oops/2.6.0-test8/phion-strace-2.6.0-test8
-ver_linux output:
-http://segfault.info/simon/ethertap-oops/2.6.0-test8/ver_linux
-
-i dont know, how  "clean" the phion vpn client software is, as it is a
-closed source :(  program, but i think even if a program does something
-ugly with ethertap it should not oops. (and it works on 2.4)
-i hope the provided information is useable, if you need more information,
-logs, etc. just mail me.
-
-bye,
-	simon.
-
+------------=_1067207455-28580-0--

@@ -1,65 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267695AbTAMAre>; Sun, 12 Jan 2003 19:47:34 -0500
+	id <S267696AbTAMArE>; Sun, 12 Jan 2003 19:47:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267698AbTAMAre>; Sun, 12 Jan 2003 19:47:34 -0500
-Received: from inet-mail3.oracle.com ([148.87.2.203]:28896 "EHLO
-	inet-mail3.oracle.com") by vger.kernel.org with ESMTP
-	id <S267695AbTAMArb>; Sun, 12 Jan 2003 19:47:31 -0500
-Message-ID: <7071726.1042419087751.JavaMail.nobody@web55.us.oracle.com>
-Date: Sun, 12 Jan 2003 16:51:27 -0800 (PST)
-From: Alessandro Suardi <ALESSANDRO.SUARDI@oracle.com>
-To: linux@brodo.de
-Subject: Re: Kernel 2.5.55 failed to boot with ACPI support
-Cc: andrew.grover@intel.com, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-Mailer: Oracle Webmail Client
+	id <S267695AbTAMArE>; Sun, 12 Jan 2003 19:47:04 -0500
+Received: from mta4.srv.hcvlny.cv.net ([167.206.5.10]:50643 "EHLO
+	mta4.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id <S267696AbTAMArD>; Sun, 12 Jan 2003 19:47:03 -0500
+Date: Sun, 12 Jan 2003 19:53:57 -0500
+From: Rob Wilkens <robw@optonline.net>
+Subject: Re: any chance of 2.6.0-test*? -> goto example
+In-reply-to: <20030112224829.GA29534@alpha.home.local>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Reply-to: robw@optonline.net
+Message-id: <1042419236.3162.257.camel@RobsPC.RobertWilkens.com>
+Organization: Robert Wilkens
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.1
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <Pine.LNX.4.44.0301121208020.14031-100000@home.transmeta.com>
+ <1042404503.1208.95.camel@RobsPC.RobertWilkens.com>
+ <20030112224829.GA29534@alpha.home.local>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dominik Brodowski wrote:
+On Sun, 2003-01-12 at 17:48, Willy Tarreau wrote:
+> Now, you asked for an example. Here is one. Please recode it without the
 
-> On Mon, Jan 13, 2003 at 12:04:02AM +0100, Alessandro Suardi wrote:
-> > Andrew Grover wrote:
-> > 
-> > > > From: Ole J. Hagen [mailto:olehag_2001@yahoo.no] 
-> > > > I just wanted to inform that kernel-2.5.55 failes to boot 
-> > > > when ACPI support is 
-> > > > compiled in the kernel. 
-> > > > 
-> > > > I have following configuration; Dell Optiplex GX-240, Pentium 
-> > > > 4 (1.5 GHz), ATI RAGE 128.
-> > >
-> > > How exactly does it fail?
-> > 
-> > My brand new Dell Latitude C640 oopses on boot in 2.5.56 if I
-> >  have CPU_FREQ config'd in. ACPI without CPU_FREQ is okay - well,
-> >  it screws my framebuffer screen (what 2.4.21-pre3 doesn't) when
-> >  the ACPI code does its bootup printk's, but after that the
-> >  screen recovers.
-> >
-> > ...
-> >
-> > Back on topic, if you're interested I can rebuild my 2.5.56 with
-> >  CPU_FREQ and write down the backtrace of the oops.
-> Would be great if you could do that - and tell what oops it is (NULL pointer
-> dereference etc.), in case you still see that on your screen.
+The example you gave me wasn't valid C.. Well, from what I can tell it
+wasn't valid C, because the "for" statement had an opening "(", but no
+visible closing ")" .. And the "{" looked like it was in the wrong
+spot.  If you want me to have something to benchmark against, I have to
+first be able to test and use your code, and if I can't use your code
+it's pointless to try to make it quicker.  
 
-Sigh :(
+If you could provide (preferrably via web download or ftp) sample source
+that uses that function, it would speed up my ability to benchmark,
+thereafter I could submit improved code.
 
-Rebuilt with CPU_FREQ, doesn't oops. It says
+-Rob
 
-cpufreq: Intel(R) SpeedStep(TM) for this processor not (yet) available
-
-Is the above message expected ? The CPU is a 1.8Ghz mobile P4.
-
-Still puzzled as to why... wait, this was a cold boot, let me try
- warmbooting... argh - the disk powered off. Bug 119 :(
-Nope, coldbooted in 2.4.21-pre3, rebooted in 2.5.56, still had no
- oops with a CPU_FREQ enabled kernel.
-
-
---alessandro

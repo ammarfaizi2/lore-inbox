@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261554AbVCRKIH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261555AbVCRKME@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261554AbVCRKIH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 05:08:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbVCRKIH
+	id S261555AbVCRKME (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 05:12:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261536AbVCRKME
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 05:08:07 -0500
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:36357 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261554AbVCRKID (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 05:08:03 -0500
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] reduce inlined x86 memcpy by 2 bytes
-Date: Fri, 18 Mar 2005 12:07:32 +0200
-User-Agent: KMail/1.5.4
-Cc: Matt Mackall <mpm@selenic.com>
-References: <200503181121.42809.vda@port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <200503181121.42809.vda@port.imtp.ilyichevsk.odessa.ua>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Mar 2005 05:12:04 -0500
+Received: from colin2.muc.de ([193.149.48.15]:27407 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S261555AbVCRKMC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 05:12:02 -0500
+Date: 18 Mar 2005 11:12:00 +0100
+Date: Fri, 18 Mar 2005 11:12:00 +0100
+From: Andi Kleen <ak@muc.de>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: Christoph Lameter <clameter@sgi.com>, Dave Hansen <haveblue@us.ibm.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Mel Gorman <mel@csn.ul.ie>
+Subject: Re: [PATCH] add a clear_pages function to clear pages of higher order
+Message-ID: <20050318101200.GA79386@muc.de>
+References: <Pine.LNX.4.58.0503101229420.13911@schroedinger.engr.sgi.com> <1110490683.24355.17.camel@localhost> <Pine.LNX.4.58.0503101702120.15940@schroedinger.engr.sgi.com> <200503111008.12134.vda@port.imtp.ilyichevsk.odessa.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200503181207.32659.vda@ilport.com.ua>
+In-Reply-To: <200503111008.12134.vda@port.imtp.ilyichevsk.odessa.ua>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 18 March 2005 11:21, Denis Vlasenko wrote:
-> This memcpy() is 2 bytes shorter than one currently in mainline
-> and it have one branch less. It is also 3-4% faster in microbenchmarks
-> on small blocks if block size is multiple of 4. Mainline is slower
-> because it has to branch twice per memcpy, both mispredicted
-> (but branch prediction hides that in microbenchmark).
-> 
-> Last remaining branch can be dropped too, but then we execute second
-> 'rep movsb' always, even if blocksize%4==0. This is slower than mainline
-> because 'rep movsb' is microcoded. I wonder, tho, whether 'branchlessness'
-> wins over this in real world use (not in bench).
-> 
-> I think blocksize%4==0 happens more than 25% of the time.
+> Andi Kleen (iirc) says that non-temporal stores seem to be
+> big win in microbenchmarks (and I second that), but they are
+> a net loss when we are going to use zeroed page just after
+> zeroing. He recommends avoid using non-temporal stores
 
-s/%4/&3 of course.
---
-vda
+The rule of thumb is to only use non temporal stores when your
+data set is bigger than the L2/L3 caches of the CPU. This means >1MB.
+The kernel normally never works on data sets that big.
+
+For Christophers new background cleaner daemon it may be worth it 
+when the queue is a LILO. This means it is likely there is a relatively
+long time between the clearing operation and a workload using it.
+But even then it is a very close call and would need clear benchmark 
+numbers in macrobenchmarks.
+
+-Andi
 

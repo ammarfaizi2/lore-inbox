@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268539AbTANCqS>; Mon, 13 Jan 2003 21:46:18 -0500
+	id <S268531AbTANCrc>; Mon, 13 Jan 2003 21:47:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268537AbTANCqE>; Mon, 13 Jan 2003 21:46:04 -0500
-Received: from dp.samba.org ([66.70.73.150]:25740 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S268524AbTANCqA>;
-	Mon, 13 Jan 2003 21:46:00 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Module state and address in /proc/modules.
-Date: Tue, 14 Jan 2003 13:24:55 +1100
-Message-Id: <20030114025452.563462C374@lists.samba.org>
+	id <S268532AbTANCqf>; Mon, 13 Jan 2003 21:46:35 -0500
+Received: from dp.samba.org ([66.70.73.150]:46732 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S268535AbTANCqB>;
+	Mon, 13 Jan 2003 21:46:01 -0500
+From: Rusty Trivial Russell <rusty@rustcorp.com.au>
+To: akpm@zip.com.au, torvalds@transmeta.com
+Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
+Subject: [TRIVIAL] Drain local pages to make swsusp work
+Date: Tue, 14 Jan 2003 13:42:54 +1100
+Message-Id: <20030114025453.790822C445@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The address allows oprofile and ksymoops to work again.  The state is
-simply informative.
+From:  Pavel Machek <pavel@ucw.cz>
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+  Hi!
+  
+  With local pages present, swsusp's accounting goes wrong and you get
+  nice BUG(). This fixes it, please apply.
+  								Pavel
+  
 
-Name: Put more information in /proc/modules
-Author: Stanley Wang, Rusty Russell
-Status: Tested on 2.5.56
-
-D: Puts the state of the module and the address in /proc/modules.
-
-diff -urNp --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5-bk/kernel/module.c working-2.5-bk-procmodules-extra/kernel/module.c
---- linux-2.5-bk/kernel/module.c	Fri Jan 10 10:55:43 2003
-+++ working-2.5-bk-procmodules-extra/kernel/module.c	Sat Jan 11 19:59:58 2003
-@@ -1422,6 +1422,15 @@ static int m_show(struct seq_file *m, vo
- 	seq_printf(m, "%s %lu",
- 		   mod->name, mod->init_size + mod->core_size);
- 	print_unload_info(m, mod);
+--- trivial-2.5.57/kernel/suspend.c.orig	2003-01-14 12:54:30.000000000 +1100
++++ trivial-2.5.57/kernel/suspend.c	2003-01-14 12:54:30.000000000 +1100
+@@ -680,6 +680,8 @@
+ 	struct sysinfo i;
+ 	unsigned int nr_needed_pages = 0;
+ 
++	drain_local_pages();
 +
-+	/* Informative for users. */
-+	seq_printf(m, " %s",
-+		   mod->state == MODULE_STATE_GOING ? "Unloading":
-+		   mod->state == MODULE_STATE_COMING ? "Loading":
-+		   "Live");
-+	/* Used by oprofile and other similar tools. */
-+	seq_printf(m, " 0x%p", mod->module_core);
-+
- 	seq_printf(m, "\n");
- 	return 0;
- }
+ 	pagedir_nosave = NULL;
+ 	printk( "/critical section: Counting pages to copy" );
+ 	nr_copy_pages = count_and_copy_data_pages(NULL);
+@@ -714,6 +716,7 @@
+ 	nr_copy_pages_check = nr_copy_pages;
+ 	pagedir_order_check = pagedir_order;
+ 
++	drain_local_pages();	/* During allocating of suspend pagedir, new cold pages may appear. Kill them */
+ 	if (nr_copy_pages != count_and_copy_data_pages(pagedir_nosave))	/* copy */
+ 		BUG();
+ 
+-- 
+  Don't blame me: the Monkey is driving
+  File: Pavel Machek <pavel@ucw.cz>: Drain local pages to make swsusp work

@@ -1,38 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264943AbSJVUmO>; Tue, 22 Oct 2002 16:42:14 -0400
+	id <S264945AbSJVUlZ>; Tue, 22 Oct 2002 16:41:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264948AbSJVUmO>; Tue, 22 Oct 2002 16:42:14 -0400
-Received: from trillium-hollow.org ([209.180.166.89]:32142 "EHLO
-	trillium-hollow.org") by vger.kernel.org with ESMTP
-	id <S264943AbSJVUmN>; Tue, 22 Oct 2002 16:42:13 -0400
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: I386 cli 
-In-Reply-To: Your message of "Tue, 22 Oct 2002 13:08:43 PDT."
-             <E1845KV-0002ab-00@trillium-hollow.org> 
-Date: Tue, 22 Oct 2002 13:48:22 -0700
-From: erich@uruk.org
-Message-Id: <E1845ws-0002g9-00@trillium-hollow.org>
+	id <S264944AbSJVUlW>; Tue, 22 Oct 2002 16:41:22 -0400
+Received: from [202.88.156.6] ([202.88.156.6]:46752 "EHLO
+	saraswati.hathway.com") by vger.kernel.org with ESMTP
+	id <S264943AbSJVUlT>; Tue, 22 Oct 2002 16:41:19 -0400
+Date: Wed, 23 Oct 2002 01:34:38 +0530
+From: Dipankar Sarma <dipankar@gamebox.net>
+To: Corey Minyard <cminyard@mvista.com>
+Cc: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] NMI request/release
+Message-ID: <20021023013438.E25716@dikhow>
+Reply-To: dipankar@gamebox.net
+References: <3DB4AABF.9020400@mvista.com> <20021022021005.GA39792@compsoc.man.ac.uk> <3DB4B8A7.5060807@mvista.com> <20021022025346.GC41678@compsoc.man.ac.uk> <3DB54C53.9010603@mvista.com> <1035307430.1008.1476.camel@phantasy> <3DB59431.2090807@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3DB59431.2090807@mvista.com>; from cminyard@mvista.com on Tue, Oct 22, 2002 at 08:30:16PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Oct 22, 2002 at 08:30:16PM +0200, Corey Minyard wrote:
+> Robert Love wrote:
+> >At least on the variant of RCU that is in 2.5, the RCU code does the
+> >read side by disabling preemption.  Nothing else.
+> >
+> In 2.5.44, stock from kernel.org, rcu_process_callbacks() calls 
+> local_irq_disable().  Is that just preemption disabling, now?
 
-erich@uruk.org wrote:
+No, that is to allow queueing of callbacks from irq context - see
+call_rcu(). Since the queues are per-CPU, we don't need any spinlock.
+rcu_process_callbacks() is always invoked from the RCU per-CPU tasklet,
+so preemption doesn't come into picture. But irq disabling is needed
+so that it doesn't race with call_rcu().
 
-> David Grothe <dave@gcom.com> wrote:
-> 
-> > In 2.5.41every architecture except Intel 386 has a "#define cli 
-> > <something>" in its asm-arch/system.h file.  Is there supposed to be such a 
-> > define in asm-i386/system.h?  If not, where does the "official" definition 
-> > of cli() live for Intel?  Or what is the include file that one needs to 
-> > pick it up?  I can't find it.
-> 
-> I'm sure there is no definition because "cli" is the native assembler
-> instruction on x86.
+Only preemption related issue with RCU is that in the reader
+side (in your case traversing the nmi handler list for invocation),
+there should not be any preemption (not possible anyway in your case).
+This is achieved by rcu_read_lock()/rcu_read_unlock() which essentially
+disables/enables preemption.
 
-Whoops, foot-in-mouth...  those were C level definitions, not assembler
-macros.
+The idea is that if you get preempted while holding reference to
+some RCU protected data, it is not safe to invoke the RCU callback.
+Once you get preempted, you can run on a different CPU and keeping
+track of the preempted tasks become difficult. Besides preempted
+tasks with low priority can delay RCU update for long periods.
+Hence the disabling of preemption which is not worse than locks.
 
---
-    Erich Stefan Boleyn     <erich@uruk.org>     http://www.uruk.org/
-"Reality is truly stranger than fiction; Probably why fiction is so popular"
+
+> >But anyhow, disabling interrupts should not affect NMIs, no?
+> >
+> You are correct.  disabling preemption or interrupts has no effect on NMIs.
+
+Yes.
+
+Thanks
+Dipankar

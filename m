@@ -1,41 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292389AbSCIBwK>; Fri, 8 Mar 2002 20:52:10 -0500
+	id <S292383AbSCIBxU>; Fri, 8 Mar 2002 20:53:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292383AbSCIBwA>; Fri, 8 Mar 2002 20:52:00 -0500
-Received: from rwcrmhc53.attbi.com ([204.127.198.39]:21380 "EHLO
-	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
-	id <S292384AbSCIBvv>; Fri, 8 Mar 2002 20:51:51 -0500
-Message-ID: <3C896A97.7DA21DF9@didntduck.org>
-Date: Fri, 08 Mar 2002 20:51:19 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.6-pre3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Thomas Hood <jdthood@mail.com>, linux-kernel@vger.kernel.org
-Subject: Re: PnP BIOS driver status
-In-Reply-To: <E16jW9m-0008NH-00@the-village.bc.nu>
+	id <S292384AbSCIBxD>; Fri, 8 Mar 2002 20:53:03 -0500
+Received: from mailhost.nmt.edu ([129.138.4.52]:1294 "EHLO mailhost.nmt.edu")
+	by vger.kernel.org with ESMTP id <S292383AbSCIBwo>;
+	Fri, 8 Mar 2002 20:52:44 -0500
+Date: Fri, 8 Mar 2002 18:52:38 -0700
+From: Val Henson <val@nmt.edu>
+To: Erik Andersen <andersen@codepoet.org>,
+        "Jonathan A. George" <JGeorge@greshamstorage.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Kernel SCM: When does CVS fall down where it REALLY matters?
+Message-ID: <20020308185238.B25086@boardwalk>
+In-Reply-To: <3C87FD12.8060800@greshamstorage.com> <Pine.LNX.4.44L.0203072057510.2181-100000@imladris.surriel.com> <20020308003827.GA8348@codepoet.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020308003827.GA8348@codepoet.org>; from andersen@codepoet.org on Thu, Mar 07, 2002 at 05:38:27PM -0700
+Favorite-Color: Polka dot
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > > The GDT descriptors are private to the PNP BIOS and constant values once
-> > > set up. No PnPBIOS call is made before the configuration is done.
-> > >
-> > > Seems ok to me - or am I missing something ?
-> >
-> > Two user processes calling functions through /proc...
-> 
-> The GDT descriptors are set up before /proc comes into being. I'm checking
-> 2.4 code here - has someone left old stuff in 2.5 ?
+On Thu, Mar 07, 2002 at 05:38:27PM -0700, Erik Andersen wrote:
+>
+> 6) Ability to do sane archival and renaming of directories.
+>     CVS doesn't even know what a directory is.
 
-PNP_TS1 and PNP_TS2 are changed on every call to the bios to point to
-where the data for the 32-bit code lives.
+How about sane renaming of plain old files?
 
--- 
+For a laugh, read the instructions on how to "rename" CVS files.
+Hint: "Rename" is not the correct word.
 
-						Brian Gerst
+$ mv old new
+$ cvs remove old
+$ cvs add new
+$ cvs commit -m "Renamed old to new" old new
+
+Gee, that looks like adding a new file to me.  Upon reading further,
+that is exactly what this "rename" operation is doing.  There are two
+other ways to rename a file in CVS, one of which is described as
+"dangerous" and the other as having "drawbacks."  References:
+
+http://www.gnu.org/manual/cvs-1.9/html_node/cvs_66.html
+
+Note that the way to rename a file in in BitKeeper is:
+
+$ bk mv old new
+
+No danger, no drawbacks, no hand editing of history files.
+
+I strongly recommend that anyone attempting to make CVS a viable
+replacement for BitKeeper start out by actually using BitKeeper.
+You're so used to being crippled by CVS that you don't even know what
+you're missing.
+
+-VAL

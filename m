@@ -1,124 +1,170 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263165AbUB0WNS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 17:13:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263168AbUB0WKx
+	id S263027AbUB0WOW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 17:14:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263151AbUB0WOV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 17:10:53 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:7059 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263167AbUB0WJ7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 17:09:59 -0500
-Date: Fri, 27 Feb 2004 16:09:21 -0600 (CST)
-From: olof@austin.ibm.com
-To: davem@redhat.com
-cc: linux-kernel@vger.kernel.org, <netdev@oss.sgi.com>, <niv@us.ibm.com>,
-       <anton@samba.org>, <milliner@us.ibm.com>
-Subject: [PATCH] NULL pointer deref in tcp_do_twkill_work()
-Message-ID: <Pine.A41.4.44.0402271256450.50098-200000@forte.austin.ibm.com>
+	Fri, 27 Feb 2004 17:14:21 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:26872 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S263171AbUB0WMD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 17:12:03 -0500
+Message-ID: <403FC0AA.6040205@mvista.com>
+Date: Fri, 27 Feb 2004 14:11:54 -0800
+From: George Anzinger <george@mvista.com>
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="154490139-1198053911-1077914028=:32282"
-Content-ID: <Pine.A41.4.44.0402271522240.88840@forte.austin.ibm.com>
+To: Tom Rini <trini@kernel.crashing.org>
+CC: "Amit S. Kale" <amitkale@emsyssoft.com>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@suse.cz>, kgdb-bugreport@lists.sourceforge.net
+Subject: Re: [Kgdb-bugreport] [PATCH][3/3] Update CVS KGDB's wrt connect /
+ detach
+References: <20040225213626.GF1052@smtp.west.cox.net> <20040225214343.GG1052@smtp.west.cox.net> <20040225215309.GI1052@smtp.west.cox.net> <200402261344.49261.amitkale@emsyssoft.com> <403E8180.1060008@mvista.com> <20040226235915.GV1052@smtp.west.cox.net> <403EA407.1010405@mvista.com> <20040227154920.GX1052@smtp.west.cox.net>
+In-Reply-To: <20040227154920.GX1052@smtp.west.cox.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Tom Rini wrote:
+> On Thu, Feb 26, 2004 at 05:57:27PM -0800, George Anzinger wrote:
+> 
+> 
+>>Tom Rini wrote:
+>>
+>>>On Thu, Feb 26, 2004 at 03:30:08PM -0800, George Anzinger wrote:
+>>>
+>>>
+>>>>Amit S. Kale wrote:
+>>>>
+>>>>
+>>>>>On Thursday 26 Feb 2004 3:23 am, Tom Rini wrote:
+>>>>>
+>>>>>
+>>>>>
+>>>>>>The following patch fixes a number of little issues here and there, and
+>>>>>>ends up making things more robust.
+>>>>>>- We don't need kgdb_might_be_resumed or kgdb_killed_or_detached.
+>>>>>>GDB attaching is GDB attaching, we haven't preserved any of the
+>>>>>>previous context anyhow.
+>>>>>
+>>>>>
+>>>>>If gdb is restarted, kgdb has to remove all breakpoints. Present kgdb 
+>>>>>does that in the code this patch removes:
+>>>>>
+>>>>>-		if (remcom_in_buffer[0] == 'H' && remcom_in_buffer[1] == 
+>>>>>'c') {
+>>>>>-			remove_all_break();
+>>>>>-			atomic_set(&kgdb_killed_or_detached, 0);
+>>>>>-			ok_packet(remcom_out_buffer);
+>>>>>
+>>>>>If we don't remove breakpoints, they stay in kgdb without gdb not 
+>>>>>knowing it and causes consistency problems.
+>>>>
+>>>>I wonder if this is worth the trouble.  Does kgdb need to know about 
+>>>>breakpoints at all?  Is there some other reason it needs to track them?
+>>>
+>>>
+>>>I don't know if it's strictly needed, but it's not the hard part of this
+>>>particular issue (as I suggested in another thread, remove_all_break()
+>>>on a ? packet works).
+>>>
+>>>
+>>>
+>>>>>>- Don't try and look for a connection in put_packet, after we've tried
+>>>>>>to put a packet.  Instead, when we receive a packet, GDB has
+>>>>>>connected.
+>>>>>
+>>>>>
+>>>>>We have to check for gdb connection in putpacket or else following 
+>>>>>problem occurs.
+>>>>>
+>>>>>1. kgdb console messages are to be put.
+>>>>>2. gdb dies
+>>>>>3. putpacket writes the packet and waits for a '+'
+>>>>
+>>>>Oops!  Tom, this '+' will be sent under interrupt and while kgdb is not 
+>>>>connected.  Looks like it needs to be passed through without causing a 
+>>>>breakpoint.  Possible salvation if we disable interrupts while waiting 
+>>>>for the '+' but I don't think that is a good idea.
+>>>
+>>>
+>>>I don't think this is that hard of a problem anymore.  I haven't enabled
+>>>console messages, but I've got the following being happy now:
+>>
+>>console pass through is the hard one as it is done outside of kgdb under 
+>>interrupt control.  Thus the '+' will come to the interrupt handler.
+>>
+>>There is a bit of a problem here WRT hiting a breakpoint while waiting for 
+>>this '+'.  Should only happen on SMP systems, but still....
+> 
+> 
+> Here's why I don't think it's a problem (I'll post the new patch
+> shortly, getting from quilt to a patch against previous is still a
+> pain).  What happens is:
+> 1. kgdb console tried to send a packet.
+> 2. before ACK'ing the above, gdb dies.
 
---154490139-1198053911-1077914028=:32282
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.A41.4.44.0402271522241.88840@forte.austin.ibm.com>
+What I am describing does not have anything to do with gdb going away.  It is 
+that in "normal" operation the console output is done with the interrupts on 
+(i.e. we are not in kgdb as a result of a breakpoint, but only to do console 
+output).  This means that the interrupt that is generated by the '+' from gdb 
+may well happen and the kgdb interrupt handler will see the '+' and, with the 
+interrupt handler changes, generate a breakpoint.  All we really want to do is 
+to pass the '+' through to putpacket.  In a UP machine, I think the wait for the 
+'+' is done with the interrupt system off, however, in an SMP machine, other 
+cpus may see it and interrupt...  At the very least, the interrupt code needs to 
+be able to determine that no character came in and ignore the interrupt.
 
-This bug has been encountered before (ref http://bugme.osdl.org/show_bug.cgi?id=1627),
-but that time it went away by itself. We're now seeing it again with
-another heavy network load on 2.6.3.
+-g
+> 3. kgdb loops on sending a packet and reading in a char.
+> 4. gdb tries to reconnect and sends $somePacket#cs
+> 5. put_packet sends out the console message again, and reads in a char.
+> 6. put_packet sees a $ (or in the case of your .gdbinit, ^C$, which is
+> still fine).
+> 7. put_packet sees a packet coming in, which preempts sending this
+> packet, and will call kgdb_schedule_breakpoint() and then return, giving
+> up on the console message.
+> 8. do_IRQ() calls kgdb_process_breakpoint(), which calls breakpoint()
+> and gdb gets back in the game.
+> 
+> 
+>>>- Connect to a waiting kernel, continue/^C/disconnect/reconnect.
+>>>- Connect to a running kernel, continue/^C/disconnect/reconnect.
+>>>- Once connected and running, ^C/hit breakpoint and
+>>> disconnect/reconnect.
+>>>- Once connected, set a breakpoint, kill gdb and hit the breakpoint and
+>>> reconnect.
+>>>- Once connected and running, kill gdb and reconnect.
+>>>
+>>>The last two aren't as "fast" as I might like, but they're the "gdb went
+>>>away in an ungraceful manner" situations, so I think it's OK.  In the
+>>>first (breakpoint hit, no gdb) I end up having to issue a few continues
+>>>to get moving again, but it's a one-time event.  
+>>
+>>What are you referring to as "continues".  How is this different from 
+>>connect to a waiting kernel?
+> 
+> 
+> The 'continue' command in gdb.
+> 
+> 
+>>Usually this would be the end of the 
+>>session.  If you are going to continue from here something needs to be done 
+>>with the breakpoint that gdb does not know about.  If kgdb can remove them, 
+>>well fine, except your stopped on one.  If you remove it, there could be 
+>>some confusion as to why you are in the debugger.
+> 
+> 
+> Hmm.  I think I need to test things a bit more, before I comment on
+> this.
+> 
 
-Recap:
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 
-We're crashing in tcp_do_twkill_work():
-
-        tw_for_each_inmate(tw, node, safe,
-                           &tcp_tw_death_row[slot]) {
-                __tw_del_dead_node(tw);
-                spin_unlock(&tw_death_lock);
-                tcp_timewait_kill(tw);
-                tcp_tw_put(tw);
-                killed++;
-                spin_lock(&tw_death_lock);
-                if (killed > quota) {
-                        ret = 1;
-                        break;
-                }
-        }
-
-
-The crash is in __tw_del_dead_node, where tw is taken off of the
-tw_death_node list. At the time of the crash, the pprev list pointer is
-NULL, which indicates that tw is no longer on the list.
-
-I'm suspicious of the fact that the tw_death_lock is released, and since
-it's released, the "safe" inmate could be descheduled on another CPU. Once
-the lock is reaquired and the loop is redone, the new tw (old safe) is
-now already taken off the list so we go astray.
-
-Shouldn't the loop always restart from the beginning instead of using the
-(not thread-)"safe" list iteration? Since it keeps taking the entries off
-the list, the behaviour should be identical but it wouldn't be racy.
-
-The alternative is to not drop the lock, but I'm guessing we need to do
-that to avoid deadlocks. I don't know the TCP code well enough to tell for
-sure.
-
-Proposed patch is attached. We've given it a bit of runtime here but the
-crashes happen randomly so it'll take a while to gain full confidence that
-it's fixed. But the above reasoning around the patch seems to make sense.
-
-
-Thanks,
-
-Olof
-
-Olof Johansson                                        Office: 4E002/905
-Linux on Power Development                            IBM Systems Group
-Email: olof@austin.ibm.com                          Phone: 512-838-9858
-All opinions are my own and not those of IBM
-
-
-
---154490139-1198053911-1077914028=:32282
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME=twpatch
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.A41.4.44.0402271522300.88840@forte.austin.ibm.com>
-Content-Description: 
-Content-Disposition: ATTACHMENT; FILENAME=twpatch
-
-LS0tIG5ldC9pcHY0L3RjcF9taW5pc29ja3MuYy5vcmlnCTIwMDQtMDItMjcg
-MTM6NDM6MTEuMDAwMDAwMDAwIC0wNjAwDQorKysgbmV0L2lwdjQvdGNwX21p
-bmlzb2Nrcy5jCTIwMDQtMDItMjcgMTU6MjE6MTguMzE4ODkwNjcyIC0wNjAw
-DQpAQCAtNDI3LDkgKzQyNyw3IEBAIHN0YXRpYyB1MzIgdHdraWxsX3RocmVh
-ZF9zbG90czsNCiBzdGF0aWMgaW50IHRjcF9kb190d2tpbGxfd29yayhpbnQg
-c2xvdCwgdW5zaWduZWQgaW50IHF1b3RhKQ0KIHsNCiAJc3RydWN0IHRjcF90
-d19idWNrZXQgKnR3Ow0KLQlzdHJ1Y3QgaGxpc3Rfbm9kZSAqbm9kZSwgKnNh
-ZmU7DQogCXVuc2lnbmVkIGludCBraWxsZWQ7DQotCWludCByZXQ7DQogDQog
-CS8qIE5PVEU6IGNvbXBhcmUgdGhpcyB0byBwcmV2aW91cyB2ZXJzaW9uIHdo
-ZXJlIGxvY2sNCiAJICogd2FzIHJlbGVhc2VkIGFmdGVyIGRldGFjaGluZyBj
-aGFpbi4gSXQgd2FzIHJhY3ksDQpAQCAtNDM4LDI1ICs0MzYsMjEgQEAgc3Rh
-dGljIGludCB0Y3BfZG9fdHdraWxsX3dvcmsoaW50IHNsb3QsIA0KIAkgKiBz
-b2Z0IGlycXMgYXJlIG5vdCBzZXF1ZW5jZWQuDQogCSAqLw0KIAlraWxsZWQg
-PSAwOw0KLQlyZXQgPSAwOw0KLQl0d19mb3JfZWFjaF9pbm1hdGUodHcsIG5v
-ZGUsIHNhZmUsDQotCQkJICAgJnRjcF90d19kZWF0aF9yb3dbc2xvdF0pIHsN
-CisJd2hpbGUgKGtpbGxlZCA8PSBxdW90YSAmJg0KKwkgICAgICAgIWhsaXN0
-X2VtcHR5KCZ0Y3BfdHdfZGVhdGhfcm93W3Nsb3RdKSkgew0KKwkJdHcgPSBo
-bGlzdF9lbnRyeSh0Y3BfdHdfZGVhdGhfcm93W3Nsb3RdLmZpcnN0LCBzdHJ1
-Y3QgdGNwX3R3X2J1Y2tldCwgdHdfZGVhdGhfbm9kZSk7DQogCQlfX3R3X2Rl
-bF9kZWFkX25vZGUodHcpOw0KIAkJc3Bpbl91bmxvY2soJnR3X2RlYXRoX2xv
-Y2spOw0KIAkJdGNwX3RpbWV3YWl0X2tpbGwodHcpOw0KIAkJdGNwX3R3X3B1
-dCh0dyk7DQogCQlraWxsZWQrKzsNCiAJCXNwaW5fbG9jaygmdHdfZGVhdGhf
-bG9jayk7DQotCQlpZiAoa2lsbGVkID4gcXVvdGEpIHsNCi0JCQlyZXQgPSAx
-Ow0KLQkJCWJyZWFrOw0KLQkJfQ0KIAl9DQogDQogCXRjcF90d19jb3VudCAt
-PSBraWxsZWQ7DQogCU5FVF9BRERfU1RBVFNfQkgoVGltZVdhaXRlZCwga2ls
-bGVkKTsNCiANCi0JcmV0dXJuIHJldDsNCisJcmV0dXJuIGtpbGxlZCA+IHF1
-b3RhOw0KIH0NCiANCiBzdGF0aWMgdm9pZCB0Y3BfdHdraWxsKHVuc2lnbmVk
-IGxvbmcgZHVtbXkpDQo=
---154490139-1198053911-1077914028=:32282--

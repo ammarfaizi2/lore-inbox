@@ -1,48 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129354AbRBNWrP>; Wed, 14 Feb 2001 17:47:15 -0500
+	id <S129193AbRBNXWS>; Wed, 14 Feb 2001 18:22:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129418AbRBNWrF>; Wed, 14 Feb 2001 17:47:05 -0500
-Received: from smtp3.jp.psi.net ([154.33.63.113]:61451 "EHLO smtp3.jp.psi.net")
-	by vger.kernel.org with ESMTP id <S129354AbRBNWrB>;
-	Wed, 14 Feb 2001 17:47:01 -0500
-From: "Rainer Mager" <rmager@vgkk.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: /proc/stat missing disk_io info
-Date: Thu, 15 Feb 2001 07:46:56 +0900
-Message-ID: <NEBBJBCAFMMNIHGDLFKGGEBEDBAA.rmager@vgkk.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <Pine.LNX.4.30.0101242116520.30884-100000@cola.teststation.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
+	id <S129215AbRBNXWH>; Wed, 14 Feb 2001 18:22:07 -0500
+Received: from ns1.uklinux.net ([212.1.130.11]:36101 "EHLO s1.uklinux.net")
+	by vger.kernel.org with ESMTP id <S129193AbRBNXWE>;
+	Wed, 14 Feb 2001 18:22:04 -0500
+Envelope-To: linux-kernel@vger.kernel.org
+Date: Wed, 14 Feb 2001 20:19:54 GMT
+From: James Stevenson <mistral@stev.org>
+Message-Id: <200102142019.f1EKJsR20833@stev.org>
+To: ppetru@ppetru.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ECN for servers ?
+In-Reply-To: <20010214190128.G923@ppetru.net>
+In-Reply-To: <20010214190128.G923@ppetru.net>
+Reply-To: mistral@stev.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Hi
 
-	I was wondering why some of my disks don't show up in /proc/stat's disk_io
-line. Specifically, my line says:
-
-disk_io: (2,0):(144,144,288,0,0) (3,0):(35,35,140,0,0)
-
-This equates to my floppy and first cdrom. I also have a second cdrom (RW)
-and 2 hard disks. Looking at the code (kstat_read_proc in
-fs/proc/proc_misc.c) it is looping only up to DK_MAX_MAJOR which is defined
-as 16 in kernel_stat.h. The problem is that my 2 HDs have a major number of
-22.
-
-I don't know enough to produce a patch, that is, what should DK_MAX_MAJOR be
-set to, but I believe the above is the problem.
+no they should not be effected
+the place that starts the connection eg send the first SYN
+has to ask to use ECN if it is not requested it will
+never be used in that connection
 
 
+In local.linux-kernel-list, you wrote:
+>Hello,
+>
+>What is the impact of enabling ECN on the server side ? I mean, will
+>any clients (with broken firewalls) be affected if a SMTP/HTTP server
+>has ECN enabled ?
+>
+>On the other hand, is there any advantage with ECN enabled on the server
+>side ?
+>
+>--
+>Petru Paler, mailto:ppetru@ppetru.net
+>http://www.ppetru.net - ICQ: 41817235
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-Thanks,
 
---Rainer
-
+-- 
+---------------------------------------------
+Check Out: http://stev.org
+E-Mail: mistral@stev.org
+  8:10pm  up 13 days,  3:55,  2 users,  load average: 0.08, 0.28, 0.14

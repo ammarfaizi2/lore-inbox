@@ -1,47 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262309AbUKDS24@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262350AbUKDSR0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262309AbUKDS24 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 13:28:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262354AbUKDSRm
+	id S262350AbUKDSR0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 13:17:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262354AbUKDSJI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 13:17:42 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:26811 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S262357AbUKDSQX
+	Thu, 4 Nov 2004 13:09:08 -0500
+Received: from mikonos.cyclades.com.br ([200.230.227.67]:32521 "EHLO
+	cyclades.com.br") by vger.kernel.org with ESMTP id S262309AbUKDSAV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 13:16:23 -0500
-Subject: Re: netlink vs kobject_uevent ordering
-From: Robert Love <rml@novell.com>
-To: Greg KH <greg@kroah.com>
-Cc: Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org,
-       davem@redhat.com, herbert@gondor.apana.org.au,
-       Kay Sievers <kay.sievers@vrfy.org>
-In-Reply-To: <20041104180550.GA16744@kroah.com>
-References: <20041104154317.GA1268@krispykreme.ozlabs.ibm.com>
-	 <20041104180550.GA16744@kroah.com>
-Content-Type: text/plain
-Date: Thu, 04 Nov 2004 13:13:53 -0500
-Message-Id: <1099592033.31022.138.camel@betsy.boston.ximian.com>
+	Thu, 4 Nov 2004 13:00:21 -0500
+Subject: RE: patch for sysfs in the cyclades driver
+From: Germano <germano.barreiro@cyclades.com>
+Reply-To: germano.barreiro@cyclades.com
+To: "Kilau, Scott" <Scott_Kilau@digi.com>
+Cc: Greg KH <greg@kroah.com>, Roland Dreier <roland@topspin.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <71A17D6448EC0140B44BCEB8CD0DA36E041BF5BC@minimail.digi.com>
+References: <71A17D6448EC0140B44BCEB8CD0DA36E041BF5BC@minimail.digi.com>
+Content-Type: text/plain; charset=iso-8859-1
+Organization: Cyclades Latin America
+Message-Id: <1099592893.2161.6.camel@tsthost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 04 Nov 2004 16:28:13 -0200
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-11-04 at 10:05 -0800, Greg KH wrote:
-
-> So, Robert and Kay, any thoughts as to how this has ever worked at boot
-> time in the past?
-
-Weird.  I don't have a clue, but clearly it did work.
-
-Similar thing here:
-
-	c04b60cc t __initcall_kobject_uevent_init
-	c04b60d0 t __initcall_netlink_proto_init
-
-Dunno why it ever worked, but it at least used to.
-
-	Robert Love
+I send my thanks to all too. Finally (I hope no new problems appear) the
+exit of the maze :)
 
 
+Em Qui, 2004-11-04 às 15:50, Kilau, Scott escreveu:
+> > > and the implementation in in drivers/scsi/st.c, that there's no
+> > > problem adding attributes to a device in a simple class.  You can
+> just
+> > > use class_set_devdata() on your class_device to set whatever context
+> > > you need to get back to your internal structures, and then use
+> > > class_device_create_file() to add the attributes.
+> > > 
+> > > I assume this is OK (since there is already one in-kernel driver
+> doing
+> > > it), but Greg, can you confirm that it's definitely OK for a driver
+> to
+> > > use class_set_devdata() on a class_device from
+> class_simple_device_add()?
+> 
+> > Hm, I think that should be ok, but I'd make sure to test it before
+> > verifying that it really is :)
+> 
+> I have just added this code and tested it, and indeed it *does* work!
+> 
+> So I will graciously redraw my comments from my previous email.
+> It works, and this is definitely the way Germano and I should go in
+> each of our respective drivers.
+> 
+> Thanks again for everyones comments/help!
+> 
+> Scott Kilau
+> Digi International
+> 
 

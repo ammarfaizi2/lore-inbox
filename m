@@ -1,30 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314340AbSE1M2q>; Tue, 28 May 2002 08:28:46 -0400
+	id <S314422AbSE1MfU>; Tue, 28 May 2002 08:35:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314389AbSE1M2p>; Tue, 28 May 2002 08:28:45 -0400
-Received: from vena.lwn.net ([206.168.112.25]:30738 "HELO eklektix.com")
-	by vger.kernel.org with SMTP id <S314340AbSE1M2o>;
-	Tue, 28 May 2002 08:28:44 -0400
-Message-ID: <20020528122845.29045.qmail@eklektix.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: business models [was patent stuff] 
-From: corbet-lk@lwn.net (Jonathan Corbet)
-In-Reply-To: Your message of "Mon, 27 May 2002 15:24:52 PDT."
-             <20020527152452.A24502@work.bitmover.com> 
-Date: Tue, 28 May 2002 06:28:45 -0600
+	id <S314396AbSE1MfT>; Tue, 28 May 2002 08:35:19 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:39329 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S314395AbSE1MfS>;
+	Tue, 28 May 2002 08:35:18 -0400
+Date: Tue, 28 May 2002 05:19:38 -0700 (PDT)
+Message-Id: <20020528.051938.03645050.davem@redhat.com>
+To: bcollins@debian.org
+Cc: alan@lxorguk.ukuu.org.uk, szepe@pinerecords.com, colin@gibbs.dhs.org,
+        linux-kernel@vger.kernel.org, tcallawa@redhat.com,
+        sparclinux@vger.kernel.org, aurora-sparc-devel@linuxpower.org
+Subject: Re: 2.4 SRMMU bug revisited
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020528121044.GG30482@blimpo.internal.net>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Jumping on the chance to cause more discussion...  This probably ought to
-> be off on some other list, but I don't know what that is.  
+   From: Ben Collins <bcollins@debian.org>
+   Date: Tue, 28 May 2002 08:10:44 -0400
+   
+   Not trying to add fuel to the fire, but Marcelo's last prepatch was
+   almost 4 weeks ago (26 days).
 
-For what it's worth, something like the Free Software Business List, which
-has a (rather minimalistic) web page at http://www.crynwr.com/fsb/,
-welcomes this sort of discussion.
+For most of that time I wasn't even getting responses from him, only
+recently (within the last week) did he start pulling in my changes.
 
-jon
+If you want Marcelo to make prepatches more often, simply ask him to
+do it :-)
 
-Jonathan Corbet
-Executive editor, LWN.net
-corbet@lwn.net
+A lot of the BK grievences amount to "Well, how would you approach
+this situation if BK didn't exit?" --> "Oh, I'd ask the maintainer to
+make prepatches more often."

@@ -1,82 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132805AbRDWQRD>; Mon, 23 Apr 2001 12:17:03 -0400
+	id <S132616AbRDWQOo>; Mon, 23 Apr 2001 12:14:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133108AbRDWQQo>; Mon, 23 Apr 2001 12:16:44 -0400
-Received: from fe020.worldonline.dk ([212.54.64.196]:30735 "HELO
-	fe020.worldonline.dk") by vger.kernel.org with SMTP
-	id <S132805AbRDWQQb>; Mon, 23 Apr 2001 12:16:31 -0400
-Message-ID: <3AE456F8.4010707@eisenstein.dk>
-Date: Mon, 23 Apr 2001 18:23:20 +0200
-From: Jesper Juhl <juhl@eisenstein.dk>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.17-mosix i586; en-US; m18) Gecko/20010131 Netscape6/6.01
-X-Accept-Language: en, da
+	id <S132801AbRDWQOe>; Mon, 23 Apr 2001 12:14:34 -0400
+Received: from portraits.wsisiz.edu.pl ([195.205.208.34]:64566 "EHLO
+	portraits.wsisiz.edu.pl") by vger.kernel.org with ESMTP
+	id <S132616AbRDWQOU>; Mon, 23 Apr 2001 12:14:20 -0400
+Date: Mon, 23 Apr 2001 18:13:38 +0200
+Message-Id: <200104231613.f3NGDc602071@lt.wsisiz.edu.pl>
+From: Lukasz Trabinski <lukasz@lt.wsisiz.edu.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Problem with "su -" and kernels 2.4.3-ac11 and higher
+In-Reply-To: <200104231603.f3NG3Uo01954@lt.wsisiz.edu.pl>
+X-Newsgroups: wsisiz.linux-kernel
+X-PGP-Key-Fingerprint: E233 4EB2 BC46 44A7 C5FC  14C7 54ED 2FE8 FEB9 8835
+X-Key-ID: 829B1533
+User-Agent: tin/1.5.9-20010328 ("Blue Water") (UNIX) (Linux/2.4.4-pre6 (i586))
 MIME-Version: 1.0
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] pedantic code cleanup - am I wasting my time with this?
-In-Reply-To: <3AE449A3.3050601@eisenstein.dk> <200104231537.f3NFblv08166@mobilix.ras.ucalgary.ca>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Gooch wrote:
+In article <200104231603.f3NG3Uo01954@lt.wsisiz.edu.pl> you wrote:
 
-> Jesper Juhl writes:
->
->> All the above does is to remove the last comma from 3 enumeration
->> lists.  I know that gcc has no problem with that, but to be strictly
->> correct the last entry should not have a trailing comma.
-> 
-> 
-> But it's more people-friendly to have that trailing comma. It makes
-> adding new enumerations just slightly easier, and also makes it easier
-> to manually apply failed patches. I'd rather see those trailing commas
-> left in.
 
-> 
+> Kernel 2.4.4-pre6, 2.2.2-10, 0.74-22  - RedHat 7.1
 
-You are right. As several people have pointed out to me it is in fact 
-legal to have the trailing comma. And it _does_ make it easier to add 
-new lines.
-At least I have learned a lesson here; be 100% sure of your facts before 
-posting to linux-kernel ;)
+Little update to my last mail: glibc 2.2.2-10, PAM 0.74-22 - RedHat 7.1.
 
-> 
->> Another example is the following line (1266) from linux/include/net/sock.h
->> 
->>          return (waitall ? len : min(sk->rcvlowat, len)) ? : 1;
->> 
->> To be strictly correct the second expression (between '?' and ':' ) 
->> should not be omitted (all you guys already know that ofcourse).
-> 
-> 
-> Yeah, that one's pretty ugly and unreadable.
-> 
 
-That function (sock_rcvlowat()) only gets called a few places, so I'll 
-see if I can figure out exactely what's going on and come up with a 
-better construct (it might take me ages, but I'm determined to learn to 
-find my way around this code)...
-
-> 
-> Go ahead and make suggestions. I expect some things will be accepted,
-> some rejected (just like I did). Steer clear of any brace or tabbing
-> style changes, though.
-> 
-
-Ok, I'll continue reading code and keep my eyes open for these things.
-
-[...]
-
-> The goal should *not* be to shut up gcc. The goal should be to produce
-> more readable code and to fix bugs. Gcc is merely a tool. And a flawed
-> one, at that.
-> 
-
-I'll remember that. Thank you to everyone who have taken their time to 
-answer my post, you have all been very helpfull!
-
-- Jesper Juhl - juhl@eisenstein.dk
-
+-- 
+*[ £ukasz Tr±biñski ]*
+SysAdmin @wsisiz.edu.pl

@@ -1,64 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265117AbUFRLgc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265121AbUFRLhq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265117AbUFRLgc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 07:36:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265118AbUFRLgc
+	id S265121AbUFRLhq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 07:37:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265119AbUFRLhp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 07:36:32 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:54284 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S265117AbUFRLg3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 07:36:29 -0400
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: vitalyvb@ukr.net (Vitaly V. Bursov)
-Subject: Re: linux-2.6.7 Equalizer Load-balancer.  eql.c. local non-privileged DoS
-Cc: linux-kernel@vger.kernel.org, alan@redhat.com, davem@redhat.com,
-       jgarzik@pobox.com, netdev@oss.sgi.com
-Organization: Core
-In-Reply-To: <20040618115153.3ad2dc32.vitalyvb@ukr.net>
-X-Newsgroups: apana.lists.os.linux.kernel
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.25-1-686-smp (i686))
-Message-Id: <E1BbHeo-00053Z-00@gondolin.me.apana.org.au>
-Date: Fri, 18 Jun 2004 21:35:42 +1000
+	Fri, 18 Jun 2004 07:37:45 -0400
+Received: from os.inf.tu-dresden.de ([141.76.48.99]:28033 "EHLO
+	os.inf.tu-dresden.de") by vger.kernel.org with ESMTP
+	id S265121AbUFRLhe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 07:37:34 -0400
+From: Carsten Rietzschel <cr7@os.inf.tu-dresden.de>
+Organization: TU Dresden - Operating System Group 
+To: Alexander Gran <alex@zodiac.dnsalias.org>
+Subject: Re: ACPI S3 - USB resume problem (kernel 2.6.7)
+Date: Fri, 18 Jun 2004 13:41:39 +0200
+User-Agent: KMail/1.6.52
+Cc: linux-kernel@vger.kernel.org
+References: <200406171744.29244.cr7@os.inf.tu-dresden.de> <200406172123.38043@zodiac.zodiac.dnsalias.org>
+In-Reply-To: <200406172123.38043@zodiac.zodiac.dnsalias.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406181341.39546.cr7@os.inf.tu-dresden.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vitaly V. Bursov <vitalyvb@ukr.net> wrote:
-> 
-> there are multiple vulns in drivers/net/eql.c
-> 
-> if there is no such device, dev_get_by_name returns NULL and everything dies.
-> Exploiting this is trivial.
+Hello,
 
-Thanks for the report.  This patch should fix them.
+thanks Alex. You're right - the e1000 doesn't work too.
+Also all other PCI-devices like firewire, USB and soundcard do not.
+So it's not a problem of USB, but of ACPI-PCI.
 
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+After reading a few mails of the acpi-mailinglist and some bug reports, I know 
+now, I'm not alone with this problem :/
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
---
-===== drivers/net/eql.c 1.13 vs edited =====
---- 1.13/drivers/net/eql.c	2004-06-05 01:50:36 +10:00
-+++ edited/drivers/net/eql.c	2004-06-18 21:30:49 +10:00
-@@ -497,6 +497,8 @@
- 	slave_dev = dev_get_by_name(sc.slave_name);
- 
- 	ret = -EINVAL;
-+	if (!slave_dev)
-+		return ret;
- 
- 	spin_lock_bh(&eql->queue.lock);
- 	if (eql_is_slave(slave_dev)) {
-@@ -531,6 +533,8 @@
- 	slave_dev = dev_get_by_name(sc.slave_name);
- 
- 	ret = -EINVAL;
-+	if (!slave_dev)
-+		return ret;
- 
- 	spin_lock_bh(&eql->queue.lock);
- 	if (eql_is_slave(slave_dev)) {
+I'll have a closer look to acpi-list & bug reports. 
+Maybe someone here, has found a solution or has some hints what to do next ???
+
+Regards,
+Carsten
+
+
+Am Donnerstag, 17. Juni 2004 21:23 schrieb Alexander Gran:
+> Am Donnerstag, 17. Juni 2004 17:44 schrieb Carsten Rietzschel:
+> > Noticed that in /proc/interrupts the values for uhci_hcd are not
+> > incremented after resume. So are no IRQs where received (is that right
+> > ?). What could be reason ?
+>
+> No Idea. I also tried to get this working, without success (And no more
+> time at the moment to dig deeper). The e1000 driver has the same problem.
+> No Interrupts on RX. Someone suggested to "Hook the driver to the timer
+> interrupt and see if that works at least somehow", however I'm unsure how
+> to do that ;)
+>
+> regards
+> Alex

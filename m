@@ -1,190 +1,166 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268370AbUIBVNy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269106AbUIBVSE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268370AbUIBVNy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 17:13:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269050AbUIBVNb
+	id S269106AbUIBVSE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 17:18:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267804AbUIBVRj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 17:13:31 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:61845 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S268370AbUIBVLM
+	Thu, 2 Sep 2004 17:17:39 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:53745 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S269100AbUIBVPH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 17:11:12 -0400
-Subject: [RFC] New Time of day proposal (updated 9/2/04)
+	Thu, 2 Sep 2004 17:15:07 -0400
+Subject: [RFC][PATCH] new timeofday i386 hooks (v.A0)
 From: john stultz <johnstul@us.ibm.com>
 To: lkml <linux-kernel@vger.kernel.org>
-Cc: tim@physik3.uni-rostock.de, george@mvista.com,
+Cc: tim@physik3.uni-rostock.de, george anzinger <george@mvista.com>,
        albert@users.sourceforge.net, Ulrich.Windl@rz.uni-regensburg.de,
-       clameter@sgi.com, len.brown@intel.com, linux@dominikbrodowski.de,
-       davidm@hpl.hp.com, ak@suse.de, paulus@samba.org, schwidefsky@de.ibm.com,
+       clameter@sgi.com, Len Brown <len.brown@intel.com>,
+       linux@dominikbrodowski.de, David Mosberger <davidm@hpl.hp.com>,
+       Andi Kleen <ak@suse.de>, paulus@samba.org, schwidefsky@de.ibm.com,
        jimix@us.ibm.com, keith maanthey <kmannth@us.ibm.com>,
        greg kh <greg@kroah.com>, Patricia Gaughen <gone@us.ibm.com>,
        Chris McDermott <lcm@us.ibm.com>
+In-Reply-To: <1094159379.14662.322.camel@cog.beaverton.ibm.com>
+References: <1094159238.14662.318.camel@cog.beaverton.ibm.com>
+	 <1094159379.14662.322.camel@cog.beaverton.ibm.com>
 Content-Type: text/plain
-Message-Id: <1094159238.14662.318.camel@cog.beaverton.ibm.com>
+Message-Id: <1094159492.14662.325.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 02 Sep 2004 14:07:19 -0700
+Date: Thu, 02 Sep 2004 14:11:33 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 All,
-	Here again is my updated time of day proposal. Also to follow is
-working code for i386. I wanted to get this out so folks could actually
-play around with the core architecture independent code. The i386
-specific bits function, but are unfinished. Thus they have been broken
-out and should mostly be ignored for this release.
+	This patch implements the minimal i386 architecture hooks to enable the
+new time of day subsystem code. It applies on top of my
+linux-2.6.9-rc1_timeofday-core_A0 patch and with this patch applied, you
+can test the new time of day subsystem on i386. Basically it adds the
+call to timeofday_interrupt_hook() and cuts alot of code out of the
+build. The only new code is the sync_persistant_clock() function which
+is mostly ripped out of do_timer_interrupt(). Pretty un-interesting.
 
-I'd really appreciate any feedback or concerns about this proposal and
-the following code. 
+I look forward to your comments and feedback.
 
 thanks
 -john
 
+linux-2.6.9-rc1_timeofday-i386_A0.patch
+=======================================
+diff -Nru a/arch/i386/Kconfig b/arch/i386/Kconfig
+--- a/arch/i386/Kconfig	2004-09-02 13:29:59 -07:00
++++ b/arch/i386/Kconfig	2004-09-02 13:29:59 -07:00
+@@ -14,6 +14,10 @@
+ 	  486, 586, Pentiums, and various instruction-set-compatible chips by
+ 	  AMD, Cyrix, and others.
+ 
++config NEWTOD
++	bool
++	default y
++
+ config MMU
+ 	bool
+ 	default y
+diff -Nru a/arch/i386/kernel/time.c b/arch/i386/kernel/time.c
+--- a/arch/i386/kernel/time.c	2004-09-02 13:29:59 -07:00
++++ b/arch/i386/kernel/time.c	2004-09-02 13:29:59 -07:00
+@@ -67,6 +67,8 @@
+ 
+ #include "io_ports.h"
+ 
++#include <linux/timeofday.h>
++
+ extern spinlock_t i8259A_lock;
+ int pit_latch_buggy;              /* extern */
+ 
+@@ -87,6 +89,7 @@
+ 
+ struct timer_opts *cur_timer = &timer_none;
+ 
++#ifndef CONFIG_NEWTOD
+ /*
+  * This version of gettimeofday has microsecond resolution
+  * and better than microsecond precision on fast x86 machines with TSC.
+@@ -169,6 +172,7 @@
+ }
+ 
+ EXPORT_SYMBOL(do_settimeofday);
++#endif
+ 
+ static int set_rtc_mmss(unsigned long nowtime)
+ {
+@@ -194,12 +198,39 @@
+  *		Note: This function is required to return accurate
+  *		time even in the absence of multiple timer ticks.
+  */
++#ifndef CONFIG_NEWTOD
+ unsigned long long monotonic_clock(void)
+ {
+ 	return cur_timer->monotonic_clock();
+ }
+ EXPORT_SYMBOL(monotonic_clock);
++#endif
+ 
++void sync_persistant_clock(struct timespec ts)
++{
++	/*
++	 * If we have an externally synchronized Linux clock, then update
++	 * CMOS clock accordingly every ~11 minutes. Set_rtc_mmss() has to be
++	 * called as close as possible to 500 ms before the new second starts.
++	 */
++	if (ts.tv_sec > last_rtc_update + 660 &&
++	    (ts.tv_nsec / 1000)
++			>= USEC_AFTER - ((unsigned) TICK_SIZE) / 2 &&
++	    (ts.tv_nsec / 1000)
++			<= USEC_BEFORE + ((unsigned) TICK_SIZE) / 2) {
++		/* horrible...FIXME */
++		if (efi_enabled) {
++	 		if (efi_set_rtc_mmss(ts.tv_sec) == 0)
++				last_rtc_update = ts.tv_sec;
++			else
++				last_rtc_update = ts.tv_sec - 600;
++		} else if (set_rtc_mmss(ts.tv_sec) == 0)
++			last_rtc_update = ts.tv_sec;
++		else
++			last_rtc_update = ts.tv_sec - 600; /* do it again in 60 s */
++	}
++
++}
+ 
+ /*
+  * timer_interrupt() needs to keep up the real-time clock,
+@@ -226,6 +257,7 @@
+ 
+ 	do_timer_interrupt_hook(regs);
+ 
++#ifndef CONFIG_NEWTOD
+ 	/*
+ 	 * If we have an externally synchronized Linux clock, then update
+ 	 * CMOS clock accordingly every ~11 minutes. Set_rtc_mmss() has to be
+@@ -248,6 +280,7 @@
+ 		else
+ 			last_rtc_update = xtime.tv_sec - 600; /* do it again in 60 s */
+ 	}
++#endif
+ 
+ #ifdef CONFIG_MCA
+ 	if( MCA_bus ) {
+@@ -282,11 +315,15 @@
+ 	 */
+ 	write_seqlock(&xtime_lock);
+ 
++#ifndef CONFIG_NEWTOD
+ 	cur_timer->mark_offset();
++#endif
+  
+ 	do_timer_interrupt(irq, NULL, regs);
+ 
+ 	write_sequnlock(&xtime_lock);
++
++	timeofday_interrupt_hook();
+ 	return IRQ_HANDLED;
+ }
+ 
 
-Proposal for an architecture independent time of day implementation.
--------------------------------------------------------------------
-John Stultz (johnstul@us.ibm.com)
-DRAFT
-Thu Sep  2 12:35:11 PDT 2004
-
-Credits:
-	Keith Mannthey:	Aided initial design.
-			Aided greatly to implementation details.
-	George Anzinger: Initial review and corrections.
-	Ulrich Windl: Review and suggestions for clarity.
-
-	Many of the time of day related issues that cropped up in 2.5
-development occurred where a fix or change was made to a number of
-architectures, but missed a few others. Currently every architecture has
-its own set of timekeeping functions that basically do the same thing,
-only using different (or frequently, not so different) types of
-hardware. As hardware has changed, many architectures have had to
-re-engineer their time system to handle multiple time and interrupt
-sources. With little common infrastructure, either each separate
-implementation has its own quirks and bugs, or we end up with a
-reasonable quantity of duplicated code. Additionally the lack of a clear
-time of day interface has led developers to use jiffies, HZ, and the raw
-xtime values to calculate the time of day themselves. This has lead to a
-number of troublesome bugs.
-
-	With the goal to simplify, streamline and consolidate the time-of-day
-infrastructure, I propose the following common implementation across all
-arches. This will allow generic bugs to be fixed once, reduce code
-duplication, and with many architectures sharing the same time source,
-this allows drivers to be written once for multiple architectures.
-Additionally it will better delineate the lines between the timer
-subsystem and the time-of-day subsystem, opening the door for more
-flexible and better timekeeping.
-
-Features of this design:
-========================
-
-o Splits time of day management from timer interrupts:
-	This is necessary for virtualization & tickless systems. It allows us
-to no longer care how often clock_interrupt() is called. Missing, early
-or lost interrupts do not affect time keeping (within bounds - ie: the
-time source cannot overflow). This isolates HZ and jiffies to the timer
-subsystem (mostly), as they are frequently and incorrectly used to
-calculate time.
-	Additionally, it allows for dynamic tick interrupts / high-res ticks.
-Avoid the need to interpolate between multiple shoddy time sources, and
-lets us be agnostic to where the periodic interrupts come from (cleans
-up i386 HPET interrupt code).
-
-o Consolidates a large amount of code:
-	Allows for shared times source implementations, such as: i386, x86-64
-and ia64 all use HPET, i386 and x86-64 both have ACPI PM timers, and
-i386 and ia64 both have cyclone counters. Time sources are just drivers!
-Also work for user space gettimeofday implementations will be able to be
-shared across all arches (assuming the hardware time source can be
-safely accessed from user space).
-
-o Generic algorithms which use time-source drivers chosen at runtime:
-	Drivers are just simple hw accessors functions with no internal state
-needed. They can be loaded and changed while the system is running, like
-normal modules.
-
-o More consistent and readable code:
-	Drop wall_to_monotonic & xtime in favor of a more simple system_time
-and wall_time_offset variables. Where system_time is the monotonically
-increasing nanoseconds since boot time and wall_time_offset is the
-offset added to system_time to calculate time of day.
-
-o Uses nanoseconds as the kernel's base time unit.
-	Rather then doing ugly manipulations to timevals or timespecs, this
-simplifies math, and gives us plenty of room to grow (64bits of
-nanoseconds ~= 584 years).
-
-o Clearly separates the NTP code from the time code:
-	Creates a clean and clear interface, keeping all the NTP related code
-in a single place. Save brains, normal people shouldn't have to think
-about the in kernel ntp machinery.
-
-
-Brief Psudo-code to illustrate the design:
-==========================================
-
-Globals:
---------
-offset_base: timesource cycle value at last call to timeofday_hook()
-system_time: time in ns calculated at last call to timeofday_hook()
-wall_offset: offset to monotonic_clock() to get current time of day
-
-Functions:
-----------
-timeofday_hook()
-	now = read();			/* read the timesource */
-	ns = cyc2ns(now - offset_base); /* calc nsecs since last call */
-	ntp_ns = ntp_scale(ns);		/* apply ntp scaling */
-	system_time += ntp_ns;		/* add scaled value to system_time */
-	ntp_advance(ns);		/* advance ntp state machine by ns */
-	offset_base = now;		/* set new offset_base */
-
-monotonic_clock()
-	now = read();			/* read the timesource */
-	ns = cyc2ns(now - offset_base);	/* calculate nsecs since last hook */
-	ntp_ns = ntp_scale(ns);		/* apply ntp scaling */
-	return system_time + ntp_ns; 	/* return system_time and scaled value
-					 */
-
-settimeofday(desired)
-	wall_offset = desired - monotonic_clock(); /* set wall offset */
-
-gettimeofday()
-	return wall_offset + monotonic_clock();	/* return current timeofday */
-
-
-Points I'm glossing over for now:
-====================================================
-
-o Have to convert back to time_val for syscall interface
-
-o ntp_scale(ns):  scales ns by NTP scaling factor
-	- see ntp.c for details
-	- costly, but correct.
-
-o ntp_advance(ns): advances NTP state machine by ns
-	- see ntp.c for details
-
-o What is the cost of throwing around 64bit values for everything?
-	- Do we need an arch specific time structure that varies size
-accordingly?
-
-o Some arches (arm, for example) do not have high res  timing hardware
-	- In this case we can have a "jiffies" timesource
-		- cyc2ns(x) =  x*(NSEC_PER_SEC/HZ)
-		- doesn't work for tickless systems
-
-o vsyscalls/userspace gettimeofday()
-	- Mark functions and data w/  __vsyscall attribute
-	- Use linker to put all __vsyscall data in the same set of pages
-	- Mark those pages user-executable
-	- Should work for all arches
-	- ia64 fastcall should be used for timesource implementation only
-
-o suspend/resume
-	- not yet implemented, but shouldn't be hard
-
-Anything else? What am I missing or just being ignorant of?
 

@@ -1,33 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272589AbRHaCbs>; Thu, 30 Aug 2001 22:31:48 -0400
+	id <S272590AbRHaCe7>; Thu, 30 Aug 2001 22:34:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272590AbRHaCbi>; Thu, 30 Aug 2001 22:31:38 -0400
-Received: from app79.hitnet.RWTH-Aachen.DE ([137.226.181.79]:10759 "EHLO
-	anduin.hitnet.rwth-aachen.de") by vger.kernel.org with ESMTP
-	id <S272589AbRHaCbc>; Thu, 30 Aug 2001 22:31:32 -0400
-Date: Fri, 31 Aug 2001 04:31:44 +0200
-From: Jan Niehusmann <jan@gondor.com>
-To: Andreas Franck <afranck@gmx.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Messages "ACPI attempting to access kernel owned memory"?
-Message-ID: <20010831043143.A811@gondor.com>
-In-Reply-To: <E15cZ5F-0001qR-00@the-village.bc.nu> <01083103560000.00925@dg1kfa>
+	id <S272591AbRHaCet>; Thu, 30 Aug 2001 22:34:49 -0400
+Received: from Xenon.Stanford.EDU ([171.64.66.201]:452 "EHLO
+	Xenon.Stanford.EDU") by vger.kernel.org with ESMTP
+	id <S272590AbRHaCeg>; Thu, 30 Aug 2001 22:34:36 -0400
+Date: Thu, 30 Aug 2001 19:34:49 -0700
+From: Andy Chou <acc@CS.Stanford.EDU>
+To: "Peter T. Breuer" <ptb@it.uc3m.es>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
+Message-ID: <20010830193449.A18366@Xenon.Stanford.EDU>
+Reply-To: acc@CS.Stanford.EDU
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <01083103560000.00925@dg1kfa>
-User-Agent: Mutt/1.3.20i
+User-Agent: Mutt/1.1.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 31, 2001 at 03:56:00AM +0200, Andreas Franck wrote:
-> So the solution was not to use a mem commandline. I have not found a way to 
-> tell GRUB it should not pass this option, so this should be fixed in GRUB.
+How about:
 
-the option you are looking for is --no-mem-option in grubs menu.lst.
-For example:
-kernel --no-mem-option (hd0,2)/boot/latest-kernel root=/dev/hda3
+#define AssertNow(x) switch(1) { case (x): case 0: }
 
-Jan
+as in:
+
+AssertNow(sizeof(typeof(x)) == sizeof(typeof(y)));
+
+I'm not sure if gcc optimizes this away, but it would be easy for someone
+to find out.
+
+I didn't invent this.
+
+-Andy
+
+
+> And I was hoping that somebody could produce some gcc magic
+> replacement for BUG() that means "don't compile me". Perhaps
+> a bit of illegal assembler code with a line reference in?
+> Surely gcc must have something like __builtin_wont_compile()?
+> It just needs to be a leaf of the RTL that evokes a compile error.
 

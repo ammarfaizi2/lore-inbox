@@ -1,81 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262485AbUKLCEs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262378AbUKLCUM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262485AbUKLCEs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 21:04:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262454AbUKLCEU
+	id S262378AbUKLCUM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 21:20:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262402AbUKLCUM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 21:04:20 -0500
-Received: from mail.renesas.com ([202.234.163.13]:25591 "EHLO
-	mail04.idc.renesas.com") by vger.kernel.org with ESMTP
-	id S262458AbUKLCDV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 21:03:21 -0500
-Date: Fri, 12 Nov 2004 11:03:07 +0900 (JST)
-Message-Id: <20041112.110307.1025206957.takata.hirokazu@renesas.com>
-To: akpm@osdl.org
-Cc: takata@linux-m32r.org, linux-kernel@vger.kernel.org, gniibe@fsij.org
-Subject: Re: [PATCH 2.6.10-rc1 1/2] [m32r] Update for m32r-g00ff
-From: Hirokazu Takata <takata@linux-m32r.org>
-In-Reply-To: <20041111163927.1edcd1c9.akpm@osdl.org>
-References: <20041111.221136.576022723.takata.hirokazu@renesas.com>
-	<20041111.221223.596521517.takata.hirokazu@renesas.com>
-	<20041111163927.1edcd1c9.akpm@osdl.org>
-X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
+	Thu, 11 Nov 2004 21:20:12 -0500
+Received: from zlynx.org ([199.45.143.209]:17158 "EHLO 199.45.143.209")
+	by vger.kernel.org with ESMTP id S262378AbUKLCTw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Nov 2004 21:19:52 -0500
+Subject: Re: Reiser{3,4}: problem with the copyright statement
+From: Zan Lynx <zlynx@acm.org>
+To: Stephen Pollei <stephen_pollei@comcast.net>
+Cc: Adrian Bunk <bunk@stusta.de>, Hans Reiser <reiser@namesys.com>,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <1100213504.8355.27.camel@fury>
+References: <20041111012333.1b529478.akpm@osdl.org>
+	 <20041111214554.GB2310@stusta.de>  <1100213504.8355.27.camel@fury>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-XoqthebYfgFLEIE31DQ8"
+Date: Thu, 11 Nov 2004 19:08:12 -0700
+Message-Id: <1100225292.16114.27.camel@localhost>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Andrew,
 
-From: Andrew Morton <akpm@osdl.org>
-Date: Thu, 11 Nov 2004 16:39:27 -0800
-> Hirokazu Takata <takata@linux-m32r.org> wrote:
-> >
-> >  - Position-independent zImage support;
-> >    this aims at removing constraints of zImage(vmlinuz)'s location.
-> 
-> This generates a reject against Linus's current tree, in
-> arch/m32r/boot/compressed/Makefile
-> 
-> Please always generate diffs against current bitkeeper, or against the
-> latest diff from ftp://ftp.kernel.org/pub/linux/kernel/v2.6/snapshots. 
-> 2.6.10-rc1 is too old: we're currently showing a ten megabyte diff against
-> 2.6.10-rc1.
+--=-XoqthebYfgFLEIE31DQ8
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I see. I will check my patches before sending hereafter.
+On Thu, 2004-11-11 at 14:51 -0800, Stephen Pollei wrote:
+> On Thu, 2004-11-11 at 13:45, Adrian Bunk wrote:
+> > If you add your code to governed files, and don't
+> > want it to be owned by Hans Reiser, put your copyright label on that
+> > code ... All portions of governed files not labeled otherwise are owned
+> > by Hans Reiser, and ... and leaving the sentence in stating that
+> > licensing is governed by the statement in this file, you accept this.
+>=20
+> > Besides the fact that giving the copyright completely away is nothing=20
+> > that is legally possible in at least Germany, ...
+>=20
+> Han's method is also very likely nugatory within the USA.
+>=20
+> http://copyright.gov/title17/92chap2.html#204 clearly states that to
+> transfer title of copyrighted work requires a written instrument of
+> conveyance. That instrument of conveyance has to be signed and should in
+> many ways look a lot like a deed or title for real estate -- ie. it must
+> denote the boundaries of the transaction in a specific and explicit
+> manner. In this instance it would probably be required to state in as
+> unambiguous manner as possible which files and which versions this
+> transfer is to cover. In the case of patches to preexisting files; it
+> should also be specific as to which lines are to be covered unless one
+> writes it in a style like a "Quit Claim Deed".
 
-> I resolved the reject as below.  It might be wrong.
+(not a lawyer, etc, etc.  Just a LKML lurker.)
 
-Thank you for your elaboration.
-OK. Please apply the following patch.
+As I understand it, these things depend on the size of the changes.  For
+example, in the world of publishing, an editor may change spellings and
+phrases, even add or remove entire paragraphs, but does not gain any
+rights over the work by doing so.
 
-> 
-> --- 25/arch/m32r/boot/compressed/Makefile~m32r-update-for-m32r-g00ff	2004-11-11 16:35:23.789252008 -0800
-> +++ 25-akpm/arch/m32r/boot/compressed/Makefile	2004-11-11 16:35:23.800250336 -0800
-> @@ -5,10 +5,10 @@
->  #
->  
->  targets		:= vmlinux vmlinux.bin vmlinux.bin.gz head.o misc.o \
-> -		   m32r-sio.o piggy.o vmlinux.lds
-> +		   piggy.o vmlinux.lds
->  EXTRA_AFLAGS	:= -traditional
->  
-> -OBJECTS = $(obj)/head.o $(obj)/misc.o $(obj)/m32r_sio.o
-> +OBJECTS = $(obj)/head.o $(obj)/misc.o
->  
->  #
->  # IMAGE_OFFSET is the load offset of the compression loader
-> @@ -28,6 +28,8 @@ $(obj)/vmlinux.bin: vmlinux FORCE
->  $(obj)/vmlinux.bin.gz: $(obj)/vmlinux.bin FORCE
->  	$(call if_changed,gzip)
->  
-> +CFLAGS_misc.o += -fpic
-> +
->  LDFLAGS_piggy.o := -r --format binary --oformat elf32-m32r-linux -T
->  OBJCOPYFLAGS += -R .empty_zero_page
->  
+If there was argument about this, deciding where the line is between a
+edit and new work would be up to a court, no doubt.  If I was deciding
+it, changes to fit ReiserFS into a new VFS structure or fixing a locking
+bug would be a "edit", while adding a new Reiser4 plugin or a more
+efficient hash function would be "new work."
+--=20
+Zan Lynx <zlynx@acm.org>
 
-Thank you again,
+--=-XoqthebYfgFLEIE31DQ8
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
--- Takata
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBBlBsMG8fHaOLTWwgRAgoqAJ9LOlm9do0VDxQK3x1dNl1vzjAKmACdFwHw
+mEvGRARgFshv3j3AQs8hBuM=
+=te22
+-----END PGP SIGNATURE-----
+
+--=-XoqthebYfgFLEIE31DQ8--
+

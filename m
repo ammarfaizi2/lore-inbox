@@ -1,83 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261233AbVA3Sym@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261766AbVA3Szb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261233AbVA3Sym (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jan 2005 13:54:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261767AbVA3Sym
+	id S261766AbVA3Szb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jan 2005 13:55:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261767AbVA3Szb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jan 2005 13:54:42 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:16845 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261233AbVA3Syg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jan 2005 13:54:36 -0500
-Date: Sun, 30 Jan 2005 13:57:51 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Matthew Wilcox <matthew@wil.cx>, Lukasz Kosewski <lkosewsk@nit.ca>,
-       Andrew Morton <akpm@osdl.org>, vgoyal@in.ibm.com,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: SCSI aic7xxx driver: Initialization Failure over a kdump reboot
-Message-ID: <20050130155751.GA11375@logos.cnet>
-References: <1105014959.2688.296.camel@2fwv946.in.ibm.com> <1105013524.4468.3.camel@laptopd505.fenrus.org> <20050106195043.4b77c63e.akpm@osdl.org> <41DE15C7.6030102@nit.ca> <20050107043832.GR27371@parcelfarce.linux.theplanet.co.uk> <20050130152749.GF5186@logos.cnet> <1107109647.4306.61.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1107109647.4306.61.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.5.1i
+	Sun, 30 Jan 2005 13:55:31 -0500
+Received: from dunaweb1.euroweb.hu ([195.184.0.6]:33756 "EHLO
+	szolnok.dunaweb.hu") by vger.kernel.org with ESMTP id S261766AbVA3SzS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jan 2005 13:55:18 -0500
+Message-ID: <41FD2ED5.6030903@freemail.hu>
+Date: Sun, 30 Jan 2005 20:00:37 +0100
+From: Zoltan Boszormenyi <zboszor@freemail.hu>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; hu; rv:1.7.3) Gecko/20041020
+X-Accept-Language: hu, en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Helge Hafting <helgehaf@aitel.hist.no>, Jon Smirl <jonsmirl@gmail.com>
+Subject: Re: 2.6.10 dies when X uses PCI radeon 9200 SE, further binary search
+ result
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 30, 2005 at 07:27:26PM +0100, Arjan van de Ven wrote:
-> On Sun, 2005-01-30 at 13:27 -0200, Marcelo Tosatti wrote:
-> > On Fri, Jan 07, 2005 at 04:38:32AM +0000, Matthew Wilcox wrote:
-> > > On Thu, Jan 06, 2005 at 11:53:27PM -0500, Lukasz Kosewski wrote:
-> > > > I have an idea of something I might do for 2.6.11, but I doubt anyone
-> > > > will actually agree with it.  Say we keep a counter of how many times
-> > > > interrupt x has been fired off since the last timer interrupt
-> > > > (obviously, a timer interrupt resets the counter).  Then we can pick an
-> > > > arbitrary threshold for masking out this interrupt until another device
-> > > > actually pines for it.
-> > > > 
-> > > > Or something.  The point is, we need a general solution to the problem,
-> > > > not poking about in every single driver trying to tie it down.
-> > > 
-> > > Something like note_interrupt() in kernel/irq/spurious.c?
-> > 
-> > BTW I wonder if its feasible to add an interface on top of kernel/irq/spurious.c for 
-> > notifying drivers about interrupts storms, so they can take appropriate action 
-> > (try to reset the device).
+> On Sun, Jan 30, 2005 at 10:05:16AM -0500, Jon Smirl wrote:
+>> I just checked out on current Linus BK with my AGP Radeon 9000 which
+>> is pretty close to a 9200. Everything is working fine.
+>> 
+>> I notice from his logs that he is running a PCI radeon, not an AGP
+>> one. Didn't someone make some changes to the PCI radeon memory
+>> management code recently? I run a PCI R128 and that is still working.
+>> DRM debug output might give more clues.
+>> 
+> Yes, it is a PCI radeon.  And the machine has an AGP slot
+> too, which is used by a matrox G550.  This AGP card was not
+> used in the test, (other than being the VGA console).
+> Note that there is no crash if I don't compile 
+> AGP support, so the crash is related to AGP somehow even though
+> AGP is not supposed to be used in this case.
 > 
-> the problem is... the driver just denied it was their irq (at least in
-> all the common cases)... 
+> As I start X (on the radeon) I notice that the VGA console 
+> I'm using (on the G550 AGP) goes black.  I see no need for that either,
+> the radeon display is a _different_ device so why black out 
+> the vgacon?  Could the problem lurk there somehow?
+> 
+> Helge Hafting
 
-Hum, drivers should, at least in theory, be able to return IRQ_NONE if interrupts
-can't be handled.
+I suspect it's the X server that makes your G550 go black.
 
-So is 8390 a special case? 
+XOrg-X11-6.8.2 RC1 or RC2 fixes that by introducing a VGAAccess
+option for its radeon driver. I recompiled xorg-x11-6.8.1 with this
+fix on my FC3 system. It made the only thing that annoyed me
+using the linuxconsole.sf.net ruby patch go away.
 
-drivers/net/8390.c 
-irqreturn_t ei_interrupt(int irq, void *dev_id, struct pt_regs * regs)
-{
-...
+I have a Radeon 7000VE PCI and a Radeon 9200SE AGP8x.
+Every time I logged out on the first X ( localhost:0 ),
+it made the other one (localhost:1) go blank.
 
-        }
-        spin_unlock(&ei_local->page_lock);
-        return IRQ_RETVAL(nr_serviced > 0);
-}
+With the above mentioned fix (that I collected from the XOrg devel
+mailing list and was made by Ben Herrenschmidt) applied to XOrg
+and using
 
+Option "VGAAccess" "on"
 
-The "workaround" looks like (at the end of ei_interrupt):
+on the card that is set up for VGA by the BIOS and
 
-        if (!nr_serviced)
-                interrupt_cnt++;
-        else
-                interrupt_cnt = 0;
-                                                                                
-        if (interrupt_cnt > 256) {
-                ei_status.reset_8390(dev);
-                interrupt_cnt = 0;
-        }
+Option "VGAAccess" "off"
 
+on the other, this problem went away. This modification disables
+using the "vgahw" module in XOrg and unfortunately only applicable
+to the radeon driver. BTW this patch was made for specifically
+for systems that don't use vgacon, like PPC that don't even have
+legacy VGA and for others that use radeonfb.
 
-One could argue that it is a hardware problem...
+I guess the VGA routing patch and X cooperation will also
+solve "the other VGA(s) in the system go blank when I fire up X"
+in a generic way, not only for Radeons.
 
+Best regards,
+Zoltán Böszörményi
 

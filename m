@@ -1,40 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293379AbSCOWBp>; Fri, 15 Mar 2002 17:01:45 -0500
+	id <S293390AbSCOWFF>; Fri, 15 Mar 2002 17:05:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293373AbSCOWB3>; Fri, 15 Mar 2002 17:01:29 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:10134 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S293381AbSCOWBM>;
-	Fri, 15 Mar 2002 17:01:12 -0500
-Date: Fri, 15 Mar 2002 21:57:06 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: mingo@elte.hu
-To: Joe Korty <joe.korty@ccur.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.4.18 scheduler bugs
-In-Reply-To: <200203152159.VAA27831@rudolph.ccur.com>
-Message-ID: <Pine.LNX.4.44.0203152156270.23324-100000@elte.hu>
+	id <S293381AbSCOWEz>; Fri, 15 Mar 2002 17:04:55 -0500
+Received: from 64-60-75-69-cust.telepacific.net ([64.60.75.69]:33299 "EHLO
+	racerx.ixiacom.com") by vger.kernel.org with ESMTP
+	id <S293373AbSCOWEo>; Fri, 15 Mar 2002 17:04:44 -0500
+Message-ID: <3C926E0B.1A0EE311@ixiacom.com>
+Date: Fri, 15 Mar 2002 13:56:27 -0800
+From: Dan Kegel <dank@ixiacom.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10-dan i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jakub Jelinek <jakub@redhat.com>
+CC: Dan Kegel <dkegel@ixiacom.com>, Ulrich Drepper <drepper@redhat.com>,
+        darkeye@tyrell.hu, libc-gnats@gnu.org, gnats-admin@cygnus.com,
+        sam@zoy.org, Xavier Leroy <Xavier.Leroy@inria.fr>,
+        linux-kernel@vger.kernel.org, babt@us.ibm.com
+Subject: Re: libc/1427: gprof does not profile threads <synopsis of the problem 
+ (one li\ne)>
+In-Reply-To: <1016062486.16743.1091.camel@myware.mynet> <3C8FEC76.F1411739@ixiacom.com> <20020314020834.Z2434@devserv.devel.redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, 15 Mar 2002, Joe Korty wrote:
-
-> > > [...] But on the Athlon the IPI isnt going down a little side channel
-> > > between cpus.
-> > 
-> > but even in the Athlon case an IPI is still an IRQ entry, which will add
-> > at least 200 cycles or more to the idle wakeup latency.
+Jakub Jelinek wrote:
 > 
-> It is an idle cpu that is spending those 200 cycles.
+> On Wed, Mar 13, 2002 at 04:19:02PM -0800, Dan Kegel wrote:
+> > Ulrich Drepper wrote:
+> > >
+> > > On Wed, 2002-03-13 at 15:17, Dan Kegel wrote:
+> > >
+> > > > So let's break the logjam and fix glibc's linuxthreads' pthread_create
+> > > > to [support profiling multithreaded programs]
+> > >
+> > > I will add nothing like this.  The implementation is broken enough and
+> > > any addition just makes it worse.  If you patch your own code you'll get
+> > > what you want at your own risk.
+> >
+> > OK.  What's the right way to fix this, then?
+> 
+> Surely don't use timer for profiling.
+> Have the compiler generate profiling calls both at function entry and exit
+> and use rdtsc/whatever other register your machine has (or even better
+> profiling registers) to note time of that function being entered/left.
 
-wrong. When it's woken up it's *not* an idle CPU anymore, and it's the
-freshly woken up task that is going to execute 200 cycles later...
+That's a different style of profiling.  There is a fellow
+working on that (see http://sourceforge.net/projects/fnccheck )
+but there's value in the gprof-style of profiling as well.
+(For instance, I suspect it's lower overhead.)
 
-	Ingo
+I think it's reasonable for us to get gprof working; it's
+a useful part of classic Unix, and the fix looks easy.
 
+Ulrich, do you at least agree that it would be desirable for
+gprof to work properly on multithreaded programs?
+
+- Dan

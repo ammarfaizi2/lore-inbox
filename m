@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266769AbUGLJ1r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266768AbUGLJfJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266769AbUGLJ1r (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 05:27:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266768AbUGLJ1q
+	id S266768AbUGLJfJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 05:35:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266770AbUGLJfJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 05:27:46 -0400
-Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:57279 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S266769AbUGLJ0D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 05:26:03 -0400
-Date: Mon, 12 Jul 2004 11:26:00 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
+	Mon, 12 Jul 2004 05:35:09 -0400
+Received: from mproxy.gmail.com ([216.239.56.243]:33549 "HELO mproxy.gmail.com")
+	by vger.kernel.org with SMTP id S266768AbUGLJfE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 05:35:04 -0400
+Message-ID: <4d8e3fd3040712023469039826@mail.gmail.com>
+Date: Mon, 12 Jul 2004 11:34:59 +0200
+From: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       viro@parcelfarce.linux.theplanet.co.uk
 Subject: Re: Linux 2.6.8-rc1
-Message-ID: <20040712092600.GB5979@merlin.emma.line.org>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	viro@parcelfarce.linux.theplanet.co.uk
-References: <Pine.LNX.4.58.0407111120010.1764@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
 In-Reply-To: <Pine.LNX.4.58.0407111120010.1764@ppc970.osdl.org>
-User-Agent: Mutt/1.5.5.1i
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <Pine.LNX.4.58.0407111120010.1764@ppc970.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 11 Jul 2004, Linus Torvalds wrote:
-
+On Sun, 11 Jul 2004 11:29:44 -0700 (PDT), Linus Torvalds
+<torvalds@osdl.org> wrote:
+> 
 > Ok, there's been a long time between "public" releases, although the
-> automated BK snapshots have obviously been keeping people up-to-date. 
+> automated BK snapshots have obviously been keeping people up-to-date.
 > Sorry about that, I blame mainly moving boxes and stuff around...
 
-...
+Maybe I'm just missing the whole point but I wonder if we could define
+a series of 'test' a version should pass before being marked as -rc ir
+final.
 
-> Alexander Viro:
-    ...
->   o sparse: rt_sigsuspend/sigaltstack sanitized
+Now that we have the automated BK snapshots the "public" release seems
+to be a minor milestone in the process.
 
-I consider this harmful right now, full log:
+I would like to see ltp test suite, OSDL's compile stats and OSDL
+benchmarking as part of the release process.
 
-ChangeSet@1.1743, 2004-06-18 13:35:31-07:00, viro@parcelfarce.linux.theplanet.co.uk
-  [PATCH] sparse: rt_sigsuspend/sigaltstack sanitized
-  
-  rt_sigsuspend() and sigaltstack() prototype changed; instead of
-  playing games with casts of argument address to struct pt_regs * and
-  digging through it, we declare them as
-  
-        int <fn>(struct pt_regs regs)
-  
-  instead.
+Does it make sense ?
 
-This ChangeSet causes Java to get killed right away, to see this, just
-type "Java". Excluding this ChangeSet (ID
-viro@parcelfarce.linux.theplanet.co.uk[torvalds]|ChangeSet|20040618203531|62233)
-fixes the problem for me.
+Ciao,
+                             Paolo
 
-Thanks to Go Taniguchi for isolating the change set.
+-- 
+paoloc.doesntexist.org

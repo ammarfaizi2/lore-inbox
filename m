@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261857AbULJW73@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261862AbULJXV5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261857AbULJW73 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 17:59:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261862AbULJW72
+	id S261862AbULJXV5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 18:21:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261867AbULJXV5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 17:59:28 -0500
-Received: from fsmlabs.com ([168.103.115.128]:29847 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S261857AbULJW7W (ORCPT
+	Fri, 10 Dec 2004 18:21:57 -0500
+Received: from fw.osdl.org ([65.172.181.6]:49045 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261862AbULJXV4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 17:59:22 -0500
-Date: Fri, 10 Dec 2004 15:58:52 -0700 (MST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: George Anzinger <george@mvista.com>
-cc: Lee Revell <rlrevell@joe-job.com>, dipankar@in.ibm.com,
-       ganzinger@mvista.com, Manfred Spraul <manfred@colorfullife.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: RCU question
-In-Reply-To: <41BA0ECF.1060203@mvista.com>
-Message-ID: <Pine.LNX.4.61.0412101558240.24986@montezuma.fsmlabs.com>
-References: <41B8E6F1.4070007@mvista.com> <20041210043102.GC4161@in.ibm.com>
-  <41B9FC3F.50601@mvista.com>  <20041210204003.GC4073@in.ibm.com>
- <1102711532.29919.35.camel@krustophenia.net> <41BA0ECF.1060203@mvista.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 10 Dec 2004 18:21:56 -0500
+Date: Fri, 10 Dec 2004 15:25:55 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Pawe__ Sikora <pluto@pld-linux.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10rc3+cset == oops (fs).
+Message-Id: <20041210152555.5c579892.akpm@osdl.org>
+In-Reply-To: <200412102330.02459.pluto@pld-linux.org>
+References: <200412102330.02459.pluto@pld-linux.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Dec 2004, George Anzinger wrote:
-
-> > Well, softirqs should really be preemptible if you care about RT task
-> > latency.  Ingo's patches have had this for months.  Works great.  Maybe
-> > it's time to push it upstream.
+Pawe__ Sikora <pluto@pld-linux.org> wrote:
+>
+> I've just tried to boot the 2.6.10rc3+cset20041210_0507.
 > 
-> Yes, I understand, and soft_irq() does turn on interrupts...
-> I was thinking of something like:
+> [handcopy of the ooops]
 > 
-> 	while(softirq_pending()) {
-> 		local_irq_enable();
-> 		do_softirq();
-> 		local_irq_disable();
-> 	}
-> 		<proceed to idle hlt...>
+> dereferencing null pointer
+> eip at: radix_tree_tag_clear
+> 
+> trace:
+> (...)
+> test_clear_page_dirty
+> truncate_complete_page
+> truncate_inode_pages_range
+> truncate_inode_pages
+> generic_delete_inode
+> sys_unlink
+> initrd_load
+> prepare_namespace
+> (...)
 
-But that's a deadlock and if you enable interrupts you race.
+I can't think of any recent changes whish could cause something like this. 
+Is this reproducible?  If so, could you please work out which kernel
+version and bk snapshot introduced the bug?  Thanks.

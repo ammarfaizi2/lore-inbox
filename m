@@ -1,85 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130702AbRBGA4m>; Tue, 6 Feb 2001 19:56:42 -0500
+	id <S130811AbRBGBDZ>; Tue, 6 Feb 2001 20:03:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130705AbRBGA4c>; Tue, 6 Feb 2001 19:56:32 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:60689 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S130702AbRBGA4P>; Tue, 6 Feb 2001 19:56:15 -0500
-Date: Tue, 6 Feb 2001 18:51:15 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+	id <S130838AbRBGBDD>; Tue, 6 Feb 2001 20:03:03 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:21779 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S130811AbRBGBC5>;
+	Tue, 6 Feb 2001 20:02:57 -0500
+Date: Wed, 7 Feb 2001 02:02:21 +0100
+From: Jens Axboe <axboe@suse.de>
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        "Stephen C. Tweedie" <sct@redhat.com>, Ingo Molnar <mingo@elte.hu>,
         Ben LaHaise <bcrl@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
         Manfred Spraul <manfred@colorfullife.com>, Steve Lord <lord@sgi.com>,
         Linux Kernel List <linux-kernel@vger.kernel.org>,
         kiobuf-io-devel@lists.sourceforge.net
 Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
-Message-ID: <20010206185115.A23754@vger.timpanogas.org>
-In-Reply-To: <20010207003629.M1167@redhat.com> <Pine.LNX.4.10.10102061642330.2045-100000@penguin.transmeta.com>
+Message-ID: <20010207020221.B13647@suse.de>
+In-Reply-To: <20010207003629.M1167@redhat.com> <Pine.LNX.4.10.10102061642330.2045-100000@penguin.transmeta.com> <20010206185115.A23754@vger.timpanogas.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.10.10102061642330.2045-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Feb 06, 2001 at 04:50:19PM -0800
+Content-Disposition: inline
+In-Reply-To: <20010206185115.A23754@vger.timpanogas.org>; from jmerkey@vger.timpanogas.org on Tue, Feb 06, 2001 at 06:51:15PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 06, 2001 at 04:50:19PM -0800, Linus Torvalds wrote:
-> 
-> 
-> On Wed, 7 Feb 2001, Stephen C. Tweedie wrote:
-> > 
-> > That gets us from 512-byte blocks to 4k, but no more (ll_rw_block
-> > enforces a single blocksize on all requests but that relaxing that
-> > requirement is no big deal).  Buffer_heads can't deal with data which
-> > spans more than a page right now.
-> 
-> Stephen, you're so full of shit lately that it's unbelievable. You're
-> batting a clear 0.000 so far.
-> 
-> "struct buffer_head" can deal with pretty much any size: the only thing it
-> cares about is bh->b_size.
-> 
-> It so happens that if you have highmem support, then "create_bounce()"
-> will work on a per-page thing, but that just means that you'd better have
-> done your bouncing into low memory before you call generic_make_request().
-> 
-> Have you ever spent even just 5 minutes actually _looking_ at the block
-> device layer, before you decided that you think it needs to be completely
-> re-done some other way? It appears that you never bothered to.
-> 
-> Sure, I would not be surprised if some device driver ends up being
-> surpised if you start passing it different request sizes than it is used
-> to. But that's a driver and testing issue, nothing more.
-> 
-> (Which is not to say that "driver and testing" issues aren't important as
-> hell: it's one of the more scary things in fact, and it can take a long
-> time to get right if you start doing somehting that historically has never
-> been done and thus has historically never gotten any testing. So I'm not
-> saying that it should work out-of-the-box. But I _am_ saying that there's
-> no point in trying to re-design upper layers that already do ALL of this
-> with no problems at all).
-> 
-> 		Linus
-> 
+On Tue, Feb 06 2001, Jeff V. Merkey wrote:
+> I remember Linus asking to try this variable buffer head chaining 
+> thing 512-1024-512 kind of stuff several months back, and mixing them to 
+> see what would happen -- result.  About half the drivers break with it.  
+> The interface allows you to do it, I've tried it, (works on Andre's 
+> drivers, but a lot of SCSI drivers break) but a lot of drivers seem to 
+> have assumptions about these things all being the same size in a 
+> buffer head chain. 
 
-I remember Linus asking to try this variable buffer head chaining 
-thing 512-1024-512 kind of stuff several months back, and mixing them to 
-see what would happen -- result.  About half the drivers break with it.  
-The interface allows you to do it, I've tried it, (works on Andre's 
-drivers, but a lot of SCSI drivers break) but a lot of drivers seem to 
-have assumptions about these things all being the same size in a 
-buffer head chain. 
+I don't see anything that would break doing this, in fact you can
+do this as long as the buffers are all at least a multiple of the
+block size. All the drivers I've inspected handle this fine, noone
+assumes that rq->bh->b_size is the same in all the buffers attached
+to the request. This includes SCSI (scsi_lib.c builds sg tables),
+IDE, and the Compaq array + Mylex driver. This mostly leaves the
+"old-style" drivers using CURRENT etc, the kernel helpers for these
+handle it as well.
 
-:-)
+So I would appreciate pointers to these devices that break so we
+can inspect them.
 
-Jeff
+-- 
+Jens Axboe
 
-
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,37 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263652AbTE3NXD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 09:23:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263653AbTE3NXD
+	id S263658AbTE3New (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 09:34:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263665AbTE3New
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 09:23:03 -0400
-Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:64422
-	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S263652AbTE3NXA
+	Fri, 30 May 2003 09:34:52 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:63917 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S263658AbTE3Neu
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 09:23:00 -0400
-Date: Fri, 30 May 2003 09:36:20 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Dave Jones <davej@codemonkey.org.uk>, "David S. Miller" <davem@redhat.com>,
-       chas@cmf.nrl.navy.mil, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][ATM] assorted he driver cleanup
-Message-ID: <20030530133620.GC22969@gtf.org>
-References: <200305291609.h4TG9rx01188@relax.cmf.nrl.navy.mil> <20030529.200101.118622651.davem@redhat.com> <20030530085726.GA14723@suse.de>
-Mime-Version: 1.0
+	Fri, 30 May 2003 09:34:50 -0400
+From: Nikita Danilov <Nikita@Namesys.COM>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030530085726.GA14723@suse.de>
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16087.24852.793344.859672@laputa.namesys.com>
+Date: Fri, 30 May 2003 17:48:04 +0400
+X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
+X-PGP-Key-ID: CCAAAC92
+X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
+To: Scott A Crosby <scrosby@cs.rice.edu>
+Cc: linux-kernel@vger.kernel.org,
+       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Subject: Re: Algoritmic Complexity Attacks and 2.4.20 the dcache code
+In-Reply-To: <oydbrxlbi2o.fsf@bert.cs.rice.edu>
+References: <oydbrxlbi2o.fsf@bert.cs.rice.edu>
+X-Mailer: ed | telnet under Fuzzball OS, emulated on Emacs 21.5  (beta11) "cabbage" XEmacs Lucid
+X-Drdoom-Fodder: satan root CERT passwd crash
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 30, 2003 at 09:57:26AM +0100, Dave Jones wrote:
-> A number of people (self included) have adopted this
-> impromptu 'standard' for bk comments. Maybe it should
-> get documented in Documentation/BK-usage/bk-kernel-howto.txt
+Scott A Crosby writes:
+ > Hello. We have analyzed this software to determine its vulnerability
+ > to a new class of DoS attacks that related to a recent paper. ''Denial
+ > of Service via Algorithmic Complexity Attacks.''
+ > 
+ > This paper discusses a new class of denial of service attacks that
+ > work by exploiting the difference between average case performance and
+ > worst-case performance. In an adversarial environment, the data
+ > structures used by an application may be forced to experience their
+ > worst case performance. For instance, hash tables are usually thought
+ > of as being constant time operations, but with large numbers of
+ > collisions will degrade to a linked list and may lead to a 100-10,000
+ > times performance degradation. 
 
-Post a patch!  ;-)
+Another nice way to experience "worst case performance", is to create
+deeply nested directory structure, like
 
-	Jeff
+0/1/2/3/4/.../99999/100000
 
+try to unmount and see how shrink_dcache_parent/prune_dcache consume
+100% of CPU without allowing preemption. Not recommended on a single
+processor machine.
 
+ >                                Because of the widespread use of hash
+ > tables, the potential for attack is extremely widespread. Fortunately,
+ > in many cases, other limits on the system limit the impact of these
+ > attacks.
+ > 
 
+[...]
+
+ > 
+ > Scott
+
+Nikita.

@@ -1,244 +1,146 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271321AbRHZPO4>; Sun, 26 Aug 2001 11:14:56 -0400
+	id <S271320AbRHZPZS>; Sun, 26 Aug 2001 11:25:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271320AbRHZPOr>; Sun, 26 Aug 2001 11:14:47 -0400
-Received: from web13108.mail.yahoo.com ([216.136.174.153]:40458 "HELO
-	web13108.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S271321AbRHZPOc>; Sun, 26 Aug 2001 11:14:32 -0400
-Message-ID: <20010826151449.99510.qmail@web13108.mail.yahoo.com>
-Date: Sun, 26 Aug 2001 08:14:49 -0700 (PDT)
-From: szonyi calin <caszonyi@yahoo.com>
-Subject: Jfs bug ?
-To: linuxjfs@us.ibm.com
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S271329AbRHZPZI>; Sun, 26 Aug 2001 11:25:08 -0400
+Received: from islay.mach.uni-karlsruhe.de ([129.13.162.92]:31668 "EHLO
+	mailout.plan9.de") by vger.kernel.org with ESMTP id <S271320AbRHZPYw>;
+	Sun, 26 Aug 2001 11:24:52 -0400
+Date: Sun, 26 Aug 2001 17:25:05 +0200
+From: <pcg@goof.com ( Marc) (A.) (Lehmann )>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [resent PATCH] Re: very slow parallel read performance
+Message-ID: <20010826172505.E22677@cerebro.laendle>
+Mail-Followup-To: Rik van Riel <riel@conectiva.com.br>,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010826165517.D22677@cerebro.laendle> <Pine.LNX.4.33L.0108261158470.5646-100000@imladris.rielhome.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33L.0108261158470.5646-100000@imladris.rielhome.conectiva>
+X-Operating-System: Linux version 2.4.8-ac8 (root@cerebro) (gcc version 3.0.1) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi 
-I just formated one of mine linux partitions with jfs 
-I had the following problems
+On Sun, Aug 26, 2001 at 12:06:42PM -0300, Rik van Riel <riel@conectiva.com.br> wrote:
+> > It must be enough, unfortunately ;)
+> 
+> Then you'll need to change the physical structure of
+> your disks to eliminate seek time. ;)
 
-When restoring from backup
+well, you could send me 200GB flashdisks, that would certainly help, but
+what else could I do that is hardware-cost-neutral?
 
-jfs_strtoUCS: char2uni returned -22.
-charset = iso8859-1, char = 0xffffff99
-jfs_strtoUCS: char2uni returned -22.
-charset = iso8859-1, char = 0xffffff99
-jfs_strtoUCS: char2uni returned -22.
-charset = iso8859-1, char = 0xffffff99
-jfs_strtoUCS: char2uni returned -22.
-charset = iso8859-1, char = 0xffffff99
+(there are currently three disks on two ide channels, so there is one
+obvious optimization left, but this is completely independent of the
+problem ;)
 
-I then booted the jfs partitions (03:07  /dev/hda7)
-(slackware 8.0 glibc 2.2.3)
+I really think linux should be able to achieve what the hardwrae can,
+rather than fixing linux vm shortcomings with faster disks.
 
-looked around, everything seemed to be fine and I did
-a halt because it was late
-and the systems works well until 'umount -a' (executed
-automatically in sysvinit scripts) and then stops
-I wait for a while and I press 'Alt SysRQ +s' (magic
-sysrequire key + s) the message: 
-Syncing device 03:07 ...
-This is my root jfs partition
-I had to reboot-it with 'Alt SysRq + b'
+(playing around with readahead did indeed give me a very noticable
+performance improvement, and ~40 mbits is ok).
 
-Later:
+> Automatic scaling of readahead window and possibly more agressive
+> drop-behind could help your system load.
 
-When I rebooted from my ext2 (03:02) partition it was
-a jfs check at startup.
+well, the system "load" is very low (50% idle time ;) here is the top ouput
+of the current (typical) load:
 
-I was copying the kernel source from one partition to
-another
-I did also a man xpeek
+  PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
+ 8390 root      20   0 95312  93M  1076 S    43.9 18.5  16:03 myhttpd
+ 8661 root      17  -4 32464  31M   944 R <  28.4  6.2   1:07 get
+ 6279 root      18  14  4856 4856   524 R N  27.3  0.9 122:19 dec
+ 8396 root      10   0 95312  93M  1076 D     6.5 18.5   1:43 myhttpd
+ 8395 root      11   0 95312  93M  1076 D     5.3 18.5   1:46 myhttpd
+ 8394 root       9   0 95312  93M  1076 D     4.4 18.5   1:42 myhttpd
+ 8682 root      19   0  1012 1012   800 R     4.2  0.1   0:01 top
 
-result:
-Sat Aug 25 - 10:38:08
-root@grinch:/root/# ps ax
-  PID TTY      STAT   TIME COMMAND
-    1 ?        S      0:03 init
-    2 ?        SW     0:00 [keventd]
-    3 ?        SWN    0:00 [ksoftirqd_CPU0]
-    4 ?        DW     0:34 [kswapd]
-    5 ?        SW     0:00 [kreclaimd]
-    6 ?        DW     0:06 [bdflush]
-    7 ?        SW     0:07 [kupdated]
-    8 ?        SW     0:12 [jfsIO]
-    9 ?        DW     0:20 [jfsCommit]
-   10 ?        SW     0:00 [jfsSync]
-   64 ?        S      0:00 /usr/sbin/syslogd
-   67 ?        SW     0:06 /usr/sbin/klogd -c 7
-   69 ?        S      0:00 /usr/sbin/crond -l10
-   77 ?        S      0:00 sendmail: accepting
-connections
-   85 ttyS1    S      0:00 gpm -m /dev/ttyS1 -t bare
-   89 tty1     SW     0:00 -bash
-   90 tty2     SW     0:01 -bash
-   91 tty3     S      0:00 -bash
-   92 tty4     S      0:00 -bash
-   93 tty5     S      0:00 -bash
-   94 tty6     SW     0:00 /sbin/agetty 38400 tty6
-linux
-  110 tty1     SW     0:04 /usr/bin/mc -P
-  111 ?        SW     0:00 cons.saver /dev/tty1
-  112 pts/0    SW     0:00 bash -rcfile .bashrc
-  117 pts/0    DW     0:19 tar -c linux
-  118 pts/0    DW     0:36 tar -x -C
-/mnt/hda7/usr/src/ -f -
-  133 tty2     SW     0:00 man xpeek
-  136 tty2     SW     0:00 sh -c (cd /usr/share/man ;
-(echo -e ".ll 11.8i\n.pl 1100i"; /bin/gunzip -c
-/usr/share/man/man8/xpeek.8.gz; echo ".pl \n(nlu+10")
-| /usr/bin/gtbl | /usr/bin/groff -S -Tascii -mandoc |
-/usr/bin/less -is)
-  137 tty2     SW     0:00 sh -c (cd /usr/share/man ;
-(echo -e ".ll 11.8i\n.pl 1100i"; /bin/gunzip -c
-/usr/share/man/man8/xpeek.8.gz; echo ".pl \n(nlu+10")
-| /usr/bin/gtbl | /usr/bin/groff -S -Tascii -mandoc |
-/usr/bin/less -is)
-  142 tty2     DW     0:00 /usr/bin/less -is
-  143 tty2     DW     0:00 troff -msafer -mandoc
--Tascii
-  161 tty3     DW     0:00 sync
-  175 tty4     S      0:02 mcedit jfs.err
-  176 ?        SW     0:00 cons.saver /dev/tty4
-  189 tty5     R      0:00 ps --cols 660 ax
+myhttpd is the http serverr, doing about 4MB/s now @ 743 connections.
+"get" is a process that reads usenet news from many different servers and
+dec is a decoder that decoded news. The news spool is on a 20Gb, 5 disk
+SCSI array, together with the system itself. The machine is a dual P-II
+300.
 
-'man xpeek' and 'tar -c linux  | tar -x -C
-/mnt/hda7/usr/src/ -f -' are hunged 
-after waiting for a while I openned another console
-and did a manual 'sync' but this process hung too
+   procs                      memory    swap          io     system         cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+ 2  3  1      0   3004  11436 171676   0   0   225   170  303    75  30  45  25
+# the above line was the total system uptime average, now vmstat 5 output:
+ 1  4  2      0   3056  11060 165760   0   0  7094   103 6905  1046  31  51  18
+ 1  4  2      0   3056  11264 165532   0   0  6173   183 6146  1051  30  41  29
+ 2  4  2      0   3056  10988 167656   0   0  7402   150 6706  1204  31  48  21
+ 0  6  0      0   3056  11196 167344   0   0  7249   265 6760  1318  30  47  23
+ 0  4  0      0   3056  11336 166876   0   0  1718   190 4995   582  25  19  55
+ 2  0  0      0   3056  11536 166988   0   0  1057   264 3264   313  22  12  65
+ 2  5  1      0   2880  11332 152916   0   0  1776   121 2789   280  32  22  46
+ 1  5  0      0  16108  11472 153984   0   0  1040   215 3255   248  29  15  56
+ 1  4  3      0   3056  11624 166800   0   0  4406   179 3329   653  32  23  45
+ 1  4  0      0   3056  10852 167636   0   0  6970   138 5521  1247  34  39  26
+ 2  4  0      0   3056  11016 167440   0   0  7238   162 5997  1118  36  39  25
+ 2  4  1      0   3056  11284 177332   0   0  6247    84 5206  1293  34  36  30
+ 1  4  2      0   3052  11296 181564   0   0  7800    85 5493  1399  35  41  24
 
+There are 4 reader threads ATM, and this coincides nicely with the 4
+blocked tasks.
 
-I did an emergency sync (Alt SysRQ +s) result:
-SysRq: Emergency Sync
-Syncing device 03:02 ... OK
-Syncing device 03:01 ... OK
-Syncing device 03:05 ... OK
-Syncing device 03:07 ...
+> so we have an idea of what kind of system load we're facing, and
+> the active/inactive memory lines from /proc/meminfo ?
 
-03:02 and 03:05 are ext2 partitions
-03:01 is a dos partition (fat16)
-03:07 is a jfs partition
+I then did: while sleep 5; do grep "\(^In\|^Act\)" </proc/meminfo;done
 
-In the same time the logs are clean
-(I have syslog on /dev/tty12 and 
-i'm running klogd -c 7)
+Active:         144368 kB
+Inact_dirty:     29048 kB
+Inact_clean:       192 kB
+Inact_target:    19348 kB
+Active:         154012 kB
+Inact_dirty:     14092 kB
+Inact_clean:      5556 kB
+Inact_target:    19360 kB
+Active:         164908 kB
+Inact_dirty:     21212 kB
+Inact_clean:      5428 kB
+Inact_target:    19104 kB
+Active:         169788 kB
+Inact_dirty:     20652 kB
+Inact_clean:      1224 kB
+Inact_target:    18912 kB
+Active:         147280 kB
+Inact_dirty:     37444 kB
+Inact_clean:      5080 kB
+Inact_target:    19132 kB
+Active:         151400 kB
+Inact_dirty:     26604 kB
+Inact_clean:     10280 kB
+Inact_target:    19328 kB
+Active:         157288 kB
+Inact_dirty:      9312 kB
+Inact_clean:     20988 kB
+Inact_target:    19500 kB
+Active:         160456 kB
+Inact_dirty:     11908 kB
+Inact_clean:     12112 kB
+Inact_target:    19672 kB
 
-Here is dmesg output:
+> Indeed, something is going wrong ;)
+> 
+> Lets find out exactly what so we can iron out this bug
+> properly.
 
-Linux version 2.4.9 (root@grinch) (gcc version
-2.95.2.1 19991024 (release)) #5 Thu Aug 23 21:45:26
-EEST 2001
-BIOS-provided physical RAM map:
- BIOS-88: 0000000000000000 - 000000000009f000 (usable)
- BIOS-88: 0000000000100000 - 0000000000c00000 (usable)
-On node 0 totalpages: 3072
-zone(0): 3072 pages.
-zone(1): 0 pages.
-zone(2): 0 pages.
-Kernel command line: BOOT_IMAGE=lin49jfs ro root=302
-Initializing CPU#0
-Console: colour VGA+ 132x25
-Calibrating delay loop... 26.62 BogoMIPS
-Memory: 10028k/12288k available (1069k kernel code,
-1872k reserved, 318k data, 56k init, 0k highmem)
-Checking if this processor honours the WP bit even in
-supervisor mode... Ok.
-Dentry-cache hash table entries: 2048 (order: 2, 16384
-bytes)
-Inode-cache hash table entries: 1024 (order: 1, 8192
-bytes)
-Mount-cache hash table entries: 512 (order: 0, 4096
-bytes)
-Buffer-cache hash table entries: 1024 (order: 0, 4096
-bytes)
-Page-cache hash table entries: 4096 (order: 2, 16384
-bytes)
-CPU: Before vendor init, caps: 00000000 00000000
-00000000, vendor = 1
-CPU: After vendor init, caps: 00000000 00000000
-00000000 00000000
-CPU:     After generic, caps: 00000000 00000000
-00000000 00000000
-CPU:             Common caps: 00000000 00000000
-00000000 00000000
-CPU: Cyrix Cx486DX2 stepping 02
-Checking 'hlt' instruction... OK.
-POSIX conformance testing by UNIFIX
-isapnp: Scanning for PnP cards...
-isapnp: Card 'Crystal Codec'
-isapnp: 1 Plug & Play card detected total
-Linux NET4.0 for Linux 2.4
-Based upon Swansea University Computer Society
-NET3.039
-Starting kswapd v1.8
-JFS development version: $Name: v1_0_3 $
-pty: 256 Unix98 ptys configured
-Serial driver version 5.05c (2001-07-08) with ISAPNP
-enabled
-ttyS00 at 0x03f8 (irq = 4) is a 16450
-ttyS01 at 0x02f8 (irq = 3) is a 16450
-Real Time Clock Driver v1.10d
-block: 64 slots per queue, batch=8
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 50MHz system bus speed for PIO modes;
-override with idebus=xx
-hda: ST36421A, ATA DISK drive
-hdb: SONY CDU4811, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-hda: 12596850 sectors (6450 MB) w/256KiB Cache,
-CHS=784/255/63
-hdb: ATAPI 48X CD-ROM drive, 120kB Cache
-Uniform CD-ROM driver Revision: 3.12
-Partition check:
- hda: hda1 hda2 hda3 < hda5 hda6 hda7 >
-Floppy drive(s): fd0 is 1.44M
-FDC 0 is an 8272A
-loop: loaded (max 8 devices)
-NET4: Linux TCP/IP 1.0 for NET4.0
-IP Protocols: ICMP, UDP, TCP
-IP: routing cache hash table of 512 buckets, 4Kbytes
-TCP: Hash tables configured (established 512 bind 512)
-NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
-VFS: Mounted root (ext2 filesystem) readonly.
-Freeing unused kernel memory: 56k freed
-Adding Swap: 104384k swap-space (priority -1)
-SysRq: Emergency Sync
-Syncing device 03:02 ... OK
-Syncing device 03:01 ... OK
-Syncing device 03:05 ... OK
-Syncing device 03:07 ... 
+When that happened I can test wether massively increasing the number of
+reader threads changes performance ;)
 
-My computer configuration:
-
-o  Gnu C	2.95.2.1
-o  Gnu make	GNU Make version 3.79.1
-o  binutils	GNU ld version 2.11.90.0.25 (with BFD
-2.11.90.0.25)
-o  util-linux	fdformat from util-linux-2.11h
-o  modutils	insmod version 2.4.7
-o  e2fsprogs	tune2fs 1.22
-o  reiserfsprogs	reiserfsprogs 3.x.0b
-
-Glibc 2.1.3
-Slackware 7.1 (modified)
-
-the jfs utils are jfsutils-1.0.3.tar.gz from IBM site
-I patched the kernel with patches from 
-jfs-2.4-1.0.3-patch.tar.gz (those for kernel
-2.4.7-2.4.9)
-original kernel was 2.4.7 from kernel.org patched to
-2.4.8 and then to 2.4.9 with patches from
-ftp.timisoara.roedu.net kernel mirror (unnoficial
-mirror) 
-
-Any idea ?
-
-
-__________________________________________________
-Do You Yahoo!?
-Make international calls for as low as $.04/minute with Yahoo! Messenger
-http://phonecard.yahoo.com/
+-- 
+      -----==-                                             |
+      ----==-- _                                           |
+      ---==---(_)__  __ ____  __       Marc Lehmann      +--
+      --==---/ / _ \/ // /\ \/ /       pcg@goof.com      |e|
+      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
+    The choice of a GNU generation                       |
+                                                         |

@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130507AbRACWLI>; Wed, 3 Jan 2001 17:11:08 -0500
+	id <S131539AbRACWLs>; Wed, 3 Jan 2001 17:11:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130338AbRACWK6>; Wed, 3 Jan 2001 17:10:58 -0500
-Received: from [216.151.155.116] ([216.151.155.116]:17925 "EHLO
-	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
-	id <S130111AbRACWKs>; Wed, 3 Jan 2001 17:10:48 -0500
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] prevention of syscalls from writable segments, breaking bug exploits
-In-Reply-To: <Pine.LNX.4.30.0101031406160.31664-100000@anime.net>
-From: Doug McNaught <doug@wireboard.com>
-Date: 03 Jan 2001 17:10:43 -0500
-In-Reply-To: Dan Hollis's message of "Wed, 3 Jan 2001 14:07:14 -0800 (PST)"
-Message-ID: <m34rzgl21o.fsf@belphigor.mcnaught.org>
-User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
-MIME-Version: 1.0
+	id <S131533AbRACWLj>; Wed, 3 Jan 2001 17:11:39 -0500
+Received: from mnh-1-13.mv.com ([207.22.10.45]:65288 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S130111AbRACWLH>;
+	Wed, 3 Jan 2001 17:11:07 -0500
+Message-Id: <200101032320.SAA03593@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Dan Aloni <karrde@callisto.yi.org>
+cc: linux-kernel <linux-kernel@vger.kernel.org>, mark@itsolve.co.uk
+Subject: Re: [RFC] prevention of syscalls from writable segments, breaking bug 
+ exploits
+In-Reply-To: Your message of "Wed, 03 Jan 2001 23:13:31 +0200."
+             <Pine.LNX.4.21.0101032259550.20246-100000@callisto.yi.org> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Date: Wed, 03 Jan 2001 18:20:39 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Hollis <goemon@anime.net> writes:
+karrde@callisto.yi.org said:
+> This preliminary, small patch prevents execution of system calls which
+> were executed from a writable segment. It was tested and seems to
+> work, without breaking anything. It also reports of such calls by
+> using printk.
 
-> On Wed, 3 Jan 2001, Alexander Viro wrote:
-> > On Wed, 3 Jan 2001, Dan Aloni wrote:
-> > > without breaking anything. It also reports of such calls by using printk.
-> > Get real.
-> 
-> Why do you always have to be insulting alex? Sheesh.
+Have you tried running UML on this kernel?
 
-I was thinking it's about time this flamewar^Wthread came up again.
-Shall we start a pool on total # of messages, first invocation of
-Godwin's law, etc?
+				Jeff
 
--Doug
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

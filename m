@@ -1,61 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261960AbUKXFmm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261877AbUKXGRd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261960AbUKXFmm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 00:42:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262264AbUKXFml
+	id S261877AbUKXGRd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 01:17:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbUKXGRd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 00:42:41 -0500
-Received: from [81.23.229.73] ([81.23.229.73]:20427 "EHLO mail.eduonline.nl")
-	by vger.kernel.org with ESMTP id S261960AbUKXFmV (ORCPT
+	Wed, 24 Nov 2004 01:17:33 -0500
+Received: from smtp.istop.com ([66.11.167.126]:15849 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S261877AbUKXGRa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 00:42:21 -0500
-From: Norbert van Nobelen <Norbert@edusupport.nl>
-Organization: EduSupport
-To: papercrane@reversefold.com
-Subject: Re: Compact Flash - simulating a card
-Date: Wed, 24 Nov 2004 06:42:14 +0100
-User-Agent: KMail/1.6.2
-References: <432beae04112313344fb4a5f9@mail.gmail.com>
-In-Reply-To: <432beae04112313344fb4a5f9@mail.gmail.com>
-Cc: linux-kernel@vger.kernel.org
+	Wed, 24 Nov 2004 01:17:30 -0500
+From: Daniel Phillips <phillips@istop.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
+Date: Wed, 24 Nov 2004 01:20:40 -0500
+User-Agent: KMail/1.7
+Cc: Linus Torvalds <torvalds@osdl.org>, alan@lxorguk.ukuu.org.uk,
+       miklos@szeredi.hu, hbryan@us.ibm.com, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, pavel@ucw.cz
+References: <OF28252066.81A6726A-ON88256F50.005D917A-88256F50.005EA7D9@us.ibm.com> <Pine.LNX.4.58.0411181047590.2222@ppc970.osdl.org> <20041118125734.32ec8e88.akpm@osdl.org>
+In-Reply-To: <20041118125734.32ec8e88.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Disposition: inline
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200411240642.14660.Norbert@edusupport.nl>
+Content-Disposition: inline
+Message-Id: <200411240120.40820.phillips@istop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is actually not really of topic, so so much for getting shunted.
+Hi Andrew,
 
-Anyway:
-If you edit the modules part (manuals enough on the internet, watch your 
-kernel version, because modules changed a bit between 2.4 and 2.6 kernels), 
-you can force the identifier of your card to be matched with a CF device. 
-Take the best matching device. 
-If you don't have any match at all, you have a problem, i.e. it will not work.
+On Thursday 18 November 2004 15:57, Andrew Morton wrote:
+> I've seen one 2.4-based project which had essentially a userspace
+> blockdevice driver.  Marking that special, trusted process PF_MEMALLOC did
+> indeed fix low-on-memory deadlocks.  Obviously it's something one does with
+> caution, but there are times when it makes sense.
 
-I don't know the Zaurus (except from a nice picture), so I don't know what 
-kind of port is used for the CF card (IDE? PCMCIA? other?). If it is an IDE 
-port, it should work at once. It does not need any other information.
+Like the cluster stack, unless we're happy with inhaling all the membership, 
+failover, fencing and etc code into the kernel.
 
-For the rest it sounds to me like you are doing a hardware hack. 
+> I think there are codepaths which unconditionally turn off PF_MEMALLOC, so
+> they need to be tweaked to do a save/set/restore operation for it all to
+> work.
+
+The only one I spotted is in dm-ioctl.c.  We get away with the one in 
+page_alloc.c by branching around it in PF_MEMALLOC mode.
 
 Regards,
 
-Norbert
-
-On Tuesday 23 November 2004 22:34, Justin Patrin wrote:
-> I am not currently subscribed to this list as I figure I'll be shunted
-> to another anyway. Please CC me on replies to this thread. If I should
-> be asking "someone else" whether it be another list or group, let me
-> know.
->
-> I currently have a Sharp Zaurus with OpenZaurus on it. I'm trying to
-> connect a device to the CF slot. Would is be possible to fake the CF
-> "startup"? I.e. connect a dumb device (which does not understand the
-> CF spec itself) but have the kernel able to pass certain requests on
-> to it? I have tried connecting the device and it sees it (as I've
-> hooked up the detection pins) but something times out. Sorry, I don't
-> have the exact message at the moment.
+Daniel

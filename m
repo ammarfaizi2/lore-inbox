@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261367AbSJUNhG>; Mon, 21 Oct 2002 09:37:06 -0400
+	id <S261376AbSJUNlz>; Mon, 21 Oct 2002 09:41:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261376AbSJUNhG>; Mon, 21 Oct 2002 09:37:06 -0400
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:16564 "EHLO
+	id <S261328AbSJUNlz>; Mon, 21 Oct 2002 09:41:55 -0400
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:17844 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261367AbSJUNhF>; Mon, 21 Oct 2002 09:37:05 -0400
-Subject: Re: [PATCH] remove sys_security
+	id <S261376AbSJUNlw>; Mon, 21 Oct 2002 09:41:52 -0400
+Subject: Re: Question: Favorite Linux kernel book?
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Greg KH <greg@kroah.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-security-module@wirex.com
-In-Reply-To: <20021017201030.GA384@kroah.com>
-References: <20021017195015.A4747@infradead.org>
-	<20021017185352.GA32537@kroah.com> <20021017195838.A5325@infradead.org>
-	<20021017190723.GB32537@kroah.com> <20021017210402.A7741@infradead.org> 
-	<20021017201030.GA384@kroah.com>
+To: EricAltendorf@orst.edu
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200210171033.06451.EricAltendorf@orst.edu>
+References: <200210171033.06451.EricAltendorf@orst.edu>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 21 Oct 2002 14:57:23 +0100
-Message-Id: <1035208643.27309.109.camel@irongate.swansea.linux.org.uk>
+Date: 21 Oct 2002 15:03:38 +0100
+Message-Id: <1035209018.27318.115.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-10-17 at 21:10, Greg KH wrote:
-> Ok, I think it's time for someone who actually cares about the security
-> syscall to step up here to try to defend the existing interface.  I'm
-> pretty sure Ericsson, HP, SELinux, and WireX all use this, so they need
-> to be the ones defending it.
+On Thu, 2002-10-17 at 18:33, Eric Altendorf wrote:
+> I was just wondering if anyone had any recommendations for reading 
+> material to introduce the Linux kernel, design & code.
+> 
+> I haven't found any online documentation that is as complete and 
+> introductory as I like (obviously the kernel code itself is complete, 
+> but... :-)
 
-The existing interface is basically the one Linus asked for, although
-perhaps with a little less thought on the structure side than it would
-have benefitted
+Also two other books - Linux device drivers is good. If you are new to
+kernels and hardware the best book on Linux is in some ways Andy
+Tanenbaum's Operating Systems. Its not about Linux but its one of the
+best intros to the whole topic.
 

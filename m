@@ -1,40 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136868AbREJSJJ>; Thu, 10 May 2001 14:09:09 -0400
+	id <S136877AbREJSWl>; Thu, 10 May 2001 14:22:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136877AbREJSI7>; Thu, 10 May 2001 14:08:59 -0400
-Received: from t2.redhat.com ([199.183.24.243]:6396 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S136869AbREJSIr>; Thu, 10 May 2001 14:08:47 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <Pine.LNX.4.21.0105101826290.11103-100000@mrbusy.compsoc.man.ac.uk> 
-In-Reply-To: <Pine.LNX.4.21.0105101826290.11103-100000@mrbusy.compsoc.man.ac.uk> 
-To: John Levon <moz@compsoc.man.ac.uk>
-Cc: linux-kernel@vger.kernel.org, alan@redhat.com
-Subject: Re: [PATCH] Small kernel-api addition 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 10 May 2001 19:05:05 +0100
-Message-ID: <18661.989517905@redhat.com>
+	id <S136873AbREJSWb>; Thu, 10 May 2001 14:22:31 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:4114 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S136877AbREJSWT>; Thu, 10 May 2001 14:22:19 -0400
+Date: Thu, 10 May 2001 13:43:46 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Mark Hemment <markhe@veritas.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH] allocation looping + kswapd CPU cycles 
+In-Reply-To: <Pine.LNX.4.21.0105100935040.31900-100000@alloc>
+Message-ID: <Pine.LNX.4.21.0105101341130.19732-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-moz@compsoc.man.ac.uk said:
-+ * This macro should be used for accessing values larger in size than single
-+ * bytes at locations that may be improperly aligned, e.g. retrieving a u16 
-+ * value from a location not u16-aligned. 
 
-I'd suggest s/that may be/that are expected to be/
+On Thu, 10 May 2001, Mark Hemment wrote:
 
-If it's _expected_, then by all means use {get,put}_unaligned(). If it's 
-normally going to be aligned, and it _may_ occasionally be otherwise, let 
-the common case go fast, and let the fixup handle it otherwise.
+> 
+> On Wed, 9 May 2001, Marcelo Tosatti wrote:
+> > On Wed, 9 May 2001, Mark Hemment wrote:
+> > >   Could introduce another allocation flag (__GFP_FAIL?) which is or'ed
+> > > with a __GFP_WAIT to limit the looping?
+> > 
+> > __GFP_FAIL is in the -ac tree already and it is being used by the bounce
+> > buffer allocation code. 
+> 
+> Thanks for the pointer.
+> 
+>   For non-zero order allocations, the test against __GFP_FAIL is a little
+> too soon; it would be better after we've tried to reclaim pages from the
+> inactive-clean list.  Any nasty side effects to this?
 
+No. __GFP_FAIL can to try to reclaim pages from inactive clean.
 
---
-dwmw2
+We just want to avoid __GFP_FAIL allocations from going to
+try_to_free_pages().
+
+>   Plus, the code still prevents PF_MEMALLOC processes from using the
+> inactive-clean list for non-zero order allocations.  As the trend seems to
+> be to make zero and non-zero allocations 'equivalent', shouldn't this
+> restriction to lifted?
+
+I don't see any problem about making non-zero allocations be able to
+directly reclaim pages.
 
 

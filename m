@@ -1,301 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263077AbTFGLcY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 07:32:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263103AbTFGLcY
+	id S263129AbTFGLow (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 07:44:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263150AbTFGLow
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 07:32:24 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:5592 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S263077AbTFGLcS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 07:32:18 -0400
-Date: Sat, 7 Jun 2003 13:45:44 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: James Morris <jmorris@intercode.com.au>
-Cc: pam.delaney@lsil.com, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] compile fix for MPT Fusion driver for 2.5.70 bk
-Message-ID: <20030607114543.GG15311@fs.tum.de>
-References: <Mutt.LNX.4.44.0306060154230.2735-100000@excalibur.intercode.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Mutt.LNX.4.44.0306060154230.2735-100000@excalibur.intercode.com.au>
-User-Agent: Mutt/1.4.1i
+	Sat, 7 Jun 2003 07:44:52 -0400
+Received: from dp.samba.org ([66.70.73.150]:26857 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S263129AbTFGLov convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jun 2003 07:44:51 -0400
+From: Paul Mackerras <paulus@samba.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-ID: <16097.53169.687777.155890@argo.ozlabs.ibm.com>
+Date: Sat, 7 Jun 2003 21:42:41 +1000
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Steven Cole <elenstev@mesatop.com>, linux-kernel@vger.kernel.org
+Subject: Re: [Patch] 2.5.70-bk11 zlib merge #4 pure magic
+In-Reply-To: <20030607100217.GB24694@wohnheim.fh-wedel.de>
+References: <20030606183126.GA10487@wohnheim.fh-wedel.de>
+	<20030606183247.GB10487@wohnheim.fh-wedel.de>
+	<20030606183920.GC10487@wohnheim.fh-wedel.de>
+	<20030606185210.GE10487@wohnheim.fh-wedel.de>
+	<20030606192325.GG10487@wohnheim.fh-wedel.de>
+	<20030606192814.GH10487@wohnheim.fh-wedel.de>
+	<20030606200051.GI10487@wohnheim.fh-wedel.de>
+	<20030606201306.GJ10487@wohnheim.fh-wedel.de>
+	<16097.45833.384548.319399@argo.ozlabs.ibm.com>
+	<20030607100217.GB24694@wohnheim.fh-wedel.de>
+X-Mailer: VM 7.16 under Emacs 21.3.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A different approach is the patch below that simply removes 
-compatibility for kernels < 2.4.4 from 
-drivers/message/fusion/linux_compat.h (plus expands some macros).
+Jörn Engel writes:
 
-It compiles against 2.5.70-mm5.
+> On Sat, 7 June 2003 19:40:25 +1000, Paul Mackerras wrote:
+> > 
+> > Your change won't affect PPP, since pppd already refuses to use
+> > windowBits == 8 (as a workaround for this bug).
+> 
+> Seems like I have misread the ppp code then.  In that case, please
+> remove the ppp part from the previous patch or use this one instead,
+> Linus.
 
-cu
-Adrian
+I meant that pppd (i.e. the user-level part of PPP) would refuse to
+negotiate windowBits == 8 with the peer, so from that point of view it
+doesn't matter if the kernel driver accepts it or not, since it will
+never be asked to accept it (by pppd).  It is better on the whole if
+the kernel driver doesn't accept it since that is one less exploitable
+thing in the kernel (although you would have to be root to exploit
+it).  But if the zlib code also refuses to use windowBits == 8, it
+then doesn't matter whether the ppp_deflate code accepts it, from
+either point of view.
 
---- linux-2.5.70-mm5/drivers/message/fusion/linux_compat.h.old	2003-06-06 19:02:59.000000000 +0200
-+++ linux-2.5.70-mm5/drivers/message/fusion/linux_compat.h	2003-06-06 19:17:16.000000000 +0200
-@@ -11,128 +11,6 @@
- 
- /*=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
- 
--#ifndef rwlock_init
--#define rwlock_init(x) do { *(x) = RW_LOCK_UNLOCKED; } while(0)
--#endif
--
--#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0)
--#define SET_NICE(current,x)	do {(current)->nice = (x);} while (0)
--#else
--#define SET_NICE(current,x)
--#endif
--
--#if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,0)
--#define pci_enable_device(pdev)	(0)
--#define SCSI_DATA_UNKNOWN	0
--#define SCSI_DATA_WRITE		1
--#define SCSI_DATA_READ		2
--#define SCSI_DATA_NONE		3
--#endif
--
--
--#if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,4)
--#define pci_set_dma_mask(pdev, mask)	(0)
--#define scsi_set_pci_device(sh, pdev)	(0)
--#endif
--
--#if LINUX_VERSION_CODE < KERNEL_VERSION(2,3,0)
--#	if LINUX_VERSION_CODE < KERNEL_VERSION(2,2,18)
--		typedef unsigned int dma_addr_t;
--#	endif
--#else
--#	if LINUX_VERSION_CODE < KERNEL_VERSION(2,3,42)
--		typedef unsigned int dma_addr_t;
--#	endif
--#endif
--
--#if LINUX_VERSION_CODE < KERNEL_VERSION(2,2,18)
--/*{-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
--
--/* This block snipped from lk-2.2.18/include/linux/init.h { */
--/*
-- * Used for initialization calls..
-- */
--typedef int (*initcall_t)(void);
--typedef void (*exitcall_t)(void);
--
--#define __init_call	__attribute__ ((unused,__section__ (".initcall.init")))
--#define __exit_call	__attribute__ ((unused,__section__ (".exitcall.exit")))
--
--extern initcall_t __initcall_start, __initcall_end;
--
--#define __initcall(fn)								\
--	static initcall_t __initcall_##fn __init_call = fn
--#define __exitcall(fn)								\
--	static exitcall_t __exitcall_##fn __exit_call = fn
--
--#ifdef MODULE
--/* These macros create a dummy inline: gcc 2.9x does not count alias
-- as usage, hence the `unused function' warning when __init functions
-- are declared static. We use the dummy __*_module_inline functions
-- both to kill the warning and check the type of the init/cleanup
-- function. */
--typedef int (*__init_module_func_t)(void);
--typedef void (*__cleanup_module_func_t)(void);
--#define module_init(x) \
--	int init_module(void) __attribute__((alias(#x))); \
--	static inline __init_module_func_t __init_module_inline(void) \
--	{ return x; }
--#define module_exit(x) \
--	void cleanup_module(void) __attribute__((alias(#x))); \
--	static inline __cleanup_module_func_t __cleanup_module_inline(void) \
--	{ return x; }
--
--#else
--#define module_init(x)	__initcall(x);
--#define module_exit(x)	__exitcall(x);
--#endif
--/* } block snipped from lk-2.2.18/include/linux/init.h */
--
--/* This block snipped from lk-2.2.18/include/linux/sched.h { */
--/*
-- * Used prior to schedule_timeout calls..
-- */
--#define __set_current_state(state_value)	do { current->state = state_value; } while (0)
--#ifdef __SMP__
--#define set_current_state(state_value)		do { __set_current_state(state_value); mb(); } while (0)
--#else
--#define set_current_state(state_value)		__set_current_state(state_value)
--#endif
--/* } block snipped from lk-2.2.18/include/linux/sched.h */
--
--/* procfs compat stuff... */
--#define proc_mkdir(x,y)			create_proc_entry(x, S_IFDIR, y)
--
--/* MUTEX compat stuff... */
--#define DECLARE_MUTEX(name)		struct semaphore name=MUTEX
--#define DECLARE_MUTEX_LOCKED(name)	struct semaphore name=MUTEX_LOCKED
--#define init_MUTEX(x)			*(x)=MUTEX
--#define init_MUTEX_LOCKED(x)		*(x)=MUTEX_LOCKED
--
--/* Wait queues. */
--#define DECLARE_WAIT_QUEUE_HEAD(name)	\
--	struct wait_queue * (name) = NULL
--#define DECLARE_WAITQUEUE(name, task)	\
--	struct wait_queue (name) = { (task), NULL }
--
--#if defined(__sparc__) && defined(__sparc_v9__)
--/* The sparc64 ioremap implementation is wrong in 2.2.x,
-- * but fixing it would break all of the drivers which
-- * workaround it.  Fixed in 2.3.x onward. -DaveM
-- */
--#define ARCH_IOREMAP(base)	((unsigned long) (base))
--#else
--#define ARCH_IOREMAP(base)	ioremap(base)
--#endif
--
--/*=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
--#else		/* LINUX_VERSION_CODE must be >= KERNEL_VERSION(2,2,18) */
--
--/* No ioremap bugs in >2.3.x kernels. */
--#define ARCH_IOREMAP(base)	ioremap(base)
--
--/*}-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
--#endif		/* LINUX_VERSION_CODE < KERNEL_VERSION(2,2,18) */
- 
- 
- /*
-@@ -145,91 +23,6 @@
- #define MODULE_LICENSE(license)
- #endif
- 
--
--/* PCI/driver subsystem { */
--#ifndef pci_for_each_dev
--#define pci_for_each_dev(dev)		for((dev)=pci_devices; (dev)!=NULL; (dev)=(dev)->next)
--#define pci_peek_next_dev(dev)		((dev)->next ? (dev)->next : NULL)
--#define DEVICE_COUNT_RESOURCE           6
--#define PCI_BASEADDR_FLAGS(idx)         base_address[idx]
--#define PCI_BASEADDR_START(idx)         base_address[idx] & ~0xFUL
--/*
-- * We have to keep track of the original value using
-- * a temporary, and not by just sticking pdev->base_address[x]
-- * back.  pdev->base_address[x] is an opaque cookie that can
-- * be used by the PCI implementation on a given Linux port
-- * for any purpose. -DaveM
-- */
--#define PCI_BASEADDR_SIZE(__pdev, __idx) \
--({	unsigned int size, tmp; \
--	pci_read_config_dword(__pdev, PCI_BASE_ADDRESS_0 + (4*(__idx)), &tmp); \
--	pci_write_config_dword(__pdev, PCI_BASE_ADDRESS_0 + (4*(__idx)), 0xffffffff); \
--	pci_read_config_dword(__pdev, PCI_BASE_ADDRESS_0 + (4*(__idx)), &size); \
--	pci_write_config_dword(__pdev, PCI_BASE_ADDRESS_0 + (4*(__idx)), tmp); \
--	(4 - size); \
--})
--#else
--#define pci_peek_next_dev(dev)		((dev) != pci_dev_g(&pci_devices) ? pci_dev_g((dev)->global_list.next) : NULL)
--#define PCI_BASEADDR_FLAGS(idx)         resource[idx].flags
--#define PCI_BASEADDR_START(idx)         resource[idx].start
--#define PCI_BASEADDR_SIZE(dev,idx)      (dev)->resource[idx].end - (dev)->resource[idx].start + 1
--#endif		/* } ifndef pci_for_each_dev */
--
--
--/* Compatability for the 2.3.x PCI DMA API. */
--#ifndef PCI_DMA_BIDIRECTIONAL
--/*{-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
--
--#define PCI_DMA_BIDIRECTIONAL	0
--#define PCI_DMA_TODEVICE	1
--#define PCI_DMA_FROMDEVICE	2
--#define PCI_DMA_NONE		3
--
--#ifdef __KERNEL__
--#include <asm/page.h>
--/* Pure 2^n version of get_order */
--static __inline__ int __get_order(unsigned long size)
--{
--	int order;
--
--	size = (size-1) >> (PAGE_SHIFT-1);
--	order = -1;
--	do {
--		size >>= 1;
--		order++;
--	} while (size);
--	return order;
--}
--#endif
--
--#define pci_alloc_consistent(hwdev, size, dma_handle) \
--({	void *__ret = (void *)__get_free_pages(GFP_ATOMIC, __get_order(size)); \
--	if (__ret != NULL) { \
--		memset(__ret, 0, size); \
--		*(dma_handle) = virt_to_bus(__ret); \
--	} \
--	__ret; \
--})
--
--#define pci_free_consistent(hwdev, size, vaddr, dma_handle) \
--	free_pages((unsigned long)vaddr, __get_order(size))
--
--#define pci_map_single(hwdev, ptr, size, direction) \
--	virt_to_bus(ptr);
--
--#define pci_unmap_single(hwdev, dma_addr, size, direction) \
--	do { /* Nothing to do */ } while (0)
--
--#define pci_map_sg(hwdev, sg, nents, direction)	(nents)
--#define pci_unmap_sg(hwdev, sg, nents, direction) \
--	do { /* Nothing to do */ } while(0)
--
--#define sg_dma_address(sg)	(virt_to_bus((sg)->address))
--#define sg_dma_len(sg)		((sg)->length)
--
--/*}-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
--#endif /* PCI_DMA_BIDIRECTIONAL */
--
- /*
-  *  With the new command queuing code in the SCSI mid-layer we no longer have
-  *  to hold the io_request_lock spin lock when calling the scsi_done routine.
---- linux-2.5.70-mm5/drivers/message/fusion/mptbase.c.old	2003-06-06 19:09:38.000000000 +0200
-+++ linux-2.5.70-mm5/drivers/message/fusion/mptbase.c	2003-06-06 19:15:02.000000000 +0200
-@@ -1184,7 +1184,7 @@
- 		 * Do some kind of look ahead here...
- 		 */
- 		if (pdev->devfn & 1) {
--			pdev2 = pci_peek_next_dev(pdev);
-+			pdev2 = (pdev) != pci_dev_g(&pci_devices) ? pci_dev_g((pdev)->global_list.next) : NULL;
- 			if (pdev2 && (pdev2->vendor == 0x1000) &&
- 			    (PCI_SLOT(pdev2->devfn) == PCI_SLOT(pdev->devfn)) &&
- 			    (pdev2->device == pdev->device) &&
-@@ -1343,14 +1343,14 @@
- 	mem_phys = msize = 0;
- 	port = psize = 0;
- 	for (ii=0; ii < DEVICE_COUNT_RESOURCE; ii++) {
--		if (pdev->PCI_BASEADDR_FLAGS(ii) & PCI_BASE_ADDRESS_SPACE_IO) {
-+		if (pdev->resource[ii].flags & PCI_BASE_ADDRESS_SPACE_IO) {
- 			/* Get I/O space! */
--			port = pdev->PCI_BASEADDR_START(ii);
--			psize = PCI_BASEADDR_SIZE(pdev,ii);
-+			port = pdev->resource[ii].start;
-+			psize = (pdev)->resource[ii].end - (pdev)->resource[ii].start + 1;
- 		} else {
- 			/* Get memmap */
--			mem_phys = pdev->PCI_BASEADDR_START(ii);
--			msize = PCI_BASEADDR_SIZE(pdev,ii);
-+			mem_phys = pdev->resource[ii].start;
-+			msize = (pdev)->resource[ii].end - (pdev)->resource[ii].start + 1;
- 			break;
- 		}
- 	}
---- linux-2.5.70-mm5/drivers/message/fusion/mptctl.c.old	2003-06-06 19:11:56.000000000 +0200
-+++ linux-2.5.70-mm5/drivers/message/fusion/mptctl.c	2003-06-06 19:12:31.000000000 +0200
-@@ -2525,7 +2525,7 @@
- 		break;
- 	}
- 
--	karg.base_io_addr = pdev->PCI_BASEADDR_START(0);
-+	karg.base_io_addr = pdev->resource[0].start;
- 
- 	if ((int)ioc->chip_type <= (int) FC929)
- 		karg.bus_phys_width = HP_BUS_WIDTH_UNK;
+On the whole I would say that the change to ppp-comp.h should go in,
+for now at least.
+
+Paul.

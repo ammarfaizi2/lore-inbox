@@ -1,48 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315595AbSGAOC6>; Mon, 1 Jul 2002 10:02:58 -0400
+	id <S315629AbSGAOKR>; Mon, 1 Jul 2002 10:10:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315599AbSGAOC5>; Mon, 1 Jul 2002 10:02:57 -0400
-Received: from mail305.mail.bellsouth.net ([205.152.58.165]:38307 "EHLO
-	imf05bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S315595AbSGAOCz>; Mon, 1 Jul 2002 10:02:55 -0400
-Message-ID: <3D20619B.ABE9D0CF@bellsouth.net>
-Date: Mon, 01 Jul 2002 10:05:15 -0400
-From: Albert Cranford <ac9410@bellsouth.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.24 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] i2c-id.h updates
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S315631AbSGAOKQ>; Mon, 1 Jul 2002 10:10:16 -0400
+Received: from sproxy.gmx.net ([213.165.64.20]:6721 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S315629AbSGAOKP>;
+	Mon, 1 Jul 2002 10:10:15 -0400
+Date: Mon, 1 Jul 2002 16:12:27 +0200
+From: Sebastian Droege <sebastian.droege@gmx.de>
+To: Tim Schmielau <tim@physik3.uni-rostock.de>
+Cc: davej@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove 16 unnecessary includes of sched.h
+Message-Id: <20020701161227.3b6e7576.sebastian.droege@gmx.de>
+In-Reply-To: <Pine.LNX.4.33.0207010035030.11868-100000@gans.physik3.uni-rostock.de>
+References: <Pine.LNX.4.33.0207010035030.11868-100000@gans.physik3.uni-rostock.de>
+X-Mailer: Sylpheed version 0.7.8 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ boundary="=.DgFeaYC50MkLMv"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Linus,
-Please include this small change into i2c-id.h that
-bring existing video devices out of experimental
-category.  It is already included in the i2c repository.
-Thanks,
-Albert
+--=.DgFeaYC50MkLMv
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
---- linux/include/linux/i2c-id.h.orig   2002-06-22 13:41:34.000000000 -0400
-+++ linux/include/linux/i2c-id.h        2002-06-22 16:24:28.000000000 -0400
-@@ -90,8 +90,11 @@
- #define I2C_DRIVERID_DRP3510   43     /* ADR decoder (Astra Radio)     */
- #define I2C_DRIVERID_SP5055    44     /* Satellite tuner               */
- #define I2C_DRIVERID_STV0030   45     /* Multipurpose switch           */
--#define I2C_DRIVERID_SAA7108    46     /* video decoder, image scaler   */
-+#define I2C_DRIVERID_SAA7108   46     /* video decoder, image scaler   */
- #define I2C_DRIVERID_DS1307    47     /* DS1307 real time clock        */
-+#define I2C_DRIVERID_ADV717x   48     /* ADV 7175/7176 video encoder   */
-+#define I2C_DRIVERID_ZR36067   49     /* Zoran 36067 video encoder     */
-+#define I2C_DRIVERID_ZR36120   50     /* Zoran 36120 video decoder     */
- 
- 
- 
+On Mon, 1 Jul 2002 00:42:58 +0200 (CEST)
+Tim Schmielau <tim@physik3.uni-rostock.de> wrote:
 
--- 
-Albert Cranford Deerfield Beach FL USA
-ac9410@bellsouth.net
+>  - remove 16 unneccessary #includes of <linux/sched.h>.
+>  - reinsert some #includes of header files included by <linux/sched.h>
+>    to fix indirect dependencies.
+> 
+> Just a small start, many more to come. This time I did a more thorough 
+> analysis of dependencies by extensive use of ctags and grep. Still the 
+> first compile revealed more obscure dependencies.
+> 
+> The patch depends on the previously posted one to break task_struct out of 
+> sched.h to actually compile.
+> 
+> Tim
+Hi,
+The patch at the bottom was required to compile kernel/panic.c with my .config (NULL was not defined)
+
+Bye
+
+--- linux-2.5.24/include/linux/sysrq.h.old      Mon Jul  1 15:50:33 2002
++++ linux-2.5.24/include/linux/sysrq.h  Mon Jul  1 15:45:16 2002
+@@ -12,6 +12,7 @@
+  */
+ 
+ #include <linux/config.h>
++#include <linux/stddef.h>
+ 
+ struct pt_regs;
+ struct kbd_struct;
+
+
+--=.DgFeaYC50MkLMv
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9IGNOe9FFpVVDScsRAtJFAKDHmHXM6KG4EJ+X23UfL++F4u24DQCg6bc3
+UeOGSGJ+NZv2auEtsELqiLU=
+=9zXM
+-----END PGP SIGNATURE-----
+
+--=.DgFeaYC50MkLMv--
+

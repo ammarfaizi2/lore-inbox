@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261614AbVCNAyS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261617AbVCNA4w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261614AbVCNAyS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Mar 2005 19:54:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261615AbVCNAyS
+	id S261617AbVCNA4w (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Mar 2005 19:56:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261616AbVCNA4w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Mar 2005 19:54:18 -0500
-Received: from nevyn.them.org ([66.93.172.17]:61102 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S261614AbVCNAyP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Mar 2005 19:54:15 -0500
-Date: Sun, 13 Mar 2005 19:54:13 -0500
-From: Daniel Jacobowitz <dan@debian.org>
+	Sun, 13 Mar 2005 19:56:52 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:2462 "EHLO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S261617AbVCNA4q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Mar 2005 19:56:46 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
 To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Junfeng Yang <yjf@stanford.edu>,
+Date: Mon, 14 Mar 2005 11:56:33 +1100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16948.57665.671437.810184@cse.unsw.edu.au>
+Cc: Daniel Jacobowitz <dan@debian.org>, Junfeng Yang <yjf@stanford.edu>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [CHECKER] inconsistent NFS stat cache (NFS on ext3, 2.6.11)
-Message-ID: <20050314005413.GA17711@nevyn.them.org>
-Mail-Followup-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
-	Junfeng Yang <yjf@stanford.edu>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.GSO.4.44.0503120335160.12085-100000@elaine24.Stanford.EDU> <1110690267.24123.7.camel@lade.trondhjem.org> <20050313200412.GA21521@nevyn.them.org> <1110746550.23876.8.camel@lade.trondhjem.org> <20050314003512.GA16875@nevyn.them.org> <1110761410.30085.13.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1110761410.30085.13.camel@lade.trondhjem.org>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: message from Trond Myklebust on Sunday March 13
+References: <Pine.GSO.4.44.0503120335160.12085-100000@elaine24.Stanford.EDU>
+	<1110690267.24123.7.camel@lade.trondhjem.org>
+	<20050313200412.GA21521@nevyn.them.org>
+	<1110746550.23876.8.camel@lade.trondhjem.org>
+	<20050314003512.GA16875@nevyn.them.org>
+	<1110761410.30085.13.camel@lade.trondhjem.org>
+X-Mailer: VM 7.19 under Emacs 21.3.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 13, 2005 at 07:50:09PM -0500, Trond Myklebust wrote:
-> Sorry, but you should _never_ have gotten an ESTALE error if the file
-> was not in use when you deleted the old copy of glibc. A fresh call to
-> open() will always result in a new lookup of the filehandle.
-> What may have happened in the case of the EIO error is that you may have
-> raced: i.e. a client starts reading the file while it is being copied
-> to.
+On Sunday March 13, trond.myklebust@fys.uio.no wrote:
+> 
+> You'll rather want to ask Neil Brown about why subtree_check is still
+> the default for knfsd. He is the NFS server maintainer.
 
-It is in a separate root filesystem, currently not used by anything on
-the target.  It is likely to be in cache, but I can absolutely
-guarantee it isn't open.  Hmm, server is x86_64 2.6.7, client is 2.6.10
-MIPS.  I should upgrade them and see if that helps.
+Apathy?
+No-one has complained loudly enough or long enough or sent me a patch,
+and it simply isn't a priority for me.
+(a patch would have to provide clear warning to the user of the change
+in defaults, such as is currently done for sync/async (and it's
+probably time to remove that warning).
 
-Unfortunately I haven't found any smaller testcases than installing an
-entire root FS.
+Note: this is purely a userspace issue.  nfs-utils sets the default,
+not the kernel.
 
--- 
-Daniel Jacobowitz
-CodeSourcery, LLC
+NeilBrown

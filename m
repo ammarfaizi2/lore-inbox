@@ -1,66 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262710AbTGZSM3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 14:12:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262955AbTGZSLk
+	id S262499AbTGZSKa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 14:10:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262464AbTGZSK3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 14:11:40 -0400
-Received: from fw.osdl.org ([65.172.181.6]:14483 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262710AbTGZSKx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 14:10:53 -0400
-Date: Sat, 26 Jul 2003 11:25:53 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Daniele Venzano <webvenza@libero.it>
-Cc: wodecki@gmx.de, rgooch@atnf.csiro.au, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test1 devfs question
-Message-Id: <20030726112553.2356cce0.akpm@osdl.org>
-In-Reply-To: <20030726111221.GD9574@renditai.milesteg.arr>
-References: <20030725110830.GA666@gmx.de>
-	<20030726111221.GD9574@renditai.milesteg.arr>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 26 Jul 2003 14:10:29 -0400
+Received: from twilight.cs.hut.fi ([130.233.40.5]:30155 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP id S262439AbTGZSKX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 14:10:23 -0400
+Date: Sat, 26 Jul 2003 21:25:24 +0300
+From: Ville Herva <vherva@niksula.hut.fi>
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: Orm Finnendahl <finnendahl@folkwang-hochschule.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: make menuconfig and 2.4.22-pre8
+Message-ID: <20030726182524.GO150921@niksula.cs.hut.fi>
+Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
+	Gene Heskett <gene.heskett@verizon.net>,
+	Orm Finnendahl <finnendahl@folkwang-hochschule.de>,
+	linux-kernel@vger.kernel.org
+References: <20030726171527.GA1173@finnendahl.de> <200307261342.17010.gene.heskett@verizon.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200307261342.17010.gene.heskett@verizon.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniele Venzano <webvenza@libero.it> wrote:
->
-> There is a bug with devfs and raid, see:
-> http://bugzilla.kernel.org/show_bug.cgi?id=471
+On Sat, Jul 26, 2003 at 01:42:16PM -0400, you [Gene Heskett] wrote:
+> On Saturday 26 July 2003 13:15, Orm Finnendahl wrote:
+> >
+> >grisey:/usr/src# tar -xjf ~orm/install/linux-2.4.21.tar.bz2
+> >grisey:/usr/src# rm -f linux
 > 
-> It's sitting there since 2.5.45, but no one seems interested and I 
-> don't have the knowledge to fix it by myself (or the time to acquire 
-> that knowledge).
+> you are out of order with the above 2 lines.  Remove the link first, 
+> then unpack and rename the new kernel.
 
-Unfortunately, raising a bug in bugzilla doesn't actually mean that anyone
-is paying any attention to it.  You need to keep shouting at people.
+Nowadays linux-x.x.x.tar.gz unpacks into linux-x.x.x directory, so it
+shoudn't matter.
 
-Is the problem simply that the device has moved from /dev/md1 to /dev/md/1?
-If so, is this change sufficient?
+> >grisey:/usr/src# ln -s linux-2.4.21 linux
 
-diff -puN drivers/md/md.c~a drivers/md/md.c
---- 25/drivers/md/md.c~a	2003-07-26 11:24:58.000000000 -0700
-+++ 25-akpm/drivers/md/md.c	2003-07-26 11:25:15.000000000 -0700
-@@ -3505,7 +3505,7 @@ int __init md_init(void)
- 	for (minor=0; minor < MAX_MD_DEVS; ++minor) {
- 		devfs_mk_bdev(MKDEV(MAJOR_NR, minor),
- 				S_IFBLK|S_IRUSR|S_IWUSR,
--				"md/%d", minor);
-+				"md%d", minor);
- 	}
- 
- 	register_reboot_notifier(&md_notifier);
-@@ -3567,7 +3567,7 @@ static __exit void md_exit(void)
- 	int i;
- 	blk_unregister_region(MKDEV(MAJOR_NR,0), MAX_MD_DEVS);
- 	for (i=0; i < MAX_MD_DEVS; i++)
--		devfs_remove("md/%d", i);
-+		devfs_remove("md%d", i);
- 	devfs_remove("md");
- 
- 	unregister_blkdev(MAJOR_NR,"md");
+Instead of "rm -f; ln -s" you could do "ln -nfs".
 
-_
 
+-- v --
+
+v@iki.fi

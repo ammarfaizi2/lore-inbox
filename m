@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275856AbRJPJbb>; Tue, 16 Oct 2001 05:31:31 -0400
+	id <S275752AbRJPJ6F>; Tue, 16 Oct 2001 05:58:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275857AbRJPJbV>; Tue, 16 Oct 2001 05:31:21 -0400
-Received: from Expansa.sns.it ([192.167.206.189]:62738 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S275856AbRJPJbJ>;
-	Tue, 16 Oct 2001 05:31:09 -0400
-Date: Tue, 16 Oct 2001 11:31:27 +0200 (CEST)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: Oliver Xymoron <oxymoron@waste.org>
-cc: Riley Williams <rhw@MemAlpha.cx>,
-        Henning P Schmiedehausen <hps@intermeta.de>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.0.39 kernel release history
-In-Reply-To: <Pine.LNX.4.30.0110151921480.29359-100000@waste.org>
-Message-ID: <Pine.LNX.4.33.0110161128550.15737-100000@Expansa.sns.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S275693AbRJPJ5z>; Tue, 16 Oct 2001 05:57:55 -0400
+Received: from weta.f00f.org ([203.167.249.89]:62102 "EHLO weta.f00f.org")
+	by vger.kernel.org with ESMTP id <S275270AbRJPJ5l>;
+	Tue, 16 Oct 2001 05:57:41 -0400
+Date: Tue, 16 Oct 2001 22:58:31 +1300
+From: Chris Wedgwood <cw@f00f.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: [CFT][PATCH] large /proc/mounts and friends
+Message-ID: <20011016225831.A26737@weta.f00f.org>
+In-Reply-To: <Pine.GSO.4.21.0110152308440.11608-100000@weyl.math.psu.edu> <Pine.LNX.4.33.0110152053080.8668-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0110152053080.8668-100000@penguin.transmeta.com>
+User-Agent: Mutt/1.3.22i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Oct 15, 2001 at 09:01:17PM -0700, Linus Torvalds wrote:
+
+    But you're probably right that it doesn't really matter, and as we
+    really have "pipe" semantics we might as well dis-allow any lseek
+    except to the beginning (I know that there have been apps out
+    there that avoid re-opening /proc files by lseek'ing to zero and
+    re-reading - they may not be common enough to matter, though).
+
+I always wondered why for a number of /proc entries that aren't really
+files why we don't simply expose them as pipes as opposed to
+zero-length files?  Surely that will confuse fewer user-land programs
+as well and feeling more technically correct?
 
 
-On Mon, 15 Oct 2001, Oliver Xymoron wrote:
 
-> On Sun, 14 Oct 2001, Riley Williams wrote:
->
-> > ...between the 0.99.12a and 0.99.14 kernel releases. I suspect both that
-> > there were other kernels in each of the three gaps shown above, but have
-> > been unable to find any reliable information regarding them. Personally,
-> > I would anticipate full alphabets for both the 0.99.12 and 0.99.13
-> > subseries as occurs with the 0.99.14 subseries, but can't prove it.
->
-> I distinctly remember running a 0.99.13j for quite a while. I believe it
-> was the stock kernel in an early Slackware.
->
-At those times i was still using, I think, SLS. (I was 19, please, I do
-not have so good memory). But yes, there was a lot of 0.99.13X kernels.
-I do remember also there was a lot of anxiwety about 1.0.0, maybe even
-more anxiety in front of what happened for 2.4.0.
-
-Luigi
-
-
+   --cw

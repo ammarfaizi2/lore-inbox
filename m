@@ -1,55 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267659AbTBUT7E>; Fri, 21 Feb 2003 14:59:04 -0500
+	id <S267675AbTBUUDF>; Fri, 21 Feb 2003 15:03:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267667AbTBUT7E>; Fri, 21 Feb 2003 14:59:04 -0500
-Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:5043 "EHLO
-	delft.aura.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id <S267659AbTBUT7D>; Fri, 21 Feb 2003 14:59:03 -0500
-Date: Fri, 21 Feb 2003 15:04:40 -0500
-To: Oleg Drokin <green@namesys.com>
-Cc: Andrew Morton <akpm@digeo.com>, mason@suse.com, sam@vilain.net,
-       vs@namesys.com, nikita@namesys.com, trond.myklebust@fys.uio.no,
-       jaharkes@cs.cmu.edu, linux-kernel@vger.kernel.org
-Subject: Re: 2.4 iget5_locked port attempt to 2.4
-Message-ID: <20030221200440.GA23699@delft.aura.cs.cmu.edu>
-Mail-Followup-To: Oleg Drokin <green@namesys.com>,
-	Andrew Morton <akpm@digeo.com>, mason@suse.com, sam@vilain.net,
-	vs@namesys.com, nikita@namesys.com, trond.myklebust@fys.uio.no,
-	jaharkes@cs.cmu.edu, linux-kernel@vger.kernel.org
-References: <20030220175309.A23616@namesys.com> <20030220154924.7171cbd7.akpm@digeo.com> <20030221220341.A9325@namesys.com>
+	id <S267677AbTBUUDF>; Fri, 21 Feb 2003 15:03:05 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:33679 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S267675AbTBUUDD>; Fri, 21 Feb 2003 15:03:03 -0500
+Message-Id: <200302212013.h1LKD6Cu014437@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.1 02/18/2003 with nmh-1.0.4+dev
+To: linux-kernel@vger.kernel.org
+Subject: RFC3168, section 6.1.1.1 - ECN and retransmit of SYN
+From: Valdis.Kletnieks@vt.edu
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030221220341.A9325@namesys.com>
-User-Agent: Mutt/1.5.3i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+Content-Type: multipart/signed; boundary="==_Exmh_1242778299P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Fri, 21 Feb 2003 15:13:06 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 21, 2003 at 10:03:41PM +0300, Oleg Drokin wrote:
-> Ok, here is my simple attempt. I just took a patch from early 2.5
-> days by jaharkes@cs.cmu.edu ;)
+--==_Exmh_1242778299P
+Content-Type: text/plain; charset=us-ascii
 
-Nice to see that it is being considered for a backport to 2.4, that
-would allow me to get rid of the lock around the call to iget4.
+RFC3168 section 6.1.1.1 says this:
 
-Why didn't you take the final version that was sent to Linus? It was
-against 2.5.14, but should be pretty close for 2.4.x. You can find
-it at http://delft.aura.cs.cmu.edu/icreate/, both broken up in small
-steps, and as one big patch.
+   A host that receives no reply to an ECN-setup SYN within the normal
+   SYN retransmission timeout interval MAY resend the SYN and any
+   subsequent SYN retransmissions with CWR and ECE cleared.  To overcome
+   normal packet loss that results in the original SYN being lost, the
+   originating host may retransmit one or more ECN-setup SYN packets
+   before giving up and retransmitting the SYN with the CWR and ECE bits
+   cleared.
 
-As far as I know, the only change/improvement that went into 2.5 at a
-later time was the ilookup code.
+Supporting this would make using ECN a lot less painful - currently, if
+I want to use ECN by default, I get to turn it off anytime I find an ECN-hostile
+site that I'd like to communicate with.
 
-> Coda changes are not tested, but look correct.
+Looking at the 2.5.56 version of net/ipv4/tcp_output.c, it doesn't look like
+the tcp_connect() function has a good way to connect a special callback to clear
+the ECN bits on a retransmit.  Similarly, net/ipv4/netfilter/* doesn't seem
+to have a good way to flag a *retransmitted* SYN for packet mangling.
 
-Those Coda changes are not correct as we really need to use iget4 (or
-in the new code, iget5_locked). That patch looks like it won't even
-compile, coda_inocmp is simply removed while it is still used by the two
-calls to iget4 that you didn't replace with iget5_locked. Let alone
-adding the inode initializer. I also don't know why you are adding an
-unused local variable to coda_replace_fid.
+It would be nice, but not required, if the solution included a printk() so
+I could grep the logs and find sites to send a nastygram to if they are in
+fact ECN-hostile..
 
-Jan
+Any pointers/suggestions/etc?
 
+/Valdis (who has hit 5 ECN-hostile servers already today... argh)
+
+--==_Exmh_1242778299P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+VohRcC3lWbTT17ARAud1AKD2SGRVYY/cVOXBskUkpGiNbPws7QCfXLoh
+kOtSKjC26hU8AH4uHxT2o48=
+=K6t/
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1242778299P--

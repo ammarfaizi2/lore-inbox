@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281283AbRKPKZ4>; Fri, 16 Nov 2001 05:25:56 -0500
+	id <S281274AbRKPK1g>; Fri, 16 Nov 2001 05:27:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281274AbRKPKZr>; Fri, 16 Nov 2001 05:25:47 -0500
-Received: from [202.54.110.230] ([202.54.110.230]:64263 "EHLO
-	ngate.noida.hcltech.com") by vger.kernel.org with ESMTP
-	id <S281283AbRKPKZh>; Fri, 16 Nov 2001 05:25:37 -0500
-Message-ID: <E04CF3F88ACBD5119EFE00508BBB21216C8E62@exch-01.noida.hcltech.com>
-From: Rajiv Malik <rmalik@noida.hcltech.com>
-To: kaih@khms.westfalen.de, linux-kernel@vger.kernel.org
-Subject: RE: fdutils.
-Date: Fri, 16 Nov 2001 15:56:42 +0530
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S281285AbRKPK11>; Fri, 16 Nov 2001 05:27:27 -0500
+Received: from ultra02.rbg.informatik.tu-darmstadt.de ([130.83.9.52]:24482
+	"EHLO mail.rbg.informatik.tu-darmstadt.de") by vger.kernel.org
+	with ESMTP id <S281274AbRKPK1J>; Fri, 16 Nov 2001 05:27:09 -0500
+Date: Fri, 16 Nov 2001 11:26:14 +0100
+From: Philipp Matthias Hahn <pmhahn@titan.lahn.de>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: Re: [OOPS] net/8139too
+Message-ID: <20011116112614.A725@walker.iti.informatik.tu-darmstadt.de>
+Reply-To: pmhahn@titan.lahn.de
+In-Reply-To: <Pine.LNX.4.33.0111160721120.6043-100000@titan.lahn.de> <3BF4BD81.C3E4A4DC@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <3BF4BD81.C3E4A4DC@zip.com.au>; from akpm@zip.com.au on Fri, Nov 16, 2001 at 08:17:21 +0100
+X-Mailer: Balsa 1.2.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+Hello Andrew, Jedd, LKML!
 
-does fdutil provide support for LS-120/LS-240(super disk) ???
+On 2001.11.16 08:17 Andrew Morton wrote:
+> > Since linux-2.4.15-pre[14]+kdb+freeswan I get an oops when stopping my
+> > 8139too network:
+> >
+> > # ifdown eth0
+> > eth0: unable to signal thread
+> 
+> Could you please tell us what the return value is from kill_proc()?
+Now running 2.4.15-pre5 with your patch and kill_proc returns -3.
 
-rajiv.
------Original Message-----
-From: kaih@khms.westfalen.de [mailto:kaih@khms.westfalen.de]
-Sent: Friday, November 16, 2001 4:21 AM
-To: linux-kernel@vger.kernel.org
-Subject: Re: fdutils.
+Willing to test more patches.
 
-
-kaos@ocs.com.au (Keith Owens)  wrote on 14.11.01 in
-<16521.1005669870@ocs3.intra.ocs.com.au>:
-
-> LS-120 definitely, it is required for IA64.
-
-So the world is finally going to standardize on a floppy replacement? That  
-would be high time ...
-
-MfG Kai
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+BYtE
+Philipp
+-- 
+   / /  (_)__  __ ____  __ Philipp Hahn
+  / /__/ / _ \/ // /\ \/ /
+/____/_/_//_/\_,_/ /_/\_\ pmhahn@titan.lahn.de

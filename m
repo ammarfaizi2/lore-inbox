@@ -1,61 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261777AbTCGU41>; Fri, 7 Mar 2003 15:56:27 -0500
+	id <S261773AbTCGVAT>; Fri, 7 Mar 2003 16:00:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261779AbTCGU41>; Fri, 7 Mar 2003 15:56:27 -0500
-Received: from warden3-p.diginsite.com ([208.147.64.186]:63164 "HELO
-	warden3.diginsite.com") by vger.kernel.org with SMTP
-	id <S261777AbTCGU4X>; Fri, 7 Mar 2003 15:56:23 -0500
-From: David Lang <david.lang@digitalinsight.com>
-To: alx <alexs81@libero.it>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Date: Fri, 7 Mar 2003 13:05:20 -0800 (PST)
-Subject: Re: acx100_pci.o GPL but only binary version
-In-Reply-To: <1047068304.1603.14.camel@galileo.homenet.lan>
-Message-ID: <Pine.LNX.4.44.0303071304340.1933-100000@dlang.diginsite.com>
+	id <S261778AbTCGVAS>; Fri, 7 Mar 2003 16:00:18 -0500
+Received: from as12-5-6.spa.s.bonet.se ([217.215.177.162]:5083 "EHLO
+	www.tnonline.net") by vger.kernel.org with ESMTP id <S261773AbTCGVAR>;
+	Fri, 7 Mar 2003 16:00:17 -0500
+Date: Fri, 7 Mar 2003 22:10:16 +0100
+From: Anders Widman <andewid@tnonline.net>
+X-Mailer: The Bat! (v1.63 Beta/6)
+Reply-To: Anders Widman <andewid@tnonline.net>
+Organization: TNOnline.net
+X-Priority: 3 (Normal)
+Message-ID: <17913565781.20030307221016@tnonline.net>
+To: "Jon Burgess" <Jon_Burgess@eur.3com.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Entire LAN goes boo with 2.5.64
+In-Reply-To: <80256CE2.006CEFC2.00@notesmta.eur.3com.com>
+References: <80256CE2.006CEFC2.00@notesmta.eur.3com.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-check on the site that you got the binary module from. they are the ones
-who need to give you the source.
 
-David Lang
 
-On 7 Mar 2003, alx wrote:
+> Some things you might want to look at:
+>    Is the Linux box sending any traffic (look at the stats in ifconfig)?
+>    Does a packet sniffer like http://www.ethereal.com/ give any clues as to the
+> type of traffic on the network?
+>    Does the same thing occur if you run less processes, e.g. boot into run level
+> 1 or 3?
+>    Are there any processes consuming an unreasonable amount of CPU time on the
+> Linux box?
+>    Is there a process which is being restarted many times a second, so top or ps
+> shows a radiply increasing PID?
 
-> Date: 07 Mar 2003 21:18:24 +0100
-> From: alx <alexs81@libero.it>
-> To: LKML <linux-kernel@vger.kernel.org>
-> Subject: acx100_pci.o GPL but only binary version
->
->
->
-> HI all
-> I got this module from the net (binary version)
->
-> acx100_pci.o wanna be a linux driver from the TI acx100 chipset.
-> but it doesn't work at all!
-> - First ifconfig SegFault
-> - Second hangs the machine
->
-> I did modinfo on this module and I got:
->
->  $ modinfo acx100_pci.o
-> filename:    acx100_pci.o
-> description: "TI ACX100 WLAN 22Mbps driver"
-> author:      "Lancelot Wang"
-> license:     "GPL"
->  $
->
-> Someone has the source code or know the author ?
->
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+nope, nothing like that. Running just a bare minimum...
+
+> It could be some network-aware process which has got stuck in a tight loop
+> sending requests to your windows box, e.g. a DHCP client.
+> I mention the DHCP client specifically because they sometimes get upset if you
+> don't enable some specific kernel networking options like CONFIG_PACKET or
+> CONFIG_FILTER & WinRoute might be acting as the DHCP server.
+
+Yes,  you might be right. WinRoute is running as DCHP for the network,
+and  the  problems  do  start as soon as Linux tries to lease an IP...
+hm..
+
+>      Jon
+
+
+   
+
+
+
+--------
+PGP public key: https://tnonline.net/secure/pgp_key.txt
+

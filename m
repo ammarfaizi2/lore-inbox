@@ -1,109 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276647AbRJ3XZe>; Tue, 30 Oct 2001 18:25:34 -0500
+	id <S278758AbRJ3XZO>; Tue, 30 Oct 2001 18:25:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278736AbRJ3XZP>; Tue, 30 Oct 2001 18:25:15 -0500
-Received: from chiark.greenend.org.uk ([195.224.76.132]:26634 "EHLO
-	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
-	id <S274806AbRJ3XZN>; Tue, 30 Oct 2001 18:25:13 -0500
+	id <S278748AbRJ3XZE>; Tue, 30 Oct 2001 18:25:04 -0500
+Received: from freeside.toyota.com ([63.87.74.7]:48657 "EHLO toyota.com")
+	by vger.kernel.org with ESMTP id <S278736AbRJ3XZB>;
+	Tue, 30 Oct 2001 18:25:01 -0500
+Message-ID: <3BDF36E9.7FAE5D7A@lexus.com>
+Date: Tue, 30 Oct 2001 15:25:30 -0800
+From: J Sloan <jjs@lexus.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14-pre5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Jan Dvorak <johnydog@go.cz>
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: [OT] Re: Nasty suprise with uptime
+In-Reply-To: <E15yJD1-0003uO-00@the-village.bc.nu> <3BDDBE89.397E42C0@lexus.com> <20011030235213.A854@go.cz>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <wwvady8vhfs.fsf@rjk.greenend.org.uk>
-Date: Tue, 30 Oct 2001 23:25:43 +0000
-X-Face: h[Hh-7npe<<b4/eW[]sat,I3O`t8A`(ej.H!F4\8|;ih)`7{@:A~/j1}gTt4e7-n*F?.Rl^
-     F<\{jehn7.KrO{!7=:(@J~]<.[{>v9!1<qZY,{EJxg6?Er4Y7Ng2\Ft>Z&W?r\c.!4DXH5PWpga"ha
-     +r0NzP?vnz:e/knOY)PI-
-X-Boydie: NO
-From: Richard Kettlewell <rjk@greenend.org.uk>
-To: linux-kernel@vger.kernel.org
-Subject: problem with ide-scsi and IDE tape drive
-X-Mailer: VM 6.92 under 21.4 (patch 1) "Copyleft" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Jan Dvorak wrote:
 
-I have a Seagate STT20000A IDE tape drive, which I am trying to use
-with the ide-scsi driver.  It worked well enough when moving data
-around to repartition recently, but I have discovered a repeatable
-problem.
+> On Mon, Oct 29, 2001 at 12:39:37PM -0800, J Sloan wrote:
+> > So, is there an implicit Linux policy to upgrade
+> > the distro, or at least the kernel, every 496 days
+> > whether it needs it or not?
+>
+> Rather, you should think about your poor hw. It's nice to sit down at least once
+> a year, to clean up your box of that spider/ant feudalistic colonies, bug
+> airports, to check connectors, upgrade some components, and other such things
+> which you can't risk doing online at 32bit platform. You know, there are
+> some x86s which wasn't projected to even LAST as long as one year :-)
 
-If I try and save a tar to the tape twice in succession, rewinding and
-reading forward to the same point each time first, the second attempt
-fails (details below).
+Certainly a point -
 
-I originally found this under 2.2.19, and upgraded to 2.4.13 to see if
-the problem was still there when running more recent code.  It is.
+It's not too unreasonable to bring down a
+server for maintenance every 16 months.
 
-Here is a script which demonstrates the problem for me:
+However this is good, expensive  hardware...
 
-    #! /bin/sh
-    set -e
-    TAPE=/dev/nst0
-    hsize=512
+Consider HP-UX 10.20, a 32-bit, 1996 vintage
+commercial unix, in many ways somewhat
+primitive compared to Linux:
 
-    set -x
+root@zinc:/root# uname -a
+HP-UX zinc B.10.20 U 9000/800 2003576880 unlimited-user license
+root@zinc:/root# uptime
+  3:24pm  up 681 days,  6:43,  12 users,  load average: 1.17, 1.15, 1.15
 
-    mt -f $TAPE rewind
-    echo "tape 1" | dd conv=sync of=$TAPE bs=$hsize count=1
+So clearly, it's not rocket science....
 
-    for x in 1 2 3; do
-      mt -f $TAPE rewind
-      dd if=$TAPE of=/dev/null bs=$hsize
-      date
-      tar -c -b 20 -f $TAPE /boot
-    done
+cu
 
-Here's what the output looks like:
+jjs
 
-    sfere# ./t
-    + mt -f /dev/nst0 rewind
-    + dd conv=sync of=/dev/nst0 bs=512 count=1
-    + echo 'tape 1'
-    0+1 records in
-    1+0 records out
-    + mt -f /dev/nst0 rewind
-    + dd if=/dev/nst0 of=/dev/null bs=512
-    1+0 records in
-    1+0 records out
-    + date
-    Tue Oct 30 23:15:01 GMT 2001
-    + tar -c -b 20 -f /dev/nst0 /boot
-    tar: Removing leading `/' from absolute path names in the archive
-    + mt -f /dev/nst0 rewind
-    + dd if=/dev/nst0 of=/dev/null bs=512
-    1+0 records in
-    1+0 records out
-    + date
-    Tue Oct 30 23:15:36 GMT 2001
-    + tar -c -b 20 -f /dev/nst0 /boot
-    tar: Removing leading `/' from absolute path names in the archive
-    tar: Cannot write to /dev/nst0: I/O error
-    tar: Error is not recoverable: exiting now
-
-The behaviour is extremely consistent - the second invocation of tar
-always fails.
-
-I rebuilt st.o and ide-scsi.o with the debugging macros enabled.  The
-resulting kernel output is 80Kb long, and rather than fill everyone's
-inboxes I've put it at:
-
-ftp://ftp.chiark.greenend.org.uk/users/richardk/tapelog.txt
-
-Some possibly-relevant version numbers:
-
-    sfere# uname -a
-    Linux sfere 2.4.13 #1 Sun Oct 28 12:13:17 GMT 2001 i586 unknown
-    sfere# tar --version
-    tar (GNU tar) 1.12
-
-    Copyright (C) 1988, 92, 93, 94, 95, 96, 97 Free Software Foundation, Inc.
-    This is free software; see the source for copying conditions.  There is NO
-    warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-    Written by John Gilmore and Jay Fenlason.
-    sfere# mt --version
-    GNU mt version 2.4.2
-
-ttfn/rjk

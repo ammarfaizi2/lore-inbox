@@ -1,56 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267602AbTAHQuV>; Wed, 8 Jan 2003 11:50:21 -0500
+	id <S267647AbTAHQ7P>; Wed, 8 Jan 2003 11:59:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267613AbTAHQuU>; Wed, 8 Jan 2003 11:50:20 -0500
-Received: from jurassic.park.msu.ru ([195.208.223.243]:26377 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S267602AbTAHQuT>; Wed, 8 Jan 2003 11:50:19 -0500
-Date: Wed, 8 Jan 2003 19:55:32 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Grant Grundler <grundler@cup.hp.com>,
-       Paul Mackerras <paulus@samba.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>, davidm@hpl.hp.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 2.5] PCI: allow alternative methods for probing the BARs
-Message-ID: <20030108195532.B15896@jurassic.park.msu.ru>
-References: <1041942820.20658.2.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.44.0301070942440.1913-100000@home.transmeta.com>
+	id <S267648AbTAHQ7P>; Wed, 8 Jan 2003 11:59:15 -0500
+Received: from willow.compass.com.ph ([202.70.96.38]:13070 "EHLO
+	willow.compass.com.ph") by vger.kernel.org with ESMTP
+	id <S267647AbTAHQ7O>; Wed, 8 Jan 2003 11:59:14 -0500
+Subject: Re: [Linux-fbdev-devel] rotation.
+From: Antonino Daplas <adaplas@pol.net>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+In-Reply-To: <Pine.LNX.4.44.0301072240530.17129-100000@phoenix.infradead.org>
+References: <Pine.LNX.4.44.0301072240530.17129-100000@phoenix.infradead.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1042044916.1003.144.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.44.0301070942440.1913-100000@home.transmeta.com>; from torvalds@transmeta.com on Tue, Jan 07, 2003 at 09:44:53AM -0800
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 09 Jan 2003 00:56:11 +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 07, 2003 at 09:44:53AM -0800, Linus Torvalds wrote:
-> Because of legacy USB handling by the SMM BIOS, USB really ends up being a
-> special case. There may be other special cases, of course, but the whole 
-> point of the fixups is exactly to handle special cases.
+On Wed, 2003-01-08 at 06:44, James Simmons wrote:
+> 
+> I'm about to implement rotation which is needed for devices like the ipaq. 
+> The question is do we flip the xres and yres values depending on the 
+> rotation or do we just alter the data that will be drawn to make the 
+> screen appear to rotate. How does hardware rotate view the x and y axis?
+> Are they rotated or does just the data get rotated? 
+> 
 
-Ok, the 2-pass thing is almost done, seems to work on my
-alpha and i386 boxes.
+If the graphics card has hardware support for rotation, then there is
+nothing to be done.  It's the job of the driver if it wants to rotate
+the display or not.  This is similar to video overlay mirroring.  What
+the user app sees is the framebuffer in "normal" orientation, but what
+gets displayed is mirrored.
 
-Now I have in pci_read_bases():
+However, as Geert mentioned, if you want to support rotation
+generically, then you have to do it in the fbcon level.  The driver need
+not know if the display is rotated or not.  All it needs to do is fill a
+region with color, color expand a bitmap and move blocks of data, and
+optionally 'pan' the window.  Fbcon will pass the correct (ie, oriented)
+information for the driver.
 
-	if (dev->skip_probe)
-		return;
+This will not be too processor intensive as long as some data is
+prepared beforehand, like a rotated fontdata.
 
-	/* Disable I/O & memory decoding while we size the BARs. */
-	pci_read_config_word(dev, PCI_COMMAND, &cmd);
-	pci_write_config_word(dev, PCI_COMMAND,
-			      cmd & ~(PCI_COMMAND_IO | PCI_COMMAND_MEMORY));
+The main difficulty with this approach is how do you tell the console to
+rotate the display?  We cannot use fbset because the changes will not be
+visible to fbcon. 
 
-	for(pos=0; pos<howmany; pos = next) {
-	...
+I submitted a patch before (see fbdev archives for "Console Rotation"
+thread) that rotates the console this way.  I had vga16fb, vesafb, and
+i810fb rotate the display without any driver code change. Display
+panning was also supported.
 
-The "skip_probe" (single-bit field) can be set in the phase #1.
-It's intended for stuff like pmac combo I/O ASIC, which probably
-shouldn't be disabled even for a short time.
+However, because we use mmap to expose the framebuffer memory, we will
+not be able to completely support rotation for user applications.  They
+have to do it on their own.
 
-If it looks ok, I'll have a complete patch tomorrow, including
-updates for all architectures and hotplug drivers.
 
-Ivan.
+Tony
+
+
+

@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267413AbRGTVyV>; Fri, 20 Jul 2001 17:54:21 -0400
+	id <S267418AbRGTVzm>; Fri, 20 Jul 2001 17:55:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267418AbRGTVyL>; Fri, 20 Jul 2001 17:54:11 -0400
-Received: from mailb.telia.com ([194.22.194.6]:23558 "EHLO mailb.telia.com")
-	by vger.kernel.org with ESMTP id <S267413AbRGTVyH>;
-	Fri, 20 Jul 2001 17:54:07 -0400
-Date: Fri, 20 Jul 2001 23:59:20 +0200
-From: =?iso-8859-1?Q?Andr=E9?= Dahlqvist <andre.dahlqvist@telia.com>
+	id <S267420AbRGTVzc>; Fri, 20 Jul 2001 17:55:32 -0400
+Received: from dnai-216-15-62-124.cust.dnai.com ([216.15.62.124]:53981 "HELO
+	soni.ppetru.net") by vger.kernel.org with SMTP id <S267418AbRGTVzS>;
+	Fri, 20 Jul 2001 17:55:18 -0400
+Date: Fri, 20 Jul 2001 14:55:44 -0700
 To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5
-Message-ID: <20010720235920.A533@telia.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <200107202013.RAA02434@olimpo.networx.com.br>
+Subject: Getting destination address for UDP packets
+Message-ID: <20010720145544.D1267@ppetru.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200107202013.RAA02434@olimpo.networx.com.br>
 User-Agent: Mutt/1.3.18i
-X-Unexpected-Header: The Spanish Inquisition
+From: ppetru@ppetru.net (Petru Paler)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Thiago Vinhas de Moraes <tvinhas@openguard.org> wrote:
+Hi,
 
-> Does Linus have any schedule to pass the control of 2.4 management to someone 
-> else, and start developing the great 2.5 kernel?
+I'm working on a program which binds on all the available interfaces (0.0.0.0)
+and listens for/replies with UDP packets.
 
-On the 21th of June Linus said this in a message to linux-kernel:
+The problem is that I need to send back responses from the same IP address that
+the query arrived to, and this is not usually happening.
 
-"2.5.x looks like it will open in a week or two, so we're not talking about
-long timeframes".
+Example: supposing I have 1.1.1.2 and 1.1.1.3 aliased on the same interface, and
+a query arrives on 1.1.1.3, it's mandatory that the reply packet goes out from
+1.1.1.3.
 
-So he probably has plans to start 2.5.x soon (my personal guess is that
-he'll do it at the same time as 2.4.8 is released, but that's just me:-)
--- 
+The question is: how do I get (from user space, if possible) the destination
+IP address of an UDP packet?
 
-André Dahlqvist <andre.dahlqvist@telia.com>
+Thanks
+
+Petru

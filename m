@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261374AbULXFUJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbULXFkv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261374AbULXFUJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Dec 2004 00:20:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbULXFUJ
+	id S261375AbULXFkv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Dec 2004 00:40:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261376AbULXFkv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Dec 2004 00:20:09 -0500
-Received: from 210-192-132-157.adsl.ttn.net ([210.192.132.157]:43414 "EHLO
-	tpe.accusys.com.tw") by vger.kernel.org with ESMTP id S261374AbULXFUF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Dec 2004 00:20:05 -0500
-Message-Id: <200412240517.iBO5HBB03592@tpe.accusys.com.tw>
-Reply-To: <josephl@tpe.accusys.com.tw>
-From: "Hao-Ran Liu" <josephl@accusys.com.tw>
-To: <linux-kernel@vger.kernel.org>
-Subject: Some questions about page cache 
-Date: Fri, 24 Dec 2004 13:21:40 +0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+	Fri, 24 Dec 2004 00:40:51 -0500
+Received: from h80ad252a.async.vt.edu ([128.173.37.42]:46553 "EHLO
+	h80ad252a.async.vt.edu") by vger.kernel.org with ESMTP
+	id S261375AbULXFkp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Dec 2004 00:40:45 -0500
+Message-Id: <200412240540.iBO5ebvF015327@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.1 10/11/2004 with nmh-1.1-RC3
+To: selvakumar nagendran <kernelselva@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Intercepting system calls in Linux kernel 2.6.x 
+In-Reply-To: Your message of "Thu, 23 Dec 2004 20:45:53 PST."
+             <20041224044553.84241.qmail@web60607.mail.yahoo.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <20041224044553.84241.qmail@web60607.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_256094804P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: AcTpeHLcWM8bKR63TICLfDf6zg4wbg==
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+Date: Fri, 24 Dec 2004 00:40:35 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear All,
+--==_Exmh_256094804P
+Content-Type: text/plain; charset=us-ascii
 
-I read kernel 2.6.9 page cache code and have some questions.
+On Thu, 23 Dec 2004 20:45:53 PST, selvakumar nagendran said:
+>  In linux kernel 2.6.x, what should we do to intercept
+> system calls? When I used sys_call_table from a
+> module, it returned the following error 'undefined
+> variable sys_call_table'. What is the way to export
+> system call table in kernel 2.6.x?
 
-1. Is the call to filemap_fdatawrite() in sys_fsync() redundant? Since
-sys_fsync() will call file->f_op->fsync(), and, both filemap_fdatawrite()and
-file->f_op->fsync() (ext2, for example) eventually call do_writepages()
-function.
+That's generally very deprecated.
 
-2. for ext2, the purpose of sync_mapping_buffers() is to write out all
-indirect blocks of an address_space, which is called by ext2_sync_file().
-How do these buffers got synced when a user program called sys_sync()? I
-don't find any call to ext2_sync_file() by sys_sync(). If
-sync_mapping_buffers() is not needed for sys_sync(), then this should apply
-for ext2_sync_file(), too?
+What problem are you trying to solve by intercepting system calls? There
+may very well be some other way to achieve what you're trying to do...
 
-Regards,
-Hao-Ran Liu
+--==_Exmh_256094804P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQFBy6vNcC3lWbTT17ARAtPrAJ9dhpRQBAs5tEQvkp7HuE08xWLxlACffSWf
+Srz7P6hvfEc8rjbvCCvqXGQ=
+=s3jo
+-----END PGP SIGNATURE-----
 
+--==_Exmh_256094804P--

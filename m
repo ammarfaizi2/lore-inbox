@@ -1,91 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262766AbUKZWzc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263351AbUKZW4B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262766AbUKZWzc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 17:55:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263407AbUKZWw7
+	id S263351AbUKZW4B (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 17:56:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263350AbUKZTt3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 17:52:59 -0500
-Received: from [83.151.192.5] ([83.151.192.5]:42163 "HELO smtp.e7even.com")
-	by vger.kernel.org with SMTP id S262831AbUKZWtF (ORCPT
+	Fri, 26 Nov 2004 14:49:29 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:4291 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262383AbUKZT3V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 17:49:05 -0500
-Subject: Re: file as a directory
-From: Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk>
-To: Christian Mayrhuber <christian.mayrhuber@gmx.net>
-Cc: reiserfs-list@namesys.com, Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <200411241711.28393.christian.mayrhuber@gmx.net>
-References: <2c59f00304112205546349e88e@mail.gmail.com>
-	 <1101287762.1267.41.camel@pear.st-and.ac.uk>
-	 <4d8e3fd304112407023ff0a33d@mail.gmail.com>
-	 <200411241711.28393.christian.mayrhuber@gmx.net>
-Content-Type: text/plain
-Message-Id: <1101379820.2838.15.camel@grape.st-and.ac.uk>
+	Fri, 26 Nov 2004 14:29:21 -0500
+Date: Thu, 25 Nov 2004 23:41:24 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Suspend2 merge: 1/51: Device trees
+Message-ID: <20041125224124.GE2711@elf.ucw.cz>
+References: <20041125165413.GB476@openzaurus.ucw.cz> <20041125185304.GA1260@elf.ucw.cz> <1101421336.27250.80.camel@desktop.cunninghams>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 25 Nov 2004 10:50:21 +0000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1101421336.27250.80.camel@desktop.cunninghams>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-11-24 at 16:11, Christian Mayrhuber wrote:
-> On Wednesday 24 November 2004 16:02, Paolo Ciarrocchi wrote:
-> > On 24 Nov 2004 09:16:03 +0000, Peter Foldiak
-> > <peter.foldiak@st-andrews.ac.uk> wrote:
-> > [...] 
-> > > I would really like to implement this for the next version of Hans' file
-> > > system.
+Hi!
+
+> > > This patch allows the device tree to be split up into multiple trees. I
+> > > don't really expect it to be merged, but it is an important part of
+> > > suspend at the moment, and I certainly want to see something like it
+> > > that will allow us to suspend some parts of the device tree and not
+> > > others. Suspend2 uses it to keep alive the hard drive (or equivalent)
+> > > that we're writing the image to while suspending other devices, thus
+> > > improving the consistency of the image written.
+> > > 
+> > > I remember from last time this was posted that someone commented on
+> > > exporting the default device tree; I haven't changed that yet.
 > > 
-> > I don't undersand how you want to use Xpath for not XML file.
-> > I agree with you that the idea behind Xpath is cool but I fail to
-> > unserstand how it can be applied to anything but XML
-> > Paolo
+> > Q: I do not understand why you have such strong objections to idea of
+> > selective suspend.
+> > 
+> > A: Do selective suspend during runtime power managment, that's
+> > okay. But
+> > its useless for suspend-to-disk. (And I do not see how you could use
+> > it for suspend-to-ram, I hope you do not want that).
+> > 
+> > Lets see, so you suggest to
+> > 
+> > * SUSPEND all but swap device and parents
+> > * Snapshot
+> > * Write image to disk
+> > * SUSPEND swap device and parents
+> > * Powerdown
+> > 
+> > Oh no, that does not work, if swap device or its parents uses DMA,
+> > you've corrupted data. You'd have to do
+> > 
+> > * SUSPEND all but swap device and parents
+> > * FREEZE swap device and parents
+> > * Snapshot
+> > * UNFREEZE swap device and parents
+> > * Write
+> > * SUSPEND swap device and parents
+> > 
+> > Which means that you still need that FREEZE state, and you get more
+> > complicated code. (And I have not yet introduce details like system
+> > devices).
 > 
-> Apache Cocoon uses so called generators to parse non-XML formats and produce a 
-> XML representation thereof. This XML can be addressed by XPath.
-> To store modifications back this XML needs to be serialized to the original
-> format. That's **very** fat and slow.
-> 
-> Maybe an automount with a special fuse filesystem could accomplish this.
-> 
-> For example:
-> # cd /etc/passwd/..metas/contents/
-> 
-> automounts /etc/passwd as "fuse-xpath-passwd" fs 
-> to /etc/passwd/..metas/contents/
-> 
-> Doing 'cat /etc/passwd/..metas/contents/shell[username = "joe"]' could work 
-> then.
-> 
-> Reiser4 would need a content-mount plugin that automounts
-> the respective file by means of a per file configureable
-> mount command. Something like
-> # cat /etc/passwd/..metas/plugins/content-mount
-> -t fuse-xpath-passwd -o ro
-> 
-> fuse-xpath-* filesystems would have to be written. These could be designed 
-> similiar to the apache cocoon approach of generators/serializers to
-> work with an intermediate XML representation of the file interior.
-> 
-> All the stuff besides mounting the fuse-xpath-fs's would happen in userspace.
-> I don't think that anyone can guarantee posix fs semantics by this approach.
+> There's obviously a misunderstanding here. What I do is:
 
-The problem with the
-cat /etc/passwd/..metas/contents/shell[username = "joe"]
-syntax is that it doesn't really achieve namespace unification.
-As far as I understand the benefits of a unified namespace are due to
-the user and the applications not having to know the details of what
-they are dealing with. So, for instance, the nice thing about the
-unification of files and devices in Unix is that an application (most
-often) can treat a device in the same way as a file (or a pipe, etc.).
-This is what gives it real flexibility.
-The above syntax assumes you know exactly where the file "ends", and
-where the parts of the file "begins" (indicated by the ..metas in your
-path). Couldn't we get rid of ..metas from the path?
+Ok, sorry, this was from another flamewar ;).
 
-Also, what I am suggesting is not just to be able to select inside XML
-files but also to extend XPath-like selection ABOVE the file level too,
-to be used as if the whole file system was like a single big virtual XML
-file.
- Peter
+> SUSPEND all but swap device and parents
+> WRITE LRU pages
+> SUSPEND swap device and parents (+sysdev)
+> Snapshot
+> RESUME swap device and parents (+sysdev)
+> WRITE snapshot
+> SUSPEND swap device and parents
+> POWERDOWN everything
+> 
+> I thought I wrote - perhaps I'm wrong here - that I understand that your
+> new work in this area might make this unnecessary. I really only want to
+> do it this way because I don't know what other drivers might be doing
+> while we're writing the LRU pages. I'm not worried about them touching
+> LRU. What I am worried about is them allocating memory and starving
+> suspend so that we get hangs due to being oom. If they're suspended, we
+> have more certainty as to how memory is being used. I don't remember
+> what prompted me to do this in the first place, but I'm pretty sure it
+> would have been a real observed issue.
 
+Uh... It seems like quite a lot of work. Would not reserving few more
+pages help here? Or perhaps right solution is to fix "broken" drivers
+that need too much memory...
+
+...because you loose anyway if that "broken" driver is between swap
+device and root.
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

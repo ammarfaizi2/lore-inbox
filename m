@@ -1,59 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135763AbRAGGCn>; Sun, 7 Jan 2001 01:02:43 -0500
+	id <S135752AbRAGG0N>; Sun, 7 Jan 2001 01:26:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135766AbRAGGCd>; Sun, 7 Jan 2001 01:02:33 -0500
-Received: from vitelus.com ([64.81.36.147]:19468 "EHLO vitelus.com")
-	by vger.kernel.org with ESMTP id <S135763AbRAGGCT>;
-	Sun, 7 Jan 2001 01:02:19 -0500
-Date: Sat, 6 Jan 2001 22:02:14 -0800
-From: Aaron Lehmann <aaronl@vitelus.com>
-To: "D. Jeff Dionne" <jeff@lineo.ca>
+	id <S135766AbRAGG0C>; Sun, 7 Jan 2001 01:26:02 -0500
+Received: from freya.yggdrasil.com ([209.249.10.20]:28859 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S135752AbRAGGZu>; Sun, 7 Jan 2001 01:25:50 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Sat, 6 Jan 2001 22:25:43 -0800
+Message-Id: <200101070625.WAA01585@adam.yggdrasil.com>
+To: pavenis@latnet.lv
+Subject: Re: devfs breakage in 2.4.0 release
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: uClinux 2.4.0.0pre0 released.
-Message-ID: <20010106220214.C7874@vitelus.com>
-In-Reply-To: <Pine.LNX.4.21.0101060009550.10613-100000@mail.lineo.ca>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="NU0Ex4SbNnrxsi6C"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <Pine.LNX.4.21.0101060009550.10613-100000@mail.lineo.ca>; from jeff@lineo.ca on Sat, Jan 06, 2001 at 12:25:36AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	On my Sony PictureBook PCG-C1VN, 2.4.0 hangs in the boot
+process while 2.4.0-prerelease boots just fine.  At first I thought
+the problem was devfs-related, but skipping devfsd just caused the
+hang to occur a little later, this time in ifconfig.  The kernel
+call trace looked something like this:
 
---NU0Ex4SbNnrxsi6C
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	neigh_ifdown
+	sys_ioctl
+	sock_ioctl
+	[some addresses in modules]
+	stext_lock
+	__down_failed
+	__down
 
-On Sat, Jan 06, 2001 at 12:25:36AM -0500, D. Jeff Dionne wrote:
-> uClinux 2.4.0.0pre0 is out.  It is on www.uclinux.org and cvs.uclinux.org
+	What surprised me more was that attempting to remount the
+root filesystem for writing just before this (to record the module
+kernel symbols) caused a kenel BUG() in slab.c:1542 becuase kmalloc
+was being called with a huge negative number.
 
-I don't think this matters much, but I noticed that several of the
-features available in the kernel configuration aren't relevent to 68k.
-For example, in arch/m68knommu/config.in:
+	I know I could run ksymoops to get this trace, but I now
+think the cause of the problem probably happens much earlier than
+the symptoms.  So, I trying backing out different 2.4.0 changes.
+So far, I can tell you that reverting the linux/mm subdirectory to
+its 2.4.0-prerelease contents had no effect.  I will let you know
+if I diagnose or fix the problem, as I think you may be experiencing
+the same problem.
 
-bool 'SGI Visual Workstation support' CONFIG_VISWS
-bool 'PCI support' CONFIG_PCI
-bool 'MCA support' CONFIG_MCA
-bool 'Power Management support' CONFIG_PM
-
-
---NU0Ex4SbNnrxsi6C
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6WAZmdtqQf66JWJkRAiwhAKCJ1HddXgOcz8i3wRiKG8l/IdnUTgCgtMcO
-6Lfh0/r3EoLCPAmCOFl7vUs=
-=Ztyo
------END PGP SIGNATURE-----
-
---NU0Ex4SbNnrxsi6C--
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

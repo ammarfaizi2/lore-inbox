@@ -1,38 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264964AbSKGJaQ>; Thu, 7 Nov 2002 04:30:16 -0500
+	id <S266434AbSKGJuO>; Thu, 7 Nov 2002 04:50:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265361AbSKGJaQ>; Thu, 7 Nov 2002 04:30:16 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:44042 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S264964AbSKGJaQ>; Thu, 7 Nov 2002 04:30:16 -0500
-Date: Thu, 7 Nov 2002 09:36:38 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Jens Axboe <axboe@suse.de>, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org, benh@kernel.crashing.org
-Subject: Re: [PATCH] Fix typo in sl82c105.c driver
-Message-ID: <20021107093638.A7579@flint.arm.linux.org.uk>
-Mail-Followup-To: Paul Mackerras <paulus@samba.org>,
-	Jens Axboe <axboe@suse.de>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org, benh@kernel.crashing.org
-References: <15817.54799.955377.260781@argo.ozlabs.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <15817.54799.955377.260781@argo.ozlabs.ibm.com>; from paulus@samba.org on Thu, Nov 07, 2002 at 01:55:11PM +1100
+	id <S266440AbSKGJuO>; Thu, 7 Nov 2002 04:50:14 -0500
+Received: from cibs9.sns.it ([192.167.206.29]:2826 "EHLO cibs9.sns.it")
+	by vger.kernel.org with ESMTP id <S266434AbSKGJuM>;
+	Thu, 7 Nov 2002 04:50:12 -0500
+Date: Thu, 7 Nov 2002 10:56:51 +0100 (CET)
+From: venom@sns.it
+To: linux-kernel@vger.kernel.org
+Subject: hard loockup with 2.5.46 and high network load (no logs), at reboot
+  reiserFS troubles, and network card not seen anymore till poweroff.
+Message-ID: <Pine.LNX.4.43.0211071041570.5656-100000@cibs9.sns.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 07, 2002 at 01:55:11PM +1100, Paul Mackerras wrote:
-> This patch fixes a minor typo in sl82c105.c which stops it from
-> compiling.
 
-Grr.  It needs _fixing_ first.  I haven't managed to get around to fixing
-this mess that was created when Martin's stuff got ripped out.
+HI,
+I was making some test for fun and I incurred in this strange behaviour.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+I was making an eavy NFS I/O (some GB) with nfs3 and the server:
+a PIII 512 MB RAM
+i810 chipset (ATA 66 disks)
+3Com 3c905C-TX/TX-M [Tornado] network card
+
+simply loocked up while I was doing an arping from it to the client.
+
+Kernel is 2.5.46, compiled with gcc 3.2, binutils 2.13.90.0.10, glibc
+2.3.1.
+nfsutils are 1.0.1.
+
+There was nothing in the log files, except:
+
+Nov  7 09:34:18 Blackdeath icmplogd: destination unreachable from Blackdeath.adm.epiclink.it
+Nov  7 09:44:11 Blackdeath kernel: Warning: null TTY for (88:08) in tty_fasync
+Nov  7 09:47:08 Blackdeath gpm[255]: imps2: Auto-detected intellimouse PS/2
+Nov  7 09:47:12 Blackdeath modprobe: modprobe: Can't locate module char-major-10-134
+Nov  7 09:49:18 Blackdeath icmplogd: destination unreachable from Blackdeath.adm.epiclink.it
+
+[and HERE there was the loock up]
+
+Nov  7 09:52:13 Blackdeath syslogd 1.4.1: restart.
+Nov  7 09:52:14 Blackdeath kernel: klogd 1.4.1, log source = /proc/kmsg
+started.
+Nov  7 09:52:14 Blackdeath kernel: Cannot open map file: -x.
+
+
+During reboot Reiserfs had to:
+
+Nov  7 09:52:35 Blackdeath kernel: ReiserFS version 3.6.25
+Nov  7 09:52:35 Blackdeath kernel: reiserfs: checking transaction log (device 16
+:03) ...
+Nov  7 09:52:35 Blackdeath kernel: reiserfs: replayed 13 transactions in 2 seconds
+Nov  7 09:52:35 Blackdeath kernel: Using r5 hash to sort names
+Nov  7 09:52:35 Blackdeath kernel: Removing [936 1063 0x0 SD]..done
+Nov  7 09:52:35 Blackdeath kernel: Removing [936 1062 0x0 SD]..done
+Nov  7 09:52:35 Blackdeath kernel: Removing [936 1061 0x0 SD]..done
+Nov  7 09:52:36 Blackdeath kernel: Removing [936 1057 0x0 SD]..done
+Nov  7 09:52:36 Blackdeath kernel: Removing [48588 936 0x0 SD]..done
+Nov  7 09:52:36 Blackdeath kernel: There were 5 uncompleted
+unlinks/truncates. Completed
+
+on the exported filesystem. (this is the first time I have something
+wrong with reiserFS since the corruptions in early 2.5 kernels)
+
+What really surprised me is that after i pressed the reset button, booting
+a 2.4.19 kernel, the network card was not seen anymore, nor I could find
+it in /proc/pci. I had to power off the computer for some second, then
+(after I checked power saving is disable in bios) at
+reboot, with 2.4.19 kernel, the card was seen again.
+
+I hope this helps
+
+Luigi Genoni
+
 

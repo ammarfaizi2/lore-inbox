@@ -1,34 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318516AbSIBVxf>; Mon, 2 Sep 2002 17:53:35 -0400
+	id <S318519AbSIBWHD>; Mon, 2 Sep 2002 18:07:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318518AbSIBVxe>; Mon, 2 Sep 2002 17:53:34 -0400
-Received: from mailhost.tue.nl ([131.155.2.5]:48393 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S318497AbSIBVxe>;
-	Mon, 2 Sep 2002 17:53:34 -0400
-Date: Mon, 2 Sep 2002 23:58:03 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
+	id <S318503AbSIBWHD>; Mon, 2 Sep 2002 18:07:03 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:61706 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S318497AbSIBWHC>; Mon, 2 Sep 2002 18:07:02 -0400
+Date: Mon, 2 Sep 2002 15:06:27 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
 To: Thunder from the hill <thunder@lightweight.ods.org>
-Cc: Andries.Brouwer@cwi.nl, <torvalds@transmeta.com>,
-       <linux-kernel@vger.kernel.org>, <linux-raid@vger.kernel.org>,
-       <neilb@cse.unsw.edu.au>
+cc: Andries.Brouwer@cwi.nl, <aebr@win.tue.nl>, <linux-kernel@vger.kernel.org>,
+       <linux-raid@vger.kernel.org>, <neilb@cse.unsw.edu.au>
 Subject: Re: PATCH - change to blkdev->queue calling triggers BUG in md.c
-Message-ID: <20020902215803.GA9359@win.tue.nl>
-References: <UTC200209022127.g82LR3g12738.aeb@smtp.cwi.nl> <Pine.LNX.4.44.0209021542590.3270-100000@hawkeye.luckynet.adm>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <Pine.LNX.4.44.0209021542590.3270-100000@hawkeye.luckynet.adm>
-User-Agent: Mutt/1.3.25i
+Message-ID: <Pine.LNX.4.44.0209021501080.1401-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 02, 2002 at 03:43:56PM -0600, Thunder from the hill wrote:
 
-> > The faraway goal is: no partition table reading in the kernel.
+On Mon, 2 Sep 2002, Thunder from the hill wrote:
 > 
 > Why not the faraway goal: no partition tables any more? They're annoying.
 
-As soon as the kernel stops reading partition tables, user space
-is entirely free in what it does. One of the possibilities is
-then of course: no partition tables.
+Yeah, users and real life is annoying.
+
+Guys, Linux is not a research project. Never was, never will be. If you
+want to have a research project that does things the way people think they
+should be done (as opposed to real life and being practical), look at Hurd
+and look at a lot of other projects. But don't look at Linux.
+
+Partition tables are a fact of life. And they are a fundamental part to 
+being able to parse what the disk contains. 
+
+Sure, you can do it in user space too. And you can do TCP in user space.  
+But some things are just fairly fundamental to the working of the system.  
+The disk and filesystem layout is one such thing. It had better "just
+work".
+
+		Linus
+

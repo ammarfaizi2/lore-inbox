@@ -1,52 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312182AbSCTVGa>; Wed, 20 Mar 2002 16:06:30 -0500
+	id <S312193AbSCTVPb>; Wed, 20 Mar 2002 16:15:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312180AbSCTVGU>; Wed, 20 Mar 2002 16:06:20 -0500
-Received: from 216-224-51-61.client.dsl.net ([216.224.51.61]:43590 "EHLO
-	ns11.ritman.com") by vger.kernel.org with ESMTP id <S312182AbSCTVGE>;
-	Wed, 20 Mar 2002 16:06:04 -0500
-Message-ID: <001501c1d053$0925cde0$0201a8c0@idlewild.net>
-From: "Robert Schmaling" <schmali@ritman.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.4.19-pre3-ac4 compile failure on Alpha 
-Date: Wed, 20 Mar 2002 16:05:54 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S312194AbSCTVPM>; Wed, 20 Mar 2002 16:15:12 -0500
+Received: from ztxmail02.ztx.compaq.com ([161.114.1.206]:37134 "EHLO
+	ztxmail02.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id <S312190AbSCTVPD>; Wed, 20 Mar 2002 16:15:03 -0500
+Date: Wed, 20 Mar 2002 15:07:42 -0600
+From: Stephen Cameron <steve.cameron@compaq.com>
+To: linux-kernel@vger.kernel.org
+Cc: manon@manon.de
+Subject: Re: Hooks for random device entropy generation missing in cpqarray.c
+Message-ID: <20020320150742.A4450@zuul.cca.cpqcorp.net>
+Reply-To: steve.cameron@compaq.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Compilation fails with the following :
+On Wed, 20 Mar 2002, Manon Goo wrote:
 
-make[1]: Entering directory
-`/usr/src/linux-2.4.19-pre3-ac4/arch/alpha/kernel'
-gcc -D__ASSEMBLY__ -D__KERNEL__ -I/usr/src/linux-2.4.19-pre3-ac4/include -c 
--o entry.o entry.S
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.19-pre3-ac4/include -Wall -Wstrict-pro
-totypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-co
-mmon -pipe -mno-fp-regs -ffixed-8 -mcpu=ev56 -Wa,-mev6   -DKBUILD_BASENAME=t
-raps  -c -o traps.o traps.c
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.19-pre3-ac4/include -Wall -Wstrict-pro
-totypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-co
-mmon -pipe -mno-fp-regs -ffixed-8 -mcpu=ev56 -Wa,-mev6   -DKBUILD_BASENAME=p
-rocess  -c -o process.o process.c
-process.c: In function `cpu_idle':
-process.c:77: structure has no member named `nice'
-process.c:78: structure has no member named `counter'
-make[1]: *** [process.o] Error 1
-make[1]: Leaving directory
-`/usr/src/linux-2.4.19-pre3-ac4/arch/alpha/kernel'
-make: *** [_dir_arch/alpha/kernel] Error 2
+> All hooks for the random ganeration (add_blkdev_randomness() ) 
+> are ignored=20 in the cpqarray / ida  driver
 
+Try OR-ing in SA_SAMPLE_RANDOM in the call to request_irq().
 
-Hardware: alpha pc164lx w/533 21164a
-Distribution: Redhat 7.1
+You don't say what kernel you're using, I think
+this is already in the latest 2.2, 2.4, 2.5 kernels,
+if I remember right... I see it in my copy of 2.2.21-pre3 
+anyway.
 
-Thanks,
+-- steve
 

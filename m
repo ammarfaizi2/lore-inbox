@@ -1,58 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270094AbTGXUMQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 16:12:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270097AbTGXUMQ
+	id S270436AbTGXUcK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 16:32:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271725AbTGXUcK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 16:12:16 -0400
-Received: from adsl-110-19.38-151.net24.it ([151.38.19.110]:11234 "HELO
-	develer.com") by vger.kernel.org with SMTP id S270094AbTGXUMP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 16:12:15 -0400
-From: Bernardo Innocenti <bernie@develer.com>
-Organization: Develer S.r.l.
-To: Willy Tarreau <willy@w.ods.org>
-Subject: Re: [uClinux-dev] Kernel 2.6 size increase
-Date: Thu, 24 Jul 2003 22:27:16 +0200
-User-Agent: KMail/1.5.9
-Cc: Christoph Hellwig <hch@lst.de>,
-       uClinux development list <uclinux-dev@uclinux.org>,
-       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-References: <200307232046.46990.bernie@develer.com> <200307240007.15377.bernie@develer.com> <20030723222747.GF643@alpha.home.local>
-In-Reply-To: <20030723222747.GF643@alpha.home.local>
+	Thu, 24 Jul 2003 16:32:10 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:16272 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S270436AbTGXUcG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jul 2003 16:32:06 -0400
+Date: Thu, 24 Jul 2003 17:23:26 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Linux 2.4.22-pre8
+Message-ID: <Pine.LNX.4.55L.0307241721130.7875@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200307242227.16439.bernie@develer.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 24 July 2003 00:27, Willy Tarreau wrote:
 
-> On Thu, Jul 24, 2003 at 12:07:15AM +0200, Bernardo Innocenti wrote:
-> >    text    data     bss     dec     hex filename
-> >  633028   37952  134260  805240   c4978 linux-2.4.x/linux-Os
-> >  819276   52460   78896  950632   e8168 linux-2.5.x/vmlinux-inline-Os
-> >  ^^^^^^
-> >        2.6 still needs a hard diet... :-/
->
-> I did the same observation a few weeks ago on 2.5.74/gcc-2.95.3. I tried
-> to track down the responsible, to the point that I completely disabled
-> every driver, networking option and file-system, just to see, and got about
-> a 550 kB vmlinux compiled with -Os. 550 kB for nothing :-(
+Hello,
 
-Some of the bigger 2.6 additions cannot be configured out.
-I wish sysfs and the different I/O schedulers could be removed.
+Here goes -pre8. It contains network driver updates, IEEE1394 update, a
+POSIX compliance fix introduced by the execve() security fixes during
+early -pre, amongst others.
 
-There are probably many other things mostly useless for embedded
-systems that I'm not aware of.
+Detailed changelog below
 
--- 
-  // Bernardo Innocenti - Develer S.r.l., R&D dept.
-\X/  http://www.develer.com/
+Summary of changes from v2.4.22-pre7 to v2.4.22-pre8
+============================================
 
-Please don't send Word attachments - http://www.gnu.org/philosophy/no-word-attachments.html
+<gorgo:thunderchild.debian.net>:
+  o [netdrvr wan] note comx maintainer change, by request
 
+<lethal:unusual.internal.linux-sh.org>:
+  o sh64: sh-sci support for SH-5 101/103
+
+<mark.fasheh:oracle.com>:
+  o Fix deadlock in journal_create
+
+<taowenhwa:intel.com>:
+  o [e100] read skb->len after freeing skb
+  o [e100] cu_start: timeout waiting for cu
+  o [e100] misc
+
+Andreas Gruenbacher:
+  o unshare-files fix breaks file locks
+
+Ben Collins:
+  o [SPARC64]: Clear all IRQs at probe time in PCI sabre driver
+  o Update IEEE1394 (r1010)
+
+Bhavesh P. Davda:
+  o Fix aha152x hangs on pcmcia card eject
+
+Chas Williams:
+  o [ATM]: Get config/build dependencies correct
+
+Daniel Ritz:
+  o fix ne2k-pci memleak
+
+Marcelo Tosatti:
+  o Changed EXTRAVERSION to -pre8
+
+Neil Brown:
+  o knfsd:   Only set ->reuse for tcp sockets, not udp
+
+Roger Luethi:
+  o via-rhine 1.19: One more Rhine-I fix
+
+Scott Feldman:
+  o [netdrvr ethtool] add ethtool TSO get/set
+  o [e1000] request_irq() failure resulted in freeing twice
+  o [e1000] fix VLAN support on PPC64
+  o [e1000] missing Tx cleanup opportunities during intr handling
+  o [e1000] alloc_etherdev failure didn't cleanup regions
+  o [e1000] ethtool diag cleanup
+  o [e1000] h/w workaround for mis-fused parts
+  o [e1000] s/int/unsigned int/ for descriptor ring indexes
+  o [e1000] misc cleanup
 

@@ -1,62 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265818AbTIEU6a (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 16:58:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265822AbTIEU6a
+	id S265728AbTIEUyx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 16:54:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265701AbTIEUxo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 16:58:30 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:14088
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id S265818AbTIEU6Z (ORCPT
+	Fri, 5 Sep 2003 16:53:44 -0400
+Received: from [205.200.104.254] ([205.200.104.254]:10190 "EHLO
+	pl6w2kex.lan.powerlandcomputers.com") by vger.kernel.org with ESMTP
+	id S265697AbTIEUx3 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 16:58:25 -0400
-Subject: Re: [PATCH] Nick's scheduler policy v12
-From: Robert Love <rml@tech9.net>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       Nick Piggin <piggin@cyberone.com.au>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030905203903.GF19041@matchmail.com>
-References: <3F58CE6D.2040000@cyberone.com.au> <195560000.1062788044@flay>
-	 <20030905202232.GD19041@matchmail.com> <207340000.1062793164@flay>
-	 <20030905203903.GF19041@matchmail.com>
-Content-Type: text/plain
-Message-Id: <1062796123.1436.4.camel@boobies.awol.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
-Date: Fri, 05 Sep 2003 17:08:43 -0400
-Content-Transfer-Encoding: 7bit
+	Fri, 5 Sep 2003 16:53:29 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: Driver Model 2 Proposal - Linux Kernel Performance v Usability
+Date: Fri, 5 Sep 2003 15:53:27 -0500
+Message-ID: <18DFD6B776308241A200853F3F83D50727B4@pl6w2kex.lan.powerlandcomputers.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Driver Model 2 Proposal - Linux Kernel Performance v Usability
+Thread-Index: AcNz7XkN0TU6Z7nWQWKmUTWTA7PocgAAF6Hg
+From: "Chad Kitching" <CKitching@powerlandcomputers.com>
+To: "Mike Fedyk" <mfedyk@matchmail.com>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-09-05 at 16:39, Mike Fedyk wrote:
 
-> Exactly.  Because the larger time slices for lower nice values came from
-> O(1), not Con.
+From: Mike Fedyk [mailto:mfedyk@matchmail.com]
+> Here is one thing we don't have standardized across the entire Linux
+> distribution landscape.
+> 
+> What you need is a project that will take the top 10 
+> distributions, and do
+> this however each distribution does their thing:
+> 
+>  o identify the current kernel running (you're going to use the kernel
+>    you're running, right?)
 
-The larger timeslices may not help, but one reason why renicing X hurts
-multimedia is that it gives a preference to the GUI over the multimedia
-thread(s).
+Not to mention on boot-up check to make sure the module still loads 
+without warnings on the current kernel (or make sure the module exists 
+in the current /lib/modules directory.
+   
+>  o download the kernel source for the running kernel
 
-Look at it this way.  Assume renicing X does not _help_ whatever the
-problem is (simply because the problem, in this case, is not stemming
-from X).  Then giving X the higher priority and larger timeslice only
-adversely affects the problem.
+Problem: Most distributors modify their kernel somewhat.  Some enough 
+to cause binary module incompatibility with the 'stock' kernel.  
+Matching running kernel and source code kernel would be tricky, to
+say the least.
+ 
+>  o install the source in some temporary location
 
-So, since the multimedia thread in (say) xmms is really unrelated to X
-(its a separate thread and not doing any Xlib calls), it just hurts it.
+Why not just make the includes directory get installed somewhere.  
+Somewhere like /lib/modules/`uname -r`/build/includes (especially since
+make install puts a symlink at /lib/modules/`uname -r`/build anyway)
+You also need to prep the extracted kernel with the proper .config, etc.
+which isn't always in the source package from some distributors.
 
-> Linus added a patch to 2.5.65 or so that was supposed to allow nice 0 on X
-> without any detrament.
+>  o compile against the downloaded kernel source
+> 
+>  o install the module under /lib/modules
+> 
+>  o load the module (with the corect optional parameters)
 
-That is the backboost thing.  It was ripped out, due to regressions in
-SETI and elsewhere.
-
-Nick added a similar thing back in, but he just removed it.  Its a shame
-it cannot be made to work, because I like the idea.  I talked with Nick
-and OLS about the ability of a forward+back boost combination to solve
-our interactivity issues.  I really wish they panned out.
-
-	Robert Love
-
-
+The biggest problem is people not having installed the C compiler, and 
+related tools.  Or having not installed the kernel headers matching 
+their version of the kernel.

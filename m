@@ -1,67 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261669AbUBZAbB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 19:31:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262474AbUBZAbB
+	id S262576AbUBZAki (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 19:40:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262581AbUBZAki
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 19:31:01 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:30099 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id S261669AbUBZAa7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 19:30:59 -0500
-From: Darren Williams <dsw@gelato.unsw.edu.au>
-To: Manfred Spraul <manfred@colorfullife.com>
-Date: Thu, 26 Feb 2004 11:30:46 +1100
-Cc: davem@redhat.com, akpm@osdl.org, LKML <linux-kernel@vger.kernel.org>,
-       anton@samba.org
-Subject: Re: [BUG] 2.6.3 Slab corruption: errors are triggered when memory exceeds 2.5GB (correction)
-Message-ID: <20040226003046.GA22527@cse.unsw.EDU.AU>
-References: <403AF155.1080305@colorfullife.com> <20040223225659.4c58c880.akpm@osdl.org> <403B8C78.2020606@colorfullife.com> <20040225005804.GE18070@cse.unsw.EDU.AU> <403C3F04.20601@colorfullife.com> <20040224230318.19a0e6b9.davem@redhat.com> <20040224232205.4fe87448.akpm@osdl.org> <403CD8E2.2060102@colorfullife.com>
+	Wed, 25 Feb 2004 19:40:38 -0500
+Received: from gate.crashing.org ([63.228.1.57]:50103 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262576AbUBZAka (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 19:40:30 -0500
+Subject: Re: [Linux-fbdev-devel] fbdv/fbcon pending problems
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Otto Solares <solca@guug.org>, Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0402260014130.24952-100000@phoenix.infradead.org>
+References: <Pine.LNX.4.44.0402260014130.24952-100000@phoenix.infradead.org>
+Content-Type: text/plain
+Message-Id: <1077755580.22232.89.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <403CD8E2.2060102@colorfullife.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 26 Feb 2004 11:33:01 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Manfred
 
-With the introduction of the unused int the slab corruption
-errors are not present.
+> Well now that we have one input api that can happen. Of course with 
+> graphics its much more diverse with what you can do. That is one of the 
+> reasons for so many graphics libraries. It would be really hard to write
+> a one size fits all library when it comes to graphics.
 
-Darren
+Note that I am NOT talking about a graphics library. This has NO
+BUSINESS doing any kind of rendering. It's only the userland interface
+to the underlying kernel drivers as far as mode switching & geometry
+is concerned. That's _ALL_. In the same  was as libGL is the userland
+interface to DRI, or iptables the userlnad interface to netfilter,
+etc...
+ 
+> By state machine I mean the physical hardware state. If it's hardware 
+> access then it should be in the kernel. Note I'm refering to mode setting 
+> not acceleration. Now EDID overrides per monitor model and saving the 
+> state to disk is different. That should be userland. 
 
-On Wed, 25 Feb 2004, Manfred Spraul wrote:
+I agree. The HW access is done in kernel space. That's even true for
+acceleration actually. You are mixing things. What I'm taking about
+is exactly that: The userland library gets the various EDID & other
+probing informations coming from the kernel drivers. It does the various
+policy decisions on mode setting, it provides the API for userland to
+deal with mode setting & monitor placement (what I call geometry)
+and saving/restoring of configurations. The actual banging of the mode
+to the HW is done by the kernel driver though. (The card specific back
+end of the library probably builds either a mode description or a
+register list and pass that to the kernel driver).
 
-> Andrew Morton wrote:
-> 
-> >Ah-hah.
-> >
-> >This should find it:
-> > 
-> >
-> I think we should first check that skb->dataref is really the problem: 
-> what about adding an unused field before the dataref? Something like
-> 
-> struct skb_shared_info {
-> +	int		unused;
-> 	atomic_t	dataref;
-> 	int		debug;
-> 
-> If the dataref decrease causes the problem, then the affected offset should 
-> change to 0x628.
-> 
-> --
-> 	Manfred
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
---------------------------------------------------
-Darren Williams <dsw AT gelato.unsw.edu.au>
-Gelato@UNSW <www.gelato.unsw.edu.au>
---------------------------------------------------
+> I think we are fine for whats in the kernel. As for multiple head and 
+> geometry stuff its not that hard if done right. I have been using 
+> multi-head systems for years. I have multip desktop systems for years!!!
+
+I have been using multi head systems for years and I've seen how good
+it can be, but also a bunch of the pitfalls when trying to design a
+driver for it. If it was that easy, we would have had the right support
+in fbdev for ages. We don't.
+
+Ben.
+

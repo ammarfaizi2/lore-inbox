@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263887AbTDYL6u (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 07:58:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263892AbTDYL6u
+	id S263892AbTDYMEV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 08:04:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263894AbTDYMEV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 07:58:50 -0400
-Received: from griffon.mipsys.com ([217.167.51.129]:60614 "EHLO gaston")
-	by vger.kernel.org with ESMTP id S263887AbTDYL6t (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 07:58:49 -0400
-Subject: Re: Update to orinoco driver (2.4)
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: David Gibson <hermes@gibson.dropbear.id.au>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Jean Tourrilhes <jt@hpl.hp.com>, David Hinds <dhinds@sonic.net>
-In-Reply-To: <20030423060520.GI25455@zax>
-References: <20030423054636.GG25455@zax>  <20030423060520.GI25455@zax>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1051272644.15776.2.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 25 Apr 2003 14:10:45 +0200
+	Fri, 25 Apr 2003 08:04:21 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:60314 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263892AbTDYMET
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 08:04:19 -0400
+Date: Fri, 25 Apr 2003 14:16:05 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Jens Axboe <axboe@suse.de>, Alexander Atanasov <alex@ssi.bg>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC/PATCH] IDE Power Management try 1
+In-Reply-To: <1051271538.15078.27.camel@gaston>
+Message-ID: <Pine.SOL.4.30.0304251414430.12558-100000@mion.elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-04-23 at 08:05, David Gibson wrote:
-> On Wed, Apr 23, 2003 at 03:46:36PM +1000, David Gibson wrote:
-> > Hi Marcelo,
-> > 
-> > The patch below updates the orinoco driver in 2.4 to 0.13d, the patch
-> > is against 2.4.21-rc1.  You may want to postpone this update till
-> > after 2.4.21, but I'd consider it, since it fixes a fair slew of bugs.
-> 
-> Duh, sorry.  And now with the actual patch:
 
-Shouldn't it also patch Config.in & Makefile to add the orinoco_tmd.c ?
+On 25 Apr 2003, Benjamin Herrenschmidt wrote:
 
-I'm adding this new driver to my pmac bk tree btw.
+> > If you add REQ_DRIVE_INTERNAL, and kill the other ones I mentioned, fine
+> > with me then.
+> >
+> > 	rq->flags & REQ_DRIVE_INTERNAL
+> > 		rq->cmd[0] == PM
+> > 			pm stuf
+> > 		rq->cmd[0] = taskfile
+> > 			taskfile
+> >
+> > etc. Make sense?
+>
+> As I just wrote, I'd rather go the whole way then and break up flags
+> (which is a very bad name btw) into req_type & req_subtype, though
+> that would mean a bit of driver fixing....
+>
+> Ben.
 
-Ben.
+req_type & req_subtype makes sense,
+but it is future since driver work is needed
+
+--
+Bartlomiej
 

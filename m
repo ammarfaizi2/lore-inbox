@@ -1,57 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265230AbUHRJJt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265232AbUHRJQX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265230AbUHRJJt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 05:09:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265232AbUHRJJt
+	id S265232AbUHRJQX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 05:16:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265234AbUHRJQX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 05:09:49 -0400
-Received: from acheron.informatik.uni-muenchen.de ([129.187.214.135]:44501
-	"EHLO acheron.informatik.uni-muenchen.de") by vger.kernel.org
-	with ESMTP id S265230AbUHRJJr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 05:09:47 -0400
-Message-ID: <41231CD8.5020300@bio.ifi.lmu.de>
-Date: Wed, 18 Aug 2004 11:09:44 +0200
-From: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040503)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
-Cc: Andreas Messer <andreas.messer@gmx.de>, linux-kernel@vger.kernel.org,
-       Ballarin.Marc@gmx.de, christer@weinigel.se
-Subject: Re: [PATCH] 2.6.8.1 Mis-detect CRDW as CDROM
-References: <411FD919.9030702@comcast.net> <20040816231211.76360eaa.Ballarin.Marc@gmx.de> <4121A689.8030708@bio.ifi.lmu.de> <200408171311.06222.satura@proton> <20040817155927.GA19546@proton-satura-home> <41231790.7060806@bio.ifi.lmu.de>
-In-Reply-To: <41231790.7060806@bio.ifi.lmu.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 18 Aug 2004 05:16:23 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:25862 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S265232AbUHRJPx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Aug 2004 05:15:53 -0400
+Date: Wed, 18 Aug 2004 10:15:40 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Dave Jones <davej@redhat.com>, Christoph Hellwig <hch@infradead.org>,
+       =?iso-8859-1?Q?David_H=E4rdeman?= <david@2gen.com>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Oops modprobing i830 with 2.6.8.1
+Message-ID: <20040818101540.A30983@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Rusty Russell <rusty@rustcorp.com.au>,
+	Dave Jones <davej@redhat.com>,
+	=?iso-8859-1?Q?David_H=E4rdeman?= <david@2gen.com>,
+	lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20040817220816.GA14343@hardeman.nu> <20040817233732.GA8264@redhat.com> <20040818004339.A27701@infradead.org> <20040817234522.GA4170@redhat.com> <1092801681.27352.194.camel@bach>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1092801681.27352.194.camel@bach>; from rusty@rustcorp.com.au on Wed, Aug 18, 2004 at 02:01:21PM +1000
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oh, I missed one case: When calling cdrecord with no cd in the plextor
-for the first time after booting, i.e., when /etc/hotplug/block.agent
-(on SuSE 9.1) jumps in, I see a 0x1 additionally:
+On Wed, Aug 18, 2004 at 02:01:21PM +1000, Rusty Russell wrote:
+> Thx for reminder.  Polished up the drm stuff: this compiles.  Of course,
+> as Christoph would say, it's still shit.  However, the turd is now more
+> polished.
+> 
+> Dave, please consider removing the piggybacking of DRM module stubs; it
+> is the cause of this horror.  I don't know enough to know what that
+> would break.
 
-Aug 18 10:27:00 zassenhaus /etc/hotplug/block.agent[8396]: new block device /block/hdc
-Aug 18 10:27:00 zassenhaus /etc/hotplug/block.agent[8397]: new block device /block/hdd
-Aug 18 10:27:56 zassenhaus kernel: SCSI-CMD Filter: 0x1e not allowed with read-mode
-Aug 18 10:28:01 zassenhaus kernel: SCSI-CMD Filter: 0x1 not allowed with read-mode
-Aug 18 10:28:02 zassenhaus kernel: SCSI-CMD Filter: 0x1e not allowed with read-mode
-Aug 18 10:28:02 zassenhaus kernel: SCSI-CMD Filter: 0xe9 not allowed with read-mode
-...
+Actually this is is a classic example of over-engineering (not on your side
+but the original drm side). IF a normal driver supports pci and isa devices
+it depends on PCI || ISA and has ifdefs or stubs for both.
 
-The 0x1 does not appear afterwors anymore...
-
-Does it, by the way, make any sense that I report this here? Or will the
-security model have to be desgined first like you discussed it, before
-such tests are helpful? Just to avoid that I flood you with a list of
-blocked commands when you can't make any use of it now :-)
-
-cu,
-Frank
-
--- 
-Dipl.-Inform. Frank Steiner   Web:  http://www.bio.ifi.lmu.de/~steiner/
-Lehrstuhl f. Bioinformatik    Mail: http://www.bio.ifi.lmu.de/~steiner/m/
-LMU, Amalienstr. 17           Phone: +49 89 2180-4049
-80333 Muenchen, Germany       Fax:   +49 89 2180-99-4049
+Similarly drm should depend on AGP for those cards where there are only
+AGP versions (most of them) and the driver where pci is also posisble (some
+ati driver only IIRC) could compile with or withut but I'd be a compile-time
+thing.
 

@@ -1,85 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279024AbRKIBVQ>; Thu, 8 Nov 2001 20:21:16 -0500
+	id <S279029AbRKIB0G>; Thu, 8 Nov 2001 20:26:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279013AbRKIBVH>; Thu, 8 Nov 2001 20:21:07 -0500
-Received: from [208.129.208.52] ([208.129.208.52]:23556 "EHLO xmailserver.org")
-	by vger.kernel.org with ESMTP id <S279003AbRKIBVB>;
-	Thu, 8 Nov 2001 20:21:01 -0500
-Date: Thu, 8 Nov 2001 17:29:25 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Mike Fedyk <mfedyk@matchmail.com>
-cc: Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] scheduler cache affinity improvement for 2.4 kernels
-In-Reply-To: <20011108170740.B14468@mikef-linux.matchmail.com>
-Message-ID: <Pine.LNX.4.40.0111081718570.1501-100000@blue1.dev.mcafeelabs.com>
+	id <S279003AbRKIBZ5>; Thu, 8 Nov 2001 20:25:57 -0500
+Received: from freeside.toyota.com ([63.87.74.7]:39178 "EHLO toyota.com")
+	by vger.kernel.org with ESMTP id <S279029AbRKIBZr>;
+	Thu, 8 Nov 2001 20:25:47 -0500
+Message-ID: <3BEB3092.7DC835B3@lexus.com>
+Date: Thu, 08 Nov 2001 17:25:38 -0800
+From: J Sloan <jjs@lexus.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: volodya@mindspring.com
+CC: erasmo perez <erasmo@aztlan.fb10.tu-berlin.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Loopback device support, kernel 2.4.14, can not compile ?
+In-Reply-To: <Pine.LNX.4.20.0111082005150.9843-100000@node2.localnet.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Nov 2001, Mike Fedyk wrote:
+volodya@mindspring.com wrote:
 
-> [cc trimed]
+> On Fri, 9 Nov 2001, erasmo perez wrote:
 >
-> On Thu, Nov 08, 2001 at 04:37:46PM -0800, Davide Libenzi wrote:
-> > On Thu, 8 Nov 2001, Mike Fedyk wrote:
+> > hello
 > >
-> > > Ingo's patch in effect lowers the number of jiffies taken per second in the
-> > > scheduler (by making each task use several jiffies).
-> > >
-> > > Davide's patch can take the default scheduler (even Ingo's enhanced
-> > > scheduler) and make it per processor, with his extra layer of scheduling
-> > > between individual processors.
+> > i think i have found an error in the kernel, i think ...
 > >
-> > Don't mix things :)
-> > We're talking only about the CpuHistory token of the scheduler proposed here:
+> > when a i try to compile the 2.4.14 with the option:
 > >
-> > http://www.xmailserver.org/linux-patches/mss.html
-> >
-> > This is a bigger ( and not yet complete ) change on the SMP scheduler
-> > behavior, while it keeps the scheduler that runs on each CPU the same.
-> > I'm currently working on different balancing methods to keep the proposed
-> > scheduler fair well balanced without spinning tasks "too much"(tm).
-> >
-> I've given your patch a try, and so far it looks promising.
+> > Loopback device support
 >
-> Running one niced copy of cpuhog on a 2x366 mhz celeron box did pretty well.
-> Instead of switching several times in one second, it only switched a few
-> times per minute.
->
-> I was also able to merge it with just about everything else I was testing
-> (ext3, freeswan, elevator updates, -ac) except for the preempt patch.  Well, I
-> was able to manually merge it, but the cpu afinity broke.  (it wouldn't use
-> the second processor for anything except for interrupt processing...)
->
-> I haven't tried any of the other scheduler patches though.  MQ, looks
-> interesting... :)
->
-> All in all, I think xsched will have much more impact on performance.
-> Simply because it tackles the problem of CPU affinity...
->
-> Even comparing Ingo's patch to your CPU History patch isn't fair, because
-> they attack different problems.  Yours of CPU affinity, Ingo's of time spent
-> on individual tasks within a single processor.
+> Get 2.4.15-pre1 patch - it fixes this.
 
-xsched is not complete yet, it's a draft ( working draft :) ) that i'm
-using to study a more heavy CPU tasks isolation on SMP systems.
-I think that this is the way to go for a more scalable SMP scheduler.
-I'm currently sampling the proposed scheduler with LatSched that gives a
-very good picture of 1) process migration 2) _real_ scheduler latency
-cycles cost.
-The MQ scheduler has the same roots of the proposed one but has a longest
-fast path due the try to make global scheduling decisions at every
-schedule.
-I'm in contact ( close contact coz we're both in Beaverton :) ) with IBM
-guys to have the two scheduler tested on bigger machines if the proposed
-scheduler will give some fruit.
+Yes, 2.4.15-pre1 fixes that, and somewhat works -
 
+However 2.4.15-pre1 has some other issues.
 
+For instance, in 2.4.15-pre1, I can reliably hang
+my machine with the following simple command,
+as a non-root user:
 
+ssh localhost
 
-- Davide
+Is that bizzare or what? I've never seen
+that type of bug in Linux before -
+
+cu
+
+jjs
 
 

@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286434AbRLTWfi>; Thu, 20 Dec 2001 17:35:38 -0500
+	id <S286435AbRLTWhS>; Thu, 20 Dec 2001 17:37:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286430AbRLTWea>; Thu, 20 Dec 2001 17:34:30 -0500
-Received: from bexfield.research.canon.com.au ([203.12.172.125]:42171 "HELO
-	b.mx.canon.com.au") by vger.kernel.org with SMTP id <S286423AbRLTWeU>;
-	Thu, 20 Dec 2001 17:34:20 -0500
-Date: Fri, 21 Dec 2001 09:30:27 +1100
-From: Cameron Simpson <cs@zip.com.au>
-To: Robert Love <rml@tech9.net>
-Cc: mingo@elte.hu, Linus Torvalds <torvalds@transmeta.com>,
-        "David S. Miller" <davem@redhat.com>, bcrl@redhat.com,
-        billh@tierra.ucsd.edu, linux-kernel@vger.kernel.org,
-        linux-aio@kvack.org
-Subject: Re: aio
-Message-ID: <20011221093027.A24398@zapff.research.canon.com.au>
-Reply-To: cs@zip.com.au
-In-Reply-To: <Pine.LNX.4.33.0112201101580.2464-100000@localhost.localdomain> <1008872459.2777.10.camel@phantasy>
-Mime-Version: 1.0
+	id <S286432AbRLTWhJ>; Thu, 20 Dec 2001 17:37:09 -0500
+Received: from [217.9.226.246] ([217.9.226.246]:13952 "HELO
+	merlin.xternal.fadata.bg") by vger.kernel.org with SMTP
+	id <S286433AbRLTWhF>; Thu, 20 Dec 2001 17:37:05 -0500
+To: george anzinger <george@mvista.com>
+Cc: Davide Libenzi <davidel@xmailserver.org>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Scheduler issue 1, RT tasks ...
+In-Reply-To: <Pine.LNX.4.40.0112201252450.1622-100000@blue1.dev.mcafeelabs.com>
+	<3C22654D.7FC80713@mvista.com>
+From: Momchil Velikov <velco@fadata.bg>
+In-Reply-To: <3C22654D.7FC80713@mvista.com>
+Date: 21 Dec 2001 00:21:37 +0200
+Message-ID: <87y9jxzg5q.fsf@fadata.bg>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1008872459.2777.10.camel@phantasy>; from rml@tech9.net on Thu, Dec 20, 2001 at 01:20:55PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 20, 2001 at 01:20:55PM -0500, Robert Love <rml@tech9.net> wrote:
-| On Thu, 2001-12-20 at 05:18, Ingo Molnar wrote:
-| > there are two possibilities i can think of:
-| > 1) lets get Ben's patch in but do *not* export the syscalls, yet.
-| 
-| This is an excellent way to give aio the testing and exposure Linus
-| wants without getting into the commitment / syscall mess.
-| Stick aio in the kernel, play with it via Tux, etc.  The really
-| interested can add temporary syscalls.  aio (which I like, btw) will get
-| testing and in time, once proven, we can add the syscalls.
-| Comments?
+>>>>> "George" == george anzinger <george@mvista.com> writes:
 
-Only that it would be hard for user space people to try it - does Ben's
-patch (with hypothetical syscalls) present the POSIX async interfaces out
-of the box? If not, testing with in-kernel things is sufficient. But
-if it does then it becomes more reasonable to transiently define some
-syscall numbers (high up, in some defined as "testing and like shifting
-sands" range) so user space can test the interface.
+George> Davide Libenzi wrote:
+>> Local RT tasks apply POSIX priority rules inside the local CPU, that means
+>> that an RT task running on CPU0 cannot preempt another task ( being it
+>> normal or RT ) on CPU1.
+[...]
+>> Global RT tasks, that live in a separate run queue, have the ability to
+>> preempt remote CPU and this can lead.
+[...]
+>> The local/global RT task selection is done with setscheduler() with a new
+>> ( or'ed ) flag SCHED_RTGLOBAL, and this means that the default is RT task
+>> local.
 
-Thought: is there a meta-syscall in the kernel API for calling other syscalls?
-You could have such a beast taking negative numbers for experimental calls...
--- 
-Cameron Simpson, DoD#743        cs@zip.com.au    http://www.zip.com.au/~cs/
+George> My understanding of the POSIX standard is the the highest priority
+George> task(s) are to get the cpu(s) using the standard calls.  If you want to
+George> deviate from this I think the standard allows extensions, but they IMHO
+George> should be requested, not the default, so I would turn your flag around
+George> to force LOCAL, not GLOBAL.
 
-Sometimes the only solution is to find a new problem.
+I'd like to second that, IMHO the RT task scheduling should trade
+throughput for latency, and if someone wants priority inversion, let
+him explicitly request it.
+
+Regards,
+-velco
+

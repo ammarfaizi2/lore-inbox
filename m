@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266116AbSLTV7r>; Fri, 20 Dec 2002 16:59:47 -0500
+	id <S265725AbSLTWJr>; Fri, 20 Dec 2002 17:09:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266199AbSLTV7q>; Fri, 20 Dec 2002 16:59:46 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:57319 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S266116AbSLTV7q>; Fri, 20 Dec 2002 16:59:46 -0500
-Date: Fri, 20 Dec 2002 14:01:29 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>, Hanna Linder <hannal@us.ibm.com>
-cc: linux-kernel@vger.kernel.org, kniht@us.ibm.com
-Subject: Re: Dedicated kernel bug database + documentaion
-Message-ID: <89800000.1040421689@flay>
-In-Reply-To: <Pine.LNX.4.33L2.0212201348190.1703-100000@dragon.pdx.osdl.net>
-References: <Pine.LNX.4.33L2.0212201348190.1703-100000@dragon.pdx.osdl.net>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S265777AbSLTWJr>; Fri, 20 Dec 2002 17:09:47 -0500
+Received: from carisma.slowglass.com ([195.224.96.167]:8455 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S265725AbSLTWJr>; Fri, 20 Dec 2002 17:09:47 -0500
+Date: Fri, 20 Dec 2002 22:17:50 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Pavel Machek <pavel@ucw.cz>
+cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.52 vesafb -- no display
+In-Reply-To: <20021220220534.GB2512@atrey.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.44.0212202215090.11087-100000@phoenix.infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->| OPEN - A new bug that no one is working on.  Bugs in this state may
->| be accepted, and become ASSIGNED. The default owner (in charge of tracking
->| the bug) is the subsystem maintainer or the bugme-janitors mailing list.
+
+> > > vesafb still shows nothing on HP OmniBook. It worked in 2.5.49, IIRC,
+> > > and works on Toshiba.
+> > 
+> > Let me guess. You are using vga=791. Try changing that to another
+> > > mode. 
 > 
-> Do new bugs go straight to OPEN with a default owner?
+> Whats so bad with 791?
 
-Yes. OPEN should really be called NEW. Will try to fix that as it
-seems to be causing confusion. I don't particularly like the naming
-of RESOLVED or ACCEPTED either, but we'll have to see how hard it
-is to change these things.
- 
-> Where does someone sign up for this new mailing list?
+I haven't figured it out but we do have a theory.
 
-Email me. But I'm going to keep it to a small tight group for now,
-will see how it works out from there. At the moment bugs that have
-not real owner just go to me or Khoa, so this is a step up, even if
-it's not perfect.
+In cfbimgblt.c in function color_imageblit you will see
 
-M.
+unsigned long *palette = (unsigned long *) p->pseudo_palette;
+
+
+Change that to 
+
+u32 *palette = (u32 *) p->pseudo_palette;
+
+Tell me if this fixes your problem.
+
 

@@ -1,43 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262242AbVCVBLO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262225AbVCVBTJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262242AbVCVBLO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 20:11:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262261AbVCVBJ5
+	id S262225AbVCVBTJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 20:19:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262163AbVCVBRn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 20:09:57 -0500
-Received: from rproxy.gmail.com ([64.233.170.200]:21689 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262256AbVCVBHe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 20:07:34 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=lmAvxJq1W15p8pBSbvqVS9byFBWCujf+j0r3YnE1ZpONOJGZcX2DJoPk1AObsGF5AMc6wMaqRwQ7/qIXmnpcI8t0BFjrcadE1+KuNrlHeHX++CbnBoSsfJJJ9o/TIha0w1E1WfCrFNeW93SKBjtw3Amu8iaiwAf4Xo9g/aTTdRw=
-Message-ID: <423F6FC9.4080807@gmail.com>
-Date: Mon, 21 Mar 2005 20:07:21 -0500
-From: Keenan Pepper <keenanpepper@gmail.com>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: i830 DRM problems
-References: <422C5A25.3000701@ens-lyon.org>	<21d7e99705031115075e4378ed@mail.gmail.com> <20050321151453.695c73e2.akpm@osdl.org> <423F5A0A.7060307@ens-lyon.org>
-In-Reply-To: <423F5A0A.7060307@ens-lyon.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+	Mon, 21 Mar 2005 20:17:43 -0500
+Received: from arnor.apana.org.au ([203.14.152.115]:62737 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S262256AbVCVBOI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 20:14:08 -0500
+Date: Tue, 22 Mar 2005 12:13:08 +1100
+To: Fruhwirth Clemens <clemens@endorphin.org>
+Cc: James Morris <jmorris@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       cryptoapi@lists.logix.cz
+Subject: Re: [5/5] [CRYPTO] Optimise kmap calls in crypt()
+Message-ID: <20050322011308.GA15734@gondor.apana.org.au>
+References: <20050321094047.GA23084@gondor.apana.org.au> <20050321094807.GA23235@gondor.apana.org.au> <20050321094939.GB23235@gondor.apana.org.au> <20050321095057.GC23235@gondor.apana.org.au> <20050321095208.GD23235@gondor.apana.org.au> <20050321095322.GE23235@gondor.apana.org.au> <1111404659.12532.9.camel@ghanima>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="ibTvN161/egqYuK8"
+Content-Disposition: inline
+In-Reply-To: <1111404659.12532.9.camel@ghanima>
+User-Agent: Mutt/1.5.6+20040907i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Sorry about that, we start to talk about it in private with Dave.
-> But, I did not really it since Keenan Pepper told me it was due
-> to a bug in the XFree 4.3 driver.
-> I am now using Xorg and didn't see any DRM problem since.
-> However, I can't confirm that my bug was surely due to the XFree driver 
-> and not to the kernel driver since Xorg uses i915 instead of i830.
-> Keenan, do you have details ?
 
-Yes, I talked to Alan Hourihane about it and he identified it as a 
-memory allocation bug in the i810 X server driver. It's not related to 
-DRI - it happens even with DRI turned off - so it wouldn't matter which 
-DRM module is being used.
+--ibTvN161/egqYuK8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Mon, Mar 21, 2005 at 12:30:59PM +0100, Fruhwirth Clemens wrote:
+> 
+> Applying all patches results in a "does not work for me". The decryption
+> result is different from the original and my LUKS managed partition
+> refuses to mount.
+
+Thanks for testing this Fruhwirth.  The problem is that walk->data wasn't
+being incremented anymore after my last change.  This patch should fix it
+up.
+
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+
+--ibTvN161/egqYuK8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=sg-6
+
+===== crypto/scatterwalk.c 1.4 vs edited =====
+--- 1.4/crypto/scatterwalk.c	2005-03-20 22:18:58 +11:00
++++ edited/crypto/scatterwalk.c	2005-03-22 11:06:11 +11:00
+@@ -17,6 +17,7 @@
+ #include <linux/mm.h>
+ #include <linux/pagemap.h>
+ #include <linux/highmem.h>
++#include <asm/bug.h>
+ #include <asm/scatterlist.h>
+ #include "internal.h"
+ #include "scatterwalk.h"
+@@ -45,6 +46,8 @@
+ 	walk->page = sg->page;
+ 	walk->len_this_segment = sg->length;
+ 
++	BUG_ON(!sg->length);
++
+ 	rest_of_page = PAGE_CACHE_SIZE - (sg->offset & (PAGE_CACHE_SIZE - 1));
+ 	walk->len_this_page = min(sg->length, rest_of_page);
+ 	walk->offset = sg->offset;
+@@ -55,13 +58,17 @@
+ 	walk->data = crypto_kmap(walk->page, out) + walk->offset;
+ }
+ 
+-static void scatterwalk_pagedone(struct scatter_walk *walk, int out,
+-				 unsigned int more)
++static inline void scatterwalk_unmap(struct scatter_walk *walk, int out)
+ {
+ 	/* walk->data may be pointing the first byte of the next page;
+ 	   however, we know we transfered at least one byte.  So,
+ 	   walk->data - 1 will be a virtual address in the mapped page. */
++	crypto_kunmap(walk->data - 1, out);
++}
+ 
++static void scatterwalk_pagedone(struct scatter_walk *walk, int out,
++				 unsigned int more)
++{
+ 	if (out)
+ 		flush_dcache_page(walk->page);
+ 
+@@ -81,7 +88,7 @@
+ 
+ void scatterwalk_done(struct scatter_walk *walk, int out, int more)
+ {
+-	crypto_kunmap(walk->data, out);
++	scatterwalk_unmap(walk, out);
+ 	if (walk->len_this_page == 0 || !more)
+ 		scatterwalk_pagedone(walk, out, more);
+ }
+@@ -98,7 +105,7 @@
+ 		buf += walk->len_this_page;
+ 		nbytes -= walk->len_this_page;
+ 
+-		crypto_kunmap(walk->data, out);
++		scatterwalk_unmap(walk, out);
+ 		scatterwalk_pagedone(walk, out, 1);
+ 		scatterwalk_map(walk, out);
+ 	} while (nbytes > walk->len_this_page);
+===== crypto/scatterwalk.h 1.6 vs edited =====
+--- 1.6/crypto/scatterwalk.h	2005-03-20 22:18:58 +11:00
++++ edited/crypto/scatterwalk.h	2005-03-22 10:57:07 +11:00
+@@ -49,6 +49,7 @@
+ static inline void scatterwalk_advance(struct scatter_walk *walk,
+ 				       unsigned int nbytes)
+ {
++	walk->data += nbytes;
+ 	walk->offset += nbytes;
+ 	walk->len_this_page -= nbytes;
+ 	walk->len_this_segment -= nbytes;
+
+--ibTvN161/egqYuK8--

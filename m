@@ -1,62 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264610AbUEXR4a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264502AbUEXSGS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264610AbUEXR4a (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 13:56:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264627AbUEXR4a
+	id S264502AbUEXSGS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 14:06:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264669AbUEXSGS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 13:56:30 -0400
-Received: from fw.osdl.org ([65.172.181.6]:11750 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264610AbUEXR40 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 13:56:26 -0400
-Date: Mon, 24 May 2004 10:55:52 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Christian <evil@g-house.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: tarballs of patchsets?
-Message-Id: <20040524105552.311a990b.akpm@osdl.org>
-In-Reply-To: <40B21F98.1080803@g-house.de>
-References: <40B21F98.1080803@g-house.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 24 May 2004 14:06:18 -0400
+Received: from dh132.citi.umich.edu ([141.211.133.132]:3203 "EHLO
+	lade.trondhjem.org") by vger.kernel.org with ESMTP id S264502AbUEXSGQ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 May 2004 14:06:16 -0400
+Subject: Re: [PATCH/RFC] Lustre VFS patch
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: hch@infradead.org
+Cc: "Peter J. Braam" <braam@clusterfs.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       "'Phil Schwan'" <phil@clusterfs.com>
+In-Reply-To: <20040524120521.GD26863@infradead.org>
+References: <20040524114009.96CE13100E2@moraine.clusterfs.com>
+	 <20040524120521.GD26863@infradead.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1085421973.6385.74.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 24 May 2004 14:06:13 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian <evil@g-house.de> wrote:
->
-> i am trying to chase some bug and i know, it must be somewhere between 2.6.4 and 
->  2.6.5.
+På må , 24/05/2004 klokka 08:05, skreiv hch@infradead.org:
+> I can't comment on the exact change, you need to talk to trond about
+> these.  But as-is they change the API exported to filesystems and thus
+> it's and absolute no-go for 2.6.   Where have you been when Trond's
+> intent patches went in?  Hiding under a rock?
 
-The most practical way of doing this would be to download bitkeeper and do
-a binary search.
+To be fair: At the time, Peter and I did indeed discuss the changes that
+were needed in order to support both Lustre and NFS. The main reason why
+I ended up sending in the "NFS minimal" patch was IIRC that Peter was
+not ready at the time to send in a full Lustre client that could make
+use of this interface.
 
+Peter, I have a couple of objections here
 
- 1: Do `bk changes > foo'.
+        vfs_intent-flags_rename-vanilla-2.6.patch and
+        vfs-intent_exec-vanilla-2.6.patch breaks NFS (though ironically
+        it fixes CIFS) due to that gratuitous change of semantics from
+        FMODE_READ/FMODE_WRITE to O_RDONLY/O_WRONLY/O_RDWR. Exactly why
+        couldn't Lustre work with the native VFS semantics?
+        
+        vfs_intent-flags_rename-vanilla-2.6.patch also reverts the
+        format from being a union of intents for various operations to
+        being a single structure. This goes against what was agreed upon
+        on linux-fsdevel when this issue was discussed last summer (in
+        fact Linus was the one who requested the union approach). What
+        justification exists now for a change?
 
-    This generates a monster changelog file which is your
-    bisection-searching guide.  It has stuff like:
+        The vfs-intent_lustre-vanilla-2.6.patch + the "intent_release()"
+        code. What if you end up crossing a mountpoint? How do you then
+        know to which superblock/filesystem the private field belongs if
+        there are more than one user of this mechanism?
 
- ChangeSet@1.1734, 2004-05-21 22:59:48+01:00, tony@com.rmk.(none)
-   [ARM PATCH] 1887/1: Update OMAP low level debug functions again
-   
-   Patch from Tony Lindgren
-   
-   This patch makes the low level debug functions work when support is
-   compiled in for multiple OMAPs. The patch also removes now unnecessary
-   include, incorrect comment, and SERIAL_REG_SHIFT ifdefs.
+        vfs-revalidate_counter-vanilla-2.6.patch: can't "counter" be put
+        into the private part of your intent structure so that the whole
+        test may be done within Lustre?
 
+        vfs-revalidate_special-vanilla-2.6.patch: see the use of the
+        flag FS_REVAL_DOT in order to enable the revalidation of the
+        current directory for those filesystems that need to do so.
 
- 2: Do
-
- 	bl clone -ql -r1.1734 ref-repo test-repo
-
-    and you have a tree up to and including 1.1734.
-
- 3: cd test-repo ; bk -r get
-
- 4: build, test, choose new revision, goto step 1.
-
-
-It's probably possible to do the same with the CVS tree - I haven't tried.
+Cheers,
+  Trond

@@ -1,44 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310458AbSCRFFo>; Mon, 18 Mar 2002 00:05:44 -0500
+	id <S289484AbSDAABN>; Sun, 31 Mar 2002 19:01:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310483AbSCRFFf>; Mon, 18 Mar 2002 00:05:35 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:16126
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S310458AbSCRFFX>; Mon, 18 Mar 2002 00:05:23 -0500
-Date: Sun, 17 Mar 2002 21:06:18 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: alan@lxorguk.ukuu.org.uk, davids@webmaster.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: RFC2385 (MD5 signature in TCP packets) support
-Message-ID: <20020318050618.GC2254@matchmail.com>
-Mail-Followup-To: "David S. Miller" <davem@redhat.com>,
-	alan@lxorguk.ukuu.org.uk, davids@webmaster.com,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <E16m3Dt-0005Hr-00@the-village.bc.nu> <20020317.200949.32384373.davem@redhat.com>
+	id <S289817AbSDAABD>; Sun, 31 Mar 2002 19:01:03 -0500
+Received: from puce.csi.cam.ac.uk ([131.111.8.40]:8695 "EHLO
+	puce.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S289484AbSDAAA5>; Sun, 31 Mar 2002 19:00:57 -0500
+Date: Mon, 1 Apr 2002 01:00:56 +0100
+From: Liyang Hu <liyang@nerv.cx>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Bug in NLS UTF-8 code
+Message-ID: <20020401000056.GA5896@cam.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 17, 2002 at 08:09:49PM -0800, David S. Miller wrote:
->    From: Alan Cox <alan@lxorguk.ukuu.org.uk>
->    Date: Sat, 16 Mar 2002 01:43:05 +0000 (GMT)
->    
->    Dave's suggestion is netfilter - and netfilter is fast enough I
->    think. You only need filters on stuff you have already decided is
->    for your IP too.
-> 
-> After some thinking, the TAP idea is even nicer as it guarentees zero
-> overhead, make it such that you only route the BGP stuff over the
-> device having the TAP attached (make a dummy eth alias just for this
-> purpose).
-> 
+Hi,
 
-... You'd have to use netfilter to mark the correct packets, then route on
-that mark to the dummy interface.
+I've recently (actually, last month, but I had been a bit too busy
+since then) come across a wee problem, in what I originally thought
+was the VFAT code -- having `utf8' as one of the options, creating
+UTF-8 file names on a VFAT partition mysteriously gains a couple of
+(random) characters just after the UTF-8 escaped character: eg.
+touch "fooCbar" where C is an UTF-8 escape sequence ends up creating
+a file named "fooCRbar". (R being some random character.)
 
-How is that more efficient?
+I eventually tracked it down to one line in fs/nls/nls_base.c -- the
+UCS-2 (wchar_t) string pointer was being incremented too fast. After
+consulting Ogawa Hirofumi-san on the subject, he mentioned that
+include/linux/nls.h also needs to be changed for proper UTF-8
+support in the NLS code.
+
+Patch enclosed below.
+
+/Liyang
+
+----8<----snip----8<----
+
+--- kernel-source-2.4.18/fs/nls/nls_base.c.orig	Mon Apr  1 00:26:37 2002
++++ kernel-source-2.4.18-nls/fs/nls/nls_base.c	Mon Apr  1 00:26:57 2002
+@@ -1,5 +1,5 @@
+ /*
+- * linux/fs/nls.c
++ * linux/fs/nls_base.c
+  *
+  * Native language support--charsets and unicode translations.
+  * By Gordon Chaffee 1996, 1997
+@@ -93,7 +93,7 @@
+ 				ip++;
+ 				n--;
+ 			} else {
+-				op += size;
++				op++;
+ 				ip += size;
+ 				n -= size;
+ 			}
+--- kernel-source-2.4.18/include/linux/nls.h.orig	Fri Jul 20 20:53:03 2001
++++ kernel-source-2.4.18-nls/include/linux/nls.h	Mon Apr  1 00:28:16 2002
+@@ -18,7 +18,7 @@
+ };
+ 
+ /* this value hold the maximum octet of charset */
+-#define NLS_MAX_CHARSET_SIZE 3
++#define NLS_MAX_CHARSET_SIZE 6 /* for UTF-8 */
+ 
+ /* nls.c */
+ extern int register_nls(struct nls_table *);
+
+----8<----snip----8<----
+
+-- 
+.--{ Liyang HU }--{ http://nerv.cx/ }--{ Caius@Cam }--{ ICQ: 39391385 }--.
+| :: Well, we just happen to *have* an infinite number of monkeys! ::::: |
+| ::::::: http://stats.distributed.net/rc5-64/psummary.php3?id=284324 :: |

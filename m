@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265321AbSK1JF1>; Thu, 28 Nov 2002 04:05:27 -0500
+	id <S265285AbSK1JCk>; Thu, 28 Nov 2002 04:02:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265325AbSK1JF1>; Thu, 28 Nov 2002 04:05:27 -0500
-Received: from cpe.atm0-0-0-209183.0x3ef29767.boanxx7.customer.tele.dk ([62.242.151.103]:38992
-	"HELO mail.hswn.dk") by vger.kernel.org with SMTP
-	id <S265321AbSK1JFY>; Thu, 28 Nov 2002 04:05:24 -0500
-Date: Thu, 28 Nov 2002 10:12:43 +0100
-From: Henrik =?iso-8859-1?Q?St=F8rner?= <henrik@hswn.dk>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.50 compile failure: drivers/pci/quirks.c missing #include
-Message-ID: <20021128091243.GA26352@hswn.dk>
+	id <S265306AbSK1JCk>; Thu, 28 Nov 2002 04:02:40 -0500
+Received: from angband.namesys.com ([212.16.7.85]:50818 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S265285AbSK1JCj>; Thu, 28 Nov 2002 04:02:39 -0500
+Date: Thu, 28 Nov 2002 12:09:59 +0300
+From: Oleg Drokin <green@namesys.com>
+To: Sonke Ruempler <ruempler@topconcepts.com>
+Cc: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: reiserfs bug
+Message-ID: <20021128120959.A2904@namesys.com>
+References: <072801c296b8$2cb01000$6600a8c0@topconcepts.net> <20021128114755.A2724@namesys.com> <077201c296bb$43b4ac40$6600a8c0@topconcepts.net> <20021128115708.A2792@namesys.com> <079a01c296bd$1d51f150$6600a8c0@topconcepts.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+In-Reply-To: <079a01c296bd$1d51f150$6600a8c0@topconcepts.net>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gcc -Wp,-MD,drivers/pci/.quirks.o.d -D__KERNEL__ -Iinclude -Wall
-  -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing
-  -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2
-  -march=i686 -Iarch/i386/mach-generic -nostdinc -iwithprefix include
-  -DKBUILD_BASENAME=quirks -DKBUILD_MODNAME=quirks   -c -o
-  drivers/pci/quirks.o drivers/pci/quirks.c
-drivers/pci/quirks.c: In function `quirk_ioapic_rmw':
-drivers/pci/quirks.c:354: `sis_apic_bug' undeclared (first use in this
-  function)
+Hello!
 
-osiris:~/kernel/linux-2.5 $ grep sis_apic_bug include/asm-i386/*
-include/asm-i386/io_apic.h:extern int sis_apic_bug;
-include/asm-i386/io_apic.h:     if (sis_apic_bug)
+On Thu, Nov 28, 2002 at 10:04:10AM +0100, Sonke Ruempler wrote:
+> > Sorry, but you seems to have faulty hardware (bad harddrive or something).
+> > Reiserfs cannot tolerate bad blocks in journal area right now.
+> > I'd suggest you to make a backup of your device and then to replace bad
+> > harddrive.
+> umm, that are originally freecom 20gig ide hdds in a firewire-case, i
+> replaced the hdds with 120gig maxtor hdds and they worked for 2 weeks until
+> today.
+> maybe the firewire<->ide converter is corrupted?
 
-This fixes it:
+I do not know. Your log indicates that your scsi subsystem encountered errors.
+But I do not know actual source of errors. May be if you enable more verbose
+scsi errors reporting it will give you some clue. (like what command
+failed, what was the error code and this kind of stuff).
 
-
---- linux-2.5/drivers/pci//quirks.c.orig	2002-11-28 10:07:21.000000000 +0100
-+++ linux-2.5/drivers/pci/quirks.c	2002-11-28 10:07:57.000000000 +0100
-@@ -18,6 +18,7 @@
- #include <linux/pci.h>
- #include <linux/init.h>
- #include <linux/delay.h>
-+#include <asm/io_apic.h>
- 
- #undef DEBUG
- 
-
--- 
-Henrik Storner <henrik@hswn.dk> 
+Bye,
+    Oleg

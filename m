@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264754AbRGNShE>; Sat, 14 Jul 2001 14:37:04 -0400
+	id <S264797AbRGNSts>; Sat, 14 Jul 2001 14:49:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264797AbRGNSgy>; Sat, 14 Jul 2001 14:36:54 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:56647 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S264754AbRGNSgr>; Sat, 14 Jul 2001 14:36:47 -0400
-Date: Sat, 14 Jul 2001 14:36:42 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200107141836.f6EIagB30800@devserv.devel.redhat.com>
-To: dwmw2@infradead.org, Chris Wedgwood <cw@f00f.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: (patch-2.4.6) Fix oops with Iomega Clik! (ide-floppy)
-In-Reply-To: <mailman.995129400.8760.linux-kernel2news@redhat.com>
-In-Reply-To: <20010715031815.D6722@weta.f00f.org>  <200107141414.f6EEEjQ05792@ns.caldera.de> <mailman.995129400.8760.linux-kernel2news@redhat.com>
+	id <S264827AbRGNStj>; Sat, 14 Jul 2001 14:49:39 -0400
+Received: from t2.redhat.com ([199.183.24.243]:6643 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S264797AbRGNSt1>; Sat, 14 Jul 2001 14:49:27 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <3B508DB2.86078E16@mandrakesoft.com> 
+In-Reply-To: <3B508DB2.86078E16@mandrakesoft.com>  <20010715045842.B6963@weta.f00f.org> <20010715031815.D6722@weta.f00f.org> <200107141414.f6EEEjQ05792@ns.caldera.de> <17573.995129225@redhat.com> <19235.995134153@redhat.com> 
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Chris Wedgwood <cw@f00f.org>, Christoph Hellwig <hch@caldera.de>,
+        Gunther Mayer <Gunther.Mayer@t-online.de>, paul@paulbristow.net,
+        linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: (patch-2.4.6) Fix oops with Iomega Clik! (ide-floppy) 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 14 Jul 2001 19:49:21 +0100
+Message-ID: <20112.995136561@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In linux-kernel, you wrote:
-> cw@f00f.org said:
-> >  Linus, please consider applying the following patch. 
-> > 
-> > --- linux-2.4.7-pre6/include/linux/malloc.h	Thu Jul 12 03:53:53 2001
-> > +++ linux-2.4.7-pre6+mallocRIP/include/linux/malloc.h	Thu Jan  1 12:00:00 1970
-> > @@ -1,5 +0,0 @@
-> > -#ifndef _LINUX_MALLOC_H
-> > -#define _LINUX_MALLOC_H
-> > -
-> > -#include <linux/slab.h>
-> > -#endif /* _LINUX_MALLOC_H */
-> 
-> Doing that in the middle of a supposedly stable series, even if it wasn't a 
-> fundamentally stupid thing to do in the first place, isn't really very 
-> sensible.
-> 
-> --
-> dwmw2
 
-It would be much better to add something like this:
+jgarzik@mandrakesoft.com said:
+>  malloc.h is extra indirection we don't need.  IMHO
+> 	/* malloc.h */
+> 	#include <linux/slab.h>
+> is a windows interface.  Linux wrappers should be kept to a minimum...
 
-#warning "Please use slab.h instead"
+Fine. I can see the logic in that.
 
-The patch above should be put off until the 2.5.
+mv include/linux/slab.h include/linux/malloc.h
+perl -pi -e s/_LINUX_SLAB_H/_LINUX_MALLOC_H/ include/linux/malloc.h
+cat > include/linux/slab.h <<EOF
+#warning Please include malloc.h not slab.h
+#include <linux/malloc.h>
+EOF
 
--- Pete
+
+
+--
+dwmw2
+
+

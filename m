@@ -1,47 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268053AbTAIWZG>; Thu, 9 Jan 2003 17:25:06 -0500
+	id <S268021AbTAIWct>; Thu, 9 Jan 2003 17:32:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268052AbTAIWZG>; Thu, 9 Jan 2003 17:25:06 -0500
-Received: from mailgw.cvut.cz ([147.32.3.235]:21430 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id <S268053AbTAIWZF>;
-	Thu, 9 Jan 2003 17:25:05 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
+	id <S268068AbTAIWct>; Thu, 9 Jan 2003 17:32:49 -0500
+Received: from dsl-65-185-37-21.telocity.com ([65.185.37.21]:64194 "EHLO
+	onevista.com") by vger.kernel.org with ESMTP id <S268021AbTAIWct>;
+	Thu, 9 Jan 2003 17:32:49 -0500
+Reply-To: johna@onevista.com
+Message-Id: <200301092241.RAA29920@onevista.com>
+Content-Type: text/plain; charset=US-ASCII
+From: John Adams <johna@onevista.com>
+Organization: One Vista Associates
 To: linux-kernel@vger.kernel.org
-Date: Thu, 9 Jan 2003 23:33:32 +0100
+Subject: Re: "Mother" == "computer-illiterate"
+Date: Thu, 9 Jan 2003 17:41:25 -0500
+X-Mailer: KMail [version 1.3.2]
+References: <20030109194019.GH26010@boardwalk> <1042153890.28469.21.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <1042153890.28469.21.camel@irongate.swansea.linux.org.uk>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: How build dependencies work/are supposed to work in 2.5.5x
-X-mailer: Pegasus Mail v3.50
-Message-ID: <CC66A71361E@vcnet.vc.cvut.cz>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-  I spent last few hours by patching 2.5.54-bk-something back and 
-forward to shrink Juriaans patch which reinstates 2.5.50 fbdev. Sometime
-during this course something happened, and I ended up with incorrect
-build: some code was thinking that "struct vc_data" contains
-"vc_font" element, and some parts believed that there is no such element,
-and structure is 24 bytes smaller (shifting vc_origin somewhere, causing
-crash during bootup) :-( (there was such element, then there was not,
-and then element arrived back during evening)
+On Thursday 09 January 2003 06:11 pm, Alan Cox wrote:
+>
+> and of course Sally Floyd, and even Hedy Lamarr (bonus points for those
+> who know what her networking related patent is on)
 
-  After I removed drivers/char/*.o and all .o from drivers/video subtree
-and rerun "make", problem disappeared. During patching I never used -T/-Z 
-option to patch to set dates/times on files and I also did not use -j option
-to make.
-
-  So I'd like to ask whether current kernel build system is supposed
-to track changes in include files automagically, or whether I'm supposed
-to run 'make dep' from time to time?
-
-  When I tried to recreate problem (by doing "touch 
-include/linux/console_struct.h"), all objects which use this file were
-correctly rebuilt.
-                                    Thanks,
-                                        Petr Vandrovec
-                                        vandrove@vc.cvut.cz
-                                        
+Google makes this too easy. 
+ http://www.german-way.com/cinema/lamarr.html
+i

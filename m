@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262548AbTENQQw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 12:16:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262578AbTENQQv
+	id S262489AbTENQUG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 12:20:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262569AbTENQUG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 12:16:51 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:17336 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262548AbTENQQu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 12:16:50 -0400
-Date: Wed, 14 May 2003 09:30:51 -0700
-From: Greg KH <greg@kroah.com>
-To: "Jon K. Akers" <jka@mbi.ufl.edu>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.5.69-mm5
-Message-ID: <20030514163051.GA2250@kroah.com>
-References: <CDD2FA891602624BB024E1662BC678ED843F91@mbi-00.mbi.ufl.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CDD2FA891602624BB024E1662BC678ED843F91@mbi-00.mbi.ufl.edu>
-User-Agent: Mutt/1.4.1i
+	Wed, 14 May 2003 12:20:06 -0400
+Received: from tomts15.bellnexxia.net ([209.226.175.3]:21503 "EHLO
+	tomts15-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S262489AbTENQUF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 12:20:05 -0400
+Message-ID: <3EC26FB4.9080800@googgun.com>
+Date: Wed, 14 May 2003 12:32:52 -0400
+From: Ahmed Masud <masud@googgun.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4a) Gecko/20030401
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
+CC: Yoav Weiss <ml-lkml@unpatched.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: encrypted swap [was: The disappearing sys_call_table export.]
+References: <20030514155727.GA16093@wohnheim.fh-wedel.de> <Pine.LNX.4.33.0305141211070.12082-100000@marauder.googgun.com> <20030514162323.GB16093@wohnheim.fh-wedel.de>
+In-Reply-To: <20030514162323.GB16093@wohnheim.fh-wedel.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 14, 2003 at 10:33:43AM -0400, Jon K. Akers wrote:
-> I like to at least build the new stuff that comes out with Andrew's
-> patches, and building the new gadget code that came out in -mm4 I got
-> this when building as a module:
+Jörn Engel wrote:
+> On Wed, 14 May 2003 12:13:03 -0400, Ahmed Masud wrote:
 > 
-> make -f scripts/Makefile.build obj=drivers/serial
-> make -f scripts/Makefile.build obj=drivers/usb/gadget
->   gcc -Wp,-MD,drivers/usb/gadget/.net2280.o.d -D__KERNEL__ -Iinclude
-> -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing
-> -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686
-> -Iinclude/asm-i386/mach-default -fomit-frame-pointer -nostdinc
-> -iwithprefix include -DMODULE   -DKBUILD_BASENAME=net2280
-> -DKBUILD_MODNAME=net2280 -c -o drivers/usb/gadget/net2280.o
-> drivers/usb/gadget/net2280.c
-> drivers/usb/gadget/net2280.c:2623: pci_ids causes a section type
-> conflict
+> 
+> How do user *know* that root cannot simply bypass this security?
+> 
+> Root, god, what's the difference? ;-)
 
-Do you get the same error on the latest -bk patch from Linus's tree?
+Hahah so true so true ... but all gods fall if their worshipers stop 
+worshiping them ;-)
 
-And what CONFIG_USB_GADGET_* .config options do you have enabled?
+So ... there are ways. Root is only given this power because it is 
+allowed that by the operating system kernel. It is always possible to 
+shunt root out if the kernel chooses to do so.   We can actually 
+construct environments where security officers != system administrators.
 
-thanks,
 
-greg k-h
+Ahmed.
+

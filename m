@@ -1,147 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268341AbRGWVO5>; Mon, 23 Jul 2001 17:14:57 -0400
+	id <S268344AbRGWVPh>; Mon, 23 Jul 2001 17:15:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268344AbRGWVOr>; Mon, 23 Jul 2001 17:14:47 -0400
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:38217
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S268341AbRGWVOe>; Mon, 23 Jul 2001 17:14:34 -0400
-Date: Mon, 23 Jul 2001 23:14:32 +0200
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: bfennema@falcon.csc.calpoly.edu, dave@trylinux.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] make udf/{file,super}.c check return codes (247)
-Message-ID: <20010723231432.C1223@jaquet.dk>
-Mime-Version: 1.0
+	id <S268346AbRGWVP2>; Mon, 23 Jul 2001 17:15:28 -0400
+Received: from [47.129.117.131] ([47.129.117.131]:48512 "HELO
+	pcard0ks.ca.nortel.com") by vger.kernel.org with SMTP
+	id <S268344AbRGWVPM>; Mon, 23 Jul 2001 17:15:12 -0400
+Message-ID: <3B5C93C9.8DF406CC@nortelnetworks.com>
+Date: Mon, 23 Jul 2001 17:14:49 -0400
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Friesen, Christopher [CAR:VS16:EXCH]" <cfriesen@americasm01.nt.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Andrea Arcangeli <andrea@suse.de>, Jeff Dike <jdike@karaya.com>,
+        user-mode-linux-user <user-mode-linux-user@lists.sourceforge.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>, Jan Hubicka <jh@suse.cz>
+Subject: Re: user-mode port 0.44-2.4.7
+In-Reply-To: <E15OmlH-0007R9-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi.
+Alan Cox wrote:
+> 
+> > Suppose I loop against xtime reaching a particular value.  While this is
+> 
+> xtime isnt used this way that I can see. jiffies however is. There are good
+> arguments for getting rid of most [ab]use of jiffies however. For one its
+> pretty important to scaling on both big mainframes and beowulf setups doing
+> heavy computation to reduce timer ticks
 
-The following patch makes fs/udf/{file,super}.c check the
-return code of bread and udf_read_tagged. Comments welcome
-as I never felt real sure on this. It applies against
-246ac5 and 247. These unguarded dereferences were reported
-by the Stanford team a while back.
+jiffies is (as of 2.4.7 anyways) marked as volatile, so we're safe there.  My
+point is this--should someone writing badly designed (but technically correct)
+code be able to totally hose the system?
 
+The only difference between volatile and normal is that if it is marked as
+volatile it must be accessed every time rather than being pre-cached.  If we
+never spin on accessing xtime, then the fact that we can't optimize it shouldn't
+hurt. (Am I wrong here?  If I am then please explain because I'm missing
+something...)  If someone ever *does* spin on xtime, then we really don't want
+to optimize that access out of the loop, because doing so could cause nasty
+problems.
 
-diff -ur linux-247-clean/fs/udf/file.c linux-247/fs/udf/file.c
---- linux-247-clean/fs/udf/file.c	Tue Jun 12 04:15:27 2001
-+++ linux-247/fs/udf/file.c	Mon Jul 23 22:33:39 2001
-@@ -50,6 +50,7 @@
- 	struct buffer_head *bh;
- 	int block;
- 	char *kaddr;
-+	int ret = 0;
- 
- 	if (!PageLocked(page))
- 		PAGE_BUG(page);
-@@ -58,13 +59,18 @@
- 	memset(kaddr, 0, PAGE_CACHE_SIZE);
- 	block = udf_get_lb_pblock(inode->i_sb, UDF_I_LOCATION(inode), 0);
- 	bh = bread (inode->i_dev, block, inode->i_sb->s_blocksize);
-+	if (!bh) {
-+		ret = - EIO;
-+		goto err_out;
-+	}
- 	memcpy(kaddr, bh->b_data + udf_ext0_offset(inode), inode->i_size);
- 	brelse(bh);
- 	flush_dcache_page(page);
- 	SetPageUptodate(page);
-+err_out:
- 	kunmap(page);
- 	UnlockPage(page);
--	return 0;
-+	return ret;
- }
- 
- static int udf_adinicb_writepage(struct page *page)
-@@ -74,6 +80,7 @@
- 	struct buffer_head *bh;
- 	int block;
- 	char *kaddr;
-+	int ret = 0;
- 
- 	if (!PageLocked(page))
- 		PAGE_BUG(page);
-@@ -81,13 +88,18 @@
- 	kaddr = kmap(page);
- 	block = udf_get_lb_pblock(inode->i_sb, UDF_I_LOCATION(inode), 0);
- 	bh = bread (inode->i_dev, block, inode->i_sb->s_blocksize);
-+	if (!bh) {
-+		ret = -EIO;
-+		goto err_out;
-+	}
- 	memcpy(bh->b_data + udf_ext0_offset(inode), kaddr, inode->i_size);
- 	mark_buffer_dirty(bh);
- 	brelse(bh);
- 	SetPageUptodate(page);
-+err_out:
- 	kunmap(page);
- 	UnlockPage(page);
--	return 0;
-+	return ret;
- }
- 
- static int udf_adinicb_prepare_write(struct file *file, struct page *page, unsigned offset, unsigned to)
-@@ -103,19 +115,25 @@
- 	struct buffer_head *bh;
- 	int block;
- 	char *kaddr = page_address(page);
-+	int ret = 0;
- 
- 	block = udf_get_lb_pblock(inode->i_sb, UDF_I_LOCATION(inode), 0);
- 	bh = bread (inode->i_dev, block, inode->i_sb->s_blocksize);
-+	if (!bh) {
-+		ret = -EIO;
-+		goto err_out;
-+	}
- 	memcpy(bh->b_data + udf_file_entry_alloc_offset(inode) + offset,
- 		kaddr + offset, to-offset);
- 	mark_buffer_dirty(bh);
- 	brelse(bh);
- 	SetPageUptodate(page);
--	kunmap(page);
- 	/* only one page here */
- 	if (to > inode->i_size)
- 		inode->i_size = to;
--	return 0;
-+err_out:
-+	kunmap(page);
-+	return ret;
- }
- 
- struct address_space_operations udf_adinicb_aops = {
-diff -ur linux-247-clean/fs/udf/super.c linux-247/fs/udf/super.c
---- linux-247-clean/fs/udf/super.c	Tue Jun 12 04:15:27 2001
-+++ linux-247/fs/udf/super.c	Mon Jul 23 22:57:49 2001
-@@ -1121,6 +1121,8 @@
- 				for (j=vds[i].block+1; j<vds[VDS_POS_TERMINATING_DESC].block; j++)
- 				{
- 					bh2 = udf_read_tagged(sb, j, j, &ident);
-+					if (!bh2)
-+						break;
- 					gd = (struct GenericDesc *)bh2->b_data;
- 					if (ident == TID_PARTITION_DESC)
- 						udf_load_partdesc(sb, bh2);
-@@ -1255,6 +1257,8 @@
- 
- 					pos = udf_block_map(UDF_SB_VAT(sb), 0);
- 					bh = bread(sb->s_dev, pos, sb->s_blocksize);
-+					if (!bh)
-+						return 1;
- 					UDF_SB_TYPEVIRT(sb,i).s_start_offset =
- 						le16_to_cpu(((struct VirtualAllocationTable20 *)bh->b_data + udf_ext0_offset(UDF_SB_VAT(sb)))->lengthHeader) +
- 							udf_ext0_offset(UDF_SB_VAT(sb));
 
 -- 
-Regards,
-        Rasmus(rasmus@jaquet.dk)
-
-"Women are like a beer. They look good,
-they taste good, and as soon as you've
-had one, you want another." -Homer Simpson
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

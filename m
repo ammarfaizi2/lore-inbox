@@ -1,36 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281847AbRKRDCz>; Sat, 17 Nov 2001 22:02:55 -0500
+	id <S281848AbRKRDSK>; Sat, 17 Nov 2001 22:18:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281848AbRKRDCp>; Sat, 17 Nov 2001 22:02:45 -0500
-Received: from [208.129.208.52] ([208.129.208.52]:22020 "EHLO xmailserver.org")
-	by vger.kernel.org with ESMTP id <S281847AbRKRDCg>;
-	Sat, 17 Nov 2001 22:02:36 -0500
-Date: Sat, 17 Nov 2001 19:11:53 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: David Sanchez <dsanchez@veloxia.com>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Possible bug; latest kernels with LinuxThreads
-In-Reply-To: <5.1.0.14.2.20011118033452.037a5728@pop.veloxia.com>
-Message-ID: <Pine.LNX.4.40.0111171855030.1011-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281849AbRKRDSB>; Sat, 17 Nov 2001 22:18:01 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:1541 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S281848AbRKRDRt>; Sat, 17 Nov 2001 22:17:49 -0500
+From: Linus Torvalds <torvalds@transmeta.com>
+Date: Sat, 17 Nov 2001 19:12:51 -0800
+Message-Id: <200111180312.fAI3CpG01076@penguin.transmeta.com>
+To: ehrhardt@mathematik.uni-ulm.de, linux-kernel@vger.kernel.org
+Subject: Re: VM-related Oops: 2.4.15pre1
+Newsgroups: linux.dev.kernel
+In-Reply-To: <20011117225327.5368.qmail@thales.mathematik.uni-ulm.de>
+In-Reply-To: <20011116142344.A7316@netnation.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 18 Nov 2001, David Sanchez wrote:
+In article <20011117225327.5368.qmail@thales.mathematik.uni-ulm.de> you write:
+>
+>I think this one liner (diffed against 2.4.14) could fix this Oops:
 
-> Class is correctly allocated with "new", and also remember that the daemon
-> runs without any problem and in a production environment with kernel 2.4.9
-> and lowers.
+It really shouldn't matter - at that point we have the page locked, and
+we know the page has buffers, so the page cannot go away from under us:
+we can delay the "increment page count" simply because we know somebody
+else (the buffers) hold on to the page.
 
-Try a "p self" from frame #0
+Which is not to say that I disagree with the patch itself: it tends to
+be good practice to not depend on quite-so-subtle locking rules. It just
+really shouldn't make any difference to the problem.
 
-
-
-
-- Davide
-
-
+		Linus
 

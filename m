@@ -1,79 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265999AbUBQFce (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 00:32:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266016AbUBQFce
+	id S266022AbUBQFie (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 00:38:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266023AbUBQFie
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 00:32:34 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:21971 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265999AbUBQFcY (ORCPT
+	Tue, 17 Feb 2004 00:38:34 -0500
+Received: from fw.osdl.org ([65.172.181.6]:52890 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266022AbUBQFic (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 00:32:24 -0500
-Date: Mon, 16 Feb 2004 21:32:20 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: David Dillow <dave@thedillows.org>
-Cc: sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Non-PCI build broken on sparc64, maybe others
-Message-Id: <20040216213220.594052c7.davem@redhat.com>
-In-Reply-To: <1076993402.21443.5.camel@ori.thedillows.org>
-References: <1076993402.21443.5.camel@ori.thedillows.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 17 Feb 2004 00:38:32 -0500
+Date: Mon, 16 Feb 2004 21:38:26 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Rajesh Venkatasubramanian <vrajesh@umich.edu>
+cc: akpm@osdl.org, linux-kernel@vger.kernel.org, Linux-MM@kvack.org
+Subject: Re: [PATCH] mremap NULL pointer dereference fix
+In-Reply-To: <Pine.SOL.4.44.0402162331580.20215-100000@blue.engin.umich.edu>
+Message-ID: <Pine.LNX.4.58.0402162127220.30742@home.osdl.org>
+References: <Pine.SOL.4.44.0402162331580.20215-100000@blue.engin.umich.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 16 Feb 2004 23:50:03 -0500
-David Dillow <dave@thedillows.org> wrote:
 
-> I believe this changeset in Linus's tree:
- ...
-> breaks builds that do not include PCI support.
 
-Indeed, thanks for catching this David.  This patch should fix it
-and I'll be pushing this to Linus.
+On Mon, 16 Feb 2004, Rajesh Venkatasubramanian wrote:
+> 
+> This path fixes a NULL pointer dereference bug in mremap. In
+> move_one_page we need to re-check the src because an allocation
+> for the dst page table can drop page_table_lock, and somebody
+> else can invalidate the src.
 
-Thanks again.
+Ugly, but yes. The "!page_table_present(mm, new_addr))" code just before
+the "alloc_one_pte_map()" should already have done this, but while the 
+page tables themselves are safe due to us holding the mm semaphore, the 
+pte entry itself at "src" is not.
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/02/16 21:28:29-08:00 davem@nuts.davemloft.net 
-#   [SPARC64]: Fix non-PCI build, reported by David Dillow.
-# 
-# include/asm-sparc64/dma-mapping.h
-#   2004/02/16 21:25:35-08:00 davem@nuts.davemloft.net +21 -1
-#   [SPARC64]: Fix non-PCI build, reported by David Dillow.
-# 
-diff -Nru a/include/asm-sparc64/dma-mapping.h b/include/asm-sparc64/dma-mapping.h
---- a/include/asm-sparc64/dma-mapping.h	Mon Feb 16 21:28:51 2004
-+++ b/include/asm-sparc64/dma-mapping.h	Mon Feb 16 21:28:51 2004
-@@ -1,5 +1,25 @@
-+#ifndef _ASM_SPARC64_DMA_MAPPING_H
-+#define _ASM_SPARC64_DMA_MAPPING_H
-+
- #include <linux/config.h>
- 
- #ifdef CONFIG_PCI
- #include <asm-generic/dma-mapping.h>
--#endif
-+#else
-+
-+static inline void *dma_alloc_coherent(struct device *dev, size_t size,
-+			 dma_addr_t *dma_handle, int flag)
-+{
-+	BUG();
-+	return NULL;
-+}
-+
-+static inline void dma_free_coherent(struct device *dev, size_t size,
-+		       void *vaddr, dma_addr_t dma_handle)
-+{
-+	BUG();
-+}
-+
-+#endif /* PCI */
-+
-+#endif /* _ASM_SPARC64_DMA_MAPPING_H */
+I hate that code, and your patch makes it even uglier. This code could do 
+with a real clean-up, but for now I think your patch will do.
+
+Thanks,
+
+		Linus

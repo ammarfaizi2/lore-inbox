@@ -1,57 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266880AbUHIUDW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266890AbUHIUH2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266880AbUHIUDW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 16:03:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266881AbUHIUCk
+	id S266890AbUHIUH2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 16:07:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267182AbUHIUDw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 16:02:40 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:48621 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S267170AbUHIUBS
+	Mon, 9 Aug 2004 16:03:52 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:38826 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S266879AbUHIUAB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 16:01:18 -0400
-Message-Id: <200408092001.i79K16Rl123258@westrelay04.boulder.ibm.com>
-Subject: [PATCH 2/3] blk_resize_tags_fix
-To: akpm@osdl.org
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org, brking@us.ibm.com
-From: brking@us.ibm.com
-Date: Mon, 09 Aug 2004 15:01:05 -0500
+	Mon, 9 Aug 2004 16:00:01 -0400
+Message-ID: <4117D88E.6080801@tmr.com>
+Date: Mon, 09 Aug 2004 16:03:26 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040608
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+CC: lkml <linux-kernel@vger.kernel.org>, sam@ravnborg.org,
+       zippel@linux-m68k.org
+Subject: Re: [PATCH] save kernel version in .config file
+References: <20040803225753.15220897.rddunlap@osdl.org>
+In-Reply-To: <20040803225753.15220897.rddunlap@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Randy.Dunlap wrote:
+> (from June/2004 email thread:
+> http://marc.theaimsgroup.com/?t=108753573200001&r=1&w=2
+> )
+> 
+> Several people found this useful, none opposed (afaik).
+> 
+> Saves kernel version in .config file, e.g.:
+> 
+> #
+> # Automatically generated make config: don't edit
+> # Linux kernel version: 2.6.8-rc3
+> # Tue Aug  3 22:55:57 2004
+> #
+> 
+> Please merge.
+> ---
+> 
+> Save kernel version info and date when writing .config file.
+> Tested with 'make {menuconfig|xconfig|gconfig}'.
 
-init_tag_map should not initialize the busy_list, refcnt, or busy fields
-in the tag map since blk_queue_resize_tags can call it while requests are
-active. Patch moves this initialization into blk_queue_init_tags.
+I don't see "oldconfig" here, I'm sure there are people who don't care 
+because they want to roll every kernel fresh, but for the rest of us...
+> 
+> Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
 
-Signed-off-by: Jens Axboe <axboe@suse.de>
-Signed-off-by: Brian King <brking@us.ibm.com>
----
 
- linux-2.6.8-rc3-mm2-bjking1/drivers/block/ll_rw_blk.c |    7 ++++---
- 1 files changed, 4 insertions(+), 3 deletions(-)
-
-diff -puN drivers/block/ll_rw_blk.c~blk_resize_tags_fix drivers/block/ll_rw_blk.c
---- linux-2.6.8-rc3-mm2/drivers/block/ll_rw_blk.c~blk_resize_tags_fix	2004-08-09 14:51:40.000000000 -0500
-+++ linux-2.6.8-rc3-mm2-bjking1/drivers/block/ll_rw_blk.c	2004-08-09 14:51:40.000000000 -0500
-@@ -598,9 +598,6 @@ init_tag_map(request_queue_t *q, struct 
- 	for (i = depth; i < bits * BLK_TAGS_PER_LONG; i++)
- 		__set_bit(i, tags->tag_map);
- 
--	INIT_LIST_HEAD(&tags->busy_list);
--	tags->busy = 0;
--	atomic_set(&tags->refcnt, 1);
- 	return 0;
- fail:
- 	kfree(tags->tag_index);
-@@ -626,6 +623,10 @@ int blk_queue_init_tags(request_queue_t 
- 
- 		if (init_tag_map(q, tags, depth))
- 			goto fail;
-+
-+		INIT_LIST_HEAD(&tags->busy_list);
-+		tags->busy = 0;
-+		atomic_set(&tags->refcnt, 1);
- 	} else if (q->queue_tags) {
- 		if ((rc = blk_queue_resize_tags(q, depth)))
- 			return rc;
-_
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

@@ -1,58 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261752AbUCKVeN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 16:34:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261744AbUCKVeN
+	id S261742AbUCKVg2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 16:36:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261744AbUCKVg2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 16:34:13 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:50677 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261752AbUCKVdr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 16:33:47 -0500
-Message-ID: <4050DB34.8060704@mvista.com>
-Date: Thu, 11 Mar 2004 13:33:40 -0800
-From: George Anzinger <george@mvista.com>
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
+	Thu, 11 Mar 2004 16:36:28 -0500
+Received: from mail.gmx.de ([213.165.64.20]:11485 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261742AbUCKVgK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 16:36:10 -0500
+X-Authenticated: #20450766
+Date: Thu, 11 Mar 2004 22:35:05 +0100 (CET)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: Brad Cramer <bcramer@callahanfuneralhome.com>
+cc: linux-kernel@vger.kernel.org, <linux-scsi-owner@vger.kernel.org>
+Subject: RE: sym53c8xx_2 driver and tekram dc-390u2w kernel-2.6.x
+In-Reply-To: <008801c3fd40$933d2ca0$6501a8c0@office>
+Message-ID: <Pine.LNX.4.44.0403112227560.4114-100000@poirot.grange>
 MIME-Version: 1.0
-To: Tom Rini <trini@kernel.crashing.org>
-CC: "Amit S. Kale" <amitkale@emsyssoft.com>, Pavel Machek <pavel@ucw.cz>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       kgdb-bugreport@lists.sourceforge.net
-Subject: Re: [Kgdb-bugreport] [PATCH] Kill kgdb_serial
-References: <20040302213901.GF20227@smtp.west.cox.net> <200403031113.02822.amitkale@emsyssoft.com> <20040303151628.GQ20227@smtp.west.cox.net> <200403041011.39467.amitkale@emsyssoft.com> <20040304152729.GC26065@smtp.west.cox.net> <4047B67A.4050609@mvista.com> <20040304231737.GJ26065@smtp.west.cox.net>
-In-Reply-To: <20040304231737.GJ26065@smtp.west.cox.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Rini wrote:
-~
+On Fri, 27 Feb 2004, Brad Cramer wrote:
 
->>I am afraid I don't quite understand what he was saying other than early 
->>init stuff.  On of the problems with trying early init stuff, by the way, 
->>is that a lot of things depend on having alloc up and that happens rather 
->>late in the game.
-> 
-> 
-> I assume you aren't talking about kgdb stuff here (or what would be the
-> point of going so early) but I believe he was talking about allowing for
-> stuff that could be done early, to be done early.
+> I installed a debian kernel image (kernel_image-2.4.24-1-k7) to tell if this
+> was just a problem with the driver or because of the upgrade to kernel 2.6.x
+> I the sym53c8xx and sym53c8xx_2 drivers are modules and this is what I got.
 
-One of the issues with the UART set up is registering the interrupt handler with 
-the kernel.  It will fail if alloc is not up.  The -mm patch does two things 
-with this.  a) It tries every getchar to register the interrupt handler, and b) 
-it has a module init entry to register it.  This last will happen late in the 
-bring up and is safe.  a) is there to get it ASAP if you are actually using kgdb 
-during the bring up.
-> 
-> 
-~
+...
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+> bigdaddy:~# mount /var
+> reiserfs: found format "3.6" with standard journal
+> reiserfs: checking transaction log (device sd(8,2)) ...
+> for (sd(8,2))
+> SCSI disk error : host 0 channel 0 id 0 lun 0 return code = 8000002
+> Current sd08:02: sense key Aborted Command
+> Additional sense indicates Scsi parity error
+> I/O error: dev 08:02, sector 65680
+> sd(8,2):reiserfs: journal-837: IO error during journal replay
+> sd(8,2):Replay Failure, unable to mount
+> sd(8,2):sh-2022: reiserfs_read_super: unable to initialize journal space
+> mount: wrong fs type, bad option, bad superblock on /dev/sda2,
+>         or too many mounted file systems
+
+Ok, still hoping to attract the help from some more experienced in SCSI
+and more knowledgable about this specific driver, here's one more thing I
+can suggest - can you enable debugging through the respective /proc-files
+(see, e.g., drivers/scsi/sym53c8xx_2/Documentation.txt in 2.4). I guess,
+useful would be tiny,result,queue. Possibly, for both drivers, but be
+prepared - for the working one it'll produce lots of output, I guess...
+
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski
+
 

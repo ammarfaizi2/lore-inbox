@@ -1,40 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261338AbTDBCW0>; Tue, 1 Apr 2003 21:22:26 -0500
+	id <S261300AbTDBCSa>; Tue, 1 Apr 2003 21:18:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261340AbTDBCW0>; Tue, 1 Apr 2003 21:22:26 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:26848 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S261338AbTDBCWY>; Tue, 1 Apr 2003 21:22:24 -0500
-Date: Wed, 2 Apr 2003 08:08:30 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: Christoph Hellwig <hch@infradead.org>, linux-fsdevel@vger.kernel.org,
-       linux-aio@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Filesystem aio rdwr patchset
-Message-ID: <20030402080830.A1499@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <20030401215957.A1800@in.ibm.com> <20030401220242.B1857@in.ibm.com> <20030401175502.B19660@infradead.org>
+	id <S261307AbTDBCSa>; Tue, 1 Apr 2003 21:18:30 -0500
+Received: from f145.law9.hotmail.com ([64.4.9.145]:11535 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S261300AbTDBCS3>;
+	Tue, 1 Apr 2003 21:18:29 -0500
+X-Originating-IP: [64.171.164.42]
+X-Originating-Email: [twocentaolish@hotmail.com]
+From: "William Gates" <twocentaolish@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCEMENT] Microsoft to GPL its source code
+Date: Wed, 02 Apr 2003 02:29:49 +0000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030401175502.B19660@infradead.org>; from hch@infradead.org on Tue, Apr 01, 2003 at 05:55:02PM +0100
+Content-Type: text/plain; format=flowed
+Message-ID: <F145ffwGrke1UZY2uYY0001dbcb@hotmail.com>
+X-OriginalArrivalTime: 02 Apr 2003 02:29:49.0472 (UTC) FILETIME=[BBE71200:01C2F8BF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 01, 2003 at 05:55:02PM +0100, Christoph Hellwig wrote:
-> > +int blk_congestion_wait_async(int rw, long timeout)
-> 
-> Isn't the name a bit silly? :)
-> 
-Yes, I'm hopelessly bad with names :(  
-Could you suggest something saner ? 
 
-Regards
-Suparna
 
--- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Labs, India
+
+
+We have recently chosen to open up our source because it makes good business 
+sense for us at this time. Here are some of the reasons:
+
+The availability of the source code and the right to modify it is very 
+important. It enables us to tap into the unlimited programming resources 
+available to tune and improve our software products.
+
+The right to redistribute modifications and improvements to the code, and to 
+reuse other open source code, permits all the advantages due to the 
+modifiability of the software to be shared by large communities, communities 
+we learned that we need to embrace, under certain conditions.
+
+The point that differentiates open source software licences from our past 
+licenses is modifiability. In substance, the fact that redistribution rights 
+cannot be revoked, and that they are universal, is what attracts a 
+substantial crowd of developers to work around open source software 
+projects, and we welcome them.
+
+We have decided that we would like help to improve the quality of our 
+products, and to improve their functionality. Which, once more, will cause 
+more and more users give the product a try, and probably to use it 
+regularly.
+
+Now this is only a temporary GPL. We have slightly modified our licenses to 
+open the source for a limited time period. One the time period expires, all 
+rights to the code, as well as deriviatives, revert back to Microsoft.
+
+William Gates
+
+_________________________________________________________________
+Tired of spam? Get advanced junk mail protection with MSN 8. 
+http://join.msn.com/?page=features/junkmail
 

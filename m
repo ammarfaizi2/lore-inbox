@@ -1,91 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267387AbUI2T0R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268868AbUI2T2P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267387AbUI2T0R (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 15:26:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268884AbUI2T0Q
+	id S268868AbUI2T2P (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 15:28:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268884AbUI2T2P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 15:26:16 -0400
-Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:60422 "EHLO
-	ztxmail03.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id S267387AbUI2T0J convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 15:26:09 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Wed, 29 Sep 2004 15:28:15 -0400
+Received: from gw02.applegatebroadband.net ([207.55.227.2]:60911 "EHLO
+	data.mvista.com") by vger.kernel.org with ESMTP id S268868AbUI2T2A
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 15:28:00 -0400
+Message-ID: <415B0C9E.5060000@mvista.com>
+Date: Wed, 29 Sep 2004 12:27:26 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: patch so cciss stats are collected in /proc/stat
-Date: Wed, 29 Sep 2004 14:26:08 -0500
-Message-ID: <D4CFB69C345C394284E4B78B876C1CF107DBFE1A@cceexc23.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: patch so cciss stats are collected in /proc/stat
-Thread-Index: AcSmV+DZgAhYPSx8SQ2zgHltH+c8qwAAg4Mw
-From: "Miller, Mike (OS Dev)" <mike.miller@hp.com>
-To: "Neil Horman" <nhorman@redhat.com>, <mikem@beardog.cca.cpqcorp.net>
-Cc: <marcelo.tosatti@cyclades.com>, <linux-kernel@vger.kernel.org>,
-       <linux-scsi@vger.kernel.org>,
-       "Baker, Brian (ISS - Houston)" <brian.b@hp.com>
-X-OriginalArrivalTime: 29 Sep 2004 19:26:09.0173 (UTC) FILETIME=[2C2E8450:01C4A65A]
+To: Christoph Lameter <clameter@sgi.com>
+CC: Ulrich Drepper <drepper@redhat.com>, johnstul@us.ibm.com,
+       Ulrich.Windl@rz.uni-regensburg.de, jbarnes@sgi.com,
+       linux-kernel@vger.kernel.org, libc-alpha@sources.redhat.com
+Subject: Re: Posix compliant CLOCK_PROCESS/THREAD_CPUTIME_ID V4
+References: <B6E8046E1E28D34EB815A11AC8CA312902CD3264@mtv-atc-605e--n.corp.sgi.com> <Pine.LNX.4.58.0409240508560.5706@schroedinger.engr.sgi.com> <4154F349.1090408@redhat.com> <Pine.LNX.4.58.0409242253080.13099@schroedinger.engr.sgi.com> <41550B77.1070604@redhat.com> <B6E8046E1E28D34EB815A11AC8CA312902CD327E@mtv-atc-605e--n.corp.sgi.com> <Pine.LNX.4.58.0409271344220.32308@schroedinger.engr.sgi.com> <4159B920.3040802@redhat.com> <Pine.LNX.4.58.0409282017340.18604@schroedinger.engr.sgi.com> <415AF4C3.1040808@mvista.com> <Pine.LNX.4.58.0409291054230.25276@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.58.0409291054230.25276@schroedinger.engr.sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> mike.miller@hp.com wrote:
-> > Currently cciss statistics are not collected in /proc/stat. 
-> This patch
-> > bumps DK_MAX_MAJOR to 111 to fix that. This has been a 
-> common complaint
-> > by customers wishing to gather info about cciss devices.
-> > Please consider this for inclusion. Applies to 2.4.28-pre3.
-> > 
-> > Thanks,
-> > mikem
-> > 
-> --------------------------------------------------------------
-> -----------------
-> > 
-> > diff -burNp lx2428-pre1.orig/include/linux/kernel_stat.h 
-> lx2428-pre1/include/linux/kernel_stat.h
-> > --- lx2428-pre1.orig/include/linux/kernel_stat.h	
-> 2004-08-23 15:41:43.640300000 -0500
-> > +++ lx2428-pre1/include/linux/kernel_stat.h	2004-08-23 
-> 15:43:07.097613064 -0500
-> > @@ -12,7 +12,7 @@
-> >   * used by rstatd/perfmeter
-> >   */
-> >  
-> > -#define DK_MAX_MAJOR 16
-> > +#define DK_MAX_MAJOR 111
-> >  #define DK_MAX_DISK 16
-> >  
-> >  struct kernel_stat {
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> The answer to this is to use the latest sysstat tools.  the latest 
-> version of iostat, sar, etc draw information out of /proc/partitions 
-> rather than out of /proc/stat.  Or are you using some other 
-> home rolled 
-> tool in this case?
+Christoph Lameter wrote:
+> On Wed, 29 Sep 2004, George Anzinger wrote:
 > 
-> Neil
+> 
+>>Christoph Lameter wrote:
+>>
+>>>George asked for a test program so I wrote one and debugged the patch.
+>>>The test program uses syscall to bypass glibc processing. I have been
+>>>working on a patch for glibc but that gets a bit complicated
+>>>because backwards compatibility has to be kept. Maybe tomorrow.
+>>>Found also that glibc allows the setting of these clocks so I also
+>>>implemented that and used it in the test program.  Setting these
+>>>clocks modifies stime and utime directly, which may not be such a good
+>>>idea. Do we really need to be able to set these clocks?
+>>
+>>Another way of doing this is to save these values in the task structure.  If
+>>null, use the direct value of stime, utime, if not, adjust by the saved value
+>>(i.e. saved value would represent time zero).
+> 
+> 
+> But this would require two additional int field in task_t just for that
+> rarely used functionality.
 
-It's customers that are doing this. I think some of them are using their own tools. Others are probably using whatever comes on their distro.
+Exactly.  What does the community want?  An alternative is to allocate a small 
+block of memory for this and managed it from the posix-timers.c code.  It would 
+only be referenced by get_clock and set_clock.  And be released by the 
+exit_itimers() code.
+> 
+> 
+>>Please, when sending patches, attach them.  This avoids problems with mailers,
+>>on both ends, messing with white space.  They still appear in line, at least in
+>>some mailers (mozilla in my case).
+> 
+> 
+> The custom on lkml, for Linus and Andrew is to send them inline. I also
+> prefer them inline. Will try to remember sending attachments when sending a
+> patch to you.
 
-mikem
+I think they WILL be inline as well as attached if you attach them.  The 
+difference is that in both presentations neither mailer will mess with white 
+space.  This means that long lines will not be wrapped and tabs vs space will 
+not be changed.
+
+Try sending yourself one and see it this is not true for your mailer.
 
 > 
-> -- 
-> /***************************************************
->   *Neil Horman
->   *Software Engineer
->   *Red Hat, Inc.
->   *nhorman@redhat.com
->   *gpg keyid: 1024D / 0x92A74FA1
->   *http://pgp.mit.edu
->   ***************************************************/
+>>As to the test program, what happens when you attempt to set up a timer on these
+>>clocks?  (No, I don't think it should work, but we DO want to properly error
+>>out.  And the test should verify that this happens.)  By the way, if you use the
+>>support package from sourceforge, you will find a lot of test harness stuff.
 > 
+> 
+> That is an interesting issue. If that would work correctly one could
+> trigger an signal if more than a certain amount of cputime is used.
+> It looks though that it will create an interrupt based on real time.
+> 
+> SuS says:
+> 
+>  Each implementation defines a set of clocks that can be used as timing
+>  bases for per-process timers. All implementations support a clock_id of
+>  CLOCK_REALTIME.
+> 
+> So restrict timer_create to CLOCK_REALTIME and CLOCK_MONOTONIC? Is it
+> necessary to be able to derive a timer from a timer derives from those
+> two?
+> 
+> something like the following (just inlined for the discussion ...)?
+
+NO.  This is handled through the dispatch table (as set up when you register the 
+clock).  You just supply a timer_create() function that returns the right error. 
+  Likewise, attempts to use clock_nanosleep().  The issue with clock_nanosleep, 
+however, is that it, at this time, is not sent through the dispatch table.  This 
+should be changed to, again call the same error function.
+> 
+> --- linux-2.6.9-rc2.orig/kernel/posix-timers.c  2004-09-28 20:29:28.000000000 -0700
+> +++ linux-2.6.9-rc2/kernel/posix-timers.c       2004-09-29 11:12:37.814713085 -0700
+> @@ -585,8 +585,8 @@
+>         sigevent_t event;
+>         int it_id_set = IT_ID_NOT_SET;
+> 
+> -       if ((unsigned) which_clock >= MAX_CLOCKS ||
+> -                               !posix_clocks[which_clock].res)
+> +       if ((unsigned) which_clock != CLOCK_REALTIME &&
+> +           (unsigned) which_clock != CLOCK_MONOTONIC)
+>                 return -EINVAL;
+> 
+>         new_timer = alloc_posix_timer();
+> 
+
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+

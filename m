@@ -1,90 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267662AbUI1MJ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267668AbUI1MKm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267662AbUI1MJ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 08:09:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267660AbUI1MJ1
+	id S267668AbUI1MKm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 08:10:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267678AbUI1MKm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 08:09:27 -0400
-Received: from mx01.qsc.de ([213.148.129.14]:5320 "EHLO mx01.qsc.de")
-	by vger.kernel.org with ESMTP id S267656AbUI1MJV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 08:09:21 -0400
-Message-ID: <41595406.2080500@rocklinux-consulting.de>
-Date: Tue, 28 Sep 2004 14:07:34 +0200
-From: =?ISO-8859-1?Q?Ren=E9_Rebe?= <rene@rocklinux-consulting.de>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040916)
+	Tue, 28 Sep 2004 08:10:42 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:35982 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S267668AbUI1MKf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 08:10:35 -0400
+Message-ID: <415954AD.7010905@grupopie.com>
+Date: Tue, 28 Sep 2004 13:10:21 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Matthew Wilcox <matthew@wil.cx>
-CC: James Bottomley <James.Bottomley@SteelEye.com>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, valentin@rocklinux-consulting.de
-Subject: Re: sym53c8xx_2 regressions in 2.6.9-rc2
-References: <1096316016.1714.77.camel@mulgrave> <20040928013052.GS16153@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20040928013052.GS16153@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Score: 0.0 (/)
-X-Spam-Report: Spam detection software, running on the system "grum.localhost", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or block
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Hi, Matthew Wilcox wrote: > On Mon, Sep 27, 2004 at
-	04:13:26PM -0400, James Bottomley wrote: > >>Do you have any ideas
-	about this...it doesn't seem to be connected with >>domain vaildation.
-	The errors apparently show up during operation. > > > Thanks for
-	forwarding this, James. Rene, it would be useful for you > to submit
-	bug reports to the maintainer directly, or even contact linux-scsi. > I
-	don't have time to wade through the mountains of crap on linux-kernel.
-	[...] 
-	Content analysis details:   (0.0 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Jesper Juhl <juhl-lkml@dif.dk>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Nico Schottelius <nico-kernel@schottelius.org>
+Subject: Re: [PATCH] add sysfs attribute 'carrier' for net devices
+References: <Pine.LNX.4.61.0409270041460.2886@dragon.hygekrogen.localhost> <1096306153.1729.2.camel@localhost.localdomain>
+In-Reply-To: <1096306153.1729.2.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-Matthew Wilcox wrote:
-> On Mon, Sep 27, 2004 at 04:13:26PM -0400, James Bottomley wrote:
-> 
->>Do you have any ideas about this...it doesn't seem to be connected with
->>domain vaildation.  The errors apparently show up during operation.
-> 
-> 
-> Thanks for forwarding this, James.  Rene, it would be useful for you
-> to submit bug reports to the maintainer directly, or even contact linux-scsi.
-> I don't have time to wade through the mountains of crap on linux-kernel.
-
-And I'm not on any linux-* list, sorry. The next time I will write to 
-linux-scsi directly.
-
->>On my U30 sparc64 box I get many errors in the system log:
->>
->>Sep 20 15:28:34 sundown kernel: sym0:0:0:phase change 6-7 11@c7ff7b90 
->>resid=6.
->>Sep 20 15:28:34 sundown last message repeated 2 times
->>
->>those did not show up in any other 2.6 kernel up to .8.1 ...
+Stephen Hemminger wrote:
+> ....
+>>+{
+>>+	struct net_device *net = to_net_dev(dev);
+>>+	if (netif_running(net)) {
+>>+		if (netif_carrier_ok(net))
+>>+			return snprintf(buf, 3, "%d\n", 1);
+>>+		else
+>>+			return snprintf(buf, 3, "%d\n", 0);
 > 
 > 
-> When do these show up?  Are they at initialisation time or are they during
-> normal operation?  You report the dmesg from a 2.6.8 kernel, how does the
-> 2.6.9-rc2 one differ?  Is the sym2 driver version 2.1.18j in both kernels?
+> Using snprintf in this way is kind of silly. since buffer is PAGESIZE.
+> The most concise format of this would be:
+> 	return sprintf(buf, dec_fmt, !!netif_carrier_ok(dev));
 
-Both, at initialization time _and_ normal operation.
+<nitpick>
+Since netif_carrier_ok already has a "!" in it, it is guaranteed to 
+return a 0 / 1 result. so this could be:
 
-The 2.6.9-rc2 dmesg does list the same devices - but with 
-"sym0:0:0:phase change 6-7 ..." between the devices beeing detected.
+  	return sprintf(buf, dec_fmt, netif_carrier_ok(dev));
 
-I'll rebuild the kernel with the defective scsi driver (I reverted the 
-changes to get a functional system ...) when I'm back in the office in 
-some hours. The 2.6.9-rc2 does contain the domain validation changes, I 
-will take a look if the patch in 2.6.9-rc2 does change the version 
-string if this matters.
-
-Have fun,
+Of course your way is more robust to future 'netif_carrier_ok' changes 
+and the compiler should optimize it way anyway since it is an inline 
+function, so I actually prefer the !! version :)
+</nitpick>
 
 -- 
-René Rebe - Rubensstr. 64 - 12157 Berlin (Europe / Germany)
-             +49 (0)30  255 897 45
+Paulo Marques - www.grupopie.com
+
+To err is human, but to really foul things up requires a computer.
+Farmers' Almanac, 1978

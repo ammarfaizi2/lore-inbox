@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261825AbTDHPII (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 11:08:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261826AbTDHPII (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 11:08:08 -0400
-Received: from mx01.uni-tuebingen.de ([134.2.3.11]:3306 "EHLO
-	mx01.uni-tuebingen.de") by vger.kernel.org with ESMTP
-	id S261825AbTDHPIH (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 8 Apr 2003 11:08:07 -0400
-Date: Tue, 8 Apr 2003 17:19:26 +0200 (CEST)
-From: Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>
-To: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Emulating insns on Alpha
-In-Reply-To: <yw1xistpqdqn.fsf@manganonaujakasit.e.kth.se>
-Message-ID: <Pine.LNX.4.30.0304081714440.30553-100000@linux17.zdv.uni-tuebingen.de>
+	id S261830AbTDHPK3 (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 11:10:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbTDHPK3 (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 11:10:29 -0400
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:30472 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id S261830AbTDHPK2 (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 8 Apr 2003 11:10:28 -0400
+Date: Tue, 8 Apr 2003 17:22:00 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: "Kevin P. Fleming" <kpfleming@cox.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 64-bit kdev_t - just for playing
+In-Reply-To: <3E91FEF8.20207@cox.net>
+Message-ID: <Pine.LNX.4.44.0304081706520.12110-100000@serv>
+References: <200303311541.50200.pbadari@us.ibm.com> <Pine.LNX.4.44.0304031256550.5042-100000@serv>
+ <20030403133725.GA14027@win.tue.nl> <Pine.LNX.4.44.0304031548090.12110-100000@serv>
+ <b6s3tm$i2d$1@cesium.transmeta.com> <Pine.LNX.4.44.0304071742490.12110-100000@serv>
+ <Pine.LNX.4.44.0304072351110.12110-100000@serv> <3E91FEF8.20207@cox.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-AntiVirus: checked by AntiVir Milter 1.0.0.8; AVE 6.19.0.3; VDF 6.19.0.5
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8 Apr 2003, Måns Rullgård wrote:
+Hi,
 
-> Falk Hueffner <falk.hueffner@student.uni-tuebingen.de> writes:
-> > > Are there any patches around that emulate the BWX instruction set on
-> > > older Alpha CPUs, or should I write it myself?
-> >
-> > There's an ancient one at
-> > http://www.alphalinux.org/archives/axp-list/October1999/0500.html,
-> > although it's probably easier to write it from scratch. I'd write the
-> > whole thing in C, the trap is already so expensive that it's of no use
-> > trying to be clever when emulating the particular instructions (except
-> > when you replace the instruction with a jump to a stub, which seems
-> > somewhat hairy, but feasible).
->
-> If you think that's hairy, take a look at this:
-> http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/tc2/tc2/include/Attic/tc2_autoload.h?rev=1.1.2.5&only_with_tag=dev-0_4&content-type=text/vnd.viewcvs-markup
+On Mon, 7 Apr 2003, Kevin P. Fleming wrote:
 
-Well, it'd be a lot hairier, since you need PALcode support to free temp
-registers (unless I'm missing something). And you need to check access
-rights (or jump back to userspace temporarily).
+> However, there are significant hurdles to implementing this tool:
+> 
+> - defining an adequately powerful file format to define the desired naming policy
 
-By the way, mb doesn't ensure that the instruction fetcher sees the new
-code, you need imb. And the ret will probably confuse the branch
-prediction stack.
+The kernel only exports information, which you can get from sysfs. This 
+will unlikely become a requirement for 2.6, so how this done can still 
+change a bit.
 
-	Falk
+> - getting the tool to run _both_ in early-userspace and real-userspace 
+> environments, using the _same_ policy file (or copies thereof)
+
+Early-userspace is not that much of a problem, as it only has to map 
+the device information from sysfs to a device name. The required 
+configuration file can be quite simple, every device has a list of 
+properties, which closely resembles sysfs (one property == one value).
+
+bye, Roman
 

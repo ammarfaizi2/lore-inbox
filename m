@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264110AbTEJQbP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 12:31:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264445AbTEJQbP
+	id S264425AbTEJQ2Y (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 12:28:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264432AbTEJQ2Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 12:31:15 -0400
-Received: from amsfep14-int.chello.nl ([213.46.243.22]:53815 "EHLO
-	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
-	id S264110AbTEJQbO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 12:31:14 -0400
-From: Jos Hulzink <josh@stack.nl>
-To: Jamie Lokier <jamie@shareable.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] Use correct x86 reboot vector
-Date: Sat, 10 May 2003 20:47:38 +0200
-User-Agent: KMail/1.5
-Cc: CaT <cat@zip.com.au>, Andi Kleen <ak@muc.de>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030510025634.GA31713@averell> <1052578182.16166.6.camel@dhcp22.swansea.linux.org.uk> <20030510161710.GC29271@mail.jlokier.co.uk>
-In-Reply-To: <20030510161710.GC29271@mail.jlokier.co.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 10 May 2003 12:28:24 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:40335 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S264425AbTEJQ2X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 May 2003 12:28:23 -0400
+Date: Sat, 10 May 2003 18:41:02 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Shane Shrybman <shrybman@sympatico.ca>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>
+Subject: Re: Can't find CDR device in -mm only
+Message-ID: <20030510164102.GD837@suse.de>
+References: <1052537820.2441.113.camel@mars.goatskin.org> <20030510092041.GN812@suse.de> <1052578016.2369.7.camel@mars.goatskin.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200305102047.38662.josh@stack.nl>
+In-Reply-To: <1052578016.2369.7.camel@mars.goatskin.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 10 May 2003 18:17, Jamie Lokier wrote:
-> Alan Cox wrote:
-> > At least some SMP boxes freak if you do a poweroff request on CPU != 0
->
-> Power-off works on some SMP boxes?
+On Sat, May 10 2003, Shane Shrybman wrote:
+> Hi Jens,
+> 
+> On Sat, 2003-05-10 at 05:20, Jens Axboe wrote:
+> > On Fri, May 09 2003, Shane Shrybman wrote:
+> > > Hi,
+> > > 
+> > > The problem first appeared in 2.5.68-mm3 and is not in mainline 2.5.69.
+> > > It is present in all -mm releases since.
+> > 
+> > Curious. Looking at patches between .68-mm2 and -mm3 reveals nothing
+> > major, in fact the only thing touching anything in that area seems to be
+> > the dynamic request allocation patch. Could you try 2.5.69 with the
+> > attached patch to verify that it still works (or doesn't)? There might
+> > be a small offset in deadline-iosched.c, should be nothing to worry
+> > about.
+> 
+> Still doesn't work with 2.5.69 + rq_dyn. The output from cdrecord is
+> below.
 
-With ACPI kernels, my Dual PII 333 / Intel 440 LX powers down without pressing 
-the button.
+Ah thanks, that kind of narrows it down then. I'll take a look at the
+problem tomorrow, should be easy to reproduce. Thanks for reporting!
 
-Jos
+-- 
+Jens Axboe
+

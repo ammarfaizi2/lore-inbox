@@ -1,84 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262144AbTD3MQ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 08:16:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262150AbTD3MQ2
+	id S262142AbTD3MNS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 08:13:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262143AbTD3MNS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 08:16:28 -0400
-Received: from holomorphy.com ([66.224.33.161]:21714 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S262144AbTD3MQ1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 08:16:27 -0400
-Date: Wed, 30 Apr 2003 05:28:25 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: alan@lxorguk.ukuu.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: NUMA-Q sys_ioperm()/sys_iopl()
-Message-ID: <20030430122825.GL8931@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+	Wed, 30 Apr 2003 08:13:18 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:39061
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S262142AbTD3MNR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 08:13:17 -0400
+Subject: Re: [PATCH 2.4.21-rc1] vesafb with large memory
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Adam Mercer <r.a.mercer@blueyonder.co.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+In-Reply-To: <20030430080910.GA5011@skymoo.dyndns.org>
+References: <20030430080910.GA5011@skymoo.dyndns.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1051702003.19579.6.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 30 Apr 2003 12:26:43 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-NUMA-Q cannot support these operations without significant
-infrastructure to emulate a global port io space for userspace to
-manipulate, possibly even with hooks into the scheduler.
+On Mer, 2003-04-30 at 09:09, Adam Mercer wrote:
+> -	video_size          = screen_info.lfb_size * 65536;
 
-Not only are the applications depending on this particular form of
-privilege elevation generally inappropriate uses of these machines
-(they are large "server-class" machines, typically shipped and run
-headless), but the devices typically managed with these interfaces
-are already explicitly unsupported in UNIX configurations.
+The above is correct. It returns the size of the frame buffer
 
-This patch removes sys_iopl() and sys_ioperm() support conditional on
-#ifdef CONFIG_X86_NUMAQ to prevent the device register corruption
-condition without significant impact on core i386 support.
+> +	video_size          = screen_info.lfb_width *	screen_info.lfb_height * video_bpp;
+> 	video_visual = (video_bpp == 8) ?
+> 		FB_VISUAL_PSEUDOCOLOR : FB_VISUAL_TRUECOLOR;						#
 
+The change computes the mode size. Thats probably safe for the ioremap
+range
 
-diff -urpN linux-2.5.68/arch/i386/kernel/ioport.c ioperm-2.5.68-1/arch/i386/kernel/ioport.c
---- linux-2.5.68/arch/i386/kernel/ioport.c	2003-04-19 19:49:26.000000000 -0700
-+++ ioperm-2.5.68-1/arch/i386/kernel/ioport.c	2003-04-30 05:01:09.000000000 -0700
-@@ -53,6 +53,12 @@ static void set_bitmap(unsigned long *bi
- /*
-  * this changes the io permissions bitmap in the current task.
-  */
-+#ifdef CONFIG_X86_NUMAQ
-+asmlinkage int sys_ioperm(unsigned long from, unsigned long num, int turn_on)
-+{
-+	return -ENOSYS;
-+}
-+#else
- asmlinkage int sys_ioperm(unsigned long from, unsigned long num, int turn_on)
- {
- 	struct thread_struct * t = &current->thread;
-@@ -97,6 +103,7 @@ asmlinkage int sys_ioperm(unsigned long 
- out:
- 	return ret;
- }
-+#endif
- 
- /*
-  * sys_iopl has to be used when you want to access the IO ports
-@@ -109,6 +116,12 @@ out:
-  * code.
-  */
- 
-+#ifdef CONFIG_X86_NUMAQ
-+asmlinkage int sys_iopl(unsigned long unused)
-+{
-+	return -ENOSYS;
-+}
-+#else
- asmlinkage int sys_iopl(unsigned long unused)
- {
- 	volatile struct pt_regs * regs = (struct pt_regs *) &unused;
-@@ -127,3 +140,4 @@ asmlinkage int sys_iopl(unsigned long un
- 	set_thread_flag(TIF_IRET);
- 	return 0;
- }
-+#endif

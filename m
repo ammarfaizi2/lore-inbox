@@ -1,53 +1,61 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S155908AbQD1P5m>; Fri, 28 Apr 2000 11:57:42 -0400
-Received: by vger.rutgers.edu id <S155537AbQD1Pxa>; Fri, 28 Apr 2000 11:53:30 -0400
-Received: from web1610.mail.yahoo.com ([128.11.23.164]:2806 "HELO web1610.mail.yahoo.com") by vger.rutgers.edu with SMTP id <S155534AbQD1Pr5>; Fri, 28 Apr 2000 11:47:57 -0400
-Message-ID: <20000428155437.8107.qmail@web1610.mail.yahoo.com>
-Date: Fri, 28 Apr 2000 08:54:37 -0700 (PDT)
-From: Sujit Vaidya <svaidya75@yahoo.com>
-Subject: Delaying eth0 Initialization
-To: linux <linux-kernel@vger.rutgers.edu>
-MIME-Version: 1.0
+Received: by vger.rutgers.edu via listexpand id <S155518AbQD2A1k>; Fri, 28 Apr 2000 20:27:40 -0400
+Received: by vger.rutgers.edu id <S155511AbQD2A1T>; Fri, 28 Apr 2000 20:27:19 -0400
+Received: from orzan.fi.udc.es ([193.144.60.19]:54190 "EHLO orzan.fi.udc.es") by vger.rutgers.edu with ESMTP id <S155399AbQD2A1E>; Fri, 28 Apr 2000 20:27:04 -0400
+To: linux-kernel@vger.rutgers.edu
+Subject: Memtest suite v0.0.3
+X-Url: http://carpanta.dc.fi.udc.es/~quintela
+From: "Juan J. Quintela" <quintela@fi.udc.es>
+Date: 29 Apr 2000 02:25:11 +0200
+Message-ID: <yttr9bpbvo8.fsf@vexeta.dc.fi.udc.es>
 Content-Type: text/plain; charset=us-ascii
+User-Agent: Gnus/5.0804 (Gnus v5.8.4) Emacs/20.5
+MIME-Version: 1.0
 Sender: owner-linux-kernel@vger.rutgers.edu
 
 
- Hi,
-    I have installed Red Hat 5.1 on my 486 machine.
-It boots up fine with linux kernel and communicates
-well  with the network through eth0.
-    Now I compiled the kernel with a prink statement
-in  the /net/ipv4/ip_input.c file. Now when i boot the
-compiled kernel it says while booting
- 
- Delaying eth0 initialization.
- 
- If you try ifconfig eth0 interface doesn't show up.
- I have 3com 3c59x card
+Hi
+        new version of memtest suite.  If you have any more tests they
+        are welcome.
 
- 
- 
- Any suggestions
- 
- SUJIT
- 
- 
- __________________________________________________
-> Do You Yahoo!?
-> Talk to your friends online and get email alerts
-> with Yahoo! Messenger.
-> http://im.yahoo.com/
-> 
-> -
-> To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.rutgers.edu
-> Please read the FAQ at http://www.tux.org/lkml/
+Later, Juan.
 
-__________________________________________________
-Do You Yahoo!?
-Talk to your friends online and get email alerts with Yahoo! Messenger.
-http://im.yahoo.com/
+Memory test suite v0.0.3
+------------------------
+
+This intends to be a set of programs to test the memory management
+system.  I am releasing this version with the idea of gather more
+programs for the suite.  If you have some program to test the system,
+please send it to me (quintela@fi.udc.es).
+
+If you found values/combinations of tests for what the system
+crash/Oops/whatever please report it to me.  Then I can include it in
+the tests and the people who tune the MM system can test it next time.
+
+This version has:
+        An improved README
+        new shm test
+        removing several compilations warnings
+        added Tests file
+
+Any comments/suggestions/code are welcome.
+
+Note:  I am not a C++ programmer, if somebody knows how to remove the
+       warnings in the c++ test (shm-stresser) I will be grateful.
+
+
+Thanks for your time,
+        Juan Quintela
+        quintela@fi.udc.es
+
+The home of this package is:
+
+http://carpanta.dc.fi.udc.es/~quintela/memtest/
+
+
+-- 
+In theory, practice and theory are the same, but in practice they 
+are different -- Larry McVoy
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

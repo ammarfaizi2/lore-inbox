@@ -1,59 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287141AbSA2XaX>; Tue, 29 Jan 2002 18:30:23 -0500
+	id <S286207AbSA2XRN>; Tue, 29 Jan 2002 18:17:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286895AbSA2X3Q>; Tue, 29 Jan 2002 18:29:16 -0500
-Received: from rtlab.med.cornell.edu ([140.251.145.175]:44501 "HELO
-	openlab.rtlab.org") by vger.kernel.org with SMTP id <S286904AbSA2X15>;
-	Tue, 29 Jan 2002 18:27:57 -0500
-Date: Tue, 29 Jan 2002 18:27:56 -0500 (EST)
-From: "Calin A. Culianu" <calin@ajvar.org>
-To: Daniel Nofftz <nofftz@castor.uni-trier.de>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Athlon Optimization Problem
-In-Reply-To: <Pine.LNX.4.40.0201300001090.4360-100000@hades.uni-trier.de>
-Message-ID: <Pine.LNX.4.30.0201291827310.11020-100000@rtlab.med.cornell.edu>
+	id <S286647AbSA2XPu>; Tue, 29 Jan 2002 18:15:50 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:34577 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S286821AbSA2XOZ>; Tue, 29 Jan 2002 18:14:25 -0500
+Date: Tue, 29 Jan 2002 18:12:55 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
+cc: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable 
+In-Reply-To: <200201212218.g0LMI8BQ002150@tigger.cs.uni-dortmund.de>
+Message-ID: <Pine.LNX.3.96.1020129180855.31511H-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 21 Jan 2002, Horst von Brand wrote:
 
-No problem! :)
+> Robert Love <rml@tech9.net> said:
+> 
+> [...]
+> 
+> > It doesn't have to run mostly in the kernel.  It just has to be in the
+> > kernel when the I/O-bound tasks awakes.  Further, there are plenty of
+> > what we consider CPU-bound tasks that are interactive and/or
+> > graphics-oriented and this adds much to their time in the kernel.
+	[ snip ]
+> For the mostly positive (subjective) responses you see, there is something
+> called "psycology", which would predict that for _exactly_ the same "feel"
+> (whatever that may be) somebody who just made an effort downloading
+> patches, applying them, reconfiguring ad building a kernel "to make it feel
+> better" _will_ feel it better. I.e., nobody wants to have to say "Okay,
+> lots of work down the drain". Besides, those who see no difference will
+> shut up, those that delude themselves most will be vocal about it.
 
-No how official are these pcr files?  Are they as good as via specs?  Do
-they ultimately come from via specs?
+Ah, that's it, we're deluding ourselves. To the point that booting a
+kernel without identification and having casual users watch the cursor
+move while running a standard low will result in those users sharing our
+delusion.
 
--Calin
-
-On Wed, 30 Jan 2002, Daniel Nofftz wrote:
-
-> On Tue, 29 Jan 2002, Calin A. Culianu wrote:
->
-> >
-> > You can view a pseudo-spec (basically a wpcredit .pcr file) for the
-> > kt266/kt266a northbridges by hitting this link:
-> > http://www.rtlab.org/kt266-kt266a-northbridge-spec.txt.  This does say
-> > that 0x95.5,6,7 are the memory write queue timer bits...
->
-> oh yes ... this version of the pcr file looks newer then my version ...
-> and much more complete ... thank you for this link :)
-> i updated the pcr file on my server ...
->
-> daniel
->
->
->
->
-> # Daniel Nofftz
-> # Sysadmin CIP-Pool Informatik
-> # University of Trier(Germany), Room V 103
-> # Mail: daniel@nofftz.de
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

@@ -1,35 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316610AbSE0K4B>; Mon, 27 May 2002 06:56:01 -0400
+	id <S316574AbSE0K7k>; Mon, 27 May 2002 06:59:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316611AbSE0K4A>; Mon, 27 May 2002 06:56:00 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:3222 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S316610AbSE0Kz6>;
-	Mon, 27 May 2002 06:55:58 -0400
-Date: Mon, 27 May 2002 03:40:39 -0700 (PDT)
-Message-Id: <20020527.034039.120708891.davem@redhat.com>
-To: szepe@pinerecords.com
-Cc: linux-kernel@vger.kernel.org, tcallawa@redhat.com, colin@gibbs.dhs.org,
-        sparclinux@vger.kernel.org, aurora-sparc-devel@linuxpower.org
-Subject: Re: 2.4 SRMMU bug revisited
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020527062044.GA6737@beth.pinerecords.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S316576AbSE0K7j>; Mon, 27 May 2002 06:59:39 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:63739 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316574AbSE0K7i>; Mon, 27 May 2002 06:59:38 -0400
+Subject: Re: Memory management in Kernel 2.4.x
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andreas Hartmann <andihartmann@freenet.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <acsuv2$30v$1@ID-44327.news.dfncis.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 27 May 2002 13:02:08 +0100
+Message-Id: <1022500928.11811.259.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Tomas Szepe <szepe@pinerecords.com>
-   Date: Mon, 27 May 2002 08:20:44 +0200
+On Mon, 2002-05-27 at 10:40, Andreas Hartmann wrote:
+> Unfortunately, the memory management of kernel 2.4.x didn't get better until 
+> today. It is very easy to make a machine dead. Take the following script:
+> 
+> http://groups.google.com/groups?q=malloc+bestie&hl=de&lr=&selm=slrn8aiglm.tqd.pfk@c.zeiss.de&rnum=2
+> 
+> 
+> The result with kernel 2.4.19pre8ac4:
+> 
+> May 27 11:04:21 athlon kernel: Out of Memory: Killed process 763 (knode).
 
-   > %99 of people with sparc32 problems are totally unwilling (or unable)
-   > to help fix the bugs themselves, they merely whine.  It gets a bit
-   > old after a while (which for me amount to roughly 7 years).
-   
-   Sure, I'm willing to try to write the fix if someone takes the time
-   to explain to me what's happening -- I'm quite fluent in C but know
-   nothing about the anatomy of the problem.
+This appears to be correct behaviour. You allocated astronomical amounts
+of memory and had memory overcommit enabled so it broke. Thats
+configurable and you can if you wish disable overcommit in the -ac
+kernel by setting /proc/sys/vm/overcommit_memory to 2 (thats not
+supported by the base 2.4 kernels yet). If you can make it OOM in that
+mode then I am interested indeed. 
 
-See the part where I mention "unable".
+The rsync one is more interesting, it could be something doing huge
+amounts of memory allocations it could also be excessive kernel usage or
+wrong OOM semantics somewhere.
+

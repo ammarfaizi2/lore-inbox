@@ -1,88 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265948AbRGERUQ>; Thu, 5 Jul 2001 13:20:16 -0400
+	id <S265953AbRGERVQ>; Thu, 5 Jul 2001 13:21:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265934AbRGERUG>; Thu, 5 Jul 2001 13:20:06 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:26497 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S265933AbRGERTt>; Thu, 5 Jul 2001 13:19:49 -0400
-Date: Thu, 5 Jul 2001 13:19:20 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Christophe Beaumont <christophe@paracel.com>
-cc: kernel Linux <linux-kernel@vger.kernel.org>
-Subject: RE: DMA memory limitation?
-In-Reply-To: <NFBBINOGHMOOBMPNBAHKCEPECEAA.christophe@paracel.com>
-Message-ID: <Pine.LNX.3.95.1010705131043.24908A-100000@chaos.analogic.com>
+	id <S265934AbRGERVH>; Thu, 5 Jul 2001 13:21:07 -0400
+Received: from borg.metroweb.co.za ([196.23.181.81]:51974 "EHLO
+	borg.metroweb.co.za") by vger.kernel.org with ESMTP
+	id <S265953AbRGERVA>; Thu, 5 Jul 2001 13:21:00 -0400
+From: Henry <henry@borg.metroweb.co.za>
+To: whitney@math.berkeley.edu
+Subject: Re: OOPS (kswapd) in 2.4.5 and 2.4.6
+Date: Thu, 5 Jul 2001 19:09:41 +0200
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <01070516412506.06182@borg> <200107051653.f65GrC400989@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
+In-Reply-To: <200107051653.f65GrC400989@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01070519204000.13482@borg>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Jul 2001, Christophe Beaumont wrote:
-
+On Thu, 05 Jul 2001, Wayne Whitney wrote:
+> In mailing-lists.linux-kernel, you wrote:
 > 
+> > We've noticed the following kernel error since 2.4 (2.4.1-2.4.6).
+> > It appears to be swap (kswapd thread specific?) related.  The same
+> > error is reported on several SMP machines after only a short period
+> > (an hour or less).
 > 
-> > On Thu, 5 Jul 2001, Vasu Varma P V wrote:
-> > 
-> > > Hi,
-> > > 
-> > > Is there any limitation on DMA memory we can allocate using
-> > > kmalloc(size, GFP_DMA)? I am not able to acquire more than
-> > > 14MB of the mem using this on my PCI SMP box with 256MB ram.
-> > > I think there is restriction on ISA boards of 16MB.
-> > > Can we increase it ?
-> > > 
-> > > thx,
-> > > Vasu
-> > 
-> > 14MB of DMA(able) memory?  Err. I think you are trying to
-> > do something you would never need to do.
-> > 
-> And what is that supposed to be????
-> 
+> FYI, I see a similar problem under 2.4.5, also SMP, although only
+> intermittently.  Two oopses are below, from two different, although
+> similarly configured, machines.
 
-Did you READ the rest of the carefully-worded paragraphs,
-carefully, explaining that it ** ISN'T DMA ** memory that you need?
+[snip]
 
-> I have a piece of pretty well designed hardware here... and my
-> application requires me to have the PCI board to random access
-> in master mode a whole lot of memory (anywhere from 128MEGS to
-     ^^^^^^^^^^^
-You JUST give it the address of any RAM you want to read/write...
-as explained before. As explained, in a documentation file I
-specified, you convert the virtual address using a macro that
-the kernel headers provide.
+Sounds very similar.  Our servers are all identical (except for RAM).
 
-You can even give it user-mode buffers as long as they are non-paged
-during the access.
+What's unusual is that the machines we *expect* to fail sooner - don't
+(not even an oops).  Those are very busy cache servers (several of them
+in a sibling cluster) which do a lot of swapping.  The machines which
+*do* fail (or oops without any further catastrophe) are typically
+web/mail hosting servers (reasonably busy with about 25% swap being
+used).  Increasing swap did not help on 2.4.5.  We're still waiting for
+something to happen on 2.4.6 (ie, oops already appeared - waiting for
+meltdown, which, hopefully, will not occur).  We used to auto-reboot
+every morning at 2am or something to keep things stable - which I
+*hate* because I remember having a 2.0.35/6 workstation that had an
+uptime of 6 months a couple of years ago.  God, I loved that box.
 
-> 1GIG... and possibly more...) so I really do need BIG DMA buffers
-> (I don't say huge anymore as one can get 1/2 Gig of RAM for just
-> over 120 bucks???)... 
-> 
-> There is no way I can have the piece of hardware behave in 
-> another fashion... and NO it is NOT broken (when you do BOTH 
-> hardware & software, you know about BOTH limitations... there
-> are just some cases where you have to face some unique issues).
-> the mem=1024M works pretty fine once you have figured out how 
-> to handle in a fairly simple way this "reserved" memory...
-> 
-
-This is wrong! Good luck sucker.
-
-> So please software people...
-                     ^^^^^^^
-
-I am a Software Engineer, with a long history of hardware design.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
-
+cheers
+Henry

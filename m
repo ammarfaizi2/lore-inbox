@@ -1,169 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261451AbUCVXIh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 18:08:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261418AbUCVXIh
+	id S261421AbUCVXLP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 18:11:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261491AbUCVXLP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 18:08:37 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32152 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261451AbUCVXIT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 18:08:19 -0500
-Message-ID: <405F71CB.7000902@pobox.com>
-Date: Mon, 22 Mar 2004 18:07:55 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Bagalkote, Sreenivas" <sreenib@lsil.com>
-CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH][RELEASE] megaraid 2.10.2 Driver
-References: <0E3FA95632D6D047BA649F95DAB60E570230C77A@exa-atlanta.se.lsil.com>
-In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E570230C77A@exa-atlanta.se.lsil.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 22 Mar 2004 18:11:15 -0500
+Received: from fw.osdl.org ([65.172.181.6]:49052 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261421AbUCVXLH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 18:11:07 -0500
+Date: Mon, 22 Mar 2004 15:13:12 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Daniel McNeil <daniel@osdl.org>
+Cc: mason@suse.com, linux-kernel@vger.kernel.org, linux-aio@kvack.org
+Subject: Re: 2.6.5-rc1-mm2 and direct_read_under and wb
+Message-Id: <20040322151312.6b629736.akpm@osdl.org>
+In-Reply-To: <1079981473.6930.71.camel@ibm-c.pdx.osdl.net>
+References: <20040314172809.31bd72f7.akpm@osdl.org>
+	<20040316180043.441e8150.akpm@osdl.org>
+	<1079554288.4183.1938.camel@watt.suse.com>
+	<20040317123324.46411197.akpm@osdl.org>
+	<1079563568.4185.1947.camel@watt.suse.com>
+	<20040317150909.7fd121bd.akpm@osdl.org>
+	<1079566076.4186.1959.camel@watt.suse.com>
+	<20040317155111.49d09a87.akpm@osdl.org>
+	<1079568387.4186.1964.camel@watt.suse.com>
+	<20040317161338.28b21c35.akpm@osdl.org>
+	<1079569870.4186.1967.camel@watt.suse.com>
+	<20040317163332.0385d665.akpm@osdl.org>
+	<1079572511.6930.5.camel@ibm-c.pdx.osdl.net>
+	<1079632431.6930.30.camel@ibm-c.pdx.osdl.net>
+	<1079635678.4185.2100.camel@watt.suse.com>
+	<1079637004.6930.42.camel@ibm-c.pdx.osdl.net>
+	<1079714990.6930.49.camel@ibm-c.pdx.osdl.net>
+	<1079715901.6930.52.camel@ibm-c.pdx.osdl.net>
+	<1079879799.11062.348.camel@watt.suse.com>
+	<1079979016.6930.62.camel@ibm-c.pdx.osdl.net>
+	<1079980512.11058.524.camel@watt.suse.com>
+	<1079981473.6930.71.camel@ibm-c.pdx.osdl.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bagalkote, Sreenivas wrote:
-> Hello,
-> @@ -45,6 +46,10 @@
->  
->  #include "megaraid2.h"
->  
-> +#ifdef LSI_CONFIG_COMPAT
-> +#include <asm/ioctl32.h>
-> +#endif
-> +
+Daniel McNeil <daniel@osdl.org> wrote:
+>
+> I was thinking about this also, since this is included in the patch.
+> As long as the page stays dirty in radix tree so the sync writer
+> can find it, then the sync writer can wait on the locked buffers.
+> 
+> I am giving it a try and will let you know.
 
-For upstream, this should just be CONFIG_COMPAT I presume.
+Please do.
 
+Redirtyng the pages in this manner does mean that background_writeout()
+could get stuck in a loop trying to write the same batch of pages over and
+over again, until the I/O completes.
 
->  MODULE_AUTHOR ("LSI Logic Corporation");
->  MODULE_DESCRIPTION ("LSI Logic MegaRAID driver");
->  MODULE_LICENSE ("GPL");
-> @@ -206,6 +211,10 @@
->  		 */
->  		major = register_chrdev(0, "megadev", &megadev_fops);
->  
-> +		if (!major) {
-> +			printk(KERN_WARNING
-> +				"megaraid: failed to register char
-> device.\n");
-> +		}
->  		/*
->  		 * Register the Shutdown Notification hook in kernel
->  		 */
-> @@ -214,6 +223,13 @@
->  				"MegaRAID Shutdown routine not
-> registered!!\n");
->  		}
->  
-> +#ifdef LSI_CONFIG_COMPAT
-> +		/*
-> +		 * Register the 32-bit ioctl conversion
-> +		 */
-> +		register_ioctl32_conversion(MEGAIOCCMD,
-> megadev_compat_ioctl);
-> +#endif
-> +
-
-ditto
-
-
-> @@ -620,12 +638,15 @@
->  
->  		/* Set the Mode of addressing to 64 bit if we can */
->  		if((adapter->flag & BOARD_64BIT)&&(sizeof(dma_addr_t) == 8))
-> {
-> -			pci_set_dma_mask(pdev, 0xffffffffffffffffULL);
-> -			adapter->has_64bit_addr = 1;
-> +			if (pci_set_dma_mask(pdev, 0xffffffffffffffffULL) ==
-> 0)
-> +				adapter->has_64bit_addr = 1;
->  		}
-> -		else  {
-> -			pci_set_dma_mask(pdev, 0xffffffff);
-> -			adapter->has_64bit_addr = 0;
-> +		if (!adapter->has_64bit_addr)  {
-> +			if (pci_set_dma_mask(pdev, 0xffffffff) != 0) {
-> +				printk("megaraid%d: DMA not available.\n",
-> +					host->host_no);
-> +				goto fail_attach;
-> +			}
-
-Bug -- always set dma mask.  Do not conditionally _not_ call 
-pci_set_dma_mask(), for the 64-bit case.
-
-Minor:  add ULL to the constant.
-
-
-
-> @@ -2549,7 +2575,9 @@
->  		/*
->  		 * Unregister the character device interface to the driver.
->  		 */
-> -		unregister_chrdev(major, "megadev");
-> +		if (major) {
-> +			unregister_chrdev(major, "megadev");
-> +		}
-
-register_chrdev() returns a negative errno value on error, such as -EBUSY.
-
-
-> @@ -4434,8 +4332,9 @@
->  				/*
->  				 * Get the user data
->  				 */
-> -				if( copy_from_user(data, (char *)uxferaddr,
-> -							pthru->dataxferlen)
-> ) {
-> +				if( copy_from_user(data,
-> +						(char *)((ulong)uxferaddr),
-> +						pthru->dataxferlen) ) {
-
-ummmm what???    uxferaddr is u32.  why are you casting it to a pointer?
-
-
-> @@ -4460,8 +4359,8 @@
->  			 * Is data going up-stream
->  			 */
->  			if( pthru->dataxferlen && (uioc.flags & UIOC_RD) ) {
-> -				if( copy_to_user((char *)uxferaddr, data,
-> -							pthru->dataxferlen)
-> ) {
-> +				if( copy_to_user((char *)((ulong)uxferaddr),
-> +						data, pthru->dataxferlen) )
-> {
-
-ditto
-
-
-
-> diff -Naur old/drivers/scsi/megaraid2.h new/drivers/scsi/megaraid2.h
-> --- old/drivers/scsi/megaraid2.h	2004-03-22 17:28:38.000000000 -0500
-> +++ new/drivers/scsi/megaraid2.h	2004-03-22 13:10:48.000000000 -0500
->  #ifndef PCI_VENDOR_ID_LSI_LOGIC
->  #define PCI_VENDOR_ID_LSI_LOGIC		0x1000
->  #endif
-
-this can be removed.
-
-
-
-> +#if defined (CONFIG_COMPAT) || defined ( __x86_64__)
-> +#define LSI_CONFIG_COMPAT
-> +#endif
-> +#ifdef LSI_CONFIG_COMPAT
-> +static int megadev_compat_ioctl(unsigned int, unsigned int, unsigned long,
-> +	struct file *);
-> +#endif
-
-I don't see how this construct will work in all cases.  Hence my 
-CONFIG_COMPAT command above.
-
-	Jeff
-
-
+I'll take another look at marking the pages which back the ll_rw_blk
+buffers as being under writeback.
 

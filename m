@@ -1,70 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261464AbTI3NHP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 09:07:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261592AbTI3NHO
+	id S261667AbTI3NL5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 09:11:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261443AbTI3NL5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 09:07:14 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:62676 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S261464AbTI3Mva (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 08:51:30 -0400
-Date: Tue, 30 Sep 2003 14:51:26 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Paul <set@pobox.com>, Vojtech Pavlik <vojtech@suse.cz>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: keyboard repeat / sound [was Re: Linux 2.6.0-test6]
-Message-ID: <20030930125126.GA24122@ucw.cz>
-References: <Pine.LNX.4.44.0309271822450.6141-100000@home.osdl.org> <20030928085902.GA3742@k3.hellgate.ch> <20030929151643.GA15992@ucw.cz> <20030930075024.GA1620@squish.home.loc>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030930075024.GA1620@squish.home.loc>
-User-Agent: Mutt/1.5.4i
+	Tue, 30 Sep 2003 09:11:57 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:43759 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S261667AbTI3MzD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 08:55:03 -0400
+Date: Tue, 30 Sep 2003 14:52:15 +0200 (CEST)
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Message-Id: <200309301252.h8UCqF0P004385@burner.fokus.fraunhofer.de>
+To: axboe@suse.de, linux-kernel@vger.kernel.org, root@chaos.analogic.com
+Cc: schilling@fokus.fraunhofer.de
+Subject: Re: Kernel includefile bug not fixed after a year :-(
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 30, 2003 at 03:50:24AM -0400, Paul wrote:
-> Vojtech Pavlik <vojtech@suse.cz>, on Mon Sep 29, 2003 [05:16:43 PM] said:
-> > On Sun, Sep 28, 2003 at 10:59:02AM +0200, Roger Luethi wrote:
-> > 
-> > > With test6, keyboard repeat takes very noticably longer to kick in after X
-> > > has been started (for both X and console). In test5, starting X makes no
-> > > difference.
-> > 
-> > Bug in repeat rate setting code. Thanks for reporting, this should fix
-> > it:
-> > 
-> 	Hi;
-> 
-> 	I applied this patch to 2.6.0-test6, but the delay before
-> repeat kicks in is slower than previous versions. It seems more like
-> the latest 2.4 kernel.
+>From root@chaos.analogic.com  Tue Sep 30 14:21:07 2003
 
-This is because it is the same as on the latest 2.4 kernel. 2.6 used
-software autorepeat up to test6. Now, because of hardware bugs, it was
-necessary to switch back to hardware autorepeat, like 2.4 uses.
+>Reply is not on the list.
 
-> Note, this isnt the speed of the repeat, but
-> the delay before it kicks in. Havent tested unpatched test6.
-> 	On the other hand, the mouse pointer (ps/2) has been kicked
-> into overdrive. much faster than test5 and latest 2.4.
+I added the list because this is another problem that need fixiong inside the 
+kernel.
 
-Interesting. This probably has much to do with mouse acceleration
-settings. What was done was that the mouse report rate was made LOWER
-(60 compared to 200) to cure problems with some systems that couldn't
-handle the high report rate.
+>Also Joerg, now that I have your attention: There is a bug
+>somewhere so that if I set the kernel HZ to 400, recompile
+>everything including `cdrecord`, I can no longer record a CD.
+>I think that somewhere, somebody is using a raw jiffie-count
+>instead of multiplying by HZ in the time-out code. I've check
+>through all the SCSI stuff, and I use SCSI disks exclusively.
+>I think something in your code needs fixing. This is for kernel
+>version 2.4.22
 
-This makes the movement per report larger and thus the acceleration
-formula in XFree then works more aggressively.
 
-> 	Also, I think that the requirement to enable gameport in
-> the input section to get access to some alsa sound drivers is
-> a bug. Ive looked at the source to some, and they #ifdef around
-> gameport support. test5 didnt have this problem for my 1371 driver.
+Cdrecord and pther programs too includes <sys/param.h>
 
-That one is for ALSA people.
+If you change HZ in the kernel include files and recompile your problems
+suffer from the same sort of inconsistencies that have been the reason for
+my initial mail.
+
+If Linux likes to support changes to HZ, then it needs to support POSIX
+interfaces. On Solaris, sys/param.h looks this way:
+
+#define        HZ              ((clock_t)_sysconf(_SC_CLK_TCK))
+
+You may even change HZ on a running Solaris system.... the only programs that
+are affected may be the ones that have timeouts while the change has been done.
+
+The problem is that the timeouts in the SCSI interface are based on HZ rather
+than being abstract from kernel internals.
+
+Jörg
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
+ URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily

@@ -1,57 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318208AbSGPVIz>; Tue, 16 Jul 2002 17:08:55 -0400
+	id <S317990AbSGPUzd>; Tue, 16 Jul 2002 16:55:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318212AbSGPVIy>; Tue, 16 Jul 2002 17:08:54 -0400
-Received: from code.and.org ([63.113.167.33]:60115 "EHLO mail.and.org")
-	by vger.kernel.org with ESMTP id <S318208AbSGPVIw>;
-	Tue, 16 Jul 2002 17:08:52 -0400
-To: Lawrence Greenfield <leg+@andrew.cmu.edu>,
-       "Patrick J. LoPresti" <patl@curl.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
-References: <20020712162306$aa7d@traf.lcs.mit.edu>
-	<s5gsn2lt3ro.fsf@egghead.curl.com>
-	<20020715173337$acad@traf.lcs.mit.edu>
-	<s5gsn2kst2j.fsf@egghead.curl.com> <1026767676.4751.499.camel@tiny>
-	<s5gy9ccr84k.fsf@egghead.curl.com>
-	<200207160102.g6G12BiH022986@lin2.andrew.cmu.edu>
-	<s5g8z4cphvd.fsf@egghead.curl.com>
-From: James Antill <james@and.org>
-Content-Type: text/plain; charset=US-ASCII
-Date: 16 Jul 2002 17:09:05 -0400
-In-Reply-To: <s5g8z4cphvd.fsf@egghead.curl.com>
-Message-ID: <m3d6tnnzwu.fsf@code.and.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
-MIME-Version: 1.0
+	id <S317984AbSGPUzB>; Tue, 16 Jul 2002 16:55:01 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:53464 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S317985AbSGPUyN>;
+	Tue, 16 Jul 2002 16:54:13 -0400
+Date: Tue, 16 Jul 2002 13:57:09 -0700
+To: Jeff Garzik <jgarzik@mandrakesoft.com>, irda-users@lists.sourceforge.net,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] : ir255_comments.diff
+Message-ID: <20020716135709.G28412@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Patrick J. LoPresti" <patl@curl.com> writes:
+ir255_comments.diff :
+-------------------
+	o [FEATURE] Update MAINTAINERS file
+	o [FEATURE] Update OHCI comment in irda-usb
 
-> Lawrence Greenfield <leg+@andrew.cmu.edu> writes:
-> 
-> > Actually, it's not all that simple (you have to find the enclosing
-> > directories of any files you're modifying, which might require string
-> > manipulation)
-> 
-> No, you have to find the directories you are modifying.  And the
-> application knows darn well which directories it is modifying.
-> 
-> Don't speculate.  Show some sample code, and let's see how hard it
-> would be to use the "Linux way".  I am betting on "not hard at all".
 
- I added fsync() on directories to exim-3.31, it took about 2hrs
-coding and another hours testing it (with strace) to make sure it was
-doing the right thing. That was from almost never seeing the source
-before.
- The only reason it took that long was because that version of exim
-altered the spool in a couple of different places. Forward porting to
-3.951 took about 20minutes IIRC (that version only plays witht he
-spool in one place).
-
--- 
-# James Antill -- james@and.org
-:0:
-* ^From: .*james@and\.org
-/dev/null
+diff -u -p linux/MAINTAINERS.d2 linux/MAINTAINERS
+--- linux/MAINTAINERS.d2	Tue Jul 16 10:27:15 2002
++++ linux/MAINTAINERS	Tue Jul 16 10:34:34 2002
+@@ -834,8 +834,15 @@ S:	Maintained
+ IRDA SUBSYSTEM
+ P:	Dag Brattli
+ M:	Dag Brattli <dag@brattli.net>
+-L:	linux-irda@pasta.cs.uit.no
++L:	irda-users@lists.sourceforge.net
+ W:	http://irda.sourceforge.net/
++S:	Orphan
++
++IRDA CORE STACK + IRNET (Excluding other IrDA drivers/protocols)
++P:	Jean Tourrilhes
++M:	jt@hpl.hp.com
++L:	irda-users@lists.sourceforge.net
++W:	http://www.hpl.hp.com/personal/Jean_Tourrilhes/IrDA/
+ S:	Maintained
+ 
+ ISAPNP
+diff -u -p linux/drivers/net/irda/irda-usb.d2.c linux/drivers/net/irda/irda-usb.c
+--- linux/drivers/net/irda/irda-usb.d2.c	Tue Jul 16 10:02:27 2002
++++ linux/drivers/net/irda/irda-usb.c	Tue Jul 16 10:37:13 2002
+@@ -30,19 +30,15 @@
+  *			    IMPORTANT NOTE
+  *			    --------------
+  *
+- * As of kernel 2.5.20, this is the state of compliance and testing of
++ * As of kernel 2.5.26, this is the state of compliance and testing of
+  * this driver (irda-usb) with regards to the USB low level drivers...
+  *
+  * This driver has been tested SUCCESSFULLY with the following drivers :
+- *	o usb-uhci-hcd	(For Intel/Via USB controllers)
+- *	o uhci-hcd	(Alternate/JE driver for Intel/Via USB controllers)
++ *	o uhci-hcd	(For Intel/Via USB controllers)
++ *	o ohci-hcd	(For other USB controllers)
+  *
+  * This driver has NOT been tested with the following drivers :
+  *	o ehci-hcd	(USB 2.0 controllers)
+- *
+- * This driver DOESN'T SEEM TO WORK with the following drivers :
+- *	o ohci-hcd	(For other USB controllers)
+- * The first outgoing URB never calls its completion/failure callback.
+  *
+  * Note that all HCD drivers do USB_ZERO_PACKET and timeout properly,
+  * so we don't have to worry about that anymore.

@@ -1,87 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316916AbSGCFwG>; Wed, 3 Jul 2002 01:52:06 -0400
+	id <S316623AbSGCFsN>; Wed, 3 Jul 2002 01:48:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316928AbSGCFwF>; Wed, 3 Jul 2002 01:52:05 -0400
-Received: from mtiwmhc22.worldnet.att.net ([204.127.131.47]:36498 "EHLO
-	mtiwmhc22.worldnet.att.net") by vger.kernel.org with ESMTP
-	id <S316916AbSGCFwD>; Wed, 3 Jul 2002 01:52:03 -0400
-Date: Wed, 3 Jul 2002 01:59:30 -0400
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       linux-kernel@vger.kernel.org, ext3-users@redhat.com
-Subject: Re: sync slowness. ext3 on VIA vt82c686b
-Message-ID: <20020703055930.GA3630@lnuxlab.ath.cx>
-References: <20020703022051.GA2669@lnuxlab.ath.cx> <200207030526.g635Q6T25581@Port.imtp.ilyichevsk.odessa.ua>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200207030526.g635Q6T25581@Port.imtp.ilyichevsk.odessa.ua>
-User-Agent: Mutt/1.3.28i
-From: khromy@lnuxlab.ath.cx (khromy)
+	id <S316916AbSGCFsM>; Wed, 3 Jul 2002 01:48:12 -0400
+Received: from paloma16.e0k.nbg-hannover.de ([62.181.130.16]:20695 "HELO
+	paloma16.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S316623AbSGCFsL>; Wed, 3 Jul 2002 01:48:11 -0400
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Tony Lindgren <tony@atomide.com>
+Subject: Re: amd-smp-idle module avail for testing max 90 W power savings
+Date: Wed, 3 Jul 2002 07:50:50 +0200
+User-Agent: KMail/1.4.1
+Cc: Sebastian Droege <sebastian.droege@gmx.de>, nofftz@castor.uni-trier.de,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200207030750.50789.Dieter.Nuetzel@hamburg.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 03, 2002 at 08:25:45AM -0200, Denis Vlasenko wrote:
-> On 3 July 2002 00:20, khromy wrote:
-> > When I copy a file(13Megs) from /home/ to /tmp/, sync takes almost 2
-> > minutes. When I copy the same file to /usr/local/, sync returns almost
-> > right away.  Both filesystems are ext3 and are on the same harddrive.  When
-> > sync is running, the harddrive light stays on but I don't hear it doing
-> > anything. dmesg doesn't show any errors either. Below is the `time` output
-> > for each command.  If you need anymore information  let me know..
-> 
-> Can be useful:
-> * strace -r sync
-> * ksymoopsed SysRq-T output (sync part only)
+On Tue, 2 Jul 2002 19:41, Tony Lindgren wrote:
+> * Sebastian Droege <sebastian.droege@gmx.de> [020702 12:29]:
+> > On Tue, 2 Jul 2002 12:14:54 -0700
+> > Tony Lindgren <tony@atomide.com> wrote:
+> >
+> > > Amd-smp-idle enables the power savings mode like VCool and LVCool, but
+> > > amd-smp-idle uses the Linux PCI features, and supports currently SMP
+> > > only. So far I've squeezed out maximum 90 Watt power savings out of my
+> > > system :)
+> > >
+> > > http://www.muru.com/linux/amd-smp-idle/
+> >
+> > Is it possible to do something similar for AMD-751
 
-*** strace -r sync
-     0.000000 execve("/bin/sync", ["sync"], [/* 24 vars */]) = 0
-     0.000260 uname({sys="Linux", node="dev-01", ...}) = 0
-     0.000361 brk(0)                    = 0x804a308
-     0.000067 old_mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x40014000
-     0.000105 open("/etc/ld.so.preload", O_RDONLY) = -1 ENOENT (No such file or directory)
-     0.000108 open("/etc/ld.so.cache", O_RDONLY) = 3
-     0.000064 fstat64(3, {st_mode=S_IFREG|0644, st_size=24001, ...}) = 0
-     0.000111 old_mmap(NULL, 24001, PROT_READ, MAP_PRIVATE, 3, 0) = 0x40015000
-     0.000068 close(3)                  = 0
-     0.000065 open("/lib/libc.so.6", O_RDONLY) = 3
-     0.000086 read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0\24\222"..., 1024) = 1024
-     0.000120 fstat64(3, {st_mode=S_IFREG|0755, st_size=1149584, ...}) = 0
-     0.000087 old_mmap(NULL, 1162080, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x4001b000
-     0.000068 mprotect(0x4012d000, 39776, PROT_NONE) = 0
-     0.000056 old_mmap(0x4012d000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0x112000) = 0x4012d000
-     0.000098 old_mmap(0x40133000, 15200, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x40133000
-     0.000072 close(3)                  = 0
-     0.000786 munmap(0x40015000, 24001) = 0
-     0.000176 brk(0)                    = 0x804a308
-     0.000049 brk(0x804a330)            = 0x804a330
-     0.000051 brk(0x804b000)            = 0x804b000
-     0.000092 sync()                    = 0
-    92.243322 _exit(0)                  = ?
+Hardly, there is NO chipset dokumentation for the AMD 750 (760) available.
 
-*** ksymoopsed SysRq-T
-sync          D 00200034     0  1200   1199                     (NOTLB)
-Using defaults from ksymoops -t elf32-i386 -a i386
-Call Trace: [<c01ae4d7>] [<c01ae688>] [<c01aeb40>] [<c01af13a>] [<c01af1f9>]
-   [<c014344c>] [<c0143566>] [<c01435bb>] [<c014370a>] [<c01438a7>] [<c014394f>]
-   [<c01091c3>]
+> > or VIA-686a (or other UP Athlon chipsets)?
 
-Proc;  sync
+See below.
 
->>EIP; 00200034 Before first symbol   <=====
+> Yes, you could use LVCool program, or merge the LVCool functionality to
+> amd-smp-idle. I added place holders for enabling other chips.
+>
+> Just add functions for enabling north and southbridge, and then fill in 
+> the idle function. I kind of thought of modifying LVCool, but it was not 
+> using the Linux PCI API, and was not really suitable for SMP systems.
+>
+> LVCool is at:
+>
+> http://mpet.freeservers.com/LVCool.html
 
-Trace; c01ae4d7 <__get_request_wait+e7/f0>
-Trace; c01ae688 <account_io_start+38/60>
-Trace; c01aeb40 <__make_request+1c0/6c0>
-Trace; c01af13a <generic_make_request+fa/160>
-Trace; c01af1f9 <submit_bh+59/80>
-Trace; c014344c <write_locked_buffers+2c/40>
-Trace; c0143566 <write_some_buffers+106/130>
-Trace; c01435bb <write_unlocked_buffers+2b/40>
-Trace; c014370a <sync_buffers+1a/70>
-Trace; c01438a7 <fsync_dev+27/b0>
-Trace; c014394f <sys_sync+f/20>
-Trace; c01091c3 <tracesys+1f/23>
+Have a look here, too:
 
+http://cip.uni-trier.de/nofftz/linux/
+
+I'll give your code a shot on my brand new
+dual Athlon MP 1900+ (MP unlocked XPs, 4th bridge of L5 is closed)
+MSI K7D Master-L (MS-6501 v1.0) AMD 760MPX
+1 GB DDR266-SDRAM CL2
+
+But it doesn't go hot...;-)
+
+/home/nuetzel> sensors
+eeprom-i2c-0-50
+Adapter: SMBus AMD768 adapter at 06e0
+Algorithm: Non-I2C SMBus adapter
+
+eeprom-i2c-0-51
+Adapter: SMBus AMD768 adapter at 06e0
+Algorithm: Non-I2C SMBus adapter
+
+w83627hf-isa-0290
+Adapter: ISA adapter
+Algorithm: ISA algorithm
+VCore 1:   +1.72 V  (min =  +4.08 V, max =  +4.08 V)
+VCore 2:   +2.46 V  (min =  +4.08 V, max =  +4.08 V)
++3.3V:     +3.36 V  (min =  +3.13 V, max =  +3.45 V)
++5V:       +4.94 V  (min =  +4.72 V, max =  +5.24 V)
++12V:     +12.16 V  (min = +10.79 V, max = +13.19 V)
+-12V:     -12.65 V  (min = -13.21 V, max = -10.90 V)
+-5V:       -5.10 V  (min =  -5.26 V, max =  -4.76 V)
+V5SB:      +5.39 V  (min =  +4.72 V, max =  +5.24 V)
+VBat:      +3.42 V  (min =  +2.40 V, max =  +3.60 V)
+U160:        0 RPM  (min = 3000 RPM, div = 2)
+CPU 0:    4470 RPM  (min = 3000 RPM, div = 2)
+CPU 1:    4299 RPM  (min = 3000 RPM, div = 2)
+System:   +30.0°C   (limit = +60°C, hysteresis = +50°C) sensor = thermistor
+CPU 1:    +34.0°C   (limit = +60°C, hysteresis = +50°C) sensor = 3904 
+transistor
+CPU 0:    +36.5°C   (limit = +60°C, hysteresis = +50°C) sensor = 3904 
+transistor
+vid:      +18.50 V
+alarms:   Chassis intrusion detection
+beep_enable:
+          Sound alarm disabled
 -- 
-L1:	khromy		;khromy(at)lnuxlab.ath.cx
+Dieter Nützel
+Graduate Student, Computer Science
+
+University of Hamburg
+Department of Computer Science
+@home: Dieter.Nuetzel@hamburg.de
+

@@ -1,33 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262932AbUB0Sfz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 13:35:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262925AbUB0SeR
+	id S263089AbUB0Shq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 13:37:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262925AbUB0SgB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 13:34:17 -0500
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:35768 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S262932AbUB0Sc7
+	Fri, 27 Feb 2004 13:36:01 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61350 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262936AbUB0SfL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 13:32:59 -0500
-Message-ID: <403F8D47.4010606@matchmail.com>
-Date: Fri, 27 Feb 2004 10:32:39 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040209)
+	Fri, 27 Feb 2004 13:35:11 -0500
+Message-ID: <403F8DD1.9030001@pobox.com>
+Date: Fri, 27 Feb 2004 13:34:57 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Helge Hafting <helgehaf@aitel.hist.no>
-CC: "Grover, Andrew" <andrew.grover@intel.com>, linux-kernel@vger.kernel.org
-Subject: Re: Why no interrupt priorities?
-References: <F760B14C9561B941B89469F59BA3A84702C932F2@orsmsx401.jf.intel.com> <403F18C4.3080309@aitel.hist.no>
-In-Reply-To: <403F18C4.3080309@aitel.hist.no>
+To: Dan Creswell <dan@dcrdev.demon.co.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Hard locks under high interrupt load?
+References: <403F2237.6080505@dcrdev.demon.co.uk>
+In-Reply-To: <403F2237.6080505@dcrdev.demon.co.uk>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting wrote:
-> Or resort to
-> reprogramming the APIC in extreme cases.
+Dan Creswell wrote:
+> I'm having zero success in getting 2.6.3 stable under interrupt load.  I 
+> can kill my machine in a variety of fashions all of which appear, to my 
+> naive eye, related to interrupt load:
 
-Would this typically require kernel code, or is there an interface 
-exposed to userspace?
+
+There is a lockup problem in 2.6.3's e1000 that's solved in 2.6.3-bk 
+snapshot.
+
+	Jeff
+
+
+

@@ -1,69 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261343AbUKICYE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbUKICXs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261343AbUKICYE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 21:24:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbUKICYD
+	id S261234AbUKICXs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 21:23:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbUKICXs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 21:24:03 -0500
-Received: from hibernia.jakma.org ([212.17.55.49]:63364 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP id S261343AbUKICXr
+	Mon, 8 Nov 2004 21:23:48 -0500
+Received: from mail-01.iinet.net.au ([203.59.3.33]:60106 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S261234AbUKICXd
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 21:23:47 -0500
-Date: Tue, 9 Nov 2004 02:23:29 +0000 (GMT)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: paul@hibernia.jakma.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: davids@webmaster.com,
-       =?ISO-8859-1?Q?Rapha=EBl?= Rigo LKML <lkml@twilight-hall.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RE: GPL Violation of 'sveasoft' with GPL Linux Kernel/Busybox + code
-In-Reply-To: <1099927447.5564.145.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.61.0411090215400.4253@hibernia.jakma.org>
-References: <MDEHLPKNGKAHNMBLJOLKOENPPJAA.davids@webmaster.com>
- <1099927447.5564.145.camel@localhost.localdomain>
-X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
+	Mon, 8 Nov 2004 21:23:33 -0500
+Message-ID: <419029D9.90506@cyberone.com.au>
+Date: Tue, 09 Nov 2004 13:22:17 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Remove OOM killer from try_to_free_pages / all_unreclaimable
+ braindamage
+References: <20041105200118.GA20321@logos.cnet> <20041108162731.GE2336@logos.cnet> <20041108185546.GA3468@logos.cnet>
+In-Reply-To: <20041108185546.GA3468@logos.cnet>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-On Mon, 8 Nov 2004, Alan Cox wrote:
 
-> As a GPL code provider their duties to you are to the source to the 
-> GPL code they gave you binaries for
+Marcelo Tosatti wrote:
 
-[snip]
+>On Mon, Nov 08, 2004 at 02:27:31PM -0200, Marcelo Tosatti wrote:
+>
+>>On Fri, Nov 05, 2004 at 06:01:18PM -0200, Marcelo Tosatti wrote:
+>>
+>>
+>>>While doing this, I noticed that kswapd will happily go to sleep 
+>>>if all zones have all_unreclaimable set. I bet this is the reason 
+>>>for the page allocation failures we are seeing. So the patch 
+>>>also makes balance_pgdat() NOT return and go to "loop_again" 
+>>>instead in case of page shortage - even if all_unreclaimable is set.
+>>>
+>>>Basically the "loop_again" logic IS NOT WORKING! 
+>>>
+>>Wrong, the loop_again logic is working, all_zones_ok will be
+>>set when DEF_PRIORITY = 0. 
+>>
+>
+>I meant priority=DEF_PRIORITY. 
+>
+>
 
-> I don't have to give your friend a copy,
+Yep
 
-Actually, they do.
+>>So the page allocation failures are happening for some other 
+>>reason(s).
+>>
 
-The 3b "source code, at cost, if you want it later" offer, if that's 
-the offer the vendor chooses to give, must be made to "any 3rd 
-party".
+Pre alloc_pages / kswapd shakeup, the watermark stuff had been pretty
+broken. For example, allocations would wakeup kswapd at the *same*
+watermark as they would start synchronous reclaim (or fail in the case
+of !wait allocations).
 
-Easiest way for a vendor to avoid having to make source available on 
-request to any and all is obviously to provide a source with the 
-product/binaries.
-
-> Alan
-
-regards,
-- -- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
-Fortune:
-You can bring any calculator you like to the midterm, as long as it
-doesn't dim the lights when you turn it on.
- 		-- Hepler, Systems Design 182
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Made with pgp4pine 1.76
-
-iD8DBQFBkCor2Gv3lGSi/2oRAhWwAJ4jTiXe56YBMgbamdxBw6fZRBHwaQCfXdY0
-j/tHxnfVT/p1Hh2gybhoUsU=
-=rHEH
------END PGP SIGNATURE-----
+Why there have been apparently more reports of allocation failures
+since those patches is a mystery to me. I've looked but can't find
+anything to explain it. Perhaps the initial watermark calculation had
+been changed slightly? I'm not sure... it could also be just be a fluke
+due to chaotic effects in the mm, I suppose :|
 

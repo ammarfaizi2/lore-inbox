@@ -1,105 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbVCUQp0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261309AbVCURFc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261210AbVCUQp0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 11:45:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261235AbVCUQp0
+	id S261309AbVCURFc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 12:05:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbVCURFc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 11:45:26 -0500
-Received: from agora.rdrop.com ([199.26.172.34]:5135 "EHLO agora.rdrop.com")
-	by vger.kernel.org with ESMTP id S261210AbVCUQpM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 11:45:12 -0500
-Date: Mon, 21 Mar 2005 08:45:03 -0800
-From: Paul Mckenney <paulmck@agora.rdrop.com>
-To: mingo@elte.hu
-Cc: rlrevell@joe-job.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-00
-Message-ID: <20050321164503.GA13634@agora.rdrop.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Mon, 21 Mar 2005 12:05:32 -0500
+Received: from bernache.ens-lyon.fr ([140.77.167.10]:19413 "EHLO
+	bernache.ens-lyon.fr") by vger.kernel.org with ESMTP
+	id S261309AbVCURFP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 12:05:15 -0500
+Message-ID: <423EFEC8.9020208@ens-lyon.org>
+Date: Mon, 21 Mar 2005 18:05:12 +0100
+From: Brice Goglin <Brice.Goglin@ens-lyon.org>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Mike Werner <werner@sgi.com>
+Subject: Re: 2.6.12-rc1-mm1
+References: <20050321025159.1cabd62e.akpm@osdl.org>
+In-Reply-To: <20050321025159.1cabd62e.akpm@osdl.org>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------050402000809050507030202"
+X-Spam-Report: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> got this early-bootup crash on an SMP box:
-> 
-> BUG: Unable to handle kernel NULL pointer dereference at virtual address 00000000
->  printing eip:
-> c0131aec
-> *pde = 00000000
-> Oops: 0002 [#1]
-> PREEMPT SMP 
-> Modules linked in:
-> CPU:    1
-> EIP:    0060:[<c0131aec>]    Not tainted VLI
-> EFLAGS: 00010293   (2.6.12-rc1-RT-V0.7.41-00) 
-> EIP is at rcu_advance_callbacks+0x3c/0x80
-> eax: 00000000   ebx: c050f280   ecx: c12191e0   edx: 00000000
-> esi: cfd2e560   edi: cfd2e4e0   ebp: cfd31dd0   esp: cfd31dc8
-> ds: 007b   es: 007b   ss: 0068   preempt: 00000003
-> Process khelper (pid: 60, threadinfo=cfd30000 task=cfd106a0)
-> Stack: 00000001 c12191e0 cfd31de4 c0131b67 00000001 cfd2e4d8 c13004d8 cfd31e00 
->        c017e449 cfd2e4d8 c04d6e80 cfd32006 fffffffe cfd31e54 cfd31e70 c01749cc 
->        cfd2e4d8 cfd31e50 cfd31e4c 00000001 cfd32001 cfd2e4d8 c03dd41f c04cf920 
-> Call Trace:
->  [<c010412f>] show_stack+0x7f/0xa0 (28)
->  [<c01042da>] show_registers+0x16a/0x1e0 (56)
->  [<c0104511>] die+0x101/0x190 (64)
->  [<c0115862>] do_page_fault+0x442/0x680 (216)
->  [<c0103d9b>] error_code+0x2b/0x30 (68)
->  [<c0131b67>] call_rcu+0x37/0x70 (20)
->  [<c017e449>] dput+0x139/0x210 (28)
->  [<c01749cc>] __link_path_walk+0x9fc/0xf80 (112)
->  [<c0174f9a>] link_path_walk+0x4a/0x130 (100)
->  [<c017538e>] path_lookup+0x9e/0x1c0 (32)
->  [<c01707e8>] open_exec+0x28/0x100 (100)
->  [<c0171a04>] do_execve+0x44/0x220 (36)
->  [<c0101da2>] sys_execve+0x42/0xa0 (36)
->  [<c0103315>] syscall_call+0x7/0xb (-8096)
-> ---------------------------
-> | preempt count: 00000004 ]
-> | 4-level deep critical section nesting:
-> ----------------------------------------
-> .. [<c0131b4f>] .... call_rcu+0x1f/0x70
-> .....[<c017e449>] ..   ( <= dput+0x139/0x210)
-> .. [<c0131ac3>] .... rcu_advance_callbacks+0x13/0x80
-> .....[<c0131b67>] ..   ( <= call_rcu+0x37/0x70)
-> .. [<c03dddca>] .... _raw_spin_lock_irqsave+0x1a/0xa0
-> .....[<c010444f>] ..   ( <= die+0x3f/0x190)
-> .. [<c013b9e6>] .... print_traces+0x16/0x50
-> .....[<c010412f>] ..   ( <= show_stack+0x7f/0xa0)
-> Code: 00 00 e8 78 2d 0a 00 8b 0c 85 20 20 51 c0 bb 80 f2 50 c0 01 d9 f0 83 44 24 00 00 a1 88 19 52 c0 39 41 40 74 23 8b 41 44 8b 51 50 <89> 02 8b 41 48 c7 41 44 00 00 00 00 89 41 50 8d 41 44 89 41 48 
->  <6>note: khelper[60] exited with preempt_count 2
-> 
-> (gdb) list *0xc0131aec
-> 0xc0131aec is in rcu_advance_callbacks (kernel/rcupdate.c:558).
-> 
-> 553             struct rcu_data *rdp;
-> 554
-> 555             rdp = &get_cpu_var(rcu_data);
-> 556             smp_mb();       /* prevent sampling batch # before list removal. */
-> 557             if (rdp->batch != rcu_ctrlblk.batch) {
-> 558                     *rdp->donetail = rdp->waitlist;
-> 559                     rdp->donetail = rdp->waittail;
-> 560                     rdp->waitlist = NULL;
-> 561                     rdp->waittail = &rdp->waitlist;
-> 562                     rdp->batch = rcu_ctrlblk.batch;
-> (gdb)
+This is a multi-part message in MIME format.
+--------------050402000809050507030202
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 
-Does the following help?
+Andrew Morton a écrit :
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc1/2.6.12-rc1-mm1/
+> 
+> 
+> - We might have a fix here for the recent AGP/DRM problems.  If you were
+>   having problems with that, please test and report.
+> 
+> +fix-agp_backend-usage-in-drm_agp_init.patch
+> 
+>  Might fix the DRM problems
 
-						Thanx, Paul
+Hi Andrew,
 
-diff -urpN -X dontdiff linux-2.6.11.fixes/kernel/rcupdate.c linux-2.6.11.fixes2/kernel/rcupdate.c
---- linux-2.6.11.fixes/kernel/rcupdate.c	Mon Mar 21 08:14:47 2005
-+++ linux-2.6.11.fixes2/kernel/rcupdate.c	Mon Mar 21 08:17:00 2005
-@@ -620,7 +620,7 @@ static void rcu_process_callbacks(void)
- 		return;
+After tracking down this bug in the X code, Mike Werner asked me to
+change my patch so that we directly use agp_find_bridge instead of
+defining a new wrapper (agp_backend_find).
+A new patch is attached.
+
+Note that agp-make-some-code-static.patch makes agp_find_bridge
+static in drivers/char/agp/backend.c while my new patch exports it.
+That's why I also attach a patch to revert this part of 
+agp-make-some-code-static.patch.
+
+Regards,
+Brice
+
+
+Signed-off-by: Brice Goglin <Brice.Goglin@ens-lyon.org>
+
+
+--------------050402000809050507030202
+Content-Type: text/x-patch;
+ name="fix-agp_backend-usage-in-drm_agp_init2.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="fix-agp_backend-usage-in-drm_agp_init2.patch"
+
+--- linux-mm/include/linux/agp_backend.h.old	2005-03-21 11:08:33.000000000 +0100
++++ linux-mm/include/linux/agp_backend.h	2005-03-21 11:08:47.000000000 +0100
+@@ -100,6 +100,7 @@ extern int agp_copy_info(struct agp_brid
+ extern int agp_bind_memory(struct agp_memory *, off_t);
+ extern int agp_unbind_memory(struct agp_memory *);
+ extern void agp_enable(struct agp_bridge_data *, u32);
++extern struct agp_bridge_data *(*agp_find_bridge)(struct pci_dev *);
+ extern struct agp_bridge_data *agp_backend_acquire(struct pci_dev *);
+ extern void agp_backend_release(struct agp_bridge_data *);
+ 
+--- linux-mm/drivers/char/agp/backend.c.old	2005-03-21 11:07:29.000000000 +0100
++++ linux-mm/drivers/char/agp/backend.c	2005-03-21 11:08:11.000000000 +0100
+@@ -50,6 +50,7 @@ static struct agp_version agp_current_ve
+ 
+ struct agp_bridge_data *(*agp_find_bridge)(struct pci_dev *) =
+ 	&agp_generic_find_bridge;
++EXPORT_SYMBOL(agp_find_bridge);
+ 
+ struct agp_bridge_data *agp_bridge;
+ LIST_HEAD(agp_bridges);
+--- linux-mm/drivers/char/drm/drm_agpsupport.c.old	2005-03-21 11:08:59.000000000 +0100
++++ linux-mm/drivers/char/drm/drm_agpsupport.c	2005-03-21 11:09:25.000000000 +0100
+@@ -387,12 +387,11 @@ drm_agp_head_t *drm_agp_init(drm_device_
+ 	if (!(head = drm_alloc(sizeof(*head), DRM_MEM_AGPLISTS)))
+ 		return NULL;
+ 	memset((void *)head, 0, sizeof(*head));
+-	if (!(head->bridge = agp_backend_acquire(dev->pdev))) {
++	if (!(head->bridge = agp_find_bridge(dev->pdev))) {
+ 		drm_free(head, sizeof(*head), DRM_MEM_AGPLISTS);
+ 		return NULL;
  	}
- 	rdp->donelist = NULL;
--	rdp->donetail = &rdp->waitlist;
-+	rdp->donetail = &rdp->donelist;
- 	put_cpu_var(rcu_data);
- 	while (list) {
- 		next = list->next;
+ 	agp_copy_info(head->bridge, &head->agp_info);
+-	agp_backend_release(head->bridge);
+ 	if (head->agp_info.chipset == NOT_SUPPORTED) {
+ 		drm_free(head, sizeof(*head), DRM_MEM_AGPLISTS);
+ 		return NULL;
+
+--------------050402000809050507030202
+Content-Type: text/x-patch;
+ name="revert-make-agp_find_bridge-static.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="revert-make-agp_find_bridge-static.patch"
+
+--- linux-mm/drivers/char/agp/backend.c.old	2005-03-21 11:07:29.000000000 +0100
++++ linux-mm/drivers/char/agp/backend.c	2005-03-21 11:08:11.000000000 +0100
+@@ -50,7 +50,7 @@ static struct agp_version agp_current_ve
+ 	.minor = AGPGART_VERSION_MINOR,
+ };
+ 
+-static struct agp_bridge_data *(*agp_find_bridge)(struct pci_dev *) =
++struct agp_bridge_data *(*agp_find_bridge)(struct pci_dev *) =
+ 	&agp_generic_find_bridge;
+ 
+ struct agp_bridge_data *agp_bridge;
+
+--------------050402000809050507030202--

@@ -1,72 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261505AbVBWR0I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261508AbVBWR2E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261505AbVBWR0I (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 12:26:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbVBWR0G
+	id S261508AbVBWR2E (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 12:28:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbVBWR1n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 12:26:06 -0500
-Received: from smtp-vbr11.xs4all.nl ([194.109.24.31]:38919 "EHLO
-	smtp-vbr11.xs4all.nl") by vger.kernel.org with ESMTP
-	id S261508AbVBWRY5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 12:24:57 -0500
-Date: Wed, 23 Feb 2005 18:24:52 +0100
-From: Erik van Konijnenburg <ekonijn@xs4all.nl>
-To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] yaird 0.0.4, a mkinitrd based on hotplug concepts
-Message-ID: <20050223182452.A4913@banaan.localdomain>
-Mail-Followup-To: linux-hotplug-devel@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	Wed, 23 Feb 2005 12:27:43 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:51396 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S261507AbVBWR11 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 12:27:27 -0500
+Message-Id: <200502231727.j1NHRPGH028335@laptop11.inf.utfsm.cl>
+To: linux-kernel@vger.kernel.org
+Subject: Ignored return value of __clear_user in fs/binfmt_elf.c?
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
+Date: Wed, 23 Feb 2005 14:27:24 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b2 (inti.inf.utfsm.cl [200.1.19.1]); Wed, 23 Feb 2005 14:27:25 -0300 (CLST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Version 0.0.4 of yaird is now available at:
-	http://www.xs4all.nl/~ekonijn/yaird/yaird-0.0.4.tar.gz
+Machine is sparc64, bk of today, gcc-3.4.2-6.fc3 (Aurora Corona). First 2.6
+I try to build here, so it might be something known.
 
-Yaird is a perl rewrite of mkinitrd.  It aims to reliably identify the
-necessary modules by using the same algorithms as hotplug, and comes
-with a template system to to tune the tool for different distributions
-and experiment with different image layouts.  It requires a 2.6 kernel
-with hotplug.  There is a paper discussing it at:
-	http://www.xs4all.nl/~ekonijn/yaird/yaird.html
+Build fails due to -Werror with:
 
-There are rough edges in practically every feature, and numerous
-features still need to be added: this is suitable for testing, but not
-for production use.
+include/asm/uaccess.h: In function `load_elf_binary':
+arch/sparc64/kernel/../../../fs/binfmt_elf.c:811: warning: ignoring return value of `__clear_user', declared with attribute warn_unused_result
 
-Thanks to all who gave feedback, sent patches and were brave enough
-to test this stuff.  Below are highlights from the change log and 
-todo list.
+Around line 811 of fs/binfmt_elf.c I see:
 
-Summary of user visible changes for version 0.0.4:
-     * Process kernel command line options: init=, ro, rw.
-     * Boot into single user mode supported
-     * Support modules outside /lib/modules
-     * Support modules with extension other than .ko
-     * Warn about duplicates in modules.dep
-     * Generated image now waits for device to become visible in /sys,
-       and gives error message if it doesn't
-     * Support 2.6.10 sysfs layout: SCSI now has a
-       new subdirectory 'target'.
-       (Thanks to Harald Dunkel for testing)
-     * Warn about unrecognised paths in /sys
-     * Empty lines in /etc/fstab are valid.
-       (Patch Goffredo Baroncelli)
+                             /*
+                              * This bss-zeroing can fail if the ELF file
+                              * specifies odd protections.  So we don't check                                * the return value
+                              */
+                              (void)clear_user((void __user *)elf_bss +
+                                                      load_bias, nbyte);
 
-On top of the todo list are now:
-     * add command line option (--root=/dev/hdb) to simplify testing.
-     * add tree copying to the templates, to allow all of firmware
-       to be copied to the image.  Or all of /lib/modules, if you want
-       to have hotplug on the image.
-     * get klibc run_init working.
-       Test by switching the Debian template to initramfs.
-       This should make Debian and Fedora templates more
-       similar, it is also groundwork for possible
-       hotplug-ng support.
-     * any patches you may wish to send :)
+so presumably this discarding is OK here...
 
-Regards,
-Erik
+I wonder why an explicit (void) cast is not considered "use" by the
+compiler. But then again, explicitly throwing away isn't really "use"...
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

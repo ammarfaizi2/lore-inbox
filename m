@@ -1,44 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263886AbUDFQS2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 12:18:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263895AbUDFQS2
+	id S263898AbUDFQRJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 12:17:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263903AbUDFQRH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 12:18:28 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25319 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263886AbUDFQSY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 12:18:24 -0400
-Date: Tue, 6 Apr 2004 17:18:23 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Alex Williamson <alex.williamson@hp.com>
-Cc: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] [RFC] filling in ACPI files in sysfs
-Message-ID: <20040406161823.GF23258@parcelfarce.linux.theplanet.co.uk>
-References: <1081266989.2375.35.camel@patsy.fc.hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 6 Apr 2004 12:17:07 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:46150 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S263898AbUDFQQ0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 12:16:26 -0400
+From: Jesse Barnes <jbarnes@sgi.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] readX_check() - Interface for PCI-X error recovery
+Date: Tue, 6 Apr 2004 09:15:48 -0700
+User-Agent: KMail/1.6.1
+Cc: Matthew Wilcox <willy@debian.org>,
+       Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
+       Linux IA64 Mailing List <linux-ia64@vger.kernel.org>,
+       Hironobu Ishii <ishii.hironobu@jp.fujitsu.com>
+References: <0HVQ0051BXG19H@fjmail506.fjmail.jp.fujitsu.com> <20040406115145.GA23258@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20040406115145.GA23258@parcelfarce.linux.theplanet.co.uk>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <1081266989.2375.35.camel@patsy.fc.hp.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200404060915.48292.jbarnes@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 06, 2004 at 09:56:30AM -0600, Alex Williamson wrote:
->    Seems like it's about time the ACPI sysfs namespace started doing
-> more than looking pretty.  Here's a stab at adding in some basic
-> functionality.  I'd like to get some feedback before I start filling in
-> the more complicated features.  This has been lightly tested on a
-> sampling of HP ia64 boxes.  Does this seem like a reasonable start? 
-> Comments and reports from other platforms welcome.  Thanks,
+> >     readX_check(dev,vaddr)
+> > 	Read a register of the device mapped to vaddr, and check errors
+> > 	if possible(This is depending on its architecture. In the case of
+> > 	ia64, we can generate a MCA from an error by simple operation to
+> > 	test the read data.)
+> > 	If any error happen on the recoverable region, set the error flag.
+>
+> I really don't think we want another readX variant.  Do we then also
+> add readX_check_relaxed()?  Can't we just pretend the MCA is asynchronous
+> on ia64?  I'm sure we'd get better performance.
 
-This is something I've wanted for a long time!  Thanks for doing the
-work, Alex.  I'll give it a try on my x86 crash-n-bash box.
+Hmm.. I wonder if we could get away with not having a new readX interface by 
+registering each PCI resource either at driver init time or in arch code with 
+the MCA hander.  Then we could just make the read routines use the variable 
+that was just read to try to flush out the MCA (there may be better ways to 
+do this).  E.g.
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+arch_pci_scan()
+{
+	...
+	for_each_pci_resource(dev, res) {
+		check_region(res);
+	}
+	...
+}
+
+...
+
+unsigned char readb(unsigned long addr)
+{
+	unsigned char val = *(volatile unsigned char *)addr;
+#ifdef CONFIG_PCI_CHECK
+	/* try to flush out the MCA by doing something with val */
+#endif
+	return val;
+}
+
+...
+
+Then presumably the MCA error handler would see that an MCA occurred in a 
+region registered during PCI initialization and return an error for 
+pci_read_errors(dev);
+
+Jesse

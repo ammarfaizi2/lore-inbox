@@ -1,66 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263055AbVAFWD1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263079AbVAFWIp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263055AbVAFWD1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 17:03:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263054AbVAFWD1
+	id S263079AbVAFWIp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 17:08:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263071AbVAFWHt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 17:03:27 -0500
-Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:8833 "EHLO
-	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S263055AbVAFV7o
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 16:59:44 -0500
-From: David Brownell <david-b@pacbell.net>
-To: linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] Re: [PATCH] macros to detect existance of unlocked_ioctl and ioctl_compat
-Date: Thu, 6 Jan 2005 13:59:25 -0800
-User-Agent: KMail/1.7.1
-Cc: Greg KH <greg@kroah.com>, Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Andi Kleen <ak@suse.de>, "David S. Miller" <davem@davemloft.net>,
-       mst@mellanox.co.il, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       discuss@x86-64.org
-References: <20050106145356.GA18725@infradead.org> <20050106210921.GK5772@vana.vc.cvut.cz> <20050106212424.GA6465@kroah.com>
-In-Reply-To: <20050106212424.GA6465@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+	Thu, 6 Jan 2005 17:07:49 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:55564 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S263064AbVAFWGi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 17:06:38 -0500
+Date: Thu, 6 Jan 2005 23:06:30 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] efs: make a struct static (fwd)
+Message-ID: <20050106220629.GB28628@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200501061359.25719.david-b@pacbell.net>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 06 January 2005 1:24 pm, Greg KH wrote:
-> > P.S.:  When designing new API, please do not make it unnecessary complicated.
-> > USB video needs rather large bandwidth and low latency, so please no ASCII
-> > strings, and scatter-gather aware API helps a bit...
-> 
-> In measurements published on linux-usb-devel, pure userspace calls using
-> the current usbfs code generated almost full bandwidth usage (within the
-> hardware limits).  So adding the scatter-gather api interface to usbfs
-> wouldn't really provide that much benefit.
+The patch forwarded below still applies and compiles against 2.6.10-mm2.
 
-Actually, the measurements I recall were using that
-nasty usbfs-specific async API ... or using huge
-buffers with the synchronous/blocking calls, so
-the hiccups added by scheduling latencies didn't
-kick in very often.
+Please apply.
 
 
-> And, we can always use help in designing such an API, if you could find
-> someone at your company to help us out in doing so... :)
+----- Forwarded message from Adrian Bunk <bunk@stusta.de> -----
 
-Or just doing something like gadgetfs, where the standard
-Linux "libaio" calls work just fine.  I was certainly able
-to stream 24 Mbyte/sec isochronous transfers (that's the
-top speed possible with one high speed ISO endpoint).
+Date:	Sun, 12 Dec 2004 03:10:54 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] efs: make a struct static
 
-The key point is that one userspace IOCB should map directly
-to one URB in the kernel; and one userspace file (descriptor)
-should map to one USB endpoint.  For a host side API, it turns
-out that isochronous URBs already have limited scatter/gather
-style support -- each one maps to several packets.
 
-I think it'd be best to use the existing AIO support rather
-than have usbfs2 create yet another USB-specific thing.
+...
 
-- Dave
+
+The patch below makes a needessly global struct in the efs code static.
+
+
+diffstat output:
+ fs/efs/super.c         |   20 ++++++++++++++++++++
+ include/linux/efs_vh.h |   17 -----------------
+ 2 files changed, 20 insertions(+), 17 deletions(-)
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.10-rc2-mm4-full/include/linux/efs_vh.h.old	2004-12-12 00:28:23.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/include/linux/efs_vh.h	2004-12-12 00:30:45.000000000 +0100
+@@ -47,23 +47,6 @@
+ struct pt_types {
+ 	int	pt_type;
+ 	char	*pt_name;
+-} sgi_pt_types[] = {
+-	{0x00,		"SGI vh"},
+-	{0x01,		"SGI trkrepl"},
+-	{0x02,		"SGI secrepl"},
+-	{0x03,		"SGI raw"},
+-	{0x04,		"SGI bsd"},
+-	{SGI_SYSV,	"SGI sysv"},
+-	{0x06,		"SGI vol"},
+-	{SGI_EFS,	"SGI efs"},
+-	{0x08,		"SGI lv"},
+-	{0x09,		"SGI rlv"},
+-	{0x0A,		"SGI xfs"},
+-	{0x0B,		"SGI xfslog"},
+-	{0x0C,		"SGI xlv"},
+-	{0x82,		"Linux swap"},
+-	{0x83,		"Linux native"},
+-	{0,		NULL}
+ };
+ 
+ #endif /* __EFS_VH_H__ */
+--- linux-2.6.10-rc2-mm4-full/fs/efs/super.c.old	2004-12-12 00:29:46.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/fs/efs/super.c	2004-12-12 00:30:32.000000000 +0100
+@@ -32,6 +32,26 @@
+ 	.fs_flags	= FS_REQUIRES_DEV,
+ };
+ 
++static struct pt_types sgi_pt_types[] = {
++	{0x00,		"SGI vh"},
++	{0x01,		"SGI trkrepl"},
++	{0x02,		"SGI secrepl"},
++	{0x03,		"SGI raw"},
++	{0x04,		"SGI bsd"},
++	{SGI_SYSV,	"SGI sysv"},
++	{0x06,		"SGI vol"},
++	{SGI_EFS,	"SGI efs"},
++	{0x08,		"SGI lv"},
++	{0x09,		"SGI rlv"},
++	{0x0A,		"SGI xfs"},
++	{0x0B,		"SGI xfslog"},
++	{0x0C,		"SGI xlv"},
++	{0x82,		"Linux swap"},
++	{0x83,		"Linux native"},
++	{0,		NULL}
++};
++
++
+ static kmem_cache_t * efs_inode_cachep;
+ 
+ static struct inode *efs_alloc_inode(struct super_block *sb)
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+----- End forwarded message -----
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

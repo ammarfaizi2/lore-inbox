@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284858AbRLEXvv>; Wed, 5 Dec 2001 18:51:51 -0500
+	id <S284876AbRLEXzI>; Wed, 5 Dec 2001 18:55:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284861AbRLEXt0>; Wed, 5 Dec 2001 18:49:26 -0500
-Received: from odin.allegientsystems.com ([208.251.178.227]:62850 "EHLO
-	lasn-001.allegientsystems.com") by vger.kernel.org with ESMTP
-	id <S284850AbRLEXrG>; Wed, 5 Dec 2001 18:47:06 -0500
-Message-ID: <3C0EB1F2.7050007@optonline.net>
-Date: Wed, 05 Dec 2001 18:46:58 -0500
-From: Nathan Bryant <nbryant@optonline.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
+	id <S284842AbRLEXzB>; Wed, 5 Dec 2001 18:55:01 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:34316
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S284856AbRLEXxG>; Wed, 5 Dec 2001 18:53:06 -0500
+Date: Wed, 5 Dec 2001 15:48:26 -0800 (PST)
+From: Andre Hedrick <andre@linuxdiskcert.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux/Pro  -- clusters
+In-Reply-To: <E16BlnL-00080m-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10112051546300.9419-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: Doug Ledford <dledford@redhat.com>
-CC: Mario Mikocevic <mozgy@hinet.hr>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: i810 audio patch
-In-Reply-To: <3C0C16E7.70206@optonline.net> <3C0C508C.40407@redhat.com> <3C0C58DE.9020703@optonline.net> <3C0C5CB2.6000602@optonline.net> <3C0C61CC.1060703@redhat.com> <20011204153507.A842@danielle.hinet.hr> <3C0D1DD2.4040609@optonline.net> <3C0D223E.3020904@redhat.com> <3C0D350F.9010408@optonline.net> <3C0D3CF7.6030805@redhat.com> <3C0D4E62.4010904@optonline.net> <3C0D52F1.5020800@optonline.net> <3C0D5796.6080202@redhat.com> <3C0D5CB6.1080600@optonline.net> <3C0D5FC7.3040408@redhat.com> <3C0D77D9.70205@optonline.net> <3C0D8B00.2040603@optonline.net> <3C0D8F02.8010408@redhat.com> <3C0D9456.6090106@optonline.net> <3C0DA1CC.1070408@redhat.com> <3C0DAD26.1020906@optonline.net> <3C0DAF35.50008@redhat.com> <3C0E7DCB.6050600@optonline.net> <3C0E7DFB.2030400@optonline.net> <3C0E7F1C.4060603@redhat.com> <3C0E8DBF.5010000@optonline.net> <3C0E90B2.1030601@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doug Ledford wrote:
+On Wed, 5 Dec 2001, Alan Cox wrote:
 
-> Can you add a debug check to update_lvi()?  Something like:
->
-> #ifdef DEBUG_MMAP
->         if (dmabuf->count > dmabuf->fragsize && inb(port+OFF_CIV) == x)
->                 printk(KERN_DEBUG,"i810_audio: update_lvi - CIV == 
-> LVI\n");
-> #endif
->
-> and see if that triggers with the original mmap code? 
+> > by the better generic block layer code.  I personally hope that a year
+> > from now, if somebody wants to do a new SCSI driver, he won't even
+> > _think_ about using the SCSI code, the driver will just take the
+> > (generic SCSI) requests directly off the block queue. 
+> 
+> You still need the scsi code. There are a whole sequence of common, quite
+> complex and generic functions that the scsi layer handles (in paticular
+> error handling).
+> 
+> Turning it the right way I up definitely agree with. It should be the driver
+> calling the scsi code to do bio->scsi request, and to do scsi error
+> recovery, not vice versa.
+> 
+> There are also some tricky relationships
+> 	queues are per logical unit number
+> 	locking is mostly per controller
+> 	resources are often per controller
 
-I've narrowed it down a little more.. the above does not trigger. but 
-i've added some other printk's and the sequence of events goes like this:
+Alan,
 
-open, mmap
-SETTRIGGER : works properly with the resync_dma removed; count 
-initialized to 65536
-we take 6 interrupts; 4 comp + lvi + dch; count drains to 0 properly
-[quake finishes initializing]
-GETOPTR:
-at the beginning of the call, count is 0; by the end of the call, count 
-has been set to 64K
+Nothing that can not be handled in the core-model described earlier;
+however, I am positive that the suttle issues are more sticky than you are
+revealing now.
 
-but, we take no interrupts after this point.
+Regards,
+
+
+Andre Hedrick
+Linux Disk Certification Project                Linux ATA Development
 

@@ -1,112 +1,163 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261419AbTILMdc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 08:33:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261507AbTILMdc
+	id S261455AbTILMmL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 08:42:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261499AbTILMmL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 08:33:32 -0400
-Received: from vlugnet.org ([217.160.107.28]:46246 "EHLO vlugnet.org")
-	by vger.kernel.org with ESMTP id S261419AbTILMd3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 08:33:29 -0400
-From: Ronny Buchmann <ronny-lkml@vlugnet.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [OOPS] 2.4.22 / HPT372N
-Date: Fri, 12 Sep 2003 14:32:51 +0200
-User-Agent: KMail/1.5.3
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Marko Kreen <marko@l-t.ee>
-References: <200309091406.56334.ronny-lkml@vlugnet.org> <200309121141.45776.ronny-lkml@vlugnet.org> <1063363684.5409.8.camel@dhcp23.swansea.linux.org.uk>
-In-Reply-To: <1063363684.5409.8.camel@dhcp23.swansea.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 12 Sep 2003 08:42:11 -0400
+Received: from switch-ats62.donpac.ru ([195.161.172.146]:23300 "EHLO
+	switch-ats62.donpac.ru") by vger.kernel.org with ESMTP
+	id S261455AbTILMmD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 08:42:03 -0400
+Date: Fri, 12 Sep 2003 16:42:00 +0400
+To: Jes Sorensen <jes@trained-monkey.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: FWD: qla1280 SCSI driver crash on visws
+Message-ID: <20030912124200.GA734@pazke>
+Mail-Followup-To: Jes Sorensen <jes@trained-monkey.org>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="82I3+IH0IqGh5yIs"
 Content-Disposition: inline
-Message-Id: <200309121432.51880.ronny-lkml@vlugnet.org>
+User-Agent: Mutt/1.5.4i
+From: "Andrey Panin,,," <pazke@switch-ats62.donpac.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Freitag 12 September 2003 12:48 schrieb Alan Cox:
-> On Gwe, 2003-09-12 at 10:41, Ronny Buchmann wrote:
-> > I will test with cdrom attached later today.
-> > Currently I have one disk on each channel.
-> >
-> > I had another look at hpt.c(from highpoint) and hpt366.c and found this:
-> > --- linux-2.4.22-ac1/drivers/ide/pci/hpt366.c.orig	2003-09-11
-> > 21:29:06.000000000 +0200
-> > +++ linux-2.4.22-ac1/drivers/ide/pci/hpt366.c	2003-09-12
-> > 01:05:44.000000000 +0200
-> > @@ -713,7 +713,7 @@
-> >
-> >  	/* Reconnect channels to bus */
-> >  	outb(0x00, hwif->dma_base+0x73);
-> > -	outb(0x00, hwif->dma_base+0x79);
-> > +	outb(0x00, hwif->dma_base+0x77);
-> >  }
->
-> Which piece of documentation makes you think that ? So I can double
-> check it.
 
-from hpt.c
+--82I3+IH0IqGh5yIs
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-void INLINE Switching370Clock(PChannel pChan, UCHAR ucClockValue)
-{
-        if((InPort(pChan->NextChannelBMI + BMI_STS) & BMI_STS_ACTIVE) == 0){
-                PUCHAR PrimaryMiscCtrlRegister = pChan->BaseBMI + 0x70;
-                PUCHAR SecondaryMiscCtrlRegister = pChan->BaseBMI + 0x74;
-                                                                                                             
-                OutPort(PrimaryMiscCtrlRegister+3, 0x80); // tri-state the primary channel
-                OutPort(SecondaryMiscCtrlRegister+3, 0x80); // tri-state the secondary channel
-                                                                                                             
-                OutPort((PUCHAR)((ULONG)pChan->BaseBMI+0x7B), ucClockValue); // switching the clock
-                                                                                                             
-                OutPort((PUCHAR)((ULONG)pChan->BaseBMI+0x79), 0xC0); // reset two channels begin
-                                                                                                             
-                OutPort(PrimaryMiscCtrlRegister, 0x37); // reset primary channel state machine
-                OutPort(SecondaryMiscCtrlRegister, 0x37); // reset secordary channel state machine
-                                                                                                             
-                OutPort((PUCHAR)((ULONG)pChan->BaseBMI+0x79), 0x00); // reset two channels finished
-                                                                                                             
-                OutPort(PrimaryMiscCtrlRegister+3, 0x00); // normal-state the primary channel
-                OutPort(SecondaryMiscCtrlRegister+3, 0x00); // normal-state the secondary channel
-        }
-}
+Hello Jes,
 
-It's the equivalent to hpt372n_set_clock().
+qla1280 SCSI driver crashes in inetrrupt handler on visws
 
-static void hpt372n_set_clock(ide_drive_t *drive, int mode)
-{
-        ide_hwif_t *hwif        = HWIF(drive);
-                                                                                                             
-        /* FIXME: should we check for DMA active and BUG() */
-        /* Tristate the bus */
-        outb(0x80, hwif->dma_base+0x73);
-        outb(0x80, hwif->dma_base+0x77);
-         
-        /* Switch clock and reset channels */
-        outb(mode, hwif->dma_base+0x7B);
-        outb(0xC0, hwif->dma_base+0x79);
-         
-        /* Reset state machines */
-        outb(0x37, hwif->dma_base+0x70);
-        outb(0x37, hwif->dma_base+0x74);
-         
-        /* Complete reset */
-        outb(0x00, hwif->dma_base+0x79);
-         
-        /* Reconnect channels to bus */
-        outb(0x00, hwif->dma_base+0x73);
-        outb(0x00, hwif->dma_base+0x77);
-}
+Please take a look.
 
-> > -	d->channels = 1;
-> > +	d->channels = 2;
->
-> Need to work out which 372N and others are dual channel but yes
-Are there actually single channel versions?
+Best regards.
 
--- 
-ronny
+----- Forwarded message from Paul Kaletta <paul@ewido.net> -----
 
+=46rom: Paul Kaletta <paul@ewido.net>
+To: linux-visws-devel@lists.sourceforge.net
+X-Mailer: Ximian Evolution 1.0.8=20
+Subject: [Linux-visws-devel] qla1280
 
+(I'm sorry if you get this twice, but I send it out two days ago,
+for some strange reason this message is not in the archives, which seem
+to work now, and I didn't recieve any reply).
+
+Hi,
+
+I managed to get the 2.6.0-test5 kernel to work (Andrey: the part with
+the VGA-Console still isn't right in test5! I had to apply your patch
+for test3 manualy to make a console appear).
+
+The qla1280 driver compiles now and recognizes my harddisk! Hurray *g*
+Still something is wrong - during start-up the driver displays the
+following stuff:
+
+########
+qla1280: QLA1080 found on PCI bus 1, dev 0
+scsi(0): Reading NVRAM
+scsi(0:0): Resetting SCSI BUS
+bad: scheduling while atomic!
+Call Trace:
+ [<c0118255>] schedule+0x3e5/0x3f0
+ [<c0123c63>] schedule_timeout+0x63/0xc0
+ [<c0123bf0>] process_timeout+0x0/0x10
+ [<c0214fd0>] qla1280_bus_reset+0xa0/0x110
+ [<c0214367>] qla1280_init_rings+0xf7/0x100
+ [<c0213c67>] qla1280_initialize_adapter+0x147/0x190
+ [<c021288c>] qla1280_do_device_init+0x22c/0x260
+ [<c0212a38>] qla1280_detect+0x178/0x200
+ [<c0352e7b>] init_this_scsi_driver+0x5b/0x110
+ [<c03407bb>] do_initcalls+0x2b/0xa0
+ [<c012b3ef>] init_workqueues+0xf/0x30
+ [<c01050a3>] init+0x33/0x190
+ [<c0105070>] init+0x0/0x190
+ [<c0107215>] kernel_thread_helper+0x5/0x10
+
+scsi0 : QLogic QLA1080 PCI to SCSI Host Adapter: bus 1 device 0 irq 16
+       Firmware version:  8.15.00, Driver version 3.23.35
+  Vendor: SEAGATE   Model: ST39103LW         Rev: 0002
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+scsi(0:0:0:0): Sync: period 10, offset 8, Wide, Tagged queuing: depth
+255
+SCSI device sda: 17783240 512-byte hdwr sectors (9105 MB)
+SCSI device sda: drive cache: write back
+ /dev/scsi/host0/bus0/target0/lun0: p1 p2 p3
+Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
+#########
+
+That looks pretty wrong to me. However I ignored it, created partitions
+on the my SCSI drive, and tried to migrate my stuff from my ide drive to
+the SCSI drive. The copying went pretty slow and halted frequently for
+some time. After maybe 130 mb it haltet completly. I rebooted and tried
+again. This time maybe after 400 megs I got this wonderful stack trace
+and kernel panic:
+
+#########
+EIP is at 0x0
+eax: df659074   ebx: 00000000   ecx: 00000004   edx: 00000003
+esi: df634000   edi: 00000001   ebp: c033fee8   esp: c033fecc
+ds: 007b   es: 007b   ss: 0068
+Process swapper (pid: 0, threadinfo=3Dc033e000 task=3Dc02ecbe0)
+Stack: c011831a df659074 00000003 00000000 c033e000 00000286 00000000
+c033ff08
+       c011848e df5e1f3c 00000003 00000001 00000000 daee4c20 daee4d24
+df62fa2c
+       c02137e5 daee4c20 00008020 c0120000 000a0000 00000001 c033e000
+df62f1ac
+Call Trace:
+ [<c011831a>] __wake_up_common+0x3a/0x60
+ [<c011848e>] complete+0x3e/0x70
+ [<c02137e5>] qla1280_done+0xa5/0x130
+ [<c0120000>] __check_region+0x40/0x50
+ [<c02132dc>] qla1280_intr_handler+0x8c/0xc0
+ [<c010b749>] handle_IRQ_event+0x49/0x80
+ [<c010bac7>] do_IRQ+0x97/0x140
+ [<c0106ff0>] default_idle+0x0/0x40
+ [<c0105000>] _stext+0x0/0x60
+ [<c0109d68>] common_interrupt+0x18/0x20
+ [<c0106ff0>] default_idle+0x0/0x40
+ [<c0105000>] _stext+0x0/0x60
+ [<c0107014>] default_idle+0x24/0x40
+ [<c01070a0>] cpu_idle+0x30/0x40
+ [<c034076c>] start_kernel+0x14c/0x160
+ [<c03404b0>] unknown_bootoption+0x0/0x120
+
+Code:  Bad EIP value.
+ <0>Kernel panic: Fatal exception in interrupt
+In interrupt handler - not syncing
+##########
+btw. this is typed in manually. *cough*. It might contain typos.
+
+I this a visws-issue (messy interrupt handling stuff?) or is something
+in the qla1280 driver defunct?
+
+Ciao
+Paul Kaletta
+
+----- End forwarded message -----
+
+--=20
+Andrey Panin		| Linux and UNIX system administrator
+pazke@donpac.ru		| PGP key: wwwkeys.pgp.net
+
+--82I3+IH0IqGh5yIs
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/Yb8Yby9O0+A2ZecRAleGAJ941Qtp84tNXm3sC9oTVPTNp6b3vACdFcuz
+Mgwah4GcoJzIRkDbqCi1f6s=
+=w0jh
+-----END PGP SIGNATURE-----
+
+--82I3+IH0IqGh5yIs--

@@ -1,66 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261262AbTLBGqW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 01:46:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbTLBGqW
+	id S261270AbTLBGjS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 01:39:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbTLBGjS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 01:46:22 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:64402 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S261262AbTLBGqU (ORCPT
+	Tue, 2 Dec 2003 01:39:18 -0500
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:7340 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S261270AbTLBGjQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 01:46:20 -0500
-Date: Tue, 2 Dec 2003 17:44:18 +1100
-From: Nathan Scott <nathans@sgi.com>
-To: Linus Torvalds <torvalds@osdl.org>, pinotj@club-internet.fr
-Cc: manfred@colorfullife.com, Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Oops]  i386 mm/slab.c (cache_flusharray)
-Message-ID: <20031202064418.GA2312@frodo>
-References: <mnet1.1070127696.1558.pinotj@club-internet.fr> <Pine.LNX.4.58.0312011606200.2733@home.osdl.org> <20031202013716.GG621@frodo>
+	Tue, 2 Dec 2003 01:39:16 -0500
+Date: Tue, 2 Dec 2003 07:39:12 +0100
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4 future
+Message-ID: <20031202063912.GD16507@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0312011212090.13692-100000@logos.cnet> <Pine.LNX.4.44.0312012302310.9674-100000@raven.themaw.net> <20031201153316.B3879@infradead.org> <200312020223.55505.snpe@snpe.co.yu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="LKTjZJSUETSlgu2t"
 Content-Disposition: inline
-In-Reply-To: <20031202013716.GG621@frodo>
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <200312020223.55505.snpe@snpe.co.yu>
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
 
-On Tue, Dec 02, 2003 at 12:37:16PM +1100, Nathan Scott wrote:
-> On Mon, Dec 01, 2003 at 04:36:33PM -0800, Linus Torvalds wrote:
-> > 
-> > I assume it's not an option to try another filesystem on this setup, but
-> > it's entirely possible that the 2.6.x buffer-head removal has impacted XFS
-> > negatively - although I'm a bit surprised at how easily you seem to show
-> > problems, since XFS actually has active maintenance.
-> > 
-> > Nathan - I don't know if you follow linux-kernel, but Jerome Pinot has
-> 
-> Yep, although I try to filter out "noise" and have inadvertently
-> missed this discussion so far.
-> 
-> > been having bad slab problems for some time now. Do normal XFS users
-> > compile with slab debugging turned on?
-> 
-> Hmm - I know I do - my nightly QA testing runs with this set.
-> Let me dig through the archives and catch up a bit on this issue;
-> I'll get back to you.
+--LKTjZJSUETSlgu2t
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-OK, I've run XFS through hours and hours of very heavy stress now,
-using a variety of different tests, and have tried different mount
-and mkfs options as well.  And with a few kernel compiles thrown in
-in the background for good measure.  Either we have quite different
-hardware configs, compilers, etc; or this is something else.  This
-was done with preempt enabled too (which I usually test without).
+On Tue, 2003-12-02 02:23:55 +0000, snpe <snpe@snpe.co.yu>
+wrote in message <200312020223.55505.snpe@snpe.co.yu>:
+> Is there linux-abi for 2.6 kernel ?
 
-I'm not seeing anything to suggest random slab corruption, and I'm
-so far unable to trip things up as easily as you're able to Jerome.
-Do you have just a very small amount of memory perhaps?  I can try
-running while very low on memory, but thats the only other obvious
-thing I can think of atm.
+Nobody really cares about ABI (at least, not enough to keep one stable)
+while there's a good API. That requires sources, though, but that's a
+good thing...
 
-cheers.
+MfG, JBG
 
--- 
-Nathan
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
+PA));
+
+--LKTjZJSUETSlgu2t
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/zDOPHb1edYOZ4bsRAsvpAJ9VHllEan93oPNIQ0UnpLXUoO123QCeLzAL
+056GuFFJsBmVAFrzUbt8Fa0=
+=EgR2
+-----END PGP SIGNATURE-----
+
+--LKTjZJSUETSlgu2t--

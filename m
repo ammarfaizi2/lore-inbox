@@ -1,74 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261554AbUJZTfZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262329AbUJZTj1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261554AbUJZTfZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 15:35:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261556AbUJZTfO
+	id S262329AbUJZTj1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 15:39:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbUJZTj1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 15:35:14 -0400
-Received: from mail-gw1.york.ac.uk ([144.32.128.246]:50425 "EHLO
-	mail-gw1.york.ac.uk") by vger.kernel.org with ESMTP id S261560AbUJZTev convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 15:34:51 -0400
-Date: Tue, 26 Oct 2004 19:35:02 +0000
-From: Alan Jenkins <aj504@york.ac.uk>
-Subject: IDE warning: "Wait for ready failed before probe!"
-To: linux-kernel@vger.kernel.org
-References: <1098564453l.9607l.0l@localhost>
-In-Reply-To: <1098564453l.9607l.0l@localhost> (from aj504@york.ac.uk on Sat
-	Oct 23 21:47:33 2004)
-X-Mailer: Balsa 2.2.5
-Message-Id: <1098819302l.9064l.1l@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	DelSp=Yes	Format=Flowed
+	Tue, 26 Oct 2004 15:39:27 -0400
+Received: from holomorphy.com ([207.189.100.168]:13543 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262329AbUJZTjE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 15:39:04 -0400
+Date: Tue, 26 Oct 2004 12:38:51 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: remove itimer_ticks and itimer_next
+Message-ID: <20041026193851.GC15367@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-York-MailScanner: Found to be clean
-X-York-MailScanner-From: aj504@york.ac.uk
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have no problems (I hope!), but the warnings I get when linux (2.6.9) 
-tries to probe a non existant IDE device (controller/channel (?) not  
-hard disk) are slightly over the top..
+These two variables are long, long dead. This patch removes them.
 
-1. Are these warnings usual for a nonexistant IDE drive?
-2. Could they be toned down?
+Signed-off-by: William Irwin <wli@holomorphy.com>
 
-Exclamation marks might be appropriate if after the SIS ide controller  
-had been detected one of its channels (ide0/1) could not be probed, but  
-unless my hardware is not reacting as expected they are just "noise".
-
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 33MHz system bus speed for PIO modes; override with  
-idebus=xx
-SIS5513: IDE controller at PCI slot 0000:00:02.5
-SIS5513: chipset revision 0
-SIS5513: not 100% native mode: will probe irqs later
-SIS5513: SiS 962/963 MuTIOL IDE UDMA133 controller
-   ide0: BM-DMA at 0xff00-0xff07, BIOS settings: hda:DMA, hdb:DMA
-   ide1: BM-DMA at 0xff08-0xff0f, BIOS settings: hdc:DMA, hdd:DMA
-Probing IDE interface ide0...
-hda: WDC WD1200BB-00DWA0, ATA DISK drive
-hdb: LITE-ON COMBO SOHC-5232K, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-Probing IDE interface ide1...
-Probing IDE interface ide1...
-Probing IDE interface ide2...
-ide2: Wait for ready failed before probe !
-Probing IDE interface ide3...
-ide3: Wait for ready failed before probe !
-Probing IDE interface ide4...
-ide4: Wait for ready failed before probe !
-Probing IDE interface ide5...
-ide5: Wait for ready failed before probe !
-hda: max request size: 1024KiB
-hda: 234441648 sectors (120034 MB) w/8192KiB Cache, CHS=16383/255/63,  
-UDMA(100)
-hda: cache flushes supported
-hda: hda1 hda2 hda3 hda4
-
-
-
-
-
+Index: wli-2.6.10-rc1/include/linux/sched.h
+===================================================================
+--- wli-2.6.10-rc1.orig/include/linux/sched.h	2004-10-22 14:38:20.000000000 -0700
++++ wli-2.6.10-rc1/include/linux/sched.h	2004-10-26 12:17:13.000000000 -0700
+@@ -771,8 +771,6 @@
+ 
+ #include <asm/current.h>
+ 
+-extern unsigned long itimer_ticks;
+-extern unsigned long itimer_next;
+ extern void do_timer(struct pt_regs *);
+ 
+ extern int FASTCALL(wake_up_state(struct task_struct * tsk, unsigned int state));

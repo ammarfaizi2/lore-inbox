@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268015AbUHKJwT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268016AbUHKKEk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268015AbUHKJwT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 05:52:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268016AbUHKJwT
+	id S268016AbUHKKEk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 06:04:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268017AbUHKKEk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 05:52:19 -0400
-Received: from [218.201.129.131] ([218.201.129.131]:29198 "HELO altbox.org")
-	by vger.kernel.org with SMTP id S268015AbUHKJwP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 05:52:15 -0400
-From: sannisaed2@altbox.org
-To: linux-kernel@vger.kernel.org
-Subject: MY RESPONSE.
-X-Priority: 3
-Message-Id: <S268015AbUHKJwP/20040811095215Z+418@vger.kernel.org>
-Date: Wed, 11 Aug 2004 05:52:15 -0400
+	Wed, 11 Aug 2004 06:04:40 -0400
+Received: from ipx-98-250-190-80.ipxserver.de ([80.190.250.98]:24843 "EHLO
+	taytron.net") by vger.kernel.org with ESMTP id S268016AbUHKKEj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 06:04:39 -0400
+Message-ID: <4119EF1D.2040102@tuxbox.org>
+Date: Wed, 11 Aug 2004 12:04:13 +0200
+From: Florian Schirmer <jolt@tuxbox.org>
+User-Agent: Mozilla Thunderbird 0.7.1 (Windows/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matthias Andree <matthias.andree@gmx.de>
+CC: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+References: <200408101027.i7AARuZr012065@burner.fokus.fraunhofer.de> <200408101228.27455.gene.heskett@verizon.net> <20040811002455.GA7537@merlin.emma.line.org>
+In-Reply-To: <20040811002455.GA7537@merlin.emma.line.org>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Friend.
-As you read this, I don't want you to feel sorry for me because i believe everyone will die someday. My name is Sanni Saed, a merchant in Dubai U.A.E.
+Hi,
 
-I have been diagnosed with Esophageal cancer . It has defiled all forms of medical treatment, and right now I have only about a few months to live, according to medical experts.I have not particularly lived my life so well, as I never really cared for anyone(not even myself)but my business. 
+>The switch from read mode to write mode (i. e. find end of data,
+>increase LASER power to write and pick up writing) takes some time
+>(order of magnitude: µs) which means some pits/lands aren't right during
+>that phase. How many pits/lands are broken break depends on hard- and
+>firmware, write speed and model and for CAV the radial position on the
+>disc. Fast writers will need to reach a linear velocity around 60 m/s
+>(216 km/h); one µs time to ramp up LASER power from read to write level
+>there means up to 60 µm lost.
+>
 
-Though I am very rich, I was never generous, I was always hostile to people and only focused on my business asthat was the only thing I cared for. But now I regret all this as I now know
-that there is more to life than just wanting to have or make all the moneyin the world.
+With burn-proof on you get a disc which is still usable but with some 
+pits/lands missing/misplaced. With burnproof off you get a completely 
+unusable disc. So whats the _real_ point behind disabling burn proof?
 
-I believe when God gives me a second chance to come to this world I would live my life a different way from how I have lived it. Now that God has called me, I have willed and given most of my property and assets to my immediate and extended family members as well as a few close friends. 
-
-I want God to be merciful to me and accept my soul so, I have decided to give alms to charity ganizations, as I want this to be one of the last good
-deeds I do on earth.
-
-Now that my health has deteriorated so badly, I cannot do this myself anymore. I once asked members of my family to close one of my accounts and distribute the money which I have there to
-charity organization in Bulgaria and Pakistan, they refused and kept the money to themselves. Hence, I do not trust them anymore, as they seem not to
-be contended with what I have left for them.
-
-The last of my money which no one knows of is the huge cash deposit of Eight million united states
-dollars that I have with a finance/Security Company abroad. I will want you to help me collect this deposit and dispatched it to charity organizations. I have set aside 10 % for you and for your time.All correspondence should be directed to my private email sannisaed@netscape.net
-
-God be with you.
-
-Regards,
-Sanni Saed. 
-
-
-
+Thanks,
+   Florian

@@ -1,72 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262779AbSKIWIi>; Sat, 9 Nov 2002 17:08:38 -0500
+	id <S262783AbSKIWVH>; Sat, 9 Nov 2002 17:21:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262782AbSKIWIi>; Sat, 9 Nov 2002 17:08:38 -0500
-Received: from sccrmhc03.attbi.com ([204.127.202.63]:49808 "EHLO
-	sccrmhc03.attbi.com") by vger.kernel.org with ESMTP
-	id <S262779AbSKIWIh>; Sat, 9 Nov 2002 17:08:37 -0500
-Message-ID: <3DCD88EF.20400@quark.didntduck.org>
-Date: Sat, 09 Nov 2002 17:15:11 -0500
-From: Brian Gerst <bgerst@quark.didntduck.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: en-us, en
+	id <S262788AbSKIWVH>; Sat, 9 Nov 2002 17:21:07 -0500
+Received: from a213-84-34-179.xs4all.nl ([213.84.34.179]:3712 "EHLO
+	defiant.binary-magic.com") by vger.kernel.org with ESMTP
+	id <S262783AbSKIWVG>; Sat, 9 Nov 2002 17:21:06 -0500
+From: Take Vos <Take.Vos@binary-magic.com>
+Organization: Binary Magic
+To: Vojtech Pavlik <vojtech@suse.cz>, David Woodhouse <dwmw2@infradead.org>
+Subject: Re: PROBLEM: PS/2 mouse wart does not work, while scratch pad does.
+Date: Sat, 9 Nov 2002 22:50:22 +0100
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
+References: <200210221046.46700.Take.Vos@binary-magic.com> <5001.1035330391@passion.cambridge.redhat.com> <20021023104222.B28139@ucw.cz>
+In-Reply-To: <20021023104222.B28139@ucw.cz>
 MIME-Version: 1.0
-To: Ognen Duzlevski <ognen@kc.rr.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: parport question
-References: <Pine.LNX.4.44.0211091258440.1456-100000@gemelli.dyndns.org>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200211092250.27337.Take.Vos@binary-magic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ognen Duzlevski wrote:
-> Hi,
-> 
-> I have sent this question to the people listed in the parport
-> kernel directory (the maintainers) but have yet not received a reply and
-> I am not sure if this is exactly a linux-kernel question.
-> 
-> I have a printer that worked fine under linux (redhat/lexmark 3200) for a
-> long time, then I switched over to 2.4.18 and debian and it stopped
-> working. I compiled the parport support into the kernel, I did that with
-> 2.4.19, I did it also as modules, I tried 2.5.45, still won't work, not
-> even a cat test.txt > /dev/lp0
-> 
-> The dmesg shows that the printer is recognized correctly:
-> 
-> Nov  9 13:06:32 gemelli kernel: parport0: PC-style at 0x378 (0x778)
-> [PCSPP,TRISTATE]
-> Nov  9 13:06:32 gemelli kernel: parport0: irq 5 detected
-> Nov  9 13:06:34 gemelli kernel: parport0: Printer, Lexmark Lexmark 3200
-> lp0: using parport0 (polling).
-> lp0: console ready
-> 
-> The BIOS has a ton of settings such as "auto" or "normal" - I have tried
-> them all, tried forcing the DMA / IRQ from the BIOS and then feeding these
-> values to parport_pc, still won't work. I have tried all combinations of
-> Normal, ECP, ECP+EPP or EPP solely, won't work.
-> 
-> I then installed vmware and windows nt as a guest OS, under the same
-> kernels. I set up parport0 to be used by vmware and, it prints from
-> Windows nt (so I know the printer is fully functional).
-> 
-> Any ideas, help would be appreciated. Sorry if this is not the place to
-> post the question but I have tried google, linux-printing.org, usenet to
-> no avail.
-> 
-> CHeers,
-> Ognen
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-It sounds like a userspace problem.  The information about this printer 
-I've found on the web shows it to be a GDI printer (ie. all the smarts 
-are in the software driver, not in the printer), which means sending 
-text to it will never print anything.  You will need to check the 
-configuration of ghostscript or whatever userspace printer driver debian 
-is using.
+Hallo,
 
---
-				Brian Gerst
+On Wednesday 23 October 2002 10:42, Vojtech Pavlik wrote:
+> On Wed, Oct 23, 2002 at 12:46:31AM +0100, David Woodhouse wrote:
+> > Take.Vos@binary-magic.com said:
+> > > hardware:DELL Inspiron 8100
+> > >
+> > >  The internal scratch pad works, but the internal wart mouse doesn't,
+> > Probing for various other PS/2 extensions appears to confuse the thing
+> > such that the clitmouse no longer works. If we probe for it first and
+> > then abort the other probes, it seems happier...
+This patch does display the "Synaptics TouchPad", but does not solve the 
+problem of not finding the clitmouse.
 
+> Thanks, applied.
+2.5.46 does not show the "Synaptics TouchPad" during boot, which this patch 
+did.
+
+Greetings,
+	Take Vos
+
+> > --- 1.16/drivers/input/mouse/psmouse.c  Tue Oct  8 11:51:30 2002
+> > +++ edited/drivers/input/mouse/psmouse.c        Wed Oct 23 00:39:06 2002
+> > @@ -311,6 +311,26 @@
+> >         if (psmouse_noext)
+> >                 return PSMOUSE_PS2;
+> >
+> > +/*
+> > + * Try Synaptics TouchPad magic ID
+> > + */
+> > +
+> > +       param[0] = 0;
+> > +       psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
+> > +       psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
+> > +       psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
+> > +       psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
+> > +       psmouse_command(psmouse, param, PSMOUSE_CMD_GETINFO);
+> > +
+> > +       if (param[1] == 0x47) {
+> > +               /* We could do more here. But it's sufficient just
+> > +                  to stop the subsequent probes from screwing the
+> > +                  thing up. */
+> > +               psmouse->vendor = "Synaptics";
+> > +               psmouse->name = "TouchPad";
+> > +               return PSMOUSE_PS2;
+> > +       }
+> > +
+> >  /*
+> >   * Try Genius NetMouse magic init.
+> >   */
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9zYMiMMlizP1UqoURAow3AJwLthJCIB8cZuHRIXps+R5cP2exTACeOe0y
+qoFoX9a9JwQYpQhyhcBrrmY=
+=9paf
+-----END PGP SIGNATURE-----
 

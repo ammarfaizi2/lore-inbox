@@ -1,51 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278096AbRJKFJX>; Thu, 11 Oct 2001 01:09:23 -0400
+	id <S278099AbRJKFSP>; Thu, 11 Oct 2001 01:18:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278099AbRJKFJN>; Thu, 11 Oct 2001 01:09:13 -0400
-Received: from [159.226.4.246] ([159.226.4.246]:65292 "EHLO intec.iscas.ac.cn")
-	by vger.kernel.org with ESMTP id <S278096AbRJKFJA>;
-	Thu, 11 Oct 2001 01:09:00 -0400
-Message-Id: <200110110454.MAA16555@intec.iscas.ac.cn>
-Date: Thu, 11 Oct 2001 13:10:24 +0800
-From: =?GB2312?Q?=CA=E6=B9=FA=C7=BF?= <guoqiang@intec.iscas.ac.cn>
-To: "linux-kernel@vger.kernel.org <linux-kernel@vger.kernel.org>
-	<linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-X-mailer: FoxMail 4.0 beta 1 [cn]
+	id <S278102AbRJKFSG>; Thu, 11 Oct 2001 01:18:06 -0400
+Received: from zok.sgi.com ([204.94.215.101]:15579 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S278099AbRJKFR4>;
+	Thu, 11 Oct 2001 01:17:56 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: guoqiang@intec.iscas.ac.cn
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: Your message of "Thu, 11 Oct 2001 13:10:24 +0800."
+             <200110110454.MAA16555@intec.iscas.ac.cn> 
 Mime-Version: 1.0
-Content-Type: text/plain;
-      charset="GB2312"
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 11 Oct 2001 15:18:02 +1000
+Message-ID: <21697.1002777482@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 8bit
-X-MIME-Autoconverted: from base64 to 8bit by leeloo.zip.com.au id PAA15962
 
-Dear linux-kernel£¬
+On Thu, 11 Oct 2001 13:10:24 +0800, 
+<guoqiang@intec.iscas.ac.cn> wrote:
+> In kernel 2.4.x, after I recompile the kernel ,the export table of the kernel changed alot 
+>
+>  before compile  kfree_R343243214
+>  after compile  kfree_R_ver_str(343243214)
 
-¡¡¡¡
- Here is some rather basic questions I want ask ,any reply or comment please
- CC to my emailbox,thank you very much.
- 
- In kernel 2.4.x, after I recompile the kernel ,the export table of the kernel changed alot 
+Always read the FAQ first: http://www.tux.org/lkml/#s8-8
 
-  before compile  kfree_R343243214
-  after compile  kfree_R_ver_str(343243214)
+ps. Send in plain text, not base64.
 
- so all my modules can not be loaded (unresolved symbols)
- How to deal with it? 
-
- 
-
- 
- I know these questions are childish,but I need the answer urgently,thanks!
-
-
- George Shu
-
-Best Regards
- 							
-							George.G.Q.Shu	
-					 		iTechs Lab, ISCAS, China.
-¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡guoqiang@intec.iscas.ac.cn
-¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡2001-10-11
-ı:.Ë›±Êâmçë¢kaŠÉb²ßìzwm…ébïîË›±Êâmébìÿ‘êçz_âØ^n‡r¡ö¦zËëh™¨è­Ú&£ûàz¿äz¹Ş—ú+€Ê+zf£¢·hšˆ§~†­†Ûiÿÿïêÿ‘êçz_è®æj:+v‰¨ş)ß£ømšSåy«­æ¶…­†ÛiÿÿğÃí»è®å’i

@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263639AbTL2QOS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 11:14:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263642AbTL2QOR
+	id S263622AbTL2QNm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 11:13:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263632AbTL2QNl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 11:14:17 -0500
-Received: from postfix3-1.free.fr ([213.228.0.44]:56448 "EHLO
-	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S263639AbTL2QOM
+	Mon, 29 Dec 2003 11:13:41 -0500
+Received: from mta01.mail.tds.net ([216.170.230.81]:38375 "EHLO
+	mta01.mail.tds.net") by vger.kernel.org with ESMTP id S263622AbTL2QNg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 11:14:12 -0500
-From: Duncan Sands <baldrick@free.fr>
-To: "Guldo K" <guldo@tiscali.it>
-Subject: Re: speedtouch for 2.6.0
-Date: Mon, 29 Dec 2003 17:14:10 +0100
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <16366.61517.501828.389749@gargle.gargle.HOWL> <200312291334.01173.baldrick@free.fr> <16368.19971.604371.882502@gargle.gargle.HOWL>
-In-Reply-To: <16368.19971.604371.882502@gargle.gargle.HOWL>
+	Mon, 29 Dec 2003 11:13:36 -0500
+Date: Mon, 29 Dec 2003 10:13:33 -0600 (CST)
+From: David Lloyd <dmlloyd@tds.net>
+To: Andy Isaacson <adi@hexapodia.org>
+cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: GCC 3.4 Heads-up
+In-Reply-To: <20031226005840.A30827@hexapodia.org>
+Message-ID: <Pine.LNX.4.58.0312291013120.4466@tomservo.workpc.tds.net>
+References: <1072403207.17036.37.camel@clubneon.clubneon.com>
+ <bsgav5$4qh$1@cesium.transmeta.com> <Pine.LNX.4.58.0312252021540.14874@home.osdl.org>
+ <20031226005840.A30827@hexapodia.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312291714.10152.baldrick@free.fr>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> But when I ran pppd, I got:
-> pppd: /usr/lib/pppd/plugins/pppoatm.so:
->  cannot open shared object file: No such file or directory
-> pppd: Couldn't load plugin /usr/lib/pppd/plugins/pppoatm.so
->
-> I looked for it and noticed it was in /usr/lib/pppd/2.4.20/,
-> so I linked it; but then I got:
-> pppd: libatm.so.1: cannot open shared object file: No such file or
-> directory pppd: Couldn't load plugin /usr/lib/pppd/plugins/pppoatm.so
->
-> Looks like I missed some piece of installation...
->
-> Could you help me?
+On Fri, 26 Dec 2003, Andy Isaacson wrote:
 
-Hi Guldo, from your email I had understood that your setup worked under
-2.4.  Is that right?  Then it should work under 2.6.  Anyway, the speedbundle (
-http://linux-usb.sourceforge.net/SpeedTouch/download/index.html
-) contains source code for an appropriate pppd + ATM library.
+> On Thu, Dec 25, 2003 at 08:34:33PM -0800, Linus Torvalds wrote:
+> > The cast/conditional expression as lvalue are _particularly_ ugly 
+> > extensions, since there is absolutely zero point to them. They are very 
+> > much against what C is all about, and writing something like this:
+> > 
+> > 	a ? b : c = d;
+> > 
+> > is something that only a high-level language person could have come up 
+> > with. The _real_ way to do this in C is to just do
+> > 
+> > 	*(a ? &b : &c) = d;
+> > 
+> > which is portable C, does the same thing, and has no strange semantics.
+> 
+> But doesn't the first one potentially let the compiler avoid spilling to
+> memory, if b and c are both in registers?
 
-Ciao,
+I can't imagine anything wrong with:
 
-Duncan.
+if (a) b = d else c = d;
+
+- D

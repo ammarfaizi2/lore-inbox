@@ -1,39 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130452AbRCPKIT>; Fri, 16 Mar 2001 05:08:19 -0500
+	id <S130485AbRCPKSj>; Fri, 16 Mar 2001 05:18:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130446AbRCPKIJ>; Fri, 16 Mar 2001 05:08:09 -0500
-Received: from t2.redhat.com ([199.183.24.243]:30460 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S129854AbRCPKIB>; Fri, 16 Mar 2001 05:08:01 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <200103160224.SAA03920@csl.Stanford.EDU> 
-In-Reply-To: <200103160224.SAA03920@csl.Stanford.EDU> 
-To: Dawson Engler <engler@csl.Stanford.EDU>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [CHECKER] 9 potential copy_*_user bugs in 2.4.1 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 16 Mar 2001 10:06:48 +0000
-Message-ID: <1886.984737208@redhat.com>
+	id <S130442AbRCPKST>; Fri, 16 Mar 2001 05:18:19 -0500
+Received: from mail.veka.com ([213.68.6.130]:51428 "EHLO veka.com")
+	by vger.kernel.org with ESMTP id <S130438AbRCPKSI>;
+	Fri, 16 Mar 2001 05:18:08 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Frank Fiene <frank.fiene@syntags.de>
+Organization: Syntags GmbH
+To: linux-kernel@vger.kernel.org
+Subject: Kernel 2.4.2-ac19 / ac20
+Date: Fri, 16 Mar 2001 11:18:49 +0100
+X-Mailer: KMail [version 1.2]
+MIME-Version: 1.0
+Message-Id: <01031611184901.03443@fflaptop>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Is there anything new in the ac19/ac20 patch that slows down video 
+output or system throughput. With ac18, i can watch dvd using xine, 
+but with ac9/ac20, the system is so slow, that 1/4 of the frames are 
+skipped.
 
-engler@csl.Stanford.EDU said:
->  I wrote an extension to gcc that does global analysis to determine
-> which pointers in 2.4.1 are ever treated as user space pointers (i.e,
-> passed to copy_*_user, verify_area, etc) and then makes sure they are
-> always treated that way.
+Any suggestions?
 
-Nice work - thanks. One request though, to you and anyone else doing such
-cleanups - please could you list the affected files separately near the
-beginning of your mail, so that people can tell at a glance whether there's
-anything in there that might be their fault.
-
---
-dwmw2
-
-
+Regards. Frank.
+-- 
+Frank Fiene, SYNTAGS GmbH, Im Defdahl 5-10, D-44141 Dortmund, Germany
+Security, Cryptography, Networks, Software Development
+http://www.syntags.de mailto:Frank.Fiene@syntags.de

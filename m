@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262303AbUKKRZW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262328AbUKKR23@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262303AbUKKRZW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 12:25:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262325AbUKKRZO
+	id S262328AbUKKR23 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 12:28:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262324AbUKKR00
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 12:25:14 -0500
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:29684 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S262303AbUKKRQr
+	Thu, 11 Nov 2004 12:26:26 -0500
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:40180 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S262304AbUKKRRB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 12:16:47 -0500
-Date: Thu, 11 Nov 2004 18:16:36 +0100
+	Thu, 11 Nov 2004 12:17:01 -0500
+Date: Thu, 11 Nov 2004 18:16:52 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [patch 6/10] s390: monreader docu.
-Message-ID: <20041111171636.GH4900@mschwid3.boeblingen.de.ibm.com>
+Subject: [patch 7/10] s390: crypto driver.
+Message-ID: <20041111171652.GI4900@mschwid3.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,194 +21,165 @@ User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[patch 6/10] s390: monreader docu.
+[patch 7/10] s390: crypto driver.
 
-From: Gerald Schaefer <geraldsc@de.ibm.com>
+From: Eric Rossman <edrossma@us.ibm.com>
 
-Docu for the z/VM monitor record read access feature.
+s390 crypto driver changes:
+ - Small cleanup: misc -> crypto, header file defines,
+   variable names and a printk message.
 
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
 diffstat:
- Documentation/s390/monreader.txt |  175 +++++++++++++++++++++++++++++++++++++++
- 1 files changed, 175 insertions(+)
+ drivers/s390/crypto/Makefile      |    2 +-
+ drivers/s390/crypto/z90common.h   |    8 ++++----
+ drivers/s390/crypto/z90crypt.h    |   10 +++++-----
+ drivers/s390/crypto/z90hardware.c |    6 +++---
+ drivers/s390/crypto/z90main.c     |   16 ++++++++--------
+ 5 files changed, 21 insertions(+), 21 deletions(-)
 
-diff -urN linux-2.6/Documentation/s390/monreader.txt linux-2.6-patched/Documentation/s390/monreader.txt
---- linux-2.6/Documentation/s390/monreader.txt	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6-patched/Documentation/s390/monreader.txt	2004-11-11 15:06:57.000000000 +0100
-@@ -0,0 +1,175 @@
-+
-+Date  : 2004-Nov-04
-+Author: Gerald Schaefer (geraldsc@de.ibm.com)
-+
-+
-+             Linux API for read access to z/VM Monitor Records
-+             =================================================
-+
-+
-+Description
-+===========
-+This item delivers a new Linux API in the form of a misc char device that is
-+useable from user space and allows read access to the z/VM Monitor Records
-+collected by the *MONITOR System Service of z/VM.
-+
-+
-+User Requirements
-+=================
-+The z/VM guest on which you want to access this API needs to be configured in
-+order to allow IUCV connections to the *MONITOR service, i.e. it needs the
-+IUCV *MONITOR statement in its user entry. If the monitor DCSS to be used is
-+restricted (likely), you also need the NAMESAVE <DCSS NAME> statement.
-+This item will use the IUCV device driver to access the z/VM services, so you
-+need a kernel with IUCV support. You also need z/VM version 4.4 or 5.1.
-+
-+There are two options for being able to load the monitor DCSS (examples assume
-+that the monitor DCSS begins at 144 MB and ends at 152 MB). You can query the
-+location of the monitor DCSS with the Class E privileged CP command Q NSS MAP
-+(the values BEGPAG and ENDPAG are given in units of 4K pages).
-+
-+See also "CP Command and Utility Reference" (SC24-6081-00) for more information
-+on the DEF STOR and Q NSS MAP commands, as well as "Saved Segments Planning
-+and Administration" (SC24-6116-00) for more information on DCSSes.
-+
-+1st option:
-+-----------
-+You can use the CP command DEF STOR CONFIG to define a "memory hole" in your
-+guest virtual storage around the address range of the DCSS.
-+
-+Example: DEF STOR CONFIG 0.140M 200M.200M
-+
-+This defines two blocks of storage, the first is 140MB in size an begins at
-+address 0MB, the second is 200MB in size and begins at address 200MB,
-+resulting in a total storage of 340MB. Note that the first block should
-+always start at 0 and be at least 64MB in size.
-+
-+2nd option:
-+-----------
-+Your guest virtual storage has to end below the starting address of the DCSS
-+and you have to specify the "mem=" kernel parameter in your parmfile with a
-+value greater than the ending address of the DCSS.
-+
-+Example: DEF STOR 140M
-+
-+This defines 140MB storage size for your guest, the parameter "mem=160M" is
-+added to the parmfile.
-+
-+
-+User Interface
-+==============
-+The char device is implemented as a kernel module named "monreader",
-+which can be loaded via the modprobe command, or it can be compiled into the
-+kernel instead. There is one optional module (or kernel) parameter, "mondcss",
-+to specify the name of the monitor DCSS. If the module is compiled into the
-+kernel, the kernel parameter "monreader.mondcss=<DCSS NAME>" can be specified
-+in the parmfile.
-+
-+The default name for the DCSS is "MONDCSS" if none is specified. In case that
-+there are other users already connected to the *MONITOR service (e.g.
-+Performance Toolkit), the monitor DCSS is already defined and you have to use
-+the same DCSS. The CP command Q MONITOR (Class E privileged) shows the name
-+of the monitor DCSS, if already defined, and the users connected to the
-+*MONITOR service.
-+Refer to the "z/VM Performance" book (SC24-6109-00) on how to create a monitor
-+DCSS, you need Class E privileges to define and save a DCSS.
-+
-+Example:
-+--------
-+modprobe monreader mondcss=MYDCSS
-+
-+This loads the module and sets the DCSS name to "MYDCSS".
-+
-+NOTE:
-+-----
-+This API provides no interface to control the *MONITOR service, e.g. specifiy
-+which data should be collected. This can be done by the CP command MONITOR
-+(Class E privileged), see "CP Command and Utility Reference".
-+
-+Device nodes with udev:
-+-----------------------
-+After loading the module, a char device will be created along with the device
-+node /<udev directory>/monreader.
-+
-+Device nodes without udev:
-+--------------------------
-+If your distribution does not support udev, a device node will not be created
-+automatically and you have to create it manually after loading the module.
-+Therefore you need to know the major and minor numbers of the device. These
-+numbers can be found in /sys/class/misc/monreader/dev.
-+Typing cat /sys/class/misc/monreader/dev will give an output of the form
-+<major>:<minor>. The device node can be created via the mknod command, enter
-+mknod <name> c <major> <minor>, where <name> is the name of the device node
-+to be created.
-+
-+Example:
-+--------
-+# modprobe monreader
-+# cat /sys/class/misc/monreader/dev
-+10:63
-+# mknod /dev/monreader c 10 63
-+
-+This loads the module with the default monitor DCSS (MONDCSS) and creates a
-+device node.
-+
-+File operations:
-+----------------
-+The following file operations are supported: open, release, read, poll.
-+There are two alternative methods for reading: either non-blocking read in
-+conjunction with polling, or blocking read without polling. IOCTLs are not
-+supported.
-+
-+Read:
-+-----
-+Reading from the device provides a set of one or more contiguous monitor
-+records, there is no control data (unlike the CMS MONWRITE utility output).
-+The monitor record layout can be found here (z/VM 5.1):
-+http://www.vm.ibm.com/pubs/mon510/index.html
-+
-+Each set of records is exclusively composed of either event records or sample
-+records. The end of such a set of records is indicated by a successful read
-+with a return value of 0 (0-Byte read).
-+Any received data must be considered invalid until a complete record set was
-+read successfully, including the closing 0-Byte read. Therefore you should
-+always read the complete set into a buffer before processing the data.
-+
-+The maximum size of a set of records can be as large as the size of the
-+monitor DCSS, so design the buffer adequately or use dynamic memory allocation
-+The size of the monitor DCSS will be printed into syslog after loading the
-+module. You can also use the (Class E privileged) CP command Q NSS MAP to
-+list all available segments and information about them.
-+
-+As with most char devices, error conditions are indicated by returning a
-+negative value for the number of bytes read. In this case, the errno variable
-+indicates the error condition:
-+
-+EIO: reply failed, read data is invalid and the application
-+     should discard the data read since the last successful read with 0 size.
-+EFAULT: copy_to_user failed, read data is invalid and the application should
-+        discard the data read since the last successful read with 0 size.
-+EAGAIN: occurs on a non-blocking read if there is no data available at the
-+        moment. There is no data missing or corrupted, just try again or rather
-+        use polling for non-blocking reads.
-+EOVERFLOW: message limit reached, the data read since the last successful
-+           read with 0 size is valid but subsequent records may be missing.
-+
-+In the last case (EOVERFLOW) there may be missing data, in the first two cases
-+(EIO, EFAULT) there will be missing data. It's up to the application if it will
-+continue reading subsequent records or rather exit.
-+
-+Open:
-+-----
-+Only one user is allowed to open the char device. If it is already in use, the
-+open function will fail (return a negative value) and set errno to EBUSY.
-+The open function may also fail if an IUCV connection to the *MONITOR service
-+cannot be established. In this case errno will be set to EIO and an error
-+message with an IPUSER SEVER code will be printed into syslog.
-+The IPUSER SEVER codes are described in the "z/VM Performance" book.
-+
-+NOTE:
-+-----
-+As soon as the device is opened, incoming messages will be accepted and they
-+will account for the message limit, i.e. opening the device without reading
-+from it will provoke the "message limit reached" error (EOVERFLOW error code)
-+eventually.
-+
+diff -urN linux-2.6/drivers/s390/crypto/Makefile linux-2.6-patched/drivers/s390/crypto/Makefile
+--- linux-2.6/drivers/s390/crypto/Makefile	2004-10-18 23:53:51.000000000 +0200
++++ linux-2.6-patched/drivers/s390/crypto/Makefile	2004-11-11 15:06:58.000000000 +0100
+@@ -1,5 +1,5 @@
+ #
+-# S/390 miscellaneous devices
++# S/390 crypto devices
+ #
+ 
+ z90crypt-objs := z90main.o z90hardware.o
+diff -urN linux-2.6/drivers/s390/crypto/z90common.h linux-2.6-patched/drivers/s390/crypto/z90common.h
+--- linux-2.6/drivers/s390/crypto/z90common.h	2004-11-11 15:06:39.000000000 +0100
++++ linux-2.6-patched/drivers/s390/crypto/z90common.h	2004-11-11 15:06:58.000000000 +0100
+@@ -1,5 +1,5 @@
+ /*
+- *  linux/drivers/s390/misc/z90common.h
++ *  linux/drivers/s390/crypto/z90common.h
+  *
+  *  z90crypt 1.3.2
+  *
+@@ -24,10 +24,10 @@
+  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  */
+ 
+-#ifndef _Z90COMMON_
+-#define _Z90COMMON_
++#ifndef _Z90COMMON_H_
++#define _Z90COMMON_H_
+ 
+-#define VERSION_Z90COMMON_H "$Revision: 1.15 $"
++#define VERSION_Z90COMMON_H "$Revision: 1.16 $"
+ 
+ 
+ #define RESPBUFFSIZE 256
+diff -urN linux-2.6/drivers/s390/crypto/z90crypt.h linux-2.6-patched/drivers/s390/crypto/z90crypt.h
+--- linux-2.6/drivers/s390/crypto/z90crypt.h	2004-11-11 15:06:39.000000000 +0100
++++ linux-2.6-patched/drivers/s390/crypto/z90crypt.h	2004-11-11 15:06:58.000000000 +0100
+@@ -1,5 +1,5 @@
+ /*
+- *  linux/drivers/s390/misc/z90crypt.h
++ *  linux/drivers/s390/crypto/z90crypt.h
+  *
+  *  z90crypt 1.3.2
+  *
+@@ -24,12 +24,12 @@
+  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  */
+ 
+-#ifndef _LINUX_Z90CRYPT_H_
+-#define _LINUX_Z90CRYPT_H_
++#ifndef _Z90CRYPT_H_
++#define _Z90CRYPT_H_
+ 
+ #include <linux/ioctl.h>
+ 
+-#define VERSION_Z90CRYPT_H "$Revision: 1.10 $"
++#define VERSION_Z90CRYPT_H "$Revision: 1.11 $"
+ 
+ #define z90crypt_VERSION 1
+ #define z90crypt_RELEASE 3	// 2 = PCIXCC, 3 = rewrite for coding standards
+@@ -255,4 +255,4 @@
+ 	unsigned char qdepth[MASK_LENGTH];
+ };
+ 
+-#endif /* _LINUX_Z90CRYPT_H_ */
++#endif /* _Z90CRYPT_H_ */
+diff -urN linux-2.6/drivers/s390/crypto/z90hardware.c linux-2.6-patched/drivers/s390/crypto/z90hardware.c
+--- linux-2.6/drivers/s390/crypto/z90hardware.c	2004-11-11 15:06:39.000000000 +0100
++++ linux-2.6-patched/drivers/s390/crypto/z90hardware.c	2004-11-11 15:06:58.000000000 +0100
+@@ -1,5 +1,5 @@
+ /*
+- *  linux/drivers/s390/misc/z90hardware.c
++ *  linux/drivers/s390/crypto/z90hardware.c
+  *
+  *  z90crypt 1.3.2
+  *
+@@ -32,9 +32,9 @@
+ #include "z90crypt.h"
+ #include "z90common.h"
+ 
+-#define VERSION_Z90HARDWARE_C "$Revision: 1.32 $"
++#define VERSION_Z90HARDWARE_C "$Revision: 1.33 $"
+ 
+-char z90chardware_version[] __initdata =
++char z90hardware_version[] __initdata =
+ 	"z90hardware.o (" VERSION_Z90HARDWARE_C "/"
+ 	                  VERSION_Z90COMMON_H "/" VERSION_Z90CRYPT_H ")";
+ 
+diff -urN linux-2.6/drivers/s390/crypto/z90main.c linux-2.6-patched/drivers/s390/crypto/z90main.c
+--- linux-2.6/drivers/s390/crypto/z90main.c	2004-11-11 15:06:39.000000000 +0100
++++ linux-2.6-patched/drivers/s390/crypto/z90main.c	2004-11-11 15:06:58.000000000 +0100
+@@ -1,5 +1,5 @@
+ /*
+- *  linux/drivers/s390/misc/z90main.c
++ *  linux/drivers/s390/crypto/z90main.c
+  *
+  *  z90crypt 1.3.2
+  *
+@@ -51,13 +51,13 @@
+ #  error "This kernel is too recent: not supported by this file"
+ #endif
+ 
+-#define VERSION_Z90MAIN_C "$Revision: 1.54 $"
++#define VERSION_Z90MAIN_C "$Revision: 1.57 $"
+ 
+-static char z90cmain_version[] __initdata =
++static char z90main_version[] __initdata =
+ 	"z90main.o (" VERSION_Z90MAIN_C "/"
+                       VERSION_Z90COMMON_H "/" VERSION_Z90CRYPT_H ")";
+ 
+-extern char z90chardware_version[];
++extern char z90hardware_version[];
+ 
+ /**
+  * Defaults that may be modified.
+@@ -97,7 +97,7 @@
+  * older than CLEANUPTIME seconds in the past.
+  */
+ #ifndef CLEANUPTIME
+-#define CLEANUPTIME 15
++#define CLEANUPTIME 20
+ #endif
+ 
+ /**
+@@ -670,8 +670,8 @@
+ 		PRINTKN("Version %d.%d.%d loaded, built on %s %s\n",
+ 			z90crypt_VERSION, z90crypt_RELEASE, z90crypt_VARIANT,
+ 			__DATE__, __TIME__);
+-		PRINTKN("%s\n", z90cmain_version);
+-		PRINTKN("%s\n", z90chardware_version);
++		PRINTKN("%s\n", z90main_version);
++		PRINTKN("%s\n", z90hardware_version);
+ 		PDEBUG("create_z90crypt (domain index %d) successful.\n",
+ 		       domain);
+ 	} else
+@@ -2372,7 +2372,7 @@
+ 			break;
+ 		}
+ 		if (dev_ptr->dev_self_x != index) {
+-			PRINTK("Corrupt dev ptr in receive_from_AP\n");
++			PRINTKC("Corrupt dev ptr\n");
+ 			z90crypt.terminating = 1;
+ 			rv = REC_FATAL_ERROR;
+ 			break;

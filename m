@@ -1,74 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267356AbUBSQRq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 11:17:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267351AbUBSQRq
+	id S267338AbUBSQVO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 11:21:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267359AbUBSQS4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 11:17:46 -0500
-Received: from bi01p1.co.us.ibm.com ([32.97.110.142]:37390 "EHLO linux.local")
-	by vger.kernel.org with ESMTP id S267338AbUBSQR1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 11:17:27 -0500
-Date: Thu, 19 Feb 2004 01:11:29 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       torvalds@osd.org, arjanv@redhat.com, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: Non-GPL export of invalidate_mmap_range
-Message-ID: <20040219091129.GD1269@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20040217161929.7e6b2a61.akpm@osdl.org> <1077108694.4479.4.camel@laptop.fenrus.com> <20040218140021.GB1269@us.ibm.com> <20040218211035.A13866@infradead.org> <20040218150607.GE1269@us.ibm.com> <20040218222138.A14585@infradead.org> <20040218145132.460214b5.akpm@osdl.org> <20040218230055.A14889@infradead.org> <20040218162858.2a230401.akpm@osdl.org> <20040219123110.A22406@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040219123110.A22406@infradead.org>
-User-Agent: Mutt/1.4.1i
+	Thu, 19 Feb 2004 11:18:56 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:896 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S267338AbUBSQSb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 11:18:31 -0500
+Date: Thu, 19 Feb 2004 11:18:30 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4.24 extra CPU cycles in scsi.c 
+Message-ID: <Pine.LNX.4.53.0402191116550.500@chaos>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 19, 2004 at 12:31:10PM +0000, Christoph Hellwig wrote:
-> On Wed, Feb 18, 2004 at 04:28:58PM -0800, Andrew Morton wrote:
-> > OK, so I looked at the wrapper.  It wasn't a tremendously pleasant
-> > experience.  It is huge, and uses fairly standard-looking filesytem
-> > interfaces and locking primitives.  Also some awareness of NFSV4 for some
-> > reason.
-> 
-> And pokes deep into internal structures that it shouldn't.
 
-Again, the point of the patch is to get rid of such poking.
+When looking through various modules that I use, trying to
+find out where some memory seems to be leaking, I found a
+couple of unrelated things in scsi.c.
 
-> > Still, the wrapper is GPL so this is not relevant.
-> 
-> It's BSD licensed - they couldn't distribute it together with GPFS if
-> it was GPL.
+The code sets a structure-member to NULL, then releases the
+pointer to that structure. A few CPU cycles being thrown away.
+Since I was reviewing the whole file, I also got rid of the
+spurious casts when calling kfree().
 
-Yep.
 
-> > Its only use is to tell
-> > us whether or not the non-GPL bits are "derived" from Linux, and it
-> > doesn't do that.
-> 
-> Well, something that needs an almost one megabyte big wrapper per defintion
-> is not a standalone work but something that's deeply interwinded with
-> the kernel.  The tons of kernel version checks certainly show it's poking
-> deeper than it should.
 
-On the size, I beg to differ.  One of the reasons the glue module is
-so large is because of the fact that GPFS was written to run in an AIX
-kernel rather than a Linux kernel.  I would guess that if GPFS had
-been instead been derived from Linux, the glue module would be much
-smaller.  On the kernel version checks, the point of the patch is
-to get rid of at least some of these.
+--- linux-2.4.24/drivers/scsi/scsi.c.orig	Thu Feb 19 10:45:20 2004
++++ linux-2.4.24/drivers/scsi/scsi.c	Thu Feb 19 11:01:47 2004
+@@ -314,11 +314,7 @@
+ void scsi_release_request(Scsi_Request * req)
+ {
+ 	if( req->sr_command != NULL )
+-	{
+ 		scsi_release_command(req->sr_command);
+-		req->sr_command = NULL;
+-	}
+-
+ 	kfree(req);
+ }
 
-> > Why do you believe that GPFS represents a kernel licensing violation?
-> 
-> See above.  Something that pokes deep into internal structures and even
-> needs new exports certainly is a derived work.  There's a few different
-> interpretations of the derived works clause in the GPL around, the FSF
-> one wouldn't allow binary modules at all, and Linus' one is also pretty
-> strict.
+@@ -1449,7 +1445,7 @@
+  	spin_lock_irqsave(&device_request_lock, flags);
+ 	for (SCpnt = SDpnt->device_queue; SCpnt; SCpnt = SCnext) {
+ 		SDpnt->device_queue = SCnext = SCpnt->next;
+-		kfree((char *) SCpnt);
++		kfree(SCpnt);
+ 	}
+ 	SDpnt->has_cmdblocks = 0;
+ 	SDpnt->queue_depth = 0;
+@@ -1550,7 +1546,7 @@
+ 	    max_scsi_hosts = n+1;
+ 	}
+ 	else
+-	    kfree((char *) shn);
++	    kfree(shn);
+     }
+ }
 
-So why are you coming out against something that you seem to believe
-allows -better- alignment with Linus's rules?
+@@ -1845,7 +1841,7 @@
+ 				HBA_ptr->host_queue = scd->next;
+ 			}
+ 			blk_cleanup_queue(&scd->request_queue);
+-			kfree((char *) scd);
++			kfree(scd);
+ 		} else {
+ 			goto out;
+ 		}
+@@ -2164,7 +2160,7 @@
+ 			blk_cleanup_queue(&SDpnt->request_queue);
+ 			/* Next free up the Scsi_Device structures for this host */
+ 			shpnt->host_queue = SDpnt->next;
+-			kfree((char *) SDpnt);
++			kfree(SDpnt);
 
-						Thanx, Paul
+ 		}
+ 	}
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
+

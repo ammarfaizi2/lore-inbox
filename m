@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267479AbSKQJkt>; Sun, 17 Nov 2002 04:40:49 -0500
+	id <S267477AbSKQJlw>; Sun, 17 Nov 2002 04:41:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267480AbSKQJkt>; Sun, 17 Nov 2002 04:40:49 -0500
-Received: from orion.netbank.com.br ([200.203.199.90]:32015 "EHLO
+	id <S267475AbSKQJlw>; Sun, 17 Nov 2002 04:41:52 -0500
+Received: from orion.netbank.com.br ([200.203.199.90]:35599 "EHLO
 	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id <S267479AbSKQJkY>; Sun, 17 Nov 2002 04:40:24 -0500
-Date: Sun, 17 Nov 2002 07:47:13 -0200
+	id <S267480AbSKQJk7>; Sun, 17 Nov 2002 04:40:59 -0500
+Date: Sun, 17 Nov 2002 07:47:49 -0200
 From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: Christoph Hellwig <hch@lst.de>, Matthew Wilcox <willy@debian.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] intermezzo: fix up header file cleanups
-Message-ID: <20021117094713.GD27699@conectiva.com.br>
+Subject: [PATCH] jffs2: fix up header file cleanups
+Message-ID: <20021117094748.GE27699@conectiva.com.br>
 Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
 	Linus Torvalds <torvalds@transmeta.com>,
 	Christoph Hellwig <hch@lst.de>, Matthew Wilcox <willy@debian.org>,
@@ -41,47 +41,46 @@ You can import this changeset into BK by piping this whole message to:
 ===================================================================
 
 
-ChangeSet@1.848, 2002-11-17 07:33:35-02:00, acme@conectiva.com.br
+ChangeSet@1.849, 2002-11-17 07:37:45-02:00, acme@conectiva.com.br
   Fix up after header file cleanups: add <linux/mount.h> to
-  intermezzo that got it implicitly before.
+  jffs2 that got it implicitly before.
 
 
- intermezzo_fs.h |    1 +
+ super.c |    1 +
  1 files changed, 1 insertion(+)
 
 
-diff -Nru a/include/linux/intermezzo_fs.h b/include/linux/intermezzo_fs.h
---- a/include/linux/intermezzo_fs.h	Sun Nov 17 07:34:24 2002
-+++ b/include/linux/intermezzo_fs.h	Sun Nov 17 07:34:24 2002
-@@ -54,6 +54,7 @@
- #ifdef __KERNEL__
- # include <linux/smp.h>
- # include <linux/fsfilter.h>
-+# include <linux/mount.h>
- # include <linux/slab.h>
- # include <linux/vmalloc.h>
- # include <linux/smp_lock.h>
+diff -Nru a/fs/jffs2/super.c b/fs/jffs2/super.c
+--- a/fs/jffs2/super.c	Sun Nov 17 07:38:01 2002
++++ b/fs/jffs2/super.c	Sun Nov 17 07:38:01 2002
+@@ -19,6 +19,7 @@
+ #include <linux/init.h>
+ #include <linux/list.h>
+ #include <linux/fs.h>
++#include <linux/mount.h>
+ #include <linux/jffs2.h>
+ #include <linux/pagemap.h>
+ #include <linux/mtd/mtd.h>
 
 ===================================================================
 
 
 This BitKeeper patch contains the following changesets:
-1.848
+1.849
 ## Wrapped with gzip_uu ##
 
 
-begin 664 bkpatch9178
-M'XL(`*!BUST``]U476O;,!1]CG[%A3Z.V/=*_HJ92];NDPX6,OHTQE!EI3:S
-M+6/+65O\XZ=D60)9*-W87F8+!+Z^1^?H'.X97/>Z2R=2U9J=P5O3VW2B3*.5
-M+=?24Z;V;CI76!KC"GYA:NU?7/EEHZHAU_V4>R%SY86TJH"U[OIT0I[8?['W
-MK4XGRU=OKM^_6#*697!9R.96?]06LHQ9TZUEE?=S:8O*-)[M9-/7VFX/'O>_
-MCAR1NS>D6&`8C11A$(^*<B(9D,Z1!TD4L(V&^3'W(Q0BBG$F4(0CT8P2]A+(
-M2X($D/M$/L6`<2I$*L(I\A013H+",X(IL@OXNP(NF8+7Y1T,+<B5U1T46N9N
-M6Y65!E5IV0QMGX+,<WA>E<UPY]=F:*Q7G#LBKK=L7%.M'QX,V$):N#462K?J
-MMBI5::M[N-$KTVF/70$1=^H7!S_8]#<?QE`B.X=VX_3I"]C%Q/]!]D#ORZKW
-MBOVE<!2"@A&3),`QUI&.PB3*11R'B0I.&_`$Y)W30O`1(Q'/MNE[M&V3R'\K
-MAJW+SLQK!^^U_>#I?/CT,T&?GR()^0QYB"(>,7`G;,,;_Q)=_I]'=^OF!YAV
-MW[;+)7'QN+%_$.UW803DQM@.]YCT8>:I0JNO_5!G%+DQDDC-O@,D.`<A4P4`
-!````
+begin 664 bkpatch11665
+M'XL(`'ECUST``]U4VXK;,!!]CKYB((\EMD:2+S'-DN[VRA8:4O8#9%F.W;4M
+M8\GI+OCCJZ1+%K+I0\L^51H0:$:C,W,.,X<[JX=L)E6KR1P^&^NRF3*=5J[>
+MRT"9-L@'[]@:XQUA95H=7M^&=:>:L=!VP8*(>/=&.E7!7@\VFV'`3S?NL=?9
+M;/OAT]W7=UM"5BNXJ62WT]^U@]6*.#/L95/8M7158[K`#;*SK7;'CZ=3Z,0H
+M97Y'F'`:Q1/&5"23P@)1"M0%92*-!3G4L#['?I8%$1.ZY)Q'$R+#E+P'#%*Q
+M!,I"Q!`3H$G&DTQ$"\HR2N%B4GB#L*#D&EZW@!NBX&/]`&,/LG1Z@$K+PA]E
+MW6A0C9;=V-L,9%'`VZ;NQH>P-6/G@NK*`_%O?Y2E9>`JZ6!G'-3>VKZI5>V:
+M1\AU:08=D%OPA0M*-L]4D,5?+D*HI.0*^@/)EVLO;7B$$]JQUT.@3BU@%%.^
+MG%`P)J9EJA2G2:)SS$49I9?;?3G9$Y6)8%,<B9@>Y74>>5#9JZ,D^<XKW:V+
+MNNA<,:K[P`R[/X"D-&4\8I[TF/ND1[TQ^D)N[/^5VV]ROL%B^'DT+Y_-"Y[^
+D08)?&`*2^=,H.H?X/)54I=6]'=L53V,>E5B27Q)U6P_U!```
 `
 end

@@ -1,64 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136510AbREIOqJ>; Wed, 9 May 2001 10:46:09 -0400
+	id <S136506AbREIOpt>; Wed, 9 May 2001 10:45:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136511AbREIOpt>; Wed, 9 May 2001 10:45:49 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:25610 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S136510AbREIOpe>; Wed, 9 May 2001 10:45:34 -0400
-Subject: Re: reiserfs, xfs, ext2, ext3
-To: martin@bugs.unl.edu.ar (=?iso-8859-1?q?Mart=EDn=20Marqu=E9s?=)
-Date: Wed, 9 May 2001 15:49:17 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <01050910381407.26653@bugs> from "=?iso-8859-1?q?Mart=EDn=20Marqu=E9s?=" at May 09, 2001 10:38:14 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S136511AbREIOpq>; Wed, 9 May 2001 10:45:46 -0400
+Received: from capitanata.ca.astro.it ([192.167.8.254]:11013 "EHLO
+	capitanata.ca.astro.it") by vger.kernel.org with ESMTP
+	id <S136506AbREIOpW>; Wed, 9 May 2001 10:45:22 -0400
+Date: Wed, 9 May 2001 16:45:15 +0200 (CEST)
+From: Giacomo Mulas <gmulas@ca.astro.it>
+To: linux-kernel@vger.kernel.org
+Subject: kernel 2.4.4: BUG in ll_rw_blk.c?
+Message-ID: <Pine.LNX.4.21.0105091634370.29725-100000@capitanata.ca.astro.it>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14xVHE-0002VB-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> that reiserfs has had lots of bugs, and is marked as experimental in kernel 
-> 2.4.4. Not to mention that the people of RH discourage there users from using 
-> it.
+	I am running a 2.4.4 kernel compiled from the sources in the
+debian kernel-source package (it only includes a couple of small patches
+taken from pre and ac, as far as I can tell) and run in the following
+oopses, always while compiling the kernel itself. Here I included three
+different oopses, and the computer had been rebooted between them (for
+different reasons). Is this a known bug? Any fix available for it?
+The computer is a 500MHz PIII, with a 440BX chipset on the motherboard,
+more data available if required (just ask) running debian potato. The only
+"nonstandard" system component is a 2.1.3 libc6 compiled with the 2.4.4
+kernel headers, to be able to use large files. Here come the
+(decoded) oopses:
 
-At the time Red Hat 7.1 was mastered Reiserfs was not stable. The reiserfs in
-the RH kernel has some of the tail fixes but newer ones are not present. Also
-it had other problems then: the fsck tool was useless, it didnt work on
-big endian machines (eg PPC, S/390).
+May  7 14:57:11 stampace kernel: elevator returned crap (-1072325408)
+May  7 14:57:11 stampace kernel: kernel BUG at ll_rw_blk.c:778!
+May  7 14:57:11 stampace kernel: invalid operand: 0000
+May  7 14:57:11 stampace kernel: CPU:    0
+May  7 14:57:11 stampace kernel: EIP:    0010:[__make_request+950/1696]
+May  7 14:57:11 stampace kernel: EFLAGS: 00010082
+May  7 14:57:11 stampace kernel: eax: 0000001f   ebx: 00000000   ecx: ccdcc000   edx: c0229328
+May  7 14:57:11 stampace kernel: esi: cc147840   edi: 00000008   ebp: c02af660   esp: cc257e08
+May  7 14:57:11 stampace kernel: ds: 0018   es: 0018   ss: 0018
+May  7 14:57:11 stampace kernel: Process cpp (pid: 18004, stackpage=cc257000)
+May  7 14:57:11 stampace kernel: Stack: c01f801f c01f8262 0000030a 000000ff cc147840 00000001 0000000c c02ac9a0 
+May  7 14:57:11 stampace kernel:        c02af688 0000000c 00001000 00000246 00002000 c02af690 c1472d80 c02af688 
+May  7 14:57:11 stampace kernel:        000000ff 00000000 00000000 012a19c8 00000000 c0158f81 c02af660 00000000 
+May  7 14:57:11 stampace kernel: Call Trace: [generic_make_request+293/308] [submit_bh+87/116] [block_read_full_page+525/548] [add_to_page_cache_unique+198/208] [ext2_readpage+15/20] [ext2_get_block+0/1168] [generic_file_readahead+548/668] 
+May  7 14:57:11 stampace kernel:        [do_generic_file_read+838/1292] [generic_file_read+91/120] [file_read_actor+0/84] [sys_read+150/204] [system_call+51/56] 
+May  7 14:57:11 stampace kernel: 
+May  7 14:57:11 stampace kernel: Code: 0f 0b 83 c4 0c 83 7c 24 38 00 74 12 8b 44 24 38 89 44 24 40 
 
-If Hans sent me a patch removing the experimental tag from Reiserfs the only
-thing that would make me hesitate the slightest from applying it would be the
-endianness thing, and thats not enough to stop it being applied.
+May  8 15:35:06 stampace kernel: elevator returned crap (-1072325408)
+May  8 15:35:06 stampace kernel: kernel BUG at ll_rw_blk.c:778!
+May  8 15:35:06 stampace kernel: invalid operand: 0000
+May  8 15:35:06 stampace kernel: CPU:    0
+May  8 15:35:06 stampace kernel: EIP:    0010:[__make_request+950/1696]
+May  8 15:35:06 stampace kernel: EFLAGS: 00010082
+May  8 15:35:06 stampace kernel: eax: 0000001f   ebx: 00000000   ecx: c33f2000   edx: c0227b48
+May  8 15:35:06 stampace kernel: esi: c3d8a6e0   edi: 00000008   ebp: c02ad660   esp: c6f97e08
+May  8 15:35:06 stampace kernel: ds: 0018   es: 0018   ss: 0018
+May  8 15:35:06 stampace kernel: Process cpp (pid: 18605, stackpage=c6f97000)
+May  8 15:35:06 stampace kernel: Stack: c01f7957 c01f7b62 0000030a 000000ff c3d8a6e0 00000001 0000000c c02aa9a0 
+May  8 15:35:06 stampace kernel:        c02ad688 0000000c 00001000 00000246 00002000 c02ad690 c1470a80 c02ad688 
+May  8 15:35:06 stampace kernel:        000000ff 00000000 00000000 00cc8ca0 00000000 c0158f81 c02ad660 00000000 
+May  8 15:35:06 stampace kernel: Call Trace: [generic_make_request+293/308] [submit_bh+87/116] [block_read_full_page+525/548] [add_to_page_cache_unique+198/208] [ext2_readpage+15/20] [ext2_get_block+0/1168] [generic_file_readahead+548/668] 
+May  8 15:35:06 stampace kernel:        [do_generic_file_read+838/1292] [generic_file_read+91/120] [file_read_actor+0/84] [sys_read+150/204] [system_call+51/56] 
+May  8 15:35:06 stampace kernel: 
+May  8 15:35:06 stampace kernel: Code: 0f 0b 83 c4 0c 83 7c 24 38 00 74 12 8b 44 24 38 89 44 24 40 
 
-> There has also been lots of talks about reiserfs being the cause of some data 
-> lose and performance lose (not sure about this last one).
+May  9 16:15:22 stampace kernel: elevator returned crap (-1072325408)
+May  9 16:15:22 stampace kernel: kernel BUG at ll_rw_blk.c:778!
+May  9 16:15:22 stampace kernel: invalid operand: 0000
+May  9 16:15:22 stampace kernel: CPU:    0
+May  9 16:15:22 stampace kernel: EIP:    0010:[__make_request+950/1696]
+May  9 16:15:22 stampace kernel: EFLAGS: 00010082
+May  9 16:15:22 stampace kernel: eax: 0000001f   ebx: 00000000   ecx: c289a000   edx: c0227b48
+May  9 16:15:22 stampace kernel: esi: cd389ae0   edi: 00000008   ebp: c02ad660   esp: c3b09e08
+May  9 16:15:22 stampace kernel: ds: 0018   es: 0018   ss: 0018
+May  9 16:15:22 stampace kernel: Process cpp (pid: 13267, stackpage=c3b09000)
+May  9 16:15:22 stampace kernel: Stack: c01f7957 c01f7b62 0000030a 000000ff cd389ae0 00000001 0000000c c02aa9a0 
+May  9 16:15:22 stampace kernel:        c02ad688 0000000c 00001000 00000246 00002000 c02ad690 c146e240 c02ad688 
+May  9 16:15:22 stampace kernel:        000000ff 00000000 00000000 0108d270 00000000 c0158f81 c02ad660 00000000 
+May  9 16:15:22 stampace kernel: Call Trace: [generic_make_request+293/308] [submit_bh+87/116] [block_read_full_page+525/548] [add_to_page_cache_unique+198/208] [ext2_readpage+15/20] [ext2_get_block+0/1168] [generic_file_readahead+548/668] 
+May  9 16:15:22 stampace kernel:        [do_generic_file_read+838/1292] [generic_file_read+91/120] [file_read_actor+0/84] [sys_read+150/204] [system_call+51/56] 
+May  9 16:15:22 stampace kernel: 
+May  9 16:15:22 stampace kernel: Code: 0f 0b 83 c4 0c 83 7c 24 38 00 74 12 8b 44 24 38 89 44 24 40 
 
-If you are running 2.4.4/2.4.4-ac/2.4.5pre I believe all the relevant reiserfs
-patches are applied. The new fsck seems to work a lot better too. The limiters
-right now are:
-	-	You need a patch for NFS (its on their site no big deal)
-	-	You can only use little endian boxes (x86 for you so ok)
+Bye, thanks
+Giacomo Mulas
 
-> So what I want is to know which is the status of this 3 journaling FS. Which 
-> is the one we should look for?
-> 
-> I think that the data lose is not significant in a proxy cache, if the FS is 
-> really fast, as is said reiserfs is.
+_________________________________________________________________
 
-reiserfs seems to handle large amounts of small files well, up to a point but
-it also seems to degrade over time. ext3 isnt generally available for 2.4 but
-is proving very solid on 2.2 and has good fsck tools. Ext3 does not add
-anything over ext2 in terms of large directories of files and other ext2
-performance limits.
+Giacomo Mulas <gmulas@ca.astro.it, giacomo.mulas@tin.it>
+_________________________________________________________________
 
-XFS is very fast most of the time (deleting a file is sooooo slow its like using
-old BSD systems). Im not familiar enough with its behaviour under Linux yet.
+OSSERVATORIO  ASTRONOMICO
+Str. 54, Loc. Poggio dei Pini * 09012 Capoterra (CA)
 
-What you might want to do is to make a partition for 'mystery journalling fs'
-and benchmark a bit.
+Tel.: +39 070 71180 216     Fax : +39 070 71180 222
+_________________________________________________________________
 
-Alan
+"When the storms are raging around you, stay right where you are"
+                         (Freddy Mercury)
+_________________________________________________________________
 

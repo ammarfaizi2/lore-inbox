@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317392AbSFRMSi>; Tue, 18 Jun 2002 08:18:38 -0400
+	id <S317391AbSFRMSW>; Tue, 18 Jun 2002 08:18:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317393AbSFRMSh>; Tue, 18 Jun 2002 08:18:37 -0400
-Received: from h-64-105-35-162.SNVACAID.covad.net ([64.105.35.162]:33163 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S317392AbSFRMSg>; Tue, 18 Jun 2002 08:18:36 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Tue, 18 Jun 2002 05:18:29 -0700
-Message-Id: <200206181218.FAA08522@adam.yggdrasil.com>
-To: kai@tp1.ruhr-uni-bochum.de, linux-kernel@vger.kernel.org
-Subject: Various kbuild problems in 2.5.22
+	id <S317392AbSFRMSV>; Tue, 18 Jun 2002 08:18:21 -0400
+Received: from kim.it.uu.se ([130.238.12.178]:21391 "EHLO kim.it.uu.se")
+	by vger.kernel.org with ESMTP id <S317391AbSFRMSU>;
+	Tue, 18 Jun 2002 08:18:20 -0400
+From: Mikael Pettersson <mikpe@csd.uu.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15631.9479.534511.239780@kim.it.uu.se>
+Date: Tue, 18 Jun 2002 14:18:15 +0200
+To: A Guy Called Tyketto <tyketto@wizard.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.5 floppy driver status [was: 2.5.22 Floppy Oops]
+In-Reply-To: <20020618005007.GA2001@wizard.com>
+References: <20020618005007.GA2001@wizard.com>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	I would like to note the following problems with the
-kernel build process in 2.5.22, after applying the patch that
-Kai Germaschewski posted that enabled modversions to work again.
-All but the first one are spurious dependencies.
+A Guy Called Tyketto writes:
+ >         This oops is reproducible on 2.5.22 with the floppy driver built as a
+ > module. Steps involved were:
 
+[oops from generic_unplug_device()]
 
-	1. doing make modversions twice results in bad .ver files, with
-lines like:
+Known issue.
 
-#define __ver_pcmcia_get_mem_page_Rsmp_3d2ded54 smp_ba03375b
-#define pcmcia_get_mem_page_Rsmp_3d2ded54       _set_ver(pcmcia_get_mem_page_Rsmp_3d2ded54)
+The problem is that the floppy driver is broken since the block I/O
+and VFS changes in 2.5.13. I have a partial fix, which you can get from
+http://www.csd.uu.se/~mikpe/linux/patches/2.5/patch-fix-floppy-2.5.22
+or from the current -dj patch kit, but it only repairs raw access so
+things like tar/dd to/from /dev/fd0 work. VFS access to mounted floppies
+causes data corruption, but I have no fix in sight for that yet.
 
-	...which should be:
-
-#define __ver_pcmcia_get_mem_page smp_ba03375b
-#define pcmcia_get_mem_page       _set_ver(pcmcia_get_mem_page)
-
-	2. "make bzImage" does not build a bzImage if any module fails
-to compile.  Really, it should not attempt to buidl modules or even
-descend into directories that contain only modules.  To build a bzImage,
-I have to edit the Makefile and comment out "BUILD_MODULES:=1".
-
-	3. make include/linux/modversios.h aborts if any .c file has
-a #error or #include's a .h that is not present (for example, because
-the .h is built by the process, as is the case with one scsi driver).
-
-	4. "make -k modules" will not build perfectly buildable modules
-in a directory that has a subdirectory where a compile error occurs.
-
-	All of this used to work a couple of kernel versions ago.
-
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+/Mikael

@@ -1,93 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264127AbTGCPIR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 11:08:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264099AbTGCPIR
+	id S264235AbTGCPP4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 11:15:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264262AbTGCPP4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 11:08:17 -0400
-Received: from lopsy-lu.misterjones.org ([62.4.18.26]:44558 "EHLO
-	young-lust.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
-	id S264144AbTGCPIM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 11:08:12 -0400
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-scsi@vger.kernel.org, James.Bottomley@steeleye.com
-Subject: Re: 2.5.74: aha1740.c doesn't compile
-Organization: Metropolis -- Nowhere
-X-Attribution: maz
-Reply-to: mzyngier@freesurf.fr
-References: <Pine.LNX.4.44.0307021433520.2323-100000@home.osdl.org>
-	<20030703101846.GH282@fs.tum.de>
-	<wrpy8zfizqd.fsf@hina.wild-wind.fr.eu.org>
-	<20030703142705.GL282@fs.tum.de>
-From: Marc Zyngier <mzyngier@freesurf.fr>
-Date: Thu, 03 Jul 2003 17:16:51 +0200
-Message-ID: <wrpfzlniqsc.fsf@hina.wild-wind.fr.eu.org>
-In-Reply-To: <20030703142705.GL282@fs.tum.de> (Adrian Bunk's message of
- "Thu, 3 Jul 2003 16:27:06 +0200")
+	Thu, 3 Jul 2003 11:15:56 -0400
+Received: from web41111.mail.yahoo.com ([66.218.93.27]:10013 "HELO
+	web41111.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264235AbTGCPPz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jul 2003 11:15:55 -0400
+Message-ID: <20030703153021.7491.qmail@web41111.mail.yahoo.com>
+Date: Thu, 3 Jul 2003 08:30:21 -0700 (PDT)
+From: Benjamin Stuhl <tiriath@yahoo.com>
+Subject: Re: Yet another SDET hang (73-mm3) ... yawn
+To: "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Adrian" == Adrian Bunk <bunk@fs.tum.de> writes:
+"Martin J. Bligh" <mbligh@aracnet.com> wrote:
+>
+> 2.5.73-mm3 + feral + highpte (ext2)
+>
+> Seems to be all wedged up on io_schedule. Not sure if it
+was
+> highpte that caused this or not, but I'd done one run on
+ext2
+> and one on ext3 without it, and they worked fine. 
 
-Adrian> On Thu, Jul 03, 2003 at 02:03:38PM +0200, Marc Zyngier wrote:
->> >>>>> "Adrian" == Adrian Bunk <bunk@fs.tum.de> writes:
->> 
-Adrian> drivers/scsi/aha1740.c fails to build on 2.5.74 withthe
-Adrian> following error:
->> 
->> Weird error.
->> 
->> Compiles just fine here... Please send your .config.
+I have been wrestling myself with D state hangs (ext3/ 
+reiserfs) in 2.5.7X-mmY for a while now, but haven't been 
+able to capture a sysrq-T. I have a question, though 
+(inspired by the trace you got): who does a finish_wait() 
+for a !is_sync_wait() process after
+blk_congestion_wait_wq() 
+or __wait_on_buffer_wq()? Both of these functions can 
+return after a prepare_to_wait() without a matching 
+finish_wait(). 
 
-Adrian> It's attached.
+So perhaps you could try backing out the aio-* patches?
+Just 
+a thought.
 
-Ok, paper bag, please. I should _really_ use DEBUG_SPINLOCK...
+Please CC: me; I only read the archives.
 
-James, please apply.
+-- BKS
 
-       M.
-
---- linux-2.5/drivers/scsi/aha1740.c	2003-07-01 18:51:30.000000000 +0200
-+++ linux-2.5.74/drivers/scsi/aha1740.c	2003-07-03 17:12:31.000000000 +0200
-@@ -375,7 +375,7 @@
- #endif
- 
- 	/* locate an available ecb */
--	spin_lock_irqsave(&SCpnt->device->host->host_lock, flags);
-+	spin_lock_irqsave(SCpnt->device->host->host_lock, flags);
- 	ecbno = host->last_ecb_used + 1; /* An optimization */
- 	if (ecbno >= AHA1740_ECBS)
- 		ecbno = 0;
-@@ -394,7 +394,7 @@
- 						    doubles as reserved flag */
- 
- 	host->last_ecb_used = ecbno;    
--	spin_unlock_irqrestore(&SCpnt->device->host->host_lock, flags);
-+	spin_unlock_irqrestore(SCpnt->device->host->host_lock, flags);
- 
- #ifdef DEBUG
- 	printk("Sending command (%d %x)...", ecbno, done);
-@@ -491,7 +491,7 @@
- 		unsigned int base = SCpnt->device->host->io_port;
- 		DEB(printk("aha1740[%d] critical section\n",ecbno));
- 
--		spin_lock_irqsave(&SCpnt->device->host->host_lock, flags);
-+		spin_lock_irqsave(SCpnt->device->host->host_lock, flags);
- 		for (loopcnt = 0; ; loopcnt++) {
- 			if (inb(G2STAT(base)) & G2STAT_MBXOUT) break;
- 			if (loopcnt == LOOPCNT_WARN) {
-@@ -511,7 +511,7 @@
- 				panic("aha1740.c: attn wait failed!\n");
- 		}
- 		outb(ATTN_START | (target & 7), ATTN(base)); /* Start it up */
--		spin_unlock_irqrestore(&SCpnt->device->host->host_lock, flags);
-+		spin_unlock_irqrestore(SCpnt->device->host->host_lock, flags);
- 		DEB(printk("aha1740[%d] request queued.\n",ecbno));
- 	} else
- 		printk(KERN_ALERT "aha1740_queuecommand: done can't be NULL\n");
-
--- 
-Places change, faces change. Life is so very strange.
+__________________________________
+Do you Yahoo!?
+SBC Yahoo! DSL - Now only $29.95 per month!
+http://sbc.yahoo.com

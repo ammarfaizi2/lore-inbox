@@ -1,53 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264297AbUEII76@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264316AbUEIJC4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264297AbUEII76 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 May 2004 04:59:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264315AbUEII76
+	id S264316AbUEIJC4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 May 2004 05:02:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264322AbUEIJC4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 May 2004 04:59:58 -0400
-Received: from [80.72.36.106] ([80.72.36.106]:23682 "EHLO alpha.polcom.net")
-	by vger.kernel.org with ESMTP id S264297AbUEII75 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 May 2004 04:59:57 -0400
-Date: Sun, 9 May 2004 10:59:48 +0200 (CEST)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Rene Rebe <rene@rocklinux-consulting.de>
-Cc: john@grabjohn.com, shemminger@osdl.org, linux-kernel@vger.kernel.org,
-       rock-user@rocklinux.org
-Subject: Re: Distributions vs kernel development
-In-Reply-To: <20040509.105253.26927810.rene@rocklinux-consulting.de>
-Message-ID: <Pine.LNX.4.58.0405091057060.14709@alpha.polcom.net>
-References: <409BB334.7080305@pobox.com> <20040509.084923.558886277.rene@rocklinux-consulting.de>
- <200405090707.i49776Iv000342@81-2-122-30.bradfords.org.uk>
- <20040509.105253.26927810.rene@rocklinux-consulting.de>
+	Sun, 9 May 2004 05:02:56 -0400
+Received: from moraine.clusterfs.com ([66.246.132.190]:23197 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S264316AbUEIJCx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 May 2004 05:02:53 -0400
+From: "Peter J. Braam" <braam@clusterfs.com>
+To: <akpm@osdl.org>
+Cc: <intermezzo-devel@lists.sourceforge.net>, <arjanv@redhat.com>,
+       <linux-kernel@vger.kernel.org>, "'Anton Blanchard'" <anton@samba.org>
+Subject: RE: 9/10 intermezzos prefer eating memory
+Date: Sun, 9 May 2004 17:01:54 +0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+Thread-Index: AcQwHr/n2dBTZBe2RBqO7890Zt+jxwFgtqrQ
+In-Reply-To: <1083486146.3842.1.camel@laptop.fenrus.com>
+Message-Id: <20040509090249.A78D03100BD@moraine.clusterfs.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 9 May 2004, Rene Rebe wrote:
+ 
+Hi Andrew, 
 
-> Hi,
+I would just like to say that I have no difficulties with intermezzo being
+rm -rf'd.  There are probably only a handful of users.   
+
+In the past 4 years nobody has supported InterMezzo sufficiently for it to
+become successful. I have been fortunate to get really good support for the
+Lustre project.  So I have focussed on that.  Lustre 1.X has become really
+solid.
+
+The disconnected operation, caching and mirroring functionality of
+InterMezzo will become available in Lustre as a new feature in version 2.  
+
+So I see no point in keeping InterMezzo if it is a nuisance.  
+
+I am also entirely happy to ask my one part time InterMezzo programmer to do
+a better job of repeatedly sending pathes until they are in.
+
+Please guide me along.  Thanks!
+
+- Peter -
+
+
+> -----Original Message-----
+> From: intermezzo-devel-admin@lists.sourceforge.net 
+> [mailto:intermezzo-devel-admin@lists.sourceforge.net] On 
+> Behalf Of Arjan van de Ven
+> Sent: Sunday, May 02, 2004 4:22 PM
+> To: Anton Blanchard
+> Cc: akpm@osdl.org; intermezzo-devel@lists.sourceforge.net; 
+> linux-kernel@vger.kernel.org
+> Subject: Re: 9/10 intermezzos prefer eating memory
 > 
-> On: Sun, 9 May 2004 08:07:06 +0100,
->     John Bradford <john@grabjohn.com> wrote:
-> > > Since other use this chance to propose already well known
-> > > distributions
+> On Sun, 2004-05-02 at 10:00, Anton Blanchard wrote:
+> > Hi,
 > > 
-> > To be honest, why use a distribution at all, or if you do use one, why worry
-> > about 'following' it after installation, instead of using it as a base from
-> > which to do your own thing?
+> > Im sure the 4kB stack brigade wont be too happy about this:
 > 
-> In this case you might want to know that ROCK Linux is not yet another
-> distribution but a distribution build kit including and build system
-> to rebuild the whole distribution in a sorted and clean manner.
+> I thought intermezzo would have been rm -rf'd by now...
 > 
-> And no, it is not like Gentoo where you need to rebuild on each box or
-> so.
-
-You have binary packages in Gentoo so you can build once for many 
-machines. All you need is to add one option to /etc/make.conf.
-
-
-Grzegorz Kulewski
 

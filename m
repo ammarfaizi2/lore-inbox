@@ -1,84 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268383AbUIBOts@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268360AbUIBOwI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268383AbUIBOts (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 10:49:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268370AbUIBOts
+	id S268360AbUIBOwI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 10:52:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268365AbUIBOwH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 10:49:48 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:5558 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S268401AbUIBOlr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 10:41:47 -0400
-Date: Thu, 2 Sep 2004 16:43:01 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Mark_H_Johnson@raytheon.com
-Cc: "K.R. Foley" <kr@cybsft.com>, Lee Revell <rlrevell@joe-job.com>,
-       Thomas Charbonnel <thomas@undata.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q7
-Message-ID: <20040902144301.GA11224@elte.hu>
-References: <OF3E3C1690.FD6E285E-ON86256F03.004CDD15-86256F03.004CDD4F@raytheon.com>
-Mime-Version: 1.0
+	Thu, 2 Sep 2004 10:52:07 -0400
+Received: from ihemail1.lucent.com ([192.11.222.161]:30902 "EHLO
+	ihemail1.lucent.com") by vger.kernel.org with ESMTP id S268360AbUIBOso
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 10:48:44 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OF3E3C1690.FD6E285E-ON86256F03.004CDD15-86256F03.004CDD4F@raytheon.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Transfer-Encoding: 7bit
+Message-ID: <16695.13000.673402.782323@gargle.gargle.HOWL>
+Date: Thu, 2 Sep 2004 10:48:40 -0400
+From: "John Stoffel" <stoffel@lucent.com>
+To: Andrew Haninger <ahaning@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Coolmax HD-211-COMBO with Prolific PL3507 chipset
+In-Reply-To: <105c793f0409020709459a1e05@mail.gmail.com>
+References: <105c793f0409020709459a1e05@mail.gmail.com>
+X-Mailer: VM 7.14 under Emacs 20.6.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
+Andrew> I recently purchased a USB2+Firewire 2.5" portable harddrive
+Andrew> enclosure. The enclosure is from Coolmax and is a
+Andrew> HD-211-COMBO. The chipset is a Firewire and USB2 all-in-one
+Andrew> deal called PL3507 from Prolific. I've read a bit about this
+Andrew> chipset and few people (who are talking, at least) seem to
+Andrew> have much success with it. I am strongly considering returning
+Andrew> the enclosure for a refund.
 
-> The test just completed. Over 100 traces (>500 usec) in 25 minutes
-> of test runs.
-> 
-> To recap - this kernel has:
-> 
-> Downloaded linux-2.6.8.1 from
->   http://www.kernel.org/pub/linux/kernel/v2.6/linux-2.6.8.1.tar.bz2
-> Downloaded patches from
-> http://redhat.com/~mingo/voluntary-preempt/diff-bk-040828-2.6.8.1.bz2
-> http://people.redhat.com/mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc1-bk4-Q7
-> ... email saved into mark-offset-tsc-mcount.patch ...
-> ... email saved into ens001.patch ...
+Return it.  I've got a Prolific chipset enclosure and I can't make it
+work properly under either Linux of my wife's Windows 2000 box.  I
+paid's my money and took's my chances.  I'm a sucker.
 
-thanks for the data. There are dozens of traces that show a big latency
-for no algorithmic reason, in completely unlocked codepaths. In these
-places the CPU seems to have an inexplicable inability to run simple
-sequential code that has no looping potential at all.
+Andrew> I have been able to get it to be detected and work on just one
+Andrew> machine running Linux; an IBM xSeries 206 server running
+Andrew> Fedora Core 2 (kernel 2.6.5). The device is rarely detected,
+Andrew> but when it is, it seems to use the EHCI driver and it works
+Andrew> fine until you unplug it and try to plug it back in. This
+Andrew> behavior is not only limited to Linux, though. I have found
+Andrew> just one Windows machine so far that detects it fine even if
+Andrew> it is unplugged and plugged back in.
 
-the NMI samples show that just about any kernel code can be delayed by
-this phenomenon - the kernel functions that have critical sections show
-up by their likely frequency of use. There doesnt seem to be anything
-common to the functions that show these delays, other than that they
-have a critical section and that they are running in your workload.
+Detection was never the problem for me under either Linux or Windows,
+it was that if you started writing data to it, it would choke and hang
+completely.  You could run badblocks on the device without problems,
+do a mkfs as well.  No problem.  Just try to write too much data (or
+as I suspect in too large chunks) and it just wigged out and locked up
+the drive.  At least under firewire it didn't take down the box.
 
-so the remaining theories are:
+It didn't work much better under USB2.0 (linux only testing though)
+since it would write more data, but it would completely hang the
+system.  
 
- - DMA starvation. I've never seen anything on this scale but it's
-   pretty much the only thing interacting with a CPU's ability to
-   execute code - besides the other CPU running in the system.
+Andrew> So, while I'm very likely going to make use of Newegg's 30-day
+Andrew> money-back guarantee, I thought I'd try to help the community
+Andrew> out however I can. Not everyone has the luxury of being able
+Andrew> to return their hardware for a refund. So if I can help
+Andrew> someone who is developing a driver by testing it, I'd like to
+Andrew> do that.  If anyone has any drivers that they are writing that
+Andrew> might help to make this device work on Linux, I would be happy
+Andrew> to be a guinea pig for your project.
 
-   i'd not be surprised if some audio cards tried tricks to do as 
-   agressive DMA as physically possible, even violating hw
-   specifications - for the purpose of producing skip-free audio output. 
-   Do you have another soundcard for testing by any chance? Another 
-   option would be to try latencytest driven not by the soundcard IRQ 
-   but by /dev/rtc.
+The only thing I've seen which I haven't had time to work on yet,
+thanks to a two year old little boy, is to take the iee1394 drives
+from the 2.6.2 kernel and move them forward to the 2.6.8 kernel.  Some
+people have reported success with the sbp2 driver in that case.  
 
- - some sort of SMM handler that is triggered on I/O ops or something. 
-   But a number of functions in the traces dont do any I/O ops (port
-   instructions like IN or OUT) so it's hard to imagine this to be the 
-   case. An externally triggered SMM is possible too, perhaps some
-   independent timer triggers a watchdog SMM?
+In my case, I suspect that the prolific chipset sucks rocks. 
 
-it is nearly impossible for these traces to be caused by the kernel. It
-really has to be some hardware effect, based on the data we have so far.
-
-	Ingo
+John
+   John Stoffel - Senior Unix Systems Administrator - Lucent Technologies
+	 stoffel@lucent.com - http://www.lucent.com - 978-952-7548

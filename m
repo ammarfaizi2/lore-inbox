@@ -1,34 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263709AbUGRKVb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263740AbUGRKWu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263709AbUGRKVb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jul 2004 06:21:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263740AbUGRKVb
+	id S263740AbUGRKWu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jul 2004 06:22:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263714AbUGRKWu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jul 2004 06:21:31 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:1150 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S263709AbUGRKVa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jul 2004 06:21:30 -0400
-Subject: Re: linux-kernel CVS gateway?
-From: Kasper Sandberg <lkml@metanurb.dk>
-To: Martin Waitz <tali@admingilde.org>
-Cc: LKML Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040717213703.GE5464@admingilde.org>
-References: <20040717213703.GE5464@admingilde.org>
-Content-Type: text/plain
-Date: Sun, 18 Jul 2004 11:18:56 +0200
-Message-Id: <1090142336.15165.1.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9 
+	Sun, 18 Jul 2004 06:22:50 -0400
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:42901 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S263740AbUGRKWn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jul 2004 06:22:43 -0400
+Message-ID: <40FA4F6D.9000906@t-online.de>
+Date: Sun, 18 Jul 2004 12:22:37 +0200
+From: "Harald Dunkel" <harald.dunkel@t-online.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8a3) Gecko/20040717
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Vojtech Pavlik <vojtech@suse.cz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7, amd64: PS/2 Mouse detection doesn't work
+References: <40F0E586.4040000@t-online.de> <20040711084208.GA1322@ucw.cz>
+In-Reply-To: <20040711084208.GA1322@ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-ID: ZG5Kh0Zb8ezocIK2-WDCiLvGvjk2pZ1A3I09exH2sGttR973RmsIcV
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-07-17 at 23:37 +0200, Martin Waitz wrote:
-> hi :)
-> 
-> the hostname cvs.kernel.org exists but nobody listens on port 2401.
-> Is it deactivated on purpose or just broken?
-they are using bitkeeper
+Vojtech Pavlik wrote:
+
+>  
+> Build the USB drivers into the kernel, or use the attached patch.
+> If it helps, please tell me.
 > 
 
+The patch worked, as written before. Would it be possible
+to permanently add it to the kernel for 2.6.8-rc3?
+
+
+Many thanx
+
+Harri

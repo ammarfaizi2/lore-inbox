@@ -1,98 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263476AbUJ2Twt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263501AbUJ2Tws@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263476AbUJ2Twt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 15:52:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263499AbUJ2TvQ
+	id S263501AbUJ2Tws (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 15:52:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263508AbUJ2Tvy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 15:51:16 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:30348 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S262204AbUJ2T2S
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 15:28:18 -0400
-Date: Fri, 29 Oct 2004 23:28:52 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       linux-arch@vger.kernel.org
-Subject: Re: kbuild/all archs: Sanitize creating offsets.h
-Message-ID: <20041029212852.GA16634@mars.ravnborg.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Andrew Morton <akpm@osdl.org>, linux-arch@vger.kernel.org
-References: <20041028185917.GA9004@mars.ravnborg.org> <20041028204430.C11436@flint.arm.linux.org.uk> <20041028215959.GA17314@mars.ravnborg.org> <20041028220024.D11436@flint.arm.linux.org.uk> <20041028234549.GB17314@mars.ravnborg.org>
+	Fri, 29 Oct 2004 15:51:54 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:4489 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S263260AbUJ2TdT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 15:33:19 -0400
+Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Paul Davis <paul@linuxaudiosystems.com>, linux-kernel@vger.kernel.org,
+       mark_h_johnson@raytheon.com, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       jackit-devel <jackit-devel@lists.sourceforge.net>
+In-Reply-To: <20041029080247.GC30400@elte.hu>
+References: <1099008264.4199.4.camel@krustophenia.net>
+	 <200410290057.i9T0v5I8011561@localhost.localdomain>
+	 <20041029080247.GC30400@elte.hu>
+Content-Type: text/plain
+Date: Fri, 29 Oct 2004 15:33:12 -0400
+Message-Id: <1099078393.14209.14.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041028234549.GB17314@mars.ravnborg.org>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 29, 2004 at 01:45:49AM +0200, Sam Ravnborg wrote:
-> On Thu, Oct 28, 2004 at 10:00:24PM +0100, Russell King wrote:
-> > > Did you apply the patch that enabled kbuild files to be named Kbuild?
-> > > It looks like this patch is missing.
-> > 
-> > I applied three patches.  The first was "kbuild: Prefer Kbuild as name of
-> > the kbuild files"
-> > 
-> > > If you did apply the patch could you please check if the asm->asm-arm
-> > > symlink exists when the error happens and that a file named Kbuild is
-> > > located in the directory: include/asm-arm/
-> 
-> OK - I see it now.
-> It's in i386 also - I will have a fix ready tomorrow. Thanks for testing!
+On Fri, 2004-10-29 at 10:02 +0200, Ingo Molnar wrote:
+>    I know that Jackd does alot of precautions 
+>    to avoid unintentional scheduling (mlockall, the use of SCHED_FIFO), 
+>    but are you absolutely sure it doesnt happen? This scenario could be 
+>    excluded by measuring the time Jackd calls poll(), and comparing it
+>    to the expected value. [Or is this value already included in the 
+>    stats Rui collected? Maybe the "Maximum Process Cycle" value?]
 
-Fix attached - next time I better check O= support myself.
-Russell - I would be glad if you could test this version. There is 
-some symlink handling for arm I like to see tested.
+Yes, this is already accounted for in the 'Maximum Process Cycle' value.
+This measures the time between returning from poll() and entering it
+again.  I will try to add some instrumentation to jackd and test this
+weekend.  I do agree that it could be a jackd bug; this would not be the
+first time the VP patches exposed bugs in other apps.
 
-	Sam
+Lee
 
 
-===== Makefile 1.546 vs edited =====
---- 1.546/Makefile	2004-10-27 23:00:25 +02:00
-+++ edited/Makefile	2004-10-29 23:05:42 +02:00
-@@ -761,7 +761,7 @@
- prepare1: prepare2 outputmakefile
- 
- prepare0: prepare1 include/linux/version.h include/asm include/config/MARKER
--	$(Q)$(MAKE) $(build)=$(srctree)/include/asm
-+	$(Q)$(MAKE) $(build)=include/asm-$(ARCH)
- ifneq ($(KBUILD_MODULES),)
- 	$(Q)rm -rf $(MODVERDIR)
- 	$(Q)mkdir -p $(MODVERDIR)
-===== include/asm-i386/Kbuild 1.1 vs edited =====
---- 1.1/include/asm-i386/Kbuild	2004-10-27 23:06:50 +02:00
-+++ edited/include/asm-i386/Kbuild	2004-10-29 01:44:08 +02:00
-@@ -11,7 +11,7 @@
- always  := offsets.h
- targets := offsets.s
- 
--CFLAGS_offsets.o := -I arch/i386/kernel
-+CFLAGS_offsets.o := -Iarch/i386/kernel
- 
- $(obj)/offsets.h: $(obj)/offsets.s FORCE
- 	$(call filechk,gen-asm-offsets, < $<)
-===== scripts/Makefile.build 1.51 vs edited =====
---- 1.51/scripts/Makefile.build	2004-10-27 22:49:53 +02:00
-+++ edited/scripts/Makefile.build	2004-10-29 23:04:40 +02:00
-@@ -10,7 +10,7 @@
- # Read .config if it exist, otherwise ignore
- -include .config
- 
--include $(if $(wildcard $(obj)/Kbuild), $(obj)/Kbuild, $(obj)/Makefile)
-+include $(if $(wildcard $(srctree)/$(obj)/Kbuild), $(obj)/Kbuild, $(obj)/Makefile)
- 
- include scripts/Makefile.lib
- 
-===== scripts/Makefile.clean 1.17 vs edited =====
---- 1.17/scripts/Makefile.clean	2004-10-27 22:49:53 +02:00
-+++ edited/scripts/Makefile.clean	2004-10-29 23:22:26 +02:00
-@@ -7,7 +7,7 @@
- .PHONY: __clean
- __clean:
- 
--include $(if $(wildcard $(obj)/Kbuild), $(obj)/Kbuild, $(obj)/Makefile)
-+include $(if $(wildcard $(srctree)/$(obj)/Kbuild), $(obj)/Kbuild, $(obj)/Makefile)
- 
- # Figure out what we need to build from the various variables
- # ==========================================================================

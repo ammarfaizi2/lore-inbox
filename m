@@ -1,65 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261793AbSIXUu1>; Tue, 24 Sep 2002 16:50:27 -0400
+	id <S261792AbSIXUr1>; Tue, 24 Sep 2002 16:47:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261798AbSIXUu0>; Tue, 24 Sep 2002 16:50:26 -0400
-Received: from nwkea-mail-1.sun.com ([192.18.42.13]:24546 "EHLO
-	nwkea-mail-1.sun.com") by vger.kernel.org with ESMTP
-	id <S261793AbSIXUuX>; Tue, 24 Sep 2002 16:50:23 -0400
-Message-ID: <3D90D0FB.1070805@sun.com>
-Date: Tue, 24 Sep 2002 13:54:19 -0700
-From: Tim Hockin <thockin@sun.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
-X-Accept-Language: en-us, en
+	id <S261790AbSIXUrK>; Tue, 24 Sep 2002 16:47:10 -0400
+Received: from albatross.mail.pas.earthlink.net ([207.217.120.120]:45244 "EHLO
+	albatross.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S261796AbSIXUp7>; Tue, 24 Sep 2002 16:45:59 -0400
+Message-ID: <3D91413C.1050603@goingware.com>
+Date: Wed, 25 Sep 2002 00:53:16 -0400
+From: "Michael D. Crawford" <crawford@goingware.com>
+Organization: GoingWare Inc. - Expert Software Development and Consulting
+User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-US; rv:1.0.0) Gecko/20020622 Debian/1.0.0-0.woody.1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Chris Friesen <cfriesen@nortelnetworks.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       cgl_discussion mailing list <cgl_discussion@osdl.org>,
-       evlog mailing list <evlog-developers@lists.sourceforge.net>,
-       "ipslinux (Keith Mitchell)" <ipslinux@us.ibm.com>,
-       Linus Torvalds <torvalds@home.transmeta.com>,
-       Hien Nguyen <hien@us.ibm.com>, James Keniston <kenistoj@us.ibm.com>,
-       Mike Sullivan <sullivam@us.ibm.com>
-Subject: Re: alternate event logging proposal
-References: <20020924073051.363D92C1A7@lists.samba.org> <3D90C183.5020806@pobox.com> <3D90C3B0.8090507@nortelnetworks.com> <3D90C4FE.3070909@pobox.com>
+To: linux-kernel@vger.kernel.org
+Subject: Conserving memory for an embedded application
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> In existing drivers that call netif_carrier_{on,off}, it is perhaps even 
-> possible to have them send netlink messages with no driver-specific code 
-> changes at all.
+I am helping my client design an embedded hardware device that we may run Linux 
+on.  An important concern is to minimize the amount of ROM and flash ram that 
+the device has, both to save manufacturing cost and to minimize power consumption.
 
-This is something that I have been asked to look at, here.  Jeff, how 
-(or is?) any of the netlink info pushed up to userspace?  The idea that 
-someone came to me with was to have something in (driverfs? netdevfs?) 
-that was poll()able and read()able.  read() giving current state, and 
-poll() waking on changes.  Or maybe two different files, but something. 
-  Of course it'd be greate to be generic.  I just assumed it would come 
-from netif_* for netdevices.
+One question I have is whether it is possible to burn an uncompressed image of 
+the kernel into flash, and then boot the kernel in-place, so that it is not 
+copied to RAM when it runs.  Of course the kernel would need RAM for its data 
+structures and user programs, but it would seem to me I should be able to run 
+the kernel without making a RAM copy.
 
-Is this something planned?  wanted?  something I should bang out into 
-2.5.x before end of next month?
+It would be OK if I had to mess with the bootloader to do this.
 
-We could have a generic device-events file (akin to acpi events) that a 
-daemon dispatches events into user-land, or we could have a kernel->user 
-callback a la /sbin/hotplug, or we could have many device/subsys 
-specific files.
+It would also be helpful if a filesystem image containing a user program could 
+be burned into flash, and then the program run directly out of flash.  Some 
+amount of RAM would be saved if the executing code were run from the flash ROM 
+rather than being copied into RAM as would normally be the case when executing a 
+demand-paged executable.
 
-Anyone have a preference?
+This last is probably not as important as running the kernel out of flash as I 
+don't think the user program would be very large.
 
-Tim
+Also, what is the minimum amount of physical ram that you think I can get any 
+version of the kernel later than 2.0 or so to run in?  I heard somewhere that 
+someone can boot an x86 system with as little as 2MB of RAM.  Is that the case?
 
+Thank you,
 
-
+Mike
 -- 
-Tim Hockin
-Systems Software Engineer
-Sun Microsystems, Linux Kernel Engineering
-thockin@sun.com
+Michael D. Crawford
+GoingWare Inc. - Expert Software Development and Consulting
+http://www.goingware.com/
+crawford@goingware.com
+
+      Tilting at Windmills for a Better Tomorrow.
 

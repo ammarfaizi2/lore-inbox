@@ -1,56 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263804AbUCXTrE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 14:47:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263161AbUCXTrE
+	id S263806AbUCXT4Z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 14:56:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263161AbUCXT4Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 14:47:04 -0500
-Received: from vlan400-082-019.maconline.McMaster.CA ([130.113.82.19]:20145
-	"EHLO tentacle.dhs.org") by vger.kernel.org with ESMTP
-	id S263107AbUCXTrC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 14:47:02 -0500
-Subject: Re: [RFC,PATCH] dnotify: enhance or replace?
-From: John McCutchan <ttb@tentacle.dhs.org>
-To: rudi@lambda-computing.de, linux-kernel@vger.kernel.org,
-       jamie@shareable.org, tridge@samba.org,
-       viro@parcelfarce.linux.theplanet.co.uk, torvalds@osdl.org,
-       alexl@redhat.com, rml@ximian.com
-In-Reply-To: <4061BD2E.2060900@gamemakers.de>
-References: <4061986E.6020208@gamemakers.de>
-	 <1080142815.8108.90.camel@localhost.localdomain>
-	 <1080146269.23224.5.camel@vertex>  <4061BD2E.2060900@gamemakers.de>
-Content-Type: text/plain
+	Wed, 24 Mar 2004 14:56:25 -0500
+Received: from expms3.cites.uiuc.edu ([128.174.5.207]:58983 "EHLO
+	expms3.cites.uiuc.edu") by vger.kernel.org with ESMTP
+	id S263806AbUCXT4X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Mar 2004 14:56:23 -0500
+Date: Wed, 24 Mar 2004 13:56:22 -0600
+From: Shawn Lindberg <slindber@uiuc.edu>
+Subject: Re: [Problem]: "access beyond end" of DVD-R
+To: linux-kernel@vger.kernel.org
+Cc: slindber@uiuc.edu
+X-Mailer: Webmail Mirapoint Direct 3.3.7-GR
+MIME-Version: 1.0
+Message-Id: <ebacb8e9.263e8edd.81ca600@expms3.cites.uiuc.edu>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <1080158032.30769.13.camel@vertex>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 24 Mar 2004 14:53:52 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One of the big requirements for a dnotify replacement is this
+Jens Axboe wrote:
+> On Mon, Mar 22 2004, slindber@uiuc.edu wrote:
+> 
+>>attempt to access beyond end of device
+>>hdc: rw=0, want=8174536, limit=8123200
+>>Buffer I/O error on device hdc, logical block 2043633
+>>
+>>There are more attempt to "access beyond end of device" messages, but
+>>they are similar so I've snipped them.
+> 
+> Does this make a difference for you (2.6 patch)?
 
-* Some way to not have an open file descriptor for each directory you
-are monitoring. This causes so many problems when unmounting, and this
-is really the most noticable problem for the user.
+I made that one line change to my 2.6.3 kernel from gentoo and it fixed the problem for both the ISO/UDF and UDF discs (I couldn't try the ISO only disc since I don't have it anymore).  I also tried a few CDs to get a rough check for whether it introduced new errors, but they were fine also.  Please let me know if I should do any further testing, and THANKS!
 
-I wanted to get some possible ideas from kernel hackers about how this
-could be done. Inode numbers are not unique, but is there any way to get
-a unique identifier on a file without using an open file? I have come
-up with a few ideas.. I don't think they are very good, but here is
-goes,
-
-- When user passes fd to kernel to watch, the kernel takes over this
-  fd, making it invalid in user space ( I know this is a terrible hack)
-  then when a volume is unmounted, the kernel can walk the list of 
-  open fd's using for notifacation and close them, before attempting to
-  unmount.
-
-- The user passes a path to the kernel, the kernel does some work so
-  that it can track anything to do with that path, and again when
-  an unmount is called the kernel cleans up anything used for
-  notification. 
-
-Both of these ideas are similar, does anyone have a better idea?
-
-John
+Shawn Lindberg

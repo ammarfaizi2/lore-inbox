@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290756AbSBSJDO>; Tue, 19 Feb 2002 04:03:14 -0500
+	id <S290809AbSBSJFP>; Tue, 19 Feb 2002 04:05:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290794AbSBSJDF>; Tue, 19 Feb 2002 04:03:05 -0500
-Received: from smtp02do.de.uu.net ([192.76.144.69]:55689 "EHLO
-	smtp02do.de.uu.net") by vger.kernel.org with ESMTP
-	id <S290756AbSBSJC5> convert rfc822-to-8bit; Tue, 19 Feb 2002 04:02:57 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Tobias Wollgam <tobias.wollgam@materna.de>
-Organization: Materna GmbH
-To: linux-kernel@vger.kernel.org
-Subject: Q: use of new modules in old kernel
-Date: Tue, 19 Feb 2002 10:02:52 +0100
-X-Mailer: KMail [version 1.3.2]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-X-Encoded: Changed encoding from 8bit for 7bit transmission
-Message-Id: <20020219090253.CD89D67ED@penelope.materna.de>
+	id <S290807AbSBSJDf>; Tue, 19 Feb 2002 04:03:35 -0500
+Received: from finch-post-12.mail.demon.net ([194.217.242.41]:52241 "EHLO
+	finch-post-12.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S290794AbSBSJD0>; Tue, 19 Feb 2002 04:03:26 -0500
+Date: Tue, 19 Feb 2002 09:03:21 +0000
+From: Nick Craig-Wood <ncw@axis.demon.co.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Dan Kegel <dank@kegel.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: time goes backwards periodically on laptop if booted in low-power mode
+Message-ID: <20020219090321.B366@axis.demon.co.uk>
+In-Reply-To: <20020218213049.A28604@axis.demon.co.uk> <E16cvgK-0006uq-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E16cvgK-0006uq-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Feb 18, 2002 at 09:50:44PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Feb 18, 2002 at 09:50:44PM +0000, Alan Cox wrote:
+> > This isn't fixing the root cause of the problem which is interactions
+> > between the BIOS power management and the kernel I believe, but it
+> > does fix the problem and is really quite cheap so perhaps might be
+> 
+> do_gettimeofday is still going to give strange results - and consider
+> the case where you boot slow and speed up...
 
-how is it possible to use modules of newer kernels in an old kernel 
-system?
+This isn't a perfect fix certainly.  Stopping time going backwards
+stops the major application breakage though.
 
-To use new drivers, we want not recompile the kernel.
+> If you can give me the DMI strings for the affected boxes I can add
+> them to the DMi tables (see ftp://ftp.linux.org.uk/pub/linux/alan/DMI*)
 
-I tried to load the module 8139too from 2.4.17 into a 2.4.9 kernel with 
-modprobe, but there are many unresolved symbols. 
-
-The flag "Set version information on all module symbols" is set.
-
-TIA for all information, hyperlinks are welcome too,
-
-	Tobias
+[sent via private email]
 
 -- 
-Tobias Wollgam * Softwaredevelopment * Business Unit Information 
-MATERNA GmbH Information & Communications
-Vosskuhle 37 * 44141 Dortmund  
-http://www.materna.de
+Nick Craig-Wood
+ncw@axis.demon.co.uk

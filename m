@@ -1,42 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262070AbUBWWu0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 17:50:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261983AbUBWWuZ
+	id S261983AbUBWWwQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 17:52:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262067AbUBWWwP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 17:50:25 -0500
-Received: from gaz.sfgoth.com ([69.36.241.230]:242 "EHLO gaz.sfgoth.com")
-	by vger.kernel.org with ESMTP id S262070AbUBWWso (ORCPT
+	Mon, 23 Feb 2004 17:52:15 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:58809 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S261983AbUBWWuo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 17:48:44 -0500
-Date: Mon, 23 Feb 2004 14:49:11 -0800
-From: Mitchell Blank Jr <mitch@sfgoth.com>
-To: "Robert T. Johnson" <rtjohnso@eecs.berkeley.edu>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       David Wagner <daw@eecs.berkeley.edu>
-Subject: Re: &array considered harmful?
-Message-ID: <20040223224911.GA48883@gaz.sfgoth.com>
-References: <1077574309.16259.4.camel@dooby.cs.berkeley.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1077574309.16259.4.camel@dooby.cs.berkeley.edu>
-User-Agent: Mutt/1.4.2.1i
+	Mon, 23 Feb 2004 17:50:44 -0500
+Message-ID: <403A8409.3040205@comcast.net>
+Date: Mon, 23 Feb 2004 16:51:53 -0600
+From: Karl Tatgenhorst <ketatgenhorst@comcast.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: andreas.hartmann@fiducia.de
+CC: linux-kernel@vger.kernel.org
+Subject: Re: distinguish two identical network cards
+References: <OF3A73498C.45F49506-ONC1256E43.002FC840@fiducia.de>
+In-Reply-To: <OF3A73498C.45F49506-ONC1256E43.002FC840@fiducia.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert T. Johnson wrote:
->         memset(&A, 0, sizeof(A)); 
-[...]
-> This works because in C, for a local array, &A == A.  The problem is
-> that this is very brittle.
 
-I'm probably in the minority here, but I've gotten into the habit of saying
-"&A[0]" since I think it's more explicit ("I want the address of the
-FIRST ELEMENT of the array") and it avoids exactly the problems you mention.
-It's true that it's equivelent to just saying "A" (well, almost - if "A"
-is a pointer then it could be an lvalue while "&A[0]" never is) but I
-like the visual cue of that "&" provides.  Matter of taste I guess -
-I'm sure some people consider it ugly.
+   If you pay attention to what slot you are putting them in you could 
+script the install using lspci to get the cards right. ie...slots 3 & 4 
+are nics so eth0 = `lspci | grep for slot 3`  of  course grep for slot 3 
+may need replaced, use the man pages and play around.
 
--Mitch
+Karl
+
+andreas.hartmann@fiducia.de wrote:
+
+>Hello!
+>
+>I've got a little problem with XSeries machines, containing two identical
+>builtin Broadcom NIC's. Is there any chance to get some information, which one
+>of the two cards is the upper, and which one is the lower card?
+>I need this information, because I want to install a lot of these machines
+>automatically.
+>
+>
+>Thank you for every hint,
+>kind regards,
+>Andreas Hartmann
+>
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
+
+

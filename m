@@ -1,80 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267310AbUIOS4v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267301AbUIOS7n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267310AbUIOS4v (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 14:56:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267301AbUIOS4v
+	id S267301AbUIOS7n (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 14:59:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267314AbUIOS7n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 14:56:51 -0400
-Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:12852 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S267310AbUIOSy4
+	Wed, 15 Sep 2004 14:59:43 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:19138 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S267301AbUIOS7b
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 14:54:56 -0400
-Subject: Re: PATCH: tty locking for 2.6.9rc2
-From: Paul Fulghum <paulkf@microgate.com>
-To: Alan Cox <alan@redhat.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20040915163051.GA9096@devserv.devel.redhat.com>
-References: <20040914163426.GA29253@devserv.devel.redhat.com>
-	 <1095265595.2924.27.camel@deimos.microgate.com>
-	 <20040915163051.GA9096@devserv.devel.redhat.com>
+	Wed, 15 Sep 2004 14:59:31 -0400
+Subject: Re: [patch] kernel sysfs events layer
+From: Robert Love <rml@novell.com>
+To: Andrew Grover <andy.grover@gmail.com>
+Cc: Tim Hockin <thockin@hockin.org>, Greg KH <greg@kroah.com>,
+       Kay Sievers <kay.sievers@vrfy.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <c0a09e5c040915020768509041@mail.gmail.com>
+References: <20040910235409.GA32424@kroah.com>
+	 <20040911165300.GA17028@kroah.com> <20040913144553.GA10620@vrfy.org>
+	 <20040915000753.GA24125@kroah.com> <20040915010901.GA19524@vrfy.org>
+	 <20040915011146.GA27782@hockin.org> <1095214229.20763.6.camel@localhost>
+	 <20040915031706.GA909@hockin.org> <20040915034229.GA30747@kroah.com>
+	 <20040915044830.GA4919@hockin.org>
+	 <c0a09e5c040915020768509041@mail.gmail.com>
 Content-Type: text/plain
-Organization: 
-Message-Id: <1095274482.2686.16.camel@deimos.microgate.com>
+Date: Wed, 15 Sep 2004 14:58:27 -0400
+Message-Id: <1095274707.23385.97.camel@betsy.boston.ximian.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 15 Sep 2004 13:54:42 -0500
+X-Mailer: Evolution 1.5.94.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-09-15 at 11:30, Alan Cox wrote:
-> On Wed, Sep 15, 2004 at 11:26:35AM -0500, Paul Fulghum wrote:
-> > I tried this patch and can't change line disciplines.
-> > The user program waits forever on ioctl(TIOCSETD).
-> > I am going to add printk statements to
-> 
-> Is the tty currently in use - that implies maybe an ldisc leak
-> 
-> > Each line discipline has a refcount.
-> > This single refcount is modified by all
-> > entities using that line discipline.
-> 
-> Nope. tty->ldisc is a -copy- of the ldisc structure rather than a 
-> pointer. It has always been that way
+On Wed, 2004-09-15 at 02:07 -0700, Andrew Grover wrote:
 
-Got it.
+> IIRC the two possible future destinations for ACPI events are this,
+> and the input layer. There are some ACPI events that clearly should go
+> through this mechanism (e.g. thermal), some the input layer (e.g.
+> weird laptop extra keys), and maybe some in between? I know David
+> Bronaugh was looking into this a few weeks ago, maybe he'll pop back
+> up.
 
-Global ldisc array refcount is used to know
-when an ldisc module can be unloaded.
+Hey, Andy.
 
-Per tty ldisc refcount is used to know
-when an ldisc can be switched.
+I'd like, if possible, to have ACPI use kevents.  ACPI makes sense as a
+user.
 
-The problem is that the per tty ldisc structure is being
-initialized with the global ldisc array entry
-including the global refcount.
+The first question is whether or not ACPI could use the current kevent
+model.  The current reactionary response is that kevent is too limited,
+but that misses the point a bit.  The point is that you create kobjects
+and better integrate with sysfs, and then kevent becomes trivial.
 
-So the per tty refcount starts non zero and
-never goes to zero and can't be changed.
+So if ACPI better took advantage of sysfs, would kevents be sufficient?
 
-The per tty ldisc refcount must be initialized to zero 
-after copying the global ldisc structure.
-
-There are 6 places where this needs to be done:
-3 in tty_set_ldisc
-2 in release_dev
-1 in initialize_tty_struct
-
-Also:
-Switching back to N_TTY ldisc in release_dev() of tty_io.c
-takes a global ldisc reference (tty_ldisc_get) but
-then frees the tty structure. This causes a reference
-leak (global ldisc refcount) on N_TTY because there
-is no corresponding tty_ldisc_put.
-
-
---
-Paul Fulghum
-paulkf@microgate.com
+	Robert Love
 
 

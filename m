@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264264AbUACVSn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 16:18:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264265AbUACVSn
+	id S264261AbUACVSk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 16:18:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264265AbUACVSj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 16:18:43 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17874 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264264AbUACVSj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sat, 3 Jan 2004 16:18:39 -0500
-Date: Sat, 3 Jan 2004 21:18:37 +0000
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: Greg KH <greg@kroah.com>, linux-hotplug-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: udev and devfs - The final word
-Message-ID: <20040103211837.GW4176@parcelfarce.linux.theplanet.co.uk>
-References: <20031231002942.GB2875@kroah.com> <20040101011855.GA13628@hh.idb.hist.no> <20040103055938.GD5306@kroah.com> <20040103152241.GA5531@hh.idb.hist.no>
+Received: from willy.net1.nerim.net ([62.212.114.60]:38674 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S264261AbUACVSi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 16:18:38 -0500
+Date: Sat, 3 Jan 2004 22:18:16 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Soeren Sonnenburg <kernel@nn7.de>, Mark Hahn <hahn@physics.mcmaster.ca>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: xterm scrolling speed - scheduling weirdness in 2.6 ?!
+Message-ID: <20040103211816.GD3728@alpha.home.local>
+References: <Pine.LNX.4.44.0401031439060.24942-100000@coffee.psychology.mcmaster.ca> <1073161172.9851.260.camel@localhost> <200401040800.06529.kernel@kolivas.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040103152241.GA5531@hh.idb.hist.no>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200401040800.06529.kernel@kolivas.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 03, 2004 at 04:22:41PM +0100, Helge Hafting wrote:
-> On Fri, Jan 02, 2004 at 09:59:38PM -0800, Greg KH wrote:
-> > On Thu, Jan 01, 2004 at 02:18:55AM +0100, Helge Hafting wrote:
-> > > On Tue, Dec 30, 2003 at 04:29:42PM -0800, Greg KH wrote:
-> > > > 
-> > > >  2) We are (well, were) running out of major and minor numbers for
-> > > >     devices.
-> > > 
-> > > devfs tried to fix this one by _getting rid_ of those numbers.
-> > > Seriously - what are they needed for?  
-> > 
-> > But devfs failed in this.  The devfs kernel interface still requires a
-> > major/minor number to create device nodes.
-> > 
-> Yes.  The numbers went unused in the common case of opening a device by name though.
+Hi Con,
 
-No, they were not.  RTFS, please.
+On Sun, Jan 04, 2004 at 08:00:06AM +1100, Con Kolivas wrote:
+> There is a BASH bug that Linus noticed brought out by the more sensitive 
+> timing in 2.6. The BASH developer has been informed it is there and it is 
+> fixed in the latest version. Perhaps you're both seeing that. Check the lkml 
+> archives.
+
+I don't think it has anything to do with the bash bug, because it only
+involved pipes creation. Bash creates no pipe when you simply launch
+'ls -l' in an xterm.
+
+It seems that I'll start some new compilations this evening just to refresh
+my mind on this problem...
+
+Cheers,
+Willy
+

@@ -1,63 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267163AbRGPAtn>; Sun, 15 Jul 2001 20:49:43 -0400
+	id <S267171AbRGPAzX>; Sun, 15 Jul 2001 20:55:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267166AbRGPAtf>; Sun, 15 Jul 2001 20:49:35 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:22656 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S267163AbRGPAt1>;
-	Sun, 15 Jul 2001 20:49:27 -0400
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
+	id <S267172AbRGPAzN>; Sun, 15 Jul 2001 20:55:13 -0400
+Received: from stine.vestdata.no ([195.204.68.10]:20745 "EHLO
+	stine.vestdata.no") by vger.kernel.org with ESMTP
+	id <S267171AbRGPAzA>; Sun, 15 Jul 2001 20:55:00 -0400
+Date: Mon, 16 Jul 2001 02:54:52 +0200
+From: =?iso-8859-1?Q?Ragnar_Kj=F8rstad?= <kernel@ragnark.vestdata.no>
+To: volodya@mindspring.com
+Cc: Alexander Viro <viro@math.psu.edu>,
+        Adam Schrotenboer <ajschrotenboer@lycosmail.com>,
+        lkml <linux-kernel@vger.kernel.org>, reiser@namesys.com
+Subject: Re: Stability of ReiserFS onj Kernel 2.4.x (sp. 2.4.[56]{-ac*}
+Message-ID: <20010716025452.A29050@vestdata.no>
+In-Reply-To: <Pine.GSO.4.21.0107151204060.24930-100000@weyl.math.psu.edu> <Pine.LNX.4.20.0107152032440.1154-100000@node2.localnet.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15186.14872.117342.143216@pizda.ninka.net>
-Date: Sun, 15 Jul 2001 17:49:28 -0700 (PDT)
-To: David Ford <david@blue-labs.org>
-Cc: Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.6-ac4
-In-Reply-To: <3B52335C.7040005@blue-labs.org>
-In-Reply-To: <20010716004933.A18030@lightning.swansea.linux.org.uk>
-	<3B52335C.7040005@blue-labs.org>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+X-Mailer: Mutt 0.95.5i
+In-Reply-To: <Pine.LNX.4.20.0107152032440.1154-100000@node2.localnet.net>; from volodya@mindspring.com on Sun, Jul 15, 2001 at 08:50:03PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jul 15, 2001 at 08:50:03PM -0400, volodya@mindspring.com wrote:
+> Umm that is very interesting - I was rather sure there were some problems
+> a while ago (2.2.x ?). Is there anything special necessary to use large
+> files ? Because I tried to create a 3+gig file and now I cannot ls or rm
+> it. (More details: the file was created using dd from block device (tried
+> to backup a smaller ext2 partition), ls and rm say  "Value too large for
+> defined data type" and I upgraded everything mentioned in Documentation/Changes).
 
-David Ford writes:
- > Have you reviewed the patch I posted yesterday regarding net_dev_init() 
- > and double lock in sch_teql.c?
- > 
- > net_dev_init() is originally called in genhd.c, I don't see as it's 
- > necessary to call it again.
+Your utilities must be compiled with a recent glibc and with LFS (large
+file support). Any recent distribution should support this.
 
-It is called early if a device initialization occurs before
-the genhd.c call, which is entirely possibly particularly on s390.
-Your change would break s390* ports.
 
-I sent the correct fix to Linus last night, which is:
-
---- net/core/dev.c.~1~	Mon Jul  9 22:19:33 2001
-+++ net/core/dev.c	Sat Jul 14 17:25:51 2001
-@@ -2654,10 +2654,6 @@
- 	if (!dev_boot_phase)
- 		return 0;
- 
--#ifdef CONFIG_NET_SCHED
--	pktsched_init();
--#endif
--
- #ifdef CONFIG_NET_DIVERT
- 	dv_init();
- #endif /* CONFIG_NET_DIVERT */
-@@ -2771,6 +2767,10 @@
- 
- 	dst_init();
- 	dev_mcast_init();
-+
-+#ifdef CONFIG_NET_SCHED
-+	pktsched_init();
-+#endif
- 
- 	/*
- 	 *	Initialise network devices
-
+-- 
+Ragnar Kjorstad
+Big Storage

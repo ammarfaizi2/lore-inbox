@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275425AbRIZSVv>; Wed, 26 Sep 2001 14:21:51 -0400
+	id <S275448AbRIZSZV>; Wed, 26 Sep 2001 14:25:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275441AbRIZSVn>; Wed, 26 Sep 2001 14:21:43 -0400
-Received: from [200.69.140.210] ([200.69.140.210]:15868 "EHLO mail.skycop.net")
-	by vger.kernel.org with ESMTP id <S275437AbRIZSVX>;
-	Wed, 26 Sep 2001 14:21:23 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Javier Szyszlican <javier@szysz.com>
-To: "Michel A. S. Pereira KIDMumU|ResolveBucha" 
-	<michelcultivo@uol.com.br>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Vmware patch to run on 2.4.10
-Date: Wed, 26 Sep 2001 15:24:03 -0300
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <3BB21A1B.4010008@uol.com.br>
-In-Reply-To: <3BB21A1B.4010008@uol.com.br>
+	id <S275449AbRIZSZM>; Wed, 26 Sep 2001 14:25:12 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:46606 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S275448AbRIZSYz>; Wed, 26 Sep 2001 14:24:55 -0400
+Date: Wed, 26 Sep 2001 11:24:44 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Dave Jones <davej@suse.de>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "David S. Miller" <davem@redhat.com>,
+        <bcrl@redhat.com>, <marcelo@conectiva.com.br>, <andrea@suse.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Locking comment on shrink_caches()
+In-Reply-To: <Pine.LNX.4.30.0109261958290.8655-100000@Appserv.suse.de>
+Message-ID: <Pine.LNX.4.33.0109261123380.8558-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-X-Return-Path: javier@szysz.com
-Message-ID: <MDAEMON-F200109261519.AA195522MD02755@skycop.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michel,
 
-What problem are you having with the modules... I'm using 2.4.10 
-(with/without preemption patch) and the modules compile perfectly.
-I'm Using VMwareWorkstation-3.0.0-1364. 
-
-Which VMware version are you using? 
-
-Javier 
-
-On Wednesday 26 September 2001 15:10, Michel A. S. Pereira 
-KIDMumU|ResolveBucha wrote:
-> Hi, I don't remember who sent me a patch to run vmware on kernel 2.4.9.
-> 'Someone' that sent, do you've patched another version?
+On Wed, 26 Sep 2001, Dave Jones wrote:
+> On Wed, 26 Sep 2001, Alan Cox wrote:
 >
-> Bye
+> > VIA Cyrix CIII (original generation 0.18u)
+> >
+> > nothing: 28 cycles
+> > locked add: 29 cycles
+> > cpuid: 72 cycles
+>
+> Interesting. From a newer C3..
+>
+> nothing: 30 cycles
+> locked add: 31 cycles
+> cpuid: 79 cycles
+>
+> Only slightly worse, but I'd not expected this.
+
+That difference can easily be explained by the compiler and options.
+
+You should use "gcc -O2" at least, in order to avoid having gcc do
+unnecessary spills to memory in between the timings. And there may be some
+versions of gcc that en dup spilling even then.
+
+		Linus
 

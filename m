@@ -1,62 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131517AbRAVRK0>; Mon, 22 Jan 2001 12:10:26 -0500
+	id <S132386AbRAVRnl>; Mon, 22 Jan 2001 12:43:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132379AbRAVRKQ>; Mon, 22 Jan 2001 12:10:16 -0500
-Received: from rkstest.urz.tu-dresden.de ([141.30.66.133]:40849 "HELO
-	POP3.tu-dresden.de") by vger.kernel.org with SMTP
-	id <S131517AbRAVRKJ>; Mon, 22 Jan 2001 12:10:09 -0500
-From: ujr@physik.phy.tu-dresden.de (Ulf Jaenicke-Roessler)
-Message-Id: <10101221709.AA27602@physik.phy.tu-dresden.de>
-Subject: hda: dma_intr: errors
-To: linux-kernel@vger.kernel.org
-Date: Mon, 22 Jan 2001 18:09:15 +0100 (MET)
-X-Mailer: ELM [version 2.5 PL2]
+	id <S132426AbRAVRnb>; Mon, 22 Jan 2001 12:43:31 -0500
+Received: from [63.95.87.168] ([63.95.87.168]:23304 "HELO xi.linuxpower.cx")
+	by vger.kernel.org with SMTP id <S132386AbRAVRnY>;
+	Mon, 22 Jan 2001 12:43:24 -0500
+Date: Mon, 22 Jan 2001 12:43:19 -0500
+From: Gregory Maxwell <greg@linuxpower.cx>
+To: Jonathan Earle <jearle@nortelnetworks.com>
+Cc: "'Linux Kernel List'" <linux-kernel@vger.kernel.org>
+Subject: Re: [OT?] Coding Style
+Message-ID: <20010122124319.A30815@xi.linuxpower.cx>
+In-Reply-To: <28560036253BD41191A10000F8BCBD116BDCC5@zcard00g.ca.nortel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.8i
+In-Reply-To: <28560036253BD41191A10000F8BCBD116BDCC5@zcard00g.ca.nortel.com>; from jearle@nortelnetworks.com on Mon, Jan 22, 2001 at 11:04:50AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Please Cc: me for replies, as I'm currently not subscribed. Thanks.)
+On Mon, Jan 22, 2001 at 11:04:50AM -0500, Jonathan Earle wrote:
+> WRONG!!!
+> 
+> Not documenting your code is not a sign of good coding, but rather shows
+> arrogance, laziness and contempt for "those who would dare tamper with your
+> code after you've written it".  Document and comment your code thoroughly.
+> Do it as you go along.  I was also taught to comment nearly every line - as
+> part of the coding style used by a large, international company I worked for
+> several years ago.  It brings the logic of the programmer into focus and
+> makes code maintenance a whole lot easier.  It also helps one to remember
+> the logic of your own code when you revisit it a year or more hence.
 
-Hello,
+Not wrong: You should document the interface, and any strange gotchas that
+you faced while writing the function (like hardware bugs, etc). Then, if the
+next person can't understand the code by reading it:
 
- with 2.4.0 I get lots of
+1. He's not qualified to change it.
+*OR*
+2. The code is crap, it needs to be rewritten anyways, good interface
+documentation makes that possible.
 
-kernel: hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-kernel: hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
+Documenting every detail just encourages people with a paper thin
+understanding to go and foul it up in subtile ways, it's better that they be
+completely clueless and screw it up obviously.
 
- errors. I already got those errors with the -test series.
- The current 2.2.x kernels (2.2.18/2.2.19p7) do not show this
- behaviour.
- It's a VIA motherboard with the following IDE config:
-
-VP_IDE: IDE controller on PCI bus 00 dev 39
-VP_IDE: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xe000-0xe007, BIOS settings: hda:DMA, hdb:DMA
-ide0: VIA Bus-Master (U)DMA Timing Config Success
-    ide1: BM-DMA at 0xe008-0xe00f, BIOS settings: hdc:pio, hdd:pio
-ide1: VIA Bus-Master (U)DMA Timing Config Success
-hda: IBM-DJNA-351520, ATA DISK drive
-hdb: NEC CD-ROM DRIVE:282, ATAPI CDROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-hda: IBM-DJNA-351520, 14664MB w/430kB Cache, CHS=1869/255/63
-
- Any hint what I can do about this? I use simply
-
-CONFIG_BLK_DEV_VIA82CXXX=y
-# CONFIG_IDE_CHIPSETS is not set
-# CONFIG_IDE_CHIPSETS is not set
-CONFIG_IDEDMA_AUTO=y
-# CONFIG_IDEDMA_IVB is not set
-# CONFIG_DMA_NONPCI is not set
-CONFIG_BLK_DEV_IDE_MODES=y
-
- in my .config.
-
- Thanks!
-  Ulf
+Good code is simple, clean, and obvious. Sometimes, some code can't be clean
+because it's facing a very hard problem, all the more reason to leave it to
+gurus. 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

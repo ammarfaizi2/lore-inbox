@@ -1,68 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263049AbVCQLtA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263059AbVCQLva@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263049AbVCQLtA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 06:49:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263078AbVCQLqs
+	id S263059AbVCQLva (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 06:51:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263058AbVCQLv0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 06:46:48 -0500
-Received: from rproxy.gmail.com ([64.233.170.197]:52283 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S263054AbVCQKqF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 05:46:05 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type:content-transfer-encoding;
-        b=BTKnYEkmIYequmTROsCQbnALFX/l4UZLEhnJMPUVjUNIQvfpVuhfDgAvnGEVr2Kf4X5YDi2EkKh4C4U62fbOcoATws1MAfl/s4hZyCQTxGwGFiRDJ2wi6gY+nxJqfRJ8n4Wwx8YI/BWR/oT/FtNNPvsfIIQ/lpmJxuVBwlHjAxY=
-Message-ID: <e2cbbd0c050317024642cbcf19@mail.gmail.com>
-Date: Thu, 17 Mar 2005 11:46:04 +0100
-From: =?ISO-8859-1?Q?St=E9phane_Fillod?= <fillods@gmail.com>
-Reply-To: =?ISO-8859-1?Q?St=E9phane_Fillod?= <fillods@gmail.com>
-To: trivial@rustcorp.com.au
-Subject: [PATCH] compile out scsi_ioctl when no SCSI/IDE/etc.
-Cc: linux-kernel@vger.kernel.org, linux-tiny@selenic.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 17 Mar 2005 06:51:26 -0500
+Received: from hermine.aitel.hist.no ([158.38.50.15]:35086 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S263061AbVCQLGE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Mar 2005 06:06:04 -0500
+Message-ID: <42396569.6040509@aitel.hist.no>
+Date: Thu, 17 Mar 2005 12:09:29 +0100
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Vojtech Pavlik <vojtech@suse.cz>
+CC: Andrew Morton <akpm@osdl.org>, dtor_core@ameritech.net,
+       dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-mm3 mouse oddity
+References: <20050312034222.12a264c4.akpm@osdl.org> <4236D428.4080403@aitel.hist.no> <d120d50005031506252c64b5d2@mail.gmail.com> <20050315110146.4b0c5431.akpm@osdl.org> <4237FFE4.4030100@aitel.hist.no> <20050316173054.GD1608@ucw.cz>
+In-Reply-To: <20050316173054.GD1608@ucw.cz>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Vojtech Pavlik wrote:
 
-This patch compiles out scsi_ioctl for embedded system with no
-SCSI/IDE/etc, and saves couple KiB.
-It was made against linuxppc 2.6.10pre3, but should apply ok against
-current version.
-Rem: If need be, the Kconfig part can be rewritten with "select".
+>On Wed, Mar 16, 2005 at 10:44:04AM +0100, Helge Hafting wrote:
+>
+>  
+>
+>>The logitech cordless keyboard is one.  It has two wheels.
+>>The one on the side works generates up-arrow/down arrow when used,
+>>and now also events on /dev/mouse0.  The other is a wheel above
+>>the keys, lying on the side.  Logitech apparently meant it to be used as
+>>a volume control, which should be possible now that it attaches to
+>>/dev/mouse0.
+>>    
+>>
+>
+>Can you please check with 'evtest' that both the wheels work correctly?
+>
+>  
+>
+Not sure what is correct here, but:
+evtest /dev/input/event0 produce events for all keys on the keyboard.
+Both the normal pc-105 keys, silly extra keys like "favourites", "shopping",
+etc., and the wheels.  The "volume" wheel generates VolumeUp and
+VolumeDown keypresses (and releases.) The other wheels generates
+the same events as the up-arrow and down-arrow keys.
 
-Signed-off-by: Stephane Fillod <fillods@gmail.com>
+evtest on /dev/input/event1 gives me events from the mouse.
+mouse0, mouse1 and mouse2 cannot be used with evtest.
 
---- linux/drivers/block/Kconfig	6 Dec 2004 16:15:14 -0000	1.1.1.1
-+++ linux/drivers/block/Kconfig	16 Mar 2005 18:12:05 -0000
-@@ -429,4 +429,9 @@
- 
- source "drivers/block/Kconfig.iosched"
- 
-+config CDROM_SCSI_IOCTL
-+	bool
-+	depends on IDE || PARIDE || SCSI || CD_NO_IDESCSI 
-+	default y
-+
- endmenu
---- linux/drivers/block/Makefile	6 Dec 2004 16:18:35 -0000	1.1.1.1
-+++ linux/drivers/block/Makefile	16 Mar 2005 18:12:05 -0000
-@@ -13,8 +13,9 @@
- # kblockd threads
- #
- 
--obj-y	:= elevator.o ll_rw_blk.o ioctl.o genhd.o scsi_ioctl.o
-+obj-y	:= elevator.o ll_rw_blk.o ioctl.o genhd.o
- 
-+obj-$(CONFIG_SCSI_IOCTL)	+= scsi_ioctl.o
- obj-$(CONFIG_IOSCHED_NOOP)	+= noop-iosched.o
- obj-$(CONFIG_IOSCHED_AS)	+= as-iosched.o
- obj-$(CONFIG_IOSCHED_DEADLINE)	+= deadline-iosched.o
-
-
-Best Regards,
--- 
-Stephane Fillod
+>Also, there exists an event mouse driver for X which supports both
+>wheels and allows for vertical and horizontal scrolling in eg. Firefox.
+>  
+>
+Helge Hafting

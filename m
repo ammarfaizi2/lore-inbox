@@ -1,33 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288581AbSADK1X>; Fri, 4 Jan 2002 05:27:23 -0500
+	id <S288585AbSADK3d>; Fri, 4 Jan 2002 05:29:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288583AbSADK1N>; Fri, 4 Jan 2002 05:27:13 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:43279 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S288581AbSADK06>; Fri, 4 Jan 2002 05:26:58 -0500
-Subject: Re: Who uses hdx=bswap or hdx=swapdata?
-To: Geert.Uytterhoeven@sonycom.com (Geert Uytterhoeven)
-Date: Fri, 4 Jan 2002 10:37:47 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        manfred@colorfullife.com (Manfred Spraul),
-        linux-kernel@vger.kernel.org (Linux Kernel Development),
-        linux-m68k@lists.linux-m68k.org (Linux/m68k)
-In-Reply-To: <Pine.GSO.4.21.0201041009000.12102-100000@vervain.sonytel.be> from "Geert Uytterhoeven" at Jan 04, 2002 10:09:46 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S288586AbSADK3Y>; Fri, 4 Jan 2002 05:29:24 -0500
+Received: from fest.stud.fee.vutbr.cz ([147.229.9.16]:6675 "EHLO
+	fest.stud.fee.vutbr.cz") by vger.kernel.org with ESMTP
+	id <S288585AbSADK3H>; Fri, 4 Jan 2002 05:29:07 -0500
+Date: Fri, 4 Jan 2002 11:29:05 +0100
+From: David Jez <dave.jez@seznam.cz>
+To: linux-kernel@vger.kernel.org
+Subject: annotation: PCSP driver for new kernels
+Message-ID: <20020104112905.A69879@stud.fee.vutbr.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16MRjQ-0003Sb-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> IIRC it's used to access non-Atari IDE disks on Atari (which has a byte-swapped
-> IDE interface) and vice-versa.
-> 
-> So yes, you can use it on SMP machines, to access disks that were used before
-> on Atari.
+  Hi all,
 
-For 2.5 would it perhaps be cleaner if we had a bswapping loop device. Sort
-of very bad crypto mode ?
+  i fixed some bugs and ported this driver for all latest kernels:
+2.2.20, 2.4.17, 2.5.1. You can find this patches:
+  http://www.stud.fee.vutbr.cz/~xjezda00
+
+  Best regards,
+-- 
+-------------------------------------------------------
+  David "Dave" Jez                Brno, CZ, Europe
+ E-mail: dave.jez@seznam.cz
+PGP key: finger xjezda00@fest.stud.fee.vutbr.cz
+---------=[ ~EOF ]=------------------------------------

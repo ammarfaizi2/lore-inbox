@@ -1,66 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264492AbRFTRJf>; Wed, 20 Jun 2001 13:09:35 -0400
+	id <S264503AbRFTRYJ>; Wed, 20 Jun 2001 13:24:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264495AbRFTRJ0>; Wed, 20 Jun 2001 13:09:26 -0400
-Received: from [142.176.139.106] ([142.176.139.106]:5637 "EHLO ve1drg.com")
-	by vger.kernel.org with ESMTP id <S264492AbRFTRJL>;
-	Wed, 20 Jun 2001 13:09:11 -0400
-Date: Wed, 20 Jun 2001 14:09:08 -0300 (ADT)
-From: Ted Gervais <ve1drg@ve1drg.com>
-To: Luigi Genoni <kernel@Expansa.sns.it>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: ip_tables/ipchains
-In-Reply-To: <Pine.LNX.4.33.0106201518140.9682-100000@Expansa.sns.it>
-Message-ID: <Pine.LNX.4.21.0106201408460.3517-100000@ve1drg.com>
+	id <S264500AbRFTRX7>; Wed, 20 Jun 2001 13:23:59 -0400
+Received: from email.cwcom.net ([195.44.0.104]:29965 "EHLO cwcom.net")
+	by vger.kernel.org with ESMTP id <S264499AbRFTRXp>;
+	Wed, 20 Jun 2001 13:23:45 -0400
+From: matt.vinall@cwcom.net
+Reply-to: matt.vinall@cwcom.net
+To: linux-kernel@vger.kernel.org
+Cc: mjv94@zepler.org.uk
+Date: Wed, 20 Jun 2001 18:23:15 +0100
+Subject: bigmem in 2.2.17
+X-Mailer: DMailWeb Web to Mail Gateway 2.4e, http://netwinsite.com/top_mail.htm
+Message-id: <3b30dc03.3e78.0@cwcom.net>
+X-User-Info: 213.123.176.90
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Jun 2001, Luigi Genoni wrote:
+Hi All,
 
-> Have you also compiled modules for ipchains and ipfwadm support??
+I'm trying to write a driver for a PCI card and would like to use the
+bigmem patch. My development system is running 2.2.17-21mdk (Mandrake 
+7.2), but as soon as I make a call to kmap() I get unresolved symbols 
+bigmem_start, kmap_prot and kmap_pte. They ARE in System.map, but not 
+/proc/ksyms and, indeed, there doesn't seem to be any EXPORT_SYMBOL 
+directive for them in kernel/ksyms.c. I'm guessing there's something else 
+I need to do but don't know what. Any ideas??
 
+Also, does GFP_BIGMEM give me physical contiguous pages, suitable for
+DMA by a PCI card? I know of GFP_DMA, but wondered if that was really
+intended for ISA cards.
 
-Yes.  Is this a mistake??
+TIA
 
-> 
-> 
-> On Wed, 20 Jun 2001, Ted Gervais wrote:
-> 
-> > Wondering something..
-> > I ran insmod to bring up ip_tables.o and I received the following error:
-> >
-> > /lib/modules/2.4.5/kernel/net/ipv4/netfilter/ip_tables.o: unresolved
-> > symbol nf_unregister_sockopt
-> > /lib/modules/2.4.5/kernel/net/ipv4/netfilter/ip_tables.o: unresolved
-> > symbol nf_register_sockopt
-> >
-> > This is with kernel 2.4.5 and Slackware 7.1 is the distribution.
-> > Does anyone know what these unresolved symbols are about??
-> >
-> > ---
-> > Doubt is not a pleasant condition, but certainty is absurd.
-> >                 -- Voltaire
-> >
-> > Ted Gervais <ve1drg@ve1drg.com>
-> > 44.135.34.201 linux.ve1drg.ampr.org
-> >
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
-> 
-
----
-Doubt is not a pleasant condition, but certainty is absurd.
-                -- Voltaire
-                
-Ted Gervais <ve1drg@ve1drg.com>
-44.135.34.201 linux.ve1drg.ampr.org
-
-
+Matt

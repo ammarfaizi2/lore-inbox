@@ -1,31 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288283AbSAMXNw>; Sun, 13 Jan 2002 18:13:52 -0500
+	id <S288284AbSAMXXw>; Sun, 13 Jan 2002 18:23:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288284AbSAMXNm>; Sun, 13 Jan 2002 18:13:42 -0500
-Received: from femail1.sdc1.sfba.home.com ([24.0.95.81]:53985 "EHLO
-	femail1.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S288283AbSAMXN1>; Sun, 13 Jan 2002 18:13:27 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] Intelligible build process v0.02
-Date: Sun, 13 Jan 2002 10:11:25 -0500
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <20020113222957.GKGI8076.femail23.sdc1.sfba.home.com@there>
-In-Reply-To: <20020113222957.GKGI8076.femail23.sdc1.sfba.home.com@there>
+	id <S288288AbSAMXXm>; Sun, 13 Jan 2002 18:23:42 -0500
+Received: from paloma15.e0k.nbg-hannover.de ([62.181.130.15]:41665 "HELO
+	paloma15.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S288284AbSAMXXb>; Sun, 13 Jan 2002 18:23:31 -0500
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Robert Love <rml@tech9.net>
+Subject: Re: [PATCH] update: preemptive kernel for O(1) sched
+Date: Mon, 14 Jan 2002 00:22:18 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020113231326.WSDD27139.femail1.sdc1.sfba.home.com@there>
+Content-Transfer-Encoding: 8bit
+Message-Id: <20020113232339Z288284-13996+5182@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 13 January 2002 09:27 am, Rob Landley wrote:
+Robert,
 
-> The previous version got really confused by what "make dep" did in response
-> to kernel module versions being switched on (but only after a fresh untar,
-> or after running make mrproper).
+what about lock-break?
+I am running your former one as always with 
+lock-break-rml-2.4.18-pre1-1.patch ...;-)
 
-I forgot to thank Randolph Bentson for finding that, by the way...
+Any success together with AA vm-22?
 
-Rob
+What about latencytest0.42-png for latency testing?
+
+Regards,
+	Dieter
+-- 
+Dieter Nützel
+Graduate Student, Computer Science
+
+University of Hamburg
+Department of Computer Science
+@home: Dieter.Nuetzel@hamburg.de

@@ -1,58 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266825AbUITTYU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267165AbUITTZI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266825AbUITTYU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 15:24:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267189AbUITTYU
+	id S267165AbUITTZI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 15:25:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267189AbUITTY4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 15:24:20 -0400
-Received: from fmr04.intel.com ([143.183.121.6]:2519 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S266825AbUITTYQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 15:24:16 -0400
-Date: Mon, 20 Sep 2004 12:24:04 -0700
-From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: acpi-devel@lists.sourceforge.net,
-       Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>,
-       "Brown, Len" <len.brown@intel.com>,
-       LHNS list <lhns-devel@lists.sourceforge.net>,
-       Linux IA64 <linux-ia64@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [ACPI] PATCH-ACPI based CPU hotplug[2/6]-ACPI Eject interface support
-Message-ID: <20040920122404.B15677@unix-os.sc.intel.com>
-Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-References: <20040920092520.A14208@unix-os.sc.intel.com> <20040920093532.D14208@unix-os.sc.intel.com> <200409201333.42857.dtor_core@ameritech.net>
+	Mon, 20 Sep 2004 15:24:56 -0400
+Received: from mailout.zma.compaq.com ([161.114.64.103]:27662 "EHLO
+	zmamail03.zma.compaq.com") by vger.kernel.org with ESMTP
+	id S267165AbUITTYt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Sep 2004 15:24:49 -0400
+Date: Mon, 20 Sep 2004 14:24:20 -0500
+From: mike.miller@hp.com
+To: linux-kernel@vger.kernel.org, axboe@suse.de
+Cc: linux-scsi@vger.kernel.org
+Subject: fix for cpqarray for 2.6.9-rc2
+Message-ID: <20040920192420.GA5651@beardog.cca.cpqcorp.net>
+Reply-To: mikem@beardog.cca.cpqcorp.net, mike.miller@hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200409201333.42857.dtor_core@ameritech.net>; from dtor_core@ameritech.net on Mon, Sep 20, 2004 at 01:33:42PM -0500
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 20, 2004 at 01:33:42PM -0500, Dmitry Torokhov wrote:
-> On Monday 20 September 2004 11:35 am, Keshavamurthy Anil S wrote:
-> > This patch support /sys/firmware/acpi/eject interface where in 
-> > the ACPI device say "LSB0" can be ejected by echoing "\_SB.LSB0" > 
-> > /sys/firmware/acpi/eject
-> > 
-> 
-> I wonder if eject should be an attribute of an individual device and visible
-> only when device can be ejected. Reading from it could show eject level
-> (_EJ0/_EJ3 etc).
-Hi Dmitry,
-	Today there is really no sysfs representation of acpi devices apart from
-the acpi namespace representation. Evaluating acpi namespaces's _EJ0 method won't help,
-as we need acpi device and all its child devices to be removed as part of the eject.
+This patch fixes a problem with cpqarray and the SA4200 controller.
+Our online config utility cannot properly communicate with the controller.
+Patch by Chirag.Kantharia@hp.com.
+Applies to 2.6.9-rc2. Please consider this for inclusion.
 
-Also for there is no 1:1 maping of acpi devices to pci devices to consider eject to be
-part of the pci devices.
-
-Hence the best solution for now is to echo ACPI full path name of the device to be
-ejected onto the eject file and the code will make sure that the device supports _EJx method before actuall removing the device.
-
-thanks,
-Anil
-> 
-> -- 
-> Dmitry
+Thanks,
+mikem
+-------------------------------------------------------------------------------
+diff -burNp lx269-rc2.orig/drivers/block/cpqarray.c lx269-rc2/drivers/block/cpqarray.c
+--- lx269-rc2.orig/drivers/block/cpqarray.c	2004-08-14 00:36:17.000000000 -0500
++++ lx269-rc2/drivers/block/cpqarray.c	2004-09-20 14:15:39.781595280 -0500
+@@ -1286,6 +1286,7 @@ static int ida_ctlr_ioctl(ctlr_info_t *h
+ 		c->req.hdr.sg_cnt = 1;
+ 		break;
+ 	case IDA_READ:
++	case SENSE_SURF_STATUS:
+ 	case READ_FLASH_ROM:
+ 	case SENSE_CONTROLLER_PERFORMANCE:
+ 		p = kmalloc(io->sg[0].size, GFP_KERNEL);
+@@ -1351,6 +1352,7 @@ static int ida_ctlr_ioctl(ctlr_info_t *h
+                                 sizeof(ida_ioctl_t),
+                                 PCI_DMA_BIDIRECTIONAL);
+ 	case IDA_READ:
++	case SENSE_SURF_STATUS:
+ 	case DIAG_PASS_THRU:
+ 	case SENSE_CONTROLLER_PERFORMANCE:
+ 	case READ_FLASH_ROM:
+diff -burNp lx269-rc2.orig/drivers/block/ida_cmd.h lx269-rc2/drivers/block/ida_cmd.h
+--- lx269-rc2.orig/drivers/block/ida_cmd.h	2004-08-14 00:36:44.000000000 -0500
++++ lx269-rc2/drivers/block/ida_cmd.h	2004-09-20 14:15:39.782595128 -0500
+@@ -318,6 +318,8 @@ typedef struct {
+ 	__u8	reserved[510];
+ } mp_delay_t;
+ 
++#define SENSE_SURF_STATUS       0x70
++
+ #define PASSTHRU_A	0x91
+ typedef struct {
+ 	__u8	target;

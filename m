@@ -1,40 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268149AbUIAWB4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268142AbUIAWBz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268149AbUIAWB4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 18:01:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268220AbUIAVzv
+	id S268142AbUIAWBz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 18:01:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268177AbUIAVy5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 17:55:51 -0400
-Received: from mail.shareable.org ([81.29.64.88]:14026 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S268072AbUIAVnX
+	Wed, 1 Sep 2004 17:54:57 -0400
+Received: from mail.mellanox.co.il ([194.90.237.34]:55651 "EHLO
+	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S268168AbUIAVuO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 17:43:23 -0400
-Date: Wed, 1 Sep 2004 22:43:15 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040901214315.GJ31934@mail.shareable.org>
-References: <412D9FE6.9050307@namesys.com> <200408261812.i7QICW8r002679@localhost.localdomain>
+	Wed, 1 Sep 2004 17:50:14 -0400
+Date: Thu, 2 Sep 2004 00:53:14 +0300
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: f_ops flag to speed up compatible ioctls in linux kernel
+Message-ID: <20040901215314.GC26044@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <1094052981.431.7160.camel@cube> <52vfey0ylu.fsf@topspin.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200408261812.i7QICW8r002679@localhost.localdomain>
+In-Reply-To: <52vfey0ylu.fsf@topspin.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand wrote:
-> Build an experimental OS showing how to use it, and through that see
-> if the ideas hold any water _in real, day-to-day, down-to-earth, practice_.
+Hello!
+Quoting r. Roland Dreier (roland@topspin.com) "Re: f_ops flag to speed up compatible ioctls in linux kernel":
+>     Albert> Per-command parameters included?
+> 
+>     Albert> People really do want private syscalls. An ioctl is that,
+>     Albert> in a namespace defined by the file descriptor. So ioctl()
+>     Albert> provides local scope to something that would otherwise be
+>     Albert> global.
+> 
+> Yes, this is exactly right.  One issue raised by this thread is that
+> the ioctl32 compatibility code only allows one compatibility handler
+> per ioctl number.  It seems that this creates all sorts of
+> possibilities for mayhem because it makes the ioctl namespace global
+> in scope in some situations.  Does anyone have any thoughts on if/how
+> this should be addressed.
+> 
 
-Hey, if you can think of a way to build an experimental OS and get it
-used in real, day-to-day, down-to-earth, practice - i.e. used by a
-diverse audience of thousands of vocal groups doing different things
-with it, please let me know.
+Thats what my original patch attempts to address
+http://www.uwsg.indiana.edu/hypermail/linux/kernel/0409.0/0025.html
+What do you think?
 
-Until you do we have to lobby for some things to be tried in Linux
-before we know if they really work.
-
--- Jamie

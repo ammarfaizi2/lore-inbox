@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288086AbSA3TSQ>; Wed, 30 Jan 2002 14:18:16 -0500
+	id <S287939AbSA3TVG>; Wed, 30 Jan 2002 14:21:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287939AbSA3TSG>; Wed, 30 Jan 2002 14:18:06 -0500
-Received: from ns.suse.de ([213.95.15.193]:20743 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S284902AbSA3TR7>;
-	Wed, 30 Jan 2002 14:17:59 -0500
-Date: Wed, 30 Jan 2002 20:17:57 +0100
-From: Dave Jones <davej@suse.de>
-To: =?iso-8859-1?Q?Sebastian_Dr=F6ge?= <sebastian.droege@gmx.de>
-Cc: linux-kernel@vger.kernel.org, Oleg Drokin <green@namesys.com>
-Subject: Re: Current Reiserfs Update / 2.5.2-dj7 Oops
-Message-ID: <20020130201757.Q24012@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	=?iso-8859-1?Q?Sebastian_Dr=F6ge?= <sebastian.droege@gmx.de>,
-	linux-kernel@vger.kernel.org, Oleg Drokin <green@namesys.com>
-In-Reply-To: <20020130151420.40e81aef.sebastian.droege@gmx.de> <20020130173715.B2179@namesys.com> <20020130163951.13daca94.sebastian.droege@gmx.de> <20020130190905.A820@namesys.com> <20020130174011.L24012@suse.de> <20020130201054.6e150f78.sebastian.droege@gmx.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020130201054.6e150f78.sebastian.droege@gmx.de>; from sebastian.droege@gmx.de on Wed, Jan 30, 2002 at 08:10:54PM +0100
+	id <S289082AbSA3TU5>; Wed, 30 Jan 2002 14:20:57 -0500
+Received: from office.mandrakesoft.com ([195.68.114.34]:53500 "EHLO
+	office.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S289003AbSA3TUp>; Wed, 30 Jan 2002 14:20:45 -0500
+To: "Matthew D. Pitts" <mpitts@suite224.net>
+Cc: "Chris Ricker" <kaboom@gatech.edu>,
+        "Linus Torvalds" <torvalds@transmeta.com>,
+        "World Domination Now!" <linux-kernel@vger.kernel.org>
+Subject: Re: A modest proposal -- We need a patch penguin
+In-Reply-To: <Pine.LNX.4.44.0201291938530.26901-100000@verdande.oobleck.net>
+	<001601c1a98c$9681f760$dcf583d0@pcs586>
+X-Url: http://www.lfcia.org/~quintela
+From: Juan Quintela <quintela@mandrakesoft.com>
+In-Reply-To: <001601c1a98c$9681f760$dcf583d0@pcs586>
+Date: 30 Jan 2002 20:11:18 +0100
+Message-ID: <m2d6zrmz6x.fsf@localhost.mandrakesoft.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 30, 2002 at 08:10:54PM +0100, Sebastian Dröge wrote:
+>>>>> "matthew" == Matthew D Pitts <mpitts@suite224.net> writes:
 
- > I have 3 partitions. Two reiserfs partitions, one mounted on /, one on /home
+matthew> Chris,
+matthew> Thank you for saying this... I have things I would like do/add to the kernel
+matthew> and I am not sure who to send them to.
 
- Ok, my test box for reiserfs uses ext3 root, and reiser on a scratch disk.
- It could be Oleg's earlier guess that it may be reiser-on-root related.
+matthew> Also, is there presently a maintainer for Supermount? If not, I would be
+matthew> willing to pick it up for 2.5.x, as it is one of the things I want to work
+matthew> on.
 
- > It happens with the IDE layer version as in the dj tree and with
- > acb-io-2.5.3-p2.01212002 update (why haven't you included this in your tree,
- > Dave?)
 
- I never saw Andre pushing it on Linux-kernel (which is unusual for Andre 8)
- If it didn't reach my inbox, it didn't happen in my world.
- Its possible I overlooked the thread it was mentioned, or it got
- lost in noise.
+I am working on it.  Actual version worked quite well in 2.4.x series,
+but last kernels are showing same problems, worknig on that.
+
+Later, Juan.
+
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+In theory, practice and theory are the same, but in practice they 
+are different -- Larry McVoy

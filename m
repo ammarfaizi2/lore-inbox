@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286904AbRL1NWa>; Fri, 28 Dec 2001 08:22:30 -0500
+	id <S286898AbRL1N3b>; Fri, 28 Dec 2001 08:29:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286898AbRL1NWV>; Fri, 28 Dec 2001 08:22:21 -0500
-Received: from sproxy.gmx.net ([213.165.64.20]:3203 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S286904AbRL1NWF>;
-	Fri, 28 Dec 2001 08:22:05 -0500
-Date: Fri, 28 Dec 2001 14:24:31 +0100
-From: Sebastian =?ISO-8859-1?Q?Dr=F6ge?= <sebastian.droege@gmx.de>
+	id <S286905AbRL1N3L>; Fri, 28 Dec 2001 08:29:11 -0500
+Received: from 217-127-31-201.uc.nombres.ttd.es ([217.127.31.201]:24393 "EHLO
+	optimat.com") by vger.kernel.org with ESMTP id <S286898AbRL1N3G>;
+	Fri, 28 Dec 2001 08:29:06 -0500
+Message-ID: <3C2C72C7.3040909@optimat.com>
+Date: Fri, 28 Dec 2001 14:25:27 +0100
+From: Javier Miguel =?ISO-8859-1?Q?Rodr=EDguez?= 
+	<javier.miguel@optimat.com>
+Organization: Optima Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011012
+X-Accept-Language: es, en-us
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com
-Subject: 2.5.2-pre3 Changelog?
-Message-Id: <20011228142431.4697464d.sebastian.droege@gmx.de>
-X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- boundary="=..b7gbLMF42)CUx"
+CC: twaugh@redhat.com
+Subject: Compaq Gigabit Ethernet NC6136 (fiber, NOT coper) on linux 2.2.20
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 28 Dec 2001 13:25:22.0017 (UTC) FILETIME=[19E82510:01C18FA3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=..b7gbLMF42)CUx
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 
-Hi,
-Where are the changelogs for 2.5.2-pre2 /-pre3?
-patch-2.5.2.log only contents the -pre1 changes
+    Hello
 
-Bye
---=..b7gbLMF42)CUx
-Content-Type: application/pgp-signature
+    I have a Compaq Proliant DL-380 running kernel 2.2.20+freeswan 1.94
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
+    We need a gigabit ethernet card, and NC6136 works in RedHat 7.1... 
+but NOT in 2.2.20
 
-iD8DBQE8LHKSvIHrJes3kVIRApwbAJ46HC67XfkJpZ0LEg1aw+eDWxaXDACdEDMT
-FVQFdYC8f+gcCdGMGpix9Sg=
-=ETOg
------END PGP SIGNATURE-----
+    Can I "backport" this nic driver to kernel 2.2.20?
 
---=..b7gbLMF42)CUx--
+    If somebody can help me with this issue... I am newbie in kernel 
+hacking....
+   
+    If somebody could send me a patch....
+
+    Greetings from Seville (Spain)!
 

@@ -1,84 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267438AbTBMOqh>; Thu, 13 Feb 2003 09:46:37 -0500
+	id <S268055AbTBMPBY>; Thu, 13 Feb 2003 10:01:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268055AbTBMOqh>; Thu, 13 Feb 2003 09:46:37 -0500
-Received: from mons.uio.no ([129.240.130.14]:19133 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S267438AbTBMOqf>;
-	Thu, 13 Feb 2003 09:46:35 -0500
+	id <S268056AbTBMPBX>; Thu, 13 Feb 2003 10:01:23 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:47208 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S268055AbTBMPBX>; Thu, 13 Feb 2003 10:01:23 -0500
+To: suparna@in.ibm.com
+Cc: Andy Pfiffer <andyp@osdl.org>, linux-kernel@vger.kernel.org,
+       lkcd-devel@lists.sourceforge.net, fastboot@osdl.org
+Subject: Re: [Fastboot] Re: Kexec on 2.5.59 problems ?
+References: <3E45661A.90401@mvista.com> <m1d6m1z4bk.fsf@frodo.biederman.org>
+	<20030210164401.A11250@in.ibm.com>
+	<1044896964.1705.9.camel@andyp.pdx.osdl.net>
+	<m13cmwyppx.fsf@frodo.biederman.org> <20030211125144.A2355@in.ibm.com>
+	<1044983092.1705.27.camel@andyp.pdx.osdl.net>
+	<1045007213.1959.2.camel@andyp.pdx.osdl.net>
+	<m1k7g6xgs8.fsf@frodo.biederman.org>
+	<1045089117.1502.5.camel@andyp.pdx.osdl.net>
+	<20030213152033.A14278@in.ibm.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 13 Feb 2003 08:10:41 -0700
+In-Reply-To: <20030213152033.A14278@in.ibm.com>
+Message-ID: <m1d6lww70u.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15947.45378.421333.627616@charged.uio.no>
-Date: Thu, 13 Feb 2003 15:52:50 +0100
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       NFS maillist <nfs@lists.sourceforge.net>
-Subject: [PATCH 2.5.60] Clean up and fix SMP issue w.r.t. XID allocation
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Suparna Bhattacharya <suparna@in.ibm.com> writes:
 
-The following problem was identified by Olaf Kirch. In
-xprt_request_init(), the XID allocation needs to be protected by a
-global spinlock.
+> Great !
+> Eventually we should probably avoid init_mm altogether (on ppc64
+> at least, init_mm can't be used as Anton pointed out to me) and
+> setup a spare mm instead. 
 
-Cheers,
-  Trond
+What is the problem with init_mm?  Besides the fact that using it
+is now failing?
 
-diff -u --recursive --new-file linux-2.5.60-00-fix_pipes/net/sunrpc/xprt.c linux-2.5.60-01-fix_xid/net/sunrpc/xprt.c
---- linux-2.5.60-00-fix_pipes/net/sunrpc/xprt.c	2003-01-12 22:39:48.000000000 +0100
-+++ linux-2.5.60-01-fix_xid/net/sunrpc/xprt.c	2003-02-13 14:17:10.000000000 +0100
-@@ -1273,25 +1273,41 @@
- }
- 
- /*
-+ * Allocate a 'unique' XID
-+ */
-+static u32
-+xprt_alloc_xid(void)
-+{
-+	static spinlock_t xid_lock = SPIN_LOCK_UNLOCKED;
-+	static int need_init = 1;
-+	static u32 xid;
-+	u32 ret;
-+
-+	spin_lock(&xid_lock);
-+	if (unlikely(need_init)) {
-+		xid = get_seconds() << 12;
-+		need_init = 0;
-+	}
-+	ret = xid++;
-+	spin_unlock(&xid_lock);
-+	return ret;
-+}
-+
-+/*
-  * Initialize RPC request
-  */
- static void
- xprt_request_init(struct rpc_task *task, struct rpc_xprt *xprt)
- {
- 	struct rpc_rqst	*req = task->tk_rqstp;
--	static u32	xid = 0;
--
--	if (!xid)
--		xid = get_seconds() << 12;
- 
--	dprintk("RPC: %4d reserved req %p xid %08x\n", task->tk_pid, req, xid);
- 	req->rq_timeout = xprt->timeout;
- 	req->rq_task	= task;
- 	req->rq_xprt    = xprt;
--	req->rq_xid     = xid++;
--	if (!xid)
--		xid++;
-+	req->rq_xid     = xprt_alloc_xid();
- 	INIT_LIST_HEAD(&req->rq_list);
-+	dprintk("RPC: %4d reserved req %p xid %08x\n", task->tk_pid,
-+			req, req->rq_xid);
- }
- 
- /*
+Eric

@@ -1,57 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262693AbTHUOMo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 10:12:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262697AbTHUOMn
+	id S262702AbTHUOPq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 10:15:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262719AbTHUOPq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 10:12:43 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31682 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262693AbTHUOMm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 10:12:42 -0400
-Message-ID: <3F44D34A.3040400@pobox.com>
-Date: Thu, 21 Aug 2003 10:12:26 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	Thu, 21 Aug 2003 10:15:46 -0400
+Received: from [62.166.232.230] ([62.166.232.230]:16325 "HELO netscape1617.com")
+	by vger.kernel.org with SMTP id S262702AbTHUOP2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Aug 2003 10:15:28 -0400
+From: ANDREW JANEH <andyjaneh@netscape.net>
+To: linux-kernel@vger.kernel.org
+Reply-To: andyjaneh@netscape.net
+Subject: PROPOSAL
+Date: Thu, 21 Aug 2003 16:14:01 +0200
 MIME-Version: 1.0
-To: Jaroslav Kysela <perex@suse.cz>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ALSA update 2003-08-21
-References: <Pine.LNX.4.44.0308211404320.19864-100000@pnote.perex-int.cz>
-In-Reply-To: <Pine.LNX.4.44.0308211404320.19864-100000@pnote.perex-int.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="94b571af-5177-4231-b6ec-61cebdb3cac0"
+Message-Id: <S262702AbTHUOP2/20030821141543Z+760@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jaroslav Kysela wrote:
 
-> <perex@suse.cz> (03/08/20 1.1046.561.26)
->    ALSA CVS update
->    D:2003/08/20 10:59:59
->    A:Jaroslav Kysela <perex@suse.cz>
->    F:usb/usbaudio.c:1.62->1.63 
->    F:usb/usbaudio.h:1.20->1.21 
->    F:usb/usbmixer.c:1.21->1.22 
->    L:Synced USB audio driver with the latest 2.6 code
-> 
-> <perex@suse.cz> (03/08/20 1.1046.561.25)
->    ALSA CVS update
->    D:2003/08/16 10:54:09
->    A:Jaroslav Kysela <perex@suse.cz>
->    F:core/oss/pcm_oss.c:1.45->1.46 
->    L:Fixed open for O_RDWR when capture is not available
+This is a multi-part message in MIME format
+--94b571af-5177-4231-b6ec-61cebdb3cac0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-
-Allow me to express my thanks, for splitting these changes up.  This 
-level of change granularity is fantastic.
-
-Best regards,
-
-	Jeff
-
-
+Dear Sir/Madam,
+Due to reasons i would explain in greater detail later,i am in search of a =
+sincere partner to assist me in securing and investing the sum of =
+USD25,000.000 (twenty five million  dollars)inherited from my father's =
+business reserve.
+I am the only surviving child of late Mr Sekou Janeh ,a liberian diamond =
+merchant.my father became rich from his extensive investment in  diamond =
+trade both in Liberia and in Sierra leone.he was assasinated in =
+Monrovia,Liberia in November 2000 by gunmen of the Charles Taylor-led =
+dictatorship while on a business trip. Before his death, my father who =
+foresaw the insecurity of both our lives and property based on his line of =
+business and the insecurity of the region, decided to deposit the above sum =
+with a private finance and security firm in Europe. This money has become the =
+only inherited property of our family after the death of my father; yet the =
+liberia government and it's loyalists are bent on hunting us down because of =
+my father's vast financial reserve.
+To summarise this traumatic story, my mother and I have decided to offer 20% =
+of the above sum to anyone who assists us to secure this funds or 25% share =
+of a possible joint venture business.
+if you would want to proceed under these terms,please reply for detailed =
+information. if you do not accept my offer,in good fate treat with utmost =
+confidentiality . A quick reply with your name,telephone and fax numbers for =
+more confidential communication will be highly appreciated.
+Sincerely yours,
+ANDREW JANEH.  
+--94b571af-5177-4231-b6ec-61cebdb3cac0--
 

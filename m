@@ -1,66 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269133AbRGaA5O>; Mon, 30 Jul 2001 20:57:14 -0400
+	id <S269135AbRGaBQY>; Mon, 30 Jul 2001 21:16:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269134AbRGaA5D>; Mon, 30 Jul 2001 20:57:03 -0400
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:46341 "HELO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S269133AbRGaA4x>; Mon, 30 Jul 2001 20:56:53 -0400
-Date: Tue, 31 Jul 2001 02:57:00 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+	id <S269137AbRGaBQO>; Mon, 30 Jul 2001 21:16:14 -0400
+Received: from rj.SGI.COM ([204.94.215.100]:9449 "EHLO rj.corp.sgi.com")
+	by vger.kernel.org with ESMTP id <S269135AbRGaBQJ>;
+	Mon, 30 Jul 2001 21:16:09 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
 To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ext3-2.4-0.9.4
-Message-ID: <20010731025700.G28253@emma1.emma.line.org>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3B5FC7FB.D5AF0932@zip.com.au> <20010726130809.D17244@emma1.emma.line.org> <3B60022D.C397D80E@zip.com.au> <20010726143002.E17244@emma1.emma.line.org> <9jpea7$s25$1@penguin.transmeta.com>
+cc: mason@suse.com, linux-kernel@vger.kernel.org,
+        "Justin T. Gibbs" <gibbs@scsiguy.com>
+Subject: Re: BUG at smp.c:481, 2.4.8-pre2 
+In-Reply-To: Your message of "Mon, 30 Jul 2001 10:33:08 MST."
+             <200107301733.f6UHX8H01494@penguin.transmeta.com> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <9jpea7$s25$1@penguin.transmeta.com>
-User-Agent: Mutt/1.3.19i
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 31 Jul 2001 11:16:06 +1000
+Message-ID: <31650.996542166@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Thu, 26 Jul 2001, Linus Torvalds wrote:
+On Mon, 30 Jul 2001 10:33:08 -0700, 
+Linus Torvalds <torvalds@transmeta.com> wrote:
+>In article <296370000.996508500@tiny> you write:
+>>
+>>Ok, During boot on 2.4.8-pre2 I'm getting this oops just as it starts to
+>>probe my aic7890 card.  Andrea is cc'd because I'm guessing it is due to
+>>one of his patches ;-)
+>
+>It's a sanity check, which I removed (because it's worse to panic in a
+>2.4.x kernel than it is to have the sanity problem). But the sanity
+>check does show that there is some problem in ahc_pci_map_registers():
+>it calls "ioremap()" with interrupts disabled, which is rather broken.
 
-> In article <20010726143002.E17244@emma1.emma.line.org>,
-> Matthias Andree  <matthias.andree@stud.uni-dortmund.de> wrote:
-> >
-> >However, the remaining problem is being synchronous with respect to open
-> >(fixed for ext3 with your fsync() as I understand it), rename, link and
-> >unlink. With ext2, and as you write it, with ext3 as well, there is
-> >currently no way to tell when the link/rename has been committed to
-> >disk, unless you set mount -o sync or chattr +S or call sync() (the
-> >former is not an option because it's far too expensive).
-> 
-> Congratulations. You have been brainwashed by Dan Bernstein.
+FYI, same problem with aic7xxx on 2.4.8-pre2.  Sorry, Linus, it is using a
+kernel debugger ;)
 
-No, I asked Wietse Venema what assumptions Postfix makes. Since he
-refuses to fsync() directories, he has Postfix set chattr +S to enforce
-the semantics he expects. No problem here.
+SCSI subsystem driver Revision: 1.00
+scsi0 : AdvanSys SCSI 3.3G: PCI Ultra: IO 0x2000-0x200F, IRQ 0x13
+  Vendor: ARCHIVE   Model: Python 25601-XXX  Rev: 2.75
+  Type:   Sequential-Access                  ANSI SCSI revision: 02
+kernel BUG at smp.c:501!
 
-> Use fsync() on the directory. 
-> 
-> Logical, isn't it?
+Entering kdb (current=0xc1232000, pid 1) on processor 1 Oops: invalid operand
+due to oops @ 0xc010eaba
+eax = 0x00000019 ebx = 0x00000020 ecx = 0x00000001 edx = 0x00000001 
+esi = 0xc037fc28 edi = 0xc1233d5c esp = 0xc1233d44 eip = 0xc010eaba 
+ebp = 0xc1233d70 xss = 0x00000018 xcs = 0x00000010 eflags = 0x00010082 
+xds = 0x00000018 xes = 0x00000018 origeax = 0xffffffff &regs = 0xc1233d10
+[1]kdb> bt
+    EBP       EIP         Function(args)
+0xc1233d70 0xc010eaba smp_call_function+0xc6 (0xc010e8e8, 0x0, 0x1, 0x1)
+                               kernel .text 0xc0100000 0xc010e9f4 0xc010eaec
+0xc1233d8c 0xc010e94c flush_tlb_all+0x14
+                               kernel .text 0xc0100000 0xc010e938 0xc010e998
+0xc1233dcc 0xc0110b73 remap_area_pages+0x1e3 (0xc8c00000, 0xf4100000, 0x1000, 0x10)
+                               kernel .text 0xc0100000 0xc0110990 0xc0110b80
+0xc1233df8 0xc0110c4d __ioremap+0xcd (0xf4100000, 0x100, 0x10)
+                               kernel .text 0xc0100000 0xc0110b80 0xc0110c74
+0xc1233e28 0xc01cd9f4 ahc_pci_map_registers+0xbc (0xc7f71a00)
+                               kernel .text 0xc0100000 0xc01cd938 0xc01cdb64
+0xc1233e70 0xc01d9752 ahc_pci_config+0x42 (0xc7f71a00, 0xc032a2fc, 0xc7f9b000)
+                               kernel .text 0xc0100000 0xc01d9710 0xc01d9bec
+0xc1233ef4 0xc01cd8c8 ahc_linux_pci_dev_probe+0xe8 (0xc7f9b000, 0xc032879c)
+                               kernel .text 0xc0100000 0xc01cd7e0 0xc01cd908
+0xc1233f14 0xc01e85ae pci_announce_device+0x3e (0xc03287e0, 0xc7f9b000, 0x202)
+                               kernel .text 0xc0100000 0xc01e8570 0xc01e85d4
+0xc1233f30 0xc01e8617 pci_register_driver+0x43 (0xc03287e0)
+                               kernel .text 0xc0100000 0xc01e85d4 0xc01e8634
+0xc1233f40 0xc01cd916 ahc_linux_pci_probe+0xe (0xc0328700)
+                               kernel .text 0xc0100000 0xc01cd908 0xc01cd938
+0xc1233f58 0xc01ca64c ahc_linux_detect+0x1c (0xc0328700)
+                               kernel .text 0xc0100000 0xc01ca630 0xc01ca694
+0xc1233fa0 0xc01b833f scsi_register_host+0x5b (0xc0328700)
+                               kernel .text 0xc0100000 0xc01b82e4 0xc01b85d8
+0xc1233fb0 0xc01b8d4d scsi_register_module+0x29
+                               kernel .text 0xc0100000 0xc01b8d24 0xc01b8d7c
+0xc1233fc0 0xc0347079 AdvWaitEEPCmd+0x69
+                               kernel .text.init 0xc0332000 0xc0347010 0xc03470a0
+0xc1233fcc 0xc03329e9 do_initcalls+0xd
+                               kernel .text.init 0xc0332000 0xc03329dc 0xc0332a00
+0xc1233fd4 0xc0332a2e do_basic_setup+0x2e (0x10f00)
+                               kernel .text.init 0xc0332000 0xc0332a00 0xc0332a40
+0xc1233fec 0xc01050ae init+0x32
+                               kernel .text 0xc0100000 0xc010507c 0xc0105230
+           0xc01055c7 kernel_thread+0x23
+                               kernel .text 0xc0100000 0xc01055a4 0xc01055dc
+[1]kdb> 
 
-Why go all the lengths to look up each single directory path component
-again just to fsync() stuff that doesn't belong to you and that you
-don't want synched, possibly the entire device?
-
-Chase up to the root manually, because Linux' ext2 violates SUS v2
-fsync() (which requires meta data synched BTW), as has been pointed out
-(and fixed in ReiserFS and ext3)?
-
-Admittedly, MTAs are (supposed to be) (per command of RFC-1123) more
-paranoid than the average application - and per lack of standard whether
-rename/link & Co. need to be synchronous or asynchronous, this is a
-problem for the MTA.
-
-So, please tell my why Single Unix Specification v2 specifies EIO for
-rename. Asynchronous I/O cannot possibly trigger immediate EIO.
-
--- 
-Matthias Andree

@@ -1,50 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267386AbUHECd0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267475AbUHECxp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267386AbUHECd0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 22:33:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267470AbUHECd0
+	id S267475AbUHECxp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 22:53:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267474AbUHECxp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 22:33:26 -0400
-Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:9655 "EHLO
-	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S267386AbUHECdZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 22:33:25 -0400
-From: David Brownell <david-b@pacbell.net>
-To: Norbert Preining <preining@logic.at>
-Subject: Re: [linux-usb-devel] 2.6.8-rc2-mm2 with usb and input problems
-Date: Wed, 4 Aug 2004 19:26:31 -0700
-User-Agent: KMail/1.6.2
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <20040802162845.GA24725@gamma.logic.tuwien.ac.at> <20040802171325.GA26949@gamma.logic.tuwien.ac.at> <20040803081134.GA13745@gamma.logic.tuwien.ac.at>
-In-Reply-To: <20040803081134.GA13745@gamma.logic.tuwien.ac.at>
-MIME-Version: 1.0
+	Wed, 4 Aug 2004 22:53:45 -0400
+Received: from mail019.syd.optusnet.com.au ([211.29.132.73]:17100 "EHLO
+	mail019.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S267308AbUHECxl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 22:53:41 -0400
+References: <20040802015527.49088944.akpm@osdl.org> <410E3CAF.6080305@kolivas.org> <410F3423.3020409@yahoo.com.au> <cone.1091518501.973503.9648.502@pc.kolivas.org> <cone.1091519122.804104.9648.502@pc.kolivas.org> <41109FCC.4070906@yahoo.com.au> <20040804103143.GA13072@elte.hu> <cone.1091616443.996442.9775.502@pc.kolivas.org> <20040804124538.GA15505@elte.hu>
+Message-ID: <cone.1091674380.801763.9775.502@pc.kolivas.org>
+X-Mailer: http://www.courier-mta.org/cone/
+From: Con Kolivas <kernel@kolivas.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc2-mm2
+Date: Thu, 05 Aug 2004 12:53:00 +1000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed; charset="US-ASCII"
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200408041926.31293.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 03 August 2004 01:11, Norbert Preining wrote:
-> Then I tried lsusb, which hang, here is what sysrq-t says:
-> lsusb         D C0158CDC     0  3942   3849                     (NOTLB)
-> ...
-> Call Trace:
->  [<c0158cdc>] link_path_walk+0xa1f/0xd4e
->  [<c02d3f5f>] __down+0x8b/0x116
->  [<c0118cf9>] default_wake_function+0x0/0xc
->  [<e08e0798>] usbdev_open+0x54/0xfa [usbcore]
->  [<c02d4144>] __down_failed+0x8/0xc
->  [<e08e26ba>] .text.lock.devio+0x5/0xff [usbcore]
->  [<c014ba8b>] filp_open+0x4c/0x4e
->  [<c014c62d>] vfs_read+0xa9/0xf5
->  [<c014c846>] sys_read+0x38/0x59
->  [<c0105e4f>] syscall_call+0x7/0xb
+Ingo Molnar writes:
 
-Not clear how to read that stack; if it's usbdev_open()
-that's making the trouble, lock_kernel() is blocked.
-But that doesn't quite make sense to me.  Sorry!
+> 
+> * Con Kolivas <kernel@kolivas.org> wrote:
+> 
+>> Ingo Molnar writes:
+>> 
+>> Thanks for replying.
+>> 
+>> >* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+>> >
+>> >>Also, basic interactivity in X is bad with the interactive sysctl set
+>> >>to 0 (is X supposed to be at nice 0?), however fairness is bad when
+>> >>interactive is 1. I'm not sure if this is an acceptable tradeoff - are
+>> >>you planning to fix it?
+>> >
+>> >it also has clear interactivity problems when just running lots of CPU
+>> >hogs even with the default interactive=1 compute=0 setting.
+>> 
+>> Can you define them please? I haven't had any reported to me.
+> 
+> sure: take a process that uses 85% of CPU time (and sleeps 15% of the
+> time) if running on an idle system. Start just two of these hogs at
+> normal priority. 2.6.8-rc2-mm2 becomes almost instantly unusable even
+> over a text console: a single 'top' refresh takes ages, 'ls' displays
+> one line per second or so. Start more of these and the system
+> effectively locks up.
 
-- Dave
+It's only if I physically try and create such a test application that I can 
+reproduce it. I haven't found any real world load that does that - but of 
+course that doesn't mean I should discount it. However, interactive mode off 
+doesn't exhibit it and it should be easy enough to fix for interactive mode 
+on. Thanks for pointing it out.
+
+Cheers,
+Con
 

@@ -1,65 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261856AbSIYAfk>; Tue, 24 Sep 2002 20:35:40 -0400
+	id <S261867AbSIYAnR>; Tue, 24 Sep 2002 20:43:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261859AbSIYAfk>; Tue, 24 Sep 2002 20:35:40 -0400
-Received: from holomorphy.com ([66.224.33.161]:15261 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S261856AbSIYAfj>;
-	Tue, 24 Sep 2002 20:35:39 -0400
-Date: Tue, 24 Sep 2002 17:39:52 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.38-mm2 dbench $N times
-Message-ID: <20020925003952.GF3530@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-References: <20020924132031.GJ6070@holomorphy.com> <3D90A532.4B95C06B@digeo.com> <20020925001826.GM6070@holomorphy.com> <3D9103EB.FC13A744@digeo.com>
-Mime-Version: 1.0
+	id <S261868AbSIYAnR>; Tue, 24 Sep 2002 20:43:17 -0400
+Received: from adsl-64-166-241-227.dsl.snfc21.pacbell.net ([64.166.241.227]:190
+	"EHLO www.hockin.org") by vger.kernel.org with ESMTP
+	id <S261867AbSIYAnP>; Tue, 24 Sep 2002 20:43:15 -0400
+From: Tim Hockin <thockin@hockin.org>
+Message-Id: <200209250047.g8P0lpr22153@www.hockin.org>
+Subject: Re: alternate event logging proposal
+To: greearb@candelatech.com (Ben Greear)
+Date: Tue, 24 Sep 2002 17:47:51 -0700 (PDT)
+Cc: thockin@sun.com (Tim Hockin), jgarzik@pobox.com (Jeff Garzik),
+       bhards@bigpond.net.au (Brad Hards),
+       cfriesen@nortelnetworks.com (Chris Friesen),
+       rusty@rustcorp.com.au (Rusty Russell),
+       linux-kernel@vger.kernel.org (linux-kernel mailing list),
+       alan@lxorguk.ukuu.org.uk (Alan Cox),
+       cgl_discussion@osdl.org (cgl_discussion mailing list),
+       evlog-developers@lists.sourceforge.net (evlog mailing list),
+       ipslinux@us.ibm.com ("ipslinux (Keith Mitchell)"),
+       torvalds@home.transmeta.com (Linus Torvalds),
+       hien@us.ibm.com (Hien Nguyen), kenistoj@us.ibm.com (James Keniston),
+       sullivam@us.ibm.com (Mike Sullivan)
+In-Reply-To: <3D90FED3.5060705@candelatech.com> from "Ben Greear" at Sep 24, 2002 05:09:55 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <3D9103EB.FC13A744@digeo.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
->> Not sure. This is boot bay SCSI crud, but single-disk FC looks
->> *worse* for no obvious reason. Multiple disk tests do much better
->> (about matching the el-scruffo PC numbers above).
->> 
+> > a single device_event file that a daemon reads and dispatches events (I 
+> > like this one because the daemon is already written, just poorly named - 
+> > acpid)
+> 
+> Couldn't you just have the message sent to every process that has
+> opened the file (and have every interested process open the file and
+> read it in a non-blocking or blocking mode?)
 
-On Tue, Sep 24, 2002 at 05:31:39PM -0700, Andrew Morton wrote:
-> dbench 16 on that sort of machine is a memory bandwidth test.
-> And a dcache lock exerciser.  It basically doesn't touch the
-> disk.  Something very bad is happening.
-> Anton can get 3000 MByte/sec ;)
+Sure, but then every process that is concerned with a single event has to
+not only receive every event, but parse every event.  And if this is to be
+truly generic, that could be a lot of events.
 
-Hmm, this is odd (remember, dcache_rcu is in here):
+> That seems to negate the need for something like acpid, but it does
+> not preclude it's use.
 
-c01053dc 9194801  60.668      poll_idle
-c01175db 1752528  11.5633     .text.lock.sched
-c0114c08 1281763  8.45717     load_balance
-c0106408 388517   2.56346     .text.lock.semaphore
-c0147a4e 272571   1.79844     .text.lock.file_table
-c0115080 265006   1.74853     scheduler_tick
-c0132374 227403   1.50042     generic_file_write_nolock
-c0115434 187759   1.23885     do_schedule
-c01233c8 167905   1.10785     run_timer_tasklet
-c0114778 103077   0.68011     try_to_wake_up
-c010603c 100121   0.660606    __down
-c0111788 96062    0.633824    smp_apic_timer_interrupt
-c011fa20 70840    0.467408    tasklet_hi_action
-c011f700 63125    0.416504    do_softirq
-c0131880 60640    0.400107    file_read_actor
-c0145dd0 53872    0.355452    generic_file_llseek
-c01473e0 45819    0.302317    get_empty_filp
-c0175190 35814    0.236304    ext2_new_block
-c01476ac 31657    0.208875    __fput
-c0146354 26755    0.176532    vfs_write
-c010d718 26627    0.175687    timer_interrupt
-c01a2cd0 26426    0.174361    atomic_dec_and_lock
-c0123294 23022    0.151901    update_one_process
+True, and if a dev_event file were created, I'd consider doing it that way.
+But in that case it's easier for apps to talk to eventd (nee acpid) and get
+only the messages they want.
 
+Tim

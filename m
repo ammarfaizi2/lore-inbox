@@ -1,41 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274813AbRKDTjD>; Sun, 4 Nov 2001 14:39:03 -0500
+	id <S275126AbRKDTln>; Sun, 4 Nov 2001 14:41:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274875AbRKDTiy>; Sun, 4 Nov 2001 14:38:54 -0500
-Received: from mailout00.sul.t-online.com ([194.25.134.16]:36025 "EHLO
-	mailout00.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S274813AbRKDTil>; Sun, 4 Nov 2001 14:38:41 -0500
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Tim Jansen <tim@tjansen.de>
-To: Jakob =?iso-8859-1?q?=D8stergaard=20?= <jakob@unthought.net>
-Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
-Date: Sun, 4 Nov 2001 20:41:34 +0100
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E15zF9H-0000NL-00@wagner> <160Skz-1rDDSyC@fmrl05.sul.t-online.com> <20011104202406.N14001@unthought.net>
-In-Reply-To: <20011104202406.N14001@unthought.net>
+	id <S274875AbRKDTle>; Sun, 4 Nov 2001 14:41:34 -0500
+Received: from postfix1-2.free.fr ([213.228.0.130]:45228 "HELO
+	postfix1-2.free.fr") by vger.kernel.org with SMTP
+	id <S275224AbRKDTlV> convert rfc822-to-8bit; Sun, 4 Nov 2001 14:41:21 -0500
+Date: Sun, 4 Nov 2001 17:56:21 +0100 (CET)
+From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
+X-X-Sender: <groudier@gerard>
+To: Jens Axboe <axboe@suse.de>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linux <linux-kernel@vger.kernel.org>, <linux-scsi@vger.kernel.org>
+Subject: Re: SYM-2 patches against latest kernels available
+In-Reply-To: <20011104195145.J10022@suse.de>
+Message-ID: <20011104174948.I2222-100000@gerard>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-ID: <160T6C-1RvGb2C@fmrl05.sul.t-online.com>
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 04 November 2001 20:24, Jakob Østergaard wrote:
-> Does this work ?   Yes of course.  But what if I ported my program to
-> a 64 bit arch...  The program still compiles.  It also runs.  But the
-> values are no longer correct.   Now *that* is hell.
 
-Actually I worry more about those programs that are already compiled and will 
-break when the kernel changes. But even if you recompile the code, how can 
-you be sure that the programmer uses longs instead of ints for those 64 bit 
-types? The C compiler allows the implicit conversion without warning. If you 
-change the type the program has to be changed, no matter what you do.
 
-> I want type information.
+On Sun, 4 Nov 2001, Jens Axboe wrote:
 
-BTW nobody says to one-value-files can not have types (see my earlier posts 
-in this thread).
+> On Sun, Nov 04 2001, G?rard Roudier wrote:
+> >
+> >
+> > On Sun, 4 Nov 2001, Jeff Garzik wrote:
+> >
+> > > Gérard Roudier wrote:
+> > > > The patch against linux-2.4.13 has been sent to Alan Cox for inclusion in
+> > > > newer stable kernels. Alan wants to test it on his machines which is a
+> > > > good thing. Anyway, those patches just add the new driver version to
+> > > > kernel tree and leave stock sym53c8xx and ncr53c8xx in place.
+> > >
+> > > Are the older sym/ncr drivers going away in 2.5?
+> > >
+> > >
+> > > > Any report, especially on large memory machines using 64 bit DMA (2.4
+> > > > kernels + PCI DAC capable controllers only), is welcome. I can't test 64
+> > > > bit DMA, since my fatest machine has only 512 MB of memory.
+> > > >
+> > > > To configure the driver, you must select "SYM53C8XX version 2 driver" from
+> > > > kernel config. For large memory machines, a new "DMA addressing mode"
+> > > > option is to be configured as follows (help texts have been added to
+> > > > Configure.help):
+> > > >
+> > > > Value 0: 32 bit DMA addressing
+> > > > Value 1: 40 bit DMA addressing (upper 24 bytes set to zero)
+> > > > Value 2: 64 bit DMA addressing limited to 16 segments of 4 GB (64 GB) max.
+> > >
+> > > Are you using the new pci64 API under 2.4.x?
+> >
+> > Didn't see any. Only the dma_addr_t thing can be 32 bit or 64 bit
+> > depending on some magic. Apart this, the driver is asking for the
+> > appropriate dma mask given the configured dma adressing mode.
+>
+> I've looked over the sym-2 and it is using pci_map_sg so it's 64-bit
+> safe for sg transfers at least. For non-sg requests you are using
+> pci_map_single, but you can't do any better because the mid layer is
+> handing you virtual addresses in request_buffer currently anyways...
 
-bye...
+If there is some platform-specific thing that allows to handle map_single
+more right:), I can go with it. Would be fine to get IA64 and Alpha
+actually PCI-64 bit safe even by using some software shoehorn for that. :)
+
+> > PS: There is some pci64* API on some arch., but nobody will want to
+> > ever use it, in my opinion.
+>
+> You are doing it right :-)
+
+You mean as right as possible? :)
+
+  Gérard.
+

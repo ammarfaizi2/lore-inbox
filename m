@@ -1,77 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262974AbUEOPOl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264638AbUEOPun@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262974AbUEOPOl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 May 2004 11:14:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263227AbUEOPOk
+	id S264638AbUEOPun (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 May 2004 11:50:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264639AbUEOPun
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 May 2004 11:14:40 -0400
-Received: from [68.184.155.122] ([68.184.155.122]:43471 "EHLO wally.rdlg.net")
-	by vger.kernel.org with ESMTP id S262974AbUEOPOi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 May 2004 11:14:38 -0400
-Date: Sat, 15 May 2004 11:14:10 -0400
-From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: dual-homed sourced out of lo?
-Message-ID: <20040515151410.GE6684@rdlg.net>
-Mail-Followup-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="rqzD5py0kzyFAOWN"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Sat, 15 May 2004 11:50:43 -0400
+Received: from moutng.kundenserver.de ([212.227.126.177]:56049 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S264638AbUEOPuj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 May 2004 11:50:39 -0400
+To: Andy Lutomirski <luto@myrealbox.com>
+Cc: Chris Wright <chrisw@osdl.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] capabilities, take 3 (Re: [PATCH] capabilites, take 2)
+References: <200405131308.40477.luto@myrealbox.com>
+	<20040513182010.L21045@build.pdx.osdl.net>
+	<200405131945.53723.luto@myrealbox.com>
+	<87d657z2lm.fsf@goat.bogus.local> <40A4D49C.3030300@myrealbox.com>
+From: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
+Date: Sat, 15 May 2004 17:50:31 +0200
+Message-ID: <87y8ntk7ug.fsf@goat.bogus.local>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Portable Code, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:fa0178852225c1084dbb63fc71559d78
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andy Lutomirski <luto@myrealbox.com> writes:
 
---rqzD5py0kzyFAOWN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> BTW, in your capabilities implementation, why do you do:
 
+There's no such thing like "my" capabilities implementation. I use the
+capabilities implementation of linux main line as it is. My patch
+provides the possibility to connect capabilities to files, nothing
+else.
 
-  We're working on a network-hardened solution and I've been picked to
-figure out the solution to a problem.  In a week I'll have hardware to
-play with but I'm trying to figure out the answer or a plan of attack
-early.  Here's the setup:
+I never tried to fix or modify, how capabilities work.
 
-Server had 2 interfaces with IP's:
-eth0: 192.168.1.1
-eth1: 192.168.2.1
-lo: 192.168.0.1
+> If the answer's because that's how Linux cap evolution works, then
+> I'd say that Linux cap evolution is broken.
 
-We want to have the machine listening on eth0 and eth1 when both
-networks are up and functional to the OSPF broadcasts.  Oubound traffic
-needs to come from the 192.168.0.1 (lo) address though so that return
-traffic goes to 192.168.0.1, not the other subnets and the server accept
-the packets for lo.
+Well, it works for me. :-)
 
-Has anyone set up something like this which is relatively easy to
-duplicate with a stock Linux box and Zebra for the OSPF?
-
-Robert
-
-:wq!
----------------------------------------------------------------------------
-Robert L. Harris                     | GPG Key ID: E344DA3B
-                                         @ x-hkp://pgp.mit.edu
-DISCLAIMER:
-      These are MY OPINIONS ALONE.  I speak for no-one else.
-
-With Dreams To Be A King First One Should Be A Man
-					- Manowar
-
-
---rqzD5py0kzyFAOWN
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFApjPC8+1vMONE2jsRAt9+AJ9uJD/I7/9ltioIVwmKari9+b8+cQCePS7Y
-TXE3aT5jaKZyJTjSaGDxKiA=
-=yxDx
------END PGP SIGNATURE-----
-
---rqzD5py0kzyFAOWN--
+Regards, Olaf.

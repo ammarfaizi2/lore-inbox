@@ -1,194 +1,244 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266536AbUBERyi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 12:54:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266532AbUBERyi
+	id S266561AbUBESHV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 13:07:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266563AbUBESHV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 12:54:38 -0500
-Received: from fw.osdl.org ([65.172.181.6]:57830 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266536AbUBERxn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 12:53:43 -0500
-Subject: Re: [PATCH 2.6.2-rc3-mm1] DIO read race fix
-From: Daniel McNeil <daniel@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: janetmor@us.ibm.com, Badari Pulavarty <pbadari@us.ibm.com>,
-       "linux-aio@kvack.org" <linux-aio@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Suparna Bhattacharya <suparna@in.ibm.com>
-In-Reply-To: <20040204213336.354d8103.akpm@osdl.org>
-References: <3FCD4B66.8090905@us.ibm.com>
-	 <1070674185.1929.9.camel@ibm-c.pdx.osdl.net>
-	 <1070907814.707.2.camel@ibm-c.pdx.osdl.net>
-	 <1071190292.1937.13.camel@ibm-c.pdx.osdl.net>
-	 <20031230045334.GA3484@in.ibm.com>
-	 <1072830557.712.49.camel@ibm-c.pdx.osdl.net>
-	 <20031231060956.GB3285@in.ibm.com>
-	 <1073606144.1831.9.camel@ibm-c.pdx.osdl.net>
-	 <20040109035510.GA3279@in.ibm.com>
-	 <1075945198.7182.46.camel@ibm-c.pdx.osdl.net>
-	 <20040204213336.354d8103.akpm@osdl.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1076003576.7182.77.camel@ibm-c.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 05 Feb 2004 09:52:56 -0800
-Content-Transfer-Encoding: 7bit
+	Thu, 5 Feb 2004 13:07:21 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:38930 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S266561AbUBESG7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 13:06:59 -0500
+Date: Thu, 5 Feb 2004 18:06:52 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Andrew Morton <akpm@osdl.org>, <torvalds@transmeta.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: fb.h header fix.
+In-Reply-To: <1075937512.4029.47.camel@gaston>
+Message-ID: <Pine.LNX.4.44.0402051805360.3236-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
 
-I am still thinking about your patch.  I will run some tests today using
-2.6.2-mm1 to see if the problem is fixed.  My 8-proc machine ran
-overnight with 6 copies of the read_under running without problems with
-my original patch.  Previously on the 8-proc machine, it would hit
-uninitialized data within an hour.
+> Yes, but I think Andrew should still merge your patch at this point,
+> I'll send the ppc64 fix today hopefully along with other ppc64 io.h
+> fixes.
 
-The concern I have is that DIO needs filemap_write_and_wait() to
-make sure all previously dirty pages have been written back to
-disk before the DIO is issued.
+Andrew will you take this patch. I removed the powerpc flag. The ppc64 
+will build now.
 
-If __block_write_full_page() can possibly clear PageWriteback 
-with buffer i/o still in flight (even for WB_SYNC_NONE) then
-a subsequent filemap_write_and_wait() will miss that page.
-
-For example, I previously tried:
-
-        do {
-                get_bh(bh);
-+		if (wbc->sync_mode != WB_SYCN_NONE)
-+              		 wait_on_buffer(bh);
-                if (buffer_mapped(bh) && buffer_dirty(bh)) {
-                        if (wbc->sync_mode != WB_SYNC_NONE) {
-                                lock_buffer(bh);
-
-and this still saw uninitialized data.
-
-Also, if __block_write_full_page() can redirty a page wouldn't this
-allow filemap_write_and_wait() to return with page still dirty that
-DIO needs written back?
-	 
-I'll work on updating the other patches.
-
-Daniel
-
-
-
-On Wed, 2004-02-04 at 21:33, Andrew Morton wrote:
-> Daniel McNeil <daniel@osdl.org> wrote:
-> >
-> >  I have found (finally) the problem causing DIO reads racing with
-> >  buffered writes to see uninitialized data on ext3 file systems 
-> >  (which is what I have been testing on).
-> > 
-> >  The problem is caused by the changes to __block_write_page_full()
-> >  and a race with journaling:
-> > 
-> >  journal_commit_transaction() -> ll_rw_block() -> submit_bh()
-> >  	
-> >  ll_rw_block() locks the buffer, clears buffer dirty and calls
-> >  submit_bh()
-> > 
-> >  A racing __block_write_full_page() (from ext3_ordered_writepage())
-> > 
-> >  	would see that buffer_dirty() is not set because the i/o
-> >          is still in flight, so it would not do a bh_submit()
-> > 
-> >  	It would SetPageWriteback() and unlock_page() and then
-> >  	see that no i/o was submitted and call end_page_writeback()
-> >  	(with the i/o still in flight).
-> > 
-> >  This would allow the DIO code to issue the DIO read while buffer writes
-> >  are still in flight.  The i/o can be reordered by i/o scheduling and
-> >  the DIO can complete BEFORE the writebacks complete.  Thus the DIO
-> >  sees the old uninitialized data.
-> 
-> I suppose we should go for a general fix to the problem.  I'm not 100%
-> happy with it.  It's similar to yours, except we only wait if
-> wbc->sync_mode says it's a write-for-sync.  Also we hold the buffer lock
-> across all the tests.
-> 
-> 
-> 
-> 
-> 
-> 
-> Fix a race which was identified by Daniel McNeil <daniel@osdl.org>
-> 
-> If a buffer_head is under I/O due to JBD's ordered data writeout (which uses
-> ll_rw_block()) then either filemap_fdatawrite() or filemap_fdatawait() need
-> to wait on the buffer's existing I/O.
-> 
-> Presently neither will do so, because __block_write_full_page() will not
-> actually submit any I/O and will hence not mark the page as being under
-> writeback.
-> 
-> The best-performing fix would be to somehow mark the page as being under
-> writeback and defer waiting for the ll_rw_block-initiated I/O until
-> filemap_fdatawait()-time.  But this is hard, because in
-> __block_write_full_page() we do not have control of the buffer_head's end_io
-> handler.  Possibly we could make JBD call into end_buffer_async_write(), but
-> that gets nasty.
-> 
-> This patch makes __block_write_full_page() wait for any buffer_head I/O to
-> complete before inspecting the buffer_head state.  It only does this in the
-> case where __block_write_full_page() was called for a "data-integrity" write:
-> (wbc->sync_mode != WB_SYNC_NONE).
-> 
-> Probably it doesn't matter, because kjournald is currently submitting (or has
-> already submitted) all dirty buffers anyway.
-> 
-> 
-> 
-> ---
-> 
->  fs/buffer.c |   29 +++++++++++++++--------------
->  1 files changed, 15 insertions(+), 14 deletions(-)
-> 
-> diff -puN fs/buffer.c~O_DIRECT-ll_rw_block-vs-block_write_full_page-fix fs/buffer.c
-> --- 25/fs/buffer.c~O_DIRECT-ll_rw_block-vs-block_write_full_page-fix	2004-02-04 20:38:30.000000000 -0800
-> +++ 25-akpm/fs/buffer.c	2004-02-04 20:40:19.000000000 -0800
-> @@ -1810,23 +1810,24 @@ static int __block_write_full_page(struc
->  
->  	do {
->  		get_bh(bh);
-> -		if (buffer_mapped(bh) && buffer_dirty(bh)) {
-> -			if (wbc->sync_mode != WB_SYNC_NONE) {
-> -				lock_buffer(bh);
-> -			} else {
-> -				if (test_set_buffer_locked(bh)) {
-> +		if (!buffer_mapped(bh))
-> +			continue;
-> +		if (wbc->sync_mode != WB_SYNC_NONE) {
-> +			lock_buffer(bh);
-> +		} else {
-> +			if (test_set_buffer_locked(bh)) {
-> +				if (buffer_dirty(bh))
->  					__set_page_dirty_nobuffers(page);
-> -					continue;
-> -				}
-> -			}
-> -			if (test_clear_buffer_dirty(bh)) {
-> -				if (!buffer_uptodate(bh))
-> -					buffer_error();
-> -				mark_buffer_async_write(bh);
-> -			} else {
-> -				unlock_buffer(bh);
-> +				continue;
->  			}
->  		}
-> +		if (test_clear_buffer_dirty(bh)) {
-> +			if (!buffer_uptodate(bh))
-> +				buffer_error();
-> +			mark_buffer_async_write(bh);
-> +		} else {
-> +			unlock_buffer(bh);
-> +		}
->  	} while ((bh = bh->b_this_page) != head);
->  
->  	BUG_ON(PageWriteback(page));
-> 
-> _
+--- linus-2.6/include/linux/fb.h	2004-01-27 19:50:11.000000000 -0800
++++ fbdev-2.6/include/linux/fb.h	2004-01-30 18:09:12.000000000 -0800
+@@ -1,10 +1,7 @@
+ #ifndef _LINUX_FB_H
+ #define _LINUX_FB_H
+ 
+-#include <linux/tty.h>
+-#include <linux/workqueue.h>
+ #include <asm/types.h>
+-#include <asm/io.h>
+ 
+ /* Definitions of frame buffers						*/
+ 
+@@ -326,32 +323,49 @@
+ 	struct fb_image	image;	/* Cursor image */
+ };
+ 
++#ifdef __KERNEL__
++
++#include <linux/fs.h>
++#include <linux/init.h>
++#include <linux/tty.h>
++#include <linux/device.h>
++#include <linux/workqueue.h>
++#include <linux/devfs_fs_kernel.h>
++#include <linux/notifier.h>
++#include <asm/io.h>
++
++struct vm_area_struct;
++struct fb_info;
++struct device;
++struct file;
++
++/*
++ * Pixmap structure definition
++ *
++ * The purpose of this structure is to translate data
++ * from the hardware independent format of fbdev to what
++ * format the hardware needs.
++ */
++
+ #define FB_PIXMAP_DEFAULT 1     /* used internally by fbcon */
+ #define FB_PIXMAP_SYSTEM  2     /* memory is in system RAM  */
+ #define FB_PIXMAP_IO      4     /* memory is iomapped       */
+ #define FB_PIXMAP_SYNC    256   /* set if GPU can DMA       */
+ 
+ struct fb_pixmap {
+-        __u8  *addr;                      /* pointer to memory             */  
+-	__u32 size;                       /* size of buffer in bytes       */
+-	__u32 offset;                     /* current offset to buffer      */
+-	__u32 buf_align;                  /* byte alignment of each bitmap */
+-	__u32 scan_align;                 /* alignment per scanline        */
+-	__u32 flags;                      /* see FB_PIXMAP_*               */
++	u8 *addr;		/* pointer to memory                    */
++	u32 size;		/* size of buffer in bytes              */
++	u32 offset;		/* current offset to buffer             */
++	u32 buf_align;		/* byte alignment of each bitmap        */
++	u32 scan_align;		/* alignment per scanline               */
++	u32 access_align;	/* alignment per read/write             */
++	u32 flags;		/* see FB_PIXMAP_*                      */
+ 					  /* access methods                */
+ 	void (*outbuf)(u8 *dst, u8 *addr, unsigned int size); 
+ 	u8   (*inbuf) (u8 *addr);
+ 	spinlock_t lock;                  /* spinlock                      */
+ 	atomic_t count;
+ };
+-#ifdef __KERNEL__
+-
+-#include <linux/fs.h>
+-#include <linux/init.h>
+-
+-struct fb_info;
+-struct vm_area_struct;
+-struct file;
+ 
+     /*
+      *  Frame buffer operations
+@@ -362,37 +376,60 @@
+     struct module *owner;
+     int (*fb_open)(struct fb_info *info, int user);
+     int (*fb_release)(struct fb_info *info, int user);
++
+     /* For framebuffers with strange non linear layouts */	
+-    ssize_t (*fb_read)(struct file *file, char *buf, size_t count, loff_t *ppos);
+-    ssize_t (*fb_write)(struct file *file, const char *buf, size_t count, loff_t *ppos);	
+-    /* checks var and creates a par based on it */
+-    int (*fb_check_var)(struct fb_var_screeninfo *var, struct fb_info *info);
+-    /* set the video mode according to par */
++	ssize_t(*fb_read) (struct file * file, char *buf, size_t count,
++			   loff_t * ppos);
++	ssize_t(*fb_write) (struct file * file, const char *buf,
++			    size_t count, loff_t * ppos);
++	
++	/* checks var and eventually tweaks it to something supported, 
++	 * DO NOT MODIFY PAR */
++	int (*fb_check_var) (struct fb_var_screeninfo * var,
++			     struct fb_info * info);
++	/* set the video mode according to info->var */
+     int (*fb_set_par)(struct fb_info *info);
++
+     /* set color register */
+     int (*fb_setcolreg)(unsigned regno, unsigned red, unsigned green,
+-                        unsigned blue, unsigned transp, struct fb_info *info);
++			     unsigned blue, unsigned transp,
++			     struct fb_info * info);
++
+     /* blank display */
+     int (*fb_blank)(int blank, struct fb_info *info);
++
+     /* pan display */
+-    int (*fb_pan_display)(struct fb_var_screeninfo *var, struct fb_info *info);
++	int (*fb_pan_display) (struct fb_var_screeninfo * var,
++			       struct fb_info * info);
++
+     /* draws a rectangle */
+-    void (*fb_fillrect)(struct fb_info *info, const struct fb_fillrect *rect); 
++	void (*fb_fillrect) (struct fb_info * info,
++			     const struct fb_fillrect * rect);
+     /* Copy data from area to another */
+-    void (*fb_copyarea)(struct fb_info *info,const struct fb_copyarea *region); 
++	void (*fb_copyarea) (struct fb_info * info,
++			     const struct fb_copyarea * region);
+     /* Draws a image to the display */
+-    void (*fb_imageblit)(struct fb_info *info, const struct fb_image *image);
++	void (*fb_imageblit) (struct fb_info * info,
++			      const struct fb_image * image);
++
+     /* Draws cursor */
+-    int (*fb_cursor)(struct fb_info *info, struct fb_cursor *cursor);
++	int (*fb_cursor) (struct fb_info * info,
++			  struct fb_cursor * cursor);
++
+     /* Rotates the display */
+     void (*fb_rotate)(struct fb_info *info, int angle);
++
+     /* wait for blit idle, optional */
+     int (*fb_sync)(struct fb_info *info);		
++
+     /* perform fb specific ioctl (optional) */
+-    int (*fb_ioctl)(struct inode *inode, struct file *file, unsigned int cmd,
+-		    unsigned long arg, struct fb_info *info);
++	int (*fb_ioctl) (struct inode * inode, struct file * file,
++			 unsigned int cmd, unsigned long arg,
++			 struct fb_info * info);
++
+     /* perform fb specific mmap */
+-    int (*fb_mmap)(struct fb_info *info, struct file *file, struct vm_area_struct *vma);
++	int (*fb_mmap) (struct fb_info * info, struct file * file,
++			struct vm_area_struct * vma);
+ };
+ 
+ struct fb_info {
+@@ -405,7 +442,7 @@
+    struct fb_monspecs monspecs;         /* Current Monitor specs */
+    struct fb_cursor cursor;		/* Current cursor */	
+    struct work_struct queue;		/* Framebuffer event queue */
+-   struct fb_pixmap pixmap;	        /* Current pixmap */
++	struct fb_pixmap pixmap;	/* Image Hardware Mapper */
+    struct fb_cmap cmap;                 /* Current cmap */
+    struct fb_ops *fbops;
+    char *screen_base;                   /* Virtual address */
+@@ -482,11 +519,12 @@
+ extern int fb_prepare_logo(struct fb_info *fb_info);
+ extern int fb_show_logo(struct fb_info *fb_info);
+ extern u32 fb_get_buffer_offset(struct fb_info *info, u32 size);
+-extern void move_buf_unaligned(struct fb_info *info, u8 *dst, u8 *src, u32 d_pitch,
+-			     	u32 height, u32 mask, u32 shift_high, u32 shift_low,
+-				u32 mod, u32 idx);
+-extern void move_buf_aligned(struct fb_info *info, u8 *dst, u8 *src, u32 d_pitch,
+-			     u32 s_pitch, u32 height);
++extern void move_buf_unaligned(struct fb_info *info, u8 * dst, u8 * src,
++				u32 d_pitch, u32 height, u32 mask,
++				u32 shift_high, u32 shift_low, u32 mod,
++				u32 idx);
++extern void move_buf_aligned(struct fb_info *info, u8 * dst, u8 * src,
++				u32 d_pitch, u32 s_pitch, u32 height);
+ extern struct fb_info *registered_fb[FB_MAX];
+ extern int num_registered_fb;
+ 
+@@ -517,8 +555,7 @@
+ /* drivers/video/fbcmap.c */
+ extern int fb_alloc_cmap(struct fb_cmap *cmap, int len, int transp);
+ extern void fb_dealloc_cmap(struct fb_cmap *cmap);
+-extern int fb_copy_cmap(struct fb_cmap *from, struct fb_cmap *to,
+-			int fsfromto);
++extern int fb_copy_cmap(struct fb_cmap *from, struct fb_cmap *to, int fsfromto);
+ extern int fb_set_cmap(struct fb_cmap *cmap, int kspc, struct fb_info *fb_info);
+ extern struct fb_cmap *fb_default_cmap(int len);
+ extern void fb_invert_cmaps(void);
+@@ -541,7 +578,8 @@
+ 
+ #ifdef MODULE
+ static inline int fb_find_mode(struct fb_var_screeninfo *var,
+-			       struct fb_info *info, const char *mode_option,
++			       struct fb_info *info,
++			       const char *mode_option,
+ 			       const struct fb_videomode *db,
+ 			       unsigned int dbsize,
+ 			       const struct fb_videomode *default_mode,
+@@ -568,7 +606,8 @@
+ }
+ #else
+ extern int __init fb_find_mode(struct fb_var_screeninfo *var,
+-			       struct fb_info *info, const char *mode_option,
++			       struct fb_info *info,
++			       const char *mode_option,
+ 			       const struct fb_videomode *db,
+ 			       unsigned int dbsize,
+ 			       const struct fb_videomode *default_mode,
 

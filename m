@@ -1,120 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273182AbRIJDXN>; Sun, 9 Sep 2001 23:23:13 -0400
+	id <S273180AbRIJD3E>; Sun, 9 Sep 2001 23:29:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273181AbRIJDXD>; Sun, 9 Sep 2001 23:23:03 -0400
-Received: from member.michigannet.com ([207.158.188.18]:13834 "EHLO
-	member.michigannet.com") by vger.kernel.org with ESMTP
-	id <S273180AbRIJDWs>; Sun, 9 Sep 2001 23:22:48 -0400
-Date: Sun, 9 Sep 2001 23:21:52 -0400
-From: Paul <set@pobox.com>
-To: Benjamin Reed <breed@almaden.ibm.com>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-        alan@lxorguk.ukuu.org.uk
-Subject: Re: BUG/PATCH:  Unable to specify console=ttyX where X != 0
-Message-ID: <20010909232152.A225@squish.home.loc>
-Mail-Followup-To: Paul <set@pobox.com>,
-	Benjamin Reed <breed@almaden.ibm.com>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-In-Reply-To: <3B8441A7.63D721B@almaden.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3B8441A7.63D721B@almaden.ibm.com>; from breed@almaden.ibm.com on Wed, Aug 22, 2001 at 04:35:03PM -0700
+	id <S273181AbRIJD2y>; Sun, 9 Sep 2001 23:28:54 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:14859 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S273180AbRIJD2s>; Sun, 9 Sep 2001 23:28:48 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Chris Mason <mason@suse.com>, Andrea Arcangeli <andrea@suse.de>
+Subject: Re: linux-2.4.10-pre5
+Date: Mon, 10 Sep 2001 05:36:07 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Andreas Dilger <adilger@turbolabs.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010910001556Z16150-26183+680@humbolt.nl.linux.org> <20010910023312Z16066-26183+700@humbolt.nl.linux.org> <1381380000.1000090938@tiny>
+In-Reply-To: <1381380000.1000090938@tiny>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010910032901Z16134-26183+710@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Reed <breed@almaden.ibm.com>, on Wed Aug 22, 2001 [04:35:03 PM] said:
-> The serial_console.txt file implies that you can specify other vt's
-> beside tty0 to use as a console using the console= kernel parameter. 
-> However, if you specify any ttyX it always goes to tty0.  Closer
-> examination shows that when the console is registered it is ignoring the
-> specified tty.
+On September 10, 2001 05:02 am, Chris Mason wrote:
+> On Monday, September 10, 2001 04:40:21 AM +0200 Daniel Phillips
+> <phillips@bonn-fries.net> wrote:
 > 
-> Basically, I want all the kernel messages to go to tty2 so that I can
-> have a nice clean user interaction on tty1, but still allow access to
-> kernel messages on tty2.
+> >> How about subsequent calls for the same offset with the same blocksize
+> >> need to return the same buffer head?
+> > 
+> > Are we picking nits?  Better add "the same dev" and "until the buffer
+> > head is  freed" ;-)
 > 
-> The following patch sets up the correct tty to send the messages to
-> based on the console= parameter and initializes the virtual terminal.
+> ;-)  Really, wasn't trying for that.  If we just say later calls for the
+> same offset, we get in trouble later on if we also want variable, very
+> large blocksizes.
+
+Well, I really wonder if buffers are the right transport medium for variable, 
+large blocks, aka extents.  Personally, I think buffers will have disappeared 
+or mutated unrecognizably by the time we get around to adding extents to ext2 
+or its descendents.  Note that XFS already implements extents on Linux, by 
+mapping them onto the pagecache I believe.
+
+> If we relax the rules to allow multiple buffer heads for
+> the same physical spot on disk, things get easier, and the FS is
+> responsible for not doing something stupid with it.  
 > 
-> enjoy
-> 
-> ben
+> The data is still consistent either way, there are just multiple io handles.
 
-	Hello.
+Were you thinking of one mapping for all buffers on a given partition?  If 
+so, how did you plan to handle different buffer sizes?  Were you planning to 
+keep the existing buffer hash chain or use the page cache hash chain, as I 
+did for ext2_getblk?
 
-	Ben seems to be correct. Without this patch, the console=
-boot param doesnt work as expected.
-	eg. I use 'console=tty1 console=ttyS1,9600n8'
-	Without the patch, printks go to the current vt
-(tty0) instead of where they should. [they do go to the serial
-console, propperly however] This is annoying, as I run
-some X sessions on vt9/10 and wanted the logs to go to vt1 even
-when I am in X. In fact, the default behaviour of having tty0 be
-the console seems broken; if you _are_ using just vt's, you can't
-leave the logging behind. (eg. this is a pain when verbose or
-spurious logging is going on and you want to switch back and
-forth between the logging vt and a working vt)
-	I cannot vouch that this is the correct fix, but I
-would like to see this fixed, or learn why it should not be.
-	Here is Ben's patch vs. 2.4.9-ac10. It seems to work good
-for me so far.
-
-Paul
-set@pobox.com
-
---- 2.4.9-ac10/drivers/char/console.c	Sun Sep  9 16:55:06 2001
-+++ 2.4.9-ac10-cons/drivers/char/console.c	Sun Sep  9 22:57:22 2001
-@@ -2425,6 +2425,21 @@
- struct tty_driver console_driver;
- static int console_refcount;
- 
-+void __init con_setup_vt(unsigned int currcons)
-+{
-+	if (vc_cons[currcons].d) return;
-+
-+	vc_cons[currcons].d = (struct vc_data *)
-+		alloc_bootmem(sizeof(struct vc_data));
-+	vt_cons[currcons] = (struct vt_struct *)
-+		alloc_bootmem(sizeof(struct vt_struct));
-+	visual_init(currcons, 1);
-+	screenbuf = (unsigned short *) alloc_bootmem(screenbuf_size);
-+	kmalloced = 0;
-+	vc_init(currcons, video_num_lines, video_num_columns,
-+		currcons || !sw->con_save_screen);
-+}
-+
- void __init con_init(void)
- {
- 	const char *display_desc = NULL;
-@@ -2483,15 +2498,7 @@
- 	 * kmalloc is not running yet - we use the bootmem allocator.
- 	 */
- 	for (currcons = 0; currcons < MIN_NR_CONSOLES; currcons++) {
--		vc_cons[currcons].d = (struct vc_data *)
--				alloc_bootmem(sizeof(struct vc_data));
--		vt_cons[currcons] = (struct vt_struct *)
--				alloc_bootmem(sizeof(struct vt_struct));
--		visual_init(currcons, 1);
--		screenbuf = (unsigned short *) alloc_bootmem(screenbuf_size);
--		kmalloced = 0;
--		vc_init(currcons, video_num_lines, video_num_columns, 
--			currcons || !sw->con_save_screen);
-+		con_setup_vt(currcons);
- 	}
- 	currcons = fg_console = 0;
- 	master_display_fg = vc_cons[currcons].d;
-@@ -2508,6 +2515,12 @@
- 
- #ifdef CONFIG_VT_CONSOLE
- 	register_console(&vt_console_driver);
-+        if (vt_console_driver.index > 0 &&
-+	    vt_console_driver.index < MAX_NR_CONSOLES) {
-+		con_setup_vt(vt_console_driver.index-1);
-+		kmsg_redirect = vt_console_driver.index;
-+	}
-+
- #endif
- }
- 
+--
+Daniel

@@ -1,64 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316599AbSEUU6f>; Tue, 21 May 2002 16:58:35 -0400
+	id <S316594AbSEUU61>; Tue, 21 May 2002 16:58:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316603AbSEUU6e>; Tue, 21 May 2002 16:58:34 -0400
-Received: from asie314yy33z9.bc.hsia.telus.net ([216.232.196.3]:18126 "EHLO
-	saurus.asaurus.invalid") by vger.kernel.org with ESMTP
-	id <S316599AbSEUU6c>; Tue, 21 May 2002 16:58:32 -0400
-To: "Calin A. Culianu" <calin@ajvar.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Lazy Newbie Question
-In-Reply-To: <Pine.LNX.4.33L2.0205211556040.16426-100000@rtlab.med.cornell.edu>
-From: Kevin Buhr <buhr@telus.net>
-Date: 21 May 2002 13:58:32 -0700
-Message-ID: <87y9edfcav.fsf@saurus.asaurus.invalid>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
+	id <S316599AbSEUU60>; Tue, 21 May 2002 16:58:26 -0400
+Received: from quattro-eth.sventech.com ([205.252.89.20]:55558 "EHLO
+	quattro.sventech.com") by vger.kernel.org with ESMTP
+	id <S316594AbSEUU6Z>; Tue, 21 May 2002 16:58:25 -0400
+Date: Tue, 21 May 2002 16:58:26 -0400
+From: Johannes Erdfelt <johannes@erdfelt.com>
+To: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+        linux-usb-devel@lists.sourceforge.net
+Subject: Re: What to do with all of the USB UHCI drivers in the kernel ?
+Message-ID: <20020521165826.H2645@sventech.com>
+In-Reply-To: <5.1.0.14.2.20020521122422.06b21188@mail1.qualcomm.com> <5.1.0.14.2.20020521122422.06b21188@mail1.qualcomm.com> <20020521195925.GA2623@kroah.com> <5.1.0.14.2.20020521133408.068d2ef8@mail1.qualcomm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Calin A. Culianu" <calin@ajvar.org> writes:
+On Tue, May 21, 2002, Maksim (Max) Krasnyanskiy <maxk@qualcomm.com> wrote:
 > 
-> Get comedi-cvs.
-
-Thanks.
-
-> > > 'nuff said.
+> > > So basically I vote for usb-uhci. However some things will have to be
+> > > fixed. We (Bluetooth folks) have couple
+> > > of devices that refuse to work with usb-uhci (I didn't test the latest
+> > > usb-uhci though).
 > >
-> > On the contrary...
-> 
-> Yeah whatever.
+> >Sorry for the confusion, but both usb-uhci.c and uhci.c will be deleted 
+> >anyway :)
+> I thought that usb-uhci-hcd and uhci-hcd are direct derivatives of usb-uhci 
+> and uhci
+> (ie just minor API changes). And therefor perform exactly the same.
 
-Well, as you can see from the implementation of "comedi_open" that's
-right in front of you, that code doesn't do anything with the filename
-except parse it as string of the form "/dev/comediNNN" to get the
-minor number "NNN".  It looks like a cheesy hack to fake the
-kernel-mode interface to look like the user-mode interface, but that's
-all it is.  So, as Richard said, we still haven't seen any evidence
-that Comedi requires manipulating files in kernel space.
+I wouldn't consider it a minor API change, but theoretically they should
+perform identically. Since some changes were non trivial, I wouldn't
+guarantee that they behave identically :)
 
-It's quite strange how rude and evasive you're being when everyone
-who's replied has been polite and helpful.  Perhaps if you lost the
-attitude and told us what it is you're really trying to do, we could
-help you more effectively.
+However, I'm not sure that's all that interesting. The code is a
+straight enough port over that if there are bugs, they'll be there in
+both versions, except for some trivial porting mistakes. Those are easy
+to find and easy to fix normally.
 
-I mean, either we're all too dim to understand your device driver
-hacking skills, in which case there's no point in you wasting your
-time here, or one of us has enough of a clue to help, in which case
-we'd all benefit from you explaining your problem as fully as you are
-able instead of demanding we show you how to do the impossible (i.e.,
-stat a file without a process context).
+The other kinds of bugs, like fundamental design flaws or bugs that
+have always been there, are more interesting and likely to be in both.
 
-By the way, in case you missed it---and it seems you did---Richard
-already gave you the right answer in the message you mistakenly
-dismissed as a flame.  If you really need to stat a file from the
-kernel, you do this with a helper process in the form of a bona fide
-user process or a kernel thread.  Because this is relatively
-complicated to get right (there's a damn good reason the code in
-"comedi_open" just fakes it), you don't want to do this unless you
-have to.
+IMO, I think testing with usb-uhci.c and uhci.c is still useful, but
+testing with the -hcd variants is the most ideal since that will be the
+final code base.
 
--- 
-Kevin Buhr <buhr@telus.net>
+JE
+

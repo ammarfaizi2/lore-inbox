@@ -1,57 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261401AbUBTVCz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 16:02:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261415AbUBTVCx
+	id S261412AbUBTVEu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 16:04:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261415AbUBTVDE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 16:02:53 -0500
-Received: from 209-166-240-202.cust.walrus.com ([209.166.240.202]:8141 "EHLO
-	ti3.telemetry-investments.com") by vger.kernel.org with ESMTP
-	id S261401AbUBTVBj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 16:01:39 -0500
-Date: Fri, 20 Feb 2004 16:01:27 -0500
-From: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, brugolsky@telemetry-investments.com
-Subject: [PATCH][1/4] poll()/select() timeout behavior
-Message-ID: <20040220210127.GB1912@ti19.telemetry-investments.com>
-Mail-Followup-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
-	torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+	Fri, 20 Feb 2004 16:03:04 -0500
+Received: from gprs151-132.eurotel.cz ([160.218.151.132]:2945 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261412AbUBTVCM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 16:02:12 -0500
+Date: Fri, 20 Feb 2004 22:01:58 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: John Levin <levin@gamebox.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.2-rc3 messages  BUG
+Message-ID: <20040220210158.GA32023@elf.ucw.cz>
+References: <20040221075308.161992c7.levin@gamebox.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040221075308.161992c7.levin@gamebox.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch extends the useful range of the poll() timeout parameter
-from a mere 2147s (LONG_MAX/(1000*HZ)) to 2147483s (LONG_MAX/1000).
+Hi!
 
-Please apply.
+> 	My guess atleast in this case is that  suspend/resume cyle looses track
+> of the fact that a module is use.I have file corruption. All those
+> files which have been created after resume is corrupted. I copied dmesg
+> into a backup file and saved it. When i boot 2.4 and look into it , it
+> is corrputed.
+> 	After booting I connect to the internet through wvdial. So i have to
+> load up usbcore,cdc_acm,uhci. i am connected to the net and searching on
+> google.	Now i do echo 4 > /proc/acpi/sleep . It suspends. Then i resume
+> it from command line.
+>  So now wvdial looks as if connected but really isn't. So i close it and
+> try running it again. It doesn't detect /dev/usb/acm/0. So i remove the
+> modules and try inserting it (uhci) which gives me the error.
+> 
+> Here is something which i could copy after resume.
 
-	Bill Rugolsky
+Try it with minimal config, and without modules. Be sure to fsck so
+you don't kill your filesystem totally. Try 2.6.3.
+								Pavel
 
---- linux/fs/select.c	2004-02-03 22:43:06.000000000 -0500
-+++ linux/fs/select.c	2004-02-19 14:29:03.827275000 -0500
-@@ -469,11 +469,17 @@
- 		return -EINVAL;
- 
- 	if (timeout) {
--		/* Careful about overflow in the intermediate values */
--		if ((unsigned long) timeout < MAX_SCHEDULE_TIMEOUT / HZ)
--			timeout = (unsigned long)(timeout*HZ+999)/1000+1;
--		else /* Negative or overflow */
-+                if (timeout < 0) {
- 			timeout = MAX_SCHEDULE_TIMEOUT;
-+		} else { 
-+			/* Careful about overflow in the intermediate values */
-+			long seconds = timeout/1000;
-+			timeout = ((timeout - 1000*seconds)*HZ + 999)/1000 + 1;
-+			if (seconds <= (MAX_SCHEDULE_TIMEOUT-2) / HZ - 1)
-+				timeout += seconds*HZ;
-+			else
-+				timeout = MAX_SCHEDULE_TIMEOUT;
-+		}
- 	}
- 
- 	poll_initwait(&table);
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

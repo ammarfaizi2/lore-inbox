@@ -1,41 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261348AbVBRM0g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261351AbVBRM2m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261348AbVBRM0g (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 07:26:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbVBRM0g
+	id S261351AbVBRM2m (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 07:28:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbVBRM2m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 07:26:36 -0500
-Received: from oracle.bridgewayconsulting.com.au ([203.56.14.38]:14256 "EHLO
-	oracle.bridgewayconsulting.com.au") by vger.kernel.org with ESMTP
-	id S261336AbVBRM0d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 07:26:33 -0500
-Date: Fri, 18 Feb 2005 20:26:52 +0800
-From: Bernard Blackham <bernard@blackham.com.au>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: dtor_core@ameritech.net, John M Flinchbaugh <john@hjsoft.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Swsusp, resume and kernel versions
-Message-ID: <20050218122652.GF30342@blackham.com.au>
-References: <200502162346.26143.dtor_core@ameritech.net> <20050217110731.GE1353@elf.ucw.cz> <20050217162847.GA32488@butterfly.hjsoft.com> <d120d5000502170930ccc3e9e@mail.gmail.com> <20050217195651.GB5963@openzaurus.ucw.cz> <20050218020220.GD30342@blackham.com.au> <20050218112409.GB1341@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 18 Feb 2005 07:28:42 -0500
+Received: from mx2.mail.ru ([194.67.23.122]:60452 "EHLO mx2.mail.ru")
+	by vger.kernel.org with ESMTP id S261351AbVBRM2W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Feb 2005 07:28:22 -0500
+From: Alexey Dobriyan <adobriyan@mail.ru>
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Subject: [PATCH] __be'ify include/linux/nbd.h
+Date: Fri, 18 Feb 2005 15:28:16 +0200
+User-Agent: KMail/1.6.2
+Cc: Paul Clements <Paul.Clements@steeleye.com>, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20050218112409.GB1341@elf.ucw.cz>
-Organization: Dagobah Systems
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200502181528.16976.adobriyan@mail.ru>
+X-Spam: Not detected
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 18, 2005 at 12:24:09PM +0100, Pavel Machek wrote:
-> If you want to be 100% safe, add support to LILO/GRUB: just do not
-> allow selecting wrong kernel if last action was suspend. Bootloader
-> knows, it seen the command lines.
+Fix sparse warnings in drivers/block/nbd.c
 
-That's a very good point/solution indeed. The hibernate script
-available from the Software Suspend 2 homepage already has options
-to reconfigure LILO/GRUB upon suspending. I'd forgotten about them!
+Signed-off-by: Alexey Dobriyan <adobriyan@mail.ru>
 
-Bernard.
-
--- 
- Bernard Blackham <bernard at blackham dot com dot au>
+Index: linux-warnings/include/linux/nbd.h
+===================================================================
+--- linux-warnings/include/linux/nbd.h	(revision 22)
++++ linux-warnings/include/linux/nbd.h	(revision 23)
+@@ -68,11 +68,11 @@
+  * server. All data are in network byte order.
+  */
+ struct nbd_request {
+-	u32 magic;
+-	u32 type;	/* == READ || == WRITE 	*/
++	__be32 magic;
++	__be32 type;	/* == READ || == WRITE 	*/
+ 	char handle[8];
+-	u64 from;
+-	u32 len;
++	__be64 from;
++	__be32 len;
+ }
+ #ifdef __GNUC__
+ 	__attribute__ ((packed))
+@@ -84,8 +84,8 @@
+  * it has completed an I/O request (or an error occurs).
+  */
+ struct nbd_reply {
+-	u32 magic;
+-	u32 error;		/* 0 = ok, else error	*/
++	__be32 magic;
++	__be32 error;		/* 0 = ok, else error	*/
+ 	char handle[8];		/* handle you got from request	*/
+ };
+ #endif

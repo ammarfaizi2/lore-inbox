@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129656AbQK0Xx5>; Mon, 27 Nov 2000 18:53:57 -0500
+        id <S129392AbQK1AGa>; Mon, 27 Nov 2000 19:06:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129799AbQK0Xxq>; Mon, 27 Nov 2000 18:53:46 -0500
-Received: from tstac.esa.lanl.gov ([128.165.46.3]:785 "EHLO tstac.esa.lanl.gov")
-        by vger.kernel.org with ESMTP id <S129656AbQK0Xxf>;
-        Mon, 27 Nov 2000 18:53:35 -0500
-From: Steven Cole <scole@lanl.gov>
-Reply-To: scole@lanl.gov
-Date: Mon, 27 Nov 2000 16:23:25 -0700
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain;
-  charset="us-ascii"
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <E140UaD-0003ZI-00@the-village.bc.nu>
-In-Reply-To: <E140UaD-0003ZI-00@the-village.bc.nu>
-Subject: Re: 2.4.0-test11-ac2 and ac4 SMP will not run KDE 2.0
-Cc: linux-kernel@vger.kernel.org
+        id <S129429AbQK1AGV>; Mon, 27 Nov 2000 19:06:21 -0500
+Received: from cliff.i-plus.net ([209.100.20.42]:17423 "HELO cliff.i-plus.net")
+        by vger.kernel.org with SMTP id <S129392AbQK1AGG>;
+        Mon, 27 Nov 2000 19:06:06 -0500
+From: Lee Brown <leejr@i-plus.net>
+To: linux-kernel@vger.kernel.org
+Subject: 9750 vs. blade3D gives freaky ttyS3 problem)
+Date: Mon, 27 Nov 2000 18:19:09 -0500
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
 MIME-Version: 1.0
-Message-Id: <00112716232501.00953@spc.esa.lanl.gov>
-Content-Transfer-Encoding: 8bit
+Message-Id: <00112718343300.00131@darkstar>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 27 November 2000 13:08, Alan Cox wrote:
+Dear smart people on the kernel mailing list:
 
-> > Precision 420 Dual P-III. All kernels are patched with
-> > linux-2.4.0-test10-reiserfs-3.6.19-patch.
->
-> I don't test -ac kernel trees with reiserfs. I don't really have time. Can
-> you or others reproduce the same report on an unmodified tree.
->
-> Alan
+I have celeron 300 MHz box (overcl'ked to 450)
+I am running 2.4 test11.
+ISA PnP enabled.
+I am using the fbconsole(VESA VGA).
+I have a tried and true serial modem.
 
-I will have to acquire another suitable disk to reproduce this problem
-using an unmodified tree.  If anyone can help, I'd appreciate it.  Thanks
-in advance.  If not, I'll try to reproduce it when I can get the hardware.
+When I put in a Trident 975AGP the /dev/ttyS3 (modem)  works fine. I can tell
+this because the response to minicom is snappy and KPPP works(after I startx).
 
-For what its worth, on my single processor home machine, all kernels
-2.4.0-test11-ac1,ac2,ac3, ac4 both UP and SMP run both Gnome and
-KDE 2.0, with reiserfs-3.6.19.  In other words, everything works with
-everything. 
+When I remove the 975 and install my new Trident Blade3D (9880) I have
+different results.  When I run minicom
+1)  The initialization box appears.
+2) The box then disappears (as it supposed to)
+3) I wait several seconds
+4)  The initial string _crawls_ across the screen and finally gives me OK
 
-Steven
+Why am I getting sluggish (to the point where I can't use the modem) response
+with this second setup?  the 975 and the Blade3D are very similar I imagine.
+And what is the connection between a video card and the serial port?
+
+If you need any more system info I'll be glad to give it.
+
+(Please CC me as I am not on the List)
+Thank You Ahead.
+-- 
+Lee Brown Jr.
+leejr@i-plus.net
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

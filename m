@@ -1,58 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263588AbUEMEOl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263631AbUEMEbG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263588AbUEMEOl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 00:14:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263592AbUEMEOl
+	id S263631AbUEMEbG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 00:31:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262996AbUEMEbG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 00:14:41 -0400
-Received: from fw.osdl.org ([65.172.181.6]:14484 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263588AbUEMEOj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 00:14:39 -0400
-Date: Wed, 12 May 2004 21:14:11 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andy Lutomirski <luto@myrealbox.com>
-Cc: chrisw@osdl.org, linux-kernel@vger.kernel.org, luto@myrealbox.com
-Subject: Re: [PATCH 1/2] capabilities: cleanups
-Message-Id: <20040512211411.6af01084.akpm@osdl.org>
-In-Reply-To: <200405112024.23834.luto@myrealbox.com>
-References: <200405112024.23834.luto@myrealbox.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 13 May 2004 00:31:06 -0400
+Received: from phoenix.infradead.org ([213.86.99.234]:16142 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263631AbUEMEbE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 00:31:04 -0400
+Date: Thu, 13 May 2004 05:30:52 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: davidm@hpl.hp.com, rddunlap@osdl.org, ebiederm@xmission.com,
+       drepper@redhat.com, fastboot@lists.osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] Re: [announce] kexec for linux 2.6.6
+Message-ID: <20040513053051.A5286@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>, davidm@hpl.hp.com, rddunlap@osdl.org,
+	ebiederm@xmission.com, drepper@redhat.com, fastboot@lists.osdl.org,
+	linux-kernel@vger.kernel.org
+References: <m13c66qicb.fsf@ebiederm.dsl.xmission.com> <40A243C8.401@redhat.com> <m1brktod3f.fsf@ebiederm.dsl.xmission.com> <40A2517C.4040903@redhat.com> <m17jvhoa6g.fsf@ebiederm.dsl.xmission.com> <20040512143233.0ee0405a.rddunlap@osdl.org> <16546.41076.572371.307153@napali.hpl.hp.com> <20040512152815.76280eac.akpm@osdl.org> <16546.42537.765495.231960@napali.hpl.hp.com> <20040512161603.44c50cec.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040512161603.44c50cec.akpm@osdl.org>; from akpm@osdl.org on Wed, May 12, 2004 at 04:16:03PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Lutomirski <luto@myrealbox.com> wrote:
->
-> --- linux-2.6.6-mm1/include/linux/binfmts.h~cap_1_cleanup	2004-05-10 23:52:05.000000000 -0700
->  +++ linux-2.6.6-mm1/include/linux/binfmts.h	2004-05-11 00:58:13.000000000 -0700
->  @@ -20,6 +20,9 @@
->   /*
->    * This structure is used to hold the arguments that are used when loading binaries.
->    */
->  +#define BINPRM_SEC_SETUID	1
->  +#define BINPRM_SEC_SETGID	2
->  +#define BINPRM_SEC_SECUREEXEC	4
->   struct linux_binprm{
->   	char buf[BINPRM_BUF_SIZE];
->   	struct page *page[MAX_ARG_PAGES];
->  @@ -27,8 +30,9 @@
->   	unsigned long p; /* current top of mem */
->   	int sh_bang;
->   	struct file * file;
->  -	int e_uid, e_gid;
->  -	kernel_cap_t cap_inheritable, cap_permitted, cap_effective;
->  +	int set_uid, set_gid;
->  +	int secflags;
->  +	kernel_cap_t cap_inheritable, cap_permitted;
+On Wed, May 12, 2004 at 04:16:03PM -0700, Andrew Morton wrote:
+> But if we need additional infrastructure to "add new syscalls via VDSO" then
+> this should be in the base kernel, even if it's empty, yes?
 
-security/dummy.c: In function `dummy_bprm_apply_creds':
-security/dummy.c:176: structure has no member named `e_uid'
-security/dummy.c:176: structure has no member named `e_gid'
-security/dummy.c:180: structure has no member named `e_uid'
-security/dummy.c:181: structure has no member named `e_gid'
-security/dummy.c:185: structure has no member named `e_uid'
-security/dummy.c:186: structure has no member named `e_gid'
+Linus has vetoed dynamic syscall registration a few times.  And I agree
+with him, dynamic syscalls are the best way to get completely crappy
+interfaces.
 

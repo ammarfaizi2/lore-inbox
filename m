@@ -1,90 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263607AbRFNSY5>; Thu, 14 Jun 2001 14:24:57 -0400
+	id <S263669AbRFNSZh>; Thu, 14 Jun 2001 14:25:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263669AbRFNSYr>; Thu, 14 Jun 2001 14:24:47 -0400
-Received: from mail.missioncriticallinux.com ([208.51.139.18]:28424 "EHLO
-	missioncriticallinux.com") by vger.kernel.org with ESMTP
-	id <S263607AbRFNSYe>; Thu, 14 Jun 2001 14:24:34 -0400
-Date: Thu, 14 Jun 2001 14:24:27 -0400
-From: "Pat O'Rourke" <orourke@missioncriticallinux.com>
-Message-Id: <200106141824.OAA21231@missioncriticallinux.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Let modules register for panics, kernel 2.4.6-pre3
-Cc: torvalds@transmeta.com
+	id <S263782AbRFNSZ1>; Thu, 14 Jun 2001 14:25:27 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:52369 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S263669AbRFNSZN>;
+	Thu, 14 Jun 2001 14:25:13 -0400
+Message-ID: <3B290182.42DE3E1@mandrakesoft.com>
+Date: Thu, 14 Jun 2001 14:25:06 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: David Mansfield <lkml@dm.ultramaster.com>,
+        lkml <linux-kernel@vger.kernel.org>, jfs-discussion@oss.lotus.com
+Subject: Re: severe FS corruption with 2.4.6-pre2 + IBM jfs 0.3.4 patch
+In-Reply-To: <E15Abh0-000564-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below permits a loadable module / driver to add itself to
-the panic_notifier_list.  Previously only code compiled directly into
-the kernel was able to register for panic notification.
+Alan Cox wrote:
+> 
+> > It's probably a JFS issue, but I thought I'd report this in case someone
+> > is collecting and correlating filesystem corruption messages (Alan?).
+> > Here is my sad story.
+> 
+> I get as far as 'using jfs' and delete them
 
-Thanks,
+Understandable but FWIW they have apparently passed a night of
+stress-kernel (cerberus) testing on the latest jfs..
 
-Pat
-
---
-Patrick O'Rourke
-orourke@missioncriticallinux.com
-
-diff -u --new-file --recursive linux-2.4.6-pre3-orig/include/linux/kernel.h linux-2.4.6-pre3/include/linux/kernel.h
---- linux-2.4.6-pre3-orig/include/linux/kernel.h	Thu Jun 14 11:38:25 2001
-+++ linux-2.4.6-pre3/include/linux/kernel.h	Thu Jun 14 11:50:21 2001
-@@ -48,6 +48,8 @@
- struct semaphore;
- 
- extern struct notifier_block *panic_notifier_list;
-+extern int register_panic_notifier(struct notifier_block *);
-+extern int unregister_panic_notifier(struct notifier_block *);
- NORET_TYPE void panic(const char * fmt, ...)
- 	__attribute__ ((NORET_AND format (printf, 1, 2)));
- NORET_TYPE void do_exit(long error_code)
-diff -u --new-file --recursive linux-2.4.6-pre3-orig/kernel/ksyms.c linux-2.4.6-pre3/kernel/ksyms.c
---- linux-2.4.6-pre3-orig/kernel/ksyms.c	Thu Jun 14 11:38:26 2001
-+++ linux-2.4.6-pre3/kernel/ksyms.c	Thu Jun 14 11:41:18 2001
-@@ -468,6 +468,8 @@
- EXPORT_SYMBOL(cap_bset);
- EXPORT_SYMBOL(daemonize);
- EXPORT_SYMBOL(csum_partial); /* for networking and md */
-+EXPORT_SYMBOL(register_panic_notifier);
-+EXPORT_SYMBOL(unregister_panic_notifier);
- 
- /* Program loader interfaces */
- EXPORT_SYMBOL(setup_arg_pages);
-diff -u --new-file --recursive linux-2.4.6-pre3-orig/kernel/panic.c linux-2.4.6-pre3/kernel/panic.c
---- linux-2.4.6-pre3-orig/kernel/panic.c	Mon Oct 16 15:58:51 2000
-+++ linux-2.4.6-pre3/kernel/panic.c	Thu Jun 14 13:05:00 2001
-@@ -101,3 +101,33 @@
- 		CHECK_EMERGENCY_SYNC
- 	}
- }
-+
-+/**
-+ *	register_panic_notifier - Register a function to be called on panic
-+ *	@nb: Info about notifier function to be called
-+ *
-+ *	Registers a function with the list of functions to be called at
-+ *	the time of a system panic.
-+ *
-+ *	Currently always returns zero, as notifier_chain_register
-+ *	always returns zero.
-+ */
-+
-+int register_panic_notifier(struct notifier_block *nb)
-+{
-+	return notifier_chain_register(&panic_notifier_list, nb);
-+}
-+
-+/**
-+ *	unregister_panic_notifier - Unregister a panic notifier
-+ *	@nb:	Hook to be unregistered
-+ *
-+ *	Unregisters a previously registered panic notifier function.
-+ *
-+ *	Returns zero on success, or %-ENOENT on failure.
-+ */
-+
-+int unregister_panic_notifier(struct notifier_block *nb)
-+{
-+	return notifier_chain_unregister(&panic_notifier_list, nb);
-+}
+-- 
+Jeff Garzik      | Andre the Giant has a posse.
+Building 1024    |
+MandrakeSoft     |

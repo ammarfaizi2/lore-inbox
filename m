@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261806AbTIPS0I (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 14:26:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbTIPS0I
+	id S261976AbTIPSlQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 14:41:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261990AbTIPSlQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 14:26:08 -0400
-Received: from ns2.eclipse.net.uk ([212.104.129.133]:26895 "EHLO
-	smtp2.ex.eclipse.net.uk") by vger.kernel.org with ESMTP
-	id S261806AbTIPS0G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 14:26:06 -0400
-From: Ian Hastie <ianh@iahastie.clara.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ide-scsi oops was: 2.6.0-test4-mm3
-Date: Tue, 16 Sep 2003 19:26:02 +0100
-User-Agent: KMail/1.5.3
-References: <20030910114346.025fdb59.akpm@osdl.org> <200309160134.28169.ianh@iahastie.local.net> <20030916092040.GB930@suse.de>
-In-Reply-To: <20030916092040.GB930@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 16 Sep 2003 14:41:16 -0400
+Received: from mail.kroah.org ([65.200.24.183]:65493 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261976AbTIPSlQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 14:41:16 -0400
+Date: Tue, 16 Sep 2003 11:40:54 -0700
+From: Greg KH <greg@kroah.com>
+To: carbonated beverage <ramune@net-ronin.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: make pdfdocs problem
+Message-ID: <20030916184054.GH4114@kroah.com>
+References: <20030915105729.GA8576@net-ronin.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200309161926.04549.ianh@iahastie.local.net>
+In-Reply-To: <20030915105729.GA8576@net-ronin.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 16 Sep 2003 10:20, Jens Axboe wrote:
-> On Tue, Sep 16 2003, Ian Hastie wrote:
-> > On Thursday 11 Sep 2003 22:52, Jens Axboe wrote:
-> > > Surely the pro version supports open-by-device as well? And then it
-> > > should work fine.
-> >
-> > It does.  However it also produces the same error message as cdrecord
-> > when doing so, ie
-> >
-> > Warning: Open by 'devname' is unintentional and not supported.
-> >
-> > The implication being that it could go away or become broken at any time.
->
-> I wouldn't read anything in to that if I were you. Joerg has some mis
-> guided ideas about ATAPI addressing, but he would be a fool to remove
-> open by devname at this point.
+On Mon, Sep 15, 2003 at 03:57:29AM -0700, carbonated beverage wrote:
+> Hi all,
+> 
+> 	The `make pdfdocs' target still fails for me on the
+> `writing_usb_drivers' document.  There's one small bug in it, and one
+> problem I haven't figured out yet.
+> 
+> 	There is a malformed <literal>blah<literal> sequence, where the
+> closing tag is instead an opening tag.  Patch for that below.
 
-What about this version of the argument then?  There are a number if pieces of 
-software, eg cdrdao, that don't support open by devname.  The kernel 
-developers would be foolish to remove support for them at this time.  Works 
-both ways doesn't it.
+Thanks, I've applied this patch, and fixed up a missing </para> tag in
+that file too.
 
--- 
-Ian.
-
+greg k-h

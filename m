@@ -1,81 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266638AbTBKWpg>; Tue, 11 Feb 2003 17:45:36 -0500
+	id <S266643AbTBKWwD>; Tue, 11 Feb 2003 17:52:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266643AbTBKWpg>; Tue, 11 Feb 2003 17:45:36 -0500
-Received: from packet.digeo.com ([12.110.80.53]:25016 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S266638AbTBKWpf>;
-	Tue, 11 Feb 2003 17:45:35 -0500
-Date: Tue, 11 Feb 2003 14:54:15 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: warp@mercury.d2dc.net, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.60
-Message-Id: <20030211145415.71ccf594.akpm@digeo.com>
-In-Reply-To: <20030211144724.25de5820.akpm@digeo.com>
-References: <Pine.LNX.4.44.0302101103570.1348-100000@penguin.transmeta.com>
-	<20030211151615.GA1310@babylon.d2dc.net>
-	<20030211144724.25de5820.akpm@digeo.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S266702AbTBKWwD>; Tue, 11 Feb 2003 17:52:03 -0500
+Received: from c-24-99-36-145.atl.client2.attbi.com ([24.99.36.145]:31492 "HELO
+	babylon.d2dc.net") by vger.kernel.org with SMTP id <S266643AbTBKWwB>;
+	Tue, 11 Feb 2003 17:52:01 -0500
+Date: Tue, 11 Feb 2003 18:01:46 -0500
+From: "Zephaniah E\. Hull" <warp@babylon.d2dc.net>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       linux-eata@i-connect.net
+Subject: Re: eata irq abuse (was: Re: Linux 2.5.60)
+Message-ID: <20030211230146.GA1291@babylon.d2dc.net>
+Mail-Followup-To: Manfred Spraul <manfred@colorfullife.com>,
+	linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+	linux-eata@i-connect.net
+References: <3E4936BF.3050809@colorfullife.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 11 Feb 2003 22:55:16.0171 (UTC) FILETIME=[A49379B0:01C2D220]
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="tThc/1wpZn/ma/RB"
+Content-Disposition: inline
+In-Reply-To: <3E4936BF.3050809@colorfullife.com>
+X-Notice-1: Unsolicited Commercial Email (Aka SPAM) to ANY systems under
+X-Notice-2: our control constitutes a $US500 Administrative Fee, payable
+X-Notice-3: immediately.  By sending us mail, you hereby acknowledge that
+X-Notice-4: policy and agree to the fee.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@digeo.com> wrote:
->
-> "Zephaniah E\. Hull" <warp@mercury.d2dc.net> wrote:
-> >
-> > Interesting BUG() on boot up.
-> > 
-> 
-> The EATA driver's locking in there is so wrong I don't know how to begin to
-> describe it ;)  Looks like a misguided cli() conversion.
-> 
-> Does this get you up and running?
-> 
 
-This one is better.
+--tThc/1wpZn/ma/RB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
- drivers/scsi/eata.c |    9 ++++-----
- 1 files changed, 4 insertions(+), 5 deletions(-)
+On Tue, Feb 11, 2003 at 06:45:35PM +0100, Manfred Spraul wrote:
+> >[<c0291df2>] port_detect+0x3c2/0xe50
+>=20
+> Do you have an eata scsi controller?
 
-diff -puN drivers/scsi/eata.c~eata-detect-fix drivers/scsi/eata.c
---- 25/drivers/scsi/eata.c~eata-detect-fix	Tue Feb 11 14:50:03 2003
-+++ 25-akpm/drivers/scsi/eata.c	Tue Feb 11 14:51:57 2003
-@@ -1193,9 +1193,9 @@ static int port_detect \
-    }
- #endif
- 
--   spin_unlock(&driver_lock);
-+   spin_unlock_irq(&driver_lock);
-    sh[j] = scsi_register(tpnt, sizeof(struct hostdata));
--   spin_lock(&driver_lock);
-+   spin_lock_irq(&driver_lock);
- 
-    if (sh[j] == NULL) {
-       printk("%s: unable to register host, detaching.\n", name);
-@@ -1450,9 +1450,8 @@ static void add_pci_ports(void) {
- 
- static int eata2x_detect(Scsi_Host_Template *tpnt) {
-    unsigned int j = 0, k;
--   unsigned long spin_flags;
- 
--   spin_lock_irqsave(&driver_lock, spin_flags);
-+   spin_lock_irq(&driver_lock);
- 
-    tpnt->proc_name = "eata2x";
- 
-@@ -1490,7 +1489,7 @@ static int eata2x_detect(Scsi_Host_Templ
-       }
- 
-    num_boards = j;
--   spin_unlock_irqrestore(&driver_lock, spin_flags);
-+   spin_unlock_irq(&driver_lock);
-    return j;
- }
- 
+Yes I do, does exactly what I need most of the time.
 
-_
+The problem goes away if I compile SCSI as modules, however it happens
+when I try to load the modules, so..
 
+Anything I can do to help?
+
+Zephaniah E. Hull.
+
+--=20
+	1024D/E65A7801 Zephaniah E. Hull <warp@babylon.d2dc.net>
+	   92ED 94E4 B1E6 3624 226D  5727 4453 008B E65A 7801
+	    CCs of replies from mailing lists are requested.
+
+"This system operates under martial law. The constitution is suspended. You
+ have no rights except as declared by the area commander. Violators will be
+  shot. Repeat violators will be repeatedly shot...."       -from "A_W_O_L"
+
+--tThc/1wpZn/ma/RB
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+SYDaRFMAi+ZaeAERArN7AJ9rZOIotKPpmjso3cFHeekd9XF8yQCdFpyY
+nCcZ9ojw/h45uJ3s5B7zP38=
+=0sbL
+-----END PGP SIGNATURE-----
+
+--tThc/1wpZn/ma/RB--

@@ -1,58 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265248AbSJWWIP>; Wed, 23 Oct 2002 18:08:15 -0400
+	id <S265214AbSJWWGV>; Wed, 23 Oct 2002 18:06:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265251AbSJWWIO>; Wed, 23 Oct 2002 18:08:14 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:22452 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S265248AbSJWWIM> convert rfc822-to-8bit; Wed, 23 Oct 2002 18:08:12 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: James Cleverdon <jamesclv@us.ibm.com>
-Reply-To: jamesclv@us.ibm.com
-Organization: IBM xSeries Linux Solutions
-To: Gilad Ben-ossef <gilad@benyossef.com>
-Subject: Re: One for the Security Guru's
-Date: Wed, 23 Oct 2002 15:14:07 -0700
-User-Agent: KMail/1.4.1
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20021023130251.GF25422@rdlg.net> <1035380716.4323.50.camel@irongate.swansea.linux.org.uk> <1035381547.4182.65.camel@klendathu.telaviv.sgi.com>
-In-Reply-To: <1035381547.4182.65.camel@klendathu.telaviv.sgi.com>
+	id <S265216AbSJWWGV>; Wed, 23 Oct 2002 18:06:21 -0400
+Received: from sccrmhc03.attbi.com ([204.127.202.63]:50569 "EHLO
+	sccrmhc03.attbi.com") by vger.kernel.org with ESMTP
+	id <S265214AbSJWWGU>; Wed, 23 Oct 2002 18:06:20 -0400
+Message-ID: <3DB721B1.7090907@kegel.com>
+Date: Wed, 23 Oct 2002 15:24:49 -0700
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: de-de, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210231514.07192.jamesclv@us.ibm.com>
+To: John Gardiner Myers <jgmyers@netscape.com>
+CC: linux-aio <linux-aio@kvack.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: async poll
+References: <Pine.LNX.4.44.0210231102480.1581-100000@blue1.dev.mcafeelabs.com> <3DB7083E.5030206@netscape.com> <3DB70D4C.4070802@kegel.com> <3DB7136E.8090205@netscape.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 23 October 2002 06:59 am, Gilad Ben-ossef wrote:
-> On Wed, 2002-10-23 at 15:45, Alan Cox wrote:
-> > On Wed, 2002-10-23 at 14:02, Robert L. Harris wrote:
-[ Snip! ]
->
-> .... For example - when you
-> download a new update of a kernel (or any program for that matter)
-> source/patch (or binary package) from the net do you check the GPG
-> signature validity? I would be VERY surprised if you answer 'yes'...
->
-> :-))
->
-> Gilad.
+John Gardiner Myers wrote:
+> 
+> Dan Kegel wrote:
+> 
+>> In that situation, why not just add the fd to an epoll, and have the
+>> epoll deliver events through Ben's interface?
+> 
+> 
+> Because you might need to use the aio_data facility of the iocb 
+> interface.
 
-Be surprised:  I run "gpg --verify foo.tgz.sign foo.tgz" every time I download 
-from kernel.org.  And, "rpm --checksig *.rpm" on stuff from redhat.com too.
+Presumably epoll_add could be enhanced to let user specify a user data
+word.
 
-Given the recent trojaned source packages, I recommend that everyone do the 
-same.
+ > Because you might want to keep the kernel from
+> simultaneously delivering two events for the same fd to two different 
+> threads.
 
-	=	=	=	=
+You might want to use aio_write() for writes, and read() for reads,
+in which case you could tell epoll you're not interested in
+write readiness events.  Then there'd be no double notification
+for reads or writes on same fd.
+It's a bit contrived, but I can imagine it being useful.
 
-The preceding public service message has been sponsored by Anal Retentive 
-Sysadmins .Org  (Motto:  Constipation:  It's not just a gob, it's a career!)
-
-> > Alan
+- Dan
 
 
--- 
-James Cleverdon
-IBM xSeries Linux Solutions
-{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot com
 

@@ -1,144 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132094AbRAUSqj>; Sun, 21 Jan 2001 13:46:39 -0500
+	id <S132204AbRAUSvu>; Sun, 21 Jan 2001 13:51:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132204AbRAUSq3>; Sun, 21 Jan 2001 13:46:29 -0500
-Received: from [64.160.188.242] ([64.160.188.242]:8210 "HELO
-	mail.hislinuxbox.com") by vger.kernel.org with SMTP
-	id <S132094AbRAUSqR>; Sun, 21 Jan 2001 13:46:17 -0500
-Date: Sun, 21 Jan 2001 10:46:10 -0800 (PST)
-From: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
-To: Andy Galasso <andy@adgsoftware.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VIA chipset discussion
-In-Reply-To: <20010120033950.A16350@adgsoftware.com>
-Message-ID: <Pine.LNX.4.21.0101211043570.3439-100000@ns-01.hislinuxbox.com>
+	id <S132270AbRAUSvj>; Sun, 21 Jan 2001 13:51:39 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:45072 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S132204AbRAUSvZ>;
+	Sun, 21 Jan 2001 13:51:25 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200101211837.VAA27543@ms2.inr.ac.ru>
+Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
+To: andrea@suse.de (Andrea Arcangeli)
+Date: Sun, 21 Jan 2001 21:37:49 +0300 (MSK)
+Cc: torvalds@transmeta.com, mingo@elte.hu, raj@cup.hp.com,
+        linux-kernel@vger.kernel.org, davem@redhat.com
+In-Reply-To: <20010120215615.B5274@athlon.random> from "Andrea Arcangeli" at Jan 20, 1 09:56:15 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
-I get something similar. *I* get it when I mix drives on the various
-controllers, aka ATA33/66 and ATA100 drives. I also get this error from
-the CDROM when using the ATA100 controller for my ATA100 30GB drive and
-the ATA33/66 controller for the CDROM. (Cyber 48X generic IDE CDROM).
- 
+> So now the question is: when does this new nagle algorithm delay packets in the
+> write queue? It _must_ do something, otherwise TCP_NODELAY would obviously be a
+> noop.
 
-On Sat, 20 Jan 2001, Andy Galasso wrote:
+It allows _one_ incomplete segment to fly. Minshall and BSD behave absolutely
+similarly in all the curcumstances except for some exceptional situations.
 
-> I'm not sure how relevant it is, but FWIW here's what I've got:
-> 
-> MSI 694D Pro Motherboard 2xPIII-800 100MHz FSB
-> Linux-2.4.0-prerelease SMP
-> Promise FastTrak100 controller card
-> 4 IBM DTLA-307030 drives attached to Promise card
-> boot params: ide2=0xac00 ide3=0xb400
-> 
-> Here's an excerpt of what I get when trying to boot:
-> 
-> VP_IDE: IDE controller on PCI bus 00 dev 39
-> VP_IDE: chipset revision 16
-> VP_IDE: not 100% native mode: will probe irqs later
-> VP_IDE: VIA vt82c686a IDE UDMA66 controller on pci0:7.1
->     ide0: BM-DMA at 0x9000-0x9007, BIOS settings: hda:pio, hdb:pio
->     ide1: BM-DMA at 0x9008-0x900f, BIOS settings: hdc:DMA, hdd:pio
-> PDC20267: IDE controller on PCI bus 00 dev 70
-> PDC20267: chipset revision 2
-> PDC20267: not 100% native mode: will probe irqs later
-> PDC20267: (U)DMA Burst Bit ENABLED Primary MASTER Mode Secondary MASTER Mode.
-> PDC20267: neither IDE port enabled (BIOS)
-> hde: probing with STATUS(0x50) instead of ALTSTATUS(0xff)
-> hde: IBM-DTLA-307030, ATA DISK drive
-> hdf: probing with STATUS(0x50) instead of ALTSTATUS(0xff)
-> hdf: IBM-DTLA-307030, ATA DISK drive
-> hdg: probing with STATUS(0x50) instead of ALTSTATUS(0xff)
-> hdg: IBM-DTLA-307030, ATA DISK drive
-> hdh: probing with STATUS(0x50) instead of ALTSTATUS(0xff)
-> hdh: IBM-DTLA-307030, ATA DISK drive
-> ide1 at 0x170-0x177,0x376 on irq 15
-> ide2 at 0xac00-0xac07,0xae06 on irq 16
-> ide3 at 0xb400-0xb407,0xb606 on irq 16 (shared with ide2)
-> hde: 60036480 sectors (30739 MB) w/1916KiB Cache, CHS=59560/16/63
-> hdf: 60036480 sectors (30739 MB) w/1916KiB Cache, CHS=59560/16/63
-> hdg: 60036480 sectors (30739 MB) w/1916KiB Cache, CHS=59560/16/63
-> hdh: 60036480 sectors (30739 MB) w/1916KiB Cache, CHS=59560/16/63
-> Partition check:
->  hde:hde: irq timeout: status=0x50 { DriveReady SeekComplete }
-> hde: irq timeout: status=0x50 { DriveReady SeekComplete }
-> hde: irq timeout: status=0x50 { DriveReady SeekComplete }
-> hde: irq timeout: status=0x50 { DriveReady SeekComplete }
-> ide2: reset: master: error (0x00?)
-> hde: irq timeout: status=0x50 { DriveReady SeekComplete }
-> hde: irq timeout: status=0x50 { DriveReady SeekComplete }
-> hde: irq timeout: status=0x50 { DriveReady SeekComplete }
-> hde: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
-> ide2(?): unexpected interrupt, status=0x58, count=1
-> ide2: reset: master: error (0x00?)
-> hde: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-> end_request: I/O error, dev 21:00 (hde), sector 0
-> hde: drive not ready for command
->  unable to read partition table
->  hdf:hdf: irq timeout: status=0x50 { DriveReady SeekComplete }
-> hdf: irq timeout: status=0x50 { DriveReady SeekComplete }
-> hdf: irq timeout: status=0x50 { DriveReady SeekComplete }
-> hdf: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
-> ide2(?): unexpected interrupt, status=0x58, count=2
-> ide2: reset: master: error (0x00?)
-> hdf: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-> hdf: drive not ready for command
-> hdf: irq timeout: status=0x50 { DriveReady SeekComplete }
-> hdf: irq timeout: status=0x50 { DriveReady SeekComplete }
-> hdf: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
-> ide2(?): unexpected interrupt, status=0x58, count=3
-> ide2: reset: master: error (0x00?)
-> hdf: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-> end_request: I/O error, dev 21:40 (hdf), sector 0
-> hdf: drive not ready for command
->  unable to read partition table
-> ...
-> (similar for hdg ... hdh ...)
-> ...
->   
-> -Andy Galasso
-> 
-> 
-> On Wed, Jan 17, 2001 at 02:02:17PM -0800, David D.W. Downey wrote:
-> > 
-> > Could those that were involved in the VIA chipset discussion email me
-> > privately at pgpkeys@hislinuxbox.com?
-> > 
-> > I'm truly interested in solving this issue. I personally think it's more
-> > than just the chipset causing the problems.
-> > 
-> > 
-> > I'm looking for members of the list that are using the kernel support for
-> > the following
-> > 
-> > 
-> > VIA chipset
-> > Promise controller (PDC2026# with specifics on the PDC20265 (ATA100))
-> > SMP support
-> > IDE + SCSI mix in the system.
-> > 
-> > 
-> > I'm trying to track a number of POSSIBLE bugs (can't say they are for
-> > sure) and any input from folks with this mix of drivers would be
-> > exponentially useful, even if for nothing more than discounting some of my
-> > thoughts.
-> > 
-> > 
-> > Also, can anyone summurize the already known and specific problems with
-> > combinations of the above requirements? I would truly appreciate that. 
-> > 
-> > David D.W. Downey
-> > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > Please read the FAQ at http://www.tux.org/lkml/
-> 
+Andrea, I have better question: what "classic" Nagle algorithm
+does in this case? Just think and you will find the issue non-trivial. 8)8)
 
+
+> This was all my wondering about uncorking not being equivalent to SIOCPUSH.
+
+The samples are mostly equivalent.
+
+The difference may happen depending on previous history of the connection.
+
+
+
+> If I understood wall they would been equivalent if I did write(100000*MSS)
+> instead of write(100000*MSS+1).
+
+Under CORK you may do everything. Segmentation will be perfect in any case.
+
+I spoke about default behaviour.
+
+
+> IMHO latency can be fixed in a much better way using ioctl(SIOCPUSH)
+
+No doubts.
+
+Only all these tricks with CORKs, MOREs, PUSHes are orthogonal issue.
+Nagling is used on generic connections, which do not know and do not want
+to know anything about problems of tcp, and just write bytes to socket
+and read bytes from it.
+
+
+> 					Legacy userspace
+
+Please, rewind thread and reread Linus' mail containing mantra
+to read in such hard cases. 8)
+
+Applications not using corking or some other our home-made extensions
+are not "legacy". The word is different: they are "standard"
+de facto and de jure.
+
+Alexey
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,55 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261577AbVBNWC0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261580AbVBNWCR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261577AbVBNWC0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 17:02:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261576AbVBNWCZ
+	id S261580AbVBNWCR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 17:02:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261578AbVBNWCR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 17:02:25 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:56556 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261579AbVBNWCQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 17:02:16 -0500
-Date: Mon, 14 Feb 2005 16:01:49 -0600
-From: Robin Holt <holt@sgi.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Robin Holt <holt@sgi.com>, Ray Bryant <raybry@sgi.com>,
-       Hirokazu Takahashi <taka@valinux.co.jp>,
-       Hugh DIckins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       Marcello Tosatti <marcello@cyclades.com>,
-       Ray Bryant <raybry@austin.rr.com>, linux-mm <linux-mm@kvack.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC 2.6.11-rc2-mm2 7/7] mm: manual page migration -- sys_page_migrate
-Message-ID: <20050214220148.GA11832@lnx-holt.americas.sgi.com>
-References: <20050212032535.18524.12046.26397@tomahawk.engr.sgi.com> <20050212032620.18524.15178.29731@tomahawk.engr.sgi.com> <1108242262.6154.39.camel@localhost> <20050214135221.GA20511@lnx-holt.americas.sgi.com> <1108407043.6154.49.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1108407043.6154.49.camel@localhost>
-User-Agent: Mutt/1.4.1i
+	Mon, 14 Feb 2005 17:02:17 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:9636 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261576AbVBNWCL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 17:02:11 -0500
+Date: Mon, 14 Feb 2005 23:01:49 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Len Brown <len.brown@intel.com>
+cc: Linus Torvalds <torvalds@osdl.org>, Rolf Eike Beer <eike-kernel@sf-tec.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] make ACPI_BLACKLIST_YEAR depend on ACPI
+In-Reply-To: <1108413614.2092.5.camel@d845pe>
+Message-ID: <Pine.LNX.4.61.0502142300460.6118@scrub.home>
+References: <200502141130.51901@bilbo.math.uni-mannheim.de> 
+ <Pine.LNX.4.58.0502140801570.15516@ppc970.osdl.org> <1108413614.2092.5.camel@d845pe>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 14, 2005 at 10:50:42AM -0800, Dave Hansen wrote:
-> On Mon, 2005-02-14 at 07:52 -0600, Robin Holt wrote:
-> > The node mask is a list of allowed.  This is intended to be as near
-> > to a one-to-one migration path as possible.
-> 
-> If that's the case, it would make the kernel internals a bit simpler to
-> only take a "from" and "to" node, instead of those maps.  You'll end up
-> making multiple syscalls, but that shouldn't be a problem.  
+Hi,
 
-Then how do you handle overlapping nodes.  If I am doing a 5->4, 4->3,
-3->2, 2->1 shift in the memory placement and had only a from and to node,
-I would end up calling multiple times.  This would end up in memory shifting
-from 5->4 on the first, 4->3 on the second, ... with the end result of
-all memory shifting to a single node.
+On Mon, 14 Feb 2005, Len Brown wrote:
 
-With the array-of-node maps, you make a single pass across the address
-space.  This results in a clean mapping without the userspace needing to
-know which nodes the pages are on.
+> Re: ACPI_BLACKLIST_YEAR depending on ACPI or ACPI_INTERPRETER -- either
+> are fine.
 
-On a seperate topic, I would guess the syscall time is trivial compared
-to the time to walk the page tables.
+Note that a patch that fixes this and a little more is waiting in -mm and 
+Sam's tree.
 
-Thanks,
-Robin
+bye, Roman

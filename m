@@ -1,61 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261241AbUBVMpo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 07:45:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261242AbUBVMpo
+	id S261247AbUBVNk4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 08:40:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261248AbUBVNk4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 07:45:44 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21383 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261241AbUBVMpn
+	Sun, 22 Feb 2004 08:40:56 -0500
+Received: from mail-10.iinet.net.au ([203.59.3.42]:48877 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S261247AbUBVNkz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 07:45:43 -0500
-Date: Sun, 22 Feb 2004 12:45:41 +0000
-From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+	Sun, 22 Feb 2004 08:40:55 -0500
+Subject: kernel: NETDEV WATCHDOG: eth0: transmit timed out
+From: Sven Dowideit <svenud@ozemail.com.au>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Kernel Cross Compiling [update]
-Message-ID: <20040222124541.GA1064@gallifrey>
-References: <20040222035350.GB31813@MAIL.13thfloor.at>
+Content-Type: text/plain
+Message-Id: <1077457080.1208.17.camel@sven>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040222035350.GB31813@MAIL.13thfloor.at>
-X-Chocolate: 70 percent or better cocoa solids preferably
-X-Operating-System: Linux/2.6.3 (i686)
-X-Uptime: 12:38:51 up 13:19,  1 user,  load average: 0.00, 0.28, 0.66
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 23 Feb 2004 00:38:00 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Herbert Poetzl (herbert@13thfloor.at) wrote:
-> 
-> Hi Folks!
-> 
-> Here is an update to the Kernel Cross Compiling thread 
-> I started ten days ago ...
+I have an IBM thinkpad T21 that has a 3Com ethernet card that has not
+been working in a long while (with ACPI turned on).
 
-Hi,
-   Quite a while ago I tried going through a similar
-process.   I found at the time the debian toolchain-source
-package helped in this process.
+Recently (the last 2-3 releases or so) it has also been getting the
+following messages (until i remember to to an ifconfgi eth0 down)
 
-There is however one thing you seem to have missed - you
-tend to need subtely different versions of gcc and binutils
-for each combination.
+Feb 23 00:22:00 sven kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Feb 23 00:22:35 sven last message repeated 3 times
+Feb 23 00:23:35 sven last message repeated 5 times
+Feb 23 00:24:35 sven last message repeated 5 times
+Feb 23 00:25:35 sven last message repeated 5 times
+Feb 23 00:26:00 sven last message repeated 2 times
 
-It certainly used to be the case that every architectures
-kernel used to have different known issues in both gcc
-and binutils; and there was a fair amount of 'oh don't
-use that version, it produces broken kernels' with
-different answers for each architecture.
 
-At one time I tried to make a summary page showing where
-the kernel source and tools are for each architecture;
-but I never kept it upto date.
-(http://www.treblig.org/Linux_kernel_source_finder.html)
+the other weird thing, is that my computer pauses every few seconds, for
+a second, and it seems like this symptom goes away after the ifconfig
+down. 
 
-Dave
 
- -----Open up your eyes, open up your mind, open up your code -------   
-/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
-\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
- \ _________________________|_____ http://www.treblig.org   |_______/
+any ideas?
+
+cheers
+
+Sven
+
+------------------------------------------------------------------
+00:03.0 Ethernet controller: 3Com Corporation 3c556B Hurricane CardBus
+(rev 20)
+        Subsystem: 3Com Corporation: Unknown device 6356
+        Flags: bus master, medium devsel, latency 64, IRQ 11
+        I/O ports at 1800 [size=256]
+        [virtual] Memory at e8101400 (32-bit, non-prefetchable)
+[size=128]
+        [virtual] Memory at e8101000 (32-bit, non-prefetchable)
+[size=128]
+        Expansion ROM at <unassigned> [disabled] [size=128K]
+        Capabilities: [50] Power Management version 2
+
+
+eth0      Link encap:Ethernet  HWaddr FF:FF:FF:FF:FF:FF  
+          BROADCAST MULTICAST  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:21 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:0 (0.0 b)  TX bytes:0 (0.0 b)
+          Interrupt:11 Base address:0x1800 
+
+

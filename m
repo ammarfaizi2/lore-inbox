@@ -1,36 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291166AbSBLSeO>; Tue, 12 Feb 2002 13:34:14 -0500
+	id <S291152AbSBLSmM>; Tue, 12 Feb 2002 13:42:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291164AbSBLSeC>; Tue, 12 Feb 2002 13:34:02 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:16391 "EHLO
+	id <S291160AbSBLSmC>; Tue, 12 Feb 2002 13:42:02 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:17415 "EHLO
 	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S291152AbSBLSdr>; Tue, 12 Feb 2002 13:33:47 -0500
-Date: Tue, 12 Feb 2002 13:32:11 -0500 (EST)
+	id <S291152AbSBLSlu>; Tue, 12 Feb 2002 13:41:50 -0500
+Date: Tue, 12 Feb 2002 13:40:09 -0500 (EST)
 From: Bill Davidsen <davidsen@tmr.com>
-To: Padraig Brady <padraig@antefacto.com>
-cc: Daniel Phillips <phillips@bonn-fries.net>, linux-kernel@vger.kernel.org
-Subject: Re: How to check the kernel compile options ?
-In-Reply-To: <3C695035.6040902@antefacto.com>
-Message-ID: <Pine.LNX.3.96.1020212132711.6082B-100000@gatekeeper.tmr.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Jens Axboe <axboe@suse.de>, andersen@codepoet.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.18-pre9-ac1
+In-Reply-To: <E16ae1e-0001ws-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.3.96.1020212133708.6082C-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Feb 2002, Padraig Brady wrote:
+On Tue, 12 Feb 2002, Alan Cox wrote:
 
-> I'd go for tacking it on at the end of the bzImage. Advantages would be
-> that it can be read even when the kernel isn't loaded, and also there
-> is no danger of loading a module in another kernel.
+> I don't think that should be required actually. The killer on M/O disks
+> is seek time, and to an extent rotational latency (its 3 trips round a 
+> cheaper M/O disk to rewrite a sector). If anything clustering writes to
+> the same track should be a big win.
 
-There are several problems with that:
-1 - built into the kernel it is compressed and needs a tool to read
-2 - the reason kernels are compressed is to make them fit in small boot
-    media, so adding something to the image is not to be done lightly.
-3 - modules are NOT compressed, and can be read with the strings command.
-4 - other files in the modules directory are pure text and if the config
-    was just text it could be read with `cat.'
+I believe the impetus to the cluster patch is not to address parformance,
+but because without it a media error on the MO causes a system failure.
+That seems a good reason to put in the patch, and you can certainly test
+it with and without, just be sure to sync() before trying the standard
+code ;-)
 
 -- 
 bill davidsen <davidsen@tmr.com>

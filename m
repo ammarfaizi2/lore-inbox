@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263437AbRFKGaL>; Mon, 11 Jun 2001 02:30:11 -0400
+	id <S263441AbRFKGba>; Mon, 11 Jun 2001 02:31:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263441AbRFKGaB>; Mon, 11 Jun 2001 02:30:01 -0400
-Received: from nalserver.nal.go.jp ([202.26.95.66]:62643 "EHLO
+	id <S263442AbRFKGbU>; Mon, 11 Jun 2001 02:31:20 -0400
+Received: from nalserver.nal.go.jp ([202.26.95.66]:17077 "EHLO
 	nalserver.nal.go.jp") by vger.kernel.org with ESMTP
-	id <S263437AbRFKG3u>; Mon, 11 Jun 2001 02:29:50 -0400
-Date: Mon, 11 Jun 2001 15:28:58 +0900 (JST)
+	id <S263441AbRFKGbJ>; Mon, 11 Jun 2001 02:31:09 -0400
+Date: Mon, 11 Jun 2001 15:30:24 +0900 (JST)
 From: Aron Lentsch <lentsch@nal.go.jp>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
 Subject: Re: IRQ problems on new Toshiba Libretto
-In-Reply-To: <3B2439E5.493B0472@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.21.0106111228360.1065-100000@triton.nal.go.jp>
+In-Reply-To: <Pine.LNX.4.21.0106102026290.2599-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0106111439510.1065-100000@triton.nal.go.jp>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 10 Jun 2001, Linus Torvalds wrote:
 
-Hi Jeff,
+> It's probably an ACPI-only system - rather uncommon,
+> ...
 
-The latest version of my kernel '.config' file is
-at the end of the file:
-http://launchers.tripod.com/linux/libretto_logs_n_kernelconfig.txt
+It seems so - at least APM doesn't work, but ACPI does
+- at least to so some extent.
 
-> Suggestions:
-> * Build kernel with CONFIG_PCI_GOANY config option.
+> ... so ACPI per se won't fix the problem, but it
+> would definitely be the next thing to look at.
 
-Originally CONFIG_PCI_GOANY was set by default. I tried
-to unset and I have set it again as you suggest, but
-there seems to be no difference in dmesg and dump_irq.
+If I understand correctly, I have to wait until someone
+is taking up this task? Unfortunately I have now clue
+about kernel proramming - well, in fact I am not even a
+real programmer (I'm doing rocket engines and reusable
+launch vehicle stuff).  Well in this case, whoever is
+going to pick-up on this and reading this lines now,
+please send you your patches, I would be pleased to do
+some testing on the Libretto.
 
-> * Go through BIOS setup.  Check for and enable "PNP
-> OS" setting, and similar settings which reflect an
-> automatically assignment of machine resources.
+Question 2: Is there any possible workaround for the
+moment? Can I e.g. "hardwire" IRQs, e.g. reading them
+under Windows and hardcoding them? In this case, there
+could be at least a kernel for the Libretto - the
+hardware can not be modified anyway.
 
-The problem is that there is no documented way to enter
-a BIOS setup for this machine. Settings such as the
-boot sequence are done from a Windows application :-(
-I will try to ask Toshiba if there are any undocumented
-possibilities - but it would be a surprise.
-
-Thanks & Cheers!
+Thanks,
 Aron
+
 

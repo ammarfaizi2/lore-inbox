@@ -1,58 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265801AbTGDGka (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jul 2003 02:40:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265802AbTGDGka
+	id S265784AbTGDGhz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jul 2003 02:37:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265799AbTGDGhz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jul 2003 02:40:30 -0400
-Received: from voldemort.codesourcery.com ([65.73.237.138]:26089 "EHLO
-	mail.codesourcery.com") by vger.kernel.org with ESMTP
-	id S265801AbTGDGk0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jul 2003 02:40:26 -0400
-From: "Zack Weinberg" <zack@codesourcery.com>
-To: linux-kernel@vger.kernel.org
-Subject: Garbage collectors and VM (was Re: What to expect with the 2.6 VM)
-In-Reply-To: <20030703184825.GA17090@mail.jlokier.co.uk>
-Date: Thu, 03 Jul 2003 23:54:50 -0700
-Message-ID: <87u1a2srwl.fsf@egil.codesourcery.com>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Fri, 4 Jul 2003 02:37:55 -0400
+Received: from pop.gmx.net ([213.165.64.20]:51623 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S265784AbTGDGhy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jul 2003 02:37:54 -0400
+Date: Fri, 4 Jul 2003 09:52:17 +0300
+From: Dan Aloni <da-x@gmx.net>
+To: Greg KH <greg@kroah.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] PCI and sysfs fixes for 2.5.73
+Message-ID: <20030704065217.GA22032@callisto.yi.org>
+References: <20030704020634.GA4316@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030704020634.GA4316@kroah.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jul 03, 2003 at 07:06:34PM -0700, Greg KH wrote:
+> Hi,
+> 
+> Here's some PCI and sysfs fixes that are against the latest 2.5.74 bk
+> tree.  They include Matthew Wilcox's set of pci cleanups, and sysfs
+> fixes for binary files.  That led into my sysfs attribute file change,
+> which required John Stultz's timer build fix.  I've also added the
+> sysfs/kobject/class rename patches based on previously posted patches.
 
-> No, but there was a meek request to get writable/read-only protection
-> working with remap_file_pages, so that a garbage collector can change
-> protection on individual pages without requiring O(nr_pages) vmas.
-> Perhaps that should have nothing to do with remap_file_pages, though.
+That's good, but I see that you didn't add the call to class_device_rename()
+in net/core/dev.c, and that's kinda misses the point ;)
 
-I have an old design for this lying around from early 2.4 days.  I
-never got anywhere with it, but maybe it's of interest...  My tests,
-back then, indicated that fully half the overhead of write-barrier
-handling was in signal delivery.  So I wanted to avoid that, as well
-as having to split vmas endlessly.  I also didn't want to add new
-syscalls if it could be avoided.  Thus, a new pseudo-device, with the
-semantics:
+--- linux/net/core/dev.c	2003-06-29 22:16:29.000000000 +0300
++++ linux/net/core/dev.c	2003-06-30 20:57:55.000000000 +0300
+@@ -2346,10 +2346,14 @@
+ 				return -EEXIST;
+ 			memcpy(dev->name, ifr->ifr_newname, IFNAMSIZ);
+ 			dev->name[IFNAMSIZ - 1] = 0;
+-			strlcpy(dev->class_dev.class_id, dev->name, BUS_ID_SIZE);
++
++			err = class_device_rename(&dev->class_dev, dev->name);
++			if (err) 
++				printk(KERN_DEBUG "SIOCSIFNAME: error renaming class_device (%d)\n", err);
++
+ 			notifier_call_chain(&netdev_chain,
+ 					    NETDEV_CHANGENAME, dev);
+-			return 0;
++			return err;
+ 
+ 		/*
+ 		 *	Unknown or private ioctl
 
- * mmapping it creates anonymous pages, just like /dev/zero.
- * Data written to the file descriptor is interpreted as a list of
-   user-space pointers to pages.  All the pages pointed to, that
-   are anonymous pages created by mmapping that same descriptor,
-   become read-only.
- * But when the program takes a write fault to such a page, the
-   kernel simply records the user-space address of that page,
-   resets it to read-write, and restarts the faulting instruction.
-   The user space process doesn't get a signal.
- * Reading from the descriptor produces a list of user-space pointers
-   to all the pages that have been reset to read-write since the last
-   read.
- * I never decided what to do if the program forks.  The application I
-   personally care about doesn't do that, but for a general GC like
-   Boehm it matters.
-
-Thoughts?
-
-Please cc: me, I'm not subscribed to l-k.
-
-zw
+-- 
+Dan Aloni
+da-x@gmx.net

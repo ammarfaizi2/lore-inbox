@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315406AbSELTk6>; Sun, 12 May 2002 15:40:58 -0400
+	id <S315410AbSELUCY>; Sun, 12 May 2002 16:02:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315407AbSELTk5>; Sun, 12 May 2002 15:40:57 -0400
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:16140 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S315406AbSELTk5>; Sun, 12 May 2002 15:40:57 -0400
-Date: Sun, 12 May 2002 21:40:49 +0200
-From: Jurriaan on Alpha <thunder7@xs4all.nl>
-To: Zlatko Calusic <zlatko.calusic@iskon.hr>
-Cc: Martin Dalecki <dalecki@evision-ventures.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: pdc202xx.c fails to compile in 2.5.15
-Message-ID: <20020512194049.GA29906@alpha.of.nowhere>
-Reply-To: thunder7@xs4all.nl
-In-Reply-To: <3CDD4DE5.5030200@evision-ventures.com> <877km99nt1.fsf_-_@atlas.iskon.hr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Message-Flag: Still using Outlook? Please Upgrade to real software!
+	id <S315411AbSELUCX>; Sun, 12 May 2002 16:02:23 -0400
+Received: from ep09.kernel.pl ([212.87.11.162]:42085 "EHLO ep09.kernel.pl")
+	by vger.kernel.org with ESMTP id <S315410AbSELUCW>;
+	Sun, 12 May 2002 16:02:22 -0400
+Message-ID: <002801c1f9ef$e1e5fa90$0201a8c0@witek>
+From: =?iso-8859-2?Q?Witek_Kr=EAcicki?= <adasi@kernel.pl>
+To: <linux-kernel@vger.kernel.org>
+Subject: [BUG 2.5.X] Hollow processes
+Date: Sun, 12 May 2002 22:01:45 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Zlatko Calusic <zlatko.calusic@iskon.hr>
-Date: Sun, May 12, 2002 at 09:19:22PM +0200
-> pdc202xx.x fails to compile in 2.5.15. Error messages below.
-> 
-> 
-> pdc202xx.c:1453: unknown field `exnablebits' specified in initializer
+(Had the same problem on 2.5.9 with poldek, now it appeared on 2.5.15dj1
+while building glibc-2.5.4 to rpm)
+Process is hanging. It's impossible to stop it (even SAK is just clearing
+console). It's impossible to check what the process is (trying to read
+/proc/{pid}/{anyting} causes reading process to hang in the same way (so we
+have now 2 hanging processes). Trying to use ps/lsof/killall/{anything that
+is using /proc/{pid} causes this software hang in the same way. What could
+it be?
+WK
 
-That's a simple typing error - replace exnable by enable.
 
-Good luck,
-Jurriaan
--- 
-The man who thinks he is smarter than his wife is married to a very smart
-woman.
-Debian GNU/Linux 2.4.19p8 on Alpha 988 bogomips load:0.12 0.06 0.01

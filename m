@@ -1,71 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129383AbRAPRFA>; Tue, 16 Jan 2001 12:05:00 -0500
+	id <S132108AbRAPRGK>; Tue, 16 Jan 2001 12:06:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129831AbRAPREv>; Tue, 16 Jan 2001 12:04:51 -0500
-Received: from rcum.uni-mb.si ([164.8.2.10]:45061 "EHLO rcum.uni-mb.si")
-	by vger.kernel.org with ESMTP id <S129383AbRAPREj>;
-	Tue, 16 Jan 2001 12:04:39 -0500
-Date: Tue, 16 Jan 2001 18:04:02 +0100
-From: David Balazic <david.balazic@uni-mb.si>
-Subject: Re: Linux not adhering to BIOS Drive boot order?
-To: linux-kernel@vger.kernel.org
-Cc: David Woodhouse <dwmw2@infradead.org>,
-        Venkatesh Ramamurthy <Venkateshr@ami.com>
-Message-id: <3A647F02.CB628D13@uni-mb.si>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.75 [en] (WinNT; U)
-Content-type: text/plain; charset=iso-8859-2
-Content-transfer-encoding: 7bit
+	id <S132031AbRAPRGA>; Tue, 16 Jan 2001 12:06:00 -0500
+Received: from [64.64.109.142] ([64.64.109.142]:9482 "EHLO quark.didntduck.org")
+	by vger.kernel.org with ESMTP id <S129831AbRAPRFu>;
+	Tue, 16 Jan 2001 12:05:50 -0500
+Message-ID: <3A647F39.EC62BB81@didntduck.org>
+Date: Tue, 16 Jan 2001 12:04:57 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.73 [en] (WinNT; U)
 X-Accept-Language: en
+MIME-Version: 1.0
+To: Venkatesh Ramamurthy <Venkateshr@ami.com>
+CC: "'David Woodhouse'" <dwmw2@infradead.org>,
+        "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Linux not adhering to BIOS Drive boot order?
+In-Reply-To: <1355693A51C0D211B55A00105ACCFE64E95190@ATL_MS1>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse wrote :
-> Venkateshr@ami.com said:
-> > we need some kind of signature being written in the drive, which the 
-> > kernel will use for determining the boot drive and later re-order 
-> > drives, if required.  
->      
-> > Is someone handling this already? 
->     
-> It should be possible to read the BIOS setting for this option and
-> behave accordingly. Please give full details of how to read and interpret
-> the information stored in the CMOS for all versions of AMI BIOS, and I'll
-> take a look at this.
+Venkatesh Ramamurthy wrote:
+> 
+> > When the cards are of different make the order is solely dependent on
+> > the order that the drivers are initialized in the kernel.  If you have
+> > modules enabled, only build the driver for your root device into the
+> > kernel image and have the other modular.  This lets you control the
+> > initialization order to your liking.
+>         [Venkatesh Ramamurthy]  I think there should be a better way to
+> handle this , compiling is one of the options, but an end-user should not
+> think of compiling. The end user needs to put an another card and connect
+> drives and get his system up and running. He should not think of compiling
+> the drivers, if it is already part of the kernel / initrd to get his system
+> running.
 
-To mount the right partitions , refer to the by the volume label or
-UUID.
-( read the mount and fstab man pages for more info )
+Why does the end-user have to compile the kernel?  Most distributions
+provide a kernel with no SCSI drivers in it, but use an initrd to get
+the root SCSI driver in (man mkinitrd on any Redhat box).  Just
+distribute all SCSI drivers as modules and you won't have any problems.
 
-This work after the root-fs is already mounted.
+--
 
-Currently ( AFAIK ) the root-fs can be specified only as a major:minor
-pair ( and maybe also as a "/dev/hdxx" string )
-
-Once I wrote a patch that allows specifying the root-fs by
-UUID or volume label. It is available at
-http://linux-patches.rock-projects.com/v2.2-f/uuid.html
-
-It is for 2.2.x kernel , since nobody seems to be interested in it.
-
-
-As for the "device nodes are assigned to disk devices almost randomly"
-problem : I complained about this years ago , but nothing happened.
-
-If someone knows a way to reliably find a certain partition ,
-regardless of the (non)existence and position of other partitions
-and disks in the system , short of scanning the contents of all
-available
-partitions , please tell me.
-
-
-Party on !
--- 
-David Balazic
---------------
-"Be excellent to each other." - Bill & Ted
-- - - - - - - - - - - - - - - - - - - - - -
+				Brian Gerst
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

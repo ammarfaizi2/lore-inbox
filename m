@@ -1,57 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132173AbQLHXSU>; Fri, 8 Dec 2000 18:18:20 -0500
+	id <S130198AbQLHXRk>; Fri, 8 Dec 2000 18:17:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132958AbQLHXSK>; Fri, 8 Dec 2000 18:18:10 -0500
-Received: from burdell.cc.gatech.edu ([130.207.3.207]:54794 "EHLO
-	burdell.cc.gatech.edu") by vger.kernel.org with ESMTP
-	id <S132173AbQLHXSD>; Fri, 8 Dec 2000 18:18:03 -0500
-Message-ID: <3A3164FB.EA5957B7@cc.gatech.edu>
-Date: Fri, 08 Dec 2000 17:47:23 -0500
-From: Josh Fryman <fryman@cc.gatech.edu>
-Organization: CoC, GaTech
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
-CC: Ion Badulescu <ionut@cs.columbia.edu>,
-        Andrey Savochkin <saw@saw.sw.com.sg>, linux-kernel@vger.kernel.org
-Subject: Re: eepro100 driver update for 2.4
-In-Reply-To: <Pine.LNX.4.21.0012081254360.26353-100000@age.cs.columbia.edu> <3A3162A0.825FA107@Hell.WH8.TU-Dresden.De>
+	id <S132173AbQLHXRb>; Fri, 8 Dec 2000 18:17:31 -0500
+Received: from hera.cwi.nl ([192.16.191.1]:34022 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S130198AbQLHXRR>;
+	Fri, 8 Dec 2000 18:17:17 -0500
+Date: Fri, 8 Dec 2000 23:46:39 +0100
+From: Andries Brouwer <aeb@veritas.com>
+To: Matan Ziv-Av <matan@svgalib.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Big IDE HD unclipping and IBM drive
+Message-ID: <20001208234639.A538@veritas.com>
+In-Reply-To: <Pine.LNX.4.21_heb2.09.0012082319530.962-100000@matan.home>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.21_heb2.09.0012082319530.962-100000@matan.home>; from matan@svgalib.org on Fri, Dec 08, 2000 at 11:24:56PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> * put cable in *
->
-> eth0: card reports no RX buffers.
-> eth0: card reports no resources.
-> eth0: card reports no RX buffers.
-> eth0: card reports no resources.
+On Fri, Dec 08, 2000 at 11:24:56PM +0200, Matan Ziv-Av wrote:
 
-you know, this might be entirely unrelated, but i had the exact same type of
-problem with a brand new machine running a not-so-brand new EE100 nic.   i
-couldn't figure out what was wrong, since it was a literal replacement with an
-earlier machine with the same general setup (except it was a pentium-90, this
-was a celeron-500-something) ... and in the p-90, that network card never gave
-a hiccup.
+> I have an IBM drive, DTLA-307075 (75GB), and a bios that hangs with
+> large disks. I use a jumper to clip it to 32GB size, so the bios can
+> boot into linux. The problem is that WIN_READ_NATIVE_MAX returns 32GB,
+> and not the true size, and even trying to set the correct size with
+> WIN_SET_MAX fails. Is there a way to use this combination (Bios, HD,
+> Linux)?
 
-the only way i could get it to stop was to change the network infrastructure.
-this card was connected to a cisco catalyst 1000 24-port 10T switch and 2-port
-100T switch.  i stuck a generic repeater off one of the 100T ports, jacked the
-ee100 into the repeater, and the problem *went away*.
+Don't know where you found WIN_READ_NATIVE_MAX,
+or what program you tried in order to fiddle with
+these things. The ATA standard calls the command
+READ NATIVE MAX ADDRESS.
 
-i thought it was just an anomaly.
+So far I have seen success with READ_NATIVE_MAX_ADDRESS
+and SET_MAX_ADDRESS on Maxtor drives but do not offhand
+recall any reports on IBM DTLA drives.
+(Posted a few times a setmax.c utility that you can try.)
 
-if it will help, i can get the info from that machine and post it to this
-thread.
+You can also try to contact IBM support.
+Files like dtla_spw.pdf only mention that you can clip capacity
+using a jumper, but there is no hint that it would be
+possible to unclip using SET_MAX_ADDRESS.
 
-cheers,
+Be careful that you do not lock the disk.
+(The command only functions as a SET_MAX_ADDRESS when
+immediately preceded by a READ_NATIVE_MAX_ADDRESS.)
 
-josh fryman
-
-
+Andries
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

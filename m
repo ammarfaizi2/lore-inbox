@@ -1,32 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269175AbTGJKSj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 06:18:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269174AbTGJKSj
+	id S269173AbTGJKTG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 06:19:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269174AbTGJKTG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 06:18:39 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:2712 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S269173AbTGJKSi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 06:18:38 -0400
-Date: Thu, 10 Jul 2003 10:33:17 +0000
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: memset (was: Redundant memset in AIO read_events)
-Message-ID: <20030710103317.D21655@devserv.devel.redhat.com>
-References: <20030710100417.83333.qmail@web11801.mail.yahoo.com.suse.lists.linux.kernel> <1057832361.5817.2.camel@laptop.fenrus.com.suse.lists.linux.kernel> <p73smpepte1.fsf@oldwotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 10 Jul 2003 06:19:06 -0400
+Received: from auth22.inet.co.th ([203.150.14.104]:46349 "EHLO
+	auth22.inet.co.th") by vger.kernel.org with ESMTP id S269173AbTGJKTB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 06:19:01 -0400
+From: Michael Frank <mflt1@micrologica.com.hk>
+To: jamie@shareable.org
+Subject: NFS client errors with 2.5.74?
+Date: Thu, 10 Jul 2003 18:30:59 +0800
+User-Agent: KMail/1.5.2
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+X-OS: KDE 3 on GNU/Linux
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <p73smpepte1.fsf@oldwotan.suse.de>; from ak@suse.de on Thu, Jul 10, 2003 at 12:29:10PM +0200
+Message-Id: <200307101830.59669.mflt1@micrologica.com.hk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 10, 2003 at 12:29:10PM +0200, Andi Kleen wrote:
-> The problem is that the instruction that avoid write-allocate usually also force 
-> the result out of cache. 
+I chewed on that a while ago and was advised not to use "soft" mounts.
 
-that's for the current implementation; rep stosl may get the WA-avoiding
-behavior sometime without the negative cache effects.. someday maybe.
+My 2.4<>2.4 setup worked with "soft" for ages, but it broke when
+running 2.5.6x/7x on the server.
+
+If you are using soft mounts, use "hard,intr" instead. 
+
+Regards
+Michael
+
+-- 
+Powered by linux-2.5.74-mm3. Compiled with gcc-2.95-3 - mature and rock solid
+
+My current linux related activities:
+- 2.5 yenta_socket testing
+- Test development and testing of swsusp for 2.4/2.5 and ACPI S3 of 2.5 kernel 
+- Everyday usage of 2.5 kernel
+
+More info on 2.5 kernel: http://www.codemonkey.org.uk/post-halloween-2.5.txt
+More info on swsusp: http://sourceforge.net/projects/swsusp/
+

@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318746AbSHSM5i>; Mon, 19 Aug 2002 08:57:38 -0400
+	id <S318780AbSHSNDI>; Mon, 19 Aug 2002 09:03:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318780AbSHSM5i>; Mon, 19 Aug 2002 08:57:38 -0400
-Received: from smtp03.web.de ([217.72.192.158]:11534 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id <S318746AbSHSM5i>;
-	Mon, 19 Aug 2002 08:57:38 -0400
-Date: Mon, 19 Aug 2002 00:28:21 +0200
-From: Lars Ellenberg <l.g.e@web.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: epox 4g4a+ (i845g and hpt372) with kernel 2.4.x: Ok, now booting the kernel. hangs.
-Message-ID: <20020819002821.A12440@johann>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <200208181746.30967.jh@ionium.org>
-Mime-Version: 1.0
+	id <S318830AbSHSNDI>; Mon, 19 Aug 2002 09:03:08 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:5773 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id <S318780AbSHSNDI>;
+	Mon, 19 Aug 2002 09:03:08 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: PCI MMIO flushing, write-combining etc
+References: <m3d6sjele5.fsf@defiant.pm.waw.pl>
+	<1029496355.31514.44.camel@irongate.swansea.linux.org.uk>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 19 Aug 2002 13:57:29 +0200
+In-Reply-To: <1029496355.31514.44.camel@irongate.swansea.linux.org.uk>
+Message-ID: <m3y9b3qcwm.fsf@defiant.pm.waw.pl>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200208181746.30967.jh@ionium.org>
-User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 18, 2002 at 05:46:30PM +0200, Justin Heesemann wrote:
-> Ok. Whenever i try to boot a 2.4 Kernel (i tried the ones provided by the 
-> Debian 3.0 boot cd, Knoppix boot cd and a p4 optimized gentoo kernel) It gets 
-> as far as:
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+
+> > I understand writes to PR1 can be reordered, merged, and delayed.
+> > What should I do to flush the write buffers? I understand reading from
+> > PR1 would do. Would reading from NPR2 flush PR1 write buffers?
+> > Would writing to NPR2 flush them?
 > 
-> Loading kernel..................
-> Loading 
-> rescue.gz.......................................................................
-> ready.
-> Uncompressing Linux... Ok, now booting the kernel.
-> 
-> Then it hangs.
-> Is there a way to get more information what exactly it is doing before it 
-> hangs ?
-dunno. but:
+> That one I can't actually remember.
 
-Had a similar problem once, though on different hardware.
-adding a mem=<some good amount less than you actually have>
-did the trick. after bios update, I could leave it off again.
- (I think mem=480 could do in your case) 
+Ok. What PCI spec 2.1 says is, basically, that we don't need to worry about
+such things. Writes can't be reordered - all the reads and writes are
+in CPU (or any other PCI master) order, exactly as on ISA.
+Writes can be merged on prefetchable region (so we don't necessarily want
+to mark I/O MMIO as prefetchable, if the hardware doesn't like merging).
 
-just a thought...
-
-	lge
-
+All writes can be posted, and they are flushed before a read initiated
+by the same master (i.e. CPU) reaches the same PCI target (so it's enough
+to readl() any region, either I/O or MMIO). Looks like we only need to
+flush posted writes when there are specific timing requirements (something
+like writel(reset); sleep 100 ns, writel(no_reset) - or when we want to be
+sure that, say, card interrupts are off when we do something critical
+elsewhere).
+-- 
+Krzysztof Halasa
+Network Administrator

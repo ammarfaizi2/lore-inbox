@@ -1,80 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264364AbRFHVtE>; Fri, 8 Jun 2001 17:49:04 -0400
+	id <S264371AbRFHVty>; Fri, 8 Jun 2001 17:49:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264371AbRFHVsz>; Fri, 8 Jun 2001 17:48:55 -0400
-Received: from rumor.cps.intel.com ([192.102.198.242]:42997 "EHLO
-	rumor.cps.intel.com") by vger.kernel.org with ESMTP
-	id <S264364AbRFHVsr>; Fri, 8 Jun 2001 17:48:47 -0400
-Message-ID: <9319DDF797C4D211AC4700A0C96B7C9404AC2011@orsmsx42.jf.intel.com>
-From: "Raj, Ashok" <ashok.raj@intel.com>
-To: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: RE: mkinitrd errors...
-Date: Fri, 8 Jun 2001 14:48:27 -0700 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S264374AbRFHVtp>; Fri, 8 Jun 2001 17:49:45 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:1291 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S264371AbRFHVtg>; Fri, 8 Jun 2001 17:49:36 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: Linux kernel headers violate RFC2553
+Date: 8 Jun 2001 14:49:29 -0700
+Organization: A poorly-installed InterNetNews site
+Message-ID: <9frh99$7bi$1@penguin.transmeta.com>
+In-Reply-To: <20010608195719.A4862@fefe.de> <15137.8668.590390.10485@pizda.ninka.net> <20010608211247.A12925@codeblau.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Missed the command line in earlier mail....
+In article <20010608211247.A12925@codeblau.de>,
+Felix von Leitner  <leitner@fefe.de> wrote:
+>Thus spake David S. Miller (davem@redhat.com):
+>>  > glibc works around this, but the diet libc uses the kernel headers and
+>>  > thus exports the wrong API to user land.
+>> Don't user kernel headers for userspace.
+>
+>What choice do I have?
+>Duplicate everything and then be out of sync when the specs change?
 
+Yes.
 
-ashokr
+Even more preferably - write user-space headers that have _only_ the
+minimum amount of code in them. The kernel headers have a lot of cruft
+that is kernel-only, and that means that if you compile user space using
+them, your compiles will be slower than they should be.
 
------Original Message-----
-From: Raj, Ashok [mailto:ashok.raj@intel.com]
-Sent: Friday, June 08, 2001 1:08 PM
-To: Linux-Kernel (E-mail)
-Subject: mkinitrd errors...
+The basic issue is that the kernel will _refuse_ to follow the
+"namespace of the day" rules of C89, C99, POSIX, BSD, SuS, GNU .. the
+list goes on. The kernel headers are not meant to be used in user space,
+and will not have the strict namespace rules that a lot of standards
+spend so much time playing with.
 
+There aren't that many things that are actually useful in the kernel
+headers anyway.  Most of them (like the IPv6 stuff) are really specified
+in other places in the first place. 
 
-Hello.
-
-I have a need to have some drivers pre-loaded before the scsi adapter driver
-is loaded.
-
-I followed the usage and i got some errors which iam attaching below in this
-mail.
-
-If someone can give me a way to get this to work that would be awesome!!!
-
-please reply back to me..
-
-1. Is the size of the ramdisk limited? if so to what, and how can we
-increase the size of the ramdisk created?
-
-# mkinitrd --preload 82808XA xx.img 2.4.2-2
-tar: ./lib/82808XA.o: Wrote only 3584 of 10240 bytes
-tar: Skipping to next header
-tar: ./lib/sd_mod.o: Wrote only 0 of 10240 bytes
-tar: Skipping to next header
-tar: ./bin/nash: Wrote only 0 of 10240 bytes
-tar: Skipping to next header
-tar: ./sbin/: Cannot mkdir: No space left on device
-tar: ./sbin/bin: Cannot open: No such file or directory
-tar: ./sbin/modprobe: Cannot create symlink to `/bin/nash': No such file or
-dire
-ctory
-tar: ./etc/: Cannot mkdir: No space left on device
-tar: ./dev/: Cannot mkdir: No space left on device
-tar: ./dev/console: Cannot mknod: No such file or directory
-tar: ./dev/null: Cannot mknod: No such file or directory
-tar: ./dev/ram: Cannot mknod: No such file or directory
-tar: ./dev/systty: Cannot mknod: No such file or directory
-tar: ./dev/tty1: Cannot mknod: No such file or directory
-tar: ./dev/tty2: Cannot mknod: No such file or directory
-tar: ./dev/tty3: Cannot mknod: No such file or directory
-tar: ./dev/tty4: Cannot mknod: No such file or directory
-tar: ./loopfs/: Cannot mkdir: No space left on device
-tar: ./linuxrc: Wrote only 0 of 10240 bytes
-tar: Error exit delayed from previous errors
-
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
+		Linus

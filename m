@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130983AbRABRt6>; Tue, 2 Jan 2001 12:49:58 -0500
+	id <S130349AbRABRzS>; Tue, 2 Jan 2001 12:55:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131134AbRABRts>; Tue, 2 Jan 2001 12:49:48 -0500
-Received: from p3E9EEB2B.dip.t-dialin.net ([62.158.235.43]:49539 "EHLO
-	gate2.private.net") by vger.kernel.org with ESMTP
-	id <S131018AbRABRti>; Tue, 2 Jan 2001 12:49:38 -0500
-Message-Id: <200101021719.f02HJVn02506@gate2.private.net>
-From: "Otto Meier" <gf435@gmx.net>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Date: Tue, 02 Jan 2001 18:19:41 +0100
-Reply-To: "otto meier" <gf435@gmx.net>
-X-Mailer: PMMail 2000 Professional (2.10.2010) For Windows 98 (4.10.2222)
+	id <S131134AbRABRzJ>; Tue, 2 Jan 2001 12:55:09 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:63506 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130349AbRABRyy>; Tue, 2 Jan 2001 12:54:54 -0500
+Subject: Re: Compile errors: RCPCI, LANE, and others
+To: daniel@kabuki.eyep.net (Daniel Stone)
+Date: Tue, 2 Jan 2001 17:25:11 +0000 (GMT)
+Cc: elmer@ylenurme.ee (Elmer Joandi), linux-kernel@vger.kernel.org
+In-Reply-To: <20010102142920Z131090-439+7909@vger.kernel.org> from "Daniel Stone" at Jan 03, 2001 01:02:21 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Subject: kernel freeze on 2.4.0.prerelease (smp,raid5)
+Message-Id: <E14DVBT-0002YO-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On all kernels newer than 2.4.0t13p3 I have the following problem.
+> > md5sum: WARNING: 11 of 12 computed checksums did NOT match
+> This indicates a corrupted download.
 
-shorly after boot (some seconds) the system freeze. I can only swith consoles
-but i am not able to login. Over the net I get onyl responses to
-pings nothing else.
+Nope the MD5 sums are for certified versions of the isdn drivers. They should
+not match
 
-Up to kernel 2.4.0.t13p3 everythings works fine.
+> > objcopy: Warning: Output file cannot represent architecture UNKNOWN!
+> um. this is completely rooted. what compiler are you using, what
+> distribution? (hint: if it's redhat 7, don't bother).
 
-Sorry for this simple description, but I am not able to get more clear infos.
-No oops, nothing in the logs after reboot with 240t13p3.
+Bzzt, wrong. Red Hat 7 compiles the 2.4 tree beautifully with gcc 2.96 as well.
+Please grow up.
 
-Perhaps someone has an idea where to dig?
+> > i2o_block.c:595: warning: #warning "RACE"
+> this is most likely a bad thing, yes.
 
-ps: Here is my short system description:
-
-Dual Celeron (SMP)
-Raid5 (3 drives actuall 2 drives degra. mode)
-
-
-
-
-
-
+Yeah its to remind me to fix a small race
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

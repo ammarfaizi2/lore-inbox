@@ -1,72 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262462AbVAEPMn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262460AbVAEPNP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262462AbVAEPMn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 10:12:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262469AbVAEPLo
+	id S262460AbVAEPNP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 10:13:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262464AbVAEPMw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 10:11:44 -0500
-Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:55759 "EHLO
-	delft.aura.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id S262462AbVAEPJc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 10:09:32 -0500
-Date: Wed, 5 Jan 2005 10:09:30 -0500
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Bryan Fulton <bryan@coverity.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [Coverity] Untrusted user data in kernel
-Message-ID: <20050105150930.GK28521@delft.aura.cs.cmu.edu>
-Mail-Followup-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-	Bryan Fulton <bryan@coverity.com>, linux-kernel@vger.kernel.org,
-	Andrew Morton <akpm@osdl.org>
-References: <1103247211.3071.74.camel@localhost.localdomain> <20050105120423.GA13662@logos.cnet>
+	Wed, 5 Jan 2005 10:12:52 -0500
+Received: from [213.146.154.40] ([213.146.154.40]:60052 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262465AbVAEPLm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 10:11:42 -0500
+Date: Wed, 5 Jan 2005 15:11:33 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, mingo@elte.hu, rlrevell@joe-job.com,
+       tiwai@suse.de, linux-kernel@vger.kernel.org, pavel@suse.cz,
+       discuss@x86-64.org, gordon.jin@intel.com,
+       alsa-devel@lists.sourceforge.net, greg@kroah.com
+Subject: Re: [PATCH] deprecate (un)register_ioctl32_conversion
+Message-ID: <20050105151133.GA2021@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"Michael S. Tsirkin" <mst@mellanox.co.il>,
+	Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+	mingo@elte.hu, rlrevell@joe-job.com, tiwai@suse.de,
+	linux-kernel@vger.kernel.org, pavel@suse.cz, discuss@x86-64.org,
+	gordon.jin@intel.com, alsa-devel@lists.sourceforge.net,
+	greg@kroah.com
+References: <20041215065650.GM27225@wotan.suse.de> <20041217014345.GA11926@mellanox.co.il> <20050105144043.GB19434@mellanox.co.il> <20050105144603.GA1419@infradead.org> <20050105150310.GA19758@mellanox.co.il>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050105120423.GA13662@logos.cnet>
-User-Agent: Mutt/1.5.6+20040907i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+In-Reply-To: <20050105150310.GA19758@mellanox.co.il>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 05, 2005 at 10:04:23AM -0200, Marcelo Tosatti wrote:
-> On Thu, Dec 16, 2004 at 05:33:32PM -0800, Bryan Fulton wrote:
-> Correct, fix for both v2.4 and v2.6 attached. Adds bound checking:
-> 
-> Jan Harkes, please check correctness so we can apply it.
+On Wed, Jan 05, 2005 at 05:03:10PM +0200, Michael S. Tsirkin wrote:
+> I dont know. So how will people know they are supposed to convert then?
 
-I was looking at this and actually think that both in_size and out_size
-should just be changed to unsigned short instead of signed short (the
-values should never be negative, period).
-
-That fixes the bounds checking on the in_size, but the out_size one is
-still questionable. I'm not even sure the code is actually testing the
-right thing there.
-
-> --- linux-2.6.10-rc3/fs/coda/upcall.c.orig	2005-01-05 10:30:24.575445152 -0200
-> +++ linux-2.6.10-rc3/fs/coda/upcall.c	2005-01-05 10:30:26.623133856 -0200
-> @@ -550,10 +550,15 @@
->  	UPARG(CODA_IOCTL);
->  
->          /* build packet for Venus */
-> -        if (data->vi.in_size > VC_MAXDATASIZE) {
-> +        if (data->vi.in_size > VC_MAXDATASIZE || data->vi.in_size < 0) {
->  		error = -EINVAL;
->  		goto exit;
-> -        }
-> +        } 
-
-This part would work, but changing to the variable to unsigned short
-in include/linux/coda.h works just as well.
-
-> +	if (data->vi.out_size > VC_MAXDATASIZE || data->vi.out_size < 0) {
-> +		error = -EINVAL;
-> +		goto exit;
-> +	}
-
-We might be overwriting out_size when making the upcall to venus, so
-checking out_size here probably doesn't help all that much. I'm still
-looking at what exactly is going on with that. I should have a patch by
-the end of the week.
-
-Jan
+Tell the janitors about it - or do it yourself.  Except for taking care
+of the BKL going away it's a trivial conversion.
 

@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135239AbREFIoL>; Sun, 6 May 2001 04:44:11 -0400
+	id <S135263AbREFJCI>; Sun, 6 May 2001 05:02:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135240AbREFIn5>; Sun, 6 May 2001 04:43:57 -0400
-Received: from ns.suse.de ([213.95.15.193]:36113 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S135239AbREFInF>;
-	Sun, 6 May 2001 04:43:05 -0400
-Date: Sun, 6 May 2001 10:40:37 +0200
-From: Andi Kleen <ak@suse.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Ben Greear <greearb@candelatech.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@muc.de>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] arp_filter patch for 2.4.4 kernel.
-Message-ID: <20010506104037.C29403@gruyere.muc.suse.de>
-In-Reply-To: <3AF4720F.35574FDD@candelatech.com> <15092.32371.139915.110859@pizda.ninka.net> <3AF49617.1B3C48AF@candelatech.com> <15092.37426.648280.631914@pizda.ninka.net>
+	id <S135266AbREFJB6>; Sun, 6 May 2001 05:01:58 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:30217 "HELO mx.in-addr.de")
+	by vger.kernel.org with SMTP id <S135263AbREFJBl>;
+	Sun, 6 May 2001 05:01:41 -0400
+Date: Sun, 6 May 2001 11:01:33 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re:  [patch] 2.4 add suffix for uname -r
+Message-ID: <20010506110133.K3988@marowsky-bree.de>
+In-Reply-To: <Pine.LNX.4.33.0105060334390.1549-100000@asdf.capslock.lan> <3437.989135106@ocs3.ocs-net> <20010506101217.H3988@marowsky-bree.de> <20010506013605.C31385@thune.mrc-home.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <15092.37426.648280.631914@pizda.ninka.net>; from davem@redhat.com on Sat, May 05, 2001 at 04:52:18PM -0700
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.3i
+In-Reply-To: <20010506013605.C31385@thune.mrc-home.com>; from "Mike Castle" on 2001-05-06T01:36:05
+X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 05, 2001 at 04:52:18PM -0700, David S. Miller wrote:
->  > I have a setup that should be able to test some netfilter rules
->  > if have some you want me to try....
+On 2001-05-06T01:36:05,
+   Mike Castle <dalgoda@ix.netcom.com> said:
+
+> On Sun, May 06, 2001 at 10:12:17AM +0200, Lars Marowsky-Bree wrote:
+> > You assign a new EXTRAVERSION to the new kernel you are building, and keep the
+> > old kernel at the old name.
 > 
-> I'd be interested in seeing netfilter rules or a new netfilter
-> kernel module which would do arpfilter as well.
+> Except that some patches (ie, RAID, -ac) use EXTRAVERSION. 
 
-I don't think it's a good idea. You either need a lot of hooks in the
-arp input path for all the different cases or you would need to replicate
-a lot of the arp.c logic into that netfilter module. Both not good.
-IMHO it's better to just control replies via the routing table,
-which already has all kinds of fancy mechanisms for it. In addition I haven't
-seen a setup yet that couldn't be handled by arpfilter and the routing
-table, it seems to be flexible enough for all practical purposes.
+So? You can still set EXTRAVERSION to anything you like. It is just an
+identifier for the admin, and not used for anything inside the kernel.
 
--Andi
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
+
+-- 
+Perfection is our goal, excellence will be tolerated. -- J. Yahl
 

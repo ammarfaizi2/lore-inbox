@@ -1,94 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264786AbSLBETm>; Sun, 1 Dec 2002 23:19:42 -0500
+	id <S264788AbSLBEfl>; Sun, 1 Dec 2002 23:35:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264788AbSLBETm>; Sun, 1 Dec 2002 23:19:42 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:39530 "EHLO
+	id <S264790AbSLBEfl>; Sun, 1 Dec 2002 23:35:41 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:44138 "EHLO
 	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S264786AbSLBETk>; Sun, 1 Dec 2002 23:19:40 -0500
-To: Matt Porter <porter@cox.net>
-Cc: Dave Hansen <haveblue@us.ibm.com>, Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 64-bit struct resource fields
-References: <3DE2AE04.5030209@us.ibm.com> <20021126094908.A23772@home.com>
+	id <S264788AbSLBEfk>; Sun, 1 Dec 2002 23:35:40 -0500
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andy Pfiffer <andyp@osdl.org>, Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Werner Almesberger <wa@almesberger.net>,
+       Suparna Bhattacharya <suparna@in.ibm.com>,
+       "Matt D. Robinson" <yakker@aparity.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, Mike Galbraith <efault@gmx.de>,
+       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+       Dave Hansen <haveblue@us.ibm.com>,
+       "Klingaman, Aaron L" <aaron.l.klingaman@intel.com>
+Subject: [ANNOUNCE] kexec-tools-1.8
+References: <Pine.LNX.4.44.0211091901240.2336-100000@home.transmeta.com>
+	<m1vg349dn5.fsf@frodo.biederman.org> <1037055149.13304.47.camel@andyp>
+	<m1isz39rrw.fsf@frodo.biederman.org> <1037148514.13280.97.camel@andyp>
+	<m1k7jb3flo.fsf_-_@frodo.biederman.org>
+	<m1el9j2zwb.fsf@frodo.biederman.org>
+	<m11y5j2r9t.fsf_-_@frodo.biederman.org>
 From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 01 Dec 2002 21:26:03 -0700
-In-Reply-To: <20021126094908.A23772@home.com>
-Message-ID: <m1vg2dxd0k.fsf@frodo.biederman.org>
+Date: 01 Dec 2002 21:41:34 -0700
+In-Reply-To: <m11y5j2r9t.fsf_-_@frodo.biederman.org>
+Message-ID: <m1r8d1xcap.fsf_-_@frodo.biederman.org>
 User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Porter <porter@cox.net> writes:
 
-> On Mon, Nov 25, 2002 at 03:11:00PM -0800, Dave Hansen wrote:
-> > We need some way to replicate the e820 tables for kexec.  This 
-> > modifies struct resource to use u64's for its start and end fields. 
-> > This way we can export the whole e820 table on PAE machines.
-> > 
-> > resource->flags seems to be used often to mask out things in 
-> > resource->start/end, so I think it needs to be u64 too.  But, Is it 
-> > all right to let things like pcibios_update_resource() truncate the 
-> > resource addresses like they do?
-> > 
-> > With my config, it has no more warnings than it did before.
-> 
-> I could make use of this on my PPC440 systems which have all I/O
-> (onboard and PCIX host bridge) above 4GB.  However, the patch
-> I have been playing with typedefs a phys_addr_t so that only
-> systems which are 32-bit/36-bit+ split like PAE ia32, AUxxxx (MIPS),
-> and PPC440 have to do long long manipulation.  If you explicitly
-> use u64 everywhere it forces all native 32-bit/32-bit systems to
-> do unnecessary long long manipulation.
+kexec-tools-1.8 is now available at:
+http://www.xmission.com/~ebiederm/files/kexec/kexec-tools-1.8.tar.gz
 
-Except for the fact that if you have a 32bit pci bus, you can
-plug in cards with 64bit bars.  And they can still legitimately do
-64bit DAC to other pci cards.  It is a silly configuration, but
-possible.
- 
-> In the past there has been quite a bit of resistance to even
-> introducing a physical address typedef due to some claims of
-> gcc not handling long longs very well [1].  I don't see how
-> having _everybody_ that is 32-bit native handle long longs is
-> going to be more acceptable but I could be surprised.
+Dave Hansen has a patch that allows /proc/iomem to export resources
+above 4GB which is needed on machines on with > 4GB of RAM.
 
-The primary concern has been efficiency and I do believe there is
-anywhere the pci resource allocator is on the fast path, so that
-should not be a problem.
+Changes:
+- /proc/iomem is now parsed so the new kernels memory map should be correct.
+- initrds are now actually read into memory so they should work, as well.
 
-There are some rare bugs with 2.95.2 and kin with handling long longs
-but all it has been possible to reformulate the C code so it works
-in all cases where the bugs have been observed.
+That should make kexec quite useable.
 
-And beyond that it was Linus idea to bring the resource allocator to
-64bits which tends to help.
+The syscall:
+http://www.xmission.com/~ebiederm/files/kexec/linux-2.5.48.x86kexec.diff
+and the fixes
+http://www.xmission.com/~ebiederm/files/kexec/linux-2.5.48.x86kexec-hwfixes.diff
+continue to apply to 2.5.50 so I have not updated them.  
 
-> That said, I think when we have existence of systems that require
-> long long types and gcc is "buggy" in this respect, then using
-> a phys_addr_t is the lesser of two evils (even though everybody hates
-> typedefs).  We already have this type defined local to PPC because
-> it is necessary to cleanly handle ioremap and local page mapping
-> functionality.  going to u64 or phys_addr_t resources would be a
-> huge improvement on a horribly kludgy hack we use to crate the
-> most significant 32-bits for our 64-bit ioremaps.
+The archive is at:
+http://www.xmission.com/~ebiederm/files/kexec/
 
-A phys_addr_t may be a sane idea, or in this case it would need to be
-a res_addr_t.
- 
-> BTW, since u64 is long long on 32-bit platforms and long on 64-bit
-> platforms, you will get warnings from every printk that dumps
-> resource infos.  My thought is to provide some macros to massage
-> resource values to strings for display.
-> 
-
-> [1] I get feedback from many people using the PPC440 port and have 
->     yet to find any instances of gcc mishandling long longs. (though
->     this is just anecdotal evidence).
-
-I have written code that trips it up, but I believe the bugs have been
-fixed in recent compilers, and the bugs (not the inefficiencies) may
-be specific to a specific port.
+My apologies for not getting this sooner.  Along with the holidays I have been
+battling a cold...
 
 Eric

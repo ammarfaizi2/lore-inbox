@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263609AbTDGTSj (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 15:18:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263610AbTDGTSi (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 15:18:38 -0400
-Received: from remt28.cluster1.charter.net ([209.225.8.38]:43398 "EHLO
-	remt28.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S263609AbTDGTSh (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 15:18:37 -0400
-Date: Mon, 7 Apr 2003 15:30:07 -0400
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Interactivity backport to 2.4.20-ck*
-Message-ID: <20030407193007.GA23077@cy599856-a>
-Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <200304072353.47664.kernel@kolivas.org> <200304071617.56106.m.c.p@wolk-project.de> <200304080015.11111.kernel@kolivas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200304080015.11111.kernel@kolivas.org>
-X-Editor: GNU Emacs 21.1
-X-Operating-System: Debian GNU/Linux 2.5.66-mm3 i686
-X-Processor: Athlon XP 2000+
-X-Uptime: 15:07:51 up 23:31,  3 users,  load average: 0.00, 0.00, 0.00
-User-Agent: Mutt/1.5.4i
-From: Josh McKinney <forming@charter.net>
+	id S263600AbTDGTY7 (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 15:24:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263601AbTDGTY6 (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 15:24:58 -0400
+Received: from smtp2.clear.net.nz ([203.97.37.27]:1458 "EHLO
+	smtp2.clear.net.nz") by vger.kernel.org with ESMTP id S263600AbTDGTY6 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Apr 2003 15:24:58 -0400
+Date: Tue, 08 Apr 2003 07:33:26 +1200
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Re: PATCH: 2.5.66 incremental (#4: Discontiguous patches & Dynamic
+	PageFlag Bitmap)
+In-reply-to: <20030407130904.GB16919@atrey.karlin.mff.cuni.cz>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <1049744005.19751.6.camel@laptop-linux.cunninghams>
+Organization: 
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.2
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <1049685473.13733.4.camel@laptop-linux.cunninghams>
+ <20030407130904.GB16919@atrey.karlin.mff.cuni.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On approximately Tue, Apr 08, 2003 at 12:15:11AM +1000, Con Kolivas wrote:
->
-> > Why isn't this patch completely backed out from the main O(1) so we can see
-> > what is new?
-> 
-> Yeah sure here:
-> 
-> http://kernel.kolivas.org/scheda3_ck4
-> 
+On Tue, 2003-04-08 at 01:09, Pavel Machek wrote:
+> Drivers should never ever need to set themselves nosave....
 
-Is this patch supposed to be against ck3?
+Okay then. I'll make NoSave use the same scheme. I was mostly wondering
+about shared memory video cards, but in that case it mostly just seems
+to be a waste of time saving the pages - it doesn't cause problems.
 
-Josh
+> It contains the same double pointers and the same
+> hard-limit-on-#pages-to-be-saved.
+
+Sorry. I forgot about addressing that issue. I'll give one of your
+suggestions a go when I find the time.
+
+Regards,
+
+Nigel
+-- 
+Nigel Cunningham
+495 St Georges Road South, Hastings 4201, New Zealand
+
+Be diligent to present yourself approved to God as a workman who does
+not need to be ashamed, handling accurately the word of truth.
+	-- 2 Timothy 2:14, NASB.
+

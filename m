@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288966AbSAFPIR>; Sun, 6 Jan 2002 10:08:17 -0500
+	id <S288970AbSAFP0h>; Sun, 6 Jan 2002 10:26:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288968AbSAFPIH>; Sun, 6 Jan 2002 10:08:07 -0500
-Received: from dorf.wh.uni-dortmund.de ([129.217.255.136]:56849 "HELO
-	mail.dorf.wh.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S288966AbSAFPHy>; Sun, 6 Jan 2002 10:07:54 -0500
-Date: Sun, 6 Jan 2002 16:07:51 +0100
-From: Patrick Mau <mau@oscar.prima.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] compile fix for matrox fb 2.5.2-9
-Message-ID: <20020106150751.GA23321@oscar.dorf.de>
-Reply-To: Patrick Mau <mau@oscar.prima.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
+	id <S288971AbSAFP02>; Sun, 6 Jan 2002 10:26:28 -0500
+Received: from ns1.system-techniques.com ([199.33.245.254]:55720 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id <S288970AbSAFP0R>; Sun, 6 Jan 2002 10:26:17 -0500
+Date: Sun, 6 Jan 2002 10:26:11 -0500 (EST)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: Dave Jones <davej@suse.de>
+cc: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
+Subject: Re: ISA slot detection on PCI systems?
+In-Reply-To: <Pine.LNX.4.33.0201061411150.3859-100000@Appserv.suse.de>
+Message-ID: <Pine.LNX.4.43.0201061022420.21126-100000@filesrv1.baby-dragons.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
 
-attached is a small compile fix for matroxfb.
-I'm still unable to link it because of the binutils issues.
+	Hello Dave , All,
 
-I lost the perl script, maybe someone allready has a fix ?
+On Sun, 6 Jan 2002, Dave Jones wrote:
+> On Sun, 6 Jan 2002, Mr. James W. Laferriere wrote:
+> > > AFAIAC, the /proc/ide/ stuff should never have happened.
+> > > It's proven that every bit of it can be done in userspace.
+> > 	Then lets get rid of /proc/scsi , How about /proc/sys ...
+> > 	What is the differance here ?  Maybe I am missing something ?
+> And what would you replace /proc/scsi/ with ?
+	And what is there to replace /proc/ide ?  I see no other facility
+	in /proc to do the job .  Again am I missing something here ?
 
-drivers/char/char.o(.data+0x46b4): undefined reference to `local symbols in discarded section .text.exit'
-drivers/net/net.o(.data+0xd4): undefined reference to `local symbols in discarded section .text.exit'
-make: *** [vmlinux] Error 1
+> Neither of the two you mention have viable alternatives. (yet)
+	Then I submit that neither does ide .  I see nothing in your
+	reply that shows me a differance between ide & scsi in /proc .
 
-cheers,
-Patrick
+> The only time I'd consider sysctl(2) over poking /proc/sys entries
+> would possibly be on an embedded system with no /proc/sys. And even then,
+> I'd rather try and justify having /proc. ISTR viro proposing to split
+> proc/sys out to sysctlfs at some point, which would solve this dilemma
+> nicely.
+	Now tho I have to agree with you here .  Tia ,  JimL
 
---- linux-2.5.2-9/drivers/video/matrox/matroxfb_base.c	Fri Nov 23 21:05:59 2001
-+++ work-2.5.2-9/drivers/video/matrox/matroxfb_base.c	Sun Jan  6 15:57:18 2002
-@@ -1789,7 +1789,7 @@
- 
- 	strcpy(ACCESS_FBINFO(fbcon.modename), "MATROX VGA");
- 	ACCESS_FBINFO(fbcon.changevar) = NULL;
--	ACCESS_FBINFO(fbcon.node) = -1;
-+	ACCESS_FBINFO(fbcon.node) = to_kdev_t(-1);
- 	ACCESS_FBINFO(fbcon.fbops) = &matroxfb_ops;
- 	ACCESS_FBINFO(fbcon.disp) = d;
- 	ACCESS_FBINFO(fbcon.switch_con) = &matroxfb_switch;
+       +------------------------------------------------------------------+
+       | James   W.   Laferriere | System    Techniques | Give me VMS     |
+       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
+       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
+       +------------------------------------------------------------------+
 

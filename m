@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267939AbUJGTvE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268013AbUJGTvD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267939AbUJGTvE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 15:51:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267869AbUJGTr4
+	id S268013AbUJGTvD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 15:51:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267876AbUJGTru
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 15:47:56 -0400
-Received: from vanessarodrigues.com ([192.139.46.150]:37273 "EHLO
-	jaguar.mkp.net") by vger.kernel.org with ESMTP id S267866AbUJGS76
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 14:59:58 -0400
-To: "Luck, Tony" <tony.luck@intel.com>
-Cc: "Jesse Barnes" <jbarnes@engr.sgi.com>, "Patrick Gefre" <pfg@sgi.com>,
-       "Grant Grundler" <iod00d@hp.com>, "Colin Ngam" <cngam@sgi.com>,
-       "Matthew Wilcox" <matthew@wil.cx>, <linux-kernel@vger.kernel.org>,
-       <linux-ia64@vger.kernel.org>
-Subject: Re: [PATCH] 2.6 SGI Altix I/O code reorganization
-References: <B8E391BBE9FE384DAA4C5C003888BE6F022669A9@scsmsx401.amr.corp.intel.com>
-From: Jes Sorensen <jes@wildopensource.com>
-Date: 07 Oct 2004 14:59:57 -0400
-In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F022669A9@scsmsx401.amr.corp.intel.com>
-Message-ID: <yq04ql6tkuq.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Thu, 7 Oct 2004 15:47:50 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:6791 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267869AbUJGTAH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 15:00:07 -0400
+Date: Thu, 7 Oct 2004 14:59:45 -0400 (EDT)
+From: Ingo Molnar <mingo@redhat.com>
+X-X-Sender: mingo@devserv.devel.redhat.com
+To: Valdis.Kletnieks@vt.edu
+cc: linux-kernel@vger.kernel.org, SELinux@tycho.nsa.gov, netdev@oss.sgi.com,
+       linux-net@vger.kernel.org
+Subject: Re: 2.6.9-rc2-mm4-VP-S7 - ksoftirq and selinux oddity
+In-Reply-To: <200410070542.i975gkHV031259@turing-police.cc.vt.edu>
+Message-ID: <Pine.LNX.4.58.0410071459030.25178@devserv.devel.redhat.com>
+References: <200410070542.i975gkHV031259@turing-police.cc.vt.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Luck," == Luck, Tony <tony.luck@intel.com> writes:
 
->> Yeah, sorry, I shouldn't have said cleanup, fixup is better.
->> Anyway, they need to be separate since they'll be going into the
->> tree via Andrew not Tony.
+On Thu, 7 Oct 2004 Valdis.Kletnieks@vt.edu wrote:
 
-Luck,> A couple of days back I said that I'm ok pushing these drivers.
-Luck,> Although they don't have "arch/ia64" or "include/asm-ia64"
-Luck,> prefixes, they are only used by ia64.  I'm even ok with the
-Luck,> qla1280.c change as the final version is only touching code
-Luck,> inside #ifdef CONFIG_IA64_{GENERIC|SN2) ... but I would like to
-Luck,> see a sign-off from the de-facto maintainer Christoph for this
-Luck,> file.
+> audit(1097111349.782:0): avc:  denied  { recv_msg } for  pid=2 comm=ksoftirqd/0 saddr=127.0.0.1 src=25 daddr=127.0.0.1 dest=59639 netif=lo scontext=system_u:system_r:fsdaemon_t tcontext=system_u:object_r:smtp_port_t tclass=tcp_socket
+> 
+> At least for the recv_msg error, I *think* the message is generated
+> because when we get into net/socket.c, we call security_socket_recvmsg()
+> in __recv_msg() - and (possibly only when we have the VP patch applied?)
+> at that point we're in a softirqd context rather than the context of the
+> process that will finally receive the packet, so the SELinux code ends
+> up checking the wrong credentials.  I've not waded through the code
+> enough to figure out exactly where the two tcp_recv messages are
+> generated, but I suspect the root cause is the same for all three
+> messages.
 
-Tony,
+that would be a problem in the upstream kernel too - softirq load can
+execute in any process context (and in ksoftirqd too).
 
-As the maintainer for qla1280, I'll be happy sign off on the SN2
-related changes. In fact it's a cleanup compared to the older hack I
-implemented.
-
-Cheers,
-Jes
+	Ingo

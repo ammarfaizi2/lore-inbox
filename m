@@ -1,32 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280991AbRKOVwT>; Thu, 15 Nov 2001 16:52:19 -0500
+	id <S281103AbRKOVzt>; Thu, 15 Nov 2001 16:55:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281094AbRKOVwK>; Thu, 15 Nov 2001 16:52:10 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:50960 "EHLO
+	id <S281096AbRKOVzk>; Thu, 15 Nov 2001 16:55:40 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:55824 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S280991AbRKOVwH>; Thu, 15 Nov 2001 16:52:07 -0500
-Subject: Re: Problem with 2.4.14 mounting i2o device as root device Adaptec 3200
-To: michael@wizard.ca (Michael Peddemors)
-Date: Thu, 15 Nov 2001 21:58:55 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1005861234.9918.806.camel@mistress> from "Michael Peddemors" at Nov 15, 2001 01:53:54 PM
+	id <S281091AbRKOVzf>; Thu, 15 Nov 2001 16:55:35 -0500
+Subject: Re: generic_file_llseek() broken?
+To: adilger@turbolabs.com (Andreas Dilger)
+Date: Thu, 15 Nov 2001 22:02:45 +0000 (GMT)
+Cc: helgehaf@idb.hist.no (Helge Hafting), linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, viro@math.psu.edu
+In-Reply-To: <20011115140917.Q5739@lynx.no> from "Andreas Dilger" at Nov 15, 2001 02:09:17 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E164UX9-0001mn-00@the-village.bc.nu>
+Message-Id: <E164Uas-0001pl-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is anyone successfully using 2.4.14 on an Adaptec 3200s controller?
-> This could be a PCI issue, because just we see a lot of interrrupt
-> activity on the card just before it dies..
+> Maybe also sys_truncate should disallow truncating to a size larger
+> than s_maxbytes.  Al? For now, returning EOVERFLOW from do_truncate()
+> when (length > inode->i_sb->s_maxbytes) should be OK.
 
-The adaptec i2o has a strange dialect to say the least.
-
-> Am not using modules, compiled the i20 support directly into 2.4.14
-
-Build the dpt_i2o scsi driver and use that, thats from Adaptec themselves
-and speaks their i2o dialect
+It should do in the last patches I sent Linus.

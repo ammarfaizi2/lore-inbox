@@ -1,81 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284929AbRLFB55>; Wed, 5 Dec 2001 20:57:57 -0500
+	id <S284931AbRLFCP7>; Wed, 5 Dec 2001 21:15:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284930AbRLFB5q>; Wed, 5 Dec 2001 20:57:46 -0500
-Received: from mail.xmailserver.org ([208.129.208.52]:35855 "EHLO
-	mail.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S284929AbRLFB5d>; Wed, 5 Dec 2001 20:57:33 -0500
-Date: Wed, 5 Dec 2001 18:08:33 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Matthew Dobson <colpatch@us.ibm.com>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] cpus_allowed/launch_policy patch, 2.4.16
-In-Reply-To: <3C0ECBE0.F21464FA@us.ibm.com>
-Message-ID: <Pine.LNX.4.40.0112051800400.1644-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S284934AbRLFCPt>; Wed, 5 Dec 2001 21:15:49 -0500
+Received: from [202.135.142.195] ([202.135.142.195]:49924 "EHLO wagner")
+	by vger.kernel.org with ESMTP id <S284931AbRLFCPf>;
+	Wed, 5 Dec 2001 21:15:35 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: [patch] scalable timers implementation, 2.4.16, 2.5.0 
+In-Reply-To: Your message of "Wed, 05 Dec 2001 14:13:17 -0800."
+             <3C0E9BFD.BC189E17@zip.com.au> 
+Date: Thu, 06 Dec 2001 13:15:42 +1100
+Message-Id: <E16Bo4c-00031f-00@wagner>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Dec 2001, Matthew Dobson wrote:
+In message <3C0E9BFD.BC189E17@zip.com.au> you write:
+> Rusty Russell wrote:
+> > 
+> > PS.  Also would be nice to #define del_timer del_timer_sync, and have a
+> >      del_timer_async for those (very few) cases who really want this.
+> 
+> That could cause very subtle deadlocks.   I'd prefer to do:
+> 
+> #define del_timer_async	del_timer
 
-> In response (albeit a week plus late) to the recent hubbub about the cpu
-> affinity patches,
-> I'd like to throw a third contender in the ring.
->
-> Attatched is a patch (against 2.4.16) which implements a /proc and a prctl()
-> interface to
-> the cpus_allowed flag.  The truly exciting (at least for me) part of this patch
-> is the
-> launch_policy flag that it also introduces.  The launch_policy flag is used
-> similarly to
-> the cpus_allowed flag, but it controls the cpus_allowed flags of any subsequent
-> children
-> of the process, instead of the cpus_allowed of the process itself.  Via this
-> flag, there
-> are no worries about processes being able to fork children before a 'chaff' or
-> 'echo' or
-> anything else for that matter can be executed.  The child process is assigned
-> the desired
-> cpus_allowed at fork/exec time.  All this without having to bounce the current
-> process to
-> different cpus to (hopefully) acheive the same results.
->
-> The launch_policy flag can acually be quite powerful.  It allows for children
-> to be
-> instantiated on the correct cpu/node with a minimum of memory footprint on the
-> wrong
-> cpu/node.  This can be taken advantage of via the /proc interface (for smp/numa
-> unaware
-> programs) or through prctl() for more clueful programs.
+I'd prefer to audit them all, create a patch, and remove del_timer.
+Doing it slowly usually means things just get forgotten, then hacked
+around when it finally gets ripped out.
 
-What you probably want to do in real life is to move a process to a cpu
-and have all its child spawned on that cpu, that is the actual behavior.
-Can't You achieve the same by coding a :
+The deadlock you're referring to is, I assume, del_timer_sync() called
+inside the timer itself?  Can you think of any other dangerous cases?
 
-pid_t affine_fork(int cpumask) {
-	pid_t pp = fork();
-	if (pp == 0) {
-		set_affinity(getpid(), cpumask);
-		...
-	}
-	return pp;
-}
-
-in your application and having the default bahavior to propagate it to the
-following fork()s.
-
-
-> +int proc_pid_cpus_allowed_read(struct task_struct *task, char * buffer)
-       ^^^^^^^^^^^^^^^^^^^^^^^^^^
-You want Al Viro screaming, don't You ? :)
-
-
-
-
-- Davide
-
-
-
+Rusty.
+--
+  Anyone who quotes me is an idiot. -- Rusty Russell.

@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263569AbTIHU3g (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 16:29:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263593AbTIHU17
+	id S263554AbTIHUOU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 16:14:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263569AbTIHUOU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 16:27:59 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:61200 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S263588AbTIHU1q (ORCPT
+	Mon, 8 Sep 2003 16:14:20 -0400
+Received: from fw.osdl.org ([65.172.181.6]:34012 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263554AbTIHUOR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 16:27:46 -0400
-Date: Mon, 8 Sep 2003 22:27:42 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Andries Brouwer <aebr@win.tue.nl>, torvalds@osdl.org, willy@debian.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] use size_t for the broken ioctl numbers
-Message-ID: <20030908222742.A1085@pclin040.win.tue.nl>
-References: <20030908123846.GA15553@win.tue.nl> <Pine.LNX.4.44.0309080812200.11840-100000@home.osdl.org> <20030908204023.A1060@pclin040.win.tue.nl> <20030908122853.65bff9df.rddunlap@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030908122853.65bff9df.rddunlap@osdl.org>; from rddunlap@osdl.org on Mon, Sep 08, 2003 at 12:28:53PM -0700
+	Mon, 8 Sep 2003 16:14:17 -0400
+Date: Mon, 8 Sep 2003 13:11:31 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@localhost.localdomain>
+To: Mathieu LESNIAK <maverick@eskuel.net>
+cc: <linux-kernel@vger.kernel.org>, <pavel@ucw.cz>
+Subject: Re: Fs corruption with swsusp in test4-mm6 ?
+In-Reply-To: <3F5CE25A.4020003@eskuel.net>
+Message-ID: <Pine.LNX.4.33.0309081310040.972-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 08, 2003 at 12:28:53PM -0700, Randy.Dunlap wrote:
 
-> | [That reminds me - you announced sparse, a source checker.
-> | Is it available for non bk users? I haven't seen a URL.]
-> 
-> Dave Jones puts snapshots of it at
-> http://www.codemonkey.org.uk/projects/sparse/
+> I haven't tested previous -test4-mm patches before this one, so I 
+> couldn't tell you :(
+> In addition, as I said to Pavel in private mail, this laptop is not 
+> mine, and I won't be able to execute more tests on it.
 
-Got it. Thanks!
+Ah. I'm sorry to hear that. Thanks for testing anyway. 
+
+If someone has tested suspend-to-disk while using reiserfs, I would be 
+very interested to hear if they have or have not had success.. (For the 
+record, I use ext3 and have not seen any comparable problems).
+
+Thanks,
+
+
+	Pat
 

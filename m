@@ -1,89 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266839AbUJNSuS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267327AbUJNSzL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266839AbUJNSuS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 14:50:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264113AbUJNSsd
+	id S267327AbUJNSzL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 14:55:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267291AbUJNSwl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 14:48:33 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:42170 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S267251AbUJNSXR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 14:23:17 -0400
-Date: Thu, 14 Oct 2004 20:24:38 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Mark_H_Johnson@Raytheon.com
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, "K.R. Foley" <kr@cybsft.com>,
-       Daniel Walker <dwalker@mvista.com>, Bill Huey <bhuey@lnxw.com>,
-       Andrew Morton <akpm@osdl.org>, Adam Heath <doogie@debian.org>,
-       Lorenzo Allegrucci <l_allegrucci@yahoo.it>,
-       Dipankar Sarma <dipankar@in.ibm.com>
-Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U1
-Message-ID: <20041014182438.GA30078@elte.hu>
-References: <OF2289D554.769CEFC1-ON86256F2D.005DF70B-86256F2D.005DF791@raytheon.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OF2289D554.769CEFC1-ON86256F2D.005DF70B-86256F2D.005DF791@raytheon.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Thu, 14 Oct 2004 14:52:41 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:6272 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S267283AbUJNSbp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 14:31:45 -0400
+Date: Thu, 14 Oct 2004 14:30:08 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Dave Jones <davej@redhat.com>
+cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+       David Howells <dhowells@redhat.com>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       "Rusty Russell (IBM)" <rusty@au1.ibm.com>,
+       David Woodhouse <dwmw2@infradead.org>, Greg KH <greg@kroah.com>,
+       Arjan van de Ven <arjanv@redhat.com>, Joy Latten <latten@us.ibm.com>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Fw: signed kernel modules?
+In-Reply-To: <20041014182052.GA18321@redhat.com>
+Message-ID: <Pine.LNX.4.61.0410141422530.1765@chaos.analogic.com>
+References: <1097570159.5788.1089.camel@baythorne.infradead.org>
+ <27277.1097702318@redhat.com> <16349.1097752!349@redhat.com>
+ <17271.1097756056@redhat.com> <Pine.LNX.4.53.0410140824490.363@chaos.analogic.com>
+ <Pine.GSO.4.61.0410141617100.21062@waterleaf.sonytel.be>
+ <Pine.LNX.4.53.0410141022180.1018@chaos.analogic.com>
+ <Pine.LNX.4.53.0410141131190.7061@chaos.analogic.com> <20041014155030.GD26025@redhat.com>
+ <Pine.LNX.4.61.0410141352590.8479@chaos.analogic.com> <20041014182052.GA18321@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 14 Oct 2004, Dave Jones wrote:
 
-* Mark_H_Johnson@Raytheon.com <Mark_H_Johnson@Raytheon.com> wrote:
+> On Thu, Oct 14, 2004 at 01:57:50PM -0400, Richard B. Johnson wrote:
+> >
+> > Attached. This difference in size might make one think that
+> > there's more in the 2.6.8 basic compile, but most stuff is
+> > strings that say "BLAW is not set", which us longer than
+> > "BLAW=y" or "BLAW=m". In fact, about twice as long....
+>
+> A cursory examination show that the two aren't even remotely
+> similar in a lot of cases.  Take the misc filesystems section
+> for example.. (edited for brevity)
+>
+> 2.4
+> # Miscellaneous filesystems
+> #
+> # CONFIG_ADFS_FS is not set
+> # CONFIG_AFFS_FS is not set
+> # CONFIG_HFS_FS is not set
+> # CONFIG_HFSPLUS_FS is not set
+> # CONFIG_BEFS_FS is not set
+> # CONFIG_BFS_FS is not set
+> CONFIG_EFS_FS=m
+> CONFIG_HPFS_FS=m
+> CONFIG_SYSV_FS=m
+> CONFIG_UFS_FS=m
+>
+> 2.6
+>
+> # Miscellaneous filesystems
+> #
+> CONFIG_AFFS_FS=m
+> CONFIG_HFS_FS=m
+> CONFIG_HFSPLUS_FS=m
+> CONFIG_BEFS_FS=m
+> CONFIG_BFS_FS=m
+> CONFIG_EFS_FS=m
+> CONFIG_JFFS2_FS=m
+> CONFIG_JFFS2_FS_NAND=y
+> CONFIG_JFFS2_ZLIB=y
+> CONFIG_JFFS2_RTIME=y
+> CONFIG_CRAMFS=m
+> CONFIG_VXFS_FS=m
+> CONFIG_QNX4FS_FS=m
+> CONFIG_SYSV_FS=m
+> CONFIG_UFS_FS=m
+>
+> And you wonder why 2.6 is taking longer ?
+> There are many more cases like this in your configs..
+>
+> Unless you're comparing apples to apples, this is
+> just nonsense.
+>
+> 		Dave
+>
 
-> Not sure if I can bring this up to multi user yet. Some initial testing
-> in single user mode indicates problems when I turn on networking. See
-> the attached messages from /var/log/messages to see the kinds of problems
-> I am having. The key ones appear after doing
->   ./S10network start
-> as part of single stepping the init sequence. I stopped at this point
-> to make sure I had a good record of the messages.
+No. I didn't time `make modules`, only `make bzImage`.
+`make modules` takes too long to time (really) I don't
+want to use any CPU resources which will screw up the
+timing and I need to use the computer.
 
-could you try to disable SELINUX? It seems it's not fully safe yet.
+A wall-clock guess is that `make modules` takes about
+an hour on the new system while it takes about 4 minutes
+on the old. The new kernel build procedure is truly
+horrible for the wall-clock time that is used.
 
-> A side question - if
->   CONFIG_PREEMPT_REALTIME=y
-> you say that IRQ's must be threaded, is this going to be "permanent" and
-> if so - why?
+For oranges vs oranges, if I compile Version 2.4.26
+on a version 2.6.8 OS computer, the compile-time
+is within tens of seconds. I'm not complaining about
+the resulting kernel code performance, only the
+abortion^M^M^M^M^M^Mjunk used to create a new kernel.
+It 'make' won't do it, we have a problem and make
+needs to be fixed.
 
-in a fully preemptible model all execution must be 'sequential', because
-irq threads themselves can schedule too and could be preempted too. The
-only way to make 'direct' interrupts possible again would be to disable
-interrupts in _all_ non-preemptible sections, which would be quite some
-work.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.8 on an i686 machine (5537.79 BogoMips).
+             Note 96.31% of all statistics are fiction.
 
-Another reason for the 'linearization' of as much execution as possible
-is that such direct interrupts couldnt be preempted (or else you could
-reenter them) which is impossible because all locks are mutexes.
-
-a third reason is that nesting 'blocks' any underlying context. So if
-task A is interrupted by irq X and schedules away (lets assume this is
-safe) - nobody could unwind 'task A' - irq X blocks it until it finishes
-execution. With linearlized contexts 'task A' could reschedule on
-another CPU - or could get its priority raised with time if an RT
-deadline is approaching, etc. It's much more flexible to have everything
-flattened out.
-
-this comes at a performance cost - but basically if you implement all
-the properties one would expect form such an approach you'd end up with
-a completely different irq scheduler - there's no point in that. Best is
-to 'merge' all contexts, hardirqs and softirqs into the normal task
-concept.
-
-> I would prefer to not use threaded IRQ's if possible due to lower CPU
-> overhead [see previous email describing results...] and some problems
-> I see with setting priorities on those IRQ's (relative to real time
-> tasks).
-
-the overhead we can try to optimize later on. What problems do you see
-with setting priorities on those IRQs?
-
-	Ingo

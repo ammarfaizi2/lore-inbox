@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262161AbTD3MpH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 08:45:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262162AbTD3MpH
+	id S262162AbTD3Mpi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 08:45:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262163AbTD3Mph
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 08:45:07 -0400
-Received: from holomorphy.com ([66.224.33.161]:32466 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S262161AbTD3MpF (ORCPT
+	Wed, 30 Apr 2003 08:45:37 -0400
+Received: from mx01.arcor-online.net ([151.189.8.96]:27090 "EHLO mx01.nexgo.de")
+	by vger.kernel.org with ESMTP id S262162AbTD3Mpf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 08:45:05 -0400
-Date: Wed, 30 Apr 2003 05:57:17 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Christoph Hellwig <hch@infradead.org>, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: NUMA-Q sys_ioperm()/sys_iopl()
-Message-ID: <20030430125717.GE8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Christoph Hellwig <hch@infradead.org>, alan@lxorguk.ukuu.org.uk,
-	linux-kernel@vger.kernel.org
-References: <20030430122825.GL8931@holomorphy.com> <20030430135521.A5383@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 30 Apr 2003 08:45:35 -0400
+From: Daniel Phillips <dphillips@sistina.com>
+Reply-To: dphillips@sistina.com
+Organization: Sistina
+To: Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>
+Subject: Re: [RFC][PATCH] Faster generic_fls
+Date: Wed, 30 Apr 2003 15:03:38 +0200
+User-Agent: KMail/1.5.1
+Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+References: <200304300446.24330.dphillips@sistina.com> <87isswxmn0.fsf@student.uni-tuebingen.de>
+In-Reply-To: <87isswxmn0.fsf@student.uni-tuebingen.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030430135521.A5383@infradead.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Message-Id: <200304301503.38650.dphillips@sistina.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 30, 2003 at 05:28:25AM -0700, William Lee Irwin III wrote:
->> NUMA-Q cannot support these operations without significant
->> infrastructure to emulate a global port io space for userspace to
->> manipulate, possibly even with hooks into the scheduler.
->> Not only are the applications depending on this particular form of
->> privilege elevation generally inappropriate uses of these machines
->> (they are large "server-class" machines, typically shipped and run
->> headless), but the devices typically managed with these interfaces
->> are already explicitly unsupported in UNIX configurations.
->> This patch removes sys_iopl() and sys_ioperm() support conditional on
->> #ifdef CONFIG_X86_NUMAQ to prevent the device register corruption
->> condition without significant impact on core i386 support.
+On Wednesday 30 April 2003 13:14, Falk Hueffner wrote:
+> gcc 3.4 will have a __builtin_ctz function which can be used for this.
+> It will emit special instructions on CPUs that support it (i386, Alpha
+> EV67), and use a lookup table on others, which is very boring, but
+> also faster.
 
-On Wed, Apr 30, 2003 at 01:55:21PM +0100, Christoph Hellwig wrote:
-> Please use cond_syscall to autogenerate the stubs, and make the compilation
-> of /ioport.c conditional on !CONFIG_X86_NUMAQ.
+Actually, __builtin_clz:
 
-Never heard of it before. Get a hold of me in the obvious way to fill
-me in.
+  http://gcc.gnu.org/onlinedocs/gcc/Other-Builtins.html
 
-Thanks.
+Not having a gcc 2.4 handy, I couldn't test it, but I did notice that the 
+built-in ffs is very fast.  Perhaps all such standard functions will end up 
+as built-ins instead of kernel library functions, some very long time in the 
+future.  If old compilers ever do finally fade away, that is.
 
--- wli
+It's somewhat annoying that __builtin_clz leaves the all-ones case dangling 
+instead of returning -1.
+
+Regards,
+
+Daniel
+
+
+

@@ -1,57 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262213AbVDFOUh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262214AbVDFO2m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262213AbVDFOUh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 10:20:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262214AbVDFOUg
+	id S262214AbVDFO2m (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 10:28:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262216AbVDFO2m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 10:20:36 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:49097 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262213AbVDFOUa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 10:20:30 -0400
-Subject: Re: Linux 2.4.30-rc3 md/ext3 problems (ext3 gurus : please check)
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Hifumi Hisashi <hifumi.hisashi@lab.ntt.co.jp>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Neil Brown <neilb@cse.unsw.edu.au>, Andrew Morton <akpm@osdl.org>,
-       vherva@viasys.com, linux-kernel <linux-kernel@vger.kernel.org>,
-       Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <6.0.0.20.2.20050406163929.06ef07b0@mailsv2.y.ecl.ntt.co.jp>
-References: <20050326162801.GA20729@logos.cnet>
-	 <20050328073405.GQ16169@viasys.com> <20050328165501.GR16169@viasys.com>
-	 <16968.40186.628410.152511@cse.unsw.edu.au>
-	 <20050329215207.GE5018@logos.cnet>
-	 <16970.9679.874919.876412@cse.unsw.edu.au>
-	 <20050330115946.GA7331@logos.cnet>
-	 <1112740856.4148.145.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <6.0.0.20.2.20050406163929.06ef07b0@mailsv2.y.ecl.ntt.co.jp>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1112797205.3377.16.camel@sisko.sctweedie.blueyonder.co.uk>
+	Wed, 6 Apr 2005 10:28:42 -0400
+Received: from farside.demon.co.uk ([62.49.25.247]:19696 "EHLO
+	mail.farside.org.uk") by vger.kernel.org with ESMTP id S262214AbVDFO2j
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 10:28:39 -0400
+References: <20050405225747.15125.8087.59570@clementine.local>
+            <courier.4253BAD7.000018D2@mail.farside.org.uk>
+            <aec7e5c305040606104c86712c@mail.gmail.com>
+In-Reply-To: <aec7e5c305040606104c86712c@mail.gmail.com>
+From: Malcolm Rowe <malcolm-linux@farside.org.uk>
+To: Magnus Damm <magnus.damm@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RFC] disable built-in modules V2
+Date: Wed, 06 Apr 2005 15:28:38 +0100
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Wed, 06 Apr 2005 15:20:05 +0100
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+Message-ID: <courier.4253F216.00001A20@mail.farside.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Magnus Damm writes:
+>> Regardless of anything else, won't this break booting with initcall_debug on
+>> PPC64/IA64 machines? (see the definition of print_fn_descriptor_symbol() in
+>> kallsyms.h)
+> 
+> Correct, thanks for pointing that out. The code below is probably better: 
+> 
+>  static void __init do_initcalls(void)
+>  {
+>         initcall_t *call;
+> @@ -547,6 +558,9 @@ static void __init do_initcalls(void)
+>         for (call = __initcall_start; call < __initcall_end; call++) {
+>                 char *msg; 
+> 
+> +               if (!*call)
+> +                       continue;
+> +
+>                 if (initcall_debug) {
+>                         printk(KERN_DEBUG "Calling initcall 0x%p", *call);
+>                         print_fn_descriptor_symbol(": %s()", (unsigned
+> long) *call);
 
-On Wed, 2005-04-06 at 11:01, Hifumi Hisashi wrote:
+Yes, that looks more sensible. It hides the fact that the initcall ever 
+existed, rather than explicitly telling you that it's been skipped, but I 
+don't imagine that that's ever going to cause a problem in practice (i.e., I 
+don't think anyone would ever enable "force_ohci1394=off" by mistake and 
+also without noticing). 
 
->  >Certainly it's normal for a short read/write to imply either error or
->  >EOF, without the error necessarily needing to be returned explicitly.
->  >I'm not convinced that the Singleunix language actually requires that,
->  >but it seems the most obvious and consistent behaviour.
 
-> When an O_SYNC flag is set , if commit_write() succeed but 
-> generic_osync_inode() return
-> error due to I/O failure, write() must fail .
+> And I guess the idea of replacing the initcall pointer with NULL will
+> work both with and without function descriptors, right? So we should
+> be safe on IA64 and PPC64.
 
-Yes.  But it is conventional to interpret a short write as being a
-failure.  Returning less bytes than were requested in the write
-indicates that the rest failed.  It just doesn't give the exact nature
-of the failure (EIO vs ENOSPC etc.)  For regular files, a short write is
-never permitted unless there are errors of some description.
+I think so, though I don't really know a great deal about this area. 
 
---Stephen
 
+An IA64 descriptor is of the form { &code, &data_context }, and a function 
+pointer is a pointer to such a descriptor. Presumably, setting a function 
+pointer to NULL will either end up setting the pointer-to-descriptor to NULL 
+or the code pointer to NULL, but either way, I would expect the 'if 
+(!*call)' comparison to work as intended. 
+
+
+Best thing would be to get someone on IA64 and/or PPC64 to check this for 
+you. Also might be worth checking that the patch works as intended with 
+CONFIG_MODULES=n (assuming you haven't already). 
+
+
+Regards,
+Malcolm

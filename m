@@ -1,55 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264358AbTLVPQd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 10:16:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264382AbTLVPQc
+	id S264425AbTLVPTD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 10:19:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264426AbTLVPTC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 10:16:32 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:49064
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S264358AbTLVPQb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 10:16:31 -0500
-Date: Mon, 22 Dec 2003 16:17:24 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Octave <oles@ovh.net>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: lot of VM problem with 2.4.23
-Message-ID: <20031222151724.GB18767@dualathlon.random>
-References: <20031221001422.GD25043@ovh.net> <1071999003.2156.89.camel@abyss.local> <Pine.LNX.4.58L.0312211235010.6632@logos.cnet> <20031221184709.GO25043@ovh.net> <20031221185959.GE1494@louise.pinerecords.com> <20031221234350.GD4897@ovh.net> <Pine.LNX.4.58L.0312220921120.2691@logos.cnet> <20031222123036.GW12491@ovh.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031222123036.GW12491@ovh.net>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Mon, 22 Dec 2003 10:19:02 -0500
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:11089 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S264425AbTLVPTB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Dec 2003 10:19:01 -0500
+Date: Mon, 22 Dec 2003 10:18:58 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Andreas Unterkircher <unki@netshadow.at>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: /proc/meminfo values
+In-Reply-To: <1072104601.1165.33.camel@winsucks>
+Message-ID: <Pine.LNX.4.44.0312221017570.7321-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 22, 2003 at 01:30:36PM +0100, Octave wrote:
-> > Hi Octave,
-> > 
-> > What do you mean with "server is down" ? The OOM killer killed an
-> > application ? What were the messages?
-> > 
-> > Under out of memory, 2.4.22 should also kill a process, but you say it
-> > doesnt.
-> 
-> Marcelo,
-> 
-> All I have with 
-> - 2.4.24-pre1 is
-> # echo 1 > /proc/sys/vm/vm_gfp_debug        
-> # for i in `seq 1 100`; do ./full.pl &  done
-> [1] 849
-> [2] 850
-> [...]                                                                                                 
-> # tail -f /var/log/messages                                                                                                                    
-> [...]
-> 
-> SOFTDOG: Initiating system reboot.
+On Mon, 22 Dec 2003, Andreas Unterkircher wrote:
 
-your softdog is too strict for the workload you're running. You can't
-pretend a low latency scheduling behaviour with hundres oom. what you
-see is perfectly normal.
+> but with 2.6 it looks like they have been removed. where can i get the
+> exactly free memory (+ swap) from the kernel so i havn't to use the
+> kb-values which i get back from /proc/meminfo?
+
+The values are in page granularity.  On x86 you're not going
+to get them at any finer granularity than 4kB increments,
+because that is the page size.
+
+The kB values are still smaller than the allocation granularity,
+so no accuracy is lost.
+
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
+

@@ -1,54 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261904AbUEVUME@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261913AbUEVVEC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261904AbUEVUME (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 May 2004 16:12:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261900AbUEVUME
+	id S261913AbUEVVEC (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 May 2004 17:04:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261568AbUEVVEC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 May 2004 16:12:04 -0400
-Received: from outbound.mailhop.org ([63.208.196.171]:50700 "EHLO
-	outbound.mailhop.org") by vger.kernel.org with ESMTP
-	id S261904AbUEVUMA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 May 2004 16:12:00 -0400
-Message-ID: <40AFB40B.1060003@gilfillan.org>
-Date: Sat, 22 May 2004 15:11:55 -0500
-From: Perry Gilfillan <perrye@gilfillan.org>
-Reply-To: perrye@gilfillan.org
-Organization: Duck Tape Anonymous
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.5b) Gecko/20030827
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: video4linux-list@redhat.com, linux-kernel@vger.kernel.org
-Subject: [V3TV] Now running on the 2.6.6 kernel !!
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Mail-Handler: MailHop Outbound by DynDNS.org
-X-Originating-IP: 68.12.215.56
-X-Report-Abuse-To: abuse@dyndns.org (see http://www.mailhop.org/outbound/abuse.html for abuse reporting information)
-X-MHO-User: perrygilfillan
+	Sat, 22 May 2004 17:04:02 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:2432 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S261913AbUEVVEA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 May 2004 17:04:00 -0400
+Date: Sat, 22 May 2004 22:10:42 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200405222110.i4MLAg97000214@81-2-122-30.bradfords.org.uk>
+To: JG <jg@cms.ac>
+Cc: Jan Meizner <jm@pa103.nowa-wies.sdi.tpnet.pl>,
+       system <system@eluminoustechnologies.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20040522165404.5BF5A1A9B70@23.cms.ac> 
+References: <200405221257.28570.system@eluminoustechnologies.com>
+ <Pine.LNX.4.55L.0405221515410.32669@pa103.nowa-wies.sdi.tpnet.pl>
+ <200405221622.i4MGMuhD000211@81-2-122-30.bradfords.org.uk>
+ <20040522165404.5BF5A1A9B70@23.cms.ac>
+Subject: Re: hda Kernel error!!!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Quote from JG <jg@cms.ac>:
+> --Signature=_Sat__22_May_2004_18_53_54_+0200_tMfzaYq4HdZNA_y9
+> Content-Type: text/plain; charset=US-ASCII
+> Content-Disposition: inline
+> Content-Transfer-Encoding: 7bit
+> 
+>  
+> > It does not necessarily indicate a serious problem.  Are you sure your
+> > error messages were exactly the same?
+> 
+> while we are at it. some days ago i got this:
+> hdi: task_in_intr: status=0x7f { DriveReady DeviceFault SeekComplete DataRequest CorrectedError Index Error }
+> hdi: task_in_intr: error=0x7f { DriveStatusError UncorrectableError SectorIdNotFound TrackZeroNotFound AddrMarkNotFound }, LBAsect=280923064991615, high=16744319, low=8355711, sector=1130361
+> ide4: reset: success
 
-It's taken me six months, but I've got the V3TV driver running on the
-2.6 kernel
+Look at the LBAsect requested - this is far beyond the end of the disk, which
+explains why it returned address mark not found - the sector doesn't exist.
 
-The radio device uses the V4L2 api, while the video device is still
-V4L1.  ( The radio presented a smaller problem set )
-
-Please visit the v3tv-v4l2 page linked below.
-
-Thanks,
-
-Perry
------
-Gilfillan Family: http://www.gilfillan.org/
-
-Projects:
-   V3TV:		http://www.gilfillan.org/v3tv/
-   VPX3224:	http://www.gilfillan.org/vpx3224/
-   V3TV-V4L2:	http://www.gilfillan.org/v3tv-v4l2/
-   snd-tvmixer:	http://www.gilfillan.org/ALSA/
-                 http://v3tv.sourceforge.net/
-
-
+John.

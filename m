@@ -1,113 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265480AbTBPBBP>; Sat, 15 Feb 2003 20:01:15 -0500
+	id <S265513AbTBPBNk>; Sat, 15 Feb 2003 20:13:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265484AbTBPBBP>; Sat, 15 Feb 2003 20:01:15 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:59576 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S265480AbTBPBBN>; Sat, 15 Feb 2003 20:01:13 -0500
-Date: Sat, 15 Feb 2003 17:11:02 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.5.61 oops running SDET
-Message-ID: <33450000.1045357862@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S265532AbTBPBNj>; Sat, 15 Feb 2003 20:13:39 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:31727 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S265513AbTBPBNi>;
+	Sat, 15 Feb 2003 20:13:38 -0500
+Message-ID: <3E4EE7CE.1010401@us.ibm.com>
+Date: Sat, 15 Feb 2003 17:22:22 -0800
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (compatible; MSIE5.5; Windows 98;
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: "Martin J. Bligh" <mbligh@aracnet.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] fix kirq for clustered apic mode
+Content-Type: multipart/mixed;
+ boundary="------------040206030804010009060504"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-SDET on 16-way NUMA-Q.
+This is a multi-part message in MIME format.
+--------------040206030804010009060504
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000014
- printing eip:
-c0118b13
-*pde = 2b146001
-*pte = 00000000
-Oops: 0000
-CPU:    10
-EIP:    0060:[<c0118b13>]    Not tainted
-EFLAGS: 00010207
-EIP is at render_sigset_t+0x17/0x7c
-eax: 00000010   ebx: ed2fe0a1   ecx: ed2fe099   edx: eddd3980
-esi: 0000003c   edi: 00000010   ebp: ec7d7eec   esp: ec7d7ee0
-ds: 007b   es: 007b   ss: 0068
-Process ps (pid: 10544, threadinfo=ec7d6000 task=ed0a6700)
-Stack: ed2fe0a1 00000002 eddd3f3c ed2fe080 c016d893 00000010 ed2fe0a1
-ed2fe099 
-       c0233f78 eddd3f3c ed2fe088 ed2fe080 c0233f6f ec7ccbd0 eddd3980
-eb5caee0 
-       ed2fe000 00000000 00000006 00000000 ec7d7f48 eddd3f3c eddd3f24
-ec7d7f50 
-Call Trace:
- [<c016d893>] proc_pid_status+0x2a3/0x358
- [<c01300f6>] __get_free_pages+0x4e/0x54
- [<c016b517>] proc_info_read+0x53/0x130
- [<c0145295>] vfs_read+0xa5/0x128
- [<c0145522>] sys_read+0x2a/0x3c
- [<c0108b3f>] syscall_call+0x7/0xb
+The new kirq patch assumes flat addressing APIC mode where apicid = (1
+<< cpu).  This isn't true for clustered mode.
 
-Code: 0f a3 37 19 d2 b8 01 00 00 00 31 c9 85 d2 0f 45 c8 8d 56 01 
- <1>Unable to handle kernel NULL pointer dereference at virtual address
-00000014
- printing eip:
-c0118b13
-*pde = 2cd41001
-*pte = 00000000
-Oops: 0000
-CPU:    7
-EIP:    0060:[<c0118b13>]    Not tainted
-EFLAGS: 00010207
-EIP is at render_sigset_t+0x17/0x7c
-eax: 00000010   ebx: ed1280a1   ecx: ed128099   edx: ecdc61e0
-esi: 0000003c   edi: 00000010   ebp: edc3feec   esp: edc3fee0
-ds: 007b   es: 007b   ss: 0068
-Process ps (pid: 12906, threadinfo=edc3e000 task=ee5fcce0)
-Stack: ed1280a1 00000002 ecdc679c ed128080 c016d893 00000010 ed1280a1
-ed128099 
-       c0233f78 ecdc679c ed128088 ed128080 c0233f6f ed9d5e50 ecdc61e0
-ec2adaa0 
-       ed128000 00000000 00000006 00000000 edc3ff48 ecdc679c ecdc6784
-edc3ff50 
-Call Trace:
- [<c016d893>] proc_pid_status+0x2a3/0x358
- [<c01300f6>] __get_free_pages+0x4e/0x54
- [<c016b517>] proc_info_read+0x53/0x130
- [<c0145295>] vfs_read+0xa5/0x128
- [<c0145522>] sys_read+0x2a/0x3c
- [<c0108b3f>] syscall_call+0x7/0xb
+- Change name/type of irq_balance_mask.  The type of apicid seems to
+  be int.
+- Change instance of (1<<cpu) to cpu_to_logical_apicid()
+- Don't use target_cpu_mask, use min_loaded, and convert the real way
 
-Code: 0f a3 37 19 d2 b8 01 00 00 00 31 c9 85 d2 0f 45 c8 8d 56 01 
- <1>Unable to handle kernel NULL pointer dereference at virtual address
-00000014
- printing eip:
-c0118b13
-*pde = 2bd20001
-*pte = 00000000
-Oops: 0000
-CPU:    3
-EIP:    0060:[<c0118b13>]    Not tainted
-EFLAGS: 00010207
-EIP is at render_sigset_t+0x17/0x7c
-eax: 00000010   ebx: ec2cb09f   ecx: ec2cb097   edx: ec4ef3e0
-esi: 0000003c   edi: 00000010   ebp: edf8beec   esp: edf8bee0
-ds: 007b   es: 007b   ss: 0068
-Process ps (pid: 16814, threadinfo=edf8a000 task=ebdd92e0)
-Stack: ec2cb09f 00000002 ec4ef99c ec2cb07e c016d893 00000010 ec2cb09f
-ec2cb097 
-       c0233f78 ec4ef99c ec2cb086 ec2cb07e c0233f6f ed51a4f0 ec4ef3e0
-eeb4eb40 
-       ec2cb000 00000000 00000006 00000000 edf8bf48 ec4ef99c ec4ef984
-edf8bf50 
-Call Trace:
- [<c016d893>] proc_pid_status+0x2a3/0x358
- [<c01300f6>] __get_free_pages+0x4e/0x54
- [<c016b517>] proc_info_read+0x53/0x130
- [<c0145295>] vfs_read+0xa5/0x128
- [<c0145522>] sys_read+0x2a/0x3c
- [<c0108b3f>] syscall_call+0x7/0xb
+Tested on Summit, and plain SMP.  Martin Bligh and I figured this out
+together, and he agrees.
+-- 
+Dave Hansen
+haveblue@us.ibm.com
 
-Code: 0f a3 37 19 d2 b8 01 00 00 00 31 c9 85 d2 0f 45 c8 8d 56 01 
+
+--------------040206030804010009060504
+Content-Type: text/plain;
+ name="kirq-apicid-fix-2.5.61-1.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="kirq-apicid-fix-2.5.61-1.patch"
+
+diff -ru linux-2.5.61-clean/arch/i386/kernel/io_apic.c linux-2.5.61-irqdebug/arch/i386/kernel/io_apic.c
+--- linux-2.5.61-clean/arch/i386/kernel/io_apic.c	2003-02-14 17:51:26.000000000 -0600
++++ linux-2.5.61-irqdebug/arch/i386/kernel/io_apic.c	2003-02-15 17:42:51.000000000 -0600
+@@ -222,7 +222,7 @@
+ # endif
+ 
+ extern unsigned long irq_affinity [NR_IRQS];
+-unsigned long __cacheline_aligned irq_balance_mask [NR_IRQS];
++int __cacheline_aligned pending_irq_balance_apicid [NR_IRQS];
+ static int irqbalance_disabled __initdata = 0;
+ static int physical_balance = 0;
+ 
+@@ -441,7 +441,7 @@
+ 		Dprintk("irq = %d moved to cpu = %d\n", selected_irq, min_loaded);
+ 		/* mark for change destination */
+ 		spin_lock(&desc->lock);
+-		irq_balance_mask[selected_irq] = target_cpu_mask;
++		pending_irq_balance_apicid[selected_irq] = cpu_to_logical_apicid(min_loaded);
+ 		spin_unlock(&desc->lock);
+ 		/* Since we made a change, come back sooner to 
+ 		 * check for more variation.
+@@ -500,7 +500,7 @@
+ 	if (cpu != new_cpu) {
+ 		irq_desc_t *desc = irq_desc + irq;
+ 		spin_lock(&desc->lock);
+-		irq_balance_mask[irq] = cpu_to_logical_apicid(new_cpu);
++		pending_irq_balance_apicid[irq] = cpu_to_logical_apicid(new_cpu);
+ 		spin_unlock(&desc->lock);
+ 	}
+ }
+@@ -515,7 +515,7 @@
+ 	
+ 	/* push everything to CPU 0 to give us a starting point.  */
+ 	for (i = 0 ; i < NR_IRQS ; i++)
+-		irq_balance_mask[i] = 1 << 0;
++		pending_irq_balance_apicid[i] = cpu_to_logical_apicid(0);
+ 	for (;;) {
+ 		set_current_state(TASK_INTERRUPTIBLE);
+ 		time_remaining = schedule_timeout(time_remaining);
+@@ -580,9 +580,9 @@
+ static inline void move_irq(int irq)
+ {
+ 	/* note - we hold the desc->lock */
+-	if (unlikely(irq_balance_mask[irq])) {
+-		set_ioapic_affinity(irq, irq_balance_mask[irq]);
+-		irq_balance_mask[irq] = 0;
++	if (unlikely(pending_irq_balance_apicid[irq])) {
++		set_ioapic_affinity(irq, pending_irq_balance_apicid[irq]);
++		pending_irq_balance_apicid[irq] = 0;
+ 	}
+ }
+ 
+
+--------------040206030804010009060504--
 

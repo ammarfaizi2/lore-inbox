@@ -1,46 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129493AbQKFJko>; Mon, 6 Nov 2000 04:40:44 -0500
+	id <S129166AbQKFJlP>; Mon, 6 Nov 2000 04:41:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129207AbQKFJkf>; Mon, 6 Nov 2000 04:40:35 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:39950
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S129493AbQKFJkZ>; Mon, 6 Nov 2000 04:40:25 -0500
-Date: Mon, 6 Nov 2000 01:40:09 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Neil Brown <neilb@cse.unsw.edu.au>, ryan <ryan@netidea.com>,
-        linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
-Subject: Re: Kernel 2.4.0test10 crash (RAID+SMP)
-In-Reply-To: <3A067318.E9C6ADDF@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.10.10011060138320.14903-100000@master.linux-ide.org>
+	id <S129724AbQKFJk4>; Mon, 6 Nov 2000 04:40:56 -0500
+Received: from bastion.power-x.co.uk ([62.232.19.201]:10757 "EHLO
+	bastion.power-x.co.uk") by vger.kernel.org with ESMTP
+	id <S129207AbQKFJkw>; Mon, 6 Nov 2000 04:40:52 -0500
+Date: Mon, 6 Nov 2000 09:40:50 +0000 (GMT)
+From: "Dr. David Gilbert" <dg@px.uk.com>
+To: linux-kernel@vger.kernel.org
+Subject: Dual Xeon, MTRR problem still there?
+Message-ID: <Pine.LNX.4.21.0011060936200.24579-100000@springhead.px.uk.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Nov 2000, Jeff Garzik wrote:
+Hi,
+  While my friendly dual Xeon machine now appears to be pretty fast, I
+notice that the NMI counter is still incrementing like topsy; this
+presumably means that there is still something dodgy going on.
+A hdparm -t seems to be giving respectable values, so I am not quite sure
+where the time/performance is going:
 
-> Neil Brown wrote:
-> > It looks like an interupt is happening while another interrupt is
-> > happening, which should be impossible... but it isn't.
-> 
-> If multiple interrupts are hitting a single code path (like IDE irqs 14
-> -and- 15), you definitely have to think about that.  The reentrancy
-> guarantee only exists when a single IRQ is assigned to a single
-> handler...
-Jeff,
+/proc/mtrr shows the following
 
-This is likely the classic case where the driver hangs on to the global
-lock way to lock because it is grabbed to early wrt what I am changing the
-behavior to...
+reg00: base=0xf9f00000 (3999MB), size=   1MB: uncachable, count=1
+reg01: base=0xfa000000 (4000MB), size=  32MB: uncachable, count=1
+reg02: base=0xfc000000 (4032MB), size=  64MB: uncachable, count=1
+reg03: base=0x00000000 (   0MB), size=4096MB: write-back, count=1
+reg04: base=0x100000000 (4096MB), size=  64MB: write-back, count=1
+reg05: base=0x104000000 (4160MB), size=  32MB: write-back, count=1
+reg06: base=0x106000000 (4192MB), size=   1MB: write-back, count=1
 
-Cheers,
+Here are two /proc/interrupts straight after each other:
 
-Andre Hedrick
-CTO Timpanogas Research Group
-EVP Linux Development, TRG
-Linux ATA Development
+           CPU0       CPU1       
+  0:   14047275   17655700    IO-APIC-edge  timer
+  1:         73         37    IO-APIC-edge  keyboard
+  2:          0          0          XT-PIC  cascade
+  9:          0          0    IO-APIC-edge  acpi
+ 12:       1196        928    IO-APIC-edge  PS/2 Mouse
+ 13:          0          0          XT-PIC  fpu
+ 20:     226485     240634   IO-APIC-level  eth0
+ 56:         14         16   IO-APIC-level  sym53c8xx
+ 57:      52554      55135   IO-APIC-level  sym53c8xx
+ 58:         15         12   IO-APIC-level  sym53c8xx
+NMI:   31702796   31702796 
+LOC:   31702834   31702833 
+ERR:          0
+
+           CPU0       CPU1       
+  0:   14047328   17655766    IO-APIC-edge  timer
+  1:         73         37    IO-APIC-edge  keyboard
+  2:          0          0          XT-PIC  cascade
+  9:          0          0    IO-APIC-edge  acpi
+ 12:       1196        928    IO-APIC-edge  PS/2 Mouse
+ 13:          0          0          XT-PIC  fpu
+ 20:     226496     240646   IO-APIC-level  eth0
+ 56:         14         16   IO-APIC-level  sym53c8xx
+ 57:      52554      55135   IO-APIC-level  sym53c8xx
+ 58:         15         12   IO-APIC-level  sym53c8xx
+NMI:   31702915   31702915 
+LOC:   31702953   31702952 
+ERR:          0
+
+Thats 2.4.0-test10 with last weeks patch.
+
+Dave
+-- 
+/------------------------------------------------------------------\
+| Dr. David Alan Gilbert | Work:dg@px.uk.com +44-161-286-2000 Ex258|
+| -------- G7FHJ --------|---------------------------------------- |
+| Home: dave@treblig.org            http://www.treblig.org         |
+\------------------------------------------------------------------/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

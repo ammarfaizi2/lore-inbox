@@ -1,41 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264984AbUGSQjA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265291AbUGSRCt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264984AbUGSQjA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jul 2004 12:39:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264997AbUGSQjA
+	id S265291AbUGSRCt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jul 2004 13:02:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265293AbUGSRCt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jul 2004 12:39:00 -0400
-Received: from bay19-f31.bay19.hotmail.com ([64.4.53.81]:30738 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S264984AbUGSQi7
+	Mon, 19 Jul 2004 13:02:49 -0400
+Received: from mailer.nec-labs.com ([138.15.108.3]:14152 "EHLO
+	mailer.nec-labs.com") by vger.kernel.org with ESMTP id S265291AbUGSRCs convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jul 2004 12:38:59 -0400
-X-Originating-IP: [216.150.62.136]
-X-Originating-Email: [monetic@hotmail.com]
-From: "Lucas Jackson" <monetic@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6 pagesize, block size limits?
-Date: Mon, 19 Jul 2004 10:38:58 -0600
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <BAY19-F31m7yvgffuVF00053e0d@hotmail.com>
-X-OriginalArrivalTime: 19 Jul 2004 16:38:58.0376 (UTC) FILETIME=[E39E5C80:01C46DAE]
+	Mon, 19 Jul 2004 13:02:48 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: Ramdisk encryption
+Date: Mon, 19 Jul 2004 13:02:37 -0400
+Message-ID: <951A499AA688EF47A898B45F25BD8EE80126D4C9@mailer.nec-labs.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Ramdisk encryption
+Thread-Index: AcRtsjG+7HFJ9VMcRaG36TiI7Kl1rw==
+From: "Lei Yang" <leiyang@nec-labs.com>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-I'm planning on upgrading a RH AS3 2.4.21 kernel to 2.6.7 on an AMD Opteron 
-box (2 CPU), for use with oracle 10g.
-I know 2.4 had a pagesize of something like 4k (?)..i'm wondering how this 
-changes in 2.6 on a 64-bit box? I'm wanting to use XFS with 16kb stripes 
-(direct and async io, if possible), and am hoping i won't hit some kind of 
-kernel limit that's gonna bottleneck that for me.
-I don't plan on using a raw device either.
+Can I set up a ramdisk and use loopback encryption to encrypt it?
+As far as I understand, the OS will keep data encrypted on the hard 
+disk at all times and decrypts it in RAM only as it's read. So an encrypted 
+executable on physical hard disk will be decrypted page by page upon
+reading to RAM. But what happens to an executable sitting in ramdisk?
+Can I also encrypt it? Since the code is in RAM, it should be running in place,
+how do kernel deal with encrypted code and run? 
 
-Thanx,
+Any comments?
 
--Tony
-
-_________________________________________________________________
-Is your PC infected? Get a FREE online computer virus scan from McAfee® 
-Security. http://clinic.mcafee.com/clinic/ibuy/campaign.asp?cid=3963
+Thanks in advance!
+Lei
 

@@ -1,56 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263397AbTEITMe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 15:12:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263409AbTEITMe
+	id S263409AbTEITNL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 15:13:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263415AbTEITNL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 15:12:34 -0400
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:37267
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S263397AbTEITMd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 15:12:33 -0400
-Message-ID: <3EBC0084.4090809@redhat.com>
-Date: Fri, 09 May 2003 12:24:52 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030506
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: hammer: MAP_32BIT
-References: <3EBB5A44.7070704@redhat.com> <20030509092026.GA11012@averell> <16059.37067.925423.998433@gargle.gargle.HOWL> <20030509113845.GA4586@averell> <b9gr03$42n$1@cesium.transmeta.com>
-In-Reply-To: <b9gr03$42n$1@cesium.transmeta.com>
-X-Enigmail-Version: 0.75.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+	Fri, 9 May 2003 15:13:11 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:42372 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S263409AbTEITNH (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 15:13:07 -0400
+Message-Id: <200305091925.h49JPab9010992@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: root@chaos.analogic.com
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: The disappearing sys_call_table export. 
+In-Reply-To: Your message of "Fri, 09 May 2003 15:18:59 EDT."
+             <Pine.LNX.4.53.0305091513520.25589@chaos> 
+From: Valdis.Kletnieks@vt.edu
+References: <200305091309_MC3-1-3826-6B65@compuserve.com> <Pine.LNX.4.53.0305091345210.25319@chaos> <200305091902.h49J2Kb9010589@turing-police.cc.vt.edu>
+            <Pine.LNX.4.53.0305091513520.25589@chaos>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_435216480P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Fri, 09 May 2003 15:25:36 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+--==_Exmh_435216480P
+Content-Type: text/plain; charset=us-ascii
 
-H. Peter Anvin wrote:
+On Fri, 09 May 2003 15:18:59 EDT, "Richard B. Johnson" said:
 
-> How about this: since the address argument is basically unused anyway
-> unless MAP_FIXED is set, how about a MAP_MAXADDR which interprets the
-> address argument as the highest permissible address (or lowest
-> nonpermissible address)?
+> Google search isn't enough? Try Magic Lantern, get past the stuff
+> about old-time movies and onto ZDNET-news, Electronic Privacy information
+> center, etc., etc. Even the FBI admits it, check out the court-orders,
+> etc. http://usgovinfo.about.com/library/news
 
-You miss the point of my initial mail: I need a way to say "preferrably
-32bit address, otherwise give me what you have".  MAP_32BIT already
-provides a way to require 32 bit addresses.
+The FBI admits Magic Lantern exists.
 
-- -- 
-- --------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
+What I wanted was verification that Microsoft actually *SHIPPED* it as
+part of SP2.
+
+--==_Exmh_435216480P
+Content-Type: application/pgp-signature
+
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQE+vACE2ijCOnn/RHQRAl3rAKCYgj3LqvIDJ8Ny3pnii8bBvsbwrQCdGkg4
-pnFnBmubkRnnsVfBSjDBBWQ=
-=P8SV
+iD8DBQE+vACwcC3lWbTT17ARAt9OAKDa7bwhlN8rmafAGErGzC9ZlkleYQCgwjSP
+v66vdvk6lW5QmrD3ohBttGU=
+=u4pR
 -----END PGP SIGNATURE-----
 
+--==_Exmh_435216480P--

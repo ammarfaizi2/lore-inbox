@@ -1,69 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267154AbTBQQjV>; Mon, 17 Feb 2003 11:39:21 -0500
+	id <S267153AbTBQQiT>; Mon, 17 Feb 2003 11:38:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267157AbTBQQjV>; Mon, 17 Feb 2003 11:39:21 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:11942 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S267154AbTBQQjH>; Mon, 17 Feb 2003 11:39:07 -0500
-Date: Mon, 17 Feb 2003 08:48:55 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ext3 clings to you like flypaper
-Message-ID: <2460000.1045500532@[10.10.2.4]>
-In-Reply-To: <1045482621.29000.40.camel@passion.cambridge.redhat.com>
-References: <78320000.1045465489@[10.10.2.4]> <1045482621.29000.40.camel@passion.cambridge.redhat.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S267155AbTBQQiT>; Mon, 17 Feb 2003 11:38:19 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61706 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267153AbTBQQiT>;
+	Mon, 17 Feb 2003 11:38:19 -0500
+Message-ID: <3E511238.7080001@pobox.com>
+Date: Mon, 17 Feb 2003 11:47:52 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: ghugh Song <ghugh@mit.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Trouble w/ e1000 v4.4.19 for Intel gigabit 82545EM on-board chip.
+References: <20030217142025.A5BB51AFB4@bellini.mit.edu>
+In-Reply-To: <20030217142025.A5BB51AFB4@bellini.mit.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Added a journal to my root disk.
->> Mounted it ext3.
->> Found it scaled like crap
->> set my fstab back to ext2
->> /dev/sda2       /               ext2    defaults,errors=remount-ro      0   1
->> reboot.
->> Disk says it's mounted ext2 ("mount\n")
->> Still performs like crap.
->> 
->> Mmmmm ... it STILL mounts ext3.
->> Allegedly this is a "feature".
->> Can we please remove this stupidity?
->> 
-> If I say I want ext2, I want ext2 ....
+ghugh Song wrote:
+> Under SuSE-8.1-CDROM supplied 2.4.19-UP with e1000 v4.3.15 module, this 
+> ethernet worked on a E7505 based Supermicro X5DA8 Dual Xeon motherboard
+> with the Intel 82545EM chip on board with no special kernel option
+> inserted.  The RJ45 is hooked to 100Mb/s speed CISCO switching hub.
+> 
+> Now, e1000 v4.4.19 custom-built 2.4.21-pre4ac4 with SMP enabled does not work.
+> e1000 is detected.  It appeared properly in ifconfig with its own 
+> HWaddr.  But it does not work.
 
-Got several replies saying more or less the same thing ...
- 
-> Do you expect the kernel to read your /etc/fstab before mounting the
-> root file system, and then obey it?
 
-No, but it remounts the disk read-write after it mounts it read-only.
-It can switch from ext2 to ext3 at that point.
- 
-> Boot with 'rootfstype=ext2' 
-
-That works, but I don't see why I should have to specify additional
-commandline options.
-
-> and/or tune2fs -O ^has_journal /dev/sda2
-
-Can't - it refuses to touch the disk it's standing on even in single user.
-This makes it extremely difficult to revert.
-
-And in answer to some other questions:
-
-This machine can't boot off CD, so rescue disks are not an option.
-It's remote anyway, and I shouldn't have to screw around with it to do this.
-I'm not using initrd
-
-The point remains, if I say I want ext2, I should get ext2, not whatever 
-some random developer decides he thinks I should have. Worst of all,
-the system then lies to you and says it's mounted ext2 when it's not.
-
-M.
+Does stock 2.4.20 work?
+Does 2.4.20 + 2.4.21-pre4 pre-patch work?
 

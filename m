@@ -1,83 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262672AbREVRNY>; Tue, 22 May 2001 13:13:24 -0400
+	id <S262674AbREVRSz>; Tue, 22 May 2001 13:18:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262671AbREVRNO>; Tue, 22 May 2001 13:13:14 -0400
-Received: from www.microgate.com ([216.30.46.105]:38670 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP
-	id <S262670AbREVRNE>; Tue, 22 May 2001 13:13:04 -0400
-Message-ID: <01a801c0e2ea$dfffc5c0$0c00a8c0@diemos>
-From: "Paul Fulghum" <paulkf@microgate.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <paulus@samba.org>
-In-Reply-To: <200105221334.f4MDYsc22597@xyzzy.clara.co.uk>
-Subject: Re: SyncPPP IPCP/LCP loop problem and patch
-Date: Tue, 22 May 2001 12:13:16 -0600
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S262675AbREVRSp>; Tue, 22 May 2001 13:18:45 -0400
+Received: from t2.redhat.com ([199.183.24.243]:28659 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S262674AbREVRSb>; Tue, 22 May 2001 13:18:31 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <15114.37415.204391.420484@gargle.gargle.HOWL> 
+In-Reply-To: <15114.37415.204391.420484@gargle.gargle.HOWL>  <15113.31946.548249.53012@gargle.gargle.HOWL> <20010520165952.A9622@devserv.devel.redhat.com> <20010518113726.A29617@devserv.devel.redhat.com> <20010518114922.C14309@thyrsus.com> <8485.990357599@redhat.com> <20010520111856.C3431@thyrsus.com> <15823.990372866@redhat.com> <20010520114411.A3600@thyrsus.com> <16267.990374170@redhat.com> <20010520131457.A3769@thyrsus.com> <18686.990380851@redhat.com> <20010520164700.H4488@thyrsus.com> <25499.990399116@redhat.com> <7938.990539153@redhat.com> 
+To: John Stoffel <stoffel@casc.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Background to the argument about CML2 design philosophy 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Date: Tue, 22 May 2001 18:17:58 +0100
+Message-ID: <5080.990551878@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Seems to me that when you get the conf-request in opened state, you
-> > should send your conf-request before sending the conf-ack to the
-> > peer's conf-request.  I think this would short-circuit the loop (I
-> > could be wrong though, it's getting late).
-> 
-> Thanks but I've already tried that. You get a slightly different pattern
-> to the loop but it still loops.
 
-I'm just wondering if the loop that results when
-the cfg-req is sent 1st might be a results of 
-syncppp not processing a cfg-ack properly when
-in the opened state.
+stoffel@casc.com said:
+>  I don't agree with this, since the current CML1 scheme has wierd,
+> unwanted and wrong dependencies already, which can't (or haven't) been
+> found.   Since it would be put in during the 2.5.x branching, it's
+> expected that things will/can/should break, so I don't think there
+> will be any dire consequences.  
 
-RFC1661 state table shows a transition to req-sent
-from opened when a (properly formated with 
-correct sequence ID) cfg-ack is received.
+OK, I obviously don't expect the behaviour to be _exactly_ identical. If 
+CML2 allows the authors' intent to be more closely adhered to, that's a good 
+thing. But if the CML2 files exhibit behaviour which was clearly _not_ the 
+intention of the original CML1, that is a change which should be made under 
+separate cover.
 
-Syncppp does not do this (from sppp_lcp_input):
+> Such as what?  Do you have any examples here?  
 
- case LCP_CONF_ACK:
-  if (h->ident != sp->lcp.confid)
-   break;
-  sppp_clear_timeout (sp);
-  if ((sp->pp_link_state != SPPP_LINK_UP) &&
-      (dev->flags & IFF_UP)) {
-   /* Coming out of loopback mode. */
-   sp->pp_link_state=SPPP_LINK_UP;
-   printk (KERN_INFO "%s: protocol up\n", dev->name);
-  }
-  switch (sp->lcp.state) {
-  case LCP_STATE_CLOSED:
-   sp->lcp.state = LCP_STATE_ACK_RCVD;
-   sppp_set_timeout (sp, 5);
-   break;
-  case LCP_STATE_ACK_SENT:
-   sp->lcp.state = LCP_STATE_OPENED;
-   sppp_ipcp_open (sp);
-   break;
-  }
-  break;
+The MAC/SCSI dependencies, which it seems were 'simplified' at the cost of
+preventing certain combinations which were unlikely but valid, and which it
+was possible to select with the original rules.
 
-Maybe adding:
+Also of course the whole class of dependencies which people are talking 
+about introducing for the benefit of the hypothetical Aunt Tillie.
 
-  case LCP_STATE_OPENED:
-   sppp_lcp_open (sp);
-   sp->ipcp.state = IPCP_STATE_CLOSED;
-   sp->lcp.state = LCP_STATE_REQ_SENT;
-   break;
+I don't know how many, if any, of this kind of changes are _actually_ made
+in the current CML2 rules files - what I'm saying is that there _should_ be
+none. Such large changes to the policy are entirely unrelated to CML2 
+itself, and should be discussed separately. 
 
-to the above switch statement in addition to
-the cfg-req 1st change would cure both loops.
+If your response to this is "But there are no such changes, you
+misunderstood the MAC/SCSI dependency conversation and the Aunt Tillie stuff
+was all hypothetical, what are you talking about?", then good - that's
+precisely the answer I was after.
 
-Paul Fulghum paulkf@microgate.com
-Microgate Corporation www.microgate.com
+All I'm asking for is a clear agreement that within reason, the behaviour 
+of the CML2 rules files immediately after CML2 is merged will match the 
+intended behaviour of the CML1 rules prior to the merge.
 
+--
+dwmw2
 
 

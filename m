@@ -1,44 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbQLKTMV>; Mon, 11 Dec 2000 14:12:21 -0500
+	id <S129226AbQLKTQm>; Mon, 11 Dec 2000 14:16:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129226AbQLKTML>; Mon, 11 Dec 2000 14:12:11 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:5623 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129183AbQLKTMJ>; Mon, 11 Dec 2000 14:12:09 -0500
-Date: Mon, 11 Dec 2000 16:38:11 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: John Fremlin <vii@penguinpowered.com>
-cc: scole@lanl.gov, linux-kernel@vger.kernel.org
+	id <S129669AbQLKTQd>; Mon, 11 Dec 2000 14:16:33 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:42766 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129226AbQLKTQT>; Mon, 11 Dec 2000 14:16:19 -0500
 Subject: Re: UP 2.2.18 makes kernels 3% faster than UP 2.4.0-test12
-In-Reply-To: <m2k896rfg4.fsf@localhost.yi.org.>
-Message-ID: <Pine.LNX.4.21.0012111636040.4808-100000@duckman.distro.conectiva>
+To: riel@conectiva.com.br (Rik van Riel)
+Date: Mon, 11 Dec 2000 18:46:32 +0000 (GMT)
+Cc: vii@penguinpowered.com (John Fremlin), scole@lanl.gov,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0012111636040.4808-100000@duckman.distro.conectiva> from "Rik van Riel" at Dec 11, 2000 04:38:11 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E145Xy6-0008HA-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11 Dec 2000, John Fremlin wrote:
+> Doing a 'make bzImage' is NOT VM-intensive. Using this as a test
+> for the VM doesn't make any sense since it doesn't really excercise
+> the VM in any way...
 
-> Two points: 		[snipped]
+Its an interesting demo that 2.4 has some performance problems since 2.2
+is slower than 2.0 although nowdays not much.
 
-
-Doing a 'make bzImage' is NOT VM-intensive. Using this as a test
-for the VM doesn't make any sense since it doesn't really excercise
-the VM in any way...
-
-If you want to measure, or even just bitch about, the VM, you should
-at least quote results from something that uses the VM ;)
-
-regards,
-
-Rik
---
-Hollywood goes for world dumbination,
-	Trailer at 11.
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

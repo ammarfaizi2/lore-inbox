@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272042AbTHMXSh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 19:18:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272043AbTHMXSg
+	id S271941AbTHMXN4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 19:13:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271972AbTHMXN4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 19:18:36 -0400
-Received: from evrtwa1-ar2-4-33-045-074.evrtwa1.dsl-verizon.net ([4.33.45.74]:25531
-	"EHLO grok.yi.org") by vger.kernel.org with ESMTP id S272042AbTHMXSe
+	Wed, 13 Aug 2003 19:13:56 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:50063 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S271941AbTHMXNz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 19:18:34 -0400
-Message-ID: <3F3AC749.7010803@candelatech.com>
-Date: Wed, 13 Aug 2003 16:18:33 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
-X-Accept-Language: en-us, en
+	Wed, 13 Aug 2003 19:13:55 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Jan Niehusmann <jan@gondor.com>
+Subject: Re: IDE bug - was: Re: uncorrectable ext2 errors
+Date: Thu, 14 Aug 2003 01:14:32 +0200
+User-Agent: KMail/1.5
+References: <20030806150335.GA5430@gondor.com> <200308130221.26305.bzolnier@elka.pw.edu.pl> <20030813223641.GA1921@gondor.com>
+In-Reply-To: <20030813223641.GA1921@gondor.com>
+Cc: Andries Brouwer <aebr@win.tue.nl>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.4.21: proc-fs and allocating many new files (PROC_NDYNAMIC)
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308140114.32027.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am working on a mac-vlan module, and would like to have a proc entry for each
-vlan device.  My code fails after creating 124 vlans (which will create ~240
-proc entries).
+On Thursday 14 of August 2003 00:36, you wrote:
+> On Wed, Aug 13, 2003 at 02:21:26AM +0200, Bartlomiej Zolnierkiewicz wrote:
+> > Jan, did removing offending lines from pdc202xx_old.c help?
+>
+> Ok, now I tried a kernel without the
+> "hwif->addressing = (hwif->channel) ? 0 : 1"  line in pdc202xx_old.c,
+> and yes, now the 160GB drive works without aliasing parts above 137GB
+> back to the beginning of the drive.
+>
+> Some simple tests (reading and writing a few 100MB of data) didn't show
+> any nasty side effects. If you want me to do additional tests, please
+> tell me. At the moment the drive doesn't contain any data, so I can even
+> try dangerous things.
 
-What is worse, after doing this, the 802.1q module will not even load because
-it can't allocate it's small number of proc entries.  (I will fix this shortly
-and have it ignore the error and continue, since it uses ioctls as well.)
+Thanks!  Can you do some more testing?
+LBA-48 should be (was before 2.4.20 according to previous bugreports) working
+just fine, but just to make sure.
 
-After poking around in the proc-fs code (please, next time someone re-writes this,
-give us an int* err_code return value so that we can know why things fail!!!)
-I believe I must be hitting the failure due to not being able to find a free entry
-in the proc_alloc_map.  It seems that a max of PROC_NDYNAMIC proc entries can be
-created.  This value is #defined to 4096 in 2.4.21....
+I will remove these offending lines from 2.6.x if there are no problems.
 
-So, several questions:
-
-Can I arbitrarily make this bigger...say (4096*4)?  Any trade-offs other than memory?
-
-Is there a better way to have many proc file entries?  I can even live
-  with read-only, as I can do the config through ioctls.
-
-Thanks,
-Ben
-
--- 
-Ben Greear <greearb@candelatech.com>
-Candela Technologies Inc  http://www.candelatech.com
-
+--bartlomiej
 

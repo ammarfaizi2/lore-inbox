@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267620AbRHARQ2>; Wed, 1 Aug 2001 13:16:28 -0400
+	id <S267635AbRHARWt>; Wed, 1 Aug 2001 13:22:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267633AbRHARQT>; Wed, 1 Aug 2001 13:16:19 -0400
-Received: from femail41.sdc1.sfba.home.com ([24.254.60.35]:20145 "EHLO
-	femail41.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S267620AbRHARQJ>; Wed, 1 Aug 2001 13:16:09 -0400
-Date: Wed, 1 Aug 2001 13:18:40 -0400 (EDT)
-From: Garett Spencley <gspen@home.com>
-X-X-Sender: <gspen@localhost.localdomain>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: [very OT] DMCA loop hole
-In-Reply-To: <Pine.BSO.4.33.0108010137240.7994-100000@aaieee.daisy-chan.org>
-Message-ID: <Pine.LNX.4.33L2.0108011312310.904-100000@localhost.localdomain>
+	id <S267641AbRHARWj>; Wed, 1 Aug 2001 13:22:39 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:7932 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S267635AbRHARWd>; Wed, 1 Aug 2001 13:22:33 -0400
+Message-ID: <3B683AC4.E0F2BF9E@mvista.com>
+Date: Wed, 01 Aug 2001 10:22:12 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: No 100 HZ timer !
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> And do you seriously think you're going to convince
-> Ashcroft and company to prosecute Symantec for getting rid of a virus even
-> if it is DMCA 'protected'?
+I have just posted a patch on sourceforge:
+ http://sourceforge.net/projects/high-res-timers
 
-Yeah what people keep forgetting is that DMCA is _federal_ law. There is
-no suing. You can not sue someone because they violated the DMCA. Instead
-you have to report them to the federal authorities and they take it into
-their hands.
+to the 2.4.7 kernel with both ticked and tick less options, switch able
+at any time via a /proc interface.  The system is instrumented with
+Andrew Mortons time pegs with a couple of enhancements so you can easily
+see your clock/ timer overhead (thanks Andrew).
 
-That's the reason Dmitri's still in jail. As much as Adobe feels
-sorry for what they did to him (who knows if they actually do at all but
-my point is it doesn't matter anyway), there are no charges that Adobe can
-drop. It is a federal case, not a civil one.
+Please take a look at this system and let me know if a tick less system
+is worth further effort.  
 
-So if you encrypted a virus it would be up to the federal authorities to
-decide if cracking it was in violation of the DMCA. And since the
-government has proved time and time again that they feel that they are
-above the law (not just the U.S gov I should add, I'm Canadian and I get
-the same crap from mine from time to time) there is very little chance
-that they wouldn't throw your ass in jail and laugh at any blurb you gave
-them about the DMCA.
+The testing I have done seems to indicate a lower overhead on a lightly
+loaded system, about the same overhead with some load, and much more
+overhead with a heavy load.  To me this seems like the wrong thing to
+do.  We would like as nearly a flat overhead to load curve as we can get
+and the ticked system seems to be much better in this regard.  Still
+there may be applications where this works.
 
-But IANAL so I could be wrong....
+comments?  RESULTS?
 
--- 
-Garett Spencley
-
-I encourage you to encrypt e-mail sent to me using PGP
-My public key is available on PGP key servers (http://keyservers.net)
-Key fingerprint: 8062 1A46 9719 C929 578C BB4E 7799 EC1A AB12 D3B9
-
+George

@@ -1,69 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262203AbVBKG63@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262204AbVBKHFn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262203AbVBKG63 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 01:58:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262204AbVBKG63
+	id S262204AbVBKHFn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 02:05:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262212AbVBKHFm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 01:58:29 -0500
-Received: from waste.org ([216.27.176.166]:36562 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262203AbVBKG60 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 01:58:26 -0500
-Date: Thu, 10 Feb 2005 22:57:53 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Paul Davis <paul@linuxaudiosystems.com>
-Cc: Peter Williams <pwil3058@bigpond.net.au>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Chris Wright <chrisw@osdl.org>,
-       "Jack O'Quin" <jack.oquin@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       Con Kolivas <kernel@kolivas.org>, rlrevell@joe-job.com,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.11-rc3-mm2
-Message-ID: <20050211065753.GE15058@waste.org>
-References: <420C25D6.6090807@bigpond.net.au> <200502110341.j1B3fS8o017685@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 11 Feb 2005 02:05:42 -0500
+Received: from smtp817.mail.sc5.yahoo.com ([66.163.170.3]:38494 "HELO
+	smtp817.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262204AbVBKHFc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 02:05:32 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: InputML <linux-input@atrey.karlin.mff.cuni.cz>
+Subject: [PATCH 0/10] Convert gameport to driver model/sysfs
+Date: Fri, 11 Feb 2005 01:58:47 -0500
+User-Agent: KMail/1.7.2
+Cc: alsa-devel@alsa-project.org, LKML <linux-kernel@vger.kernel.org>,
+       Vojtech Pavlik <vojtech@suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200502110341.j1B3fS8o017685@localhost.localdomain>
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200502110158.47872.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 10, 2005 at 10:41:28PM -0500, Paul Davis wrote:
->   [ the best solution is .... ]
-> 
->   [ my preferred solution is ... ]
-> 
->   [ it would be better if ... ]
-> 
->   [ this is a kludge and it should be done instead like ... ]
-> 
-> did nobody read what andrew wrote and what JOQ pointed out?
-> 
-> after weeks of debating this, no other conceptual solution emerged
-> that did not have at least as many problems as the RT LSM module, and
-> all other proposed solutions were also more invasive of other aspects
-> of kernel design and operations than RT LSM is.
+Hi,
 
-Eh? Chris Wright's original rlimits patch was very straightforward
-(unlike some of the other rlimit-like patches that followed).
-I haven't heard the downsides of it yet.
+This series of patches adds a new "gameport" bus to the driver model.
+It is implemented very similarly to "serio" bus and also allows
+individual drivers to be manually bound/disconnected from a port
+by manipulating port's "drvctl" attribute.
 
-simple rlimits:
- logical extension of standard, flexible interface
- fine-grained per-process access to nice levels and priorities
- managed with standard tools
- fairly broad possible applications
- clean enough to be added unconditionally
- already doing mlock this way!
+01-gameport-renames1.patch
+- rename gameport->driver to gameport->port_data in preparation
+  to sysfs integration to avoid confusion with real drivers.
 
-RT LSM:
- new, narrow magic group interface (module parameters!)
- boolean granularity of access to all RT levels and maybe mlock
- potential interesting interaction with other LSMs
- not orthogonal to mlock
- not appropriate for every box out there
- requires lsm and (sysfs or modprobe)
+02-gameport-renames2.patch
+- more renames in gameport in preparations to sysfs integration,
+  gameport_dev renamed to gameport_driver, gameport_[un]register_device
+  renamed to gameport_[un]register_driver
+
+03-gameport-connect-mandatory.patch
+- make connect and disconnect mandatory as these call gameport_open
+  and gameport_close which actually bind driver and port together.
+
+04-gameport-dynalloc-prepare.patch
+- sysfs/kobjects requires objects be allocated synamically. Prepare
+  to dynamic gameport allocation, create gameport_allocate_port and
+  gameport_free_port; dynamically allocated ports are freed by core
+  upon release. Also add gameport_set_name and gameport_set_phys
+  to ease transition.
+
+05-gameport-dynalloc-input.patch
+- convert drivers in input/gameport to dynamic gameport allocation.
+
+06-gameport-dynalloc-sound-oss.patch
+- convert drivers in sound/oss to dynamic gameport allocation.
+
+07-gameport-dynalloc-sound-alsa.patch
+- convert drivers in sound/pci to dynamic gameport allocation.
+
+08-gameport-drivers-sysfs.patch
+- add "gameport" bus and have joystick gameport drivers register
+  themselves on this bus.
+
+09-gameport-devices-sysfs.patch
+- complete gameport sysfs integration. Gameports are registered on
+  the "gameport" bus.
+ 
+10-gameport-drvdata.patch
+- Get rid of gameport->private, use driver-specific data in device
+  structure, access through gameport_get/set_drvdata helpers.
+
+The changes can also be pulled from my tree (which has Vojtech's
+input tree as a parent):
+
+	bk pull bk://dtor.bkbits.net/input 
+
+I am CC-ing ALSA list as the changes touch quite a few sound drivers.
+
+Comments/testing is appreciated.
 
 -- 
-Mathematics is the supreme nostalgia of our time.
+Dmitry

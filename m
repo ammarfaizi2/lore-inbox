@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316785AbSEUXac>; Tue, 21 May 2002 19:30:32 -0400
+	id <S316784AbSEUXbM>; Tue, 21 May 2002 19:31:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316784AbSEUXaa>; Tue, 21 May 2002 19:30:30 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:26639 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316785AbSEUX3a>; Tue, 21 May 2002 19:29:30 -0400
-Date: Wed, 22 May 2002 00:29:23 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Wayne.Brown@altec.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.5.17
-Message-ID: <20020522002923.A10208@flint.arm.linux.org.uk>
-In-Reply-To: <86256BC0.00807DCA.00@smtpnotes.altec.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S316786AbSEUXbL>; Tue, 21 May 2002 19:31:11 -0400
+Received: from edcom.no ([194.248.172.30]:11275 "EHLO edcom.no")
+	by vger.kernel.org with ESMTP id <S316784AbSEUXai>;
+	Tue, 21 May 2002 19:30:38 -0400
+From: "Svein E. Seldal" <Svein.Seldal@edcom.no>
+To: "Greg KH" <greg@kroah.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Custom kernel version and depmod
+Date: Wed, 22 May 2002 01:30:36 +0200
+Message-ID: <KKEHJJLHENOALGODMOGLAECICBAA.Svein.Seldal@edcom.no>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+In-Reply-To: <20020521180515.GF1295@kroah.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 21, 2002 at 06:20:56PM -0500, Wayne.Brown@altec.com wrote:
-> So, I'm just getting used to the idea of using new tools to build kernels,
-> and now I learn that 2.5 breaks an ordinary program that I use all day,
-> every day. It just keeps getting better and better...
 
-The 2.<odd> series, like 2.5 is a strictly development kernel series; new
-features go into these all the time.  You can expect it to:
 
-1. not build.
-2. crash.
-3. silently eat your filesystems.
-4. break userspace programs.
+> From: Greg KH
+>
+> A bit off-topic, but any reason why you can not just submit your driver
+> for inclusion in the main kernel tree?  The USB developers are usually
+> quite easy to convince to take new drivers :)
 
-or any combination of the above.  If you're looking for stability, stick
-with the 2.<even> series.
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Well I know, but the problem here is that the design is to a development
+card. It has not been assigned a VID/PID and neither will it. I dont think
+we should clutter the kernel with such drivers, do we?
+
+Anyway, my question was focused on depmod and kernel module version system
+and not the driver itself.
+
+
+Svein
 

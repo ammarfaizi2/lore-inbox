@@ -1,110 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262680AbTDEVvZ (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 16:51:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262682AbTDEVvZ (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 16:51:25 -0500
-Received: from almesberger.net ([63.105.73.239]:14606 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S262680AbTDEVvX (for <rfc822;linux-kernel@vger.kernel.org>); Sat, 5 Apr 2003 16:51:23 -0500
-Date: Sat, 5 Apr 2003 19:02:43 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Karim Yaghmour <karim@opersys.com>
-Cc: linux-kernel@vger.kernel.org, LTT-Dev <ltt-dev@shafik.org>
-Subject: Re: [RFC/FYI] reliable markers (hooks/probes/taps/...)
-Message-ID: <20030405190243.B19288@almesberger.net>
-References: <20030403070758.A18709@almesberger.net> <20030404224652.A19288@almesberger.net> <3E8F0DEF.C50FB29C@opersys.com>
+	id S262682AbTDEVzD (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 16:55:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262683AbTDEVzD (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 16:55:03 -0500
+Received: from mail-3.tiscali.it ([195.130.225.149]:47746 "EHLO
+	mail.tiscali.it") by vger.kernel.org with ESMTP id S262682AbTDEVzC (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Apr 2003 16:55:02 -0500
+Date: Sun, 6 Apr 2003 00:06:21 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@digeo.com>
+Cc: mbligh@aracnet.com, mingo@elte.hu, hugh@veritas.com, dmccr@us.ibm.com,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: objrmap and vmtruncate
+Message-ID: <20030405220621.GG1326@dualathlon.random>
+References: <20030404163154.77f19d9e.akpm@digeo.com> <12880000.1049508832@flay> <20030405024414.GP16293@dualathlon.random> <20030404192401.03292293.akpm@digeo.com> <20030405040614.66511e1e.akpm@digeo.com> <20030405163003.GD1326@dualathlon.random> <20030405132406.437b27d7.akpm@digeo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3E8F0DEF.C50FB29C@opersys.com>; from karim@opersys.com on Sat, Apr 05, 2003 at 12:10:07PM -0500
+In-Reply-To: <20030405132406.437b27d7.akpm@digeo.com>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Karim Yaghmour wrote:
-> We've already got a small program that does this for LTT statements
-> which we plan to use in the future: genevent.
+On Sat, Apr 05, 2003 at 01:24:06PM -0800, Andrew Morton wrote:
+> Andrea Arcangeli <andrea@suse.de> wrote:
+> >
+> > On Sat, Apr 05, 2003 at 04:06:14AM -0800, Andrew Morton wrote:
+> > > Andrew Morton <akpm@digeo.com> wrote:
+> > > >
+> > > > Nobody has written an "exploit" for this yet, but it's there.
+> > > 
+> > > Here we go.  The test app is called `rmap-test'.  It is in ext3 CVS.  See
+> > > 
+> > > 	http://www.zip.com.au/~akpm/linux/ext3/
+> > > 
+> > > It sets up N MAP_SHARED VMA's and N tasks touching them in various access
+> > > patterns.
+> > 
+> > I'm not questioning during paging rmap is more efficient than objrmap,
+> > but your argument about rmap having lower complexity of objrmap and that
+> > rmap is needed is wrong. The fact is that with your 100 mappings per
+> > each of the 100 tasks case, both algorithms works in O(N) where N is
+> > the number of the pagetables mapping the page.
+> 
+> Nope.  To unmap a page, full rmap has to scan 100 pte_chain slots, which is 3
+> cachelines worth.  objrmap has to scan 10,000 vma's, 9,900 of which do not map
+> that page at all.
 
-This looks like a clear improvement, and the markup needed in the
-kernel is also pretty straightforward.
+I see what you mean, you're right. That's because all the 10,000 vma
+belongs to the same inode.
 
-But my approach actually goes a bit further: I don't even need to
-know types, because I can extract them from debugging information.
-Clearly, there is a limit on how useful this is. E.g. if a variable
-changes its type from "int" to "struct something *", anything using
-it will need to know. But at least changes like "int" -> "unsigned
-long" or -> "whatever_t" don't need to be synchronized.
-
-Furthermore, the markers are for desperate cases, where the
-debugging information does not allow us to find arguments or
-variables, or even the location for placing the breakpoint. On
-function entry, it should be possible to access arguments without
-any markup in the code. I'll examine that part soon.
-
-Generally, my idea is to gather as much useful information from
-debugging data as possible. A few observations so far (based on
-using DWARF2 information; all this is on the kernel, with the usual
-optimizations):
-
- - gcc provides accurate type and name information
-
- - location of static or extern functions is accurate, but there
-   doesn't seem to be a reliable means for determining where the
-   function prologue ends [10000]
-
- - the location of inlined functions is less accurate than for
-   non-inlined functions [10003]
-
- - labels (as in "goto foo;") are completely erratic (that's one
-   reason for markers) [10001, 10002, 10003]
-
- - variable locations information is frequently only useful if
-   we're after the prologue, and it does not accurately reflect
-   register copies, and such (that's another reason for markers)
-   [10005]
-
- - call frame information seems to be almost sufficient for
-   emulating a function return. "Almost" because I also need to
-   analyze the add N,%esp instruction following the call. I'm
-   not sure yet if there isn't a better way, though.
-
-The numbers in square brackets are the gcc PRs I've submitted.
-(http://gcc.gnu.org/cgi-bin/gnatsweb.pl)
-
-Without optimization, some things look better, of course.
-
-I'm not sure how much help we can expect from the gcc side. Some
-of these things may just be too hard to fix. And others can't be
-usefully fixed at all (e.g. the markers tell gcc where the focal
-points are, where it has to relax optimization for accessibility).
-
-Some thing I haven't looked at yet:
-
- - using line numbers to specify locations. With optimization, I
-   expect total disaster here. Also, line numbers are too volatile
-   for few things but manual debugging.
-
- - passing structures as arguments, or returning them from functions
-
- - unusual (i.e. large) alignment settings. Perhaps I'll eventually
-   need to know CFLAGS in order to reconstruct some things.
-
-> Of course this is just a begining. We're open to suggestions and
-> contributions.
-
-Same thing here :-) My goal is to reduce the markup that has to
-be done on the kernel to the bare minimum. The "reliable markers"
-are the least intrusive way I could think of for handling those
-cases where nothing else works (e.g. in the middle of a function).
-
-It would be nice to have a "global" clobber, though. I.e. one that
-flushes and invalidates all values cached in registers, and that
-forces all evaluations happening prior in the nominal execution
-flow to be carried out, including initialization of function-local
-variables. That way, reliable markers wouldn't need the list of
-things that might be looked at.
-
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+Andrea

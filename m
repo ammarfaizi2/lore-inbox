@@ -1,91 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266227AbUBJSaK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 13:30:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266030AbUBJS3q
+	id S266091AbUBJSK4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 13:10:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266090AbUBJSHv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 13:29:46 -0500
-Received: from h24-82-88-106.vf.shawcable.net ([24.82.88.106]:141 "HELO
-	tinyvaio.nome.ca") by vger.kernel.org with SMTP id S266222AbUBJS3P
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 13:29:15 -0500
-Date: Tue, 10 Feb 2004 10:29:44 -0800
-From: Mike Bell <kernel@mikebell.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: devfs vs udev, thoughts from a devfs user
-Message-ID: <20040210182943.GO4421@tinyvaio.nome.ca>
-References: <20040210113417.GD4421@tinyvaio.nome.ca> <20040210170157.GA27421@kroah.com> <20040210171337.GK4421@tinyvaio.nome.ca> <20040210172552.GB27779@kroah.com> <20040210174603.GL4421@tinyvaio.nome.ca> <20040210181242.GH28111@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040210181242.GH28111@kroah.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Tue, 10 Feb 2004 13:07:51 -0500
+Received: from ausadmmsrr504.aus.amer.dell.com ([143.166.83.91]:52240 "HELO
+	AUSADMMSRR504.aus.amer.dell.com") by vger.kernel.org with SMTP
+	id S266072AbUBJSGW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 13:06:22 -0500
+X-Server-Uuid: 5b9b39fe-7ea5-4ce3-be8e-d57fc0776f39
+Message-ID: <CE41BFEF2481C246A8DE0D2B4DBACF4F020E5F21@ausx2kmpc106.aus.amer.dell.com>
+From: Stuart_Hayes@Dell.com
+To: axboe@suse.de
+cc: linux-kernel@vger.kernel.org
+Subject: RE: PATCH (for 2.6.3-rc1) for cdrom driver dvd_read_struct
+Date: Tue, 10 Feb 2004 12:06:03 -0600
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+X-WSS-ID: 6C37C2121349082-01-01
+Content-Type: text/plain; 
+ charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 10, 2004 at 10:12:42AM -0800, Greg KH wrote:
-> No, that is not true.  devfs exports the device node itself.  It does
-> not just export the major:minor number.
 
-That's a pretty minor difference, from the kernel's point of view. It's
-basically putting the same numbers in different fields.
+At risk of sounding stupid, how can a user space program check the type of
+media (DVD vs. CD) that's in the drive?  I think that's what magicdev is
+trying to do.
+Thanks
+Stuart
 
-> devfs also does not export the position within the entire device tree,
-> which sysfs does.  
 
-devfs tried to do just that. sysfs does it better though. I don't see
-what that has to do with my point.
+-----Original Message-----
+From: Jens Axboe [mailto:axboe@suse.de]
+Sent: Tuesday, February 10, 2004 11:12 AM
+To: Hayes, Stuart
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PATCH (for 2.6.3-rc1) for cdrom driver dvd_read_struct
 
-> They are two completely different filesystems, doing two completely
-> different things.  Please do not confuse them.
 
-sysfs and devfs are very different. I said they both accomplish one
-common goal, sysfs for udev and devfs for devfsd.
+On Tue, Feb 10 2004, Stuart Hayes wrote:
+> The attached patch will make the "dvd_read_struct" function in cdrom.c 
+> check that the DVD drive can currently do the DVD read structure command 
+> before sending the command to the drive.  It does this by checking the 
+> "dvd read" feature using the "get configuration" command.
+> 
+> Currently, cdrom.c only checks that the drive is a DVD drive before 
+> allowing the dvd read structure command to go to the drive--it does not 
+> make sure that the DVD drive has a DVD in it.  Without this patch, if CD 
+> medium is in a DVD drive, and the DVD_READ_STRUCT ioctl is used, the drive
+> will spew an ugly "illegal request" error (magicdev does this).
 
-> But the main point is that udev is in userspace, and devfs is in the
-> kernel.  You forgot that :)
+I'm rather anxious about applying anything like this, in my experience
+it's much much safer to simply let the command fail. I don't see
+anything technically wrong with your approach, I'd just like it tested
+on 100 different dvd drives :)
 
-No I didn't. udev is userspace, devfsd is userspace. devfs is kernel
-space, sysfs is kernel space. They're the same.
+magicdev should be checking the media type itself first.
 
-> sysfs has no such "naming policy".  It merely exports the name that the
-> kernel happened to give the device, using the LSB naming scheme.  It
-> does not rely on driver substems to create subdirectories for their
-> devices, nor export their own nested naming schemes.
+-- 
+Jens Axboe
 
-But sysfs is still setting naming policy in the kernel. Because you
-didn't write the kernelspace static names in question, they don't exist?
-
-> sysfs merely exports the info that the kernel knows about a device, by
-> which udev creates a device node.
-
-devfs merely exports information the kernel knows, by which devfsd can
-create device nodes.
-
-> devfs exports the device node, and then lets devfsd override that node
-> and create other stuff.
-
-And sysfs exports files that are (from a kernel point of view) very
-nearly a device node.
-
-> Please also do not overlook the fragility of the devfs->devfsd
-> interface.  It is binary, relies on 1 sender and 1 receiver, and doesn't
-> allow any other programs to get this info.
-
-Didn't say the current devfs was a good implementation of the concept.
-Said I liked a devfs-like concept.
-
-> But the point is that udev does not require such a interface as devfs to
-> get the job done.  devfsd does.
-
-Yes it does, it requires sysfs.
-
-> Providing specific examples of what you find lacking in udev would be
-> constructive.  Saying, "I don't like it as it doesn't feel right to me"
-> is merely wanting to pick a fight.
-
-udev tries to do the job without a devfs. I said that already. I think
-there should be a kernel exported filesystem with kernel-created device
-nodes, and that udev's role should continue to do something similar to what it
-does now (manage permissions and user-supplied names), only on that
-kernel-exported filesystem.

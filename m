@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136600AbREAJWO>; Tue, 1 May 2001 05:22:14 -0400
+	id <S136602AbREAJiX>; Tue, 1 May 2001 05:38:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136602AbREAJWD>; Tue, 1 May 2001 05:22:03 -0400
-Received: from cs.columbia.edu ([128.59.16.20]:29681 "EHLO cs.columbia.edu")
-	by vger.kernel.org with ESMTP id <S136600AbREAJVz>;
-	Tue, 1 May 2001 05:21:55 -0400
-Date: Tue, 1 May 2001 02:21:52 -0700 (PDT)
-From: Ion Badulescu <ionut@cs.columbia.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Andrea Arcangeli <andrea@suse.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.2.19 locks up on SMP
-In-Reply-To: <Pine.LNX.4.33.0105010051490.12259-100000@age.cs.columbia.edu>
-Message-ID: <Pine.LNX.4.33.0105010140270.12259-100000@age.cs.columbia.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S136603AbREAJiN>; Tue, 1 May 2001 05:38:13 -0400
+Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:11396 "EHLO
+	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S136602AbREAJiB>; Tue, 1 May 2001 05:38:01 -0400
+Date: Tue, 1 May 2001 11:37:58 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Jeff Dike <jdike@karaya.com>
+Cc: Paul J Albrecht <pjalbrecht@home.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux Kernel Debuggers, KDB or KGDB?
+Message-ID: <20010501113758.D3305@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <01043016264000.00697@CB57534-A> <200105010011.TAA04345@ccure.karaya.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <200105010011.TAA04345@ccure.karaya.com>; from jdike@karaya.com on Mon, Apr 30, 2001 at 07:11:35PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 May 2001, Ion Badulescu wrote:
+On Mon, Apr 30, 2001 at 07:11:35PM -0500, Jeff Dike wrote:
+> pjalbrecht@home.com said:
+> > Where can I find an analysis of the relative strengths and weaknesses
+> > of KDB and KGDB for kernel debug? Has the linux community come to any
+> > consensus regarding the utility one or the other? 
+> 
+> You ought to add UML to the list, since it is useful for
+> debugging any part of the kernel that's not arch code or a
+> hardware device driver (except that there's now USB support for
+> UML).
 
-> I'll do another test, 2.2.18 + the NFS/SunRPC changes, and see how it 
-> goes. Hopefully they'll apply easily...
+Basically you could add support for ALL generic subsystems, that
+support dummy hardware, like SCSI and ISDN for example.
 
-As I suspected, 2.2.18 + all the NFS/NFSd/SunRPC changes present in 
-2.2.19pre10 locks up with wait_on_bh as soon as I run ls -lR on a large 
-NFS directory tree, while at the same time pummeling the network and the 
-local disks.
+Is that planned or do I suggest sth. stupid here? ;-)
 
-NFS is not enough to trigger the bug, the extra disk/network stress *is*
-necessary. The network stress actually seems to be enough, I just 
-triggered the bug again...
+Regards
 
-2.2.18 vanilla is fine.
-
-So I guess the next round is in Trond's court. :-)
-
-Thanks,
-Ion
-
+Ingo Oeser
 -- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
-
-
-
+10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
+         <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>

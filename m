@@ -1,76 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261701AbUKSXaQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261689AbUKSXYx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261701AbUKSXaQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 18:30:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbUKSX1I
+	id S261689AbUKSXYx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 18:24:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261671AbUKSXWk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 18:27:08 -0500
-Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:2247 "EHLO mta1.cl.cam.ac.uk")
-	by vger.kernel.org with ESMTP id S261637AbUKSXW4 (ORCPT
+	Fri, 19 Nov 2004 18:22:40 -0500
+Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:61638 "EHLO mta1.cl.cam.ac.uk")
+	by vger.kernel.org with ESMTP id S261652AbUKSXVx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 18:22:56 -0500
+	Fri, 19 Nov 2004 18:21:53 -0500
 To: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
 cc: linux-kernel@vger.kernel.org, Steven.Hand@cl.cam.ac.uk,
        Christian.Limpach@cl.cam.ac.uk, Keir.Fraser@cl.cam.ac.uk,
-       Ian.Pratt@cl.cam.ac.uk
-Subject: [4/7] Xen VMM patch set : /dev/mem io_remap_page_range for CONFIG_XEN
+       alan@redhat.com
+Subject: [3/7] Xen VMM patch set : runtime disable of VT console
 In-reply-to: Your message of "Fri, 19 Nov 2004 23:16:33 GMT."
              <E1CVHzW-0004XC-00@mta1.cl.cam.ac.uk> 
-Date: Fri, 19 Nov 2004 23:22:51 +0000
+Date: Fri, 19 Nov 2004 23:21:51 +0000
 From: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
-Message-Id: <E1CVI5c-0004bf-00@mta1.cl.cam.ac.uk>
+Message-Id: <E1CVI4e-0004aW-00@mta1.cl.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This patch modifies /dev/mem to call io_remap_page_range rather than
-remap_pfn_range under CONFIG_XEN.  This is required because in arch
-xen we need to use a different function for mapping MMIO space vs
-mapping psueudo-physical memory.  This allows the X server and other
-programs that use /dev/mem for MMIO to work under Xen.
+This patch enables the VT console to be disabled at runtime even if it
+is built into the kernel. Arch xen needs this to avoid trying to
+initialise a VT in virtual machine that doesn't have access to the
+console hardware.
 
 Signed-off-by: ian.pratt@cl.cam.ac.uk
 
 ---
 
 
-diff -Nurp pristine-linux-2.6.10-rc2/drivers/char/mem.c tmp-linux-2.6.10-rc2-xen.patch/drivers/char/mem.c
---- pristine-linux-2.6.10-rc2/drivers/char/mem.c	2004-11-15 01:27:41.000000000 +0000
-+++ tmp-linux-2.6.10-rc2-xen.patch/drivers/char/mem.c	2004-11-19 16:33:04.000000000 +0000
-@@ -42,7 +42,12 @@ extern void tapechar_init(void);
-  */
- static inline int uncached_access(struct file *file, unsigned long addr)
- {
--#if defined(__i386__)
-+#ifdef CONFIG_XEN
-+	if (file->f_flags & O_SYNC)
-+		return 1;
-+	/* Xen sets correct MTRR type on non-RAM for us. */
-+	return 0;
-+#elif defined(__i386__)
- 	/*
- 	 * On the PPro and successors, the MTRRs are used to set
- 	 * memory types for physical addresses outside main memory,
-@@ -201,6 +206,14 @@ static int mmap_mem(struct file * file, 
- 		vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
+diff -Nurp pristine-linux-2.6.10-rc2/drivers/char/tty_io.c tmp-linux-2.6.10-rc2-xen.patch/drivers/char/tty_io.c
+--- pristine-linux-2.6.10-rc2/drivers/char/tty_io.c	2004-11-15 01:27:52.000000000 +0000
++++ tmp-linux-2.6.10-rc2-xen.patch/drivers/char/tty_io.c	2004-11-18 20:10:26.000000000 +0000
+@@ -131,6 +131,8 @@ LIST_HEAD(tty_drivers);			/* linked list
+    vt.c for deeply disgusting hack reasons */
+ DECLARE_MUTEX(tty_sem);
+ 
++int console_use_vt = 1;
++
+ #ifdef CONFIG_UNIX98_PTYS
+ extern struct tty_driver *ptm_driver;	/* Unix98 pty masters; for /dev/ptmx */
+ extern int pty_limit;		/* Config limit on Unix98 ptys */
+@@ -2964,14 +2966,19 @@ static int __init tty_init(void)
  #endif
  
-+#if defined(CONFIG_XEN)
-+	if (io_remap_page_range(vma,
-+				vma->vm_start,
-+				vma->vm_pgoff << PAGE_SHIFT,
-+				vma->vm_end-vma->vm_start,
-+				vma->vm_page_prot))
-+		return -EAGAIN;
-+#else
- 	/* Remap-pfn-range will mark the range VM_IO and VM_RESERVED */
- 	if (remap_pfn_range(vma,
- 			    vma->vm_start,
-@@ -208,6 +221,7 @@ static int mmap_mem(struct file * file, 
- 			    vma->vm_end-vma->vm_start,
- 			    vma->vm_page_prot))
- 		return -EAGAIN;
-+#endif
+ #ifdef CONFIG_VT
+-	cdev_init(&vc0_cdev, &console_fops);
+-	if (cdev_add(&vc0_cdev, MKDEV(TTY_MAJOR, 0), 1) ||
+-	    register_chrdev_region(MKDEV(TTY_MAJOR, 0), 1, "/dev/vc/0") < 0)
+-		panic("Couldn't register /dev/tty0 driver\n");
+-	devfs_mk_cdev(MKDEV(TTY_MAJOR, 0), S_IFCHR|S_IRUSR|S_IWUSR, "vc/0");
+-	class_simple_device_add(tty_class, MKDEV(TTY_MAJOR, 0), NULL, "tty0");
++	if (console_use_vt) {
++		cdev_init(&vc0_cdev, &console_fops);
++		if (cdev_add(&vc0_cdev, MKDEV(TTY_MAJOR, 0), 1) ||
++		    register_chrdev_region(MKDEV(TTY_MAJOR, 0), 1,
++					   "/dev/vc/0") < 0)
++			panic("Couldn't register /dev/tty0 driver\n");
++		devfs_mk_cdev(MKDEV(TTY_MAJOR, 0), S_IFCHR|S_IRUSR|S_IWUSR,
++			      "vc/0");
++		class_simple_device_add(tty_class, MKDEV(TTY_MAJOR, 0), NULL,
++					"tty0");
+ 
+-	vty_init();
++		vty_init();
++	}
+ #endif
  	return 0;
  }
- 

@@ -1,64 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129491AbRCFVJr>; Tue, 6 Mar 2001 16:09:47 -0500
+	id <S129496AbRCFVLH>; Tue, 6 Mar 2001 16:11:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129495AbRCFVJ1>; Tue, 6 Mar 2001 16:09:27 -0500
-Received: from tomts7.bellnexxia.net ([209.226.175.40]:38080 "EHLO
-	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S129491AbRCFVJV>; Tue, 6 Mar 2001 16:09:21 -0500
-Message-ID: <3AA550C8.59FC1B4A@coplanar.net>
-Date: Tue, 06 Mar 2001 16:04:08 -0500
-From: Jeremy Jackson <jerj@coplanar.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
-X-Accept-Language: en
+	id <S129498AbRCFVK5>; Tue, 6 Mar 2001 16:10:57 -0500
+Received: from www.topmail.de ([212.255.16.226]:24974 "HELO www.topmail.de")
+	by vger.kernel.org with SMTP id <S129496AbRCFVKs> convert rfc822-to-8bit;
+	Tue, 6 Mar 2001 16:10:48 -0500
+Message-ID: <026701c0a681$e93aa2e0$de00a8c0@homeip.net>
+From: "Thorsten Glaser Geuer" <eccesys@topmail.de>
+To: "David Weinehall" <tao@acc.umu.se>,
+        "Sean Hunter" <sean@dev.sportingbet.com>,
+        "Laramie Leavitt" <laramie.leavitt@btinternet.com>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <3AA4D92D.CDDB764D@ftel.co.uk> <JKEGJJAJPOLNIFPAEDHLEEDGCJAA.laramie.leavitt@btinternet.com> <20010306151242.D31649@dev.sportingbet.com> <20010306163711.A21941@khan.acc.umu.se>
+Subject: Re: binfmt_script and ^M
+Date: Tue, 6 Mar 2001 21:10:26 -0000
 MIME-Version: 1.0
-To: Peter Samuelson <peter@cadcamlab.org>
-CC: Jeremy <prrthd25@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: VFS: Cannot open root device
-In-Reply-To: <20010303011000.1832.qmail@web4203.mail.yahoo.com> <3AA04B88.9B4E5AF8@coplanar.net> <20010306142232.C28368@cadcamlab.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Samuelson wrote:
+----- Original Message ----- 
+From: "David Weinehall" <tao@acc.umu.se>
+To: "Sean Hunter" <sean@dev.sportingbet.com>; "Laramie Leavitt" <laramie.leavitt@btinternet.com>; <linux-kernel@vger.kernel.org>
+Sent: Tuesday, 6. March 2001 15:37
+Subject: Re: binfmt_script and ^M
 
-> [Jeremy Jackson]
-> > try command 'man mkinitrd' under redhat for hints about initial
-> > ramdisk.
->
-> I have been puzzled about this for quite some time.  Why exactly does
-> everyone always recommend using 'mkinitrd' on Red Hat systems?  It
-> seems to me that if you are compiling a kernel for a specific server
-> anyway, it is a much more reliable proposition to just compile in
-> whatever drivers you need to boot.
->
-> initrd's are inherently clumsy and fragile, to my way of thinking.
-> I've always thought they should only be used to support diverse or
-> unknown hardware, or odd cases like crypto loopback root.  Are there
-> other advantages to 'mkinitrd' in the case of a custom kernel for a
-> single machine?
->
 
-no the reason redhat uses it is to allow a generic kernel for everyone.
-having *ALL* drivers in kernel would make it huge, and some drivers
-conflict with each other (not many) so they couldn't all be in there.
+> On Tue, Mar 06, 2001 at 03:12:42PM +0000, Sean Hunter wrote:
+> > 
+> > I propose
+> > /proc/sys/kernel/im_too_lame_to_learn_how_to_use_the_most_basic_of_unix_tools_so_i_want_the_kernel_to_be_filled_with_crap_to_disguise_my_ineptitude
+> > 
+> > Any support?
+> 
+> <sarcasm>
+> Hey, let's go even further! Let's add support in all programs for \r\n.
 
-If you have made a custom kernel (that is configured properly) you don't
-need to bother.  The question is if you configured it properly :)
+That is no sarcasm, it is ridiculous. CRLF line endings are ISO-IR-6 and
+US-ASCII standard, and even UN*X systems used them when they had printers
+(typewriters?) as output device, and no screens. With the Virtual Terminal,
+Virtual Console stuff times may have changed but we have so many old stuff
+in it... I won't remove them or didn't think of, but I remember you of:
+ - lost+found
+ - using ESC (or Alt???) as META for _shell commands_ which
+   easily could be Ctrl-Left, Ctrl-Right, Ctrl-Del etc.
+ - EMACS    :-((
+ - ED/EX/VI :-(
 
-I would suggest taking a config from redhat (it puts them in
-/usr/src/linux/configs)
-and just tweaking that. (sorry if i already said that once)
 
-other pitfalls include not having the right root= entry (or missing one) in
-lilo.conf.
+The following does _not_ have to do with any US-ASCII or ISO_646.irv:1991
+standards which IIRC are inherited by POSIX.
+> And why not make all program use filenames that have an 8+3 char garbled
+> equivalent where the last 3 are the indicators of the filetype. Oh, and
+> let's do everything to make sure the user doesn't leave Gnome/KDE.
+> And of course, let's add new features to all existing protocols and
+> other standards to make them "superior" to other implementations.
+> Oh, and of course, we must require an extra 64 MB of memory and
+> 500 MB of diskspace for each release, and a 200MHz faster processor.
+> And let us do all system settings through a registry.
+> 
+> OH! Let's change the name of the operating-system to something more
+> catchy. Hmmm. Let's see. Windows maybe...
+> </sarcasm>
+> 
+> 
+> /David
 
->
-> Peter
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+I _do_ _not_ like Windoze either, but we live in a world
+where we have to cope with it. I am even to code windoze
+apps in order to support linux (no comment on this)...
+
+-mirabilos
+
 

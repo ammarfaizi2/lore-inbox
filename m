@@ -1,63 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275139AbRJJJac>; Wed, 10 Oct 2001 05:30:32 -0400
+	id <S275156AbRJJJhM>; Wed, 10 Oct 2001 05:37:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275140AbRJJJaN>; Wed, 10 Oct 2001 05:30:13 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:31212 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S275139AbRJJJ37>; Wed, 10 Oct 2001 05:29:59 -0400
-Date: Wed, 10 Oct 2001 11:30:25 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr>
-cc: linux-kernel@vger.kernel.org, <acme@conectiva.com.br>
-Subject: Re: Linux 2.4.10-ac10
-In-Reply-To: <20011010092011.50158.qmail@web20501.mail.yahoo.com>
-Message-ID: <Pine.NEB.4.40.0110101130050.28306-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S275172AbRJJJhD>; Wed, 10 Oct 2001 05:37:03 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:53254 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S275156AbRJJJhA>; Wed, 10 Oct 2001 05:37:00 -0400
+Date: Wed, 10 Oct 2001 02:36:13 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: <paulus@samba.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of lists
+ with insertion
+In-Reply-To: <20011010182730.0077454b.rusty@rustcorp.com.au>
+Message-ID: <Pine.LNX.4.33.0110100230170.1518-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Oct 2001, willy tarreau wrote:
 
-> Adrian,
+On Wed, 10 Oct 2001, Rusty Russell wrote:
 >
-> I think this simple patch should solve your problem.
-> It may have
-> been a simple thinko replacing check_region with
-> request_region.
->
-> Cheers,
-> Willy
->
-> --- linux/drivers/sound/ad1816.c        Wed Oct 10
-> 11:15:53 2001
-> +++ linux/drivers/sound/ad1816.c        Wed Oct 10
-> 11:16:12 2001
-> @@ -1015,7 +1015,7 @@
->                options,
->                isa_dma_bridge_buggy);
->
-> -       if (request_region(io_base, 16, "AD1816
-> Sound")) {
-> +       if (!request_region(io_base, 16, "AD1816
-> Sound")) {
->                 printk(KERN_WARNING "ad1816: I/O port
-> 0x%03x not free\n",
->                                     io_base);
->                 goto err;
+> If noone *holds* a reference, you can remove it "sometime later",
+> where "sometime later" is (for example) after every CPU has scheduled.
 
+Ehh.. One of those readers can hold on to the thing while waiting for
+something else to happen.
 
-Thanks, this fixed my problem!
+Looking up a data structure and copying it to user space or similar is
+_the_ most common operation for any lookup. You MUST NOT free it just
+because we scheduled away. Scheduling points have zero meaning in real
+life.
 
+So you'll need a reference count to actually keep such a data structure
+alive _over_ a schedule. Or all the readers need to copy the data too
+before they actually start using it. At which point you've made your code
+a _lot_ slower than the locking version.
 
-cu
-Adrian
+Yeah, I can see that your data structure can be made to work by limiting
+how you can use it ("you must never hold on to a entry over a schedule,
+reference-counting is a no-no, and you have to stand on your left foot
+when you look at it sideways").
 
--- 
+		Linus
 
-Get my GPG key: finger bunk@debian.org | gpg --import
-
-Fingerprint: B29C E71E FE19 6755 5C8A  84D4 99FC EA98 4F12 B400
 

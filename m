@@ -1,55 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272720AbRIIQy4>; Sun, 9 Sep 2001 12:54:56 -0400
+	id <S272727AbRIIQ7G>; Sun, 9 Sep 2001 12:59:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272727AbRIIQys>; Sun, 9 Sep 2001 12:54:48 -0400
-Received: from colorfullife.com ([216.156.138.34]:268 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S272720AbRIIQyk>;
-	Sun, 9 Sep 2001 12:54:40 -0400
-Message-ID: <3B9B9EE4.4D40AAB6@colorfullife.com>
-Date: Sun, 09 Sep 2001 18:55:00 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.8-ac1 i686)
-X-Accept-Language: en, de
+	id <S272728AbRIIQ64>; Sun, 9 Sep 2001 12:58:56 -0400
+Received: from adsl-216-102-162-162.dsl.snfc21.pacbell.net ([216.102.162.162]:41741
+	"EHLO janus") by vger.kernel.org with ESMTP id <S272727AbRIIQ6p>;
+	Sun, 9 Sep 2001 12:58:45 -0400
+Date: Sun, 09 Sep 2001 09:59:05 -800
+Content-Type: text/plain; charset=US-ASCII
+Subject: Fwd: 2.4.10-pre6 ramdisk driver =?iso-8859-1?q?broken=3F?= won't compile
+Content-Transfer-Encoding: 7BIT
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linus Torvalds <torvalds@transmeta.com>, Andrea Arcangeli <andrea@suse.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Purpose of the mm/slab.c changes
+X-Originating-IP: [217.80.154.139]
 In-Reply-To: <E15g7jk-0007Rb-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+From: Stephan Gutschke <stephan@kernel.gutschke.com>
+To: linux-kernel@vger.kernel.org
+User-Agent: IMHO/0.97.1 (Webmail for Roxen)
+Message-Id: <E15g7vG-00053f-00@janus>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > > doesn't matter which free page is used first/last.
-> >
-> > You're full of crap.
-> > LIFO is obviously superior due to cache re-use.
-> 
-> Interersting question however. On SMP without sufficient per CPU slab caches
-> is tht still the case ?
 
-Correct. SMP was perfect LIFO even without Andrea's changes.
+From: Stephan Gutschke <stephan@kernel.gutschke.com>
+To: Majordomo@vger.kernel.org
+Date: Sun, 09 Sep 2001 09:55:14 -800
 
-I thought Andrea tried to reduce the fragmentation, therefore I wrote
-"free is free".
+Hi there,
 
-But even for cache re-use his changes are not a big change: The main
-fifo/lifo ordering on UP is mandated by the defragmentation property of
-the slab allocator. 
+my kernel stops compiling with this:
 
-Afaics there is exactly one case where my code is not lifo and Andrea's
-is: kmem_cache_free frees the last object in slab, each slab contains
-more than one object, and there are no further partial slabs.
-In all other cases Andrea just adds list_del();list_add() instead of 
-changes to the firstnotfull pointer.
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.10-pre6/include -Wall -Wstrict-prototypes 
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -
+mpreferred-stack-boundary=2 -march=i686    -c -o rd.o rd.c
+rd.c: In function `rd_ioctl':
+rd.c:262: invalid type argument of `->'
+make[3]: *** [rd.o] Error 1
+make[3]: Leaving directory `/usr/src/linux-2.4.10-pre6/drivers/block'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.4.10-pre6/drivers/block'
+make[1]: *** [_subdir_block] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.10-pre6/drivers'
+make: *** [_dir_drivers] Error 2
 
-full->partial is/was lifo,
-partial->partial doesn't change the lists at all
-partial->empty was fifo, is now lifo_if_no_partial_slab_exists
+I checked the patch (patch-2.4.10-pre6) and thought maybe there is 
+a "&" missing, where someone changed &inode->... to rd_bdev[... ?
+Anyways, i changed it and it seems to compile ;)
 
---
-	Manfred
+@@ -259,7 +259,7 @@
+                        /* special: we want to release the ramdisk memory,
+                           it's not like with the other blockdevices where
+                           this ioctl only flushes away the buffer cache. */
+-                       if ((atomic_read(&inode->i_bdev->bd_openers) > 2))
++                       if ((atomic_read(rd_bdev[minor]->bd_openers) > 2))
+                                return -EBUSY;
+                        destroy_buffers(inode->i_rdev);
+                        rd_blocksizes[minor] = 0;
+
+
+
+Bye
+Stephan
+

@@ -1,92 +1,145 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267395AbTALSuD>; Sun, 12 Jan 2003 13:50:03 -0500
+	id <S267396AbTALSyn>; Sun, 12 Jan 2003 13:54:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267396AbTALSuD>; Sun, 12 Jan 2003 13:50:03 -0500
-Received: from damocles.com ([216.12.219.203]:40916 "EHLO uph.com")
-	by vger.kernel.org with ESMTP id <S267395AbTALSuC>;
-	Sun, 12 Jan 2003 13:50:02 -0500
-Date: Sun, 12 Jan 2003 12:58:49 -0600
-From: Jeff Randall <randall@uph.com>
-To: Richard Stallman <rms@gnu.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-Message-ID: <20030112125849.A28266@uph.com>
-References: <20030105221345.GA31840@mark.mielke.cc> <E18Vao9-0002JZ-00@fencepost.gnu.org> <20030106173949.GA1712@gnuppy.monkey.org> <E18Vtxz-0002cB-00@fencepost.gnu.org> <20030107141758.GA10770@gnuppy.monkey.org> <E18WB8Q-0004k6-00@fencepost.gnu.org> <20030108115327.GA5020@gnuppy.monkey.org> <E18WlrH-0000NO-00@fencepost.gnu.org> <20030110101043.A19070@uph.com> <E18Xghf-0004GP-00@fencepost.gnu.org>
+	id <S267397AbTALSym>; Sun, 12 Jan 2003 13:54:42 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:18951
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S267396AbTALSyl>; Sun, 12 Jan 2003 13:54:41 -0500
+Subject: [PATCH] add explicit Pentium II support
+From: Robert Love <rml@tech9.net>
+To: torvalds@transmeta.com
+Cc: L.A.van.der.Duim@student.rug.nl, akpm@digeo.com,
+       linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1042398209.834.59.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E18Xghf-0004GP-00@fencepost.gnu.org>; from rms@gnu.org on Sun, Jan 12, 2003 at 06:54:59AM -0500
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 12 Jan 2003 14:03:30 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 12, 2003 at 06:54:59AM -0500, Richard Stallman wrote:
->     I also note that you didn't start your campaign to rename it lignux or
->     GNU/Linux until it was well established and very commonly known as Linux.
-> 
-> I think we started in 1994 (although mostly privately until 1996).
+Linus,
 
-I personally started using Linux in March of 1992 -- Version 0.94 IIRC.
-Linux 2.0 was out by 1996 was it not?  I stand by my 'well established'
-comment above.
+Attached patch breaks the "PPro/Celeron/Pentium-II" compile option into
+separate "PPro" and "Pentium-II/Celeron" options.
 
+This allows us to explicitly support the Pentium II and Celeron,
+specifically adding the `-march' option for the chip and enabling the
+unaligned copy optimizations.  PPro support remains unchanged.
 
->     To a lot of people, myself included, this feels like an attempt to steal
->     credit and draw attention to yourself and the FSF by trying to hijack the
->     name of a project that you didn't contribute to, but instead used tools you
->     provided such as gcc and glibc.
-> 
-> If you believe this is a "project that we didn't contribute to", it's
-> natural you would believe the rest.  That's why calling the system
-> "Linux" is so unfair.  We started developing this system, and we
-> developed more of it than anyone else; but thinking of it as "Linux"
-> leads people to focus on the part that we didn't do, and devalue our
-> part.  (See http://www.gnu.org/gnu/gnu-linux-faq.html#tools.)
-> 
-> That's why we can never go along with calling the system "Linux".  No matter
-> how many people do that, we will keep on pointing out why that is wrong.
+This patch is by Luuk van der Duim with some changes by me (primarily to
+also support the pre-Coppermine Celeron chips, since those use Pentium
+II cores).  This patch has been in 2.5-mm for awhile and Andrew ack'ed
+this submission.
 
-You developed tools and packages that you intended to put into a system
-that you have called the Hurd.  While you were developing all of the various
-pieces for that system (Hurd) other people were using those packages on
-various other systems -- I used gcc under SunOS and Dynix long before I'd
-head of Linux.. And I used more GNU packages than vendor packages on most
-of the HP-UX boxes I administrated after college.. You have said in the past
-that that doesn't make those GNU/HP-UX Boxes... 
+Patch is against current BK.  Please, apply.
 
-That the various packages and tools developed to support your project
-(Hurd) were used by another project developing a seperate operating system
-does not give you the right to name that seperate operating system.  Those
-people who put together all the various pieces and made it work call it Linux.
+	Robert Love
 
-I'm going to agree with Larry here.  If you're going to insist that people
-call it GNU/Linux, then you had better start referring to your operating
-system as Linux/Hurd if you want to retain any credibility.
+ arch/i386/Kconfig  |   34 ++++++++++++++++++++++------------
+ arch/i386/Makefile |    1 +
+ 2 files changed, 23 insertions(+), 12 deletions(-)
 
 
->     It may be publicity (and there may be no such thing as bad press), but
->     it's not favorable publicity, and it rubs a lot of people who have been
->     involved with Linux a long time the wrong way.
-> 
-> There are people who get angry at us for correcting the mistaken
-> picture, but in the long run it would be self-defeating (as well as
-> dishonorable) to bow to such pressure.  See
-> http://www.gnu.org/gnu/gnu-linux-faq.html#alienate.
+diff -urN linux-2.5.56/arch/i386/Kconfig linux/arch/i386/Kconfig
+--- linux-2.5.56/arch/i386/Kconfig	2003-01-10 15:11:26.000000000 -0500
++++ linux/arch/i386/Kconfig	2003-01-12 13:55:01.000000000 -0500
+@@ -117,9 +117,9 @@
+ 	  (time stamp counter) register.
+ 	  - "Pentium-Classic" for the Intel Pentium.
+ 	  - "Pentium-MMX" for the Intel Pentium MMX.
+-	  - "Pentium-Pro" for the Intel Pentium Pro/Celeron/Pentium II.
+-	  - "Pentium-III" for the Intel Pentium III
+-	  and Celerons based on the Coppermine core.
++	  - "Pentium-Pro" for the Intel Pentium Pro.
++	  - "Pentium-II" for the Intel Pentium II or pre-Coppermine Celeron.
++	  - "Pentium-III" for the Intel Pentium III or Coppermine Celeron.
+ 	  - "Pentium-4" for the Intel Pentium 4.
+ 	  - "K6" for the AMD K6, K6-II and K6-III (aka K6-3D).
+ 	  - "Athlon" for the AMD K7 family (Athlon/Duron/Thunderbird).
+@@ -159,18 +159,28 @@
+ 	  extended instructions.
+ 
+ config M686
+-	bool "Pentium-Pro/Celeron/Pentium-II"
++	bool "Pentium-Pro"
+ 	help
+-	  Select this for a Pro/Celeron/Pentium II.  This enables the use of
++	  Select this for Intel Pentium Pro chips.  This enables the use of
+ 	  Pentium Pro extended instructions, and disables the init-time guard
+ 	  against the f00f bug found in earlier Pentiums.
+ 
++config MPENTIUMII
++       bool "Pentium-II/Celeron(pre-Coppermine)"
++	help
++	  Select this for Intel chips based on the Pentium-II and
++	  pre-Coppermine Celeron core.  This option enables an unaligned
++	  copy optimization, compiles the kernel with optimization flags
++	  tailored for the chip, and applies any applicable Pentium Pro
++	  optimizations.
++
+ config MPENTIUMIII
+ 	bool "Pentium-III/Celeron(Coppermine)"
+ 	help
+ 	  Select this for Intel chips based on the Pentium-III and
+-	  Celeron-Coppermine core.  Enables use of some extended prefetch
+-	  instructions, in addition to the Pentium II extensions.
++	  Celeron-Coppermine core.  This option enables use of some
++	  extended prefetch instructions in addition to the Pentium II
++	  extensions.
+ 
+ config MPENTIUM4
+ 	bool "Pentium-4"
+@@ -258,7 +268,7 @@
+ 
+ config X86_L1_CACHE_SHIFT
+ 	int
+-	default "5" if MWINCHIP3D || MWINCHIP2 || MWINCHIPC6 || MCRUSOE || MCYRIXIII || MK6 || MPENTIUMIII || M686 || M586MMX || M586TSC || M586
++	default "5" if MWINCHIP3D || MWINCHIP2 || MWINCHIPC6 || MCRUSOE || MCYRIXIII || MK6 || MPENTIUMIII || MPENTIUMII || M686 || M586MMX || M586TSC || M586
+ 	default "4" if MELAN || M486 || M386
+ 	default "6" if MK7 || MK8
+ 	default "7" if MPENTIUM4
+@@ -310,22 +320,22 @@
+ 
+ config X86_TSC
+ 	bool
+-	depends on MWINCHIP3D || MWINCHIP2 || MCRUSOE || MCYRIXIII || MK7 || MK6 || MPENTIUM4 || MPENTIUMIII || M686 || M586MMX || M586TSC || MK8
++	depends on MWINCHIP3D || MWINCHIP2 || MCRUSOE || MCYRIXIII || MK7 || MK6 || MPENTIUM4 || MPENTIUMIII || MPENTIUMII || M686 || M586MMX || M586TSC || MK8
+ 	default y
+ 
+ config X86_GOOD_APIC
+ 	bool
+-	depends on MK7 || MPENTIUM4 || MPENTIUMIII || M686 || M586MMX || MK8
++	depends on MK7 || MPENTIUM4 || MPENTIUMIII || MPENTIUMII || M686 || M586MMX || MK8
+ 	default y
+ 
+ config X86_INTEL_USERCOPY
+ 	bool
+-	depends on MPENTIUM4 || MPENTIUMIII || M586MMX
++	depends on MPENTIUM4 || MPENTIUMIII || MPENTIUMII || M586MMX
+ 	default y
+ 
+ config X86_USE_PPRO_CHECKSUM
+ 	bool
+-	depends on MWINCHIP3D || MWINCHIP2 || MWINCHIPC6 || MCYRIXIII || MK7 || MK6 || MPENTIUM4 || MPENTIUMIII || M686 || MK8
++	depends on MWINCHIP3D || MWINCHIP2 || MWINCHIPC6 || MCYRIXIII || MK7 || MK6 || MPENTIUM4 || MPENTIUMIII || MPENTIUMII || M686 || MK8
+ 	default y
+ 
+ config X86_USE_3DNOW
+diff -urN linux-2.5.56/arch/i386/Makefile linux/arch/i386/Makefile
+--- linux-2.5.56/arch/i386/Makefile	2003-01-10 15:11:44.000000000 -0500
++++ linux/arch/i386/Makefile	2003-01-12 13:53:46.000000000 -0500
+@@ -34,6 +34,7 @@
+ cflags-$(CONFIG_M586TSC)	+= -march=i586
+ cflags-$(CONFIG_M586MMX)	+= $(call check_gcc,-march=pentium-mmx,-march=i586)
+ cflags-$(CONFIG_M686)		+= -march=i686
++cflags-$(CONFIG_MPENTIUMII)	+= $(call check_gcc,-march=pentium2,-march=i686)
+ cflags-$(CONFIG_MPENTIUMIII)	+= $(call check_gcc,-march=pentium3,-march=i686)
+ cflags-$(CONFIG_MPENTIUM4)	+= $(call check_gcc,-march=pentium4,-march=i686)
+ cflags-$(CONFIG_MK6)		+= $(call check_gcc,-march=k6,-march=i586)
 
-People get angry because you're being disrespectful and presumptuous to
-try and tell people who know exactly what the order of events are that
-you and your foundation were actively involved in developing Linux.  That
-was not the case and you know it.
-
-Before this whole naming fiasco started, I was a strong supporter of GNU
-software.  I am not any longer because of *your* actions, Richard.  I am
-still and plan to remain a strong supporter of free software.. but I don't
-feel affiliated with the FSF any more.  And that's a pity.
 
 
-
-(I'm done with this thread now.)
-
--- 
-randall@uph.com    "It's a big world and you can hit it with any airplane."
-                                           -- Flying, August 2000, Page 90.

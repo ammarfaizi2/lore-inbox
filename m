@@ -1,35 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261175AbTIKJcv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 05:32:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbTIKJcv
+	id S261181AbTIKJfv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 05:35:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261182AbTIKJfv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 05:32:51 -0400
-Received: from brmea-mail-3.Sun.COM ([192.18.98.34]:13440 "EHLO
-	brmea-mail-3.sun.com") by vger.kernel.org with ESMTP
-	id S261175AbTIKJcu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 05:32:50 -0400
-Message-Id: <200309110932.h8B9Wj126012@brk-mail1.uk.sun.com>
-Date: Thu, 11 Sep 2003 10:32:45 +0100 (BST)
-From: Marco Bertoncin - Sun Microsystems UK - Platform OS
-	 Development Engineer <Marco.Bertoncin@sun.com>
-Reply-To: Marco Bertoncin - Sun Microsystems UK - Platform
-	   OS Development Engineer <Marco.Bertoncin@sun.com>
-Subject: Re: NFS/MOUNT/sunrpc problem?
-To: Marco.Bertoncin@sun.com, trond.myklebust@fys.uio.no
-Cc: linux-kernel@vger.kernel.org
+	Thu, 11 Sep 2003 05:35:51 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:8720 "HELO
+	127.0.0.1") by vger.kernel.org with SMTP id S261181AbTIKJft (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 05:35:49 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: insecure <insecure@mail.od.ua>
+Reply-To: insecure@mail.od.ua
+To: DervishD <raul@pleyades.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Hardware supported by the kernel
+Date: Wed, 10 Sep 2003 17:47:10 +0300
+X-Mailer: KMail [version 1.4]
+Cc: Dave Jones <davej@redhat.com>, Ch & Ph Drapela <pcdrap@bluewin.ch>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <3F59DF81.8000407@bluewin.ch> <1063033858.21084.51.camel@dhcp23.swansea.linux.org.uk> <20030908152551.GB12162@DervishD>
+In-Reply-To: <20030908152551.GB12162@DervishD>
 MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
-Content-MD5: gE6dcr7xEk/TKHJTyhLnHA==
-X-Mailer: dtmail 1.3.0 @(#)CDE Version 1.4.6_06 SunOS 5.8 sun4u sparc 
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200309101747.10972.insecure@mail.od.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 08 September 2003 18:25, DervishD wrote:
+> > With XFree 4.3 810 seems pretty solid 2D/3D nowdays, and the later stuff
+> > 830/845/... is also a fair bit faster.
+>
+>     Well, then that another candidate. Thanks a lot for the info. How
+> goes your Welsh ;))?
 
-> Have you tried a more recent kernel? 2.4.18 was released more than one
-> and a half years ago...
+I used to read Alan's diary.
 
-This was a 2.4.18 kernel. But I even tried a RH9.0 ... still the problem 
-happens.
-Marco
-
+While learning Welsh is not bad per se, writing public diary
+in Welsh defeats diary purpose. Bad, bad Alan ;) ;) ;)
+--
+vda

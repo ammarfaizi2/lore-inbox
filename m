@@ -1,71 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267595AbSLSKQO>; Thu, 19 Dec 2002 05:16:14 -0500
+	id <S267618AbSLSKXl>; Thu, 19 Dec 2002 05:23:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267597AbSLSKQO>; Thu, 19 Dec 2002 05:16:14 -0500
-Received: from host217-36-81-41.in-addr.btopenworld.com ([217.36.81.41]:26343
-	"EHLO mail.dark.lan") by vger.kernel.org with ESMTP
-	id <S267595AbSLSKQN>; Thu, 19 Dec 2002 05:16:13 -0500
-Subject: NMI: IOCK error (debug interrupt?) - nope
-From: Gianni Tedesco <gianni@ecsc.co.uk>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-tqv+OxIwApaHi/NtAaRE"
-Organization: 
-Message-Id: <1040293420.12106.13.camel@lemsip>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.1.1.99 (Preview Release)
-Date: 19 Dec 2002 10:23:40 +0000
+	id <S267619AbSLSKXl>; Thu, 19 Dec 2002 05:23:41 -0500
+Received: from packet.digeo.com ([12.110.80.53]:59355 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267618AbSLSKXi>;
+	Thu, 19 Dec 2002 05:23:38 -0500
+Message-ID: <3E01A004.58F2B880@digeo.com>
+Date: Thu, 19 Dec 2002 02:31:32 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.52 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+Subject: Re: 2.5.52-mm2
+References: <3E015ECE.9E3BD19@digeo.com> <20021219085426.GJ1922@holomorphy.com> <20021219092853.GK1922@holomorphy.com> <20021219101219.GS31800@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 19 Dec 2002 10:31:33.0172 (UTC) FILETIME=[CCE3AF40:01C2A749]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+William Lee Irwin III wrote:
+> 
+> On Wed, Dec 18, 2002 at 09:53:18PM -0800, Andrew Morton wrote:
+> >>> url: http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.52/2.5.52-mm2/
+> 
+> On Thu, Dec 19, 2002 at 12:54:26AM -0800, William Lee Irwin III wrote:
+> >> Kernel compile on ramfs, shpte off, overcommit on (probably more like a
+> >> stress test for shpte):
+> 
+> On Thu, Dec 19, 2002 at 01:28:53AM -0800, William Lee Irwin III wrote:
+> > With shpte on:
+> 
+> With the following patch:
+> 
+> c013d4d4 94944    0.310788    zap_pte_range
+> c01355d0 104773   0.342962    nr_free_pages
+> c014f65c 107566   0.352105    __fput
+> c01b1750 112055   0.366799    __copy_user_intel
+> c0115350 121040   0.39621     smp_apic_timer_interrupt
+> c0119814 126089   0.412738    kmap_atomic
+> c014b6cc 145095   0.474952    pte_unshare
+> c01fb11c 145992   0.477888    sync_buffer
+> c0122a78 148079   0.484719    current_kernel_time
+> c01168b8 193805   0.634398    x86_profile_hook
+> c013f140 205233   0.671806    do_no_page
+> c0164aac 235356   0.77041     d_lookup
+> c01b18f8 257358   0.842431    __copy_from_user
+> c0131f7c 275559   0.90201     find_get_page
+> c011a560 282341   0.92421     scheduler_tick
+> c0140090 300128   0.982434    vm_enough_memory
+> c013f4bc 310474   1.0163      handle_mm_fault
+> c014f3d0 312725   1.02367     get_empty_filp
+> c011a0a8 365066   1.195       load_balance
+> c014f9e9 502737   1.64565     .text.lock.file_table
+> c01b1890 719105   2.35391     __copy_to_user
+> c0135768 911894   2.98498     __get_page_state
+> c013ee50 952823   3.11895     do_anonymous_page
+> c01436d0 1079864  3.53481     page_add_rmap
+> c01438cc 1186938  3.8853      page_remove_rmap
+> c0106f38 17763755 58.1476     poll_idle
 
---=-tqv+OxIwApaHi/NtAaRE
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Is that improved?
 
-Hello,
+> pfn_to_nid() got lots of icache misses. Try using a macro.
 
-A firewall of ours recently went tits up (2.4.19). It was still routing
-traffic but when I connected to SSH for example the SSH banner would not
-appear, it looked like all userspace was dead.
+What's the callsite?
 
-When we looked in the logs there was this. Presumably the hardware is
-broken. But I wonder if anyone can confirm this? Thanks!
+Actually, just looking at mmzone.h, I have to say "ick".  The
+non-NUMA case seems unnecessarily overdone.  eg:
 
-NMI: IOCK error (debug interrupt?)
-CPU:    0
-EIP:    0010:[default_idle+34/48] Not tainted
-EIP:    0010:[<c0106e12>] Not tainted
-EFLAGS: 00000246
-eax: 00000000   ebx: c0106df0   ecx: 00000032   edx: 00000019
-esi: c02f6000   edi: c02f6000   ebp: c0106df0   esp: c02f7fcc
-ds: 0018   es: 0018   ss: 0018
-Process swapper (pid: 0, stackpage=3Dc02f7000)
-Stack: c0106e92 00000002 00098700 c0105000 0008e000 c02f8759 c028e6c0
-0001ffc0
-0001ffc0 0001ffc0 0001ffc0 c03404c0 c0100191
-Call Trace:    [cpu_idle+82/112] [_stext+0/48]
-Call Trace:    [<c0106e92>] [<c0105000>]
+#define page_to_pfn(page)
+	((page - page_zone(page)->zone_mem_map) + page_zone(page)->zone_start_pfn)
 
-Code: f4 c3 fb c3 8d 76 00 8d bc 27 00 00 00 00 fb b8 ff ff ff ff
-
---=20
-// Gianni Tedesco (gianni at ecsc dot co dot uk)
-lynx --source www.scaramanga.co.uk/gianni-at-ecsc.asc | gpg --import
-8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
-
---=-tqv+OxIwApaHi/NtAaRE
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQA+AZ4rkbV2aYZGvn0RAja0AKCDxDCwaZWcLTh7W/Rwv895FZWXgACeL7bD
-QK4TPJJXXcCXfEFAoSEM0BY=
-=rT05
------END PGP SIGNATURE-----
-
---=-tqv+OxIwApaHi/NtAaRE--
-
+Ouch.  Why can't we have the good old `page - mem_map' here?

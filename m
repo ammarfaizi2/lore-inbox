@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S132587AbRC1Vdz>; Wed, 28 Mar 2001 16:33:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S132572AbRC1Vbg>; Wed, 28 Mar 2001 16:31:36 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:44299 "EHLO mail.stock-world.de") by vger.kernel.org with ESMTP id <S132582AbRC1VbQ>; Wed, 28 Mar 2001 16:31:16 -0500
-Message-ID: <3AC2550D.1D9F3355@evision-ventures.com>
-Date: Wed, 28 Mar 2001 23:18:05 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en, de
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S132595AbRC1VnE>; Wed, 28 Mar 2001 16:43:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S132591AbRC1Vmv>; Wed, 28 Mar 2001 16:42:51 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:3601 "EHLO neon-gw.transmeta.com") by vger.kernel.org with ESMTP id <S132599AbRC1VmO>; Wed, 28 Mar 2001 16:42:14 -0500
+Message-ID: <3AC25A57.F00F1EE1@transmeta.com>
+Date: Wed, 28 Mar 2001 13:40:39 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linus Torvalds <torvalds@transmeta.com>, "H. Peter Anvin" <hpa@transmeta.com>, Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org, tytso@MIT.EDU
+To: Martin Dalecki <dalecki@evision-ventures.com>
+CC: Linus Torvalds <torvalds@transmeta.com>, Andre Hedrick <andre@linux-ide.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>, Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org, tytso@MIT.EDU
 Subject: Re: Larger dev_t
-References: <E14i1ln-0004Tn-00@the-village.bc.nu>
+References: <Pine.LNX.4.31.0103271545500.25282-100000@penguin.transmeta.com> <3AC25657.6CC01DFB@evision-ventures.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+Martin Dalecki wrote:
 > 
-> > high-end-disks. Rather the reverse. I'm advocating the SCSI layer not
-> > hogging a major number, but letting low-level drivers get at _their_
-> > requests directly.
+> Then please please please demangle other cases as well!
+> IDE is the one which is badging my head most. SCSI as well...
 > 
-> A major for 'disk' generically makes total sense. Classing raid controllers
-> as 'scsi' isnt neccessarily accurate. A major for 'serial ports' would also
-> solve a lot of misery
+> Granted I wouldn't mind a rebot with new /dev/* once!
+> 
 
-And IDE disk ver CD-ROM f and block vers. raw devices
-and so so at perpetuum. Those are the reaons why the
-density of majros ver. minors is exactly
-revers in solaris with respect to the proposal of Linus..
+This seems to me to really be the kind of thing devfs does better than
+trying to play number games.  devfs (and I'm talking in the abstract, not
+necessarily the existing implementation) can present things in multiple
+views, using hard links.  This is a Good Thing, because it lets you ask
+different questions and get appropriate answers (one question is "what
+are my disks", another is "what are my SCSI devices".)
 
-And then we have all those VERY SPARSE static arrays of
-major versus minor devices information (if you look at which cells
-from those arrays are used on a running system which maybe about
-6-8 devices actually attached!)
+As far as IDE is concerned, I repeat my call for "generic ATAPI" to go
+along with "generic SCSI"...
 
-The main  sheer practical problem to changing kdev_t is
-the HUGE number of in fact entierly differnt drivers sharing the same
-major
-and splitting up the minor number space and then hooking
-devices with differnt block sizes and such on the same major.
-Many things in the block device layer handling could
-be simplefied significalty if one could assume for
-example that all the devices on one single major
-have the same block size and so on...
+	-hpa
+
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

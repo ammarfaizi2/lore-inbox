@@ -1,59 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271352AbTGQJAm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 05:00:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271350AbTGQJAm
+	id S271347AbTGQJAH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 05:00:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271350AbTGQJAG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 05:00:42 -0400
-Received: from inet-mail2.oracle.com ([148.87.2.202]:9941 "EHLO
-	inet-mail2.oracle.com") by vger.kernel.org with ESMTP
-	id S271355AbTGQJAj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 05:00:39 -0400
-Date: Thu, 17 Jul 2003 02:15:15 -0700
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Andrew Morton <akpm@osdl.org>, Andries Brouwer <aebr@win.tue.nl>,
-       greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] print_dev_t for 2.6.0-test1-mm
-Message-ID: <20030717091515.GC19891@ca-server1.us.oracle.com>
-Mail-Followup-To: Roman Zippel <zippel@linux-m68k.org>,
-	Andrew Morton <akpm@osdl.org>, Andries Brouwer <aebr@win.tue.nl>,
-	greg@kroah.com, linux-kernel@vger.kernel.org
-References: <20030716210253.GD2279@kroah.com> <20030716141320.5bd2a8b3.akpm@osdl.org> <20030716213451.GA1964@win.tue.nl> <20030716143902.4b26be70.akpm@osdl.org> <20030716222015.GB1964@win.tue.nl> <20030716152143.6ab7d7d3.akpm@osdl.org> <20030717014410.A2026@pclin040.win.tue.nl> <20030716164917.2a7a46f4.akpm@osdl.org> <20030717082716.GA19891@ca-server1.us.oracle.com> <Pine.LNX.4.44.0307171037070.717-100000@serv>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0307171037070.717-100000@serv>
-X-Burt-Line: Trees are cool.
-X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
-User-Agent: Mutt/1.5.4i
+	Thu, 17 Jul 2003 05:00:06 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:6550
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S271347AbTGQJAE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 05:00:04 -0400
+Message-ID: <1058433295.3f16690fa2f2e@kolivas.org>
+Date: Thu, 17 Jul 2003 19:14:55 +1000
+From: Con Kolivas <kernel@kolivas.org>
+To: alexander.riesen@synopsys.COM
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] O6int for interactivity
+References: <200307170030.25934.kernel@kolivas.org> <20030717090508.GE13611@Synopsys.COM>
+In-Reply-To: <20030717090508.GE13611@Synopsys.COM>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 17, 2003 at 10:47:08AM +0200, Roman Zippel wrote:
-> It's not just NFS2, with NFS3 and later it also depends on how many and 
-> which bits the server keeps. They usually use the standard major/minor/ 
-> makedev macros, so you only get back what the platform supports.
-> Splitting dev_t in major/minor numbers can be lots of fun...
+Quoting Alex Riesen <alexander.riesen@synopsys.COM>:
 
-	Well, exporting devices over NFS is always tricky, because if
-the server isn't an identical OS, you can't even trust the numbers.  As
-you point out, you get the platform's idea of a device number, and that
-doesn't map to your local OS.
-	It is no different than today.  You have to make sure that the
-server's filesystem stores device numbers valid for the client if the
-client wants to use those device nodes.
+> Con Kolivas, Wed, Jul 16, 2003 16:30:25 +0200:
+> > O*int patches trying to improve the interactivity of the 2.5/6 scheduler
+> for 
+> > desktops. It appears possible to do this without moving to nanosecond 
+> > resolution.
+> > 
+> > This one makes a massive difference... Please test this to death.
+> > 
+> 
+> tar ztf file.tar.gz and make something somehow do not like each other.
+> Usually it is tar, which became very slow. And listings of directories
+> are slow if system is under load (about 3), too (most annoying).
+> 
+> UP P3-700, preempt. 2.6.0-test1-mm1 + O6-int.
 
-Joel
+Thanks for testing. It is distinctly possible that O6.1 addresses this problem. 
+Can you please test that? It applies on top of O6 and only requires a recompile 
+of sched.o.
 
+http://kernel.kolivas.org/2.5
 
--- 
-
-"In the room the women come and go
- Talking of Michaelangelo."
-
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
+Con

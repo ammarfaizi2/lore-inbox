@@ -1,71 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261384AbVCMW7W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261501AbVCMXGo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261384AbVCMW7W (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Mar 2005 17:59:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261488AbVCMW7W
+	id S261501AbVCMXGo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Mar 2005 18:06:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbVCMXGo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Mar 2005 17:59:22 -0500
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:34690 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S261384AbVCMW7R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Mar 2005 17:59:17 -0500
-Message-ID: <4234C5C2.8000109@acm.org>
-Date: Sun, 13 Mar 2005 16:59:14 -0600
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.2) Gecko/20040804
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Add sysfs support to the IPMI driver
-References: <4233C834.40903@acm.org> <20050313052011.GA18089@kroah.com>
-In-Reply-To: <20050313052011.GA18089@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 13 Mar 2005 18:06:44 -0500
+Received: from baikonur.stro.at ([213.239.196.228]:39857 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S261501AbVCMXGm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Mar 2005 18:06:42 -0500
+Date: Mon, 14 Mar 2005 00:06:39 +0100
+From: maximilian attems <janitor@sternwelten.at>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, akpm <akpm@osdl.org>
+Subject: [patch] w6692 eliminate bad section references
+Message-ID: <20050313230639.GA24301@sputnik.stro.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
+Fix w6692 section references:
+  convert __initdata to __devinitdata.
 
->On Sat, Mar 12, 2005 at 10:57:24PM -0600, Corey Minyard wrote:
->  
->
->>The IPMI driver has long needed to tie into the device model (and I've 
->>long been hoping someone else would do it).  I finally gave up and spent 
->>the time to learn how to do it.  I think this is right, it seems to work 
->>on on my system.
->>    
->>
->
->Looks good.  One minor question:
->
->  
->
->>+
->>+	snprintf(name, sizeof(name), "ipmi%d", if_num);
->>+	class_simple_device_add(ipmi_class, dev, NULL, name);
->>    
->>
->
->What do ipmi class devices live on?  pci devices?  i2c devices?
->platform devices?  Or are they purely virtual things?
->  
->
-Good question.  I struggled with this for a little while and decided the 
-class interface was important to have in first and I'd figure out the 
-rest later.  They live in different places depending on the particular 
-low-level interface.  Some live on the I2C bus (and will show up there 
-in sysfs with the I2C driver).  Some live on the ISA bus, some are 
-memory-mapped, some are on the PCI bus (though there is not a driver for 
-PCI support yet), and some sit on the end of a serial port (driver is in 
-the works).  I know, it's a mess, but there's not much I can do about 
-these crazy hardware manufacturers.
+Error: ./drivers/isdn/hisax/w6692.o .text refers to 0000002f R_386_32
+.init.data
 
-I wasn't sure where to handle all this.  The I2C and PCI bus side of 
-things should be handled.  However, the others probably need to sit 
-someplace on a bus, right?  That should probably be handled in the 
-low-level code that actually knows where the hardware sits.
+Signed-off-by: maximilian attems <janitor@sternwelten.at>
 
-Thanks,
 
--Corey
+diff -pruN -X dontdiff linux-2.6.11-bk8/drivers/isdn/hisax/w6692.c 
+linux-2.6.11-bk8-max/drivers/isdn/hisax/w6692.c
+--- linux-2.6.11-bk8/drivers/isdn/hisax/w6692.c	2005-03-02 08:38:25.000000000 +0100
++++ linux-2.6.11-bk8-max/drivers/isdn/hisax/w6692.c	2005-03-13 23:36:34.000000000 +0100
+@@ -45,7 +45,7 @@ const char *w6692_revision = "$Revision:
+ 
+ #define DBUSY_TIMER_VALUE 80
+ 
+-static char *W6692Ver[] __initdata =
++static char *W6692Ver[] __devinitdata =
+ {"W6692 V00", "W6692 V01", "W6692 V10",
+  "W6692 V11"};
+ 
+

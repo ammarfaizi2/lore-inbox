@@ -1,52 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262120AbVATLUJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262126AbVATLkq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262120AbVATLUJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 06:20:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262121AbVATLUJ
+	id S262126AbVATLkq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 06:40:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262127AbVATLkq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 06:20:09 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:3234 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S262120AbVATLUE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 06:20:04 -0500
-X-Envelope-From: kraxel@bytesex.org
-Date: Thu, 20 Jan 2005 12:12:27 +0100
-From: Gerd Knorr <kraxel@bytesex.org>
-To: linux-kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: bttv/v4l2/Linux 2.6.10-ac8: xawtv hanging in videobuf_waiton
-Message-ID: <20050120111227.GE10029@bytesex>
-References: <20050110000043.GA9549@m.safari.iki.fi> <871xct1pq2.fsf@bytesex.org> <20050110161821.GA5561@m.safari.iki.fi> <20050114032226.GB6032@m.safari.iki.fi>
+	Thu, 20 Jan 2005 06:40:46 -0500
+Received: from wproxy.gmail.com ([64.233.184.203]:36586 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262126AbVATLkk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 06:40:40 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=pE3VinSpJZRthQ5iwdCbem+Kyos7IMjLNpWrrg25xG5ggyJzSl0g7Jx5FxvrV6A/HYBo/SZ10z9RbWYCHuQZMtGUs0h4szEU70x+Ndt6ZYZrnSIpdUqaCvTv3FM/uxyIHDLekz4qZahfEykf4bjUvn5PYzABzNpZWiSbE5Ld1+Q=
+Message-ID: <40f323d0050120034013aa346e@mail.gmail.com>
+Date: Thu, 20 Jan 2005 12:40:40 +0100
+From: Benoit Boissinot <bboissin@gmail.com>
+Reply-To: Benoit Boissinot <bboissin@gmail.com>
+To: Andrew Morton <akpm@osdl.org>, Zwane Mwaikambo <zwane@linuxpower.ca>
+Subject: Re: 2.6.11-rc1-mm2
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050119213818.55b14bb0.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050114032226.GB6032@m.safari.iki.fi>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20050119213818.55b14bb0.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> About 100 pixels from my windowmaker background got garbled (I also ran
-> xrefresh) while panicking ;-> and "rpm -V mozilla" showed three modified
-> libs.
-
-> However, the libs were OK after reboot (maybe because no time for syncing),
-> but reiserfsck found vpf-10640 error for /var partition.
-
-Thats typical for page cache corruption.  The libs are read-only data
-and thus never ever flushed back to disk, thus a reboot will fix it.
-Creating some memory pressure to make the kernel drop the corrupted
-pages from the cache should make it go away as well.
-
-> How to debug this kind of memory corruption?
+On Wed, 19 Jan 2005 21:38:18 -0800, Andrew Morton <akpm@osdl.org> wrote:
 > 
-> garbled by bttv:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc1/2.6.11-rc1-mm2/
 > 
-> 0035b000  08 00 00 14 00 c0 35 0a  f8 03 00 18 08 cc 35 0a  |......5.......5.|
-> 0035b010  08 08 00 14 00 50 0a 03  f8 0b 00 18 08 64 88 0a  |.....P.......d..|
+> - There are a bunch of ioctl() and compat_ioctl() changes in here which seem
+>   to be of dubious maturity.  Could people involved in this area please
+>   review, test and let me know?
+> 
+> - A revamp of the kexec and crashdump patches.  Anyone who is interested in
+>   this work, please help to get this ball rolling a little faster?
+> 
+> - This kernel isn't particularly well-tested, sorry.  I've been a bit tied
+>   up with other stuff.
+> 
+> Changes since 2.6.11-rc1-mm1:
+> 
 
-Could be bt878 risc code.  No idea how this makes it into the mozilla
-libs ...
+>
+> i386-cpu-hotplug-updated-for-mm.patch
+>  i386 CPU hotplug updated for -mm
 
-  Gerd
+With this patch, it doesn't build on UP with local APIC :
 
--- 
-#define printk(args...) fprintf(stderr, ## args)
+arch/i386/kernel/nmi.c: In function `check_nmi_watchdog':
+arch/i386/kernel/nmi.c:130: error: `cpu_callin_map' undeclared (first
+use in this function)
+
+(cpu_callin_map is only declared on smp)
+
+regards,
+
+Benoit

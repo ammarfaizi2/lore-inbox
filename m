@@ -1,62 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262838AbUAZOJy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jan 2004 09:09:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263053AbUAZOJy
+	id S263513AbUAZOPn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jan 2004 09:15:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263518AbUAZOPn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jan 2004 09:09:54 -0500
-Received: from mid-1.inet.it ([213.92.5.18]:245 "EHLO mid-1.inet.it")
-	by vger.kernel.org with ESMTP id S262838AbUAZOJx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jan 2004 09:09:53 -0500
-Date: Mon, 26 Jan 2004 15:09:29 +0100
-From: Mattia Dongili <dongili@supereva.it>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Wrong Synaptics Touchpad detection when USB mouse present
-Message-ID: <20040126140929.GA1182@inferi.kami.home>
-Mail-Followup-To: Vojtech Pavlik <vojtech@suse.cz>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20040126121749.GA1078@inferi.kami.home> <20040126130952.GA26596@ucw.cz>
-Mime-Version: 1.0
+	Mon, 26 Jan 2004 09:15:43 -0500
+Received: from hoemail2.lucent.com ([192.11.226.163]:4803 "EHLO
+	hoemail2.firewall.lucent.com") by vger.kernel.org with ESMTP
+	id S263513AbUAZOPh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jan 2004 09:15:37 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040126130952.GA26596@ucw.cz>
-X-Message-Flag: Cranky? Try Free Software instead!
-X-Operating-System: Linux 2.6.1-2 i686
-X-Editor: Vim http://www.vim.org/
-X-Disclaimer: Buh!
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16405.8396.359717.70413@gargle.gargle.HOWL>
+Date: Mon, 26 Jan 2004 09:14:36 -0500
+From: "John Stoffel" <stoffel@lucent.com>
+To: Andi Kleen <ak@muc.de>
+Cc: John Stoffel <stoffel@lucent.com>, Adrian Bunk <bunk@fs.tum.de>,
+       Valdis.Kletnieks@vt.edu, Fabio Coatti <cova@ferrara.linux.it>,
+       Andrew Morton <akpm@osdl.org>, Eric <eric@cisu.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] Re: Kernels > 2.6.1-mm3 do not boot. - SOLVED
+In-Reply-To: <20040126050431.GB6519@colin2.muc.de>
+References: <20040125174837.GB16962@colin2.muc.de>
+	<200401251800.i0PI0SmV001246@turing-police.cc.vt.edu>
+	<20040125191232.GC16962@colin2.muc.de>
+	<16404.9520.764788.21497@gargle.gargle.HOWL>
+	<20040125202557.GD16962@colin2.muc.de>
+	<16404.10496.50601.268391@gargle.gargle.HOWL>
+	<20040125214920.GP513@fs.tum.de>
+	<16404.20183.783477.596431@gargle.gargle.HOWL>
+	<20040125234756.GF28576@colin2.muc.de>
+	<16404.34836.753760.759367@gargle.gargle.HOWL>
+	<20040126050431.GB6519@colin2.muc.de>
+X-Mailer: VM 7.14 under Emacs 20.6.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 26, 2004 at 02:09:52PM +0100, Vojtech Pavlik wrote:
-> On Mon, Jan 26, 2004 at 01:17:49PM +0100, Mattia Dongili wrote:
-> > Hi,
-> > 
-> > [Please Cc me as I'm not subscribed to the list]
-> > 
-> > I'm experiencing problems with a dual configuration of mice on my
-> > laptop. The sympthoms are:
-> > 
-> > - if I boot with my Logitech USB mouse plugged in, the Synaptics
-> >   Touchpad is not recognized as such but as "PS/2 Generic Mouse"
-> > 
-> > - if I boot without USB mouse plugged in or if I simply reload psmouse
-> >   after the boot process, the Synaptics Touchpad is recognized correctly
-> > 
-> > So it has something to do with the order modules are loaded.
-> 
-> Load the USB modules first. It's your BIOS intervening. Or disable USB
-> Mouse support or USB Legacy support in the BIOS.
 
-Unfortunately I have no such options on my bios (Sony Vaio GR7/K -
-PhoenixBIOS 4.0 Release 6.0 - R0208C0).
+>> On node 0 totalpages: 196606
+>> DMA zone: 4096 pages, LIFO batch:1
+>> Normal zone: 192510 pages, LIFO batch:16
+>> HighMem zone: 0 pages, LIFO batch:1
 
-Anyway I solved this problem loading uhci_hcd + hid before
-psmouse in /etc/modules
+Andi> Ok, it didn't oops. Just hung early. Probably needs some printks
+Andi> to track it down.
 
-Thanks for your help
--- 
-mattia
-:wq!
+Andi> And the problem really goes away when you disable -funit-at-a-time ?
+
+This was from both 2.6.2-rc1 and 2.6.2-rc2, and since the later
+doesn't have the -funit-at-time declaration in the Makefile, I don't
+think that's the problem.
+
+My gcc version is:
+
+    > gcc --version
+    gcc.real (GCC) 3.3.3 20040110 (prerelease) (Debian)
+
+
+John

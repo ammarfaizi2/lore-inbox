@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132607AbRDXAWP>; Mon, 23 Apr 2001 20:22:15 -0400
+	id <S132614AbRDXAZZ>; Mon, 23 Apr 2001 20:25:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132614AbRDXAWG>; Mon, 23 Apr 2001 20:22:06 -0400
-Received: from waste.org ([209.173.204.2]:25872 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S132607AbRDXAVl>;
-	Mon, 23 Apr 2001 20:21:41 -0400
-Date: Mon, 23 Apr 2001 19:21:36 -0500 (CDT)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: "Eric S. Raymond" <esr@thyrsus.com>
-cc: Marko Kreen <marko@l-t.ee>, "Eric S. Raymond" <esr@snark.thyrsus.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: comments on CML 1.1.0
-In-Reply-To: <20010414164914.A12838@thyrsus.com>
-Message-ID: <Pine.LNX.4.30.0104231911010.21186-100000@waste.org>
+	id <S132623AbRDXAZL>; Mon, 23 Apr 2001 20:25:11 -0400
+Received: from mx1.sac.fedex.com ([199.81.208.10]:43015 "EHLO
+	mx1.sac.fedex.com") by vger.kernel.org with ESMTP
+	id <S132614AbRDXAYg>; Mon, 23 Apr 2001 20:24:36 -0400
+Date: Tue, 24 Apr 2001 08:25:07 +0800 (SGT)
+From: Jeff Chua <jeffchua@silk.corp.fedex.com>
+X-X-Sender: <root@boston.corp.fedex.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: axel <axel@rayfun.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: compile error 2.4.4pre6: inconsistent operand constraints in an
+In-Reply-To: <E14rpIA-0000iK-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0104240820250.3738-100000@boston.corp.fedex.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 14 Apr 2001, Eric S. Raymond wrote:
+On Mon, 23 Apr 2001, Alan Cox wrote:
 
-> > * the colors are hard to see (red/blue on black).  Probably
-> >   matter of terminal settings.  I do not have any productive
-> >   ideas tho...  Probably to get best experience to as much
-> >   people as possible the less colors are used the better.
-> >
-> >   The 'blue: last visited submenu' is unnecessary.  Especially
-> >   because it later turns green...  And the 'red' vs. 'green'
-> >   thing.  I guess the green should be used for 'visited entries'
-> >   too.  Now the red means like 'Doh.  So I should not have
-> >   touched this?'.  Confusing.
-> >
-> >   In other words: if there are too much colors, they become
-> >   a thing that should be separately learned, not a helpful
-> >   aid.
-> >
-> >   All this IMHO ofcourse.  Colors are 'matter of taste' thing
-> >   so there probably is not exact Rigth Thing.
->
-> You make good points.  In the 1.1.1, blue and yellow/brown will be gone;
-> it's just green for everything visited.
+> 2.4.4pre6 only builds with gcc 2.96. If you apply the __builtin_expect fixes
+> it builds and runs fine with 2.95. Not tried egcs. The gcc 3.0 asm constraints
+> one I've yet to see a fix for.
 
-I haven't had a chance to take a look, but a heads-up about color
-confusion issues. There may be no right thing, but there are plenty of
-wrong things. For instance, for about 4% of people (8% of males), RGB
-FFFF00 and 00FF00 are nearly indistiguishable, as are FF00FF and 0000FF.
+So, should I upgrade to 2.96 from 2.95.3?
 
---
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+But, from http://gcc.gnu.org/gcc-2.96.html ...
+
+   Please note that both GCC 2.96 and 2.97 are development versions; we
+   do not recommend using them for production purposes. Binaries built
+   using any version of GCC 2.96 or 2.97 will not be portable to systems
+   based on one of our regular releases.
+
+
+Does this still hold?
+
+Thanks,
+Jeff
 

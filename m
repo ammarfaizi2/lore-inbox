@@ -1,51 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262035AbUKJTPK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262036AbUKJTRy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262035AbUKJTPK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 14:15:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262036AbUKJTPK
+	id S262036AbUKJTRy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 14:17:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262096AbUKJTRy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 14:15:10 -0500
-Received: from fw.osdl.org ([65.172.181.6]:12972 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262035AbUKJTPF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 14:15:05 -0500
-Date: Wed, 10 Nov 2004 11:14:52 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: dcn@sgi.com (Dean Nelson)
-Cc: linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au,
-       Christoph Hellwig <hch@lst.de>
-Subject: Re: kthread realtime priorities and exporting 
- sys_sched_setscheduler()
-Message-Id: <20041110111452.1724b353.akpm@osdl.org>
-In-Reply-To: <4192424B.mailxNJY11KR1G@aqua.americas.sgi.com>
-References: <4192424B.mailxNJY11KR1G@aqua.americas.sgi.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 10 Nov 2004 14:17:54 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:60625 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262036AbUKJTRr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 14:17:47 -0500
+Subject: RE: GPL Violation of 'sveasoft' with GPL Linux Kernel/Busybox +code
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: davids@webmaster.com, cfriesen@nortelnetworks.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.GSO.4.61.0411101024270.17015@waterleaf.sonytel.be>
+References: <MDEHLPKNGKAHNMBLJOLKAELDPKAA.davids@webmaster.com>
+	 <1100041582.16689.0.camel@localhost.localdomain>
+	 <Pine.GSO.4.61.0411101024270.17015@waterleaf.sonytel.be>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1100110480.20555.4.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 10 Nov 2004 18:14:43 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dcn@sgi.com (Dean Nelson) wrote:
->
-> I'm trying to push XP[C|NET] out to the community. (For further details:
-> http://marc.theaimsgroup.com/?l=linux-ia64&m=109337050919186&w=2 )
+On Mer, 2004-11-10 at 09:27, Geert Uytterhoeven wrote:
+> Let's slightly modify the parameters...
+
+You've not "slightly modified them" you've changed the entire discussion
 > 
-> An objection was raised over the exporting and calling of
-> sys_sched_setscheduler(), which XPC calls to make its kthreads
-> run at realtime priorities. Without this change we found that it
-> was possible for user processes to be given a higher effective
-> priority than the kthreads used by XPC. The upshot of this was
-> that the latencies incurred by XPC increased 300 times in the
-> test example given. If XPC's kthreads were given realtime
-> priorities this did not happen. (For further details:
-> http://marc.theaimsgroup.com/?l=linux-ia64&m=109337503100067&w=2 )
+> What if someone would offer you binaries (under the GPL) if you sign a contract
+> that you will have to pay 100000 EUR (or 100000000 EUR, or ...) if you exercise
+> your rights under the GPL?
 
-I'd disagree with Christoph on that.  Being able to set the scheduling
-policy from a module-based kernel thread is a sensible thing to be able to
-do, and you can do it by issuing a direct trap anyway.
+This is unrelated. The GPL grants you the rights not to have to pay a
+fee in order to exercise the rights under the GPL if you have the
+binaries. (Or more accurately 'at cost' in some situations).
 
-EXPORT_SYMBOL_GPL() would be preferred.
+Consider the difference between these three statements and it might make
+it clearer
 
-Possibly it could be done by adding a variant of kthread_create() which has
-a new `policy' argument, but it doesn't really seem worth the fuss.
+1. "You must pay $1000 to distribute the source"
+2. "I will pay you $1000 if you do not distribute the source"
+3. "If you distribute the source then I won't supply you updates"
+
+#1 places conditions on a GPL provided contract right which the GPL
+prohibits
+#3 is a discussion about matters entirely outside the GPL (and lawyers
+who have looked at such things see no problem with it)
+
+#2 Is interesting - its I think the borderline you intended to find, and
+I'm not sure anyone could call it either way without being a qualified
+lawyer.
+
+Alan
+

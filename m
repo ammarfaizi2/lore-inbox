@@ -1,52 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261681AbUCKUD7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 15:03:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261689AbUCKUD7
+	id S261703AbUCKUHW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 15:07:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261689AbUCKUHW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 15:03:59 -0500
-Received: from mailr-2.tiscali.it ([212.123.84.82]:49332 "EHLO
-	mailr-2.tiscali.it") by vger.kernel.org with ESMTP id S261681AbUCKUD4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 15:03:56 -0500
-X-BrightmailFiltered: true
-Date: Thu, 11 Mar 2004 21:04:06 +0100
-From: Kronos <kronos@kronoz.cjb.net>
-To: linux-kernel@vger.kernel.org
-Cc: Damian Kolkowski <damian@kolkowski.no-ip.org>
-Subject: Re: [i386] 2.6.4 + cdrtools-2.01a27 REPORT
-Message-ID: <20040311200406.GA12780@dreamland.darkstar.lan>
-Reply-To: kronos@kronoz.cjb.net
-References: <20040311162303.ALLYOURBASEAREBELONGTOUS.B29383@kolkowski.no-ip.org> <20040311175109.GA2467@dreamland.darkstar.lan> <20040311194714.ALLYOURBASEAREBELONGTOUS.B25581@kolkowski.no-ip.org>
+	Thu, 11 Mar 2004 15:07:22 -0500
+Received: from smtp.netcabo.pt ([212.113.174.9]:33147 "EHLO smtp.netcabo.pt")
+	by vger.kernel.org with ESMTP id S261703AbUCKUHE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 15:07:04 -0500
+Date: Thu, 11 Mar 2004 20:05:51 +0000
+From: backblue <backblue@netcabo.pt>
+To: jeremy@rootservices.net, linux-kernel@vger.kernel.org
+Subject: Re: nforce 2 chipset
+Message-Id: <20040311200551.1eafb6fe.backblue@netcabo.pt>
+In-Reply-To: <64805.24.50.227.119.1078963073.squirrel@24.50.227.119>
+References: <64805.24.50.227.119.1078963073.squirrel@24.50.227.119>
+X-Mailer: Sylpheed version 0.9.7claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040311194714.ALLYOURBASEAREBELONGTOUS.B25581@kolkowski.no-ip.org>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 11 Mar 2004 20:06:13.0691 (UTC) FILETIME=[4DF158B0:01C407A4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Il Thu, Mar 11, 2004 at 08:47:14PM +0100, Damian Kolkowski ha scritto: 
-> * Kronos <kronos@kronoz.cjb.net> [2004-03-11 18:53]:
-> > Which driver are you using? This card should be supported by the new
-> > driver (and afaics also from the old one). If the new driver doesn't
-> > work for you can you send me a "lspci -nvvv" of your board?
-> 
-> Yep it's should but now in new version it's evil code :-)
-> 
-> Two drivers old and new one just won't listen to append i lilo.conf, even
-> fbset on old radeonfb mess with consle, demolish resolution to some unsuported
-> value.
-> New one is better, just use fbset -a -fb /dev/fb0 -depth 32 1024x768-100 and
-> you have one small screan i upper left corner off your screan ;-)
-> Bigger resolutions makes it smeller.
+Please search about "nforce2" and "a7n8x-x" in the LKML before your ask, maybe someone allready have that problem!
 
-You need to use stty to adjust the number of rows and cols. Pay
-attention to values you use, otherwise your machine will die due to
-massive memory corruption...
+On Wed, 10 Mar 2004 18:57:53 -0500 (EST)
+"Jeremy D. May" <jeremy@rootservices.net> wrote:
 
-Luca
--- 
-Home: http://kronoz.cjb.net
-"It is more complicated than you think"
-                -- The Eighth Networking Truth from RFC 1925
+> Not sure if this is the right place to go for this, but maybe someone
+> could point me in the right direction.
+> 
+> system:
+> 
+> 2500+ Athlon XP (barton)
+> NFource 2 Ultra 400 + MCP chipset (is a Shuttle AN35-Ultra400(latest bios
+> flash))
+> 1.5 gigs PC2700
+> 40 Gig Maxtor HD
+> 80 Gig Seagate HD
+> CDRW
+> DVD
+> GF FX 5600XT
+> SB Live 5.1Digital
+> 
+> 
+> i installed debian and a fresh compile of 2.4.25, installed the backports
+> collection for XF86/gnome2 and all my software i like. it goes fine for a
+> bit. but then while playing any sound (mainly streaming mp3's and my own
+> mp3's(in xmms)) the machine would lockup and i would have to reboot. i
+> never had this problem in windows with the box so i was wondering if
+> anyone had any incite into this.
+> 
+> --jeremy
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,62 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283594AbSAATzR>; Tue, 1 Jan 2002 14:55:17 -0500
+	id <S283265AbSAAUB5>; Tue, 1 Jan 2002 15:01:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283310AbSAATzI>; Tue, 1 Jan 2002 14:55:08 -0500
-Received: from mta6.snfc21.pbi.net ([206.13.28.240]:54697 "EHLO
-	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S283265AbSAATy6>; Tue, 1 Jan 2002 14:54:58 -0500
-Date: Tue, 01 Jan 2002 11:53:31 -0800
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: [linux-usb-devel] Re: "sr: unaligned transfer" in 2.5.2-pre1
-To: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Cc: Jens Axboe <axboe@suse.de>, Matthew Dharm <mdharm@one-eyed-alien.net>,
-        Greg KH <greg@kroah.com>
-Message-id: <065e01c192fd$fe066e20$6800000a@brownell.org>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-X-Priority: 3
-X-MSMail-priority: Normal
-In-Reply-To: <m2vgexzv90.fsf@ppro.localdomain> <20011223112249.B4493@kroah.com>
- <m23d1trr4w.fsf@pengo.localdomain> <20011230122756.L1821@suse.de>
- <20011230212700.B652@one-eyed-alien.net> <20011231125157.D1246@suse.de>
- <20011231145455.C6465@one-eyed-alien.net>
+	id <S283723AbSAAUBs>; Tue, 1 Jan 2002 15:01:48 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:23759 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S283265AbSAAUBh>; Tue, 1 Jan 2002 15:01:37 -0500
+Date: Tue, 1 Jan 2002 13:01:23 -0700
+Message-Id: <200201012001.g01K1NF15702@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Oliver Xymoron <oxymoron@waste.org>,
+        samson swanson <intellectcrew@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: a great C++ book?
+In-Reply-To: <20020101104331.F4802@work.bitmover.com>
+In-Reply-To: <20020101041111.29695.qmail@web14310.mail.yahoo.com>
+	<Pine.LNX.4.43.0201011214560.7188-100000@waste.org>
+	<20020101104331.F4802@work.bitmover.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> (2) How do I pass a highmem address to the HCDs?  The URB structures we use
-> don't seem particularly well-suited for this.
+Larry McVoy writes:
+> On Tue, Jan 01, 2002 at 12:25:10PM -0600, Oliver Xymoron wrote:
+> > On Mon, 31 Dec 2001, samson swanson wrote:
+> > 
+> > > hello again,
+> > >
+> > > i ask this group because i trust in your intellect.
+> > >
+> > > For a beginner to C++ what is your favorite book? A
+> > > book that goes in depth of teaching the language.
+> > > remeber i am  a beginner, new to c++.
+> > 
+> > If you already know C well, Bjarne Stroustrup's "The C++ Programming
+> > Language" is decent. If not, start with Kernighan and Ritchie's "The C
+> > Programming Language". Put the two next to each other and you might gain
+> > some insight into the creeping horror that modern C++ has become.
+> 
+> It's hard to explain a love/hate relationship with C++.  I think
+> many systems programmers come to a point where they can "speak" C++
+> and do so in design conversations all the time, talking about the
+> "objects" and the "methods", etc.  But they program in C.
+>
+> This sends a somewhat mixed message to the casual observer who might
+> think that one language or the other is "better".  The reality is
+> that you want tp program in a fairly object oriented way but you
+> also want to avoid "the creeping horror that modern C++ has
+> become.".
 
-The urb->transfer_buffer is required to be normal DMA-able memory,
-following the rules in Documentation/DMA-mapping.txt ... that got cleared
-up somewhere around the 2.4.5 timeframe, all the HCDs now use the
-pci_map_single() calls with those buffers.  kmalloc() is fine, not vmalloc(),
-and so on.
+An extract from the FAQ about C++: http://www.tux.org/lkml/#s1-4
 
-Not that I've seen a writeup about highmem (linux/Documentation doesn't
-seem to have one anyway) but if I infer correctly from that DMA-mapping.txt
-writeup, URBs don't support it because there's no way to specify buffers as
-a "struct page *" or an array of "struct scatterlist".  That's the only way that
-document identifies to access "highmem memory".
+"My personal view is that C++ has it's merits, and makes
+object-oriented programming easier. However, it is a more complex
+language and is less mature than C. The greatest danger with C++ is in
+fact it's power. It seduces the programmer, making it much easier to
+write bloatware. The kernel is a critical piece of code, and must be
+lean and fast. We cannot afford bloat. I think it is fair to say that
+it takes more skill to write efficient C++ code than C code. Not every
+contributer to the linux kernel is an uber-guru, and thus will not
+know the various tricks and traps for producing efficient C++ code."
 
+Object-oriented programming is a good tool. One of many. But it
+shouldn't be a religion, nor do you need to write in C++ to make use
+of it. A good example of object-oriented programming done in C is the
+Xt toolkit.
 
-> (1) Do the USB HCDs support highmem?  I seem to recall they do, but I'm not
-> certain.
+> Makes you wonder what would happen if someone tried to design a
+> minimalistic C++, call it the "M programming language", have be
+> close to C with the minimal useful parts of C++ included.
 
-If URBs can't describe highmem, the HCD's won't support them per se;
-you'd have to turn highmem to "lowmem" or whatever it's called, and
-then let the HCDs manage the lowmem-to-dma_addr_t mappings.
+I'm sure lots of people have thought about this. A friend of mine and
+I sat down once and did a rough design for the "K" language, which was
+supposed to be "exactly like C, only better". Basically, we wanted to
+cherry-pick the good bits of C++, plus add some other things. As
+usual, lack of time is the enemy. Besides, what's point unless it gets
+widely used, and the chance of that is small.
 
-Alternatively, in 2.5 we might add "highmem" support to USB.  Now that
-I've looked at it a few minutes, I suspect we must -- just to support block
-devices (usb-storage) fully.  Is there more to it than adding page+offset
-as an alternative way to describe the transfer_buffer?  (And making all
-the "single" mapping calls in the HCDs use page mappings.)
+				Regards,
 
-- Dave
-
-
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

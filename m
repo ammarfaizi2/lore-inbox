@@ -1,63 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274649AbRITVL6>; Thu, 20 Sep 2001 17:11:58 -0400
+	id <S274654AbRITVS2>; Thu, 20 Sep 2001 17:18:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274653AbRITVLv>; Thu, 20 Sep 2001 17:11:51 -0400
-Received: from paloma16.e0k.nbg-hannover.de ([62.159.219.16]:29898 "HELO
-	paloma16.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S274649AbRITVLd>; Thu, 20 Sep 2001 17:11:33 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Robert Love <rml@tech9.net>, Andrew Morton <akpm@zip.com.au>
-Subject: Re: [PATCH] Significant performace improvements on reiserfs systems
-Date: Thu, 20 Sep 2001 23:11:56 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: Chris Mason <mason@suse.com>, Beau Kuiper <kuib-kl@ljbc.wa.edu.au>,
-        Andrea Arcangeli <andrea@suse.de>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        ReiserFS List <reiserfs-list@namesys.com>
-In-Reply-To: <20010920170812.CCCACE641B@ns1.suse.com> <3BAA29C2.A9718F49@zip.com.au> <1001019170.6090.134.camel@phantasy>
-In-Reply-To: <1001019170.6090.134.camel@phantasy>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010920211140Z274649-760+14609@vger.kernel.org>
+	id <S274655AbRITVSX>; Thu, 20 Sep 2001 17:18:23 -0400
+Received: from [195.223.140.107] ([195.223.140.107]:33525 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S274654AbRITVRi>;
+	Thu, 20 Sep 2001 17:17:38 -0400
+Date: Thu, 20 Sep 2001 23:18:04 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.10-pre11
+Message-ID: <20010920231804.C729@athlon.random>
+In-Reply-To: <20010920205942.V729@athlon.random> <Pine.GSO.4.21.0109201530190.5141-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0109201530190.5141-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Thu, Sep 20, 2001 at 04:41:54PM -0400
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Donnerstag, 20. September 2001 22:52 schrieb Robert Love:
-> On Thu, 2001-09-20 at 13:39, Andrew Morton wrote:
-> > > Andrew, are these still maintained or should I pull out the reiserfs
-> > > bits?
-> >
-> > This is the reiserfs part - it applies to 2.4.10-pre12 OK.
-> >
-> > For the purposes of Robert's patch, conditional_schedule()
-> > should be defined as
-> >
-> > 	if (current->need_resched && current->lock_depth == 0) {
-> > 		unlock_kernel();
-> > 		lock_kernel();
-> > 	}
-> >
-> > which is somewhat crufty, because the implementation of lock_kernel()
-> > is arch-specific.  But all architectures seem to implement it the same
-> > way.
+On Thu, Sep 20, 2001 at 04:41:54PM -0400, Alexander Viro wrote:
+> 
+> 
+> On Thu, 20 Sep 2001, Andrea Arcangeli wrote:
+> 
+> > The second call will do the work if there's something to do. If somebody
+> > did an open/read/writes/close in the middle, it should do the work as
+> > usual. I actually can see a problem if you use the different inodes, but
+> > that will be sorted out too automatically as soon as we stop pinning the
+> > inodes.
+> 
+> 
+> Sigh... Try BLKFLSBUF + write() + BLKFLSBUF.
 
-> > <patch snipped>
->
-> Looks nice, Andrew.
->
-> Anyone try this? (I don't use ReiserFS).
+write will return -EIO and second BLKFLSBUF will do nothing.
 
-Yes, I will...:-)
-Send it along.
-
->
-> I am putting together a conditional scheduling patch to fix some of the
-> worst cases, for use in conjunction with the preemption patch, and this
-> might be useful.
-
-The conditional_schedule() function hampered me from running it already.
-
--Dieter
+Andrea

@@ -1,34 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135175AbRDLPAR>; Thu, 12 Apr 2001 11:00:17 -0400
+	id <S133091AbRDLPD1>; Thu, 12 Apr 2001 11:03:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135174AbRDLPAI>; Thu, 12 Apr 2001 11:00:08 -0400
-Received: from pop.gmx.net ([194.221.183.20]:9265 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S133091AbRDLO7B>;
-	Thu, 12 Apr 2001 10:59:01 -0400
-Message-ID: <3AD5C2BB.A2C82354@gmx.de>
-Date: Thu, 12 Apr 2001 16:59:07 +0200
-From: ernte23@gmx.de
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-ac4 i686)
-X-Accept-Language: de-DE, en
-MIME-Version: 1.0
+	id <S135191AbRDLPDS>; Thu, 12 Apr 2001 11:03:18 -0400
+Received: from goliath.siemens.de ([194.138.37.131]:141 "EHLO
+	goliath.siemens.de") by vger.kernel.org with ESMTP
+	id <S133091AbRDLPDA>; Thu, 12 Apr 2001 11:03:00 -0400
+X-Envelope-Sender-Is: ulrich.lauther@mchp.siemens.de (at relayer goliath.siemens.de)
+From: Ulrich Lauther <ulrich.lauther@mchp.siemens.de>
+Message-Id: <200104121502.f3CF2r914576@emma.mchp.siemens.de>
+Subject: Re: 2.4.2 bug in handling vfat? (fwd)
 To: linux-kernel@vger.kernel.org
-Subject: scanner problem
-Content-Type: text/plain; charset=us-ascii
+Date: Thu, 12 Apr 2001 17:02:53 +0200 (MET DST)
+Reply-To: Ulrich.Lauther@mchp.siemens.de
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+> Hi,
+> 
+> I think that it is the bug of FAT-fs.
+> Please try the following patch.
+> 
+thanks a lot, the patch fixes the problem
 
-when trying to scan with xsane and "agfa snapscan 1236s", i get the
-following message:
+-- 
+	-ulrich lauther
 
-Attached scsi generic sg2 at scsi0, channel 0, id 5, lun 0, type 6
-sym53c895-0-<5,*>: target did not report SYNC.
-sym53c895-0-<5,0>: extraneous data discarded.
-sym53c895-0-<5,0>: COMMAND FAILED (89 0) @cff3d000.
-
-what can i do about this?
-
-thanks, Felix
+----------------------------------------------------------------------------
+Ulrich Lauther          ph: +49 89 636 48834 fx: ... 636 42284
+Siemens CT SE 6         Internet: Ulrich.Lauther@mchp.siemens.de

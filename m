@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264997AbUH3Wdt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264704AbUH3Wjs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264997AbUH3Wdt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 18:33:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264704AbUH3Wds
+	id S264704AbUH3Wjs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 18:39:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264980AbUH3Wjs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 18:33:48 -0400
-Received: from cantor.suse.de ([195.135.220.2]:45761 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264954AbUH3WcN (ORCPT
+	Mon, 30 Aug 2004 18:39:48 -0400
+Received: from fw.osdl.org ([65.172.181.6]:17121 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264704AbUH3Wjq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 18:32:13 -0400
-To: neroden@fastmail.fm (Nathanael Nerode)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: TG3(Tigoon) & Kernel 2.4.27
-References: <20040830221638.GA3596@fastmail.fm>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: I'm ANN LANDERS!!  I can SHOPLIFT!!
-Date: Tue, 31 Aug 2004 00:32:12 +0200
-In-Reply-To: <20040830221638.GA3596@fastmail.fm> (Nathanael Nerode's message
- of "Mon, 30 Aug 2004 18:16:38 -0400")
-Message-ID: <jehdqk45qr.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Mon, 30 Aug 2004 18:39:46 -0400
+Date: Mon, 30 Aug 2004 15:39:42 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Bob Bennett <Robert.Bennett2@ca.com>
+Cc: apkm@osdl.org, linux-kernel@vger.kernel.org,
+       kgem-devel@lists.sourceforge.net
+Subject: Re: [ANNOUNCE] Kernel Generalized Event Management
+Message-ID: <20040830153942.C1973@build.pdx.osdl.net>
+References: <Pine.LNX.4.58.0408301738310.22919@benro02lx.ca.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.58.0408301738310.22919@benro02lx.ca.com>; from Robert.Bennett2@ca.com on Mon, Aug 30, 2004 at 06:06:29PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-neroden@fastmail.fm (Nathanael Nerode) writes:
+* Bob Bennett (Robert.Bennett2@ca.com) wrote:
+> KGEM is available for download from http://sf.net/projects/kgem as a patch
+> against kernel 2.6.8.1 and as a gzipped tar file containing the source and 
+> documentation.  The components may be built either as kernel loadable modules
+> or as part of the base.
+> 
+> I have included a hook plugin module designed to be used with an anti-virus
+> realtime scanner application, whose purpose is to check files as they are 
+> being opened or executed, to make sure they are not infected.  This module 
+> defines five events; open, execve, close, fork, and exit.  It registers with
+> LSM to get control and generate these events.
 
-> You can use simple assembler trickery to pack it up into a
-> normal object file *if* you have an assembler for mips *and* you know whether
-> the chip is running little-endian or big-endian (I have no idea). You may
-> need other information as well.  :-P  Then and only then can you try to
-> dissassemble it with objdump.
+So, why so much patch to do what's already available in the kernel?  With
+LSM, plus audit, you can generate events that userspace can consume via
+netlink w/out this /proc stuff, and sys_call_table symbol lookup stuff,
+the kernel hooks, etc.
 
-You don't have to pack it up, objdump can also disassemble raw data (with
---target=binary, --disassemble-all and suitable --architecture).
+How about starting by showing exactly what pieces are missing in the
+kernel?  This looks like things that can easily be done using existing
+infrastructure.
 
-Andreas.
-
+thanks,
+-chris
 -- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

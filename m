@@ -1,61 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277732AbRJRO7e>; Thu, 18 Oct 2001 10:59:34 -0400
+	id <S277742AbRJRPEy>; Thu, 18 Oct 2001 11:04:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277733AbRJRO7Z>; Thu, 18 Oct 2001 10:59:25 -0400
-Received: from adsl-216-102-163-254.dsl.snfc21.pacbell.net ([216.102.163.254]:25255
-	"EHLO windmill.gghcwest.com") by vger.kernel.org with ESMTP
-	id <S277732AbRJRO7R>; Thu, 18 Oct 2001 10:59:17 -0400
-Date: Thu, 18 Oct 2001 07:56:52 -0700 (PDT)
-From: "Jeffrey W. Baker" <jwbaker@acm.org>
-X-X-Sender: <jwb@windmill.gghcwest.com>
-To: Norbert Preining <preining@logic.at>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.12 cannot find root device on raid
-In-Reply-To: <20011018150141.A17493@alpha.logic.tuwien.ac.at>
-Message-ID: <Pine.LNX.4.33.0110180755090.5641-100000@windmill.gghcwest.com>
+	id <S277735AbRJRPEp>; Thu, 18 Oct 2001 11:04:45 -0400
+Received: from mail3.panix.com ([166.84.0.167]:59347 "HELO mail3.panix.com")
+	by vger.kernel.org with SMTP id <S277738AbRJRPEh>;
+	Thu, 18 Oct 2001 11:04:37 -0400
+From: "Roy Murphy" <murphy@panix.com>
+Reply-To: murphy@panix.com
+To: linux-kernel@vger.kernel.org
+Date: Thu, 18 Oct 2001 11:05:10 -0500
+Subject: Re: MODULE_LICENSE and EXPORT_SYMBOL_GPL
+X-Mailer: DMailWeb Web to Mail Gateway 2.6k, http://netwinsite.com/top_mail.htm
+Message-id: <3bceefa6.3cf6.0@panix.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 18 Oct 2001, Norbert Preining wrote:
-
-> Hi!
+'Twas brillig when Keith Owens scrobe:
+>EXPORT_SYMBOL_GPL 
 >
-> I have the following problem:
->
-> kernel 2.4.12, md and raid1 compiled into the kernel.
-> /dev/hdb old linux installation
-> /dev/md0 -> /dev/hde1,/dev/hdg1 new installation
->
-> When I boot my old installation the md device is automatically configured
-> by the kernel and I can mount it (reiserfs) without any problems.
->
-> When I try to boot the new installation with the same kernel the md device
-> is initialized, but the kernel cannot mount the root device. I get msgs
-> about FAT problems and about mounting root as msdos.
->
-> Here some config files:
-> lilo.conf:
-> image = /boot/lx-2.4.12
-> 	root = /dev/hdb1
-> 	label = old
-> image = /boot/lx-2.4.12
-> 	root = /dev/md0
-> 	label = new
-> 	optional
+>Some kernel developers are unhappy with providing external interfaces
+>to their code, only to see those interfaces being used by binary only 
+>modules. They view it as their work being appropriated. Whether you 
+>agree with that view or not is completely irrelevant, the person who 
+>owns the copyright decides how their work can be used. 
 
-To use a md as root, you need to add a kernel command line:
+The GPL takes its strength and power from Copyright Law.  Copyright law 
+allows certain exclusive rights to authors.  Among these are: 
+distribution, public performance and the preparation of derivative 
+works.  Copyright Law (at least in the US) reserves certain rights to 
+the Public, notably the right to make Fair Uses.  Because of Fair Use, 
+the statement above "the person who owns the copyright decides how 
+their work can be used." is demonstrably false in a US Copyright 
+context.
 
-md0=1,/dev/hde1,/dev/hdg1
+Some elements of authorship are copyrightable, other elements are not.  
+One clear exception in US Copyright Law is "methods of operation" which 
+are not copyrightable.  The canonical example of this the pattern of a 
+standard transmission shift.  The pattern, intimately tied to the 
+manner in which the device is used, has been standardized because its 
+design could be copied and used by all manufacturers.
 
-Put that in the append= line of lilo.conf or type it at the lilo command
-prompt.
+Exported interfaces are "methods of operation" in the sense of US 
+Copyright Law.  Copyright Law affords no protection to "methods of 
+operation".  The GPL, which gains its strength from Copyright Law, also 
+has no rights in this area.  If a GPLed module does not want other code 
+using its interfaces, they should not be exported.
 
-See also Documentation/md.txt in the Linux source tree.
-
--jwb
-
+This is an example of overreaching copyright control which is just as 
+aggregious as CSS on DVDs.
+ 

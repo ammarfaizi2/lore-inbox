@@ -1,55 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbUIAARN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263769AbUIAARN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261474AbUIAARN (ORCPT <rfc822;willy@w.ods.org>);
+	id S263769AbUIAARN (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 31 Aug 2004 20:17:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264531AbUIAAO3
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbUIAAOn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 20:14:29 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:12261 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S264261AbUIAAOB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 20:14:01 -0400
-Subject: Re: [RFC&PATCH] Alternative RCU implementation
-From: Jim Houston <jim.houston@comcast.net>
-Reply-To: jim.houston@comcast.net
-To: dipankar@in.ibm.com
-Cc: paulmck@us.ibm.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20040830173853.GB4639@in.ibm.com>
-References: <m3brgwgi30.fsf@new.localdomain>
-	 <20040830004322.GA2060@us.ibm.com>
-	 <1093886020.984.238.camel@new.localdomain>
-	 <20040830173853.GB4639@in.ibm.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1093997450.4069.1.camel@new.localdomain>
+	Tue, 31 Aug 2004 20:14:43 -0400
+Received: from smtp106.mail.sc5.yahoo.com ([66.163.169.226]:53674 "HELO
+	smtp106.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S269131AbUIAANi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 20:13:38 -0400
+Date: Tue, 31 Aug 2004 17:13:11 -0700
+From: "David S. Miller" <davem@davemloft.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: bunk@fs.tum.de, linux-kernel@vger.kernel.org, pedro_m@yahoo.com
+Subject: Re: [patch] update email address of Pedro Roque Marques (fwd)
+Message-Id: <20040831171311.472554fe.davem@davemloft.net>
+In-Reply-To: <20040831153853.7a40c6cb.akpm@osdl.org>
+References: <20040831221353.GX3466@fs.tum.de>
+	<20040831153853.7a40c6cb.akpm@osdl.org>
+Organization: DaveM Loft Enterprises
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 31 Aug 2004 20:10:50 -0400
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-08-30 at 13:38, Dipankar Sarma wrote:
+On Tue, 31 Aug 2004 15:38:53 -0700
+Andrew Morton <akpm@osdl.org> wrote:
 
-> > I'm also trying to figure out if I need the call_rcu_bh() changes.
-> > Since my patch will recognize a grace periods as soon as any 
-> > pending read-side critical sections complete, I suspect that I
-> > don't need this change.
+> Adrian Bunk <bunk@fs.tum.de> wrote:
+> >
+> > The patch below (already ACK'ed by Pedro Roque Marques) updates his 
+> > email address.
 > 
-> Except that under a softirq flood, a reader in a different read-side
-> critical section may get delayed a lot holding up RCU. Let me know
-> if I am missing something here.
+> Sigh.  People move all the time.  Methinks it would be better to just put
+> your name into the .c files and force people to consult MAINTAINERS/CREDITS
+> to find the email address.
 
-Hi Dipankar,
-
-O.k.  That makes sense.  So the rcu_read_lock_bh(), rcu_read_unlock_bh()
-and call_rcu_bh() would be the preferred interface.  Are there cases
-where they can't be used?  How do you decide where to use the _bh 
-flavor?
-
-I see that local_bh_enable() WARNS if interrupts are disabled.  Is that
-the issue?  Are rcu_read_lock()/rcu_read_unlock() ever called from 
-code which disables interrupts?
-
-Jim Houston - Concurrent Computer Corp.
-
+I agree, when I just recently changed the email address I want
+to use I considered updating the bazillion source files but
+it's a complete waste of time.

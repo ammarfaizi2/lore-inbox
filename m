@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266844AbSL3K3s>; Mon, 30 Dec 2002 05:29:48 -0500
+	id <S266842AbSL3K3g>; Mon, 30 Dec 2002 05:29:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266846AbSL3K3s>; Mon, 30 Dec 2002 05:29:48 -0500
-Received: from alfie.demon.co.uk ([158.152.44.128]:37638 "EHLO
-	bagpuss.pyrites.org.uk") by vger.kernel.org with ESMTP
-	id <S266844AbSL3K3r>; Mon, 30 Dec 2002 05:29:47 -0500
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Nick.Holloway@pyrites.org.uk (Nick Holloway)
-Newsgroups: list.linux-kernel
-Subject: Avoid large reads using parport_read() ?
-Date: 30 Dec 2002 10:32:01 -0000
-Organization: Alfie's Internet Node
-Message-ID: <aup7b1$i50$1@alfie.demon.co.uk>
-X-Newsreader: NN version 6.5.0 CURRENT #120
+	id <S266844AbSL3K3f>; Mon, 30 Dec 2002 05:29:35 -0500
+Received: from smtp-out-6.wanadoo.fr ([193.252.19.25]:3543 "EHLO
+	mel-rto6.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S266842AbSL3K3e>; Mon, 30 Dec 2002 05:29:34 -0500
+Subject: [PATCH] 2.5 fix link with fbcon built-in
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org, James Simmons <jsimmons@infradead.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1041244796.4330.14.camel@zion.wanadoo.fr>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 30 Dec 2002 11:39:56 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been involved with the cpia_pp driver (parallel port Webcam), and
-found that X becomes very sluggish when capturing a stream of images.
-I suspect that this is due to reading the whole of each frame using
-parport_read(), which could be up to 200K.
+In current bk 2.5, drivers/video/console/fonts.c exports an
+init_module() symbol when built-in, which prevents the kernel from
+linking. Here's a quick fix.
 
-In the 2.0 kernel days (pre-parport layer), the cpia_pp driver would do
-its own parallel port banging, and would actually only read 16 bytes
-(fifo size) at a time before checking if it needed to reschedule.
-Now it fetches the whole image using a single call to parport_read().
+Ben.
 
-I did a quick check, and instead of issuing one parport_read for the whole
-image, I looped round issuing reads of 4096 bytes.  The responsiveness
-of the machine was much improved.
-
-Is there any problem with looping calls to parport_read() with a smaller
-buffer size, and performing cond_resched() each time through the loop?
-What size of buffer should I use?
+--- 1.10/drivers/video/console/fonts.c  Fri Nov 29 18:37:57 2002
++++ edited/drivers/video/console/fonts.c        Mon Dec 30 11:36:42 2002
+@@ -130,8 +130,10 @@
+     return g;
+ }
+  
++#ifdef MODULE
+ int init_module(void) { return 0; };
+ void cleanup_module(void) {};
++#endif
+  
+ EXPORT_SYMBOL(fonts);
+ EXPORT_SYMBOL(find_font);
 
 -- 
- `O O'  | Nick.Holloway@pyrites.org.uk
-// ^ \\ | http://www.pyrites.org.uk/
+Benjamin Herrenschmidt <benh@kernel.crashing.org>
+

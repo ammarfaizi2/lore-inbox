@@ -1,98 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261914AbSKRKI0>; Mon, 18 Nov 2002 05:08:26 -0500
+	id <S261978AbSKRKTx>; Mon, 18 Nov 2002 05:19:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261950AbSKRKI0>; Mon, 18 Nov 2002 05:08:26 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:16145 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261914AbSKRKIZ>; Mon, 18 Nov 2002 05:08:25 -0500
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: LKML <linux-kernel@vger.kernel.org>
-From: Russell King <rmk@arm.linux.org.uk>
-Subject: [PATCH] 2.5.29-rdunzip
-Message-Id: <E18Diw7-0000Jd-00@raistlin.arm.linux.org.uk>
-Date: Mon, 18 Nov 2002 10:15:23 +0000
+	id <S261996AbSKRKTx>; Mon, 18 Nov 2002 05:19:53 -0500
+Received: from pc311.opanet.cz ([62.77.115.11]:13453 "HELO pc11.op.pod.cz")
+	by vger.kernel.org with SMTP id <S261978AbSKRKTx>;
+	Mon, 18 Nov 2002 05:19:53 -0500
+From: "Vitezslav Samel" <samel@mail.cz>
+Date: Mon, 18 Nov 2002 11:26:53 +0100
+To: linux-kernel@vger.kernel.org
+Subject: Re: Status of the CMD680 IDE driver
+Message-ID: <20021118102653.GB425@pc11.op.pod.cz>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <73fe.3dd52324.188a7@gzp1.gzp.hu> <1037383237.19971.49.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1037383237.19971.49.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch appears not to be in 2.5.48, but applies cleanly.
+On Fri, Nov 15, 2002 at 06:00:37PM +0000, Alan Cox wrote:
+> On Fri, 2002-11-15 at 16:39, Gabor Z. Papp wrote:
+> > Seems like it is in the later 2.4, but removed from the -ac
+> > line, and missing from the 2.5 tree.
+> 
+> siimage driver drives the CMD680 and the SATA SII3112 version of the
+> chip.
 
-This patch ensures that we report failures when unzipping ramdisks and the
-like, including if we fail to write to the ramdisk.
+  I tried it, but performance drops from 44 MB/s to cca. 20 MB/s 
+when using new seagate drive in udma5 between 2.4 and 2.5 version.
 
-Unfortunately, there is no way to guarantee that the gunzip function will
-ever terminate (gzip itself uses a setjmp and longjmp to achieve this).
-
-I wish that the ramdisk gunzip code would disappear for 2.6, replaced by
-an initramfs solution which should be able to handle such failure cases
-more cleanly.
-
- init/do_mounts.c |   19 ++++++++++++++++---
- 1 files changed, 16 insertions, 3 deletions
-
-diff -urN orig/init/do_mounts.c linux/init/do_mounts.c
---- orig/init/do_mounts.c	Sat Jul 27 13:55:25 2002
-+++ linux/init/do_mounts.c	Sat Jul 27 14:13:56 2002
-@@ -877,6 +877,7 @@
- static unsigned inptr;   /* index of next byte to be processed in inbuf */
- static unsigned outcnt;  /* bytes in output buffer */
- static int exit_code;
-+static int unzip_error;
- static long bytes_out;
- static int crd_infd, crd_outfd;
- 
-@@ -924,13 +925,17 @@
- /* ===========================================================================
-  * Fill the input buffer. This is called only when the buffer is empty
-  * and at least one byte is really needed.
-+ * Returning -1 does not guarantee that gunzip() will ever return.
-  */
- static int __init fill_inbuf(void)
- {
- 	if (exit_code) return -1;
- 	
- 	insize = read(crd_infd, inbuf, INBUFSIZ);
--	if (insize == 0) return -1;
-+	if (insize == 0) {
-+		error("RAMDISK: ran out of compressed data\n");
-+		return -1;
-+	}
- 
- 	inptr = 1;
- 
-@@ -944,10 +949,15 @@
- static void __init flush_window(void)
- {
-     ulg c = crc;         /* temporary variable */
--    unsigned n;
-+    unsigned n, written;
-     uch *in, ch;
-     
--    write(crd_outfd, window, outcnt);
-+    written = write(crd_outfd, window, outcnt);
-+    if (written != outcnt && unzip_error == 0) {
-+	printk(KERN_ERR "RAMDISK: incomplete write (%d != %d) %d\n",
-+	       written, outcnt, bytes_out);
-+	unzip_error = 1;
-+    }
-     in = window;
-     for (n = 0; n < outcnt; n++) {
- 	    ch = *in++;
-@@ -962,6 +972,7 @@
- {
- 	printk(KERN_ERR "%s", x);
- 	exit_code = 1;
-+	unzip_error = 1;
- }
- 
- static int __init crd_load(int in_fd, int out_fd)
-@@ -990,6 +1001,8 @@
- 	}
- 	makecrc();
- 	result = gunzip();
-+	if (unzip_error)
-+		result = 1;
- 	kfree(inbuf);
- 	kfree(window);
- 	return result;
-
+	Cheers,
+		Vita

@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267272AbTGHMXT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 08:23:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267274AbTGHMXT
+	id S267274AbTGHMYF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 08:24:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267275AbTGHMYF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 08:23:19 -0400
-Received: from mailgw.cvut.cz ([147.32.3.235]:6110 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S267272AbTGHMXR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 08:23:17 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Christian Axelsson <smiler@lanil.mine.nu>
-Date: Tue, 8 Jul 2003 14:37:14 +0200
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: 2.5.74-mm2 + nvidia (and others)
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-X-mailer: Pegasus Mail v3.50
-Message-ID: <6A3BC5C5B2D@vcnet.vc.cvut.cz>
+	Tue, 8 Jul 2003 08:24:05 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:54444 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S267274AbTGHMYC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 08:24:02 -0400
+Date: Tue, 8 Jul 2003 23:43:26 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Wim ten Have <wtenhave@sybase.com>
+Cc: linux-kernel@vger.kernel.org, linux-aio@kvack.org
+Subject: Re: Bug fix in AIO initialization
+Message-ID: <20030708234326.A2352@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <41F331DBE1178346A6F30D7CF124B24B2A4880@fmsmsx409.fm.intel.com> <20030708115345.5e6e5bbc.wtenhave@sybase.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030708115345.5e6e5bbc.wtenhave@sybase.com>; from wtenhave@sybase.com on Tue, Jul 08, 2003 at 11:53:45AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  8 Jul 03 at 13:35, Christian Axelsson wrote:
-> On Tue, 2003-07-08 at 13:23, Flameeyes wrote:
-> > On Tue, 2003-07-08 at 13:01, Petr Vandrovec wrote:
-> > > vmware-any-any-update35.tar.gz should work on 2.5.74-mm2 too.
-> > > But it is not tested, I have enough troubles with 2.5.74 without mm patches...
-> > vmnet doesn't compile:
-> > 
-> > make: Entering directory `/tmp/vmware-config1/vmnet-only'
-> > In file included from userif.c:51:
-> > pgtbl.h: In function `PgtblVa2PageLocked':
-> > pgtbl.h:82: warning: implicit declaration of function `pmd_offset'
-> > pgtbl.h:82: warning: assignment makes pointer from integer without a
-> > cast
-> > make: Leaving directory `/tmp/vmware-config1/vmnet-only'
-> 
-> I get exactly the same errors. BTW I got these on vanilla 2.5.74 aswell.
+On Tue, Jul 08, 2003 at 11:53:45AM +0200, Wim ten Have wrote:
+>    Is there a definition how long system calls take when i issue
+>    asynchronous read/write requests?  The purpose is to not block
+>    but occasionally i measure up to 100's of milliseconds before
+>    the request is accepted or returns that there are currently
+>    no resources making me try again.  Is this normal?
 
-Either copy compat_pgtable.h from vmmon to vmnet, or grab
-vmware-any-any-update36. I forgot to update vmnet's copy of this file.
-                                                Petr Vandrovec
-                                                
+Is this with vanilla 2.5 kernels or recent -mm kernels ?
+
+Are you doing async O_DIRECT reads/writes or regular filesystem
+aio read/writes ?
+
+Regards
+Suparna
+
+-- 
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Labs, India
 

@@ -1,72 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261712AbUEEDWo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261597AbUEEDV4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261712AbUEEDWo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 23:22:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261779AbUEEDWo
+	id S261597AbUEEDV4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 23:21:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbUEEDVz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 23:22:44 -0400
-Received: from fw.osdl.org ([65.172.181.6]:27049 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261712AbUEEDWi (ORCPT
+	Tue, 4 May 2004 23:21:55 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:54972 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261597AbUEEDVy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 23:22:38 -0400
-Date: Tue, 4 May 2004 20:21:06 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: "Patrick J. LoPresti" <patl@users.sourceforge.net>
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: Load hid.o module synchronously?
-Message-Id: <20040504202106.106529b3.rddunlap@osdl.org>
-In-Reply-To: <s5gy8o7bnhv.fsf@patl=users.sf.net>
-References: <s5g8ygi4l3q.fsf@patl=users.sf.net>
-	<408D65A7.7060207@nortelnetworks.com>
-	<s5gisfm34kq.fsf@patl=users.sf.net>
-	<c6od9g$53k$1@gatekeeper.tmr.com>
-	<s5ghdv0i8w4.fsf@patl=users.sf.net>
-	<20040504200147.GA26579@kroah.com>
-	<s5ghduvdg1u.fsf@patl=users.sf.net>
-	<20040504223550.GA32155@kroah.com>
-	<s5gy8o7bnhv.fsf@patl=users.sf.net>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 4 May 2004 23:21:54 -0400
+Date: Tue, 4 May 2004 20:18:32 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: m.c.p@kernel.linux-systeme.com, linux-kernel@vger.kernel.org,
+       bunk@fs.tum.de, marcelo.tosatti@cyclades.com
+Subject: Re: 2.4.27-pre2: tg3: there's no WARN_ON in 2.4
+Message-Id: <20040504201832.1c8d07a3.davem@redhat.com>
+In-Reply-To: <20040504205659.GA17583@havoc.gtf.org>
+References: <20040503230911.GE7068@logos.cnet>
+	<20040504204633.GB8643@fs.tum.de>
+	<200405042253.11133@WOLK>
+	<20040504205659.GA17583@havoc.gtf.org>
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 04 May 2004 22:49:56 -0400 "Patrick J. LoPresti" <patl@users.sourceforge.net> wrote:
+On Tue, 4 May 2004 16:56:59 -0400
+Jeff Garzik <jgarzik@pobox.com> wrote:
 
-| Greg KH <greg@kroah.com> writes:
-| 
-| > On Tue, May 04, 2004 at 05:56:48PM -0400, Patrick J. LoPresti wrote:
-| >
-| > > But what if it fails to bind?  For example, what if an error occurs?
-| > > Or what if the keyboard is on the module's blacklist?  How do I know
-| > > when to stop waiting?
-| > 
-| > You do not, sorry.
-| 
-| That is disappointing.  I mean, I deal with Microsoft products a lot,
-| where "unreliable by design" is normal.  But I expected better from
-| Linux.
+> > yep. Either we backport WARN_ON ;) or simply do the attached.
+> 
+> I would rather add the simple patch to 2.4.x core, since tg3 isn't the
+> only driver that continues to be heavily used in 2.4, and thus will
+> continue to be actively maintained for a while...
 
-It's just a different model than what you are looking for.
-
-The hid (or whatever) driver supports a hotplug environment.
-It cannot know what device(s) are expected to be present
-or just which ones you are looking for.
-
-If it's a huge problem, you have the source code, modify the
-driver to do what you want it to do.
-
-| > > Ideally, what I would like is for "modprobe <driver>" to wait
-| > > until all hardware handled by that driver is either ready for use
-| > > or is never going to be.  That seems simple and natural to me.
-| > 
-| > Sorry, but this is not going to happen.  It does not fit into the
-| > way the kernel handles drivers anymore.  Again, sorry.
-| 
-| OK, an arbitrary flaky delay it is.  Thanks!
-
-
---
-~Randy
+I agree, anyone cooking up a patch for this?

@@ -1,64 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272619AbRIGM11>; Fri, 7 Sep 2001 08:27:27 -0400
+	id <S272622AbRIGMb2>; Fri, 7 Sep 2001 08:31:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272620AbRIGM1G>; Fri, 7 Sep 2001 08:27:06 -0400
-Received: from pat.uio.no ([129.240.130.16]:48366 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S272619AbRIGM0z>;
-	Fri, 7 Sep 2001 08:26:55 -0400
-MIME-Version: 1.0
-Message-ID: <15256.48410.491658.624569@charged.uio.no>
-Date: Fri, 7 Sep 2001 14:27:06 +0200
-To: ptb@it.uc3m.es
-Cc: Mike Black <mblack@csihq.com>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.8 NFS Problems
-In-Reply-To: <200109071206.OAA24577@nbd.it.uc3m.es>
-In-Reply-To: <shsae07md9d.fsf@charged.uio.no>
-	<200109071206.OAA24577@nbd.it.uc3m.es>
-X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-User-Agent: SEMI/1.13.7 (Awazu) CLIME/1.13.6 (=?ISO-2022-JP?B?GyRCQ2YbKEI=?=
- =?ISO-2022-JP?B?GyRCJU4+MRsoQg==?=) MULE XEmacs/21.1 (patch 14) (Cuyahoga
- Valley) (i386-redhat-linux)
+	id <S272623AbRIGMbS>; Fri, 7 Sep 2001 08:31:18 -0400
+Received: from mail11.speakeasy.net ([216.254.0.211]:13325 "EHLO
+	mail.speakeasy.net") by vger.kernel.org with ESMTP
+	id <S272622AbRIGMbC>; Fri, 7 Sep 2001 08:31:02 -0400
 Content-Type: text/plain; charset=US-ASCII
+From: safemode <safemode@speakeasy.net>
+To: Daniel Phillips <phillips@bonn-fries.net>, Robert Love <rml@tech9.net>,
+        Christoph Lameter <christoph@lameter.com>
+Subject: Re: Linux Preemptive patch success 2.4.10-pre4 + lots of other patches
+Date: Fri, 7 Sep 2001 08:31:22 -0400
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0109062135280.1643-100000@devel.office> <999837964.865.3.camel@phantasy> <20010907051231Z16200-26183+114@humbolt.nl.linux.org>
+In-Reply-To: <20010907051231Z16200-26183+114@humbolt.nl.linux.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010907123107Z272622-761+7779@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Peter T Breuer <ptb@it.uc3m.es> writes:
-
-     > It would be nice if nfs could do the a remount automatically
-     > when the nfs handle it has goes stale an dit discovers it.  Is
-     > that part of v3 nfs or not?
-
-The exact wording in RFC1813 is
-
-   NFS3ERR_STALE
-       Invalid file handle. The file handle given in the
-       arguments was invalid. The file referred to by that file
-       handle no longer exists or access to it has been
-       revoked.
-
-The problem is with the 'access to it has been revoked'. It says
-nothing about whether or not that is permanent, hence you have to be
-very careful about applying this concept to the mount point.
-
-In any case, remounting automatically is a very bad idea unless you do
-it cleanly (i.e. kill all existing processes, unmount the disk, and
-then start afresh). If you just do it transparently and don't clean
-out the (d|i)caches, you will see some pretty odd things happening if
-filehandles on the new disk don't match the filehandles on the old
-disk.
-This is BTW the reason why unfsd is badly broken wrt. CDROMS.
-
-     > But soft mounts at least break nicely and automatically.  And
-     > since failures are inevitable, I prefer them.
-
-     > Come to think of it, why not have an option that does a
-     > hard,intr but sends a ^C automatically to all referents when a
-     > stale handle is detected.
-
-See above.
-
-Cheers,
-   Trond
+I'm using the 2.4.9-ac9 preempt patch to test things out.  Everything is fine 
+and stable except it seems that sudden and rapid network accesses cause tiny 
+"pops" in the soundcard that didn't occur before the patch.  This is not 
+increased system load or anything so the audio isn't skipping due to that. 
+It has only happened so far when grabbing many tiny files in rapid succession 
+(note. only at 70K/s).  Weird.

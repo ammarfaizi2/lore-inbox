@@ -1,75 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268255AbUJDADt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268269AbUJDAOT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268255AbUJDADt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Oct 2004 20:03:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268258AbUJDADt
+	id S268269AbUJDAOT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Oct 2004 20:14:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268270AbUJDAOT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Oct 2004 20:03:49 -0400
-Received: from jade.aracnet.com ([216.99.193.136]:6042 "EHLO
-	jade.spiritone.com") by vger.kernel.org with ESMTP id S268255AbUJDADr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Oct 2004 20:03:47 -0400
-Date: Sun, 03 Oct 2004 17:02:36 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Paul Jackson <pj@sgi.com>
-cc: pwil3058@bigpond.net.au, frankeh@watson.ibm.com, dipankar@in.ibm.com,
-       akpm@osdl.org, ckrm-tech@lists.sourceforge.net, efocht@hpce.nec.com,
-       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
-       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
-       linux-kernel@vger.kernel.org, colpatch@us.ibm.com, Simon.Derr@bull.net,
-       ak@suse.de, sivanich@sgi.com
-Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
-Message-ID: <835810000.1096848156@[10.10.2.4]>
-In-Reply-To: <834330000.1096847619@[10.10.2.4]>
-References: <20040805100901.3740.99823.84118@sam.engr.sgi.com><20040805190500.3c8fb361.pj@sgi.com><247790000.1091762644@[10.10.2.4]><200408061730.06175.efocht@hpce.nec.com><20040806231013.2b6c44df.pj@sgi.com><411685D6.5040405@watson.ibm.com><20041001164118.45b75e17.akpm@osdl.org><20041001230644.39b551af.pj@sgi.com><20041002145521.GA8868@in.ibm.com><415ED3E3.6050008@watson.ibm.com><415F37F9.6060002@bigpond.net.au><821020000.1096814205@[10.10.2.4]> <20041003083936.7c844ec3.pj@sgi.com> <834330000.1096847619@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Sun, 3 Oct 2004 20:14:19 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:12815 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S268269AbUJDAOQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Oct 2004 20:14:16 -0400
+Date: Mon, 4 Oct 2004 02:13:39 +0200
+From: Adrian Bunk <adrian.bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ed Sweetman <safemode@comcast.net>, preining@logic.at, edt@aei.ca,
+       jeremy@goop.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc3-mm1 build failure
+Message-ID: <20041004001339.GD1948@stusta.mhn.de>
+References: <1096787657.9182.6.camel@localhost> <20041002091644.GA8431@gamma.logic.tuwien.ac.at> <20041002022921.0e1aceb3.akpm@osdl.org> <200410021440.45194.edt@aei.ca> <20041002091644.GA8431@gamma.logic.tuwien.ac.at> <20041002022921.0e1aceb3.akpm@osdl.org> <20041002105038.GB2470@stusta.mhn.de> <20041003083014.GB12458@gamma.logic.tuwien.ac.at> <416084A5.4080200@comcast.net> <20041003162456.4729ab1a.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20041003162456.4729ab1a.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---"Martin J. Bligh" <mbligh@aracnet.com> wrote (on Sunday, October 03, 2004 16:53:40 -0700):
+On Sun, Oct 03, 2004 at 04:24:56PM -0700, Andrew Morton wrote:
+> Ed Sweetman <safemode@comcast.net> wrote:
+> >
+> > None of the mails reporting that inserting a header in any file has 
+> >  produced a build here that actually gets rid of the build error.  I have 
+> >  the same errors about implicit declarations of ack_APIC_irq that i had 
+> >  before i added asm/io_apic.h to irq.c in arch/i386/kernel and before i 
+> >  added it to include/asm/hardirq.h.   I've attached my .config to see if 
+> >  anyone realizes what i'm doing wrong or what's not being defined 
+> >  correctly.
+> 
+> yeah, it's all screwed up.  I fixed it up with the below two patches.
+>...
 
->> Martin wrote:
->>> Matt had proposed having a separate sched_domain tree for each cpuset, which
->>> made a lot of sense, but seemed harder to do in practice because "exclusive"
->>> in cpusets doesn't really mean exclusive at all.
->> 
->> See my comments on this from yesterday on this thread.
->> 
->> I suspect we don't want a distinct sched_domain for each cpuset, but
->> rather a sched_domain for each of several entire subtrees of the cpuset
->> hierarchy, such that every CPU is in exactly one such sched domain, even
->> though it be in several cpusets in that sched_domain.
-> 
-> Mmmm. The fundamental problem I think we ran across (just whilst pondering,
-> not in code) was that some things (eg ... init) are bound to ALL cpus (or
-> no cpus, depending how you word it); i.e. they're created before the cpusets
-> are, and are a member of the grand-top-level-uber-master-thingummy.
-> 
-> How do you service such processes? That's what I meant by the exclusive
-> domains aren't really exclusive. 
-> 
-> Perhaps Matt can recall the problems better. I really liked his idea, aside
-> from the small problem that it didn't seem to work ;-)
-> 
->> So we have eight cpusets, non-overlapping and covering the entire
->> system, each with its own sched_domain.
-> 
-> But that's the problem ... I think there are *always* cpusets that overlap.
-> Which is sad (fixable?) because it breaks lots of intelligent things we
-> could do. 
+After a quick grep it seems x86_64 and ia64 might require similar 
+patches for at least APIC_MISMATCH_DEBUG?
 
-Hmmm. What if when you created a new, exclusive CPUset, the cpus you spec'ed
-were *removed* from the parent CPUset (and existing processes forcibly
-migrated off). That'd fix most of it, and would bring us much closer to the
-true meaning of "exclusive". Changes your semantics a bit, but still ...
+cu
+Adrian
 
-OK, so there is one problem I can see - you couldn't remove the last CPU
-from the parent if there were any jobs running in it, but presumably fixable
-(eg you have to move them into the created child, or fail the call).
+-- 
 
-M.
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

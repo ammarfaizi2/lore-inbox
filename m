@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263948AbRFEJgk>; Tue, 5 Jun 2001 05:36:40 -0400
+	id <S263949AbRFEJoM>; Tue, 5 Jun 2001 05:44:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263949AbRFEJga>; Tue, 5 Jun 2001 05:36:30 -0400
-Received: from mail.iwr.uni-heidelberg.de ([129.206.104.30]:13449 "EHLO
-	mail.iwr.uni-heidelberg.de") by vger.kernel.org with ESMTP
-	id <S263948AbRFEJgK>; Tue, 5 Jun 2001 05:36:10 -0400
-Date: Tue, 5 Jun 2001 11:36:04 +0200 (CEST)
-From: Bogdan Costescu <bogdan.costescu@iwr.uni-heidelberg.de>
-To: Kip Macy <kmacy@netapp.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Looking for device to write device driver for
-In-Reply-To: <Pine.GSO.4.10.10106031613160.14668-100000@orbit-fe.eng.netapp.com>
-Message-ID: <Pine.LNX.4.33.0106051131490.5137-100000@kenzo.iwr.uni-heidelberg.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263950AbRFEJoC>; Tue, 5 Jun 2001 05:44:02 -0400
+Received: from kivc.vstu.vinnica.ua ([62.244.53.242]:57474 "EHLO
+	kivc.vstu.vinnica.ua") by vger.kernel.org with ESMTP
+	id <S263949AbRFEJnm>; Tue, 5 Jun 2001 05:43:42 -0400
+Date: Tue, 5 Jun 2001 12:37:55 +0300
+From: Bohdan Vlasyuk <bohdan@kivc.vstu.vinnica.ua>
+To: linux-kernel@vger.kernel.org
+Subject: isolating process..
+Message-ID: <20010605123755.B5998@kivc.vstu.vinnica.ua>
+Mail-Followup-To: Bohdan Vlasyuk <bohdan>, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Logged: Logged by kivc.vstu.vinnica.ua as f559btp06205 at Tue Jun  5 12:37:55 2001
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 3 Jun 2001, Kip Macy wrote:
 
-> I then tried to get the interface information from 3com on their new
-> 3cr990 card to add IPsec offload support to the linux driver.
+Hi !
 
-Which Linux driver ? They only provide a 2.2 one which is in an alpha
-stage (as written in it!).
+Is it possible by any means to isolate any given process, so that
+it'll be unable to crash system. Suppose all the process needs is
+stdin, stdout, and CPU time. Can Linux guarantee that given process
+won't hurt system stability ? Let us soppose that we have ideal CPU
+without mistakes. How can I limit CPU time/Mem Usage for given
+process?
 
-> They responded by telling me that due to IP-heavy nature of the product
-> that they would not be releasing the interface.
+Please, supply ANY suggestions.
 
-You were much luckier than me. To me, they said that they don't provide
-any support for Linux with these cards when I was only asking for docs for
-how to use their own firmware to do basic operations!
+My ideas:
 
-Sincerely,
+create some user, and decrease his ulimits up to miminum of 1 process,
+0 core size, appropriate memory/ etc.
 
-Bogdan Costescu
 
-IWR - Interdisziplinaeres Zentrum fuer Wissenschaftliches Rechnen
-Universitaet Heidelberg, INF 368, D-69120 Heidelberg, GERMANY
-Telephone: +49 6221 54 8869, Telefax: +49 6221 54 8868
-E-mail: Bogdan.Costescu@IWR.Uni-Heidelberg.De
-
+Thanks!

@@ -1,85 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274269AbRIYALN>; Mon, 24 Sep 2001 20:11:13 -0400
+	id <S274268AbRIYANX>; Mon, 24 Sep 2001 20:13:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274273AbRIYALE>; Mon, 24 Sep 2001 20:11:04 -0400
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:59666 "HELO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S274269AbRIYAKx> convert rfc822-to-8bit; Mon, 24 Sep 2001 20:10:53 -0400
-Date: Tue, 25 Sep 2001 02:11:13 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: [PATCH] 2.4.10 improved reiserfs a lot, but could still be better
-Message-ID: <20010925021113.B22073@emma1.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	reiserfs-list@namesys.com
-In-Reply-To: <B0005839269@gollum.logi.net.au> <20010924161518.KYHD11251.femail27.sdc1.sfba.home.com@there> <20010924185303.B10117@emma1.emma.line.org> <20010924200537.SRVB23487.femail38.sdc1.sfba.home.com@there>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <20010924200537.SRVB23487.femail38.sdc1.sfba.home.com@there>
-User-Agent: Mutt/1.3.22.1i
+	id <S274272AbRIYANN>; Mon, 24 Sep 2001 20:13:13 -0400
+Received: from PHNX1-UBR2-4-hfc-0251-d1dae065.rdc1.az.coxatwork.com ([209.218.224.101]:41628
+	"EHLO mail.labsysgrp.com") by vger.kernel.org with ESMTP
+	id <S274268AbRIYANE>; Mon, 24 Sep 2001 20:13:04 -0400
+Message-ID: <004f01c14557$39b8acc0$6caaa8c0@kevin>
+From: "Kevin P. Fleming" <kevin@labsysgrp.com>
+To: "Vojtech Pavlik" <vojtech@suse.cz>,
+        "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "David Grant" <davidgrant79@hotmail.com>, "Greg Ward" <gward@python.net>,
+        <bugs@linux-ide.org>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010921150806.A2453@gerg.ca> <20010921154903.A621@gerg.ca> <20010921215622.A1282@suse.cz> <20010921164304.A545@gerg.ca> <20010922100451.A2229@suse.cz> <OE3183UV8wAddX47sFo00001649@hotmail.com> <20010922110945.B678@gerg.ca> <OE48GTjkifTNRMOKS310000192c@hotmail.com> <20010924103544.A1572@suse.cz> <m1k7yo77v7.fsf@frodo.biederman.org> <20010925004431.A197@suse.cz>
+Subject: Re: "hde: timeout waiting for DMA": message gone, same behaviour
+Date: Mon, 24 Sep 2001 17:15:47 -0700
+Organization: LSG, Inc.
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Sep 2001, Nicholas Knight wrote:
+I have multiple machines here that do exactly that. If "PNP OS" is set to
+_Yes_, only possible boot devices are initialized. When I boot a machine
+with good ol'd DOS (to use Symantec Ghost), the network cards are unusable
+unless PNP OS is set to No, because no interrupt has been assigned. And yes,
+these are PCI network cards.
 
-> Would you like to read the rest of my message please? Cheap UPS's can 
-> provide protection against power failures. If your data is that 
-> valuble, you can afford a cheap UPS to give you 5 minutes to shut down.
+----- Original Message -----
+From: "Vojtech Pavlik" <vojtech@suse.cz>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "David Grant" <davidgrant79@hotmail.com>; "Greg Ward"
+<gward@python.net>; <bugs@linux-ide.org>; <linux-kernel@vger.kernel.org>
+Sent: Monday, September 24, 2001 3:44 PM
+Subject: Re: "hde: timeout waiting for DMA": message gone, same behaviour
 
-No UPS can protect you from system crashes. The problem is, with the
-drive cache on, the drive will acknowledge having written the data early
-and reorder its writes, but who makes guarantees it can write its whole
-2 MB to disk should the power fail? No-one. ATA6 drafts have a NOTE that
-says, the FLUSH CACHE command may take longer than 30 s to complete.
 
-Journalling File systems don't get you anywhere if the drive reorders
-its blocks before the write (I presume, most will do), they may instead
-turn the whole partition to junk without notice, because any assumptions
-as to the on-disk structure don't hold.
+> On Mon, Sep 24, 2001 at 12:37:32PM -0600, Eric W. Biederman wrote:
+>
+> > > The PnP stuff is for ISA PnP cards. If you don't have those, it's
+> > > irrelevant. When "PnP OS Installed" is set to "No", the BIOS does the
+> > > ISAPnP initialization. If it is set to "Yes", it skips that step.
+Linux
+> > > prefers to have the ISAPnP cards pre-initialized, though it can do it
+> > > all by itself.
+> >
+> > "PnP OS Installed" applies to PCI as well as ISA PnP.  The rule is
+> > something like all possible boot devices must be initialized but that
+> > is all.
+>
+> Well, I know of no BIOS that would, with PnP OS Installed set to Yes not
+> configure all PCI cards in the system.
+>
+> --
+> Vojtech Pavlik
+> SuSE Labs
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+>
 
-> > Linear writing as dd mostly does is BTW something which should never
-> > be affected by write caches.
-> 
-> Explain the numbers then.
-
-I can't, any explanation right now would be conjecture. I can reproduce
-the numbers on my IBM DTLA-307045 (Promise) and on my Western Digital
-CAC420400D (VIA KT133, the disk looks like an IBM DJNA-352030 OEM,
-though).
-
-However, would you care to elaborate how switching OFF the cache should
-harm data, provided you don't need to cater for power outages (UPS
-attached, e. g.)?
-
-hdparm:
-
-"       -W     Disable/enable the IDE drive's  write-caching  fea­
-              ture (usually OFF by default)."
-
-> I followed *YOUR* instructions for disabling write caching.
-
-No-one doubts you did. I said it's weird that the drive write cache has
-an impact on dd figures. It may be worthwhile to investigate this, but
-again, any try to explain this would be a guess.
-
-It may be an implementation problem in our IBM drives which ship with
-their write caches enabled, someone please do this test on current
-Fujitsu, Maxtor or Seagate IDE drives or with different controllers.
-
-It would suffice if the kernel could flush the drive's buffers on
-fsync() and other synchronous operations, but a flush command has only
-recently appeared in the ATA standards, as it seems. I only have drafts
-here, ATA 3 draft rev. 6 did not offer any command to flush the cache,
-ATA 6 draft makes it mandatory for all devices that do offer a PACKET
-interface. Not sure about the actual ATA 3, 4, or 5 standards.
-
-Why are disk drives slower with their caches disabled on LINEAR writes?
-
--- 
-Matthias Andree
-
-"Those who give up essential liberties for temporary safety deserve
-neither liberty nor safety." - Benjamin Franklin

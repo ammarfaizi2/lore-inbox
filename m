@@ -1,44 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132555AbRDAVA5>; Sun, 1 Apr 2001 17:00:57 -0400
+	id <S132561AbRDAVFG>; Sun, 1 Apr 2001 17:05:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132557AbRDAVAq>; Sun, 1 Apr 2001 17:00:46 -0400
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:14925 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S132555AbRDAVAd>; Sun, 1 Apr 2001 17:00:33 -0400
-Date: Sun, 1 Apr 2001 15:59:34 -0500 (CDT)
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: lm@bitmover.com, linux-kernel@vger.kernel.org
-Subject: Re: bug database braindump from the kernel summit
-In-Reply-To: <001c01c0bae2$e523fc90$5517fea9@local>
-Message-ID: <Pine.LNX.3.96.1010401155736.28121J-100000@mandrakesoft.mandrakesoft.com>
+	id <S132558AbRDAVE5>; Sun, 1 Apr 2001 17:04:57 -0400
+Received: from gear.torque.net ([204.138.244.1]:5139 "EHLO gear.torque.net")
+	by vger.kernel.org with ESMTP id <S132557AbRDAVEw>;
+	Sun, 1 Apr 2001 17:04:52 -0400
+Message-ID: <3AC797BB.D2AA2FE4@torque.net>
+Date: Sun, 01 Apr 2001 17:03:55 -0400
+From: Douglas Gilbert <dougg@torque.net>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Peter Daum <gator@cs.tu-berlin.de>
+CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+   "Justin T. Gibbs" <gibbs@scsiguy.com>
+Subject: Re: scsi bus numbering
+In-Reply-To: <Pine.LNX.4.30.0104012054180.779-100000@swamp.bayern.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 1 Apr 2001, Manfred Spraul wrote:
-> > There was a lot of discussion about possible tools
-> > that would dig out the /proc/pci info
+Peter Daum wrote:
 > 
-> I think the tools should not dig too much information out of the system.
-> I remember some Microsoft (win98 beta?) bugtracking software that
-> insisted on sending a several hundert kB long compressed blob with every
-> bug report.
-> IMHO it must be possible to file bugreports without the complete hw info
-> if I know that the bug isn't hw related.
+> On Sun, 1 Apr 2001, Douglas Gilbert wrote:
+> 
+> [...]
+> 
+> > >>>>>>>>>  scsihosts  <<<<<<<<<<<<<
+> >
+> > As a boot time option try:
+> >   scsihosts=aic7xxx:ncr53c8xxx
+> > or if you are using lilo, in /etc/lilo.conf add:
+> >   append="scsihosts=aic7xxx:ncr53c8xxx"
+> 
+> that does indeed change the bus numbering. Unfortunately, even
+> with this option, the first disk on the ncr controller becomes
+> "/dev/sda" ...
 
-Two comments --
-* It's only disk space.  It's better to have and not need, than need and
-  not have.  Please do give me 200kb bug reports!  :)
-* There should be a way to allow the user to omit hw info, because the
-  user may not want to disclose some parts of their system.
+Peter,
+This indicates that the method being used by the 
+new aic7xxx driver for initialization is broken 
+with respect to other scsi adapters.
 
-Regards,
+The intent is that all built in HBA drivers are
+initialized _before_ the built in upper level 
+drivers (e.g. sd). To get the effect you describe
+the driver init order seems to have been:
+  register ncr53c8xxx
+  register sd
+  register aic7xxx      # too late ...
 
-	Jeff
 
-
-
-
+Doug Gilbert

@@ -1,56 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268290AbTBYVnh>; Tue, 25 Feb 2003 16:43:37 -0500
+	id <S268377AbTBYVpE>; Tue, 25 Feb 2003 16:45:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268298AbTBYVnh>; Tue, 25 Feb 2003 16:43:37 -0500
-Received: from packet.digeo.com ([12.110.80.53]:14515 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S268290AbTBYVne>;
-	Tue, 25 Feb 2003 16:43:34 -0500
-Date: Tue, 25 Feb 2003 13:50:32 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: linux-kernel@vger.kernel.org, alistair@devzero.co.uk, cloos@jhcloos.com,
-       elenstev@mesatop.com, jordan.breeding@attbi.com, maneesh@in.ibm.com,
-       scole@lanl.gov, solarce@fallingsnow.net
-Subject: Re: Patch: 2.5.62 devfs shrink
-Message-Id: <20030225135032.7c9663da.akpm@digeo.com>
-In-Reply-To: <200302251023.CAA01067@adam.yggdrasil.com>
-References: <200302251023.CAA01067@adam.yggdrasil.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S268375AbTBYVpD>; Tue, 25 Feb 2003 16:45:03 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:38318 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S268377AbTBYVpB>; Tue, 25 Feb 2003 16:45:01 -0500
+Message-ID: <3E5BE1CC.4010600@namesys.com>
+Date: Wed, 26 Feb 2003 00:36:12 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Scott Robert Ladd <scott@coyotegulch.com>
+CC: Steven Cole <elenstev@mesatop.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       LKML <linux-kernel@vger.kernel.org>, Larry McVoy <lm@bitmover.com>
+Subject: Re: Minutes from Feb 21 LSE Call
+References: <FKEAJLBKJCGBDJJIPJLJIEPCEPAA.scott@coyotegulch.com>
+In-Reply-To: <FKEAJLBKJCGBDJJIPJLJIEPCEPAA.scott@coyotegulch.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 25 Feb 2003 21:53:40.0508 (UTC) FILETIME=[5B928DC0:01C2DD18]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Adam J. Richter" <adam@yggdrasil.com> wrote:
+Scott Robert Ladd wrote:
+
+>"Normal" folk simply have no use for an 8 CPU system. 
 >
-> 	Here is an update to my patch to shrink devfs for linux-2.5.62.
+I had this argument over whether normal people would ever really need a 
+10mb hard drive when I was 21.  Once was enough, sorry, I didn't 
+convince the other guy then, and I don't think I have gotten more 
+eloquent since then.
 
-Adam, could you please provide a description of the incompatibilities between
-this implementation and the present one?  For both kernel and userspace.
+I'll just say that entertainment will drive computing for the next 5-15 
+years, and game designers won't have enough CPU that whole time.  
+Hollywood is dying like radio did, and immersive experiences are 
+replacing it.
 
-And would you also please provide a list of operations which people need to
-perform to migrate existing setups to the new code.
+HDTV might not make it.  I personally don't really want any audio or 
+video devices or sources which are not well integrated into my computer, 
+and HDTV is not.  I am not sure if the rest of the market will think 
+like me, but the gamers  might....  I am getting a La Cie 4 monitor next 
+week which will do 2048x1536 without blurring pixels for $960, and I 
+just don't think I will want to use an HDTV for anything except maybe 
+the kitchen.  I try to watch a high quality movie once a week with a 
+friend because I don't want to miss out on our culture (and games are 
+not yet as culturally rich as movies), but games are more engaging, and 
+I am not really managing to watch the movie a week.  I seem to be at the 
+extreme of a growing trend.
 
-And should I drop the below patch?
+Scott Robert Ladd wrote:
 
-diff -puN init/do_mounts.c~devfs-fix init/do_mounts.c
---- 25/init/do_mounts.c~devfs-fix	2003-01-16 19:39:56.000000000 -0800
-+++ 25-akpm/init/do_mounts.c	2003-01-16 19:39:56.000000000 -0800
-@@ -853,11 +853,6 @@ void prepare_namespace(void)
- {
- 	int is_floppy;
- 
--#ifdef CONFIG_DEVFS_FS
--	sys_mount("devfs", "/dev", "devfs", 0, NULL);
--	do_devfs = 1;
--#endif
--
- 	md_run_setup();
- 
- 	if (saved_root_name[0]) {
+(Note: I drive a big SUV because I *do** haul stuff, and I've got lots of
+kids -- the right tool for the job, as Alan stated.)
 
-_
+You didn't say whether you typically haul stuff and kids over rough 
+roads.  If you don't (and very few SUV owners do), then what you need is 
+called a "mini-van", which is what people who are functionally oriented 
+buy for city hauling of kids and stuff ;-), and I bought my wife one.  
+It has more than 16 CPUs in it....
+
+-- 
+Hans
+
 

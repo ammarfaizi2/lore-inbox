@@ -1,42 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261600AbUKHKEz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261419AbUKHKZ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261600AbUKHKEz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 05:04:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261516AbUKHKEy
+	id S261419AbUKHKZ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 05:25:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261437AbUKHKZ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 05:04:54 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:41993 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S261475AbUKHKEx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 05:04:53 -0500
-Subject: Re: [PATCH] Fix O_SYNC speedup for generic_file_write_nolock
-From: Arjan van de Ven <arjan@infradead.org>
-To: suparna@in.ibm.com
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-Reply-To: <20041108100738.GA4003@in.ibm.com>
-References: <20041108100738.GA4003@in.ibm.com>
-Content-Type: text/plain
-Message-Id: <1099908278.3577.2.camel@laptop.fenrus.org>
+	Mon, 8 Nov 2004 05:25:58 -0500
+Received: from p5485472F.dip.t-dialin.net ([84.133.71.47]:62852 "EHLO
+	oscar.local.net") by vger.kernel.org with ESMTP id S261419AbUKHKZx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 05:25:53 -0500
+Date: Mon, 8 Nov 2004 11:25:53 +0100
+From: Patrick Mau <mau@oscar.ping.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Patrick Mau <mau@oscar.ping.de>
+Subject: Re: Workaround for wrapping loadaverage
+Message-ID: <20041108102553.GA31980@oscar.prima.de>
+Reply-To: Patrick Mau <mau@oscar.ping.de>
+References: <20041108001932.GA16641@oscar.prima.de> <20041108012707.1e141772.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Mon, 08 Nov 2004 11:04:38 +0100
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.6 (++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (2.6 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[62.195.31.207 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[62.195.31.207 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041108012707.1e141772.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +EXPORT_SYMBOL(sync_page_range_nolock);
+On Mon, Nov 08, 2004 at 01:27:07AM -0800, Andrew Morton wrote:
+> Patrick Mau <mau@oscar.ping.de> wrote:
+> >
+> >  We can only account for 1024 runnable processes, since we have 22 bits
+> >  precision, I would like to suggest a patch to calc_load in kernel/timer.c
+> 
+> It's better than wrapping to zero...
+> 
+> Why do we need 11 bits after the binary point?
 
+I tried various other combinations, the most interesting alternative was
+8 bits precision. The exponential values would be:
 
-why adding this export? nothing appears to be using it (AIO isn't a module after all)
+1 / e (5/60) * 256
+235.53
 
+1 / e (5/300) * 256
+251.76
+
+1 / e (5/900) * 256
+254.58
+
+If you would use 236, 252 and 255 the last to load calculations would
+get optimized into register shifts during calculation. The precision
+would be bad, but I personally don't mind loosing the fraction.
+
+Best regards,
+Patrick

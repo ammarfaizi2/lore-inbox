@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261356AbSIWUDd>; Mon, 23 Sep 2002 16:03:33 -0400
+	id <S261321AbSIWTqL>; Mon, 23 Sep 2002 15:46:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261288AbSIWUDH>; Mon, 23 Sep 2002 16:03:07 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:30995 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261356AbSIWUBg>;
-	Mon, 23 Sep 2002 16:01:36 -0400
-Date: Mon, 23 Sep 2002 13:05:54 -0700
-From: Greg KH <greg@kroah.com>
-To: Marek Michalkiewicz <marekm@amelek.gda.pl>
-Cc: mdharm-usb@one-eyed-alien.net, linux-kernel@vger.kernel.org
-Subject: Re: Oops in usb_submit_urb with US_FL_MODE_XLATE (2.4.19 and 2.4.20-pre7)
-Message-ID: <20020923200554.GG18769@kroah.com>
-References: <20020923192700.GA18707@kroah.com> <E17tZEh-0000qG-00@alf.amelek.gda.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E17tZEh-0000qG-00@alf.amelek.gda.pl>
-User-Agent: Mutt/1.4i
+	id <S261370AbSIWTqL>; Mon, 23 Sep 2002 15:46:11 -0400
+Received: from uucp.cistron.nl ([62.216.30.38]:22536 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id <S261321AbSIWTqL>;
+	Mon, 23 Sep 2002 15:46:11 -0400
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: UP IO-APIC
+Date: Mon, 23 Sep 2002 19:50:56 +0000 (UTC)
+Organization: Cistron
+Message-ID: <amnrb0$nv0$2@ncc1701.cistron.net>
+References: <Pine.GSO.4.33.0209231419230.11624-100000@sweetums.bluetronic.net>
+Content-Type: text/plain; charset=iso-8859-15
+X-Trace: ncc1701.cistron.net 1032810656 24544 62.216.29.67 (23 Sep 2002 19:50:56 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 23, 2002 at 09:51:15PM +0200, Marek Michalkiewicz wrote:
-> 
-> In the meantime, may I ask you nicely to add this to 2.4.20
-> drivers/usb/storage/unusual_devs.h ?
+In article <Pine.GSO.4.33.0209231419230.11624-100000@sweetums.bluetronic.net>,
+Ricky Beam  <jfbeam@bluetronic.net> wrote:
+>Would someone kindly remove that from the configuration possibilities?  It
+>doesn't work -- and hasn't worked for, what, a year.
 
-That's Matt's call, not mine.  And generating a patch for 2.4.20-pre7
-and 2.5.38 would help out in getting it accepted :)
+What kernel? In 2.4.20-pre<whatever> it works just fine. If it
+doesn't work in 2.5 leave it there as an incentive for someone
+to fix it for 2.6
 
-thanks,
+Mike.
+-- 
+Computers are useless, they only give answers. --Pablo Picasso
 
-greg k-h

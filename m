@@ -1,107 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284139AbSAAVO1>; Tue, 1 Jan 2002 16:14:27 -0500
+	id <S284264AbSAAVUr>; Tue, 1 Jan 2002 16:20:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284264AbSAAVOS>; Tue, 1 Jan 2002 16:14:18 -0500
-Received: from colorfullife.com ([216.156.138.34]:61192 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S283938AbSAAVOG>;
-	Tue, 1 Jan 2002 16:14:06 -0500
-Message-ID: <3C32260E.CEADDF59@colorfullife.com>
-Date: Tue, 01 Jan 2002 22:11:42 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.1-dj6 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: [RFC] event cleanup, part 2
-Content-Type: multipart/mixed;
- boundary="------------6B56625DEE178D03FD623590"
+	id <S285130AbSAAVU2>; Tue, 1 Jan 2002 16:20:28 -0500
+Received: from w089.z209220022.nyc-ny.dsl.cnc.net ([209.220.22.89]:5385 "HELO
+	yucs.org") by vger.kernel.org with SMTP id <S284264AbSAAVUV>;
+	Tue, 1 Jan 2002 16:20:21 -0500
+Subject: Re: ATHLON HELP ME ON THIS PLZ!!!!
+From: Shaya Potter <spotter@opus.cs.columbia.edu>
+To: Mike Harrold <mharrold@cas.org>
+Cc: Astinus <Astinus@netcabo.pt>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200201012107.QAA10138@mah21awu.cas.org>
+In-Reply-To: <200201012107.QAA10138@mah21awu.cas.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 01 Jan 2002 16:19:13 -0500
+Message-Id: <1009919954.27722.4.camel@zaphod>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------6B56625DEE178D03FD623590
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On Tue, 2002-01-01 at 16:07, Mike Harrold wrote:
+> > 
+> > I know i have been posting too many questions on this subject and i also
+> > know that these athlon issues were deeply discussed some week ago.
+> > So i went back and READ ALL the posts concerning dual athlon machines and
+> > even chipsets! But my dought remains.
+> > 
+> > I am about to buy a dual athlon pc, a tyan's thunder k7 S2462 ( 760mp ) and
+> > two 1800 or 1700 ahtlon MP processors.
+> > I will buy the registered DDram supported or advised by tyan's manufacturer
+> > as well as a good power supply and some major cooling.
+> > 
+> > My main question is:    Am i going to have any kind of problems when trying
+> > to run a SMP kernel???
+> 
+> Actually, I'm interested in this as well. The only thing stopping me from
+> buying a dual Athlon MP is the problems I keep reading about here on lkml.
+> I don't want to spend the money only to have problems.
+> 
+> So, if anyone is running dual Athlon MPs *flawlessly*, I'd appreciate a
+> hardware listing (MB, Bios version, RAM type & manufacturer, etc.).
 
-Linus merged the first part of my patches that remove
-'event' into 2.5.2-pre3.
+I strongly reccomend the forums at www.2cpu.com and www.arstechnica.com
 
-Attached is the second patch.
-
-patch 1: remove all event users except readdir().
-	Merged.
-
-patch 2: replace 'f_version=++event' with 'f_version=0'
-	in fs/*.c
-	Attached.
-
-patch 3: change the filesystems one by one.
-	s/inode->i_version=++event/inode->i_version++/g
-	vfat already uses that code for the revalidate
-	handling. For readdir() it's impossible until
-	step 2 is merged.
-
-patch 4: remove event entirely.
-
-I'm not yet sure if initializing i_version to 0 should be
-done in get_empty_inode() or in the fs that use the
-readdir optimization.
-
---
-	Manfred
---------------6B56625DEE178D03FD623590
-Content-Type: text/plain; charset=us-ascii;
- name="patch-event-VFS"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-event-VFS"
-
-diff -u 2.5/fs/block_dev.c build-2.5/fs/block_dev.c
---- 2.5/fs/block_dev.c	Mon Dec 31 13:41:01 2001
-+++ build-2.5/fs/block_dev.c	Tue Jan  1 20:15:27 2002
-@@ -181,7 +181,6 @@
- 		if (offset != file->f_pos) {
- 			file->f_pos = offset;
- 			file->f_reada = 0;
--			file->f_version = ++event;
- 		}
- 		retval = offset;
- 	}
-diff -u 2.5/fs/file_table.c build-2.5/fs/file_table.c
---- 2.5/fs/file_table.c	Sun Sep 30 16:25:45 2001
-+++ build-2.5/fs/file_table.c	Mon Dec 31 16:29:29 2001
-@@ -43,7 +43,7 @@
- 	new_one:
- 		memset(f, 0, sizeof(*f));
- 		atomic_set(&f->f_count,1);
--		f->f_version = ++event;
-+		f->f_version = 0;
- 		f->f_uid = current->fsuid;
- 		f->f_gid = current->fsgid;
- 		list_add(&f->f_list, &anon_list);
-diff -u 2.5/fs/read_write.c build-2.5/fs/read_write.c
---- 2.5/fs/read_write.c	Sat Aug 11 16:15:27 2001
-+++ build-2.5/fs/read_write.c	Mon Dec 31 16:29:44 2001
-@@ -41,7 +41,6 @@
- 		if (offset != file->f_pos) {
- 			file->f_pos = offset;
- 			file->f_reada = 0;
--			file->f_version = ++event;
- 		}
- 		retval = offset;
- 	}
-@@ -69,7 +68,6 @@
- 		if (offset != file->f_pos) {
- 			file->f_pos = offset;
- 			file->f_reada = 0;
--			file->f_version = ++event;
- 		}
- 		retval = offset;
- 	}
-
-
-
---------------6B56625DEE178D03FD623590--
-
+shaya
 

@@ -1,45 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261491AbVAGQYY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261499AbVAGQ2X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261491AbVAGQYY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 11:24:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261501AbVAGQYG
+	id S261499AbVAGQ2X (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 11:28:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbVAGQ2W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 11:24:06 -0500
-Received: from out008pub.verizon.net ([206.46.170.108]:17342 "EHLO
-	out008.verizon.net") by vger.kernel.org with ESMTP id S261494AbVAGQWf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 11:22:35 -0500
-Message-Id: <200501071622.j07GMUCr018735@localhost.localdomain>
-To: Martin Mares <mj@ucw.cz>
-cc: Arjan van de Ven <arjanv@redhat.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Lee Revell <rlrevell@joe-job.com>, Ingo Molnar <mingo@elte.hu>,
-       Chris Wright <chrisw@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Jack O'Quin" <joq@io.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM 
-In-reply-to: Your message of "Fri, 07 Jan 2005 17:03:59 +0100."
-             <20050107160359.GA6529@ucw.cz> 
-Date: Fri, 07 Jan 2005 11:22:30 -0500
-From: Paul Davis <paul@linuxaudiosystems.com>
-X-Authentication-Info: Submitted using SMTP AUTH at out008.verizon.net from [151.197.185.179] at Fri, 7 Jan 2005 10:22:31 -0600
+	Fri, 7 Jan 2005 11:28:22 -0500
+Received: from nbn.com ([192.220.110.122]:34054 "EHLO nbn.com")
+	by vger.kernel.org with ESMTP id S261528AbVAGQ1m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 11:27:42 -0500
+Date: Fri, 7 Jan 2005 08:27:40 -0800 (PST)
+From: autoreply@nbn.com
+Message-Id: <200501071627.j07GReFV098995@nbn.com>
+To: linux-kernel@vger.kernel.org
+X-Request-Originator: linux-kernel@vger.kernel.org
+X-Info1: *****************************************************************
+X-Info2: This message was generated as an autoresponse to a mail request. 
+X-Info3: Please report abuse of this autoresponder promptly to the site   
+X-Info4: hostmaster.
+X-Info5: *****************************************************************
+Subject: Support Changes for NBN & TLG - PLEASE READ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->It's quite probable that the current system of capabilities is not well
->suited for this, but I think that although it's tempting to work around it
->by introducing a new security module, in the long term it's much better
->to extend and/or fix the capabilities -- I don't see any fundamental reason
->for capabilities being unusable for this goal, it's much more likely to be
->just minor details in the implementation.
+Dear Best Customer,
 
-capabilities work - we use them in 2.4 where a helper suid application
-gets the ball rolling, and then its child grants capabilities to new
-clients. 
+The e-mail addresses @nbn.com and @tlg.net are no longer valid. 
+Please use one of the following addresses based on your service 
+and the nature of your request to receive the most appropriate 
+level of service.
 
-the problem we have with capabilities is that capabilities are not
-enabled by default in the vanilla kernel, and there seems to be
-considerable advice suggesting that they should not be enabled.
+* Verio Web Sites Customers *
 
---p
+Direct your Customer Service or Billing inquiries to:
+  service@veriowebsites.com
+
+Direct your Technical Support inquiries to:
+  support@veriowebsites.com
+
+* Verio Virtual Private Server Customers *
+
+Direct your Customer Service or Billing inquiries to:
+  service@veriohosting.com
+
+Direct your Technical Support inquiries to:
+  support@veriohosting.com
+
+
+Thank You,
+
+Verio Customer Support
+

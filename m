@@ -1,72 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266492AbUALWAq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 17:00:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266494AbUALWAq
+	id S266211AbUALV4S (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 16:56:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266244AbUALV4S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 17:00:46 -0500
-Received: from mail.ccur.com ([208.248.32.212]:35344 "EHLO exchange.ccur.com")
-	by vger.kernel.org with ESMTP id S266492AbUALWAm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 17:00:42 -0500
-Date: Mon, 12 Jan 2004 17:00:24 -0500
-From: Joe Korty <joe.korty@ccur.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: hch@infradead.org, schwab@suse.de, paulus@samba.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: seperator error in __mask_snprintf_len
-Message-ID: <20040112220024.GA12748@tsunami.ccur.com>
-Reply-To: joe.korty@ccur.com
-References: <20040107165607.GA11483@rudolph.ccur.com> <20040107113207.3aab64f5.akpm@osdl.org> <20040108051111.4ae36b58.pj@sgi.com> <16381.57040.576175.977969@cargo.ozlabs.ibm.com> <20040109064619.35c487ec.pj@sgi.com> <je1xq9duhc.fsf@sykes.suse.de> <20040109152533.A25396@infradead.org> <20040109092309.42bb6049.pj@sgi.com> <20040112000923.GA2743@tsunami.ccur.com> <20040112134112.2dd0ec42.pj@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040112134112.2dd0ec42.pj@sgi.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 12 Jan 2004 16:56:18 -0500
+Received: from [193.138.115.2] ([193.138.115.2]:26381 "HELO
+	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
+	id S266211AbUALV4O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 16:56:14 -0500
+Date: Mon, 12 Jan 2004 22:53:13 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Ingo Molnar <mingo@redhat.com>
+cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH(s)][RFC] variable size and signedness issues in ldt.c -
+ potential problem?
+In-Reply-To: <Pine.LNX.4.56.0401110300080.13633@jju_lnx.backbone.dif.dk>
+Message-ID: <Pine.LNX.4.56.0401122243270.2130@jju_lnx.backbone.dif.dk>
+References: <8A43C34093B3D5119F7D0004AC56F4BC074AFBC9@difpst1a.dif.dk>
+ <Pine.LNX.4.58.0401090440180.27298@devserv.devel.redhat.com>
+ <Pine.LNX.4.56.0401110300080.13633@jju_lnx.backbone.dif.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 12, 2004 at 01:41:12PM -0800, Paul Jackson wrote:
-> A couple of questions on your proposed patch for __mask_snprintf_len()
-> in lib/mask.c:
-> 
->  1) Why make the MASK_CHUNKSZ a possible (compile time) variable?
->     I can think of a couple good reasons why not to:
->     a] So long as we have the current format, in which each word
->        is _not_ zero filled, then the chunk size needs to be a
->        well known constant, or else the output is ambiguous.
->        For example, an output of "1,0" is ambiguous unless we know
->        a priori that the "0" stands for exactly 32, say, bits.
->     b] Even if we change to a zero filled format, better to just
->        always use the same chunk size, as that is one less detail
->        to confuse user level code.
->     I don't see any reason offhand for needing code that works with
->     more than one chunk size.
 
-MASK_CHUNKSZ is a named constant not a variable.  Once we pick a value
-it can never change.  The specified legal values are for 1) varying to
-test for algorithmic correctness, and 2) giving the list of values from
-which we must pick the permanent value before too much more time goes by.
+Found some errors in my earlier reply. I've added additional
+comments below.
+I've not quoted the long style cleanup patch in this reply as I trust you
+can find it in the previous mail in the thread.
+I've also not quoted the bits where I have no corrections - please see the
+previous email for those.
+
+On Sun, 11 Jan 2004, Jesper Juhl wrote:
+
+>
+> One additional thing I noticed in the ldt code is that it seems to me that
+> there could be some bennefit to moving the declaration of 'bytes' in the
+> for() loop in read_ldt() outside the loop. It gets initialized by
+> 'bytes = size - i;' every time through the loop before it's used, so I se
+> no reason to re-create the variable every time through the loop.
+> If that makes sense, then here's a patch to make this change (it's against
+> 2.6.1-mm1) :
+>
+> --- linux-2.6.1-mm1-orig/arch/i386/kernel/ldt.c	2004-01-09 19:04:23.000000000 +0100
+> +++ linux-2.6.1-mm1-juhl/arch/i386/kernel/ldt.c	2004-01-11 03:36:02.000000000 +0100
+> @@ -118,10 +118,11 @@ void destroy_context(struct mm_struct *m
+>  	mm->context.size = 0;
+>  }
+>
+> -static int read_ldt(void __user * ptr, unsigned long bytecount)
+> +static int read_ldt(void __user *ptr, unsigned long bytecount)
+>  {
+>  	int err, i;
+>  	unsigned long size;
+> +	unsigned long bytes;
+>  	struct mm_struct * mm = current->mm;
+>
+>  	if (!mm->context.size)
+> @@ -144,7 +145,7 @@ static int read_ldt(void __user * ptr, u
+>  	__flush_tlb_global();
+>
+>  	for (i = 0; i < size; i += PAGE_SIZE) {
+> -		int nr = i / PAGE_SIZE, bytes;
+> +		int nr = i / PAGE_SIZE;
+>  		char *kaddr = kmap(mm->context.ldt_pages[nr]);
+>
+>  		bytes = size - i;
+>
+>
+In the above patch 'unsigned long bytes;' should ofcourse have been
+'int bytes' - I should have read the patch more closely after
+running diff on my own tree.
+As I've been unable to find any scenario where an int can actually
+overflow there is ofcourse no need to change the type - my bad.
 
 
->  2) Why the trailing "buf[len++] = 0"?  Won't the last snprintf do
->     as much?
+>
+> > > and finally a purely style related thing (sure, call me pedantic); in both
+> > > read_ldt() and write_ldt() 'mm' is declared as
+> > >
+> > > struct mm_struct * mm = current->mm;
+> >
+> > yep, you are right, this is the wrong style.
+> >
+>
+> Ok, thank you for confirming that.
+>
+> Since this /is/ incorrect style I've created a patch to clean it up, as
+> well as a bunch of other instances of the same style issue I found nearby.
+> I certainly haven't cleaned up *all* instances of this inccorect style,
+> but I have nailed 26 files with such instances, and I believe I've nailed
+> all occourances of this style issue in those files.
+>
 
-No.  snprintf will fill to the end of the buffer and not place the
-trailing \0 if it has to.  (I read the vsnprintf code this morning
-just to make sure of that).
+After creating the initial cleanup patch I've noticed several more
+instances of this 'bad style'. If there's any interrest in cleaning them
+up I'll be happy to create a patch.  Is this wanted?
 
->  3) This code has quite a bit more detail of bit shifts, masks and
->     arithmetic than before.  Perhaps some is necessary to fix the
->     word order bug I had, perhaps some is only needed to allow for
->     the chunk size to vary.  I'll take a shot at seeing if I can
->     find a less detail-rich expression of this that still gets the
->     word order correct.
 
-I am pretty sure the code is within a hairsbreadth of being minimal.
-It will be interesting to find out.
+-- Jesper Juhl
 
-Regards
--- 
-"Money can buy bandwidth, but latency is forever" -- John Mashey
-Joe

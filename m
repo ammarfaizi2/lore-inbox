@@ -1,37 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135704AbREBRxv>; Wed, 2 May 2001 13:53:51 -0400
+	id <S135706AbREBSFk>; Wed, 2 May 2001 14:05:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135696AbREBRxi>; Wed, 2 May 2001 13:53:38 -0400
-Received: from mnh-1-08.mv.com ([207.22.10.40]:12040 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S135704AbREBRxX>;
-	Wed, 2 May 2001 13:53:23 -0400
-Message-Id: <200105021906.OAA03542@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: ingo.oeser@informatik.tu-chemnitz.de
-cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Linux Kernel Debuggers, KDB or KGDB? 
-In-Reply-To: Your message of "Wed, 02 May 2001 17:55:16 +0100."
-             <E14uzuI-0003wC-00@the-village.bc.nu> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 02 May 2001 14:06:31 -0500
-From: Jeff Dike <jdike@karaya.com>
+	id <S135711AbREBSFb>; Wed, 2 May 2001 14:05:31 -0400
+Received: from 223-ZARA-X27.libre.retevision.es ([62.82.240.223]:43790 "EHLO
+	head.redvip.net") by vger.kernel.org with ESMTP id <S135706AbREBSFZ>;
+	Wed, 2 May 2001 14:05:25 -0400
+Message-ID: <3AF02049.1080901@zaralinux.com>
+Date: Wed, 02 May 2001 16:57:13 +0200
+From: Jorge Nerin <comandante@zaralinux.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.4 i586; en-US; 0.8) Gecko/20010226
+X-Accept-Language: es-es, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+CC: Linux SMP <linux-smp@vger.kernel.org>
+Subject: Memory management issues with 2.4.4
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-alan@lxorguk.ukuu.org.uk said:
-> > Is this sufficient to do driver development?  TUN/TAP doesn't let me
-> > write 
-> > ethernet drivers inside UML.
-> For ISDN not really. For SCSI yes - scsi generic would let you write a
-> virtual scsi adapter 'owning' some physical devices 
+Short version:
+Under very heavy thrashing (about four hours) the system either lockups 
+or OOM handler kills a task even when there is swap space left.
 
-Fine, so go ahead and write a UML SCSI adapter...  
+Long version:
+My system is a dual 2x200MMX in a Gigabyte 586DX with 96Mb and 226Mb of 
+swap this way:
 
-I would love to see this happen.  If you need UML help that's not on the site, 
-let me know, and I'll be happy to do what I can.
+[root@quartz ~]# swapon -s
+Filename                        Type            Size    Used    Priority
+/dev/hda7                       partition       96348   6456    1
+/dev/hdc6                       partition       130276  6460    1
 
-				Jeff
+Well, I have tried to compile Mozilla 0.8.1 since the day it came out, 
+but I always lockup in the same place, wich it's begining to be a bit 
+frustrating ;-)
 
+The problem is that compiling the file  
+content/base/src/nsStyleContext.o makes cc1plus grow up to a size of 
+141M, at this point the system is in heavy thrashing, kswapd is using 
+about 7-12% of CPU time and cc1plus is using 8-14%.
+
+If I use a SMP kernel the system always ends up frozen, some times after 
+about almost one day of uptime and compiling since booting, and another 
+times  it gets frozen in much less time, three or four hours.
+
+If I use a non SMP kernel the system doesn't lokup but after some hours, 
+it varies between 6-8h, the cc1plus procces get a kill signal by OOM 
+killer, althought there is plenty of swap space left ((96Mb RAM + 226Mb 
+swap) - (140Mb - tiny amount used by the system) = plenty ;-).
+
+For this tries I have left the system in single user, so no cron jobs, 
+no network trafic, no etc...
+
+I suspect there is a race in the swap handling in SMP, and that the OOM 
+doesn't take into account the swap space left sometimes.
+
+I don't know what to try next, suggestions?
+
+-- 
+Jorge Nerin
+<comandante@zaralinux.com>
 

@@ -1,90 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131539AbQKJUI0>; Fri, 10 Nov 2000 15:08:26 -0500
+	id <S131439AbQKJUK0>; Fri, 10 Nov 2000 15:10:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131553AbQKJUIH>; Fri, 10 Nov 2000 15:08:07 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:15744 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S131539AbQKJUH6>; Fri, 10 Nov 2000 15:07:58 -0500
-Date: Fri, 10 Nov 2000 15:07:46 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Andrea Arcangeli <andrea@suse.de>
-cc: "Jeff V. Merkey" <jmerkey@timpanogas.org>, linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: sendmail fails to deliver mail with attachments in /var/spool/mqueue]
-In-Reply-To: <20001110205129.A4344@inspiron.suse.de>
-Message-ID: <Pine.LNX.3.95.1001110150021.5941A-100000@chaos.analogic.com>
+	id <S131658AbQKJUKQ>; Fri, 10 Nov 2000 15:10:16 -0500
+Received: from mail-04-real.cdsnet.net ([63.163.68.109]:34827 "HELO
+	mail-04-real.cdsnet.net") by vger.kernel.org with SMTP
+	id <S131657AbQKJUKF>; Fri, 10 Nov 2000 15:10:05 -0500
+Message-ID: <3A0C56D4.99E4F5D@mvista.com>
+Date: Fri, 10 Nov 2000 12:13:08 -0800
+From: George Anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.14-VPN i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Dan Aloni <karrde@callisto.yi.org>
+CC: Ivan Passos <lists@cyclades.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Patch generation
+In-Reply-To: <Pine.LNX.4.21.0011102139170.21416-100000@callisto.yi.org>
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Nov 2000, Andrea Arcangeli wrote:
-
-> On Fri, Nov 10, 2000 at 12:34:40PM -0700, Jeff V. Merkey wrote:
-> > 
-> > Andrea,
-> > 
-> > All done.  It's already setup this way.
+Dan Aloni wrote:
 > 
-> Ok. So please now show a tcpdump trace during the `sendmail -q` so we can see
-> what's going wrong in the TCP connection to the smtp server:
+> On Fri, 10 Nov 2000, George Anzinger wrote:
 > 
-> 	tcpdump port smtp
+> > > 4 kernel trees, one after make dep ; make bzImage, and all taking together
+> > > just 193MB, instead of about 400MB... hard links, gotta love'em.
+> >
+> > Ok, this is cool, but suppose I have the same file linked to all these
+> > and want to change it in all the trees, i.e. still have one file.  Is
+> > there an editor that doesn't unlink.  Or maybe cp of the edited file??
+> > How would you do this?  (I prefer EMACS, which likes to unlink.)
 > 
-> Andrea
+> I know mcedit doesn't unlink (but mcedit kinda sucks), I think nedit
+> doesn't unlink too.
+> 
+> I prefer an editor that unlinks, since in most cases I don't want to
+> modify the source trees that I'm not working on, so diff can do what it's
+> supposed to do later.
 
-I tried to send Jeff a 45 Megabyte file. It is still in the queue.
+Oh, I agree, but I am working on several things at once so my
+development trees are cascaded, usually with a kgdb patch in all of
+them.  If I make a change to kgdb, for example, it would be nice to only
+have to change it once, so occasionally, I want to do it differently.
 
-
- FLAGS   UID   PID  PPID PRI  NI   SIZE   RSS WCHAN       STA TTY TIME COMMAND
-[SNIPPED...]
-
-
-   140     0    82     1   9   0    840   100 do_select   S   ?
-   0:00 /usr/sbin/rpc.pcnfsd /var/spool/lpd 
-   140     0    86     1   8   0   1744   364 do_select   S   ?
-   0:00 sendmail: accepting connections 
-    40     0  5742     1  16   0   1812   136 wait_for_tc S   ?   0:01
-sendmail: ./eAAJm8V05731 vger.timpanogas.org.: client DATA 354 
-
-It isn't a TCP/IP stack problem. It may be a memory problem. Every time
-sendmail spawns a child to send the file data, it crashes.  That's
-why the file never gets sent!
-
-This is how /proc/meminfo looks right after it crashes. There has
-been a lot of swapping going on.
-
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  328114176 38932480 289181696        0  2293760 27115520
-Swap: 139821056 10014720 129806336
-MemTotal:       320424 kB
-MemFree:        282404 kB
-MemShared:           0 kB
-Buffers:          2240 kB
-Cached:          26484 kB
-Active:           5576 kB
-Inact_dirty:     18348 kB
-Inact_clean:      4800 kB
-Inact_target:      332 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:       320424 kB
-LowFree:        282400 kB
-SwapTotal:      136544 kB
-SwapFree:       126764 kB
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+George
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

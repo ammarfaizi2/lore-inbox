@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263927AbRFNTO3>; Thu, 14 Jun 2001 15:14:29 -0400
+	id <S263924AbRFNTNU>; Thu, 14 Jun 2001 15:13:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263974AbRFNTOU>; Thu, 14 Jun 2001 15:14:20 -0400
-Received: from biglinux.tccw.wku.edu ([161.6.10.206]:36992 "EHLO
-	biglinux.tccw.wku.edu") by vger.kernel.org with ESMTP
-	id <S263927AbRFNTOL>; Thu, 14 Jun 2001 15:14:11 -0400
-Date: Thu, 14 Jun 2001 14:13:59 -0500 (CDT)
-From: "Brent D. Norris" <brent@biglinux.tccw.wku.edu>
-To: James Sutherland <jas88@cam.ac.uk>
-cc: Pavel Machek <pavel@suse.cz>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: 3com Driver and the 3XP Processor
-In-Reply-To: <Pine.SOL.4.33.0106131128360.13864-100000@yellow.csi.cam.ac.uk>
-Message-ID: <Pine.LNX.4.30.0106141412370.17117-100000@biglinux.tccw.wku.edu>
+	id <S263986AbRFNTNJ>; Thu, 14 Jun 2001 15:13:09 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:61362 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S263961AbRFNTM4>;
+	Thu, 14 Jun 2001 15:12:56 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15145.3254.105970.424506@pizda.ninka.net>
+Date: Thu, 14 Jun 2001 12:12:54 -0700 (PDT)
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: jgarzik@mandrakesoft.com (Jeff Garzik), tom_gall@vnet.ibm.com (Tom Gall),
+        linux-kernel@vger.kernel.org
+Subject: Re: Going beyond 256 PCI buses
+In-Reply-To: <200106141904.f5EJ4AD413350@saturn.cs.uml.edu>
+In-Reply-To: <15145.1739.395626.842663@pizda.ninka.net>
+	<200106141904.f5EJ4AD413350@saturn.cs.uml.edu>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Now, if the NIC were to integrate with OpenSSL and offload some of THAT
-> donkey work... Just offloading DES isn't terribly useful, as Pavel says:
-> apart from anything else, DES is a bit elderly now - SSH using 3DES or
-> Blowfish etc... How dedicated is this card? Could it be used to offload
-> other work?
 
-Sorry my bad it is 3DES that they have on it, but I don't know how
-in-grained it is in it.  Like I sad it just floated across my desk a few
-days ago and it sounded like a cool bit of hardware.
+Albert D. Cahalan writes:
+ > >>    /proc/bus/PCI/0/0/3/0/config   config space
+ > >
+ > > Which breaks xfree86 instantly.  This fix is unacceptable.
+ > 
+ > Nope. Keep /proc/bus/pci until Linux 3.14 if you like.
+ > The above is /proc/bus/PCI. That's "PCI", not "pci".
+ > We still have /proc/pci after all.
 
-Brent Norris
+Oh I see.
 
-Executive Advisor -- WKU-Linux
+Well, xfree86 and other programs aren't going to look there, so
+something had to be done about the existing /proc/bus/pci/* hierarchy.
 
-System Administrator -- WKU-Center for Biodiversity
-                        Best Mechanical
+To be honest, xfree86 needs the controller information not for the
+sake of device probing, it needs it to detect resource conflicts.
 
-W: 270-745-8864
-H: 270-563-9226
+Anyways, I agree with your change, sure.
 
-"The problem with the Linux learning curve is that it is _so_ steep once
- at the top you can't see the people at the bottom"  --Doug Hagan
+ > Did you somehow miss when Linus scolded you a few weeks ago?
+
+You mean specifically what?
+
+Later,
+David S. Miller
+davem@redhat.com
 

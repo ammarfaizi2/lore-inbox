@@ -1,152 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262622AbTCYMfj>; Tue, 25 Mar 2003 07:35:39 -0500
+	id <S262623AbTCYMgD>; Tue, 25 Mar 2003 07:36:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262623AbTCYMfj>; Tue, 25 Mar 2003 07:35:39 -0500
-Received: from [81.80.245.157] ([81.80.245.157]:56507 "EHLO smtp.alcove-fr")
-	by vger.kernel.org with ESMTP id <S262622AbTCYMfe>;
-	Tue, 25 Mar 2003 07:35:34 -0500
-Date: Tue, 25 Mar 2003 13:47:11 +0100
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: USB MemoryStick reader and 2.5.66
-Message-ID: <20030325124711.GC1242@hottah.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S262631AbTCYMgC>; Tue, 25 Mar 2003 07:36:02 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:29618
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262623AbTCYMgA>; Tue, 25 Mar 2003 07:36:00 -0500
+Subject: Re: ide: indeed, using list_for_each_entry_safe removes endless
+	looping / hang [Was: Re: 2.5.65-ac2 -- hda/ide trouble on ICH4]
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Alexander Atanasov <alex@ssi.bg>, linux@brodo.de,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       B.Zolnierkiewicz@elka.pw.edu.pl
+In-Reply-To: <Pine.LNX.4.10.10303242014430.8000-100000@master.linux-ide.org>
+References: <Pine.LNX.4.10.10303242014430.8000-100000@master.linux-ide.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1048600799.28496.3.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 25 Mar 2003 13:59:59 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 2003-03-25 at 04:16, Andre Hedrick wrote:
+> This is one thing all of you don't get about hotplug.
+> 
+> You are not allowed on PATA, only SATA.
+> 
+> The BIOS and setup on the HBA's need a kick to come alive.
+> There are basic hooks that do not permit post boot hotplug in PATA.
 
-Is the usb storage driver supposed to work in the latest kernels, or
-is there somewhere a big pile of scsi / usb-storage patches waiting
-to be integrated and I shouldn't bother with that until then ?
+Several vendors support bus tristate handling. We now do error
+handling on that. Its a first step towards being able to rescan
+the bus.
 
-This is with an internal USB Memory Stick reader on a Sony Vaio C1VE, 
-which works just fine in 2.4, but in 2.5 it doesn't even gets 
-recognized (hotplug ?). If I modprobe usb-storage manually the 
-module loads just fine:
-  Initializing USB Mass Storage driver...
-  scsi0 : SCSI emulation for USB Mass Storage devices
-    Vendor: Sony      Model: MSC-U01N          Rev: 1.00
-    Type:   Direct-Access                      ANSI SCSI revision: 02
-
-But then any attempt to mount it or even 'dd if=/dev/sda' hangs 
-forever, the only messages I have in kernel logs are below.
-
-Is someone interesting in a more complete bug report or should I
-test something else ?
-
-Thanks,
-
-Stelian.
-
------------------8<---------------------------8<------------------
-Initializing USB Mass Storage driver...
-scsi0 : SCSI emulation for USB Mass Storage devices
-  Vendor: Sony      Model: MSC-U01N          Rev: 1.00
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-sda : READ CAPACITY failed.
-sda : status=0, message=00, host=7, driver=00 
-sda : sense not available. 
-sda: test WP failed, assume Write Enabled
-sda: asking for cache data failed
-sda: assuming drive cache: write through
-sda : READ CAPACITY failed.
-sda : status=0, message=00, host=7, driver=00 
-sda : sense not available. 
-sda: test WP failed, assume Write Enabled
-sda: asking for cache data failed
-sda: assuming drive cache: write through
-sda : READ CAPACITY failed.
-sda : status=0, message=00, host=7, driver=00 
-sda : sense not available. 
-sda: test WP failed, assume Write Enabled
-sda: asking for cache data failed
-sda: assuming drive cache: write through
- sda:<3>Buffer I/O error on device sd(8,0), logical block 0
-Buffer I/O error on device sd(8,0), logical block 0
- unable to read partition table
- sda:<3>Buffer I/O error on device sd(8,0), logical block 0
- unable to read partition table
-Attached scsi removable disk sda at scsi0, channel 0, id 0, lun 0
-WARNING: USB Mass Storage data integrity not assured
-USB Mass Storage device found at 2
-drivers/usb/core/usb.c: registered new driver usb-storage
-USB Mass Storage support registered.
-sda : READ CAPACITY failed.
-sda : status=0, message=00, host=7, driver=00 
-sda : sense not available. 
-sda: test WP failed, assume Write Enabled
-sda: asking for cache data failed
-sda: assuming drive cache: write through
-sda : READ CAPACITY failed.
-sda : status=0, message=00, host=7, driver=00 
-sda : sense not available. 
-sda: test WP failed, assume Write Enabled
-sda: asking for cache data failed
-sda: assuming drive cache: write through
- sda:<3>Buffer I/O error on device sd(8,0), logical block 0
-Buffer I/O error on device sd(8,0), logical block 0
- unable to read partition table
-sda : READ CAPACITY failed.
-sda : status=0, message=00, host=7, driver=00 
-sda : sense not available. 
-sda: test WP failed, assume Write Enabled
-sda: asking for cache data failed
-sda: assuming drive cache: write through
-sda : READ CAPACITY failed.
-sda : status=0, message=00, host=7, driver=00 
-sda : sense not available. 
-sda: test WP failed, assume Write Enabled
-sda: asking for cache data failed
-sda: assuming drive cache: write through
- sda:<3>Buffer I/O error on device sd(8,0), logical block 0
-Buffer I/O error on device sd(8,0), logical block 0
- unable to read partition table
-sda : READ CAPACITY failed.
-sda : status=0, message=00, host=7, driver=00 
-sda : sense not available. 
-sda: test WP failed, assume Write Enabled
-sda: asking for cache data failed
-sda: assuming drive cache: write through
-sda : READ CAPACITY failed.
-sda : status=0, message=00, host=7, driver=00 
-sda : sense not available. 
-sda: test WP failed, assume Write Enabled
-sda: asking for cache data failed
-sda: assuming drive cache: write through
- sda:<3>Buffer I/O error on device sd(8,0), logical block 0
-Buffer I/O error on device sd(8,0), logical block 0
- unable to read partition table
-sda : READ CAPACITY failed.
-sda : status=0, message=00, host=7, driver=00 
-sda : sense not available. 
-sda: test WP failed, assume Write Enabled
-sda: asking for cache data failed
-sda: assuming drive cache: write through
-sda : READ CAPACITY failed.
-sda : status=0, message=00, host=7, driver=00 
-sda : sense not available. 
-sda: test WP failed, assume Write Enabled
-sda: asking for cache data failed
-sda: assuming drive cache: write through
- sda:<3>Buffer I/O error on device sd(8,0), logical block 0
-Buffer I/O error on device sd(8,0), logical block 0
- unable to read partition table
-sda : READ CAPACITY failed.
-sda : status=0, message=00, host=7, driver=00 
-sda : sense not available. 
-sda: test WP failed, assume Write Enabled
-sda: asking for cache data failed
-sda: assuming drive cache: write through
------------------8<---------------------------8<------------------
-    
--- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com

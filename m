@@ -1,56 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290246AbSAXEHS>; Wed, 23 Jan 2002 23:07:18 -0500
+	id <S290249AbSAXEN2>; Wed, 23 Jan 2002 23:13:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290247AbSAXEHJ>; Wed, 23 Jan 2002 23:07:09 -0500
-Received: from holomorphy.com ([216.36.33.161]:43910 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S290246AbSAXEHB>;
-	Wed, 23 Jan 2002 23:07:01 -0500
-Date: Wed, 23 Jan 2002 20:04:05 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Cc: Barry Wu <wqb123@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Can linux support ccNUMA machine now?
-Message-ID: <20020123200405.D899@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-	Barry Wu <wqb123@yahoo.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020123003530.60778.qmail@web13903.mail.yahoo.com> <74750000.1011782724@flay>
+	id <S290250AbSAXENT>; Wed, 23 Jan 2002 23:13:19 -0500
+Received: from zero.tech9.net ([209.61.188.187]:26889 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S290249AbSAXENH>;
+	Wed, 23 Jan 2002 23:13:07 -0500
+Subject: Re: Low latency for recent kernels
+From: Robert Love <rml@tech9.net>
+To: Dan Maas <dmaas@dcine.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <036a01c1a48a$0480da40$1d01a8c0@allyourbase>
+In-Reply-To: <fa.h7o6q7v.lha792@ifi.uio.no> <fa.divhjuv.3guviq@ifi.uio.no> 
+	<036a01c1a48a$0480da40$1d01a8c0@allyourbase>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 23 Jan 2002 23:17:54 -0500
+Message-Id: <1011845875.7028.63.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <74750000.1011782724@flay>; from Martin.Bligh@us.ibm.com on Wed, Jan 23, 2002 at 02:45:24AM -0800
-Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At some point in the past, someone wrote:
->> How mcuh memory linux support? 64GB or more?
+On Wed, 2002-01-23 at 22:48, Dan Maas wrote:
 
-On Wed, Jan 23, 2002 at 02:45:24AM -0800, Martin J. Bligh wrote:
-> Theoritically 64Gb on 32 bit machines, in practice
-> significantly less than that (IIRC, something like
-> 25-30Gb). It's not terribly efficient in using it though ;-)
+> Two situations where I would expect low-latency/preemption to have a
+> positive effect on responsiveness are 1) when the system is under heavy CPU
+> and disk load (e.g. kernel compile); due to the interactive tasks being able
+> to run earlier/more often, and 2) when performing UI operations that depend
+> on tight synchronization between X/the WM/the X client, particularly opaque
+> window resizing. (my theory is that low-latency/preemption results in the
+> CPU switching more rapidly or evenly among these processes, reducing the
+> perceptible "lag" between the client window and its WM frame)
 
-With some simple calculations for various things, I predict ZONE_NORMAL
-will get filled by large boot-time allocations on x86 with PAE and 64GB
-of RAM. I'm not entirely sure what other sorts of pathologies arise
-while these beasts still function; but without enough ZONE_NORMAL to
-satisfy all the combined boot-time allocation requests, the kernel
-will surely panic.
+This is exactly the area preempt/low-latency helps and I think your
+theory is pretty much dead on.
 
-The sizes of these boot-time allocations are not entirely constant
-across kernel versions, but there should be some threshhold of
-memory size at which any given Linux version to date drops dead on
-large memory x86 machines.
+With preempt-kernel, ideally, an interactive task finds itself runnable
+like this: user event causes interrupt, interrupt sets need_resched, on
+return from interrupt we cause a preemption of current task (which can
+happen whether task is in kernel or userland, now), and schedule the
+interactive task onto the CPU.
 
-On 64-bit machines, there is obviously no such behavior, and Linux
-will be able to use the full memory capacity of the system.
+This leads to better scheduling fairness and short scheduling latency.
 
+If you or Havoc are interested in any tests or further work with the
+preemptive kernel, I'd be more than willing.  Hey, I use GNOME ;)
 
-Cheers,
-Bill
+	Robert Love
 
-P.S.: Blame it on struct page.

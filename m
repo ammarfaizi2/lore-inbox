@@ -1,132 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261859AbULJWZo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261843AbULJW1z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261859AbULJWZo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 17:25:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261843AbULJWY2
+	id S261843AbULJW1z (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 17:27:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261847AbULJW0i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 17:24:28 -0500
-Received: from waste.org ([209.173.204.2]:40113 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261846AbULJWXW (ORCPT
+	Fri, 10 Dec 2004 17:26:38 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:20892 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261846AbULJWYq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 17:23:22 -0500
-Date: Fri, 10 Dec 2004 14:23:07 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: "Theodore Ts'o" <tytso@mit.edu>, Bernard Normier <bernard@zeroc.com>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: Concurrent access to /dev/urandom
-Message-ID: <20041210222306.GV8876@waste.org>
-References: <20041208012802.GA6293@thunk.org> <079001c4dcc9$1bec3a60$6401a8c0@centrino> <20041208192126.GA5769@thunk.org> <20041208215614.GA12189@waste.org> <20041209015705.GB6978@thunk.org> <20041209212936.GO8876@waste.org> <20041210044759.GQ8876@waste.org> <20041210163558.GB10639@thunk.org> <20041210182804.GT8876@waste.org> <20041210212815.GB25409@thunk.org>
+	Fri, 10 Dec 2004 17:24:46 -0500
+Date: Fri, 10 Dec 2004 23:24:32 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark_H_Johnson@raytheon.com
+Cc: Amit Shah <amit.shah@codito.com>,
+       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, emann@mrv.com,
+       Gunther Persoons <gunther_persoons@spymac.com>,
+       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Shane Shrybman <shrybman@aei.ca>, Esben Nielsen <simlo@phys.au.dk>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-15
+Message-ID: <20041210222432.GD7609@elte.hu>
+References: <OFC6899882.DBD65C9D-ON86256F66.00796C43-86256F66.00796C5C@raytheon.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041210212815.GB25409@thunk.org>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <OFC6899882.DBD65C9D-ON86256F66.00796C43-86256F66.00796C5C@raytheon.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-2.201, required 5.9,
+	BAYES_00 -4.90, SORTED_RECIPS 2.70
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 10, 2004 at 04:28:15PM -0500, Theodore Ts'o wrote:
-> On Fri, Dec 10, 2004 at 10:28:04AM -0800, Matt Mackall wrote:
-> > 
-> > Fair enough. s/__add/mix/, please.
-> > 
+
+* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
+
+> Here is my get_ltrace.sh script (at the end).
 > 
-> Why?  Fundamentally, it's all about adding entropy to the pool.  I
-> don't have an strong objection to calling it __mix_entropy_words, but
-> if we're going to change it, we should change the non-__ variant for
-> consistency's sake, and I'd much rather do that in a separate patch if
-> we're going to do it all.  I don't see the point of the rename,
-> though.
+> So I read the preempt_max_latency (to see if its changed) before I
+> copy the latency_trace output. I am not so sure that cat is really
+> doing an "atomic" read when some of the latency traces are over 300
+> Kbytes in length.
 
-I suppose I don't really care. The __add is no longer just add, and
-mix was the word that came to mind. But it doesn't really describe it
-well either.
+reading preempt_max_latency ought to be fine to detect changes.
 
-> Still, I'd feel better if we did initialize more data via
-> init_std_data(), and then cranked the LFSR some number of times so
-> that we don't have to worry about analyzing the case where a good
-> portion of the pool might contain consecutive zero values.  But yeah,
-> we can save that for another patch, as it's not absolutely essential.
-> 
-> Are we converging here?
+yes, even a 300 KB trace should be read atomically too, even if it takes
+3 seconds to save, hence all the different layers of trace buffers. The
+kernel does not update the output buffer until the 'cat' has finished.
+(unless a parallel 'cat' interferes - all your scripts are serialized,
+right?)
 
-I'm gonna call this last iteration done. Repasted below for akpm's
-benefit. Urgency: medium-ish.
+> Also note that some of the files were empty :-(. I don't think I've
+> seen that symptom before.
 
----
+hm, an empty file occurs if the saved output trace is empty. This should
+only be the case shortly after resetting preempt_max_latency. (or after
+bootup, until it's set for the first time.)
 
-This patch fixes a problem where /dev/urandom can return duplicate
-values when two processors read from it at the same time.  It relies
-on the fact that we already are taking a lock in add_entropy_words(),
-and atomically hashes in some freshly mixed in data into the returned
-randomness.
+> Note that the preempt_max_latency value DID match the last line of the
+> trace output in the example I described. It is just the header that
+> had some stale data in it.
 
-Signed-off-by: Matt Mackall <mpm@selenic.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+yeah. It's weird. Ahh .. reviewing the header-generation code again i
+noticed a buglet, which could cause spuriously wrong latency values on
+SMP systems. Does the patch below fix this particular symptom?
 
---- 1.60/drivers/char/random.c	2004-11-18 17:23:14 -05:00
-+++ edited/drivers/char/random.c	2004-12-10 16:26:51 -05:00
-@@ -572,8 +572,8 @@ static void free_entropy_store(struct en
-  * it's cheap to do so and helps slightly in the expected case where
-  * the entropy is concentrated in the low-order bits.
-  */
--static void add_entropy_words(struct entropy_store *r, const __u32 *in,
--			      int nwords)
-+static void __add_entropy_words(struct entropy_store *r, const __u32 *in,
-+				int nwords, __u32 out[16])
- {
- 	static __u32 const twist_table[8] = {
- 		         0, 0x3b6e20c8, 0x76dc4190, 0x4db26158,
-@@ -626,9 +626,23 @@ static void add_entropy_words(struct ent
- 	r->input_rotate = input_rotate;
- 	r->add_ptr = add_ptr;
+	Ingo
+
+--- linux/kernel/latency.c.orig
++++ linux/kernel/latency.c
+@@ -542,7 +542,7 @@ static void update_out_trace(void)
+ 	 * trace buffer.
+ 	 */
+ 	tmp_out = out_tr.traces + 0;
+-	*tmp_out = max_tr.traces[0]; // TODO: dont copy the traces
++	*tmp_out = max_tr.traces[max_tr.cpu]; // TODO: dont copy the traces
+ 	out_tr.cpu = max_tr.cpu;
+ 	out_entry = tmp_out->trace + 0;
  
-+	if (out) {
-+		for (i = 0; i < 16; i++) {
-+			out[i] = r->pool[add_ptr];
-+			add_ptr = (add_ptr - 1) & wordmask;
-+		}
-+	}
-+
- 	spin_unlock_irqrestore(&r->lock, flags);
- }
- 
-+static inline void add_entropy_words(struct entropy_store *r, const __u32 *in,
-+				     int nwords)
-+{
-+	__add_entropy_words(r, in, nwords, NULL);
-+}
-+
-+
- /*
-  * Credit (or debit) the entropy store with n bits of entropy
-  */
-@@ -1342,7 +1356,7 @@ static ssize_t extract_entropy(struct en
- 			       size_t nbytes, int flags)
- {
- 	ssize_t ret, i;
--	__u32 tmp[TMP_BUF_SIZE];
-+	__u32 tmp[TMP_BUF_SIZE], data[16];
- 	__u32 x;
- 	unsigned long cpuflags;
- 
-@@ -1422,7 +1436,15 @@ static ssize_t extract_entropy(struct en
- 			HASH_TRANSFORM(tmp, r->pool+i);
- 			add_entropy_words(r, &tmp[x%HASH_BUFFER_SIZE], 1);
- 		}
--		
-+
-+		/*
-+		 * To avoid duplicates, we atomically extract a
-+		 * portion of the pool while mixing, and hash one
-+		 * final time.
-+		 */
-+		__add_entropy_words(r, &tmp[x%HASH_BUFFER_SIZE], 1, data);
-+		HASH_TRANSFORM(tmp, data);
-+
- 		/*
- 		 * In case the hash function has some recognizable
- 		 * output pattern, we fold it in half.
-
-
--- 
-Mathematics is the supreme nostalgia of our time.

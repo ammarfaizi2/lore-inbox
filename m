@@ -1,56 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267291AbTBSUdH>; Wed, 19 Feb 2003 15:33:07 -0500
+	id <S261205AbTBSUmB>; Wed, 19 Feb 2003 15:42:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267300AbTBSUdH>; Wed, 19 Feb 2003 15:33:07 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:23813 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S267291AbTBSUdF>; Wed, 19 Feb 2003 15:33:05 -0500
-Date: Wed, 19 Feb 2003 15:39:44 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.61 (Yes, there are still Alpha users out there. :-) )
-In-Reply-To: <20030219195543.GW351@lug-owl.de>
-Message-ID: <Pine.LNX.3.96.1030219153452.11297B-100000@gatekeeper.tmr.com>
+	id <S261290AbTBSUmB>; Wed, 19 Feb 2003 15:42:01 -0500
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:9505 "EHLO
+	baldur.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S261205AbTBSUmA>; Wed, 19 Feb 2003 15:42:00 -0500
+Date: Wed, 19 Feb 2003 14:51:56 -0600
+From: Dave McCracken <dmccr@us.ibm.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [TRIVIAL PATCH 2.5.62] Support make xconfig on Debian sid
+Message-ID: <100120000.1045687916@baldur.austin.ibm.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: MULTIPART/SIGNED; MICALG=pgp-sha1; PROTOCOL="application/pgp-signature"; BOUNDARY=4n3ekn15JG+S0x0c
-Content-ID: <Pine.LNX.3.96.1030219153452.11297C@gatekeeper.tmr.com>
+Content-Type: multipart/mixed; boundary="==========1781812778=========="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+--==========1781812778==========
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
---4n3ekn15JG+S0x0c
-Content-Type: TEXT/PLAIN; CHARSET=iso-8859-1
-Content-ID: <Pine.LNX.3.96.1030219153452.11297D@gatekeeper.tmr.com>
 
-On Wed, 19 Feb 2003, Jan-Benedict Glaw wrote:
+I got tired enough of always having to remember to set QTDIR when I build
+that I tracked down what it'd take for 'make xconfig' to work out of the
+box on Debian sid (unstable).  Here's the one line patch to make it work.
 
-> On Wed, 2003-02-19 13:00:39 -0500, Bill Davidsen <davidsen@tmr.com>
+Dave McCracken
 
-> > Be aware that for Redhat and SuSE distributions (and mandrake??) "make
-> > install" will fail because mkinitrd doesn't know about the new modules
-> > format.
-> > 
-> > So you can give up using modules for anything you want to use to boot,
-> 
-> Which is what I prefer - I personally don't like initrd and I don't use
-> it.
+======================================================================
+Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
+dmccr@us.ibm.com                                        T/L   678-3059
 
-If you have simple needs that's fine. I build for multiple groups of
-machines, and with a working mkinitrd I can just build a file for the boot
-controller on each type of machine, and only build a single kernel which
-will run anywhere with the proper initrd file.
+--==========1781812778==========
+Content-Type: text/plain; charset=iso-8859-1; name="qt-2.5.62-1.diff"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment; filename="qt-2.5.62-1.diff"; size=467
 
-using initrd files also allows easy control of the order in which SCSI
-controllers are loaded, which prevents drives from changing names.
+--- 2.5.62/scripts/kconfig/Makefile	2003-02-17 16:57:19.000000000 -0600
++++ 2.5.62-anon/scripts/kconfig/Makefile	2003-02-19 14:44:58.000000000 =
+-0600
+@@ -38,7 +38,7 @@
+=20
+ # QT needs some extra effort...
+ $(obj)/.tmp_qtcheck:
+-	@set -e; for d in $$QTDIR /usr/share/qt /usr/lib/qt*3*; do \
++	@set -e; for d in $$QTDIR /usr/share/qt /usr/share/qt3 /usr/lib/qt*3*; do =
+\
+ 	  if [ -f $$d/include/qconfig.h ]; then DIR=3D$$d; break; fi; \
+ 	done; \
+ 	if [ -z "$$DIR" ]; then \
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+--==========1781812778==========--
 
---4n3ekn15JG+S0x0c--

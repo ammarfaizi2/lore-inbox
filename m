@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262126AbUKVQaY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262107AbUKVQaY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262126AbUKVQaY (ORCPT <rfc822;willy@w.ods.org>);
+	id S262107AbUKVQaY (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 22 Nov 2004 11:30:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262112AbUKVQ2C
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261387AbUKVQ17
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 11:28:02 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:23751 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S262126AbUKVPmv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 10:42:51 -0500
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org,
-       netdev@oss.sgi.com
-X-Message-Flag: Warning: May contain useful information
-References: <20041122714.taTI3zcdWo5JfuMd@topspin.com>
-	<20041122714.AyIOvRY195EGFTaO@topspin.com>
-	<20041122153144.GA4821@infradead.org>
-From: Roland Dreier <roland@topspin.com>
-Date: Mon, 22 Nov 2004 07:41:47 -0800
-In-Reply-To: <20041122153144.GA4821@infradead.org> (Christoph Hellwig's
- message of "Mon, 22 Nov 2004 15:31:44 +0000")
-Message-ID: <52k6sdevr8.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: roland@topspin.com
-Subject: Re: [PATCH][RFC/v1][11/12] Add InfiniBand Documentation files
+	Mon, 22 Nov 2004 11:27:59 -0500
+Received: from holomorphy.com ([207.189.100.168]:2970 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262112AbUKVPjx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 10:39:53 -0500
+Date: Mon, 22 Nov 2004 07:39:48 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Brice.Goglin@ens-lyon.org
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: kmap_atomic
+Message-ID: <20041122153948.GF2714@holomorphy.com>
+References: <41A1FDA0.1070204@ens-lyon.fr>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 22 Nov 2004 15:41:52.0696 (UTC) FILETIME=[C9CD9380:01C4D0A9]
+Content-Disposition: inline
+In-Reply-To: <41A1FDA0.1070204@ens-lyon.fr>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Christoph> Any reason this doesn't use an interface similar to the
-    Christoph> normal vlan code?
+On Mon, Nov 22, 2004 at 03:54:24PM +0100, Brice Goglin wrote:
+> I would like to know if I can use kmap_atomic with KM_USER[01] type
+> within a non-interrupt context. Looking at comments near kmap_atomic
+> declarations on sparc or ppc, it seems that this is discouraged.
+> But lots of code (like filesystem stuff) are currently using it
+> outside of interrupt context.
+> Are there special requirements about KM_USER[01] usage in interrupt
+> or non-interrupt contexts ?
+> Is it documented somewhere how we can use it ?
+> What I want to do is just kmap_atomic, copy and kunmap_atomic.
 
-The normal vlan code uses an ioctl().  I thought a simple sysfs
-interface would be more palatable than a new socket ioctl.
+Those comments are stale. This varies by km_type. A given km_type may
+only be used in one context. KM_USER0/KM_USER1 are specifically
+dedicated to process context copying. KM_IRQ0/KM_IRQ1 are specifically
+devoted to interrupt-context copying.
 
-    Christoph> And what is a P_Key?
 
-It is a 16-bit identifier carried by IB packets that says which
-partition the packet is in.  End ports have P_Key tables that list
-which partitions they are members of (a port can be a member of one or
-more partitions, and can only receive packets from that partition).
-
- - Roland
+-- wli

@@ -1,51 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266541AbUGKKWr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266545AbUGKKYL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266541AbUGKKWr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 06:22:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266550AbUGKKWr
+	id S266545AbUGKKYL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 06:24:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266550AbUGKKYK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 06:22:47 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:27074 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S266541AbUGKKWp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 06:22:45 -0400
-Date: Sun, 11 Jul 2004 11:22:34 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Ingo Molnar <mingo@redhat.com>
-Cc: davidm@hpl.hp.com, suresh.b.siddha@intel.com, jun.nakajima@intel.com,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: serious performance regression due to NX patch
-Message-ID: <20040711102234.GA11534@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Ingo Molnar <mingo@redhat.com>, davidm@hpl.hp.com,
-	suresh.b.siddha@intel.com, jun.nakajima@intel.com,
-	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-	linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <200407100528.i6A5SF8h020094@napali.hpl.hp.com> <Pine.LNX.4.58.0407110437310.26065@devserv.devel.redhat.com> <Pine.LNX.4.58.0407110536130.2248@devserv.devel.redhat.com> <Pine.LNX.4.58.0407110550340.4229@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0407110550340.4229@devserv.devel.redhat.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sun, 11 Jul 2004 06:24:10 -0400
+Received: from ny03.mtek.chalmers.se ([129.16.60.203]:4110 "HELO
+	ny03.mtek.chalmers.se") by vger.kernel.org with SMTP
+	id S266545AbUGKKX5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jul 2004 06:23:57 -0400
+Message-ID: <40F11539.1050309@am.chalmers.se>
+Date: Sun, 11 Jul 2004 12:23:53 +0200
+From: Thomas Svedberg <thsv@am.chalmers.se>
+User-Agent: Mozilla Thunderbird 0.6+ (X11/20040604)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Len Brown <len.brown@intel.com>
+CC: Zoltan Boszormenyi <zboszor@dunaweb.hu>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7-mm7
+References: <A6974D8E5F98D511BB910002A50A6647615FFB70@hdsmsx403.hd.intel.com> <1089512622.32038.17.camel@dhcppc2>
+In-Reply-To: <1089512622.32038.17.camel@dhcppc2>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 11, 2004 at 05:52:59AM -0400, Ingo Molnar wrote:
+Len Brown wrote:
+> On Sat, 2004-07-10 at 02:21, Zoltan Boszormenyi wrote:
 > 
-> On Sun, 11 Jul 2004, Ingo Molnar wrote:
+>>Hi,
+>>
+>>I found in my logs something that indicates problems with ACPI:
+>>
+>>ACPI: Subsystem revision 20040615
+>>ACPI: System description tables not found
+>>     ACPI-0084: *** Error: acpi_load_tables: Could not get RSDP, 
+>>AE_NOT_FOUND
+>>     ACPI-0134: *** Error: acpi_load_tables: Could not load tables: 
+>>AE_NOT_FOUND
+>>ACPI: Unable to load the System Description Tables
 > 
-> > > ok, agreed. I'll check that it still does the right thing on x86.
-> > 
-> > it doesnt seem to do the right thing for !PT_GNU_STACK applications on 
-> > x86:
+> ...
 > 
-> how about the patch below? This way we recognize the fact that x86 didnt
-> have any executability check previously at the point where we discover
-> that it's a 'legacy' binary.
+>>Machine is MSI K8T Neo FIS2R with fairly recent 1.6 BIOS.
+>>I dont have this with Linux-2.6.7.
+> 
+> 
+> Interesting, we'd seen this BIOS bug only on Dell so far.
+> 
+> Please test the patch here:
+> http://bugzilla.kernel.org/show_bug.cgi?id=2990
 
-Please don't add per-architecture ifdefs to generic code.  And I'm pretty
-sure there's quite a few more architectures with the same issue.
+I have the same MB but BIOS 1.7, same problem but the patch mentioned 
+above fixed it.
 
+-- 
+/ Thomas
+.......................................................................
+  Thomas Svedberg
+  Department of Applied Mechanics
+  Chalmers University of Technology
+
+  Address: S-412 96 Göteborg, SWEDEN
+  E-mail : thsv@bigfoot.com, thsv@am.chalmers.se
+  Phone  : +46 31 772 1522
+  Fax    : +46 31 772 3827
+.......................................................................

@@ -1,62 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265108AbSKRXKw>; Mon, 18 Nov 2002 18:10:52 -0500
+	id <S264992AbSKRXEl>; Mon, 18 Nov 2002 18:04:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265114AbSKRXKw>; Mon, 18 Nov 2002 18:10:52 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:61451 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S265108AbSKRXKt>; Mon, 18 Nov 2002 18:10:49 -0500
-Date: Mon, 18 Nov 2002 23:17:45 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] More missing includes [1/4]
-Message-ID: <20021118231745.D21571@flint.arm.linux.org.uk>
-Mail-Followup-To: Geert Uytterhoeven <geert@linux-m68k.org>,
-	Linux Kernel Development <linux-kernel@vger.kernel.org>
-References: <Pine.GSO.4.21.0211182314490.16079-100000@vervain.sonytel.be>
-Mime-Version: 1.0
+	id <S264940AbSKRXEh>; Mon, 18 Nov 2002 18:04:37 -0500
+Received: from packet.digeo.com ([12.110.80.53]:53973 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S264950AbSKRXCs>;
+	Mon, 18 Nov 2002 18:02:48 -0500
+Message-ID: <3DD97336.40326A65@digeo.com>
+Date: Mon, 18 Nov 2002 15:09:42 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Dave Hansen <haveblue@us.ibm.com>
+CC: William Lee Irwin III <wli@holomorphy.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org,
+       mingo@elte.hu, rml@tech9.net, riel@surriel.com,
+       Davide Libenzi <davidel@xmailserver.org>
+Subject: Re: unusual scheduling performance
+References: <20021118081854.GJ23425@holomorphy.com> <705474709.1037608454@[10.10.2.3]> <20021118165316.GK23425@holomorphy.com> <3DD92914.1060301@us.ibm.com> <20021118201748.GL23425@holomorphy.com> <3DD96EE6.1080603@us.ibm.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.GSO.4.21.0211182314490.16079-100000@vervain.sonytel.be>; from geert@linux-m68k.org on Mon, Nov 18, 2002 at 11:16:04PM +0100
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 18 Nov 2002 23:09:42.0359 (UTC) FILETIME=[93C08670:01C28F57]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 18, 2002 at 11:16:04PM +0100, Geert Uytterhoeven wrote:
+Dave Hansen wrote:
 > 
-> Add missing #include <linux/init.h>
+> As Andrew suggested, I put a dump_stack() in rwsem_down_write_failed().
 > 
-> --- linux-2.5.48/drivers/scsi/scsi.h	Mon Nov 18 10:03:40 2002
-> +++ linux-m68k-2.5.48/drivers/scsi/scsi.h	Mon Nov 18 14:18:21 2002
-> @@ -18,6 +18,7 @@
->  #include <linux/config.h>	/* for CONFIG_SCSI_LOGGING */
->  #include <linux/devfs_fs_kernel.h>
->  #include <linux/proc_fs.h>
-> +#include <linux/init.h>
->  
->  /*
->   * Some of the public constants are being moved to this file.
+> This was actually in a 2.5.47 bk snapshot, so it has eventpoll in it.
+
+So printk("hey!\n") would have worked.  Looks like it would have
+talked to you, too...
+
+> kksymoops is broken, so:
+> dmesg | tail -20 | sort | uniq | ksymoops -m /boot/System.map
+> 
+> Trace; c01c5757 <rwsem_down_write_failed+27/170>
+> Trace; c01220c6 <update_wall_time+16/50>
+> Trace; c01223ee <do_timer+2e/c0>
+> Trace; c0166bd3 <.text.lock.eventpoll+6/f3>
+> Trace; c0146568 <__fput+18/c0>
+> Trace; c010ae9a <handle_IRQ_event+2a/60>
+> Trace; c0144a05 <filp_close+85/b0>
+> Trace; c0144a8d <sys_close+5d/70>
+> Trace; c0108fab <syscall_call+7/b>
 > 
 
-The more obvious solution is to remove the __initdata from the
-declaration on line 545.  Such usage of __initdata (and __init)
-serves no purpose.
-
---- orig/drivers/scsi/scsi.h	Mon Nov 18 09:52:15 2002
-+++ linux/drivers/scsi/scsi.h	Mon Nov 18 15:25:42 2002
-@@ -542,7 +542,7 @@
- 	unsigned flags;
- };
- 
--extern struct dev_info scsi_static_device_list[] __initdata;
-+extern struct dev_info scsi_static_device_list[];
- 
- /*
-  * scsi_dev_info_list: structure to hold black/white listed devices.
-
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+So it would appear that eventpoll_release() is the problem.
+How odd.  You're not actually _using_ epoll there, are you?

@@ -1,56 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280874AbRKBXYP>; Fri, 2 Nov 2001 18:24:15 -0500
+	id <S280876AbRKBXZz>; Fri, 2 Nov 2001 18:25:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280877AbRKBXYF>; Fri, 2 Nov 2001 18:24:05 -0500
-Received: from peace.netnation.com ([204.174.223.2]:10509 "EHLO
-	peace.netnation.com") by vger.kernel.org with ESMTP
-	id <S280874AbRKBXXv>; Fri, 2 Nov 2001 18:23:51 -0500
-Date: Fri, 2 Nov 2001 15:23:49 -0800
-From: Simon Kirby <sim@netnation.com>
-To: Zlatko Calusic <zlatko.calusic@iskon.hr>
-Cc: Andrea Arcangeli <andrea@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
-        Jens Axboe <axboe@suse.de>, Marcelo Tosatti <marcelo@conectiva.com.br>,
-        linux-mm@kvack.org, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Zlatko's I/O slowdown status
-Message-ID: <20011102152349.B17362@netnation.com>
-In-Reply-To: <Pine.LNX.4.33.0110261018270.1001-100000@penguin.transmeta.com> <87k7xfk6zd.fsf@atlas.iskon.hr> <20011102065255.B3903@athlon.random> <87g07xdj6x.fsf@atlas.iskon.hr>
+	id <S280879AbRKBXZp>; Fri, 2 Nov 2001 18:25:45 -0500
+Received: from jalon.able.es ([212.97.163.2]:27780 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S280876AbRKBXZ2>;
+	Fri, 2 Nov 2001 18:25:28 -0500
+Date: Sat, 3 Nov 2001 00:25:18 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Alan Cox <laughing@shared-source.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.13-ac6
+Message-ID: <20011103002518.A1634@werewolf.able.es>
+In-Reply-To: <20011102142512.A9558@lightning.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <87g07xdj6x.fsf@atlas.iskon.hr>; from zlatko.calusic@iskon.hr on Fri, Nov 02, 2001 at 09:14:14PM +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20011102142512.A9558@lightning.swansea.linux.org.uk>; from laughing@shared-source.org on Fri, Nov 02, 2001 at 15:25:13 +0100
+X-Mailer: Balsa 1.2.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 02, 2001 at 09:14:14PM +0100, Zlatko Calusic wrote:
 
-> Thank God, today it is finally solved. Just two days ago, I was pretty
-> sure that disk had started dying on me, and i didn't know of any
-> solution for that. Today, while I was about to try your patch, I got
-> another idea and finally pinpointed the problem.
-> 
-> It was write caching. Somehow disk was running with write cache turned
-> off and I was getting abysmal write performance. Then I found hdparm
-> -W0 /proc/ide/hd* in /etc/init.d/umountfs which is ran during shutdown
-> but I don't understand how it survived through reboots and restarts!
-> And why only two of four disks, which I'm dealing with, got confused
-> with the command. And finally I don't understand how I could still got
-> full speed occassionaly. Weird!
-> 
-> I would advise users of Debian unstable to comment that part, I'm sure
-> it's useless on most if not all setups. You might be pleasantly
-> surprised with performance gains (write speed doubles).
+On 20011102 Alan Cox wrote:
+>
+>
+>	ftp://ftp.kernel.org/pub/linux/kernel/people/alan/linux-2.4/
+>
+>		 Intermediate diffs are available from
+>			http://www.bzimage.org
+>
+>*
+>*	Handle with care. This is the IDE driver update
+>*
+>
+>2.4.13-ac6
+>o	IDE driver updates				(Andre Hedrick
 
-Aha!  That would explain why I was seeing it as well... and why I was
-seeing errors from hdparm for /dev/hdc and /dev/hdd, which are CDROMs.
+Any ServerWorks UDMA change ?
 
-Argh. :)
-
-If they have hdparm -W 0 at shutdown, there should be a -W 1 during
-startup.
-
-Simon-
-
-[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
-[       sim@stormix.com       ][       sim@netnation.com        ]
-[ Opinions expressed are not necessarily those of my employers. ]
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.2 (Cooker) for i586
+Linux werewolf 2.4.14-pre7-beo #1 SMP Fri Nov 2 20:26:59 CET 2001 i686

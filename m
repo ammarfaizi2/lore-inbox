@@ -1,67 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269360AbUI3VZj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269527AbUI3V1v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269360AbUI3VZj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 17:25:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269531AbUI3VZj
+	id S269527AbUI3V1v (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 17:27:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269523AbUI3V1v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 17:25:39 -0400
-Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:2677 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S269360AbUI3VZ2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 17:25:28 -0400
-Subject: Re: Serial driver hangs
-From: Paul Fulghum <paulkf@microgate.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Roland =?ISO-8859-1?Q?Ca=DFebohm?= 
-	<roland.cassebohm@VisionSystems.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1096575030.19487.50.camel@localhost.localdomain>
-References: <200409281734.38781.roland.cassebohm@visionsystems.de>
-	 <200409291607.07493.roland.cassebohm@visionsystems.de>
-	 <1096467951.1964.22.camel@deimos.microgate.com>
-	 <200409301816.44649.roland.cassebohm@visionsystems.de>
-	 <1096571398.1938.112.camel@deimos.microgate.com>
-	 <1096569273.19487.46.camel@localhost.localdomain>
-	 <1096573912.1938.136.camel@deimos.microgate.com>
-	 <20040930205922.F5892@flint.arm.linux.org.uk>
-	 <1096574739.1938.142.camel@deimos.microgate.com>
-	 <1096576200.1938.154.camel@deimos.microgate.com>
-	 <1096575030.19487.50.camel@localhost.localdomain>
-Content-Type: text/plain
-Message-Id: <1096579503.1938.166.camel@deimos.microgate.com>
+	Thu, 30 Sep 2004 17:27:51 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:39390 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S269536AbUI3V1h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 17:27:37 -0400
+Date: Thu, 30 Sep 2004 17:27:18 -0400
+From: Alan Cox <alan@redhat.com>
+To: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>, y@redhat.com
+Cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: Re: PATCH: (Test) it8212 driver for 2.6.9rc3
+Message-ID: <20040930212718.GE27138@devserv.devel.redhat.com>
+References: <20040930184535.GA31197@devserv.devel.redhat.com> <200409302218.48115.bzolnier@elka.pw.edu.pl>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 30 Sep 2004 16:25:04 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200409302218.48115.bzolnier@elka.pw.edu.pl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-09-30 at 15:10, Alan Cox wrote:
-> On Iau, 2004-09-30 at 21:30, Paul Fulghum wrote:
-> > tty->flip.work.func and tty->flip.tqueue.routine
-> > are set to flush_to_ldisc()
-> 
-> flush_to_ldisc was ok, then someone added the low latency
-> flag. In the current 2.6.9rc3 patch flush_to_ldisc honours
-> TTY_DONT_FLIP also
+On Thu, Sep 30, 2004 at 10:18:47PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> Why you are doing this instead of including needed core changes in the
+> patch and describing them in the patch description is beyond my mind.
 
-In the cases I described the low latency flag
-does not come into play because flush_to_ldisc()
-is called directly instead of
-through tty_flip_buffer_push().
+Because I'm dealing with real users who want it to work with real product 
+and because I work for a vendor 8). Also because I need this to work on 2.4.x
+eventually. I'm assuming the small IDE changes won't make 2.6.9 since Linus
+is now close to a 2.6.9 proper. I've sent the IDE changes before, you didn't
+pass them on to Linus so I'm now taking the neccessary alternative steps in
+the short term.
 
-TTY_DONT_FLIP is only set in read_chan().
-If read_chan() is not running, TTY_DONT_FLIP is not
-set and does not prevent buffers from flipping
-if the ISR calls flush_to_ldisc() directly
-while ldisc->receive_buf() is running.
+> - add hook for hwif->ident_quirks (4 lines of code)
 
-The answer seems to be: don't call
-flush_to_ldisc directly like the current
-serial driver does.
+Do we need it given the existing iop hooks ?
 
--- 
-Paul Fulghum
-paulkf@microgate.com
+> - add hook for hwif->raw_taskfile (8 lines of code)
+
+Thats definitely the right approach although 
+
+> - make ide-disk allow no geometry (3 lines of code)
+
+Actually its a few more - the size check needs fixing
+
+But this is really irrelevant, they aren't there today, they are not there
+in 2.4.x, Linus isnt likely to take them in time for 2.6.9.
+
+> - allow rmmod of it8212 module
+>   (much more LOC but no trick for it present)
+
+The rmmod is no big deal, its brilliant for debug but I know of no
+hotswappable it8212 setup.
+
+> And you say that you want real fixes to be included in the IDE core,
+> so they should be tested and reviewed, not the tricky workarounds!
+
+Well I've submitted various IDE changes, when they appear great, until then
+the rest of the universe would like to use their IDE controller and its becoming
+present as the secondary controller on some mainboards. This patch (plus
+any testing bugs I find) solves the end user problem neatly.
+
+Alan
 

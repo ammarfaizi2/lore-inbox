@@ -1,98 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267993AbUGaSUR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266014AbUGaS1t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267993AbUGaSUR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jul 2004 14:20:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267986AbUGaSUR
+	id S266014AbUGaS1t (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jul 2004 14:27:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267981AbUGaS1t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jul 2004 14:20:17 -0400
-Received: from nef.ens.fr ([129.199.96.32]:64774 "EHLO nef.ens.fr")
-	by vger.kernel.org with ESMTP id S267993AbUGaSUD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jul 2004 14:20:03 -0400
-Date: Sat, 31 Jul 2004 20:20:01 +0200
-From: =?iso-8859-1?Q?=C9ric?= Brunet <Eric.Brunet@lps.ens.fr>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>,
-       p_gortmaker@yahoo.com
-Subject: Re: swsuspend not working
-Message-ID: <20040731182001.GA6760@lps.ens.fr>
-References: <20040715121042.GB9873@lps.ens.fr> <20040715121825.GC22260@elf.ucw.cz> <20040715132348.GA9939@lps.ens.fr> <20040719191906.GA7053@lps.ens.fr> <20040720131748.GI27492@atrey.karlin.mff.cuni.cz>
+	Sat, 31 Jul 2004 14:27:49 -0400
+Received: from imf22aec.mail.bellsouth.net ([205.152.59.70]:24469 "EHLO
+	imf22aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
+	id S266014AbUGaS1q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jul 2004 14:27:46 -0400
+Date: Sat, 31 Jul 2004 13:27:41 -0500
+From: Zinx Verituse <zinx@epicsol.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ide-cd problems
+Message-ID: <20040731182741.GA21845@bliss>
+References: <20040730193651.GA25616@bliss> <20040731153609.GG23697@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040720131748.GI27492@atrey.karlin.mff.cuni.cz>
-User-Agent: Mutt/1.4.1i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.3.3 (nef.ens.fr [129.199.96.32]); Sat, 31 Jul 2004 20:20:02 +0200 (CEST)
+In-Reply-To: <20040731153609.GG23697@suse.de>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 20, 2004 at 03:17:48PM +0200, Pavel Machek wrote:
-> > ? Destination Host Unreachable ? and nothing more. The interrupt count of
-> > the card is increasing, however. Unloading and reloading ne2k_pci fixes
-> > that.
+On Sat, Jul 31, 2004 at 05:36:10PM +0200, Jens Axboe wrote:
+> On Fri, Jul 30 2004, Zinx Verituse wrote:
+> > I'm going to bump this topic a bit, since it's been a while..
+> > There are still some issues with ide-cd's SG_IO, listed from
+> > most important as percieved by me to least:
+> > 
+> >  * Read-only access grants you the ability to write/blank media in the drive
+> >  * (with above) You can open the device only in read-only mode.
 > 
-> Teach ne2k_pci to do on suspend what it does on unload, and to do on
-> resume what it does on load. Should be easy.
+> That's by design. Search linux-scsi or this list for why that is so.
 
-« Should be easy » is easily said. Well.
+The only thing I can find on the linux-scsi list is refering to sg
+devices, which are on a different device node from the non-generic
+device.  This means you can still allow users read access to the disk
+without allowing them to send random commands to the disk -- this isn't
+currently possible with the IDE interface, since the device with
+generic access is the same as the one with the original read/cdrom
+commands access.
 
-The following patch to drivers/net/ne2k-pci.c in 2.6.8-rc1 happens to make
-my pci ethernet card (Realtek Semiconductor Co., Ltd. RTL-8029(AS))
-suspend to S4 and resume properly.
+As it is, it's impossible grant users read-only access to an IDE cd-rom
+without allowing them to do things like replacing the firmware with a
+malicious/non-working one.
 
-I know nothing on suspend/resume architecture, I know nothing on
-programming ethernet card, I know nothing on patching device drivers; I
-just looked at other drivers, picked function calls that had nice looking
-names and put them together in ne2k_pci.c. Miraculously, it works.
+Generic access allowing such things is fine; but only if we can grant
+non-generic access without granting generic access.
 
-Do you think it could get in ?
+> 
+> >  * You can't open the device unless there is media in the drive
+> 
+> False, you use O_NONBLOCK.
 
-Éric Brunet
+Thanks, I didn't know about this one -- works great :)
 
---- ne2k-pci.c.orig	2004-07-20 22:15:30.000000000 +0200
-+++ ne2k-pci.c	2004-07-31 19:48:38.000000000 +0200
-@@ -653,12 +653,43 @@
- 	pci_set_drvdata(pdev, NULL);
- }
- 
-+#ifdef CONFIG_PM
-+static int ne2k_pci_suspend (struct pci_dev *pdev, u32 state)
-+{
-+	struct net_device *dev = pci_get_drvdata (pdev);
-+
-+	netif_device_detach(dev);
-+	ne2k_pci_close(dev);
-+	ne2k_pci_reset_8390(dev);
-+	pci_set_power_state (pdev, state);
-+
-+	return 0;
-+}
-+static int ne2k_pci_resume (struct pci_dev *pdev)
-+{
-+	struct net_device *dev = pci_get_drvdata (pdev);
-+
-+	pci_set_power_state(pdev, 0);
-+	ne2k_pci_reset_8390(dev);
-+	ne2k_pci_open(dev);
-+	netif_device_attach(dev);
-+
-+	return 0;
-+}
-+
-+#endif /* CONFIG_PM */
-+
- 
- static struct pci_driver ne2k_driver = {
- 	.name		= DRV_NAME,
- 	.probe		= ne2k_pci_init_one,
- 	.remove		= __devexit_p(ne2k_pci_remove_one),
- 	.id_table	= ne2k_pci_tbl,
-+#ifdef CONFIG_PM
-+	.suspend	= ne2k_pci_suspend,
-+	.resume		= ne2k_pci_resume,
-+#endif /* CONFIG_PM */
-+
- };
- 
- 
+
+> 
+[snip stuff about scatter gather/manual dma]
+> 
+> -- 
+> Jens Axboe
+
+-- 
+Zinx Verituse                                    http://zinx.xmms.org/

@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261377AbTCOKKh>; Sat, 15 Mar 2003 05:10:37 -0500
+	id <S261379AbTCOKZa>; Sat, 15 Mar 2003 05:25:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261378AbTCOKKh>; Sat, 15 Mar 2003 05:10:37 -0500
-Received: from comtv.ru ([217.10.32.4]:29347 "EHLO comtv.ru")
-	by vger.kernel.org with ESMTP id <S261377AbTCOKKg>;
-	Sat, 15 Mar 2003 05:10:36 -0500
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: ext2-devel@lists.sourceforge.net, Andrew Morton <akpm@digeo.com>
-Subject: [PATCH] remove BKL from ext2's readdir
-From: Alex Tomas <bzzz@tmi.comex.ru>
-Organization: HOME
-Date: 15 Mar 2003 13:13:20 +0300
-Message-ID: <m3vfyluedb.fsf@lexa.home.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S261380AbTCOKZa>; Sat, 15 Mar 2003 05:25:30 -0500
+Received: from packet.digeo.com ([12.110.80.53]:28296 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261379AbTCOKZ3>;
+	Sat, 15 Mar 2003 05:25:29 -0500
+Date: Sat, 15 Mar 2003 02:36:14 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Alex Tomas <bzzz@tmi.comex.ru>
+Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
+Subject: Re: [PATCH] remove BKL from ext2's readdir
+Message-Id: <20030315023614.3e28e67b.akpm@digeo.com>
+In-Reply-To: <m3vfyluedb.fsf@lexa.home.net>
+References: <m3vfyluedb.fsf@lexa.home.net>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 15 Mar 2003 10:36:04.0913 (UTC) FILETIME=[AE629210:01C2EADE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alex Tomas <bzzz@tmi.comex.ru> wrote:
+>
+> 
+> hi!
+> 
+> I took a look at readdir() in 2.5.64's ext2 and found it serialized by BKL.
 
-hi!
+Yes, I had this in -mm for ages, seem to have lost it.  Also removal of BKL
+from lseek().
 
-I took a look at readdir() in 2.5.64's ext2 and found it serialized by BKL.
-As far as I see in sources, there is no need in this BKL. So, here is small
-patch and some benchmarks. of course, the result was expected pretty much ;)
+The theory is that the lock is there to avoid f_pos races against lseek.  We
+ended up deciding that the way to address this is to ensure that all readdir
+implementations do:
 
+foo_readdir()
+{
+	loff_t pos = file->f_pos;
 
-             500         1000
-readdir+BKL: 0m11.793s   0m23.403s
-readdir-BKL: 0m6.060s    0m12.113s
+	....
+	<code which doesn't touch file->f_pos, but which modifies pos>
+	...
 
-description: two processes read own dir populated by files (500 and 1000 files).
-this repeats for 100000 times. the iron is dual 1GHz P3.
+	file->f_pos = pos;
+}
 
-
-diff -uNr linux/fs/ext2/dir.c edited/fs/ext2/dir.c
---- linux/fs/ext2/dir.c	Sat Mar 15 13:08:24 2003
-+++ edited/fs/ext2/dir.c	Sat Mar 15 13:08:11 2003
-@@ -259,8 +259,6 @@
- 	int need_revalidate = (filp->f_version != inode->i_version);
- 	int ret = 0;
- 
--	lock_kernel();
--
- 	if (pos > inode->i_size - EXT2_DIR_REC_LEN(1))
- 		goto done;
- 
-@@ -313,7 +311,6 @@
- 	filp->f_pos = (n << PAGE_CACHE_SHIFT) | offset;
- 	filp->f_version = inode->i_version;
- 	UPDATE_ATIME(inode);
--	unlock_kernel();
- 	return 0;
- }
- 
+ext2 does this right and does not need the lock_kernel().  Once all
+filesystems have been audited (and, if necessary, fixed) we can remove the
+BKL from lseek also.
 

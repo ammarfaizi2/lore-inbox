@@ -1,34 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319042AbSHFKQ3>; Tue, 6 Aug 2002 06:16:29 -0400
+	id <S319040AbSHFKOP>; Tue, 6 Aug 2002 06:14:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319043AbSHFKQ2>; Tue, 6 Aug 2002 06:16:28 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:57035 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S319042AbSHFKQ2>;
-	Tue, 6 Aug 2002 06:16:28 -0400
-Date: Tue, 06 Aug 2002 03:07:13 -0700 (PDT)
-Message-Id: <20020806.030713.67380565.davem@redhat.com>
-To: abraham@2d3d.co.za
-Cc: thockin@hockin.org, jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org
-Subject: Re: ethtool documentation
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020806121751.A26908@crystal.2d3d.co.za>
-References: <3D4E9CE4.8060808@mandrakesoft.com>
-	<200208051906.g75J6d122986@www.hockin.org>
-	<20020806121751.A26908@crystal.2d3d.co.za>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S319041AbSHFKOP>; Tue, 6 Aug 2002 06:14:15 -0400
+Received: from mnh-1-28.mv.com ([207.22.10.60]:12292 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S319040AbSHFKOO>;
+	Tue, 6 Aug 2002 06:14:14 -0400
+Message-Id: <200208061120.GAA01735@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+Cc: rz@linux-m68k.org, alan@redhat.com, mingo@elte.hu,
+       linux-kernel@vger.kernel.org
+Subject: Re: context switch vs. signal delivery [was: Re: Accelerating user mode 
+In-Reply-To: Your message of "Tue, 06 Aug 2002 10:10:59 +0200."
+             <20020806101059.51ae728d.us15@os.inf.tu-dresden.de> 
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 06 Aug 2002 06:20:52 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Abraham vd Merwe <abraham@2d3d.co.za>
-   Date: Tue, 6 Aug 2002 12:17:51 +0200
-   
-   Wtf is coalescing parameters? These commands aren't even defined in the
-   2.4.18 kernel headers. Is this 2.5.xx additions?
-   
-   Same goes for the following commands:
+us15@os.inf.tu-dresden.de said:
+>                         if (current->pgrp != -arg &&
+>                                 current->pid != arg &&
+>                                 !capable(CAP_KILL)) return(-EPERM); 
 
-They are all in 2.4.19
+What's the problem here?  This will let UML do F_SETOWN as well.
+
+				Jeff
+

@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269439AbUJSOxR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269435AbUJSO5M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269439AbUJSOxR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 10:53:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269458AbUJSOxQ
+	id S269435AbUJSO5M (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 10:57:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269448AbUJSO5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 10:53:16 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54918 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S269439AbUJSOwz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 10:52:55 -0400
-Message-ID: <41752A38.4080107@pobox.com>
-Date: Tue, 19 Oct 2004 10:52:40 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Tue, 19 Oct 2004 10:57:12 -0400
+Received: from lucidpixels.com ([66.45.37.187]:32901 "HELO lucidpixels.com")
+	by vger.kernel.org with SMTP id S269435AbUJSO5D (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 10:57:03 -0400
+Date: Tue, 19 Oct 2004 10:57:02 -0400 (EDT)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p500
+To: Jesse Stockall <stockall@magma.ca>
+cc: nvidia@nl.linux.org, linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.6.9 breaks NVidia module, cannot start X.
+In-Reply-To: <1098197596.5339.10.camel@homer.blizzard.org>
+Message-ID: <Pine.LNX.4.61.0410191056030.10356@p500>
+References: <Pine.LNX.4.61.0410191040270.8554@p500> <1098197596.5339.10.camel@homer.blizzard.org>
 MIME-Version: 1.0
-To: Mark Haverkamp <markh@osdl.org>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Re: Weird... 2.6.9 kills FC2 gcc
-References: <4174697B.90306@pobox.com> <1098150587.1384.0.camel@peabody>	 <41747A28.2000101@pobox.com>  <41748A9D.2080306@pobox.com> <1098197339.1278.0.camel@markh1.pdx.osdl.net>
-In-Reply-To: <1098197339.1278.0.camel@markh1.pdx.osdl.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Haverkamp wrote:
-> On Mon, 2004-10-18 at 23:31 -0400, Jeff Garzik wrote:
-> 
->>More data points:
->>
->>No problems at all on x86-64.
->>
->>No ICE on 32-bit x86 gcc 3.4.2, with 2.6.9 release kernel.
->>
->>So this ICE appears to be a bug specific to 3.3.x or perhaps Fedora.
->>
->>	Jeff
->>
-> 
-> 
-> I tried building this on FC3 with a 3.4.2 gcc and it compiles OK.
+Thanks, it is now working!
+
+   PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+   493 root      15   0  287m  27m 272m S  9.0  1.3   0:09.83 X
+
+$ uname -a
+Linux box 2.6.9 #2 SMP Tue Oct 19 10:51:55 EDT 2004 i686 unknown unknown 
+GNU/Linux
 
 
-Yeah, it looks like 3.3.x from FC2 and Debian both ICE, but 3.4.x (from 
-any sources) is OK.
+On Tue, 19 Oct 2004, Jesse Stockall wrote:
 
-	Jeff
-
-
+> On Tue, 2004-10-19 at 10:42, Justin Piszcz wrote:
+>> # dmesg
+>> nvidia: module license 'NVIDIA' taints kernel.
+>> nvidia: Unknown symbol __VMALLOC_RESERVE
+>> nvidia: Unknown symbol __VMALLOC_RESERVE
+>>
+>
+> Try
+>
+> http://ck.kolivas.org/patches/2.6/2.6.9/2.6.9-ck1/patches/nvidia_compat.diff
+>
+> Jesse
+>
+>

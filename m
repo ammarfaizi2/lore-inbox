@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264046AbRFNUwT>; Thu, 14 Jun 2001 16:52:19 -0400
+	id <S264033AbRFNUvt>; Thu, 14 Jun 2001 16:51:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264053AbRFNUwJ>; Thu, 14 Jun 2001 16:52:09 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:21516 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S264046AbRFNUvz>; Thu, 14 Jun 2001 16:51:55 -0400
-Date: Thu, 14 Jun 2001 17:51:49 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: John Stoffel <stoffel@casc.com>
-Cc: Roger Larsson <roger.larsson@norran.net>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.6-pre2, pre3 VM Behavior
-In-Reply-To: <15145.8435.312548.682190@gargle.gargle.HOWL>
-Message-ID: <Pine.LNX.4.33.0106141750260.28370-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264031AbRFNUvj>; Thu, 14 Jun 2001 16:51:39 -0400
+Received: from intranet.resilience.com ([209.245.157.33]:63654 "EHLO
+	intranet.resilience.com") by vger.kernel.org with ESMTP
+	id <S264033AbRFNUv0>; Thu, 14 Jun 2001 16:51:26 -0400
+Mime-Version: 1.0
+Message-Id: <p05100301b74ed3224ec5@[10.128.7.49]>
+In-Reply-To: <15145.2693.704919.651626@pizda.ninka.net>
+In-Reply-To: <3B273A20.8EE88F8F@vnet.ibm.com>
+ <3B28C6C1.3477493F@mandrakesoft.com>
+ <15144.51504.8399.395200@pizda.ninka.net>
+ <p0510030eb74ea25caa73@[207.213.214.37]>
+ <15145.2693.704919.651626@pizda.ninka.net>
+Date: Thu, 14 Jun 2001 13:50:47 -0700
+To: "David S. Miller" <davem@redhat.com>
+From: Jonathan Lundell <jlundell@pobox.com>
+Subject: Re: Going beyond 256 PCI buses
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, Tom Gall <tom_gall@vnet.ibm.com>,
+        linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Jun 2001, John Stoffel wrote:
-
-> That could be handled by a metric which says if the disk is spun down,
-> wait until there is more memory pressure before writing.  But if the
-> disk is spinning, we don't care, you should start writing out buffers
-> at some low rate to keep the pressure from rising too rapidly.
+At 12:03 PM -0700 2001-06-14, David S. Miller wrote:
+>Jonathan Lundell writes:
+>  > As I recall, even a midline chipset such as the ServerWorks LE
+>  > supports the use of two north bridges, which implies two PCI bus
+>  > domains.
 >
-> The idea of buffers is more to keep from overloading the disk
-> subsystem with IO, not to stop IO from happening at all.  And to keep
-> it from going from no IO to full out stalling the system IO.  It
-> should be a nice line as VM pressure goes up, buffer flushing IO rate
-> goes up as well.
+>It hides this fact by making config space accesses respond in such a
+>way that it appears that it is all behind one PCI controller.  The
+>BIOS even avoids allowing any of the MEM and I/O resources from
+>overlapping.
 
-There's another issue.  If dirty data is written out in
-small bunches, that means we have to write out the dirty
-data more often.
-
-This in turn means extra disk seeks, which can horribly
-interfere with disk reads.
-
-regards,
-
-Rik
---
-Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
-
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
-
+So we end up with a single domain and max 256 buses. Still, it's not 
+behavior one can count on. Sun's U2P PCI controller certainly creates 
+a new PCI domain for each controller. It's easier in architectures 
+other than IA32, in a way, since they typically don't have the 64KB 
+IO-space addressing limitation that makes heavily bridged systems 
+problematical on IA32 (one tends to run out of IO space).
+-- 
+/Jonathan Lundell.

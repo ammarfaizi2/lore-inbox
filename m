@@ -1,32 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283480AbRLDVEK>; Tue, 4 Dec 2001 16:04:10 -0500
+	id <S283507AbRLDVGA>; Tue, 4 Dec 2001 16:06:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281180AbRLDVDp>; Tue, 4 Dec 2001 16:03:45 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:29959 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S281225AbRLDVCW>; Tue, 4 Dec 2001 16:02:22 -0500
-Subject: Re: hints at modifying kswapd params in 2.4.16
-To: sven@research.nj.nec.com (Sven Heinicke)
-Date: Tue, 4 Dec 2001 21:11:24 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        sven@research.nj.nec.com (Sven Heinicke), linux-kernel@vger.kernel.org
-In-Reply-To: <15373.13379.382015.406274@abasin.nj.nec.com> from "Sven Heinicke" at Dec 04, 2001 03:38:27 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S281555AbRLDVFq>; Tue, 4 Dec 2001 16:05:46 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:37138 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S281202AbRLDVF0>; Tue, 4 Dec 2001 16:05:26 -0500
+Date: Tue, 4 Dec 2001 21:03:38 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+Cc: David Woodhouse <dwmw2@infradead.org>, Christoph Rohland <cr@sap.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Maciej Zenczykowski <maze@druid.if.uj.edu.pl>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [OT] Wrapping memory.
+Message-ID: <20011204210338.C19783@flint.arm.linux.org.uk>
+In-Reply-To: <m3r8qcagt7.fsf@linux.local> <E16AIZ8-0008Re-00@the-village.bc.nu> <12969.1007315617@redhat.com> <m3r8qcagt7.fsf@linux.local> <25163.1007370678@redhat.com> <20011204104047.A18147@flint.arm.linux.org.uk> <20011204163950.B28839@kushida.jlokier.co.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16BMqa-0003V2-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011204163950.B28839@kushida.jlokier.co.uk>; from lk@tantalophile.demon.co.uk on Tue, Dec 04, 2001 at 04:39:50PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The first system I tried was Red Hat 7.1, it never used more then 2G
-> of cache memory leaving the other 2G free.
-> 
-> The other system, Mandrake 8.0, sucks up all the 4G of memory with
-> cache but has not yet shown any signs of thrashing.  Though the code
-> has only been running a few hours.
+On Tue, Dec 04, 2001 at 04:39:50PM +0000, Jamie Lokier wrote:
+> Unfortunately, the update_mmu_cache makes aliasing work properly while
+> ruining performence, so then it's better to not to use the mapping trick
+> at all in that case.  To check for this, I have to call gettimeofday()
+> between pairs of accesses, to check whether they are slow.  I don't know
+> for sure if this works because I don't have an ARM to try it on.
 
-The RH 7.1 tree is 2.4.2-ac based and certainly wont behave well under some
-loads.
+Why not create a program and email it to someone with an ARM machine?
+
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

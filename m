@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268954AbRHLE7X>; Sun, 12 Aug 2001 00:59:23 -0400
+	id <S268958AbRHLFT1>; Sun, 12 Aug 2001 01:19:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268957AbRHLE7N>; Sun, 12 Aug 2001 00:59:13 -0400
-Received: from ppp42.ts4-2.NewportNews.visi.net ([209.8.198.234]:36349 "EHLO
-	blimpo.internal.net") by vger.kernel.org with ESMTP
-	id <S268954AbRHLE7I>; Sun, 12 Aug 2001 00:59:08 -0400
-Date: Sun, 12 Aug 2001 00:58:51 -0400
-From: Ben Collins <bcollins@debian.org>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Andrew Morton <akpm@zip.com.au>, ext3-users@redhat.com,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: ext3-2.4-0.9.6
-Message-ID: <20010812005850.T30381@visi.net>
-In-Reply-To: <3B75DE86.EEDFAFFB@zip.com.au>, <3B75DE86.EEDFAFFB@zip.com.au> <20010811184640.B17435@cpe-24-221-152-185.az.sprintbbd.net> <3B75E1F9.2BF5D4B6@zip.com.au>, <3B75E1F9.2BF5D4B6@zip.com.au> <20010811191539.C17435@cpe-24-221-152-185.az.sprintbbd.net> <3B75E9E3.FAAF05CC@zip.com.au> <20010811194744.B17668@cpe-24-221-152-185.az.sprintbbd.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <20010811194744.B17668@cpe-24-221-152-185.az.sprintbbd.net>; from trini@kernel.crashing.org on Sat, Aug 11, 2001 at 07:47:44PM -0700
+	id <S268961AbRHLFTS>; Sun, 12 Aug 2001 01:19:18 -0400
+Received: from neon-gw.transmeta.com ([63.209.4.196]:63503 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S268958AbRHLFTL>; Sun, 12 Aug 2001 01:19:11 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Booting from USB floppy?
+Date: 11 Aug 2001 22:19:05 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9l53k9$b4q$1@cesium.transmeta.com>
+In-Reply-To: <E15VlgK-0005GO-00@trixia.ai.mit.edu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 11, 2001 at 07:47:44PM -0700, Tom Rini wrote:
-> On Sat, Aug 11, 2001 at 07:28:51PM -0700, Andrew Morton wrote:
-> > Well, LILO works OK with an unclean ext3 FS because it goes straight to
-> > the underlying blocks.  If both grub and OF parse the superblock compatibility
-> > bits then they could fail in this manner.
+Followup to:  <E15VlgK-0005GO-00@trixia.ai.mit.edu>
+By author:    Chris Hanson <cph@zurich.ai.mit.edu>
+In newsgroup: linux.dev.kernel
+>
+> I have been trying to build Debian 2.2 boot/root floppies for the HP
+> OmniBook 500 laptop, which (in some configurations) has only a USB
+> floppy drive.  I've been unable to get the kernel to load the root
+> floppy.  These tests were done using Linux 2.4.6.
 > 
-> Both GRUB and yaboot can read directly from the fs.  It's possible to boot
-> a kernel right out of OF from an HFS partition (which I had to do to get
-> the box up again).  It might be worth documenting this someplace.
+> At this point, I think this isn't possible without some real work in
+> the kernel.  I'd like to get some feedback about whether this is a
+> correct deduction.  To that end, here is my analysis.
+> 
 
-Same goes for SILO too. Not sure if SILO even works with ext3 right now
-(uses libext2fs, so I assume so).
+Basically, this is yet another reason why THE FLOPPY DRIVE MAGIC
+STUFF IN THE KERNEL IS OBSOLETE AND BROKEN.  There is absolutely no
+sane reason to keep that crap around; the only sane way is to have an
+initrd or similar thing (like viro's initramfs) set up a ramfs
+initialized from whatever; the floppy stuff in the kernel should just
+be nuked.
 
-Ben
-
+	-hpa
 -- 
- .----------=======-=-======-=========-----------=====------------=-=-----.
-/  Ben Collins  --  ...on that fantastic voyage...  --  Debian GNU/Linux   \
-`  bcollins@debian.org  --  bcollins@openldap.org  --  bcollins@linux.com  '
- `---=========------=======-------------=-=-----=-===-======-------=--=---'
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

@@ -1,66 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261844AbTEKS23 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 14:28:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261845AbTEKS23
+	id S261845AbTEKSgO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 14:36:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261849AbTEKSgO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 14:28:29 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:26959 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP id S261844AbTEKS2Z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 14:28:25 -0400
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-Subject: Re: bug on shutdown from 68-mm4 (machine_power_off returning causes problems)
-References: <8570000.1052623548@[10.10.2.4]>
-	<20030510224421.3347ea78.akpm@digeo.com>
-	<8880000.1052624174@[10.10.2.4]>
-	<20030510231120.580243be.akpm@digeo.com>
-	<12530000.1052664451@[10.10.2.4]>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 11 May 2003 12:37:48 -0600
-In-Reply-To: <12530000.1052664451@[10.10.2.4]>
-Message-ID: <m17k8x72ir.fsf_-_@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	Sun, 11 May 2003 14:36:14 -0400
+Received: from havoc.daloft.com ([64.213.145.173]:12710 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S261845AbTEKSgN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 14:36:13 -0400
+Date: Sun, 11 May 2003 14:48:55 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [BK+PATCH] mention useful BK tip
+Message-ID: <20030511184855.GA14317@gtf.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com> writes:
 
-> >> >> Sorry if this is old news, haven't been paying attention for a week.
-> >> >>  Bug on shutdown (just after it says "Power Down") from 68-mm4.
-> >> >>  (the NUMA-Q).
-> >> > 
-> >> > Random guess: is it related to CONFIG_KEXEC?
-> >> 
-> >> Don't think so - I don't have that enabled. Config file is attatched.
-> > 
-> > It doesn't matter - the kexec patch tends to futz with stuff like that
-> > regardless of CONFIG_KEXEC.
-> > 
-> > It doesn't happen here.  Could you please retest without the kexec
-> > patch applied?
-> 
-> Yup, backing out kexec fixes it.
+Linus, please do a
+
+	bk pull bk://kernel.bkbits.net/jgarzik/misc-2.5
+
+This will update the following files:
+
+ Documentation/BK-usage/bk-kernel-howto.txt |    8 ++++++++
+ 1 files changed, 8 insertions(+)
+
+through these ChangeSets:
+
+<jgarzik@redhat.com> (03/05/11 1.1105)
+   [bk] add useful tip to bk kernel howto
+   
+   Kudos to Wayne Scott @ BitMover for this.
 
 
-Ok.  Thinking it through the differences is that I have machine_power_off
-call stop_apics (which is roughly equivalent to the old smp_send_stop).
 
-In the kexec patch that does 2 things.
-1) It shuts down the secondary cpus, and returns the bootstrap cpu to
-   virtual wire mode. 
-2) It calls set_cpus_allowed to force the reboot to be on the primary
-   cpu.
-
-After returning from machine_power_off. We run into a problem
-in flush_tlb_mm.  Because we have a cpu disabled, that is still part
-of the mm's vm mask.
-
-Does anyone know why machine_halt, and machine_power_off return?
-
-If not I am just going to disable the return path.
-
-Eric
+diff -Nru a/Documentation/BK-usage/bk-kernel-howto.txt b/Documentation/BK-usage/bk-kernel-howto.txt
+--- a/Documentation/BK-usage/bk-kernel-howto.txt	Sun May 11 14:48:13 2003
++++ b/Documentation/BK-usage/bk-kernel-howto.txt	Sun May 11 14:48:13 2003
+@@ -273,3 +273,11 @@
+ A tag is just an alias for a specific changeset... and since changesets
+ are ordered, a tag is thus a marker for a specific point in time (or
+ specific state of the tree).
++
++
++3) Is there an easy way to generate One Big Patch versus mainline,
++   for my long-lived kernel branch?
++A. Yes.  This requires BK 3.x, though.
++
++	bk export -tpatch -r`bk repogca bk://linux.bkbits.net/linux-2.5`,+
++

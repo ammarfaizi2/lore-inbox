@@ -1,47 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267199AbUBRRjc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 12:39:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267236AbUBRRjb
+	id S268100AbUBRVKs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 16:10:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268103AbUBRVKr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 12:39:31 -0500
-Received: from stat1.steeleye.com ([65.114.3.130]:25100 "EHLO
-	fenric.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S267199AbUBRRja (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 12:39:30 -0500
-Message-ID: <4033A33F.FF279C05@SteelEye.com>
-Date: Wed, 18 Feb 2004 12:39:11 -0500
-From: Paul Clements <Paul.Clements@SteelEye.com>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.2.13 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: nbd oops on unload.
-References: <20040217224700.GE6242@redhat.com> <4032FF7D.55D9935B@SteelEye.com> <20040218071752.GB27190@suse.de>
+	Wed, 18 Feb 2004 16:10:47 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:27405 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S268100AbUBRVKq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 16:10:46 -0500
+Date: Wed, 18 Feb 2004 21:10:35 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+Cc: Arjan van de Ven <arjanv@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       hch@infradead.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: Non-GPL export of invalidate_mmap_range
+Message-ID: <20040218211035.A13866@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"Paul E. McKenney" <paulmck@us.ibm.com>,
+	Arjan van de Ven <arjanv@redhat.com>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org
+References: <20040216190927.GA2969@us.ibm.com> <20040217073522.A25921@infradead.org> <20040217124001.GA1267@us.ibm.com> <20040217161929.7e6b2a61.akpm@osdl.org> <1077108694.4479.4.camel@laptop.fenrus.com> <20040218140021.GB1269@us.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040218140021.GB1269@us.ibm.com>; from paulmck@us.ibm.com on Wed, Feb 18, 2004 at 06:00:21AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
+On Wed, Feb 18, 2004 at 06:00:21AM -0800, Paul E. McKenney wrote:
+> There is a small shim layer required, but the bulk of the code
+> implementing GPFS is common between AIX and Linux.  It was on AIX
+> first by quite a few years.
+
+Small glue layer?  Unfortunately ibm took it off the website, but
+the thing is damn huge.
+
+> > it only uses "core unix" apis ?
 > 
-> On Wed, Feb 18 2004, Paul Clements wrote:
-> > Dave Jones wrote:
-> > >
-> > > modprobe nbd ; rmmod nbd  was enough to reproduce this one..
-> > > (2.6.3rc4)
-> >
-> > hmmm...I'll look into it...out of curiosity, are you using any "unusual"
-> > kernel config options? I've done the same test myself many times and
-> > have not seen any problems...
+> If they are made available, yes.  That is the point of this patch,
+> after all.  ;-)
+
+No, that's wrong.  It patches the syscall table and plays evilish
+tricks with lowlevel MM code.
+
+> > It doesn't require knowledge of deep and changing internals ? *buzz*
 > 
-> It looks like 'the usual' 'several devices sharing a queue' oops on
-> unload.
+> That is indeed the idea.
 
-Ahh, cleanup was being done in the wrong order.
+The one on the ibm website a little ago did.  You're free to upload
+a new one that clearly doesn't need all this, but..
 
-Patch coming shortly...
 
---
-Paul

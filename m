@@ -1,34 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285621AbRLNXGE>; Fri, 14 Dec 2001 18:06:04 -0500
+	id <S277918AbRLNXJl>; Fri, 14 Dec 2001 18:09:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285576AbRLNXFx>; Fri, 14 Dec 2001 18:05:53 -0500
-Received: from se1.cogenit.fr ([195.68.53.173]:16527 "EHLO cogenit.fr")
-	by vger.kernel.org with ESMTP id <S285573AbRLNXFh>;
-	Fri, 14 Dec 2001 18:05:37 -0500
-Date: Sat, 15 Dec 2001 00:05:34 +0100
-From: Francois Romieu <romieu@cogenit.fr>
-To: Xavier Bestel <xavier.bestel@free.fr>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: freeze (2.4.17-pre/rc + Promise 20265)
-Message-ID: <20011215000534.A3993@se1.cogenit.fr>
-In-Reply-To: <20011214231932.A2949@se1.cogenit.fr> <1008369045.1793.46.camel@nomade>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1008369045.1793.46.camel@nomade>; from xavier.bestel@free.fr on Fri, Dec 14, 2001 at 11:30:44PM +0100
-X-Organisation: Marie's fan club - II
+	id <S280191AbRLNXJd>; Fri, 14 Dec 2001 18:09:33 -0500
+Received: from mail.vasoftware.com ([198.186.202.175]:24266 "EHLO
+	mail.vasoftware.com") by vger.kernel.org with ESMTP
+	id <S285574AbRLNXJI>; Fri, 14 Dec 2001 18:09:08 -0500
+Date: Fri, 14 Dec 2001 15:11:03 -0800 (PST)
+From: Amy Abascal-Turner <amy@vasoftware.com>
+To: <linux-kernel@vger.kernel.org>
+cc: Josh Neal <jneal@vasoftware.com>
+Subject: Re: TLB IPI Wait Errors & APIC interrupt handling
+In-Reply-To: <Pine.LNX.4.30.0112141420380.22243-100000@beefcake.hdqt.vasoftware.com>
+Message-ID: <Pine.LNX.4.30.0112141510530.22243-100000@beefcake.hdqt.vasoftware.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Xavier Bestel <xavier.bestel@free.fr> :
-> Click left mouse button to restart and disable ACPI
+Oh, I should mention that they're using 2.2.19
 
-Nothing changed.
+--
+Amy Abascal-Turner                   510-687-6741
+Sr. Mgr. Product Support       amy@vasoftware.com
+VA SOFTWARE CORP.       http://www.vasoftware.com
+-------------------------------------------------
 
-<head scratch>
-What makes you believe there's X on this machine ?
+On Fri, 14 Dec 2001, Amy Abascal-Turner wrote:
 
--- 
-Ueimor
+> Hi!
+>
+> VA Linux (Software) is in dire need of some kernel help.
+> If you know anything about TLB IPI and/or APIC interrupt
+> handling, we will gladly pay well for your expertise and
+> time.  We need the help on a very short timeline.
+>
+> A brief description of the problem is below.  Please email
+> me or call me at 408-621-7054 (or the number below) if you
+> can help or would like further details.
+>
+> Thanks!
+>
+> Amy
+> --
+> Amy Abascal-Turner                   510-687-6741
+> Sr. Mgr. Product Support       amy@vasoftware.com
+> VA SOFTWARE CORP.       http://www.vasoftware.com
+> -------------------------------------------------
+>
+> Brief History
+>
+> A scientific computing cluster of 600 VA 1220s has been
+> experiencing various problems under heavy loading
+> conditions under production scenarios.  VA engineers have
+> been dedicated to identifying and solving these problems
+> and although the situation has vastly improved, it is
+> still not completely resolved.  The primary issue
+> remaining is random rebooting in SMP mode contributing to
+> instability as a cluster.
+>
+> Technical Problems
+>
+> Random Reboots:
+> "TLB IPI Wait" errors, possibly indicative of kernel
+> deadlock.  This will require kernel-development expertise
+> to resolve.
+>
+> Reboots possibly indicative of APIC interrupt handling
+> which will require kernel development expertise to
+> resolve.
+>
+> Internal Clock Skew:  resolved on by replacing motherboard
+> on most nodes experiencing problem.  Suspect that some
+> clock problems are side-effects of the APIC/TLB issues
+> noted.
+>
+> Resolution
+>
+> In order to resolve the Reboot / TLB/IPI issues, the
+> expertise of a kernel developer is required.  We are
+> currently identifying resources to contract with to
+> analyze the problem(s) and implement a solution.
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

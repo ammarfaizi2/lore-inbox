@@ -1,62 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271824AbTG2PbV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 11:31:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271837AbTG2PbV
+	id S271748AbTG2PaO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 11:30:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271811AbTG2PaN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 11:31:21 -0400
-Received: from washoe.rutgers.edu ([165.230.95.67]:50829 "EHLO
-	washoe.rutgers.edu") by vger.kernel.org with ESMTP id S271824AbTG2PbP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 11:31:15 -0400
-Date: Tue, 29 Jul 2003 11:31:14 -0400
-From: Yaroslav Halchenko <yoh@onerussian.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test2-bk3 phantom I/O errors
-Message-ID: <20030729153114.GA30071@washoe.rutgers.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Tue, 29 Jul 2003 11:30:13 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:25105 "HELO
+	kinesis.swishmail.com") by vger.kernel.org with SMTP
+	id S271748AbTG2PaI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 11:30:08 -0400
+Message-ID: <3F26957E.7040204@techsource.com>
+Date: Tue, 29 Jul 2003 11:40:46 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Daniel Phillips <phillips@arcor.de>
+CC: Andrew Morton <akpm@osdl.org>, ed.sweetman@wmich.edu,
+       eugene.teo@eugeneteo.net, linux-kernel@vger.kernel.org,
+       kernel@kolivas.org
+Subject: Re: Ingo Molnar and Con Kolivas 2.6 scheduler patches
+References: <1059211833.576.13.camel@teapot.felipe-alfaro.com> <200307271517.55549.phillips@arcor.de> <3F267CF9.40500@techsource.com> <200307300946.41674.phillips@arcor.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Just want to confirm that problem described by Sander
-http://marc.theaimsgroup.com/?l=linux-kernel&m=105935020525253
-persist on my system since test1-bk2 version as well. And it reveals
-itself usually under some specific load of hdd I/O - in my case
-usually it is running 'dselect' or 'dpkg -i' with an attempt to install/remove
-packages. Then software says something about error in some data file and
-syslog bears the signs of errors:
-Buffer I/O error on device hda2, logical block 3861502
-Buffer I/O error on device hda2, logical block 3861504
-Buffer I/O error on device hda2, logical block 3861506
 
-My system is laptop vaio PCG-P505TS running Debian unstable
-Linux kernel 2.6.0-test2
+Daniel Phillips wrote:
 
-I provide links (to don't thrust the mailing list) to my 
-.config: 
-http://www.onerussian.com/linux.bug/config-2.6.0-test2
+> 
+> In the meantime, the SCHED_SOFTRR proposal provides a way of closely 
+> approximating the above behaviour without being intrusive or 
+> application-specific.
+> 
 
-dmesg:
-http://www.onerussian.com/linux.bug/dmesg.log
 
-dmesg bears also signs about 
-buffer layer error at fs/buffer.c:416
-Call Trace:
- [<c0154f30>] __find_get_block_slow+0x80/0xe0
- [<c0155f51>] __find_get_block+0x91/0xf0
+And there are obvious benefits to keeping things application-general.
 
-which I've not mentioned before so I don't know if they are relevant to
-the problem
+IF it's possible to intelligently determine interactivity and other such 
+things, and lots of impressive progress is being made in that area, then 
+that is definately preferable.  But there may be some circumstances 
+where we simply cannot determine need from application behavior.
 
-Thanx for your help/support
+It might help to have an API for real-time processes that is accessible 
+by non-root tasks.  If a task sets itself to real-time, its scheduling 
+is more predictable, but it gets a shorter timeslice (perhaps) so that 
+being real-time doesn't adversely impact the system when abused.
 
-                                  .-.
-=------------------------------   /v\  ----------------------------=
-Keep in touch                    // \\     (yoh@|www.)onerussian.com
-Yaroslav Halchenko              /(   )\               ICQ#: 60653192
-                   Linux User    ^^-^^    [175555]
+The nice thing about the smart schedulers is that (a) no one has to 
+change their apps (although they can tweak to cooperate better), and (b) 
+future apps will behave well without us having to anticipate anything.
+

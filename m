@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266840AbSLJWNm>; Tue, 10 Dec 2002 17:13:42 -0500
+	id <S266712AbSLJWQG>; Tue, 10 Dec 2002 17:16:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266908AbSLJWNm>; Tue, 10 Dec 2002 17:13:42 -0500
-Received: from irongate.swansea.linux.org.uk ([194.168.151.19]:12737 "EHLO
+	id <S266772AbSLJWQG>; Tue, 10 Dec 2002 17:16:06 -0500
+Received: from irongate.swansea.linux.org.uk ([194.168.151.19]:14017 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266840AbSLJWNl>; Tue, 10 Dec 2002 17:13:41 -0500
-Subject: Re: Oops on linux 2.4.20-ac1
+	id <S266712AbSLJWQF>; Tue, 10 Dec 2002 17:16:05 -0500
+Subject: Re: new driver to replace LMC
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Orion Poplawski <orion@cora.nwra.com>
+To: david linux <davidslinuxpob@yahoo.com>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3DF6291C.3090100@cora.nwra.com>
-References: <3DF6291C.3090100@cora.nwra.com>
+In-Reply-To: <20021210183330.37724.qmail@web14602.mail.yahoo.com>
+References: <20021210183330.37724.qmail@web14602.mail.yahoo.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 10 Dec 2002 21:00:18 +0000
-Message-Id: <1039554145.14175.70.camel@irongate.swansea.linux.org.uk>
+Date: 10 Dec 2002 20:55:41 +0000
+Message-Id: <1039553862.14251.62.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-12-10 at 17:49, Orion Poplawski wrote:
-> I've been having a number of issues, mostly system lockups, with a 
-> machine of ours - a dual proc athlon.  I've removed some hardware and I 
+On Tue, 2002-12-10 at 18:33, david linux wrote:
+> I'd be happy to submit the new driver (at least the
+> replacement for the stale stuff being passed around)
+> to be wrapped in new kernel versions ... but I don't
+> know who would be best to write re this subject.
 
-Random lockups on dual athlons are a notorious problem under all OS's.
-Start by checking it passes memtest86, that will verify the RAM is ok -
-and the AMD is -very- picky about RAM.
+The core maintainers are
+	Linus Torvalds for 2.5
+	Marcelo Tosatti for 2.4
+	Alan Cox (me) for 2.2
 
-If thats ok then let me know which board you have, what is plugged into
-it and what PSU you are using.
-
+For 2.2 I prefer to take only minimal bug fixes since its designed to be
+as stable as humanly possible.
 

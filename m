@@ -1,104 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261395AbULHXYW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261403AbULHX01@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261395AbULHXYW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 18:24:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261403AbULHXYW
+	id S261403AbULHX01 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 18:26:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbULHX00
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 18:24:22 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:16887 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261395AbULHXYO
+	Wed, 8 Dec 2004 18:26:26 -0500
+Received: from rudy.mif.pg.gda.pl ([153.19.42.16]:10254 "EHLO
+	rudy.mif.pg.gda.pl") by vger.kernel.org with ESMTP id S261403AbULHXZ5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 18:24:14 -0500
-Message-ID: <41B77134.90804@mvista.com>
-Date: Wed, 08 Dec 2004 13:25:08 -0800
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
-X-Accept-Language: en-us, en
+	Wed, 8 Dec 2004 18:25:57 -0500
+Date: Thu, 9 Dec 2004 00:25:39 +0100 (CET)
+From: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
+To: Greg KH <greg@kroah.com>
+cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] udev 048 release
+In-Reply-To: <20041208220500.GA19187@kroah.com>
+Message-ID: <Pine.LNX.4.61L.0412082349040.18542@rudy.mif.pg.gda.pl>
+References: <20041208185856.GA26734@kroah.com> <20041208192810.GA28374@kroah.com>
+ <20041208194618.GA28810@kroah.com> <Pine.LNX.4.61L.0412082238420.18542@rudy.mif.pg.gda.pl>
+ <20041208220500.GA19187@kroah.com>
 MIME-Version: 1.0
-To: Christoph Lameter <clameter@sgi.com>
-CC: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
-       tim@physik3.uni-rostock.de, albert@users.sourceforge.net,
-       Ulrich.Windl@rz.uni-regensburg.de, Len Brown <len.brown@intel.com>,
-       linux@dominikbrodowski.de, David Mosberger <davidm@hpl.hp.com>,
-       Andi Kleen <ak@suse.de>, paulus@samba.org, schwidefsky@de.ibm.com,
-       keith maanthey <kmannth@us.ibm.com>, greg kh <greg@kroah.com>,
-       Patricia Gaughen <gone@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
-       Max <amax@us.ibm.com>, mahuja@us.ibm.com
-Subject: Re: [RFC] New timeofday proposal (v.A1)
-References: <1102470914.1281.27.camel@cog.beaverton.ibm.com>  <Pine.LNX.4.58.0412081009540.27324@schroedinger.engr.sgi.com>  <1102533066.1281.81.camel@cog.beaverton.ibm.com>  <Pine.LNX.4.58.0412081114590.27324@schroedinger.engr.sgi.com> <1102535891.1281.148.camel@cog.beaverton.ibm.com> <Pine.LNX.4.58.0412081207010.28001@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.58.0412081207010.28001@schroedinger.engr.sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-2099152593-1102548339=:18542"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
-> On Wed, 8 Dec 2004, john stultz wrote:
-> 
-> 
->>>With the improved scaling factor one should be able to come very close to
->>>ntp scaled time without invoking ntp_scale itself. Tick processing will
->>>then update time to be ntp scaled by fine tuning the scaling factor (with
->>>the bit shifting we can get very fine tuning) and eventually skip a few
->>>nanoseconds. Its basically some piece of interpolator logic in there so
->>>that the heavyweight calculations can just be done once in a while.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+
+--8323328-2099152593-1102548339=:18542
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8BIT
+
+On Wed, 8 Dec 2004, Greg KH wrote:
+
+> On Wed, Dec 08, 2004 at 10:56:27PM +0100, Tomasz K?oczko wrote:
 >>
->>No. I agree ntp_scale() is a performance concern. However I'm not sure
->>how your suggestion of just slowing or tweaking the timesource
->>mult/shift frequency values will allow us to implement the expected
->>behavior of adjtimex().  We need to be able to implement the following
->>adjustments within a single tick:
->>
->>1. Adjust the frequency by 500ppm for 10usecs
->>2. After that adjust the frequency by 30ppm for the rest of the tick.
-> 
-> 
-> Frequency adjustments just means an adjustment of the scaling factor.
-> Am I missing something?
-> 
-> 
->>We can see how much of this can be fudged or generalized, but I'm
->>hesitant to be too flippant about changing the NTP behavior for fear
->>that the astronomers who so dearly care about leap seconds and minute
->>time adjustments will "forget" to mention the asteroid heading towards
->>my home. :)
-> 
-> 
-> I am not sure what NTP behavior needs to be fudged. Sorry about my limited
-> NTP knowledge. Could you elaborate on what the problem is?
-> 
->>I may have asked this before, but w/ 32 bit mult and shifts, how
->>granular can these adjustments be?
-> 
-> 
-> Yes. 128bit would be great for this. 64bit is fine though as
-> far as I can see and allows granularity up to fractions of
-> nanoseconds if applied between 1ms intervals.
-> 
-> 
->>Also additional complications arise when we have multiple things (like
->>cpufreq) playing with the timesource frequency values as well.
-> 
-> 
-> I think these could all be taken into account by a scaling factor off a
-> certain base established at a tick-like event that does the ntp scaling.
-> The scaling between tick-like event needs to be just a scaling factor for
-> performance reasons.
+>> First: is it any real reason for use by udev private copy libsysfs which
+>> is statically linked with udev ?
+>
+> Yes, the "system" version of libsysfs is not always the same one that
+> udev wants.
 
-Right.  We seem to be doing ok now by just adjusting things at tick time and 
-using the "normal" interpolation between ticks.
+Sorry but from eons spend some time on prepare correct build enviromet 
+isn't task for each project maintainers but for persons who tries buid 
+specified project from source tree :-|
 
-As for the math, the current code keeps a running "remainder" which is the 
-amount of the correction that was finer than the clock resolution (i.e. less 
-than a nano second) and rolls this in on the next tick.  This gives resolution 
-out to several bits to the right of the nano second.  And I think this is all 
-done with 32 bit math (if memory serves).
-> 
-> 
+Try prepare in corect form only udev .. and nothing more :_)
 
+Me and probaly many othet people aroud the word who tries build variose
+tools for variouse distributions hates maintainers who includes in project 
+tree souce code another projects. Much more haten is project maitainer who 
+don't allow in easy way use system avalaible libraries.
+Please don't try be listed on this long hated maintainers list ;>
+
+Argument allways is like yours .. and allways this is source ass pain
+for distribution maintainers like:
+
+- patchin from each new version for use system avalaible libraries if
+   something will be changed in build automations (for udev from may this
+   year it hapens .. seven times),
+
+- what if in libsysfs will be discovered some nasty bug ? Why I must audit
+   not only libsysfs but also any other projests where libsysfs source was
+   included ? (this not hipotetycal case .. do you remember case with for
+   example with security bugs in zlib ?).
+
+If you want more argumets for not link statisally look at Solarias 10 why 
+*ALL* binaries are linked with shared version of any library and lern 
+more .. this is _specialy_ for tools very close to kernel layer.
+
+[..]
+>> I'm using udev with shared libsysfs for a months and all works correcly.
+>
+> Great.  Notice any code size savings?  Yeah, it's not really all that
+> much.  You also need static linking when using klibc to get a very tiny
+> udev for your boot initramfs image.
+
+This not for code saving but for use only one copy of library by any tools 
+which uses specifieed API/ABI. In case any bug on for example libsysfs
+which can be fixed without changing API/API all what must be performed is
+replace libsysfs shared library .. nothing more.
+
+[..]
+>> It makes harder packaging udev if someone will try generate udev in
+>> for example rpm form with debug info in separated udev-debug package.
+>
+> I'm sure those who package up rpms of udev have dealt with this properly
+> somehow.  For the rest of the world, I'd prefer to keep the current way.
+
+Greg meybe you are very good kernel hacker (for me you are :) but seems 
+you are not so good as person for maintaining user space tools ;>
+
+IMO ony ~1-2% of *all* project uses direct stripping chained directly 
+chained in build automation which is used by default. All from this ~1-2% 
+because maintainer isn't skilled in some subjects.
+Default behavior ~99-98% projects build automations is pass not stripped
+binaries. On most of this projects (all which uses for example automake)
+producing stripped binaries cen be enabled by add -s to linking options
+(usualy LDFLAGS="-s").
+
+kloczek
 -- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-
+-----------------------------------------------------------
+*Ludzie nie maj± problemów, tylko sobie sami je stwarzaj±*
+-----------------------------------------------------------
+Tomasz K³oczko, sys adm @zie.pg.gda.pl|*e-mail: kloczek@rudy.mif.pg.gda.pl*
+--8323328-2099152593-1102548339=:18542--

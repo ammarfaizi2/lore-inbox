@@ -1,60 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129518AbQKHAqE>; Tue, 7 Nov 2000 19:46:04 -0500
+	id <S129765AbQKHAuf>; Tue, 7 Nov 2000 19:50:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130356AbQKHApo>; Tue, 7 Nov 2000 19:45:44 -0500
-Received: from catbert.rellim.com ([204.17.205.1]:23556 "EHLO
-	catbert.rellim.com") by vger.kernel.org with ESMTP
-	id <S129518AbQKHApm>; Tue, 7 Nov 2000 19:45:42 -0500
-Date: Tue, 7 Nov 2000 16:45:21 -0800 (PST)
-From: "Gary E. Miller" <gem@rellim.com>
-To: Mike Galbraith <mikeg@wen-online.de>
-cc: MOLNAR Ingo <mingo@chiara.elte.hu>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: [PATCH] deadlock fix
-In-Reply-To: <Pine.Linu.4.10.10011040506240.793-100000@mikeg.weiden.de>
-Message-ID: <Pine.LNX.4.30.0011071633250.16069-100000@catbert.rellim.com>
+	id <S130180AbQKHAuZ>; Tue, 7 Nov 2000 19:50:25 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:27416 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129765AbQKHAuO>; Tue, 7 Nov 2000 19:50:14 -0500
+Subject: Re: Installing kernel 2.4
+To: jmerkey@timpanogas.org (Jeff V. Merkey)
+Date: Wed, 8 Nov 2000 00:49:33 +0000 (GMT)
+Cc: kernel@kvack.org, gandalf@wlug.westbo.se (Martin Josefsson),
+        tigran@veritas.com (Tigran Aivazian), anils_r@yahoo.com (Anil kumar),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3A088C02.4528F66B@timpanogas.org> from "Jeff V. Merkey" at Nov 07, 2000 04:10:58 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13tJQl-0007zp-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yo All!
+> There are tests for all this in the feature flags for intel and
+> non-intel CPUs like AMD -- including MTRR settings.  All of this could
+> be dynamic.  Here's some code that does this, and it's similiar to
+> NetWare.  It detexts CPU type, feature flags, special instructions,
+> etc.  All of this on x86 could be dynamically detected.   
 
-I see this patch did not make it into test11-pre1.  Without it
-raid1 and SMP do not work together.  Please consider for test11-pre2.
+Detection isnt the issue, its optimisations. Our 386 kernel build is the
+detect all run on any one.
 
-RGDS
-GARY
----------------------------------------------------------------------------
-Gary E. Miller Rellim 20340 Empire Ave, Suite E-3, Bend, OR 97701
-	gem@rellim.com  Tel:+1(541)382-8588 Fax: +1(541)382-8676
+>     mov      sp, bx
+>     mov      CPU_TYPE, 3  ; 80386 detected
+>     jz       end_get_cpuid
 
-> > > Here it is.
-> > >
-> > > --- drivers/md/raid1.c.org	Wed Oct 18 15:30:07 2000
-> > > +++ drivers/md/raid1.c	Wed Oct 18 15:33:08 2000
-> > > @@ -91,7 +91,8 @@
-> > >
-> > >  static inline void raid1_free_bh(raid1_conf_t *conf, struct buffer_head *bh)
-> > >  {
-> > > -	md_spin_lock_irq(&conf->device_lock);
-> > > +	unsigned long flags;
-> > > +	md_spin_lock_irqsave(&conf->device_lock, flags);
-> > >  	while (bh) {
-> > >  		struct buffer_head *t = bh;
-> > >  		bh=bh->b_next;
-> > > @@ -103,7 +104,7 @@
-> > >  			conf->freebh_cnt++;
-> > >  		}
-> > >  	}
-> > > -	md_spin_unlock_irq(&conf->device_lock);
-> > > +	md_spin_unlock_irqrestore(&conf->device_lock, flags);
-> > >  	wake_up(&conf->wait_buffer);
-> > >  }
->
+This is wrong btw. You don;t check for Cyrix with CPUID disabled or
+the NexGen or pre CPUID Cyrix...
 
+> check_CMPXCHG8B:
+>     mov      ax, word ptr ds:FEATURE_FLAGS
+>     and      ax, CMPXCHG8B_FLAG
+>     jz       check_4MB_paging
+
+This needs a few other bits of interesting checking for non intel chips
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

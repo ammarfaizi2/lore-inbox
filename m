@@ -1,74 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262593AbUKLSX3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262600AbUKLSZJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262593AbUKLSX3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 13:23:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262600AbUKLSX3
+	id S262600AbUKLSZJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 13:25:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262601AbUKLSZI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 13:23:29 -0500
-Received: from main.gmane.org ([80.91.229.2]:7848 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262593AbUKLSXX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 13:23:23 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Alexander Fieroch <Fieroch@web.de>
-Subject: Re: SNES gamepad doesn't work with kernel 2.6.x
-Date: Fri, 12 Nov 2004 19:23:18 +0100
-Message-ID: <4194FF96.4030106@web.de>
-References: <cn044e$nnk$1@sea.gmane.org>	 <8ecd274304111108404f3ecd2c@mail.gmail.com>	 <cn0pvt$mcv$1@sea.gmane.org> <8ecd27430411120227411e865f@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: osten.wh.uni-dortmund.de
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
-X-Accept-Language: de-de, en-us, en
-In-Reply-To: <8ecd27430411120227411e865f@mail.gmail.com>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+	Fri, 12 Nov 2004 13:25:08 -0500
+Received: from dfw-gate1.raytheon.com ([199.46.199.230]:23432 "EHLO
+	dfw-gate1.raytheon.com") by vger.kernel.org with ESMTP
+	id S262600AbUKLSYV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Nov 2004 13:24:21 -0500
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.25-1
+To: Shane Shrybman <shrybman@aei.ca>
+Cc: Amit Shah <amit.shah@codito.com>,
+       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, emann@mrv.com,
+       Gunther Persoons <gunther_persoons@spymac.com>,
+       "K.R. Foley" <kr@cybsft.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OF6E8C462B.2451EF23-ON86256F4A.0064AC96@raytheon.com>
+From: Mark_H_Johnson@RAYTHEON.COM
+Date: Fri, 12 Nov 2004 12:23:51 -0600
+X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
+ 11/12/2004 12:23:56 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+X-SPAM: 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+>Typical example of the error message:
+>
+>kernel: hde: dma_timer_expiry: dma status == 0x24
+>kernel: ALSA sound/core/pcm_native.c:1424: playback drain error (DMA or
+IRQ trouble?)
+>kernel: PDC202XX: Primary channel reset.
+>kernel: hde: DMA interrupt recovery
+>kernel: hde: lost interrupt
+>
+>This was on a Promise TX2 133 ide card with one IDE disk. The problem
+>would show itself if using the RT patches and APIC. But the problem seems
+>to have been resolved now.
 
+I had errors like that one when the IDE IRQ was at a priority less than
+the real time task. Since then, I run with all the IRQ's at max RT priority
+and will continue to do so until I get a better assessment of what my real
+application (not these audio tests...) needs for IRQ priorities.
 
-Aristeu Sergio Rozanski Filho wrote:
-| could you send the output of 'dmesg' command? it may give a hint of
-| what's going on.
+This may have been fixed as a side effect of Ingo setting the IRQ threads
+at
+RT priorities in the 40's.
 
-hm, when I try to start the module with
-
-# modprobe gamecon gamecon.map=0,1,0,0,0,0
-
-or
-
-# modprobe gamecon gc=0,1,0,0,0,0
-
-I get "gamecon: Unknown parameter `gamecon.map'" in /var/log/syslog and
-dmesg.
-Just trying to load it with
-
-# modprobe gamecon
-
-returns the error again and no message in /var/log/syslog or dmesg.
-
-# modprobe gamecon
-FATAL: Error inserting gamecon
-(/lib/modules/2.6.9/kernel/drivers/input/joystick/gamecon.ko): No such
-device
-
-So there are no further hints... :-/
-How do you load the module? just with "modprobe gamecon" or any parameters?
-
-Greetings,
-Alexander
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBlP+WlLqZutoTiOMRAi0/AKCL0LfSeWZRZcSD58oUbwgP6IhYxgCfUAdz
-/oYUH19Oyd9RVKTEhm/lzhg=
-=kf+m
------END PGP SIGNATURE-----
+--Mark H Johnson
+  <mailto:Mark_H_Johnson@raytheon.com>
 

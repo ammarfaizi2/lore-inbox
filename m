@@ -1,60 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317872AbSFNCYp>; Thu, 13 Jun 2002 22:24:45 -0400
+	id <S317873AbSFNC0V>; Thu, 13 Jun 2002 22:26:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317873AbSFNCYo>; Thu, 13 Jun 2002 22:24:44 -0400
-Received: from cerebus.wirex.com ([65.102.14.138]:8947 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id <S317872AbSFNCYn>; Thu, 13 Jun 2002 22:24:43 -0400
-Date: Thu, 13 Jun 2002 19:25:14 -0700
-From: Chris Wright <chris@wirex.com>
-To: linux-security-module@wirex.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] 2.4.19-pre10-lsm1
-Message-ID: <20020613192514.W7369@figure1.int.wirex.com>
-Mail-Followup-To: linux-security-module@wirex.com,
-	linux-kernel@vger.kernel.org
+	id <S317874AbSFNC0U>; Thu, 13 Jun 2002 22:26:20 -0400
+Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:13297 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S317873AbSFNC0S>; Thu, 13 Jun 2002 22:26:18 -0400
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Thu, 13 Jun 2002 20:24:38 -0600
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: linux-kernel@vger.kernel.org, akpm@zip.com.au, axboe@suse.de
+Subject: Re: bio_chain: proposed solution for bio_alloc failure and large IO simplification
+Message-ID: <20020614022438.GR682@clusterfs.com>
+Mail-Followup-To: "Adam J. Richter" <adam@yggdrasil.com>,
+	linux-kernel@vger.kernel.org, akpm@zip.com.au, axboe@suse.de
+In-Reply-To: <200206140156.SAA02512@baldur.yggdrasil.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.3.28i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Linux Security Modules project provides a lightweight, general
-purpose framework for access control.  The LSM interface enables
-security policies to be developed as loadable kernel modules.
-See http://lsm.immunix.org for more information.
+On Jun 13, 2002  18:56 -0700, Adam J. Richter wrote:
+> 	2. bio_chain will set some kind of hint that newbio is
+> probably contiguous with oldbio.  So, if oldbio is still on the
+> device queue when newbio is eventually submitted, the merge code
+> will first check the request that oldbio is in for merging.  So,
+> the merging in that case will be O(1).
 
-2.4.19-pre10 lsm patch released.
+I really like this part of it.  I always disliked the fact that you
+might have a large request at one layer that had to be split up for
+submission, only to be re-merged later.  The fact that it could do
+the merge in O(1) would be a good thing.
 
-Full lsm-2.4 patch (LSM + all modules) is available at:
-	http://lsm.immunix.org/patches/2.4/2.4.19/patch-2.4.19-pre10-lsm1.gz
+> 	Under this scheme, code that wants to build up big bio's
+> can be much simpler, because it does not have to think about
+> q->max_phys_segments or q->max_hw_segments (it just has to make sure
+> that each request is smaller than q->max_sectors).
 
-The whole ChangeLog for this release is at:
-	http://lsm.immunix.org/patches/2.4/2.4.19/ChangeLog-2.4.19-pre10-lsm1
+The recent discussions in this area have also been unsatisfying, and
+this proposal works nicely to remove any knowledge of block device
+specific limitations from the submitter.
 
-The LSM 2.4 development BK tree can be pulled from:
-	bk://lsm.bkbits.net/lsm-2.4-dev
+If you are going to OLS this summer, there is a BOF related to
+this "splitting BIO requests in the block layer" or something like
+that.
 
-2.4.19-pre10-lsm1
- - merge through 2.4.19-pre10				(me)
- - LIDS #include cleanup				(me)
- - add official ia64 number for sys_security		(Richard Offer)
- 							(Greg KH)
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
 
-2.4.18-lsm3
- - SELinux updates					(Stephen Smalley)
-   - build updates
-   - permit blocking allocate during policy load
-   - update enforcing mode selection
-   - locking fixes
-   - backport relevant 2.5 exec_permission_lite changes
-   - added comm to audit msg
-   - make extened socket call processing optional
-   - enhanced MLS support
-
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

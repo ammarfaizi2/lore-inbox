@@ -1,91 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262401AbTHYXLW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 19:11:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262411AbTHYXLW
+	id S262350AbTHYXIV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 19:08:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262377AbTHYXIV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 19:11:22 -0400
-Received: from oceanic.wsisiz.edu.pl ([213.135.44.33]:37176 "EHLO
-	oceanic.wsisiz.edu.pl") by vger.kernel.org with ESMTP
-	id S262401AbTHYXLP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 19:11:15 -0400
-Date: Tue, 26 Aug 2003 01:11:13 +0200 (CEST)
-From: Lukasz Trabinski <lukasz@wsisiz.edu.pl>
-To: linux-kernel@vger.kernel.org
-Cc: linux-atm-general@lists.sourceforge.net,
-       Bartlomiej Solarz-Niesluchowski <solarz@wsisiz.edu.pl>
-Subject: linux-2.4.22 Oops on ATM PCA-200EPC
-Message-ID: <Pine.LNX.4.53.0308260104580.17995@oceanic.wsisiz.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2
-Content-Transfer-Encoding: 8BIT
+	Mon, 25 Aug 2003 19:08:21 -0400
+Received: from havoc.gtf.org ([63.247.75.124]:13519 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S262350AbTHYXIK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 19:08:10 -0400
+Date: Mon, 25 Aug 2003 19:08:09 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: marcelo@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: [bk patches] net driver updates
+Message-ID: <20030825230809.GA11073@gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
 
-I have always used vanilla kernel with very old patch for ATM
-(name: linux-2.3.99-pre6-fore200e-0.2f.patch) It worked well -
-trouble-free. 
-I have just tried vanilla 2.4.22, here is oops. ATM doesn't work :(
+Marcelo, please do a
 
-ksymoops 2.4.5 on i686 2.4.22.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.22/ (default)
-     -m /lib/modules/2.4.22/System.map (specified)
+	bk pull bk://kernel.bkbits.net/jgarzik/net-drivers-2.4
 
-Aug 26 00:47:54 voices kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000010
-Aug 26 00:47:54 voices kernel: c0263127
-Aug 26 00:47:54 voices kernel: *pde = 00000000
-Aug 26 00:47:54 voices kernel: Oops: 0002
-Aug 26 00:47:54 voices kernel: CPU:    0
-Aug 26 00:47:54 voices kernel: EIP:    0010:[<c0263127>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-Aug 26 00:47:54 voices kernel: EFLAGS: 00010286
-Aug 26 00:47:54 voices kernel: eax: 00000000   ebx: ffffffff   ecx: c02c7c14   edx: ffffff9e
-Aug 26 00:47:54 voices kernel: esi: f78812b4   edi: 000061e1   ebp: f6f27800   esp: f78e5f04
-Aug 26 00:47:54 voices kernel: ds: 0018   es: 0018   ss: 0018
-Aug 26 00:47:54 voices kernel: Process atmarpd (pid: 8093, stackpage=f78e5000)
-Aug 26 00:47:54 voices kernel: Stack: f6f27800 f7b2a880 f706b680 400f7020 00000000 00000003 f6fb7a80 f7b2a89c 
-Aug 26 00:47:54 voices kernel:        00000000 005d3339 f78812b4 00030002 f7a3e780 f7b7c005 00000003 0028f3c6 
-Aug 26 00:47:54 voices kernel:        f78e5f24 00000007 000036a9 00000000 00000000 00000002 f78e4000 000061e1 
-Aug 26 00:47:54 voices kernel: Call Trace:    [<c0260f83>] [<c01fac40>] [<c014f835>] [<c010770f>]
-Aug 26 00:47:54 voices kernel: Code: f0 ff 48 10 a1 74 0f 36 c0 8b 40 18 83 48 14 08 85 d2 0f 85 
+I have sent the patch separately for your review.
 
+Others may download the patch from:
 
->>EIP; c0263127 <atm_ioctl+927/c90>   <=====
+ftp://ftp.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.4/2.4.22-netdrvr1.patch.bz2
 
->>ebx; ffffffff <END_OF_CODE+7647f28/????>
->>ecx; c02c7c14 <atm_clip_ops_mutex+0/14>
->>edx; ffffff9e <END_OF_CODE+7647ec7/????>
->>esi; f78812b4 <_end+3752031c/3858a0c8>
->>edi; 000061e1 Before first symbol
->>ebp; f6f27800 <_end+36bc6868/3858a0c8>
->>esp; f78e5f04 <_end+37584f6c/3858a0c8>
+This will update the following files:
 
-Trace; c0260f83 <__lock_svc_proto_ioctl+43/80>
-Trace; c01fac40 <sock_ioctl+40/80>
-Trace; c014f835 <sys_ioctl+f5/2b0>
-Trace; c010770f <system_call+33/38>
+ drivers/net/8139cp.c            |    4 
+ drivers/net/8139too.c           |   10 
+ drivers/net/bonding/bond_main.c |   17 -
+ drivers/net/bonding/bonding.h   |    2 
+ drivers/net/net_init.c          |    3 
+ drivers/net/tulip/tulip_core.c  |    1 
+ drivers/net/wireless/airo.c     |  568 ++++++++++++++++++++++------------------
+ include/linux/netdevice.h       |    2 
+ 8 files changed, 342 insertions(+), 265 deletions(-)
 
-Code;  c0263127 <atm_ioctl+927/c90>
-00000000 <_EIP>:
-Code;  c0263127 <atm_ioctl+927/c90>   <=====
-   0:   f0 ff 48 10               lock decl 0x10(%eax)   <=====
-Code;  c026312b <atm_ioctl+92b/c90>
-   4:   a1 74 0f 36 c0            mov    0xc0360f74,%eax
-Code;  c0263130 <atm_ioctl+930/c90>
-   9:   8b 40 18                  mov    0x18(%eax),%eax
-Code;  c0263133 <atm_ioctl+933/c90>
-   c:   83 48 14 08               orl    $0x8,0x14(%eax)
-Code;  c0263137 <atm_ioctl+937/c90>
-  10:   85 d2                     test   %edx,%edx
-Code;  c0263139 <atm_ioctl+939/c90>
-  12:   0f 85 00 00 00 00         jne    18 <_EIP+0x18>
+through these ChangeSets:
 
+<sziwan@hell.org.pl> (03/08/18 1.1064.1.13)
+   [netdrvr 8139too] fix resume behavior,
+   by correctly saving/restoring pci state.
 
--- 
-*[ £ukasz Tr±biñski ]*
-SysAdmin @wsisiz.edu.pl
+<matthewn@snapgear.com> (03/08/18 1.1064.1.12)
+   [netdrvr 8139cp] fix h/w vlan offload
+   
+   It wants big endian vlan tags.  IEEE, or just weird?
+
+<javier@tudela.mad.ttd.net> (03/08/18 1.1064.1.11)
+   [wireless airo] Replaces task queues by simpler kernel_thread
+
+<javier@tudela.mad.ttd.net> (03/08/18 1.1064.1.10)
+   [wireless airo] Fixes unregistering of PCI cards
+
+<ionut@badula.org> (03/08/17 1.1064.1.9)
+   [netdrvr tulip] add pci id for 3com 3CSOHO100B-TX
+
+<amir.noam@intel.com> (03/08/07 1.1064.1.8)
+   [netdrvr bonding] embed stats struct inside bonding private struct
+   
+   Simplification: Don't allocate the stats struct via kmalloc,
+   embed it inside it's parent bonding_t.
+
+<amir.noam@intel.com> (03/08/07 1.1064.1.7)
+   [net] export alloc_netdev
+
+<achirica@telefonica.net> (03/08/07 1.1064.1.6)
+   [PATCH] Fix adhoc config
+
+<achirica@telefonica.net> (03/08/07 1.1064.1.5)
+   [PATCH] Safer unload code
+
+<achirica@telefonica.net> (03/08/07 1.1064.1.4)
+   [PATCH] MIC support with newer firmware
+
+<achirica@telefonica.net> (03/08/07 1.1064.1.3)
+   [PATCH] Missing lines for Wireless Extensions 16
+
+<achirica@telefonica.net> (03/08/07 1.1064.1.2)
+   [netdrvr airo] MAC type changed to unsigned
+
+<achirica@telefonica.net> (03/08/07 1.1064.1.1)
+   [netdrvr airo] Missing defines (only for documentation)
+

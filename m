@@ -1,75 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262422AbRENTim>; Mon, 14 May 2001 15:38:42 -0400
+	id <S262425AbRENTnw>; Mon, 14 May 2001 15:43:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262436AbRENTic>; Mon, 14 May 2001 15:38:32 -0400
-Received: from comverse-in.com ([38.150.222.2]:25295 "EHLO
-	eagle.comverse-in.com") by vger.kernel.org with ESMTP
-	id <S262431AbRENTiW>; Mon, 14 May 2001 15:38:22 -0400
-Message-ID: <6B1DF6EEBA51D31182F200902740436802678EC4@mail-in.comverse-in.com>
-From: "Khachaturov, Vassilii" <Vassilii.Khachaturov@comverse.com>
-To: "'Chris Wing'" <wingc@engin.umich.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: uid_t and gid_t vs. __kernel_uid_t and __kernel_gid_t
-Date: Mon, 14 May 2001 15:37:28 -0400
+	id <S262431AbRENTnm>; Mon, 14 May 2001 15:43:42 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:39176 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S262425AbRENTnd>;
+	Mon, 14 May 2001 15:43:33 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200105141942.XAA16515@ms2.inr.ac.ru>
+Subject: Re: NETDEV_CHANGE events when __LINK_STATE_NOCARRIER is modified
+To: jgarzik@mandrakesoft.com (Jeff Garzik)
+Date: Mon, 14 May 2001 23:42:46 +0400 (MSK DST)
+Cc: andrewm@uow.edu.au, davem@redhat.COM, linux-kernel@vger.kernel.org
+In-Reply-To: <3B0031A0.25C332D2@mandrakesoft.com> from "Jeff Garzik" at May 14, 1 03:27:28 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris,
-thanks for your reply.
+Hello!
 
-My case is exactly when copying has to be made, hence the awareness
-of the user/kernel uid/gid "personalities".
+> Each bus should 
 
-I am trying to understand what's the cleanest coding that would allow
-1) user code to just use uid/gid for interfacing the driver control
-structures
-2) driver code to read/write the corresponding structure fields with minimum
-awareness of the actual difference between kernel and user uid_t/gid_t
-layout.
-3) all the messy adaptation confined as much as possible at the types
-declaration (in the header included by both)
-4) (2) & (3) should take into acct different platforms.
+Not all the device are bound to some "bus".
 
-Right now, I allocate a uid_t/gid_t in the corresponding structure field
-at the user level, and add arch-dependent padding in the kernel; and I had
-to wrap the kernel-level access to these fields with special encoder/decoder
-macros as long as user<->kernel interaction is taking place :-(
-- see my orig. post for details.
 
-My driver code doesn't use the __kernel types directly, but in the wrapping 
-header macros I preferred those because I was explicitly defining the
-padding logic, 
-and was treating difference betw. user and kernel-level uids and gids.
 
-V.
------Original Message-----
-From: Chris Wing [mailto:wingc@engin.umich.edu]
+> Are you talking about his 140k patch?
 
-Vassilii:
+Yes!
 
-__kernel_uid_t is my fault. The names are confusing, but uid_t and gid_t
-are NOT supposed to be different in kernel and user space.
+Size of patch and "simplicity" are orthogonal things.
+It was simple like potatoe.
 
-[snip]
 
-Kernel code should always use uid_t as a type, except when copying data
-between user and kernel space. In that case, just make sure that whatever
-data structure you use is big enough to contain a Linux uid_t. (as of 2.4,
-Linux uses 32-bit uid_t on all platforms) All new interfaces to user space
-should use 32-bit uids, i.e. type unsigned int.
+> I think a key point of my patch is that drivers now follow the method of
+> other kernel drivers: perform all setup necessary, and then register the
+> device in a single operation.
 
-Don't use __kernel_uid_t at all in new code. The name is basically there
-only because the older libc5 C library included the kernel headers and we
-have to preserve it so that programs still compile on these old systems.
+Nice. I agreed. I talk about other thing: after applying Andrew's patch
+I saw good correct code. After you will fix all the devices, your patch will
+be the same 140K or more due to killing refs t dev->name announced
+to be illegal. 8)
 
-if you look inside /include/linux/types.h, this is made explicit:
 
-#ifdef __KERNEL__
-typedef __kernel_uid32_t	uid_t;
+>				 After register_foo(dev), all members of
+> 'dev' are assumed to be filled in and ready for use.  This is not the
+> case ....................... using dev->init()...
 
-[snip]
+Sorry? Why?
+
+
+> Tangent - IMHO having register_netdev call dev->init is ugly and unusual
+> compared to other driver APIs in the kernel.  Your register function
+> should not call out to driver functions, it should just register a new,
+> already-set-up device in the subsystem and return.
+
+Provided you teach me some way to generate unique identifiers, different
+of device names.
+
+
+> So you say a fatal bug remains in 2.4.5-pre1?  If so please elaborate...
+
+
+Probably, I am looking into different code, but I found only 15 references
+to new interface.
+
+Alexey

@@ -1,96 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbVCAGOa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261257AbVCAGSv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbVCAGOa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 01:14:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbVCAGOa
+	id S261257AbVCAGSv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 01:18:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbVCAGSu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 01:14:30 -0500
-Received: from fire.osdl.org ([65.172.181.4]:46268 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261252AbVCAGF2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 01:05:28 -0500
-Date: Mon, 28 Feb 2005 22:05:02 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Vivek Goyal <vgoyal@in.ibm.com>
-Cc: ebiederm@xmission.com, fastboot@lists.osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 3/3] Kdump: Export crash notes section address
- through sysfs
-Message-Id: <20050228220502.177f75a1.akpm@osdl.org>
-In-Reply-To: <1109261865.5148.819.camel@terminator.in.ibm.com>
-References: <1109261865.5148.819.camel@terminator.in.ibm.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 1 Mar 2005 01:18:50 -0500
+Received: from pop-6.dnv.wideopenwest.com ([64.233.207.24]:28820 "EHLO
+	pop-6.dnv.wideopenwest.com") by vger.kernel.org with ESMTP
+	id S261257AbVCAGRl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 01:17:41 -0500
+Date: Tue, 1 Mar 2005 01:17:33 -0500
+From: Paul <set@pobox.com>
+To: packet-writing@suse.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Data corruption with pktcdvd, kernel 2.6.10 (additional results)
+Message-ID: <20050301061733.GA7884@squish.home.loc>
+Mail-Followup-To: Paul <set@pobox.com>, packet-writing@suse.com,
+	linux-kernel@vger.kernel.org
+References: <20050301035022.GH8097@squish.home.loc>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050301035022.GH8097@squish.home.loc>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vivek Goyal <vgoyal@in.ibm.com> wrote:
->
-> o Following patch exports kexec global variable "crash_notes" to user space
->    through sysfs as kernel attribute in /sys/kernel.
+	Hi;
 
-It breaks the x86_64 build.  A fix for that is below.
+	Out of curiosity, I tried using the ide-scsi driver, instead
+of the default ide-cdrom driver. These attempts failed in various
+ways, including an oops, which I wont try to detail, as I seem to
+recall this is known not working.
+	From some of the error message that experiment resulted in,
+and recent comments on linux-kernel about how the ide-cdrom driver
+might not propogate errors, I tried again, but with 'hdparm -a0 -d0'
+on the drive. This also had files ending in blocks of zeros and completely
+zero files, but far fewer....
+	Next, I tried making an ext2 fs instead of udf on the dvd+rw
+disc, in addition to the -a0 -d0 hdparm settings. This made a dramatic
+difference. The copy of the 2.6.10 kernel tree took around 2 minutes
+from start to sync completion, vs. around 30 minutes on the udf fs.
+And there was no corruption of files, as verifed by diff -r afterwards.
+	(all this using the pktcdvd device)
+	To me, this implies that write support for udf is shady,
+or that it simply triggers some deeper bug. At the very least it
+is grossly less efficient than ext2 for this task. Having udf
+working well for this would be best, however, for portability.
 
-Please test kexec/kdump patches on all three architectures, both with your
-config option enabled and with it disabled.  There are cross-compilers at
-http://developer.osdl.org/dev/plm/cross_compile/
-
-
-It also breaks the ppc build:
-
-kernel/ksysfs.c: In function `crash_notes_show':
-kernel/ksysfs.c:38: error: `crash_notes' undeclared (first use in this function)
-kernel/ksysfs.c:38: error: (Each undeclared identifier is reported only once
-kernel/ksysfs.c:38: error: for each function it appears in.)
-
-but as ppc doesn't support crashdump, that is unfixable.
-
-Why is the crashdump feature linked to CONFIG_KEXEC?  It should have its
-own config option, which is dependent upon kexec.
-
-
-
-
-kernel/ksysfs.c: In function `crash_notes_show':
-kernel/ksysfs.c:38: error: `crash_notes' undeclared (first use in this function)
-kernel/ksysfs.c:38: error: (Each undeclared identifier is reported only once
-kernel/ksysfs.c:38: error: for each function it appears in.)
-
-
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- 25-akpm/arch/x86_64/kernel/crash.c |    3 ---
- 25-akpm/include/asm-x86_64/kexec.h |    5 +++++
- 2 files changed, 5 insertions(+), 3 deletions(-)
-
-diff -puN include/asm-x86_64/kexec.h~kdump-export-crash-notes-section-address-through-x86_64-fix include/asm-x86_64/kexec.h
---- 25/include/asm-x86_64/kexec.h~kdump-export-crash-notes-section-address-through-x86_64-fix	2005-02-28 21:54:41.000000000 -0800
-+++ 25-akpm/include/asm-x86_64/kexec.h	2005-02-28 21:55:12.000000000 -0800
-@@ -25,4 +25,9 @@
- /* The native architecture */
- #define KEXEC_ARCH KEXEC_ARCH_X86_64
- 
-+#define MAX_NOTE_BYTES 1024
-+typedef u32 note_buf_t[MAX_NOTE_BYTES/4];
-+
-+extern note_buf_t crash_notes[];
-+
- #endif /* _X86_64_KEXEC_H */
-diff -puN arch/x86_64/kernel/crash.c~kdump-export-crash-notes-section-address-through-x86_64-fix arch/x86_64/kernel/crash.c
---- 25/arch/x86_64/kernel/crash.c~kdump-export-crash-notes-section-address-through-x86_64-fix	2005-02-28 21:58:39.000000000 -0800
-+++ 25-akpm/arch/x86_64/kernel/crash.c	2005-02-28 21:58:55.000000000 -0800
-@@ -22,9 +22,6 @@
- #include <asm/nmi.h>
- #include <asm/hw_irq.h>
- 
--#define MAX_NOTE_BYTES 1024
--typedef u32 note_buf_t[MAX_NOTE_BYTES/4];
--
- note_buf_t crash_notes[NR_CPUS];
- 
- void machine_crash_shutdown(void)
-_
-
+Paul
+set@pobox.com
+	
+Paul <set@pobox.com>, on Mon Feb 28, 2005 [10:50:22 PM] said:
+> 	Hi;
+> 
+> 	I have played with the pktcdvd patch in the past, and most
+> recently with the implementation in the 2.6.10 kernel, but never
+> really stressed it. However, someone recently complained to me that
+> it quite often resulted in corrupted files for them, so I performed
+> a stress test; copy a kernel source tree to a cdrw and a dvd+rw.
+> (mount /dev/pktcdvd/cdrw /cdrw -o rw,noatime)
+> (cp -a /foo/2.6.10 /cdrw)
+> 	Well, diff -r shows many corrupt files in both cases.
+> The corruption is either that the file is completely zero, or at
+> some point it ends in zero data. In other words, all or part of
+> the file end up as zero's.
+> 	Simpler tests, like copying a flat dir filled with 50meg
+> of images did not turn up corruption.
+> 	I would have liked to compare writing to dvd+rw without
+> pktcdvd, but although I could make a udf fs on the disc, mount it and
+> start writing to it, the throughput was impossibly slow. (like 1meg in
+> several minutes-- at best.) Using pktcdvd was much faster, but it
+> seems to bog down after a while into the kernel tree copy-- and if you
+> look at the drive light, it seems to be doing lots of reading and 
+> then little blips of writing. 'vmstat 1' shows very little bi/bo,
+> often times 0/0.
+> 	Can anyone suggest what might be done to find out what is
+> going wrong here? I am using vanilla 2.6.10, udftools-1.0.0b-r3,
+> a liteon LDW-451S dvd writer. The kernel is SMP with preempt enabled.
+> The writer and the hardisc are both ATA.
+> 	Let me know if I can help with more information or testing.
+> 
+> Thanks;
+> 
+> Paul
+> set@pobox.com
+> 
+> 
+> -- 
+> To unsubscribe, e-mail: packet-writing-unsubscribe@suse.com
+> For additional commands, e-mail: packet-writing-help@suse.com
+> 

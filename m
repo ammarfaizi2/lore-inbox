@@ -1,76 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129464AbQL2Byb>; Thu, 28 Dec 2000 20:54:31 -0500
+	id <S129523AbQL2B5v>; Thu, 28 Dec 2000 20:57:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129523AbQL2ByV>; Thu, 28 Dec 2000 20:54:21 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:8201 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129464AbQL2ByH>; Thu, 28 Dec 2000 20:54:07 -0500
-Date: Thu, 28 Dec 2000 17:23:29 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Stefan Traby <stefan@hello-penguin.com>
-cc: Andi Kleen <ak@suse.de>, Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: test13-pre5
-In-Reply-To: <20001229014918.A10171@stefan.sime.com>
-Message-ID: <Pine.LNX.4.10.10012281712180.1231-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130198AbQL2B5l>; Thu, 28 Dec 2000 20:57:41 -0500
+Received: from jalon.able.es ([212.97.163.2]:15611 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S130193AbQL2B5g>;
+	Thu, 28 Dec 2000 20:57:36 -0500
+Date: Fri, 29 Dec 2000 02:27:03 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: CCFOUND and more
+Message-ID: <20001229022703.A3038@werewolf.able.es>
+In-Reply-To: <20001226211114.A1511@werewolf.able.es> <8203.977977379@ocs3.ocs-net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <8203.977977379@ocs3.ocs-net>; from kaos@ocs.com.au on Thu, Dec 28, 2000 at 05:22:59 +0100
+X-Mailer: Balsa 1.0.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-
-On Fri, 29 Dec 2000, Stefan Traby wrote:
-> On Thu, Dec 28, 2000 at 03:37:51PM -0800, Linus Torvalds wrote:
+On 2000.12.28 Keith Owens wrote:
 > 
-> > Too bad. Maybe somebody should tell gcc maintainers about programmers that
-> > know more than the compiler again.
+> Yes.  Some arch files change CROSS_COMPILE after CC has been set and
+> expect the change to flow into the definition of CC.  This "feature"
+> only works because '=' stores the value as text and reevaluates the
+> text each time, automatically picking up any changes to CROSS_COMPILE.
+> Using CC := might break m68k and mips.  The makefile redesign for 2.5
+> will fix this problem once and for all.
 > 
-> I know that {p,}gcc-2.95.2{,.1} are not officially supported.
 
-Hmm, I use gcc-2.95.2 myself on some machines, and while I'm not 100%
-comfortable with it, it does count as "supported" even if it has known
-problems with "long long". pgcc isn't.
+OK, understrood. Anyway, I know there is not too much impact of this
+issue, but you could always convert-to-fast-version the more
+critical vars with something like:
 
-> Did you know that it's impossible to compile nfsv4 because of
-> register allocation problems with long long since (long long) month ?
+CC = .........
+CPP = $(CC) -E
+..
+include arch/$(ARCH)/Makefile
 
-lockd v4 (for NFS v3), I assume. 
+# Eval them once forever
+CC:=$(CC)
+CPP:=$(CPP)
 
-No, I wasn't aware of this particular bug. 
 
-> The following does not hurt, it's just a fix for a broken
-> compiler:
+-- 
+J.A. Magallon                                         $> cd pub
+mailto:jamagallon@able.es                             $> more beer
 
-Ugh, that's ugly.
-
-Can you test if it is sufficient to just simplify the math a bit, instead
-of uglyfing that function more? The nlm4_encode_lock() function already
-tests for NLM4_OFFSET_MAX explicitly for both start and end, so it should
-be ok to just re-code the function to not do the extra "loff_t_to_s64()"
-stuff, and simplify it enough that the compile rwill be happy to compile
-the simpler function. Something along the lines of
-
-	if (.. NLM4_OFFSET_MAX tests ..)
-		..
-
-	*p++ = htonl(fl->fl_pid);
-
-	start = fl->fl_start;
-	len = fl->fl_end - start;
-	if (fl->fl_end == OFFSET_MAX)
-		len = 0;
-
-	p = xdr_encode_hyper(p, start);
-	p = xdr_encode_hyper(p, len);
-
-	return p;
-
-Where it tries to minimize the liveness of the 64-bit values, and tries to
-avoid extra complications.
-
-		Linus
+Linux werewolf 2.2.19-pre3-aa3 #3 SMP Wed Dec 27 10:25:32 CET 2000 i686
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,49 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131596AbRASMt7>; Fri, 19 Jan 2001 07:49:59 -0500
+	id <S131332AbRASNCV>; Fri, 19 Jan 2001 08:02:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131584AbRASMtj>; Fri, 19 Jan 2001 07:49:39 -0500
-Received: from dwdmx2.dwd.de ([141.38.2.10]:56179 "HELO dwdmx2.dwd.de")
-	by vger.kernel.org with SMTP id <S131332AbRASMth>;
-	Fri, 19 Jan 2001 07:49:37 -0500
-Date: Fri, 19 Jan 2001 13:49:28 +0100 (CET)
-From: Holger Kiehl <Holger.Kiehl@dwd.de>
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: More filesystem corruption under 2.4.1-pre8 and SW Raid5
-In-Reply-To: <3A682C3C.B0F7E67E@colorfullife.com>
-Message-Id: <Pine.LNX.4.30.0101191342220.30906-100000@talentix.dwd.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131444AbRASNCM>; Fri, 19 Jan 2001 08:02:12 -0500
+Received: from galileo.bork.org ([209.217.122.37]:48392 "HELO galileo.bork.org")
+	by vger.kernel.org with SMTP id <S131332AbRASNCE>;
+	Fri, 19 Jan 2001 08:02:04 -0500
+Subject: Re: pppoe in 2.4.0
+From: Martin Hicks <mort@bork.org>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <200101190610.f0J6AUK05724@caliban.org>
+In-Reply-To: <E14JRYM-0000Ns-00@plato.bork.org>  
+	<200101190610.f0J6AUK05724@caliban.org>
+Content-Type: text/plain
+X-Mailer: Evolution 0.8 (Developer Preview)
+Date: 19 Jan 2001 08:00:40 -0500
+Mime-Version: 1.0
+Message-Id: <E14Jb9l-0000j4-00@plato.bork.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Thank you all.  I was silly and didn't create the /dev/ppp device.
 
-On Fri, 19 Jan 2001, Manfred Spraul wrote:
-
->
-> I don't see a corruption - neither with 192MB ram nor with 48 MB ram.
-> SMP, no SW Raid, ext2, but only 1024 byte/file and only 12500
-> files/directory.
->
->
+On 19 Jan 2001 07:10:30 +0100, Ian Macdonald wrote:
+> On 19 Jan 2001 03:51:20 +0100 in caliban.linux.kernel, you wrote:
+> 
+> >Does anyone have pppoe working with 2.4.0?
 > >
-> > With 10000 I also had no problem, my next step was 50000.
+> >I'm running 2.4.0-ac9 with ppp and pppoe compiled into the kernel (I've
+> >tried with modules too)
 > >
-> 10000 files need ~180MB, that fit's into the cache.
-> 50000 files need ~900MB, that doesn't fit into the cache.
->
-> I'd try 10000 files, but now with "mem=64m"
->
-You are right! I first tried with 20000 files and 256MB and it was ok.
-Then I tried with 10000 files and "mem=64m" and I get the corruption.
+> >The pppd simply refuses to acknowlege the presence of ppp support in the
+> >kernel.
+> >The last release of pppd was in august 2000.  Was this before the ppp
+> >interface in the 
+> >kernel was overhauled?
+> 
+> Have you aliased the new module name to ppp?
+> 
+> I'm using pppd just for simple dial-up from home, but I needed to add
+> the following line to /etc/modules.conf before pppd would load the
+> correct module:
+> 
+> alias ppp ppp_async
+> 
+> However, I couldn't get PPP to work when I compiled it directly into
+> the kernel.
+> 
+> Ian
+> -- 
+> Ian Macdonald               | "Language shapes the way we think, and     
+> Senior System Administrator | determines what we can think about." -- B. 
+> Linuxcare, Inc.             | L. Whorf                                   
+> Support for the Revolution  |                                            
+>                             |                                            
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 
-So if I conclude correctly: we both have SMP + ext2 and you do not have
-SW raid and I do, that its definetly a SW raid bug?
 
-Holger
 
+-- 
+Martin Hicks   || mort@bork.org    
+Use PGP/GnuPG  || DSS PGP Key: 0x4C7F2BEE  
+Beer: So much more than just a breakfast drink.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

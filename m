@@ -1,34 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261380AbRETCf2>; Sat, 19 May 2001 22:35:28 -0400
+	id <S261382AbRETCgs>; Sat, 19 May 2001 22:36:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261384AbRETCfS>; Sat, 19 May 2001 22:35:18 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61966 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261380AbRETCfG>;
-	Sat, 19 May 2001 22:35:06 -0400
-Date: Sun, 20 May 2001 03:34:06 +0100
-From: Matthew Wilcox <matthew@wil.cx>
+	id <S261390AbRETCgi>; Sat, 19 May 2001 22:36:38 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:52112 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S261382AbRETCg0>;
+	Sat, 19 May 2001 22:36:26 -0400
+Date: Sat, 19 May 2001 22:36:25 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
 To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: Matthew Wilcox <matthew@wil.cx>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Alexander Viro <viro@math.psu.edu>, Andrew Clausen <clausen@gnu.org>,
-        Ben LaHaise <bcrl@redhat.com>, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+cc: Matthew Wilcox <matthew@wil.cx>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Andrew Clausen <clausen@gnu.org>, Ben LaHaise <bcrl@redhat.com>,
+        torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org
 Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
-Message-ID: <20010520033406.I23718@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <Pine.GSO.4.21.0105190416190.3724-100000@weyl.math.psu.edu> <E1517Jf-0008PV-00@the-village.bc.nu> <200105191851.f4JIpNK00364@mobilix.ras.ucalgary.ca> <20010520031807.G23718@parcelfarce.linux.theplanet.co.uk> <200105200222.f4K2Mto02608@mobilix.ras.ucalgary.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200105200222.f4K2Mto02608@mobilix.ras.ucalgary.ca>; from rgooch@ras.ucalgary.ca on Sat, May 19, 2001 at 10:22:55PM -0400
+In-Reply-To: <200105200222.f4K2Mto02608@mobilix.ras.ucalgary.ca>
+Message-ID: <Pine.GSO.4.21.0105192232560.7162-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 19, 2001 at 10:22:55PM -0400, Richard Gooch wrote:
+
+
+On Sat, 19 May 2001, Richard Gooch wrote:
+
 > The transaction(2) syscall can be just as easily abused as ioctl(2) in
-> this respect.
+> this respect. People can pass pointers to ill-designed structures very
 
-But read() and write() cannot.
+Right. Moreover, it's not needed. The same functionality can be trivially
+implemented by write() and read(). As the matter of fact, had been done
+in userland context for decades. Go and buy Stevens. Read it. Then come
+back.
 
--- 
-Revolutions do not require corporate support.

@@ -1,41 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288051AbSA3CRz>; Tue, 29 Jan 2002 21:17:55 -0500
+	id <S288061AbSA3CT0>; Tue, 29 Jan 2002 21:19:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288040AbSA3CRq>; Tue, 29 Jan 2002 21:17:46 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:38668 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S288051AbSA3CRg>; Tue, 29 Jan 2002 21:17:36 -0500
-Date: Tue, 29 Jan 2002 18:16:37 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrew Morton <akpm@zip.com.au>
-cc: Robert Love <rml@tech9.net>, <viro@math.psu.edu>,
-        <linux-kernel@vger.kernel.org>
+	id <S288040AbSA3CTG>; Tue, 29 Jan 2002 21:19:06 -0500
+Received: from zero.tech9.net ([209.61.188.187]:14090 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S288061AbSA3CSr>;
+	Tue, 29 Jan 2002 21:18:47 -0500
 Subject: Re: [PATCH] 2.5: push BKL out of llseek
-In-Reply-To: <3C574BD1.E5343312@zip.com.au>
-Message-ID: <Pine.LNX.4.33.0201291813420.1996-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Robert Love <rml@tech9.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: viro@math.psu.edu, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0201291647310.1747-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0201291647310.1747-100000@penguin.transmeta.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 29 Jan 2002 21:24:38 -0500
+Message-Id: <1012357479.817.71.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2002-01-29 at 19:52, Linus Torvalds wrote:
 
-On Tue, 29 Jan 2002, Andrew Morton wrote:
->
-> And llseek is *fast*.  If we're seeing significant
-> lock contention in there then adding a schedule() is
-> likely to turn Anton into one unhappy dbencher.
+> Doing it in the low-level filesystem would match how we now do it inside
+> generic_file_write() - ie the locking is done by the low-level filesystem,
+> but most low-level filesystems choose to use a generic helper function.
 
-I'd agree, except I doubt there is every much contention on the _same_
-file.
+OK.  Hopefully the inode semaphore works ...
 
-The reason llseek() ends up being so clear on the profiles is that it's a
-very common system call under certain loads _and_ it uses a shared lock
-for everything.
+> And I think your patch is slightly wrong:
+> 
+> > +	down(&file->f_dentry->d_inode->i_sem);
+> 
+> That should really be:
+> 
+> 	file->f_dentry->d_inode->i_mapping->host->i_sem
+> 
+> to get the hosted filesystem case right (ie coda).
 
-Also note the correctness issue (ie serialization on i_size), although
-that is only an issue for SEEK_END (and maybe the lock should only be
-gotten for that case. I'd love to hear what Al thinks..
+Ahh, learn something ;-)
 
-		Linus
+	Robert Love
+
+--- linux-2.5.3-pre6/fs/read_write.c	Mon Jan 28 18:30:22 2002
++++ linux/fs/read_write.c	Tue Jan 29 19:29:32 2002
+@@ -84,9 +84,9 @@
+ 	fn = default_llseek;
+ 	if (file->f_op && file->f_op->llseek)
+ 		fn = file->f_op->llseek;
+-	lock_kernel();
++	down(&file->f_dentry->d_inode->i_mapping->host->i_sem);
+ 	retval = fn(file, offset, origin);
+-	unlock_kernel();
++	up(&file->f_dentry->d_inode->i_mapping->host->i_sem);
+ 	return retval;
+ }
+ 
+
 

@@ -1,44 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135378AbRDLXLe>; Thu, 12 Apr 2001 19:11:34 -0400
+	id <S135380AbRDLXRy>; Thu, 12 Apr 2001 19:17:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135379AbRDLXLY>; Thu, 12 Apr 2001 19:11:24 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:41736 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S135378AbRDLXLL>; Thu, 12 Apr 2001 19:11:11 -0400
-Subject: Re: Linux-Kernel Archive: No 100 HZ timer !
-To: andre@linux-ide.org (Andre Hedrick)
-Date: Fri, 13 Apr 2001 00:12:31 +0100 (BST)
-Cc: schwidefsky@de.ibm.com, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10104121448520.4564-100000@master.linux-ide.org> from "Andre Hedrick" at Apr 12, 2001 02:52:22 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14nqGQ-0001i5-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S135381AbRDLXRo>; Thu, 12 Apr 2001 19:17:44 -0400
+Received: from cobae1.consultronics.on.ca ([205.210.130.26]:57847 "EHLO
+	cobae1.consultronics.on.ca") by vger.kernel.org with ESMTP
+	id <S135380AbRDLXRl>; Thu, 12 Apr 2001 19:17:41 -0400
+Date: Thu, 12 Apr 2001 19:17:26 -0400
+From: Greg Louis <glouis@dynamicro.on.ca>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.3-ac5
+Message-ID: <20010412191726.A719@athame.dynamicro.on.ca>
+Reply-To: glouis@dynamicro.on.ca
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <E14njvB-0000xu-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="sdtB3X0nJg68CQEu"
+Content-Disposition: inline
+In-Reply-To: <E14njvB-0000xu-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Apr 12, 2001 at 05:26:11PM +0100
+Organization: Dynamicro Consulting Limited
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Okay but what will be used for a base for hardware that has critical
-> timing issues due to the rules of the hardware?
 
-> #define WAIT_MIN_SLEEP  (2*HZ/100)      /* 20msec - minimum sleep time */
-> 
-> Give me something for HZ or a rule for getting a known base so I can have
-> your storage work and not corrupt.
+--sdtB3X0nJg68CQEu
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On 20010412 (Thu) at 1726:11 +0100, Alan Cox wrote:
+>=20
+> 2.4.3-ac5
 
-The same values would be valid with add_timer and friends regardless. Its just
-that people who do
+> o	Fix rwsem compile problem			(me)
 
-	while(time_before(jiffies, started+DELAY))
-	{
-		if(poll_foo())
-			break;
-	}
+No such luck, I fear, at least not with egcs-2.91.66:
+/usr/src/linux-2.4.3ac5/include/asm/rwsem.h:26: badly punctuated
+parameter list in #define'
+/usr/src/linux-2.4.3ac5/include/asm/rwsem.h: In function 'down_read':
+/usr/src/linux-2.4.3ac5/include/asm/rwsem.h:52: warning: implicit
+declaration of function 'rwsemdebug'
 
-would need to either use add_timer or we could implement get_jiffies()
+I went in and #if 0'd around the #ifdef at line 26 and uncommented the
+corresponding lines in "old gcc" and it worked fine.  Do gcc and egcs
+really not define anything source could #ifdef to figure out to which
+compiler it's being submitted?  Yuk!
 
+--=20
+| G r e g  L o u i s          | gpg public key:      |
+|   http://www.bgl.nu/~glouis |   finger greg@bgl.nu |
 
-	
+--sdtB3X0nJg68CQEu
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Comment: finger greg@bgl.nu for public key
+
+iEYEARECAAYFAjrWN4YACgkQDlwut6d6Rj1kiwCcD6mhho5blaUmmau3b8L2UMXY
+Vo4An05TlmwVpjPHpm8cYqizrafpBVM9
+=M1j1
+-----END PGP SIGNATURE-----
+
+--sdtB3X0nJg68CQEu--

@@ -1,87 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131479AbQLHPV1>; Fri, 8 Dec 2000 10:21:27 -0500
+	id <S129414AbQLHP1r>; Fri, 8 Dec 2000 10:27:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131526AbQLHPVR>; Fri, 8 Dec 2000 10:21:17 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:50560 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S131479AbQLHPVC>; Fri, 8 Dec 2000 10:21:02 -0500
-Date: Fri, 8 Dec 2000 09:50:11 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Jeff V. Merkey" <jmerkey@timpanogas.org>,
-        Peter Samuelson <peter@cadcamlab.org>, linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: NTFS repair tools]
-In-Reply-To: <Pine.LNX.4.21.0012081226160.8655-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.3.95.1001208093143.11788A-100000@chaos.analogic.com>
+	id <S129415AbQLHP1i>; Fri, 8 Dec 2000 10:27:38 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:5134 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S129414AbQLHP1a>;
+	Fri, 8 Dec 2000 10:27:30 -0500
+Message-ID: <3A30F68F.50076AA7@mandrakesoft.com>
+Date: Fri, 08 Dec 2000 09:56:15 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Peter Horton <pdh@colonel-panic.com>
+CC: "Mike A. Harris" <mharris@opensourceadvocate.org>,
+        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: D-LINK DFE-530-TX
+In-Reply-To: <Pine.LNX.4.30.0012061942570.620-100000@asdf.capslock.lan> <20001208012321.A1732@colonel-panic.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Dec 2000, Rik van Riel wrote:
-
-> On Fri, 8 Dec 2000, Alan Cox wrote:
+Peter Horton wrote:
 > 
-> > I am very firmly against removing something because people do
-> > not read manuals, what is next fdisk , mkfs ?.
+> On Wed, Dec 06, 2000 at 07:44:02PM -0500, Mike A. Harris wrote:
+> > Which ethernet module works with this card?  2.2.17 kernel
+> >
 > 
-> I must say I like the CONFIG_MORON though. By setting that the
-> (l)user exposes his true identity and leaves little for us to
-> doubt ;)
-> 
-> Added to the Patch of the Month page as suggested by David
-> Weinehall:
-> 
-> 	http://www.surriel.com/potm/
-> 
-> regards,
-> 
+> If the PCI device ID is 3065 then it's via-rhine, but not supported by the
+> driver in the kernel. Get updated via-rhine from Donald Becker's site
+> http://www.scyld.com/network.
 
-Question. Which of the following files will first be executed if
-found in a distribution?
+2.4.x-test has some fixes for via-rhine which don't appear to have made
+it into the Becker driver yet...
 
-Script started on Fri Dec  8 09:34:17 2000
-# pwd
-/DANGER/DANGER/DANGER
-# ls -la
-total 3128
-drwxr-xr-x   2 root     root         4096 Dec  8 09:34 .
-drwxrwxrwx   3 root     root         4096 Dec  8 09:32 ..
--rwxr-xr-x   1 root     root       634503 Dec  8 09:33 corruption
--rwxr-xr-x   1 root     root       634503 Dec  8 09:33 death
--rwxr-xr-x   1 root     root       634503 Dec  8 09:32 do_not_execute
--rwxr-xr-x   1 root     root       634503 Dec  8 09:33 this_can_break_your_machine
--rwxr-xr-x   1 root     root       634503 Dec  8 09:33 this_is_harmful
-# exit
-exit
-Script done on Fri Dec  8 09:34:39 2000
-
-Answer; Anything that looks exciting. I'd go for death, but the less bold
-might try corruption first. Things that are only harmful get no attention
-at all.
-
-In the 'olden' days, stuff in /sbin was considered off-limits without
-the explicit written documentation at hand (Try to partition a hard-
-disk under Ultrix). When asked; "Do you want to write (Y/N)?", the
-answers were not Y/N!  You had to look in the documentation and
-find that the only way to commit the write was by typing
-"Yes, absolutely, positively!"
-
-This helped keep the learners from destroying their systems.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
+	Jeff
 
 
+-- 
+Jeff Garzik         |
+Building 1024       | These are not the J's you're lookin' for.
+MandrakeSoft        | It's an old Jedi mind trick.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

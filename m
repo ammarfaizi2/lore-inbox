@@ -1,73 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263183AbUCTAkZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 19:40:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263186AbUCTAkZ
+	id S263186AbUCTAmi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 19:42:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263188AbUCTAmi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 19:40:25 -0500
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:27801 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S263183AbUCTAkR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 19:40:17 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Fast 64-bit atomic writes (SSE?)
-X-Message-Flag: Warning: May contain useful information
-X-Priority: 1
-X-MSMail-Priority: High
-From: Roland Dreier <roland@digitalvampire.org>
-Date: 19 Mar 2004 16:39:17 -0800
-Message-ID: <874qskl5ca.fsf@love-shack.home.digitalvampire.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+	Fri, 19 Mar 2004 19:42:38 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:63460 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263186AbUCTAmd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 19:42:33 -0500
+Message-ID: <405B936C.50200@pobox.com>
+Date: Fri, 19 Mar 2004 19:42:20 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+CC: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Chris Mason <mason@suse.com>
+Subject: Re: [PATCH] barrier patch set
+References: <20040319153554.GC2933@suse.de> <200403200059.22234.bzolnier@elka.pw.edu.pl> <405B8CFD.2030909@pobox.com> <200403200140.59543.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200403200140.59543.bzolnier@elka.pw.edu.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, I'm trying to find the best (fastest) way to write a 64-bit
-quantity atomically to a device (on i386).  Taking a spinlock around
-two 32-bit accesses seems to be rather expensive.  I'm mostly
-concerned about newish CPUs, so I'm willing to use SSE or SSE2
-instructions (of course falling back to a slower locked path if the
-kernel is built for an old CPU).
+Bartlomiej Zolnierkiewicz wrote:
+> On Saturday 20 of March 2004 01:14, Jeff Garzik wrote:
+> 
+>>Bartlomiej Zolnierkiewicz wrote:
+>>
+>>>The fact that spec says "supported" not "enabled" in description of
+>>>word86 makes me wonder - can they be disabled? (FLUSH CACHE is mandatory
+>>>for General feature set and FLUSH CACHE EXT is mandatory if 48-bit LBA is
+>>>supported)
+>>
+>>Yes, that's why there are separate 'supported' and 'enabled' bits for
+>>each feature.
+>>
+>>Words 82-84 are 'supported' bits.  Words 85-87 are 'enabled' bits.
+>>These bits mirror each other, i.e. Word 83 and Word 86 have basically
+>>the same bits, except that Word 86 definitions change _slightly_ since
+>>the only bits that are relevant are the ones for features that can be
+>>disabled/enabled.
+>>
+>>You use set-features command to enable and disable these features, and
+>>then the result shows up in subsequent identify-device command output.
+>>
+>>If the driver is testing for a capability but does not enable it, then
+>>always use the 'enabled' set of bits, not the 'supported' set of bits.
+> 
+> 
+> This is quite obvious but I am talking about confusing wording in description
+> of word86 - for some features 'enabled' is used and for others 'supported'
 
-I guess I have two questions, a general one and a specific one.
+Yeah, mainly the difference is communicating in the description of each 
+word.
 
-General question:
-  What's the best way to do this?
+Anyway, what I described is how things work :)  For example, features 
+that are always enabled in the drive are listed with both support and 
+enabled bits set.  The driver sees that, and does not issue a 
+set-features command, because it does not need to.
 
-Specific question:
-  I've come up with the below function.  However, you may notice that
-I'm forced to use movdqu (instead of movdqa, which is presumably
-faster).  This is because even with the __attribute__((aligned(16))),
-my xmmsave array is not guaranteed to be aligned to 16 bytes.  I could
-just allocate 31 bytes for xmmsave and align it to 16 bytes by hand,
-but that seems a little ugly.  Is there some magic I'm missing?
 
-Thanks,
-  Roland
+>>>IMO to test if FLUSH CACHE works we should just issue it during disk
+>>>setup and check result.  This way we can use FLUSH CACHE also on < ATA-6
+>>>devices (there is a lot of them).
+>>
+>>I disagree.  "just issue it" is how those LG cdrom drives got cooked.
+> 
+> 
+> I'm aware of LG fun.  Jens already stated that current barrier implementation
+> is disk-only and I'm talking about disks only.
+> 
+> If anybody reused CACHE FLUSH opcode for disk drive he/she deserves to loose.
+> 8)
 
-static inline void mywrite64(u32 *val, void *dest)
-{
-        u8 xmmsave[16] __attribute__((aligned(16)));
+Well...  If you don't check the proper feature bits found in the spec, I 
+blame the driver for ignoring the spec...  :)
 
-/* The #ifs are a hack to deal with 2.4 kernels without preempt. */
-#if CONFIG_PREEMPT
-        preempt_disable();
-#endif
 
-        /* We use movdqu for the moment, because even
-           __attribute__((aligned(16))) doesn't seem to guarantee
-           xmmsave is aligned to a 16 byte boundary. */
-        __asm__ __volatile__ (
-                "movdqu %%xmm0,(%0); \n\t"
-                "movq   (%1),%%xmm0; \n\t"
-                "movq   %%xmm0,(%2); \n\t"
-                "movdqu (%0),%%xmm0; \n\t"
-                :
-                : "r" (xmmsave), "r" (val), "r" (dest)
-                : "memory" );
+>>All drives that support flush-cache list the relevant bits in
+>>identify-device, even on pre-ATA-6 devices.  Whether the feature was
+>>optional or mandantory, we can check the feature bits.
+> 
+> 
+> Hm. so this is undocumented in the spec?
 
-#if CONFIG_PREEMPT
-        preempt_enable();
-#endif
-}
+?  When it was optional, there was a feature bit to test.  When it 
+became mandantory, the feature bit to test stayed in there.  The feature 
+bit is zero, otherwise.  Makes it possible to use "just test the bit" 
+and have things Just Work(tm).  :)
+
+	Jeff
+
+
+

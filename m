@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261322AbSJCWMn>; Thu, 3 Oct 2002 18:12:43 -0400
+	id <S261318AbSJCWKl>; Thu, 3 Oct 2002 18:10:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261335AbSJCWMn>; Thu, 3 Oct 2002 18:12:43 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:22541 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261322AbSJCWMm>;
-	Thu, 3 Oct 2002 18:12:42 -0400
-Date: Thu, 3 Oct 2002 15:15:25 -0700
-From: Greg KH <greg@kroah.com>
-To: kernel <linux-kernel@vger.kernel.org>
-Subject: Re: export of sys_call_table
-Message-ID: <20021003221525.GA2221@kroah.com>
-References: <20021003153943.E22418@openss7.org>
+	id <S261319AbSJCWKl>; Thu, 3 Oct 2002 18:10:41 -0400
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:42650 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S261318AbSJCWKk>;
+	Thu, 3 Oct 2002 18:10:40 -0400
+Date: Thu, 3 Oct 2002 23:19:19 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.4] [TRIVIAL] missing entry in Intel cache table
+Message-ID: <20021003221919.GA14919@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Jean Delvare <khali@linux-fr.org>, linux-kernel@vger.kernel.org
+References: <20021003212821.E1A2E40E31@kraid.nerim.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021003153943.E22418@openss7.org>
+In-Reply-To: <20021003212821.E1A2E40E31@kraid.nerim.net>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 03, 2002 at 03:39:43PM -0600, Brian F. G. Bidulock wrote:
-> I see that RH, in their infinite wisdom, have seen fit to remove
-> the export of sys_call_table in 8.0 kernels breaking any loadable
-> modules that wish to implement non-implemented system calls such
-> as LiS's or iBCS implementation of putmsg/getmsg.
-> 
-> sys_call_table is exported in current 2.4 and 2.5 kernels.
+On Thu, Oct 03, 2002 at 11:38:40PM +0200, Jean Delvare wrote:
+ > Hello everyone.
+ > 
+ > It seems that the Intel cache table in arch/i386/kernel/setup.c misses one entry. It must have been lost in 2.4.20-pre1 when Andy Grover converted the old switch-case-based method to the much-nicer table-based one.
+ > 
+ > --- linux-2.4.20-pre8/arch/i386/kernel/setup.c.orig	Thu Oct  3 19:34:34 2002
+ > +++ linux-2.4.20-pre8/arch/i386/kernel/setup.c	Thu Oct  3 19:36:39 2002
+ > @@ -2212,6 +2212,7 @@
+ >  	{ 0x7B, LVL_2,      512 },
+ >  	{ 0x7C, LVL_2,      1024 },
+ >  	{ 0x82, LVL_2,      256 },
+ > +	{ 0x83, LVL_2,      512 },
+ >  	{ 0x84, LVL_2,      1024 },
+ >  	{ 0x85, LVL_2,      2048 },
+ >  	{ 0x00, 0, 0}
+ > 
+ > The same applies to the 2.5 tree, see my next post.
 
-As of 2.5.40bk it is now also not exported, which is a good thing.
+See the patch I posted last Sunday fixing this, and
+several other cache related issues.
 
-> Until now, loadable modules have been able to just overwrite
-> the non implemented point in the sys_call_table when they load
-> and putting it back when they unload.  There is no mechanism
-> for registering system calls.
+		Dave
 
-That's a racy, easily breakable thing to do.  Don't do it.
-
-> What is the kernel.org take on this?
-
-It is a good thing that the sys_call_table is now not exported.
-
-thanks,
-
-greg k-h
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk

@@ -1,40 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261538AbULTPlq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261570AbULTPlr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261538AbULTPlq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 10:41:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261571AbULTPiF
+	id S261570AbULTPlr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 10:41:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261577AbULTPhk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 10:38:05 -0500
-Received: from 76.80-203-227.nextgentel.com ([80.203.227.76]:40170 "EHLO
-	mail.inprovide.com") by vger.kernel.org with ESMTP id S261570AbULTPfB convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 10:35:01 -0500
-To: Dorn Hetzel <kernel@dorn.hetzel.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: arch/xen clue?
-References: <20041215114916.GB1232@elf.ucw.cz> <41C20FFF.6000004@tmr.com>
-	<20041220150857.GA14839@lilah.hetzel.org>
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Date: Mon, 20 Dec 2004 16:34:57 +0100
-In-Reply-To: <20041220150857.GA14839@lilah.hetzel.org> (Dorn Hetzel's
- message of "Mon, 20 Dec 2004 10:08:57 -0500")
-Message-ID: <yw1xbrcpx9su.fsf@ford.inprovide.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Mon, 20 Dec 2004 10:37:40 -0500
+Received: from mail.kroah.org ([69.55.234.183]:35508 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261571AbULTPhQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 10:37:16 -0500
+Date: Mon, 20 Dec 2004 07:35:08 -0800
+From: Greg KH <greg@kroah.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Ed Tomlinson <edt@aei.ca>, Pete Zaitcev <zaitcev@redhat.com>,
+       Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, Adrian Bunk <bunk@stusta.de>,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] Re: RFC: [2.6 patch] let BLK_DEV_UB depend on EMBEDDED
+Message-ID: <20041220153508.GB17121@kroah.com>
+References: <200412200702.50071.edt@aei.ca> <Pine.LNX.4.44L0.0412201026390.1358-100000@ida.rowland.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L0.0412201026390.1358-100000@ida.rowland.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dorn Hetzel <kernel@dorn.hetzel.org> writes:
+On Mon, Dec 20, 2004 at 10:28:05AM -0500, Alan Stern wrote:
+> On Mon, 20 Dec 2004, Ed Tomlinson wrote:
+> 
+> > Its not that they just enable it.  Its that it has side effects.  I enable it to support
+> > one device - it then 'devnaps' other devices that usbstorage supports _much_
+> > better.  Is there some way it could work in reverse.  eg. let ub bind only if 
+> > usbstorage does not, possibly making usbstorage a _little_ more conservative
+> > if ub is present?
+> 
+> Unfortunately there isn't any way to define which driver should bind to a 
+> device, if they are both capable of controlling it.  Maybe there should 
+> be.  It might not be too hard to add a sysfs interface for that sort of 
+> thing.
 
-> For those of us who are clueless as to even what arch/xen
-> is :)  Where would be a good place to read and become
-> informed?
+We are working on it...
 
-http://xen.sf.net/
+thanks,
 
--- 
-Måns Rullgård
-mru@inprovide.com
+greg k-h

@@ -1,55 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261440AbUK2SKj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbUK2SMF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261440AbUK2SKj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 13:10:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261443AbUK2SKj
+	id S261443AbUK2SMF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 13:12:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261462AbUK2SMF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 13:10:39 -0500
-Received: from nijmegen.renzel.net ([195.243.213.130]:65188 "EHLO
-	mx1.renzel.net") by vger.kernel.org with ESMTP id S261440AbUK2SKd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 13:10:33 -0500
-From: Mws <mws@twisted-brains.org>
+	Mon, 29 Nov 2004 13:12:05 -0500
+Received: from zaphod.axian.com ([64.122.196.146]:64951 "EHLO zaphod.axian.com")
+	by vger.kernel.org with ESMTP id S261443AbUK2SLu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 13:11:50 -0500
+Subject: odd behavior with r8169 and pcap
+From: Terry Griffin <terryg@axian.com>
 To: linux-kernel@vger.kernel.org
-Subject: Looking for a single patch file for the ITE8212 kernel 2.6.10-rc2
-Date: Mon, 29 Nov 2004 19:10:33 +0100
-User-Agent: KMail/1.7.1
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1747988.q6MLI962oQ";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Type: text/plain
+Message-Id: <1101751909.2291.21.camel@tux.hq.axian.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 29 Nov 2004 10:11:49 -0800
 Content-Transfer-Encoding: 7bit
-Message-Id: <200411291910.53740.mws@twisted-brains.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1747988.q6MLI962oQ
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Hi all,
 
-hi,
+I'm seeing some very strange behavior with the r8169 driver
+in 2.6.9. (Also observed in FC2's 2.6.5-1).
 
-does somebody, or you alan, have a single patch to support the ite8212 ide chip?
-i now that it is contained in the latest ac patch - but that is against kernel 2.6.9
+Throughput is generally dog slow, less than 100Mb/s. But if
+I fire up any libpcap-based monitoring utility (ethereal,
+iftop, etc) the throughput suddenly jumps an order of magnitude
+to near 1Gb/s. As soon as I quit from the monitoring utility
+the throughput drops back back to where it was before. This can
+be repeated over an over.
 
-my board is an asus p5ad2 premium.
+I created a dummy libpcap monitoring program (below). This
+is enough to trigger the behavior.
 
-regards
-marcel
+So the obvious questions are: Is this a known problem? Why the
+heck does it do this? Is there a fix or workaround to get the
+high rate all the time other than running a pcap utility 24x7?
 
---nextPart1747988.q6MLI962oQ
-Content-Type: application/pgp-signature
+Thanks,
+Terry Griffin
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
+-- dummy-monitor.c -----------------
 
-iD8DBQBBq2YtPpA+SyJsko8RAqoMAJwN1dDbI+J9rw/c8VctEd81r+3K3wCdFRzT
-jhuyuy66Ci643bgcJ2/cmSE=
-=5KIO
------END PGP SIGNATURE-----
+#include <pcap.h>
+#define CAPTURE_LENGTH 68
 
---nextPart1747988.q6MLI962oQ--
+void null_handler(u_char *user, const struct pcap_pkthdr *pkt_header,
+                  const u_char *pkt_data)
+{
+}
+
+int main( int argc, char *argv[] )
+{
+    char *iface;
+    pcap_t* pd;
+    char errbuf[PCAP_ERRBUF_SIZE];
+
+    if( argc == 1 )
+        iface = "eth0";
+    else
+        iface = argv[1];
+
+    pd = pcap_open_live(iface,CAPTURE_LENGTH,0,1000,errbuf);
+    pcap_loop(pd,-1,(pcap_handler)null_handler,NULL);
+
+    return 0;
+}
+
+

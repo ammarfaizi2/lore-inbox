@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129063AbRBGUze>; Wed, 7 Feb 2001 15:55:34 -0500
+	id <S130441AbRBGUyy>; Wed, 7 Feb 2001 15:54:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129832AbRBGUzY>; Wed, 7 Feb 2001 15:55:24 -0500
-Received: from brauhaus.paderlinx.de ([194.122.103.4]:44543 "EHLO
-	imail.paderlinx.de") by vger.kernel.org with ESMTP
-	id <S129063AbRBGUyx>; Wed, 7 Feb 2001 15:54:53 -0500
-Date: Wed, 7 Feb 2001 21:54:23 +0100
-From: Matthias Schniedermeyer <ms@citd.de>
+	id <S129832AbRBGUyo>; Wed, 7 Feb 2001 15:54:44 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:33290
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S129063AbRBGUyY>; Wed, 7 Feb 2001 15:54:24 -0500
+Date: Wed, 7 Feb 2001 12:53:36 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Christoph Hellwig <hch@caldera.de>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.1-ac5
-Message-ID: <20010207215423.A17404@citd.de>
-In-Reply-To: <200102072030.VAA06500@ns.caldera.de> <E14QbMw-0001JD-00@the-village.bc.nu>
-Mime-Version: 1.0
+cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>, "A.Sajjad Zaidi" <sajjad@vgkk.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Promise, DMA and RAID5 problems running 2.4.1
+In-Reply-To: <E14QarA-0001DC-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10102071253121.5890-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <E14QbMw-0001JD-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Feb 07, 2001 at 08:39:12PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > now that -ac grows that huge, could you put out incremental patches?
+On Wed, 7 Feb 2001, Alan Cox wrote:
+
+> > Iff CONFIG_BLK_DEV_IDECS is set then yes, doing schedule is better.
+> > But I do not see any benefit in doing
+> > 
+> > unsigned long timeout = jiffies + ((HZ + 19)/20) + 1;
+> > while (0 < (signed long)(timeout - jiffies));
 > 
-> Takes me too much time. But if anyone else wants to, go ahead
+> On that bit we agree.
 
-This is what i use to diff 2 different kernels
+What do you want fixed?
+Send a patch and lets try it....
 
-- snip -
-        diffkernel)
-           mount none /d/kernel -t ramfs
-           cd /d/kernel
-           tar -zxf $1
-           cp -a linux linuxa
-           cd /d/kernel/linuxa
-           zcat $2 | patch -p1 -E -s
-           cd /d/kernel/linux
-           zcat $3 | patch -p1 -E -s
-           cd /d/kernel
-           diff -Nur linuxa linux
-           cd
-           umount /d/kernel
-- snip -
-
-This takes about 8 seconds (for 2.4 kernels) on my Dual PIII-933, 1Gig-RAM
-
-
-
-
-Bis denn
-
--- 
-Real Programmers consider "what you see is what you get" to be just as 
-bad a concept in Text Editors as it is in women. No, the Real Programmer
-wants a "you asked for it, you got it" text editor -- complicated, 
-cryptic, powerful, unforgiving, dangerous.
+Andre Hedrick
+Linux ATA Development
+ASL Kernel Development
+-----------------------------------------------------------------------------
+ASL, Inc.                                     Toll free: 1-877-ASL-3535
+1757 Houret Court                             Fax: 1-408-941-2071
+Milpitas, CA 95035                            Web: www.aslab.com
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

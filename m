@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263154AbTJUPMN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 11:12:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263152AbTJUPLy
+	id S263155AbTJUPNO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 11:13:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263162AbTJUPMu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 11:11:54 -0400
-Received: from d12lmsgate-3.de.ibm.com ([194.196.100.236]:38883 "EHLO
+	Tue, 21 Oct 2003 11:12:50 -0400
+Received: from d12lmsgate-4.de.ibm.com ([194.196.100.237]:54174 "EHLO
 	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-	id S263154AbTJUPKB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 11:10:01 -0400
-Date: Tue, 21 Oct 2003 17:10:08 +0200
+	id S263155AbTJUPKd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 11:10:33 -0400
+Date: Tue, 21 Oct 2003 17:10:53 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 To: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] s390 (7/8): static root object fix.
-Message-ID: <20031021151008.GE1690@mschwid3.boeblingen.de.ibm.com>
+Subject: [PATCH] s390 (8/8): console driver fixes.
+Message-ID: <20031021151053.GF1690@mschwid3.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,381 +21,314 @@ User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add s390_root_dev_{register,unregister} to fix reference counting
-for the root objects of group device drivers.
+Move copy_from_user out of locked code in the 3215 and sclp driver.
 
 diffstat:
- drivers/s390/cio/css.c     |   44 ++++++++++++++++++++++++++++++++++++++++++--
- drivers/s390/net/cu3088.c  |   25 +++++++++----------------
- drivers/s390/net/iucv.c    |   28 ++++++++++++----------------
- drivers/s390/net/iucv.h    |    2 +-
- drivers/s390/net/netiucv.c |    8 ++++----
- drivers/s390/net/qeth.c    |   25 +++++++++----------------
- include/asm-s390/ccwdev.h  |    3 +++
- 7 files changed, 80 insertions(+), 55 deletions(-)
+ drivers/s390/char/con3215.c  |   88 ++++++++++++++++++-------------------------
+ drivers/s390/char/sclp_con.c |    4 -
+ drivers/s390/char/sclp_rw.c  |   16 +------
+ drivers/s390/char/sclp_rw.h  |    2 
+ drivers/s390/char/sclp_tty.c |   38 ++++++++++++++----
+ 5 files changed, 73 insertions(+), 75 deletions(-)
 
-diff -urN linux-2.6/drivers/s390/cio/css.c linux-2.6-s390/drivers/s390/cio/css.c
---- linux-2.6/drivers/s390/cio/css.c	Fri Oct 17 23:42:55 2003
-+++ linux-2.6-s390/drivers/s390/cio/css.c	Tue Oct 21 16:37:38 2003
-@@ -1,7 +1,7 @@
- /*
-  *  drivers/s390/cio/css.c
-  *  driver for channel subsystem
-- *   $Revision: 1.49 $
-+ *   $Revision: 1.51 $
-  *
-  *    Copyright (C) 2002 IBM Deutschland Entwicklung GmbH,
-  *			 IBM Corporation
-@@ -236,6 +236,46 @@
- 
- subsys_initcall(init_channel_subsystem);
- 
-+/*
-+ * Register root devices for some drivers. The release function must not be
-+ * in the device drivers, so we do it here.
-+ */
-+static void
-+s390_root_dev_release(struct device *dev)
-+{
-+	kfree(dev);
-+}
-+
-+struct device *
-+s390_root_dev_register(const char *name)
-+{
-+	struct device *dev;
-+	int ret;
-+
-+	if (!strlen(name))
-+		return ERR_PTR(-EINVAL);
-+	dev = kmalloc(sizeof(struct device), GFP_KERNEL);
-+	if (!dev)
-+		return ERR_PTR(-ENOMEM);
-+	memset(dev, 0, sizeof(struct device));
-+	strncpy(dev->bus_id, name, min(strlen(name), (size_t)BUS_ID_SIZE));
-+	dev->release = s390_root_dev_release;
-+	ret = device_register(dev);
-+	if (ret) {
-+		kfree(dev);
-+		return ERR_PTR(ret);
-+	}
-+	return dev;
-+}
-+
-+void
-+s390_root_dev_unregister(struct device *dev)
-+{
-+	if (dev)
-+		device_unregister(dev);
-+}
-+
- MODULE_LICENSE("GPL");
- EXPORT_SYMBOL(css_bus_type);
--
-+EXPORT_SYMBOL(s390_root_dev_register);
-+EXPORT_SYMBOL(s390_root_dev_unregister);
-diff -urN linux-2.6/drivers/s390/net/cu3088.c linux-2.6-s390/drivers/s390/net/cu3088.c
---- linux-2.6/drivers/s390/net/cu3088.c	Fri Oct 17 23:43:00 2003
-+++ linux-2.6-s390/drivers/s390/net/cu3088.c	Tue Oct 21 16:37:38 2003
-@@ -1,5 +1,5 @@
- /*
-- * $Id: cu3088.c,v 1.31 2003/09/29 15:24:27 cohuck Exp $
-+ * $Id: cu3088.c,v 1.33 2003/10/14 12:10:19 cohuck Exp $
-  *
-  * CTC / LCS ccw_device driver
-  *
-@@ -25,6 +25,7 @@
- 
- #include <linux/init.h>
- #include <linux/module.h>
-+#include <linux/err.h>
- 
- #include <asm/ccwdev.h>
- #include <asm/ccwgroup.h>
-@@ -55,15 +56,7 @@
- 
- static struct ccw_driver cu3088_driver;
- 
--static void
--cu3088_root_dev_release (struct device *dev)
--{
--}
--
--struct device cu3088_root_dev = {
--	.bus_id = "cu3088",
--	.release = cu3088_root_dev_release,
--};
-+struct device *cu3088_root_dev;
- 
- static ssize_t
- group_write(struct device_driver *drv, const char *buf, size_t count)
-@@ -90,7 +83,7 @@
- 		start = end + 1;
- 	}
- 
--	ret = ccwgroup_create(&cu3088_root_dev, cdrv->driver_id,
-+	ret = ccwgroup_create(cu3088_root_dev, cdrv->driver_id,
- 			      &cu3088_driver, 2, argv);
- 
- 	return (ret == 0) ? count : ret;
-@@ -144,12 +137,12 @@
- {
- 	int rc;
- 	
--	rc = device_register(&cu3088_root_dev);
--	if (rc)
--		return rc;
-+	cu3088_root_dev = s390_root_dev_register("cu3088");
-+	if (IS_ERR(cu3088_root_dev))
-+		return PTR_ERR(cu3088_root_dev);
- 	rc = ccw_driver_register(&cu3088_driver);
- 	if (rc)
--		device_unregister(&cu3088_root_dev);
-+		s390_root_dev_unregister(cu3088_root_dev);
- 
- 	return rc;
- }
-@@ -158,7 +151,7 @@
- cu3088_exit (void)
- {
- 	ccw_driver_unregister(&cu3088_driver);
--	device_unregister(&cu3088_root_dev);
-+	s390_root_dev_unregister(cu3088_root_dev);
- }
- 
- MODULE_DEVICE_TABLE(ccw,cu3088_ids);
-diff -urN linux-2.6/drivers/s390/net/iucv.c linux-2.6-s390/drivers/s390/net/iucv.c
---- linux-2.6/drivers/s390/net/iucv.c	Fri Oct 17 23:42:54 2003
-+++ linux-2.6-s390/drivers/s390/net/iucv.c	Tue Oct 21 16:37:38 2003
-@@ -1,5 +1,5 @@
- /* 
-- * $Id: iucv.c,v 1.15 2003/10/01 09:25:15 mschwide Exp $
-+ * $Id: iucv.c,v 1.17 2003/10/14 12:10:19 cohuck Exp $
-  *
-  * IUCV network driver
-  *
-@@ -29,7 +29,7 @@
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  *
-- * RELEASE-TAG: IUCV lowlevel driver $Revision: 1.15 $
-+ * RELEASE-TAG: IUCV lowlevel driver $Revision: 1.17 $
-  *
-  */
- 
-@@ -44,12 +44,14 @@
- #include <linux/interrupt.h>
- #include <linux/list.h>
- #include <linux/errno.h>
-+#include <linux/err.h>
- #include <linux/device.h>
- #include <asm/atomic.h>
- #include "iucv.h"
- #include <asm/io.h>
- #include <asm/s390_ext.h>
- #include <asm/ebcdic.h>
-+#include <asm/ccwdev.h> //for root device stuff
- 
- #define DEBUG
- 
-@@ -79,20 +81,12 @@
- 	return 0;
- }
- 
--static void
--iucv_root_release (struct device *dev)
--{
--}
--
- struct bus_type iucv_bus = {
- 	.name = "iucv",
- 	.match = iucv_bus_match,
- };	
- 
--struct device iucv_root = {
--	.bus_id = "iucv",
--	.release = iucv_root_release,
--};
-+struct device *iucv_root;
- 
- /* General IUCV interrupt structure */
- typedef struct {
-@@ -355,7 +349,7 @@
- static void
- iucv_banner(void)
- {
--	char vbuf[] = "$Revision: 1.15 $";
-+	char vbuf[] = "$Revision: 1.17 $";
- 	char *version = vbuf;
- 
- 	if ((version = strchr(version, ':'))) {
-@@ -387,11 +381,11 @@
- 		return ret;
- 	}
- 
--	ret = device_register(&iucv_root);
--	if (ret != 0) {
-+	iucv_root = s390_root_dev_register("iucv");
-+	if (IS_ERR(iucv_root)) {
- 		printk(KERN_ERR "IUCV: failed to register iucv root.\n");
- 		bus_unregister(&iucv_bus);
--		return ret;
-+		return PTR_ERR(iucv_root);
- 	}
- 
- 	/* Note: GFP_DMA used used to get memory below 2G */
-@@ -401,6 +395,7 @@
- 		printk(KERN_WARNING
- 		       "%s: Could not allocate external interrupt buffer\n",
- 		       __FUNCTION__);
-+		s390_root_dev_unregister(iucv_root);
- 		return -ENOMEM;
- 	}
- 	memset(iucv_external_int_buffer, 0, sizeof(iucv_GeneralInterrupt));
-@@ -413,6 +408,7 @@
- 		       __FUNCTION__);
- 		kfree(iucv_external_int_buffer);
- 		iucv_external_int_buffer = NULL;
-+		s390_root_dev_unregister(iucv_root);
- 		return -ENOMEM;
- 	}
- 	memset(iucv_param_pool, 0, sizeof(iucv_param) * PARAM_POOL_SIZE);
-@@ -439,7 +435,7 @@
- 		kfree(iucv_external_int_buffer);
- 	if (iucv_param_pool)
- 		kfree(iucv_param_pool);
--	device_unregister(&iucv_root);
-+	s390_root_dev_unregister(iucv_root);
- 	bus_unregister(&iucv_bus);
- 	printk(KERN_INFO "IUCV lowlevel driver unloaded\n");
- }
-diff -urN linux-2.6/drivers/s390/net/iucv.h linux-2.6-s390/drivers/s390/net/iucv.h
---- linux-2.6/drivers/s390/net/iucv.h	Fri Oct 17 23:43:36 2003
-+++ linux-2.6-s390/drivers/s390/net/iucv.h	Tue Oct 21 16:37:38 2003
-@@ -203,7 +203,7 @@
- } iucv_array_t __attribute__ ((aligned (8)));
- 
- extern struct bus_type iucv_bus;
--extern struct device iucv_root;
-+extern struct device *iucv_root;
- 
- /*   -prototypes-    */
- /*                                                                
-diff -urN linux-2.6/drivers/s390/net/netiucv.c linux-2.6-s390/drivers/s390/net/netiucv.c
---- linux-2.6/drivers/s390/net/netiucv.c	Tue Oct 21 16:37:36 2003
-+++ linux-2.6-s390/drivers/s390/net/netiucv.c	Tue Oct 21 16:37:38 2003
-@@ -1,5 +1,5 @@
- /*
-- * $Id: netiucv.c,v 1.27 2003/10/06 18:35:24 mschwide Exp $
-+ * $Id: netiucv.c,v 1.28 2003/10/14 11:48:04 cohuck Exp $
-  *
-  * IUCV network driver
-  *
-@@ -30,7 +30,7 @@
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  *
-- * RELEASE-TAG: IUCV network driver $Revision: 1.27 $
-+ * RELEASE-TAG: IUCV network driver $Revision: 1.28 $
-  *
-  */
- 
-@@ -1483,7 +1483,7 @@
- 
- 	snprintf(dev->bus_id, BUS_ID_SIZE, "%s%x", str, ifno);
- 	dev->bus = &iucv_bus;
--	dev->parent = &iucv_root;
-+	dev->parent = iucv_root;
- 
- 	ret = device_register(dev);
- 
-@@ -1729,7 +1729,7 @@
- static void
- netiucv_banner(void)
- {
--	char vbuf[] = "$Revision: 1.27 $";
-+	char vbuf[] = "$Revision: 1.28 $";
- 	char *version = vbuf;
- 
- 	if ((version = strchr(version, ':'))) {
-diff -urN linux-2.6/drivers/s390/net/qeth.c linux-2.6-s390/drivers/s390/net/qeth.c
---- linux-2.6/drivers/s390/net/qeth.c	Tue Oct 21 16:37:38 2003
-+++ linux-2.6-s390/drivers/s390/net/qeth.c	Tue Oct 21 16:37:38 2003
-@@ -1,6 +1,6 @@
- /*
-  *
-- * linux/drivers/s390/net/qeth.c ($Revision: 1.163 $)
-+ * linux/drivers/s390/net/qeth.c ($Revision: 1.165 $)
-  *
-  * Linux on zSeries OSA Express and HiperSockets support
-  *
-@@ -165,7 +165,7 @@
- 		 "reserved for low memory situations");
- 
- /****************** MODULE STUFF **********************************/
--#define VERSION_QETH_C "$Revision: 1.163 $"
-+#define VERSION_QETH_C "$Revision: 1.165 $"
- static const char *version = "qeth S/390 OSA-Express driver ("
-     VERSION_QETH_C "/" VERSION_QETH_H "/" VERSION_QETH_MPC_H
-     QETH_VERSION_IPV6 QETH_VERSION_VLAN ")";
-@@ -9798,15 +9798,7 @@
- 	.remove = ccwgroup_remove_ccwdev,
+diff -urN linux-2.6/drivers/s390/char/con3215.c linux-2.6-s390/drivers/s390/char/con3215.c
+--- linux-2.6/drivers/s390/char/con3215.c	Fri Oct 17 23:43:20 2003
++++ linux-2.6-s390/drivers/s390/char/con3215.c	Tue Oct 21 16:37:39 2003
+@@ -96,6 +96,7 @@
+ 	int msg_dstat;		      /* dstat for pending message */
+ 	int msg_cstat;		      /* cstat for pending message */
+ 	int line_pos;		      /* position on the line (for tabs) */
++	char ubuffer[80];	      /* copy_from_user buffer */
  };
  
--static void
--qeth_root_dev_release (struct device *dev)
--{
--}
--
--static struct device qeth_root_dev = {
--	.bus_id = "qeth",
--	.release = qeth_root_dev_release,
--};
-+static struct device *qeth_root_dev;
+ /* array of 3215 devices structures */
+@@ -532,15 +533,12 @@
+ /*
+  * String write routine for 3215 devices
+  */
+-static int
+-raw3215_write(struct raw3215_info *raw, const char *str,
+-	      int from_user, unsigned int length)
++static void
++raw3215_write(struct raw3215_info *raw, const char *str, unsigned int length)
+ {
+ 	unsigned long flags;
+-	int ret, c;
+-	int count;
++	int c, count;
  
- static struct ccwgroup_driver qeth_ccwgroup_driver;
- static ssize_t
-@@ -9832,7 +9824,7 @@
+-	ret = 0;
+ 	while (length > 0) {
+ 		spin_lock_irqsave(raw->lock, flags);
+ 		count = (length > RAW3215_BUFFER_SIZE) ?
+@@ -550,46 +548,19 @@
+ 		raw3215_make_room(raw, count);
+ 
+ 		/* copy string to output buffer and convert it to EBCDIC */
+-		if (from_user) {
+-			while (1) {
+-				c = min_t(int, count,
+-					min(RAW3215_BUFFER_SIZE - raw->count,
+-					    RAW3215_BUFFER_SIZE - raw->head));
+-				if (c <= 0)
+-					break;
+-				c -= copy_from_user(raw->buffer + raw->head,
+-						    str, c);
+-				if (c == 0) {
+-					if (!ret)
+-						ret = -EFAULT;
+-					break;
+-				}
+-				ASCEBC(raw->buffer + raw->head, c);
+-				raw->head = (raw->head + c) &
+-					    (RAW3215_BUFFER_SIZE - 1);
+-				raw->count += c;
+-				raw->line_pos += c;
+-				str += c;
+-				count -= c;
+-				ret += c;
+-			}
+-		} else {
+-			while (1) {
+-				c = min_t(int, count,
+-					min(RAW3215_BUFFER_SIZE - raw->count,
+-					    RAW3215_BUFFER_SIZE - raw->head));
+-				if (c <= 0)
+-					break;
+-				memcpy(raw->buffer + raw->head, str, c);
+-				ASCEBC(raw->buffer + raw->head, c);
+-				raw->head = (raw->head + c) &
+-					    (RAW3215_BUFFER_SIZE - 1);
+-				raw->count += c;
+-				raw->line_pos += c;
+-				str += c;
+-				count -= c;
+-				ret += c;
+-			}
++		while (1) {
++			c = min_t(int, count,
++				  min(RAW3215_BUFFER_SIZE - raw->count,
++				      RAW3215_BUFFER_SIZE - raw->head));
++			if (c <= 0)
++				break;
++			memcpy(raw->buffer + raw->head, str, c);
++			ASCEBC(raw->buffer + raw->head, c);
++			raw->head = (raw->head + c) & (RAW3215_BUFFER_SIZE - 1);
++			raw->count += c;
++			raw->line_pos += c;
++			str += c;
++			count -= c;
+ 		}
+ 		if (!(raw->flags & RAW3215_WORKING)) {
+ 			raw3215_mk_write_req(raw);
+@@ -598,8 +569,6 @@
+ 		}
+ 		spin_unlock_irqrestore(raw->lock, flags);
  	}
- 	pr_debug("creating qeth group device from '%s', '%s' and '%s'\n",
- 		 bus_ids[0], bus_ids[1], bus_ids[2]);
--	ccwgroup_create(&qeth_root_dev, qeth_ccwgroup_driver.driver_id,
-+	ccwgroup_create(qeth_root_dev, qeth_ccwgroup_driver.driver_id,
- 			&qeth_ccw_driver, 3, argv);
- 	return count;
- }
-@@ -10792,10 +10784,11 @@
- 	if (result)
- 		goto out_cdrv;
- 
--	result = device_register(&qeth_root_dev);
--	if (result)
-+	qeth_root_dev = s390_root_dev_register("qeth");
-+	if (IS_ERR(qeth_root_dev)) {
-+		result = PTR_ERR(qeth_root_dev);
- 		goto out_file;
 -
+-	return ret;
+ }
+ 
+ /*
+@@ -825,7 +794,7 @@
+ 		for (i = 0; i < count; i++)
+ 			if (str[i] == '\t' || str[i] == '\n')
+ 				break;
+-		raw3215_write(raw, str, 0, i);
++		raw3215_write(raw, str, i);
+ 		count -= i;
+ 		str += i;
+ 		if (count > 0) {
+@@ -1021,12 +990,29 @@
+ 	      const unsigned char *buf, int count)
+ {
+ 	struct raw3215_info *raw;
+-	int ret = 0;
++	int length, ret;
+ 
+ 	if (!tty)
+ 		return 0;
+ 	raw = (struct raw3215_info *) tty->driver_data;
+-	ret = raw3215_write(raw, buf, from_user, count);
++	if (!from_user) {
++		raw3215_write(raw, buf, count);
++		return count;
 +	}
- 	qeth_register_notifiers();
- 	qeth_add_procfs_entries();
++	ret = 0;
++	while (count > 0) {
++		length = count < 80 ? count : 80;
++		length -= copy_from_user(raw->ubuffer, buf, length);
++		if (length == 0) {
++			if (!ret)
++				ret = -EFAULT;
++			break;
++		}
++		raw3215_write(raw, raw->ubuffer, count);
++		buf += length;
++		count -= length;
++		ret += length;
++	}
+ 	return ret;
+ }
  
-@@ -10834,7 +10827,7 @@
- 	driver_remove_file(&qeth_ccwgroup_driver.driver, &driver_attr_group);
- 	ccw_driver_unregister(&qeth_ccw_driver);
- 	ccwgroup_driver_unregister(&qeth_ccwgroup_driver);
--	device_unregister(&qeth_root_dev);
-+	s390_root_dev_unregister(qeth_root_dev);
+diff -urN linux-2.6/drivers/s390/char/sclp_con.c linux-2.6-s390/drivers/s390/char/sclp_con.c
+--- linux-2.6/drivers/s390/char/sclp_con.c	Fri Oct 17 23:43:12 2003
++++ linux-2.6-s390/drivers/s390/char/sclp_con.c	Tue Oct 21 16:37:39 2003
+@@ -134,8 +134,8 @@
+ 		}
+ 		/* try to write the string to the current output buffer */
+ 		written = sclp_write(sclp_conbuf, (const unsigned char *)
+-				     message, count, 0);
+-		if (written == -EFAULT || written == count)
++				     message, count);
++		if (written == count)
+ 			break;
+ 		/*
+ 		 * Not all characters could be written to the current
+diff -urN linux-2.6/drivers/s390/char/sclp_rw.c linux-2.6-s390/drivers/s390/char/sclp_rw.c
+--- linux-2.6/drivers/s390/char/sclp_rw.c	Fri Oct 17 23:43:10 2003
++++ linux-2.6-s390/drivers/s390/char/sclp_rw.c	Tue Oct 21 16:37:39 2003
+@@ -175,11 +175,9 @@
+  *  is not busy)
+  */
+ int
+-sclp_write(struct sclp_buffer *buffer,
+-	   const unsigned char *msg, int count, int from_user)
++sclp_write(struct sclp_buffer *buffer, const unsigned char *msg, int count)
+ {
+ 	int spaces, i_msg;
+-	char ch;
+ 	int rc;
  
- 	while (firstcard) {
- 		struct qeth_card *card = firstcard;
-diff -urN linux-2.6/include/asm-s390/ccwdev.h linux-2.6-s390/include/asm-s390/ccwdev.h
---- linux-2.6/include/asm-s390/ccwdev.h	Fri Oct 17 23:43:28 2003
-+++ linux-2.6-s390/include/asm-s390/ccwdev.h	Tue Oct 21 16:37:38 2003
-@@ -167,4 +167,7 @@
- extern int _ccw_device_get_device_number(struct ccw_device *);
- extern int _ccw_device_get_subchannel_number(struct ccw_device *);
- 
-+extern struct device *s390_root_dev_register(const char *);
-+extern void s390_root_dev_unregister(struct device *);
+ 	/*
+@@ -206,13 +204,7 @@
+ 	 * This is in order to a slim and quick implementation.
+ 	 */
+ 	for (i_msg = 0; i_msg < count; i_msg++) {
+-		if (from_user) {
+-			if (get_user(ch, msg + i_msg) != 0)
+-				return -EFAULT;
+-		} else
+-			ch = msg[i_msg];
+-
+-		switch (ch) {
++		switch (msg[i_msg]) {
+ 		case '\n':	/* new line, line feed (ASCII)	*/
+ 			/* check if new mto needs to be created */
+ 			if (buffer->current_line == NULL) {
+@@ -286,7 +278,7 @@
+ 			break;
+ 		default:	/* no escape character	*/
+ 			/* do not output unprintable characters */
+-			if (!isprint(ch))
++			if (!isprint(msg[i_msg]))
+ 				break;
+ 			/* check if new mto needs to be created */
+ 			if (buffer->current_line == NULL) {
+@@ -295,7 +287,7 @@
+ 				if (rc)
+ 					return i_msg;
+ 			}
+-			*buffer->current_line++ = sclp_ascebc(ch);
++			*buffer->current_line++ = sclp_ascebc(msg[i_msg]);
+ 			buffer->current_length++;
+ 			break;
+ 		}
+diff -urN linux-2.6/drivers/s390/char/sclp_rw.h linux-2.6-s390/drivers/s390/char/sclp_rw.h
+--- linux-2.6/drivers/s390/char/sclp_rw.h	Fri Oct 17 23:43:16 2003
++++ linux-2.6-s390/drivers/s390/char/sclp_rw.h	Tue Oct 21 16:37:39 2003
+@@ -89,7 +89,7 @@
+ struct sclp_buffer *sclp_make_buffer(void *, unsigned short, unsigned short);
+ void *sclp_unmake_buffer(struct sclp_buffer *);
+ int sclp_buffer_space(struct sclp_buffer *);
+-int sclp_write(struct sclp_buffer *buffer, const unsigned char *, int, int);
++int sclp_write(struct sclp_buffer *buffer, const unsigned char *, int);
+ void sclp_emit_buffer(struct sclp_buffer *,void (*)(struct sclp_buffer *,int));
+ void sclp_set_columns(struct sclp_buffer *, unsigned short);
+ void sclp_set_htab(struct sclp_buffer *, unsigned short);
+diff -urN linux-2.6/drivers/s390/char/sclp_tty.c linux-2.6-s390/drivers/s390/char/sclp_tty.c
+--- linux-2.6/drivers/s390/char/sclp_tty.c	Fri Oct 17 23:42:55 2003
++++ linux-2.6-s390/drivers/s390/char/sclp_tty.c	Tue Oct 21 16:37:39 2003
+@@ -322,7 +322,7 @@
+  * Write a string to the sclp tty.
+  */
+ static void
+-sclp_tty_write_string(const unsigned char *str, int count, int from_user)
++sclp_tty_write_string(const unsigned char *str, int count)
+ {
+ 	unsigned long flags;
+ 	void *page;
+@@ -348,8 +348,8 @@
+ 						       sclp_ioctls.htab);
+ 		}
+ 		/* try to write the string to the current output buffer */
+-		written = sclp_write(sclp_ttybuf, str, count, from_user);
+-		if (written == -EFAULT || written == count)
++		written = sclp_write(sclp_ttybuf, str, count);
++		if (written == count)
+ 			break;
+ 		/*
+ 		 * Not all characters could be written to the current
+@@ -389,12 +389,32 @@
+ sclp_tty_write(struct tty_struct *tty, int from_user,
+ 	       const unsigned char *buf, int count)
+ {
++	int length, ret;
 +
- #endif /* _S390_CCWDEV_H_ */
+ 	if (sclp_tty_chars_count > 0) {
+-		sclp_tty_write_string(sclp_tty_chars, sclp_tty_chars_count, 0);
++		sclp_tty_write_string(sclp_tty_chars, sclp_tty_chars_count);
+ 		sclp_tty_chars_count = 0;
+ 	}
+-	sclp_tty_write_string(buf, count, from_user);
+-	return count;
++	if (!from_user) {
++		sclp_tty_write_string(buf, count);
++		return count;
++	}
++	ret = 0;
++	while (count > 0) {
++		length = count < SCLP_TTY_BUF_SIZE ?
++			count : SCLP_TTY_BUF_SIZE;
++		length -= copy_from_user(sclp_tty_chars, buf, length);
++		if (length == 0) {
++			if (!ret)
++				ret = -EFAULT;
++			break;
++		}
++		sclp_tty_write_string(sclp_tty_chars, length);
++		buf += length;
++		count -= length;
++		ret += length;
++	}
++	return ret;
+ }
+ 
+ /*
+@@ -412,7 +432,7 @@
+ {
+ 	sclp_tty_chars[sclp_tty_chars_count++] = ch;
+ 	if (ch == '\n' || sclp_tty_chars_count >= SCLP_TTY_BUF_SIZE) {
+-		sclp_tty_write_string(sclp_tty_chars, sclp_tty_chars_count, 0);
++		sclp_tty_write_string(sclp_tty_chars, sclp_tty_chars_count);
+ 		sclp_tty_chars_count = 0;
+ 	}
+ }
+@@ -425,7 +445,7 @@
+ sclp_tty_flush_chars(struct tty_struct *tty)
+ {
+ 	if (sclp_tty_chars_count > 0) {
+-		sclp_tty_write_string(sclp_tty_chars, sclp_tty_chars_count, 0);
++		sclp_tty_write_string(sclp_tty_chars, sclp_tty_chars_count);
+ 		sclp_tty_chars_count = 0;
+ 	}
+ }
+@@ -464,7 +484,7 @@
+ sclp_tty_flush_buffer(struct tty_struct *tty)
+ {
+ 	if (sclp_tty_chars_count > 0) {
+-		sclp_tty_write_string(sclp_tty_chars, sclp_tty_chars_count, 0);
++		sclp_tty_write_string(sclp_tty_chars, sclp_tty_chars_count);
+ 		sclp_tty_chars_count = 0;
+ 	}
+ }

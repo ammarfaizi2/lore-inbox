@@ -1,117 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266385AbUAHXtS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 18:49:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266389AbUAHXtR
+	id S266383AbUAHXqG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 18:46:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266385AbUAHXqG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 18:49:17 -0500
-Received: from viriato2.servicios.retecal.es ([212.89.0.45]:50929 "EHLO
-	viriato2.servicios.retecal.es") by vger.kernel.org with ESMTP
-	id S266385AbUAHXsH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 18:48:07 -0500
-Subject: [2.6.1-rc2-mm1][BUG] bad: scheduling while atomic!
-From: Ramon Rey Vicente <ramon.rey@augcyl.org>
-Reply-To: ramon.rey@hispalinux.es
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ODzVC3SM2Cilex9DIh0C"
-Organization: AUGCyL - http://www.augcyl.org
-Message-Id: <1073605678.1070.10.camel@debian>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 09 Jan 2004 00:47:59 +0100
+	Thu, 8 Jan 2004 18:46:06 -0500
+Received: from impact.colo.mv.net ([199.125.75.20]:1505 "EHLO
+	impact.colo.mv.net") by vger.kernel.org with ESMTP id S266383AbUAHXpl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 18:45:41 -0500
+Message-ID: <3FFDEB94.4000606@bogonomicon.net>
+Date: Thu, 08 Jan 2004 17:45:24 -0600
+From: Bryan Andersen <bryan@bogonomicon.net>
+Organization: Bogonomicon
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Bryan Andersen <bryan@nerdvest.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23+atalib2 sil3112A write errors
+References: <3FFD4371.7020309@nerdvest.com>
+In-Reply-To: <3FFD4371.7020309@nerdvest.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sorry for the false alarm.  I'm now suspecting hardware errors.  I took 
+a look at the actual errors introduced into the files.  When I octal 
+dump both the source file and destination file and diff them I'm only 
+seeing a short string of bytes changed.  This is telling me I'm getting 
+multibit errors slipping though.  Time to start swapping cables and 
+hardware.  Is there a way to get the driver to output messages when 
+errors are seen rather than messages for all transfers?
 
---=-ODzVC3SM2Cilex9DIh0C
-Content-Type: multipart/mixed; boundary="=-oPF3/8meIfV5mIE11+hc"
+This is an example of the differences seen.
 
+72922,72923c72922,72923
+< 4357500 064047 120335 134421 006545 137622 023477 043620 164561
+< 4357520 106514 023757 026270 043466 051034 117400 174451 127107
+---
+ > 4357500 064047 120335 134421 006545 136566 035207 015425 133770
+ > 4357520 012031 012055 171154 045114 015406 000160 017147 035214
 
---=-oPF3/8meIfV5mIE11+hc
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+- Bryan
 
---=20
-Ram=C3=B3n Rey Vicente       <ramon dot rey at hispalinux dot es>
-        jabber ID       <rreylinux at jabber dot org>
-GPG public key ID 	0xBEBD71D5 -> http://pgp.escomposlinux.org/
-
---=-oPF3/8meIfV5mIE11+hc
-Content-Disposition: inline; filename=bug3
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; name=bug3; charset=UTF-8
-
-SmFuICA4IDIzOjE2OjU5IGRlYmlhbiBrZXJuZWw6IGJhZDogc2NoZWR1bGluZyB3aGlsZSBhdG9t
-aWMhDQpKYW4gIDggMjM6MTY6NTkgZGViaWFuIGtlcm5lbDogQ2FsbCBUcmFjZToNCkphbiAgOCAy
-MzoxNjo1OSBkZWJpYW4ga2VybmVsOiAgW3NjaGVkdWxlKzE0MDkvMTQ0MF0gc2NoZWR1bGUrMHg1
-ODEvMHg1YTANCkphbiAgOCAyMzoxNjo1OSBkZWJpYW4ga2VybmVsOiAgW3VubWFwX3BhZ2VfcmFu
-Z2UrNTMvOTZdIHVubWFwX3BhZ2VfcmFuZ2UrMHgzNS8weDYwDQpKYW4gIDggMjM6MTY6NTkgZGVi
-aWFuIGtlcm5lbDogIFt1bm1hcF92bWFzKzQ2NC81NDRdIHVubWFwX3ZtYXMrMHgxZDAvMHgyMjAN
-CkphbiAgOCAyMzoxNjo1OSBkZWJpYW4ga2VybmVsOiAgW2V4aXRfbW1hcCs5OC8zODRdIGV4aXRf
-bW1hcCsweDYyLzB4MTgwDQpKYW4gIDggMjM6MTY6NTkgZGViaWFuIGtlcm5lbDogIFttbXB1dCsx
-MTAvMjI0XSBtbXB1dCsweDZlLzB4ZTANCkphbiAgOCAyMzoxNjo1OSBkZWJpYW4ga2VybmVsOiAg
-W2RvX2V4aXQrMzIxLzk5Ml0gZG9fZXhpdCsweDE0MS8weDNlMA0KSmFuICA4IDIzOjE2OjU5IGRl
-YmlhbiBrZXJuZWw6ICBbZG9faW52YWxpZF9vcCswLzE2MF0gZG9faW52YWxpZF9vcCsweDAvMHhh
-MA0KSmFuICA4IDIzOjE2OjU5IGRlYmlhbiBrZXJuZWw6ICBbZGllKzIxMi8yMjRdIGRpZSsweGQ0
-LzB4ZTANCkphbiAgOCAyMzoxNjo1OSBkZWJpYW4ga2VybmVsOiAgW2RvX2ludmFsaWRfb3ArMTQ1
-LzE2MF0gZG9faW52YWxpZF9vcCsweDkxLzB4YTANCkphbiAgOCAyMzoxNjo1OSBkZWJpYW4ga2Vy
-bmVsOiAgW3RyeV90b191bm1hcF9vbmUrNDU2LzQ4MF0gdHJ5X3RvX3VubWFwX29uZSsweDFjOC8w
-eDFlMA0KSmFuICA4IDIzOjE2OjU5IGRlYmlhbiBrZXJuZWw6ICBbX19jcmNfaWRlX2NtZCs3MzE4
-NzM2LzExOTY5MTE2XSBfX2lwX2Nvbm50cmFja19maW5kKzB4MTIvMHg2MCBbaXBfY29ubnRyYWNr
-XQ0KSmFuICA4IDIzOjE2OjU5IGRlYmlhbiBrZXJuZWw6ICBbX19jcmNfaWRlX2NtZCs3MzE5NDU0
-LzExOTY5MTE2XSBpcF9jb25udHJhY2tfdHVwbGVfdGFrZW4rMHgyMC8weDYwIFtpcF9jb25udHJh
-Y2tdDQpKYW4gIDggMjM6MTY6NTkgZGViaWFuIGtlcm5lbDogIFtfX2NyY19pZGVfY21kKzczMTk0
-NzMvMTE5NjkxMTZdIGlwX2Nvbm50cmFja190dXBsZV90YWtlbisweDMzLzB4NjAgW2lwX2Nvbm50
-cmFja10NCkphbiAgOCAyMzoxNjo1OSBkZWJpYW4ga2VybmVsOiAgW19fY3JjX2lkZV9jbWQrNzM1
-NDUyMi8xMTk2OTExNl0gaXBfbmF0X3VzZWRfdHVwbGUrMHgxYy8weDQwIFtpcHRhYmxlX25hdF0N
-CkphbiAgOCAyMzoxNjo1OSBkZWJpYW4ga2VybmVsOiAgW3JlY2FsY190YXNrX3ByaW8rMTM4LzQ0
-OF0gcmVjYWxjX3Rhc2tfcHJpbysweDhhLzB4MWMwDQpKYW4gIDggMjM6MTY6NTkgZGViaWFuIGtl
-cm5lbDogIFt0cnlfdG9fd2FrZV91cCsxODQvMzUyXSB0cnlfdG9fd2FrZV91cCsweGI4LzB4MTYw
-DQpKYW4gIDggMjM6MTY6NTkgZGViaWFuIGtlcm5lbDogIFt0cnlfdG9fd2FrZV91cCsxNjMvMzUy
-XSB0cnlfdG9fd2FrZV91cCsweGEzLzB4MTYwDQpKYW4gIDggMjM6MTY6NTkgZGViaWFuIGtlcm5l
-bDogIFtlcnJvcl9jb2RlKzQ3LzY0XSBlcnJvcl9jb2RlKzB4MmYvMHg0MA0KSmFuICA4IDIzOjE2
-OjU5IGRlYmlhbiBrZXJuZWw6ICBbdHJ5X3RvX3VubWFwX29uZSs0NTYvNDgwXSB0cnlfdG9fdW5t
-YXBfb25lKzB4MWM4LzB4MWUwDQpKYW4gIDggMjM6MTY6NTkgZGViaWFuIGtlcm5lbDogIFt0cnlf
-dG9fdW5tYXArMzIyLzM4NF0gdHJ5X3RvX3VubWFwKzB4MTQyLzB4MTgwDQpKYW4gIDggMjM6MTY6
-NTkgZGViaWFuIGtlcm5lbDogIFtzaHJpbmtfbGlzdCs1NzkvMTQwOF0gc2hyaW5rX2xpc3QrMHgy
-NDMvMHg1ODANCkphbiAgOCAyMzoxNjo1OSBkZWJpYW4ga2VybmVsOiAgW19fcHRlX2NoYWluX2Zy
-ZWUrNzcvOTZdIF9fcHRlX2NoYWluX2ZyZWUrMHg0ZC8weDYwDQpKYW4gIDggMjM6MTY6NTkgZGVi
-aWFuIGtlcm5lbDogIFtfX3BhZ2V2ZWNfcmVsZWFzZSsyNC82NF0gX19wYWdldmVjX3JlbGVhc2Ur
-MHgxOC8weDQwDQpKYW4gIDggMjM6MTY6NTkgZGViaWFuIGtlcm5lbDogIFtzaHJpbmtfY2FjaGUr
-NDA5Lzg2NF0gc2hyaW5rX2NhY2hlKzB4MTk5LzB4MzYwDQpKYW4gIDggMjM6MTY6NTkgZGViaWFu
-IGtlcm5lbDogIFtzaHJpbmtfem9uZSsxMDcvMTI4XSBzaHJpbmtfem9uZSsweDZiLzB4ODANCkph
-biAgOCAyMzoxNjo1OSBkZWJpYW4ga2VybmVsOiAgW3Nocmlua19jYWNoZXMrMTQ5LzE5Ml0gc2hy
-aW5rX2NhY2hlcysweDk1LzB4YzANCkphbiAgOCAyMzoxNjo1OSBkZWJpYW4ga2VybmVsOiAgW3Ry
-eV90b19mcmVlX3BhZ2VzKzEzNi8zMjBdIHRyeV90b19mcmVlX3BhZ2VzKzB4ODgvMHgxNDANCkph
-biAgOCAyMzoxNjo1OSBkZWJpYW4ga2VybmVsOiAgW19fYWxsb2NfcGFnZXMrNDI0LzczNl0gX19h
-bGxvY19wYWdlcysweDFhOC8weDJlMA0KSmFuICA4IDIzOjE2OjU5IGRlYmlhbiBrZXJuZWw6ICBb
-X19nZXRfZnJlZV9wYWdlcyszNC85Nl0gX19nZXRfZnJlZV9wYWdlcysweDIyLzB4NjANCkphbiAg
-OCAyMzoxNjo1OSBkZWJpYW4ga2VybmVsOiAgW19fcG9sbHdhaXQrMTExLzE5Ml0gX19wb2xsd2Fp
-dCsweDZmLzB4YzANCkphbiAgOCAyMzoxNjo1OSBkZWJpYW4ga2VybmVsOiAgW3VuaXhfcG9sbCsz
-MS8xNjBdIHVuaXhfcG9sbCsweDFmLzB4YTANCkphbiAgOCAyMzoxNjo1OSBkZWJpYW4ga2VybmVs
-OiAgW3NvY2tfcG9sbCsyNS8zMl0gc29ja19wb2xsKzB4MTkvMHgyMA0KSmFuICA4IDIzOjE2OjU5
-IGRlYmlhbiBrZXJuZWw6ICBbZG9fc2VsZWN0KzYwMS83MzZdIGRvX3NlbGVjdCsweDI1OS8weDJl
-MA0KSmFuICA4IDIzOjE2OjU5IGRlYmlhbiBrZXJuZWw6ICBbX19wb2xsd2FpdCswLzE5Ml0gX19w
-b2xsd2FpdCsweDAvMHhjMA0KSmFuICA4IDIzOjE2OjU5IGRlYmlhbiBrZXJuZWw6ICBbc3lzX3Nl
-bGVjdCs2NzYvMTI0OF0gc3lzX3NlbGVjdCsweDJhNC8weDRlMA0KSmFuICA4IDIzOjE2OjU5IGRl
-YmlhbiBrZXJuZWw6ICBbc3lzY2FsbF9jYWxsKzcvMTFdIHN5c2NhbGxfY2FsbCsweDcvMHhiDQoN
-Cg==
-
---=-oPF3/8meIfV5mIE11+hc--
-
---=-ODzVC3SM2Cilex9DIh0C
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
-	digitalmente
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQA//ewuRGk68b69cdURAnWwAJ9uQARVJSxDHJJDMz/ci65GqyfU6ACcCCeq
-4t116KSIYPfckPnU3IIh5G0=
-=a56i
------END PGP SIGNATURE-----
-
---=-ODzVC3SM2Cilex9DIh0C--
+Bryan Andersen wrote:
+> I'm seeing silent write errors with two Seagate 160GB drives on a 
+> sil3112A SATA controller on an ASUS A7N8X-Deluxe motherboard, but I'm 
+> not seeing any read errors.  Each drive is on it's own cable.  Kernel is 
+> 2.4.23 release with the 2.4.23-libata2 patch and some patches for using 
+> MythTV applied.  (I also see the same problem under 2.4.24+libata only) 
+>  I'm also not seeing any error messages in any log files or the kernel 
+> dmesg output.  The error rate looks to be around 1 in a million blocks. 
+>  My current guess is the block or blocks just didn't get written by the 
+> drive as when the system reads in the blocks with the bad data I'm not 
+> seeing any read error messages.
+> 
+> I am now running the tests again using jfs as the filesystem rather than 
+> ext3 to rule out the file system as the cause.  As part of this test I'm 
+> also zeroing the disks before the test and then checking for non zero 
+> data and how large the non zero data blocks are.  Given enough time I 
+> may run this test a couple of times to see if the positions of the bad 
+> data move about or stay put.
+> 
+> How the first testes were run.
+> 
+> I used "cp -a * /data10" as root to copy the data (150GB worth) to the 
+> disk under test.  Then I created md5sum lists for all files in both the 
+> source and destination and sorted and compaired the lists.  Differences 
+> were found between the lists, some files and directories were missing, 
+> or corrupted.  On fscking the disks some inodes were found corrupted.  I 
+> then copied only the corrupted files and after a few iterations I 
+> finally got a copy that was the same as the source.  I then ran a 
+> program to repeatadly md5sum checksum all the files and check against 
+> the source.  It did not see any differences in 10 cycles.
+> 
+> I've attached my .config file, but don't have dmesg output to include. I 
+> will grab that when I reboot after the current tests are finished.
+> 
+> - Bryan
 

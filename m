@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263953AbTKZDby (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 22:31:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263954AbTKZDbx
+	id S263956AbTKZDkX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 22:40:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263961AbTKZDkX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 22:31:53 -0500
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:48047 "EHLO
+	Tue, 25 Nov 2003 22:40:23 -0500
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:1712 "EHLO
 	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S263953AbTKZDbx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 22:31:53 -0500
-Date: Tue, 25 Nov 2003 22:31:46 -0500 (EST)
+	id S263956AbTKZDkT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 22:40:19 -0500
+Date: Tue, 25 Nov 2003 22:39:10 -0500 (EST)
 From: Rik van Riel <riel@redhat.com>
 X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Larry McVoy <lm@bitmover.com>
-cc: Nick Piggin <piggin@cyberone.com.au>, "Mr. BOFH" <icerbofh@hotmail.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Re: Fire Engine??
-In-Reply-To: <20031126021111.GA10193@work.bitmover.com>
-Message-ID: <Pine.LNX.4.44.0311252231060.22777-100000@chimarrao.boston.redhat.com>
+To: Jack Steiner <steiner@sgi.com>
+cc: Anton Blanchard <anton@samba.org>, Jes Sorensen <jes@trained-monkey.org>,
+       Alexander Viro <viro@math.psu.edu>, Andrew Morton <akpm@osdl.org>,
+       "William Lee Irwin, III" <wli@holomorphy.com>,
+       <linux-kernel@vger.kernel.org>, <jbarnes@sgi.com>
+Subject: Re: hash table sizes
+In-Reply-To: <20031125231108.GA5675@sgi.com>
+Message-ID: <Pine.LNX.4.44.0311252238140.22777-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Nov 2003, Larry McVoy wrote:
+On Tue, 25 Nov 2003, Jack Steiner wrote:
 
-> And not to dis my Alma Mater but I tend think the whole TOE idea is a
-> lose. I used to think otherwise, while I was a Sun employee, and Sun
-> employee #1 pointed out to me that CPUs and memory were getting faster
-> more quickly than the TOE type answers could come to market.  He was
-> right then and he seems to still be right.
+> That was a concern to me too. However, on IA64, all page structs are in
+> the vmalloc region
 
-I guess TCP offloading is a good way to stub your TOE ;)
+Which you'll probably want to fix eventually.  At least
+PAGE_VALID() doesn't seem to work as advertised currently...
+
+(occasionally leading to "false positives", with PAGE_VALID()
+saying that a page exists while it really doesn't)
 
 -- 
 "Debugging is twice as hard as writing the code in the first place.

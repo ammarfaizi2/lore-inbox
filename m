@@ -1,172 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261924AbVCNVRb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261929AbVCNVXl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261924AbVCNVRb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 16:17:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261921AbVCNVRQ
+	id S261929AbVCNVXl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 16:23:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbVCNVXk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 16:17:16 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:41178 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261923AbVCNVPf
+	Mon, 14 Mar 2005 16:23:40 -0500
+Received: from pfepa.post.tele.dk ([195.41.46.235]:6926 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S261929AbVCNVWU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 16:15:35 -0500
-Subject: [PATCH 3/4] sparsemem base: reorganize page->flags bit operations
-To: akpm@osdl.org
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       Dave Hansen <haveblue@us.ibm.com>, apw@shadowen.org
-From: Dave Hansen <haveblue@us.ibm.com>
-Date: Mon, 14 Mar 2005 13:15:31 -0800
-Message-Id: <E1DAwuS-00085h-00@kernel.beaverton.ibm.com>
+	Mon, 14 Mar 2005 16:22:20 -0500
+Date: Mon, 14 Mar 2005 22:22:34 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Dave Hansen <haveblue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       kai@germaschewski.name
+Subject: Re: 2.6.11-bk10 build problems
+Message-ID: <20050314212234.GC17925@mars.ravnborg.org>
+Mail-Followup-To: "Martin J. Bligh" <mbligh@aracnet.com>,
+	Dave Hansen <haveblue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	kai@germaschewski.name
+References: <1110829177.19340.8.camel@localhost> <20050314194930.GB17373@mars.ravnborg.org> <566920000.1110832470@flay>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <566920000.1110832470@flay>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ > 
+> > On popular request 'make install' no longer try to update vmlinux.
+> > This is to avoid errornous recompilation when installing the kernel
+> > as root especially when fetching kernel via nfs where path may have
+> > changed.
+> 
+> That's frigging annoying. It's worked that way for ages, and all our
+> scripts assume it works. 
 
-Generify the value fields in the page_flags.  The aim is to allow
-the location and size of these fields to be varied.  Additionally we
-want to move away from fixed allocations per field whilst still
-enforcing the overall bit utilisation limits.  We rely on the
-compiler to spot and optimise the accessor functions.
+The reason to put it in -mm is to check how things are used.
+I will change it back and add an:
+make kernel_install
 
-Signed-off-by: Andy Whitcroft <apw@shadowen.org>
-Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
----
+kernel_install is then analogous to modules_install
 
- memhotplug-dave/include/linux/mm.h     |   53 +++++++++++++++++++++++++++------
- memhotplug-dave/include/linux/mmzone.h |   19 ++++-------
- memhotplug-dave/mm/page_alloc.c        |    2 -
- 3 files changed, 52 insertions(+), 22 deletions(-)
+	Sam
 
-diff -puN include/linux/mm.h~B-sparse-100-cleanup-node-zone include/linux/mm.h
---- memhotplug/include/linux/mm.h~B-sparse-100-cleanup-node-zone	2005-03-14 11:00:03.000000000 -0800
-+++ memhotplug-dave/include/linux/mm.h	2005-03-14 11:00:03.000000000 -0800
-@@ -398,19 +398,41 @@ static inline void put_page(struct page 
- /*
-  * The zone field is never updated after free_area_init_core()
-  * sets it, so none of the operations on it need to be atomic.
-- * We'll have up to (MAX_NUMNODES * MAX_NR_ZONES) zones total,
-- * so we use (MAX_NODES_SHIFT + MAX_ZONES_SHIFT) here to get enough bits.
-  */
--#define NODEZONE_SHIFT (sizeof(page_flags_t)*8 - MAX_NODES_SHIFT - MAX_ZONES_SHIFT)
-+
-+/* Page flags: | NODE | ZONE | ... | FLAGS | */
-+#define NODES_PGOFF		((sizeof(page_flags_t)*8) - NODES_SHIFT)
-+#define ZONES_PGOFF		(NODES_PGOFF - ZONES_SHIFT)
-+
-+/*
-+ * Define the bit shifts to access each section.  For non-existant
-+ * sections we define the shift as 0; that plus a 0 mask ensures
-+ * the compiler will optimise away reference to them.
-+ */
-+#define NODES_PGSHIFT		(NODES_PGOFF * (NODES_SHIFT != 0))
-+#define ZONES_PGSHIFT		(ZONES_PGOFF * (ZONES_SHIFT != 0))
-+
-+/* NODE:ZONE is used to lookup the zone from a page. */
-+#define ZONETABLE_SHIFT		(NODES_SHIFT + ZONES_SHIFT)
-+#define ZONETABLE_PGSHIFT	ZONES_PGSHIFT
-+
-+#if NODES_SHIFT+ZONES_SHIFT > FLAGS_RESERVED
-+#error NODES_SHIFT+ZONES_SHIFT > FLAGS_RESERVED
-+#endif
-+
- #define NODEZONE(node, zone)	((node << ZONES_SHIFT) | zone)
+===== arch/i386/Makefile 1.80 vs edited =====
+--- 1.80/arch/i386/Makefile	2005-03-12 08:48:59 +01:00
++++ edited/arch/i386/Makefile	2005-03-14 22:20:56 +01:00
+@@ -123,7 +123,7 @@
+ boot := arch/i386/boot
  
-+#define ZONES_MASK		((1UL << ZONES_SHIFT) - 1)
-+#define NODES_MASK		((1UL << NODES_SHIFT) - 1)
-+#define ZONETABLE_MASK		((1UL << ZONETABLE_SHIFT) - 1)
-+
- static inline unsigned long page_zonenum(struct page *page)
- {
--	return (page->flags >> NODEZONE_SHIFT) & (~(~0UL << ZONES_SHIFT));
-+	return (page->flags >> ZONES_PGSHIFT) & ZONES_MASK;
- }
- static inline unsigned long page_to_nid(struct page *page)
- {
--	return (page->flags >> (NODEZONE_SHIFT + ZONES_SHIFT));
-+	return (page->flags >> NODES_PGSHIFT) & NODES_MASK;
- }
+ .PHONY: zImage bzImage compressed zlilo bzlilo \
+-	zdisk bzdisk fdimage fdimage144 fdimage288 install
++	zdisk bzdisk fdimage fdimage144 fdimage288 install kernel_install
  
- struct zone;
-@@ -418,13 +440,26 @@ extern struct zone *zone_table[];
+ all: bzImage
  
- static inline struct zone *page_zone(struct page *page)
- {
--	return zone_table[page->flags >> NODEZONE_SHIFT];
-+	return zone_table[(page->flags >> ZONETABLE_PGSHIFT) &
-+			ZONETABLE_MASK];
-+}
-+
-+static inline void set_page_zone(struct page *page, unsigned long zone)
-+{
-+	page->flags &= ~(ZONES_MASK << ZONES_PGSHIFT);
-+	page->flags |= (zone & ZONES_MASK) << ZONES_PGSHIFT;
-+}
-+static inline void set_page_node(struct page *page, unsigned long node)
-+{
-+	page->flags &= ~(NODES_MASK << NODES_PGSHIFT);
-+	page->flags |= (node & NODES_MASK) << NODES_PGSHIFT;
- }
+@@ -145,8 +145,9 @@
+ fdimage fdimage144 fdimage288: vmlinux
+ 	$(Q)$(MAKE) $(build)=$(boot) BOOTIMAGE=$(KBUILD_IMAGE) $@
  
--static inline void set_page_zone(struct page *page, unsigned long nodezone_num)
-+static inline void set_page_links(struct page *page, unsigned long zone,
-+	unsigned long node)
- {
--	page->flags &= ~(~0UL << NODEZONE_SHIFT);
--	page->flags |= nodezone_num << NODEZONE_SHIFT;
-+	set_page_zone(page, zone);
-+	set_page_node(page, node);
- }
+-install:
+-	$(Q)$(MAKE) $(build)=$(boot) BOOTIMAGE=$(KBUILD_IMAGE) $@
++install: vmlinux
++install kernel_install:
++	$(Q)$(MAKE) $(build)=$(boot) BOOTIMAGE=$(KBUILD_IMAGE) install
  
- #ifndef CONFIG_DISCONTIGMEM
-diff -puN include/linux/mmzone.h~B-sparse-100-cleanup-node-zone include/linux/mmzone.h
---- memhotplug/include/linux/mmzone.h~B-sparse-100-cleanup-node-zone	2005-03-14 11:00:03.000000000 -0800
-+++ memhotplug-dave/include/linux/mmzone.h	2005-03-14 11:00:03.000000000 -0800
-@@ -395,30 +395,25 @@ extern struct pglist_data contig_page_da
- 
- #include <asm/mmzone.h>
- 
-+#endif /* !CONFIG_DISCONTIGMEM */
-+
- #if BITS_PER_LONG == 32 || defined(ARCH_HAS_ATOMIC_UNSIGNED)
- /*
-  * with 32 bit page->flags field, we reserve 8 bits for node/zone info.
-  * there are 3 zones (2 bits) and this leaves 8-2=6 bits for nodes.
-  */
--#define MAX_NODES_SHIFT		6
-+#define FLAGS_RESERVED		8
-+
- #elif BITS_PER_LONG == 64
- /*
-  * with 64 bit flags field, there's plenty of room.
-  */
--#define MAX_NODES_SHIFT		10
--#endif
-+#define FLAGS_RESERVED		32
- 
--#endif /* !CONFIG_DISCONTIGMEM */
--
--#if NODES_SHIFT > MAX_NODES_SHIFT
--#error NODES_SHIFT > MAX_NODES_SHIFT
--#endif
-+#else
- 
--/* There are currently 3 zones: DMA, Normal & Highmem, thus we need 2 bits */
--#define MAX_ZONES_SHIFT		2
-+#error BITS_PER_LONG not defined
- 
--#if ZONES_SHIFT > MAX_ZONES_SHIFT
--#error ZONES_SHIFT > MAX_ZONES_SHIFT
- #endif
- 
- #endif /* !__ASSEMBLY__ */
-diff -puN mm/page_alloc.c~B-sparse-100-cleanup-node-zone mm/page_alloc.c
---- memhotplug/mm/page_alloc.c~B-sparse-100-cleanup-node-zone	2005-03-14 11:00:03.000000000 -0800
-+++ memhotplug-dave/mm/page_alloc.c	2005-03-14 11:00:03.000000000 -0800
-@@ -1583,7 +1583,7 @@ void __init memmap_init_zone(unsigned lo
- 	struct page *page;
- 
- 	for (page = start; page < (start + size); page++) {
--		set_page_zone(page, NODEZONE(nid, zone));
-+		set_page_links(page, zone, nid);
- 		set_page_count(page, 0);
- 		reset_page_mapcount(page);
- 		SetPageReserved(page);
-_
+ prepare: include/asm-$(ARCH)/asm_offsets.h
+ CLEAN_FILES += include/asm-$(ARCH)/asm_offsets.h
+

@@ -1,66 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268031AbTAIWVM>; Thu, 9 Jan 2003 17:21:12 -0500
+	id <S268062AbTAIW2Z>; Thu, 9 Jan 2003 17:28:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268032AbTAIWVL>; Thu, 9 Jan 2003 17:21:11 -0500
-Received: from petasus.ch.intel.com ([143.182.124.5]:53676 "EHLO
-	petasus.ch.intel.com") by vger.kernel.org with ESMTP
-	id <S268031AbTAIWVF> convert rfc822-to-8bit; Thu, 9 Jan 2003 17:21:05 -0500
-content-class: urn:content-classes:message
-Subject: RE: detecting hyperthreading in linux 2.4.19
-Date: Thu, 9 Jan 2003 14:29:41 -0800
-Message-ID: <E88224AA79D2744187E7854CA8D9131DA5CE5B@fmsmsx407.fm.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: detecting hyperthreading in linux 2.4.19
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6334.0
-Thread-Index: AcK4KqHaqD3e1SQdEdeNCQBQi+Bs2AAAM4qAAAB38IA=
-From: "Kamble, Nitin A" <nitin.a.kamble@intel.com>
-To: <lunz@falooley.org>, <jamesclv@us.ibm.com>, <linux-kernel@vger.kernel.org>
-Cc: "Nakajima, Jun" <jun.nakajima@intel.com>,
-       "Saxena, Sunil" <sunil.saxena@intel.com>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>,
-       "Schlobohm, Bruce" <bruce.schlobohm@intel.com>
-X-OriginalArrivalTime: 09 Jan 2003 22:29:41.0751 (UTC) FILETIME=[9A5BD070:01C2B82E]
+	id <S268063AbTAIW2Z>; Thu, 9 Jan 2003 17:28:25 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:14088 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S268062AbTAIW2Y>; Thu, 9 Jan 2003 17:28:24 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: [Linux-fbdev-devel] Re: rotation.
+Date: Thu, 9 Jan 2003 22:35:58 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <avktge$22o$1@penguin.transmeta.com>
+References: <Pine.LNX.4.44.0301091956140.5660-100000@phoenix.infradead.org> <1042153388.28469.17.camel@irongate.swansea.linux.org.uk>
+X-Trace: palladium.transmeta.com 1042151805 13989 127.0.0.1 (9 Jan 2003 22:36:45 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 9 Jan 2003 22:36:45 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi James,
-I have posted a patch for this on LKML. Please have look at:
-http://www.uwsg.indiana.edu/hypermail/linux/kernel/0301.0/1886.html
-http://www.uwsg.indiana.edu/hypermail/linux/kernel/0301.0/1887.html
+In article <1042153388.28469.17.camel@irongate.swansea.linux.org.uk>,
+Alan Cox  <alan@lxorguk.ukuu.org.uk> wrote:
+>
+>Note btw that the support ends rather abruptly on the console input side.
+>There is no support for 3 or 4 byte utf8 input sequences and the delete
+>key code in the kernel has no understanding of or support for UTF8
+>deletion behaviour
 
-It should solve the problem you are trying to solve.
+UTF8 delete behaviour should be pretty trivial to add.  It's liketly to
+be more involved than simply adding a
 
-Nitin
+	/* multi-char UTF8 thing? Continue until we hit the first one */
+	if (tty->utf8 && (c & 0x80) && !(c & 0x40))
+		continue;
 
-> -----Original Message-----
-> From: Jason Lunz [mailto:lunz@falooley.org]
-> Sent: Thursday, January 09, 2003 1:57 PM
-> To: linux-kernel@vger.kernel.org
-> Subject: Re: detecting hyperthreading in linux 2.4.19
-> 
-> jamesclv@us.ibm.com said:
-> > I don't know of any way to do this in userland.  The whole point is
-> > that the sibling processors are supposed to look like real ones.
-> 
-> That's unfortunately not always true. I'm writing a program that will
-> run on a system that will be doing high-load routing. Testing has
-shown
-> that we get better performance when binding each NIC's interrupts to a
-> separate physical processor using /proc/irq/*/smp_affinity (especially
-> when all the interrupts would hit the first CPU, another problem i've
-> yet to address). That only works for real processors, though, not
-> HT siblings.
-> 
-> I'm writing a program to run on machines of unknown (by me)
-> configuration, that will spread out the NIC interrupts appropriately.
-> So userspace needs to know the difference, at least until interrupts
-can
-> be automatically distributed by the kernel in a satisfactory way.
-> 
-> Jason
+to the loop in n_tty.c: eraser(), but it might not be _much_ more than
+that. 
+
+		Linus

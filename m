@@ -1,53 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262847AbULRHvH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262850AbULRHzO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262847AbULRHvH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Dec 2004 02:51:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262850AbULRHvH
+	id S262850AbULRHzO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Dec 2004 02:55:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262852AbULRHzO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Dec 2004 02:51:07 -0500
-Received: from cantor.suse.de ([195.135.220.2]:11417 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262847AbULRHuw (ORCPT
+	Sat, 18 Dec 2004 02:55:14 -0500
+Received: from havoc.gtf.org ([63.115.148.101]:5078 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S262850AbULRHzL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Dec 2004 02:50:52 -0500
-To: Crazy AMD K7 <snort2004@mail.ru>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: do_IRQ: stack overflow: 872..
-References: <1131604877.20041218092730@mail.ru.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 18 Dec 2004 08:50:49 +0100
-In-Reply-To: <1131604877.20041218092730@mail.ru.suse.lists.linux.kernel>
-Message-ID: <p73zn0ccaee.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Sat, 18 Dec 2004 02:55:11 -0500
+Date: Sat, 18 Dec 2004 02:55:09 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Scott Feldman <sfeldma@pobox.com>
+Cc: Ed L Cashin <ecashin@coraid.com>, linux-kernel@vger.kernel.org,
+       Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] ATA over Ethernet driver for 2.6.10-rc3-bk11
+Message-ID: <20041218075509.GA3316@havoc.gtf.org>
+References: <87k6rhc4uk.fsf@coraid.com> <1103356085.3369.140.camel@sfeldma-mobl.dsl-verizon.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1103356085.3369.140.camel@sfeldma-mobl.dsl-verizon.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Crazy AMD K7 <snort2004@mail.ru> writes:
+On Fri, Dec 17, 2004 at 11:48:05PM -0800, Scott Feldman wrote:
+> On Fri, 2004-12-17 at 07:38, Ed L Cashin wrote:
+> 
+> > +       ETH_P_AOE = 0x88a2,
+> 
+> include/linux/if_ether.h already defines this as ETH_P_EDP2=0x88A2; use
+> that.
 
-> Hi!
-> I have found a few days ago strange messages in /var/log/messages
-> More than 10 times there was do_IRQ: stack overflow: (nimber).... followed
-> with code. If need I can send all this data. I have run
-> ksymoops with only first 3 cases. Here is the first, the second and
-> the third are in attachment.
-> After that oopses my system continued to work.
+If my aging memory serves me, EDP2 == AOE.
 
-It's not really an oops, just a warning that stack space got quiet tight.
+	Jeff
 
-The problem seems to be that the br netfilter code is nesting far too
-deeply and recursing several times. Looks like a design bug to me,
-it shouldn't do that.
 
-> uname uname -a
-> Linux linux 2.4.28 #2 Втр Ноя 30 15:43:35 MSK 2004 i686 unknown
-> gcc -v
-> Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/2.96/specs
-> gcc version 2.96 20000731 (Red Hat Linux 7.3 2.96-113)
-> I have applies ebtables_brnf patch (http://bridge.sf.net) and a
 
-Don't do that then or contact the author to fix it. Unfortunately
-the code is also in 2.6 mainline.
-
--Andi

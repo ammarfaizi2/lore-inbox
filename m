@@ -1,58 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262709AbTK1QwL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Nov 2003 11:52:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262719AbTK1QwL
+	id S262694AbTK1RFZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Nov 2003 12:05:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262695AbTK1RFZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Nov 2003 11:52:11 -0500
-Received: from gprs148-17.eurotel.cz ([160.218.148.17]:43392 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262709AbTK1QwI (ORCPT
+	Fri, 28 Nov 2003 12:05:25 -0500
+Received: from pat.uio.no ([129.240.130.16]:34983 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S262694AbTK1RFV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Nov 2003 11:52:08 -0500
-Date: Fri, 28 Nov 2003 17:52:46 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       kernel list <linux-kernel@vger.kernel.org>, len.brown@intel.com,
-       Rusty trivial patch monkey Russell 
-	<trivial@rustcorp.com.au>
-Subject: Re: Tell user when ACPI is killing machine
-Message-ID: <20031128165246.GA323@elf.ucw.cz>
-References: <20031128145558.GA576@elf.ucw.cz>
-Mime-Version: 1.0
+	Fri, 28 Nov 2003 12:05:21 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031128145558.GA576@elf.ucw.cz>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16327.32843.197191.606592@charged.uio.no>
+Date: Fri, 28 Nov 2003 12:05:15 -0500
+To: "Shantanu Goel" <Shantanu.Goel@lehman.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Fwd: [NFS PATCH] 2.6.0-test10 Invalidate cached inode
+ attributes after rename]
+In-Reply-To: <3FC77CC3.7090702@lehman.com>
+References: <3FC763A5.6030404@lehman.com>
+	<shsu14oh27m.fsf@charged.uio.no>
+	<3FC77CC3.7090702@lehman.com>
+X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+>>>>> " " == Shantanu Goel <Shantanu.Goel@lehman.com> writes:
 
-> On critical overheat (or perceived critical overheat -- acpi bioses on
-> some notebooks apparently report bogus values from time to time),
-> kernel itself calls /sbin/halt *without telling anything*. User can
-> not see anything, his machine just shuts down cleanly. Bad.
-> 
-> We should at least tell the user what is going on... 
+     > BTW, this also affects 2.4 kernels (e.g. RedHat's AS3 kernel)
+     > which include your CTO patches that aren't in the upstream
+     > kernels yet.
 
-Okay, I had two bugs in single line of code (%ld and
-KELVIN_TO_CELSIUS). Sorry about that, here's better version.
+AFAIK Steve Dickson is already aware of the need for this particular
+patch for the AS3 kernel. He was one of the people that brought it to
+my attention a couple of weeks ago.
 
-								Pavel
-
---- clean/drivers/acpi/thermal.c	2003-07-27 22:31:09.000000000 +0200
-+++ linux/drivers/acpi/thermal.c	2003-11-28 17:42:17.000000000 +0100
-@@ -467,6 +474,7 @@
- 	if (result)
- 		return_VALUE(result);
- 
-+	printk(KERN_EMERG "Critical temperature reached (%ld C), shutting down.\n", KELVIN_TO_CELSIUS(tz->temperature));
- 	acpi_bus_generate_event(device, ACPI_THERMAL_NOTIFY_CRITICAL, tz->trips.critical.flags.enabled);
- 
- 	acpi_thermal_call_usermode(ACPI_THERMAL_PATH_POWEROFF);
-
-
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Cheers,
+  Trond

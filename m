@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263730AbTDDOtg (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 09:49:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263733AbTDDOsz (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 09:48:55 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:37807 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S263730AbTDDOmT (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Apr 2003 09:42:19 -0500
-Date: Fri, 04 Apr 2003 06:53:40 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: LKML <linux-kernel@vger.kernel.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 540] New: Difficulty configuring component as module in gconfig
-Message-ID: <2340000.1049468020@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	id S263719AbTDDOsm (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 09:48:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263720AbTDDOnU (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 09:43:20 -0500
+Received: from kweetal.tue.nl ([131.155.3.6]:10500 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S263710AbTDDO3R (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Apr 2003 09:29:17 -0500
+Date: Fri, 4 Apr 2003 16:40:44 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Jens Axboe <axboe@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] only use 48-bit lba when necessary
+Message-ID: <20030404144044.GA14371@win.tue.nl>
+References: <20030404122936.GB786@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20030404122936.GB786@suse.de>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Apr 04, 2003 at 02:29:36PM +0200, Jens Axboe wrote:
 
-http://bugme.osdl.org/show_bug.cgi?id=540
+> 48-bit lba has a non-significant overhead (twice the outb's, 12 instead
 
-           Summary: Difficulty configuring component as module in gconfig
-    Kernel Version: 2.5.66-bk9
-            Status: NEW
-          Severity: normal
-             Owner: zippel@linux-m68k.org
-         Submitter: k.oriordan@oceanfree.net
+s/non-// ?
 
+> of 6 per command), so it makes sense to use 28-bit lba commands whenever
+> we can.
+> 
 
-Distribution: Mandrake Linux 9.1
+> +	if (drive->addressing == 1 && block > 0xfffffff)
+> +		lba48 = 1;
 
-Hardware Environment: Laptop - mobile athlon4 processor, 512 MB RAM, via motherboard
+Hmm. I wonder whether we should be more cautious, and ask for lba48
+as soon as some part of the interval is past this limit.
+(say, block+nsectors > 0xfffffff)
 
-Software Environment: GNOME 2.2, gcc 3.2.2
+I don't know whether the standard spells out what happens
+at the boundary, but for example the LBA low/mid/high, DEV is required
+to contain the sector number at the place the error occurred,
+and that is possible only if one stays below the 28-byte sector limit.
 
-Problem Description: When configuring kernel options through gconfig,the check
-boxes show either selected or unselected. Can't get option to configure as module.
-Also where there is a choice of 1 of many, checkboxes are displayed instead of
-radio buttons.
-
-Steps to reproduce: Run make gconfig
+Andries
 

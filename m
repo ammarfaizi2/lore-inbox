@@ -1,103 +1,195 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267230AbUIJIVw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267232AbUIJI0X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267230AbUIJIVw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 04:21:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267232AbUIJIVv
+	id S267232AbUIJI0X (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 04:26:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267234AbUIJI0X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 04:21:51 -0400
-Received: from asplinux.ru ([195.133.213.194]:48901 "EHLO relay.asplinux.ru")
-	by vger.kernel.org with ESMTP id S267230AbUIJIVm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 04:21:42 -0400
-Message-ID: <414166BA.3020804@sw.ru>
-Date: Fri, 10 Sep 2004 12:32:58 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] adding per sb inode list to make invalidate_inodes()
- faster
-References: <4140791F.8050207@sw.ru> <Pine.LNX.4.58.0409090844410.5912@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0409090844410.5912@ppc970.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 10 Sep 2004 04:26:23 -0400
+Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:3732 "EHLO
+	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S267232AbUIJI0D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 04:26:03 -0400
+Date: Fri, 10 Sep 2004 10:26:01 +0200
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.9-rc1-mm4, visor.c, Badness in usb_unlink_urb
+Message-ID: <20040910082601.GA32746@gamma.logic.tuwien.ac.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.28i
+From: Norbert Preining <preining@logic.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Thu, 9 Sep 2004, Kirill Korotaev wrote:
-> 
->>This patch fixes the problem that huge inode cache
->>can make invalidate_inodes() calls very long. Meanwhile
->>lock_kernel() and inode_lock are being held and the system
->>can freeze for seconds.
-> 
-> 
-> Hmm.. I don't mind the approach per se, but I get very nervous about the 
-> fact that I don't see any initialization of "inode->i_sb_list".
-inode->i_sb_list is a link list_head, not real list head (real list head 
-is sb->s_inodes and it's initialized). i.e. it doesn't require 
-initialization.
+Hi!
 
-all the operations I perform on i_sb_list are
-- list_add(&inode->i_sb_list, ...);
-- list_del(&inode->i_sb_list);
+Syncing my PalmOne T|C I get a lot of error messages (see below).
+Suprisingly this didn't disturb my palm to be synced. 
 
-So it's all safe.
 
-> Yes, you do a
-> 	list_add(&inode->i_sb_list, &sb->s_inodes);
-> 
-> in new_inode(), but there are a ton of users that allocate inodes other 
-> ways, and more importantly, even if this was the only allocation function, 
-> you do various "list_del(&inode->i_sb_list)" things which leaves the inode 
-> around but with an invalid superblock list.
-1. struct inode is allocated only in one place!
-it's alloc_inode(). Next alloc_inode() is static and is called from 3 
-places:
-new_inode(), get_new_inode() and get_new_inode_fast().
 
-All 3 above functions do list_add(&inode->i_sb_list, &sb->s_inodes);
-i.e. newly allocated inodes are always in super block list.
+vmunix: usb 4-2.1: new full speed USB device using address 6
+vmunix: visor 4-2.1:1.0: Handspring Visor / Palm OS converter detected
+vmunix: usb 4-2.1: Handspring Visor / Palm OS converter now attached to ttyUSB0
+vmunix: usb 4-2.1: Handspring Visor / Palm OS converter now attached to ttyUSB1
+udev[14677]: configured rule in '/etc/udev/rules.d/00-local.rules' at line 3 applied, added symlink 'pilot'
+udev[14675]: creating device node '/dev/ttyUSB0'
+udev[14677]: creating device node '/dev/ttyUSB1'
+vmunix: usb_unlink_urb() is deprecated for synchronous unlinks.  Use usb_kill_urb()
+vmunix: Badness in usb_unlink_urb at drivers/usb/core/urb.c:456
+vmunix:  [<c02616fe>] usb_unlink_urb+0x7e/0x90
+vmunix:  [<c0287e82>] visor_close+0x22/0xe0
+vmunix:  [<c028548b>] serial_close+0x9b/0x110
+vmunix:  [<c01f8fcd>] release_dev+0x62d/0x650
+vmunix:  [<c01f7eaa>] tty_read+0xda/0x130
+vmunix:  [<c01f941f>] tty_release+0x1f/0x50
+vmunix:  [<c014f38e>] __fput+0xfe/0x110
+vmunix:  [<c014dc0f>] filp_close+0x4f/0x80
+vmunix:  [<c0115520>] do_page_fault+0x0/0x550
+vmunix:  [<c0103ff5>] sysenter_past_esp+0x52/0x71
+vmunix: usb 4-2.1: USB disconnect, address 6
+vmunix:  [<c0285150>] destroy_serial+0x0/0x150
+vmunix:  [<c01ba954>] kref_put+0x34/0xa0
+vmunix:  [<c0286b98>] usb_serial_disconnect+0x38/0x90
+vmunix:  [<c026272d>] usb_disable_endpoint+0x3d/0x40
+vmunix:  [<c0262756>] usb_disable_interface+0x26/0x40
+vmunix:  [<c025c130>] usb_unbind_interface+0x60/0x70
+vmunix:  [<c02183e6>] device_release_driver+0x56/0x60
+vmunix:  [<c0218612>] bus_remove_device+0x52/0x90
+vmunix:  [<c02175fa>] device_del+0x5a/0x90
+vmunix:  [<c026280c>] usb_disable_device+0x9c/0xd0
+vmunix:  [<c025e0f1>] usb_disconnect+0xa1/0x130
+vmunix:  [<c025f12b>] hub_port_connect_change+0x36b/0x390
+vmunix:  [<c025f389>] hub_events+0x239/0x360
+vmunix:  [<c0122241>] free_uid+0x11/0x80
+vmunix:  [<c025f4e5>] hub_thread+0x35/0x110
+vmunix:  [<c012c390>] autoremove_wake_function+0x0/0x50
+vmunix:  [<c0103f1e>] ret_from_fork+0x6/0x14
+vmunix:  [<c012c390>] autoremove_wake_function+0x0/0x50
+vmunix:  [<c025f4b0>] hub_thread+0x0/0x110
+vmunix:  [<c010227d>] kernel_thread_helper+0x5/0x18
+vmunix: usb_unlink_urb() is deprecated for synchronous unlinks.  Use usb_kill_urb()
+kernel: visor ttyUSB0: Handspring Visor / Palm OS converter now disconnected from ttyUSB0
+vmunix: Badness in usb_unlink_urb at drivers/usb/core/urb.c:45ad+0x0/0x110
+vmunix:  [<c010227d>] kernel_thread_helper+0x5/0x18
+vmunix: visor 4-2.1:1.0: device disconnected
+kernel: usb_unlink_urb() is deprecated for synchronous unlinks.  Use usb_kill_urb()
+kernel: Badness in usb_unlink_urb at drivers/usb/core/urb.c:456
+kernel:  [usb_unlink_urb+126/144] usb_unlink_urb+0x7e/0x90
+kernel:  [port_release+114/176] port_release+0x72/0xb0
+kernel:  [device_release+83/96] device_release+0x53/0x60
+kernel:  [kobject_cleanup+142/144] kobject_cleanup+0x8e/0x90
+kernel:  [kobject_release+0/16] kobject_release+0x0/0x10
+kernel:  [kref_put+52/160] kref_put+0x34/0xa0
+kernel:  [device_del+105/144] device_del+0x69/0x90
+kernel:  [destroy_serial+266/336] destroy_serial+0x10a/0x150
+kernel:  [hcd_endpoint_disable+219/432] hcd_endpoint_disable+0xdb/0x1b0
+kernel: 6
+kernel:  [usb_unlink_urb+126/144] usb_unlink_urb+0x7e/0x90
+kernel:  [port_release+99/176] port_release+0x63/0xb0
+kernel:  [device_release+83/96] device_release+0x53/0x60
+kernel:  [kobject_cleanup+142/144] kobject_cleanup+0x8e/0x90
+kernel:  [kobject_release+0/16] kobject_release+0x0/0x10
+kernel:  [kref_put+52/160] kref_put+0x34/0xa0
+kernel:  [device_del+105/144] device_del+0x69/0x90
+kernel:  [destroy_serial+266/336] destroy_serial+0x10a/0x150
+kernel:  [hcd_endpoint_disable+219/432] hcd_endpoint_disable+0xdb/0x1b0
+kernel:  [destroy_serial+0/336] destroy_serial+0x0/0x150
+kernel:  [kref_put+52/160] kref_put+0x34/0xa0
+kernel:  [usb_serial_disconnect+56/144] usb_serial_disconnect+0x38/0x90
+kernel:  [usb_disable_endpoint+61/64] usb_disable_endpoint+0x3d/0x40
+kernel:  [usb_disable_interface+38/64] usb_disable_interface+0x26/0x40
+kernel:  [usb_unbind_interface+96/112] usb_unbind_interface+0x60/0x70
+kernel:  [device_release_driver+86/96] device_release_driver+0x56/0x60
+kernel:  [bus_remove_device+82/144] bus_remove_device+0x52/0x90
+kernel:  [device_del+90/144] device_del+0x5a/0x90
+kernel:  [usb_disable_device+156/208] usb_disable_device+0x9c/0xd0
+kernel:  [usb_disconnect+161/304] usb_disconnect+0xa1/0x130
+kernel:  [hub_port_connect_change+875/912] hub_port_connect_change+0x36b/0x390
+kernel:  [hub_events+569/864] hub_events+0x239/0x360
+kernel:  [free_uid+17/128] free_uid+0x11/0x80
+kernel:  [hub_thread+53/272] hub_thread+0x35/0x110
+kernel:  [autoremove_wake_function+0/80] autoremove_wake_function+0x0/0x50
+kernel:  [ret_from_fork+6/20] ret_from_fork+0x6/0x14
+kernel:  [autoremove_wake_function+0/80] autoremove_wake_function+0x0/0x50
+kernel:  [hub_thread+0/272] hub_thread+0x0/0x110
+kernel:  [kernel_thread_helper+5/24] kernel_thread_helper+0x5/0x18
+kernel: visor ttyUSB1: Handspring Visor / Palm OS converter now disconnected from ttyUSB1
+kernel: usb_unlink_urb() is deprecated for synchronous unlinks.  Use usb_kill_urb()
+kernel: Badness in usb_unlink_urb at drivers/usb/core/urb.c:456
+kernel:  [usb_unlink_urb+126/144] usb_unlink_urb+0x7e/0x90
+kernel:  [port_release+114/176] port_release+0x72/0xb0
+kernel:  [device_release+83/96] device_release+0x53/0x60
+kernel:  [kobject_cleanup+142/144] kobject_cleanup+0x8e/0x90
+kernel:  [kobject_release+0/16] kobject_release+0x0/0x10
+kernel:  [kref_put+52/160] kref_put+0x34/0xa0
+kernel:  [device_del+105/144] device_del+0x69/0x90
+kernel:  [destroy_serial+266/336] destroy_serial+0x10a/0x150
+kernel:  [hcd_endpoint_disable+219/432] hcd_endpoint_disable+0xdb/0x1b0
+kernel:  [destroy_serial+0/336] destroy_serial+0x0/0x150
+kernel:  [kref_put+52/160] kref_put+0x34/0xa0
+kernel:  [usb_serial_disconnect+56/144] usb_serial_disconnect+0x38/0x90
+kernel:  [usb_disable_endpoint+61/64] usb_disable_endpoint+0x3d/0x40
+kernel:  [usb_disable_interface+38/64] usb_disable_interface+0x26/0x40
+kernel:  [usb_unbind_interface+96/112] usb_unbind_interface+0x60/0x70
+kernel:  [device_release_driver+86/96] device_release_driver+0x56/0x60
+kernel:  [bus_remove_device+82/144] bus_remove_device+0x52/0x90
+kernel:  [device_del+90/144] device_del+0x5a/0x90
+kernel:  [usb_disable_device+156/208] usb_disable_device+0x9c/0xd0
+kernel:  [usb_disconnect+161/304] usb_disconnect+0xa1/0x130
+kernel:  [hub_port_connect_change+875/912] hub_port_connect_change+0x36b/0x390
+kernel:  [hub_events+569/864] hub_events+0x239/0x360
+kernel:  [free_uid+17/128] free_uid+0x11/0x80
+kernel:  [hub_thread+53/272] hub_thread+0x35/0x110
+kernel:  [autoremove_wake_function+0/80] autoremove_wake_function+0x0/0x50
+kernel:  [ret_from_fork+6/20] ret_from_fork+0x6/0x14
+kernel:  [autoremove_wake_function+0/80] autoremove_wake_function+0x0/0x50
+kernel:  [hub_thread+0/272] hub_thread+0x0/0x110
+kernel:  [kernel_thread_helper+5/24] kernel_thread_helper+0x5/0x18
+kernel: usb_unlink_urb() is deprecated for synchronous unlinks.  Use usb_kill_urb()
+kernel: Badness in usb_unlink_urb at drivers/usb/core/urb.c:456
+kernel:  [usb_unlink_urb+126/144] usb_unlink_urb+0x7e/0x90
+kernel:  [port_release+99/176] port_release+0x63/0xb0
+kernel:  [device_release+83/96] device_release+0x53/0x60
+kernel:  [kobject_cleanup+142/144] kobject_cleanup+0x8e/0x90
+kernel:  [kobject_release+0/16] kobject_release+0x0/0x10
+kernel:  [kref_put+52/160] kref_put+0x34/0xa0
+kernel:  [device_del+105/144] device_del+0x69/0x90
+kernel:  [destroy_serial+266/336] destroy_serial+0x10a/0x150
+kernel:  [hcd_endpoint_disable+219/432] hcd_endpoint_disable+0xdb/0x1b0
+kernel:  [destroy_serial+0/336] destroy_serial+0x0/0x150
+kernel:  [kref_put+52/160] kref_put+0x34/0xa0
+kernel:  [usb_serial_disconnect+56/144] usb_serial_disconnect+0x38/0x90
+kernel:  [usb_disable_endpoint+61/64] usb_disable_endpoint+0x3d/0x40
+kernel:  [usb_disable_interface+38/64] usb_disable_interface+0x26/0x40
+kernel:  [usb_unbind_interface+96/112] usb_unbind_interface+0x60/0x70
+kernel:  [device_release_driver+86/96] device_release_driver+0x56/0x60
+kernel:  [bus_remove_device+82/144] bus_remove_device+0x52/0x90
+kernel:  [device_del+90/144] device_del+0x5a/0x90
+kernel:  [usb_disable_device+156/208] usb_disable_device+0x9c/0xd0
+kernel:  [usb_disconnect+161/304] usb_disconnect+0xa1/0x130
+kernel:  [hub_port_connect_change+875/912] hub_port_connect_change+0x36b/0x390
+kernel:  [hub_events+569/864] hub_events+0x239/0x360
+kernel:  [free_uid+17/128] free_uid+0x11/0x80
+kernel:  [hub_thread+53/272] hub_thread+0x35/0x110
+kernel:  [autoremove_wake_function+0/80] autoremove_wake_function+0x0/0x50
+kernel:  [ret_from_fork+6/20] ret_from_fork+0x6/0x14
+kernel:  [autoremove_wake_function+0/80] autoremove_wake_function+0x0/0x50
+udev[15601]: removing device node '/dev/ttyUSB0'
+udev[15608]: removing device node '/dev/ttyUSB1'
 
-2. list_del(&inode->i_sb_list) doesn't leave super block list invalid!
+Best wishes
 
-I state that I remove inodes from sb list only and only when usual 
-inode->i_list is removed and inode can't be found after that moment 
-neither in my per sb list nor in any other list (unused_inodes, 
-inodes_in_use, sb->s_io, etc.)
+Norbert
 
-See the details below.
-
-> So at the very _least_, you should document why all of this is safe very 
-> carefully (I get nervous about fundamental FS infrastructure changes), and 
-> it should be left to simmer in -mm for a longish time to make sure it 
-> really works..
-Ok. This patch is safe because the use of new inode->i_sb_list list is 
-fully symmetric to the use of inode->i_list. i.e.
-
-- when inode is created it's added by inode->i_list to one of std lists 
-(inodes_in_use, unused_inodes, sb->s_io). It lives in one of this lists 
-during whole lifetime. So in places where inode is created I've just 
-added list_add(&inode->i_sb_list, &sb->s_inodes). There are 3 such 
-places: new_inode(), get_new_inode() and get_new_inode_fast()
-
-- when inode is about to be destroyed it's usually removed from std 
-lists (and sometimes is moved to 'freeable' list). It's the places where 
-inode is removed from the hash as well. In such places I've just 
-inserted list_del(&inode->i_sb_list). These places are in 
-generic_forget_inode(), generic_delete_inode(), invalidate_list(), 
-prune_icache(), hugetlbfs_delete_inode(), hugetlbfs_forget_inode().
-
-So as you can see from the description the lifetime of inode in 
-sb->s_inodes list is the same as in hash and other std lists.
-And these new per-sb list is protected by the same inode_lock.
-
-To be sure that there are no other places where i_list field is used 
-somehow in other ways I've just grepped it.
-
-Kirill
-
+-------------------------------------------------------------------------------
+Norbert Preining <preining AT logic DOT at>         Technische Universität Wien
+gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
+-------------------------------------------------------------------------------
+YORK (vb.)
+To shift the position of the shoulder straps on a heavy bag or
+rucksack in a vain attempt to make it seem lighter. Hence : to laugh
+falsely and heartily at an unfunny remark. 'Jasmine yorked politely,
+loathing him to the depths of her being' - Virginia Woolf.
+			--- Douglas Adams, The Meaning of Liff

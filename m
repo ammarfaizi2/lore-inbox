@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316158AbSGHGjB>; Mon, 8 Jul 2002 02:39:01 -0400
+	id <S316390AbSGHG4P>; Mon, 8 Jul 2002 02:56:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316390AbSGHGjA>; Mon, 8 Jul 2002 02:39:00 -0400
-Received: from mailout10.sul.t-online.com ([194.25.134.21]:9618 "EHLO
-	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S316158AbSGHGjA> convert rfc822-to-8bit; Mon, 8 Jul 2002 02:39:00 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Oliver Neukum <oliver@neukum.name>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-Subject: Re: [OKS] Module removal
-Date: Mon, 8 Jul 2002 08:42:14 +0200
-User-Agent: KMail/1.4.1
-Cc: Werner Almesberger <wa@almesberger.net>, Bill Davidsen <davidsen@tmr.com>,
-       Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-References: <20020702133658.I2295@almesberger.net> <200207072341.22896.oliver@neukum.name> <20020708013141.A13387@kushida.apsleyroad.org>
-In-Reply-To: <20020708013141.A13387@kushida.apsleyroad.org>
+	id <S316577AbSGHG4P>; Mon, 8 Jul 2002 02:56:15 -0400
+Received: from front2.mail.megapathdsl.net ([66.80.60.30]:21509 "EHLO
+	front2.mail.megapathdsl.net") by vger.kernel.org with ESMTP
+	id <S316390AbSGHG4O>; Mon, 8 Jul 2002 02:56:14 -0400
+Message-ID: <3D2936DD.5040700@megapathdsl.net>
+Date: Sun, 07 Jul 2002 23:53:17 -0700
+From: Miles Lane <miles@megapathdsl.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1a+) Gecko/20020702
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200207080842.14281.oliver@neukum.name>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: 2.5.25 -- Build error -- fs/ntfs/layout.h:299: unnamed fields of
+ type other than struct or union are not allowed
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  gcc -Wp,-MD,./.aops.o.d -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon  -nostdinc -iwithprefix include -DMODULE -DNTFS_VERSION=\"2.0.14\" -DDEBUG  -DKBUILD_BASENAME=aops   -c -o aops.o aops.c
+In file included from inode.h:29,
+                 from debug.h:30,
+                 from ntfs.h:40,
+                 from aops.c:30:
+layout.h:299: unnamed fields of type other than struct or union are not allowed
+layout.h:1449: unnamed fields of type other than struct or union are not allowed
+layout.h:1465: unnamed fields of type other than struct or union are not allowed
+layout.h:1714: unnamed fields of type other than struct or union are not allowed
+layout.h:1891: unnamed fields of type other than struct or union are not allowed
+layout.h:2051: unnamed fields of type other than struct or union are not allowed
+layout.h:2063: unnamed fields of type other than struct or union are not allowed
+make[2]: *** [aops.o] Error 1
+make[2]: Leaving directory `/usr/src/linux/fs/ntfs'
 
-> Catching the entry points is what the current `try_inc_mod_count' code
-> does.  I can't think of another way to do that.
+CONFIG_QUOTA=y
+CONFIG_QFMT_V1=m
+CONFIG_QFMT_V2=m
+CONFIG_QUOTACTL=y
+CONFIG_AUTOFS4_FS=y
+CONFIG_EXT3_FS=y
+CONFIG_FAT_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_ISO9660_FS=m
+CONFIG_JOLIET=y
+CONFIG_NTFS_FS=m
+CONFIG_NTFS_DEBUG=y
 
-The old way "2.2-rules" are safe on UP without preempt. So if you
-temporarily, through the freeze hack, can introduce these conditions,
-you've solved it. Except that you need to deal with a failure due to
-an elevated usage count.
-
-IMHO you gain very little by finding partial solutions which won't
-help you in the hard cases. Module unload is very rare. It just needs
-to work. You need to optimise use of modules, not the unload.
-Strictly speaking, by having owner fields you punish drivers compiled
-statically. The effect is small and not worth doing something about
-it, but it should show the direction.
-
-	Regards
-		Oliver
 

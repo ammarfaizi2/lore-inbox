@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313743AbSF3Jpd>; Sun, 30 Jun 2002 05:45:33 -0400
+	id <S314707AbSF3Kxo>; Sun, 30 Jun 2002 06:53:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314680AbSF3Jpc>; Sun, 30 Jun 2002 05:45:32 -0400
-Received: from realimage.realnet.co.sz ([196.28.7.3]:2774 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S313743AbSF3Jpb>; Sun, 30 Jun 2002 05:45:31 -0400
-Date: Sun, 30 Jun 2002 11:17:11 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@mwaikambo.name>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Martin Dalecki <dalecki@evision-ventures.com>, <alex@ssi.bg>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.24 IDE 95
-In-Reply-To: <Pine.SOL.4.30.0206300024030.12467-300000@mion.elka.pw.edu.pl>
-Message-ID: <Pine.LNX.4.44.0206301112470.10717-100000@netfinity.realnet.co.sz>
+	id <S314787AbSF3Kxn>; Sun, 30 Jun 2002 06:53:43 -0400
+Received: from [193.14.93.89] ([193.14.93.89]:30212 "HELO acolyte.hack.org")
+	by vger.kernel.org with SMTP id <S314707AbSF3Kxn>;
+	Sun, 30 Jun 2002 06:53:43 -0400
+From: Christer Weinigel <wingel@nano-system.com>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Can't find watchdog timer (sc1200)
+References: <200206271803.11350.roy@karlsbakk.net>
+Date: 30 Jun 2002 12:56:04 +0200
+In-Reply-To: Roy Sigurd Karlsbakk's message of "Thu, 27 Jun 2002 18:03:11 +0200"
+Message-ID: <m36601827v.fsf@acolyte.hack.org>
+User-Agent: Gnus/5.0806 (Gnus v5.8.6) Emacs/20.5
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 30 Jun 2002, Bartlomiej Zolnierkiewicz wrote:
+Roy Sigurd Karlsbakk <roy@karlsbakk.net> writes:
 
-> > (1) ide-taskfile.c: ide_do_drive_cmd(..., ide_preempt) holds channel
-> >     lock. Do not reacquire. NMI watchdog triggered by just booting
-> >     computer with IDE cdrom.
-> 
-> Mentioned in 95 changelog.
-> Already fixed in my tree, but thanks anyway.
+> I can't make linux (2.4.19-rc1) detect the watchdog timer in the sc1200. Any 
+> ideas? 
 
-Hmm i just spent some time last night trying to go through possible 
-paths for ide_do_drive_cmd to come up with a solution for that one, do you 
-use some sort of SCM so that i can keep track of whats been covered?
+http://basselope.nano-system.com/~wingel/scx200_wdt.diff
 
-> Attached patch is next ide-clean patch pre-patch ;), just not to duplicate
-> efforts. Changelog is also included. As always use with care, standard
-> disclaimer apply.
+I'm not all that sure if that driver works on the sc1200 because that
+driver tries to talk to the watchdog in the SuperI/O chip and that
+chip has another watchdog circuit too.  I've written a driver for the
+other watchdog chip, so if you can, please try this patch against a
+2.4.9-pre10 kernel:
 
-Thanks
+   http://basselope.nano-system.com/~wingel/scx200_wdt.diff
 
-> And final note: I think that previous locking (2.4.x but ch->lock instead
-> of global io_request_lock) was well tuned and almost 100% correct.
-> Recent changes just made it worse (sorry Martin :) ).
-> Now even if we add unmasking IRQs with disabling currently handled IRQ, it
-> will be less friendlier to shared PCI interrupts (especially in PIO it
-> will be overkill to disable shared IRQ for handling PIO intr!),
-> so I want to revert to previous scheme...
+This patch is a part of my patches for the NatSemi SCx200 family of
+chips, so I hope I haven't missed anything.  If it works for you,
+please drop me a mail and I'll try to get it included in the main
+kernel.
 
-Agreed there, thanks again for the patches.
-
-	Zwane Mwaikambo
+  /Christer
 
 -- 
-http://function.linuxpower.ca
-		
-
+"Just how much can I get away with and still go to heaven?"

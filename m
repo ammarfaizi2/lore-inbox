@@ -1,55 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263020AbUFRVoJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263802AbUFRVeP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263020AbUFRVoJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 17:44:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264527AbUFRVha
+	id S263802AbUFRVeP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 17:34:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263467AbUFRVIH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 17:37:30 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:52741 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263020AbUFRVU1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 17:20:27 -0400
-Date: Fri, 18 Jun 2004 22:20:14 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Jamey Hicks <jamey.hicks@hp.com>, Ian Molton <spyro@f2s.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>, tony@atomide.com,
-       David Brownell <david-b@pacbell.net>, joshua@joshuawise.com
-Subject: Re: DMA API issues
-Message-ID: <20040618222014.D17516@flint.arm.linux.org.uk>
-Mail-Followup-To: James Bottomley <James.Bottomley@steeleye.com>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Jamey Hicks <jamey.hicks@hp.com>, Ian Molton <spyro@f2s.com>,
-	Linux Kernel list <linux-kernel@vger.kernel.org>,
-	Greg KH <greg@kroah.com>, tony@atomide.com,
-	David Brownell <david-b@pacbell.net>, joshua@joshuawise.com
-References: <1087582845.1752.107.camel@mulgrave> <20040618193544.48b88771.spyro@f2s.com> <1087584769.2134.119.camel@mulgrave> <40D340FB.3080309@hp.com> <1087589651.8210.288.camel@gaston> <1087590286.2135.161.camel@mulgrave>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1087590286.2135.161.camel@mulgrave>; from James.Bottomley@steeleye.com on Fri, Jun 18, 2004 at 03:24:45PM -0500
+	Fri, 18 Jun 2004 17:08:07 -0400
+Received: from dbl.q-ag.de ([213.172.117.3]:27321 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S263962AbUFRVEr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 17:04:47 -0400
+Message-ID: <40D358C5.9060003@colorfullife.com>
+Date: Fri, 18 Jun 2004 23:04:05 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Dimitri Sivanich <sivanich@sgi.com>, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net, linux-mm@kvack.org
+Subject: Re: [PATCH]: Option to run cache reap in thread mode
+References: <40D08225.6060900@colorfullife.com>	<20040616180208.GD6069@sgi.com>	<40D09872.4090107@colorfullife.com>	<20040617131031.GB8473@sgi.com>	<20040617214035.01e38285.akpm@osdl.org>	<20040618143332.GA11056@sgi.com> <20040618134045.2b7ce5c5.akpm@osdl.org>
+In-Reply-To: <20040618134045.2b7ce5c5.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 18, 2004 at 03:24:45PM -0500, James Bottomley wrote:
-> On Fri, 2004-06-18 at 15:14, Benjamin Herrenschmidt wrote:
-> > I wanted to do just that a while ago, and ended up doing things a bit
-> > differently, but still, I agree that would help. The thing is, you
-> > can do that in your platform code. just use the platform data pointer
-> > in struct device to stuff a ptr to the structure with your "ops"
-> 
-> Yes, we do this on parisc too.  We actually have a hidden method pointer
-> (per platform) and cache the iommu (we have more than one) accessors in
-> platform_data.
+Andrew Morton wrote:
 
-Except that platform_data already has multiple other uses, especially for
-platform devices.
+>Dimitri Sivanich <sivanich@sgi.com> wrote:
+>  
+>
+>>At the time of the holdoff (the point where we've spent a total of 30 usec in
+>>the timer_interrupt), we've looped through more than 100 of the 131 caches,
+>>usually closer to 120.
+>>    
+>>
+>
+>ahh, ooh, ow, of course.
+>
+>Manfred, we need a separate list of "slabs which might need reaping".
+>  
+>
+A cache that might need reaping is a cache that has seen at least one 
+kmem_cache_free(). The list would trade less time in the timer context 
+at the expense of slower kmem_cache_free calls. I'm fairly certain that 
+this would be end up as a big net loss.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+>That'll help the average case.  To help the worst case we should change
+>cache_reap() to only reap (say) ten caches from the head of the new list
+>and to then return.
+>
+I'll write something:
+- allow to disable the DMA kmalloc caches for archs that do not need them.
+- increase the timer frequency and scan only a few caches in each timer.
+- perhaps a quicker test for cache_reap to notice that nothing needs to 
+be done. Right now four tests are done (!flags & _NO_REAP, 
+ac->touched==0, ac->avail != 0, global timer not yet expired). It's 
+possible to skip some tests. e.g. move the _NO_REAP caches on a separate 
+list, replace the time_after(.next_reap,jiffies) with a separate timer.
+
+--
+    Manfred

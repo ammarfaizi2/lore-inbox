@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262903AbTCQGSC>; Mon, 17 Mar 2003 01:18:02 -0500
+	id <S262906AbTCQGVM>; Mon, 17 Mar 2003 01:21:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262904AbTCQGSC>; Mon, 17 Mar 2003 01:18:02 -0500
-Received: from holomorphy.com ([66.224.33.161]:54744 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S262903AbTCQGSB>;
-	Mon, 17 Mar 2003 01:18:01 -0500
-Date: Sun, 16 Mar 2003 22:28:38 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Zwane Mwaikambo <zwane@holomorphy.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       LSE <lse-tech@lists.sourceforge.net>, Mark Haverkamp <markh@osdl.org>
-Subject: Re: [Lse-tech] [PATCH][ANNOUNCE] 32way/8quad NUMAQ booting with 16 IOAPICs, 223 IRQs
-Message-ID: <20030317062838.GN5891@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Zwane Mwaikambo <zwane@holomorphy.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	LSE <lse-tech@lists.sourceforge.net>,
-	Mark Haverkamp <markh@osdl.org>
-References: <Pine.LNX.4.50.0303071148150.18716-100000@montezuma.mastecende.com> <20030317055415.GM5891@holomorphy.com> <Pine.LNX.4.50.0303170107560.2229-100000@montezuma.mastecende.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262908AbTCQGVM>; Mon, 17 Mar 2003 01:21:12 -0500
+Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:56552 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id <S262906AbTCQGVL>;
+	Mon, 17 Mar 2003 01:21:11 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Joshua Kwan <joshk@triplehelix.org>
+Subject: Re: Weirdness with 2.4.20-ck4
+Date: Mon, 17 Mar 2003 17:32:02 +1100
+User-Agent: KMail/1.5
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20030316201124.GA2849@triplehelix.org> <200303171509.34696.kernel@kolivas.org> <20030317041553.GA1186@triplehelix.org>
+In-Reply-To: <20030317041553.GA1186@triplehelix.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.50.0303170107560.2229-100000@montezuma.mastecende.com>
-User-Agent: Mutt/1.3.28i
-Organization: The Domain of Holomorphy
+Message-Id: <200303171732.02778.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 16 Mar 2003, William Lee Irwin III wrote:
->> Running out of IRQ's? Simply jacking up NR_IRQS and HARDIRQ_BITS should
->> suffice if this is what I think it is.
+On Mon, 17 Mar 2003 15:15, Joshua Kwan wrote:
+> On Mon, Mar 17, 2003 at 03:09:23PM +1100, Con Kolivas wrote:
+> > Using it on a server box? You should reverse patch the desktop tuning
+> > (patch 010) at the very least. Your throughput will be higher without
+> > that and it may well be responsible for the hang.
+>
+> I'm running 2.4.20-rmap15e for now, but I'm quite sure I only had 001,
+> 002, and 003.
+>
+> 001_o1_pe_ll_030206_ck_2.4.20.patch.bz2
+> 002_aavm_030226_ck_2.4.20.patch.bz2
+> 003_rl2_021215_ck.2.4.20.patch.bz2
 
-On Mon, Mar 17, 2003 at 01:11:44AM -0500, Zwane Mwaikambo wrote:
-> I'll have to see what repurcussions that will bring about, but i'll add 
-> that to the TODO list.
+Ok. Well I don't recommend the rl2 patch, but I would recommend the first two. 
 
-Well, I tried it in my prior attempt and didn't have problems in that
-area. AFAICT it "just works" if you jack up the numbers.
-
-Also, NUMA-Q's max at 640 routeable RTE's with 16 quads so you'll only
-need to add 1 to HARDIRQ_BITS.
-
-The cpu count issue I've fixed in a separate patch.
-
-
--- wli
+Con

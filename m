@@ -1,76 +1,124 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270173AbTGPHUq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 03:20:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270175AbTGPHUp
+	id S270158AbTGPH1B (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 03:27:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270175AbTGPH1A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 03:20:45 -0400
-Received: from c2mailgwalt.mailcentro.com ([207.183.238.112]:16341 "EHLO
-	c2mailgw03.mailcentro.net") by vger.kernel.org with ESMTP
-	id S270173AbTGPHUo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 03:20:44 -0400
-X-Version: Mailcentro 1.0
-X-SenderIP: 80.58.9.46
-X-SenderID: 7831070
-From: "Jose Luis Alarcon" <jlalarcon@chevy.zzn.com>
-Message-Id: <C12506F5015D8FD47A30563EE997D686@jlalarcon.chevy.zzn.com>
-Date: Wed, 16 Jul 2003 09:35:27 +0200
-X-Priority: Normal
-Content-Type: text/plain; charset=iso-8859-1
-To: navneet_panda@yahoo.com, linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.6.0-test-acl   make modules errors
-X-Mailer: Web Based Pronto
-Mime-Version: 1.0
+	Wed, 16 Jul 2003 03:27:00 -0400
+Received: from mail.convergence.de ([212.84.236.4]:42186 "EHLO
+	mail.convergence.de") by vger.kernel.org with ESMTP id S270158AbTGPH05
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 03:26:57 -0400
+Message-ID: <3F1501B9.8010603@convergence.de>
+Date: Wed, 16 Jul 2003 09:41:45 +0200
+From: Michael Hunold <hunold@convergence.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.4) Gecko/20030715
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 11/17] Add a driver for the Technisat Skystar2 DVB card
+References: <1058271657827@convergence.de> <10582716573394@convergence.de> <20030716012841.GA2017@kroah.com>
+In-Reply-To: <20030716012841.GA2017@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
----- Begin Original Message ----
+Hello Greg KH,
 
-hi
+thanks for reviewing these patches.
 
-I wished to bring to ur attention the following
-problems I experienced while trying to install the new
-kernel.
+>>+
+>>+/////////////////////////////////////////////////////////////////////
+>>+//              register functions
+>>+/////////////////////////////////////////////////////////////////////
+>>+
+>>+void WriteRegDW(struct adapter *adapter, u32 reg, u32 value)
+> 
+> 
+> Hm, this really isn't the proper Linux coding style.  Please read
+> Documentation/CodingStyle on how to name functions.
 
-I downloaded the entire source for 2.6 and then
-applied the patch 2.6.0-test1-ac1
+Yes, I know. The code was imported from an external source, and the code 
+was kept mostly unchanged to keep syncing easier.
 
-Initially I just tried with my old config file from
-kernel 2.4.20 and accepting all the defaults. The
-problem faced was in the file riscom8.c and the output
-was
+But with all the problems you mentioned, I'm now going to review the 
+code. I'll send an updated patch later.
 
-.....
+>>+{
+>>+	u32 flags;
+> 
+> 
+> flags has to be a unsigned long.
 
-I couldn't get over this error. This is my first post
-to the list and I am sorry if I have made any
-mistakes. I just wanted to help.
+Yes.
 
-Thanks
-Panda
+> 
+> 
+>>+
+>>+	save_flags(flags);
+>>+	cli();
+> 
+> 
+> Huh?  Did you even compile this on a SMP kernel on 2.5?  (Hint, it will
+> not...)  Please fix this up.
 
----- End Original Message ----
+OMG. I'm sorry for having submitted something like this. It was not 
+tested by me, no. I'll fix it and test compiling for SMP.
 
-  Hi Panda.
+> 
+> 
+>>+u32 ReadRegDW(struct adapter *adapter, u32 reg)
+>>+{
+>>+	return readl(adapter->io_mem + reg);
+>>+}
+> 
+> 
+> Why?  Why not just write the readl() function whereever you call
+> ReadRegDW?
 
-  Have you the module-init-tools package installed?.
+I don't want to defend the original author, but perhaps these functions 
+were copy&pasted from a Windoze driver.
 
-  Regards.
+>>+/////////////////////////////////////////////////////////////////////
+>>+//                      I2C
+>>+////////////////////////////////////////////////////////////////////
+>>+
+>>+u32 i2cMainWriteForFlex2(struct adapter * adapter, u32 command, u8 * buf, u32 retries)
+> 
+> 
+> kernel functions traditionally return an int.  A negative number if
+> there is an error, and 0 if there isn't.
 
-  Jose.
+I'll review it.
 
+> Oh, any reason for not tying this to the existing i2c core?
+> Or is that done somewhere else?
 
-http://linuxespana.scripterz.org
+No.  I2C is used by all devices at least to access the different 
+chipsets that make up the tuning.
 
-FreeBSD RELEASE 4.8.
-Mandrake Linux 9.1 Kernel 2.5.75 XFS.
-Registered BSD User 51101.
-Registered Linux User #213309.
-Memories..... You are talking about memories. 
-Rick Deckard. Blade Runner.
+In former times, the project had a hard time getting tuning to work in a 
+reliable way, because some of these chipsets are particularly picky when 
+it comes to timing and expect messages in a fixed form. Especially 
+probing of other i2c devices was a problem, which locked up the i2c bus 
+often.
 
+I know that an class field for i2c adapters exists now and that i2c 
+clients can check if they want to probe that bus at all now.
 
-Get your Free E-mail at http://chevy.zzn.com
-___________________________________________________________
-Get your own Web-based E-mail Service at http://www.zzn.com
+The DVB core is quite self contained and we decided to copy the i2c 
+functionality needed for our purposes. So we ended up in using about 100 
+lines of code instead of the whole i2c core.
+
+Now that you have finished improving the i2c core, perhaps we can switch 
+back to the kernel i2c system at a later time.
+
+> thanks,
+> 
+> greg k-h
+
+CU
+Michael.
+

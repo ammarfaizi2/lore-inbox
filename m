@@ -1,52 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261416AbVCCCep@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbVCCCje@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261416AbVCCCep (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 21:34:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261424AbVCCC0A
+	id S261426AbVCCCje (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 21:39:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261400AbVCCCe7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 21:26:00 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27087 "EHLO
+	Wed, 2 Mar 2005 21:34:59 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:208 "EHLO
 	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261418AbVCCCX5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 21:23:57 -0500
-Message-ID: <42267526.4000102@pobox.com>
-Date: Wed, 02 Mar 2005 21:23:34 -0500
+	id S261418AbVCCCcl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 21:32:41 -0500
+Message-ID: <42267737.4070702@pobox.com>
+Date: Wed, 02 Mar 2005 21:32:23 -0500
 From: Jeff Garzik <jgarzik@pobox.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Damian Kolkowski <damian@kolkowski.no-ip.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] - SATA / ioctl(). (HDIO_GET_IDENTITY failed...)
-References: <20050303015341.GENTOO-LINUX-ROX.B8468@kolkowski.no-ip.org>
-In-Reply-To: <20050303015341.GENTOO-LINUX-ROX.B8468@kolkowski.no-ip.org>
+To: "David S. Miller" <davem@davemloft.net>
+CC: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: RFD: Kernel release numbering
+References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>	<42264F6C.8030508@pobox.com>	<20050302162312.06e22e70.akpm@osdl.org>	<42265A6F.8030609@pobox.com> <20050302165830.0a74b85c.davem@davemloft.net>
+In-Reply-To: <20050302165830.0a74b85c.davem@davemloft.net>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Damian Kolkowski wrote:
-> Hi,
-> 
-> Is there any patch to correct libata working with ioctl()?
+I also note that part of the problem that motivates the even/odd thing 
+is a tacit acknowledgement that people only _really_ test the official 
+releases.
 
-libata works fine with ioctl(2).
+Which IMHO backs up my opinion that we simply need more frequent releases.
 
-
-> For example:
-> 
-> .~. # hdparm -t /dev/hda /dev/sda
-> /dev/hda:
->  Timing buffered disk reads:  174 MB in  3.03 seconds =  57.36 MB/sec
-> /dev/sda:
->  Timing buffered disk reads:  152 MB in  3.03 seconds =  50.11 MB/sec
-> HDIO_DRIVE_CMD(null) (wait for flush complete) failed: Inappropriate ioctl for device
-> .~. #
-> 
-> I can attach addition: dmesg, kernel.config, lspci, etc...
-
-Arbitrary command execution is only supported in libata-dev tree for now.
+Part of this is a scalability problem.  Linux probably has more changes 
+flowing into it than any other OS kernel on the planet.  We must deal 
+with an ever-increasing number of changesets in a way that produces a 
+usable kernel for our users.
 
 	Jeff
+
 
 

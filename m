@@ -1,28 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135313AbREAOb5>; Tue, 1 May 2001 10:31:57 -0400
+	id <S135363AbREAOg5>; Tue, 1 May 2001 10:36:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132724AbREAObs>; Tue, 1 May 2001 10:31:48 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:9225 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S135313AbREAObi>; Tue, 1 May 2001 10:31:38 -0400
-Subject: Re: isa_read/write not available on ppc - solution suggestions ??
-To: mike_phillips@urscorp.com
-Date: Tue, 1 May 2001 15:35:40 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-In-Reply-To: <OFED368CB7.D5C74726-ON85256A3F.004547C6@urscorp.com> from "mike_phillips@urscorp.com" at May 01, 2001 09:52:30 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S135520AbREAOgr>; Tue, 1 May 2001 10:36:47 -0400
+Received: from [64.64.109.142] ([64.64.109.142]:21767 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id <S135363AbREAOgi>; Tue, 1 May 2001 10:36:38 -0400
+Message-ID: <3AEEC9D2.85526BAB@didntduck.org>
+Date: Tue, 01 May 2001 10:36:02 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.76 [en] (WinNT; U)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: mike_phillips@urscorp.com
+CC: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: isa_read/write not available on ppc - solution suggestions ??
+In-Reply-To: <OFED368CB7.D5C74726-ON85256A3F.004547C6@urscorp.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14ubFe-0001jg-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> a) change everything to read/write and friends (the way the driver used to 
-> be before the isa_read/write function were introduced)
+mike_phillips@urscorp.com wrote:
+> 
+> To get the pcmcia ibmtr driver (ibmtr/ibmtr_cs) working on ppc, all the
+> isa_read/write's have to be changed to regular read/write due to the lack
+> of the isa_read/write functions for ppc.
 
-readb/readw/readl have always worked for ISA bus. They simply avoid the need
-for ioremap and are meant for lazy porting
+Treat it like a PCI device and use ioremap().  Then change isa_readl()
+to readl() etc.
 
+--
+
+				Brian Gerst

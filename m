@@ -1,40 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262055AbTLNO63 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Dec 2003 09:58:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbTLNO63
+	id S262063AbTLNPAQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Dec 2003 10:00:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262076AbTLNPAQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Dec 2003 09:58:29 -0500
-Received: from 217-124-45-68.dialup.nuria.telefonica-data.net ([217.124.45.68]:37505
-	"EHLO dardhal.mired.net") by vger.kernel.org with ESMTP
-	id S262055AbTLNO62 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Dec 2003 09:58:28 -0500
-Date: Sun, 14 Dec 2003 15:58:26 +0100
-From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: another oops, maybe I'll downgrade to 2.4.22.. :(
-Message-ID: <20031214145826.GA3252@localhost>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <1071361330.1551.2.camel@cripat.acasa-tr.it>
+	Sun, 14 Dec 2003 10:00:16 -0500
+Received: from wblv-224-192.telkomadsl.co.za ([165.165.224.192]:62089 "EHLO
+	gateway.lan") by vger.kernel.org with ESMTP id S262063AbTLNPAK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Dec 2003 10:00:10 -0500
+Subject: Re: Problem with exiting threads under NPTL
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: azarah@nosferatu.za.org
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+Cc: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+In-Reply-To: <20031214052516.GA313@vana.vc.cvut.cz>
+References: <20031214052516.GA313@vana.vc.cvut.cz>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-cBd1K444WoVe0AlqtZ7v"
+Message-Id: <1071414122.4987.80.camel@nosferatu.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1071361330.1551.2.camel@cripat.acasa-tr.it>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 14 Dec 2003 17:02:03 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday, 14 December 2003, at 01:22:10 +0100,
-Cristiano De Michele wrote:
 
-> another oops got using kernel 2.4.23 caused to gkrellm
-> I'm on debian unstable up to date 
-> 
-Before downgrading anything, just try to reproduce the problem without
-the nVIDIA closed-source video drivers loaded on your box.
+--=-cBd1K444WoVe0AlqtZ7v
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Greetings.
+On Sun, 2003-12-14 at 07:25, Petr Vandrovec wrote:
+> Hi,
+>   several times one of our threads ended up as ZOMBIE and
+> nobody wants to pick him up - even init ignores it. Inspection
+> of kernel structures revealed that task's exit code is 0,
+> exit_signal is -1, ptrace is 0 and state is 8 (ZOMBIE).
+>=20
 
--- 
-Jose Luis Domingo Lopez
-Linux Registered User #189436     Debian Linux Sid (Linux 2.6.0-test10-mm1)
+>    So if some process ignores SIGCHLD, and spawns child process=20
+> which creates additional thread, and main thread in child exits=20
+> before child it created, you'll end up with immortal zombie.
+>=20
+
+I can confirm this behavior here, although I must admit I do not
+know if the sample code is legal.  Latest glibc from cvs + bk kernel.
+
+
+Cheers,
+
+--=20
+Martin Schlemmer
+
+--=-cBd1K444WoVe0AlqtZ7v
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/3HtqqburzKaJYLYRArBxAJ9TaceI16W+YNT4MF62sksVoR9tUgCbBoW0
+ItEco/jDuEsnYPJVLsQbuDg=
+=LSnE
+-----END PGP SIGNATURE-----
+
+--=-cBd1K444WoVe0AlqtZ7v--
+

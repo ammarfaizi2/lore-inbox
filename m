@@ -1,178 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263081AbTJaHkW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Oct 2003 02:40:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263082AbTJaHkW
+	id S263085AbTJaHqk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Oct 2003 02:46:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263088AbTJaHqk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Oct 2003 02:40:22 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:35011 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S263081AbTJaHkF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Oct 2003 02:40:05 -0500
-Message-ID: <3FA211D3.2020008@namesys.com>
-Date: Fri, 31 Oct 2003 10:40:03 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
+	Fri, 31 Oct 2003 02:46:40 -0500
+Received: from www1.cdi.cz ([194.213.194.49]:3784 "EHLO www1.cdi.cz")
+	by vger.kernel.org with ESMTP id S263085AbTJaHqg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Oct 2003 02:46:36 -0500
+Date: Fri, 31 Oct 2003 08:40:06 +0100 (CET)
+From: devik <devik@cdi.cz>
+X-X-Sender: <devik@devix>
+To: "David S. Miller" <davem@redhat.com>
+cc: <daniel.blueman@gmx.net>, <netdev@oss.sgi.com>,
+       <linux-net@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6.0-test9] QoS HTB crash...
+In-Reply-To: <20031030130859.605f856d.davem@redhat.com>
+Message-ID: <Pine.LNX.4.33.0310310839100.11221-100000@devix>
 MIME-Version: 1.0
-To: "Theodore Ts'o" <tytso@mit.edu>
-CC: Erik Andersen <andersen@codepoet.org>, linux-kernel@vger.kernel.org
-Subject: Re: Things that Longhorn seems to be doing right
-References: <3F9F7F66.9060008@namesys.com> <20031029224230.GA32463@codepoet.org> <20031030015212.GD8689@thunk.org> <3FA0C631.6030905@namesys.com> <20031030174809.GA10209@thunk.org> <3FA16545.6070704@namesys.com> <20031030203146.GA10653@thunk.org>
-In-Reply-To: <20031030203146.GA10653@thunk.org>
-X-Enigmail-Version: 0.76.7.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-CDI: passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Ts'o wrote:
+Hmm - I have to look at 2.6's definition of rb_next. It
+might be the case ! I'll check it.
 
->On Thu, Oct 30, 2003 at 10:23:49PM +0300, Hans Reiser wrote:
->  
->
->>>Your assumption here is that the only thing that people search and
->>>index on is semi-structed data.
->>>
->>>      
->>>
->>No, my assumption is that structured data is a special case of 
->>semi-structured data, and should be modeled that way.
->>    
->>
->
->There are much more powerful ways of handling structured data (as
->opposed to generalized text searches). 
->
-Special cases of general theorems are not more powerful than the general 
-theorems, they are simply special cases.   You can design a language 
-that has the power of both relational algebra and boolean algebra.
+Thanks, devik
 
-> What WinFS is specifically
->addressing is searching and selected based on structured data.  
->
->  
->
->>>In addition, even for text-based files, in the future, files will very
->>>likely not be straight ASCII, but some kind of rich text based format
->>>with formatting, unicode, etc.
->>>
->>>      
->>>
->>Formatting does not make text table structured.
->>    
->>
->
->No, but it means that doing searches on formatted text is very
->difficult,
->
-When you say formatted text, do you mean fonts and stuff, or do you mean 
-object storage models.  Object storage models should generally be 
-replaced with files and directories. 
+On Thu, 30 Oct 2003, David S. Miller wrote:
 
-Are you saying that auto-indexers should not parse the formatted text, 
-index the document, and allow users to find the document, with the 
-auto-indexer running in user space, but the indexes being traversed by 
-the filesystem namespace resolver?  The kernel does not need to 
-understand how to parse a document, it just needs to support queries 
-that use the indexes created by an auto-indexer that does understand it.
-
-
-> and should be done in userspace, not kernel space.
+> On Thu, 30 Oct 2003 20:50:16 +0100 (CET)
+> devik <devik@cdi.cz> wrote:
 >
->  
+> > thanks for the report. I know that there is an issue regarding
+> > HTB in 2.6.x. Please send me net/sched/sch_htb.o,
+> > net/sched/sch_htb.c (just to be sure) and be sure that you
+> > build the kernel with debugging symbols (see debugging section
+> > of menuconfig/xconfig).
 >
->>You are missing my argument.  I am saying that the indexes and name 
->>space belong in the kernel, not that the auto-indexer belongs in the kernel.
->>    
->>
+> I think the problem is the changes that were made
+> in 2.5.x to htb_next_rb_node().  It used to be:
 >
->Searching and name spaces are different things.  Fundamentally I
->disagree with your belief that they are the same thing (and yes I've
->read your whitepaper on the namesys web page).  You can do much, much
->more powerful select statements than makes sense to do via the
->directory abstraction.  (Think about arbitrary select statements,
->possibly with subselect statements.  That's what Microsoft is
->promising in WinFS.  Do you really want to support an opendir system
->call where its argument is an arbitrary SQL select statement?
+> static void htb_next_rb_node(rb_node_t **n)
+> {
+>         rb_node_t *p;
+>         if ((*n)->rb_right) {
+>                 /* child at right. use it or its leftmost ancestor */
+>                 *n = (*n)->rb_right;
+>                 while ((*n)->rb_left)
+>                         *n = (*n)->rb_left;
+>                 return;
+>         }
+>         while ((p = (*n)->rb_parent) != NULL) {
+>                 /* if we've arrived from left child then we have next node */
+>                 if (p->rb_left == *n) break;
+>                 *n = p;
+>         }
+>         *n = p;
+> }
 >
-No, I hate SQL.  I want to allow people to use Reiser6 queries to find 
-things.;-)
-
->  I
->didn't think so.)
+> But it was changed into:
 >
->There is a very, very big difference between a pathname, which is
->guaranteed to be refer to a single unique file, such as might be used
->in a Makefile.  This is what most people consider a real namespace.
->  
+> static void htb_next_rb_node(struct rb_node **n)
+> {
+>         *n = rb_next(*n);
+> }
 >
-You mean, it is what most people consider a primary key.  Or at least I 
-hope you mean that, because the whole point of all those articles (in 
-what, the 80's was it? ) that strove to coin the name "namespace" was 
-that filesystems and databases and search engines and so on are all 
-namespaces. and they strove to imply that unifying them was possible and 
-desirable.
-
->When addressing people, a passport number, or a driver's license
->number, or a social security number, are all examples of a namespace.
->Each one of these is guaranteed to return either no result, or a
->single specific person.  
+> This is wrong, the new code has much different side effects
+> than the original code.
 >
->In contrast, consider searching for someone who is male, between 30
->and 40, is named Tom, and lived in Libertyville, Illinois sometime
->between 1960 and 1970, and is married to someone named Mary who was
->born in California.  This might return several people, and most people
->would **NOT** consider the space of all queries about people to be a
->"name space". 
+> This looks like the problem, devik what do you think?
 >
-Oh god, did you read the literature?
-
-> Searches are not names.  They do not uniquely identify
->people or objects, which is a fundamental requirement of a name.
->  
 >
-You mean like Theodore?  Are you saying that Theodore is not a name 
-because it does not uniquely identify you?
-
->We can create a filesystem with a directory indexed by social security
->number, and another directory with hard links that indexes people's
->records by driver's ID.  That makes sense.  But putting in sufficient
->indexes so that the above query of looking for somone named Tom who is
->married to someone named Mary (and this is an example where an query
->optimizer would be needed) is simple, pure insanity.
->  
->
-I bet it will be less code than balanced trees were.
-
->  
->
->>uh, all the time, if there is a namespace that lets him.  How often do 
->>you use google?  How often do you memorize the primary key of an object 
->>in a relational database, and use only that versus how often do you do a 
->>richer query?
->>    
->>
->
->I use google dozens of times a day.  I type commands to bash hundreds
->of times a day.  Does that mean that bash command line parsing should
->be in the kernel?  Of course not!
->
->The bottom line is that for something that happens dozens or even
->hundreds of times a day, that's an argument that it *shouldn't* be
->done in the kernel.  Compare and contrast that with handling incoming
->network packets, which can happen millions of times per hour.
->  
->
-Actually the relevant measure is, not how often do you use it, but how 
-often would it context switch if it was not in the kernel.  Users rarely 
-use the networking code directly.
-
-Naming is used by programs a lot.  Enhace naming, and the programs will 
-used enhanced naming a lot.
-
--- 
-Hans
-
 

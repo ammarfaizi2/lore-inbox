@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129573AbQKQPuL>; Fri, 17 Nov 2000 10:50:11 -0500
+	id <S129682AbQKQQDT>; Fri, 17 Nov 2000 11:03:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129649AbQKQPuB>; Fri, 17 Nov 2000 10:50:01 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:15378 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S129573AbQKQPtq>; Fri, 17 Nov 2000 10:49:46 -0500
-Date: Fri, 17 Nov 2000 16:18:33 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Christoph Rohland <cr@sap.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Tigran Aivazian <tigran@veritas.com>,
-        Mikael Pettersson <mikpe@csd.uu.se>, Jordan <ledzep37@home.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Error in x86 CPU capabilities starting with test5/6
-Message-ID: <20001117161833.A27098@athlon.random>
-In-Reply-To: <E13wkLK-0000bP-00@the-village.bc.nu> <qwwpujuvk1s.fsf@sap.com>
-Mime-Version: 1.0
+	id <S129697AbQKQQDJ>; Fri, 17 Nov 2000 11:03:09 -0500
+Received: from [151.17.201.167] ([151.17.201.167]:40230 "EHLO proxy.teamfab.it")
+	by vger.kernel.org with ESMTP id <S129682AbQKQQCy>;
+	Fri, 17 Nov 2000 11:02:54 -0500
+Message-ID: <3A154F7A.6F0F435D@teamfab.it>
+Date: Fri, 17 Nov 2000 16:32:10 +0100
+From: Luca Montecchiani <luca.montecchiani@teamfab.it>
+X-Mailer: Mozilla 4.72C-CCK-MCD Caldera Systems OpenLinux [en] (X11; U; Linux 2.2.17 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Chip Schweiss <chip@innovates.com>
+CC: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: 2.2.18pre21 - IP kernel level autoconfiguration
+In-Reply-To: <H00000650001a074.0974474275.dublin.innovates.com@MHS>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <qwwpujuvk1s.fsf@sap.com>; from cr@sap.com on Fri, Nov 17, 2000 at 01:51:11PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 17, 2000 at 01:51:11PM +0100, Christoph Rohland wrote:
-> gettimeofday is _way_ to slow for a lot of every day uses. So
-> applications will use rdtsc until we have some really fast
-> (non-syscall) way to have high resolution time diffs.
+Chip Schweiss wrote:
+> 
+> The problem seems to be deeper than that.  I first encountered the
+> problem with only bootp compiled in.  In my configuration I am not able
+> to supply kernel parameters on the client which may be why you were
+> able to get bootp to execute.
 
-During the x86-64 design I made sure that in x86-64 glibc will only know about
-vgettimeofday (vsyscall).
+Seem that you have to specify the "ip=bootp" options now
 
-If the machine is Asymetric MP with CPU running at different frequency (so that
-you need to know on which CPU you're running on to use rdtsc) the kernel will
-setup the vsyscall trampoline to fallback in the real slow syscall (but all SMP
-and UP machines will not need to enter/exit kernel this way and the vsyscall
-will be completly lock less... for obvious reasons :).
+*     <PROTO>:
+*        off|none         - don't do autoconfig at all (DEFAULT)
+*        on|any           - use any configured protocol
+*        dhcp|bootp|rarp  - use only the specified protocol
+*        both             - use both BOOTP and RARP (not DHCP)
 
-So as worse you'll have to wait x86-64 to get that lightweight vgettimeofday.
+Anyway I'll do more investigation about my problem to get bootp
+work with dhcp compiled into kernel next week
 
-Andrea
+luca
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

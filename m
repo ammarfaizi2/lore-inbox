@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262960AbTJ3XJp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 18:09:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262965AbTJ3XJp
+	id S262965AbTJ3XL7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 18:11:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262971AbTJ3XL7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 18:09:45 -0500
-Received: from gaia.cela.pl ([213.134.162.11]:4612 "EHLO gaia.cela.pl")
-	by vger.kernel.org with ESMTP id S262960AbTJ3XJm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 18:09:42 -0500
-Date: Fri, 31 Oct 2003 00:09:25 +0100 (CET)
-From: Maciej Zenczykowski <maze@cela.pl>
-To: Dave Brondsema <dave@brondsema.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: uptime reset after about 45 days
-In-Reply-To: <1067552357.3fa18e65d1fca@secure.solidusdesign.com>
-Message-ID: <Pine.LNX.4.44.0310310005090.11473-100000@gaia.cela.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 30 Oct 2003 18:11:59 -0500
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:40711 "EHLO
+	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S262965AbTJ3XL4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Oct 2003 18:11:56 -0500
+Subject: Re: Post-halloween doc updates.
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Dave Jones <davej@redhat.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20031030141519.GA10700@redhat.com>
+References: <20031030141519.GA10700@redhat.com>
+Content-Type: text/plain
+Message-Id: <1067555512.16868.2.camel@glass.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Fri, 31 Oct 2003 00:11:52 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> After about 45 days or so, my uptime was reset. My idle time is correct.
-> 
-> $ cat /proc/uptime
-> 94245.37 3686026.54
-> 
-> $ cat /proc/version Linux version 2.4.20-gentoo-r1
-> (root@dpb2.resnet.calvin.edu) (gcc version 3.2.2) #6 SMP Thu Apr 17
-> 14:11:34 EDT 2003
+On Thu, 2003-10-30 at 15:15, Dave Jones wrote:
 
-Uptime is stored in jiffies which is 32bit on your arch, which results in 
-an overflow after 2^32 clock ticks. TTTicks were 100 HZ till recently 
-(overflow after 470 or so days) now, they're 1000 -> overflows after 45 
-days.  Doesn't wreck anything except for uptime display - known problem, 
-not worth the trouble fixing it would cause (64 bit values are 
-non-atomic, unless MMX/SSE which isn't allowed in kernel) - however there 
-is (if I'm not mistaken) a patch available wihich fixes this 'problem'.
+> Process scheduler improvements.
+> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> - Another much talked about feature. Ingo Molnar reworked the process
+>   scheduler to use an O(1) algorithm.  In operation, you should notice
+>   no changes with low loads, and increased scalability with large numbers
+>   of processes, especially on large SMP systems.
 
-However since it is only a matter of uptime display...
-
-Cheers,
-MaZe.
+I think we should mention excellent Con Kolivas contributions to the 2.6
+kernel scheduler. He did a great job in tunning the scheduler for
+maximum interactive feeling.
 

@@ -1,41 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275087AbRJAOBU>; Mon, 1 Oct 2001 10:01:20 -0400
+	id <S275092AbRJAN6a>; Mon, 1 Oct 2001 09:58:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275086AbRJAOBK>; Mon, 1 Oct 2001 10:01:10 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:19670 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S275110AbRJAOAx>; Mon, 1 Oct 2001 10:00:53 -0400
-Subject: Re: kernel changes
-From: Paul Larson <plars@austin.ibm.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Mark Frazer <mark@somanetworks.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <E15n6CR-00008r-00@the-village.bc.nu>
-In-Reply-To: <E15n6CR-00008r-00@the-village.bc.nu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.12 (Preview Release)
-Date: 01 Oct 2001 09:07:07 +0000
-Message-Id: <1001927233.8597.6.camel@plars.austin.ibm.com>
-Mime-Version: 1.0
+	id <S275094AbRJAN6U>; Mon, 1 Oct 2001 09:58:20 -0400
+Received: from [200.203.199.88] ([200.203.199.88]:48391 "HELO netbank.com.br")
+	by vger.kernel.org with SMTP id <S275092AbRJAN6L>;
+	Mon, 1 Oct 2001 09:58:11 -0400
+Date: Mon, 1 Oct 2001 10:57:05 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Mike Fedyk <mfedyk@matchmail.com>, <linux-kernel@vger.kernel.org>,
+        <linux-mm@kvack.org>
+Subject: Load control  (was: Re: 2.4.9-ac16 good perfomer?)
+In-Reply-To: <20011001111435Z16281-2757+2605@humbolt.nl.linux.org>
+Message-ID: <Pine.LNX.4.33L.0110011031050.4835-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 28 Sep 2001 23:33:39 +0100, Alan Cox wrote:
-> > The answer is to treat all linus/ac/aa/... kernels as development
-> > kernels.  Don't treat anything as stable until it's been through
-> > a real QA cycle.  I've heard Suse, RedHat and the like don't do a
-> > bad job at this.
-> 
-> We try. If you want to QA your own kernel the cerberus test suite is
-> publically available - and indeed the VA guys are to thank for its origins.
-> 
-> Alan
+On Mon, 1 Oct 2001, Daniel Phillips wrote:
 
-For Linux QA/Testing, you may also want to check out the Linux Test
-Project.  We just had a new release that added about 400 new testcases
-which is way up from what we had before.  We also have descriptions for
-all the tests now too.
+> Nice.  With this under control, another feature of his memory manager
+> you could look at is the variable deactivation threshold, which makes
+> a whole lot more sense now that the aging is linear.
 
--Paul Larson
+Actually, when we get to the point where deactivating enough
+pages is hard, we know the working set is large and we should
+be _more careful_ in chosing what to page out...
+
+When we go one step further, where the working set approaches
+the size of physical memory, we should probably start doing
+load control FreeBSD-style ... pick a process and deactivate
+as many of its pages as possible. By introducing unfairness
+like this we'll be sure that only one or two processes will
+slow down on the next VM load spike, instead of all processes.
+
+Once we reach permanent heavy overload, we should start doing
+process scheduling, restricting the active processes to a
+subset of all processes in such a way that the active processes
+are able to make progress. After a while, give other processes
+their chance to run.
+
+regards,
+
+Rik
+-- 
+IA64: a worthy successor to i860.
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

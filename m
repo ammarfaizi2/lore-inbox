@@ -1,70 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263480AbTH0QFG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 12:05:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263531AbTH0QDB
+	id S263677AbTH0QLn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 12:11:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263623AbTH0QKO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 12:03:01 -0400
-Received: from main.gmane.org ([80.91.224.249]:12196 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S263553AbTH0QCk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 12:02:40 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Pasi Savolainen <psavo@iki.fi>
-Subject: Re: [PATCH] Pentium Pro - sysenter - doublefault
-Date: Wed, 27 Aug 2003 16:02:35 +0000 (UTC)
-Message-ID: <slrnbkplgr.eu5.psavo@varg.dyndns.org>
-References: <1061498486.3072.308.camel@new.localdomain> <20030825040514.GA20529@mail.jlokier.co.uk> <20030826122621.GB3140@malvern.uk.w2k.superh.com> <20030827140121.GA1973@mail.jlokier.co.uk>
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: slrn/0.9.7.4 (Linux)
+	Wed, 27 Aug 2003 12:10:14 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:45194 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S263625AbTH0QJt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 12:09:49 -0400
+Date: Wed, 27 Aug 2003 09:09:39 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Peter Chubb <peterc@gelato.unsw.edu.au>, akpm@digeo.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6.0-test4 -- add context switch counters
+Message-ID: <20030827160939.GA29987@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	Peter Chubb <peterc@gelato.unsw.edu.au>, akpm@digeo.com,
+	linux-kernel@vger.kernel.org
+References: <16204.520.61149.961640@wombat.disy.cse.unsw.edu.au> <20030827065435.GV4306@holomorphy.com> <20030827155246.GA23609@work.bitmover.com> <20030827160133.GD4306@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030827160133.GD4306@holomorphy.com>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Jamie Lokier <jamie@shareable.org>:
-> Richard Curnow wrote:
->> OK, since I get something different to the other reports I saw:
->> 
->>  1:20PM-malvern-0-534-% ./sysenter
->>  1:20PM-malvern-STKFLT-535-% echo $?
->> 144
+On Wed, Aug 27, 2003 at 09:01:33AM -0700, William Lee Irwin III wrote:
+> On Wed, Aug 27, 2003 at 08:52:46AM -0700, Larry McVoy wrote:
+> > I normally hate ifdefs but this might be a good place to use a bunch of 
+> > macros and make them conditional on config_stats or something.  Updating
+> > counters is going to add to the size of the data cache footprint and it
+> > would be nice, for those people working on embedded low speed processors,
+> > if they could config this out.  I personally would leave it in, I like
+> > this stats.  I just know that the path to slowness is paved one cache
+> > miss at a time.
 > 
-> Hi Richard,
-> 
-> That's because you ran it on a 2.5/2.6 kernel, right?  The test code
-> is meant for 2.4 kernels and earlier :)
+> I've profiled this and know the memory stats don't do any harm; the
+> rest I'd have to see profiled. AFAICT all the damage is done after
+> ticking mm->rss in the various pagetable copying/blitting operations,
+> and once we've taken that hit (in mainline!) the other counters are
+> noise-level. The integral counters are another story; I've not seen
+> those in action.
 
-If this is of any help..
+This is the classic response that I get whenever I raise this sort of
+concern.  I got it at Sun, I got it at SGI.  Everyone says "my change
+made no difference".  And they are right from one point of view: you
+run some micro benchmark and you can't see any difference.
 
-- -
-pvsavola@a11a:~/code$ cat /proc/cpuinfo 
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 1
-model name      : Pentium Pro
-stepping        : 6
-cpu MHz         : 199.312
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
-mca cmov
-bogomips        : 397.31
+Of course you can't see any difference, in the microbenchmark everything
+is in the cache.  But you did increase the amount of cache usage.
+Consider a real world case where the application and the kernel now
+just exactly fit in the caches for the critical loop.  Adding one
+extra cache line will hurt that application but would never be seen in
+a microbenchmark.
 
-pvsavola@a11a:~/code$ ./sysent ; echo $?
-Segmentation fault
-139
-pvsavola@a11a:~/code$ uname -a
-Linux a11a 2.4.19-ck3-rmap #1 Mon Aug 26 21:38:49 EEST 2002 i686 GNU/Linux
-- -
+The only way to really measure this is with real work loads and a cache
+miss counter.  And even that won't always show up because if the work load
+you choose happened to only use 1/2 of the data cache (for instance) you
+need to add enough more than 1/2 of the cache lines to show up in the 
+results.
 
+Think of it this way: we can add N extra cache lines and see no
+difference.  Then we add the Nth+1 and all of a sudden things get slow.
+Is that the fault of the Nth+1 guy?  Nope.  It's the fault of all N,
+the Nth+1 guy just had bad timing, he should have gotten his change
+in earlier.
+
+I realize that I'm being extreme here but if I can get this point across
+that's a good thing.  I'm convinced that it was a lack of understanding
+of this point that lead to the bloated commercial operating systems.
+Linux needs to stay fast.  Processors have cycle times of a third of a
+nanosecond yet memory is still ~130ns away.
 -- 
-   Psi -- <http://www.iki.fi/pasi.savolainen>
-
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

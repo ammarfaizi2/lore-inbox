@@ -1,56 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268110AbRHCJ4D>; Fri, 3 Aug 2001 05:56:03 -0400
+	id <S268199AbRHCJ5y>; Fri, 3 Aug 2001 05:57:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267615AbRHCJzx>; Fri, 3 Aug 2001 05:55:53 -0400
-Received: from cdt1.tz-juelich.de ([195.37.52.66]:61056 "HELO
-	feivel.credativ.de") by vger.kernel.org with SMTP
-	id <S267579AbRHCJzs>; Fri, 3 Aug 2001 05:55:48 -0400
-Date: Fri, 3 Aug 2001 11:58:07 +0200
-To: Linux-Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-        linux-smp@vger.kernel.org, debian-user@lists.debian.org
-Subject: Problem with customer machine
-Message-ID: <20010803115807.A12739@feivel.credativ.de>
+	id <S268129AbRHCJ5o>; Fri, 3 Aug 2001 05:57:44 -0400
+Received: from [210.77.38.126] ([210.77.38.126]:47377 "EHLO
+	ns.turbolinux.com.cn") by vger.kernel.org with ESMTP
+	id <S268079AbRHCJ5b>; Fri, 3 Aug 2001 05:57:31 -0400
+Date: Fri, 3 Aug 2001 17:58:03 +0800
+From: michael chen <michaelc@turbolinux.com.cn>
+X-Mailer: The Bat! (v1.49) UNREG / CD5BF9353B3B7091
+Reply-To: michaelc <michaelc@turbolinux.com.cn>
+X-Priority: 3 (Normal)
+Message-ID: <3823096796.20010803175803@turbolinux.com.cn>
+To: rtviado <root@iligan.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: load balancing on more than 1 default routes
+In-Reply-To: <Pine.LNX.4.33.0108031752040.907-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.33.0108031752040.907-100000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.18i
-From: Michael.Meskes@credativ.de (Michael Meskes)
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi rtviado,
 
-we are setting up a customer machine and experience the following messages
-over and over again:
+Friday, August 03, 2001, 6:02:48 PM, you wrote:
 
-Aug  2 17:09:40 MDVTS054 kernel: unexpected IRQ vector 221 on CPU#0!
-Aug  2 17:10:45 MDVTS054 kernel: unexpected IRQ vector 216 on CPU#0!
 
-Now I found a lot of mail in some list archives about the same messages or
-at least similar with a different number. But I did not find any reply to
-these messages. AFAICT this means the IRQ handler notices an IRQ it does not
-know how to handle. Is that correct?
 
-The machine appears to run stable but the message comes up about once per
-minute. If it does not do any harm I'm willing to just removed the message,
-but before I like to know exactly what's that all about. In particular I
-need to find out if this results from a hardware problem.
+r> Hello,
 
-Does anyone know or has a link for me to read about this?
+r>         I just want to ask if there is a facility in the kernel that load
+r> balance to different default routes, since i'm using this routes for
+r> uplink purposes only (my downlink is via satellite, it doesn't matter
+r> where i send my packets uplink as long as it reaches the internet
+r> backbone).
 
-BTW there is another problem. The machine hangs solid during reboot after
-printing "disabeling symmetric io mode".
+r> for example
 
-The machine is a dual Xeon with gdt7629 controller.
+r>         in my box, I have routes as describe below
 
-Thanks for any hints.
+r>         destination     gateway         netmask
+r>         default         isp1            0.0.0.0
+r>         default         isp2            0.0.0.0
 
-Michael
+r> Want i want is for the kernel to load balance (e.g round robin) uplink
+r> packets to isp1 and isp2. If this in is not possible in the current
+r> kernel, where in the kernel source files can i start hacking to make this
+r> possible?
 
-P.S.: Please CC me on replies since I am not subscribed here.
+
+r> TIA
+    As i know, there is a networking driver called bonding ,which can
+    load balance sending packets through several ethernet
+    connections, both 2.2.X and 2.4.X kernel have this driver.
+
+
 -- 
-Michael Meskes
-Michael@Fam-Meskes.De
-Go SF 49ers! Go Rhein Fire!
-Use Debian GNU/Linux! Use PostgreSQL!
+Best regards,
+Michael Chen                           mailto:michaelc@turbolinux.com.cn
+
+

@@ -1,135 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267188AbTAUWsH>; Tue, 21 Jan 2003 17:48:07 -0500
+	id <S267084AbTAUWqT>; Tue, 21 Jan 2003 17:46:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267263AbTAUWsH>; Tue, 21 Jan 2003 17:48:07 -0500
-Received: from hellcat.admin.navo.hpc.mil ([204.222.179.34]:62600 "EHLO
-	hellcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S267188AbTAUWsE> convert rfc822-to-8bit; Tue, 21 Jan 2003 17:48:04 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Jesse Pollard <pollard@admin.navo.hpc.mil>
-To: James Simmons <jsimmons@infradead.org>,
-       Andre Hedrick <andre@linux-ide.org>
-Subject: Re: [OT] Re: Linux in the News! WooHoo!
-Date: Tue, 21 Jan 2003 16:57:07 -0600
-User-Agent: KMail/1.4.1
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0301212108460.4030-100000@phoenix.infradead.org>
-In-Reply-To: <Pine.LNX.4.44.0301212108460.4030-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200301211657.07531.pollard@admin.navo.hpc.mil>
+	id <S267188AbTAUWqT>; Tue, 21 Jan 2003 17:46:19 -0500
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:17378 "EHLO
+	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S267084AbTAUWqR>; Tue, 21 Jan 2003 17:46:17 -0500
+Date: Tue, 21 Jan 2003 23:55:20 +0100
+From: Martin Waitz <tali@admingilde.org>
+To: linux-kernel@vger.kernel.org
+Subject: Resource Container implementation for Linux
+Message-ID: <20030121225520.GA1471@admingilde.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0F1p//8PRICkK4MW"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 21 January 2003 04:26 pm, James Simmons wrote:
-> > http://eastbay.bizjournals.com/eastbay/stories/2003/01/20/story1.html
-> >
-> > The hardcopy edition is better.
-> > It has sweet little TUX snacking on a Windows Logo!
-> > Go to http://eastbay.bizjournals.com/eastbay/ next saturday and see this
-> > weeks print cover on the web!
->
->    Linux will NEVER move into the desktop market!!! Linux has found it
-> niche in the server market and some aspects of the embedded market. Well
-> it is struggling to keep alive in the embedded space. Why is this?
->    Number one reason it will never move into the desktop market is the
-> free beer mentality. Alot of people expect something for nothing or
-> next to it. I not just talking users. Even multi-billion dollar companies.
-> I had a large company tell me "You are charging us? That is not very open
-> source of you!!" As for end users the same problem exist. Plus companies
-> toke note that it would cost them money to hire some to port their
-> software.
 
-Yup - just as they would have to hire programmers to port any program.
+--0F1p//8PRICkK4MW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-"There is no such thing as portable programs... only programs that have been 
-ported"...
+Hi :)
 
-...
->    What is the immature? The bare basics is stable and fine but people
-> want more than just to login in via a serial console. I seen alot of nice
-> development of new types of GUI. Out of the few dozen vendors all but
-> one decided not to go with X windows. BTW that one moved over to windows
-> CE later. These companies felt X was a hinderance. So they went to other
-> GUIs like microwindows or embedded Qt. Still there is a lack of apps and
-> a even greater lack of comapnies wanting to write apps for linux PDAs.
+i'm writing a diploma thesis about using resource containers
+for energy accounting, implemented for linux.
+(of course, it's possible to use that system for other resources
+like cpu-time, too)
 
-Neither has anything to do with Linux itself.. only that M$ suppressed vendors 
-of applications...
+the thesis is almost finished (due jan, 31.), but i'm not a native
+english speaker and would like to have one review it for me.
 
-X is a serious load unless you are expecting to work with multiple hosts, all 
-sending windows back to the same server. In which case, nothing else works as 
-well, nor as portably. Any standard X application can display to any 
-reasonably standard X server.
+the preliminary abstract of the work is quoted below.
+if you're interested in reading the complete thesis,
+please contact me off-list.
+you have to just tell me where i've misused some words, phrases, etc.
 
->    Now for the issue of the desktop itself. We have the basic two problems
-> above. The biggest issue with X is the long developement cycle. The good
-> news is since NVIDIA, which makes there own X server and drivers, is the
-> dominate graphics card we don't feel it so much. If we had 20 to 30
-> graphics cards with equal market space we would notice. Especially when
-> the graphics cards were have 6 month cycles before they become obsolete.
+code is gpl, of course, and i will make a separate announcement
+once i've cleaned it up a bit (but repository is already online).
+if there is general interest, i should have some nice patches ready
+once 2.7 starts... ;)
 
-And the problem is ????
 
-The long development cycle has a lot to do with the lack of specifications for 
-the hardware.
+---------------------------------------------------------------------
+|
+|	Accounting and controlling power consumption
+|	in energy aware operating systems
+|
 
->
->     So what is my PROOF of all this. First take a look at the linux jobs
-> out there. You will notices System Admin jobs. Several of those in fact.
+An important task of operating systems is to fairly schedule shared
+resources between several parties.  Precise accounting of consumed
+resources is the key to that goal.  However, most operating systems only
+use very basic accounting strategies.
 
-If the job says UNIX it implies Linux.. or so the ones I have been looking at.
+This thesis discusses methods for resource accounting and introduces a
+powerful, yet easy to use accounting model based on resource containers.
+The goal of this model is to always charge the party that is responsible
+for some resource usage. To achive this, client-server relationships
+between running processes are detected.  They provide an invaluable
+source of information which can be used to identify the entities
+initiating resource intensive actions.  As the resource containers which
+are used for accounting can be nested to form a hierarchy, sophisticated
+accounting and scheduling policies can be formulated.
 
-> Then the development jobs are iSCSI or network card or some other aspect
-> of network programming. Now look for a GNOME or KDE programming job
-> outside of a distro looking to hire someone. I seen only one in Austalia.
+Utilizing this new accounting model, the energy consumption of the
+machine can be charged to the individual entity responsible.  Accounting
+energy consumption is a very natural way, as every hardware component
+that contributes to the execution of a program is consuming energy.
+Several methods used to messure or estimate the energy consumption of
+various hardware parts are discussed, paying special attention to the
+main processor.
 
-So what.. I do interfaces using Motif. Can work fine on Linux or SGI...
-GNOME/KDE is not quite as portable.
+Especially peak energy consumption is important as many components have
+to be dimensioned according to the maximum power consumption.  Reducing
+this peak consumption can save costs in both high-end data centers and
+small mobile devices.  A software method for limiting energy consumption
+is introduced.  By using the new resource model, advanced policies can
+be defined that allow to control power consumption of the entire
+machine, individual processes or special clients and servers.
 
-> Now try a search in flipdog.com, CareerBuilder.com, or HotJobs.com for a
-> GNOME or KDE jobs. Well what do you know. No jobs avaible. So no company
-> is looking to either port there software to linux nor create new linux
-> software.
 
-not true:
-2 for "X Window"
-10 for "X Windows"
-13 for Motif
 
-And that after only three shots... 25 total (I'm assuming there aren't any 
-overlaps for the moment).
+--=20
+CU,		  / Friedrich-Alexander University Erlangen, Germany
+Martin Waitz	//  [Tali on IRCnet]  [tali.home.pages.de] _________
+______________/// - - - - - - - - - - - - - - - - - - - - ///
+dies ist eine manuell generierte mail, sie beinhaltet    //
+tippfehler und ist auch ohne grossbuchstaben gueltig.   /
+			    -
+Wer bereit ist, grundlegende Freiheiten aufzugeben, um sich=20
+kurzfristige Sicherheit zu verschaffen, der hat weder Freiheit=20
+noch Sicherheit verdient.            Benjamin Franklin (1706 - 1790)
 
->	 Mind you a few companies tried like lokigames. Now they are
-> gone. Next level is graphics and multimedia programming in linux. Again
-> nothing really avaiable.
->      Now the next question is what companies invest in non sever related
-> matterial for linux i.e mulitmedia, GNOME, KDE, X outside of the distros.
+--0F1p//8PRICkK4MW
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-none of the located jobs are distribution suppliers.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-> I know people there are people on the list from IBM, HP etc who are
-> reading this email. Speak up if this in not the case. The only one I knew
-> of was VA linux. They hired several of the DRI/X windows developers. To
-> my knowledge they no longer work there. So the only companies pursing non
-> server related are the distros. Now the question is hwo many will be left
-> soon. One of them filed for a form of bankruptcy a few days ago. Very few
-> remain. Also we are seeing the strongs one move to where the money is. The
-> server market. So I wouldn't count on any R&D from anyone to much to move
-> linux to the desktop.
+iD4DBQE+Lc/Xj/Eaxd/oD7IRAgPoAJQLVpkFib5BorF0P5r+E3I0p/xTAJ95psAs
+NYYIziRlOHqir+EK6vGWyg==
+=1wUk
+-----END PGP SIGNATURE-----
 
-The projects currently underway for doing the desktop haven't asked for R&D 
-funds, to my knowlege.
-
-HOWEVER - there were 15000+ workstations that converted to StarOffice last
-year (DISA - a government agency). Since StarOffice works on both Linux and M$
-I see that as a win. And there are a LOT of OpenOffice (the free version) 
-installations.
-
--- 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
-
-Any opinions expressed are solely my own.
+--0F1p//8PRICkK4MW--

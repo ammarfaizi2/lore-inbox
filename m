@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264043AbUDQUdK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Apr 2004 16:33:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264045AbUDQUdK
+	id S263091AbUDQVPk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Apr 2004 17:15:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264045AbUDQVPk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Apr 2004 16:33:10 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:32651 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S264043AbUDQUdH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Apr 2004 16:33:07 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: Duncan Sands <baldrick@free.fr>, Greg KH <greg@kroah.com>
-Subject: Re: [linux-usb-devel] [PATCH 1/9] USB usbfs: take a reference to the usb device
-Date: Sat, 17 Apr 2004 22:33:03 +0200
-User-Agent: KMail/1.5.1
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Frederic Detienne <fd@cisco.com>
-References: <200404141229.26677.baldrick@free.fr> <200404172217.10994.baldrick@free.fr>
-In-Reply-To: <200404172217.10994.baldrick@free.fr>
+	Sat, 17 Apr 2004 17:15:40 -0400
+Received: from webbox180.server-home.net ([195.137.212.194]:54937 "EHLO
+	webbox180.server-home.net") by vger.kernel.org with ESMTP
+	id S263091AbUDQVPj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Apr 2004 17:15:39 -0400
+Message-ID: <40819E5C.7070001@clagi.de>
+Date: Sat, 17 Apr 2004 23:15:08 +0200
+From: Guido Classen <classeng@clagi.de>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: linux kernel <linux-kernel@vger.kernel.org>,
+       Linux-USB <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [linux-usb-devel] 2.6.x support for prism2 USB wireless adapter?
+References: <40395346.3040300@gadsdon.giointernet.co.uk> <Pine.LNX.4.44L0.0402230953141.1175-100000@ida.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.0402230953141.1175-100000@ida.rowland.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200404172233.03552.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> The problem is that the prism2's single interface is number 1, but
+> according to the USB standard interfaces are supposed to be
+> numbered starting at 0.  This is a fairly common error among USB devices.
+> The patch below will cause the kernel to accept the device; please let us
+> know how it works out.
+Is anyone working on this issue? The patch works great for me with
+kernel 2.6.3 but it dosn't apply to 2.6.5. Im using a Sitecom WL12
+Prims2 USB WLAN apdaper
 
-> riddled with races of this kind.  The simplest solution is to
-> systematically take ps->dev->serialize when entering the usbfs routines,
-> which is what my patches do.  This should be regarded as a first step: it
+any suggestions?
 
-What is the alternative?
+kindly regards
+   Guido Classen
 
-> gives correctness, but at the cost of a probable performance hit.  In later
-> steps we can (1) turn dev->serialize into a rwsem
+> [PATCH]
 
-Rwsems are _slower_ in the normal case of no contention.
-
-> (2) push the acquisition of dev->serialize down to the lower levels as they
-> are fixed up.
-
-Why?
-
-	Regards
-		Oliver
 

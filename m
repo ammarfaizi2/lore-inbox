@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261666AbVC2Xht@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261248AbVC2Xks@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261666AbVC2Xht (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 18:37:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261656AbVC2Xht
+	id S261248AbVC2Xks (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 18:40:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261649AbVC2Xks
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 18:37:49 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:6531 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261649AbVC2Xh3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 18:37:29 -0500
-Subject: Re: NFS client latencies
-From: Lee Revell <rlrevell@joe-job.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1112139263.11892.0.camel@lade.trondhjem.org>
-References: <1112137487.5386.33.camel@mindpipe>
-	 <1112138283.11346.2.camel@lade.trondhjem.org>
-	 <1112139155.5386.35.camel@mindpipe>
-	 <1112139263.11892.0.camel@lade.trondhjem.org>
+	Tue, 29 Mar 2005 18:40:48 -0500
+Received: from gate.crashing.org ([63.228.1.57]:63715 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261248AbVC2Xki (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 18:40:38 -0500
+Subject: Re: Mac mini sound woes
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Chris Friesen <cfriesen@nortel.com>
+Cc: Lee Revell <rlrevell@joe-job.com>, Marcin Dalecki <martin@dalecki.de>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Takashi Iwai <tiwai@suse.de>
+In-Reply-To: <4249E3F4.8070005@nortel.com>
+References: <1111966920.5409.27.camel@gaston>
+	 <1112067369.19014.24.camel@mindpipe>
+	 <4a7a16914e8d838e501b78b5be801eca@dalecki.de>
+	 <1112084311.5353.6.camel@gaston>
+	 <e5141b458a44470b90bfb2ecfefd99cf@dalecki.de>
+	 <1112134385.5386.22.camel@mindpipe>  <4249E3F4.8070005@nortel.com>
 Content-Type: text/plain
-Date: Tue, 29 Mar 2005 18:37:24 -0500
-Message-Id: <1112139444.5386.39.camel@mindpipe>
+Date: Wed, 30 Mar 2005 09:39:24 +1000
+Message-Id: <1112139564.31848.65.camel@gaston>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-03-29 at 18:34 -0500, Trond Myklebust wrote:
-> ty den 29.03.2005 Klokka 18:32 (-0500) skreiv Lee Revell:
-> > On Tue, 2005-03-29 at 18:18 -0500, Trond Myklebust wrote:
-> > > ty den 29.03.2005 Klokka 18:04 (-0500) skreiv Lee Revell:
-> > > > I am seeing long latencies in the NFS client code.  Attached is a ~1.9
-> > > > ms latency trace.
-> > > 
-> > > What kind of workload are you using to produce these numbers?
-> > > 
-> > 
-> > Just a kernel compile over NFS.
+On Tue, 2005-03-29 at 17:25 -0600, Chris Friesen wrote:
+> Lee Revell wrote:
 > 
-> In other words a workload consisting mainly of mmap()ed writes?
+> > This is the exact line of reasoning that led to Winmodems.
 > 
+> My main issue with winmodems is not so much the software offload, but 
+> rather that the vendors don't release full specs.
+> 
+> If all winmodem manufacturers released full hardware specs, I doubt 
+> people would really complain all that much.  There's a fairly large pool 
+> of talent available to write drivers once the interfaces are known.
 
-If you say so... I don't know the NFS internals very well.
+Look at the pile of junk that are most winmodem driver implementations,
+nothing I want to see in the kernel ever. Those things should be in
+userland.
 
-I did use "make -j16", on a UP.
+Ben.
 
-Lee
 

@@ -1,132 +1,114 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264371AbRFNBLs>; Wed, 13 Jun 2001 21:11:48 -0400
+	id <S264374AbRFNBL6>; Wed, 13 Jun 2001 21:11:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264345AbRFNBLj>; Wed, 13 Jun 2001 21:11:39 -0400
-Received: from oe32.law3.hotmail.com ([209.185.240.25]:2323 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S264371AbRFNBL1>;
-	Wed, 13 Jun 2001 21:11:27 -0400
-X-Originating-IP: [63.169.2.184]
-Reply-To: "William Scott Lockwood III" <scottlockwood@hotmail.com>
-From: "William Scott Lockwood III" <thatlinuxguy@hotmail.com>
-To: "'Andre Hedrick'" <andre@linux-ide.org>, <craigl@promise.com>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <00d301c0f463$de9dd840$bd01a8c0@promise.com>
-Subject: Re: Eye2Eye a hope for Promise to Join Linux
-Date: Wed, 13 Jun 2001 20:09:11 -0500
+	id <S264359AbRFNBLs>; Wed, 13 Jun 2001 21:11:48 -0400
+Received: from 216-99-213-120.dsl.aracnet.com ([216.99.213.120]:17674 "HELO
+	clueserver.org") by vger.kernel.org with SMTP id <S264374AbRFNBLd>;
+	Wed, 13 Jun 2001 21:11:33 -0400
+Date: Wed, 13 Jun 2001 19:22:38 -0700 (PDT)
+From: Alan Olsen <alan@clueserver.org>
+To: Daniel <ddickman@nyc.rr.com>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: obsolete code must die
+In-Reply-To: <01a401c0f46b$20b932e0$480e6c42@almlba4sy7xn6x>
+Message-ID: <Pine.LNX.4.10.10106131903190.16254-100000@clueserver.org>
 MIME-Version: 1.0
-Content-Type: text/plain;	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2462.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
-Message-ID: <OE327xg8BPq2qJ5hSTG00007f77@hotmail.com>
-X-OriginalArrivalTime: 14 Jun 2001 01:11:20.0610 (UTC) FILETIME=[EBCE0020:01C0F46E]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Mr. Lyons,
-  I think it's very exciting to see someone from promise talking to the
-community.  I think the most important thing to remember is that even if the
-company does not release source, people will reverse engineer the cards
-anyway - possibly not giving the best support to the hardware that could be
-given with GPL'd source.  How does that make the product look?  If I can buy
-a controller that is very well documented (like my Adaptec 2940) and will
-serve my needs, and has source, I (personally) will pick that card over a
-closed source product where I cannot update the binary only driver provided
-by the manufacturer.  While I recognize that sometimes it's hard to get
-"suits" to understand this, I encourage you to try.  :-)
-  Along these lines, I'm wondering what your interest, and Promise's policy
-is about Interviews?  I'm curious to get your companies views on Linux, and
-also yours - I run a small (VERY loose, VERY non-serious) website called
-http://www.geekizoid.com/ and while we mostly cover troll related net humor,
-we also are trying to branch out and do more serious stuff.  The Interview
-(if you would agree to it) would be "Slashdot style" - we'd let the
-readership know you were willing to answer questions, and we'd then forward
-them to you - you would then answer the ones you wanted, and those answers,
-verbatim with no editing, would appear with the questions as asked.
+On Wed, 13 Jun 2001, Daniel wrote:
 
-William Scott Lockwood III
-Geekizoid Webmaster
+I agree that some clean up is needed.  (The size of the kernel is getting
+HUGE. Back in the old days, we didn't have kernels larger than a few
+hundred kbytes.  That is because we had to type in the kernel source from
+source written on papyrus.)
 
------ Original Message -----
-From: "Craig Lyons" <craigl@promise.com>
-To: "'Andre Hedrick'" <andre@linux-ide.org>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Wednesday, June 13, 2001 6:52 PM
-Subject: RE: Eye2Eye a hope for Promise to Join Linux
+> So without further ado here're the features I want to get rid of:
+> 
+> i386, i486
+> The Pentium processor has been around since 1995. Support for these older
+> processors should go so we can focus on optimizations for the pentium and
+> better processors.
 
+You are in a part of the world that can afford them.
 
-> Hi,
->
-> Andre and I did indeed have a nice conversation on the phone. Thank you
-> again for taking the time to talk with me and offering your assistance. As
-I
-> stated on the phone, we are making a large commitment of resources to
-> supporting Linux by releasing drivers and utilities for our products,
-> including the FastTrak. I know we have plans to release source for our
-Ultra
-> and SuperTrak series cards, but at this point I'm not sure that the way we
-> are going to be supporting FastTrak is what you would like to see. As I
-> said, while I cannot guarantee anything that I don't have the authority to
-> deliver, I will pass on your requests. I will try to be an advocate for
-> Promise in the Linux community, and an advocate for the Linux community to
-> Promise. If the company has concerns, I will let you know what they are,
-and
-> then maybe you can tell us if we are off-base with those concerns or not.
->
-> I would invite anybody to contact me if you have any suggestions, any
-> requests, whatever. As I told Andre, I won't promise something I can't
-> personally deliver, but I will do whatever I can to help out. I'm also
-> trying to get a technical point of contact so that you don't have to deal
-> with a marketing weenie who doesn't understand half of what you're saying
-> ;).
->
-> Regards,
->
-> Craig
->
->
-> -----Original Message-----
-> From: Andre Hedrick [mailto:andre@linux-ide.org]
-> Sent: Wednesday, June 13, 2001 2:43 PM
-> To: Craig Lyons
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Eye2Eye a hope for Promise to Join Linux
->
->
->
-> Greetings Craig,
->
-> I would like to publicly thank you for coming to the table of GNU/GPL with
-> an open perspective.  After 90 minutes on the phone, of which 45 minutes
-> were me pointing out issues promblems and complaints w/ 20 minutes on ways
-> to work on solutions in the near and distant future and the listening to
-> your concerns and questions between my moments of interruption.
->
-> The next conversion will not have the burst-in moments because it will be
-> in person or my cell battery will be fully charged.
->
-> Since you have stated "I will not make promise, I can not keep" this is a
-> good thing and it will go a fair way to clean up messes from the past on
-> both sides.
->
-> I look forward to Promise working with Linux in meaningful and productive
-> ways.
->
-> Please reply and correct anything that is mistated by me or verify the
-> correctness.  This will show an action of good-faith before all those
-> watching here.
->
-> Respectfully,
->
-> Andre Hedrick
-> Linux ATA Development
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+In Third World countries, however, Pentiums are not always the norm. You
+are cutting off a good chunk of the world here.
+
+> math-emu
+> If support for i386 and i486 is going away, then so should math emulation.
+> Every intel processor since the 486DX has an FPU unit built in. In fact
+> shouldn't FPU support be a userspace responsibility anyway?
+
+How does getting rid of math-emu effect compilation on other platforms?
+
+Not just Intel out there...
+
+> ISA bus, MCA bus, EISA bus
+> PCI is the defacto standard. Get rid of CONFIG_BLK_DEV_ISAPNP,
+> CONFIG_ISAPNP, etc
+
+This I strongly disagree with.
+
+There are alot of ISA cards still in use.  (I have a USR 56k voice/fax
+modem that still works great. How many Sound Blaster 16 cards are still
+being used? Lots, i would guess.)
+
+It may not be pretty, but it is still widely used. (Even in the US.)
+
+> ISA, MCA, EISA device drivers
+> If support for the buses is gone, there's no point in supporting devices for
+> these buses.
+
+I am not certain if tis is a good idea, for the reason given above.  (Not
+certain about MCA and EISA though.)  
+
+> all code marked as CONFIG_OBSOLETE
+> Since we're cleaning house we may as well get rid of this stuff.
+
+I don't have an argument there, except when it has not been that way long.
+
+> MFM/RLL/XT/ESDI hard drive support
+> Does anyone still *have* an RLL drive that works? At the very least get rid
+> of the old driver (eg CONFIG_BLK_DEV_HD_ONLY, CONFIG_BLK_DEV_HD_IDE,
+> CONFIG_BLK_DEV_XD, CONFIG_BLK_DEV_PS2)
+
+I am not certain how much this stuff is still used outside the US.  The XT
+driver still being around does surprise me though.  (Will that even *work*
+on modern hardware?  I didn't think you could get that card to work on a
+386.)
+
+> parallel/serial/game ports
+> More controversial to remove this, since they are *still* in pretty wide
+> use -- but USB and IEEE 1394 are the way to go. No ifs ands or buts.
+
+This is BAD idea.  This sort of joystick was produced until reciently.
+They are still in use.  You will piss off a bunch of gamers this way.
+(Yanking a gamer's joystick is never a good idea.)
+
+> a.out
+> Who needs it anymore. I love ELF.
+
+How much legacy code is still out there? How much will still run on 2.4? I
+don't see this one as a problem, but I expect that there are some special
+cases that will keep it alive.
+
+> I really think doing a clean up is worthwhile. Maybe while looking for stuff
+> to clean up we'll even be able to better comment the existing code. Any
+> other features people would like to get rid of? Any comments or suggestions?
+> I'd love to start a good discussion about this going so please send me your
+> 2 cents.
+
+I would like to see a clean up of the documentation.  (As well as new docs
+written.) Getting an updated list of all the parameters that can be passed
+to the kernel would be a nice start.  (The current list looks pretty old.)
+
+I do agree that some parts need to be cut off from the main tree.  Maybe
+this clean-up should be a part of 2.5? 2.7? 6.6.6?
+
+alan@ctrl-alt-del.com | Note to AOL users: for a quick shortcut to reply
+Alan Olsen            | to my mail, just hit the ctrl, alt and del keys.
+ "All power is derived from the barrel of a gnu." - Mao Tse Stallman
+

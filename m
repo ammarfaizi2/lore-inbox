@@ -1,29 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265478AbRGJFR7>; Tue, 10 Jul 2001 01:17:59 -0400
+	id <S265503AbRGJFTt>; Tue, 10 Jul 2001 01:19:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265503AbRGJFRk>; Tue, 10 Jul 2001 01:17:40 -0400
-Received: from wrath.cs.utah.edu ([155.99.198.100]:62861 "EHLO
-	wrath.cs.utah.edu") by vger.kernel.org with ESMTP
-	id <S265478AbRGJFRd>; Tue, 10 Jul 2001 01:17:33 -0400
-Date: Mon, 9 Jul 2001 23:17:33 -0600 (MDT)
-From: Xinwei Xue <xwxue@cs.utah.edu>
+	id <S265532AbRGJFTa>; Tue, 10 Jul 2001 01:19:30 -0400
+Received: from warp.zuto.de ([194.77.109.75]:14603 "EHLO warp.zuto.de")
+	by vger.kernel.org with ESMTP id <S265503AbRGJFT1>;
+	Tue, 10 Jul 2001 01:19:27 -0400
+From: Rainer Clasen <bj@zuto.de>
+Date: Tue, 10 Jul 2001 07:19:24 +0200
 To: linux-kernel@vger.kernel.org
-Subject: How many pentium-3 processors does SMP support?
-Message-ID: <Pine.GSO.4.21.0107092315140.493-100000@faith.cs.utah.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: [OOPS] network related crash with Linux 2.4
+Message-ID: <20010710071924.E15071@zuto.de>
+Reply-To: bj@zuto.de
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <87d77ae2x6.fsf@gryffindor.sc>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <87d77ae2x6.fsf@gryffindor.sc>; from moritz@chaosdorf.de on Mon, Jul 09, 2001 at 01:51:17PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi, 
+Am Mon, Jul 09, 2001 at 01:51:17PM +0200 schrieb Moritz Schulte:
+> I often see my Gateway (Cx486DX4 CPU, 14364K RAM, 124956K Swap)
+> running Linux 2.4.[56] crashing (should I test previous
+> versions?). These crashes seem related to networking, because they
+> happen when trying to access some hosts. Now, the system crashes
 
-My research group is planning to buy a multi-processor linux machine
-for parallel computing. Does anyone know how many pentium processors the
-linux SMP support? Does it support 8(pentium-three) processors? What
-companies produce such reliable multi-processor (>4) machines? Thanks a
-lot! 
+this seems to be similar to my oopsen - 
+see MsgId <20010620201648.B12694@zuto.de>
 
-Xinwei
+Rainer
 
+-- 
+KeyID=759975BD fingerprint=887A 4BE3 6AB7 EE3C 4AE0  B0E1 0556 E25A 7599 75BD

@@ -1,77 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261930AbVANJif@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261931AbVANJql@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261930AbVANJif (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 04:38:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261931AbVANJif
+	id S261931AbVANJql (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 04:46:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbVANJql
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 04:38:35 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:34702 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261930AbVANJh6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 04:37:58 -0500
-Date: Fri, 14 Jan 2005 15:28:27 +0530
-From: Ravikiran G Thirumalai <kiran@in.ibm.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Andrew Morton <akpm@osdl.org>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Manfred Spraul <manfred@colorfullife.com>,
-       Dipankar Sarma <dipankar@in.ibm.com>
-Subject: Re: [patch] mm: Reimplementation of dynamic percpu memory allocator
-Message-ID: <20050114095827.GA3832@in.ibm.com>
-References: <20050113083412.GA7567@impedimenta.in.ibm.com> <1105669487.7311.11.camel@localhost.localdomain>
+	Fri, 14 Jan 2005 04:46:41 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:4107 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S261931AbVANJqj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 04:46:39 -0500
+Subject: Re: Linux kernel 2.4.20-18.7smp bug
+From: Arjan van de Ven <arjan@infradead.org>
+To: jike <jike@allyes.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200501140901.j0E91Lk07957@adf141.allyes.com>
+References: <200501140901.j0E91Lk07957@adf141.allyes.com>
+Content-Type: text/plain
+Date: Fri, 14 Jan 2005 10:46:33 +0100
+Message-Id: <1105695993.6080.25.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1105669487.7311.11.camel@localhost.localdomain>
-User-Agent: Mutt/1.4i
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 14, 2005 at 01:24:47PM +1100, Rusty Russell wrote:
-> On Thu, 2005-01-13 at 14:04 +0530, Ravikiran G Thirumalai wrote:
-> > ...
-> > 
-> > The following patch re-implements the linux dynamic percpu memory allocator
-> > so that:
-> > 1. Percpu memory dereference is faster 
-> > 	- One less memory reference compared to existing simple alloc_percpu
-> > 	- As fast as with static percpu areas, one mem ref less actually.
+On Fri, 2005-01-14 at 17:17 +0800, jike wrote:
+> Hi,all
 > 
-> Hmm, for me one point of a good dynamic per-cpu implementation is that
-> the same per_cpu_offset be used as for the static per-cpu variables.
-> This means that architectures can put it in a register.  
+> 	I use the RedHat Linux 7.3 , kernel version is 2.4.20-18.7smp. Today, i find one bug info in /var/log/message, the bug info as following:
+>   
+> Jan 13 11:02:47 zjip142 kernel: EIP:    0010:[<f883fc95>]    Tainted: P
+> Jan 13 11:02:47 zjip142 kernel: EFLAGS: 00010286
 
-The allocator I have posted can be easily fixed for that.  In fact, I had a
-version which used per_cpu_offset.  My earlier experiments proved that
-pointer arithmetic is  marginally faster than the per_cpu_offset
-based version.  Also, why waste a register if we can achieve same dereference
-speeds without using a register?  But as I said, we can modify the allocator I
-posted to use per_cpu_offset.
+you are running a very old kernel, and you are using at least one binary
+only module... I don't think linux-kernel is the right forum for such an
+issue ;)
 
 
-> It also has
-> different properties than slab, because tiny allocations will be more
-> common (ie. one counter).
-
-
-As regards tiny allocations, many existing users of alloc_percpu are
-structures which are aggregations of many counters -- like the mib statistics,
-disk_stats etc.  So IMHO, dynamic percpu allocator should work well for
-both small and large objects.  I have done some user space measurements
-with my version and the allocator behaves well with both small and random sized
-objects.
-
-The advantages of my implementation as I see it is:
-1. Independent of slab/kmalloc
-2. Doesn't need arches to do their own node local allocation -- generic
-   version does that.
-3. Space efficient -- about 98% utilization achieved in userspace tests
-4. Allocates pages for cpu_possible cpus only
-
-disadvantage:
-1. Uses vmalloc area and hence additional tlb foot print -- but is there a
-   better  way to keep node local allocations, simple pointer arithmetic
-   and page allocations for cpu_possible cpus only
-
-Thanks,
-Kiran

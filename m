@@ -1,39 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288103AbSACB2e>; Wed, 2 Jan 2002 20:28:34 -0500
+	id <S288113AbSACBdy>; Wed, 2 Jan 2002 20:33:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288108AbSACB2Y>; Wed, 2 Jan 2002 20:28:24 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:44967 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S288103AbSACB2U>;
-	Wed, 2 Jan 2002 20:28:20 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Thu, 3 Jan 2002 01:28:16 GMT
-Message-Id: <UTC200201030128.BAA192710.aeb@cwi.nl>
-To: Andries.Brouwer@cwi.nl, alessandro.suardi@oracle.com
-Subject: Re: [PATCH] Re: NFS "dev_t" issues..
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+	id <S288107AbSACBdp>; Wed, 2 Jan 2002 20:33:45 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:32270 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S288108AbSACBdj>;
+	Wed, 2 Jan 2002 20:33:39 -0500
+Date: Wed, 2 Jan 2002 17:32:31 -0800
+From: Greg KH <greg@kroah.com>
+To: Roger Leblanc <r_leblanc@videotron.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Deadlock in kernel on USB shutdown
+Message-ID: <20020103013231.GA4952@kroah.com>
+In-Reply-To: <3C33A22F.40906@videotron.ca> <20020103001816.GB4162@kroah.com> <3C33A4EC.1040300@videotron.ca> <20020103002827.GA4462@kroah.com> <3C33AF4F.7000703@videotron.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C33AF4F.7000703@videotron.ca>
+User-Agent: Mutt/1.3.25i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Wed, 05 Dec 2001 23:24:44 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From alessandro.suardi@oracle.com Thu Jan  3 00:22:23 2002
+On Wed, Jan 02, 2002 at 08:09:35PM -0500, Roger Leblanc wrote:
+> Mmmm, I should have guessed that one. Scanner is quite a good name for a 
+> scanner module ;-). Anyway, I moved things around so "scanner" and all 
+> the other device specific modules are unloaded before usb-uhci but yet, 
+> it doesn't help. It still freeses when unload usb-uhci. Any idea?
 
-    Andries.Brouwer@cwi.nl wrote:
-    > 
-    > I see lots of people sending patches for kdev_t.
-    > In order to possibly avoid duplication of work,
-    > I put my patch at ftp.kernel.org:
-    > 2.5.2pre6-kdev_t-diff (415841 bytes)
-    > 
-    > It has kminor and kmajor, but if that is not desired
-    > a very simple edit on the patch will turn them into
-    > minor and major.
-    > 
-    > (It is incomplete, but a good start.)
+Hm, if you umount usbdevfs before unloading usb-uhci, does that work?
 
-    It doesn't build for me in make_rdonly() in ext3 with debug
-     configured in:
-
-Yes. Still w.i.p. but a better version is now
-2.5.2pre6-kdev_t-diff-v3 (443024 bytes).
-
-Andries
+greg k-h

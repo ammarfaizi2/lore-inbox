@@ -1,49 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267471AbTGZSzW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 14:55:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267491AbTGZSzV
+	id S267317AbTGZTCP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 15:02:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267491AbTGZTCP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 14:55:21 -0400
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:34504 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S267471AbTGZSzU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 14:55:20 -0400
-Date: Sat, 26 Jul 2003 15:10:28 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Larry McVoy <lm@bitmover.com>
-cc: Leandro Guimar?es Faria Corsetti Dutra <lgcdutra@terra.com.br>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Switching to the OSL License, in a dual way.
-In-Reply-To: <20030724215744.GA7777@work.bitmover.com>
-Message-ID: <Pine.LNX.4.44.0307261508400.10872-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 26 Jul 2003 15:02:15 -0400
+Received: from hera.kernel.org ([63.209.29.2]:7619 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S267317AbTGZTCN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 15:02:13 -0400
+To: linux-kernel@vger.kernel.org
+From: OSDL <torvalds@osdl.org>
+Subject: Re: [2.6.0-test1] yenta_socket.c:yenta_get_status returns bad value compared to 2.4
+Date: Sat, 26 Jul 2003 12:17:01 -0700
+Organization: OSDL
+Message-ID: <bfuk3d$llp$1@build.pdx.osdl.net>
+References: <1059244318.3400.17.camel@localhost>
+Reply-To: torvalds@osdl.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Trace: build.pdx.osdl.net 1059247021 22201 172.20.1.2 (26 Jul 2003 19:17:01 GMT)
+X-Complaints-To: abuse@osdl.org
+NNTP-Posting-Date: Sat, 26 Jul 2003 19:17:01 +0000 (UTC)
+User-Agent: KNode/0.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Jul 2003, Larry McVoy wrote:
+Stefan Jones wrote:
+>
+> I added
+> 
+> printk(KERN_DEBUG "yenta_get_status: status=%04x\n",state);
+> 
+> after the call
+> u32 state = cb_readl(socket, CB_SOCKET_STATE);
+> in
+> static int yenta_get_status(struct pcmcia_socket *sock, unsigned int
+> *value)
+> in drivers/pcmcia/yenta_socket.c
+> 
+> in both 2.4.21 and 2.6.0-test1
+> 
+> 2.6.0-test1 gives: 30000411
+> 2.4.21 gives:      30000419
+> 
+> I wonder why the values are different, and yet fairly close. It is
+> enough to give hard lockups ( I debugged this one with printk's and
+> commenting out code )
+> 
+> I have added
+> 
+> state |= CB_CBCARD;
 
-> A clone is illegal because you'd have to reverse engineer to do the
-> clone and reverse engineering is allowed for the purpose of
-> interoperability, not for the purpose of making a clone.
+The difference between 2.4 and 2.6 is not CB_CBCARD (0x0020), but
+CB_PWRCYCLE (0x0008).
 
-This is a good point to remember, especially since you
-contradict it later on in your own mail.
+For some reason 2.6.x hasn't powered up the 16-bit card.
 
-Making a program to extract data from a bitkeeper
-repository is fine. It is covered by this interoperability
-clause.
+However, the whole CB_POWERCYCLE thing is ignored for 16-bit cards,
+and what you end up doing by marking the card as a 32-bit cardbus card
+(that's what the CB_CBCARD define means) is to basically force the
+wrong code to be run, at which point the 32-bit code decides that
+the card isn't powered.
 
-What is arguably (not) fine is making a program that does
-everything bitkeeper does and does it in the same way, ie.
-creating a bitkeeper clone.
+The real question is why the card isn't powered up. Also, it sounds
+like the 16-bit status (from I365_STATUS) doesn't agree with the 32-bit
+status (from CB_SOCKET_STATE), so when you _do_ force trusting of the
+32-bit status, then things work.
 
-However, that has nothing to do with a program that can
-extract data from a bitkeeper repository but quite clearly
-isn't a bitkeeper clone...
+Which is interesting in itself. It's entirely possible that we should
+just ignore the 16-bit status when it comes to the SS_POWERON logic.
 
--- 
-Great minds drink alike.
+Does the card actually _work_ when you do your hack? Or does it just
+stop the hang?
 
+                Linus

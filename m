@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280967AbRKGUok>; Wed, 7 Nov 2001 15:44:40 -0500
+	id <S280971AbRKGUuu>; Wed, 7 Nov 2001 15:50:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280971AbRKGUoa>; Wed, 7 Nov 2001 15:44:30 -0500
-Received: from mauve.csi.cam.ac.uk ([131.111.8.38]:50576 "EHLO
-	mauve.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S280967AbRKGUoS>; Wed, 7 Nov 2001 15:44:18 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: James A Sutherland <jas88@cam.ac.uk>
-To: Ville Herva <vherva@niksula.hut.fi>
-Subject: Re: ext3 vs resiserfs vs xfs
-Date: Wed, 7 Nov 2001 20:44:25 +0000
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E161UYR-0004S5-00@the-village.bc.nu> <E161Vbf-0000m9-00@lilac.csi.cam.ac.uk> <20011107213837.F26218@niksula.cs.hut.fi>
-In-Reply-To: <20011107213837.F26218@niksula.cs.hut.fi>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E161ZYW-0006ky-00@mauve.csi.cam.ac.uk>
+	id <S280978AbRKGUuk>; Wed, 7 Nov 2001 15:50:40 -0500
+Received: from grobbebol.xs4all.nl ([194.109.248.218]:36166 "EHLO
+	grobbebol.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S280971AbRKGUue>; Wed, 7 Nov 2001 15:50:34 -0500
+Date: Wed, 7 Nov 2001 20:49:46 +0000
+From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
+To: "Todd M. Roy" <troy@holstein.com>
+Cc: mhaque@haque.net, rml@tech9.net, mfedyk@matchmail.com, jimmy@mtc.dhs.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.4.14 compiling fail for loop device
+Message-ID: <20011107204946.B13943@grobbebol.xs4all.nl>
+In-Reply-To: <E290D3DA-D26B-11D5-A0A2-00306569F1C6@haque.net> <200111071213.fA7CD7b15181@pcx4168.holstein.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.16i
+In-Reply-To: <200111071213.fA7CD7b15181@pcx4168.holstein.com>; from troy@holstein.com on Wed, Nov 07, 2001 at 07:13:07AM -0500
+X-OS: Linux grobbebol 2.4.13 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 07 November 2001 7:38 pm, Ville Herva wrote:
-> On Wed, Nov 07, 2001 at 04:31:24PM +0000, you [James A Sutherland] claimed:
-> > Hm.. after a decidedly unclean shutdown, I decided to force an fsck here
-> > and my ext3 partition DID have two inode errors on fsck... (Having said
-> > that, the last entry in syslog was from the SCSI driver, and ext3's
-> > journalling probably doesn't help much when the disk it's on goes
-> > AWOL...)
->
-> A stupid question: does ext3 replay the journal before fsck? If not, the
-> inode errors would be expected...
+On Wed, Nov 07, 2001 at 07:13:07AM -0500, Todd M. Roy wrote:
+> When I did, and used a looped an iso image, eventually my
+> computer froze up.  Using the actual cd, it did not.  So my
+> personal answer would be no.
 
-Yes, it does: this was AFTER the journal replay. And yes, it was ext3 not 
-ext2 mounting it (well, either that or ext2 has learned to do journal 
-replays...). So, AFTER a journal replay, there were still two damaged inodes 
-- which sounds like Anton's problem. Maybe ext3 just hates Cambridge? :-)
+when mounting an EFS cd on the loop it also froze. this is _without_
+removing the lines. the same happens when I miunt an efs partition from
+harddrive with -o loop. also crash. sometimes early. sometimes late.
 
-
-James.
+-- 
+Grobbebol's Home                      |  Don't give in to spammers.   -o)
+http://www.xs4all.nl/~bengel          | Use your real e-mail address   /\
+Linux 2.4.13 (apic) SMP 466MHz/768 MB |        on Usenet.             _\_v  

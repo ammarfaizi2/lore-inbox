@@ -1,73 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266875AbUBGMNp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 07:13:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266889AbUBGMNp
+	id S266881AbUBGMK4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 07:10:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266886AbUBGMK4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 07:13:45 -0500
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:6348 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S266875AbUBGMNn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 07:13:43 -0500
-Subject: Re: PATCH - ext2fs privacy (i.e. secure deletion) patch
-From: Albert Cahalan <albert@users.sf.net>
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: reiser@namesys.com
-Content-Type: text/plain
-Organization: 
-Message-Id: <1076147758.27181.72.camel@cube>
+	Sat, 7 Feb 2004 07:10:56 -0500
+Received: from disk.smurf.noris.de ([192.109.102.53]:41355 "EHLO
+	server.smurf.noris.de") by vger.kernel.org with ESMTP
+	id S266881AbUBGMKz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Feb 2004 07:10:55 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Matthias Urlichs <smurf@smurf.noris.de>
+Newsgroups: smurf.list.linux.kernel
+Subject: BUG: 2.6.2-mm1: destroy_workqueue
+Date: Sat, 07 Feb 2004 12:49:05 +0100
+Organization: {M:U} IT Consulting
+Message-ID: <pan.2004.02.07.11.49.04.872088@smurf.noris.de>
+NNTP-Posting-Host: kiste.smurf.noris.de
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 07 Feb 2004 04:55:59 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Trace: server.smurf.noris.de 1076154545 12689 192.109.102.35 (7 Feb 2004 11:49:05 GMT)
+X-Complaints-To: smurf@noris.de
+NNTP-Posting-Date: Sat, 7 Feb 2004 11:49:05 +0000 (UTC)
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
+X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser writes:
+I had a crash when unmounting a reiserfs at shutdown time.
 
-> There is an extensive literature on how you can recover
-> deleted files from media that has been erased a dozen
-> times,
+Apparently, destroy_workqueue() inlines list_del(), which checks for
 
-I doubt this is true in any way that matters.
+148             BUG_ON(entry->prev->next != entry);
 
-Unless you get REALLY lucky with bad sector
-substitution and you know the secret
-vendor-specific drive commands to fetch bad
-sectors, you'll need the physical hardware.
+This is a problem when entry->prev is NULL.  :-/
 
-   no hardware  --->  no data recovery
+Call trace, copied off the screen by hand:
+destroy_workqueue+0x30
+do_journal_release+0x4e
+journal_mark_dirty+0x18c
+journal_release+0x10
+reiserfs_put_super+0x24
 
-Given that you do have the physical hardware,
-how are you going to read it? You'll need
-some equipment that will cost you many millions
-of dollars. So this isn't going to be anybody
-but the CIA, NSA, or non-US equivelent. They
-won't bother very often; even a "black" budget
-is limited. Are you so sure you're worth it?
-
-Does the "extensive literature" cover drives
-made in the last year? (decade?) These days,
-manufacturers are using extremely thin layers
-of surface material over an inert substrate.
-Magnetic domains flip in an all-or-nothing
-fashion; the old recovery methods rely on
-finding some buried domains that didn't flip.
-With the layers getting damn thin, I doubt
-any will exist. There just won't be any
-residual signal from previous writes, and so
-the recovery methods have nothing to work with.
-
-> but breaking encryption is harder.  It is more
-> secure to not put the data on disk unencrypted at all
-> is my point.....
-
-This leads to one method of implementing the
-secure deletion flag. At boot, generate a
-random key for the log file. At file creation,
-generate a random key for the file body and
-inode. (these are internal to the filesystem)
-When you want to destroy something, wipe the key.
-Remember to flush and regenerate the log file.
-
+Built using gcc version 3.3.2 (Debian), no other patches.
 

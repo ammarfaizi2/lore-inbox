@@ -1,76 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261989AbVCARfx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261998AbVCARiI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261989AbVCARfx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 12:35:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261987AbVCARfx
+	id S261998AbVCARiI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 12:38:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261991AbVCARhq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 12:35:53 -0500
-Received: from mail.codeweavers.com ([216.251.189.131]:696 "EHLO
-	mail.codeweavers.com") by vger.kernel.org with ESMTP
-	id S261989AbVCARfo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 12:35:44 -0500
-Message-ID: <4224A7E9.2070204@codeweavers.com>
-Date: Tue, 01 Mar 2005 11:35:37 -0600
-From: Jeremy White <jwhite@codeweavers.com>
-User-Agent: Debian Thunderbird 1.0 (X11/20050118)
-X-Accept-Language: en-us, en
+	Tue, 1 Mar 2005 12:37:46 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:59341 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S261987AbVCARhc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 12:37:32 -0500
+To: Pavel Machek <pavel@suse.cz>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       barryn@pobox.com, marado@student.dei.uc.pt,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: 2.6.11-rc4-mm1: something is wrong with swsusp powerdown
+References: <20050228231721.GA1326@elf.ucw.cz>
+	<20050301015231.091b5329.akpm@osdl.org>
+	<m1u0nvr5cn.fsf@ebiederm.dsl.xmission.com>
+	<20050301120843.GN1345@elf.ucw.cz>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 01 Mar 2005 10:33:54 -0700
+In-Reply-To: <20050301120843.GN1345@elf.ucw.cz>
+Message-ID: <m1ll97qni5.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/mixed;
- boundary="------------060306080209080207080907"
-X-SA-Exim-Connect-IP: 216.251.189.140
-X-SA-Exim-Mail-From: jwhite@codeweavers.com
-Subject: Apparent bug in sound/oss/via82cxxx_audio.c GETOPTR ioctl
-X-SA-Exim-Version: 4.2 (built Tue, 25 Jan 2005 19:36:50 +0100)
-X-SA-Exim-Scanned: Yes (on mail.codeweavers.com)
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060306080209080207080907
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Pavel Machek <pavel@suse.cz> writes:
 
-Hi,
+> > I threw it together to test a specific code path, and the fact it
+> > fails in software suspend is actually almost confirmation that I am on
+> > the right track.  This actually fixed the case I was testing.
+> > 
+> > In this case the failure is simply because system_state is
+> > not set to SYSTEM_POWER_OFF before
+> > kernel/power/disk.c:power_down() calls device_shutdown().
+> > The appropriate reboot notifier is also not called..
+> 
+> Can you suggest patch to do it right? Or perhaps there should be
+> just_plain_power_machine_down() that does all neccessary
+> trickery?
 
-In trying to fix Wine's dsound implementation which uses mmap and
-DSP_SND_GETOPTR to write data out to the driver, I uncovered what
-appears to be a bug in the via82cxx_audio.c driver.
+I would call it kernel_power_down() and that
+is what I am suggesting is the right fix.
 
-Specifically, via_sg_offset appears to return the number of bytes
-not yet consumed within the current block; we use it to adjust from blocks
-to a precise block count.  However, it appears as though it returns 0
-to indicate that no bytes have been consumed.
+We have it open coded in kernel/sys.c:sys_reboot()
+in the switch case for: LINUX_REBOOT_CMD_POWER_OFF
 
-I was seeing results where I would get an OPTR return along the
-lines of 0x1c00, 0x1e00, 0x2800, and then 0x2100.  Needless to say,
-having info.ptr go backwards causes Wine's code to have a serious
-hissy fit.
+So after the code gets factored out from there all
+of the cases that call machine_power_off() and pm_power_off()
+directly need to be updated.
 
-The attached patch fixes the problem for me, but I would appreciate
-review by an expert on this.
+There are similar cases for machine_restart() and machine_halt().
+But the power off case seems to be the most acute.
 
-Cheers,
+My biggest problem with this is I get into the recursive code
+cleanup problem.  Where I fix one piece and a bug is exposed somewhere
+else.  And that then requires investigation and fixing.
 
-Jeremy
+Fixing the callers of machine_power_off() is about the fifth bug
+fix down the chain triggered by disabling UP interrupts in
+device_shutdown(), SMP interrupts have always been disabled.  With the
+first bug fix was to create system devices in the device tree..
 
---------------060306080209080207080907
-Content-Type: text/x-patch;
- name="via82cxxx_audio.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="via82cxxx_audio.diff"
+I haven't a clue where fixing this one will lead.  Recursive
+code fixes are a hard thing to schedule :(
 
---- via82cxxx_audio.c	2005-03-01 11:27:07.525265232 -0600
-+++ via82cxxx_audio.c.orig	2005-03-01 11:27:24.700654176 -0600
-@@ -2831,8 +2831,6 @@
- 		unsigned long extra;
- 		info.ptr = atomic_read (&chan->hw_ptr) * chan->frag_size;
- 		extra = chan->frag_size - via_sg_offset(chan);
--                if (extra == chan->frag_size)
--                    extra = 0;
- 		info.ptr += extra;
- 		info.bytes += extra;
- 	} else {
-
---------------060306080209080207080907--
+Eric

@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267935AbUHEUGK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267944AbUHEUIv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267935AbUHEUGK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 16:06:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267936AbUHEUGK
+	id S267944AbUHEUIv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 16:08:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267933AbUHEUIv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 16:06:10 -0400
-Received: from sampa7.prodam.sp.gov.br ([200.230.190.107]:9233 "EHLO
-	sampa7.prodam.sp.gov.br") by vger.kernel.org with ESMTP
-	id S267935AbUHEUGF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 16:06:05 -0400
-Date: Thu, 5 Aug 2004 16:54:52 -0300
-From: "Luiz Fernando N. Capitulino" <lcapitulino@prefeitura.sp.gov.br>
-To: Rick Lindsley <ricklind@us.ibm.com>
-Cc: Adrian Bunk <bunk@fs.tum.de>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8-rc3-mm1: SCHEDSTATS compile error
-Message-ID: <20040805195451.GA798@lorien.prodam>
-Mail-Followup-To: Rick Lindsley <ricklind@us.ibm.com>,
-	Adrian Bunk <bunk@fs.tum.de>, "Martin J. Bligh" <mbligh@aracnet.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20040805182039.GN2746@fs.tum.de> <200408051915.i75JFN616956@owlet.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408051915.i75JFN616956@owlet.beaverton.ibm.com>
-User-Agent: Mutt/1.4.2i
+	Thu, 5 Aug 2004 16:08:51 -0400
+Received: from fecls-03.atlarge.net ([129.41.63.139]:16201 "HELO
+	fecls-03.atlarge.net") by vger.kernel.org with SMTP id S267941AbUHEUGj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 16:06:39 -0400
+Message-ID: <4112917A.3080003@cse.wustl.edu>
+Date: Thu, 05 Aug 2004 14:58:50 -0500
+From: "Mr. Berkley Shands" <berkley@cse.wustl.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: Severe I/O performance regression 2.6.6 to 2.6.7 or 2.6.8-rc3
+References: <41126811.7020607@dssimail.com> <20040805172531.GC17188@holomorphy.com>
+In-Reply-To: <20040805172531.GC17188@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 05 Aug 2004 20:00:21.0468 (UTC) FILETIME=[D6B9A1C0:01C47B26]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Thu, Aug 05, 2004 at 12:15:23PM -0700, Rick Lindsley escreveu:
+William Lee Irwin III wrote:
 
-|     > This looks like it could happen if you compile without CONFIG_SMP ...
-|     > which admittedly I have not tried since the sched-domain code was
-|     > introduced.  Adrian, was this the situation in your case?
-|     
-|     Yes.
-| 
-| Ok.  Please try this patch (applied to rc3-mm1).
+>By any chance could you do binary search on the bk snapshots between
+>2.6.6 and 2.6.7?
+>
+>
+>-- wli
+>
+>  
+>
+the problem does not exist using 2.6.6-bk6, but exists on 2.6.6-bk7. 
+-bk8 and -bk9 faile to build.
+these are from patches-2.6.6-bk6 off snapshots/old and applied to a 
+vanilla 2.6.6 kernel.
 
- Worked, I had the same problem.
- 
- (yes, same SMP structures were in use).
+berkley
 
--- 
-Luiz Fernando N. Capitulino
-<http://www.telecentros.sp.gov.br>

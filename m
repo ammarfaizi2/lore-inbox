@@ -1,36 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279906AbRKDMXL>; Sun, 4 Nov 2001 07:23:11 -0500
+	id <S279986AbRKDMvu>; Sun, 4 Nov 2001 07:51:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279983AbRKDMXB>; Sun, 4 Nov 2001 07:23:01 -0500
-Received: from dorf.wh.uni-dortmund.de ([129.217.255.136]:25609 "HELO
-	mail.dorf.wh.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S279906AbRKDMWq>; Sun, 4 Nov 2001 07:22:46 -0500
-Date: Sun, 4 Nov 2001 13:22:38 +0100
-From: Patrick Mau <mau@oscar.prima.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.4.14-pre8: 'free' still reports bogus 'cached' value.
-Message-ID: <20011104132238.A14511@oscar.dorf.de>
-Reply-To: Patrick Mau <mau@oscar.prima.de>
-Mime-Version: 1.0
+	id <S279985AbRKDMvl>; Sun, 4 Nov 2001 07:51:41 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:59141 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S279983AbRKDMvW>; Sun, 4 Nov 2001 07:51:22 -0500
+Subject: Re: Support for Matrox G550 framebuffer?
+To: vandrove@vc.cvut.cz (Petr Vandrovec)
+Date: Sun, 4 Nov 2001 12:57:51 +0000 (GMT)
+Cc: ledzep37@home.com (Jordan Breeding),
+        linux-kernel@vger.kernel.org (Linux Kernel)
+In-Reply-To: <20011104024800.D2214@ppc.vc.cvut.cz> from "Petr Vandrovec" at Nov 04, 2001 02:48:00 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E160MqV-0001nK-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+> I sent patches to Alan on Friday. I do not know whether he'll
+> apply them or not. But for using G550 you must download matroxset
+> from ftp://platan.vc.cvut.cz/pub/linux/matrox-latest, as if
+> you are connecting VGA monitor to card, you are on 90% using
+> secondary output...
 
-I just compiled 2.4.14-pre8, did some bonnie++ runs
-and compiled a few kernels to stress test this release.
-
-Here's the output of 'free':
-
-[root@tony] free
-             total       used       free     shared    buffers     cached
-Mem:        513336      82124     431212          0      30696 4294958092
--/+ buffers/cache:      60632     452704
-Swap:       786416       4936     781480
-
-cheers,
-Patrick
+They are in my working tree and will be in the next -ac

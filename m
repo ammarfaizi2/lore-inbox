@@ -1,61 +1,54 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S261404AbVCFPPS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S261418AbVCFP3R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261404AbVCFPPS (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 6 Mar 2005 10:15:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261418AbVCFPPR
+	id S261418AbVCFP3R (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 6 Mar 2005 10:29:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbVCFP3R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 10:15:17 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:6856 "EHLO
-	pd2mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S261404AbVCFPPK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 10:15:10 -0500
-Date: Sun, 06 Mar 2005 09:14:33 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: NMI watchdog question
-In-reply-to: <3EShS-A1-9@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <422B1E59.4060009@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; format=flowed; charset=ISO-8859-1
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-References: <3EShS-A1-9@gated-at.bofh.it>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+	Sun, 6 Mar 2005 10:29:17 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:18349 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261418AbVCFP3N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Mar 2005 10:29:13 -0500
+Date: Sun, 6 Mar 2005 15:28:19 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Adrian Bunk <bunk@stusta.de>
+cc: Russell King <rmk@arm.uk.linux.org>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] mm/swap_state.c: unexport swapper_space
+In-Reply-To: <20050306144758.GJ5070@stusta.de>
+Message-ID: <Pine.LNX.4.61.0503061515200.19898@goblin.wat.veritas.com>
+References: <20050306144758.GJ5070@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pallai Roland wrote:
-> Hi,
->  I'm playing with the NMI watchdog (nmi_watchdog=1) on a reproductable
-> hard lockup (no keyboard, etc) but seems like it doesn't works and I
-> can't understand why, please explain to me the possible causes.. I
-> belive it should work in this situation..
-> 
-> environment:
->  P4C800 motherboard, P4-2.4 cpu (APIC 2.0 on)
->  Promise 20378 SATA controller on the motherboard (sil_promise driver)
->  Maxtor diamondmax plus 9 200G sata disk
->  (and an empty PCI expander plus some more other under-testing hardware
-> which doesn't matter in the experiment)
-> 
->  mainline kernel 2.6.11
->  serial and VGA console, root on NFS
-> 
-> 
-> steps to the lockup:
->  1. booting the machine with sata drive on the promise controller
->  2. dd if=/dev/sda of=/dev/null bs=4k
->  3. unplug the power from drive
->  4. waiting about 2 seconds
->  5. plug the power back
-> 
->  dd stucked in 'D' here for 10-15 seconds and than the kernel say:
->   ata1: command timeout
-> 
->  and voila, the box is dead, but without any message from the NMI
-> watchdog :(
+On Sun, 6 Mar 2005, Adrian Bunk wrote:
 
-The NMI watchdog only triggers if something is blocking interrupts from 
-getting through - if timer interrupts are still happening it won't 
-activate. You can try Alt-Sysrq-T to get a traceback of where the 
-current process is stuck..
+> I didn't find any possible modular usage in the kernel.
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> --- linux-2.6.11-mm1-full/mm/swap_state.c.old	2005-03-04 16:25:54.000000000 +0100
+> +++ linux-2.6.11-mm1-full/mm/swap_state.c	2005-03-04 16:26:16.000000000 +0100
+> @@ -40,7 +40,6 @@
+>  	.i_mmap_nonlinear = LIST_HEAD_INIT(swapper_space.i_mmap_nonlinear),
+>  	.backing_dev_info = &swap_backing_dev_info,
+>  };
+> -EXPORT_SYMBOL(swapper_space);
+>  
+>  #define INC_CACHE_INFO(x)	do { swap_cache_info.x++; } while (0)
+
+I think this one should stay exported (or at least be re-exported
+immediately on demand).  It's used by the inline page_mapping() in
+include/linux/mm.h, which _was_ used by various arch cacheflushing
+inlines, which could reasonably be called from modular filesystems.
+
+I think those architectures hit the missed export when the dependence
+on &swapper_space got added to page_mapping(), the export was soon
+added to mainline, but meanwhile they moved their inlines out-of-line
+- perhaps temporarily, but not yet reverted.
+
+Better leave it exported so long as page_mapping is using it.
+
+Hugh

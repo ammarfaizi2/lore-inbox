@@ -1,37 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130487AbRBMVWr>; Tue, 13 Feb 2001 16:22:47 -0500
+	id <S130327AbRBMVXg>; Tue, 13 Feb 2001 16:23:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129793AbRBMVWi>; Tue, 13 Feb 2001 16:22:38 -0500
-Received: from green.csi.cam.ac.uk ([131.111.8.57]:30862 "EHLO
-	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S130487AbRBMVW2>; Tue, 13 Feb 2001 16:22:28 -0500
-Date: Tue, 13 Feb 2001 21:22:26 +0000 (GMT)
-From: James Sutherland <jas88@cam.ac.uk>
-To: Jeremy Jackson <jeremy.jackson@sympatico.ca>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Is this the ultimate stack-smash fix?
-In-Reply-To: <3A899FEB.D54ABBC7@sympatico.ca>
-Message-ID: <Pine.SOL.4.21.0102132119530.1900-100000@green.csi.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130741AbRBMVWs>; Tue, 13 Feb 2001 16:22:48 -0500
+Received: from 64-42-29-14.atgi.net ([64.42.29.14]:46852 "HELO
+	mail.clouddancer.com") by vger.kernel.org with SMTP
+	id <S130638AbRBMVWe>; Tue, 13 Feb 2001 16:22:34 -0500
+From: Colonel <klink@clouddancer.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.1 loopback FS partial fix
+Reply-To: klink@clouddancer.com
+Message-Id: <20010213212231.B1CC4669F1@mail.clouddancer.com>
+Date: Tue, 13 Feb 2001 13:22:31 -0800 (PST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Feb 2001, Jeremy Jackson wrote:
 
-(Long description of how to create a non-executable stack on x86)
+For the other list readers with problems:
 
-I'm afraid you just reinvented the wheel. The idea has been around for a
-long time, and it was OK as a quick hack to stop existing exploits
-working, but it's possible to modify a buffer overflow exploit to work
-around this.
+I used patch 2.4.2-pre2  (not pre3) 
 
-It does sound look like a good idea, but it doesn't really gain you
-anything in the long run: the exploits just change a bit.
+plus axboe's loop-4 patch  (in the people directory).
 
-ISTR there is a patch which does this for Linux, though??
+  /ftp@ftp.kernel.org:/pub/linux/kernel/people/axboe/patches/2.4.2-pre1
 
-
-James.
-
+It solves most problems here.

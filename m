@@ -1,57 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261360AbVCaLfr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261361AbVCaLgc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261360AbVCaLfr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 06:35:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261364AbVCaLfr
+	id S261361AbVCaLgc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 06:36:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261364AbVCaLgb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 06:35:47 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:53155 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261360AbVCaLfh (ORCPT
+	Thu, 31 Mar 2005 06:36:31 -0500
+Received: from ns.suse.de ([195.135.220.2]:58797 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261361AbVCaLgW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 06:35:37 -0500
-Date: Thu, 31 Mar 2005 13:35:27 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: kus Kusche Klaus <kus@keba.com>
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       B.Zolnierkiewicz@elka.pw.edu.pl, Florian Schmidt <mista.tapas@gmx.net>
-Subject: Re: 2.6.11, IDE: Strange scheduling behaviour: high-pri RT process not scheduled?
-Message-ID: <20050331113526.GB27731@elte.hu>
-References: <AAD6DA242BC63C488511C611BD51F3673231C2@MAILIT.keba.co.at>
+	Thu, 31 Mar 2005 06:36:22 -0500
+Date: Thu, 31 Mar 2005 13:36:21 +0200
+From: Andi Kleen <ak@suse.de>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Andi Kleen <ak@suse.de>, blaisorblade@yahoo.it, torvalds@osdl.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch 2/3] x86_64: remove duplicated sys_time64
+Message-ID: <20050331113621.GP1623@wotan.suse.de>
+References: <20050330173216.426CFEFECF@zion> <20050331103834.GC1623@wotan.suse.de> <20050331211059.0ddc078c.sfr@canb.auug.org.au> <20050331111235.GL1623@wotan.suse.de> <20050331212516.64506156.sfr@canb.auug.org.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <AAD6DA242BC63C488511C611BD51F3673231C2@MAILIT.keba.co.at>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20050331212516.64506156.sfr@canb.auug.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Mar 31, 2005 at 09:25:16PM +1000, Stephen Rothwell wrote:
+> On Thu, 31 Mar 2005 13:12:35 +0200 Andi Kleen <ak@suse.de> wrote:
+> >
+> > On Thu, Mar 31, 2005 at 09:10:59PM +1000, Stephen Rothwell wrote:
+> > > On Thu, 31 Mar 2005 12:38:34 +0200 Andi Kleen <ak@suse.de> wrote:
+> > > >
+> > > > Nack. The generic sys_time still writes to int, not long.
+> > > > That is why x86-64 has a private one. Please keep that.
+> > > 
+> > > It writes to a time_t which is a __kernel_time_t which is a long on
+> > > x86-64, isn't it?
+> > 
+> > At least in 2.6.10 it writes to int.
+> 
+> I was looking at current bk where it looks like this:
+> 
+> asmlinkage long sys_time(time_t __user * tloc)
 
-* kus Kusche Klaus <kus@keba.com> wrote:
-
-> I've written a small test program which enables periodic RTC 
-> interrupts at 8192 Hz and then goes into a loop reading /dev/rtc and 
-> collecting timing statistics (using the rdtscl macro).
-
-getting /dev/rtc handling right for latency measurement is ... tricky.  
-The method i'm using under PREEMPT_RT is:
-
- chrt -f 84 -p `pidof 'IRQ 0'`
- chrt -f 95 -p `pidof 'IRQ 8'`
- ./rtc_wakeup -f 1024 -t 100000
-
-you can get rtc_wakeup from:
-
- http://www.affenbande.org/~tapas/wiki/index.php?rtc_wakeup
-
-written by Florian Schmidt.
-
-do you see high latencies even with rtc_wakeup?
-
-	Ingo
+Ok with that change the patch is ok.
+> {
+>         time_t i;
+>         struct timeval tv;
+> 
+>         do_gettimeofday(&tv);
+>         i = tv.tv_sec;
+> 
+>         if (tloc) {
+>                 if (put_user(i,tloc))
+>                         i = -EFAULT;
+>         }
+>         return i;
+> }
+> 
+> I have no idea when it changed.
+I was looking at an older tree, sorry.
+-Andi

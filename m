@@ -1,77 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130448AbRC3Cs2>; Thu, 29 Mar 2001 21:48:28 -0500
+	id <S130450AbRC3Cz2>; Thu, 29 Mar 2001 21:55:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130450AbRC3CsS>; Thu, 29 Mar 2001 21:48:18 -0500
-Received: from [204.244.205.25] ([204.244.205.25]:17444 "HELO post.gateone.com")
-	by vger.kernel.org with SMTP id <S130448AbRC3CsH>;
-	Thu, 29 Mar 2001 21:48:07 -0500
-Subject: Re: OOM killer???
-From: Michael Peddemors <michael@linuxmagic.com>
-To: David Konerding <dek_ml@konerding.com>
-Cc: Guest section DW <dwguest@win.tue.nl>, linux-kernel@vger.kernel.org
-In-Reply-To: <3AC357B8.72860494@konerding.com>
-In-Reply-To: <200103282138.f2SLcT824292@webber.adilger.int>
-	<Pine.A32.3.95.1010329111147.63156A-100000@werner.exp-math.uni-essen.de>
-	<20010329130154.A8701@win.tue.nl>  <3AC357B8.72860494@konerding.com>
-Content-Type: text/plain
-X-Mailer: Evolution (0.9 - Preview Release)
-Date: 29 Mar 2001 18:26:32 -0800
-Mime-Version: 1.0
-Message-Id: <20010330024815Z130448-406+5643@vger.kernel.org>
+	id <S130466AbRC3CzS>; Thu, 29 Mar 2001 21:55:18 -0500
+Received: from chromium11.wia.com ([207.66.214.139]:260 "EHLO
+	neptune.kirkland.local") by vger.kernel.org with ESMTP
+	id <S130450AbRC3CzE>; Thu, 29 Mar 2001 21:55:04 -0500
+Message-ID: <3AC3F638.FE761EAB@chromium.com>
+Date: Thu, 29 Mar 2001 18:58:00 -0800
+From: Fabio Riccardi <fabio@chromium.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Mike Kravetz <mkravetz@sequent.com>, linux-kernel@vger.kernel.org
+Subject: Re: linux scheduler limitations?
+In-Reply-To: <Pine.LNX.4.33.0103291326110.26411-100000@dlang.diginsite.com> <3AC3AF3E.F083EE36@chromium.com> <20010329174549.A1264@w-mikek2.sequent.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Looking over the last few weeks of postings, there are just WAY to many
-conflicting ways that people want the OOM to work..  Although an
-incredible amount of good work has gone into this, people are definetely
-not happy about the benifits of OOM ...  About 10 different approaches
-are being made to change the rule based systems pertaining to WHEN the
-OOM will fire, but in the end, still not everyone will be happy..
+Hi Mike,
 
-The old way of having a machien crash when you asked too much of it
-seemed acceptable.. People then either chose to run the mem hog, and
-upgrade their boxes, or they stopped running the memhog.
+somebody else on the list already pointed me at your stuff and I quickly
+downloaded your multiqueue patch for 2.4.1 to try it out.
 
-Maybe its time to hear from on high whether OOM capability outweighs the
-problems that seem to be associated with it?
+It works great! I finally manage to have 100% CPU utilization and keep the
+machine decently responsive.
 
-Either that or we should be able to allow the end user/and the distros
-to decide what gets killed by OOM.
+On a two 1GHz pentium box i went from 1300 specweb to 1600. That's pretty
+amazing.
 
-Some people might like to just say to heck with it, and not let anything
-get killed, while others may just want to protect certain things.. 
+There is a bit more overhead though, I'd say arount 5%, when the CPU is not
+fully loaded.
 
-Speaking completely where I don't belong, and don't know enough about..
-Just a thought, can we come up with a new form of execute bit that would
-define whether OOM should affect the process?  Then the app can be made
-to be killable if not as root etc...  As well as being applied simply at
-a per application basis, because we KNOW that not all applications will
-ever be completely system friendly..
-There will always be useful programs that might not fit into a OOM model
-well.
+What is the status of your code? Is it going to end-up in the mainstream
+kernel?
 
-Linus has been notably quite of late about this issue, given the amount
-of contention on this issue..
+Do you have a port to the 2.4.2x kernels?
 
-On 29 Mar 2001 07:41:44 -0800, David Konerding wrote:
+In my enthousiasm I tried to port the patch to 2.4.2-ac26 but I broke
+something and it didn't work anymore... :)
 
-> Now, if you're going to implement OOM, when it is absolutely necessary, at the very
-> least, move the policy implementation out of the kernel.  One of the general
-> philosophies of Linux has been to move policy out of the kernel.  In this case, you'd
-> just have a root owned process with locked pages that can't be pre-empted, which
-> implemented the policy.  You'll never come up with an OOM policy that will fit
-> everybody's needs unless it can be tuned for  particular system's usage, and it's
-> going to be far easier to come up with that policy if it's not in the kernel.
+I havent't tried the pooling patch yet, it didn't seem to make much sense on a
+2-way box. I have an 8-way on which I'm planning to bench my web server
+enhancements, I'll try the pooling stuff on it.
 
--- 
-"Catch the Magic of Linux..."
---------------------------------------------------------
-Michael Peddemors - Senior Consultant
-LinuxAdministration - Internet Services
-NetworkServices - Programming - Security
-WizardInternet Services http://www.wizard.ca
-Linux Support Specialist - http://www.linuxmagic.com
---------------------------------------------------------
-(604)589-0037 Beautiful British Columbia, Canada
+BTW: interested in the fastest linux web server?
+
+BTW2: what about the HP scheduler patches?
+
+Thanks, ciao,
+
+ - Fabio
+
+Mike Kravetz wrote:
+
+> On Thu, Mar 29, 2001 at 01:55:11PM -0800, Fabio Riccardi wrote:
+> > I'm using 2.4.2-ac26, but I've noticed the same behavior with all the 2.4
+> > kernels I've seen so far.
+> >
+> > I haven't even tried on 2.2
+> >
+> >  - Fabio
+>
+> Fabio,
+>
+> Just for fun, you might want to try out some of our scheduler patches
+> located at:
+>
+> http://lse.sourceforge.net/scheduling/
+>
+> I would be interested in your observations.
+>
+> --
+> Mike Kravetz                                 mkravetz@sequent.com
+> IBM Linux Technology Center
 

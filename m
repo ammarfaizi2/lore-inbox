@@ -1,39 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261957AbTH2Ufi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 16:35:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261767AbTH2UfQ
+	id S262353AbTH2U5a (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 16:57:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261767AbTH2U5a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 16:35:16 -0400
-Received: from natsmtp01.webmailer.de ([192.67.198.81]:62642 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP id S261939AbTH2Uct
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 16:32:49 -0400
-Message-Id: <200308292032.h7TKWats006188@post.webmailer.de>
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH] s390 (5/8): common i/o layer.
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-Date: Fri, 29 Aug 2003 22:31:47 +0200
-References: <pV54.523.43@gated-at.bofh.it> <pX6U.7Vu.35@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Fri, 29 Aug 2003 16:57:30 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:27123 "EHLO
+	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
+	id S263584AbTH2U5D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 16:57:03 -0400
+Date: Fri, 29 Aug 2003 21:58:45 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Andrew Morton <akpm@osdl.org>
+cc: Ingo Molnar <mingo@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH] even number of kmap types
+Message-ID: <Pine.LNX.4.44.0308292157040.1816-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OGAWA Hirofumi wrote:
+Extend the warning comment in kmap_types.h: if you add an odd number of
+new kmaps, KM_VSTACK0 becomes misaligned on odd numbered cpus.  I've not
+added a corresponding BUG_ON to entry_trampoline.c, having an aversion
+to errors which trigger too early to be seen.  We should do better,
+perhaps #error, or robustifying the layout; but for now just comment.
 
-> Shouldn't the above use BUS_ID_SIZE instead of DEVICE_ID_SIZE?
+Hugh
 
-Right. Actually, all uses of DEVICE_ID_SIZE in drivers/s390 are wrong.
-I'll take care of that.
+--- 2.6.0-test4-mm3-1/include/asm-i386/kmap_types.h	Fri Aug 29 16:31:40 2003
++++ linux/include/asm-i386/kmap_types.h	Fri Aug 29 20:53:33 2003
+@@ -5,8 +5,8 @@
+ 
+ enum km_type {
+ 	/*
+-	 * IMPORTANT: dont move these 3 entries, the virtual stack
+-	 * must be 8K aligned.
++	 * IMPORTANT: don't move these 3 entries, and only add entries in
++	 * pairs: the 4G/4G virtual stack must be 8K aligned on each cpu.
+ 	 */
+ 	KM_BOUNCE_READ,
+ 	KM_VSTACK1,
+@@ -29,6 +29,10 @@
+ 	KM_IRQ1,
+ 	KM_SOFTIRQ0,
+ 	KM_SOFTIRQ1,
++	/*
++	 * Add new entries in pairs:
++	 * the 4G/4G virtual stack must be 8K aligned on each cpu.
++	 */
+ 	KM_TYPE_NR
+ };
+ #endif
 
-The only other user of DEVICE_ID_SIZE right now is drivers/usb/core/file.c
-and I'm not sure if it's used in the intended way there.
-Greg, maybe you want to get rid of it as well, or move the definition
-into file.c.
-
-        Arnd <><

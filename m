@@ -1,70 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262370AbUEAWC2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262422AbUEAWPj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262370AbUEAWC2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 May 2004 18:02:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262389AbUEAWC2
+	id S262422AbUEAWPj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 May 2004 18:15:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262424AbUEAWPj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 May 2004 18:02:28 -0400
-Received: from mail.convergence.de ([212.84.236.4]:35497 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S262370AbUEAWC0
+	Sat, 1 May 2004 18:15:39 -0400
+Received: from postfix3-2.free.fr ([213.228.0.169]:37855 "EHLO
+	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S262422AbUEAWPc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 May 2004 18:02:26 -0400
-Date: Sun, 2 May 2004 00:02:31 +0200
-From: Johannes Stezenbach <js@convergence.de>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Eyal Lebedinsky <eyal@eyal.emu.id.au>, linux-dvb-maintainer@linuxtv.org,
-       Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.6-rc3: modular DVB tda1004x broken
-Message-ID: <20040501220231.GA2846@convergence.de>
-Mail-Followup-To: Johannes Stezenbach <js@convergence.de>,
-	Adrian Bunk <bunk@fs.tum.de>, Eyal Lebedinsky <eyal@eyal.emu.id.au>,
-	linux-dvb-maintainer@linuxtv.org,
-	Linus Torvalds <torvalds@osdl.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0404271858290.10799@ppc970.osdl.org> <408F9BD8.8000203@eyal.emu.id.au> <20040501201342.GL2541@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 1 May 2004 18:15:32 -0400
+From: Duncan Sands <baldrick@free.fr>
+To: Greg KH <greg@kroah.com>
+Subject: [USBFS PATCH] change extern inline to static inline
+Date: Sun, 2 May 2004 00:15:25 +0200
+User-Agent: KMail/1.5.4
+Cc: linux-usb-devel@lists.sf.net, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040501201342.GL2541@fs.tum.de>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Message-Id: <200405020015.25851.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 01, 2004 at 10:13:42PM +0200, Adrian Bunk wrote:
-> On Wed, Apr 28, 2004 at 09:56:08PM +1000, Eyal Lebedinsky wrote:
-> >...
-> > depmod says:
-> > 
-> > WARNING: 
-> > /lib/modules/2.6.6-rc3/kernel/drivers/media/dvb/frontends/tda1004x.ko needs 
-> > unknown symbol errno
-> >...
-> 
-> Thanks for this report.
-> 
-> It seems the DVB updates broke this.
-> 
-> Please _undo_ the patch below.
-...
-> --- a/drivers/media/dvb/frontends/tda1004x.c	Tue Apr 27 18:37:15 2004
-> +++ b/drivers/media/dvb/frontends/tda1004x.c	Tue Apr 27 18:37:15 2004
-> @@ -188,7 +190,6 @@
->  static struct fwinfo tda10046h_fwinfo[] = { {.file_size = 286720,.fw_offset = 0x3c4f9,.fw_size = 24479} };
->  static int tda10046h_fwinfo_count = sizeof(tda10046h_fwinfo) / sizeof(struct fwinfo);
->  
-> -static int errno;
->  
->  
->  static int tda1004x_write_byte(struct dvb_i2c_bus *i2c, struct tda1004x_state *tda_state, int reg, int data)
+And change __inline__ to inline and get rid of an unused function
+while at it.
 
-Indeed, errno is referenced by the __KERNEL_SYSCALLS__ cruft (still used for
-firmware loading, request_firmware() depends on the patches that
-Michael Hunold is working on for making DVB use the kernel I2C subsytem).
-One more hint that this has to be done rsn...
+ devio.c |   35 +++++------------------------------
+ 1 files changed, 5 insertions(+), 30 deletions(-)
 
-I can't find the error report which motivated this patch so I cannot
-come up with a different fix right now. Anyway, the patch must be
-reverted.
 
-Johannes
+diff -Nru a/drivers/usb/core/devio.c b/drivers/usb/core/devio.c
+--- a/drivers/usb/core/devio.c	Fri Apr 30 23:36:25 2004
++++ b/drivers/usb/core/devio.c	Fri Apr 30 23:36:25 2004
+@@ -165,31 +165,6 @@
+ 	return ret;
+ }
+ 
+-extern inline unsigned int ld2(unsigned int x)
+-{
+-        unsigned int r = 0;
+-        
+-        if (x >= 0x10000) {
+-                x >>= 16;
+-                r += 16;
+-        }
+-        if (x >= 0x100) {
+-                x >>= 8;
+-                r += 8;
+-        }
+-        if (x >= 0x10) {
+-                x >>= 4;
+-                r += 4;
+-        }
+-        if (x >= 4) {
+-                x >>= 2;
+-                r += 2;
+-        }
+-        if (x >= 2)
+-                r++;
+-        return r;
+-}
+-
+ /*
+  * async list handling
+  */
+@@ -219,7 +194,7 @@
+         kfree(as);
+ }
+ 
+-extern __inline__ void async_newpending(struct async *as)
++static inline void async_newpending(struct async *as)
+ {
+         struct dev_state *ps = as->ps;
+         unsigned long flags;
+@@ -229,7 +204,7 @@
+         spin_unlock_irqrestore(&ps->lock, flags);
+ }
+ 
+-extern __inline__ void async_removepending(struct async *as)
++static inline void async_removepending(struct async *as)
+ {
+         struct dev_state *ps = as->ps;
+         unsigned long flags;
+@@ -239,7 +214,7 @@
+         spin_unlock_irqrestore(&ps->lock, flags);
+ }
+ 
+-extern __inline__ struct async *async_getcompleted(struct dev_state *ps)
++static inline struct async *async_getcompleted(struct dev_state *ps)
+ {
+         unsigned long flags;
+         struct async *as = NULL;
+@@ -253,7 +228,7 @@
+         return as;
+ }
+ 
+-extern __inline__ struct async *async_getpending(struct dev_state *ps, void __user *userurb)
++static inline struct async *async_getpending(struct dev_state *ps, void __user *userurb)
+ {
+         unsigned long flags;
+         struct async *as;
+@@ -321,7 +296,7 @@
+ 	destroy_async(ps, &hitlist);
+ }
+ 
+-extern __inline__ void destroy_all_async(struct dev_state *ps)
++static inline void destroy_all_async(struct dev_state *ps)
+ {
+ 	        destroy_async(ps, &ps->async_pending);
+ }

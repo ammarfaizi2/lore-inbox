@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266097AbTLaDGL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 22:06:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266098AbTLaDGL
+	id S266099AbTLaD1V (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 22:27:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266100AbTLaD1V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 22:06:11 -0500
-Received: from mail4-141.ewetel.de ([212.6.122.141]:5076 "EHLO mail4.ewetel.de")
-	by vger.kernel.org with ESMTP id S266097AbTLaDGJ (ORCPT
+	Tue, 30 Dec 2003 22:27:21 -0500
+Received: from mtaw6.prodigy.net ([64.164.98.56]:34497 "EHLO mtaw6.prodigy.net")
+	by vger.kernel.org with ESMTP id S266099AbTLaD1U (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 22:06:09 -0500
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: udev and devfs - The final word
-In-Reply-To: <18Cz7-7Ep-7@gated-at.bofh.it>
-References: <18Cz7-7Ep-7@gated-at.bofh.it>
-Date: Wed, 31 Dec 2003 04:05:59 +0100
-Message-Id: <E1AbWgJ-0000aT-00@neptune.local>
-From: Pascal Schmidt <der.eremit@email.de>
-X-CheckCompat: OK
+	Tue, 30 Dec 2003 22:27:20 -0500
+Date: Tue, 30 Dec 2003 19:27:16 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: john moser <bluefoxicy@linux.net>, linux-kernel@vger.kernel.org
+Subject: Re: Slab allocator . . . cache?  WTF is it?
+Message-ID: <20031231032716.GZ1882@matchmail.com>
+Mail-Followup-To: john moser <bluefoxicy@linux.net>,
+	linux-kernel@vger.kernel.org
+References: <20031230221859.15F503956@sitemail.everyone.net> <20031230235029.GY1882@matchmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031230235029.GY1882@matchmail.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 Dec 2003 01:40:09 +0100, you wrote in linux.kernel:
+On Tue, Dec 30, 2003 at 03:50:29PM -0800, Mike Fedyk wrote:
+> First of all, does it swap out and stay swapped out, or does it swap in and
+> out constantly?
 
->     2) udev does not care about the major/minor number schemes.  If the
->        kernel tomorrow switches to randomly assign major and minor numbers
->        to different devices, it would work just fine (this is exactly
->        what I am proposing to do in 2.7...)
+http://www.matchmail.com/stats/lrrd/matchmail.com/fileserver.matchmail.com-swap.html
 
-Why? I want to keep my static device files in /dev. I don't even have
-hotpluggable devices, and many months do pass before even one piece
-of hardware gets changed (in which case I know what I have to do).
-I don't want to eat any overhead or run any daemons or hotplug agents.
+Look at the monthly graph.
 
-What benefit would there be in "random" numbers? More compressed number
-space by giving out numbers sequentially? Or less having to work with
-the numbers because they become just cookies and never need to be
-inspected except in very small parts of the kernel?
+Weeks 49 and 50 are 2.4.20-rmap.
 
--- 
-Ciao,
-Pascal
+Week 51 to half of week 52 is 2.4.23
+
+After that it is 2.4.23-aa1.
+
+I'd suggest that if you have any problems with too much swapping in and out,
+to try 2.4.23-aa1.
+
+Mike
+

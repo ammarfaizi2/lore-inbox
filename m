@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312375AbSDCT1o>; Wed, 3 Apr 2002 14:27:44 -0500
+	id <S312384AbSDCTaF>; Wed, 3 Apr 2002 14:30:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312363AbSDCT1a>; Wed, 3 Apr 2002 14:27:30 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:51722 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S312374AbSDCT0c>; Wed, 3 Apr 2002 14:26:32 -0500
-Date: Wed, 3 Apr 2002 11:25:58 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>,
-        Andrea Arcangeli <andrea@suse.de>,
-        Arjan van de Ven <arjanv@redhat.com>, Hugh Dickins <hugh@veritas.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Stelian Pop <stelian.pop@fr.alcove.com>,
-        <linux-kernel@vger.kernel.org>
+	id <S312379AbSDCTaB>; Wed, 3 Apr 2002 14:30:01 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:37381 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S312385AbSDCT31>; Wed, 3 Apr 2002 14:29:27 -0500
 Subject: Re: [PATCH 2.5.5] do export vmalloc_to_page to modules...
-In-Reply-To: <E16sqaK-0004MO-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0204031125060.3004-100000@penguin.transmeta.com>
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Wed, 3 Apr 2002 20:38:20 +0100 (BST)
+Cc: tigran@aivazian.fsnet.co.uk (Tigran Aivazian),
+        alan@lxorguk.ukuu.org.uk (Alan Cox), andrea@suse.de (Andrea Arcangeli),
+        arjanv@redhat.com (Arjan van de Ven), hugh@veritas.com (Hugh Dickins),
+        mingo@redhat.com (Ingo Molnar),
+        stelian.pop@fr.alcove.com (Stelian Pop), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0204031106420.3004-100000@penguin.transmeta.com> from "Linus Torvalds" at Apr 03, 2002 11:10:19 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16sqaK-0004MO-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> The fact that the code was back-ported from 2.5.x and that the _GPL still 
+> is there too is just a mistake, partly because I've not gotten any updates 
+> from Ingo..
 
-On Wed, 3 Apr 2002, Alan Cox wrote:
->
-> > The fact that the code was back-ported from 2.5.x and that the _GPL still 
-> > is there too is just a mistake, partly because I've not gotten any updates 
-> > from Ingo..
-> 
-> So Linus is allowed to arbitarily export other peoples contributions ?
+So Linus is allowed to arbitarily export other peoples contributions ? I
+think we need to clear this one up and understand what people think the
+actual rules are around here. As I understand it the original code was
+a) extracted from bttv and is code which I and DaveM partly wrote
+b) was submitted by Gerd who did the extra work and kept it as _GPL when he 
+   first exported it. (in 2.4 its relevant to expose it as we have the V4L1
+   not V4L2 interface)
 
-Those "other people" _are_ me and Ingo, in fact.
+Nobody seems to have remembered to ask permission around here
 
-And yes, I damn well have the right to abritrarily export my own 
-contributions, thank you very much.
-
-		Linus
-
+Alan

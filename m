@@ -1,40 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266550AbUHBOnv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266553AbUHBOoK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266550AbUHBOnv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 10:43:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266549AbUHBOmM
+	id S266553AbUHBOoK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 10:44:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266549AbUHBOoC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 10:42:12 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:10734 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266574AbUHBOko (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 10:40:44 -0400
-Date: Mon, 2 Aug 2004 10:39:51 -0400
-From: Alan Cox <alan@redhat.com>
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-Cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
-Subject: Re: PATCH: Fix HPT366 crash and support HPT372N
-Message-ID: <20040802143951.GA15610@devserv.devel.redhat.com>
-References: <20040801001522.GA13954@devserv.devel.redhat.com> <20040802141131.GA2716@mea-ext.zmailer.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040802141131.GA2716@mea-ext.zmailer.org>
-User-Agent: Mutt/1.4.1i
+	Mon, 2 Aug 2004 10:44:02 -0400
+Received: from email-out1.iomega.com ([147.178.1.82]:47035 "EHLO
+	email.iomega.com") by vger.kernel.org with ESMTP id S266554AbUHBOmg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 10:42:36 -0400
+In-Reply-To: <B1ECE240295BB146BAF3A94E00F2DBFF090209@piramida.hermes.si>
+References: <B1ECE240295BB146BAF3A94E00F2DBFF090209@piramida.hermes.si>
+Mime-Version: 1.0 (Apple Message framework v618)
+Content-Type: text/plain;
+	charset=US-ASCII;
+	format=flowed
+Message-Id: <2134CBF6-E492-11D8-94F5-00039398BB5E@ieee.org>
+Content-Transfer-Encoding: 7bit
+Cc: "'David Burg'" <dburg@nero.com>, linux_udf@hpesjro.fc.hp.com,
+       linux-kernel@vger.kernel.org
+From: Pat LaVarre <p.lavarre@ieee.org>
+Subject: Re: Can not read UDF CD
+Date: Mon, 2 Aug 2004 08:42:08 -0600
+To: David Balazic <david.balazic@hermes.si>
+X-Mailer: Apple Mail (2.618)
+X-OriginalArrivalTime: 02 Aug 2004 14:42:06.0730 (UTC) FILETIME=[E22296A0:01
+	C4789E]
+X-imss-version: 2.0
+X-imss-result: Passed
+X-imss-scores: Clean:2.15282 C:20 M:1 S:5 R:5
+X-imss-settings: Baseline:1 C:1 M:1 S:1 R:1 (0.0000 0.0000)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 02, 2004 at 05:11:31PM +0300, Matti Aarnio wrote:
-> I have been wondering about HPT37x in Fedora Core (development) kernel
-> called  kernel-smp-2.6.7-1.501.i686.  It doesn't find one of the cards
-> attached to a HPT372A card that I have.
-> 
-> I tried also to boot with a bit older kernels: 2.6.3, 2.6.5 do work just 
-> fine (except of 2.6.5 barfs the keyboard..). 
+> How should I make the image ?
+> Remember, it is a multisession CD ( has two sessions ).
 
-Probably unrelated. I'd ask Arjan or see if it depends on the compiler or
-some other horror
+Sorry I'm not yet caught up on all the help volunteered in this thread.
 
-This patch is unrelated to 372A
+Have you specifically confirmed you can make more than one of these 
+discs?  In the last resort, you could send the actual disc to my 
+mailing address.
+
+Have you specifically confirmed certain forms of the session= option do 
+not work?
+
+Pat LaVarre
 

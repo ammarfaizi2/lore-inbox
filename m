@@ -1,65 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261440AbUEDWvV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261654AbUEDWxo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261440AbUEDWvV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 18:51:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261426AbUEDWvV
+	id S261654AbUEDWxo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 18:53:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261631AbUEDWxo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 18:51:21 -0400
-Received: from mail.kroah.org ([65.200.24.183]:30866 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261440AbUEDWvD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 18:51:03 -0400
-Date: Tue, 4 May 2004 15:35:50 -0700
-From: Greg KH <greg@kroah.com>
-To: "Patrick J. LoPresti" <patl@users.sourceforge.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Re: Load hid.o module synchronously?
-Message-ID: <20040504223550.GA32155@kroah.com>
-References: <s5g8ygi4l3q.fsf@patl=users.sf.net> <408D65A7.7060207@nortelnetworks.com> <s5gisfm34kq.fsf@patl=users.sf.net> <c6od9g$53k$1@gatekeeper.tmr.com> <s5ghdv0i8w4.fsf@patl=users.sf.net> <20040504200147.GA26579@kroah.com> <s5ghduvdg1u.fsf@patl=users.sf.net>
+	Tue, 4 May 2004 18:53:44 -0400
+Received: from stat1.steeleye.com ([65.114.3.130]:27302 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261528AbUEDWxj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 18:53:39 -0400
+Subject: Re: [PATCH] rmap 22 flush_dcache_mmap_lock
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@osdl.org>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       Russell King <rmk@arm.linux.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0405042320100.2156-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0405042320100.2156-100000@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 04 May 2004 17:53:10 -0500
+Message-Id: <1083711195.1660.3.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <s5ghduvdg1u.fsf@patl=users.sf.net>
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 04, 2004 at 05:56:48PM -0400, Patrick J. LoPresti wrote:
-> Greg KH <greg@kroah.com> writes:
+On Tue, 2004-05-04 at 17:22, Hugh Dickins wrote:
+> arm and parisc __flush_dcache_page have been scanning the i_mmap(_shared)
+> list without locking or disabling preemption.  That may be even more
+> unsafe now it's a prio tree instead of a list.
 > 
-> > On Sat, May 01, 2004 at 09:21:31AM -0400, Patrick J. LoPresti wrote:
-> >
-> > > So there is no way to load this hardware driver and wait until it
-> > > either binds or fails to bind to its associated hardware?  That seems
-> > > like a bad bug in the design...
-> > 
-> > Um, what is wrong with the proposals I made for how you can detect
-> > this?
+> It looks like we cannot use i_shared_lock for this protection: most uses
+> of flush_dcache_page are okay, and only one would need lock ordering
+> fixed (get_user_pages holds page_table_lock across flush_dcache_page);
+> but there's a few (e.g. in net and ntfs) which look as if they're using
+> it in I/O completion - and it would be restrictive to disallow it there.
 > 
-> Your proposals were:
+> So, on arm and parisc only, define flush_dcache_mmap_lock(mapping) as
+> spin_lock_irq(&(mapping)->tree_lock); on i386 (and other arches left
+> to the next patch) define it away to nothing; and use where needed.
 > 
->  - look at the device in /proc/bus/usb/devices and wait until the
->    driver is bound to that device "(hid)" will show up as the
->    driver bound to that interface
+> While updating locking hierarchy in filemap.c, remove two layers of the
+> fossil record from add_to_page_cache comment: no longer used for swap.
 > 
->  - look at the sysfs directory for the hid driver and wait for
->    the symlink to the device shows up.  This should be at
->    /sys/bus/usb/drivers/hid
-> 
-> I see how these let me wait until the hid.o module successfully binds
-> to the hardware.
-> 
-> But what if it fails to bind?  For example, what if an error occurs?
-> Or what if the keyboard is on the module's blacklist?  How do I know
-> when to stop waiting?
+> I believe all the #includes will work out, but have only built i386.
+> I can see several things about this patch which might cause revulsion:
+> the name flush_dcache_mmap_lock?  the reuse of the page radix_tree's
+> tree_lock for this different purpose?  spin_lock_irqsave instead?
+> can't we somehow get i_shared_lock to handle the problem?
 
-You do not, sorry.
+Hugh,
 
-> Ideally, what I would like is for "modprobe <driver>" to wait until
-> all hardware handled by that driver is either ready for use or is
-> never going to be.  That seems simple and natural to me.
+I thought in a prior discussion with Andrea that there was a generic VM
+i_mmap loop that can take rather a long time, and thus we didn't want a
+spinlock for this, but a rwlock.  Since our critical regions in the
+cache flushing are read only, only i_mmap updates (which are short
+critical regions) take the write lock with irqsave, all the rest take
+the shared read lock with irq.
 
-Sorry, but this is not going to happen.  It does not fit into the way
-the kernel handles drivers anymore.  Again, sorry.
+Unless you've eliminated this long scan from the generic VM, I think the
+idea is still better than a simple spinlock.
 
-greg k-h
+James
+
+

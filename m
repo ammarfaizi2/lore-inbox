@@ -1,82 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266046AbUBBUnr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 15:43:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265946AbUBBT72
+	id S265847AbUBBUc1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 15:32:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265837AbUBBU35
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 14:59:28 -0500
-Received: from mailr-1.tiscali.it ([212.123.84.81]:14969 "EHLO
-	mailr-1.tiscali.it") by vger.kernel.org with ESMTP id S265919AbUBBT7F
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 14:59:05 -0500
-X-BrightmailFiltered: true
-Date: Mon, 2 Feb 2004 20:59:03 +0100
-From: Kronos <kronos@kronoz.cjb.net>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [Compile Regression in 2.4.25-pre8][PATCH 30/42]
-Message-ID: <20040202195903.GD6785@dreamland.darkstar.lan>
-Reply-To: kronos@kronoz.cjb.net
-References: <20040130204956.GA21643@dreamland.darkstar.lan> <Pine.LNX.4.58L.0401301855410.3140@logos.cnet> <20040202180940.GA6367@dreamland.darkstar.lan>
+	Mon, 2 Feb 2004 15:29:57 -0500
+Received: from turing-police.cirt.vt.edu ([128.173.54.129]:28038 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S265766AbUBBU3L (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Feb 2004 15:29:11 -0500
+Message-Id: <200402022028.i12KSnSQ011554@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Joshua Kwan <joshk@triplehelix.org>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: 2.6 input drivers FAQ 
+In-Reply-To: Your message of "Mon, 02 Feb 2004 21:18:13 +0100."
+             <20040202201813.GA272@ucw.cz> 
+From: Valdis.Kletnieks@vt.edu
+References: <20040201100644.GA2201@ucw.cz> <20040201163136.GF11391@triplehelix.org> <200402020527.i125RvTx008088@turing-police.cc.vt.edu> <20040202092318.GD548@ucw.cz> <200402021812.i12IC6eR006637@turing-police.cc.vt.edu>
+            <20040202201813.GA272@ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040202180940.GA6367@dreamland.darkstar.lan>
-User-Agent: Mutt/1.4i
+Content-Type: multipart/signed; boundary="==_Exmh_-172395625P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 02 Feb 2004 15:28:49 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_-172395625P
+Content-Type: text/plain; charset=us-ascii
 
-meye.c:212: warning: passing arg 3 of `dma_alloc_coherent' from incompatible pointer type
+On Mon, 02 Feb 2004 21:18:13 +0100, Vojtech Pavlik said:
 
-dma_addr_t is not u32!
+> Because normally the X server reads them in very quick succession and if
+> you don't make a very short click, the sequence looks like this:
+> 
+> push1 push2 release1 release2, which is fine, because X interprets that
+> as just a push and a release.
+> 
+> If there is disk activity or something else that causes the scheduling
+> to be delayed, it's push1 release1 push2 release2, which counts as a
+> doubleclick.
+> 
+> Hence sporadic doubleclicking.
 
-diff -Nru -X dontdiff linux-2.4-vanilla/drivers/media/video/meye.c linux-2.4/drivers/media/video/meye.c
---- linux-2.4-vanilla/drivers/media/video/meye.c	Tue Nov 11 17:51:38 2003
-+++ linux-2.4/drivers/media/video/meye.c	Sat Jan 31 18:27:19 2004
-@@ -190,7 +190,7 @@
- 
- /* return a page table pointing to N pages of locked memory */
- static int ptable_alloc(void) {
--	u32 *pt;
-+	dma_addr_t *pt;
- 	int i;
- 
- 	memset(meye.mchip_ptable, 0, sizeof(meye.mchip_ptable));
-@@ -204,7 +204,7 @@
- 		return -1;
- 	}
- 
--	pt = (u32 *)meye.mchip_ptable[MCHIP_NB_PAGES];
-+	pt = (dma_addr_t *)meye.mchip_ptable[MCHIP_NB_PAGES];
- 	for (i = 0; i < MCHIP_NB_PAGES; i++) {
- 		meye.mchip_ptable[i] = dma_alloc_coherent(meye.mchip_dev, 
- 							  PAGE_SIZE,
-@@ -212,7 +212,7 @@
- 							  GFP_KERNEL);
- 		if (!meye.mchip_ptable[i]) {
- 			int j;
--			pt = (u32 *)meye.mchip_ptable[MCHIP_NB_PAGES];
-+			pt = (dma_addr_t *)meye.mchip_ptable[MCHIP_NB_PAGES];
- 			for (j = 0; j < i; ++j) {
- 				dma_free_coherent(meye.mchip_dev,
- 						  PAGE_SIZE,
-@@ -228,10 +228,10 @@
- }
- 
- static void ptable_free(void) {
--	u32 *pt;
-+	dma_addr_t *pt;
- 	int i;
- 
--	pt = (u32 *)meye.mchip_ptable[MCHIP_NB_PAGES];
-+	pt = (dma_addr_t *)meye.mchip_ptable[MCHIP_NB_PAGES];
- 	for (i = 0; i < MCHIP_NB_PAGES; i++) {
- 		if (meye.mchip_ptable[i])
- 			dma_free_coherent(meye.mchip_dev, 
+Well.. that would explain things except for the single /dev/psaux I have.
 
--- 
-Reply-To: kronos@kronoz.cjb.net
-Home: http://kronoz.cjb.net
-Il dottore mi ha detto di smettere di fare cene intime per quattro.
-A meno che non ci siamo altre tre persone.
+Could a similar timing hole happen if the system submerged into SMM
+code for a battery check or similar? (I know, that *should* cause
+lost events not duplicated, but....)
+
+> For movement, of course, you get twice the mouse speed, but usually most
+> people just adjust the acceleration settings and are done with that.
+
+Haven't seen this.
+
+--==_Exmh_-172395625P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAHrMBcC3lWbTT17ARAj/CAKCAL5+RxIvzxShxf8lEeBQyHF1z5ACfXbct
+zrVISUbRAKL8u2gyDWmzbpo=
+=BKQe
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-172395625P--

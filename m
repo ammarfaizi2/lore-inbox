@@ -1,65 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293488AbSCAEwh>; Thu, 28 Feb 2002 23:52:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310351AbSCAEut>; Thu, 28 Feb 2002 23:50:49 -0500
-Received: from smtp011.mail.yahoo.com ([216.136.173.31]:62733 "HELO
-	smtp011.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S310336AbSCAErv>; Thu, 28 Feb 2002 23:47:51 -0500
-Date: Fri, 1 Mar 2002 12:52:22 +0800
-From: He Jian Bing <hjbsy@yahoo.com.cn>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: barrier and volatile
-X-mailer: FoxMail 3.11 Release [cn]
-Mime-Version: 1.0
-Content-Type: text/plain; charset="GB2312"
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S292232AbSBOW2V>; Fri, 15 Feb 2002 17:28:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S292233AbSBOW2O>; Fri, 15 Feb 2002 17:28:14 -0500
+Received: from oe19.law3.hotmail.com ([209.185.240.123]:33550 "EHLO hotmail.com") by vger.kernel.org with ESMTP id <S292231AbSBOW1t>; Fri, 15 Feb 2002 17:27:49 -0500
+X-Originating-IP: [63.74.34.71]
+From: "That Linux Guy" <thatlinuxguy@hotmail.com>
+To: <esr@thyrsus.com>
+Cc: <linux-kernel@vger.kernel.org>
+References: <20020215135557.B10961@thyrsus.com><200202151929.g1FJTaU03362@pc1-camc5-0-cust78.cam.cable.ntl.com><20020215141433.B11369@thyrsus.com><20020215195818.A3534@pc1-camc5-0-cust78.cam.cable.ntl.com><20020215145421.A12540@thyrsus.com><20020215124255.F28735@work.bitmover.com><20020215153953.D12540@thyrsus.com> <1013811711.807.1066.camel@phantasy>
+Subject: Re: Disgusted with kbuild developers
+Date: Fri, 15 Feb 2002 16:29:51 -0600
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20020301044755Z310336-889+101562@vger.kernel.org>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+Message-ID: <OE193Qime2yO9QJsWhz00006b54@hotmail.com>
+X-OriginalArrivalTime: 15 Feb 2002 22:27:44.0379 (UTC) FILETIME=[FCE844B0:01C1B66F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+The amount of whining I've had to read today on this topic just astonishes
+me.  People, please - devote 1/10th of the energy to helping esr finish and
+fix CML2 to meet Linus' expectations.  Face the fact:  CML1 was good for
+it's time, but that time is now gone.
 
-Here is the __barrier__ definition:
+If you spent as much time helping to get CML2 up and going as some of you
+have trying to kill it (while not offering anything constructive to replace
+it) it would have been DONE 6 months ago.
 
-/* The "volatile" is due to gcc bugs */
-#define barrier() __asm__ __volatile__("": : :"memory")
+Sometimes, this list is worse than the proverbial sewing circle.
 
-I know the reason of the "memory" clobber, I also know an 'asm'
-instruction without any operands is implicitly considered volatile,
-but the comment say: we must use volatile because of the "gcc bugs".
-So I guess the "gcc bug" is that the compiler doesn't consider it
-volatile in fact if we remove __volatile__ in barrier().Is it right?
-
-Suppose gcc compiler doesn't think the asm statement
-__asm__ ("": : :"memory") is volatile, and if we want the "barrier"
-is volatile, we should use __asm__ __volatile__ ("": : :"memory").
-My interest is what the gcc compiler will do respectively when it
-optimize the above two statement.
-
-Another question, my gcc version is(use gcc -v):
-Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/2.96/specs
-gcc version 2.96 20000731 (Red Hat Linux 7.1 2.96-98)
-
-The below is from gcc info pages(Node: Extended Asm):
-   If your assembler instruction modifies memory in an unpredictable
-fashion, add 'memory' to the list of clobbered registers. This will
-cause GNU CC to not keep memory values cached in registers across the
-assembler instruction. You will also want to add the 'volatile'
-                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-keyword if the memory affected is not listed in the inputs or outputs
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-of the 'asm', as the 'memory' clobber does not count as a side-effect
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-of the 'asm'.
-^^^^^^^^^^^^^
-what's the meaning of the underlined line?
-
-Regards,
-He Jian Bing
-
-
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
-
+> > As a result, I had to tell Marcelo I had no choice but to drop
+maintaining
+> > the 2.4 help file.  The divergence, and the damage, is probably not
+> > recoverable.
+>
+> Divergence and damage to a configure help file ?
+>
+> As someone who professes to be well-versed in social systems and their
+> associated mechanics, I am sure you understand the notions of social
+> contracts and the like.  Thus, if we, as the developers who actually
+> look at the Config.help, drop the changes then that is our problem.  And
+> if we don't care, then there must be nothing to care about.
+>
+> If Marcelo and Linus are not begging for Configure.help updates (like I
+> beg for SCSI layer rewrites) then there is a reason.
+>
+> Robert Love
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

@@ -1,95 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261475AbSJZTPl>; Sat, 26 Oct 2002 15:15:41 -0400
+	id <S261485AbSJZTUw>; Sat, 26 Oct 2002 15:20:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261485AbSJZTPl>; Sat, 26 Oct 2002 15:15:41 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:51125 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S261475AbSJZTPk>;
-	Sat, 26 Oct 2002 15:15:40 -0400
-Message-ID: <3DBAEB64.1090109@colorfullife.com>
-Date: Sat, 26 Oct 2002 21:22:12 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
+	id <S261497AbSJZTUw>; Sat, 26 Oct 2002 15:20:52 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24069 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261485AbSJZTUv>;
+	Sat, 26 Oct 2002 15:20:51 -0400
+Message-ID: <3DBAEC79.5050605@pobox.com>
+Date: Sat, 26 Oct 2002 15:26:49 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH,RFC] faster kmalloc lookup
-Content-Type: multipart/mixed;
- boundary="------------060408060206060505050903"
+To: Andreas Steinmetz <ast@domdv.de>
+CC: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: rootfs exposure in /proc/mounts
+References: <Pine.GSO.4.21.0210261458460.29768-100000@steklov.math.psu.edu> <3DBAE931.7000409@domdv.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060408060206060505050903
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Andreas Steinmetz wrote:
 
-kmalloc spends a large part of the total execution time trying to find 
-the cache for the passed in size.
+> Alexander Viro wrote:
+>
+>>
+>> On Sat, 26 Oct 2002, Andreas Steinmetz wrote:
+>>
+>>
+>>> Maybe I do oversee the obious but:
+>>>
+>>> can somebody please explain why rootfs is exposed in /proc/mounts (I 
+>>> do mean the "rootfs / rootfs rw 0 0" entry) and if there is a good 
+>>> reason for the exposure?
+>>
+>>
+>>
+>> Mostly the fact that it _is_ mounted and special-casing its removal from
+>> /proc/mounts is more PITA than it's worth.
+>>
+> Acceptable but somewhat sad as it confuses e.g. "umount -avt noproc" 
+> which is somewhat standard in shutdown/reboot scripts (using a 
+> softlink from /etc/mtab to /proc/mounts).
 
-What about the attached patch (against 2.5.44-mm5)?
-It uses fls jump over the caches that are definitively too small.
 
---
-    Manfred
+Bug 1 - don't softlink directly to /proc/mounts :)  embedded guys 
+typically do this, and you see why it bites you in the ass :)
 
---------------060408060206060505050903
-Content-Type: text/plain;
- name="patch-fast-kmalloc"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-fast-kmalloc"
+Bug 2 - "noproc" clearly does not avoid ramfs mounts, which is rootfs's 
+filesystem type.  And more and more ramfs filesystems will be appearing, 
+so that should be taken into consideration.
 
---- 2.5/mm/slab.c	Sat Oct 26 21:13:33 2002
-+++ build-2.5/mm/slab.c	Sat Oct 26 20:40:09 2002
-@@ -424,6 +430,7 @@
- 	CN("size-131072")
- }; 
- #undef CN
-+static struct cache_sizes *malloc_hints[sizeof(size_t)*8];
- 
- struct arraycache_init initarray_cache __initdata = { { 0, BOOT_CPUCACHE_ENTRIES, 1, 0} };
- struct arraycache_init initarray_generic __initdata = { { 0, BOOT_CPUCACHE_ENTRIES, 1, 0} };
-@@ -587,6 +594,7 @@
- void __init kmem_cache_init(void)
- {
- 	size_t left_over;
-+	int i;
- 
- 	init_MUTEX(&cache_chain_sem);
- 	INIT_LIST_HEAD(&cache_chain);
-@@ -604,6 +612,18 @@
- 	 * that initializes ac_data for all new cpus
- 	 */
- 	register_cpu_notifier(&cpucache_notifier);
-+
-+	for (i=0;i<sizeof(size_t)*8;i++) {
-+		struct cache_sizes *csizep = malloc_sizes;
-+		int size = (1<<i)/2+1;
-+
-+		for ( ; csizep->cs_size; csizep++) {
-+			if (size > csizep->cs_size)
-+				continue;
-+			break;
-+		}
-+		malloc_hints[i] = csizep;
-+	}
- }
- 
- 
-@@ -1796,7 +1816,11 @@
-  */
- void * kmalloc (size_t size, int flags)
- {
--	struct cache_sizes *csizep = malloc_sizes;
-+	struct cache_sizes *csizep;
-+	
-+	if(unlikely(size<2))
-+		size=2;
-+	csizep = malloc_hints[fls((size-1))];
- 
- 	for (; csizep->cs_size; csizep++) {
- 		if (size > csizep->cs_size)
+Sounds like userspace slackness to me, and nothing that the kernel guys 
+need to worry about...
 
---------------060408060206060505050903--
+    Jeff
+
+
+
+
 

@@ -1,37 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275857AbRJBJKf>; Tue, 2 Oct 2001 05:10:35 -0400
+	id <S275963AbRJBJSg>; Tue, 2 Oct 2001 05:18:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275859AbRJBJK0>; Tue, 2 Oct 2001 05:10:26 -0400
-Received: from mailrelay3.inwind.it ([212.141.54.103]:2264 "EHLO
-	mailrelay3.inwind.it") by vger.kernel.org with ESMTP
-	id <S275857AbRJBJKR>; Tue, 2 Oct 2001 05:10:17 -0400
-Message-Id: <3.0.6.32.20011002111131.02693d90@pop.tiscalinet.it>
-X-Mailer: QUALCOMM Windows Eudora Light Version 3.0.6 (32)
-Date: Tue, 02 Oct 2001 11:11:31 +0200
-To: linux-kernel@vger.kernel.org
-From: Lorenzo Allegrucci <lenstra@tiscalinet.it>
-Subject: Huge console switching lags
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S275968AbRJBJS0>; Tue, 2 Oct 2001 05:18:26 -0400
+Received: from [203.200.144.45] ([203.200.144.45]:1032 "EHLO
+	mx-out-01.nestec.net") by vger.kernel.org with ESMTP
+	id <S275963AbRJBJSW>; Tue, 2 Oct 2001 05:18:22 -0400
+Organization: NeST-India
+Message-ID: <F6E1228667B6D411BAAA00306E00F2A50109C8FC@pdc2.nestec.net>
+From: MOHAMMED AZAD <mohammedazad@nestec.net>
+To: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: Getting system time in kernel..
+Date: Tue, 2 Oct 2001 14:44:23 +0530 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
-I've experienced huge (4/5 seconds) console switching lags with
-2.4.10 running this [1], never seen before with any kernel.
-2.4.10-ac2 is even worse, it can take up to 10/20 seconds and longer
-to switch from a console to another (CTRL+F1,F2 etc) while running
-the beast below:
+Any idea how to get the system time in a kernel module.... I tried this in
+solaris... but i am getting only the GMT (that too elapsed time) how do i
+convert this to my locale time.... 
 
-[1]
-#!/bin/sh
-bomb(){bomb|bomb&};bomb
-
-Swap is not an issue, you can swapoff -a and still have lags.
-I've never seen any console switch lags with any kernel on any load.
-
-
-
--- 
-Lorenzo
+TIA
+azad

@@ -1,101 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269781AbRHDDf4>; Fri, 3 Aug 2001 23:35:56 -0400
+	id <S269777AbRHDDiG>; Fri, 3 Aug 2001 23:38:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269780AbRHDDfk>; Fri, 3 Aug 2001 23:35:40 -0400
-Received: from Huntington-Beach.blue-labs.org ([208.179.59.198]:16944 "EHLO
-	Huntington-Beach.Blue-Labs.org") by vger.kernel.org with ESMTP
-	id <S269777AbRHDDfe>; Fri, 3 Aug 2001 23:35:34 -0400
-Message-ID: <3B6B6D89.90804@blue-labs.org>
-Date: Fri, 03 Aug 2001 23:35:37 -0400
-From: David Ford <david@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2+) Gecko/20010803
-X-Accept-Language: en-us
+	id <S269780AbRHDDh4>; Fri, 3 Aug 2001 23:37:56 -0400
+Received: from [63.209.4.196] ([63.209.4.196]:56847 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S269777AbRHDDhk>; Fri, 3 Aug 2001 23:37:40 -0400
+Date: Fri, 3 Aug 2001 20:35:14 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Daniel Phillips <phillips@bonn-fries.net>, Ben LaHaise <bcrl@redhat.com>,
+        <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+Subject: Re: [RFC][DATA] re "ongoing vm suckage"
+In-Reply-To: <Pine.LNX.4.33L.0108040022110.2526-100000@imladris.rielhome.conectiva>
+Message-ID: <Pine.LNX.4.33.0108032030430.15155-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: Andreas Dilger <adilger@turbolinux.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Any known ext2 FS problems in 2.4.7?
-In-Reply-To: <200108032301.f73N18E01809@lynx.adilger.int>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes I'm sure, this machine has been running for a long time quite well 
-save the reported problems.
 
-a) fsck on boot, yes
-b) manual fsck and reboot every few days, yes
-c) fstab is correct :P
-d) missing space isn't account for in du, lsof, or any other tool that 
-i'm aware of
-e) 4.5 gigs is a lot of space to eat over a couple days, particularly 
-when this server's disk use varies by a couple hundred megs per day
-f) only the e2fs partition has problems, the other partitions are fine, 
-no journal replays or otherwise
-
-After a fresh clean fsck'd start, the machine runs fine for a day or 
-two, then in about one day disk space grinds away.  Bringing it to 
-single user mode with nothing running but the kernel threads and a few 
-init children, lsof shows nothing but a few libs open, and no deleted or 
-otherwise open for write files.
-
-All my other machines run fine.  Also note as I said, it only does this 
-under 2.4.7, if I boot into 2.4.5 it will stay up for weeks until the 
-reported-and-fixed OOPs kills it.  No disk space issues there.
-
-David
-
-Andreas Dilger wrote:
-
->David Ford writes:
+On Sat, 4 Aug 2001, Rik van Riel wrote:
+> On Fri, 3 Aug 2001, Linus Torvalds wrote:
 >
->>I'm starting to go through a cycle every 2-3 days where I have to bring 
->>one particular machine down to init l1, kill any processes and remount 
->>RO, then run e2fsck on the e2fs partition.  Over that period of time, 
->>disk space is eaten without accouting. 'du' shows about 13 gigs used 
->>when I sum up all the directories.  Roughly 4.5 gigs is missing.  During 
->>e2fsck, there are many many pages of deleted inodes with zero dtime, ref 
->>count fixups, and free inode count fixups.  When I say many, I mean that 
->>this pIII 667 scrolls for about four minutes...
->>
->>There is nothing special about this partition, it doesn't do it while 
->>running 2.4.5-ac15, but I can't use that kernel either because it OOPSes 
->>as I reported.  That OOPS was fixed for 2.4.7, but this disk space issue 
->>is rather frustrating.  Fortunately all my other systems are reiserfs 
->>and work fine.
->>
->>/dev/ide/host0/bus0/target0/lun0/part2 on / type ext2 
->>(rw,usrquota=/usr/local/admin/system-info/quota-home)
->>
->>I haven't mucked with any /proc settings other than "16384" 
->> >/proc/sys/fs/file-max.  It's also worthy to note that this machine 
->>also likes to break and spontaneously reboot about once every day.  No 
->>klog, no console, no nothing, just bewm.  Again 2.4.5 didn't do this.
->>
+> > Please just remove the code instead. I don't think it buys you anything.
 >
->Are you sure you are running e2fsck on this partition at boot time?
->I mean, if it is rebooting spontaneously every day, but you need to run
->e2fsck manually to clean up the filesystem every 2-3 days, the fsck after
->reboot should already clean up the filesystem for you.  If you _don't_
->run e2fsck on this filesystem (you need a non-zero number in the 6th
->column of /etc/fstab) that would explain the problem.
->
->The "missing space" you are seeing is because files are being held open
->(thus not reported by "du", which only can check linked files, but reported
->by "df" which shows the whole filesystem stats).  If the files are held
->open at the time of a crash, then you need to run e2fsck to clean up all
->of these "orphans".  You should be able to see what process is causing this
->by running "lsof | grep deleted" to find open-but-deleted files.
->
->Note that reiserfs still has the same problem (AFAIK, I don't think it
->is fixed in the stock kernels, although there is a patch available),
->so even though it doesn't _need_ reiserfsck at boot time, you still
->don't get the space back until it is run.  If the other machines don't
->crash all the time, the space won't be "lost", so you may not notice it.
->Ext3 cleans up orphans at boot time (no fsck needed).
->
->Cheers, Andreas
->
+> IIRC you applied the patch introducing that logic because it
+> gave a 25% performance increase under some write intensive
+> loads (or something like that).
 
+That's the batching code, which is somewhat intertwined with the same
+code.
+
+The batching code is a separate issue: when we free the requests, we don't
+actually make them available as they get free'd (because then the waiters
+will trickle out new requests one at a time and cannot do any merging
+etc).
+
+Also, the throttling code probably _did_ make behaviour nicer back when
+"sync()" used to use ll_rw_block().  Of course, now most of the IO layer
+actually uses "submit_bh()" and bypasses this code completely, so only the
+ones that still use it get hit by the unfairness. What a double whammy ;)
+
+		Linus
 

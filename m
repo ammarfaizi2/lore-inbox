@@ -1,47 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313491AbSDLKRF>; Fri, 12 Apr 2002 06:17:05 -0400
+	id <S313508AbSDLK30>; Fri, 12 Apr 2002 06:29:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313507AbSDLKRE>; Fri, 12 Apr 2002 06:17:04 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:29459 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S313491AbSDLKRD>;
-	Fri, 12 Apr 2002 06:17:03 -0400
-Date: Fri, 12 Apr 2002 12:16:55 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VIA, 32bit PIO and 2.5.x kernel
-Message-ID: <20020412101655.GB5285@suse.de>
-In-Reply-To: <20020412084150.GE824@suse.de> <Pine.LNX.4.10.10204120154480.489-100000@master.linux-ide.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S313509AbSDLK3Z>; Fri, 12 Apr 2002 06:29:25 -0400
+Received: from wet.kiss.uni-lj.si ([193.2.98.10]:29457 "EHLO
+	wet.kiss.uni-lj.si") by vger.kernel.org with ESMTP
+	id <S313508AbSDLK3W>; Fri, 12 Apr 2002 06:29:22 -0400
+Content-Type: text/plain;
+  charset="iso-8859-2"
+From: Rok =?iso-8859-2?q?Pape=BE?= <rok.papez@lugos.si>
+Reply-To: rok.papez@lugos.si
+To: linux-kernel@vger.kernel.org
+Subject: Patch: Num/Caps_lock state - ioctl flags mixed up
+Date: Fri, 12 Apr 2002 12:28:53 +0200
+X-Mailer: KMail [version 1.2]
+Cc: alan@redhat.com
+MIME-Version: 1.0
+Message-Id: <02041212285302.02754@strader.home>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 12 2002, Andre Hedrick wrote:
-> On Fri, 12 Apr 2002, Jens Axboe wrote:
-> 
-> > On Fri, Apr 12 2002, Petr Vandrovec wrote:
-> > > I believe that there must be some reason for doing that... And 
-> > > do not ask me why it worked in 2.4.x, as it cleared io_32bit
-> > > in task_out_intr too.
-> > 
-> > Because 2.4 doesn't use that path for fs requests. And be glad that it
-> > doesn't otherwise _everybody_ would have much worse problems than you
-> > are currently seeing.
-> 
-> Maybe if everyone ever bothered to look at the code base and not assume
-> they know everything ... and enjoying feable attempts to cast me as a
-> fool.  Better yet maybe understand the hardware ...
+Hello.
 
-I didn't talk about the 32bit issue at all (as you can read from my mail
-above), I simply said why it worked in 2.4 -- because that data path is
-never hit for a file system request.
+It look like the flags for setting the state of caps lock and num lock in kd.h
+are mixed up. For setting just the LEDs (but not the state) they work OK.
 
-So maybe if you ever bothered to read the emails. Or better yet, not
-assume you know everything.
+-------------------- patch --------------------------------
+
+--- 2.4.18/include/linux/kd.h	Thu Nov 22 20:47:07 2001
++++ 2.4.18-k_fix/include/linux/kd.h	Fri Apr 12 11:47:44 2002
+@@ -26,8 +26,8 @@
+ #define KDGETLED	0x4B31	/* return current led state */
+ #define KDSETLED	0x4B32	/* set led state [lights, not flags] */
+ #define 	LED_SCR		0x01	/* scroll lock led */
+-#define 	LED_CAP		0x04	/* caps lock led */
+ #define 	LED_NUM		0x02	/* num lock led */
++#define 	LED_CAP		0x04	/* caps lock led */
+ 
+ #define KDGKBTYPE	0x4B33	/* get keyboard type */
+ #define 	KB_84		0x01
+@@ -89,8 +89,8 @@
+ #define KDSKBMETA	0x4B63	/* sets meta key handling mode */
+ 
+ #define		K_SCROLLLOCK	0x01
+-#define		K_CAPSLOCK	0x02
+-#define		K_NUMLOCK	0x04
++#define		K_NUMLOCK	0x02
++#define		K_CAPSLOCK	0x04
+ #define	KDGKBLED	0x4B64	/* get led flags (not lights) */
+ #define KDSKBLED	0x4B65	/* set led flags (not lights) */
+
+-------------------- test app --------------------------------
+
+#include <sys/ioctl.h>
+#include <unistd.h>
+#include <linux/kd.h>
+#include <errno.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(int argc, char *argv[]) {
+  int param = 0;
+  int rc;
+
+  if(argc>1)
+    param = atoi(argv[1]);
+
+  switch(param) {
+  case 1:
+      param = K_CAPSLOCK;
+      break;
+
+  case 2:
+      param = K_NUMLOCK;
+      break;
+
+  default:
+      printf("parameter should be:\n\t- 1 for K_CAPSLOCK\n\t- 2 for K_NUMLOCK\n");
+      return -1;
+  } //~switch
+
+  rc = ioctl(STDIN_FILENO, KDSKBLED, param);
+  if(rc)
+    printf("%s\n", strerror(errno));
+
+  return 0;
+}
 
 -- 
-Jens Axboe
-
+best regards,
+Rok Pape¾.

@@ -1,39 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265369AbTA2IVX>; Wed, 29 Jan 2003 03:21:23 -0500
+	id <S265396AbTA2Ib5>; Wed, 29 Jan 2003 03:31:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265373AbTA2IVX>; Wed, 29 Jan 2003 03:21:23 -0500
-Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:44717 "EHLO
-	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S265369AbTA2IVX>; Wed, 29 Jan 2003 03:21:23 -0500
-Message-Id: <200301290830.h0T8UKaE002508@eeyore.valparaiso.cl>
-To: Catalin BOIE <util@ns2.deuroconsult.ro>
-cc: Enlight <enlight@bentonrea.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Problem - See attached dmesg dump 
-In-Reply-To: Your message of "Tue, 28 Jan 2003 14:21:11 +0200."
-             <Pine.LNX.4.33.0301281419510.10512-100000@hosting.rdsbv.ro> 
-Date: Wed, 29 Jan 2003 09:30:20 +0100
-From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
+	id <S265373AbTA2Ib4>; Wed, 29 Jan 2003 03:31:56 -0500
+Received: from cache1.telkomsel.co.id ([202.155.14.251]:22032 "EHLO
+	cache1.telkomsel.co.id") by vger.kernel.org with ESMTP
+	id <S265396AbTA2Ibz>; Wed, 29 Jan 2003 03:31:55 -0500
+Message-ID: <3E378EAE.9050209@bna.telkomsel.co.id>
+Date: Wed, 29 Jan 2003 15:19:58 +0700
+From: arief_mulya <arief@bna.telkomsel.co.id>
+Organization: damai itu indah <peace is beautiful>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>,
+       tech-kern <tech-kern@netbsd.org>, tech <tech@openbsd.org>,
+       freebsd-hackers <freebsd-hackers@freebsd.org>
+Subject: Thanks (was: Linux - *BSD diff)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Catalin BOIE <util@ns2.deuroconsult.ro> said:
-> > > While running make to build xfce3.8.18 I get an internal gcc error
-> > > segmentation fault.  Also got similar error running rpmdrake.  Needless to
-> > > say I can't finish the build.
-> 
-> I get this error too. gcc 3.2.1 seg faults a lot when compiling a kernel.
-> Motherboard: gigabyte 7avx (I think) K400.
-> Under Windows 2000 (don't ask why, please...) no BSOD.
+Dear all,
 
-Segfaults in gcc are usually caused by bad RAM (<http://www.memtest86.com>)
-or broken fans (CPU mostly). "Win* works fine" is of no consecuence, Linux
-works your machine to its limits, Win* doesn't come close; Linux does
-complain when something goes wrong, Win* just sweeps the error under the
-rug and hopes all goes well.
+
+
+Well,
+I've been receiving quite lots of nice and *warm* and joyful 
+email for the thread ;-)
+
+Some quite of enlightnment (including your email, Theo, it 
+gives me lots of enlightment, you surely is a funny guy ;-)
+
+After also lots of google clickings, I think I get the big 
+picture of it now. And I've also made my decision. For now, 
+I'm going to stick w/ Linux Kernel. And see how much can I 
+give in till I give up ;-)
+
+Thanks for all of the answers.
+Special thanks for Rik van Riel and Bill Studenmund for your 
+kind insights and supports :-)
+
+There's a saying in Java-nese (not *that* Java) language:
+
+Mangan ora mangan kumpul.
+
+Which means, Have something to eat or not Have something to 
+eat, the important thing is to stick together. Forever.
+
+And that's what I felt about Linux Developers... if you know 
+what I mean :-)
+
+See you.
+
+Best Regards,
+arief_mulya
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+
+

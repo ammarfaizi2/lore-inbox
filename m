@@ -1,44 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272959AbTGaMhg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 08:37:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272968AbTGaMhg
+	id S272968AbTGaMjX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 08:39:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273006AbTGaMjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 08:37:36 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:53520 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S272959AbTGaMhf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 08:37:35 -0400
-Date: Thu, 31 Jul 2003 13:37:30 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Frank Cornelis <Frank.Cornelis@elis.ugent.be>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: regression serial console 2.6.0-test1 -> test2
-Message-ID: <20030731133730.A8214@flint.arm.linux.org.uk>
-Mail-Followup-To: Frank Cornelis <Frank.Cornelis@elis.ugent.be>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <1059650626.1012.5.camel@tom>
+	Thu, 31 Jul 2003 08:39:23 -0400
+Received: from main.gmane.org ([80.91.224.249]:53467 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S272968AbTGaMjV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 08:39:21 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: fun or real: proc interface for module handling?
+Date: Thu, 31 Jul 2003 14:34:01 +0200
+Message-ID: <yw1xptjqub7q.fsf@users.sourceforge.net>
+References: <20030731121248.GQ264@schottelius.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1059650626.1012.5.camel@tom>; from Frank.Cornelis@elis.ugent.be on Thu, Jul 31, 2003 at 01:23:46PM +0200
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@main.gmane.org
+Cc: Nico Schottelius <nico-kernel@schottelius.org>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:lpCP3CeLN2K5dZN9WHlwO0BfaRo=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 31, 2003 at 01:23:46PM +0200, Frank Cornelis wrote:
-> 'console=ttyS0,115200n8' worked fine for me until 2.6.0-test2 came
-> along. I still get the kernel boot/shutdown messages, but no more kernel
-> run-time messages. There were some changes to drivers/serial in
-> test1->test2 which may be related to it.
+Nico Schottelius <nico-kernel@schottelius.org> writes:
 
-Were there?  As the maintainer, I'm not aware of any changes to the
-serial drivers between -test1 and -test2, but then I've only just got
-back from OLS and I'm going to need about 36 hours to recover from
-the jet lag before even thinking about looking at any code.
+> I was just joking around here, but what do you think about this idea:
+>
+> A proc interface for module handling:
+>    /proc/mods/
+>    /proc/mods/<module-name>/<link-to-the-modules-use-us>
+>
+> So we could try to load a module with
+>    mkdir /proc/mods/ipv6
+> and remove it and every module which uses us with
+>    rm -r /proc/mods/ipv6
+
+So far, so good.
+
+> Modul options could be passed my
+>    echo "psmouse_noext=1" > /proc/mods/psmouse/options
+> which would also make it possible to change module options while running..
+
+How would options be passed when loading?  Some modules require that
+to load properly.  Also, there are lots of options that can't be
+changed after loading.  To enable this, I believe the whole option
+handling would need to be modified substantially.  Instead of just
+storing the values in static variables, there would have to be some
+means of telling the module that its options changed.  Then there's
+the task of hacking all modules to support this...
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Måns Rullgård
+mru@users.sf.net
 

@@ -1,76 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285230AbRLMWXO>; Thu, 13 Dec 2001 17:23:14 -0500
+	id <S285226AbRLMWYe>; Thu, 13 Dec 2001 17:24:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285233AbRLMWXE>; Thu, 13 Dec 2001 17:23:04 -0500
-Received: from colorfullife.com ([216.156.138.34]:16649 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S285230AbRLMWW5>;
-	Thu, 13 Dec 2001 17:22:57 -0500
-Message-ID: <3C192A37.4547D2A7@colorfullife.com>
-Date: Thu, 13 Dec 2001 23:22:47 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.5.1-pre10 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: ak@suse.de
-Subject: optimize DNAME_INLINE_LEN
-Content-Type: multipart/mixed;
- boundary="------------D62923DC8347475E35E3D70B"
+	id <S285227AbRLMWYY>; Thu, 13 Dec 2001 17:24:24 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:31944
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S285226AbRLMWYJ>; Thu, 13 Dec 2001 17:24:09 -0500
+Date: Thu, 13 Dec 2001 17:13:58 -0500
+Message-Id: <200112132213.fBDMDwc17766@snark.thyrsus.com>
+From: "Eric S. Raymond" <esr@snark.thyrsus.com>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Cc: rmk@arm.linux.org.uk, linux-arm-kernel@lists.arm.linux.org.uk,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: State of Configure.help
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------D62923DC8347475E35E3D70B
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+We're down to just 14 missing entries:
 
-The dcache entries are allocated with SLAB_HWCACHE_ALIGN. For better
-memory usage, we should increase DNAME_INLINE_LEN so that sizeof(struct
-dentry) becomes a multiple of the L1 cache line size.
+ARM port:
 
-On i386 the DNAME_INLINE_LEN becomes 36 bytes instead of 16, which saves
-thousands of kmallocs for external file names. (12818 on my debug
-system, after updatedb)
+CPU_ARM1020_CPU_IDLE: arch/arm/mm/proc-arm1020.S
+CPU_ARM1020_FORCE_WRITE_THROUGH: arch/arm/config.in arch/arm/mm/proc-arm1020.S
+CPU_ARM1020_ROUND_ROBIN: arch/arm/config.in arch/arm/mm/proc-arm1020.S
+CPU_ARM920_CPU_IDLE: arch/arm/config.in arch/arm/mm/proc-arm920.S
+CPU_ARM926_CPU_IDLE: arch/arm/config.in arch/arm/mm/proc-arm926.S
+CPU_ARM926_ROUND_ROBIN: arch/arm/config.in arch/arm/mm/proc-arm926.S
+CPU_FREQ: drivers/video/sa1100fb.c drivers/video/sa1100fb.h drivers/pcmcia/sa1100_generic.c arch/arm/config.in arch/arm/mach-sa1100/Makefile arch/arm/mach-sa1100/generic.c arch/arm/mach-integrator/cpu.c
+MTD_ARM_INTEGRATOR: drivers/mtd/maps/Config.in drivers/mtd/maps/Makefile
 
-The attached patch is preliminary, it doesn't compile with egcs-1.1.2.
-Which gcc version added support for unnamed structures?
+S390 port:
 
---
-	Manfred
---------------D62923DC8347475E35E3D70B
-Content-Type: text/plain; charset=us-ascii;
- name="patch-dcache"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-dcache"
+DASD_AUTO_DIAG: drivers/s390/Config.in drivers/s390/block/dasd.c
+DASD_AUTO_ECKD: drivers/s390/Config.in drivers/s390/block/dasd.c
+DASD_AUTO_FBA: drivers/s390/Config.in drivers/s390/block/dasd.c
+HWC_CPI: drivers/s390/Config.in drivers/s390/char/Makefile
+PFAULT: arch/s390/config.in arch/s390/kernel/smp.c arch/s390/kernel/traps.c arch/s390/mm/fault.c arch/s390x/config.in arch/s390x/kernel/smp.c arch/s390x/kernel/traps.c arch/s390x/mm/fault.c
+SHARED_KERNEL: arch/s390/Makefile arch/s390/config.in arch/s390/kernel/head.S arch/s390x/Makefile arch/s390x/config.in arch/s390x/kernel/head.S
 
---- 2.5/include/linux/dcache.h	Thu Oct 11 15:20:18 2001
-+++ build-2.5/include/linux/dcache.h	Thu Dec 13 22:55:50 2001
-@@ -61,9 +61,7 @@
- 	return end_name_hash(hash);
- }
- 
--#define DNAME_INLINE_LEN 16
--
--struct dentry {
-+struct dentry_nameless {
- 	atomic_t d_count;
- 	unsigned int d_flags;
- 	struct inode  * d_inode;	/* Where the name belongs to - NULL is negative */
-@@ -80,6 +78,12 @@
- 	struct super_block * d_sb;	/* The root of the dentry tree */
- 	unsigned long d_vfs_flags;
- 	void * d_fsdata;		/* fs-specific data */
-+};
-+#define DNAME_INLINE_LEN \
-+	(16 + L1_CACHE_BYTES - (16+sizeof(struct dentry_nameless))%L1_CACHE_BYTES)
-+
-+struct dentry {
-+	struct dentry_nameless;
- 	unsigned char d_iname[DNAME_INLINE_LEN]; /* small names */
- };
- 
+Martin, you said you had asked some person named "Carsten" to write
+the S390 entries.  Would you give me his email address, please?
 
---------------D62923DC8347475E35E3D70B--
+ARM guys, I got nine entries from one of your people recently, but as
+you can see there is still a little work to be done.  Please help me
+wrap this up.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
+[The disarming of citizens] has a double effect, it palsies the hand
+and brutalizes the mind: a habitual disuse of physical forces totally
+destroys the moral [force]; and men lose at once the power of
+protecting themselves, and of discerning the cause of their
+oppression.
+        -- Joel Barlow, "Advice to the Privileged Orders", 1792-93

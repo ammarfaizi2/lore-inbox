@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272528AbRISSXm>; Wed, 19 Sep 2001 14:23:42 -0400
+	id <S274130AbRISSZc>; Wed, 19 Sep 2001 14:25:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274130AbRISSXf>; Wed, 19 Sep 2001 14:23:35 -0400
-Received: from as4-1-7.has.s.bonet.se ([217.215.31.238]:15539 "EHLO
-	k-7.stesmi.com") by vger.kernel.org with ESMTP id <S272528AbRISSXY>;
-	Wed, 19 Sep 2001 14:23:24 -0400
-Message-ID: <3BA8E252.3060802@stesmi.com>
-Date: Wed, 19 Sep 2001 20:22:10 +0200
-From: Stefan Smietanowski <stesmi@stesmi.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20010913
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: safemode <safemode@speakeasy.net>
-CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Athlon bug stomper. Pls apply.
-In-Reply-To: <20010919154701.A7381@stud.ntnu.no> <20010919165503.A16359@gondor.com> <9oafeu$1o0$1@penguin.transmeta.com> <20010919171454Z274108-760+14176@vger.kernel.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S272341AbRISSZW>; Wed, 19 Sep 2001 14:25:22 -0400
+Received: from [195.223.140.107] ([195.223.140.107]:63214 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S274130AbRISSZS>;
+	Wed, 19 Sep 2001 14:25:18 -0400
+Date: Wed, 19 Sep 2001 20:25:39 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.10-pre11
+Message-ID: <20010919202539.E720@athlon.random>
+In-Reply-To: <Pine.LNX.4.33.0109181122550.9711-100000@penguin.transmeta.com> <Pine.GSO.4.21.0109191205580.28824-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0109191205580.28824-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Wed, Sep 19, 2001 at 12:11:56PM -0400
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Wed, Sep 19, 2001 at 12:11:56PM -0400, Alexander Viro wrote:
+> the rest.  Andrea, could you send it to me?  In particular, I'm deeply
+> suspicious about changes in blkdev_put() in case of BDEV_FILE.
 
+of course, for the record you can also find it in the ftp area all
+splitted out, but I've no problem to send it via email too.
 
+Quite frankly the BDEV_* handling was and is a total mess IMHO, even if
+it was written by you ;), there was no difference at all from many of
+them, I didn't fixed that but I had to check all them on the differences
+until I realized there was none. I also think the other things you
+mentioned (besides the inode pinning bug, non critical) are not buggy
+(infact I never had a single report), but well we'll verify that in
+detail ASAP.
 
->>Which means that the "statistical sampling" is very skewed by
->>self-selection, and anybody who knows anything about statistics knows
->>that sample selection is _very_ important.
->>
-> the only way it'll get a good sampling is to put it in the kernel 
-> I suggest not adding this to the "athlon" cpu selection code.  Rather make it 
-> a sub-option like many other drivers have.  That way people can select 
-> whether they need it or not until we are sure it's totally safe for everyone 
-> to use it by Via saying so or something.   Just a suggestion, other drivers 
-> do the same thing, so why not the cpu selection screen for workarounds. 
-
-Why not simply add it to the next -pre cycle (if 2.4.10 is nearby), ie 
-2.4.11-pre1 has it, it goes through a few revisions of -pre and if it's 
-stable enough for mainstream, have it standard for 2.4.11, otherwise 
-just drop it, fix it, squash it, or do whatever with it :)
-
-And if 2.4.10 isn't that close, add it to -pre13 and do the same, having 
-it permanently in 2.4.10 (or not if it's nuclear).
-
-// Stefan
-
-
+Andrea

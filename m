@@ -1,43 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262608AbTCIUoU>; Sun, 9 Mar 2003 15:44:20 -0500
+	id <S262622AbTCIUyv>; Sun, 9 Mar 2003 15:54:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262609AbTCIUoU>; Sun, 9 Mar 2003 15:44:20 -0500
-Received: from flrtn-2-m1-133.vnnyca.adelphia.net ([24.55.67.133]:19073 "EHLO
-	jyro.mirai.cx") by vger.kernel.org with ESMTP id <S262608AbTCIUoU>;
-	Sun, 9 Mar 2003 15:44:20 -0500
-Message-ID: <3E6BAA21.3010001@tmsusa.com>
-Date: Sun, 09 Mar 2003 12:54:57 -0800
-From: J Sloan <joe@tmsusa.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
+	id <S262623AbTCIUyv>; Sun, 9 Mar 2003 15:54:51 -0500
+Received: from smtp-out-2.wanadoo.fr ([193.252.19.254]:28312 "EHLO
+	mel-rto2.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S262622AbTCIUyu>; Sun, 9 Mar 2003 15:54:50 -0500
+From: Duncan Sands <baldrick@wanadoo.fr>
+To: Jason Straight <jason@JeetKuneDoMaster.net>
+Subject: Re: 2.5.64bk3 no screen after Ok booting kernel
+Date: Sun, 9 Mar 2003 22:02:52 +0100
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <200303090144.11339.jason@JeetKuneDoMaster.net> <20030308225522.4e7301ea.akpm@digeo.com> <200303090916.44475.jason@JeetKuneDoMaster.net>
+In-Reply-To: <200303090916.44475.jason@JeetKuneDoMaster.net>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.5.64-mm4 looking good (Re: Oops in 2.5.64bk3)
-References: <3E6B835E.2010906@tmsusa.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200303092202.52540.baldrick@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been running 2.5.64-mm4 for a couple of
-hours now, and having logged in/out of X, it
-seems to be holding up so far, no oopses yet -
+> I put it in the config but it gets removed by checkconfig.pl when I make,
+> so I'm guessing there's more missing than just the line in the config. :-/
 
-I have to say, doing the "dbench + lament +
-dragging an xterm around the screen" test in
-2.5.64-mm4 is absolutely a dream on this
-little celeron box  - in fact it absolutely blows
-away my more powerful P4-1800 running
-2.4.20-ck4, which has the benefit of all the
-2.4 low latency goodies.
+Don't compile the input layer as a module.
 
-Keep up the good work guys -
-
-Best Regards,
-
-Joe
-
-
+Duncan.
 

@@ -1,68 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261741AbVCOShW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261758AbVCOSjy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261741AbVCOShW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 13:37:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261697AbVCOShV
+	id S261758AbVCOSjy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 13:39:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbVCOShx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 13:37:21 -0500
-Received: from wproxy.gmail.com ([64.233.184.206]:46583 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261741AbVCOS14 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 13:27:56 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=TtkiF+EgZOpQAo45RokuHif6yyXeZ4HWKbA8f74JFUE0VoY3mM7Jr5hBV2ei6yMRItKG/1S1KL9eE1VeqA1wJ0o/shayQDAfNTakDHvhItTPA5LJrrWqD7eLl6kmy1rnBQZBg87afy6Zp1NfTuLsnoGNPboIieYsOKr/MNFei5s=
-Message-ID: <26092d8c0503151027ec75b63@mail.gmail.com>
-Date: Tue, 15 Mar 2005 13:27:47 -0500
-From: Artem Frolov <artemfrolov@gmail.com>
-Reply-To: Artem Frolov <artemfrolov@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Taking strlen of buffers copied from userspace
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 15 Mar 2005 13:37:53 -0500
+Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:52241 "EHLO
+	anchor-post-33.mail.demon.net") by vger.kernel.org with ESMTP
+	id S261735AbVCOSbq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 13:31:46 -0500
+Message-ID: <42371879.6000907@lougher.demon.co.uk>
+Date: Tue, 15 Mar 2005 17:16:41 +0000
+From: Phillip Lougher <phillip@lougher.demon.co.uk>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20041012)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: greg@kroah.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2/2] SquashFS
+References: <20050314170653.1ed105eb.akpm@osdl.org>	<A572579D-94EF-11D9-8833-000A956F5A02@lougher.demon.co.uk> <20050314190140.5496221b.akpm@osdl.org>
+In-Reply-To: <20050314190140.5496221b.akpm@osdl.org>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Andrew Morton wrote:
+> Phillip Lougher <phillip@lougher.demon.co.uk> wrote:
+> 
+>>[ on-disk bitfields ]
+>>
+>>I've checked compatibilty against Intel 32 and 64 bit architectures, 
+>> PPC 32/64 bit, ARM, MIPS
+>> and SPARC.  I've used compilers from 2.91.x upto 3.4...
+> 
+> 
+> hm, OK.  I remain a bit skeptical but it sounds like you're the expert.  I
+> guess if things later explode it will be pretty obvious, and the filesystem
+> will need rework.
+> 
+> One thing which I assume we don't know at this stage is whether all 27
+> architectures work as expected - you can bet ia64 does it differently ;)
+> 
+> How does one test that?  Create a filesystem-in-a-file via mksquashfs, then
+> transfer that to a different box, then try and mount and use it, I assume?
+> 
 
-I am in the process of testing static defect analyzer on a Linux
-kernel source code (see disclosure below).
+Yes, slow and laborious, but it works...
 
-I found some potential array bounds violations. The pattern is as
-follows: bytes are copied from the user space and then buffer is
-accessed on index strlen(buf)-1. This is a defect if user data start
-from 0. So the question is: can we make any assumptions what data may
-be received from the user or it could be arbitrary?
+> When you upissue these patches, please include in the changelog pointers to
+> the relevant userspace support tools - mksquashfs, fsck.squashfs, etc.  I
+> guess http://squashfs.sourceforge.net/ will suit.
+> 
 
-For example, in ./drivers/block/cciss.c, function cciss_proc_write
-(line numbers are taken form 2.6.11.3):
-   ....
-   293          if (count > sizeof(cmd)-1) return -EINVAL;
-   294          if (copy_from_user(cmd, buffer, count)) return -EFAULT;
-   295          cmd[count] = '\0';
-   296          len = strlen(cmd);      // above 3 lines ensure safety
-   297          if (cmd[len-1] == '\n')
-   298                  cmd[--len] = '\0';
-   .....
+OK.
 
-Another example is arch/i386/kernel/cpu/mtrr/if.c, function mtrr_write:
-   ....
-   107          if (copy_from_user(line, buf, len - 1))
-   108                  return -EFAULT;
-   109          ptr = line + strlen(line) - 1;
-   110          if (*ptr == '\n')
-   111                  *ptr = '\0';
-    ....
+> Also, this filesystem seems to do the same thing as cramfs.  We'd need to
+> understand in some detail what advantages squashfs has over cramfs to
+> justify merging it.  Again, that is something which is appropriate to the
+> changelog for patch 1/1.
+> 
 
+OK.  Squashfs has much better compression and is much faster than 
+cramfs, which is why many embedded systems that used cramfs have moved 
+over to squashfs.  Additionally squashfs is used in liveCDs (where 
+cramfs can't be used because of its max 256MB size limit), where it is 
+slowly taking over from cloop, again because it compresses better and is 
+faster.
 
-Full disclosure: I am working for Klocwork (http://www.klocwork.com/),
-which is a vendor of commercial closed-source proprietary products,
-static analyzer for C/C++ is part of its products
+Both these two groups have been asking for squashfs to be in the 
+mainline kernel.
 
-Best regards
---
-Artem Frolov
-Senior software engineer
-Klocwork inc
+I can put the above rationale and a pointer to some performance 
+statistics in the changelog, will that be sufficient?
+
+Phillip

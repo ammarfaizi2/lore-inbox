@@ -1,116 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267890AbUHXOja@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267893AbUHXOnC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267890AbUHXOja (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 10:39:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267891AbUHXOja
+	id S267893AbUHXOnC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 10:43:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267891AbUHXOnC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 10:39:30 -0400
-Received: from mailsc1.simcon-mt.com ([195.27.129.236]:18207 "EHLO
-	mailsc1.simcon-mt.com") by vger.kernel.org with ESMTP
-	id S267890AbUHXOjK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 10:39:10 -0400
-Date: Tue, 24 Aug 2004 16:42:41 +0200
-From: Andrei Voropaev <avorop@mail.ru>
+	Tue, 24 Aug 2004 10:43:02 -0400
+Received: from p5089F06A.dip.t-dialin.net ([80.137.240.106]:772 "EHLO
+	timbaland.dnsalias.org") by vger.kernel.org with ESMTP
+	id S267899AbUHXOmo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 10:42:44 -0400
+X-Mailbox-Line: From bbpetkov@yahoo.de Tue Aug 24 14:09:23 2004
+Subject: 2.6.9-rc1: fs/smbfs/inode.c: warning: comparison is always false due to limited range of data type
+From: Borislav Petkov <bbpetkov@yahoo.de>
 To: linux-kernel@vger.kernel.org
-Subject: with 2.6.7 setitimer called in sequence returns strange values on i686
-Message-ID: <20040824144241.GE1527@avorop.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 24 Aug 2004 16:42:34 +0200
+X-Evolution-Transport: smtp://bbpetkov;auth=PLAIN@smtp.mail.yahoo.de
+X-Evolution-Account: yahoo
+X-Evolution-Fcc: file:///home/boris/evolution/local/Sent
+X-Evolution-Format: text/plain
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Message-Id: <200408241642.42399.bbpetkov@yahoo.de>
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Sorry if I'm taking your time away but to me it looks like I have kernel
-problem, so I hoped to find some help in this list. I'm not subscribed
-so please CC me on replies.
+Hi there,
+just gave 2.6.9-rc1 a try. gcc warning:
+fs/smbfs/inode.c: In function `smb_fill_super':
+fs/smbfs/inode.c:563: warning: comparison is always false due to limited
+range of data type
+fs/smbfs/inode.c:564: warning: comparison is always false due to limited
+range of data type
 
-I'm using setitimer(ITIMER_REAL...) to measure time intervals.
-Everything was working fine untill I've installed 2.6.7 kernel. 
+Paul Jackson has already submitted a patch (on the 8 of August) about
+this warning but i guess it was forgotten. Just informing about it.
 
-bash$ uname -a
-Linux avorop 2.6.7 #5 Thu Aug 19 11:53:33 CEST 2004 i686 unknown
+Boris.
 
-Here's little piece of code that reproduces problem on my machine.
 
-===========================================
-#include <pthread.h>
-#include <stdio.h>
-#include <sys/time.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <error.h>
-#include <time.h>
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
 
-void
-set_timer(int arg)
-{
-    struct itimerval n, o;
-    struct timespec per;
-
-    n.it_interval.tv_sec = 0;
-    n.it_interval.tv_usec = 0;
-    n.it_value.tv_sec = arg;
-    n.it_value.tv_usec = 0;
-    // init timer
-    if(setitimer(ITIMER_REAL, &n, &o) != 0) 
-       error(EXIT_FAILURE, errno, "Can't set timer");
-    printf("Previous value of %d timer is %ld.%ld\n", arg, 
-            o.it_value.tv_sec, o.it_value.tv_usec);
-    per.tv_sec = arg / 2;
-    per.tv_nsec = 0;
-    // sleep for half a timer time
-    nanosleep(&per, NULL);
-    n.it_value.tv_sec = arg;
-    n.it_value.tv_usec = 0;
-    // check how much time is left and restart it at the same time
-    if(setitimer(ITIMER_REAL, &n, &o) != 0) 
-       error(EXIT_FAILURE, errno, "Can't set timer");
-    printf("Previous value of %d timer is %ld.%ld\n", arg, 
-             o.it_value.tv_sec, o.it_value.tv_usec);
-    n.it_value.tv_sec = 0;
-    n.it_value.tv_usec = 0;
-    // check how much time is left. 
-    if(setitimer(ITIMER_REAL, &n, &o) != 0) 
-        error(EXIT_FAILURE, errno, "Can't set timer");
-    printf("Previous value of %d timer is %ld.%ld\n", arg, 
-        o.it_value.tv_sec, o.it_value.tv_usec);
-}
-
-int
-main(void)
-{
-    pthread_t thr1, thr2;
-
-    pthread_create(&thr1, NULL, (void*)set_timer, (void*)10);
-//    pthread_create(&thr2, NULL, (void*)set_timer, (void*)12);
-
-    pthread_join(thr1, NULL);
-    pthread_join(thr2, NULL);
-    return 0;
-}
-======================================================
-On my machine this program produces
-
-Previous value of 10 timer is 0.0
-Previous value of 10 timer is 4.999240
-Previous value of 10 timer is 10.479
-
-Note the last line. I've reset timer to 10 seconds and setitimer tells
-me that there are 10.479 seconds left.
-
-As I said this code works fine with 2.4.21 kernel. It produces 
-Previous value of 10 timer is 0.0
-Previous value of 10 timer is 4.980000
-Previous value of 10 timer is 10.0
-
-I have one more machine with 2.6.7 kernel. But that machine is Athlon64
-and runs 64-bit kernel. There the program also runs correctly.
-
-Any hints on where to look for the problem?
-
-TIA.
-
-Andrei
+iD8DBQFBK1PfQ6NBq1iMuxERAtLZAJ9W9OhIxrQABBkHtyawtR3GC3NyogCfZA6s
+zWAs7mgIO82EBHODDOQD2q0=
+=DA2m
+-----END PGP SIGNATURE-----

@@ -1,93 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264336AbTFFBzz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 21:55:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264339AbTFFBzz
+	id S264495AbTFFB7B (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 21:59:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264510AbTFFB7B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 21:55:55 -0400
-Received: from smtp-out.comcast.net ([24.153.64.109]:42141 "EHLO
-	smtp-out.comcast.net") by vger.kernel.org with ESMTP
-	id S264336AbTFFBzx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 21:55:53 -0400
-Date: Thu, 05 Jun 2003 22:03:49 -0400
-From: Albert Cahalan <albert@users.sf.net>
-Subject: Re: reading links in proc - permission denied
-To: linux-kernel <linux-kernel@vger.kernel.org>, lkml@tlinx.org
-Message-id: <1054865029.22103.6995.camel@cube>
-Organization: 
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.4
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
+	Thu, 5 Jun 2003 21:59:01 -0400
+Received: from rwcrmhc51.attbi.com ([204.127.198.38]:196 "EHLO
+	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP id S264495AbTFFB7A
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jun 2003 21:59:00 -0400
+Message-ID: <3EDFFC01.2060002@attbi.com>
+Date: Thu, 05 Jun 2003 22:27:13 -0400
+From: "George G. Davis" <davis_g@attbi.com>
+Reply-To: davis_g@attbi.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021128
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: joe briggs <jbriggs@briggsmedia.com>
+CC: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: HELP!! REDHAT QUESTION
+References: <200306051406.h55E6Yp25484@devserv.devel.redhat.com> <200306052258.32331.jbriggs@briggsmedia.com>
+In-Reply-To: <200306052258.32331.jbriggs@briggsmedia.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm misunderstanding something about links in proc.
->
-> I thought 'ps', 'top' et al used /proc to display
-> processes, command lines, etc.
->
-> Since neither ps nor top are suid root, they are
-> running with my uid permissions.
->
-> However, if I do "ls -l" on /proc/<number>/exe, I get a
->
-> "ls: cannot read symbolic link /proc/16714/exe: Permission denied"
->
-> message.
+joe briggs wrote:
+> Please help.  I have a redhat 7.3 computer accross the country that was 
+> installed using the WORKSTATION option.  I desperately need to telnet into 
+> it, but with the new xinetd.d stuff, don't know how.  Can ANYBODY tell me how 
+> to get the telnet deamon running on this box so that I can remotely log in?
+> 
 
-All true, but you're assuming /proc/*/exe is used.
-Nope. There is a parser for /proc/*/status and
-/proc/*/stat, plus /proc/*/cmdline for args.
+Hi Joe,
 
-Please don't try this yourself. I can spot bugs
-in almost any parser for these files. Consider
-processes with names like these:
+There's probably an admin tool for this, but:
 
-"\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
-":-) 1 2 3 4 5 6"
-"foo Pid: 42"
-"x State: Z (z)"
+	sed /disable/s/no/yes/ /etc/xinetd.d/telnet
 
-> Now the process is owned by 'named', but the entries in
-> diriectory are owned by root (is that right/logical?), thus:
 
-It makes sense in general. An app running on behalf
-of a user (with a non-root UID) may still contain
-secret data gained via the prior UID.
+However, if it's "accross the country", you probably should be running sshd
+instead. : )
 
-It would be nice if the app could declare itself
-free of this problem.
+HTH!
 
-The restricted permission on /proc/*/exe is kind of
-dumb though, considering that /proc/*/maps is wide open.
-Ability to follow the link might need to be restricted,
-since the link is (was?) magic. It acts somewhat like
-a hard link, bypassing permissions along the path.
+--
+Regards,
+George
 
-> Purely from a 'cleanliness' standpoint, is the
-> environment owned by the user-id, or is it a common
-> piece of public, kernel (root) owned data?
 
-It's swappable. The process can muck with it.
-
-> So why can't I follow the link of 'exe' to see what image the
-> process is executing?  Programs like 'ps' and 'top' seem to not
-> have this difficulty.
-
-I wish.
-
-> Thanks for any insights...I'm trying to write a simple script
-> looking for a running process (by looking at what 'exe' is   
-> pointing to).  I would find it kludgey to achieve the objective
-> by running 'ps' and doing appropriate filtering. 
-
-There's nothing wrong with parsing ps output. Be sure to split
-on whitespace, and not by character position. You can also use
-pgrep or pidof. For example:
-
-ps -C foo -opid=
-pgrep -u root sshd
-pidof something
+> 
 
 

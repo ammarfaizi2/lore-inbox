@@ -1,64 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262567AbVCXM0p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263112AbVCXMaP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262567AbVCXM0p (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 07:26:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262804AbVCXM0p
+	id S263112AbVCXMaP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 07:30:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262806AbVCXMaP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 07:26:45 -0500
-Received: from mx2.suse.de ([195.135.220.15]:54684 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S262567AbVCXM0n (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 07:26:43 -0500
-Date: Thu, 24 Mar 2005 13:26:37 +0100
-From: Andi Kleen <ak@suse.de>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, akpm@osdl.org, davem@davemloft.net,
-       tony.luck@intel.com, benh@kernel.crashing.org, ak@suse.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/6] freepgt: free_pgtables use vma list
-Message-ID: <20050324122637.GK895@wotan.suse.de>
-References: <Pine.LNX.4.61.0503231705560.15274@goblin.wat.veritas.com> <Pine.LNX.4.61.0503231710310.15274@goblin.wat.veritas.com>
+	Thu, 24 Mar 2005 07:30:15 -0500
+Received: from pacific.moreton.com.au ([203.143.235.130]:8846 "EHLO
+	moreton.com.au") by vger.kernel.org with ESMTP id S263112AbVCXM37
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 07:29:59 -0500
+Date: Thu, 24 Mar 2005 22:28:40 +1000
+From: David McCullough <davidm@snapgear.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: jmorris@redhat.com, cryptoapi@lists.logix.cz, herbert@gondor.apana.org.au,
+       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org
+Subject: [PATCH 2.6.12-rc1] API for true Random Number Generators to add entropy
+Message-ID: <20050324122840.GA7115@beast>
+References: <20050315133644.GA25903@beast> <20050324042708.GA2806@beast> <20050323203856.17d650ec.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0503231710310.15274@goblin.wat.veritas.com>
+In-Reply-To: <20050323203856.17d650ec.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 23, 2005 at 05:11:34PM +0000, Hugh Dickins wrote:
-> Recent woes with some arches needing their own pgd_addr_end macro; and
-> 4-level clear_page_range regression since 2.6.10's clear_page_tables;
-> and its long-standing well-known inefficiency in searching throughout
-> the higher-level page tables for those few entries to clear and free:
-> all can be blamed on ignoring the list of vmas when we free page tables.
-> 
-> Replace exit_mmap's clear_page_range of the total user address space by
-> free_pgtables operating on the mm's vma list; unmap_region use it in the
-> same way, giving floor and ceiling beyond which it may not free tables.
-> This brings lmbench fork/exec/sh numbers back to 2.6.10 (unless preempt
-> is enabled, in which case latency fixes spoil unmap_vmas throughput).
-> 
-> Beware: the do_mmap_pgoff driver failure case must now use unmap_region
-> instead of zap_page_range, since a page table might have been allocated,
-> and can only be freed while it is touched by some vma.
-> 
-> Move free_pgtables from mmap.c to memory.c, where its lower levels are
-> adapted from the clear_page_range levels.  (Most of free_pgtables' old
-> code was actually for a non-existent case, prev not properly set up,
-> dating from before hch gave us split_vma.)  Pass mmu_gather** in the
-> public interfaces, since we might want to add latency lockdrops later;
-> but no attempt to do so yet, going by vma should itself reduce latency.
-> 
-> But what if is_hugepage_only_range?  Those ia64 and ppc64 cases need
-> careful examination: put that off until a later patch of the series.
 
-Sorry for late answer. Nice approach.... It will not work as well
-on large sparse mappings as the bit vectors, but that may be tolerable.
+Hi all,
 
-> 
-> What of x86_64's 32bit vdso page __map_syscall32 maps outside any vma?
+Here is a revised patch for 2.6.12-rc1 that adds a routine:
 
-Everything. It could be easily changed though, but I was too lazy for 
-it so far. Do you think it is needed for your patch?
+    add_true_randomness(__u32 *buf, int nwords);
 
--Andi
+so that true random number generator device drivers can add a entropy
+to the system.
+
+Cheers,
+Davidm
+
+Signed-off-by: David McCullough <davidm@snapgear.com>
+
+--- linux-2.6.12-rc1.orig/drivers/char/random.c	2005-03-18 11:33:49.000000000 +1000
++++ linux-2.6.12-rc1/drivers/char/random.c	2005-03-24 16:16:40.000000000 +1000
+@@ -1148,6 +1148,36 @@
+ EXPORT_SYMBOL(generate_random_uuid);
+ 
+ /********************************************************************
++ * provide a mechanism for HW to add entropy that is of
++ * very good quality from a true random number generator
++ ***************************************************************/
++
++void add_true_randomness(__u32 *buf, int nwords)
++{
++	struct entropy_store *r;
++	int wakeup_check = 0;
++
++	/*
++	 * if we have too much entropy, put some in the secondary pool
++	 */
++	r = &blocking_pool;
++	if (r->entropy_count >= r->poolinfo->POOLBITS)
++		r = &nonblocking_pool;
++	else
++		wakeup_check = (r->entropy_count < random_read_wakeup_thresh);
++
++	add_entropy_words(r, buf, nwords);
++	credit_entropy_store(r, nwords * 32);
++
++	/*
++	 * wakeup if we added enough entropy to cross the threshold
++	 */
++	if (wakeup_check && r->entropy_count >= random_read_wakeup_thresh)
++		wake_up_interruptible(&random_read_wait);
++}
++EXPORT_SYMBOL(add_true_randomness);
++
++/********************************************************************
+  *
+  * Sysctl interface
+  *
+--- linux-2.6.12-rc1.orig/include/linux/random.h	2005-03-18 11:34:37.000000000 +1000
++++ linux-2.6.12-rc1/include/linux/random.h	2005-03-24 15:59:42.000000000 +1000
+@@ -48,6 +48,8 @@
+ 				 unsigned int value);
+ extern void add_interrupt_randomness(int irq);
+ 
++extern void add_true_randomness(__u32 *buf, int nwords);
++
+ extern void get_random_bytes(void *buf, int nbytes);
+ void generate_random_uuid(unsigned char uuid_out[16]);
+ 
+
+-- 
+David McCullough, davidm@snapgear.com  Ph:+61 7 34352815 http://www.SnapGear.com
+Custom Embedded Solutions + Security   Fx:+61 7 38913630 http://www.uCdot.org

@@ -1,113 +1,165 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270342AbTGRTuU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 15:50:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270346AbTGRTuU
+	id S270335AbTGRTo2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 15:44:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270319AbTGRTo1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 15:50:20 -0400
-Received: from mailrelay2.lanl.gov ([128.165.4.103]:48806 "EHLO
-	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP id S270342AbTGRTuI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 15:50:08 -0400
-Subject: [PATCH] 2.4.22-pre6-ac1 add five USB help texts to Configure.help
-From: Steven Cole <elenstev@mesatop.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1058557971.17070.23.camel@spc9.esa.lanl.gov>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
-Date: 18 Jul 2003 13:52:51 -0600
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Jul 2003 15:44:27 -0400
+Received: from mailg.telia.com ([194.22.194.26]:24783 "EHLO mailg.telia.com")
+	by vger.kernel.org with ESMTP id S270345AbTGRToC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 15:44:02 -0400
+X-Original-Recipient: linux-kernel@vger.kernel.org
+To: Andrew Morton <akpm@osdl.org>
+Cc: pavel@ucw.cz, linux-kernel@vger.kernel.org
+Subject: Re: Software suspend testing in 2.6.0-test1
+References: <m2wueh2axz.fsf@telia.com> <20030717200039.GA227@elf.ucw.cz>
+	<20030717130906.0717b30d.akpm@osdl.org> <m2d6g8cg06.fsf@telia.com>
+	<20030718032433.4b6b9281.akpm@osdl.org>
+	<20030718152205.GA407@elf.ucw.cz> <m2el0nvnhm.fsf@telia.com>
+	<20030718094542.07b2685a.akpm@osdl.org>
+From: Peter Osterlund <petero2@telia.com>
+Date: 18 Jul 2003 21:58:43 +0200
+In-Reply-To: <20030718094542.07b2685a.akpm@osdl.org>
+Message-ID: <m2oezrppxo.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds help texts for the following:
+Andrew Morton <akpm@osdl.org> writes:
 
-CONFIG_USB_BRLVGER
-CONFIG_USB_KBTAB
-CONFIG_USB_SERIAL_EDGEPORT_TI
-CONFIG_USB_SERIAL_KEYSPAN_MPR
-CONFIG_USB_SPEEDTOUCH
+> Peter Osterlund <petero2@telia.com> wrote:
+> >
+> > I tried the patch below, but it didn't work. Nothing (or very little)
+> > was swapped out to disk. I also tried using GFP_KERNEL, but that
+> > seemed to cause a deadlock. (Maybe it would have gone OOM if I had
+> > waited long enough). I think the problem is that pdflush and friends
+> > are already frozen when this code runs.
+> 
+> Oh, we shouldn't be doing this sort of thing when the kernel threads are
+> refrigerated.  We do need kswapd services for the trick you tried.
+> 
+> And all flavours of ext3_writepage() can block on kjournald activity, so if
+> kjournald is refrigerated during the memory shrink the machine can deadlock.
+> 
+> It would be much better to freeze kernel threads _after_ doing the big
+> memory shrink.
 
-The patch was made for 2.4.22-pre6-ac1, but can be applied to Marcelo's
-tree if the first hunk for CONFIG_USB_SPEEDTOUCH is removed.  Help for
-that option is already in Marcelo's Configure.help.  This patch places
-that help text in the same position (following USB_DSBR) as in Marcelo's
-tree.
+The patch below works, but doesn't really solve anything, because it
+is just as slow as the original code. This is not surprising because
+it is still balance_pgdat() that does the page freeing, the only
+difference being that it is now called from kswapd which is woken up
+by the alloc_page() call.
 
-The help texts were obtained from the 2.6 Kconfig usb file.
+Note that I had to use HZ/5 in free_some_memory() or else the loop
+would terminate too early. The main problem seems to be that
+balance_pgdat() is too slow when freeing memory. The function can fail
+to free memory in the inner loop either because the disk is congested
+or because too few pages are scanned, but in both cases the function
+calls blk_congestion_wait(), and in the second case the disk may be
+idle and then blk_congestion_wait() doesn't return until the timeout
+expires.
 
-Steven
-
---- linux-2.4.22-pre6-ac1/Documentation/Configure.help.ac1	Fri Jul 18 12:52:04 2003
-+++ linux-2.4.22-pre6-ac1/Documentation/Configure.help	Fri Jul 18 13:24:27 2003
-@@ -15286,6 +15286,17 @@
-   The module will be called dsbr100.o. If you want to compile it as a
-   module, say M here and read <file:Documentation/modules.txt>.
+diff -u -r -N linux-p0/fs/jbd/journal.c linux-p1/fs/jbd/journal.c
+--- linux-p0/fs/jbd/journal.c	Fri Jul 18 21:07:12 2003
++++ linux-p1/fs/jbd/journal.c	Fri Jul 18 21:13:15 2003
+@@ -132,6 +132,8 @@
  
-+Alcatel Speedtouch USB support
-+CONFIG_USB_SPEEDTOUCH
-+  Say Y here if you have an Alcatel SpeedTouch USB or SpeedTouch 330
-+  modem.  In order to use your modem you will need to install some user
-+  space tools, see <http://www.linux-usb.org/SpeedTouch/> for details.
-+
-+  This code is also available as a module ( = code which can be
-+  inserted in and removed from the running kernel whenever you want).
-+  The module will be called speedtch.o. If you want to compile it as
-+  a module, say M here and read <file:Documentation/modules.txt>.
-+
- Always do synchronous disk IO for UBD
- CONFIG_BLK_DEV_UBD_SYNC
-   The User-Mode Linux port includes a driver called UBD which will let
-@@ -25421,6 +25432,44 @@
-   brave people.  System crashes and other bad things are likely to occur if
-   you use this driver.  If in doubt, select N.
+ 	daemonize("kjournald");
  
-+Tieman Voyager USB Braille display support (EXPERIMENTAL)
-+CONFIG_USB_BRLVGER
-+  Say Y here if you want to use the Voyager USB Braille display from
-+  Tieman. See <file:Documentation/usb/brlvger.txt> for more
-+  information.
++	current->flags |= PF_IOTHREAD;
 +
-+  This code is also available as a module ( = code which can be
-+  inserted in and removed from the running kernel whenever you want).
-+  The module will be called brlvger.o. If you want to compile it as
-+  a module, say M here and read <file:Documentation/modules.txt>.
+ 	/* Set up an interval timer which can be used to trigger a
+            commit wakeup after the commit interval expires */
+ 	init_timer(&timer);
+diff -u -r -N linux-p0/kernel/suspend.c linux-p1/kernel/suspend.c
+--- linux-p0/kernel/suspend.c	Fri Jul 18 21:08:45 2003
++++ linux-p1/kernel/suspend.c	Fri Jul 18 21:13:18 2003
+@@ -621,10 +621,32 @@
+  */
+ static void free_some_memory(void)
+ {
+-	printk("Freeing memory: ");
+-	while (shrink_all_memory(10000))
+-		printk(".");
++	LIST_HEAD(list);
++	struct page *page, *tmp;
++	int sleep_count = 0;
++	int i = 0;
 +
-+KB Gear JamStudio tablet support
-+CONFIG_USB_KBTAB
-+  Say Y here if you want to use the USB version of the KB Gear
-+  JamStudio tablet.  Make sure to say Y to "Mouse support"
-+  (CONFIG_INPUT_MOUSEDEV) and/or "Event interface support"
-+  (CONFIG_INPUT_EVDEV) as well.
++	while (sleep_count < 10) {
++		page = alloc_page(GFP_ATOMIC);
++		if (page) {
++			list_add(&page->list, &list);
++			sleep_count = 0;
++		} else {
++			blk_congestion_wait(WRITE, HZ/5);
++			sleep_count++;
++		}
++		i++;
++		if (!(i%1000))
++			printk(".");
++	}
+ 	printk("|\n");
 +
-+  This driver is also available as a module ( = code which can be
-+  inserted in and removed from the running kernel whenever you want).
-+  The module will be called kbtab.o.  If you want to compile it as a
-+  module, say M here and read <file:Documentation/modules.txt>.
-+
-+USB Inside Out Edgeport Serial Driver (TI devices)
-+CONFIG_USB_SERIAL_EDGEPORT_TI
-+  Say Y here if you want to use any of the devices from Inside Out
-+  Networks (Digi) that are not supported by the io_edgeport driver.
-+  This includes the Edgeport/1 device.
-+
-+  This code is also available as a module ( = code which can be
-+  inserted in and removed from the running kernel whenever you want).
-+  The module will be called io_ti.o.  If you want to compile it
-+  as a module, say M here and read <file:Documentation/modules.txt>.
-+
-+USB Keyspan MPR Firmware
-+CONFIG_USB_SERIAL_KEYSPAN_MPR
-+  Say Y here to include firmware for the Keyspan MPR converter.
-+
- Winbond W83977AF IrDA Device Driver
- CONFIG_WINBOND_FIR
-   Say Y here if you want to build IrDA support for the Winbond
-
-
-
-
++	i = 0;
++	list_for_each_entry_safe(page, tmp, &list, list) {
++		__free_page(page);
++		i++;
++	}
++	printk("%d pages freed\n", i);
+ }
+ 
+ /* Make disk drivers accept operations, again */
+diff -u -r -N linux-p0/mm/pdflush.c linux-p1/mm/pdflush.c
+--- linux-p0/mm/pdflush.c	Fri Jul 18 21:08:47 2003
++++ linux-p1/mm/pdflush.c	Fri Jul 18 21:13:20 2003
+@@ -88,7 +88,7 @@
+ {
+ 	daemonize("pdflush");
+ 
+-	current->flags |= PF_FLUSHER;
++	current->flags |= PF_FLUSHER | PF_IOTHREAD;
+ 	my_work->fn = NULL;
+ 	my_work->who = current;
+ 	INIT_LIST_HEAD(&my_work->list);
+diff -u -r -N linux-p0/mm/vmscan.c linux-p1/mm/vmscan.c
+--- linux-p0/mm/vmscan.c	Fri Jul 18 21:08:47 2003
++++ linux-p1/mm/vmscan.c	Fri Jul 18 21:13:22 2003
+@@ -921,7 +921,7 @@
+ 			if (i < ZONE_HIGHMEM) {
+ 				reclaim_state->reclaimed_slab = 0;
+ 				shrink_slab(max_scan + nr_mapped, GFP_KERNEL);
+-				to_free += reclaim_state->reclaimed_slab;
++				to_free -= reclaim_state->reclaimed_slab;
+ 			}
+ 			if (zone->all_unreclaimable)
+ 				continue;
+@@ -976,10 +976,11 @@
+ 	 * us from recursively trying to free more memory as we're
+ 	 * trying to free the first piece of memory in the first place).
+ 	 */
+-	tsk->flags |= PF_MEMALLOC|PF_KSWAPD;
++	tsk->flags |= PF_MEMALLOC|PF_KSWAPD|PF_IOTHREAD;
+ 
+ 	for ( ; ; ) {
+ 		struct page_state ps;
++		int freed;
+ 
+ 		if (current->flags & PF_FREEZE)
+ 			refrigerator(PF_IOTHREAD);
+@@ -987,7 +988,8 @@
+ 		schedule();
+ 		finish_wait(&pgdat->kswapd_wait, &wait);
+ 		get_page_state(&ps);
+-		balance_pgdat(pgdat, 0, &ps);
++		freed = balance_pgdat(pgdat, 0, &ps);
++		printk("kswapd: freed %d pages\n", freed);
+ 	}
+ }
+ 
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

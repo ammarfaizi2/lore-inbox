@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315214AbSE2M7V>; Wed, 29 May 2002 08:59:21 -0400
+	id <S315235AbSE2NDP>; Wed, 29 May 2002 09:03:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315235AbSE2M7U>; Wed, 29 May 2002 08:59:20 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:50823 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S315214AbSE2M7T>;
-	Wed, 29 May 2002 08:59:19 -0400
-Date: Wed, 29 May 2002 14:58:57 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Neale Banks <neale@lowendale.com.au>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel@vger.kernel.org
+	id <S315239AbSE2NDO>; Wed, 29 May 2002 09:03:14 -0400
+Received: from gw.lowendale.com.au ([203.26.242.120]:61772 "EHLO
+	marina.lowendale.com.au") by vger.kernel.org with ESMTP
+	id <S315235AbSE2NDN>; Wed, 29 May 2002 09:03:13 -0400
+Date: Wed, 29 May 2002 23:47:56 +1000 (EST)
+From: Neale Banks <neale@lowendale.com.au>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: odd timer bug, similar to VIA 686a symptoms
-Message-ID: <20020529145857.A9813@ucw.cz>
-In-Reply-To: <20020529140515.A8522@ucw.cz> <Pine.LNX.4.05.10205292319090.3388-100000@marina.lowendale.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+In-Reply-To: <1022680131.4123.210.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.05.10205292342150.3388-100000@marina.lowendale.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 29, 2002 at 11:40:40PM +1000, Neale Banks wrote:
-> On Wed, 29 May 2002, Vojtech Pavlik wrote:
+On 29 May 2002, Alan Cox wrote:
+
+> On Wed, 2002-05-29 at 14:18, Neale Banks wrote:
+> > Does it help in that it's got a CMD640?  If not, what am I looking for?
 > 
-> [...]
-> > On Wed, May 29, 2002 at 01:46:27PM +0100, Alan Cox wrote:
-> [...]
-> > > Neptune chipsets at least had latching bugs on timer reads. What chipset
-> > > is the laptop ?
-> > 
-> > This is unlikely to be the latching bug - note the values are near to
-> > 65535 - that means the timer is reprogrammed to count from 0xffff down
-> > instead from LATCH. That is because of the suspend I presume. What's
-> > weird is that the VIA fix doesn't program it to the correct value, or
-> > perhaps is that missing from the patch?
-> 
-> Yes, my version of your patch includes an option to disable the via686a
-> fix (and this was in effect at the time - I'm still cringing in fear from
-> nasty FS corruption that ensued after a "probable hardware bug: restoring
-> chip configuration" message last October :-( - yes it may be unlikely
-> that it's related, but I don't yet have any other suspects.  FWIW, the
-> machine also locked up then).
+> Thats the IDE controller. Look at lspci and the bridges and see what
+> they are. Those are generally the core chipset of the PC
 
-It shouldn't be able to do anything like that ...
+Straight from the metaphorical horses's virtual mouth:
 
-> Any suggestions smarter than backing up everything "important" and running
-> the battery down with the VIA fix enabled?
+gull:~# lspci 
+00:00.0 Host bridge: Acer Laboratories Inc. [ALi] M1451 (rev ad)
+00:02.0 Non-VGA unclassified device: Acer Laboratories Inc. [ALi] M1449 (rev b2)
+00:06.0 VGA compatible controller: Chips and Technologies F65545
+00:07.0 IDE interface: CMD Technology Inc PCI0640 (rev 02)
 
-Nope. ;)
+Is the "[ALi] M1451" and "[ALi] M1449" are what we are looking for here?
 
--- 
-Vojtech Pavlik
-SuSE Labs
+Thanks,
+Neale.
+

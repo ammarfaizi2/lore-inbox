@@ -1,63 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316992AbSF0UjE>; Thu, 27 Jun 2002 16:39:04 -0400
+	id <S316958AbSF0Unh>; Thu, 27 Jun 2002 16:43:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316993AbSF0UjD>; Thu, 27 Jun 2002 16:39:03 -0400
-Received: from web30.achilles.net ([209.151.1.2]:38296 "EHLO
-	web30.achilles.net") by vger.kernel.org with ESMTP
-	id <S316992AbSF0UjC>; Thu, 27 Jun 2002 16:39:02 -0400
-Subject: Re: 2.4.19-rc1 + O(1) scheduler
-From: Robert Love <rml@tech9.net>
-To: "Alexandre P. Nunes" <alex@PolesApart.wox.org>
+	id <S316960AbSF0Ung>; Thu, 27 Jun 2002 16:43:36 -0400
+Received: from pat.uio.no ([129.240.130.16]:54675 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S316958AbSF0Une>;
+	Thu, 27 Jun 2002 16:43:34 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Organization: Dept. of Physics, University of Oslo, Norway
+To: kuznet@ms2.inr.ac.ru
+Subject: Re: Fragment flooding in 2.4.x/2.5.x
+Date: Thu, 27 Jun 2002 22:45:45 +0200
+User-Agent: KMail/1.4.1
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3D1B7440.3040605@PolesApart.wox.org>
-References: <Pine.LNX.4.44.0206222202400.7601-100000@PolesApart.dhs.org>	<20020626204721
-Message-Id: <20020627203902Z316992-685+79@vger.kernel.org>
-Date: Thu, 27 Jun 2002 16:39:02 -0400
+References: <200206272005.AAA16804@sex.inr.ac.ru>
+In-Reply-To: <200206272005.AAA16804@sex.inr.ac.ru>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200206272245.45505.trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	
-	.GK22961@holomorphy.com>	<1025125214.1911.40.camel@localhost.localdomain>	<1
-	 025128477.1144.3.camel@icbm>
-	<20020627005431.GM22961@holomorphy.com>	<1025192465.1084.3.camel@icbm>
-	<20020627154712.GO22961@holomorphy.com> <3D1B5982.60008@PolesApart.dhs.org>
-	<1025202738.1084.12.camel@icbm> <3D1B5F1D.2000706@PolesApart.wox.org>
-	<3D1B7005.2090200@tmsusa.com>  <3D1B7440.3040605@PolesApart.wox.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 27 Jun 2002 16:35:46 -0400
-Message-Id: <1025210179.1080.22.camel@icbm>
-Mime-Version: 1.0
+On Thursday 27 June 2002 22:05, kuznet@ms2.inr.ac.ru wrote:
 
-On Thu, 2002-06-27 at 16:23, Alexandre P. Nunes wrote:
+> static void
+> udp_write_space(struct sock *sk)
+> {
+<snip>
+> 	/* Wait until we have enough socket memory. */
+> 	if (sock_writeable(sk))
+> 		return;
 
-> It seems that the version of O(1) scheduler on 2.4.19-pre10-ac2 is not 
-> perfect (see below), but I asked because it gave me overall performance 
-> gains, specially in multithreading programs (and now I'm going to try 
-> with ngpt 2.00). At least that is the first impression, I'm trying it 
-> for a few days.
+You misunderstand the code. The above is in the write_space() callback. It 
+tells you when it is safe to wakes up again *after* a send has failed. It 
+doesn't test the buffer size on the first sendmsg() call (the one that 
+fails).
 
-Alan has some patches queued and I will continue to send him updates as
-we get them into 2.5 and they prove stable.
+> The thing, which is really useless, is that your patch preparing skbs
+> and dropping them in the next line. With the same success you could
+> trigger BUG() there. :-) Right application just should not reach
+> this condition.
 
-I also will update my 2.4 O(1) scheduler patches when I return from
-OLS.  This would allow a 2.4-ac vs 2.4-O(1) test.
+Are you seriously saying that all 'right' user applications should be testing 
+the socket buffer congestion before sending a non-blocking UDP message rather 
+than just testing sendmsg() for an EWOULDBLOCK return value???
+According to the manpage, ioctl(SIOCOUTQ) didn't even work prior to 2.4.x...
 
-> I said "not perfect" because a rather non-important benchmarking called 
-> quake 3 seens a lot worse in pre10-ac2 with preemptive patches when 
-> compared against -pre10 with preemptive patches: sound and screen popped 
-> sometimes, like if there was a background task borrowing some cpu, which 
-> was not the case, I mean, no other background tasks compared with 
-> testing against -pre10. That was the only exception to the above 
-> paragraph that I can remember of.
+The normal behaviour of the patch was to collect the fragments, then to send 
+off all the skbs to the device queue as soon as it is clear that no errors 
+have occurred.
 
-There is some "rudeness" in the current O(1) scheduler code in 2.4-ac
-that could result in poor latency under certain workloads.
+The patch only dropped the skbs if some socket error occurs that would force 
+you to exit the loop and return EAGAIN. Since the loop will be exited before 
+the fragment containing the UDP header (offset 0) gets sent, sending off all 
+the other fragments in the other skbs would serve merely to eat up bandwidth.
 
-The patch should be in a near future 2.4-ac although I will need to
-update the preempt-kernel patch to take advantage of it.
+I agree that for blocking calls, it is useful to send off each skb as it gets 
+allocated (and the patch could be amended to take this into account), but for 
+nonblocking I/O, it is definitely bad form...
 
-	Robert Love
-
+Cheers,
+  Trond

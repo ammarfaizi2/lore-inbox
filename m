@@ -1,63 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262382AbTE2QuV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 12:50:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262385AbTE2QuU
+	id S262368AbTE2QvM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 12:51:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262363AbTE2QvM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 12:50:20 -0400
-Received: from louise.pinerecords.com ([213.168.176.16]:22984 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S262382AbTE2QuT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 12:50:19 -0400
-Date: Thu, 29 May 2003 19:03:18 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: kwijibo@zianet.com
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       B.Zolnierkiewicz@elka.pw.edu.pl
-Subject: Re: 21rc6 serverworks IDE blows even more than is usual :)
-Message-ID: <20030529170318.GA11364@louise.pinerecords.com>
-References: <20030529114001.GD7217@louise.pinerecords.com> <1054216894.20167.76.camel@dhcp22.swansea.linux.org.uk> <3ED63BE7.8080604@zianet.com>
+	Thu, 29 May 2003 12:51:12 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:4772 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262368AbTE2QvC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 12:51:02 -0400
+Subject: [2.5.70][PATCH][TRIVIAL] cpufreq/powernow-k6.c : eliminate unused
+	variable
+From: Andy Pfiffer <andyp@osdl.org>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1054227830.12412.14.camel@andyp.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3ED63BE7.8080604@zianet.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 29 May 2003 10:03:50 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [kwijibo@zianet.com]
-> 
-> SvrWks CSB5: IDE controller at PCI slot 00:0f.1
-> SvrWks CSB5: chipset revision 147
-> SvrWks CSB5: not 100% native mode: will probe irqs later
-> SvrWks CSB5: simplex device: DMA forced
->    ide0: BM-DMA at 0x2000-0x2007, BIOS settings: hda:pio, hdb:pio
-> SvrWks CSB5: simplex device: DMA forced
->    ide1: BM-DMA at 0x2008-0x200f, BIOS settings: hdc:DMA, hdd:DMA
-> hda: HL-DT-ST CD-ROM GCR-8480B, ATAPI CD/DVD-ROM drive
-> hda: set_drive_speed_status: status=0x51 { DriveReady SeekComplete Error }
-> hda: set_drive_speed_status: error=0x04
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or
+higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1427  -> 1.1428 
+#	arch/i386/kernel/cpu/cpufreq/powernow-k6.c	1.14    -> 1.15   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/05/29	andyp@andyp.pdx.osdl.net	1.1428
+# Eliminate a compile-time warning.
+# --------------------------------------------
+#
+diff -Nru a/arch/i386/kernel/cpu/cpufreq/powernow-k6.c
+b/arch/i386/kernel/cpu/cpufreq/powernow-k6.c
+--- a/arch/i386/kernel/cpu/cpufreq/powernow-k6.c	Thu May 29 09:57:14
+2003
++++ b/arch/i386/kernel/cpu/cpufreq/powernow-k6.c	Thu May 29 09:57:14
+2003
+@@ -142,7 +142,6 @@
+ 
+ static int powernow_k6_cpu_init(struct cpufreq_policy *policy)
+ {
+-	struct cpuinfo_x86 *c = cpu_data;
+ 	unsigned int i;
+ 
+ 	if (policy->cpu != 0)
 
-This matches my dmesg line-by-line except for the CDROM model of course. ;)
 
-SvrWks CSB5: IDE controller at PCI slot 00:0f.1
-SvrWks CSB5: chipset revision 147
-SvrWks CSB5: not 100% native mode: will probe irqs later
-SvrWks CSB5: simplex device: DMA forced
-    ide0: BM-DMA at 0x2000-0x2007, BIOS settings: hda:pio, hdb:pio
-SvrWks CSB5: simplex device: DMA forced
-    ide1: BM-DMA at 0x2008-0x200f, BIOS settings: hdc:DMA, hdd:DMA
-hda: LTN486S, ATAPI CD/DVD-ROM drive
-hda: set_drive_speed_status: status=0x51 { DriveReady SeekComplete Error }
-hda: set_drive_speed_status: error=0x04
 
-> Luckily I don't use IDE drives in this system but it did force me to do
-> a network install since the CDROM is now unusable.
-
-We're using IDE drives for backups -- mostly because it's not even
-conceivable to get large SCSI disks for a decent price.
-
--- 
-Tomas Szepe <szepe@pinerecords.com>

@@ -1,124 +1,176 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262107AbSIYURt>; Wed, 25 Sep 2002 16:17:49 -0400
+	id <S262111AbSIYUPt>; Wed, 25 Sep 2002 16:15:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262114AbSIYURt>; Wed, 25 Sep 2002 16:17:49 -0400
-Received: from cliff.cse.wustl.edu ([128.252.166.5]:63657 "EHLO
-	cliff.cse.wustl.edu") by vger.kernel.org with ESMTP
-	id <S262107AbSIYUQW>; Wed, 25 Sep 2002 16:16:22 -0400
-MIME-Version: 1.0
+	id <S262109AbSIYUOr>; Wed, 25 Sep 2002 16:14:47 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:3844 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S262107AbSIYUOd>;
+	Wed, 25 Sep 2002 16:14:33 -0400
+Date: Wed, 25 Sep 2002 21:10:09 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Patrick Mochel <mochel@osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Andre Hedrick <andre@linux-ide.org>
+Subject: IDE: prevent disk corruption on suspend
+Message-ID: <20020925191009.GA804@elf.ucw.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15762.6899.798603.149518@samba.doc.wustl.edu>
-Date: Wed, 25 Sep 2002 15:22:11 -0500
-From: Krishnakumar B <kitty@cse.wustl.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Oops with 2.5.38
-X-Mailer: VM 7.07 under Emacs 21.2.1
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-I am getting the following in my kernel logs with linux-2.5.38, which btw
-is the first 2.5 kernel that I am able to boot into. It is a dual Pentium
-III machine. I find this in the logs as soon as I log in. So I think that
-this happens during boot-up. Kernel was compiled with the latest RedHat
-RAWHIDE gcc-3.2 rpm.
+This makes IDE suspend disks properly (and not to eat data in the
+way). Please apply,
 
-The machine does not hang and I am able to use it fine. Please CC me on any
-replies as I am not on this list.
+								Pavel
 
--kitty.
-
-Output of dmesg[snipped]
----------------
-
-.................................... done.
-Using local APIC timer interrupts.
-calibrating APIC timer ...
-..... CPU clock speed is 930.0781 MHz.
-..... host bus clock speed is 132.0968 MHz.
-cpu: 0, clocks: 132968, slice: 4029
-CPU0<T0:132960,T1:128928,D:3,S:4029,C:132968>
-checking TSC synchronization across 2 CPUs: passed.
-Starting migration thread for cpu 0
-Bringing up 1
-cpu: 1, clocks: 132968, slice: 4029
-CPU1<T0:132960,T1:124896,D:6,S:4029,C:132968>
-CPU 1 IS NOW UP!
-Starting migration thread for cpu 1
-bad: scheduling while atomic!
-c1531ef0 c0117fd3 c025d380 00000000 00000000 00000000 c1530000 c1531f88 
-       c1530000 c1531f68 c011832d 00000000 c152f060 c0118030 00000000 00000000 
-       c1531f58 c01173f2 c152f060 00000001 c152f060 c0118030 c1531f90 c1531f90 
-Call Trace: [<c0117fd3>] [<c011832d>] [<c0118030>] [<c01173f2>] [<c0118030>] 
-   [<c0119686>] [<c01196f5>] [<c01079d9>] [<c01196a0>] [<c01196a0>] [<c010564d>] 
-bad: scheduling while atomic!
-c152df10 c0117fd3 c025d380 00000000 00000000 00000000 c152c000 c152dfa8 
-       c152c000 c152df88 c011832d 00000000 c152f760 c0118030 00000000 00000000 
-       c152df78 c01173f2 c152f760 00000001 c152f760 c0118030 c152dfb0 c152dfb0 
-Call Trace: [<c0117fd3>] [<c011832d>] [<c0118030>] [<c01173f2>] [<c0118030>] 
-   [<c0119686>] [<c0122e80>] [<c0122e20>] [<c010564d>] 
-CPUS done 4294967295
-Linux NET4.0 for Linux 2.4
-Based upon Swansea University Computer Society NET3.039
-Initializing RT netlink socket
-mtrr: v2.0 (20020519)
-
-Output from ksymoops
---------------------
-
-ksymoops 2.4.5 on i686 2.5.38.  Options used
-     -v /u/scratch/downloads/kernel/linux-2.5.38/vmlinux (specified)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.5.38/ (default)
-     -m /boot/System.map-2.5.38 (specified)
-
-cpu: 0, clocks: 132968, slice: 4029
-cpu: 1, clocks: 132968, slice: 4029
-CPU 1 IS NOW UP!
-c1531ef0 c0117fd3 c025d380 00000000 00000000 00000000 c1530000 c1531f88 
-       c1530000 c1531f68 c011832d 00000000 c152f060 c0118030 00000000 00000000 
-       c1531f58 c01173f2 c152f060 00000001 c152f060 c0118030 c1531f90 c1531f90 
-Call Trace: [<c0117fd3>] [<c011832d>] [<c0118030>] [<c01173f2>] [<c0118030>] 
-   [<c0119686>] [<c01196f5>] [<c01079d9>] [<c01196a0>] [<c01196a0>] [<c010564d>] 
-c152df10 c0117fd3 c025d380 00000000 00000000 00000000 c152c000 c152dfa8 
-       c152c000 c152df88 c011832d 00000000 c152f760 c0118030 00000000 00000000 
-       c152df78 c01173f2 c152f760 00000001 c152f760 c0118030 c152dfb0 c152dfb0 
-Call Trace: [<c0117fd3>] [<c011832d>] [<c0118030>] [<c01173f2>] [<c0118030>] 
-   [<c0119686>] [<c0122e80>] [<c0122e20>] [<c010564d>] 
-Warning (Oops_read): Code line not seen, dumping what data is available
-
-
-Trace; c0117fd3 <schedule+343/350>
-Trace; c011832d <wait_for_completion+9d/100>
-Trace; c0118030 <default_wake_function+0/40>
-Trace; c01173f2 <try_to_wake_up+142/190>
-Trace; c0118030 <default_wake_function+0/40>
-Trace; c0119686 <set_cpus_allowed+f6/110>
-Trace; c01196f5 <migration_thread+55/310>
-Trace; c01079d9 <ret_from_fork+5/14>
-Trace; c01196a0 <migration_thread+0/310>
-Trace; c01196a0 <migration_thread+0/310>
-Trace; c010564d <kernel_thread_helper+5/18>
-Trace; c0117fd3 <schedule+343/350>
-Trace; c011832d <wait_for_completion+9d/100>
-Trace; c0118030 <default_wake_function+0/40>
-Trace; c01173f2 <try_to_wake_up+142/190>
-Trace; c0118030 <default_wake_function+0/40>
-Trace; c0119686 <set_cpus_allowed+f6/110>
-Trace; c0122e80 <ksoftirqd+60/130>
-Trace; c0122e20 <ksoftirqd+0/130>
-Trace; c010564d <kernel_thread_helper+5/18>
-
-WARNING: USB Mass Storage data integrity not assured
-3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
-ac97_codec: AC97  codec, id: 0x5452:0x4123 (TriTech TR A5)
-
-1 warning issued.  Results may not be reliable.
+--- clean/drivers/ide/ide-disk.c	2002-09-23 00:09:13.000000000 +0200
++++ linux-swsusp/drivers/ide/ide-disk.c	2002-09-25 20:30:26.000000000 +0200
+@@ -1495,8 +1496,65 @@
+  	ide_add_setting(drive,	"max_failures",		SETTING_RW,					-1,			-1,			TYPE_INT,	0,	65535,				1,	1,	&drive->max_failures,		NULL);
+ }
+ 
++static int idedisk_suspend(struct device *dev, u32 state, u32 level)
++{
++	ide_drive_t *drive = dev->driver_data;
++
++	/* I hope that every freeze operations from the upper levels have
++	 * already been done...
++	 */
++
++	BUG_ON(in_interrupt());
++
++	if (level != SUSPEND_SAVE_STATE)
++		return 0;
++
++	/* wait until all commands are finished */
++	/* FIXME: waiting for spinlocks should be done instead. */
++	while (HWGROUP(drive)->handler)
++		yield();
++
++	/* set the drive to standby */
++	printk(KERN_INFO "suspending: %s ", drive->name);
++	if (drive->driver) {
++		if (drive->driver->standby)
++			drive->driver->standby(drive);
++	}
++	drive->blocked = 1;
++
++	while (HWGROUP(drive)->handler)
++		yield();
++
++	return 0;
++}
++
++static int idedisk_resume(struct device *dev, u32 level)
++{
++	ide_drive_t *drive = dev->driver_data;
++
++	if (level != RESUME_RESTORE_STATE)
++		return 0;
++	if (!drive->blocked)
++		panic("ide: Resume but not suspended?\n");
++
++	drive->blocked = 0;
++	return 0;
++}
++
++
++/* This is just a hook for the overall driver tree.
++ */
++
++static struct device_driver idedisk_devdrv = {
++	.bus = &ide_bus_type,
++	.name = "IDE disk driver",
++
++	.suspend = idedisk_suspend,
++	.resume = idedisk_resume,
++};
++
+ static int idedisk_ioctl (ide_drive_t *drive, struct inode *inode,
+-		struct file *file, unsigned int cmd, unsigned long arg)
++	struct file *file, unsigned int cmd, unsigned long arg)
+ {
+ #if 0
+ HDIO_GET_ADDRESS
+@@ -1540,6 +1597,10 @@
+ 			drive->doorlocking = 1;
+ 		}
+ 	}
++	{
++		sprintf(drive->disk->disk_dev.name, "ide-disk");
++		drive->disk->disk_dev.driver = &idedisk_devdrv;
++	}
+ 
+ #if 1
+ 	(void) probe_lba_addressing(drive, 1);
+@@ -1623,6 +1684,8 @@
+ static int idedisk_cleanup (ide_drive_t *drive)
+ {
+ 	struct gendisk *g = drive->disk;
++
++	put_device(&drive->disk->disk_dev);
+ 	if ((drive->id->cfs_enable_2 & 0x3000) && drive->wcache)
+ 		if (do_idedisk_flushcache(drive))
+ 			printk (KERN_INFO "%s: Write Cache FAILED Flushing!\n",
+@@ -1721,6 +1784,7 @@
+ static int idedisk_init (void)
+ {
+ 	ide_register_driver(&idedisk_driver);
++	driver_register(&idedisk_devdrv);
+ 	return 0;
+ }
+ 
+--- clean/drivers/ide/ide-pnp.c	2002-09-21 13:20:44.000000000 +0200
++++ linux-swsusp/drivers/ide/ide-pnp.c	2002-09-21 13:35:29.000000000 +0200
+@@ -52,6 +52,7 @@
+ static int __init pnpide_generic_init(struct pci_dev *dev, int enable)
+ {
+ 	hw_regs_t hw;
++	ide_hwif_t *hwif;
+ 	int index;
+ 
+ 	if (!enable)
+@@ -67,10 +68,11 @@
+ //			generic_pnp_ide_iops,
+ 			DEV_IRQ(dev, 0));
+ 
+-	index = ide_register_hw(&hw, NULL);
++	index = ide_register_hw(&hw, &hwif);
+ 
+ 	if (index != -1) {
+ 	    	printk(KERN_INFO "ide%d: %s IDE interface\n", index, DEV_NAME(dev));
++		hwif->pci_dev = dev;
+ 		return 0;
+ 	}
+ 
+--- clean/drivers/ide/ide-probe.c	2002-09-23 00:09:13.000000000 +0200
++++ linux-swsusp/drivers/ide/ide-probe.c	2002-09-23 23:08:58.000000000 +0200
+@@ -46,6 +46,7 @@
+ #include <linux/delay.h>
+ #include <linux/ide.h>
+ #include <linux/spinlock.h>
++#include <linux/pci.h>
+ 
+ #include <asm/byteorder.h>
+ #include <asm/irq.h>
+@@ -566,6 +567,11 @@
+ 	/* register with global device tree */
+ 	strncpy(hwif->gendev.bus_id,hwif->name,BUS_ID_SIZE);
+ 	snprintf(hwif->gendev.name,DEVICE_NAME_SIZE,"IDE Controller");
++	hwif->gendev.driver_data = hwif;
++	if (hwif->pci_dev)
++		hwif->gendev.parent = &hwif->pci_dev->dev;
++	else
++		hwif->gendev.parent = NULL; /* Would like to do = &device_legacy */
+ 	device_register(&hwif->gendev);
+ 
+ 	if (hwif->mmio == 2)
 
 -- 
-Krishnakumar B <kitty at cs dot wustl dot edu>
-Distributed Object Computing Laboratory, Washington University in St.Louis
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

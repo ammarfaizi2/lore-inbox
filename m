@@ -1,60 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136329AbRAJVCR>; Wed, 10 Jan 2001 16:02:17 -0500
+	id <S135609AbRAJVE5>; Wed, 10 Jan 2001 16:04:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136404AbRAJVCH>; Wed, 10 Jan 2001 16:02:07 -0500
-Received: from node181b.a2000.nl ([62.108.24.27]:7690 "EHLO ddx.a2000.nu")
-	by vger.kernel.org with ESMTP id <S136348AbRAJVBv>;
-	Wed, 10 Jan 2001 16:01:51 -0500
-Date: Wed, 10 Jan 2001 22:02:14 +0100 (CET)
-From: <kernel@ddx.a2000.nu>
-To: Hacksaw <hacksaw@hacksaw.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: unexplained high load 
-In-Reply-To: <200101102058.f0AKwGr00680@habitrail.home.fools-errant.com>
-Message-ID: <Pine.LNX.4.30.0101102159470.4377-100000@ddx.a2000.nu>
+	id <S136421AbRAJVEh>; Wed, 10 Jan 2001 16:04:37 -0500
+Received: from think.faceprint.com ([166.90.149.11]:22024 "EHLO
+	think.faceprint.com") by vger.kernel.org with ESMTP
+	id <S135609AbRAJVEe>; Wed, 10 Jan 2001 16:04:34 -0500
+Message-ID: <3A5CCD62.A5D0C90D@faceprint.com>
+Date: Wed, 10 Jan 2001 16:00:18 -0500
+From: Nathan Walp <faceprint@faceprint.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Hans Grobler <grobh@sun.ac.za>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Oops in 2.4.0-ac5
+In-Reply-To: <Pine.LNX.4.30.0101102243010.30013-100000@prime.sun.ac.za>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Jan 2001, Hacksaw wrote:
+Hans Grobler wrote:
+> 
+> On Wed, 10 Jan 2001, Nathan Walp wrote:
+> > Here it is... I opted to cut out the 1200-odd warnings, which from the
+> > look of them were all because i'm running it under 2.4.0-ac4 (which
+> > boots fine).
+> 
+> Thanks! My local mirror does not have -ac5 yet so I can't help
+> immediately. From the -ac5 log & the oops it looks as if Ingo's change
+> isn't quite complete yet...
+> 
+>   o       Uniprocessor APIC support/NMI wdog etc          (Ingo Molnar)
+> 
+> Until then, what about disabling APIC support and trying again. This
+> will help confirm it... although it looks pretty definite.
+> 
+> -- Hans
 
-> > Could someone maybe explain this ?
-> > (top output, but same load is given with 'uptime')
-> > there is no cpu or disk activity
-> > kernel is 2.2.18pre9 on sun ultra10-300 (ultrasparc IIi)
-> >
-> >    9:25pm  up 112 days,  1:52,  1 user,  load average: 1.24, 1.05, 1.02
-> >  91 processes: 90 sleeping, 1 running, 0 zombie, 0 stopped
-> >  CPU states:  2.5% user,  2.3% system,  0.0% nice, 95.1% idle
-> >  Mem:  515144K av, 506752K used,   8392K free,  73464K shrd,  58472K buff
-> >  Swap: 131528K av,  15968K used, 115560K free                358904K cached
->
-> You have no processes??? My gosh, that is a problem. :-)
-91 processes, only 1 running (think top)
+I noticed (and was told by someone else) that it was APIC related.  I
+looked, and realized that IO-APIC got selected between my compiles of
+ac4 and ac5.  I recompiled ac5 w/o the IO-APIC stuff, and still got an
+oops.  So, i recompiled without ANY APIC stuff, and it booted fine, but
+then had the same problems I was having w/ 2.4.1-pre1 related to X and
+(maybe) the framebuffer.  But that's a whole different story that I
+think has been brought up in another thread.
 
->
-> The load average is how many processes are runnable, therefore you have
-> runnable processes.
->
-> If you have Netscape or Mozilla running on your box, it may be in a
-> permanently runnable state.
-it's a firewall/gateway/mail box, so no X or netscape
+Guess I'm back to -ac4 for now ;-)
 
-> Another amusing possibility is that you have a hacked box, and top is
-> reporting the stupid IRC bot that is running, but not showing you the actuall
-> process, because it too is hacked.
-don't think
-w,uptime,top give the same value
 
->
-> Replace ps and top, and have a look. Don't believe ls, either.
->
-> If none of these things are true, you might have another problem.
-think this, but problem, machine is running ok
-no slow response, only load 1.00 (it's not getting lower)
-
+Thanks,
+Nathan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

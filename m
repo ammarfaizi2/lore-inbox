@@ -1,84 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261538AbUL3COj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261516AbUL3CPz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261538AbUL3COj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Dec 2004 21:14:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261535AbUL3COj
+	id S261516AbUL3CPz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Dec 2004 21:15:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261535AbUL3CPM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Dec 2004 21:14:39 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.51]:18587 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S261519AbUL3CMk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Dec 2004 21:12:40 -0500
-Date: Thu, 30 Dec 2004 03:12:39 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-       =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       Networking Team <netdev@oss.sgi.com>,
-       linux-net <linux-net@vger.kernel.org>,
-       "David S. Miller" <davem@davemloft.net>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Patch: add loglevel to printk's in net/ipv4/route.c
-Message-ID: <20041230021239.GA31474@mail.13thfloor.at>
-Mail-Followup-To: Jesper Juhl <juhl-lkml@dif.dk>,
-	Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	=?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-	Networking Team <netdev@oss.sgi.com>,
-	linux-net <linux-net@vger.kernel.org>,
-	"David S. Miller" <davem@davemloft.net>,
-	Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.61.0412290256000.3528@dragon.hygekrogen.localhost> <41D2104D.3010406@conectiva.com.br> <Pine.LNX.4.61.0412290312540.3528@dragon.hygekrogen.localhost> <41D2120E.8030008@conectiva.com.br> <20041229021256.GD29323@wohnheim.fh-wedel.de> <41D2152F.8080501@conectiva.com.br> <Pine.LNX.4.61.0412290344340.28589@dragon.hygekrogen.localhost> <Pine.LNX.4.61.0412300037310.3495@dragon.hygekrogen.localhost>
+	Wed, 29 Dec 2004 21:15:12 -0500
+Received: from a26.t1.student.liu.se ([130.236.221.26]:50354 "EHLO
+	mail.drzeus.cx") by vger.kernel.org with ESMTP id S261516AbUL3COP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Dec 2004 21:14:15 -0500
+Message-ID: <41D3646F.5050408@drzeus.cx>
+Date: Thu, 30 Dec 2004 03:14:07 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.61.0412300037310.3495@dragon.hygekrogen.localhost>
-User-Agent: Mutt/1.4.1i
+Content-Type: multipart/mixed; boundary="=_hades.drzeus.cx-11483-1104372920-0001-2"
+To: LKML <linux-kernel@vger.kernel.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: [PATCH] MMC block removable flag
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 30, 2004 at 12:39:10AM +0100, Jesper Juhl wrote:
-> On Wed, 29 Dec 2004, Jesper Juhl wrote:
-> 
-> > On Wed, 29 Dec 2004, Arnaldo Carvalho de Melo wrote:
-> > 
-> > > 
-> > > 
-> > > Jörn Engel wrote:
-> > > > On Wed, 29 December 2004 00:10:22 -0200, Arnaldo Carvalho de Melo wrote:
-> > > > 
-> > > > > > It doesn't make much difference, it's mostly for
-> > > > > > completeness/correctness.
-> > > > > 
-> > > > > No, it does a helluva difference, give it a try :-)
-> > > > 
-> > > > 
-> > > > hint: look for "\n"
-> > > 
-> > > hint2: Or the _lack_ of "\n" 8)
-> > > 
-> > 
-> > Ok, obviously something's wrong, but it's currently 03:44 here, so I'll 
-> > take a look at it tomorrow (or quite possibly the day after since I have 
-> > things to do).
-> > Thank you for commenting, I'll dig into it at the first oppotunity I have.
-> > 
-> > 
-> Ok, this is a bit embarresing. Looking at the patch now after getting some 
-> sleep it's quite obvious that it is wrong. I should have slept on it 
-> before sending it - sorry for the noise people.
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
 
-nothing to be sorry about, and thanks for all
-the work you are doing for the linux kernel ...
+--=_hades.drzeus.cx-11483-1104372920-0001-2
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-best,
-Herbert
+A MMC card is a highly removable device. This patch makes the block 
+layer part of the MMC layer set the removable flag.
 
-> -- 
-> Jesper Juhl
-> 
-> 
-> 
-> 
+--
+Pierre
+
+--=_hades.drzeus.cx-11483-1104372920-0001-2
+Content-Type: text/x-patch; name="mmc-removable.patch"; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="mmc-removable.patch"
+
+Index: linux-wbsd/drivers/mmc/mmc_block.c
+===================================================================
+--- linux-wbsd/drivers/mmc/mmc_block.c	(revision 99)
++++ linux-wbsd/drivers/mmc/mmc_block.c	(revision 100)
+@@ -384,6 +384,7 @@
+ 		md->disk->private_data = md;
+ 		md->disk->queue = md->queue.queue;
+ 		md->disk->driverfs_dev = &card->dev;
++		md->disk->flags |= GENHD_FL_REMOVABLE;
+ 
+ 		sprintf(md->disk->disk_name, "mmcblk%d", devidx);
+ 		sprintf(md->disk->devfs_name, "mmc/blk%d", devidx);
+
+--=_hades.drzeus.cx-11483-1104372920-0001-2--

@@ -1,50 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261704AbUD1U0H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261661AbUD1U26@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261704AbUD1U0H (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 16:26:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbUD1UGL
+	id S261661AbUD1U26 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 16:28:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbUD1U0L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 16:06:11 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:17683 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S261611AbUD1T2k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 15:28:40 -0400
-Message-ID: <409006E6.5070406@techsource.com>
-Date: Wed, 28 Apr 2004 15:32:54 -0400
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: Marc Boucher <marc@linuxant.com>
-CC: Helge Hafting <helgehaf@aitel.hist.no>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-References: <20040427165819.GA23961@valve.mbsi.ca> <1083107550.30985.122.camel@bach> <47B669B0-98A7-11D8-85DF-000A95BCAC26@linuxant.com> <1083117450.2152.222.camel@bach> <1EF114FF-98C4-11D8-85DF-000A95BCAC26@linuxant.com> <408F99D5.1010900@aitel.hist.no> <3D29390A-992F-11D8-85DF-000A95BCAC26@linuxant.com>
-In-Reply-To: <3D29390A-992F-11D8-85DF-000A95BCAC26@linuxant.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 28 Apr 2004 16:26:11 -0400
+Received: from mail.kroah.org ([65.200.24.183]:58805 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262045AbUD1UXr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 16:23:47 -0400
+Date: Wed, 28 Apr 2004 13:22:56 -0700
+From: Greg KH <greg@kroah.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: raven@themaw.net, pj@sgi.com, erdi.chen@digeo.com, davem@redhat.com,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: sparc64 2.6.6-rc2-mm2 build busted: usb/core/hub.c hubstatus
+Message-ID: <20040428202256.GB24942@kroah.com>
+References: <20040426204947.797bd7c2.pj@sgi.com> <Pine.LNX.4.58.0404271248250.8094@wombat.indigo.net.au> <Pine.LNX.4.58.0404272234320.1547@donald.themaw.net> <Pine.LNX.4.58.0404280111430.2125@skynet> <20040427202520.017e4591.rddunlap@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040427202520.017e4591.rddunlap@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Marc Boucher wrote:
-
->> I believe you have to remove the \0 to operate legally (or release the 
->> full source under the GPL for real.)
->> Your customer's problem is fixable though.  Either by also changing 
->> the logging level
->> so the message doesn't go out on the console, or by patching the line 
->> with that printk() out of your customer's kernel.
->> You can do this as a part of your install program.  If it gets too 
->> hard, consider
->> supplying the customer with your own precompiled kernel.
+On Tue, Apr 27, 2004 at 08:25:20PM -0700, Randy.Dunlap wrote:
 > 
-> 
-> Thank you for the advice. However, if you knew our customers and 
-> understood their needs better you would realize that these are not 
-> feasible options.
+> The USB hubstatus part of the patch looked correct to me.
+> Greg, do you already have a s/hubstatus/devstat/ in hub.c,
+> near line 1343?
 
+David Brownell already sent me a patch to fix this issue.
 
-If your only "options" involve violating the GPL, then you cannot do 
-business in this area.  "Someone won't let me release some code" isn't 
-an excuse for breaking the law.
+thanks,
 
+greg k-h

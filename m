@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267724AbTGHWFG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 18:05:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267728AbTGHWFG
+	id S267728AbTGHWFu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 18:05:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267730AbTGHWFt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 18:05:06 -0400
-Received: from [66.62.77.7] ([66.62.77.7]:14033 "EHLO mail.gurulabs.com")
-	by vger.kernel.org with ESMTP id S267724AbTGHWFC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 18:05:02 -0400
-Subject: Re: IPSEC
-From: Dax Kelson <dax@gurulabs.com>
-To: Nico Schottelius <schottelius@wdt.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030708124001.GA2992@schottelius.org>
-References: <20030708124001.GA2992@schottelius.org>
-Content-Type: text/plain
-Message-Id: <1057702779.3325.9.camel@mentor.gurulabs.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 08 Jul 2003 16:19:39 -0600
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Jul 2003 18:05:49 -0400
+Received: from oceanic.wsisiz.edu.pl ([213.135.44.33]:2088 "EHLO
+	oceanic.wsisiz.edu.pl") by vger.kernel.org with ESMTP
+	id S267728AbTGHWFp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 18:05:45 -0400
+Date: Wed, 9 Jul 2003 00:20:21 +0200 (CEST)
+From: Lukasz Trabinski <lukasz@wsisiz.edu.pl>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops on 2.4.22-pre2
+In-Reply-To: <Pine.LNX.4.55L.0307081828020.25622@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.53.0307090014290.26653@oceanic.wsisiz.edu.pl>
+References: <Pine.LNX.4.53.0307021529310.19377@oceanic.wsisiz.edu.pl>
+ <Pine.LNX.4.55L.0307081828020.25622@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-07-08 at 06:40, Nico Schottelius wrote:
-> Hello!
-> 
-> I opened an overview about Linux IPSec implementations at
-> http://linux.schottelius.org/ipsec/
-> I would like to add recent kernel changes in IPSec to the site.
-> So it would be very nice if someone could forward
-> latest IPSec news to nico-ipsec@schottelius.org..do you think this is possible?
+On Tue, 8 Jul 2003, Marcelo Tosatti wrote:
 
-The FreeSWAN/SuperFreeSWAN userland (IKE daemon, etc) has been ported to
-work with the 2.5 kernel IPSec code.
+Hello.
 
-Also, the 2.5 kernel IPSec code has been back ported to the 2.4 kernel
-by David Miller (more??). It's in the Red Hat Linux rawhide kernel RPMs.
+> We have discussed the problem and there is a partial fix in the current
+> 2.4 BK tree. ChangeSet@1.1070 is the fix.
 
-Dax Kelson
-Guru Labs
+Great.
 
+> Can you try to reproduce the problem with the latest BK tree?
+
+I will try, but probably, it can be difficulty to reproduce, because it 
+was happaned only once.
+
+-- 
+*[ £ukasz Tr±biñski ]*
+SysAdmin @wsisiz.edu.pl

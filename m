@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130149AbQKLFzm>; Sun, 12 Nov 2000 00:55:42 -0500
+	id <S130154AbQKLGKr>; Sun, 12 Nov 2000 01:10:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130208AbQKLFzd>; Sun, 12 Nov 2000 00:55:33 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:3347 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S130149AbQKLFz1>;
-	Sun, 12 Nov 2000 00:55:27 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
+	id <S130188AbQKLGKh>; Sun, 12 Nov 2000 01:10:37 -0500
+Received: from uberbox.mesatop.com ([208.164.122.11]:56836 "EHLO
+	uberbox.mesatop.com") by vger.kernel.org with ESMTP
+	id <S130154AbQKLGK3>; Sun, 12 Nov 2000 01:10:29 -0500
+From: Steven Cole <elenstev@mesatop.com>
+Reply-To: elenstev@mesatop.com
 To: linux-kernel@vger.kernel.org
-Subject: Re: Where is it written? 
-In-Reply-To: Your message of "Sat, 11 Nov 2000 23:36:42 MDT."
-             <14862.11370.341594.433057@wire.cadcamlab.org> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 12 Nov 2000 16:55:20 +1100
-Message-ID: <7577.974008520@ocs3.ocs-net>
+Subject: [PATCH] Addition to ECN documentation in Configure.help
+Date: Sat, 11 Nov 2000 23:10:24 -0700
+X-Mailer: KMail [version 1.1.95.2]
+Content-Type: text/plain
+MIME-Version: 1.0
+Message-Id: <00111123102400.01425@localhost.localdomain>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 Nov 2000 23:36:42 -0600 (CST), 
-Peter Samuelson <peter@cadcamlab.org> wrote:
->You mean trivial changes to understand the ELF magic number for a
->riscoid-ABI x86 object.  (You wouldn't lie to the linker and call them
->SysV objects, now, would you?)  Also gdb and libbfd need to know about
->stack frames.  Admittedly none of this is strictly necessary just to
->link and boot a kernel.
+Here is a little patchlet which adds to the new documentation
+for CONFIG_INET_ECN in Configure.help.  This patch applies to 
+2.4.0-test11-pre3.  
 
-Any ABI change needs to be externalised for modules.  Otherwise symbol
-versions will not detect that the kernel was compiled with -mregparm=3
-but the module was compiled with parameters on stack.  Good thing this
-is 2.5 material.
+         Steven
 
+diff -urN linux/Documentation/Configure.help.orig \
+linux/Documentation/Configure.help
+--- linux/Documentation/Configure.help.orig     Sat Nov 11 21:41:55 2000
++++ linux/Documentation/Configure.help  Sat Nov 11 22:50:31 2000
+@@ -2067,6 +2067,14 @@
+   writing) you will have to disable this option, either by saying N now
+   or by using the sysctl.
+
++  ECN may be disabled with:
++  echo 0 > /proc/sys/net/ipv4/tcp_ecn
++
++  ECN may be re-enabled with:
++  echo 1 > /proc/sys/net/ipv4/tcp_ecn
++
++  Explicit Congestion Notification is more fully documented in RFC2481.
++
+   If in doubt, say N.
+
+ SYN flood protection
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

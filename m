@@ -1,45 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262415AbTAIJiF>; Thu, 9 Jan 2003 04:38:05 -0500
+	id <S265798AbTAIJuH>; Thu, 9 Jan 2003 04:50:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262414AbTAIJiF>; Thu, 9 Jan 2003 04:38:05 -0500
-Received: from TYO201.gate.nec.co.jp ([210.143.35.51]:40324 "EHLO
-	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id <S262394AbTAIJiE>; Thu, 9 Jan 2003 04:38:04 -0500
-To: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH]  Include <asm/posix_types.h> in the v850's asm/stat.h
-Cc: linux-kernel@vger.kernel.org
-Reply-To: Miles Bader <miles@gnu.org>
-Message-Id: <20030109094642.82859374B@mcspd15.ucom.lsi.nec.co.jp>
-Date: Thu,  9 Jan 2003 18:46:42 +0900 (JST)
-From: miles@lsi.nec.co.jp (Miles Bader)
+	id <S265806AbTAIJuH>; Thu, 9 Jan 2003 04:50:07 -0500
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:31982 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP
+	id <S265798AbTAIJuG>; Thu, 9 Jan 2003 04:50:06 -0500
+Subject: Re: 2.4.18-14 kernel stuck during ext3 umount with ping still
+	responding
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: yuval yeret <yuval_yeret@hotmail.com>
+Cc: linux-kernel@vger.kernel.org, yuval@exanet.com
+In-Reply-To: <F12N44yQegpeDBHkKx400013b3e@hotmail.com>
+References: <F12N44yQegpeDBHkKx400013b3e@hotmail.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-WkcUIMSzSbID3glHGhXa"
+Organization: Red Hat, Inc.
+Message-Id: <1042106287.1355.0.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 09 Jan 2003 10:58:07 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is needed by some includers of <asm/stat.h>.
 
-diff -ruN -X../cludes linux-2.5.55-moo.orig/include/asm-v850/stat.h linux-2.5.55-moo/include/asm-v850/stat.h
---- linux-2.5.55-moo.orig/include/asm-v850/stat.h	2002-11-28 10:25:08.000000000 +0900
-+++ linux-2.5.55-moo/include/asm-v850/stat.h	2003-01-09 14:07:36.000000000 +0900
-@@ -1,6 +1,21 @@
-+/*
-+ * include/asm-v850/stat.h -- v850 stat structure
-+ *
-+ *  Copyright (C) 2001,02,03  NEC Corporation
-+ *  Copyright (C) 2001,02,03  Miles Bader <miles@gnu.org>
-+ *
-+ * This file is subject to the terms and conditions of the GNU General
-+ * Public License.  See the file COPYING in the main directory of this
-+ * archive for more details.
-+ *
-+ * Written by Miles Bader <miles@gnu.org>
-+ */
-+
- #ifndef __V850_STAT_H__
- #define __V850_STAT_H__
- 
-+#include <asm/posix_types.h>
-+
- struct stat {
- 	__kernel_dev_t	st_dev;
- 	__kernel_ino_t	st_ino;
+--=-WkcUIMSzSbID3glHGhXa
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, 2003-01-09 at 10:38, yuval yeret wrote:
+> Hi,
+>=20
+> I'm running a 2.4.18-14 kernel with a heavy IO profile using ext3 over RA=
+ID=20
+> 0+1 volumes.
+>=20
+> >From time to time I get a black screen stuck machine while trying to umo=
+unt=20
+> a volume during an IO workload (as part of a failback solution - but afte=
+r=20
+> killing all IO processes ), with ping still responding, but everything el=
+se=20
+> mostly dead.
+>=20
+
+> I'm hoping the ext3fix.patch will solve this problem... am trying that no=
+w.
+
+this got fixed in the recent erratum kernel 2.4.18-19.8.0
+
+--=-WkcUIMSzSbID3glHGhXa
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+HUevxULwo51rQBIRAkm7AJ41xJj/FVnfRJRuO6ZAvMG/NQ3faACeL8ce
+aTl1czuOYqpJEr5ik+Dfuv8=
+=ZPSR
+-----END PGP SIGNATURE-----
+
+--=-WkcUIMSzSbID3glHGhXa--

@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262646AbTCUFmb>; Fri, 21 Mar 2003 00:42:31 -0500
+	id <S263267AbTCUF4T>; Fri, 21 Mar 2003 00:56:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263267AbTCUFmb>; Fri, 21 Mar 2003 00:42:31 -0500
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:35314 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id <S262646AbTCUFma>; Fri, 21 Mar 2003 00:42:30 -0500
-Message-ID: <3E7AA8CD.8070708@nortelnetworks.com>
-Date: Fri, 21 Mar 2003 00:53:17 -0500
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
+	id <S263269AbTCUF4T>; Fri, 21 Mar 2003 00:56:19 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:14058 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S263267AbTCUF4S>;
+	Fri, 21 Mar 2003 00:56:18 -0500
+Date: Fri, 21 Mar 2003 07:06:55 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Mike Galbraith <efault@gmx.de>
+Cc: Steven Cole <elenstev@mesatop.com>, Ed Tomlinson <tomlins@cam.org>,
+       Andrew Morton <akpm@digeo.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+Subject: Re: 2.5.65-mm2
+In-Reply-To: <5.2.0.9.2.20030320194530.01985440@pop.gmx.net>
+Message-ID: <Pine.LNX.4.44.0303210659530.2406-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Joel Becker <Joel.Becker@oracle.com>
-Cc: george anzinger <george@mvista.com>, john stultz <johnstul@us.ibm.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Clock monotonic  a suggestion
-References: <3E7A59CD.8040700@mvista.com> <20030321025045.GX2835@ca-server1.us.oracle.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joel Becker wrote:
 
-> 	The issue for CLOCK_MONOTONIC isn't one of resolution.  The
-> issue is one of accuracy.  If the monotonic clock is ever allowed to
-> have an offset or a fudge factor, it is broken.  Asking the monotonic
-> clock for time must always, without fail, return the exact, accurate
-> time since boot (or whatever sentinal time) in the the units monotonic
-> clock is using.
+On Thu, 20 Mar 2003, Mike Galbraith wrote:
 
-I thought that strictly speaking monotonic just meant that it never went backwards.
+> This is a side effect of Ingo's (nice!) latency change methinks.  When
+> you have several cpu hogs running (dbench), and they are cleaning your
+> cpu's clock by using their full bandwidth to attain maximum throughput,
+> and they then break up their timeslice in order to provide you with more
+> responsiveness, and then their _cumulative_ sleep time between (round
+> robin!) cpu hard burns is added to their sleep_avg, [...]
 
-Chris
+actually, the round-robining for finer-grained timeslices should not
+impact the sleep average at all, because the roundrobin is done while the
+task is still _running_, ie. the sleep average does not get impacted.
+Otherwise we'd have elevated priority of simple CPU-intensive
+applications, which would be Bad.
 
+The way the sleep-average is maintained is balanced very carefully in the
+O(1) scheduler. There are three states a task can be in:
 
+ - sleeping: the sleep average increases
+ - running but not executing: the sleep average stagnates
+ - executing on a CPU: the sleep average decreases
 
--- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+ie. in the roundrobin case the tasks will neither increase, nor decrease
+their sleep average - they are in essence 'frozen'. The moment they get
+scheduled on a CPU for execution, their sleep average starts to decrease
+again. (and once they go to sleep, their sleep average increases.)
+
+so whatever effect you are seeing, it must be something else.
+
+	Ingo
 

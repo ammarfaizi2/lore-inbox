@@ -1,171 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264850AbTE1UEP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 16:04:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264854AbTE1UEP
+	id S264852AbTE1UES (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 16:04:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264854AbTE1UES
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 16:04:15 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:60813 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S264850AbTE1UEL
+	Wed, 28 May 2003 16:04:18 -0400
+Received: from ppp5.jh-inst.cas.cz ([147.231.28.150]:25582 "EHLO
+	jp.jh-inst.cas.cz") by vger.kernel.org with ESMTP id S264852AbTE1UEN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 16:04:11 -0400
-Date: Wed, 28 May 2003 15:17:09 -0500
-Subject: [CHECKER][PATCH] cmpci user-pointer fix
-Content-Type: multipart/mixed; boundary=Apple-Mail-17-683902250
-Mime-Version: 1.0 (Apple Message framework v552)
-Cc: Junfeng Yang <yjf@stanford.edu>
+	Wed, 28 May 2003 16:04:13 -0400
+Date: Wed, 28 May 2003 22:17:21 +0200
+From: Jiri Pittner <jiri.pittner@jh-inst.cas.cz>
+Message-Id: <200305282017.h4SKHLnI020821@jp.jh-inst.cas.cz>
 To: linux-kernel@vger.kernel.org
-From: Hollis Blanchard <hollisb@us.ibm.com>
-Message-Id: <5C5CFB74-9149-11D7-8297-000A95A0560C@us.ibm.com>
-X-Mailer: Apple Mail (2.552)
+Subject: suspect bug in 2.4.20 pcnet32.c driver
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Apple-Mail-17-683902250
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	charset=US-ASCII;
-	format=flowed
+Dear kernel developers,
 
-Here's what the Stanford tool said:
----------------------------------------------------------
-[BUG] at least bad programming practice. file_operations.write ->
-cm_write -> trans_ac3. write can take tainted. write can take tainted
-inputs. the pointer is vefied in cm_write
+I would like to report a suspect bug, newly introduced into 2.4.20 with respect
+to correct 2.4.18.
 
-/home/junfeng/linux-2.5.63/sound/oss/cmpci.c:593:trans_ac3:
-ERROR:TAINTED:593:593: dereferencing tainted ptr 'src' [Callstack:
-/home/junfeng/linux-2.5.63/fs/read_write.c:307:vfs_write((tainted
-1)(tainted 2)) ->
-/home/junfeng/linux-2.5.63/fs/read_write.c:241:cm_write((tainted
-1)(tainted 2)) ->
-/home/junfeng/linux-2.5.63/sound/oss/cmpci.c:1662:trans_ac3((tainted
-2))]
+Summary: errorneous netstat -i report about pcnet32 ethernet interface
+Description: under 2.4.20 kernel with pcnet32 ethernet driver netstat -i reports 
+Iface   MTU Met   RX-OK RX-ERR RX-DRP RX-OVR   TX-OK TX-ERR TX-DRP TX-OVR Flg
+eth0   1500   0     138      0      0      0      0     155      0      0 BMRU
+(all TX packets errorneous), but the network actually works most the time normally,
+sometimes irreproducibly irregularly it hangs.
 
-         unsigned long data;
-         unsigned long *dst = (unsigned long *) dest;
-         unsigned short *src = (unsigned short *)source;
+Kernel versions: Linux version 2.4.20-4GB (root@jp) (gcc version 3.2) #15 Mon May 26 22:56:39 CEST 2003
+The source has been taken from SuSE 8.2 distribution
+2.4.18.SUSE kernel works fine
 
-         do {
+I have tried to take just the drivers/net/pcnet32.c file from 2.4.18.SuSE
+and use it instead of the newer pcnet32.c from the 2.4.20 (compiled and loaded as a module).
+This works fine, pcnet32.o module from 2.4.18 sources compiled within  the 2.4.20 kernel and loaded as a module to the new kernel works!
+So I am pretty sure the problem must be in the changes made between
+2.4.18 and 2.4.20 versions of pcnet32.c
 
-Error --->
-                 data = (unsigned long) *src++;
-                 data <<= 12;                    // ok for 16-bit data
-                 if (s->spdif_counter == 2 || s->spdif_counter == 3)
----------------------------------------------------------
-[BUG] at least bad programming practice. file_operations.write ->
-cm_write -> trans_ac3. write can take tainted. write can take tainted
-inputs. the pointer is vefied in cm_write
+My hardware: notebook UMAX 770
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 8
+model name      : Pentium III (Coppermine)
+stepping        : 6
+cpu MHz         : 701.600
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 mmx fxsr sse
+bogomips        : 1399.19
 
-/home/junfeng/linux-2.5.63/sound/oss/cmpci.c:593:trans_ac3:
-ERROR:TAINTED:593:593: dereferencing tainted ptr 'src' [Callstack:
-/home/junfeng/linux-2.5.63/fs/read_write.c:307:vfs_write((tainted
-1)(tainted 2)) ->
-/home/junfeng/linux-2.5.63/fs/read_write.c:241:cm_write((tainted
-1)(tainted 2)) ->
-/home/junfeng/linux-2.5.63/sound/oss/cmpci.c:1662:trans_ac3((tainted
-2))]
+lshw:
+        *-network
+             description: Ethernet controller
+             product: 79c970 [PCnet LANCE]
+             vendor: Advanced Micro Devices [AMD]
+             version: 44
+             clock: 33MHz
+             capabilities: bus_master cap_list
+             configuration: driver=pcnet32 irq=9
+(I have noticed same irq reported also  for 
+        *-bridge:1 UNCLAIMED
+             description: Bridge
+             product: 82371AB/EB/MB PIIX4 ACPI
+             vendor: Intel Corp.
+             version: 03
+             clock: 33MHz
+             configuration: irq=9
+)
 
-         unsigned long data;
-         unsigned long *dst = (unsigned long *) dest;
-         unsigned short *src = (unsigned short *)source;
 
-         do {
+pcnet32.c from 2.4.18.SuSE is 
+#define DRV_NAME        "pcnet32"
+#define DRV_VERSION     "1.27a"
+#define DRV_RELDATE     "10.02.2002"
+#define PFX             DRV_NAME ": "
 
-Error --->
-                 data = (unsigned long) *src++;
-                 data <<= 12;                    // ok for 16-bit data
-                 if (s->spdif_counter == 2 || s->spdif_counter == 3)
-                         data |= 0x40000000;     // indicate AC-3 raw 
-data
----------------------------------------------------------
 
-I believe the attached patch fixes it. cm_write was calling access_ok, 
-but after that you must still access user space through the 
-get/put/copy*_user functions. It should be safe to return -EFAULT at 
-these points in cm_write, since there are other returns already in the 
-code above and below that. Compile-tested only.
+and from 2.4.20.SuSE is 
+#define DRV_NAME        "pcnet32"
+#define DRV_VERSION     "1.27b"
+#define DRV_RELDATE     "01.10.2002"
+#define PFX             DRV_NAME ": "
 
-Junfeng, the checker seems to have missed the "*dst0++ = *src++;" bits 
-at the bottom of the patch... or at least it wasn't in the mail I saw 
-("4 potential user-pointer errors", 2 May 2003).
 
--- 
-Hollis Blanchard
-IBM Linux Technology Center
 
---Apple-Mail-17-683902250
-Content-Disposition: attachment;
-	filename=cmpci-userptr.diff
-Content-Transfer-Encoding: 7bit
-Content-Type: application/octet-stream;
-	x-unix-mode=0644;
-	name="cmpci-userptr.diff"
+With best regards,
 
---- linux-2.5.70/sound/oss/cmpci.c.orig	Sat May 24 19:00:00 2003
-+++ linux-2.5.70/sound/oss/cmpci.c	Wed May 28 14:53:15 2003
-@@ -580,15 +580,17 @@
- 	spin_unlock_irqrestore(&s->lock, flags);
- }
- 
--static void trans_ac3(struct cm_state *s, void *dest, const char *source, int size)
-+static int trans_ac3(struct cm_state *s, void *dest, const char *source, int size)
- {
- 	int   i = size / 2;
-+	int err;
- 	unsigned long data;
- 	unsigned long *dst = (unsigned long *) dest;
- 	unsigned short *src = (unsigned short *)source;
- 
- 	do {
--		data = (unsigned long) *src++;
-+		if ((err = __get_user(data, src++)))
-+			return err;
- 		data <<= 12;			// ok for 16-bit data
- 		if (s->spdif_counter == 2 || s->spdif_counter == 3)
- 			data |= 0x40000000;	// indicate AC-3 raw data
-@@ -605,6 +607,8 @@
- 		if (s->spdif_counter == 384)
- 			s->spdif_counter = 0;
- 	} while (--i);
-+
-+	return 0;
- }
- 
- static void set_adc_rate_unlocked(struct cm_state *s, unsigned rate)
-@@ -1655,13 +1659,16 @@
- 			continue;
- 		}
- 		if (s->status & DO_AC3_SW) {
-+			int err;
-+
- 			// clip exceeded data, caught by 033 and 037
- 			if (swptr + 2 * cnt > s->dma_dac.dmasize)
- 				cnt = (s->dma_dac.dmasize - swptr) / 2;
--			trans_ac3(s, s->dma_dac.rawbuf + swptr, buffer, cnt);
-+			if ((err = trans_ac3(s, s->dma_dac.rawbuf + swptr, buffer, cnt)))
-+				return err;
- 			swptr = (swptr + 2 * cnt) % s->dma_dac.dmasize;
- 		} else if (s->status & DO_DUAL_DAC) {
--			int	i;
-+			int	i, err;
- 			unsigned long *src, *dst0, *dst1;
- 
- 			src = (unsigned long *) buffer;
-@@ -1669,8 +1676,10 @@
- 			dst1 = (unsigned long *) (s->dma_adc.rawbuf + swptr);
- 			// copy left/right sample at one time
- 			for (i = 0; i <= cnt / 4; i++) {
--				*dst0++ = *src++;
--				*dst1++ = *src++;
-+				if ((err = __get_user(*dst0++, src++)))
-+					return err;
-+				if ((err = __get_user(*dst1++, src++)))
-+					return err;
- 			}
- 			swptr = (swptr + cnt) % s->dma_dac.dmasize;
- 		} else {
-
---Apple-Mail-17-683902250--
-
+Jiri Pittner

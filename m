@@ -1,48 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269092AbRHLLpv>; Sun, 12 Aug 2001 07:45:51 -0400
+	id <S269099AbRHLLqv>; Sun, 12 Aug 2001 07:46:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269099AbRHLLpl>; Sun, 12 Aug 2001 07:45:41 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:1549 "EHLO
+	id <S269100AbRHLLql>; Sun, 12 Aug 2001 07:46:41 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:2573 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S269092AbRHLLp0>; Sun, 12 Aug 2001 07:45:26 -0400
-Subject: Re: Unknown error
-To: kaos@ocs.com.au (Keith Owens)
-Date: Sun, 12 Aug 2001 12:47:13 +0100 (BST)
-Cc: louisg00@bellsouth.net, linux-kernel@vger.kernel.org, device@lanana.org
-In-Reply-To: <10497.997601767@ocs3.ocs-net> from "Keith Owens" at Aug 12, 2001 05:36:07 PM
+	id <S269099AbRHLLqh>; Sun, 12 Aug 2001 07:46:37 -0400
+Subject: Re: struct page to 36 (or 64) bit bus address?
+To: davem@redhat.com (David S. Miller)
+Date: Sun, 12 Aug 2001 12:49:00 +0100 (BST)
+Cc: sandy@storm.ca, linux-kernel@vger.kernel.org
+In-Reply-To: <no.id> from "David S. Miller" at Aug 12, 2001 01:00:13 AM
 X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15Vti5-0005ao-00@the-village.bc.nu>
+Message-Id: <E15Vtjo-0005ay-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Sun, 12 Aug 2001 1:40:01 -0400, 
-> <louisg00@bellsouth.net> wrote:
-> >I'm running kernel-2.4.8-ac1 on RH beta and I'm this:
-> >
-> >modprobe: modprobe: Can't locate module char-major-226
-> >Did I forget a to compile a module?
-> 
-> 2.4.8 says that device 228 is unassigned, but ...
-> 
->   drivers/char/drm/drm.h:#define DRM_MAJOR       226
->   drivers/net/wan/sdla_chdlc.c:#define WAN_TTY_MAJOR 226
-> 
-> Somebody has been naughty and used a code not assigned to them.
+> There have been a few threads on this issue.  One of the core reasons
+> the situation is unlikely to change in 2.4.x is that the scsi layer in
+> it's current form makes the logic required for recovering from a DMA
+> mapping failure aweful at best.
 
-The 2.4.8 tables are _completely_ out of date. 
+Actually its pretty trivial to resolve that I think. We already follow
+precisely the right procedure for some other scsi events. So 
 
-The up to date tables say:
+	scsi_retry_command(SCpnt);
 
-226 char        Direct Rendering Infrastructure (DRI)
-                  0 = /dev/dri/card0		First graphics card
-                  1 = /dev/dri/card1            Second graphics card 
+would map to setting the error and returning.
 
-
-Peter - was this dual issued, or do Sangoma need to be spanked. The obvious
-place to put the sdla tty would I think be 229, since its not physically
-possible to put one in an iSeries machine.

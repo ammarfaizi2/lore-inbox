@@ -1,59 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281165AbRKHABN>; Wed, 7 Nov 2001 19:01:13 -0500
+	id <S281161AbRKHALE>; Wed, 7 Nov 2001 19:11:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281162AbRKHABE>; Wed, 7 Nov 2001 19:01:04 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:23813 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S281165AbRKHAAy>; Wed, 7 Nov 2001 19:00:54 -0500
-Message-ID: <3BE9CB24.1010208@zytor.com>
-Date: Wed, 07 Nov 2001 16:00:36 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
-X-Accept-Language: en, sv
-MIME-Version: 1.0
-To: "Brenneke, Matthew Jeffrey (UMR-Student)" <mbrennek@umr.edu>
-CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Yet another design for /proc. Or actually /kernel.
-In-Reply-To: <6CAC36C3427CEB45A4A6DF0FBDABA56D59C91D@umr-mail03.cc.umr.edu>
-Content-Type: text/plain; charset=us-ascii
+	id <S281162AbRKHAKy>; Wed, 7 Nov 2001 19:10:54 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:39307 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S281161AbRKHAKh>;
+	Wed, 7 Nov 2001 19:10:37 -0500
+Date: Wed, 07 Nov 2001 16:09:50 -0800 (PST)
+Message-Id: <20011107.160950.57890584.davem@redhat.com>
+To: tim@physik3.uni-rostock.de
+Cc: jgarzik@mandrakesoft.com, andrewm@uow.edu.au, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com, adilger@turbolabs.com, netdev@oss.sgi.com,
+        ak@muc.de, kuznet@ms2.inr.ac.ru
+Subject: Re: [PATCH] net/ipv4/*, net/core/neighbour.c jiffies cleanup
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.30.0111080003320.29364-100000@gans.physik3.uni-rostock.de>
+In-Reply-To: <Pine.LNX.4.30.0111080003320.29364-100000@gans.physik3.uni-rostock.de>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brenneke, Matthew Jeffrey (UMR-Student) wrote:
+   From: Tim Schmielau <tim@physik3.uni-rostock.de>
+   Date: Thu, 8 Nov 2001 01:00:24 +0100 (CET)
 
-> 
->>Actually, /proc/mounts is currently broken, and is an excellent
->>example of why the above statement simply isn't true unless you apply
->>another level of indirection: try mounting something on a directory
->>the name of which contains whitespace in any form (remember, depending
->>on your setup this may be doable by an unprivileged user...)
->>
-> 
->>	-hpa
->>
-> 
-> 
-> mbrennek@spaceheater:/home/mbrennek# mkdir stuff\ and
-> mbrennek@spaceheater:/home/mbrennek# mount -t vfat /dev/hda1
-> /home/mbrennek/stuff\ and/
-> mbrennek@spaceheater:/home/mbrennek# cat /proc/mounts
-> /dev/ide/host0/bus0/target1/lun0/part1 / reiserfs rw 0 0
-> /dev/hdb2 /home reisferfs rw 0 0
-> none /dev/pts devpts rw 0 0
-> non /proc proc rw 0 0
-> /dev/hda5 /mnt/stuff vfat rw,nosuid,nodev,noexec 0 0
-> /dev/hda1 /home/mbrennek/stuff\040and vfat rw 0 0
-> mbrennek@spaceheater:/home/mbrennek#
-> 
-> Are you refering to the 040?
-> 
+   jiffies cleanup patch of the day follows. Mostly boring changes of jiffies
+   comparisons to use time_{before,after} in order to handle jiffies
+   wraparound correctly.
 
+These cases handle wraparound correctly!!!!
 
-Right, a good example of "additional encapsulation".
+Please stop sending these changes, start thinking about what the
+code is doing.
 
-	-hpa
+It is comparing a "DIFFERRENCE" not raw jiffy values with each other.
+It works just fine.
 
-
+Franks a lot,
+David S. Miller
+davem@redhat.com

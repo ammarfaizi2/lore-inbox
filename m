@@ -1,55 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273580AbRIQMNF>; Mon, 17 Sep 2001 08:13:05 -0400
+	id <S273584AbRIQMT4>; Mon, 17 Sep 2001 08:19:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273579AbRIQMMz>; Mon, 17 Sep 2001 08:12:55 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:20241 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S273580AbRIQMMk>;
-	Mon, 17 Sep 2001 08:12:40 -0400
-Date: Mon, 17 Sep 2001 09:12:43 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: Re: broken VM in 2.4.10-pre9
-In-Reply-To: <m1elp6s0kp.fsf@frodo.biederman.org>
-Message-ID: <Pine.LNX.4.33L.0109170909270.2990-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S273585AbRIQMTr>; Mon, 17 Sep 2001 08:19:47 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:41740 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S273584AbRIQMTg>; Mon, 17 Sep 2001 08:19:36 -0400
+Subject: Re: Linux 2.2.20pre10
+To: mfedyk@matchmail.com (Mike Fedyk)
+Date: Mon, 17 Sep 2001 13:24:08 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <20010916230852.E24067@mikef-linux.matchmail.com> from "Mike Fedyk" at Sep 16, 2001 11:08:52 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15ixRY-00072A-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17 Sep 2001, Eric W. Biederman wrote:
+> I know the Ingo's raid patch hasn't been included because of tool
+> compatibility problems.  Has anyone thought of having both versions in the
+> 2.2 kernel?  Would this be trivial, or something that would change too much
+> for 2.2?
 
-> There is an alternative approach to have better aging information.
+It wont be happening in the base 2.2 code.
 
-[snip incomplete description of data structure]
+> I've been compiling in Andre's EIDE patch for months, without any problems
+> on x86.  Except for an #include error on PPC.  I have a patch, but I can't
+> sent attach now because the patch is on a computer that is off at the moment...
 
-What you didn't explain is how your idea is related to
-aging.
-
-> > For 2.5 I'm making a VM subsystem with reverse mappings, the
-> > first iterations are giving very sweet performance so I will
-> > continue with this project regardless of what other kernel
-> > hackers might say ;)
->
-> Do you have any arguments for the reverse mappings or just for some of
-> the other side effects that go along with them?
-
-Mainly for the side effects, but until somebody comes
-up with another idea to achieve all the side effects I'm
-not giving up on reverse mappings. If you can achieve
-all the good stuff in another way, show it.
-
-regards,
-
-Rik
--- 
-IA64: a worthy successor to i860.
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+And that one definitely wont

@@ -1,58 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130406AbQKXXow>; Fri, 24 Nov 2000 18:44:52 -0500
+        id <S130230AbQKXXoX>; Fri, 24 Nov 2000 18:44:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130579AbQKXXop>; Fri, 24 Nov 2000 18:44:45 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:61712 "EHLO
-        havoc.gtf.org") by vger.kernel.org with ESMTP id <S130406AbQKXXod>;
-        Fri, 24 Nov 2000 18:44:33 -0500
-Message-ID: <3A1EF64C.BFE05CE8@mandrakesoft.com>
-Date: Fri, 24 Nov 2000 18:14:20 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Tobias Ringstrom <tori@tellus.mine.nu>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>, andrewm@uow.edu.au,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 3c59x: Using bad IRQ 0
-In-Reply-To: <Pine.LNX.4.10.10011211723380.4687-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+        id <S130406AbQKXXoN>; Fri, 24 Nov 2000 18:44:13 -0500
+Received: from jalon.able.es ([212.97.163.2]:7870 "EHLO jalon.able.es")
+        by vger.kernel.org with ESMTP id <S130230AbQKXXoC>;
+        Fri, 24 Nov 2000 18:44:02 -0500
+Date: Sat, 25 Nov 2000 00:13:51 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Rusty Russell <rusty@linuxcare.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] removal of "static foo = 0" from drivers/ide (test11)
+Message-ID: <20001125001351.A1342@werewolf.able.es>
+Reply-To: jamagallon@able.es
+In-Reply-To: <Pine.LNX.4.21.0011212300590.950-100000@penguin.homenet> <20001123110203.EB8A8813D@halfway.linuxcare.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20001123110203.EB8A8813D@halfway.linuxcare.com.au>; from rusty@linuxcare.com.au on Thu, Nov 23, 2000 at 12:01:53 +0100
+X-Mailer: Balsa 1.0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+
+On Thu, 23 Nov 2000 12:01:53 Rusty Russell wrote:
 > 
-> On Tue, 21 Nov 2000, Jeff Garzik wrote:
-> >
-> > A caveat to this whole scheme is that usb-uhci -already- calls
-> > pci_enable_device before checking dev->irq, and yet cannot get around
-> > the "assign IRQ to USB: no" setting in BIOS.  I hope that is an
-> > exception rather than the rule.
+> What irritates about these monkey-see-monkey-do patches is that if I
+> initialize a variable to NULL, it's because my code actually relies on
+> it; I don't want that information eliminated.
 > 
-> Do we have a recent report of this with full PCI debug output? It might
-> just be another unlisted intel irq router..
 
-Actually, I -was- able to reproduce this problem on my SMP PIIX4 box
-here.  But as of test11-final, I am no longer able to reproduce it.
+What I understood from the previous answer from Tigran is that you can
+avoid initializations to ZERO or NULL, because the BSS is zeroed (ie, all
+variables you declare static os global in a module are zeroed) at
+kernel start.
 
-Maybe some intrepid testers are willing to test 2.4.0-test11 with these
-BIOS settings:
-	PNP OS: Yes
-	Assign IRQ to USB: No
+As I understand from compiler working, if you put a statement like
+int a = 0;
+int b = 0;
+all variables that have an initial value are stored contiguous in the
+data segment of the executable and an image of their initial values has
+to be stored with the binary. So if a program like
 
-It works for me... :)
+int a[16384];
+int main() {}
 
-	Jeff
+gives a binary of 13k, if you write it as
 
+int a[16384] = {0};
+int main() {}
+
+it has to store the 64k of a, just to put a 0 in the first place and
+make the exec size to 78k.
+
+ANSI rules for C say that uninitialized vars get a 0, but you can't trust
+on the ANSI behaviour of a compiler.
+
+Obviuosly, you have to leave your initializations to 7 or -1 in place.
 
 -- 
-Jeff Garzik             |
-Building 1024           | The chief enemy of creativity is "good" sense
-MandrakeSoft            |          -- Picasso
+Juan Antonio Magallon Lacarta                                 #> cd /pub
+mailto:jamagallon@able.es                                     #> more beer
+
+Linux 2.2.18-pre23-vm #3 SMP Wed Nov 22 22:33:53 CET 2000 i686 unknown
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,56 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262277AbULOJJk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262239AbULOJOO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262277AbULOJJk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 04:09:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262278AbULOJJj
+	id S262239AbULOJOO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 04:14:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262303AbULOJOO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 04:09:39 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:47793 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262277AbULOJJZ (ORCPT
+	Wed, 15 Dec 2004 04:14:14 -0500
+Received: from mail-ex.suse.de ([195.135.220.2]:44240 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262239AbULOJOK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 04:09:25 -0500
-Date: Wed, 15 Dec 2004 10:09:00 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc3-mm1-V0.7.33-0
-Message-ID: <20041215090900.GC13551@elte.hu>
-References: <20041122005411.GA19363@elte.hu> <20041123175823.GA8803@elte.hu> <20041124101626.GA31788@elte.hu> <20041203205807.GA25578@elte.hu> <20041207132927.GA4846@elte.hu> <20041207141123.GA12025@elte.hu> <20041214132834.GA32390@elte.hu> <1103066516.12659.377.camel@cmn37.stanford.edu> <1103072952.17186.0.camel@krustophenia.net> <1103076261.12657.709.camel@cmn37.stanford.edu>
+	Wed, 15 Dec 2004 04:14:10 -0500
+Date: Wed, 15 Dec 2004 10:14:09 +0100
+From: Andi Kleen <ak@suse.de>
+To: Andi Kleen <ak@suse.de>
+Cc: Eric Dumazet <dada1@cosmosbay.com>, Brent Casavant <bcasavan@sgi.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, linux-ia64@vger.kernel.org
+Subject: Re: [PATCH 0/3] NUMA boot hash allocation interleaving
+Message-ID: <20041215091409.GA20090@wotan.suse.de>
+References: <Pine.SGI.4.61.0412141140030.22462@kzerza.americas.sgi.com> <9250000.1103050790@flay> <20041214191348.GA27225@wotan.suse.de> <19030000.1103054924@flay> <Pine.SGI.4.61.0412141720420.22462@kzerza.americas.sgi.com> <20041215040854.GC27225@wotan.suse.de> <41BFEAA5.1090109@cosmosbay.com> <20041215074636.GR27225@wotan.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1103076261.12657.709.camel@cmn37.stanford.edu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20041215074636.GR27225@wotan.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU> wrote:
-
-> On Tue, 2004-12-14 at 17:09, Lee Revell wrote:
-> > On Tue, 2004-12-14 at 15:21 -0800, Fernando Lopez-Lezcano wrote:
-> > > I don't know which change did it, but I have network connectivity in my
-> > > athlon64 test box with 0.7.33-0! Woohoo! [*]
-> > 
-> > Wait, this works on x84-64 now?  There was a recent report on LAU that
-> > it didn't compile.
+> > 2) What are the exact number of data TLB entries (for small pages and 
+> > huge ones) for opterons ?
 > 
-> The machine has an athlon64 but it is running 32 bit fc2. I have not
-> tried to build (yet) on 64 bit fcx.
+> check the data sheets, but iirc 64 large DTLBs and 1024+ 4K DTLBS.
+> That is the L2 TLB, there is also a L1 but it is likely inclusive (?)
 
-x64 wont work for now, it needs some work to make threaded timer IRQs
-work.
+After checking the data sheets it is actually 32 2MB DLTBs and 512 4K DTLBs
+(L2). And the same for the ITLB. 
 
-	Ingo
+-Andi

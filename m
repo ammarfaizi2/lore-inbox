@@ -1,90 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270174AbUJTJbB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270138AbUJTJbe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270174AbUJTJbB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 05:31:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270149AbUJTJ1L
+	id S270138AbUJTJbe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 05:31:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270121AbUJTJba
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 05:27:11 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:37062 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S270121AbUJTJWv (ORCPT
+	Wed, 20 Oct 2004 05:31:30 -0400
+Received: from vscan1-eur.ext.dsm-group.com ([163.175.162.4]:19596 "EHLO
+	vscan1-eur.ext.dsm.com") by vger.kernel.org with ESMTP
+	id S270138AbUJTJa4 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 05:22:51 -0400
-Date: Wed, 20 Oct 2004 11:20:17 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, Anton Blanchard <anton@samba.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: New consolidate irqs vs . probe_irq_*()
-Message-ID: <20041020092017.GA28054@elte.hu>
-References: <16758.3807.954319.110353@cargo.ozlabs.ibm.com> <20041020083358.GB23396@elte.hu> <1098261745.6263.9.camel@gaston> <20041020084838.GA25798@elte.hu> <1098262403.6278.16.camel@gaston>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1098262403.6278.16.camel@gaston>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 20 Oct 2004 05:30:56 -0400
+Date: Wed, 20 Oct 2004 11:30:37 +0200
+From: "Frappa, Isabelle" <Isabelle.Frappa@dsm.com>
+Subject: Abwesenheitsnotiz: Your music
+To: linux-kernel@vger.kernel.org
+Message-Id: <912DB9C0846F3042A4BB7FDA0962FCA606F9F266@rkamsem1.emea.roche.com>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft Exchange V6.0.6556.0
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 8BIT
+Thread-Topic: Your music
+Thread-Index: AcS2h3TlYPwrHkTyTPW+n77/51A5swAAAArl
+content-class: urn:content-classes:message
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+X-OriginalArrivalTime: 20 Oct 2004 09:30:37.0565 (UTC)
+ FILETIME=[752892D0:01C4B687]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thank you for your message.
+I am currently out of the office but I will be back on 25th October. In urgent cases please contact Kevin Prudence.
 
-* Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+Danke für Ihr E-Mail.
+Ich bin nicht im Büro und komme am 25. Oct. zurück. In dringenden Fällen bitte mit Kevin Prudence Kontakt aufnehmen. 
 
-> On Wed, 2004-10-20 at 18:48, Ingo Molnar wrote:
-> 
-> > yeah. I've put it into a separate autoprobe.c file specifically for that
-> > reason, you can exclude it in the Makefile and can provide your own
-> > architecture version. Or should we make the no-autoprobing choice
-> > generic perhaps?
-> 
-> I like this later option... How may archs actually had autoprobing
-> implemented and actually used ?
-> 
-> Well, I'll do some grep'ing around tonight as I do the NO_IRQ stuff
-> and see what makes more sense. I don't think an arch that didn't have
-> autoprobing needs it now, besides, it's not exactly a reliable
-> mecanism...
+Merci pour votre message.
+Je suis absente jusqu'au 25 Octobre. Pour les questions urgentes, merci de contacter Kevin Prudence.
 
-btw., auto-detection of interrupt sources is not _necessarily_ broken. 
-Especially with level-triggered interrupts (where no active irq source
-can get lost) it can be doable and reliable. (Here i dont mean the
-probe_irq_on/off interface, but the concept of auto-detection.)
+kevin.prudence@dsm.com
+Tel. +41 61 68 89315
 
-Alan has a very neat hack that fixes laptop BIOS breakage in associating
-a screaming interrupt with the driver that responds to it with
-IRQ_HANDLED, by probing through all the SHIRQ handlers and checking
-whether the return code is IRQ_HANDLED. (this patch was in -mm but has
-not been integrated into the generic irq subsystem yet.) This patch
-turned a broken-under-Linux into a working laptop so we cannot ignore
-it.
+Kind Regards, mit freundlichen Grüssen, cordialement
 
-In theory, as long as all drivers involved are shared-irq-capable, and
-all interrupts are level-triggered and get repeated if unhandled, we can
-always do this kinds of driver-feedback-based irq vector discovery.
+Isabelle Frappa
 
-Think about the positive effects: in theory we could even boot into a
-box without _any_ BIOS interrupt info whatsoever, assuming only a few
-architecture basics like the identity of the timer interrupt.
-Furthermore, if the BIOS reports _bad_ interrupt information, we can
-detect & redirect that interrupt to the driver that responds to it.
 
-this is not a concept that would be too useful for the server space, but
-it sure could be useful for the produce-and-forget PC mass-market. We
-are playing a constant and mostly losing catchup game with BIOS quirks.
+This e-mail is for the intended recipient only.
+If you have received it by mistake please let us know by reply and then
+delete it from your system; access, disclosure, copying, distribution or
+reliance on any of it by anyone else is prohibited.
+If you as intended recipient have received this e-mail incorrectly, please
+notify the sender (via e-mail) immediately.
 
-what can never work fully reliably is of course what the feature was
-used for primarily: ISA :-) One-time edge-triggered interrupts that get
-lost are nasty ...
 
-so i thought autodetect.c could survive in the generic code - maybe we
-can make something really nice out of it, based on Alan's patch.
 
-	Ingo
+
+

@@ -1,44 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262732AbTIAHOd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 03:14:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262734AbTIAHOd
+	id S262723AbTIAHH0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 03:07:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262652AbTIAHHZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 03:14:33 -0400
-Received: from mail.kroah.org ([65.200.24.183]:52888 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262732AbTIAHOc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 03:14:32 -0400
-Date: Sun, 31 Aug 2003 23:59:28 -0700
-From: Greg KH <greg@kroah.com>
-To: John Stoffel <stoffel@lucent.com>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: 2.6.0-test4-mm4 - USD disconnect oops
-Message-ID: <20030901065928.GB22647@kroah.com>
-References: <16210.44543.579049.520185@gargle.gargle.HOWL>
+	Mon, 1 Sep 2003 03:07:25 -0400
+Received: from chello080108023209.34.11.vie.surfer.at ([80.108.23.209]:48512
+	"HELO leto2.endorphin.org") by vger.kernel.org with SMTP
+	id S262723AbTIAHG6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 03:06:58 -0400
+Date: Mon, 1 Sep 2003 09:07:32 +0200
+To: Christian Jaeger <christian.jaeger@ethlife.ethz.ch>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: cryptoloop on 2.4.22/ppc doesn't work
+Message-ID: <20030901070732.GA7557@leto2.endorphin.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="5mCyUwZo2JvN/JJP"
 Content-Disposition: inline
-In-Reply-To: <16210.44543.579049.520185@gargle.gargle.HOWL>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.3.28i
+From: Fruhwirth Clemens <clemens-dated-1063264053.c002@endorphin.org>
+X-Delivery-Agent: TMDA/0.51 (Python 2.1.3 on Linux/i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 31, 2003 at 10:25:03PM -0400, John Stoffel wrote:
-> 
-> This is 2.6.0-test4-mm4 with some hacks to the hotplug script to not
-> modprobe the ehci-hcd or uhci-hcd modules, since they hang things even
-> worse.  Sigh...
 
-Where does the kernel hang?
+--5mCyUwZo2JvN/JJP
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Here's the backtrace, my .config is at the end.  It's a PIII Xeon 2 x
-> 550mhz, Dell Precision 610 motherboard/system, 768mb of RAM.  The only
-> USB devices are the controllers and the CompactFlash reader, which
-> works great under 2.4.  
+On Thu, Feb 15, 2001 at 01:35:46PM +0100, Christian Jaeger wrote:
+>=20
+> I cannot seem to get crypto loopback to run.
 
-Does this happen on 2.6.0-test4?  (no -mm).
+=2E.
 
-thanks,
+> This is Debian woody, /sbin/losetup from mount package 2.11m-1
+>=20
+> Why doesn't it work?
 
-greg k-h
+You need to update util-linux. 2.12pre is recommend in addition to jari's
+crypto patches:=20
+
+http://www.kerneli.org/pipermail/cryptoapi-devel/2003-June/000578.html
+
+Regards, Clemens
+
+--5mCyUwZo2JvN/JJP
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE/UvA0W7sr9DEJLk4RAvC9AJ91T+xNXWR4QXsRhIbLAscvx5cq9QCeOXsm
+W4oek4S5qJPtYj0dc/IUGzo=
+=Zpcf
+-----END PGP SIGNATURE-----
+
+--5mCyUwZo2JvN/JJP--

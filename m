@@ -1,66 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275183AbRJAQFV>; Mon, 1 Oct 2001 12:05:21 -0400
+	id <S275195AbRJAQDB>; Mon, 1 Oct 2001 12:03:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275197AbRJAQFL>; Mon, 1 Oct 2001 12:05:11 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:40972 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S275183AbRJAQFC>; Mon, 1 Oct 2001 12:05:02 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Rik van Riel <riel@conectiva.com.br>
-Subject: Re: Load control  (was: Re: 2.4.9-ac16 good perfomer?)
-Date: Mon, 1 Oct 2001 18:05:17 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: Mike Fedyk <mfedyk@matchmail.com>, <linux-kernel@vger.kernel.org>,
-        <linux-mm@kvack.org>
-In-Reply-To: <Pine.LNX.4.33L.0110011031050.4835-100000@imladris.rielhome.conectiva>
-In-Reply-To: <Pine.LNX.4.33L.0110011031050.4835-100000@imladris.rielhome.conectiva>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011001160524Z16518-2757+2654@humbolt.nl.linux.org>
+	id <S275183AbRJAQCv>; Mon, 1 Oct 2001 12:02:51 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:42746 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S275195AbRJAQCk>; Mon, 1 Oct 2001 12:02:40 -0400
+From: Andreas Dilger <adilger@turbolabs.com>
+Date: Mon, 1 Oct 2001 10:03:02 -0600
+To: linux-kernel@vger.kernel.org
+Subject: Re: [patch] netconsole-2.4.10-B1
+Message-ID: <20011001100302.B22725@turbolinux.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <3BB693AC.6E2DB9F4@canit.se> <Pine.LNX.4.33L.0109300448210.19147-100000@imladris.rielhome.conectiva> <9p9ai4$qgh$1@forge.intermeta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9p9ai4$qgh$1@forge.intermeta.de>
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On October 1, 2001 03:57 pm, Rik van Riel wrote:
-> On Mon, 1 Oct 2001, Daniel Phillips wrote:
+On Oct 01, 2001  08:47 +0000, Henning P. Schmiedehausen wrote:
+> netconsole listener offers the "receive console messages" service -> server
+> netconsole.o uses the "receive console message" service -> client
 > 
-> > Nice.  With this under control, another feature of his memory manager
-> > you could look at is the variable deactivation threshold, which makes
-> > a whole lot more sense now that the aging is linear.
-> 
-> Actually, when we get to the point where deactivating enough
-> pages is hard, we know the working set is large and we should
-> be _more careful_ in chosing what to page out...
+> So both definitions are right/wrong. Choose any you like. Just
+> document it and stick to it. =:-) 
 
-Naturally.  However, this is orthogonal.  Consider the case where you've hit 
-the wall and the inactive list has suffered sudden depletion.  At this point 
-you have to deactivate a large number of pages and you will have few or no 
-intervening age-up events (because you hit the wall and nobody's moving).  
-It's a useless waste of CPU and real time to cycle through the active list 5 
-times to deactivate enough pages.  You should cycle through at most twice, 
-once to age up any pages with Ref set and the second time to deactivate the 
-required number of pages according to a threshold you estimated on the first 
-pass.
+It is ironic that the most popular thread about netconsole is a foolish
+semantic argument, instead of a steady stream of patches for the various
+network cards.
 
-This is just the first common example that came to mind where a variable 
-deactivation threshold is obviously desirable, I'm sure there are others.
+> I am happy to have a network console no matter what is the client and
+> what is the server.
 
-> When we go one step further, where the working set approaches
-> the size of physical memory, we should probably start doing
-> load control FreeBSD-style ... pick a process and deactivate
-> as many of its pages as possible. By introducing unfairness
-> like this we'll be sure that only one or two processes will
-> slow down on the next VM load spike, instead of all processes.
-> 
-> Once we reach permanent heavy overload, we should start doing
-> process scheduling, restricting the active processes to a
-> subset of all processes in such a way that the active processes
-> are able to make progress. After a while, give other processes
-> their chance to run.
+I agree.  I was actually thinking just now that I would "enhance" the
+netconsole-server script so that:
 
-No question about the need for higher level process control, but the low 
-level machinery could still be improved, don't you think?
+1) it can start both the client and the server (I will just call it
+   "netconsole", and use a config file to get the settings).  Maybe
+   options like "--send" and "--receive" are unambiguous enough?
+2) we don't need to specify the IP address of the local host for the
+   "client" (possibly enhancing the client to listen on all configured
+   interfaces by default.
 
+Cheers, Andreas
 --
-Daniel
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+

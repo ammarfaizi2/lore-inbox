@@ -1,57 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262303AbSJQWxf>; Thu, 17 Oct 2002 18:53:35 -0400
+	id <S262291AbSJQWum>; Thu, 17 Oct 2002 18:50:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262314AbSJQWxe>; Thu, 17 Oct 2002 18:53:34 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:11456 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262303AbSJQWxe>;
-	Thu, 17 Oct 2002 18:53:34 -0400
-Date: Thu, 17 Oct 2002 15:51:57 -0700 (PDT)
-Message-Id: <20021017.155157.58460849.davem@redhat.com>
-To: ast@domdv.de
-Cc: greg@kroah.com, hch@infradead.org, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove sys_security
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3DAF3EF1.50500@domdv.de>
-References: <20021017185352.GA32537@kroah.com>
-	<20021017.131830.27803403.davem@redhat.com>
-	<3DAF3EF1.50500@domdv.de>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S262296AbSJQWum>; Thu, 17 Oct 2002 18:50:42 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:20370 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262291AbSJQWul>;
+	Thu, 17 Oct 2002 18:50:41 -0400
+Date: Thu, 17 Oct 2002 15:52:05 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Bug tracking in the run up from 2.5 to 2.6
+Message-ID: <205680000.1034895125@flay>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Andreas Steinmetz <ast@domdv.de>
-   Date: Fri, 18 Oct 2002 00:51:29 +0200
+We're proposing to create a bug tracking system to help keep track of
+2.5 kernel bugs ... in an attempt to help get 2.5 stabilised as quickly as
+possible. 
 
-   For the next few years 99% of the linux users won't use GBit ethernet, 
-   so why don't you remove these drivers from the kernel?
-   
-The vast majority of desktop computers today ship with gigabit
-ethernet interfaces on the motherboard.
+It would be based on Bugzilla, and open for anyone to log bugs against
+2.5, though those would then be filtered by a set of "maintainers" to keep
+the quality of the data up to snuff. Ideally those would be the subsystem
+maintainers as we know them now, though in the event that certain people
+weren't interested, we'd find a "bugzilla maintainer" for the subsystem to
+fill that role.
 
-So you are wrong, people use it today.
+IBM's Linux Technology Centre is willing to provide the machine, admin, 
+and people to help maintain the data in the database. We have someone
+who's kindly agreed in principle to host the machine for us (feel free to 
+speak up if you like, otherwise I'll wait until the proposal is firmed up).
 
-As per the rest of your email, most of my disagreement has to do
-with the fact that the implementation isn't optimal.  Going back
-to USB, it's optimal because it falls into one of two possible
-categories:
+We'll also have a slew of engineers dedicated to stabilise 2.5 after the
+freeze, but this is not intended to be solely an IBM thing by any means;
+we're volunteering to host the tracking database on behalf of the community,
+and do some of the dirty work of administration. The intent is to have this
+up and running by Halloween, and for a signification cross-section of the 
+community to use it.
 
-1) If I don't use it, and it's built as a module, it takes up
-   no resources on my computer.
+So ... are the maintainers interested in working with this kind of system?
+We really need to get some feedback before commiting resources to doing
+this - if you'd be willing to close out bugs as you find / fix them, please let
+me know. This is a web interface system, with handy email triggers, and is
+very easy to use.
 
-2) The facilities added to support feature X also helps make
-   things like Y and Z possible.
+Feedback saying "well, it'll only be useful if you do XYZ" is welcome too.
+We're very unlikely to change tools to use something other than Bugzilla
+at this point, so that's not really open for debate.
 
-Things like #2 are the things Al Viro is talking about.
+Martin.
 
-So instead of "security_ops()->this, security_ops()->that" being
-sprinkled merrily all over the VFS, we have something useful to things
-outside of LSM such as full file */fd attributes.
-
-Frankly, as a side effect of no effort being put into #2, the LSM user
-level interface is complete shit.  As is the hook mechanism.

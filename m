@@ -1,84 +1,167 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266486AbUAIKxy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 05:53:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266487AbUAIKxy
+	id S261270AbUAILck (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 06:32:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbUAILck
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 05:53:54 -0500
-Received: from [193.138.115.2] ([193.138.115.2]:42249 "HELO
-	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
-	id S266486AbUAIKxv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 05:53:51 -0500
-Date: Fri, 9 Jan 2004 11:50:53 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Jakub Jelinek <jakub@redhat.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] invalid ELF binaries can execute - better sanity
- checking
-In-Reply-To: <20040109102851.GF24876@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.56.0401091141200.12106@jju_lnx.backbone.dif.dk>
-References: <Pine.LNX.4.56.0401090236390.11276@jju_lnx.backbone.dif.dk>
- <20040109102851.GF24876@devserv.devel.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 9 Jan 2004 06:32:40 -0500
+Received: from catv-50620dee.bp13catv.broadband.hu ([80.98.13.238]:34824 "EHLO
+	guard.localnet") by vger.kernel.org with ESMTP id S261270AbUAILcf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 06:32:35 -0500
+Subject: Modular IDE in 2.6
+From: Attila BODY <compi@freemail.hu>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1073647943.1013.12.camel@smiley.localnet>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 09 Jan 2004 12:32:24 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+
+It has been reported already but there was no response on the list so I
+have to ask a straight question:
+
+Will we have a modular ide in 2.6 anytime (soon)?
+
+The sympthom is when I am trying to compile the IDE code as modules in
+2.6 (last time in 2.6.1), depmod fails with unresolved symbols and
+circular dependencies:
+
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map -b ~/linux -r
+2.6.1; fi
+WARNING:
+/home/compi/linux/lib/modules/2.6.1/kernel/drivers/ide/ide-floppy.ko
+needs unknown symbol proc_ide_read_geometry
+WARNING:
+/home/compi/linux/lib/modules/2.6.1/kernel/drivers/ide/ide-probe.ko
+needs unknown symbol create_proc_ide_interfaces
+WARNING:
+/home/compi/linux/lib/modules/2.6.1/kernel/drivers/ide/ide-probe.ko
+needs unknown symbol ide_cfg_sem
+WARNING:
+/home/compi/linux/lib/modules/2.6.1/kernel/drivers/ide/ide-probe.ko
+needs unknown symbol idedefault_driver
+WARNING:
+/home/compi/linux/lib/modules/2.6.1/kernel/drivers/ide/ide-probe.ko
+needs unknown symbol do_ide_request
+WARNING:
+/home/compi/linux/lib/modules/2.6.1/kernel/drivers/ide/ide-probe.ko
+needs unknown symbol ide_add_generic_settings
+WARNING:
+/home/compi/linux/lib/modules/2.6.1/kernel/drivers/ide/ide-probe.ko
+needs unknown symbol blk_queue_activity_fn
+WARNING: /home/compi/linux/lib/modules/2.6.1/kernel/drivers/ide/ide.ko
+needs unknown symbol ide_scan_pcibus
+WARNING: /home/compi/linux/lib/modules/2.6.1/kernel/drivers/ide/ide.ko
+needs unknown symbol ide_release_dma
+WARNING: /home/compi/linux/lib/modules/2.6.1/kernel/drivers/ide/ide.ko
+needs unknown symbol create_proc_ide_interfaces
+WARNING: /home/compi/linux/lib/modules/2.6.1/kernel/drivers/ide/ide.ko
+needs unknown symbol ide_add_proc_entries
+WARNING: /home/compi/linux/lib/modules/2.6.1/kernel/drivers/ide/ide.ko
+needs unknown symbol proc_ide_read_capacity
+WARNING: /home/compi/linux/lib/modules/2.6.1/kernel/drivers/ide/ide.ko
+needs unknown symbol destroy_proc_ide_drives
+WARNING: /home/compi/linux/lib/modules/2.6.1/kernel/drivers/ide/ide.ko
+needs unknown symbol idedefault_driver
+WARNING: /home/compi/linux/lib/modules/2.6.1/kernel/drivers/ide/ide.ko
+needs unknown symbol proc_ide_destroy
+WARNING: /home/compi/linux/lib/modules/2.6.1/kernel/drivers/ide/ide.ko
+needs unknown symbol ide_remove_proc_entries
+WARNING: /home/compi/linux/lib/modules/2.6.1/kernel/drivers/ide/ide.ko
+needs unknown symbol proc_ide_create
+
+...
+
+WARNING: Module /lib/modules/2.6.1/kernel/drivers/scsi/ide-scsi.ko
+ignored, due to loop
+WARNING: Module
+/lib/modules/2.6.1/kernel/drivers/usb/storage/usb-storage.ko ignored,
+due to loop
+WARNING: Module /lib/modules/2.6.1/kernel/drivers/ide/ide-io.ko ignored,
+due to loop
+WARNING: Module /lib/modules/2.6.1/kernel/drivers/ide/ide-cd.ko ignored,
+due to loop
+WARNING: Module /lib/modules/2.6.1/kernel/drivers/ide/ide-floppy.ko
+ignored, due to loop
+WARNING: Loop detected:
+/home/compi/linux/lib/modules/2.6.1/kernel/drivers/ide/ide-iops.ko needs
+ide.ko which needs ide-iops.ko again!
 
 
-On Fri, 9 Jan 2004, Jakub Jelinek wrote:
+The relevan .config part is the following:
 
-> On Fri, Jan 09, 2004 at 03:19:12AM +0100, Jesper Juhl wrote:
-> > --- linux-2.6.1-rc1-mm2-orig/fs/binfmt_elf.c    2003-12-31 05:47:13.000000000 +0100
-> > +++ linux-2.6.1-rc1-mm2/fs/binfmt_elf.c 2004-01-09 01:41:05.000000000 +0100
-> > @@ -482,11 +482,14 @@ static int load_elf_binary(struct linux_
-> >         /* First of all, some simple consistency checks */
-> >         if (memcmp(elf_ex.e_ident, ELFMAG, SELFMAG) != 0)
-> >                 goto out;
-> > -
-> > +       if (elf_ex.e_ident[EI_CLASS] == ELFCLASSNONE)
-> > +               goto out;
-> >         if (elf_ex.e_type != ET_EXEC && elf_ex.e_type != ET_DYN)
-> >                 goto out;
-> >         if (!elf_check_arch(&elf_ex))
-> >                 goto out;
-> > +       if (elf_ex.e_version == EV_NONE)
-> > +               goto out;
-> >         if (!bprm->file->f_op||!bprm->file->f_op->mmap)
-> >                 goto out;
->
-> These checks look useless for me.
-> If you want to check EI_CLASS or e_version, why is 0 so special and not say
-> 157?
+CONFIG_IDE=m
+CONFIG_BLK_DEV_IDE=m
 
-You are absolutely correct. Those tests are very weak, and (as I tried to
-explain in my original mail), I did not intend the patch to be merged as
-it was. I only did those (admittedly very weak) checks initially to be
-able to easily verify with a test program that my checks where indeed
-checking the right fields of the ELF header, and that introducing
-aditional checking did not make the kernel "blow up".
-I'm working on a proper patch that'll do the real checks of these ELF
-header fields, as well as add additional checks.
-I'll be submitting that patch as soon as it's done. I'm aiming to have
-something ready during the weekend.
+# CONFIG_BLK_DEV_HD_IDE is not set
+CONFIG_BLK_DEV_IDEDISK=m
+# CONFIG_IDEDISK_MULTI_MODE is not set
+# CONFIG_IDEDISK_STROKE is not set
+CONFIG_BLK_DEV_IDECD=m
+CONFIG_BLK_DEV_IDETAPE=m
+CONFIG_BLK_DEV_IDEFLOPPY=m
+CONFIG_BLK_DEV_IDESCSI=m
+CONFIG_IDE_TASK_IOCTL=y
+CONFIG_IDE_TASKFILE_IO=y
 
-> Why not to check EI_DATA and EI_VERSION as well though?
-> glibc loader does:
+# CONFIG_BLK_DEV_CMD640 is not set
+# CONFIG_BLK_DEV_IDEPNP is not set
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+# CONFIG_BLK_DEV_OFFBOARD is not set
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_BLK_DEV_OPTI621=m
+CONFIG_BLK_DEV_RZ1000=m
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
+CONFIG_IDEDMA_PCI_AUTO=y
+# CONFIG_IDEDMA_ONLYDISK is not set
+# CONFIG_IDEDMA_PCI_WIP is not set
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_AEC62XX=m
+CONFIG_BLK_DEV_ALI15X3=m
+# CONFIG_WDC_ALI15X3 is not set
+CONFIG_BLK_DEV_AMD74XX=m
+CONFIG_BLK_DEV_CMD64X=m
+CONFIG_BLK_DEV_TRIFLEX=m
+CONFIG_BLK_DEV_CY82C693=m
+# CONFIG_BLK_DEV_CS5520 is not set
+CONFIG_BLK_DEV_CS5530=m
+CONFIG_BLK_DEV_HPT34X=m
+CONFIG_BLK_DEV_HPT366=m
+CONFIG_BLK_DEV_SC1200=m
+CONFIG_BLK_DEV_PIIX=m
+CONFIG_BLK_DEV_NS87415=m
+CONFIG_BLK_DEV_PDC202XX_OLD=m
+CONFIG_BLK_DEV_PDC202XX_NEW=m
+CONFIG_BLK_DEV_SVWKS=m
+CONFIG_BLK_DEV_SIIMAGE=m
+CONFIG_BLK_DEV_SIS5513=m
+CONFIG_BLK_DEV_SLC90E66=m
+CONFIG_BLK_DEV_TRM290=m
+CONFIG_BLK_DEV_VIA82CXXX=m
+CONFIG_IDE_CHIPSETS=y
 
-I plan to.
-I just wanted to get some feedback initially. The patch was a very minor
-bit of the email I send, and probably the least important bit.
-I wanted to get peoples reactions to the thought of adding stronger sanity
-checks. The patch was just a minor thing - the discussion about "do we
-want additional checks?" was the important bit.
+CONFIG_BLK_DEV_4DRIVES=y
+CONFIG_BLK_DEV_ALI14XX=m
+CONFIG_BLK_DEV_DTC2278=m
+CONFIG_BLK_DEV_HT6560B=m
+CONFIG_BLK_DEV_PDC4030=m
+CONFIG_BLK_DEV_QD65XX=m
+CONFIG_BLK_DEV_UMC8672=m
+CONFIG_BLK_DEV_IDEDMA=y
+# CONFIG_IDEDMA_IVB is not set
+CONFIG_IDEDMA_AUTO=y
+# CONFIG_DMA_NONPCI is not set
+# CONFIG_BLK_DEV_HD is not set
 
+Thanks in advance,
 
-> Perhaps binfmt_elf.c wants to be able to load different OSABI ELF objects,
-> if so, it could just memcmp the first EI_OSABI bytes of e_ident and check
-> e_version and other fields outside of e_ident.
->
-I'll keep that in mind. Thank you.
-
-
--- Jesper Juhl
+Attila
 

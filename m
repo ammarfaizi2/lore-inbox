@@ -1,43 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278358AbRKHU6Q>; Thu, 8 Nov 2001 15:58:16 -0500
+	id <S278364AbRKHVLr>; Thu, 8 Nov 2001 16:11:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278391AbRKHU6H>; Thu, 8 Nov 2001 15:58:07 -0500
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:4359 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S278325AbRKHU5t>; Thu, 8 Nov 2001 15:57:49 -0500
-Date: Thu, 8 Nov 2001 15:57:49 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Cotte@de.ibm.com
-Cc: linux-kernel@vger.kernel.org, Linux390@de.ibm.com
-Subject: if (a & X || b & ~Y) in dasd.c
-Message-ID: <20011108155749.A24023@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S278325AbRKHVLh>; Thu, 8 Nov 2001 16:11:37 -0500
+Received: from [139.84.194.100] ([139.84.194.100]:19083 "EHLO
+	eclipse.pheared.net") by vger.kernel.org with ESMTP
+	id <S278364AbRKHVLc>; Thu, 8 Nov 2001 16:11:32 -0500
+Date: Thu, 8 Nov 2001 16:10:51 -0500 (EST)
+From: Kevin <kevin@pheared.net>
+To: Pete Zaitcev <zaitcev@redhat.com>
+cc: Cotte@de.ibm.com, <linux-kernel@vger.kernel.org>, <Linux390@de.ibm.com>
+Subject: Re: if (a & X || b & ~Y) in dasd.c
+In-Reply-To: <20011108155749.A24023@devserv.devel.redhat.com>
+Message-ID: <Pine.GSO.4.40.0111081607110.8007-100000@eclipse.pheared.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Carsten and others:
+On Thu, 8 Nov 2001, Pete Zaitcev wrote:
 
-this code in 2.2.14 looks suspicious to me:
+[zaitce] Date: Thu, 8 Nov 2001 15:57:49 -0500
+[zaitce] From: Pete Zaitcev <zaitcev@redhat.com>
+[zaitce] To: Cotte@de.ibm.com
+[zaitce] Cc: linux-kernel@vger.kernel.org, Linux390@de.ibm.com
+[zaitce] Subject: if (a & X || b & ~Y) in dasd.c
+[zaitce]
+[zaitce] Carsten and others:
+[zaitce]
+[zaitce] this code in 2.2.14 looks suspicious to me:
+[zaitce]
+[zaitce] ./drivers/s390/block/dasd.c:
+[zaitce]         /* first of all lets try to find out the appropriate era_action */
+[zaitce]         if (stat->flag & DEVSTAT_FLAG_SENSE_AVAIL ||
+[zaitce]             stat->dstat & ~(DEV_STAT_CHN_END | DEV_STAT_DEV_END)) {
+[zaitce]                 /* anything abnormal ? */
+[zaitce]                 if (device->discipline->examine_error == NULL ||
+[zaitce]                     stat->flag & DEVSTAT_HALT_FUNCTION) {
+[zaitce]                         era = dasd_era_fatal;
+[zaitce]                 } else {
+[zaitce]                         era = device->discipline->examine_error (cqr, stat);
+[zaitce]                 }
+[zaitce]                 DASD_DRIVER_DEBUG_EVENT (1, dasd_int_handler," era_code %d",
+[zaitce]                                          era);
+[zaitce]         }
+[zaitce]
+[zaitce] Are you sure any parenthesises are not needed here?
 
-./drivers/s390/block/dasd.c:
-        /* first of all lets try to find out the appropriate era_action */
-        if (stat->flag & DEVSTAT_FLAG_SENSE_AVAIL ||
-            stat->dstat & ~(DEV_STAT_CHN_END | DEV_STAT_DEV_END)) {
-                /* anything abnormal ? */
-                if (device->discipline->examine_error == NULL ||
-                    stat->flag & DEVSTAT_HALT_FUNCTION) {
-                        era = dasd_era_fatal;
-                } else {
-                        era = device->discipline->examine_error (cqr, stat);
-                }
-                DASD_DRIVER_DEBUG_EVENT (1, dasd_int_handler," era_code %d",
-                                         era);
-        }
+I'm not going to pretend to know what the code is accomplishing, but as
+a matter of C, those &'s aren't the same as &&'s and will get executed as
+the || is tested.  So the first one will get &'ded and if false then the
+second will and if neither return true then we move on.
 
-Are you sure any parenthesises are not needed here?
+Or, perhaps I'm being an idiot and misunderstanding the question and the
+code.  In that case, I'll pretend I didn't say anything.  :)
 
--- Pete
+-[ kevin@pheared.net                 devel.pheared.net ]-
+-[ Rather be forgotten, than remembered for giving in. ]-
+-[ ZZ = g ^ (xb * xa) mod p      g = h^{(p-1)/q} mod p ]-
+
+

@@ -1,56 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265830AbSJSXkk>; Sat, 19 Oct 2002 19:40:40 -0400
+	id <S265759AbSJSXWd>; Sat, 19 Oct 2002 19:22:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265831AbSJSXkk>; Sat, 19 Oct 2002 19:40:40 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:9484 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S265830AbSJSXkj>; Sat, 19 Oct 2002 19:40:39 -0400
-Date: Sat, 19 Oct 2002 16:44:32 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Brian Gerst <bgerst@quark.didntduck.org>
-cc: Christian Borntraeger <linux@borntraeger.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: ide-related kernel panic in 2.4.19 and 2.4.20-pre11
-In-Reply-To: <3DB1E876.2000302@quark.didntduck.org>
-Message-ID: <Pine.LNX.4.10.10210191627090.24031-100000@master.linux-ide.org>
+	id <S265757AbSJSXWd>; Sat, 19 Oct 2002 19:22:33 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38155 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S265759AbSJSXWa>;
+	Sat, 19 Oct 2002 19:22:30 -0400
+Message-ID: <3DB1EAAB.30401@pobox.com>
+Date: Sat, 19 Oct 2002 19:28:43 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Larry McVoy <lm@bitmover.com>
+CC: Richard Stallman <rms@gnu.org>, hch@infradead.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Bitkeeper outrage, old and new
+References: <E180rX3-0005dL-00@fencepost.gnu.org> <20021014170248.A19897@infradead.org> <E181WHl-00010N-00@fencepost.gnu.org> <20021015193138.A4010@infradead.org> <200210161856.g9GIu57t013710@santafe.santafe.edu> <20021016201328.A24882@infradead.org> <E1832Lh-0004xH-00@fencepost.gnu.org> <20021019161201.A26017@work.bitmover.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Larry McVoy wrote:
+> I have no problem with the GPL, I think it's a fine license if your
+> goal is to have things done out in the open with no hoarding.  A great
+> license, in fact.  But I have a big problem with this constant harping
+> on the term "freedom".  The GPL absolutely positively does not grant me
+> all the rights I want, it took substantial portions of my freedom away.
+> I am not free to use GPL source in any way I wish and neither is anyone
+> else.
+> 
+> I'm OK with you having a free license, go make one.  I'm OK with you 
+> sticking with the GPL, but then you get admit that it is not a free
+> license and stop kidding yourself and others.
 
-Did you consider the attempt to copy may invoke the device to attempt to
-jam and crash the transport?  Did you consider the SCSI layer may not be
-capable of handling the task management command? 
 
-They are not broken if you have a device which is "Copy-protected" aware.
-It will attempt to thwart your operation request and that can include
-crashing a system.
+At the potential cost of getting flamed, I think it is worth pointing 
+out that the FSF's copyright assignment policy on several of their 
+projects is _very_ anti-freedom.  You are required to relinquish all 
+your rights to your contributions, in exchange for the hope that the FSF 
+will protect them.
 
-> Copy-protected discs abuse the CD standards to the point where CDROM
-> drives consider them defective and can't/won't read them, while less
-> intelligent devices can.  Trying to read one of these discs should only
-> cause the kernel to return an error, never an oops.
+So, like the GPL, you are really _giving up_ rights and freedoms for the 
+overall cause of software freedom.
 
-You admit that older dumber devices just work.
-So much for new and improved, go find the old and lousy that works.
+	Jeff, who GPLs all the software he writes...
 
-Asking me to make it so you or anyone else can bypass
-copy-content-protection is out of the question.  If you do not ask the
-device to do bad things, then it will not do bad things back at you.
-
-If your memory is short, recall I was the only person to stand up and take
-issue about having CPRM stuffed into your harddrives by default.
-
-Make a note, DON"T BUY SONY CDRW Products. 
-
-Now if you are serious about want to fix the issue and not rant about
-issues that have no meaning because they are your opinion on how the world
-should work as it relates to hardware, then we can move on.
-
-Regards,
-
-Andre Hedrick
-LAD Storage Consulting Group
 

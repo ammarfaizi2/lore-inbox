@@ -1,34 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130153AbRAaLXK>; Wed, 31 Jan 2001 06:23:10 -0500
+	id <S129798AbRAaL0A>; Wed, 31 Jan 2001 06:26:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131172AbRAaLXB>; Wed, 31 Jan 2001 06:23:01 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:38406 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130153AbRAaLW4>; Wed, 31 Jan 2001 06:22:56 -0500
-Subject: Re: hotmail not dealing with ECN
-To: raj@cup.hp.com (Rick Jones)
-Date: Wed, 31 Jan 2001 10:56:10 +0000 (GMT)
-Cc: helgehaf@idb.hist.no (Helge Hafting), hpa@transmeta.com (H. Peter Anvin),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3A71BC34.F8024103@cup.hp.com> from "Rick Jones" at Jan 26, 2001 10:04:36 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130406AbRAaLZv>; Wed, 31 Jan 2001 06:25:51 -0500
+Received: from chiara.elte.hu ([157.181.150.200]:4870 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S129798AbRAaLZl>;
+	Wed, 31 Jan 2001 06:25:41 -0500
+Date: Wed, 31 Jan 2001 12:24:53 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Malcolm Beattie <mbeattie@sable.ox.ac.uk>
+Cc: jamal <hadi@cyberus.ca>, Ion Badulescu <ionut@cs.columbia.edu>,
+        Andrew Morton <andrewm@uow.edu.au>,
+        lkml <linux-kernel@vger.kernel.org>,
+        "netdev@oss.sgi.com" <netdev@oss.sgi.com>
+Subject: Re: Still not sexy! (Re: sendfile+zerocopy: fairly sexy (nothing to
+ do with ECN)
+In-Reply-To: <20010131112145.A13345@sable.ox.ac.uk>
+Message-ID: <Pine.LNX.4.30.0101311222220.2140-100000@elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14Nuvu-00027V-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > So, no reason for a firewall author to check these bits.
-> 
-> I thought that most firewalls were supposed to be insanely paranoid.
-> Perhaps it would be considered a possible covert data channel, as
-> farfecthed as that may sound.
 
-If you care about such things you run pure proxy. A packet filter is a simple
-access barrier it isnt designed to stop information leakage
+On Wed, 31 Jan 2001, Malcolm Beattie wrote:
+
+> Without the raised tcp_wmem setting I was getting 81 MByte/s. With
+> tcp_wmem set as above I got 86 MByte/s. Nice increase. Any other
+> setting I can tweak apart from {r,w}mem_max and tcp_{w,r}mem? The CPU
+> on the client (350 MHz PII) is the bottleneck: gensink4 maxes out at
+> 69 Mbyte/s pulling TCP from the server and 94 Mbyte/s pushing. (The
+> other system, 733 MHz PIII pushes >100MByte/s UDP with ttcp but the
+> client drops most of it).
+
+you can speed up the client significantly by using the MSG_TRUNC option
+('truncate message'). It will zap incoming data without copying it into
+user-space. (you can use this for the 'bulk transfer' part - the initial
+protocol handling code needs to see the actual data.) This way you should
+be able to saturate the server even more.
+
+	Ingo
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

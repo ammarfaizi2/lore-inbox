@@ -1,75 +1,141 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262912AbTIFFDC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Sep 2003 01:03:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262345AbTIFFDB
+	id S262726AbTIFFsQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Sep 2003 01:48:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262345AbTIFFsQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Sep 2003 01:03:01 -0400
-Received: from waste.org ([209.173.204.2]:17823 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262912AbTIFFC7 (ORCPT
+	Sat, 6 Sep 2003 01:48:16 -0400
+Received: from mail.kroah.org ([65.200.24.183]:59609 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263402AbTIFFsG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Sep 2003 01:02:59 -0400
-Date: Sat, 6 Sep 2003 00:02:52 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Jan Ischebeck <mail@jan-ischebeck.de>,
-       viro@parcelfarce.linux.theplanet.co.uk
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test4-mm6
-Message-ID: <20030906050252.GQ31897@waste.org>
-References: <1062766000.2081.11.camel@JHome.uni-bonn.de> <20030905145124.GF454@parcelfarce.linux.theplanet.co.uk> <1062810478.2101.27.camel@JHome.uni-bonn.de> <20030906042914.GP31897@waste.org>
+	Sat, 6 Sep 2003 01:48:06 -0400
+Date: Fri, 5 Sep 2003 22:48:13 -0700
+From: Greg KH <greg@kroah.com>
+To: Michael Frank <mhf@linuxmail.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] 2.6.0-test4 - PL2303 OOPS - see also 2.4.22: OOPS on disconnect PL2303 adapter
+Message-ID: <20030906054813.GC20197@kroah.com>
+References: <200309020139.08248.mhf@linuxmail.org> <200309031432.17209.mhf@linuxmail.org> <20030905230852.GA18196@kroah.com> <200309060932.47136.mhf@linuxmail.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030906042914.GP31897@waste.org>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <200309060932.47136.mhf@linuxmail.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 05, 2003 at 11:29:14PM -0500, Matt Mackall wrote:
-> On Sat, Sep 06, 2003 at 03:07:58AM +0200, Jan Ischebeck wrote:
-> > Am Fr, 2003-09-05 um 16.51 schrieb
-> > viro@parcelfarce.linux.theplanet.co.uk:
-> > > On Fri, Sep 05, 2003 at 02:46:40PM +0200, Jan Ischebeck wrote:
-> > > > Seems like I got the reason for X not starting:
-> > > > 
-> > > > pseudo terminals can't be acquired and only two consoles are
-> > running.
-> > > > 
-> > > > -> X11 can't get console Vt7
-> > > > -> pppd doesn't work either
-> > > > 
-> > > > This definitely worked with -mm5.
-> > > 
-> > > Grr...  Dumb typo.  Patch below should fix that...
-> > > 
-> > > diff -urN B4-misc3/drivers/char/tty_io.c
-> > B4-current/drivers/char/tty_io.c
-> > > +++ B4-current/drivers/char/tty_io.c  Fri Sep  5 10:46:59 2003
-> > > @@ -1334,7 +1334,7 @@
-> > >               return -ENODEV;
-> > >       }
-> > >  
-> > > -     if (device == MKDEV(TTY_MAJOR,2)) {
-> > > +     if (device == MKDEV(TTYAUX_MAJOR,2)) {
-> > >  #ifdef CONFIG_UNIX98_PTYS
-> > >               /* find a device that is not in use. */
-> > >               retval = -1;
-> > 
-> > Thank you, that solved the problem with X.
-> > 
-> > But PPP is still broken, I get the following errors when I've tried to
-> > setup a connection. And after trying to use ppp the machine oops at
-> > shutdown.
+On Sat, Sep 06, 2003 at 10:31:19AM +0800, Michael Frank wrote:
+> On Saturday 06 September 2003 07:08, Greg KH wrote:
+> > On Wed, Sep 03, 2003 at 02:32:16PM +0800, Michael Frank wrote:
+> > > On Wednesday 03 September 2003 07:52, Greg KH wrote:
+> > > > Try the patch below and let me know if this solves it for you or not.
+> > >
+> > > If it is meant to reset the buffers, it has _no_ effect.
+> > >
+> > > Some more observations:
+> > >
+> > > Besides it just stopping without obvious reason:
+> > >
+> > > 1) It does not like when something is typed on cu and not received by the
+> > > serial port side connected to PL2303 (CTS low). It tends to hang and the
+> > > trouble starts....
+> > >
+> > > Sep  3 12:52:15 mhfl2 kernel: ttyUSB0: 1 input overrun(s)
+> > > Sep  3 12:54:30 mhfl2 last message repeated 2 times
+> >
+> > Hm, what is causing this?
+> >
 > 
-> Probably related badness: ttyS[01] have disappeared from
-> /proc/interrupts (though still show up in dmesg) and while serial
-> console appears to still work, kgdb over serial appears to have gone
-> south as well. Last tested in -mm4.
+> I don't understand why it get's Input overruns when it sends a single key.
+> "Input" seems not to have any problem.
+> 
+> Could there be an event meant for output misrouted to input - messing things
+> up?
 
-Ok, kgdb over serial works again if you boot without the gdbeth
-options (the comment on kgdb_net_interrupt is a bit misleading here).
-This causes KGDB-stub to show up again in /proc/interrupts, but my
-other serial interrupt is still missing.
+In the tty core?  possibly, but I doubt it.
 
--- 
-Matt Mackall : http://www.selenic.com : of or relating to the moon
+> > That is probably why cu is getting confused, right?
+> 
+> I think so. Once this message shows up, it is essentially unusable.
+
+Hm, not nice.
+
+> > > plug in
+> > > Sep  3 12:55:47 mhfl2 kernel: hub 1-0:0: debounce: port 2: delay 100ms stable 4 status 0x101
+> > > Sep  3 12:55:48 mhfl2 kernel: hub 1-0:0: new USB device on port 2, assigned address 3
+> > > Sep  3 12:55:48 mhfl2 kernel: usb 1-2: device not accepting address 3, error -110
+> 
+> > That's showing either you don't have good pci interrupt routing going
+> > on, or a messed up device.
+> 
+> Interrupts - no, I copied gigabytes to/from USB hard disk, 
+> eth0 and yenta on PCI are fine too.
+> 
+> Device - how to verify?
+
+You said if you disconnect the serial cable from the device it works,
+right?  That's a device issue :)
+
+> Could it be a "misunderstanding" between device and driver?
+>  - driver (seing new device) want's  to assign address to device
+>  - device (plugged in, reset), sees a line status changed and 
+>    want's to send respective event to driver
+
+Possibly, but again, that's a messed up device if it does that.
+
+The pl2303 devices are usually quite cheap, so I would believe yours has
+such a problem.
+
+> > > _disconnect_ serial port side of PL2303
+> > >
+> > > plug in - OK
+> > > Sep  3 12:56:07 mhfl2 kernel: usbserial 1-2:0: PL-2303 converter detected
+> > > Sep  3 12:56:07 mhfl2 kernel: usb 1-2: PL-2303 converter now attached to
+> > > ttyUSB0 (or usb/tts/0 for devfs)
+> >
+> > Heh, ok, it looks like you have a wierd device.
+> 
+> Could it be that - device (plugged in, reset), sees _no_ line status changed
+> and has nothing to send. 
+> 
+> Perhaps there is a sequencing problem somewhere, and it works by chance.
+> 
+> >> After a while it hang again, this time unloaded USB _without_ exit cu
+> 
+> > Hm, how can you do this?  There should be a reference on the pl2303
+> > driver as you have the port open.  Or are you just removing the host
+> > controller driver here?
+> 
+> It's not loaded on boot, but only when needed. The scripts:
+> 
+> usb1)
+>   if [ ! -e /proc/bus/usb ]; then
+>     echo Loading USB
+>     modprobe usbcore
+>     mount -t usbdevfs usbdevfs /proc/bus/usb
+>     modprobe ohci_hcd
+>     modprobe sd_mod
+>     modprobe pl2303 
+>     modprobe lp
+>   fi
+>   ;;
+> 
+> usb0)
+>   echo Unloading USB
+>   rmmod  usb-storage sd_mod scsi-mod
+>   rmmod pl2303 usbserial
+>   rmmod  lp parport
+>   rmmod  ohci_hcd 
+>   umount usbdevfs
+>   rmmod  usbcore
+>   ;;
+> 
+> Perhaps this is too dumb and I should do some checking along the way,
+> however joe user should be unable to oops things up...
+
+I agree.  Can you add that oops to a new bug at bugzilla.kernel.org?
+
+thanks,
+
+greg k-h

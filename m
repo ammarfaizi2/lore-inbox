@@ -1,213 +1,158 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266322AbUGJRyS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266324AbUGJR7b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266322AbUGJRyS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 13:54:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266324AbUGJRyS
+	id S266324AbUGJR7b (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 13:59:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266327AbUGJR7b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 13:54:18 -0400
-Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:757 "EHLO
-	mail.kroptech.com") by vger.kernel.org with ESMTP id S266322AbUGJRyH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 13:54:07 -0400
-Date: Sat, 10 Jul 2004 14:28:00 -0400
-From: Adam Kropelin <akropel1@rochester.rr.com>
-To: Tim Bird <tim.bird@am.sony.com>
-Cc: linux kernel <linux-kernel@vger.kernel.org>,
-       CE Linux Developers List <celinux-dev@tree.celinuxforum.org>,
-       Todd Poynor <tpoynor@mvista.com>,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH] preset loops_per_jiffy for faster booting
-Message-ID: <20040710142800.A5093@mail.kroptech.com>
-References: <40EEF10F.1030404@am.sony.com> <20040709193528.A23508@mail.kroptech.com> <40EF3637.4090105@am.sony.com> <20040710115413.A31260@mail.kroptech.com>
+	Sat, 10 Jul 2004 13:59:31 -0400
+Received: from rav-az.mvista.com ([65.200.49.157]:9764 "EHLO
+	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
+	id S266324AbUGJR7Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 13:59:24 -0400
+Subject: Re: [ANNOUNCE] Minneapolis Cluster Summit, July 29-30
+From: Steven Dake <sdake@mvista.com>
+Reply-To: sdake@mvista.com
+To: Daniel Phillips <phillips@arcor.de>
+Cc: Daniel Phillips <phillips@redhat.com>,
+       David Teigland <teigland@redhat.com>, linux-kernel@vger.kernel.org,
+       Lars Marowsky-Bree <lmb@suse.de>
+In-Reply-To: <200407100058.28599.phillips@arcor.de>
+References: <200407050209.29268.phillips@redhat.com>
+	 <200407081422.19566.phillips@redhat.com>
+	 <1089315680.3371.26.camel@persist.az.mvista.com>
+	 <200407100058.28599.phillips@arcor.de>
+Content-Type: text/plain
+Organization: MontaVista Software, Inc.
+Message-Id: <1089482358.19787.14.camel@persist.az.mvista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040710115413.A31260@mail.kroptech.com>; from akropel1@rochester.rr.com on Sat, Jul 10, 2004 at 11:54:13AM -0400
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 10 Jul 2004 10:59:18 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 10, 2004 at 11:54:13AM -0400, Adam Kropelin wrote:
-> Here's an updated patch which incorporates suggestions from Todd Poynor
-> and Geert Uytterhoeven.
+Comments inline thanks
+-steve
 
-<snip>
+On Fri, 2004-07-09 at 21:58, Daniel Phillips wrote:
+> Hi Steven,
+> 
+> On Thursday 08 July 2004 15:41, Steven Dake wrote:
+> > On Thu, 2004-07-08 at 11:22, Daniel Phillips wrote:
+> > > While we're in here, could you please explain why CMAN needs to be
+> > > kernel-based?  (Just thought I'd broach the question before Christoph
+> > > does.)
+> >
+> > Daniel,
+> >
+> > I have that same question as well.  I can think of several
+> > disadvantages:
+> >
+> > 1) security faults in the protocol can crash the kernel or violate
+> >     system security
+> > 2) secure group communication is difficult to implement in kernel
+> >     - secure group key protocols can be implemented fairly easily in
+> >        userspace using packages like openssl.  Implementing these
+> >        protocols in kernel will prove to be very complex.
+> > 3) live upgrades are much more difficult with kernel components
+> > 4) a standard interface (the SA Forum AIS) is not being used,
+> >     disallowing replaceability of components.  This is a big deal for
+> >     people interested in clustering that dont want to be locked into
+> >     a partciular implementation.
+> > 5) dlm, fencing, cluster messaging (including membership) can be done
+> >     in userspace, so why not do it there.
+> > 6) cluster services for the kernel and cluster services for applications
+> >     will fork, because SA Forum AIS will be chosen for application
+> >    level services.
+> > 7) faults in the protocols can bring down all of Linux, instead of one
+> >     cluster service on one node.
+> > 8) kernel changes require much longer to get into the field and are
+> >    much more difficult to distribute.  userspace applications are much
+> >    simpler to unit test, qualify, and release.
+> >
+> > The advantages are:
+> > interrupt driven timers
+> > some possible reduction in latency related to the cost of executing a
+> > system call when sending messages (including lock messages)
+> 
+> I'm not saying you're wrong, but I can think of an advantage you didn't 
+> mention: a service living in kernel will inherit the PF_MEMALLOC state of the 
+> process that called it, that is, a VM cache flushing task.  A userspace 
+> service will not.  A cluster block device in kernel may need to invoke some 
+> service in userspace at an inconvenient time.
+> 
+> For example, suppose somebody spills coffee into a network node while another 
+> network node is in PF_MEMALLOC state, busily trying to write out dirty file 
+> data to it.  The kernel block device now needs to yell to the user space 
+> service to go get it a new network connection.  But the userspace service may 
+> need to allocate some memory to do that, and, whoops, the kernel won't give 
+> it any because it is in PF_MEMALLOC state.  Now what?
+> 
 
-> +	    /* Round the value and print it */	
-> +	    printk("%lu.%02lu BogoMIPS\n",
-> +		    loops_per_jiffy/(500000/HZ),
-> +		    (loops_per_jiffy/(5000/HZ)) % 100);
-> +	    printk("Set 'Preset loops_per_jiffy'=%lu for preset lpj.\n",
-> +		    loops_per_jiffy);
->  	}
+overload conditions that have caused the kernel to run low on memory are
+a difficult problem, even for kernel components.  Currently openais
+includes "memory pools" which preallocate data structures.  While that
+work is not yet complete, the intent is to ensure every data area is
+preallocated so the openais executive (the thing that does all of the
+work) doesn't ever request extra memory once it becomes operational.
 
-Argh. Here's one with the right tabbing.
+This of course, leads to problems in the following system calls which
+openais uses extensively:
+sys_poll
+sys_recvmsg
+sys_sendmsg
 
-Signed-off-by: Adam Kropelin <akropel1@rochester.rr.com>
+which require the allocations of memory with GFP_KERNEL, which can then
+fail returning ENOMEM to userland.  The openais protocol currently can
+handle low memory failures in recvmsg and sendmsg.  This is because it
+uses a protocol designed to operate on lossy networks.
 
---- linux-2.6.7/init/main.c.orig	Mon Jun 21 17:55:09 2004
-+++ linux-2.6.7/init/main.c	Sat Jul 10 13:49:12 2004
-@@ -167,6 +167,15 @@
- 	return 0;
- }
- 
-+static unsigned long preset_lpj = CONFIG_PRESET_LPJ;
-+static int __init lpj_setup(char *str)
-+{
-+	preset_lpj = simple_strtoul(str,NULL,0);
-+	return 1;
-+}
-+
-+__setup("lpj=", lpj_setup);
-+
- /* this should be approx 2 Bo*oMips to start (note initial shift), and will
-    still work even if initially too large, it will just take slightly longer */
- unsigned long loops_per_jiffy = (1<<12);
-@@ -183,40 +192,52 @@
- 	unsigned long ticks, loopbit;
- 	int lps_precision = LPS_PREC;
- 
--	loops_per_jiffy = (1<<12);
--
--	printk("Calibrating delay loop... ");
--	while ((loops_per_jiffy <<= 1) != 0) {
--		/* wait for "start of" clock tick */
--		ticks = jiffies;
--		while (ticks == jiffies)
--			/* nothing */;
--		/* Go .. */
--		ticks = jiffies;
--		__delay(loops_per_jiffy);
--		ticks = jiffies - ticks;
--		if (ticks)
--			break;
--	}
--
--/* Do a binary approximation to get loops_per_jiffy set to equal one clock
--   (up to lps_precision bits) */
--	loops_per_jiffy >>= 1;
--	loopbit = loops_per_jiffy;
--	while ( lps_precision-- && (loopbit >>= 1) ) {
--		loops_per_jiffy |= loopbit;
--		ticks = jiffies;
--		while (ticks == jiffies);
--		ticks = jiffies;
--		__delay(loops_per_jiffy);
--		if (jiffies != ticks)	/* longer than 1 tick */
--			loops_per_jiffy &= ~loopbit;
-+	if (preset_lpj) {
-+		loops_per_jiffy = preset_lpj;
-+		printk("Calibrating delay loop (skipped)... "
-+			"%lu.%02lu BogoMIPS preset\n",
-+			loops_per_jiffy/(500000/HZ),
-+			(loops_per_jiffy/(5000/HZ)) % 100);
-+	} else {
-+		loops_per_jiffy = (1<<12);
-+
-+		printk("Calibrating delay loop... ");
-+		while ((loops_per_jiffy <<= 1) != 0) {
-+			/* wait for "start of" clock tick */
-+			ticks = jiffies;
-+			while (ticks == jiffies)
-+				/* nothing */;
-+			/* Go .. */
-+			ticks = jiffies;
-+			__delay(loops_per_jiffy);
-+			ticks = jiffies - ticks;
-+			if (ticks)
-+				break;
-+		}
-+
-+		/* Do a binary approximation to get loops_per_jiffy set to
-+		   equal one clock (up to lps_precision bits) */
-+		loops_per_jiffy >>= 1;
-+		loopbit = loops_per_jiffy;
-+		while ( lps_precision-- && (loopbit >>= 1) ) {
-+			loops_per_jiffy |= loopbit;
-+			ticks = jiffies;
-+			while (ticks == jiffies)
-+				/* nothing */;
-+			ticks = jiffies;
-+			__delay(loops_per_jiffy);
-+			if (jiffies != ticks)	/* longer than 1 tick */
-+				loops_per_jiffy &= ~loopbit;
-+		}
-+
-+		/* Round the value and print it */	
-+		printk("%lu.%02lu BogoMIPS\n",
-+			loops_per_jiffy/(500000/HZ),
-+			(loops_per_jiffy/(5000/HZ)) % 100);
-+		printk("Set 'Preset loops_per_jiffy'=%lu for preset lpj.\n",
-+			loops_per_jiffy);
- 	}
- 
--/* Round the value and print it */	
--	printk("%lu.%02lu BogoMIPS\n",
--		loops_per_jiffy/(500000/HZ),
--		(loops_per_jiffy/(5000/HZ)) % 100);
- }
- 
- static int __init debug_kernel(char *str)
---- linux-2.6.7/init/Kconfig.orig	Mon Jun 21 17:55:09 2004
-+++ linux-2.6.7/init/Kconfig	Sat Jul 10 11:05:27 2004
-@@ -218,6 +218,45 @@
- 	  This option enables access to kernel configuration file and build
- 	  information through /proc/config.gz.
- 
-+menuconfig FASTBOOT
-+	bool "Fast boot options"
-+	help
-+	  Say Y here to select among various options that can decrease
-+	  kernel boot time. These options commonly involve providing
-+	  hardcoded values for some parameters that the kernel usually
-+	  determines automatically.
-+	
-+	  This option is useful primarily on embedded systems.
-+	
-+	  If unsure, say N.
-+
-+config PRESET_LPJ
-+	int "Preset loops_per_jiffy" if FASTBOOT
-+	default 0
-+	help
-+	  This is the number of loops used by delay() to achieve a single
-+	  jiffy of delay inside the kernel.  It is normally calculated at
-+	  boot time, but that calculation can take up to 250 ms per CPU.
-+	  Specifying a constant value here will eliminate that delay.
-+
-+	  A value of 0 results in the normal autodetect behavior.
-+
-+	  loops_per_jiffy is roughly BogoMips * 5000. To determine the correct
-+	  value for your kernel, first set this option to 0, compile and boot
-+	  the kernel on your target hardware, then see what value is printed
-+	  during the kernel boot.  Use that value here.
-+
-+	  The kernel command line parameter "lpj=" can be used to override
-+	  the value configured here.
-+
-+	  Note that on SMP systems the preset will be applied to all CPUs
-+	  which will cause problems if for some reason your CPUs need
-+	  significantly divergent settings.
-+
-+	  If unsure, set this to 0. An incorrect value will cause delays in
-+	  the kernel to be wrong, leading to unpredictable I/O errors and
-+	  other breakage.  Although unlikely, in the extreme case this might
-+	  damage your hardware.
- 
- menuconfig EMBEDDED
- 	bool "Configure standard kernel features (for small systems)"
---- linux-2.6.7/Documentation/kernel-parameters.txt.orig	Fri Jul  9 21:20:16 2004
-+++ linux-2.6.7/Documentation/kernel-parameters.txt	Fri Jul  9 21:17:11 2004
-@@ -576,6 +576,12 @@
- 				so, the driver will manage that printer.
- 				See also header of drivers/char/lp.c.
- 
-+	lpj=n		[KNL]
-+			Sets loops_per_jiffy to given constant, thus avoiding
-+			time-consuming boot-time autodetection.
-+			0 enables autodetection (default). See Kconfig help text
-+			for PRESET_LPJ for details.
-+
- 	ltpc=		[NET]
- 			Format: <io>,<irq>,<dma>
- 
+The poll system call problem will be rectified by utilizing
+sys_epoll_wait which does not allocate any memory (the poll data is
+preallocated).
+
+I hope that helps atleast answer that some r&d is underway to solve this
+particular overload problem in userspace.
+
+> > One of these projects, the openais project which I maintain, implements
+> > 3 of these services (and the rest will be done in the timeframes we are
+> > talking about) in user space without any kernel changes required.  It
+> > would be possible with kernel to userland communication for the cluster
+> > applications (GFS, distributed block device, etc) to use this standard
+> > interface and implementation.  Then we could avoid all of the
+> > unnecessary kernel maintenance and potential problems that come along
+> > with it.
+> >
+> > Are you interested in such an approach?
+> 
+> We'd be remiss not to be aware of it, and its advantages.  It seems your 
+> project is still in early stages.  How about we take pains to ensure that 
+> your cluster membership service is plugable into the CMAN infrastructure, as 
+> a starting point.
+> 
+sounds good
+
+> Though I admit I haven't read through the whole code tree, there doesn't seem 
+> to be a distributed lock manager there.  Maybe that is because it's so 
+> tightly coded I missed it?
+> 
+
+There is as of yet no implementation of the SAF AIS dlock API in
+openais.  The work requires about 4 weeks of development for someone
+well-skilled.  I'd expect a contribution for this API in the timeframes
+that make GFS interesting.
+
+I'd invite you, or others interested in these sorts of services, to
+contribute that code, if interested.  If interested in developing such a
+service for openais, check out the developer's map (which describes
+developing a service for openais) at:
+
+http://developer.osdl.org/dev/openais/src/README.devmap
+
+Thanks!
+-steve
+
+> Regards,
+> 
+> Daniel
+

@@ -1,62 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317345AbSHCFa0>; Sat, 3 Aug 2002 01:30:26 -0400
+	id <S317499AbSHCICA>; Sat, 3 Aug 2002 04:02:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317539AbSHCFa0>; Sat, 3 Aug 2002 01:30:26 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:37035 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S317345AbSHCFaY>;
-	Sat, 3 Aug 2002 01:30:24 -0400
-Date: Fri, 02 Aug 2002 22:20:24 -0700 (PDT)
-Message-Id: <20020802.222024.21061449.davem@redhat.com>
-To: davidm@hpl.hp.com, davidm@napali.hpl.hp.com
-Cc: torvalds@transmeta.com, gh@us.ibm.com, frankeh@watson.ibm.com,
-       Martin.Bligh@us.ibm.com, wli@holomorpy.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: large page patch (fwd) (fwd) 
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <15691.24200.512998.875390@napali.hpl.hp.com>
-References: <15691.22889.22452.194180@napali.hpl.hp.com>
-	<Pine.LNX.4.44.0208022125040.2694-100000@home.transmeta.com>
-	<15691.24200.512998.875390@napali.hpl.hp.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S317497AbSHCICA>; Sat, 3 Aug 2002 04:02:00 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:61453 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316548AbSHCIB7>; Sat, 3 Aug 2002 04:01:59 -0400
+Date: Sat, 3 Aug 2002 09:05:23 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: axel@hh59.org, linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org,
+       tytso@mit.edu
+Subject: Re: Linux 2.5.30: [SERIAL] build fails at 8250.c
+Message-ID: <20020803090523.A22424@flint.arm.linux.org.uk>
+References: <200208030020.RAA05695@baldur.yggdrasil.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200208030020.RAA05695@baldur.yggdrasil.com>; from adam@yggdrasil.com on Fri, Aug 02, 2002 at 05:20:28PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: David Mosberger <davidm@napali.hpl.hp.com>
-   Date: Fri, 2 Aug 2002 21:39:36 -0700
+On Fri, Aug 02, 2002 at 05:20:28PM -0700, Adam J. Richter wrote:
+> On Sat, 3 Aug 2002 01:12:10 +0100, Russell King wrote:
+> >Ok, here's a fix for the 8250.c build problem (please don't send it
+> >to Linus; I've other changes that'll be going via BK and patch to
+> >lkml pending):
+> >
+> >--- orig/drivers/serial/8250.c  Fri Aug  2 21:13:31 2002
+> >+++ linux/drivers/serial/8250.c Sat Aug  3 00:28:47 2002
+> >@@ -31,7 +31,8 @@
+> > #include <linux/console.h>
+> > #include <linux/sysrq.h>
+> > #include <linux/serial_reg.h>
+> >-#include <linux/serialP.h>
+> >+#include <linux/circ_buf.h>
+> >+#include <linux/serial.h>
+> > #include <linux/delay.h>
+> > 
+> > #include <asm/io.h>
+> 
+> 	Your patch still results in a compilation error for me.
+> It looks like 8250.c needs <linux/serialP.h> for ALPHA_KLUDGE_MCR:
 
-   >>>>> On Fri, 2 Aug 2002 21:26:52 -0700 (PDT), Linus Torvalds <torvalds@transmeta.com> said:
-   
-     >> I wasn't disagreeing with your case for separate large page
-     >> syscalls.  Those syscalls certainly simplify implementation and,
-     >> as you point out, it well may be the case that a transparent
-     >> superpage scheme never will be able to replace the former.
-   
-     Linus> Somebody already had patches for the transparent superpage
-     Linus> thing for alpha, which supports it. I remember seeing numbers
-     Linus> implying that helped noticeably.
-   
-   Yes, I saw those.  I still like the Rice work a _lot_ better.
+Your quote above didn't include the patch for 8250.h which was in my
+mail directly after 8250.c.  Did you specifically miss it for a reason?
 
-Now here's the thing.  To me, we should be adding these superpage
-syscalls to things like the implementation of malloc() :-) If you
-allocate enough anonymous pages together, you should get a superpage
-in the TLB if that is easy to do.  Once any hint of memory pressure
-occurs, you just break up the large page clusters as you hit such
-ptes.  This is what one of the Linux large-page implementations did
-and I personally find it the most elegant way to handle the so called
-"paging complexity" of transparent superpages.
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-At that point it's like "why the system call".  If it would rather be
-more of a large-page reservation system than a "optimization hint"
-then these syscalls would sit better with me.  Currently I think they
-are superfluous.  To me the hint to use large-pages is a given :-)
-
-Stated another way, if these syscalls said "gimme large pages for this
-area and lock them into memory", this would be fine.  If the syscalls
-say "use large pages if you can", that's crap.  And in fact we could
-use mmap() attribute flags if we really thought that stating this was
-necessary.

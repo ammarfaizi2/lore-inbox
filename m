@@ -1,54 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267460AbUHPGaV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267465AbUHPGc5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267460AbUHPGaV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 02:30:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267465AbUHPGaV
+	id S267465AbUHPGc5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 02:32:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267470AbUHPGc5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 02:30:21 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:47558 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267460AbUHPGaQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 02:30:16 -0400
-Date: Sun, 15 Aug 2004 23:27:54 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Andi Kleen <ak@suse.de>
-Cc: shemminger@osdl.org, alan@lxorguk.ukuu.org.uk, tytso@mit.edu,
-       netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
-       greearb@candelatech.com
-Subject: Re: [RFC] enhanced version of net_random()
-Message-Id: <20040815232754.2464e731.davem@redhat.com>
-In-Reply-To: <20040813212857.7dd50320.ak@suse.de>
-References: <20040812104835.3b179f5a@dell_ss3.pdx.osdl.net>
-	<20040812124854.646f1936.davem@redhat.com>
-	<20040813115140.0f09d889@dell_ss3.pdx.osdl.net>
-	<20040813212857.7dd50320.ak@suse.de>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 16 Aug 2004 02:32:57 -0400
+Received: from out009pub.verizon.net ([206.46.170.131]:27608 "EHLO
+	out009.verizon.net") by vger.kernel.org with ESMTP id S267465AbUHPGcy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 02:32:54 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: Possible dcache BUG
+Date: Mon, 16 Aug 2004 02:32:52 -0400
+User-Agent: KMail/1.6.82
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       viro@parcelfarce.linux.theplanet.co.uk,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org> <200408151633.41807.gene.heskett@verizon.net> <200408160803.15206.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200408160803.15206.vda@port.imtp.ilyichevsk.odessa.ua>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200408160232.52158.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out009.verizon.net from [151.205.63.91] at Mon, 16 Aug 2004 01:32:53 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Aug 2004 21:28:57 +0200
-Andi Kleen <ak@suse.de> wrote:
+On Monday 16 August 2004 01:03, Denis Vlasenko wrote:
+>On Sunday 15 August 2004 23:33, Gene Heskett wrote:
+>> On Sunday 15 August 2004 15:57, Denis Vlasenko wrote:
+>> >> And I still don't have any dups, but I AAARRRRGGGGGggg! do have
+>> >> this:
+>> >>
+>> >> --------------
+>> >> Aug 15 09:33:02 coyote kernel: Unable to handle kernel paging
+>> >> request at virtual address 5f746573 Aug 15 09:33:02 coyote
+>> >> kernel: printing eip: Aug 15 09:33:02 coyote kernel: 5f746573
+>> >> Aug 15 09:33:02 coyote kernel: *pde = 00000000
+>> >> Aug 15 09:33:02 coyote kernel: Oops: 0000 [#1]
+>> >> Aug 15 09:33:02 coyote kernel: PREEMPT
+>> >
+>> >                                 ^^^^^^^
+>> >
+>> >> Aug 15 09:33:02 coyote kernel: Modules linked in: eeprom
+>> >> snd_seq_oss snd_seq_midi_event snd_seq snd_pcm_oss
+>> >> snd_mixer_oss snd_bt87x snd_intel8x0 snd_ac97_codec snd_pcm
+>> >> snd_timer snd_page_alloc snd_mpu401_uart snd_rawmidi
+>> >> snd_seq_device snd forcedeth
+>> >
+>> >Gene, you should have stopped using preempt/smp and sound modules
+>> >in an attempt to narrow down the bug. We already kinda determined
+>> >that you are experiencing random memory corruption, but hardware
+>> >was tested and seems to be ok. It's software, then. Preempt/smp
+>> > bug or buggy driver are prime suspects.
+>>
+>> Ok, non-preempt is building.  Will reboot to it when the build is
+>> done.
+>
+>Do not load sound modules too please, unless you absolutely need
+> sound.
 
-> On Fri, 13 Aug 2004 11:51:40 -0700
-> Stephen Hemminger <shemminger@osdl.org> wrote:
-> 
-> > Here is another alternative, using tansworthe generator.  It uses percpu
-> > state. The one small semantic change is the net_srandom() only affects
-> > the current cpu's seed.  The problem was that having it change all cpu's
-> > seed would mean adding locking 
-> 
-> I would just update the other CPUs without locking. Taking
-> a random number from a partially updated state shouldn't be a big 
-> issue.
+One thing at a time I think.  Thats major surgery on modprobe.conf to 
+disable that, plus a chkconfig alsasound off.
 
-I personally don't think we need to touch the other cpus
-at all, and that having a different current seed on each
-cpu might actually be a good thing.
+I've noticed that with preempt off, my kde curser motions are back to 
+using the mouse if I want to move it more than a word or so to hit a 
+typu and fix it.  Its an effect that comes and goes, often in the 
+same message reply.  X is running at -1 I think.  Other than that 
+(knock on wood) its running ok so far, but only 9h50m uptime.
 
-Stephen, I like this one a lot, especially compared to
-what we had before.  I'm going to add this to my tree for
-the time being.
+>> >> I was able to restart the shell, and the top.  The system
+>> >> "feels" normal.
+>> >>
+>> >> I'm going to call tcwo tomorrow and see what I can get in new
+>> >> hardware.
+>> >
+>> >Very likely this won't help.
+>>
+>> I'm not quite as sure.  This could be a mobo with a flakey buffer
+>> latch or something.  I also had, many years ago, a z-80 that would
+>
+>GCC is likely to sometimes catch sig11 on such flakey hardware.
+>You did not report anything like that, than's why I'm thinking
+>hardware is ok.
+>
+>> not reliably switch its foreground/background register set.  And
+>> guess what?  By the time I'd diagnosed it, zilog wasn't interested
+>> in replaceing an obviously flakey chip.  Out of warranty according
+>> to the date stamps.  Not my problem it laid on some distribs shelf
+>> for a frigging year plus...
+>
+>--
+>vda
+
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.24% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

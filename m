@@ -1,55 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262531AbVAKNAy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262736AbVAKNFY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262531AbVAKNAy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 08:00:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262660AbVAKNAy
+	id S262736AbVAKNFY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 08:05:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262746AbVAKNFY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 08:00:54 -0500
-Received: from king.bitgnome.net ([66.207.162.30]:24819 "EHLO
-	king.bitgnome.net") by vger.kernel.org with ESMTP id S262531AbVAKNAt
+	Tue, 11 Jan 2005 08:05:24 -0500
+Received: from out011pub.verizon.net ([206.46.170.135]:57588 "EHLO
+	out011.verizon.net") by vger.kernel.org with ESMTP id S262736AbVAKNFP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 08:00:49 -0500
-Date: Tue, 11 Jan 2005 07:00:05 -0600
-From: Mark Nipper <nipsy@bitgnome.net>
-To: "Ing. Gianluca Alberici" <alberici@abinetworks.biz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Bad disks or bug ?
-Message-ID: <20050111130005.GB87982@king.bitgnome.net>
-References: <41E3C90A.2010703@abinetworks.biz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41E3C90A.2010703@abinetworks.biz>
-User-Agent: Mutt/1.5.6i
+	Tue, 11 Jan 2005 08:05:15 -0500
+Message-Id: <200501111305.j0BD58U2000483@localhost.localdomain>
+To: Matt Mackall <mpm@selenic.com>
+cc: "Jack O'Quin" <joq@io.com>, Chris Wright <chrisw@osdl.org>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Lee Revell <rlrevell@joe-job.com>, arjanv@redhat.com, mingo@elte.hu,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM 
+In-reply-to: Your message of "Mon, 10 Jan 2005 13:20:19 PST."
+             <20050110212019.GG2995@waste.org> 
+Date: Tue, 11 Jan 2005 08:05:08 -0500
+From: Paul Davis <paul@linuxaudiosystems.com>
+X-Authentication-Info: Submitted using SMTP AUTH at out011.verizon.net from [151.197.39.54] at Tue, 11 Jan 2005 07:05:11 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11 Jan 2005, Ing. Gianluca Alberici wrote:
-> How do you explain that ? Overload on hdb due to mirroring and surface
-> degradation ?
-> OR a kind of vodoo on my hdbs ?
+>Rlimits are neither UID/GID or PAM-specific. They fit well within
+>the general model of UNIX security, extending an existing mechanism
+>rather than adding a completely new one. That PAM happens to be the
+>way rlimits are usually administered may be unfortunate, yes, but it
+>doesn't mean that rlimits is the wrong way.
 
-	Is it possible that hdb is closer to a high heat source
-or is not being cooled as hda if all these machines are the same
-case design?
+agreed, although i note with interest the flap over RLIMIT_MEMLOCK
+being made accessible to unprivileged users by people working on
+grsecurity. 
 
--- 
-Mark Nipper                                                e-contacts:
-4475 Carter Creek Parkway                           nipsy@bitgnome.net
-Apartment 724                               http://nipsy.bitgnome.net/
-Bryan, Texas, 77802-4481           AIM/Yahoo: texasnipsy ICQ: 66971617
-(979)575-3193                                      MSN: nipsy@tamu.edu
+>> Running `nice --20' is still significantly worse than SCHED_FIFO, but
+>> not the unmitigated disaster shown in the middle column.  But, this
+>> improved performance is still not adequate for audio work.  The worst
+>> delay was absurdly long (~1/2 sec).
+>
+>Let's work on that. It'd be _far_ better to have unprivileged near-RT
+>capability everywhere without potential scheduling DoS.
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.1
-GG/IT d- s++:+ a- C++$ UBL++++$ P--->+++ L+++$ !E---
-W++(--) N+ o K++ w(---) O++ M V(--) PS+++(+) PE(--)
-Y+ PGP t+ 5 X R tv b+++@ DI+(++) D+ G e h r++ y+(**)
-------END GEEK CODE BLOCK------
+I am not sure what you mean here. I think we've established that
+SCHED_OTHER cannot be made adequate for realtime audio work. Its
+intended purpose (timesharing the machine in ways that should
+generally benefit tasks that don't do a lot and/or are dominated by
+user interaction, thus rendering the machine apparently responsive) is
+really at odds with what we need.
 
----begin random quote of the moment---
-"That we are not much sicker and much madder than we are is
-due exclusively to that most blessed and blessing of all
-natural graces, sleep."
- -- Aldous Huxley
-----end random quote of the moment----
+Con has discussed the idea of a new scheduling class, one that has no
+internal priority, runs like SCHED_RR but is subject to cpu
+utilization limits, and is accessible to unprivileged users. I think
+this makes a lot of sense. It can be controlled using sysctl's and/or
+rlimit. 
+
+But please note: in any sane world, adding stuff like this could only
+take place in an unstable tree. It seems really odd to me that anyone
+can be talking about adding any of these *mechanisms* to 2.6. That was
+the whole reason we (well, Jack, Torben and others) worked with LSM:
+LSM appeared to be the "blessed" method in 2.6 of allowing changes to
+security policy to be made. We are now finding out that even if Linus
+"blessed" it by inclusion, there is enough vocal opposition to
+actually using it for something useful that something else has to be
+done. I wouldn't want to run an important machine on 2.6 if adding,
+say SCHED_ISO or even RLIMIT_RT_CPU is part of 2.6's "maintainance".
+
+Meanwhile, as I mentioned before, every realtime audio user of 2.6 is
+*still* going to use "realtime" LSM because its really the only
+effective way to get the privilege needed to do what they want to get
+done. 
+
+--p

@@ -1,51 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265898AbSLITzO>; Mon, 9 Dec 2002 14:55:14 -0500
+	id <S266116AbSLIUCe>; Mon, 9 Dec 2002 15:02:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265947AbSLITzO>; Mon, 9 Dec 2002 14:55:14 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:39652 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S265898AbSLITzN>; Mon, 9 Dec 2002 14:55:13 -0500
-Message-ID: <EDC461A30AC4D511ADE10002A5072CAD04C7A581@orsmsx119.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Ducrot Bruno'" <poup@poupinou.org>, Pavel Machek <pavel@suse.cz>
-Cc: Ducrot Bruno <ducrot@poupinou.org>, Patrick Mochel <mochel@osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>
-Subject: RE: [ACPI] Re: [2.5.50, ACPI] link error
-Date: Mon, 9 Dec 2002 11:12:43 -0800 
+	id <S266122AbSLIUCe>; Mon, 9 Dec 2002 15:02:34 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:20393 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S266116AbSLIUCd>;
+	Mon, 9 Dec 2002 15:02:33 -0500
+Date: Mon, 9 Dec 2002 21:13:47 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@digeo.com>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Christoph Hellwig <hch@sgi.com>,
+       Robert Love <rml@tech9.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] set_cpus_allowed() for 2.4
+In-Reply-To: <3DF3A3FA.D1571CCD@digeo.com>
+Message-ID: <Pine.LNX.4.44.0212092109270.6663-100000@localhost.localdomain>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Ducrot Bruno [mailto:poup@poupinou.org] 
 
-> > I think that s4bios is nice to have. Its similar to S3 and easier to
-> > set up than swsusp... It would be nice to have it.
-> 
-> for me:
-> pros:
-> -----
-> 1- it is really really more easier to implement than S4;
-> 2- we can even have it with 2.4 kernels (it seems that it work without
-> the need of freezing processes, but I suspect that this statement
-> is 'wrong' by nature).
-> 
-> cons:
-> -----
-> 1- it is much slower (especially at save time) than your swsusp;
-> 2- end users must setup their systems (need to create a 
-> suspend partition,
-> or to keep a vfat partition as the really first one (/dev/hda1));
-> 3- we use a bios function.  Actually, everything can happen...
-> 
-> That why I prefer swsusp at this time, or any other 
-> implementation of S4 (I
-> think about an implementation of S4 via LKCD).
+On Sun, 8 Dec 2002, Andrew Morton wrote:
 
-I concur with your pros and cons. This makes me think that if S4BIOS support
-ever gets added, it should get added to 2.4 only.
+> Yes, thanks.  Will we also be seeing the "interactivity estimator" fixes
+> in 2.5?
 
-Regards -- Andy
+yes, but i'd like to clarify one more thing - worst-case O(1)  
+interactivity indeed is indeed very jerky (eg. the fast window moving
+thing you noticed), but the normal behavior is much better than the old
+scheduler's. Just try compiling the kernel with make -j4 under stock 2.4
+and _everything_ in X will be jerky. With the O(1) scheduler things are
+just as smooth as on an idle system - as long as your application does not
+get rated CPU-intensive. [which happens too fast in the case you
+described.] So we do have something in 2.5 that is visibly better in a
+number of cases, and i want to preserve that - while fixing the
+corner-cases discussed here. I'm working on it.
+
+	Ingo
+

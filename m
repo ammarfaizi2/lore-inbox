@@ -1,44 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262711AbVCPRbK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262704AbVCPRcR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262711AbVCPRbK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 12:31:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262710AbVCPRbK
+	id S262704AbVCPRcR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 12:32:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262706AbVCPRcQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 12:31:10 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:22917 "EHLO suse.cz")
-	by vger.kernel.org with ESMTP id S262704AbVCPRaC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 12:30:02 -0500
-Date: Wed, 16 Mar 2005 18:30:54 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Helge Hafting <helge.hafting@aitel.hist.no>
-Cc: Andrew Morton <akpm@osdl.org>, dtor_core@ameritech.net,
-       dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-mm3 mouse oddity
-Message-ID: <20050316173054.GD1608@ucw.cz>
-References: <20050312034222.12a264c4.akpm@osdl.org> <4236D428.4080403@aitel.hist.no> <d120d50005031506252c64b5d2@mail.gmail.com> <20050315110146.4b0c5431.akpm@osdl.org> <4237FFE4.4030100@aitel.hist.no>
+	Wed, 16 Mar 2005 12:32:16 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:4104 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262704AbVCPRbv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 12:31:51 -0500
+Date: Wed, 16 Mar 2005 18:31:47 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-mm4
+Message-ID: <20050316173147.GC3153@stusta.de>
+References: <20050316040654.62881834.akpm@osdl.org> <20050316142248.GI29333@ens-lyon.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4237FFE4.4030100@aitel.hist.no>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20050316142248.GI29333@ens-lyon.fr>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 16, 2005 at 10:44:04AM +0100, Helge Hafting wrote:
+On Wed, Mar 16, 2005 at 03:22:49PM +0100, Benoit Boissinot wrote:
 
-> The logitech cordless keyboard is one.  It has two wheels.
-> The one on the side works generates up-arrow/down arrow when used,
-> and now also events on /dev/mouse0.  The other is a wheel above
-> the keys, lying on the side.  Logitech apparently meant it to be used as
-> a volume control, which should be possible now that it attaches to
-> /dev/mouse0.
+> It doesn't compile with gcc-4.0.
+> 
+> drivers/video/console/fbcon.c:133: error: static declaration of ???fb_con???
+> follows non-static declaration
+> drivers/video/console/fbcon.h:166: error: previous declaration of
+> ???fb_con??? was here
+> 
+> Signed-off-by: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
 
-Can you please check with 'evtest' that both the wheels work correctly?
+Acked-by: Adrian Bunk <bunk@stusta.de>
 
-Also, there exists an event mouse driver for X which supports both
-wheels and allows for vertical and horizontal scrolling in eg. Firefox.
+Thanks for the patch.
+
+That was my fault:
+gcc 3.4 doesn't even warn about this, and I missed it while grep'ing.
+
+cu
+Adrian
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,36 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263333AbTEIRDq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 13:03:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263338AbTEIRDq
+	id S263339AbTEIRTj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 13:19:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263348AbTEIRTj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 13:03:46 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:59539 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S263333AbTEIRDp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 13:03:45 -0400
-Date: Fri, 09 May 2003 10:16:09 -0700 (PDT)
-Message-Id: <20030509.101609.08347577.davem@redhat.com>
-To: pavel@ucw.cz
-Cc: arnd@arndb.de, linux-kernel@vger.kernel.org
-Subject: Re: ioctl32_unregister_conversion & modules
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030509171155.GA1042@elf.ucw.cz>
-References: <20030509152436.GA762@elf.ucw.cz>
-	<1052496782.19951.3.camel@rth.ninka.net>
-	<20030509171155.GA1042@elf.ucw.cz>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Fri, 9 May 2003 13:19:39 -0400
+Received: from siaag2ab.compuserve.com ([149.174.40.132]:44520 "EHLO
+	siaag2ab.compuserve.com") by vger.kernel.org with ESMTP
+	id S263339AbTEIRTi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 13:19:38 -0400
+Date: Fri, 9 May 2003 13:28:34 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [PATCH] i386 uaccess to fixmap pages
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Dave Hansen <haveblue@us.ibm.com>, Jamie Lokier <jamie@shareable.org>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>,
+       Roland McGrath <roland@redhat.com>
+Message-ID: <200305091331_MC3-1-3822-4B95@compuserve.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Pavel Machek <pavel@ucw.cz>
-   Date: Fri, 9 May 2003 19:11:55 +0200
-   
-   So... Do you think moving common handlers from arch/*/ioctl32.c into
-   fs/compat_ioctl.c would do the trick?
+Linus Torvalds wrote:
 
-Yes.
+> So we'd have to move the kernel to something like
+> 0xc0400000 (and preferably higher, to make sure there is a nice hole in
+> between - say 0xc1000000), which in turn has a cost of verifying that 
+> nothing assumes the current lay-out (we've had the 1/2/3GB TASK_SIZE 
+> patches floating around, but they've never had "odd sizes").
+
+
+ /arch/i386/kernel/doublefault.c:
+
+#define ptr_ok(x) ((x) > 0xc0000000 && (x) < 0xc1000000)

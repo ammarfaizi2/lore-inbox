@@ -1,20 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262439AbTFXQtq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 12:49:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262444AbTFXQtq
+	id S262192AbTFXQuw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 12:50:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262299AbTFXQuw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 12:49:46 -0400
-Received: from msgbas1tx.cos.agilent.com ([192.25.240.37]:13524 "EHLO
+	Tue, 24 Jun 2003 12:50:52 -0400
+Received: from msgbas2x.cos.agilent.com ([192.25.240.37]:50388 "EHLO
 	msgbas2x.cos.agilent.com") by vger.kernel.org with ESMTP
-	id S262439AbTFXQtl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 12:49:41 -0400
-Message-ID: <334DD5C2ADAB9245B60F213F49C5EBCD05D551CB@axcs03.cos.agilent.com>
+	id S262192AbTFXQus (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 12:50:48 -0400
+Message-ID: <334DD5C2ADAB9245B60F213F49C5EBCD05D551CC@axcs03.cos.agilent.com>
 From: yiding_wang@agilent.com
-To: sam@ravnborg.org, yiding_wang@agilent.com
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: Linux-2.5.71 kernel compile error
-Date: Tue, 24 Jun 2003 11:03:47 -0600
+To: linuxtech@knology.net, linux-kernel@vger.kernel.org
+Subject: RE: 2.5.72 doesn't boot
+Date: Tue, 24 Jun 2003 11:04:32 -0600
 MIME-Version: 1.0
 X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain;
@@ -22,27 +21,72 @@ Content-Type: text/plain;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks Sam!
+Thanks John, I will try.
 
 > -----Original Message-----
-> From: Sam Ravnborg [mailto:sam@ravnborg.org]
-> Sent: Monday, June 23, 2003 1:09 PM
-> To: yiding_wang@agilent.com
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: Linux-2.5.71 kernel compile error
+> From: John Shillinglaw [mailto:linuxtech@knology.net]
+> Sent: Monday, June 23, 2003 4:04 PM
+> To: linux-kernel@vger.kernel.org
+> Subject: RE: 2.5.72 doesn't boot
 > 
 > 
-> On Fri, Jun 20, 2003 at 04:05:12PM -0600, 
-> yiding_wang@agilent.com wrote:
-> > Team,
+> You need to turn on the options within the input/char driver? menu
+> within menuconfig to turn on the console. I believe there are two
+> options you need to say yes to. Someone with clearer memory 
+> can post the
+> exact ones.
+> 
+> John
+> On Mon, 2003-06-23 at 13:31, yiding_wang@agilent.com wrote:
+> > I got same issue on 2.5.70 and 2.5.71 and still waiting 
+> form some help.
 > > 
-> > I got failure on compiling the kernel in one of SuperMicro 
-> signle CPU system.  It has a Linux 2.4.2 on it.  
-> > The message is "Unknown Pseudo-op:  '.incbin'"
+> > Eddie
+> > 
+> > > -----Original Message-----
+> > > From: Bart SCHELSTRAETE [mailto:Bart.SCHELSTRAETE@dhl.com]
+> > > Sent: Sunday, June 22, 2003 11:06 AM
+> > > To: linux-kernel@vger.kernel.org
+> > > Subject: 2.5.72 doesn't boot
+> > > 
+> > > 
+> > > HEllo,
+> > > 
+> > > Today I tried kernel 2.5.72. And it compiled without any 
+> > > problems. (on a 
+> > > i686 - PIV)
+> > > But when I'm trying to boot from that kernel, it stops just 
+> > > after the line
+> > >          'uncompressing .................. ok now booting'
+> > > 
+> > > I tried to compile the kernel as a i386, pentium classic , 
+> > > and a pentium 
+> > > pro, but it always gives the same results.
+> > > Anybody has an idea what I did wrong?
+> > > 
+> > > 
+> > > rgrds,
+> > >        Bart
+> > > 
+> > > -
+> > > To unsubscribe from this list: send the line "unsubscribe 
+> > > linux-kernel" in
+> > > the body of a message to majordomo@vger.kernel.org
+> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > Please read the FAQ at  http://www.tux.org/lkml/
+> > > 
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> > 
 > 
-> As per Documentation/Changes ld -v shall say at least: 2.12
-> 
-> You need to upgrade your binutils.
-> 
-> 	Sam
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 

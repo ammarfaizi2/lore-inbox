@@ -1,88 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265849AbUAKLxY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 06:53:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265850AbUAKLws
+	id S265837AbUAKLrX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 06:47:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265839AbUAKLrX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 06:52:48 -0500
-Received: from gprs214-122.eurotel.cz ([160.218.214.122]:31616 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S265849AbUAKLwf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 06:52:35 -0500
-Date: Sun, 11 Jan 2004 12:53:49 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@osdl.org>
+	Sun, 11 Jan 2004 06:47:23 -0500
+Received: from lbo.net1.nerim.net ([62.212.103.219]:15280 "EHLO
+	gyver.homeip.net") by vger.kernel.org with ESMTP id S265837AbUAKLrW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jan 2004 06:47:22 -0500
+Message-ID: <400137C8.1010505@inet6.fr>
+Date: Sun, 11 Jan 2004 12:47:20 +0100
+From: Lionel Bouton <Lionel.Bouton@inet6.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: suspend/resume support for PIT (time.c)
-Message-ID: <20040111115349.GA831@elf.ucw.cz>
-References: <20040110200332.GA1327@elf.ucw.cz> <20040110144624.1571488f.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040110144624.1571488f.akpm@osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Subject: Re: SiS964 SerialATA RAID
+References: <20040110195302.28aa3408@EozVul.WORKGROUP> <4000C837.4050006@pobox.com>
+In-Reply-To: <4000C837.4050006@pobox.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Jeff Garzik wrote the following on 01/11/2004 04:51 AM :
 
-> > +static int pit_resume(struct sys_device *dev)
-> >  +{
-> >  +	write_seqlock_irq(&xtime_lock);
-> >  +	xtime.tv_sec = get_cmos_time() + clock_cmos_diff;
-> >  +	xtime.tv_nsec = 0; 
-> >  +	write_sequnlock_irq(&xtime_lock);
-> >  +	return 0;
-> >  +}
-> 
-> Have you checked the lock ranking here?  get_cmos_time() takes a ton of
-> locks, especially if EFI is enabled.  Do all those rank inside xtime_lock?
-> 
-> It _looks_ right, but perhaps it would be saner to move the get_coms_time()
-> call outside the lock?
+> DaMouse Networks wrote:
+>
+>> Hey,
+>>    I've decided I want a mirrored SATA-RAID setup for my boxen in 
+>> late 2004 and I was wondering how the development for the SiS964 SATA 
+>> drivers are going for 2.6.x?
+>
+>
+>
+> I'm not aware of any development in that direction, so far...
+>
+>     Jeff
+>
 
-Yes, good idea, I do not want to check every change in
-get_cmos_time().
-							Pavel
-Index: linux/arch/i386/kernel/time.c
-===================================================================
---- linux.orig/arch/i386/kernel/time.c	2004-01-09 20:26:08.000000000 +0100
-+++ linux/arch/i386/kernel/time.c	2004-01-11 12:12:48.000000000 +0100
-@@ -307,7 +307,31 @@
- 	return retval;
- }
- 
-+static long clock_cmos_diff;
-+
-+static int pit_suspend(struct sys_device *dev, u32 state)
-+{
-+	/*
-+	 * Estimate time zone so that set_time can update the clock
-+	 */
-+	clock_cmos_diff = -get_cmos_time();
-+	clock_cmos_diff += get_seconds();
-+	return 0;
-+}
-+
-+static int pit_resume(struct sys_device *dev)
-+{
-+	unsigned long sec = get_cmos_time() + clock_cmos_diff;
-+	write_seqlock_irq(&xtime_lock);
-+	xtime.tv_sec = sec;
-+	xtime.tv_nsec = 0; 
-+	write_sequnlock_irq(&xtime_lock);
-+	return 0;
-+}
-+
- static struct sysdev_class pit_sysclass = {
-+	.resume = pit_resume,
-+	.suspend = pit_suspend,
- 	set_kset_name("pit"),
- };
- 
+Is there any doc or sample code available somewhere ?
 
-
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Lionel

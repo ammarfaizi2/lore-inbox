@@ -1,40 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268036AbUH2PW7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267935AbUH2PZq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268036AbUH2PW7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 11:22:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268035AbUH2PW7
+	id S267935AbUH2PZq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 11:25:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268033AbUH2PZq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 11:22:59 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:6017 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268031AbUH2PWz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 11:22:55 -0400
-Subject: Re: silent semantic changes with reiser4
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Christoph Hellwig <hch@lst.de>, Hans Reiser <reiser@namesys.com>,
-       linux-fsdevel@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-In-Reply-To: <Pine.LNX.4.58.0408251314260.17766@ppc970.osdl.org>
-References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com>
-	 <20040825200859.GA16345@lst.de>
-	 <Pine.LNX.4.58.0408251314260.17766@ppc970.osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1093789225.27932.39.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 29 Aug 2004 15:20:26 +0100
+	Sun, 29 Aug 2004 11:25:46 -0400
+Received: from delta.ds3.agh.edu.pl ([149.156.124.3]:39945 "EHLO
+	pluto.ds14.agh.edu.pl") by vger.kernel.org with ESMTP
+	id S267935AbUH2PZh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Aug 2004 11:25:37 -0400
+From: =?utf-8?q?Pawe=C5=82_Sikora?= <pluto@pld-linux.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] fs/xfs/xfs_bmap - gcc34 warning killed.
+Date: Sun, 29 Aug 2004 17:25:34 +0200
+User-Agent: KMail/1.7
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_uVfMBT6h9S0WRLk"
+Message-Id: <200408291725.34780.pluto@pld-linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-08-25 at 21:22, Linus Torvalds wrote:
->  - without the slash, a file-as-dir won't open with O_DIRECTORY (ENOTDIR)
->  - with the slash, it won't open _without_ O_DIRECTORY (EISDIR)
-> 
-> Problem solved. Very user-friendly, and very intuitive.
+--Boundary-00=_uVfMBT6h9S0WRLk
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Breaks bash and almost all other file completion 8)
+CC [M] =C2=A0fs/xfs/xfs_bmap.o
+fs/xfs/xfs_bmap.c: In function `xfs_bmap_do_search_extents':
+fs/xfs/xfs_bmap.c:3434: warning: integer constant is too large for "long" t=
+ype
+fs/xfs/xfs_bmap.c:3435: warning: integer constant is too large for "long" t=
+ype
+fs/xfs/xfs_bmap.c:3439: warning: integer constant is too large for "long" t=
+ype
 
+=2D-=20
+/* Copyright (C) 2003, SCO, Inc. This is valuable Intellectual Property. */
+
+                           #define say(x) lie(x)
+
+--Boundary-00=_uVfMBT6h9S0WRLk
+Content-Type: text/x-diff;
+  charset="utf-8";
+  name="xfs_bmap.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="xfs_bmap.patch"
+
+--- linux-2.6.9-rc1/fs/xfs/xfs_bmap.c.orig	2004-08-24 09:03:32.000000000 +0200
++++ linux-2.6.9-rc1/fs/xfs/xfs_bmap.c	2004-08-29 17:17:07.737547088 +0200
+@@ -3431,12 +3431,12 @@
+ 	* uninitialized br_startblock field.
+ 	*/
+ 
+-        got.br_startoff = 0xffa5a5a5a5a5a5a5;
+-        got.br_blockcount = 0xa55a5a5a5a5a5a5a;
++        got.br_startoff = 0xffa5a5a5a5a5a5a5ULL;
++        got.br_blockcount = 0xa55a5a5a5a5a5a5aULL;
+         got.br_state = XFS_EXT_INVALID;
+ 
+ 	#if XFS_BIG_BLKNOS
+-        	got.br_startblock = 0xffffa5a5a5a5a5a5;
++        	got.br_startblock = 0xffffa5a5a5a5a5a5ULL;
+ 	#else
+ 		got.br_startblock = 0xffffa5a5;
+ 	#endif
+
+--Boundary-00=_uVfMBT6h9S0WRLk--

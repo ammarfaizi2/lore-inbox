@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272212AbRIEP4g>; Wed, 5 Sep 2001 11:56:36 -0400
+	id <S272204AbRIEPwQ>; Wed, 5 Sep 2001 11:52:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272213AbRIEP41>; Wed, 5 Sep 2001 11:56:27 -0400
-Received: from cpe-24-221-114-147.az.sprintbbd.net ([24.221.114.147]:19840
-	"EHLO localhost.digitalaudioresources.org") by vger.kernel.org
-	with ESMTP id <S272212AbRIEP4R>; Wed, 5 Sep 2001 11:56:17 -0400
-Message-ID: <3B964B29.8080400@digitalaudioresources.org>
-Date: Wed, 05 Sep 2001 08:56:25 -0700
-From: David Hollister <david@digitalaudioresources.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010808
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Eric Olson <ejolson@unr.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Athlon doesn't like Athlon optimisation?
-In-Reply-To: <200109050521.WAA26155@equinox.unr.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S272206AbRIEPv4>; Wed, 5 Sep 2001 11:51:56 -0400
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:62291 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S272204AbRIEPvw>; Wed, 5 Sep 2001 11:51:52 -0400
+Date: Wed, 5 Sep 2001 10:51:55 -0500 (CDT)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200109051551.KAA48912@tomcat.admin.navo.hpc.mil>
+To: Florian.Weimer@RUS.Uni-Stuttgart.DE, Michael Bacarella <mbac@nyct.net>
+Subject: Re: getpeereid() for Linux
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Olson wrote:
-> Robert Redelmeier told me he has written a version of his burnMMX which 
-> uses K7 MMX 3DNow streaming cache bypass load/store instruction sequences
-> similar to what is used in linux/arch/i386/lib/mmx.c
->  
-> It would be particularly interesting if someone with a problematic KT133A 
-> based motherboard would test it and report back.
+Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
+> Michael Bacarella <mbac@nyct.net> writes:
+> 
+> > There's no need. The equivalent functionality can already be
+> > implemented in userspace.
+> 
+> Well, it doesn't work with TCP.  Uh-oh, I see I forgot to mention the
+> following: I need this functionality for local TCP connections, not
+> just UNIX domain sockets.
 
-Ran both burnK7 and burnMMX for 10+ minutes with no problems.  FWIW, burnMMX 
-didn't do much to my system temp, but burnK7 raised it by a good 8-9 degrees.
+It doesn't work on BSD either. The manpage says:
+(http://www.openbsd.org/cgi-bin/man.cgi?query=getpeereid&sektion=2&apropos=0&mnpath=OpenBSD+Current)
 
--- 
-David Hollister
-Driversoft Engineering:  http://devicedrivers.com
-Digital Audio Resources: http://digitalaudioresources.org
+     getpeereid() returns the effective user ID and group ID of the peer con-
+     nected to the UNIX domain socket s.
 
+     One common use is for UNIX domain servers to determine the credentials of
+     clients that have connected to it.
+
+It is not possible to get a creditential from TCP connections yet. That
+requires an extension to IPSec to even be able to carry credentials. There
+is no reliable communication path (even for identd) to be able to pass
+credentials.
+
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.

@@ -1,61 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266145AbUA1U61 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 15:58:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266158AbUA1U61
+	id S266160AbUA1VB2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 16:01:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266162AbUA1VB1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 15:58:27 -0500
-Received: from virt-216-40-198-21.ev1servers.net ([216.40.198.21]:17158 "EHLO
-	virt-216-40-198-21.ev1servers.net") by vger.kernel.org with ESMTP
-	id S266145AbUA1U6Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 15:58:24 -0500
-Date: Wed, 28 Jan 2004 14:58:10 -0600
-From: Chuck Campbell <campbell@accelinc.com>
-To: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org
-Subject: Re: 2.2 kernel and ext3 filesystems
-Message-ID: <20040128205810.GA8287@helium.inexs.com>
-Reply-To: campbell@accelinc.com
-Mail-Followup-To: Chuck Campbell <campbell@accelinc.com>,
-	Theodore Ts'o <tytso@mit.edu>, linux-kernel@vger.kernel.org
-References: <20040124033208.GA4830@helium.inexs.com> <20040123215848.28dac746.akpm@osdl.org> <20040126145633.GA26983@helium.inexs.com> <20040126124141.6b6b84ba.akpm@osdl.org> <20040127012717.GA19704@thunk.org>
-Mime-Version: 1.0
+	Wed, 28 Jan 2004 16:01:27 -0500
+Received: from mail.parknet.co.jp ([210.171.160.6]:36100 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S266160AbUA1VBY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jan 2004 16:01:24 -0500
+To: Frodo Looijaard <frodol@dds.nl>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: PATCH to access old-style FAT fs
+References: <20040126173949.GA788@frodo.local>
+	<bv3qb3$4lh$1@terminus.zytor.com> <87n0898sah.fsf@devron.myhome.or.jp>
+	<4016B316.4060304@zytor.com> <87ad4987ti.fsf@devron.myhome.or.jp>
+	<20040128115655.GA696@arda.frodo.local>
+	<87y8rr7s5b.fsf@devron.myhome.or.jp>
+	<20040128202443.GA9246@frodo.local>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Thu, 29 Jan 2004 06:01:18 +0900
+In-Reply-To: <20040128202443.GA9246@frodo.local>
+Message-ID: <87bron7ppd.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040127012717.GA19704@thunk.org>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 26, 2004 at 08:27:17PM -0500, Theodore Ts'o wrote:
+Frodo Looijaard <frodol@dds.nl> writes:
+
+> On Thu, Jan 29, 2004 at 05:08:32AM +0900, OGAWA Hirofumi wrote:
+> > 
+> > "stop when DIR_Name[0] == 0" should be added after cleanup. The option
+> > is not needed.
 > 
-> There were also some bug fixes that I'm pretty sure were never
-> backported into the 2.2 tree....
+> OK. That would be nice. Like I said, I just hope it does not break other
+> FAT implementations, but that is not very likely. At least, that would
+> allow read-only mounted EPOC FAT partitions to be handled correctly.
 
-I may be being stung by this as we speak.
+This is spec as hpa saied. So this is right things, and other fat
+driver also does, AFAIK.
 
-I mounted this ext3 filesystem as ext2 on my 2.2.16 kernel system. I made 
-some changes to some files (simple edits), and now when I reboot the box in
-2.2.16, I get the following:
+> > Honestly, I wouldn't like to add the "add a new DIR_Name[0] = 0" part.
+> > The option is added easy, but it is not removed easy. And we must
+> > maintain it. 
+> 
+> I understand. I could always maintain that patch separately for those
+> who need it (for read-write mounted EPOC FAT partitions).
 
-mount: wrong fs type, bad option, bad superblock on /dev/hdb2,
-       or too many mounted filesystems
+Thanks.
 
-in /var/log/messages I see:
-EXT2-fs warning: mounting unchecked fs, running e2fsck is recommended
-EXT2-fs: ide0(3,66): couldn't mount because of unsupported optional features.
+> > (BTW, looks like that patch is buggy)
+> 
+> Could well be. Any suggestions what to look out for?
+
+@@ -200,4 +202,8 @@
+ parse_record:
+ 		long_slots = 0;
++		if (oldfat && (de->name[0] == EOD_FLAG)) 
++			last_entry = 1;
++		if (last_entry)
++			continue;
+                        ^^^^^^^^
+ 		if (de->name[0] == DELETED_FLAG)
+ 			continue;
+
+The above should "goto EODir;". Likewise, another "contiure" of
+fat_search_long().
 
 
-I'm reticent to run any e2fsck as old as 2.2.16 kernel version against
-this filesystem, in fear of damaging it.  Is this a sane thing to consider,
-or do I need to put this disk back into a more recent box and try to mount it/
-fsck it there?
+@@ -709,7 +731,20 @@
+ 		}
+ 
+-		if (IS_FREE((*de)->name)) {
+-			if (++row == slots)
++		if ((oldfat && ((*de)->name[0] == EOD_FLAG)))
++			last_entry = 1;
++		if (last_entry || IS_FREE((*de)->name)) {
++			if (++row == slots) {
++				if (last_entry) {
++					/* If we encounter a last_entry, we
++					 * need to mark the entry after the
++					 * one to be inserted as last_entry
++					 * now! */
++					if (fat_get_entry(dir,&curr,bh,de,i_pos) > -1) {
++						(*de)->name[0] = 0;
++						mark_inode_dirty(dir);
 
-Alternatively, where might I dig up an ext3 patch against linux-2.2.x, so
-I can build a kernel that will support this?  I assume I would need file
-utilities that support it as well?
+mark_inode_dirty(dir) is not needed, instead of it we should do
+mark_buffer_dirty(bh).
 
-thanks,
--chuck
+And this fat_get_entry() updates bh and de, but it should be point to
+allocated bh and de, not free entry. It's needed by msdos_add_entry().
 
-
+Thanks.
 -- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

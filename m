@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319610AbSIHOFJ>; Sun, 8 Sep 2002 10:05:09 -0400
+	id <S317984AbSIHOhR>; Sun, 8 Sep 2002 10:37:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319611AbSIHOFJ>; Sun, 8 Sep 2002 10:05:09 -0400
-Received: from cibs9.sns.it ([192.167.206.29]:8971 "EHLO cibs9.sns.it")
-	by vger.kernel.org with ESMTP id <S319610AbSIHOFH>;
-	Sun, 8 Sep 2002 10:05:07 -0400
-Date: Sun, 8 Sep 2002 16:09:24 +0200 (CEST)
-From: venom@sns.it
-To: Pavel Machek <pavel@suse.cz>
-cc: Paolo Ciarrocchi <ciarrocchi@linuxmail.org>, <ahu@ds9a.nl>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: side-by-side Re: BYTE Unix Benchmarks Version 3.6
-In-Reply-To: <20020906102849.A35@toy.ucw.cz>
-Message-ID: <Pine.LNX.4.43.0209081608120.12993-100000@cibs9.sns.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318284AbSIHOhQ>; Sun, 8 Sep 2002 10:37:16 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:39181 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S317984AbSIHOhQ>;
+	Sun, 8 Sep 2002 10:37:16 -0400
+Date: Sun, 8 Sep 2002 16:53:23 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "D. Hugh Redelmeier" <hugh@mimosa.com>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Martin.Knoblauch@teraport.de
+Subject: Re: clean before or after dep?
+Message-ID: <20020908165323.A1262@mars.ravnborg.org>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	"D. Hugh Redelmeier" <hugh@mimosa.com>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Martin.Knoblauch@teraport.de
+References: <Pine.LNX.4.44.0209072139470.21724-100000@redshift.mimosa.com> <1031490782.26902.4.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1031490782.26902.4.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Sun, Sep 08, 2002 at 02:13:02PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Sep 2002, Pavel Machek wrote:
+README located in the top-level directory specify:
+make config
+make clean
+make dep
 
-> Date: Fri, 6 Sep 2002 10:28:50 +0000
-> From: Pavel Machek <pavel@suse.cz>
-> To: Paolo Ciarrocchi <ciarrocchi@linuxmail.org>
-> Cc: venom@sns.it, ahu@ds9a.nl, linux-kernel@vger.kernel.org
-> Subject: Re: side-by-side Re: BYTE Unix Benchmarks Version 3.6
->
-> Hi!
->
-> > > I usually run byte bench regularly with every new kernel, so I see some
-> > > strange results here.
-> > >
-> > > From your numbers, I would say you are using a PIII 600/900 Mhz (more or
-> > > less). It is not an AMD AThlon or a PIV, since float and double are too
-> > > slow, not it is a K6 because they are too fast.
-> > Yes, I ran the test on a HP Omnibook 600 (PIII@900)
->
-> APM or ACPI? How did you guarantee not going powersave?
->
-I suppose Paolo disabled power saving both from bios and from kernel, of
-course. If not, then the differences I noticed could be explained easilly,
-Thanx
+Which is the logical order if you ask me.
 
-Luigi
+On Sun, Sep 08, 2002 at 02:13:02PM +0100, Alan Cox wrote:
+> The "kernel-howto" has been badly broken for years. The world would
+> actually be better without that document IMHO
 
+What about a small HOWTO located in Documentation/ that include a note
+that the LDP HOWTO is outdated?
 
+	Sam

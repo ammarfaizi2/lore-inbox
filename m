@@ -1,48 +1,301 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311866AbSCNX0y>; Thu, 14 Mar 2002 18:26:54 -0500
+	id <S311868AbSCNXua>; Thu, 14 Mar 2002 18:50:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311860AbSCNX0c>; Thu, 14 Mar 2002 18:26:32 -0500
-Received: from granite.he.net ([216.218.226.66]:58629 "EHLO granite.he.net")
-	by vger.kernel.org with ESMTP id <S311868AbSCNX0X>;
-	Thu, 14 Mar 2002 18:26:23 -0500
-Date: Thu, 14 Mar 2002 15:26:17 -0800
-From: Greg KH <greg@kroah.com>
-To: Itai Nahshon <nahshon@actcom.co.il>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB-Storage in 2.4.19-pre
-Message-ID: <20020314152617.B3109@kroah.com>
-Mail-Followup-To: Greg KH <greg@kroah.com>,
-	Itai Nahshon <nahshon@actcom.co.il>, linux-kernel@vger.kernel.org
-In-Reply-To: <200203141432.g2EEWL628078@lmail.actcom.co.il> <20020314212505.GA22263@us.ibm.com> <200203142321.g2ENL1632499@lmail.actcom.co.il>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200203142321.g2ENL1632499@lmail.actcom.co.il>; from nahshon@actcom.co.il on Fri, Mar 15, 2002 at 01:20:49AM +0200
-X-Operating-System: Linux 2.2.20 (i686)
+	id <S311870AbSCNXuV>; Thu, 14 Mar 2002 18:50:21 -0500
+Received: from audio13.medien.uni-weimar.de ([141.54.172.33]:15376 "HELO
+	audio13.medien.uni-weimar.de") by vger.kernel.org with SMTP
+	id <S311868AbSCNXuF>; Thu, 14 Mar 2002 18:50:05 -0500
+Date: Fri, 15 Mar 2002 00:48:42 +0100 (CET)
+From: joy ping <joy@pingfm.org>
+To: tytso@mit.edu
+Cc: linux-kernel@vger.kernel.org, <axboe@suse.de>, <sct@redhat.com>
+Subject: probably bug in kernel-2.4.14, compiling error in block.o, loop
+Message-ID: <Pine.LNX.4.43.0203150030440.11985-401000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-825456161-1016149722=:11985"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 15, 2002 at 01:20:49AM +0200, Itai Nahshon wrote:
-> No go. I still get that device not responding (error=-84).
-> If I understand your patch, disabling hotplug and loading
-> usb-storage manually shoud work. It isn't. Actually
-> I believe that it never got to call hotplug.
-> usbview does not see the device.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-No the main problem is that usbmodules starts talking to the device 
-before it is initialized properly by the kernel driver, causing both 
-programs to get messed up, and then the device is usually in a 
-uninitialized state.
+--8323328-825456161-1016149722=:11985
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-> I forgot to say. On one of those computers where I do the testing
-> I have a USB mouse - which is working just fine.
+hi,
 
-Does that mouse work if you plug it into the same port that you are
-plugging the drive into?  I have noticed a lot more errors from flaky
-hubs with the new code.
+i has problems compiling kernel-2.4.14 or loading the module loop.
 
-thanks,
+modprobe loop does not work and making blockdevice loop residing in kernel
+does not work.
+probably a bug.
 
-greg k-h
+all other options works fine for a few months now.
+
+modprobe loop gives an error: unresolved symbol deactivate_page.
+see details in modprobe_error.out.
+also compiling the kernel with loop-device switched on gives a similar error:
+
+drivers/block/block.o: In function `lo_send':
+drivers/block/block.o(.text+0xa775): undefined reference to `deactivate_page'
+drivers/block/block.o(.text+0xa79d): undefined reference to `deactivate_page'
+make: *** [vmlinux] Fehler 1
+
+keywords: compiler error, loop, blockdevice
+
+kernelversion: 2.4.14 with ext3-patch 2.4-0.9.15-2414
+
+for details see the attached files.
+
+current system:		     sysinfo-14-04-2002.txt
+output of ver_linux:	     ver_linux.out
+error output of modprobe:    modprobe_error.out
+log of making the kernel:    make_kernel.log.tar.gz
+
+sincerly
+
+joy
+
+--8323328-825456161-1016149722=:11985
+Content-Type: APPLICATION/octet-stream; name="make_kernel.log.tar.gz"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.43.0203150048420.11985@localhost.localdomain>
+Content-Description: 
+Content-Disposition: attachment; filename="make_kernel.log.tar.gz"
+
+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
+AOABAA==
+--8323328-825456161-1016149722=:11985
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="modprobe_error.out"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.43.0203150048421.11985@localhost.localdomain>
+Content-Description: 
+Content-Disposition: attachment; filename="modprobe_error.out"
+
+L2xpYi9tb2R1bGVzLzIuNC4xNC9rZXJuZWwvZHJpdmVycy9ibG9jay9sb29w
+Lm86IHVucmVzb2x2ZWQgc3ltYm9sIGRlYWN0aXZhdGVfcGFnZQ0KL2xpYi9t
+b2R1bGVzLzIuNC4xNC9rZXJuZWwvZHJpdmVycy9ibG9jay9sb29wLm86IGlu
+c21vZCAvbGliL21vZHVsZXMvMi40LjE0L2tlcm5lbC9kcml2ZXJzL2Jsb2Nr
+L2xvb3AubyBmYWlsZWQNCi9saWIvbW9kdWxlcy8yLjQuMTQva2VybmVsL2Ry
+aXZlcnMvYmxvY2svbG9vcC5vOiBpbnNtb2QgbG9vcCBmYWlsZWQNCg==
+--8323328-825456161-1016149722=:11985
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN; name="ver_linux.out"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.43.0203150048422.11985@localhost.localdomain>
+Content-Description: 
+Content-Disposition: attachment; filename="ver_linux.out"
+
+SWYgc29tZSBmaWVsZHMgYXJlIGVtcHR5IG9yIGxvb2sgdW51c3VhbCB5b3Ug
+bWF5IGhhdmUgYW4gb2xkIHZlcnNpb24uDQpDb21wYXJlIHRvIHRoZSBjdXJy
+ZW50IG1pbmltYWwgcmVxdWlyZW1lbnRzIGluIERvY3VtZW50YXRpb24vQ2hh
+bmdlcy4NCiANCkxpbnV4IGxvY2FsaG9zdC5sb2NhbGRvbWFpbiAyLjQuMTQg
+IzEgRG9uIE3kciAxNCAxMzoyODoyOSBDRVQgMjAwMiBpNjg2IHVua25vd24N
+CiANCkdudSBDICAgICAgICAgICAgICAgICAgMi45NS4zDQpHbnUgbWFrZSAg
+ICAgICAgICAgICAgIDMuNzkuMQ0KYmludXRpbHMgICAgICAgICAgICAgICAy
+LjExLjINCnV0aWwtbGludXggICAgICAgICAgICAgMi4xMWgNCm1vdW50ICAg
+ICAgICAgICAgICAgICAgMi4xMWgNCm1vZHV0aWxzICAgICAgICAgICAgICAg
+Mi40LjEwDQplMmZzcHJvZ3MgICAgICAgICAgICAgIDEuMjcNCnJlaXNlcmZz
+cHJvZ3MgICAgICAgICAgMy54LjBpDQpQUFAgICAgICAgICAgICAgICAgICAg
+IDIuNC4xDQpMaW51eCBDIExpYnJhcnkgICAgICAgIDIuMi40DQpEeW5hbWlj
+IGxpbmtlciAobGRkKSAgIDIuMi40DQpQcm9jcHMgICAgICAgICAgICAgICAg
+IDIuMC42DQpOZXQtdG9vbHMgICAgICAgICAgICAgIDEuNjANCktiZCAgICAg
+ICAgICAgICAgICAgICAgMS4wNg0KU2gtdXRpbHMgICAgICAgICAgICAgICAy
+LjANCk1vZHVsZXMgTG9hZGVkICAgICAgICAgc25kLWNhcmQtZW5zMTM3MSBz
+bmQtcGNtIHNuZC10aW1lciBzbmQtcmF3bWlkaSBzbmQtc2VxLWRldmljZSBz
+bmQtYWM5Ny1jb2RlYyBzbmQgdmlhNjg2YSBlZXByb20gaTJjLXByb2MgaTJj
+LWlzYSBpMmMtdmlhcHJvIGkyYy1jb3JlIGV4dDMgamJkIG5sc19pc284ODU5
+LTEgbmxzX2NwNDM3IHZmYXQgZmF0IGFwbSBydGMNCg==
+--8323328-825456161-1016149722=:11985
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="sysinfo-14-04-2002.txt"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.43.0203150048423.11985@localhost.localdomain>
+Content-Description: 
+Content-Disposition: attachment; filename="sysinfo-14-04-2002.txt"
+
+RGlzdHJvOiBMRlMsIGJhc2VkIG9uIE1hbmRyYWtlIDcuMQ0KS2VybmVsOiAy
+LjQuMTQgd2l0aCBleHQzLXBhdGNoIDIuNC0wLjkuMTUtMjQxNA0KQ29tcGls
+ZXI6IGdjYyB2ZXJzaW9uIDIuOTUuMyAyMDAxMDMxNSAocmVsZWFzZSkNClgt
+VmVyc2lvbjogNC4xLjANCmxkOiBHTlUgbGQgdmVyc2lvbiAyLjExLjIgKHdp
+dGggQkZEIDIuMTEuMg0KYXM6IEdOVSBhc3NlbWJsZXIgdmVyc2lvbiAyLjEx
+LjIgKGk2ODYtcGMtbGludXgtZ251KSB1c2luZyBCRkQgdmVyc2lvbiAyLjEx
+LjINCg0KSEFSRFdBUkU6DQotLS0tLS0tLS0tLS0tDQoNCmNwdToNCnByb2Nl
+c3NvciAgICAgICA6IDANCnZlbmRvcl9pZCAgICAgICA6IEF1dGhlbnRpY0FN
+RA0KY3B1IGZhbWlseSAgICAgIDogNg0KbW9kZWwgICAgICAgICAgIDogNA0K
+bW9kZWwgbmFtZSAgICAgIDogQU1EIEF0aGxvbih0bSkgUHJvY2Vzc29yDQpz
+dGVwcGluZyAgICAgICAgOiAyDQpjcHUgTUh6ICAgICAgICAgOiA4MDEuODI3
+DQpjYWNoZSBzaXplICAgICAgOiAyNTYgS0INCmZkaXZfYnVnICAgICAgICA6
+IG5vDQpobHRfYnVnICAgICAgICAgOiBubw0KZjAwZl9idWcgICAgICAgIDog
+bm8NCmNvbWFfYnVnICAgICAgICA6IG5vDQpmcHUgICAgICAgICAgICAgOiB5
+ZXMNCmZwdV9leGNlcHRpb24gICA6IHllcw0KY3B1aWQgbGV2ZWwgICAgIDog
+MQ0Kd3AgICAgICAgICAgICAgIDogeWVzDQpmbGFncyAgICAgICAgICAgOiBm
+cHUgdm1lIGRlIHBzZSB0c2MgbXNyIHBhZSBtY2UgY3g4IGFwaWMgc2VwIG10
+cnIgcGdlIG1jYSBjbW92IA0KcGF0IHBzZTM2IG1teCBmeHNyIHN5c2NhbGwg
+bW14ZXh0IDNkbm93ZXh0IDNkbm93DQpib2dvbWlwcyAgICAgICAgOiAxNTk5
+LjA3DQoNCnZpZGVvIGNhcmQ6DQpTSVMgM0QgUFJPIEFHUCwgY2hpcHNldCBT
+SVM2MzI2IDRNQg0KDQpzb3VuZGNhcmQ6DQpNdWx0aW1lZGlhIGF1ZGlvIGNv
+bnRyb2xsZXI6IEVuc29uaXEgNTg4MCBBdWRpb1BDSSAocmV2IDAzKQ0KU3Vi
+c3lzdGVtOiBHaWdhLWJ5dGUgVGVjaG5vbG9neTogVW5rbm93biBkZXZpY2Ug
+YTAwMA0KRmxhZ3M6IGJ1cyBtYXN0ZXIsIHNsb3cgZGV2c2VsLCBsYXRlbmN5
+IDY0LCBJUlEgMTANCkkvTyBwb3J0cyBhdCBkMDAwDQpDYXBhYmlsaXRpZXM6
+IFtkY10gUG93ZXIgTWFuYWdlbWVudCB2ZXJzaW9uIDINCg0KaGQ6IElCTS1E
+VExBLTMwNTAzMCwgQVRBIERJU0sgZHJpdmUNCmR2ZDogUGlvbmVlciBEVkQt
+Uk9NIEFUQVBJTW9kZWwgRFZELTEwM1MgMDExQQ0KDQptb3RoZXJib2FyZDog
+R2lnYWJ5dGUsIEdBLTdaWA0KY2hpcHNldDogVklBIEtUMTMz
+--8323328-825456161-1016149722=:11985--

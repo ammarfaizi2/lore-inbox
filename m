@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129210AbQK0THW>; Mon, 27 Nov 2000 14:07:22 -0500
+        id <S129348AbQK0TKB>; Mon, 27 Nov 2000 14:10:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129379AbQK0THL>; Mon, 27 Nov 2000 14:07:11 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:57348 "EHLO
-        neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-        id <S129210AbQK0THH>; Mon, 27 Nov 2000 14:07:07 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: How to transfer memory from PCI memory directly to user space safely and portable?
-Date: 27 Nov 2000 10:36:34 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <8vu9ji$r2a$1@cesium.transmeta.com>
-In-Reply-To: <00112614213105.05228@paganini> <20001126151120.V2272@parcelfarce.linux.theplanet.co.uk>
+        id <S129379AbQK0TJv>; Mon, 27 Nov 2000 14:09:51 -0500
+Received: from office.mandrakesoft.com ([195.68.114.34]:39922 "HELO
+        matrix.mandrakesoft.com") by vger.kernel.org with SMTP
+        id <S129348AbQK0TJk>; Mon, 27 Nov 2000 14:09:40 -0500
+To: "H. Peter Anvin" <hpa@transmeta.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
+        Mandrake Install <install@linux-mandrake.com>
+Subject: Re: Universal debug macros.
+In-Reply-To: <200011270045.BAA13121@cave.bitwizard.nl>
+        <Pine.LNX.4.10.10011270302570.24716-100000@yle-server.ylenurme.sise>
+        <8vsno2$pc6$1@cesium.transmeta.com>
+        <m3vgt9nykk.fsf@matrix.mandrakesoft.com>
+        <3A229E41.B3C278E2@transmeta.com>
+        <m3aealnvt6.fsf@matrix.mandrakesoft.com>
+        <3A22A0C9.6888B08@transmeta.com>
+        <m366l9nv50.fsf@matrix.mandrakesoft.com>
+        <3A22A7D8.13BEF4B6@transmeta.com>
+From: Chmouel Boudjnah <chmouel@mandrakesoft.com>
+Date: 27 Nov 2000 19:39:35 +0100
+In-Reply-To: <3A22A7D8.13BEF4B6@transmeta.com>
+Message-ID: <m3g0kdmf88.fsf@matrix.mandrakesoft.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20001126151120.V2272@parcelfarce.linux.theplanet.co.uk>
-By author:    Philipp Rumpf <prumpf@parcelfarce.linux.theplanet.co.uk>
-In newsgroup: linux.dev.kernel
-> 
-> I hope count isn't provided by userspace here ?
-> 
-> > 1. What happens if the user space memory is swapped to disk? Will 
-> > verify_area() make sure that the memory is in physical RAM when it returns, 
-> > or will it return -EFAULT, or will something even worse happen?
-> 
-> On i386, you'll sleep implicitly waiting for the page fault to be handled;  in
-> the generic case, anything could happen.
-> 
+"H. Peter Anvin" <hpa@transmeta.com> writes:
 
-That doesn't sound right.  I would expect it to wait for the page to
-be brought in on any and all architectures, otherwise it seems rather
-impossible to write portable Linux kernel code.
+> I'm talking about crap like the global compile options (processor, SMP,
+> etc.)
 
-	-hpa
+that's could be only for the experienced user and the experienced user
+can find how to reboot and compile is own kernel (or even to generate
+a distribution with his personal kernel).
+
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+MandrakeSoft Inc                     http://www.chmouel.org
+                      --Chmouel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

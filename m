@@ -1,48 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129781AbQLIPq7>; Sat, 9 Dec 2000 10:46:59 -0500
+	id <S130187AbQLIQIg>; Sat, 9 Dec 2000 11:08:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131949AbQLIPqt>; Sat, 9 Dec 2000 10:46:49 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:32393 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129781AbQLIPql>;
-	Sat, 9 Dec 2000 10:46:41 -0500
-Date: Sat, 9 Dec 2000 07:00:19 -0800
-Message-Id: <200012091500.HAA20614@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: kernel@tekno-soft.it
-CC: rasmus@jaquet.dk, torvalds@transmeta.com, linux-kernel@vger.kernel.org
-In-Reply-To: <4.3.2.7.2.20001209160215.00c901e0@mail.tekno-soft.it> (message
-	from Roberto Fichera on Sat, 09 Dec 2000 16:07:03 +0100)
-Subject: Re: [PATCH] mm->rss is modified without page_table_lock held
-In-Reply-To: <4.3.2.7.2.20001209152806.00c8e7b0@mail.tekno-soft.it>
- <4.3.2.7.2.20001209111347.00c829f0@mail.tekno-soft.it>
- <4.3.2.7.2.20001209111347.00c829f0@mail.tekno-soft.it>
- <4.3.2.7.2.20001209152806.00c8e7b0@mail.tekno-soft.it> <4.3.2.7.2.20001209160215.00c901e0@mail.tekno-soft.it>
+	id <S131682AbQLIQI0>; Sat, 9 Dec 2000 11:08:26 -0500
+Received: from imladris.demon.co.uk ([193.237.130.41]:27140 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S130187AbQLIQIZ>; Sat, 9 Dec 2000 11:08:25 -0500
+Date: Sat, 9 Dec 2000 15:37:48 +0000 (GMT)
+From: David Woodhouse <dwmw2@infradead.org>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Re: kernel BUG at buffer.c:827 in test12-pre6 and 7 
+In-Reply-To: <Pine.GSO.4.21.0012081353170.27010-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.30.0012091536130.1122-100000@imladris.demon.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: Sat, 09 Dec 2000 16:07:03 +0100
-   From: Roberto Fichera <kernel@tekno-soft.it>
+On Fri, 8 Dec 2000, Alexander Viro wrote:
 
-   8 bits for a spinlock ? What kind of use we have here ?
+> BTW, what do you think about the following:
+> 	* add_to_page_cache() is not exported and never used. Kill?
 
-Sparc32 (like some other older architectures) do not have a
-word atomic update instruction, but it does have a byte spinlock.
-To conserve space and implement the atomic update properly, we
-use a spinlock in the top byte of the word.
+I have my eye on that for execute-in-place of romfs from real ROM chips -
+making up struct pages for parts of the ROM chips and inserting them into
+the page cache. I'd rather you didn't remove it :)
 
-   All arch except Sparc32 don't have this trick.
+-- 
+dwmw2
 
-This may not be true forever.
 
-Also, this sematic was decided upon many eons ago, changing it a month
-before 2.4.0 just to deal with this mm->rss atomicity issue is not
-going to happen.  The spinlock patch exists, and if nothing better
-comes up, we should just use it.
-
-Later,
-David S. Miller
-davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

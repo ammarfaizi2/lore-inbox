@@ -1,85 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264148AbTI2SEP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 14:04:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263807AbTI2SCX
+	id S264066AbTI2Rzd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 13:55:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264064AbTI2RzG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 14:02:23 -0400
-Received: from salzburg.nitnet.com.br ([200.157.92.10]:32691 "EHLO
-	nat.cesarb.net") by vger.kernel.org with ESMTP id S264110AbTI2SAL convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 14:00:11 -0400
-Date: Mon, 29 Sep 2003 14:59:09 -0300
-To: Erik Mouw <erik@harddisk-recovery.com>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Bug 1284] New: Asus P5AB broken BIOS reading ESCD
-Message-ID: <20030929175908.GD27908@flower.home.cesarb.net>
-References: <42150000.1064850644@[10.10.2.4]> <20030929174127.GD26491@bitwizard.nl>
-Mime-Version: 1.0
+	Mon, 29 Sep 2003 13:55:06 -0400
+Received: from web40903.mail.yahoo.com ([66.218.78.200]:48008 "HELO
+	web40903.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264001AbTI2Rt7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 13:49:59 -0400
+Message-ID: <20030929174957.28187.qmail@web40903.mail.yahoo.com>
+Date: Mon, 29 Sep 2003 10:49:57 -0700 (PDT)
+From: Bradley Chapman <kakadu_croc@yahoo.com>
+Subject: Re: [BUG] Defunct event/0 processes under 2.6.0-test6-mm1
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <200309291247.18164.dtor_core@ameritech.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <20030929174127.GD26491@bitwizard.nl>
-User-Agent: Mutt/1.5.4i
-From: Cesar Eduardo Barros <cesarb@nitnet.com.br>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 29, 2003 at 07:41:27PM +0200, Erik Mouw wrote:
-> On Mon, Sep 29, 2003 at 08:50:44AM -0700, Martin J. Bligh wrote:
-> >            Summary: Asus P5AB broken BIOS reading ESCD
-> >     Kernel Version: 2.6.0-test6
-> >             Status: NEW
-> >           Severity: normal
-> >              Owner: mbligh@aracnet.com
-> >          Submitter: cesarb@nitnet.com.br
-> > 
-> > 
-> > Distribution: Debian testing/unstable
-> > Hardware Environment: Asus P5AB
-> > Software Environment:
-> > Problem Description:
-> > 
-> > Trying to read /proc/bus/pnp/escd causes an oops. Looks like the PnPBIOS is
-> > broken. However, it's not exploding_pnp_bios, since only reading the escd causes
-> > it (the boot probe works fine).
+Mr. Torokhov,
+
+--- Dmitry Torokhov <dtor_core@ameritech.net> wrote:
+> On Monday 29 September 2003 11:41 am, Andrew Morton wrote:
+> > Bradley Chapman <kakadu_croc@yahoo.com> wrote:
+> > > I am experiencing defunct event/0 kernel daemons under
+> > > 2.6.0-test6-mm1 with synaptics_drv 0.11.7, Dmitry Torokhov's gpm-1.20
+> > > with synaptics support, and XFree86 4.3.0-10. Moving the touchpad in
+> > > either X or with gpm causes defunct event/0 processes to be created.
 > >
-> > I think a new function should be added to the DMI blacklist to block trying to
-> > read the ESCD.
+> > Defunct is odd.  Have you run `dmesg' to see if the kernel oopsed?
+> >
+> > You could try reverting synaptics-reconnect.patch, and then
+> > serio-reconnect.patch from
+> >
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-tes
+> >t6/2.6.0-test6-mm1/broken-out
+> >
 > 
-> [...]
+> Input subsystem uses only one kernel thread called kseriod, not eventsX.
+> I think it's not synaptics/serio reconnect but other patch you mentioned
+> (call_usermodehelper-retval-fix-2.patch)
+
+OK. I'll try reverting that one too. I'm inclined to agree that it could be
+the problem, because I noticed one more thing before I rebooted to 2.6.0-test6.
+
+I recently installed the latest RH9 hotplug packages from the hotplug Sourceforge
+website. Under 2.6.0-test6-mm1 the hotplug initscript leaves a defunct hotplug
+process along with the other events/0 defunct processes. Does this mean anything?
+
+The hotplug version is hotplug-2003_08_05-1.
+
 > 
-> > DMI:
-> > # dmidecode 2.2
-> > Legacy DMI 2.0 present.
-> > 29 structures occupying 946 bytes.
-> > Table at 0x000F545A.
-> > Handle 0x0000
-> > 	DMI type 0, 18 bytes.
-> > 	BIOS Information
-> > 		Vendor: Award Software, Inc.
-> > 		Version: ASUS P5A-B ACPI BIOS Revision 1004 .............................
-> 
-> FWIW: I used to have a similar board (Asus P5A, it actually died a week
-> ago, so I can't check anything anymore). Never tried 2.6 on it, but I
-> know it had a flakey PnPBIOS implementation: if you put in a Sound
-> Blaster AWE64 Gold, you couldn't use the floppy drive anymore. The
-> latest "Y2K compliant" BIOS (revision 1.005 IIRC) fixed that, it might
-> also fix this particular bug.
+> Dmitry
 
-Well, I do have a SoundBlaster AWE ISA on that board, and it didn't
-break the floppy.
+Brad
 
-I have downloaded the latest BIOS and will test it later (I don't have
-the latest one, the latest one is from 2002 and the one in the box is
-from '98)
+=====
+Brad Chapman
 
-> (Asus website seems to be broken, I get a "runtime error" from their
-> web server when I want to get a list of downloads, so I have no idea if
-> you have the latest BIOS right now :-/ )
+Permanent e-mail: kakadu_croc@yahoo.com
 
--- 
-Cesar Eduardo Barros
-cesarb@nitnet.com.br
-cesarb@dcc.ufrj.br
+__________________________________
+Do you Yahoo!?
+The New Yahoo! Shopping - with improved product search
+http://shopping.yahoo.com

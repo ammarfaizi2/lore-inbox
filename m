@@ -1,68 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269210AbUINIxp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269213AbUINIyX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269210AbUINIxp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 04:53:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269213AbUINIxp
+	id S269213AbUINIyX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 04:54:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269215AbUINIyX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 04:53:45 -0400
-Received: from pD9FF1BA5.dip.t-dialin.net ([217.255.27.165]:3588 "EHLO
-	timbaland.dnsalias.org") by vger.kernel.org with ESMTP
-	id S269210AbUINIxm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 04:53:42 -0400
-Message-ID: <4146B194.7010001@uni-muenster.de>
-Date: Tue, 14 Sep 2004 10:53:40 +0200
-From: Borislav Petkov <petkov@uni-muenster.de>
-Reply-To: petkov@uni-muenster.de
-User-Agent: Mozilla/5.0 (compatible; MSIE5.5; Windows 98;
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: Greg KH <greg@kroah.com>
-Subject: [PATCH] 2.6.9-rc1-mm5 remove usb_unlink_urb in class/audio.c
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 14 Sep 2004 04:54:23 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:53514 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S269213AbUINIyV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 04:54:21 -0400
+Date: Tue, 14 Sep 2004 09:54:14 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Eric Valette <eric.valette@free.fr>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.6.9-rc2 : hardirq.h broken if PREEMPT enabled
+Message-ID: <20040914095414.A5241@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Eric Valette <eric.valette@free.fr>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <41460CC3.6000201@free.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <41460CC3.6000201@free.fr>; from eric.valette@free.fr on Mon, Sep 13, 2004 at 11:10:27PM +0200
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a resend of the first one with fixed tabs (actually, may MUA kmail is biting them)
+On Mon, Sep 13, 2004 at 11:10:27PM +0200, Eric Valette wrote:
+> Christoph Hellwig  posted this patch but it was unfortunately not 
+> included in linux-2.6.9-rc2. As I see oops reports with PREEMPT enabled, 
+> I think people should make sure to apply this patch first.
+> 
+> <http://www.ussg.iu.edu/hypermail/linux/kernel/0409.1/1227.html>
 
-Signed-off-by: Borislav Petkov <petkov@uni-muenster.de>
+this can't lead to an oops, the worst thing that could happen would
+be acompile failure.  But as about half of the old <asm/hardirq.h> instances
+didn't have the include either there's no driver I saw that actually
+broke.
 
---- linux-2.6.9-rc1-mm/drivers/usb/class/audio.c.orig   2004-09-14 10:49:01.000000000 +0200
-+++ linux-2.6.9-rc1-mm/drivers/usb/class/audio.c        2004-09-14 10:50:08.000000000 +0200
-@@ -635,13 +635,13 @@ static void usbin_stop(struct usb_audiod
-                 spin_unlock_irqrestore(&as->lock, flags);
-                 if (notkilled && signal_pending(current)) {
-                         if (i & FLG_URB0RUNNING)
--                               usb_unlink_urb(u->durb[0].urb);
-+                               usb_kill_urb(u->durb[0].urb);
-                         if (i & FLG_URB1RUNNING)
--                               usb_unlink_urb(u->durb[1].urb);
-+                               usb_kill_urb(u->durb[1].urb);
-                         if (i & FLG_SYNC0RUNNING)
--                               usb_unlink_urb(u->surb[0].urb);
-+                               usb_kill_urb(u->surb[0].urb);
-                         if (i & FLG_SYNC1RUNNING)
--                               usb_unlink_urb(u->surb[1].urb);
-+                               usb_kill_urb(u->surb[1].urb);
-                         notkilled = 0;
-                 }
-         }
-@@ -1114,13 +1114,13 @@ static void usbout_stop(struct usb_audio
-                 spin_unlock_irqrestore(&as->lock, flags);
-                 if (notkilled && signal_pending(current)) {
-                         if (i & FLG_URB0RUNNING)
--                               usb_unlink_urb(u->durb[0].urb);
-+                               usb_kill_urb(u->durb[0].urb);
-                         if (i & FLG_URB1RUNNING)
--                               usb_unlink_urb(u->durb[1].urb);
-+                               usb_kill_urb(u->durb[1].urb);
-                         if (i & FLG_SYNC0RUNNING)
--                               usb_unlink_urb(u->surb[0].urb);
-+                               usb_kill_urb(u->surb[0].urb);
-                         if (i & FLG_SYNC1RUNNING)
--                               usb_unlink_urb(u->surb[1].urb);
-+                               usb_kill_urb(u->surb[1].urb);
-                         notkilled = 0;
-                 }
-         }

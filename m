@@ -1,118 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261675AbVBHVib@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261662AbVBHVoc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261675AbVBHVib (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 16:38:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbVBHVib
+	id S261662AbVBHVoc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 16:44:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbVBHVoc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 16:38:31 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12418 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261676AbVBHVhk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 16:37:40 -0500
-Date: Tue, 8 Feb 2005 16:04:45 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Jean Tourrilhes <jt@hpl.hp.com>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.4] SIOCSIFNAME wildcard support (resend)
-Message-ID: <20050208180445.GB10695@logos.cnet>
-References: <20050208181436.GA29717@bougret.hpl.hp.com>
+	Tue, 8 Feb 2005 16:44:32 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:19927 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261662AbVBHVo1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Feb 2005 16:44:27 -0500
+Date: Tue, 8 Feb 2005 22:44:11 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Esben Nielsen <simlo@phys.au.dk>
+Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org
+Subject: Re: Real-Time Preemption and UML?
+Message-ID: <20050208214411.GA22960@elte.hu>
+References: <200502081855.j18ItFs0012685@ccure.user-mode-linux.org> <Pine.OSF.4.05.10502082009360.23457-100000@da410.phys.au.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050208181436.GA29717@bougret.hpl.hp.com>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <Pine.OSF.4.05.10502082009360.23457-100000@da410.phys.au.dk>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi Jean,
+* Esben Nielsen <simlo@phys.au.dk> wrote:
 
-On Tue, Feb 08, 2005 at 10:14:36AM -0800, Jean Tourrilhes wrote:
-> 	Hi Marcelo,
-> 
-> 	I did not receive any feedback on this e-mail, so I assume it
-> was lost on the way. Would you mind pushing that in 2.4.x ?
-> 	Thanks...
+> Now I don't really know who I am responding to. But both up()s now
+> changed to complete()s are in something looking very much like an
+> interrupt handler. But again, as I said, I didn't analyze the code in
+> detail, I just made it compile and checked that it worked in bare
+> 2.6.11-rc2 UML - which I am not too sure how to set up and use to
+> begin with!
 
-As an ignorant person I have no problems with it.
+btw., UML is really easy to begin with: after you've compiled you get a
+'linux' binary in the toplevel directory - just execute it via './linux'
+and you'll see a Linux kernel booting - that's all you need!
 
-David, what is your opinion?
+Add a filesystem image via a root= parameter to that command and the UML
+kernel will start booting that filesystem image. (if you are adventurous
+you can even boot a real partition, but for the first user this is
+strongly discouraged.) There are a number of UML-ready filesystem images
+downloadable from the net.
 
-> 	Jean
-> 
-> ----- Forwarded message from jt -----
-> 
-> Subject: [PATCH 2.4] SIOCSIFNAME wildcard support
-> E-mail: jt@hpl.hp.com
-> 
-> 	Hi Marcelo,
-> 
-> 	This patch adds wildcard support for the SIOCSIFNAME ioctl,
-> like what was done in 2.6.1. SIOCSIFNAME allow a user space tool to
-> change network interface names (such as nameif, ifrename, or ip link),
-> this patch allow those tools to specify a pattern, such as "eth%d" or
-> "wlan%d", and the kernel use the lowest available slot.
-> 	The reason I'm sending you this patch is that I've got some
-> 2.4.X users who requested the feature...
-> 	This patch was initially done for 2.4.23, and I rediffed and
-> retested with 2.4.29. It's somewhat different from the patch Stephen
-> and me added to 2.6.1, because the netdev init code is different and
-> also this patch is more conservative.
-> 
-> 	Have fun...
-> 
-> 	Jean
-> 
-> -------------------------------------------------------------
-> 
-> diff -u -p linux/net/core/dev.j1.c linux/net/core/dev.c
-> --- linux/net/core/dev.j1.c	Wed Dec  3 14:29:21 2003
-> +++ linux/net/core/dev.c	Wed Dec  3 18:55:27 2003
-> @@ -2179,10 +2179,26 @@ static int dev_ifsioc(struct ifreq *ifr,
->  		case SIOCSIFNAME:
->  			if (dev->flags&IFF_UP)
->  				return -EBUSY;
-> -			if (__dev_get_by_name(ifr->ifr_newname))
-> -				return -EEXIST;
-> -			memcpy(dev->name, ifr->ifr_newname, IFNAMSIZ);
-> -			dev->name[IFNAMSIZ-1] = 0;
-> +			/* Check if name contains a wildcard */
-> +			if (strchr(ifr->ifr_newname, '%')) {
-> +				char format[IFNAMSIZ + 1];
-> +				int ret;
-> +				memcpy(format, ifr->ifr_newname, IFNAMSIZ);
-> +				format[IFNAMSIZ-1] = 0;
-> +				/* Find a free name based on format.
-> +				 * dev_alloc_name() replaces "%d" with at max
-> +				 * 2 digits, so no name overflow. - Jean II */
-> +				ret = dev_alloc_name(dev, format);
-> +				if (ret < 0)
-> +					return ret;
-> +				/* Copy the new name back to caller. */
-> +				strncpy(ifr->ifr_newname, dev->name, IFNAMSIZ);
-> +			} else {
-> +				if (__dev_get_by_name(ifr->ifr_newname))
-> +					return -EEXIST;
-> +				memcpy(dev->name, ifr->ifr_newname, IFNAMSIZ);
-> +				dev->name[IFNAMSIZ-1] = 0;
-> +			}
->  			notifier_call_chain(&netdev_chain, NETDEV_CHANGENAME, dev);
->  			return 0;
->  
-> @@ -2315,6 +2331,7 @@ int dev_ioctl(unsigned int cmd, void *ar
->  		 *	- return a value
->  		 */
->  		 
-> +		case SIOCSIFNAME:
->  		case SIOCGMIIPHY:
->  		case SIOCGMIIREG:
->  			if (!capable(CAP_NET_ADMIN))
-> @@ -2350,7 +2367,6 @@ int dev_ioctl(unsigned int cmd, void *ar
->  		case SIOCDELMULTI:
->  		case SIOCSIFHWBROADCAST:
->  		case SIOCSIFTXQLEN:
-> -		case SIOCSIFNAME:
->  		case SIOCSMIIREG:
->  		case SIOCBONDENSLAVE:
->  		case SIOCBONDRELEASE:
-> -
+	Ingo

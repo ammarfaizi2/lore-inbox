@@ -1,47 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261799AbSLHWxz>; Sun, 8 Dec 2002 17:53:55 -0500
+	id <S261742AbSLHWxd>; Sun, 8 Dec 2002 17:53:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261829AbSLHWxz>; Sun, 8 Dec 2002 17:53:55 -0500
-Received: from holomorphy.com ([66.224.33.161]:16022 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S261799AbSLHWxy>;
-	Sun, 8 Dec 2002 17:53:54 -0500
-Date: Sun, 8 Dec 2002 15:01:09 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Manfred Spraul <manfred@colorfullife.com>, anton@samba.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5.50-BK + 24 CPUs
-Message-ID: <20021208230109.GZ9882@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"David S. Miller" <davem@redhat.com>,
-	Manfred Spraul <manfred@colorfullife.com>, anton@samba.org,
-	linux-kernel@vger.kernel.org
-References: <3DF3B7FB.9010902@colorfullife.com> <20021208212808.GY9882@holomorphy.com> <1039389778.13079.1.camel@rth.ninka.net>
+	id <S261799AbSLHWxc>; Sun, 8 Dec 2002 17:53:32 -0500
+Received: from bbned239-32-100.dsl.hccnet.nl ([80.100.32.239]:42245 "EHLO
+	fw.vanvergehaald.nl") by vger.kernel.org with ESMTP
+	id <S261742AbSLHWxb>; Sun, 8 Dec 2002 17:53:31 -0500
+Date: Sun, 8 Dec 2002 23:55:51 +0100
+From: Toon van der Pas <toon@hout.vanvergehaald.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Dazed and Confused
+Message-ID: <20021208235551.B2150@vdpas.vanvergehaald.nl>
+References: <Pine.LNX.4.42.0212060948250.7121-100000@egg> <1039348787.15058.6.camel@klendathu.telaviv.sgi.com> <1039360959.1153.10.camel@lapdog.badbelly.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1039389778.13079.1.camel@rth.ninka.net>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1039360959.1153.10.camel@lapdog.badbelly.com>; from gboyce@rakis.net on Sun, Dec 08, 2002 at 10:22:38AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-12-08 at 13:28, William Lee Irwin III wrote:
->> Hmm. What happened to that pipe buffer size increase patch? That sounds
->> like it might help here, but only if those things are trying to shove
->> more than 4KB through the pipe at a time.
+On Sun, Dec 08, 2002 at 10:22:38AM -0500, Gregory Boyce wrote:
+> On Sun, 2002-12-08 at 06:59, Gilad Ben-Yossef wrote:
+> > On Fri, 2002-12-06 at 16:55, Greg Boyce wrote:
+> > 
+> > > I have an issue that I've been trying to track down for some time, and I
+> > > was hoping that someone might be able to provide me with a definitive
+> > > awnser.
+> > > 
+> > > I work in a company with a large number of Linux machine deployed all
+> > > around the country, and in some of the machines we've been seeing the
+> > > following error:
+> > > 
+> > > Uhhuh. NMI received. Dazed and confused, but trying to continue
+> > > You probably have a hardware problem with your RAM chips
+> > 
+> > I have had the exact same error happen a while back on a 2.2.x kernel.
+> > It did not seem to hurt anything but it made the QA dept. go bonkers so
+> > I've spent some time chasing it down and found out what caused it back
+> > then - perhaps the same, or similar, applies to your setup as well:
+> > 
+> > The machines in question were Intel ISP1100 1U servers and for various
+> > non important reasons I have built the kernel which they were running
+> > without APM support. Now these machines have 3 small non marked buttons
+> > on their front - one is the power button, one is the reset button and
+> > one was a suspend button. 
+> > 
+> > What I found out was that whenever anyone pressed the "suspend" button
+> > (usually because they meant to press the power or reset buttons and
+> > missed) the error in questions was logged. It seems that APM suspend is
+> > implemented (at least on those machines) as an NMI, and if you compiled
+> > the kernel sans APM support the NMI handling code simply did not grok
+> > that specific NMI and thus reported said error, which was otherwise
+> > harmless.
+> 
+> Most of these machines do have Intel motherboards.  I don't recall
+> seeing suspend buttons, but I'll take a look.  Thanks!
 
-On Sun, Dec 08, 2002 at 03:22:58PM -0800, David S. Miller wrote:
-> You probably mean the zero-copy pipe patches, which I think really
-> should go in.  The most recent version of the diffs I saw didn't
-> use the zero copy bits unless the trasnfers were quite large so it
-> should be ok and not pessimize small transfers.
-> That patch has been gathering cobwebs for more than a year now when I
-> first did it, let's push this in already :-)
+Just another datapoint:
 
-I was actually referring to one that explicitly used larger pipe
-buffers, but this sounds useful too.
+I administer a Digitial Prioris server (Pentium II, 512MB memory),
+which logs one (yes, exactly one) "Uhhuh. NMI received. Etc.." message
+at boot time. After booting it _never_ logs this message again.
+The machine is rock stable; it currently has an uptime of 19 months
+and is humming along nicely. It runs a pristine 2.2.19 kernel, with
+the following patches applied:
 
+	raw-2.2.18.FULL.diff
+	linux-2.2.19-reiserfs-3.5.32-patch
+	lvm_0.9.1_beta7
 
-Bill
+It looks like something is producing exactly one NMI during the boot
+process. It doesn't seem to be a hardware problem.
+Could it be something SMP-related? (the machine runs with one CPU, but
+the motherboard can accomodate a second CPU and the BIOS supports that)
+Or some power management thing, like was suggested previously in this thread?
+
+Regards,
+Toon.
+-- 
+ /"\                             | "I never much liked Macs.
+ \ /     ASCII RIBBON CAMPAIGN   |  All the interesting stuff is hidden away."
+  X        AGAINST HTML MAIL     |    --  Linus Torvalds (at the Geek Cruise)
+ / \

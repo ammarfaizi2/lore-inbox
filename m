@@ -1,46 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292539AbSCSUR3>; Tue, 19 Mar 2002 15:17:29 -0500
+	id <S292657AbSCSUUJ>; Tue, 19 Mar 2002 15:20:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292555AbSCSURS>; Tue, 19 Mar 2002 15:17:18 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:40833 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S292539AbSCSURA>; Tue, 19 Mar 2002 15:17:00 -0500
-Date: Tue, 19 Mar 2002 15:19:55 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Andreas Dilger <adilger@clusterfs.com>
-cc: John Jasen <jjasen1@umbc.edu>, Mike Galbraith <mikeg@wen-online.de>,
-        Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: reading your email via tcpdump
-In-Reply-To: <20020319154734.GM470@turbolinux.com>
-Message-ID: <Pine.LNX.3.95.1020319151601.4151A-100000@chaos.analogic.com>
+	id <S292631AbSCSUUB>; Tue, 19 Mar 2002 15:20:01 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:33328 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S292589AbSCSUTx>; Tue, 19 Mar 2002 15:19:53 -0500
+To: "Martin K. Petersen" <mkp@mkp.net>
+Cc: Andrew Morton <akpm@zip.com.au>, Joel Becker <jlbec@evilplan.org>,
+        Anton Altaparmakov <aia21@cam.ac.uk>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: fadvise syscall?
+In-Reply-To: <3C945635.4050101@mandrakesoft.com> <3C945A5A.9673053F@zip.com.au>
+	<3C945D7D.8040703@mandrakesoft.com>
+	<5.1.0.14.2.20020317131910.0522b490@pop.cus.cam.ac.uk>
+	<20020318080531.W4836@parcelfarce.linux.theplanet.co.uk>
+	<3C95A1DB.CA13A822@zip.com.au> <yq1bsdmq6so.fsf@austin.mkp.net>
+	<3C963CD5.8E371FF@zip.com.au> <yq17ko9r7bc.fsf@austin.mkp.net>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 19 Mar 2002 13:08:48 -0700
+Message-ID: <m1it7swca7.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Mar 2002, Andreas Dilger wrote:
+"Martin K. Petersen" <mkp@mkp.net> writes:
 
-> On Mar 19, 2002  10:11 -0800, Mike Fedyk wrote:
-> > That's not the problem part of the tcpdump output.  The problem is that part
-> > of an email previously read on the linux box (with no samba runing. (also,
-> > no smbfs MikeG?)) showed up in the tcpdump output...
+> >>>>> "Andrew" == Andrew Morton <akpm@zip.com.au> writes:
 > 
+> Andrew> If that's really the only way in which we can solve this
+> Andrew> problem, would it not be better to pass information up to the
+> Andrew> higher layer, telling it when the BIO which is currently under
+> Andrew> assembly cannot be grown further?  Say,
+> Andrew> blk_can_i_add_more_stuff_to_this_bio()?
 
-The data sent/received on the network is precious. You will not have
-any 'extra' data on its end except for possibly a single byte if the
-data didn't have an even length. Note that these things are checksummed
-and also CRCed in the hardware.
+Please let's extend BIOs and not break them up.
+ 
+> We tried different approaches.  One of them was to be able to signal
+> to upper layers that your I/O was too big and please submit smaller
+> chunks.  Running with that, however, the I/O size converged against
+> small requests because you'd often start an I/O - say 4K - from a
+> stripe boundary.  And that would kill it right off.
+> 
+> So unless the filesystem knows about stripe/device boundaries it's
+> really hard to get the size signalling right.  And then what happens
+> when you stack LVM and MD?
+> 
+> In the end, cloning the kiobuf from the above and adjusting
+> offset/length in the children turned out to be the best approach.
 
-If you got part of somebody's email, I think you should look at
-the `tcpdump` source. It may be the culprit...
+Unless I am mistaken this interacts very badly with the writing data
+out to disk to free up memory, because you must allocate memory to
+split the bio.  Which is the last place you want to allocate memory
+if you can avoid it.
 
-Cheers,
-Dick Johnson
+It's been a while but I believe there was a similiar thread about
+splitting request to disk and the idea was shot down for similiar
+reasons. 
 
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+Eric
 
-                 Windows-2000/Professional isn't.
 

@@ -1,67 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261291AbTISFB0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 01:01:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261297AbTISFB0
+	id S261326AbTISFIZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 01:08:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261327AbTISFIZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 01:01:26 -0400
-Received: from mail014.syd.optusnet.com.au ([211.29.132.160]:12013 "EHLO
-	mail014.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261291AbTISFBX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 01:01:23 -0400
-From: Peter Chubb <peter@chubb.wattle.id.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 19 Sep 2003 01:08:25 -0400
+Received: from fw.osdl.org ([65.172.181.6]:17073 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261326AbTISFIW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Sep 2003 01:08:22 -0400
+Date: Thu, 18 Sep 2003 22:05:42 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Thorsten Leemhuis <Thorsten_Leemhuis@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: User-Experiences 2.6.0-test5[-mm2]: General, Power-Management
+ and tmscsim
+Message-Id: <20030918220542.08e47374.rddunlap@osdl.org>
+In-Reply-To: <20030919.4461700@thl.ct.heise.de>
+References: <20030919.4461700@thl.ct.heise.de>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <16234.36238.848366.753588@wombat.chubb.wattle.id.au>
-Date: Fri, 19 Sep 2003 15:01:02 +1000
-To: Andi Kleen <ak@suse.de>
-Cc: Grant Grundler <iod00d@hp.com>, Peter Chubb <peterc@gelato.unsw.edu.au>,
-       linux-ns83820@kvack.org, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: NS83820 2.6.0-test5 driver seems unstable on IA64
-In-Reply-To: <20030919044315.GC7666@wotan.suse.de>
-References: <16234.33565.64383.838490@wombat.disy.cse.unsw.edu.au>
-	<20030919043847.GA2996@cup.hp.com>
-	<20030919044315.GC7666@wotan.suse.de>
-X-Mailer: VM 7.14 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 19 Sep 2003 04:46:17 GMT Thorsten Leemhuis <Thorsten_Leemhuis@gmx.de> wrote:
 
- On Thu, Sep 18, 2003 at 09:38:47PM -0700, Grant Grundler wrote:
-> On Fri, Sep 19, 2003 at 02:16:29PM +1000, Peter Chubb wrote: 
->> The
->> obvious approach of realigning the SKB by 2 bytes seems not to 
->> work.
+| [third attempt to send mail, seems the first two (send more then 18 and 
+| 36 hours ago) didn't arrive at the list]
+| 
+| Hi *,
+| 
+| now that we're some time in the 2.6.0-test stage I thought to disturb
+| development a bit by testing the new kernel ;-) . I'm mostly a normal
+| linux "desktop" user with only minor programming experiences in C.
+| 
+| Base Distro was a Red Hat 9 System updated with some security updates. I
+| also installed the initscripts and modutils rpm packages from
+| http://people.redhat.com/arjanv/2.5/RPMS.kernel/
+| 
+| Hardware is an Athlon XP 2400+ on an Asus A7V266-E (Via KT266-A).
+[snip]
+| 
+| -----------------
+| - gconfig currently doesn't work so nice:
+| 
+| -- Double-mouse-clicks in the checkboxes sometimes aren't noticed.
+| Clicking in the _N M Y_ Fields in the full view works correct it seems.
+| 
+| -- In the _Split-View_ it will throw this segfault when trying to turn
+| of/on something:
+| ----start
+[snip]
+| ----end
 
-> Could you be more detailed about the "obvious approach"?  ie show
-> the diff of what you changed.
+I think that 'vi .config' and menuconfig get the most use.
+I use xconfig occasionally, and have never used gconfig.
 
+| -----------------
+| - Using xconfig worked without problems. But IMHO some things are a bit
+| disturbing:
+| 
+| -- Split-View: When do options appear in the left panel ("Support for
+| USB Gadgets" and "Remove kernel Features")? It seems to me that these
+| two are not a the right place there.
+| Another thing: Sometimes Sub-Menus appear in a sub-field in the left
+| tree-view (like Power Management -> CPU Frequency Scaling) and sometimes
+| they only have an own sub-menu in the top-right panel (like Networking
+| -> Ethernet (10 or 100 MBit)?
 
-It doesn't work as in no error messages, no pings, no interrupts to the
-driver.  And the kernel hangs after a short while.
+Yes, we could use more consistency there.
+I find that sometimes it's easier to click on a different mehu item
+completely than to up-level (backtrack) on a menu.
 
-This is what I changed:
+| -- Selecting "Code maturity level options -> Select only drivers
+| expected to compile cleanly" is helpful but it would be nice if the
+| config-system would show these drivers in a light grey (or something
+| like that) and make them not-selectable.
 
-===== drivers/net/ns83820.c 1.19 vs edited =====
---- 1.19/drivers/net/ns83820.c  Thu Jun  5 13:50:00 2003
-+++ edited/drivers/net/ns83820.c        Fri Sep 19 13:49:23 2003
-@@ -567,7 +567,7 @@
-                res = (long)skb->tail & 0xf;
-                res = 0x10 - res;
-                res &= 0xf;
--               skb_reserve(skb, res);
-+               skb_reserve(skb, res+2);
- 
-                skb->dev = &dev->net_dev;
-                if (gfp != GFP_ATOMIC)
+I certainly like that suggestion.
 
+[snip]
 
+Thanks.
 --
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-You are lost in a maze of BitKeeper repositories,   all slightly different.
+~Randy

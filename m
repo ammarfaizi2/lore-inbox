@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263483AbSJGV50>; Mon, 7 Oct 2002 17:57:26 -0400
+	id <S263484AbSJGV5a>; Mon, 7 Oct 2002 17:57:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263484AbSJGV5Z>; Mon, 7 Oct 2002 17:57:25 -0400
-Received: from cabal.xs4all.nl ([213.84.101.140]:26672 "EHLO mx1.wiggy.net")
-	by vger.kernel.org with ESMTP id <S263483AbSJGV5Y>;
-	Mon, 7 Oct 2002 17:57:24 -0400
-Date: Tue, 8 Oct 2002 00:03:02 +0200
-From: Wichert Akkerman <wichert@wiggy.net>
-To: Martin Waitz <tali@admingilde.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.41 orinoco_cs.c compile failure
-Message-ID: <20021007220302.GE14953@wiggy.net>
-Mail-Followup-To: Wichert Akkerman <wichert@wiggy.net>,
-	Martin Waitz <tali@admingilde.org>, linux-kernel@vger.kernel.org
-References: <20021007210817.GD14953@wiggy.net> <20021007213815.GA1495@admingilde.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021007213815.GA1495@admingilde.org>
-User-Agent: Mutt/1.3.28i
+	id <S263485AbSJGV53>; Mon, 7 Oct 2002 17:57:29 -0400
+Received: from mailman.xyplex.com ([140.179.176.116]:55516 "EHLO
+	mailman.xyplex.com") by vger.kernel.org with ESMTP
+	id <S263484AbSJGV51>; Mon, 7 Oct 2002 17:57:27 -0400
+Message-ID: <19EE6EC66973A5408FBE4CB7772F6F0A046A38@ltnmail.xyplex.com>
+From: "Dow, Benjamin" <bdow@itouchcom.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: kernel memory leak?
+Date: Mon, 7 Oct 2002 17:58:56 -0400 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previously Martin Waitz wrote:
-> adding workqueue isn't even needed, just remove tqueue.h
+I (read: my company) am working on a semi-embedded system (no swap, booting
+onto a ramdisk), and I recently changed linux kernels from 2.4.9 to 2.4.19.
+Nearly everything works fine, except that whenever I read a file, it
+allocates 4k of memory (cat /proc/meminfo reports 4k less memory, and
+/proc/slabinfo reports that buffer_head increases by 4k, but those are the
+only changes).  I found a thread from back in July or so on LKML where
+somebody had a similar problem on 2.4.19-rc3, and Rik said that this was
+normal, and the vm would release this memory under pressure, except when I
+start a bunch of processes to use up memory and repeatedly cat
+/proc/meminfo, the OOM killer is eventually triggered.
 
-That was supposed to be the second patch, but 2.5.41 does not work on
-my laptop at all so I didn't get around to that.
+I'm running 2.4.19 with both the low-latency and kernel preemption patches
+applied (though I recompiled the kernel with those disabled and the problem
+still occurred), as well as a few changes of our own (though none of those
+seem to touch the filesystem/vm layers).  It's a powerpc chip with 64 megs
+of ram (roughly 28 of which are free after we load the kernel/ramdisk and
+all our apps).  I tried to reproduce the problem on my PC (booted up without
+X, specified mem=8M on command line, and turned off swap), which is also
+2.4.19 and also has the kernel preemption and low-latency patches applied,
+but is not booting from a ramdisk and is, obviously, a different
+architecture, and it did allocate 4k blocks for a while, but then stopped
+(or, more accurately, it would allocate 4k and then the next time I did a
+cat /proc/meminfo it would be back to its original value).
 
-Wichert.
+So I guess my question is:
+1) What is eating up memory and not allowing it to be freed, and
+2) Why does it allocate 4k of memory every single time I access a file,
+anyway?
 
--- 
-  _________________________________________________________________
- /wichert@wiggy.net         This space intentionally left occupied \
-| wichert@deephackmode.org                    http://www.wiggy.net/ |
-| 1024D/2FA3BC2D 576E 100B 518D 2F16 36B0  2805 3CB8 9250 2FA3 BC2D |
+Any help would be greatly appreciated.

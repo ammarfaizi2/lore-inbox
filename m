@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268409AbUJTPxM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268470AbUJUNJb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268409AbUJTPxM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 11:53:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268497AbUJTPwk
+	id S268470AbUJUNJb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 09:09:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268439AbUJUNIZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 11:52:40 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32474 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S268479AbUJTPt1
+	Thu, 21 Oct 2004 09:08:25 -0400
+Received: from vanessarodrigues.com ([192.139.46.150]:36247 "EHLO
+	jaguar.mkp.net") by vger.kernel.org with ESMTP id S268655AbUJUNCJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 11:49:27 -0400
-Date: Wed, 20 Oct 2004 16:49:22 +0100
-From: Matthew Wilcox <matthew@wil.cx>
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@osdl.org, akpm@osdl.org, discuss@x86-64.org,
-       linux-m68k@vger.kernel.org, linux-ia64@vger.kernel.org,
-       linux-mips@linux-mips.org, linux-kernel@vger.kernel.org,
-       linux-sh@m17n.org, linux-390@vm.marist.edu, sparclinux@vger.kernel.org,
-       linuxppc64-dev@ozlabs.org, linux-arm-kernel@lists.arm.linux.org.uk,
-       parisc-linux@parisc-linux.org
-Subject: Re: [parisc-linux] [PATCH] Add key management syscalls to non-i386 archs
-Message-ID: <20041020154922.GV16153@parcelfarce.linux.theplanet.co.uk>
-References: <3506.1098283455@redhat.com>
-Mime-Version: 1.0
+	Thu, 21 Oct 2004 09:02:09 -0400
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Andrew Vasquez <andrew.vasquez@qlogic.com>, Adrian Bunk <bunk@stusta.de>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.9-rc3-mm3: `risc_code_addr01' multiple definition
+References: <20041007015139.6f5b833b.akpm@osdl.org>
+	<20041007165849.GA4493@stusta.de> <1097170149.12535.27.camel@praka>
+	<1097171420.1718.332.camel@mulgrave>
+From: Jes Sorensen <jes@wildopensource.com>
+Date: 21 Oct 2004 09:02:07 -0400
+In-Reply-To: <1097171420.1718.332.camel@mulgrave>
+Message-ID: <yq08ya0rzqo.fsf@jaguar.mkp.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3506.1098283455@redhat.com>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 20, 2004 at 03:44:15PM +0100, David Howells wrote:
-> The attached patch adds syscalls for almost all archs (everything barring
-> m68knommu which is in a real mess, and i386 which already has it).
-> 
-> It also adds 32->64 compatibility where appropriate.
+>>>>> "James" == James Bottomley <James.Bottomley@SteelEye.com> writes:
 
-> --- linux-2.6.9-bk4/arch/parisc/kernel/syscall_table.S	2004-06-18 13:43:47.000000000 +0100
-> +++ linux-2.6.9-bk4-keys/arch/parisc/kernel/syscall_table.S	2004-10-20 14:58:51.533643420 +0100
-> @@ -341,5 +341,7 @@
->    ENTRY_SAME(mq_timedreceive)
->    ENTRY_SAME(mq_notify)
->    ENTRY_SAME(mq_getsetattr)
-> -  /* Nothing yet */       /* 235 */
-> +	ENTRY_SAME(add_key)	/* 235 */
-> +	ENTRY_SAME(request_key)
-> +	ENTRY_SAME(keyctl)
+James> On Thu, 2004-10-07 at 12:29, Andrew Vasquez wrote:
+>> Hmm, seems the additional 1040 support in qla1280.c is causing name
+>> clashes with the firmware image in qlogicfc_asm.c.  Try out the
+>> attached patch (not tested) which provides the 1040 firmware image
+>> unique variable names.
+>> 
+>> Looks like there would be some name clashes in qlogicfc and
+>> qlogicisp.
 
-Um, no.  Should be ENTRY_COMP() if there's compat syscalls.  And those
-particular syscall numbers have already been assigned (blame Linus for
-dropping the PA-RISC patch on the floor instead of including it in 2.6.9).
+James> Is there any reason for these firmware image pointers not to be
+James> static?  At least for these drivers which are single files.
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+I was just thinking the same thing - 2 weeks after everybody else ;-)
+
+You won't see me complaining about a patch doing this for the qla1280
+driver.
+
+Cheers,
+Jes

@@ -1,55 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266778AbTGGCFP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jul 2003 22:05:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266783AbTGGCFO
+	id S266788AbTGGCHq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jul 2003 22:07:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266790AbTGGCHq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jul 2003 22:05:14 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:59058 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266778AbTGGCFJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jul 2003 22:05:09 -0400
-Date: Sun, 6 Jul 2003 19:19:41 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: vincent.touquet@pandora.be
+	Sun, 6 Jul 2003 22:07:46 -0400
+Received: from host151.spe.iit.edu ([198.37.27.151]:26325 "EHLO
+	found.lostlogicx.com") by vger.kernel.org with ESMTP
+	id S266788AbTGGCHm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jul 2003 22:07:42 -0400
+Date: Sun, 6 Jul 2003 21:22:13 -0500
+From: Brandon Low <lostlogic@gentoo.org>
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Bug report] System lockups on Tyan S2469 and lots of io [smp
- boot time problems too :(]
-Message-Id: <20030706191941.33f9e37a.akpm@osdl.org>
-In-Reply-To: <20030707005449.GF4675@ns.mine.dnsalias.org>
-References: <20030706210243.GA25645@lea.ulyssis.org>
-	<20030707003007.GE4675@ns.mine.dnsalias.org>
-	<20030707005449.GF4675@ns.mine.dnsalias.org>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Subject: Re: anticipatory scheduler merged
+Message-ID: <20030707022212.GE27027@lostlogicx.com>
+References: <20030705133334.4cc7e11b.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030705133334.4cc7e11b.akpm@osdl.org>
+X-Operating-System: Linux found.lostlogicx.com 2.4.20-pfeifer-r1_pre7
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vincent Touquet <vincent.touquet@pandora.be> wrote:
->
-> On Mon, Jul 07, 2003 at 02:30:07AM +0200, Vincent Touquet wrote:
-> >PS: will test if the system still locks up soon, I hope not...
+On Sat, 07/05/03 at 13:33:34 -0700, Andrew Morton wrote:
+> - These changes have been well tested, but it is five months work and
+>   over 100 patches.  There's probably a bug or two.  If you suspect that
+>   something has gone wrong at the block layer (lots of tasks stuck in D
+>   state) then please retest with `elevator=deadline'.
 > 
-> So it does lock up again :(((
-> 
-> But now I was able to quickly switch to console and grab the contents of
-> /var/log/messages before it totally hanged. I can usually tell when the
-> hang is going to happen: activity on the array stops, then I have a few
-> more seconds till it hangs completely ....
-> 
-> The message was:
-> 
-> Jul 7 02:45:36 kalimero kernel: 3w-xxxx: scsi0: Unit #0:
-> command (f7618800) timed out, resetting card.
-> 
-> Then of course, the system totally hangs.
+> Thanks.
 
-The next step would be to try some older versions.  There was a big 3ware
-update between 2.5.64 and 2.5.65.  Can you try both of those?
+I am seeing these D tasks when running 2.5.74-mm2 under a heavy seeking
+load (compiling application, untarring kernel, and filesharing
+simultaneously) on a slow (laptop 4200RPM) hdd.  I find that after about
+10 uptime when I start throwing on the seeking loads one or all of them
+go to D state and any new disk IO is either blocked or very slow.
 
-hmm, I see a "fixme" and an interruptible_sleep_on_timeout() around that
-error message.  Do the hangs happen on uniprocessor, non-preemptible
-kernels?
+I have tested with elevator=deadline and have been unable to reproduce.
 
+Any further testing or debugging you need me to do I can probably do
+(but I'm not terribly knowledgable so I'll need step by step for said
+testing).  Thanks!
+
+Brandon Low

@@ -1,73 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261732AbVDEOL0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261755AbVDEOMV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261732AbVDEOL0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 10:11:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261751AbVDEOL0
+	id S261755AbVDEOMV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 10:12:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbVDEOMU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 10:11:26 -0400
-Received: from alog0440.analogic.com ([208.224.222.216]:38889 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261732AbVDEOLM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 10:11:12 -0400
-Date: Tue, 5 Apr 2005 10:10:37 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Julien Wajsberg <julien.wajsberg@gmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: How's the nforce4 support in Linux?
-In-Reply-To: <2a0fbc5905040506422fbf6356@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0504050957400.15886@chaos.analogic.com>
-References: <2a0fbc59050325145935a05521@mail.gmail.com>
- <2a0fbc5905040506422fbf6356@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 5 Apr 2005 10:12:20 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:30941 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261755AbVDEOL7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 10:11:59 -0400
+Date: Fri, 1 Apr 2005 21:18:48 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Shawn Starr <shawn.starr@rogers.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, lenb@intel.com
+Subject: Re: [2.6.12-rc1][ACPI][suspend] /proc/acpi/sleep vs /sys/power/state issue - 'standby' on a laptop
+Message-ID: <20050401191848.GA1330@openzaurus.ucw.cz>
+References: <200503280249.05933.shawn.starr@rogers.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200503280249.05933.shawn.starr@rogers.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Apr 2005, Julien Wajsberg wrote:
+Hi!
 
-> On Mar 26, 2005 12:59 AM, Julien Wajsberg <julien.wajsberg@gmail.com> wrote:
->> I own an Asus A8N-Sli motherboard with the Nforce4-Sli chipset, and I
->> experiment the following problem :
->>
->> Mar 25 22:42:55 evenflow kernel: hda: dma_timer_expiry: dma status == 0x60
->> Mar 25 22:42:55 evenflow kernel: hda: DMA timeout retry
->> Mar 25 22:42:55 evenflow kernel: hda: timeout waiting for DMA
->> Mar 25 22:42:55 evenflow kernel: hda: status error: status=0x58 {
->> DriveReady SeekComplete DataRequest }
->> Mar 25 22:42:55 evenflow kernel:
->> Mar 25 22:42:55 evenflow kernel: ide: failed opcode was: unknown
->> Mar 25 22:42:55 evenflow kernel: hda: drive not ready for command
->> Mar 25 22:42:55 evenflow kernel: hda: status timeout: status=0xd0 { Busy }
->> Mar 25 22:42:55 evenflow kernel:
->> Mar 25 22:42:55 evenflow kernel: ide: failed opcode was: unknown
->> Mar 25 22:42:55 evenflow kernel: hdb: DMA disabled
-                                      ^^^^^^^^^^^^^^^^^
->> Mar 25 22:42:55 evenflow kernel: hda: drive not ready for command
->>
->> Of course, if I disable DMA with hdparm, this problem disappear.. but
->> it isn't a long-term solution ;-)
->>
+> I've noticed something strange with issuing 'standby' to the system:
+> 
+> when echoing "standby" to /sys/power/state, nothing happens, not even a log or 
+> system activity to attempt standby mode.
+> 
+> However, trying echo "1" to /proc/acpi/sleep the system attempts to (standby) 
+> and aborts:
+> 
+> [4295945.236000] PM: Preparing system for suspend
+> [4295946.270000] Stopping tasks: 
+> =============================================================================|
+> [4295946.370000] Restarting tasks... done
+> 
+> We get no reason as to why it quickly aborts. 
 
-The long-term solution is to replace either the drive, cable, or the
-motherboard that can't do DMA. A bad DMA operation can write data
-anywhere (right into the middle of the kernel). There isn't
-anything software can do about it. Software sets up the
-controller for a DMA operation, then waits for an interrupt
-that tells it has completed or failed. Software can retry failed
-operations until software gets destroyed by the hardware, but
-there isn't anything else that can be done.
+> [4294672.065000] ACPI: CPU0 (power states: C1[C1] C2[C2] C3[C3])
+> [4294676.827000] ACPI: (supports S0 S3 S4 S5)
 
-The fact that disabling DMA makes the problem(s) go away is
-proof that it isn't a software problem. There are flash-RAM
-devices that emulate IDE drives. Most of these can't do DMA
-and the IDE driver doesn't accept that fact. That is a known
-bug. One needs to use hdparm to tell it to stop trying to
-use DMA. In your case, the driver stopped using DMA when
-it found out that it didn't work. There is no bug.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+...aha, but your system does not support S1 aka standby.
+ 
+> What is '1' in /proc/acpi/sleep?  standby mode is not the same as suspend to 
+> ram? when I put a normal desktop in standby mode its still 'on' but the hard 
+> disk is put to sleep and the system runs in a lower power mode. 
+
+stanby != suspend to ram.
+
+				Pavel
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+

@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263590AbTG1LTi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 07:19:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263597AbTG1LTi
+	id S262321AbTG1LVy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 07:21:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262290AbTG1LVw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 07:19:38 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:9609
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S263590AbTG1LTh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 07:19:37 -0400
-Subject: Re: PATCH: allow 2.6 to build on old old setups
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       torvalds@osdl.org
-In-Reply-To: <20030727185241.3288a973.davem@redhat.com>
-References: <200307272026.h6RKQauS029828@hraefn.swansea.linux.org.uk>
-	 <20030727185241.3288a973.davem@redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1059391858.15438.14.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 28 Jul 2003 12:30:59 +0100
+	Mon, 28 Jul 2003 07:21:52 -0400
+Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:21779 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id S262321AbTG1LUH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 07:20:07 -0400
+Message-Id: <200307281125.h6SBPpj24949@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: linux-kernel@vger.kernel.org
+Subject: Re: [ANNC] linld 0.96 is available
+Date: Mon, 28 Jul 2003 14:35:16 +0300
+X-Mailer: KMail [version 1.3.2]
+References: <200307281028.h6SASBj12316@Port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200307281028.h6SASBj12316@Port.imtp.ilyichevsk.odessa.ua>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-07-28 at 02:52, David S. Miller wrote:
-> >  		    info->hdr->e_machine == EM_SPARCV9) {
-> >  			/* Ignore register directives. */
-> >  			if (ELF_ST_TYPE(sym->st_info) == STT_REGISTER)
-> >  				break;
-> >  		}
-> > +#endif
+On 28 July 2003 13:37, Denis Vlasenko wrote:
+> linld 0.96 is available at
 > 
-> This change is wrong.
-> 
-> If you're going to do this, it's much better to define it to the
-> correct value in this case (which is decimal '13').
+> http://sort.imtp.ilyichevsk.odessa.ua/linux/linld/
 
-Its sparc specific stuff so presumably all sparc stuff had the register
-?. I can change and resubmit though - no problem
-
+Doh. http://port.imtp.ilyichevsk.odessa.ua/linux/linld/
+--
+vda

@@ -1,73 +1,120 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262169AbUBZPsM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 10:48:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261989AbUBZPsM
+	id S261989AbUBZPue (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 10:50:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262794AbUBZPue
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 10:48:12 -0500
-Received: from 0x50c49cd1.adsl-fixed.tele.dk ([80.196.156.209]:8718 "EHLO
-	redeeman") by vger.kernel.org with ESMTP id S262169AbUBZPsI (ORCPT
+	Thu, 26 Feb 2004 10:50:34 -0500
+Received: from chico.rediris.es ([130.206.1.3]:61835 "EHLO chico.rediris.es")
+	by vger.kernel.org with ESMTP id S261989AbUBZPua (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 10:48:08 -0500
-Message-ID: <3614.192.168.1.7.1077810486.squirrel@mail.redeeman.linux.dk>
-Date: Thu, 26 Feb 2004 16:48:06 +0100 (CET)
-Subject: sysctl error in 2.6.3-bk8
-From: "Redeeman" <redeeman@metanurb.dk>
-To: linux-kernel@vger.kernel.org
-Reply-To: redeeman@metanurb.dk
-User-Agent: SquirrelMail/1.4.2
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=_redeeman-10380-1077810486-0001-2"
-X-Priority: 3
-Importance: Normal
+	Thu, 26 Feb 2004 10:50:30 -0500
+From: David =?iso-8859-1?q?Mart=EDnez=20Moreno?= <ender@debian.org>
+Organization: Debian
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.3-mm4
+Date: Thu, 26 Feb 2004 16:50:14 +0100
+User-Agent: KMail/1.5.4
+References: <20040225185536.57b56716.akpm@osdl.org>
+In-Reply-To: <20040225185536.57b56716.akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, ender@debian.org
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_2WhPA1sxIB8ttYJ"
+Message-Id: <200402261650.15596.ender@debian.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME-formatted message.  If you see this text it means that your
-E-mail software does not support MIME-formatted messages.
 
---=_redeeman-10380-1077810486-0001-2
-Content-Type: text/plain; charset=iso-8859-1
+--Boundary-00=_2WhPA1sxIB8ttYJ
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Description: clearsigned data
+Content-Disposition: inline
+
+=2D----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+El Jueves, 26 de Febrero de 2004 03:55, Andrew Morton escribi=F3:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.3/2.6.3=
+=2Dm
+>m4/
+>
+> - Big knfsd update.  Mainly for nfsv4
+>
+> - DVB udpate
+>
+> - Various fixes
+
+	Hello, Andrew, I jumped from rc1-mm1 to this and found that somebody final=
+ly=20
+touched ini9100 driver, but it needs further cleaning. It doesn't compile=20
+properly, and give warnings.
+
+	Attached patch fixes compilation of ini9100u driver and cleans several=20
+unneeded definitions. It applies cleanly to 2.6.3-mm4 (I think).
+
+	Could you please review, because although simple, I'm scared, I don't real=
+ly=20
+know if my patch is doing the Right Thing (tm)? Thanks. :-)
+
+	Regards,
+
+
+		Ender.
+=2D --=20
+What was that, honey? It was bad. It had no fire, no energy, no nothing.
+ So tomorrow from 5 to 7 will you PLEASE act like you have more than a
+ two word vocabulary. It must be green.
+		-- DJ Ruby Rhod (The Fifth Element).
+=2D --
+Servicios de red - Network services
+RedIRIS - Spanish Academic Network for Research and Development
+Madrid (Spain)
+Tlf (+34) 91.585.51.50
+=2D----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAPhW3Ws/EhA1iABsRAoqPAJ4m9/jMcJ9/W54qLwEhKn9uC9AKOACeOJ2u
+wy7M+GgPS8dWP2nR0IoeBnw=3D
+=3Dp/NV
+=2D----END PGP SIGNATURE-----
+
+--Boundary-00=_2WhPA1sxIB8ttYJ
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="ini9100u-broken-patch"
 Content-Transfer-Encoding: 7bit
-X-Mime-Autoconverted: from 8bit to 7bit by courier 0.44
+Content-Disposition: attachment;
+	filename="ini9100u-broken-patch"
 
-hi guys, i took the patch marc made against 2.6.3-mm4, but it didnt apply
-clean on 2.6.3-bk8, so i fixed it, i have attached a working patch.
-
---
-Regards.
-Redeeman
---=_redeeman-10380-1077810486-0001-2
-Content-Type: text/x-diff; name="sysctl-errors.patch"; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="sysctl-errors.patch"
-X-Mime-Autoconverted: from 8bit to 7bit by courier 0.44
-
---- old/fs/locks.c	2004-02-26 01:29:14.000000000 +0100
-+++ new/fs/locks.c	2004-02-26 08:27:02.000000000 +0100
-@@ -1699,6 +1699,8 @@ void locks_remove_posix(struct file *fil
- 	unlock_kernel();
- }
+--- drivers/scsi/ini9100u.c.orig	2004-02-26 14:12:32.000000000 +0100
++++ drivers/scsi/ini9100u.c	2004-02-26 14:13:27.000000000 +0100
+@@ -180,14 +180,7 @@
  
-+EXPORT_SYMBOL(locks_remove_posix);
-+
- /*
-  * This function is called on the last close of an open file.
-  */
---- old/fs/dquot.c	2004-02-26 05:12:21.000000000 +0100
-+++ new/fs/dquot.c	2004-02-26 08:28:26.000000000 +0100
-@@ -1672,3 +1672,4 @@ EXPORT_SYMBOL(unregister_quota_format);
- EXPORT_SYMBOL(dqstats);
- EXPORT_SYMBOL(dq_list_lock);
- EXPORT_SYMBOL(dq_data_lock);
-+EXPORT_SYMBOL(mark_info_dirty);
- EXPORT_SYMBOL(init_dquot_operations);
---- old/net/core/sock.c	2004-02-26 05:12:22.000000000 +0100
-+++ new/net/core/sock.c	2004-02-26 08:30:01.000000000 +0100
-@@ -1198,4 +1198,5 @@ EXPORT_SYMBOL(sock_wmalloc);
- #ifdef CONFIG_SYSCTL
- EXPORT_SYMBOL(sysctl_rmem_max);
- EXPORT_SYMBOL(sysctl_wmem_max);
-+EXPORT_SYMBOL(sysctl_optmem_max);
- #endif
---=_redeeman-10380-1077810486-0001-2--
+ static char *setup_str = (char *) NULL;
+ 
+-static irqreturn_t i91u_intr0(int irq, void *dev_id, struct pt_regs *);
+-static irqreturn_t i91u_intr1(int irq, void *dev_id, struct pt_regs *);
+-static irqreturn_t i91u_intr2(int irq, void *dev_id, struct pt_regs *);
+-static irqreturn_t i91u_intr3(int irq, void *dev_id, struct pt_regs *);
+-static irqreturn_t i91u_intr4(int irq, void *dev_id, struct pt_regs *);
+-static irqreturn_t i91u_intr5(int irq, void *dev_id, struct pt_regs *);
+-static irqreturn_t i91u_intr6(int irq, void *dev_id, struct pt_regs *);
+-static irqreturn_t i91u_intr7(int irq, void *dev_id, struct pt_regs *);
++static struct Scsi_Host *hreg;
+ 
+ static void i91u_panic(char *msg);
+ 
+@@ -340,7 +333,6 @@
+ int i91u_detect(Scsi_Host_Template * tpnt)
+ {
+ 	HCS *pHCB;
+-	struct Scsi_Host *hreg;
+ 	unsigned long i;	/* 01/14/98                     */
+ 	int ok = 0, iAdapters;
+ 	ULONG dBiosAdr;
+
+--Boundary-00=_2WhPA1sxIB8ttYJ--
+

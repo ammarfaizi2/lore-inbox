@@ -1,186 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261521AbTEBEin (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 00:38:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261572AbTEBEin
+	id S261438AbTEBElM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 May 2003 00:41:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbTEBElM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 00:38:43 -0400
-Received: from mailhost1-bcvloh.bcvloh.ameritech.net ([66.73.20.42]:5361 "EHLO
-	mailhost.bcv1.ameritech.net") by vger.kernel.org with ESMTP
-	id S261521AbTEBEii (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 00:38:38 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-Date: Thu, 1 May 2003 23:50:58 -0500
-User-Agent: KMail/1.5.1
-MIME-Version: 1.0
-Content-Disposition: inline
-To: acpi-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.5 ACPI P-states driver crashes
-Message-Id: <200305012346.55073.dtor_core@ameritech.net>
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Fri, 2 May 2003 00:41:12 -0400
+Received: from dsl-62-3-122-162.zen.co.uk ([62.3.122.162]:54402 "EHLO
+	marx.trudheim.com") by vger.kernel.org with ESMTP id S261438AbTEBElL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 May 2003 00:41:11 -0400
+Subject: Centrino
+From: Anders Karlsson <anders@trudheim.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-7JwvgNNyawFGXArX86b+"
+Organization: Trudheim Technology Limited
+Message-Id: <1051851208.2846.84.camel@marx>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4Rubber Turnip 
+Date: 02 May 2003 05:53:29 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I have the following problems with ACPI P-States driver:
+--=-7JwvgNNyawFGXArX86b+
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-- It crashes because it tries to switch CPU speed without registering cpufreq 
-driver first but acpi_processor_set_performance calls cpufreq_notify_transition.
+Hi folks,
 
-- When testing for capable CPUs it skips all online ones so for my single CPU
-notebook it can't activate at all.
+I've been trying to install linux on an IBM X31 Centrino laptop the last
+few days. There are a few things that doesn't work so well. Like agp
+driver (radeon.o) and the IDE subsystem. I've been trying to install it
+with SuSE Pro 8.2 which is using a 2.4.20 kernel. The question I'd like
+to ask is what the Centrino support is like in kernel 2.4.x and 2.5.x
+and what the outlook would be on this should the support be a bit
+lacking.
 
-- If a processor does not support throttling then it will say that "limit" 
-interface is not supported even after activating performance control.
+I have the laptop at home, and I would be willing to try things out to
+get them working, so if there were patches to try out (preferably
+against a 2.4.20 kernel) I'd be happy to do that.
 
-The patch below should fix these issues. It also adds some info messages since
-/proc/acpi/processor/*/performance interface is marked obsolete but i still
-would like to see if P-states were recognized during boot.
- 
-Hopefully my mailer won't mess it...
+Not entirely sure what data you'd guys would like, but I will follow up
+with a lspci listing shortly.
 
-Dmitry
+Regards,
 
-diff -urN --exclude-from=/usr/src/exclude linux-2.5.68-orig/arch/i386/kernel/cpu/cpufreq/acpi.c linux-2.5.68/arch/i386/kernel/cpu/cpufreq/acpi.c
---- linux-2.5.68-orig/arch/i386/kernel/cpu/cpufreq/acpi.c	2003-04-07 12:30:42.000000000 -0500
-+++ linux-2.5.68/arch/i386/kernel/cpu/cpufreq/acpi.c	2003-04-20 01:39:48.000000000 -0500
-@@ -553,8 +553,9 @@
- {
- 	unsigned int		i;
- 	unsigned int		cpu = policy->cpu;
--	struct acpi_processor  *pr = NULL;
-+	struct acpi_processor	*pr = NULL;
- 	struct acpi_processor_performance *perf = &performance[policy->cpu];
-+	struct acpi_device	*device;
- 	unsigned int		result = 0;
- 
- 	ACPI_FUNCTION_TRACE("acpi_cpufreq_cpu_init");
-@@ -596,6 +597,17 @@
- 
- 	acpi_cpufreq_add_file(pr);
- 
-+	if (acpi_bus_get_device(pr->handle, &device))
-+		device = NULL;
-+		
-+	printk(KERN_INFO "cpufreq: %s - ACPI performance management activated.\n",
-+		device ? acpi_device_bid(device) : "CPU??");
-+	for (i = 0; i < pr->performance->state_count; i++)
-+		printk(KERN_INFO "cpufreq: %cP%d: %d MHz, %d mW, %d uS\n",
-+			(i == pr->performance->state?'*':' '), i,
-+			(u32) pr->performance->states[i].core_frequency,
-+			(u32) pr->performance->states[i].power,
-+			(u32) pr->performance->states[i].transition_latency);
- 	return_VALUE(result);
- }
- 
-@@ -658,16 +670,21 @@
- 
- 	/* test it on one CPU */
- 	for (i=0; i<NR_CPUS; i++) {
--		if (cpu_online(i))
-+		if (!cpu_online(i))
- 			continue;
- 		pr = performance[i].pr;
- 		if (pr && pr->flags.performance)
- 			goto found_capable_cpu;
- 	}
- 	result = -ENODEV;
--	goto err;
-+	goto err0;
- 
-  found_capable_cpu:
-+	
-+ 	result = cpufreq_register_driver(&acpi_cpufreq_driver);
-+	if (result) 
-+		goto err0;
-+	
- 	perf = pr->performance;
- 	current_state = perf->state;
- 
-@@ -676,7 +693,7 @@
- 		if (result) {
- 			ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "Disabled P-States due to failure while switching.\n"));
- 			result = -ENODEV;
--			goto err;
-+			goto err1;
- 		}
- 	}
- 
-@@ -684,7 +701,7 @@
- 	if (result) {
- 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "Disabled P-States due to failure while switching.\n"));
- 		result = -ENODEV;
--		goto err;
-+		goto err1;
- 	}
- 	
- 	if (current_state != 0) {
-@@ -692,18 +709,17 @@
- 		if (result) {
- 			ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "Disabled P-States due to failure while switching.\n"));
- 			result = -ENODEV;
--			goto err;
-+			goto err1;
- 		}
- 	}
- 
--	result = cpufreq_register_driver(&acpi_cpufreq_driver);
--	if (result)
--		goto err;
--
- 	return_VALUE(0);
- 
- 	/* error handling */
-- err:
-+ err1:
-+	cpufreq_unregister_driver(&acpi_cpufreq_driver);
-+	
-+ err0:
- 	/* unregister struct acpi_processor_performance performance */
- 	for (i=0; i<NR_CPUS; i++) {
- 		if (performance[i].pr) {
-@@ -713,6 +729,8 @@
- 		}
- 	}
- 	kfree(performance);
-+	
-+	printk(KERN_INFO "cpufreq: No CPUs supporting ACPI performance management found.\n");
- 	return_VALUE(result);
- }
- 
-diff -urN --exclude-from=/usr/src/exclude linux-2.5.68-orig/drivers/acpi/processor.c linux-2.5.68/drivers/acpi/processor.c
---- linux-2.5.68-orig/drivers/acpi/processor.c	2003-05-01 22:45:22.000000000 -0500
-+++ linux-2.5.68/drivers/acpi/processor.c	2003-05-01 22:22:13.000000000 -0500
-@@ -85,7 +85,7 @@
- static int acpi_processor_throttling_open_fs(struct inode *inode, struct file *file);
- static int acpi_processor_power_open_fs(struct inode *inode, struct file *file);
- static int acpi_processor_limit_open_fs(struct inode *inode, struct file *file);
--
-+static int acpi_processor_get_limit_info(struct acpi_processor *pr);
- 
- static struct acpi_driver acpi_processor_driver = {
- 	.name =		ACPI_PROCESSOR_DRIVER_NAME,
-@@ -769,7 +769,9 @@
- 	}
- 
- 	pr->performance_platform_limit = (int) ppc;
--
-+	
-+	acpi_processor_get_limit_info(pr);
-+	
- 	return_VALUE(0);
- }
- EXPORT_SYMBOL(acpi_processor_get_platform_limit);
-@@ -790,6 +792,7 @@
- 		return_VALUE(-EBUSY);
- 
- 	(*pr)->performance = performance;
-+	performance->pr = *pr;
- 	return 0;
- }
- EXPORT_SYMBOL(acpi_processor_register_performance);
+--=-7JwvgNNyawFGXArX86b+
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2-rc1-SuSE (GNU/Linux)
+
+iD8DBQA+sfnILYywqksgYBoRAjA1AJ9g+I0UU1pvlgVeFZ962je595HCNACgxbsy
+6PHjpt/0vJ21AURSX88a0Ns=
+=Z13R
+-----END PGP SIGNATURE-----
+
+--=-7JwvgNNyawFGXArX86b+--
 

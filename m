@@ -1,59 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263491AbSJSLGN>; Sat, 19 Oct 2002 07:06:13 -0400
+	id <S265584AbSJSLU3>; Sat, 19 Oct 2002 07:20:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264614AbSJSLGN>; Sat, 19 Oct 2002 07:06:13 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:33552 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S263491AbSJSLGM>;
-	Sat, 19 Oct 2002 07:06:12 -0400
-Date: Sat, 19 Oct 2002 07:12:15 -0400 (EDT)
-Message-Id: <200210191112.g9JBCFl288460@saturn.cs.uml.edu>
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-To: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] procps 3.0.4
+	id <S265585AbSJSLU3>; Sat, 19 Oct 2002 07:20:29 -0400
+Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:57734 "EHLO
+	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id <S265584AbSJSLU2>; Sat, 19 Oct 2002 07:20:28 -0400
+Date: Sat, 19 Oct 2002 13:26:30 +0200 (CEST)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: lkml <linux-kernel@vger.kernel.org>
+cc: trivial linux patches <trivial@rustcorp.com.au>
+Subject: [mini-patch] move _STK_LIM to <linux/resource.h>
+Message-ID: <Pine.LNX.4.33.0210191319530.12341-100000@gans.physik3.uni-rostock.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I don't see any connection between the stack limit and scheduling.
+So I think _STK_LIMIT is better defined in <linux/resource.h>
+than in <linux/sched.h>.
 
-That was rather new code last time... the new top now runs much
-better, so you don't have to give up Linux 2.2.xx to support the
-2.5.xx kernel, etc.
+The only place STK_LIM is used is in <asm/resource.h>, which only gets 
+included by <linux/resource.h>, so no change in #includes is necessary.
 
-The WOLK kernel needs a patch -- or rather, one less patch. :-)
-The procps-2.x.x code silently gives bad output; it does NOT work.
+Tim
 
-http://procps.sf.net/
-http://procps.sf.net/procps-3.0.4.tar.gz
 
------------- changes ------------
+--- linux-2.5.44/include/linux/resource.h	Sun Sep 22 06:25:00 2002
++++ linux-2.5.44-rs/include/linux/resource.h	Sat Oct 19 12:59:15 2002
+@@ -50,6 +50,12 @@
+ #define	PRIO_USER	2
+ 
+ /*
++ * Limit the stack by to some sane default: root can always
++ * increase this limit if needed..  8MB seems reasonable.
++ */
++#define _STK_LIM	(8*1024*1024)
++
++/*
+  * Due to binary compatibility, the actual resource numbers
+  * may be different for different linux versions..
+  */
 
-procps-3.0.3 --> procps-3.0.4
+--- linux-2.5.44/include/linux/sched.h	Sat Oct 19 11:00:17 2002
++++ linux-2.5.44-rs/include/linux/sched.h	Sat Oct 19 12:59:29 2002
+@@ -431,12 +431,6 @@
+ #define PT_TRACESYSGOOD	0x00000004
+ #define PT_PTRACE_CAP	0x00000008	/* ptracer can follow suid-exec */
+ 
+-/*
+- * Limit the stack by to some sane default: root can always
+- * increase this limit if needed..  8MB seems reasonable.
+- */
+-#define _STK_LIM	(8*1024*1024)
+-
+ #if CONFIG_SMP
+ extern void set_cpus_allowed(task_t *p, unsigned long new_mask);
+ #else
 
-make top go faster
-Linux 2.2.xx ELF note warning removed
-only show IO-wait on recent kernels
-fix top's SMP stats
-fix top for "dumb" and "vt510" terminals
-in top, limit the priority values to -99 ... 99
-
-procps-3.0.2 --> procps-3.0.3
-
-more "make install" fixes
-lib CFLAGS working again
-top.1 codes fixed
-bad (int*) cast in top removed
-top runs faster
-libproc memory corruption fixed
-rant moved out of top.1 man page
-ability to SKIP installing things
-fixed ps --sort crash
-
-procps-3.0.1 --> procps-3.0.2
-
-top defaults to the old layout
-top defaults to sorting by %CPU
-fix top for non-SMP 2.2.xx and 2.0.xx
-new "make install" fixed
-vmstat -a fixed
-vmstat compiles with latest gcc-3.x
-vmstat does 64-bit time

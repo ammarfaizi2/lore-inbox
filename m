@@ -1,82 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288028AbSBEDXF>; Mon, 4 Feb 2002 22:23:05 -0500
+	id <S288019AbSBEE30>; Mon, 4 Feb 2002 23:29:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288019AbSBEDWq>; Mon, 4 Feb 2002 22:22:46 -0500
-Received: from hermes.cicese.mx ([158.97.1.34]:12209 "EHLO hermes.cicese.mx")
-	by vger.kernel.org with ESMTP id <S287863AbSBEDWi>;
-	Mon, 4 Feb 2002 22:22:38 -0500
-Message-ID: <3C5F4FF4.9425949E@cicese.mx>
-Date: Mon, 04 Feb 2002 19:22:28 -0800
-From: Serguei Miridonov <mirsev@cicese.mx>
-Organization: CICESE Research Center, Ensenada, B.C., Mexico
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8 i686)
-X-Accept-Language: ru, en
+	id <S288149AbSBEE3T>; Mon, 4 Feb 2002 23:29:19 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:20754 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S288019AbSBEE3L>; Mon, 4 Feb 2002 23:29:11 -0500
+Message-ID: <3C5F5F7E.8090703@zytor.com>
+Date: Mon, 04 Feb 2002 20:28:46 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us, en, sv
 MIME-Version: 1.0
-To: calin@ajvar.org, alan@lxorguk.ukuu.org.uk
+To: Stevie O <stevie@qrpff.net>
 CC: linux-kernel@vger.kernel.org
-Subject: Re: Athlon Optimization Problem
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: Asynchronous CDROM Events in Userland
+In-Reply-To: <Pine.LNX.4.30.0202032333200.1158-100000@rtlab.med.cornell.edu> <5.1.0.14.2.20020204230409.00a886b0@whisper.qrpff.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello again.
+Stevie O wrote:
 
-Just as followup... I was trying to find a minimum deviation
-from BIOS settigns to make Soyo Dragon Plus stable:
+> At 09:07 PM 2/3/2002 -0800, H. Peter Anvin wrote:
+> 
+>> Rather than a signal, it should be a file descriptor of some sort, so
+>> one can select() etc on it.  Personally I can't imagine polling would
+>> take any appreciable amount of resources, though.
+> 
+> 
+> Windows 95 polls the cd-rom drive for autorun.
+> It kills laptop batteries REAL quick.
+> CPU & memory aren't the only resources...
+> 
 
-In KT266A northbridge 1106:3099:
+Does it spin up the CD-ROM doing so?
 
-Reg[0x75] = 0x07; // this was set to 0x01 by BIOS
-Reg[0x76] = 0x00; // this was 0x10
-
-Without this change I had filesystem corruptions during
-kernel compilation...
-
-Unfortunately, some issues with Zoran ZR36067 based cards
-are still open. VIA wrote me that they are looking for
-DC10plus card to test it in their labs...
-
-BTW, with the settings above DC10plus behaves much better in
-Linux, though I can not say that it is fully functional now:
-I don't have freezes anymore, but it seems that sometimes
-the kernel itself gets corrupted after running DC10plus
-related stuff: some programs, like ls, crash immediately
-with segfaults but after reboot filesystems are clean
-(fsck.ext3 -f does not report any errors). Also, there are
-some indications of PCI malfunction: to catch PCI errors I
-have added, to the ZR36067 driver, test of PCI status
-register on DC10plus every IRQ and it sometimes reports
-about every PCI error possible at once (master and target
-aborts, parity error, etc.). I don't think it is ever
-possible, therefore I suspect problem with CPU-PCI path
-(NB-Vlink-SB-PCI). Right after such an error message I have
-these kernel problems... Perhaps, PCI DMA gets rerouted to
-the wrong place in memory... Hmm, can the hardware be so
-broken to make it possible?
-
-In Windows the situation with DC10plus card does not change
-much even after the same KT266A settings are applied: the
-same lockups as before. However, now I have removed well
-known George Breeze PCI latency patch (which also sets NB
-latency time to 0), and still don't have filesystem
-corruptions...
-
-Please, note that settings above might be OK for my
-motherboard but may cause problems for others. I have
-received very mixed reports about both: my PCI latency patch
-and these new settings, so I can not recommend to include it
-to the kernel...
-
-Another important information: with these settings my system
-is extremely stable if I don't touch Zoran 36067 card, but
-if I run anything related with this video capture hardware,
-I have problems... For those who may think about broken
-DC10plus: the card works great in a system with Intel 430TX,
-and I also have reports from others about the same problems.
-
---
-Serguei Miridonov
-
+	-hpa
 

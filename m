@@ -1,49 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262750AbUCJSOv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 13:14:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262747AbUCJSOl
+	id S262734AbUCJSHL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 13:07:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262756AbUCJSFQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 13:14:41 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:18338 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S262730AbUCJSLv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 13:11:51 -0500
-Date: Wed, 10 Mar 2004 19:11:44 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: Paul Mackerras <paulus@samba.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: [PATCH] CONFIG_NVRAM dependencies
-Message-ID: <Pine.GSO.4.58.0403101909280.14075@waterleaf.sonytel.be>
+	Wed, 10 Mar 2004 13:05:16 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47761 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262736AbUCJSEj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 13:04:39 -0500
+Message-ID: <404F58A8.8040304@pobox.com>
+Date: Wed, 10 Mar 2004 13:04:24 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Pete Zaitcev <zaitcev@redhat.com>
+CC: linux-kernel@vger.kernel.org, James.Smart@Emulex.com,
+       linux-scsi@vger.kernel.org
+Subject: Re: [Announce] Emulex LightPulse Device Driver
+References: <3356669BBE90C448AD4645C843E2BF2802C014D7@xbl.ma.emulex.com>	<mailman.1078908361.15239.linux-kernel2news@redhat.com> <20040310095908.33b2082f.zaitcev@redhat.com>
+In-Reply-To: <20040310095908.33b2082f.zaitcev@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Pete Zaitcev wrote:
+> Jeff Garzik <jgarzik@pobox.com> wrote:
+> Flag problem on sparc is fixed by Keith Wesolowsky for 2.6.3-rcX,
+> and it never existed on sparc64, which keeps CWP in a separate register.
+> 
+> Why it took years to resolve is that the expirience showed that
+> there is no legitimate reason to pass flags as arguments. Every damn
+> time it was done, the author was being stupid. Keith resolved it
+> primarily because it was an unorthogonality in sparc implementation.
 
-Make CONFIG_NVRAM depend on the prerequisites that are explicitly checked for
-in drivers/char/nvram.c, or on CONFIG_GENERIC_NVRAM (for PPC).
+You would never know there were so many sparc people, until I post 
+something incorrect about it.  <grin>
 
---- linux-2.6.4-rc3/drivers/char/Kconfig	2004-03-04 11:30:37.000000000 +0100
-+++ linux-m68k-2.6.4-rc3/drivers/char/Kconfig	2004-03-04 18:04:57.000000000 +0100
-@@ -740,6 +740,7 @@
+I stand corrected.  As someone mentioned in private, it's actually a 
+shame that was fixed, since that's one less argument that can be used 
+against such wrappers ;-)
 
- config NVRAM
- 	tristate "/dev/nvram support"
-+	depends on ATARI || X86 || X86_64 || ARM || GENERIC_NVRAM
- 	---help---
- 	  If you say Y here and create a character special file /dev/nvram
- 	  with major number 10 and minor number 144 using mknod ("man mknod"),
 
-Gr{oetje,eeting}s,
+>>But this bug is only an example that serves to highlight the importance 
+>>of directly using Linux API functions throughout your code.  It may 
+>>sound redundant, but "Linux code should look like Linux code."  This 
+>>emphasis on style may sound trivial, but it's important for 
+>>review-ability, long term maintenance, and as we see here, bug prevention.
+> 
+> 
+> Yes yes yes. This is the way elx_sli_lock is harmful, not because
+> of its passing flags.
 
-						Geert
+Agreed.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+	Jeff
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+
+

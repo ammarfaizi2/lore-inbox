@@ -1,56 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261950AbUJYP1q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261956AbUJYPuE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261950AbUJYP1q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 11:27:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbUJYPY2
+	id S261956AbUJYPuE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 11:50:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261975AbUJYPcb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 11:24:28 -0400
-Received: from web81303.mail.yahoo.com ([206.190.37.78]:11421 "HELO
-	web81303.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261979AbUJYPUd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 11:20:33 -0400
-Message-ID: <20041025152029.4788.qmail@web81303.mail.yahoo.com>
-Date: Mon, 25 Oct 2004 08:20:29 -0700 (PDT)
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: [PATCH 0/5] Sonypi driver model & PM changes
-To: Stelian Pop <stelian@popies.net>
-Cc: LKML <linux-kernel@vger.kernel.org>, Vojtech Pavlik <vojtech@suse.cz>
+	Mon, 25 Oct 2004 11:32:31 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:42251 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S261976AbUJYPbW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 11:31:22 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Subject: Re: Temporary NFS problem when rpciod is SIGKILLed
+Date: Mon, 25 Oct 2004 18:31:10 +0300
+User-Agent: KMail/1.5.4
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, linux-kernel@vger.kernel.org
+References: <200410251702.58622.vda@port.imtp.ilyichevsk.odessa.ua> <200410251812.28663.vda@port.imtp.ilyichevsk.odessa.ua> <Pine.LNX.4.53.0410251717320.19116@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.53.0410251717320.19116@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200410251831.10849.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Apologies for breaking the threading...
-
-Stelian Pop wrote:
-> On Mon, Oct 25, 2004 at 03:57:43PM +0200, Vojtech Pavlik wrote:
+On Monday 25 October 2004 18:20, Jan Engelhardt wrote:
+> >That's the point. It works in 2.4
 > 
-> > The number is 240 and it's the number of possible PS/2 scancode
-> > combinations, and since at this time X can only understand the PS/2
-> > protocol (and not native Linux events), this is the only way how to pass
-> > keypresses to X.
-> >
-> > I believe that although this way may be easier, it leads to madness.
+> Maybe because there is no rpciod in 2.4?
+
+It is there.
+
+> >Well, let's see. 2.4 works. rpciod in 2.6 shows this erratic behaviour
+> >even if I do "kill -9 <pid_of_rpciod>", thus no other process, kernel
+> >or userspace, know about this KILL.
 > 
-> It is also impossible for me to go this way because there is no way
-> to put 20+ events between 226 and 240...
-> 
+> Is rpciod (a kthread as I read from your 'ps' output) killable in 2.4 after
+> all?
 
-I'd say just allocate brand new events for all combinations and do not
-worry that the default X keyboard drivers to not get them. There are
-already patches in Gentoo adding both keyboard and mouse event support
-to X [1] and it is only matter of time ofr other duistributions to pick
-it up as well.
+It is not killable, neither 2.4 nor 2.6 one. It is by design I think,
+because I *must not* kill it, or else NFS rootfs will fall off
+and box will hang.
 
-I think it is sensible for an supplemental driver (sonypi) to require
-some additional support form userspace and not to force itself into
-boundaries of a legacy protocol.
+However, rpciod gets signalled by -KILL as a side effect of killall5 -9
+when I shut my system down.
 
--- 
-Dmitry
+I do not send -KILL to all processes EXCEPT rpciod because:
+(a) there is no suitable command to do that from shell and
+(b) I don't like special cases
 
-[1] 
-http://csociety-ftp.ecn.purdue.edu/pub/gentoo/distfiles/xorg-x11-6.8.0-patches-0.2.5.tar.bz2
-Extract patches 9000, 9001 and 9002. Btw, these are not mine - I have
-Not even tries them myself but I have read several success stories.
+> Maybe the rpciod-26 is missing a sigblock()?
+--
+vda
 

@@ -1,33 +1,30 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314889AbSD2IaI>; Mon, 29 Apr 2002 04:30:08 -0400
+	id <S314900AbSD2Ihf>; Mon, 29 Apr 2002 04:37:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314894AbSD2IaH>; Mon, 29 Apr 2002 04:30:07 -0400
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:28067 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S314889AbSD2IaH>; Mon, 29 Apr 2002 04:30:07 -0400
-Subject: getting a programs ENV via ptrace ?
-From: Soeren Sonnenburg <sonnenburg@informatik.hu-berlin.de>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: 29 Apr 2002 10:25:55 +0200
-Message-Id: <1020068756.5050.7.camel@sun>
-Mime-Version: 1.0
+	id <S314905AbSD2Ihe>; Mon, 29 Apr 2002 04:37:34 -0400
+Received: from pat.uio.no ([129.240.130.16]:4509 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S314900AbSD2Ihe>;
+	Mon, 29 Apr 2002 04:37:34 -0400
+To: Soeren Sonnenburg <sonnenburg@informatik.hu-berlin.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: getting a programs ENV via ptrace ?
+In-Reply-To: <1020068756.5050.7.camel@sun>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 29 Apr 2002 10:37:26 +0200
+Message-ID: <shsvgaaew8p.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi...
+>>>>> " " == Soeren Sonnenburg <sonnenburg@informatik.hu-berlin.de> writes:
 
-I am looking for a way of getting the environment variables of a running
-process.
+     > Hi...  I am looking for a way of getting the environment
+     > variables of a running process.
 
-Is this possible by using the ptrace interface somehow ?
+cat /proc/<pid>/environ | tr '\0' '\n'
 
-Thanks for any suggestions / pointers are welcome !
-
-Soeren.
-
-
-
-
+Cheers,
+  Trond

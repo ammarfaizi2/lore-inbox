@@ -1,71 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267856AbUJGTCU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267881AbUJGTAg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267856AbUJGTCU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 15:02:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267840AbUJGTA6
+	id S267881AbUJGTAg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 15:00:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267607AbUJGSy4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 15:00:58 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:39307 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S267804AbUJGSzC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 14:55:02 -0400
-Message-Id: <200410071854.i97IsvU5031703@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.1 07/26/2004 with nmh-1.1-RC3
-To: Arun Sharma <arun.sharma@intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Kill a sparse warning in binfmt_elf.c 
-In-Reply-To: Your message of "Thu, 07 Oct 2004 11:49:24 PDT."
-             <41658FB4.5090402@intel.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <4164756E.4010408@intel.com> <200410071811.i97IBQf0031262@turing-police.cc.vt.edu>
-            <41658FB4.5090402@intel.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_55520739P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 07 Oct 2004 14:54:57 -0400
+	Thu, 7 Oct 2004 14:54:56 -0400
+Received: from odpn1.odpn.net ([212.40.96.53]:5806 "EHLO odpn1.odpn.net")
+	by vger.kernel.org with ESMTP id S267760AbUJGSxk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 14:53:40 -0400
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Michael Buesch <mbuesch@freenet.de>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4] 0-order allocation failed
+References: <200410071318.21091.mbuesch@freenet.de>
+	<20041007151518.GA14614@logos.cnet>
+	<200410071917.40896.mbuesch@freenet.de>
+	<20041007153929.GB14614@logos.cnet> <x67jq2bcy3@gzp>
+	<20041007164221.GD14614@logos.cnet> <x63c0qbc84@gzp>
+	<20041007165316.GA15186@logos.cnet>
+From: "Gabor Z. Papp" <gzp@papp.hu>
+Date: Thu, 07 Oct 2004 20:53:36 +0200
+Message-ID: <x6y8ii9x73@gzp>
+User-Agent: Gnus/5.110003 (No Gnus v0.3)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Authenticated: gzp1 odpn1.odpn.net a3085bdc7b32ae4d7418f70f85f7cf5f
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_55520739P
-Content-Type: text/plain; charset=us-ascii
+* Marcelo Tosatti <marcelo.tosatti@cyclades.com>:
 
-On Thu, 07 Oct 2004 11:49:24 PDT, Arun Sharma said:
+| Also investigate swap-over-nfs/swap-over-nbd.
 
-> >>  static int dump_write(struct file *file, const void *addr, int nr)
-> >>  {
-> >> -	return file->f_op->write(file, addr, nr, &file->f_pos) == nr;
-> >> +	return file->f_op->write(file, (const char __user *) addr, nr, &file->f
-_pos) == nr;
-> >>  }
-> > 
-> > wouldn't it be more useful to put the annotation into the *prototype* for
-> > the dump_write() function, so that we get sparse typechecking for the
-> > caller(s) of this function?  Your fix just kills the warning - when the *re
-al*
-> > problem is that we're called with a 'void *' that we then cast to something
-> > without any real double check on what it is....
-> 
-> dump_write() is a static function without a prototype.
-
-static int dump_write(struct file *file, const char __user *addr, int nr)
-{
-	return file->f_op->write(file, addr, nr, &file->f_pos) == nr;
-}
-
-And then go find the callers and make sure what they're passing is a
-'const char __user *' rather than a 'const void *'....
-
---==_Exmh_55520739P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFBZZEBcC3lWbTT17ARAhSnAKCLTlNBhEGuFiGHDIxJjQLnqNoY6gCgjge5
-A4e8WvQ1FzUIIHzXUlzzrFc=
-=QodB
------END PGP SIGNATURE-----
-
---==_Exmh_55520739P--
+I would like something *stable* solution, but I can't find
+swap-over-nfs/swap-over-nbd in kernel. Thanks anyway.

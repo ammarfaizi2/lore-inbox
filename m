@@ -1,44 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265322AbUAFDL6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 22:11:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265320AbUAFDL5
+	id S265299AbUAFDXm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 22:23:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265316AbUAFDXm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 22:11:57 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:6544 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S266066AbUAFDKW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 22:10:22 -0500
-Date: Mon, 5 Jan 2004 19:04:39 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: Andi Kleen <ak@suse.de>
-Cc: James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org, gibbs@scsiguy.com
-Subject: Re: [BUG] x86_64 pci_map_sg modifies sg list - fails multiple 
- map/unmaps
-Message-Id: <20040105190439.0a5f7370.davem@redhat.com>
-In-Reply-To: <20040106040640.1d2bcbd8.ak@suse.de>
-References: <200401051929.i05JTsM0000014248@mudpuddle.cs.wustl.edu.suse.lists.linux.kern
-	el>
-	<20040105112800.7a9f240b.davem@redhat.com.suse.lists.linux.kernel>
-	<p73brpi1544.fsf@verdi.suse.de>
-	<20040105130118.0cb404b8.davem@redhat.com>
-	<20040105223158.3364a676.ak@suse.de>
-	<1073347548.2439.33.camel@mulgrave>
-	<20040106040640.1d2bcbd8.ak@suse.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 5 Jan 2004 22:23:42 -0500
+Received: from brain.sedal.usyd.edu.au ([129.78.24.68]:61847 "EHLO
+	brain.sedal.usyd.edu.au") by vger.kernel.org with ESMTP
+	id S265299AbUAFDXk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 22:23:40 -0500
+Message-ID: <3FF980C7.3060301@sedal.usyd.edu.au>
+Date: Tue, 06 Jan 2004 02:20:39 +1100
+From: sena <auntvini@sedal.usyd.edu.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Robin Holt <holt@sgi.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: uids in task_struct-Further Explaining the Problem
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Jan 2004 04:06:40 +0100
-Andi Kleen <ak@suse.de> wrote:
+Hi Robin,
 
-> It's ok. I fixed the code now[1] If you have other undocumented requirements
-> you should document them though, otherwise there may be more problems.
-> Since merging is disabled by default now it won't trigger anyways.
+Thank you very much for the previous advice and for your valuable time.
 
-I totally agree with you Andi, not documenting this properly was an
-oversight and not intentional.
+I thought of further explaining the problem to you.
+
+
+At this stage linux kernel is calculating Load Averages. The major input 
+of the calculation is number of running exe and  Runnables in the 
+runnable Queue.
+
+This is happening In timer.c
+static unsigned long count_active_tasks(void) and
+
+static inline void calc_load(unsigned long ticks)
+
+What I am Trying:
+
+What I am tryiing to do is to seperate the running exe and  Runnables 
+according to the owner of those processes (Say 5 people have login and 
+they run diffrent processes)
+
+And then seperately calculate the Load Averages for those respective 
+login users.
+
+
+The Problems:
+
+The task_struct has a uid field. I have used that field to seperate 
+them. But the problem is when a child process is created by its parent 
+then the child inherits  the uid of the parents. As a result the correct 
+uid which is related to the username does not contain in that uid.
+
+Example:
+
+Say a computer has 5 user logins name1(500), name2(501), 
+name3(502).........name5(504) apart from root. If these 5 people 
+remotely login and runs there jobs, then the user name of those jobs are 
+name1,name2 and name3.
+
+Say if they use telnet to remotely login then those Tasks will be 
+started under telnet server as children.
+
+As the children inherits uid, euid etc of the parents. That means telnet 
+is run as root and it inherits uid<500.
+
+task_struct has uid and it is updated accordingly.
+
+
+I have built the kernel 2.4.19sena1 successfully but this is my problem. 
+The problem because child process inherits uid etc if I start any 
+process through telnet
+
+
+Thanks
+Sena Seneviratne
+Computer Engineering Lab
+Sydney University
+

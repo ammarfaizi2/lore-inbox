@@ -1,64 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262068AbTIHIRl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 04:17:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbTIHIRl
+	id S262133AbTIHIZk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 04:25:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262136AbTIHIZk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 04:17:41 -0400
-Received: from mail.cs.tu-berlin.de ([130.149.17.13]:21702 "EHLO
-	mail.cs.tu-berlin.de") by vger.kernel.org with ESMTP
-	id S262068AbTIHIRj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 04:17:39 -0400
-Date: Mon, 8 Sep 2003 10:15:08 +0200 (MEST)
-From: Peter Daum <gator@cs.tu-berlin.de>
-Reply-To: Peter Daum <gator@cs.tu-berlin.de>
-To: Dave Jones <davej@redhat.com>
-cc: Andi Kleen <ak@suse.de>, Adrian Bunk <bunk@fs.tum.de>,
-       <marcelo.tosatti@cyclades.com.br>, <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4 patch] fix CONFIG_X86_L1_CACHE_SHIFT
-In-Reply-To: <20030907213924.GA28927@redhat.com>
-Message-ID: <Pine.LNX.4.30.0309080934410.5064-100000@swamp.bayern.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 8 Sep 2003 04:25:40 -0400
+Received: from 213-0-202-47.dialup.nuria.telefonica-data.net ([213.0.202.47]:60547
+	"EHLO dardhal.mired.net") by vger.kernel.org with ESMTP
+	id S262133AbTIHIZj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 04:25:39 -0400
+Date: Mon, 8 Sep 2003 10:25:36 +0200
+From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: possible GPL violation by Sigma Designs
+Message-ID: <20030908082536.GA4784@localhost>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <1062985742.3771.16.camel@africa.netenviron.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1062985742.3771.16.camel@africa.netenviron.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Monday, 08 September 2003, at 02:49:02 +0100,
+Torgeir Veimo wrote:
 
-On Sun, 7 Sep 2003, Dave Jones wrote:
+> The firmware for the Bravo D1 DVD player can be downloaded as an ISO
+> image from this page; http://www.vinc.com/support_faq.asp
+> 
+Just for completeness, there is a number of other products available,
+that seem to be nearly identical to each other, because they are built
+around the same set of chips. Some URL for the firmwares:
+http://www.woxter.com/woxter/productos/woxter_xdiv_player_upgrade108-1.0.0.20.zip
+http://www.liteonit.com/DC/english/images/zip/1001-1145.zip
+http://www.rimax.net/docs/UpdateRimaxDivX.zip
 
-> *nod*. This 'fix' also papers over the bug instead of fixing it.
-> Likely it's something like a network card driver setting its cacheline
-> size incorrectly. Peter what NIC did you see the problem on ?
-
-All the machines have Forerunner LE ATM NICs and use LAN
-Emulation. I made an attempt to check whether the problems also occur
-with ethernet, but for some reason the ethernet card also
-didn't seem to work with 2.4.22. Maybe I should give this another
-try ...
-
-As mentioned, Adrian's patch for "CONFIG_X86_L1_CACHE_SHIFT"
-seems to fix my current networking problems, but maybe the real
-cause is something else.
-
-Since somebody here mentioned "memory corruption": Already for
-years I have been plagued by a bug somewhere in the ATM/LANE code
-that causes the machines to crash from time to time (see
-http://sourceforge.net/tracker/index.php?func=detail&aid=445059&group_id=7812&atid=107812)
-
-I could not discover any pattern, when and under which
-circumstances these crashes happen (usually, they occur with
-several months in between) Several times, I managed to get at
-least a stack trace, but the actual crashes occured at different
-places in the code (which, I guess, could mean that the real
-problem is somebody overwriting somebody elses memory). Could
-there be any connection?
-
-If somebody has any good idea how to find out, what is going on,
-I'll be glad to investigate this further. At least, with my
-current networking problems (see the thread "2.4.22 with
-CONFIG_M686: networking broken") I have a test case ...
-
-Regards,
-               Peter Daum
-
+-- 
+Jose Luis Domingo Lopez
+Linux Registered User #189436     Debian Linux Sid (Linux 2.6.0-test4-mm4)

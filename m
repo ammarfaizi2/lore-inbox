@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269143AbUJEQ7V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269175AbUJERAI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269143AbUJEQ7V (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 12:59:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269104AbUJEQ7D
+	id S269175AbUJERAI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 13:00:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269171AbUJEQ7f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 12:59:03 -0400
-Received: from secundus.edoceo.com ([216.162.208.165]:53890 "EHLO
-	secundus.edoceo.com") by vger.kernel.org with ESMTP id S269050AbUJEQ4E
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 12:56:04 -0400
-From: "David Busby" <DBusby@SeattleMortgage.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: /dev/misc/inotify 0.11
-Date: Tue, 5 Oct 2004 09:55:58 -0700
-Message-ID: <82C88232E64C7340BF749593380762021166F3@seattleexchange.SMC.LOCAL>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+	Tue, 5 Oct 2004 12:59:35 -0400
+Received: from havoc.gtf.org ([69.28.190.101]:6079 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S269116AbUJEQ7N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 12:59:13 -0400
+Date: Tue, 5 Oct 2004 12:53:23 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Mark Lord <lsml@rtr.ca>
+Cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       Oliver Neukum <oliver@neukum.org>, Anton Blanchard <anton@samba.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: Core scsi layer crashes in 2.6.8.1
+Message-ID: <20041005165323.GA24922@havoc.gtf.org>
+References: <1096401785.13936.5.camel@localhost.localdomain> <4162B345.9000806@rtr.ca> <1096988167.2064.7.camel@mulgrave> <200410051749.22245.oliver@neukum.org> <1096991666.2064.25.camel@mulgrave> <4162C474.8010505@rtr.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4162C474.8010505@rtr.ca>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-List,
-  I patched my 2.6.8.1 kernel with the inotify-0.11.  There were some
-sample utils that in C that came with it.  Thanks.  I've successfully
-used those to work with inotify.  Here's what's bad:
+On Tue, Oct 05, 2004 at 11:57:40AM -0400, Mark Lord wrote:
+> James Bottomley wrote:
+> >
+> >It would add quite a bit of complexity to the reference counted
+> >aynchronous model to try and force synchronicity between queuecommand
+> >and scsi_remove_host in the mid-layer.  Therefore it's much easier to
+> >let the LLD decide what to do with the command.
+> 
+> Presumably the same is also true for scsi_remove_device() ?
 
-1> When I say `cat /dev/misc/inotify' my machine stops responding
-instantly.  I've not had a chance to see what happens.  I know I'll not
-normally say that but when I say something else dumb like cat
-/dev/misc/rtc cat will simply wait, not choke up my whole system.
+What I do in my local hotplug code is assume that the SCSI layer will be
+stupid and send commands after I call scsi_remove_device(), for an
+indeterminant but short period of time.
 
-2> Reading from /dev/misc/inotify with PERL produces the same effect.
-
-I don't know enough about kernel hacking to really debug this really
-well.  I peeked at the code and there still seems to be calls to dnotify
-functions, can't I remove those?  I said this in
-drivers/char/inotify.c(54) static int inotify_debug_flags =
-INOTIFY_DEBUG_ALL; so I'll recompile and see what happens.
+	Jeff
 
 
-David Busby
-Edoceo, Inc.
-http://www.edoceo.com/
-
-Linux version 2.6.8.1 (root@busby-devel) (gcc version 3.2.2) #1 Mon Oct
-4 12:50:38 PDT 2004
 

@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268453AbTGLUJH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 16:09:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268454AbTGLUJH
+	id S268460AbTGLUKU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 16:10:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268462AbTGLUKU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 16:09:07 -0400
-Received: from genius.impure.org.uk ([195.82.120.210]:43950 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S268453AbTGLUJE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 16:09:04 -0400
-Date: Sat, 12 Jul 2003 21:26:22 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Jan Dittmer <j.dittmer@portrix.net>
+	Sat, 12 Jul 2003 16:10:20 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:8084 "EHLO mail.jlokier.co.uk")
+	by vger.kernel.org with ESMTP id S268460AbTGLUKS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 16:10:18 -0400
+Date: Sat, 12 Jul 2003 21:23:17 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Peter Asemann <sipeasem@immd3.informatik.uni-erlangen.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: agpgart, nforce2, radeon and agp fastwrite
-Message-ID: <20030712202622.GB7741@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Jan Dittmer <j.dittmer@portrix.net>, linux-kernel@vger.kernel.org
-References: <3F102E8E.4030507@portrix.net>
+Subject: Re: PROBLEM: struct siginfo member si_fd not properly filled in handler after SIGIO (2.4.x) - offending POSIX specs?
+Message-ID: <20030712202317.GA10954@mail.jlokier.co.uk>
+References: <200307111426.h6BEQZi1001897@faui31x.informatik.uni-erlangen.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3F102E8E.4030507@portrix.net>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <200307111426.h6BEQZi1001897@faui31x.informatik.uni-erlangen.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 12, 2003 at 05:51:42PM +0200, Jan Dittmer wrote:
- > just took me half a hour to figure out. On nforce2 you have to disable 
- > agp fastwrites, otherwise X locks hard on startup with the following 
- > (from serial console).
- > ...
- > 
- > Without AGP Fastwrites turned on, it all works wonderful. Just if 
- > anybody encounters the same problem.
- > Mainboard is nForce2 based, graphics is radeon 8500le (R200).
+Peter, in addition to:
 
-Could be that the nforce & radeon don't play well together.
-Anyone using fast writes without problems with non-ATI cards & nforce ?
-If it works there, it's trivial to blacklist ATI cards and make them
-unable to enable fast writes in the gart driver.
+    if (fcntl(fd,F_SETOWN,getpid()) == -1) {perror("fault");}
 
-		Dave
+you need to write:
 
+    if (fcntl(fd,F_SETSIG,SIGIO) == -1) {perror("fault");}
+
+The fcntl() man page describes F_SETSIG.  You'll also need to #define
+_GNU_SOURCE as F_SETSIG isn't defined otherwise.
+
+Enjoy,
+-- Jamie

@@ -1,49 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131197AbRBEMBn>; Mon, 5 Feb 2001 07:01:43 -0500
+	id <S129027AbRBEMIN>; Mon, 5 Feb 2001 07:08:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131817AbRBEMBc>; Mon, 5 Feb 2001 07:01:32 -0500
-Received: from colorfullife.com ([216.156.138.34]:30213 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S131197AbRBEMBN>;
-	Mon, 5 Feb 2001 07:01:13 -0500
-Message-ID: <3A7E95F3.38B26DC@colorfullife.com>
-Date: Mon, 05 Feb 2001 13:00:51 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i586)
-X-Accept-Language: en
+	id <S129031AbRBEMIE>; Mon, 5 Feb 2001 07:08:04 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:48388 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S129027AbRBEMH5>; Mon, 5 Feb 2001 07:07:57 -0500
+Message-ID: <3A7E9010.4D6842D1@namesys.com>
+Date: Mon, 05 Feb 2001 14:35:44 +0300
+From: Hans Reiser <reiser@namesys.com>
+Organization: Namesys
+X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.14 i686)
+X-Accept-Language: en, ru
 MIME-Version: 1.0
-To: "Stephen C. Tweedie" <sct@redhat.com>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Christoph Hellwig <hch@caldera.de>, Steve Lord <lord@sgi.com>,
-        linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait /notify 
- + callback chains
-In-Reply-To: <20010201220744.K11607@redhat.com> <Pine.LNX.4.10.10102031224210.8867-100000@penguin.transmeta.com> <20010205110336.A1167@redhat.com>
-Content-Type: text/plain; charset=us-ascii
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Brian Wolfe <ahzz@terrabox.com>,
+        Ion Badulescu <ionut@moisil.cs.columbia.edu>,
+        linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
+        Jan Kasprzak <kas@informatics.muni.cz>
+Subject: Re: [reiserfs-list] ReiserFS Oops (2.4.1, deterministic, symlink 
+ related)
+In-Reply-To: <E14PkEo-0003B2-00@the-village.bc.nu>
+Content-Type: text/plain; charset=koi8-r
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Stephen C. Tweedie" wrote:
+Alan Cox wrote:
 > 
-> You simply cannot do physical disk IO on
-> non-sector-aligned memory or in chunks which aren't a multiple of
-> sector size.
+> > administrator that has worked in large multi hundred million dollar compani=
+> > es where 1 hour of downtime =3D=3D $75,000 in lost income proactive prevent=
+> > ion IS the right answer. If the gcc people need to compile with the .96 rh =
+> > version then they can apply a removal patch hans provides in the crash mess=
+> > age. This makes it easy to remove the safeguard and blow yourself up at wil=
+> > l after being suitibly called a dumbass.
+> 
+> With all due respect, if you are running $75,000/hr of lost income (which btw
+> is small fry to a lot of folks) shouldn't you have an engineering team who
+> a) read the documentation.
+> b) run tests before rolling out software
+> 
+> Alan
 
-Why not?
 
-Obviously the disk access itself must be sector aligned and the total
-length must be a multiple of the sector length, but there shouldn't be
-any restrictions on the data buffers.
+Think of it as being like gun safety.  You don't seek to develop habits that
+protect you when you are awake and alert and paying attention, you strongly seek
+to develop the sort of habits that will protect you if for one moment your
+attention wanders and you do something completely stupid.  Oh dear, there may be
+some cultural translation difficulty with this example.:-)
 
-I remember that even Windoze 95 has scatter-gather support for physical
-disk IO with arbitraty buffer chunks. (If the hardware supports it,
-otherwise the io subsystem will copy the data into a contiguous
-temporary buffer)
+User protection is a variant on that.  To have an attitude that if the user was
+only alert and intelligent at the moment and as educated as you are in how to
+compile a kernel, this is just, ahem, not right. 
 
---
-	Manfred
+All things must be kept in balance though, and not taken to extremes.  But when
+the number of users complaining exceeds some amount relative to the cost to
+protect them, they should be protected from their lack of education in what
+distro to not trust the compiler on.
+
+You can go ahead and write software for the always alert and always intelligent
+and never too hasty and always read the README users, and I'll be happy with
+having the rest of the market for ReiserFS.:-)
+
+Hans
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

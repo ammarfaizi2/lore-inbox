@@ -1,75 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261249AbTIXChg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 22:37:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbTIXChg
+	id S261250AbTIXCjV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 22:39:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbTIXCjV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 22:37:36 -0400
-Received: from fw.osdl.org ([65.172.181.6]:49801 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261249AbTIXChe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 22:37:34 -0400
-Date: Tue, 23 Sep 2003 19:36:39 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: andrea@kernel.org
-cc: Larry McVoy <lm@work.bitmover.com>,
+	Tue, 23 Sep 2003 22:39:21 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:38299
+	"EHLO velociraptor.random") by vger.kernel.org with ESMTP
+	id S261250AbTIXCjT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Sep 2003 22:39:19 -0400
+Date: Wed, 24 Sep 2003 04:39:28 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Larry McVoy <lm@work.bitmover.com>, andrea@kernel.org,
+       Larry McVoy <lm@bitmover.com>, Linus Torvalds <torvalds@osdl.org>,
        Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Matthew Wilcox <willy@debian.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-       Larry McVoy <lm@bitmover.com>
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
 Subject: Re: log-buf-len dynamic
-In-Reply-To: <20030924020409.GL16314@velociraptor.random>
-Message-ID: <Pine.LNX.4.44.0309231924540.27467-100000@home.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20030924023928.GN16314@velociraptor.random>
+References: <20030923221528.GP1269@velociraptor.random> <Pine.LNX.4.44.0309231524160.24527-100000@home.osdl.org> <20030924003652.GI16314@velociraptor.random> <20030924011951.GA5615@work.bitmover.com> <20030924020409.GL16314@velociraptor.random> <20030924022948.GA6496@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030924022948.GA6496@work.bitmover.com>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Wed, 24 Sep 2003 andrea@kernel.org wrote:
+On Tue, Sep 23, 2003 at 07:29:48PM -0700, Larry McVoy wrote:
+> On Wed, Sep 24, 2003 at 04:04:09AM +0200, andrea@kernel.org wrote:
+> > > What we expected in return was the same understanding.
+> > 
+> > that is not accurate, you also asked us to giveup the freedom of
+> > development in your area. 
 > 
-> It's because I grow up that I can actually better understand the deals
-> it's in my own (again speaking only for myself and not for anybody else)
-> interest to avoid.
+> If you were actually doing some significant development then maybe I'd
+> respect you.  But you aren't.  So I don't.  You don't have the slightest
+> understanding in this area, you've proved that beyond all reasonable
+> doubt.  So you are just complaining about something you don't understand.
+> 
+> I truly hope you follow in the footsteps of others who got pissed at the
+> BK licensing and try to implement a replacement.  BK makes VM systems
+> seem like child's play.  Centralized systems like CVS are child's play.
 
-You've claimed this now twice. 
+If you weren't using the linux VM I'd respect you, but you are, and
+still I respected you so far, probably I was wrong.
 
-However, that only explains why you don't use BitKeeper. And everybody
-accepts that. When I started to use BK, I made it _very_ clear that
-service for non-BK users will be _at_least_ as good as it ever was before
-I started using BK.
-
-And I think everybody agrees that is true. ChangeLogs, CVS exports, daily 
-snapshots. And that's just the advantages to _others_. 
-
-But your lack of interest in BK does _not_ explain why you whine about it,
-and try to goad Larry, and just generally are nasty about it. 
-
-You remind me of how some of the BSD people complaining about me using the
-GPL. They whined and whined about how the GPL is not as free as the BSD
-license. 
-
-In other words:
-
- - you don't have to agree with another persons choice of license, and 
-   you don't have to to use the software using it. That is _your_ choice.
-
- - But you also don't have the moral right to whine about another persons
-   choice of license (or choice of using software under that license). 
-   That was _their_ choice.
-
-See? You're not just being impolite; your complaints are actually morally 
-offensive. The same way I found it morally offensive when people 
-complained about my choice of GPL. They didn't have the right. And _you_ 
-don't have the right.
-
-It's the old 
-
-	"I disapprove of what you say, but I will defend to the death your 
-	 right to say it"
-
-approach: even if you disapprove of Larry's license, you should defend his 
-_right_ to that license. Instead of whining about it.
-
-			Linus
-
+Andrea - If you prefer relying on open source software, check these links:
+	    rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.[45]/
+	    http://www.cobite.com/cvsps/
+	    svn://svn.kernel.org/linux-2.[46]/trunk

@@ -1,125 +1,151 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263617AbTEJA0e (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 20:26:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263619AbTEJA0e
+	id S263620AbTEJAaQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 20:30:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263624AbTEJAaQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 20:26:34 -0400
-Received: from fmr03.intel.com ([143.183.121.5]:45804 "EHLO
-	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S263617AbTEJA0b
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 20:26:31 -0400
-Message-ID: <A46BBDB345A7D5118EC90002A5072C780CCB00AD@orsmsx116.jf.intel.com>
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "'Chris Friesen'" <cfriesen@nortelnetworks.com>,
-       "'William Lee Irwin III'" <wli@holomorphy.com>
-Cc: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: RE: how to measure scheduler latency on powerpc?  realfeel doesn'
-	t work due to /dev/rtc issues
-Date: Fri, 9 May 2003 17:39:03 -0700 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_000_01C3168C.8E671A60"
+	Fri, 9 May 2003 20:30:16 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:34205 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S263620AbTEJAaL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 20:30:11 -0400
+Message-Id: <200305092339.h49NcYGi011242@locutus.cmf.nrl.navy.mil>
+To: Francois Romieu <romieu@fr.zoreil.com>
+cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [ATM] [UPDATE] unbalanced exit path in Forerunner HE he_init_one() (and an iphase patch too!) 
+In-reply-to: Your message of "Sat, 10 May 2003 00:02:22 +0200."
+             <20030510000222.A10796@electric-eye.fr.zoreil.com> 
+X-url: http://www.nrl.navy.mil/CCS/people/chas/index.html
+X-mailer: nmh 1.0
+Date: Fri, 09 May 2003 19:38:34 -0400
+From: chas williams <chas@locutus.cmf.nrl.navy.mil>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
+>- pci_enable_device() balanced on error path in he_init_one();
+>- return of atm_dev_register() isn't lost any more if he_dev allocation fails
+>  in he_init_one();
+>- pci_disable_device() added to he_disable_one();
 
-------_=_NextPart_000_01C3168C.8E671A60
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+i hope you dont mind, but i really dislike the goto.  one is plenty. 
+attached is a cleanup for the iphase (i made a small addition -- i believe
+the MEMDUMP_XXXXXXREG cases are also guilty of dereferencing).
+
+[ATM]: unbalanced exit path in Forerunner HE he_init_one().  thanks to 
+       Francois Romieu <romieu@fr.zoreil.com>
+
+--- linux-2.5.68/drivers/atm/he.c.002	Fri May  9 15:33:08 2003
++++ linux-2.5.68/drivers/atm/he.c	Fri May  9 19:00:02 2003
+@@ -362,43 +362,54 @@
+ static int __devinit
+ he_init_one(struct pci_dev *pci_dev, const struct pci_device_id *pci_ent)
+ {
+-	struct atm_dev *atm_dev;
+-	struct he_dev *he_dev;
++	struct atm_dev *atm_dev = NULL;
++	struct he_dev *he_dev = NULL;
++	int err = 0;
+ 
+ 	printk(KERN_INFO "he: %s\n", version);
+ 
+ 	if (pci_enable_device(pci_dev)) return -EIO;
+-	if (pci_set_dma_mask(pci_dev, HE_DMA_MASK) != 0)
+-	{
++	if (pci_set_dma_mask(pci_dev, HE_DMA_MASK) != 0) {
+ 		printk(KERN_WARNING "he: no suitable dma available\n");
+-		return -EIO;
++		err = -EIO;
++		goto init_one_failure;
+ 	}
+ 
+ 	atm_dev = atm_dev_register(DEV_LABEL, &he_ops, -1, 0);
+-	if (!atm_dev) return -ENODEV;
++	if (!atm_dev) {
++		err = -ENODEV;
++		goto init_one_failure;
++	}
+ 	pci_set_drvdata(pci_dev, atm_dev);
+ 
+ 	he_dev = (struct he_dev *) kmalloc(sizeof(struct he_dev),
+ 							GFP_KERNEL);
+-	if (!he_dev) return -ENOMEM;
++	if (!he_dev) {
++		err = -ENOMEM;
++		goto init_one_failure;
++	}
+ 	memset(he_dev, 0, sizeof(struct he_dev));
+ 
+ 	he_dev->pci_dev = pci_dev;
+ 	he_dev->atm_dev = atm_dev;
+ 	he_dev->atm_dev->dev_data = he_dev;
+ 	HE_DEV(atm_dev) = he_dev;
+-	he_dev->number = atm_dev->number;	/* was devs */
++	he_dev->number = atm_dev->number;
+ 	if (he_start(atm_dev)) {
+-		atm_dev_deregister(atm_dev);
+ 		he_stop(he_dev);
+-		kfree(he_dev);
+-		return -ENODEV;
++		err = -ENODEV;
++		goto init_one_failure;
+ 	}
+ 	he_dev->next = NULL;
+ 	if (he_devs) he_dev->next = he_devs;
+ 	he_devs = he_dev;
+-
+ 	return 0;
++
++init_one_failure:
++	if (atm_dev) atm_dev_deregister(atm_dev);
++	if (he_dev) kfree(he_dev);
++	pci_disable_device(pci_dev);
++	return err;
+ }
+ 
+ static void __devexit
+@@ -417,6 +428,7 @@
+ 	kfree(he_dev);
+ 
+ 	pci_set_drvdata(pci_dev, NULL);
++	pci_disable_device(pci_dev);
+ }
+ 
+ 
+
+[ATM]: Sneak variant of "ioremap() return dereferencing".  thanks to
+       Francois Romieu <romieu@fr.zoreil.com>
 
 
-> From: Chris Friesen [mailto:cfriesen@nortelnetworks.com]
->=20
-> William Lee Irwin III wrote:
->=20
-> > I don't understand why you're obsessed with interrupts. Just run =
-your
-> > load and spray the scheduler latency stats out /proc/
->=20
-> I'm obsessed with interrupts because it gives me a higher sampling =
-rate.
->=20
-> I could set up and itimer for a recurring 10ms timeout and see how =
-much
-extra I
-> waited, but then I can only get 100 samples/sec.
->=20
-> With /dev/rtc (on intel) you can get 20x more samples in the same =
-amount
-of time.
-
-Okay, crazy idea here ...
-
-You are talking about a bladed system, right? So probably you
-have two network interfaces in there [it should work only with
-one too].
-
-What if you rip off the driver for the network interface and=20
-create a new breed. Set an special link with a null Ethernet
-cable and have one machine sending really short Ethernet frames
-to the sampling machine.
-
-Maybe if you can manage to get the Ethernet chip to interrupt
-every time a new frame arrives, you can use that as a sampling
-measure. I'd say the key would be to have the sending machine
-be really precise about the sending ... I guess it can be worked
-out.
-
-I don't know how fast an interrupt rate you could get, OTOH=20
-rough numbers ... let's say 100 MBit/s is 10 MByte/s, use
-a really small frame [let's say a few bytes only, 32], add
-the MACS {I don't remember the frame format, assuming 12 bytes
-for source and destination MACs, plus 8 in overhead [again, I
-made it up], 52 bytes ... let's round up to 64 bytes per frame.
-
-So
-
-10 MB/s / 64 B/frame =3D 163840 frames/s
-
-I don't know how really possible is this or my calculations
-are screwed up, but it might be worth a try ...
-
-I did a quick test; from one of my computers, m1, I did:
-
-m1:~ $ while true; do cat BIGFILE; done | ssh m2 cat > /dev/null
-
-while on m2, I did:
-
-m2:~ $ grep eth0 /proc/interrupts; sleep 2m; grep eth0 /proc/interrupts
- 18:      77457      68483   IO-APIC-level  eth0
- 18:     397390     412559   IO-APIC-level  eth0
-m2:~ $=20
-
-total    319933  +  344076   =3D 664009
-in 120 seconds ... 664009 / 120 =3D 5533 Hz ~ 2500 Hz per CPU.
-
-not bad, wouldn't this work?
-
-[this is with a 1500 MTU through a hub ... or a switch, I
-don't really know ...]
-
-I=F1aky P=E9rez-Gonz=E1lez -- Not speaking for Intel -- all opinions =
-are my own
-(and my fault)
-
-
-------_=_NextPart_000_01C3168C.8E671A60
-Content-Type: text/plain;
-	name="t.txt"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="t.txt"
-
- 18:      77457      68483   IO-APIC-level  eth0=0A=
- 18:     397390     412559   IO-APIC-level  eth0=0A=
-=0A=
-total    319933  +  344076   =3D 664009=0A=
-in 120 seconds ... 664009 / 120 =3D 5533 Hz ~ 2500 Hz per CPU.=0A=
-=0A=
-
-------_=_NextPart_000_01C3168C.8E671A60--
+--- linux-2.5.68/drivers/atm/iphase.c.002	Fri May  9 19:01:27 2003
++++ linux-2.5.68/drivers/atm/iphase.c	Fri May  9 19:35:24 2003
+@@ -2774,7 +2774,7 @@
+ 	     if (!capable(CAP_NET_ADMIN)) return -EPERM;
+              tmps = (u16 *)ia_cmds.buf;
+              for(i=0; i<0x80; i+=2, tmps++)
+-                if(put_user(*(u16*)(iadev->seg_reg+i), tmps)) return -EFAULT;
++                if(put_user((u16)(readl(iadev->seg_reg+i) & 0xffff), tmps)) return -EFAULT;
+              ia_cmds.status = 0;
+              ia_cmds.len = 0x80;
+              break;
+@@ -2782,7 +2782,7 @@
+ 	     if (!capable(CAP_NET_ADMIN)) return -EPERM;
+              tmps = (u16 *)ia_cmds.buf;
+              for(i=0; i<0x80; i+=2, tmps++)
+-                if(put_user(*(u16*)(iadev->reass_reg+i), tmps)) return -EFAULT;
++                if(put_user((u16)(readl(iadev->reass_reg+i) & 0xffff), tmps)) return -EFAULT;
+              ia_cmds.status = 0;
+              ia_cmds.len = 0x80;
+              break;
+@@ -2799,10 +2799,10 @@
+ 	     rfL = &regs_local->rfredn;
+              /* Copy real rfred registers into the local copy */
+  	     for (i=0; i<(sizeof (rfredn_t))/4; i++)
+-                ((u_int *)rfL)[i] = ((u_int *)iadev->reass_reg)[i] & 0xffff;
++                ((u_int *)rfL)[i] = readl(iadev->reass_reg + i) & 0xffff;
+              	/* Copy real ffred registers into the local copy */
+ 	     for (i=0; i<(sizeof (ffredn_t))/4; i++)
+-                ((u_int *)ffL)[i] = ((u_int *)iadev->seg_reg)[i] & 0xffff;
++                ((u_int *)ffL)[i] = readl(iadev->seg_reg + i) & 0xffff;
+ 
+              if (copy_to_user(ia_cmds.buf, regs_local,sizeof(ia_regs_t))) {
+                 kfree(regs_local);

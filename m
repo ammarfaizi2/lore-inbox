@@ -1,80 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261888AbUBWLej (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 06:34:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261914AbUBWLej
+	id S261917AbUBWLgQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 06:36:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbUBWLgQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 06:34:39 -0500
-Received: from mta9.srv.hcvlny.cv.net ([167.206.5.42]:55213 "EHLO
-	mta9.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S261888AbUBWLeh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 06:34:37 -0500
-Date: Mon, 23 Feb 2004 06:34:23 -0500
-From: Jeff Sipek <jeffpc@optonline.net>
-Subject: Re: [NET] 64 bit byte counter for 2.6.3
-In-reply-to: <20040222173622.GB1371@elf.ucw.cz>
-To: Pavel Machek <pavel@ucw.cz>,
-       Markus =?iso-8859-1?q?H=E4stbacka?= <midian@ihme.org>
-Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Message-id: <200402230634.33531.jeffpc@optonline.net>
-MIME-version: 1.0
-Content-type: Text/Plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-Content-description: clearsigned data
-User-Agent: KMail/1.5.4
-References: <1077123078.9223.7.camel@midux> <20040222173622.GB1371@elf.ucw.cz>
+	Mon, 23 Feb 2004 06:36:16 -0500
+Received: from smtp3.att.ne.jp ([165.76.15.139]:25008 "EHLO smtp3.att.ne.jp")
+	by vger.kernel.org with ESMTP id S261915AbUBWLgO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 06:36:14 -0500
+Message-ID: <015d01c3fa01$32c15c30$34ee4ca5@DIAMONDLX60>
+From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
+To: "Robin Rosenberg" <robin.rosenberg.lists@dewire.com>
+Cc: "Jamie Lokier" <jamie@shareable.org>, <linux-kernel@vger.kernel.org>
+References: <18de01c3f93f$dc6d91d0$b5ee4ca5@DIAMONDLX60> <20040222204541.GA26793@mail.shareable.org> <008d01c3f99c$9033e3c0$34ee4ca5@DIAMONDLX60> <200402230710.12549.robin.rosenberg.lists@dewire.com>
+Subject: Re: UTF-8 filenames
+Date: Mon, 23 Feb 2004 20:34:57 +0900
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Robin Rosenberg replied to me:
 
-On Sunday 22 February 2004 12:36, Pavel Machek wrote:
-> Hi!
+> > Of course.  Perhaps my use of reductio al absurdum was unclear.
+
+Actually Mark Hahn got me on that, it should be ad, but I get too many ads
+already.  Now reminiscing about the days before I posted to LKML, because my
+inbox was less than 75% spams in those days.
+
+> > I was trying to show that UTF-8, despite its sanity, is not universally
+> > agreeable.  The actual reason is because it came late to the scene
+> > (around 20 years ago) and it is not backwards compatible.
 >
-> > --- linux-2.6.3-rc1/net/core/dev.c	2004-02-08 01:07:55.000000000 +0200
-> > +++ linux-2.6.3-rc1-b/net/core/dev.c	2004-02-07 15:29:32.000000000 +0200
-> > @@ -2042,8 +2042,8 @@
-> >  	if (dev->get_stats) {
-> >  		struct net_device_stats *stats = dev->get_stats(dev);
-> >
-> > -		seq_printf(seq, "%6s:%8lu %7lu %4lu %4lu %4lu %5lu %10lu %9lu "
-> > -				"%8lu %7lu %4lu %4lu %4lu %5lu %7lu %10lu\n",
-> > +		seq_printf(seq, "%6s:%14llu %7lu %4lu %4lu %4lu %5lu %10lu %9lu "
-> > +				"%14llu %7lu %4lu %4lu %4lu %5lu %7lu %10lu\n",
-> >  			   dev->name, stats->rx_bytes, stats->rx_packets,
-> >  			   stats->rx_errors,
-> >  			   stats->rx_dropped + stats->rx_missed_errors,
-> > --- linux-2.6.3-rc1/include/linux/netdevice.h	2004-02-08
-> > 01:05:47.000000000 +0200 +++
-> > linux-2.6.3-rc1-b/include/linux/netdevice.h	2004-02-07 15:21:26.000000000
-> > +0200 @@ -103,8 +103,8 @@
-> >  {
-> >  	unsigned long	rx_packets;		/* total packets received	*/
-> >  	unsigned long	tx_packets;		/* total packets transmitted	*/
-> > -	unsigned long	rx_bytes;		/* total bytes received 	*/
-> > -	unsigned long	tx_bytes;		/* total bytes transmitted	*/
-> > +	unsigned long long rx_bytes;		/* total bytes received 	*/
-> > +	unsigned long long tx_bytes;		/* total bytes transmitted	*/
->
-> Perhaps this should be u64? I'm not sure if long long is not 128-bits
-> on x86-64.
+> Even later, it's from 1992 I believe
 
-Hmm...I've been told that u_int64_t is the C99 (IIRC) standard, and that it 
-should be used in favor of u64. Is that so?
+Oh, then it was even later to the scene than I thought.
 
-I'll announce my version of 64-bit net stats fairly soon.
+> and a standard even later. That is long after we went from national
+> variants of ASCII to ISO-Latin-1. If I recall it correctly it was the
+> years around 1987 that we started having multiple encodings fo text.
 
-Jeff.
-
-- -- 
-We have joy, we have fun, we have Linux on a Sun...
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAOeVHwFP0+seVj/4RAv1gAKCFZZEHOi78wcrX2dWquQ4Qcth4AQCgicO0
-L+vkeXdghp0YPWzgLInBpU8=
-=F5rS
------END PGP SIGNATURE-----
+SJIS and EUC both existed before 1987.
 

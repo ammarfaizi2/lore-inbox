@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319047AbSHMR5i>; Tue, 13 Aug 2002 13:57:38 -0400
+	id <S319005AbSHMRzT>; Tue, 13 Aug 2002 13:55:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319045AbSHMR47>; Tue, 13 Aug 2002 13:56:59 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:49420 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S319026AbSHMRzy>; Tue, 13 Aug 2002 13:55:54 -0400
-Message-ID: <3D594901.9070305@zytor.com>
-Date: Tue, 13 Aug 2002 10:59:29 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020703
-X-Accept-Language: en-us, en, sv
+	id <S319010AbSHMRzT>; Tue, 13 Aug 2002 13:55:19 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:34776 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S319005AbSHMRzI>;
+	Tue, 13 Aug 2002 13:55:08 -0400
+Date: Tue, 13 Aug 2002 19:59:12 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] kwaitd, 2.5.31-A1
+In-Reply-To: <3D594A68.88807CEE@zip.com.au>
+Message-ID: <Pine.LNX.4.44.0208131956510.5934-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Benjamin LaHaise <bcrl@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: klibc and logging
-References: <3D58B14A.5080500@zytor.com> <ajaka7$qb6$1@ncc1701.cistron.net> <ajbgbf$7e7$1@cesium.transmeta.com> <20020813135405.A12730@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin LaHaise wrote:
-> On Tue, Aug 13, 2002 at 10:41:03AM -0700, H. Peter Anvin wrote:
-> 
->>Requires too much to work before it's can be made available.
->>
->>Andrew Morton sent me a proposed patch last night which adds a klogctl
->>(a.k.a. sys_syslog) which does a printk() from userspace.  It was less
->>than 10 lines; i.e. probably worth it.  I have hooked this up to
->>syslog(3) in klibc, although the code is not checked in yet.
-> 
-> 
-> Rather, why not have the file descriptor early userspace gets called 
-> with point to a file that printk's whatever is written to it?  That 
-> makes more sense as the early init stuff really should end up in the 
-> kernel's log buffer.
-> 
 
-That was the other possibility that I suggested... either way is fine 
-with me.  The file descriptor has a few advantages; although I would 
-personally make a klogctl() to return it rather than having it passed in.
+On Tue, 13 Aug 2002, Andrew Morton wrote:
 
-	-hpa
+> Well what we can do in there is to just have a one-deep percpu list. So
+> the exitting task frees the previous thread's stack (if any) and inserts
+> its own stack.  And that stack can be used in fork, of course.  Which
+> gives some per-cpu LIFO stack allocation.
 
+yeah, this will work - and it's not a big chunk of RAM we are holding
+onto, so we can keep it around indefinitely. I'll try it this way.
+
+(the LIFO argument is not true once the proper per-CPU page caching
+patches are integrated.)
+
+(btw., the kernel has the same catch-22 problem as user-space's problem
+with stack deallocation, with the difference that it's much easier and
+cheaper to provide atomicity in kernel-space.)
+
+	Ingo
 

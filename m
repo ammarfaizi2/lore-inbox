@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289310AbSAVOGm>; Tue, 22 Jan 2002 09:06:42 -0500
+	id <S289311AbSAVOIC>; Tue, 22 Jan 2002 09:08:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289311AbSAVOGc>; Tue, 22 Jan 2002 09:06:32 -0500
-Received: from web14905.mail.yahoo.com ([216.136.225.57]:26380 "HELO
-	web14905.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S289310AbSAVOGO>; Tue, 22 Jan 2002 09:06:14 -0500
-Message-ID: <20020122140613.51122.qmail@web14905.mail.yahoo.com>
-Date: Tue, 22 Jan 2002 09:06:13 -0500 (EST)
-From: Michael Zhu <mylinuxk@yahoo.ca>
-Subject: something about ext2 file system
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	id <S289312AbSAVOHo>; Tue, 22 Jan 2002 09:07:44 -0500
+Received: from firewall.esrf.fr ([193.49.43.1]:42458 "HELO out.esrf.fr")
+	by vger.kernel.org with SMTP id <S289311AbSAVOHj>;
+	Tue, 22 Jan 2002 09:07:39 -0500
+Date: Tue, 22 Jan 2002 15:07:03 +0100
+From: Samuel Maftoul <maftoul@esrf.fr>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: umounting
+Message-ID: <20020122150703.B13509@pcmaftoul.esrf.fr>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, I have some questions about ext2 file system.
+Hello people,
+I use firewire devices and implements it for users at work.
 
-1.How the directory and file name information are
-stored on the disk? I mean is there a range of blocks
-set at disk format or intialize time for this kind of
-information?
-
-2.I know in ext2 the whole disk is made up of the boot
-block and some block groups. Each block groups
-contains super block,group descriptors,data block
-bitmap,inode bitmap,inode table and data blocks. The
-directory and file name information are stored in
-which part? In the data blocks?
-
-3.Are file names and other metadata put into the same
-range of blocks?
-
-4.Where can I find some detail information about ext2
-fiel system?
-
-Thanks in advance.
-
-Michael
-
-
-______________________________________________________________________ 
-Web-hosting solutions for home and business! http://website.yahoo.ca
+I had to do some test and noticed a "bizarre" behaviour ( not really sure it is
+):
+User 1 is comming, He plugs his disk, mounts it and copy several datas.
+Once finished, He unplug it without umounting it (what is bad, but
+that's not the point).
+User 2 comes, plugs his disk, tries to mount it but he can't because
+it's already mounted. Without unplugging his disk, he umounts the
+removed disk and then he tries mounting his one.
+If user 1 had an ext2 disk, when user 2 umounts the filesystem with his
+disk plugged his filesystem got broken ( tested with ext2 and vfat).
+If user 1 had a vfat disk, then user 2 can cleanly umount the disk
+without breaking any filesystem.
+That's it.
+Not sure whether it is an ext2, vfat or filesystem issue, or maybe not a
+(kernel?)issue at all.
+        Sam

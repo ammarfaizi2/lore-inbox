@@ -1,60 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317102AbSIEG3k>; Thu, 5 Sep 2002 02:29:40 -0400
+	id <S317112AbSIEGe5>; Thu, 5 Sep 2002 02:34:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317107AbSIEG3k>; Thu, 5 Sep 2002 02:29:40 -0400
-Received: from dsl-213-023-038-092.arcor-ip.net ([213.23.38.92]:3493 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S317102AbSIEG3j>;
-	Thu, 5 Sep 2002 02:29:39 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Andrew Morton <akpm@zip.com.au>
-Subject: Re: Race in shrink_cache
-Date: Thu, 5 Sep 2002 08:36:16 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
-References: <E17mooe-00064m-00@starship> <3D76FB64.7AAB215F@zip.com.au>
-In-Reply-To: <3D76FB64.7AAB215F@zip.com.au>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17mqFV-00065Y-00@starship>
+	id <S317117AbSIEGe5>; Thu, 5 Sep 2002 02:34:57 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:4582 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S317112AbSIEGe4>;
+	Thu, 5 Sep 2002 02:34:56 -0400
+Date: Wed, 04 Sep 2002 23:32:26 -0700 (PDT)
+Message-Id: <20020904.233226.108195359.davem@redhat.com>
+To: bof@bof.de
+Cc: rusty@rustcorp.com.au, ak@suse.de, laforge@gnumonks.org,
+       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
+Subject: Re: ip_conntrack_hash() problem
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020905083340.E19551@oknodo.bof.de>
+References: <20020905082128.D19551@oknodo.bof.de>
+	<20020904.232425.10994370.davem@redhat.com>
+	<20020905083340.E19551@oknodo.bof.de>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 05 September 2002 08:36, Andrew Morton wrote:
-> Daniel Phillips wrote:
-> > 
-> > Hi Marcelo,
-> > 
-> > This looks really suspicious, vmscan.c#435:
-> > 
-> >         spin_unlock(&pagemap_lru_lock);
-> >                                                         if (put_page_testzero(page))
-> >                                                                 __free_pages_ok(page, 0);
-> >         /* avoid to free a locked page */
-> >         page_cache_get(page);
-> > 
-> >         /* whoops, double free coming */
-> > 
-> > I suggest you bump the page count before releasing the lru lock.  The race
-> > shown above may not in fact be possible, but the current code is fragile.
-> > 
-> 
-> That's OK.  The page has a ref because of nonzero ->buffers  And it
-> is locked, which pins page->buffers.
+   From: Patrick Schaaf <bof@bof.de>
+   Date: Thu, 5 Sep 2002 08:33:40 +0200
+   
+   So, I don't see how your (abstractly true) observation is relevant, here.
+   
+So we waste 4 bytes in the kernel for really no reason?
+A value we can compute in half a cycle?
 
-Yes, true.  Calm down ladies and gentlemen, and move away from the exits,
-there is no fire.  While we're in here, do you have any idea what this is
-about:
-
-/*
- * We must not allow an anon page
- * with no buffers to be visible on
- * the LRU, so we unlock the page after
- * taking the lru lock
- */
-
-That is, what's scary about an anon page without buffers?
-
--- 
-Daniel

@@ -1,44 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264958AbSJPIK2>; Wed, 16 Oct 2002 04:10:28 -0400
+	id <S264969AbSJPITr>; Wed, 16 Oct 2002 04:19:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264959AbSJPIK1>; Wed, 16 Oct 2002 04:10:27 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:24019 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S264958AbSJPIJz>;
-	Wed, 16 Oct 2002 04:09:55 -0400
-Date: Wed, 16 Oct 2002 10:27:07 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Jakub Jelinek <jakub@redhat.com>
-Cc: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@digeo.com>,
-       Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] mmap-speedup-2.5.42-C3
-In-Reply-To: <20021016040754.C5659@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.44.0210161023530.4906-100000@localhost.localdomain>
+	id <S264970AbSJPITr>; Wed, 16 Oct 2002 04:19:47 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:36851 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S264969AbSJPITq>;
+	Wed, 16 Oct 2002 04:19:46 -0400
+Message-ID: <3DAD2263.2C8EAF7D@mvista.com>
+Date: Wed, 16 Oct 2002 01:25:07 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Adrian Bunk <bunk@fs.tum.de>
+CC: Linus Torvalds <torvalds@transmeta.com>, rread@clusterfs.com,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.5.43 nfs fails to boot, fix
+References: <Pine.NEB.4.44.0210160922280.20607-100000@mimas.fachschaften.tu-muenchen.de>
+Content-Type: multipart/mixed;
+ boundary="------------0A8F24DC55619D8C41286B2F"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Wed, 16 Oct 2002, Jakub Jelinek wrote:
+This is a multi-part message in MIME format.
+--------------0A8F24DC55619D8C41286B2F
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-> Libraries mapped by dynamic linker are mapped without MAP_FIXED and
-> unless you use prelinking, with 0 virtual address, ie. they all end up
-> above 1GB. And 99% of libraries uses different protections, for the
-> read-only and read-write segment.
+Don't know if this is the correct fix, but it at least lets
+the system boot with nfs.
+-- 
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml
+--------------0A8F24DC55619D8C41286B2F
+Content-Type: text/plain; charset=us-ascii;
+ name="fix-2.5.43-nfs.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="fix-2.5.43-nfs.patch"
 
-right - only the bss (brk-allocated) ones are below 1GB it appears. I did
-a quick check on a KDE app and 3 mappings were below 1GB, and 116(!)  
-mappings were above 1GB. And even if it wasnt for the different
-protections, they use different files to map to so they have to be in
-different vmas, no matter what.
+--- /usr/src/linux-2.5.43-posix/fs/nfs/proc.c~	Wed Oct 16 00:18:10 2002
++++ linux/fs/nfs/proc.c	Wed Oct 16 01:10:40 2002
+@@ -490,7 +490,7 @@
+ 
+ 	dprintk("NFS call  fsinfo\n");
+ 	info->fattr->valid = 0;
+-	status = rpc_call(server->client, NFSPROC_STATFS, fhandle, &info, 0);
++	status = rpc_call(server->client, NFSPROC_STATFS, fhandle, info, 0);
+ 	dprintk("NFS reply fsinfo: %d\n", status);
+ 	if (status)
+ 		goto out;
 
-i'm wondering about prelinking though - wont that reduce the number of
-mappings radically?
 
-in any case, doing a test of KDE's profile with and without the patch
-applied sounds like a good idea.
-
-	Ingo
+--------------0A8F24DC55619D8C41286B2F--
 

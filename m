@@ -1,72 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318767AbSICMT3>; Tue, 3 Sep 2002 08:19:29 -0400
+	id <S318766AbSICMSU>; Tue, 3 Sep 2002 08:18:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318769AbSICMT3>; Tue, 3 Sep 2002 08:19:29 -0400
-Received: from h181n1fls11o1004.telia.com ([195.67.254.181]:37763 "EHLO
-	ringstrom.mine.nu") by vger.kernel.org with ESMTP
-	id <S318767AbSICMTY>; Tue, 3 Sep 2002 08:19:24 -0400
-Date: Tue, 3 Sep 2002 14:23:49 +0200 (CEST)
-From: Tobias Ringstrom <tori@ringstrom.mine.nu>
-X-X-Sender: tori@boris.prodako.se
-To: Ingo Molnar <mingo@elte.hu>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Problem with the O(1) scheduler in 2.4.19
-In-Reply-To: <Pine.LNX.4.44.0209031220230.25506-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0209031322210.7658-100000@boris.prodako.se>
+	id <S318756AbSICMSU>; Tue, 3 Sep 2002 08:18:20 -0400
+Received: from sex.inr.ac.ru ([193.233.7.165]:55425 "HELO sex.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S318289AbSICMST>;
+	Tue, 3 Sep 2002 08:18:19 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200209031221.QAA01882@sex.inr.ac.ru>
+Subject: Re: TCP Segmentation Offloading (TSO)
+To: taka@valinux.co.jp (Hirokazu Takahashi)
+Date: Tue, 3 Sep 2002 16:21:08 +0400 (MSD)
+Cc: scott.feldman@intel.com, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org, haveblue@us.ibm.com, Manand@us.ibm.com,
+       davem@redhat.com, christopher.leech@intel.com
+In-Reply-To: <20020903.164243.21934772.taka@valinux.co.jp> from "Hirokazu Takahashi" at Sep 3, 2 04:42:43 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 Sep 2002, Ingo Molnar wrote:
+Hello!
 
-> do you expect a task that uses up 50% CPU time over an extended period of
-> time to be rated 'interactive'?
+> I guess it may also depend on bad implementations of csum_partial().
+> It's wrong that some architecture assume every data in a skbuff are
+> aligned on a 2byte boundary so that it would access a byte next to
+> the the last byte where no pages might be there.
 
-Interactive is not the best word, but I would not expect a process like
-the one I described to be considedred a CPU hog.  It's a deadline driven
-semi realtime process.
+Access beyond end of skb is officially allowed, within 16 bytes
+in <= 2.2, withing 64 bytes in  >=2.4. Moreover, it is not only allowed
+but highly recommended, when this can ease coding.
 
-> we might make the '50%' rule to be '100% / nr_running_avg', so that if
-> your task is the only one in the system then it gets rated interactive -
-> but i suspect it will still be rated a CPU hog if it keeps trying to use
-> up 50% of CPU time even during busier periods. I have tried the
-> (1/nr_running) rule in earlier incarnations of the scheduler, and it didnt
-> make much difference, but we obviously need a boundary case like yours to
-> see the differences.
+> It's time to fix csum_partial().
 
-I think the problem I have (that I loose a lot of performance to processes
-such as crond, httpd, etc.) is common to the whole class of semi-realtime
-processes, at least if they use >50% CPU.  This means that CPU intensive
-audio and video (e.g. DVD) playback programs might have the same problem.
+Well, not depending on wrong accent put by you, the change is not useless.
 
-I see three simple ways to solve the problem without changing the
-scheduler.  Either run the process with nice -20, use SCHED_RR, or use a
-dedicated server with no other processes (such as crond, httpd, etc).  
-The first two might be OK, but you need root privilegies to run renice and
-to change the scheduler policy.  The third one is not an option for all
-users, and definately not for the video playback case.
+Alexey
 
-A problem is that this new scheduler behaviour will hit people running
-semi realtime processes as a regression when they switch to 2.6.  It would
-be nice to avoid that.
 
-One solution might be to teach the scheduler how to detect these deadline
-driven semi-realtime processes, and not punish them.  It is not obvious to
-me how to do that.
-
-Another much simpler solution that might work just as well is be to change
-the CPU utilization threshold from 50% to 90%.
-
-You're the expert of course.  I'm only fumbling in the dark...  :-)
-
-> (it could in theory make a difference in some rare cases, in which the
-> frequency of sampling resonates with internal timings of the application -
-> i asked for this only to make sure there are no interactions.)
-
-I'll try it out and let you know if it does make a difference.
-
-/Tobias
-
+PS Gentlemen, it is not so bad idea to change subject and to trim cc list.
+Thread is went to area straight orthogonal to TSO, csum_partial is not
+used with TSO at all. :-)

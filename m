@@ -1,41 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262444AbVC2GSY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262450AbVC2GWN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262444AbVC2GSY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 01:18:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262445AbVC2GSX
+	id S262450AbVC2GWN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 01:22:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262445AbVC2GWN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 01:18:23 -0500
-Received: from iabervon.org ([66.92.72.58]:6151 "EHLO iabervon.org")
-	by vger.kernel.org with ESMTP id S262444AbVC2GSR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 01:18:17 -0500
-Date: Tue, 29 Mar 2005 01:05:55 -0500 (EST)
-From: Daniel Barkalow <barkalow@iabervon.org>
-To: "L. A. Walsh" <lkml@tlinx.org>
-cc: linux-kernel@vger.kernel.org, Adrian Bunk <bunk@stusta.de>,
-       Jean Delvare <khali@linux-fr.org>
-Subject: Re: Do not misuse Coverity please (Was: sound/oss/cs46xx.c: fix a
- check after use)
-In-Reply-To: <424899D7.1080407@tlinx.org>
-Message-ID: <Pine.LNX.4.21.0503290041190.30848-100000@iabervon.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 29 Mar 2005 01:22:13 -0500
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:27884 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S262450AbVC2GWF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 01:22:05 -0500
+References: <ie2p3m.2u2ccu.3z4p19m1j53m9pob6l5ceeebq.refire@cs.helsinki.fi>
+            <20050328200252.GN28536@shell0.pdx.osdl.net>
+            <20050328223048.GA2741@pclin040.win.tue.nl>
+In-Reply-To: <20050328223048.GA2741@pclin040.win.tue.nl>
+From: "Pekka J Enberg" <penberg@cs.helsinki.fi>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Chris Wright <chrisw@osdl.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: isofs: unobfuscate rock.c
+Date: Tue, 29 Mar 2005 09:22:04 +0300
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed; charset="utf-8,iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-ID: <courier.4248F40C.00006DA4@courier.cs.helsinki.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Mar 2005, L. A. Walsh wrote:
+Hi Andries, 
 
->     However, in this case, if the author is _certain_ the
-> pointer can never be NULL, than an "ASSERT(card!=NULL);" might
-> be appropriate, where ASSERT is a macro that normally compiles
-> in the check, but could compile to "nothing" for embedded or
-> kernels that aren't being developed in.
+Andries Brouwer writes:
+> Good! When Linus asked I audited rock.c and also did rather similar polishing -
+> it happens automatically if one looks at this code. But it seems everybody is
+> doing this right now, so I must wait a few weeks and see what got into Linus'
+> tree. Linus plugged many but not all holes. (Maybe you did more?)
 
-If the kernel dereferences a NULL pointer, it produces an extensive bug
-report. The automatic oops is about the most useful thing to do if a
-pointer is unexpectedly NULL.
+I didn't fix anything. I tried to be very careful about preserving the 
+current logic while making it more readable so I could find bugs :-). 
 
-	-Daniel
-*This .sig left intentionally blank*
-
+              Pekka 
 

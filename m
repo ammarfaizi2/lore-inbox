@@ -1,50 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263485AbRF3U3Q>; Sat, 30 Jun 2001 16:29:16 -0400
+	id <S263918AbRF3UhG>; Sat, 30 Jun 2001 16:37:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263918AbRF3U3G>; Sat, 30 Jun 2001 16:29:06 -0400
-Received: from MORGOTH.MIT.EDU ([18.238.2.157]:34058 "EHLO MORGOTH.MIT.EDU")
-	by vger.kernel.org with ESMTP id <S263485AbRF3U3A>;
-	Sat, 30 Jun 2001 16:29:00 -0400
-Message-Id: <200106301041.f5UAfCVM012803@morgoth.mit.edu>
-X-Mailer: exmh version 2.3.1 01/18/2001 (debian 2.3.1-1) with nmh-1.0.4+dev
-To: linux-kernel@vger.kernel.org
-Subject: Soft updates for 2.5?
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 30 Jun 2001 05:41:11 -0500
-From: Alex Khripin <akhripin@morgoth.mit.edu>
+	id <S263960AbRF3Ug4>; Sat, 30 Jun 2001 16:36:56 -0400
+Received: from imladris.infradead.org ([194.205.184.45]:20751 "EHLO
+	infradead.org") by vger.kernel.org with ESMTP id <S263918AbRF3Ugg>;
+	Sat, 30 Jun 2001 16:36:36 -0400
+Date: Sat, 30 Jun 2001 21:36:26 +0100 (BST)
+From: Riley Williams <rhw@MemAlpha.CX>
+X-X-Sender: <rhw@infradead.org>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Adam J Richter <adam@yggdrasil.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.6p6: numerous dep_{bool,tristate} $CONFIG_ARCH_xxx bugs
+In-Reply-To: <20010630160101.G12788@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.33.0106302120560.14977-100000@infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-There was a discussion in October, 2000, about the Granger and McKusick paper 
-on soft updates for the BSD FFS. Reading the thread, nothing conclusive seemed
-to come out of it.
-The paper is available at  http://www.pdos.lcs.mit.edu/~ganger/papers/CSE-TR-25
-4-95/
-The code for the BSD implementation is available there as well.
-The general idea of the paper is to prevent filesystem corruption due to
-interrupted writes of circular dependencies. The general principle is, that if
-there is a circular metadata dependency between two blocks A, and B, caused
-by operations C and D, where C requires A to be changed before B, and D,
-which comes after C, requires B to be changed after A. This occurs in many
-metadata operations. To do this, soft updates undo the operation D in-memory,
-making block A' and B', which only have operation C applied to them. Then
-A' is written to disk, and then B' is written do disk. The operation is then
-redone in memory. Thus, the disk is still consistent, and the in-memory image
-is still the same. If the system is interrupted before B is written, there are
-minor inconsistencies, like allocated data blocks not belonging to a file, and
-an incorrect file size, but no inconsistencies that can cause further 
-corruption
-if untreated. These problems can be fixed quickly without a long fsck.
-Soft updates offer a viable alternative to journaling, and require no changes
-to the physical filesystem layout.
-A soft-update ext2 filesystem can keep more metadata in memory without having
-to sync for fear of errors.
-This is not intended to replace journaling filesystems, like reiserfs, because
-those have optimizations like B-trees, which cannot be implemented on ext2.
-However, this would significantly improve the reliability and speed of ext2.
--Alex Khripin
+Hi Russell, Adam.
 
+ >> So, I guess something like Keith Owens's patch would be the way
+ >> to go, with some additional definitions (CONFIG_AGP, CONFIG_PCI,
+ >> CONFIG_ISA, CONFIG_EISA, CONFIG_PCMCIA, and possibly others).
+ >> I am not sure which other conditionals might also be incorrectly
+ >> ignored by some instances of dep_xxx.  Below, I have included a
+ >> list of the 52 CONFIG_* variables that are used as arguments to
+ >> dep_xxx in 2.4.6-pre6 and appear in arch/*/config.in.
+
+ > I have confirmed that Keith Owens patch doesn't work with
+ > xconfig - you can't select any option which has been
+ > define_bool'd to 'n'.
+
+I've followed this thread with interest, and think I've followed both
+sides of the argument, so can I summarise:
+
+ 1. Adam's point is that there are dep_* statements in the config
+    setup that have been used to say that a particular option is
+    dependant upon a particular architecture, but this doesn't work.
+
+ 2. Russell's point is that Adam's point is correct, but the patch
+    that Adam submitted can't be used as it breaks other things.
+
+ 3. MY understanding of the situation is that ALL architecture
+    specific config lines are EXPECTED to be in the arch/*/config.in
+    files, where they will only even be seen when the relevant
+    architecture is being compiled for.
+
+As a result of this, I would summarise this discussion as saying that
+there is a bug in the kernel config scripts in that some options that
+should be located in the architecture-specific config files are in the
+all-architecture config files instead.
+
+Best wishes from Riley.
 

@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268896AbRHTTJY>; Mon, 20 Aug 2001 15:09:24 -0400
+	id <S268861AbRHTTJY>; Mon, 20 Aug 2001 15:09:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268867AbRHTTJP>; Mon, 20 Aug 2001 15:09:15 -0400
-Received: from news.cistron.nl ([195.64.68.38]:59145 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id <S268860AbRHTTJB>;
-	Mon, 20 Aug 2001 15:09:01 -0400
-From: miquels@cistron-office.nl (Miquel van Smoorenburg)
-Subject: Re: [PATCH] 2.4.9 Make thread group id visible in
- /proc/<pid>/status
-Date: Mon, 20 Aug 2001 19:09:16 +0000 (UTC)
-Organization: Cistron Internet Services B.V.
-Message-ID: <9lrn8s$t23$1@ncc1701.cistron.net>
-In-Reply-To: <E15Yrlh-0006JF-00@the-village.bc.nu> <26210000.998324773@baldur>
-X-Trace: ncc1701.cistron.net 998334556 29763 195.64.65.67 (20 Aug 2001 19:09:16 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test75 (Feb 13, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	id <S268896AbRHTTJP>; Mon, 20 Aug 2001 15:09:15 -0400
+Received: from chunnel.redhat.com ([199.183.24.220]:28151 "EHLO
+	dukat.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S268861AbRHTTJJ>; Mon, 20 Aug 2001 15:09:09 -0400
+Date: Mon, 20 Aug 2001 19:10:46 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Riley Williams <rhw@MemAlpha.CX>
+Cc: Dewet Diener <dewet@dewet.org>, Stephen C Tweedie <sct@redhat.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ext3 partition unmountable
+Message-ID: <20010820191046.D4389@redhat.com>
+In-Reply-To: <20010818235211.A24646@darkwing.flatlit.net> <Pine.LNX.4.33.0108182257490.9206-100000@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0108182257490.9206-100000@infradead.org>; from rhw@MemAlpha.CX on Sat, Aug 18, 2001 at 11:04:41PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <26210000.998324773@baldur>,
-Dave McCracken  <dmc@austin.ibm.com> wrote:
->
->--On Monday, August 20, 2001 17:19:13 +0100 Alan Cox 
-><alan@lxorguk.ukuu.org.uk> wrote:
->
->> I didnt think anyone was using the broken tgid stuff ?
->
->I was under the impression that the current LinuxThread library does use 
->CLONE_THREAD, and I know of at least one project under way that's also 
->using it (the NGPT pthread library).  The getpid() system call already 
->returns tgid instead of pid.  I'm also looking into what's involved in 
->making tgid more robust.
+Hi,
 
-Hmm, I've always been a bit curious about this .. I don't think getpid()
-should return tgid instead of pid. It looks broken to me. Thread groups
-are a good idea, but they should act more like process groups do.
-Switching pid and tgid is something that the LinuxThreads library
-should probably do, but not the kernel. IMHO.
+On Sat, Aug 18, 2001 at 11:04:41PM +0100, Riley Williams wrote:
 
-If one really wants CLONE_PID to work, fix CLONE_PID.
+>  > # tune2fs -l /dev/hdd1
+>  > tune2fs 1.22, 22-Jun-2001 for EXT2 FS 0.5b, 95/08/09
+>  > tune2fs: Filesystem has unsupported feature(s) while trying to open /dev/hdd1
+>  > Couldn't find valid filesystem superblock.
+> 
+> You have an old version of tune2fs, and need to get the one that knows
+> about ext3 or alternatively apply the patch that was distributed some
+> time ago and recompile - I'm not sure which.
 
-Mike.
+No, 1.22 tune2fs knows about the journaling flags.
 
+> Stephen: What's the current status regarding tune2fs and ext3, I'm a
+> tad out of date in this respect?
+
+As of 1.22, ext3 is fully supported by tune2fs.
+
+>  > I'll probably have to take the drive back, and see if it now mounts
+>  > in the original system :-/
+> 
+> That might help...
+
+Indeed, I'd like to see what that gives you.
+
+One quick question: are either of the machines big-endian (HPPA, PPC
+etc)?
+
+Cheers, 
+ Stephen

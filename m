@@ -1,53 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130418AbQKQTMA>; Fri, 17 Nov 2000 14:12:00 -0500
+	id <S130512AbQKQTVE>; Fri, 17 Nov 2000 14:21:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130365AbQKQTLu>; Fri, 17 Nov 2000 14:11:50 -0500
-Received: from mail2.uni-bielefeld.de ([129.70.4.90]:43164 "EHLO
-	mail.uni-bielefeld.de") by vger.kernel.org with ESMTP
-	id <S129750AbQKQTLk>; Fri, 17 Nov 2000 14:11:40 -0500
-Date: Fri, 17 Nov 2000 18:24:51 +0000
-From: Marc Mutz <Marc@Mutz.com>
-Subject: Re: patch: loop remapper
-To: Jens Axboe <axboe@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Message-id: <3A1577F3.BCE3892D@Mutz.com>
-Organization: University of Bielefeld - Dep. of Mathematics / Dep. of Physics
-MIME-version: 1.0
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17i10-0001 i586)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en
-In-Reply-To: <20001116182526.A848@suse.de>
+	id <S129664AbQKQTUy>; Fri, 17 Nov 2000 14:20:54 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:61292 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129270AbQKQTUn>; Fri, 17 Nov 2000 14:20:43 -0500
+Subject: Re: ORACLE and 2.4-test10
+To: jmerkey@timpanogas.org (Jeff V. Merkey)
+Date: Fri, 17 Nov 2000 18:50:50 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), dalecki@evision-ventures.com,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3A15792F.D8891A69@timpanogas.org> from "Jeff V. Merkey" at Nov 17, 2000 11:30:07 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13wqb5-00012V-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> 
-<snip>
-> 
-> The builtin transfer functions (none and xor) work with the changes,
-> but external crypto additions may not. The reason is that the raw
-> buf and loop buf passed to them can now be identical (the previous
-> version always used getblk() to get a new buffer to work on).
-> 
-<snip>
+> performance, so we came up with something called direct FS, a separate
+> File System interface just for Oracle.  The SOSD layer inside of Oracle
 
-The crypto-api from the international kernel patch has recently defined
-that the encryption functions contained in it must be able to encrypt
-in-place. This maps directly to the loop-gen driver, so I don't see a
-problem here. (Other than that there is no real patch-int-2.4.x out
-there yet). However, the ciphers have not been checked to conform to
-that definition.
+Yeah but you see thats ugly
 
-Marc
+> In NetWare, directFS was little more than a "raw" interface that
+> bypassed the file cache.  It would be like having an API to a direct
+> physical file system that never cached data in the buffer cache.  In
 
--- 
-Marc Mutz <Marc@Mutz.com>     http://EncryptionHOWTO.sourceforge.net/
-University of Bielefeld, Dep. of Mathematics / Dep. of Physics
+Its called O_DIRECT and kiovecs. Its already there. Much more generic than
+an 'oraclefs'
 
-PGP-keyID's:   0xd46ce9ab (RSA), 0x7ae55b9e (DSS/DH)
-
+Alan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

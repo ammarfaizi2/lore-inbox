@@ -1,39 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261231AbVBQXQZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261225AbVBQXSl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261231AbVBQXQZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 18:16:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbVBQXOM
+	id S261225AbVBQXSl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 18:18:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbVBQXQk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 18:14:12 -0500
-Received: from 0.fe-0-0-0.c1.pfn.citynetwireless.net ([209.218.71.2]:17033
-	"EHLO core.citynetwireless.net") by vger.kernel.org with ESMTP
-	id S261225AbVBQXNZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 18:13:25 -0500
-Date: Thu, 17 Feb 2005 17:13:04 -0600
-From: parker@citynetwireless.net
-To: arjan@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: Please open sysfs symbols to proprietary modules
-Message-ID: <20050217231304.GA18940@core.citynetwireless.net>
+	Thu, 17 Feb 2005 18:16:40 -0500
+Received: from fmr16.intel.com ([192.55.52.70]:19364 "EHLO
+	fmsfmr006.fm.intel.com") by vger.kernel.org with ESMTP
+	id S261225AbVBQXOT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 18:14:19 -0500
+Subject: Re: [ACPI] Call for help: list of machines with working S3
+From: Len Brown <len.brown@intel.com>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Pavel Machek <pavel@suse.cz>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>, seife@suse.de,
+       rjw@sisk.pl
+In-Reply-To: <20050217101533.GA15721@ucw.cz>
+References: <20050214211105.GA12808@elf.ucw.cz>
+	 <1108621005.2096.412.camel@d845pe>  <20050217101533.GA15721@ucw.cz>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1108681977.2096.507.camel@d845pe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 17 Feb 2005 18:12:57 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 03 Feb 2005 09:41:00 +0100, Arjan van de Ven <arjan@infradead.org> wrote:
-> On Wed, 2005-02-02 at 17:56 -0500, Pavel Roskin wrote:
-> > Hello!
-> >
-> > I'm writing a module under a proprietary license.  I decided to use sysfs
-> > to do the configuration.  Unfortunately, all sysfs exports are available
-> > to GPL modules only because they are exported by EXPORT_SYMBOL_GPL.
-> 
-> I suggest you talk to a lawyer and review the general comments about
-> binary modules with him (http://people.redhat.com/arjanv/COPYING.modules
-> for example). You are writing an addition to linux from scratch, and it
-> is generally not considered OK to do that in binary form (I certainly do
-> not consider it OK).
+On Thu, 2005-02-17 at 05:15, Vojtech Pavlik wrote:
 
-So what about companies like ImageStream who write proprietary Linux network
-drivers for their hardware from scratch with no previous ports from another OS?
+> I'm not sure if you can push the whole industry at once.
+
+The goal is to know what to tell the system vendors
+interested in supporting Linux what they should do
+with their BIOS on future platforms.
+
+I believe our message should be:
+1. BIOS should save/restore video in S3
+2. Use Intel's ACPICA ASL compiler -- if not for production,
+then at least as a static source code checker for validation.
+
+thanks,
+-Len
+
+

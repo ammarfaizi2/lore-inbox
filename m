@@ -1,57 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265101AbRG0Vs6>; Fri, 27 Jul 2001 17:48:58 -0400
+	id <S265042AbRG0Vms>; Fri, 27 Jul 2001 17:42:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265149AbRG0Vss>; Fri, 27 Jul 2001 17:48:48 -0400
-Received: from thebsh.namesys.com ([212.16.0.238]:2322 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S265101AbRG0Vsd>; Fri, 27 Jul 2001 17:48:33 -0400
-Message-ID: <3B61E16D.26E81AA9@namesys.com>
-Date: Sat, 28 Jul 2001 01:47:25 +0400
-From: Hans Reiser <reiser@namesys.com>
-Organization: Namesys
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en, ru
+	id <S264942AbRG0Vmj>; Fri, 27 Jul 2001 17:42:39 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:9993 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S264461AbRG0Vm1>; Fri, 27 Jul 2001 17:42:27 -0400
+Date: Fri, 27 Jul 2001 18:42:26 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
+Cc: <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@transmeta.com>,
+        Daniel Phillips <phillips@kernelnewbies.org>
+Subject: Re: 2.4.8-pre1 and dbench -20% throughput
+In-Reply-To: <200107272112.f6RLC3d28206@maila.telia.com>
+Message-ID: <Pine.LNX.4.33L.0107271837270.5582-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: "A. Lehmann" <"pcg( Marc)"@goof.com>,
-        Joshua Schmidlkofer <menion@srci.iwpsd.org>,
-        kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ReiserFS / 2.4.6 / Data Corruption
-In-Reply-To: <E15QF6A-0006Za-00@the-village.bc.nu>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Alan Cox wrote:
-> 
-> > Let us be a bit more precise here.  If you click on the help button when deciding whether to select
-> > that option it tells you not to do it.  What can you say about a distro that doesn't read the help
-> > buttons for the kernel options when configuring the kernel?  Shovelware?
-> 
-> The alternative was to disable it. Because at the time we had lots of good
-> evidence it didnt work reliably. Evidence backed up by the pile of later
-> Chris Mason patches.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+On Fri, 27 Jul 2001, Roger Larsson wrote:
 
-Better to disable it than to cripple it.
+> But "dbench 32" (on my 256 MB box) results has are the most interesting:
+>
+> 2.4.0 gave 33 MB/s
+> 2.4.8-pre1 gives 26.1 MB/s (-21%)
+>
+> Do we now throw away pages that would be reused?
 
-By the way, how about considering the use of tests before redhat coders put stuff in the linux
-kernel?  You know, if VFS changes actually got tested before users encountered things like Viro
-breaking ReiserFS in 2.4.5, it would be nice.
+Yes. This is pretty much expected behaviour with the use-once
+patch, both as it is currently implemented and how it works
+in principle.
 
-At Namesys, like all normal software shops, we actually run a test suite before shipping code
-externally.  We usually try to require that it be tested by at least one person in addition to the
-code author.
+This is because the use-once strategy protects the working
+set from streaming IO in a better way than before. One of the
+consequences of this is that streaming IO pages get less of a
+chance to be reused before they're evicted.
 
-It would catch things like your gcc problems.  Test suites don't catch everything, but they are
-considered the responsible thing to do at most places.
+Database systems usually have a history of recently evicted
+pages so they can promote these quick-evicted pages to the
+list of more frequently used pages when it's faulted in again.
 
-Hans
+regards,
+
+Rik
+--
+Executive summary of a recent Microsoft press release:
+   "we are concerned about the GNU General Public License (GPL)"
+
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
+

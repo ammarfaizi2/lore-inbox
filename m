@@ -1,50 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131429AbQLOU6m>; Fri, 15 Dec 2000 15:58:42 -0500
+	id <S131139AbQLOU7w>; Fri, 15 Dec 2000 15:59:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131427AbQLOU6c>; Fri, 15 Dec 2000 15:58:32 -0500
-Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:18670 "EHLO
-	webber.adilger.net") by vger.kernel.org with ESMTP
-	id <S131139AbQLOU6Z>; Fri, 15 Dec 2000 15:58:25 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200012152027.eBFKRmh07217@webber.adilger.net>
-Subject: Re: [Q] Remote serial ports?
-In-Reply-To: <200012151514.JAA29931@mccoy.penguinpowered.com>
- "from Jens Petersohn at Dec 15, 2000 09:14:57 am"
-To: Jens Petersohn <jkp@mccoy.penguinpowered.com>
-Date: Fri, 15 Dec 2000 13:27:48 -0700 (MST)
-CC: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL73 (25)]
+	id <S131244AbQLOU7m>; Fri, 15 Dec 2000 15:59:42 -0500
+Received: from marjorie.loran.com ([209.167.240.3]:31499 "HELO
+	marjorie.loran.com") by vger.kernel.org with SMTP
+	id <S131139AbQLOU70>; Fri, 15 Dec 2000 15:59:26 -0500
+Message-ID: <037a01c066d5$56706e90$890216ac@ottawa.loran.com>
+From: "Dana Lacoste" <dana.lacoste@peregrine.com>
+To: "Rob Landley" <telomerase@yahoo.com>, "Larry McVoy" <lm@bitmover.com>
+Cc: <maddog@valinux.com>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <20001215194059.10333.qmail@web5202.mail.yahoo.com>
+Subject: [OT] Re: Is there a Linux trademark issue with sun?
+Date: Fri, 15 Dec 2000 15:26:42 -0500
 MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Petersohn writes:
-> I have an application in which it would be useful to have access to
-> remote serial ports as if they where local ports. 
-> 
-> Machine A has several serial ports on it connected to various
-> special types of devices in a locked machine room.
-> 
-> Developers on workstation B wants to execute an application that
-> communicates with the special devices, but can only do so via
-> /dev/ttySXX. The developer however (for various reasons) cannot
-> directly log into Machine A.
-> 
-> Is there some software that would allow "remote forwarding" of
-> serial ports? I.e. a driver that emulates a serial port on
-> machine B and forwards the read/write/ioctl operations to machine A?
-> Does this exist? Is it possible to implement if it doesn't?
-> Am I overlooking something obvious?
+Rob Landley wrote :
+> Sun feels that their core product, Solaris, is
+> threatened by Linux.  They have several options:
 
-Please see the posting on l-k today "[NEW DRIVER] New user space serial port"
-which does just what you want.  Just-in-time kernel development has arrived.
+> A) Jump on board and use Linux on their hardware.
+> B) Improve Solaris until it can compete on its own
+> merits.
+> C) Market Solaris better, to make people want Solaris
+> instead of Linux.
+> D) Confuse people into thinking that Linux and Solaris
+> are the same thing.
+> 
+> He's gone for D, and he's run straight into the Linux
+> trademark doing so.  If everybody wants to abolish the
+> Linux trademark, that's fine.  But if we don't defend
+> it here, I really do think it becomes too weak to be
+> useful in other situations.
 
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+I don't think he did that at all :
+(Devil's Advocate time :)
+
+What he did was say that, while everyone was looking
+at Linux as the solution to modern computing problems,
+he didn't need to : he already has Solaris.  So Solaris
+is his "Linux".
+
+A matter of grammar, not legal or technical terms : he
+didn't say that Solaris IS linux; he used a metaphor :
+"[Solaris] is our implementation of Linux".
+
+I'm not saying he's RIGHT : I'm just saying that he
+didn't intend to abuse the Linux trademark.  He's
+taken a mix of (B) and (C) from above, claiming that
+his Solaris product can accomplish the same product
+targets that Linux does.
+
+Why should Sun provide anything for Linux if they
+already have Solaris providing all of the functionality?
+
+Could I say that Wine is my Windows implementation?  Windows
+is a trademark, but everyone knows what I mean, right?
+Microsoft's not going to be writing me any letters, right?
+(well, none that I'm going to pay attention to, right? :)
+
+All just rhetoric, of course.
+Advocacy doesn't belong on linux-kernel :)
+
+--
+Dana Lacoste
+Linux Developer
+Peregrine Systems
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

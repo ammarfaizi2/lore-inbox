@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263521AbTDGQ20 (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 12:28:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263523AbTDGQ20 (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 12:28:26 -0400
-Received: from dns.toxicfilms.tv ([150.254.37.24]:39376 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S263521AbTDGQ2Z (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Apr 2003 12:28:25 -0400
-Date: Mon, 7 Apr 2003 18:40:00 +0200 (CEST)
-From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.66-mm2
-In-Reply-To: <20030403132243.7bc9a22d.akpm@digeo.com>
-Message-ID: <Pine.LNX.4.51.0304071833530.18350@dns.toxicfilms.tv>
-References: <20030401000127.5acba4bc.akpm@digeo.com>
- <Pine.LNX.4.51.0304031947321.16306@dns.toxicfilms.tv> <20030403132243.7bc9a22d.akpm@digeo.com>
+	id S263523AbTDGQ3b (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 12:29:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263526AbTDGQ3b (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 12:29:31 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:22919 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S263523AbTDGQ33 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Apr 2003 12:29:29 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Vagn Scott <vagn@ranok.com>
+Date: Mon, 7 Apr 2003 18:40:44 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: [2.5.66-bk12] drivers/video/matrox/matroxfb_base.h:52:2
+Cc: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.50
+Message-ID: <B11EBD0691@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Could you try 2.5.66-mm3?  It has a CPU scheduler fix which might well
-> help here.
-Hi,
+On  7 Apr 03 at 11:39, Vagn Scott wrote:
 
-i am using mm3 now.
+> config is below
+> Mon Apr  7 11:00:18 EDT 2003
+> 2.5.66
+> patch-2.5.66-bk12.bz2
 
-i think i know what my problem really is, i have 128MB of ram and about
-160MB of swap space. Should not i have 2.5 times more that RAM?  Like
-320MB. That could lead to enormous swapping. But still the lockups are
-curious - even with ram outages and little swap space i should be getting
-lots of continuos hdd load, which i do, but why would the system lockup
-for 10 seconds with no disk activity?
+ftp://platan.vc.cvut.cz/pub/linux/matrox-latest/mga-2.5.66-bk12.gz
+(it is against latest bk, which may differ from bk12...)
 
-I tried turning /proc/sys/vm/swappines to 0, and other values between 0
-and 60. Also tried /proc/sys/vm/dirty_ratio 15 like you suggested, with
-the same effects.
+Unfortunately generic portion is much larger than before, as new
+logo code tries to look at info.fix and info.var before it calls
+set_par() first time (at least after my other patches; I'll investigate
+it further). And matroxfb does not contain anything valid
+in info.fix before you call set_par()...
 
-I will try to get more swap space, or maybe ram too and see if it helps.
-
-Regards,
-Maciej
+Change console size at runtime at your own risk (using fbset, not
+stty), and remember that due to James's changes you have to use 
+video=matroxfb:xxx instead of video=matrox:xxx... on kernel command line
+(which pointed to me that it is time to get Grub as Debian's LILO 
+is limited by 256 chars kernel cmdline :-( )
+                                                        Petr Vandrovec
+                                                        vandrove@vc.cvut.cz
 

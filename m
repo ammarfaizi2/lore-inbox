@@ -1,51 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131637AbQLVGqZ>; Fri, 22 Dec 2000 01:46:25 -0500
+	id <S131665AbQLVGq0>; Fri, 22 Dec 2000 01:46:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131665AbQLVGqO>; Fri, 22 Dec 2000 01:46:14 -0500
-Received: from mail.sun.ac.za ([146.232.128.1]:40977 "EHLO mail.sun.ac.za")
-	by vger.kernel.org with ESMTP id <S131637AbQLVGpx>;
-	Fri, 22 Dec 2000 01:45:53 -0500
-Date: Fri, 22 Dec 2000 08:15:19 +0200 (SAST)
-From: Hans Grobler <grobh@sun.ac.za>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.0test12pre3ac4
-In-Reply-To: <E149GOX-0003s3-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.30.0012220812020.7405-100000@prime.sun.ac.za>
+	id <S131696AbQLVGqO>; Fri, 22 Dec 2000 01:46:14 -0500
+Received: from cambot.suite224.net ([209.176.64.2]:1030 "EHLO suite224.net")
+	by vger.kernel.org with ESMTP id <S131665AbQLVGpz>;
+	Fri, 22 Dec 2000 01:45:55 -0500
+Message-ID: <001901c06bdf$1d6c74e0$3b42b0d1@pittscomp.com>
+From: "Matthew D. Pitts" <mpitts@suite224.net>
+To: "Robert B. Easter" <reaster@comptechnews.com>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <0012212320430F.02217@comptechnews>
+Subject: Re: recommended gcc compiler version
+Date: Fri, 22 Dec 2000 01:19:07 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2615.200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Dec 2000, Alan Cox wrote:
-> o	Quota fixes/updates				(Jan Kara)
+    Robert,
+gcc 2.7.2.3 is the safest, but egcs 1.1.2 will work. any kernels built with
+gcc 2.95.x work but can be buggy.
 
-This patch (?) to breaks compiling without quota's...
+Matthew Pitts
+mpitts@suite224.net
 
-
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.13pre3/mm/vmscan.c linux.ac/mm/vmscan.c
---- linux.13pre3/mm/vmscan.c	Tue Dec 19 13:30:29 2000
-+++ linux.ac/mm/vmscan.c	Thu Dec 21 21:21:00 2000
-@@ -943,6 +943,7 @@
- 		 */
- 		shrink_dcache_memory(priority, gfp_mask);
- 		shrink_icache_memory(priority, gfp_mask);
-+		shrink_dqcache_memory(priority, gfp_mask);
-
- 		/*
- 		 * Then, try to page stuff out..
-@@ -1004,6 +1005,7 @@
- 	if (free_shortage() || inactive_shortage()) {
- 		shrink_dcache_memory(6, gfp_mask);
- 		shrink_icache_memory(6, gfp_mask);
-+		shrink_dqcache_memory(6, gfp_mask);
- 		ret += refill_inactive(gfp_mask, user);
- 	} else {
- 		/*
+----- Original Message -----
+From: Robert B. Easter <reaster@comptechnews.com>
+To: <linux-kernel@vger.kernel.org>
+Sent: Thursday, December 21, 2000 11:20 PM
+Subject: recommended gcc compiler version
 
 
-
+> This is a newbie question, but what are the recommended gcc compiler
+versions
+> for compiling,
+>
+> Linux 2.2.18?
+>
+> Linux 2.4.0?
+>
+>
+> I'd rather use the recommended version than not and have difficult bugs.
+>
+> Thanks.  If there is a FAQ, kindy direct me to it, or, if this info isn't
+in
+> there specificly, perhaps a FAQ maintainer can add this stuff.
+>
+> --
+> -------- Robert B. Easter  reaster@comptechnews.com ---------
+> - CompTechNews Message Board   http://www.comptechnews.com/ -
+> - CompTechServ Tech Services   http://www.comptechserv.com/ -
+> ---------- http://www.comptechnews.com/~reaster/ ------------
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

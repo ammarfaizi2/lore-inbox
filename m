@@ -1,68 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267949AbTAMFYR>; Mon, 13 Jan 2003 00:24:17 -0500
+	id <S267858AbTAMF0f>; Mon, 13 Jan 2003 00:26:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267924AbTAMFXa>; Mon, 13 Jan 2003 00:23:30 -0500
-Received: from h80ad24d8.async.vt.edu ([128.173.36.216]:21376 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S267923AbTAMFWF>; Mon, 13 Jan 2003 00:22:05 -0500
-Message-Id: <200301122138.h0CLcjQ7001108@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.56, modules, and RedHat Psyche
-From: Valdis.Kletnieks@vt.edu
+	id <S267980AbTAMFZp>; Mon, 13 Jan 2003 00:25:45 -0500
+Received: from zok.SGI.COM ([204.94.215.101]:35815 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S267961AbTAMFZZ>;
+	Mon, 13 Jan 2003 00:25:25 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Check compiler version, SMP and PREEMPT. 
+In-reply-to: Your message of "Mon, 13 Jan 2003 16:13:19 +1100."
+             <20030113051434.DC2092C09F@lists.samba.org> 
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-331814880P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Sun, 12 Jan 2003 16:38:44 -0500
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 13 Jan 2003 16:33:45 +1100
+Message-ID: <5803.1042436025@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-331814880P
-Content-Type: text/plain; charset=us-ascii
+On Mon, 13 Jan 2003 16:13:19 +1100, 
+Rusty Russell <rusty@rustcorp.com.au> wrote:
+>Linus, please apply if you agree.
+>
+>Tridge reported getting burned by gcc 3.2 compiled (Debian) XFree
+>modules not working on his gcc 2.95-compiled kernel.  Interestingly,
+>(as Tridge points out) modversions probably would not have caught the
+>change in spinlock size, since the ioctl takes a void*, not a
+>structure pointer...
+>
+>Simple bitmask, allows extension later, and prevents this kind of
+>thing (maybe a warning is more appropriate: this refuses to load it).
 
-Just got bit by this little code in /etc/rc.sysinit  on RH 8.0.92:
+Worse than that.  There is a long list of critical config options which
+should :-
 
-if ! grep -iq nomodules /proc/cmdline 2>/dev/null && [ -f /proc/ksyms ]; then
-    USEMODULES=y
-fi
+(a) Force a complete rebuild if any are changed and
+(b) Refuse to load a module with different critical config options.
 
-...
+To make things more complicated, that list is arch dependent.
 
-if [ -f /proc/sys/kernel/modprobe ]; then
-   if [ -n "$USEMODULES" ]; then
-       sysctl -w kernel.modprobe="/sbin/modprobe" >/dev/null 2>&1
-       sysctl -w kernel.hotplug="/sbin/hotplug" >/dev/null 2>&1
-   else
-       # We used to set this to NULL, but that causes 'failed to exec' messages"
-       sysctl -w kernel.modprobe="/bin/true" >/dev/null 2>&1
-       sysctl -w kernel.hotplug="/bin/true" >/dev/null 2>&1
-   fi
-fi
+>From kbuild 2.5 (which handled this problem months ago)
 
-Easy enough to work around, once you know about it. I noticed this trying to
-figure out why iptables was working when the filters were built into the
-kernel, but not as modules.
+define_string CONFIG_KBUILD_CRITICAL "CONFIG_SMP CONFIG_KBUILD_GCC_VERSION"
+define_string CONFIG_KBUILD_CRITICAL_ARCH_X86 "CONFIG_M386 CONFIG_M486 \
+       CONFIG_M586 CONFIG_M586TSC CONFIG_M586MMX CONFIG_M686 \
+       CONFIG_MPENTIUMIII CONFIG_MPENTIUM4 \
+       CONFIG_MK6 CONFIG_MK7 \
+       CONFIG_MCRUSOE \
+       CONFIG_MWINCHIPC6 CONFIG_MWINCHIP2 CONFIG_MWINCHIP3D \
+       CONFIG_MCYRIXIII"
 
-Hopefully this will save somebody else debugging time and/or eventually
-produce a patch for rc.sysinit....
--- 
-				Valdis Kletnieks
-				Computer Systems Senior Engineer
-				Virginia Tech
-
-
---==_Exmh_-331814880P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+IeBkcC3lWbTT17ARAgewAJ9pmjvKJjiVg03fk7RXRCbm+GlQMgCdEJU1
-uj34I72J7dkDTQDNmxiyeLI=
-=FapB
------END PGP SIGNATURE-----
-
---==_Exmh_-331814880P--

@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265939AbUA1NXV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 08:23:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265940AbUA1NXV
+	id S265946AbUA1Nay (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 08:30:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265950AbUA1Nay
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 08:23:21 -0500
-Received: from hermes.py.intel.com ([146.152.216.3]:40665 "EHLO
-	hermes.py.intel.com") by vger.kernel.org with ESMTP id S265939AbUA1NXU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 08:23:20 -0500
-From: Shmuel Hen <shmulik.hen@intel.com>
-Organization: Intel Corporation
-To: "Willy Tarreau" <willy@w.ods.org>, <marcelo.tosatti@cyclades.com>
-Subject: Re: [PATCH-2.4] add missing '\n' in bonding messages
-Date: Wed, 28 Jan 2004 15:23:00 +0200
-User-Agent: KMail/1.5.3
-Cc: <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>
-References: <E791C176A6139242A988ABA8B3D9B38A03A9CCD3@hasmsx403.iil.intel.com>
-In-Reply-To: <E791C176A6139242A988ABA8B3D9B38A03A9CCD3@hasmsx403.iil.intel.com>
+	Wed, 28 Jan 2004 08:30:54 -0500
+Received: from rzfoobar.is-asp.com ([217.11.194.155]:26527 "EHLO mail.isg.de")
+	by vger.kernel.org with ESMTP id S265946AbUA1Nax (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jan 2004 08:30:53 -0500
+Message-ID: <4017B98C.2040603@isg.de>
+Date: Wed, 28 Jan 2004 14:30:52 +0100
+From: Lutz Vieweg <lkv@isg.de>
+Organization: Innovative Software AG
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030721 wamcom.org
+X-Accept-Language: de, German, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="tscii"
+To: Bart Samwel <bart@samwel.tk>
+Cc: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
+Subject: Re: Is there a way to keep the 2.6 kjournald from writing to idle
+ disks? (to allow spin-downs)
+References: <Pine.LNX.3.96.1040127133932.11664B-100000@gatekeeper.tmr.com> <4016B3F0.1060804@samwel.tk>
+In-Reply-To: <4016B3F0.1060804@samwel.tk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401281523.00369.shmulik.hen@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 28 January 2004 15:04, Willy Tarreau wrote:
->
-> there are a few places where the bonding driver displays
-> informational messages without the trailing '\n', which is
-> sometimes annoying because messages get logged at the wrong level.
->
-> Here's the patch against 2.4.25-pre7. I haven't checked 2.6 nor the
-> bonding cleanup patch against those typos.
->
+Bart Samwel wrote:
 
-All those fixes are in the cleanup set and have been picked up by Jeff 
-for both netdev-2.4 and netdev-2.6 BK trees. To the best of my 
-understanding, they will be held until 2.4.25 and 2.6.2 are released.
+>> Well, it's the o.p. system, not mine, but I don't see how noatime will
+>> help him, the atime shouldn't change unless he's doing disk access, and
+>> if he's doing disk access the disk will spin up anyway.
 
+That's what I thought, too... and I really killed everything that I could
+imagine accessing the disk... but...
 
--- 
-| Shmulik Hen   Advanced Network Services  |
-| Israel Design Center, Jerusalem          |
-| LAN Access Division, Platform Networking |
-| Intel Communications Group, Intel corp.  |
+> If something really is accessing the drive, noatime might still help as 
+> long as the accesses are from the cache.
+
+... that really helped! I'm kind of surprised, since I didn't use noatime
+before the update, and I still don't know of any process that might do
+the reading, but since mounting / with noatime helped, I'm happy for now.
+
+My curiosity isn't completely gone, though, so maybe one day I'll try to
+find out who-is-trying-to-read-what, "find -atime ..." didn't reveal the secret
+yet.
+
+Regards,
+
+Lutz Vieweg
+
 

@@ -1,50 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277677AbRJRKTQ>; Thu, 18 Oct 2001 06:19:16 -0400
+	id <S277686AbRJRKVQ>; Thu, 18 Oct 2001 06:21:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277686AbRJRKS5>; Thu, 18 Oct 2001 06:18:57 -0400
-Received: from [195.66.192.167] ([195.66.192.167]:47884 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S277677AbRJRKSs>; Thu, 18 Oct 2001 06:18:48 -0400
-Date: Thu, 18 Oct 2001 13:18:46 +0200
-From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-X-Mailer: The Bat! (v1.44)
-Reply-To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-Organization: IMTP
-X-Priority: 3 (Normal)
-Message-ID: <892518120.20011018131846@port.imtp.ilyichevsk.odessa.ua>
-To: linux-kernel@vger.kernel.org
-CC: Wojtek Pilorz <wpilorz@bdk.pl>
-Subject: Re: Making diff(1) of linux kernels faster
-In-Reply-To: <Pine.LNX.4.21.0110181141040.9091-100000@celebris.bdk.pl>
-In-Reply-To: <Pine.LNX.4.21.0110181141040.9091-100000@celebris.bdk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S277695AbRJRKVG>; Thu, 18 Oct 2001 06:21:06 -0400
+Received: from mail.science.uva.nl ([146.50.4.51]:17909 "EHLO
+	mail.science.uva.nl") by vger.kernel.org with ESMTP
+	id <S277686AbRJRKUq>; Thu, 18 Oct 2001 06:20:46 -0400
+X-Organisation: Faculty of Science, University of Amsterdam, The Netherlands
+X-URL: http://www.science.uva.nl/
+Date: Thu, 18 Oct 2001 12:11:35 +0200 (CEST)
+From: Kamil Iskra <kamil@science.uva.nl>
+To: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
+cc: kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Poor floppy performance in kernel 2.4.10
+In-Reply-To: <20011017204524.88702.qmail@web10404.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.33.0110181158060.6306-100000@krakow.science.uva.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thursday, October 18, 2001, 11:55:41 AM,
-Wojtek Pilorz <wpilorz@bdk.pl> wrote:
+On Thu, 18 Oct 2001, [iso-8859-1] Steve Kieu wrote:
 
->> > > Be very careful not to modify a multi-linked file, or
->> > > it will be damaged in all trees and won't be seen by
+> Negative here, I am using 2.4.12-ac2 here and did not
+> notice what you said,
 
-WP> To be sure it is not possible to modify original tree files, I do
-WP> chown -R root.root original_tree
+Well, perhaps the ac series does not suffer from this problem?  As I
+stated in the original mail, I'm using 2.4.12 (from Linus).
 
-WP> before copying it (via cp -lR) to new one, which will be modified with
-WP> whatever tools by me, logged in as a regular user. For those having root
-WP> access to a box this might be a useful way of preventing accidents ...
-WP> (this of course also assumes sane file permissions)
-WP> [...]
+> the speed of transfer is still
+> about 23KB/sec when copying a 1.1Mb file from floppy ;
+> it is the same as before, even better :-)
 
-Everytime I see this 'hardlinked kernel tree' technique explained,
-I think about true COW fs where duplicate files are physically the
-same single file but users don't care about that - COW magic...
-No hardlink/vi/emacs/... tricks will be needed...
+I just measured it for a file of that size, and I even got 29KB/sec.
+
+However, it's performance for small files, directory listing operations
+etc. that I'm complaining about.  And not for a mounted floppy (which
+seems to be fine), but when using mtools.
+
+So, to reiterate, the conditions known to be necessary to reproduce it
+are: kernel >=2.4.10 (perhaps only the Linus series), small files or
+directory operations, mtools.  The behaviour is as if no caching was done,
+there is a slowdown by a factor of two.  I have this problem both on my
+laptop and on the desktop machine at work.  They are running different
+kernel versions (2.4.12 and 2.4.10), differently configured and compiled
+by two different people.  Kernel 2.4.9 and earlier worked fine.
+
+Regards,
+
 -- 
-Best regards, vda
-mailto:vda@port.imtp.ilyichevsk.odessa.ua
-
+Kamil Iskra                 http://www.science.uva.nl/~kamil/
+Section Computational Science, Faculty of Science, Universiteit van Amsterdam
+kamil@science.uva.nl  tel. +31 20 525 75 35  fax. +31 20 525 74 90
+Kruislaan 403  room F.202  1098 SJ Amsterdam  The Netherlands
 

@@ -1,41 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbUEFQfv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261351AbUEFQf7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261210AbUEFQfv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 12:35:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbUEFQfv
+	id S261351AbUEFQf7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 12:35:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261340AbUEFQf4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 12:35:51 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:47772 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S261210AbUEFQdO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 12:33:14 -0400
-Date: Thu, 6 May 2004 17:32:06 +0100
-From: Dave Jones <davej@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, pazke@donpac.ru,
-       linux-kernel@vger.kernel.org, Dave Airlie <airlied@linux.ie>
-Subject: Re: [RFC] DMI cleanup patches
-Message-ID: <20040506163206.GB8430@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-	pazke@donpac.ru, linux-kernel@vger.kernel.org,
-	Dave Airlie <airlied@linux.ie>
-References: <20040506102904.GA3295@pazke> <Pine.LNX.4.58.0405060738430.3271@ppc970.osdl.org> <20040506081012.6cb4ab2f.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 6 May 2004 12:35:56 -0400
+Received: from d61.wireless.hilander.com ([216.241.32.61]:6875 "EHLO
+	ramirez.hilander.com") by vger.kernel.org with ESMTP
+	id S261262AbUEFQdt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 May 2004 12:33:49 -0400
+Date: Thu, 06 May 2004 10:33:46 -0600
+From: "Alec H. Peterson" <ahp@hilander.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: pci_request_regions() failure
+Message-ID: <85E9D28402CA2A4C4E8093BE@[192.168.0.100]>
+In-Reply-To: <01D138A0E5F192A9DBDB9432@[192.168.0.100]>
+References: <01D138A0E5F192A9DBDB9432@[192.168.0.100]>
+X-Mailer: Mulberry/3.1.3 (Mac OS X)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040506081012.6cb4ab2f.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+X-Spam-Score: -4.8 (----)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1BLlog-0005ki-Kn*YEBfP8.Tpm.*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 06, 2004 at 08:10:12AM -0700, Andrew Morton wrote:
+Greetings again,
 
- > There is a significant amount of work pending in the DRM development tree
- > at http://drm.bkbits.net/drm-2.6 (which is included in -mm).  Andrey's
- > zeroeth patch alone tosses three rejects against it.
+It seems that this is actually an alignment problem.  The region of memory 
+that should be used (in this case ec107000-ec108fff) is not 8k aligned. 
+Does anybody have any suggestions about how I can force aligned memory 
+blocks?
 
-Why on earth is the DRM stuff touching the DMI code ?
+Thanks!
 
-		Dave
+Alec
+
+
 

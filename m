@@ -1,68 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261876AbTCLVvP>; Wed, 12 Mar 2003 16:51:15 -0500
+	id <S261951AbTCLV6a>; Wed, 12 Mar 2003 16:58:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261944AbTCLVvP>; Wed, 12 Mar 2003 16:51:15 -0500
-Received: from bitmover.com ([192.132.92.2]:34994 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S261876AbTCLVvO>;
-	Wed, 12 Mar 2003 16:51:14 -0500
-Date: Wed, 12 Mar 2003 14:01:56 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
-Message-ID: <20030312220156.GE30788@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-	Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-References: <20030312211832.GA6587@work.bitmover.com> <Pine.LNX.4.44.0303121541190.19251-100000@chaos.physics.uiowa.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0303121541190.19251-100000@chaos.physics.uiowa.edu>
-User-Agent: Mutt/1.4i
-X-MailScanner: Found to be clean
+	id <S261994AbTCLV63>; Wed, 12 Mar 2003 16:58:29 -0500
+Received: from zzlzl.varnainter.net ([212.50.18.233]:13828 "EHLO
+	zzlzl.varnainter.net") by vger.kernel.org with ESMTP
+	id <S261951AbTCLV62>; Wed, 12 Mar 2003 16:58:28 -0500
+Date: Wed, 12 Mar 2003 23:30:34 +0200 (EET)
+From: Alexander Atanasov <alex@ssi.bg>
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Dave Jones <davej@codemonkey.org.uk>
+Subject: [PATCH] don't ignore chipset specific sector size (Was Re: bio too
+ big device)
+In-Reply-To: <3E6F7A49.50709@colorfullife.com>
+Message-ID: <Pine.LNX.4.21.0303122246500.11644-100000@mars.zaxl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 12, 2003 at 03:45:39PM -0600, Kai Germaschewski wrote:
-> On Wed, 12 Mar 2003, Larry McVoy wrote:
+	Hello,
+
+On Wed, 12 Mar 2003, Manfred Spraul wrote:
+
+> linux/drivers/ide/ide-probe.c:
 > 
-> > > Larry, this brings up something I was meaning to ask you before this
-> > > thread exploded.  What happens to those "logical change" numbers over
-> > > time?
-> > 
-> > They are stable in the CVS tree because the CVS tree isn't distributed.
-> > So "Logical change 1.900" in the context of the exported CVS tree is 
-> > always the same thing.  That's one advantage centralized has, things
-> > don't shift around on you.
-> 
-> Isn't there a more general problem, though? (I hope I'm wrong)
-> 
-> You want to update the CVS tree near-realtime. However, the longest-path
-> through your graph may change with new merges, but CVS of course cannot
-> cope with already committed data changing (already committed csets may 
-> all of a sudden not be in the longest path anymore)? This is a CVS 
-> limitation, of course, but still a problem AFAICS.
+> >#ifdef CONFIG_BLK_DEV_PDC4030
+> >	max_sectors = 127;
+> >#else
+> >	max_sectors = 255;
+> >#endif
+> >	blk_queue_max_sectors(q, max_sectors);
+> >
+> >  
+> >
+> IDE uses 127 sector requests if support for PDC4030 is compiled it, 
+> otherwise 255. It seems someone started with a blacklist, but never 
+> completed it.
 
-Yup, you're right, there is a tradeoff between real time updates and 
-best path.  We've already seen it in incremental updates.
+	There is something wrong with this.
 
-We were talking about this internally when your mail came in.  I suspect
-it isn't really a problem in practice because we can always redo the
-entire export from scratch and get an optimal path.
+2.4.20-pre5-ac1 for example does:
+*max_sect++ = ((hwif->rqsize) ? hwif->rqsize : 128);
+(hmm why 128?)
 
-Wayne pointed out that in the cases where it collapses a pile of csets
-that is usually because Linus pulled some wad from somebody and one could
-argue the collapse is a good thing.  But it depends, sometimes it is and
-sometimes it isn't.  Our commercial users have frequently asked for a
-way to "collapse the tree and clean up the noise in the graphs", in fact,
-one called this morning and said "that BK to CVS thing, could that be a BK
-to cleaner-BK thing?" so opinions vary on what is the perfect granularity.
+PDC4030 (127 sectors) and siimage (128 or 16) are setting own sector size,
+so this may be related to 
+http://bugzilla.kernel.org/show_bug.cgi?id=123.
 
-My belief is that the real time updates is something that people value
-more than the granularity.  You guys can vote and if you reach agreement
-we'll do what you want.
+Not tested patch (sorry, no hardware) agains 2.5.64-ac3 (applies to 2.5.64
+too).
+
 -- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+have fun,
+alex
+
+===== drivers/ide/ide-probe.c 1.33 vs edited =====
+--- 1.33/drivers/ide/ide-probe.c	Sat Mar  8 01:45:31 2003
++++ edited/drivers/ide/ide-probe.c	Wed Mar 12 23:12:35 2003
+@@ -995,18 +995,15 @@
+ static void ide_init_queue(ide_drive_t *drive)
+ {
+ 	request_queue_t *q = &drive->queue;
+-	int max_sectors;
++	int max_sectors = 255;
+ 
+ 	q->queuedata = HWGROUP(drive);
+ 	blk_init_queue(q, do_ide_request, &ide_lock);
+ 	drive->queue_setup = 1;
+ 	blk_queue_segment_boundary(q, 0xffff);
+ 
+-#ifdef CONFIG_BLK_DEV_PDC4030
+-	max_sectors = 127;
+-#else
+-	max_sectors = 255;
+-#endif
++	if (HWIF(drive)->rqsize)
++		max_sectors = HWIF(drive)->rqsize;
+ 	blk_queue_max_sectors(q, max_sectors);
+ 
+ 	/* IDE DMA can do PRD_ENTRIES number of segments. */
+

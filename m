@@ -1,69 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275493AbRIZTEC>; Wed, 26 Sep 2001 15:04:02 -0400
+	id <S275506AbRIZTJc>; Wed, 26 Sep 2001 15:09:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275497AbRIZTDw>; Wed, 26 Sep 2001 15:03:52 -0400
-Received: from bacon.van.m-l.org ([208.223.154.200]:35459 "EHLO
-	bacon.van.m-l.org") by vger.kernel.org with ESMTP
-	id <S275493AbRIZTDj>; Wed, 26 Sep 2001 15:03:39 -0400
-Date: Wed, 26 Sep 2001 15:04:06 -0400 (EDT)
-From: George Greer <greerga@m-l.org>
-X-X-Sender: <greerga@bacon.van.m-l.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Locking comment on shrink_caches()
-In-Reply-To: <Pine.LNX.4.33.0109261123380.8558-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33.0109261501010.1519-100000@bacon.van.m-l.org>
+	id <S275505AbRIZTJW>; Wed, 26 Sep 2001 15:09:22 -0400
+Received: from grex.cyberspace.org ([216.93.104.34]:47623 "HELO
+	grex.cyberspace.org") by vger.kernel.org with SMTP
+	id <S275510AbRIZTJJ>; Wed, 26 Sep 2001 15:09:09 -0400
+Date: Wed, 26 Sep 2001 15:09:52 -0400 (EDT)
+From: KVK <kvk@cyberspace.org>
+To: linux-kernel@vger.kernel.org
+cc: torvalds@transmeta.com, sct@redhat.com
+Subject: [PATCH] Remove ext2_notify_change()
+Message-ID: <Pine.SUN.3.96.1010926145958.8988A-100000@grex.cyberspace.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Sep 2001, Linus Torvalds wrote:
+ext2_notify_change() is no longer used by anyone. I think it can be 
+safely removed. Patch against 2.4.10 follows.
 
->
->On Wed, 26 Sep 2001, Dave Jones wrote:
->> On Wed, 26 Sep 2001, Alan Cox wrote:
->>
->> > VIA Cyrix CIII (original generation 0.18u)
->> >
->> > nothing: 28 cycles
->> > locked add: 29 cycles
->> > cpuid: 72 cycles
->>
->> Interesting. From a newer C3..
->>
->> nothing: 30 cycles
->> locked add: 31 cycles
->> cpuid: 79 cycles
->>
->> Only slightly worse, but I'd not expected this.
->
->That difference can easily be explained by the compiler and options.
->
->You should use "gcc -O2" at least, in order to avoid having gcc do
->unnecessary spills to memory in between the timings. And there may be some
->versions of gcc that en dup spilling even then.
+Thanks,
+-kvk
+PS. I think there is lot of other dead code in ext2. I happened to 
+notice this while going through vmtruncate().
 
-Nice big difference in 'locked add' seen here.
-
-gcc version 2.96 20000731 (Red Hat Linux 7.1 2.96-85)
-2x Pentium 233/MMX
-
--O0				-O2
-nothing: 15 cycles		nothing: 14 cycles
-locked add: 60 cycles		locked add: 32 cycles
-cpuid: 33 cycles		cpuid: 32 cycles
-
-
-gcc version 2.96 20000731 (Red Hat Linux 7.1 2.96-85)
-2x Pentium 133
-
--O0				-O2
-nothing: 14 cycles		nothing: 13 cycles
-locked add: 76 cycles		locked add: 25 cycles
-cpuid: 31 cycles		cpuid: 30 cycles
-
--- 
-George Greer, greerga@m-l.org | Genius may have its limitations, but stupidity
-http://www.m-l.org/~greerga/  | is not thus handicapped. -- Elbert Hubbard
+--- vanilla/linux/fs/ext2/inode.c	Mon Sep 24 09:04:50 2001
++++ linux/fs/ext2/inode.c	Wed Sep 26 11:32:25 2001
+@@ -1164,60 +1164,3 @@
+ 	return ext2_update_inode (inode, 1);
+ }
+ 
+-int ext2_notify_change(struct dentry *dentry, struct iattr *iattr)
+-{
+-	struct inode *inode = dentry->d_inode;
+-	int		retval;
+-	unsigned int	flags;
+-	
+-	retval = -EPERM;
+-	if (iattr->ia_valid & ATTR_ATTR_FLAG &&
+-	    ((!(iattr->ia_attr_flags & ATTR_FLAG_APPEND) !=
+-	      !(inode->u.ext2_i.i_flags & EXT2_APPEND_FL)) ||
+-	     (!(iattr->ia_attr_flags & ATTR_FLAG_IMMUTABLE) !=
+-	      !(inode->u.ext2_i.i_flags & EXT2_IMMUTABLE_FL)))) {
+-		if (!capable(CAP_LINUX_IMMUTABLE))
+-			goto out;
+-	} else if ((current->fsuid != inode->i_uid) && !capable(CAP_FOWNER))
+-		goto out;
+-
+-	retval = inode_change_ok(inode, iattr);
+-	if (retval != 0)
+-		goto out;
+-
+-	inode_setattr(inode, iattr);
+-	
+-	flags = iattr->ia_attr_flags;
+-	if (flags & ATTR_FLAG_SYNCRONOUS) {
+-		inode->i_flags |= S_SYNC;
+-		inode->u.ext2_i.i_flags |= EXT2_SYNC_FL;
+-	} else {
+-		inode->i_flags &= ~S_SYNC;
+-		inode->u.ext2_i.i_flags &= ~EXT2_SYNC_FL;
+-	}
+-	if (flags & ATTR_FLAG_NOATIME) {
+-		inode->i_flags |= S_NOATIME;
+-		inode->u.ext2_i.i_flags |= EXT2_NOATIME_FL;
+-	} else {
+-		inode->i_flags &= ~S_NOATIME;
+-		inode->u.ext2_i.i_flags &= ~EXT2_NOATIME_FL;
+-	}
+-	if (flags & ATTR_FLAG_APPEND) {
+-		inode->i_flags |= S_APPEND;
+-		inode->u.ext2_i.i_flags |= EXT2_APPEND_FL;
+-	} else {
+-		inode->i_flags &= ~S_APPEND;
+-		inode->u.ext2_i.i_flags &= ~EXT2_APPEND_FL;
+-	}
+-	if (flags & ATTR_FLAG_IMMUTABLE) {
+-		inode->i_flags |= S_IMMUTABLE;
+-		inode->u.ext2_i.i_flags |= EXT2_IMMUTABLE_FL;
+-	} else {
+-		inode->i_flags &= ~S_IMMUTABLE;
+-		inode->u.ext2_i.i_flags &= ~EXT2_IMMUTABLE_FL;
+-	}
+-	mark_inode_dirty(inode);
+-out:
+-	return retval;
+-}
+-
 

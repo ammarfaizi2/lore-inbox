@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270583AbRHIUsD>; Thu, 9 Aug 2001 16:48:03 -0400
+	id <S270588AbRHIUwX>; Thu, 9 Aug 2001 16:52:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270590AbRHIUrx>; Thu, 9 Aug 2001 16:47:53 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:34322 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S270583AbRHIUrk>; Thu, 9 Aug 2001 16:47:40 -0400
-Date: Thu, 9 Aug 2001 17:47:35 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-Cc: <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: Re: Swapping for diskless nodes
-In-Reply-To: <20010809125033.E1200@nightmaster.csn.tu-chemnitz.de>
-Message-ID: <Pine.LNX.4.33L.0108091740470.1439-100000@duckman.distro.conectiva>
+	id <S270590AbRHIUwN>; Thu, 9 Aug 2001 16:52:13 -0400
+Received: from h131s117a129n47.user.nortelnetworks.com ([47.129.117.131]:17045
+	"HELO pcard0ks.ca.nortel.com") by vger.kernel.org with SMTP
+	id <S270588AbRHIUwA>; Thu, 9 Aug 2001 16:52:00 -0400
+Message-ID: <3B72F821.36E0B18C@nortelnetworks.com>
+Date: Thu, 09 Aug 2001 16:52:49 -0400
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "David S. Miller" <davem@redhat.com>
+Cc: Sampsa Ranta <sampsa@netsonic.fi>, Alan Cox <laughing@shared-source.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.7-ac9 (breaks ATM connect)
+In-Reply-To: <Pine.LNX.4.33.0108092210260.31580-100000@nalle.netsonic.fi> <Pine.LNX.4.33.0108092225440.31580-100000@nalle.netsonic.fi> <15218.62166.839967.47354@pizda.ninka.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 Aug 2001, Ingo Oeser wrote:
+"David S. Miller" wrote:
+> 
+> Sampsa Ranta writes:
+>  > Pardon me, bugs come in too easy..
+>  >
+>  > -           vci != ATM_VCI_ANY && vci >> dev->ci_range.vci_bits))
+>  > +           vci != ATM_VCI_ANY && vci >= 1 << dev->ci_range.vci_bits))
+>  >
+> 
+> This is rediculious, why has this expression changed when right
+> above it is the same thing:
+> 
+>           vpi >> dev->ci_range.vpi_bits) || (vci != ATM_VCI_UNSPEC &&
+> 
+> Shouldn't we be changing that "vpi >> dev->ci_range.vpi_bits" boolean
+> test as well?
 
-> Are there any races I have to consider?
+Am I missing something?  As long as vci is unsigned isn't (vci >>
+dev->ci_range.vci_bits) as a boolean value exactly the same thing as (vci >= 1
+<< dev->ci_range.vci_bits) ?
 
-Well, this IS a big issue against swap over network.
+As an example, take vci = 10001b and dev->ci_range.vci_bits = 4.  The answer
+works out the same either way.
 
-Swap over network is inherently prone to deadlock
-situations, due to the following three problems:
+Chris
 
-1) we swap pages out when we are close to running
-   out of free memory
-2) to write pages out over the network, we need to
-   allocate space to assemble network packets
-3) we need to have memory to receive the ACKs on
-   the packets we sent out
 
-The only real solution to this would be memory
-reservations so we know this memory won't be used
-for other purposes.
-
-What we can do right now is be careful about how
-many writeouts over the network we do at the same
-time, but that will still get us killed in case of
-a ping flood ;)
-
-regards,
-
-Rik
---
-IA64: a worthy successor to the i860.
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
-
+-- 
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

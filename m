@@ -1,55 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269647AbUIRVsN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269648AbUIRWDj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269647AbUIRVsN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Sep 2004 17:48:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269648AbUIRVsN
+	id S269648AbUIRWDj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Sep 2004 18:03:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269650AbUIRWDi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Sep 2004 17:48:13 -0400
-Received: from dennis.enea.se ([192.36.1.67]:12971 "EHLO dennis.enea.se")
-	by vger.kernel.org with ESMTP id S269647AbUIRVsK convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Sep 2004 17:48:10 -0400
-From: =?iso-8859-1?Q?M=E5rten_Berggren?= <berg@enea.se>
-To: "'Andre Tomt'" <andre@tomt.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: IDE: pdc202xx_new on Asus A7V333?
-Date: Sat, 18 Sep 2004 23:48:00 +0200
-Organization: Enea Open Systems
-Message-ID: <000801c49dc9$2aefc340$810113ac@enea.se>
+	Sat, 18 Sep 2004 18:03:38 -0400
+Received: from moutng.kundenserver.de ([212.227.126.171]:12536 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S269648AbUIRWDe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Sep 2004 18:03:34 -0400
+From: Christian Borntraeger <linux-kernel@borntraeger.net>
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Torben Mathiasen <device@lanana.org>
+Subject: [Patch][RFC] conflicting device major numbers in devices.txt
+Date: Sun, 19 Sep 2004 00:03:30 +0200
+User-Agent: KMail/1.7
+Cc: john.cagle@hp.com
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-Importance: Normal
-In-Reply-To: <414CA90F.2060106@tomt.net>
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409190003.31177.linux-kernel@borntraeger.net>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:5a8b66f42810086ecd21595c2d6103b9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > which gives me the impression that the module has loaded 
-> ok, but there 
-> > is no matching entries in /proc/ide and pdcraid does not 
-> find it. So 
-> > is there any way to tell if it is working or not? (Should 
-> there be an 
-> > entry in /proc/ide?)
-> 
-> If it's a so-called "raid" version of the PDC, you may need to enable 
-> CONFIG_PDC202XX_FORCE, as the firmware "hides" the drives.
+Hi all,
 
-Good point. I forgot to mention that it is indeed sold as a RAID
-system (and it seems to work under XP Pro) and that I have selected
-"Ignore BIOS port disabled setting on FastTrak" and "Use PCI DMA by
-default when available".
+some month ago a change to Documentation/devices.txt was submitted by John 
+Cagle. 
 
-(I also tried to switch PCI-slot for my networking card, but the
-effect was that the PDC now shares interrupts with more on-board
-USB devices instead of the network card.)
+http://linux.bkbits.net:8080/linux-2.6/cset%4040586a32fpYGPUC8ysFeU7GIfmmdUA
 
-Thanks
+The patch changed the major number of the s/390 dasd devices from 94 to 95. 
+As you can see in include/major.h and drivers/s390/block/dasd.c the change 
+to the documentation was bogus. The dasd device driver was using and will 
+be using major number 94. 
 
-Mårten Berggren
+Unfortunately, the "Inverse NAND Flash Translation Layer", which was added 
+somewhen during 2.5 now uses the same major number.
+
+I attached a patch to restore the old state but I am not sure, how to deal 
+with the inftla driver. 
+
+
+Patch to restore the old state
+
+Signed-of-by: Christian Borntraeger <linux-kernel@borntraeger.net>
+
+-------------
+
+diff -ur linux-bk/Documentation/devices.txt 
+linux-dev/Documentation/devices.txt
+--- a/Documentation/devices.txt 2004-09-18 23:20:38.000000000 +0200
++++ b/Documentation/devices.txt 2004-09-18 23:28:48.000000000 +0200
+@@ -1683,11 +1683,16 @@
+     1 = /dev/dcxx1 Second capture card
+       ...
+ 
+- 94 block Inverse NAND Flash Translation Layer
+-    0 = /dev/inftla First INFTL layer
+-   16 = /dev/inftlb Second INFTL layer
++ 94 block IBM S/390 DASD block storage
++    0 = /dev/dasda First DASD device, major
++    1 = /dev/dasda1 First DASD device, block 1
++    2 = /dev/dasda2 First DASD device, block 2
++    3 = /dev/dasda3 First DASD device, block 3
++    4 = /dev/dasdb Second DASD device, major
++    5 = /dev/dasdb1 Second DASD device, block 1
++    6 = /dev/dasdb2 Second DASD device, block 2
++    7 = /dev/dasdb3 Second DASD device, block 3
+       ...
+-  240 = /dev/inftlp 16th INTFL layer
+ 
+  95 char IP filter
+     0 = /dev/ipl  Filter control device/log file
+@@ -1696,15 +1701,9 @@
+     3 = /dev/ipauth Authentication control device/log file
+       ...  
+ 
+- 95 block IBM S/390 DASD block storage
+-    0 = /dev/dasd0 First DASD device, major
+-    1 = /dev/dasd0a First DASD device, block 1
+-    2 = /dev/dasd0b First DASD device, block 2
+-    3 = /dev/dasd0c First DASD device, block 3
+-    4 = /dev/dasd1 Second DASD device, major
+-    5 = /dev/dasd1a Second DASD device, block 1
+-    6 = /dev/dasd1b Second DASD device, block 2
+-    7 = /dev/dasd1c Second DASD device, block 3
++ 95 block IBM S/390 VM/ESA minidisk
++    0 = /dev/msd0  First VM/ESA minidisk
++    1 = /dev/msd1  Second VM/ESA minidisk
+       ...
+ 
+  96 char Parallel port ATAPI tape devices
+@@ -1715,11 +1714,6 @@
+   129 = /dev/npt1  Second p.p. ATAPI tape, no rewind
+       ...
+ 
+- 96 block IBM S/390 VM/ESA minidisk
+-    0 = /dev/msd0  First VM/ESA minidisk
+-    1 = /dev/msd1  Second VM/ESA minidisk
+-      ...
+-
+  97 char Parallel port generic ATAPI interface
+     0 = /dev/pg0  First parallel port ATAPI device
+     1 = /dev/pg1  Second parallel port ATAPI device
+
 

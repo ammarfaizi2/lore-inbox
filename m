@@ -1,52 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261838AbTIPLtS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 07:49:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261842AbTIPLtS
+	id S261829AbTIPLq7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 07:46:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261831AbTIPLq7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 07:49:18 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:31119 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id S261838AbTIPLtP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 07:49:15 -0400
-Date: Tue, 16 Sep 2003 12:48:12 +0100
-From: Dave Jones <davej@redhat.com>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: agpgart's MODULE_ALIAS is broken
-Message-ID: <20030916114812.GB8753@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org
-References: <200309161141.h8GBfqZv012047@harpo.it.uu.se>
+	Tue, 16 Sep 2003 07:46:59 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:12948 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261829AbTIPLq6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 07:46:58 -0400
+Date: Tue, 16 Sep 2003 12:46:36 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: richard.brunner@amd.com
+Cc: alan@lxorguk.ukuu.org.uk, davidsen@tmr.com, zwane@linuxpower.ca,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
+Message-ID: <20030916114636.GF26576@mail.jlokier.co.uk>
+References: <99F2150714F93F448942F9A9F112634C0638B1DE@txexmtae.amd.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200309161141.h8GBfqZv012047@harpo.it.uu.se>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <99F2150714F93F448942F9A9F112634C0638B1DE@txexmtae.amd.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 16, 2003 at 01:41:52PM +0200, Mikael Pettersson wrote:
+richard.brunner@amd.com wrote:
+> Andi's patch solves both the kernel space and the user space
+> issues in a pretty small footprint.
 
- > With 2.6.0-test5, the generated alias for agpgart
- > in modules.alias looks wrong:
- > 
- > alias char-major-10-AGPGART_MINOR agpgart
- > 
- > Surely that should be char-major-10-175.
- > 
- > The problem is that AGP's MODULE_ALIAS_MISCDEV() is in
- > backend.c, but AGPGART_MINOR isn't #define:d there
- > because agpgart.h is only #include:d in frontend.c.
- > This causes MODULE_ALIAS_MISCDEV()'s __stringify()
- > to convert the token itself rather than its value.
- > 
- > Should be easy to fix (move the ALIAS or add #include).
+Not really.  Userspace still has a problem when run on older kernels,
+so it will have to check for AMD and kernel version anyway before
+deciding to use the prefetch instruction.  That, or install SIGSEGV
+and SIGBUS handlers to do the fixup in userspace.
 
-Should be fixed in agpgart bk tree. I'm waiting on Linus
-to return before I push updates..
+> The user space problem worries me more, because the expectation
+> is that if CPUID says the program can use perfetch, it could
+> and should regardless of what the kernel decided to do here.
 
-	Dave
+If the workaround isn't compiled in, "prefetch" should be removed from
+/proc/cpuinfo on the buggy chips.
 
--- 
- Dave Jones     http://www.codemonkey.org.uk
+-- Jamie

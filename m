@@ -1,78 +1,302 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293010AbSCRWHq>; Mon, 18 Mar 2002 17:07:46 -0500
+	id <S293089AbSCRWKq>; Mon, 18 Mar 2002 17:10:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293092AbSCRWHg>; Mon, 18 Mar 2002 17:07:36 -0500
-Received: from fungus.teststation.com ([212.32.186.211]:34059 "EHLO
-	fungus.teststation.com") by vger.kernel.org with ESMTP
-	id <S293089AbSCRWH2>; Mon, 18 Mar 2002 17:07:28 -0500
-Date: Mon, 18 Mar 2002 23:07:25 +0100 (CET)
-From: Urban Widmark <urban@teststation.com>
-X-X-Sender: puw@cola.teststation.com
-To: SeongTae Yoo <alloying@nownuri.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: file listing problem in smbfs, kernel 2.4.18
-In-Reply-To: <3C91B206.6EA173B7@nownuri.net>
-Message-ID: <Pine.LNX.4.44.0203182148020.15143-100000@cola.teststation.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293092AbSCRWK3>; Mon, 18 Mar 2002 17:10:29 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:62606 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S293089AbSCRWKP>; Mon, 18 Mar 2002 17:10:15 -0500
+Date: Mon, 18 Mar 2002 14:07:01 -0800
+From: Russ Weight <rweight@us.ibm.com>
+To: mingo@elte.hu
+Cc: torvalds@transmeta.com, lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Scalable CPU bitmasks
+Message-ID: <20020318140700.A4635@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Mar 2002, SeongTae Yoo wrote:
+	This patch consists of a single architecture-independent
+header file and should apply to any version of the linux kernel.
 
-> I have mounted a share of w2k server(SP2). All file lists is not seen
-> in a specific sub directory.
-> 
-> The error log is follows as:
-> 
->     smb_proc_readdir_long: name=, result=-2, rcls=1, err=123
+          This patch implements a scalable bitmask specifically
+  for tracking CPUs. It consists of a single architecture-independent
+  header file which simply adds a new datatype and supporting functions.
+  It allows for future expansion to a CPU count which is not confined
+  to the bit-size of (unsigned long).  The new datatype (cpumap_t) and
+  supporting functions are optimized at compile-time according to
+  the definition of NR_CPUS.
+  
+          While systems with more than 32 processors are still
+  out in the future, these interfaces provide a path for gradual
+  code migration. One of the primary goals is to provide current
+  functionality without affecting performance.
+  
+          phys_cpu_present_map
+          cpu_initialized
+          wait_init_idle
+          cpu_online_map/cpu_present_mask
+          cpu_callin_map
+          cpu_callout_map
+  
+  NOTE:   The cpumap_to_ulong() and cpumap_ulong_to_cpumap() interfaces
+          are provided specifically for migration. In their current form,
+          they call BUG() if NR_CPUS is defined to be greater than the
+          bit-size of (unsigned long).
 
-This error code has been seen with readdir requests before. Seems like it
-is used for a few different things, but I think it indicates a problem
-with how smbfs sends requests.
-
-One of the cases sounds a lot like yours. Directory listings that fail on
-some directories, adding a file or renaming one changes something to
-trigger failure or not.
-(possibly the sum of the length of the filenames matters, that could be a
- useful test case ...)
-
-If this is the same thing then it was believed fixed in 2.2.16 by moving
-to "infolevel" 260 and not using resume keys.
-
-I'm a bit busy with non-linux things right now so I haven't tested
-anything myself yet but you could help by answering some of the questions
-below.
-
-You could also try the smbfs unicode patch for 2.4.18, and see if that
-changes anything.
-    http://www.hojdpunkten.ac.se/054/samba/index.html
-    (Note the additional samba patch and mount flags needed)
-
-
-Do you have trouble with this set of files elsewhere?
-
-If you have more than one server, does it make any difference if you copy
-the files to some other server?
-
-Does it matter how deep in the file hierarchy the dir is, for example is
-there any difference between these two:
-   //server/share/some/long/path/the-dir-that-fails/
-   //server/share/the-dir-that-fails/
-
-
-(If the files are large you could do something like this on your linux
- box:
-
-mkdir apa
-cd apa
-touch `cat ../filelist.txt`
-cd ..
-zip -r apa.zip apa
-
-to create a zip of empty files and then unpack apa.zip in various places.
-It is most likely only the filenames that matter.)
-
-/Urban
-
+diff -Nru a/include/linux/cpumap.h b/include/linux/cpumap.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/linux/cpumap.h	Thu Mar 14 11:27:55 2002
+@@ -0,0 +1,246 @@
++/*
++ * cpumap_t data type and supporting functions
++ *
++ * Copyright (c) 2001 IBM Corp.
++ *
++ *	01/25/02 Initial Version 	Russ Weight <rweight@us.ibm.com>
++ *
++ * All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or (at
++ * your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
++ * NON INFRINGEMENT.  See the GNU General Public License for more
++ * details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ *
++ */
++#ifndef __LINUX_CPUMAP_H
++#define __LINUX_CPUMAP_H
++
++#ifdef CONFIG_SMP
++ #include <asm/types.h>
++ #define CPUMAP_SIZE       ((NR_CPUS + BITS_PER_LONG - 1) / BITS_PER_LONG)
++#else
++ #define CPUMAP_SIZE       1
++#endif
++
++#ifndef __ASSEMBLY__
++#include <linux/bitops.h>
++typedef unsigned long cpumap_t[CPUMAP_SIZE];
++
++/*
++ * The cpumap_to_ulong() and cpumap_ulong_to_cpumap() functions
++ * are provided primarily for migration to the cpumap_t datatype.
++ * As currently defined, they are only valid for CPUMAP_SIZE==1.
++ */
++static inline unsigned long cpumap_to_ulong(cpumap_t cpumap)
++{
++#if CPUMAP_SIZE > 1
++	BUG();	/* Not supported */
++	return 0;
++#else
++	return cpumap[0];
++#endif
++}
++
++static inline void cpumap_ulong_to_cpumap(unsigned long bitmap, cpumap_t cpumap)
++{
++#if CPUMAP_SIZE > 1
++	BUG();	/* Not supported */
++#else
++	cpumap[0] = bitmap;
++#endif
++}
++
++
++/*
++ * The first set of interfaces are the same for SMP and UP.
++ */
++static inline void cpumap_clear_bit(int nr, cpumap_t cpumap)
++{
++	if (nr < NR_CPUS) {
++		clear_bit(nr, cpumap);
++	} else {
++		BUG();
++	}
++}
++
++static inline void cpumap_set_bit(int nr, cpumap_t cpumap)
++{
++	if (nr < NR_CPUS) {
++		set_bit(nr, cpumap);
++	} else {
++		BUG();
++	}
++}
++
++static inline int cpumap_test_and_set_bit(int nr, cpumap_t cpumap)
++{
++	if (nr < NR_CPUS) {
++		return test_and_set_bit(nr, cpumap);
++	} else {
++		BUG();
++		return -1;
++	}
++}
++
++/*
++ * Return 1 (non-zero) if they are equal, 0 if not equal
++ */
++static inline int cpumap_test_bit(int nr, cpumap_t cpumap)
++{
++	if (nr < NR_CPUS) {
++		return test_bit(nr, cpumap);
++	} else {
++		return 0;
++	}
++}
++
++/*
++ * The following interfaces are optimized for the case where
++ * CPUMAP_SIZE==1 (i.e. a single unsigned long). The single
++ * CPU case falls into the CPUMAP_SIZE==1 case.
++ */
++static inline void cpumap_clear_mask(cpumap_t cpumap)
++{
++#if CPUMAP_SIZE > 1
++	int i;
++
++	for (i = 0; i < CPUMAP_SIZE; i++) {
++		cpumap[i] = 0UL;
++	}
++#else
++	cpumap[0] = 0;
++#endif
++}
++
++static inline int cpumap_is_empty(cpumap_t map)
++{
++#if CPUMAP_SIZE > 1
++	int i;
++	for (i = 0; i < CPUMAP_SIZE; i++) {
++		if (map[i] !=  0) {
++			return 0;
++		}
++	}
++	return 1;
++#else
++	return (map[0] == 0);
++#endif
++}
++
++/*
++ * Return 1 (non-zero) if they are equal, 0 if not equal
++ */
++static inline int cpumap_cmp_mask(cpumap_t map1, cpumap_t map2)
++{
++#if CPUMAP_SIZE > 1
++	int i;
++	for (i = 0; i < CPUMAP_SIZE; i++) {
++		if (map1[i] !=  map2[i]) {
++			return 0;
++		}
++	}
++	return 1;
++#else
++	return (map1[0] ==  map2[0]);
++#endif
++}
++
++#if (NR_CPUS % BITS_PER_LONG)
++#define	CPUMAP_FILLMASK	((1 << (NR_CPUS % BITS_PER_LONG)) -1)
++#else
++#define	CPUMAP_FILLMASK	(~0UL)
++#endif
++
++static inline void cpumap_fill(cpumap_t cpumap)
++{
++#if CPUMAP_SIZE > 1
++	int i;
++
++	for (i = 0; i < (CPUMAP_SIZE - 1); i++) {
++		cpumap[i] = ~0UL;
++	}
++	cpumap[CPUMAP_SIZE - 1] = CPUMAP_FILLMASK;
++#else
++	cpumap[0] = CPUMAP_FILLMASK;
++#endif
++}
++
++/*
++ * The following interfaces are optimized for the case where
++ * CPUMAP_SIZE==1 (i.e. a single unsigned long).
++ */
++static inline void cpumap_copy_mask(cpumap_t srcmap, cpumap_t destmap)
++{
++#if CPUMAP_SIZE > 1
++	int i;
++	for (i = 0; i < CPUMAP_SIZE; i++) {
++		destmap[i] = srcmap[i];
++	}
++#else
++	destmap[0] = srcmap[0];
++#endif
++}
++
++static inline void cpumap_and_mask(cpumap_t map1, cpumap_t map2, cpumap_t result)
++{
++#if CPUMAP_SIZE > 1
++	int i;
++	for (i = 0; i < CPUMAP_SIZE; i++) {
++		result[i] = map1[i] & map2[i];
++	}
++#else
++	result[0] = map1[0] & map2[0];
++#endif
++}
++
++/*
++ * The following macros and functions are used to format
++ * a cpumap_t object for display. This function knows the 
++ * minimum size required, which is provided as CPUMAP_BUFSIZE.
++ *
++ * The CPUMAP_BUFSIZE is an exact calcuation of the byte count
++ * required to display a cpumap_t object.
++ */
++
++#define CPUMAP_BUFSIZE (((sizeof(long) * 2) + 1) * CPUMAP_SIZE + 2)
++
++#if BITS_PER_LONG > 32
++#define CPUMAP_FORMAT_STR	"%016lx"
++#else
++#define CPUMAP_FORMAT_STR	"%08lx"
++#endif
++
++static inline char *cpumap_format(cpumap_t map, char *buf, int size)
++{
++	if (size < CPUMAP_BUFSIZE) {
++		BUG();
++	}
++
++#if CPUMAP_SIZE > 1
++	sprintf(buf, "0x" CPUMAP_FORMAT_STR, map[CPUMAP_SIZE-1]);
++	{
++		int i;
++		char *p = buf + strlen(buf);
++		for (i = CPUMAP_SIZE-2; i >= 0; i--, p += (sizeof(long) + 1)) {
++			sprintf(p, " " CPUMAP_FORMAT_STR, map[i]);
++		}
++	}
++#else
++	sprintf(buf, "0x" CPUMAP_FORMAT_STR, map[0]);
++#endif
++	return(buf);
++}
++
++#endif /* __ASSEMBLY__ */
++#endif /* __LINUX_CPUMAP_H */
+-- 
+Russ Weight (rweight@us.ibm.com)
+Linux Technology Center

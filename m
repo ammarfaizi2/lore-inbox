@@ -1,82 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261541AbSIZWrw>; Thu, 26 Sep 2002 18:47:52 -0400
+	id <S261546AbSIZWsF>; Thu, 26 Sep 2002 18:48:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261546AbSIZWrw>; Thu, 26 Sep 2002 18:47:52 -0400
-Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:11138 "EHLO
-	completely") by vger.kernel.org with ESMTP id <S261541AbSIZWrv>;
-	Thu, 26 Sep 2002 18:47:51 -0400
-From: Ryan Cumming <ryan@completely.kicks-ass.org>
-To: "Theodore Ts'o" <tytso@mit.edu>
-Subject: Re: [BK PATCH] Add ext3 indexed directory (htree) support
-Date: Thu, 26 Sep 2002 15:53:02 -0700
-User-Agent: KMail/1.4.7-cool
-Cc: linux-kernel@vger.kernel.org
-References: <E17uINs-0003bG-00@think.thunk.org> <200209261208.59020.ryan@completely.kicks-ass.org> <20020926220432.GB10551@think.thunk.org>
-In-Reply-To: <20020926220432.GB10551@think.thunk.org>
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="big5"
-Content-Transfer-Encoding: 8bit
-Content-Description: clearsigned data
+	id <S261547AbSIZWsF>; Thu, 26 Sep 2002 18:48:05 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:40715 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261546AbSIZWsD>;
+	Thu, 26 Sep 2002 18:48:03 -0400
+Date: Thu, 26 Sep 2002 15:51:48 -0700
+From: Greg KH <greg@kroah.com>
+To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       linux-security-module@wirex.com
+Subject: Re: [RFC] LSM changes for 2.5.38
+Message-ID: <20020926225147.GC7304@kroah.com>
+References: <20020927003210.A2476@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200209261553.07593.ryan@completely.kicks-ass.org>
+In-Reply-To: <20020927003210.A2476@sgi.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, Sep 27, 2002 at 12:32:10AM -0400, Christoph Hellwig wrote:
+> 
+> >  /* Set EXTENT bits starting at BASE in BITMAP to value TURN_ON. */
+> >  static void set_bitmap(unsigned long *bitmap, short base, short extent, int new_value)
+> > @@ -62,7 +63,12 @@
+> >  		return -EINVAL;
+> >  	if (turn_on && !capable(CAP_SYS_RAWIO))
+> >  		return -EPERM;
+> > -
+> > + 
+> > + 	ret = security_ops->ioperm(from, num, turn_on);
+> > + 	if (ret) {
+> > + 		return ret;
+> > + 	}
+> > + 
+> 
+> Sorry, but this is bullshit (like most of the lsm changes).  Either you
+> leave the capable in and say it's enough or you add your random hook
+> and remove that one.  Just adding more and more hooks without thinking
+> gets us exactly nowhere except to an unmaintainable codebase.
 
-On September 26, 2002 15:04, Theodore Ts'o wrote:
-> Was there anything in the logs at all?  There should be, if the
-> filesystem was remounted read-only.
-There is nothing. grep -i "ext3" /var/log/messages returned a whole lot of the 
-usual:
-Sep 25 15:51:00 completely kernel: EXT3-fs: mounted filesystem with ordered 
-data mode.
-Sep 25 15:51:00 completely kernel: EXT3 FS 2.4-0.9.18, 14 May 2002 on 
-ide0(3,2), internal journal
-The one mildly interesting thing was:
-Sep 26 11:49:06 (none) kernel: EXT3-fs: INFO: recovery required on readonly 
-filesystem.
-Sep 26 11:49:06 (none) kernel: EXT3-fs: write access will be enabled during 
-recovery.
-Sep 26 11:49:06 (none) kernel: EXT3-fs warning (device ide0(3,2)): 
-ext3_clear_journal_err: Filesystem error recorded from previous mount: IO 
-failure
-Sep 26 11:49:06 (none) kernel: EXT3-fs warning (device ide0(3,2)): 
-ext3_clear_journal_err: Marking fs in need of filesystem check.
-Sep 26 11:49:06 (none) kernel: EXT3-fs: ide0(3,2): orphan cleanup on readonly 
-fs
-Sep 26 11:49:06 (none) kernel: EXT3-fs: recovery complete.
-Sep 26 11:49:06 (none) kernel: EXT3-fs: mounted filesystem with ordered data 
-mode.
-Sep 26 11:49:06 (none) kernel: EXT3 FS 2.4-0.9.18, 14 May 2002 on ide0(3,2), 
-internal journal
+capable is needed to be checked, as we are not modifying the existing
+permission logic.
 
-> The real question is what was the original error that caused the ext3
-> filesystme to decide it needed to remount the filesystem read-only.
-> That should be in your logs, since calls to ext3_error should always
-> cause printk's explaining what the error was to be sent to the logs.
-I've seen the printk's (although I didn't write down this one). However, they 
-are never hitting the disk. I could try to log the messages to my FreeBSD 
-mail server...
+> Also is there a _real_ need to pass in all the arguments?
 
-> The filesystem wouldn't happen to be running close to full either on
-> the number of blocks or the number of inodes, would it?  
-Inode count:              4767744
-Block count:              9522528
-Reserved block count:     476126
-Free blocks:              2362117
-Free inodes:              4490071
+I'll let Stephen answer that one, as SELinux uses it.
 
-Seems to be fine.....
+Oops, ok, nevermind, I don't see _any_ security module using this hook.
+In fact they are using the capable(CAP_SYS_RAWIO) hook, which is exactly
+what you suggest :)
 
-- -Ryan
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
+I'll go remove it.
 
-iD8DBQE9k4/TLGMzRzbJfbQRAgp6AJ9Xp7WviFP9ByQaUJ8Ak9sYVf1C4ACffemS
-tS4gB+W4WE7VrPKa+tan/68=
-=MhXA
------END PGP SIGNATURE-----
+> >  			return -EPERM;
+> >  	}
+> > +	retval = security_ops->iopl(old, level);
+> > +	if (retval) {
+> > +		return retval;
+> > +	}
+> > +
+> 
+> again (and another few times)
+
+Ok, again, no one is using it.  I'll go remove it (and go audit all of
+the other hooks.)
+
+> > + * @module_create:
+> > + *	Check the permission before allocating space for a module.
+> > + *	@name contains the module name.
+> > + *	@size contains the module size.
+> > + *	Return 0 if permission is granted.
+> > + * @module_initialize:
+> > + * 	Check permission before initializing a module.
+> > + * 	@mod contains a pointer to the module being initialized.
+> > + *	Return 0 if permission is granted.
+> 
+> Umm, you can't tell me you deny someone to initialize a module he has
+> just created?
+
+Bah, ok, again no one uses these either.
+
+Consider me roasted, I'll go audit this whole thing to try to justify
+every one of the hooks we ask for.
+
+Very sorry for bothering people.
+
+thanks,
+
+greg k-h

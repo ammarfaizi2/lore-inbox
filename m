@@ -1,52 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317423AbSFXGsD>; Mon, 24 Jun 2002 02:48:03 -0400
+	id <S317424AbSFXGwR>; Mon, 24 Jun 2002 02:52:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317424AbSFXGsC>; Mon, 24 Jun 2002 02:48:02 -0400
-Received: from nycsmtp3fa.rdc-nyc.rr.com ([24.29.99.79]:32786 "EHLO si.rr.com")
-	by vger.kernel.org with ESMTP id <S317423AbSFXGsA>;
-	Mon, 24 Jun 2002 02:48:00 -0400
-Message-ID: <3D16C0D2.7030501@si.rr.com>
-Date: Mon, 24 Jun 2002 02:48:50 -0400
-From: Frank Davis <fdavis@si.rr.com>
-Reply-To: fdavis@si.rr.com
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0rc2) Gecko/20020512 Netscape/7.0b1
-X-Accept-Language: en-us, en
+	id <S317426AbSFXGwQ>; Mon, 24 Jun 2002 02:52:16 -0400
+Received: from bart.one-2-one.net ([217.115.142.76]:60178 "EHLO
+	bart.webpack.hosteurope.de") by vger.kernel.org with ESMTP
+	id <S317424AbSFXGwQ>; Mon, 24 Jun 2002 02:52:16 -0400
+Date: Mon, 24 Jun 2002 08:53:06 +0200 (CEST)
+From: Martin Diehl <lists@mdiehl.de>
+To: Marc Lefranc <lefranc.m@free.fr>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: aha152x driver broken in 2.4.19-pre10
+In-Reply-To: <p6rznxlhkcy.fsf@free.fr>
+Message-ID: <Pine.LNX.4.21.0206240847410.442-100000@notebook.diehl.home>
 MIME-Version: 1.0
-To: Francois Romieu <romieu@cogenit.fr>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.24 : drivers/scsi/inia100.c
-References: <Pine.LNX.4.44.0206232343280.909-100000@localhost.localdomain> <20020624083036.A22534@fafner.intra.cogenit.fr>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francois,
-     Yes, I'm aware of the DMA mapping and pci_set_dma_mask() options. 
-As I stated, this is just the 1st patch for the DMA code. The 
-"interesting" parts will be included in a future patch (possibly by the 
-driver developers), as well as appropriate option for pci_set_dma_mask() 
-such as returning an error code or jumping to some code to return. This 
-goes for all of my recent DMA patches.
-Regards,
-Frank
+On 23 Jun 2002, Marc Lefranc wrote:
 
-Francois Romieu wrote:
-> Greetings,
-> 
-> Frank Davis <fdavis@si.rr.com> :
-> 
->>Hello all,
->>  This patch adds the DMA mapping check (1st step for 
->>Documentation/DMA-mapping.txt compliance). Please review.
-> 
-> 
-> - please take a look at Documentation/CodingStyle
-> - if pci_set_dma_mask() fails, the driver shouldn't go on as if nothing 
->   happened. See what other drivers do (net/acenic.c for example)
-> - the interesting part of DMA mapping conversion is more a matter of
->   memory descriptor handling (and phys_to_virt/friends removal)
-> 
+> it looks like the aha152x driver was broken between 2.4.19-pre8 and
+> 2.4.19-pre10. Apparently there is a problem with a lost interrupt. I
+> am afraid I cannot do much to fix this problem, but I am willing to
+> perform any test that would help.
 
+Hi,
+
+same for me. AFAICS when looking into the diff which got into -pre10 the
+only change around the place where the lost interrupt is detected is a
+dropped spin_lock_irq() around a 1sec mdelay() while probing the
+interrupt. The interesting observation however is with 2.5.24 which has
+exactly the same code as 2.4.19-pre10 and - surprise - does work for me
+just fine. So I don't have a good idea what might cause the problem with
+2.4.19-pre10...
+
+Martin
 

@@ -1,63 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261773AbUKJNc3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261812AbUKJNed@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261773AbUKJNc3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 08:32:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261810AbUKJNc2
+	id S261812AbUKJNed (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 08:34:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261810AbUKJNed
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 08:32:28 -0500
-Received: from postfix3-2.free.fr ([213.228.0.169]:11234 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S261773AbUKJNcY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 08:32:24 -0500
-Message-ID: <1100093543.41921867a2aef@imp2-q.free.fr>
-Date: Wed, 10 Nov 2004 14:32:23 +0100
-From: remi.colinet@free.fr
-To: Sylvain <autofr@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: question about MM on x86
-References: <64b1faec041110040117a80877@mail.gmail.com>
-In-Reply-To: <64b1faec041110040117a80877@mail.gmail.com>
-MIME-Version: 1.0
+	Wed, 10 Nov 2004 08:34:33 -0500
+Received: from rproxy.gmail.com ([64.233.170.195]:14926 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261795AbUKJNeJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 08:34:09 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=TTgfmUmHeUhOYELuJJ8woN35+A4+ri57W4qfpJ9OMyppDFCL/K48KlXM71jg5r58Y3usP6wkgELPyGTVDmv+d4/z5D3/FL6lap4ajPTVEGJGaXtjqWZNUreNdsR1BwTrrahXqxqetlUtcS5tXUJfWVbQeKwe8tNM/NTcyRxVFdk=
+Message-ID: <d5a95e6d041110053276820b92@mail.gmail.com>
+Date: Wed, 10 Nov 2004 10:32:52 -0300
+From: Diego <foxdemon@gmail.com>
+Reply-To: Diego <foxdemon@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Begginer need help 2.6
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.5
-X-Originating-IP: 192.85.50.1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Sorry bothering but somebody can help me, i need to know if exist in
+kernel a variable ou something that can inform the CPU idle time (like
+top informs) and where is it, so i can use it.
 
-Mel Gorman documented the linux VM subsystem :
-
-www.skynet.ie/~mel/projects/vm/
-
-Otherwise, you could have a look at mm/page_alloc.c
-
-Remi
-
-
-Selon Sylvain <autofr@gmail.com>:
-
-> Hi,
->
-> I am interested in the way memory management is implemented on x86,
-> specially the low level part.
->
-> I search: where physical address are computed when a new Frame new to
-> be allocated but I can't find out. (alogithm to find out the next
-> frame free?? other the next frame to reuse??)
->
-> Please, can somebody  familiar with the code point me to very prescise
-> function, or give me some hint.
->
-> Thanks in advance,
->
-> Sylvain
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
-
+Thanks a lot.

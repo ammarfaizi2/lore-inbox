@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262821AbRE0RHr>; Sun, 27 May 2001 13:07:47 -0400
+	id <S262823AbRE0RN1>; Sun, 27 May 2001 13:13:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262822AbRE0RHh>; Sun, 27 May 2001 13:07:37 -0400
-Received: from [213.128.193.148] ([213.128.193.148]:23822 "EHLO linuxhacker.ru")
-	by vger.kernel.org with ESMTP id <S262821AbRE0RHZ>;
-	Sun, 27 May 2001 13:07:25 -0400
-Date: Sun, 27 May 2001 21:06:28 +0400
-From: Oleg Drokin <green@linuxhacker.ru>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: vojtech@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: VIA IDE no go with 2.4.5-ac1
-Message-ID: <20010527210628.A998@linuxhacker.ru>
-In-Reply-To: <20010527144337.A15235@linuxhacker.ru> <E1543FE-0001zX-00@the-village.bc.nu>
+	id <S262825AbRE0RNR>; Sun, 27 May 2001 13:13:17 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:15136 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S262823AbRE0RNB>; Sun, 27 May 2001 13:13:01 -0400
+Date: Sun, 27 May 2001 19:12:49 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "David S. Miller" <davem@redhat.com>,
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, arjanv@redhat.com
+Subject: Re: [patch] softirq-2.4.5-A1
+Message-ID: <20010527191249.I676@athlon.random>
+In-Reply-To: <Pine.LNX.4.33.0105261920030.3336-200000@localhost.localdomain> <Pine.LNX.4.33.0105262128230.1222-200000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E1543FE-0001zX-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, May 27, 2001 at 05:18:20PM +0100
+In-Reply-To: <Pine.LNX.4.33.0105262128230.1222-200000@localhost.localdomain>; from mingo@elte.hu on Sat, May 26, 2001 at 09:33:59PM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Sat, May 26, 2001 at 09:33:59PM +0200, Ingo Molnar wrote:
+>    interrupts disabled, otherwise we can end up getting another softirq
+>    right after the test. (and this causes a missed softirq.)
 
-On Sun, May 27, 2001 at 05:18:20PM +0100, Alan Cox wrote:
-> >   Vanilla 2.4.5 boots ok, but 2.4.5-ac1 finishes kernel initialisation and
-> >   starts to print "hda: lost interrupt", I guess this is related to VIA IDE
-> >   updates in AC kernels. Config for vanilla and AC kernel is the same.
-> >   Here are the kernel logs from 2.4.5 and 2.4.5-ac1 (collected with serial
-> > ACPI: Core Subsystem version [20010208]
-> > ACPI: Subsystem enabled
-> > ACPI: Not using ACPI idle
-> > ACPI: System firmware supports: S0 S1 S4 S5
-> > hda: lost interrupt
-> > hda: lost interrupt
-> Does this still happen if you build without ACPI support. Also does
-> 'noapic' have any impact ?
-It does boot once I build without ACPI. (though vanilla 2.4.5 boots regardless
-of that). It disabled DMA by default for some strange reason, so I get 2.5Mb/sec
-instead of usual 35Mb/sec from my HDD.
+an irq that could mark the softirq active under entry.S will also run
+do_softirq itself before iret to entry.S. If the softirq remains active
+after an irq it it because it was marked active again under do_softirq
+and ksoftirq is the way to go for fixing that case I think.
 
-BTW, 2.4.5-ac1 fails on unmounting reiserfs for me with this diagnostic:
-journal_begin called without kernel lock held
-kernel BUG at journal.c:423!
-I've seen this was reported for 2.4.5, too.
-
-Bye,
-    Oleg
+Andrea

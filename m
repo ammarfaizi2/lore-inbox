@@ -1,46 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135754AbRA1Fwz>; Sun, 28 Jan 2001 00:52:55 -0500
+	id <S131572AbRA1GLJ>; Sun, 28 Jan 2001 01:11:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135775AbRA1Fwp>; Sun, 28 Jan 2001 00:52:45 -0500
-Received: from vp175097.reshsg.uci.edu ([128.195.175.97]:54794 "EHLO
-	moisil.dev.hydraweb.com") by vger.kernel.org with ESMTP
-	id <S135754AbRA1Fwd>; Sun, 28 Jan 2001 00:52:33 -0500
-Date: Sat, 27 Jan 2001 21:52:01 -0800
-Message-Id: <200101280552.f0S5q1v05153@moisil.dev.hydraweb.com>
-From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
-To: Pavel Machek <pavel@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: vfat <-> vfat copying of ~700MB file, so slow!
-In-Reply-To: <20010126184137.C260@bug.ucw.cz>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.2.18 (i586))
+	id <S131584AbRA1GK7>; Sun, 28 Jan 2001 01:10:59 -0500
+Received: from femail3.rdc1.on.home.com ([24.2.9.90]:58786 "EHLO
+	femail3.rdc1.on.home.com") by vger.kernel.org with ESMTP
+	id <S131572AbRA1GKr>; Sun, 28 Jan 2001 01:10:47 -0500
+Message-ID: <3A73B7CF.E3FA84CF@Home.net>
+Date: Sun, 28 Jan 2001 01:10:24 -0500
+From: Shawn Starr <Shawn.Starr@Home.net>
+Organization: Visualnet
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre10a i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
+Subject: Re: ps hang in 241-pre10
+In-Reply-To: <Pine.LNX.4.21.0101280119360.12703-100000@freak.distro.conectiva>
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 Jan 2001 18:41:37 +0100, Pavel Machek <pavel@suse.cz> wrote:
-> Hi!
-> 
->> > Copying between vfat <-> vfat partitions is so slow. It seems
->> > that it's vfat/msdos kernel driver problem because I tried to copy
->> 
->> I reported this years ago, with a 700 kB file on a floppy and
->> a 4 MB file on a Zip disk. In both cases mcopy was several times
->> faster than the kernel code.
-> 
-> Perhaps linear scan of FAT?
+Patch appears to work,
+for i in [0-9]*; do echo $i; cat $i/stat > /dev/null; done
+completes successfully with xmms running in "real-time" priority.
 
-Maybe. Quite likely, in fact. But there is no reason why fatfs can't
-store the current FAT cluster number in struct file's private data,
-making seeks, reads and writes O(1) (from O(n)).
+Shawn.
 
-You'll have to give up using generic_file_read(), however. So it's
-not a trivial change.
+Marcelo Tosatti wrote:
 
-Ion
+> On Sat, 27 Jan 2001, Linus Torvalds wrote:
+>
+> >
+> >
+> > On Sun, 28 Jan 2001, Marcelo Tosatti wrote:
+> > > >
+> > > > This is the smoking gun here, I bet, but I'd like to make sure I see the
+> > > > whole thing. I don't see _why_ we'd have deadlocked on __wait_on_page(),
+> > > > but I think this is the thread that hangs on to the mm semaphore.
+> > >
+> > > I was able to reproduce it here with dbench.
+> > >
+> > > Nothing is locked except this dbench thread (the only dbench thread):
+> > >
+> > > dbench    D C1C9FE64  5200  1013      1        (L-TLB)    1370   785
+> > > Call Trace: [___wait_on_page+130/160] [truncate_list_pages+100/404] [truncate_inode_pages+93/128] [iput+162/360] [dput+262/356] [fput+121/232] [exit_mmap+218/292]
+> > > [mmput+56/80] [do_exit+208/680] [do_signal+566/656] [dput+25/356] [path_release+13/60] [sys_newstat+100/112] [sys_read+188/196] [signal_return+20/24]
+> >
+> > Ok, this definitely seems to be the pattern.
+> >
+> > I don't see _what_ is going on, though.
+> >
+> > I know of one "known bug" in pre10: if you run out of swap-space with
+> > shared memory segments, it will do the wrong thing (return 1 without
+> > unlocking the page). xmms might trigger this, but I didn't think that
+> > dbench used shared memory?
+>
+> It does. Bingo.
+>
+> I'm not able to reproduce the problem here with your patch.
+>
+> Btw, there is another bug in shm_writepage() where it does not set the
+> page dirty in case of failure...
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,17 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262675AbTCPPBt>; Sun, 16 Mar 2003 10:01:49 -0500
+	id <S262677AbTCPPDW>; Sun, 16 Mar 2003 10:03:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262674AbTCPPBt>; Sun, 16 Mar 2003 10:01:49 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:9378 "EHLO
+	id <S262678AbTCPPDW>; Sun, 16 Mar 2003 10:03:22 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:9131 "EHLO
 	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S262677AbTCPPBs>; Sun, 16 Mar 2003 10:01:48 -0500
-Date: Sun, 16 Mar 2003 07:12:37 -0800
+	id <S262677AbTCPPDV>; Sun, 16 Mar 2003 10:03:21 -0500
+Date: Sun, 16 Mar 2003 07:10:54 -0800
 From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: LKML <linux-kernel@vger.kernel.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 464] New: 2.5.64: Dell Inspiron 8000 BIOS A04 EMERGENCY SHUTDOWN!
-Message-ID: <57820000.1047827557@[10.10.2.4]>
+To: Bill Huey <billh@gnuppy.monkey.org>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>
+Subject: Re: 2.5.64-mjb4 (scalability / NUMA patchset)
+Message-ID: <57410000.1047827453@[10.10.2.4]>
+In-Reply-To: <20030316082911.GA777@gnuppy.monkey.org>
+References: <169550000.1046895443@[10.10.2.4]> <475260000.1047172886@[10.10.2.4]> <85960000.1047532556@[10.10.2.4]> <10770000.1047787269@[10.10.2.4]> <20030316044524.GA6757@gnuppy.monkey.org> <12150000.1047793549@[10.10.2.4]> <20030316063151.GA7114@gnuppy.monkey.org> <19840000.1047797300@[10.10.2.4]> <20030316065650.GA8164@gnuppy.monkey.org> <20280000.1047798483@[10.10.2.4]> <20030316082911.GA777@gnuppy.monkey.org>
 X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -20,49 +23,16 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> What happens if you turn this bit off ?
+>> CONFIG_DEBUG_SLAB=y
+> 
+> Well, uh, now it just flat out hangs right after it decompresses
+> the kernel image. I've got an "Intel i815EEA" here, pure UP. Hmmm.
 
-http://bugme.osdl.org/show_bug.cgi?id=464
+Hmmm ... does just -bk3 do the same thing with the same config file?
+I guess you could try the early_printk stuff, but ISTR either VGA
+or serial was broken ... but I forget which ;-(. I'll try to fix
+that up later.
 
-           Summary: 2.5.64: Dell Inspiron 8000 BIOS A04 EMERGENCY SHUTDOWN!
-    Kernel Version: 2.5.64
-            Status: NEW
-          Severity: blocking
-             Owner: andrew.grover@intel.com
-         Submitter: andi@lisas.de
-
-
-Distribution: Debian unstable
-Hardware Environment: Dell Inspiron 8000 notebook, 512MB, ATI 32MB
-Software Environment: 2.5.64, gcc 3.2.3
-Problem Description:
-I just got my new Dell Inspiron 8000 notebook (was defective, but repaired
-quickly, by "cleaning" it :-).
-I noticed two immediate emergency shutdowns on 2.5.64/ACPI, which I initially
-suspected to be "notebook still slightly defective" issues.
-But after several days of very reliable operation on 2.4.21/APM (it seems to do
-passive management via CPU throttling), I'm quite
-convinced that it's a problem of the 2.5.64 kernel ACPI management instead.
-This notebook still has BIOS A04, despite a very advanced version of A21 (!)
-being available (the previous owner obviously wasn't very eager to keep
-it up to date).
-In other words, I suspect that BIOS A04 has some "quirks" that cause 2.5.64
-to horribly misinterprete ACPI thermal management.
-I really don't think Dell would have released that machine if it had shown such
-fatal power management behaviour on Windows, so I guess we do have an ACPI
-management problem of some sort in Linux with slightly less kosher BIOS
-implementations.
-I intend to update my BIOS to the latest version VERY soon now (I don't feel
-safe running such an old and broken BIOS version), so please try to handle this
-bug report IMMEDIATELY.
-
-Steps to reproduce:
-I don't want to describe that here, since I really don't intend to put my
-machine through yet another emergency shutdown...
-You need to produce some high CPU load, though...
-
-I was unsure of which Severity to assign to this bug (high or blocking),
-but I believe we really shouldn't release 2.6 with any sorts of hardware damage
-potential (at least as long as we can avoid it), so I made it blocking, for
-a good reason, I think.
-
+M.
 

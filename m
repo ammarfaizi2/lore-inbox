@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263232AbRFLUu3>; Tue, 12 Jun 2001 16:50:29 -0400
+	id <S263288AbRFLU7j>; Tue, 12 Jun 2001 16:59:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263254AbRFLUuT>; Tue, 12 Jun 2001 16:50:19 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8211 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S263250AbRFLUuH>;
-	Tue, 12 Jun 2001 16:50:07 -0400
-Date: Tue, 12 Jun 2001 21:49:15 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Cc: nico@cam.org
-Subject: Make fat compile again
-Message-ID: <20010612214915.B18802@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S263294AbRFLU7a>; Tue, 12 Jun 2001 16:59:30 -0400
+Received: from web3505.mail.yahoo.com ([216.115.111.72]:61455 "HELO
+	web3505.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S263288AbRFLU7I>; Tue, 12 Jun 2001 16:59:08 -0400
+Message-ID: <20010612205848.20245.qmail@web3505.mail.yahoo.com>
+Date: Tue, 12 Jun 2001 21:58:48 +0100 (BST)
+From: =?iso-8859-1?q?Mich=E8l=20Alexandre=20Salim?= 
+	<salimma1@yahoo.co.uk>
+Subject: Re: Clock drift on Transmeta Crusoe
+To: Jonathan Morton <chromi@cyberspace.org>, Pavel Machek <pavel@suse.cz>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <l03130300b74b9ddb0369@[192.168.239.105]>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following makes fat/inode.c compile on ARM systems (and probably
-many others).
+--- Jonathan Morton <chromi@cyberspace.org> wrote: >
+>> clock drift of a few minutes per day.
+> 
+> That's about 0.1%.  It may be relatively large
+> compared to tolerances of
+> hardware clocks, but it's realistically tiny.  It
+> certainly compares
+> favourably with mkLinux on my PowerBook 5300, which
+> usually drifts by
+> several hours per day regardless of actual load.
+Several hours a day, gosh...
 
-fat/inode.c uses ffs(), which is defined in asm/bitops.h.  ARM uses
-generic_ffs() which is in turn defined in linux/bitopts.h.
-(linux/bitops.h includes asm/bitops.h)
+Thanks for the responses, is it a common problem in
+notebooks then? Did not notice this on desktops
+before, anyway trying to adjust for the drift using
+adjtimex now.
 
-diff -urN orig/fs/fat/inode.c linux/fs/fat/inode.c
---- orig/fs/fat/inode.c	Thu May 24 18:36:34 2001
-+++ linux/fs/fat/inode.c	Tue Jun 12 10:44:35 2001
-@@ -21,6 +21,7 @@
- #include <linux/sched.h>
- #include <linux/errno.h>
- #include <linux/string.h>
-+#include <linux/bitops.h>
- #include <linux/major.h>
- #include <linux/blkdev.h>
- #include <linux/fs.h>
+Regards,
 
+Michel
 
-
-
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+____________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.co.uk address at http://mail.yahoo.co.uk
+or your free @yahoo.ie address at http://mail.yahoo.ie

@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266456AbTADI15>; Sat, 4 Jan 2003 03:27:57 -0500
+	id <S266686AbTADIbb>; Sat, 4 Jan 2003 03:31:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266527AbTADI15>; Sat, 4 Jan 2003 03:27:57 -0500
-Received: from almesberger.net ([63.105.73.239]:60685 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S266456AbTADI14>; Sat, 4 Jan 2003 03:27:56 -0500
-Date: Sat, 4 Jan 2003 05:36:14 -0300
-From: Werner Almesberger <wa@almesberger.net>
+	id <S266720AbTADIbb>; Sat, 4 Jan 2003 03:31:31 -0500
+Received: from ns1.geeklords.org ([204.147.223.253]:34955 "EHLO
+	master.geeklords.org") by vger.kernel.org with ESMTP
+	id <S266686AbTADIba>; Sat, 4 Jan 2003 03:31:30 -0500
+Date: Sat, 4 Jan 2003 00:52:26 -0800 (PST)
+From: "Shane R. Stixrud" <shane@stixrud.org>
+X-X-Sender: shane@master.geeklords.org
 To: Mark Mielke <mark@mark.mielke.cc>
-Cc: "Shane R. Stixrud" <shane@stixrud.org>, Larry McVoy <lm@bitmover.com>,
-       Richard Stallman <rms@gnu.org>, billh@gnuppy.monkey.org, paul@clubi.ie,
-       riel@conectiva.com.br, Hell.Surfers@cwctv.net,
-       linux-kernel@vger.kernel.org
+cc: linux-kernel@vger.kernel.org
 Subject: Re: Why is Nvidia given GPL'd code to use in non-free drivers?
-Message-ID: <20030104053614.K1363@almesberger.net>
-References: <20030103212631.GD24896@work.bitmover.com> <Pine.LNX.4.44.0301031511090.10226-100000@master.geeklords.org> <20030104030007.C1406@almesberger.net> <20030104073430.GA7518@mark.mielke.cc>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030104073430.GA7518@mark.mielke.cc>; from mark@mark.mielke.cc on Sat, Jan 04, 2003 at 02:34:30AM -0500
+In-Reply-To: <20030104073430.GA7518@mark.mielke.cc>
+Message-ID: <Pine.LNX.4.44.0301040039100.13072-100000@master.geeklords.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Mielke wrote:
+On Sat, 4 Jan 2003, Mark Mielke wrote:
+
+> If only it were that simple. Instead, the roof repair man repairs one
+> house, the fix is propagated to all other houses via the Internet, the
+> roof repair man puts *himself* out of a job, and the only people that
+> make money are the Internet service providers. The roof repair man
+> starves to death and finally ends up on (un)employment insurance.
+> 
 > Continually comparing software development to traditional forms of
 > labour is misleading and evidence that the issue is *not* being
-> properly understood.
-
-The basic issue of how well you can live by performing certain work
-is exactly the same. And in both cases, the incorrect assumptions
-are to underestimate the potential for changes, and to look for a
-transition that is risk-free. (*)
-
-(*) Paranoiac's Categorical Imperative: if there's a risk for
-    anybody, there could also be a risk for me, so I must oppose
-    it.
-
-> A closer comparison would be to compare the design
+> properly understood. A closer comparison would be to compare the design
 > of software to the design of a building. But then - architects don't
 > give their blueprints away for free - that would be suicidal...
+> 
 
-If we sent our kids to school, they could learn to do our jobs.
-That would be suicidal... ;-)
+Your position is based on the flawed assumption that the software world 
+will ever have enough functionality or run out of problems to solve.  Even 
+in the roofing analogy its not every house has the same roof. Software is 
+only going to get more complex not less.
 
-Besides, nobody said that developing free software requires you
-to decline being compensated for your work.
+This is my last off topic post, sorry for the wasted bits.
 
-- Werner
+Shane.
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/

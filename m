@@ -1,47 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278093AbRJKEvT>; Thu, 11 Oct 2001 00:51:19 -0400
+	id <S278097AbRJKFHN>; Thu, 11 Oct 2001 01:07:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278096AbRJKEvJ>; Thu, 11 Oct 2001 00:51:09 -0400
-Received: from beppo.feral.com ([192.67.166.79]:16143 "EHLO beppo.feral.com")
-	by vger.kernel.org with ESMTP id <S278093AbRJKEu7>;
-	Thu, 11 Oct 2001 00:50:59 -0400
-Date: Wed, 10 Oct 2001 21:50:11 -0700 (PDT)
-From: Matthew Jacob <mjacob@feral.com>
-Reply-To: mjacob@feral.com
-To: Rick Ellis <ellis@spinics.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: scsi (or fibre channel) target driver
-In-Reply-To: <3BC52353.FA707FD2@spinics.net>
-Message-ID: <Pine.BSF.4.21.0110102147531.78104-100000@beppo>
+	id <S278098AbRJKFHF>; Thu, 11 Oct 2001 01:07:05 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:7394 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S278096AbRJKFGv>;
+	Thu, 11 Oct 2001 01:06:51 -0400
+Date: Thu, 11 Oct 2001 01:07:22 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.11 loses sda9
+Message-ID: <Pine.GSO.4.21.0110110106070.21168-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Yes- with certain select drivers with ad hoc interfaces. None in the current
-tree I believe- although I haven't looked real closely lately.
 
-There was one for aha1540 from years ago, and I've got the stubs of one for
-parallel SCSI and Fibre Channe for QLogic cards. Repeat: "stubs"- it's not
-completed engineering.
+>  I recompiled (I used the same .10 conf) and rebooted, but my reboot halted 
+>because /dev/sda9 didnt exist.  I checked this in fdisk, and it didnt see it. 
+> I rebooted to the 2.4.10 kernel, and sda9 was there.  What happened?
 
-The current SCSI framework doesn't understand incoming commands or what to do
-with them, hence the ad hoc nature of all target mode support. FreeBSD's CAM
-layer does, btw.
+Information from fdisk would help - from both versions (with 2.4.11 you'll
+need to boot with init=/bin/sh, obviously).  It may be a bug in partition
+code, it may be something fishy with guessing geometry (SCSI uses bread()
+for that) and it may be something fishy in block devices in pagecache stuff.
 
--matt
+If you have sfdisk, sfdisk /dev/sda -O /tmp/foo + mailing the result would
+make debugging the thing much simpler (that one - from the 2.4.10).
 
-
-On Wed, 10 Oct 2001, Rick Ellis wrote:
-
-> Is there a way to have a linux kernel act as a SCSI target?
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
 

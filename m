@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268182AbTAKWJP>; Sat, 11 Jan 2003 17:09:15 -0500
+	id <S268181AbTAKWHk>; Sat, 11 Jan 2003 17:07:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268183AbTAKWJO>; Sat, 11 Jan 2003 17:09:14 -0500
-Received: from kweetal.tue.nl ([131.155.2.7]:11807 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S268182AbTAKWIt>;
-	Sat, 11 Jan 2003 17:08:49 -0500
-Date: Sat, 11 Jan 2003 23:16:17 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Michael Dreher <dreher@math.tu-freiberg.de>
+	id <S268182AbTAKWHk>; Sat, 11 Jan 2003 17:07:40 -0500
+Received: from h-64-105-35-9.SNVACAID.covad.net ([64.105.35.9]:62641 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S268181AbTAKWHj>; Sat, 11 Jan 2003 17:07:39 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Sat, 11 Jan 2003 14:16:13 -0800
+Message-Id: <200301112216.OAA16593@baldur.yggdrasil.com>
+To: hch@lst.de, torvalds@transmeta.com
+Subject: Re: [PATCH] umode_t changes from Adam's mini-devfs
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: hda has changed heads
-Message-ID: <20030111221617.GA20341@win.tue.nl>
-References: <200301112249.11624.dreher@math.tu-freiberg.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200301112249.11624.dreher@math.tu-freiberg.de>
-User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 11, 2003 at 10:49:11PM +0100, Michael Dreher wrote:
+Christoph Hellwig wrote:
+>The use of umode_t instead of devfs-specific char vs block #defines
+>in Adam's mini-devfs patch makes sense independant of whether his patch
+>should get merged.  While reviewing his changes I also notices that
+>most of the number allocation functionality in devfs has no business
+>beeing exported.  In addition I cleaned up devfs_alloc_devnum/
+>devfs_dealloc_devnum a bit.
 
-> Basically, I dont care about the new number of heads,
+	It looks good to me, although I haven't tried it or fully
+comprehended every line of Christoph's devfs_{,de}alloc_devnum cleanup
+(I have looked at it a bit before sending this email though).
 
-Right
+	One really minor suggestion: perhaps Christoph could add an
+entry in the giant change log in fs/devfs/util.c so that people know
+who to contact if there is a problem with his number allocation
+change.
 
-> but now lilo complains like this (it did not complain before):
-
-Try giving LILO the keyword linear or lba32.
-Then it does not need any idea about the geometry at bootloader
-install time.
-
-Andries
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

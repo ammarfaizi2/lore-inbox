@@ -1,60 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277362AbRJJSyS>; Wed, 10 Oct 2001 14:54:18 -0400
+	id <S277363AbRJJSzC>; Wed, 10 Oct 2001 14:55:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277363AbRJJSyI>; Wed, 10 Oct 2001 14:54:08 -0400
-Received: from [213.98.126.44] ([213.98.126.44]:20996 "HELO anano.mitica")
-	by vger.kernel.org with SMTP id <S277362AbRJJSxz>;
-	Wed, 10 Oct 2001 14:53:55 -0400
-To: Robert Szentmihalyi <robert.szentmihalyi@entracom.de>
-Cc: Chmouel Boudjnah <chmouel@mandrakesoft.com>, linux-kernel@vger.kernel.org
-Subject: Re: APM on a HP Omnibook XE3
-In-Reply-To: <200108301443355.SM00167@there> <m2elobn7a3.fsf@anano.mitica>
-	<m3sncrh9u8.fsf@giants.mandrakesoft.com>
-	<200110101943880.SM00161@there>
-X-Url: http://www.lfcia.org/~quintela
-From: Juan Quintela <quintela@mandrakesoft.com>
-In-Reply-To: <200110101943880.SM00161@there>
-Date: 10 Oct 2001 20:54:23 +0200
-Message-ID: <m2het7jpgg.fsf@anano.mitica>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S277364AbRJJSys>; Wed, 10 Oct 2001 14:54:48 -0400
+Received: from mail6.speakeasy.net ([216.254.0.206]:51726 "EHLO
+	mail6.speakeasy.net") by vger.kernel.org with ESMTP
+	id <S277363AbRJJSyh>; Wed, 10 Oct 2001 14:54:37 -0400
+Date: Wed, 10 Oct 2001 11:51:29 -0700 (PDT)
+From: Mike Borrelli <mike@nerv-9.net>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.4.10-ac10 ppc fixes
+Message-ID: <Pine.LNX.4.21.0110101146220.10995-100000@asuka.nerv-9.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "robert" == Robert Szentmihalyi <robert.szentmihalyi@entracom.de> writes:
+This patch contains the changes required to get the latest (ATM) version
+of Alan's tree to compile on the powerpc.
 
->> > For me Fn+F12 works.
-robert> unfortunately not for me....
+The patch is located at: http://www.nerv-9.net/ as either
+patch-2.4.10-ac10mb.bz2 or patch-2.4.10-ac10mb.gz
 
-You need to have a partition created with the recovery CD, it don't
-work if you create it with normal fdisk (and it will destroy your data
-in the disk, do a backup first).
+Hope this can be of help to someone.
 
-z>> > apm -s & apm -S fails.
->> 
->> works only if you have a suspend-on-disk partition.
-robert> I have created one with lphdisk and it works under Win2k...
+Cheers,
+Mike
 
-robert> The HP support people say the new omnibook BIOS is not APM 
-robert> compilant any more.
-
-I have the omnibook lastest BIOS as end of July, it will work only
-with Fn+F12.  I don't remind the version, can check when rebooting.
-
-robert> ACPI only...
-
-robert> Suspend-to-disk with API is not yet supported and I can't use 
-robert> software suspend because of reiserfs
-
-robert> I guess I have to wait for proper hibernation support with ACPI....
-
-I am also waiting for it, as I can not suspend to RAM, but suspend to
-disk is working nicely here (what is an advantage while waiting).
-
-Later, Juan.
-
--- 
-In theory, practice and theory are the same, but in practice they 
-are different -- Larry McVoy

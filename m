@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266807AbUITQqt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266879AbUITQtH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266807AbUITQqt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 12:46:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266820AbUITQpS
+	id S266879AbUITQtH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 12:49:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266876AbUITQre
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 12:45:18 -0400
-Received: from fmr03.intel.com ([143.183.121.5]:34183 "EHLO
-	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S266837AbUITQi3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 12:38:29 -0400
-Date: Mon, 20 Sep 2004 09:38:19 -0700
+	Mon, 20 Sep 2004 12:47:34 -0400
+Received: from fmr04.intel.com ([143.183.121.6]:13970 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S266808AbUITQle (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Sep 2004 12:41:34 -0400
+Date: Mon, 20 Sep 2004 09:41:07 -0700
 From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
 To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>,
        Len Brown <len.brown@intel.com>,
@@ -19,8 +19,8 @@ Cc: "Brown, Len" <len.brown@intel.com>,
        LHNS list <lhns-devel@lists.sourceforge.net>,
        Linux IA64 <linux-ia64@vger.kernel.org>,
        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: PATCH-ACPI based CPU hotplug[3/6]-Mapping lsapic to cpu
-Message-ID: <20040920093819.E14208@unix-os.sc.intel.com>
+Subject: PATCH-ACPI based CPU hotplug[4/6]-Dynamic cpu register/unregister support
+Message-ID: <20040920094106.F14208@unix-os.sc.intel.com>
 Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
 References: <20040920092520.A14208@unix-os.sc.intel.com>
 Mime-Version: 1.0
@@ -34,212 +34,385 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 ---
-Name:acpi_hotplug_arch.patch
-Status: Tested on 2.6.9-rc2
+Name:topology.patch
+Status:Tested on 2.6.9-rc2
 Signed-off-by: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
 Depends:	
 Version: applies on 2.6.9-rc2	
-Description: 
-This patch provides the architecture specifice support for mapping lsapic to cpu array.
-Currently this supports just IA64. Support for IA32 and x86_64 is in progress
+Description:
+Extends support for dynamic registration and unregistration of the cpu,
+by implementing and exporting arch_register_cpu()/arch_unregister_cpu().
+Also combines multiple implementation of topology_init() functions to
+single topology_init() in case of ia64 architecture.
 ---
 
- linux-2.6.9-rc2-askeshav/arch/i386/kernel/acpi/boot.c |   22 +++
- linux-2.6.9-rc2-askeshav/arch/ia64/kernel/acpi.c      |  127 +++++++++++++++++-
- linux-2.6.9-rc2-askeshav/include/linux/acpi.h         |    6 
- 3 files changed, 153 insertions(+), 2 deletions(-)
+ /dev/null                                                  |   43 ------
+ linux-2.6.9-rc2-askeshav/arch/i386/mach-default/topology.c |   31 ++++
+ linux-2.6.9-rc2-askeshav/arch/ia64/dig/Makefile            |    5 
+ linux-2.6.9-rc2-askeshav/arch/ia64/kernel/Makefile         |    3 
+ linux-2.6.9-rc2-askeshav/arch/ia64/kernel/topology.c       |   91 +++++++++++++
+ linux-2.6.9-rc2-askeshav/arch/ia64/mm/numa.c               |   35 -----
+ linux-2.6.9-rc2-askeshav/drivers/base/cpu.c                |   20 ++
+ linux-2.6.9-rc2-askeshav/include/asm-i386/cpu.h            |   17 --
+ linux-2.6.9-rc2-askeshav/include/asm-ia64/cpu.h            |    5 
+ linux-2.6.9-rc2-askeshav/include/linux/cpu.h               |    3 
+ 10 files changed, 154 insertions(+), 99 deletions(-)
 
-diff -puN include/linux/acpi.h~acpi_hotplug_arch include/linux/acpi.h
---- linux-2.6.9-rc2/include/linux/acpi.h~acpi_hotplug_arch	2004-09-17 17:56:49.136826616 -0700
-+++ linux-2.6.9-rc2-askeshav/include/linux/acpi.h	2004-09-17 17:56:49.231553178 -0700
-@@ -396,6 +396,12 @@ void acpi_numa_processor_affinity_init (
- void acpi_numa_memory_affinity_init (struct acpi_table_memory_affinity *ma);
- void acpi_numa_arch_fixup(void);
+diff -L arch/ia64/dig/topology.c -puN arch/ia64/dig/topology.c~topology /dev/null
+--- linux-2.6.9-rc2/arch/ia64/dig/topology.c
++++ /dev/null	2004-06-30 13:03:36.000000000 -0700
+@@ -1,43 +0,0 @@
+-/*
+- * arch/ia64/dig/topology.c
+- *	Popuate driverfs with topology information.
+- *	Derived entirely from i386/mach-default.c
+- *  Intel Corporation - Ashok Raj
+- */
+-#include <linux/init.h>
+-#include <linux/smp.h>
+-#include <linux/cpumask.h>
+-#include <linux/percpu.h>
+-#include <linux/notifier.h>
+-#include <linux/cpu.h>
+-#include <asm/cpu.h>
+-
+-static DEFINE_PER_CPU(struct ia64_cpu, cpu_devices);
+-
+-/*
+- * First Pass: simply borrowed code for now. Later should hook into
+- * hotplug notification for node/cpu/memory as applicable
+- */
+-
+-static int arch_register_cpu(int num)
+-{
+-	struct node *parent = NULL;
+-
+-#ifdef CONFIG_NUMA
+-	//parent = &node_devices[cpu_to_node(num)].node;
+-#endif
+-
+-	return register_cpu(&per_cpu(cpu_devices,num).cpu, num, parent);
+-}
+-
+-static int __init topology_init(void)
+-{
+-    int i;
+-
+-    for_each_cpu(i) {
+-        arch_register_cpu(i);
+-	}
+-    return 0;
+-}
+-
+-subsys_initcall(topology_init);
+diff -puN arch/ia64/dig/Makefile~topology arch/ia64/dig/Makefile
+--- linux-2.6.9-rc2/arch/ia64/dig/Makefile~topology	2004-09-17 18:01:36.290143411 -0700
++++ linux-2.6.9-rc2-askeshav/arch/ia64/dig/Makefile	2004-09-17 18:01:36.429791847 -0700
+@@ -6,9 +6,4 @@
+ #
  
-+#ifdef CONFIG_ACPI_HOTPLUG_CPU
-+/* Arch dependent functions for cpu hotplug support */
-+int acpi_map_lsapic(acpi_handle handle, int *pcpu);
-+int acpi_unmap_lsapic(int cpu);
-+#endif /* CONFIG_ACPI_HOTPLUG_CPU */
-+
- extern int acpi_mp_config;
+ obj-y := setup.o
+-
+-ifndef CONFIG_NUMA
+-obj-$(CONFIG_IA64_DIG) += topology.o
+-endif
+-
+ obj-$(CONFIG_IA64_GENERIC) += machvec.o
+diff -puN arch/ia64/mm/numa.c~topology arch/ia64/mm/numa.c
+--- linux-2.6.9-rc2/arch/ia64/mm/numa.c~topology	2004-09-17 18:01:36.296979349 -0700
++++ linux-2.6.9-rc2-askeshav/arch/ia64/mm/numa.c	2004-09-17 18:01:36.429791847 -0700
+@@ -20,8 +20,6 @@
+ #include <asm/mmzone.h>
+ #include <asm/numa.h>
  
- extern u32 pci_mmcfg_base_addr;
-diff -puN arch/ia64/kernel/acpi.c~acpi_hotplug_arch arch/ia64/kernel/acpi.c
---- linux-2.6.9-rc2/arch/ia64/kernel/acpi.c~acpi_hotplug_arch	2004-09-17 17:56:49.140732866 -0700
-+++ linux-2.6.9-rc2-askeshav/arch/ia64/kernel/acpi.c	2004-09-17 17:56:49.232529740 -0700
-@@ -354,11 +354,11 @@ acpi_parse_madt (unsigned long phys_addr
- #define PXM_FLAG_LEN ((MAX_PXM_DOMAINS + 1)/32)
+-static struct node *sysfs_nodes;
+-static struct cpu *sysfs_cpus;
  
- static int __initdata srat_num_cpus;			/* number of cpus */
--static u32 __initdata pxm_flag[PXM_FLAG_LEN];
-+static u32 __devinitdata pxm_flag[PXM_FLAG_LEN];
- #define pxm_bit_set(bit)	(set_bit(bit,(void *)pxm_flag))
- #define pxm_bit_test(bit)	(test_bit(bit,(void *)pxm_flag))
- /* maps to convert between proximity domain and logical node ID */
--int __initdata pxm_to_nid_map[MAX_PXM_DOMAINS];
-+int __devinitdata pxm_to_nid_map[MAX_PXM_DOMAINS];
- int __initdata nid_to_pxm_map[MAX_NUMNODES];
- static struct acpi_table_slit __initdata *slit_table;
- 
-@@ -650,4 +650,127 @@ acpi_gsi_to_irq (u32 gsi, unsigned int *
- 	return 0;
+ /*
+  * The following structures are usually initialized by ACPI or
+@@ -50,36 +48,3 @@ paddr_to_nid(unsigned long paddr)
+ 	return (i < num_node_memblks) ? node_memblk[i].nid : (num_node_memblks ? -1 : 0);
  }
  
-+/*
-+ *  ACPI based hotplug support for CPU
-+ */
-+#ifdef CONFIG_ACPI_HOTPLUG_CPU
-+static
-+int
-+acpi_map_cpu2node(acpi_handle handle, int cpu, long physid)
-+{
-+#ifdef CONFIG_ACPI_NUMA
-+	int 			pxm_id = 0;
-+	union acpi_object 	*obj;
-+	struct acpi_buffer 	buffer = {ACPI_ALLOCATE_BUFFER, NULL};
-+
-+	if (ACPI_FAILURE(acpi_evaluate_object(handle, "_PXM", NULL, &buffer)))
-+		goto pxm_id_0;
-+
-+	if ((!buffer.length) || (!buffer.pointer))
-+		goto pxm_id_0;
-+
-+	obj = buffer.pointer;
-+	if (obj->type != ACPI_TYPE_INTEGER) {
-+		acpi_os_free(buffer.pointer);
-+		goto pxm_id_0;
-+	}
-+
-+	pxm_id = obj->integer.value;
-+
-+pxm_id_0:
-+	/*
-+	 * Assuming that the container driver would have set the proximity
-+	 * domain and would have initialized pxm_to_nid_map[pxm_id] && pxm_flag
-+	 */
-+
-+	/* Return Error if proximity domain is not set */
-+	if (!pxm_bit_test(pxm_id))
-+		return -EINVAL;
-+
-+	node_cpuid[cpu].phys_id =  physid;
-+	node_cpuid[cpu].nid = pxm_to_nid_map[pxm_id];
-+
-+#endif
-+	return(0);
-+}
-+
-+
-+int
-+acpi_map_lsapic(acpi_handle handle, int *pcpu)
-+{
-+	struct acpi_buffer buffer = {ACPI_ALLOCATE_BUFFER, NULL};
-+	union acpi_object *obj;
-+	struct acpi_table_lsapic *lsapic;
-+	cpumask_t tmp_map;
-+	long physid;
-+	int cpu;
-+ 
-+	if (ACPI_FAILURE(acpi_evaluate_object(handle, "_MAT", NULL, &buffer)))
-+		return -EINVAL;
-+
-+	if (!buffer.length ||  !buffer.pointer)
-+		return -EINVAL;
-+ 
-+	obj = buffer.pointer;
-+	if (obj->type != ACPI_TYPE_BUFFER ||
-+	    obj->buffer.length < sizeof(*lsapic)) {
-+		acpi_os_free(buffer.pointer);
-+		return -EINVAL;
-+	}
-+
-+	lsapic = (struct acpi_table_lsapic *)obj->buffer.pointer;
-+
-+	if ((lsapic->header.type != ACPI_MADT_LSAPIC) ||
-+	    (!lsapic->flags.enabled)) {
-+		acpi_os_free(buffer.pointer);
-+		return -EINVAL;
-+	}
-+
-+	physid = ((lsapic->id <<8) | (lsapic->eid));
-+
-+	acpi_os_free(buffer.pointer);
-+	buffer.length = ACPI_ALLOCATE_BUFFER;
-+	buffer.pointer = NULL;
-+
-+	cpus_complement(tmp_map, cpu_present_map);
-+	cpu = first_cpu(tmp_map);
-+	if(cpu >= NR_CPUS)
-+		return -EINVAL;
-+
-+	if (ACPI_FAILURE(acpi_map_cpu2node(handle, cpu, physid)))
-+	return -ENODEV;
-+
-+ 	cpu_set(cpu, cpu_present_map);
-+	ia64_cpu_to_sapicid[cpu] = physid;
-+	ia64_acpiid_to_sapicid[lsapic->acpi_id] = ia64_cpu_to_sapicid[cpu];
-+
-+	*pcpu = cpu;
-+	return(0);
-+}
-+EXPORT_SYMBOL(acpi_map_lsapic);
-+
-+
-+int
-+acpi_unmap_lsapic(int cpu)
-+{
-+	int i;
-+
-+	for (i=0; i<MAX_SAPICS; i++) {
-+ 		if (ia64_acpiid_to_sapicid[i] == ia64_cpu_to_sapicid[cpu]) {
-+ 			ia64_acpiid_to_sapicid[i] = -1;
-+ 			break;
-+ 		}
-+ 	}
-+	ia64_cpu_to_sapicid[cpu] = -1;
-+	cpu_clear(cpu,cpu_present_map);
-+
-+#ifdef CONFIG_ACPI_NUMA
-+	/* NUMA specific cleanup's */
-+#endif
-+
-+	return(0);
-+}
-+EXPORT_SYMBOL(acpi_unmap_lsapic);
-+#endif /* CONFIG_ACPI_HOTPLUG_CPU */
-+ 
- #endif /* CONFIG_ACPI_BOOT */
-diff -puN arch/i386/kernel/acpi/boot.c~acpi_hotplug_arch arch/i386/kernel/acpi/boot.c
---- linux-2.6.9-rc2/arch/i386/kernel/acpi/boot.c~acpi_hotplug_arch	2004-09-17 17:56:49.145615679 -0700
-+++ linux-2.6.9-rc2-askeshav/arch/i386/kernel/acpi/boot.c	2004-09-17 17:56:49.233506303 -0700
-@@ -478,6 +478,28 @@ unsigned int acpi_register_gsi(u32 gsi, 
- }
- EXPORT_SYMBOL(acpi_register_gsi);
+-static int __init topology_init(void)
+-{
+-	int i, err = 0;
+-
+-	sysfs_nodes = kmalloc(sizeof(struct node) * numnodes, GFP_KERNEL);
+-	if (!sysfs_nodes) {
+-		err = -ENOMEM;
+-		goto out;
+-	}
+-	memset(sysfs_nodes, 0, sizeof(struct node) * numnodes);
+-
+-	sysfs_cpus = kmalloc(sizeof(struct cpu) * NR_CPUS, GFP_KERNEL);
+-	if (!sysfs_cpus) {
+-		kfree(sysfs_nodes);
+-		err = -ENOMEM;
+-		goto out;
+-	}
+-	memset(sysfs_cpus, 0, sizeof(struct cpu) * NR_CPUS);
+-
+-	for (i = 0; i < numnodes; i++)
+-		if ((err = register_node(&sysfs_nodes[i], i, 0)))
+-			goto out;
+-
+-	for (i = 0; i < NR_CPUS; i++)
+-		if (cpu_online(i))
+-			if((err = register_cpu(&sysfs_cpus[i], i,
+-					       &sysfs_nodes[cpu_to_node(i)])))
+-				goto out;
+- out:
+-	return err;
+-}
+-
+-__initcall(topology_init);
+diff -puN include/linux/cpu.h~topology include/linux/cpu.h
+--- linux-2.6.9-rc2/include/linux/cpu.h~topology	2004-09-17 18:01:36.301862161 -0700
++++ linux-2.6.9-rc2-askeshav/include/linux/cpu.h	2004-09-17 18:01:36.430768409 -0700
+@@ -32,6 +32,9 @@ struct cpu {
+ };
  
+ extern int register_cpu(struct cpu *, int, struct node *);
++#ifdef CONFIG_HOTPLUG_CPU
++extern void unregister_cpu(struct cpu *, struct node *);
++#endif
+ struct notifier_block;
+ 
+ #ifdef CONFIG_SMP
+diff -puN include/asm-ia64/cpu.h~topology include/asm-ia64/cpu.h
+--- linux-2.6.9-rc2/include/asm-ia64/cpu.h~topology	2004-09-17 18:01:36.308698098 -0700
++++ linux-2.6.9-rc2-askeshav/include/asm-ia64/cpu.h	2004-09-17 18:01:36.431744972 -0700
+@@ -14,4 +14,9 @@ DECLARE_PER_CPU(struct ia64_cpu, cpu_dev
+ 
+ DECLARE_PER_CPU(int, cpu_state);
+ 
++extern int arch_register_cpu(int num);
++#ifdef CONFIG_HOTPLUG_CPU
++extern void arch_unregister_cpu(int);
++#endif
++
+ #endif /* _ASM_IA64_CPU_H_ */
+diff -puN /dev/null arch/ia64/kernel/topology.c
+--- /dev/null	2004-06-30 13:03:36.000000000 -0700
++++ linux-2.6.9-rc2-askeshav/arch/ia64/kernel/topology.c	2004-09-17 18:05:31.993265524 -0700
+@@ -0,0 +1,91 @@
 +/*
-+ *  ACPI based hotplug support for CPU
++ * This file is subject to the terms and conditions of the GNU General Public
++ * License.  See the file "COPYING" in the main directory of this archive
++ * for more details.
++ *
++ * This file contains NUMA specific variables and functions which can
++ * be split away from DISCONTIGMEM and are used on NUMA machines with
++ * contiguous memory.
++ * 		2002/08/07 Erich Focht <efocht@ess.nec.de>
++ * Populate cpu entries in sysfs for non-numa systems as well
++ *  	Intel Corporation - Ashok Raj
 + */
-+#ifdef CONFIG_ACPI_HOTPLUG_CPU
-+int
-+acpi_map_lsapic(acpi_handle handle, int *pcpu)
++
++#include <linux/config.h>
++#include <linux/cpu.h>
++#include <linux/kernel.h>
++#include <linux/mm.h>
++#include <linux/node.h>
++#include <linux/init.h>
++#include <linux/bootmem.h>
++#include <asm/mmzone.h>
++#include <asm/numa.h>
++#include <asm/cpu.h>
++
++#ifdef CONFIG_NUMA
++static struct node *sysfs_nodes;
++#endif
++static struct ia64_cpu *sysfs_cpus;
++
++int arch_register_cpu(int num)
 +{
-+	/* TBD */
-+	return -EINVAL;
++	struct node *parent = NULL;
++	
++#ifdef CONFIG_NUMA
++	parent = &sysfs_nodes[cpu_to_node(num)];
++#endif /* CONFIG_NUMA */
++
++	return register_cpu(&sysfs_cpus[num].cpu, num, parent);
 +}
-+EXPORT_SYMBOL(acpi_map_lsapic);
 +
++#ifdef CONFIG_HOTPLUG_CPU
 +
-+int
-+acpi_unmap_lsapic(int cpu)
++void arch_unregister_cpu(int num)
 +{
-+	/* TBD */
-+	return -EINVAL;
-+}
-+EXPORT_SYMBOL(acpi_unmap_lsapic);
-+#endif /* CONFIG_ACPI_HOTPLUG_CPU */
++	struct node *parent = NULL;
 +
- static unsigned long __init
- acpi_scan_rsdp (
- 	unsigned long		start,
++#ifdef CONFIG_NUMA
++	int node = cpu_to_node(num);
++	if (node_online(node))
++		parent = &sysfs_nodes[node];
++#endif /* CONFIG_NUMA */
++
++	return unregister_cpu(&sysfs_cpus[num].cpu, parent);
++}
++EXPORT_SYMBOL(arch_register_cpu);
++EXPORT_SYMBOL(arch_unregister_cpu);
++#endif /*CONFIG_HOTPLUG_CPU*/
++
++
++static int __init topology_init(void)
++{
++	int i, err = 0;
++
++#ifdef CONFIG_NUMA
++	sysfs_nodes = kmalloc(sizeof(struct node) * MAX_NUMNODES, GFP_KERNEL);
++	if (!sysfs_nodes) {
++		err = -ENOMEM;
++		goto out;
++	}
++	memset(sysfs_nodes, 0, sizeof(struct node) * MAX_NUMNODES);
++
++	for (i = 0; i < numnodes; i++)
++		if ((err = register_node(&sysfs_nodes[i], i, 0)))
++			goto out;
++#endif
++
++	sysfs_cpus = kmalloc(sizeof(struct ia64_cpu) * NR_CPUS, GFP_KERNEL);
++	if (!sysfs_cpus) {
++		err = -ENOMEM;
++		goto out;
++	}
++	memset(sysfs_cpus, 0, sizeof(struct ia64_cpu) * NR_CPUS);
++
++	for_each_present_cpu(i)
++		if((err = arch_register_cpu(i)))
++			goto out;
++out:
++	return err;
++}
++
++__initcall(topology_init);
+diff -puN arch/ia64/kernel/Makefile~topology arch/ia64/kernel/Makefile
+--- linux-2.6.9-rc2/arch/ia64/kernel/Makefile~topology	2004-09-17 18:01:36.314557473 -0700
++++ linux-2.6.9-rc2-askeshav/arch/ia64/kernel/Makefile	2004-09-17 18:01:36.432721534 -0700
+@@ -6,7 +6,8 @@ extra-y	:= head.o init_task.o vmlinux.ld
+ 
+ obj-y := acpi.o entry.o efi.o efi_stub.o gate-data.o fsys.o ia64_ksyms.o irq.o irq_ia64.o	\
+ 	 irq_lsapic.o ivt.o machvec.o pal.o patch.o process.o perfmon.o ptrace.o sal.o		\
+-	 salinfo.o semaphore.o setup.o signal.o sys_ia64.o time.o traps.o unaligned.o unwind.o mca.o mca_asm.o
++	 salinfo.o semaphore.o setup.o signal.o sys_ia64.o time.o traps.o unaligned.o \
++	 unwind.o mca.o mca_asm.o topology.o
+ 
+ obj-$(CONFIG_IA64_BRL_EMU)	+= brl_emu.o
+ obj-$(CONFIG_IA64_GENERIC)	+= acpi-ext.o
+diff -puN include/asm-i386/cpu.h~topology include/asm-i386/cpu.h
+--- linux-2.6.9-rc2/include/asm-i386/cpu.h~topology	2004-09-17 18:01:36.323346536 -0700
++++ linux-2.6.9-rc2-askeshav/include/asm-i386/cpu.h	2004-09-17 18:01:36.433698097 -0700
+@@ -11,18 +11,9 @@ struct i386_cpu {
+ 	struct cpu cpu;
+ };
+ extern struct i386_cpu cpu_devices[NR_CPUS];
+-
+-
+-static inline int arch_register_cpu(int num){
+-	struct node *parent = NULL;
+-	
+-#ifdef CONFIG_NUMA
+-	int node = cpu_to_node(num);
+-	if (node_online(node))
+-		parent = &node_devices[node].node;
+-#endif /* CONFIG_NUMA */
+-
+-	return register_cpu(&cpu_devices[num].cpu, num, parent);
+-}
++extern int arch_register_cpu(int num);
++#ifdef CONFIG_HOTPLUG_CPU
++extern void arch_unregister_cpu(int);
++#endif
+ 
+ #endif /* _ASM_I386_CPU_H_ */
+diff -puN arch/i386/mach-default/topology.c~topology arch/i386/mach-default/topology.c
+--- linux-2.6.9-rc2/arch/i386/mach-default/topology.c~topology	2004-09-17 18:01:36.330182473 -0700
++++ linux-2.6.9-rc2-askeshav/arch/i386/mach-default/topology.c	2004-09-17 18:01:36.434674659 -0700
+@@ -31,6 +31,37 @@
+ 
+ struct i386_cpu cpu_devices[NR_CPUS];
+ 
++int arch_register_cpu(int num){
++	struct node *parent = NULL;
++	
++#ifdef CONFIG_NUMA
++	int node = cpu_to_node(num);
++	if (node_online(node))
++		parent = &node_devices[node].node;
++#endif /* CONFIG_NUMA */
++
++	return register_cpu(&cpu_devices[num].cpu, num, parent);
++}
++
++#ifdef CONFIG_HOTPLUG_CPU
++
++void arch_unregister_cpu(int num) {
++	struct node *parent = NULL;
++
++#ifdef CONFIG_NUMA
++	int node = cpu_to_node(num);
++	if (node_online(node))
++		parent = &node_devices[node].node;
++#endif /* CONFIG_NUMA */
++
++	return unregister_cpu(&cpu_devices[num].cpu, parent);
++}
++EXPORT_SYMBOL(arch_register_cpu);
++EXPORT_SYMBOL(arch_unregister_cpu);
++#endif /*CONFIG_HOTPLUG_CPU*/
++
++
++
+ #ifdef CONFIG_NUMA
+ #include <linux/mmzone.h>
+ #include <asm/node.h>
+diff -puN drivers/base/cpu.c~topology drivers/base/cpu.c
+--- linux-2.6.9-rc2/drivers/base/cpu.c~topology	2004-09-17 18:01:36.335065286 -0700
++++ linux-2.6.9-rc2-askeshav/drivers/base/cpu.c	2004-09-17 18:01:36.435651222 -0700
+@@ -46,10 +46,23 @@ static ssize_t store_online(struct sys_d
+ }
+ static SYSDEV_ATTR(online, 0600, show_online, store_online);
+ 
+-static void __init register_cpu_control(struct cpu *cpu)
++static void __devinit register_cpu_control(struct cpu *cpu)
+ {
+ 	sysdev_create_file(&cpu->sysdev, &attr_online);
+ }
++void unregister_cpu(struct cpu *cpu, struct node *root)
++{
++
++	if (root)
++		sysfs_remove_link(&root->sysdev.kobj,
++				  kobject_name(&cpu->sysdev.kobj));
++	sysdev_remove_file(&cpu->sysdev, &attr_online);
++
++	sysdev_unregister(&cpu->sysdev);
++
++	return;
++}
++EXPORT_SYMBOL(unregister_cpu);
+ #else /* ... !CONFIG_HOTPLUG_CPU */
+ static inline void register_cpu_control(struct cpu *cpu)
+ {
+@@ -64,7 +77,7 @@ static inline void register_cpu_control(
+  *
+  * Initialize and register the CPU device.
+  */
+-int __init register_cpu(struct cpu *cpu, int num, struct node *root)
++int __devinit register_cpu(struct cpu *cpu, int num, struct node *root)
+ {
+ 	int error;
+ 
+@@ -81,6 +94,9 @@ int __init register_cpu(struct cpu *cpu,
+ 		register_cpu_control(cpu);
+ 	return error;
+ }
++#ifdef CONFIG_HOTPLUG_CPU
++EXPORT_SYMBOL(register_cpu);
++#endif
+ 
+ 
+ 
 _

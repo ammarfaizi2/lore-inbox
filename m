@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279301AbRJ2R2m>; Mon, 29 Oct 2001 12:28:42 -0500
+	id <S274426AbRJ2RdM>; Mon, 29 Oct 2001 12:33:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279307AbRJ2R2c>; Mon, 29 Oct 2001 12:28:32 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:64429 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S279301AbRJ2R2W>;
-	Mon, 29 Oct 2001 12:28:22 -0500
-Date: Mon, 29 Oct 2001 09:13:22 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Juergen Doelle <jdoelle@de.ibm.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: Pls apply this spinlock patch to the kernel
-In-Reply-To: <3BDD8241.8002B946@de.ibm.com>
-Message-ID: <Pine.LNX.4.33.0110290907300.8729-100000@penguin.transmeta.com>
+	id <S279303AbRJ2RdC>; Mon, 29 Oct 2001 12:33:02 -0500
+Received: from t2.redhat.com ([199.183.24.243]:1014 "HELO
+	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
+	id <S274426AbRJ2Rcu>; Mon, 29 Oct 2001 12:32:50 -0500
+Message-ID: <3BDD92E5.40EFFE90@redhat.com>
+Date: Mon, 29 Oct 2001 17:33:25 +0000
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+Organization: Red Hat, Inc
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-4smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Ben Greear <greearb@candelatech.com>, linux-kernel@vger.kernel.org
+Subject: Re: eepro100.c & Intel integrated MBs
+In-Reply-To: <11361.1004374395@nova.botz.org> <3BDD8EEC.6DFE6BA5@candelatech.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ben Greear wrote:
+> 
+> Jurgen Botz wrote:
+> 
+> > I'm now using the e100 driver from the Intel web site, which works
+> > perfectly, and light testing shows the Scyld (Don Becker) driver
+> > to work as well.  The Intel driver seems to have an incompatible
+> > license (noxious advertising clause?), but the Scyld drivers don't...
+> > at least there isn't any license mentioned and of course many
+> > of the net drivers in the current kernel are just earlier versions
+> > of the Scyld drivers.
+> 
+> The Scyld drivers have only recently started working with the 2.4 series,
+> and there is some unholly war between Becker and the rest of the kernel
+> hackers...so I don't think you'll ever see his drivers in the standard
+> kernel again...  RH usually tries to load the e100 (Intel's driver)
+> instead of the eepro100. 
 
-On Mon, 29 Oct 2001, Juergen Doelle wrote:
->
-> I had created a patch for improving the spinlock behavior on IA32 SMP
-> systems for file system work load created with dbench
-> (ftp://samba.org/pub/tridge/dbench). The work load is a mix of create,
-> delete, write, and read operations executed from a scalable number of
-> clients. It is mainly handled in buffer cache.
-
-Fair enough. However, I wonder why you didn't just use the existing
-(unaligned) types, and then on a lock-by-lock basis just mark them
-aligned. That implies no code-changes.
-
-Something like this should do it:
-
-	.. regular "spinlock_t" type
-
-	#define cachealign \
-	 __attribute__((section("aligned"),__aligned__(SMP_CACHELINE_SIZE)))
-
-(use a separate section so that subsequent data structures are also
-guaranteed to be aligned - otherwise you might get false sharing from
-non-aligned data structures that follow this one).
-
-Eh?
-
-Yes, we already try to do something like this, but due to the false
-sharing with other stuff it doesn't _guarantee_ an exclusive cacheline.
-Sometimes that is what you want (ie once you get the lock, it _can_ be
-advantageous to have the hottest data structure associated with the lock
-be in the same cacheline)
-
-		Linus
-
+No we do not.  eepro100 is the default in Red Hat Linux 7.1 and 7.2 at
+least.
+I wish Intel would help fix eepro100 for the last few remaining issues
+it has....

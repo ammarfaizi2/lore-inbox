@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318090AbSGMEjZ>; Sat, 13 Jul 2002 00:39:25 -0400
+	id <S318091AbSGMEkN>; Sat, 13 Jul 2002 00:40:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318091AbSGMEjY>; Sat, 13 Jul 2002 00:39:24 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19461 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318090AbSGMEjX>;
-	Sat, 13 Jul 2002 00:39:23 -0400
-Message-ID: <3D2FAF94.7070100@mandrakesoft.com>
-Date: Sat, 13 Jul 2002 00:41:56 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020510
-X-Accept-Language: en-us, en
+	id <S318092AbSGMEkM>; Sat, 13 Jul 2002 00:40:12 -0400
+Received: from dsl-213-023-043-071.arcor-ip.net ([213.23.43.71]:48109 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S318091AbSGMEkL>;
+	Sat, 13 Jul 2002 00:40:11 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Dax Kelson <dax@gurulabs.com>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
+Date: Sat, 13 Jul 2002 06:44:22 +0200
+X-Mailer: KMail [version 1.3.2]
+References: <1026490866.5316.41.camel@thud>
+In-Reply-To: <1026490866.5316.41.camel@thud>
 MIME-Version: 1.0
-To: Matt_Domsch@Dell.com
-CC: alan@lxorguk.ukuu.org.uk, greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: Removal of pci_find_* in 2.5
-References: <F44891A593A6DE4B99FDCB7CC537BBBB0724D1@AUSXMPS308.aus.amer.dell.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17TElb-0002jB-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt_Domsch@Dell.com wrote:
-> In both these cases, the pci_find_device() functions use an explict ordering
-> to make it far more likely we can still boot the system after adding new
-> hardware.  Unless/until there's a method for telling the kernel/modules that
-> a particular device is the boot device (ala BIOS EDD 3.0 if vendors were to
-> get around to implementing such) explict ordering in the drivers is the only
-> way we can build complex storage solutions and boot reliably.
+On Friday 12 July 2002 18:21, Dax Kelson wrote:
+> Any suggestions or comments appreciated.
 
+"it is clear that IF your server is stable and not prone to crashing, and/or 
+you have the write cache on your hard drives battery backed, you should 
+strongly consider using the writeback journaling mode of Ext3 versus ordered."
 
-IMO what devices are boot devices is a policy decision.  Depending on 
-pci_find_device() use in a driver's kernel code, or kernel link 
-ordering, is simply hard-coding something that should really be in 
-userspace.  Depending on pci_find_device logic / link order to 
-still-boot-the-system after adding new hardware sounds like an 
-incredibly fragile hope, not a reliable system users can trust.
+You probably want to suggest UPS there rather than battery backed disk
+cache, since the writeback caching is predominantly on the cpu side.
 
-	Jeff
-
-
-
+-- 
+Daniel

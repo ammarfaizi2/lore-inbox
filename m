@@ -1,74 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264561AbUEUWxk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264650AbUEUWlE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264561AbUEUWxk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 18:53:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264531AbUEUWwl
+	id S264650AbUEUWlE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 18:41:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265083AbUEUWka
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 18:52:41 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:7552 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S264992AbUEUWqC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 18:46:02 -0400
-Date: Fri, 21 May 2004 15:54:38 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: protecting source code in 2.6 (fwd)
-Message-ID: <Pine.LNX.4.53.0405211553530.942@chaos>
+	Fri, 21 May 2004 18:40:30 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:5026 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S264650AbUEUWfM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 18:35:12 -0400
+Message-ID: <40AE5D44.3020609@tmr.com>
+Date: Fri, 21 May 2004 15:49:24 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Newsgroups: mail.linux-kernel
+To: "Jinu M." <jinum@esntechnologies.co.in>
+CC: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org,
+       "Surendra I." <surendrai@esntechnologies.co.in>
+Subject: Re: protecting source code in 2.6
+References: <1118873EE1755348B4812EA29C55A97222FD0D@esnmail.esntechnologies.co.in>
+In-Reply-To: <1118873EE1755348B4812EA29C55A97222FD0D@esnmail.esntechnologies.co.in>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
----------- Forwarded message ----------
-To: Jinu M. <jinum@esntechnologies.co.in>
-From: Richard B. Johnson <root@chaos.analogic.com>
-Cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org,
-     Surendra I. <surendrai@esntechnologies.co.in>
-Subject: Re: protecting source code in 2.6
-
-On Thu, 20 May 2004, Jinu M. wrote:
-
+Jinu M. wrote:
 > Hi All,
->
+> 
 > We are developing a block device driver on linux-2.6.x kernel. We want
 > to distribute our driver as sum of source code and librabry/object code.
->
-[SNIPPED...]
+> 
+> We have divided the source code into two parts. The os interface module 
+> and the device interface module. The os interface module (osint.c) has 
+> all the os interface functions (init, exit, open, close, ioctl, request
+> queue handling etc). The device interface module (devint.c) on the other
+> hand has all the device interface functions (initialize device, read, 
+> write etc), these don't use system calls or kernel APIs.
+> 
+> The device interface module is proprietary source and we don't intend
+> to distribute it with source code on GPL license.
 
-If it executes INSIDE the kernel, i.e., becomes part of a module,
-it executes with no protection whatsoever. It is, therefore,
-capable of destroying anything in the kernel including anything
-the kernel can touch. Therefore, such a secret blob of code
-can destroy all the user's work. It can even propagate to other
-machines over the network and infect them. In short, it can
-be a worm, Trojan Horse, or other dangerous, even "Microsoft-like"
-infection. If it's not, it will be blamed anyway.
+Thye approved way to do this is to write your own proprietary operating 
+system to go with your proprietary driver, then you won't have to 
+pretend to be open source.
 
-There are no secret methods of interfacing to proprietary
-hardware. One can only use the methods provided by the target
-CPU and its associated hardware components. Anybody who thinks
-that their hardware interface code represents protected intellectual
-property doesn't have a clue what intellectual property is.
-
-If you have some magic unpublished algorithms in your driver,
-they shouldn't be there. They should be in a user-mode library
-that interfaces with the driver. In this manner, you keep your
-secret algorithms to yourselves, protecting your intellectual
-property, while publishing your interface code that executes,
-unprotected, in the kernel.
-
-So, either provide the source-code for your driver or go away.
-There are very few persons who will allow you to insert secret
-code into their kernels where it could destroy everything of
-value to them.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5557.45 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
-
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

@@ -1,42 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264828AbUEEWgc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264826AbUEEWoN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264828AbUEEWgc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 18:36:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264836AbUEEWgb
+	id S264826AbUEEWoN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 18:44:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264833AbUEEWoN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 18:36:31 -0400
-Received: from mail.kroah.org ([65.200.24.183]:18359 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264828AbUEEWfo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 18:35:44 -0400
-Date: Wed, 5 May 2004 15:35:10 -0700
-From: Greg KH <greg@kroah.com>
-To: Hanna Linder <hannal@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, roms@lpg.ticalc.org, jb@technologeek.org
-Subject: Re: [PATCH 2.6.6-rc3] Add class support to drivers/usb/misc/tiglusb.c
-Message-ID: <20040505223510.GA30309@kroah.com>
-References: <79660000.1083267538@dyn318071bld.beaverton.ibm.com> <20040502064915.GF3766@kroah.com> <36460000.1083795831@dyn318071bld.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <36460000.1083795831@dyn318071bld.beaverton.ibm.com>
-User-Agent: Mutt/1.5.6i
+	Wed, 5 May 2004 18:44:13 -0400
+Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:11018 "EHLO
+	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id S264826AbUEEWoM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 May 2004 18:44:12 -0400
+Message-ID: <40996E3B.3040901@hp.com>
+Date: Wed, 05 May 2004 15:44:11 -0700
+From: John Byrne <john.l.byrne@hp.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Switching console to text mode during panic
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 05, 2004 at 03:23:51PM -0700, Hanna Linder wrote:
-> +out_class:
-> +	class_simple_device_remove(MKDEV(TIUSB_MAJOR, TIUSB_MINOR + s->minor));
-> +	class_simple_destroy(tiglusb_class);
 
-Ick, don't destroy the whole class.  Not good.
+I'm interested in patch to switch the 386 console to text mode during 
+panic so I can see panic messages if I'm in X. My first attempts at this 
+from looking at the code in vt.c didn't work, so I was wondering if 
+someone could give me clue.
 
-> +	class_simple_device_remove(MKDEV(TIUSB_MAJOR, TIUSB_MINOR + s->minor));
-> +	class_simple_destroy(tiglusb_class);
+Thanks,
 
-Same thing here, you don't have to delete the class, only the class
-device.
+John Byrne
 
-thanks,
 
-greg k-h

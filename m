@@ -1,67 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262746AbUAOO0x (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 09:26:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263607AbUAOO0w
+	id S265062AbUAOOhc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 09:37:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265078AbUAOOhb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 09:26:52 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:32784 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S262746AbUAOO0t (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 09:26:49 -0500
-Date: Thu, 15 Jan 2004 15:26:02 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Gerd Knorr <kraxel@bytesex.org>
-cc: Andrew Morton <akpm@osdl.org>, Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] v4l-05 add infrared remote support
-In-Reply-To: <20040115115611.GA16266@bytesex.org>
-Message-ID: <Pine.LNX.4.58.0401151502320.27223@serv>
-References: <20040115115611.GA16266@bytesex.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 15 Jan 2004 09:37:31 -0500
+Received: from [212.174.195.226] ([212.174.195.226]:29650 "EHLO
+	uekae.uekae.gov.tr") by vger.kernel.org with ESMTP id S265062AbUAOOha
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 09:37:30 -0500
+Subject: True story: "gconfig" removed root folder...
+From: Ozan Eren Bilgen <oebilgen@uekae.tubitak.gov.tr>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: TUBITAK - Ulusal Elektronik ve Kriptoloji Arastirma Enstitusu
+Message-Id: <1074177405.3131.10.camel@oebilgen>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 15 Jan 2004 16:36:45 +0200
+Content-Transfer-Encoding: 7bit
+X-Pyzor: Reported 0 times.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Thu, 15 Jan 2004, Gerd Knorr wrote:
+Today I downloaded 2.6.1 kernel and tried to configure it with "make
+gconfig". After all changes I selected "Save As" and clicked "/root"
+folder to save in. Then I clicked "OK", without giving a file name. I
+expected that it opens root folder and lists contents. But this magic
+configurator removed (rm -Rf) my root folder and created a file named
+"root". It was a terrible experience!..
 
-> diff -u linux-2.6.1/drivers/media/Kconfig linux/drivers/media/Kconfig
-> --- linux-2.6.1/drivers/media/Kconfig	2004-01-14 15:05:10.000000000 +0100
-> +++ linux/drivers/media/Kconfig	2004-01-14 15:09:35.000000000 +0100
-> @@ -49,5 +49,11 @@
->  	default VIDEO_BT848
->  	depends on VIDEO_DEV
->
-> +config VIDEO_IR
-> +	tristate
-> +	default y if VIDEO_BT848=y || VIDEO_SAA7134=y
-> +	default m if VIDEO_BT848=m || VIDEO_SAA7134=m
-> +	depends on VIDEO_DEV
-> +
->  endmenu
->
+Please fix this. I didn't check that same problem (I even didn't launch
+them) exist for other configurators then gconfig.
 
-This can also be written as:
+I send this mail here because I guessed that the configurator is a part
+of kernel.
 
-config VIDEO_IR
-	def_tristate VIDEO_BT848 || VIDEO_SAA7134
+Note: (As you wished) Please CC me your responses.
 
-def_tristate is the same as tristate & default ...
-The dependency is redundant as the other options already depend on it.
 
-Another possibility is to use select:
+TIA
+-- 
+Comp. Eng. Ozan Eren BILGEN
 
-# selected as needed
-config VIDEO_IR
-	tristate
+TUBITAK - UEKAE (Turkey)
+National Research Institute of Electronics & Cryptology
+Special Projects Group
+Researcher
 
-config VIDEO_BT848
-	...
-	select VIDEO_IR
 
-This has the advantage that adding/removing drivers only requires changes
-at a single place.
-
-bye, Roman

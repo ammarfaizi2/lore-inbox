@@ -1,73 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319732AbSIMRzF>; Fri, 13 Sep 2002 13:55:05 -0400
+	id <S319735AbSIMR4B>; Fri, 13 Sep 2002 13:56:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319734AbSIMRzF>; Fri, 13 Sep 2002 13:55:05 -0400
-Received: from hermes.domdv.de ([193.102.202.1]:45838 "EHLO zeus.domdv.de")
-	by vger.kernel.org with ESMTP id <S319732AbSIMRzE>;
-	Fri, 13 Sep 2002 13:55:04 -0400
-Message-ID: <3D8227EA.6040708@domdv.de>
-Date: Fri, 13 Sep 2002 20:01:14 +0200
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020828
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ahmed Masud <masud@googgun.com>
-CC: Thunder from the hill <thunder@lightweight.ods.org>, dag@brattli.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5.34: IR __FUNCTION__ breakage
-References: <Pine.LNX.4.44.0209131013080.10048-100000@hawkeye.luckynet.adm> <3D82247A.80601@googgun.com>
-X-Enigmail-Version: 0.65.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S319739AbSIMR4B>; Fri, 13 Sep 2002 13:56:01 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:24595 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S319735AbSIMR4A>;
+	Fri, 13 Sep 2002 13:56:00 -0400
+Date: Fri, 13 Sep 2002 20:00:51 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Andrew Bray <abuse@madhouse.demon.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] drivers/pci,hamradio,scsi,aic7xxx,video,zorro clean and mrproper files 4/6
+Message-ID: <20020913200051.A1758@mars.ravnborg.org>
+Mail-Followup-To: Andrew Bray <abuse@madhouse.demon.co.uk>,
+	linux-kernel@vger.kernel.org
+References: <20020910225530.A17094@mars.ravnborg.org> <20020910230656.D18386@mars.ravnborg.org> <9500000.1031706478@aslan.btc.adaptec.com> <20020911071219.A1352@mars.ravnborg.org> <slrnao427d.si3.abuse@madhouse.demon.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <slrnao427d.si3.abuse@madhouse.demon.co.uk>; from abuse@madhouse.demon.co.uk on Fri, Sep 13, 2002 at 03:49:01PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(rct@gherkin.frus.com removed from cc list as his mta treats (not only) 
-my mails as spam...)
+On Fri, Sep 13, 2002 at 03:49:01PM +0000, Andrew Bray wrote:
+> Just a thought: should 'make clean' and/or 'make mrproper' rename the
+> _shipped files back to their origilal names?
+What could be done is to delete the files generated from _shipped.
+Hereby they would be generated from their _shipped variants during next
+the next build. Please note that they are not renamed, but copied.
+But I wanted to keep current functionality and later extend as
+made sense. A stepwise approach.
 
-Ahmed Masud wrote:
-> Thunder from the hill wrote:
-> 
->> Hi,
->>
->> On Fri, 13 Sep 2002, Andreas Steinmetz wrote:
->>
->>> At least for gcc 3.2 this would be better:
->>>
->>> #define DERROR(dbg, fmt, args...) \
->>>     do { if (DEBUG_##dbg) \
->>>         printk(KERN_INFO "irnet: %s(): " fmt, __FUNCTION__, ##args); \
->>>     } while(0)
->>>
-> Perhaps a hybrid of the two? :
-> 
-> #define DERROR(dbg, fmt, 
-> args...)                                          \
->    do { if (DEBUG_##dbg) {                                                \
->                printk(KERN_INFO "irnet: %s() : ", __FUNCTION__);          \
->                printk(fmt, ## args);                                      \
->         }                                                                 \
->    } while (0)
-> 
-> 
-How about what I did just suggest for smbfs?
+I also had in mind only deleting .o files generated during the build,
+allowing us to get rid of the find ... in make clean.
+make mrproper would need it to remove stale .o files, and the like.
 
-#if __GNUC__>=3
-#define DERROR(dbg, fmt, args...) \
-   do { if (DEBUG_##dbg) \
-       printk(KERN_INFO "irnet: %s(): " fmt, __FUNCTION__, ##args); \
-   } while(0)
-#else
-#define DERROR(dbg, args...) \
-   {if(DEBUG_##dbg) \
-     printk(KERN_INFO "irnet: " __FUNCTION__ "(): " args);}
-#endif
+Another item that popped up while doing this was a new definition of
+mrproper and clean.
+They are clearly mixed, and it seems mrproper is used to clean everything
+when kbuild is confused. But very often people want to keep their
+.config. Dunno yet what to do, and for sure it makes no sense whatsoever
+to mix a clean-up patch with a new functionality patch.
 
-gcc 2 versions will be deprecated eventually some time in the future and 
-in between the macro selection by gcc major version should be fair enough.
--- 
-Andreas Steinmetz
-D.O.M. Datenverarbeitung GmbH
-
+	Sam

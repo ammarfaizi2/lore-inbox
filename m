@@ -1,115 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265589AbUABQal (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 11:30:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265592AbUABQaj
+	id S265594AbUABQgi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 11:36:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265595AbUABQgi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 11:30:39 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:27562 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S265589AbUABQag (ORCPT
+	Fri, 2 Jan 2004 11:36:38 -0500
+Received: from mail.fh-wedel.de ([213.39.232.194]:1445 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S265594AbUABQgg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 11:30:36 -0500
-Date: Fri, 2 Jan 2004 17:30:24 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Michael Hunold <hunold@convergence.de>
-Cc: Jeff Chua <jeffchua@silk.corp.fedex.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GetASF failed on DVD authentication
-Message-ID: <20040102163024.GS5523@suse.de>
-References: <Pine.LNX.4.58.0401021616580.4954@boston.corp.fedex.com> <20040102103949.GL5523@suse.de> <Pine.LNX.4.58.0401022219290.10338@silk.corp.fedex.com> <3FF5986C.8060806@convergence.de> <20040102161813.GA21852@suse.de>
+	Fri, 2 Jan 2004 11:36:36 -0500
+Date: Fri, 2 Jan 2004 17:35:52 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Christoph Hellwig <hch@infradead.org>, Libor Vanek <libor@conet.cz>,
+       Muli Ben-Yehuda <mulix@mulix.org>, linux-kernel@vger.kernel.org
+Subject: Re: Syscall table AKA hijacking syscalls
+Message-ID: <20040102163552.GD31489@wohnheim.fh-wedel.de>
+References: <3FF56B1C.1040308@conet.cz> <20040102151206.GJ1718@actcom.co.il> <3FF59073.3060305@conet.cz> <20040102160020.A24026@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20040102161813.GA21852@suse.de>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040102160020.A24026@infradead.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 02 2004, Jens Axboe wrote:
-> On Fri, Jan 02 2004, Michael Hunold wrote:
-> > Helloo
-> > 
-> > On 02.01.2004 15:25, Jeff Chua schrieb:
-> > >On Fri, 2 Jan 2004, Jens Axboe wrote:
-> > 
-> > >USB drive is a Pioneer DVR-SK11B-J. It's reported as ...
-> > >
-> > >scsi0 : SCSI emulation for USB Mass Storage devices
-> > >  Vendor: PIONEER   Model: DVD-RW  DVR-K11   Rev: 1.00
-> > >  Type:   CD-ROM                             ANSI SCSI revision: 02
-> > >
-> > >I've tried at least 2 other USB drives (Plextor PX-208U, and Sony CRX85U),
-> > >and both of these drives also exhibit the same problem.
-> > 
-> > >>>Linux version is 2.4.24-pre3.
-> > 
-> > >scsi0 : SCSI emulation for USB Mass Storage devices
-> > >  Vendor: PIONEER   Model: DVD-RW  DVR-K11   Rev: 1.00
-> > >  Type:   CD-ROM                             ANSI SCSI revision: 02
-> > >Attached scsi CD-ROM sr0 at scsi0, channel 0, id 0, lun 0
-> > >sr0: scsi-1 drive
-> > 
-> > IMHO the problem is inside SCSI drive recognition system, which can be 
-> > found in "drivers/scsi/sr.c".
-> > 
-> > The function "get_capabilities()" tries to find out which type of drive 
-> > you have.
-> > 
-> > ---------------------------schnipp--------------------------------------
-> >     rc = sr_do_ioctl(i, cmd, buffer, 128, 1, SCSI_DATA_READ, NULL);
-> > 
-> >     if (rc) {
-> >         /* failed, drive doesn't have capabilities mode page */
-> >         scsi_CDs[i].cdi.speed = 1;
-> >         scsi_CDs[i].cdi.mask |= (CDC_CD_R | CDC_CD_RW | CDC_DVD_R |
-> >                      CDC_DVD | CDC_DVD_RAM |
-> >                      CDC_SELECT_DISC | CDC_SELECT_SPEED);
-> >         scsi_free(buffer, 512);
-> >         printk("sr%i: scsi-1 drive\n", i);
-> >         return;
-> >     }
-> > ---------------------------schnipp--------------------------------------
-> > 
-> > For my SCSI-2/USB drive, the above SCSI_DATA_READ command fails. As you 
-> > can see, in this case the driver thinks that your drive is SCSI-1, ie. a 
-> > CD-drive only. So DVD ioctls like the AGID commands will be filtered in 
-> > the lower levels, because a CD-driver does not understand them anyway.
-> > 
-> > Unfortunately, the driver only knows SCSI-1 and SCSI-3, so SCSI-2 DVD 
-> > driver are out of luck here and get downgraded to SCSI-1 CD-ROM stuff.
-> > 
-> > The patch below unmasks the DVD drive bit, ie. even if the kernel 
-> > misdetects your driver, it will allow DVD ioctls to be passed to your drive.
-> > 
-> > This is not a safe fix, but "it works for me"(tm). I don't know how to 
-> > really fix it; probably adding proper SCSI-2 support.
-> > 
-> > >Thanks,
-> > >Jeff
-> > 
-> > CU
-> > Michael.
+On Fri, 2 January 2004 16:00:20 +0000, Christoph Hellwig wrote:
+> On Fri, Jan 02, 2004 at 04:38:27PM +0100, Libor Vanek wrote:
+> > I'm working on my diploma thesis which is adding snapshot capability 
+> > into Linux VFS (so you can do directory based snapshots - not complete 
+> > device, like in LVM). It'll consist of two separete modules:
+> > Snapshot module:
+> > - will hijack (one or another way) calls to open/move/unlink/mkdir/etc. 
+> > syscall
+> > - when will detect change to selected directory (which I want to 
+> > snapshot), it'll copy/move old file/directory to some temporary 
+> > (selected when creating snapshot) - in fact - copy on write behaviour
 > 
-> > diff -ur linux-2.4.21/drivers/scsi/sr.c linux-2.4.21.patched/drivers/scsi/sr.c
-> > --- linux-2.4.21/drivers/scsi/sr.c	2003-06-13 16:51:36.000000000 +0200
-> > +++ linux-2.4.21.patched/drivers/scsi/sr.c	2003-08-27 23:52:32.000000000 +0200
-> > @@ -725,7 +725,7 @@
-> >  		/* failed, drive doesn't have capabilities mode page */
-> >  		scsi_CDs[i].cdi.speed = 1;
-> >  		scsi_CDs[i].cdi.mask |= (CDC_CD_R | CDC_CD_RW | CDC_DVD_R |
-> > -					 CDC_DVD | CDC_DVD_RAM |
-> > +					 /* USB-DVD-SCSI-2 hack: */ /* CDC_DVD | */  CDC_DVD_RAM |
-> >  					 CDC_SELECT_DISC | CDC_SELECT_SPEED);
-> >  		scsi_free(buffer, 512);
-> >  		printk("sr%i: scsi-1 drive\n", i);
-> 
-> Better yet, kill the silly checks instead.
+> This should be implemented as a stackable filesystem..
 
-BTW Jeff, I'd still very much like to see the usb-storage log from when
-sr gets loaded. Even though it's fine to kill the CDC_DVD checks, it
-would still be a good idea to fix why the capabilities check fails. That
-is the real bug.
+Does this filesystem stack work with multiple mount points?
 
+My guess is that the filesystem change notification would be a better
+solution, either in userspace or in kernelspace, doesn't matter.  But
+that is far from finished or even generally accepted.
+
+
+For the diploma thesis, feel free to use any hack you like, including
+hijacking syscalls.  But remember that it is a hack and nothing else,
+only helping you to remain on schedule and focus more on the real
+subject.  And don't plan on kernel acceptance either, as you will fail
+either that or the thesis and I'd choose the thesis.
+
+Jörn
 
 -- 
-Jens Axboe
-
+Mundie uses a textbook tactic of manipulation: start with some
+reasonable talk, and lead the audience to an unreasonable conclusion.
+-- Bruce Perens

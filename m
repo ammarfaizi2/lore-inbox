@@ -1,80 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266027AbUFVVIx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266001AbUFVU6i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266027AbUFVVIx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 17:08:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266021AbUFVVIR
+	id S266001AbUFVU6i (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 16:58:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265932AbUFVUtX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 17:08:17 -0400
-Received: from mail.dif.dk ([193.138.115.101]:29643 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S266040AbUFVVEj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 17:04:39 -0400
-Date: Tue, 22 Jun 2004 23:03:38 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Mark Lord <mlord@pobox.com>, Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Subject: [PATCH] check_region removal - trm290.c
-Message-ID: <8A43C34093B3D5119F7D0004AC56F4BC082C7F96@difpst1a.dif.dk>
+	Tue, 22 Jun 2004 16:49:23 -0400
+Received: from sweetums.bluetronic.net ([24.199.150.42]:2554 "EHLO
+	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
+	id S266001AbUFVUfK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 16:35:10 -0400
+Date: Tue, 22 Jun 2004 16:29:08 -0400 (EDT)
+From: Ricky Beam <jfbeam@bluetronic.net>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: <linux-ide@vger.kernel.org>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix sata_sil quirk
+In-Reply-To: <40D89509.6010502@pobox.com>
+Message-ID: <Pine.GSO.4.33.0406221620300.25702-200000@sweetums.bluetronic.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/Mixed; BOUNDARY=------------010603080104080507040708
+Content-ID: <Pine.GSO.4.33.0406221620301.25702@sweetums.bluetronic.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Here's a patch to remove check_region from drivers/ide/pci/trm190.c
+--------------010603080104080507040708
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; FORMAT=flowed
+Content-ID: <Pine.GSO.4.33.0406221620302.25702@sweetums.bluetronic.net>
 
-As far as I can see this should not make the driver any less safe than it
-currently is, but as Guennadi Liakhovetski has pointed out to me
-previously, it doesn't look quite safe that the driver tries to access
-ports before request_region gets called from ide_hwif_request_regions()
-Unfortunately I'm not quite sure how to rework the driver properly to
-make sure it's safe (suggestions welcome).
+On Tue, 22 Jun 2004, Jeff Garzik wrote:
+>Here's my suggested fix...  good catch Ricky.
 
-Anyway, this gets us one step closer to being able to get rid of
-check_region() completely, and I don't see how it can do any harm. If the
-drivers port access is currently broken, then it's no less broken with
-this patch and we gain the bennefit of one less warning and one less
-check_region user.
-Comments on how to fix this up better are welcome as well as comments on
-whether or not it's sufficient and safe to just get rid of check_region
-without any further changes.
-Patch below is against 2.6.7
+And I don't even know why I looked at max_sectors :-) (I need more Dew.)
 
+>Yes, unfortunately performance will be dog slow.
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+Well, at least puppy slow...
+Device:            tps    kB_read/s    kB_wrtn/s    kB_read    kB_wrtn
+sda            1811.65         0.00      9629.85          0     577887
+sdb            1807.15         0.00      9629.60          0     577872
+sdc            1807.25         0.00      9629.86          0     577888
+sdd            1807.05         0.00      9629.86          0     577888
+md_d0         14444.64         0.00     48148.84          0    2889412
+md_d0p2        9629.78         0.00     38519.11          0    2311532
+(over 60sec,  8M O_DIRECT accesses, 128 stripes * 16k RAID0)
 
---- linux-2.6.7-orig/drivers/ide/pci/trm290.c	2004-06-16 07:19:01.000000000 +0200
-+++ linux-2.6.7/drivers/ide/pci/trm290.c	2004-06-22 22:53:10.000000000 +0200
-@@ -3,6 +3,10 @@
-  *
-  *  Copyright (c) 1997-1998  Mark Lord
-  *  May be copied or modified under the terms of the GNU General Public License
-+ *
-+ *  June 22, 2004 - get rid of check_region
-+ *                  Jesper Juhl <juhl-lkml@dif.dk>
-+ *
-  */
+Without the MOD15 hack, the numbers are 2x higher, but they stop after
+a few minutes :-)
 
- /*
-@@ -372,16 +376,6 @@ void __devinit init_hwif_trm290(ide_hwif
- 		if (old != compat && old_mask == 0xff) {
- 			/* leave lower 10 bits untouched */
- 			compat += (next_offset += 0x400);
--#  if 1
--			if (check_region(compat + 2, 1))
--				printk(KERN_ERR "%s: check_region failure at 0x%04x\n",
--					hwif->name, (compat + 2));
--			/*
--			 * The region check is not needed; however.........
--			 * Since this is the checked in ide-probe.c,
--			 * this is only an assignment.
--			 */
--#  endif
- 			hwif->io_ports[IDE_CONTROL_OFFSET] = compat + 2;
- 			hwif->OUTW(compat|1, hwif->config_data);
- 			new = hwif->INW(hwif->config_data);
+>I've got contacts at Silicon Image, and have been meaning to bug them
+>for a "real fix" for a while.  It is rumored that there is a much better
+>fix, which allows full performance while at the same time not killing
+>your SATA drive due to odd-sized SATA frames on the wire.
+
+Ask them what they do in their driver? (the linux one and the windows one)
+Looking at the linux driver, the mod15 quirk is there, but there doesn't
+appear to be any associated device list. (I've already post the single
+Maxtor device listed.)  FreeBSD detects the stall, resets the chip and
+hopes that clears the problem. (People are not happy about that.)
+
+--Ricky
 
 
---
-Jesper Juhl <juhl-lkml@dif.dk>
+--------------010603080104080507040708
+Content-Type: TEXT/PLAIN; NAME=patch
+Content-ID: <Pine.GSO.4.33.0406221620303.25702@sweetums.bluetronic.net>
+Content-Description: 
+Content-Disposition: INLINE; FILENAME=patch
 
+===== drivers/scsi/libata-scsi.c 1.39 vs edited =====
+--- 1.39/drivers/scsi/libata-scsi.c	2004-05-12 11:46:21 -04:00
++++ edited/drivers/scsi/libata-scsi.c	2004-06-22 16:18:57 -04:00
+@@ -182,7 +182,8 @@
+ 		 * 65534 when Jens Axboe's patch for dynamically
+ 		 * determining max_sectors is merged.
+ 		 */
+-		if (dev->flags & ATA_DFLAG_LBA48) {
++		if ((dev->flags & ATA_DFLAG_LBA48) &&
++		    ((dev->flags & ATA_DFLAG_LOCK_SECTORS) == 0)) {
+ 			sdev->host->max_sectors = 2048;
+ 			blk_queue_max_sectors(sdev->request_queue, 2048);
+ 		}
+===== drivers/scsi/sata_sil.c 1.26 vs edited =====
+--- 1.26/drivers/scsi/sata_sil.c	2004-06-15 00:29:32 -04:00
++++ edited/drivers/scsi/sata_sil.c	2004-06-22 16:18:21 -04:00
+@@ -302,6 +302,7 @@
+ 		       ap->id, dev->devno);
+ 		ap->host->max_sectors = 15;
+ 		ap->host->hostt->max_sectors = 15;
++		dev->flags |= ATA_DFLAG_LOCK_SECTORS;
+ 		return;
+ 	}
+ 
+===== include/linux/libata.h 1.38 vs edited =====
+--- 1.38/include/linux/libata.h	2004-06-22 00:54:44 -04:00
++++ edited/include/linux/libata.h	2004-06-22 16:17:44 -04:00
+@@ -91,6 +91,7 @@
+ 	ATA_DFLAG_MASTER	= (1 << 2), /* is device 0? */
+ 	ATA_DFLAG_WCACHE	= (1 << 3), /* has write cache we can
+ 					     * (hopefully) flush? */
++	ATA_DFLAG_LOCK_SECTORS	= (1 << 4), /* don't adjust max_sectors */
+ 
+ 	ATA_DEV_UNKNOWN		= 0,	/* unknown device */
+ 	ATA_DEV_ATA		= 1,	/* ATA device */
+
+--------------010603080104080507040708--

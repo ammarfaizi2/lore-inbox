@@ -1,38 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263794AbSLLMAq>; Thu, 12 Dec 2002 07:00:46 -0500
+	id <S267454AbSLLMCU>; Thu, 12 Dec 2002 07:02:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267454AbSLLMAq>; Thu, 12 Dec 2002 07:00:46 -0500
-Received: from cmailm4.svr.pol.co.uk ([195.92.193.211]:31500 "EHLO
-	cmailm4.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S263794AbSLLMAq>; Thu, 12 Dec 2002 07:00:46 -0500
-Date: Thu, 12 Dec 2002 12:08:36 +0000
-To: Wil Reichert <wilreichert@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: "bio too big" error
-Message-ID: <20021212120836.GA5717@reti>
-References: <1039572597.459.82.camel@darwin>
+	id <S267458AbSLLMCU>; Thu, 12 Dec 2002 07:02:20 -0500
+Received: from mail.zmailer.org ([62.240.94.4]:57041 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id <S267454AbSLLMCS>;
+	Thu, 12 Dec 2002 07:02:18 -0500
+Date: Thu, 12 Dec 2002 14:10:04 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+       Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: i4l dtmf errors
+Message-ID: <20021212121004.GC32122@mea-ext.zmailer.org>
+References: <200212121145.26108.roy@karlsbakk.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <1039572597.459.82.camel@darwin>
-User-Agent: Mutt/1.4i
-From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200212121145.26108.roy@karlsbakk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 10, 2002 at 09:17:45PM -0500, Wil Reichert wrote:
-> Hi,
+  This is possibly more of   linux-isdn@vger.kernel.org  list thing,
+  than linux-kernel per se.
+
+On Thu, Dec 12, 2002 at 11:45:26AM +0100, Roy Sigurd Karlsbakk wrote:
+> hi
 > 
-> I'm getting a "bio too big" error with 2.5.50.  I've got a 330G lvm2
-> partition formatted with ext3 using the -T largefile4 parameter. 
-> Everything seems ok at first, but any sort of access will die very
-> unhappily with said error messsage after about 10 seconds of operation
-> or so.  The only google search results are the patch submission.  Eeek.
+> it seems isdn4linux detects DTMF tones from normal speach. This is rather 
+> annoying when using i4l for voice with Asterisk.org. This is tested on all 
+> recent kernels
+> 
+> see thread "[MGCP] Asterisk/D-Link phones generates ugly DTMF tones!!!" at 
+> http://www.marko.net/asterisk/archives/ for more info.
 
-Could you try the patchset below please ?  (you may need to knock out
-patch 5 until we get to the bottom of that particular bug).
+  Quick reading of  drivers/isdn/isdn_audio.c(*)  shows that it does use
+  fixed-point Görtzel (Goertzel in english) algorithm for detecting
+  tones, but it does _not_ do comparison of received overall signal
+  power vs. detected DTMF tone powers.
 
-http://people.sistina.com/~thornber/patches/2.5-stable/2.5.51/2.5.51-dm-2.tar.bz2
+  When there is signal power outside the DTMF channels, signal should
+  not be detected.  Also, DTMF tone powers should be roughly equal,
+  and exactly two tones should be present for valid detection.
 
-- Joe
+      http://www.numerix-dsp.com/goertzel.html
+
+  Adding those power tests should be fairly trivial, but I leave it
+  to Somebody Else...
+
+(*) kernel version I looked upon was 2.4.16-0.11custom -- some RH kernel
+
+> roy
+> -- 
+> Roy Sigurd Karlsbakk, Datavaktmester
+> ProntoTV AS - http://www.pronto.tv/
+> Tel: +47 9801 3356
+
+/Matti Aarnio

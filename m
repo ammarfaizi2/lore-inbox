@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314278AbSE2Rm0>; Wed, 29 May 2002 13:42:26 -0400
+	id <S314389AbSE2RnZ>; Wed, 29 May 2002 13:43:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314389AbSE2Rm0>; Wed, 29 May 2002 13:42:26 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:22484 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S314278AbSE2RmW>;
-	Wed, 29 May 2002 13:42:22 -0400
-Date: Wed, 29 May 2002 10:42:22 -0700
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: David Gibson <hermes@gibson.dropbear.id.au>, jt@hpl.hp.com,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Orinoco Wireless driver bugs in 2.5.17
-Message-ID: <20020529104221.I24843@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-In-Reply-To: <20020522103834.B10921@bougret.hpl.hp.com> <E17Aams-0002Ue-00@the-village.bc.nu> <20020523012517.GM1001@zax> <1022697627.9255.272.camel@irongate.swansea.linux.org.uk>
+	id <S314395AbSE2RnX>; Wed, 29 May 2002 13:43:23 -0400
+Received: from sprocket.loran.com ([209.167.240.9]:35069 "EHLO
+	ottonexc1.peregrine.com") by vger.kernel.org with ESMTP
+	id <S314389AbSE2RnT>; Wed, 29 May 2002 13:43:19 -0400
+Subject: Re: A reply on the RTLinux discussion.
+From: Dana Lacoste <dana.lacoste@peregrine.com>
+To: Mark Mielke <mark@mark.mielke.cc>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020529111553.A15457@mark.mielke.cc>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 29 May 2002 13:43:18 -0400
+Message-Id: <1022694198.8950.46.camel@dlacoste.ottawa.loran.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 29, 2002 at 07:40:27PM +0100, Alan Cox wrote:
-> On Thu, 2002-05-23 at 02:25, David Gibson wrote:
-> > The signal/noise bit is probably a red herring.  We have problems with
-> > the reporting of this, but it's mostly cosmetic.  I seem to have
-> > confusing and contradictory information about how to interpret the
-> > values the firmware reports.
-> 
-> Ok the old driver gets the noise level right, the newer one got it
-> wrong, the current one gets it wrong. The good news is the old one
-> works, the new one didnt, the current 2.4.19pre one does...
-> 
-> Alan
+> I don't see the patent stopping people from creating non-proprietary
+> commercial software. I *do* see the patent perhaps forcing people who
+> make money off non-Open Source extensions to have some sort of deal
+> with Victor.
 
-	David,
+> I don't see what is unfair about this.
 
-	In the linux-wlan-ng, I did implement a different algorithm to
-report signal/noise in /proc/net/wireless, based on various info on
-the list. Mark Matthews did check with some people and told me it was
-the right algorithm for the Intersil firmware.
-	Note that I'm not sure we ever got it right.
-	Also, in the past, we had the min/max wrapper that avoided
-"strange" values, and I think that's what people are mostly
-complaining about. So, maybe we should reintroduce the min/max.
-	Regards,
+Ahhh, so Victor makes the money off all the Linux people because
+his is the only part that's _patented_.
 
-	Jean
+Do you see what I'm getting at now?  When a party chooses Linux
+for their platform they're choosing all of it, and maybe they'll
+be taking Victor's stuff along with the rest simply because it's
+the rest that they _really_ want.
+
+Why should Victor be making money off your work?
+
+Dana "bowing out of this conversation before the PRGN people get made at
+me cuz the SEC has made everyone paranoid" Lacoste
+Ottawa, Canada
+

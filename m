@@ -1,106 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129704AbRAPUci>; Tue, 16 Jan 2001 15:32:38 -0500
+	id <S132762AbRAPUgt>; Tue, 16 Jan 2001 15:36:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131188AbRAPUc2>; Tue, 16 Jan 2001 15:32:28 -0500
-Received: from proxy.ovh.net ([213.244.20.42]:18952 "HELO proxy.ovh.net")
-	by vger.kernel.org with SMTP id <S129704AbRAPUcR>;
-	Tue, 16 Jan 2001 15:32:17 -0500
-Message-ID: <3A64AF23.6C11CEB4@ovh.net>
-Date: Tue, 16 Jan 2001 21:29:23 +0100
-From: octave klaba <oles@ovh.net>
-X-Mailer: Mozilla 4.73 [en] (Win98; I)
-X-Accept-Language: fr,en
-MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: oops 2.2.18
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S132025AbRAPUgj>; Tue, 16 Jan 2001 15:36:39 -0500
+Received: from munchkin.spectacle-pond.org ([209.192.197.45]:19982 "EHLO
+	munchkin.spectacle-pond.org") by vger.kernel.org with ESMTP
+	id <S132120AbRAPUgb>; Tue, 16 Jan 2001 15:36:31 -0500
+Date: Tue, 16 Jan 2001 15:37:57 -0500
+From: Michael Meissner <meissner@spectacle-pond.org>
+To: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
+Cc: Venkatesh Ramamurthy <Venkateshr@ami.com>,
+        "'Dominik Kubla'" <dominik.kubla@uni-mainz.de>,
+        "'David Woodhouse'" <dwmw2@infradead.org>,
+        "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Linux not adhering to BIOS Drive boot order?
+Message-ID: <20010116153757.A1609@munchkin.spectacle-pond.org>
+In-Reply-To: <1355693A51C0D211B55A00105ACCFE64E95191@ATL_MS1> <Pine.LNX.4.21.0101161154580.17397-100000@sol.compendium-tech.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.21.0101161154580.17397-100000@sol.compendium-tech.com>; from kernel@blackhole.compendium-tech.com on Tue, Jan 16, 2001 at 12:01:12PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-on 2.2.17 & 2.2.18 we have this kernel panic:
-it begins with:
-no vm86_info: BAD
+On Tue, Jan 16, 2001 at 12:01:12PM -0800, Dr. Kelsey Hudson wrote:
+> On Tue, 16 Jan 2001, Venkatesh Ramamurthy wrote:
+> 
+> > > This is due to the fixed ordering of the scsi drivers. You can change the
+> > > order of the scsi hosts with the "scsihosts" kernel parameter. See
+> > > linux/drivers/scsi/scsi.c
+> > 	[Venkatesh Ramamurthy]  I think it would be a nice idea if we can
+> > make this process automatic , with out user typing in the order and
+> > remembering it. The fact that a kernel developer is not using the machines
+> > daily to get his work done should be in our minds. If we do this Linux would
+> > become more user friendly
+> 
+> you're forgetting that in /etc/lilo.conf there is a directive called
+> 'append='... all the user has to do is merely add
+> 'append="scsihosts=whatever,whatever"' into their config file and rerun
+> lilo. problem solved
 
-ksymoops 2.3.7 on i686 2.2.18RAID.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.2.18RAID/ (default)
-     -m /usr/src/linux/System.map (default)
+That's assuming you are using lilo.  Not everybody does or can use lilo, please
+don't assume that the way your system gets booted is the way everybody's does,
+particularly those on platforms other than the x86.
 
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
+I must say, as a 5 year Linux user (and 23 year UNIX user/administrator), I do
+get tired of having to hunt down and deal with each of these changes that come
+up from time to time with Linux (ie, switching from ipfwadm to ipchains to
+netfilter, or in this case reordering how scsi adapters/network adapters are
+looked up).
 
-Error (regular_file): read_ksyms stat /proc/ksyms failed
-./ksymoops: Aucun fichier ou répertoire de ce type
-No modules in ksyms, skipping objects
-No ksyms, skipping lsmod
-Unable to handle kernel paging request at virtual address 4452460c
-current->tss.cr3 = 09678000, %cr3 = 09678000
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c011d2be>]
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010046
-eax: 00000019   ebx: 44524600   ecx: d7063fc0   edx: 00000000
-esi: dffef920   edi: 00000286   ebp: 00000018   esp: c96ebe04
-ds: 0018   es: 0018   ss: 0018
-Process webalizer (pid: 24499, process nr: 188, stackpage=c96eb000)
-Stack: d706361c 00000004 d706365c dbea773c c014a142 dffef920 d70635c0 d70635c0
-       c014a1f1 d70635c0 0000003c d70635c0 c0158417 d70635c0 c81c2ff0 00002180
-       00000002 c81c2f40 d70635ec d70635c0 c81c2f94 00241717 c0158722 c81c2f40
-Call Trace: [<c014a142>] [<c014a1f1>] [<c0158417>] [<c0158722>] [<c01a6787>] [<c0159be9>] [<c015e950>]
-       [<c015ed06>] [<c0151bb2>] [<c0151e99>] [<c014ba25>] [<c0114f39>] [<c0108b8b>] [<c0108858>]
-Code: 39 43 0c 75 1d 8b 41 14 89 58 10 89 43 14 8b 06 8b 50 14 89
+> besides, how many 'end-users' do you know of that will have multiple scsi
+> adapters in one system? how many end-users -period- will have even a
+> *single* scsi adapter in their systems? do we need to bloat the kernel
+> with automatic things like this? no... i think it is handled fine the way
+> it is. if the user wants to add more than one scsi adapter into his
+> system, let him read some documentation on how to do so. (is this even a
+> documented feature? if not, i think it should be added to the docs...)
 
->>EIP; c011d2be <kmem_cache_free+ae/174>   <=====
-Trace; c014a142 <kfree_skbmem+32/40>
-Trace; c014a1f1 <__kfree_skb+a1/a8>
-Trace; c0158417 <tcp_clean_rtx_queue+103/12c>
-Trace; c0158722 <tcp_ack+142/3a4>
-Trace; c01a6787 <__delay+13/24>
-Trace; c0159be9 <tcp_rcv_established+439/5d8>
-Trace; c015e950 <tcp_v4_do_rcv+38/140>
-Trace; c015ed06 <tcp_v4_rcv+2ae/334>
-Trace; c0151bb2 <ip_local_deliver+16a/1b8>
-Trace; c0151e99 <ip_rcv+299/2c8>
-Trace; c014ba25 <net_bh+181/1dc>
-Trace; c0114f39 <do_bottom_half+45/64>
-Trace; c0108b8b <do_IRQ+3b/40>
-Trace; c0108858 <common_interrupt+18/20>
-Code;  c011d2be <kmem_cache_free+ae/174>
-00000000 <_EIP>:
-Code;  c011d2be <kmem_cache_free+ae/174>   <=====
-   0:   39 43 0c                  cmpl   %eax,0xc(%ebx)   <=====
-Code;  c011d2c1 <kmem_cache_free+b1/174>
-   3:   75 1d                     jne    22 <_EIP+0x22> c011d2e0 <kmem_cache_free+d0/174>
-Code;  c011d2c3 <kmem_cache_free+b3/174>
-   5:   8b 41 14                  movl   0x14(%ecx),%eax
-Code;  c011d2c6 <kmem_cache_free+b6/174>
-   8:   89 58 10                  movl   %ebx,0x10(%eax)
-Code;  c011d2c9 <kmem_cache_free+b9/174>
-   b:   89 43 14                  movl   %eax,0x14(%ebx)
-Code;  c011d2cc <kmem_cache_free+bc/174>
-   e:   8b 06                     movl   (%esi),%eax
-Code;  c011d2ce <kmem_cache_free+be/174>
-  10:   8b 50 14                  movl   0x14(%eax),%edx
-Code;  c011d2d1 <kmem_cache_free+c1/174>
-  13:   89 00                     movl   %eax,(%eax)
+I'm an end-user, and I have 3 scsi-adapters of two different brands in my
+system.  Many of the people using Linux in high end things like servers,
+etc. will have multiple scsi controlers.  People are using Linux in lots of
+things from small embedded devices to large systems, and Linux needs to address
+needs in every area.
 
-Aiee, killing interrupt handler
-
-1 warning and 1 error issued.  Results may not be reliable.
 -- 
-Amicalement,
-oCtAvE
+Michael Meissner, Red Hat, Inc.  (GCC group)
+PMB 198, 174 Littleton Road #3, Westford, Massachusetts 01886, USA
+Work:	  meissner@redhat.com		phone: +1 978-486-9304
+Non-work: meissner@spectacle-pond.org	fax:   +1 978-692-4482
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

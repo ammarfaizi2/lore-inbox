@@ -1,41 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312798AbSDFUan>; Sat, 6 Apr 2002 15:30:43 -0500
+	id <S312805AbSDFVSr>; Sat, 6 Apr 2002 16:18:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312799AbSDFUam>; Sat, 6 Apr 2002 15:30:42 -0500
-Received: from tele-post-20.mail.demon.net ([194.217.242.20]:21521 "EHLO
-	tele-post-20.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S312798AbSDFUam>; Sat, 6 Apr 2002 15:30:42 -0500
-Date: Sat, 6 Apr 2002 21:30:36 +0100
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19pre5-ac3: unresolved in radeonfb
-Message-ID: <20020406203036.GA503@berserk.demon.co.uk>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <200204051945.g35JjnX23183@devserv.devel.redhat.com> <3CAE3608.8DDE18EB@eyal.emu.id.au>
+	id <S312813AbSDFVSq>; Sat, 6 Apr 2002 16:18:46 -0500
+Received: from gw.wmich.edu ([141.218.1.100]:23944 "EHLO gw.wmich.edu")
+	by vger.kernel.org with ESMTP id <S312805AbSDFVSp>;
+	Sat, 6 Apr 2002 16:18:45 -0500
+Subject: Re: more on 2.4.19pre... & swsusp
+From: Ed Sweetman <ed.sweetman@wmich.edu>
+To: brian@worldcontrol.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020406200918.GA1535@top.worldcontrol.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 06 Apr 2002 16:18:38 -0500
+Message-Id: <1018127923.4270.60.camel@psuedomode>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-From: Peter Horton <pdh@berserk.demon.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 06, 2002 at 09:40:56AM +1000, Eyal Lebedinsky wrote:
-> Alan Cox wrote:
-> > Linux 2.4.19pre5-ac3
-> > o       Small fix for the radeonfb                      (Peter Horton)
+On Sat, 2002-04-06 at 15:09, brian@worldcontrol.com wrote:
+> I found a .config difference between my 2.4.19-pre5-ac3 setup
+> and my 2.4.19-pre6 (swsusp v0.8 patched) setup.
 > 
-> depmod: *** Unresolved symbols in
-> /lib/modules/2.4.19-pre5-ac3/kernel/drivers/video/radeonfb.o
-> depmod:         radeon_engine_init_var
+> After making both the same, both generally oops in the same place
+> as previously reported (oops via ksymoops previously posted).
 > 
-> I could not find this symbol in the tree.
+> Findings thus far:
 > 
+>    swsusp says it doesn't need APM. But it does. at least so far
+>    as menuconfig is concerned.
+This is an error in the AC branch.   WOLK 3.2 configs fine.
 
-Darn - I'm not very good at this :-(
 
-Change the call to radeon_engine_init_var() to
+>    With apm loaded (or built) in the kernel swsusp says it can't
+>    terminate/kill kapmd and gives up.
+> 
+>    With apm *not* loaded in the kernel swsusp oopses as previously
+>    reported.
+> 
+> Nice repeatable behavior.
+> 
+> Documentation/swsusp.txt which is repeatedly refered to does not
+> exist, either in the ac version or the v0.8 patch.
 
-	radeon_engine_init(rinfo);
+Does not exist in the WOLK 3.2 release either. all documentation on
+swsusp is horribly outdated.  I believe the website posts 2.4.9 as the
+latest kernel it's been patched against. 
 
-P.
+> I have not been able to find the swsusp program which is also
+> refered to.
+
+all programs are simply scripts people have written to fascilitate
+suspending or resuming.  (turning off dma before suspending and such).  
+
+
+swsusp does not need apm or acpi.  IT does need magic sysrq or acpi
+however.  Which is something that's not quite documented.  Ie. You can't
+do sysrq d (c in WOLK) if you dont have magic sysrq compiled in.  And
+you can't echo "4" > /proc/acpi/sleep if you dont have acpi.  So one or
+the other is required.  This could be an example of why they're putting
+in a new build system for 2.5.  
+
+
+swsusp works for me in wolk3.2 but it doesn't use rmap. Seems like the
+swsusp patch was just hacked into ac so it would compile with little to
+no changes from wolk3.2.   
+
+Wolk 3.2 also uses the memeat patch which the list describes as being
+necessary for many people to not oops on suspend.   This is not in the
+ac branch.  
+
+
+On a different note.  Why doesn't the ac branch have ftpfs yet?  Besides
+the fact that it sometimes has problems with ls'ing a directory because
+of a . handle error,  using mc to navigate works perfectly.  It deserves
+a wider test audiance. Mounting ftp sites is a so amazingly convenient
+it's hard to overestimate the coolness of ftpfs.  It patches cleanly
+against the current ac as is.  
+
+http://ftpfs.sourceforge.net/ 
+

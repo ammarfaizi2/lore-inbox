@@ -1,114 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265273AbUFHRI3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265257AbUFHRPA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265273AbUFHRI3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 13:08:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265270AbUFHRI3
+	id S265257AbUFHRPA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 13:15:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265258AbUFHRPA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 13:08:29 -0400
-Received: from relay.iol.pt ([193.126.240.147]:57533 "EHLO mx2.mediacapital.pt")
-	by vger.kernel.org with ESMTP id S265279AbUFHRFq convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 13:05:46 -0400
-Date: Tue, 08 Jun 2004 08:59:31 -0700
-From: =?iso-8859-1?Q?Treasure=20Chest=20Sweepstakes=20Lottery?= 
-	<treasurechestlotto@iol.pt>
-Subject: AWARD NOTIFICATION
-Message-id: <107b213b89.13b89107b2@iol.pt>
-MIME-version: 1.0
-X-Mailer: iPlanet Messenger Express 5.2 HotFix 1.16 (built May 14 2003)
-Content-type: text/plain; charset=iso-8859-1
-Content-language: pt
-Content-transfer-encoding: 8BIT
-Content-disposition: inline
-X-Accept-Language: pt
-X-Priority: 1 (Highest)
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.25.0.61; VDF: 6.25.0.88; host: iol.pt)
-To: unlisted-recipients:; (no To-header on input)
+	Tue, 8 Jun 2004 13:15:00 -0400
+Received: from mail.tmr.com ([216.238.38.203]:53515 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S265257AbUFHRO5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jun 2004 13:14:57 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: [announce] [patch] NX (No eXecute) support for x86,   2.6.7-rc2-bk2
+Date: Tue, 08 Jun 2004 13:15:32 -0400
+Organization: TMR Associates, Inc
+Message-ID: <ca4rv0$p3q$1@gatekeeper.tmr.com>
+References: <20040602205025.GA21555@elte.hu> <20040603230834.GF868@wotan.suse.de> <20040604092552.GA11034@elte.hu> <200406040826.15427.luto@myrealbox.com> <Pine.LNX.4.58.0406040830200.7010@ppc970.osdl.org> <20040604154142.GF16897@devserv.devel.redhat.com> <Pine.LNX.4.58.0406040843240.7010@ppc970.osdl.org> <20040604155138.GG16897@devserv.devel.redhat.com> <Pine.LNX.4.58.0406040856100.7010@ppc970.osdl.org> <40C0A87A.3060609@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Trace: gatekeeper.tmr.com 1086714656 25722 192.168.12.100 (8 Jun 2004 17:10:56 GMT)
+X-Complaints-To: abuse@tmr.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
+In-Reply-To: <40C0A87A.3060609@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Treasure Chest Sweepstakes Lottery,
-Nachtwachtlaan 20, 
-Amsterdam 1058 EA, 
-Netherlands
+Ulrich Drepper wrote:
+> Linus Torvalds wrote:
+> 
+> 
+>>If things are really that good, why are we even worrying about this?
+>>
+>>It sounds like we should just have NX on by default even for executables
+>>that don't have any NX info records,
+> 
+> 
+> This is possible in one of the modes the FC kernel supports but not a
+> good default.
+> 
+> While most of the code we ship has no problems, 3rd party code is a
+> completely different story.  Most of the time this code is not as
+> cleanly written as the (cleaned-up) code we ship.  If anything, you can
+> announce your intention to change the default in a few years and urge
+> people to clean up their code.  If you want the maximum protection now
+> go with Ingo's exec-shield patch and the /proc/sys/kernel/exec-shield
+> entry which can be set to 2 to enable the strict mode.  That's certainly
+> the best solution for edge servers but not for application servers
+> running lots of dubious 3rd party code.
+> 
+I have complained about breaking existing programs many times, but in 
+this case I think the default should be no exec on all user writable 
+data, and let the admin relax the security as needed. Or at least make a 
+really obnoxious whine default, so people will know they have to deal 
+with what's coming in some (near) future release.
 
-BONANZA ! BONANZA !! BONANZA !!!
+And this should be noted at the top of the ChangeLog for versions where 
+it changes, please! This will bite people, I just think it's needed to 
+keep Linux the most secure o/s around. Yes, I know about openBSD...
 
-Hurray! You have been selected as one of the five lucky winners in 
-
-the second edition  of the TREASURE CHEST SWEEPSTAKES promotional 
-
-draw. You have therefore been approved for a huge payout of 1.6 
-
-Million Euros (One Million, Six Hundred Thousand Euros Only)! 
-
-How was the selction process done?
-
-Winners were randomly selected from an initial database of 500,000 
-
-emails which was eventually downsized to 5,000 from which we 
-
-eventually selected the final and lucky five. The process was done 
-
-through the computerized email balloting system selecting emails from 
-
-The Middle East, Asia, Africa, Canada, Europe, USA and South America.
-
-The process of collecting your winnings is to be handled by our Prize 
-
-Transfer Agents. To ensure a smooth collection of your grand prize, 
-
-You are to contact our agents by email or fax within a week of 
-
-receiving this notice. Please find full contact details below:
-
-Steven Nicks,
-Foreign Service Manager,
-De Diamant Finance,
-De Ruyterkade 6, 
-1013 AA Amsterdam
-P.O. Box 192, 
-1000 AD Amsterdam
-Netherlands
-Tel: 31 645 920 978
-Fax: 31 205 248 515
-Email: steve.nicks@laposte.net
-
-When you contact your claims agent please provide him with the 
-
-following information below:
-
-
-Ref No: TCL/31251311-23
-Grand Draw No: 12099
-Secret pin code: 7769847
-
-Furthermore you are seriously advised to keep all winning lottery 
-
-information and numbers from the public in line with our company 
-
-security protocol to avoid double claiming and unwarranted abuse of 
-
-this program by unscrupulous individuals.Please do not reply to this 
-
-mail, contact your claims agent as instructed above.
-
-
-
-On behalf of all our staff in Treasure Chest Sweepstakes Lotto 
-
-program, accept my Congratulations!
-
-Mr. Ruud Van Gaal
-The Marketting Manager,
-Treasure Chest  Sweepstakes Lottery.
-
-
-
-
-___________________________________________________________________________________________
-
-IOL  - Portal Oficial do 10º Festival Super Bock Super Rock.
-Ouve a Rádio do Festival no Cotonete!
-http://www.cotonete.iol.pt/quiosque/destaques/sbsr04
-
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

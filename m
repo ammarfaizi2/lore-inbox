@@ -1,45 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267997AbRHaQ2A>; Fri, 31 Aug 2001 12:28:00 -0400
+	id <S268071AbRHaQkW>; Fri, 31 Aug 2001 12:40:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268071AbRHaQ1u>; Fri, 31 Aug 2001 12:27:50 -0400
-Received: from [195.89.159.99] ([195.89.159.99]:41724 "EHLO
-	kushida.degree2.com") by vger.kernel.org with ESMTP
-	id <S267997AbRHaQ1f>; Fri, 31 Aug 2001 12:27:35 -0400
-Date: Fri, 31 Aug 2001 17:27:54 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Ion Badulescu <ionut@cs.columbia.edu>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
-Message-ID: <20010831172754.A25490@thefinal.cern.ch>
-In-Reply-To: <Pine.LNX.4.33.0108300902570.7973-100000@penguin.transmeta.com> <Pine.LNX.4.33.0108301217280.9230-100000@age.cs.columbia.edu> <20010831135034.B25128@thefinal.cern.ch> <3B8F9507.859D584F@linux-m68k.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B8F9507.859D584F@linux-m68k.org>; from zippel@linux-m68k.org on Fri, Aug 31, 2001 at 03:45:43PM +0200
+	id <S268100AbRHaQkD>; Fri, 31 Aug 2001 12:40:03 -0400
+Received: from ariel.xerox.com ([208.140.33.25]:59277 "EHLO
+	ariel.eastgw.xerox.com") by vger.kernel.org with ESMTP
+	id <S268071AbRHaQjw>; Fri, 31 Aug 2001 12:39:52 -0400
+Message-Id: <200108311640.MAA00467@mailhost.eng.mc.xerox.com>
+To: linux-kernel@vger.kernel.org
+Subject: looping on a single timing event
+Date: Fri, 31 Aug 2001 12:40:08 -0400
+From: "Marty Leisner" <mleisner@eng.mc.xerox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel wrote:
-> >    3. Warning added to GCC for signed vs. unsigned comparisons
-> >       _regardless_ of type size.  This would also catch erroneous
-> >       unsigned char vs. EOF checks in misuses of stdio.
-> 
-> Do you know of such bug in the context of min()?
 
-I don't know of an actual example.  This one is made up:
+I'm writing a device driver.  Its for a proprietary serial interface
+I'm using 2.4.5.
 
-       min (int, len, big_size)
+It seems something is going south, and I go into ack_timeout nonstop
+(even though I added ONE event with a timer).
 
-Now if big_size has unsigned type, and does not fit in the range of int,
-this expression will return the value of big_size cast to int, i.e. a
-negative value.  The suggested warning would catch this potential bug.
+    665 static void ack_timeout(unsigned long ptr)
+    666 {
+    667         my_printk("ack timeout\n");
+    668         if(xmit_retries < 3) {
+    669                 if(!current_xmitting_packet) {
+    670                         my_printk("resending packet\n");
+    671                         xmit_bytes_sent = 0;
+    672                         xmit_state = SENDING_MSG;
+    673                         current_xmitting_packet = xmit_messages;         
+    674                         kis_continue_output();
+    675                         xmit_retries++;
+    676                 } else {
+    677                         my_printk("currently sending packet\n");
+    678                 }
+    679         } else {
+    680                 my_printk("retranxmits up");
+    681                 send_nack(0x80);        /* guess */
+    682                 remove_head_xmit_message();
+    683         }
+    684 
+    685 }
+    686 
+    687 static void setup_ack_timer(void)
+    688 {
+    689         init_timer(&ack_timer);
+    690         ack_timer.function = ack_timeout;
+    691         ack_timer.expires = jiffies + (HZ/25);
+    692         ack_timer.data = NULL;
+    693         add_timer(&ack_timer);
+    694         my_printk("added ack timer\n");
+    695 }
+    696 
 
-I don't know if it would warn for too many other things.  Certainly, a
-sizeof() exception (don't warn about signed comparison with sizeof()
-result) is essential; perhaps too many other exceptions are required
-too.
 
--- Jamie
+my_printk is a macro allowing me to see the time:
+# define my_printk(args...) { kis_show_time();  printk(##args); }
+
+The code at line 687 isn't executing.
+I'm seeing a continious
+	ack timeout (line 667)
+	currently sending packet (line 677)
+
+I also don't have console control.
+
+ack_timeout is only called via the ack_timer.function.
+
+(Of course, when I log more things, the timing changes and I don't
+have a problem (but others things don't work with my hardware interface).
+
+Any hints for getting console control back when this starts happening?
+Or logging in a non-time-destructive way?
+
+marty		mleisner@eng.mc.xerox.com   
+Don't  confuse education with schooling.
+	Milton Friedman to Yogi Berra

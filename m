@@ -1,32 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264675AbSJTW4t>; Sun, 20 Oct 2002 18:56:49 -0400
+	id <S264672AbSJTW4d>; Sun, 20 Oct 2002 18:56:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264674AbSJTW4g>; Sun, 20 Oct 2002 18:56:36 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:56285 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S264671AbSJTWzx>;
-	Sun, 20 Oct 2002 18:55:53 -0400
-Date: Sun, 20 Oct 2002 15:53:57 -0700 (PDT)
-Message-Id: <20021020.155357.21477719.davem@redhat.com>
-To: acme@conectiva.com.br
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] move /proc/net/udp support back to net/ipv4/udp.c
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20021020161738.GG15857@conectiva.com.br>
-References: <20021020161738.GG15857@conectiva.com.br>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S264674AbSJTW4d>; Sun, 20 Oct 2002 18:56:33 -0400
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:40695 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S264672AbSJTWz5>; Sun, 20 Oct 2002 18:55:57 -0400
+X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <Pine.LNX.4.10.10210191451530.24031-100000@master.linux-ide.org> 
+References: <Pine.LNX.4.10.10210191451530.24031-100000@master.linux-ide.org> 
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Christian Borntraeger <linux@borntraeger.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: ide-related kernel panic in 2.4.19 and 2.4.20-pre11 
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 21 Oct 2002 00:01:51 +0100
+Message-ID: <19182.1035154911@passion.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-   Date: Sun, 20 Oct 2002 13:17:38 -0300
 
-   	Please pull from:
-   
-   master.kernel.org:/home/acme/BK/net-2.5
+andre@linux-ide.org said:
+>   Don't worry, it only effects the US
 
-Pulled, thanks.
+The US was effected many years ago and cannot be effected again.
+
+I do like the idea of 'patches which effect hardware' though. :)
+
+--
+dwmw2
+
+

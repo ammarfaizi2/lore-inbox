@@ -1,43 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261600AbVBSBLn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbVBSBOi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261600AbVBSBLn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 20:11:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbVBSBLn
+	id S261602AbVBSBOi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 20:14:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbVBSBOi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 20:11:43 -0500
-Received: from fire.osdl.org ([65.172.181.4]:48002 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261600AbVBSBLl (ORCPT
+	Fri, 18 Feb 2005 20:14:38 -0500
+Received: from ipp23-131.piekary.net ([80.48.23.131]:7147 "EHLO spock.one.pl")
+	by vger.kernel.org with ESMTP id S261602AbVBSBOf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 20:11:41 -0500
-Date: Fri, 18 Feb 2005 17:16:10 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jay Lan <jlan@sgi.com>
-Cc: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       guillaume.thouvenin@bull.net, tim@physik3.uni-rostock.de
-Subject: Re: A common layer for Accounting packages
-Message-Id: <20050218171610.757ba9c9.akpm@osdl.org>
-In-Reply-To: <42168D9E.1010900@sgi.com>
-References: <42168D9E.1010900@sgi.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Fri, 18 Feb 2005 20:14:35 -0500
+Date: Sat, 19 Feb 2005 02:14:34 +0100
+From: Michal Januszewski <spock@gentoo.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Bootsplash for 2.6.11-rc4
+Message-ID: <20050219011433.GA5954@spock.one.pl>
+References: <20050218165254.GA1359@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="GvXjxJ+pjyke8COw"
+Content-Disposition: inline
+In-Reply-To: <20050218165254.GA1359@elf.ucw.cz>
+X-PGP-Key: http://dev.gentoo.org/~spock/spock.gpg
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jay Lan <jlan@sgi.com> wrote:
->
-> Since the need of Linux system accounting has gone beyond what BSD
-> accounting provides, i think it is a good idea to create a thin layer
-> of common code for various accounting packages, such as BSD accounting,
-> CSA, ELSA, etc. The hook to do_exit() at exit.c was changed to invoke
-> a routine in the common code which would then invoke those accounting
-> packages that register to the acct_common to handle do_exit situation.
 
-This all seems to be heading in the wrong direction.  Do we really want to
-have lots of different system accounting packages all hooking into a
-generic we-cant-decide-what-to-do-so-we-added-some-pointless-overhead
-framework?
+--GvXjxJ+pjyke8COw
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Can't we get _one_ accounting system in there, get it right, avoid the
-framework?
+On Fri, Feb 18, 2005 at 05:52:54PM +0100, Pavel Machek wrote:
+
+Hi,
+
+> Just in case someone is interested, this is bootsplash for 2.6.11-rc4,
+> taken from suse kernel. I'll probably try to modify it to work with
+> radeonfb.
+>=20
+> Any ideas why bootsplash needs to hack into vesafb? It only uses
+> vesafb_ops to test against them before some kind of free...
+
+It doesn't really need vesafb for anything. Back in the days of 2.6.7=20
+I used to release a version of bootsplash that had the dep. on vesafb=20
+removed. It worked fine with at least some other fb drivers.
+
+You might also want to save yourself some work and try out an
+alternative solution called fbsplash [1], which I designed after I got=20
+tired of fixing bootsplash and which I actively maintain. Fbsplash=20
+provides virtually the same functionality, and it has as much code as=20
+possible moved into userspace (no more JPEG decoders in the kernel).
+
+[1] http://dev.gentoo.org/~spock/projects/gensplash/current/
+=20
+Live long and prosper.
+--=20
+Michal 'Spock' Januszewski                        Gentoo Linux Developer
+cell: +48504917690                         http://dev.gentoo.org/~spock/
+JID: spock@im.gentoo.org               freenode: #gentoo-dev, #gentoo-pl
+
+
+--GvXjxJ+pjyke8COw
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQFCFpL5aQ0HSaOUe+YRAlywAJ9doSKPYbptBUeQlPRMQwEmn2bteACfS6iP
+SiXkKCiIIeHKW7c90Bb2Chs=
+=u4Pm
+-----END PGP SIGNATURE-----
+
+--GvXjxJ+pjyke8COw--

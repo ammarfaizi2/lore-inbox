@@ -1,53 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265833AbUAKKox (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 05:44:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265834AbUAKKox
+	id S265826AbUAKLQM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 06:16:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265830AbUAKLQM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 05:44:53 -0500
-Received: from mx02.qsc.de ([213.148.130.14]:39298 "EHLO mx02.qsc.de")
-	by vger.kernel.org with ESMTP id S265833AbUAKKow (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 05:44:52 -0500
-Message-ID: <40012825.60405@trash.net>
-Date: Sun, 11 Jan 2004 11:40:37 +0100
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Harald Welte <laforge@netfilter.org>
-CC: Wilmer van der Gaast <lintux@lintux.cx>, linux-kernel@vger.kernel.org,
-       Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>
-Subject: Re: 2.4.23 masquerading broken?
-References: <20031202165653.GJ615@gaast.net> <3FCCCB02.5070203@trash.net> <20040110215954.GC20706@sunbeam.de.gnumonks.org>
-In-Reply-To: <20040110215954.GC20706@sunbeam.de.gnumonks.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 11 Jan 2004 06:16:12 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:57355 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S265826AbUAKLQL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jan 2004 06:16:11 -0500
+Date: Sun, 11 Jan 2004 11:16:07 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: [PATCH] mark ide-cs broken
+Message-ID: <20040111111607.A1931@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Harald Welte wrote:
+Hi,
 
->This seems to be the same as 
->http://www.ussg.iu.edu/hypermail/linux/kernel/0312.0/0465.html
->and https://bugzilla.netfilter.org/cgi-bin/bugzilla/show_bug.cgi?id=144
->
->I've committed the proposed fix (from #144) into patch-o-matic/pending.
->
->Comments?
->  
->
+After receiving this bug report: http://bugme.osdl.org/show_bug.cgi?id=1457
+and talking to Arjan, it would appear that IDECS is known to be broken.
+Arjan has confirmed that he sees the same behaviour with his PCMCIA CDROM
+using both 2.6 and 2.4.2x kernels.
 
-I don't know if reverting to 2.4.22 is the correct fix, the change was made after this
-mail from Alexey http://marc.theaimsgroup.com/?l=linux-net&m=105915597804604&w=2 ,
-he states that giving out ifindex is a bug. I don't understand the problem yet but I'm
-looking into it.
+Therefore, I suggest that we mark it broken.  The patch below is for 2.6.1
+kernels.
 
-BTW: Why do we need a route lookup at all ? Couldn't we just use the first address on 
-dev->in_dev->ifa_list ?
+If anyone wants to know the details of why it's broken, please don't mail
+me - I don't know - the best I can do is refer you to the above URL.
 
-Best regards,
-Patrick
+As far as bug 1457 goes - I'll reassign it to "Drivers - Other" later today
+since we don't have an IDE component in bugme.
 
+--- orig/drivers/ide/Kconfig	Fri Jan  9 22:39:21 2004
++++ linux/drivers/ide/Kconfig	Sun Jan 11 11:00:11 2004
+@@ -173,7 +173,7 @@
+ 
+ config BLK_DEV_IDECS
+ 	tristate "PCMCIA IDE support"
+-	depends on PCMCIA
++	depends on PCMCIA && BROKEN
+ 	help
+ 	  Support for outboard IDE disks, tape drives, and CD-ROM drives
+ 	  connected through a  PCMCIA card.
 
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

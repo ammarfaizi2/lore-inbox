@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268128AbTCFOHA>; Thu, 6 Mar 2003 09:07:00 -0500
+	id <S268112AbTCFOKQ>; Thu, 6 Mar 2003 09:10:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268139AbTCFOG7>; Thu, 6 Mar 2003 09:06:59 -0500
-Received: from nimbus19.internetters.co.uk ([209.61.216.65]:47252 "HELO
-	nimbus19.internetters.co.uk") by vger.kernel.org with SMTP
-	id <S268128AbTCFOG7>; Thu, 6 Mar 2003 09:06:59 -0500
-Subject: Re: SIS900:configuration
-From: Alex Bennee <kernel-hacker@bennee.com>
-To: Pavel Szalbot <lingeek@centrum.cz>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030306125428Z313276-15843+4665@mail2.centrum.cz>
-References: <20030306125428Z313276-15843+4665@mail2.centrum.cz>
-Content-Type: text/plain
-Organization: Hackers Inc
-Message-Id: <1046960239.2505.222.camel@cambridge.braddahead>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1-1mdk 
-Date: 06 Mar 2003 14:17:20 +0000
-Content-Transfer-Encoding: 7bit
+	id <S268130AbTCFOKQ>; Thu, 6 Mar 2003 09:10:16 -0500
+Received: from comtv.ru ([217.10.32.4]:56459 "EHLO comtv.ru")
+	by vger.kernel.org with ESMTP id <S268112AbTCFOKO>;
+	Thu, 6 Mar 2003 09:10:14 -0500
+To: linux-kernel@vger.kernel.org
+Cc: dan carpenter <error27@email.com>, Andrew Morton <akpm@digeo.com>,
+       ext2-devel@lists.sourceforge.net
+Subject: [PATCH] minor memleak in ext3 (catched by smatch)
+From: Alex Tomas <bzzz@tmi.comex.ru>
+Organization: HOME
+Date: 06 Mar 2003 17:14:15 +0300
+Message-ID: <m3n0k81t1k.fsf@lexa.home.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-03-06 at 12:54, Pavel Szalbot wrote:
-> Does anybody know, how to configure this ethernet card to work with 
-> media type 10BaseT? Ifconfig doesn't work.
 
-Depending on the card type I suspect your looking for either ethtool or
-mii-tool.
+This minor memory leak has been catched by smatch.
+Thanks to Dan Carpenter!
 
--- 
-Alex, homepage: http://www.bennee.com/~alex/
 
-Fortune's real live weird band names #378:
 
-Jehovah's Waitresses
+--- linux/fs/ext3/super.c	Mon Feb 24 17:47:45 2003
++++ super.c	Thu Mar  6 17:09:31 2003
+@@ -1154,7 +1154,7 @@
+ 		if (!bh) {
+ 			printk(KERN_ERR 
+ 			       "EXT3-fs: Can't read superblock on 2nd try.\n");
+-			return -EINVAL;
++			goto out_fail;
+ 		}
+ 		es = (struct ext3_super_block *)(((char *)bh->b_data) + offset);
+ 		sbi->s_es = es;
 

@@ -1,54 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270643AbTHJStE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 14:49:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270645AbTHJStE
+	id S270618AbTHJTEk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 15:04:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270622AbTHJTEk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 14:49:04 -0400
-Received: from 4demon.com ([217.160.186.4]:52905 "EHLO pro-linux.de")
-	by vger.kernel.org with ESMTP id S270643AbTHJStB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 14:49:01 -0400
-Date: Sun, 10 Aug 2003 20:48:58 +0200
-From: Hans-Joachim Baader <hjb@pro-linux.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test3: "core" module
-Message-ID: <20030810184857.GA23829@kiwi.hjbaader.home>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="SUOF0GtieIMvvwua"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Sun, 10 Aug 2003 15:04:40 -0400
+Received: from intrepid.intrepid.com ([192.195.190.1]:39858 "EHLO
+	intrepid.intrepid.com") by vger.kernel.org with ESMTP
+	id S270618AbTHJTEj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Aug 2003 15:04:39 -0400
+From: "Gary Funck" <gary@intrepid.com>
+To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: can select() eventually exhaust kernel memory?
+Date: Sun, 10 Aug 2003 12:04:34 -0700
+Message-ID: <KNEFLOIOCHLFEGCDNFPHIECLCJAA.gary@intrepid.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---SUOF0GtieIMvvwua
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+[running Linux kernel 2.4.20-6, Redhat 9 (stock), on Athlon XP 2000]
 
-Hi!
+Hello, recently I've been trying to run one of the Spamassassin (SA) tools,
+called mass_check, which is used to tune the weights used by SA, and is run
+by various volunteers prior to releasing SA. Mass_check (as well as SA) is
+a Perl program. Well, mass_check fails in a rather unusual (for me, though
+others seem to be running it fine) - after doing about 4 hours processing,
+and reading only about 1/3 of the mail messages that I've asked it to process,
+the main process goes into a state where it consumes cpu time (at about the 20%
+to 30%
+level per 'top'), and slowly over the course of 12 hours or so continually uses
+up
+more and more memory (swap space), until eventually it uses all available
+memory (top
+reports 0 memory free). Of course, at this point the load average goes through
+the roof,
+and the system has trouble making any forward progress. I ran 'strace' on the
+mass_check
+after it goes into this "consuming cpu and memory" state. Strace shows only
+this
+single line:
 
-The serial driver module 8250 depends on a module named "core". Isn't
-that a silly name? I suggest renaming it to serialcore or sercore.
+select(8, [6], NULL, NULL, NULL)        = ? ERESTARTNOHAND (To be restarted)
 
-Regards,
-hjb
---=20
-Pro-Linux - Germany's largest volunteer Linux support site
-http://www.pro-linux.de/          Public Key ID 0x3DDBDDEA
+and the system memory continues to dwindle away, until after about 12 hours,
+all 1G of
+swap space has been consumed. Once the mass_check process is killed, the memory
+is
+released; mass_check appears to be the culprit, and since the only system call
+it
+is running is "select()", it appears that this call is somehow leading to
+memory
+exhaustion.
 
---SUOF0GtieIMvvwua
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Question: Have you seen a problem like this before? Are there any known
+problems
+with the 2.4 kernel's implementation of select() that lead to the exhaustion of
+available memory?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
 
-iD8DBQE/NpOZLbySPj3b3eoRAlD5AJ9AehaVBbq7qCKh1w9rbbVlwXpp7QCgih2H
-RLXYK/ra/lyhi1K0z6zTEE8=
-=Vp91
------END PGP SIGNATURE-----
 
---SUOF0GtieIMvvwua--
+

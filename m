@@ -1,47 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261392AbTEHNCh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 09:02:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261399AbTEHNCh
+	id S261544AbTEHNII (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 09:08:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261561AbTEHNIH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 09:02:37 -0400
-Received: from navigator.sw.com.sg ([213.247.162.11]:25478 "EHLO
-	navigator.sw.com.sg") by vger.kernel.org with ESMTP id S261392AbTEHNCg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 09:02:36 -0400
-From: Vladimir Serov <vserov@infratel.com>
-To: trond.myklebust@fys.uio.no
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <3EBA585A.7080704@infratel.com>
-Date: Thu, 08 May 2003 17:15:06 +0400
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
+	Thu, 8 May 2003 09:08:07 -0400
+Received: from [65.244.37.61] ([65.244.37.61]:2654 "EHLO
+	WSPNYCON1IPC.corp.root.ipc.com") by vger.kernel.org with ESMTP
+	id S261544AbTEHNIE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 May 2003 09:08:04 -0400
+Message-ID: <170EBA504C3AD511A3FE00508BB89A92020CD107@exnanycmbx4.ipc.com>
+From: "Downing, Thomas" <Thomas.Downing@ipc.com>
+To: Simon Kelley <simon@thekelleys.org.uk>,
+       Filip Van Raemdonck <mechanix@debian.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "J. Bruce Fields" <bfields@fieldses.org>, linux-kernel@vger.kernel.org,
+       torvalds@transmeta.com
+Subject: RE: Binary firmware in the kernel - licensing issues.
+Date: Thu, 8 May 2003 09:20:11 -0400 
 MIME-Version: 1.0
-Subject: Re: [BUG] nfs client stuck in D state in linux 2.4.17 - 2.4.21-pre5
-References: <20030318155731.1f60a55a.skraw@ithnet.com>	<3E79EAA8.4000907@infratel.com>	<15993.60520.439204.267818@charged.uio.no>	<3E7ADBFD.4060202@infratel.com>	<shsof45nf58.fsf@charged.uio.no>	<3E7B0051.8060603@infratel.com>	<15995.578.341176.325238@charged.uio.no>	<3E7B10DF.5070005@infratel.com>	<15995.5996.446164.746224@charged.uio.no>	<3E7B1DF9.2090401@infratel.com>	<15995.10797.983569.410234@charged.uio.no>	<3EB91B6F.9020204@infratel.com> <16057.8409.117109.345706@charged.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Trond,
+-----Original Message-----
+From: Simon Kelley [mailto:simon@thekelleys.org.uk]
 
->     > when things are OK. Also the rpc client in this request is
->     > c0d75060 which is mentioned in rpc queue status:
->
->     > -pid- proc flgs status -client- -prog- --rqstp- -timeout
->     > -rpcwait -action- --exit--
->     > 09150 0001 0000 000000 c0d75060 100003 c8f99074 00000000
->     > <NULL> c00f17b8 0
->
->
->Looks like there is a hanging GETATTR call from another process that
->is blocking your process.
->
->Which procedure does c00f17b8 correspond to? 
->
-from the System.map :
+[snip]
 
-c00f17b8 t call_status
+My comments apply _only_ to firmware binaries for which the vendor
+has given explicit license for free redistribution with GPL code.
 
-Regards, Vladimir.
+> Briefly, the arguments that binary firmware which is copied into the
+> hardware by the kernel is OK are these.
+>
+> 1) The GPL is unclear on this point.
+> 2) The firmware is not linked with the kernel code and not executed
+>     by the same processor as the kernel.
+
+These are two separate issues, and both are crucial.  Four ways to 
+handle firmware have been discussed.  1.) firmware as data in the
+module image, 2.) firmware as data in userspace image, 3.) firmware
+as file loaded by module, 4.) firmware as file loaded by userspace.
+
+The first option might be debatable (non-GPL stuff linked into GPL
+module), but I think it parallels 'magic' values written to registers.
+Likewise the second option might not fly, though this removes it from
+the kernel, it still leaves open the question of distro's that won't
+go along.
+
+The third option (and even more so the fourth) seem to have no point at
+which the GPL could apply.  The firmware is now _clearly_ not linked in
+any fashion with any GPL code.  It's just data that the kernel or other
+moves from A to B at the behest of the user.  This again leaves only
+the question of distro's that won't go this way.
+
+For such distro makers: if firmware continues to become more prevalent
+in devices, and the vendors are ok with redistribution, then those
+distro makers lose to some extent, in the long run.  To say that distro
+X won't do it, so we can't is backwards.
+
+The second half of the original point is crucial - firmware does not run
+on the same CPU's as the kernel.
+
+> 3) Not allowing binary firmware leads to technical decisions which would
+>     not be made in the absence of prohibition.
+> 4) The same hardware and firmware is unambiguously OK if the firmware
+>     is held in flash rather than initialised by the host.
+> 5) There are current examples in the kernel of drivers with source-free
+>     binary firmware blobs going back at least to version 1.3. This means
+>     that someone might have considered this before and OKed it. It also
+>     means that anyone who added code to the kernel since 1.3 had
+>     evidence that for Linux the interpration of this GPL grey area
+>     was to allow binary firmware. It is difficult to a contributor to
+>     turn around now and claim copyright infrigement by distributing their
+>     work with binary firmware when the kernel already had binary firmware
+>     in it when their contribution was first made.
+> 6) AFAIK nobody has claimed that the existing firmware blobs in Linux
+>     violate their copyright on GPL-licensed kernel contributions and
+>     fairly certainly nobody has pressed this in law. (Since if they
+>     had it would be well-known.)
+>
+> The arguments against allowing binary firmware are these.
+>
+> 1) The GPL is unclear on this point.
+> 2) The intention of the GPL is to allow redistribution only
+>     with source.
+
+The intention of the GPL is to allow redistribution _of GPL code, or
+code linked to GPL code_ with source.
+
+Makes a big difference.  Hence the distinctions made above.
+
+> 3) Some contributors to the kernel might want their work distributed
+>     only with all source, including firmware source. These people
+>     would contend that their copyright had been violated and would
+>     feel aggrieved or sue for lots of money.
+
+That position would be a little inconsistent - as long as the code they
+personally hold the copyright for was not involved.  There are vendors
+shipping systems that use Linux, but are shipped with non-GPL
+applications.  Is anyone aggrieved?  (Probably, but hardliners aside...)
+
+> Anybody  want to write a better summary?
+
+No, just some maundering nitpicking...
+

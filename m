@@ -1,55 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261799AbTA2BRR>; Tue, 28 Jan 2003 20:17:17 -0500
+	id <S261701AbTA2BUi>; Tue, 28 Jan 2003 20:20:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262224AbTA2BRR>; Tue, 28 Jan 2003 20:17:17 -0500
-Received: from packet.digeo.com ([12.110.80.53]:13038 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261799AbTA2BRQ>;
-	Tue, 28 Jan 2003 20:17:16 -0500
-Message-ID: <3E372DC5.10466574@digeo.com>
-Date: Tue, 28 Jan 2003 17:26:29 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.51 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Cliff White <cliffw@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [OSDL][BENCHMARK] DBT2 results question
-References: <200301290115.h0T1FsI05742@es175.pdx.osdl.net>
-Content-Type: text/plain; charset=us-ascii
+	id <S261847AbTA2BUi>; Tue, 28 Jan 2003 20:20:38 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:411 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261701AbTA2BUh>;
+	Tue, 28 Jan 2003 20:20:37 -0500
+Date: Tue, 28 Jan 2003 16:08:06 -0800 (PST)
+Message-Id: <20030128.160806.13210372.davem@redhat.com>
+To: kuznet@ms2.inr.ac.ru
+Cc: benoit-lists@fb12.de, dada1@cosmosbay.com, cgf@redhat.com, andersg@0x63.nu,
+       lkernel2003@tuxers.net, linux-kernel@vger.kernel.org, tobi@tobi.nu
+Subject: Re: [TEST FIX] Re: SSH Hangs in 2.5.59 and 2.5.55 but not 2.4.x,
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200301282356.CAA30301@sex.inr.ac.ru>
+References: <20030128.123413.51821993.davem@redhat.com>
+	<200301282356.CAA30301@sex.inr.ac.ru>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 29 Jan 2003 01:26:29.0457 (UTC) FILETIME=[72E48C10:01C2C735]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cliff White wrote:
-> 
-> As Andrew Morton requested, we have rerun the OSDL Database Test 2 on cached
-> and non-cached versions comparing 2.4.21-pre3 and 2.5.49 and this time
-> we have vmstat data.
-> Actually, we have a _ton of data, which is why i'm posting this.
-> What data in particular are you kernel coders looking for?
-> 
->  We could graph each statistic for each set of runs for a side by
-> side comparison 2.4 versus 2.5.
-> 
-> We can also post the raw data, but 40 runs is a bit much to post on a mailing
->  list.
-> 
-> What would you find most useful?
+   From: kuznet@ms2.inr.ac.ru
+   Date: Wed, 29 Jan 2003 02:56:41 +0300 (MSK)
 
-Didn't you have a standardised set of number for the dbt1 runs?  They
-were pretty good if I recall correctly.
+   Hey! Interesting thing has just happened, it is the first time when I found
+   the bug formulating a senstence while writing e-mail not while peering
+   to code. :-)
+   
+Congratulations :-)
 
-It is very hard to find dbt1 results at osdl.org.  I normally have to
-grep the lse-tech archives to find anything at all.
+   Shheit, look into tcp_retrans_try_collapse():
+   
+                   if (skb->ip_summed != CHECKSUM_HW) {
+                           memcpy(skb_put(skb, next_skb_size), next_skb->data, nex$                        skb->csum = csum_block_add(skb->csum, next_skb->csum, s$                }
+    
+   
+   WHERE IS skb_put and copy when skb->ip_summed==CHECKSUM_HW??!!
+   
+   So, the fix is move of memcpy() line out of if clause.
+   
+Indeed, this bug exists in 2.4 as well of course.
 
-Ah yes.
-http://www.osdl.org/projects/dbt1prfrns/results/2proc/linux-2.4.18-1tier/index.html
+This bug is 2.4.3 vintage :-)  It got added as part of initial
+zerocopy merge in fact.
 
-That seems a reasonable summary.
+Here is 2.4.x version of fix, 2.5.x is identicaly sans some line
+number differences.  I will push this all to Linus/Marcelo.
 
->  We will get the runs Andrew requested on 2.5.58 when we can get past the
-> I/O bug Dave Olien reported last week.
+BTW, Alexey, please please explain to me how that trick made
+by tcp_trim_head() works. :-)  I am talking about how it is
+setting ip_summed to CHECKSUM_HARDWARE blindly and not even
+bothering to set skb->csum correctly.
 
-That isn't fixed yet, and there's no workaround, alas.
+--- net/ipv4/tcp_output.c.~1~	Tue Jan 28 16:12:39 2003
++++ net/ipv4/tcp_output.c	Tue Jan 28 16:14:18 2003
+@@ -721,10 +721,9 @@
+ 		if (next_skb->ip_summed == CHECKSUM_HW)
+ 			skb->ip_summed = CHECKSUM_HW;
+ 
+-		if (skb->ip_summed != CHECKSUM_HW) {
+-			memcpy(skb_put(skb, next_skb_size), next_skb->data, next_skb_size);
++		memcpy(skb_put(skb, next_skb_size), next_skb->data, next_skb_size);
++		if (skb->ip_summed != CHECKSUM_HW)
+ 			skb->csum = csum_block_add(skb->csum, next_skb->csum, skb_size);
+-		}
+ 
+ 		/* Update sequence range on original skb. */
+ 		TCP_SKB_CB(skb)->end_seq = TCP_SKB_CB(next_skb)->end_seq;

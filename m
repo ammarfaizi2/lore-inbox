@@ -1,80 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265961AbSKBMrb>; Sat, 2 Nov 2002 07:47:31 -0500
+	id <S265954AbSKBMoo>; Sat, 2 Nov 2002 07:44:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265957AbSKBMqa>; Sat, 2 Nov 2002 07:46:30 -0500
-Received: from zamok.crans.org ([138.231.136.6]:13978 "EHLO zamok.crans.org")
-	by vger.kernel.org with ESMTP id <S265955AbSKBMp3>;
-	Sat, 2 Nov 2002 07:45:29 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Mathieu Segaud <Mathieu.Segaud@crans.org>
-Organization: ENS Cachan
-To: linux-kernel@vger.kernel.org
-Subject: [Oops] 2.5.45 raid0 initialization failure
-Date: Sat, 2 Nov 2002 14:48:06 +0100
-User-Agent: KMail/1.4.3
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200211021448.06568.segaud@crans.org>
+	id <S265956AbSKBMoo>; Sat, 2 Nov 2002 07:44:44 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:4356 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S265954AbSKBMoh>;
+	Sat, 2 Nov 2002 07:44:37 -0500
+Date: Fri, 1 Nov 2002 22:11:54 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux console project <linuxconsole-dev@lists.sourceforge.net>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [BK console] console updates.
+Message-ID: <20021101211153.GA171@elf.ucw.cz>
+References: <Pine.LNX.4.33.0210301343580.1392-100000@maxwell.earthlink.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0210301343580.1392-100000@maxwell.earthlink.net>
+User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've got a raid0 partition (2*100Go) that is correctly mounted by 2.5.44 but 
-2.5.45 compiled with the same configuration gives me that:
+Hi!
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000204
-c0292091
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0060:[<c0292091>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010246
-eax: c03fec14   ebx: 00000200   ecx: 00000000   edx: 00001000
-esi: 0000001a   edi: cf8a0c00   ebp: 00002100   esp: cf5abedc
-ds: 0068   es: 0068   ss: 0068
-Stack: 00002100 00000001 00002100 00000000 cf8a0c00 cf587cf4 c0292ea5 00002100 
-       bffffaa0 cf5abf08 00000060 00000301 00000000 00000000 00002329 000061b0 
-       00000001 00000000 00000006 00002100 00000000 00000000 00000000 00000000 
-Call Trace: [<c0292ea5>]  [<c020d473>]  [<c0155cda>]  [<c01075e3>] 
-Code: 0f b7 43 04 c1 e0 08 66 0b 43 08 74 38 66 39 e8 74 33 0f b7 
+>    Along with the new fbdev api I also have rewritten the console layer.
+> The goals are:
 
-
->>EIP; c0292091 <autostart_array+91/120>   <=====
-
->>eax; c03fec14 <pending_raid_disks+0/8>
-
-Trace; c0292ea5 <md_ioctl+505/5c0>
-Trace; c020d473 <blkdev_ioctl+b3/441>
-Trace; c0155cda <sys_ioctl+ea/250>
-Trace; c01075e3 <syscall_call+7/b>
-
-Code;  c0292091 <autostart_array+91/120>
-00000000 <_EIP>:
-Code;  c0292091 <autostart_array+91/120>   <=====
-   0:   0f b7 43 04               movzwl 0x4(%ebx),%eax   <=====
-Code;  c0292095 <autostart_array+95/120>
-   4:   c1 e0 08                  shl    $0x8,%eax
-Code;  c0292098 <autostart_array+98/120>
-   7:   66 0b 43 08               or     0x8(%ebx),%ax
-Code;  c029209c <autostart_array+9c/120>
-   b:   74 38                     je     45 <_EIP+0x45>
-Code;  c029209e <autostart_array+9e/120>
-   d:   66 39 e8                  cmp    %bp,%ax
-Code;  c02920a1 <autostart_array+a1/120>
-  10:   74 33                     je     45 <_EIP+0x45>
-Code;  c02920a3 <autostart_array+a3/120>
-  12:   0f b7 00                  movzwl (%eax),%eax
-
-
-3 warnings issued.  Results may not be reliable.
-
-my raid partition is from two hard drives hde and hdg plugged with hpt370 chip 
-(included in compilation)
-I also patched arch/i386/Makefile to use gcc-3.2 -march=athlon-xp option.
-
-Thanks in advance
-
-Mathieu Segaud
-
+Current 2.5.45 (and previous 2.5's) has funny problems on my vesafb
+machines [like half of letters appearing during emacs session, to the
+point you do ^L to repaint]. I hope this fixes it....
+								Pavel
+-- 
+When do you have heart between your knees?

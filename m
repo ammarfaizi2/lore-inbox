@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130508AbRAXOoJ>; Wed, 24 Jan 2001 09:44:09 -0500
+	id <S129641AbRAXOdi>; Wed, 24 Jan 2001 09:33:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130382AbRAXOn6>; Wed, 24 Jan 2001 09:43:58 -0500
-Received: from sls.lcs.mit.edu ([18.27.0.167]:34812 "EHLO sls.lcs.mit.edu")
-	by vger.kernel.org with ESMTP id <S131028AbRAXOnu>;
-	Wed, 24 Jan 2001 09:43:50 -0500
-Message-ID: <3A6EEA1B.87732D70@sls.lcs.mit.edu>
-Date: Wed, 24 Jan 2001 09:43:39 -0500
-From: I Lee Hetherington <ilh@sls.lcs.mit.edu>
-Organization: MIT Laboratory for Computer Science
-X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.2.18-4.smp i686)
-X-Accept-Language: en
+	id <S129939AbRAXOdT>; Wed, 24 Jan 2001 09:33:19 -0500
+Received: from dsl.75.131.networkiowa.com ([209.234.75.131]:17418 "EHLO
+	www.sjdjweis.com") by vger.kernel.org with ESMTP id <S129641AbRAXOdJ>;
+	Wed, 24 Jan 2001 09:33:09 -0500
+Date: Wed, 24 Jan 2001 13:14:37 -0600 (CST)
+From: David Weis <djweis@sjdjweis.com>
+To: Ben Greear <greearb@candelatech.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: changing mac address of eth alias
+In-Reply-To: <3A6E4040.86D750D7@candelatech.com>
+Message-ID: <Pine.LNX.4.21.0101241309410.25159-100000@www.sjdjweis.com>
 MIME-Version: 1.0
-To: Matt_Domsch@Dell.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: No SCSI Ultra 160 with Adaptec Controller
-In-Reply-To: <CDF99E351003D311A8B0009027457F1403BF9C0C@ausxmrr501.us.dell.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt_Domsch@Dell.com wrote:
 
-> Something to note, however: the media transfer rate for those disks is at
-> most ~20MB/sec.
+On Tue, 23 Jan 2001, Ben Greear wrote:
+> David Weis wrote:
+> > what would be required to make the mac address of aliases changable,
+> > specifically for something like vrrp that shares a mac address among
+> > machines.
+> 
+> Not sure you can do that, but you could use an 802.1Q vlan patch
+> and set up two different VLANs.  You can now change the MAC
+> address on a VLAN with my patch: http://scry.wanfear.com/~greear/vlan.html
 
-Hmm...
+I'm looking at your code, in the function
+vlan_dev_set_multicast_list() for the 2.4 tree, you enable promiscuity and
+reception of all multicast packets. Is this necessary for all cards? 
 
-     scsi0 : Adaptec AHA274x/284x/294x (EISA/VLB/PCI-Fast SCSI)
-     5.1.31/3.2.4
-            <Adaptec AIC-7899 Ultra 160/m SCSI host adapter>
-     Vendor: QUANTUM   Model: ATLAS10K2-TY092L  Rev: DA40
-       Type:   Direct-Access                      ANSI SCSI revision: 03
+This looks pretty close to what I was looking for, thanks for the
+pointer. Do the multicast functions have enough usefulness for things
+other than VLAN to be split out separately?
 
-     /dev/sda:
-      Timing buffered disk reads:  64 MB in  1.59 seconds =40.25 MB/sec
+dave
 
-They can do more like 40MB/s, so only two disks could saturate the 80MB/s.
-
-This is in a Dell Precision 620.
-
---Lee Hethernigton
-
+-- 
+Dave Weis             "I believe there are more instances of the abridgement
+djweis@sjdjweis.com   of the freedom of the people by gradual and silent
+                      encroachments of those in power than by violent 
+                      and sudden usurpations."- James Madison
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

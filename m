@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282670AbRLYJbF>; Tue, 25 Dec 2001 04:31:05 -0500
+	id <S285440AbRLYKBg>; Tue, 25 Dec 2001 05:01:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282683AbRLYJaz>; Tue, 25 Dec 2001 04:30:55 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:11269 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S282670AbRLYJaw>;
-	Tue, 25 Dec 2001 04:30:52 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Maybe I have a bad day or something 
-In-Reply-To: Your message of "Tue, 25 Dec 2001 09:09:31 BST."
-             <Pine.LNX.4.33.0112250745190.631-100000@mikeg.weiden.de> 
+	id <S285448AbRLYKB0>; Tue, 25 Dec 2001 05:01:26 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:60167 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S285440AbRLYKBK>; Tue, 25 Dec 2001 05:01:10 -0500
+Date: Tue, 25 Dec 2001 10:00:59 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Doug Ledford <dledford@redhat.com>,
+        David Lang <david.lang@digitalinsight.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Benjamin LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Assigning syscall numbers for testing
+Message-ID: <20011225100059.A7424@flint.arm.linux.org.uk>
+In-Reply-To: <3C277049.3070000@redhat.com> <31754.1009246706@ocs3.intra.ocs.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 25 Dec 2001 20:30:40 +1100
-Message-ID: <32642.1009272640@ocs3.intra.ocs.com.au>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <31754.1009246706@ocs3.intra.ocs.com.au>; from kaos@ocs.com.au on Tue, Dec 25, 2001 at 01:18:26PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Dec 2001, vda wrote:
-> Who fscking care that I am trying to debug a kernel problem and my first
-> ksymoops compilation went astray? (I discovered that ksymoops needs bfd lib
-> from binutils a month later). We need no stinking decoded oops!
-> And we never were newbies, we were born with Linux in our blood!
+On Tue, Dec 25, 2001 at 01:18:26PM +1100, Keith Owens wrote:
+> i386 dynamic syscall table starts at 240.  Last assigned syscall entry
+> is currently 225, leaving room for 14 new assigned syscalls.  2.4.0
+> (January 5 2001) had 222 syscalls, so 2.4 added 3 assigned syscalls in
+> just under a year.
 
-If you had bothered to look at the INSTALL file in the ksymoops source,
-you would have found this :-
+Erm, there's a rather obvious flaw in your argument here - 2.4 is supposed
+to be a stable kernel with relatively few features appearing in it.  We're
+now into 2.5.  We've already seen several people trying to get new syscall
+numbers between 2.5.0 and 2.5.1, which is also a relatively short
+timeframe.
 
-  To compile and link ksymoops, you need bfd.h, libbfd and libiberty.  On
-  most systems, these are all part of the binutils package so installing
-  binutils is all that is required.  On Debian systems, bfd.h (at least)
-  is in a separate package, binutils-dev.
+Lets look at some more realistic timeframe.  These figures are for i386:
 
-Since you are obviously incapable of reading a simple INSTALL file and
-then have the gall to complain on linux-kernel while demonstrating your
-own ineptitude, you get a free introduction to my kill file.  vda meet
-kill file, kill file meet vda.  Goodbye.
+	2.2.20	- 190 syscalls, last one is sys_vfork
+	2.4.17	- 225 syscalls, last one is sys_readahead
+
+So, between these two stable kernel series, _35_ syscalls have been added.
+If we assume this trend will continue through 2.5, then we'll be up to
+260 syscalls when 2.6 or 3.0 is out.
+
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

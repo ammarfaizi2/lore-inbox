@@ -1,88 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131181AbRAGSyC>; Sun, 7 Jan 2001 13:54:02 -0500
+	id <S129994AbRAGSzC>; Sun, 7 Jan 2001 13:55:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129994AbRAGSxw>; Sun, 7 Jan 2001 13:53:52 -0500
-Received: from mail.zmailer.org ([194.252.70.162]:51470 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S131795AbRAGSxe>;
-	Sun, 7 Jan 2001 13:53:34 -0500
-Date: Sun, 7 Jan 2001 20:53:15 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Ben Greear <greearb@candelatech.com>, linux-kernel@vger.kernel.org,
-        netdev@oss.sgi.com
+	id <S131784AbRAGSyw>; Sun, 7 Jan 2001 13:54:52 -0500
+Received: from shell.cyberus.ca ([209.195.95.7]:44708 "EHLO shell.cyberus.ca")
+	by vger.kernel.org with ESMTP id <S131124AbRAGSyr>;
+	Sun, 7 Jan 2001 13:54:47 -0500
+Date: Sun, 7 Jan 2001 13:53:48 -0500 (EST)
+From: jamal <hadi@cyberus.ca>
+To: Ben Greear <greearb@candelatech.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "David S. Miller" <davem@redhat.com>,
+        <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>
 Subject: Re: [PATCH] hashed device lookup (Does NOT meet Linus' sumission
-Message-ID: <20010107205315.F25076@mea-ext.zmailer.org>
-In-Reply-To: <3A58BD44.1381D182@candelatech.com> <E14FKDI-00033e-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E14FKDI-00033e-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, Jan 07, 2001 at 06:06:37PM +0000
+In-Reply-To: <3A58C57A.131BFEF2@candelatech.com>
+Message-ID: <Pine.GSO.4.30.0101071344020.18916-100000@shell.cyberus.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 07, 2001 at 06:06:37PM +0000, Alan Cox wrote:
-> > Um, what about people running their box as just a VLAN router/firewall?
-> > That seems to be one of the principle uses so far.  Actually, in that case
-> > both VLAN and IP traffic would come through, so it would be a tie if VLAN
-> > came first, but non-vlan traffic would suffer worse.
-> 
-> Why would someone filter between vlans when any node on each vlan can happily
-> ignore the vlan partitioning
 
-	VLANs are Level-2, that is SWITCHING.
 
-	They have no real meaning unless you have a switching fabric,
-	in which they present ways to hard-partition ports to different
-	switching domains without having physically separate cabling.
+On Sun, 7 Jan 2001, Ben Greear wrote:
+> jamal wrote:
+> >
+> > erm, this is a MUST. You MUST factor the hardware VLANs and be totaly
+> > 802.1q compliant. Also of interest is 802.1P and D. We must have full
+> > compliance, not some toy emulation.
+>
+> I have seen neither hardware nor spec sheets on how these NICs are doing
+> VLAN 'support'.  So, I don't know what the best way to support them is.
+>
 
-	Normal hosts are connected on non-truncking ports, and only some
-	rare systems are connected to 802.1Q trunks so they can access
-	multiple VLANs inside the fabric.
+Most of the GIGe interfaces do provide VLAN insertion/removal. You
+pass/receive it as part of the DMA descriptor.
 
-	No ordinary hosts are able to choose at which VLANs they are.
-	Truncking ports have ways to control which VLANs are allowed
-	to go thru them (at least at Cisco hardware I am familiar with).
+> If it requires driver changes, then the ethernet driver folks will need
+> to be involved.
+>
 
-> > So, how can I make sure that it is second in the list?
-> 
-> Register vlan in the top level protocol hash then have that yank the header
-> and feed the packets through the hash again.
+I think the design MUST consider not just a poor man's VLAN way of
+doing things. You and the other VLAN folks (Gleb and co) will have to iron
+that out. Basically, all i am saying is that if there is going to be a
+linux solution at some point, the requirement for these devices is a MUST.
+Please involve me in discussions you guys end up having.
 
-	That is what the two existing VLAN codes for Linux do now.
+> There is also a difference between supporting hardware VLAN solutions
+> and being 100% compliant:  If I can send/receive packets that are
+> 100% compliant from an RTL 8139 NIC, then as far as the world (ie Switch) knows,
+> I am 100% compliant.
+>
 
-	Better(?) way could be to have a way to have device specific
-	reception vector in addition to xmit vector.  That way we could
-	stack "Layer-2 protocols", like 802.1Q and (to an extent) even
-	802 bridging.
+ok.
 
-	See  ftp://zmailer.org/linux/netif_rx.patch
+> If the specific VLAN hardware features are not supported in some exotic
+> NIC, then that should just mean slightly less performance, or worst cast,
+> not supporting that particular NIC.
 
-	After all, if you have a way to plumb reception to an optional
-	bridging layer, you propably would not need netif_rx() contained
-	bridging code.
+The included design must be flexible enough to allow for this. As much as
+i hate it, some vendors will continue releasing binaries only for their
+code.
 
-> > > Question: How do devices with hardware vlan support fit into your model ?
-> > I don't know of any, and I'm not sure how they would be supported.
-> 
-> Several cards have vlan ability, but Matti reports they just lose the header
-> not filter on it if I understood him
+>
+> My vlan code supports setting of Priority bits already (thats' the .1P, right?)
+>
 
-	No you didn't understand.
+right. There's a lot of work to be done in that area.
 
-	Nothing is lost, it relates to hardware assisted received
-	IP frame TCP/UDP checksumming by the network cards.  Some
-	cards support that, some support it even in presense of
-	802.1Q TAG header.
+> What is the .1D stuff about?
+>
 
-	I don't yet see any cards which have hardware assist for
-	IPv6 checksumming.  VLAN tags or not.
+spanning tree. Seems the bridging code already does this.
 
-	Reception must handle at first tearing off the VLAN header
-	when receiving the frame, then return back to  netif_rx()
-	to see what was inside - SNAP frame, IPv4 frame, whatever.
+cheers,
+jamal
 
-/Matti Aarnio
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

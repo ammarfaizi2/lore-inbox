@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270292AbRHHDc1>; Tue, 7 Aug 2001 23:32:27 -0400
+	id <S270293AbRHHDdT>; Tue, 7 Aug 2001 23:33:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270293AbRHHDcR>; Tue, 7 Aug 2001 23:32:17 -0400
-Received: from femail48.sdc1.sfba.home.com ([24.254.60.42]:15803 "EHLO
-	femail48.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S270292AbRHHDcQ>; Tue, 7 Aug 2001 23:32:16 -0400
-From: Josh McKinney <forming@home.com>
-Date: Tue, 7 Aug 2001 22:32:18 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.7-ac9
-Message-ID: <20010807223218.A6755@home.com>
-Mail-Followup-To: josh, linux-kernel@vger.kernel.org
-In-Reply-To: <20010807235302.A16178@lightning.swansea.linux.org.uk> <Pine.LNX.4.33L.0108072218370.17803-100000@imladris.rielhome.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33L.0108072218370.17803-100000@imladris.rielhome.conectiva>
-User-Agent: Mutt/1.3.20i
+	id <S270294AbRHHDdJ>; Tue, 7 Aug 2001 23:33:09 -0400
+Received: from james.kalifornia.com ([208.179.59.2]:44858 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S270293AbRHHDcy>; Tue, 7 Aug 2001 23:32:54 -0400
+Message-ID: <3B70B241.40908@kalifornia.com>
+Date: Tue, 07 Aug 2001 20:30:09 -0700
+From: Ben Ford <ben@kalifornia.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010801
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: David Wagner <daw@mozart.cs.berkeley.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: summary Re: encrypted swap
+In-Reply-To: <fa.g4fleqv.1mle133@ifi.uio.no> <Pine.GSO.4.31.0108071419300.2838-100000@cardinal0.Stanford.EDU> <9kq1v4$ku7$1@abraham.cs.berkeley.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On approximately Tue, Aug 07, 2001 at 10:55:01PM -0300, Rik van Riel wrote:
-> On Tue, 7 Aug 2001, Alan Cox wrote:
-> 
-> > 2.4.7-ac9
-> 
-> > o	Allow swap < 2*ram				(Rik van Riel)
-> 
-> ... which I have verified to be functional, on SMP,
-> but still isn't fine-tuned.
-> 
-> It would be cool if people with smallish swap areas
-> could test this patch to see if any extra tuning would
-> be needed.
-> 
-> regards,
+David Wagner wrote:
+
+>You missed some scenarios.  Suppose I run a server that uses crypto.
+>If swap is unencrypted, all the session keys for the past year might
+>be laying around on swap.  If swap is encrypted, only the session keys
+>since the last boot are accessible, at most.  Therefore, using encrypted
+>swap clearly reduces the impact of a compromise of your machine (whether
+>through theft or through penetration).  This is a good property.
+>
+Wiping swap on boot will achieve the same effect.
+
+-b
+
+-- 
+Please note - If you do not have the same beliefs as we do, you are
+going to burn in Hell forever.
 
 
->From my smallish tests with ac9 it works quite well.  I
-have 256M of ram and I set 120M swap.  Then opened up 
-about 30 mozilla windows, compiled several kernels at
-once, gimp etc.  Swap went to zero and mem just hovered
-at about 3056K free, but still useable and able to kill
-of processes and bring it back.
+

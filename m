@@ -1,72 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266521AbUFWO5c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266561AbUFWO4w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266521AbUFWO5c (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 10:57:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266157AbUFWO5c
+	id S266561AbUFWO4w (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 10:56:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266556AbUFWO4e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 10:57:32 -0400
-Received: from mail1.asahi-net.or.jp ([202.224.39.197]:20914 "EHLO
-	mail.asahi-net.or.jp") by vger.kernel.org with ESMTP
-	id S266521AbUFWO4V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 10:56:21 -0400
-Message-ID: <40D99A08.90707@ThinRope.net>
-Date: Wed, 23 Jun 2004 23:56:08 +0900
-From: Kalin KOZHUHAROV <kalin@ThinRope.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040121
-X-Accept-Language: bg, en, ja, ru, de
+	Wed, 23 Jun 2004 10:56:34 -0400
+Received: from zero.aec.at ([193.170.194.10]:4359 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S265979AbUFWOyl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 10:54:41 -0400
+To: Timm Morten Steinbeck <timm.steinbeck@kip.uni-heidelberg.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: PATCH: Precise Accounting for 2.6.7
+References: <2ah51-6Va-35@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Wed, 23 Jun 2004 16:54:38 +0200
+In-Reply-To: <2ah51-6Va-35@gated-at.bofh.it> (Timm Morten Steinbeck's
+ message of "Wed, 23 Jun 2004 16:40:11 +0200")
+Message-ID: <m33c4m495d.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
-To: Mikael Bouillot <xaajimri@corbac.com>
-Cc: linux-kernel@vger.kernel.org,
-       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
-Subject: Re: Forcedeth driver bug
-References: <20040623142936.GA10440@mail.nute.net>
-In-Reply-To: <20040623142936.GA10440@mail.nute.net>
-X-Enigmail-Version: 0.83.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Bouillot wrote:
->   Hi all,
-> 
->   I'm having trouble with the forcedeth driver in kernel version 2.6.7.
->>From what I can see, it seems that incoming packets sometime get stuck
-> on their way in.
-> 
->   What happens is this: some packet enters the NIC, and for some reason,
-> it doesn't come out of the driver. As soon as another incoming packet
-> gets in, both packets are handed down by the driver.
-> 
->   It is usually invisible during normal TCP operation, as there are
-> several packets in flight and the stuck packet gets pushed down by the
-> one following it very soon. But for lockstep protocols like SMB, it very
-> annoying as it means you get "blanks" of 2 to 5 seconds during the
-> transfer.
-> 
->   I can reproduce this very easily with a modified version of ping. I
-> do a flood ping from another machine to the one with the nvnet NIC, but
-> I modified ping to send a new packet if one gets "lost" only 10 seconds
-> later instead of after 10 ms. The result is that after a couple hundred
-> ping-pong at full speed, one ping gets stuck. After 10 seconds, another
-> ping is sent and both pong come back.
-> 
->   This didn't happen with the proprietary nvnet driver on kernel 2.4.24.
-> My hardware is a nForce 2 mobo (in a shuttle SN45G barebones).
-> 
->   Is this a know bug? If someone working on it already or should I
-> investigate the matter further? Please CC any reply to me as I'm not on
-> the list.
+Timm Morten Steinbeck <timm.steinbeck@kip.uni-heidelberg.de> writes:
 
-Search http://groups.google.com/ or somewhere else in LKML for "new device support for forcedeth.c"
+> Hi,
+>
+> we have ported our x86 precise accounting patch from the 2.4 kernel
+> series to 2.6.7.
 
-Try the latest patch ( forcedeth_gigabit_try17.txt was the one I tested last) and report back.
-The driver has undergone quite a lot of patching lately.
-AFAIR, while testing it, similar effect was observed, but the it was way broken anyway.
+[...]
 
-Kalin.
+On many SMP systems it will not be very precise after longer uptimes
+because the TSCs of the CPUs drift away noticeable and timestamps
+from different CPUs cannot be really compared.
 
--- 
-||///_ o  *****************************
-||//'_/>     WWW: http://ThinRope.net/
+-Andi
+

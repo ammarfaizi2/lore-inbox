@@ -1,66 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316962AbSEWRRH>; Thu, 23 May 2002 13:17:07 -0400
+	id <S316963AbSEWRWe>; Thu, 23 May 2002 13:22:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316963AbSEWRRH>; Thu, 23 May 2002 13:17:07 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:2462 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S316962AbSEWRRE>; Thu, 23 May 2002 13:17:04 -0400
-Date: Thu, 23 May 2002 11:16:53 -0600
-Message-Id: <200205231716.g4NHGrT04526@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Leif Sawyer <lsawyer@gci.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.16+devfs+ide+scsi = Disaster! (data recovery tips requested)
-In-Reply-To: <BF9651D8732ED311A61D00105A9CA315082E17EE@berkeley.gci.com>
+	id <S316964AbSEWRWd>; Thu, 23 May 2002 13:22:33 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:28164 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S316963AbSEWRWd>; Thu, 23 May 2002 13:22:33 -0400
+Date: Thu, 23 May 2002 10:09:28 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Bill Davidsen <davidsen@tmr.com>
+cc: Dave McCracken <dmccr@us.ibm.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] POSIX personality
+In-Reply-To: <Pine.LNX.3.96.1020523094611.11249A-100000@gatekeeper.tmr.com>
+Message-ID: <Pine.LNX.4.44.0205231004470.1006-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Leif Sawyer writes:
-> I now join the ranks of the "Damn, I should have double-checked my
-> backups to make sure they were readable."
-> 
-> Booted into Linux last night to format a new IDE drive for a laptop.
-> My thought was to clone the existing (SCSI) windows partition for my
-> wife's laptop.  Then I could wipe the old partition after saving off
-> my data and have one more dedicated linux box laying around.
-> 
-> Everything looked okay when I fdisk'd the drive and the formatted
-> it with mkfs.vfat
-> 
-> That is, until I went to reboot.
-> 
-> Apparantly, there's a weird bug/race/conflict between devfs, scsi, and ide.
-> 
-> My CD/RW was on the IDE cable, which I had simply swapped out with the
-> mini-HD.
-> 
-> after the realization of what must have happend, i dug a little deeper.
-> fortunately lilo hadn't been wiped, and I did have linux on a second (scsi)
-> drive,
-> so I double-checked what devices it thought everthing was.
-> 
-> /dev/hda = block-device 8
-> /dev/sda = block-device 8
 
-This isn't supposed to happen, because the IDE and SCSI subsystems
-hard-wire different major numbers when registering devices.
 
-> umm... this is bad !!
-> 
-> the scsi-ide module was loaded (because of the CD/RW) and it seems that
-> the combination of a hard-drive + scsi-ide and devfs just layed over the
-> top of the existing config.
+On Thu, 23 May 2002, Bill Davidsen wrote:
+>
+> I think the reason which comes to mind is avoiding future problems. By
+> having a single POSIX mode flag not only does the program not have to know
+> about setting the "right" other bits today, but if we find that POSIX
+> behaviour is needed in some other area in the future, the program doesn't
+> need to be modified and recompiled, because the POSIX behaviour "is in
+> there" for all things.
 
-Has anyone responded to you yet?
+That's a nice argument in theory, but if you change the behaviour of
+existing flags, you might fix some program for the real semantics, but you
+might equally well _break_ some program that unwittingly depended on the
+old semantics.
 
-> My kernel is 2.4.16.  I can provide more information later, if requested.
+So I think your argument is fundamentally flawed. The binary has been
+tested with the old behaviour, and assuming that you can "fix" existing
+binaries by changing kernel behaviour is a seriously flawed argument.
 
-That's a pretty old kernel. Upgrade to 2.4.19-pre8 and see if the same
-thing happens.
+Yes, it might work for some programs, but basically you're on very thin
+ice.
 
-				Regards,
+Does Linux break stuff when absolutely required? Sure. But designing an
+interface that _plans_ on changing semantics is just incredibly stupid,
+and should absolutely not be done. Ever.
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+			Linus
+

@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287999AbSABXaR>; Wed, 2 Jan 2002 18:30:17 -0500
+	id <S287996AbSABX2g>; Wed, 2 Jan 2002 18:28:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287169AbSABX2p>; Wed, 2 Jan 2002 18:28:45 -0500
-Received: from [217.9.226.246] ([217.9.226.246]:53632 "HELO
-	merlin.xternal.fadata.bg") by vger.kernel.org with SMTP
-	id <S287976AbSABX1f>; Wed, 2 Jan 2002 18:27:35 -0500
-To: paulus@samba.org
-Cc: Bernard Dautrevaux <Dautrevaux@microprocess.com>,
-        "'Tom Rini'" <trini@kernel.crashing.org>, linux-kernel@vger.kernel.org,
-        gcc@gcc.gnu.org, linuxppc-dev@lists.linuxppc.org
+	id <S287981AbSABX1T>; Wed, 2 Jan 2002 18:27:19 -0500
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:17284
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S287972AbSABX0V>; Wed, 2 Jan 2002 18:26:21 -0500
+Date: Wed, 2 Jan 2002 16:26:18 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Paul Mackerras <paulus@samba.org>
+Cc: Momchil Velikov <velco@fadata.bg>, linux-kernel@vger.kernel.org,
+        gcc@gcc.gnu.org, linuxppc-dev@lists.linuxppc.org,
+        Franz Sirl <Franz.Sirl-kernel@lauterbach.com>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Corey Minyard <minyard@acm.org>
 Subject: Re: [PATCH] C undefined behavior fix
-In-Reply-To: <17B78BDF120BD411B70100500422FC6309E3ED@IIS000>
-	<15411.37236.181936.39729@argo.ozlabs.ibm.com>
-From: Momchil Velikov <velco@fadata.bg>
-In-Reply-To: <15411.37236.181936.39729@argo.ozlabs.ibm.com>
-Date: 03 Jan 2002 01:27:42 +0200
-Message-ID: <87d70suydt.fsf@fadata.bg>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+Message-ID: <20020102232618.GP1803@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <87g05py8qq.fsf@fadata.bg> <20020102190910.GG1803@cpe-24-221-152-185.az.sprintbbd.net> <15411.37817.753683.914033@argo.ozlabs.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <15411.37817.753683.914033@argo.ozlabs.ibm.com>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Paul" == Paul Mackerras <paulus@samba.org> writes:
-Paul> As I said in another email, if the gcc maintainers want to change gcc
-Paul> so that pointer arithmetic can do anything other than an ordinary 2's
-Paul> complement addition operation, 
+On Thu, Jan 03, 2002 at 10:11:53AM +1100, Paul Mackerras wrote:
+> Tom Rini writes:
+> 
+> > Okay, here's a summary of all of the options we have:
+> > 1) Change this particular strcpy to a memcpy
+> > 2) Add -ffreestanding to the CFLAGS of arch/ppc/kernel/prom.o (If this
+> > optimization comes back on with this flag later on, it would be a
+> > compiler bug, yes?)
+> > 3) Modify the RELOC() marco in such a way that GCC won't attempt to
+> > optimize anything which touches it [1]. (Franz, again by Jakub)
+> > 4) Introduce a function to do the calculations [2]. (Corey Minyard)
+> > 5) 'Properly' set things up so that we don't need the RELOC() macros
+> > (-mrelocatable or so?), and forget this mess altogether.
+> 
+> I would add:
+> 
+> 6) change strcpy to string_copy so gcc doesn't think it knows what the
+>    function does
+> 7) code RELOC etc. in assembly, which would let us get rid of the
+> 	offset = reloc_offset();
+>    at the beginning of each function which uses RELOC.
 
-Nobody changes pointer arithmetic. The problem is that this
-optimization gives _negative_ length, because the resulting pointer
-does not point inside or one past the end of the array, which in turn
-is explicitly mentioned in the standard as undefined behavior.
+I think 7 sounds good for 2.4 at least, and maybe we can convince Franz
+to look into 5 for 2.5 (since that would make things look a bit more
+clean)..
 
-Paul> ... then we will stop using gcc.
-
-Specifically separated this part to state that I don't even care to
-comment on this. Doh, I did. Anyway ..
-
-Regards,
--velco
-
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

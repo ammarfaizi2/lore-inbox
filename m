@@ -1,77 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318927AbSHEXRl>; Mon, 5 Aug 2002 19:17:41 -0400
+	id <S318980AbSHFDwx>; Mon, 5 Aug 2002 23:52:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318930AbSHEXRl>; Mon, 5 Aug 2002 19:17:41 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:17670 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S318927AbSHEXRk>; Mon, 5 Aug 2002 19:17:40 -0400
-Date: Tue, 6 Aug 2002 00:21:12 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: john stultz <johnstul@us.ibm.com>
-Cc: marcelo <marcelo@conectiva.com.br>, lkml <linux-kernel@vger.kernel.org>,
-       Leah Cunningham <leahc@us.ibm.com>, wilhelm.nuesser@sap.com,
-       paramjit@us.ibm.com
-Subject: Re: [PATCH] tsc-disable_B7
-Message-ID: <20020806002112.A32243@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	john stultz <johnstul@us.ibm.com>,
-	marcelo <marcelo@conectiva.com.br>,
-	lkml <linux-kernel@vger.kernel.org>,
-	Leah Cunningham <leahc@us.ibm.com>, wilhelm.nuesser@sap.com,
-	paramjit@us.ibm.com
-References: <1028588288.1073.42.camel@cog>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1028588288.1073.42.camel@cog>; from johnstul@us.ibm.com on Mon, Aug 05, 2002 at 03:58:07PM -0700
+	id <S318985AbSHFDww>; Mon, 5 Aug 2002 23:52:52 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:2216 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S318980AbSHFDwq>;
+	Mon, 5 Aug 2002 23:52:46 -0400
+From: Rusty Trivial Russell <rusty@rustcorp.com.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [TRIVIAL] Warn users about machines with non-working WP bit
+Date: Tue, 06 Aug 2002 13:49:40 +1000
+Message-Id: <20020806035808.710134B71@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -Nru a/Documentation/Configure.help b/Documentation/Configure.help
---- a/Documentation/Configure.help	Mon Aug  5 15:41:40 2002
-+++ b/Documentation/Configure.help	Mon Aug  5 15:41:40 2002
-@@ -233,7 +233,21 @@
-   network and embedded applications.  For more information see the
-   Axis Communication site, <http://developer.axis.com/>.
+[ Truth in advertising? ]
+
+From:  Pavel Machek <pavel@ucw.cz>
+
+  Hi!
+  
+  This might be good idea, as those machines are not safe for multiuser
+  systems.
+  
+
+--- trivial-2.5.30/arch/i386/mm/init.c.orig	2002-08-06 13:18:12.000000000 +1000
++++ trivial-2.5.30/arch/i386/mm/init.c	2002-08-06 13:18:12.000000000 +1000
+@@ -397,7 +397,7 @@
+ 	local_flush_tlb();
  
--Multiquad support for NUMA systems
-+Multi-node support for NUMA systems
-
-What's the difference between CONFIG_X86_NUMA and CONFIG_MULTIQUAD?
-
-If CONFIG_X86_NUMA is for numaq boxens please use CONFIG_X86_NUMAQ as
-in pat's patch.
-
-
- else
--   bool 'Multiquad NUMA system' CONFIG_MULTIQUAD
-+	bool 'Multi-node NUMA system support' CONFIG_X86_NUMA
-+	if [ "$CONFIG_X86_NUMA" = "y" ]; then
-+		bool 'Multiquad (IBM/Sequent) NUMAQ support' CONFIG_MULTIQUAD
-+	fi
- fi
-
-config.in files have three-space indents.
- 
-+
-+if [ "$CONFIG_X86_HAS_TSC" = "y" ]; then
-+	if [ "$CONFIG_X86_NUMA" = "y" ]; then
-+		define_bool CONFIG_X86_TSC n
-+	else
-+		define_bool CONFIG_X86_TSC y
-+	fi
-+fi
-+
- 
-+			if(!bad_tsc){
-+				use_tsc = 1;
-+				x86_udelay_tsc = 1;
-+				#ifndef do_gettimeoffset
-+				do_gettimeoffset = do_fast_gettimeoffset;
-+				#endif
-+			}
-
-you want to read Documentation/CodingStyle, don't you?
-
+ 	if (!boot_cpu_data.wp_works_ok) {
+-		printk("No.\n");
++		printk("No (that's security hole).\n");
+ #ifdef CONFIG_X86_WP_WORKS_OK
+ 		panic("This kernel doesn't support CPU's with broken WP. Recompile it for a 386!");
+ #endif
+-- 
+  Don't blame me: the Monkey is driving

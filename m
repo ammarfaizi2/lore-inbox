@@ -1,55 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318174AbSHIHyH>; Fri, 9 Aug 2002 03:54:07 -0400
+	id <S318175AbSHIH53>; Fri, 9 Aug 2002 03:57:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318175AbSHIHyH>; Fri, 9 Aug 2002 03:54:07 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:248 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318174AbSHIHyH>; Fri, 9 Aug 2002 03:54:07 -0400
-Subject: Re: [PATCH] tsc-disable_B9
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>, Leah Cunningham <leahc@us.ibm.com>,
-       wilhelm.nuesser@sap.com, paramjit@us.ibm.com, msw@redhat.com
-In-Reply-To: <1028860246.1117.34.camel@cog>
-References: <1028771615.22918.188.camel@cog> 
-	<1028812663.28883.32.camel@irongate.swansea.linux.org.uk> 
-	<1028860246.1117.34.camel@cog>
-Content-Type: text/plain
+	id <S318177AbSHIH52>; Fri, 9 Aug 2002 03:57:28 -0400
+Received: from vic7-adsl-050.tpgi.com.au ([203.213.71.50]:63377 "EHLO
+	coralshark.bluereef.com.au") by vger.kernel.org with ESMTP
+	id <S318175AbSHIH51>; Fri, 9 Aug 2002 03:57:27 -0400
+Message-ID: <079d01c23f7b$e3cf34d0$2b01010a@bluereef.local>
+From: "Andrew" <temp01@bluereef.com.au>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.2.20 ramdisk(initrd) not found by kernel
+Date: Fri, 9 Aug 2002 18:08:05 +1000
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 09 Aug 2002 10:17:45 +0100
-Message-Id: <1028884665.28882.173.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-08-09 at 03:30, john stultz wrote:
-> Not sure I followed that, do you mean per-cpu TSC management for
-> gettimeofday? 
+I have a problem that I have been wrestling with now for a number of days
+with no solution, and I'm hoping someone can help.
 
-We have some x86 setups where people plug say a 300MHhz and a 450MHz
-celeron into the same board. This works because they are same FSB,
-different multiplier (works and intel certify being two different
-things)
+My problem is that when the 2.2.20 kernel loads, lilo doesn't seem to load
+the rootfs.img into RAM or it gets dropped before the kernel finds it. That
+is I don't get the
+kernel message 'RAMDISK found at block 0' message and thus Linux panics with
+something like "root file system not found on dev 1:0".
 
-Needless to say tsc does not work well on such boxes. Thats why I don't
-trust the tsc at all in such cases. Since you'll have the nice cyclone
-timer for the Summit it seems best not to trust it, and on the summit to
-use the cyclone for udelay as well ?
+I have a stock 2.2.20 kernel with ramdisk and initrd support compiled in.
+RAMdisk size is 64MB although I've also tried 32MB and 128MB.
+I have tried kernel builds with module support and without (everything
+compiled in)
+I'm using the latest lilo I can find with the following config:
 
-I agree dodgy_tsc needs to change name. Perhaps we actually want
+boot=/dev/hdc
+disk=/dev/hdc
+ bios=0x80
+map=/map
+install=/boot.b
+backup=/boot.1600
+prompt
+linear
+timeout=50
+password=maintenance
+restricted
+image=/vmlinuz-2.2.20up
+        label=test
+        ramdisk=65536
+        initrd=/rootfs.img
+        root=/dev/ram
 
-	int tsc = select_tsc();
+The server is a uni processor PIII server with 512MB of RAM
 
-	switch(tsc)
-	{
-		case TSC_CYCLONE:
-		case TSC_PROCESSOR:
-		case TSC_NONE:
-		..
-	}
+The sizes of my rootfs.img and kernel are:
+ 8713856 Aug  7 12:55 rootfs.img (this is an ext2 compressed image)
+ 787022 Aug  7 12:17 vmlinuz-2.2.20up (this is a monolithic bzImage kernel)
 
-Alan
+Lilo when building doesn't report any errors in fact it says it successfully
+maps the RAMdisk ok
+
+It almost seems like there is some finite size or block limit that my
+rootfs.img+kernel is greater than, that stops the
+RAMdisk being loaded or being found if it is infact being loaded at all.
+
+Is there a finite limit on the size initrd can be? Enlarging the ramdisk
+size or altering the block size of the image doesn't seem to make any
+difference.
+
+Any help much appreciated.
+
+Andrew.
+ps. Can you please reply to me directly, thanks.
 

@@ -1,59 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263310AbTFDORr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 10:17:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263311AbTFDORq
+	id S263315AbTFDOWi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 10:22:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263319AbTFDOWi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 10:17:46 -0400
-Received: from pat.uio.no ([129.240.130.16]:62129 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S263310AbTFDORp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 10:17:45 -0400
-To: Frank Cusack <fcusack@fcusack.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, trond.myklebust@fys.uio.no
-Subject: Re: nfs_refresh_inode: inode number mismatch
-References: <20030603165438.A24791@google.com>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 04 Jun 2003 16:19:38 +0200
-In-Reply-To: <20030603165438.A24791@google.com>
-Message-ID: <shswug2sz5x.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+	Wed, 4 Jun 2003 10:22:38 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:34317 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S263315AbTFDOWg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 10:22:36 -0400
+Date: Wed, 4 Jun 2003 07:35:47 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Christoph Hellwig <hch@infradead.org>
+cc: "P. Benie" <pjb1008@eng.cam.ac.uk>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] [2.5] Non-blocking write can block
+In-Reply-To: <20030604065336.A7755@infradead.org>
+Message-ID: <Pine.LNX.4.44.0306040732470.13753-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have ques\tions about this scanning.
-X-UiO-MailScanner: No virus found
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Frank Cusack <fcusack@fcusack.com> writes:
 
-     > Hi, [Previously sent to nfs@sourceforge with no response]
+On Wed, 4 Jun 2003, Christoph Hellwig wrote:
+> 
+> The else should be on the same line as the closing brace, else
+> the patch looks fine.
 
-     > I'm using a frankenstein kernel, 2.4.21-rc3 with some -ac bits,
-     > and 2.5.69 NFS+RPC backported to it.  Like the CITI kernel (for
-     > krb5), but a little more aggressive on the bits backported.
-     > For the purpose of this email, I think the code I have
-     > questions with is similar or even identical from
-     > 2.4.21->2.5.69.  I can reproduce this problem on a RH
-     > 2.4.20-9smp kernel.
+No no no, it's wrong.
 
-     > Consider these two shells running on the same machine:
+If you do something like this, then you also have to teach "select()" 
+about this, otherwise you just get busy looping in applications.
 
-     > 	    1 2
+In general, we shouldn't do this, unless somebody can show an application 
+where it really matters. Taking internal kernel locking into account for 
+"blockingness" easily gets quite complicated, and there is seldom any real 
+point to it.
 
-     > 	cd /nfs cd /nfs mkdir t echo foo > t/foo less t/foo
-     > 	 [less waits for input]
-     > 					rm -rf t
-     > 	'v'
-     > 	 [vi tries to access tmp/foo]
+Remember: perfect is the enemy of good. I'll happily apply the patch (if 
+it also updates the tty poll() functionality), _if_ there is some 
+real-world situation where it matters.
 
-     > At this point, fs/nfs/inode.c:__nfs_refresh_inode() prints the
-     > "inode number mismatch" error.  AFAICT, this is just noise, but
-     > the noise is driving me crazy. :-)
+		Linus
 
-Inode number mismatch points to either an an obvious server error (it
-is not providing unique filehandles) or corruption of the fattr struct
-that was passed to nfs_refresh_inode().
-
-Cheers,
-  Trond

@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262427AbTCROkK>; Tue, 18 Mar 2003 09:40:10 -0500
+	id <S262447AbTCROqs>; Tue, 18 Mar 2003 09:46:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262438AbTCROkK>; Tue, 18 Mar 2003 09:40:10 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:32242 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S262427AbTCROkJ>;
-	Tue, 18 Mar 2003 09:40:09 -0500
-Date: Tue, 18 Mar 2003 15:49:43 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: linux-ntfs-dev@lists.sourceforge.net,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: NTFS byte swapping
-Message-ID: <Pine.GSO.4.21.0303181546500.17808-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262448AbTCROqs>; Tue, 18 Mar 2003 09:46:48 -0500
+Received: from mail.ithnet.com ([217.64.64.8]:27909 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S262447AbTCROqs>;
+	Tue, 18 Mar 2003 09:46:48 -0500
+Date: Tue, 18 Mar 2003 15:57:31 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: kernel nfsd
+Message-Id: <20030318155731.1f60a55a.skraw@ithnet.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello Trond, hello all,
 
-When compiling NTFS support in 2.5.65 on a big-endian machine (m68k), I get:
+can you explain what this means:
 
-| fs/ntfs/compress.c:167: warning: passing arg 1 of `__swab16p' from incompatible pointer type
-| fs/ntfs/compress.c:207: warning: passing arg 1 of `__swab16p' from incompatible pointer type
-| fs/ntfs/compress.c:228: warning: passing arg 1 of `__swab16p' from incompatible pointer type
-| fs/ntfs/compress.c:333: warning: passing arg 1 of `__swab16p' from incompatible pointer type
+kernel: nfsd-fh: found a name that I didn't expect: <filename>
 
-The offending code does `le16_to_cpup(cb)', with cb a pointer to a u8.
+Should something be done against it, or is it simply informative?
 
-Gr{oetje,eeting}s,
+Comes up on 2.4.20 kernel based nfs-server quite often. Exported FS is reiserfs
+sized about 500 GB.
 
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+-- 
+Regards,
+Stephan

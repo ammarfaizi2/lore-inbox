@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262885AbUCPAsq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 19:48:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262890AbUCPApu
+	id S262919AbUCPAsy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 19:48:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262890AbUCPAsx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 19:45:50 -0500
-Received: from web14903.mail.yahoo.com ([216.136.225.55]:15422 "HELO
-	web14903.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262919AbUCPAm5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 19:42:57 -0500
-Message-ID: <20040316004254.18671.qmail@web14903.mail.yahoo.com>
-Date: Mon, 15 Mar 2004 16:42:54 -0800 (PST)
-From: Jon Smirl <jonsmirl@yahoo.com>
-Subject: Re: [Dri-devel] Re: DRM reorganization
-To: Ian Romanick <idr@us.ibm.com>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, dri-devel@lists.sourceforge.net
-In-Reply-To: <40564723.4010105@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 15 Mar 2004 19:48:53 -0500
+Received: from main.gmane.org ([80.91.224.249]:42707 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262919AbUCPArz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 19:47:55 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Giuseppe Bilotta <bilotta78@hotpop.com>
+Subject: Keyboard drivers and multimedia keys (Dell Inspiron 8xxxx)
+Date: Tue, 16 Mar 2004 01:47:47 +0100
+Message-ID: <MPG.1ac06d1fb04822fa989686@news.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: ppp-26-142.29-151.libero.it
+X-Newsreader: MicroPlanet Gravity v2.60
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Ian Romanick <idr@us.ibm.com> wrote:
-> That's part of why I'm asking.  From talking to Linus in the past, I 
-> know that merging in changes is a PITA due to our funky directory 
-> structure.  I'd like to make that easier. :)
+Hello,
 
-Part of the pain could be caused by the shared/linux split in the DRM tree. The
-kernel tree doesn't have that split. 
+while looking around for a way to make the multimedia keys on my Dell 
+Inspiron notebook work (in console and/or X), I came across an oldish 
+(4 months) post here
 
-Also DRM makefile.kernel and the kernel char/drm/Makefile are similar but not
-the same. So any changes to the build procedure would need to be updated into
-char/drm/Makefile.
+http://lkml.org/lkml/2003/11/10/188
 
-drmstat.c/dristat.c should be pulled out of the driver directory and put it in a
-directory for apps.
+with a patch to fix the problem. I can of course apply the patch to 
+my own kernel, but is there a particular reason why it wouldn't get 
+into mainstream?
 
-Where should Doxyfile and config.in go?
+-- 
+Giuseppe "Oblomov" Bilotta
 
-The savage driver is not currently in the kernel. Should the mach64 driver be
-moved out of the branch and into the DRM project?
+Can't you see
+It all makes perfect sense
+Expressed in dollar and cents
+Pounds shillings and pence
+                  (Roger Waters)
 
-The best solution would be to have some kind of scipt in the DRM project that
-builds a directory that can simply be copied into char/drm.
-
-=====
-Jon Smirl
-jonsmirl@yahoo.com
-
-__________________________________
-Do you Yahoo!?
-Yahoo! Mail - More reliable, more storage, less spam
-http://mail.yahoo.com

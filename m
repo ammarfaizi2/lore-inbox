@@ -1,34 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318787AbSHBLpb>; Fri, 2 Aug 2002 07:45:31 -0400
+	id <S318791AbSHBLtm>; Fri, 2 Aug 2002 07:49:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318786AbSHBLpb>; Fri, 2 Aug 2002 07:45:31 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:26358 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318787AbSHBLpa>; Fri, 2 Aug 2002 07:45:30 -0400
-Subject: Re: cs4281 driver cleanup (includes synchronize_irq() update)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: davidm@hpl.hp.com
-Cc: twoller@crystal.cirrus.com, audio@crystal.cirrus.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200208012331.g71NVWQP016779@napali.hpl.hp.com>
-References: <200208012331.g71NVWQP016779@napali.hpl.hp.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 02 Aug 2002 14:06:18 +0100
-Message-Id: <1028293578.18317.56.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S318796AbSHBLtm>; Fri, 2 Aug 2002 07:49:42 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:46086 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S318791AbSHBLtl>; Fri, 2 Aug 2002 07:49:41 -0400
+Message-ID: <3D4A7178.7050307@evision.ag>
+Date: Fri, 02 Aug 2002 13:48:08 +0200
+From: Marcin Dalecki <dalecki@evision.ag>
+Reply-To: martin@dalecki.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en, pl, ru
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: Stephen Lord <lord@sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: A new ide warning message
+References: <1028288066.1123.5.camel@laptop.americas.sgi.com> <20020802114713.GD1055@suse.de>
+Content-Type: text/plain; charset=US-ASCII;
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-08-02 at 00:31, David Mosberger wrote:
-> The patch below cleans up the cs4281 sound driver to compile cleanly
-> (no warnings) on 64-bit platforms such as ia64.  Also, the patch
-> updated the calls to synchronize_irq() according to the new interface
-> (which takes an irq number as an argument).  Someone who understands
-> this driver might want to double check that this is indeed working as
-> intended.
+Uz.ytkownik Jens Axboe napisa?:
+> On Fri, Aug 02 2002, Stephen Lord wrote:
+> 
+>>In 2.5.30 I started getting these warning messages out ide during
+>>the mount of an XFS filesystem:
+>>
+>>ide-dma: received 1 phys segments, build 2
+>>
+>>Can anyone translate that into English please.
+> 
+> 
+> Well I added that message when switching to the 2.5 style request
+> mapping functions, and I think the message is perfectly clear :-). Never
+> the less, it means that a segment that came into the ide layer with an
+> advertised size of 1 segment was returned from blk_rq_map_sg() as having
+> _two_. This can be a problem with dynamically allocated sg table (not
+> that ide uses those, but still).
+> 
+> It's a bug and usually a critical one when this happens. I'd be inclined
+> to think that Adam's changes in this path are to blame for this error.
 
-I'll double check it and backport the changes to 2.4
+Carefull carefull. it can be that the generic BIO code doesn't honour
+the limits Adam was setting properly. And it can be of course
+as well the XFS doesn't cooperate properly with those limits as well,
+since ther kernel appears to be patched to support them.
+
+It would be helpfull as well to know on which brand of host controller 
+chip this was found. In esp. trm290 maybe?
+> 
+> Oh, and I'd be _really_ careful if you have trusted data on that drive
+> (surely not when running 2.5 ide on it :-)
+> 
+
 

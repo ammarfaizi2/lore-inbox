@@ -1,29 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272172AbRIENax>; Wed, 5 Sep 2001 09:30:53 -0400
+	id <S272137AbRIENge>; Wed, 5 Sep 2001 09:36:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272137AbRIENan>; Wed, 5 Sep 2001 09:30:43 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:12805 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S272172AbRIENad>; Wed, 5 Sep 2001 09:30:33 -0400
-Subject: Re: hang on disk discovery
-To: xavier.bestel@free.fr (Xavier Bestel)
-Date: Wed, 5 Sep 2001 14:34:44 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <999696095.14164.12.camel@nomade> from "Xavier Bestel" at Sep 05, 2001 03:21:34 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S272175AbRIENgZ>; Wed, 5 Sep 2001 09:36:25 -0400
+Received: from sync.nyct.net ([216.44.109.250]:60677 "HELO sync.nyct.net")
+	by vger.kernel.org with SMTP id <S272137AbRIENgQ>;
+	Wed, 5 Sep 2001 09:36:16 -0400
+Date: Wed, 5 Sep 2001 09:38:51 -0400
+From: Michael Bacarella <mbac@nyct.net>
+To: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: getpeereid() for Linux
+Message-ID: <20010905093851.A24280@sync.nyct.net>
+In-Reply-To: <tgsne23sou.fsf@mercury.rus.uni-stuttgart.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15ecpI-0005wn-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <tgsne23sou.fsf@mercury.rus.uni-stuttgart.de>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have an ABit VP6 (dual PIII, VIA chipset), ACPI in kernel, I just put
-> --no-mem-option in grub to see if it changes anything but no.
-> The only intersting thing in dmesg seems the "unexpected IO-APIC".
-> How can I help ?
+> Would anyone like to give me a helping hand in implementing the
+> getpeereid() syscall for Linux?  See the following page for the
+> documentation of the OpenBSD implementation:
+> 
+> http://www.openbsd.org/cgi-bin/man.cgi?query=getpeereid&sektion=2&apropos=0&manpath=OpenBSD+Current
+> 
+> I think I could work out the kernel data structures to gather the
+> relevant data from, however, I won't get all the locking stuff right.
+>
+> OTOH, is there any chance that the addition of such a syscall would be
+> accepted?
 
-Ok firstly try disabling ACPI. If that doesnt help see if booting "noapic"
-helps
+There's no need. The equivalent functionality can already be
+implemented in userspace.
+
+------
+
+#include <sys/socket.h>
+
+uid_t getpeereuid(int sd)
+{
+	struct ucred cred;
+	int len = sizeof (cred);
+
+	if (getsockopt(sd,SOL_SOCKET,SO_PEERCRED,&cred,&len))
+		return -1;
+
+	return cred.uid;
+}
+
+------
+
+The same can be done for gid, and even pid.
+
+Yes, Linux rules.
+
+-- 
+Michael Bacarella <mbac@nyct.net>
+Technical Staff / System Development,
+New York Connect.Net, Ltd.

@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261324AbTIBXui (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 19:50:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261325AbTIBXui
+	id S261221AbTIBXpb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 19:45:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261316AbTIBXpb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 19:50:38 -0400
-Received: from dyn-ctb-210-9-241-57.webone.com.au ([210.9.241.57]:19460 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S261324AbTIBXu0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 19:50:26 -0400
-Message-ID: <3F552CBB.1060906@cyberone.com.au>
-Date: Wed, 03 Sep 2003 09:50:19 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Nick's scheduler policy v10
-References: <3F5044DC.10305@cyberone.com.au> <1806700000.1062361257@[10.10.2.4]> <1807550000.1062362498@[10.10.2.4]> <3F52A546.9020608@cyberone.com.au> <6860000.1062441073@[10.10.2.4]> <3F544F11.4010700@cyberone.com.au> <127320000.1062514664@[10.10.2.4]>
-In-Reply-To: <127320000.1062514664@[10.10.2.4]>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 2 Sep 2003 19:45:31 -0400
+Received: from fw.osdl.org ([65.172.181.6]:19356 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261221AbTIBXpa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Sep 2003 19:45:30 -0400
+Date: Tue, 2 Sep 2003 16:45:25 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Dale E Martin <dmartin@cliftonlabs.com>, linux-kernel@vger.kernel.org
+Subject: Re: repeatable, hard lockup on boot in linux-2.6.0-test4 (more details)
+Message-ID: <20030902164525.A11944@osdlab.pdx.osdl.net>
+References: <20030902003146.GA870@cliftonlabs.com> <20030901182335.4c2e220f.akpm@osdl.org> <20030902123050.GA854@cliftonlabs.com> <20030902130323.41d2fdca.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030902130323.41d2fdca.akpm@osdl.org>; from akpm@osdl.org on Tue, Sep 02, 2003 at 01:03:23PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Andrew Morton (akpm@osdl.org) wrote:
+> Looks like it.  Please add a DB() to the start of i8042_interrupt(),
+> see if we locked up in an interrupt storm.  Also sprinkle some in 
+> request_irq() I guess.  You know the deal ;)
 
+I have similar issue with:
+floppy_init()
+  floppy_grab_irq_and_dma()
+    fd_request_irq()
+      request_irq()
 
-Martin J. Bligh wrote:
+      floppy_hardint()
+      ...
+      floppy_hardint()
 
->>>Not convinced of that - mm performs worse than mainline for me.
->>>
->>Well, one of Con's patches caused a lot of idle time on volanomark.
->>The reason for the change was unclear. I guess either a fairness or
->>wakeup latency change (yes, it was a very scientific process, ahem).
->>
->>Anyway, in the process of looking at the load balancing, we found
->>and fixed a problem (although it might now possibly over balance).
->>This did cure most of the idle problems.
->>
->>So it could just be small changes causing things to go out of whack.
->>I will try to get better data after (if ever) the thing is working
->>nicely on the desktop.
->>
->
->I think Con and I worked out that the degredations I was seeing 
->(on kernbench and SDET) were due to (in his words) "my hacks throwing the 
->cc cpu hogs onto the expired array more frequently".
->
->
+This causes interrupt storm, hanging the machine on bootup.  Booting with
+pci=noacpi fixes this.  So, I'm assuming acpi pci irq routing problem.
+This is irq 6, which ACPI is disabling.  Perhaps disabling leaves it in
+a bogus state?
 
-This didn't explain the huge idle time increases on volanomark and
-SPECjbb I think.
-
-
-
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,256 +1,153 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261378AbUJZUMq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261409AbUJZUNy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261378AbUJZUMq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 16:12:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261430AbUJZUMp
+	id S261409AbUJZUNy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 16:13:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbUJZUNW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 16:12:45 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:41360 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S261378AbUJZULo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 16:11:44 -0400
-Date: Wed, 27 Oct 2004 00:12:16 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: "Martin Schlemmer [c]" <azarah@nosferatu.za.org>
-Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       Sam Ravnborg <sam@ravnborg.org>,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6.9-bk7] Select cpio_list or source directory for initramfs image updates [u]
-Message-ID: <20041026221216.GA30918@mars.ravnborg.org>
-Mail-Followup-To: "Martin Schlemmer [c]" <azarah@nosferatu.za.org>,
-	Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-	Sam Ravnborg <sam@ravnborg.org>,
-	Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-References: <200410200849.i9K8n5921516@mail.osdl.org> <1098533188.668.9.camel@nosferatu.lan>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1098533188.668.9.camel@nosferatu.lan>
-User-Agent: Mutt/1.5.6i
+	Tue, 26 Oct 2004 16:13:22 -0400
+Received: from fire.osdl.org ([65.172.181.4]:52612 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S261440AbUJZULx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 16:11:53 -0400
+Message-ID: <417EAD2F.7040608@osdl.org>
+Date: Tue, 26 Oct 2004 13:01:51 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-mm1
+References: <20041022032039.730eb226.akpm@osdl.org> <417D7EB9.4090800@osdl.org>	 <20041025155626.11b9f3ab.akpm@osdl.org> <417D88BB.70907@osdl.org>	 <20041025164743.0af550ce.akpm@osdl.org> <417D8DFF.1060104@osdl.org>	 <Pine.GSO.4.58.0410260319100.17615@mion.elka.pw.edu.pl>	 <417DBEC1.5000701@osdl.org> <417E71C1.1080400@osdl.org> <58cb370e041026094016ac67d0@mail.gmail.com>
+In-Reply-To: <58cb370e041026094016ac67d0@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 23, 2004 at 02:06:28PM +0200, Martin Schlemmer [c] wrote:
-> Hi,
+Bartlomiej Zolnierkiewicz wrote:
+> On Tue, 26 Oct 2004 08:48:17 -0700, Randy.Dunlap <rddunlap@osdl.org> wrote:
 > 
-> Here is some updates after talking to Sam Ravnborg.  He did not yet come
-> back to me, I am not sure if I understood 100% what he meant, but hopefully
-> somebody else will be so kind as to comment.
+>>>>>>>Yes, that gets further.   :(
+>>>>>>>Maybe I'll just (try) apply the kexec patch to a vanilla kernel.
+>>>>
+>>>>
+>>>>
+>>>>IDE PIO changes are the part of a vanilla kernel.
+>>>>
+>>>>If vanilla kernel (+akpm's fix) works OK then
+>>>>this bug is not mine fault. :)
+>>>>
+>>>>
+>>>>
+>>>>>>I doubt if it'll help much.  It looks like IDE PIO got badly broken.
+>>>>
+>>>>
+>>>>
+>>>>Weird, this code was in -mm for over a month.
+>>>>
+>>>>
+>>>>
+>>>>>>That's something we have to fix - could you work with Bart on it
+>>>>>>please?
+>>>>>
+>>>>>
+>>>>>Sure.  Bart?
+>>>>
+>>>>
+>>>>
+>>>>I need more data, IDE PIO works fine here.
+>>>>
+>>>>
+>>>>
+>>>>>>How come your disks are running in PIO mode anyway?
+>>>>
+>>>>
+>>>>
+>>>>Maybe disks are runing in DMA mode but some application
+>>>>triggers PIO access (IDENTIFY command, S.M.A.R.T. etc.)...
+>>>>
+>>>>
+>>>>
+>>>>>No idea.
+>>>
+>>>
+>>>Andrew made me look.  Duh.  It's because I'm booting with
+>>>ide=nodma.
+>>>
+>>>So Bart, can you check the noautodma=1 code path?
+>>>And I'll test it again on Tuesday without using ide=nodma.
+>>
+>>Booting 2.6.9-mm1 without using "ide=nodma" works well for me.
+>>No other kernel changes.
+> 
+> 
+> I audited the code and only found the unrelated bug in
+> /proc/ide/hd?/smart_thresholds, fix below...
+> 
+> --- ide-disk.c.orig	2004-10-26 15:50:51.000000000 +0200
+> +++ ide-disk.c	2004-10-26 18:34:50.736448416 +0200
+> @@ -977,6 +977,7 @@
+>  	args.tfRegister[IDE_HCYL_OFFSET]	= SMART_HCYL_PASS;
+>  	args.tfRegister[IDE_COMMAND_OFFSET]	= WIN_SMART;
+>  	args.command_type			= IDE_DRIVE_TASK_IN;
+> +	args.data_phase				= TASKFILE_IN;
+>  	args.handler				= &task_in_intr;
+>  	(void) smart_enable(drive);
+>  	return ide_raw_taskfile(drive, &args, buf);
+> 
+> I tried reproducing the OOPS but I couldn't.  Little bird tells me that
+> this bug is SMP and/or highmem specific (I don't have such hardware).
+> 
+> Randy, could you "ide=nodma" with 2.6.10-rc1 (+akpm's fix) and 2.6.9?
 
-Hi Martin.
-Took a look at your patch and did not like it.
-Attached my version which I will push towards Linus soon.
-
-Main difference is that I move logic to gen_initramfs_list-sh.
-Then I also use filechk - so I actually generate the file - but
-do not update the final file unless needed.
-
-Current patch will not rebuild image if one of the
-programs listed are changed. But it should give a good
-foundation to do so.
-
-	Sam
-
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/10/27 00:07:03+02:00 sam@mars.ravnborg.org 
-#   kbuild/usr: initramfs list fixed and simplified
-#   
-#   Moving logic to scripts/gen_initramfs_list.sh make a nice cleanup in
-#   usr/Makefile.
-#   A new initramfs image will be generated if the initramfs_list file changes.
-#   This patch also fixes the bug with make O=..
-#   
-#   Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-# 
-# usr/Makefile
-#   2004/10/27 00:06:46+02:00 sam@mars.ravnborg.org +9 -20
-#   Simplify - logic moved to gen_initramfs_list.sh script
-# 
-# scripts/gen_initramfs_list.sh
-#   2004/10/27 00:06:46+02:00 sam@mars.ravnborg.org +35 -16
-#   Moved logic to this file.
-#   It now handles both dirs, files and no input given.
-#   For invalid input print error and boild out.
-# 
-# scripts/Makefile.lib
-#   2004/10/27 00:06:46+02:00 sam@mars.ravnborg.org +27 -0
-#   Added filechk - copy from top level Makefile
-# 
-# BitKeeper/etc/ignore
-#   2004/10/27 00:06:24+02:00 sam@mars.ravnborg.org +1 -0
-#   added usr/initramfs_list
-# 
-# BitKeeper/deleted/.del-initramfs_list~e02c62efaa478389
-#   2004/10/27 00:02:17+02:00 sam@mars.ravnborg.org +0 -0
-#   Delete: usr/initramfs_list
-# 
-diff -Nru a/scripts/Makefile.lib b/scripts/Makefile.lib
---- a/scripts/Makefile.lib	2004-10-27 00:07:50 +02:00
-+++ b/scripts/Makefile.lib	2004-10-27 00:07:50 +02:00
-@@ -232,3 +232,30 @@
- # Usage:
- # $(Q)$(MAKE) $(build)=dir
- build := -f $(if $(KBUILD_SRC),$(srctree)/)scripts/Makefile.build obj
-+
-+# filechk is used to check if the content of a generated file is updated.
-+# Sample usage:
-+# define filechk_sample
-+#	echo $KERNELRELEASE
-+# endef
-+# version.h : Makefile
-+#	$(call filechk,sample)
-+# The rule defined shall write to stdout the content of the new file.
-+# The existing file will be compared with the new one.
-+# - If no file exist it is created
-+# - If the content differ the new file is used
-+# - If they are equal no change, and no timestamp update
-+
-+define filechk
-+	$(Q)set -e;				\
-+	echo '  CHK     $@';			\
-+	mkdir -p $(dir $@);			\
-+	$(filechk_$(1)) $(2) > $@.tmp;		\
-+	if [ -r $@ ] && cmp -s $@ $@.tmp; then	\
-+		rm -f $@.tmp;			\
-+	else					\
-+		echo '  UPD     $@';		\
-+		mv -f $@.tmp $@;		\
-+	fi
-+endef
-+
-diff -Nru a/scripts/gen_initramfs_list.sh b/scripts/gen_initramfs_list.sh
---- a/scripts/gen_initramfs_list.sh	2004-10-27 00:07:50 +02:00
-+++ b/scripts/gen_initramfs_list.sh	2004-10-27 00:07:50 +02:00
-@@ -2,25 +2,26 @@
- # Copyright (C) Martin Schlemmer <azarah@nosferatu.za.org>
- # Released under the terms of the GNU GPL
- #
--# A script to generate newline separated entries (to stdout) from a directory's
--# contents suitable for use as a cpio_list for gen_init_cpio.
-+# Generate a newline separated list of entries from the file/directory pointed
-+# out by the environment variable: CONFIG_INITRAMFS_SOURCE
- #
--# Arguements: $1 -- the source directory
-+# If CONFIG_INITRAMFS_SOURCE is non-existing then generate a small dummy file.
-+#
-+# The output is suitable for gen_init_cpio as found in usr/Makefile.
- #
- # TODO:  Add support for symlinks, sockets and pipes when gen_init_cpio
- #        supports them.
- 
--usage() {
--	echo "Usage: $0 initramfs-source-dir"
--	exit 1
-+simple_initramfs() {
-+	cat <<-EOF
-+		# This is a very simple initramfs
-+
-+		dir /dev 0755 0 0
-+		nod /dev/console 0600 0 0 c 5 1
-+		dir /root 0700 0 0
-+	EOF
- }
- 
--srcdir=$(echo "$1" | sed -e 's://*:/:g')
--
--if [ "$#" -gt 1 -o ! -d "${srcdir}" ]; then
--	usage
--fi
--
- filetype() {
- 	local argv1="$1"
- 
-@@ -76,9 +77,27 @@
- 	return 0
- }
- 
--find "${srcdir}" -printf "%p %m %U %G\n" | \
--while read x; do
--	parse ${x}
--done
-+if [ -z $1 ]; then
-+	simple_initramfs
-+elif [ -f $1 ]; then
-+	cat $1
-+elif [ -d $1 ]; then
-+	srcdir=$(echo "$1" | sed -e 's://*:/:g')
-+	dirlist=$(find "${srcdir}" -printf "%p %m %U %G\n" 2>/dev/null)
-+
-+	# If $dirlist is only one line, then the directory is empty
-+	if [  "$(echo "${dirlist}" | wc -l)" -gt 1 ]; then
-+		echo "${dirlist}" | \
-+		while read x; do
-+			parse ${x}
-+		done
-+	else
-+		# Failsafe in case directory is empty
-+		simple_initramfs
-+	fi
-+else
-+	echo "  $0: Cannot open '$1' (CONFIG_INITRAMFS_SOURCE)" >&2
-+	exit 1
-+fi
- 
- exit 0
-diff -Nru a/usr/Makefile b/usr/Makefile
---- a/usr/Makefile	2004-10-27 00:07:50 +02:00
-+++ b/usr/Makefile	2004-10-27 00:07:50 +02:00
-@@ -3,7 +3,7 @@
- 
- hostprogs-y  := gen_init_cpio
- 
--clean-files := initramfs_data.cpio.gz
-+clean-files := initramfs_data.cpio.gz initramfs_list
- 
- # If you want a different list of files in the initramfs_data.cpio
- # then you can either overwrite the cpio_list in this directory
-@@ -23,28 +23,17 @@
- # Commented out for now
- # initramfs-y := $(obj)/root/hello
- 
--quiet_cmd_gen_list = GEN_INITRAMFS_LIST $@
--      cmd_gen_list = $(shell \
--        if test -f $(CONFIG_INITRAMFS_SOURCE); then \
--	  if [ $(CONFIG_INITRAMFS_SOURCE) != $@ ]; then \
--	    echo 'cp -f $(CONFIG_INITRAMFS_SOURCE) $@'; \
--	  else \
--	    echo 'echo Using shipped $@'; \
--	  fi; \
--	elif test -d $(CONFIG_INITRAMFS_SOURCE); then \
--	  echo 'scripts/gen_initramfs_list.sh $(CONFIG_INITRAMFS_SOURCE) > $@'; \
--	else \
--	  echo 'echo Using shipped $@'; \
--	fi)
--
--
--$(INITRAMFS_LIST): FORCE
--	$(call cmd,gen_list)
-+filechk_initramfs_list = $(CONFIG_SHELL) \
-+ $(srctree)/scripts/gen_initramfs_list.sh $(CONFIG_INITRAMFS_SOURCE)
-+			   
-+$(obj)/initramfs_list: FORCE
-+	$(call filechk,initramfs_list)
- 
- quiet_cmd_cpio = CPIO    $@
--      cmd_cpio = ./$< $(INITRAMFS_LIST) > $@
-+      cmd_cpio = ./$< $(obj)/initramfs_list > $@
- 
--$(obj)/initramfs_data.cpio: $(obj)/gen_init_cpio $(initramfs-y) $(INITRAMFS_LIST) FORCE
-+$(obj)/initramfs_data.cpio: $(obj)/gen_init_cpio \
-+                            $(initramfs-y) $(obj)/initramfs_list FORCE
- 	$(call if_changed,cpio)
- 
- targets += initramfs_data.cpio
-diff -Nru a/usr/initramfs_list b/usr/initramfs_list
---- a/usr/initramfs_list	2004-10-27 00:07:50 +02:00
-+++ /dev/null	Wed Dec 31 16:00:00 196900
-@@ -1,5 +0,0 @@
--# This is a very simple initramfs - mostly preliminary for future expansion
--
--dir /dev 0755 0 0
--nod /dev/console 0600 0 0 c 5 1
--dir /root 0700 0 0
+Sure, did that.  2.6.9 works fine, 2.6.10-rc1 dies as with 2.6.9-mm1.
+Next?
 
 
+Unable to handle kernel paging request at virtual address fffea000
+  printing eip:
+c029f206
+*pde = 00610067
+*pte = 00000000
+Oops: 0002 [#1]
+SMP DEBUG_PAGEALLOC
+Modules linked in:
+CPU:    0
+EIP:    0060:[<c029f206>]    Not tainted VLI
+EFLAGS: 00010006   (2.6.10-rc1)
+EIP is at ide_insw+0xd/0x13
+eax: 000001f0   ebx: c05b322c   ecx: 00000100   edx: 000001f0
+esi: c05b322c   edi: fffea000   ebp: c0539e78   esp: c0539e74
+ds: 007b   es: 007b   ss: 0068
+Process swapper (pid: 0, threadinfo=c0538000 task=c0452b80)
+Stack: c05b3180 c0539e98 c029f6bb 000001f0 fffea000 00000100 c05b322c 
+00000080
+        fffea000 c0539eb8 c02a302d c05b322c fffea000 00000080 00000000 
+00000000
+        c05b3180 c0539ee4 c02a3714 c05b322c fffea000 00000080 00000000 
+fffea000
+Call Tra [<c0107dd3>] show_stack+0xaf/0xb7
+  [<c0107f58>] show_registers+0x15d/0x1d2
+  [<c0108160>] die+0x106/0x18e
+  [<c011a089>] do_page_fault+0x4da/0x669
+  [<c0107a31>] error_code+0x2d/0x38
+  [<c029f6bb>] ata_input_data+0x98/0xa0
+  [<c02a302d>] taskfile_input_data+0x26/0x49
+  [<c02a3714>] ide_pio_sector+0xcb/0xe5
+  [<c02a3960>] task_in_intr+0xe2/0xfe
+  [<c029efe8>] ide_intr+0xb6/0x14f
+  [<c013da07>] handle_IRQ_event+0x38/0x69
+  [<c013db1a>] __do_IRQ+0xe2/0x158
+  [<c01093fa>] do_IRQ+0x36/0x60
+  [<c0107914>] common_interrupt+0x18/0x20
+  [<c01050c3>] cpu_idle+0x31/0x40
+  [<c053a8cf>] start_kernel+0x179/0x195
+  [<c0100211>] 0xc0100211
+Code: 90 90 90 90 90 55 89 e5 8b 55 08 ec 0f b6 c0 5d c3 55 89 e5 8b 
+55 08 66 e
+  <0>Kernel panic - not syncing: Fatal exception in interruptce:
+
+-- 
+~Randy

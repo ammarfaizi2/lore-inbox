@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261390AbVAaWBC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261376AbVAaWEH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261390AbVAaWBC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 17:01:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261392AbVAaWBC
+	id S261376AbVAaWEH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 17:04:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261392AbVAaWEH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 17:01:02 -0500
-Received: from rproxy.gmail.com ([64.233.170.193]:42200 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261390AbVAaWA4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 17:00:56 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=t4gMKOGrRK8jtlgfhgHsYYnTSwwT2vtGrL+3SXX43883g1OTaK9iwjOgC3jkXcGwyniQtFNcHIN0XKFa2CFOfqRumTvSuUYMu3UyiVbclx6J4z1r/OoifbmEMyw0cVGP6peWAamOVmcwhbt3GNrD/CpJGtW3XNBTR0ORA1+atDM=
-Message-ID: <d120d500050131140031f8ee1f@mail.gmail.com>
-Date: Mon, 31 Jan 2005 17:00:54 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Pete Zaitcev <zaitcev@redhat.com>
-Subject: Re: Touchpad problems with 2.6.11-rc2
-Cc: David Brownell <david-b@pacbell.net>, linux-kernel@vger.kernel.org,
-       petero2@telia.com
-In-Reply-To: <20050131134608.7021ac84@localhost.localdomain>
+	Mon, 31 Jan 2005 17:04:07 -0500
+Received: from smtp-101-monday.nerim.net ([62.4.16.101]:13841 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S261376AbVAaWEA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 17:04:00 -0500
+Date: Mon, 31 Jan 2005 23:04:16 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: sensors@Stimpy.netroedge.com, linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: Re: [2.6 patch] i2c-core.c: make some code static
+Message-Id: <20050131230416.59daa051.khali@linux-fr.org>
+In-Reply-To: <20050131214622.GF21437@stusta.de>
+References: <20050131185955.GA18316@stusta.de>
+	<20050131215050.61c2924c.khali@linux-fr.org>
+	<20050131214622.GF21437@stusta.de>
+Reply-To: LM Sensors <sensors@stimpy.netroedge.com>,
+       LKML <linux-kernel@vger.kernel.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-References: <200501251155.20430.david-b@pacbell.net>
-	 <d120d50005012513304ba0ca88@mail.gmail.com>
-	 <20050131134608.7021ac84@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 Jan 2005 13:46:08 -0800, Pete Zaitcev <zaitcev@redhat.com> wrote:
-> 
-> Can you tell me exactly how I go about "trying out Synaptics X driver"?
-> 
+Hi Adrian,
 
-Peter's page is here:
-http://web.telia.com/~u89404340/touchpad/
+> > > -struct bus_type i2c_bus_type = {
+> > > -	.name =		"i2c",
+> > > -	.match =	i2c_device_match,
+> > > -	.suspend =      i2c_bus_suspend,
+> > > -	.resume =       i2c_bus_resume,
+> > > -};
+> > (...)
+> > 
+> > Is moving that code around really necessary? Looks to me like only
+> > the i2c_bus_type structure needs to be moved.
+> 
+> i2c_bus_type requires i2c_device_match, i2c_bus_suspend and 
+> i2c_bus_resume...
 
-Just do "yum update synaptics" and then Adjust your xorg.conf to use
-"synaptics" driver. Start with the defaults as shown in the doc
-directory. I recommend setting protocol to "auto-dev". Make sure both
-psmouse and evdev are loaded.
+Oops, seems I missed the obvious here :/
+
+Sorry for the noise. I guess I better get some sleep now...
 
 -- 
-Dmitry
+Jean Delvare

@@ -1,38 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266525AbRGDHeZ>; Wed, 4 Jul 2001 03:34:25 -0400
+	id <S266530AbRGDHuR>; Wed, 4 Jul 2001 03:50:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266527AbRGDHeP>; Wed, 4 Jul 2001 03:34:15 -0400
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:4366 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S266525AbRGDHd7>;
-	Wed, 4 Jul 2001 03:33:59 -0400
-Date: Wed, 4 Jul 2001 00:32:33 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>,
-        linux-usb-users@lists.sourceforge.net
-Subject: Re: 2.4.5 keyspan driver
-Message-ID: <20010704003233.A30960@kroah.com>
-In-Reply-To: <20010630003323.A908@glitch.snoozer.net> <20010703103800.B28180@kroah.com> <20010703171953.A16664@glitch.snoozer.net> <20010703174950.A593@glitch.snoozer.net> <20010703191655.A1714@glitch.snoozer.net>
+	id <S266531AbRGDHuH>; Wed, 4 Jul 2001 03:50:07 -0400
+Received: from mail.bmlv.gv.at ([193.171.152.34]:53428 "EHLO mail.bmlv.gv.at")
+	by vger.kernel.org with ESMTP id <S266530AbRGDHt7>;
+	Wed, 4 Jul 2001 03:49:59 -0400
+Message-Id: <3.0.6.32.20010704095314.009201b0@pop3.bmlv.gv.at>
+X-Mailer: QUALCOMM Windows Eudora Light Version 3.0.6 (32)
+Date: Wed, 04 Jul 2001 09:53:14 +0200
+To: Daniel Phillips <phillips@bonn-fries.net>
+From: "Ph. Marek" <marek@bmlv.gv.at>
+Subject: Re: Ideas for TUX2
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <01070408542401.03760@starship>
+In-Reply-To: <3.0.6.32.20010704081621.00921a60@pop3.bmlv.gv.at>
+ <3.0.6.32.20010703082513.0091f900@pop3.bmlv.gv.at>
+ <3.0.6.32.20010704081621.00921a60@pop3.bmlv.gv.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010703191655.A1714@glitch.snoozer.net>; from haphazard@socket.net on Tue, Jul 03, 2001 at 07:16:56PM -0500
-X-Operating-System: Linux 2.2.19 (i586)
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 03, 2001 at 07:16:56PM -0500, Gregory T. Norris wrote:
-> In the hopes that it might prove helpful, I reran coldsync after
-> loading usbserial.o and keyspan.o with the "debug=1" option.  Here's
-> what was logged:
+>> >> If a file's data has been changed, it suffices to update the inode and
+>> >> the of free blocks bitmap (fbb).
+>> >> But updating them in one go is not possible
+>> >
+>> >You seem to have missed some fundamental understanding of
+>> >exactly how phase tree works; the wohle point of phase
+>> >tree is to make atomic updates like this possible!
+>>
+>> Well, my point was, that with several thousand inodes spread over the disk
+>> it won't always be possible to update the inode AND the fbb in one go.
+>> So I proposed the 2nd inode with generation counter!
+>
+>The cool thing is, it *is* possible, read how here:
+>
+>  http://nl.linux.org/~phillips/tux2/phase.tree.tutorial.html
+Well, ok. Your split the inode "files" too.
 
-Can you try the keyspan_pda.o driver and see if it also gives you
-problems?
+Hmmm...
+That sound more complex than my version (at least now, until I've seen the
+implementation - maybe it's easier because it has less special cases than
+mine).
 
-I posted a patch to linux-usb-devel that should solve the "vendor symbol
-not defined" bug for you.
+And of course the memory usage on the harddisk is much less with your
+version as you split your inode data and don't have it duplicated.
 
-thanks,
+Well, I hope to see an implementation soon - I'd like to help, even if it's
+only testing.
 
-greg k-h
+
+Thanks for the answer!
+
+
+Regards,
+
+Phil
+

@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263861AbTFGWFq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 18:05:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263865AbTFGWFq
+	id S263921AbTFGWPE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 18:15:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263922AbTFGWPE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 18:05:46 -0400
-Received: from terminus.zytor.com ([63.209.29.3]:4773 "EHLO terminus.zytor.com")
-	by vger.kernel.org with ESMTP id S263861AbTFGWFp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 18:05:45 -0400
-Message-ID: <3EE264C5.6060703@zytor.com>
-Date: Sat, 07 Jun 2003 15:18:45 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030211
-X-Accept-Language: en-us, en, sv
-MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: linux-kernel@vger.kernel.org
+	Sat, 7 Jun 2003 18:15:04 -0400
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:30458 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S263921AbTFGWPC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jun 2003 18:15:02 -0400
+Date: Sat, 7 Jun 2003 18:28:46 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Colin Paul Adams <colin@colina.demon.co.uk>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: Maximum swap space?
-References: <ltptlqb72n.fsf@colina.demon.co.uk> <33435.4.64.196.31.1055008200.squirrel@www.osdl.org> <bbtmaq$r03$1@cesium.transmeta.com> <20030607214950.GI8978@holomorphy.com>
-In-Reply-To: <20030607214950.GI8978@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <ltptlqb72n.fsf@colina.demon.co.uk>
+Message-ID: <Pine.LNX.4.44.0306071827450.24170-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-> 
-> The 2GB limit is 100% userspace; distros are already shipping the
-> mkswap(8) fixes (both RH & UL anyway).
-> 
+On 7 Jun 2003, Colin Paul Adams wrote:
 
-Presumably it means they have defined a new swap format and have changed 
-swapon(8) as well.  This should be rolled back into util-linux if they 
-aren't already.
+> I am somewhat confused about how much swap space you can have with a
+> 2.4 series kernel. If I read the mkswap man page, I get the impression
+> that I could have up to 8x2GB of swap space for a total of 16 GB, but
+> reading the RedHat reference guide, it says 2GB maximum.
 
-	-hpa
+That piece of documentation is out of date.  I'm using a
+20 GB swap partition on one of my test systems, with a
+2.4 kernel.
 
 

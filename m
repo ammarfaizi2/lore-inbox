@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262049AbUC2UrM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 15:47:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262134AbUC2UrM
+	id S262134AbUC2UvQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 15:51:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262220AbUC2UvQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 15:47:12 -0500
-Received: from fmr03.intel.com ([143.183.121.5]:41386 "EHLO
-	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S262049AbUC2UrE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 15:47:04 -0500
-Message-Id: <200403292045.i2TKjnF11402@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Andy Whitcroft'" <apw@shadowen.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, "Ray Bryant" <raybry@sgi.com>,
-       "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
-Cc: <anton@samba.org>, <sds@epoch.ncsc.mil>, <ak@suse.de>,
-       <lse-tech@lists.sourceforge.net>, <linux-ia64@vger.kernel.org>
-Subject: RE: [PATCH] [0/6] HUGETLB memory commitment
-Date: Mon, 29 Mar 2004 12:45:49 -0800
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: AcQVkBQZE22XHoMUTr6zcz3m3jTLKAAO2bgQ
-In-Reply-To: <11580712.1080567019@42.150.104.212.access.eclipse.net.uk>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	Mon, 29 Mar 2004 15:51:16 -0500
+Received: from DESLAB.MIT.EDU ([18.38.0.40]:41735 "EHLO deslab.mit.edu")
+	by vger.kernel.org with ESMTP id S262134AbUC2UvK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 15:51:10 -0500
+Date: Mon, 29 Mar 2004 15:51:09 -0500
+From: "F. Baker" <baker@deslab.mit.edu>
+Message-Id: <200403292051.i2TKp9dd027008@deslab.mit.edu>
+To: linux-kernel@vger.kernel.org
+Subject: nfs errors with xfs filesystem (2.4.x kernel)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>> Andy Whitcroft wrote on Mon, March 29, 2004 4:30 AM
-> Indeed.  The previous patches I submitted only address #1.  Attached is
-> another patch which should address #2, it supplies hugetlb commit
-> accounting.  This is checked and applied when the segment is created.  It
-> also supplements the meminfo information to display this new commitment.
-> The patch only implments strict commitment, but as has been stated here
-> often, it is not clear that overcommit of unswappable memory makes any
-> sense in the absence of demand allocation.  When that is implemented then
-> this will likely need a policy.
->
-> Patch applies on top of my previous patch and has been tested on i386.
 
+We have several Linux x86 workstations here.  In "dmesg" on
+these PCs I see a lot of errors that read:
 
-+int hugetlbfs_report_meminfo(char *buf)
-+{
-+	long htlb = atomic_read(&hugetlb_committed_space);
-+	return sprintf(buf, "HugeCommited_AS: %5lu\n", htlb);
-+}
+NFS: Server wrote less than requested.
 
-"HugeCommited_AS", typo?? Should that be double "t"?  Also can we print
-in terms of kB instead of num pages to match all other entries? Something
-Like: htlb<<(PAGE_SHIFT-10)?
+ AND
 
-overcomit is not checked for hugetlb mmap, is it intentional here?
+eth0: TX underrun, threshold adjusted.
 
-- Ken
+This message appears whenever someone logged into the
+Mandrake/RH/whatever box (with NFS autofs mounting in his/her home
+directory) tries to write something to an nfs-mounted directory
+(usually the home directory).  Even small files of 1.5 MB or so often
+generate something such as "I/O error" when saving a file (really 
+small files usually get saved fine).  And the home directory is always
+based in an SGI (O2, Indy, Onyx) with xfs file system. 
 
+Intra-SGI these transfer take place perfectly, but
+Mandrake/RH/OtherLinux generates these problems.
+
+Has anyone seen this error before and does anyone know how 
+to get around it?  The kernel used is 2.4.22-28 for most
+of the Mandrake boxes, or at least 2.4.x anyway.  We have not
+gone to 2.6.x yet.
+
+Thanks in advance.
+
+baker@deslab.mit.edu
+
+PS: Interestingly:
+
+	cp file1 file2
+where file1 is sufficiently large (1 MB or bigger) always fails the 
+first time, but often does a partial write.  
+
+If you then delete file2 and try the command anew, it works fine.
+Very strange indeed.
 

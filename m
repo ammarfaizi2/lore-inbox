@@ -1,103 +1,116 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265092AbSK1CA6>; Wed, 27 Nov 2002 21:00:58 -0500
+	id <S265081AbSK1CFc>; Wed, 27 Nov 2002 21:05:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265093AbSK1CA6>; Wed, 27 Nov 2002 21:00:58 -0500
-Received: from ip68-4-86-174.oc.oc.cox.net ([68.4.86.174]:29422 "EHLO
-	ip68-4-86-174.oc.oc.cox.net") by vger.kernel.org with ESMTP
-	id <S265092AbSK1CAz>; Wed, 27 Nov 2002 21:00:55 -0500
-Date: Wed, 27 Nov 2002 18:08:14 -0800
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: Thomas Molina <tmolina@copper.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] README change
-Message-ID: <20021128020814.GA10576@ip68-4-86-174.oc.oc.cox.net>
-References: <1038443167.2063.28.camel@lap>
-Mime-Version: 1.0
+	id <S265093AbSK1CFc>; Wed, 27 Nov 2002 21:05:32 -0500
+Received: from dp.samba.org ([66.70.73.150]:50093 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S265081AbSK1CFb>;
+	Wed, 27 Nov 2002 21:05:31 -0500
+From: Paul Mackerras <paulus@samba.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1038443167.2063.28.camel@lap>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <15845.31596.453118.158051@argo.ozlabs.ibm.com>
+Date: Thu, 28 Nov 2002 13:11:56 +1100
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, Franz.Sirl-kernel@lauterbach.com
+Subject: [PATCH] [RESEND] Update adbhid.c driver
+X-Mailer: VM 7.07 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Hypocrisy alert: I'm feeling somewhat lazy right now so there could be
-more grammar problems with this e-mail than with the file it's trying
-to improve. OTOH this e-mail isn't distributed with every Linux kernel
-source code tarball.]
+Linus,
 
-On Wed, Nov 27, 2002 at 06:26:05PM -0600, Thomas Molina wrote:
-> -   Do NOT use the /usr/src/linux area! This area has a (usually
-> -   incomplete) set of kernel headers that are used by the library header
-> -   files.  They should match the library, and not get messed up by
-> -   whatever the kernel-du-jour happens to be.
-> +   Do NOT use /usr/src/linux! This directory should contain the source 
-> +   and headers of the kernel gcc was compile with.  They should match 
-s/gcc/glibc/ (maybe better to just s+the /usr/src/linux area+/usr/src/linux+
-and leave the rest of the paragraph unchanged)
-> +   the compiler, and not get messed up by whatever the kernel-du-jour 
-Again, s/compiler/library/ (i.e., undo your change, it was right the
-first time)
-> +   happens to be.
+This patch updates drivers/macintosh/adbhid.c driver (which interfaces
+between the ADB bus and the input layer).  The patch gets rid of
+global cli/sti uses and corrects some typos (for example
+input.idversion -> input.id.version).  These changes have been
+approved by Franz Sirl, the maintainer of this driver.
 
-> -	- compiling the kernel with "Processor type" set higher than 386
-> -	  will result in a kernel that does NOT work on a 386.  The
-> -	  kernel will detect this on bootup, and give up.
-> +	- compiling the kernel with an incorrect "Processor type" will 
-> +          result in a kernel that does NOT work.  The kernel will detect 
-> +          this on bootup, and give up.
+Please apply.
 
-Can the kernel still freeze during printk if it was compiled for the
-wrong CPU type, or has that been fixed? (I haven't followed that closely
-enough.)
+Thanks,
+Paul.
 
->   - Make sure you have gcc 2.95.3 available.
->     gcc 2.91.66 (egcs-1.1.2), and gcc 2.7.2.3 are known to miscompile
-
-Not a criticism of your patch, but something I just noticed now -- feel
-free to ignore this: that comma after "(egcs-1.1.2)" seems awkward to me.
-
-> - - In order to boot your new kernel, you'll need to copy the kernel
-> + - In order to boot your new kernel you'll need to copy the kernel
-
-Conversely, this is better with the comma (IMO).
-
->  IF SOMETHING GOES WRONG:
->  
-> + - Please read the file REPORTING-BUGS before forwarding any reports
-> +   of suspected kernel problems to maintainers or mailing lists.  It 
-> +   contains a suggested format for bug reports as well as what
-> +   information is most helpful to developers.
-
-Something seems wrong to me about this sentence. The easiest potential
-fix I can think of is s/contains/describes/, but that might not be a
-100% fix. My problem with this sentence is that it seems to be saying
-the file:
-+ "contains a suggested format for bug reports"
-+ "contains...what information is most helpful to developers"
-
-I know what you mean by the latter, but if I interpret it in a slightly
-more literal sense, it seems both semantically and syntactically flawed.
-
->   - If you have problems that seem to be due to kernel bugs, please check
->     the file MAINTAINERS to see if there is a particular person associated
->     with the part of the kernel that you are having trouble with. If there
->     isn't anyone listed there, then the second best thing is to mail
-> -   them to me (torvalds@transmeta.com), and possibly to any other
-> +   them to the linux-kernel mailing list and possibly to any other
-
-Should this mention the mailing list's e-mail address?
-
->     relevant mailing-list or to the newsgroup.  The mailing-lists are
-> -   useful especially for SCSI and networking problems, as I can't test
-> -   either of those personally anyway. 
-> +   useful especially for SCSI and networking problems
-
-You (accidentally?) removed the period.
-
-> -   sense).  If the problem is new, tell me so, and if the problem is
-> -   old, please try to tell me when you first noticed it.
-> +   sense).  If the problem is new, say so, and if the problem is
-> +   old, please try to explain when you first noticed it.
-
-Perhaps s/explain/tell us/ ?
+diff -urN for-linus-ppc/drivers/macintosh/adbhid.c pmac-2.5/drivers/macintosh/adbhid.c
+--- for-linus-ppc/drivers/macintosh/adbhid.c	2002-10-09 08:18:31.000000000 +1000
++++ pmac-2.5/drivers/macintosh/adbhid.c	2002-11-07 14:50:41.000000000 +1100
+@@ -3,8 +3,9 @@
+  *
+  * ADB HID driver for Power Macintosh computers.
+  *
+- * Adapted from drivers/macintosh/mac_keyb.c by Franz Sirl
+- * (see that file for its authors and contributors).
++ * Adapted from drivers/macintosh/mac_keyb.c by Franz Sirl.
++ * drivers/macintosh/mac_keyb.c was Copyright (C) 1996 Paul Mackerras
++ * with considerable contributions from Ben Herrenschmidt and others.
+  *
+  * Copyright (C) 2000 Franz Sirl.
+  *
+@@ -433,22 +434,17 @@
+ static int
+ adb_message_handler(struct notifier_block *this, unsigned long code, void *x)
+ {
+-	unsigned long flags;
+-
+ 	switch (code) {
+ 	case ADB_MSG_PRE_RESET:
+ 	case ADB_MSG_POWERDOWN:
+ 	    	/* Stop the repeat timer. Autopoll is already off at this point */
+-		save_flags(flags);
+-		cli();
+ 		{
+ 			int i;
+ 			for (i = 1; i < 16; i++) {
+ 				if (adbhid[i])
+-					del_timer(&adbhid[i]->input.timer);
++					del_timer_sync(&adbhid[i]->input.timer);
+ 			}
+ 		}
+-		restore_flags(flags);
+ 
+ 		/* Stop pending led requests */
+ 		while(!led_request.complete)
+@@ -479,7 +475,7 @@
+ 	memset(adbhid[id], 0, sizeof(struct adbhid));
+ 	sprintf(adbhid[id]->phys, "adb%d:%d.%02x/input", id, default_id, original_handler_id);
+ 
+-	init_input_dev(&adbhid[id]);
++	init_input_dev(&adbhid[id]->input);
+ 
+ 	adbhid[id]->id = default_id;
+ 	adbhid[id]->original_handler_id = original_handler_id;
+@@ -508,21 +504,21 @@
+ 		switch (original_handler_id) {
+ 		default:
+ 			printk("<unknown>.\n");
+-			adbhid[id]->input.idversion = ADB_KEYBOARD_UNKNOWN;
++			adbhid[id]->input.id.version = ADB_KEYBOARD_UNKNOWN;
+ 			break;
+ 
+ 		case 0x01: case 0x02: case 0x03: case 0x06: case 0x08:
+ 		case 0x0C: case 0x10: case 0x18: case 0x1B: case 0x1C:
+ 		case 0xC0: case 0xC3: case 0xC6:
+ 			printk("ANSI.\n");
+-			adbhid[id]->input.idversion = ADB_KEYBOARD_ANSI;
++			adbhid[id]->input.id.version = ADB_KEYBOARD_ANSI;
+ 			break;
+ 
+ 		case 0x04: case 0x05: case 0x07: case 0x09: case 0x0D:
+ 		case 0x11: case 0x14: case 0x19: case 0x1D: case 0xC1:
+ 		case 0xC4: case 0xC7:
+ 			printk("ISO, swapping keys.\n");
+-			adbhid[id]->input.idversion = ADB_KEYBOARD_ISO;
++			adbhid[id]->input.id.version = ADB_KEYBOARD_ISO;
+ 			i = adbhid[id]->keycode[10];
+ 			adbhid[id]->keycode[10] = adbhid[id]->keycode[50];
+ 			adbhid[id]->keycode[50] = i;
+@@ -531,7 +527,7 @@
+ 		case 0x12: case 0x15: case 0x16: case 0x17: case 0x1A:
+ 		case 0x1E: case 0xC2: case 0xC5: case 0xC8: case 0xC9:
+ 			printk("JIS.\n");
+-			adbhid[id]->input.idversion = ADB_KEYBOARD_JIS;
++			adbhid[id]->input.id.version = ADB_KEYBOARD_JIS;
+ 			break;
+ 		}
+ 

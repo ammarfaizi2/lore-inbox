@@ -1,73 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316900AbSFDWzo>; Tue, 4 Jun 2002 18:55:44 -0400
+	id <S316899AbSFDWyg>; Tue, 4 Jun 2002 18:54:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316909AbSFDWzn>; Tue, 4 Jun 2002 18:55:43 -0400
-Received: from h-64-105-34-84.SNVACAID.covad.net ([64.105.34.84]:24979 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S316900AbSFDWzl>; Tue, 4 Jun 2002 18:55:41 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Tue, 4 Jun 2002 15:54:52 -0700
-Message-Id: <200206042254.PAA00940@baldur.yggdrasil.com>
-To: dalecki@evision-ventures.com, rmk@arm.linux.org.uk
-Subject: Re: IDE{,-SCSI} trouble [2.5.20]
-Cc: linux-kernel@vger.kernel.org, zlatko.calusic@iskon.hr
+	id <S316900AbSFDWyf>; Tue, 4 Jun 2002 18:54:35 -0400
+Received: from [209.184.141.168] ([209.184.141.168]:63846 "HELO UberGeek")
+	by vger.kernel.org with SMTP id <S316899AbSFDWyf>;
+	Tue, 4 Jun 2002 18:54:35 -0400
+Subject: Re: Load kernel module automatically
+From: Austin Gonyou <austin@digitalroadkill.net>
+To: Jan Hudec <bulb@ucw.cz>
+Cc: kernelnewbies@nl.linux.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20020604222743.GA15714@artax.karlin.mff.cuni.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
+Date: 04 Jun 2002 17:54:30 -0500
+Message-Id: <1023231270.9282.23.camel@UberGeek>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
->On Tue, Jun 04, 2002 at 02:37:55PM -0700, Adam J. Richter wrote:
->> --- linux/drivers/ide/icside.c	2002-06-03 00:46:21.000000000 -0700
->> +++ linux-2.5.20/drivers/ide/icside.c	2002-06-02 18:44:41.000000000 -0700
->> @@ -275,9 +275,8 @@
->>  #define NR_ENTRIES 256
->>  #define TABLE_SIZE (NR_ENTRIES * 8)
->>  
->> -static int ide_build_sglist(struct ata_device *drive, struct request *rq)
->> +static int ide_build_sglist(struct ata_channel *ch, struct request *rq)
->>  {
->> -	struct ata_channel *ch = drive->channel;
->>  	struct scatterlist *sg = ch->sg_table;
->>  	int nents;
->>  
+On Tue, 2002-06-04 at 17:27, Jan Hudec wrote:
+> On Tue, Jun 04, 2002 at 03:38:06PM -0400, Michael Zhu wrote:
+> > Hi, I built a kernel module. I can load it into the
+> > kernle using insmod command. But each time when I
+> > reboot my computer I couldn't find it any more. I mean
+> > I need to use the insmod to load the module each time
+> > I reboot the computer. How can I modify the
+> > configuration so that the Linux OS can load my module
+> > automatically during reboot? I need to copy my module
+> > to the following directory?
+> >   /lib/modules/2.4.7-10/
+> 
+> Kernel does not seek for modules to load in any way. Actually, in usual
+> installation there are tons of modules compiled an mostly unused. You
+> must put the insmod command (or better modprobe command) somewhere in
+> the init scripts. Since I expect your installation is RedHat (the kernel
+> version looks like a RedHat one), there should already be one a it
+> should be loading all modules listed in /etc/modules.conf (not sure abou
+> the exact name - I don't have RedHat).
 
->Umm, you sure this is right?  ide_build_sglist takes an ata_channel
->argument in my 2.5.20.
-
-
-	Right.  As the order of the file names in the diff confirms,
-I accidentally submitted a diff in reverse order.  You are also
-correct about:
-
->If this is reversed, you also forgot to change where it is used in
->icside.c.
-
-	Russell: sorry for not cc'ing you in my original patch
-submission to Martin.  I infer that since you are adding another patch
-of your own and adding Martin to the recipient list that it is OK with
-you to volunteer Martin to combine your patch and mine in this case
-and submit them to Linus.
-
-	Martin: unless you, Russell, or anyone else sees a problem
-with this, could you please also apply the attached patch to icside.c,
-which I should have included in my original submission.  I missed my
-error when I checked for compiler warnings, because icside is not
-built on x86.
-
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+Isn't that what modules.conf (conf.modules on some) is for though? To
+have lists of available devices and load modules if their services are
+used?(i.e. ifup eth0, but eth0 doesn't exist at boot time, so ifup calls
+a utility that loads the module, then ifup continues to run)
 
 
---- before/drivers/ide/icside.c	2002-06-02 18:44:41.000000000 -0700
-+++ linux/drivers/ide/icside.c	2002-06-04 15:31:21.000000000 -0700
-@@ -491,7 +492,7 @@
- 	 */
- 	BUG_ON(dma_channel_active(ch->hw.dma));
- 
--	count = ch->sg_nents = ide_build_sglist(ch, rq);
-+	count = ch->sg_nents = ide_build_sglist(drive, rq);
- 	if (!count)
- 		return 1;
- 
+> --------------------------------------------------------------------------------
+>                   				- Jan Hudec `Bulb' <bulb@ucw.cz>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

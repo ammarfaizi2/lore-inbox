@@ -1,72 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264351AbTLFAVp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 19:21:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264600AbTLFAVp
+	id S264600AbTLFAlW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 19:41:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264867AbTLFAlW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 19:21:45 -0500
-Received: from mail.gmx.de ([213.165.64.20]:64217 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264351AbTLFAVm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 19:21:42 -0500
-X-Authenticated: #4512188
-Message-ID: <3FD12114.7080505@gmx.de>
-Date: Sat, 06 Dec 2003 01:21:40 +0100
-From: "Prakash K. Cheemplavam" <prakashpublic@gmx.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031116
-X-Accept-Language: de-de, de, en-us, en
-MIME-Version: 1.0
-To: Craig Bradney <cbradney@zip.com.au>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Catching NForce2 lockup with NMI watchdog - found?
-References: <DCB9B7AA2CAB7F418919D7B59EE45BAF49F87E@mail-sc-6.nvidia.com>	 <3FD1199E.2030402@gmx.de> <1070669706.3987.4.camel@athlonxp.bradney.info>
-In-Reply-To: <1070669706.3987.4.camel@athlonxp.bradney.info>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 5 Dec 2003 19:41:22 -0500
+Received: from host-65-117-135-105.timesys.com ([65.117.135.105]:14587 "EHLO
+	yoda.timesys") by vger.kernel.org with ESMTP id S264600AbTLFAlT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 19:41:19 -0500
+Date: Fri, 5 Dec 2003 19:41:11 -0500
+To: "Discussion on impl'on details of robust and real-time
+	 mutexes" <robustmutexes@lists.osdl.org>
+Cc: Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org
+Subject: Re: [robustmutexes] RE: [RFC/PATCH] FUSYN Realtime & Robust mutexes for Linux try 2
+Message-ID: <20031206004111.GA17731@yoda.timesys>
+References: <A20D5638D741DD4DBAAB80A95012C0AE0125DD67@orsmsx409.jf.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <A20D5638D741DD4DBAAB80A95012C0AE0125DD67@orsmsx409.jf.intel.com>
+User-Agent: Mutt/1.5.4i
+From: Scott Wood <scott@timesys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Craig Bradney wrote:
-> On Sat, 2003-12-06 at 00:49, Prakash K. Cheemplavam wrote:
-> 
->>Hi,
->>
->>*maybe* I found the bugger, at least I got APIC more stable (need to 
->>test whether oit is really stable, compiling kernel right now...):
->>
->>It is a problem with CPU disconnect function. I tried various parameters 
->>in bios and turned cpu disconnect off, and tada, I could do several 
->>subsequent hdparms and machine is running! As CPU disconnect is a ACPI 
->>state, if I am not mistkaen, I think there is something broken in ACPI 
->>right now or in APIC and cpu disconnect triggers the bug.
->>
->>Maybe now my windows environment is stable, as well. It was much more 
->>stable with cpu disconnect and apic, nevertheless seldomly locked up.
->>
->>
->>So gals and guys, try disabling cpu disconnect in bios and see whether 
->>aopic now runs stable.
-> 
-> 
->>I have an Abit NF7-S Rev2.0 with Bios 2.0.
-> 
-> 
->>Prakash
-> 
-> 
-> I rebooted and checked in my BIOS, I dont seem to have "CPU Disconnect"?
-> Is there another name. I also downloaded the motherboard manual for your
-> NF7-S and cant find it there either?
+On Thu, Dec 04, 2003 at 01:27:42AM -0800, Perez-Gonzalez, Inaky wrote:
+> Heh ... doing it for SCHED_OTHER becomes a nightmare, and I still
+> am not that sure is feasible without major surgery on the way
+> the priority information is stored in the task_struct now; as well,
+> POSIX says nothing about it, or at least is kind of gray in a sense
+> where it seems only SCHED_{FIFO,RR} should be involved, so I am 
+> really tempted not to do it (well, that's what is nicing it towards
+> 20 :)
 
-th efull name should be "CPU Disconnect Function". it is an the page 
-with "enhanced pci performance", "enable system bios caching" ".. video 
-bios caching" and all the spread spectrums. I have forgotten the name of 
-that page in the main menu. Should the 3 or 4 in the first column.
+I'd consider it the expected behavior, though, even if POSIX doesn't
+mandate it (the user did request PI on the lock, and it's only for
+the duration of the critical section, when the user really shouldn't
+be doing things that would break if done as a RT task).  What sort of
+problems with the scheduler do you see, other than an extra field to
+the task_struct to store the old dynamic priority?
 
-Perhaps your BIOS is too old. I remember it only came with 1.8 (or 
-alike) and later. But usually this setting should be disabled at default.
+In any case, returning an error if a non-RT task blocks on a PI lock
+is not likely what the user wants, and completely broken if you
+intend to use it inside the kernel for mutex-like semaphores.  If
+instead you silently fail to boost, it wouldn't necessarily be
+obvious to the user that you're not boosting.  IMHO, boosting
+SCHED_NORMAL tasks is the only sane thing to do.
 
-My machine still hasn't locked, btw. :-)
+> Now, on ufuqueues (the ones that are associated to user space addresses,
+> the true futex equivalent) that means you can't do the trick of the 
+> futex chain lists, so you have on each chain a head per ufuqueue/user
+> space address. That ufuqueue cannot be declared on the stack of one
+> of the waiters, as it would disappear when it is woken up and might leave
+> others dangling.
+> 
+> So we have to allocate it, add the waiters to it and deallocate it when 
+> the wait list is empty.
 
-Prakash
+However, instead of allocating the memory on demand, you can keep a
+pool of available queues.  Every time a task is created, allocate
+one and add it to the queue; every time a task dies, retrieve one
+and free it.  Since a task can only wait on one queue at a time,
+you won't run out of queues (unless you want to implement some sort
+of wait for multiple objects; however, in such a case you could
+allocate the extra queues on demand without affecting the normal
+single-object case).
 
+Thus, it would be a simple linked-list operation plus a spinlock to
+acquire and release a queue whenever something blocks.  It would be
+slower than the current waitqueue implementation, but not by much
+(and it could be made configurable for those who want every last
+cycle and don't care about real-time wait queues).
+
+This would be beneficial for userspace usage as well, as blocking
+on a queue would no longer be subject to a return value of -ENOMEM
+(which is generally undesireable in what's supposed to be a
+predictable real-time application).
+
+> This is what complicates the whole thing and adds the blob of code
+> that is vl_locate() [the allocation and addition to the list,
+> checking for collisions when locks are dropped]. As the whole thing
+> is kind of expensive, we better cache it for a few seconds, as
+> chances are we will have some temporal locality (in fact, it
+> happens, it improves the performance a lot),
+
+If the pool is kept as a stack, you keep the cache benefits, as well
+as allowing re-use of the queue across different locks.
+
+-Scott

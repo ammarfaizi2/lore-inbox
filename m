@@ -1,51 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268295AbUIWS2k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268210AbUIWSdz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268295AbUIWS2k (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 14:28:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268306AbUIWS2j
+	id S268210AbUIWSdz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 14:33:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268293AbUIWSdz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 14:28:39 -0400
-Received: from convulsion.choralone.org ([212.13.208.157]:18180 "EHLO
-	convulsion.choralone.org") by vger.kernel.org with ESMTP
-	id S268295AbUIWS2X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 14:28:23 -0400
-Date: Thu, 23 Sep 2004 19:28:14 +0100
-From: Dave Jones <davej@redhat.com>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org, Dave Airlie <airlied@gmail.com>,
-       Frank Phillips <fphillips@linuxmail.org>
-Subject: Re: 2.6.9-rc2-mm2 vs glxgears
-Message-ID: <20040923182814.GB7107@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Gene Heskett <gene.heskett@verizon.net>,
-	linux-kernel@vger.kernel.org, Dave Airlie <airlied@gmail.com>,
-	Frank Phillips <fphillips@linuxmail.org>
-References: <20040923052338.C1D0C21B32F@ws5-6.us4.outblaze.com> <200409230327.11531.gene.heskett@verizon.net> <21d7e997040923011927860bb2@mail.gmail.com> <200409231057.15120.gene.heskett@verizon.net>
+	Thu, 23 Sep 2004 14:33:55 -0400
+Received: from fw.osdl.org ([65.172.181.6]:29659 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268210AbUIWSdw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 14:33:52 -0400
+Date: Thu, 23 Sep 2004 11:31:32 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Luck, Tony" <tony.luck@intel.com>
+Cc: jbarnes@engr.sgi.com, peterc@gelato.unsw.edu.au,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: 2.6.9-rc2-mm2
+Message-Id: <20040923113132.5dd5813b.akpm@osdl.org>
+In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F020ED221@scsmsx401.amr.corp.intel.com>
+References: <B8E391BBE9FE384DAA4C5C003888BE6F020ED221@scsmsx401.amr.corp.intel.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200409231057.15120.gene.heskett@verizon.net>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 23, 2004 at 10:57:15AM -0400, Gene Heskett wrote:
+"Luck, Tony" <tony.luck@intel.com> wrote:
+>
+> >It looks like Tony is wearing the BPB.  The below patch from
+>                                    ^^^?
+> Huh?  I can tell from context that this is all my fault (to which
+> I agree; it is), but what does "BPB" stand for?
 
- > X-tacy version of an ATI Radeon 9200SE, 128 megs of ram.  And these 
- > lines from messages at about the time I did the startx I've not seen 
- > before:
- > Sep 23 03:19:55 coyote kernel: agpgart: Found an AGP 3.0 compliant 
- > device at 0000:00:00.0.
- > Sep 23 03:19:55 coyote kernel: agpgart: Putting AGP V3 device at 
- > 0000:00:00.0 into 4x mode
- > Sep 23 03:19:55 coyote kernel: agpgart: Putting AGP V3 device at 
- > 0000:02:00.0 into 4x mode
- > Sep 23 03:19:55 coyote kernel: [drm] Loading R200 Microcode
- > 
- > So this is something new with rc2-mm2 (new to me anyway).  The card, 
- > and its mobo socket are supposedly 8X, so why the setting to 4X?
+brown paper bag
 
-Because X still doesn't support an AGPMode "x8" option yet.
+> I'll take a look at this.
 
-		Dave
+Thanks.
 
+>  Can you post the .config that you are using.
+
+http://www.zip.com.au/~akpm/linux/patches/stuff/config-ia64

@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261615AbSKCEk0>; Sat, 2 Nov 2002 23:40:26 -0500
+	id <S261627AbSKCEsd>; Sat, 2 Nov 2002 23:48:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261627AbSKCEk0>; Sat, 2 Nov 2002 23:40:26 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:26337 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S261615AbSKCEkZ> convert rfc822-to-8bit;
-	Sat, 2 Nov 2002 23:40:25 -0500
-Date: Sat, 2 Nov 2002 20:42:46 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: "J.A. =?ISO-8859-1?Q?Magall=F3n?=" <jamagallon@able.es>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Kconfig (qt) -> Gconfig (gtk)
-In-Reply-To: <1036287009.18289.5.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.33L2.0211022041080.32677-100000@dragon.pdx.osdl.net>
+	id <S261641AbSKCEsd>; Sat, 2 Nov 2002 23:48:33 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:27150 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261627AbSKCEsb>; Sat, 2 Nov 2002 23:48:31 -0500
+Date: Sat, 2 Nov 2002 20:54:45 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Oliver Xymoron <oxymoron@waste.org>,
+       Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>,
+       "Theodore Ts'o" <tytso@mit.edu>, Dax Kelson <dax@gurulabs.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>,
+       <davej@suse.de>
+Subject: Re: Filesystem Capabilities in 2.6?
+In-Reply-To: <Pine.GSO.4.21.0211022333241.25010-100000@steklov.math.psu.edu>
+Message-ID: <Pine.LNX.4.44.0211022040140.2541-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3 Nov 2002, Alan Cox wrote:
 
-| On Sun, 2002-11-03 at 00:06, J.A. Magallón wrote:
-| > As I see it, the onle thing that should be included in a standard kernel
-| > would be something like a kconfig-xaw, that is sure to be on every box that
-| > has X, and could be a reference implementation.
-|
-| Lots of people no longer include Xaw either nowdays 8)
-|
-| Probably the easiest way to do this would be to move the GUI tools out
-| of the kernel (or maybe leave the common useful ones) and have make
-| guiconfig do
-|
-| 	if [ -f /usr/sbin/kernel-gui-config ] ; then
-| 		/usr/sbin/kernel-gui-config
-| 	elif got_qt() ; then
-| 		qt config
-| 	elif got_gtk() ; then
-| 		gtk_config
-| 	else
-| 		warnign message
-| 		make config
-		make menuconfig || make oldconfig || make config
-| 	fi
-| -
+On Sat, 2 Nov 2002, Alexander Viro wrote:
+> 
+> No, that's OK -
+> 
+> mount --bind /usr/bin/foo.real /usr/bin/foo.real
+> mount -o remount,nosuid /usr/bin/foo.real
 
-Please don't stick us with 'make config'.  :)
+Ehh. With the nosuid mount that will remove the effectiveness of the suid
+bit (not just the user change - it will also mask off the elevation of the
+capabilities), so the bind-mount with the capability mask will now mask
+off nothing to start with.
 
--- 
-~Randy
+Wouldn't it be much nicer to have:
+
+  /usr/bin/foo - no suid bits, no capabilities by default
+
+  mount --bind --capability=xx,yy /usr/bin/foo /usr/bin/foo
+
+where the mount actually adds capabilities? Looks more understandable to
+me.
+
+			Linus
 

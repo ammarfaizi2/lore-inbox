@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267397AbRGLBI1>; Wed, 11 Jul 2001 21:08:27 -0400
+	id <S267393AbRGLBEr>; Wed, 11 Jul 2001 21:04:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267396AbRGLBIR>; Wed, 11 Jul 2001 21:08:17 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:3333 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267394AbRGLBIF>; Wed, 11 Jul 2001 21:08:05 -0400
-Message-ID: <3B4CF86E.AC11C1B@transmeta.com>
-Date: Wed, 11 Jul 2001 18:07:58 -0700
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre1-zisofs i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S267397AbRGLBEh>; Wed, 11 Jul 2001 21:04:37 -0400
+Received: from mail.myrio.com ([63.109.146.2]:32239 "EHLO mailx.myrio.com")
+	by vger.kernel.org with ESMTP id <S267393AbRGLBER>;
+	Wed, 11 Jul 2001 21:04:17 -0400
+Message-ID: <D52B19A7284D32459CF20D579C4B0C0211C92A@mail0.myrio.com>
+From: Torrey Hoffman <torrey.hoffman@myrio.com>
+To: "'jesse@cats-chateau.net'" <jesse@cats-chateau.net>,
+        Kip Macy <kmacy@netapp.com>, Paul Jakma <paul@clubi.ie>
+Cc: Helge Hafting <helgehaf@idb.hist.no>, "C. Slater" <cslater@wcnet.org>,
+        linux-kernel@vger.kernel.org
+Subject: RE: Switching Kernels without Rebooting?
+Date: Wed, 11 Jul 2001 18:03:53 -0700
 MIME-Version: 1.0
-To: Rajeev Bector <rajeev_bector@yahoo.com>
-CC: linux-kernel@vger.kernel.org, hpa@zytor.com
-Subject: Re: new IPC mechanism ideas
-In-Reply-To: <20010712010204.23084.qmail@web14402.mail.yahoo.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rajeev Bector wrote:
-> 
-> The point is that you can do IPC using
-> this scheme which is
-> 1) protected (as compared to a shared
->    memory (shm) scheme in which any process
->    can write anywhere and corrupt
->    everything)
-> 
-> 2) involves only 1 copy.
-> 
 
-You can still do it in user space, by having individual r/w shm mappings
-to the controlling process, and ro mappings to the other processes; it's
-still only one copy.
+Jesse Pollard wrote:
 
-Introducing new forms of IPC adds to the complexity of the programming
-model which is already too complex.  It therefore requires substandial
-justification (unless you're doing it as a homework project in which case
-you shouldn't be posting here), including presenting real-world
-applications which cannot be properly served by current forms of IPC.
+[why switching kernels is very hard, and...]
+ 
+> Before you even try switching kernels, first implement a process
+> checkpoint/restart. The process must be resumed after a boot 
+> using the same
+> kernel, with all I/O resumed. Now get it accepted into the kernel.
 
-	-hpa
+Hear, hear!  That would be a useful feature, maybe not network servers, 
+but for pure number crunching apps it would save people having to write 
+all the state saving and recovery that is needed now for long term 
+computations.
+
+For bonus points, make it work for clusters to synchronously save and
+restore state for the apps running on all the nodes at once...
+
+Torrey
+
+
+
+
+

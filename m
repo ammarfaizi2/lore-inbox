@@ -1,71 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288978AbSAZB0h>; Fri, 25 Jan 2002 20:26:37 -0500
+	id <S288983AbSAZBf2>; Fri, 25 Jan 2002 20:35:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288975AbSAZB02>; Fri, 25 Jan 2002 20:26:28 -0500
-Received: from sombre.2ka.mipt.ru ([194.85.82.77]:58244 "EHLO
-	sombre.2ka.mipt.ru") by vger.kernel.org with ESMTP
-	id <S288978AbSAZB0L>; Fri, 25 Jan 2002 20:26:11 -0500
-Date: Sat, 26 Jan 2002 04:25:56 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: miles@megapathdsl.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.3-pre5 -- "pcilynx.c:638: invalid operands to binary &"  and  "pcilynx.c:650: `cards' undeclared"
-Message-Id: <20020126042556.355c7cc8.johnpol@2ka.mipt.ru>
-In-Reply-To: <20020126042049.125616e0.johnpol@2ka.mipt.ru>
-In-Reply-To: <1011932306.18088.162.camel@stomata.megapathdsl.net>
-	<20020125123711.0f0ebc61.johnpol@2ka.mipt.ru>
-	<1011979851.1261.9.camel@stomata.megapathdsl.net>
-	<20020126042049.125616e0.johnpol@2ka.mipt.ru>
-Reply-To: johnpol@2ka.mipt.ru
-Organization: MIPT
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart_Sat__26_Jan_2002_04:25:56_+0300_083a9458"
+	id <S288982AbSAZBfO>; Fri, 25 Jan 2002 20:35:14 -0500
+Received: from svr3.applink.net ([206.50.88.3]:13325 "EHLO svr3.applink.net")
+	by vger.kernel.org with ESMTP id <S288975AbSAZBfA>;
+	Fri, 25 Jan 2002 20:35:00 -0500
+Message-Id: <200201260132.g0Q1W4L13063@home.ashavan.org.>
+Content-Type: text/plain; charset=US-ASCII
+From: Timothy Covell <timothy.covell@ashavan.org>
+Reply-To: timothy.covell@ashavan.org
+To: kaih@khms.westfalen.de (Kai Henningsen), linux-kernel@vger.kernel.org
+Subject: Re: RFC: booleans and the kernel
+Date: Sat, 26 Jan 2002 19:33:15 -0600
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <8HXjQ8omw-B@khms.westfalen.de> <200201250900.g0P8xoL10082@home.ashavan.org.> <8HYG7RLmw-B@khms.westfalen.de>
+In-Reply-To: <8HYG7RLmw-B@khms.westfalen.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Friday 25 January 2002 13:02, Kai Henningsen wrote:
+> timothy.covell@ashavan.org (Timothy Covell)  wrote on 26.01.02 in 
+<200201250900.g0P8xoL10082@home.ashavan.org.>:
+> > On Friday 25 January 2002 00:36, Kai Henningsen wrote:
+> > > We're talking about a specific language feature, and that feature isn't
+> > > what you seem to be thinking it is. It does not change anything you can
+> > > do with ints.
+> >
+> > I know, I was talking about typographical errors such as:
+> >
+> > int x=0;
+> >
+> > if ( x = 1 )
+> >
+> >
+> > or
+> >
+> > char x;
+> > if ( x )
+> >
+> > which did not product the desired results.  My thought was to encourage
+> > the use of booleans instead of ints in these kinds of conditionals.   I
+> > thought
+>
+> And if you changed the int and/or the char into bool, this would
+> accomplish exactly nothing. A compiler can warn about assignments in
+> conditions or uninitialized variables, and gcc does it already (and has
+> done so since a long time); why you think this has anything to do with
+> bool seems to be completely unclear to everyone but you.
+>
+> > admits that there are benefits too.  But, I think it amazing that I'm
+> > being told that I'm an idiot when even the language's author agrees with
+> > me on my concerns about C.
+>
+> Of course, that is again not what is happening. You either *weren't*
+> talking about Richie's concerns, or else you were making an excellent
+> effort of keeping that fact secret from the rest of us.
+>
+> What you *were* saying is that you think bool would help get warnings that
+> you *already* get and that bool has absolutely no relevance to. I didn't
+> exactly call you an idiot for that, but that is certainly the impression
+> you left.
 
---Multipart_Sat__26_Jan_2002_04:25:56_+0300_083a9458
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+
+You know, I used to wonder why more people didn't like/use Linux.  Now,
+after a month or so of reading this website and meeting so many arrogant 
+assholes, now I know why.    I think that Tannebaum was right, it's amazing 
+that Linus can get such a rag-tag group of "prima donnas" to accomplish 
+anything. Of course, it looks like he does it by just looking at the code and 
+ignoring the people behind it.
+
+I, on the other hand, do not do that.  I don't use Microsoft because I think 
+the company is morally bankrupt.   And now, you and you ilk have convinced 
+me to stop lauding Linux.  There are other OSes out there to use, many which 
+are both technically and operationally superior and definitely come without
+your bad attitude.
 
 
-Ooops, forgot to attach apatch, sorry.
-
-> I hope this patch will hel you.
-> Please apply and send feedback.
-> Good luck.
-> BTW, it probably won't work in 644 string, and if it will happen, than
-> Dave Jones tree is also broken.
-> 
-> P.S. It will not probably be applied, so enter
-> ./drivers/ieee1394/pcilynx.c by hands. Sorry.
-
-> > Thanks,
-> > 	Miles
-
-	Evgeniy Polyakov ( s0mbre ).
-
---Multipart_Sat__26_Jan_2002_04:25:56_+0300_083a9458
-Content-Type: application/octet-stream;
- name="ieee1394_pcilynx.patch"
-Content-Disposition: attachment;
- filename="ieee1394_pcilynx.patch"
-Content-Transfer-Encoding: base64
-
-LS0tIC90bXAvcGNpbHlueC5jCVNhdCBKYW4gMjYgMDQ6MTA6MzkgMjAwMgorKysgLi9kcml2ZXJz
-L2llZWUxMzk0L3BjaWx5bnguYwlTYXQgSmFuIDI2IDA0OjE1OjQzIDIwMDIKQEAgLTY0MSw3ICs2
-NDEsNyBAQAogCiBzdGF0aWMgaW50IG1lbV9vcGVuKHN0cnVjdCBpbm9kZSAqaW5vZGUsIHN0cnVj
-dCBmaWxlICpmaWxlKQogewotICAgICAgICBpbnQgY2lkID0gTUlOT1IoaW5vZGUtPmlfcmRldik7
-CisgICAgICAgIGludCBjaWQgPSBtaW5vcihpbm9kZS0+aV9yZGV2KTsKICAgICAgICAgZW51bSB7
-IHRfcm9tLCB0X2F1eCwgdF9yYW0gfSB0eXBlOwogICAgICAgICBzdHJ1Y3QgbWVtZGF0YSAqbWQ7
-CiAgICAgICAgIApAQCAtMTUxNyw3ICsxNTE3LDcgQEAKICAgICAgICAgbHlueC0+c3RhdGUgPSBp
-c19ob3N0OwogCQogCWlmIChudW1fb2ZfY2FyZHMgPCBNQVhfTlVNX09GX0NBUkRTKQotCQljYXJk
-c1tudW1fb2ZfY2FyZHMrK10gPSBob3N0LT5ob3N0ZGF0YTsKKwkJY2FyZHNbbnVtX29mX2NhcmRz
-KytdID0gKihob3N0LT5ob3N0ZGF0YSk7CiAJZWxzZQogCQlGQUlMKCJUb28gbWFueSBjYXJkc1sg
-JWQgXS4uLiBJbXBvc3NpYmxlLi4uXG4iLCBudW1fb2ZfY2FyZHMpOwogCg==
-
---Multipart_Sat__26_Jan_2002_04:25:56_+0300_083a9458--
+----
+timothy.covell@ashavan.org.

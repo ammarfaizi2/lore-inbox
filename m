@@ -1,76 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261979AbULPSz4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261993AbULPS6B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261979AbULPSz4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 13:55:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261980AbULPSz4
+	id S261993AbULPS6B (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 13:58:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261980AbULPS5f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 13:55:56 -0500
-Received: from dsl027-176-166.sfo1.dsl.speakeasy.net ([216.27.176.166]:32943
-	"EHLO waste.org") by vger.kernel.org with ESMTP id S261979AbULPSzm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 13:55:42 -0500
-Date: Thu, 16 Dec 2004 10:55:22 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Park Lee <parklee_sel@yahoo.com>
-Cc: Paulo Marques <pmarques@grupopie.com>, mingo@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Issue on netconsole vs. Linux kernel oops
-Message-ID: <20041216185522.GI2767@waste.org>
-References: <41C1A31A.5070902@grupopie.com> <20041216184827.7357.qmail@web51501.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 16 Dec 2004 13:57:35 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:47561 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261987AbULPS4w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 13:56:52 -0500
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: davidm@hpl.hp.com
+Subject: Re: [PATCH] add legacy I/O port & memory APIs to /proc/bus/pci
+Date: Thu, 16 Dec 2004 10:56:12 -0800
+User-Agent: KMail/1.7.1
+Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, willy@debian.org
+References: <200412160850.20223.jbarnes@engr.sgi.com> <16833.55270.601527.754270@napali.hpl.hp.com>
+In-Reply-To: <16833.55270.601527.754270@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20041216184827.7357.qmail@web51501.mail.yahoo.com>
-User-Agent: Mutt/1.3.28i
+Message-Id: <200412161056.13019.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 16, 2004 at 10:48:27AM -0800, Park Lee wrote:
-> Hi,
->   I'd like to use netconsole to send local Linux
-> kernel's final messages (i.e. oops) to remote machine
-> when the kernel crashes. 
->   Now I can successfully use a built-in netconsole to
-> send some loacl kernel messages to the remote machine.
-> (the parameter I send to local kernel on kernel
-> command line is
-> "netconsole=@192.168.0.2/,514@192.168.0.1/", I run
-> syslogd in remote machine). For example, When the
-> local kernel is booting, it will send a message
-> "192.168.0.2 audit(1103247021.091:0): initialized" to
-> remote machine through netconsole, and the syslogd on
-> remote machine will write the message to
-> /var/log/messages on remote machine.
->   What CONFUSE me most is that when the kernel
-> crashes, there is NO message (oops) about the crash
-> being wrote down by syslogd on remote machine to
-> remote /var/log/messages file at all!! 
->   But in the mean time, We can see the outputs of
-> tcpdump on the remote machine, they are some thing
-> like the following:
-> 
-> 01:36:56.692877 IP 192.168.0.2.6665 >
-> 192.168.0.1.syslog: UDP, length 48
-> 01:36:56.692930 IP 192.168.0.2.6665 >
-> 192.168.0.1.syslog: UDP, length 29
-> 01:36:56.692982 IP 192.168.0.2.6665 >
-> 192.168.0.1.syslog: UDP, length 15
-> 01:36:56.693034 IP 192.168.0.2.6665 >
-> 192.168.0.1.syslog: UDP, length 9
-> 01:36:56.693086 IP 192.168.0.2.6665 >
-> 192.168.0.1.syslog: UDP, length 16
-> 01:36:56.693121 IP 192.168.0.2.6665 >
-> 192.168.0.1.syslog: UDP, length 16
->    ... ...
-> 
->   From these messages, we can see that the netconsole
-> actually have sent the final messages (oops) to remote
-> machine when the local kernel crashed. But there are
-> no corresponding messages recorded by syslogd on
-> remote machine to /var/log/messages.
+On Thursday, December 16, 2004 10:45 am, David Mosberger wrote:
+> >>>>> On Thu, 16 Dec 2004 08:50:19 -0800, Jesse Barnes
+> >>>>> <jbarnes@engr.sgi.com> said:
+>
+>   Jesse> +int ia64_pci_legacy_read(struct pci_dev *dev, u16 port, u32 *val,
+> u8 size) Jesse> +{
+>   Jesse> + int ret = 0;
+>   Jesse>         :
+>   Jesse> + case 1:
+>   Jesse> +  addr = (unsigned long *)paddr;
+>   Jesse> +  *val = (u8)(*(volatile u8 *)(addr));
+>   Jesse> +  break;
+>   Jesse> + case 2:
+>   Jesse> +  addr = (unsigned long *)paddr;
+>   Jesse> +  *val = (u16)(*(volatile u16 *)(addr));
+>   Jesse> +  break;
+>   Jesse>          :
+>   Jesse> +}
+>
+>   Jesse> +int ia64_pci_legacy_write(struct pci_dev *dev, u16 port, u32 val,
+> u8 size) Jesse> +{
+>   Jesse> + switch (size) {
+>   Jesse> + case 1:
+>   Jesse> +  addr = (unsigned long *)paddr;
+>   Jesse> +  *(volatile u8 *)(addr) = (u8)(val);
+>   Jesse> +  break;
+>   Jesse> + case 2:
+>   Jesse> +  addr = (unsigned long *)paddr;
+>   Jesse> +  *(volatile u16 *)(addr) = (u16)(val);
+>   Jesse> +  break;
+>   Jesse>           :
+>   Jesse> + }
+>
+> No offense, but what's up with this castamania?
 
->From your description, it sounds like syslogd is at fault. Try using
-netcat on the remote machine.
+Leftovers from other code.  I don't actually use this stuff on sn2, someone 
+with a DIG test box will have to verify it (willy pointed out that I should 
+probably just be using the appropriate inX our outX routine here instead, 
+which makes sense).
 
--- 
-Mathematics is the supreme nostalgia of our time.
+Jesse

@@ -1,34 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261398AbSL2Wn0>; Sun, 29 Dec 2002 17:43:26 -0500
+	id <S261448AbSL2Wor>; Sun, 29 Dec 2002 17:44:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261448AbSL2Wn0>; Sun, 29 Dec 2002 17:43:26 -0500
-Received: from host194.steeleye.com ([66.206.164.34]:13837 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S261398AbSL2Wn0>; Sun, 29 Dec 2002 17:43:26 -0500
-Message-Id: <200212292251.gBTMpim12460@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Christoph Hellwig <hch@lst.de>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove CONFIG_X86_NUMA 
-In-Reply-To: Message from Christoph Hellwig <hch@lst.de> 
-   of "Sun, 29 Dec 2002 23:40:51 +0100." <20021229234051.A12535@lst.de> 
+	id <S261934AbSL2Wor>; Sun, 29 Dec 2002 17:44:47 -0500
+Received: from maild.telia.com ([194.22.190.101]:63721 "EHLO maild.telia.com")
+	by vger.kernel.org with ESMTP id <S261448AbSL2Woq>;
+	Sun, 29 Dec 2002 17:44:46 -0500
+X-Original-Recipient: linux-kernel@vger.kernel.org
+Date: Sun, 29 Dec 2002 23:53:05 +0100
+From: Christian Axelsson <smiler@lanil.mine.nu>
+To: linux-kernel@vger.kernel.org
+Cc: axboe@suse.de
+Subject: Re: PROBLEM: Plextor CD-RW hangs when reading via cdrdao/xine/mplayer and ide-scsi
+Message-Id: <20021229235305.146221d5.smiler@lanil.mine.nu>
+In-Reply-To: <1041201603.17115.47.camel@vertex.bastion.free-bsd.org>
+References: <1041201603.17115.47.camel@vertex.bastion.free-bsd.org>
+Organization: LANIL
+X-Mailer: Sylpheed version 0.8.6claws (GTK+ 1.2.10; )
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 29 Dec 2002 16:51:44 -0600
-From: James Bottomley <James.Bottomley@steeleye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hch@lst.de said:
-> I already wondered about that, but AFAIK a kernel with X86_NUMAQ set
-> still boots on a PeeCee, so it's really an option, not a choice.
+On 29 Dec 2002 23:40:03 +0100
+"Christian \"cycloon\" Gut" <cycloon@is-root.org> wrote:
 
-It alters the mflags-y and mcore-y variables in arch/i386/Makefile, so it's 
-one of the subarch choices and thus should really be under the menu options.
+<snip>
+> Hi!
+> I got some problems with my IDE Burner Plextor 2410TA. Bugreport
+> following:
+> 
+> [1.]My IDE CD-RW drive hangs when reading a cd via cdrdao/xine/mplayer
+> and ide-scsi.
+> 
+> [2.]My whole system is compiled with gcc 3.2 (using gentoo). When i try
+> to read CDs(especially happens with VCDs) with cdrdao, xine, mplayer or
+> even vcdimager the application suddenly hangs and the CD-Drive doesn't
+> stop to run and run.
+> The Problem is not Hardwaredependant, cause it works fine under Knoppix
+> and Windows. I think it depends on gcc > 3 as it worked before and still
+> works under Knoppix.
+> 
+</snip>
 
-James
+I have an identical drive, it runs great under gentoo aswell but all programs
+are compiled with gcc 3.2, but I think it's not very compiler dependent.
+I run the drive as an IDE-scsi device aswell.
 
-
+-- 
+Christan Axelsson
+smiler@lanil.mine.nu

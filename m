@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267967AbUHTJCL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267850AbUHTJE7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267967AbUHTJCL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 05:02:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265099AbUHTI73
+	id S267850AbUHTJE7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 05:04:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265099AbUHTJCb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 04:59:29 -0400
-Received: from mta9.srv.hcvlny.cv.net ([167.206.5.42]:45442 "EHLO
-	mta9.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S267737AbUHTI6m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 04:58:42 -0400
-Date: Fri, 20 Aug 2004 04:58:29 -0400
-From: Jeff Sipek <jeffpc@optonline.net>
-Subject: Re: SMP cpu deep sleep
-In-reply-to: <1092989207.18275.14.camel@linux.local>
-To: Hans Kristian Rosbach <hk@isphuset.no>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <200408200458.38591.jeffpc@optonline.net>
-MIME-version: 1.0
-Content-type: Text/Plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: KMail/1.6.2
-References: <1092989207.18275.14.camel@linux.local>
+	Fri, 20 Aug 2004 05:02:31 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:28394 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S267900AbUHTJBr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 05:01:47 -0400
+Date: Fri, 20 Aug 2004 11:03:23 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>,
+       Nathan Lynch <nathanl@austin.ibm.com>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.8.1-mm2
+Message-ID: <20040820090323.GA11311@elte.hu>
+References: <20040819014204.2d412e9b.akpm@osdl.org> <1092964083.4946.7.camel@biclops.private.network> <20040819181603.700a9a0e.akpm@osdl.org> <1092987650.28849.349.camel@bach> <20040820081458.GA4949@elte.hu> <20040820082941.GA31649@in.ibm.com> <20040820085923.GA11255@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040820085923.GA11255@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-On Friday 20 August 2004 04:06, Hans Kristian Rosbach wrote:
-> While reading through hotplug and speedstep patches
-> I came to think of a feature I think might be useful.
->
-> In an SMP system there are several cpus, this generates
-> extra heat and power consuption even on idle load.
-> Is there a way to put all cpus but cpu1 into a kind of
-> deep sleep? Cpu1 would have to do all work (including irqs)
-> of course.
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-With Rusty's Hotplug CPU, a userspace script should be able to do this by 
-cat'ing 1 or 0 into the appropriate sysfs file.
+> see the patch i just sent - it disables hotplug in that critical
+> self-reap section.
+> 
+> (another solution would be for the hotplug code to also look into the
+> local runqueue for tasks to migrate, not only the tasklist.)
 
-Jeff.
+yet another solution would be to do proc_pid_flush() earlier in
+release_task(). This opens up some races elsewhere which need to be
+solved (iirc mostly in the /proc code, see ->proc_lock) but should solve
+it a bit nicer i think. 
 
-- -- 
-"If I have trouble installing Linux, something is wrong. Very wrong."
-  - Linus Torvalds
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBJb08wFP0+seVj/4RAotfAJ9gvudaaAQbYjSiky78rkkRnlZHAACfb8oR
-Whj349hrd6ZnUPf27JwjJxY=
-=mL1E
------END PGP SIGNATURE-----
+	Ingo

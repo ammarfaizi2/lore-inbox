@@ -1,44 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261382AbUK1A4j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261381AbUK1AzO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261382AbUK1A4j (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 19:56:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261384AbUK1A4j
+	id S261381AbUK1AzO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 19:55:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261382AbUK1AzO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 19:56:39 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:33681 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261382AbUK1Azi (ORCPT
+	Sat, 27 Nov 2004 19:55:14 -0500
+Received: from colin2.muc.de ([193.149.48.15]:14608 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S261381AbUK1AzL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Nov 2004 19:55:38 -0500
-Date: Sat, 27 Nov 2004 16:55:29 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Martin Schlemmer <azarah@nosferatu.za.org>
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org, zaitcev@redhat.com
-Subject: Re: ub: oops with preempt ("Sahara Workshop") [u]
-Message-ID: <20041127165529.088538fa@lembas.zaitcev.lan>
-In-Reply-To: <1101591495.11949.42.camel@nosferatu.lan>
-References: <20041123100247.2ea47e2d@lembas.zaitcev.lan>
-	<1101591495.11949.42.camel@nosferatu.lan>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.13; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 27 Nov 2004 19:55:11 -0500
+Message-ID: <20041128005506.96454.qmail@colin2.muc.de>
+From: ak@muc.de
+Date: 28 Nov 2004 01:55:06 +0100
+To: Arnd Bergmann <arnd@arndb.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
+In-Reply-To: <35kb6-46Q-25@gated-at.bofh.it>
+References: <34Xo6-2P0-19@gated-at.bofh.it> <35i9f-2vZ-25@gated-at.bofh.it> <35iLS-2Uo-1@gated-at.bofh.it> <35kb6-46Q-25@gated-at.bofh.it>
+Date: Sun, 28 Nov 2004 01:55:06 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 27 Nov 2004 23:38:15 +0200, "Martin Schlemmer [c]" <azarah@nosferatu.za.org> wrote:
-> On Tue, 2004-11-23 at 10:02 -0800, Pete Zaitcev wrote:
+> I think we can get rid of this hack when we move to split kernel headers.
+> parisc, s390 and mips already have combined headers, and it should not be
+> too hard to combine the user ABI headers for sparc, ppc and x86_64 as well,
+> without having to merge the complete architecture and kernel header trees
+> for them.
 
-> > I admit that the code should be locked properly instead, but the global plan
-> > is to drop all P3 tagged printks anyway. So let it be guarded for the moment.
+Please don't do that. x86_64 are not really synchronized in development
+(unlike s390/s390x) and I don't really want too coordinate too much
+with the i386 people when I change something in asm. There are also
+significant differences in some places already.
+Keep it separate is imho far better.
 
-> Sorry for the delay, but I have not had any time to really test this
-> again.  I did some minor testing, and only after really working it,
-> I could get an oops, but not nearly the same (think it was deeper into
-> the scsi layer or maybe kobject stuff).
-
-This is strange, because ub hasn't got any connection with SCSI layer.
-
-Without trying to deflect the blame for improper locking in ub, I have to
-ask, does it all work without the preempt for you?
-
--- Pete
+-Andi

@@ -1,111 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261461AbTCYWY1>; Tue, 25 Mar 2003 17:24:27 -0500
+	id <S262302AbTCYWfX>; Tue, 25 Mar 2003 17:35:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261620AbTCYWY1>; Tue, 25 Mar 2003 17:24:27 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:15365 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP
-	id <S261461AbTCYWYZ>; Tue, 25 Mar 2003 17:24:25 -0500
-Date: Tue, 25 Mar 2003 17:33:58 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-X-X-Sender: root@oddball.prodigy.com
-Reply-To: Bill Davidsen <davidsen@tmr.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.5.66-bk1 - functional success and a few minor oddities
-Message-ID: <Pine.LNX.4.44.0303251730540.1125-100000@oddball.prodigy.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262586AbTCYWfX>; Tue, 25 Mar 2003 17:35:23 -0500
+Received: from packet.digeo.com ([12.110.80.53]:43215 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262302AbTCYWfX>;
+	Tue, 25 Mar 2003 17:35:23 -0500
+Date: Tue, 25 Mar 2003 16:50:59 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] swap 10/13 tmpfs atomics
+Message-Id: <20030325165059.4b677f27.akpm@digeo.com>
+In-Reply-To: <Pine.LNX.4.44.0303252219570.12636-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0303252209070.12636-100000@localhost.localdomain>
+	<Pine.LNX.4.44.0303252219570.12636-100000@localhost.localdomain>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 25 Mar 2003 22:46:26.0298 (UTC) FILETIME=[5E18C5A0:01C2F320]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well hum! So 2.5.66-bk1 built with 2.5.59 on my little test system, and
-booted, and after booting it and rebuilding the kernel from make clean
-the remake was a tiny bit faster. And the system has stayed up for 80
-minutes, and is reasonably responsive. Running X on a P-II 350 with
-only 96MB RAM is a good test system, if not much fun to use.
+Hugh Dickins <hugh@veritas.com> wrote:
+>
+> move_from_swap_cache and add_to_page_cache_lru are using GFP_ATOMIC,
+> which can easily fail in an intermittent way.  Rude if shmem_getpage
+> then fails with -ENOMEM: cond_resched to let kswapd in, and repeat.
 
-Don't know what changed from 2.5.65 to 2.5.66-bk1, but my /dev/lp0 is
-found again. The aha152x module compiled, perhaps it will work after I
-put the SCSI hardware back in the machine.
+I think the preferred way of waiting for the IO system and kswapd to catch up
+is blk_congestion_wait().  Because it waits for the "right" amount of time.
 
+I'll make that change.
 
-2.5.59:
-  real	23m45.675s
-  user	19m46.912s
-  sys	1m34.438s
-
-
-2.5.66-bk1:
-  real	22m30.302s
-  user	19m39.510s
-  sys	1m30.998s
-
-
-I only see a few problems, after normal boot my log shows thousands of these:
-  Mar 25 15:38:16 oddball kernel: end_request: I/O error, dev hdc, sector 0
-  Mar 25 15:38:48 oddball last message repeated 48 times
-  Mar 25 15:39:50 oddball last message repeated 93 times
-  Mar 25 15:40:52 oddball last message repeated 93 times
-  Mar 25 15:41:44 oddball last message repeated 80 times
-
-Now hdc is a CD-ROM:
-  oddball:davidsen> cat /proc/ide/hd?/model
-  Maxtor 90845D4
-  WDC AC31600H
-  NEC CD-ROM DRIVE:28C
-
-This started before X, I booted into text mode. There is no CD in the
-drive, no automount anything running, and nothing I can see which should
-be trying to read the CD. From the dmesg, the first error happens as
-soon as the drive is seen, as if the kernel were trying to read a
-partition table...
-
-  Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-  ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-  PIIX4: IDE controller at PCI slot 00:07.1
-  PIIX4: chipset revision 1
-  PIIX4: not 100% native mode: will probe irqs later
-      ide0: BM-DMA at 0x1040-0x1047, BIOS settings: hda:DMA, hdb:pio
-      ide1: BM-DMA at 0x1048-0x104f, BIOS settings: hdc:DMA, hdd:pio
-  hda: Maxtor 90845D4, ATA DISK drive
-  hdb: WDC AC31600H, ATA DISK drive
-  hdb: Disabling (U)DMA for WDC AC31600H
-  ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-  hdc: NEC CD-ROM DRIVE:28C, ATAPI CD/DVD-ROM drive
-  ide1 at 0x170-0x177,0x376 on irq 15
-  hda: host protected area => 1
-  hda: 16514064 sectors (8455 MB) w/512KiB Cache, CHS=16383/16/63, UDMA(33)
-   hda: hda1 hda2 hda3 hda4 < hda5 >
-  hdb: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-  hdb: task_no_data_intr: error=0x10 { SectorIdNotFound }, LBAsect=0, sector=0
-  hdb: 3173184 sectors (1625 MB) w/128KiB Cache, CHS=3148/16/63
-   hdb: hdb1 hdb2 hdb3
-  hdc: ATAPI 32X CD-ROM drive, 128kB Cache, UDMA(33)
-  Uniform CD-ROM driver Revision: 3.12
-  end_request: I/O error, dev hdc, sector 0
-  mice: PS/2 mouse device common for all mice
-
-If I explicitly add hdc=cdrom to the boot parameters this doesn't
-happen, so I suspect this is some minor glitch in detection.
-
-
-Another minor issue is that DMA gets disabled on the hdb device, it is
-dma capable, or so it claims. And setting the mode by hand has not
-resulted in any "learning experiences." This may be caution by default,
-I'm just noting it for completeness.
-
-Capabilities:
-	LBA, IORDY(can be disabled)
-	Buffer size: 128.0kB	ECC bytes: 22
-	Standby timer values: spec'd by standard
-	r/w multiple sector transfer: Max = 16	Current = 16
-	DMA: mdma0 mdma1 *mdma2 
-	     Cycle time: min=120ns recommended=120ns
-	PIO: pio0 pio1 pio2 pio3 pio4 
-	     Cycle time: no flow control=160ns  IORDY flow control=120ns
-
-
-Other than that I have (so far) no problems, I'm running with NMI and
-softdog, and will be doing a number of benchmarks after 12 hours of
-assorted compiles and the like.
+And yes, the name is silly: "what if it's not block-backed"?  It hasn't
+caused any problems yet, but maybe one day we'll need to find a way for
+network-backed filesystems to deliver a wakeup to sleepers there.
 

@@ -1,48 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263685AbTDDLzM (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 06:55:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263686AbTDDLzM (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 06:55:12 -0500
-Received: from deviant.impure.org.uk ([195.82.120.238]:48061 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S263685AbTDDLzD (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 06:55:03 -0500
-Date: Fri, 4 Apr 2003 13:06:09 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Samium Gromoff <deepfire@ibe.miee.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Eric Raymond`s CML2 configuration generator
-Message-ID: <20030404120452.GA12796@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Samium Gromoff <deepfire@ibe.miee.ru>, linux-kernel@vger.kernel.org
-References: <20030404140410.52717dad.deepfire@ibe.miee.ru>
+	id S263691AbTDDMDq (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 07:03:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263690AbTDDMDp (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 07:03:45 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:23176
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S263687AbTDDMDi (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 07:03:38 -0500
+Subject: Re: [PATCH] interlaced packed pixels
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.GSO.4.21.0304041310440.1720-100000@vervain.sonytel.be>
+References: <Pine.GSO.4.21.0304041310440.1720-100000@vervain.sonytel.be>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1049454984.2138.2.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030404140410.52717dad.deepfire@ibe.miee.ru>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 04 Apr 2003 12:16:25 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 04, 2003 at 02:04:10PM +0400, Samium Gromoff wrote:
+On Gwe, 2003-04-04 at 12:17, Geert Uytterhoeven wrote:
+> 	Hi,
+> 
+> I'd like to introduce a new frame buffer type to accommodate packed pixel frame
+> buffers that store the even and odd fields separately. This is typically used
+> in graphics hardware for TV output (e.g. set-top boxes).
 
- > 		The question is why the utterly beautiful generator was dropped?
+While we are at it can we also get an FB_TYPE_MJPEG ?
 
-overengineering, and not listening to the requests of people
-that would spend the most time using it, instead pandoring to
-the needs of figments of Erics imagination. The day Eric stopped
-listening to kernel developers, kernel developers stopped listening
-to Eric.
-
- > 		One of the obvious problems is that it was python-based, and thus being slow and
- > 		requiring python to be installed.
- > 		So what if it was written in C?
-
-not an issue.
-
- > 		Is it possible for it to get in before 2.6?
-
-no. we're well into freeze now, and ripping out something of
-that size would be a major step backwards.
-Besides, Roman Zippel's kconfig work got merged instead,
-which is a large improvement over what we had in 2.4
-
-		Dave

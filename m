@@ -1,75 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266548AbUG0Sah@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266543AbUG0SeT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266548AbUG0Sah (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 14:30:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266545AbUG0Sag
+	id S266543AbUG0SeT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 14:34:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266549AbUG0SeT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 14:30:36 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:44010 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266549AbUG0SaP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 14:30:15 -0400
-Date: Tue, 27 Jul 2004 11:30:08 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: <marcelo.tosatti@cyclades.com>
-Cc: zaitcev@redhat.com, linux-kernel@vger.kernel.org
-Subject: USB: GET_ID from nonzero interface
-Message-Id: <20040727113008.57ae918a@lembas.zaitcev.lan>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 27 Jul 2004 14:34:19 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:46235 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S266543AbUG0SeQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 14:34:16 -0400
+Subject: Re: [Lse-tech] [RFC][PATCH] Change pcibus_to_cpumask() to
+	pcibus_to_node()
+From: Matthew Dobson <colpatch@us.ibm.com>
+Reply-To: colpatch@us.ibm.com
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Jesse Barnes <jbarnes@sgi.com>,
+       Andi Kleen <ak@suse.de>, LKML <linux-kernel@vger.kernel.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       LSE Tech <lse-tech@lists.sourceforge.net>
+In-Reply-To: <200407270822.43870.jbarnes@engr.sgi.com>
+References: <1090887007.16676.18.camel@arrakis>
+	 <20040727105145.A18533@infradead.org>
+	 <200407270822.43870.jbarnes@engr.sgi.com>
+Content-Type: text/plain
+Organization: IBM LTC
+Message-Id: <1090953179.18747.19.camel@arrakis>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 27 Jul 2004 11:32:59 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Synopsys: Fix GET_ID for nonzero interface. IIRC, it's HP-1300 combo.
+On Tue, 2004-07-27 at 08:22, Jesse Barnes wrote:
+> On Tuesday, July 27, 2004 2:51 am, Christoph Hellwig wrote:
+> > On Mon, Jul 26, 2004 at 05:10:08PM -0700, Matthew Dobson wrote:
+> > > So in discussions with Jesse at OLS, we decided that pcibus_to_node() is
+> >
+> > Please do pcibus_to_nodemask() instead - there could be dual-ported pci
+> > bridges.
+> 
+> Do you know of any?  On sn2 there are dual ported xio->pci bridges, but in 
+> that case, half the busses are associated with one node and the other half 
+> with another node, so pcibus_to_node would work in that case.  And for 
+> numalink->pci bridges, we'll return the node id of the bridge in that case 
+> (which may not have any memory, but in that case alloc_pages_node will fall 
+> back to the next node).
+> 
+> I wonder though if we shouldn't add
+> 
+>   ...
+> #ifdef CONFIG_NUMA
+>   int node; /* or nodemask_t if necessary */
+> #endif
+>   ...
+> 
+> to struct pci_bus instead?  That would make the existing code paths a little 
+> faster and avoid the need for a global array, which tends to lead to TLB 
+> misses.
 
-The patch looks bizzare, but it is actually correct and the code is
-not too bad. The 2.6 patch from errandir_news@mph.eclipse.co.uk, this
-is a backport.
+I like that idea!  Stick a nodemask_t in struct pci_bus, initialize it
+to NODE_MASK_ALL.  If a particular arch wants to put something more
+accurate in there, then great, if not, we're just in the same boat we're
+in now.
 
-I must admit I didn't hear from anyone using the stock 2.4
-having this problem, but I had a couple of users on RHL.
+Anyone else have opinions one way or the other on Jesse's idea?
 
-diff -urp -X dontdiff linux-2.4.27-rc3/drivers/usb/printer.c linux-2.4.27-rc3-usbx/drivers/usb/printer.c
---- linux-2.4.27-rc3/drivers/usb/printer.c	2004-07-25 23:00:17.000000000 -0700
-+++ linux-2.4.27-rc3-usbx/drivers/usb/printer.c	2004-07-27 10:28:53.000000000 -0700
-@@ -1,9 +1,9 @@
- /*
-- * printer.c  Version 0.11
-+ * printer.c  Version 0.13
-  *
-  * Copyright (c) 1999 Michael Gee	<michael@linuxspecific.com>
-  * Copyright (c) 1999 Pavel Machek	<pavel@suse.cz>
-- * Copyright (c) 2000 Randy Dunlap	<randy.dunlap@intel.com>
-+ * Copyright (c) 2000 Randy Dunlap	<rddunlap@osdl.org>
-  * Copyright (c) 2000 Vojtech Pavlik	<vojtech@suse.cz>
-  # Copyright (c) 2001 Pete Zaitcev	<zaitcev@redhat.com>
-  # Copyright (c) 2001 David Paschal	<paschal@rcsis.com>
-@@ -230,11 +230,21 @@ static DECLARE_MUTEX(usblp_sem);	/* lock
- 
- static int usblp_ctrl_msg(struct usblp *usblp, int request, int type, int dir, int recip, int value, void *buf, int len)
- {
--	int retval = usb_control_msg(usblp->dev,
-+	int retval;
-+	int index = usblp->ifnum;
-+
-+	/* High byte has the interface index.
-+	   Low byte has the alternate setting.
-+	 */
-+	if ((request == USBLP_REQ_GET_ID) && (type == USB_TYPE_CLASS)) {
-+	  index = (usblp->ifnum<<8)|usblp->protocol[usblp->current_protocol].alt_setting;
-+	}
-+
-+	retval = usb_control_msg(usblp->dev,
- 		dir ? usb_rcvctrlpipe(usblp->dev, 0) : usb_sndctrlpipe(usblp->dev, 0),
--		request, type | dir | recip, value, usblp->ifnum, buf, len, USBLP_WRITE_TIMEOUT);
--	dbg("usblp_control_msg: rq: 0x%02x dir: %d recip: %d value: %d len: %#x result: %d",
--		request, !!dir, recip, value, len, retval);
-+		request, type | dir | recip, value, index, buf, len, USBLP_WRITE_TIMEOUT);
-+	dbg("usblp_control_msg: rq: 0x%02x dir: %d recip: %d value: %d idx: %d len: %#x result: %d",
-+		request, !!dir, recip, value, index, len, retval);
- 	return retval < 0 ? retval : 0;
- }
- 
+> Anyway, my needs are very simple.  I'd like to do 
+> alloc_pages_node(pci_to_node(pci_dev)); in the sn2 version of 
+> pci_alloc_consistent and use the new routine to simplify the initial irq 
+> setup code, making it look more like build_zonelists and the sched domains 
+> patch I posted yesterday.  So as long as those needs are provided for, I'm ok 
+> with the interface.
+> 
+> Thanks,
+> Jesse
+
+I'm trying to keep the dependency of topology on what the pci_dev and
+pci_bus structs look like to a minimum.  That's why I'd like to keep the
+topology function based on PCI bus numbers (or possibly struct pci_bus),
+not struct pci_dev.  The pci_bus is what really has the node affinity
+anyway, and the device only has that affinity through the fact that it
+is physically plugged into a particular bus.
+
+-Matt
+

@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311902AbSCVKaI>; Fri, 22 Mar 2002 05:30:08 -0500
+	id <S311959AbSCVKeS>; Fri, 22 Mar 2002 05:34:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311941AbSCVK37>; Fri, 22 Mar 2002 05:29:59 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:6667 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S311900AbSCVK3m>; Fri, 22 Mar 2002 05:29:42 -0500
-Message-ID: <3C9B0723.703DC486@zip.com.au>
-Date: Fri, 22 Mar 2002 02:27:47 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Martin Blais <blais@iro.umontreal.ca>, linux-kernel@vger.kernel.org
-Subject: Re: xxdiff as a visual diff tool (shameless plug)
-In-Reply-To: <20020321061423.HIXG2746.tomts17-srv.bellnexxia.net@there> <20020322092712.GA233@elf.ucw.cz>
+	id <S311961AbSCVKeI>; Fri, 22 Mar 2002 05:34:08 -0500
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:28402 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S311959AbSCVKdy>; Fri, 22 Mar 2002 05:33:54 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <shsu1rci4zr.fsf@charged.uio.no> 
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: linux-kernel@ton.iguana.be (Ton Hospel), linux-kernel@vger.kernel.org
+Subject: Re: BUG REPORT: kernel nfs between 2.4.19-pre2 (server) and 2.2.21-pre3 (client) 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Fri, 22 Mar 2002 10:33:39 +0000
+Message-ID: <24969.1016793219@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> 
-> It would be great to somehow split patches before feeding them to the
-> patch. If you have one big hunk, and it fails because of one letter
-> added somewhere in file, it is *big pain* to find/kill offending
-> letter.
 
-yup.  It's a *lot* easier if the diff was generated with `diff -1',
-because that makes many more hunks.
+trond.myklebust@fys.uio.no said:
+>  As for re-exporting: that can be done pretty easily too unless of
+> course you actually expect it to be reliable. The tough cookie is to
+> get it to survive server reboots.
 
-There is sufficient information in a normal diff to turn it into
-a `diff -1' diff, I think.  All it needs is for Tim^Wsomeone to code it.
+The problem here is that we're using the anonymous device which the NFS 
+mount happens to have as sb->s_dev as the device ID in our exported file 
+handles. We don't have to do that; we could use something slightly more 
+useful, based on the root fh we got from the _real_ server, surely?
+ 
 
--
+--
+dwmw2
+
+

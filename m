@@ -1,70 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266047AbUAFAtP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 19:49:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265940AbUAFAqY
+	id S266050AbUAFAmh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 19:42:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266049AbUAFAm1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 19:46:24 -0500
-Received: from bolt.sonic.net ([208.201.242.18]:45189 "EHLO bolt.sonic.net")
-	by vger.kernel.org with ESMTP id S266042AbUAFAoa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 19:44:30 -0500
-Date: Mon, 5 Jan 2004 16:44:23 -0800
-From: David Hinds <dhinds@sonic.net>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Amit <mehrotraamit@yahoo.co.in>,
-       Russell King <rmk@arm.linux.org.uk>
-Subject: Re: PCI memory allocation bug with CONFIG_HIGHMEM
-Message-ID: <20040105164423.A30738@sonic.net>
-References: <20040105120707.A18107@sonic.net> <Pine.LNX.4.58.0401051630190.2170@home.osdl.org>
+	Mon, 5 Jan 2004 19:42:27 -0500
+Received: from p508297A4.dip.t-dialin.net ([80.130.151.164]:18950 "EHLO
+	Marvin.DL8BCU.ampr.org") by vger.kernel.org with ESMTP
+	id S266050AbUAFAlT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 19:41:19 -0500
+Date: Tue, 6 Jan 2004 00:44:35 +0000
+From: Thorsten Kranzkowski <dl8bcu@dl8bcu.de>
+To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Relocation overflow with modules on Alpha
+Message-ID: <20040106004435.A3228@Marvin.DL8BCU.ampr.org>
+Reply-To: dl8bcu@dl8bcu.de
+Mail-Followup-To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
+	linux-kernel@vger.kernel.org
+References: <yw1xy8sn2nry.fsf@ford.guide>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0401051630190.2170@home.osdl.org>
-User-Agent: Mutt/1.3.22.1i
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <yw1xy8sn2nry.fsf@ford.guide>; from mru@kth.se on Mon, Jan 05, 2004 at 02:21:37AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 05, 2004 at 04:36:15PM -0800, Linus Torvalds wrote:
+On Mon, Jan 05, 2004 at 02:21:37AM +0100, Måns Rullgård wrote:
 > 
-> On Mon, 5 Jan 2004, David Hinds wrote:
-> > 
-> > In arch/i386/kernel/setup.c we have:
-> > 
-> > 	/* Tell the PCI layer not to allocate too close to the RAM area.. */
-> > 	low_mem_size = ((max_low_pfn << PAGE_SHIFT) + 0xfffff) & ~0xfffff;
-> > 	if (low_mem_size > pci_mem_start)
-> > 		pci_mem_start = low_mem_size;
-> > 
-> > which is meant to round up pci_mem_start to the nearest 1 MB boundary
-> > past the top of physical RAM.  However this does not consider highmem.
-> > Should this just be using max_pfn rather than max_low_pfn?
-> 
-> Yes and no. That doesn't really work either, for any machine with more
-> than 4GB of RAM.
+> I compiled Linux 2.6.0 for Alpha, and it mostly works, except the
+> somewhat large modules.  They fail to load with the message
+> "Relocation overflow vs section 17", or some other section number.
+> I've seen this with scsi-mod, nfsd, snd-page-alloc and possibly some
+> more.  Compiling them statically works.  What's going on?
 
-Ugh.
+I saw a similar thing, but I'm compiling everything statically:
 
-> We want to find the memory hole (in the low 4GB region), and usually the
-> e820 memory map should make that all happen properly. What does that
-> report on this laptop?
-> 
-> This is why we put the memory resources in /proc/iomem, and mark them 
-> busy: so that the PCI subsystem won't try to allocate PCI memory in the 
-> RAM (or ACPI reserved) area. The "pci_mem_start" thing is just a point to 
-> _start_ the allocation, the PCI subsystem still should honor the fact that 
-> we have memory above it. That's the whole point of doing proper resource 
-> allocation, after all.
-> 
-> Does this not work, or have you disabled e820 for some reason?
+: relocation truncated to fit: BRADDR .init.text
+init/built-in.o(.text+0xf10): In function `inflate_codes':
 
-The original problem was actually that grub was passing a bogus mem=
-parameter to the kernel that was 4K too small, I guess because it was
-intending to indicate the amount of "available" memory (the top 4K is
-reserved for ACPI).  If highmem had not been enabled, the above code
-would have corrected the problem; but with highmem, the computed
-low_mem_size was incorrect.  I would say that grub is just broken and
-is misusing the mem= parameter, but this has been a problem for years
-and they don't seem interested in fixing it.
 
--- Dave
+Disabling a not so important subsystem (sound) helped for the time being.
+
+It seems my kernel crossed the 4 MB barrier in consumed RAM and possibly
+some relocation type(s) can't cope with that. Time to use -fpic or 
+some such?
+
+Thorsten
+
+-- 
+| Thorsten Kranzkowski        Internet: dl8bcu@dl8bcu.de                      |
+| Mobile: ++49 170 1876134       Snail: Kiebitzstr. 14, 49324 Melle, Germany  |
+| Ampr: dl8bcu@db0lj.#rpl.deu.eu, dl8bcu@marvin.dl8bcu.ampr.org [44.130.8.19] |

@@ -1,167 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267554AbUJCPgf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267548AbUJCPlm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267554AbUJCPgf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Oct 2004 11:36:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267558AbUJCPgf
+	id S267548AbUJCPlm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Oct 2004 11:41:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267974AbUJCPlm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Oct 2004 11:36:35 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19889 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S267554AbUJCPg1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Oct 2004 11:36:27 -0400
-Date: Sun, 3 Oct 2004 11:07:23 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Hirokazu Takahashi <taka@valinux.co.jp>
-Cc: iwamoto@valinux.co.jp, haveblue@us.ibm.com, akpm@osdl.org,
-       linux-mm@kvack.org, piggin@cyberone.com.au, arjanv@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] memory defragmentation to satisfy high order allocations
-Message-ID: <20041003140723.GD4635@logos.cnet>
-References: <20041001234200.GA4635@logos.cnet> <20041002.183015.41630389.taka@valinux.co.jp> <20041002183349.GA7986@logos.cnet> <20041003.131338.41636688.taka@valinux.co.jp>
+	Sun, 3 Oct 2004 11:41:42 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:235 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S267548AbUJCPli (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Oct 2004 11:41:38 -0400
+Date: Sun, 3 Oct 2004 08:39:36 -0700
+From: Paul Jackson <pj@sgi.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: pwil3058@bigpond.net.au, frankeh@watson.ibm.com, dipankar@in.ibm.com,
+       akpm@osdl.org, ckrm-tech@lists.sourceforge.net, efocht@hpce.nec.com,
+       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
+       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
+       linux-kernel@vger.kernel.org, colpatch@us.ibm.com, Simon.Derr@bull.net,
+       ak@suse.de, sivanich@sgi.com
+Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
+Message-Id: <20041003083936.7c844ec3.pj@sgi.com>
+In-Reply-To: <821020000.1096814205@[10.10.2.4]>
+References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
+	<20040805190500.3c8fb361.pj@sgi.com>
+	<247790000.1091762644@[10.10.2.4]>
+	<200408061730.06175.efocht@hpce.nec.com>
+	<20040806231013.2b6c44df.pj@sgi.com>
+	<411685D6.5040405@watson.ibm.com>
+	<20041001164118.45b75e17.akpm@osdl.org>
+	<20041001230644.39b551af.pj@sgi.com>
+	<20041002145521.GA8868@in.ibm.com>
+	<415ED3E3.6050008@watson.ibm.com>
+	<415F37F9.6060002@bigpond.net.au>
+	<821020000.1096814205@[10.10.2.4]>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041003.131338.41636688.taka@valinux.co.jp>
-User-Agent: Mutt/1.5.5.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 03, 2004 at 01:13:38PM +0900, Hirokazu Takahashi wrote:
-> Hi,
-> 
-> > > > Cool. I'll take a closer look at the relevant parts of memory hotplug patches 
-> > > > this weekend, hopefully. See if I can help with testing of these patches too.
-> > > 
-> > > Any comments are very welcome.
-> > 
-> > 
-> > I have a few comments about the code:
-> > 
-> > 1) 
-> > I'm pretty sure you should transfer the radix tree tag at radix_tree_replace().
-> > If for example you transfer a dirty tagged page to another zone, an mpage_writepages()
-> > will miss it (because it uses pagevec_lookup_tag(PAGECACHE_DIRTY_TAG)). 
-> > 
-> > Should be quite trivial to do (save tags before deleting and set to new entry, 
-> > all in radix_tree_replace).
-> > 
-> > My implementation also contained the same bug.
-> 
-> Yes, it's one of the issues to do. The tag should be transferred in
-> radix_tree_replace() as you pointed out. The current implementation
-> sets the tag in set_page_dirty(newpage).
+Martin wrote:
+> Matt had proposed having a separate sched_domain tree for each cpuset, which
+> made a lot of sense, but seemed harder to do in practice because "exclusive"
+> in cpusets doesn't really mean exclusive at all.
 
-Oh I missed that, right.
+See my comments on this from yesterday on this thread.
 
-But yes, anyway, the tag should be transferred at radix_tree_replace (earlier)
-or pagevec_lookup_tag() can miss those pages.
+I suspect we don't want a distinct sched_domain for each cpuset, but
+rather a sched_domain for each of several entire subtrees of the cpuset
+hierarchy, such that every CPU is in exactly one such sched domain, even
+though it be in several cpusets in that sched_domain.  Perhaps each
+cpuset in such a subtree points to the same reference counted
+sched_domain, or perhaps each cpuset except the one at the root of the
+subtree has a flag set, telling the scheduler to search up the cpuset
+tree to find a sched_domain.  Probably the former, for performance
+reasons.
 
-> > 2) 
-> > At migrate_onepage you add anonymous pages which aren't swap allocated
-> > to the swap cache
-> > +       /*
-> > +        * Put the page in a radix tree if it isn't in the tree yet.
-> > +        */
-> > +#ifdef CONFIG_SWAP
-> > +       if (PageAnon(page) && !PageSwapCache(page))
-> > +               if (!add_to_swap(page, GFP_KERNEL)) {
-> > +                       unlock_page(page);
-> > +                       return ERR_PTR(-ENOSPC);
-> > +               }
-> > +#endif /* CONFIG_SWAP */
-> > 
-> > Why's that? You can copy anonymous pages without adding them to swap (thats
-> > what the patch I posted does).
-> 
-> The reason is to guarantee that any anonymous page can be migrated anytime.
-> I want to block newly occurred accesses to the page during the migration
-> because it can't be migrated if there remain some references on it by
-> system calls, direct I/O and page faults.
+As I can see even my own eyes glazing over trying to read what I just
+wrote, let me give an example.
 
-It would be nice if we could block pte faults in a way such to not need
-adding each anonymous page to swap. It can be too costly if you have a lot memory
-and it makes the whole operation dependable on swap size (if you dont have enough
-swap, you're dead).
+Let's say we have a 256 CPU system.  At the top level, we divide it into
+five non-overlapping cpusets, of sizes 64, 64, 32, 28 and 4.  Each of
+these five cpusets has its sched_domain, except the third one, of 32 CPUs.
+That one is subdivided into 4 cpusets, of 8 CPUs each, non-overlapping,
+each of the four with its own sched_domain.
 
-Maybe hold mm->page_table_lock (might be too costly in terms of CPU time, but since
-migration is not a common operation anyway), or create a semaphore? 
+[Aside - granted this is topologically equivalent to the flattened
+partitioning into the eight cpusets of sizes 64, 64, 8, 8, 8, 8, 28 and
+4.  Perhaps the 32 CPUs were farmed out to the Professor of Eccentric
+Economics, who has permission to manage his 32 CPUs and divide them
+further, but who lacks permission to modify the top layer of the cpuset
+hierarchy.]
 
-> Your approach will work fine on most of anonymous pages, which aren't
-> heavily accessed. I think it will be enough for memory defragmentation.
+So we have eight cpusets, non-overlapping and covering the entire
+system, each with its own sched_domain.  Now within those cpusets,
+for various application reasons, further subdivisions occur.  But
+no more sched_domains are created, and the existing sched_domains
+apply to all tasks attached to any cpuset in their cpuset subtree.
 
-Yes...
+On the other topic you raise, of the meaning (or lack thereof) of
+"exclusive".  Perhaps "exclusive" should not a property of a node in
+this tree, but rather a property of a node under a certain covering or
+mapping.  You note we need a map from the range of CPUs to the domain
+sched_domain's, specifying for each CPU its unique sched_domain.  And we
+might have some other map on these same CPUs or Memory Nodes for other
+purposes.  I am afraid I've forgotten too much of my math from long long
+ago to state this with exactly the right terms.  But I can imagine
+adding a little bit more code to cpusets, that kept a small list of such
+mappings over the domains of CPUs and Memory Nodes, and that validated,
+on each cpuset change, that each mapping preserved whatever properties
+of covering and non-overlapping that it was marked for.  One of these
+mappings could be into the range of sched_domains and be marked for both
+covering and non-overlapping.
 
-> > 3) At migrate_page_common you assume additional page references 
-> > (page_migratable returning -EAGAIN) means the code should try to writeout 
-> > the page.
-> > 
-> > Is that assumption always valid?
-> 
-> -EAGAIN means that the page may require to be written back 
-
-But why is it needed to writeout pages? We shouldnt need to. At least
-from what I can understand.
-
-
-> or
-> just to wait for a while since the page is just referred by system call 
-> or pagefault handler.
-
-I'm not sure if making that assumption is always valid.
-
-Kernel code can have an additional count on the page meaning "this page is pinned, 
-dont move it". At least that should be valid.
-
-Any piece of code which holds a reference on a page for a long 
-time is going to be a pain for the algorithm right?
-
-> > In theory there is no need to writeout pages when migrating them to 
-> > other zones - they will be copied and the dirty information retained (either
-> > in the PageDirty bit or radix tree tag). 
-> > 
-> > I just noticed you do that on further patches (migrate_page_buffer), but AFAICS 
-> > the writeout remains. Why arent you using migrate_page_buffer yet?
-> 
-> I've designed migrate_page_buffer() for this purpose.
-> At this moment ext2 only uses this yet.
-
-Ah ok I haven't looked at those patches.
-
-> > I think the final aim should be to remove the need for "pageout()" 
-> > completly.
-> 
-> Yes!
-> 
-> > 4) 
-> > About implementing a nonblocking version of it. The easier way, it
-> > seems to me, is to pass a "block" argument to generic_migrate_page() and
-> > use that.
-> 
-> Yes.
-
-OK. I'll try to implement it this week (plus the radix_tree_replace 
-tag thingie).
-
-> > Questions: are there any documents on the memory hotplug userspace tools? 
-> > Where can I find them?
-> 
-> IBM guys and Fujitsu guys are designing user interface independently.
-> IBM team is implementing memory section hotplug while Fujitsu team
-> try to implement NUMA node hotplug. But both of the designs use
-> regular hot-plug mechanism, which kicks /sbin/hotplug script to control
-> devices via sysfs.
-> 
-> Dave, would you explain about it?
-
-Please :)
-
-> > Are Iwamoto's test programs available?
-> 
-> Ok, I'll notice him to post them.
-> 
-> > In general the code looks nice to me! I'll jump in and help with 
-> > testing.
-> 
-> I appreciate your offer. I'm very happy with that.
-
-Me too! :)
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

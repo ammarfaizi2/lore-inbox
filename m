@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319483AbSH3OC7>; Fri, 30 Aug 2002 10:02:59 -0400
+	id <S319566AbSH3OJC>; Fri, 30 Aug 2002 10:09:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319566AbSH3OC7>; Fri, 30 Aug 2002 10:02:59 -0400
-Received: from danielle.hinet.hr ([195.29.148.143]:42385 "EHLO
-	danielle.hinet.hr") by vger.kernel.org with ESMTP
-	id <S319483AbSH3OC6>; Fri, 30 Aug 2002 10:02:58 -0400
-Date: Fri, 30 Aug 2002 16:07:19 +0200
-From: Mario Mikocevic <mozgy@hinet.hr>
-To: linux-kernel@vger.kernel.org
-Subject: USB mouse in 2.4.19-pre4 vs later
-Message-ID: <20020830140719.GA24738@danielle.hinet.hr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
+	id <S319567AbSH3OJB>; Fri, 30 Aug 2002 10:09:01 -0400
+Received: from mail.pixelwings.com ([194.152.163.212]:56333 "EHLO
+	pixelwings.com") by vger.kernel.org with ESMTP id <S319566AbSH3OJB>;
+	Fri, 30 Aug 2002 10:09:01 -0400
+Date: Fri, 30 Aug 2002 16:13:18 +0200
+From: "Clemens 'Gullevek' Schwaighofer" <schwaigl@eunet.at>
+X-Mailer: The Bat! (v1.61) Personal
+Reply-To: "Clemens 'Gullevek' Schwaighofer" <schwaigl@eunet.at>
+Organization: Chaos is just another way of organisation
+X-Priority: 3 (Normal)
+Message-ID: <171543432754.20020830161318@eunet.at>
+To: Paul Mackerras <paulus@au1.ibm.com>
+CC: James Simmons <jsimmons@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: still ati fb errors with 2.5.31, thought patch applied
+In-Reply-To: <15725.20387.572658.456699@argo.ozlabs.ibm.com>
+References: <46344979984.20020828090546@eunet.at>
+ <Pine.LNX.4.33.0208281114420.1459-100000@maxwell.earthlink.net>
+ <15725.17098.681128.713398@argo.ozlabs.ibm.com>
+ <15725.20387.572658.456699@argo.ozlabs.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello Paul, 
 
-after 2.4.19-pre4 (or could it be pre5 I haven't tried pre5)
-my USB mouse stopped working in X.
+Thursday, August 29, 2002, 12:33:07 AM, Paul Mackerras wrote,
+and I answered on Freitag, 30. August 2002, 16:10:29 with this ...
 
-Only relevant diff I could find is (same .config) ->
+I can confirm too, that this kernel boots, with the fb patches
+applied, but now the font color is blue now.
 
--input0: USB HID v1.10 Mouse [Logitech USB Mouse] on usb1:3.0
-+hiddev0: USB HID v1.10 Mouse [Logitech USB Mouse] on usb1:3.0
-
-this is 19-pre4 vs 19-pre6.
-
-Any help ?
-TIA,
-
-
+best regards, Clemens
 -- 
-Mario Mikoèeviæ (Mozgy)
-mozgy at hinet dot hr
-My favourite FUBAR ...
+_________/\_____________________              ^_^             ()~()
+Clemens 'Gullevek' Schwaighofer \_______ @_@       ^_~       //@ @\\
+ICQ#: 9646646        I AM FROM AUSTRIA! \______________ °_° //\ ~ /\\
+http://www.animeundmanga.at | http://www.gullevek.org  \_____________
+

@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262490AbTFORxX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 13:53:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262493AbTFORxX
+	id S262494AbTFOR5j (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 13:57:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262497AbTFOR5j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 13:53:23 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:65409 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S262490AbTFORxW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 13:53:22 -0400
-Date: Sun, 15 Jun 2003 20:06:59 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: CaT <cat@zip.com.au>
-Cc: swsusp@lister.fornax.hu, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.70-bk16 - nfs interferes with s4bios suspend
-Message-ID: <20030615180659.GB315@elf.ucw.cz>
-References: <20030613033703.GA526@zip.com.au>
+	Sun, 15 Jun 2003 13:57:39 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:47884 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262494AbTFOR5h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 13:57:37 -0400
+Date: Sun, 15 Jun 2003 19:11:25 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Jaakko Niemi <liiwi@lonesom.pp.fi>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.71 go boom
+Message-ID: <20030615191125.I5417@flint.arm.linux.org.uk>
+Mail-Followup-To: Jaakko Niemi <liiwi@lonesom.pp.fi>,
+	linux-kernel@vger.kernel.org
+References: <87isr7cjra.fsf@jumper.lonesom.pp.fi>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030613033703.GA526@zip.com.au>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <87isr7cjra.fsf@jumper.lonesom.pp.fi>; from liiwi@lonesom.pp.fi on Sun, Jun 15, 2003 at 08:50:49PM +0300
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sun, Jun 15, 2003 at 08:50:49PM +0300, Jaakko Niemi wrote:
+>  I seem to be able to reproduce crash with 2.7.70-bk and .71.
+>  First, I tried getting dlink dwl-650 wlan card up on my thinkpad
+>  570e, but orinoco_cs does not seem to want to even look at it.
+>  (any ideas what's the deal with that, btw?) 
 
->  stopping tasks failed (2 tasks remaining)
-> Suspend failed: Not all processes stopped!
-> Restarting tasks...<6> Strange, rpciod not stopped
->  Strange, lockd not stopped
-> XFree86 left refrigerator
-> init left refrigerator
-> khubd left refrigerator
-> 
-> then it kept unfreezing my tasks till the following debug stuff 
-> came up:
+What happens if you plug in your cardbus card before the dlink wlan card?
+If that doesn't work, please repeat your procedure to cause the oops.
 
-Do you volunteer to test the patches?
-								Pavel
+In either case, could you send the output of lspci -vv at the
+following points:
+
+- directly after boot
+- after you insert the cardbus card
+- after you remove it
+- after you re-insert (and get the oops)
+
+Thanks.
 
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

@@ -1,76 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263769AbUIOIXz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263795AbUIOIaI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263769AbUIOIXz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 04:23:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263770AbUIOIXz
+	id S263795AbUIOIaI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 04:30:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263806AbUIOIaI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 04:23:55 -0400
-Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:4177 "HELO
-	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S263769AbUIOIXw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 04:23:52 -0400
-Message-ID: <4147FC14.2010205@yahoo.com.au>
-Date: Wed, 15 Sep 2004 18:23:48 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] sched: fix scheduling latencies for !PREEMPT kernels
-References: <20040914105904.GB31370@elte.hu> <20040914110237.GC31370@elte.hu> <20040914110611.GA32077@elte.hu> <20040914112847.GA2804@elte.hu> <20040914114228.GD2804@elte.hu> <4146EA3E.4010804@yahoo.com.au> <20040914132225.GA9310@elte.hu> <4146F33C.9030504@yahoo.com.au> <20040914145457.GA13113@elte.hu> <414776CE.5030302@yahoo.com.au> <20040915061922.GA11683@elte.hu>
-In-Reply-To: <20040915061922.GA11683@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Sep 2004 04:30:08 -0400
+Received: from mail.bbaw.de ([194.95.188.1]:24523 "EHLO hippo.bbaw.de")
+	by vger.kernel.org with ESMTP id S263795AbUIOIaD convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 04:30:03 -0400
+Date: Wed, 15 Sep 2004 10:29:13 +0200
+From: Lars =?ISO-8859-15?Q?T=E4uber?= <taeuber@bbaw.de>
+To: linux-kernel@vger.kernel.org
+Subject: cdrom recognition on kernel 2.6.8.1 - addition
+Message-Id: <20040915102913.70da61af.taeuber@bbaw.de>
+Reply-To: Lars =?ISO-8859-15?Q?T=E4uber?= 
+	  <taeuber@informatik.hu-berlin.de>
+Organization: Berlin-Brandenburgische Akademie der Wissenschaften
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
+X-AntiVirus: checked by AntiVir MailGate (version: 2.0.2-8; AVE: 6.27.0.10; VDF: 6.27.0.61; host: bbaw.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> 
-> 
->>No, but I mean putting them right down into fastpaths like the vmscan
->>one, for example.
-> 
-> 
-> it is a very simple no-parameters call to a function that reads a
-> likely-cached word and returns. The cost is in the 2-3 cycles range - a
-> _single_ cachemiss can be 10-100 times more expensive, and cachemisses
-> happen very frequently in every iteration of the VM _scanning_ path
-> since it (naturally and inevitably) deals with lots of sparsely
-> scattered data structures that havent been referenced for quite some
-> time.
-> 
+Hallo everybody,
 
-OK, this one thing isn't going to be noticable. But why you really
-must have the check for every page, and not in the logical place
-where we batch them up? You're obviously aiming for the lowest
-latencies possible *without* CONFIG_PREEMPT.
+the log with cdrom recognised
 
-But I'm thinking, why add overhead for people who don't care about
-sub-ms latency (ie. most of us)? And at the same time, why would
-anyone in a latency critical environment not enable preempt?
+............
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+NFORCE3-150: IDE controller at PCI slot 0000:00:08.0
+NFORCE3-150: chipset revision 165
+NFORCE3-150: not 100% native mode: will probe irqs later
+NFORCE3-150: 0000:00:08.0 (rev a5) UDMA133 controller
+    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:DMA
+hdc: DV-516D 0106, ATAPI CD/DVD-ROM drive
+Using anticipatory io scheduler
+ide1 at 0x170-0x177,0x376 on irq 15
+hdc: ATAPI 48X DVD-ROM drive, 256kB Cache, UDMA(33)
+Uniform CD-ROM driver Revision: 3.20
+libata version 1.02 loaded.
+sata_sil version 0.54
+............
 
 
-> The function (cond_resched()) triggers scheduling only very rarely, you
-> should not be worried about that aspect either.
-> 
 
-No, I'm not worried about that.
-
-> 
->>And if I remember correctly, you resorted to putting them into
->>might_sleep as well (but I haven't read the code for a while, maybe
->>you're now getting decent results without doing that).
-> 
-> 
-> i'm not arguing that now at all, that preemption model clearly has to be
-> an optional thing - at least initially.
-> 
-
-OK.
-
-Alternatively, I'd say tell everyone who wants really low latency to
-enable CONFIG_PREEMPT, which automatically gives the minimum possible
-preempt latency, delimited (and defined) by critical sections, instead
-of the more ad-hoc "sprinkling" ;)
+best regards
+Lars Täuber

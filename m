@@ -1,11 +1,11 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314136AbSDLSz5>; Fri, 12 Apr 2002 14:55:57 -0400
+	id <S314139AbSDLTMG>; Fri, 12 Apr 2002 15:12:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314137AbSDLSz5>; Fri, 12 Apr 2002 14:55:57 -0400
-Received: from h108-129-61.datawire.net ([207.61.129.108]:7433 "HELO
-	mail.datawire.net") by vger.kernel.org with SMTP id <S314136AbSDLSz4>;
-	Fri, 12 Apr 2002 14:55:56 -0400
+	id <S314140AbSDLTMF>; Fri, 12 Apr 2002 15:12:05 -0400
+Received: from h108-129-61.datawire.net ([207.61.129.108]:28937 "HELO
+	mail.datawire.net") by vger.kernel.org with SMTP id <S314139AbSDLTMF>;
+	Fri, 12 Apr 2002 15:12:05 -0400
 Subject: Re: Kernel panic 2.4.19-pre6 AND 2.4.19-pre5-ac3
 From: Shawn Starr <shawn.starr@datawire.net>
 To: vda@port.imtp.ilyichevsk.odessa.ua
@@ -14,13 +14,14 @@ In-Reply-To: <200204121751.g3CHpBX15117@Port.imtp.ilyichevsk.odessa.ua>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.2.99 Preview Release
-Date: 12 Apr 2002 10:01:29 -0400
-Message-Id: <1018620090.282.0.camel@unaropia.dw>
+Date: 12 Apr 2002 15:12:04 -0400
+Message-Id: <1018638725.288.3.camel@unaropia.dw>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes It used to. I also posted the ksymoops info.
+It should also be noted that my home PC (a Pentium 200Mhz) works fine
+with -pre6. 
 
 Shawn.
 

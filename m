@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130113AbQJaE5l>; Mon, 30 Oct 2000 23:57:41 -0500
+	id <S130126AbQJaF2r>; Tue, 31 Oct 2000 00:28:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130132AbQJaE5c>; Mon, 30 Oct 2000 23:57:32 -0500
-Received: from asbestos.linuxcare.com.au ([203.17.0.30]:49404 "HELO
-	halfway.linuxcare.com.au") by vger.kernel.org with SMTP
-	id <S130113AbQJaE5Y>; Mon, 30 Oct 2000 23:57:24 -0500
-From: Rusty Russell <rusty@linuxcare.com.au>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: test10-pre7 
-In-Reply-To: Your message of "Tue, 31 Oct 2000 12:49:12 +1100."
-             <13675.972956952@ocs3.ocs-net> 
-Date: Tue, 31 Oct 2000 15:57:11 +1100
-Message-Id: <20001031045711.3886A81FA@halfway.linuxcare.com.au>
+	id <S130167AbQJaF2i>; Tue, 31 Oct 2000 00:28:38 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:19986 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130126AbQJaF2a>; Tue, 31 Oct 2000 00:28:30 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: kmalloc() allocation.
+Date: 30 Oct 2000 21:28:04 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <8tll94$hc9$1@cesium.transmeta.com>
+In-Reply-To: <E13qJZL-00076K-00@the-village.bc.nu> <Pine.LNX.3.95.1001030133720.3346A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <13675.972956952@ocs3.ocs-net> you write:
-> On Mon, 30 Oct 2000 16:47:15 -0800 (PST), 
-> Linus Torvalds <torvalds@transmeta.com> wrote:
-> >Actually, I think I have an even simpler solution, which is to change the
-> >newstyle rule to something very simple:
-> >
-> >	# Translate to Rules.make lists.
-> >
-> >	O_OBJS          := $(obj-y)
-> >	M_OBJS          := $(obj-m)
-> >	MIX_OBJS        := $(export-objs)
+Followup to:  <Pine.LNX.3.95.1001030133720.3346A-100000@chaos.analogic.com>
+By author:    "Richard B. Johnson" <root@chaos.analogic.com>
+In newsgroup: linux.dev.kernel
 > 
-> make modules depends on MIX_OBJS, with the above change make modules
-> now depends on kernel objects.  Can be fixed in Rules.make, but only if
-> every Makefile is changed (code freeze, what code freeze?).
+> > 64K probably less. kmalloc allocates physically linear spaces. vmalloc will
+> > happily grab you 2Mb of space but it will not be physically linear
+> > 
+> 
+> Okay. Thanks.
+> 
 
-Quiet suggestion:
+FWIW, vmalloc()-allocated pages are definitely pinned-down and
+available to interrupts.  However, you should keep in mind that the
+vmalloc() call *itself* is quite expensive on SMP machines (have to
+interrupt all CPUs and flush their TLBs!!) so if you're using
+vmalloc(), be careful with the number of calls you make.  Of course,
+this is usually not a problem.
 
-Maybe better is to get rid of the X version variables?  Append -EXPORTS
-to everything that exports, and generate the genksyms food from:
-
-	$(patsubst %.o-EXPORTS,%.c, $(filter %-EXPORTS, $(OBJS))
-
-And the link line from:
-
-	$(patsubst %-EXPORTS, %, $(OBJS))
-
-This allows complete control over the link order.
-Rusty.
---
-Hacking time.
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,52 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129033AbQKGUpg>; Tue, 7 Nov 2000 15:45:36 -0500
+	id <S129239AbQKGUsR>; Tue, 7 Nov 2000 15:48:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129036AbQKGUp1>; Tue, 7 Nov 2000 15:45:27 -0500
-Received: from burdell.cc.gatech.edu ([130.207.3.207]:3080 "EHLO
-	burdell.cc.gatech.edu") by vger.kernel.org with ESMTP
-	id <S129033AbQKGUpT>; Tue, 7 Nov 2000 15:45:19 -0500
-From: "J.D. Hollis" <jdhollis@cc.gatech.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: linux-2.4.0test10
-Date: Tue, 7 Nov 2000 15:42:23 -0500
-Message-ID: <CBECJLMFDMBGLDALACILOEEOCEAA.jdhollis@cc.gatech.edu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
+	id <S129267AbQKGUsH>; Tue, 7 Nov 2000 15:48:07 -0500
+Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:22704 "EHLO
+	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S129239AbQKGUr4>; Tue, 7 Nov 2000 15:47:56 -0500
+Date: Tue, 7 Nov 2000 21:47:52 +0100
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Chris Swiedler <chris.swiedler@sevista.com>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>,
+        Rik van Riel <riel@conectiva.com.br>
+Subject: Re: [PATCH] protect processes from OOM killer
+Message-ID: <20001107214752.J7204@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <NDBBIAJKLMMHOGKNMGFNMEADCPAA.chris.swiedler@sevista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <NDBBIAJKLMMHOGKNMGFNMEADCPAA.chris.swiedler@sevista.com>; from chris.swiedler@sevista.com on Tue, Nov 07, 2000 at 11:19:37AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hey.  I'm having some strange memory problems with the 2.4 kernel.  I first
-noticed in linux-2.4.0test9 (the first 2.4 kernel I installed and that I
-installed about a week before 2.4.0test10 came out) that a little while
-after I boot my system, my hard drive begins to seek rapidly for no apparent
-reason.  after the drive stopped seeking, out of curiosity I pulled up gtop
-and noticed that a sizeable amount of my 256MB of physical memory had filled
-up with what gtop labelled 'Other.'  upon closer examination, all of the
-processes running on my machine were only claiming about 85MB of RAM.  this
-got my attention because my total RAM usage was sitting around 235MB of
-physical RAM.  now, to be perfectly honest, I'm kinda curious about what's
-happening with that 150MB of RAM.  of course my memory usage doesn't stay
-static, but it never goes much below 235MB out of 256MB, and often spikes,
-resorting to swap space.  my box is a Gateway 900MHz Athlon with 256MB of
-RAM.  I'm running Redhat 6.0 (roughly, although I've done various upgrades).
-if anyone needs something more specific (version numbers, detailed hardware
-specs), I'll be happy to dig it up for you.  I'm not really sure what's
-wrong, so I don't know what system details to include.  oh, and once I got
-gtop open while the hard drive was seeking and it showed kflushd was taking
-up 95% of processor, which I suppose means that it was responsible for the
-strange hard drive (and possibly memory) behavior.  hope this is helpful.
+On Tue, Nov 07, 2000 at 11:19:37AM -0500, Chris Swiedler wrote:
+> Here's a small patch to allow a user to protect certain PIDs from death-
+> by-OOM-killer. It uses the proc entry '/proc/sys/vm/oom_protect'; echo the
+> PIDs to be protected:
 
-cheers,
-j.d.
+Please base it upon my OOM-Killer-API patch.
 
+        http://www.tu-chemnitz.de/~ioe/oom_kill_api.patch
+
+This will reduce your patch to an simple module (but you have to
+manage refcounting yourself!) and give the user a choice, which
+one to use.
+
+If someone provides an OOM-Handler himself, please use my API to
+allow better testing and comparing.
+
+PS: Of course it applies cleanly against test10 as well ;-)
+
+Thanks and Regards
+
+Ingo Oeser
+-- 
+To the systems programmer, users and applications
+serve only to provide a test load.
+<esc>:x
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

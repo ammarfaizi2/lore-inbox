@@ -1,77 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261198AbVAWD36@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261199AbVAWDcq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261198AbVAWD36 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 22:29:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261199AbVAWD36
+	id S261199AbVAWDcq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 22:32:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261200AbVAWDcq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 22:29:58 -0500
-Received: from bgm-24-94-57-164.stny.rr.com ([24.94.57.164]:65485 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261198AbVAWD3z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 22:29:55 -0500
-Subject: Re: [PATCH] e100 locking up netconsole.
-From: Steven Rostedt <rostedt@kihontech.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linux NICS <linux.nics@intel.com>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1106445146.11995.36.camel@localhost.localdomain>
-References: <1106445146.11995.36.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Sat, 22 Jan 2005 22:29:43 -0500
-Message-Id: <1106450983.11995.39.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+	Sat, 22 Jan 2005 22:32:46 -0500
+Received: from mail26.syd.optusnet.com.au ([211.29.133.167]:31963 "EHLO
+	mail26.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261199AbVAWDcj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jan 2005 22:32:39 -0500
+Message-ID: <41F31AD4.6030707@kolivas.org>
+Date: Sun, 23 Jan 2005 14:32:36 +1100
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Gustavo Guillermo Perez <gustavo@compunauta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Supermount / ivman
+References: <200501232126.08575.gustavo@compunauta.com>
+In-Reply-To: <200501232126.08575.gustavo@compunauta.com>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigC86CB9805E45688B3F7E449A"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-01-22 at 20:52 -0500, Steven Rostedt wrote:
-> I'm currently working with Ingo's RT patched kernel, but I believe this
-> affects the mainline too.
-> 
-> If the transmit buffer of the e100 overflowed, then the system would
-> hang. This was caused because the e100 driver would stop the queue, and
-> find_skb in netpoll.c would then loop forever.  This is because the e100
-  ^^^^^^^^^
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigC86CB9805E45688B3F7E449A
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Should be netpoll_send_pkt.  That's what I get when I search for
-"repeat" to remember which function I saw the problem in.
+Gustavo Guillermo Perez wrote:
+> Cause I play with old toys, (floppys) and ivman doesn't work properly on the 
+> lastest gentoo with floppys, I retouch for a while the supermount patch from 
+> sourceforge for kernel 2.6.11-rc1.
+> 
+> I'm a n00b on kernel, I do this only for general purposes helping some 
+> friends, I know supermount should not be used, and is not mantained, I've 
+> tested it just only for IDE/ATAPI CD/DVD and floppys.
+> 
+> Cause Supermount seems to be a filesystem I replace vfs_permission by 
+> generic_permission instead of permission as I read on the lkml. Other stuffs 
+> too in scsi section (I don't have scsi hardware).
+> 
+> If Help someone else:
+> 
+> http://www.compunauta.com/forums/linux/instalarlinux/supermount_en.html
+> 
 
+I've been silently maintaining it offlist. No real development but 
+keeping it in sync and fixing obvious bugs that show up that I can fix.
 
-> net_poll would never start the queue again after the transmits have
-> completed.
-> 
-> For those that use the e100 and netconsole, all you need to do is a
-> sysreq 't' to lock up the system.
-> 
-> Here's the patch: (from Ingo's linux-2.6.11-rc2-V0.7.36-02, but should
-> be OK with 2.6.11-rc2)
-> 
-> 
-> Index: drivers/net/e100.c
-> ===================================================================
-> --- drivers/net/e100.c	(revision 60)
-> +++ drivers/net/e100.c	(working copy)
-> @@ -1630,6 +1630,7 @@
->  	struct nic *nic = netdev_priv(netdev);
->  	e100_disable_irq(nic);
->  	e100_intr(nic->pdev->irq, netdev, NULL);
-> +	e100_tx_clean(nic);
->  	e100_enable_irq(nic);
->  }
->  #endif
-> 
-> 
-> 
-> -- Steve
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-Steven Rostedt
-Senior Engineer
-Kihon Technologies
+Here's a patch for 2.6.10-ck5 (should apply fairly cleanly to 2.6.10):
+http://ck.kolivas.org/patches/2.6/2.6.10/2.6.10-ck5/patches/supermount-ng208-10ck5.diff
 
+and for 2.6.11-rc1
+http://ck.kolivas.org/patches/2.6/2.6.11-rc1/patches/supermount-ng208-2611rc1.diff
+
+Cheers,
+Con
+
+--------------enigC86CB9805E45688B3F7E449A
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFB8xrXZUg7+tp6mRURAhVXAJ0TKQbp5wc+CfhgKlZfQt701qjnnQCfaktr
+L27f2byVUG9UFMYpWMqfqpk=
+=uckE
+-----END PGP SIGNATURE-----
+
+--------------enigC86CB9805E45688B3F7E449A--

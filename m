@@ -1,45 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263430AbUDBJ7A (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 04:59:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263568AbUDBJ67
+	id S263511AbUDBKCR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 05:02:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263578AbUDBKCR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 04:58:59 -0500
-Received: from web41408.mail.yahoo.com ([66.218.93.74]:64951 "HELO
-	web41408.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263430AbUDBJ66 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 04:58:58 -0500
-Message-ID: <20040402095858.15319.qmail@web41408.mail.yahoo.com>
-Date: Fri, 2 Apr 2004 01:58:58 -0800 (PST)
-From: Parag Nemade <cranium2003@yahoo.com>
-Subject: kernel development netwrok protocol modification
-To: linux-kernel@vger.kernel.org
+	Fri, 2 Apr 2004 05:02:17 -0500
+Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:34403 "HELO
+	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S263511AbUDBKCP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Apr 2004 05:02:15 -0500
+Message-ID: <406D3985.5000008@yahoo.com.au>
+Date: Fri, 02 Apr 2004 19:59:33 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Rick Lindsley <ricklind@us.ibm.com>
+CC: Ingo Molnar <mingo@redhat.com>, John Hawkes <hawkes@sgi.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Scheduler balancing statistics
+References: <200404020853.i328rQ303262@owlet.beaverton.ibm.com>
+In-Reply-To: <200404020853.i328rQ303262@owlet.beaverton.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello friends,
-            I want to add my own routine to network
-protocol stack. 
-What i want to do i will explain you. For each and
-every packet that outgoes from kernel i want to attach
-a 8 byte of my own checksum to data part in packet.
-This ensures that data is to be transmitted correctly
-across computers.
-Can anybody help me where i have to insert my code in
-kernel source tree cause there are 3 programs to be
-included in which one exchanges keys adjecent
-computers. second calculates checksum on basis of that
-key. and third checks packet replay. 
-I wish to be personally CC'ed the answers/comments
-posted to the list in response to my posting.
+Rick Lindsley wrote:
+> 	From an analysis standpoint it would be nice to know which of
+> 	the major features are being activated for a particular load.
+> 	So imbalance-driven moves, power-driven moves, and the number of
+> 	times each domain tried to balance and failed would all be useful.
+> 	I think your output covered those.
+> 
+>     It doesn't get into the finer points of how the imbalance is derived,
+>     but maybe it should...
+> 
+> It's ok to wait and see if those are useful before implementing them. I
+> suspect they would be relatively easily added if they were needed.
+> One reason there are 6 versions of scheduler statistics is that the
+> information needed kept changing, both due to a better understanding of
+> bottlenecks and due to changing code.
+> 
 
-regards,
-Parag.
+Yep.
 
+>     Well, every domain that is reported here will cover the entire system
+>     because it simply takes the sum of statistics from all domains.
+> 
+> I would suggest creating an output format that gives you all this
+> information (since we have it anyway) but I think it is quite reasonable
+> for the program which *interprets* this information to summarize it.
+> 
 
-__________________________________
-Do you Yahoo!?
-Yahoo! Small Business $15K Web Design Giveaway 
-http://promotions.yahoo.com/design_giveaway/
+OK, yeah that is a fine idea.
+
+> 	Would you say these would be in addition to the schedstats or
+> 	would these replace them?
+> 
+>     It will replace some of them, I think.
+> 
+> That's my thought too.	I would suggest that we merge them into one patch.
+> Much as I'd like to see my schedstats hit the mainline, I think it
+> is prudent to separate the major architectural changes sched-domains
+> introduces from statistics both related and unrelated to them --
+> and having two statistics patches for the scheduler, even if they are
+> complementary, makes it harder on Andrew and more confusing for users.
+> 
+
+No, I started with your sources, and the plan has always
+been to merge my changes back to you where possible.

@@ -1,56 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265091AbTGGQi5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 12:38:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267074AbTGGQi5
+	id S265061AbTGGQqR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 12:46:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265076AbTGGQqR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 12:38:57 -0400
-Received: from evrtwa1-ar2-4-33-045-074.evrtwa1.dsl-verizon.net ([4.33.45.74]:31952
-	"EHLO grok.yi.org") by vger.kernel.org with ESMTP id S265091AbTGGQi4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 12:38:56 -0400
-Message-ID: <3F09A57D.8030003@candelatech.com>
-Date: Mon, 07 Jul 2003 09:53:17 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Patrick McHardy <kaber@trash.net>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       netdev@oss.sgi.com
-Subject: Re: RFC: another approach for 64-bit network stats
-References: <3F097E4D.1080707@trash.net>
-In-Reply-To: <3F097E4D.1080707@trash.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 7 Jul 2003 12:46:17 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:52922 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S265061AbTGGQqR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jul 2003 12:46:17 -0400
+Date: Mon, 7 Jul 2003 19:00:47 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.22-pre3-ac1
+Message-ID: <20030707170047.GC13102@louise.pinerecords.com>
+References: <200307071634.h67GYZo06861@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200307071634.h67GYZo06861@devserv.devel.redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick McHardy wrote:
-> This patch implements a lockless aproach for 64-bit netstatistics with 
-> only a very rare
-> racecondition. On 64 bit system, nothing is changed. On 32 bit system 
+> [alan@redhat.com]
+> 
+> Linux 2.4.22-pre3-ac1
 
-I think that you should consider providing a new API as opposed to
-breaking existing APIs.
+arch/i386/kernel/kernel.o: In function `setup_ioapic_ids_from_mpc':
+arch/i386/kernel/kernel.o(.text.init+0x92b0): undefined reference to `xapic_support'
+arch/i386/kernel/kernel.o(.text.init+0x94e5): undefined reference to `xapic_support'
+make: *** [vmlinux] Error 1
 
-And, perhaps this new API could deal with the very rare race to make
-it never happen?  No matter how rare it is, you still have to write code
-to work around it if it exists..might as well do it once in the kernel
-instead of making each user of the interface deal with it.
+$ find . -type f|xargs grep apic_sup
+./arch/i386/kernel/io_apic.c:extern unsigned int xapic_support;
+./arch/i386/kernel/io_apic.c:           if (!xapic_support && 
+./arch/i386/kernel/io_apic.c:           if (!xapic_support &&
+Binary file ./arch/i386/kernel/io_apic.o matches
+Binary file ./arch/i386/kernel/kernel.o matches
+$
 
-Personally, I'd like to see the net-device stats (64-bit or otherwise) available
-through the ethtool interface in a well defined binary package (perhaps a
-struct net_device_stats, or similar.)
-
-Ben
-
-
-
--- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
-
-
+ooops

@@ -1,77 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263798AbTLJRou (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 12:44:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263809AbTLJRou
+	id S263793AbTLJRmP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 12:42:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263795AbTLJRmP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 12:44:50 -0500
-Received: from us01smtp2.synopsys.com ([198.182.44.80]:10486 "EHLO
-	kiruna.synopsys.com") by vger.kernel.org with ESMTP id S263798AbTLJRoq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 12:44:46 -0500
-Message-ID: <3FD75B8A.21FA59D9@synopsys.com>
-Date: Wed, 10 Dec 2003 12:44:42 -0500
-From: Chris Petersen <Chris.Petersen@synopsys.com>
-Reply-To: Chris.Petersen@synopsys.com
-Organization: Synopsys, Inc.
-X-Mailer: Mozilla 4.78 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Chris Petersen <Chris.Petersen@synopsys.COM>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: FIXED (was Re: PROBLEM:  Blk Dev Cache causing kswapd thrashing)
-References: <Pine.LNX.4.44.0311271649520.21568-100000@logos.cnet>
+	Wed, 10 Dec 2003 12:42:15 -0500
+Received: from smithers.nildram.co.uk ([195.112.4.54]:20241 "EHLO
+	smithers.nildram.co.uk") by vger.kernel.org with ESMTP
+	id S263793AbTLJRmM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 12:42:12 -0500
+Date: Wed, 10 Dec 2003 17:44:18 +0000
+From: Joe Thornber <thornber@sistina.com>
+To: Paul Jakma <paul@clubi.ie>
+Cc: Jens Axboe <axboe@suse.de>, Joe Thornber <thornber@sistina.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Linux Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Device-mapper submission for 2.4
+Message-ID: <20031210174418.GF476@reti>
+References: <20031209134551.GG472@reti> <Pine.LNX.4.44.0312091206490.1289-100000@logos.cnet> <20031209143412.GI472@reti> <Pine.LNX.4.56.0312092106280.30298@fogarty.jakma.org> <20031209222624.GA6591@reti> <20031210084546.GG3988@suse.de> <Pine.LNX.4.56.0312101726340.1218@fogarty.jakma.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.56.0312101726340.1218@fogarty.jakma.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo,
-
-It appears the block-device-cache/kswapd problem is indeed fixed in
-2.4.23 (yay!).
-
-To confuse matters RedHat has released an RPM with 2.4.20-24.7 which
-apparently contains later patches that include the fix.  This can be
-confusing because their 2.4.21-4EL kernel is busted (WRT this bug).
-But, at least this way we can simply tell our RH-based customers to go
-grab the RPM.
-
-Thanks,
--chris
-
-Marcelo Tosatti wrote:
+On Wed, Dec 10, 2003 at 05:30:01PM +0000, Paul Jakma wrote:
+> On Wed, 10 Dec 2003, Jens Axboe wrote:
 > 
-> On Tue, 25 Nov 2003, William Lee Irwin III wrote:
+> > Arguments akin to "But XFS got merged, surely we can to" don't hold
+> > up one bit. Should be obvious why.
 > 
-> > On Tue, Nov 25, 2003 at 04:03:56PM -0500, Chris Petersen wrote:
-> > > The block device cache is causing kswapd thrashing, usually bringing
-> > > the system to a halt.
-> > > This problem has been reproduced on kernels as recent as 2.4.21.
-> > > In our application we deal with large (multi-GB) files on multi-CPU
-> > > 4GB platforms.  While handling these files, the block device cache
-> > > allocates all remaining available memory (3.5G) up to the 4G
-> > > physical limit.
-> >
-> > Please try 2.4.23-rc5, and if that doesn't fix it, try 2.6.0-test10.
-> > AIUI both have page replacement improvements over 2.4.21.
+> Its not about a /new/ feature, its about an existing feature which is 
+> incompatible between 2.4 and 2.6.
 > 
-> Chris,
-> 
-> Did you try 2.4 already?
-> 
-> If you didnt, please tell me results when you do so.
-> 
-> Thanks
+> I dont really care whether its done via forward or backware compat. 
+> (but why was LVM1 removed from 2.6?)
 
--- 
------------------------------------------------------------------
-Chris M. Petersen                                cmp@synopsys.com
-Sr. R&D Engineer
+The LVM1 driver was removed because dm covered the same functionality
++ lots more, and is more flexible.  The LVM2 tools still understand
+the LVM1 metadata format, so there is no problem about not being able
+to read data in 2.6.  The main reason for submitting dm to 2.4 was
+that there are a lot of people out there who want to use LVM2/EVMS
+tools with 2.4, and kept asking me to do it.  If this is against
+Marcelos current policy then so be it; I probably should have checked
+with him before spamming lkml with the submission.  I don't want this
+to degenerate into the old LVM1 vs dm argument; people can search the
+archives for that.
 
-Synopsys, Inc.                                    o: 919.425.7342
-1101 Slater Road, Suite 300                       c: 919.349.6393
-Durham, NC  27703                                 f: 919.425.7320
------------------------------------------------------------------
+- Joe

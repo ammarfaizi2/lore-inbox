@@ -1,39 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261776AbUKABQU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261502AbUKABfA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261776AbUKABQU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 20:16:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261777AbUKABQU
+	id S261502AbUKABfA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 20:35:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261715AbUKABfA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 20:16:20 -0500
-Received: from smtp810.mail.sc5.yahoo.com ([66.163.170.80]:18877 "HELO
-	smtp810.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261776AbUKABQL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 20:16:11 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Map extra keys on compaq evo
-Date: Sun, 31 Oct 2004 20:16:08 -0500
-User-Agent: KMail/1.6.2
-Cc: Pavel Machek <pavel@suse.cz>, vojtech@suse.cz
-References: <20041031213859.GA6742@elf.ucw.cz>
-In-Reply-To: <20041031213859.GA6742@elf.ucw.cz>
+	Sun, 31 Oct 2004 20:35:00 -0500
+Received: from smtp102.rog.mail.re2.yahoo.com ([206.190.36.80]:30808 "HELO
+	smtp102.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S261502AbUKABev (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 20:34:51 -0500
+From: Shawn Starr <shawn.starr@rogers.com>
+Organization: sh0n.net
+To: ipw2100-devel@lists.sourceforge.net
+Subject: Re: [Ipw2100-devel] Re: [2.6.10-rc1-mm2] Firmware loader gone bogus?
+Date: Sun, 31 Oct 2004 21:34:46 -0500
+User-Agent: KMail/1.7
+Cc: Oliver Neukum <oliver@neukum.org>, linux-kernel@vger.kernel.org,
+       smiler@lanil.mine.nu
+References: <200410311627.02116.shawn.starr@rogers.com> <200411010134.19922.oliver@neukum.org> <200410312050.48975.shawn.starr@rogers.com>
+In-Reply-To: <200410312050.48975.shawn.starr@rogers.com>
 MIME-Version: 1.0
-Content-Disposition: inline
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200410312016.08468.dtor_core@ameritech.net>
+Content-Disposition: inline
+Message-Id: <200410312134.46587.shawn.starr@rogers.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 31 October 2004 04:38 pm, Pavel Machek wrote:
-> Hi!
-> 
-> Compaq Evo notebooks seem to use non-standard keycodes for their extra
-> keys. I workaround that quirk with dmi hook.
-> 
+See: http://marc.theaimsgroup.com/?l=linux-kernel&m=109919609211671&w=2
 
-Why don't you just call "setkeycodes" from your init script?
+This will appear in the next -bk automated snapshot soon.
 
--- 
-Dmitry
+That should fix everyone's firmware load failures.
+
+Shawn.
+
+On October 31, 2004 20:50, Shawn Starr wrote:
+> 0.0.20040329-1 Linux Hotplug Scripts
+>
+> hotplug_20040329 from Debian unstable/testing.
+>
+> Using 2.6.9-rc4-xx I had no problems with loading the firmware. As in my
+> previous emails on the subject, I posted some debug that from the firmware
+> module and kobject_hotplug, and from there I couldn't see why it was
+> failing.
+>
+> I know lots of changes have been made to hotplug in the kernel recently.
+>
+> Shawn.
+>
+> On October 31, 2004 19:34, Oliver Neukum wrote:
+> > Am Sonntag, 31. Oktober 2004 22:27 schrieb Shawn Starr:
+> > > Yeah I noticed my ipw2200 firmware broke in 2.6.10-rc1-bk5
+> > >
+> > > Does 2.6.10-rc1 non-bk snapshots work for you?
+> >
+> > Which script do you use to load the firmware?
+> >
+> >  Regards
+> >   Oliver
+>
+> -------------------------------------------------------
+> This SF.Net email is sponsored by:
+> Sybase ASE Linux Express Edition - download now for FREE
+> LinuxWorld Reader's Choice Award Winner for best database on Linux.
+> http://ads.osdn.com/?ad_id=5588&alloc_id=12065&op=click
+> _______________________________________________
+> ipw2100-devel mailing list
+> ipw2100-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/ipw2100-devel

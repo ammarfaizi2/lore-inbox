@@ -1,64 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273791AbRIXEmH>; Mon, 24 Sep 2001 00:42:07 -0400
+	id <S273793AbRIXEpI>; Mon, 24 Sep 2001 00:45:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273792AbRIXEls>; Mon, 24 Sep 2001 00:41:48 -0400
-Received: from sydney4.au.ibm.com ([202.135.142.205]:13 "EHLO wagner")
-	by vger.kernel.org with ESMTP id <S273791AbRIXEli>;
-	Mon, 24 Sep 2001 00:41:38 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Keith Owens <kaos@ocs.com.au>
+	id <S273794AbRIXEpA>; Mon, 24 Sep 2001 00:45:00 -0400
+Received: from vitelus.com ([64.81.243.207]:2575 "EHLO vitelus.com")
+	by vger.kernel.org with ESMTP id <S273793AbRIXEor>;
+	Mon, 24 Sep 2001 00:44:47 -0400
+Date: Sun, 23 Sep 2001 21:45:08 -0700
+From: Aaron Lehmann <aaronl@vitelus.com>
+To: Andrew Morton <akpm@zip.com.au>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PART1: Proposed init & module changes for 2.5 
-In-Reply-To: Your message of "Mon, 24 Sep 2001 11:01:29 +1000."
-             <4103.1001293289@kao2.melbourne.sgi.com> 
-Date: Mon, 24 Sep 2001 14:35:54 +1000
-Message-Id: <E15lNTG-0000F2-00@wagner>
+Subject: Re: Linux-2.4.10 + ext3
+Message-ID: <20010923214507.A15014@vitelus.com>
+In-Reply-To: <Pine.LNX.4.33.0109231142060.1078-100000@penguin.transmeta.com> <1001280620.3540.33.camel@gromit.house> <9om4ed$1hv$1@penguin.transmeta.com>, <9om4ed$1hv$1@penguin.transmeta.com> <20010923193008.A13982@vitelus.com> <3BAEAC52.677C064C@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3BAEAC52.677C064C@zip.com.au>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <4103.1001293289@kao2.melbourne.sgi.com> you write:
-> On Mon, 24 Sep 2001 08:42:25 +1000, 
-> Rusty Russell <rusty@rustcorp.com.au> wrote:
-> >In message <20010923124336.D30515@nightmaster.csn.tu-chemnitz.de> you write:
-> >> Can the startcall or the initcall still be called after stopcall? 
-> >
-> >No: at this stage the module will have to be reloaded, exactly because
-> >of assumptions like zero-initialization.
-> 
-> When we discussed this at linux.conf.au in Sydney, we agreed that we
-> could call startfn after stopfn to handle the quiesce unload algorithm.
-> That handles the rmmod race without exporting mod use count to
-> everything, i.e.
-> 
->   rmmod
->   if use count == 0, call stopfn()
->     synchronize_kernel()
->     if use count == 0, exitfn()
->     if use count != 0, startfn()
-> 
-> That catches the race where a second cpu has entered the module but not
-> done MOD_INC_USECOUNT yet.  The module is now in use but stopfn has
-> been called, the best thing to do is accept that rmmod lost the race
-> and reinstate the module.
+On Sun, Sep 23, 2001 at 08:45:22PM -0700, Andrew Morton wrote:
+> So yes, it would be nice if an ext3-only kernel could drive ext2
+> filesystems, but not super-important.
 
-Hi Keith!
+Cool.
 
-	Yes, this was my original intention, but the more I thought
-about it, the more I wondered if it was worth it.  In fact, my patch
-adds CONFIG_MODULE_UNLOAD, because most people don't actually need it,
-and I don't really care if most modules are not unloadable.  Loading
-modules makes sense.  Unloading them is pretty much an optimization.
+> As for the other part of your suggestion: make ext2 "obsolete":
+> I don't think so.  ext3 is wickedly complex, and ext2 is the
+> reference filesystem for Linux.  It could be argued (at length) that
+> the VFS and block layers were designed for, and are almost part of
+> ext2.
 
-	The reason I eventually decided to split initialization in
-this version anyway, was that so many drivers get it wrong!  Things
-like registering interrupt handlers before they have set up their
-internal state, etc.  Splitting it into two functions is merely a
-mechanism to get them to think about things a little harder 8)
+I didn't mean to imply this. I love ext2 and still use it more than
+probably any other filesystem (judging by numbers of partitions).
 
-	  And honestly, I got distracted by the PARAM stuff 8)
+I simply was hoping for insted of:
 
-Cheers!
-Rusty.
---
-Premature optmztion is rt of all evl. --DK
+ <*> EXT2 fs
+ <*> EXT3 fs
+
+(which is required today for most ext3-using people who want to do ext2
+mounts)
+
+... there could be:
+
+ <*> EXT2 fs
+ <*>   EXT3 journalling extensions
+
+AFAIK this would eliminate a lot of duplicate kernel code for ext3
+users.
+
+But anyway, I'm not saying that ext2 should be made obsolete. I only
+use ext3 on one machine and I would be much more annoyed if I had to
+enable ext3 on the other machines than live with my current situation
+of needing both ext2 and ext3 in the kernel on this particular one.
+
+I think you understand ;-).

@@ -1,165 +1,178 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261604AbVCYL3p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261608AbVCYLbD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261604AbVCYL3p (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 06:29:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261608AbVCYL3p
+	id S261608AbVCYLbD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 06:31:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261617AbVCYLbB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 06:29:45 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:17556 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261604AbVCYL3i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 06:29:38 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.12-rc1-mm3: box hangs solid on resume from disk while resuming device drivers
-Date: Fri, 25 Mar 2005 12:29:47 +0100
-User-Agent: KMail/1.7.1
-Cc: Len Brown <len.brown@intel.com>, linux-kernel@vger.kernel.org,
-       Li Shaohua <shaohua.li@intel.com>, Pavel Machek <pavel@suse.cz>
-References: <20050325002154.335c6b0b.akpm@osdl.org>
-In-Reply-To: <20050325002154.335c6b0b.akpm@osdl.org>
+	Fri, 25 Mar 2005 06:31:01 -0500
+Received: from mail.sf-mail.de ([62.27.20.61]:27777 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S261608AbVCYLaY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 06:30:24 -0500
+From: Rolf Eike Beer <eike-hotplug@sf-tec.de>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: drivers/pci/hotplug/cpqphp_ctrl.c: board_replaced: dead code
+Date: Thu, 24 Mar 2005 19:07:23 +0100
+User-Agent: KMail/1.8
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz,
+       pcihpd-discuss@lists.sourceforge.net
+References: <20050322205956.GJ1948@stusta.de>
+In-Reply-To: <20050322205956.GJ1948@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-2"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200503251229.47705.rjw@sisk.pl>
+Message-Id: <200503241907.26357.eike-hotplug@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Adrian Bunk wrote:
+> The Coverity checker correctly noted, that in function board_replaced in
+> drivers/pci/hotplug/cpqphp_ctrl.c, the variable src always has the
+> value 8, and therefore much code after the
+>
+> ...
+>                         if (rc || src) {
+> ...
+>                                 if (rc)
+>                                         return rc;
+>                                 else
+>                                         return 1;
+>                         }
+> ...
+>
+>
+> can never be called.
 
-On Friday, 25 of March 2005 09:21, Andrew Morton wrote:
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc1/2.6.12-rc1-mm3/
-> 
-> - Mainly a bunch of fixes relative to 2.6.12-rc1-mm2.
+Yes, this is the only use of src in the whole function. If this is not a bug
+than this patch removes all the dead code.
 
-First, rmmod works again (thanks ;-)).
+Eike
 
-> - Again, we'd like people who have had recent DRM and USB resume problems to
->   test and report, please.
+Signed-off-by: Rolf Eike Beer <eike-hotplug@sf-tec.de>
 
-My box is still hanged solid on resume (swsusp) by the drivers:
-
-ohci_hcd
-ehci_hcd
-yenta_socket
-
-possibly others, too.  To avoid this, I had to revert the following patch from
-the Len's tree:
-
-diff -Naru a/drivers/acpi/pci_link.c b/drivers/acpi/pci_link.c
---- a/drivers/acpi/pci_link.c	2005-03-24 04:57:27 -08:00
-+++ b/drivers/acpi/pci_link.c	2005-03-24 04:57:27 -08:00
-@@ -72,10 +72,12 @@
- 	u8			active;			/* Current IRQ */
- 	u8			edge_level;		/* All IRQs */
- 	u8			active_high_low;	/* All IRQs */
--	u8			initialized;
- 	u8			resource_type;
- 	u8			possible_count;
- 	u8			possible[ACPI_PCI_LINK_MAX_POSSIBLE];
-+	u8			initialized:1;
-+	u8			suspend_resume:1;
-+	u8			reserved:6;
- };
+--- linux-2.6.11/drivers/pci/hotplug/cpqphp_ctrl.c	2005-03-02 08:37:55.000000000 +0100
++++ linux-2.6.12-rc1/drivers/pci/hotplug/cpqphp_ctrl.c	2005-03-24 19:01:23.000000000 +0100
+@@ -1284,7 +1284,6 @@ static u32 board_replaced(struct pci_fun
+ 	u8 adapter_speed;
+ 	u32 index;
+ 	u32 rc = 0;
+-	u32 src = 8;
  
- struct acpi_pci_link {
-@@ -530,6 +532,10 @@
+ 	hp_slot = func->device - ctrl->slot_device_offset;
  
- 	ACPI_FUNCTION_TRACE("acpi_pci_link_allocate");
+@@ -1367,98 +1366,25 @@ static u32 board_replaced(struct pci_fun
+ 			/* It must be the same board */
  
-+	if (link->irq.suspend_resume) {
-+		acpi_pci_link_set(link, link->irq.active);
-+		link->irq.suspend_resume = 0;
-+	}
- 	if (link->irq.initialized)
- 		return_VALUE(0);
+ 			rc = cpqhp_configure_board(ctrl, func);
++		}
++		/* If configuration fails, turn it off
++		 * Get slot won't work for devices behind
++		 * bridges, but in this case it will always be
++		 * called for the "base" bus/dev/func of an
++		 * adapter. */
  
-@@ -713,38 +719,24 @@
- 	return_VALUE(result);
- }
- 
+-			if (rc || src) {
+-				/* If configuration fails, turn it off
+-				 * Get slot won't work for devices behind
+-				 * bridges, but in this case it will always be
+-				 * called for the "base" bus/dev/func of an
+-				 * adapter. */
 -
--static int
--acpi_pci_link_resume (
--	struct acpi_pci_link	*link)
--{
--	ACPI_FUNCTION_TRACE("acpi_pci_link_resume");
--	
--	if (link->irq.active && link->irq.initialized)
--		return_VALUE(acpi_pci_link_set(link, link->irq.active));
--	else
--		return_VALUE(0);
--}
+-				down(&ctrl->crit_sect);
 -
+-				amber_LED_on (ctrl, hp_slot);
+-				green_LED_off (ctrl, hp_slot);
+-				slot_disable (ctrl, hp_slot);
 -
- static int
--irqrouter_resume(
--	struct sys_device *dev)
-+irqrouter_suspend(
-+	struct sys_device *dev,
-+	u32	state)
- {
- 	struct list_head        *node = NULL;
- 	struct acpi_pci_link    *link = NULL;
+-				set_SOGO(ctrl);
+-
+-				/* Wait for SOBS to be unset */
+-				wait_for_ctrl_irq (ctrl);
+-
+-				up(&ctrl->crit_sect);
+-
+-				if (rc)
+-					return rc;
+-				else
+-					return 1;
+-			}
+-
+-			func->status = 0;
+-			func->switch_save = 0x10;
+-
+-			index = 1;
+-			while (((func = cpqhp_slot_find(func->bus, func->device, index)) != NULL) && !rc) {
+-				rc |= cpqhp_configure_board(ctrl, func);
+-				index++;
+-			}
+-
+-			if (rc) {
+-				/* If configuration fails, turn it off
+-				 * Get slot won't work for devices behind
+-				 * bridges, but in this case it will always be
+-				 * called for the "base" bus/dev/func of an
+-				 * adapter. */
+-
+-				down(&ctrl->crit_sect);
+-
+-				amber_LED_on (ctrl, hp_slot);
+-				green_LED_off (ctrl, hp_slot);
+-				slot_disable (ctrl, hp_slot);
+-
+-				set_SOGO(ctrl);
+-
+-				/* Wait for SOBS to be unset */
+-				wait_for_ctrl_irq (ctrl);
+-
+-				up(&ctrl->crit_sect);
+-
+-				return rc;
+-			}
+-			/* Done configuring so turn LED on full time */
+-
+-			down(&ctrl->crit_sect);
+-
+-			green_LED_on (ctrl, hp_slot);
+-
+-			set_SOGO(ctrl);
+-
+-			/* Wait for SOBS to be unset */
+-			wait_for_ctrl_irq (ctrl);
+-
+-			up(&ctrl->crit_sect);
+-			rc = 0;
+-		} else {
+-			/* Something is wrong
+-
+-			 * Get slot won't work for devices behind bridges, but
+-			 * in this case it will always be called for the "base"
+-			 * bus/dev/func of an adapter. */
+-
+-			down(&ctrl->crit_sect);
+-
+-			amber_LED_on (ctrl, hp_slot);
+-			green_LED_off (ctrl, hp_slot);
+-			slot_disable (ctrl, hp_slot);
++		down(&ctrl->crit_sect);
  
--	ACPI_FUNCTION_TRACE("irqrouter_resume");
-+	ACPI_FUNCTION_TRACE("irqrouter_suspend");
+-			set_SOGO(ctrl);
++		amber_LED_on(ctrl, hp_slot);
++		green_LED_off(ctrl, hp_slot);
++		slot_disable(ctrl, hp_slot);
  
- 	list_for_each(node, &acpi_link.entries) {
--
- 		link = list_entry(node, struct acpi_pci_link, node);
- 		if (!link) {
- 			ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "Invalid link context\n"));
- 			continue;
- 		}
--
--		acpi_pci_link_resume(link);
-+		if (link->irq.active && link->irq.initialized)
-+			link->irq.suspend_resume = 1;
+-			/* Wait for SOBS to be unset */
+-			wait_for_ctrl_irq (ctrl);
++		set_SOGO(ctrl);
+ 
+-			up(&ctrl->crit_sect);
+-		}
++		/* Wait for SOBS to be unset */
++		wait_for_ctrl_irq(ctrl);
+ 
++		up(&ctrl->crit_sect);
  	}
- 	return_VALUE(0);
- }
-@@ -856,7 +848,7 @@
+ 	return rc;
  
- static struct sysdev_class irqrouter_sysdev_class = {
-         set_kset_name("irqrouter"),
--        .resume = irqrouter_resume,
-+        .suspend = irqrouter_suspend,
- };
- 
- 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2005/03/18 16:30:29-05:00 len.brown@intel.com 
-#   [ACPI] S3 Suspend to RAM: interrupt resume fix
-#   
-#   Delete PCI Interrupt Link Device .resume method --
-#   it is the device driver's job to request interrupts,
-#   not the Link's job to remember what the devices want.
-#   
-#   This addresses the issue of attempting to run
-#   the ACPI interpreter too early in resume, when
-#   interrupts are still disabled.
-#   
-#   http://bugzilla.kernel.org/show_bug.cgi?id=3469
-#   
-#   Signed-off-by: David Shaohua Li <shaohua.li@intel.com>
-#   Signed-off-by: Len Brown <len.brown@intel.com>
-# 
-# drivers/acpi/pci_link.c
-#   2005/03/02 22:23:50-05:00 len.brown@intel.com +14 -22
-#   Delete PCI Interrupt Link .resume method
-# 
-
-Greets,
-Rafael
-
-
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"

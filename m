@@ -1,50 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267563AbRGXPU5>; Tue, 24 Jul 2001 11:20:57 -0400
+	id <S267565AbRGXPgK>; Tue, 24 Jul 2001 11:36:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267565AbRGXPUr>; Tue, 24 Jul 2001 11:20:47 -0400
-Received: from [216.156.138.34] ([216.156.138.34]:63748 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S267563AbRGXPUi>;
-	Tue, 24 Jul 2001 11:20:38 -0400
-Message-ID: <000b01c11454$233a0d60$010411ac@local>
-From: "Manfred Spraul" <manfred@colorfullife.com>
-To: "Russ Lewis" <russ@deming-os.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Safely giving up a lock before sleeping
-Date: Tue, 24 Jul 2001 17:20:06 +0200
+	id <S267567AbRGXPgB>; Tue, 24 Jul 2001 11:36:01 -0400
+Received: from bigred.kinkaid.org ([207.80.142.5]:26332 "EHLO kinkaid.org")
+	by vger.kernel.org with ESMTP id <S267565AbRGXPft>;
+	Tue, 24 Jul 2001 11:35:49 -0400
+From: <kernel-list@kinkaid.org>
+Subject: dqblk or mem_dqblk for quotas?
+To: linux-kernel@vger.kernel.org
+X-Mailer: CommuniGate Pro Web Mailer v.3.4.6
+Date: Tue, 24 Jul 2001 10:45:22 -0500
+Message-ID: <web-233042@kinkaid.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-> If I implement this by calling spin_unlock_irqrestore() immediately
-> followed by interruptible_sleep_on(), then I have a race condition
-> where I could release the lock and immediately have a bottom half
-> handler on another processor grab it, put data in the queue, and wake
-> the wait queue.  My original (user-side) process then happily goes
-> to sleep, unaware that new information is available.
+Hello all -
 
-DO NOT use sleep_on in new code.
-The correct replacement is wait_event() in <linux/wait.h> if the
-spinlock is a normal (i.e. non-irq) spinlock.
+Recently, I've been trying to write a utility to edit quotas
+(specifically on an ext2 filesystem), using the 2.4.x
+kernel. The man page for quotactl() on my system (RH 7.1)
+refer to the mem_dqblk struct, which is nowhere to be found
+in the source to the 2.4 kernels.
 
-Your spinlock is probably a spin_lock_irq() or spin_lock_bh() lock, then
-you must build your own wait_event() wrapper.
-check <linux/raid/md_k.h> for a wrapper with spin_lock_irq
-(wait_event_lock_irq)
+Am I missing something, or should I just continue to use the
+dqblk struct.
 
-The mouse driver sample in linux/documentation also explains the correct
-way to release a lock and schedule.
+Thanks in advance for any help -
 
 --
-    Manfred
-
-
-
+-Jeff Thompson (http://jeff.zaius.org)
+jeff@zaius.org

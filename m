@@ -1,35 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261826AbUKCT0r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261838AbUKCT3V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261826AbUKCT0r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 14:26:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261840AbUKCTZ5
+	id S261838AbUKCT3V (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 14:29:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261805AbUKCT1X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 14:25:57 -0500
-Received: from mx.inch.com ([216.223.198.27]:36365 "EHLO util.inch.com")
-	by vger.kernel.org with ESMTP id S261826AbUKCTXS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 14:23:18 -0500
-Date: Tue, 2 Nov 2004 16:53:08 -0500
-From: John McGowan <jmcgowan@inch.com>
-To: linux-kernel@vger.kernel.org
-Subject: Kernel 2.6.9: i810 video
-Message-ID: <20041102215308.GA3579@localhost.localdomain>
+	Wed, 3 Nov 2004 14:27:23 -0500
+Received: from pimout1-ext.prodigy.net ([207.115.63.77]:2965 "EHLO
+	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S261832AbUKCT0q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 14:26:46 -0500
+Date: Wed, 3 Nov 2004 11:26:30 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: Sai Prathap <saiprathap@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Installing software on a knoppix CD
+Message-ID: <20041103192630.GA25577@taniwha.stupidest.org>
+References: <69cfd1b80411031106663a1cc8@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <69cfd1b80411031106663a1cc8@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kernel 2.6.9
+On Wed, Nov 03, 2004 at 12:06:39PM -0700, Sai Prathap wrote:
 
-Let's see ... in 2.6.8(.1) one could not burn audio CDs.
+troll?
 
-In kernel 2.6.9 it seems that the Intel i810 video driver is useless (junk
-on the screen ... lockup) and one can no longer compile alsa-lib-1.0.6 from
-the source at alsa-project.org. That's as far as I got before I now have to
-recompile the working 2.6.7 (if only gimp worked with it ...).
+> I have a question regarding knoppix. If we boot from a knoppix CD, Is
+> it possible to get any software installed on it?
 
-I guess I have to go back to kernel 2.6.7 and await 2.6.10.
+not to the CD
 
-(Fedora Core2: xorg-x11-6.8.1-4 from RPM, gcc-3.3.3-7, most of my .config
-               for kernel 2.6.9 a duplicate of what was working in 2.6.7)
+> Because, whenever I try to install something it says its not
+> writable. Please advice.
+
+CDs aren't writable :)

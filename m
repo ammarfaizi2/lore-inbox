@@ -1,78 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268702AbRGaGIc>; Tue, 31 Jul 2001 02:08:32 -0400
+	id <S269185AbRGaGIm>; Tue, 31 Jul 2001 02:08:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269186AbRGaGIX>; Tue, 31 Jul 2001 02:08:23 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:32274 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S268702AbRGaGIS>; Tue, 31 Jul 2001 02:08:18 -0400
-Message-ID: <3B664CA6.564DA9BA@zip.com.au>
-Date: Tue, 31 Jul 2001 16:13:58 +1000
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
-X-Accept-Language: en
+	id <S269186AbRGaGIc>; Tue, 31 Jul 2001 02:08:32 -0400
+Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:4049 "EHLO
+	penguin.homenet") by vger.kernel.org with ESMTP id <S269185AbRGaGIX>;
+	Tue, 31 Jul 2001 02:08:23 -0400
+Date: Tue, 31 Jul 2001 07:10:34 +0100 (BST)
+From: Tigran Aivazian <tigran@veritas.com>
+To: linux-kernel@vger.kernel.org
+Subject: booting SMP P6 kernel on P4 hangs.
+Message-ID: <Pine.LNX.4.21.0107310705580.1374-100000@penguin.homenet>
 MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: Tony.Lill@ajlc.waterloo.on.ca, linux-kernel@vger.kernel.org
-Subject: Re: laptops and journalling filesystems
-In-Reply-To: <3B662642.4AB6E800@zip.com.au> <Pine.LNX.4.33L.0107310046570.5582-100000@duckman.distro.conectiva>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Rik van Riel wrote:
+Hi guys,
+
+Isn't SMP P6 kernel supposed to boot fine on a P4? Btw, booting with
+"nosmp" works but booting with "noapic" hangs just the same.
+
+Here is where it hangs:
+
 > 
-> On Tue, 31 Jul 2001, Andrew Morton wrote:
-> > Tony Lill wrote:
-> > >
-> > > Do any of the current batch of journalling filesystems NOT diddle the
-> > > disk every 5 seconds?
+> ---------------------System Info------------------------------------
 > 
-> > Unfortunately ext3 defeats the trick of setting the kupdate
-> > interval to something huge.  On my list of things-to-do.
-> >
-> > Probably it's as simple as setting the commit timer to
-> > a large interval (grep for "HZ" in fs/jbd/journal.c).
+> Intel Pentium 4 processor: 1.3 GHz
+> Level 2 Cache: 256 KB Integrated
 > 
-> How about using bdf_prm.b_un.interval as the commit
-> timer for ext3 ?
-
-It may be best to keep them separate - they do rather different
-things, and the system may have multiple filesystems.  Plus
-it'd be yet another thing we need which isn't exported :(
-
-What would be nice would be the ability for external code to be
-notified of kupdate and bdflush activity - that way we can
-do what you suggest for laptops - do all the disk activity in
-a single hit.
-
-The ability to know when bdflush is woken would be useful
-for other VM-related reasons.  Generally the bulk of ext3 data
-is writable by bdflush and freeable by the releasepage()
-address_space op (aka try_to_free_buffers).  But metadata
-doesn't have an address_space, which is why we can get a 
-bit gummed up at times.   The best fix for this is to take
-over all the IO scheduling and drop the ext3 structures from the
-buffers at IO completion time.  That's version 2.
-
-> With the addition that normal writeouts to disk (those
-> go via the ext3 code, right?) also trigger a commit, if
-> the last commit was long enough ago to not impact system
-> efficiency.
+> System Memory 256 MB ECC RDRAM
+> AGP Aperture  128 MB
+> CPU Information::
+>   CPU speed   Normal
+>   Bus Speed  100 Mhz
+>   Processor ID F0A
+>   Clock Speed 1.30 Ghz
+>   Cache Size  256KB
 > 
-> This way you should, on laptops, have the ext3 commit
-> happening either at the same time as the kflushd write
-> (triggered by the write) or the next kflushd interval
-> away.
+> 
+> 
+> --------------------Messages on the screen---------------------------
+> 
+> 
+> CPU0: Intel(R) Pentium(R) 4 CPU 1300 Mhz stepping 0a
+> per-CPU timeslice cutoff: 731.49 usecs
+> weird, boot CPU (#0) not listed by the BIOS
+> Getting VERSION: f000acde
+> Getting VERSION: f0ffac21
+> leaving PIC mode, enabling symmetric IO mode.
+> enabled ExtINT on CPU#0
+> ESR value before enabling vector: 00000000
+> ESR value after enabling vector: 00000000
+> CPU present map: 1
+> Before bogomips.
+> Error: only one processor found.
+> Boot done.
+> ENABLING IO-APIC IRQs
+> Synchronizing Arb IDs.
+> ..TIMER: vector=31 pin1=2 pin2=0
+> activating NMI Watchdog...done
+> CPU#0 NMI appears to be stuck
+> testing the IO APIC.............
+> ..........................done
+> calibrating APIC timer...
+> .....CPU clock speed is 1285.2614 Mhz
+> ....host bus clock speed is 0.0000 Mhz
+> cpu:0, clocks:0, slice:0
+> 
+> 
+> 
 
-When ext3 commits, all data is written to its final resting place
-on disk, and then all metadata is written to the journal and then
-released for normal writeback.  So if we were to start IO on that
-writeback data immediately, there is no need for kupdate at all.
-That would work, as a special laptop feature.  A mount option or
-tune2fs setting.    Any synchronous operation would force an immediate
-commit, of course.
-
--

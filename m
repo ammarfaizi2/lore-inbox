@@ -1,41 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261736AbTCGTdv>; Fri, 7 Mar 2003 14:33:51 -0500
+	id <S261750AbTCGTjr>; Fri, 7 Mar 2003 14:39:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261738AbTCGTdu>; Fri, 7 Mar 2003 14:33:50 -0500
-Received: from inet-mail3.oracle.com ([148.87.2.203]:27010 "EHLO
-	inet-mail3.oracle.com") by vger.kernel.org with ESMTP
-	id <S261736AbTCGTdr>; Fri, 7 Mar 2003 14:33:47 -0500
-Date: Fri, 7 Mar 2003 11:44:05 -0800
-From: Joel Becker <Joel.Becker@oracle.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: WimMark I for 2.5.64-mm1
-Message-ID: <20030307194404.GE2835@ca-server1.us.oracle.com>
-References: <20030307175700.GA2835@ca-server1.us.oracle.com> <20030307112840.4591cc68.rddunlap@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030307112840.4591cc68.rddunlap@osdl.org>
-X-Burt-Line: Trees are cool.
-User-Agent: Mutt/1.5.3i
+	id <S261751AbTCGTjr>; Fri, 7 Mar 2003 14:39:47 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:43769 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S261750AbTCGTjp>;
+	Fri, 7 Mar 2003 14:39:45 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Fri, 7 Mar 2003 20:50:18 +0100 (MET)
+Message-Id: <UTC200303071950.h27JoIW12641.aeb@smtp.cwi.nl>
+To: Andries.Brouwer@cwi.nl, hch@infradead.org
+Subject: Re: [PATCH] register_blkdev
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 07, 2003 at 11:28:40AM -0800, Randy.Dunlap wrote:
-> Is there a web page where we can view/compare results?
+> the prototype changes you did which make absolutely no sense
+> to get into 2.5 now when the functions will disappear before 2.6.
 
-	No, but that's a good idea!  When I have one, I'll post it.
+Maybe you are right.
+But as I said, my goal is to give us a 32-bit dev_t.
+It is not necessary to eliminate register_blkdev now,
+or before 2.6, in order to reach that goal.
+I agree completely that it should go away, and I moved it
+in front of the function it is going to be merged with.
 
-Joel
+In fact I started on the patch to remove it, but the patch
+got too large. Many places do register_blkdev early and
+blk_register_region later. If the region is taken already
+then allocated memory must be freed etc. Trivial work,
+but a largish patch. Better to divide the work in steps.
 
--- 
-
-"Reality is merely an illusion, albeit a very persistent one."
-        - Albert Einstien
-
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
+Andries

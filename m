@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263317AbTJUUVr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 16:21:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263325AbTJUUVq
+	id S263297AbTJUUcl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 16:32:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263300AbTJUUcl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 16:21:46 -0400
-Received: from natsmtp00.rzone.de ([81.169.145.165]:49087 "EHLO
-	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
-	id S263317AbTJUUVn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 16:21:43 -0400
-Date: Tue, 21 Oct 2003 22:01:14 +0200
-From: Dominik Brodowski <linux@brodo.de>
-To: "Moore, Robert" <robert.moore@intel.com>
-Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       cpufreq@www.linux.org.uk, linux-kernel@vger.kernel.org,
-       linux-acpi <linux-acpi@intel.com>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>,
-       "Grover, Andrew" <andrew.grover@intel.com>,
-       "Therien, Guy" <guy.therien@intel.com>
-Subject: Re: [PATCH] 3/3 Dynamic cpufreq governor and updates to ACPI P-statedriver
-Message-ID: <20031021200114.GB26971@brodo.de>
-References: <CFF522B18982EA4481D3A3E23B83141C24B4BC@orsmsx407.jf.intel.com>
+	Tue, 21 Oct 2003 16:32:41 -0400
+Received: from [195.222.70.12] ([195.222.70.12]:46035 "EHLO mx01.belsonet.net")
+	by vger.kernel.org with ESMTP id S263297AbTJUUca (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 16:32:30 -0400
+Date: Tue, 21 Oct 2003 23:30:37 +0300
+From: Alexander Bokovoy <ab@altlinux.org>
+To: M?ns Rullg?rd <mru@kth.se>
+Cc: cpufreq@www.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCHSET] 0/3 Dynamic cpufreq governor and updates to ACPI P-state driver
+Message-ID: <20031021203037.GB3133@sam-solutions.net>
+References: <88056F38E9E48644A0F562A38C64FB60077911@scsmsx403.sc.intel.com> <yw1xbrsaeu44.fsf@kth.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-In-Reply-To: <CFF522B18982EA4481D3A3E23B83141C24B4BC@orsmsx407.jf.intel.com>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <yw1xbrsaeu44.fsf@kth.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 21, 2003 at 10:12:14AM -0700, Moore, Robert wrote:
+On Tue, Oct 21, 2003 at 12:57:15PM +0200, M?ns Rullg?rd wrote:
+> "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com> writes:
 > 
-> This is exactly what I was looking at doing, looks like most of the work
-> is done.  I have some concerns about the actual algorithm used for
-> changing the CPU frequency (20%/80%), but this of course can be tuned.
-
-Well, so write a different governor, and feel free to use Venkatesh's code
-as a base [it's GPLed, after all...]. I prefer to have several different 
-governors available, so that different users with different needs
-can use different "policies".
-
-> I suspect that CPUs that have the capability of changing frequency
-> themselves would not use this particular governor.
-
-They can't -- If the driver for Transmeta CPUs is loaded, 
-cpufreq governors cannot be started.
- 
-> You may want to make the sampling rate configurable at run time.
-
-Such a "tweaking by sysfs" patch can be added later.
-
-	Dominik
+> > Most of the latest CPUs (laptop CPUs in particular) have feature 
+> > which enable very low latency P-state transitions 
+> > (like Enhanced Speedstep Technology-EST). Using this feature, 
+> > we can have a lightweight in kernel cpufreq governor, 
+> > to vary CPU frequency depending on the CPU usage. The 
+> > advantage being low power consumption and also cooler laptops.
+> 
+> So, I took this thing for a spin, but it didn't work at all.  I loaded
+> the module, and did "echo demandbased > /sys/.../scaling_governor".
+> This echo never returned, and the keyboard locked up.  After a little
+> while, the fan started running at full speed.  I managed to cut and
+> paste into an xterm and start top, which showed nothing unusual.  I
+> could shut down and reboot normally.
+I applied these patches to stock 2.6.0-test8 and selected 'demandbased' as
+default governor. In result, everything worked from the very beginning, my
+Centrino-based system went to 600MHz and was upping when load was going
+higher during compilation or disk access but went down when load was
+lowering. So it works well for me.
+-- 
+/ Alexander Bokovoy
+Samba Team                      http://www.samba.org/
+ALT Linux Team                  http://www.altlinux.org/
+Midgard Project Ry              http://www.midgard-project.org/

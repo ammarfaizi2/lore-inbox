@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264614AbTARKBK>; Sat, 18 Jan 2003 05:01:10 -0500
+	id <S264625AbTARKHv>; Sat, 18 Jan 2003 05:07:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264617AbTARKBK>; Sat, 18 Jan 2003 05:01:10 -0500
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:40719 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S264614AbTARKBJ>; Sat, 18 Jan 2003 05:01:09 -0500
-Date: Sat, 18 Jan 2003 11:09:55 +0100
-From: Jurriaan <thunder7@xs4all.nl>
+	id <S264628AbTARKHv>; Sat, 18 Jan 2003 05:07:51 -0500
+Received: from c185062.adsl.hansenet.de ([213.39.185.62]:28822 "EHLO
+	router.local.rw-it.net") by vger.kernel.org with ESMTP
+	id <S264625AbTARKHu>; Sat, 18 Jan 2003 05:07:50 -0500
+Date: Sat, 18 Jan 2003 11:16:49 +0100
+From: Robert Wruck <robert@rw-it.net>
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.59 doesn't boot - hangs after 'Uncompressing the kernel'
-Message-ID: <20030118100955.GB1138@middle.of.nowhere>
-Reply-To: thunder7@xs4all.nl
-References: <20030118081408.GA1163@middle.of.nowhere> <20030118093743.GB1483@mars.ravnborg.org>
+Subject: Re: [PATCH] Timer bug fix ported to 2.4.20
+Message-ID: <20030118101648.GA14016@router.local.rw-it.net>
+References: <20030116185653.GB5780@router.local.rw-it.net> <Pine.LNX.4.05.10301170945150.2751-100000@marina.lowendale.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030118093743.GB1483@mars.ravnborg.org>
-X-Message-Flag: Still using Outlook? Please Upgrade to real software!
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <Pine.LNX.4.05.10301170945150.2751-100000@marina.lowendale.com.au>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Sam Ravnborg <sam@ravnborg.org>
-Date: Sat, Jan 18, 2003 at 10:37:43AM +0100
-> On Sat, Jan 18, 2003 at 09:14:08AM +0100, Jurriaan wrote:
-> > I can't get 2.5.59 to boot on my dual tualatin/via PRO266T system.
-> > It hangs early in the boot-process, I don't see anything after the
-> > 'Uncompressing the kernel' line. The keyboard led's stuck then as well,
-> > and waiting doesn't help.
+> > I recently upgraded from 2.2.19 to 2.4.20 and noted that the via timer
+> > bugfix has disappeared.
+> > 
+> > I'm not sure if this is a VIA problem, because it happens on my PIII
+> > i440BX-based board, Gigabyte GA-6BXE, which does not seem to have any
+> > chips made by VIA. (82443BX, 32371EB PIIX4, ITE 8671 SuperIO)
 > 
-> People have problems after recent changes in vmlinux.lds.
+> Different people have reported this check triggered on various hardware
+> which doesn't have VIA686-anything.  In my case on both an old AcerNote
+> and a Toshiba-1800.
 > 
-> Try apply the vmlinux patch from Andrew's set of patches:
-> http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.59/2.5.59-mm2/
-> 
-> Usually report is an oops, but that may be UP only.
-> 
-No change, both 2.5.59-mm2 and 2.5.59 + the mm2 vmlinux patch hang just
-in the same way.
 
-This is on a Debian/Unstable system, btw.
+OK, it seems in my case it's triggered by the initialization of the X
+"s3virge" driver (for my s3 virge/dx pci card).
+It doesn't occur when using "vga" nor when switching ttys.
+Starting X with s3virge seems to be the only way to trigger it on my
+system.
 
-Jurriaan
--- 
-"Not today, not tomorrow, not last year, not at the second coming
-of Julius Feistersnap. In short, never, and not even then! Does
-that set matters straight?"
-        Jack Vance - Araminta Station
-GNU/Linux 2.5.53 SMP/ReiserFS 2x2752 bogomips load av: 0.08 0.08 0.05
+i'm not very familiar with those problems, i only know that resetting the
+timer keeps my system clock from going mad.
+
+
+robert
+

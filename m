@@ -1,67 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268527AbTBOEPw>; Fri, 14 Feb 2003 23:15:52 -0500
+	id <S268528AbTBOEWG>; Fri, 14 Feb 2003 23:22:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268528AbTBOEPw>; Fri, 14 Feb 2003 23:15:52 -0500
-Received: from almesberger.net ([63.105.73.239]:48143 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S268527AbTBOEPv>; Fri, 14 Feb 2003 23:15:51 -0500
-Date: Sat, 15 Feb 2003 01:25:38 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Giuliano Pochini <pochini@shiny.it>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S268529AbTBOEWG>; Fri, 14 Feb 2003 23:22:06 -0500
+Received: from bjl1.jlokier.co.uk ([81.29.64.88]:15232 "EHLO
+	bjl1.jlokier.co.uk") by vger.kernel.org with ESMTP
+	id <S268528AbTBOEWF>; Fri, 14 Feb 2003 23:22:05 -0500
+Date: Sat, 15 Feb 2003 04:34:05 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Synchronous signal delivery..
-Message-ID: <20030215012538.E2791@almesberger.net>
-References: <Pine.LNX.4.44.0302131120280.2076-100000@home.transmeta.com> <XFMail.20030214115507.pochini@shiny.it>
+Message-ID: <20030215043405.GB5438@bjl1.jlokier.co.uk>
+References: <Pine.LNX.4.44.0302131120280.2076-100000@home.transmeta.com> <20030214024046.GA18214@bjl1.jlokier.co.uk> <Pine.LNX.4.50.0302141603220.988-100000@blue1.dev.mcafeelabs.com> <20030215010153.GE4333@bjl1.jlokier.co.uk> <Pine.LNX.4.50.0302141744070.988-100000@blue1.dev.mcafeelabs.com> <20030215020838.GH4333@bjl1.jlokier.co.uk> <Pine.LNX.4.50.0302142005550.988-100000@blue1.dev.mcafeelabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <XFMail.20030214115507.pochini@shiny.it>; from pochini@shiny.it on Fri, Feb 14, 2003 at 11:55:07AM +0100
+In-Reply-To: <Pine.LNX.4.50.0302142005550.988-100000@blue1.dev.mcafeelabs.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Giuliano Pochini wrote:
-> IMHO it's not simply a signal delivery system, it's a message queue.
+Davide Libenzi wrote:
+> Many ( many ) times, when you're going to wait for events, you want to
+> specify a maximum wait time ( reletive time ) and not an absolute time.
+> This is how ppl think about "timeouts". Different beast is the absolute
+> timer, that you can easily achieve with POSIX timers ( TIMER_ABSTIME ) and
+> a sigfd() dropped inside an event retrieval interface.
 
-Not entirely, because - as I understand it - signals would be
-aggregated, so you'd always get one item, no matter how many
-signals are actually pending at that time.
+Agreed, both interfaces are useful.  You see that epoll_wait is
+optimised for one in particular though.
 
-For generalizing such mechanisms, it might be useful to have
-an atomic "overwrite" operation for pipes, and maybe also for
-some sockets, e.g. something like this:
+Curiously.  I'll probably continue to use a calculated relative
+timeout instead of using a POSIX timer, as the overhead of setting up
+and tearing down the latter is more system calls which we still like
+to avoid if it's not hard.
 
-    ssize_t overwrite(int fd,
-      const void *data_if_empty,size_t size_if_empty,
-      const void *data_if_full,size_t size_if_full,
-      int *was_empty);
-
-If there is no data in the pipe/queue, "overwrite" would
-write "data_if_empty", and clear *was_empty. Otherwise, it
-would discard what's there, then write "data_if_full", and
-set *was_empty. The whole operation is atomic with respect
-to readers/pollers.
-
-E.g.
-
-static int signal_set = 0;
-
-... add_signal(int signum)
-{
-	int new_signal = 1 << signum;
-	int was_empty;
-
-	signal_set |= new_signal;
-	overwrite(fd,&new_signal,sizeof(int),&signal_set,sizeof(int),
-	    &was_empty);
-	if (was_empty)
-		signal_set = new_signal;
-}
-
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+-- Jamie

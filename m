@@ -1,68 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262347AbTIHJuG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 05:50:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262344AbTIHJtD
+	id S262244AbTIHJzU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 05:55:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262249AbTIHJzU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 05:49:03 -0400
-Received: from angband.namesys.com ([212.16.7.85]:38596 "EHLO
-	angband.namesys.com") by vger.kernel.org with ESMTP id S262321AbTIHJs0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 05:48:26 -0400
-Date: Mon, 8 Sep 2003 13:48:25 +0400
-From: Oleg Drokin <green@namesys.com>
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-Cc: Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org,
-       Nikita Danilov <god@namesys.com>
-Subject: Re: First impressions of reiserfs4
-Message-ID: <20030908094825.GD10487@namesys.com>
-References: <slrnbl12sv.i4g.erik@bender.home.hensema.net> <3F50D986.6080707@namesys.com> <20030831191419.A23940@bitwizard.nl> <20030908081206.GA17718@namesys.com> <20030908105639.B26722@bitwizard.nl> <20030908090826.GB10487@namesys.com> <20030908113304.A28123@bitwizard.nl>
+	Mon, 8 Sep 2003 05:55:20 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:40801 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S262244AbTIHJzP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 05:55:15 -0400
+Date: Mon, 8 Sep 2003 10:53:59 +0100
+From: Dave Jones <davej@redhat.com>
+To: DervishD <raul@pleyades.net>
+Cc: Ch & Ph Drapela <pcdrap@bluewin.ch>, linux-kernel@vger.kernel.org
+Subject: Re: Hardware supported by the kernel
+Message-ID: <20030908095357.GD10358@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	DervishD <raul@pleyades.net>, Ch & Ph Drapela <pcdrap@bluewin.ch>,
+	linux-kernel@vger.kernel.org
+References: <3F59DF81.8000407@bluewin.ch> <20030906134029.GE69@DervishD> <20030907223258.GE28927@redhat.com> <20030908092952.GA51@DervishD>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030908113304.A28123@bitwizard.nl>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20030908092952.GA51@DervishD>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Mon, Sep 08, 2003 at 11:29:52AM +0200, DervishD wrote:
+ > >  > > - an ATI Gapiccard
+ > >  >     I have an ATI card (128 LT Pro) and it's fully supported. IMHO
+ > >  > all ATI cards are.
+ > > Depends on your definition of 'supported'. Recent ATI cards[*] will
+ > > only work in accelerated 3d using their binary only driver.
+ > 
+ >     A couple of months ago someone on this list said that ATI no
+ > longer provides information about their graphics cards, so when I say
+ > 'supported' I'm speaking of my particular model, that it's really
+ > supported (is a quite old model). When I said 'all ATI cards' I was
+ > talking about older models, because I forgot that ATI no longer
+ > supports Linux.
+ > 
+ >     My mistake, sorry. BTW: what graphics cards manufacturer currently
+ > supports Linux?. I need to buy a new graphic card for a friend (AGP)
+ > and I don't know what one to buy :(((
 
-On Mon, Sep 08, 2003 at 11:33:04AM +0200, Rogier Wolff wrote:
-> > > > > There  is no installation program that will fail with: "Sorry, 
-> > > > > you only have 100 million inodes free, this program will need
-> > > > > 132 million after installation", and it allows me a quick way 
-> > > > > of counting the number of actual files on the disk.... 
-> > > > You cannot. statfs(2) only exports "Total number of inodes on disk" and
-> > > > "number of free inodes on disk" values for fs. df substracts one from another one
-> > > > to get "number of inodes in use".
-> > > So, you report "oids_in_use + 100M" as total and "100M" as free inodes 
-> > > on disk. Voila!
-> > Yes, we thought about that too. Need to be careful to not overflow
-> > "long int".  
-> > And idea of filesystem with variable amount of inodes over time
-> > sounds confusing to me, too.  ]
-> SO? That's actually the case. So it's confusing. So you're confusing
-> people even more by telling nothing. Great. 
+in the performance/gamer end of the market, you're screwed.
 
-Well, but statfs(2) does not return an "inodes in use" value, that's it.
+ATI -    Radeon 9200 is AGPx8, supported by open driver (Based on R200 core)
+         All other current cards need binary only driver.
+Nvidia - Binary only for accelerated 3d.
+Matrox - Not exactly a speed demon any more in the 3d market. Open
+         drivers though. Not sure about Parhelia.
+SiS    - Cards like the Xabre are quite cheap, though unsupported,
+         though SiS folks did seemto wnat to help at one point, then
+         when quiet.
+S3     - Again, poorly performing, specs/drivers are out there.
 
-> #define LARGE_NUMBER 100000
-> out->total_inodes = fs->oids_in_use + LARGE_NUMBER; 
-> if (out->total_inodes < fs->oids_in_use) 
->    out -> total_inods = MAXINT;
-> out -> free_inodes = LARGE_NUMBER; 
-> Three lines of code fixes that. 
 
-Yes, and you get complete crap once you hit the overflow condition?
+who did I miss ?
 
-> > Well, if current interface does not allow to see all the stuff you want to,
-> > time to change (introduce new one) interface, anyway.
-> Fine, introduce a new interface. But report as much as you can on the
-> old interface. Remember you can read/write/seek files using the 32bit
-> interface even though the new (seek-, and stat-) interface uses 64
-> bits.
+		Dave
 
-You need to open a file with O_LARGEFILE first, so old binaries still won't work.
-
-Bye,
-    Oleg
+-- 
+ Dave Jones     http://www.codemonkey.org.uk

@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266049AbUFPBBW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266042AbUFPBDb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266049AbUFPBBW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 21:01:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265745AbUFPBBW
+	id S266042AbUFPBDb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 21:03:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266052AbUFPBDb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 21:01:22 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:63372 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S266049AbUFPBBU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 21:01:20 -0400
-Date: Tue, 15 Jun 2004 18:01:04 -0700
-From: Rusty Lynch <rusty@linux.jf.intel.com>
-To: faith@redhat.com
-Cc: linux-kernel@vger.kernel.org, atul_sabharwal@linux.jf.intel.com
-Subject: Re: [Announce] Non Invasive Kernel Monitor for threads/processes
-Message-ID: <20040616010104.GA23727@penguin2.jf.intel.com>
-References: <40CF4233.70709@linux.jf.intel.com> <40CF5D39.1060701@linux.jf.intel.com> <20040615142304.5d9591d5.akpm@osdl.org> <40CF9382.2010008@linux.jf.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40CF9382.2010008@linux.jf.intel.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 15 Jun 2004 21:03:31 -0400
+Received: from pc-68-191-63-28.newt1.ct.charter.com ([68.191.63.28]:47630 "HELO
+	mssmat.ecp.fr") by vger.kernel.org with SMTP id S266042AbUFPBD0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 21:03:26 -0400
+Message-ID: <9a3701c4533d$a8581fd6$6d460d08@mssmat.ecp.fr>
+From: "Dona J. Barnett" <donajbarnettqe@mail2me.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Powerful weightloss now available where you are.
+Date: Wed, 16 Jun 2004 01:00:44 +0000
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Andrew Morton wrote:
-> >Atul Sabharwal <atul_sabharwal@linux.jf.intel.com> wrote:
-> >>We have been working with a solution for non-intrusively trapping on 
-> >>lifetime
-> >>of processes/threads.
-> >>   
-> >>
-> >
-> >I expect this functionality can be provided without kernel changes via
-> >auditing of the relevant system calls.  See
-> >http://people.redhat.com/faith/audit/.
+Hello, I have a special offer for you...
+WANT TO LOSE WEIGHT?
+The most powerful weightloss is now available
+without prescription. All natural Adipren720
+100% Money Back Guarantée!
+- Lose up to 19% Total Body Weight.
+- Loss of 20-35% abdominal Fat.
+- Up to 300% more Weight Loss while dieting.
+- Increase metabolic rate by 76.9% without Exercise.
+- Reduction of 40-70% overall Fat under skin.
+- Suppresses appetite for sugar.
+- Burns calorized fat.
+- Boost your Confidence level and Self Esteem.
+Get the facts about all-natural Adipren720 <http://diet50.com/>
 
-If a process segfaults is there currently a message sent from the auditing
-code?
 
-> >Maybe there are shortcomings in the current auditing/filtering framework. 
-> >If so, perhaps they could be addressed.
 
-I have worries about both the complexity required from the client for just
-monitoring the life time of a process/thread, and the overhead of doing
-this with the auditing/netlink implementation, but do not have any proof.
+---- system information ----
+weekday/weekend future corresponding function Activity Distinguishing For
+examples 
+set using subject obsoleted Services represented specific world 
+geographic implement States) localized index adapted guidance interaction
 
-We can take a crack at implementing a couple of hello world monitors for
-process/thread creation and exec'ing, and come back with any limitations
-in the existing auditing code that would make this particular type of 
-monitoring painful.
+always What development produces Traditional with future allows 
+defined shorthand presented lives other cultural descriptions near 
 
-    --rustyl

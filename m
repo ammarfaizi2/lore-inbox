@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129734AbRABNmu>; Tue, 2 Jan 2001 08:42:50 -0500
+	id <S129997AbRABN4N>; Tue, 2 Jan 2001 08:56:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129896AbRABNmk>; Tue, 2 Jan 2001 08:42:40 -0500
-Received: from smtp4.ihug.co.nz ([203.109.252.5]:13575 "EHLO smtp4.ihug.co.nz")
-	by vger.kernel.org with ESMTP id <S129734AbRABNmb>;
-	Tue, 2 Jan 2001 08:42:31 -0500
-Message-ID: <3A51D30F.F1AA5AD@ihug.co.nz>
-Date: Wed, 03 Jan 2001 02:09:35 +1300
-From: david <sector2@ihug.co.nz>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17 i686)
-X-Accept-Language: en
+	id <S130008AbRABN4C>; Tue, 2 Jan 2001 08:56:02 -0500
+Received: from ool-18bfe8a9.dyn.optonline.net ([24.191.232.169]:1408 "EHLO
+	optonline.net") by vger.kernel.org with ESMTP id <S129997AbRABNzy>;
+	Tue, 2 Jan 2001 08:55:54 -0500
+From: Les Schaffer <schaffer@optonline.net>
 MIME-Version: 1.0
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: kernel2.2.x get_vm_area
-X-Priority: 2 (High)
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <14929.54867.768350.41506@optonline.net>
+Date: Tue, 2 Jan 2001 08:23:31 -0500 (EST)
+To: Paul Gortmaker <p_gortmaker@yahoo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ne2000 (ISA) & test11+
+In-Reply-To: <3A519B63.56BE023@yahoo.com>
+In-Reply-To: <14929.13173.272621.321333@optonline.net>
+	<3A519B63.56BE023@yahoo.com>
+X-Mailer: VM 6.75 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
+Reply-To: Les Schaffer <schaffer@optonline.net>
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: [V?bWTh\+_V")"gXxY9KGQozO(|>ggwp;\Ds6@YGoS$wreQaSLmhWUp%V;okpj4C^i$FQWK
+ Q:/luO.Zh=VP"U5M.%m1cK:v9DgiQp^JK47nxE^=e3~HPoLmY,igNBZo)LUT3a2CFm*chsyaq7~=dU
+ _IX>v[h$BZsa*yn5;?{|3Z@ZI@FL(e`-@wq`f?~{1){A%o:/t"39M@}ER]6.62NbfxrD%!{9!So^\9
+ c
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi i and writing a driver and need to alloc a dma buffer
-this mens i have to set the page entrees to NO_CACHE
+Paul:
 
-so i thort of using get_vm_area to alloc some virt-space
-then get some pages and setup a page table .
-but it dose not work i an not access get_vm_area from
-my module i get unresolved symbule .
-this cmd can be very nice for doing your one maping
-(maybe even you own page_faults)
+> So try deleting your options line (for 2.4.x kernels).
 
-will i thort of using ioremap the access get_vm_area
-but i will not give me linear virt
+that did it. nice work.....
 
-so what can i do pleas help
-
-thank you
-
-David <sector2@ihug.co.nz>
-
-I will have source with my chips thankyou!
+les schaffer
 
 
+
+isapnp: Scanning for Pnp cards...
+isapnp: Card 'NDC Plug & Play Ethernet Card'
+isapnp: 1 Plug & Play card detected total
+ne.c: ISAPnP reports Generic PNP at i/o 0x220, irq 5.
+ne.c:v1.10 9/23/94 Donald Becker (becker@scyld.com)
+Last modified Nov 1, 2000 by Paul Gortmaker
+NE*000 ethercard probe at 0x220: 00 80 c6 f5 19 08
+eth1: NE2000 found at 0x220, using IRQ 5.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

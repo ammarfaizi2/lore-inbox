@@ -1,35 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289551AbSBST2Y>; Tue, 19 Feb 2002 14:28:24 -0500
+	id <S289484AbSBST2E>; Tue, 19 Feb 2002 14:28:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289347AbSBST2P>; Tue, 19 Feb 2002 14:28:15 -0500
-Received: from mailsorter.ma.tmpw.net ([63.112.169.25]:25891 "EHLO
-	mailsorter.ma.tmpw.net") by vger.kernel.org with ESMTP
-	id <S289339AbSBST2E>; Tue, 19 Feb 2002 14:28:04 -0500
-Message-ID: <3AB544CBBBE7BF428DA7DBEA1B85C79C01101F40@nocmail.ma.tmpw.net>
-From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: lvm will not compile on 2.5.5pre1
-Date: Tue, 19 Feb 2002 14:27:58 -0500
+	id <S289339AbSBST1y>; Tue, 19 Feb 2002 14:27:54 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:17672 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S289484AbSBST1o>;
+	Tue, 19 Feb 2002 14:27:44 -0500
+Date: Tue, 19 Feb 2002 16:27:31 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+Subject: Re: [PATCH *] new struct page shrinkage
+In-Reply-To: <Pine.LNX.4.33.0202191116470.27806-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.33L.0202191625590.7820-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can someone point me in the right direction.  I am scanning the code, but
-not sure where to follow up with this.  LVM won't compile in 2.5.5pre1, I
-get the following error upon compilation.
-                                                        
-lvm.c: In function `lvm_do_lock_lvm':
+On Tue, 19 Feb 2002, Linus Torvalds wrote:
+> On Tue, 19 Feb 2002, Rik van Riel wrote:
+> >
+> > The patch has been changed like you wanted, with page->zone
+> > shoved into page->flags. I've also pulled the thing up to
+> > your latest changes from linux.bkbits.net so you should be
+> > able to just pull it into your tree from:
+> >
+> > bk://linuxvm.bkbits.net/linux-2.5-struct_page
+>
+> Btw, _please_ don't do things like changing the bitkeeper etc/config file.
+> Right now your very first changesets is something that I definitely do not
+> want in my tree.
 
-lvm.c:1310: structure has no member named `sigpending'  
+Woooops, I was trying to make the overview on linuxvm.bkbits.net
+display something sensible but didn't realise you'd be pulling
+that back into your tree ;((((
 
-I'm looking into why this is, but can't seem to find where the structure is
-located to fix it, and what member may be missing.  Any help or pointers
-appreciated.
+I'll make sure to not make this mistake again.
 
-Thanks,
-Bruce H.
- 
+regards,
+
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

@@ -1,83 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266349AbUHBIPL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266351AbUHBIPa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266349AbUHBIPL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 04:15:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266351AbUHBIPL
+	id S266351AbUHBIPa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 04:15:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266352AbUHBIPa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 04:15:11 -0400
-Received: from main.gmane.org ([80.91.224.249]:30374 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S266349AbUHBIPD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 04:15:03 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
-Subject: Re: Oops in register_chrdev, what did I do?
-Date: Mon, 02 Aug 2004 10:15:05 +0200
-Message-ID: <yw1xzn5eyn06.fsf@kth.se>
-References: <yw1xwu0i1vcp.fsf@kth.se> <20040801200919.5da16bc7.Tommy.Reynolds@MegaCoder.com>
+	Mon, 2 Aug 2004 04:15:30 -0400
+Received: from grunt4.ihug.co.nz ([203.109.254.44]:59572 "EHLO
+	grunt4.ihug.co.nz") by vger.kernel.org with ESMTP id S266351AbUHBIPY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 04:15:24 -0400
+Subject: [PATCH] Trivial ipv6 fix.
+From: Ralph Loader <suckfish@ihug.co.nz>
+To: davem@redhat.com, pekkas@netcore.fi, yoshfuji@linux-ipv6.org
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Mon, 02 Aug 2004 20:12:08 +1200
+Message-Id: <1091434328.16469.5.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 161.80-203-29.nextgentel.com
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:JoDY5qcYpt4n4MssIvjUrwi0mes=
+X-Mailer: Evolution 1.5.91 (1.5.91-1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tommy Reynolds <Tommy.Reynolds@MegaCoder.com> writes:
+Hi,
 
-> Uttered Måns Rullgård <mru@kth.se>, spake thus:
->
->> While experimenting a bit with a small kernel module, I got this
->> oops.  Digging further, I found that /proc/devices had an entry saying
->> 248 <NULL>
->> which would indicate that I passed a NULL name to register_chrdev(),
->> only I didn't.  I used a string constant, so I can't see what changed
->> it to NULL along the way.
->> 
->> What am I missing here?
->
-> Enough information for us to help you.  Show us your code snippet,
-> please.
+ipv6_addr_hash doesn't do what it's comment says.  The comment was
+probably what was intended, not that it'll make much difference in
+practice.
 
-I can't imagine that the details of the fops functions are a problem,
-since they never get called.
+Cheers,
+Ralph.
 
-static struct file_operations foo_fops = {
-    .owner   = THIS_MODULE,
-    .open    = foo_open,
-    .read    = foo_read,
-    .write   = foo_write,
-    .mmap    = foo_mmap,
-    .release = foo_release
-};
+Signed-off-by: Ralph Loader <suckfish@ihug.co.nz>
 
-static int __init
-init_foo(void)
-{
-    int err;
+--- include/net/addrconf.h.orig	2004-08-02 19:54:07.772297854 +1200
++++ include/net/addrconf.h	2004-08-02 19:55:25.166824746 +1200
+@@ -178,8 +178,8 @@
+ 	 * This will include the IEEE address token on links that support it.
+ 	 */
+ 
+-	word = addr->s6_addr[2] ^ addr->s6_addr32[3];
+-	word  ^= (word>>16);
++	word = addr->s6_addr32[2] ^ addr->s6_addr32[3];
++	word ^= (word >> 16);
+ 	word ^= (word >> 8);
+ 
+ 	return ((word ^ (word >> 4)) & 0x0f);
 
-    err = register_chrdev(foo_major, "foo", &foo_fops);
-    if(err)
-	return err;
-
-    return 0;
-}
-
-static void __exit
-exit_foo(void)
-{
-    unregister_chrdev(foo_major, "foo");
-}
-
-module_init(init_foo);
-module_exit(exit_foo);
-MODULE_LICENSE("GPL");
-
--- 
-Måns Rullgård
-mru@kth.se
 

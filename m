@@ -1,41 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288040AbSA3CWF>; Tue, 29 Jan 2002 21:22:05 -0500
+	id <S288050AbSA3C1z>; Tue, 29 Jan 2002 21:27:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288028AbSA3CVz>; Tue, 29 Jan 2002 21:21:55 -0500
-Received: from ns.suse.de ([213.95.15.193]:40207 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S288040AbSA3CVl>;
-	Tue, 29 Jan 2002 21:21:41 -0500
-Date: Wed, 30 Jan 2002 03:21:38 +0100
-From: Dave Jones <davej@suse.de>
+	id <S288083AbSA3C1t>; Tue, 29 Jan 2002 21:27:49 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22028 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S288050AbSA3C1f>;
+	Tue, 29 Jan 2002 21:27:35 -0500
+Message-ID: <3C57586B.7B145D16@zip.com.au>
+Date: Tue, 29 Jan 2002 18:20:27 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre7 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: Robert Love <rml@tech9.net>
-Cc: Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@transmeta.com>,
-        viro@math.psu.edu, linux-kernel@vger.kernel.org
+CC: Linus Torvalds <torvalds@transmeta.com>, viro@math.psu.edu,
+        linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] 2.5: push BKL out of llseek
-Message-ID: <20020130032138.H16379@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Robert Love <rml@tech9.net>, Andrew Morton <akpm@zip.com.au>,
-	Linus Torvalds <torvalds@transmeta.com>, viro@math.psu.edu,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0201291602510.1747-100000@penguin.transmeta.com>, <Pine.LNX.4.33.0201291602510.1747-100000@penguin.transmeta.com> <1012351309.813.56.camel@phantasy> <3C574BD1.E5343312@zip.com.au> <1012357211.817.67.camel@phantasy>
-Mime-Version: 1.0
+In-Reply-To: <3C574BD1.E5343312@zip.com.au>,
+		<Pine.LNX.4.33.0201291602510.1747-100000@penguin.transmeta.com>,
+		<Pine.LNX.4.33.0201291602510.1747-100000@penguin.transmeta.com>
+		<1012351309.813.56.camel@phantasy>  <3C574BD1.E5343312@zip.com.au> <1012357211.817.67.camel@phantasy>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1012357211.817.67.camel@phantasy>; from rml@tech9.net on Tue, Jan 29, 2002 at 09:20:10PM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 29, 2002 at 09:20:10PM -0500, Robert Love wrote:
+Robert Love wrote:
+> 
+> On Tue, 2002-01-29 at 20:26, Andrew Morton wrote:
+> 
+> > Just a little word of caution here.  Remember the
+> > apache-flock-synchronisation fiasco, where removal
+> > of the BKL halved Apache throughput on 8-way x86.
+> >
+> > This was because the BKL removal turned serialisation
+> > on a quick codepath from a spinlock into a schedule().
+> 
+> I feared this too, but eventually I decided it was worth it and
+> benchmarks backed that up.  If nothing else this is yet-another-excuse
+> for locks that can spin-then-sleep.
+> 
+> I posted dbench results, which show a positive gain even on 2-way for
+> multiple client loads.
+> 
 
- > I feared this too, but eventually I decided it was worth it and
- > benchmarks backed that up.  If nothing else this is yet-another-excuse
- > for locks that can spin-then-sleep.
- > I posted dbench results, which show a positive gain even on 2-way for
- > multiple client loads.
+But dbench does lots of seeking against *different* files,
+so removal of a shared lock will help there.
 
- did you benchmark with anything other than dbench ?
+But an application where multiple CPUs lseek and write
+the *same* file could take a hit....
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+(And where's the locking for (non-atomic) i_size in sys_stat())
+
+
+-

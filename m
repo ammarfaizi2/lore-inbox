@@ -1,67 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267741AbRGQAIN>; Mon, 16 Jul 2001 20:08:13 -0400
+	id <S267744AbRGQAYo>; Mon, 16 Jul 2001 20:24:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267742AbRGQAID>; Mon, 16 Jul 2001 20:08:03 -0400
-Received: from joat.prv.ri.meganet.net ([209.213.80.2]:48347 "EHLO
-	joat.prv.ri.meganet.net") by vger.kernel.org with ESMTP
-	id <S267741AbRGQAH6>; Mon, 16 Jul 2001 20:07:58 -0400
-Message-ID: <3B538235.538D800E@ueidaq.com>
-Date: Mon, 16 Jul 2001 20:09:25 -0400
-From: Alex Ivchenko <aivchenko@ueidaq.com>
-Organization: UEI, Inc.
-X-Mailer: Mozilla 4.76 [en] (Windows NT 5.0; U)
-X-Accept-Language: en,pdf
-MIME-Version: 1.0
+	id <S267745AbRGQAYf>; Mon, 16 Jul 2001 20:24:35 -0400
+Received: from attila.bofh.it ([213.92.8.2]:9170 "HELO attila.bofh.it")
+	by vger.kernel.org with SMTP id <S267744AbRGQAY1>;
+	Mon, 16 Jul 2001 20:24:27 -0400
+Date: Tue, 17 Jul 2001 02:24:05 +0200
+From: "Marco d'Itri" <md@Linux.IT>
 To: linux-kernel@vger.kernel.org
-Subject: Porting char driving from 2.2 to 2.4 : changes in API to know
+Subject: nfs_refresh_inode: inode number mismatch
+Message-ID: <20010717022405.A22156@wonderland.linux.it>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All,
+Jul 18 00:15:07 newsserver kernel: nfs_refresh_inode: inode number mismatch
+Jul 18 00:15:07 newsserver kernel: expected (0x3b30ac75/0x48d5), got (0x3b30ac75/0x8d04)
 
-I'm porting dataq driver from 2.2 to 2.4 and found a problem with using
-interruptible_sleep_on_timeout() and wake_up_interruptible().
+I've got a flood of these messages while talking to a procom NAS this.
+Should I worry? Upgrade/patch the kernel? Yell at procom tech support?
 
-Knowing that wait queue was reorganized in 2.4 I declared queue head as:
 
-static DECLARE_WAIT_QUEUE_HEAD(wqhead);
+Linux newsserver 2.4.5 #1 Fri Jun 22 18:18:56 CEST 2001 i686 unknown
 
-and then in ioctl routine
-
-..
-// put request on hold
-interruptible_sleep_on_timeout(&wqhead, jiffies);
-...
-
-and
-
-..
-// release process
-wake_up_interruptible(&wqhead);
-
-interruptible_sleep_on_timeout() works correctly and releases process when timeout
-expires. However wake_up_interruptible() doesn't work.
-
-Questions:
-1. Is "interruptible" functions still recommended for use under 2.4?
-2. What other changes made can potentially affect this mechanism?
-3. Should I use some special options/flags to compile modules under 2.4
-(beyond discussed in lkml FAQ)?
+192.168.139.11:/news_store on /shared/archive type nfs (rw,noatime,rsize=8192,wsize=8192,udp,nfsvers=3,addr=192.168.139.11)
 
 
 -- 
-Regards,
-Alex
-
---
-Alex Ivchenko, Ph.D.
-United Electronic Industries, Inc.
-"The High-Performance Alternative (tm)"
---
-10 Dexter Avenue
-Watertown, Massachusetts 02472
-Tel: (617) 924-1155 x 222 Fax: (617) 924-1441
-http://www.ueidaq.com
+ciao,
+Marco

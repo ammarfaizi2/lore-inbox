@@ -1,57 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129878AbRCAUYg>; Thu, 1 Mar 2001 15:24:36 -0500
+	id <S129881AbRCAUYq>; Thu, 1 Mar 2001 15:24:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129876AbRCAUYQ>; Thu, 1 Mar 2001 15:24:16 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:5512 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129865AbRCAUYL>;
-	Thu, 1 Mar 2001 15:24:11 -0500
-From: "David S. Miller" <davem@redhat.com>
+	id <S129876AbRCAUYh>; Thu, 1 Mar 2001 15:24:37 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:30672 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S129865AbRCAUYR>;
+	Thu, 1 Mar 2001 15:24:17 -0500
+Date: Thu, 1 Mar 2001 15:24:14 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [CFT][PATCH] Re: fat problem in 2.4.2
+In-Reply-To: <200103012005.MAA08328@penguin.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0103011508320.11577-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15006.44863.375642.847562@pizda.ninka.net>
-Date: Thu, 1 Mar 2001 12:21:19 -0800 (PST)
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: <linux-kernel@vger.kernel.org>, <linuxppc-dev@lists.linuxppc.org>
-Subject: Re: The IO problem on multiple PCI busses
-In-Reply-To: <19350124132125.27547@smtp.wanadoo.fr>
-In-Reply-To: <15006.40524.929644.25622@pizda.ninka.net>
-	<19350124132125.27547@smtp.wanadoo.fr>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Benjamin Herrenschmidt writes:
- > Also, the problem of finding where the legacy ISA IOs of a given PCI bus
- > are is a bit different that simply mmap'ing a BAR. Some video cards
- > require some access to their VGA IOs without having a BAR covering them,
- > in some case it's necessary to switch the chip from VGA to MMIO mode.
 
-Many platforms, sparc64 included, do not have an ISA IO space nor do
-they provide VGA accesses at all.
+On Thu, 1 Mar 2001, Linus Torvalds wrote:
 
-If things such as XFree86 are coded for such platforms to not require
-VGA accesses (the 'ati' driver is already like this when certain
-build time defines are set), this could become a non-issue in this
-case.
+> In article <Pine.GSO.4.21.0103011345110.11577-100000@weyl.math.psu.edu>,
+> Alexander Viro  <viro@math.psu.edu> wrote:
+> >
+> >Alan, fix is really quite simple. Especially if you have vmtruncate()
+> >returning int (ac1 used to do it, I didn't check later ones). Actually
+> >just a generic_cont_expand() done on expanding path in vmtruncate()
+> >will be enough - it should be OK for all cases, including normal
+> >filesystems. <grabbing -ac7>
+> >
+> >OK, any brave soul to test that? All I can promise that it builds.
+> 
+> This looks like it would create a dummy block even for non-broken
+> filesystems (ie truncating a file to be larger on ext2 would create a
+> block, no?). While that would work, it would also waste disk-space.
 
- > So what would be a preferred way ? Create that fake ISA bus number and
- > provide functions for looking them up, getting their IO and mem bases,
- > and eventually mapping PCI busses to ISA busses ? Or does someone have a
- > better idea ? The goal is to try not to change the semantics of inb/outb
- > and friends so that most legacy drivers can still work using the
- > "default" IO bus if they are not upgraded to the new scheme.
+<checking> yeah... Frankly, I'd just do
+--- buffer.c	Thu Mar  1 15:16:34 2001
++++ buffer.c.old	Thu Mar  1 15:17:55 2001
+@@ -1571,6 +1571,9 @@
+ 	struct buffer_head *bh, *head, *wait[2], **wait_bh=wait;
+ 	char *kaddr = kmap(page);
+ 
++	if (from >= to)
++		goto done;
++
+ 	blocksize = inode->i_sb->s_blocksize;
+ 	if (!page->buffers)
+ 		create_empty_buffers(page, inode->i_dev, blocksize);
+@@ -1626,6 +1629,7 @@
+ 		if (!buffer_uptodate(*wait_bh))
+ 			goto out;
+ 	}
++done:
+ 	return 0;
+ out:
+ 	bh = head;
+@@ -1648,6 +1652,9 @@
+ 	unsigned blocksize;
+ 	struct buffer_head *bh, *head;
+ 
++	if (from >= to)
++		goto done;
++
+ 	blocksize = inode->i_sb->s_blocksize;
+ 
+ 	for(bh = head = page->buffers, block_start = 0;
+@@ -1677,6 +1684,7 @@
+ 	 */
+ 	if (!partial)
+ 		SetPageUptodate(page);
++done:
+ 	return 0;
+ }
+ 
+- obviously correct, avoids disk waste and since we do it in __block...
+everything keeps working (block_... versions are obviously OK, cont_...
+also does the right thing).
 
-There is no 'fake' ISA bus number you need.  There is a 'real' one,
-the one on which the PCI-->ISA bridge lives, why not use that one
-:-)
+Dunno. I like the idea of expanding truncate() being the same as
+lseek() + empty write(). After all, that's what it is.
 
-Then you could find such an ISA bridge, open that PCI device, then
-finally perform the PCI_IOCTL_GETIOBASE thingy on it, but I don't like
-this get-iobase idea at all, see my next email in this thread for why.
+Comments?
+						Cheers,
+							Al
 
-Later,
-David S. Miller
-davem@redhat.com

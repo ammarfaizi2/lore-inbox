@@ -1,49 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262236AbUBXNzM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 08:55:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262219AbUBXNzL
+	id S262251AbUBXN7X (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 08:59:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbUBXN7X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 08:55:11 -0500
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:58834 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S262172AbUBXNzF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 08:55:05 -0500
-Message-ID: <403B57B8.2000008@acm.org>
-Date: Tue, 24 Feb 2004 07:55:04 -0600
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030428
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH] IPMI driver updates, part 1b
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 24 Feb 2004 08:59:23 -0500
+Received: from mail.artsci.net ([64.29.142.100]:46601 "EHLO jadsystems.com")
+	by vger.kernel.org with ESMTP id S262151AbUBXN7W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 08:59:22 -0500
+Date: Tue, 24 Feb 2004 05:58:10 -0800
+Message-Id: <200402240558.AA3585540272@jadsystems.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+From: "Jim Deas" <jdeas0648@jadsystems.com>
+Reply-To: <jdeas0648@jadsystems.com>
+To: <linux-kernel@vger.kernel.org>
+X-Mailer: <IMail v6.05>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It looks like part 1 of the IPMI driver updates was a little too big to 
-get through.  So I've split it up.  Part 1a and part1b must both be 
-applied.  Here's the original message.  Also, this is for the 2.6.3 kernel.
+Can someone point me in the right direction. 
+I am getting a oops on a driver I am porting from 2.4 to 2.6.2 kernel. 
+I have expanded the file_operations structures and have a driver that loads and inits the hardware but when I call the open function I get an oops. The best I can track it is 
 
-It has been far too long since the last IPMI driver updates, but now all 
-the planets have aligned and all the pieces I needed are in and all seem 
-to be working.  This update is coming as four parts that must be applied 
-in order, but the later parts do not have to be applied for the former 
-parts to work.
+EIP 0060:[c0188954] 
+chrdev_open +0x104 
 
-This first part does basic updates to the IPMI infrastructure.  It adds 
-support for messaging through an IPMI LAN interface, which is required 
-for some system software that already exists on other IPMI drivers.  It 
-also does some renaming (in preparation for one of the later patches) 
-and a lot of little cleanups.
+What is the best debug tool to put this oops information in clear sight? It appears to never get to my modules open routine so I am at a debugging crossroad. What is the option on a kernel compile to get the compile listing so I can see what is at 0x104 in this block of code?
 
-FYI, IPMI is a standard for monitoring and maintaining a system.  It 
-provides interfaces for detecting sensors (voltage, temperature, etc.) 
-in the system and monitoring those sensors.  Many systems have extended 
-capabilities that allow IPMI to control the system, doing things like 
-lighting leds and controlling hot-swap.  This driver allows access to 
-the IPMI system.
-
--Corey
 

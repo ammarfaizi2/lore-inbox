@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263953AbUAEKjm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 05:39:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264129AbUAEKjm
+	id S264129AbUAEKua (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 05:50:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264132AbUAEKua
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 05:39:42 -0500
-Received: from web13910.mail.yahoo.com ([216.136.172.95]:46988 "HELO
-	web13910.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263953AbUAEKjl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 05:39:41 -0500
-Message-ID: <20040105103940.34389.qmail@web13910.mail.yahoo.com>
-X-RocketYMMF: knobi.rm
-Date: Mon, 5 Jan 2004 02:39:40 -0800 (PST)
-From: Martin Knoblauch <knobi@knobisoft.de>
-Reply-To: knobi@knobisoft.de
-Subject: Any changes in Multicast code between 2.4.20 and 2.4.22/23 ?
-To: linux-kernel@vger.kernel.org
+	Mon, 5 Jan 2004 05:50:30 -0500
+Received: from 205-158-62-67.outblaze.com ([205.158.62.67]:25533 "EHLO
+	spf13.us4.outblaze.com") by vger.kernel.org with ESMTP
+	id S264129AbUAEKu2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 05:50:28 -0500
+Message-ID: <20040105105027.15858.qmail@iname.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Herve Fache" <herve.fache@europemail.com>
+To: linux-kernel@vger.kernel.org
+Date: Mon, 05 Jan 2004 10:50:27 +0000
+Subject: Removing/ejecting and mount
+X-Originating-Ip: 81.86.174.68
+X-Originating-Server: ws1-88.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I was reading someone's wish to support removal of media such as USB keys or CompactFlash cards at any time. I have the same wish. In fact, I thought it through a bit and I would like a bit more mount options. I could do with:
+- almost-sync: allow for delay in writing (not as 'hard' as sync), but do not return until the data is actually safely written onto the medium
+- nobusy: umount works (maybe with -f option?) even if the medium is 'busy'
+- ephmerary: if the device is mounted rw from a user's point of view, it is not from a kernel point of view unless required by a write operation, and only for the duration of it
 
- besides wishing everybody a Happy new Year 2004, I have one question.
-Have there been any changes in the multicast handling between 2.4.20
-and 2.4.22/23? Maybe specific to the "tg3" driver?
+Why? Imagine the standard user:
+- inserts medium (such as a compact flash card) - hotplug mounts it for him automatically and the WM opens a file manager window
+- copies files to/from it - the medium is only in rw mode for the time of the writes (ephemerary option)
++ copy window disappears - we know it _IS_ done (almost-sync option) and we're now mounted ro
+- removes compact flash card - hotplug needs to be able to 'clear' the mount, even if busy (nobusy option), and the WM can close any active window pointing to it
++ the medium is still 'clean'
 
- Reason for my question is that the Ganglia monitoring toolkit stopped
-working with 2.4.22/23 kernels. Apparently mulicatst get sent, but
-nothing is received.
+Also, the nobusy option means I can always eject my CD, and that my CD can be handled the same way as described above...
 
- Any ideas?
+Note that explaining users what mounting is about is very time consuming; such a solution would be greatly beneficial to my nerves...
 
-Thanks
-Martin
+I am open to comments, and pointers to where this can be implemented but please no flames!
+Hervé.
+-- 
+___________________________________________________________
+Sign-up for Ads Free at Mail.com
+http://promo.mail.com/adsfreejump.htm
 
-=====
-------------------------------------------------------
-Martin Knoblauch
-email: k n o b i AT knobisoft DOT de
-www:   http://www.knobisoft.de

@@ -1,71 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266995AbRGIJUP>; Mon, 9 Jul 2001 05:20:15 -0400
+	id <S266992AbRGIJLF>; Mon, 9 Jul 2001 05:11:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266996AbRGIJUG>; Mon, 9 Jul 2001 05:20:06 -0400
-Received: from www.wen-online.de ([212.223.88.39]:59916 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S266995AbRGIJTy>;
-	Mon, 9 Jul 2001 05:19:54 -0400
-Date: Mon, 9 Jul 2001 11:18:52 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Christoph Rohland <cr@sap.com>
-cc: Rik van Riel <riel@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: VM in 2.4.7-pre hurts...
-In-Reply-To: <m3wv5iik5m.fsf@linux.local>
-Message-ID: <Pine.LNX.4.33.0107091107490.311-100000@mikeg.weiden.de>
+	id <S266995AbRGIJK4>; Mon, 9 Jul 2001 05:10:56 -0400
+Received: from mail.necsom.com ([195.197.180.67]:33401 "EHLO
+	mail.services.necsom.com") by vger.kernel.org with ESMTP
+	id <S266992AbRGIJKt>; Mon, 9 Jul 2001 05:10:49 -0400
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
+        Ville Nummela <ville.nummela@mail.necsom.com>,
+        linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+Subject: Re: tasklets in 2.4.6
+In-Reply-To: <7an16iy2wa.fsf@necsom.com> <3B4563D5.89A1ACA3@mandrakesoft.com>
+	<3B45760D.6F99149C@mandrakesoft.com>
+X-Face: "Df%<nszNB6]!2E>ff/A[8\G2b3+^!5to-ud=~>-GK'R3S00Csb"a2XD}:"E8Y(ZS4|d#5d!]Y];+I+8(L;jzZM`?M5$QkA>C@"?Y5@&^):)@<_S|q_*v$dgZYh%-Kw<_g,9pmme24Zr|d;dvwK}}.1,K!uP)/mX\=1IhOn7Lvr=k$">br]sxlslZ8m%g,v'y/l`X5oObnS)C^q<:DTgvV^|&`QuPHF]YZJ8`q|z^mkeP,.['pv1eMZzflI4RE|1}t&{Pp'c-M;t~@T2L$$YtuFzM$`P~aN48_ohw:KbSYPvx]:IBS`\g
+From: Ville Nummela <ville.nummela@mail.necsom.com>
+Date: 09 Jul 2001 12:09:44 +0300
+In-Reply-To: <3B45760D.6F99149C@mandrakesoft.com> (Jeff Garzik's message of "Fri, 06 Jul 2001 04:25:49 -0400")
+Message-ID: <7aelrqxycn.fsf@necsom.com>
+User-Agent: Gnus/5.090002 (Oort Gnus v0.02) XEmacs/21.1 (Capitol Reef)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9 Jul 2001, Christoph Rohland wrote:
+Jeff Garzik <jgarzik@mandrakesoft.com> writes:
 
-> Hi Mike,
->
-> On Mon, 9 Jul 2001, Mike Galbraith wrote:
-> > I don't know exactly what is happening, but I do know _who_ is
-> > causing the problem I'm seeing.. it's tmpfs.  When mounted on /tmp
-> > and running X/KDE, the tar [1] will oom my box every time because
-> > page_launder trys and always failing to get anything scrubbed after
-> > the tar has run for a while.  Unmount tmpfs/restart X and do the
-> > same tar, and all is well.
-> >
-> > (it's not locked pages aparantly. I modified page_launder to move
-> > those to the active list, and refill_inactive_scan to rotate them to
-> > the end of the active list.  inactive_dirty list still grows ever
-> > larger, filling with 'stuff' that page_launder can't clean until
-> > you're totally oom)
->
-> Do you have set the size parameter for tmpfs? Else it will grow until
-> oom.
+> Jeff Garzik wrote:
+> > The only thing that appears fishy is that if the tasklet constantly
+> > reschedules itself, it will never leave the loop AFAICS.  This affects
+> > tasklet_hi_action as well as tasklet_action.
+> As I hacked around to fix this, I noticed Andrea's ksoftirq patch
+> already fixed this.  So, I decided to look over his patch instead.
 
-No, but that doesn't appear to be the problem.  The patchlet below
-fixes^Wmakes it work ok without ooming, whether I have swap enabled
-or not.
+I tried that patch too, but with not so good results: The code LOOKS good to
+mee too, but for some reason it still seems to stuck in looping the tasklet
+code only. btw. I'm trying this on PPC, it might have something to do with
+that.. :)
 
---- mm/shmem.c.org	Mon Jul  9 09:03:27 2001
-+++ mm/shmem.c	Mon Jul  9 09:03:46 2001
-@@ -264,8 +264,8 @@
- 	info->swapped++;
+I'll try to hack this out :-/
 
- 	spin_unlock(&info->lock);
--out:
- 	set_page_dirty(page);
-+out:
- 	UnlockPage(page);
- 	return error;
- }
-
-So, did I fix it or just bust it in a convenient manner ;-)
-
-	-Mike
-
-Rik.  Kswapd should check oom even if there is no inactive shortage,
-else you get livelock when you can't scrub instead of kaboom.  Maybe
-a count of loops before killing things, but IMHO a check is needed.
-
+-- 
+ |   ville.nummela@necsom.com tel: +358-40-8480344               
+ |   So Linus, what are we doing tonight?                             
+ |   The same thing we every night Tux. Try to take over the world!   

@@ -1,38 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262654AbUJ1Aej@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262711AbUJ1Ab5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262654AbUJ1Aej (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 20:34:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262606AbUJ1AcQ
+	id S262711AbUJ1Ab5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 20:31:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262606AbUJ1A3S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 20:32:16 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:63213 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262687AbUJ1Abb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 20:31:31 -0400
-Date: Thu, 28 Oct 2004 01:31:29 +0100
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Lei Yang <lya755@ece.northwestern.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: loopback on block device
-Message-ID: <20041028003129.GL24336@parcelfarce.linux.theplanet.co.uk>
-References: <417FE703.3070608@ece.northwestern.edu> <417FE922.7080009@ece.northwestern.edu>
+	Wed, 27 Oct 2004 20:29:18 -0400
+Received: from vana.vc.cvut.cz ([147.32.240.58]:25984 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id S262670AbUJ1A2L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 20:28:11 -0400
+Date: Thu, 28 Oct 2004 01:27:57 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: Joel Jaeggli <joelja@darkwing.uoregon.edu>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Dual Opteron box, what's the optimal memory placement for the CPUs?
+Message-ID: <20041027232757.GB9093@vana.vc.cvut.cz>
+References: <Pine.LNX.4.61.0410272316160.3284@dragon.hygekrogen.localhost> <Pine.LNX.4.61.0410271439000.6240@twin.uoregon.edu> <Pine.LNX.4.61.0410272355300.3284@dragon.hygekrogen.localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <417FE922.7080009@ece.northwestern.edu>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.61.0410272355300.3284@dragon.hygekrogen.localhost>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 27, 2004 at 01:29:54PM -0500, Lei Yang wrote:
-> >Here is a question for loopback device. As far as I understand,  the 
-> >loopback device is used to mount files as if they were block devices.
-> >
-> >Then Why I could do "losetup -e XOR /dev/loop0 /dev/ram0" ? Notice 
-> >that ram0 is not mounted anywhere and does not have a filesystem on 
-> >it. I've tried that command and there seems to be no error. I got 
-> >confused and looked into loop.c, it seems to me that a loopback device 
-> >should be associated with a "backing file", why would it work on a 
-> >block device anyway?
+On Thu, Oct 28, 2004 at 12:00:45AM +0200, Jesper Juhl wrote:
 
-Because block device is a file.
+> Yeah, I know they have to be installed in pairs, but I would have thought 
+> that it would be best to have an even memory distribution so that an even 
+> amount of local memory was available to processes executing on either CPU. 
+> Even if Linux makes sure to execute processes on the CPU where most of 
+> their memory is local, wouldn't a non-even distribution make more 
+> processes prefer one CPU and thus not make the best possible use of them?
+> 
+> I don't really know very much about this specific detail (which is why I 
+> asked), and you tell me it doesn't matter, so I'll assume Linux has some 
+> intelligent way of dealing with this that I just don't know about - That's 
+> good enough for me, I'll trust you on that, just wanted to know for now 
+> and the future. :-)
+
+You should also check this with your BIOS.  It will be a bit unfortunate 
+if BIOS decides to just throw away 0.5GB of your memory to make space
+for PCI devices, and maybe you can help BIOS a bit with right
+shuffling (with 3:1 it will hopefully decide to put 1GB above
+4GB boundary; with 2:2 who knows; AFAIK Opteron northbridge does not
+allow for splitting DRAM on one node into two regions; at least I did not 
+found how to do that).
+
+I would prefer 2:2 if both variants give you same amount of accessible
+memory.
+						Best regards,
+							Petr Vandrovec

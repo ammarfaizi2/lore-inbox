@@ -1,260 +1,135 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266995AbRGMWy2>; Fri, 13 Jul 2001 18:54:28 -0400
+	id <S267000AbRGMW7s>; Fri, 13 Jul 2001 18:59:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267000AbRGMWyT>; Fri, 13 Jul 2001 18:54:19 -0400
-Received: from myth2.Stanford.EDU ([171.64.15.15]:20643 "EHLO
-	myth2.Stanford.EDU") by vger.kernel.org with ESMTP
-	id <S266995AbRGMWyJ>; Fri, 13 Jul 2001 18:54:09 -0400
-Date: Fri, 13 Jul 2001 15:54:05 -0700 (PDT)
-From: Evan Parker <nave@stanford.edu>
-To: <linux-kernel@vger.kernel.org>
-cc: <mc@cs.stanford.edu>
-Subject: [CHECKER] free errors for 2.4.6 and 2.4.6ac2
-Message-ID: <Pine.GSO.4.31.0107131551270.15960-100000@myth2.Stanford.EDU>
+	id <S267060AbRGMW7k>; Fri, 13 Jul 2001 18:59:40 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:25809 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S267000AbRGMW72>; Fri, 13 Jul 2001 18:59:28 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Abramo Bagnara <abramo@alsa-project.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>,
+        nfs-devel@linux.kernel.org, nfs@lists.sourceforge.net,
+        Alexander Viro <viro@math.psu.edu>
+Date: Sat, 14 Jul 2001 08:47:40 +1000 (EST)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15183.31372.316080.1208@notabene.cse.unsw.edu.au>
+Subject: Re: [NFS] [PATCH] Bug in NFS - should init be allowed to set umask???
+In-Reply-To: message from Neil Brown on Friday July 13
+In-Reply-To: <3B4E93E9.F6506CC0@alsa-project.org>
+	<15182.48923.214510.180434@notabene.cse.unsw.edu.au>
+	<3B4EDBCE.D2AEAD16@alsa-project.org>
+	<15182.58236.133661.221154@notabene.cse.unsw.edu.au>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Enclosed are 10 bugs where code uses memory that has already been
-freed.  4 of the bugs have to do with one function, usb_free_dev, which
-decrements the number of references to the arg passed to it and kfrees the
-arg once the number of references to it reaches 0.  Because it does
-reference counting, I wasn't sure if a kfree would occur every time,
-but it definitely seems like it could cause use-after-free problems, so
-check it out.
+On Friday July 13, neilb@cse.unsw.edu.au wrote:
+> So we have several options:
+> 
+> 1/ Claim that redhat is broken. Leave them to fix SysVinit.
+> 2/ Have nfsd over-write the umask setting that /sbin/init imposed.
+>    This is effectively what your patch does.
+> 3/ Decide that it is inappropriate for nfsd to share the current->fs
+>    fs_struct with init.  Unfortunately this means changing or
+>    replacing daemonize().
+> 
+> None of these seem ideal.  (3) is probably most correct (i.e. protect
+> the kernel from user space mucking about) but is the most work.
 
-# Summary for free-check
-#  2.4.6-specific errors       = 3
-#  2.4.6ac2-specific errors = 3
-#  Common errors 		      	  = 4
-#  Total 				  = 10
-# BUGs	|	File Name
-3	|	/home/eparker/tmp/linux/2.4.6/drivers/atm/iphase.c/
-1	|	/home/eparker/tmp/linux/2.4.6-ac2/drivers/usb/usbnet.c/
-1	|	/home/eparker/tmp/linux/2.4.6-ac2/drivers/usb/CDCEther.c/
-1	|	/home/eparker/tmp/linux/2.4.6/drivers/usb/uhci.c/
-1	|	/home/eparker/tmp/linux/2.4.6/drivers/isdn/isdn_common.c/
-1	|	/home/eparker/tmp/linux/2.4.6/drivers/usb/usb-ohci.c/
-1	|	/home/eparker/tmp/linux/2.4.6/drivers/usb/hub.c/
-1	|	/home/eparker/tmp/linux/2.4.6-ac2/drivers/net/irda/ali-ircc.c/
+I've found a 4th option.  We make it so that fs->umask does not affect
+nfsd, just as the rest of the fs_struct has no effect on nfsd.
+This means moving the " & ~current->fs->umask" up out of the vfs_*
+routines and into the sys_* (or open_namei) routines.
 
+The attached patch does this.
+The only part that I'm not 100% confident of is the call to vfs_mknod
+in net/unix/af_unix.c:unix_bind.  I haven't put an "& ~current->fs->umask"
+there, as I suspect that is actually the right thing.  Any comments on
+that?
 
-############################################################
-# 2.4.6 specific errors
-#
----------------------------------------------------------
-[BUG] (submitted before, evidently not fixed yet)
-/home/eparker/tmp/linux/2.4.6/drivers/atm/iphase.c:1326:rx_dle_intr: ERROR:FREE:1324:1326: Use-after-free of 'skb'!  set by 'dev_kfree_skb_any':1324 [nbytes = 168]  [distance=2]
-          }
-          ia_vcc = INPH_IA_VCC(vcc);
-          if (ia_vcc == NULL)
-          {
-             atomic_inc(&vcc->stats->rx_err);
-Start --->
-             dev_kfree_skb_any(skb);
-#if LINUX_VERSION_CODE >= 0x20312
-Error --->
-             atm_return(vcc, atm_guess_pdu2truesize(skb->len));
-#else
-             atm_return(vcc, atm_pdu2truesize(skb->len));
-#endif
----------------------------------------------------------
-[BUG] (submitted before, evidently not fixed yet)
-/home/eparker/tmp/linux/2.4.6/drivers/atm/iphase.c:1342:rx_dle_intr: ERROR:FREE:1340:1342: Use-after-free of 'skb'!  set by 'dev_kfree_skb_any':1340 [nbytes = 168]  [distance=13]
-          length =  swap(trailer->length);
-          if ((length > iadev->rx_buf_sz) || (length >
-                              (skb->len - sizeof(struct cpcs_trailer))))
-          {
-             atomic_inc(&vcc->stats->rx_err);
-Start --->
-             dev_kfree_skb_any(skb);
-             IF_ERR(printk("rx_dle_intr: Bad  AAL5 trailer %d (skb len %d)",
-Error --->
-                                                            length, skb->len);)
-#if LINUX_VERSION_CODE >= 0x20312
-             atm_return(vcc, atm_guess_pdu2truesize(skb->len));
-#else
----------------------------------------------------------
-[BUG] (submitted before, evidently not fixed yet)
-/home/eparker/tmp/linux/2.4.6/drivers/atm/iphase.c:1344:rx_dle_intr: ERROR:FREE:1340:1344: Use-after-free of 'skb'!  set by 'dev_kfree_skb_any':1340 [nbytes = 168]  [distance=13]
-          length =  swap(trailer->length);
-          if ((length > iadev->rx_buf_sz) || (length >
-                              (skb->len - sizeof(struct cpcs_trailer))))
-          {
-             atomic_inc(&vcc->stats->rx_err);
-Start --->
-             dev_kfree_skb_any(skb);
-             IF_ERR(printk("rx_dle_intr: Bad  AAL5 trailer %d (skb len %d)",
-                                                            length, skb->len);)
-#if LINUX_VERSION_CODE >= 0x20312
-Error --->
-             atm_return(vcc, atm_guess_pdu2truesize(skb->len));
-#else
-             atm_return(vcc, atm_pdu2truesize(skb->len));
-#endif
+Al, as this is a vfs change, I have cc:ed you.  Are you happy with it?
+It allows nfsd to not be effected by any change the init might make to
+umask.
+
+This patch also puts the umask for init back to 0022.
+
+NeilBrown
 
 
-############################################################
-# 2.4.6ac2_free_inspected specific errors
+--- ./fs/namei.c	2001/07/13 21:43:03	1.1
++++ ./fs/namei.c	2001/07/13 22:38:31	1.2
+@@ -886,7 +886,7 @@
+ {
+ 	int error;
+ 
+-	mode &= S_IALLUGO & ~current->fs->umask;
++	mode &= S_IALLUGO;
+ 	mode |= S_IFREG;
+ 
+ 	down(&dir->i_zombie);
+@@ -975,7 +975,8 @@
+ 
+ 	/* Negative dentry, just create the file */
+ 	if (!dentry->d_inode) {
+-		error = vfs_create(dir->d_inode, dentry, mode);
++		error = vfs_create(dir->d_inode, dentry,
++				   mode & ~current->fs->umask);
+ 		up(&dir->d_inode->i_sem);
+ 		dput(nd->dentry);
+ 		nd->dentry = dentry;
+@@ -1164,8 +1165,6 @@
+ {
+ 	int error = -EPERM;
+ 
+-	mode &= ~current->fs->umask;
+-
+ 	down(&dir->i_zombie);
+ 	if ((S_ISCHR(mode) || S_ISBLK(mode)) && !capable(CAP_MKNOD))
+ 		goto exit_lock;
+@@ -1208,6 +1207,8 @@
+ 		goto out;
+ 	dentry = lookup_create(&nd, 0);
+ 	error = PTR_ERR(dentry);
++
++	mode &= ~current->fs->umask;
+ 	if (!IS_ERR(dentry)) {
+ 		switch (mode & S_IFMT) {
+ 		case 0: case S_IFREG:
+@@ -1246,7 +1247,7 @@
+ 		goto exit_lock;
+ 
+ 	DQUOT_INIT(dir);
+-	mode &= (S_IRWXUGO|S_ISVTX) & ~current->fs->umask;
++	mode &= (S_IRWXUGO|S_ISVTX);
+ 	lock_kernel();
+ 	error = dir->i_op->mkdir(dir, dentry, mode);
+ 	unlock_kernel();
+@@ -1276,7 +1277,8 @@
+ 		dentry = lookup_create(&nd, 1);
+ 		error = PTR_ERR(dentry);
+ 		if (!IS_ERR(dentry)) {
+-			error = vfs_mkdir(nd.dentry->d_inode, dentry, mode);
++			error = vfs_mkdir(nd.dentry->d_inode, dentry,
++					  mode & ~current->fs->umask);
+ 			dput(dentry);
+ 		}
+ 		up(&nd.dentry->d_inode->i_sem);
 
-#
----------------------------------------------------------
-[BUG] obvious
-/home/eparker/tmp/linux/2.4.6-ac2/drivers/net/irda/ali-ircc.c:335:ali_ircc_open: ERROR:FREE:334:335: Use-after-free of 'self'!  set by 'kfree':334 [distance=2]
-	memset(self->rx_buff.head, 0, self->rx_buff.truesize);
-
-	self->tx_buff.head = (__u8 *) kmalloc(self->tx_buff.truesize,
-					      GFP_KERNEL|GFP_DMA);
-	if (self->tx_buff.head == NULL) {
-Start --->
-		kfree(self);
-Error --->
-		kfree(self->rx_buff.head);
-		return -ENOMEM;
-	}
-	memset(self->tx_buff.head, 0, self->tx_buff.truesize);
----------------------------------------------------------
-[BUG] usb_dec_dev_use is defined as usb_free_dev, which calls kfree on usb
-/home/eparker/tmp/linux/2.4.6-ac2/drivers/usb/CDCEther.c:1226:CDCEther_disconnect: ERROR:FREE:1222:1226: Use-after-free of 'usb'!  set by 'usb_free_dev':1222 [nbytes = 300]  [distance=2]
-
-	// For sanity checks
-	ether_dev->net = NULL;
-
-	// I ask again, does this do anything???
-Start --->
-	usb_dec_dev_use( usb );
-
-	// We are done with this interface
-	usb_driver_release_interface( &CDCEther_driver,
-Error --->
-	                              &(usb->config[ether_dev->configuration_num].interface[ether_dev->comm_interface]) );
-
-	// We are done with this interface too
-	usb_driver_release_interface( &CDCEther_driver,
----------------------------------------------------------
-[BUG] usb_free_urb called twice on urb (usb_free_urb is just a wrapper for
-kfree)
-
-/home/eparker/tmp/linux/2.4.6-ac2/drivers/usb/usbnet.c:1241:usbnet_start_xmit: ERROR:FREE:1196:1241: WARN: Use-after-free of 'urb'!  set by 'usb_free_urb':1196 [nbytes = 88]  [distance=7]
-	} else if ((length % EP_SIZE (dev)) == 0) {
-			if (skb_shared (skb)) {
-				struct sk_buff *skb2;
-				skb2 = skb_unshare (skb, flags);
-				if (!skb2) {
-Start --->
-					usb_free_urb (urb);
-					dbg ("can't unshare skb");
-					goto drop;
-
-	... DELETED 39 lines ...
-
-drop:
-		retval = NET_XMIT_DROP;
-		dev->stats.tx_dropped++;
-		dev_kfree_skb_any (skb);
-Error --->
-		usb_free_urb (urb);
-#ifdef	VERBOSE
-	} else {
-
-
-############################################################
-# errors common to both
-
-#
----------------------------------------------------------
-[BUG] double free: usb_new_device calls usb_free_dev on an error path and
-returns 1; this code then catches that error and calls usb_free_dev again
-(usb_free_dev is a reference counter that calls kfree once the number of
-references reaches 0)
-/home/eparker/tmp/linux/2.4.6/drivers/usb/hub.c:620:usb_hub_port_connect_change: ERROR:FREE:620:620: WARN: Use-after-free of 'dev'! [path=usb_new_device(0):2210->usb_free_dev(0):957->$kfree(0)$] set by 'usb_new_device':620 [nbytes = 292]  [distance=12]
-		} else
-			info("USB new device connect on bus%d, assigned device number %d",
-				dev->bus->busnum, dev->devnum);
-
-		/* Run it through the hoops (find a driver, etc) */
-
-Start --->
-		if (!usb_new_device(dev))
-			goto done;
-
-		/* Free the configuration if there was an error */
-Error --->
-		usb_free_dev(dev);
----------------------------------------------------------
-[BUG] double free: usb_new_device calls usb_free_dev on an error path and
-returns 1; this code then catches that error and calls usb_free_dev again
-(usb_free_dev is a reference counter that calls kfree once the number of
-references reaches 0)
-/home/eparker/tmp/linux/2.4.6/drivers/usb/usb-ohci.c:2191:hc_start: ERROR:FREE:2190:2191: WARN: Use-after-free of 'usb_dev'! [path=usb_new_device(0):2210->usb_free_dev(0):957->$kfree(0)$] set by 'usb_new_device':2190 [nbytes = 292]  [distance=12]
-	}
-
-	dev = usb_to_ohci (usb_dev);
-	ohci->bus->root_hub = usb_dev;
-	usb_connect (usb_dev);
-Start --->
-	if (usb_new_device (usb_dev) != 0) {
-Error --->
-		usb_free_dev (usb_dev);
-		ohci->disabled = 1;
-		return -ENODEV;
-	}
----------------------------------------------------------
-[BUG] double free: usb_new_device calls usb_free_dev on an error path and
-returns 1; this code then catches that error and calls usb_free_dev again
-(usb_free_dev is a reference counter that calls kfree once the number of
-references reaches 0)
-/home/eparker/tmp/linux/2.4.6/drivers/usb/uhci.c:2491:uhci_start_root_hub: ERROR:FREE:2490:2491: WARN: Use-after-free of 'dev'! [path=usb_new_device(0):2210->usb_free_dev(0):957->$kfree(0)$] set by 'usb_new_device':2490 [distance=12]
-
-static int uhci_start_root_hub(struct uhci *uhci)
-{
-	usb_connect(uhci->rh.dev);
-
-Start --->
-	if (usb_new_device(uhci->rh.dev) != 0) {
-Error --->
-		usb_free_dev(uhci->rh.dev);
-
-		return -1;
-	}
----------------------------------------------------------
-[BUG] double free (then again, dev_kfree_skb does referece counting--maybe
-not a bug?)
-/home/eparker/tmp/linux/2.4.6/drivers/isdn/isdn_common.c:1978:isdn_writebuf_skb_stub: ERROR:FREE:1960:1978: Use-after-free of 'skb'!  set by 'kfree_skb':1960 [nbytes = 168]  [distance=36]
-			skb_tmp = skb_realloc_headroom(skb, hl);
-			printk(KERN_DEBUG "isdn_writebuf_skb_stub: reallocating headroom%s\n", skb_tmp ? "" : " failed");
-			if (!skb_tmp) return -ENOMEM; /* 0 better? */
-			ret = dev->drv[drvidx]->interface->writebuf_skb(drvidx, chan, ack, skb_tmp);
-			if( ret > 0 ){
-Start --->
-				dev_kfree_skb(skb);
-
-	... DELETED 12 lines ...
-
-			atomic_dec(&dev->v110use[idx]);
-			/* For V.110 return unencoded data length */
-			ret = v110_ret;
-			/* if the complete frame was send we free the skb;
-			   if not upper function will requeue the skb */
-Error --->
-			if (ret == skb->len)
-				dev_kfree_skb(skb);
-		}
-	} else
-
-
-
-
-
-
-
-
---------------------------------------------------------------------
-Evan Parker
-eparker@cs.stanford.edu
-home: (650) 497-4928
-cell: (650) 207-3646
---------------------------------------------------------------------
-
+--- ./include/linux/fs_struct.h	2001/07/13 22:46:19	1.1
++++ ./include/linux/fs_struct.h	2001/07/13 22:46:40	1.2
+@@ -13,7 +13,7 @@
+ #define INIT_FS { \
+ 	ATOMIC_INIT(1), \
+ 	RW_LOCK_UNLOCKED, \
+-	0000, \
++	0022, \
+ 	NULL, NULL, NULL, NULL, NULL, NULL \
+ }
+ 

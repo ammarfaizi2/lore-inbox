@@ -1,122 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261597AbVA0ClW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262392AbVA0ChB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261597AbVA0ClW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 21:41:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262473AbVA0Cii
+	id S262392AbVA0ChB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 21:37:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261960AbVA0Cd6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 21:38:38 -0500
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:43924 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261954AbVA0Cdc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 21:33:32 -0500
-Message-ID: <41F8530C.6010305@comcast.net>
-Date: Wed, 26 Jan 2005 21:33:48 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
-X-Accept-Language: en-us, en
+	Wed, 26 Jan 2005 21:33:58 -0500
+Received: from mail.joq.us ([67.65.12.105]:4060 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S261981AbVA0C37 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 21:29:59 -0500
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Ingo Molnar <mingo@elte.hu>, Paul Davis <paul@linuxaudiosystems.com>,
+       Con Kolivas <kernel@kolivas.org>, linux <linux-kernel@vger.kernel.org>,
+       rlrevell@joe-job.com, CK Kernel <ck@vds.kolivas.org>,
+       utz <utz@s2y4n2c.de>, Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU_RATIO feature
+References: <200501201542.j0KFgOwo019109@localhost.localdomain>
+	<87y8eo9hed.fsf@sulphur.joq.us> <20050120172506.GA20295@elte.hu>
+	<87wtu6fho8.fsf@sulphur.joq.us> <20050122165458.GA14426@elte.hu>
+	<87hdl940ph.fsf@sulphur.joq.us> <20050124085902.GA8059@elte.hu>
+	<20050124125814.GA31471@elte.hu> <20050125135613.GA18650@elte.hu>
+	<87sm4opxto.fsf@sulphur.joq.us> <20050126070404.GA27280@elte.hu>
+	<87fz0neshg.fsf@sulphur.joq.us>
+	<1106782165.5158.15.camel@npiggin-nld.site>
+From: "Jack O'Quin" <joq@io.com>
+Date: Wed, 26 Jan 2005 20:31:25 -0600
+In-Reply-To: <1106782165.5158.15.camel@npiggin-nld.site> (Nick Piggin's
+ message of "Thu, 27 Jan 2005 10:29:25 +1100")
+Message-ID: <874qh3bo1u.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: /proc parent &proc_root == NULL?
-References: <41F82218.1080705@comcast.net> <41F84313.4030509@osdl.org>
-In-Reply-To: <41F84313.4030509@osdl.org>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Nick Piggin <nickpiggin@yahoo.com.au> writes:
 
+> I'm a bit concerned about this kind of policy and breakage of
+> userspace APIs going into the kernel. I mean, if an app is
+> succeeds in gaining SCHED_FIFO / SCHED_RR scheduling, and the
+> scheduler does something else, that could be undesirable in some
+> situations.
 
+True.  It's similar to running out of CPU bandwidth, but not quite.
 
-Randy.Dunlap wrote:
-> John Richard Moser wrote:
-> 
->> -----BEGIN PGP SIGNED MESSAGE-----
->> Hash: SHA1
->>
->> proc_misc_init() has both these lines in it:
->>
->> entry = create_proc_entry("kmsg", S_IRUSR, &proc_root);
->> proc_root_kcore = create_proc_entry("kcore", S_IRUSR, NULL);
->>
->> Both entries show up in /proc, as /proc/kmsg and /proc/kcore.  So I ask,
->> as I can't see after several minutes of examination, what's the
->> difference?  Why is NULL used for some and &proc_root used for others?
->>
->> I'm looking at 2.6.10
-> 
-> 
-> create_proc_entry() passes &parent to proc_create().
-> See proc_create():
-> ...
-> This is an error path:
->     if (!(*parent) && xlate_proc_name(name, parent, &fn) != 0)
->         goto out;
-> but xlate_proc_name() searches for a /proc/.... and returns the
-> all-but-final-part-of-name *parent (hope that makes some sense,
-> see the comments above the function), so it returns &proc_root.
-> 
-> HTH.  If not, fire back.
+AFAICT, the new behavior still meets the letter of the standard[1].
+Whether it meets the spirit of the standard is debatable.  My own
+feeling is that it probably does, and that making SCHED_FIFO somewhat
+less powerful but much easier to access is a reasonable tradeoff.
 
-create_proc_entry("kmsg", S_IRUSR, &proc_root);
+ [1] http://www.opengroup.org/onlinepubs/007908799/xsh/realtime.html
 
-So this is asking for proc_root to be filled?
+If I understand Ingo's proposal correctly, setting RLIMIT_RT_CPU to
+zero and then requesting SCHED_FIFO (with CAP_SYS_NICE) yields exactly
+the former behavior.  This will probably be the default setting.
 
-create_proc_entry("kcore", S_IRUSR, NULL);
+> Secondly, I think we should agree upon and get the basic rlimit
+> support in ASAP, so the userspace aspect can be firmed up a bit
+> for people like Paul and Jack (this wouldn't preclude further
+> work from happening in the scheduler afterwards).
 
-And this is just saying to shove it in proc's root?
+I don't sense much opposition to adding rlimit support for realtime
+scheduling.  I personally don't think it a very good way to manage
+this problem.  But, it certainly can be made to work.
 
+The main point of discussion is: exactly what resource should it
+limit?  Arjan and Chris proposed to limit priority.  Ingo proposed to
+limit the percentage of each CPU available for realtime threads
+(collectively).  Either would meet our minimum needs (AFAICT).
 
-I'm trying to locate a specific proc entry, using this lovely piece of
-code I ripped off:
+But, they are not identical, and the best choice depends at least
+partly on the outcome of Ingo's scheduler experiments.  I doubt that
+anyone wants to add both (though it could come down to that, I
+suppose).
 
-/*
- * Find a proc entry
- * Duplicated from remove_proc_entry()
- */
-struct proc_dir_entry **get_proc_entry(const char *name, struct
-proc_dir_entry *parent) {
-        struct proc_dir_entry **p;
-        const char *fn = name;
-        int len;
-        if (!parent && xlate_proc_name(name, &parent, &fn) != 0)
-                goto out;
-        len = strlen(fn);
-        for (p = &parent->subdir; *p; p=&(*p)->next ) {
-                if (!proc_match(len, fn, *p))
-                        continue;
-                return p;
-        }
-out:
-        return NULL;
-}
+> And finally, with rlimit support, is there any reason why lockup
+> detection and correction can't go into userspace? Even RT
+> throttling could probably be done in a userspace daemon.
 
-
-And I'm trying to figure out if, say, /proc/devices would be found by...
-
-get_proc_entry("devices",NULL);
-- -OR-
-get_proc_entry("devices",&proc_root);
-
-Oh well.  I'll figure it out eventually.  :)  I've already caused my
-kernel to not boot :) figured it out too, it was that very function
-above; I replaced a chunk of remove_proc_entry() with a modified version
-of that and I'd busted it horribly so it didn't work.  Just more things
-to remind me that I know not what it is I do.
-
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFB+FMLhDd4aOud5P8RAp1XAJ9j+ezlZgYuXpTmeaNSlQcC3xkb+ACaAjA8
-D3NEZH4Drey2nuMCXZwK6sE=
-=o5P7
------END PGP SIGNATURE-----
+It can.  But, doing it in the kernel is more efficient, and probably
+more reliable.
+-- 
+  joq

@@ -1,48 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282400AbRLQTRS>; Mon, 17 Dec 2001 14:17:18 -0500
+	id <S282491AbRLQT13>; Mon, 17 Dec 2001 14:27:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282491AbRLQTRJ>; Mon, 17 Dec 2001 14:17:09 -0500
-Received: from ns01.netrox.net ([64.118.231.130]:10118 "EHLO smtp01.netrox.net")
-	by vger.kernel.org with ESMTP id <S282400AbRLQTQ6>;
-	Mon, 17 Dec 2001 14:16:58 -0500
-Subject: Re: [PATCH] 2.4.16 Fix NULL pointer dereferencing in agpgart_be.c
-From: Robert Love <rml@tech9.net>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Stephan von Krawczynski <skraw@ithnet.com>,
-        Yoshiki Hayashi <yoshiki@xemacs.org>, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0112171555190.3340-100000@freak.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.21.0112171555190.3340-100000@freak.distro.conectiva>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.0.99+cvs.2001.12.10.08.57 (Preview Release)
-Date: 17 Dec 2001 14:16:18 -0500
-Message-Id: <1008616583.1705.0.camel@phantasy>
-Mime-Version: 1.0
+	id <S282453AbRLQT1U>; Mon, 17 Dec 2001 14:27:20 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:61202 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S282491AbRLQT1E>; Mon, 17 Dec 2001 14:27:04 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: O_DIRECT wierd behavior..
+Date: Mon, 17 Dec 2001 19:26:05 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <9vlgsd$1b7$1@penguin.transmeta.com>
+In-Reply-To: <20011217181840.G2431@athlon.random> <Pine.LNX.4.21.0112171757530.2812-100000@localhost.localdomain> <3C1E400B.A4D25F9D@zip.com.au>
+X-Trace: palladium.transmeta.com 1008617215 22086 127.0.0.1 (17 Dec 2001 19:26:55 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 17 Dec 2001 19:26:55 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2001-12-17 at 12:55, Marcelo Tosatti wrote:
+In article <3C1E400B.A4D25F9D@zip.com.au>,
+Andrew Morton  <akpm@zip.com.au> wrote:
+>
+>SUS says: ( http://www.opengroup.org/onlinepubs/007908799/xsh/write.html )
+>
+> RETURN VALUE
+>
+>     Upon successful completion, write() and pwrite() will return the number of bytes
+>     actually written to the file associated with fildes. This number will never be greater
+>     than nbyte. Otherwise, -1 is returned and errno is set to indicate the error. 
+>
+>I take that to mean that if an error occurs, we return that
+>error regardless of how much was written.
 
-> Well, Stephan, if you could send me only the part which fixes the oops for
-> 2.4.17 then I'll be happy.
+I disagree.
 
-This patch is sufficient to prevent the oops (check for null pointer),
-but as said the full patch from Nicolas is needed for completely correct
-operation.
+Note that writing 15 characters out of 30 is also a "successful write" -
+it's just a _partial_ write.
 
---- linux-2.4.17-rc1/drivers/char/agp/agpgart_be.c      Sat Nov 17 03:11:22 2001
-+++ linux/drivers/char/agp/agpgart_be.c       Sat Dec 15 12:02:51 2001
-@@ -3879,7 +3879,7 @@
-                        i810_dev = pci_find_device(PCI_VENDOR_ID_INTEL,
-                                                                           PCI_DEVICE_ID_INTEL_830_M_1,
-                                                                           NULL);
--                       if(PCI_FUNC(i810_dev->devfn) != 0) {
-+                       if(i810_dev != NULL && PCI_FUNC(i810_dev->devfn) != 0) {
-                                i810_dev = pci_find_device(PCI_VENDOR_ID_INTEL,
-                                                                                   PCI_DEVICE_ID_INTEL_830_M_1,
-                                                                                   i810_dev);
+So it is acceptable to return an intermediate value.
 
-	Robert Love
+In particular, returning "error" when 15 bytes were written loses
+information that the application _cannot_ recover from. 
 
+Which is why Linux does what Linux does now:
+ - if you get an error half-way, we return the number of bytes
+   successfully written.
+ - a well-written app will handle partial writes correctly (otherwise it
+   can never handle things like sockets or pipes), so it will try to
+   write the remaining chunk later,
+ - if, at that later date, the error persists, and we cannot write any
+   data, the application gets the error message.
+
+this means:
+ - good applications can recover gracefully from errors
+ - you never lose "information" about what has happened
+
+In contrast, if you wrote and committed 15 bytes, and an error occurs
+when writing the 16th byte, and you return an error, the application is
+now hosed. It has no way of knowing whether _any_ of the write was
+successful or not.
+
+>Which makes sense.  Consider this code:
+>
+>	open(file)
+>	write(100k)
+>	close(fd)
+>
+>if the write gets an IO error halfway through, it looks like
+>the caller never gets to hear about it at present.
+
+No, the caller _does_ get to hear about it. If the caller cares about
+robust handling, it will notice "Hmm, I tried to write 100k bytes, but
+the system only write 50k, what's up"?
+
+Note that the caller _has_ to do this anyway, or it wouldn't be able to
+handle things like interruptible NFS mounts, sockets, pipes, out-of-disk
+errors etc etc.
+
+And if the caller does _not_ care about robustness, then who cares?
+It's going to ignore whatever we return anyway.
+
+>						  Except via
+>the short return value from the write.  But from my reading of SUS,
+>a short return value from write implicitly means ENOSPC.
+
+I disagree. A short write is _normal_ for a lot of file descriptors.
+
+Yes, ENOSPC implies short write. But short write does not imply ENOSPC.
+
+		Linus

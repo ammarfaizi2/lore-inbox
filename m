@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261678AbVCJCkd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261662AbVCJCkc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261678AbVCJCkd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 21:40:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262680AbVCJBN4
+	id S261662AbVCJCkc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 21:40:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262689AbVCJBPl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 20:13:56 -0500
-Received: from mail.kroah.org ([69.55.234.183]:42399 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262607AbVCJAmW convert rfc822-to-8bit
+	Wed, 9 Mar 2005 20:15:41 -0500
+Received: from mail.kroah.org ([69.55.234.183]:53919 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262625AbVCJAma convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 19:42:22 -0500
+	Wed, 9 Mar 2005 19:42:30 -0500
 Cc: kay.sievers@vrfy.org
-Subject: [PATCH] Driver core: add "bus" symlink to class/block devices
-In-Reply-To: <11104148843411@kroah.com>
+Subject: [PATCH] class core: export MAJOR/MINOR to the hotplug env
+In-Reply-To: <11104148792069@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Wed, 9 Mar 2005 16:34:44 -0800
-Message-Id: <1110414884411@kroah.com>
+Date: Wed, 9 Mar 2005 16:34:40 -0800
+Message-Id: <1110414880513@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,113 +24,123 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2046, 2005/03/09 09:52:48-08:00, kay.sievers@vrfy.org
+ChangeSet 1.2039, 2005/03/09 09:32:38-08:00, kay.sievers@vrfy.org
 
-[PATCH] Driver core: add "bus" symlink to class/block devices
+[PATCH] class core: export MAJOR/MINOR to the hotplug env
 
-On Tue, Feb 15, 2005 at 09:53:44PM +0100, Kay Sievers wrote:
-> Add a "bus" symlink to the class and block devices, just like the "driver"
-> and "device" links. This may be a huge speed gain for e.g. udev to determine
-> the bus value of a device, as we currently need to do a brute-force scan in
-> /sys/bus/* to find this value.
-
-Hmm, while playing around with it, I think we should create the "bus"
-link on the physical device on not on the class device.
-
-Also the current "driver" link at the class device should be removed,
-cause class devices don't have a driver. Block devices never had this
-misleading symlink.
-
- From the class device we point with the "device" link to the physical
- device, and only the physical device should have the "driver" and the
- "bus" link, as it represents the real relationship.
+Move the creation of the sysfs "dev" file of a class device into the
+driver core. The struct class_device contains a dev_t value now.  If set,
+the driver core will create the "dev" file containing the major/minor
+numbers automatically.
 
 Signed-off-by: Kay Sievers <kay.sievers@vrfy.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- drivers/base/bus.c   |    2 ++
- drivers/base/class.c |   36 +++++-------------------------------
- 2 files changed, 7 insertions(+), 31 deletions(-)
+ drivers/base/class.c   |   39 +++++++++++++++++++++++++++++----------
+ include/linux/device.h |    1 +
+ 2 files changed, 30 insertions(+), 10 deletions(-)
 
 
-diff -Nru a/drivers/base/bus.c b/drivers/base/bus.c
---- a/drivers/base/bus.c	2005-03-09 16:29:06 -08:00
-+++ b/drivers/base/bus.c	2005-03-09 16:29:06 -08:00
-@@ -465,6 +465,7 @@
- 		up_write(&dev->bus->subsys.rwsem);
- 		device_add_attrs(bus, dev);
- 		sysfs_create_link(&bus->devices.kobj, &dev->kobj, dev->bus_id);
-+		sysfs_create_link(&dev->kobj, &dev->bus->subsys.kset.kobj, "bus");
- 	}
- 	return error;
- }
-@@ -481,6 +482,7 @@
- void bus_remove_device(struct device * dev)
- {
- 	if (dev->bus) {
-+		sysfs_remove_link(&dev->kobj, "bus");
- 		sysfs_remove_link(&dev->bus->devices.kobj, dev->bus_id);
- 		device_remove_attrs(dev->bus, dev);
- 		down_write(&dev->bus->subsys.rwsem);
 diff -Nru a/drivers/base/class.c b/drivers/base/class.c
---- a/drivers/base/class.c	2005-03-09 16:29:06 -08:00
-+++ b/drivers/base/class.c	2005-03-09 16:29:06 -08:00
-@@ -196,33 +196,6 @@
- 		sysfs_remove_bin_file(&class_dev->kobj, attr);
+--- a/drivers/base/class.c	2005-03-09 16:29:55 -08:00
++++ b/drivers/base/class.c	2005-03-09 16:29:55 -08:00
+@@ -15,6 +15,7 @@
+ #include <linux/module.h>
+ #include <linux/init.h>
+ #include <linux/string.h>
++#include <linux/kdev_t.h>
+ #include "base.h"
+ 
+ #define to_class_attr(_attr) container_of(_attr, struct class_attribute, attr)
+@@ -298,9 +299,9 @@
+ 			 int num_envp, char *buffer, int buffer_size)
+ {
+ 	struct class_device *class_dev = to_class_dev(kobj);
+-	int retval = 0;
+ 	int i = 0;
+ 	int length = 0;
++	int retval = 0;
+ 
+ 	pr_debug("%s - name = %s\n", __FUNCTION__, class_dev->class_id);
+ 
+@@ -313,26 +314,34 @@
+ 				    &length, "PHYSDEVPATH=%s", path);
+ 		kfree(path);
+ 
+-		/* add bus name of physical device */
+ 		if (dev->bus)
+ 			add_hotplug_env_var(envp, num_envp, &i,
+ 					    buffer, buffer_size, &length,
+ 					    "PHYSDEVBUS=%s", dev->bus->name);
+ 
+-		/* add driver name of physical device */
+ 		if (dev->driver)
+ 			add_hotplug_env_var(envp, num_envp, &i,
+ 					    buffer, buffer_size, &length,
+ 					    "PHYSDEVDRIVER=%s", dev->driver->name);
+-
+-		/* terminate, set to next free slot, shrink available space */
+-		envp[i] = NULL;
+-		envp = &envp[i];
+-		num_envp -= i;
+-		buffer = &buffer[length];
+-		buffer_size -= length;
+ 	}
+ 
++	if (MAJOR(class_dev->devt)) {
++		add_hotplug_env_var(envp, num_envp, &i,
++				    buffer, buffer_size, &length,
++				    "MAJOR=%u", MAJOR(class_dev->devt));
++
++		add_hotplug_env_var(envp, num_envp, &i,
++				    buffer, buffer_size, &length,
++				    "MINOR=%u", MINOR(class_dev->devt));
++	}
++
++	/* terminate, set to next free slot, shrink available space */
++	envp[i] = NULL;
++	envp = &envp[i];
++	num_envp -= i;
++	buffer = &buffer[length];
++	buffer_size -= length;
++
+ 	if (class_dev->class->hotplug) {
+ 		/* have the bus specific function add its stuff */
+ 		retval = class_dev->class->hotplug (class_dev, envp, num_envp,
+@@ -388,6 +397,12 @@
+ 	}
  }
  
--static int class_device_dev_link(struct class_device * class_dev)
--{
--	if (class_dev->dev)
--		return sysfs_create_link(&class_dev->kobj,
--					 &class_dev->dev->kobj, "device");
--	return 0;
--}
--
--static void class_device_dev_unlink(struct class_device * class_dev)
--{
--	sysfs_remove_link(&class_dev->kobj, "device");
--}
--
--static int class_device_driver_link(struct class_device * class_dev)
--{
--	if ((class_dev->dev) && (class_dev->dev->driver))
--		return sysfs_create_link(&class_dev->kobj,
--					 &class_dev->dev->driver->kobj, "driver");
--	return 0;
--}
--
--static void class_device_driver_unlink(struct class_device * class_dev)
--{
--	sysfs_remove_link(&class_dev->kobj, "driver");
--}
--
--
- static ssize_t
- class_device_attr_show(struct kobject * kobj, struct attribute * attr,
- 		       char * buf)
-@@ -452,8 +425,9 @@
- 		class_device_create_file(class_dev, &class_device_attr_dev);
- 
- 	class_device_add_attrs(class_dev);
--	class_device_dev_link(class_dev);
--	class_device_driver_link(class_dev);
-+	if (class_dev->dev)
-+		sysfs_create_link(&class_dev->kobj,
-+				  &class_dev->dev->kobj, "device");
- 
-  register_done:
- 	if (error && parent)
-@@ -482,8 +456,8 @@
++static ssize_t show_dev(struct class_device *class_dev, char *buf)
++{
++	return print_dev_t(buf, class_dev->devt);
++}
++static CLASS_DEVICE_ATTR(dev, S_IRUGO, show_dev, NULL);
++
+ void class_device_initialize(struct class_device *class_dev)
+ {
+ 	kobj_set_kset_s(class_dev, class_obj_subsys);
+@@ -432,6 +447,10 @@
+ 				class_intf->add(class_dev);
  		up_write(&parent->subsys.rwsem);
  	}
++
++	if (MAJOR(class_dev->devt))
++		class_device_create_file(class_dev, &class_device_attr_dev);
++
+ 	class_device_add_attrs(class_dev);
+ 	class_device_dev_link(class_dev);
+ 	class_device_driver_link(class_dev);
+diff -Nru a/include/linux/device.h b/include/linux/device.h
+--- a/include/linux/device.h	2005-03-09 16:29:55 -08:00
++++ b/include/linux/device.h	2005-03-09 16:29:55 -08:00
+@@ -184,6 +184,7 @@
  
--	class_device_dev_unlink(class_dev);
--	class_device_driver_unlink(class_dev);
-+	if (class_dev->dev)
-+		sysfs_remove_link(&class_dev->kobj, "device");
- 	class_device_remove_attrs(class_dev);
+ 	struct kobject		kobj;
+ 	struct class		* class;	/* required */
++	dev_t			devt;		/* dev_t, creates the sysfs "dev" */
+ 	struct device		* dev;		/* not necessary, but nice to have */
+ 	void			* class_data;	/* class-specific data */
  
- 	kobject_del(&class_dev->kobj);
 

@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129643AbRCFW5g>; Tue, 6 Mar 2001 17:57:36 -0500
+	id <S129657AbRCFXCr>; Tue, 6 Mar 2001 18:02:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129652AbRCFW51>; Tue, 6 Mar 2001 17:57:27 -0500
-Received: from hs-gk.cyberbills.com ([216.35.157.254]:31752 "EHLO
-	hs-mail.cyberbills.com") by vger.kernel.org with ESMTP
-	id <S129643AbRCFW5N>; Tue, 6 Mar 2001 17:57:13 -0500
-Date: Tue, 6 Mar 2001 14:56:46 -0800 (PST)
-From: "Sergey Kubushin" <ksi@cyberbills.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.2ac13
-In-Reply-To: <E14aQA9-0001br-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.31ksi3.0103061455260.21503-100000@nomad.cyberbills.com>
+	id <S129660AbRCFXCh>; Tue, 6 Mar 2001 18:02:37 -0500
+Received: from waste.org ([209.173.204.2]:36440 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S129657AbRCFXCX>;
+	Tue, 6 Mar 2001 18:02:23 -0500
+Date: Tue, 6 Mar 2001 17:01:52 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: "David S. Miller" <davem@redhat.com>
+cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        <linuxppc-dev@lists.linuxppc.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: The IO problem on multiple PCI busses
+In-Reply-To: <15008.17278.154154.210086@pizda.ninka.net>
+Message-ID: <Pine.LNX.4.30.0103061657570.19700-100000@waste.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Against vanilla 2.4.2:
+On Fri, 2 Mar 2001, David S. Miller wrote:
 
-=== Cut ===
-Patch #0 (patch-2.4.2-ac13.bz2):
-+ /usr/bin/bzip2 -d
-+ patch -p1 -s
-The next patch would create the file drivers/video/sis/Makefile,
-which already exists!  Assume -R? [n]
-Apply anyway? [n]
-1 out of 1 hunk ignored -- saving rejects to file
-drivers/video/sis/Makefile.rej
-=== Cut ===
+>  > On PPC, we don't have an "IO" space neither, all we have is a range of
+>  > memory addresses that will cause IO cycles to happen on the PCI bus.
+>
+> This is precisely what the "next MMAP is XXX space" ioctl I've
+> suggested is for.  I think I've addressed this concern in my
+> proposal already.  Look:
+>
+> 	fd = open("/proc/bus/pci/${BUS}/${DEV}", ...);
+> 	if (fd < 0)
+> 		return -errno;
+> 	err = ioctl(fd, PCI_MMAP_IO, 0);
 
----
-Sergey Kubushin				Sr. Unix Administrator
-CyberBills, Inc.			Phone:	702-567-8857
-874 American Pacific Dr,		Fax:	702-567-8808
-Henderson, NV, 89014
+I know I'm coming in on this late, but wouldn't it be cleaner to have
+separate files for memory and io cycles, eg ${BUS}/${DEV}.(io|mem)?
+They're logically different so they might as well be embodied separately.
+
+--
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 

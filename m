@@ -1,306 +1,119 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316047AbSFDAiY>; Mon, 3 Jun 2002 20:38:24 -0400
+	id <S316023AbSFDAiK>; Mon, 3 Jun 2002 20:38:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316051AbSFDAiX>; Mon, 3 Jun 2002 20:38:23 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:42650 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S316047AbSFDAiT>;
-	Mon, 3 Jun 2002 20:38:19 -0400
-Date: Tue, 4 Jun 2002 10:37:52 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: LKML <linux-kernel@vger.kernel.org>, Matthew Wilcox <matthew@wil.cx>,
-        "Michael Kerrisk" <mtk16@ext.canterbury.ac.nz>
-Subject: [PATCH] Make file leases more stable
-Message-Id: <20020604103752.4e030763.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S316047AbSFDAiK>; Mon, 3 Jun 2002 20:38:10 -0400
+Received: from jalon.able.es ([212.97.163.2]:6878 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S316023AbSFDAiJ>;
+	Mon, 3 Jun 2002 20:38:09 -0400
+Date: Tue, 4 Jun 2002 02:38:03 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCHSET] Linux 2.4.19-pre9-jam1
+Message-ID: <20020604003803.GA1705@werewolf.able.es>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.3.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+Hi all.
 
-If you deem it appropriate, please apply this patch.
+Some changes in this release...
+Andrea has merged the O1 scheduler, even with some updates, so half
+the reason for may tree (updated VM and O1-sched) is gone (what is
+good). So instead of cloning half of Andrea's tree, now -jam applies
+on -aa. In fact, you even do not need to get -aa separately, it is
+included as patch 00-aa-xxx.
 
-It makes the file leases much more stable and reliable in the
-presence of multiple shared leases.  This patch cannot make
-things worse than they currently are. :-)
+You will notice that the ide-convert.10 patch has been dropped. The
+highmem support in -aa IDE code made me to heasitate... And there are
+new e100/e1000 drivers from 2.5.20.
 
-There is a further problem with leases that I am working on, but that
-is harder and will require more testing.
+Get it at:
+http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.19-pre9-jam1.tar.gz
+http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.19-pre9-jam1/
+
+and enjoy (or burn your box).
+
+
+Contents:
+
+00-aa-pre9aa2.bz2
+	-aa tree patch. You can omit this if you already have the matching
+	tree.
+
+01-version.bz2
+	EXTRAVERSION
+
+10-lowlatency-mini-rest.bz2
+	Bits from mini-low-latency missing from aa tree. Still to decide
+	if they are good or bad...
+	Author: Andrew Morton <akpm@zip.com.au>
+	URL: http://www.zip.com.au/~akpm/linux/schedlat.html#downloads
+
+11-read-latency-2.bz2
+	Minimal low-latency + read-latency changes.
+	Author: Andrew Morton <akpm@zip.com.au>
+	URL: http://www.zip.com.au/~akpm/linux/schedlat.html#downloads
+
+12-irqbalance-B1.bz2
+	Balance interrupts between cpus when APIC does not, especially
+	in some P4 Xeon motherboards.
+	Author: Ingo Molnar <mingo@elte.hu>
+
+13-irqrate-A1.bz2
+	IRQ-rate-limiting. Adds the dynamic hard-IRQ-limiting feature and fixes
+	softirq performance.
+	Author: Ingo Molnar <mingo@elte.hu>
+	URL: http://redhat.com/~mingo/irqrate-patches/
+
+14-smptimers-A0.bz2
+    Scalable timer implementation. Lock per-CPU instead of global.
+	Author: Ingo Molnar <mingo@elte.hu>
+	URL: http://redhat.com/~mingo/scalable-timers-patches/
+
+20-ext3-0.9.18.bz2
+	Update to latest ext3.
+
+30-shared-zlib.bz2
+	Use only one copy of zlib for whole kernel.
+	Authonr: David Woodhouse <dwmw2@infradead.org>
+	URL: ftp://ftp.kernel.org/pub/linux/kernel/people/dwmw2/linux-2.4.19-shared-zlib.bz2
+
+45-e100-2.0.30-k1.bz2
+46-e1000-4.2.17-k1.bz2
+	Intel drivers for 100 and 1000 Intel cards.
+	Backported from 2.5.20.
+
+70-i2c-2.6.4-cvs.bz2
+71-sensors-2.6.4-cvs.bz2
+	LM-Sensors update to 2.6.4-cvs tree.
+	URL: http://www.netroedge.com/~lm78/
+
+80-bproc-3.1.10.bz2
+	Beowulf bproc SSI patches+pid allocation race fix.
+	Author: Erik Arjan Hendriks <erik@hendriks.cx>
+	URL: http://sourceforge.net/projects/bproc
+
+81-export-task_nice.bz2
+	Export task_nice() function for bproc.
+
+90-make.bz2
+	Makes INSTALL_PATH=/boot and default VGA mode = 6.
+
+91-x86-model.bz2
+	Split PII from PPro in processor selection.
+
+92-gcc3-march.bz2
+	Add support for gcc3 code generation flags for specific processors
+
+
 
 -- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
-
-diff -ruN 2.4.19-pre9/fs/locks.c 2.4.19-pre9-leases.1/fs/locks.c
---- 2.4.19-pre9/fs/locks.c	Wed Oct 24 16:12:29 2001
-+++ 2.4.19-pre9-leases.1/fs/locks.c	Wed May 29 10:38:57 2002
-@@ -1051,6 +1051,30 @@
- 	return -EINVAL;
- }
- 
-+/* We already had a lease on this file; just change its type */
-+static int lease_modify(struct file_lock **before, int arg)
-+{
-+	struct file_lock *fl = *before;
-+	int error = assign_type(fl, arg);
-+	if (error < 0)
-+		goto out;
-+
-+	locks_wake_up_blocks(fl, 0);
-+
-+	if (arg == F_UNLCK) {
-+		struct file *filp = fl->fl_file;
-+
-+		filp->f_owner.pid = 0;
-+		filp->f_owner.uid = 0;
-+		filp->f_owner.euid = 0;
-+		filp->f_owner.signum = 0;
-+		locks_delete_lock(before, 0);
-+	}
-+
-+out:
-+	return error;
-+}
-+
- /**
-  *	__get_lease	-	revoke all outstanding leases on file
-  *	@inode: the inode of the file to return
-@@ -1068,10 +1092,15 @@
- 	struct file_lock *fl;
- 	int alloc_err;
- 
--	alloc_err = lease_alloc(NULL, 0, &new_fl);
-+	alloc_err = lease_alloc(NULL, mode & FMODE_WRITE ? F_WRLCK : F_RDLCK,
-+			&new_fl);
- 
- 	lock_kernel();
-+
- 	flock = inode->i_flock;
-+	if ((flock->fl_flags & FL_LEASE) == 0)
-+		goto out;
-+
- 	if (flock->fl_type & F_INPROGRESS) {
- 		if ((mode & O_NONBLOCK)
- 		    || (flock->fl_owner == current->files)) {
-@@ -1111,11 +1140,10 @@
- 	fl = flock;
- 	do {
- 		fl->fl_type = future;
-+		kill_fasync(&fl->fl_fasync, SIGIO, POLL_MSG);
- 		fl = fl->fl_next;
- 	} while (fl != NULL && (fl->fl_flags & FL_LEASE));
- 
--	kill_fasync(&flock->fl_fasync, SIGIO, POLL_MSG);
--
- 	if ((mode & O_NONBLOCK) || (flock->fl_owner == current->files)) {
- 		error = -EWOULDBLOCK;
- 		goto out;
-@@ -1128,13 +1156,30 @@
- restart:
- 	error = locks_block_on_timeout(flock, new_fl, error);
- 	if (error == 0) {
--		/* We timed out.  Unilaterally break the lease. */
--		locks_delete_lock(&inode->i_flock, 0);
--		printk(KERN_WARNING "lease timed out\n");
-+		struct file_lock **fp;
-+		/* We timed out.  Unilaterally break any leases that
-+		 * are still in the process of being broken.
-+		 */
-+		fp = &inode->i_flock;
-+		while (((fl = *fp) != NULL) && (fl->fl_flags & FL_LEASE)) {
-+			if (!(fl->fl_type & F_INPROGRESS)) {
-+				fp = &fl->fl_next;
-+				continue;
-+			}
-+			printk(KERN_INFO "lease broken - owner pid = %d\n",
-+					fl->fl_pid);
-+			lease_modify(fp, fl->fl_type & ~F_INPROGRESS);
-+			if (fl == *fp)
-+				fp = &fl->fl_next;
-+		}
- 	} else if (error > 0) {
--		flock = inode->i_flock;
--		if (flock && (flock->fl_flags & FL_LEASE))
--			goto restart;
-+		/* Wait for the next lease that has not been broken yet */
-+		for (flock = inode->i_flock;
-+				flock && flock->fl_flags & FL_LEASE;
-+				flock = flock->fl_next) {
-+			if (flock->fl_type & F_INPROGRESS)
-+				goto restart;
-+		}	
- 		error = 0;
- 	}
- 
-@@ -1166,45 +1211,40 @@
-  *	@filp: the file
-  *
-  *	The value returned by this function will be one of
-+ *	(if no lease break is pending):
-  *
-- *	%F_RDLCK to indicate a read-only (type II) lease is held.
-+ *	%F_RDLCK to indicate a shared lease is held.
-  *
-  *	%F_WRLCK to indicate an exclusive lease is held.
-  *
-- *	XXX: sfr & i disagree over whether F_INPROGRESS
-+ *	%F_UNLCK to indicate no lease is held.
-+ *
-+ *	(if a lease break is pending):
-+ *
-+ *	%F_RDLCK to indicate an exclusive lease needs to be
-+ *		changed to a shared lease (or removed).
-+ *
-+ *	%F_UNLCK to indicate the lease needs to be removed.
-+ *
-+ *	XXX: sfr & willy disagree over whether F_INPROGRESS
-  *	should be returned to userspace.
-  */
- int fcntl_getlease(struct file *filp)
- {
- 	struct file_lock *fl;
--	
--	fl = filp->f_dentry->d_inode->i_flock;
--	if ((fl == NULL) || ((fl->fl_flags & FL_LEASE) == 0))
--		return F_UNLCK;
--	return fl->fl_type & ~F_INPROGRESS;
--}
-+	int type = F_UNLCK;
- 
--/* We already had a lease on this file; just change its type */
--static int lease_modify(struct file_lock **before, int arg, int fd, struct file *filp)
--{
--	struct file_lock *fl = *before;
--	int error = assign_type(fl, arg);
--	if (error < 0)
--		goto out;
--
--	locks_wake_up_blocks(fl, 0);
--
--	if (arg == F_UNLCK) {
--		filp->f_owner.pid = 0;
--		filp->f_owner.uid = 0;
--		filp->f_owner.euid = 0;
--		filp->f_owner.signum = 0;
--		locks_delete_lock(before, 0);
--		fasync_helper(fd, filp, 0, &fl->fl_fasync);
-+	lock_kernel();
-+	for (fl = filp->f_dentry->d_inode->i_flock;
-+			fl && (fl->fl_flags & FL_LEASE);
-+			fl = fl->fl_next) {
-+		if (fl->fl_file == filp) {
-+			type = fl->fl_type & ~F_INPROGRESS;
-+			break;
-+		}
- 	}
--
--out:
--	return error;
-+	unlock_kernel();
-+	return type;
- }
- 
- /**
-@@ -1224,32 +1264,36 @@
- 	struct inode *inode;
- 	int error, rdlease_count = 0, wrlease_count = 0;
- 
-+	lock_kernel();
-+
- 	dentry = filp->f_dentry;
- 	inode = dentry->d_inode;
- 
-+	error = -EACCES;
- 	if ((current->fsuid != inode->i_uid) && !capable(CAP_LEASE))
--		return -EACCES;
-+		goto out_unlock;
-+	error = -EINVAL;
- 	if (!S_ISREG(inode->i_mode))
--		return -EINVAL;
-+		goto out_unlock;
- 
- 	/*
- 	 * FIXME: What about F_RDLCK and files open for writing?
- 	 */
-+	error = -EAGAIN;
- 	if ((arg == F_WRLCK)
- 	    && ((atomic_read(&dentry->d_count) > 1)
- 		|| (atomic_read(&inode->i_count) > 1)))
--		return -EAGAIN;
-+		goto out_unlock;
- 
- 	before = &inode->i_flock;
- 
--	lock_kernel();
--
- 	while ((fl = *before) != NULL) {
- 		if (fl->fl_flags != FL_LEASE)
- 			break;
- 		if (fl->fl_file == filp)
- 			my_before = before;
--		else if (fl->fl_type & F_WRLCK)
-+		else if ((fl->fl_type & F_WRLCK)
-+				|| (fl->fl_type == (F_INPROGRESS | F_UNLCK)))
- 			wrlease_count++;
- 		else
- 			rdlease_count++;
-@@ -1263,7 +1307,7 @@
- 	}
- 
- 	if (my_before != NULL) {
--		error = lease_modify(my_before, arg, fd, filp);
-+		error = lease_modify(my_before, arg);
- 		goto out_unlock;
- 	}
- 
-@@ -1710,10 +1754,15 @@
- 	before = &inode->i_flock;
- 
- 	while ((fl = *before) != NULL) {
--		if ((fl->fl_flags & (FL_FLOCK|FL_LEASE))
--		    && (fl->fl_file == filp)) {
--			locks_delete_lock(before, 0);
--			continue;
-+		if (fl->fl_file == filp) {
-+			if (fl->fl_flags & FL_FLOCK) {
-+				locks_delete_lock(before, 0);
-+				continue;
-+			}
-+			if (fl->fl_flags & FL_LEASE) {
-+				lease_modify(before, F_UNLCK);
-+				continue;
-+			}
-  		}
- 		before = &fl->fl_next;
- 	}
-@@ -1769,7 +1818,13 @@
- #endif
- 			out += sprintf(out, "FLOCK  ADVISORY  ");
- 	} else if (fl->fl_flags & FL_LEASE) {
--		out += sprintf(out, "LEASE  MANDATORY ");
-+		out += sprintf(out, "LEASE  ");
-+		if (fl->fl_type & F_INPROGRESS)
-+			out += sprintf(out, "BREAKING  ");
-+		else if (fl->fl_file)
-+			out += sprintf(out, "ACTIVE    ");
-+		else
-+			out += sprintf(out, "BREAKER   ");
- 	} else {
- 		out += sprintf(out, "UNKNOWN UNKNOWN  ");
- 	}
-@@ -1782,7 +1837,9 @@
- 	} else
- #endif
- 		out += sprintf(out, "%s ",
--			       (fl->fl_type & F_WRLCK) ? "WRITE" : "READ ");
-+			       (fl->fl_type & F_INPROGRESS)
-+			       ? (fl->fl_type & F_UNLCK) ? "UNLCK" : "READ "
-+			       : (fl->fl_type & F_WRLCK) ? "WRITE" : "READ ");
- 	out += sprintf(out, "%d %s:%ld ",
- 		     fl->fl_pid,
- 		     inode ? kdevname(inode->i_dev) : "<none>",
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.3 (Cooker) for i586
+Linux werewolf 2.4.19-pre9-jam1 #1 SMP lun jun 3 19:59:12 CEST 2002 i686

@@ -1,58 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261269AbVAaRJw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261265AbVAaRJE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261269AbVAaRJw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 12:09:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261267AbVAaRJc
+	id S261265AbVAaRJE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 12:09:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261271AbVAaRHL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 12:09:32 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:31621 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261269AbVAaRHH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 12:07:07 -0500
-Date: Mon, 31 Jan 2005 17:06:29 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Nix <nix@esperi.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10: SPARC64 mapped figure goes unsignedly negative...
-In-Reply-To: <87d5vlwp8k.fsf@amaterasu.srvr.nix>
-Message-ID: <Pine.LNX.4.61.0501311642400.6072@goblin.wat.veritas.com>
-References: <87sm4izw3u.fsf@amaterasu.srvr.nix> 
-    <Pine.LNX.4.61.0501311256580.5368@goblin.wat.veritas.com> 
-    <87sm4hwr81.fsf@amaterasu.srvr.nix> 
-    <Pine.LNX.4.61.0501311545200.5933@goblin.wat.veritas.com> 
-    <87d5vlwp8k.fsf@amaterasu.srvr.nix>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Mon, 31 Jan 2005 12:07:11 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:10459 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S261265AbVAaRGt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 12:06:49 -0500
+Subject: Re: [PATCH] add AMD NS 5535 support
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Dan Malek <dan@embeddedalley.com>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+In-Reply-To: <DB539902-7030-11D9-A0FB-003065F9B7DC@embeddedalley.com>
+References: <DB539902-7030-11D9-A0FB-003065F9B7DC@embeddedalley.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1107172161.14787.79.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 31 Jan 2005 16:01:42 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 Jan 2005, Nix wrote:
+On Iau, 2005-01-27 at 06:58, Dan Malek wrote:
+> Hi Marcelo.
 > 
-> Odd: this machine seems to be using swap, albeit not very much (and I've
-> got the swap priorities upside down, as well; whoops, that's probably
-> been harming performance for, well, years):
+> This patch for 2.4 adds support for the AMD / National
+> Semiconductor CS5535 chip set.  Provided by AMD
+> as part of the Geode support.
 > 
-> Filename				Type		Size	Used	Priority
-> /dev/sda2                               partition	523016	0	1
-> /dev/sda4                               partition	511232	57648	2
-> /dev/sdb2                               partition	523016	0	1
-> 
-> Is the problem that the higher-priority kicking out to swap which should
-> happen when memory is tight, won't?
+> Signed-off-by:  Dan Malek <dan@embeddedalley.com>
 
-I had thought that it was any kicking out to swap - apart from kicking
-tmpfs/shmem pages to swap, which should happen independently of Mapped.
+This belongs in 2.6 not 2.4 but it does look fairly passable as a
+starting point for 2.6 - you might want to bounce it to linux-ide@..
+instead of linux-kernel
 
-If you're not using tmpfs or shmem, then I'm surprised by that figure.
-There was 88 kB out to swap in your original /proc/meminfo, which we
-may suppose was before Mapped went negative; but above shows more since.
+Comment syntax wants to be kernel-doc for a merge tho
 
-> I'll build rmap.c with GCC-3.3 later tonight (if I can find a copy on my
-> old backups), compare the generated code, and see if anything leaps out
-> at me.
-
-Worth doing, thank you.  Rene has sent us the GCC-3.4 output,
-but I've not spotted anything the matter with it yet.
-
-Hugh
+Alan

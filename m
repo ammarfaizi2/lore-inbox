@@ -1,41 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268964AbUIMVW1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268968AbUIMVYI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268964AbUIMVW1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 17:22:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268966AbUIMVW1
+	id S268968AbUIMVYI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 17:24:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268966AbUIMVYI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 17:22:27 -0400
-Received: from moutng.kundenserver.de ([212.227.126.186]:54268 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S268964AbUIMVW0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 17:22:26 -0400
-From: Christian Borntraeger <linux@borntraeger.net>
-To: Andrew Morton <akpm@osdl.org>
+	Mon, 13 Sep 2004 17:24:08 -0400
+Received: from fw.osdl.org ([65.172.181.6]:30632 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268972AbUIMVXw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 17:23:52 -0400
+Date: Mon, 13 Sep 2004 14:23:47 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Christian Borntraeger <linux-kernel@borntraeger.net>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>
 Subject: Re: Linux 2.6.9-rc2 : oops
-Date: Mon, 13 Sep 2004 23:22:22 +0200
-User-Agent: KMail/1.7
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       hch@infradead.org
-References: <Pine.LNX.4.58.0409130937050.4094@ppc970.osdl.org> <Pine.LNX.4.58.0409131318320.2378@ppc970.osdl.org> <20040913140002.6e5fa076.akpm@osdl.org>
-In-Reply-To: <20040913140002.6e5fa076.akpm@osdl.org>
+In-Reply-To: <200409132315.36577.linux-kernel@borntraeger.net>
+Message-ID: <Pine.LNX.4.58.0409131422530.2378@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0409130937050.4094@ppc970.osdl.org>
+ <200409132203.08286.linux-kernel@borntraeger.net>
+ <Pine.LNX.4.58.0409131318320.2378@ppc970.osdl.org>
+ <200409132315.36577.linux-kernel@borntraeger.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409132322.22791.linux@borntraeger.net>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:5a8b66f42810086ecd21595c2d6103b9
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> There's a known double-free in the isofs filesystem.  Christian, were you
-> using CDROMs at the time?
 
-Yes I was - see my other mail. 
 
-> Invalidate this pointer so it doesn't get freed twice.
+On Mon, 13 Sep 2004, Christian Borntraeger wrote:
+> 
+> reversing "[PATCH] Fix leaks in ISOFS."
+> http://linux.bkbits.net:8080/linux-2.6/cset%40413792bdlE_TiqzIHELio3xcG68QeQ
+> helps. Seems we need a fix for the fix. 
 
-Your patch fixes my problem. Thanks
+Andrew posted one already, which looks "obviously correct". Can you undo 
+your revert, and try that one? I've already applied it to BK, so if you're 
+on BK you can just pull from the current repo's.
 
-Christian
+Thanks,
+
+		Linus

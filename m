@@ -1,65 +1,133 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288816AbSAEOFM>; Sat, 5 Jan 2002 09:05:12 -0500
+	id <S288811AbSAEOFC>; Sat, 5 Jan 2002 09:05:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288815AbSAEOFC>; Sat, 5 Jan 2002 09:05:02 -0500
-Received: from pat.uio.no ([129.240.130.16]:46562 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S288813AbSAEOEv>;
-	Sat, 5 Jan 2002 09:04:51 -0500
+	id <S288815AbSAEOEv>; Sat, 5 Jan 2002 09:04:51 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:10509 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S288811AbSAEOEf>; Sat, 5 Jan 2002 09:04:35 -0500
+Message-ID: <3C37074A.1020201@namesys.com>
+Date: Sat, 05 Jan 2002 17:01:46 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "Adam J. Richter" <adam@yggdrasil.com>
+CC: reiserfs-dev@namesys.com, linux-kernel@vger.kernel.org
+Subject: Re: [reiserfs-dev] Patch?: linux-2.5.2-pre8/fs/reiserfs kdev_t compilation fixes
+In-Reply-To: <20020105051938.A25230@baldur.yggdrasil.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <15415.2041.170842.557212@charged.uio.no>
-Date: Sat, 5 Jan 2002 15:04:41 +0100
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ramdisk corruption problems - was: RE: pivot_root and initrd kern  
- el panic woes
-In-Reply-To: <3C36E6E8.628BF0BF@zip.com.au>
-In-Reply-To: <3C2EB208.B2BA7CBF@zip.com.au>
-	<Pine.GSO.4.21.0112300129060.8523-100000@weyl.math.psu.edu>
-	<20011231010537.K1356@athlon.random>
-	<3C36E6E8.628BF0BF@zip.com.au>
-X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Andrew Morton <akpm@zip.com.au> writes:
+We'll test and release a patch on ~tuesday.  Right now all programmers 
+are on Russian holidays.
 
-     >   out_ok:
-     >  	if ((IS_SETLK(cmd) || IS_SETLKW(cmd)) && fl->fl_type
-     >  	!= F_UNLCK) {
-     > - filemap_fdatasync(inode->i_mapping);
-     > + status2 = filemap_fdatasync(inode->i_mapping);
-     > + if (status2 && !status)
-     > + status = status2;
-     >  		down(&inode->i_sem);
-     > - nfs_wb_all(inode); /* we may have slept */
-     > + status2 = nfs_wb_all(inode); /* we may have slept */
-     > + if (status2 && !status)
-     > + status2 = status;
-     >  		up(&inode->i_sem);
-     > - filemap_fdatawait(inode->i_mapping);
-     > + status2 = filemap_fdatawait(inode->i_mapping);
-     > + if (status2 && !status)
-     > + status = status2;
-     >  		nfs_zap_caches(inode);
-     >  	} return status;
+Thanks Adam,
 
-Hmm. I'm not sure about this hunk...
+Hans
 
-At this point in the code, we already know that we've been granted a
-lock by the server. All we are doing is to try to sync any data that
-may have been committed while we were waiting on the lock, in order to
-ensure that the act of locking provides a cache coherency point.
 
-IMHO it would be wrong to signal that the lock itself has failed just
-because some other process has lost data in the filemap_fdata* calls.
-It's a different matter with the nfs_wb_all() call: that indicates
-that the process has been signalled, so it may indeed make sense to
-return that particular error.
+Adam J. Richter wrote:
 
-Cheers,
-  Trond
+>	The following patch gets linux-2.5.2-pre8/fs/reiserfs to
+>compile.  I suspect that a lot of the conversion back and forth
+>between integers and kdev_t that I have accomodated could possibly
+>be eliminated by someone who understands the fs/reiserfs better.
+>
+>	I have not tested this patch in any way.  I only know that
+>it compiles.
+>
+>
+>------------------------------------------------------------------------
+>
+>Only in linux/fs/reiserfs: CVS
+>diff -u -r linux-2.5.2-pre8/fs/reiserfs/procfs.c linux/fs/reiserfs/procfs.c
+>--- linux-2.5.2-pre8/fs/reiserfs/procfs.c	Fri Jan  4 19:40:37 2002
+>+++ linux/fs/reiserfs/procfs.c	Sat Jan  5 05:12:34 2002
+>@@ -77,7 +77,7 @@
+> 	int len = 0;
+> 	struct super_block *sb;
+>     
+>-	sb = procinfo_prologue( ( kdev_t ) ( int ) data );
+>+	sb = procinfo_prologue( to_kdev_t((int)data) );
+> 	if( sb == NULL )
+> 		return -ENOENT;
+> 	len += sprintf( &buffer[ len ], "%s format\twith checks %s\n",
+>@@ -134,7 +134,7 @@
+> 	struct reiserfs_sb_info *r;
+> 	int len = 0;
+>     
+>-	sb = procinfo_prologue( ( kdev_t ) ( int ) data );
+>+	sb = procinfo_prologue( to_kdev_t((int)data) );
+> 	if( sb == NULL )
+> 		return -ENOENT;
+> 	r = &sb->u.reiserfs_sb;
+>@@ -214,7 +214,7 @@
+> 	int len = 0;
+> 	int level;
+> 	
+>-	sb = procinfo_prologue( ( kdev_t ) ( int ) data );
+>+	sb = procinfo_prologue( to_kdev_t((int)data) );
+> 	if( sb == NULL )
+> 		return -ENOENT;
+> 	r = &sb->u.reiserfs_sb;
+>@@ -293,7 +293,7 @@
+> 	struct reiserfs_sb_info *r = &sb->u.reiserfs_sb;
+> 	int len = 0;
+>     
+>-	sb = procinfo_prologue( ( kdev_t ) ( int ) data );
+>+	sb = procinfo_prologue( to_kdev_t((int)data) );
+> 	if( sb == NULL )
+> 		return -ENOENT;
+> 	r = &sb->u.reiserfs_sb;
+>@@ -334,7 +334,7 @@
+> 	int hash_code;
+> 	int len = 0;
+>     
+>-	sb = procinfo_prologue( ( kdev_t ) ( int ) data );
+>+	sb = procinfo_prologue( to_kdev_t((int)data) );
+> 	if( sb == NULL )
+> 		return -ENOENT;
+> 	sb_info = &sb->u.reiserfs_sb;
+>@@ -387,7 +387,7 @@
+> 	int len = 0;
+> 	int exact;
+>     
+>-	sb = procinfo_prologue( ( kdev_t ) ( int ) data );
+>+	sb = procinfo_prologue( to_kdev_t((int)data) );
+> 	if( sb == NULL )
+> 		return -ENOENT;
+> 	sb_info = &sb->u.reiserfs_sb;
+>@@ -438,7 +438,7 @@
+> 	struct reiserfs_super_block *rs;
+> 	int len = 0;
+>     
+>-	sb = procinfo_prologue( ( kdev_t ) ( int ) data );
+>+	sb = procinfo_prologue( to_kdev_t((int)data) );
+> 	if( sb == NULL )
+> 		return -ENOENT;
+> 	r = &sb->u.reiserfs_sb;
+>@@ -491,7 +491,7 @@
+> 			"prepare_retry: \t%12lu\n",
+> 
+> 			DJF( s_journal_block ),
+>-			DJF( s_journal_dev ) == 0 ? "none" : bdevname( DJF( s_journal_dev ) ), 
+>+			DJF( s_journal_dev ) == 0 ? "none" : bdevname( to_kdev_t( DJF( s_journal_dev ) ) ),
+> 			DJF( s_journal_dev ),
+> 			DJF( s_orig_journal_size ),
+> 			DJF( s_journal_trans_max ),
+>@@ -578,7 +578,7 @@
+> {
+> 	return ( sb->u.reiserfs_sb.procdir ) ? create_proc_read_entry
+> 		( name, 0, sb->u.reiserfs_sb.procdir, func, 
+>-		  ( void * ) ( int ) sb -> s_dev ) : NULL;
+>+		  ( void * ) kdev_t_to_nr( sb -> s_dev ) ) : NULL;
+> }
+> 
+> void reiserfs_proc_unregister( struct super_block *sb, const char *name )
+>
+
+
+

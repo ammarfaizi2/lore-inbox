@@ -1,61 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311829AbSDIV5p>; Tue, 9 Apr 2002 17:57:45 -0400
+	id <S311856AbSDIWQl>; Tue, 9 Apr 2002 18:16:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311834AbSDIV5o>; Tue, 9 Apr 2002 17:57:44 -0400
-Received: from vger.timpanogas.org ([216.250.140.154]:5534 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S311829AbSDIV5o>; Tue, 9 Apr 2002 17:57:44 -0400
-Date: Tue, 9 Apr 2002 15:16:01 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: John Jasen <jjasen1@umbc.edu>
-Cc: Daniel Gryniewicz <dang@fprintf.net>, Andrew Burgess <aab@cichlid.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Tyan S2462 reboot problems
-Message-ID: <20020409151601.A11100@vger.timpanogas.org>
-In-Reply-To: <20020409161412.777aec9a.dang@fprintf.net> <Pine.SGI.4.31L.02.0204091619260.8816091-100000@irix2.gl.umbc.edu>
+	id <S311866AbSDIWQk>; Tue, 9 Apr 2002 18:16:40 -0400
+Received: from jalon.able.es ([212.97.163.2]:58535 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S311856AbSDIWQj>;
+	Tue, 9 Apr 2002 18:16:39 -0400
+Date: Wed, 10 Apr 2002 00:16:31 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: listmail@majere.epithna.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 0(1)-patch, where did it go?
+Message-ID: <20020409221631.GA1742@werewolf.able.es>
+In-Reply-To: <Pine.LNX.4.44.0204091649030.9846-100000@majere.epithna.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.3.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I have also seen some problems with the Tyan S2720 with hyperthreading 
-enabled in a dual P4 configuration during bootup.  Several of the 
-drivers lock up during bootup, AIC7XXX gets scsi timeouts and 
-3Ware cards hard hang the bus when hyperthreading is enabled.  These 
-problems do not occur on the SuperMicro P4DE6 which is also running 
-the Intel 7500 chipset. 
+On 2002.04.09 listmail@majere.epithna.com wrote:
+>Ok,
+>Maybe I am just lost and confused, but I can't see anywhere what has
+>happened to this patch....
+>
+>Did it get merged when I wasn't looking?  I can't seem to find a record of
+>it in the change logs?  It just seems to stop getting updated just before
+>2.4.18 release, but I don't see a message about it getting merged....
+>
+>Could someone please update me?
+>
 
-Jeff
+You can get an up-to-date version in the 2.4.19-pre6-jam1 patcset in
+
+http://giga.cps.unizar.es/~magallon/linux/kernel/
 
 
-On Tue, Apr 09, 2002 at 04:20:17PM -0400, John Jasen wrote:
-> On Tue, 9 Apr 2002, Daniel Gryniewicz wrote:
-> 
-> > No, I doubt this has anything to do with Linux.   I have a S2460 (which his
-> > corrected post says he has), which does not power down under linux, and
-> > *never* warm boots cleanly.  It does power down under windows, so I assume
-> > ACPI powerdown works and APM does not.  I have gone under the assumption that
-> > a BIOS upgrade will fix this, but that involves putting a floppy into the box,
-> > so I haven't done it yet.  The warm boot problems consist of either a hang
-> > after POST (but before bootloader, OS irrelevent), or really bad video
-> > corruption.  I don't know if it boot with the video corruption, I've never let
-> > it try.
-> 
-> I did update to the new BIOS for the 246x (I can never keep them straight
-> either), and that did help some with the halt and reboot problems I was
-> having.
-> 
-> 
-> --
-> -- John E. Jasen (jjasen1@umbc.edu)
-> -- User Error #2361: Please insert coffee and try again.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.3 (Cooker) for i586
+Linux werewolf 2.4.19-pre6-jam1 #1 SMP Sun Apr 7 00:50:05 CEST 2002 i686

@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129210AbQKEUR4>; Sun, 5 Nov 2000 15:17:56 -0500
+	id <S129948AbQKEUSq>; Sun, 5 Nov 2000 15:18:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129692AbQKEURr>; Sun, 5 Nov 2000 15:17:47 -0500
-Received: from femail6.sdc1.sfba.home.com ([24.0.95.86]:4315 "EHLO
-	femail6.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S129210AbQKEURl>; Sun, 5 Nov 2000 15:17:41 -0500
-Date: Sun, 5 Nov 2000 15:17:25 -0500
-From: Ari Pollak <compwiz@bigfoot.com>
-To: linux-kernel@vger.kernel.org
-Subject: scd/ide-scsi reporting size incorrectly
-Message-ID: <20001105151725.A27278@darth.ns>
-Mail-Followup-To: Ari Pollak <compwiz>, linux-kernel@vger.kernel.org
+	id <S129946AbQKEUS1>; Sun, 5 Nov 2000 15:18:27 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:260 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S129692AbQKEUSI>;
+	Sun, 5 Nov 2000 15:18:08 -0500
+Message-ID: <20001105211126.A146@bug.ucw.cz>
+Date: Sun, 5 Nov 2000 21:11:26 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: >32K possible? Yes - on 1GB machine
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Operating-System: Linux darth.ns 2.4.0-test10
+X-Mailer: Mutt 0.93i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey. I'm using an Acer 50X cdrom used with scd & ide-scsi emulation, and
-I just noticed that 'df' is reporting size incorrectly:
-/dev/scd1                85946     85946         0 100% /mnt/cdrom
+Hi!
 
-Even though du clearly shows there is much more than 85 MB used:
-$ du -s /mnt/cdrom
-359397	/mnt/cdrom
+I played with machine with .5GB ram, and was able to spawn 16000
+'sleep forever' processes (compiled statically):
 
-Is this a known bug?
+void main(void)
+{
+	close(0); close(1); close(2); pause();
+}
 
+I belive that on 2GB machine, I'd be able to hit 32K processes
+limit. 1GB machine _could_ hit it too (someone try that).
+
+Strange thing is that machine does not even try to use swap, but
+userland stops working at the end.
+
+								Pavel
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,97 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314044AbSDKNMl>; Thu, 11 Apr 2002 09:12:41 -0400
+	id <S314045AbSDKNOb>; Thu, 11 Apr 2002 09:14:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314045AbSDKNMk>; Thu, 11 Apr 2002 09:12:40 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:62726 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S314044AbSDKNMj>; Thu, 11 Apr 2002 09:12:39 -0400
-Date: Thu, 11 Apr 2002 09:09:25 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-cc: Baldur Norddahl <bbn-linux-kernel@clansoft.dk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: More than 10 IDE interfaces
-In-Reply-To: <3CB53D70.5070100@evision-ventures.com>
-Message-ID: <Pine.LNX.3.96.1020411085829.3677F-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314046AbSDKNOa>; Thu, 11 Apr 2002 09:14:30 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:29272 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S314045AbSDKNO2>; Thu, 11 Apr 2002 09:14:28 -0400
+Date: Thu, 11 Apr 2002 15:13:53 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: the oom killer
+Message-ID: <20020411151353.K14605@dualathlon.random>
+In-Reply-To: <20020405164348.K32431@dualathlon.random> <Pine.LNX.4.21.0204051844521.11472-100000@freak.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Apr 2002, Martin Dalecki wrote:
-
-> Baldur Norddahl wrote:
-> > Hi,
-> > 
-> > I have a machine with the following configuration:
-> > 
-> > 2 on board IDE interfaces (AMD chipset)
-> > 2 Promise Technology UltraDMA100 controllers with each 2 IDE interfaces.
-> > 4 Promise Technology UltraDMA133 controllers with each 2 IDE interfaces.
-> > 
-> > This adds up to 14 IDE interfaces. And I just discovered that the kernel
-> > only supports 10 IDE interfaces :-(
-> > 
-> > So I tried to hack the kernel, and I was partially successfull. I changed
-> > MAX_HWIF from 10 to 14. I made up some major numbers for the extra
+On Fri, Apr 05, 2002 at 06:45:08PM -0300, Marcelo Tosatti wrote:
 > 
-> In your case if should be changed to 15 there is an off by one error here in the
-> interpretation of this constant.
-
-  ??? If the current value is 10, and supports 10 interfaces, and I
-believe that is the case, why should he need a value of 15 to get 14?
-Doesn't the off by one error happen on smaller values, or what?
-
-  I am NOT disagreeing with you, I just don't see how to code an off by
-one and have it work some of the time and not others.
- 
-> > interfaces (115, 116, 117 and 118).
-> > 
-> > drivers/ide/ide.c and fs/partitions/check.c were modified to know about
-> > IDE10_MAJOR to IDE13_MAJOR.
-> > 
-> > With there changes the kernel detects the extra interfaces and the disks on
-> > them. They get some strange names like IDE< and the last disk is named hd{,
-> > but I guess I can live with that :-)
 > 
-> The cause of those funny names is well known in the 2.5.xx series.
-> The solution to it will first involve a complete rewrite of the kernel
-> parameter parsing in ide.c
-
-  I thought devfs was supposed to eliminate all this stuff and replace
-names with long hierarchical names. In hindsight it probably would have
-been better to call drives something like hdNNX, where NN is the interface
-and X is m or s. Hum, I wonder how hard that would be as a retrofit?
-
-> > But when it tries to detect the partitions on the extra interfaces, it locks
-> > up. The last lines it writes is:
-> > 
-> > Partition check:
-> >  hda: hda1
-> >  hde: hde1
-> >  hdg: hdg1
-> >  hdi: hdi1
-> >  hdk: hdk1
-> >  hdm: hdm1
-> >  hdo: hdo1
-> >  hdq: hdq1
-> >  hds: hds1
-> >  hdu:
+> On Fri, 5 Apr 2002, Andrea Arcangeli wrote:
 > 
-> See above + make MAX_HWIFS 15 and you should have more luck. (Not tested
-> actually).
+> > On Fri, Apr 05, 2002 at 01:18:26AM -0800, Andrew Morton wrote:
+> > > 
+> > > Andrea,
+> > > 
+> > > Marcelo would prefer that the VM retain the oom killer.  The thinking
+> > > is that if try_to_free_pages fails, then we're better off making a
+> > > deliberate selection of the process to kill rather than the random(ish)
+> > > selection which we make by failing the allocation.
+> > > 
+> > > One example is at
+> > > 
+> > > http://marc.theaimsgroup.com/?l=linux-kernel&m=101405688319160&w=2
+> > > 
+> > > That failure was with vm-24, which I think had the less aggressive
+> > 
+> > vm-24 had a problem yes, that is fixed in the latest releases.
+> > 
+> > > i/dcache shrink code.  We do need to robustly handle the no-swap-left
+> > > situation.
+> > > 
+> > > So I have resurrected the oom killer.  The patch is below.
+> > > 
+> > > During testing of this, a problem cropped up.  The machine has 64 megs
+> > > of memory, no swap.  The workload consisted of running `make -j0
+> > > bzImage' in parallel with `usemem 40'.  usemem will malloc a 40
+> > > megabyte chunk, memset it and exit.
+> > > 
+> > > The kernel livelocked.  What appeared to be happening was that ZONE_DMA
+> > > was short on free pages, but ZONE_NORMAL was not.  So this check:
+> > > 
+> > > 	if (!check_classzone_need_balance(classzone))
+> > >         	break;
+> > > 
+> > > in try_to_free_pages() was seeing that ZONE_NORMAL had some headroom
+> > > and was causing a return to __alloc_pages().
+> > > 
+> > > __alloc_pages has this logic:
+> > > 
+> > > 	min = 1UL << order;
+> > > 	for (;;) {
+> > > 		zone_t *z = *(zone++);
+> > > 		if (!z)
+> > > 			break;
+> > > 
+> > > 		min += z->pages_min;
+> > > 		if (z->free_pages > min) {
+> > > 			page = rmqueue(z, order);
+> > > 			if (page)
+> > > 				return page;
+> > > 		}
+> > > 	}
+> > > 
+> > > 
+> > > On the first pass through this loop, `min' gets the value
+> > > zone_dma.pages_min + 1.  On the second pass through the loop it gets
+> > > the value zone_dma.pages_min + 1 + zone_normal.pages_min.  And this is
+> > > greater than zone_normal.free_pages! So alloc_pages() gets stuck in an
+> > > infinite loop.
+> > 
+> > This is a bug I fixed in the -rest patch, that's also broken on numa.
+> > The deadlock cannot happen if you apply all my patches.
+> 
+> How did you fixed this specific problem?
 
-  Right. I would be interested in this one myself, but I don't have a good
-way of getting that many drives attached. I have a pile of old Promise
-ATA33 cards, and I could come up with a hundred 400-500MB drives, but the
-case and cabling is a serious issue.
+I didn't really fixed it, it's just that the problem never existed in my
+tree. I don't" min += z->pages_min" and so the
+check_classzone_need_balance path sees exactly the same state of the VM
+as the main allocator, so if it breaks the loop the main allocator will
+go ahead just fine.
 
-  Anyway, if you have a moment to hint why an off by one error is not
-biting us on ten drives I'd be interested.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+Andrea

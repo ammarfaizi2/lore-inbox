@@ -1,55 +1,40 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S153994AbQCaXJP>; Fri, 31 Mar 2000 18:09:15 -0500
-Received: by vger.rutgers.edu id <S153886AbQCaXI1>; Fri, 31 Mar 2000 18:08:27 -0500
-Received: from mail.webmaster.com ([209.133.28.73]:51067 "EHLO shell.webmaster.com") by vger.rutgers.edu with ESMTP id <S153911AbQCaXAy>; Fri, 31 Mar 2000 18:00:54 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: <root@chaos.analogic.com>
-Cc: "'LINUX-KERNEL mailing list'" <linux-kernel@vger.rutgers.edu>
-Subject: RE: Time synchronization between two LINUX computer
-Date: Fri, 31 Mar 2000 15:05:04 -0800
-Message-ID: <000901bf9b65$8c85bbc0$0100000a@youwant.to>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook 8.5, Build 4.71.2377.0
-In-Reply-To: <Pine.LNX.3.95.1000331141023.2256A-100000@chaos.analogic.com>
-Importance: Normal
+Received: by vger.rutgers.edu via listexpand id <S154214AbQDAG7a>; Sat, 1 Apr 2000 01:59:30 -0500
+Received: by vger.rutgers.edu id <S154249AbQDAG6c>; Sat, 1 Apr 2000 01:58:32 -0500
+Received: from eax.student.umd.edu ([129.2.220.2]:63049 "EHLO pepsi.eax.com") by vger.rutgers.edu with ESMTP id <S154213AbQDAG6O>; Sat, 1 Apr 2000 01:58:14 -0500
+Date: Sat, 1 Apr 2000 00:00:01 -0000
+From: Linus Torvalds <t0rvalds@transmeta.com>
+To: linux-kernel@vger.rutgers.edu
+X-April-Fools-Day: True
+Message-ID: <Pine.LNX.4.10.2000-04-01.000-100000@penguin.transmeta.com>
+Subject: Linux 2000(tm)(r)
 Sender: owner-linux-kernel@vger.rutgers.edu
 
+Dear Linux Users,         
 
-> I would think so since, for instance, file date/times don't have much
-> resolution. However, the original inquiry implied microsecond resolution
-> time-difference between machines.
+        I'm pleased to announce jointly with Microsoft(tm)(r) Corporation
+release of Linux 2000 Professional Enterprise.
 
-	On my home LAN, I have quite a few machines running NTP. Here's what a
-'xntpdc -p' looks like on one of 'em:
+        As you probably already know I'm busy with my family and I already
+have full-time job with Transmeta. Thus, it has been necessary for me to
+look for some responsible partner who would help me develop Linux.
 
-       st poll reach  delay   offset    disp
-=======================================================================
-+ A     2 1024  377 0.00050 -0.004370 0.00218
-= B     1  256  377 0.00020  0.000176 0.00006
-- C     2   64   36 0.00861  0.000055 1.93866
-* D     1  128  377 0.00018  0.000174 0.00005
-- E     2   64   16 0.00032  0.001583 1.93872
-- F     2  256  377 0.00844  0.000222 0.00333
-- G     2  512  367 0.00069 -0.000021 0.06850
-+ H     2  256  377 0.00334  0.000112 0.00545
-- I     2  512  377 -0.0150 -0.008419 0.01424
+        After extensive search, I have decided upon Microsoft Corporation
+which has been known on market for long time from their high quality
+software.
 
-	A is an Irix machine on my LAN. B is a local stratum one public time
-server. C is a customer's machine on a remote WAN. D is a local stratum one
-public time server. E is a FreeBSD 3 box on my LAN (SMP. FreeBSD SMP doesn't
-keep very good time). F is a customer's machine on a remote WAN. G is my
-UltraSparc. H is my local Cisco router. I is a Windows 98 box. The machine I
-ran this on is a Linux box.
+        Thus the upcoming Linux 2.4.0 will become Linux 2000(tm)(r).
 
-	You'll notice that <1ms resolution is possible between Linux and FreeBSD UP
-machines with recent kernels.
+        Pricing will be determined at later time. However, I would like to
+take opportunity now to remind people who have unlicensed version of Linux
+to delete it from hard disk and then wait until official release of Linux
+2000(tm)(r) will become available.
 
-	DS
+        Effective April 1st 2000, midnight, all older versions of Linux
+are illegal under Digital Millennium Copyright Act.
 
+
+                        Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

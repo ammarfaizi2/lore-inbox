@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265295AbRF0INb>; Wed, 27 Jun 2001 04:13:31 -0400
+	id <S265298AbRF0IQW>; Wed, 27 Jun 2001 04:16:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265298AbRF0INV>; Wed, 27 Jun 2001 04:13:21 -0400
-Received: from aeon.tvd.be ([195.162.196.20]:19917 "EHLO aeon.tvd.be")
-	by vger.kernel.org with ESMTP id <S265295AbRF0INN>;
-	Wed, 27 Jun 2001 04:13:13 -0400
-Date: Wed, 27 Jun 2001 10:09:41 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Michael Meissner <meissner@spectacle-pond.org>
-cc: Rob Landley <landley@webofficenow.com>,
-        Kai Henningsen <kaih@khms.westfalen.de>, linux-kernel@vger.kernel.org,
-        penguicon-comphist@lists.sourceforge.net
-Subject: Re: Microsoft and Xenix.
-In-Reply-To: <20010626172654.B588@munchkin.spectacle-pond.org>
-Message-ID: <Pine.LNX.4.05.10106271009030.3277-100000@callisto.of.borg>
+	id <S265300AbRF0IQL>; Wed, 27 Jun 2001 04:16:11 -0400
+Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:52466 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S265298AbRF0IP7>; Wed, 27 Jun 2001 04:15:59 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200106270815.f5R8FGT0001788@webber.adilger.int>
+Subject: Re: mm and Oops
+In-Reply-To: <UTC200106270232.EAA456067.aeb@vlet.cwi.nl> "from Andries.Brouwer@cwi.nl
+ at Jun 27, 2001 04:32:16 am"
+To: Andries.Brouwer@cwi.nl
+Date: Wed, 27 Jun 2001 02:15:16 -0600 (MDT)
+CC: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Jun 2001, Michael Meissner wrote:
-> On Tue, Jun 26, 2001 at 11:16:27AM -0400, Rob Landley wrote:
-> > The AS400 seems to be based out of Austin.  We hear a lot about it around 
-> > here...
-> 
-> Ummm, the AS/400 was based out of Rochester, Minnesota at least initially.  It
-> was the follow to System/3 -> System/36 -> System/38, and customers originally
-> programmed it in RPG-III and Cobol.  Now that AS/400's are based on special
-> PowerPC's, the home may have moved to Austin, which is the PowerPC/AIX center.
-> The AS/400 line was intended to be the mid-range system, between the mainframes
-> (360 -> 370 -> 3080 -> 3900 -> ???) and the PCs.
+Andries writes:
+> After sending util-linux out, I booted a kernel that had kdev_t
+> a pointer type, to see whether that still works.
+> And all (minus md/lvm/nfs that didnt compile)...
 
-360 -> 370 -> 3080 -> 3090 -> ES/9000 -> zSeries, IIRC
+Yes, LVM totally abuses kdev_t (assumes = dev_t in user space).
+Changing kdev_t should force this to be cleaned up.
 
-Gr{oetje,eeting}s,
+> The second one is the use of a special constant B_FREE
+> as device value to indicate that the buffer is free.
+> I'll look at this tomorrow but perhaps someone knows:
+> must the constant B_FREE (used only in fs/buffer.c) be nonzero?
+> If so, then we probably need a bitfield to indicate "free".
+> Otherwise we can use 0 ("no device") as value.
 
-						Geert
+Isn't a device = 0 used for NFS root?
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

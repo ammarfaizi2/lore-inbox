@@ -1,49 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133067AbRDUXtT>; Sat, 21 Apr 2001 19:49:19 -0400
+	id <S133071AbRDVABX>; Sat, 21 Apr 2001 20:01:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133064AbRDUXtK>; Sat, 21 Apr 2001 19:49:10 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:10756 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S133065AbRDUXsw>;
-	Sat, 21 Apr 2001 19:48:52 -0400
-Date: Sat, 21 Apr 2001 19:49:16 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Alexander Viro <viro@math.psu.edu>,
-        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        CML2 <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
+	id <S133072AbRDVABN>; Sat, 21 Apr 2001 20:01:13 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:55053 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S133071AbRDVAA5>; Sat, 21 Apr 2001 20:00:57 -0400
 Subject: Re: Request for comment -- a better attribution system
-Message-ID: <20010421194916.B14896@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Alexander Viro <viro@math.psu.edu>,
-	"Albert D. Cahalan" <acahalan@cs.uml.edu>,
-	CML2 <linux-kernel@vger.kernel.org>,
-	kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20010421164659.A4704@thyrsus.com> <E14r6oh-0004Zu-00@the-village.bc.nu>
-Mime-Version: 1.0
+To: esr@thyrsus.com
+Date: Sun, 22 Apr 2001 01:02:44 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org (CML2),
+        kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20010421194706.A14896@thyrsus.com> from "Eric S. Raymond" at Apr 21, 2001 07:47:06 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E14r6oh-0004Zu-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, Apr 22, 2001 at 12:29:22AM +0100
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14r7Kw-0004dU-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk>:
-> I actually prefer MAINTAINERS because it breaks things down by area
-> and reflects the actual maintainership and areas covered. Something
-> that per file does not
+> Alan, if MAINTAINERS scaled perfectly I wouldn't have had to spend three months
+> just trying to figure out who was reponsible for each of the [Cc]onfig.in
+> files.  And even with that amount of effort mostly failing.
 
-Instead of arguing this point, I will demonstrate a solution with 
-working code.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+99.9999% of problems don't involve querying the set of maintainers of
+Confg.in files. The system is optimised to the general case of queries people
+need to make. It also happens to be accessible to people who are not
+kernel gurus because it uses roughly English terms for the maintainership
+and area.
 
-Strict gun laws are about as effective as strict drug laws...It pains
-me to say this, but the NRA seems to be right: The cities and states
-that have the toughest gun laws have the most murder and mayhem.
-        -- Mike Royko, Chicago Tribune
+The .0001% case isnt interesting. Thats the difference between real world 
+systems and theory.
+

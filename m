@@ -1,401 +1,622 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262272AbUD2Ao6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262238AbUD2Asd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262272AbUD2Ao6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 20:44:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262311AbUD2Ao6
+	id S262238AbUD2Asd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 20:48:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbUD2Asd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 20:44:58 -0400
-Received: from mail.fastclick.com ([205.180.85.17]:11244 "EHLO
-	mail.fastclick.net") by vger.kernel.org with ESMTP id S262272AbUD2AoR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 20:44:17 -0400
-Message-ID: <40904FD8.7020208@fastclick.com>
-Date: Wed, 28 Apr 2004 17:44:08 -0700
-From: "Brett E." <brettspamacct@fastclick.com>
-Reply-To: brettspamacct@fastclick.com
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
-References: <409021D3.4060305@fastclick.com> <20040428170106.122fd94e.akpm@osdl.org>
-In-Reply-To: <20040428170106.122fd94e.akpm@osdl.org>
-Content-Type: multipart/mixed;
- boundary="------------030906060702040702060002"
+	Wed, 28 Apr 2004 20:48:33 -0400
+Received: from fire.osdl.org ([65.172.181.4]:5554 "EHLO fire-2.osdl.org")
+	by vger.kernel.org with ESMTP id S262238AbUD2ArL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 20:47:11 -0400
+Subject: Re: Linux 2.6.6-rc3
+From: Craig Thomas <craiger@osdl.org>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0404271858290.10799@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0404271858290.10799@ppc970.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Message-Id: <1083200520.1923.111.camel@bullpen.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 28 Apr 2004 18:02:00 -0700
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030906060702040702060002
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-
-First of all, thanks for your replies and helpful information.
-
-Andrew Morton wrote:
-
-> "Brett E." <brettspamacct@fastclick.com> wrote:
+On Tue, 2004-04-27 at 19:03, Linus Torvalds wrote:
+> s390, cifs, ntfs, ppc, ppc64, cpufreq upates. Oh, and DVB and USB.
 > 
->>I attached sar, slabinfo and /proc/meminfo data on the 2.6.5 machine.  I 
->>reproduce this behavior by simply untarring a 260meg file on a 
->>production server, the machine becomes sluggish as it swaps to disk.
+> I'm hoping to do a final 2.6.6 later this week, so I'm hoping as many 
+> people as possible will test this.
+
+OSDL is nearly complete with their automated tests.  Tests 
+completed so far:
+
+LTP          1-way, 2-way
+contest      1-way, 2-way
+reaim        1-way, 2-way, 4-way, 8-way
+lmbench3     1-way, 2-way
+bash-memory  1-way
+iozone       1-way, 2-way
+tiobench     1-way
+hackbench           2-way, 4-way
+dbt2 (SAP)                 4-way
+dbt3 (PostgreSQL)          4-way
+
+I have taken a quick look at the results and I see no degredations
+from 2.6.6-rc2 and the performance looks much better than the 
+2.6.5 kernel for dbt3 (as reported earlier).
+
+The URL to the test results (a dashboard of info) is located here
+
+http://www.osdl.org/projects/26lnxstblztn/results/
+
+Click the link along the patch-2.6.6-rc3 row under a desired test
+if you care to scrutinize the results further.
+
 > 
+> 	Thanks,
 > 
-> I see no swapout from the info which you sent.
-
-pgpgout/s gives the total number of blocks paged out to disk per second, 
-it peaks at 13,000 and hovers around 3,000 per the attachment.
-
+> 		Linus
 > 
-> A `vmstat 1' trace would be more useful.
-Ok. Attached(ran this with swappiness set to 0 then 100). In both cases 
-sar showed high paging in/out.
-
+> ----
 > 
+> Summary of changes from v2.6.6-rc2 to v2.6.6-rc3
+> ============================================
 > 
->>Is there a way to limit the cache so this machine, which has 1 gigabyte of 
->>memory, doesn't dip into swap?
+> Adrian Cox:
+>   o PPC32: In some cases we need to make all pages _PAGE_COHERENT
 > 
+> Alan Stern:
+>   o USB: Important bugfix for UHCI list management code
+>   o fs/proc/array.c: workaround for gcc-2.96
 > 
-> Decrease /proc/sys/vm/swappiness?
+> Alex Williamson:
+>   o ia64: bug w/ shared interrupts
 > 
-> Swapout is good.  It frees up unused memory.  I run my desktop machines at
-> swappiness=100.
+> Andrea Arcangeli:
+>   o i810_dma range check
 > 
-
-Swapping out is good, but when that's coupled with swapping in as is the 
-case on my side, it creates a thrashing situation where we swap out to 
-disk pages which are being used, we then immediately swap those pages 
-back in, etc etc.. This creates lots of disk I/O which competes with the 
-userland processes, resulting in a system slowing down to a crawl. I 
-don't understand why it swaps in the first place when 400-500 megs are 
-taken up by cache datastructures.
-
-The usage pattern by the way is on a server which continuously hits a 
-database and reads files so I don't know what "swappiness" should be set 
-to exactly.  Every hour or so it wants to untar tarballs and by then the 
-cache is large. From here, the system swaps in and out more while cache 
-decreases. Basically, it should do what I believe Solaris does... simply 
-reclaim cache and not swap.  Capping cache would be good too but the 
-best solution IMO is to simply reclaim the cache on an as-needed basis 
-before thinking about swapping.
-
-
-
---------------030906060702040702060002
-Content-Type: text/plain;
- name="attach.2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="attach.2"
-
-swappiness of 0:
-
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
- 0 11 168396   9260  16032 508496    1    2    84   120  142   132 37  7 48  8
- 0  8 168396   6636  16056 510580    0    0  1320    76 1334  1639 13  3  0 84
- 0  9 168396   6432  16068 510092    0    0   836    60 1242  1124 13  2  0 85
-17  9 168396   7200  16084 508580    0    0  1248   148 1318  1351 11  3  7 80
- 0 10 168396  14488  16104 507064    0    0  1364   904 1488  1977 20  4  0 76
- 8  8 168396  11992  16116 508752    0    0  1124    88 1304  1345 11  3  0 86
-16  8 168396  10008  16140 510768    0    0  1392   172 1434  1970 21  4  0 74
- 3 11 168396  13592  16152 512524    0    0  1072  1364 1625  2544 32  6  2 60
- 0  9 168396   6560  16252 519632    0    0  5644   380 1431  2073 19  6  0 76
- 0 10 168396   6576  16320 519564    0    0  3840  1208 1259  1013  9  4  0 88
- 0  6 168396   7040  16420 519260    0    0  5408   356 1311  1281 11  4  0 85
- 0 10 168396   8640  16432 517616    0    0  2020   116 1496  2268 26  6  0 68
- 0 10 168396   8384  16528 516704    0    0  4972  4124 1526  2278 30  8  4 60
- 0  7 168396   7744  16528 517248    0    0   552    16 1267  1012  8  2  1 89
- 0  7 168396   6528  16532 517788    0    0   304 12024 1175   174  1  1  0 98
- 0  8 168396   7488  16552 515728    0    0  1408  7376 1111   173  1  1  0 98
-12  8 168396   8824  16556 514024    0    0  1956  2724 1301  1582 19  5  0 76
-12 14 168396   6944  16504 492860    0    0  1524     0 1637  2458 71 12  0 17
- 0  7 168396   7072  16596 491272    0    0  5624     0 1296  1168 14  5  0 82
- 0  7 168396   6936  16708 488712    0    0  7520  1496 1287  1737 17  7  0 76
- 0  6 168396   6328  16756 488324    0    0  4712  2000 1234   786  7  4  0 89
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
- 0 12 168396   6448  13400 485600   96    0  8896 29480 8401  6544 11  3  0 86
- 4 13 168396  10016  12760 487056    0    0  1600     0 1475  2089 21  5  0 74
-10  7 168396   6944  12764 486304    0    0  1620  1028 1509  2366 37  6  0 57
- 0 11 168396   6760  12780 493088    0    0  3880  2240 1455  2034 22  5  0 72
- 0  6 168396   6240  12796 493480    0    0  8064  2032 1248  1167  9  5  0 87
- 0  8 168396   7200  12820 492300    0    0  7336  2416 1387  1738 21  7  0 73
- 1 11 168396   7968  12820 491144    0    0  3628   784 1551  2490 27  8  0 65
- 0  4 168396   6544  12844 499144    0    0  8948   584 1318  1310 12  6  0 83
- 5  7 168396   8856  12856 496820    0    0  4536  5792 1288  1336 11  4  0 85
- 0  6 168396   7640  12856 498112    0    0   920  1352 1180   545  4  1  0 96
- 0  6 168396   7512  12860 497836    0    0  2053 10676 1152   133  0  1  0 98
- 0  6 168396   8056  12864 496676    0    0  1664     0 1079   138  1  1  0 99
- 1  7 168396   6400  12896 495964    0    0  7665  1649 1171   465  4  4  0 93
- 0  8 168396   7920  12908 495340    0    0   956   672 1410  1851 22  6  0 73
- 8 13 168396   6936  12908 477456    0    0   684  3299 1643  2473 54 11  0 34
- 0 15 168396   6584  12912 470516    0    0   832  1340 1376  1703 32  5  0 63
- 0 18 168396  11184  12912 471128    0    0   620     0 1541  2548 35  6  0 60
- 0  8 168396  11084  12912 472012    0    0   904  3384 1459  1771 29  6  0 65
- 1  9 168396   6844  12924 473088    0    0  1064     4 1390  1694 24  3  0 73
- 1 12 168396   7248  12932 469408    0    0   960   132 1562  2412 43  6  0 51
- 5  9 168396  13228  12932 468996    4    0  1160   128 1628  2732 38  7  0 55
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
- 0 11 168396  11628  12932 469948    0    0   880  1388 1619  2407 29  6  0 66
- 0  9 168396  16500  12936 471372    0    0  1068  2200 1385  1464 14  3  0 84
- 1  4 168396  14132  12964 473724    0    0  1712  5432 1516  2168 31  5  0 65
- 5 12 168396  19000  12972 475824    0    0  1360   160 1468  1918 30  5  0 66
- 0  9 168396  16720  12976 477724    0    0  1376   128 1599  2943 36  7  0 56
- 0  8 168396  20260  12976 480920    0    0  1884   224 1785  2982 38  8  0 54
- 5 12 168396   7368  13000 493136    0    0 10312   648 1372  1743 18  8  1 74
- 1 12 168396   7480  13008 492312    0    0  2848  1628 1532  2428 26  7  0 67
- 0 11 168396   7992  13016 498696    0    0  3484  3368 1546  2521 28  7  0 64
- 1 14 168396   6760  13028 499772    0   20  5536   812 1534  2733 32  7  0 62
- 0 17 168396   6120  13048 507504    0    0  7944  6596 1539  2217 26  8  0 66
- 0  5 168396   6424  13048 507164    0    0   564  4352 1229   332  4  1  0 95
- 0 14 168396   7128  13048 506552    0    0  1576  3280 1374  2009 22  4  0 74
- 0 10 168396  12536  13048 508184    0    0  1008     0 1283  1488 19  3  0 79
- 8 10 168392  10104  13056 510256   32    0  1460   192 1628  2668 30  8  0 62
- 1  6 168392  14904  13076 512960   64    0  1736     0 1696  3413 43 11  0 46
- 3  4 168392  19384  13088 515804    0    0  1708     0 1483  2337 27  6  0 67
- 7  5 168392  14328  13096 520624    0    0  2760   280 1659  2531 36  6  0 58
- 0  5 168392  16124  13108 527004    0    0  3416   276 1319  1308 15  6  0 80
- 0  5 168392   9724  13124 533448    0    0  3284  3840 1231   739 10  2  0 88
-18  9 168392   9532  13124 533516    0    0    64  3108 1314   473  6  2  0 92
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
- 0 14 168392   8636  13124 534264    0    0   808     0 1511  2083 24  5  0 72
- 1 10 168392   8156  13124 535012    0    0   716  6360 1459  2052 21  4  1 76
- 0  5 168392   7388  13124 535624    0    0   628  2892 1449  1890 23  4  9 64
-14  4 168392  14204  13128 536576   64    0   828  2056 1534  2161 31  5  3 61
- 0  4 168392  13820  13132 536980    0    0   356  3821 1490  2082 29  7  2 61
- 1  2 168392  20700  13136 537656    0    0   636  1568 1589  2516 31  6  5 58
- 1  6 168392  19708  13144 538600    0    0  1024  2732 1558  2504 39  7  6 49
- 6  3 168392  26688  13144 539144    0    0   520  5372 1624  2589 40  7  0 53
- 0  4 168392  34036  13148 539820    0    0   692  1568 1602  3144 37  7  6 50
- 2  3 168392  33300  13152 540564    0    0   732  5212 1624  2892 30  5 16 48
- 0  3 168392  40276  13160 541508    0    0   960  4188 1655  2542 37  7  6 52
- 1  2 168392  40340  13160 542052    0    0   464  2056 1719  3330 42  8  2 49
- 3  2 168392  47252  13164 542460   64    0   572   260 1728  3321 43  8  6 42
- 5  4 168392  54880  13168 542936   64    0   484   232 1725  3352 51  8  9 31
-
-
-
-
-MemTotal:      1293976 kB
-MemFree:         77964 kB
-Buffers:         15568 kB
-Cached:         525740 kB
-SwapCached:      38596 kB
-Active:         677728 kB
-Inactive:       442556 kB
-HighTotal:      393216 kB
-HighFree:          768 kB
-LowTotal:       900760 kB
-LowFree:         77196 kB
-SwapTotal:      530104 kB
-SwapFree:       365860 kB
-Dirty:           50036 kB
-Writeback:       14036 kB
-Mapped:         570488 kB
-Slab:            82860 kB
-Committed_AS:   853200 kB
-PageTables:       4400 kB
-VmallocTotal:   114680 kB
-VmallocUsed:       560 kB
-VmallocChunk:   114120 kB
-
-swappiness of 100:
-
-
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
- 1  1 168304 198344  13736 463148    1    2    85   121  144   137 37  7 48  9
- 1  0 168304 198200  13736 463216    0    0    44   372 1830  3379 48  8 28 17
- 0  0 168304 198120  13736 463284    0    0    32     8 1680  3064 41  7 51  1
- 2  1 168304 145512  14952 514768    0    0    68   864 1586  2377 33 25 34  7
- 0  4 168304 135336  15176 524744    0    0   248  1092 1410   657 10  6  0 85
- 0  5 168304 135144  15176 524744    0    0     0   956 1315   178  1  1  0 98
- 0  5 168304 133544  15188 525616    0    0   412 10604 1267   795 14  3  0 84
- 0  4 168304 112112  15212 527564    0    0  1012  4768 1630  2875 74 12  0 14
- 0  4 168304  84432  15504 545836    0    0  6120 12484 1627  2396 54 15  0 32
- 0  6 168304  57496  16040 568352    0    0   180 32512 2432  1297 16  7  0 77
- 1  5 168304  36696  16452 585688    0    0     8  8120 1338   259  7  8  0 84
-10  6 168304  23752  16712 595220    0    0    64 13304 1317  1029 19  7  0 73
- 8  8 168304   7248  16936 589440    0    0   284  5380 1607  2234 63 15  0 22
- 0 17 168304   6192  16944 587324    0    0   932  5328 1381  1636 17  4  0 80
- 0 15 168304   7400  16940 581888    0    0   600   752 1389  1500 23  4  0 74
- 3 11 168304   7400  16944 581136    0    0   688    16 1289   877  7  1  0 92
- 5 23 168304   7304  16944 578892    0    0   888   606 1287  1189  9  3  0 89
- 2 10 168304   7784  16940 571756    0    0   780  1136 1436  1855 30  4  0 67
- 0  7 168304   6184  16940 568016    0    0   816   104 1458  1757 23  5  1 71
- 0  7 168304   6752  16940 556184    0    0   732   188 1441  1726 34  7  0 59
- 0 11 168304   6488  16940 555368    0    0   652   344 1285  1361 11  2  0 87
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
- 1 15 168304   6640  16996 553952    0    0  3316   960 1357  1578 11  4  0 85
- 1 15 168304   6512  17072 551876    0    0  6064  3804 1289  1132 14  5  0 82
- 1 14 168304   6896  17212 542792    0    0  6032  3176 1333  1496 26  8  0 66
- 0 11 168296   6504  17220 527728    0    0  3508  4204 1323  1326 38  8  0 54
- 1  7 168296   7376  17292 526992    0    0  3476  1120 1236   909  8  3  0 88
- 1 12 168292   6992  17388 520728    0    0  4268  4776 1354  1409 25  5  0 70
- 0 13 168292   6544  17388 521068    0    0   424    48 1213   914  6  1  0 93
- 2 16 168292   6536  17388 519028    0    0   756     4 1308  1582 18  3  0 78
- 0  7 168292   6456  17388 516784    0    0   668  5016 1308  1289 13  2  0 85
- 0  7 168292  11168  17388 516036    0    0   644   112 1340  1366 14  3  0 84
- 0 13 168292   8992  17392 516712    0    0   696  2068 1358  1713 17  3  0 80
- 5 11 168292   6896  17392 513176    0    0   616    92 1431  1792 35  5  0 61
- 0  6 168292   7280  17416 512488    0    0  1212  2396 1431  2187 20  3  0 77
- 0 10 168292   7216  17436 512260    0    0  1472    44 1372  1647 14  4  1 82
- 0  9 168292  12576  17444 512580    0    0  1044    84 1252  1067 10  2  0 87
- 0 11 168292  10912  17464 514192    0    0  1136  2640 1304  1353 12  3  0 86
- 1  4 168292   9312  17472 515816    0    0  1144   720 1244  1212 10  2  0 89
- 1  9 168292  13744  17488 517976    0    0  1276    96 1417  1750 15  4  0 82
- 0 11 168292  11760  17508 519656    0    0  1228  1732 1362  2056 17  4  0 79
- 0  9 168292   9712  17524 521204    0    0  1116   832 1338  1286 12  3  0 86
- 1 10 168292   7072  17644 524056    0    0  5600   160 1514  2443 24  8  0 68
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
- 0 10 168292   8036  17672 530312    0    0  6048   184 1319  1684 16  5  0 79
- 1 10 168292   7392  17648 531064    0    0  7080   132 1340  1502 11  5  0 83
- 1 13 168292   6840  17644 531620    0    0  6372   360 1379  1858 15  6  0 80
- 1  7 168292   7288  17652 528416    0    0   924     5 1317   690 11  2  0 87
- 0  5 168292   6648  17664 528472    0    0   136  9961 1293   279  1  1  0 98
- 0  6 168292   8056  17664 526024    0    0     4  6297 1154   107  0  1  0 99
- 0 14 168292   7416  17680 528388    0    0  1480  2327 1476  2175 24  6  0 70
- 2 10 168292   6576  17604 504120    0    0   884  3724 1349  1494 56  9  0 35
- 2  7 168292  10016  17604 504052    0    0   920  1052 1358  1564 25  4  0 71
- 1  8 168292  12064  17608 506564    0    0  1604  1108 1397  1779 17  4  0 79
- 0 12 168292   6656  17604 509764    0    0  3904  2488 1413  1661 19  5  0 76
- 1 15 168292   6848  17516 505296    0    0  5196  2052 1445  2156 29  6  0 65
- 0 11 168292   8256  17520 507672    0    0  4284   780 1300  1566 19  5  1 75
- 1 13 168292   7792  17504 508572    0    0  6808  2303 1364  1465 13  5  0 83
- 0  7 168292   6896  17516 508780    0    0  4516  3256 1315  1473 12  4  0 84
- 0  6 168292   8160  17524 507604    0    8  2373   448 1196   558  3  2  0 96
- 0  4 168292   7904  17532 507664    0    0    52 10924 1234   244  3  1  0 96
- 1 19 168292   6640  17532 508140    0    0  1740  7580 1250  1175 13  4  0 83
- 0 11 168292   6704  17532 508344    0    0  1104    12 1258  1166 11  2  0 87
- 1  6 168292   6256  17536 502296    0    0  1724   404 1489  1894 34  7  0 58
- 0 10 168292   8552  17536 496788    0    0  1824  1548 1561  2694 38  8  3 52
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
- 1  5 168292  12036  17544 499432    0    0  1724   148 1515  2175 28  6  0 66
- 7  6 168292   6380  17544 501608    0    0  1412   128 1291  1381 22  3  0 74
- 9  8 168292  11580  17540 502428    0    0  1540   148 1436  1863 22  6  1 71
- 0 14 168292   9276  17540 504264    0    0  1228   660 1616  2405 30  6  0 65
- 0 10 168292   6280  17556 507220    0    0  7260  1948 1355  1679 16  6  0 78
- 0 12 168292   7176  17564 506164    0    0  7224  2040 1294  1406 10  6  0 84
- 0 10 168292   6984  17572 506168    0    0  6608  2340 1316  1511 11  5  0 84
- 0 17 168292   6108  17584 506836    0    8  6928  4196 1386  1543 13  5  0 82
- 0  9 168292   6712  17584 506020    0    0   592    12 1188   694  7  1  0 91
- 0  6 168292   6200  17584 506292    0    0   312  4420 1231   360  1  1  0 98
- 1  7 168292   6456  17584 502996   32    0   612  8952 1464  1424 17  4  0 79
- 0  6 168296   3200  17580 496572    0    4   636   500 1592  2571 49 10  0 41
- 0 17 168304   3124  17580 494836    0    8   868     8 1505  2131 32  6  0 62
- 0  7 168404   8364  17580 492808    0  220   628  4264 1406  1908 24  4  0 73
- 0 12 168620   5804  17580 493008    0  340  1108  1312 1517  2096 30  5  0 66
- 0 10 168620   9884  17584 495112    0    0  1416     0 1424  2218 24  5  0 71
- 0 12 168620   7324  17588 497624    0    0  1620     0 1441  1633 16  4  0 80
- 0 14 168620  10580  17588 499460    0    0  1228   144 1383  1637 25  5  0 71
- 0  8 168632   6784  17608 503888    0  124  4056   124 1432  1655 18  5  0 76
- 0 11 169212   7348  17628 503444    0  676  3748   864 1383  1622 19  4  5 71
- 4 13 169212   5236  17628 506012   16    0  1808  3896 1364  1903 20  4  4 73
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
- 0  6 169296   3444  17640 507780    0   88  1208  1364 1580  2414 33  7  0 60
- 0 17 173120  14424  17624 504260    0 3832   956  3836 1383  1716 17  3  0 80
- 0  9 174236  13336  17624 505592    0 1116  1056  2672 1298  1119 10  3  0 88
- 0 16 174236   5464  17640 513396    0    0  4254  3100 1367  1253 10  4  0 86
- 0 12 174732   5176  17624 514112    0  496   776   568 1354  1686 16  4  0 80
- 0 17 178196   7008  17624 508172    0 3464   696  3480 1366  1636 23  5  0 73
- 0 14 180832  10424  17620 498148    0 2640   664  2640 1307  1274 24  4  0 72
- 0  6 180832   9448  17620 498912   52    0   784    12 1316  1169  9  2  2 86
- 0 13 180832   8360  17620 499584    8    0   680   176 1405  1717 17  4  4 75
- 5 11 180832   9192  17620 500196    0    0   680   128 1579  2259 34  6  8 51
- 1  9 180832   8104  17624 501076    0    0   820   340 1355  1412 12  2 13 74
-16  7 180832   7016  17632 502020    0    0   972   256 1364  1607 20  3  0 77
- 0  8 180832  12280  17632 502600   32    0   636  1930 1394  1472 15  3  0 81
- 2  5 180832  11256  17632 503484    0    0   812  3356 1420  1983 23  4  0 73
- 0  9 180832  18128  17632 503824    0    0   372  1712 1420  1865 25  5  0 71
- 0  7 180832  17152  17632 504708    0    0   848  1456 1327  1609 18  3  2 77
- 4 11 180832  24376  17640 505312    0    0   628  3552 1470  1961 21  3 20 55
- 0  2 180832  23544  17640 505924    0    0   612  1560 1447  1918 21  4  7 69
- 0 15 180832  22584  17648 506732    0    0   740  1376 1313  1216 15  3 14 67
- 0  5 180832  22072  17652 507204    0    0   572  1476 1770  3492 46  9  1 44
- 1 12 180832  20984  17652 508292    0    0  1040  3232 1741  3186 50  9  5 37
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
- 8  5 180832  27736  17652 509108    0    0   828  3726 1631  2891 51 11  0 37
- 4  6 180832  26936  17652 509856    0    0   700  5672 1702  2875 39  9 13 39
- 0  3 180832  33568  17652 510672    0    0   880   232 1677  2889 42  7  2 49
- 0 16 180832  32992  17652 511624    0    0   948   136 1559  2325 29  6  5 59
-13  9 180832  40240  17652 512236    0    0   604   176 1403  1779 17  3  3 76
- 1  9 180832  39248  17652 513732    0    0  1476   144 1705  3237 41  9  3 48
- 3  4 180832  46724  17652 514276    0    0   504   272 1721  3376 39  8  0 53
- 3  7 180832  45940  17652 515092    0    0   828   840 1753  3187 43  9  6 42
- 4  8 180832  53268  17652 515704    0    0   560  3424 1545  2224 29  6 12 53
- 2  2 180832  60276  17652 516384    0    0   664   356 1698  3135 37  7  8 48
- 5  6 180832  59508  17652 517124    8    0   772   880 1562  2492 28  6  9 58
- 0  4 180776  67384  17652 517520    0    0   420  3280 1595  3019 36  8  9 48
- 1  7 180776  66968  17652 517928    0    0   336  1568 1558  2338 28  5 22 45
- 0  8 180776  66456  17652 518336    0    0   400   332 1501  2040 28  6  5 61
- 0  5 180776  73240  17652 519280    8    0   980    48 1604  2806 32  8 12 50
- 0  8 180776  72664  17652 519960    0    0   688  5048 1667  2822 35  6 16 42
- 1  2 180716  79924  17656 520492    0    0   504     8 1638  2522 37  7 22 35
- 3  0 180716  79124  17660 520896    0    0   424     8 1683  3526 48  8 27 16
- 0  0 180604  86020  17664 521592   20    0   696    16 1783  3452 56 11 20 12
- 1  1 180604  93412  17664 522340    0    0   720     8 1796  3540 52 10 24 15
- 5  0 180604  92516  17664 523020    0    0   708   240 1799  3012 47  7 18 27
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
- 8  0 180604  99556  17664 523632    0    0   580     8 1811  3788 51 10 25 13
- 0  3 180604 107132  17664 524176    0    0   528     8 1798  3622 61 10 13 16
-14  1 180604 106524  17668 524716    0    0   572    16 1780  3195 48 11  9 32
- 0  0 180604 105884  17668 525300   96    0   644     8 1931  4016 66 12 16  5
-10 12 180604 113244  17668 525744   32    0   544   651 1733  3057 40  8 17 36
- 5  0 180604 109020  17672 526592   32    0   868     8 1778  3294 49  9  7 34
- 8  1 180604 104764  17672 527680    0    0  1012     8 1835  3832 65 11  5 19
- 1  1 180604 110460  17672 528428    0    0   736    16 1772  3721 56 10 24 11
- 0  1 180604 109692  17672 529172    4    0   752     8 1791  3388 51  9 28 11
- 1  3 180604 108988  17676 529844    4    0   708   632 1860  3637 54  9  9 28
- 0  1 180604 108732  17676 530116    0    0   252    16 1770  2861 46  8 16 32
- 4  0 180604 108220  17684 530652    0    0   460     8 1650  3194 41  8 36 14
- 5  0 180604 107772  17684 531128    0    0   512    16 1625  3173 40  7 41 11
- 3  1 180556 114956  17684 531612    0    0   504     8 1750  3649 51 10 29 11
-13  0 180556 122300  17684 532088    0    0   452   724 1835  3344 50  9 14 27
- 6  1 180556 121836  17684 532564    0    0   496    16 1782  4114 53 10 30  7
- 1  0 180556 121324  17684 533176    0    0   524     8 1686  3157 43  8 40 10
- 1  0 180556 128844  17684 533516    0    0   384    16 1720  3460 51  8 31 11
- 3  0 180556 128652  17684 533712    8    0   216     8 1740  3888 45  8 38  8
-13  4 180556 136076  17684 534324    0    0   576   808 1794  3053 43  8 19 30
- 1  0 180556 135756  17684 534596    0    0   288    16 1728  2986 42  8 25 25
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
- 0  0 180556 135308  17684 535072    0    0   456     8 1715  3644 42  7 41  9
-
-
-
-MemTotal:      1293976 kB
-MemFree:          7528 kB
-Buffers:         16940 kB
-Cached:         581684 kB
-SwapCached:      32552 kB
-Active:         852360 kB
-Inactive:       342852 kB
-HighTotal:      393216 kB
-HighFree:          768 kB
-LowTotal:       900760 kB
-LowFree:          6760 kB
-SwapTotal:      530104 kB
-SwapFree:       361800 kB
-Dirty:           48908 kB
-Writeback:       12996 kB
-Mapped:         594156 kB
-Slab:            78336 kB
-Committed_AS:   883164 kB
-PageTables:       4452 kB
-VmallocTotal:   114680 kB
-VmallocUsed:       560 kB
-VmallocChunk:   114120 kB
-
---------------030906060702040702060002--
+> Andreas Jochens:
+>   o [TG3]: Fix typo in TG3_TSO_FW_RODATA_ADDR definition
+> 
+> Andrew Morton:
+>   o Call populate_rootfs later in boot
+>   o remove show_trace_task()
+>   o fbdev comment fix
+>   o writeback livelock fix
+>   o dquot: remove unneeded test
+>   o task_lock() comment update
+>   o dio_bio_reap() return value fix
+>   o slab: use order 0 for vfs caches
+>   o smb_writepage retval fix
+>   o simplify put_page()
+>   o ppc32: dma_unmap_page() fix
+> 
+> Andy Lutomirski:
+>   o compute_creds race
+> 
+> Anton Altaparmakov:
+>   o NTFS: Set i_generation in VFS inode from seq_no in NTFS inode
+>   o NTFS: Make ntfs_lookup() NFS export safe, i.e. use
+>     d_splice_alias(), etc
+>   o NTFS: Make it compile
+>   o NTFS: Release 2.1.7 - Enable NFS exporting of mounted NTFS volumes
+>   o NTFS: Add missing return -EOPNOTSUPP; in
+>     fs/ntfs/aops.c::ntfs_commit_nonresident_write()
+>   o NTFS: Fix off by one error in ntfs_get_parent()
+>   o NTFS: Enforce no atime and no dir atime updates at mount/remount
+>     time as they are not implemented yet anyway.
+>   o NTFS: Move a few assignments after a NULL check in fs/ntfs/attrib.c
+>   o NTFS: Finally fix NFS exporting of mounted NTFS volumes by checking
+>     the return of d_splice_alias() and acting accordingly rather than
+>     just ignoring the returned dentry.
+> 
+> Arjan van de Ven:
+>   o [NET]: linux/if.h needs linux/compiler.h for __user
+> 
+> Armin Schindler:
+>   o ISDN CAPI: add ncci list semaphore
+>   o ISDN Eicon driver: remove call to trap usermode helper
+> 
+> Arthur Othieno:
+>   o PPC32: Fix two typos in arch/ppc/boot/
+>   o ide-probe.c: kill duplicate #include
+> 
+> Bartlomiej Zolnierkiewicz:
+>   o prevent module unloading for legacy IDE chipset drivers
+> 
+> Benjamin Herrenschmidt:
+>   o ppc64: Set ARCH_MIN_TASKALIGN
+> 
+> Bruno Ducrot:
+>   o [CPUFREQ] Correcting SGTC.  Timer is based upon FSB
+> 
+> Chas Williams:
+>   o [ATM]: [fore200e] 0.3e version by Christophe Lizzi (lizzi@cnam.fr)
+>   o [ATM]: [fore200e] make use tasklet configurable
+> 
+> Chris Mason:
+>   o lockfs: reiserfs fix
+>   o reiserfs: ignore prepared and locked buffers
+> 
+> Chris Wright:
+>   o [IPV4]: Fix return value on MCAST_MSFILTER error case
+>   o credentials locking fix
+> 
+> Christoph Hellwig:
+>   o lockfs - vfs bits
+>   o lockfs - xfs bits
+>   o lockfs - dm bits
+>   o fix fs/proc/task_nommu.c compile
+>   o remove Documentation/DocBook/parportbook.tmpl
+> 
+> Colin Leroy:
+>   o USB: fix cdc-acm as it is still (differently) broken
+> 
+> Daniel Drake:
+>   o generic PCI IDE support for Toshiba Piccolo chips
+> 
+> Dave Jones:
+>   o [CPUFREQ] powernow-k7 ACPI integration
+>   o [CPUFREQ] Drop unneeded part of last patch
+>   o [CPUFREQ] powernow-k7 needs to init later
+>   o [CPUFREQ] Remove bogus newline in powernow-k7 driver
+>   o [CPUFREQ] Add a module parameter to force ACPI to be used
+>   o [CPUFREQ] Make powernow-k7 acpi debug output a little less verbose
+>   o [CPUFREQ] powernow-k7 ACPI->PST values were a factor of 10 off
+>   o [CPUFREQ] clear defaults before powernow-k7 acpi fallback Decoding
+>     the legacy tables may have set these values.
+>   o [CPUFREQ] Not all powernow-K7 BIOS's put the frequency at MAX at
+>     POST
+>   o [CPUFREQ] Fix debug build of powernow-k8 From Paul Devriendt
+>   o [CPUFREQ] Fix up missing CONFIG_X86_POWERNOW_K8_ACPI We don't need
+>     this, we can infer from CONFIG_ACPI_PROCESSOR
+>   o [CPUFREQ] Fix broken cast
+>   o [CPUFREQ] Fix unbalanced try_get_module/put_module Spotted by
+>     Charles Coffing <ccoffing@novell.com>
+>   o [CPUFREQ] Remove redundant part of powernow-k7 module parm If used
+>     as a bootparam, this would've become
+>     powernow-k7.powernow_acpi_force which looks silly.
+>   o [CPUFREQ] Make an educated guess at the current P-state in the ACPI
+>     driver
+>   o [CPUFREQ] Export an array of acpi driver supported frequencies in
+>     sysfs From Dominik.
+>   o [CPUFREQ] Fix security hole in proc handler
+> 
+> Dave Kleikamp:
+>   o JFS: Fix non-ascii file name problem
+> 
+> David Brownell:
+>   o USB: ehci handles pci misbehavior better
+>   o USB: rndis gadget driver updates
+>   o USB: usbnet and pl2301/2302 reset
+>   o One more USB fix
+> 
+> David Mosberger:
+>   o ia64: Quiet another compiler-warning
+>   o ia64: Drop pci_sal_ext_{read,write}() and instead simply switch to
+>     extended config-space addresses when needed.  This avoids the
+>     fragile SAL version testing.
+>   o ia64: When delivering a signal, force byte-order to little-endian
+>   o ia64: Add message-queue support to copy_siginfo_from_user()
+> 
+> David S. Miller:
+>   o [TCP]: Abstract out all settings of tcp_opt->ca_state into a
+>     function
+>   o [TCP]: Add vegas congestion avoidance support
+>   o [SPARC64]: Update defconfig
+>   o [SPARC64]: Fix zero-extension issues wrt. {pgd,pmd}_val()
+>   o [TG3]: Update driver version and reldate
+>   o [TG3]: Undo comment typo fix, it was wrong
+> 
+> David Woodhouse:
+>   o Set ARCH_MIN_TASKALIGN on ppc32
+> 
+> Deepak Saxena:
+>   o [ARM PATCH] 1815/1: Generic DMA buffer bouncing support for ARM
+>     targets
+> 
+> Dominik Brodowski:
+>   o [CPUFREQ] don't use speedstep-centrino on unsupported CPUs
+> 
+> Eric Brower:
+>   o [COMPAT]: HDIO_DRIVE_TASK is a compatible ioctl
+> 
+> Geert Uytterhoeven:
+>   o m68k: Amiga A2065 Ethernet KERN_*
+>   o m68k bitops
+> 
+> Grant Grundler:
+>   o [TG3]: Fix comment typo
+> 
+> Greg Edwards:
+>   o ia64: Remove SN PDA page overflow check
+> 
+> Greg Kroah-Hartman:
+>   o USB: Don't try to suspend devices that do not support it
+>   o USB: fix cdc-acm warnings due to previous patch
+>   o USB: fix up fake usb_interface structure in hiddev
+>   o USB: further cleanup of the hiddev driver, fixing another possible
+>     oops on disconnect
+> 
+> Herbert Xu:
+>   o Set module license in mcheck/non-fatal.c
+> 
+> J. Bruce Fields:
+>   o sunrpc rmmod oops fix
+> 
+> Jakub Jelínek:
+>   o [SPARC64]: Fix 32-bit posix timers
+>   o [SPARC64]: Missing part of posix timers fix
+>   o ia64: add mq support for ia64
+> 
+> Jan Capek:
+>   o USB: ftdi patch fixup
+> 
+> Jan Kara:
+>   o ext3 journalled quota locking fix
+>   o Bigger quota hashtable
+>   o Per-sb dquot dirty lists
+>   o Minor fixes for ext3 journalled quotas
+> 
+> Jan-Benedict Glaw:
+>   o New set of input patches
+>   o lkkbd: Current version
+> 
+> Jeff Garzik:
+>   o [TG3]: Dump NIC-specific statistics via ethtool
+> 
+> Jens Axboe:
+>   o don't log drive loading failures
+>   o correct LoEj logic
+>   o fix SG_IO page leak
+> 
+> Keith M. Wesolowski:
+>   o [SPARC32]: Fix wraparound bug in bitmap allocator
+> 
+> Krzysztof Halasa:
+>   o [netdrvr tulip] fix use-after-free
+> 
+> Linda Xie:
+>   o symlink doesn't support kobj name > 20 charaters (KOBJ_NAME_LEN)
+> 
+> Linus Torvalds:
+>   o Revert fb_ioctl "fix" with extreme prejudice
+>   o Include <linux/syscalls.h> in files that need them
+>   o Linux 2.6.6-rc3
+> 
+> Maneesh Soni:
+>   o prune_dcache comment fix
+> 
+> Manfred Spraul:
+>   o slab alignment fixes
+> 
+> Marc-Christian Petersen:
+>   o ext3 avoid writing kernel memory to disk
+> 
+> Marcel Holtmann:
+>   o i4l: add compat ioctl's for CAPI
+> 
+> Marek Szuba:
+>   o isofs "default NLS charset not used" fix
+> 
+> Martin Pool:
+>   o ia64: fpswa_interface needs to be exported
+> 
+> Martin Schwidefsky:
+>   o s390: core s390
+>   o s390: common i/o layer
+>   o s390: 3270 device driver
+>   o s390: network device drivers
+>   o s390: dasd device driver
+>   o s390: zfcp adapter fixes
+>   o s390: crypto api
+>   o s390: no timer interrupts in idle
+> 
+> Matt Domsch:
+>   o EDD: set sysfs attr owner field
+>   o efivars fixes
+>   o efibootmgr location change
+> 
+> Matt Mackall:
+>   o dynamic proc cleanups
+>   o fix CONFIG_SYSFS=n compile warning
+> 
+> Matt Porter:
+>   o ppc32: fix head_44x.S copyrights
+> 
+> Matt Tolentino:
+>   o efivars: remove from arch/ia64
+>   o efivars: add to drivers/firmware
+>   o efivars: remove x86 references
+> 
+> Michael Chan:
+>   o [TG3]: Fix jimbo frame PHY programming
+> 
+> Michael E. Brown:
+>   o sysfs module unload race fix for bin_attributes
+> 
+> Michael Hunold:
+>   o V4L: Update the saa7146 driver
+>   o DVB: Documentation and Kconfig updazes
+>   o DVB: Update DVB budget drivers
+>   o DVB: Add EN50221 cam support to dvb-core
+>   o DVB: Other DVB core updates
+>   o DVB: AV7110 DVB driver updates
+>   o DVB: Misc. DVB frontend driver updates
+>   o DVB: Misc. DVB USB driver updates
+>   o DVB: Follow saa7146 changes in affected V4L drivers
+> 
+> Michael Veeck:
+>   o use kernel min/max in IDE code (1/2)
+>   o use kernel min/max in IDE code (2/2)
+> 
+> Michal Ludvig:
+>   o [CRYPTO]: Add module autoloads for null module
+>   o [CRYPTO]: Add module aliases for des and sha512
+> 
+> Mikael Pettersson:
+>   o clean up Pentium M quirk code in nmi.c
+>   o use smp_processor_id() in init_IRQ()
+> 
+> Nathan Lynch:
+>   o ppc64: remove duplicated mb() and comment from __cpu_up
+> 
+> Nicolas Pitre:
+>   o [ARM PATCH] 1824/1: guard against gcc not respecting local variable
+>     register assignment
+>   o [ARM PATCH] 1825/1: abort on bad code generation with div64 in some
+>     cases
+> 
+> Paul Jackson:
+>   o hugetlbpage: remove include linux/module.h
+> 
+> Pavel Machek:
+>   o doc: tips for S3 resume on radeon cards
+> 
+> Pavel Roskin:
+>   o ide-disk.c: fix for IDE CF card ejection with devfs
+>   o removal of MOD_{INC,DEC}_USE_COUNT in ide-cs.c
+> 
+> Petri Koistinen:
+>   o [SUNRPC]: Missing NULL kmalloc check in unix_domain_find()
+> 
+> Ralf Bächle:
+>   o Au1000 IrDA driver update
+>   o Remove RCS Id string
+>   o meth updates
+>   o BCM1250 network driver updates
+>   o sgiseeq fixes
+>   o IOC3 updates
+>   o declance updates
+>   o MIPS: PCI code is now shared
+>   o Add Pete Popov to credits
+>   o Merge missing MIPS i8042 bits
+>   o MIPS is an a.out free zone
+>   o Update comment in fs/compat.c
+> 
+> Randy Dunlap:
+>   o blkdev.h: functions no longer inline
+>   o doc: specifiying module parameters
+> 
+> Randy Vinson:
+>   o Renaming pplus_common.c to hawk_common.c to match gt64260_common.c,
+>     etc, plus minor cleanups.
+>   o Updating mcpn765 for 2.6
+>   o Merge bk://linux.bkbits.net/linux-2.5 into
+>     linuxbox.(none):/src/linux/ppc/linux-2.5/linux
+>   o Updating Force PCore to 2.6
+> 
+> Romain Liévin:
+>   o USB: tiglusb: wrong timeout value
+>   o tipar char driver: wrong timeout value
+> 
+> Russell King:
+>   o [ARM] Add find_first_bit and find_next_bit
+>   o [ARM] Add support for ARM Versatile platform
+>   o [SERIAL] Correct PL011 help text
+>   o pcmcia netdev ordering fixes
+>   o [ARM] Remove extraneous "volatile" from atomic_t pointers
+> 
+> Rusty Russell:
+>   o [NETFILTER]: Missing ip_rt_put in ipt_MASQUERADE
+>   o create singlethread_workqueue()
+>   o Use workqueue for call_usermodehelper
+>   o ppc64: Split prom.c Into pre-reloc and post-reloc Functions
+>   o ppc64: Rearrage finish_device_tree() and its functions in C Order
+>   o ppc64: Rearrage copy_device_tree() and its functions in C Order
+>   o ppc64: Rearrage interpret_funcs in C Order
+>   o ppc64: Rearrage Rest of prom.c in C Order
+>   o ppc64: Make finish_device_tree use lmb_alloc, not klimit
+>   o ppc64: make_room macro for ppc64 prom.c
+>   o ppc64: Fix prom.c to boot on G5 after make_room fix
+>   o ppc64: Clean up prom functions in prom.c
+>   o ppc64: Initrd Cleanup
+>   o ppc64: Move Initrd
+>   o ppc64: prom.c fix for CONFIG_BLK_DEV_INITRD=n
+>   o Fix cpumask iterator over empty cpu set
+> 
+> Sam Ravnborg:
+>   o kbuild: Improved external module support
+> 
+> Scott Feldman:
+>   o e100: ICH 10/H Tx hang fix
+> 
+> Simon Kelley:
+>   o atmel wireless update
+> 
+> Sridhar Samudrala:
+>   o [SCTP] Avoid the use of constant SCTP_IP_OVERHEAD to determine the
+>     max data size in a SCTP packet.
+>   o [SCTP] Cleanup sctp_packet and sctp_outq infrastructure
+>   o [SCTP] Partial Reliability Extension support
+>   o [SCTP] Propagate error from sctp_proc_init. (Olaf Kirch)
+> 
+> Stephen D. Smalley:
+>   o selinux: change context_to_sid handling for no-policy case
+>   o selinux: add runtime disable
+>   o selinux: remove hardcoded policy assumption from get_user_sids()
+>     logic
+>   o SELinux ptrace race fix
+> 
+> Stephen Hemminger:
+>   o [TCP]: Better packing of frto fields into tcp_opt
+>   o [TCP]: Add sysctl to turn off matrics caching
+>   o [TCP]: Report vegas info via tcp_diag
+>   o [TCP]: Add vegas sysctl docs
+>   o [IPV4]: Spelling fixed for ip-sysctl.txt
+>   o [IRDA]: Export irda_task_delete
+> 
+> Stephen Rothwell:
+>   o PPC64 iSeries virtual ethernet fix
+>   o ppc64: iSeries virtual cdrom module fix
+>   o ppc64: add some iSeries proc entries
+> 
+> Steve French:
+>   o Can not mount from cifs vfs client built with gcc 3.3.1 due to
+>     compiler optimization of unsafe global variable. Remove unsafe
+>     global variable
+>   o Fix problem reconnecting additional mounts to the same server after
+>     session failure.
+>   o Fix invalid dentry when race in mkdir between two clients
+>   o fix oops in send_sig on unmount of cifs vfs due to sending signal
+>     to demultiplex thread after it has exited
+>   o Fix EIO caused by network timeouts on changing file size
+>   o fix to not retime out the same session twice since it can
+>     invalidate the newly reestablished session unnecessarily
+>   o Do not return buffer if request has already timed out
+>   o move bad smb session retry to correct location, up one level in
+>     cifs vfs code
+>   o fix endian bug in lockingX and add retry on EAGAIN
+>   o have to reconnect open files safely, one at a time, as needed
+>   o finish off move from reopening all files on reconnection (which
+>     takes too long under heavy stress) to reopen file as needed after
+>     reconnection to server
+>   o correct retry on remaining handles based calls
+>   o Fix compile error
+>   o Missing soft vs. hard retry mount option
+>   o Do not grab i_sem (already taken in filemap.c across commit write
+>     calls) during reopen of invalidated file handle
+>   o Fix oops in mount error path when unload_nls called with bad
+>     pointer
+>   o Avoid smb data corruption under heavy stress
+>   o missing message on timed out requests
+>   o rcvtimeout set improperly for some cifs servers
+>   o invalidate locally cached pages when server breaks oplock.  Do not
+>     loop reconnecting for servers that drop tcp session rather than
+>     sending smb negprot response
+>   o Oops on reopen files when dentry already freed
+>   o invalidate cached pages when last local instance closed so we do
+>     not use stale data while someone may be modifying the file on the
+>     server.
+>   o fix double incrementing of transaction counter
+>   o Fix check of filldir return code during readdir to avoid incomplete
+>     search results displayed on very large directories. Fix cleanup of
+>     proc entries.  Add config parm to allow disabling negotiating Linux
+>     extensions
+>   o allow disabling cifs Linux extensions via proc
+>   o Fix an incorrect mapping of open flags to cifs open disposition. 
+>     Fix blocking byte range locks.  These fix breakages that were
+>     notice running lock tests 1 and 7 of the connectathon posix file
+>     api tests
+>   o set byte range locktimeouts properly
+>   o fix cifs readme
+>   o gracefully exit on failed mounts to win98 (which closes tcp session
+>     rather than erroring on smb protocol negotiation)
+>   o fix failed mounts to win98 part II
+>   o Fix global kernel name space pollution
+>   o Check return on failed dentry allocation.  Suggested by Randy
+>     Dunlap
+>   o Allow null password string pointer and passwords longer than 16
+>     bytes
+>   o finish handling commas in passwords
+>   o finish off mount parm sep override
+>   o Fix caching problem with multiply open files from different clients
+>   o Relax requested CIFS permissions on open to simply request
+>     GENERIC_READ and GENERIC_WRITE (instead of GENERIC_ALL which can
+>     unnecessarily conflict with share permissions by asking implicitly
+>     for take ownership and other unneeded flags)
+>   o fix remoting caching part 2
+>   o remove spurious debug messages
+>   o fix problem not connecting to server when port not specified
+>     explicitly and port field unitialized
+>   o reset searches properly when filldir fails
+>   o ipv6 enablement for cifs vfs fixes
+>   o Spurious white space and duplicated line cleanup
+>   o improve resume key resetting logic when filldir returns error and
+>     filename is in unicode
+>   o allow nosuid mounts
+>   o fix problem with inode revalidation and cache page invalidation
+>   o Fix the exec, suid, dev mount parms to not log warnings when
+>     specified
+>   o fix caching data integrity problem
+>   o use safer i_size_write mechanism to update i_size
+>   o fixes for fsx truncate/readahead/writebehind bug
+>   o clean up compiler warnings
+>   o Add missing description about how to specify credentials file
+>   o Invalidate readahead data properly when file closed, but other
+>     client changed it on server
+>   o Send NTCreateX with ATTR_POSIX if Linux/Unix extensions negotiated
+>     with server.  This allows files that differ only in case and 
+>     improves performance of file creation and file open to such servers
+>   o Fix 20 second hang on some deletes of reopened file due to
+>     semaphore conflict with vfs_delete on i_sem
+>   o fix merge problem with 2.6.5 (rename of page struct field list to
+>     lru)
+>   o Fix misc. minor memory leaks in error paths
+>   o free cifs read buffer on retry
+>   o Fix major page leak in read code caused by extra page_cache_get
+>     call
+>   o check permission locally for servers that do not support the CIFS
+>     Unix Extensions (allowing file_mode and dir_mode to augment the
+>     server permission check, by doing local vfs_permission check)
+>   o Remove 64 bit compiler warning
+>   o Remove "badness in remove_proc_entry" warning logged on module
+>     unload of cifs
+>   o Add in cifs fcntl handling to fix remote dnotify problem
+>   o Do not cache inode metadata when cache time set to 0 (fix hardlink
+>     count caching)
+>   o Retry 2nd time after failure on correct port
+>   o RFC1002 fixup
+>   o exit from waiting on smb response when session dead
+>   o Update change log for 1.10 cifs vfs
+>   o proper rc on host down
+>   o fix error code mapping on bad host
+>   o fix timeout on close operation when pending signal
+>   o do not allow routine user signals to kill SendReceive wait for
+>     response (which was damaging performance badly)
+> 
+> Tom Rini:
+>   o PPC32: Add CONFIG_MPC10X_BRIDGE
+>   o PPC32: Remove an unneeded include in arch/ppc/boot/
+>   o PPC32: Add more useful information to the oops output
+>   o PPC32: Change all #if FOO to #ifdef FOO
+>   o PPC32: Two minor Carolina PReP fixes
+>   o PPC32: Assign an interrupt for the VME chip on PReP MVME* boards
+> 
+> Trond Myklebust:
+>   o Fix nfsroot option handling
+>   o nfs_writepage() retval fix
+> 
+> Ulrich Drepper:
+>   o Add missing __initdata
+> 
+> William Lee Irwin III:
+>   o i386 hugetlb tlb correction
+>   o USB: silence dpcm warning
+>   o hugepage fixes
+> 
+> Yury Umanets:
+>   o loop_set_fd() sendfile check fix
+> 
+> Zwane Mwaikambo:
+>   o remove amd7xx_tco
+>   o SubmittingPatches diffing update
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

@@ -1,198 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263029AbVCQJZA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261793AbVCQJd5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263029AbVCQJZA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 04:25:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263027AbVCQJY7
+	id S261793AbVCQJd5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 04:33:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261867AbVCQJd5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 04:24:59 -0500
-Received: from [24.24.2.56] ([24.24.2.56]:51681 "EHLO ms-smtp-02.nyroc.rr.com")
-	by vger.kernel.org with ESMTP id S263029AbVCQJWD (ORCPT
+	Thu, 17 Mar 2005 04:33:57 -0500
+Received: from ozlabs.org ([203.10.76.45]:65167 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261793AbVCQJdy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 04:22:03 -0500
-Date: Thu, 17 Mar 2005 04:21:44 -0500 (EST)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@localhost.localdomain
-Reply-To: rostedt@goodmis.org
-To: Andrew Morton <akpm@osdl.org>
-cc: mingo@elte.hu, rlrevell@joe-job.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch 0/3] j_state_lock, j_list_lock, remove-bitlocks
-In-Reply-To: <20050316131521.48b1354e.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0503170406500.17019@localhost.localdomain>
-References: <Pine.LNX.4.58.0503141024530.697@localhost.localdomain>
- <Pine.LNX.4.58.0503150641030.6456@localhost.localdomain> <20050315120053.GA4686@elte.hu>
- <Pine.LNX.4.58.0503150746110.6456@localhost.localdomain> <20050315133540.GB4686@elte.hu>
- <Pine.LNX.4.58.0503151150170.6456@localhost.localdomain> <20050316085029.GA11414@elte.hu>
- <20050316011510.2a3bdfdb.akpm@osdl.org> <20050316095155.GA15080@elte.hu>
- <20050316020408.434cc620.akpm@osdl.org> <20050316101906.GA17328@elte.hu>
- <20050316024022.6d5c4706.akpm@osdl.org> <Pine.LNX.4.58.0503160600200.11824@localhost.localdomain>
- <20050316031909.08e6cab7.akpm@osdl.org> <Pine.LNX.4.58.0503160853360.11824@localhost.localdomain>
- <Pine.LNX.4.58.0503161141001.14087@localhost.localdomain>
- <Pine.LNX.4.58.0503161234350.14460@localhost.localdomain>
- <20050316131521.48b1354e.akpm@osdl.org>
+	Thu, 17 Mar 2005 04:33:54 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16953.20279.77584.501222@cargo.ozlabs.ibm.com>
+Date: Thu, 17 Mar 2005 20:34:47 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, riel@redhat.com, Ian.Pratt@cl.cam.ac.uk,
+       kurt@garloff.de, Christian.Limpach@cl.cam.ac.uk
+Subject: Re: [PATCH] Xen/i386 cleanups - AGP bus/phys cleanups
+In-Reply-To: <29ab1884ee5724e9efcfe43f14d13376@cl.cam.ac.uk>
+References: <E1DBX0o-0000sV-00@mta1.cl.cam.ac.uk>
+	<16952.41973.751326.592933@cargo.ozlabs.ibm.com>
+	<200503161406.01788.jbarnes@engr.sgi.com>
+	<29ab1884ee5724e9efcfe43f14d13376@cl.cam.ac.uk>
+X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Keir Fraser writes:
 
+> Yes, Xen will break w/o them, because physical addresses are an 
+> illusory trick that the guest OS plays on itself to give itself the 
+> impression of a contiguous memory map. We use _to_machine and _to_bus 
+> macros to get 'real' physical addresses.
 
-On Wed, 16 Mar 2005, Andrew Morton wrote:
+This code needs real physical addresses, which are not the same things
+as bus addresses.  I thought from what Rik said that virt_to_phys
+should give you real physical addresses, while virt_to_pfn would give
+you the contiguous "physical" page numbers - is that the case?
 
-> >  I guess one way to solve this is to add a wait queue here (before
-> >  schedule()), and have the one holding the lock to wake up all on the
-> >  waitqueue when they release it.
->
-> yup.  A patch against mainline would be appropriate, please.
->
+> For allocating the GATT itself, using dma_alloc_coherent() as done in 
+> my patch certainly seems sane -- the bus base address of that table is 
+> poked into a chipset register, right?
 
-Hi Andrew,
+Well, a northbridge register.  The northbridge is in a privileged
+position in that it controls the memory and can access all of it
+directly using physical addresses, something which PCI or other
+devices can't.  The address you poke into a register to define the
+base of the table is a physical address.  How could it be a bus
+address, when the whole point of the table is to translate bus
+addresses to physical addresses?  If it was a bus address you would
+have to know where the table was before you could work out where the
+table was.
 
-Here's the patch against 2.6.11.  I tested it, by adding (after making the
-patch) global spinlocks for jbd_lock_bh_state and jbd_lock_bh_journalhead.
-That way I have same scenerio as with Ingo's kernel, and I turned on
-NEED_JOURNAL_STATE_WAIT.  I'm still running that kernel so it looks like
-it works.  Making those two locks global causes this deadlock on kjournal
-much quicker, and I don't need to run on an SMP machine (since my SMP
-machines are currently being used for other tasks).
+> As for poking entries into the GATT, I guess I'm not sure what ought to 
+> be used. virt_to_phys() doesn't sound right to me: the GART is a bridge 
+> between two buses, so some sort of bus mapping would still be in order 
 
-Some comments on my patch.  I only implement the wait queue when
-bit_spin_trylock is an actual lock (thus creating the problem). I didn't
-want to add this code if it was needed (ie. !(CONFIG_SMP &&
-CONFIG_DEBUG_SPINLOCKS)).  So in bit_spin_trylock, I define
-NEED_JOURNAL_STATE_WAIT if bit_spin_trylock is really a lock.  When
-NEED_JOURNAL_STATE_WAIT is set, then the wait queue is set up in the
-journal code.
+No, the GART is a bridge between a bus and memory, and the GATT
+entries are physical addresses.
 
-Now the question is, should we make those two locks global? It would help
-Ingo's cause (and mine as well). But I don't know the impact on a large
-SMP configuration.  Andrew, since you have a 16xSMP machine, could you (if
-you have time) try out the effect of that. If you do have time, then I'll
-send you a patch that goes on top of this one to change the two locks into
-global spin locks.
+> So: I would very much like you to take the patches I made to generic.c 
+> that replace __get_free_pages() calls with dma_alloc_coherent(). For 
 
-Ingo, where do you want to go from here? I guess we need to wait on what
-Andrew decides.
+This is also wrong - the base address of the GATT is a physical
+address not a bus address.  This change will break agpgart on ppc64
+systems and I won't be able to play bzflag on my G5 any more. :)
+dma_alloc_coherent allocates iommu entries and returns a bus address,
+but the addresses coming out of the GART don't go through a further
+translation through the iommu.
 
--- Steve
+> now, the patch lines that poke into the GATT I guess stay as they are. 
+> We can maintain an out-of-tree patch for Xen, or perhaps if 
+> virt_to_phys() is not used very much we can override its definition.
 
+It sounds like xen is trying to overload the concepts of physical and
+bus addresses to represent the mapping from "logical" addresses seen
+by the kernel to "absolute" addresses (the "real" physical
+addresses).  IMHO that is a mistake and will only lead to trouble.
 
-diff -ur linux-2.6.11.orig/fs/jbd/commit.c linux-2.6.11/fs/jbd/commit.c
---- linux-2.6.11.orig/fs/jbd/commit.c	2005-03-02 02:38:25.000000000 -0500
-+++ linux-2.6.11/fs/jbd/commit.c	2005-03-17 03:40:06.000000000 -0500
-@@ -80,15 +80,33 @@
-
- /*
-  * Try to acquire jbd_lock_bh_state() against the buffer, when j_list_lock is
-- * held.  For ranking reasons we must trylock.  If we lose, schedule away and
-- * return 0.  j_list_lock is dropped in this case.
-+ * held.  For ranking reasons we must trylock.  If we lose put ourselves on a
-+ * state wait queue and we'll be woken up when it is unlocked. Then we return
-+ * 0 to try this again.  j_list_lock is dropped in this case.
-  */
- static int inverted_lock(journal_t *journal, struct buffer_head *bh)
- {
- 	if (!jbd_trylock_bh_state(bh)) {
-+		/*
-+		 * jbd_trylock_bh_state always returns true unless CONFIG_SMP or
-+		 * CONFIG_DEBUG_SPINLOCK, so the wait queue is not needed there.
-+		 * The bit_spin_locks in jbd_lock_bh_state need to be removed anyway.
-+		 */
-+#ifdef NEED_JOURNAL_STATE_WAIT
-+		DECLARE_WAITQUEUE(wait, current);
- 		spin_unlock(&journal->j_list_lock);
--		schedule();
-+		add_wait_queue_exclusive(&journal_state_wait,&wait);
-+		set_current_state(TASK_UNINTERRUPTIBLE);
-+		/* Check to see if the lock has been unlocked in this short time */
-+		if (jbd_is_locked_bh_state(bh))
-+			schedule();
-+		set_current_state(TASK_RUNNING);
-+		remove_wait_queue(&journal_state_wait,&wait);
- 		return 0;
-+#else
-+		/* This should never be hit */
-+		BUG();
-+#endif
- 	}
- 	return 1;
- }
-diff -ur linux-2.6.11.orig/fs/jbd/journal.c linux-2.6.11/fs/jbd/journal.c
---- linux-2.6.11.orig/fs/jbd/journal.c	2005-03-02 02:37:49.000000000 -0500
-+++ linux-2.6.11/fs/jbd/journal.c	2005-03-17 03:47:40.000000000 -0500
-@@ -80,6 +80,11 @@
- EXPORT_SYMBOL(journal_try_to_free_buffers);
- EXPORT_SYMBOL(journal_force_commit);
-
-+#ifdef NEED_JOURNAL_STATE_WAIT
-+EXPORT_SYMBOL(journal_state_wait);
-+DECLARE_WAIT_QUEUE_HEAD(journal_state_wait);
-+#endif
-+
- static int journal_convert_superblock_v1(journal_t *, journal_superblock_t *);
-
- /*
-diff -ur linux-2.6.11.orig/include/linux/jbd.h linux-2.6.11/include/linux/jbd.h
---- linux-2.6.11.orig/include/linux/jbd.h	2005-03-02 02:38:19.000000000 -0500
-+++ linux-2.6.11/include/linux/jbd.h	2005-03-17 03:48:18.000000000 -0500
-@@ -324,6 +324,20 @@
- 	return bh->b_private;
- }
-
-+#ifdef NEED_JOURNAL_STATE_WAIT
-+/*
-+ * The journal_state_wait is a wait queue that tasks will wait on
-+ * if they fail to get the jbd_lock_bh_state while holding the j_list_lock.
-+ * Instead of spinning on schedule, the task now adds itself to this wait queue
-+ * and will be woken up when the jbd_lock_bh_state is released.
-+ *
-+ * Since the bit_spin_locks are only locks under CONFIG_SMP and
-+ * CONFIG_DEBUG_SPINLOCK, this wait queue is only needed in those
-+ * cases.
-+ */
-+extern wait_queue_head_t journal_state_wait;
-+#endif
-+
- static inline void jbd_lock_bh_state(struct buffer_head *bh)
- {
- 	bit_spin_lock(BH_State, &bh->b_state);
-@@ -342,6 +356,13 @@
- static inline void jbd_unlock_bh_state(struct buffer_head *bh)
- {
- 	bit_spin_unlock(BH_State, &bh->b_state);
-+#ifdef NEED_JOURNAL_STATE_WAIT
-+	/*
-+	 * There may be a task sleeping, and waiting to be woken up
-+	 * when this is unlocked.
-+	 */
-+	wake_up(&journal_state_wait);
-+#endif
- }
-
- static inline void jbd_lock_bh_journal_head(struct buffer_head *bh)
-diff -ur linux-2.6.11.orig/include/linux/spinlock.h linux-2.6.11/include/linux/spinlock.h
---- linux-2.6.11.orig/include/linux/spinlock.h	2005-03-02 02:38:09.000000000 -0500
-+++ linux-2.6.11/include/linux/spinlock.h	2005-03-17 03:39:13.024466071 -0500
-@@ -527,6 +527,9 @@
-  *
-  * Don't use this unless you really need to: spin_lock() and spin_unlock()
-  * are significantly faster.
-+ *
-+ * FIXME: These are evil and need to be removed. They are currently only
-+ *  used by the journal code of ext3.
-  */
- static inline void bit_spin_lock(int bitnum, unsigned long *addr)
- {
-@@ -557,6 +560,13 @@
- {
- 	preempt_disable();
- #if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK)
-+	/*
-+	 * This is only used by the journal code of ext3 and if this
-+	 * is set then we need to tell the journal code that it needs
-+	 * a wait queue to keep kjournald from spinning on a lock.
-+	 */
-+#define NEED_JOURNAL_STATE_WAIT
-+
- 	if (test_and_set_bit(bitnum, addr)) {
- 		preempt_enable();
- 		return 0;
+Regards,
+Paul.

@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310695AbSCRNHg>; Mon, 18 Mar 2002 08:07:36 -0500
+	id <S310769AbSCRNOu>; Mon, 18 Mar 2002 08:14:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310737AbSCRNHQ>; Mon, 18 Mar 2002 08:07:16 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:43020 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S310695AbSCRNHI>; Mon, 18 Mar 2002 08:07:08 -0500
-Subject: Re: Another entry for the MCE-hang list
-To: Weimer@CERT.Uni-Stuttgart.DE (Florian Weimer)
-Date: Mon, 18 Mar 2002 13:23:10 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <87n0x63ugq.fsf@CERT.Uni-Stuttgart.DE> from "Florian Weimer" at Mar 18, 2002 01:56:37 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S310783AbSCRNOk>; Mon, 18 Mar 2002 08:14:40 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:62225 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S310769AbSCRNOb>; Mon, 18 Mar 2002 08:14:31 -0500
+Message-ID: <3C95E7E3.4020300@evision-ventures.com>
+Date: Mon, 18 Mar 2002 14:13:07 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: =?ISO-8859-1?Q?ChristianBorntr=E4ger?= <christian@borntraeger.net>,
+        linux-kernel@vger.kernel.org, andre@linux-ide.org
+Subject: Re: some ide-scsi commands starve drives on the same cable
+In-Reply-To: <E16mIEq-0006nO-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16mx6U-00053V-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> |  - Make sure you have gcc-2.91.66 (egcs-1.1.2) available.  gcc 2.95.2 may
-> |    also work but is not as safe, and *gcc 2.7.2.3 is no longer supported*.
-> |    Also remember to upgrade your binutils package (for as/ld/nm and company)
-> |    if necessary. For more information, refer to ./Documentation/Changes.
+Alan Cox wrote:
+>>during some activities (e.g. erasing a CDRW or fixating a CDR on my 
+>>CD-Burner) the hard disc on the same cable cannot be accessed.All data and 
+>>swap partitions are inaccessable. There is no dmesg output, just entering the
+>>mount point fails.
+>>I am not sure if it is a kernel problem or if it is a firmware-bug.
 > 
-> (2.4.18 linux/README)
+> 
+> Neither. Its an IDE design limitation. IDE can't handle disconnects like
+> real scsi does. The fixate command effectively locks the bus until it
+> completes. 
+> 
+> There has been some movement forward in the standards on this. You might
+> want to ask our new 2.5 IDE maintainer if/when it will be implemented - I
+> suspect you have to wait a while though. There is much IDE to clean up first
 
- - Make sure you have gcc 2.95.3 available.  gcc 2.91.66 (egcs-1.1.2) may
-   also work but is not as safe, and *gcc 2.7.2.3 is no longer supported*.
-   Also remember to upgrade your binutils package (for as/ld/nm and company)
-   if necessary. For more information, refer to ./Documentation/Changes.
+Just for the record: I'm aware of it.
 
-(2.4.19pre3 linux/README)

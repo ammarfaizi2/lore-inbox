@@ -1,68 +1,159 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266763AbSK1Vvd>; Thu, 28 Nov 2002 16:51:33 -0500
+	id <S266754AbSK1VuX>; Thu, 28 Nov 2002 16:50:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266772AbSK1Vvd>; Thu, 28 Nov 2002 16:51:33 -0500
-Received: from mailgw.cvut.cz ([147.32.3.235]:55014 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id <S266763AbSK1Vvb>;
-	Thu, 28 Nov 2002 16:51:31 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Russell King <rmk@arm.linux.org.uk>
-Date: Thu, 28 Nov 2002 22:58:35 +0100
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: [OT] Re: connectivity to bkbits.net?
-Cc: linux-kernel@vger.kernel.org, lm@bitmover.com
-X-mailer: Pegasus Mail v3.50
-Message-ID: <8D5CDD20AEF@vcnet.vc.cvut.cz>
+	id <S266763AbSK1VuX>; Thu, 28 Nov 2002 16:50:23 -0500
+Received: from mta5.snfc21.pbi.net ([206.13.28.241]:33692 "EHLO
+	mta5.snfc21.pbi.net") by vger.kernel.org with ESMTP
+	id <S266754AbSK1VuU>; Thu, 28 Nov 2002 16:50:20 -0500
+Date: Thu, 28 Nov 2002 14:01:50 -0800
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: [PATCH] Module alias and table support
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: "Adam J. Richter" <adam@yggdrasil.com>, greg@kroah.com,
+       linux-kernel@vger.kernel.org
+Message-id: <3DE6924E.9060609@pacbell.net>
+MIME-version: 1.0
+Content-type: multipart/mixed; boundary="Boundary_(ID_zYrgqFCZLJC8sMvnv77nIw)"
+X-Accept-Language: en-us, en, fr
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
+References: <20021128041136.35CA02C081@lists.samba.org>
+ <3DE5BB48.5090606@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 28 Nov 02 at 21:13, Russell King wrote:
-> On Thu, Nov 28, 2002 at 06:53:00PM +0200, Kai Henningsen wrote:
-> > >From two or three traceroutes, that problem seems to be at the SGI end. I  
-> > can't get to them either (nothing after the same IP as for you, at hop  
-> > #17, some place at Genuity), but you are practically next door.
-> 
-> Lesson #1 of firewalling: drop everything.
-> Lesson #2 of firewalling: only accept what you absolutely have to.
-> 
-> Try pointing a web browser at sgi.com port 80.  I _bet_ you get a
-> response.  The site is reachable, they just block UDP (and probably
-> a lot of other stuff.)
-> 
-> traceroute uses UDP, so if a site drops UDP (rather than blocking it)
-> it will appear as a black hole.
+This is a multi-part message in MIME format.
 
-Fortunately people do not sleep, and Michael C. Toren invented 
-tcptraceroute, so you get same level of diagnostic, but by using
-TCP instead of UDP probe... Very useful these days, as almost all
-sites have TCP port 80 open ;-)
-                                            Petr Vandrovec
-                                            
-                                            
+--Boundary_(ID_zYrgqFCZLJC8sMvnv77nIw)
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
 
-vana:/mnt2$ tcptraceroute www.sgi.com
-Selected device eth0, address 147.32.240.58, port 34029 for outgoing packets
-Tracing the path to www.sgi.com (128.167.58.40) on TCP port 80, 30 hops max
- 1  vc-gw.cvut.cz (147.32.240.254)  1.321 ms  1.153 ms  6.154 ms
- 2  147.32.253.80 (147.32.253.80)  0.423 ms  0.339 ms  0.307 ms
- 3  195.113.144.173 (195.113.144.173)  0.419 ms  0.372 ms  0.321 ms
- 4  r41prg-pos13-0-stm16.cesnet.cz (195.113.156.110)  0.559 ms  0.635 ms  0.647 ms
- 5  prag-b1-pos4-0.telia.net (213.248.77.117)  0.867 ms  0.800 ms  0.884 ms
- 6  hbg-bb1-pos1-3-2.telia.net (213.248.64.181)  26.808 ms  26.885 ms  26.638 ms
- 7  kbn-bb1-pos2-0-0.telia.net (213.248.64.29)  32.324 ms  32.372 ms  32.316 ms
- 8  nyk-bb1-pos2-0-0.telia.net (213.248.64.110)  111.833 ms  111.701 ms  111.697 ms
- 9  chi-bb1-pos0-1-0.telia.net (213.248.80.6)  137.653 ms  137.799 ms  137.962 ms
-10  genuity2.k.telia.net (213.248.84.66)  134.193 ms  133.843 ms  133.846 ms
-11  so-2-3-0.chcgil2-br1.bbnplanet.net (4.24.7.133)  132.150 ms  132.127 ms  132.033 ms
-12  so-7-0-0.chcgil2-br2.bbnplanet.net (4.24.5.218)  132.175 ms  132.197 ms  132.248 ms
-13  p4-0.dnvtco1-br2.bbnplanet.net (4.24.9.62)  187.552 ms  187.429 ms  188.031 ms
-14  p15-0.snjpca1-br2.bbnplanet.net (4.0.6.225)  181.492 ms  181.259 ms  181.456 ms
-15  p1-0.sjccolo-dbe2.bbnplanet.net (4.24.6.249)  187.192 ms  188.640 ms  187.578 ms
-16  vlan40.sjccolo-isw03-rc1.bbnplanet.net (128.11.200.91)  187.261 ms  187.584 ms  187.468 ms
-17  128.11.16.169 (128.11.16.169)  187.644 ms  187.481 ms  187.460 ms
-18  www.sgi.com (128.167.58.40) [open]  181.586 ms  182.415 ms  181.513 ms
-vana:/mnt2$
+
+> Hmm, with 2.5.50 and module-init-tools 0.8a two "modules.*map" files
+> are created -- but they're empty.  That's with the latest 2.5 modutils
+> 
+>   http://www.kernel.org/pub/linux/kernel/people/rusty/modules/
+> 
+> So that's not quite working yet. ...
+
+OK -- good news!
+
+I now have USB hotplugging behaving again, with three patches on
+top of 2.5.50 and modutils 0.8a :
+
+- The <linux/module.h> patch included with your 0.8a announce:
+    http://marc.theaimsgroup.com/?l=linux-kernel&m=103845080926386&w=2
+
+- A tweak to that patch to still include <linux/elf.h> (to compile)
+
+- The attached patch to your "modprobe", implementing "-n" and (so
+   I can see it works at least partially) using "-v".
+
+Will you merge the modprobe patch?  TIA!
+
+- Dave
+
+
+
+
+
+
+
+--Boundary_(ID_zYrgqFCZLJC8sMvnv77nIw)
+Content-type: text/plain; name=modprobe.patch
+Content-transfer-encoding: 7BIT
+Content-disposition: inline; filename=modprobe.patch
+
+--- modprobe.c-orig	Thu Nov 28 13:18:37 2002
++++ modprobe.c	Thu Nov 28 13:34:55 2002
+@@ -53,6 +53,9 @@
+ 
+ #define MODULE_DIR "/lib/modules"
+ 
++int show_only = 0;
++int verbose = 0;
++
+ static void fatal(const char *fmt, ...)
+ __attribute__ ((noreturn, format (printf, 1, 2)));
+ 
+@@ -384,7 +387,7 @@
+ 	for (dep = mod->dependencies; dep != NULL; dep = dep->next)
+ 		insmod(dep->module, options, NULL, 0, &call_history);
+ 
+-	/* If we fail to load after this piont, we abort the whole program. */
++	/* If we fail to load after this point, we abort the whole program. */
+ 	mod->state = LOADED;
+ 
+ 	/* Now, it may already be loaded: check /proc/modules */
+@@ -428,13 +431,18 @@
+ 	if (newname)
+ 		rename_module(mod, map, st.st_size, newname);
+ 
+-	ret = syscall(__NR_init_module, map, st.st_size, options);
+-	if (ret != 0) {
+-		if (dont_fail)
+-			fatal("Error inserting %s (%s): %s\n",
+-			      modname, mod->filename, moderror(errno));
+-		warn("Error inserting %s (%s): %s\n",
+-		     modname, mod->filename, moderror(errno));
++	if (verbose)
++		printf ("insmod %s\n", mod->filename);
++
++	if (!show_only) {
++		ret = syscall(__NR_init_module, map, st.st_size, options);
++		if (ret != 0) {
++			if (dont_fail)
++				fatal("Error inserting %s (%s): %s\n",
++				      modname, mod->filename, moderror(errno));
++			warn("Error inserting %s (%s): %s\n",
++			     modname, mod->filename, moderror(errno));
++		}
+ 	}
+ 	free(map);
+  out_fd:
+@@ -505,6 +513,7 @@
+ 				   { "showconfig", 0, NULL, 'c' },
+ 				   { "autoclean", 0, NULL, 'k' },
+ 				   { "quiet", 0, NULL, 'q' },
++				   { "show", 0, NULL, 'n' },
+ 				   { "syslog", 0, NULL, 's' },
+ 				   { NULL, 0, NULL, 0 } };
+ 
+@@ -515,7 +524,6 @@
+ 	struct utsname buf;
+ 	int opt;
+ 	int dump_only = 0;
+-	int verbose = 0;
+ 	const char *config = NULL;
+ 	char *dirname, *optstring = NOFAIL(strdup(""));
+ 	char *modname, *newname = NULL;
+@@ -523,7 +531,7 @@
+ 
+ 	try_old_version("modprobe", argv);
+ 
+-	while ((opt = getopt_long(argc, argv, "vVC:o:kqsc", options, NULL)) != -1){
++	while ((opt = getopt_long(argc, argv, "vVC:o:knqsc", options, NULL)) != -1){
+ 		switch (opt) {
+ 		case 'v':
+ 			verbose = 1;
+@@ -543,6 +551,9 @@
+ 		case 'k':
+ 			/* FIXME: This should actually do something */
+ 			break;
++		case 'n':
++			show_only = 1;
++			break;
+ 		case 'q':
+ 			/* FIXME: This should actually do something */
+ 			break;
+@@ -550,7 +561,7 @@
+ 			/* FIXME: This should actually do something */
+ 			break;
+ 		default:
+-			fprintf(stderr, "Unknown option `%s'\n", argv[optind]);
++			fprintf(stderr, "Unknown option `%c'\n", opt);
+ 			print_usage(argv[0]);
+ 		}
+ 	}
+
+--Boundary_(ID_zYrgqFCZLJC8sMvnv77nIw)--

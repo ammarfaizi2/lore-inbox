@@ -1,95 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317695AbSGVRFj>; Mon, 22 Jul 2002 13:05:39 -0400
+	id <S317704AbSGVRJW>; Mon, 22 Jul 2002 13:09:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316684AbSGVRFj>; Mon, 22 Jul 2002 13:05:39 -0400
-Received: from etpmod.phys.tue.nl ([131.155.111.35]:38703 "EHLO
-	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
-	id <S316682AbSGVRFh>; Mon, 22 Jul 2002 13:05:37 -0400
-Date: Mon, 22 Jul 2002 19:08:40 +0200
-From: Kurt Garloff <garloff@suse.de>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: Linux SCSI list <linux-scsi@vger.kernel.org>,
-       Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Patch for 256 disks in 2.4
-Message-ID: <20020722170840.GB19587@nbkurt.etpnet.phys.tue.nl>
-Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
-	Pete Zaitcev <zaitcev@redhat.com>,
-	Linux SCSI list <linux-scsi@vger.kernel.org>,
-	Linux kernel list <linux-kernel@vger.kernel.org>
-References: <20020720195729.C20953@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="8GpibOaaTibBMecb"
-Content-Disposition: inline
-In-Reply-To: <20020720195729.C20953@devserv.devel.redhat.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.4.16-schedJ2 i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: TU/e(NL), SuSE(DE)
+	id <S317705AbSGVRJW>; Mon, 22 Jul 2002 13:09:22 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:15369 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S317704AbSGVRJV>; Mon, 22 Jul 2002 13:09:21 -0400
+Date: Mon, 22 Jul 2002 10:13:00 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Russell King <rmk@arm.linux.org.uk>, Christoph Hellwig <hch@lst.de>,
+       <linux-kernel@vger.kernel.org>, Robert Love <rml@tech9.net>
+Subject: Re: [patch] cli()/sti() cleanup, 2.5.27-A2
+In-Reply-To: <Pine.LNX.4.44.0207221248250.4519-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0207221004420.2504-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---8GpibOaaTibBMecb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-Hi Pete,
+On Mon, 22 Jul 2002, Ingo Molnar wrote:
+>
+> So what i did in my tree was to introduce the following 5 core means of
+> manipulating the local interrupt flags:
+>
+> 	irq_off()
+> 	irq_on()
+> 	irq_save(flags)
+> 	irq_save_off(flags)
+> 	irq_restore(flags)
 
-On Sat, Jul 20, 2002 at 07:57:29PM -0400, Pete Zaitcev wrote:
-> For those who do not follow, John Cagle allocated 8 more SCSI
-> disk majors.
+Ugh.
 
-Have those officially been assigned to SCSI disks?
-So disks 128 -- 255 have majors 128 thr. 135?
+I'd much rather keep the current "local_xxx" versions, since they clearly
+say that it's local to the CPU. Let's face it, people SHOULD NOT USE
+THESE!
 
-> Here's a patch to make use of them. I am not sure
-> if we want a 2.5 version; it's going to be all devicefs anyhow...
+You should use "spin_lock_irq()" and friends, since those are the only
+sane interfaces for doing real irq-safe locking.
 
-I've written a patch for sd that makes the allocation of majors
-dynamic. The driver just takes 8 at sd_init and further majors are=20
-allocated when disks are attached. Which saves a lot of memory for
-all the gendisk and hd_struct stuff in case you do not have a lot of=20
-SCSI disks connected. The patch does support up to 160 SD majors,=20
-though currently, it won't succeed getting more than 132 majors.
+So what's wrong with just keeping the things that we've advocated for a
+long while, and not try to break source compatibility "just because".
 
-> It really is strange how many places know major assignments.
+Keeping the old names will make it a lot easier to maintain drivers that
+do want to use them, and it means not having to change old drivers that do
+the right thing.
 
-Indeed. I missed the sysrq stuff in my patch, BTW.=20
-Do you have any idea why we can't just sync all mounted filesystems
-in do_emergency_sync()? Or at least all that are backed by a real=20
-device? The test for IDE and SCSI majors seems bogus to me. What
-about DASD? LVM? EVMS? MD? Loop? NBD? DRBD? What's the rationale=20
-of restricting the sync to only IDE and SCSI? Deadlock avoidance?
+So I vote for
 
-> I hope I found all of them which matter. Also, I think nobody
-> uses min_major/max_major, do you guys know if that's right?
+	local_irq_save(flags)		- save and disable
+	local_irq_restore(flags)	- restore
+	local_irq_disable()		- disable
+	local_irq_enable()		- enable
 
-It's right. Kill them! I killed them as well in my patch.
+and that's it. Yes, the "calling convention" for local_irq_save() is
+strange, but it makes it easier for some architectures, and other
+architectures can just always make it
 
-> More comments?
+	#define local_irq_save(flags) \
+		do { (flags) = arch_irq_save(); } while (0)
 
-I'm gonna post my patches tomorrow ...
+and it's not worth breaking existing practices over (besides, that's the
+calling convention that "read_lock_irqsave()" also has, and I do _not_
+want to change all of that _too_).
 
-Regards,
---=20
-Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
-GPG key: See mail header, key servers         Linux kernel development
-SuSE Linux AG, Nuernberg, DE                            SCSI, Security
+As to needing to do a save without a disable, show me where that really
+matters..
 
---8GpibOaaTibBMecb
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+I agree that we should get rid of __cli / __sti / __restore_flags /
+__save_flags and company, but that is no excuse for breaking backwards
+compatibility for stuff that has used the new interfaces
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+I really think that "local_" prefix is worth it. It makes people who are
+used to, and work exclusively with, UP think twice about what the thing
+actually does.
 
-iD8DBQE9PDwYxmLh6hyYd04RAsScAJ9n7GBvWm76ajZ+MPuNfl1DORkbyQCgmjiQ
-alFllswva2r3qXG2s7+j8Js=
-=KR7s
------END PGP SIGNATURE-----
+		Linus
 
---8GpibOaaTibBMecb--

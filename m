@@ -1,57 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317887AbSHHSmO>; Thu, 8 Aug 2002 14:42:14 -0400
+	id <S317861AbSHHSkR>; Thu, 8 Aug 2002 14:40:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317874AbSHHSlY>; Thu, 8 Aug 2002 14:41:24 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:53258 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S317872AbSHHSkd>; Thu, 8 Aug 2002 14:40:33 -0400
-Date: Thu, 8 Aug 2002 15:44:06 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@duckman.distro.conectiva
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-       Andrew Morton <akpm@zip.com.au>, Anton Blanchard <anton@samba.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       <linux-kernel@vger.kernel.org>, <riel@imladris.surriel.com>
-Subject: Re: fix CONFIG_HIGHPTE
-In-Reply-To: <1028836757.28883.73.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44L.0208081541560.2589-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S317864AbSHHSkR>; Thu, 8 Aug 2002 14:40:17 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:63240
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S317861AbSHHSkO>; Thu, 8 Aug 2002 14:40:14 -0400
+Date: Thu, 8 Aug 2002 11:35:45 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+cc: Nick Orlov <nick.orlov@mail.ru>, B.Zolnierkiewicz@elka.pw.edu.pl,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       linux-kernel@vger.kernel.org, davidsen@tmr.com
+Subject: Re: [PATCH] pdc20265 problem.
+In-Reply-To: <17291A73E81@vcnet.vc.cvut.cz>
+Message-ID: <Pine.LNX.4.10.10208081128430.25573-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8 Aug 2002, Alan Cox wrote:
-> On Thu, 2002-08-08 at 15:51, Rik van Riel wrote:
-> > Linux isn't yet up to having 500 simultaneous interactive
-> > users, in fact I don't think it has ever been up to this
-> > situation.
->
-> It works suprisingly well. I know people who are doing it. It does not
-> work when those users are all running arbitarly large jobs. In most
-> conventional (non student compile) type setups 500 is fine. The O(1)
-> scheduler and highio are pretty essential as is a real I/O subsystem.
 
-Agreed, it'll work when things are well behaved and the
-system isn't overloaded.
+Clearly the difference between what is silkscreened and the usage intent
+is beyond the obvious :-/  Since I have had or still have first hand
+experience in the observed behaior under Linux and MicroSoft, you are
+going by what is read.  Book knowledges gets you books not reality.
+try a few w/ all of them bootable and see what happens.  So until Linux
+gets a clue about EDDS 2.0 and or 3.0 it has not a chance of getting the
+correct hd0/hd1 from the INT13/19 services.  Obviously experience and
+first hand knowledge of reality is worthless in Linux.  I am out of this
+thread.
 
-However, having been a curious student myself I'm pretty
-sure student workloads aren't always well behaved and do
-have a tendency to overload the system once in a while.
+Cheers,
 
-I'm not sure Linux will be able to deal with the "I wonder
-what happens if I ..." type students ;)
+Andre Hedrick
+LAD Storage Consulting Group
 
-regards,
+On Thu, 8 Aug 2002, Petr Vandrovec wrote:
 
-Rik
--- 
-	http://www.linuxsymposium.org/2002/
-"You're one of those condescending OLS attendants"
-"Here's a nickle kid.  Go buy yourself a real t-shirt"
-
-http://www.surriel.com/		http://distro.conectiva.com/
+> On  8 Aug 02 at 10:30, Andre Hedrick wrote:
+> > 
+> > http://www.tyan.com/products/html/thunderlet.html
+> 
+> Page 40 of manual: choose Onboard IDE or FastTrak ATA-100/RAID.
+> OnboardIDE means Serverworks, FastTrak means PDC20265.
+> BIOS settings for primary/secondary disk relate to the Serverworks
+> channels.
+> 
+> > http://www.tyan.com/products/html/tiger200t.html
+> 
+> Page 11: Primary/secondary IDE: VIA, RAID primary/secondary: PDC.
+> Page 33: Primary/secondary IDE settings relate to the VIA.
+> 
+> > http://www.tyan.com/products/html/trinityi845e.html
+> 
+> Page 5: Integrated PCI IDE (it talks about i845 internal) +
+> integrated IDE RAID (20267, so no relevance here). Page 28:
+> primary/secondary disables i845, not PDC.
+> 
+> > http://www.tyan.com/products/html/trinitygcsl.html
+> 
+> Serverworks, with IDE. Serverworks IDE is primary.
+> RAID is 20267, so no relevance. Manual not available yet.
+> 
+> > http://www.epox.com/html/english/products/motherboard/ep-d3va.htm
+> 
+> VIA onboard, HPT370 RAID. Connectors of RAID marked IDE3/IDE4.
+> 
+> > http://www.epox.com/html/english/products/motherboard/ep-8k3a.htm
+> 
+> 8k3a has no RAID. 8k3a+ has PDC20267. Primary IDE is from VIA,
+> RAID is additional...
+> 
+> > http://www.supermicro.com/PRODUCT/MotherBoards/VIA/370DDE.htm
+> 
+> Manual unavailable from the web (404 Page not found after clicking
+> on manual). Picture shows IDE #1/IDE #2 (VIA) and IDE RAID #1/#2.
+> Besides that it has PDC20267, so it has no relevance to this discussion.
+> 
+> > http://www.supermicro.com/PRODUCT/MotherBoards/VIA/P3TDDE.htm
+> 
+> Manual page #10: IDE1/IDE2 for VIA, IDE RAID #1/#2 for PDC.
+> Page 14: 2 IDE bus master interfaces support UDMA/100 (listed first),
+> 2 IDE RAID connectors (listed later). Page 49: IDE primary/secondary
+> settings relate to the VIA.
+>  
+> > all know better, are wiser, empower w/ megalmania (sp) and gawd knows what
+> > else.  Please next time, do your homework before you attempt to call me
+> > on these issues.  Do the two word "Native" and "Compatablity" in ATA-ATAPI
+> > have meaning?  This will help you go a long way.
+> 
+> I did my homework. I still believe that there is NO MAINBOARD with
+> PDC20265, and without southbridge IDE - be it VIA, SiS, Intel or Nvidia.
+> All motherboards you listed have PDC (or HPT) as an additional controller,
+> and manual always refers to southbridge as IDE#1/IDE#2, while PDC
+> is referred as IDE RAID#1/#2, or even as IDE#3/IDE#4.
+> 
+> If you tried to prove that PDC20265 should never be ide0/ide1, then
+> we are on the same boat.
+>                                                 Petr Vandrovec
+>                                                 vandrove@vc.cvut.cz
+>                                                 
+> P.S.: Both Tyan and Epox should make their ftp servers much, much faster...
+>                                                 
+> 
 

@@ -1,47 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261921AbTDMUf6 (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 16:35:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261924AbTDMUf6 (for <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Apr 2003 16:35:58 -0400
-Received: from cox.ee.ed.ac.uk ([129.215.80.253]:55014 "EHLO
-	postbox.ee.ed.ac.uk") by vger.kernel.org with ESMTP id S261921AbTDMUf4 convert rfc822-to-8bit (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Apr 2003 16:35:56 -0400
-From: Unai Garro Arrazola <Unai.Garro@ee.ed.ac.uk>
-Organization: The University of Edinburgh
-To: linux-kernel@vger.kernel.org
-Subject: Re: i810fb problems with 2.5.66-bk10
-Date: Sun, 13 Apr 2003 21:49:17 +0100
-User-Agent: KMail/1.5.9
-MIME-Version: 1.0
-Content-Description: clearsigned data
-Content-Disposition: inline
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200304132149.32683.Unai.Garro@ee.ed.ac.uk>
+	id S261916AbTDMUdk (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 16:33:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261921AbTDMUdj (for <rfc822;linux-kernel-outgoing>);
+	Sun, 13 Apr 2003 16:33:39 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:65031
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id S261916AbTDMUdh 
+	(for <rfc822;linux-kernel@vger.kernel.org>); Sun, 13 Apr 2003 16:33:37 -0400
+Subject: Re: 2.5.67-mm2
+From: Robert Love <rml@tech9.net>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Alistair Strachan <alistair@devzero.co.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <20030413130543.081c80fd.akpm@digeo.com>
+References: <200304132059.11503.alistair@devzero.co.uk>
+	 <20030413130543.081c80fd.akpm@digeo.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1050266723.767.1.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
+Date: 13 Apr 2003 16:45:24 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sun, 2003-04-13 at 16:05, Andrew Morton wrote:
 
->Try my latest patch at 
->http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
+> It's a bk bug.  This might make it boot:
+
+Yah, I needed a similar patch to make 2.5.67-mm2 boot.  Not sure if its
+hiding the real problem or not, but it works.
+
+Note the difference between mine and your's, though.  I think you need
+it.
+
+	Robert Love
 
 
-Thanks! That fixed it. Sorry for not testing before, I've been quite busy.
+ drivers/base/class.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-	Unai
 
-- -- 
-Don't get suckered in by the comments -- they can be terribly misleading.
-Debug only code.
-		-- Dave Storer
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+diff -urN linux-2.5.67/drivers/base/class.c linux/drivers/base/class.c
+--- linux-2.5.67/drivers/base/class.c	2003-04-07 13:33:00.000000000 -0400
++++ linux/drivers/base/class.c	2003-04-13 16:32:52.000000000 -0400
+@@ -103,12 +105,12 @@
+ 	struct device_class * cls = get_devclass(drv->devclass);
+ 	int error = 0;
+ 
+-	if (cls) {
++	if (cls && &cls->subsys) {
+ 		down_write(&cls->subsys.rwsem);
+ 		pr_debug("device class %s: adding driver %s:%s\n",
+ 			 cls->name,drv->bus->name,drv->name);
+ 		error = devclass_drv_link(drv);
+-		
++
+ 		if (!error)
+ 			list_add_tail(&drv->class_list,&cls->drivers.list);
+ 		up_write(&cls->subsys.rwsem);
 
-iD8DBQE+mc1QhxDfDIoZlaURAs7lAKDErpqJhTeysfNoBNpxZSwZzIxVXwCfVF5E
-pDjEvHYIHGq3Vgc8xrfSQ2g=
-=p4vU
------END PGP SIGNATURE-----
+
 

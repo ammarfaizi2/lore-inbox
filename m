@@ -1,40 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313983AbSDQA1y>; Tue, 16 Apr 2002 20:27:54 -0400
+	id <S313984AbSDQAdZ>; Tue, 16 Apr 2002 20:33:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313984AbSDQA1x>; Tue, 16 Apr 2002 20:27:53 -0400
-Received: from fencepost.gnu.org ([199.232.76.164]:21163 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S313983AbSDQA1x>; Tue, 16 Apr 2002 20:27:53 -0400
-Date: Tue, 16 Apr 2002 20:27:52 -0400 (EDT)
-From: Pavel Roskin <proski@gnu.org>
-X-X-Sender: proski@marabou.research.att.com
-To: linux-kernel@vger.kernel.org
-Subject: Cannot compile 2.4.19-pre7 with APIC without IOAPIC
-Message-ID: <Pine.LNX.4.44.0204162016010.2155-100000@marabou.research.att.com>
+	id <S313985AbSDQAdY>; Tue, 16 Apr 2002 20:33:24 -0400
+Received: from fmr01.intel.com ([192.55.52.18]:62914 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S313984AbSDQAdX>;
+	Tue, 16 Apr 2002 20:33:23 -0400
+Message-ID: <794826DE8867D411BAB8009027AE9EB913D03D4C@FMSMSX38>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Davide Libenzi'" <davidel@xmailserver.org>, davidm@hpl.hp.com
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: RE: Why HZ on i386 is 100 ?
+Date: Tue, 16 Apr 2002 17:33:06 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+If you change HZ to 1000, you need to change PROC_CHANGE_PENALTY
+accordingly.  Otherwise, process would get preempted before its time slice
+gets expired.  The net effect is more context switch than necessary, which
+could explain the 10% difference.
 
-I'm getting this error when compiling 2.4.19-pre7:
 
-init/main.o: In function `smp_init':
-init/main.o(.text.init+0x5e1): undefined reference to `skip_ioapic_setup'
-arch/i386/kernel/kernel.o: In function `broken_pirq':
-arch/i386/kernel/kernel.o(.text.init+0x3427): undefined reference to 
-`skip_ioapic_setup'
+-----Original Message-----
+From: Davide Libenzi [mailto:davidel@xmailserver.org]
+Sent: Tuesday, April 16, 2002 11:10 AM
+To: davidm@hpl.hp.com
+Cc: Linus Torvalds; Linux Kernel Mailing List
+Subject: Re: Why HZ on i386 is 100 ?
 
-Processor is AMD K7, SMP is disabled, APIC is enabled, IOAPIC is disabled.
 
-It turns out that skip_ioapic_setup is defined in 
-arch/i386/kernel/io_apic.c, which is only compiled when CONFIG_X86_IO_APIC 
-is defined, but it's used in init/main.c if SMP is disabled and APIC is 
-enabled.
+On Tue, 16 Apr 2002, David Mosberger wrote:
 
--- 
-Regards,
-Pavel Roskin
+> >>>>> On Tue, 16 Apr 2002 10:18:18 -0700 (PDT), Davide Libenzi
+<davidel@xmailserver.org> said:
+>
+>   Davide> i still have pieces of paper on my desk about tests done on
+>   Davide> my dual piii where by hacking HZ to 1000 the kernel build
+>   Davide> time went from an average of 2min:30sec to an average
+>   Davide> 2min:43sec. that is pretty close to 10%
+>
+> Did you keep the timeslice roughly constant?
 
+it was 2.5.1 time and it was still ruled by TICK_SCALE that made the
+timeslice to drop from 60ms ( 100HZ ) to 21ms ( 1000HZ ).
+
+
+
+
+- Davide
+
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,57 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277900AbRJ1JFa>; Sun, 28 Oct 2001 04:05:30 -0500
+	id <S277905AbRJ1Jce>; Sun, 28 Oct 2001 04:32:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277904AbRJ1JFV>; Sun, 28 Oct 2001 04:05:21 -0500
-Received: from pl038.nas921.ichikawa.nttpc.ne.jp ([210.165.234.38]:12599 "EHLO
-	mbr.sphere.ne.jp") by vger.kernel.org with ESMTP id <S277900AbRJ1JFR>;
-	Sun, 28 Oct 2001 04:05:17 -0500
-Date: Sun, 28 Oct 2001 18:03:54 +0900
-From: Bruce Harada <bruce@ask.ne.jp>
-To: linux-kernel@vger.kernel.org
-Subject: 2.2.20-pre11 compile error
-Message-Id: <20011028180354.5b10bcd0.bruce@ask.ne.jp>
-X-Mailer: Sylpheed version 0.4.66 (GTK+ 1.2.8; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S277949AbRJ1JcZ>; Sun, 28 Oct 2001 04:32:25 -0500
+Received: from fungus.teststation.com ([212.32.186.211]:43018 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id <S277905AbRJ1JcM>; Sun, 28 Oct 2001 04:32:12 -0500
+Date: Sun, 28 Oct 2001 10:32:46 +0100 (CET)
+From: Urban Widmark <urban@teststation.com>
+To: Hans-Joachim Baader <hjb@pro-linux.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.14-3 via-rhine lockup
+In-Reply-To: <20011027225007.A718@mandel.hjb.de>
+Message-ID: <Pine.LNX.4.30.0110280950380.12850-100000@cola.teststation.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 27 Oct 2001, Hans-Joachim Baader wrote:
 
-When compiling 2.2.20-pre11, I get the following error:
+> on heavy load the via-rhine driver locks up. Even reloading the module
+> doesn't help, only reboot cures the problem.
 
--------
-make[1]: Entering directory `/usr/src/linux-2.2.20/arch/i386/kernel'
-cc -D__KERNEL__ -I/usr/src/linux-2.2.20/include -Wall -Wstrict-prototypes -O2
--fomit-frame-pointer  -pipe -fno-strength-reduce -m486 -malign-loops=2
--malign-jumps=2 -malign-functions=2 -DCPU=586   -c -o process.o process.c
-process.c: In function `sys_execve':
-process.c:812: structure has no member named `ptrace'
-process.c:812: `PT_DTRACE' undeclared (first use this function)
-process.c:812: (Each undeclared identifier is reported only once
-process.c:812: for each function it appears in.)
-make[1]: *** [process.o] Error 1
-make[1]: Leaving directory `/usr/src/linux-2.2.20/arch/i386/kernel'
-make: *** [_dir_arch/i386/kernel] Error 2
--------
+How do you generate the heavy load? (what is heavy)
 
-The cause appears to be the following change in arch/i386/kernel/process.c:
-
--------
-@@ -808,7 +809,7 @@
-                goto out;
-        error = do_execve(filename, (char **) regs.ecx, (char **) regs.edx, &regs);
-        if (error == 0)
--               current->flags &= ~PF_DTRACE;
-+               current->ptrace &= ~PT_DTRACE;
-        putname(filename);
- out:
-        unlock_kernel();
--------
-
-Any suggestions as to a fix? This is a libc5 system (5.4.46).
+What hardware do you have? via-rhine chip model? (dmesg/lspci -n)
 
 
-Bruce
+> I've set the debug variable in via-rhine.c to 7 and loaded the module
+> without options. In the kernel log I see:
+> 
+> via_rhine_rx() status is 00409700.
+
+0040 - received packet length
+9700 - 1001 0111 0000 0000 = RXOK, BAR, CHN, STP, EDP
+
+RXOK = Received ok
+BAR = Broadcast packet
+CHN = Chain buffer
+STP&EDP = Single buffer descriptor
+
+Or in other words, it sucessfully received a 64 byte broadcast packet.
+
+With debug=7, surely you get lots of other messages too ... ?
+
+
+> It still does interrupts and queues packets to send, but it either doesn't
+> send them or doesn't receive anything.
+
+If it is generating interrupts the driver and network code will not detect
+anything strange. There is a timer that detects transmit attempts that do
+not complete, but a transmit interrupt will clear that.
+
+Donald Becker has a diagnostics tool at
+    ftp://ftp.scyld.com/pub/diag/via-diag.c
+Comparing the output of 'via-diag -aaeemm' (or something) when working and
+when not working could be helpful.
+
+After it stops working, do you still get log messages from it?
+Including via_rhine_rx()?
+
+/Urban
 

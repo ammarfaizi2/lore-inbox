@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287368AbSACWDM>; Thu, 3 Jan 2002 17:03:12 -0500
+	id <S287431AbSACWFW>; Thu, 3 Jan 2002 17:05:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287376AbSACWDD>; Thu, 3 Jan 2002 17:03:03 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:53984 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S287368AbSACWCn>;
-	Thu, 3 Jan 2002 17:02:43 -0500
-Message-ID: <3C34E169.FFE2DBED@vnet.ibm.com>
-Date: Thu, 03 Jan 2002 16:55:37 -0600
+	id <S287420AbSACWFN>; Thu, 3 Jan 2002 17:05:13 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:62690 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S287405AbSACWFE>;
+	Thu, 3 Jan 2002 17:05:04 -0500
+Message-ID: <3C34E1EE.D51D529@vnet.ibm.com>
+Date: Thu, 03 Jan 2002 16:57:50 -0600
 From: Tom Gall <tom_gall@vnet.ibm.com>
 X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.2 ppc)
 X-Accept-Language: en
@@ -35,15 +35,15 @@ Michael Zhu wrote:
 > points to which field in the
 > blk_dev[MAJOR_NR].request_queue? Thank you very much.
 
-Look in include/asm-[your-arch]/current.h
+Heh!  Ignore that last one ...
 
-It's architecture dependant. For instance on PPC64 we keep current in a
-register.
+Wrong current... you want CURRENT ... duh!  look in include/linux/blk.h
+
+grep is your friend.
 
 Regards,
 
 Tom
-
 -- 
 Tom Gall - [embedded] [PPC64 | PPC32] Code Monkey
 Peace, Love &                  "Where's the ka-boom? There was

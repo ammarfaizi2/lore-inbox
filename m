@@ -1,57 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288597AbSADLOI>; Fri, 4 Jan 2002 06:14:08 -0500
+	id <S284761AbSADLXi>; Fri, 4 Jan 2002 06:23:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288598AbSADLN7>; Fri, 4 Jan 2002 06:13:59 -0500
-Received: from out1.bigplanet.com ([216.169.198.51]:47264 "EHLO
-	out1.bigplanet.com") by vger.kernel.org with ESMTP
-	id <S288597AbSADLNp>; Fri, 4 Jan 2002 06:13:45 -0500
-Date: Fri, 04 Jan 2002 05:38:30 -0500
-From: Andy Gaynor <silver@silver.unix-fu.org>
-Subject: Re: losetuping files in tmpfs fails?
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <3C358626.B88DA942@silver.unix-fu.org>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i686)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
-In-Reply-To: <3C2F0AEE.ACABAAFA@silver.unix-fu.org>
- <3C34E4DF.F439FD70@zip.com.au>
+	id <S288602AbSADLX2>; Fri, 4 Jan 2002 06:23:28 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:10376 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S284761AbSADLXX>;
+	Fri, 4 Jan 2002 06:23:23 -0500
+Date: Fri, 4 Jan 2002 14:20:49 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: rwhron <rwhron@earthlink.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [announce] [patch] ultra-scalable O(1) SMP and UP scheduler
+In-Reply-To: <20020104061650.A22264@earthlink.net>
+Message-ID: <Pine.LNX.4.33.0201041412550.4007-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks all for your responses to ...
 
-silver@silver.unix-fu.org (Yers truly) wrote:
-> [Lookey, I can't loop to files in tmpfs!]
+On Fri, 4 Jan 2002, rwhron wrote:
 
-Before trying out a new kernel feature, I give the docs at least a quick look
-for bugs and warnings.  The higher the signal-to-noise ratio, the closer I
-look.  tmpfs.txt is conversational, so I only gave it a cursory scan.  The
-notes on the loop restriction are kind of obscured.  The first is the second
-line of "usage" 3.  Having read the first line, completely innocuous and
-unrelated to the restriction, I moved on.  The second was "todo" 2 at the very
-bottom, and todos aren't usually very interesting to first-time users.  This is
-an important restriction with no obvious justification (the cynical might even
-call such a bug), and should be prominently advertised.
+> The second time I ran it, when I was tailing the output the machine
+> seemed to freeze.  (Usually the syscall tests complete very quickly).
+> I got the oops below on a serial console, it scrolled much longer and
+> didn't seem to like the call trace would ever complete, so i rebooted.
 
-akpm@zip.com.au (Andrew Morton) wrote:
-> It's not obvious that there's a burning need to support loop-on-tmpfs though,
-> is there?
+the oops shows an infinite page fault, the actual point of fault is not
+visible. To make it visible, could you please apply the following patch to
+your tree and check the serial console? It should now just print a single
+line (showing the faulting EIP) and freeze forever:
 
-Completeness is enough.  /tmp is a general purpose area and should generally
-work.  Given /tmp's transient nature, it's quite reasonable to trade away
-persistence for other features, including speed and flexibility.  However,
-there is no obvious justification for trading away other features, like the
-ability to contain the objects of loops.
+   pagefault at: 12341234. locking up now.
 
-    As for specific need, it's common practice to create temporary filesystems
-in a file before sending them to removable volumes.  The activity on such
-filesystems is usually intensive and short-lived, making them ideal candidates
-for tmpfs's features.  It pleases me to get better mileage from my generous
-swap partitions, which occupy prime prime real estate on my hard drives: fast
-low-order fast locations strategically placed between system and data areas.
+Please look up the EIP via gdb:
 
-Regards, [Ag]   Andy Gaynor   silver@silver.unix-fu.org
+	gdb ./vmlinux
+	list *0x12341234
+
+(for this you'll have to add '-g' to CFLAGS in the top level Makefile.)
+
+> I ran it a third time trying to isolate which test triggered the oops,
+> but the behavior was different again.  The machine got very very slow,
+> but tests would eventually print their output.  The test that
+> triggered the behavior was apparently between pipe11 and the
+> setrlimit01 command below.
+
+i'll try these tests. Does the test use RT scheduling as well?
+
+> It looks like you already have an idea where the problem is.
+> Looking forward to the next patch.  :)
+
+i havent found the bug yet :-|
+
+	Ingo
+
+--- linux/arch/i386/mm/fault.c.orig	Fri Jan  4 12:08:41 2002
++++ linux/arch/i386/mm/fault.c	Fri Jan  4 12:11:09 2002
+@@ -314,6 +314,8 @@
+  * Oops. The kernel tried to access some bad page. We'll have to
+  * terminate things with extreme prejudice.
+  */
++	printk("pagefault at: %08lx. locking up now.\n", regs->eip);
++	for (;;) __cli();
+
+ 	bust_spinlocks(1);
+
+

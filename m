@@ -1,130 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262350AbULOOHh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262351AbULOOQO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262350AbULOOHh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 09:07:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262351AbULOOHe
+	id S262351AbULOOQO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 09:16:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262353AbULOOQO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 09:07:34 -0500
-Received: from mx01.cybersurf.com ([209.197.145.104]:39066 "EHLO
-	mx01.cybersurf.com") by vger.kernel.org with ESMTP id S262350AbULOOHS
+	Wed, 15 Dec 2004 09:16:14 -0500
+Received: from bigeats.dufftech.com ([69.57.156.29]:43158 "HELO
+	bigeats.dufftech.com") by vger.kernel.org with SMTP id S262351AbULOOQG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 09:07:18 -0500
-Subject: Re: [2.6 patch] net/netlink/af_netlink.c: possible cleanups
-From: jamal <hadi@cyberus.ca>
-Reply-To: hadi@cyberus.ca
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Alan Cox <alan@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20041215004604.GH23151@stusta.de>
-References: <20041215004604.GH23151@stusta.de>
+	Wed, 15 Dec 2004 09:16:06 -0500
+Subject: Re: bind() udp behavior 2.6.8.1
+From: Adam Denenberg <adam@dberg.org>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: linux-kernel@vger.kernel.org, Jan Engelhardt <jengelh@linux01.gwdg.de>
+In-Reply-To: <20F668EE-4E48-11D9-B94B-000393ACC76E@mac.com>
+References: <1103038728.10965.12.camel@sucka>
+	 <Pine.LNX.4.61.0412141700430.24308@yvahk01.tjqt.qr>
+	 <1103042538.10965.27.camel@sucka>
+	 <Pine.LNX.4.61.0412141742590.22148@yvahk01.tjqt.qr>
+	 <1103043716.10965.40.camel@sucka>
+	 <8AF1BC56-4E1C-11D9-B94B-000393ACC76E@mac.com>
+	 <57782EC8-4E40-11D9-B971-003065B11AE8@dberg.org>
+	 <20F668EE-4E48-11D9-B94B-000393ACC76E@mac.com>
 Content-Type: text/plain
-Organization: jamalopolous
-Message-Id: <1103119623.1077.71.camel@jzny.localdomain>
+Message-Id: <1103120162.5517.14.camel@sucka>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 15 Dec 2004 09:07:03 -0500
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 15 Dec 2004 09:16:02 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+i have some more updated information for this.  It seems that linux is
+generating a duplicate transaction ID in the udp header in the dns query
+when making a dns request.  This piece seems to be what is preventing
+the Firewall from distinguishing unique dns requests.  It sees a second
+DNS request come from the linux server with the _same_ transaction ID in
+the UDP header as it is marking that session closed since it already saw
+the reply successfully.  So for example the linux server is making a dns
+query with DNS Transaction ID 0x598d, then a response comes back with ID
+0x598d, and then another query gets sent out with ID 0x598d.  When that
+second response comes back, the firewall gets confused b/c it is in the
+middle of closing the original 0x598d session and thus drops the packet,
+causing a DNS timeout.
 
-I think this should be left alone for now; what we need to do is
-deprecate NETLINK_DEV incase someone is still using it.
-Else we could get rid of it totaly including what Adrian is deleting
-below. Any users of NETLINK_DEV? Maybe deleting the feature will get
-someone whining? ;->
+ Why is linux generating a redundant transaction ID in the dns header
+here?  The first 2 requests have incremented values, but then for some
+reason the third seems to have the same value which is causing issues. 
+Has anyone encountered this behavior?
 
-cheers,
-jamal
+thanks again
+adam
 
-On Tue, 2004-12-14 at 19:46, Adrian Bunk wrote:
-> The patch below contains the following possible cleanups:
-> - make the needlessly global function netlink_getsockbypid static
-> - remove the EXPORT_SYMBOL'ed but unused functions netlink_attach and 
->   netlink_detach
+Please CC me i am not on the list.
+
+
+
+
+On Tue, 2004-12-14 at 22:19, Kyle Moffett wrote:
+> On Dec 14, 2004, at 21:23, Adam Denenberg wrote:
+> > i think you guys are all right.  However there is one concern.  Not 
+> > clearing out a UDP connection in a firewall coming from a high port is 
+> > indeed a security risk.  Allowing a high numbered udp port to remain 
+> > open for a prolonged period of time would definitely impose a security 
+> > risk which is why the PIX is doing what it does.  The linux server is 
+> > "reusing" the same UDP high numbered socket however it is doing so 
+> > exactly as the firewall is clearing its state table (60 ms) from the 
+> > first connection which is what is causing the issue.
+> >
+> > I think a firewall ought to be aware of such behavior, but at the same 
+> > time be secure enough to not just leave high numbered udp ports wide 
+> > open for attack.  I am trying to find out why the PIX chose 60 ms to 
+> > clear out the UDP state table.  I think that is a random number and 
+> > probably too short of a span for this to occur however i am still 
+> > researching it.
+> >
+> > Any other insight would be greatly appreciated.
 > 
-> Please review whether these changes are correct or whether they conflict 
-> with pending patches.
+> 60ms is certainly _way_ too small for most UDP traffic.  With something 
+> like
+> that, OpenAFS would die almost immediately.  I think the current OpenAFS
+> minimum is like 20 minutes, although somebody patched the OpenAFS
+> source to send a keepalive every 5 minutes, so it could be reduced.  
+> OTOH,
+> sending a keepalive every 60ms would take a _massive_ amount of
+> bandwidth even for one client, think about a couple hundred :-D.  Heck, 
+> I've
+> even seen pings on a regular basis that take longer than 60ms, which
+> means that even an infinitely fast kerberos server wouldn't respond 
+> quickly
+> enough :-D.
 > 
+> Cheers,
+> Kyle Moffett
 > 
-> diffstat output:
->  include/linux/netlink.h  |    3 ---
->  net/netlink/af_netlink.c |   28 +---------------------------
->  2 files changed, 1 insertion(+), 30 deletions(-)
-> 
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> --- linux-2.6.10-rc3-mm1-full/include/linux/netlink.h.old	2004-12-14 21:43:16.000000000 +0100
-> +++ linux-2.6.10-rc3-mm1-full/include/linux/netlink.h	2004-12-14 21:44:27.000000000 +0100
-> @@ -116,8 +116,6 @@
->  #define NETLINK_CREDS(skb)	(&NETLINK_CB((skb)).creds)
->  
-> 
-> -extern int netlink_attach(int unit, int (*function)(int,struct sk_buff *skb));
-> -extern void netlink_detach(int unit);
->  extern int netlink_post(int unit, struct sk_buff *skb);
->  extern struct sock *netlink_kernel_create(int unit, void (*input)(struct sock *sk, int len));
->  extern void netlink_ack(struct sk_buff *in_skb, struct nlmsghdr *nlh, int err);
-> @@ -129,7 +127,6 @@
->  extern int netlink_unregister_notifier(struct notifier_block *nb);
->  
->  /* finegrained unicast helpers: */
-> -struct sock *netlink_getsockbypid(struct sock *ssk, u32 pid);
->  struct sock *netlink_getsockbyfilp(struct file *filp);
->  int netlink_attachskb(struct sock *sk, struct sk_buff *skb, int nonblock, long timeo);
->  void netlink_detachskb(struct sock *sk, struct sk_buff *skb);
-> --- linux-2.6.10-rc3-mm1-full/net/netlink/af_netlink.c.old	2004-12-14 21:43:31.000000000 +0100
-> +++ linux-2.6.10-rc3-mm1-full/net/netlink/af_netlink.c	2004-12-14 21:44:34.000000000 +0100
-> @@ -546,7 +546,7 @@
->  	}
->  }
->  
-> -struct sock *netlink_getsockbypid(struct sock *ssk, u32 pid)
-> +static struct sock *netlink_getsockbypid(struct sock *ssk, u32 pid)
->  {
->  	int protocol = ssk->sk_protocol;
->  	struct sock *sock;
-> @@ -1210,30 +1210,6 @@
->   *	Backward compatibility.
->   */	
->   
-> -int netlink_attach(int unit, int (*function)(int, struct sk_buff *skb))
-> -{
-> -	struct sock *sk = netlink_kernel_create(unit, NULL);
-> -	if (sk == NULL)
-> -		return -ENOBUFS;
-> -	nlk_sk(sk)->handler = function;
-> -	write_lock_bh(&nl_emu_lock);
-> -	netlink_kernel[unit] = sk->sk_socket;
-> -	write_unlock_bh(&nl_emu_lock);
-> -	return 0;
-> -}
-> -
-> -void netlink_detach(int unit)
-> -{
-> -	struct socket *sock;
-> -
-> -	write_lock_bh(&nl_emu_lock);
-> -	sock = netlink_kernel[unit];
-> -	netlink_kernel[unit] = NULL;
-> -	write_unlock_bh(&nl_emu_lock);
-> -
-> -	sock_release(sock);
-> -}
-> -
->  int netlink_post(int unit, struct sk_buff *skb)
->  {
->  	struct socket *sock;
-> @@ -1522,7 +1498,5 @@
->  EXPORT_SYMBOL(netlink_unregister_notifier);
->  
->  #if defined(CONFIG_NETLINK_DEV) || defined(CONFIG_NETLINK_DEV_MODULE)
-> -EXPORT_SYMBOL(netlink_attach);
-> -EXPORT_SYMBOL(netlink_detach);
->  EXPORT_SYMBOL(netlink_post);
->  #endif
-> 
+> -----BEGIN GEEK CODE BLOCK-----
+> Version: 3.12
+> GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+> L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+> PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
+> !y?(-)
+> ------END GEEK CODE BLOCK------
 > 
 > 
 

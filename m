@@ -1,71 +1,147 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269632AbRHCWA5>; Fri, 3 Aug 2001 18:00:57 -0400
+	id <S269633AbRHCWBR>; Fri, 3 Aug 2001 18:01:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269633AbRHCWAs>; Fri, 3 Aug 2001 18:00:48 -0400
-Received: from cpe.atm0-0-0-122182.bynxx2.customer.tele.dk ([62.243.2.100]:44166
-	"HELO marvin.athome.dk") by vger.kernel.org with SMTP
-	id <S269632AbRHCWAd>; Fri, 3 Aug 2001 18:00:33 -0400
-Message-ID: <3B6B1F0A.2000807@fugmann.dhs.org>
-Date: Sat, 04 Aug 2001 00:00:42 +0200
-From: Anders Peter Fugmann <afu@fugmann.dhs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2+) Gecko/20010716
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Ongoing 2.4 VM suckage
-In-Reply-To: <Pine.LNX.4.33L.0108031823380.11893-100000@imladris.rielhome.conectiva>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S269637AbRHCWBJ>; Fri, 3 Aug 2001 18:01:09 -0400
+Received: from weta.f00f.org ([203.167.249.89]:912 "HELO weta.f00f.org")
+	by vger.kernel.org with SMTP id <S269633AbRHCWBB>;
+	Fri, 3 Aug 2001 18:01:01 -0400
+Date: Sat, 4 Aug 2001 10:01:43 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Chris Mason <mason@suse.com>
+Subject: [PATCH] 2.4.8-pre3 fsync entire path (+reiserfs fsync semantic change patch)
+Message-ID: <20010804100143.A17774@weta.f00f.org>
+In-Reply-To: <01080315090600.01827@starship> <Pine.GSO.4.21.0108031400590.3272-100000@weyl.math.psu.edu> <9keqr6$egl$1@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="uAKRQypu60I7Lcqm"
+Content-Disposition: inline
+In-Reply-To: <9keqr6$egl$1@penguin.transmeta.com>
+User-Agent: Mutt/1.3.20i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-See you point very well.
 
-So I guess the problem is, that we want to keep the CPU busy while 
-fetching the data the program wants.
+--uAKRQypu60I7Lcqm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-This would mean, that having two processes that activly uses more than 
-half of the memory would compete against each other and noone would 
-never win, resulting in very bad performance - actually I would rather 
-want the CPU to "twiddle thumbs" while waiting for the data, than a 
-system that will halt for minutes (but that is very sub-optimal).
+On Fri, Aug 03, 2001 at 06:34:14PM +0000, Linus Torvalds wrote:
 
-A solution may be to make sure that a program suspended by the VM gets 
-higher priority than other processes, and thus provoking the VM-layer to 
-fetch the data for the process more often than others. This would not 
-give a fair system, but it would behave better under memory pressure.
+    	fsync(int fd)
+    	{
+    		dentry = fdget(fd);
+    		do_fsync(dentry);
+    		for (;;) {
+    			tmp = dentry;
+    			dentry = dentry->d_parent;
+    			if (dentry == tmp)
+    				break;
+    			do_fdatasync(dentry);
+    		}
+    	}
 
-Regards
-Anders Fugmann
+I really like this idea. Can people please try out the attached patch?
 
+Please note, it contains a couple of things that need not be there in
+the final version.
 
-
-Rik van Riel wrote:
-> On Fri, 3 Aug 2001, Anders Peter Fugmann wrote:
-> 
-> 
->>I dont know task states are defined, but by 'running' I mean that it
->>is not stopped by the VM, when the VM needs to fetch memory for the
->>process.
->>
-> 
-> What do you propose the program does when it doesn't have
-> its data ? Better give up the CPU for somebody else than
-> twiddle your thumbs while you don't have the data you want.
-> 
-> regards,
-> 
-> Rik
-> --
-> Virtual memory is like a game you can't win;
-> However, without VM there's truly nothing to lose...
-> 
-> http://www.surriel.com/		http://distro.conectiva.com/
-> 
-> Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-> 
-> 
+Note, there is also a reiserfs fix in here because we can call
+f_op->fsync on a directory and without this fix it will BUG!  Chris,
+perhaps you can suggest a better fix?
 
 
+Linus, one more thing --- the first argument to ->fsync is struct file*
+and nothing uses it, I'd like to blow it away or would you prefer we
+wait to 2.5.x as its essentially and API change and will break XFS,
+JFS, etc.
+
+
+
+   --cw
+
+--uAKRQypu60I7Lcqm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="2.4.8-pre3_fsync-entire-path.patch"
+
+diff -Nur --exclude=*.o --exclude=*~ linux-2.4.8-pre3/fs/buffer.c linux-2.4.8-pre3+expt/fs/buffer.c
+--- linux-2.4.8-pre3/fs/buffer.c	Wed Jul 25 19:03:05 2001
++++ linux-2.4.8-pre3+expt/fs/buffer.c	Sat Aug  4 10:53:07 2001
+@@ -379,33 +379,45 @@
+ 
+ asmlinkage long sys_fsync(unsigned int fd)
+ {
+-	struct file * file;
+-	struct dentry * dentry;
+-	struct inode * inode;
++	struct file *file;
++	struct dentry *dentry;
++	struct inode *inode;
+ 	int err;
+ 
+ 	err = -EBADF;
+ 	file = fget(fd);
+ 	if (!file)
+ 		goto out;
+-
+-	dentry = file->f_dentry;
+-	inode = dentry->d_inode;
+-
+ 	err = -EINVAL;
+ 	if (!file->f_op || !file->f_op->fsync)
+ 		goto out_putf;
+ 
+-	/* We need to protect against concurrent writers.. */
+-	down(&inode->i_sem);
+-	filemap_fdatasync(inode->i_mapping);
+-	err = file->f_op->fsync(file, dentry, 0);
+-	filemap_fdatawait(inode->i_mapping);
+-	up(&inode->i_sem);
++	/* walk the path (dentry chain) fsync'ing everything along
++	   it. This algorithm to do "do what the user _expects_ you to
++	   do" was suggested by Linus. --cw */
++	dentry = file->f_dentry;
++	do {
++		inode = dentry->d_inode;
++		/* We need to protect against concurrent writers.. */
++		down(&inode->i_sem);
++		filemap_fdatasync(inode->i_mapping);
++		err = -EINVAL;
++		if (!file->f_op || !file->f_op->fsync)
++			goto out_putf;
++		err = file->f_op->fsync(file, dentry, 0);
++		filemap_fdatawait(inode->i_mapping);
++		up(&inode->i_sem);
++
++		/* stop at root of fs */
++		if(dentry == dentry->d_parent)
++			break;
++
++		dentry = dentry->d_parent;
++	} while(dentry && !err);
+ 
+-out_putf:
++ out_putf:
+ 	fput(file);
+-out:
++ out:
+ 	return err;
+ }
+ 
+diff -Nur --exclude=*.o --exclude=*~ linux-2.4.8-pre3/fs/reiserfs/file.c linux-2.4.8-pre3+expt/fs/reiserfs/file.c
+--- linux-2.4.8-pre3/fs/reiserfs/file.c	Fri Jul 20 20:37:09 2001
++++ linux-2.4.8-pre3+expt/fs/reiserfs/file.c	Sat Aug  4 09:06:14 2001
+@@ -90,6 +90,9 @@
+ 
+   lock_kernel() ;
+ 
++  if (S_ISDIR(p_s_inode->i_mode))
++          return reiserfs_dir_fsync(p_s_filp, p_s_dentry, datasync);
++
+   if (!S_ISREG(p_s_inode->i_mode))
+       BUG ();
+ 
+
+--uAKRQypu60I7Lcqm--

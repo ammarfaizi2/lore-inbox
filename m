@@ -1,89 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130820AbRCJBoA>; Fri, 9 Mar 2001 20:44:00 -0500
+	id <S130834AbRCJCPT>; Fri, 9 Mar 2001 21:15:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130824AbRCJBnu>; Fri, 9 Mar 2001 20:43:50 -0500
-Received: from monster.Stanford.EDU ([171.64.38.79]:53009 "EHLO
-	monster.stanford.edu") by vger.kernel.org with ESMTP
-	id <S130799AbRCJBni>; Fri, 9 Mar 2001 20:43:38 -0500
-Date: Fri, 9 Mar 2001 17:42:45 -0800
-From: Peter Blomgren <blomgren@monster.Stanford.EDU>
-To: Nathan Dabney <smurf@osdlab.org>
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk, greg@ulima.unil.ch
-Subject: Re: [PATCH] aicasm db3 fiasco
-Message-ID: <20010309174245.A13762@monster.Stanford.EDU>
-Reply-To: blomgren@math.Stanford.EDU
-In-Reply-To: <20010309160145.H30901@osdlab.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20010309160145.H30901@osdlab.org>; from smurf@osdlab.org on Fri, Mar 09, 2001 at 04:01:45PM -0800
-Organization: High Latency R Us
-X-OS: Linux 2.2.17-1smp
+	id <S130835AbRCJCPJ>; Fri, 9 Mar 2001 21:15:09 -0500
+Received: from adsl-204-0-249-112.corp.se.verio.net ([204.0.249.112]:24820
+	"EHLO tabby.cats-chateau.net") by vger.kernel.org with ESMTP
+	id <S130834AbRCJCO6>; Fri, 9 Mar 2001 21:14:58 -0500
+From: Jesse Pollard <jesse@cats-chateau.net>
+Reply-To: jesse@cats-chateau.net
+To: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+Subject: Re: Microsoft begining to open source Windows 2000?
+Date: Fri, 9 Mar 2001 20:10:50 -0600
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
+Cc: Graham Murray <graham@webwayone.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <200103091247.NAA31936@cave.bitwizard.nl>
+In-Reply-To: <200103091247.NAA31936@cave.bitwizard.nl>
+MIME-Version: 1.0
+Message-Id: <01030920140700.10781@tabby>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While we're at it, on my RH6.2 system db_185.h is in /usr/include,
-i.e.
+On Fri, 09 Mar 2001, Rogier Wolff wrote:
+>Jesse Pollard wrote:
+>> On Fri, 09 Mar 2001, Graham Murray wrote:
+>> >"Mohammad A. Haque" <mhaque@haque.net> writes:
+>> >
+>> >> making a patch means you've modfied the source which you are not allowed
+>> >> to do. The most you can do is report the bug through normal channels
+>> >> (you dont even have priority in reporting bugs since you have the code).
+>> >
+>> >Does making a patch necessarily require modifying the source code?
+>> >Back in my days as a mainframe systems programmer (ICL VME/B), most OS
+>> >patches were made to the binary image, either in the file or to the
+>> >loaded virtual memory image.
+>
+>> Nearly always. The problem is that the patch may make the module
+>> bigger/smaller or relocate variables whose address then changes. All
+>> locations that these are referenced must be modified (either direct
+>> address or offset).  Sometimes other modules will get relocated too.
+>
+>You're too young. Or I'm too old. :-)
 
-bash$ echo "`locate db_185.h` ($(rpm -qf `locate db_185.h`))"
-/usr/include/db_185.h (glibc-devel-2.1.3-22)
+Neither - we've both been there.
+>
+>IF your patch can be inserted into the code space available: Then good. 
+>If not, you move the code out of the previously allocated space, and
+>put it somewhere else. Put a "jump" instruction in the old place. 
+>
 
-FWIW, for my builds I've been using the following patch (hey, it works
-for me):
+Only if you generate your patch in assembler.... and there is somewhere
+else to put the real module...
 
---- linux/drivers/scsi/aic7xxx/aicasm/aicasm_symbol.c.orig      Thu Mar  8 17:09:00 2001
-+++ linux/drivers/scsi/aic7xxx/aicasm/aicasm_symbol.c   Thu Mar  8 17:09:14 2001
-@@ -36,7 +36,7 @@
- #include <sys/types.h>
- 
- #ifdef __linux__
--#include <db/db_185.h>
-+#include <db_185.h>
- #else
- #include <db.h>
- #endif
+>At the university there was a lab-assignment where we had to use the
+>provided semaphore routines. Turns out we found a bug. The TA then
+>told us it was going to be hard-to-fix, as about 8192 bytes of the 8k
+>PROM were in use. He was wrong. The bug was one instruction too
+>many. We just wrote "nop" over the bad instruction. The processor had
+>also been correctly designed: you could overwrite any instruction in
+>the PROM with "nop", as the NOP instruction was 0xff. Fixed on the
+>spot!
+>
 
-Maybe .../aic7xxx/aicasm/Makefile should do something like:
-
-if [ ! -z `find /usr/include -name db_185.h` ]; then
-   echo "#include <`find /usr/include -name db_185.h | sed \
-   's+/usr/include/++g'`>" > aicdb.h
-else
-   echo "*** Install db development libraries ***";
-   exit 1
-fi
-
-But what do I know? :-}
-
-
-On Fri, Mar 09, 2001 at 04:01:45PM -0800, Nathan Dabney wrote:
-> Debian does not use db3 at all, yet.
-> 
-> Applies against 2.4.2-ac17
-> 
-> -Nathan
-> 
-> diff -urN linux.orig/drivers/scsi/aic7xxx/aicasm/Makefile linux/drivers/scsi/aic7xxx/aicasm/Makefile
-> --- linux.orig/drivers/scsi/aic7xxx/aicasm/Makefile	Fri Mar  9 15:38:13 2001
-> +++ linux/drivers/scsi/aic7xxx/aicasm/Makefile	Fri Mar  9 15:52:27 2001
-> @@ -28,10 +28,12 @@
->  aicdb.h:
->  	if [ -e "/usr/include/db3/db_185.h" ]; then		\
->  		echo "#include <db3/db_185.h>" > aicdb.h;	\
-> +	elif [ -e "/usr/include/db2/db_185.h" ]; then		\
-> +		echo "#include <db2/db_185.h>" > aicdb.h;	\
->  	elif [ -e "/usr/include/db/db_185.h" ]; then		\
->  		echo "#include <db/db_185.h>" >aicdb.h	;	\
->  	else							\
-> -		echo "*** Install db3 development libraries";	\
-> +		echo "*** Install db development libraries";	\
->  	fi
->  
->  clean:
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+Congratulations - We used to do similar things to change the baud
+rate of serial interfaces (though overwriting core memory was much
+easier).
 -- 
-\Peter.
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: jesse@cats-chateau.net
 
+Any opinions expressed are solely my own.

@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262334AbRENRVr>; Mon, 14 May 2001 13:21:47 -0400
+	id <S262336AbRENRar>; Mon, 14 May 2001 13:30:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262345AbRENRVh>; Mon, 14 May 2001 13:21:37 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18188 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262334AbRENRV0>;
-	Mon, 14 May 2001 13:21:26 -0400
-Date: Mon, 14 May 2001 18:20:51 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, "H . J . Lu" <hjl@lucon.org>,
-        "David S. Miller" <davem@redhat.com>, alan@lxorguk.ukuu.org.uk,
-        linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: Enable IP PNP for 2.4.4-ac8
-Message-ID: <20010514182051.A27311@flint.arm.linux.org.uk>
-In-Reply-To: <m1k83kj7dj.fsf@frodo.biederman.org> <m1y9s1jbml.fsf@frodo.biederman.org> <20010511162412.A11896@lucon.org> <15100.30085.5209.499946@pizda.ninka.net> <20010511165339.A12289@lucon.org> <m13da9ky7s.fsf@frodo.biederman.org> <20010513110707.A11055@lucon.org> <16874.989832587@redhat.com> <m1k83kj7dj.fsf@frodo.biederman.org> <8717.989859079@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <8717.989859079@redhat.com>; from dwmw2@infradead.org on Mon, May 14, 2001 at 05:51:19PM +0100
+	id <S262345AbRENRah>; Mon, 14 May 2001 13:30:37 -0400
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:11793 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S262336AbRENRaT>; Mon, 14 May 2001 13:30:19 -0400
+Date: Mon, 14 May 2001 12:29:56 -0500 (CDT)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200105141729.MAA28295@tomcat.admin.navo.hpc.mil>
+To: alan@lxorguk.ukuu.org.uk, meissner@spectacle-pond.org (Michael Meissner)
+Subject: Re: Not a typewriter
+In-Reply-To: <E14zLj4-0000zO-00@the-village.bc.nu>
+Cc: vonbrand@sleipnir.valparaiso.cl (Horst von Brand),
+        mharris@opensourceadvocate.org (Mike A. Harris), Wayne.Brown@altec.com,
+        hacksaw@hacksaw.org (Hacksaw),
+        linux-kernel@vger.kernel.org (Linux Kernel mailing list)
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 14, 2001 at 05:51:19PM +0100, David Woodhouse wrote:
-> Well, if it stops working and stays broken, I suppose I'll just have to 
-> hack up a built-in command line option. ISTR ARM already has such an option.
+---------  Received message begins Here  ---------
 
-Indeed it does, because some platforms don't have any way to pass anything
-to the kernel period.  (Because they are using a serial loader called
-Angel).
+> 
+> > IIRC, the 6 character linker requirement came from when the Bell Labs folk
+> > ported the C compiler the IBM mainframe world, not from the early UNIX (tm)
+> > world.  During the original ANSI C meetings, I got the sense from the IBM rep,
+> 
+> 6 character linker name limits are very old. Honeywell L66 GCOS3/TSS which I
+> had the dubious pleasure of experiencing and which is a direct derivative of
+> GECOS and thus relevant to the era like many 36bit boxes uses 6 char link names
+> 
+> Why - well because 6 BCD characters fit in a 36bit word and its a single compare
+> to check symbol matches
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+well... actually it was 6 bit "ascii" computed from: (char - ' '). Depends
+entirely on architecture, and implementation. EBCD/6Bit/7Bit and EBCDIC were
+supported on the Honeywell systems.
 
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.

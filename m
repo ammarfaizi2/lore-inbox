@@ -1,46 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270351AbUJUGtW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270660AbUJUG0V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270351AbUJUGtW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 02:49:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270686AbUJUG0g
+	id S270660AbUJUG0V (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 02:26:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270415AbUJTT2j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 02:26:36 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:7180 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S270395AbUJTT0T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 15:26:19 -0400
-Date: Wed, 20 Oct 2004 14:21:32 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org, jgarzik@pobox.com,
-       akpm@osdl.org
-Subject: [patch 2.6.9 6/11] 3c59x: Add MODULE_VERSION
-Message-ID: <20041020142132.I8775@tuxdriver.com>
-Mail-Followup-To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
-	jgarzik@pobox.com, akpm@osdl.org
-References: <20041020141146.C8775@tuxdriver.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 20 Oct 2004 15:28:39 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:21255 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S269170AbUJTTOn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 15:14:43 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: [PATCH] Make netif_rx_ni preempt-safe
+Date: Wed, 20 Oct 2004 22:14:31 +0300
+User-Agent: KMail/1.5.4
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       "David S. Miller" <davem@davemloft.net>,
+       linux-kernel@gondor.apana.org.au, maxk@qualcomm.com,
+       irda-users@lists.sourceforge.net,
+       Linux Network Development <netdev@oss.sgi.com>,
+       Alain Schroeder <alain@parkautomat.net>
+References: <1098230132.23628.28.camel@krustophenia.net> <200410201811.44419.vda@port.imtp.ilyichevsk.odessa.ua> <1098290858.1429.70.camel@krustophenia.net>
+In-Reply-To: <1098290858.1429.70.camel@krustophenia.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20041020141146.C8775@tuxdriver.com>; from linville@tuxdriver.com on Wed, Oct 20, 2004 at 02:11:46PM -0400
+Message-Id: <200410202214.31791.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add MODULE_VERSION to 3c59x driver.
+On Wednesday 20 October 2004 19:47, Lee Revell wrote:
+> On Wed, 2004-10-20 at 11:11, Denis Vlasenko wrote:
+> > 0x57 == 87 bytes is too big for inline.
+> 
+> Ugh.  So the only fix is not to inline it?
 
-Signed-off-by: John W. Linville <linville@tuxdriver.com>
----
+Yes.
 
- drivers/net/3c59x.c |    1 +
- 1 files changed, 1 insertion(+)
+You can make it conditionally inline/non-inline
+depending on SMP/preempt if you feel masochistic today :),
+but last time I asked davem thought that it is over the top.
 
---- linux-2.6.9/drivers/net/3c59x.c.orig
-+++ linux-2.6.9/drivers/net/3c59x.c
-@@ -277,6 +277,7 @@ MODULE_AUTHOR("Donald Becker <becker@scy
- MODULE_DESCRIPTION("3Com 3c59x/3c9xx ethernet driver "
- 					DRV_VERSION " " DRV_RELDATE);
- MODULE_LICENSE("GPL");
-+MODULE_VERSION(DRV_VERSION);
- 
- MODULE_PARM(debug, "i");
- MODULE_PARM(global_options, "i");
+Deinline it.
+--
+vda
+

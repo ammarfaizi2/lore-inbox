@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264458AbTEPP2D (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 11:28:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264460AbTEPP2D
+	id S264459AbTEPP00 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 11:26:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264456AbTEPP00
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 11:28:03 -0400
-Received: from locutus.cmf.nrl.navy.mil ([134.207.10.66]:19869 "EHLO
-	locutus.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
-	id S264458AbTEPP2C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 11:28:02 -0400
-Message-Id: <200305161539.h4GFdLGi018236@locutus.cmf.nrl.navy.mil>
-To: Duncan Sands <baldrick@wanadoo.fr>
-cc: Greg KH <greg@kroah.com>, davem@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][ATM] add reference counting to atm_dev 
-In-reply-to: Your message of "Fri, 16 May 2003 16:40:43 +0200."
-             <200305161640.43804.baldrick@wanadoo.fr> 
-X-url: http://www.nrl.navy.mil/CCS/people/chas/index.html
-X-mailer: nmh 1.0
-Date: Fri, 16 May 2003 11:39:21 -0400
-From: chas williams <chas@locutus.cmf.nrl.navy.mil>
+	Fri, 16 May 2003 11:26:26 -0400
+Received: from PACIFIC-CARRIER-ANNEX.MIT.EDU ([18.7.21.83]:37078 "EHLO
+	pacific-carrier-annex.mit.edu") by vger.kernel.org with ESMTP
+	id S264451AbTEPP0Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 May 2003 11:26:25 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       David Howells <dhowells@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-fsdevel@vger.kernel.org, openafs-devel@openafs.org
+Subject: Re: [OpenAFS-devel] Re: [PATCH] in-core AFS multiplexor and PAG support
+References: <Pine.LNX.4.44.0305130849480.1562-100000@home.transmeta.com>
+	<1052840663.463.64.camel@dhcp22.swansea.linux.org.uk>
+From: Derek Atkins <warlord@MIT.EDU>
+Date: 16 May 2003 11:38:58 -0400
+In-Reply-To: <1052840663.463.64.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <sjm65oaewa5.fsf@kikki.mit.edu>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <200305161640.43804.baldrick@wanadoo.fr>,Duncan Sands writes:
->I was wondering about ioctl and proc calls.  Can the ATM layer call
->a driver's ioctl routine before opening a vcc?  If so, does it take a
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-yes
+> How does AFS currently handle this, can two logins of the same user have
+> seperate PAGs ?
 
->reference to the module first (I didn't spot anything)?  Also, are
+Yes.  Indeed, individual logins usually DO have separate PAGs (as the
+login program runs setpag() to create a new pag).  Moreover, there is
+a program called "pagsh" which allows a user to create a shell in a
+new PAG -- allowing multiple PAGs even in one login session for a
+single "user".
 
-the original atm code used atm_dev_lock to keep the device from
-disappearing during the ioctl.  atm_dev_lock was being used to protect
-sections of code, like ioctl and atm device (de)registry.  the 2.5
-code is getting changes that should improve matters.  atm_dev will
-now have a reference count to keep a device from being unregistered
-while someone holds a reference (ioctl or otherwise).
-
->calls to a driver's proc_read routine protected against module
->unloading races (I confess I didn't take the time to look into this,
->because my own driver does not sleep in proc_read)?
-
-i believe proc has always been a troublesome child.  it has never
-had any protection (via atm_dev_lock or otherwise).  you can sleep
-in the proc function (since it would in user mode).  i have added some
-locking to proc in the 2.5 that should make proc safer (but not very
-elegant--perhaps elegance with come with the seq conversion).
+-derek
+-- 
+       Derek Atkins, SB '93 MIT EE, SM '95 MIT Media Laboratory
+       Member, MIT Student Information Processing Board  (SIPB)
+       URL: http://web.mit.edu/warlord/    PP-ASEL-IA     N1NWH
+       warlord@MIT.EDU                        PGP key available

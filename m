@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129333AbRBFCUv>; Mon, 5 Feb 2001 21:20:51 -0500
+	id <S129501AbRBFC0W>; Mon, 5 Feb 2001 21:26:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129501AbRBFCUl>; Mon, 5 Feb 2001 21:20:41 -0500
-Received: from [211.100.91.213] ([211.100.91.213]:33520 "EHLO
-	marvin.zhlinux.com") by vger.kernel.org with ESMTP
-	id <S129333AbRBFCUZ>; Mon, 5 Feb 2001 21:20:25 -0500
-Date: Tue, 6 Feb 2001 10:20:48 +0800
-From: Wenzhuo Zhang <wenzhuo@zhmail.com>
-To: reiserfs-list@namesys.com
-Cc: linux-kernel@vger.kernel.org
-Subject: mongo.sh 2.2.18: do_try_to_free_pages failed ...
-Message-ID: <20010206102048.A816@zhmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S130869AbRBFC0M>; Mon, 5 Feb 2001 21:26:12 -0500
+Received: from smtp.sunflower.com ([24.124.0.137]:37901 "EHLO
+	smtp.sunflower.com") by vger.kernel.org with ESMTP
+	id <S129501AbRBFC0B>; Mon, 5 Feb 2001 21:26:01 -0500
+From: "Steve 'Denali' McKnelly" <denali@sunflower.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Motherboard Misdetect
+Date: Mon, 5 Feb 2001 20:25:11 -0600
+Message-ID: <PGEDKPCOHCLFJBPJPLNMMEKHCBAA.denali@sunflower.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <E14Pk6B-00039b-00@the-village.bc.nu>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Howdy Alan,
 
-Hi,
+	I won't disagree with what you and David are saying.  I
+	took a look at the picture of the 6KD, and they're similar.
+	Main difference is missing SCSI connectors and an extra long
+	PCI slot (on the 6KD).
 
-I got the VM error "VM: do_try_to_free_pages failed for mongo_read..."
-and then I couldn't log into the system, when stress testing
-reiserfs+raid0 setup on a 2.2.18 box using the reiserfs benchmark
-mongo.sh. The problem was reporduceable on each run of mongo.sh.
+	Thanks!
 
-./mongo.sh reiserfs /dev/md0 /mnt/testfs raid0-rfs 3
+Steve
 
-Thinking the raid code might cause the problem, I tested on reiserfs
-only, but I got the same error message. Later, I found the same
-problem running mongo.sh on an ext2 partition (stock kernel without
-any patches).
+-----Original Message-----
+From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
+Sent: Monday, February 05, 2001 5:46 AM
+To: Steve 'Denali' McKnelly
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Motherboard Misdetect
 
-I guess this problem is not reiserfs specific. What can I do now to
-solve the problem?
 
-Here is the hardware configuration of my test box:
-PIII 600, 256M, Adaptec AIC-7896 SCSI controller, two Quantum SCSI
-disks.
+> 	I own a M-Technology M-668DS motherboard.  Linux 2.4.1
+> 	identifies my board as a Soyo SY-6KD.  They're not really
+> 	the same board, and they each have features the other doesn't
 
-Regards,
--- 
-Wenzhuo
+We read the data from the BIOS. Its actually only scanned to match against
+known system bugs so won't be a problem. It sounds like they are using the
+same bios image on a set of boards and didnt bother to fix the name.
+
+It may well also be they are the same board minus a few components.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

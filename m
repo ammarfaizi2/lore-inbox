@@ -1,75 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136173AbRD0TBi>; Fri, 27 Apr 2001 15:01:38 -0400
+	id <S136168AbRD0S55>; Fri, 27 Apr 2001 14:57:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136170AbRD0TB2>; Fri, 27 Apr 2001 15:01:28 -0400
-Received: from nat-pool.corp.redhat.com ([199.183.24.200]:45363 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S136173AbRD0TBT>; Fri, 27 Apr 2001 15:01:19 -0400
-Date: Fri, 27 Apr 2001 15:01:14 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: zaitcev@redhat.com
-Subject: Atrocious icache/dcache in 2.4.2
-Message-ID: <20010427150114.A23960@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S136169AbRD0S5r>; Fri, 27 Apr 2001 14:57:47 -0400
+Received: from mail1.bna.bellsouth.net ([205.152.150.13]:37559 "EHLO
+	mail1.bna.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S136168AbRD0S5h>; Fri, 27 Apr 2001 14:57:37 -0400
+From: volodya@mindspring.com
+Date: Fri, 27 Apr 2001 14:57:30 -0400 (EDT)
+Reply-To: volodya@mindspring.com
+To: johan verrept <johan.verrept@pandora.be>
+cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+        Tony Hoyle <tmh@magenta-netlogic.com>
+Subject: Re: [linux-usb-devel] Repeatable lockup on SMP w/usbprocfs
+In-Reply-To: <3AC26865.8D034960@pandora.be>
+Message-ID: <Pine.LNX.4.20.0104271453120.590-100000@node2.localnet.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello:
 
-My box here slows down dramatically after a while, and starts
-behaving as if it has very little memory, e.g. programs page
-each other out. It turns out that out of 40MB total, about
-35MB is used for dcache and icache, and system basically
-runs in 5MB of RAM.
 
-When I tried to discuss it with riel, viro, and others,
-I got an immediate and very strong knee jerk reaction "we fixed
-it in 2.4.4-pre4!" "we gotta call prune_dcache more!".
-That just does not sound persuasive to me.
+On Thu, 29 Mar 2001, johan verrept wrote:
 
-After a little thinking it seems apparent to me that it
-may be a good thing to have VM taking pages from dentry and
-inode pools directly. This sounds almost what slab does,
-so let me speculate about it (it is a bad idea, but it is
-interesting _why_).
+> Tony Hoyle wrote:
+> > 
+> > If an application calls the USBDEVFS_SUBMITURB ioctl to submit a read,
+> > when the async completion routine is called, the kernel goes into a hard
+> > deadlock (no response to ping, etc.).  I've narrowed it down to the
+> > async_completed routine in usb.c.  That's the only place where spinlocks
+> > are used.  I'm not familiar enough with them to see what the error is,
+> > though.
+> 
+> It is async_completed in devio.c btw.
+> I have looked at this too, but I am not sure whether this happens when the completion is called or
+> when the program does a USBDEVFS_REAPURB(NDELAY).
+> I have looked at the code, but I do not see anything obviously wrong.
+> 
+> One thing I considered weird is the "wake_up(&ps->wait);" in async_completed().
+> This will wake up the program that has submitted the urb, whether is expects to be woken or not. I
+> am not sure what the consequences of this are, but it seems harmless enough.
+> 
+> > The system runs fine until the packet is returned, then it just locks 
+> > solid (On the alcatel USB modem I used for testing it will not respond 
+> > until it gets sync, which may be several seconds).
+> 
+> I have also noticed this only with the Alcatel SpeedTouch USB driver. I am not aware of any other
+> driver that uses this although I am writing one that will be using this. It is very possible the
+> program does something wrong (For example the code mixes the async and the sync versions of the urb
+> ioctl's...), but even then it is not supposed to be able to lock up the whole machine.
+> 
+> > Others have found that just compiling SMP into the kernel is enough to
+> > break it, you don't actually need two processors.
+> 
+> Probably because when you turn SMP off, spinlocks are disabled so deadlocks are avoided.
+> 
 
-Suppose that we do this: when inode gets clean (e.g. unlocked,
-written to disk if was changed), drop it into kmem_cache_free(),
-but retain on hash (forget about poisoning for a momemt).
-Then, if memory is needed, VM may ask slab, slab calls our
-destructors, and destructors take inode off hash. The idea
-solves the problem, but has two marks agains it. First, when
-we look up an inode, we either hit dirty or "clean", which
-is free. Then we have to do kmem_cache_alloc() and that will
-return wrong inode, which we have to drop from hash, then do
-memcpy from old "really free one", etc. It still saves disk
-I/O, but messy. Another thing is a fragmentation: suppose we
-have bunch of slabs, every one has a single dirty inode in it
-(tar xf -). Memory pressure will be powerless to do anything
-about them.
+I have the similar problem (also with Alcatel modem).. Besides everything
+else I, sometimes, get an oops in process 0 (swapper) - looks like some
+memory corruption going on. I really hate it when the control app is
+binary only. There are some obvious bugs in it (try running 'mgmt creset')
+and alcatel supplied it as an object file (which might/is breaking glibc
+compatibility) instead of a fully linked binary.
 
-So, I have a better crackpot idea: create a fake filesystem,
-say "inodefs". When inodes are needed, we pretend to read
-pages from that filesystem, but in fact we just zero most
-of them and put inodes there, also every one needs a "used"
-counter, like slab has.  When an inode is dirty, we mark
-those pages locked or dirty, if only clean - mark pages
-as dirty. VM will automatically try to get pages, and
-write out those that are "dirty". At that moment,
-we have an option to look, if any used (clean or dirty) inodes
-are inside the page. If they are, we either move them in
-some other (fragmented) pages, or just remove them from
-hashes and pretend that the page is written.
+                        Vladimir Dergachev
 
-The bad part is that inode cache code and inodefs will have
-part of slab machinery replicated in them. Dunno if that is
-bad enough to bury the thing.
 
-If you have read to this point, let me know what you think.
+> 	J.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
--- Pete

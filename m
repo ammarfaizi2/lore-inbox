@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280694AbRKFXoB>; Tue, 6 Nov 2001 18:44:01 -0500
+	id <S280712AbRKFXoT>; Tue, 6 Nov 2001 18:44:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280709AbRKFXnx>; Tue, 6 Nov 2001 18:43:53 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:2177 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S280695AbRKFXl7>;
-	Tue, 6 Nov 2001 18:41:59 -0500
-Date: Tue, 06 Nov 2001 15:40:59 -0800 (PST)
-Message-Id: <20011106.154059.126759204.davem@redhat.com>
-To: rusty@rustcorp.com.au
-Cc: fokkensr@linux06.vertis.nl, linux-kernel@vger.kernel.org,
-        kuznet@ms2.inr.ac.ru
-Subject: Re: iptables and tcpdump
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20011031172835.4f0c0ed2.rusty@rustcorp.com.au>
-In-Reply-To: <20011030152812.2e9ba8ee.rusty@rustcorp.com.au>
-	<20011029.213157.39157336.davem@redhat.com>
-	<20011031172835.4f0c0ed2.rusty@rustcorp.com.au>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S280710AbRKFXn5>; Tue, 6 Nov 2001 18:43:57 -0500
+Received: from freeside.toyota.com ([63.87.74.7]:37387 "EHLO toyota.com")
+	by vger.kernel.org with ESMTP id <S280694AbRKFXmN>;
+	Tue, 6 Nov 2001 18:42:13 -0500
+Message-ID: <3BE8754C.2246D74C@lexus.com>
+Date: Tue, 06 Nov 2001 15:42:04 -0800
+From: J Sloan <jjs@lexus.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: samson swanson <intellectcrew@yahoo.com>
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel 2.2.19
+In-Reply-To: <20011106211336.50134.qmail@web14304.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Rusty Russell <rusty@rustcorp.com.au>
-   Date: Wed, 31 Oct 2001 17:28:35 +1100
+samson swanson wrote:
 
-   On Mon, 29 Oct 2001 21:31:57 -0800 (PST)
-   "David S. Miller" <davem@redhat.com> wrote:
-   
-   >    From: Rusty Russell <rusty@rustcorp.com.au>
-   >    Date: Tue, 30 Oct 2001 15:28:12 +1100
-   >    
-   >    should the NAT layer be doing skb_unshare() before altering the packet?
-   > 
-   > I think it should.
-   
-   Agreed.  The 2.2 masq code didn't do this, and hence the "don't
-   tcpdump on masq host" recommendation.
-   
-   Please try this patch (compiles at least),
+> Hi all,
+>
+> I use slack8 w/ 2.2.19 any of you use that to?
+> Anyway, i was just wondering....
 
-Applied to my sources...
+Maybe some old die-hards, but I for one
+am only using 2.4 on all new deployments.
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+
+> 2. Do i have to recompile kernel w/ iptables, [isn't
+>     already set ]
+
+You need kernel 2.4 for iptables, 2.2. won't cut it.
+
+> 3. I'm a kernel newbies as you can tell.  Whats a good
+>     site to read to point me in the right direction.
+
+This is a good group to read - but see also
+
+http://www.kernelnewbies.org
+
+cu
+
+jjs
+

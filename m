@@ -1,49 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268382AbUHQSY6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268383AbUHQS2S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268382AbUHQSY6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 14:24:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268383AbUHQSY6
+	id S268383AbUHQS2S (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 14:28:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268387AbUHQS2S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 14:24:58 -0400
-Received: from [12.177.129.25] ([12.177.129.25]:35523 "EHLO
-	ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
-	id S268382AbUHQSYz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 14:24:55 -0400
-Message-Id: <200408171926.i7HJQ6KF003372@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andreas Schwab <schwab@suse.de>, linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.6.8.1-mm1 - Clean up a Makefile bogosity
+	Tue, 17 Aug 2004 14:28:18 -0400
+Received: from fw.osdl.org ([65.172.181.6]:36826 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268383AbUHQS2K (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 14:28:10 -0400
+Date: Tue, 17 Aug 2004 11:26:29 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Dike <jdike@addtoit.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] 2.6.8-rc4-mm1 - Fix UML build
+Message-Id: <20040817112629.04c7f672.akpm@osdl.org>
+In-Reply-To: <200408171915.i7HJF5KF003348@ccure.user-mode-linux.org>
+References: <200408120414.i7C4EtJd010481@ccure.user-mode-linux.org>
+	<20040815150635.5ac4f5df.akpm@osdl.org>
+	<200408170602.i7H62LNj019126@ccure.user-mode-linux.org>
+	<20040816220816.1b30fd53.akpm@osdl.org>
+	<200408171915.i7HJF5KF003348@ccure.user-mode-linux.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 17 Aug 2004 15:26:06 -0400
-From: Jeff Dike <jdike@addtoit.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Following a suggestion from Andreas Schwab, this switches the UML build to
-a somewhat official way of getting a library search path from gcc.
+Jeff Dike <jdike@addtoit.com> wrote:
+>
+>  akpm@osdl.org said:
+>  > Thanks.  Where do we stand now with getting all this stuff merged up?
+>  > Are the patches in -mm suitable?  Did the controversial blockdev stuff
+>  > get cleaned up? (it looks like it did...). 
+> 
+>  Not really, the code is still there but it's not built.  Below is a patch
+>  which removes it totally.
 
-				Jeff
+Thanks.
 
-Index: 2.6.8.1-mm1/arch/um/Makefile
-===================================================================
---- 2.6.8.1-mm1.orig/arch/um/Makefile	2004-08-17 00:37:04.000000000 -0400
-+++ 2.6.8.1-mm1/arch/um/Makefile	2004-08-17 13:18:13.000000000 -0400
-@@ -88,10 +88,11 @@
- 
- prepare: $(ARCH_SYMLINKS) $(SYS_HEADERS) $(GEN_HEADERS)
- 
--# This stupidity extracts the directory in which gcc lives so that it can
--# be fed to ld when it's linking .tmp_vmlinux during the ldchk stage.
--LD_DIR = $(shell dirname `gcc -v 2>&1 | head -1 | awk '{print $$NF}'`)
--LDFLAGS_vmlinux = -L/usr/lib -L$(LD_DIR) -r
-+# This extracts the library path from gcc with -print-search-dirs and munges
-+# the output into a bunch of -L switches.
-+LD_DIRS = $(shell gcc -print-search-dirs | grep libraries | \
-+	sed -e 's/^.*=/-L/' -e 's/:/ -L/g')
-+LDFLAGS_vmlinux = $(LD_DIRS) -r
- 
- vmlinux: $(ARCH_DIR)/main.o 
- 
+>  I also have to get rid of ghash.h and fix some inappropriate intimacy between
+>  one of the drivers and VFS.
+
+OK.
+
+>  I'd also wouldn't mind breaking up the big UML patch into somewhat more sane 
+>  pieces.  Can I do something like break pieces off it, send them plus the 
+>  smaller big patch, and have you subsititute them for the current big patch?
+
+Feel free if you think there's some benefit in that.
+
+>  Is that preferable to dropping the current patches on Linus, or would you
+>  rather send him what you have, in more or less its current form, once it's
+>  been tidied up?
+
+Frankly, when a subsystem gets this far out of date I don't think it
+matters a lot - nobody has much hope of following all the changes anyway. 
+We'll just merge the megapatch on the assumption that Jeff knows what he's
+doing, and that it's better than what we had before.  You should have seen
+the size of some of those MIPS patches ;)
 

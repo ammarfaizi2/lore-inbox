@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265967AbUAKTru (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 14:47:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265968AbUAKTru
+	id S265974AbUAKUIM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 15:08:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265975AbUAKUIM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 14:47:50 -0500
-Received: from elpis.telenet-ops.be ([195.130.132.40]:15756 "EHLO
-	elpis.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S265967AbUAKTrL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 14:47:11 -0500
-From: Jan De Luyck <lkml@kcore.org>
-To: Krisztian VASAS <iron@ironiq.hu>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6 and UML
-Date: Sun, 11 Jan 2004 20:47:05 +0100
+	Sun, 11 Jan 2004 15:08:12 -0500
+Received: from ns.investici.org ([213.140.29.37]:41413 "EHLO
+	chernobyl.investici.org") by vger.kernel.org with ESMTP
+	id S265974AbUAKUIJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jan 2004 15:08:09 -0500
+From: Ciaby <ciaby@autistici.org>
+To: linux-kernel@vger.kernel.org
+Subject: kmail slowdown on 2.6.* +reiserFS (v3)
+Date: Sun, 11 Jan 2004 21:09:21 +0100
 User-Agent: KMail/1.5.4
-References: <1073849631.1233.8.camel@kian.localdomain>
-In-Reply-To: <1073849631.1233.8.camel@kian.localdomain>
 MIME-Version: 1.0
-Content-Disposition: inline
 Content-Type: text/plain;
-  charset="iso-8859-15"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200401112047.05223.lkml@kcore.org>
+Content-Disposition: inline
+Message-Id: <200401112109.22027.ciaby@autistici.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 11 January 2004 20:33, Krisztian VASAS wrote:
-> Hello all!
->
-> Is there any way to get work the 2.6 kernel with UML?
->
->
-> With 2.4.24 and all of the 2.4 kernels UML works, but with all of the
-> new 2.6 kernels it doesn not...
+I all!
+I've recently upgraded from 2.4 to 2.6 and I've noticed a strange thing:
+on the 2.4 kernel, kmail run decently (i've an old k6-200).
+On the 2.6 kernel, kmail slowdown and take a very long time to read a mailbox.
+I think something changed in the reiserFS during this time...
+I'm not the only experiencing this problem, read this:
+http://kerneltrap.org/node/view/1844
+Please CC me if there's some reply.
+tnx all for the good work! :-)
 
-This question was asked fairly recently. Look at the usermodelinux website at 
-http://usermodelinux.org and checkout the FAQ item:
-
-http://usermodelinux.org/modules.php?name=News&file=categories&op=newindex&catid=15
-
-which mentions a patch to be applied for 2.6.
-
-Jan
+Bye
 -- 
-You own a dog, but you can only feed a cat.
+   -----> \|/Ciaby\|/ <------ 
+!  E-mail:ciaby@autistici.org  !
+!  ICQ:59493039                ! 
+!  SpinHacker404 HackLab       !
+!  www.ecn.org/sh404           !
+gpg --keyserver autistici.org --recv-key 42F3C487
 

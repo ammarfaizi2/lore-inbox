@@ -1,60 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261431AbVCWWBI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262936AbVCWWCe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261431AbVCWWBI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 17:01:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbVCWWBI
+	id S262936AbVCWWCe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 17:02:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261464AbVCWWCd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 17:01:08 -0500
-Received: from alog0098.analogic.com ([208.224.220.113]:20659 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261431AbVCWWBF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 17:01:05 -0500
-Date: Wed, 23 Mar 2005 17:00:44 -0500 (EST)
-From: linux-os <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Arjan van de Ven <arjan@infradead.org>
-cc: sounak chakraborty <sounakrin@yahoo.co.in>, linux-kernel@vger.kernel.org
-Subject: Re: repeat a function after fixed time period
-In-Reply-To: <1111613230.12808.0.camel@laptopd505.fenrus.org>
-Message-ID: <Pine.LNX.4.61.0503231654260.16973@chaos.analogic.com>
-References: <20050323194308.8459.qmail@web53307.mail.yahoo.com> 
- <Pine.LNX.4.61.0503231522070.16567@chaos.analogic.com> 
- <1111610935.6306.97.camel@laptopd505.fenrus.org> 
- <Pine.LNX.4.61.0503231551570.16734@chaos.analogic.com>
- <1111613230.12808.0.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 23 Mar 2005 17:02:33 -0500
+Received: from ozlabs.org ([203.10.76.45]:34501 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262936AbVCWWCU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 17:02:20 -0500
+Date: Thu, 24 Mar 2005 09:00:37 +1100
+From: Anton Blanchard <anton@samba.org>
+To: Mark Wong <markw@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ext3 journalling BUG on full filesystem
+Message-ID: <20050323220037.GR17561@krispykreme>
+References: <20050323202130.GA30844@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050323202130.GA30844@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Mar 2005, Arjan van de Ven wrote:
 
-> On Wed, 2005-03-23 at 15:56 -0500, linux-os wrote:
->>>> static void start_timer(void)
->>>> {
->>>>      if(!atomic_read(&info->running))
->>>>      {
->>>>          atomic_inc(&info->running);
->>>
->>> same race.
->>
->> No such race at all.
->
-> here there is one; you use add_timer() which isn't allowed on running
-> timers, only mod_timer() is. So yes there is a race.
->
+Hi,
 
-Well add_timer() is only executed after the timer has expired
-or hasn't started yet so the "isn't allowed" is pretty broad.
-If I should use mod_timer(), then there are a _lot_ of buggy
-drivers in the kernel because that's how a lot repeat the
-sequence. Will mod_timer() actually restart the timer???
+> I originally reported this to the linuxppc64-dev list, since I made it
+> happen on a POWER system.  I'm told this might be more generic...
+> 
+> Anyone run into something like this?
 
-If so, I'll change it and thank you for the help.
+Just in case it got lost in the rest of the xmon output... We hit a BUG():
 
+kernel BUG in submit_bh at fs/buffer.c:2706!
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+Which looks like:
+
+        BUG_ON(!buffer_mapped(bh));
+
+Backtrace:
+
+	ll_rw_block+0x160/0x164
+	journal_commit_transaction+0xd88/0x16d4
+	kjournald+0x114/0x308
+	kernel_thread+0x4c/0x6c
+
+Anton

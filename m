@@ -1,42 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262945AbVAQWaH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262935AbVAQWaG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262945AbVAQWaH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 17:30:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbVAQWY5
+	id S262935AbVAQWaG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 17:30:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262945AbVAQWZE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 17:24:57 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:36790 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262945AbVAQWMT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 17:12:19 -0500
-Date: Mon, 17 Jan 2005 14:12:14 -0800
-From: Greg KH <greg@kroah.com>
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
-Subject: Re: [BK PATCH] I2C fixes for 2.6.11-rc1
-Message-ID: <20050117221214.GA29158@kroah.com>
-References: <20050117214543.GB28400@kroah.com>
+	Mon, 17 Jan 2005 17:25:04 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:9098 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S262935AbVAQWEs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 17:04:48 -0500
+Subject: Re: [UPDATE] Severe performance problems with kernel 2.6.10
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Gabriel Tataranu <tgabi@belent.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <41EC1721.8080405@belent.com>
+References: <41EC1721.8080405@belent.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1105995611.16119.16.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050117214543.GB28400@kroah.com>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 17 Jan 2005 21:00:15 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 17, 2005 at 01:45:43PM -0800, Greg KH wrote:
-> Hi,
+On Llu, 2005-01-17 at 19:50, Gabriel Tataranu wrote:
+> For those interested:
 > 
-> Here are some i2c driver fixes and updates for 2.6.11-rc1.  There is a
-> new chip and a new bus driver, as well as a bunch of minor fixes.  All
-> of these patches have been in the past few -mm releases.
+> The performance issues (below) where due to a strange bug in the kernel
+> VM triggered by the motherboard BIOS. This affects Asus P4P800
+> motherboards(-MX and -VM tested) with more that 1 GB RAM. The built-in
+> VGA can use 1-32 MB RAM for display but configured with less than 16 MB
+> of video RAM the board will behave EXTREMELY poor in linux (2.6.9 also
+> tested to behave like this).
 
-Oops, no new chip and bus drivers here, just some bigger updates to a
-chip and a bus driver.  Sorry for misreading the diffstat.
+I'll take a guess. Can you send me the boot dmesg and /proc/mtrr of both
+the slow and the normal cases. I think I know what the BIOS is doing and
+I've been looking for a system doing this so I can find a
+vict^H^H^Holunteer to test some ideas out.
 
-But the patches are all still good :)
-
-thanks,
-
-greg k-h
+Alan
 

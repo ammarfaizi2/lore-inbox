@@ -1,140 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132732AbRDDAsn>; Tue, 3 Apr 2001 20:48:43 -0400
+	id <S131708AbRDDBOt>; Tue, 3 Apr 2001 21:14:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132729AbRDDAsY>; Tue, 3 Apr 2001 20:48:24 -0400
-Received: from smtp9.xs4all.nl ([194.109.127.135]:56266 "EHLO smtp9.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S132727AbRDDAsS>;
-	Tue, 3 Apr 2001 20:48:18 -0400
-From: Stefan Linnemann <mazur@xs4all.nl>
-Organization: Dis.
-Date: Wed, 4 Apr 2001 02:48:03 +0200
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
-Cc: linux-kernel@vger.kernel.org
-To: Tim Waugh <twaugh@redhat.com>
-In-Reply-To: <01040302081301.00789@mazur.xs4all.nl> <20010403181619.J9355@redhat.com>
-In-Reply-To: <20010403181619.J9355@redhat.com>
-Subject: Re: Sandisk flashcard reader on 2.4.2. It works. Sort of.
+	id <S131730AbRDDBOk>; Tue, 3 Apr 2001 21:14:40 -0400
+Received: from chromium11.wia.com ([207.66.214.139]:32005 "EHLO
+	neptune.kirkland.local") by vger.kernel.org with ESMTP
+	id <S131724AbRDDBOg>; Tue, 3 Apr 2001 21:14:36 -0400
+Message-ID: <3ACA7629.E8C54D13@chromium.com>
+Date: Tue, 03 Apr 2001 18:17:30 -0700
+From: Fabio Riccardi <fabio@chromium.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <01040402480300.00799@mazur.xs4all.nl>
-Content-Transfer-Encoding: 7BIT
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: a quest for a better scheduler
+In-Reply-To: <E14kbH2-0000qX-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 03 April 2001 19:16, Tim Waugh wrote:
+Alan Cox wrote:
 
-> > On Tue, Apr 03, 2001 at 02:08:13AM +0200, Stefan Linnemann wrote:
-> > the necessary features.  I copied .config from the 2.2.17, superficially
-> > checked the config, and remade and rebooted.
+> > for the "normal case" performance see my other message.
+>
+> I did - and with a lot of interest
 
-> > This was where I noted, that the parport, paride, epat and pd modules
-> > didn't get installed as modules at all.  I haven't dug into the why of
-> > that, let those familiar with the processes and Makefiles do that.
+thanks! :)
 
-> It'll be because of the block device directory reorganisation I
-> expect, or something similar.  Double-check your config.
+> > I agree that a better threading model would surely help in a web server, but to
+> > me this is not an excuse to live up with a broken scheduler.
+>
+> The problem has always been - alternative scheduler, crappier performance for
+> 2 tasks running (which is most boxes). If your numbers are right then the
+> HP patch is working as well for 1 or 2 tasks too
 
-Config is fine, it's just make modules_install that's ignoring them.
+Please verify them if you have a couple of spare hours.
 
-> > So I reconfigured to get those into the kernel, and remade and
-> > rebooted.  No dice, so I succesfully again applied the same patch,
-> > configured it into the kernel and remade and rebooted.  No
-> > SanDisk. For some reason or another I rebooted again, and lo and
-> > behold, we have a SanDisk.
+BTW: I measured similar results for the "scalability" patches on a 2.4.1 kernel, it
+would be worth the effort to seriously compare them from an architectural point of
+view, but I don't have the time right now...
 
-> So the kernel you run which can see the SanDisk is with, or without,
-> the C7/8 patch?
+> > Unless we want to maintain the position tha the only way to achieve good
+> > performance is to embed server applications in the kernel, some minimal help
+> > should be provided to goodwilling user applications :)
+>
+> Indeed. I'd love to see you beat tux entirely in userspace.  It proves the
+> rest of the API for the kernel is right
 
-With both 2.2.17 and 2.4.2, only with the patch, and it reports a c7 chip.
-The only times it did get recognized the 16 Mb SanDisk CompactFlash card
-(EC-16CF) was in the reader.  Though even that now doesn't seem to help 
-anymore.  One clue only remains to be told: ever since installing the patch I 
-get one error message lots of time: "invalid character 46 in exportstr for 
-pd.drive0".  It's even printed at bootup from almost every init script.
+Indeed, I'm using RT sigio/sigwait event scheduling, bare clone threads and
+zero-copy io.
 
-> > I mount it ok, cd
-> > /sandisk/dir/, mv * elsewhere, my system hangs.  Reset.
+If only I had a really asynchronous sendfile, or a smarter madvise that wouldn't
+require to map files :)
 
-> Enable magic-sysrq and see if Alt-SysRq-B reboots the machine or not.
-> Or, even better, jot down what Alt-SysRq-T says.
+My server cannot execute dynamic stuff yet, it relies on Apache for that.
 
-It is in, and was in, I only had completely forgotten about that, never 
-having had a need for it yet.
+Running X15 and TUX in the same conditions (i.e. dynamic code in Apache) I get
+exactly the same score in both cases.
 
-> > So the message is: Yes, it could work, but with the patch from
-> > http://www.electricgod.net/~moomonk/epat/ it's slightly better working
-> > than without it.
+I'm adding a TUX-like dynamic interface, I hope to get it to work by next week, then
+I'll make a real confrontation.
 
-> This patch is in the queue, but behind the bug-fixes.
+Regards, ciao,
 
-That, I figured.  Which is why I bothered the mailing list in the first 
-place, so you know there are some issues with the patch as it is.
+ - Fabio
 
-> You might want to try fiddling with the BIOS options for the parallel
-> port and see if that makes any difference.
 
-The only options I get in BIOS for my parallel port are Output-Only, 
-Bi-Directional,  EPP and ECP.  ECP was the setting, and changing that to EPP 
-and Bi_Directional only removed some of the protocols reported by the OS, so 
-I'm back to ECP now.
-
-I'll include a dmesg diff between one time he did recognize the thing and the 
-current one:
-
-*** dmesg	Wed Apr  4 02:03:56 2001
---- dmesg.sandisk	Fri Mar 30 16:45:40 2001
-***************
-*** 9,17 ****
-  zone(0): 4096 pages.
-  zone(1): 36864 pages.
-  zone(2): 0 pages.
-! Kernel command line: BOOT_IMAGE=linux ro root=301 hisax=3,2,10,0x180,HiSax 
-opl3sa2=0x370,5,0,3,0x530,0x330 pd.drive0=0x378
-  Initializing CPU#0
-! Detected 233.290 MHz processor.
-  Console: colour VGA+ 80x25
-  Calibrating delay loop... 465.30 BogoMIPS
-  Memory: 158892k/163840k available (1118k kernel code, 4560k reserved, 374k 
-data, 84k init, 0k highmem)
---- 9,17 ----
-  zone(0): 4096 pages.
-  zone(1): 36864 pages.
-  zone(2): 0 pages.
-! Kernel command line: auto BOOT_IMAGE=linux ro root=301 
-hisax=3,2,10,0x180,HiSax opl3sa2=0x370,5,0,3,0x530,0x330 pd.drive0=0x378
-  Initializing CPU#0
-! Detected 233.294 MHz processor.
-  Console: colour VGA+ 80x25
-  Calibrating delay loop... 465.30 BogoMIPS
-  Memory: 158892k/163840k available (1118k kernel code, 4560k reserved, 374k 
-data, 84k init, 0k highmem)
-***************
-*** 72,79 ****
-   hdc: hdc1 hdc2
-  paride: epat registered as protocol 0
-  pd: pd version 1.05, major 45, cluster 64, nice 0
-! epat_init_protopda: Autoprobe failed
-! pd: no valid drive found
-  Floppy drive(s): fd0 is 1.44M
-  FDC 0 is a National Semiconductor PC87306
-  Serial driver version 5.02 (2000-08-09) with MANY_PORTS MULTIPORT SHARE_IRQ 
-ISAPNP enabled
---- 72,81 ----
-   hdc: hdc1 hdc2
-  paride: epat registered as protocol 0
-  pd: pd version 1.05, major 45, cluster 64, nice 0
-! epat_init_protopda: Sharing parport0 at 0x378
-! pda: epat 1.02, Shuttle EPAT chip c7 at 0x378, mode 2 (8-bit), delay 1
-! pda: SanDisk SDCFB-, master, 31360 blocks [15M], (490/2/32), removable media
-!  pda: pda1
-  Floppy drive(s): fd0 is 1.44M
-  FDC 0 is a National Semiconductor PC87306
-  Serial driver version 5.02 (2000-08-09) with MANY_PORTS MULTIPORT SHARE_IRQ 
-ISAPNP enabled
-
-Thanks for the reply, anyway,
-Stefan.
--- 
-Stefan Linnemann                        http://www.xs4all.nl/~mazur/
-Systeem programmeur Unix      ICQ: 25314387

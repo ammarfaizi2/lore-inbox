@@ -1,82 +1,167 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266298AbTAFHq5>; Mon, 6 Jan 2003 02:46:57 -0500
+	id <S266308AbTAFILK>; Mon, 6 Jan 2003 03:11:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266308AbTAFHq5>; Mon, 6 Jan 2003 02:46:57 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:54026
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S266298AbTAFHq4>; Mon, 6 Jan 2003 02:46:56 -0500
-Date: Sun, 5 Jan 2003 23:53:57 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Lincoln Dale <ltd@cisco.com>
-cc: Oliver Xymoron <oxymoron@waste.org>, Andrew Morton <akpm@digeo.com>,
-       Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: Linux iSCSI Initiator
-In-Reply-To: <5.1.0.14.2.20030106175946.02957a30@mira-sjcm-3.cisco.com>
-Message-ID: <Pine.LNX.4.10.10301052337150.421-100000@master.linux-ide.org>
+	id <S266310AbTAFILK>; Mon, 6 Jan 2003 03:11:10 -0500
+Received: from 163.tenet.28.144.202.in-addr.arpa ([202.144.28.163]:28425 "EHLO
+	volcano.tenet.res.in") by vger.kernel.org with ESMTP
+	id <S266308AbTAFILI>; Mon, 6 Jan 2003 03:11:08 -0500
+Date: Mon, 6 Jan 2003 13:39:58 +0530 (IST)
+From: madanagopal <madan@nmsworks.co.in>
+To: <linux-kernel@vger.kernel.org>
+Subject: doubt in netlink sockets
+Message-ID: <Pine.LNX.4.33.0301061336320.31547-200000@fileserver.nmsworks.co.in>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: MULTIPART/Mixed; BOUNDARY="-1463801591-1947439671-1037718914=:2962"
+Content-ID: <Pine.LNX.4.33.0212031209501.524@madan.nmsworks.co.in>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Jan 2003, Lincoln Dale wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-> Andre,
-> 
-> At 07:38 PM 5/01/2003 -0800, Andre Hedrick wrote:
-> >If you know anything about iSCSI RFC draft and how storage truly works.
-> >Cisco gets it wrong, they do not believe in supporting the full RFC.
-> 
-> i can tell you that you're mistaken in your belief.
+---1463801591-1947439671-1037718914=:2962
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.33.0212031209502.524@madan.nmsworks.co.in>
 
-So Cisco now will turn on and leave the Header and Data Digests on, this
-differs from your last initiator test.
+ Please CC the answers/comments in response to this posting to me.
 
-> [..]
-> >Next try to support any filesystem regardless of platform.
-> >Specifically anything Microsoft does to thwart Linux, I have already
-> >covered.
-> 
-> you seem to miss the basic fact that iSCSI is a block-layer 
-> transport.  file system != block layer.
-> supporting any filesystem with iSCSI is trivial - its just the same as 
-> supporting any filesystem on any other block device.
+    I read about netlink sockets from the URL :
+         http://qos.ittc.ukans.edu/netlink/html/node16.html
+  
+    I also tried the sample program given there to add a new route to the 
+routing table but it is not working(ie the program is compiling properly but 
+output is not coming). I tried to see the output by executing the 
+        route -n
+   command to see whether the new route is being added but nothing got 
+added. I also downloaded iproute2 code and compared the given code in 
+the website with iproute2 code but found no differences. I am attaching 
+that file. Please execute and see whether it is 
+working. If it is not working please tell me what changes should be made.
+            
 
-No, you just lost the context of Oliver's question about doing it all from
-user space.  Whereas it could be suggested "a target" drops in to the
-respective builting FS support.  Why, because attempting to bypass the
-double memcpy to/from user/kernel space.
+---1463801591-1947439671-1037718914=:2962
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="routeadd.c"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0211192045140.2962@madan.nmsworks.co.in>
+Content-Description: 
+Content-Disposition: ATTACHMENT; FILENAME="routeadd.c"
 
-Since it is a pure "block-transport", and execution the raw data transport
-to the spindle, the stack does not care about anything about.  Block is a
-bit-bucket as what defines SAN.
-
-> [..]
-> >In two week I will have NetBSD certified, and 4 weeks later should have
-> >Solaris certifed.
-> 
-> we certainly don't care about any "certifications" you have for NetBSD or 
-> solaris.
-
-As you should not, these are data transport QAQC for the respective
-"targets".  Initiators make no money, but "targets" do.
-
-> if you wish to discuss the various merits of parts of the iSCSI protocol, 
-> there are forums for that kind of thing.
-> linux-kernel is not one of them.
-
-Yep, will see you that refector to discuss a hole in the ERL=1 with a
-header digest failure w/ the S_BIT set.  It get tossed out and now you end
-up with a status sequuence number order problem.
-
-Who owns the mess, Target or Initiator ?
-
-I do not care, because I have both sides covered to support all 11:11
-regardless of the support level when talking to your switch with my
-initiator, or your initiator talking to my target.
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
+DQoNCg0KLy9UaGUgZmlsZSBpbmNsdWRlZCBiZWxvdyBzdW1tYXJpc2VzIHRo
+ZSBjb2RlIGZvciBhZGRpbmcgYSByb3V0ZSB0byB0aGUga2VybmVsIHJvdXRp
+bmcgdGFibGUsIHRoZSBwdXJwb3NlIG9mIHRoZSBjb2RlIGlzIHRvIHNob3cg
+dGhlIGZsb3cgb2YgY29udHJvbCwgaG93ZXZlciBpdCBtYXkgbm90IGNvbXBs
+ZXRlIGluIGFsbCByZXNwZWN0cy4gDQoNCiNpbmNsdWRlIDxzdGRpby5oPg0K
+I2luY2x1ZGUgPGFzbS90eXBlcy5oPg0KI2luY2x1ZGUgPHN5cy9zb2NrZXQu
+aD4NCiNpbmNsdWRlIDxsaW51eC9uZXRsaW5rLmg+DQojaW5jbHVkZSA8bGlu
+dXgvcnRuZXRsaW5rLmg+DQoNCnN0cnVjdCBydG5sX2hhbmRsZQ0Kew0KICAg
+ICAgICBpbnQgZmQ7DQogICAgICAgIHN0cnVjdCBzb2NrYWRkcl9ubCAgbG9j
+YWw7DQogICAgICAgIHN0cnVjdCBzb2NrYWRkcl9ubCAgcGVlcjsgICANCiAg
+ICAgICAgIF9fdTMyIHNlcTsNCiAgICAgICAgX191MzIgIGR1bXA7DQp9Ow0K
+DQoNCi8vIFRoaXMgY29kZSBtYXkgbm90IGJlIGNvbXBsZXRlIGluIGFsbCBy
+ZXNwZWN0cywgaXQganVzdCBzaG93cyB0aGUgZmxvdyBvZg0KLy8gY29udHJv
+bCwgZm9yIG1vcmUgZGV0YWlsZWQgaW5mb3JtYXRpb24gcmVmZXIgdG8gdGhl
+IGNvZGUgb2YgaXByb3V0ZTIgYW5kDQovLyB6ZWJyYSBwYWNrYWdlcy4NCg0K
+Ly8gVGhpcyBmdW5jdGlvbiBpcyB0byBvcGVuIHRoZSBuZXRsaW5rIHNvY2tl
+dCBhcyB0aGUgbmFtZSBzdWdnZXN0cy4NCmludCBuZXRsaW5rX29wZW4oc3Ry
+dWN0IHJ0bmxfaGFuZGxlKiBydGgpDQp7DQogICAgaW50IGFkZHJfbGVuOw0K
+ICAgIG1lbXNldChydGgsIDAsIHNpemVvZihydGgpKTsNCg0KICAgIC8vIENy
+ZWF0aW5nIHRoZSBuZXRsaW5rIHNvY2tldCBvZiBmYW1pbHkgTkVUTElOS19S
+T1VURQ0KDQogICAgcnRoLT5mZCA9IHNvY2tldChBRl9ORVRMSU5LLCBTT0NL
+X1JBVywgTkVUTElOS19ST1VURSk7DQogICAgaWYgKHJ0aC0+ZmQgPCAwKSB7
+DQogICAgICAgIHBlcnJvcigiY2Fubm90IG9wZW4gbmV0bGluayBzb2NrZXQi
+KTsNCiAgICAgICAgcmV0dXJuIC0xOw0KICAgIH0NCg0KICAgIG1lbXNldCgm
+cnRoLT5sb2NhbCwgMCwgc2l6ZW9mKHJ0aC0+bG9jYWwpKTsNCiAgICBydGgt
+PmxvY2FsLm5sX2ZhbWlseSA9IEFGX05FVExJTks7DQogICAgcnRoLT5sb2Nh
+bC5ubF9ncm91cHMgPSAwOw0KDQogICAgLy8gQmluZGluZyB0aGUgbmV0bGlu
+ayBzb2NrZXQNCiAgICBpZiAoYmluZChydGgtPmZkLCAoc3RydWN0IHNvY2th
+ZGRyKikmcnRoLT5sb2NhbCwgc2l6ZW9mKHJ0aC0+bG9jYWwpKSA8IDApDQog
+ICAgew0KICAgICAgICBwZXJyb3IoImNhbm5vdCBiaW5kIG5ldGxpbmsgc29j
+a2V0Iik7DQogICAgICAgIHJldHVybiAtMTsNCiAgICB9DQogICAgYWRkcl9s
+ZW4gPSBzaXplb2YocnRoLT5sb2NhbCk7DQoNCiAgICBpZiAoZ2V0c29ja25h
+bWUocnRoLT5mZCwgKHN0cnVjdCBzb2NrYWRkciopJnJ0aC0+bG9jYWwsICZh
+ZGRyX2xlbikgPCAwKQ0KICAgIHsNCiAgICAgICAgcGVycm9yKCJjYW5ub3Qg
+Z2V0c29ja25hbWUiKTsNCiAgICAgICAgcmV0dXJuIC0xOw0KICAgIH0NCg0K
+ICAgIGlmIChhZGRyX2xlbiAhPSBzaXplb2YocnRoLT5sb2NhbCkpIHsNCiAg
+ICAgICAgZnByaW50ZihzdGRlcnIsICJ3cm9uZyBhZGRyZXNzIGxlbmdodCAl
+ZFxuIiwgYWRkcl9sZW4pOw0KICAgICAgICByZXR1cm4gLTE7DQogICAgfQ0K
+DQogICAgaWYgKHJ0aC0+bG9jYWwubmxfZmFtaWx5ICE9IEFGX05FVExJTksp
+IHsNCiAgICAgICAgZnByaW50ZihzdGRlcnIsICJ3cm9uZyBhZGRyZXNzIGZh
+bWlseSAlZFxuIiwgcnRoLT5sb2NhbC5ubF9mYW1pbHkpOw0KICAgICAgICBy
+ZXR1cm4gLTE7DQogICAgfQ0KICAgIHJ0aC0+c2VxID0gdGltZShOVUxMKTsN
+CiAgICByZXR1cm4gMDsNCn0NCg0KLy8gVGhpcyBmdW5jdGlvbiBkb2VzIHRo
+ZSBhY3R1YWwgcmVhZGluZyBhbmQgd3JpdGluZyB0byB0aGUgbmV0bGluayBz
+b2NrZXQNCmludCBydG5sX3RhbGsoc3RydWN0IHJ0bmxfaGFuZGxlICpydG5s
+LCBzdHJ1Y3Qgbmxtc2doZHIgKm4sIHBpZF90IHBlZXIsDQogICAgICAgIHVu
+c2lnbmVkIGdyb3Vwcywgc3RydWN0IG5sbXNnaGRyICphbnN3ZXIpDQp7DQog
+ICAgaW50IHN0YXR1czsNCiAgICBzdHJ1Y3Qgbmxtc2doZHIgKmg7DQogICAg
+c3RydWN0IHNvY2thZGRyX25sIG5sYWRkcjsNCg0KICAgIC8vIEZvcm1pbmcg
+dGhlIGlvdmVjdG9yIHdpdGggdGhlIG5ldGxpbmsgcGFja2V0Lg0KICAgIHN0
+cnVjdCBpb3ZlYyBpb3YgPSB7ICh2b2lkKiluLCBuLT5ubG1zZ19sZW4gfTsN
+CiAgICBjaGFyICAgYnVmWzgxOTJdOw0KDQogICAgLy8gRm9ybWluZyB0aGUg
+bWVzc2FnZSB0byBiZSBzZW50Lg0KICAgIHN0cnVjdCBtc2doZHIgbXNnID0g
+ew0KICAgICAgICAodm9pZCopJm5sYWRkciwgc2l6ZW9mKG5sYWRkciksDQog
+ICAgICAgICZpb3YsICAgMSwNCiAgICAgICAgTlVMTCwgICAwLA0KICAgICAg
+ICAwDQogICAgfTsNCg0KICAgIC8vIEZpbGxpbmcgdXAgdGhlIGRldGFpbHMg
+b2YgdGhlIG5ldGxpbmsgc29ja2V0IHRvIGJlIGNvbnRhY3RlZCBpbiB0aGUN
+CiAgICAvLyBrZXJuZWwuDQogICAgbWVtc2V0KCZubGFkZHIsIDAsIHNpemVv
+ZihubGFkZHIpKTsNCiAgICBubGFkZHIubmxfZmFtaWx5ID0gQUZfTkVUTElO
+SzsNCiAgICBubGFkZHIubmxfcGlkID0gcGVlcjsNCiAgICBubGFkZHIubmxf
+Z3JvdXBzID0gZ3JvdXBzOw0KDQogICAgbi0+bmxtc2dfc2VxID0gKytydG5s
+LT5zZXE7DQogICAgaWYgKGFuc3dlciA9PSBOVUxMKQ0KICAgICAgICBuLT5u
+bG1zZ19mbGFncyB8PSBOTE1fRl9BQ0s7DQoNCiAgICAvLyBBY3R1YWwgc2Vu
+ZGluZyBvZiB0aGUgbWVzc2FnZSwgc3RhdHVzIGNvbnRhaW5zIHN1Y2Nlc3Mv
+ZmFpbHVyZQ0KICAgIHN0YXR1cyA9IHNlbmRtc2cocnRubC0+ZmQsICZtc2cs
+IDApOw0KDQogICAgaWYgKHN0YXR1cyA8IDApDQogICAgICAgIHJldHVybiAt
+MTsNCn0NCg0KLy8gVGhpcyBmdW5jdGlvbiBmb3JtcyB0aGUgbmV0bGluayBw
+YWNrZXQgdG8gYWRkIGEgcm91dGUgdG8gdGhlIGtlcm5lbCByb3V0aW5nDQov
+LyB0YWJsZQ0Kcm91dGVfYWRkKF9fdTMyKiBkZXN0aW5hdGlvbiwgX191MzIq
+IGdhdGV3YXkpDQp7DQogICAgc3RydWN0IHJ0bmxfaGFuZGxlIHJ0aDsNCg0K
+ICAgIC8vIHN0cnVjdHVyZSBvZiB0aGUgbmV0bGluayBwYWNrZXQuDQogICAg
+c3RydWN0IHsNCiAgICAgICAgc3RydWN0IG5sbXNnaGRyICAgICBuOw0KICAg
+ICAgICBzdHJ1Y3QgcnRtc2cgICAgICAgIHI7DQogICAgICAgIGNoYXIgICAg
+ICAgICAgICBidWZbMTAyNF07DQogICAgfSByZXE7DQoNCiAgICBjaGFyICBt
+eGJ1ZlsyNTZdOw0KICAgIHN0cnVjdCBydGF0dHIgKiBteHJ0YSA9ICh2b2lk
+KilteGJ1ZjsNCiAgICB1bnNpZ25lZCBteGxvY2sgPSAwOw0KDQogICAgbWVt
+c2V0KCZyZXEsIDAsIHNpemVvZihyZXEpKTsNCg0KICAgIC8vIEluaXRpYWxp
+c2F0aW9uIG9mIGEgZmV3IHBhcmFtZXRlcnMNCiAgICByZXEubi5ubG1zZ19s
+ZW4gPSBOTE1TR19MRU5HVEgoc2l6ZW9mKHN0cnVjdCBydG1zZykpOw0KICAg
+IHJlcS5uLm5sbXNnX2ZsYWdzID0gTkxNX0ZfUkVRVUVTVHxOTE1fRl9DUkVB
+VEV8TkxNX0ZfRVhDTDsNCiAgICByZXEubi5ubG1zZ190eXBlID0gUlRNX05F
+V1JPVVRFOw0KICAgIHJlcS5yLnJ0bV9mYW1pbHkgPSBBRl9JTkVUOw0KICAg
+IHJlcS5yLnJ0bV90YWJsZSA9IFJUX1RBQkxFX01BSU47DQoNCiAgICByZXEu
+ci5ydG1fcHJvdG9jb2wgPSBSVFBST1RfQk9PVDsNCiAgICByZXEuci5ydG1f
+c2NvcGUgPSBSVF9TQ09QRV9VTklWRVJTRTsNCiAgICByZXEuci5ydG1fdHlw
+ZSA9IFJUTl9VTklDQVNUOw0KDQogICAgbXhydGEtPnJ0YV90eXBlID0gUlRB
+X01FVFJJQ1M7DQogICAgbXhydGEtPnJ0YV9sZW4gPSBSVEFfTEVOR1RIKDAp
+Ow0KDQogICAgLy8gUlRBX0RTVCBhbmQgUlRBX0dXIGFyZSB0aGUgdHdvIGVz
+ZW50aWFsIHBhcmFtZXRlcnMgZm9yIGFkZGluZyBhIHJvdXRlLA0KICAgIC8v
+IHRoZXJlIGFyZSBvdGhlciBwYXJhbWV0ZXJzIHRvbyB3aGljaCBhcmUgbm90
+IGRpc2N1c3NlZCBoZXJlLiBGb3IgaXB2NCwNCiAgICAvLyB0aGUgbGVuZ3Ro
+IG9mIHRoZSBhZGRyZXNzIGlzIDQgYnl0ZXMuDQogICAgYWRkYXR0cl9sKCZy
+ZXEubiwgc2l6ZW9mKHJlcSksIFJUQV9EU1QsIGRlc3RpbmF0aW9uLCA0KTsN
+CiAgICBhZGRhdHRyX2woJnJlcS5uLCBzaXplb2YocmVxKSwgUlRBX0dBVEVX
+QVksIGdhdGV3YXksIDQpOw0KDQogICAgLy8gb3BlbmluZyB0aGUgbmV0bGlu
+ayBzb2NrZXQgdG8gY29tbXVuaWNhdGUgd2l0aCB0aGUga2VybmVsDQogICAg
+aWYgKG5ldGxpbmtfb3BlbigmcnRoKSA8IDApDQogICAgew0KICAgICAgICBm
+cHJpbnRmKHN0ZGVyciwgImNhbm5vdCBvcGVuIHJ0bmV0bGlua1xuIik7DQog
+ICAgICAgIGV4aXQoMSk7DQogICAgfQ0KDQogICAgLy8gc2VuZGluZyB0aGUg
+cGFja2V0IHRvIHRoZSBrZXJuZWwuDQogICAgaWYgKHJ0bmxfdGFsaygmcnRo
+LCAmcmVxLm4sIDAsIDAsIE5VTEwpIDwgMCkNCiAgICAgICAgZXhpdCgyKTsN
+Cg0KICAgIHJldHVybiAwOw0KfQ0KDQovLyBUaGlzIGlzIHRoZSB1dGlsaXR5
+IGZ1bmN0aW9uIGZvciBhZGRpbmcgdGhlIHBhcmFtZXRlcnMgdG8gdGhlIHBh
+Y2tldC4NCmludCBhZGRhdHRyX2woc3RydWN0IG5sbXNnaGRyICpuLCBpbnQg
+bWF4bGVuLCBpbnQgdHlwZSwgdm9pZCAqZGF0YSwgaW50IGFsZW4pDQp7DQog
+ICAgaW50IGxlbiA9IFJUQV9MRU5HVEgoYWxlbik7DQogICAgc3RydWN0IHJ0
+YXR0ciAqcnRhOw0KDQogICAgaWYgKE5MTVNHX0FMSUdOKG4tPm5sbXNnX2xl
+bikgKyBsZW4gPiBtYXhsZW4pDQogICAgICAgIHJldHVybiAtMTsNCiAgICBy
+dGEgPSAoc3RydWN0IHJ0YXR0ciopKCgoY2hhciopbikgKyBOTE1TR19BTElH
+TihuLT5ubG1zZ19sZW4pKTsNCiAgICBydGEtPnJ0YV90eXBlID0gdHlwZTsN
+CiAgICBydGEtPnJ0YV9sZW4gPSBsZW47DQogICAgbWVtY3B5KFJUQV9EQVRB
+KHJ0YSksIGRhdGEsIGFsZW4pOw0KICAgIG4tPm5sbXNnX2xlbiA9IE5MTVNH
+X0FMSUdOKG4tPm5sbXNnX2xlbikgKyBsZW47DQogICAgcmV0dXJuIDA7DQp9
+DQoNCnZvaWQgbWFpbigpDQp7DQoJX191MzIgZGVzdD0weDMyMDlBOEZFOw0K
+CV9fdTMyIGd3PTB4MUYwOUE4QzA7DQoJcm91dGVfYWRkKCZkZXN0LCZndyk7
+DQp9DQo=
+---1463801591-1947439671-1037718914=:2962--

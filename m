@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289826AbSA2SzW>; Tue, 29 Jan 2002 13:55:22 -0500
+	id <S289823AbSA2S5m>; Tue, 29 Jan 2002 13:57:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289831AbSA2SzN>; Tue, 29 Jan 2002 13:55:13 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:5388 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S289825AbSA2Sy5>;
-	Tue, 29 Jan 2002 13:54:57 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Jeff Chua <jeffchua@silk.corp.fedex.com>
-Date: Tue, 29 Jan 2002 19:53:52 +0100
+	id <S289829AbSA2S5c>; Tue, 29 Jan 2002 13:57:32 -0500
+Received: from rakis.net ([207.8.143.12]:42929 "EHLO egg.rakis.net")
+	by vger.kernel.org with ESMTP id <S289823AbSA2S5P>;
+	Tue, 29 Jan 2002 13:57:15 -0500
+Date: Tue, 29 Jan 2002 13:57:10 -0500 (EST)
+From: Greg Boyce <gboyce@rakis.net>
+X-X-Sender: gboyce@egg
+To: linux-kernel@vger.kernel.org
+Subject: Re: A modest proposal -- We need a patch penguin
+Message-ID: <Pine.LNX.4.42.0201291347400.21942-100000@egg>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: 2.4.18-pre7 slow ... apm problem
-CC: jdthood@mail.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel <linux-kernel@vger.kernel.org>, sfr@canb.auug.org.au,
-        skraw@ithnet.com
-X-mailer: Pegasus Mail v3.50
-Message-ID: <104D80077517@vcnet.vc.cvut.cz>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 29 Jan 02 at 20:36, Jeff Chua wrote:
-> On Mon, 28 Jan 2002, Thomas Hood wrote:
-> 
-> > Suggestion: Try setting the idle_threshold to a higher value,
-> > e.g., 98.  (The default value is 95.)
-> 
-> With 98, "ping localhost" on "guest" os showed 2 responses, then pause for
-> few seconds, then response, ...
-> 
-> With 95, I got the 1st response, then nothing. 98 seems better, but still
-> slow...
-> 
-> With 100, it's perfect.
+I have a little bit of input from the masses.  I'm not much of a developer
+at this point, but I have been reading lkml for several months and there
+have been a few things I've noticed on this topic.
 
-I've got an idea - if you were saying that ping host->guest is fine,
-but other way around it does not work. Can you apply 
-ftp://platan.vc.cvut.cz/pub/vmware/vmware-ws-1455-update5.tar.gz
-to your VMware 3.x? Stock vmware-3.x modules use netif_rx() instead
-of netif_rx_ni(), and so network bottom half was not run under some 
-conditions.
+As people on both sides of this argument have pointed out, one single
+person can only do so much.  No matter how good you are, you're not going
+to catch everything.  Due to this, I'd like to suggest a dual
+maintainership.  A primary maintainer for the bug changes, and a secondary
+for any small bits that fall through the crack.
 
-Patch also allows you to run VMware on 2.5.3-pre5, BTW.
-                                                Best regards,
-                                                    Petr Vandrovec
-                                                    vandrove@vc.cvut.cz
-                                                    
+The thing about this method is that it's already been proven to work.
+Before Marcelo took over 2.4, Linus was the primary maintainer, and Alan
+was making sure that the small bits weren't forgotten (As well as
+providing some testing for some major changes before they were quite
+ready).
 
+Dave Jones appears to be taking the same roll in the 2.5 series, and Alan
+is coming back a bit for 2.4 again.
+
+Why not make it official?  The dual tree system seems to work.  It
+would be quite similiar to Debian's release system.  A stable, and a
+testing branch.  As long as the patches from the secondary maintainer gets
+handled in a timely manner, less small changes will fall through the
+crack.
+
+Just my 2 cents.
+
+Greg Boyce
 

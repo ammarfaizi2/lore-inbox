@@ -1,98 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264591AbSIQVkf>; Tue, 17 Sep 2002 17:40:35 -0400
+	id <S264603AbSIQVng>; Tue, 17 Sep 2002 17:43:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264603AbSIQVkf>; Tue, 17 Sep 2002 17:40:35 -0400
-Received: from 166.Red-80-36-134.pooles.rima-tde.net ([80.36.134.166]:12583
-	"EHLO apocalipsis") by vger.kernel.org with ESMTP
-	id <S264591AbSIQVkc>; Tue, 17 Sep 2002 17:40:32 -0400
-Date: Tue, 17 Sep 2002 23:48:04 +0200
-From: "Juan M. de la Torre" <jmtorre@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: Possible bug in __alloc_pages() ?
-Message-ID: <20020917214804.GA891@apocalipsis>
+	id <S264605AbSIQVng>; Tue, 17 Sep 2002 17:43:36 -0400
+Received: from [63.205.85.133] ([63.205.85.133]:64017 "EHLO schmee.sfgoth.com")
+	by vger.kernel.org with ESMTP id <S264603AbSIQVnf>;
+	Tue, 17 Sep 2002 17:43:35 -0400
+Date: Tue, 17 Sep 2002 14:47:10 -0700
+From: Mitchell Blank Jr <mitch@sfgoth.com>
+To: Adrian Bunk <bunk@fs.tum.de>, torvalds@transmeta.com
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.5.35 drivers/atm/firestream.c __FUNCTION__ fix
+Message-ID: <20020917144710.C94419@sfgoth.com>
+References: <20020916212331.B70462@sfgoth.com> <Pine.NEB.4.44.0209171033460.26796-100000@mimas.fachschaften.tu-muenchen.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+X-Mailer: Mutt 1.0i
+In-Reply-To: <Pine.NEB.4.44.0209171033460.26796-100000@mimas.fachschaften.tu-muenchen.de>; from bunk@fs.tum.de on Tue, Sep 17, 2002 at 10:37:30AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Adrian Bunk wrote:
+> Thanks for this patch, the next compile error is that compilation of
+> firestream.c fails at all occurences of func_enter:
 
- Hi, this code appears at the beggining of __page_alloc() (kernel 2.4.19):
+This is just the breakage that newer gcc's provoke when you try to use
+__FUNCTION__ as a string constant.  Easy fix (included at end of message,
+Linus please apply)
 
-        min = 1UL << order;
-        for (;;) {
-                zone_t *z = *(zone++);
-                if (!z)
-                        break;
+> > -Mitch  (deadbeat ATM maintainer)
+> 
+> I didn't Cc you because you are only listed as PPP OVER ATM (RFC 2364)
+> maintainer in MAINTAINERS. Do you now maintain the complete ATM subsystem?
 
-                min += z->pages_low;
-                if (z->free_pages > min) {
-                        page = rmqueue(z, order);
-                        if (page)
-                                return page;
-                }
-        }
+I'm sort of the maintainer, if there is one at all.  Werner handed me the
+torch a year and a half ago since he has other projects and I was one of
+the few people still hacking on the core ATM code.  At the time I was doing
+some related work so it fit naturally.  Unfortunately, I'm not working
+in that field at the moment and my other commitments are taking about 110%
+of my time.  I've been trying to keep it sort of maintained in the meantime
+(keeping it compiling, basic mailing list admin) but sadly that's been about
+it from me lately.  :-(
 
- AFAIK, what this code does is to try to alloc the requested pages from
-the first zone in a zone_list (passed as argument) which have enought free 
-pages.
+-Mitch
 
- A zone is considered to have enought free pages if z->free_pages is greater 
-than (number_of_requested_pages + z->pages_low).
-
- In the loop shown, the first iteration is OK, but in the second iteration
-(which only occurs if the first zone in the zone_list hasn't enought free
-pages) the zone will only be considered to have enought free pages if
-z->free_pages is greater that (number_of_requested_pages + z->pages_low
-+ PREV_ZONE->pages_low). 
-
- I think this is a bug, but i'm not sure (i'm not a VM hacker).
-
- If it is a bug, there are other two loops in the same function which
-are buggy.
-
-
-Possible patch:
-
---- linux/mm/page_alloc.c.orig  Tue Sep 17 23:45:02 2002
-+++ linux/mm/page_alloc.c       Tue Sep 17 23:46:45 2002
-@@ -330,8 +330,7 @@
-                if (!z)
-                        break;
-
--               min += z->pages_low;
--               if (z->free_pages > min) {
-+               if (z->free_pages > min + z->pages_low) {
-                        page = rmqueue(z, order);
-                        if (page)
-                                return page;
-@@ -354,8 +353,8 @@
-                local_min = z->pages_min;
-                if (!(gfp_mask & __GFP_WAIT))
-                        local_min >>= 2;
--               min += local_min;
--               if (z->free_pages > min) {
-+
-+               if (z->free_pages > min + local_min) {
-                        page = rmqueue(z, order);
-                        if (page)
-                                return page;
-@@ -394,8 +393,7 @@
-                if (!z)
-                        break;
-
--               min += z->pages_min;
--               if (z->free_pages > min) {
-+               if (z->free_pages > min + z->pages_min) {
-                        page = rmqueue(z, order);
-                        if (page)
-                                return page;
-
-Regards,
-Juanma
-
--- 
-/jm
-
+--- linux-2.5.35-VIRGIN/drivers/atm/firestream.c	2002-08-24 00:08:21.000000000 -0700
++++ linux-2.5.35/drivers/atm/firestream.c	2002-09-17 14:34:57.000000000 -0700
+@@ -330,8 +330,8 @@
+ #define FS_DEBUG_QSIZE   0x00001000
+ 
+ 
+-#define func_enter() fs_dprintk (FS_DEBUG_FLOW, "fs: enter " __FUNCTION__ "\n")-#define func_exit()  fs_dprintk (FS_DEBUG_FLOW, "fs: exit  " __FUNCTION__ "\n")+#define func_enter() fs_dprintk (FS_DEBUG_FLOW, "fs: enter %s\n", __FUNCTION__)+#define func_exit()  fs_dprintk (FS_DEBUG_FLOW, "fs: exit  %s\n", __FUNCTION__) 
+ 
+ struct fs_dev *fs_boards = NULL;

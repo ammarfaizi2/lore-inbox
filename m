@@ -1,64 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266421AbTGESsd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jul 2003 14:48:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266422AbTGESsd
+	id S266423AbTGES6s (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jul 2003 14:58:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266429AbTGES6s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jul 2003 14:48:33 -0400
-Received: from pcp03710388pcs.westk01.tn.comcast.net ([68.34.200.110]:386 "EHLO
-	ori.thedillows.org") by vger.kernel.org with ESMTP id S266421AbTGESsc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jul 2003 14:48:32 -0400
-Subject: Re: Linux - 3Com 3CR990 driver
-From: David Dillow <dave@thedillows.org>
-To: smiler@lanil.mine.nu
-Cc: yogesh@unipune.ernet.in, linux-kernel@vger.kernel.org
-In-Reply-To: <1057402216.2295.46.camel@sm-wks1.lan.irkk.nu>
-References: <32995.196.1.114.224.1057226672.squirrel@unipune.ernet.in>
-	 <1057402216.2295.46.camel@sm-wks1.lan.irkk.nu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1057431767.2707.1.camel@ori.thedillows.org>
+	Sat, 5 Jul 2003 14:58:48 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:56024 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266423AbTGES6r (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jul 2003 14:58:47 -0400
+Date: Sat, 5 Jul 2003 12:14:16 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.74-mm1
+Message-Id: <20030705121416.62afd279.akpm@osdl.org>
+In-Reply-To: <200307051728.12891.phillips@arcor.de>
+References: <20030703023714.55d13934.akpm@osdl.org>
+	<200307050216.27850.phillips@arcor.de>
+	<200307051728.12891.phillips@arcor.de>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 05 Jul 2003 15:02:47 -0400
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-3cr990 series is supported in 2.4.21+, and 2.5.something+
+Daniel Phillips <phillips@arcor.de> wrote:
+>
+> The situation re scheduling in 2.5 feels much as 
+> the vm situation did in 2.3
 
-It still does not do crypto offload - new job, little time, blah blah
-blah.. :(
+I've been trying to avoid thinking about that comparison.
 
-On Sat, 2003-07-05 at 06:50, Christian Axelsson wrote:
-> On Thu, 2003-07-03 at 12:04, Yogesh Subhash Talekar wrote:
-> > Hello,
-> > 
-> > Firstly sorry for such an unexpected distrurbance. But I saw your posts on
-> > Linux kernel lists which raised my hopes and hence this mail.
-> > 
-> > We at University of Pune, India run the campus network whose backbone runs
-> > on OFC. We decided to upgrade it to 100 mbps from 10mbps and bought 3COM
-> > 3CR990 cards to install them in 20 Linux servers we have.
-> > 
-> > Now that has landed us in big trouble. The driver which 3COM provided on
-> > CD-ROMs is not working. Also the one we downloaded from 3COM's website is
-> > also not working.
-> > 
-> > Whenever we make the cards up and try to check simple FTP speeds from one
-> > machine to other it comes to about 800 kbps! We changed the CISCO-2990
-> > fiber switch to make sure that it is not because of the faulty switch..
-> > but in vein.
-> > 
-> > We also tried 2.5.X but it fails to compile.
-> > 
-> > Does anyone of you has a solution / advice/ code?
-> > 
-> > Please help.....
-> > 
-> > --yogesh talekar
-> 
-> Im also very intressed in this since I have a few off these (that works
-> like a charm under w2k btw).
-> Im CC:ing the LKML, maybe someone has more answers.
+I don't think it's really, really bad at present.  Just "should be a bit
+better".
+
+> Kgdb is no help in 
+> diagnosing, as the kgdb stub also goes comatose, or at least the serial link 
+> does.  No lockups have occurred so far when I was not interacting with the 
+> system via the keyboard or mouse.  Suggestions?
+
+Enable IO APIC, Local APIC, nmi watchdog.  Use serial console, see if you
+can get a sysrq trace out of it.  That's `^A F T' in minicom.
+
+I mean, it _has_ to be either stuck with interrupts on, or stuck with them off.

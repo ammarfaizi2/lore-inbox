@@ -1,43 +1,121 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264853AbSLQJd6>; Tue, 17 Dec 2002 04:33:58 -0500
+	id <S264857AbSLQJkG>; Tue, 17 Dec 2002 04:40:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264856AbSLQJd6>; Tue, 17 Dec 2002 04:33:58 -0500
-Received: from phoenix.infradead.org ([195.224.96.167]:31754 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S264853AbSLQJd5>; Tue, 17 Dec 2002 04:33:57 -0500
-Date: Tue, 17 Dec 2002 09:41:51 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] move LOG_BUF_SIZE to header file
-Message-ID: <20021217094150.A2467@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Randy.Dunlap" <rddunlap@osdl.org>, Andrew Morton <akpm@digeo.com>,
-	linux-kernel@vger.kernel.org
-References: <3DF64369.81F288FE@digeo.com> <Pine.LNX.4.33L2.0212121517300.19827-100000@dragon.pdx.osdl.net>
-Mime-Version: 1.0
+	id <S264863AbSLQJkG>; Tue, 17 Dec 2002 04:40:06 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:56335
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S264857AbSLQJkF>; Tue, 17 Dec 2002 04:40:05 -0500
+Date: Tue, 17 Dec 2002 01:45:52 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Dave Jones <davej@codemonkey.org.uk>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org, hpa@transmeta.com
+Subject: Re: Intel P6 vs P7 system call performance
+In-Reply-To: <Pine.LNX.4.44.0212162140500.1644-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.10.10212170144030.31876-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.33L2.0212121517300.19827-100000@dragon.pdx.osdl.net>; from rddunlap@osdl.org on Mon, Dec 16, 2002 at 10:11:42PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 16, 2002 at 10:11:42PM -0800, Randy.Dunlap wrote:
-> --- ./arch/i386/Kconfig%LOGBUF	Sun Dec 15 18:07:47 2002
-> +++ ./arch/i386/Kconfig	Sun Dec 15 20:45:09 2002
-> @@ -1573,6 +1573,43 @@
->  	  If you don't debug the kernel, you can say N, but we may not be able
->  	  to solve problems without frame pointers.
-> 
-> +choice
-> +	prompt "Kernel log buffer size"
-> +	default LOG_BUF_128KB if ARCH_S390
-> +	default LOG_BUF_64KB if X86_NUMAQ || IA64
-> +	default LOG_BUF_32KB if SMP
-> +	default LOG_BUF_16KB
 
-yuck.  Why don't you just add and integer LOG_BUG_SHIFT symbol that can
-be freely choosen?
+Linus,
+
+Are you serious about moving of the banging we currently do on 0x80?
+If so, I have a P4 development board with leds to monitor all the lower io
+ports and can decode for you.
+
+On Mon, 16 Dec 2002, Linus Torvalds wrote:
+
+> 
+> On Mon, 16 Dec 2002, Linus Torvalds wrote:
+> >
+> > (Modulo the missing syscall page I already mentioned and potential bugs
+> > in the code itself, of course ;)
+> 
+> Ok, I did the vsyscall page too, and tried to make it do the right thing
+> (but I didn't bother to test it on a non-SEP machine).
+> 
+> I'm pushing the changes out right now, but basically it boils down to the
+> fact that with these changes, user space can instead of doing an
+> 
+> 	int $0x80
+> 
+> instruction for a system call just do a
+> 
+> 	call 0xfffff000
+> 
+> instead. The vsyscall page will be set up to use sysenter if the CPU
+> supports it, and if it doesn't, it will just do the old "int $0x80"
+> instead (and it could use the AMD syscall instruction if it wants to).
+> User mode shouldn't know or care, the calling convention is the same as it
+> ever was.
+> 
+> On my P4 machine, a "getppid()" is 641 cycles with sysenter/sysexit, and
+> something like 1761 cycles with the old "int 0x80/iret" approach. That's a
+> noticeable improvement, but I have to say that I'm a bit disappointed in
+> the P4 still, it shouldn't be even that much.
+> 
+> As a comparison, an Athlon will do a full int/iret faster than a P4 does a
+> sysenter/sysexit. Pathetic. But it's better than it used to be.
+> 
+> Whatever. The code is extremely simple, and while I'm sure there are
+> things I've missed I'd love to hear if this works for anybody else. I'm
+> appending the (extremely stupid) test-program I used to test it.
+> 
+> The way I did this, things like system call restarting etc _should_ all
+> work fine even with "sysenter", simply by virtue of both sysenter and "int
+> 0x80" being two-byte opcodes. But it might be interesting to verify that a
+> recompiled glibc (or even just a preload) really works with this on a
+> "whole system" testbed rather than just testing one system call (and not
+> even caring about the return value) a million times.
+> 
+> The good news is that the kernel part really looks pretty clean.
+> 
+> 		Linus
+> 
+> ---
+> #include <time.h>
+> #include <sys/time.h>
+> #include <asm/unistd.h>
+> #include <sys/stat.h>
+> #include <stdio.h>
+> 
+> #define rdtsc() ({ unsigned long a,d; asm volatile("rdtsc":"=a" (a), "=d" (d)); a; })
+> 
+> int main()
+> {
+> 	int i, ret;
+> 	unsigned long start, end;
+> 
+> 	start = rdtsc();
+> 	for (i = 0; i < 1000000; i++) {
+> 		asm volatile("call 0xfffff000"
+> 			:"=a" (ret)
+> 			:"0" (__NR_getppid));
+> 	}
+> 	end = rdtsc();
+> 	printf("%f cycles\n", (end - start) / 1000000.0);
+> 
+> 	start = rdtsc();
+> 	for (i = 0; i < 1000000; i++) {
+> 		asm volatile("int $0x80"
+> 			:"=a" (ret)
+> 			:"0" (__NR_getppid));
+> 	}
+> 	end = rdtsc();
+> 	printf("%f cycles\n", (end - start) / 1000000.0);
+> }
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+Andre Hedrick
+LAD Storage Consulting Group
 

@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264438AbTK2XOT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Nov 2003 18:14:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264490AbTK2XOT
+	id S264577AbTK2XRL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Nov 2003 18:17:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264586AbTK2XRL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Nov 2003 18:14:19 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:17624 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S264438AbTK2XOF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Nov 2003 18:14:05 -0500
-Date: Sat, 29 Nov 2003 21:10:44 -0200 (BRST)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Samuel Flory <sflory@rackable.com>
-Cc: Marcelo Tosatti <marcelo@hera.kernel.org>, <linux-kernel@vger.kernel.org>,
-       <jgarzik@pobox.com>
-Subject: Re: libata in 2.4.24?
-In-Reply-To: <3FC91D22.8030404@rackable.com>
-Message-ID: <Pine.LNX.4.44.0311292109340.1524-100000@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 29 Nov 2003 18:17:11 -0500
+Received: from dp.samba.org ([66.70.73.150]:21152 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S264577AbTK2XRJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Nov 2003 18:17:09 -0500
+Date: Sun, 30 Nov 2003 09:35:52 +1100
+From: Anton Blanchard <anton@samba.org>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com
+Subject: Re: [PATCH][2.6] e100_phy.c uses free'd .text after init
+Message-ID: <20031129223552.GA24362@krispykreme>
+References: <Pine.LNX.4.58.0311290033120.1674@montezuma.fsmlabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0311290033120.1674@montezuma.fsmlabs.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Hi Zwane,
 
-On Sat, 29 Nov 2003, Samuel Flory wrote:
+> This was causing an oops when using mii-tool due to the .text being free'd
+> after initialisation.
 
->    Are you considering including libata support for 2.4.24?  From my 
-> testing with a number of different embedded sata chipsets (mostly ICH, 
-> SI, and Promise) it appears very stable.  I'm not seeing any data 
-> corruption or lockups when running Cerberus with 2.4.23-rc5 + libata 
-> patch.  The only troubles I've had were with initialization of embedded 
-> promise sata controllers. (I still need to test with Jeff's latest fixes 
-> for this.)
+We stumbled across this a few weeks ago, Jeff's BK tree should have a
+fix.
 
-I'm happy to include it in 2.4 when Jeff thinks its stable enough for a 
-stable series. ;)
-
-
+Anton

@@ -1,49 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262465AbRE0Vvx>; Sun, 27 May 2001 17:51:53 -0400
+	id <S262461AbRE0VzN>; Sun, 27 May 2001 17:55:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262458AbRE0Vvn>; Sun, 27 May 2001 17:51:43 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:36052 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S262465AbRE0Vvg>;
-	Sun, 27 May 2001 17:51:36 -0400
-Message-ID: <3B1176DD.708C7966@mandrakesoft.com>
-Date: Sun, 27 May 2001 17:51:25 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre6 i686)
-X-Accept-Language: en
+	id <S262468AbRE0VzD>; Sun, 27 May 2001 17:55:03 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:41230 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S262461AbRE0Vyp>; Sun, 27 May 2001 17:54:45 -0400
+Subject: Re: Overkeen CDROM disk-change messages
+To: rankinc@pacbell.net (Chris Rankin)
+Date: Sun, 27 May 2001 22:52:21 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <200105272131.f4RLV1P09622@wellhouse.underworld> from "Chris Rankin" at May 27, 2001 02:31:00 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: jcwren@jcwren.com, linux-kernel@vger.kernel.org
-Subject: Re: Problems with ac12 kernels and up
-In-Reply-To: <E1544Cy-00027I-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E1548ST-0002Og-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > Checking root filesystem. /dev/hde13 is mounted.
-> > Cannot continue, aboorting.
-> > *** An error occurred during the file system check.
-> > *** Dropping you to a shell; the system will reboot
-> > *** when you leave the shell.
-> 
-> That means the file system was mounted read/write at boot time. That normally
-> indicates a lilo misconfiguration however your lilo.conf looks
-> correct.
+> What's "magicdev"? I am not running GNOME or KDE. In fact, I wasn't
+> even running X at the time but had xmcd putting its display on another
+> machine over the local network.
 
-On 'ac' kernels at MDK, only when initrd is used, we are seeing the root
-filesystem mounted read-write, no matter what rdev and bootloader
-settings are...  Things are fine with no initrd.
-
-I looked at the root_mountflags usage and it looks ok, so I put it in
-the "figure out later" pile.
-
-Haven't yet verified if this 'ac' only problem....
-
--- 
-Jeff Garzik      | Disbelief, that's why you fail.
-Building 1024    |
-MandrakeSoft     |
+Then I guess it was xmcd continually opening/failing

@@ -1,53 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136294AbRAHSDQ>; Mon, 8 Jan 2001 13:03:16 -0500
+	id <S135990AbRAHSEp>; Mon, 8 Jan 2001 13:04:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136271AbRAHSCz>; Mon, 8 Jan 2001 13:02:55 -0500
-Received: from c-025.static.AT.KPNQwest.net ([193.154.188.25]:57334 "EHLO
-	stefan.sime.com") by vger.kernel.org with ESMTP id <S136198AbRAHSCn>;
-	Mon, 8 Jan 2001 13:02:43 -0500
-Date: Mon, 8 Jan 2001 17:22:25 +0100
-From: Stefan Traby <stefan@hello-penguin.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: stefan@hello-penguin.com, Alexander Viro <viro@math.psu.edu>,
-        linux-kernel@vger.kernel.org
-Subject: Re: ramfs problem... (unlink of sparse file in "D" state)
-Message-ID: <20010108172225.A1391@stefan.sime.com>
-Reply-To: Stefan Traby <stefan@hello-penguin.com>
-In-Reply-To: <20010108165541.A1186@stefan.sime.com> <E14FejQ-0004pW-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E14FejQ-0004pW-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Jan 08, 2001 at 04:01:10PM +0000
-Organization: Stefan Traby Services && Consulting
-X-Operating-System: Linux 2.4.0-fijiji0 (i686)
-X-APM: 100% 400 min
+	id <S136271AbRAHSEf>; Mon, 8 Jan 2001 13:04:35 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:22168 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S135990AbRAHSE0>;
+	Mon, 8 Jan 2001 13:04:26 -0500
+Date: Mon, 8 Jan 2001 13:04:24 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: "Mohammad A. Haque" <mhaque@haque.net>, linux-kernel@vger.kernel.org
+Subject: Re: `rmdir .` doesn't work in 2.4
+In-Reply-To: <20010108185518.G27646@athlon.random>
+Message-ID: <Pine.GSO.4.21.0101081259230.4061-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 08, 2001 at 04:01:10PM +0000, Alan Cox wrote:
-> > I prefer SuS fpathconf(), pathconf() is just a wrapper to fpathconf();
-> 
-> You can't implement it that way in the corner cases.
 
-I reread SuSv2 again and didn't found corner cases.
-Do you mean FIFO/pipe stuff ? I can't see the problem in this area.
 
-In which case is an emulation of pathconf by fpathconf impossible ?
+On Mon, 8 Jan 2001, Andrea Arcangeli wrote:
 
--- 
+> in userspace, but I think the old behaviour was more flexible (it was also
+> showing how much our dcache is powerful) and I still don't see why it's been
+> removed.  Maybe it was to remove a branch from a fast path? (if so I don't
+> think it was a good idea, there are many more overhead things that matters more
+> and that aren't even visible to userspace)
 
-  ciao - 
-    Stefan
+Racy. Nonportable. Has portable and simple equivalent. Again, don't
+bother with chdir at all - if you know the name of directory even
+../name will work. It's not about the current directory. It's about
+the invalid last component of the name.
 
-"     ( cd /lib ; ln -s libBrokenLocale-2.2.so libNiedersachsen.so )     "
-    
-Stefan Traby                Linux/ia32               fax:  +43-3133-6107-9
-Mitterlasznitzstr. 13       Linux/alpha            phone:  +43-3133-6107-2
-8302 Nestelbach             Linux/sparc       http://www.hello-penguin.com
-Austria                                    mailto://st.traby@opengroup.org
-Europe                                   mailto://stefan@hello-penguin.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

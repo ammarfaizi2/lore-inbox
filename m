@@ -1,77 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262571AbTIJQIZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 12:08:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264981AbTIJQIZ
+	id S265033AbTIJQKN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 12:10:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265087AbTIJQKN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 12:08:25 -0400
-Received: from nwkea-mail-1.sun.com ([192.18.42.13]:3746 "EHLO
-	nwkea-mail-1.sun.com") by vger.kernel.org with ESMTP
-	id S262571AbTIJQIX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 12:08:23 -0400
-Message-Id: <200309101608.h8AG8J101998@brk-mail1.uk.sun.com>
-Date: Wed, 10 Sep 2003 17:08:19 +0100 (BST)
-From: Marco Bertoncin - Sun Microsystems UK - Platform OS
-	 Development Engineer <Marco.Bertoncin@Sun.COM>
-Reply-To: Marco Bertoncin - Sun Microsystems UK - Platform
-	   OS Development Engineer <Marco.Bertoncin@Sun.COM>
-Subject: Re: NFS/MOUNT/sunrpc problem?
-To: linux-kernel@vger.kernel.org
+	Wed, 10 Sep 2003 12:10:13 -0400
+Received: from 7.Red-80-37-235.pooles.rima-tde.net ([80.37.235.7]:1158 "EHLO
+	pau.newtral.org") by vger.kernel.org with ESMTP id S265033AbTIJQKF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 12:10:05 -0400
+Date: Wed, 10 Sep 2003 18:10:01 +0200 (CEST)
+From: Pau Aliagas <linuxnow@newtral.org>
+X-X-Sender: pau@pau.intranet.ct
+To: Claas Langbehn <claas@rootdir.de>
+Cc: Patrick Mochel <mochel@osdl.org>, <linux-kernel@vger.kernel.org>,
+       Andrew de Quincey <adq@lidskialf.net>,
+       <acpi-devel@lists.sourceforge.net>
+Subject: Re: [2.6.0-test5-mm1] Suspend to RAM problems
+In-Reply-To: <20030910154551.GA1507@rootdir.de>
+Message-ID: <Pine.LNX.4.44.0309101806480.2528-100000@pau.intranet.ct>
 MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
-Content-MD5: ZZIIIE0shNuxctY5B4XrEA==
-X-Mailer: dtmail 1.3.0 @(#)CDE Version 1.4.6_06 SunOS 5.8 sun4u sparc 
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 10 Sep 2003, Claas Langbehn wrote:
 
+> Patrick Mochel wrote:
 
-I just realized I sent my reply only to Alan ... sorry!
+> > > 2) ACPI
+> > > Thanks to Andrew de Quincey I can boot with ACPI without
+> > > problems and I can read out my temp and so on, but when I do
+> > >    echo -n "mem" >/sys/power/state 
+> > > the machine goes into sleep (STR) but crashes after waking up again.
+> > 
+> > What exactly does it do on wakeup? 
 
+Mine crashes before suspending. It says something like:
+Stoppings tasks
+===========================================================
+critical region / count pages [XXXXXXXXXXXX]
 
-------------- Begin Forwarded Message -------------
-
-Date: Wed, 10 Sep 2003 17:02:24 +0100 (BST)
-From: Marco Bertoncin - Sun Microsystems UK - Platform OS Development Engineer 
-<mb144209@ms-ebrk02-02.uk>
-Subject: Re: NFS/MOUNT/sunrpc problem?
-To: alan@lxorguk.ukuu.org.uk
-
-
-
-Alan,
-thanks for replying so quickly!
-
-> Update the kernel once installed, the 2.4.18- kernels are obsoleted by
-> other security fixes
-
-Yes, we are working with several versions (rh-8.0, rh-9.0, as2.1, el3.0a2), and 
-would like to support all of them. If this was for internal use, we would just 
-go to the most up-to-date version, but sometimes customers are reluctant to 
-upgrade (don't ask, I am not a marketing person :-))))
-
+> When the system sleeps, it the power LED blinks. I call it wake-up
+> when the system starts again. I press a key or the power button. Then
+> the system beeps once and it comes back...
 > 
-> I've seen one other report of this (with a via chip),
->
+> > Would you please try the patch at: 
+> > http://developer.osdl.org/~mochel/patches/test5-pm1/test5-pm2.diff.bz2
+> 
+> i will try it and report about my experiences later.
 
-This is with Intel82801CA
+I'll give it a try too.
 
- 
-> Are you using NFS root or just NFS mounts ?
+> > >    echo -n "S3" > /proc/acpi/sleep 
+> 
+> > That should be:
+> > 	echo "3" > /proc/acpi/sleep
 
-Just NFS mounts. This is how we do PXE install: download vmlinuz and an initial 
-initrd.img image. vmlinuz uncompresses, allocates a RAM disk and mounts 
-initrd.img where it finds the modules necessary to carry on (tg3 driver amongst 
-them), then it nfs mount a directory from the install server (something like 
-/tftp/install/this_release/images/ where it would find configurastion files and 
-images for the install) and it is this MOUNT request that, if the reply gets 
-lost, starts the storm.
-You said you already saw a similar report of this. Is this logged somewhere?
+$ ls /proc/acpi
+ac_adapter  battery  dsdt                 event  fan   power_resource  thermal_zone
+alarm       button   embedded_controller  fadt   info  processor
 
-Again, Thanks very much.
-Marco
+> > But, please use the sysfs interface. 
 
+It hangs the computer.
 
-------------- End Forwarded Message -------------
-
+Pau
 

@@ -1,57 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261625AbTHXKSm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Aug 2003 06:18:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263198AbTHXKSm
+	id S263287AbTHXKdl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Aug 2003 06:33:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263433AbTHXKdl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Aug 2003 06:18:42 -0400
-Received: from [203.145.184.221] ([203.145.184.221]:38161 "EHLO naturesoft.net")
-	by vger.kernel.org with ESMTP id S261625AbTHXKRC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Aug 2003 06:17:02 -0400
-From: "Krishnakumar. R" <krishnakumar@naturesoft.net>
-Reply-To: krishnakumar@naturesoft.net
-Organization: Naturesoft
-To: trivial@rustcorp.com.au
-Subject: [PATCH - 2.6.0-tes4-bk1] removing the extra tokens warning (drivers/char/pcxx.c)
-Date: Sun, 24 Aug 2003 15:50:37 +0530
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308241550.37773.krishnakumar@naturesoft.net>
+	Sun, 24 Aug 2003 06:33:41 -0400
+Received: from smtp-2.concepts.nl ([213.197.30.52]:7951 "EHLO
+	smtp-2.concepts.nl") by vger.kernel.org with ESMTP id S263287AbTHXKdi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Aug 2003 06:33:38 -0400
+Subject: [PATCH] 2.6.0-test4 (#7) - correct name field breakage in zoran
+	driver
+From: Ronald Bultje <rbultje@ronald.bitfreak.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
+Content-Type: multipart/mixed; boundary="=-c94iRkHGvDQXtgorAPX/"
+Message-Id: <1061722346.4303.377.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.3.92 (Preview Release)
+Date: 24 Aug 2003 12:52:27 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-This patch removes the warning:
+--=-c94iRkHGvDQXtgorAPX/
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-drivers/char/pcxx.c:124:8: warning: extra tokens at end of #endif directive
+Hey,
 
+I suddenly noticed that 2.6.0-test4 seems to have removed the struct
+device->name field, apparently for memory consumption reasons. Linus
+changed this to pci_name((zr)->pci_dev) in my driver, and that's almost
+correct, except that it is the PCI device ID, and I'm not supposed to
+touch it. Also, since it's only 4 bytes, all my device names now show
+like 'DC1' (this should be 'DC10plus') and alike.
 
-Regards
-KK
+The attached patch fixes this by going back to the behaviour that we
+used in 2.4.x: we use a separate name field in our private driver
+struct.
 
-============================================
-diffstat:
-pcxx.c |    2 +-
-1 files changed, 1 insertion(+), 1 deletion(-)
-============================================
-The following is the patch:
+I promise I won't send in more patches after this one for today. :).
 
---- linux-2.6.0-test4-bk1/drivers/char/pcxx.orig.c	2003-08-24 15:45:57.000000000 +0530
-+++ linux-2.6.0-test4-bk1/drivers/char/pcxx.c	2003-08-24 15:46:09.000000000 +0530
-@@ -121,7 +121,7 @@
- MODULE_PARM(altpin,      "1-4i");
- MODULE_PARM(numports,    "1-4i");
+Ronald
+
+-- 
+Ronald Bultje <rbultje@ronald.bitfreak.net>
+
+--=-c94iRkHGvDQXtgorAPX/
+Content-Disposition: attachment; filename=20030824_name.diff
+Content-Type: text/plain; name=20030824_name.diff; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+--- linux-2.6.0-test4-old/drivers/media/video/zoran.h	Sun Aug 24 01:42:57 2003
++++ linux-2.6.0-test4/drivers/media/video/zoran.h	Sun Aug 24 12:35:59 2003
+@@ -146,7 +146,7 @@
  
--#endif MODULE
-+#endif /* MODULE */
+ #define ZORAN_NAME    "ZORAN"	/* name of the device */
  
- static int numcards = 1;
- static int nbdevs = 0;
+-#define ZR_DEVNAME(zr) pci_name((zr)->pci_dev)
++#define ZR_DEVNAME(zr) ((zr)->name)
+ 
+ #define   BUZ_MAX_WIDTH   (zr->timing->Wa)
+ #define   BUZ_MAX_HEIGHT  (zr->timing->Ha)
+@@ -403,9 +403,7 @@
+ 	struct tvnorm *timing;
+ 
+ 	unsigned short id;	/* number of this device */
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+ 	char name[32];		/* name of this device */
+-#endif
+ 	struct pci_dev *pci_dev;	/* PCI device */
+ 	unsigned char revision;	/* revision of zr36057 */
+ 	unsigned int zr36057_adr;	/* bus address of IO mem returned by PCI BIOS */
+
+--=-c94iRkHGvDQXtgorAPX/--
 

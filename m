@@ -1,47 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130519AbRCPPZV>; Fri, 16 Mar 2001 10:25:21 -0500
+	id <S130520AbRCPPYV>; Fri, 16 Mar 2001 10:24:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130521AbRCPPZL>; Fri, 16 Mar 2001 10:25:11 -0500
-Received: from smtpnotes.altec.com ([209.149.164.10]:45064 "HELO
-	smtpnotes.altec.com") by vger.kernel.org with SMTP
-	id <S130519AbRCPPYz>; Fri, 16 Mar 2001 10:24:55 -0500
-X-Lotus-FromDomain: ALTEC
-From: Wayne.Brown@altec.com
-To: linux-kernel@vger.kernel.org
-Message-ID: <86256A11.005489D0.00@smtpnotes.altec.com>
-Date: Fri, 16 Mar 2001 09:23:19 -0600
-Subject: How to mount /proc/sys/fs/binfmt_misc ?
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S130519AbRCPPYM>; Fri, 16 Mar 2001 10:24:12 -0500
+Received: from colorfullife.com ([216.156.138.34]:54796 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S130516AbRCPPYF>;
+	Fri, 16 Mar 2001 10:24:05 -0500
+Message-ID: <3AB2300E.33268BBC@colorfullife.com>
+Date: Fri, 16 Mar 2001 16:23:58 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-ac17 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: Sampsa Ranta <sampsa@netsonic.fi>
+CC: Werner.Almesberger@epfl.ch, linux-net@vger.kernel.org,
+        kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
+Subject: Re: Performance is weird (fwd) -> results
+In-Reply-To: <Pine.LNX.4.33.0103160421260.13953-100000@nalle.netsonic.fi>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sampsa Ranta wrote:
+> 
+> After either of your patches, the result was the same, sorry.
+>
+Is apm or acpi running?
 
-
-OK, I've been struggling with this (off and on) since Tuesday, and I give up.
-Since going from 2.4.3-pre4 to 2.4.2-ac20 I have been unable to use binfmt_misc.
-Thanks to a hint from Michael Meissner, I found a mention in the release notes
-for 2.4.2-ac12 that binfmt_misc should be mounted separately.  However, I still
-have a problem.
-
-  The release notes specify this:
-
-     mount -t binfmt_misc none /proc/sys/fs/binfmt_misc
-
-but this doesn't work because
-
-     mount: mount point /proc/sys/fs/binfmt_misc does not exist
-
-And if I try to mkdir -p /proc/sys/fs/binfmt_misc with /proc mounted I get
-
-     mkdir: cannot create directory `/proc/sys/fs/binfmt_misc': No such file or
-directory
-
-which makes sense, I guess, because proc isn't a "real" filesystem.  So how do I
-get binfmt_misc mounted?
-
-Wayne
-
-
+--
+	Manfred

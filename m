@@ -1,69 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266852AbSKUQql>; Thu, 21 Nov 2002 11:46:41 -0500
+	id <S266854AbSKUQsi>; Thu, 21 Nov 2002 11:48:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266853AbSKUQql>; Thu, 21 Nov 2002 11:46:41 -0500
-Received: from mail.hometree.net ([212.34.181.120]:8340 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S266852AbSKUQqk>; Thu, 21 Nov 2002 11:46:40 -0500
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: [RFC/CFT] Separate obj/src dir
-Date: Thu, 21 Nov 2002 16:53:47 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <arj32r$fek$1@forge.intermeta.de>
-References: <20021119201110.GA11192@mars.ravnborg.org> <Pine.LNX.3.95.1021119151730.5943A-100000@chaos.analogic.com>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1037897627 18696 212.34.181.4 (21 Nov 2002 16:53:47 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Thu, 21 Nov 2002 16:53:47 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S266868AbSKUQsh>; Thu, 21 Nov 2002 11:48:37 -0500
+Received: from auto-matic.ca ([216.209.85.42]:52997 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S266854AbSKUQsg>;
+	Thu, 21 Nov 2002 11:48:36 -0500
+Date: Thu, 21 Nov 2002 12:02:24 -0500
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Arjan van de Ven <arjanv@redhat.com>,
+       David McIlwraith <quack@bigpond.net.au>, linux-kernel@vger.kernel.org
+Subject: Re: spinlocks, the GPL, and binary-only modules
+Message-ID: <20021121170224.GB5315@mark.mielke.cc>
+References: <1037875005.1863.0.camel@localhost.localdomain> <Pine.LNX.4.10.10211210503090.3892-100000@master.linux-ide.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10211210503090.3892-100000@master.linux-ide.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" <root@chaos.analogic.com> writes:
+On Thu, Nov 21, 2002 at 05:08:45AM -0800, Andre Hedrick wrote:
+> On 21 Nov 2002, Arjan van de Ven wrote:
+> > It is if the AUTHOR then decides to distribute the resulting binary
+> > which would contain a mix of GPL and non GPL work..
+> The mix is a direct result of developers knowingly inlining critical C
+> code into the headers.  If this code was placed in proper .c files and not
+> set in a .h then the potential for accidental mixing is removed.
+> This would limit and restrict the headers to being structs and extern
+> functions to call.
 
->On Tue, 19 Nov 2002, Sam Ravnborg wrote:
+Some (not all) of the inlined functions are 'inline' to accelerate the
+kernel.
 
->> Based on some initial work by Kai Germaschewski I have made a
->> working prototype of separate obj/src tree.
->> 
->> Usage example:
->> #src located in ~/bk/linux-2.5.sepobj
->> mkdir ~/compile/v2.5
->> cd ~/compile/v2.5
->> sh ../../kb/v2.5/kbuild
+Perhaps, though, the inlined functions should be declared:
 
->[SNIPPED...]
+   #ifdef __GNUC__
+   #  define INLINE extern inline
+   #else
+   #  define INLINE inline
+   #endif
 
->I have a question; "What problem is this supposed to solve?"
->This looks like a M$ism to me. Real source trees don't
->look like this. If you don't have write access to the source-
->code tree, you are screwed on a real project anyway. That's
->why we have CVS, tar and other tools to provide a local copy.
+   #ifdef GPL
+   INLINE type function (arguments)
+   {
+      ...
+   }
+   #else
+   INLINE type function (arguments);
+   #endif
 
-Having Trees read-only checked out? Having Trees on "pseudo filesystems"
-backed by a SCM? 
+This would be neat in that no real additional code would be brought into
+the module, however, there is a possibility that the module would run a little
+bit slower - a small incentive to GPL the module...
 
-This is the same thing we do in Java Land for ages. I personally like it
-buy your taste may vary.
+Of course, this would mean that any #define's still sitting around that
+contributed code of significance should be replaced with possibly inlined
+functions...
 
-	Regards
-		Henning
+Would this make everybody happy?
+
+mark
 
 -- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
 
-"In einem Abwägungsprozess, wollen wir weiter regieren, hat sich die
-SPD und die Bundesregierung und auch der Bundesfinanzminister fürs
-Weiterregieren entschieden und gegen die Ehrlichkeit" -- Oswald
-Metzger, Bündnis '90/Die Grünen, 12.11.2002
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
 
--- 
-Henning Schmiedehausen     "Interpol und Deutsche Bank, FBI und
-hps@intermeta.de            Scotland Yard, Flensburg und das BKA
-henning@forge.franken.de    haben unsere Daten da." -- Kraftwerk, 1981
+                           http://mark.mielke.cc/
+

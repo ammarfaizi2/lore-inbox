@@ -1,52 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317304AbSGIFIU>; Tue, 9 Jul 2002 01:08:20 -0400
+	id <S317305AbSGIFSx>; Tue, 9 Jul 2002 01:18:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317306AbSGIFIT>; Tue, 9 Jul 2002 01:08:19 -0400
-Received: from ns1.intercarve.net ([216.254.127.221]:10297 "HELO
-	ceramicfrog.intercarve.net") by vger.kernel.org with SMTP
-	id <S317304AbSGIFIT>; Tue, 9 Jul 2002 01:08:19 -0400
-Date: Tue, 9 Jul 2002 00:49:08 -0400 (EDT)
-From: "Drew P. Vogel" <dvogel@intercarve.net>
+	id <S317306AbSGIFSw>; Tue, 9 Jul 2002 01:18:52 -0400
+Received: from bitmover.com ([192.132.92.2]:2944 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S317305AbSGIFSv>;
+	Tue, 9 Jul 2002 01:18:51 -0400
+Date: Mon, 8 Jul 2002 22:21:27 -0700
+From: Larry McVoy <lm@bitmover.com>
 To: Rick Lindsley <ricklind@us.ibm.com>
 Cc: Greg KH <greg@kroah.com>, Dave Hansen <haveblue@us.ibm.com>,
        Thunder from the hill <thunder@ngforever.de>,
        kernel-janitor-discuss 
 	<kernel-janitor-discuss@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: BKL removal 
-In-Reply-To: <200207090146.g691kD429646@eng4.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.44.0207090037320.13295-100000@northface.intercarve.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+       linux-kernel@vger.kernel.org
+Subject: Re: BKL removal
+Message-ID: <20020708222127.G11300@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Rick Lindsley <ricklind@us.ibm.com>, Greg KH <greg@kroah.com>,
+	Dave Hansen <haveblue@us.ibm.com>,
+	Thunder from the hill <thunder@ngforever.de>,
+	kernel-janitor-discuss <kernel-janitor-discuss@lists.sourceforge.net>,
+	linux-kernel@vger.kernel.org
+References: <20020708021228.GA19336@kroah.com> <200207090146.g691kD429646@eng4.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200207090146.g691kD429646@eng4.beaverton.ibm.com>; from ricklind@us.ibm.com on Mon, Jul 08, 2002 at 06:46:12PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->    If nothing else, I hope you will think twice before sending off
->    your next BKL removel patch in a subsystem that you haven't fully
->    tested or understood.  That's the point I keep trying to get across
->    here.
->
->So can you define for me under what conditions the BKL is appropriate
->to use?  Removing it from legitimate uses would be bad, of course, but
->part of the problem here is that it's currently used for a variety of
->unrelated purposes.
+> The problem is, of course, that to responsibly use the BKL, you must
+> fully understand ALL the code that utilizes it, so that you know your
+> new use of it doesn't conflict or interfere with existing code and
+> usage.  
 
+Indeed.
 
-If the trade-offs weigh in about the same, removing the BKL from
-legitimate uses in favor of a different (neither better nor worse)
-approach would be more than acceptable, would it not?
+       v
+> With a narrowly defined and used lock, it is much less difficult to
+       ^
 
-Would creating a few new names for lock_kernel() and friends be
-acceptable? Just a few macros to give slightly more meaningful names to
-each function call for 2.5. Then take lock_kernel() entirely away (the
-name, not the function), in 2.7. By 2.9 it should be able to be removed
-from nearly all "inappropriate" uses. This seems like it would encourage
-more  explicit usage of the BKL, while giving maintainers ample time to
-comply.
+If you were talking about replacing a big lock with one lock, you
+might have a point.  But you aren't.  You can't be, because by
+definition if you take out the big lock you have to put in lots
+of little locks.  And then you get discover all the problems that
+the BKL was hiding that you just exposed by removing it.
 
-Note that I have never added or removed a lock from the kernel. I am
-simply thinking aloud; half hoping to be corrected.
+If you think that managing those is easier than managing the BKL,
+you don't understand the first thing about threading.
 
---Drew Vogel
+I think the kernel crowd is starting to sense how complex things
+are getting and are pushing back a bit.  Don't fight them, this
+isn't IRIX/Dynix/PTX/AIX/Solaris.  It's Linux and part of the
+appeal, part of the reason you are here, is that it is (was) simple.
+All you are doing is suggesting that it should be more complex.
+I don't agree at all.
 
+> So can you define for me under what conditions the BKL is appropriate
+> to use?  
+
+Can you tell me for sure that there are no races introduced by your
+proposed change?
+
+Can you tell me the list of locks and what they cover in the last 
+multi threaded OS you worked in?  I thought not.  Nobody could.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,189 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262571AbVAUWTc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262566AbVAUWUr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262571AbVAUWTc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 17:19:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262534AbVAUWEq
+	id S262566AbVAUWUr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 17:20:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262564AbVAUWUL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 17:04:46 -0500
-Received: from waste.org ([216.27.176.166]:26585 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262525AbVAUVlS (ORCPT
+	Fri, 21 Jan 2005 17:20:11 -0500
+Received: from mail0.lsil.com ([147.145.40.20]:969 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S262566AbVAUWTS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 16:41:18 -0500
-Date: Fri, 21 Jan 2005 15:41:06 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: Andrew Morton <akpm@osdl.org>, "Theodore Ts'o" <tytso@mit.edu>
-X-PatchBomber: http://selenic.com/scripts/mailpatches
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4.314297600@selenic.com>
-Message-Id: <5.314297600@selenic.com>
-Subject: [PATCH 4/12] random pt4: Cleanup SHA interface
+	Fri, 21 Jan 2005 17:19:18 -0500
+Message-ID: <0E3FA95632D6D047BA649F95DAB60E5705A70B74@exa-atlanta>
+From: "Mukker, Atul" <Atulm@lsil.com>
+To: "'James Bottomley'" <James.Bottomley@SteelEye.com>,
+       "'Matt Domsch'" <Matt_Domsch@Dell.com>
+Cc: "'Salyzyn, Mark'" <mark_salyzyn@adaptec.com>,
+       "Bagalkote, Sreenivas" <sreenib@lsil.com>,
+       "'brking@us.ibm.com'" <brking@us.ibm.com>,
+       "'Linux Kernel'" <linux-kernel@vger.kernel.org>,
+       "'SCSI Mailing List'" <linux-scsi@vger.kernel.org>,
+       "'bunk@fs.tum.de'" <bunk@fs.tum.de>, "'Andrew Morton'" <akpm@osdl.org>,
+       "Ju, Seokmann" <sju@lsil.com>, "Doelfel, Hardy" <hdoelfel@lsil.com>,
+       "Mukker, Atul" <Atulm@lsil.com>
+Subject: RE: How to add/drop SCSI drives from within the driver?
+Date: Fri, 21 Jan 2005 17:11:17 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Clean up SHA hash function for moving to lib/
-Do proper endian conversion
-Provide sha_init function
-Add kerneldoc
+All right! The implementation is complete for this and the driver has
+thoroughly gone through testing. Everything looks good except for a minor
+glitch.
 
-Signed-off-by: Matt Mackall <mpm@selenic.com>
+After the new logical drives are created with "- - -" written to the
+scsi_host scan attribute, there is a highly noticeable delay before device
+names (e.g., sda) appears in the /dev directory. If the management
+application tried to access the device immediately after creating new, the
+access fails. Putting a 1 second delay helped, but of course this is not a
+deterministic solution.
 
-Index: rnd2/drivers/char/random.c
-===================================================================
---- rnd2.orig/drivers/char/random.c	2005-01-20 12:28:27.979725732 -0800
-+++ rnd2/drivers/char/random.c	2005-01-20 12:28:34.506893589 -0800
-@@ -671,29 +671,6 @@
- 
- EXPORT_SYMBOL(add_disk_randomness);
- 
--/******************************************************************
-- *
-- * Hash function definition
-- *
-- *******************************************************************/
--
--/*
-- * This chunk of code defines a function
-- * void sha_transform(__u32 digest[HASH_BUFFER_SIZE + HASH_EXTRA_SIZE],
-- * 		__u32 const data[16])
-- *
-- * The function hashes the input data to produce a digest in the first
-- * HASH_BUFFER_SIZE words of the digest[] array, and uses HASH_EXTRA_SIZE
-- * more words for internal purposes.  (This buffer is exported so the
-- * caller can wipe it once rather than this code doing it each call,
-- * and tacking it onto the end of the digest[] array is the quick and
-- * dirty way of doing it.)
-- *
-- * For /dev/random purposes, the length of the data being hashed is
-- * fixed in length, so appending a bit count in the usual way is not
-- * cryptographically necessary.
-- */
--
- #define HASH_BUFFER_SIZE 5
- #define EXTRACT_SIZE 10
- #define HASH_EXTRA_SIZE 80
-@@ -717,20 +694,32 @@
- #define K3  0x8F1BBCDCL			/* Rounds 40-59: sqrt(5) * 2^30 */
- #define K4  0xCA62C1D6L			/* Rounds 60-79: sqrt(10) * 2^30 */
- 
--static void sha_transform(__u32 digest[85], __u32 const data[16])
-+/*
-+ * sha_transform: single block SHA1 transform
-+ *
-+ * @digest: 160 bit digest to update
-+ * @data:   512 bytes of data to hash
-+ * @W:      80 words of workspace
-+ *
-+ * This function generates a SHA1 digest for a single. Be warned, it
-+ * does not handle padding and message digest, do not confuse it with
-+ * the full FIPS 180-1 digest algorithm for variable length messages.
-+ */
-+static void sha_transform(__u32 digest[5], const char *data, __u32 W[80])
- {
--	__u32 A, B, C, D, E;     /* Local vars */
-+	__u32 A, B, C, D, E;
- 	__u32 TEMP;
- 	int i;
--#define W (digest + HASH_BUFFER_SIZE)	/* Expanded data array */
- 
-+	memset(W, 0, sizeof(W));
-+	for (i = 0; i < 16; i++)
-+		W[i] = be32_to_cpu(((const __u32 *)data)[i]);
- 	/*
- 	 * Do the preliminary expansion of 16 to 80 words.  Doing it
- 	 * out-of-line line this is faster than doing it in-line on
- 	 * register-starved machines like the x86, and not really any
- 	 * slower on real processors.
- 	 */
--	memcpy(W, data, 16*sizeof(__u32));
- 	for (i = 0; i < 64; i++) {
- 		TEMP = W[i] ^ W[i+2] ^ W[i+8] ^ W[i+13];
- 		W[i+16] = rol32(TEMP, 1);
-@@ -768,7 +757,6 @@
- 	digest[4] += E;
- 
- 	/* W is wiped by the caller */
--#undef W
- }
- 
- #undef f1
-@@ -780,6 +768,20 @@
- #undef K3
- #undef K4
- 
-+/*
-+ * sha_init: initialize the vectors for a SHA1 digest
-+ *
-+ * @buf: vector to initialize
-+ */
-+static void sha_init(__u32 *buf)
-+{
-+	buf[0] = 0x67452301;
-+	buf[1] = 0xefcdab89;
-+	buf[2] = 0x98badcfe;
-+	buf[3] = 0x10325476;
-+	buf[4] = 0xc3d2e1f0;
-+}
-+
- /*********************************************************************
-  *
-  * Entropy extraction routines
-@@ -870,13 +872,7 @@
- 	int i, x;
- 	__u32 data[16], buf[85];
- 
--	/* Hash the pool to get the output */
--	buf[0] = 0x67452301;
--	buf[1] = 0xefcdab89;
--	buf[2] = 0x98badcfe;
--	buf[3] = 0x10325476;
--	buf[4] = 0xc3d2e1f0;
--
-+	sha_init(buf);
- 	/*
- 	 * As we hash the pool, we mix intermediate values of
- 	 * the hash back into the pool.  This eliminates
-@@ -886,7 +882,7 @@
- 	 * function can be inverted.
- 	 */
- 	for (i = 0, x = 0; i < r->poolinfo->poolwords; i += 16, x+=2) {
--		sha_transform(buf, r->pool+i);
-+		sha_transform(buf, (__u8 *)r->pool+i, buf + 5);
- 		add_entropy_words(r, &buf[x % 5], 1);
- 	}
- 
-@@ -896,7 +892,7 @@
- 	 * final time.
- 	 */
- 	__add_entropy_words(r, &buf[x % 5], 1, data);
--	sha_transform(buf, data);
-+	sha_transform(buf, (__u8 *)data, buf + 5);
- 
- 	/*
- 	 * In case the hash function has some recognizable
-@@ -1771,7 +1767,7 @@
- 	tmp[0]=saddr;
- 	tmp[1]=daddr;
- 	tmp[2]=(sport << 16) + dport;
--	sha_transform(tmp+16, tmp);
-+	sha_transform(tmp+16, (__u8 *)tmp, tmp + 16 + 5);
- 	seq = tmp[17] + sseq + (count << COOKIEBITS);
- 
- 	memcpy(tmp + 3, syncookie_secret[1], sizeof(syncookie_secret[1]));
-@@ -1779,7 +1775,7 @@
- 	tmp[1]=daddr;
- 	tmp[2]=(sport << 16) + dport;
- 	tmp[3] = count;	/* minute counter */
--	sha_transform(tmp + 16, tmp);
-+	sha_transform(tmp + 16, (__u8 *)tmp, tmp + 16 + 5);
- 
- 	/* Add in the second hash and the data */
- 	return seq + ((tmp[17] + data) & COOKIEMASK);
-@@ -1808,7 +1804,7 @@
- 	tmp[0]=saddr;
- 	tmp[1]=daddr;
- 	tmp[2]=(sport << 16) + dport;
--	sha_transform(tmp + 16, tmp);
-+	sha_transform(tmp + 16, (__u8 *)tmp, tmp + 16 + 5);
- 	cookie -= tmp[17] + sseq;
- 	/* Cookie is now reduced to (count * 2^24) ^ (hash % 2^24) */
- 
+What are the other possibilities?
+
+Thanks
+-Atul Mukker
+LSI Logic
+
+> -----Original Message-----
+> From: James Bottomley [mailto:James.Bottomley@SteelEye.com] 
+> Sent: Wednesday, December 15, 2004 1:49 PM
+> To: Matt Domsch
+> Cc: Salyzyn, Mark; Bagalkote, Sreenivas; brking@us.ibm.com; 
+> Linux Kernel; SCSI Mailing List; bunk@fs.tum.de; Andrew 
+> Morton; Ju, Seokmann; Doelfel, Hardy; Mukker, Atul
+> Subject: Re: How to add/drop SCSI drives from within the driver?
+> 
+> On Wed, 2004-12-15 at 01:24 -0600, Matt Domsch wrote:
+> > James, I've been thinking about this a little more, and you 
+> may be on 
+> > to something here. Let each driver add files as such:
+> > 
+> > /sys/class/scsi_host
+> >  |-- host0
+> >  |   |-- add_logical_drive
+> >  |   |-- remove_logical_drive
+> >  |   `-- rescan_logical_drive
+> > 
+> > Then we can go 2 ways with this.
+> > 1) driver functions directly call scsi_add_device(), 
+> > scsi_remove_device(), and something for rescan (option 2 
+> handles this 
+> > one cleanly for us).  ATM, megaraid_mbox doesn't implement a rescan 
+> > function, so this point may be moot.
+> > 
+> > 2) driver functions call a midlayer library function, which invokes
+> >    /sbin/hotplug with appropriate data, and add a new /etc/hotplug.d
+> >    helper app which would then write to these files:
+> > 
+> > /sys/class/scsi_host
+> > |-- host0
+> > |   |-- scan
+> > /sys/devices/pci0000:0x/0000:0x:0x.0/host0
+> > |-- 0:0:0:0
+> > |   |-- delete
+> > |   |-- rescan
+> > 
+> > to do likewise.
+> 
+> I'll buy this (option 2).. it seems like a good way to export 
+> the megaraid specific information and at the same time 
+> integrate it more fully into the evolving hotplug infrastructure.
+> 
+> James
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in the body of a message to 
+> majordomo@vger.kernel.org More majordomo info at  
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261879AbTLWQ1O (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 11:27:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbTLWQ1N
+	id S262130AbTLWQiQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 11:38:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbTLWQiQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 11:27:13 -0500
-Received: from vena.lwn.net ([206.168.112.25]:456 "HELO lwn.net")
-	by vger.kernel.org with SMTP id S261879AbTLWQ1G (ORCPT
+	Tue, 23 Dec 2003 11:38:16 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:63889 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262130AbTLWQiM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 11:27:06 -0500
-Message-ID: <20031223162703.8870.qmail@lwn.net>
-To: Ben Srour <srour@cs.wisc.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: compiling modules after 2.4.* --> 2.6.0 upgrade 
-From: corbet@lwn.net (Jonathan Corbet)
-In-reply-to: Your message of "Tue, 23 Dec 2003 02:20:06 CST."
-             <Pine.LNX.4.44.0312230211500.28609-100000@data.upl.cs.wisc.edu> 
-Date: Tue, 23 Dec 2003 09:27:03 -0700
+	Tue, 23 Dec 2003 11:38:12 -0500
+Date: Tue, 23 Dec 2003 17:38:10 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Bart Samwel <bart@samwel.tk>, linux-kernel@vger.kernel.org
+Subject: Re: Attempt at laptop-mode for 2.6.0
+Message-ID: <20031223163810.GB23184@suse.de>
+References: <3FE85E11.5020602@samwel.tk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FE85E11.5020602@samwel.tk>
+X-OS: Linux 2.4.23aa1-axboe i686
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm attempting to port a module I wrote for the 2.4 series to 2.6 but I
-> get the following error when I try and insmod:
+On Tue, Dec 23 2003, Bart Samwel wrote:
+> Hi guys,
 > 
-> 	root@dimension# /usr/sbin/insmod gpstest.o
-> 	insmod: error inserting 'gpstest.o': -1 Invalid module format
-> 	root@dimension#
+> Even though I don't own a laptop, I find it very irritating that my hard
+> drive is active so much. Wanting to fix this, I found the Jens Axboe's
+> "laptop-mode" patch. Unfortunately it hadn't been ported to Linux
+> 2.6.0 yet, and I'm using that as my primary kernel now. I gave porting 
+> it a shot, and here is the result. I'm running it right now, and my hard 
+> drive has been spun down for the complete time I have been writing this 
+> message. Still, I'm not sure whether it really works as advertised. :) 
+> The reason is that my PC is also a mail server for my personal e-mail, 
+> and I receive e-mails more than once every 10 minutes (fscking spam!). 
+> Still, the tests that I've done seem to indicate that it works.
 
-Try inserting gpstest.ko instead.
+Thanks for getting this started. I'm not particularly fond of the
+behaviourial changes you made, I guess most are due to it being
+incomplete?
 
-Don't have a gpstest.ko?  Head off to 
+The block dirtying is the most interesting aspect of the dump
+functionality, reporting WRITEs don't give you the info you need
+to fix your setup.
 
-	http://lwn.net/Articles/driver-porting/
+Jens
 
-to see how to make one.
-
-jon
-
-Jonathan Corbet
-Executive editor, LWN.net
-corbet@lwn.net

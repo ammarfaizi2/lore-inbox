@@ -1,73 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263567AbRFLVuH>; Tue, 12 Jun 2001 17:50:07 -0400
+	id <S263625AbRFLV7S>; Tue, 12 Jun 2001 17:59:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263625AbRFLVt5>; Tue, 12 Jun 2001 17:49:57 -0400
-Received: from gene.pbi.nrc.ca ([204.83.147.150]:12353 "EHLO gene.pbi.nrc.ca")
-	by vger.kernel.org with ESMTP id <S263567AbRFLVtn>;
-	Tue, 12 Jun 2001 17:49:43 -0400
-Date: Tue, 12 Jun 2001 15:48:34 -0600 (CST)
-From: <ognen@gene.pbi.nrc.ca>
-To: Davide Libenzi <davidel@xmailserver.org>
-cc: <linux-kernel@vger.kernel.org>
+	id <S263659AbRFLV7J>; Tue, 12 Jun 2001 17:59:09 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:48390 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S263625AbRFLV66>;
+	Tue, 12 Jun 2001 17:58:58 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200106122158.f5CLwTR253610@saturn.cs.uml.edu>
 Subject: Re: threading question
-In-Reply-To: <XFMail.20010612144449.davidel@xmailserver.org>
-Message-ID: <Pine.LNX.4.30.0106121546510.11222-100000@gene.pbi.nrc.ca>
+To: davidel@xmailserver.org (Davide Libenzi)
+Date: Tue, 12 Jun 2001 17:58:29 -0400 (EDT)
+Cc: hch@ns.caldera.de (Christoph Hellwig), linux-kernel@vger.kernel.org,
+        ognen@gene.pbi.nrc.ca
+In-Reply-To: <XFMail.20010612144449.davidel@xmailserver.org> from "Davide Libenzi" at Jun 12, 2001 02:44:49 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
-a good suggestion was given to me to actually create as many threads as
-there are CPUs (or a bit more) and then keep them asking for work when
-they are done. This should help it (and avoid the pthread_create,
-pthread_exit). I will implement this and report my results if there is
-interest.
-
-Thank you all,
-Ognen
-
-On Tue, 12 Jun 2001, Davide Libenzi wrote:
-
->
+Davide Libenzi writes:
 > On 12-Jun-2001 Christoph Hellwig wrote:
-> > In article <Pine.LNX.4.30.0106121213570.24593-100000@gene.pbi.nrc.ca> you
-> > wrote:
-> >> On dual-CPU machines the speedups are as follows: my version
-> >> is 1.88 faster than the sequential one on IRIX, 1.81 times on Solaris,
-> >> 1.8 times on OSF/1, 1.43 times on Linux 2.2.x and 1.52 times on Linux 2.4
-> >> kernel. Why are the numbers on Linux machines so much lower?
-> >
-> > Does your measurement include the time needed to actually create the
-> > threads or do you even frequently create and destroy threads?
->
-> This is an extract of the most busy vmstat report running under his tool :
->
-> 12  0  0  15508  40980  24880 355480   0   0     0     0  141   481 100   0   0
-> 19  0  0  15508  40248  24880 355480   0   0     0     0  142   564 100   0   0
-> 12  0  0  15508  40112  24880 355480   0   0     0     0  150   543 100   0   0
-> 11  0  0  15508  41272  24880 355480   0   0     0     0  156   594  99   1   0
-> 17  0  0  15508  40408  24880 355480   0   0     0     0  156   474  99   1   0
-> 17  0  0  15508  39840  24880 355480   0   0     0     0  135   475 100   0   0
-> 21  0  0  15508  39568  24880 355480   0   0     0     0  125   409 100   0   0
-> 21  0  0  15508  39668  24880 355480   0   0     0     0  135   420 100   0   0
-> 16  0  0  15508  39760  24880 355480   0   0     0     0  149   486 100   0   0
->
->
-> The context switch is very low and the user CPU utilization is 100% , I don't
-> think it's system responsibility here ( clearly a CPU bound program ).
-> Even if the runqueue is long, the context switch is low.
-> I've just close to me a dual PIII 1GHz workstation that run an MTA that uses
-> linux pthreads with context switching ranging between 5000 and 11000 with a
-> thread creation rate of about 300 thread/sec ( relaying 600000 msg/hour ).
-> No problem at all with the system even if the load avg is a bit high
-> ( about 8 ).
+>> In article <Pine.LNX.4.30.0106121213570.24593-100000@gene.pbi.nrc.ca> you
+>> wrote:
 
--- 
-Ognen Duzlevski
-Plant Biotechnology Institute
-National Research Council of Canada
-Bioinformatics team
+>>> On dual-CPU machines the speedups are as follows: my version
+>>> is 1.88 faster than the sequential one on IRIX, 1.81 times on Solaris,
+>>> 1.8 times on OSF/1, 1.43 times on Linux 2.2.x and 1.52 times on Linux
+>>> 2.4 kernel. Why are the numbers on Linux machines so much lower?
+...
+> The context switch is very low and the user CPU utilization is 100%,
+> I don't think it's system responsibility here ( clearly a CPU bound
+> program ).  Even if the runqueue is long, the context switch is low.
+> I've just close to me a dual PIII 1GHz workstation that run an MTA
+> that uses linux pthreads with context switching ranging between 5000
+> and 11000 with a thread creation rate of about 300 thread/sec (
+> relaying 600000 msg/hour ).  No problem at all with the system even
+> if the load avg is a bit high ( about 8 ).
+
+In that case, this could be a hardware issue. Note that he seems
+to be comparing an x86 PC against SGI MIPS, Sun SPARC, and Compaq
+Alpha hardware.
+
+His data set is most likely huge. It's DNA data.
+
+The x86 box likely has small caches, a fast core, and a slow bus.
+So most of the time the CPU will be stalled waiting for a memory
+operation.
+
+Maybe there are performance monitor registers that could be used
+to determine if this is the case.
+
+(Not that the app design is sane though.)
 

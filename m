@@ -1,56 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130436AbQLGRl2>; Thu, 7 Dec 2000 12:41:28 -0500
+	id <S131145AbQLGRqa>; Thu, 7 Dec 2000 12:46:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130466AbQLGRlS>; Thu, 7 Dec 2000 12:41:18 -0500
-Received: from north.net.CSUChico.EDU ([132.241.66.18]:12297 "EHLO
-	north.net.csuchico.edu") by vger.kernel.org with ESMTP
-	id <S130436AbQLGRlM>; Thu, 7 Dec 2000 12:41:12 -0500
-Date: Thu, 7 Dec 2000 09:10:45 -0800
-From: John Kennedy <jk@csuchico.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: attempt to access beyond end of device
-Message-ID: <20001207091045.A29789@north.csuchico.edu>
-In-Reply-To: <20001207165659.A1167@gondor.com> <20001207173428.A23936@veritas.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20001207173428.A23936@veritas.com>; from aeb@veritas.com on Thu, Dec 07, 2000 at 05:34:28PM +0100
+	id <S130466AbQLGRqU>; Thu, 7 Dec 2000 12:46:20 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:44299 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S131145AbQLGRqD>;
+	Thu, 7 Dec 2000 12:46:03 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Date: Thu, 7 Dec 2000 18:13:22 MET-1
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: Why is double_fault serviced by a trap gate?
+CC: richardj_moore@uk.ibm.com, linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.40
+Message-ID: <F00C8C3408E@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 07, 2000 at 05:34:28PM +0100, Andries Brouwer wrote:
-> On Thu, Dec 07, 2000 at 04:56:59PM +0100, Jan Niehusmann wrote:
-> > That means that if blk_size[major][MINOR(bh->b_rdev)] == 0, the request
-> > is canceled but no message is printed. Shouldn't there be a warning message?
+On  7 Dec 00 at 11:31, Richard B. Johnson wrote:
+> On Thu, 7 Dec 2000, Andi Kleen wrote:
+> > On Thu, Dec 07, 2000 at 04:04:21PM +0000, richardj_moore@uk.ibm.com wrote:
+> > > 
+> > > 
+> > > Why is double_fault serviced by a trap gate? The problem with this is that
+> > > any double-fault caused by a stack-fault, which is the usual reason,
+> > > becomes a triple-fault. And a triple-fault results in a processor reset or
+> > > shutdown making the fault damn near impossible to get any information on.
+> > > 
+> > > Oughtn't the double-fault exception handler be serviced by a task gate? And
+> > > similarly the NMI handler in case the NMI is on the current stack page
+> > > frame?
+> > 
+> > Sounds like a good idea, when you can afford a few K for a special
+> > NMI/double fault stack. On x86-64 it is planned to do that.
+> > 
+> > 
 > 
-> Maybe that code fragment is mine. If so, then at some point
-> in time I decided that the answer to your question is no.
+> Well, at least on current ix86 processors it can't. Attempting to
+> use a task gate appears to be a trick to cause the exception to
+> be handled on the current stack. The hardware protection hierarchy
+> won't let this happen. You need to have a stack that is not accessible
 
-  As a potential real-world case (but possibly unrelated), I had an
-interesting situation crop-up while I was playing with the loopback
-filesystems.
+No. If interrupt uses task gate, task switch happens. Nothing is stored
+in context of old process except registers into TSS. There is only one
+(bad) problem. If you want to get it 100% proof (it is not needed for double
+fault, but it is definitely needed for NMI, as NMI is very often on SMP
+ia32), each CPU's IRQ vector must point to different task, otherwise you
+can get TSS in use during doublefault, leading to triplefault again...
 
-  If you just use the program-tools, you end up with a situation like:
+> from the mode that will be trapped. Otherwise, a user could crash
+> the machine by setting ESP to 0 and waiting for the next context-
+> switch or timer-tick.
 
-	losetup <blah> [close all] dd <blah> [close all] losetup -d [blah]
-
-  In my case, I was making a standalone program that did it all in one
-program and I messed up in the ordering of the close() and the LOOP_CLR_FD.
-
-  I'm pretty sure that (with my small 10K test dataset) the I/O between
-the loopback device and the looped file was never hitting the disk.
-If I LOOP_CLR_FD before I closed, I ended up with bad data in the looped
-file and kernel errors syslogged:
-
-	kernel: attempt to access beyond end of device
-	kernel: 07:00: rw=1, want=1, limit=0
-	kernel: dev 07:00 blksize=0 blocknr=0 sector=0 size=1024 count=1
-
-  I tended to get 10 of those, one for each of the 10 1K blocks in
-my test dataset.
-
-  Doing the close() then the LOOP_CLR_FD got rid of the errors.
+Yes. Currently if any ESP related problem happens in kernel, machine silently
+reboots without any message. With task gate (as Jeff Merkey proposed
+some months ago, btw), you can even suspend offending task and recover
+from it... I think that also bluesmoke should use task gate, but I
+did not read documentation on this yet.
+                                            Best regards,
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
+                                                
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

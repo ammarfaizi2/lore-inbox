@@ -1,57 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263761AbUDVBSu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263766AbUDVBW2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263761AbUDVBSu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 21:18:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263766AbUDVBSu
+	id S263766AbUDVBW2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 21:22:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263772AbUDVBW2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 21:18:50 -0400
-Received: from fw.osdl.org ([65.172.181.6]:12198 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263761AbUDVBSt convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 21:18:49 -0400
-Date: Wed, 21 Apr 2004 18:18:27 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Peter =?ISO-8859-1?B?V+RjaHRsZXI=?= <pwaechtler@mac.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH] coredump - as root not only if euid switched
-Message-Id: <20040421181827.5c2b5405.akpm@osdl.org>
-In-Reply-To: <1082575247.3052.21.camel@picklock.adams.family>
-References: <1082575247.3052.21.camel@picklock.adams.family>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Wed, 21 Apr 2004 21:22:28 -0400
+Received: from TYO201.gate.nec.co.jp ([202.32.8.214]:7627 "EHLO
+	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S263766AbUDVBW0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Apr 2004 21:22:26 -0400
+To: Rik van Riel <riel@redhat.com>
+Cc: Matti Aarnio <matti.aarnio@zmailer.org>, Jan De Luyck <lkml@kcore.org>,
+       <linux-kernel@vger.kernel.org>, <postmaster@vger.kernel.org>
+Subject: Re: vger.kernel.org is listed by spamcop
+References: <Pine.LNX.4.44.0404211034280.1735-100000@chimarrao.boston.redhat.com>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+From: Miles Bader <miles@lsi.nec.co.jp>
+Date: 22 Apr 2004 10:22:00 +0900
+In-Reply-To: <Pine.LNX.4.44.0404211034280.1735-100000@chimarrao.boston.redhat.com>
+Message-ID: <buollko4xjb.fsf@mcspd15.ucom.lsi.nec.co.jp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Wächtler <pwaechtler@mac.com> wrote:
->
-> While it's more secure to not dump core at all if the program has
->  switched euid, it's also very unpractical. Since only programs 
->  started from root, being setuid root or have CAP_SETUID it's far 
->  more practical to dump as root.root mode 600. This is the bahavior 
->  of Solaris.
-> 
->  The current implementation does not ensure that an existing core
->  file is only readable as root, i.e. after dumping the ownership 
->  and mode is unchanged.
-> 
->  Besides mm->dumpable to avoid recursive core dumps, on setuid files 
->  the dumpable flag still prevents a core dump while seteuid & co will
->  result in a core only readable as root.
+Rik van Riel <riel@redhat.com> writes:
+> I'm certain than vger got listed on spamcop due to linux-kernel
+> subscribers reporting to spamcop some of the spam that leaked onto
+> lkml, through Matti's strict filters.
 
-It's a bit sad to add another function call level to sys_unlink() simply
-because the core dumping code needs it.
+Does that mean that spamcop does no verification of user reports?
 
-Is it not possible to call sys_unlink() directly from there?  Something like
+I was under the impression that it's fairly easy to automatically check
+whether a particular host is an open-relay or not, so it would seem kind
+of irresponsible for spamcop not to do this if some people are relying
+on their lists to do blocking (even if there's a disclaimer saying not
+to do that, clearly people are ignorant or dumb, so why not play it safe?).
 
-long kernel_unlink(const char *name)
-{
-	mm_segment_t old_fs = get_fs();
-	long ret;
-
-	set_fs(KERNEL_DS);
-	ret = sys_unlink(name);
-	set_fs(old_fs);
-	return ret;
-}	
+-Miles
+-- 
+P.S.  All information contained in the above letter is false,
+      for reasons of military security.

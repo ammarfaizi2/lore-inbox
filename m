@@ -1,30 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284785AbRLPU0M>; Sun, 16 Dec 2001 15:26:12 -0500
+	id <S284808AbRLPUaM>; Sun, 16 Dec 2001 15:30:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284788AbRLPU0C>; Sun, 16 Dec 2001 15:26:02 -0500
-Received: from net128-007.mclink.it ([195.110.128.7]:14803 "EHLO
-	mail.mclink.it") by vger.kernel.org with ESMTP id <S284785AbRLPUZw>;
-	Sun, 16 Dec 2001 15:25:52 -0500
-Message-ID: <3C1D0350.9060300@arpacoop.it>
-Date: Sun, 16 Dec 2001 21:25:52 +0100
-From: Carl Scarfoglio <scarfoglio@arpacoop.it>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011204
-X-Accept-Language: en-us
+	id <S284809AbRLPUaC>; Sun, 16 Dec 2001 15:30:02 -0500
+Received: from postfix2-1.free.fr ([213.228.0.9]:60617 "HELO
+	postfix2-1.free.fr") by vger.kernel.org with SMTP
+	id <S284808AbRLPU3o>; Sun, 16 Dec 2001 15:29:44 -0500
+From: Willy Tarreau <wtarreau@free.fr>
+Message-Id: <200112162029.fBGKTdq02390@ns.home.local>
+Subject: Re: Timeouts on 3C575 network device
+To: swsnyder@home.com
+Date: Sun, 16 Dec 2001 21:29:38 +0100 (CET)
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: AIC7850 panic (post 2.4.14)
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had the exact same problem with this chipset (Adaptec 2904), but I 
-increased the "Initial bus reset delay" from 150 ms to 250 and solved it.
-By the way, do you have cdrom's attached to your scsi card? Beware, 
-since 2.5.1-pre8 (at least) the PC will hang solid if I try to mount a 
-data cd. Up to 2.5.1-pre11 the problem remains. Can you verify this 
-(without mounting any disk, of course)?
+Hi Steve,
+
+I have the same problem here (3c575 too, K6-2 too). Cardbus bridge TI1251B.
+
+But I noticed that it nearly never occurs when I put my notebook in a cold
+room. Also, it occurs more often when I have transmitted lots of data and the
+notebook is hot. In my case, I believe it comes from the cardbus bridge not
+coping with the card speed. Perhaps under windows the card is underloaded and
+the bridge can keep cool ? but I definitely think it's a hardware problem first
+and perhaps the software can mask it.
+
+If you want to reduce the penalty of these timeouts, you can put this line
+in your /etc/modules.conf : "options 3c59x watchdog=50". It prevents the
+card from hanging more than 50 ms. But take care of your syslog !
+
 Regards,
-			Carlo Scarfoglio
+Willy
 

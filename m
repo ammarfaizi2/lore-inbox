@@ -1,58 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143845AbRAHOJW>; Mon, 8 Jan 2001 09:09:22 -0500
+	id <S143734AbRAHOLw>; Mon, 8 Jan 2001 09:11:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143932AbRAHOJM>; Mon, 8 Jan 2001 09:09:12 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:24037 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S143845AbRAHOJH>;
-	Mon, 8 Jan 2001 09:09:07 -0500
-Date: Mon, 8 Jan 2001 09:21:06 -0500 (EST)
-From: Chris Meadors <clubneon@hereintown.net>
-To: "David S. Miller" <davem@redhat.com>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Delay in authentication.
-In-Reply-To: <200101081331.FAA18576@pizda.ninka.net>
-Message-ID: <Pine.LNX.4.31.0101080918260.17858-100000@rc.priv.hereintown.net>
+	id <S143871AbRAHOLc>; Mon, 8 Jan 2001 09:11:32 -0500
+Received: from mail.zmailer.org ([194.252.70.162]:2832 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S143734AbRAHOL2>;
+	Mon, 8 Jan 2001 09:11:28 -0500
+Date: Mon, 8 Jan 2001 16:11:19 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: p2@mind.be, jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] tulip
+Message-ID: <20010108161119.F25659@mea-ext.zmailer.org>
+In-Reply-To: <20010108150108.F1831@mind.be>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20010108150108.F1831@mind.be>; from p2@mind.be on Mon, Jan 08, 2001 at 03:01:08PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Jan 2001, David S. Miller wrote:
+On Mon, Jan 08, 2001 at 03:01:08PM +0100, Peter De Schrijver wrote:
+> Hi,
+> 
+> The following patch tries to improve the media autosensing capabilities of the 
+> 2.4 tulip driver. Iused Doanld Becker's tulip driver as a basis. I only tested 
+> it on a Digital PWS500a with onboard 21143 chip with MII transceiver. 
+> 
+> Peter.
 
-> This definitely seems like the classic "/etc/nsswitch.conf is told to
-> look for YP servers and you are not using YP", so have a look and fix
-> nsswitch.conf if this is in fact the problem.
+   A UNI-DIFF (-u option)  would be nice, easier to read what has
+   changed when (often) old and new text are next to each other.
 
-What I have never gotten, is why on my machines (no specific distro, just
-everything built from source and installed by me) login takes a long time,
-unless I have portmap running.
+   Linus likes them, I like them, ...  (if that is any merit)
 
-My /etc/nsswitch.conf would seem to be right:
+/Matti Aarnio
 
-passwd:         files
-group:          files
-shadow:         files
-
-hosts:          files dns
-networks:       files dns
-
-protocols:      files
-services:       files
-ethers:         files
-rpc:            files
-
-netgroup:       files
-
-What else could effect that?
-
--Chris
--- 
-Two penguins were walking on an iceberg.  The first penguin said to the
-second, "you look like you are wearing a tuxedo."  The second penguin
-said, "I might be..."                         --David Lynch, Twin Peaks
-
+> diff -rc linux.orig/drivers/net/tulip/21142.c linux/drivers/net/tulip/21142.c
+> *** linux.orig/drivers/net/tulip/21142.c	Tue Nov  7 20:08:09 2000
+> --- linux/drivers/net/tulip/21142.c	Sun Jan  7 18:29:03 2001
+> ***************
+> *** 99,106 ****
+>   {
+>   	struct tulip_private *tp = (struct tulip_private *)dev->priv;
+>   	long ioaddr = dev->base_addr;
+> ! 	int csr14 = ((tp->to_advertise & 0x0780) << 9)  |
+> ! 		((tp->to_advertise&0x0020)<<1) | 0xffbf;
+>   
+>   	DPRINTK("ENTER\n");
+>   
+> --- 99,106 ----
+>   {
+>   	struct tulip_private *tp = (struct tulip_private *)dev->priv;
+>   	long ioaddr = dev->base_addr;
+> ! 	int csr14 = ((tp->sym_advertise & 0x0780) << 9)  |
+> ! 		((tp->sym_advertise&0x0020)<<1) | 0xffbf;
+>   
+>   	DPRINTK("ENTER\n");
+>   
+....
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

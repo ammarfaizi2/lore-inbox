@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316614AbSEVRwK>; Wed, 22 May 2002 13:52:10 -0400
+	id <S316621AbSEVRyz>; Wed, 22 May 2002 13:54:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316621AbSEVRwJ>; Wed, 22 May 2002 13:52:09 -0400
-Received: from 178.230.13.217.in-addr.dgcsystems.net ([217.13.230.178]:63439
-	"EHLO yxa.extundo.com") by vger.kernel.org with ESMTP
-	id <S316614AbSEVRwJ>; Wed, 22 May 2002 13:52:09 -0400
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix complete freeze on Dell latitude in nm256_audio.c
-From: Simon Josefsson <jas@extundo.com>
-Date: Wed, 22 May 2002 19:49:14 +0200
-Message-ID: <ilur8k4t6n9.fsf@latte.josefsson.org>
-User-Agent: Gnus/5.090007 (Oort Gnus v0.07) Emacs/21.2.50
- (i686-pc-linux-gnu)
+	id <S316623AbSEVRyy>; Wed, 22 May 2002 13:54:54 -0400
+Received: from flrtn-4-m1-42.vnnyca.adelphia.net ([24.55.69.42]:61116 "EHLO
+	jyro.mirai.cx") by vger.kernel.org with ESMTP id <S316621AbSEVRyx>;
+	Wed, 22 May 2002 13:54:53 -0400
+Message-ID: <3CEBDB6C.5070005@tmsusa.com>
+Date: Wed, 22 May 2002 10:54:52 -0700
+From: J Sloan <joe@tmsusa.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020520
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Have the 2.4 kernel memory management problems on large machines
+ been fixed?
+In-Reply-To: <E17AaGD-0002OH-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please add this to the 2.4 tree.  Without it, Dell Latitude laptops
-completely freeze when loading the module.  Thanks.
+Alan Cox wrote:
 
---- linux/drivers/sound/nm256_audio.c.orig      Sun Sep 30 21:26:08 2001
-+++ linux/drivers/sound/nm256_audio.c   Wed May 22 19:46:48 2002
-@@ -896,7 +896,9 @@
+>>I wouldn't bother using RedHat's kernel for this at the moment, 
+>>Andrea's tree is where the development work for this area has all
+>>been happening recently. He's working on integrating O(1) sched
+>>right now, which will get rid of the biggest issue I have with -aa
+>>    
+>>
+>
+>Still ? Its been in the Red Hat 7.3 tree since we released it. Its also
+>in the -ac tree all nicely merged. I guess your definition of happening
+>is my definition of "happened" 8)
+>
 
-     /* Reset the mixer.  'Tis magic!  */
-     nm256_writePort8 (card, 2, 0x6c0, 1);
--    nm256_writePort8 (card, 2, 0x6cc, 0x87);
-+    /* The following line crashes Dell Latitude laptops and doesn't
-+     * seem to do any harm on other machines.
-+    nm256_writePort8 (card, 2, 0x6cc, 0x87); */
-     nm256_writePort8 (card, 2, 0x6cc, 0x80);
-     nm256_writePort8 (card, 2, 0x6cc, 0x0);
+Huh? RH 7.3 kernel has the O(1) scheduler merged?
 
+If the RH kernel is anything like the 2.4.19-pre8-ac5
+I'm currently running, that is  sweet indeed.
+
+Joe
 

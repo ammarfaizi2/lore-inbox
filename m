@@ -1,45 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261723AbUKHBTJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261731AbUKHB6Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261723AbUKHBTJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 20:19:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261725AbUKHBTJ
+	id S261731AbUKHB6Q (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 20:58:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261728AbUKHB6Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 20:19:09 -0500
-Received: from fw.osdl.org ([65.172.181.6]:2960 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261723AbUKHBTG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 20:19:06 -0500
-Message-ID: <418EC948.2080506@osdl.org>
-Date: Sun, 07 Nov 2004 17:18:00 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: ptb@inv.it.uc3m.es
-CC: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: kernel analyser to detect sleep under spinlock
-References: <200411072314.iA7NEM119415@inv.it.uc3m.es>
-In-Reply-To: <200411072314.iA7NEM119415@inv.it.uc3m.es>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+	Sun, 7 Nov 2004 20:58:16 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:44937
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261727AbUKHB6M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Nov 2004 20:58:12 -0500
+Date: Sun, 7 Nov 2004 17:42:47 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: marcelo.tosatti@cyclades.com, laforge@netfilter.org,
+       linux-kernel@vger.kernel.org, chas@cmf.nrl.navy.mil,
+       linux-atm-general@lists.sourceforge.net, linux-net@vger.kernel.org
+Subject: Re: 2.4.28-rc2: net/atm/proc.c compile error
+Message-Id: <20041107174247.559be214.davem@davemloft.net>
+In-Reply-To: <20041107214246.GY14308@stusta.de>
+References: <20041107173753.GB30130@logos.cnet>
+	<20041107214246.GY14308@stusta.de>
+X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter T. Breuer wrote:
->  ftp://ųboe.it.uc3m.es/pub/Programs/c-1.2.tgz
+On Sun, 7 Nov 2004 22:42:46 +0100
+Adrian Bunk <bunk@stusta.de> wrote:
 
-That URL fails for me... is it correct?
-
-> To use the application, compile and then use "c" in place of
-> "gcc" on a typical kernel compile line.
+> On Sun, Nov 07, 2004 at 03:37:53PM -0200, Marcelo Tosatti wrote:
+> >...
+> > Summary of changes from v2.4.28-rc1 to v2.4.28-rc2
+> > ============================================
+> >...
+> > Harald Welte:
+> >   o [NET]: Backport neighbour scalability fixes from 2.6.x
+> >...
 > 
-> This is currently tested only on kernel 2.4 and probably will need some
-> slight mods to the parser for kernel 2.6 code, as it has to
-> inverse engineer some of the assembler produced by macros in kernel
-> headers.
 > 
-> Here's some typical output ...
+> This patch removes atm_lec_info but not the user of this function, 
+> resulting in the following compile error:
 
+You must have mispatched, here is a grep I just did in Marcelo's
+current tree:
 
--- 
-~Randy
+davem@nuts:/disk1/BK/marcelo-2.4/net/atm$ egrep atm_lec_info *.c
+davem@nuts:/disk1/BK/marcelo-2.4/net/atm$ 

@@ -1,74 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318807AbSHQAD2>; Fri, 16 Aug 2002 20:03:28 -0400
+	id <S317022AbSHQAPD>; Fri, 16 Aug 2002 20:15:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318841AbSHQAD2>; Fri, 16 Aug 2002 20:03:28 -0400
-Received: from draco.cus.cam.ac.uk ([131.111.8.18]:46740 "EHLO
-	draco.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S318807AbSHQAD1>; Fri, 16 Aug 2002 20:03:27 -0400
-Date: Sat, 17 Aug 2002 01:07:19 +0100 (BST)
-From: Anton Altaparmakov <aia21@cantab.net>
-Reply-To: Anton Altaparmakov <aia21@cantab.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, andre@linux-ide.org, axboe@suse.de,
-       bkz@linux-ide.org, linux-kernel@vger.kernel.org
+	id <S318883AbSHQAPD>; Fri, 16 Aug 2002 20:15:03 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:22795 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S317022AbSHQAPC>; Fri, 16 Aug 2002 20:15:02 -0400
+Date: Fri, 16 Aug 2002 21:18:46 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
 Subject: Re: IDE?
-In-Reply-To: <Pine.SOL.3.96.1020817004411.25629B-100000@draco.cus.cam.ac.uk>
-Message-ID: <Pine.SOL.3.96.1020817010351.25629C-100000@draco.cus.cam.ac.uk>
+In-Reply-To: <200208170058.39227.m.c.p@wolk-project.de>
+Message-ID: <Pine.LNX.4.44L.0208162116230.1430-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Apologies for the repost but I got Alan's address wrong first time
-round... silly cut'n'paste error...]
+On Sat, 17 Aug 2002, Marc-Christian Petersen wrote:
+> > In article <2444170000.1029531611@flay>,
+> > Martin J. Bligh <Martin.Bligh@us.ibm.com> wrote:
+> > > So did Linus get disk corruption or is something else afoot?
+> > Martin gave up the fight he had to do all the time, so..
+>
+> I am beside my self with laughing, sorry :P
 
-On Fri, 16 Aug 2002, Linus Torvalds wrote:
-> I'm dreaming of an IDE maintainer that people (including, very much, me)
-> can work with. I don't know why, but IDE has pretty much since day one
-> been a fairly problematic area, and has caused a lot more maintainer
-> headache than the rest of the kernel put together..
-> 
-> There's been one fairly smooth IDE transition (the original transition
-> from hd.c to ide.c), and calling even that "smooth" is pretty much all
-> hindsight - at the time people thought it was horribly stupid to not allow
-> big controversial changes to hd.c, and the resulting code duplication was
-> considered a disaster.
-> 
-> Right now it looks like Alan is at least for the moment willing to work on
-> the IDE code, which is obviously great. I just wonder how long he'll stand
-> it (he's maintained various IDE buglists etc issues for years, so we can
-> hope).
+Having thrown away months and months of hard work, or
+giving up on months of hard work is NOT FUN.
 
-Linus,
+I'm thankful Martin tried to make the IDE layer better.
 
-Out of curiosity, who is going to be IDE 2.5 kernel maintainer now?
+His method of removing things to "add a better implementation
+later" may not have worked out in the end, but I'm thankful
+he tried.
 
-I am assuming you still maintain that working with Andre is difficult for
-you...
+regards,
 
-Further, I am assuming that Alan is not going to be wanting to be IDE 2.5
-maintainer. (I may be completely wrong of course... Alan?)
-
-Jens perhaps? Again I assume he doesn't want the job. (Again, I may be
-completely wrong... Jens?)
-
-How about Bartlomiej Zolnierkiewicz as IDE 2.5 maintainer? He seems to be
-happy to talk to Andre. And you are perhaps able to work with him well?
-He has been submitting bug fixes to Martin and seems to generally know
-what he is doing with IDE, certainly a lot better than many of us...
-
-If you can work with him, then it would seem he would be well suited for
-the job... Assuming he wants it... Bartlomiej?
-
-Just my curious 2p...
-
-Best regards,
-
-	Anton
+Rik
 -- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS maintainer / IRC: #ntfs on irc.openprojects.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+Bravely reimplemented by the knights who say "NIH".
 
+http://www.surriel.com/		http://distro.conectiva.com/
 

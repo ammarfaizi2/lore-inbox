@@ -1,45 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262268AbVBKQTb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262269AbVBKQVc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262268AbVBKQTb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 11:19:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262269AbVBKQTb
+	id S262269AbVBKQVc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 11:21:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262270AbVBKQVc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 11:19:31 -0500
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:43146 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S262268AbVBKQT0
+	Fri, 11 Feb 2005 11:21:32 -0500
+Received: from mail03.hansenet.de ([213.191.73.10]:31894 "EHLO
+	webmail.hansenet.de") by vger.kernel.org with ESMTP id S262269AbVBKQV1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 11:19:26 -0500
-From: Christian =?iso-8859-15?q?Borntr=E4ger?= 
-	<christian@borntraeger.net>
-To: Greg KH <gregkh@suse.de>
-Subject: Re: [ANNOUNCE] hotplug-ng 001 release
-Date: Fri, 11 Feb 2005 17:19:22 +0100
-User-Agent: KMail/1.7.1
-Cc: Bill Nottingham <notting@redhat.com>,
-       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <20050211004033.GA26624@suse.de> <20050211031823.GE29375@nostromo.devel.redhat.com> <1108104417.32129.7.camel@localhost.localdomain>
-In-Reply-To: <1108104417.32129.7.camel@localhost.localdomain>
+	Fri, 11 Feb 2005 11:21:27 -0500
+Message-ID: <420CDB93.70506@web.de>
+Date: Fri, 11 Feb 2005 17:21:39 +0100
+From: Marcus Hartig <m.f.h@web.de>
+User-Agent: Mozilla Thunderbird  (X11/20041216)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+To: Dave Jones <davej@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: How to disable slow agpgart in kernel config?
+References: <420C4B9A.6020900@web.de> <20050211062100.GB1782@redhat.com>
+In-Reply-To: <20050211062100.GB1782@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200502111719.23163.christian@borntraeger.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 11 February 2005 07:46, Greg KH wrote:
-> And finally, even if you do use udevstart to manager /sbin/hotplug
-> events, you still need a module autoloader program.  This package
-> provides executables for that problem, if you don't want to (or you
-> can't) use the existing linux-hotplug scripts.  udev will never do the
-> module loading logic, so there's no duplication in this case.
+Dave Jones wrote:
 
-Greg,
-the pci module autoloader is a real agent, which means it depends on having a 
-hotplug event. Are you planning to support a scan for already present 
-devices, like the pci.rc file in current hotplug solutions?
+> probably you have selected IOMMU, which is dependant on it.
 
-cheers
+Yes, thanks. Sorry my fault. I had it not deactivated, arggg.
 
-Christian
+> This surprises me, especially considering the in-kernel nvidia-agp driver
+> was actually written by NVidia. Are there any agp error messages in
+> your dmesg / X log ?
+
+No warnings/errors in both logs. All clean. But switching/maximizing 
+between tasks like firefox, thunderbird or a gnome-terminal is so slow, 
+that you can see it how firefox/GTK+ theme is writing the GUI and the 
+fonts slowly back. Minimizing is no more fun, like a fast slide-show. And 
+that on a fast amd64 3200 with 1 GB RAM and a FX 5900XT. :(
+
+With the nVidia own nv_agp it appears directly in all apps, very fast 
+under GNOME 2.8.1. Why, I do not know. Also game (opengl) performance is 
+faster with the nv_agp, that I haven't used the kernel agp for months, now.
+
+Greetings,
+Marcus

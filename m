@@ -1,511 +1,214 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264834AbSIQW4K>; Tue, 17 Sep 2002 18:56:10 -0400
+	id <S264803AbSIQWt5>; Tue, 17 Sep 2002 18:49:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264743AbSIQWxv>; Tue, 17 Sep 2002 18:53:51 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:15035 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S264717AbSIQWsp>;
-	Tue, 17 Sep 2002 18:48:45 -0400
-Date: Tue, 17 Sep 2002 15:53:36 -0700
+	id <S264794AbSIQWtz>; Tue, 17 Sep 2002 18:49:55 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:65426 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S264675AbSIQWrl>;
+	Tue, 17 Sep 2002 18:47:41 -0400
+Date: Tue, 17 Sep 2002 15:52:32 -0700
 From: Patrick Mansfield <patmans@us.ibm.com>
 To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: [RFC] [PATCH] 6/7 2.5.35 SCSI multi-path
-Message-ID: <20020917155336.F18424@eng2.beaverton.ibm.com>
-References: <20020917154940.A18401@eng2.beaverton.ibm.com> <20020917155018.A18424@eng2.beaverton.ibm.com> <20020917155041.B18424@eng2.beaverton.ibm.com> <20020917155120.C18424@eng2.beaverton.ibm.com> <20020917155201.D18424@eng2.beaverton.ibm.com> <20020917155232.E18424@eng2.beaverton.ibm.com>
+Subject: [RFC] [PATCH] 5/7 2.5.35 SCSI multi-path
+Message-ID: <20020917155232.E18424@eng2.beaverton.ibm.com>
+References: <20020917154940.A18401@eng2.beaverton.ibm.com> <20020917155018.A18424@eng2.beaverton.ibm.com> <20020917155041.B18424@eng2.beaverton.ibm.com> <20020917155120.C18424@eng2.beaverton.ibm.com> <20020917155201.D18424@eng2.beaverton.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20020917155232.E18424@eng2.beaverton.ibm.com>; from patman on Tue, Sep 17, 2002 at 03:52:32PM -0700
+In-Reply-To: <20020917155201.D18424@eng2.beaverton.ibm.com>; from patman on Tue, Sep 17, 2002 at 03:52:01PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch to add 2.5 and/or multi-path support to the qla v6b5 adapter driver.
+Patches to scsi adapter drivers (scsi low level drivers) to simplify and
+enable the addition of scsi multi-path IO support.
 
-Requires the qla source - this is _not_ a patch for the mainline kernel.
+This does not add multi-path support, it adds changes that simplify the
+addition of the actual scsi multi-path code.
 
-Requires the scsi base changes.
+Only the adapters that have been run with the multi-path patch are
+included here. Other adpaters will likely fail compilation.
 
-Most of this is renaming the makefile, and creating a simple makefile
-(thanks mikeand) that can easily be used with kbuild 2.5.
+This includes a change to the qlogicfc.c driver to flush all SCSI commands
+on a loop down, so that driver is more functional with the multi-path
+patch (when patched on top of this patch).
 
-Download the qla v6b5 tar file, untar, create a src dir, untar the qla
-source (yes it is a tar file within a tar file) into a directory named
-something/src, and apply this patch.
+ aic7xxx/aic7xxx_linux.c |   28 +++++++++++++++-----------
+ ips.c                   |    7 +++++-
+ qlogicfc.c              |   51 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 73 insertions(+), 13 deletions(-)
 
-To build as a module, cd to-your-kernel-source-with-mpath-patch and run:
-
-	make SUBDIRS=/something/src/
-
-
- makefile        |  151 ++--------------------------------------------------
- makefile-orig   |  162 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- qla2x00.c       |   45 ++++++++++++---
- qla2x00_ioctl.c |    7 ++
- 4 files changed, 210 insertions(+), 155 deletions(-)
-
-diff -urN -X /home/patman/dontdiff src-orig/makefile src/makefile
---- src-orig/makefile	Tue Aug 20 02:43:18 2002
-+++ src/makefile	Thu Sep 12 15:39:54 2002
-@@ -1,162 +1,10 @@
--#
--# Makefile 1.5.1   April 30, 2002
--#
--#
--# 1. To make UP version of ISP2200 driver
--#  make qla2200.o 
--#
--# 2. To make UP version of ISP2300 driver
--#  make qla2300.o 
--#
--# 3. To make UP version of ISP2200 and ISP2300 drivers
--#  make all 
--#or 
--#  make 
--#
--# To make SMP version of any of the above drivers
--# append SMP=1 to one of the (3) make command lines above. 
--#  make ... SMP=1
--#
--# To make a new firmware file (FILE must be a *.c file of the fw object)
--#  make fw FILE2=2200tp.c
--#
-+# andmike's condensed makefile
-+# To use cd to the kernel source and type the following.
-+# make SUBDIRS=/path/to/here
- 
--DRIVER=qla2200.o qla2300.o 
-+CFLAGS_qla2200.o = -I$(TOPDIR)/drivers/scsi
-+CFLAGS_qla2300.o = -I$(TOPDIR)/drivers/scsi
- 
--FILE2=2200tp.h
--FILE3=2300tp.h
-+obj-m := qla2200.o qla2300.o
- 
--HOSTTYPE := $(shell uname -m)
--
--#
--# f/W include files
--FWFILE2=ql2200_fw.h
--FWFILE3=ql2300_fw.h
--FWFILE2IP=ql2200ip_fw.h
--FWFILE3IP=ql2300ip_fw.h
--
--# Comment/uncomment the following line to enable/disable debugging
--DEBUGFLAG=y
--HSG80=n
--
--QL_DEBUG=0x6
--
--OSVER=linux-2.4
--
--# Change it here or specify it on the "make" commandline
--#(new)INCLUDEDIR = /lib/modules/`uname -r`/build/include
--INCLUDEDIR = /usr/src/$(OSVER)/include
--
--ifeq ($(DEBUGFLAG),y)
--  DEBFLAGS = -O -g -DUDEBUG -DLINUX -Dlinux
--else
--  DEBFLAGS = -O2 -DLINUX -Dlinux
--endif
--
--CFLAGS = -D__KERNEL__ -DMODULE -Wall $(DEBFLAGS) -DINTAPI -DEXPORT_SYMTAB
--#CFLAGS = -D__KERNEL__ -DMODULE -Wall $(DEBFLAGS) -DEXPORT_SYMTAB
--
--ifeq ($(HSG80),y)
--CFLAGS += -DCOMPAQ
--endif
--
--
--# set MODVERSIONS if the kernel uses it
--VERSUSED = $(shell grep 'define CONFIG_MODVERSIONS' \
--           $(INCLUDEDIR)/linux/autoconf.h | wc -l | sed 's/ //g')
--VERSUSED = 1
--
--ifeq ($(VERSUSED),1)
--CFLAGS += -DMODVERSIONS -include $(INCLUDEDIR)/linux/modversions.h
--endif
--
--CFLAGS += -I$(INCLUDEDIR) -I$(INCLUDEDIR)/../drivers/scsi
--
--ifeq ($(HOSTTYPE),i386)
--CFLAGS += -Wall -Wstrict-prototypes -fomit-frame-pointer -fno-strength-reduce \
---pipe -malign-loops=2 -malign-jumps=2 -malign-functions=2 \
---DCONFIG_X86_LOCAL_APIC -fno-strict-aliasing -fno-common \
---mpreferred-stack-boundary=2 -march=i386
--endif
--
--ifeq ($(HOSTTYPE),i486)
--CFLAGS += -Wall -Wstrict-prototypes -fomit-frame-pointer -fno-strength-reduce \
---pipe -malign-loops=2 -malign-jumps=2 -malign-functions=2 \
---DCONFIG_X86_LOCAL_APIC -fno-strict-aliasing -fno-common \
---mpreferred-stack-boundary=2 -march=i486
--endif
--
--ifeq ($(HOSTTYPE),i586)
--CFLAGS += -Wall -Wstrict-prototypes -fomit-frame-pointer -fno-strength-reduce \
---pipe -malign-loops=2 -malign-jumps=2 -malign-functions=2 \
---DCONFIG_X86_LOCAL_APIC -fno-strict-aliasing -fno-common \
---mpreferred-stack-boundary=2 -march=i586
--endif
--
--ifeq ($(HOSTTYPE),i686)
--CFLAGS += -Wall -Wstrict-prototypes -fomit-frame-pointer -fno-strength-reduce \
---pipe -malign-loops=2 -malign-jumps=2 -malign-functions=2 \
---DCONFIG_X86_LOCAL_APIC -fno-strict-aliasing -fno-common \
---mpreferred-stack-boundary=2 -march=i686
--endif
--
--ifeq ($(HOSTTYPE),ia64)
--CFLAGS += -Wall -Wstrict-prototypes -fomit-frame-pointer -fno-strength-reduce \
---pipe -DWORD_FW_LOAD
--endif
--
--ifeq ($(HOSTTYPE),alpha)
--CFLAGS += -D__alpha__ \
---Wall -Wstrict-prototypes -fomit-frame-pointer -fno-strength-reduce \
---pipe  -fno-strict-aliasing -mno-fp-regs -ffixed-8 -mcpu=ev56 -Wa,-mev6
--endif
--
--ifeq ("1","$(IP)")
--CFLAGS += -DFC_IP_SUPPORT  
--endif
--
--ifeq ("1","$(SMP)")
--CFLAGS += -D__SMP__  -DCONFIG_SMP  
--endif
--
--COFLAGS = -kv
--
--MPATH = /lib/modules
--
--SRC_FILES=qla_settings.h qla2x00.h qla2x00.c qla_cfg.c qla_cfg.h qla_cfgln.c \
--qla_fo.h qla_fo.c qlfo.h qla2x00_ioctl.c qla_inioct.c \
--qla_mbx.c qla_mbx.h qla_debug.h	qla_version.h makefile qla_ip.c qla_ip.h
--
--#
--# Where is all starts..
--#
--# -- default is always first.
--default: $(DRIVER)
--
--all:	$(DRIVER)
--
--clean: 
--	rm -f $(DRIVER)
--
--install: $(DRIVER)
--	REL=`uname -r | \
--	  sed -e 's/.*\"\(.*\)\".*/\1/'` ; \
--	cp -p $(DRIVER) /lib/modules/$$REL/kernel/drivers/scsi
--
--fw:
--	mv $(FILE2) $(FWFILE2)
--	mv $(FILE3) $(FWFILE3)
--
--qla2100.o  : $(SRC_FILES)
--	$(CC) $(CFLAGS) -c qla2100.c -o $@
--
--qla2200.o  : $(SRC_FILES) $(FWFILE2)
--	$(CC) $(CFLAGS) -c qla2200.c -o $@
--
--qla2300.o  : $(SRC_FILES) $(FWFILE3)
--	$(CC) $(CFLAGS) -c qla2300.c -o $@
--
--# @echo "Editing file to produce -> [isp_fw.h]"
--# sh do_fw.sh $(FILE) cvtfw
--# @echo "Editing file to produce -> [isp1_fw.h]"
--# sh do_fw.sh $(FILE2) cvtfw22
-+include $(TOPDIR)/Rules.make
-diff -urN -X /home/patman/dontdiff src-orig/makefile-orig src/makefile-orig
---- src-orig/makefile-orig	Wed Dec 31 16:00:00 1969
-+++ src/makefile-orig	Tue Aug 20 02:43:18 2002
-@@ -0,0 +1,162 @@
-+#
-+# Makefile 1.5.1   April 30, 2002
-+#
-+#
-+# 1. To make UP version of ISP2200 driver
-+#  make qla2200.o 
-+#
-+# 2. To make UP version of ISP2300 driver
-+#  make qla2300.o 
-+#
-+# 3. To make UP version of ISP2200 and ISP2300 drivers
-+#  make all 
-+#or 
-+#  make 
-+#
-+# To make SMP version of any of the above drivers
-+# append SMP=1 to one of the (3) make command lines above. 
-+#  make ... SMP=1
-+#
-+# To make a new firmware file (FILE must be a *.c file of the fw object)
-+#  make fw FILE2=2200tp.c
-+#
-+
-+DRIVER=qla2200.o qla2300.o 
-+
-+FILE2=2200tp.h
-+FILE3=2300tp.h
-+
-+HOSTTYPE := $(shell uname -m)
-+
-+#
-+# f/W include files
-+FWFILE2=ql2200_fw.h
-+FWFILE3=ql2300_fw.h
-+FWFILE2IP=ql2200ip_fw.h
-+FWFILE3IP=ql2300ip_fw.h
-+
-+# Comment/uncomment the following line to enable/disable debugging
-+DEBUGFLAG=y
-+HSG80=n
-+
-+QL_DEBUG=0x6
-+
-+OSVER=linux-2.4
-+
-+# Change it here or specify it on the "make" commandline
-+#(new)INCLUDEDIR = /lib/modules/`uname -r`/build/include
-+INCLUDEDIR = /usr/src/$(OSVER)/include
-+
-+ifeq ($(DEBUGFLAG),y)
-+  DEBFLAGS = -O -g -DUDEBUG -DLINUX -Dlinux
-+else
-+  DEBFLAGS = -O2 -DLINUX -Dlinux
-+endif
-+
-+CFLAGS = -D__KERNEL__ -DMODULE -Wall $(DEBFLAGS) -DINTAPI -DEXPORT_SYMTAB
-+#CFLAGS = -D__KERNEL__ -DMODULE -Wall $(DEBFLAGS) -DEXPORT_SYMTAB
-+
-+ifeq ($(HSG80),y)
-+CFLAGS += -DCOMPAQ
-+endif
-+
-+
-+# set MODVERSIONS if the kernel uses it
-+VERSUSED = $(shell grep 'define CONFIG_MODVERSIONS' \
-+           $(INCLUDEDIR)/linux/autoconf.h | wc -l | sed 's/ //g')
-+VERSUSED = 1
-+
-+ifeq ($(VERSUSED),1)
-+CFLAGS += -DMODVERSIONS -include $(INCLUDEDIR)/linux/modversions.h
-+endif
-+
-+CFLAGS += -I$(INCLUDEDIR) -I$(INCLUDEDIR)/../drivers/scsi
-+
-+ifeq ($(HOSTTYPE),i386)
-+CFLAGS += -Wall -Wstrict-prototypes -fomit-frame-pointer -fno-strength-reduce \
-+-pipe -malign-loops=2 -malign-jumps=2 -malign-functions=2 \
-+-DCONFIG_X86_LOCAL_APIC -fno-strict-aliasing -fno-common \
-+-mpreferred-stack-boundary=2 -march=i386
-+endif
-+
-+ifeq ($(HOSTTYPE),i486)
-+CFLAGS += -Wall -Wstrict-prototypes -fomit-frame-pointer -fno-strength-reduce \
-+-pipe -malign-loops=2 -malign-jumps=2 -malign-functions=2 \
-+-DCONFIG_X86_LOCAL_APIC -fno-strict-aliasing -fno-common \
-+-mpreferred-stack-boundary=2 -march=i486
-+endif
-+
-+ifeq ($(HOSTTYPE),i586)
-+CFLAGS += -Wall -Wstrict-prototypes -fomit-frame-pointer -fno-strength-reduce \
-+-pipe -malign-loops=2 -malign-jumps=2 -malign-functions=2 \
-+-DCONFIG_X86_LOCAL_APIC -fno-strict-aliasing -fno-common \
-+-mpreferred-stack-boundary=2 -march=i586
-+endif
-+
-+ifeq ($(HOSTTYPE),i686)
-+CFLAGS += -Wall -Wstrict-prototypes -fomit-frame-pointer -fno-strength-reduce \
-+-pipe -malign-loops=2 -malign-jumps=2 -malign-functions=2 \
-+-DCONFIG_X86_LOCAL_APIC -fno-strict-aliasing -fno-common \
-+-mpreferred-stack-boundary=2 -march=i686
-+endif
-+
-+ifeq ($(HOSTTYPE),ia64)
-+CFLAGS += -Wall -Wstrict-prototypes -fomit-frame-pointer -fno-strength-reduce \
-+-pipe -DWORD_FW_LOAD
-+endif
-+
-+ifeq ($(HOSTTYPE),alpha)
-+CFLAGS += -D__alpha__ \
-+-Wall -Wstrict-prototypes -fomit-frame-pointer -fno-strength-reduce \
-+-pipe  -fno-strict-aliasing -mno-fp-regs -ffixed-8 -mcpu=ev56 -Wa,-mev6
-+endif
-+
-+ifeq ("1","$(IP)")
-+CFLAGS += -DFC_IP_SUPPORT  
-+endif
-+
-+ifeq ("1","$(SMP)")
-+CFLAGS += -D__SMP__  -DCONFIG_SMP  
-+endif
-+
-+COFLAGS = -kv
-+
-+MPATH = /lib/modules
-+
-+SRC_FILES=qla_settings.h qla2x00.h qla2x00.c qla_cfg.c qla_cfg.h qla_cfgln.c \
-+qla_fo.h qla_fo.c qlfo.h qla2x00_ioctl.c qla_inioct.c \
-+qla_mbx.c qla_mbx.h qla_debug.h	qla_version.h makefile qla_ip.c qla_ip.h
-+
-+#
-+# Where is all starts..
-+#
-+# -- default is always first.
-+default: $(DRIVER)
-+
-+all:	$(DRIVER)
-+
-+clean: 
-+	rm -f $(DRIVER)
-+
-+install: $(DRIVER)
-+	REL=`uname -r | \
-+	  sed -e 's/.*\"\(.*\)\".*/\1/'` ; \
-+	cp -p $(DRIVER) /lib/modules/$$REL/kernel/drivers/scsi
-+
-+fw:
-+	mv $(FILE2) $(FWFILE2)
-+	mv $(FILE3) $(FWFILE3)
-+
-+qla2100.o  : $(SRC_FILES)
-+	$(CC) $(CFLAGS) -c qla2100.c -o $@
-+
-+qla2200.o  : $(SRC_FILES) $(FWFILE2)
-+	$(CC) $(CFLAGS) -c qla2200.c -o $@
-+
-+qla2300.o  : $(SRC_FILES) $(FWFILE3)
-+	$(CC) $(CFLAGS) -c qla2300.c -o $@
-+
-+# @echo "Editing file to produce -> [isp_fw.h]"
-+# sh do_fw.sh $(FILE) cvtfw
-+# @echo "Editing file to produce -> [isp1_fw.h]"
-+# sh do_fw.sh $(FILE2) cvtfw22
-diff -urN -X /home/patman/dontdiff src-orig/qla2x00.c src/qla2x00.c
---- src-orig/qla2x00.c	Tue Aug 20 02:43:18 2002
-+++ src/qla2x00.c	Thu Sep 12 15:41:53 2002
-@@ -2153,7 +2153,7 @@
- 	struct Scsi_Host *host = ha->host;
- 
- 	host->can_queue = max_srbs;  /* default value:-MAX_SRBS(4096)  */
--	host->cmd_per_lun = 1;
-+	host->cmd_per_lun = 16;
- 	host->select_queue_depths = qla2x00_select_queue_depth;
- 	host->n_io_port = 0xFF;
- 
-@@ -3785,6 +3785,7 @@
- 	 */
- 
- #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,9)
-+#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,5,33)
- 	/* As mentioned in kernel/sched.c(RA).....
- 	 * Reparent the calling kernel thread to the init task.
- 	 * 
-@@ -3801,6 +3802,7 @@
- 	 */
- 	reparent_to_init();
- #endif
-+#endif
- 
- 	/*
- 	 * Set the name of this process.
-@@ -4235,7 +4237,12 @@
- 		if (!(ql2xmaxqdepth == 0 || ql2xmaxqdepth > 256))
- 			device->queue_depth = ql2xmaxqdepth;
- #endif
--
-+#ifdef CONFIG_SCSI_MULTI_PATH_IO
-+		printk(KERN_INFO "Enabled tagged queuing, queue depth %d for ",
-+			device->queue_depth);
-+		scsi_paths_printk(device, " ", "<%d:%d:%d:%d>");
-+		printk("\n");
-+#else
- 		printk(KERN_INFO
- 			"scsi(%d:%d:%d:%d): Enabled tagged queuing, "
- 			"queue depth %d.\n",
-@@ -4244,6 +4251,7 @@
- 			device->id,
- 			device->lun, 
- 			device->queue_depth);
-+#endif
- 	}
- 
- }
-@@ -4260,15 +4268,18 @@
- qla2x00_select_queue_depth(struct Scsi_Host *host, Scsi_Device *scsi_devs)
- {
- 	Scsi_Device *device;
-+#ifdef CONFIG_SCSI_MULTI_PATH_IO
+diff -Nru a/drivers/scsi/aic7xxx/aic7xxx_linux.c b/drivers/scsi/aic7xxx/aic7xxx_linux.c
+--- a/drivers/scsi/aic7xxx/aic7xxx_linux.c	Mon Sep 16 15:29:45 2002
++++ b/drivers/scsi/aic7xxx/aic7xxx_linux.c	Mon Sep 16 15:29:45 2002
+@@ -1457,15 +1457,14 @@
+ 	struct	ahc_softc *ahc;
+ 	u_long	flags;
+ 	int	scbnum;
 +	scsi_traverse_hndl_t strav_hndl;
-+#endif
- 	scsi_qla_host_t  *p = (scsi_qla_host_t *) host->hostdata;
  
- 	ENTER("qla2x00_select_queue_depth");
--
+ 	ahc = *((struct ahc_softc **)host->hostdata);
+ 	ahc_lock(ahc, &flags);
+ 	scbnum = 0;
 -	for (device = scsi_devs; device != NULL; device = device->next) {
--		if (device->host == host)
--			qla2x00_device_queue_depth(p, device);
--	}
--
-+#ifdef CONFIG_SCSI_MULTI_PATH_IO
-+	scsi_for_each_host_sdev(&strav_hndl, device, host->host_no)
-+#else
-+	for (device = scsi_devs; device != NULL; device = device->sdev_next)
-+#endif
-+		qla2x00_device_queue_depth(p, device);
- 	LEAVE("qla2x00_select_queue_depth");
- }
- 
-@@ -15502,9 +15513,23 @@
- 		unsigned int cmd, unsigned long arg) 
- {
- 	Scsi_Device fake_scsi_device;
-+	int ret;
-+
-+#ifdef CONFIG_SCSI_MULTI_PATH_IO
-+	if (scsi_add_path(&fake_scsi_device, apidev_host, 0,
-+		apidev_host->this_id, 0))
-+	return -ENODEV;
-+#else
- 	fake_scsi_device.host = apidev_host;
-+#endif
- 
--	return (qla2x00_ioctl(&fake_scsi_device, (int)cmd, (void*)arg));
-+	ret = qla2x00_ioctl(&fake_scsi_device, (int)cmd, (void*)arg);
-+#ifdef CONFIG_SCSI_MULTI_PATH_IO
-+	scsi_remove_path(&fake_scsi_device, SCSI_FIND_ALL_HOST_NO,
-+			 SCSI_FIND_ALL_CHANNEL, SCSI_FIND_ALL_ID,
-+			 SCSI_FIND_ALL_LUN);
-+#endif
-+	return ret;
- }
- 
- static struct file_operations apidev_fops = {
-@@ -15540,7 +15565,7 @@
- 			APIDEV_NODE, apidev_major);)
- 
- 	proc_mknod(APIDEV_NODE, 0777+S_IFCHR, host->hostt->proc_dir,
--			(kdev_t)MKDEV(apidev_major, 0));
-+			(kdev_t)mk_kdev(apidev_major, 0));
- 
- 	return 0;
- }
-diff -urN -X /home/patman/dontdiff src-orig/qla2x00_ioctl.c src/qla2x00_ioctl.c
---- src-orig/qla2x00_ioctl.c	Tue Aug 20 02:43:18 2002
-+++ src/qla2x00_ioctl.c	Wed Sep  4 17:19:14 2002
-@@ -237,8 +237,13 @@
- 	if (_IOC_TYPE(cmd) != QLMULTIPATH_MAGIC) {
- 		return (-EINVAL);
+-		if (device->host == host) {
+-			ahc_linux_device_queue_depth(ahc, device);
+-			scbnum += device->queue_depth;
+-		}
++	scsi_for_each_host_sdev(&strav_hndl, device, host->host_no) {
++		ahc_linux_device_queue_depth(ahc, device);
++		scbnum += device->queue_depth;
  	}
--
-+#ifdef CONFIG_SCSI_MULTI_PATH_IO
-+	host = scsi_get_host(dev);
-+	if (host == NULL) 
-+		return EXT_STATUS_ERR;
-+#else
- 	host = dev->host;
-+#endif
- 	ha = (scsi_qla_host_t *) host->hostdata; /* midlayer chosen instance */
+ 	ahc_unlock(ahc, &flags);
+ }
+@@ -1480,11 +1479,14 @@
+ 	struct	ahc_initiator_tinfo *targ_info;
+ 	struct	ahc_tmode_tstate *tstate;
+ 	uint8_t tags;
++	struct scsi_path_id scsi_path;
++
++	scsi_get_path(device, &scsi_path);
  
- 	ret = verify_area(VERIFY_READ, (void *)arg, sizeof(EXT_IOCTL));
+ 	ahc_compile_devinfo(&devinfo,
+-			    device->channel == 0 ? ahc->our_id : ahc->our_id_b,
+-			    device->id, device->lun,
+-			    device->channel == 0 ? 'A' : 'B',
++			    scsi_path.spi_channel == 0 ? ahc->our_id : ahc->our_id_b,
++			    scsi_path.spi_id, scsi_path.spi_lun,
++			    scsi_path.spi_channel == 0 ? 'A' : 'B',
+ 			    ROLE_INITIATOR);
+ 	targ_info = ahc_fetch_transinfo(ahc, devinfo.channel,
+ 					devinfo.our_scsiid,
+@@ -1515,8 +1517,8 @@
+ 		device->queue_depth = tags;
+ 		ahc_set_tags(ahc, &devinfo, AHC_QUEUE_TAGGED);
+ 		printf("scsi%d:%c:%d:%d: Tagged Queuing enabled.  Depth %d\n",
+-	       	       ahc->platform_data->host->host_no, device->channel + 'A',
+-		       device->id, device->lun, tags);
++	       	       ahc->platform_data->host->host_no, scsi_path.spi_channel + 'A',
++		       scsi_path.spi_id, scsi_path.spi_lun, tags);
+ 	} else {
+ 		/*
+ 		 * We allow the OS to queue 2 untagged transactions to
+@@ -2735,8 +2737,10 @@
+ 	int	extended;
+ 	struct	ahc_softc *ahc;
+ 	unsigned char *buf;
++	struct scsi_path_id scsi_path;
+ 
+-	ahc = *((struct ahc_softc **)disk->device->host->hostdata);
++	scsi_get_path(disk->device, &scsi_path);
++	ahc = *((struct ahc_softc **)scsi_path.spi_shpnt->hostdata);
+ 	buf = scsi_bios_ptable(bdev);
+ 
+ 	if (buf) {
+@@ -2752,7 +2756,7 @@
+ 
+ 	if (aic7xxx_extended != 0)
+ 		extended = 1;
+-	else if (disk->device->channel == 0)
++	else if (scsi_path.spi_channel == 0)
+ 		extended = (ahc->flags & AHC_EXTENDED_TRANS_A) != 0;
+ 	else
+ 		extended = (ahc->flags & AHC_EXTENDED_TRANS_B) != 0;
+diff -Nru a/drivers/scsi/ips.c b/drivers/scsi/ips.c
+--- a/drivers/scsi/ips.c	Mon Sep 16 15:29:45 2002
++++ b/drivers/scsi/ips.c	Mon Sep 16 15:29:45 2002
+@@ -1858,10 +1858,15 @@
+    int               heads;
+    int               sectors;
+    int               cylinders;
++   struct Scsi_Host *host;
+ 
+    METHOD_TRACE("ips_biosparam", 1);
+ 
+-   ha = (ips_ha_t *) disk->device->host->hostdata;
++   host = scsi_get_host(disk->device);
++   if (host == NULL)
++      return (0);
++
++   ha = (ips_ha_t *) host->hostdata;
+ 
+    if (!ha)
+       /* ?!?! host adater info invalid */
+diff -Nru a/drivers/scsi/qlogicfc.c b/drivers/scsi/qlogicfc.c
+--- a/drivers/scsi/qlogicfc.c	Mon Sep 16 15:29:45 2002
++++ b/drivers/scsi/qlogicfc.c	Mon Sep 16 15:29:45 2002
+@@ -679,6 +679,8 @@
+ static void isp2x00_print_status_entry(struct Status_Entry *);
+ #endif
+ 
++static void do_isp2x00_flush_all_SCSI_cmds(unsigned long arg);
++
+ static inline void isp2x00_enable_irqs(struct Scsi_Host *host)
+ {
+ 	outw(ISP_EN_INT | ISP_EN_RISC, host->io_port + PCI_INTER_CTL);
+@@ -1154,6 +1156,13 @@
+ 
+ 	DEBUG(isp2x00_print_scsi_cmd(Cmnd));
+ 
++	if (hostdata->adapter_state == AS_LOOP_DOWN) {
++		Cmnd->result = DID_NO_CONNECT << 16;
++		if (Cmnd->scsi_done)
++			(*Cmnd->scsi_done) (Cmnd);
++		return 0;
++	}
++
+ 	if (hostdata->adapter_state & AS_REDO_FABRIC_PORTDB || hostdata->adapter_state & AS_REDO_LOOP_PORTDB) {
+ 		isp2x00_make_portdb(host);
+ 		hostdata->adapter_state = AS_LOOP_GOOD;
+@@ -1469,6 +1478,7 @@
+ 		case LOOP_DOWN:
+ 		        printk("qlogicfc%d : Link is Down\n", hostdata->host_id);
+ 			hostdata->adapter_state = AS_LOOP_DOWN;
++			do_isp2x00_flush_all_SCSI_cmds((unsigned long) host);
+ 			break;
+ 		case CONNECTION_MODE:
+ 		        printk("received CONNECTION_MODE irq %x\n", inw(host->io_port + MBOX1));
+@@ -2222,6 +2232,47 @@
+ }
+ 
+ #endif				/* DEBUG_ISP2x00 */
++
++/*
++ * Flush all SCSI commands we have.
++ */
++void do_isp2x00_flush_all_SCSI_cmds(unsigned long arg)
++{
++        struct Scsi_Host * host = (struct Scsi_Host *) arg;
++	struct isp2x00_hostdata * hostdata;
++	int i;
++
++	hostdata = (struct isp2x00_hostdata *) host->hostdata;
++
++	printk("qlogicfc%d : Flushing all SCSI commands?\n", hostdata->host_id);
++	for (i = 0; i < QLOGICFC_REQ_QUEUE_LEN; i++){ 
++		if (hostdata->handle_ptrs[i] ){
++			Scsi_Cmnd *Cmnd = hostdata->handle_ptrs[i];
++
++			 if (Cmnd->use_sg)
++				 pci_unmap_sg(hostdata->pci_dev,
++					      (struct scatterlist *)Cmnd->buffer,
++					      Cmnd->use_sg,
++					      scsi_to_pci_dma_dir(Cmnd->sc_data_direction));
++			 else if (Cmnd->request_bufflen &&
++				  Cmnd->sc_data_direction != PCI_DMA_NONE) {
++				 pci_unmap_page(hostdata->pci_dev,
++						Cmnd->SCp.dma_handle,
++						Cmnd->request_bufflen,
++						scsi_to_pci_dma_dir(Cmnd->sc_data_direction));
++			 }
++
++			 Cmnd->result = DID_NO_CONNECT << 16;
++
++			 if (Cmnd->scsi_done){
++			   (*Cmnd->scsi_done) (Cmnd);
++			 }
++			 else printk("qlogicfc%d : done is null?\n", hostdata->host_id);
++			 hostdata->handle_ptrs[i] = NULL;
++			 hostdata->handle_serials[i] = 0;
++		}
++	}
++}
+ 
+ MODULE_LICENSE("GPL");
+ 

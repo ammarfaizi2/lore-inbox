@@ -1,38 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315419AbSELUqe>; Sun, 12 May 2002 16:46:34 -0400
+	id <S315420AbSELUx7>; Sun, 12 May 2002 16:53:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315421AbSELUqd>; Sun, 12 May 2002 16:46:33 -0400
-Received: from mail.cert.uni-stuttgart.de ([129.69.16.17]:34218 "HELO
-	Mail.CERT.Uni-Stuttgart.DE") by vger.kernel.org with SMTP
-	id <S315419AbSELUqd>; Sun, 12 May 2002 16:46:33 -0400
-To: linux-kernel@vger.kernel.org
-Subject: swap_dup/swap_free: Bad swap file entry
-From: Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>
-Date: Sun, 12 May 2002 22:45:44 +0200
-Message-ID: <87held2iyv.fsf@CERT.Uni-Stuttgart.DE>
-User-Agent: Gnus/5.090006 (Oort Gnus v0.06) Emacs/21.1 (i686-pc-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S315421AbSELUx6>; Sun, 12 May 2002 16:53:58 -0400
+Received: from mailhost2.teleline.es ([195.235.113.141]:62544 "EHLO
+	tsmtp5.mail.isp") by vger.kernel.org with ESMTP id <S315420AbSELUx5>;
+	Sun, 12 May 2002 16:53:57 -0400
+Date: Sun, 12 May 2002 22:57:24 +0200
+From: Diego Calleja <DiegoCG@teleline.es>
+To: Andi Kleen <ak@muc.de>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] CONFIG_ISA
+Message-Id: <20020512225724.232357b3.DiegoCG@teleline.es>
+In-Reply-To: <20020512203615.A12612@averell>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What do these messages mean?  That something is terribly hosed?
+On Sun, 12 May 2002 20:36:15 +0200
+Andi Kleen <ak@muc.de> escribió:
 
-swap_dup: Bad swap file entry 1842b040
-VM: killing process cc1
-swap_free: Bad swap file entry 1dab3064
-swap_free: Bad swap file entry 1842b040
-swap_free: Bad swap file entry 18429040
-swap_free: Bad swap file entry 31d7303c
-swap_free: Bad swap offset entry 31d71000
+> 
+> This patch make CONFIG_ISA an configuration option for i386. This makes
+> sense considering that most PCs do not ship with ISA slots anymore.
 
-(This is from a UP 2.4.18 kernel with XFS 1.1 patches.)
+Sorry for my ignorance, but the typical conectors: mouse, keyboard, /dev/ttyS0, /dev/ttyS1, /dev/lp0...aren't isa devices?
 
-Is this caused by a hardware defect (broken IDE interface, maybe; in
-our case VIA vt8233)?
 
--- 
-Florian Weimer 	                  Weimer@CERT.Uni-Stuttgart.DE
-University of Stuttgart           http://CERT.Uni-Stuttgart.DE/people/fw/
-RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898
+> 
+> The ISA drivers are often old and unmaintained, this way one can easier
+> ignore them.
+> 
+> It also makes some more drivers dependent on CONFIG_ISA, mostly
+> in drivers/scsi and sound. I did this by looking at the source code
+> and double checked the result with linux-kernel.
+> 
+> VLB only drivers are also included in CONFIG_ISA, under the assumption
+> that VLB boxes always have ISA slots. 
+> 
+> The configuration changes are not complete, some subsystems are missing
+> like ISDN. I'm hoping the maintainers will add it there too.
+> 
+> The main motivation is that I can turn off CONFIG_ISA for x86-64 where
+> no ISA slots exist. The ISA drivers are often not 64bit safe and compile
+> with an incredible number of warnings only.
+> 
+> Patch for 2.5.15. 
+> 
+> -Andi

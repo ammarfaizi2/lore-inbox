@@ -1,106 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268486AbUJTQ3X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268674AbUJTQkB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268486AbUJTQ3X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 12:29:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267362AbUJTQ2A
+	id S268674AbUJTQkB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 12:40:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268609AbUJTQjJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 12:28:00 -0400
-Received: from fire.osdl.org ([65.172.181.4]:36486 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S268486AbUJTQRf (ORCPT
+	Wed, 20 Oct 2004 12:39:09 -0400
+Received: from mxfep02.bredband.com ([195.54.107.73]:2272 "EHLO
+	mxfep02.bredband.com") by vger.kernel.org with ESMTP
+	id S268660AbUJTQh5 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 12:17:35 -0400
-Message-ID: <41768D60.3090305@osdl.org>
-Date: Wed, 20 Oct 2004 09:08:00 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
+	Wed, 20 Oct 2004 12:37:57 -0400
+To: Pavel Machek <pavel@ucw.cz>
+Cc: "Yu, Luming" <luming.yu@intel.com>, linux-kernel@vger.kernel.org
+Subject: Re: High pitched noise from laptop: processor.c in linux 2.6
+References: <3ACA40606221794F80A5670F0AF15F8405D3BF5B@pdsmsx403>
+	<20041018114109.GC4400@openzaurus.ucw.cz>
+	<yw1xekjt4fa8.fsf@mru.ath.cx> <20041020154718.GD26439@elf.ucw.cz>
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@mru.ath.cx>
+Date: Wed, 20 Oct 2004 18:37:42 +0200
+In-Reply-To: <20041020154718.GD26439@elf.ucw.cz> (Pavel Machek's message of
+ "Wed, 20 Oct 2004 17:47:18 +0200")
+Message-ID: <yw1x65554a7d.fsf@mru.ath.cx>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
 MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-CC: Andrew Morton <akpm@osdl.org>, Geert Uytterhoeven <geert@linux-m68k.org>,
-       davej@redhat.com, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] __init dependencies: ignore __param
-References: <24112.1097561162@kao2.melbourne.sgi.com>
-In-Reply-To: <24112.1097561162@kao2.melbourne.sgi.com>
-Content-Type: multipart/mixed;
- boundary="------------090507000707090204050906"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090507000707090204050906
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+Pavel Machek <pavel@ucw.cz> writes:
 
-Keith Owens wrote:
-> 
-> 
-> They may only be OK because the code is never run more than once.
-> Normal code that refers to data.*init and is run more than once is a
-> bug just waiting to bite you.
-> 
-> Andrew - small fix for reference_init.pl, against 2.6.9-rc4.
-> 
-> ------------------------------------------------------------
-> 
-> Treat .pci_fixup entries the same as .init code/data.
-> 
-> Signed off by: Keith Owens <kaos@ocs.com.au>
-> 
-> Index: linux/scripts/reference_init.pl
-> ===================================================================
-> --- linux.orig/scripts/reference_init.pl	Sat Aug 14 15:37:37 2004
-> +++ linux/scripts/reference_init.pl	Tue Oct 12 15:59:39 2004
-> @@ -93,6 +93,8 @@ foreach $object (sort(keys(%object))) {
->  		     $from !~ /\.stab$/ &&
->  		     $from !~ /\.rodata$/ &&
->  		     $from !~ /\.text\.lock$/ &&
-> +		     $from !~ /\.pci_fixup_header$/ &&
-> +		     $from !~ /\.pci_fixup_final$/ &&
->  		     $from !~ /\.debug_/)) {
->  			printf("Error: %s %s refers to %s\n", $object, $from, $line);
->  		}
+> Hi!
+>
+>> >> >> ... and lose all the benefits of HZ=1000.  What would happen if one
+>> >> >> were to set HZ to a higher value, like 10000?
+>> >> 
+>> >> There is a similar issue filed on :
+>> >> http://bugzilla.kernel.org/show_bug.cgi?id=3406
+>> >> 
+>> >
+>> > He he, someone should write a driver to play music on
+>> > those capacitors....
+>> 
+>> Why not?  They used to have special files that played music on the
+>> printer when printed.
+>
+> Yes, it would be nice... to scare people :-). Also with such piece of
+> software it would be rather easy to tell if given mainboard is junk.
 
-Keith,
-
-It looks like __param section references can also be safely
-ignored by 'reference_init.pl', since they are not discarded AFAIK.
-Or am I wrong about that one?
-Patch attached -- applies on top of yours.
+I've noticed my laptop makes a slight noise whenever there's heavy
+network traffic.  Maybe that could be used to control the pitch even
+without a kernel hack.
 
 -- 
-~Randy
-
---------------090507000707090204050906
-Content-Type: text/x-patch;
- name="refer_param.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="refer_param.patch"
-
-
-Ignore __param section references; they aren't discarded.
-
-Error: ./drivers/mtd/devices/phram.o __param refers to 0000000000000010 R_X86_64_64       .init.text+0x0000000000000013
-Error: ./drivers/scsi/dc395x.o __param refers to 0000000000000020 R_X86_64_64       .init.data+0x0000000000000064
-Error: ./drivers/usb/gadget/ether.o __param refers to 0000000000000048 R_X86_64_64       .init.data+0x0000000000000020
-
-Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
-
-diffstat:=
- scripts/reference_init.pl |    1 +
- 1 files changed, 1 insertion(+)
-
-diff -Naurp ./scripts/reference_init.pl~refer_param ./scripts/reference_init.pl
---- ./scripts/reference_init.pl~refer_param	2004-10-20 08:39:44.976489696 -0700
-+++ ./scripts/reference_init.pl	2004-10-20 08:45:26.217613160 -0700
-@@ -95,6 +95,7 @@ foreach $object (sort(keys(%object))) {
- 		     $from !~ /\.text\.lock$/ &&
- 		     $from !~ /\.pci_fixup_header$/ &&
- 		     $from !~ /\.pci_fixup_final$/ &&
-+		     $from !~ /\__param$/ &&
- 		     $from !~ /\.debug_/)) {
- 			printf("Error: %s %s refers to %s\n", $object, $from, $line);
- 		}
-
---------------090507000707090204050906--
+Måns Rullgård
+mru@mru.ath.cx

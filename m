@@ -1,74 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267950AbRHATLN>; Wed, 1 Aug 2001 15:11:13 -0400
+	id <S267982AbRHATRm>; Wed, 1 Aug 2001 15:17:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267974AbRHATLC>; Wed, 1 Aug 2001 15:11:02 -0400
-Received: from lightning.hereintown.net ([207.196.96.3]:22241 "EHLO
-	lightning.hereintown.net") by vger.kernel.org with ESMTP
-	id <S267950AbRHATKt>; Wed, 1 Aug 2001 15:10:49 -0400
-Date: Wed, 1 Aug 2001 15:25:29 -0400 (EDT)
-From: Chris Meadors <clubneon@hereintown.net>
-To: Andreas Dilger <adilger@turbolinux.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Disk quotas not staying in sync?
-In-Reply-To: <200108011806.f71I6Ht1006946@webber.adilger.int>
-Message-ID: <Pine.LNX.4.31.0108011514410.4569-100000@rc.priv.hereintown.net>
+	id <S267975AbRHATRc>; Wed, 1 Aug 2001 15:17:32 -0400
+Received: from cs159246.pp.htv.fi ([213.243.159.246]:56936 "EHLO
+	porkkala.cs159246.pp.htv.fi") by vger.kernel.org with ESMTP
+	id <S267974AbRHATR1>; Wed, 1 Aug 2001 15:17:27 -0400
+Message-ID: <3B68557B.7816FE4B@pp.htv.fi>
+Date: Wed, 01 Aug 2001 22:16:11 +0300
+From: Jussi Laako <jlaako@pp.htv.fi>
+X-Mailer: Mozilla 4.76 [en] (Win98; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Russell King <rmk@arm.linux.org.uk>
+CC: Per Jessen <per.jessen@enidan.com>, linux-kernel@vger.kernel.org,
+        linux-laptop@vger.kernel.org
+Subject: Re: PCMCIA control I82365 stops working with 2.4.4
+In-Reply-To: <3B5D8A0A002D181A@mta2n.bluewin.ch> <20010801114105.A26615@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Aug 2001, Andreas Dilger wrote:
+Russell King wrote:
+> 
+> Use the yenta module instead of the i82365 module.
 
-> Maybe the problem is caused by root/admin deleting another users files?
+Kills (deadlocks) my Toshiba Satellite when loaded as module (complains
+about missing interrupts). When built into kernel it just complains but
+doesn't lockup the machine.
 
-I thought of that first.  But the techs that were deleting mail were
-actually `su`ing to the user and using pine to delete the messages.  So I
-was wondering if pine was doing something strange.  But since we use
-Maildirs when I was cleaning up an account I just `rm`ed their e-mails and
-still ended up seeing the same problem.
+Older kernels/pcmcia-cs i82365 was working fine. (2.2.x and early 2.4.x)
 
-> Do you run quotacheck at boot time?  It is possible with ext2 that the
-> on-disk quotas are not in sync with the actual files if there is a crash.
-> If you use ext3 then the quota updates and other filesystem updates are
-> kept atomic.
+I should have stayed with RedHat 6.2, but I wanted journaling filesystem...
 
-I have run quotacheck once at boot to see if it would help.  It got the
-stuff in sync for a little while, but soon I started to see the same
-problem again.  quotacheck on a cold cache takes a LONG time to run.
+Maybe I'm doing something wrong but dunno what.
 
-So when is ext3 going in the kernel?  (ducks)  But really that is
-something I will look at.
+ - Jussi Laako
 
-> > Any ideas?  This machine is pretty much standard.  ext2 file systems on
-> > all partitions.  /home is the only one with user disk quotas.  Running
-> > 2.4.7 kernel (but I've seen it in all 2.4 kernels, I was running
-> > 2.4.0-prerelease on the machine when I first put it up, so I don't know
-> > how 2.2 works).
-
-One thing I forgot to mention about the machine, it is an SMP PIII box.  I
-was really meaning to say it was SMP cause that might be something to look
-at.
-
-> You should also try the -ac kernels.  I'm pretty sure that they have
-> some fixes to the quota code.  However, I _think_ the changes are not
-> compatible with the non-ac kernel quota on-disk data, so you will have
-> to re-build the quota files (a small price to pay if it actually works).
-
-Yeah, when I was first putting this machine together I recall seeing there
-was a new version of the quota utils and patches for the kernel to go with
-them.  And yes, the on disk data is different, that is if those are the
-patches Alan has in his kernel.
-
-Do you know if the ext3 patches play well with the -ac kernels?  Might as
-well try shooting myself in both feet while I'm at it.
-
-> Cheers, Andreas
-
-Thanks again,
-Chris
 -- 
-Two penguins were walking on an iceberg.  The first penguin said to the
-second, "you look like you are wearing a tuxedo."  The second penguin
-said, "I might be..."                         --David Lynch, Twin Peaks
-
+PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
+Available at PGP keyservers

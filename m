@@ -1,26 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262627AbRFDRN4>; Mon, 4 Jun 2001 13:13:56 -0400
+	id <S263674AbRFDAYc>; Sun, 3 Jun 2001 20:24:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263903AbRFDREo>; Mon, 4 Jun 2001 13:04:44 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:8926 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S263846AbRFDREg>; Mon, 4 Jun 2001 13:04:36 -0400
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200106041704.f54H4Yk32611@devserv.devel.redhat.com>
-Subject: Re: Dual AMD Palomino from Australia
-To: Dieter.Nuetzel@hamburg.de (Dieter =?iso-8859-1?q?N=FCtzel?=)
-Date: Mon, 4 Jun 2001 13:04:34 -0400 (EDT)
-Cc: alan@redhat.com (Alan Cox),
-        linux-kernel@vger.kernel.org (Linux Kernel List)
-In-Reply-To: <200106041647.f54Glgb02481@mail.redhat.com> from "Dieter =?iso-8859-1?q?N=FCtzel?=" at Jun 04, 2001 06:50:05 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S262058AbRFDAGP>; Sun, 3 Jun 2001 20:06:15 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:44041 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S263717AbRFCXzH>; Sun, 3 Jun 2001 19:55:07 -0400
+Date: Sun, 3 Jun 2001 16:55:00 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+cc: Akash Jain <aki.jain@stanford.edu>, alan@lxorguk.ukuu.org.uk,
+        linux-kernel@vger.kernel.org, su.class.cs99q@nntp.stanford.edu
+Subject: Re: [PATCH] fs/devfs/base.c
+In-Reply-To: <200105271321.f4RDLoM00342@mobilix.ras.ucalgary.ca>
+Message-ID: <Pine.LNX.4.21.0106031652090.32451-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> do you have an dual AMD 760MP based mobo, too?
 
-I dont
+On Sun, 27 May 2001, Richard Gooch wrote:
+> 
+> I absolutely don't want this patch applied. It's bogus. It is entirely
+> safe to alloc 1 kB on the stack in this code, since it has a short and
+> well-controlled code path from syscall entry to the function.
+
+IT IS NEVER EVER SAFE TO ALLOCATE 1kB OF STACK!
+
+Why?
+ - automatic checkers are wonderful, and we do not want to have "oh, in
+   this case it is magically ok" kinds of things.
+ - the kernel stack is 4kB, and _nobody_ has the right to eat up a
+   noticeable portion of it. It doesn't matter if you "know" your caller
+   or not: you do not know what interrupts happen during this time, and
+   how much stack they want.
+
+Ergo: the simple rule of "don't allocate big structures of the stack" is
+always a good rule, and making excuses for it is bad.
+
+		Linus
+

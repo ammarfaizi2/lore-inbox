@@ -1,95 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261273AbUBYT6P (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 14:58:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbUBYT6P
+	id S261282AbUBYUB3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 15:01:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261398AbUBYUB3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 14:58:15 -0500
-Received: from mtaw6.prodigy.net ([64.164.98.56]:16614 "EHLO mtaw6.prodigy.net")
-	by vger.kernel.org with ESMTP id S261273AbUBYT6H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 14:58:07 -0500
-Message-ID: <403CFE48.8090009@matchmail.com>
-Date: Wed, 25 Feb 2004 11:58:00 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040209)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Grigor Gatchev <grigor@zadnik.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: A Layered Kernel: Proposal
-References: <Pine.LNX.4.44.0402251112180.16939-100000@lugburz.zadnik.org>
-In-Reply-To: <Pine.LNX.4.44.0402251112180.16939-100000@lugburz.zadnik.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 25 Feb 2004 15:01:29 -0500
+Received: from pfepa.post.tele.dk ([195.41.46.235]:12838 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S261282AbUBYUB1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 15:01:27 -0500
+Date: Wed, 25 Feb 2004 22:03:05 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] kbuild: add defconfig targets to make help
+Message-ID: <20040225210305.GA6445@mars.ravnborg.org>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grigor Gatchev wrote:
-> 
-> On Tue, 24 Feb 2004, Mike Fedyk wrote:
->>Not true.  What you are asking for is userspace protection to kernel
->>modules.  You won't get that unless you use a micro-kernel approach, or
->>run different parts of the kernel on different (to be i386 arch
->>specific) ring in the processor.  Once you get there, you have to deal
->>with the various processor errata since not many OSes use rings besides
->>0 and 3 (maybe ring 1?).
-> 
-> 
-> These are two possible approaches. Still another is to have the lowest
-> layer export functions for memory handling - thus only the lowest layer
-> will have to run in ring 0 (almost all arch that support Linux have a
-> corresponding ability), and will handle the protection requests from the
-> upper layers... Other approaches exist, too. A discussion may help to
-> clarify which is the best.
-> 
+Hi Linus & Andrew - please apply.
 
-And you get an effective "context switch" even if you're not crossing 
-process boundaries.  (it could be argued that different layers on 
-seperate rings are effectively now a "process"...)
+List all entries in arch/$(ARCH)/configs/*_defconfig when
+doing 'make help'.
 
-> 
->>>User nesting: The traditional Unix user management model has two levels:
->>>superuser (root) and subusers (ordinary users). Subusers cannot create
->>>and administrate their subusers, install system-level resources, etc.
->>>Running, however, a subuser in their own virtual machine and Personality
->>>layer as its root, will allow tree-like management of users and resources
->>>usage/access. (Imagine a much enhanced chroot.)
->>
->>That is differing security models, and it's being worked on with (I
->>forget the term) the security module framework.
-> 
-> 
-> Within a layered kernel scheme, this tree-like model is very natural and
-> simple: all protection is provided by the standard kernel mechanisms. Of
-> course, it maybe can be improved; that is what the discussion is for.
-> 
-> 
->>>Platforming: It is much easier to write only a Personality layer than an
->>>entire kernel, esp. if you have a layer interface open standard as a
->>>base. Respectively, it's easier to write only a Resources layer, adding a
->>>new hardware to the "Supported by Linux" list. This will help increasing
->>>supported both hardware and platforms. Also, thus you may run any
->>>platform on any hardware, or many platforms concurrently on the same
->>>hardware.
->>
->>There is arch specific, and generic setions of the kernel source tree
->>already.  How do you want to improve upon that?
-> 
-> 
-> Currently, Linux supports (actually, is) only one, Unix-descended
-> platform. With a layered model, an emulator, eg. Wine, could be easily
-> rewritten as a Personality layer, and this would turn it instantly into
-> a free Windows. A modification of the Linux sofware and tools could
-> produce a free Solaris. Some people may like a free OS/2, QNX, VxWorks
-> etc. Other platforms will became easier to create and test, thus helping
-> the free software evolution. On most architectures, you will be able to
-> emulate another processor right in the kernel, either directly, or by a
-> code emulator: all other will go then much easier. Much more advantages
-> exist...
-> 
+Results in output like this (ppc64 as example):
 
-One way or another, you'd have to have a "personality".  With Linux 
-there is one in the kernel, and possibly many in userspace.  You won't 
-find many here that will agree it should be any other way.
+  g5_defconfig             - Build for g5
+  pSeries_defconfig        - Build for pSeries
 
+The implementation is generic and enables this for all users of _defconfig.
+
+	Sam
+
+===== Makefile 1.456 vs edited =====
+--- 1.456/Makefile	Sun Feb 15 03:42:40 2004
++++ edited/Makefile	Wed Feb 25 21:57:52 2004
+@@ -889,6 +889,9 @@
+ # Brief documentation of the typical targets used
+ # ---------------------------------------------------------------------------
+ 
++boards := $(wildcard $(srctree)/arch/$(ARCH)/configs/*_defconfig)
++boards := $(notdir $(boards))
++
+ help:
+ 	@echo  'Cleaning targets:'
+ 	@echo  '  clean		  - remove most generated files but keep the config'
+@@ -914,6 +917,11 @@
+ 	@$(if $(archhelp),$(archhelp),\
+ 		echo '  No architecture specific help defined for $(ARCH)')
+ 	@echo  ''
++	@$(if $(boards), \
++		$(foreach b, $(boards), \
++		printf "  %-24s - Build for %s\\n" $(b) $(subst _defconfig,,$(b));) \
++		echo '')
++	
+ 	@echo  '  make V=0|1 [targets] 0 => quiet build (default), 1 => verbose build'
+ 	@echo  '  make O=dir [targets] Locate all output files in "dir", including .config'
+ 	@echo  '  make C=1   [targets] Check all c source with checker tool'

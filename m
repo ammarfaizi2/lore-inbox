@@ -1,75 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266582AbUIJA5U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266627AbUIJBIm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266582AbUIJA5U (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 20:57:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266627AbUIJA5U
+	id S266627AbUIJBIm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 21:08:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266663AbUIJBIm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 20:57:20 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:8429 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S266582AbUIJA5M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 20:57:12 -0400
-Message-ID: <4140FBE7.6020704@namesys.com>
-Date: Thu, 09 Sep 2004 17:57:11 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Paul Jakma <paul@clubi.ie>
-CC: "Theodore Ts'o" <tytso@mit.edu>,
-       Robin Rosenberg <robin.rosenberg.lists@dewire.com>,
-       William Stearns <wstearns@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: silent semantic changes in reiser4 (brief attempt to document
- the idea ofwhat reiser4 wants to do with metafiles and why
-References: <41323AD8.7040103@namesys.com> <413E170F.9000204@namesys.com> <Pine.LNX.4.58.0409071658120.2985@sparrow> <200409080009.52683.robin.rosenberg.lists@dewire.com> <20040909090342.GA30303@thunk.org> <4140ABB6.6050702@namesys.com> <Pine.LNX.4.61.0409092136160.23011@fogarty.jakma.org>
-In-Reply-To: <Pine.LNX.4.61.0409092136160.23011@fogarty.jakma.org>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 9 Sep 2004 21:08:42 -0400
+Received: from fw.osdl.org ([65.172.181.6]:40879 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266627AbUIJBIk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 21:08:40 -0400
+Date: Thu, 9 Sep 2004 18:08:38 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+Cc: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] update: _working_ code to add device+inode check to ipt_owner.c
+Message-ID: <20040909180838.H1924@build.pdx.osdl.net>
+References: <20040909162200.GB9456@lkcl.net> <20040909091931.K1973@build.pdx.osdl.net> <20040909181034.GF10046@lkcl.net> <20040909114846.V1924@build.pdx.osdl.net> <20040909212514.GA10892@lkcl.net> <20040909160449.E1924@build.pdx.osdl.net> <20040910000819.GA7587@lkcl.net> <20040909172134.G1924@build.pdx.osdl.net> <20040910005932.GA11160@lkcl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040910005932.GA11160@lkcl.net>; from lkcl@lkcl.net on Fri, Sep 10, 2004 at 01:59:32AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jakma wrote:
+* Luke Kenneth Casson Leighton (lkcl@lkcl.net) wrote:
+> On Thu, Sep 09, 2004 at 05:21:35PM -0700, Chris Wright wrote:
+> > >  under such circumstances [file descs passed between programs]...
+> > >  you would end up having to create _two_ program-specific rules, like
+> > >  above.
+> > > 
+> > >  one for each of the two programs.
+> > 
+> > Actually you wouldn't, just one.  It will match, then one of those
+> > processes will get woken up and receive the data, regardless of whether
+> > you meant to allow it.  
+> 
+>  blehhrrr....
+> 
+>  oh i get it.  
+>  
+>  is that like someone writing really poor quality code where
+>  you have two processes reading from the same socket, wot like
+>  you're not supposed to do?
 
-> On Thu, 9 Sep 2004, Hans Reiser wrote:
->
->> Putting \ into filenames makes windows compatibility less trivial.
->
->
-> Err, I think Ted used \ as an example of how to escape |. It is not 
-> part of the filename.
+I don't think it's behaviour many apps rely on.  But this is exactly the
+kind of behaviour which can break security models.
 
-It is not part of it at one level, but in the shell it is part of it.
+>  or are there real instances / times where you really _do_ want
+>  that sort of thing to happen (xinetd?)
 
->
->> Putting | into filenames seems like asking for trouble with shells.
->
->
-> I think that was Ted's precise reason for arguing that | be used. Did 
-> you even read his rationale? :)
+Well, xinted won't really read from multiple processes simultaneously
+(if all is working properly).  The xinetd server will see the initial
+packet, then fork/exec and close off all extra fds.  Now, try and write
+a firewall ruleset that mandatorily enforces that.  See the trouble?
 
-That trouble is desirable? Yes, I can understand why he might not want 
-things to work well.;-)
+>  [btw the sk_socket->file thing isn't filled in on input packets,
+>   but you still get the packet.  arg.  how the heck does ip_queue
+>   get enough info???]
 
->
->> If you think \| is user friendly, oh god, people like you are the 
->> reason why Unix is hated by many.
->
->
-> I think he was arguing | (not \|) is the least worst seperator to use.
->
->> Rather few people understand closure though, so I don't expect to do 
->> well in the politics of this. It is a bit like being for free trade, 
->> most people will never understand why it is so important because 
->> their mental gifts are in other matters,
->
->
-> Lots of people understand why free-trade is important. It's taught in 
-> introductory economics/business classes in secondary school.
+Heh, right.  The sock is protocol specific.  The input happening on ip
+level is before sock lookup.
 
-Have you looked at the political process at all? Or by lots of people, 
-do you mean a sizable minority?
-
-
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

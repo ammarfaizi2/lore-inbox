@@ -1,56 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317541AbSINVhE>; Sat, 14 Sep 2002 17:37:04 -0400
+	id <S317571AbSINVrQ>; Sat, 14 Sep 2002 17:47:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317544AbSINVhE>; Sat, 14 Sep 2002 17:37:04 -0400
-Received: from web40512.mail.yahoo.com ([66.218.78.129]:23448 "HELO
-	web40512.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S317541AbSINVhD>; Sat, 14 Sep 2002 17:37:03 -0400
-Message-ID: <20020914214152.15900.qmail@web40512.mail.yahoo.com>
-Date: Sat, 14 Sep 2002 14:41:52 -0700 (PDT)
-From: Alex Davis <alex14641@yahoo.com>
-Subject: Re: Possible bug and question about ide_notify_reboot in 2.4.19
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10209141342090.6925-100000@master.linux-ide.org>
+	id <S317580AbSINVrQ>; Sat, 14 Sep 2002 17:47:16 -0400
+Received: from m5-real.eastlink.ca ([24.222.0.25]:25804 "EHLO m5.andara.com")
+	by vger.kernel.org with ESMTP id <S317571AbSINVrP>;
+	Sat, 14 Sep 2002 17:47:15 -0400
+From: "Alan Miles" <alanmiles@hfx.eastlink.ca>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: "Patrick J. Volkerding" <volkerdi@slackware.com>, <Riley@Williams.Name>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: Problem with 2.4.19/2.4.20-pre7 multiple root floppy disks-2.4.18 works.
+Date: Sat, 14 Sep 2002 18:51:51 -0300
+Message-ID: <JLEBIHHBMBHBAFPAJLEFCECLDAAA.alanmiles@hfx.eastlink.ca>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <1032035275.13636.15.camel@irongate.swansea.linux.org.uk>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Andre Hedrick <andre@linux-ide.org> wrote:
-> 
-> Hi Alex,
-> 
-> We (T13 Standards) only recently required (shall) all non-packet device to
-> support flush cache.  No where does it state that a device supporting PM
-> for a standby (shall), the key word here is "shall", issue a flush-cache.
-I am assuming that a hard drive is a non-packet device. Let me make sure I'm
-interpreting this correctly: older ( and some current ) drives may flush cache
-on standby/sleep; current and future drives may not. In addition, older drives
-may not support the flush cache command.
+Alan,
 
-> I will not break support for older hardware, on a whim.
-Not my intention.
+Thanks for your reply - I appreciate all the hard work you guys are doing.
 
-> You said you can make a patch, please do so and apply it to your tree.
-> Now, if you want the option, submit the patch for review.  For two or
-> three days there has been no patch to test.
-Still testing locally. I also want to fix the code so that the flush is
-done before the standby.
+My experience to-date with the kernel is to compile it - not to try and fix
+something. However, I could try and fix it,
+although I feel it would be better for the kernel maintainers to fix it, as
+I am inexperienced with Linux kernel level
+programming; I come from an application programming arena.
 
-> 
-> To be absolutely honest, I really do not like to give options in the
-> kernel-config build which can cause backwards compatablity problems.
-This wouldn't be a config option. You would have to modify ide.c by
-hand to disable standby.
-> 
-> Andre Hedrick
-> LAD Storage Consulting Group
-> 
+Pat, I am cc'ing you on this so you know what is going on - this is the
+root-disk problem that I emailed you about.
+
+Alan
+
+-----Original Message-----
+From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
+Sent: September 14, 2002 17:28
+To: Alan Miles
+Cc: linux-kernel@vger.kernel.org; Riley@Williams.Name
+Subject: Re: Problem with 2.4.19/2.4.20-pre7 multiple root floppy
+disks-2.4.18 works.
 
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Finance - Get real-time stock quotes
-http://finance.yahoo.com
+On Fri, 2002-09-13 at 21:08, Alan Miles wrote:
+> I reported this problem with 2.4.19 and have just tested the 2.4.20-pre7
+> kernel. The same problem exists there.
+> I must re-iterate that 2.4.18 works fine with all of my 7 uncompressed
+> 1.44MB floppy disks, and the 2.4.18 system boots up fine.
+
+Yes its in my bug list. Its up to someone it matters to to provide
+patches. It could be a ramdisk change. it could well come from the
+initrd loading cleanup/root ramfs stuff.
+

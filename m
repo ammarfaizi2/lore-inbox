@@ -1,60 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266807AbUBRNti (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 08:49:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267029AbUBRNti
+	id S266545AbUBRNfX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 08:35:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266780AbUBRNfW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 08:49:38 -0500
-Received: from host-64-65-253-246.alb.choiceone.net ([64.65.253.246]:7638 "EHLO
-	gaimboi.tmr.com") by vger.kernel.org with ESMTP id S266807AbUBRNtg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 08:49:36 -0500
-Message-ID: <4033691F.7070804@tmr.com>
-Date: Wed, 18 Feb 2004 08:31:11 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: John Bradford <john@grabjohn.com>
-CC: JG <jg@cms.ac>, linux-kernel@vger.kernel.org
-Subject: Re: could someone plz explain those ext3/hard disk errors
-References: <20040209095227.AF4261A9ACF@23.cms.ac> <200402091026.i19AQ15t000678@81-2-122-30.bradfords.org.uk>
-In-Reply-To: <200402091026.i19AQ15t000678@81-2-122-30.bradfords.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 18 Feb 2004 08:35:22 -0500
+Received: from mx.eastlink.ca ([24.222.0.20]:27406 "EHLO mx.eastlink.ca")
+	by vger.kernel.org with ESMTP id S266545AbUBRNfN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 08:35:13 -0500
+Date: Wed, 18 Feb 2004 09:30:11 -0400 (AST)
+From: Steve Bromwich <kernel@fop.ns.ca>
+Subject: Re: harddisk or kernel problem?
+In-reply-to: <20040215233441.GJ1881@schottelius.org>
+To: Nico Schottelius <nico-kernel@schottelius.org>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <Pine.LNX.4.58.0402180921120.7046@brain.fop.ns.ca>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+References: <20040213075403.GC1881@schottelius.org>
+ <20040213081104.GD1881@schottelius.org>
+ <20040213095223.GE1881@schottelius.org>
+ <200402131717.34917.bzolnier@elka.pw.edu.pl>
+ <20040215233441.GJ1881@schottelius.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Bradford wrote:
->>now...hm, it all started when i upgraded from kernel 2.4.19 to 2.6.0
->>in late decemeber, the system worked very fine for a week or so
->>(having great response times!) but then all of a sudden the problems
->>started. 2 disks died. then my gigabit network card was only able to
->>transmit 200kb/s (but this was really a hardware problem, a new card
->>is working fine again, well...). a week later the next disks are
->>having problems and i have yet to RMA three disks. and now the next
->>two disks..., i'm getting insane ;) i can't see any EXT3 error anymore
->>*g* the next disks will be reiserfs only to see other error messages
->>;) well, but that doesn't solve the problem of 6 disks within 2
->>months...this is so unlikely.
-> 
-> 
-> Please read the FAQ, fix your mail application - you are sending long
-> lines, and don't break the CC list.
-> 
-> As to your problem, look at the LBA sector addresses in the error
-> message:
-> 
-> 280923064991615
-> 
-> is your drive really over 100 EB?  No...
+On Mon, 16 Feb 2004, Nico Schottelius wrote:
 
-I think we could assume that (a) he never told the kernel the disk was 
-"over 100 EB" and (b) the kernel was trying to use that LBA anyway. 
-Which could be due to either a kernel bug or memory corruption (or CPU 
-problems, but unlikely).
+> Bartlomiej Zolnierkiewicz [Fri, Feb 13, 2004 at 05:17:34PM +0100]:
+> I'm really down as this is the second disk
+> dyeing within two month (and the second 2.5" hd even, I begin to think
+> notebooks don't like me :/).
+>
+> I currently collect all data I get / find out to
+>
+> http://schotteli.us/~nico/hd-problem.02/
 
--- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+194 Temperature_Celsius     0x0022   100   050   000    Old_age   Always
+-       48 (Lifetime Min/Max 14/65)
+
+If I'm reading this correctly, you've been running the drive when it's
+extremely cold and extremely hot (Min/Max 14/65, I'm guessing that's
+either Fahrenheit or a raw unconverted reading from the thermistor). I
+managed to completely hork a notebook drive after leaving my laptop in the
+boot of my car for several hours (~-25C), taking it into a warm apartment
+(~19C), booting it up and lifting the notebook off my lap sideways whilst
+I shifted to get comfortable and putting it back on my lap. The hard drive
+had a head crash (I think) on the sectors it was reading while I moved and
+the partition was effectively toast - this was my Debian partition, and
+wouldn't boot any more, but I could boot off the RedHat partition and
+/home was (thankfully) still readable. I pulled all the data off in
+preparation for the drive failing before I could get a new one (I was down
+in Boston at the time), but the bad sectors slowly spread through the
+entire drive over the course of a couple of days and I couldn't read any
+data at all.
+
+Lessons learned:
+
+* Let laptops settle to room temperature after being exposed to sub-zero
+temperatures for a while (this is probably in the manual, but I don't have
+one)
+
+* Laptop notebooks may be somewhat ruggedised but they still don't like
+being moved when they're reading off the drive.
+
+Running drives really hot is also a good way to toast them, too!
+
+Cheers, Steve

@@ -1,60 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293457AbSCXPiT>; Sun, 24 Mar 2002 10:38:19 -0500
+	id <S293521AbSCXPoJ>; Sun, 24 Mar 2002 10:44:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293461AbSCXPiJ>; Sun, 24 Mar 2002 10:38:09 -0500
-Received: from d.su3.de ([62.153.150.130]:45908 "EHLO phobos.irda.amps.de")
-	by vger.kernel.org with ESMTP id <S293457AbSCXPhu>;
-	Sun, 24 Mar 2002 10:37:50 -0500
-From: "Dr. Michael Rietz" <rietz@mail.amps.de>
+	id <S293465AbSCXPn7>; Sun, 24 Mar 2002 10:43:59 -0500
+Received: from roc-24-95-199-137.rochester.rr.com ([24.95.199.137]:54780 "EHLO
+	filestore.kroptech.com") by vger.kernel.org with ESMTP
+	id <S293521AbSCXPno>; Sun, 24 Mar 2002 10:43:44 -0500
+Message-ID: <025c01c1d34a$ab89f3f0$02c8a8c0@kroptech.com>
+From: "Adam Kropelin" <akropel1@rochester.rr.com>
+To: <linux-kernel@vger.kernel.org>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <E16oaKY-00012l-00@the-village.bc.nu>
+Subject: Re: Linux 2.4.19-pre3-ac6
+Date: Sun, 24 Mar 2002 10:43:40 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <15517.59845.731054.936129@phobos.irda.amps.de>
-Date: Sun, 24 Mar 2002 15:59:17 +0100
-To: hvr@hvrlab.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Problems with cryptoapi and 2.4.17
-In-Reply-To: <15491.52772.748962.975486@phobos.irda.amps.de>
-X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
-Reply-To: rietz@su3.de
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-OriginalArrivalTime: 24 Mar 2002 15:43:40.0217 (UTC) FILETIME=[AB8B7A90:01C1D34A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everybody,
+From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+> Again treat this with care. This mostly fixes the CD bug a lot of people hit
+so
+> that the IDE code can get further testing
 
-I'm using the cryptoapi since more than a year (2.4.4)....  Now I tried to move
-to newer kernel (2.4.17) and I'm not able to setup a loop device with
-the new kernel..... 
+FWIW, this has been running here for a little over a day with no problems.
+Machine hosts MySql and PostgreSql DBs so IDE is fairly well beat up. Also
+tested server-side NFS by exporting a directory into which I un-tarred a few
+dozen kernel trees from the client side.
 
-I patched the 2.4.17 kernel with patch-int-2.4.17.0.gz,
-                                 loop-jari-2.4.16.0.patch
- and everything compiled fine... 
-
-I build the util-linux-2.11n with the new patches 
- and everything compiled fine....
-
-then I loaded all modules cryptoapi,cipers, digest,
-etc....  and tried:
-
-# dd if=/dev/urandom of=file bs=1024k count=100
-# losetup -e twofish /dev/loop0 file 
-Available keysizes (bits): 128 192 256 
-# Keysize: 256
-# Password :
-# Password :
-The cipher does not exist, or a cipher module needs to be loaded into the kernel
-ioctl: LOOP_SET_STATUS: Invalid argument
-
-and thats it.... with every cipher.
+--Adam
 
 
-Is there anybody out there who can help me ????
-Any comment is welcome.
-
-so long
-
-
--- 
-Michael Rietz                                  e-mail: rietz@su3.de
-                                                       MR1574-RIPE

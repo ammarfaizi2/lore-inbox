@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261657AbVA3IJd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261658AbVA3IJg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261657AbVA3IJd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jan 2005 03:09:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261659AbVA3IJd
+	id S261658AbVA3IJg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jan 2005 03:09:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261659AbVA3IJg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jan 2005 03:09:33 -0500
-Received: from pD9F875BD.dip0.t-ipconnect.de ([217.248.117.189]:28032 "EHLO
-	susi.maya.org") by vger.kernel.org with ESMTP id S261657AbVA3IJb
+	Sun, 30 Jan 2005 03:09:36 -0500
+Received: from pD9F875BD.dip0.t-ipconnect.de ([217.248.117.189]:27520 "EHLO
+	susi.maya.org") by vger.kernel.org with ESMTP id S261658AbVA3IJd
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jan 2005 03:09:31 -0500
+	Sun, 30 Jan 2005 03:09:33 -0500
 From: Andreas Hartmann <andihartmann@01019freenet.de>
 X-Newsgroups: fa.linux.kernel
 Subject: Re: Software Suspend for 2.4 Final Release
-Date: Sun, 30 Jan 2005 09:00:35 +0100
+Date: Sun, 30 Jan 2005 09:07:23 +0100
 Organization: privat
-Message-ID: <cti472$1rt$1@pD9F875BD.dip0.t-ipconnect.de>
+Message-ID: <cti4jq$27m$1@pD9F875BD.dip0.t-ipconnect.de>
 References: <fa.h8ov4ea.uhmkao@ifi.uio.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -34,18 +34,15 @@ Nigel Cunningham schrieb:
 > 
 > SoftwareSuspend 2.1.5.7B for the 2.4.28 kernel is now available from
 > softwaresuspend.berlios.de.
-> 
-> Bug fixes and forward ports to 2.4.29 and later kernels notwithstanding,
-> it is intended to be the last release of SoftwareSuspend for the 2.4
-> series kernels.
-> 
-> The 2.4 version of Suspend is generally pretty easily to get going, but
-> if you have any questions or problems, you will find lots of resources
-> at softwaresuspend.berlios.de. In particular, there are HOWTOs, FAQs,
-> and a Wiki that you can consult before asking on the mailing lists
-> you'll also find there.
-> 
-> Fuller instructions regarding applying the package can be found in the
-> README file, included in the package.
-> 
-> Nigel
+
+I'm wondering why you didn't provide a patch against 2.4.29.
+
+Anyway, I tested it against 2.4.29. I couldn't apply the preemption patch.
+The other patches could be applied with a view changes. 2.1.5.7B is
+working fine afterwards - even without restarting sleeping hd's during
+hibernation! Thank you very much for fixing this problem!
+
+
+
+Kind regards,
+Andreas Hartmann

@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288019AbSA2Axv>; Mon, 28 Jan 2002 19:53:51 -0500
+	id <S288238AbSA2BM6>; Mon, 28 Jan 2002 20:12:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288047AbSA2Axm>; Mon, 28 Jan 2002 19:53:42 -0500
-Received: from mail120.mail.bellsouth.net ([205.152.58.80]:11899 "EHLO
-	imf20bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S288019AbSA2Axc>; Mon, 28 Jan 2002 19:53:32 -0500
-Subject: Re: Rik van Riel's vm-rmap
-From: Louis Garcia <louisg00@bellsouth.net>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33L.0201282214010.32617-100000@imladris.surriel.com>
-In-Reply-To: <Pine.LNX.4.33L.0201282214010.32617-100000@imladris.surriel.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 (1.0.1-2) 
-Date: 28 Jan 2002 19:56:56 -0500
-Message-Id: <1012265817.4386.2.camel@tiger>
-Mime-Version: 1.0
+	id <S288159AbSA2BMj>; Mon, 28 Jan 2002 20:12:39 -0500
+Received: from gw.lowendale.com.au ([203.26.242.120]:16416 "EHLO
+	marina.lowendale.com.au") by vger.kernel.org with ESMTP
+	id <S288274AbSA2BMb>; Mon, 28 Jan 2002 20:12:31 -0500
+Date: Tue, 29 Jan 2002 12:39:00 +1100 (EST)
+From: Neale Banks <neale@lowendale.com.au>
+To: Doug Ledford <dledford@redhat.com>
+cc: linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>
+Subject: Re: [PATCH] i810 driver update.
+In-Reply-To: <3C55D031.5040801@redhat.com>
+Message-ID: <Pine.LNX.4.05.10201291229220.1513-100000@marina.lowendale.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, has anyone ported the latest patch to 2.4.18-pre7 yet??
+Hi Doug,
 
---Louis
+> Marcelo,
+> 
+> This is the final, cooked version of the i810 driver.  It's been out long 
+> enough for me to say with a good deal of certainty that it fixes quite a few 
+> bugs in the existing driver and doesn't introduce any new bugs (that doesn't 
+> mean it fixes all of the existing bugs though, record is still problematic 
+> and full duplex isn't supported, but these aren't regressions since the 
+> current driver is the same way).  This was diff'ed against the latest pre 
+> patch.  Please apply this to your tree.  Thanks.
+[...]
 
+Are the fixes in this going to be applicable to 2.2 also (FWIW, 2.2's
+i810_audio #defines ``DRIVER_VERSION "0.17"'')?
 
-On Mon, 2002-01-28 at 19:15, Rik van Riel wrote:
-> On 28 Jan 2002, Louis Garcia wrote:
-> 
-> > Should I do the rmap patch first?
-> 
-> Yes.
-> 
-> After that you can patch the low latency patch,
-> which will give you a reject on vmscan.c
-> 
-> This doesn't matter because:
-> 1) each part of the low latency patch is independant
-> 2) -rmap already has low latency code in vmscan.c
-> 
-> kind regards,
-> 
-> Rik
-> -- 
-> "Linux holds advantages over the single-vendor commercial OS"
->     -- Microsoft's "Competing with Linux" document
-> 
-> http://www.surriel.com/		http://distro.conectiva.com/
-> 
+If so, is there any attempt to back-port this driver to 2.2?
 
+I can test (at least compiling, booting and basic sound-playing), but not
+back-port.
 
+Thanks,
+Neale.
 

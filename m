@@ -1,50 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268080AbUHXQ1g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268090AbUHXQmI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268080AbUHXQ1g (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 12:27:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268084AbUHXQ1g
+	id S268090AbUHXQmI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 12:42:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268094AbUHXQmI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 12:27:36 -0400
-Received: from fw.osdl.org ([65.172.181.6]:21121 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268080AbUHXQ1f (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 12:27:35 -0400
-Date: Tue, 24 Aug 2004 09:25:33 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Laurent CARON <lcaron@apartia.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: TG3(Tigoon) & Kernel 2.4.27
-Message-Id: <20040824092533.65cb32da.rddunlap@osdl.org>
-In-Reply-To: <412B5B35.7020701@apartia.fr>
-References: <412B5B35.7020701@apartia.fr>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 24 Aug 2004 12:42:08 -0400
+Received: from a26.t1.student.liu.se ([130.236.221.26]:13456 "EHLO
+	mail.drzeus.cx") by vger.kernel.org with ESMTP id S268090AbUHXQmG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 12:42:06 -0400
+Message-ID: <412B6FD6.2050105@drzeus.cx>
+Date: Tue, 24 Aug 2004 18:41:58 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040704)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.9-rc1
+References: <Pine.LNX.4.58.0408240031560.17766@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0408240031560.17766@ppc970.osdl.org>
+X-Enigmail-Version: 0.84.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Aug 2004 17:13:57 +0200 Laurent CARON wrote:
+The MMC patches included in 2.6.9-rc1 missed drivers/Kconfig. A 'source 
+"drivers/mmc/Kconfig"' is needed.
+drivers/Makefile is ok though.
 
-| Hello
-| 
-| When I try to compile kernel 2.4.27 for one of my servers i get this error.
-| --------------
-| drivers/net/net.o(.text+0x17550): In function `tg3_request_firmware': : 
-| undefined reference to `request_firmware'
-| drivers/net/net.o(.text+0x17652): In function `tg3_request_firmware': : 
-| undefined reference to `release_firmware'
-| -------------
-| 
-| Any clue?
-| 
-| PS: I can include a part of my .config
-
-You need to enable CONFIG_EXPERIMENTAL and CONFIG_HOTPLUG
-and then CONFIG_FW_LOADER in the Library routines menu.
-
---
-~Randy
+Rgds
+Pierre Ossman

@@ -1,29 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268596AbRGZR4r>; Thu, 26 Jul 2001 13:56:47 -0400
+	id <S268619AbRGZSCh>; Thu, 26 Jul 2001 14:02:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268599AbRGZR4h>; Thu, 26 Jul 2001 13:56:37 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:55311 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S268596AbRGZR4Y>; Thu, 26 Jul 2001 13:56:24 -0400
-Subject: Re: [PATCH] gcc-3.0.1 and 2.4.7-ac1
-To: vandrove@vc.cvut.cz (Petr Vandrovec)
-Date: Thu, 26 Jul 2001 18:55:29 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-In-Reply-To: <20010726194800.A32053@vana.vc.cvut.cz> from "Petr Vandrovec" at Jul 26, 2001 07:48:00 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S268617AbRGZSCU>; Thu, 26 Jul 2001 14:02:20 -0400
+Received: from [145.254.150.141] ([145.254.150.141]:7172 "HELO
+	ozean.schottelius.org") by vger.kernel.org with SMTP
+	id <S268607AbRGZSCP>; Thu, 26 Jul 2001 14:02:15 -0400
+Message-ID: <3B605AF0.6B0788B2@pcsystems.de>
+Date: Thu, 26 Jul 2001 20:01:20 +0200
+From: Nico Schottelius <nicos@pcsystems.de>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ps2/ new data for mouse protocol (fwd msg attached)
+In-Reply-To: <3B5DB12D.2B9C205E@pcsystems.de> <20010725012334.L23404@arthur.ubicom.tudelft.nl>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15PpM9-0004DV-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-> tell me and I'll complain to gcc team instead of here.
+Erik Mouw wrote:
 
-PS: If in fact there is a gcc 3.0.1 -fsomething option we should be forcing
-on instead then that would be even better
+> On Tue, Jul 24, 2001 at 07:32:29PM +0200, Nico Schottelius wrote:
+> > Have a look into the attached email before reading mine, please.
+> >
+> > Is it possible to find out about what those bytes are ?
+> > And is it possible to intergrate the support for other
+> > 3 bytes into the Linux kernel ?
+>
+> So they put information about four buttons in six bytes and call that
+> proprietary? ROFL! How hard can it be? I think it will be fairly
+> straight forward to reverse engineer the format, it can't be rocket
+> science.
+>
+> Erik
 
-Alan
+Can you help me do that, Erik ?
+
+Nico
+
+

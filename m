@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263458AbTDXUvJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 16:51:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263479AbTDXUvI
+	id S263455AbTDXUuj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 16:50:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263458AbTDXUuj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 16:51:08 -0400
-Received: from ant.hiwaay.net ([216.180.54.10]:53256 "EHLO mail.hiwaay.net")
-	by vger.kernel.org with ESMTP id S263458AbTDXUvH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 16:51:07 -0400
-Date: Thu, 24 Apr 2003 16:03:16 -0500
-From: Chris Adams <cmadams@hiwaay.net>
-To: linux-kernel@vger.kernel.org
+	Thu, 24 Apr 2003 16:50:39 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:16520 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S263455AbTDXUuj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 16:50:39 -0400
+Date: Thu, 24 Apr 2003 22:02:46 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Balram Adlakha <b_adlakha@softhome.net>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Flame Linus to a crisp!
-Message-ID: <20030424210316.GE735921@hiwaay.net>
+Message-ID: <20030424210246.GF30082@mail.jlokier.co.uk>
+References: <Pine.LNX.4.44.0304240741530.20549-100000@home.transmeta.com> <20030424190207.319431257A9@mx12.arcor-online.net> <3EA83BBA.5060502@techsource.com> <200304250109.14349.b_adlakha@softhome.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030424205035.GE30082@mail.jlokier.co.uk>
-User-Agent: Mutt/1.4i
-Organization: HiWAAY Internet Services
+In-Reply-To: <200304250109.14349.b_adlakha@softhome.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Once upon a time, Jamie Lokier  <jamie@shareable.org> said:
->I wonder whether the FSF shouldn't fork the GPLv3 into two versions,
->according to what philosophy GPLv2 users would like to adopt for their
->own projects :)  (In principle, only the FSF is able to alter the
->license of a many-authored GPL'd project like Linux.  It would be
->unfortunate if they used that special status to promote an agenda
->which a large number existing GPL users disliked).
+Balram Adlakha wrote:
+> By the way, I'm just curious, I don't have much knowledge of this,
+> can anyone create a processor with the x86 instruction set and sell
+> it? Like did AMD and transmeta and all get a license from Intel?
 
-They can't affect the license of Linux because COPYING included with the
-kernel says:
+Please, somebody answer this question.  The good folks at Transmeta
+should know the answer.
 
- Also note that the only valid version of the GPL as far as the kernel
- is concerned is _this_ particular version of the license (ie v2, not
- v2.2 or v3.x or whatever), unless explicitly otherwise stated.
+I'm really intersted as I want to do exactly this eventually.
 
-Now, IIRC, that paragraph was added after the fact, so someone could go
-back to a version before that paragraph and fork under a new version of
-the GPL, however they could not take any code from the current versions
-of the kernel.
+Perhaps the constraints are different when software binary translation
+is used?  I.e. I could sell a non-x86 cpu and give away an x86
+translator without needing a license from Intel, presumably?
 
-About 20% of the files in the kernel include the "at your option" clause
-(this is from looking at the source to RH's 2.4.20-8).
+-- Jamie
 
--- 
-Chris Adams <cmadams@hiwaay.net>
-Systems and Network Administrator - HiWAAY Internet Services
-I don't speak for anybody but myself - that's enough trouble.

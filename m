@@ -1,53 +1,126 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265247AbSLHJVe>; Sun, 8 Dec 2002 04:21:34 -0500
+	id <S265266AbSLHJXk>; Sun, 8 Dec 2002 04:23:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265255AbSLHJVe>; Sun, 8 Dec 2002 04:21:34 -0500
-Received: from mail.hometree.net ([212.34.181.120]:48821 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S265247AbSLHJVd>; Sun, 8 Dec 2002 04:21:33 -0500
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: [BUG] 2.4.20-BK
-Date: Sun, 8 Dec 2002 09:29:12 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <asv3d8$nr$1@forge.intermeta.de>
-References: <200212071434.11514.m.c.p@wolk-project.de> <200212072036.08500.m.c.p@wolk-project.de>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1039339752 5754 212.34.181.4 (8 Dec 2002 09:29:12 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Sun, 8 Dec 2002 09:29:12 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S265275AbSLHJXj>; Sun, 8 Dec 2002 04:23:39 -0500
+Received: from h-64-105-35-2.SNVACAID.covad.net ([64.105.35.2]:23483 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S265266AbSLHJXh>; Sun, 8 Dec 2002 04:23:37 -0500
+Date: Sun, 8 Dec 2002 01:27:27 -0800
+From: "Adam J. Richter" <adam@yggdrasil.com>
+To: jmorris@intercode.com.au, davem@redhat.com, astor@fast.no
+Cc: linux-kernel@vger.kernel.org
+Subject: Patch(2.5.50): Simplify crypto memory allocation
+Message-ID: <20021208012727.A24577@baldur.yggdrasil.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="FCuugMFkClbJLl1L"
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc-Christian Petersen <m.c.p@wolk-project.de> writes:
 
->pdc202xx_new: static build, module build do not have Special FastTrack 
->features so the system will say neither IDE port enabled (BIOS) so it won't 
->work.
-[...]
->    ide0: BM-DMA at 0x9400-0x9407, BIOS settings: hda:pio, hdb:pio
->    ide1: BM-DMA at 0x9408-0x940f, BIOS settings: hdc:pio, hdd:pio
-[...]
->    ide2: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:DMA, hdb:pio
->    ide3: BM-DMA at 0xffa8-0xffaf, BIOS settings: hda:pio, hdb:DMA
+--FCuugMFkClbJLl1L
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Shouldn't these bei hde - hdh ? I'd be scared by my machine reporting
-hda thrice. :-)
+	The following patch deletes the unused
+crypto_tfm.crt_work_block field and combines the remaining
+two kmallocs done by crypto_alloc_tfm into one, a net
+deletion of 25 lines.
 
-	Regards
-		Henning
+	I've only verified that the kernel and the crpypto modules
+still build.  I don't currently use this code, although I'm
+considering making a version of loop.c which would, which is why I
+noticed this.
 
+	Anyhow, if this patch turns out to work and looks OK, then
+please integrate, queue it for Linus, etc., or let me know if you
+would prefer that you or I follow some other course of action.
 
 -- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."
 
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+--FCuugMFkClbJLl1L
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="crypt.diff"
+
+--- linux-2.5.50/include/linux/crypto.h	2002-11-27 14:35:54.000000000 -0800
++++ linux/include/linux/crypto.h	2002-12-08 01:06:24.000000000 -0800
+@@ -161,7 +161,6 @@
+ struct crypto_tfm {
+ 
+ 	void *crt_ctx;
+-	void *crt_work_block;
+ 	u32 crt_flags;
+ 	
+ 	union {
+--- linux-2.5.50/crypto/api.c	2002-11-27 14:36:21.000000000 -0800
++++ linux/crypto/api.c	2002-12-08 01:06:35.000000000 -0800
+@@ -124,44 +124,26 @@
+ 	if (alg == NULL)
+ 		goto out;
+ 	
+-	tfm = kmalloc(sizeof(*tfm), GFP_KERNEL);
++	tfm = kmalloc(sizeof(*tfm) + alg->cra_ctxsize, GFP_KERNEL);
+ 	if (tfm == NULL)
+ 		goto out_put;
+ 
+ 	memset(tfm, 0, sizeof(*tfm));
+ 	
+-	if (alg->cra_ctxsize) {
+-		tfm->crt_ctx = kmalloc(alg->cra_ctxsize, GFP_KERNEL);
+-		if (tfm->crt_ctx == NULL)
+-			goto out_free_tfm;
+-	}
++	tfm->crt_ctx = (void*) &tfm[1];
+ 
+ 	tfm->__crt_alg = alg;
+ 	
+-	if (alg->cra_blocksize) {
+-		tfm->crt_work_block = kmalloc(alg->cra_blocksize + 1,
+-					      GFP_KERNEL);
+-		if (tfm->crt_work_block == NULL)
+-			goto out_free_ctx;
+-	}
+-
+ 	if (crypto_init_flags(tfm, flags))
+-		goto out_free_work_block;
++		goto out_free_tfm;
+ 		
+ 	if (crypto_init_ops(tfm)) {
+ 		crypto_exit_ops(tfm);
+-		goto out_free_ctx;
++		goto out_free_tfm;
+ 	}
+ 
+ 	goto out;
+ 
+-out_free_work_block:
+-	if (tfm->__crt_alg->cra_blocksize)
+-		kfree(tfm->crt_work_block);
+-
+-out_free_ctx:
+-	if (tfm->__crt_alg->cra_ctxsize)
+-		kfree(tfm->crt_ctx);
+ out_free_tfm:
+ 	kfree(tfm);
+ 	tfm = NULL;
+@@ -173,12 +155,6 @@
+ 
+ void crypto_free_tfm(struct crypto_tfm *tfm)
+ {
+-	if (tfm->__crt_alg->cra_ctxsize)
+-		kfree(tfm->crt_ctx);
+-		
+-	if (tfm->__crt_alg->cra_blocksize)
+-		kfree(tfm->crt_work_block);
+-		
+ 	if (crypto_tfm_alg_type(tfm) == CRYPTO_ALG_TYPE_CIPHER)
+ 		if (tfm->crt_cipher.cit_iv)
+ 			kfree(tfm->crt_cipher.cit_iv);
+
+--FCuugMFkClbJLl1L--

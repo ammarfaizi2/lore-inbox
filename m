@@ -1,58 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271332AbRHTQiN>; Mon, 20 Aug 2001 12:38:13 -0400
+	id <S271392AbRHTQnd>; Mon, 20 Aug 2001 12:43:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271376AbRHTQiD>; Mon, 20 Aug 2001 12:38:03 -0400
-Received: from blount.mail.mindspring.net ([207.69.200.226]:55073 "EHLO
-	blount.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S271332AbRHTQht>; Mon, 20 Aug 2001 12:37:49 -0400
-Subject: Re: [PATCH] let Net Devices feed Entropy, updated (1/2)
-From: Robert Love <rml@tech9.net>
-To: Johan Adolfsson <johan.adolfsson@axis.com>
-Cc: Martin Dalecki <dalecki@evision-ventures.com>,
-        Oliver Xymoron <oxymoron@waste.org>, linux-kernel@vger.kernel.org,
-        riel@conectiva.com.br
-In-Reply-To: <21a701c12963$bcb05b60$0a070d0a@axis.se>
-In-Reply-To: <Pine.LNX.4.30.0108182234250.31188-100000@waste.org>
-	<998193404.653.12.camel@phantasy> <3B80E01B.2C61FF8@evision-ventures.com> 
-	<21a701c12963$bcb05b60$0a070d0a@axis.se>
-Content-Type: text/plain
+	id <S271393AbRHTQnZ>; Mon, 20 Aug 2001 12:43:25 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:48745 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S271392AbRHTQnT>; Mon, 20 Aug 2001 12:43:19 -0400
+Message-ID: <3B813E1F.6080204@redhat.com>
+Date: Mon, 20 Aug 2001 12:43:11 -0400
+From: Doug Ledford <dledford@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010808
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Yusuf Goolamabbas <yusufg@outblaze.com>, Cliff Albert <cliff@oisec.net>,
+        linux-kernel@vger.kernel.org, gibbs@scsiguy.com
+Subject: Re: aic7xxx errors with 2.4.8-ac7 on 440gx mobo
+In-Reply-To: <E15Ymvp-0005rl-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.12.99+cvs.2001.08.19.07.08 (Preview Release)
-Date: 20 Aug 2001 12:36:52 -0400
-Message-Id: <998325471.2936.25.camel@phantasy>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 20 Aug 2001 12:34:48 +0200, Johan Adolfsson wrote:
-> And I think you are wrong, this patch is needed.
-> Keep up the good work Robert!
+Alan Cox wrote:
+>>>I'm not currently sure what that proves. Is your board intel bios ?
+>>>
+>>The BIOS is Phoenix (4,0 Release 6.0, BIOS Build 125). Does Intel
+>>provide their own branded bios ? Never seen them. The box is an ISP 2150
+>>and it is of the Slot 1 variant.
+>>
+> 
+> Ok that sounds unrelated. Intel do provide their own bioses (and one at
+> least branded Dell) but Phoenixbios is quite different.
 
-I will -- thank you for the words. :)
+No.  The problem Intel boxes do use Phoenix BIOS.  His box is the exact 
+problem model.  It requires the use of IOAPIC support for UP or SMP in 
+order to work properly.  If 2.4.8 and 2.4.9 both work correctly now 
+*without* the use of UP-IOAPIC and without SMP, then that means in 2.4.8 
+there must have been added a DMI scan whitelist entry that makes this 
+motherboard do something sane (like never trying to assign interrupts or 
+enabling UP-IOAPIC even if it isn't the default).
 
-> Where would you get the single seed from in an embedded head
-> less system if you don't have a hardware random generator,
-> no disk and don't seed it from the network interrupts?
 
-exactly.  this thread has gone off on a tangent arguing the very merits
-of /dev/random itself.  obviously if you dislike the kernel's entropy
-gatherer, this patch won't sit well either.
-
-the proper argument is, assuming that /dev/random is A Good Thing, is
-this patch useful?  since its configurable, its not forcing any policy.
-since it can be argued pretty strongly that more entropy is needed on a
-headless and/or diskless, I think some people need it.  personally, it
-boosts my self-esteem to have another source of entropy (my 3c905).  if
-you are worried of the threats net devices have to your entropy, by all
-means -- dont enable the config setting.
-
-> I think the patch makes sense - let people have the config option.
-
-hopefully we can get the patch merged, if for nothing else for 2.5.
 
 -- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
+
+  Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
+       Please check my web site for aic7xxx updates/answers before
+                       e-mailing me about problems
 

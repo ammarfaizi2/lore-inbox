@@ -1,67 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262903AbSJWHuz>; Wed, 23 Oct 2002 03:50:55 -0400
+	id <S262901AbSJWHtB>; Wed, 23 Oct 2002 03:49:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262904AbSJWHuz>; Wed, 23 Oct 2002 03:50:55 -0400
-Received: from a213-84-34-179.xs4all.nl ([213.84.34.179]:65408 "EHLO
-	defiant.binary-magic.com") by vger.kernel.org with ESMTP
-	id <S262903AbSJWHuy> convert rfc822-to-8bit; Wed, 23 Oct 2002 03:50:54 -0400
-From: Take Vos <Take.Vos@binary-magic.com>
-Organization: Binary Magic
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: PROBLEM: PS/2 keyboard and mouse not available/working/weird
-Date: Wed, 23 Oct 2002 09:43:19 +0200
-User-Agent: KMail/1.4.7
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200210221603.54816.Take.Vos@binary-magic.com> <20021022163453.A22665@ucw.cz>
-In-Reply-To: <20021022163453.A22665@ucw.cz>
-MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
+	id <S262903AbSJWHtB>; Wed, 23 Oct 2002 03:49:01 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:47118 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262901AbSJWHtA>; Wed, 23 Oct 2002 03:49:00 -0400
+Date: Wed, 23 Oct 2002 08:55:02 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: peterc@gelato.unsw.edu.au
+Cc: david@gibson.dropbear.id.au, linux-kernel@vger.kernel.org
+Subject: Re: Ejecting an orinoco card causes hang
+Message-ID: <20021023085501.A22736@flint.arm.linux.org.uk>
+References: <15797.63740.520358.783516@wombat.chubb.wattle.id.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200210230943.25549.Take.Vos@binary-magic.com>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <15797.63740.520358.783516@wombat.chubb.wattle.id.au>; from peterc@gelato.unsw.edu.au on Wed, Oct 23, 2002 at 11:18:52AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, Oct 23, 2002 at 11:18:52AM +1000, peterc@gelato.unsw.edu.au wrote:
+> 4.  Transferring lots of data causes the link to collapse, and the
+>     logs to fill up with `eth0: Error -110 writing Tx descriptor to
+>     BAP' messages
 
-Hello,
+I see type of behaviour this with an Orinoco Silver card while trying to
+set the mode/essid.  I took the wvlan_cs code from my RH7.2 box and dropped
+it into 2.5 - seems to work (although how reliable it is I don't know yet;
+I need to get something for this card to talk to.)
 
-On Tuesday 22 October 2002 16:34, Vojtech Pavlik wrote:
-> On Tue, Oct 22, 2002 at 04:03:49PM +0200, Take Vos wrote:
-> > I just upgraded to 2.5.44 from 2.5.43.
-> > In 2.5.43 I had a small PS/2 mouse problem, as it din't see my wart but
-> > only my scratch pad.
-> Known bug, still trying to find out why this happens. Any chance your
-> notebook has an IBM touchpad?
-I have no idea. (I did try and enable the IBM touchpad in the kernel config, 
-but It didn't see it.)
+   http://ftp.linux.org.uk/pub/linux/rmk/wireless/wvlan_cs-2.5.44.diff
 
-> > The last time I booted in 2.5.44 the keyboard was found after about 20
-> > keystrokes but was useless as it produced weird escape sequences instead
-> > of normal characters, this was without XFree (to check if it had
-> > something to do with that).
-> Can you try with #define DEBUG in i8042.c?
-I tried, but it gave to much output, and it only logged the events in syslog, 
-as the boot messages where already gone from the buffer.
+Another difference that I noticed was that when no AP is in range, and the
+ESSID has never been set, orinoco v0.07 reports "unspecified SSID!!!" as
+the ESSID, as does wvlan_cs on the same RH7.2 kernel and with wvlan_cs on
+2.5.44.  However, orinoco 0.13a reports an empty string.
 
-I did some more checking and found how to consitantly get the same problem:
-	- Booting cold, everything works ok (except ofcource my wart mouse)
-	- Booting warm (reboot), keyboard failes.
+Looking at the bytes read off the card, it seems that it returns a zero
+length word, followed by the string "unspecified SSID!!!" with orinoco
+0.13a.
 
-I checked if it was because of interaction with the USB mouse, but I tried it 
-with the mouse in both USB ports and without the USB mouse, but could not 
-found any interaction.
+Also, (iirc) I could make the card happier with the orinoco 0.13a driver
+if I made it read excess bytes when reading the BAP (like wvlan_cs does.)
+However, this didn't competely solve the problem - I still saw what I
+think are firmware crashes.
 
-Hope I have helped you with this,
-	Take
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9tlMbMMlizP1UqoURArT1AJ0ekWQBvClzU1hI4LrPSsCtSLUpoQCg6KvA
-yq9JrGwNNXFrMlpep9ztFtc=
-=irq3
------END PGP SIGNATURE-----
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

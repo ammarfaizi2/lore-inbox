@@ -1,73 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261689AbUKCQUn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261681AbUKCQYZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261689AbUKCQUn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 11:20:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261688AbUKCQUn
+	id S261681AbUKCQYZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 11:24:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261688AbUKCQYZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 11:20:43 -0500
-Received: from yue.linux-ipv6.org ([203.178.140.15]:56580 "EHLO
-	yue.st-paulia.net") by vger.kernel.org with ESMTP id S261681AbUKCQUe
+	Wed, 3 Nov 2004 11:24:25 -0500
+Received: from out003pub.verizon.net ([206.46.170.103]:39058 "EHLO
+	out003.verizon.net") by vger.kernel.org with ESMTP id S261681AbUKCQYU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 11:20:34 -0500
-Date: Thu, 04 Nov 2004 01:21:28 +0900 (JST)
-Message-Id: <20041104.012128.51410945.yoshfuji@linux-ipv6.org>
-To: davem@davemloft.net, jgarzik@pobox.com
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, akpm@osdl.org,
-       davem@davemloft.net, yoshfuji@linux-ipv6.org
-Subject: Re: IPv6 dead in -bk11
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <20041103.012923.102810732.yoshfuji@linux-ipv6.org>
-References: <20041102.225343.06193184.yoshfuji@linux-ipv6.org>
-	<4187A4E3.8010600@pobox.com>
-	<20041103.012923.102810732.yoshfuji@linux-ipv6.org>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-2022-jp
+	Wed, 3 Nov 2004 11:24:20 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: is killing zombies possible w/o a reboot?
+Date: Wed, 3 Nov 2004 11:24:19 -0500
+User-Agent: KMail/1.7
+Cc: bert hubert <ahu@ds9a.nl>
+References: <200411030751.39578.gene.heskett@verizon.net> <20041103143348.GA24596@outpost.ds9a.nl>
+In-Reply-To: <20041103143348.GA24596@outpost.ds9a.nl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200411031124.19179.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [151.205.46.51] at Wed, 3 Nov 2004 10:24:19 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20041103.012923.102810732.yoshfuji@linux-ipv6.org> (at Wed, 03 Nov 2004 01:29:23 +0900 (JST)), YOSHIFUJI Hideaki / 吉藤英明 <yoshfuji@linux-ipv6.org> says:
+On Wednesday 03 November 2004 09:33, bert hubert wrote:
+>On Wed, Nov 03, 2004 at 07:51:39AM -0500, Gene Heskett wrote:
+>> But I'd tried to run gnomeradio earlier to listen to the
+>> elections,
+>
+>Depressing enough.
+>
+>> I'd tried to kill the zombie earlier but couldn't.
+>> Isn't there some way to clean up a &^$#^#@)_ zombie?
+>
+>Kill the parent, is the only (portable) way.
 
-> So... I guess that kernel failed to add "default route" on receipt of RA.
-> Right?
-:
+The parent would have been the icon.  It opened its usual sized small 
+window, but never did anything to it. I clicked on closing the 
+window, but 10 seconds later the system asked me if I wanted to kill 
+it as it wasn't responding. I said yes, the window disappeared, but 
+kpm said gomeradio was still present as process 8162, and that wasn't 
+killable.  Funny thing is, on the reboot, it automaticly self 
+restored and ran just fine.
 
-Sorry, this bug was introduced by my changeset:
-<http://linux.bkbits.net:8080/linux-2.5/cset@417dca81tJ4RRAxhWTbn0p6hI-1XIQ>.
+I consider this as one of linux's achilles heels.  Such a hung and 
+dead process can be properly disposed of by a primitive os called os9 
+because it keeps track of all resources in tables in the kernel 
+memory space.  Issueing a kill procnumber removes the process from 
+the exec queue, reclaims all its memory to the system free memory 
+pool, and removes it from the IRQ service tables if an entry exists 
+there.  Near instant, total cleanup, nothing left, in about 250 
+microseconds max. 1.79 mhz cpu's aren't quite instant :)
 
-David, this should fix the issue.
-Please apply.
+Lets just say that I think having to reboot because of a zombie that 
+has resources locked up, and have the reboot fubared by it too, 
+aren't exactly friendly actions.
 
-D: Don't purge default routes by RA.
-D:
-D: Signed-off-by: Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>
+I fully realise that linux has a much more complex method of 
+allocating resources, but doesn't it *know* exactly what resources 
+have been passed out to each process?
 
-===== net/ipv6/ndisc.c 1.103 vs edited =====
---- 1.103/net/ipv6/ndisc.c	2004-10-26 12:55:42 +09:00
-+++ edited/net/ipv6/ndisc.c	2004-11-04 01:05:19 +09:00
-@@ -1078,13 +1078,6 @@
- 			return;
- 		}
- 		neigh->flags |= NTF_ROUTER;
--
--		/*
--		 *	If we where using an "all destinations on link" route
--		 *	delete it
--		 */
--
--		rt6_purge_dflt_routers();
- 	}
- 
- 	if (rt)
+And why is there no entry from the kill function into that resource 
+management portion of the kernel so that this could also be done by 
+the linux kernel, say with a "kill --total procnumber"?
+
+Seems like a heck of a good question to me since an os written to run 
+on a 64k machine in 1981, and expanded to run on a 128K to 2 megabyte 
+machine in 1986 can do it just fine.  Even if that process is still 
+running and spitting out data to its parent window/shell!  Or if its 
+crashed and scribbled over all its memory, makes no difference to 
+os9.  You (root) wants it gone, fine, its gone.
 
 -- 
-Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
-GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.28% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

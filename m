@@ -1,93 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266350AbUFURmg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266353AbUFURqY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266350AbUFURmg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 13:42:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266351AbUFURmg
+	id S266353AbUFURqY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 13:46:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266355AbUFURqY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 13:42:36 -0400
-Received: from tor.morecom.no ([64.28.24.90]:49745 "EHLO tor.morecom.no")
-	by vger.kernel.org with ESMTP id S266350AbUFURma (ORCPT
+	Mon, 21 Jun 2004 13:46:24 -0400
+Received: from smtpout.ev1.net ([207.44.129.135]:9735 "EHLO smtpout.ev1.net")
+	by vger.kernel.org with ESMTP id S266353AbUFURqV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 13:42:30 -0400
-Subject: Re: mode data=journal in ext3. Is it safe to use? Conclusion
-From: Petter Larsen <pla@morecom.no>
-To: ext3 <ext3-users@redhat.com>, linux-kernel@vger.kernel.org
-Cc: albertogli@telpin.com.ar
-In-Reply-To: <20040618120513.GA2394@linuxhacker.ru>
-References: <40FB8221D224C44393B0549DDB7A5CE83E31B1@tor.lokal.lan>
-	 <1087322976.1874.36.camel@pla.lokal.lan>
-	 <200406160734.i5G7YZwV002051@car.linuxhacker.ru>
-	 <1087460837.2765.31.camel@pla.lokal.lan>
-	 <20040617170939.GO2659@linuxhacker.ru> <40D2B8C3.8090908@hist.no>
-	 <20040618101520.GA2389@linuxhacker.ru>
-	 <1087558255.25904.14.camel@pmarqueslinux>
-	 <20040618120513.GA2394@linuxhacker.ru>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1087839748.6288.165.camel@pla.lokal.lan>
+	Mon, 21 Jun 2004 13:46:21 -0400
+Date: Mon, 21 Jun 2004 12:45:06 -0500
+From: Michael Langley <nwo@hacked.org>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem with psmouse detecting generic ImExPS/2
+Message-Id: <20040621124506.18b1f67a.nwo@hacked.org>
+In-Reply-To: <20040621082831.GC1200@ucw.cz>
+References: <20040621021651.4667bf43.nwo@hacked.org>
+	<20040621082831.GC1200@ucw.cz>
+X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 21 Jun 2004 19:42:28 +0200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 21 Jun 2004 10:28:31 +0200
+Vojtech Pavlik <vojtech@suse.cz> wrote:
 
-I will summarise this thread and try to set the picture of what has been
-discussed and concluded.
+> On Mon, Jun 21, 2004 at 02:16:51AM -0500, Michael Langley wrote:
+> > I noticed this after upgrading 2.6.6->2.6.7
+> > 
+> > Even after building psmouse as a module, and specifying the protocol,
+> > all I get is an ImPS/2 Generic Wheel Mouse.
+> > 
+> > [root@purgatory root]# modprobe psmouse proto=exps
+> > Jun 21 01:51:57 purgatory kernel: input: ImPS/2 Generic Wheel Mouse on
+> > isa0060/serio1
+> > 
+> > My ImExPS/2 was detected correctly in <=2.6.6 and after examining the
+> > current psmouse code, and the changes in patch-2.6.7, I can't figure out
+> > what's breaking it.  A little help?
+>  
+> Maybe your mouse needs the ImPS/2 init before the ExPS/2 one. You can
+> try to copy and-paste the ImPS/2 init once more in the code, without a
+> return, of course.
+> 
+> -- 
+> Vojtech Pavlik
+> SuSE Labs, SuSE CR
 
-1. ext3 with mode data=journal in kernel 2.6.x is probably working as
-intended. One has responded with using this mode heavily on 2.6.6
-without corruption related to the fs code. Since nobody has said that
-they have seen faults, we should belive that it is safe. It is in an
-stable kernel...  
 
-2. Mode data=journal will not gain much more than correct mtime compared
-to mode data=ordered.
+Right.  That did the trick.
 
-3. Applications that need a very consistent filesystem, e.g. consistent
-writes, they need to do this by implementing there own
-transaction/journaling system. Alberto Bertogli has written a library
-that can assist with this. See URL,
-http://users.auriga.wearlab.de/~alb/libjio/. I have not used it so I can
-not say for sure how good it is, but it seems like a nice start and
-worth to take a look at.
+--- a/drivers/input/mouse/psmouse-base.c   2004-06-21 12:21:21.000000000 -0500
++++ b/drivers/input/mouse/psmouse-base.c   2004-06-21 12:12:39.000000000 -0500
+@@ -455,6 +455,15 @@
+                return PSMOUSE_GENPS;
+        }
 
-4.  Because mode data=journal does not gain much, it would be better to
-use mode data=ordered and use any form of transaction/journaling itself.
-Mode data=ordered is the default in ext3 and probably most used, and
-therefor also best tested.
++   if (max_proto >= PSMOUSE_IMPS && intellimouse_detect(psmouse)) {
++
++      if (set_properties) {
++         set_bit(REL_WHEEL, psmouse->dev.relbit);
++         if (!psmouse->name)
++            psmouse->name = "Wheel Mouse";
++      }
++   }
++
+        if (max_proto > PSMOUSE_IMEX) {
+                int type = ps2pp_init(psmouse, set_properties);
+                if (type > PSMOUSE_PS2)
 
-5. If, and only if, you have less than 1 block size updates (that do not
-cross block boundaries), these operations (write)  can be done
-atomically. (with help of fsync and stuff,(from Oleg and others)).
 
-6. Wear leveling on a Compact Flash card:
-Wear leveling is an important task. SanDisk has Industrial Grade support
-for some of there CF-cards, see these links.
-http://www.sandisk.com/pressrelease/020522_toughness.htm
-http://www.sandisk.com/pressrelease/021112_igapps.htm
-http://www.sandisk.com/pdf/oem/WPaperWearLevelv1.0.pdf
-We are in the telecommunications and networking business and need this
-kind of Compact Flash cards. From there site:
-* Enhanced error correction and sophisticated wear leveling technology
-* Card level MTBF >3 million hours
-* 2 million program/erase cycle endurance per block 
+[root@purgatory root]# modprobe psmouse proto=exps
+Jun 21 12:41:36 purgatory kernel: input: ImExPS/2 Generic Wheel Mouse on isa0060/serio1
 
-We are not bound to SanDisk. We could use any suplier that meet these
-criteria. 
-
-I do not know the wear leveling algorithm in detail so how they shuffle
-read-only data (or if they do) around the disk, and even how it does it
-if we create partitions on this CF disk (partition are probably
-transparent for the wear leveling algorithm), is an issue we need to
-find out of.
-
-Thanks for all your replies ( there are 32 threads:-) spread along the
-ext3 ML and the LKML and a couple private ). It has helped me a lot.
-
-Best regards
--- 
-Petter Larsen
-cand. scient.
-moreCom as
-913 17 222
+Much thanks for the help.  I couldn't live without the extra buttons in X.

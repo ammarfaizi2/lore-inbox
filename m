@@ -1,44 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267807AbUJRXl4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267864AbUJSAGV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267807AbUJRXl4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 19:41:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267829AbUJRXl4
+	id S267864AbUJSAGV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 20:06:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267841AbUJSAGV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 19:41:56 -0400
-Received: from waste.org ([209.173.204.2]:48515 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S267807AbUJRXly (ORCPT
+	Mon, 18 Oct 2004 20:06:21 -0400
+Received: from [200.96.32.206] ([200.96.32.206]:39878 "HELO g71.com")
+	by vger.kernel.org with SMTP id S267829AbUJSAGT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 19:41:54 -0400
-Date: Mon, 18 Oct 2004 18:41:27 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Mingming Cao <cmm@us.ibm.com>
-Cc: akpm@osdl.org, "Stephen C. Tweedie" <sct@redhat.com>,
-       Badari Pulavarty <pbadari@us.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>
-Subject: Re: [PATCH 1/3] ext3 reservation remove stale window fix
-Message-ID: <20041018234126.GB28904@waste.org>
-References: <1098140107.8803.1062.camel@w-ming2.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1098140107.8803.1062.camel@w-ming2.beaverton.ibm.com>
-User-Agent: Mutt/1.3.28i
+	Mon, 18 Oct 2004 20:06:19 -0400
+Message-ID: <859701c4b566$576a1c40$f6220822@g7jbgimongarbl>
+From: "Management" <g7jbgimongarbl@g71.com>
+To: "Dbase Downline Group 9" <linux-net@vger.kernel.org>
+Subject: [Downline Member 9018287637]
+Date: Tue, 19 Oct 2004 01:01:03 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1158
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 18, 2004 at 03:55:04PM -0700, Mingming Cao wrote:
-> 
-> Before we changed the per-filesystem reservations from a linked list
-> to a red-black tree, in order to speed up the linear search from the
-> list head, we keep the current(stale) reservation window as a
-> reference pointer to skip the nodes prior to the current/stale
-> window node, when failed to allocate a new window in current group
-> and try to do allocation in next group.
+Thanks for your email requesting this information:
 
-One wonders whether a prio tree of the sort used by the current VMA
-searching code would be a better match to the problem than the
-red-black approach.
+Join us today: http://207.97.202.120/swt/index.php?act=index&rid=andreh
 
--- 
-Mathematics is the supreme nostalgia of our time.
+Either way you can make 3, 4, even 5 times your money, 
+whether you sponsor anybody or not. 
+
+Visit you won't regret it at all
+
+Have a great time making money
+

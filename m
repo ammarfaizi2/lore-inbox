@@ -1,53 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311936AbSDDXcM>; Thu, 4 Apr 2002 18:32:12 -0500
+	id <S312031AbSDDXql>; Thu, 4 Apr 2002 18:46:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311948AbSDDXcB>; Thu, 4 Apr 2002 18:32:01 -0500
-Received: from [216.201.249.226] ([216.201.249.226]:3602 "EHLO
-	helium.inexs.com") by vger.kernel.org with ESMTP id <S311936AbSDDXbq>;
-	Thu, 4 Apr 2002 18:31:46 -0500
-Date: Thu, 4 Apr 2002 17:34:15 -0600
-From: Chuck Campbell <campbell@neosoft.com>
+	id <S312076AbSDDXqb>; Thu, 4 Apr 2002 18:46:31 -0500
+Received: from ppp-228-11.25-151.libero.it ([151.25.11.228]:14580 "EHLO
+	ashland") by vger.kernel.org with ESMTP id <S312031AbSDDXqT>;
+	Thu, 4 Apr 2002 18:46:19 -0500
 To: linux-kernel@vger.kernel.org
-Cc: campbell@neosoft.com
-Subject: current hardware compatibility
-Message-ID: <20020404173415.A6675@helium.inexs.com>
-Reply-To: campbell@neosoft.com
-Mail-Followup-To: Chuck Campbell <campbell@neosoft.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+Subject: forth interpreter as kernel module
+From: davidw@dedasys.com (David N. Welton)
+Date: 05 Apr 2002 01:49:03 +0200
+Message-ID: <877knnowi8.fsf@dedasys.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What dual P4 motherboard(s) are actually working w/ linux 2.4.x-preN-anything?
-For that matter, what single P4 motherboards are working well?
- 
-I downloaded 2.4.19-pre5 to look at the Documentation directory, but I 
-don't really think found the info I need.
 
-grep chipset * 
+[ please CC replies to me ]
 
-gives lots of info in Configure.help, is this the only location to look for
-motherboard/chipset compatibility?
+Hello,
 
-Searching the web for "linux hardware compatibility" turns up a lot of 
-old (ca. 1997 - 2000) info.
+Once upon a time, I had a rather random idea, and, acting on it, I
+wedged a forth interpreter into the Linux kernel.  I've always wanted
+to clean it up and do things nicely, but have never really found the
+time or the motivation.
 
-Is there a better place to look?  Redhat, Suse, Mandrake h/w compat info
-seems pretty thin on the ground for recent/new hardware.
+So, I am posting here, in the hope that someone might find the idea
+interesting and take it up, or, better yet, think of something that it
+might actually be used for (this was besides the point when I did it).
 
-thanks,
--chuck
+I doubt the code itself is of much interest.  Actually, I'm pretty
+embarassed about it, but decided to make it available despite that.
 
+It does run, on my system (2.4.18):
 
+@grantspass [/home/davidw/workshop/pforth-21] # insmod kpforth.o 
+Warning: loading kpforth.o will taint the kernel: no license
+
+@grantspass [/proc] # echo 3 . > kpforth
+@grantspass [/proc] # cat kpforth-out 
+pfLoadDictionary - Filename ignored! Loading from static data.
+Static data copied to newly allocated dictionaries.
+Begin AUTO.INIT ------
+3    ok
+Stack<10> 
+
+Although from what I recall when experimenting with it, there are some
+definite 'issues'.  See aforementioned disclaimer about the code.  It
+doesn't interface with the kernel in any interesting ways, either.
+
+Anyway, for the interested/bored/adventerous, the code may be found
+at:
+
+http://www.dedasys.com/freesoftware/files/kpforth-21.tgz
+
+The original forth system that I based it on - pforth - which is much
+better code then mine, is by Phil Burk.
+
+I would be interested in comments on what should be fixed in the code,
+although I may not have time to act on them.
+
+Anyway, hope this is of interest to someone, and thank you for your
+time,
 -- 
-ACCEL Services, Inc.| Specialists in Gravity, Magnetics |  1(713)993-0671 ph.
-  1900 West Loop S. |   and Integrated Interpretation   |  1(713)993-0608 fax
-     Suite 900      |                                   |
- Houston, TX, 77027 |          Chuck Campbell           | campbell@neosoft.com
-                    |  President & Senior Geoscientist  |
-
-     "Integration means more than having all the maps at the same scale!"
+David N. Welton
+   Consulting: http://www.dedasys.com/
+     Personal: http://www.dedasys.com/davidw/
+Free Software: http://www.dedasys.com/freesoftware/
+   Apache Tcl: http://tcl.apache.org/

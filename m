@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281052AbRKGXUW>; Wed, 7 Nov 2001 18:20:22 -0500
+	id <S281050AbRKGXXW>; Wed, 7 Nov 2001 18:23:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281050AbRKGXUN>; Wed, 7 Nov 2001 18:20:13 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:15612 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S281052AbRKGXUC>;
-	Wed, 7 Nov 2001 18:20:02 -0500
-Date: Wed, 7 Nov 2001 16:18:47 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Mike Fedyk <mfedyk@matchmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: ext3 vs resiserfs vs xfs
-Message-ID: <20011107161847.Q5922@lynx.no>
-Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
-	Mike Fedyk <mfedyk@matchmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <E161Y87-00052r-00@the-village.bc.nu>, <5.1.0.14.2.20011107183639.0285a7e0@pop.cus.cam.ac.uk> <5.1.0.14.2.20011107193045.02b07f78@pop.cus.cam.ac.uk> <3BE99650.70AF640E@zip.com.au>, <3BE99650.70AF640E@zip.com.au> <20011107133301.C20245@mikef-linux.matchmail.com> <3BE9AF15.50524856@zip.com.au>, <3BE9AF15.50524856@zip.com.au> <20011107142750.A545@mikef-linux.matchmail.com> <3BE9BC12.6E1A6295@zip.com.au>
+	id <S281079AbRKGXXM>; Wed, 7 Nov 2001 18:23:12 -0500
+Received: from madcap.apk.net ([207.54.158.16]:54184 "EHLO madcap.apk.net")
+	by vger.kernel.org with ESMTP id <S281050AbRKGXW4>;
+	Wed, 7 Nov 2001 18:22:56 -0500
+X-IP-Test: 206.183.9.88
+Date: Wed, 7 Nov 2001 18:22:52 -0500
+From: Mike Kasick <ic382@apk.net>
+To: Rui Sousa <rui.p.m.sousa@clix.pt>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: EMU10K1 and High Memory conflict in 2.4.13/2.4.14
+Message-Id: <20011107182252.1f5ab0e8.ic382@apk.net>
+In-Reply-To: <Pine.LNX.4.33.0111071206240.1005-100000@sophia-sousar2.nice.mindspeed.com>
+In-Reply-To: <20011106235430.1e0df1d4.ic382@apk.net>
+	<Pine.LNX.4.33.0111071206240.1005-100000@sophia-sousar2.nice.mindspeed.com>
+X-Mailer: Sylpheed version 0.6.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <3BE9BC12.6E1A6295@zip.com.au>; from akpm@zip.com.au on Wed, Nov 07, 2001 at 02:56:18PM -0800
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 07, 2001  14:56 -0800, Andrew Morton wrote:
-> Mike Fedyk wrote:
-> > Does that work for non-root ext3 mounts also?  ie, will ext3 default to
-> > data=journaled mode for future mounts?
+It works fine now, thanks a lot.
+
+On Wed, 7 Nov 2001 12:08:34 +0100 (CET)
+Rui Sousa <rui.p.m.sousa@clix.pt> wrote:
+
+> On Tue, 6 Nov 2001, Mike Kasick wrote:
 > 
-> Nope.  You specify the option to other filesystems in /etc/fstab.
-
-Maybe it should be possible to specify the journaling mode in the journal
-superblock?  A mount option would override it, but it would at least set
-the default mode.
-
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-
+> Edit linux/drivers/sound/emu10k1/main.c and change:
+> 
+> /* FIXME: is this right? */
+> /* does the card support 32 bit bus master?*/
+> #define EMU10K1_DMA_MASK                0xffffffff      /* DMA buffer mask for pci_alloc_consist */
+> 
+> to
+> 
+> /* FIXME: is this right? */
+> /* does the card support 32 bit bus master?*/
+> #define EMU10K1_DMA_MASK                0x7fffffff      /* DMA buffer mask for pci_alloc_consist */
+> 
+> I believe the comments say it all...
+> 
+> Rui Sousa
+> 
+> 

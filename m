@@ -1,47 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268048AbUIAXOA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268196AbUIAXVr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268048AbUIAXOA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 19:14:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267708AbUIAXIR
+	id S268196AbUIAXVr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 19:21:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268180AbUIAXTx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 19:08:17 -0400
-Received: from umhlanga.stratnet.net ([12.162.17.40]:42565 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S264726AbUIAXFh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 19:05:37 -0400
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: f_ops flag to speed up compatible ioctls in linux kernel
-X-Message-Flag: Warning: May contain useful information
-References: <1094052981.431.7160.camel@cube> <52vfey0ylu.fsf@topspin.com>
-	<20040901215314.GC26044@mellanox.co.il>
-From: Roland Dreier <roland@topspin.com>
-Date: Wed, 01 Sep 2004 15:58:44 -0700
-In-Reply-To: <20040901215314.GC26044@mellanox.co.il> (Michael S. Tsirkin's
- message of "Thu, 2 Sep 2004 00:53:14 +0300")
-Message-ID: <52sma1y4t7.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 01 Sep 2004 22:58:44.0985 (UTC) FILETIME=[3BABF690:01C49077]
+	Wed, 1 Sep 2004 19:19:53 -0400
+Received: from baikonur.stro.at ([213.239.196.228]:41951 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S267971AbUIAXQB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 19:16:01 -0400
+Subject: [patch 04/14]  radio/radio-aimslab: replace 	while/schedule() with msleep()
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, janitor@sternwelten.at
+From: janitor@sternwelten.at
+Date: Thu, 02 Sep 2004 01:16:00 +0200
+Message-ID: <E1C2eKf-0002mH-2f@sputnik>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Roland> Yes, this is exactly right.  One issue raised by this
-    Roland> thread is that the ioctl32 compatibility code only allows
-    Roland> one compatibility handler per ioctl number.  It seems that
-    Roland> this creates all sorts of possibilities for mayhem because
-    Roland> it makes the ioctl namespace global in scope in some
-    Roland> situations.  Does anyone have any thoughts on if/how this
-    Roland> should be addressed?
 
-    Michael> Thats what my original patch attempts to address
-    Michael> http://www.uwsg.indiana.edu/hypermail/linux/kernel/0409.0/0025.html
-    Michael> What do you think?
 
-That patch seems somewhat orthogonal to the issue I raised.  You're
-just fixing the problem for devices that don't use the ioctl32 compat
-layer.
 
- - Roland
+
+
+
+I would appreciate any comments from the janitor@sternweltens list.
+
+Thanks,
+Nish
+
+
+
+Description: Uses msleep() instead of a while-loop and schedule(). Thus
+the CPU is given up for the time desired.
+
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
+
+
+
+---
+
+ linux-2.6.9-rc1-bk7-max/drivers/media/radio/radio-aimslab.c |    7 +------
+ 1 files changed, 1 insertion(+), 6 deletions(-)
+
+diff -puN drivers/media/radio/radio-aimslab.c~msleep-drivers_media_radio-aimslab drivers/media/radio/radio-aimslab.c
+--- linux-2.6.9-rc1-bk7/drivers/media/radio/radio-aimslab.c~msleep-drivers_media_radio-aimslab	2004-09-01 19:35:10.000000000 +0200
++++ linux-2.6.9-rc1-bk7-max/drivers/media/radio/radio-aimslab.c	2004-09-01 19:35:10.000000000 +0200
+@@ -63,12 +63,7 @@ static void sleep_delay(long n)
+ 	if(!d)
+ 		udelay(n);
+ 	else
+-	{
+-		/* Yield CPU time */
+-		unsigned long x=jiffies;
+-		while((jiffies-x)<=d)
+-			schedule();
+-	}
++		msleep(jiffies_to_msecs(d));
+ }
+ 
+ static void rt_decvol(void)
+
+_

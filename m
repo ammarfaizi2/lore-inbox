@@ -1,54 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261242AbVBWOuG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbVBWPZX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261242AbVBWOuG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 09:50:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261287AbVBWOuG
+	id S261187AbVBWPZX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 10:25:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbVBWPZX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 09:50:06 -0500
-Received: from users.ccur.com ([208.248.32.211]:509 "EHLO gamx.iccur.com")
-	by vger.kernel.org with ESMTP id S261242AbVBWOuA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 09:50:00 -0500
-Date: Wed, 23 Feb 2005 09:49:40 -0500
-From: Joe Korty <joe.korty@ccur.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jamie Lokier <jamie@shareable.org>, Andrew Morton <akpm@osdl.org>,
-       Olof Johansson <olof@austin.ibm.com>, linux-kernel@vger.kernel.org,
-       rusty@rustcorp.com.au
-Subject: Re: [PATCH/RFC] Futex mmap_sem deadlock
-Message-ID: <20050223144940.GA880@tsunami.ccur.com>
-Reply-To: joe.korty@ccur.com
-References: <20050222190646.GA7079@austin.ibm.com> <20050222115503.729cd17b.akpm@osdl.org> <20050222210752.GG22555@mail.shareable.org> <Pine.LNX.4.58.0502221317270.2378@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0502221317270.2378@ppc970.osdl.org>
-User-Agent: Mutt/1.4.1i
+	Wed, 23 Feb 2005 10:25:23 -0500
+Received: from alog0402.analogic.com ([208.224.222.178]:1152 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261187AbVBWPZT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 10:25:19 -0500
+Date: Wed, 23 Feb 2005 10:24:28 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: accept() fails with EINTER
+Message-ID: <Pine.LNX.4.61.0502231009380.5342@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 22, 2005 at 01:30:27PM -0800, Linus Torvalds wrote:
-> 
-> We really have this already, and it's called "current->preempt". It 
-> handles any lock at all, and doesn't add yet another special case to all 
-> the architectures.
-> 
-> Just do
-> 
-> 	repeat:
-> 		down_read(&current->mm->mmap_sem);
-> 		get_futex_key(...) etc.
-> 		queue_me(...) etc.
-> 		inc_preempt_count();
-> 		ret = get_user(...);
-> 		dec_preempt_count();
 
-Perhaps this should be preempt_disable .... preempt_enable.
+Trying to run an old server with a new kernel. A connection
+fails with "interrupted system call" as soon as a client
+attempts to connect. A trap in the code to continue
+works, but subsequent send() and recv() calls fail in
+the same way.
 
-Otherwise, a preempt attempt in get_user would not be seen
-until some future preempt_enable was executed.
+Anybody know how to mask that SIGIO (or whatever signal)?
+Setting signal(SIGIO, SIG_IGN) doesn't do anything useful.
 
-Regards,
-Joe
---
-"Money can buy bandwidth, but latency is forever" -- John Mashey
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

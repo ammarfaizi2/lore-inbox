@@ -1,90 +1,92 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311936AbSDXUVj>; Wed, 24 Apr 2002 16:21:39 -0400
+	id <S312253AbSDXVIL>; Wed, 24 Apr 2002 17:08:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312031AbSDXUVi>; Wed, 24 Apr 2002 16:21:38 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2829 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S311936AbSDXUVh>;
-	Wed, 24 Apr 2002 16:21:37 -0400
-Message-ID: <3CC7139E.F9E96F66@zip.com.au>
-Date: Wed, 24 Apr 2002 13:20:46 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Hugh Dickins <hugh@veritas.com>
-CC: Jes Sorensen <jes@trained-monkey.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] page->flags cleanup
-In-Reply-To: <3CC6720F.BD1367B9@zip.com.au> <Pine.LNX.4.21.0204241857450.2322-100000@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii
+	id <S312255AbSDXVIK>; Wed, 24 Apr 2002 17:08:10 -0400
+Received: from tolkor.sgi.com ([192.48.180.13]:46230 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id <S312253AbSDXVIJ>;
+	Wed, 24 Apr 2002 17:08:09 -0400
+Subject: [PATCH] (repost) kmem_cache_zalloc
+From: Eric Sandeen <sandeen@sgi.com>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@transmeta.com, marcelo@conectiva.com.br
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 24 Apr 2002 16:07:52 -0500
+Message-Id: <1019682472.15455.33.camel@stout.americas.sgi.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins wrote:
-> 
-> ...
-> > - UnlockPage is removed.  All callers updated to use unlock_page().
-> >   it's a real function - there's no need to hide that fact.
-> 
-> Hmm, well, I'd prefer not to change that very widely used name;
-> but I've no serious objection if you wish to.
+(reposting)
 
-UnlockPage() looks like a simple clear_bit(), but it very much isn't.
-I think it's better this way.
+There was a brief thread on this patch a while ago, please see 
+http://www.uwsg.iu.edu/hypermail/linux/kernel/0203.3/0601.html
 
-> ...
-> 
-> > - PageSwapCache() is renamed to page_swap_cache(), so it doesn't
-> >   pretend to be a page->flags bit test.
-> 
-> Again, I'd prefer to leave PageSwapCache as is: it used to have a
-> page->flags bit, it might be given a page->flags bit again in future
-> (multiple swapper_spaces?).  I don't think "Page" in the macro name
-> should have to imply implementation using a page->flags bit.  But
-> again, I've no serious objection if you wish to make this change.
+In short, XFS is using a kmem_cache_zalloc() function which just
+does kmem_cache_alloc + memset.
 
-OK, I re-renamed the predicate back to PageSwapCache, added some
-commentary about this.
+We'd like to incorporate this into the kernel proper, and several others
+chimed in that it would be useful, so here's the patch.  If it's a no-go
+with Linus, we can roll this functionality back under fs/xfs to reduce
+our changes in the mainline kernel.
+
+Brian Gerst suggested adding a flag to the cache to tell
+kmem_cache_zalloc() to zero the object, and this also sounds like a
+reasonable way to go, but there was no discussion after that.
+
+Thanks,
+
+-Eric
+
+--- linux-orig/include/linux/slab.h	Mon Mar 18 14:37:14 2002
++++ linux/include/linux/slab.h	Wed Apr  3 14:58:40 2002
+@@ -56,6 +56,7 @@
+ extern int kmem_cache_destroy(kmem_cache_t *);
+ extern int kmem_cache_shrink(kmem_cache_t *);
+ extern void *kmem_cache_alloc(kmem_cache_t *, int);
++extern void *kmem_cache_zalloc(kmem_cache_t *, int);
+ extern void kmem_cache_free(kmem_cache_t *, void *);
  
-> ...
-> 
-> 1. The two "if (PageSwapCache(page)) BUG();"s  in mm/page_alloc.c
->    are redundant and should just be deleted rather than converted:
->    we have just checked that page->mapping is unset, so (excepting
->    a volatile mod of a kind which would need an infinite number of
->    identical tests to protect against) of course it isn't &swapper_space
->    (but the compiler doesn't optimize away).  The two PageSwapCache BUG
->    tests in mm/page_io.c similarly redundant and should also be deleted.
-
-OK, I've done this in a separate patch.
+ extern void *kmalloc(size_t, int);
+--- linux-orig/mm/slab.c	Mon Mar 18 14:37:18 2002
++++ linux/mm/slab.c	Tue Apr  2 12:56:38 2002
+@@ -1611,6 +1611,23 @@
+ 	local_irq_restore(flags);
+ }
  
-> 2. I can't see from your mail (patch against an earlier version?) what
->    happened to the comment immediately above #define PageError(page)
->    in 2.5.9/include/linux/mm.h - the comment beginning "The first mb".
->    That comment originally belonged to UnlockPage(), and should have
->    been moved to unlock_page() when that went into mm/filemap.c.
->    I sometimes wonder whether those two "mb"s are actually still
->    required (quite a lot has changed since they went in), but that's
->    a different kind of question, and certainly not one I can answer.
++void *
++kmem_cache_zalloc(kmem_cache_t *cachep, int flags)
++{
++	void    *ptr;
++	ptr = __kmem_cache_alloc(cachep, flags);
++	if (ptr)
++#if DEBUG
++		memset(ptr, 0, cachep->objsize -
++			(cachep->flags & SLAB_RED_ZONE ? 2*BYTES_PER_WORD : 0));
++#else
++		memset(ptr, 0, cachep->objsize);
++#endif
++
++	return ptr;
++}
++
++
+ /**
+  * kfree - free previously allocated memory
+  * @objp: pointer returned by kmalloc.
+--- linux-orig/kernel/ksyms.c	Mon Mar 18 14:37:03 2002
++++ linux/kernel/ksyms.c	Tue Apr  2 12:56:38 2002
+@@ -102,6 +115,7 @@
+ EXPORT_SYMBOL(kmem_cache_destroy);
+ EXPORT_SYMBOL(kmem_cache_shrink);
+ EXPORT_SYMBOL(kmem_cache_alloc);
++EXPORT_SYMBOL(kmem_cache_zalloc);
+ EXPORT_SYMBOL(kmem_cache_free);
+ EXPORT_SYMBOL(kmalloc);
+ EXPORT_SYMBOL(kfree);
+-- 
+Eric Sandeen      XFS for Linux     http://oss.sgi.com/projects/xfs
+sandeen@sgi.com   SGI, Inc.
 
-I moved the comment to unlock_page().
-
-> 3. You're removing PG_skip and shifting highers down (in patch you
->    mailed separately): good, but please remove PG_unused too and shift
->    highers down (I cautiously renamed PG_swap_cache to PG_unused when
->    changing PageSwapCache macro, the time for that caution has past).
-
-I wondered what that was doing there ;)  Done.
-
-Updated patch series (compiles, untested, should be OK) is at
-http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.10/
-
-Thanks.
-
-Sometime I'll bite the bullet and actually change all .c
-files to include page-flags.h direct.  I did that yesterday
-but wasn't happy with it.  There are some unfortunate dependencies
-in pagemap.h and highmem.h which need cleaning up first.
-
--

@@ -1,35 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274351AbRIYBag>; Mon, 24 Sep 2001 21:30:36 -0400
+	id <S274347AbRIYBcq>; Mon, 24 Sep 2001 21:32:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274347AbRIYBa0>; Mon, 24 Sep 2001 21:30:26 -0400
-Received: from mercury.Sun.COM ([192.9.25.1]:43494 "EHLO mercury.Sun.COM")
-	by vger.kernel.org with ESMTP id <S274342AbRIYBaS>;
-	Mon, 24 Sep 2001 21:30:18 -0400
-Message-ID: <3BAFDE0D.8A69A993@sun.com>
-Date: Mon, 24 Sep 2001 18:29:49 -0700
-From: Tim Hockin <thockin@sun.com>
-Organization: Sun Microsystems, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: en
+	id <S274352AbRIYBcg>; Mon, 24 Sep 2001 21:32:36 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:2820 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S274347AbRIYBc1>;
+	Mon, 24 Sep 2001 21:32:27 -0400
+Date: Mon, 24 Sep 2001 22:32:37 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+Cc: "Paul G. Allen" <pgallen@randomlogic.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        <jmerkey@utah-nac.org>
+Subject: Re: [OT] New Anti-Terrorism Law makes "hacking" punishable by life
+ in prison
+In-Reply-To: <20010924182939.A15611@vger.timpanogas.org>
+Message-ID: <Pine.LNX.4.33L.0109242231190.19147-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: read() called twice for /proc files
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there a general solution to the case of read() being called minimum
-twice for a file in /proc?  I have a small file in /proc, whose data takes
-a fair time to generate.  My read() handler gets called once for the data,
-and once so I can return 0 to terminate read().
+On Mon, 24 Sep 2001, Jeff V. Merkey wrote:
 
-This results in the actual read taking twice as long.  Perhaps I am missing
-something...
+> When people are crashing planes into buildings and killing people
+> by the thousands, hacking laws should be tough.
 
+I guess people who believe terrorists will be deterred
+by software licenses and laws about computer programs
+probably have the politicians they deserve.
+
+cheers,
+
+Rik
 -- 
-Tim Hockin
-Systems Software Engineer
-Sun Microsystems, Cobalt Server Appliances
-thockin@sun.com
+IA64: a worthy successor to i860.
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+

@@ -1,316 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261765AbVAHBcT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261768AbVAHBdK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261765AbVAHBcT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 20:32:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbVAHBbM
+	id S261768AbVAHBdK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 20:33:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261767AbVAHBcn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 20:31:12 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:28428 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261758AbVAHB3H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 20:29:07 -0500
-Date: Sat, 8 Jan 2005 02:29:03 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Roman Zippel <zippel@linux-m68k.org>
+	Fri, 7 Jan 2005 20:32:43 -0500
+Received: from zork.zork.net ([64.81.246.102]:6629 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id S261761AbVAHBbD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 20:31:03 -0500
+From: Sean Neakums <sneakums@zork.net>
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] fs/hfsplus/: misc cleanups
-Message-ID: <20050108012903.GN14108@stusta.de>
-References: <20050107012615.GB14108@stusta.de> <200501071623.48201.zippel@linux-m68k.org>
-Mime-Version: 1.0
+Subject: AGP Oops (was Re: 2.6.10-mm2)
+References: <20050106002240.00ac4611.akpm@osdl.org>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Date: Sat, 08 Jan 2005 01:31:02 +0000
+In-Reply-To: <20050106002240.00ac4611.akpm@osdl.org> (Andrew Morton's message
+	of "Thu, 6 Jan 2005 00:22:40 -0800")
+Message-ID: <6umzvkhfl5.fsf@zork.zork.net>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200501071623.48201.zippel@linux-m68k.org>
-User-Agent: Mutt/1.5.6+20040907i
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: sneakums@zork.net
+X-SA-Exim-Scanned: No (on zork.zork.net); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 07, 2005 at 04:23:46PM +0100, Roman Zippel wrote:
-> Hi,
-> 
-> On Friday 07 January 2005 02:26, Adrian Bunk wrote:
-> 
-> > +#define hfs_bnode_split hfsplus_bnode_split
-> > +static struct hfs_bnode *hfs_bnode_split(struct hfs_find_data *fd);
-> > +
-> > +#define hfs_brec_update_parent hfsplus_brec_update_parent
-> > +static int hfs_brec_update_parent(struct hfs_find_data *fd);
-> > +
-> > +#define hfs_btree_inc_height hfsplus_btree_inc_height
-> > +static int hfs_btree_inc_height(struct hfs_btree *);
-> 
-> If these functions become static, the defines are not needed anymore. This 
-> code is "shared" with hfs and only kernel wide visible functions are renamed 
-> this way.
-
-Updated patch below.
-
-> bye, Roman
-
-cu
-Adrian
+Got the following upon starting X (Debian sid's 4.3.0.dfsg.1-10).
+Was fine with 2.6.10-mm1.  Radeon card, VIA AGP.
 
 
-<--  snip  -->
-
-
-The patch below contains the following cleanups:
-- make needlessly global code static
-- bnode.c: remove the unused global functions hfsplus_lock_bnode
-           and hfsplus_unlock_bnode
-
-
-diffstat output:
- fs/hfsplus/bnode.c      |   11 -----------
- fs/hfsplus/brec.c       |   10 +++++++---
- fs/hfsplus/dir.c        |   23 +++++++++++++----------
- fs/hfsplus/extents.c    |    9 +++++----
- fs/hfsplus/hfsplus_fs.h |    7 -------
- fs/hfsplus/inode.c      |    6 +++---
- fs/hfsplus/super.c      |    4 ++--
- 7 files changed, 30 insertions(+), 40 deletions(-)
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.10-mm2-full/fs/hfsplus/bnode.c.old	2005-01-07 00:37:53.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/hfsplus/bnode.c	2005-01-08 02:18:20.000000000 +0100
-@@ -648,14 +648,3 @@
- 	}
- }
- 
--void hfsplus_lock_bnode(struct hfs_bnode *node)
--{
--	wait_event(node->lock_wq, !test_and_set_bit(HFS_BNODE_LOCK, &node->flags));
--}
--
--void hfsplus_unlock_bnode(struct hfs_bnode *node)
--{
--	clear_bit(HFS_BNODE_LOCK, &node->flags);
--	if (waitqueue_active(&node->lock_wq))
--		wake_up(&node->lock_wq);
--}
---- linux-2.6.10-mm2-full/fs/hfsplus/hfsplus_fs.h.old	2005-01-07 00:39:41.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/hfsplus/hfsplus_fs.h	2005-01-08 02:18:20.000000000 +0100
-@@ -230,9 +230,6 @@
- #define hfs_brec_keylen hfsplus_brec_keylen
- #define hfs_brec_insert hfsplus_brec_insert
- #define hfs_brec_remove hfsplus_brec_remove
--#define hfs_bnode_split hfsplus_bnode_split
--#define hfs_brec_update_parent hfsplus_brec_update_parent
--#define hfs_btree_inc_height hfsplus_btree_inc_height
- #define hfs_find_init hfsplus_find_init
- #define hfs_find_exit hfsplus_find_exit
- #define __hfs_brec_find __hplusfs_brec_find
-@@ -297,9 +294,6 @@
- u16 hfs_brec_keylen(struct hfs_bnode *, u16);
- int hfs_brec_insert(struct hfs_find_data *, void *, int);
- int hfs_brec_remove(struct hfs_find_data *);
--struct hfs_bnode *hfs_bnode_split(struct hfs_find_data *);
--int hfs_brec_update_parent(struct hfs_find_data *);
--int hfs_btree_inc_height(struct hfs_btree *);
- 
- /* bfind.c */
- int hfs_find_init(struct hfs_btree *, struct hfs_find_data *);
-@@ -320,7 +314,6 @@
- 
- /* extents.c */
- int hfsplus_ext_cmp_key(hfsplus_btree_key *, hfsplus_btree_key *);
--void hfsplus_ext_build_key(hfsplus_btree_key *, u32, u32, u8);
- void hfsplus_ext_write_extent(struct inode *);
- int hfsplus_get_block(struct inode *, sector_t, struct buffer_head *, int);
- int hfsplus_free_fork(struct super_block *, u32, struct hfsplus_fork_raw *, int);
---- linux-2.6.10-mm2-full/fs/hfsplus/brec.c.old	2005-01-07 00:40:46.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/hfsplus/brec.c	2005-01-08 02:19:47.000000000 +0100
-@@ -11,6 +11,10 @@
- #include "hfsplus_fs.h"
- #include "hfsplus_raw.h"
- 
-+static struct hfs_bnode *hfs_bnode_split(struct hfs_find_data *fd);
-+static int hfs_brec_update_parent(struct hfs_find_data *fd);
-+static int hfs_btree_inc_height(struct hfs_btree *);
-+
- /* Get the length and offset of the given record in the given node */
- u16 hfs_brec_lenoff(struct hfs_bnode *node, u16 rec, u16 *off)
- {
-@@ -209,7 +213,7 @@
- 	return 0;
- }
- 
--struct hfs_bnode *hfs_bnode_split(struct hfs_find_data *fd)
-+static struct hfs_bnode *hfs_bnode_split(struct hfs_find_data *fd)
- {
- 	struct hfs_btree *tree;
- 	struct hfs_bnode *node, *new_node;
-@@ -318,7 +322,7 @@
- 	return new_node;
- }
- 
--int hfs_brec_update_parent(struct hfs_find_data *fd)
-+static int hfs_brec_update_parent(struct hfs_find_data *fd)
- {
- 	struct hfs_btree *tree;
- 	struct hfs_bnode *node, *new_node, *parent;
-@@ -414,7 +418,7 @@
- 	return 0;
- }
- 
--int hfs_btree_inc_height(struct hfs_btree *tree)
-+static int hfs_btree_inc_height(struct hfs_btree *tree)
- {
- 	struct hfs_bnode *node, *new_node;
- 	struct hfs_bnode_desc node_desc;
---- linux-2.6.10-mm2-full/fs/hfsplus/dir.c.old	2005-01-07 00:44:00.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/hfsplus/dir.c	2005-01-08 02:18:20.000000000 +0100
-@@ -228,8 +228,8 @@
- 	return 0;
- }
- 
--int hfsplus_create(struct inode *dir, struct dentry *dentry, int mode,
--		   struct nameidata *nd)
-+static int hfsplus_create(struct inode *dir, struct dentry *dentry, int mode,
-+			  struct nameidata *nd)
- {
- 	struct inode *inode;
- 	int res;
-@@ -250,7 +250,8 @@
- 	return 0;
- }
- 
--int hfsplus_link(struct dentry *src_dentry, struct inode *dst_dir, struct dentry *dst_dentry)
-+static int hfsplus_link(struct dentry *src_dentry, struct inode *dst_dir, 
-+			struct dentry *dst_dentry)
- {
- 	struct super_block *sb = dst_dir->i_sb;
- 	struct inode *inode = src_dentry->d_inode;
-@@ -302,7 +303,7 @@
- 	return 0;
- }
- 
--int hfsplus_unlink(struct inode *dir, struct dentry *dentry)
-+static int hfsplus_unlink(struct inode *dir, struct dentry *dentry)
- {
- 	struct super_block *sb = dir->i_sb;
- 	struct inode *inode = dentry->d_inode;
-@@ -346,7 +347,7 @@
- 	return res;
- }
- 
--int hfsplus_mkdir(struct inode *dir, struct dentry *dentry, int mode)
-+static int hfsplus_mkdir(struct inode *dir, struct dentry *dentry, int mode)
- {
- 	struct inode *inode;
- 	int res;
-@@ -367,7 +368,7 @@
- 	return 0;
- }
- 
--int hfsplus_rmdir(struct inode *dir, struct dentry *dentry)
-+static int hfsplus_rmdir(struct inode *dir, struct dentry *dentry)
- {
- 	struct inode *inode;
- 	int res;
-@@ -385,7 +386,8 @@
- 	return 0;
- }
- 
--int hfsplus_symlink(struct inode *dir, struct dentry *dentry, const char *symname)
-+static int hfsplus_symlink(struct inode *dir, struct dentry *dentry,
-+			   const char *symname)
- {
- 	struct super_block *sb;
- 	struct inode *inode;
-@@ -415,7 +417,8 @@
- 	return res;
- }
- 
--int hfsplus_mknod(struct inode *dir, struct dentry *dentry, int mode, dev_t rdev)
-+static int hfsplus_mknod(struct inode *dir, struct dentry *dentry,
-+			 int mode, dev_t rdev)
- {
- 	struct super_block *sb;
- 	struct inode *inode;
-@@ -440,8 +443,8 @@
- 	return 0;
- }
- 
--int hfsplus_rename(struct inode *old_dir, struct dentry *old_dentry,
--		   struct inode *new_dir, struct dentry *new_dentry)
-+static int hfsplus_rename(struct inode *old_dir, struct dentry *old_dentry,
-+			  struct inode *new_dir, struct dentry *new_dentry)
- {
- 	int res;
- 
---- linux-2.6.10-mm2-full/fs/hfsplus/extents.c.old	2005-01-07 00:46:52.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/hfsplus/extents.c	2005-01-08 02:18:20.000000000 +0100
-@@ -37,8 +37,8 @@
- 	return be32_to_cpu(k1s) < be32_to_cpu(k2s) ? -1 : 1;
- }
- 
--void hfsplus_ext_build_key(hfsplus_btree_key *key, u32 cnid,
--			  u32 block, u8 type)
-+static void hfsplus_ext_build_key(hfsplus_btree_key *key, u32 cnid,
-+				  u32 block, u8 type)
- {
- 	key->key_len = cpu_to_be16(HFSPLUS_EXT_KEYLEN - 2);
- 	key->ext.cnid = cpu_to_be32(cnid);
-@@ -263,8 +263,9 @@
- 	return -EIO;
- }
- 
--int hfsplus_free_extents(struct super_block *sb, struct hfsplus_extent *extent,
--			 u32 offset, u32 block_nr)
-+static int hfsplus_free_extents(struct super_block *sb,
-+				struct hfsplus_extent *extent,
-+				u32 offset, u32 block_nr)
- {
- 	u32 count, start;
- 	int i;
---- linux-2.6.10-mm2-full/fs/hfsplus/inode.c.old	2005-01-07 00:47:43.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/hfsplus/inode.c	2005-01-08 02:18:20.000000000 +0100
-@@ -40,7 +40,7 @@
- 	return generic_block_bmap(mapping, block, hfsplus_get_block);
- }
- 
--int hfsplus_releasepage(struct page *page, int mask)
-+static int hfsplus_releasepage(struct page *page, int mask)
- {
- 	struct inode *inode = page->mapping->host;
- 	struct super_block *sb = inode->i_sb;
-@@ -297,7 +297,7 @@
- extern struct inode_operations hfsplus_dir_inode_operations;
- extern struct file_operations hfsplus_dir_operations;
- 
--struct inode_operations hfsplus_file_inode_operations = {
-+static struct inode_operations hfsplus_file_inode_operations = {
- 	.lookup		= hfsplus_file_lookup,
- 	.truncate	= hfsplus_file_truncate,
- 	.permission	= hfsplus_permission,
-@@ -306,7 +306,7 @@
- 	.listxattr	= hfsplus_listxattr,
- };
- 
--struct file_operations hfsplus_file_operations = {
-+static struct file_operations hfsplus_file_operations = {
- 	.llseek 	= generic_file_llseek,
- 	.read		= generic_file_read,
- 	.write		= generic_file_write,
---- linux-2.6.10-mm2-full/fs/hfsplus/super.c.old	2005-01-07 00:48:30.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/hfsplus/super.c	2005-01-08 02:18:20.000000000 +0100
-@@ -94,7 +94,7 @@
- 	make_bad_inode(inode);
- }
- 
--int hfsplus_write_inode(struct inode *inode, int unused)
-+static int hfsplus_write_inode(struct inode *inode, int unused)
- {
- 	struct hfsplus_vh *vhdr;
- 	int ret = 0;
-@@ -239,7 +239,7 @@
- 	return 0;
- }
- 
--int hfsplus_remount(struct super_block *sb, int *flags, char *data)
-+static int hfsplus_remount(struct super_block *sb, int *flags, char *data)
- {
- 	if ((*flags & MS_RDONLY) == (sb->s_flags & MS_RDONLY))
- 		return 0;
+Unable to handle kernel NULL pointer dereference at virtual address 00000004
+ printing eip:
+c025a386
+*pde = 78f84067
+Oops: 0000 [#1]
+SMP
+CPU:    1
+EIP:    0060:[<c025a386>]    Not tainted VLI
+EFLAGS: 00013246   (2.6.10-mm2)
+EIP is at agp_bind_memory+0x56/0x80
+eax: 00000000   ebx: 00000000   ecx: 00000000   edx: 00000000
+esi: f027c0e0   edi: 00000000   ebp: f027c3a0   esp: f6c83f10
+ds: 007b   es: 007b   ss: 0068
+Process XFree86 (pid: 2160, threadinfo=f6c83000 task=efc3aaa0)
+Stack: bffffab0 c0214a04 00000000 c23ed000 f7d6ff40 c02645df 00000000 0000a1b6
+       00000000 00000000 00000001 00000000 00000036 c23ed000 c0264550 c025ffe5
+       bffffab0 f6c83f50 00000005 bffff95c f6c83000 efc3aaa0 086de8c0 40086436
+Call Trace:
+ [<c0214a04>] copy_from_user+0x34/0x70
+ [<c02645df>] drm_agp_bind+0x8f/0xf0
+ [<c0264550>] drm_agp_bind+0x0/0xf0
+ [<c025ffe5>] drm_ioctl+0x105/0x201
+ [<c0163c1a>] do_ioctl+0x8a/0xb0
+ [<c0163e5a>] sys_ioctl+0x7a/0x200
+ [<c01025ad>] sysenter_past_esp+0x52/0x75
+Code: 89 fa 8b 4e 20 8b 58 04 89 f0 ff 53 40 85 c0 75 07 c6 46 28 01 89 7e 1c 8b 5c 24 08 8b 74 24 0c 8b 7c 24 10 83 c4 14 c3 8b 46 08 <8b> 40 04 ff 50 34 c6 46 29 01 eb c6 89 74 24 04 c7 04 24 f4 d4

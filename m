@@ -1,40 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317262AbSFSKQr>; Wed, 19 Jun 2002 06:16:47 -0400
+	id <S317833AbSFSKWz>; Wed, 19 Jun 2002 06:22:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317830AbSFSKQq>; Wed, 19 Jun 2002 06:16:46 -0400
-Received: from apollo.sot.fi ([195.74.13.237]:18190 "EHLO vscan.sot.com")
-	by vger.kernel.org with ESMTP id <S317262AbSFSKQp>;
-	Wed, 19 Jun 2002 06:16:45 -0400
-Message-ID: <3D106994.6010006@sot.com>
-Date: Wed, 19 Jun 2002 13:23:00 +0200
-From: Yaroslav Popovitch <yp@sot.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4.1) Gecko/20020314 Netscape6/6.2.2
-X-Accept-Language: en-us
+	id <S317834AbSFSKWy>; Wed, 19 Jun 2002 06:22:54 -0400
+Received: from eventhorizon.antefacto.net ([193.120.245.3]:25017 "EHLO
+	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
+	id <S317833AbSFSKWx>; Wed, 19 Jun 2002 06:22:53 -0400
+Message-ID: <3D105B3E.8090801@antefacto.com>
+Date: Wed, 19 Jun 2002 11:21:50 +0100
+From: Padraig Brady <padraig@antefacto.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020605
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Kernel panic on v2.4.19-pre10
+To: Cort Dougan <cort@fsmlabs.com>
+CC: Benjamin LaHaise <bcrl@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: latest linus-2.5 BK broken
+References: <E17KPdj-0004EP-00@wagner.rustcorp.com.au> <Pine.LNX.4.44.0206181334500.981-100000@home.transmeta.com> <20020618171200.G16091@redhat.com> <20020618150840.Q13770@host110.fsmlabs.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-CPU1: Machine Check Exception 000000..0004
-Bank 3: f20000000002010a
-Kernel panic: CPU context currupt
+Cort Dougan wrote:
+> I agree with you there.  It's not easy, and I'd claim it's not possible
+> given that no-one has done it yet, to have a select() call that is speedy
+> for both 0-10 and 1k file descriptors.
 
+Have you noticed yesterdays + todays fixup patch from Andi Kleen:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=102446644619648&w=2
 
--------------------------------------------------------------
-My Hardware:
-2 x Pentium III 600 Mhz
-MB Chaintech CT-6BDU (i440BX)
-
-Cheers,YP
-
--- 
-Mr. Yaroslav Popovitch     			- tel. +372 6419975
-SOT Finnish Software Engineering Ltd.   	- fax  +372 6419876
-Kreutzwaldi 7-4, 10124  TALLINN         	- http://www.sot.com/
-ESTONIA                                 	- http://sotlinux.net/
-
+Padraig.
 

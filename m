@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315210AbSFDQuL>; Tue, 4 Jun 2002 12:50:11 -0400
+	id <S315214AbSFDQuq>; Tue, 4 Jun 2002 12:50:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315232AbSFDQuK>; Tue, 4 Jun 2002 12:50:10 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:49916 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S315210AbSFDQtL>; Tue, 4 Jun 2002 12:49:11 -0400
-Subject: Re: linux-2.5.20-ct1
-From: Robert Love <rml@tech9.net>
-To: Thunder from the hill <thunder@ngforever.de>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-        Lightweight patch manager <patch@luckynet.dynu.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-In-Reply-To: <Pine.LNX.4.44.0206032239500.3833-100000@hawkeye.luckynet.adm>
-Content-Type: text/plain
+	id <S315232AbSFDQuO>; Tue, 4 Jun 2002 12:50:14 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:35084 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S315214AbSFDQt2>; Tue, 4 Jun 2002 12:49:28 -0400
+Message-ID: <3CFCE1E2.1040906@evision-ventures.com>
+Date: Tue, 04 Jun 2002 17:50:58 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc3) Gecko/20020523
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Patrick Mochel <mochel@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: device model documentation 2/3
+In-Reply-To: <Pine.LNX.4.33.0206040918490.654-100000@geena.pdx.osdl.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 04 Jun 2002 09:48:56 -0700
-Message-Id: <1023209337.912.103.camel@sinai>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-06-03 at 21:41, Thunder from the hill wrote:
+Patrick Mochel wrote:
+> Document 2: driver.txt
 
-> On Mon, 3 Jun 2002, William Lee Irwin III wrote:
-> > Please discard the atomic update patch altogether; there were enough
-> > eyebrows raised that this cannot qualify as a simple cleanup.
 > 
-> Is there something serious to add about them? Is it sure that they won't 
-> work or such? Otherwise I'd suggest just getting them tested.
+> This callback only verifies that there actually is supported hardware
+> present. It may allocate a driver-specific structure, but it should
+> not do any initialization of the hardware itself. The device-specific
+> structure may be stored in the device's driver_data field. 
+> 
+> 	int	(*init)		(struct device * dev);
+> 
+> init is called during the binding stage. It is called after probe has
+> successfully returned and the device has been registered with its
+> class. It is responsible for initializing the hardware.
 
-Maybe it is not wise to integrate a tree with patches you do to know are
-correct or not?
-
-	Robert Love
-
+"init is called during the *attachment*."
+You see it even sounds more naturall.
 

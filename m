@@ -1,200 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264481AbTLaNZ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 08:25:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264484AbTLaNZ1
+	id S264476AbTLaNTG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 08:19:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264481AbTLaNTG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 08:25:27 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:56218 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264481AbTLaNZT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 08:25:19 -0500
-Date: Wed, 31 Dec 2003 18:59:59 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+	Wed, 31 Dec 2003 08:19:06 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:4250 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S264476AbTLaNTA convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Dec 2003 08:19:00 -0500
+Date: Wed, 31 Dec 2003 11:13:57 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
 To: linux-kernel@vger.kernel.org
-Cc: manfred@colorfullife.com, rusty@au1.ibm.com
-Subject: BUG in x86 do_page_fault?  [was Re: in_atomic doesn't count local_irq_disable?]
-Message-ID: <20031231185959.A9041@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <3FF044A2.3050503@colorfullife.com> <20031230185615.A9292@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20031230185615.A9292@in.ibm.com>; from vatsa@in.ibm.com on Tue, Dec 30, 2003 at 06:56:15PM +0530
+Subject: Linux 2.4.24-pre3
+Message-ID: <Pine.LNX.4.58L.0312311109131.24741@logos.cnet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Cyclades-MailScanner-Information: Please contact the ISP for more information
+X-Cyclades-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
 Hi,
-	in_atomic() doesn't seem to return true
-in code sections where IRQ's have been disabled (using 
-local_irq_disable).
 
-As a result, I think do_page_fault() on x86 needs to 
-be updated to note this fact:
+Here goes -pre3. It contains a PPC32/SPARC update, some i2c cleanups, LVM
+update, network update, a new WAN driver, amongst others.
 
+It should show up in ftp.kernel.org in a few minutes.
 
---- fault.c.org Wed Dec 31 18:34:18 2003
-+++ fault.c     Wed Dec 31 18:35:02 2003
-@@ -259,7 +259,7 @@
-         * If we're in an interrupt, have no user context or are running in an
-         * atomic region then we must not take the fault..
-         */
--       if (in_atomic() || !mm)
-+       if (in_atomic() || irqs_disabled() || !mm)
-                goto bad_area_nosemaphore;
-
-        down_read(&mm->mmap_sem);
+Happy new year!
 
 
-For ex: cosider some kernel code like this:
+Summary of changes from v2.4.24-pre2 to v2.4.24-pre3
+============================================
 
+<khali:linux-fr.org>:
+  o i2c cleanup: Fix dependancies between the various SCx200 drivers
+  o i2c cleanup: Remove old compatibility code
+  o i2c cleanup: documentation
 
-	local_irq_disable();
+<marcelo:logos.cnet>:
+  o Changed EXTRAVERSION to -pre3
+  o Cset exclude: marcelo@logos.cnet|ChangeSet|20031228201456|00847
+  o Cset exclude: marcelo@logos.cnet|ChangeSet|20031228200956|00864
+  o Cset exclude: marcelo@logos.cnet|ChangeSet|20031231111415|59075
 
-	/* Do something which leads to a page fault */
+<mfedyk:matchmail.com>:
+  o Use "%u" when printing extended /proc/partitions statistics
+  o extended stats correction: Field rd_ios can be negative
 
-	local_irq_enable(); 
+<mgalgoci:redhat.com>:
+  o Trivial SubmittingDrivers fix
 
-Such a code is buggy and should result in a oops(?) when
-the page fault happens.
+<nuno:itsari.org>:
+  o Ulrich Drepper: fix 'noexec' behaviour
 
-Without the above patch, the page fault handler 
-will try acquiring the mmap_sem semaphore and can potentially
-sleep inside schedule (with IRQs disabled).
+<waltabbyh:comcast.net>:
+  o Fix pdcraid geometry detection
 
+<xose:wanadoo.es>:
+  o LVM 1.0.8 update
 
-Also isn't the same change  required in scheduler()
-where it whines if called from a code section which is supposed to be 
-atomic.
+Adrian Bunk:
+  o dep_tristate wants 3 arguments (fwd)
 
---- sched.c.org Wed Dec 31 18:49:10 2003
-+++ sched.c     Wed Dec 31 18:49:43 2003
-@@ -1507,7 +1507,7 @@
-         * Otherwise, whine if we are scheduling when we should not be.
-         */
-        if (likely(!(current->state & (TASK_DEAD | TASK_ZOMBIE)))) {
--               if (unlikely(in_atomic())) {
-+               if (unlikely(in_atomic() || irqs_disabled())) {
-                        printk(KERN_ERR "bad: scheduling while atomic!\n");
-                        dump_stack();
-                }
+Alan Cox:
+  o 2.4 zr36120 missing dependancies
 
+Bart De Schuymer:
+  o [BRIDGE]: Fix loopback over bridge port
 
+David S. Miller:
+  o [SPARC64]: On Sabre, only access PCI controller config space specially
+  o [SPARC64]: Update defconfig
 
-On Tue, Dec 30, 2003 at 06:56:15PM +0530, Srivatsa Vaddagiri wrote:
-> On Mon, Dec 29, 2003 at 04:13:38PM +0100, Manfred Spraul wrote:
-> > 
-> > What do you mean with unable? Could you post what was printed?
-> 
-> All I used to get was :
-> 
-> "Debug: sleeping function called from invalid context
-> at include/linux/rwsem.h:45
-> in_atomic: 0, irqs_disabled(): 1
-> Call Trace:"
-> 
-> That's it. Nothing more. Looks like it could not read the
-> stack at that point and hence couldn't dump the stack traceback.
-> 
-> I now inserted some printk's in do_page_fault
-> to print regs->eip before calling down_read i.e:
-> 
->         /*
->          * If we're in an interrupt, have no user context or are running in an
->          * atomic region then we must not take the fault..
->          */
->         if (in_atomic() || !mm)
->                 goto bad_area_nosemaphore;
-> 
-> +       if (irqs_disabled()) {
-> +               printk("BAD Access at (EIP) %08lx\n", regs->eip);
-> +               printk("Bad Access at virtual address %08lx\n",address);
-> +       }
-> 
->         down_read(&mm->mmap_sem);
-> 
-> 
-> This is what I got now when I reran my stress test:
-> 
-> 
-> BAD Access at (EIP) c011c1b5
-> Bad Access at virtual address 05050501
-> Debug: sleeping function called from invalid context at include/linux/rwsem.h:47
-> in_atomic():0, irqs_disabled():1
-> Call Trace:
->  [<c011fd66>] __might_sleep+0x86/0x90
->  [<c01378f6>] module_unload_free+0x36/0xe0
->  [<c011b889>] do_page_fault+0xc9/0x573
->  [<c013f1df>] buffered_rmqueue+0x10f/0x120
->  [<c013f2ba>] __alloc_pages+0xca/0x360
->  [<c0148d64>] do_anonymous_page+0x1c4/0x1d0
->  [<c011b7c0>] do_page_fault+0x0/0x573
->  [<c01378f6>] module_unload_free+0x36/0xe0
->  [<c0109d6d>] error_code+0x2d/0x38
->  [<01010101>] 
-> 
-> BAD Access at (EIP) c0139934
-> Bad Access at virtual address 0101011f
-> 
-> 
-> The first EIP (c011c1b5) is inside search_extable!!
-> The second EIP (c0139934) is inside get_ksymbol() ...
-> 
-> I suspect the second happened when kdb tried decoding the (first) exception
-> address and hence is secondary here ..
-> 
-> The stack trace that follows the first exception seems to be
-> totally bogus(?) .. I suspect the first exception 
-> happened in search_extable when looking up some module exception
-> tables(?) ..Because search_module_extables() calls search_extable() with 
-> interrupts disabled ..
-> 
-> I think this points to some module unload (race) issues during hotplug ..
-> 
-> Rusty, any comments?
-> 
-> 
-> 
-> 
-> 
-> 
-> 
-> > 
-> > I guess it's a get_user within either spin_lock_irq() or local_irq_disable. Without more info about the context, it's difficult to figure out if the page fault handler or the caller should be updated
-> 
-> 
-> Given the context above, I feel it would be correct for
-> do_page_fault() to avoid calling down_read() when IRQs are
-> disabled and instead just branch to bad_nosemaphore.
-> (as Rusty seems to concur) .. However, schedule() doesn't
-> seem to actually trap the case when it is called with interrupts disabled (as using local_irq_disable)?
-> 
-> -- 
-> 
-> 
-> Thanks and Regards,
-> Srivatsa Vaddagiri,
-> Linux Technology Center,
-> IBM Software Labs,
-> Bangalore, INDIA - 560033
-> 
-> 
-> -------------------------------------------------------
-> This SF.net email is sponsored by: IBM Linux Tutorials.
-> Become an expert in LINUX or just sharpen your skills.  Sign up for IBM's
-> Free Linux Tutorials.  Learn everything from the bash shell to sys admin.
-> Click now! http://ads.osdn.com/?ad_id=1278&alloc_id=3371&op=click
-> _______________________________________________
-> lhcs-devel mailing list
-> lhcs-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/lhcs-devel
+Eyal Lebedinsky:
+  o Fix cciss build problem
 
--- 
+Hideaki Yoshifuji:
+  o [NET]: Fix mis-spellings in net/core/neighbour.c
 
+James McMechan:
+  o Fix tmpfs dcache oops
 
-Thanks and Regards,
-Srivatsa Vaddagiri,
-Linux Technology Center,
-IBM Software Labs,
-Bangalore, INDIA - 560017
+Keith M. Wesolowski:
+  o [SPARC32]: Add myself as maintainer
+
+Krzysztof Halasa:
+  o Goramo PCI200SYN sync card driver
+  o Generic HDLC cleanup
+
+Michael Hunold:
+  o change two annoying messages from fb drivers (clgenfb and hgafb)
+
+Patrick McHardy:
+  o [PKT_SCHED]: Fix module refcount and mem leaks in classful qdiscs
+  o [PKT_SCHED]: Remove backlog accounting from TBF, pass limit to default inner bfifo qdisc only
+
+Ralf Bächle:
+  o de4x5 EISA fix
+
+Tom Rini:
+  o PPC32: Two warning fixes, from Geert Uytterhoeven <geert@linux-m68k.org>
+  o PPC32: Remove ASYNC_SKIP_TEST from all of our serial flags
+  o PPC32: Add a watchdog driver for MPC8xx machines
+  o PPC32: Add a CONFIG_OOM_KILLER entry
+  o PPC32: Fix dependancies on the bootwrapper ld script
+  o PPC32: Fix a warning on 'make zImage' for a number of platforms
+  o PPC32: Add support for the Motorola Sandpoint X3 (all revs)
+  o PPC32: Add support for the Motorola PRPMC750
+  o PPC32: Fix the mkprep util to work correctly on Solaris 8
+  o PPC32: Fix znetboot and znetboot.initrd Original patch from Eugene Surovegin <ebs@ebshome.net>, with a few more changes from myself.
+

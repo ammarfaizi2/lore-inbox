@@ -1,66 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279652AbRJYATJ>; Wed, 24 Oct 2001 20:19:09 -0400
+	id <S279656AbRJYAKS>; Wed, 24 Oct 2001 20:10:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279653AbRJYAS7>; Wed, 24 Oct 2001 20:18:59 -0400
-Received: from jalon.able.es ([212.97.163.2]:38068 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S279652AbRJYASp>;
-	Wed, 24 Oct 2001 20:18:45 -0400
-Date: Thu, 25 Oct 2001 02:19:14 +0200
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Reid Hekman <reid.hekman@ndsu.nodak.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.13-pre6 breaks Nvidia's kernel module
-Message-ID: <20011025021914.C2928@werewolf.able.es>
-In-Reply-To: <200110221846.f9MIkE416013@riker.skynet.be> <3BD532EC.6080803@eisenstein.dk> <20011023130756.A742@cy599856-a.home.com> <20011024005107.A3988@werewolf.able.es> <3BD72D5C.30604@ndsu.nodak.edu>
+	id <S279652AbRJYAKL>; Wed, 24 Oct 2001 20:10:11 -0400
+Received: from mail1.amc.com.au ([203.15.175.2]:46084 "HELO mail1.amc.com.au")
+	by vger.kernel.org with SMTP id <S279655AbRJYAKC>;
+	Wed, 24 Oct 2001 20:10:02 -0400
+Message-Id: <5.1.0.14.0.20011025095740.024859b0@mail.amc.localnet>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Thu, 25 Oct 2001 10:10:34 +1000
+To: linux-kernel@vger.kernel.org
+From: Stuart Young <sgy@amc.com.au>
+Subject: Re: SiS630S FrameBuffer & LCD
+Cc: Henrique de Moraes Holschuh <hmh@debian.org>,
+        Robert Vojta <robert@v0jta.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <20011024095423.E1178@ipex.cz>
+In-Reply-To: <E15w5Yw-0000Q5-00@the-village.bc.nu>
+ <20011023153015.F4709@khazad-dum>
+ <E15w5Yw-0000Q5-00@the-village.bc.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <3BD72D5C.30604@ndsu.nodak.edu>; from reid.hekman@ndsu.nodak.edu on Wed, Oct 24, 2001 at 23:06:36 +0200
-X-Mailer: Balsa 1.2.1
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 09:54 AM 24/10/01 +0200, Robert Vojta wrote:
 
-On 20011024 Reid Hekman wrote:
->J . A . Magallon wrote:
->
->> The first thing I did was to kach the horrible nVidia's Makefile. For example,
->> it had the bad intention of compiling and installing against the running kernel
->> (guess kernel with uname -r). So when you update the kernel, you have to reboot
->> and make nVidia drivers. I changed it to:
->> 
->> +KREL:=`grep UTS_RELEASE /usr/src/linux/include/linux/version.h | cut -d\" -f2`
->> -KERNDIR:=/lib/modules/$(shell uname -r)
->> +KERNDIR:=/lib/modules/$(KREL)
->> 
->> so it builds against a built but not-running kernel.
->> 
->> 
->
->I thought use of /usr/src/linux was not recommended anymore. On my 
->distro, that file would point to the original kernel, the one that 
->glibc, et al. is compiled with, not my current running kernel or ones 
->I've not yet booted with. Perhaps a `uname -r` with command-line 
->override would be more appropriate?
->
+>   AFAIK the new informations from SiS are still doesn't working. I have 
+> this SiS630 chipset too and I must use VesaFB for correct chipset 
+> initialization and correct settings. VesaFB must have the same resolution 
+> and bpp which I want in X. And I can use accelerated functions in X (not 
+> FB) by ugly hack in sis_driver.c like, so it leaves settings from VesaFB 
+> and functions like SiSPreSetMode(pScrn) 
+> and  SiSSetMode(xf86Screens[scrnIndex], mode) are skipped. I have this 
+> driver (precompiled) available on my pages 
+> http://www.v0jta.net/gericom/gericom.php3?&menu=4#vga with all steps how 
+> to make this chipset working with linux.
 
-As I see it, that is exactly what should not be done. Lets suppose you are
-running 2.4.12. You want to upgrade. So you unpack 2.4.13 and build it.
-If you go now to build nVidia drivers, with the shipped Makefile they
-still build and install against 2.4.12. Sou you have to reboot in runlevel
-3 to have 2.4.13 running witoht X, and then install the driver. *grrr*
-With the above change, you build your kernel, then you go to the nVidia
-sources, build the driver and install on the proper 2.4.13 dir under
-/lib/modules, and just reboot in X again.
+I have a similar patch at...
+  http://members.optushome.com.au/cefiar1/sis_vesa_fb_hack.diff
+..which does the same, except you need to add...
 
-About /usr/src/linux, what is not recommended is to symlink
-/usr/include/asm -> /usr/src/linux/include/asm
-/usr/include/linux -> /usr/src/linux/include/linux
-but instead have a separate header package that installs under /usr/include.
+Option  "VesaFBHack" "true"
 
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.2 (Cooker) for i586
-Linux werewolf 2.4.13-beo #2 SMP Thu Oct 25 00:59:08 CEST 2001 i686
+..to the Drivers section of your XF86Config-4 file to enable it.
+
+Got a binary as well, search the XFree86 Xpert list if you want more info.
+
+If the kernel SiS FrameBuffer driver is fixed first, this way will still 
+work, and maybe a more decent XFree86 patch could use the FrameBuffer mode 
+sets and so on to change modes, till the XFree86 driver is fixed, and 
+providing such info to the XFree86 team to fix the bug there as well. I 
+have yet to hear anything from SiS (and a few SiS employees are on l-k as 
+well as Xpert) on what they think this could be, or about up-to-date docs.
+
+
+AMC Enterprises P/L    - Stuart Young
+First Floor            - Network and Systems Admin
+3 Chesterville Rd      - sgy@amc.com.au
+Cheltenham Vic 3192    - Ph:  (03) 9584-2700
+http://www.amc.com.au/ - Fax: (03) 9584-2755
+

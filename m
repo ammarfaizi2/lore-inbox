@@ -1,68 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262354AbVAOXCY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262357AbVAOXGh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262354AbVAOXCY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 18:02:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262355AbVAOXCY
+	id S262357AbVAOXGh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 18:06:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbVAOXGe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 18:02:24 -0500
-Received: from mail.joq.us ([67.65.12.105]:43906 "EHLO sulphur.joq.us")
-	by vger.kernel.org with ESMTP id S262354AbVAOXCU (ORCPT
+	Sat, 15 Jan 2005 18:06:34 -0500
+Received: from ip18.tpack.net ([213.173.228.18]:30226 "HELO mail.tpack.net")
+	by vger.kernel.org with SMTP id S262355AbVAOXGa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 18:02:20 -0500
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Chris Wright <chrisw@osdl.org>, Matt Mackall <mpm@selenic.com>,
-       Paul Davis <paul@linuxaudiosystems.com>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Lee Revell <rlrevell@joe-job.com>, arjanv@redhat.com,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-References: <20050110212019.GG2995@waste.org>
-	<200501111305.j0BD58U2000483@localhost.localdomain>
-	<20050111191701.GT2940@waste.org>
-	<20050111125008.K10567@build.pdx.osdl.net>
-	<20050111205809.GB21308@elte.hu>
-	<20050111131400.L10567@build.pdx.osdl.net>
-	<20050111212719.GA23477@elte.hu> <87fz15j325.fsf@sulphur.joq.us>
-	<20050115134922.GA10114@elte.hu>
-From: "Jack O'Quin" <joq@io.com>
-Date: Sat, 15 Jan 2005 17:02:41 -0600
-In-Reply-To: <20050115134922.GA10114@elte.hu> (Ingo Molnar's message of
- "Sat, 15 Jan 2005 14:49:22 +0100")
-Message-ID: <874qhiwb1q.fsf@sulphur.joq.us>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
+	Sat, 15 Jan 2005 18:06:30 -0500
+Message-ID: <41E9A25E.3010902@tpack.net>
+Date: Sun, 16 Jan 2005 00:08:14 +0100
+From: Tommy Christensen <tommy.christensen@tpack.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: jmorris@redhat.com
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] audit: fixes in audit_log_drain()
+Content-Type: multipart/mixed;
+ boundary="------------040609020506010409040906"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> writes:
+This is a multi-part message in MIME format.
+--------------040609020506010409040906
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> * Jack O'Quin <joq@io.com> wrote:
->
->> OK, I reran with just 5 processes reniced from -10 to -5.  On my
->> system they were: events, khelper, kblockd, aio and reiserfs.  In
->> addition, I reniced loop0 from -20 to -5.
->
->> One major problem: this `nice --20' hack affects every thread, not
->> just the critical realtime ones.  That's not what we want.  Audio
->> applications make very conscious choices which threads run with high
->> priority and which do not.
->
-> how much did this problem affect your test? Could the source of the 500
-> msec delays be the non-highprio components of the test that somehow
-> became nice --20?
+Would this be for you, James?
 
-Some interference is definitely possible.  But, the test does not
-involve any graphical interface, so I'd expect that to be small.
-Looking at jack_test3_client.cpp, the main thread just does a sleep()
-while the process cycle is running.
+o Fix skb leak
+o Don't send shared skb's to netlink_unicast
 
-Still, it's hard to be sure.  
+Signed-off-by: Tommy S. Christensen <tommy.christensen@tpack.net>
 
-Probably, the best way to tell would be patching JACK so it uses
-nice(-20) instead of pthread_setschedparam() for the realtime threads.
-As a hack, that looks easy.  I'll build a working directory with just
-that change, so we can experiment with it better.
--- 
-  joq
+-Tommy
+
+--------------040609020506010409040906
+Content-Type: text/plain;
+ name="audit.c.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="audit.c.patch"
+
+--- linux-2.6.11-rc1-bk3/kernel/audit.c	2005-01-12 14:54:15.000000000 +0100
++++ linux-2.6.11-work/kernel/audit.c	2005-01-15 23:51:25.399453674 +0100
+@@ -483,6 +483,7 @@
+ 
+ 	while ((skb = skb_dequeue(&ab->sklist))) {
+ 		int retval = 0;
++		struct sk_buff *nskb;
+ 
+ 		if (audit_pid) {
+ 			if (ab->nlh) {
+@@ -492,13 +493,17 @@
+ 				ab->nlh->nlmsg_seq   = 0;
+ 				ab->nlh->nlmsg_pid   = ab->pid;
+ 			}
+-			skb_get(skb); /* because netlink_* frees */
+-			retval = netlink_unicast(audit_sock, skb, audit_pid,
+-						 MSG_DONTWAIT);
++			retval = -ENOMEM;
++			nskb = skb_clone(skb);
++			if (nskb)
++				retval = netlink_unicast(audit_sock, nskb,
++							 audit_pid,
++							 MSG_DONTWAIT);
+ 		}
+ 		if (retval == -EAGAIN && ab->count < 5) {
+ 			++ab->count;
+ 			audit_log_end_irq(ab);
++			kfree_skb(skb);
+ 			return 1;
+ 		}
+ 		if (retval < 0) {
+
+--------------040609020506010409040906--

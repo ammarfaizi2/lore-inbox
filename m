@@ -1,69 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262084AbTIHIlI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 04:41:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262077AbTIHIlI
+	id S262092AbTIHIyg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 04:54:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262086AbTIHIyf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 04:41:08 -0400
-Received: from ip-a1-37024.keycomm.it ([62.152.37.24]:46906 "EHLO
-	sparc.campana.vi.it") by vger.kernel.org with ESMTP id S262084AbTIHIlF
+	Mon, 8 Sep 2003 04:54:35 -0400
+Received: from angband.namesys.com ([212.16.7.85]:3524 "EHLO
+	angband.namesys.com") by vger.kernel.org with ESMTP id S262112AbTIHIye
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 04:41:05 -0400
-Date: Mon, 8 Sep 2003 10:40:36 +0200
-From: Ottavio Campana <ottavio@campana.vi.it>
-To: linux-kernel@vger.kernel.org
-Subject: linux 2.4.22 compile error
-Message-ID: <20030908084036.GA30850@campana.vi.it>
+	Mon, 8 Sep 2003 04:54:34 -0400
+Date: Mon, 8 Sep 2003 12:54:33 +0400
+From: Oleg Drokin <green@namesys.com>
+To: Alexander Vodomerov <alex@sectorb.msk.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sync crashed with segfault on 2.6.0-test4 (reiserfs partition)
+Message-ID: <20030908085433.GB17718@namesys.com>
+References: <200309051424.48834.alex@sectorb.msk.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux dirac 2.4.21-dirac 
-X-Organization: Lega per la soppressione del Visual Basic
-X-Homepage: http://www.campana.vi.it/ottavio/
+In-Reply-To: <200309051424.48834.alex@sectorb.msk.ru>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just downloaded  linux 2.4.22 and applied the  following patches: xfs,
-i2c 2.8.0 and lm_sensors 2.8.0 .
+Hello!
 
-The kernel is failing to compile, here's the error:
+On Fri, Sep 05, 2003 at 02:24:48PM +0400, Alexander Vodomerov wrote:
+> Yesterday I've tried 2.6.0-test4 kernel. It works fine about 17 hours, but
+> suddenly sync command causes a segfault. I've made sync many times
+> Sep  4 16:43:36 lorien kernel: EIP:    0060:[mpage_writepages+301/688]  
+> Sep  4 16:43:36 lorien kernel:  [reiserfs_writepage+0/64] reiserfs_writepage+0x0/0x40
+> Sep  4 16:43:36 lorien kernel:  [do_writepages+54/64] do_writepages+0x36/0x40
+> Sep  4 16:43:36 lorien kernel:  [__sync_single_inode+169/496] __sync_single_inode+0xa9/0x1f0
+> Sep  4 16:43:36 lorien kernel:  [sync_sb_inodes+396/560] sync_sb_inodes+0x18c/0x230
+> Sep  4 16:43:36 lorien kernel:  [sync_inodes_sb+119/144] sync_inodes_sb+0x77/0x90
+> Sep  4 16:43:36 lorien kernel:  [sync_inodes+43/160] sync_inodes+0x2b/0xa0
+> Sep  4 16:43:36 lorien kernel:  [do_sync+35/112] do_sync+0x23/0x70
+> Sep  4 16:43:36 lorien kernel:  [sys_sync+15/32] sys_sync+0xf/0x20
+> Sep  4 16:43:36 lorien kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
 
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.22/include -Wall -Wstrict-prototypes 
--Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer 
--pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4 
--DMODULE -DMODVERSIONS -include /usr/src/linux-2.4.22/include/linux/modversions.h
--nostdinc -iwithprefix include -DKBUILD_BASENAME=bttv_if  -DEXPORT_SYMTAB 
--c bttv-if.c
-bttv-if.c:244: unknown field `inc_use' specified in initializer
-bttv-if.c:244: warning: initialization from incompatible pointer type
-bttv-if.c:245: unknown field `dec_use' specified in initializer
-bttv-if.c:245: warning: missing braces around initializer
-bttv-if.c:245: warning: (near initialization for `bttv_i2c_adap_template.name')
-bttv-if.c:245: warning: initialization makes integer from pointer without a cast
-bttv-if.c:245: initializer element is not computable at load time
-bttv-if.c:245: (near initialization for `bttv_i2c_adap_template.name[0]')
-bttv-if.c:246: unknown field `name' specified in initializer
-bttv-if.c:246: warning: initialization makes integer from pointer without a cast
-bttv-if.c:246: initializer element is not computable at load time
-bttv-if.c:246: (near initialization for `bttv_i2c_adap_template.name[1]')
-bttv-if.c:247: unknown field `id' specified in initializer
-bttv-if.c:248: unknown field `client_register' specified in initializer
-bttv-if.c:248: warning: initialization makes integer from pointer without a cast
-bttv-if.c:248: initializer element is not computable at load time
-bttv-if.c:248: (near initialization for `bttv_i2c_adap_template.name[3]')
-make[4]: *** [bttv-if.o] Error 1
-make[4]: Leaving directory `/usr/src/linux-2.4.22/drivers/media/video'
-make[3]: *** [_modsubdir_video] Error 2
-make[3]: Leaving directory `/usr/src/linux-2.4.22/drivers/media'
-make[2]: *** [_modsubdir_media] Error 2
-make[2]: Leaving directory `/usr/src/linux-2.4.22/drivers'
-make[1]: *** [_mod_drivers] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.4.22'
-make: *** [stamp-build] Error 2
+This is fixed in current bk tree/current -mm tree.
+The following patch should do the trick.
 
-I've given  a look  a bttv-if, but  I can't understand  the error,  so I
-can't help more than this. I'm using gcc 2.95.4 .
+Bye,
+    Oleg
 
-If you need more  infos can you please cc me, for  I'm not subscribed to
-the list?
+diff -Nru a/fs/reiserfs/inode.c b/fs/reiserfs/inode.c
+--- a/fs/reiserfs/inode.c	Mon Sep  8 12:54:12 2003
++++ b/fs/reiserfs/inode.c	Mon Sep  8 12:54:12 2003
+@@ -2048,8 +2048,8 @@
+         last_offset = inode->i_size & (PAGE_CACHE_SIZE - 1) ;
+ 	/* no file contents in this page */
+ 	if (page->index >= end_index + 1 || !last_offset) {
+-	    error = 0 ;
+-	    goto done ;
++    	    unlock_page(page);
++	    return 0;
+ 	}
+ 	kaddr = kmap_atomic(page, KM_USER0);
+ 	memset(kaddr + last_offset, 0, PAGE_CACHE_SIZE-last_offset) ;

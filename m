@@ -1,50 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267273AbTAKQ3L>; Sat, 11 Jan 2003 11:29:11 -0500
+	id <S267281AbTAKQl4>; Sat, 11 Jan 2003 11:41:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267280AbTAKQ3L>; Sat, 11 Jan 2003 11:29:11 -0500
-Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:39857 "EHLO
-	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S267273AbTAKQ3K>; Sat, 11 Jan 2003 11:29:10 -0500
-Message-Id: <200301111634.h0BGYGUt003680@eeyore.valparaiso.cl>
-To: Adrian Bunk <bunk@fs.tum.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: UnitedLinux violating GPL? 
-In-Reply-To: Message from Adrian Bunk <bunk@fs.tum.de> 
-   of "Fri, 10 Jan 2003 13:19:17 +0100." <20030110121917.GJ6626@fs.tum.de> 
-Date: Sat, 11 Jan 2003 17:34:16 +0100
-From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
+	id <S267282AbTAKQl4>; Sat, 11 Jan 2003 11:41:56 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:13831 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S267281AbTAKQlz>;
+	Sat, 11 Jan 2003 11:41:55 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200301111647.h0BGlWML004287@darkstar.example.net>
+Subject: Re: [BUG] cardbus/hotplugging still broken in 2.5.56
+To: mikpe@csd.uu.se (Mikael Pettersson)
+Date: Sat, 11 Jan 2003 16:47:32 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200301111605.RAA06360@harpo.it.uu.se> from "Mikael Pettersson" at Jan 11, 2003 05:05:04 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@fs.tum.de> said:
-> On Fri, Jan 10, 2003 at 11:55:21AM +0100, Horst von Brand wrote:
-> 
-> >...
-> > they aren't in violation. Sure, having a look at the non-official patches
-> > they apply would be nice, but not mandated by GPL.
-> 
-> [ disclaimer: the UnitedLinux issue in the subject is already resolved ]
+> Cardbus/hotplugging is still broken in 2.5.56. Inserting a
+> card fails due a bogus 'resource conflict', and ejecting it
+> oopses the kernel. It's been this way since 2.5.4x-something.
 
-Right.
+This is a known issue, somebody else reported it to the mailing list
+yesterday, and I've put it in my bug db:
 
-> This is wrong. Section 3 of the GPL says that you have to accompany the
-> binaries either with the complete source code (and this includes all
-> patches you have applied) or with a "written offer, valid for at least
-> three years, to give any third party for a charge no more than your cost
-> of physically performing source distribution, a complete
-> machine-readable copy of the corresponding source code".
+http://grabjohn.com/kernelbugdatabase/index.php?action=21&id=18
 
-Great! The "complete source code" for the kernel does include each and
-every single patch applied since linux-0.0.1? Guess I'll have to complain
-to a certain Torvalds then...
-
-Don't be silly. "Complete source code" means the source needed to rebuild
-the binary, nothing more. If that is a mangled version derived from some
-other  source, so be it. You are explicitly allowed to distribute changed
-versions, but only under GPL. [IANAL etc, so...]
---
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+John.

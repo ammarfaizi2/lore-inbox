@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129076AbQKBWus>; Thu, 2 Nov 2000 17:50:48 -0500
+	id <S129126AbQKBWxI>; Thu, 2 Nov 2000 17:53:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129250AbQKBWui>; Thu, 2 Nov 2000 17:50:38 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:16646 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129076AbQKBWub>; Thu, 2 Nov 2000 17:50:31 -0500
-Message-ID: <3A01EED6.DB47198A@timpanogas.org>
-Date: Thu, 02 Nov 2000 15:46:46 -0700
-From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-Organization: TRG, Inc.
-X-Mailer: Mozilla 4.7 [en] (WinNT; I)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18Pre Lan Performance Rocks!
-In-Reply-To: <Pine.LNX.4.21.0011010122160.18143-100000@elte.hu> <39FF5332.7C862223@timpanogas.org> <20001102031546.B10806@cerebro.laendle> <20001101212835.A2425@vger.timpanogas.org> <20001102043332.A27126@fuji.laendle> <3A0195DA.DDEBAC51@timpanogas.org> <20001102194323.D2790@cerebro.laendle> <3A01CBB5.48C3094A@timpanogas.org> <20001102214903.F2790@cerebro.laendle> <3A01E71A.778BD898@timpanogas.org> <20001102232210.H2790@cerebro.laendle> <3A01ECD2.76DE10FF@timpanogas.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129144AbQKBWw6>; Thu, 2 Nov 2000 17:52:58 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:51610 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S129126AbQKBWws>;
+	Thu, 2 Nov 2000 17:52:48 -0500
+Date: Thu, 2 Nov 2000 14:37:56 -0800
+Message-Id: <200011022237.OAA26995@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: groudier@club-internet.fr
+CC: cort@fsmlabs.com, npsimons@fsmlabs.com, garloff@suse.de,
+        jamagallon@able.es, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10011022209420.2328-100000@linux.local> (message
+	from Gérard Roudier on Thu, 2 Nov 2000 22:24:27 +0100 (CET))
+Subject: Re: Where did kgcc go in 2.4.0-test10 ?
+In-Reply-To: <Pine.LNX.4.10.10011022209420.2328-100000@linux.local>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   Date: Thu, 2 Nov 2000 22:24:27 +0100 (CET)
+   From: Gérard Roudier <groudier@club-internet.fr>
 
+   > Finally, if I were to state "fsmlabs are a bunch of pinheads because
+   > they did XXX" I would expect you to defend your employer as well if I
+   > misrepresented them due to incorrect statements.  Right?  :-)
 
-"Jeff V. Merkey" wrote:
+   Wrong, as far as it is David S. Miller who is one of the greatest Linux 
+   contributors that made Linux become what it is nowadays, mostly as a free
+   contributors for years.
 
-In the example of an AGI generating code fragment, while I described the
-sequence of creating the AGI with immediate address usage correctly
-(i.e. if you load an address into a register then immediately attempt to
-use it, it will generate an AGI), I failed to put the register in the
-coding example.  
+Gerard, please replace "employer" in my words above with "group who
+you believe in" (for me, such an example would be the SparcLinux
+project) and you will arrive at the true gist of my statements.
 
-A couple of folks are testing the gcc compiler for AGI problems as a
-result of this post, and I am posting the corrected code for their
-tests.
+I will defend anyone in the Linux community who is being wronged and
+who I believe in.  It is not a gift specific to the company I work
+for.  I would bestow it even upon one of my ex-employers, it does not
+matter.  I don't think I have become as cold blooded as you would make
+me out to be :-)
 
-This code fragment will generate an AGI condition:
+Later,
+David S. Miller
+davem@redhat.com
 
-mov   eax, addr
-mov   [eax].offset, ebx
-
-You can do it with any register combination, BTW, eax and abx are
-provided as examples.  For those who are monitoring the code produced by
-gcc, this is the example to use to test generate an AGI correctly.
-
-:-)
-
-Jeff
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

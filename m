@@ -1,53 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267120AbTBXOQd>; Mon, 24 Feb 2003 09:16:33 -0500
+	id <S267126AbTBXO1n>; Mon, 24 Feb 2003 09:27:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267125AbTBXOQd>; Mon, 24 Feb 2003 09:16:33 -0500
-Received: from mail.ithnet.com ([217.64.64.8]:11018 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S267120AbTBXOQc>;
-	Mon, 24 Feb 2003 09:16:32 -0500
-Date: Mon, 24 Feb 2003 15:26:30 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Problem with IDE-SCSI in 2.4.21-pre4/2.4.20
-Message-Id: <20030224152630.02ee680c.skraw@ithnet.com>
-In-Reply-To: <20030224141433.GE27646@louise.pinerecords.com>
-References: <20030224122259.7a468c82.skraw@ithnet.com>
-	<20030224113002.GC27646@louise.pinerecords.com>
-	<20030224132909.068d0ce9.skraw@ithnet.com>
-	<20030224124317.GD27646@louise.pinerecords.com>
-	<20030224150413.3beca89a.skraw@ithnet.com>
-	<20030224141433.GE27646@louise.pinerecords.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S267131AbTBXO1n>; Mon, 24 Feb 2003 09:27:43 -0500
+Received: from mail.mtroyal.ab.ca ([142.109.10.24]:8636 "EHLO
+	brynhild.mtroyal.ab.ca") by vger.kernel.org with ESMTP
+	id <S267126AbTBXO1m>; Mon, 24 Feb 2003 09:27:42 -0500
+Date: Mon, 24 Feb 2003 07:37:54 -0700 (MST)
+From: James Bourne <jbourne@mtroyal.ab.ca>
+To: Christian Guggenberger 
+	<Christian.Guggenberger@physik.uni-regensburg.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: tg3 patches needed for 2.4.19/2.4.20
+In-Reply-To: <20030224131434.I24600@pc9391.uni-regensburg.de>
+Message-ID: <Pine.LNX.4.51.0302240729200.21620@skuld.mtroyal.ab.ca>
+References: <20030224131434.I24600@pc9391.uni-regensburg.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-scanner: scanned by Inflex 1.0.12.2 - (http://pldaniels.com/inflex/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Feb 2003 15:14:33 +0100
-Tomas Szepe <szepe@pinerecords.com> wrote:
+On Mon, 24 Feb 2003, Christian Guggenberger wrote:
 
-> > [skraw@ithnet.com]
-> > 
-> > > Serverworks.  Well, you definitely want to try -ac.  :)
-> > 
-> > I just tried -ac6, but has the same problem.
+> Hi,
 > 
-> Another entry for Alan's IDE buglist then.
-> He's quite sure to pick up your bugreport, thanks.
+> In former days there always had been some problems with broadcom GBit Nics. So 
+> I'd like to ask what patches for the tg3 are recommended for production use 
+> with 2.4.19/2.4.20.
 
-I am not all that sure, that it's a simple IDE problem. If it were I would
-expect booting (and using) a linux live filesystems not to work. But that does
-indeed work. There seems to be a problem around the ide-scsi stuff. If I can
-try any patches of interest I will. If I can put in some debugging printk I can
-do that, too. But as I don't know what is especially known-to-be-fishy around
-ide-scsi I have no good idea where to start ...
+Hi,
+I have created a patch for 2.4.20 for the tg3 driver from Jeff
+Garziks and David Millers tg3 1.4c driver which I'm hoping will be
+in the next kernel.
+
+The patch is at http://www.hardrock.org/kernel/2.4.20/
+
+Note that because of NAPI the 2.4.20 driver will not work with 2.4.19...
+
+I have been using this driver now for 6 days without a lockup (4 days with
+2.4.20 and 2 days before that with 2.4.21-pre4) and it has
+been working great.  With the stock 2.4.20 tg3 driver we wouldn't get past
+36 hours without a lockup...
+
+Regards
+James Bourne
+
+> cheers.
+> Christian
 
 -- 
-Regards,
-Stephan
+James Bourne, Supervisor Data Centre Operations
+Mount Royal College, Calgary, AB, CA
+www.mtroyal.ab.ca
+
+"There are only 10 types of people in this world: those who
+understand binary and those who don't."
 

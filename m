@@ -1,47 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262856AbVCPXYn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261689AbVCPXUQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262856AbVCPXYn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 18:24:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262870AbVCPXXU
+	id S261689AbVCPXUQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 18:20:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262875AbVCPXTq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 18:23:20 -0500
-Received: from zork.zork.net ([64.81.246.102]:16788 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id S262856AbVCPXW2 (ORCPT
+	Wed, 16 Mar 2005 18:19:46 -0500
+Received: from rproxy.gmail.com ([64.233.170.204]:26780 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261689AbVCPXQV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 18:22:28 -0500
-From: Sean Neakums <sneakums@zork.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-mm4
-References: <20050316040654.62881834.akpm@osdl.org>
-	<6u8y4n434b.fsf@zork.zork.net> <20050316150612.2359a488.akpm@osdl.org>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Date: Wed, 16 Mar 2005 23:22:27 +0000
-In-Reply-To: <20050316150612.2359a488.akpm@osdl.org> (Andrew Morton's message
-	of "Wed, 16 Mar 2005 15:06:12 -0800")
-Message-ID: <6u4qfb41n0.fsf@zork.zork.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: sneakums@zork.net
-X-SA-Exim-Scanned: No (on zork.zork.net); SAEximRunCond expanded to false
+	Wed, 16 Mar 2005 18:16:21 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=qeTioScWOThnEHmuK2qe2kAmvXpGsPuubOWAMOAv5wlspCIX4kj9NqOdnjK6Z4wi7p6MAvWKQ+oZMuf5Tlq0oHqUeA/YKKimbWAyQUBDPsnKnGe1Y0QLzgHXI7qFgDS0WvmiRLRpBT/Qm3WR/TqAmZr/eA4mr9GXoinCNT5GDXQ=
+Message-ID: <9e47339105031615163579ea50@mail.gmail.com>
+Date: Wed, 16 Mar 2005 18:16:19 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [RFC] Changes to the driver model class code.
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       Kay Sievers <kay.sievers@vrfy.org>
+In-Reply-To: <20050315170834.GA25475@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+References: <20050315170834.GA25475@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
+On Tue, 15 Mar 2005 09:08:34 -0800, Greg KH <greg@kroah.com> wrote:
+> Hi all,
+> 
+> There are 4 patches being posted here in response to this message that
+> start us on the way toward cleaning up the driver model code so that
+> it's actually usable by mere kernel developers :)
 
-> Yes, the pmac cpufreq Kconfig dependencies are being troublesome.
->
-> Roman sent this to Ben and I overnight:
->
->
-> From: Roman Zippel <zippel@linux-m68k.org>
->
-> This completes the Kconfig cleanup for all other archs.  CPU_FREQ_TABLE was
-> moved to drivers/cpufreq/Kconfig and is selected as needed.
+Is this going to let me make subdirectories in /sys/class/xxx
+directories that generate hotplug events?
 
-Seems to do the trick on ppc: with this patch applied, oldconfig
-results in CONFIG_CPU_FREQ_TABLE=y.
+One example:
+/sys/class/graphics/fb0/monitor(edid)
+
+If the monitor is hotplugged the monitor directory will be
+created/destroyed causing a hotplug event.
 
 -- 
-Dag vijandelijk luchtschip de huismeester is dood
+Jon Smirl
+jonsmirl@gmail.com

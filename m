@@ -1,47 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317024AbSGHSOh>; Mon, 8 Jul 2002 14:14:37 -0400
+	id <S317036AbSGHSQU>; Mon, 8 Jul 2002 14:16:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317030AbSGHSOh>; Mon, 8 Jul 2002 14:14:37 -0400
-Received: from ausadmmsrr503.us.dell.com ([143.166.83.90]:1803 "HELO
-	AUSADMMSRR503.aus.amer.dell.com") by vger.kernel.org with SMTP
-	id <S317024AbSGHSOg>; Mon, 8 Jul 2002 14:14:36 -0400
-X-Server-Uuid: 91331657-2068-4fb8-8b09-a4fcbc1ed29f
-Message-ID: <F44891A593A6DE4B99FDCB7CC537BBBB072469@AUSXMPS308.aus.amer.dell.com>
-From: Matt_Domsch@Dell.com
-To: dtroth@bellsouth.net, linux-kernel@vger.kernel.org
-Subject: RE: DELL array controller access.
-Date: Mon, 8 Jul 2002 13:17:09 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-X-WSS-ID: 113708A21303374-01-01
-Content-Type: text/plain; 
- charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+	id <S317034AbSGHSQT>; Mon, 8 Jul 2002 14:16:19 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:28803
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S317030AbSGHSQR>; Mon, 8 Jul 2002 14:16:17 -0400
+Date: Mon, 8 Jul 2002 11:18:38 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Riley Williams <rhw@infradead.org>
+Cc: Justin Hibbits <jrh29@po.cwru.edu>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Michael Elizabeth Chastain <mec@shout.net>
+Subject: Re: Patch for Menuconfig script
+Message-ID: <20020708181838.GL695@opus.bloom.county>
+References: <20020708151412.GB695@opus.bloom.county> <Pine.LNX.4.21.0207081841380.9595-100000@Consulate.UFP.CX>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0207081841380.9595-100000@Consulate.UFP.CX>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have a DELL PowerEdge XE 51.  It has a DELL array 
-> controller running 
-> on EISA buss.  The controller is uses a AHA-154x emulation.  
-> I am using 
-> RedHat 7.0 and it does not see the board.  Where can I get a 
-> EISA buss AHA-154x driver to access the array controller?
+On Mon, Jul 08, 2002 at 06:44:55PM +0100, Riley Williams wrote:
+> Hi Tom.
+> 
+> >>> This is just a patch to the Menuconfig script (can be easily adapted
+> >>> to the other ones) that allows you to configure the kernel without
+> >>> the requirement of bash (I tested it with ksh, in POSIX-only mode).  
+> >>> Feel free to flame me :P
+> 
+> >> Does it also work in the case where the current shell is csh or tcsh
+> >> (for example)?
+> 
+> > Er.. why wouldn't it?
+> > $ head -1 scripts/Menuconfig 
+> > #! /bin/sh
+> 
+> > So this removes the /bin/sh is not bash test, yes?
+> 
+>  Q> # ls -l /bin/sh | tr -s '\t' ' '
+>  Q> lrwxrwxrwx 1 root root 4 May 7 1999 /bin/sh -> tcsh
+>  Q> #
+> 
+> You tell me - the above is from one of the systems I regularly use,
+> which does not even have bash installed...
 
-David, Dell never produced a Linux device driver for the Dell SCSI Array
-card.  I had forgotten about the AHA-154x emulation feature, but since it
-doesn't seem to work, it's unlikely that it ever will.  Everyone who worked
-on that project 9 years ago has left for other opportunities.  The on-board
-NCR SCSI controller should still work, and you can use software RAID quite
-easily to accomplish similar functionality.
+So does tcsh work as a POSIX-sh when invoked as /bin/sh ?
 
-Thanks,
-Matt
-
---
-Matt Domsch
-Sr. Software Engineer, Lead Engineer, Architect
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-#1 US Linux Server provider for 2001 and Q1/2002! (IDC May 2002)
-
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274362AbRITIJh>; Thu, 20 Sep 2001 04:09:37 -0400
+	id <S274366AbRITIJ1>; Thu, 20 Sep 2001 04:09:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274365AbRITIJ2>; Thu, 20 Sep 2001 04:09:28 -0400
-Received: from [195.223.140.107] ([195.223.140.107]:42990 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S274363AbRITIJQ>;
-	Thu, 20 Sep 2001 04:09:16 -0400
-Date: Thu, 20 Sep 2001 10:09:40 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: David Howells <dhowells@redhat.com>
-Cc: Manfred Spraul <manfred@colorfullife.com>,
-        Linus Torvalds <torvalds@transmeta.com>, Ulrich.Weigand@de.ibm.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Deadlock on the mm->mmap_sem
-Message-ID: <20010920100940.F729@athlon.random>
-In-Reply-To: <andrea@suse.de> <8929.1000972873@warthog.cambridge.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <8929.1000972873@warthog.cambridge.redhat.com>; from dhowells@redhat.com on Thu, Sep 20, 2001 at 09:01:13AM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S274365AbRITIJS>; Thu, 20 Sep 2001 04:09:18 -0400
+Received: from mail.sonytel.be ([193.74.243.200]:22260 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S274361AbRITIJI>;
+	Thu, 20 Sep 2001 04:09:08 -0400
+Date: Thu, 20 Sep 2001 10:08:03 +0200 (MEST)
+From: Geert Uytterhoeven <Geert.Uytterhoeven@sonycom.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+cc: Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+        Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fbdev config fixes (ac edition)
+In-Reply-To: <E15jnOr-0003iD-00@the-village.bc.nu>
+Message-ID: <Pine.GSO.4.21.0109201007210.14835-100000@mullein.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 20, 2001 at 09:01:13AM +0100, David Howells wrote:
+On Wed, 19 Sep 2001, Alan Cox wrote:
+> > Fix fbdev config glitches that were introduced recently:
+> >   - Remove duplicate CONFIG_* section for DECstation
+> >   - Remove duplicate initialization code for pmagbafb, pmagbbfb, and maxinefb
 > 
-> Andrea Arcangeli <andrea@suse.de> wrote:
-> > the process doesn't need to lock multiple mm_structs at the same time.
-> 
-> fork, ptrace, /proc/pid/mem, /proc/pid/maps
-> 
-> All have to be able to lock two process's mm_structs simultaneously, even if
-> it's indirectly through copy_to_user() or copy_from_user().
+> Please send those to Ralf@gnu.org not me
 
-ptrace doesn't use down_read_recursive, nor /proc/<>/mem, nor fork.
+Will do. Note that the duplicates are not in Ralf's tree.
 
-for /proc/<pid>/maps this check takes care of it of course (or it could
-get unfair again: only when we're faulting on our vm we're allowed to go
-through):
+Gr{oetje,eeting}s,
 
-	if (task == current)
-		down_read_recursive(&mm->mmap_sem, &current->mm_recursor);
-	else
-		down_read(&mm->mmap_sem);
+						Geert
 
-Andrea
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbUGYOMW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263725AbUGYOuc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261169AbUGYOMW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jul 2004 10:12:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263725AbUGYOMW
+	id S263725AbUGYOuc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jul 2004 10:50:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263995AbUGYOuc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jul 2004 10:12:22 -0400
-Received: from wit.mht.bme.hu ([152.66.80.190]:9628 "EHLO wit.wit.mht.bme.hu")
-	by vger.kernel.org with ESMTP id S261169AbUGYOMU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jul 2004 10:12:20 -0400
-Date: Sun, 25 Jul 2004 16:12:18 +0200 (CEST)
-From: Ferenc Kubinszky <ferenc.kubinszky@wit.mht.bme.hu>
-To: Francois Romieu <romieu@fr.zoreil.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: via-velocity problem
-In-Reply-To: <20040725002518.A14684@electric-eye.fr.zoreil.com>
-Message-ID: <Pine.LNX.4.44.0407251603190.23775-100000@wit.wit.mht.bme.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	Sun, 25 Jul 2004 10:50:32 -0400
+Received: from ss1000.ms.mff.cuni.cz ([195.113.20.8]:52187 "EHLO
+	ss1000.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S263725AbUGYOub (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jul 2004 10:50:31 -0400
+Date: Sun, 25 Jul 2004 16:50:27 +0200
+From: Rudo Thomas <rudo@matfyz.cz>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Nesimi Buelbuel <nesimi.buelbuel@gmx.de>
+Subject: Re: High CPU usage for disk I/O while DMA is enabled
+Message-ID: <20040725145027.GB9404@ss1000.ms.mff.cuni.cz>
+Mail-Followup-To: linux-kernel <linux-kernel@vger.kernel.org>,
+	Nesimi Buelbuel <nesimi.buelbuel@gmx.de>
+References: <20040725130502.6e7f92f4@gasmaske>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040725130502.6e7f92f4@gasmaske>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+> my CPU usage goes up to 100% while copying files from CD to HDD or from
+> HDD to HDD.
+> I have enabled DMA successfully on all of my HDD.
+> 
+> <snip>
+> 
+> I am experiencing this since my Kernel upgrade from the 2.4.x series to
+> the current 2.6.7 Kernel.
+> So DMA is definetely running on my box. But the CPU is utilizing too
+> much while copying files.
+> 
+> Is there anything that I have forgot to consider in the "new" 2.6.x
+> Kernel series for DMA settings?
 
+Maybe you don't have the right IDE driver configured (CONFIG_BLK_DEV_*)...
 
-On Sun, 25 Jul 2004, Francois Romieu wrote:
-
->
-> It looks like the suspect (eth0) registers an event notifier and goes
-> foobar when the other interface (lo) triggers an NETDEV_UP.
->
-> Can you try the (gross) patch below against 2.6.8-rc1-mm1 ?
-
-I patched the kernel and copied the driver into 2.6.8-rc2.
-Now i does not hang the machine at all, but there is an other problem.
-When I try to send or receive larger amount of data, something goes wrong.
-If I ping with 64 byte packets it is good regardless of the time interval.
-But when 1000 byte long packets are used with ping or just wget something,
-there are mysterious errors:
-ping response time goes up and down (approx 50msec..5000ms)
-wget become stalled after ~100kbytes and tcpdump shows broken ip packets.
-
-I'm not sure where is the error, in my card, my cable modem or at the
-TV-NET provider.
-
-With my e100 everithing OK.
-
-Best regards,
-Kubi
-
+Rudo.

@@ -1,48 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261802AbVBIIWP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261727AbVBIIrE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261802AbVBIIWP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 03:22:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261803AbVBIIWP
+	id S261727AbVBIIrE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 03:47:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbVBIIrE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 03:22:15 -0500
-Received: from bernache.ens-lyon.fr ([140.77.167.10]:21935 "EHLO
-	bernache.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id S261802AbVBIIWL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 03:22:11 -0500
-Message-ID: <4209C82A.3090502@ens-lyon.org>
-Date: Wed, 09 Feb 2005 09:22:02 +0100
-From: Brice Goglin <Brice.Goglin@ens-lyon.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Michael Renzmann <mrenzmann@web.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to retrieve version from kernel source (the right way)?
-References: <4209C71F.9040102@web.de>
-In-Reply-To: <4209C71F.9040102@web.de>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Report: *  0.3 UPPERCASE_25_50 message body is 25-50% uppercase
+	Wed, 9 Feb 2005 03:47:04 -0500
+Received: from postfix4-1.free.fr ([213.228.0.62]:40067 "EHLO
+	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S261727AbVBIIrC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Feb 2005 03:47:02 -0500
+Subject: Re: Touchpad problems with 2.6.11-rc2
+From: Stephane Raimbault <stephane.raimbault@free.fr>
+To: Peter Osterlund <petero2@telia.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <m3oeev3rt7.fsf@telia.com>
+References: <1107860158.5271.12.camel@picasso.lan>
+	 <m3oeev3rt7.fsf@telia.com>
+Content-Type: text/plain
+Date: Wed, 09 Feb 2005 09:47:37 +0100
+Message-Id: <1107938857.4456.3.camel@picasso.lan>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Renzmann a écrit :
-> Then we started to grep VERSION, PATCHLEVEL, SUBLEVEL and EXTRAVERSION 
-> from the kernel's Makefile. This failed, since some distributors seem to 
-> use shell commands for at least one of those. Example from SuSE 9.1:
-> === cut ===
-> VERSION = 2
-> PATCHLEVEL = 6
-> SUBLEVEL = 5
-> EXTRAVERSION = -$(shell echo $(CONFIG_RELEASE)-$(CONFIG_CFGNAME))
-> === cut ===
+
 > 
-> Newer kernels also allow to set CONFIG_LOCALVERSION in .config.
+> Does the "Enable hardware tapping for ALPS touchpads" patch help?
+> 
+>         http://marc.theaimsgroup.com/?l=linux-kernel&m=110708138225873&w=2
+> 
 
-And you may also set some "localversion*" files in the source directory.
-Their contents will be added too.
+Yes, works really better but the release event is sent only if I move
+the pointer. It's as if I still put my finger on the touchpad.
 
-Brice
+Stephane
+
+
 

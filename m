@@ -1,44 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264443AbUFIX6Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266034AbUFJACN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264443AbUFIX6Z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 19:58:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266034AbUFIX6Z
+	id S266034AbUFJACN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 20:02:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266042AbUFJACN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 19:58:25 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:47574 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S264443AbUFIX6Y
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 19:58:24 -0400
-Subject: Re: Increasing number of inodes after format?
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Timothy Miller <miller@techsource.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <40C62F2F.4090801@techsource.com>
-References: <40C62F2F.4090801@techsource.com>
-Content-Type: text/plain
-Message-Id: <1086811650.26565.50.camel@shaggy.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 09 Jun 2004 15:07:30 -0500
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Jun 2004 20:02:13 -0400
+Received: from ore.jhcloos.com ([64.240.156.239]:51716 "EHLO ore.jhcloos.com")
+	by vger.kernel.org with ESMTP id S266034AbUFJACM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jun 2004 20:02:12 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] ethtool semantics
+From: "James H. Cloos Jr." <cloos@jhcloos.com>
+In-Reply-To: <40C77C70.5070409@tmr.com> (Bill Davidsen's message of "Wed, 09
+ Jun 2004 17:09:04 -0400")
+References: <20040607212804.GA17012@k3.hellgate.ch>
+	<20040607145723.41da5783.davem@redhat.com>
+	<20040608210809.GA10542@k3.hellgate.ch> <40C77C70.5070409@tmr.com>
+X-Hashcash: 0:040610:linux-kernel@vger.kernel.org:d4eecd74e8535e5c
+Date: Wed, 09 Jun 2004 20:01:58 -0400
+Message-ID: <m34qpke0w9.fsf@lugabout.jhcloos.org>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-06-08 at 16:27, Timothy Miller wrote:
-> I was involved in a discussion a while back where it was explained that 
-> ext2/3 allocate a certain maximum number of inodes at format time, and 
-> you cannot increase that number later.
-> 
-> It was also mentioned that one or more of the journaling file systems 
-> (XFS, JFS, Reiser, etc.) either dynamically allocated inodes or could 
-> increase the maximum later if the pre-allocated set got used up.
-> 
-> Could someone please repeat for me which filesystems have dynamic 
-> maximum inode counts?
+>>>>> "Bill" == Bill Davidsen <davidsen@tmr.com> writes:
 
-JFS dynamically allocates inodes as needed.  An inode extent (consisting
-of 32 inodes) will also be freed if all of its inodes are freed.
--- 
-David Kleikamp
-IBM Linux Technology Center
+Bill> It does sometimes matter, because even these days we sometimes
+Bill> see a case where a brand name switch (like Cisco) and a brand
+Bill> name card (Intel, 3COM) negotiate but just don't "work right"
+Bill> later.
 
+I just had this happen this week.  Both intel and broadcom cards
+negatiated 100/full with the cisco switch, but failed to work
+properly.  ethtool -s eth0 speed 100 duplex full autoneg off
+improved performance from OTOO 15% of capacity to wire speed.
+
+-JimC

@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271616AbRH1QBn>; Tue, 28 Aug 2001 12:01:43 -0400
+	id <S271797AbRH1QJD>; Tue, 28 Aug 2001 12:09:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271796AbRH1QBd>; Tue, 28 Aug 2001 12:01:33 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:16656 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S271616AbRH1QB1>; Tue, 28 Aug 2001 12:01:27 -0400
+	id <S271798AbRH1QIx>; Tue, 28 Aug 2001 12:08:53 -0400
+Received: from ns.suse.de ([213.95.15.193]:50186 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S271797AbRH1QIs>;
+	Tue, 28 Aug 2001 12:08:48 -0400
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
 Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
-To: hps@intermeta.de
-Date: Tue, 28 Aug 2001 17:05:02 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <9mge9l$sb9$1@forge.intermeta.de> from "Henning P. Schmiedehausen" at Aug 28, 2001 03:44:53 PM
-X-Mailer: ELM [version 2.5 PL6]
+In-Reply-To: <Pine.LNX.4.33.0108280617250.8365-100000@penguin.transmeta.com>
+	<3B8BA883.3B5AAE2E@linux-m68k.org>
+X-Yow: I'm mentally OVERDRAWN!  What's that SIGNPOST up ahead?
+ Where's ROD STERLING when you really need him?
+From: Andreas Schwab <schwab@suse.de>
+Date: 28 Aug 2001 18:09:00 +0200
+In-Reply-To: <3B8BA883.3B5AAE2E@linux-m68k.org> (Roman Zippel's message of "Tue, 28 Aug 2001 16:19:47 +0200")
+Message-ID: <je4rqsdv4z.fsf@sykes.suse.de>
+User-Agent: Gnus/5.090003 (Oort Gnus v0.03) Emacs/21.0.105
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15blMM-0006Dv-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >	min(host->scsi.SCp.this_residual, DMAC_BUFFER_SIZE / 2);
-> 
-> >this_residual is "int", and "DMAC_BUFFER_SIZE" is just a #define for
-> >an integer constant. So the above is actually a signed comparison, and
-> >I'll bet you that was not what the author intended.
-> 
-> And the mistake of the author was not to write "unsigned int this_residual".
-> That's the bug. Not the min() function.
+Roman Zippel <zippel@linux-m68k.org> writes:
 
-Or more likely the author knew that this_residual was going to be positive
-in all cases anyway. Its just sloppy typing by the scsi layer.
+|> Hi,
+|> 
+|> Linus Torvalds wrote:
+[...]
+|> > You just fixed the "re-use arguments" bug - which is a bug, but doesn't
+|> > address the fact that most of the min/max bugs are due to the programmer
+|> > _indending_ a unsigned compare because he didn't even think about the
+|> > type.
+|> 
+|> You maybe fixed a few bugs, but this new macro will only cause new
+|> problems in the future. If we change only a single type, you have to
+|> scan all min/max users if they possibly need to be changed too. Thanks
+|> to the cast, the compiler won't even remotely help you finding them.
 
-The typing of min() is something I do agree with Linus about (for once 8)),
-and making people think about them is a good idea. When DaveM proposed the
-original his patches showed up a bug in the older ixj driver immediately.
+There is no cast in the min/max macros.
 
-Alan
+Andreas.
 
+-- 
+Andreas Schwab                                  "And now for something
+SuSE Labs                                        completely different."
+Andreas.Schwab@suse.de
+SuSE GmbH, Schanzäckerstr. 10, D-90443 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5

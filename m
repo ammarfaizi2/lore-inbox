@@ -1,39 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291745AbSCRSop>; Mon, 18 Mar 2002 13:44:45 -0500
+	id <S291753AbSCRSqg>; Mon, 18 Mar 2002 13:46:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291753AbSCRSof>; Mon, 18 Mar 2002 13:44:35 -0500
-Received: from sbcs.sunysb.edu ([130.245.1.15]:60878 "EHLO sbcs.cs.sunysb.edu")
-	by vger.kernel.org with ESMTP id <S291745AbSCRSoP>;
-	Mon, 18 Mar 2002 13:44:15 -0500
-Date: Mon, 18 Mar 2002 13:40:36 -0500 (EST)
-From: <prade@cs.sunysb.edu>
-X-X-Sender: <prade@compserv3>
-To: Robert Pfister <robertp@ustri.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Trapping all Incoming Network Packets 
-In-Reply-To: <003501c1ceaa$91678f90$1e00a8c0@nomaam>
-Message-ID: <Pine.GSO.4.33.0203181330530.5841-100000@compserv3>
+	id <S291766AbSCRSq0>; Mon, 18 Mar 2002 13:46:26 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:42179 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S291753AbSCRSqH>; Mon, 18 Mar 2002 13:46:07 -0500
+Message-ID: <59885C5E3098D511AD690002A5072D3C02AB7D07@orsmsx111.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'torvalds@transmeta.com'" <torvalds@transmeta.com>,
+        linux-kernel@vger.kernel.org
+Cc: "Diefenbaugh, Paul S" <paul.s.diefenbaugh@intel.com>
+Subject: RE: Oops in 2.5.7-pre2: ACPI?
+Date: Mon, 18 Mar 2002 10:43:45 -0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Mar 2002, Robert Pfister wrote:
+> From: torvalds@transmeta.com [mailto:torvalds@transmeta.com]
+> I fixed the non-ACPI brokenness, which then left the ACPI merge in a
+> halfway state..  So right now ACPI device initialization 
+> doesn't work. 
+> I'm hoping that the ACPI folks can fix up their broken 
+> assumptions soon. 
 
-> There are ways to accomplish similar things in user space. Is there some
-> reason that you need to do this in the kernel? What is your end-goal with
-> this?
->
-> Robb
->
+I can see from bkbits looks like you already fixed it post-pre2, so I guess
+we will just sit tight and everything will be fine once pre3 is out.
 
-To do it in user space, you have to use the raw socket interface. This
-by-passes the entire TCP/IP stack. I want to sniff the packets, and make a
-decision based on certain characteristics of each packet. So I need to
-have a filter between the IP and link-layer. Also, I do not want the
-filter to slow down traffic. Hence I believe implementing inside kernel
-will be more efficient.
-
--- pradipta
-
+Thanks -- Regards -- Andy

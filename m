@@ -1,179 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262951AbVCQBoj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262959AbVCQBvb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262951AbVCQBoj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 20:44:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262959AbVCQBoi
+	id S262959AbVCQBvb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 20:51:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262960AbVCQBvb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 20:44:38 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:3324 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262951AbVCQBoW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 20:44:22 -0500
-Message-ID: <4238E0EA.8040101@mvista.com>
-Date: Wed, 16 Mar 2005 17:44:10 -0800
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: gene.heskett@verizon.net
-CC: linux-kernel@vger.kernel.org,
-       Linux and Kernel Video <video4linux-list@redhat.com>
-Subject: Re: tvtime audio vs pcHDTV-3000 card and pvHDTV-1.6 software
-References: <200503162015.37331.gene.heskett@verizon.net>
-In-Reply-To: <200503162015.37331.gene.heskett@verizon.net>
-Content-Type: multipart/mixed;
- boundary="------------020606040400080502020304"
+	Wed, 16 Mar 2005 20:51:31 -0500
+Received: from fire.osdl.org ([65.172.181.4]:41145 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262959AbVCQBv1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 20:51:27 -0500
+Date: Wed, 16 Mar 2005 17:51:09 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christian Kujau <evil@g-house.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: oom with 2.6.11
+Message-Id: <20050316175109.3c160d4d.akpm@osdl.org>
+In-Reply-To: <4238DD01.9060500@g-house.de>
+References: <422DC2F1.7020802@g-house.de>
+	<2cd57c9005031102595dfe78e6@mail.gmail.com>
+	<4231B4E9.3080005@g-house.de>
+	<42332F9C.7090703@g-house.de>
+	<4238DD01.9060500@g-house.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Christian Kujau <evil@g-house.de> wrote:
+>
+> unfortunately i've hit OOM again, this time with "#define DEBUG" enabled
+>  in mm/oom_kill.c:
+> 
+>  http://nerdbynature.de/bits/sheep/2.6.11/oom/oom_2.6.11.3.txt
+> 
+>  by "Mar 16 18:32" pppd died again and OOM kicked in 30min later.
+>  (there are a *lot* messages of a shell script named "check-route.sh". it's
+>  a little script which runs every minute or so to check if my default route
+>  is still ok and if ping to the outside world are possible. definitely not
+>  a memory hog, but noisy)
+> 
+>  since tracking the "most memory consuming applications" did not reveal any
+>  hints [1], i have monitored /proc/slabinfo and /proc/meminfo this time:
+> 
+>  http://nerdbynature.de/bits/sheep/2.6.11/oom/daily_stats-2.6.11.3.gz
+> 
+>  as stated before, i was suspecting pppd to be the bad guy here, and yes: i
+>  downgraded pppd to an earlier version and pppd (and the system) survived 2
+>  terminations of my dial-up ISP. yesterday i've upgraded back again to
+>  current pppd (debian/unstable) and the OOM problem returned. yes, i'll bug
+>  the debian people now (hello!), but grepping for "ppp" in
+>  daily_stats-2.6.11.3.gz gives no hits. so "pppd" does not get *any* points
+>  from mm/oom_kill.c and thus no attempts are made to kill it (it is always
+>  only kill'able with "-9").
 
-This is a multi-part message in MIME format.
---------------020606040400080502020304
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+The oom-killer tries to be nicer to processes which are running as root.
 
-Heavens, no need to clean the tree at all.  Just add "-X <file> to your diff.  I 
-have attached what I use for <file>.  It is likely over kill, but should do...
+> furthermore, i thought /proc/slabinfo coud give
+>  me some hints about *where* all the memory went in. scrolling down this
+>  file to the bottom, where "SwapFree" shows "0 kB" i don't see any alarming
+>  numbers in the "slabinfo" right above "meminfo".
 
--g
+MemTotal:       256372 kB
+MemFree:          3280 kB
+Buffers:           608 kB
+Cached:           3256 kB
+SwapCached:        664 kB
+Active:         105020 kB
+Inactive:        20364 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:       256372 kB
+LowFree:          3280 kB
+SwapTotal:      784468 kB
+SwapFree:            0 kB
+Dirty:              12 kB
+Writeback:           0 kB
+Mapped:         130332 kB
+Slab:            61424 kB
+CommitLimit:    912652 kB
+Committed_AS:  1323548 kB
+PageTables:      51668 kB
+VmallocTotal:   778184 kB
+VmallocUsed:      3464 kB
+VmallocChunk:   774492 kB
 
-Gene Heskett wrote:
-> Greetings;
-> 
-> I've spent a goodly part of the last 3 hours rebooting, to find out 
-> where this audio control function died, and I think now I can point 
-> an accusatory finger at the 2.6.11.2 patch with some degree of 
-> certainty.
-> 
-> The scenario goes like this:
-> 
-> reboot to 2.6.11-rc5, everything works flawlessly except the 1394 
-> stuff, that kernel didn't have it built in yet.
-> 
-> reboot to 2.6.11+bk-ieee1394.patch  everything works flawlessly
-> 
-> reboot to 2.6.11.1+bk-ieee1394.patch everything works flawlessly
-> 
-> reboot to 2.6.11.2+bk-ieee1394.patch tvtime has no volume control, and 
-> the sound gets very very tinny about 1 second after it starts
-> 
-> This scenario continues up to and includeing 2.6.11.4.
-> 
-> So now my next question is, how to I clean up those src trees so that 
-> a diff actually outputs only the src code differences, thereby 
-> allowing a simple diff -urN (or whatever is the recommended command 
-> line to do a recursive diff on the whole maryann) to disclose the 
-> real diffs.  In other words, is a simple 'make clean' sufficient?
-> 
-> I got the impression from a comment that was made, that quite a body 
-> of work was actually done, in the i2c area, that somehow does not 
-> show in the changelog, nor in that simple little 10 line patch that 
-> was 2.6.11.2.  And how that little patch could be responsible for 
-> breaking this boggles what tiny little miniscule piece of a mind I 
-> have left at this point.
-> 
-> If thats the case, then how did it get into my src code tree since the 
-> exact same 2.6.11.tar.gz was used as the base for applying each of 
-> the incrementals to each of the src trees I now have sitting 
-> in /usr/src?  Good question that...
-> 
-> Unforch, the 2.6.11 plain tree has not, in this case been built yet as 
-> it got accidently nuked by a missfire of my 'buildit26' script, which 
-> normally moves a base version tree out of the way before it unpacks a 
-> fresh copy, and then renames that tree to be the current version and 
-> then restores the base tree to its original name.
-> 
-> Thats not the one I want to use as the 'gold standard' anyway. 
-> 2.6.11.1 works, and 2.6.11.2 doesn't.  So at this point, 2.6.11.1 is 
-> the 'gold standard'.
-> 
-> But, both the 2.6.11.1 and the 2.6.11.2 trees are as built, and the
-> diff I got was far larger than forgetting to apply the 
-> bk-ieee1394.patch to one of them would account for.  Many tens of 
-> kilobytes in fact.
-> 
-> Please throw me a bone here folks.
-> 
+Some application went berzerk, used up all the swap and then oomed the box.
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+You could perhaps run `top -d1' then hit M so the output is sorted by
+bloatiness, then try to catch the culprit.
 
---------------020606040400080502020304
-Content-Type: text/plain;
- name="patch.exclude"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch.exclude"
-
-*.o
-*.i
-.*
-*.*~
-*~
-*.rej
-*.orig
-*.orig.*
-#*
-*#
-*.ver
-ETAGS
-TAGS
-tags
-*.map
-*.s
-*.a
-*X
-*Y
-
-*.*X
-*.*Y
-SCCS
-CVS
-*.*,*
-dwarf2-defs.h
-kconfig
-configs.c
-defconfig
-mkdep
-split-include
-tkparse
-vmlinux
-consolemap_deftbl.c
-tkparse.c
-classlist.h
-crc32table.h
-devlist.h
-config
-autoconf.h
-compile.h
-version.h
-kconfig.tk
-soundmodem
-defkeymap.c
-patest
-asm
-boot
-conmakehash
-gen-devlist
-modversions.h
-elfconfig.h
-asm_offsets.h
-*.old
-cscope.*
-*.so
-gen_crc32table
-docproc
-fixdep
-kallsyms
-mk_elfconfig
-modpost
-pnmtologo
-initramfs_data.*
-gen_init_cpio
-
-
---------------020606040400080502020304--
+But it would be better to have some app which prints the N most
+memory-hungry processes every second and simply scrolls that up the screen. 
+I'm not aware of such a thing, but it could be cooked up via
+/proc/N/cmdline and /proc/N/statm.
 

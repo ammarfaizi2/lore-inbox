@@ -1,276 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264210AbUEHJph@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264211AbUEHJ5T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264210AbUEHJph (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 May 2004 05:45:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264212AbUEHJph
+	id S264211AbUEHJ5T (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 May 2004 05:57:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264215AbUEHJ5S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 May 2004 05:45:37 -0400
-Received: from [193.170.124.123] ([193.170.124.123]:36985 "EHLO 23.cms.ac")
-	by vger.kernel.org with ESMTP id S264210AbUEHJp1 (ORCPT
+	Sat, 8 May 2004 05:57:18 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:33247 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264211AbUEHJ5O (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 May 2004 05:45:27 -0400
-Date: Fri, 7 May 2004 23:44:30 +0200
-From: JG <jg@cms.ac>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.6rc3-mm2: Disabling IRQ #7 / nobody cared / usb_hcd_irq
-X-Mailer: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Operating-System: Gentoo 1.4 ;)
+	Sat, 8 May 2004 05:57:14 -0400
+Date: Fri, 9 May 2003 15:35:23 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: Greg KH <greg@kroah.com>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
+       viro@parcelfarce.linux.theplanet.co.uk, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [RFC 1/2] kobject_set_name - error handling
+Message-ID: <20030509153523.A20357@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <20040417082206.GM24997@parcelfarce.linux.theplanet.co.uk> <20040430101333.GB25296@in.ibm.com> <20040430101401.GC25296@in.ibm.com> <200404300748.14151.dtor_core@ameritech.net> <20040504053908.GA2900@in.ibm.com> <20040507222549.GB14660@kroah.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Fri__7_May_2004_23_44_30_+0200_kOSiQyP.WUNEY3y4"
-Message-Id: <20040507214439.A89912059C1@23.cms.ac>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040507222549.GB14660@kroah.com>; from greg@kroah.com on Fri, May 07, 2004 at 03:25:49PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Fri__7_May_2004_23_44_30_+0200_kOSiQyP.WUNEY3y4
-Content-Type: multipart/mixed;
- boundary="Multipart=_Fri__7_May_2004_23_44_30_+0200_ziX1vUp+dOYB0O02"
+On Fri, May 07, 2004 at 03:25:49PM -0700, Greg KH wrote:
+> On Tue, May 04, 2004 at 11:09:08AM +0530, Maneesh Soni wrote:
+> > 
+> > Greg, Are the patches fit for inclusion? I need to know this as my sysfs backing
+> > store patches are taking back seats because of these changes, particulary the
+> > one in second patch :-(.
+> 
+> I'm awash in different patches from you.  Can you try sending me the
+> ones you think are good enough for inclusion right now?  We can work
+> from there.
+> 
+
+Sorry Greg, for confusing you by sending multiple copies. Here we are talking 
+about two patches which cleans up the kobject_set_name() usuage in the routines
+as mentioned below. The first one is appended here and the second one in the 
+next mail. I have complied and tested (booting) both the patches and hope they 
+are good for inclusion.
 
 
---Multipart=_Fri__7_May_2004_23_44_30_+0200_ziX1vUp+dOYB0O02
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+1) kobject_set_name-cleanup-01.patch
 
-hi, 
+This patch corrects the following by checking the reutrn code from 
+kobject_set_name().
 
-just got this error message from the kernel after running for about 2 hours. i also encountered this with mm1, but i upgraded because of the mem-leak.
+bus_add_driver()
+bus_register()
+sys_dev_register()
 
-May  7 15:21:30 lambda kernel: spurious 8259A interrupt: IRQ7.
-[...]
-irq 7: nobody cared!
-May  7 21:41:43 kernel:  [<c0105bb4>] __report_bad_irq+0x24/0x80
-May  7 21:41:43 kernel:  [<c02553ee>] usb_hcd_irq+0x2e/0x60
-May  7 21:41:43 kernel:  [<c0105c91>] note_interrupt+0x61/0x90
-May  7 21:41:43 kernel:  [<c0105b60>] handle_IRQ_event+0x30/0x60
-May  7 21:41:43 kernel:  [<c0105efb>] do_IRQ+0x12b/0x150
-May  7 21:41:43 kernel:  [<c0104478>] common_interrupt+0x18/0x20
-May  7 21:41:43 kernel:  [<c0105b50>] handle_IRQ_event+0x20/0x60
-May  7 21:41:43 kernel:  [<c0105e7f>] do_IRQ+0xaf/0x150
-May  7 21:41:43 kernel:  =======================
-May  7 21:41:43 kernel:  [<c0104478>] common_interrupt+0x18/0x20
-May  7 21:41:43 kernel:  [<c013296e>] kfree+0x3e/0x60
-May  7 21:41:43 kernel:  [<c02785b8>] kfree_skbmem+0x8/0x20
-May  7 21:41:43 kernel:  [<c0278658>] __kfree_skb+0x88/0x100
-May  7 21:41:43 kernel:  [<c02947f4>] tcp_read_sock+0x134/0x1b0
-May  7 21:41:43 kernel:  [<e8fad440>] tcp_data_recv+0x0/0x3e0 [sunrpc]
-May  7 21:41:43 kernel:  [<e8fad866>] tcp_data_ready+0x46/0x70 [sunrpc]
-May  7 21:41:43 kernel:  [<c029c2f2>] tcp_rcv_established+0x502/0x660
-May  7 21:41:43 kernel:  [<c02a4278>] tcp_v4_do_rcv+0xe8/0xf0
-May  7 21:41:43 kernel:  [<c02a481b>] tcp_v4_rcv+0x59b/0x770
-May  7 21:41:43 kernel:  [<c028b824>] ip_local_deliver_finish+0xb4/0x180
-May  7 21:41:43 kernel:  [<c0284509>] nf_hook_slow+0xb9/0x110
-May  7 21:41:43 kernel:  [<c028b770>] ip_local_deliver_finish+0x0/0x180
-May  7 21:41:43 kernel:  [<c028b348>] ip_local_deliver+0x1c8/0x1f0
-May  7 21:41:43 kernel:  [<c028b770>] ip_local_deliver_finish+0x0/0x180
-May  7 21:41:43 kernel:  [<c028ba88>] ip_rcv_finish+0x198/0x210
-May  7 21:41:43 kernel:  [<c0284202>] nf_iterate+0x72/0xb0
-May  7 21:41:44 kernel:  [<c028b8f0>] ip_rcv_finish+0x0/0x210
-May  7 21:41:44 kernel:  [<c0284509>] nf_hook_slow+0xb9/0x110
-May  7 21:41:44 kernel:  [<c028b8f0>] ip_rcv_finish+0x0/0x210
-May  7 21:41:44 kernel:  [<c028b6cb>] ip_rcv+0x35b/0x400
-May  7 21:41:44 kernel:  [<c028b8f0>] ip_rcv_finish+0x0/0x210
-May  7 21:41:44 kernel:  [<c027cac2>] netif_receive_skb+0x142/0x170
-May  7 21:41:44 kernel:  [<c0270008>] psmouse_connect+0x168/0x260
-May  7 21:41:44 kernel:  [<c027cb62>] process_backlog+0x72/0x110
-May  7 21:41:44 kernel:  [<c027cc61>] net_rx_action+0x61/0x100
-May  7 21:41:44 kernel:  [<c01196b9>] __do_softirq+0x79/0x80
-May  7 21:41:44 kernel:  [<c01065b3>] do_softirq+0x43/0x60
-May  7 21:41:44 kernel:  =======================
-May  7 21:41:44 kernel:  [<c0105ee3>] do_IRQ+0x113/0x150
-May  7 21:41:44 kernel:  [<c0104478>] common_interrupt+0x18/0x20
-May  7 21:41:44 kernel:  [<c0101e53>] default_idle+0x23/0x30
-May  7 21:41:44 kernel:  [<c0101ebc>] cpu_idle+0x2c/0x40
-May  7 21:41:44 kernel:  [<c03a76c7>] start_kernel+0x137/0x150
-May  7 21:41:44 kernel:  [<c03a7370>] unknown_bootoption+0x0/0x110
-handlers:
-[<c02553c0>] (usb_hcd_irq+0x0/0x60)
 
-system info:
-lspci -vvv and /proc/interrupts output is attached.
 
-could somebody tell me please what is causing this or how to fix it?
+o The following patch cleansup the kobject_set_name() users. Basically checking
+  return code from kobject_set_name(). There can be error returns like -ENOMEM
+  or -EFAULT from kobject_set_name() if the name length exceeds KOBJ_NAME_LEN.
 
-thanks,
-JG
 
---Multipart=_Fri__7_May_2004_23_44_30_+0200_ziX1vUp+dOYB0O02
-Content-Type: application/octet-stream;
- name="lspci"
-Content-Disposition: attachment;
- filename="lspci"
-Content-Transfer-Encoding: base64
+ drivers/base/bus.c |   14 +++++++++++---
+ drivers/base/sys.c |    5 ++++-
+ 2 files changed, 15 insertions(+), 4 deletions(-)
 
-MDA6MDAuMCBIb3N0IGJyaWRnZTogU2lsaWNvbiBJbnRlZ3JhdGVkIFN5c3RlbXMgW1NpU10gNzQ2
-IEhvc3QgKHJldiAwMikKCVN1YnN5c3RlbTogRWxpdGVncm91cCBDb21wdXRlciBTeXN0ZW1zOiBV
-bmtub3duIGRldmljZSAxODA4CglDb250cm9sOiBJL08rIE1lbSsgQnVzTWFzdGVyKyBTcGVjQ3lj
-bGUtIE1lbVdJTlYtIFZHQVNub29wLSBQYXJFcnItIFN0ZXBwaW5nLSBTRVJSLSBGYXN0QjJCLQoJ
-U3RhdHVzOiBDYXArIDY2TWh6LSBVREYtIEZhc3RCMkItIFBhckVyci0gREVWU0VMPW1lZGl1bSA+
-VEFib3J0LSA8VEFib3J0LSA8TUFib3J0KyA+U0VSUi0gPFBFUlItCglMYXRlbmN5OiAwCglSZWdp
-b24gMDogTWVtb3J5IGF0IGQwMDAwMDAwICgzMi1iaXQsIG5vbi1wcmVmZXRjaGFibGUpIFtzaXpl
-PTMyTV0KCUNhcGFiaWxpdGllczogW2MwXSBBR1AgdmVyc2lvbiAyLjAKCQlTdGF0dXM6IFJRPTMy
-IElzby0gQXJxU3o9MCBDYWw9MCBTQkErIElUQUNvaC0gR0FSVDY0LSBIVHJhbnMtIDY0Yml0LSBG
-Vy0gQUdQMy0gUmF0ZT14MSx4Mix4NAoJCUNvbW1hbmQ6IFJRPTEgQXJxU3o9MCBDYWw9MCBTQkEt
-IEFHUC0gR0FSVDY0LSA2NGJpdC0gRlctIFJhdGU9PG5vbmU+CgowMDowMS4wIFBDSSBicmlkZ2U6
-IFNpbGljb24gSW50ZWdyYXRlZCBTeXN0ZW1zIFtTaVNdIFNHODZDMjAyIChwcm9nLWlmIDAwIFtO
-b3JtYWwgZGVjb2RlXSkKCUNvbnRyb2w6IEkvTysgTWVtKyBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0g
-TWVtV0lOVi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmctIFNFUlIrIEZhc3RCMkItCglTdGF0
-dXM6IENhcC0gNjZNaHotIFVERi0gRmFzdEIyQi0gUGFyRXJyLSBERVZTRUw9ZmFzdCA+VEFib3J0
-LSA8VEFib3J0LSA8TUFib3J0LSA+U0VSUi0gPFBFUlItCglMYXRlbmN5OiA2NAoJQnVzOiBwcmlt
-YXJ5PTAwLCBzZWNvbmRhcnk9MDEsIHN1Ym9yZGluYXRlPTAyLCBzZWMtbGF0ZW5jeT02NAoJSS9P
-IGJlaGluZCBicmlkZ2U6IDAwMDBmMDAwLTAwMDAwZmZmCglNZW1vcnkgYmVoaW5kIGJyaWRnZTog
-Y2RkMDAwMDAtY2ZlZmZmZmYKCVByZWZldGNoYWJsZSBtZW1vcnkgYmVoaW5kIGJyaWRnZTogYzlh
-MDAwMDAtY2RiZmZmZmYKCUJyaWRnZUN0bDogUGFyaXR5LSBTRVJSKyBOb0lTQS0gVkdBKyBNQWJv
-cnQtID5SZXNldC0gRmFzdEIyQi0KCjAwOjAyLjAgSVNBIGJyaWRnZTogU2lsaWNvbiBJbnRlZ3Jh
-dGVkIFN5c3RlbXMgW1NpU106IFVua25vd24gZGV2aWNlIDA5NjMgKHJldiAyNSkKCUNvbnRyb2w6
-IEkvTysgTWVtKyBCdXNNYXN0ZXIrIFNwZWNDeWNsZSsgTWVtV0lOVi0gVkdBU25vb3AtIFBhckVy
-ci0gU3RlcHBpbmctIFNFUlItIEZhc3RCMkItCglTdGF0dXM6IENhcC0gNjZNaHotIFVERi0gRmFz
-dEIyQi0gUGFyRXJyLSBERVZTRUw9bWVkaXVtID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQtID5T
-RVJSLSA8UEVSUi0KCUxhdGVuY3k6IDAKCjAwOjAyLjEgU01CdXM6IFNpbGljb24gSW50ZWdyYXRl
-ZCBTeXN0ZW1zIFtTaVNdOiBVbmtub3duIGRldmljZSAwMDE2CglDb250cm9sOiBJL08rIE1lbS0g
-QnVzTWFzdGVyLSBTcGVjQ3ljbGUtIE1lbVdJTlYtIFZHQVNub29wLSBQYXJFcnItIFN0ZXBwaW5n
-LSBTRVJSLSBGYXN0QjJCLQoJU3RhdHVzOiBDYXAtIDY2TWh6LSBVREYtIEZhc3RCMkIrIFBhckVy
-ci0gREVWU0VMPW1lZGl1bSA+VEFib3J0LSA8VEFib3J0LSA8TUFib3J0LSA+U0VSUi0gPFBFUlIt
-CglJbnRlcnJ1cHQ6IHBpbiBCIHJvdXRlZCB0byBJUlEgMTEKCVJlZ2lvbiA0OiBJL08gcG9ydHMg
-YXQgMGMwMCBbc2l6ZT0zMl0KCjAwOjAyLjUgSURFIGludGVyZmFjZTogU2lsaWNvbiBJbnRlZ3Jh
-dGVkIFN5c3RlbXMgW1NpU10gNTUxMyBbSURFXSAocHJvZy1pZiA4MCBbTWFzdGVyXSkKCVN1YnN5
-c3RlbTogRWxpdGVncm91cCBDb21wdXRlciBTeXN0ZW1zOiBVbmtub3duIGRldmljZSAxODA4CglD
-b250cm9sOiBJL08rIE1lbS0gQnVzTWFzdGVyKyBTcGVjQ3ljbGUtIE1lbVdJTlYtIFZHQVNub29w
-LSBQYXJFcnItIFN0ZXBwaW5nLSBTRVJSLSBGYXN0QjJCLQoJU3RhdHVzOiBDYXAtIDY2TWh6LSBV
-REYtIEZhc3RCMkItIFBhckVyci0gREVWU0VMPW1lZGl1bSA+VEFib3J0LSA8VEFib3J0LSA8TUFi
-b3J0LSA+U0VSUi0gPFBFUlItCglMYXRlbmN5OiAxMjgKCVJlZ2lvbiA0OiBJL08gcG9ydHMgYXQg
-ZmYwMCBbc2l6ZT0xNl0KCjAwOjAzLjAgVVNCIENvbnRyb2xsZXI6IFNpbGljb24gSW50ZWdyYXRl
-ZCBTeXN0ZW1zIFtTaVNdIFVTQiAxLjAgQ29udHJvbGxlciAocmV2IDBmKSAocHJvZy1pZiAxMCBb
-T0hDSV0pCglTdWJzeXN0ZW06IEVsaXRlZ3JvdXAgQ29tcHV0ZXIgU3lzdGVtczogVW5rbm93biBk
-ZXZpY2UgMTgwOAoJQ29udHJvbDogSS9PKyBNZW0rIEJ1c01hc3RlcisgU3BlY0N5Y2xlLSBNZW1X
-SU5WLSBWR0FTbm9vcC0gUGFyRXJyLSBTdGVwcGluZy0gU0VSUi0gRmFzdEIyQi0KCVN0YXR1czog
-Q2FwLSA2Nk1oei0gVURGLSBGYXN0QjJCKyBQYXJFcnItIERFVlNFTD1tZWRpdW0gPlRBYm9ydC0g
-PFRBYm9ydC0gPE1BYm9ydC0gPlNFUlItIDxQRVJSLQoJTGF0ZW5jeTogNjQgKDIwMDAwbnMgbWF4
-KSwgY2FjaGUgbGluZSBzaXplIDA4CglJbnRlcnJ1cHQ6IHBpbiBBIHJvdXRlZCB0byBJUlEgNwoJ
-UmVnaW9uIDA6IE1lbW9yeSBhdCBjZmZmZTAwMCAoMzItYml0LCBub24tcHJlZmV0Y2hhYmxlKSBb
-c2l6ZT00S10KCjAwOjAzLjEgVVNCIENvbnRyb2xsZXI6IFNpbGljb24gSW50ZWdyYXRlZCBTeXN0
-ZW1zIFtTaVNdIFVTQiAxLjAgQ29udHJvbGxlciAocmV2IDBmKSAocHJvZy1pZiAxMCBbT0hDSV0p
-CglTdWJzeXN0ZW06IEVsaXRlZ3JvdXAgQ29tcHV0ZXIgU3lzdGVtczogVW5rbm93biBkZXZpY2Ug
-MTgwOAoJQ29udHJvbDogSS9PKyBNZW0rIEJ1c01hc3RlcisgU3BlY0N5Y2xlLSBNZW1XSU5WLSBW
-R0FTbm9vcC0gUGFyRXJyLSBTdGVwcGluZy0gU0VSUi0gRmFzdEIyQi0KCVN0YXR1czogQ2FwLSA2
-Nk1oei0gVURGLSBGYXN0QjJCKyBQYXJFcnItIERFVlNFTD1tZWRpdW0gPlRBYm9ydC0gPFRBYm9y
-dC0gPE1BYm9ydC0gPlNFUlItIDxQRVJSLQoJTGF0ZW5jeTogNjQgKDIwMDAwbnMgbWF4KSwgY2Fj
-aGUgbGluZSBzaXplIDA4CglJbnRlcnJ1cHQ6IHBpbiBCIHJvdXRlZCB0byBJUlEgNQoJUmVnaW9u
-IDA6IE1lbW9yeSBhdCBjZmZmZjAwMCAoMzItYml0LCBub24tcHJlZmV0Y2hhYmxlKSBbc2l6ZT00
-S10KCjAwOjAzLjIgVVNCIENvbnRyb2xsZXI6IFNpbGljb24gSW50ZWdyYXRlZCBTeXN0ZW1zIFtT
-aVNdIFVTQiAyLjAgQ29udHJvbGxlciAocHJvZy1pZiAyMCBbRUhDSV0pCglTdWJzeXN0ZW06IEVs
-aXRlZ3JvdXAgQ29tcHV0ZXIgU3lzdGVtczogVW5rbm93biBkZXZpY2UgMTgwOAoJQ29udHJvbDog
-SS9PLSBNZW0rIEJ1c01hc3RlcisgU3BlY0N5Y2xlLSBNZW1XSU5WLSBWR0FTbm9vcC0gUGFyRXJy
-LSBTdGVwcGluZy0gU0VSUisgRmFzdEIyQi0KCVN0YXR1czogQ2FwKyA2Nk1oei0gVURGLSBGYXN0
-QjJCKyBQYXJFcnItIERFVlNFTD1tZWRpdW0gPlRBYm9ydC0gPFRBYm9ydC0gPE1BYm9ydC0gPlNF
-UlItIDxQRVJSLQoJTGF0ZW5jeTogNjQgKDIwMDAwbnMgbWF4KQoJSW50ZXJydXB0OiBwaW4gRCBy
-b3V0ZWQgdG8gSVJRIDEwCglSZWdpb24gMDogTWVtb3J5IGF0IGNmZmRmMDAwICgzMi1iaXQsIG5v
-bi1wcmVmZXRjaGFibGUpIFtzaXplPTRLXQoJQ2FwYWJpbGl0aWVzOiBbNTBdIFBvd2VyIE1hbmFn
-ZW1lbnQgdmVyc2lvbiAyCgkJRmxhZ3M6IFBNRUNsay0gRFNJLSBEMS0gRDItIEF1eEN1cnJlbnQ9
-Mzc1bUEgUE1FKEQwKyxEMS0sRDItLEQzaG90KyxEM2NvbGQrKQoJCVN0YXR1czogRDAgUE1FLUVu
-YWJsZS0gRFNlbD0wIERTY2FsZT0wIFBNRS0KCjAwOjA0LjAgRXRoZXJuZXQgY29udHJvbGxlcjog
-U2lsaWNvbiBJbnRlZ3JhdGVkIFN5c3RlbXMgW1NpU10gU2lTOTAwIDEwLzEwMCBFdGhlcm5ldCAo
-cmV2IDkxKQoJU3Vic3lzdGVtOiBFbGl0ZWdyb3VwIENvbXB1dGVyIFN5c3RlbXM6IFVua25vd24g
-ZGV2aWNlIDE4MDgKCUNvbnRyb2w6IEkvTysgTWVtKyBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVt
-V0lOVi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmctIFNFUlIrIEZhc3RCMkItCglTdGF0dXM6
-IENhcCsgNjZNaHotIFVERi0gRmFzdEIyQisgUGFyRXJyLSBERVZTRUw9bWVkaXVtID5UQWJvcnQt
-IDxUQWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8UEVSUi0KCUxhdGVuY3k6IDY0ICgxMzAwMG5zIG1p
-biwgMjc1MG5zIG1heCkKCUludGVycnVwdDogcGluIEEgcm91dGVkIHRvIElSUSA0CglSZWdpb24g
-MDogSS9PIHBvcnRzIGF0IGM4MDAgW3NpemU9MjU2XQoJUmVnaW9uIDE6IE1lbW9yeSBhdCBjZmZm
-ZDAwMCAoMzItYml0LCBub24tcHJlZmV0Y2hhYmxlKSBbc2l6ZT00S10KCUV4cGFuc2lvbiBST00g
-YXQgY2ZmYTAwMDAgW2Rpc2FibGVkXSBbc2l6ZT0xMjhLXQoJQ2FwYWJpbGl0aWVzOiBbNDBdIFBv
-d2VyIE1hbmFnZW1lbnQgdmVyc2lvbiAyCgkJRmxhZ3M6IFBNRUNsay0gRFNJLSBEMSsgRDIrIEF1
-eEN1cnJlbnQ9MG1BIFBNRShEMCssRDErLEQyKyxEM2hvdCssRDNjb2xkKykKCQlTdGF0dXM6IEQw
-IFBNRS1FbmFibGUtIERTZWw9MCBEU2NhbGU9MCBQTUUtCgowMDowYi4wIFJBSUQgYnVzIGNvbnRy
-b2xsZXI6IFRyaW9uZXMgVGVjaG5vbG9naWVzLCBJbmMuIEhQVDM3NCAocmV2IDA3KQoJU3Vic3lz
-dGVtOiBUcmlvbmVzIFRlY2hub2xvZ2llcywgSW5jLjogVW5rbm93biBkZXZpY2UgMDAwMQoJQ29u
-dHJvbDogSS9PKyBNZW0rIEJ1c01hc3RlcisgU3BlY0N5Y2xlLSBNZW1XSU5WLSBWR0FTbm9vcC0g
-UGFyRXJyLSBTdGVwcGluZy0gU0VSUisgRmFzdEIyQi0KCVN0YXR1czogQ2FwKyA2Nk1oeisgVURG
-LSBGYXN0QjJCLSBQYXJFcnItIERFVlNFTD1tZWRpdW0gPlRBYm9ydC0gPFRBYm9ydC0gPE1BYm9y
-dC0gPlNFUlItIDxQRVJSLQoJTGF0ZW5jeTogMTIwICgyMDAwbnMgbWluLCAyMDAwbnMgbWF4KQoJ
-SW50ZXJydXB0OiBwaW4gQSByb3V0ZWQgdG8gSVJRIDExCglSZWdpb24gMDogSS9PIHBvcnRzIGF0
-IGM0MDAgW3NpemU9OF0KCVJlZ2lvbiAxOiBJL08gcG9ydHMgYXQgYzAwMCBbc2l6ZT00XQoJUmVn
-aW9uIDI6IEkvTyBwb3J0cyBhdCBiYzAwIFtzaXplPThdCglSZWdpb24gMzogSS9PIHBvcnRzIGF0
-IGI4MDAgW3NpemU9NF0KCVJlZ2lvbiA0OiBJL08gcG9ydHMgYXQgYjQwMCBbc2l6ZT0yNTZdCglF
-eHBhbnNpb24gUk9NIGF0IGNmZjgwMDAwIFtkaXNhYmxlZF0gW3NpemU9MTI4S10KCUNhcGFiaWxp
-dGllczogWzYwXSBQb3dlciBNYW5hZ2VtZW50IHZlcnNpb24gMgoJCUZsYWdzOiBQTUVDbGstIERT
-SSsgRDEtIEQyLSBBdXhDdXJyZW50PTBtQSBQTUUoRDAtLEQxLSxEMi0sRDNob3QtLEQzY29sZC0p
-CgkJU3RhdHVzOiBEMCBQTUUtRW5hYmxlLSBEU2VsPTAgRFNjYWxlPTAgUE1FLQoKMDA6MGIuMSBS
-QUlEIGJ1cyBjb250cm9sbGVyOiBUcmlvbmVzIFRlY2hub2xvZ2llcywgSW5jLiBIUFQzNzQgKHJl
-diAwNykKCVN1YnN5c3RlbTogVHJpb25lcyBUZWNobm9sb2dpZXMsIEluYy46IFVua25vd24gZGV2
-aWNlIDAwMDEKCUNvbnRyb2w6IEkvTysgTWVtLSBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVtV0lO
-Vi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmctIFNFUlIrIEZhc3RCMkItCglTdGF0dXM6IENh
-cCsgNjZNaHorIFVERi0gRmFzdEIyQi0gUGFyRXJyLSBERVZTRUw9bWVkaXVtID5UQWJvcnQtIDxU
-QWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8UEVSUi0KCUxhdGVuY3k6IDEyMCAoMjAwMG5zIG1pbiwg
-MjAwMG5zIG1heCkKCUludGVycnVwdDogcGluIEEgcm91dGVkIHRvIElSUSAxMQoJUmVnaW9uIDA6
-IEkvTyBwb3J0cyBhdCBkYzAwIFtzaXplPThdCglSZWdpb24gMTogSS9PIHBvcnRzIGF0IGQ4MDAg
-W3NpemU9NF0KCVJlZ2lvbiAyOiBJL08gcG9ydHMgYXQgZDQwMCBbc2l6ZT04XQoJUmVnaW9uIDM6
-IEkvTyBwb3J0cyBhdCBkMDAwIFtzaXplPTRdCglSZWdpb24gNDogSS9PIHBvcnRzIGF0IGNjMDAg
-W3NpemU9MjU2XQoJQ2FwYWJpbGl0aWVzOiBbNjBdIFBvd2VyIE1hbmFnZW1lbnQgdmVyc2lvbiAy
-CgkJRmxhZ3M6IFBNRUNsay0gRFNJKyBEMS0gRDItIEF1eEN1cnJlbnQ9MG1BIFBNRShEMC0sRDEt
-LEQyLSxEM2hvdC0sRDNjb2xkLSkKCQlTdGF0dXM6IEQwIFBNRS1FbmFibGUtIERTZWw9MCBEU2Nh
-bGU9MCBQTUUtCgowMDowYy4wIEV0aGVybmV0IGNvbnRyb2xsZXI6IDNDb20gQ29ycG9yYXRpb24g
-M2M5MDVDLVRYL1RYLU0gW1Rvcm5hZG9dIChyZXYgNzgpCglTdWJzeXN0ZW06IDNDb20gQ29ycG9y
-YXRpb24gM0M5MDVDLVRYIEZhc3QgRXRoZXJsaW5rIGZvciBQQyBNYW5hZ2VtZW50IE5JQwoJQ29u
-dHJvbDogSS9PKyBNZW0rIEJ1c01hc3RlcisgU3BlY0N5Y2xlLSBNZW1XSU5WKyBWR0FTbm9vcC0g
-UGFyRXJyLSBTdGVwcGluZy0gU0VSUisgRmFzdEIyQi0KCVN0YXR1czogQ2FwKyA2Nk1oei0gVURG
-LSBGYXN0QjJCLSBQYXJFcnItIERFVlNFTD1tZWRpdW0gPlRBYm9ydC0gPFRBYm9ydC0gPE1BYm9y
-dC0gPlNFUlItIDxQRVJSLQoJTGF0ZW5jeTogNjQgKDI1MDBucyBtaW4sIDI1MDBucyBtYXgpLCBj
-YWNoZSBsaW5lIHNpemUgMDgKCUludGVycnVwdDogcGluIEEgcm91dGVkIHRvIElSUSA1CglSZWdp
-b24gMDogSS9PIHBvcnRzIGF0IGIwMDAgW3NpemU9MTI4XQoJUmVnaW9uIDE6IE1lbW9yeSBhdCBj
-ZmZmY2Y4MCAoMzItYml0LCBub24tcHJlZmV0Y2hhYmxlKSBbc2l6ZT0xMjhdCglFeHBhbnNpb24g
-Uk9NIGF0IGNmZjYwMDAwIFtkaXNhYmxlZF0gW3NpemU9MTI4S10KCUNhcGFiaWxpdGllczogW2Rj
-XSBQb3dlciBNYW5hZ2VtZW50IHZlcnNpb24gMgoJCUZsYWdzOiBQTUVDbGstIERTSS0gRDErIEQy
-KyBBdXhDdXJyZW50PTBtQSBQTUUoRDArLEQxKyxEMissRDNob3QrLEQzY29sZCspCgkJU3RhdHVz
-OiBEMCBQTUUtRW5hYmxlLSBEU2VsPTAgRFNjYWxlPTIgUE1FLQoKMDE6MDAuMCBWR0EgY29tcGF0
-aWJsZSBjb250cm9sbGVyOiBuVmlkaWEgQ29ycG9yYXRpb24gTlY1TTY0IFtSSVZBIFROVDIgTW9k
-ZWwgNjQvTW9kZWwgNjQgUHJvXSAocmV2IDExKSAocHJvZy1pZiAwMCBbVkdBXSkKCUNvbnRyb2w6
-IEkvTysgTWVtKyBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVtV0lOVi0gVkdBU25vb3AtIFBhckVy
-ci0gU3RlcHBpbmctIFNFUlItIEZhc3RCMkItCglTdGF0dXM6IENhcCsgNjZNaHorIFVERi0gRmFz
-dEIyQisgUGFyRXJyLSBERVZTRUw9bWVkaXVtID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQtID5T
-RVJSLSA8UEVSUi0KCUxhdGVuY3k6IDY0ICgxMjUwbnMgbWluLCAyNTBucyBtYXgpCglJbnRlcnJ1
-cHQ6IHBpbiBBIHJvdXRlZCB0byBJUlEgMAoJUmVnaW9uIDA6IE1lbW9yeSBhdCBjZTAwMDAwMCAo
-MzItYml0LCBub24tcHJlZmV0Y2hhYmxlKSBbc2l6ZT0xNk1dCglSZWdpb24gMTogTWVtb3J5IGF0
-IGNhMDAwMDAwICgzMi1iaXQsIHByZWZldGNoYWJsZSkgW3NpemU9MzJNXQoJRXhwYW5zaW9uIFJP
-TSBhdCBjZmVmMDAwMCBbZGlzYWJsZWRdIFtzaXplPTY0S10KCUNhcGFiaWxpdGllczogWzYwXSBQ
-b3dlciBNYW5hZ2VtZW50IHZlcnNpb24gMQoJCUZsYWdzOiBQTUVDbGstIERTSS0gRDEtIEQyLSBB
-dXhDdXJyZW50PTBtQSBQTUUoRDAtLEQxLSxEMi0sRDNob3QtLEQzY29sZC0pCgkJU3RhdHVzOiBE
-MCBQTUUtRW5hYmxlLSBEU2VsPTAgRFNjYWxlPTAgUE1FLQoJQ2FwYWJpbGl0aWVzOiBbNDRdIEFH
-UCB2ZXJzaW9uIDIuMAoJCVN0YXR1czogUlE9MzIgSXNvLSBBcnFTej0wIENhbD0wIFNCQS0gSVRB
-Q29oLSBHQVJUNjQtIEhUcmFucy0gNjRiaXQtIEZXLSBBR1AzLSBSYXRlPXgxLHgyCgkJQ29tbWFu
-ZDogUlE9MSBBcnFTej0wIENhbD0wIFNCQS0gQUdQLSBHQVJUNjQtIDY0Yml0LSBGVy0gUmF0ZT08
-bm9uZT4KCg==
+diff -puN drivers/base/sys.c~kobject_set_name-cleanup-01 drivers/base/sys.c
+--- linux-2.6.6-rc3-mm2/drivers/base/sys.c~kobject_set_name-cleanup-01	2004-05-06 12:13:22.000000000 +0530
++++ linux-2.6.6-rc3-mm2-maneesh/drivers/base/sys.c	2004-05-06 12:13:22.000000000 +0530
+@@ -180,8 +180,11 @@ int sysdev_register(struct sys_device * 
+ 
+ 	/* But make sure we point to the right type for sysfs translation */
+ 	sysdev->kobj.ktype = &ktype_sysdev;
+-	kobject_set_name(&sysdev->kobj,"%s%d",
++	error = kobject_set_name(&sysdev->kobj,"%s%d",
+ 			 kobject_name(&cls->kset.kobj),sysdev->id);
++	if (error)
++		return error;
++
+ 	pr_debug("Registering sys device '%s'\n",kobject_name(&sysdev->kobj));
+ 
+ 	/* Register the object */
+diff -puN drivers/base/bus.c~kobject_set_name-cleanup-01 drivers/base/bus.c
+--- linux-2.6.6-rc3-mm2/drivers/base/bus.c~kobject_set_name-cleanup-01	2004-05-06 12:13:22.000000000 +0530
++++ linux-2.6.6-rc3-mm2-maneesh/drivers/base/bus.c	2004-05-06 12:13:42.000000000 +0530
+@@ -451,7 +451,11 @@ int bus_add_driver(struct device_driver 
+ 
+ 	if (bus) {
+ 		pr_debug("bus %s: add driver %s\n",bus->name,drv->name);
+-		kobject_set_name(&drv->kobj,drv->name);
++		error = kobject_set_name(&drv->kobj,drv->name);
++		if (error) {
++			put_bus(bus);
++			return error;
++		}
+ 		drv->kobj.kset = &bus->drivers;
+ 		if ((error = kobject_register(&drv->kobj))) {
+ 			put_bus(bus);
+@@ -555,7 +559,11 @@ struct bus_type * find_bus(char * name)
+  */
+ int bus_register(struct bus_type * bus)
+ {
+-	kobject_set_name(&bus->subsys.kset.kobj,bus->name);
++	int error = 0;
++
++	error = kobject_set_name(&bus->subsys.kset.kobj,bus->name);
++	if (error)
++		return error;
+ 	subsys_set_kset(bus,bus_subsys);
+ 	subsystem_register(&bus->subsys);
+ 
+@@ -569,7 +577,7 @@ int bus_register(struct bus_type * bus)
+ 	kset_register(&bus->drivers);
+ 
+ 	pr_debug("bus type '%s' registered\n",bus->name);
+-	return 0;
++	return error;
+ }
+ 
+ 
 
---Multipart=_Fri__7_May_2004_23_44_30_+0200_ziX1vUp+dOYB0O02
-Content-Type: application/octet-stream;
- name="interrupts"
-Content-Disposition: attachment;
- filename="interrupts"
-Content-Transfer-Encoding: base64
+_
 
-ICAgICAgICAgICBDUFUwICAgICAgIAogIDA6ICAgMjk5Njg2ODIgICAgICAgICAgWFQtUElDICB0
-aW1lcgogIDE6ICAgICAgICA0NTkgICAgICAgICAgWFQtUElDICBpODA0MgogIDI6ICAgICAgICAg
-IDAgICAgICAgICAgWFQtUElDICBjYXNjYWRlCiAgNDogICAyNDU2NzUwOSAgICAgICAgICBYVC1Q
-SUMgIGV0aDEKICA1OiAgIDQ4ODAzNzE5ICAgICAgICAgIFhULVBJQyAgb2hjaV9oY2QsIGV0aDAK
-ICA3OiAgICAgMTE4NzYzICAgICAgICAgIFhULVBJQyAgb2hjaV9oY2QKICA4OiAgICAgICAgICAy
-ICAgICAgICAgIFhULVBJQyAgcnRjCiAxMDogICAgICAgICAgMCAgICAgICAgICBYVC1QSUMgIGVo
-Y2lfaGNkCiAxMTogICAgIDU0NDk0MCAgICAgICAgICBYVC1QSUMgIGlkZTIsIGlkZTMsIGlkZTQs
-IGlkZTUKIDE0OiAgICAgNTg2MjY4ICAgICAgICAgIFhULVBJQyAgaWRlMAogMTU6ICAgICAxNjk0
-MDUgICAgICAgICAgWFQtUElDICBpZGUxCk5NSTogICAgICAgICAgMCAKTE9DOiAgIDI5OTY3OTkx
-IApFUlI6ICAgICAgMTg3NjMKTUlTOiAgICAgICAgICAwCg==
 
---Multipart=_Fri__7_May_2004_23_44_30_+0200_ziX1vUp+dOYB0O02--
-
---Signature=_Fri__7_May_2004_23_44_30_+0200_kOSiQyP.WUNEY3y4
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAnANHU788cpz6t2kRAlnXAJ42poQfr1g4wEeUKxfEsQlakildKwCaAk3o
-ZxB49gQIEld6i4upxL10vnU=
-=ZztQ
------END PGP SIGNATURE-----
-
---Signature=_Fri__7_May_2004_23_44_30_+0200_kOSiQyP.WUNEY3y4--
+-- 
+Maneesh Soni
+IBM Linux Technology Center, 
+IBM India Software Lab, Bangalore.
+Phone: +91-80-5044999 email: maneesh@in.ibm.com
+http://lse.sourceforge.net/

@@ -1,56 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262176AbTKPDZE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Nov 2003 22:25:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262319AbTKPDZE
+	id S261740AbTKPDlm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Nov 2003 22:41:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbTKPDlm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Nov 2003 22:25:04 -0500
-Received: from web10408.mail.yahoo.com ([216.136.130.110]:10332 "HELO
-	web10408.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262176AbTKPDZA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Nov 2003 22:25:00 -0500
-Message-ID: <20031116032459.99308.qmail@web10408.mail.yahoo.com>
-Date: Sun, 16 Nov 2003 14:24:59 +1100 (EST)
-From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
-Subject: Re: 2.6.0-test6 with low mem box, too slow to start openoffice
-To: Ed Tomlinson <edt@aei.ca>
-Cc: kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200311151822.38460.edt@aei.ca>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sat, 15 Nov 2003 22:41:42 -0500
+Received: from pan.togami.com ([66.139.75.105]:58605 "EHLO pan.mplug.org")
+	by vger.kernel.org with ESMTP id S261740AbTKPDll (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Nov 2003 22:41:41 -0500
+Subject: Status of dpt_i2o? (Adaptec 2110S)
+From: Warren Togami <warren@togami.com>
+To: kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1068954098.4379.66.camel@laptop>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Sat, 15 Nov 2003 17:41:39 -1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+What is the status of dpt_i2o with the 2.6 kernel?  Has any work been
+done to improve its non-x86 arch compatibility?
 
-Hi, thanks for your reply.
+I am concerned here because my new servers have Adaptec 2110S SCSI RAID
+controllers less than 6 months old, and it appears that as of the next
+release of Fedora Core I will no longer be able to upgrade my servers
+due to the lack of dpt_i2o driver.
 
-> with open office.  It makes
-> massive use of yield().  What this does changes in
-> 2.6 - it now works as expected
+I am also disheartened that the dpt_i2o driver never did seem to work in
+alternate architectures.
 
-However I noticed that if I use 2.6.0-test9-mm1 or
-mm2; the problem seems to be solved. With mm1, it even
-starts Openoffice faster than 2.4.x (34 sec compared
-with 46sec). The only problem with mm kernel is, the
-vmware modules for 2.6 kernel I get from 
-http://ftp.cvut.cz/vmware/  causes OOPs. I experience
-considerable performance improvd with mm kernel.
+Warren Togami
+warren@togami.com
 
-Hope finnally the performace tweak in mm kernel will
-get merged and the author of vmware modules for 2.6
-fixed the OOP.
-
-> and this hurts some versions of open office.
-> 
-> Ed 
-
-Cheers,
-
-
-
-=====
-S.KIEU
-
-http://personals.yahoo.com.au - Yahoo! Personals
-New people, new possibilities. FREE for a limited time.

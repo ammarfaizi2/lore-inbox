@@ -1,58 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270483AbTGXFSe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 01:18:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270492AbTGXFSe
+	id S271090AbTGXFVC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 01:21:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271101AbTGXFVC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 01:18:34 -0400
-Received: from CPE-65-29-18-15.mn.rr.com ([65.29.18.15]:43650 "EHLO
-	www.enodev.com") by vger.kernel.org with ESMTP id S270483AbTGXFSd
+	Thu, 24 Jul 2003 01:21:02 -0400
+Received: from user145.net484.nc.sprint-hsd.net ([65.40.169.145]:47241 "EHLO
+	mail1.lvwnet.com") by vger.kernel.org with ESMTP id S271090AbTGXFU7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 01:18:33 -0400
-Subject: Re: Reiser4 status: benchmarked vs. V3 (and ext3)
-From: Shawn <core@enodev.com>
-To: Tupshin Harper <tupshin@tupshin.com>
-Cc: Hans Reiser <reiser@namesys.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       reiserfs mailing list <reiserfs-list@namesys.com>
-In-Reply-To: <1059024090.9728.22.camel@localhost>
-References: <3F1EF7DB.2010805@namesys.com>  <3F1F6005.4060307@tupshin.com>
-	 <1059021113.7911.13.camel@localhost>  <3F1F66F0.1050406@tupshin.com>
-	 <1059024090.9728.22.camel@localhost>
-Content-Type: text/plain
+	Thu, 24 Jul 2003 01:20:59 -0400
+Message-ID: <3F1F7046.7080009@lvwnet.com>
+Date: Thu, 24 Jul 2003 01:36:06 -0400
+From: Vinnie <listacct1@lvwnet.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2.1) Gecko/20021130
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Philippe Troin <phil@fifi.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19 (and newer) - prob with the new adaptec aic7xxx driver
+ and Promise UltraTrak100 TX2
+References: <3F1F5397.8000001@lvwnet.com> <87ispsd229.fsf@ceramic.fifi.org>
+In-Reply-To: <87ispsd229.fsf@ceramic.fifi.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1059024820.7930.33.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 24 Jul 2003 00:33:40 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmmm... Maybe he can get one of those swirly color guys on the namesys
-website to administer the spanking.
-(http://www.namesys.com/v4/r4pics/finegrainingJ.jpg) I want to see video
-of that...
-
-BTW Hans, I have a new swirly guy idea for the "Extensibility through
-plugins" graphic... ;P
-
-On Thu, 2003-07-24 at 00:21, Shawn wrote:
-> Looks like the 2.5.74 is the last one of any respectable size. I'm
-> thinking someone forgot a diff switch (N?) over at namesys...
+Philippe Troin wrote:
+>>
+>>If I compile the kernel to use the NEW aic7xxx adaptec driver, the
+>>SCSI bus hangs almost immediately upon commencement of a large write
+>>operation, such as attempting to copy a 500MB file from one of the
+>>internal client machines to a SMB shared directory on this server.
+>>The problem is reproducible on 2.4.19 and 2.4.20 kernels, if I use the
+>>"new" aic7xxx driver.
 > 
-> Hans? Time to long-distance spank someone?
 > 
-> On Wed, 2003-07-23 at 23:56, Tupshin Harper wrote:
-> > Shawn wrote:
-> > 
-> > >This is pretty f'ed, but it's on ftp://ftp.namesys.com/pub/tmp
-> > >
-> > Thanks, but I tried applying the
-> > 2.6.0-test1-reiser4-2.6.0-test1.diff from that location with a lack of 
-> > success.
-> > 
-> > It applied cleanly, but it doesn't add a fs/reiser4 directory and 
-> > asociated contents. Is there an additional patch, or is this one broken?
-> > 
-> > -Tupshin
+> 8< snip >8
+> 
+> Have you tried the updated aic7xxx driver at
+> http://people.freebsd.org/~gibbs/linux/SRC/ ?
+> 
+> AFAIK it fixes a lot of problems with aic7xxx and was not included in
+> 2.4.21 for technicalities.
+
+Hi Phil,
+
+Thanks Phil - the updated driver solved my problem, I am now happily up and 
+running (and doing big writes without problems) on a fresh-compiled 2.4.20 
+kernel, with the /drivers/scsi tree patched with the latest set of Justin 
+Gibbs' drivers (6.2.36)
+
+Thanks to Justin also, and everybody else who has (no doubt) worked on the 
+new Adaptec drivers to improve it since the versions included with the 
+official kernel.org 2.4.19 and 2.4.20 kernel sources.
+
+Vinnie
 

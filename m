@@ -1,52 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277605AbRJLJJX>; Fri, 12 Oct 2001 05:09:23 -0400
+	id <S277612AbRJLJQQ>; Fri, 12 Oct 2001 05:16:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277609AbRJLJJC>; Fri, 12 Oct 2001 05:09:02 -0400
-Received: from [195.66.192.167] ([195.66.192.167]:5387 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S277605AbRJLJI7>; Fri, 12 Oct 2001 05:08:59 -0400
-Date: Fri, 12 Oct 2001 12:06:22 +0200
-From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-X-Mailer: The Bat! (v1.44)
-Reply-To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-Organization: IMTP
-X-Priority: 3 (Normal)
-Message-ID: <29988291.20011012120622@port.imtp.ilyichevsk.odessa.ua>
-To: linux-kernel@vger.kernel.org
-Subject: Ability to kill (was: Re: so, no way to kill process? have to reboot?)
-In-Reply-To: <3BC6A841.34AEB2BC@loewe-komp.de>
-In-Reply-To: <3BC6097F.79B6E2D1@nortelnetworks.com>
- <3BC6A841.34AEB2BC@loewe-komp.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S277609AbRJLJQF>; Fri, 12 Oct 2001 05:16:05 -0400
+Received: from oe39.law9.hotmail.com ([64.4.8.96]:31493 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S277608AbRJLJP7>;
+	Fri, 12 Oct 2001 05:15:59 -0400
+X-Originating-IP: [66.108.21.174]
+From: "T. A." <tkhoadfdsaf@hotmail.com>
+To: "J Sloan" <jjs@pobox.com>, "linux-kernel" <linux-kernel@vger.kernel.org>
+In-Reply-To: <XFMail.20011011094548.jkp@riker.nailed.org> <3BC5E152.3D81631@bigfoot.com> <3BC5E3AF.588D0A55@lexus.com> <3BC5EB56.21B4EF88@bigfoot.com> <3BC5FA12.F8E5C91E@lexus.com> <OE64cxtniFKULPEhGD100007fff@hotmail.com> <3BC688A2.4C7640B7@pobox.com>
+Subject: Re: [OT] Re: Which kernel (Linus or ac)?
+Date: Fri, 12 Oct 2001 05:14:33 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Message-ID: <OE394qrvAsp4XgWZGbR0000e29d@hotmail.com>
+X-OriginalArrivalTime: 12 Oct 2001 09:16:25.0562 (UTC) FILETIME=[91473BA0:01C152FE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-PW> Well, I'd suspect it in "D" state - waiting for some disk I/O to
-PW> finish...
+> That's odd, my Red Hat servers have been
+> almost like appliances. Not perfect, but all
+> the problems I've seen could be dealt with.
 
-If a process is stuck in D state it's a kernel bug - I
-don't think it's ever legitimate to wait forever for something
-which could never happen. However, some such bugs are rarely
-happening (e.g. a swapin failure due to hdd malfunction)
-and thus will unlikely be fixed.
+    Oh I could deal with all of the problems as well.  But after a good bit
+of recompiling, patching, upgrading, backtracking the things done in the
+"Redhat" way which many times don't match the man pages, as well as undoing
+the "Redhat" way annoyances I just end up with a variation of my own hand
+built distribution.  And once I have to replace the system experimental C
+library and compiler it just get even more ridicules.
 
-PW> But in "R" with your described behavior looks like a bug.
-PW> If you care about the CPU time waisted: what about kill -STOP <pid>?
+> I've seen worse problems in commercial
+> unices, e.g. unixware - yuk - and hpux.
 
-R state unkillable hang is possible too (infinite loop in kernel
-preventing return from a syscall).
+    I know.  Please don't remind me of UnixWare.  I buried that at my
+clients' and companies' sites in the Linux 1.2.x days.
 
-In short, in my understanding any syscall should return sooner
-or later in order to process to be killable. Anything preventing
-that is a kernel bug.
+> x.0 release: New stuff, interesting, buggy
+> x.1 release: A passable cleanup of the bugs in .0
+> x.2 release: A smooth, polished, evolution of .1
 
-However, I'm not a UNIX guru, I may be wrong.
-I really like to be enlightened if I'm wrong.
--- 
-Best regards, vda
-mailto:vda@port.imtp.ilyichevsk.odessa.ua
+    Well here's hoping that 7.2 is smooth and polished.  Especially since
+Redhat has become the defacto standard and I'll probably be trying it out
+again.
 
+> (shrug) I had no idea it was alpha - it works
+> well for me, and I'm a vi man.
 
+    I never keep it around for long after I saw it crash a couple of times
+on my first 7.0 or 7.1 box so I can't say much about its stability.  Besides
+it was more the principal of the thing.  Why in the world use the alpha
+version of a text editor when a perfectly good released version exists with
+pretty much the same functionality.  One thing I did notice, if I remember
+correctly.  Seamed that either the installed vim was crippled or had a bug
+in reading my customized .vimrc file.  My custom options didn't get loaded
+until I downloaded the latest 5.[89] source and recompiled myself a new
+version.

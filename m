@@ -1,99 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262133AbVDFIBz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261762AbVDFIIV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262133AbVDFIBz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 04:01:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262135AbVDFIBy
+	id S261762AbVDFIIV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 04:08:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261983AbVDFIIU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 04:01:54 -0400
-Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:52910 "HELO
-	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262133AbVDFIBi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 04:01:38 -0400
-Message-ID: <4253975E.20804@yahoo.com.au>
-Date: Wed, 06 Apr 2005 18:01:34 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
-X-Accept-Language: en
+	Wed, 6 Apr 2005 04:08:20 -0400
+Received: from 71-33-33-84.albq.qwest.net ([71.33.33.84]:35242 "EHLO
+	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S261762AbVDFIII (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 04:08:08 -0400
+Date: Wed, 6 Apr 2005 02:10:23 -0600 (MDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: shaun <mailinglists@unix-scripts.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel panic - not syncing: Fatal exception in interupt
+In-Reply-To: <d2vu0u$oog$1@sea.gmane.org>
+Message-ID: <Pine.LNX.4.61.0504060209200.15520@montezuma.fsmlabs.com>
+References: <d2vu0u$oog$1@sea.gmane.org>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Subject: Re: [patch 4/5] sched: RCU sched domains
-References: <425322E0.9070307@yahoo.com.au> <42532317.5000901@yahoo.com.au> <42532346.5050308@yahoo.com.au> <425323A1.5030603@yahoo.com.au> <20050406061838.GB5973@elte.hu>
-In-Reply-To: <20050406061838.GB5973@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+On Tue, 5 Apr 2005, shaun wrote:
+
+> +Hardware Specs
+> Dual Xeon 800FSB
+> Intel Server Board
+> 4GB ECC DDR
+> 3ware 9500 Sata Raid Card
+> 5x200 GB sata drives in a raid 10 Config (1 hot spare)
+> Dual Nic
+> 
+> +OS Specs
+> CentOS 3.4 running a custom 2.6.x kernel patched with UML SKA's Patch
+> eth0 is 0.0.0.0 promisc and assigned to a bridge (br0)
+> tuntap devices up
+> ebtables is enabled and loaded with rules
+
+Is it possible to run without the bridge for testing purposes, and be 
+sure to put the normal networking load?
+
+> My problem is that every other week or so the machine crashes.  It never
+> dumps the error to the logs so all i have is a screen shot of the console.
+> I have put some serious stress on this machine and have been unable to
+> duplicate the problem (running 20 guest UML's half running va-ctcs and the
+> other half compiling a 2.6 kernel).   Below is a link to 2 screen shots i
+> have (about 2 weeks apart).  I started off using a 2.6.10 kernel when the
+> problem started.  Last time the machine crashed i built a 2.6.11.5 kernel
+> and disabled APM and ACPI in the kernel config.  Any body know whats going
+> on here.
+> 
+> http://www.unix-scripts.com/shaun/host-screenshot-1.png
+> http://www.unix-scripts.com/shaun/host-screenshot-2.png
+> 
+> Kernel Config... http://www.unix-scripts.com/shaun/2.6.11.5-hr1_.config
+> 
+> --
+> Best Regards,
+> 
+> Shaun Reitan
 > 
 > 
->>4/5
 > 
 > 
->>One of the problems with the multilevel balance-on-fork/exec is that 
->>it needs to jump through hoops to satisfy sched-domain's locking 
->>semantics (that is, you may traverse your own domain when not 
->>preemptable, and you may traverse others' domains when holding their 
->>runqueue lock).
->>
->>balance-on-exec had to potentially migrate between more than one CPU 
->>before finding a final CPU to migrate to, and balance-on-fork needed 
->>to potentially take multiple runqueue locks.
->>
->>So bite the bullet and make sched-domains go completely RCU. This 
->>actually simplifies the code quite a bit.
->>
->>Signed-off-by: Nick Piggin <nickpiggin@yahoo.com.au>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
-> 
-> i like it conceptually, so:
-> 
-> Acked-by: Ingo Molnar <mingo@elte.hu>
-> 
-
-Oh good, thanks.
-
-> from now on, all domain-tree readonly uses have to be rcu_read_lock()-ed 
-> (or otherwise have to be in a non-preemptible section). But there's a 
-> bug in show_shedstats() which does a for_each_domain() from within a 
-> preemptible section. (It was a bug with the current hotplug logic too i 
-> think.)
-> 
-
-Ah, thanks. That looks like a bug in the code with the locking
-we have now too...
-
-> At a minimum i think we need the fix+comment below.
-> 
-
-Well if we say "this is actually RCU", then yes. And we should
-probably change the preempt_{dis|en}ables in other places to
-rcu_read_lock.
-
-OTOH, if we say we just want all running threads to process through
-a preemption stage, then this would just be a preempt_disable/enable
-pair.
-
-In practice that makes no difference yet, but it looks like you and
-Paul are working to distinguish these two cases in the RCU code, to
-accomodate your low latency RCU stuff?
-
-I'd prefer the latter (ie. just disable preempt, and use
-synchronize_sched), but I'm not too sure of what is going on with
-your the low latency RCU work...?
-
-> 	Ingo
-> 
-> Signed-off-by: Ingo Molnar <mingo@elte.hu>
-> 
-
-Thanks for catching that. I may just push it through first as a fix
-to the current 2.6 schedstats code (using preempt_disable), and
-afterwards we can change it to rcu_read_lock if that is required.
-
--- 
-SUSE Labs, Novell Inc.
-

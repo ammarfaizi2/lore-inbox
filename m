@@ -1,49 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275808AbTHOI6P (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 04:58:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275810AbTHOI6P
+	id S275805AbTHOIxw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 04:53:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275808AbTHOIxw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 04:58:15 -0400
-Received: from os.inf.tu-dresden.de ([141.76.48.99]:5578 "EHLO
-	os.inf.tu-dresden.de") by vger.kernel.org with ESMTP
-	id S275808AbTHOI6N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 04:58:13 -0400
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.22-rc2, modular ide, missing dependencies in drivers/ide/Config.in? 
-Organisation: Dresden University of Technology
-From: Jean Wolter <jw5@os.inf.tu-dresden.de>
-Content-Type: text/plain; charset=US-ASCII
-Date: 15 Aug 2003 10:58:12 +0200
-Message-ID: <86znib47rv.fsf@os.inf.tu-dresden.de>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Civil Service)
-MIME-Version: 1.0
+	Fri, 15 Aug 2003 04:53:52 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:49668 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S275805AbTHOIxS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 04:53:18 -0400
+Subject: Re: Trying to run 2.6.0-test3
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Norman Diamond <ndiamond@wta.att.ne.jp>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <0a5b01c36305$4dec8b80$1aee4ca5@DIAMONDLX60>
+References: <0a5b01c36305$4dec8b80$1aee4ca5@DIAMONDLX60>
+Content-Type: text/plain
+Message-Id: <1060937593.604.14.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Fri, 15 Aug 2003 10:53:13 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Fri, 2003-08-15 at 10:11, Norman Diamond wrote:
 
-I've tried to build a kernel with modular IDE drivers (CONFIG_IDE=m)
-and got unresolved symbols during make modules_install. The reason was
-CONFIG_BLK_DEV_CMD640=y which has to be set to 'm' when you try to
-build IDE drivers as modules.
+> 1.  Although both yenta and i82365 are compiled in, my 16-bit NE2000 clone
+> isn't recognized.  If I boot kernel 2.4.19 I can use the network, if I
+> boot kernel 2.6.0 I can't find any way to use the network.  Partial output
+> of various commands and files are shown below.
 
-I think the IDE chipset bugfix/support should depend on
-CONFIG_BLK_DEV_IDE to force building them as modules if the IDE driver
-is build as a module:
+What brand/model? What chipset does the card use? Are your sure it's
+PCMCIA (16-bit) and not CardBus (32-bit)?
 
---- linux-2.4.22-rc2-orig/drivers/ide/Config.in Wed Aug 13 11:28:08 2003
-+++ linux-2.4.22-rc2/drivers/ide/Config.in      Wed Aug 13 22:12:37 2003
-@@ -27,7 +27,7 @@
- 
-    comment 'IDE chipset support/bugfixes'
-    if [ "$CONFIG_BLK_DEV_IDE" != "n" ]; then
--      dep_bool '  CMD640 chipset bugfix/support' CONFIG_BLK_DEV_CMD640 $CONFIG_X86
-+      dep_tristate '  CMD640 chipset bugfix/support' CONFIG_BLK_DEV_CMD640 $CONFIG_X86 $CONFIG_BLK_DEV_IDE
+> 3.  For 2.6.0-test1, a few people kindly explained and provided a patch
+> to make the keyboard work with a plain text console, to get a pipe symbol
+> when not running under X.  How come 2.6.0-test3 still doesn't incorporate
+> that patch?
 
-The same holds for nearly all other drivers in the ide
-subdirectories. Unfortunately I'm not familiar enough with the sources
-and dependencies to provide a complete diff.
+Uh? A patch to make the pipe (|) symbol work?
 
-regards,
-Jean
+> 5.  Modules seem to work except for module symbols.  This seems to be a
+> result of compiling the new modules packages manually at a time when I
+> could not persuade the rpm --rebuild command to target the correct cpu.
+> Later I persuaded rpm --rebuild to work.  modprobe and lsmod and rmmod
+> work, only kernel symbols think that modules are disabled.
+
+Have you upgraded to latest modutils package? Modules are implemented
+quite differently in 2.6.
+
+> #
+> # PCI Hotplug Support
+> #
+> CONFIG_HOTPLUG_PCI=m
+> CONFIG_HOTPLUG_PCI_FAKE=m
+
+You don't need that.
+
+> 
+> 
+> (/var/log/messages)
+> 
+> Aug 14 22:21:37 diamondpana kernel: cs: warning: no high memory space available!
+> Aug 14 22:21:37 diamondpana kernel: cs: unable to map card memory!
+> Aug 14 22:21:37 diamondpana last message repeated 3 times
+> Aug 14 22:22:49 diamondpana last message repeated 7 times
+> Aug 14 22:23:35 diamondpana last message repeated 3 times
+> Aug 14 22:24:40 diamondpana last message repeated 3 times
+> Aug 14 22:29:07 diamondpana kernel: cs: unable to map card memory!
+
+It seems the kernel is having problems assigning resources to your card.
+Plase, edit "/etc/pcmcia/config.opts" and uncomment the following line:
+
+#include port 0x1000-0x17ff
+
+> 
+> 
+> (dmesg)
+> 
+> Kernel command line: acpi=off apm=on root=/dev/hda8
+
+I suggest you to recompile your kernel with ACPI support to see if it
+works correctly. Else, recompile it disabling ACPI support and enabling
+APM support.
+
+> No local APIC present or hardware disabled
+
+You can remove APIC support from your config. It's not supported by your
+hardware.
+
+> PCI: IRQ 0 for device 0000:00:01.2 doesn't match PIRQ mask - try pci=usepirqmask
+> PCI: IRQ 0 for device 0000:00:0a.0 doesn't match PIRQ mask - try pci=usepirqmask
+> PCI: IRQ 0 for device 0000:00:0a.1 doesn't match PIRQ mask - try pci=usepirqmask
+
+Please, add "pci=usepirqmask" to your kernel command line in GRUB/Lilo.
+

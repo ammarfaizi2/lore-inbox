@@ -1,51 +1,341 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266352AbUIWR5n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268203AbUIWSB7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266352AbUIWR5n (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 13:57:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268235AbUIWR4f
+	id S268203AbUIWSB7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 14:01:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268197AbUIWSB6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 13:56:35 -0400
-Received: from users.linvision.com ([62.58.92.114]:48606 "HELO bitwizard.nl")
-	by vger.kernel.org with SMTP id S266352AbUIWRzN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 13:55:13 -0400
-Date: Thu, 23 Sep 2004 19:55:12 +0200
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Tigran Aivazian <tigran@veritas.com>
-Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
-Subject: Re: 2.6.8.1 doesn't boot on x86_64
-Message-ID: <20040923175512.GE8101@harddisk-recovery.com>
-References: <Pine.LNX.4.44.0409231814500.2275-100000@einstein.homenet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 23 Sep 2004 14:01:58 -0400
+Received: from yacht.ocn.ne.jp ([222.146.40.168]:31176 "EHLO
+	smtp.yacht.ocn.ne.jp") by vger.kernel.org with ESMTP
+	id S268203AbUIWR6w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 13:58:52 -0400
+From: Akinobu Mita <amgta@yacht.ocn.ne.jp>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc2-mm2
+Date: Fri, 24 Sep 2004 02:59:35 +0900
+User-Agent: KMail/1.5.4
+References: <20040922131210.6c08b94c.akpm@osdl.org>
+In-Reply-To: <20040922131210.6c08b94c.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0409231814500.2275-100000@einstein.homenet>
-User-Agent: Mutt/1.3.28i
-Organization: Harddisk-recovery.com
+Message-Id: <200409240259.35630.amgta@yacht.ocn.ne.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 23, 2004 at 06:21:30PM +0100, Tigran Aivazian wrote:
-> I haven't heard about it on x86_64 discuss list so I thought it is worth 
-> asking if someone else has encountered this. When I boot 2.6.8.1 kernel 
-> (patched with kdb) the last thing I see is:
-> 
-> Freeing unused kernel memory: 160k f
-> 
-> I don't get the whole word "freed", only the first letter "f". This is SMP 
-> kernel. I will try recompiling without kdb and also booting as "nosmp" to 
-> see if it makes any difference.
-> 
-> Fedora Core 2 smp kernel boots fine, btw.
+> - Added the kexec-based crashdump code.  This is the code which uses kexec
+>   to jump into a new mini-kernel when the main kernel crashes.  Userspace
+> code in that mini-kernel then dumps the main kernel's memory to disk. 
+> These new patches provide the bits and pieces which the mini-kernel needs
+> to be able to get at the main kernel's memory.
 
-FWIW, a non-kdb patched 2.6.8.1 kernel runs fine on a dual CPU box
-(Tyan Thunder K8W with 2x Opteron 242):
+Interesting feature.
 
-Linux zebigbos 2.6.8.1 #1 SMP Fri Sep 10 18:57:48 CEST 2004 x86_64 unknown
+>   There seem to be no hints as to how to get all this working - that will
+>   come.
+
+According to "Documentation/kdump.txt", we need to apply the following patches
+to build "mini-kernel".
+
+   http://www.xmission.com/~ebiederm/files/kexec/2.6.8.1-kexec3/
+        broken-out/highbzImage.i386.patch
+   http://www.xmission.com/~ebiederm/files/kexec/2.6.8.1-kexec3/
+        broken-out/vmlinux-lds.i386.patch
+
+But, Appling "arch/i386/kernel/vmlinux.lds.S" to 2.6.9-rc2-mm2 failed.
+
+Someone who try to make mini-kernel against 2.6.9-rc2-m2, also need below patch.
 
 
-Erik
+--- 2.6-mm-kdump/arch/i386/kernel/vmlinux.lds.S.orig	2004-09-23 21:47:45.000000000 +0900
++++ 2.6-mm-kdump/arch/i386/kernel/vmlinux.lds.S	2004-09-24 00:13:58.012736264 +0900
+@@ -2,133 +2,167 @@
+  * Written by Martin Mares <mj@atrey.karlin.mff.cuni.cz>;
+  */
+ 
++#define __ASSEMBLY__ 1
++#include <asm/page.h>
++#define LOAD_OFFSET __PAGE_OFFSET
++
+ #include <asm-generic/vmlinux.lds.h>
+ #include <asm/thread_info.h>
+-#include <asm/page.h>
++#include <asm/segment.h>
+ 
+ OUTPUT_FORMAT("elf32-i386", "elf32-i386", "elf32-i386")
+ OUTPUT_ARCH(i386)
+-ENTRY(startup_32)
++ENTRY(phys_startup_32)
+ jiffies = jiffies_64;
+ SECTIONS
+ {
+-  . = __PAGE_OFFSET + 0x100000;
+-  /* read-only */
+-  _text = .;			/* Text and read-only data */
+-  .text : {
+-	*(.text)
+-	SCHED_TEXT
+-	LOCK_TEXT
+-	*(.fixup)
+-	*(.gnu.warning)
++	. = LOAD_OFFSET + LOAD_ADDRESS;
++	phys_startup_32 = startup_32 - LOAD_OFFSET;
++
++	/* read-only */
++	_text = .;			/* Text and read-only data */
++	.text : AT(ADDR(.text) - LOAD_OFFSET) {
++		*(.text)
++		SCHED_TEXT
++		LOCK_TEXT
++		*(.fixup)
++		*(.gnu.warning)
+ 	} = 0x9090
+ 
+-  _etext = .;			/* End of text section */
++	_etext = .;			/* End of text section */
++
++	. = ALIGN(16);		/* Exception table */
++	__start___ex_table = .;
++	__ex_table : AT(ADDR(__ex_table) - LOAD_OFFSET) {
++		*(__ex_table)
++	}
++	__stop___ex_table = .;
++
++	RODATA
++
++	/* writeable */
++	.data : AT(ADDR(.data) - LOAD_OFFSET) {			/* Data */
++		*(.data)
++		CONSTRUCTORS
++	}
++
++	. = ALIGN(4096);
++	__nosave_begin = .;
++	.data_nosave : AT(ADDR(.data_nosave) - LOAD_OFFSET) {
++		*(.data.nosave)
++	}
++	. = ALIGN(4096);
++	__nosave_end = .;
++
++	. = ALIGN(4096);
++	.data.page_aligned : AT(ADDR(.data.page_aligned) - LOAD_OFFSET) {
++		*(.data.idt)
++	}
++
++	. = ALIGN(32);
++	.data.cacheline_aligned : AT(ADDR(.data.cacheline_aligned) - LOAD_OFFSET) {
++		*(.data.cacheline_aligned)
++	}
++
++	_edata = .;			/* End of data section */
++
++	. = ALIGN(THREAD_SIZE);	/* init_task */
++	.data.init_task : AT(ADDR(.data.init_task) - LOAD_OFFSET) {
++		*(.data.init_task)
++	}
++
++	/* will be freed after init */
++	. = ALIGN(4096);		/* Init code and data */
++	__init_begin = .;
++	.init.text : AT(ADDR(.init.text) - LOAD_OFFSET) { 
++		_sinittext = .;
++		*(.init.text)
++		_einittext = .;
++	}
++	.init.data : AT(ADDR(.init.data) - LOAD_OFFSET) {
++		*(.init.data)
++	}
++	. = ALIGN(16);
++	__setup_start = .;
++	.init.setup : AT(ADDR(.init.setup) - LOAD_OFFSET) {
++		*(.init.setup)
++	}
++	__setup_end = .;
++	__initcall_start = .;
++	.initcall.init : AT(ADDR(.initcall.init) - LOAD_OFFSET) {
++		*(.initcall1.init) 
++		*(.initcall2.init) 
++		*(.initcall3.init) 
++		*(.initcall4.init) 
++		*(.initcall5.init) 
++		*(.initcall6.init) 
++		*(.initcall7.init)
++	}
++	__initcall_end = .;
++	__con_initcall_start = .;
++	.con_initcall.init : AT(ADDR(.con_initcall.init) - LOAD_OFFSET) {
++		*(.con_initcall.init)
++	}
++	__con_initcall_end = .;
++	SECURITY_INIT
++	. = ALIGN(4);
++	__alt_instructions = .;
++	.altinstructions : AT(ADDR(.altinstructions) - LOAD_OFFSET) {
++	*(.altinstructions)
++	} 
++	__alt_instructions_end = .; 
++	.altinstr_replacement : AT(ADDR(.altinstr_replacement) - LOAD_OFFSET) {
++		*(.altinstr_replacement)
++	} 
++	/* .exit.text is discard at runtime, not link time, to deal with references
++	from .altinstructions and .eh_frame */
++	.exit.text : AT(ADDR(.exit.text) - LOAD_OFFSET) {
++		*(.exit.text)
++	}
++	.exit.data : AT(ADDR(.exit.data) - LOAD_OFFSET) {
++		*(.exit.data)
++	}
++	. = ALIGN(4096);
++	__initramfs_start = .;
++	.init.ramfs : AT(ADDR(.init.ramfs) - LOAD_OFFSET) {
++		*(.init.ramfs)
++	}
++	__initramfs_end = .;
++	. = ALIGN(32);
++	__per_cpu_start = .;
++	.data.percpu  : AT(ADDR(.data.percpu) - LOAD_OFFSET) {
++		*(.data.percpu)
++	}
++	__per_cpu_end = .;
++	. = ALIGN(4096);
++	__init_end = .;
++	/* freed after init ends here */
++
++	__bss_start = .;		/* BSS */
++	.bss : AT(ADDR(.bss) - LOAD_OFFSET) {
++		*(.bss.page_aligned)
++		*(.bss)
++	}
++	. = ALIGN(4);
++	__bss_stop = .; 
++
++	_end = . ;
++
++	/* This is where the kernel creates the early boot page tables */
++	. = ALIGN(4096);
++	pg0 = .;
++
++	/* Sections to be discarded */
++	/DISCARD/ : {
++		*(.exitcall.exit)
++	}
+ 
+-  . = ALIGN(16);		/* Exception table */
+-  __start___ex_table = .;
+-  __ex_table : { *(__ex_table) }
+-  __stop___ex_table = .;
+-
+-  RODATA
+-
+-  /* writeable */
+-  .data : {			/* Data */
+-	*(.data)
+-	CONSTRUCTORS
+-	}
+-
+-  . = ALIGN(4096);
+-  __nosave_begin = .;
+-  .data_nosave : { *(.data.nosave) }
+-  . = ALIGN(4096);
+-  __nosave_end = .;
+-
+-  . = ALIGN(4096);
+-  .data.page_aligned : { *(.data.idt) }
+-
+-  . = ALIGN(32);
+-  .data.cacheline_aligned : { *(.data.cacheline_aligned) }
+-
+-  _edata = .;			/* End of data section */
+-
+-  . = ALIGN(THREAD_SIZE);	/* init_task */
+-  .data.init_task : { *(.data.init_task) }
+-
+-  /* will be freed after init */
+-  . = ALIGN(4096);		/* Init code and data */
+-  __init_begin = .;
+-  .init.text : { 
+-	_sinittext = .;
+-	*(.init.text)
+-	_einittext = .;
+-  }
+-  .init.data : { *(.init.data) }
+-  . = ALIGN(16);
+-  __setup_start = .;
+-  .init.setup : { *(.init.setup) }
+-  __setup_end = .;
+-  __initcall_start = .;
+-  .initcall.init : {
+-	*(.initcall1.init) 
+-	*(.initcall2.init) 
+-	*(.initcall3.init) 
+-	*(.initcall4.init) 
+-	*(.initcall5.init) 
+-	*(.initcall6.init) 
+-	*(.initcall7.init)
+-  }
+-  __initcall_end = .;
+-  __con_initcall_start = .;
+-  .con_initcall.init : { *(.con_initcall.init) }
+-  __con_initcall_end = .;
+-  SECURITY_INIT
+-  . = ALIGN(4);
+-  __alt_instructions = .;
+-  .altinstructions : { *(.altinstructions) } 
+-  __alt_instructions_end = .; 
+- .altinstr_replacement : { *(.altinstr_replacement) } 
+-  /* .exit.text is discard at runtime, not link time, to deal with references
+-     from .altinstructions and .eh_frame */
+-  .exit.text : { *(.exit.text) }
+-  .exit.data : { *(.exit.data) }
+-  . = ALIGN(4096);
+-  __initramfs_start = .;
+-  .init.ramfs : { *(.init.ramfs) }
+-  __initramfs_end = .;
+-  . = ALIGN(32);
+-  __per_cpu_start = .;
+-  .data.percpu  : { *(.data.percpu) }
+-  __per_cpu_end = .;
+-  . = ALIGN(4096);
+-  __init_end = .;
+-  /* freed after init ends here */
+-	
+-  __bss_start = .;		/* BSS */
+-  .bss : {
+-	*(.bss.page_aligned)
+-	*(.bss)
+-  }
+-  . = ALIGN(4);
+-  __bss_stop = .; 
+-
+-  _end = . ;
+-
+-  /* This is where the kernel creates the early boot page tables */
+-  . = ALIGN(4096);
+-  pg0 = .;
+-
+-  /* Sections to be discarded */
+-  /DISCARD/ : {
+-	*(.exitcall.exit)
+-	}
+-
+-  /* Stabs debugging sections.  */
+-  .stab 0 : { *(.stab) }
+-  .stabstr 0 : { *(.stabstr) }
+-  .stab.excl 0 : { *(.stab.excl) }
+-  .stab.exclstr 0 : { *(.stab.exclstr) }
+-  .stab.index 0 : { *(.stab.index) }
+-  .stab.indexstr 0 : { *(.stab.indexstr) }
+-  .comment 0 : { *(.comment) }
++	/* Stabs debugging sections.  */
++	.stab 0 : { *(.stab) }
++	.stabstr 0 : { *(.stabstr) }
++	.stab.excl 0 : { *(.stab.excl) }
++	.stab.exclstr 0 : { *(.stab.exclstr) }
++	.stab.index 0 : { *(.stab.index) }
++	.stab.indexstr 0 : { *(.stab.indexstr) }
++	.comment 0 : { *(.comment) }
+ }
 
--- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+

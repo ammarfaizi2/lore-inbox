@@ -1,35 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287555AbSAEGyt>; Sat, 5 Jan 2002 01:54:49 -0500
+	id <S287558AbSAEG5U>; Sat, 5 Jan 2002 01:57:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287558AbSAEGyk>; Sat, 5 Jan 2002 01:54:40 -0500
-Received: from nycsmtp3fa.rdc-nyc.rr.com ([24.29.99.79]:29455 "EHLO si.rr.com")
-	by vger.kernel.org with ESMTP id <S287555AbSAEGyb>;
-	Sat, 5 Jan 2002 01:54:31 -0500
-Date: Sat, 5 Jan 2002 01:42:42 -0500 (EST)
-From: Frank Davis <fdavis@si.rr.com>
-X-X-Sender: <fdavis@localhost.localdomain>
-To: <linux-kernel@vger.kernel.org>
-cc: <fdavis@si.rr.com>
-Subject: 2.5.2-pre8: drivers/char/lp.c compile error
-Message-ID: <Pine.LNX.4.33.0201050138500.12846-100000@localhost.localdomain>
+	id <S287565AbSAEG5K>; Sat, 5 Jan 2002 01:57:10 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:64773 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S287558AbSAEG44>; Sat, 5 Jan 2002 01:56:56 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: ISA slot detection on PCI systems?
+Date: 4 Jan 2002 22:56:34 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a16832$p7f$1@cesium.transmeta.com>
+In-Reply-To: <20020102164757.A16976@thyrsus.com> <Pine.LNX.4.33.0201022305090.427-100000@Appserv.suse.de> <20020102170833.A17655@thyrsus.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+Followup to:  <20020102170833.A17655@thyrsus.com>
+By author:    "Eric S. Raymond" <esr@thyrsus.com>
+In newsgroup: linux.dev.kernel
+> 
+> But this is not a bad reason.  Allowing people to avoid running suid 
+> programs is a *good* reason.
+> 
 
-While 'make bzImage', I received the following error:
+In this case that is a nonsense reason, since what you're proposing
+doing is to change a userspace setuid program (which, on Unix, is
+functionally a privilege level between the kernel and normal userspace
+code) into kernel code.  Not a win.
 
-...
-lp.c: In function 'lp_console_device':
-lp.c:686: imcompatible type in return
-lp.c:687: warning: control reaches end of non-void function
-Amake[2]: *** [lp.o] Error 1
-make[2]: Leaving directory '/usr/src/linux/drivers/char'
-...
-
-Regards,
-Frank
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262323AbRENKta>; Mon, 14 May 2001 06:49:30 -0400
+	id <S262326AbRENKxv>; Mon, 14 May 2001 06:53:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262326AbRENKtU>; Mon, 14 May 2001 06:49:20 -0400
-Received: from t2.redhat.com ([199.183.24.243]:29168 "EHLO
+	id <S262327AbRENKxl>; Mon, 14 May 2001 06:53:41 -0400
+Received: from t2.redhat.com ([199.183.24.243]:32240 "EHLO
 	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S262323AbRENKtE>; Mon, 14 May 2001 06:49:04 -0400
+	id <S262326AbRENKxZ>; Mon, 14 May 2001 06:53:25 -0400
 X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
 From: David Woodhouse <dwmw2@infradead.org>
 X-Accept-Language: en_GB
-In-Reply-To: <15103.18224.265350.877968@pizda.ninka.net> 
-In-Reply-To: <15103.18224.265350.877968@pizda.ninka.net>  <200105131759.VAA27768@ms2.inr.ac.ru> <Pine.LNX.4.33.0105132319120.3026-100000@netcore.fi> 
+In-Reply-To: <15103.19205.369749.71491@pizda.ninka.net> 
+In-Reply-To: <15103.19205.369749.71491@pizda.ninka.net>  <20010511162412.A11896@lucon.org> <15100.30085.5209.499946@pizda.ninka.net> <20010511165339.A12289@lucon.org> <m13da9ky7s.fsf@frodo.biederman.org> <20010513110707.A11055@lucon.org> <m1y9s1jbml.fsf@frodo.biederman.org> <20010513181006.A10057@lucon.org> <m1sni8k9io.fsf@frodo.biederman.org> 
 To: "David S. Miller" <davem@redhat.com>
-Cc: Pekka Savola <pekkas@netcore.fi>, kuznet@ms2.inr.ac.ru,
-        linux-kernel@vger.kernel.org
-Subject: Re: IPv6: the same address can be added multiple times 
+Cc: ebiederm@xmission.com (Eric W. Biederman), "H . J . Lu" <hjl@lucon.org>,
+        alan@lxorguk.ukuu.org.uk, linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: Enable IP PNP for 2.4.4-ac8 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 14 May 2001 11:48:53 +0100
-Message-ID: <27266.989837333@redhat.com>
+Date: Mon, 14 May 2001 11:52:56 +0100
+Message-ID: <27838.989837576@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 davem@redhat.com said:
->  There is this growing (think growing as in "fungus") set of thinking
-> that just because something can be misused, this is an argument
-> against it even existing.
+>  I hate config options that change how the core of the kernel boot
+> makes decisions.  Things like "where is root", "what is my network
+> address or where do I get that information" have no reasonable
+> default.  This is why the command line args are there.
 
-> I think this is wrong.  I'm seeing it a lot, especially on this list,
-> and it's becomming a real concern at least to me. 
-
-The removal of the perfectly sane get_module_symbol() and replacement with 
-a less useful function which looks stuff up in a dynamic table instead of a 
-static table built at link time is an example of this. Now I have horrible 
-link order dependencies in code which was previously relatively clean. It 
-sucks, and there was absolutely no reason for it.
-
-The fact that it was done so late in 2.4-test without even a period of 
-marking the original sane version as deprecated made it even worse.
-
-Thinks... if I violently abuse inter_module_crap() will it suffer the same 
-fate and can I replace it with get_module_symbol() again? :)
+If you're told (by rdev because the poxy bootloader on the board can't 
+pass args to the kernel) that root is /dev/nfs, and you don't have a 
+command line telling you your IP information, then there _is_ a reasonable 
+default, and it is to do DHCP.
 
 --
 dwmw2

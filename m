@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316663AbSGSPWy>; Fri, 19 Jul 2002 11:22:54 -0400
+	id <S316853AbSGSPbl>; Fri, 19 Jul 2002 11:31:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316712AbSGSPWy>; Fri, 19 Jul 2002 11:22:54 -0400
-Received: from jalon.able.es ([212.97.163.2]:59379 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S316663AbSGSPWx>;
-	Fri, 19 Jul 2002 11:22:53 -0400
-Date: Fri, 19 Jul 2002 17:25:33 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Thunder from the hill <thunder@ngforever.de>
-Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Andrea Arcangeli <andrea@suse.de>, rwhron@earthlink.net
-Subject: [PATCHSET] Linux 2.4.19-rc2-jam1 [Was: Re: [PATCHSET] Linux 2.4.19-rc1-jam1]
-Message-ID: <20020719152533.GA1835@werewolf.able.es>
-References: <Pine.LNX.4.44.0207182040560.3525-100000@hawkeye.luckynet.adm>
+	id <S316852AbSGSPbl>; Fri, 19 Jul 2002 11:31:41 -0400
+Received: from lri.lri.fr ([129.175.15.1]:43167 "EHLO lri.lri.fr")
+	by vger.kernel.org with ESMTP id <S316836AbSGSPbk>;
+	Fri, 19 Jul 2002 11:31:40 -0400
+Date: Fri, 19 Jul 2002 17:05:23 +0200
+From: Thomas HERAULT <Thomas.Herault@lri.fr>
+To: Thomas HERAULT <Thomas.Herault@lri.fr>
+Cc: linux-smp@vger.kernel.org, linux-kernel@vger.kernel.org, sfr@gmx.net
+Subject: Re: Bug : 2.4.18, Network and SMP
+Message-Id: <20020719170523.71655cd1.Thomas.Herault@lri.fr>
+In-Reply-To: <20020717193403.63e5f962.Thomas.Herault@lri.fr>
+References: <20020717193403.63e5f962.Thomas.Herault@lri.fr>
+Organization: Laboratoire de Recherche en Informatique (parallelisme)
+X-Mailer: Sylpheed version 0.8.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.LNX.4.44.0207182040560.3525-100000@hawkeye.luckynet.adm>; from thunder@ngforever.de on Fri, Jul 19, 2002 at 04:41:19 +0200
-X-Mailer: Balsa 1.3.6
+Content-Transfer-Encoding: 7bit
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 17 Jul 2002 19:34:03 +0200
+Thomas HERAULT <Thomas.Herault@lri.fr> wrote:
 
-On 2002.07.19 Thunder from the hill wrote:
->Hi,
->
->On Fri, 19 Jul 2002, J.A. Magallon wrote:
->> The idea is to easy the way for Randy Hron to compare:
->> - rc2
->> - rc2-aa1
->> - rc2-jam1 minus irqrate == rc2-aa1 plus smptimers (that I think will not
->>   make a big difference)
->> - rc2-jam1 full == rc2-aa1 + smptimers + irqrate (if you don't rmmod anything...)
->
->So the heading is inaccurate.
->
+> Hi,
+> 
+> I just experienced a similar problem as the one stated in
+> mail http://www.uwsg.iu.edu/hypermail/linux/kernel/0204.0/0026.html
+> When subject to heavy load, the tcp/ip stack of 2.4.18 smp kernel seems to
+> loose some packets. These packets are never sended again by the other
+> end. Few minutes after the lost of the packets, the recipient of the lost packets
+> closes the connection. The connection is never closed at the other end (at
+> least one hour later). 
+> Compiled without smp support, whatever is the network load, tcp works.
+> I haven't tested with 2.4.19-rc* or 2.5.*, but I will and let you know if this is 
+> fixed or not.
+> 
+> If you want any information / further testing, send a mail directly, I'm not on
+> lkml or smp-ml.
+> 
 
-Oops, yes. It is against rc2.
+Sorry for this wrong alarm : I just found out that the bugs were due to a broken
+IDE HD. A short after the tcp/ip problem, I had also problems with mmap, then
+kernel began to Ooops. I began to look at them, but then the disk went completely
+lost.
 
--- 
-J.A. Magallon             \   Software is like sex: It's better when it's free
-mailto:jamagallon@able.es  \                    -- Linus Torvalds, FSF T-shirt
-Linux werewolf 2.4.19-rc2-jam1, Mandrake Linux 8.3 (Cooker) for i586
-gcc (GCC) 3.1.1 (Mandrake Linux 8.3 3.1.1-0.8mdk)
+Thanks anyway to those who answered, 
+/Thomas.

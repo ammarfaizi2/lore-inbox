@@ -1,74 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261242AbVABDqg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261243AbVABEiB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261242AbVABDqg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jan 2005 22:46:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261243AbVABDqg
+	id S261243AbVABEiB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jan 2005 23:38:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261244AbVABEiB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jan 2005 22:46:36 -0500
-Received: from x35.xmailserver.org ([69.30.125.51]:25744 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S261242AbVABDqb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jan 2005 22:46:31 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Sat, 1 Jan 2005 19:46:23 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Jesse Allen <the3dfxdude@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: ptrace single-stepping change breaks Wine
-In-Reply-To: <Pine.LNX.4.58.0501011406330.2280@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.58.0501011424210.3870@bigblue.dev.mdolabs.com>
-References: <200411152253.iAFMr8JL030601@magilla.sf.frob.com> 
- <1104401393.5128.24.camel@gamecube.scs.ch>  <1104411980.3073.6.camel@littlegreen>
-  <200412311413.16313.sailer@scs.ch>  <1104499860.3594.5.camel@littlegreen>
- <53046857041231074248b111d5@mail.gmail.com> <Pine.LNX.4.58.0412310753400.10974@bigblue.dev.mdolabs.com>
- <Pine.LNX.4.58.0412311359460.2280@ppc970.osdl.org>
- <Pine.LNX.4.58.0501011357030.3870@bigblue.dev.mdolabs.com>
- <Pine.LNX.4.58.0501011406330.2280@ppc970.osdl.org>
-X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
-X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
+	Sat, 1 Jan 2005 23:38:01 -0500
+Received: from web41408.mail.yahoo.com ([66.218.93.74]:1655 "HELO
+	web41408.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261243AbVABEhn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jan 2005 23:37:43 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=01C7idn1OlvmwWa1CnsS+P/P9bFrn3QFxFPcpz3j5aheIi/0P0OrZxqPjYV75Bbn/ywndBrjXfNv5L8PO5a6/mdinkn4X0ken2Z/Zy1DZ7MePYiHzuLdJRmekSIHoZ3IqnDEq4GFtTL8vn2f3FU6OW7v/URlhNSvY30tLsvVmtI=  ;
+Message-ID: <20050102043741.9207.qmail@web41408.mail.yahoo.com>
+Date: Sat, 1 Jan 2005 20:37:41 -0800 (PST)
+From: cranium2003 <cranium2003@yahoo.com>
+Subject: ip_fast_csum usage
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 1 Jan 2005, Linus Torvalds wrote:
+Hello all,
+          In linux kernel source code of IP layer i
+found that calculation of IP header checksum requires
+ ip_fast_csum function to be called with IP header as
+unsigned char string parameter.
+ I want to know what will happen if i replace that IP
+header parameter with my own unsigned char *data
+variable which is align to 4 octet boundry.
 
-> On Sat, 1 Jan 2005, Davide Libenzi wrote:
-> > 
-> > I used the test program below on 2.4.27, 2.6.8.1 and latest BK + TF-careful. 
-> > In all cases single stepping over POPF succeeded.
-> 
-> I don't think you realize what the failure case for popf was.
->
-> It wasn't that we couldn't single-step it: it was that we corrupted the 
-> resulting elfags value after single-stepping it.
+	iph->check = ip_fast_csum((unsigned char *) iph,
+iph->ihl);
 
-I thought you were saying that we cleared TF, and this resulted in ptrace 
-losing control over the tracee becasue of the missing flag. But yeah, TF 
-reporting has always been broken.
+the ip_fast_csum defined in kernel source is as
+static inline unsigned short ip_fast_csum(unsigned
+char * iph,
+					  unsigned int ihl)
+{
+	unsigned int sum;
+
+	__asm__ __volatile__(
+	    "movl (%1), %0	;\n"
+	    "subl $4, %2	;\n"
+	    "jbe 2f		;\n"
+	    "addl 4(%1), %0	;\n"
+	    "adcl 8(%1), %0	;\n"
+	    "adcl 12(%1), %0	;\n"
+"1:	    adcl 16(%1), %0	;\n"
+	    "lea 4(%1), %1	;\n"
+	    "decl %2		;\n"
+	    "jne 1b		;\n"
+	    "adcl $0, %0	;\n"
+	    "movl %0, %2	;\n"
+	    "shrl $16, %0	;\n"
+	    "addw %w2, %w0	;\n"
+	    "adcl $0, %0	;\n"
+	    "notl %0		;\n"
+"2:				;\n"
+	/* Since the input registers which are loaded with
+iph and ipl
+	   are modified, we must also specify them as
+outputs, or gcc
+	   will assume they contain their original values. */
+	: "=r" (sum), "=r" (iph), "=r" (ihl)
+	: "1" (iph), "2" (ihl)
+	: "memory");
+	return(sum);
+}
+
+I am just experimenting with this function from kernel
+module to check how it works?
+Thanks in advance.
+regards,
+cranium.
 
 
-
-> Try to extend your program to print out not only the EIP after the 
-> single-step, but also the value of EFLAGS, and you'll see what I mean. 
-> Earlier kernels are _really_ bad at it: they'll always report that TF is 
-> set. The "TF-careful" patch gets TF right for normal instructions, and the 
-> "TF-popf" patch gets TF right after popf too.
-> 
-> The one remaining case I know of where we still get TF wrong is "pushf",
-> where single-stepping a pushf will not corrupt TF, but it will save the
-> wrong value on the stack (which obviously may corrupt TF _later_, when the
-> paired "popf" happens).
-
-That would be even trickier than the POPF case. Do you really want to go 
-there? Anyway, the TF-careful fixes Wine and single-step-after-syscall, 
-and on top of that brings some needed cleanup. It still remain to be 
-verfied the strace case, for which I do not have a testcase. Looking at 
-how we handle things in TF-careful, it should be fine too.
-
-
-- Davide
-
+		
+__________________________________ 
+Do you Yahoo!? 
+Take Yahoo! Mail with you! Get it on your mobile phone. 
+http://mobile.yahoo.com/maildemo 

@@ -1,59 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269170AbTCBJVO>; Sun, 2 Mar 2003 04:21:14 -0500
+	id <S269171AbTCBJWM>; Sun, 2 Mar 2003 04:22:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269171AbTCBJVO>; Sun, 2 Mar 2003 04:21:14 -0500
-Received: from pdbn-d9bb8750.pool.mediaWays.net ([217.187.135.80]:48656 "EHLO
-	citd.de") by vger.kernel.org with ESMTP id <S269170AbTCBJVN>;
-	Sun, 2 Mar 2003 04:21:13 -0500
-Date: Sun, 2 Mar 2003 10:31:26 +0100
-From: Matthias Schniedermeyer <ms@citd.de>
+	id <S269172AbTCBJWL>; Sun, 2 Mar 2003 04:22:11 -0500
+Received: from phoenix.infradead.org ([195.224.96.167]:5900 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S269171AbTCBJWG>; Sun, 2 Mar 2003 04:22:06 -0500
+Date: Sun, 2 Mar 2003 09:32:28 +0000
+From: Christoph Hellwig <hch@infradead.org>
 To: John Bradford <john@grabjohn.com>
-Cc: dank@kegel.com, joe@perches.com, linux-kernel@vger.kernel.org,
-       mike@aiinc.ca
-Subject: Re: [PATCH] kernel source spellchecker
-Message-ID: <20030302093126.GA2772@citd.de>
-References: <20030301212537.GA32408@citd.de> <200303020915.h229Fg8G000421@81-2-122-30.bradfords.org.uk>
+Cc: Christoph Hellwig <hch@infradead.org>, Pavel@Janik.cz, pavel@ucw.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: BitBucket: GPL-ed KitBeeper clone
+Message-ID: <20030302093227.A11710@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	John Bradford <john@grabjohn.com>, Pavel@Janik.cz, pavel@ucw.cz,
+	linux-kernel@vger.kernel.org
+References: <20030302091130.A11536@infradead.org> <200303020930.h229U039000440@81-2-122-30.bradfords.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200303020915.h229Fg8G000421@81-2-122-30.bradfords.org.uk>
-User-Agent: Mutt/1.3.27i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200303020930.h229U039000440@81-2-122-30.bradfords.org.uk>; from john@grabjohn.com on Sun, Mar 02, 2003 at 09:30:00AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 02, 2003 at 09:15:42AM +0000, John Bradford wrote:
-> > > >This versions defaults to only correct words within a comment. ...
-> > > >// Comments are easy(tm). "Everything after // until line-end".
-> > > >
-> > > >and /* ... */ are easy(tm) too because gcc doesn't support to nest them.
-> > > 
-> > > I'll be damned.  I'm impressed with how easy that was in perl.
-> > 
-> > As long as there is no nesting involved most things a easy/trivial to
-> > achieve with REs.
+On Sun, Mar 02, 2003 at 09:30:00AM +0000, John Bradford wrote:
+> > But anyway, don't you think Pavel is free to develop whatever free
+> > software he likes to develop instead of following you political
+> > agenda?
 > 
-> Does it cope with:
+> What is the goal of the BitBucket project, though?
 > 
-> main ()
-> {
-> // /*
-> printf ("hello world");
-> // */
-> }
-> 
-> though?
+> To develop a version control system, or to annoy Larry?
 
-No. I could fix this, but i don't think it's worth it.
+Given the annoucement probably access the kernel BK tree in real time.
 
+> Why doesn't somebody start working on a dedicated kernel version
+> control system?
 
-
-
-Bis denn
-
--- 
-Real Programmers consider "what you see is what you get" to be just as 
-bad a concept in Text Editors as it is in women. No, the Real Programmer
-wants a "you asked for it, you got it" text editor -- complicated, 
-cryptic, powerful, unforgiving, dangerous.
+It's called BitKeeper :)
 

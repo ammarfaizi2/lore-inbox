@@ -1,38 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265629AbSKAR4V>; Fri, 1 Nov 2002 12:56:21 -0500
+	id <S265587AbSKAR4J>; Fri, 1 Nov 2002 12:56:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265635AbSKAR4V>; Fri, 1 Nov 2002 12:56:21 -0500
-Received: from rwcrmhc51.attbi.com ([204.127.198.38]:52638 "EHLO
-	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
-	id <S265629AbSKAR4U>; Fri, 1 Nov 2002 12:56:20 -0500
-Message-ID: <3DC2C587.5080706@kegel.com>
-Date: Fri, 01 Nov 2002 10:18:47 -0800
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
-X-Accept-Language: de-de, en
+	id <S265629AbSKAR4J>; Fri, 1 Nov 2002 12:56:09 -0500
+Received: from amsfep13-int.chello.nl ([213.46.243.24]:56104 "EHLO
+	amsfep13-int.chello.nl") by vger.kernel.org with ESMTP
+	id <S265587AbSKAR4I>; Fri, 1 Nov 2002 12:56:08 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Jos Hulzink <josh@stack.nl>
+To: Robert Varga <nite@hq.alert.sk>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.45 build failed with ACPI turned on
+Date: Fri, 1 Nov 2002 20:02:38 +0100
+User-Agent: KMail/1.4.3
+References: <20021031194547.GA3555@hq.alert.sk>
+In-Reply-To: <20021031194547.GA3555@hq.alert.sk>
 MIME-Version: 1.0
-To: Davide Libenzi <davidel@xmailserver.org>
-CC: "Matthew D. Hall" <mhall@free-market.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-aio@kvack.org, lse-tech@lists.sourceforge.net
-Subject: Re: Unifying epoll,aio,futexes etc. (What I really want from epoll)
-References: <Pine.LNX.4.44.0210311838060.972-100000@blue1.dev.mcafeelabs.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200211012002.38085.josh@stack.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi wrote:
->>*  I'm sure everyone would agree that passing an opaque "user context"
->>pointer is necessary with each event.
-> 
-> I asked this about a week ago. It's _trivial_ to do in epoll. I did not
-> receive any feedback, so I didn't implement it. Feedback will be very much
-> appreciated here ...
+On Thursday 31 October 2002 20:45, Robert Varga wrote:
+> The structure declaration is protected by
+>
+> #if defined(CONFIG_MAGIC_SYSRQ) && defined(CONFIG_PM)
+>
+> on line 640.
 
-If it's cheap, do it!  It relieves the programmer of having
-to manage a fd to object lookup table.
-- Dan
+At the moment CONFIG_PM seems to be enabling APM, though it clearly does more than that. I think the config options for ACPI and APM should be sorted out sooner or later. Just enable Power Management and this should compile.
 
+Jos
 

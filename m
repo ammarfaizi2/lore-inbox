@@ -1,75 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261460AbUDDRfQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Apr 2004 13:35:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262508AbUDDRfQ
+	id S262532AbUDDSYu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Apr 2004 14:24:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262539AbUDDSYu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Apr 2004 13:35:16 -0400
-Received: from ns1.g-housing.de ([62.75.136.201]:35977 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S261460AbUDDRfH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Apr 2004 13:35:07 -0400
-Message-ID: <40704743.3000909@g-house.de>
-Date: Sun, 04 Apr 2004 19:34:59 +0200
-From: Christian Kujau <evil@g-house.de>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
-X-Accept-Language: en-us, en
+	Sun, 4 Apr 2004 14:24:50 -0400
+Received: from web40504.mail.yahoo.com ([66.218.78.121]:39604 "HELO
+	web40504.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262532AbUDDSYs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Apr 2004 14:24:48 -0400
+Message-ID: <20040404182438.79937.qmail@web40504.mail.yahoo.com>
+Date: Sun, 4 Apr 2004 11:24:38 -0700 (PDT)
+From: Sergiy Lozovsky <serge_lozovsky@yahoo.com>
+Subject: Re: kernel stack challenge
+To: Andi Kleen <ak@muc.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <m3ad1s0yq7.fsf@averell.firstfloor.org>
 MIME-Version: 1.0
-To: Sven Hartge <hartge@ds9.gnuu.de>
-CC: linux-kernel@vger.kernel.org,
-       linuxppc-dev list <linuxppc-dev@lists.linuxppc.org>
-Subject: Re: 2.6.5-pre* does not boot on my PReP PPC
-References: <20040329151515.GD2895@smtp.west.cox.net> <Pine.GSO.4.44.0403301430180.12030-100000@math.ut.ee> <E1B8OEW-0006Jb-BX@ds9.argh.org>
-In-Reply-To: <E1B8OEW-0006Jb-BX@ds9.argh.org>
-X-Enigmail-Version: 0.83.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Thanks, Andi. That can be the case. Bad thing is that
+stack size is hardcoded all over the kernel.
 
-[ cc'ing linuxppc-dev ]
+I wonder how it is possible to access task struct
+having current stack pointer. %esp points at the
+middle of the stack (when we are in the kernel) when
+interrupt occures.
 
-Sven Hartge wrote:
-| Meelis Roos <mroos@linux.ee> wrote:
-|
-|
-|>>Ok.  Can both of you try the following patch on top of the version
-|>>which fails?
-|
-|
-|>Tried it on top of fresh 2.6.5-rc3, no changes, it still hangs.
-|
-|
-| Same here, still totally dead after tftp.
+Serge.
 
-not so dead here. 2.6.4 is ok, 2.6.5-rc1|2|3 are loaded within the OF
-menu, but no bootprompt appears. but: i can hear the scsi disk
-initalizing, short after this, the atkbd is recognized and the LEDs on
-my keyboard are flashing. then again my nfs-root is supposed to be
-mounted, but my PReP still locks up completely upon network-init. (last
-working is still 2.5.30).
+--- Andi Kleen <ak@muc.de> wrote:
+> Sergiy Lozovsky <serge_lozovsky@yahoo.com> writes:
+> 
+> > This function doesn't work in the kernel (system
+> hungs
+> > instantly when my function is called). Does
+> antbody
+> > have any idea what the reason can be? Some special
+> > alignment? Special memory segment? In what
+> direction
+> > should I look?
+> 
+> The kernel puts some data about the current task at
+> the bottom
+> of the stack and accesses that by referencing the
+> stack pointer
+> in "current". This is even used by interrupts.
+> 
+> -Andi
+> 
 
-another issue here: i was finally able to cross-compile 2.5.x / 2.6.x
-kernels (on x86). i tried to compile kernels from 2.5.21 on with
-"allnoconfig" (was introduced in 2.5.21). only 2.5.30 can be built, all
-other attempts to build "zImage" fail...(still compiling 2.5.6x)...
-(full logs of builds available...)
 
-Christian.
-- --
-BOFH excuse #204:
-
-Just pick up the phone and give modem connect sounds. "Well you said we
-should get more lines so we don't have voice lines."
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFAcEdC+A7rjkF8z0wRAq5TAJsHIh5V7wb/IP1xW7uHde4nC3EquACgk4D+
-TLrtSsdwpdtZBXCRmD9fiE4=
-=aGiL
------END PGP SIGNATURE-----
+__________________________________
+Do you Yahoo!?
+Yahoo! Small Business $15K Web Design Giveaway 
+http://promotions.yahoo.com/design_giveaway/

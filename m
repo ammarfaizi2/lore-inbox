@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315457AbSEMAGo>; Sun, 12 May 2002 20:06:44 -0400
+	id <S310435AbSEMAhZ>; Sun, 12 May 2002 20:37:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315461AbSEMAGn>; Sun, 12 May 2002 20:06:43 -0400
-Received: from jalon.able.es ([212.97.163.2]:10219 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S315457AbSEMAGm>;
-	Sun, 12 May 2002 20:06:42 -0400
-Date: Mon, 13 May 2002 02:06:31 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Cc: rwhron@earthlink.net
-Subject: [PATCHSET] Linux 2.4.19-pre8-jam2
-Message-ID: <20020513000631.GA1980@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.3.5
+	id <S314454AbSEMAhY>; Sun, 12 May 2002 20:37:24 -0400
+Received: from loisexc2.loislaw.com ([12.5.234.240]:26121 "EHLO
+	loisexc2.loislaw.com") by vger.kernel.org with ESMTP
+	id <S310435AbSEMAhX>; Sun, 12 May 2002 20:37:23 -0400
+Message-ID: <4188788C3E1BD411AA60009027E92DFD0962E24F@loisexc2.loislaw.com>
+From: "Rose, Billy" <wrose@loislaw.com>
+To: "'Linus Torvalds'" <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Segfault hidden in list.h
+Date: Sun, 12 May 2002 19:37:25 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all...
+The code inside of __list_add:
 
-New release of this patch set:
+next->prev = new;
+new->next = next;
+new->prev = prev;
+pre-next = new;
 
-- O(1)-sched rml updates
-- IDE convert.10
-- Re-introduction of wake_up_sync to make pipes run fast again. No idea
-  about this is useful or not, that is the point, to test it (Randy ?)
+needs to be altered to:
 
-Get it at:
+new->prev = prev;
+new->next = next;
+next->prev = new;
+prev->next = new;
 
+If something is accessing the list in reverse at the time of insertion and
+"next->prev = new;" has been executed, there exists a moment when new->prev
+may contain garbage if the element had been used in another list and is
+being transposed into a new one. Even if garbage is not present, and the
+element had just been initialized (i.e. new->prev = new), a false list head
+will appear briefly (from the executing thread's point of view).
 
-http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.19-pre8-jam2.tar.gz
-http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.19-pre8-jam2/
-
-
-Happy benchmarks !!!
-
-By.
-
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.3 (Cooker) for i586
-Linux werewolf 2.4.19-pre8-jam2 #3 SMP lun may 13 00:49:15 CEST 2002 i686
+Billy Rose 
+wrose@loislaw.com

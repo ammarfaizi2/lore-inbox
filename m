@@ -1,42 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270619AbRINURO>; Fri, 14 Sep 2001 16:17:14 -0400
+	id <S270645AbRINUUy>; Fri, 14 Sep 2001 16:20:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270178AbRINURE>; Fri, 14 Sep 2001 16:17:04 -0400
-Received: from mail.cb.monarch.net ([24.244.11.6]:29708 "EHLO
-	baca.cb.monarch.net") by vger.kernel.org with ESMTP
-	id <S270201AbRINUQw>; Fri, 14 Sep 2001 16:16:52 -0400
-Date: Fri, 14 Sep 2001 14:14:54 -0600
-From: "Peter J. Braam" <braam@clusterfilesystem.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCEMENT] InterMezzo 1.0.5.2
-Message-ID: <20010914141454.F14839@lustre.dyn.ca.clusterfilesystem.com>
-In-Reply-To: <20010913133726.J1501@lustre.dyn.ca.clusterfilesystem.com> <20010914221405.B5448@bug.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010914221405.B5448@bug.ucw.cz>; from pavel@suse.cz on Fri, Sep 14, 2001 at 10:14:05PM +0200
+	id <S270495AbRINUUf>; Fri, 14 Sep 2001 16:20:35 -0400
+Received: from fungus.teststation.com ([212.32.186.211]:58377 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id <S270201AbRINUUd>; Fri, 14 Sep 2001 16:20:33 -0400
+Date: Fri, 14 Sep 2001 22:20:49 +0200 (CEST)
+From: Urban Widmark <urban@teststation.com>
+To: Xuan Baldauf <xuan--lkml@baldauf.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [OOPS] at smbfs umount in linux-2.4.10-pre5
+In-Reply-To: <3B9CA37F.22D7B20@baldauf.org>
+Message-ID: <Pine.LNX.4.30.0109142204051.1445-100000@cola.teststation.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Standard GPL - and there are a lot of copyright holders already, so
-it's solid.
+On Mon, 10 Sep 2001, Xuan Baldauf wrote:
 
-On Fri, Sep 14, 2001 at 10:14:05PM +0200, Pavel Machek wrote:
-> Hi!
-> 
-> 
-> > DISCLAIMER:
-> > 
-> > Read the file COPYING in the distribution to see the conditions under
-> > which this software is made available.  Please use this version at
-> 
-> Is it standart GPL or something else? (Just curious...)
-> 								Pavel
-> -- 
-> I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-> Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+> this oops just happened now when trying to unmount an smbfs
+> mount entry
 
--- 
+...
+
+> >>EIP; c013033e <fput+6/c0>   <=====
+> Trace; c529a140 <[smbfs]smb_sops+0/40>
+> Trace; c52970ea <[smbfs]smb_put_super+26/a8>
+
+fput(server->sock_file), where sock_file is NULL ... ?
+
+> Sep 10 13:09:52 router kernel: smb_dont_catch_keepalive: did
+> not get valid server!
+
+This complaint is about 'server' or 'server->sock_file' being NULL,
+probably the sock_file.
+
+I think what happens is that at umount it enters this code:
+	if (server->sock_file) {
+		smb_proc_disconnect(server);
+		smb_dont_catch_keepalive(server);
+		fput(server->sock_file);
+	}
+
+The problem here is that smb_proc_disconnect may run into trouble if the
+connection is gone. And by the messages smbfs is having connection
+problems. That will cause smbfs to close the socket and request a new from
+smbmount.
+
+A fix would be to simply do the disconnect first, and then test sock_file
+again. Or simply make smb_proc_disconnect not do anything if the
+connection is bad.
+
+I wonder why this doesn't always crash when the connection is bad.
+Can you repeat the oops?
+
+
+> Trying to remount the same smb share at the same mount point
+> fails. Strace shows that the mount process is stuck in the
+> "mount" call. Also trying to mount the same samba share at
+> another mount point hangs.
+
+Once it has crashed here, it holds locks preventing anyone from accessing
+it.
+
+/Urban
+
+

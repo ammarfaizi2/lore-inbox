@@ -1,65 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261905AbVANEwa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261912AbVANEzk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261905AbVANEwa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 23:52:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261906AbVANEw3
+	id S261912AbVANEzk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 23:55:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261906AbVANEzj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 23:52:29 -0500
-Received: from one.firstfloor.org ([213.235.205.2]:33988 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S261905AbVANEwU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 23:52:20 -0500
-To: clameter@sgi.com
-Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, hugh@veritas.com,
-       linux-mm@kvack.org, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, benh@kernel.crashing.org,
-       nickpiggin@yahoo.com.au
-Subject: Re: page table lock patch V15 [0/7]: overview II
-References: <41E5AFE6.6000509@yahoo.com.au>
-	<20050112153033.6e2e4c6e.akpm@osdl.org> <41E5B7AD.40304@yahoo.com.au>
-	<Pine.LNX.4.58.0501121552170.12669@schroedinger.engr.sgi.com>
-	<41E5BC60.3090309@yahoo.com.au>
-	<Pine.LNX.4.58.0501121611590.12872@schroedinger.engr.sgi.com>
-	<20050113031807.GA97340@muc.de>
-	<Pine.LNX.4.58.0501130907050.18742@schroedinger.engr.sgi.com>
-	<20050113180205.GA17600@muc.de>
-	<Pine.LNX.4.58.0501131701150.21743@schroedinger.engr.sgi.com>
-	<20050114043944.GB41559@muc.de>
-From: Andi Kleen <ak@muc.de>
-Date: Fri, 14 Jan 2005 05:52:18 +0100
-In-Reply-To: <20050114043944.GB41559@muc.de> (Andi Kleen's message of "14
- Jan 2005 05:39:44 +0100")
-Message-ID: <m14qhkr4sd.fsf_-_@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 13 Jan 2005 23:55:39 -0500
+Received: from smtp.nuvox.net ([64.89.70.9]:16212 "EHLO
+	smtp04.gnvlscdb.sys.nuvox.net") by vger.kernel.org with ESMTP
+	id S261894AbVANEzU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 23:55:20 -0500
+Subject: Re: [UPDATE PATCH] ieee1394/sbp2: use ssleep() instead of
+	schedule_timeout()
+From: Dan Dennedy <dan@dennedy.org>
+To: Nishanth Aravamudan <nacc@us.ibm.com>
+Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>,
+       Linux1394-Devel <linux1394-devel@lists.sourceforge.net>,
+       kj <kernel-janitors@lists.osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>, Ben Collins <bcollins@debian.org>
+In-Reply-To: <20050110173945.GB3099@us.ibm.com>
+References: <20050107213400.GD2924@us.ibm.com>
+	 <17a9eec54394ded0a28295a6548a5c65@localhost>
+	 <20050110173945.GB3099@us.ibm.com>
+Content-Type: text/plain
+Date: Thu, 13 Jan 2005 23:52:55 -0500
+Message-Id: <1105678375.7830.81.camel@kino.dennedy.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@muc.de> writes:
-> As you can see cmpxchg is slightly faster for the cache hot case,
-> but incredibly slow for cache cold (probably because it does something
-> nasty on the bus). This is pretty consistent to Intel and AMD CPUs.
-> Given that page tables are likely more often cache cold than hot 
-> I would use the lazy variant. 
+On Mon, 2005-01-10 at 09:39 -0800, Nishanth Aravamudan wrote:
+> On Sun, Jan 09, 2005 at 10:01:21AM +0100, Stefan Richter wrote:
+> > Nishanth Aravamudan wrote:
+> > >Description: Use ssleep() instead of schedule_timeout() to guarantee 
+> > >the task
+> > >delays as expected. The existing code should not really need to run in
+> > >TASK_INTERRUPTIBLE, as there is no check for signals (or even an 
+> > >early return
+> > >value whatsoever). ssleep() takes care of these issues.
+> > 
+> > >--- 2.6.10-v/drivers/ieee1394/sbp2.c	2004-12-24 13:34:00.000000000 
+> > >-0800
+> > >+++ 2.6.10/drivers/ieee1394/sbp2.c	2005-01-05 14:23:05.000000000 -0800
+> > >@@ -902,8 +902,7 @@ alloc_fail:
+> > >	 * connected to the sbp2 device being removed. That host would
+> > >	 * have a certain amount of time to relogin before the sbp2 device
+> > >	 * allows someone else to login instead. One second makes sense. */
+> > >-	set_current_state(TASK_INTERRUPTIBLE);
+> > >-	schedule_timeout(HZ);
+> > >+	ssleep(1);
+> > 
+> > Maybe the current code is _deliberately_ accepting interruption by 
+> > signals but trying to complete sbp2_probe() anyway. However it seems 
+> > more plausible to me to abort the device probe, for example like this:
+> > if (msleep_interruptible(1000)) {
+> > 	sbp2_remove_device(scsi_id);
+> > 	return -EINTR;
+> > }
+> 
+> You might be right, but I'd like to get Ben's input on this, as I honeslty am
 
-Sorry, my benchmark program actually had a bug (first loop included
-page faults). Here are updated numbers. They are somewhat different:
+Don't hold your breath waiting for Ben's input. However, I would like to
+get one of the two proposed committed and tested by more users as this
+is a sore spot. I am not in a position at this time to fully research
+and test to make a call.
 
-Athlon 64:
-readpte hot 25
-readpte cold 171
-readpte_cmp hot 18
-readpte_cmp cold 162
+> unsure. To be fair, I am trying to audit all usage of schedule_timeout() and the
+> semantic interpretation (to me) of using TASK_INTERRUPTIBLE is that you wish to
+> sleep a certain amount of time, but also are prepared for an early return on
+> either signals or wait-queue events. msleep_interruptible() cleanly removes this
+> second issue, but still requires the caller to respond appropriately if there is
+> a return value. Hence, I like your change. I think it makes the most sense.
+> Since I didn't/don't know how the device works, I was not able to make the
+> change myself. Thanks for your input!
 
-Nocona:
-readpte hot 118
-readpte cold 443
-readpte_cmp hot 22
-readpte_cmp cold 224
+Sounds like a sign-off. Any other input before I request Stefan to make
+the final decision?
 
-The difference is much smaller here.  Assuming cache cold cmpxchg8b is
-better, at least on the Intel CPUs which have a slow rmb().
+> > Anyway, signal handling does not appear to be critical there.
+> 
+> Just out of curiousity, doesn't that run the risk, though, of
+> signal_pending(current) being true for quite a bit of time following the
+> timeout?
 
--Andi
+How much of this is "curiosity" vs a real risk?
+
 

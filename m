@@ -1,69 +1,126 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293007AbSB0XBU>; Wed, 27 Feb 2002 18:01:20 -0500
+	id <S292951AbSB0WyT>; Wed, 27 Feb 2002 17:54:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293028AbSB0XBI>; Wed, 27 Feb 2002 18:01:08 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:11182 "HELO
-	outpost.powerdns.com") by vger.kernel.org with SMTP
-	id <S293024AbSB0XAx>; Wed, 27 Feb 2002 18:00:53 -0500
-Date: Thu, 28 Feb 2002 00:00:46 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: Bjorn Wesen <bjorn.wesen@axis.com>
+	id <S293022AbSB0Wxf>; Wed, 27 Feb 2002 17:53:35 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:18958 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S293020AbSB0Ww0>;
+	Wed, 27 Feb 2002 17:52:26 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: James Curbo <jcurbo@acm.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: What is TCPRenoRecoveryFail ?
-Message-ID: <20020228000046.A26358@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Bjorn Wesen <bjorn.wesen@axis.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020227152705.A18366@outpost.ds9a.nl> <Pine.LNX.3.96.1020227153315.18713F-101000@fafner.axis.se>
+Subject: Re: (2.5.5-dj2) still getting .text.exit linker errors 
+In-Reply-To: Your message of "Wed, 27 Feb 2002 16:01:38 MDT."
+             <20020227220138.GA5644@carthage> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.3.96.1020227153315.18713F-101000@fafner.axis.se>; from bjorn.wesen@axis.com on Wed, Feb 27, 2002 at 06:33:43PM +0000
+Date: Thu, 28 Feb 2002 09:52:13 +1100
+Message-ID: <10517.1014850333@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 27, 2002 at 06:33:43PM +0000, Bjorn Wesen wrote:
+On Wed, 27 Feb 2002 16:01:38 -0600, 
+James Curbo <jcurbo@acm.org> wrote:
+>[note: I am not subscribed, please cc: me in replies]
+>
+>When compiling 2.5.5-dj2, I am still getting a .text.exit linker error:
+>
+>drivers/net/net.o(.data+0x1274): undefined reference to `local symbols 
+>in discarded section .text.exit'
 
-> > Please show a tcpdump -v of this happening, including the initial SYN
-> > packets. I strongly suspect something in your network of mucking with TCP
-> > options.
-> 
-> Ok this is mangled by the email client but i attached the binary dump of
-> the relevant packets. The dump is taken on the windows machine, which
-> complicates the analysis because perhaps the network card itself is
-> screwing up, but that is a low probability because all succeeding
+Run this script to identify the offending object in net.o then contact
+the object maintainer.
 
-This dump is somewhat inconclusive. I miss the SYN packets, but I'm
-especially interested in this bit:
 
-> 23:46:43.011000 10.13.18.46.http > dh10-13-18-213.axis.se.squid: . [tcp
-> sum ok] 7300:8760(1460) ack 1 win 5840 (DF) (ttl 64, id 37963, len 1500)
-> 23:46:43.011000 dh10-13-18-213.axis.se.squid > 10.13.18.46.http: . [tcp
-> sum ok] ack 4380 win 8760 (DF) (ttl 128, id 55373, len 40)
-> 23:46:43.011000 10.13.18.46.http > dh10-13-18-213.axis.se.squid: . [tcp
-> sum ok] 8760:10220(1460) ack 1 win 5840 (DF) (ttl 64, id 37964, len 1500)
-> 23:46:43.011000 dh10-13-18-213.axis.se.squid > 10.13.18.46.http: . [tcp
-> sum ok] ack 4380 win 8760 (DF) (ttl 128, id 55629, len 40)
-> 23:46:43.012000 10.13.18.46.http > dh10-13-18-213.axis.se.squid: P [tcp
-> sum ok] 10220:11680(1460) ack 1 win 5840 (DF) (ttl 64, id 37965, len 1500)
-> 23:46:43.012000 dh10-13-18-213.axis.se.squid > 10.13.18.46.http: . [tcp
-> sum ok] ack 4380 win 8760 (DF) (ttl 128, id 55885, len 40)
-> 
-> .. long timeout here until the server finally gives up the connection ..
+#!/usr/bin/perl -w
+#
+# reference_discarded.pl (C) Keith Owens 2001 <kaos@ocs.com.au>
+#
+# List dangling references to vmlinux discarded sections.
 
-how does this continue? I see the linux machine continuing to send data with
-higher sequence numbers, but how does it end? It looks like the linux
-machine never sent anything beyond 11680, relative.
+use strict;
+die($0 . " takes no arguments\n") if($#ARGV >= 0);
 
-To know more, dump at both ends. I really think something in between is
-messing up - either a network adaptor or a ""smart"" network element.
+my %object;
+my $object;
+my $line;
+my $ignore;
 
-Regards,
+$| = 1;
 
-bert
+printf("Finding objects, ");
+open(OBJDUMP_LIST, "find . -name '*.o' | xargs objdump -h |") || die "getting objdump list failed";
+while (defined($line = <OBJDUMP_LIST>)) {
+	chomp($line);
+	if ($line =~ /:\s+file format/) {
+		($object = $line) =~ s/:.*//;
+		$object{$object}->{'module'} = 0;
+		$object{$object}->{'size'} = 0;
+		$object{$object}->{'off'} = 0;
+	}
+	if ($line =~ /^\s*\d+\s+\.modinfo\s+/) {
+		$object{$object}->{'module'} = 1;
+	}
+	if ($line =~ /^\s*\d+\s+\.comment\s+/) {
+		($object{$object}->{'size'}, $object{$object}->{'off'}) = (split(' ', $line))[2,5]; 
+	}
+}
+close(OBJDUMP_LIST);
+printf("%d objects, ", scalar keys(%object));
+$ignore = 0;
+foreach $object (keys(%object)) {
+	if ($object{$object}->{'module'}) {
+		++$ignore;
+		delete($object{$object});
+	}
+}
+printf("ignoring %d module(s)\n", $ignore);
 
--- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://www.tk                              the dot in .tk
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+# Ignore conglomerate objects, they have been built from multiple objects and we
+# only care about the individual objects.  If an object has more than one GCC:
+# string in the comment section then it is conglomerate.  This does not filter
+# out conglomerates that consist of exactly one object, can't be helped.
+
+printf("Finding conglomerates, ");
+$ignore = 0;
+foreach $object (keys(%object)) {
+	if (exists($object{$object}->{'off'})) {
+		my ($off, $size, $comment, $l);
+		$off = hex($object{$object}->{'off'});
+		$size = hex($object{$object}->{'size'});
+		open(OBJECT, "<$object") || die "cannot read $object";
+		seek(OBJECT, $off, 0) || die "seek to $off in $object failed";
+		$l = read(OBJECT, $comment, $size);
+		die "read $size bytes from $object .comment failed" if ($l != $size);
+		close(OBJECT);
+		if ($comment =~ /GCC\:.*GCC\:/m) {
+			++$ignore;
+			delete($object{$object});
+		}
+	}
+}
+printf("ignoring %d conglomerate(s)\n", $ignore);
+
+printf("Scanning objects\n");
+foreach $object (keys(%object)) {
+	my $from;
+	open(OBJDUMP, "objdump -r $object|") || die "cannot objdump -r $object";
+	while (defined($line = <OBJDUMP>)) {
+		chomp($line);
+		if ($line =~ /RELOCATION RECORDS FOR /) {
+			($from = $line) =~ s/.*\[([^]]*).*/$1/;
+		}
+		if (($line =~ /\.text\.exit$/ ||
+		     $line =~ /\.data\.exit$/ ||
+		     $line =~ /\.exitcall\.exit$/) &&
+		    ($from !~ /\.text\.exit$/ &&
+		     $from !~ /\.data\.exit$/ &&
+		     $from !~ /\.exitcall\.exit$/)) {
+			printf("Error: %s %s refers to %s\n", $object, $from, $line);
+		}
+	}
+	close(OBJDUMP);
+}
+printf("Done\n");
+

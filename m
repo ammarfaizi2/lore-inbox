@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262599AbUCENck (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 08:32:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262595AbUCENck
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 08:32:40 -0500
-Received: from smtp3.libero.it ([193.70.192.127]:56245 "EHLO smtp3.libero.it")
-	by vger.kernel.org with ESMTP id S262588AbUCENca convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S262592AbUCENca (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 5 Mar 2004 08:32:30 -0500
-Date: Fri,  5 Mar 2004 14:31:27 +0100
-Message-Id: <HU3UWF$CAF72480731C8DFF1529090795747A82@libero.it>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262596AbUCENca
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 5 Mar 2004 08:32:30 -0500
+Received: from smtp0.libero.it ([193.70.192.33]:17040 "EHLO smtp0.libero.it")
+	by vger.kernel.org with ESMTP id S262592AbUCENcI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Mar 2004 08:32:08 -0500
+Date: Fri,  5 Mar 2004 14:30:58 +0100
+Message-Id: <HU3UVM$B2D37FE3A0AFC8371821BF44B9443B45@libero.it>
 Subject: Business Associate Needed
 MIME-Version: 1.0
 X-Sensitivity: 3

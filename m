@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131330AbQKVKRJ>; Wed, 22 Nov 2000 05:17:09 -0500
+	id <S131474AbQKVKT3>; Wed, 22 Nov 2000 05:19:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129873AbQKVKQt>; Wed, 22 Nov 2000 05:16:49 -0500
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:34993 "EHLO
-	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id <S131330AbQKVKQp>; Wed, 22 Nov 2000 05:16:45 -0500
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-Subject: Re: Kernel bits
-Message-ID: <974886395.3a1b95fb43c63@rumms.uni-mannheim.de>
-Date: Wed, 22 Nov 2000 10:46:35 +0100 (MET)
-From: 64738 <schwung@rumms.uni-mannheim.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <974881546.3a1b830ae5202@rumms.uni-mannheim.de> <20001122112952.Y28963@mea-ext.zmailer.org>
-In-Reply-To: <20001122112952.Y28963@mea-ext.zmailer.org>
+	id <S131490AbQKVKTT>; Wed, 22 Nov 2000 05:19:19 -0500
+Received: from 213-123-77-95.btconnect.com ([213.123.77.95]:38148 "EHLO
+	penguin.homenet") by vger.kernel.org with ESMTP id <S131474AbQKVKTM>;
+	Wed, 22 Nov 2000 05:19:12 -0500
+Date: Wed, 22 Nov 2000 09:51:02 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: Joe Harrington <jharring@micron.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: filesystems
+In-Reply-To: <Pine.LNX.4.21.0011220923100.1197-100000@penguin.homenet>
+Message-ID: <Pine.LNX.4.21.0011220948110.1197-100000@penguin.homenet>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: IMP/PHP IMAP webmail program 2.2.3
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-uname -m tells me the hardware type of the machine. Is this determined while 
-booting or is this the architecture I choose during 'make config'? 
+On Wed, 22 Nov 2000, Tigran Aivazian wrote:
+> you do not mount a VFS filesystem. VFS is not a filesystem. VFS is a
+> Virtual Filesystem Switch, i.e. a set of concepts, philosophy, data
+> structures and functions which together make writing new filesystems easy.
+> The name is derived from the SVR4 data structure vfssw (sic?) whence all
+> the good concepts of VFS came (yea, yea, I know, AV (and history books)
+> will tell me that Sun had a vnode/vfs layer and that even FreeBSD has a
+> sort of VFS/vnode layer but we all know that the really good form of VFS
+> came from SVR4, like it or not, the others, except Linux of course, are
+> impostors)
 
-Can't I run a i386 kernel on a ia64 machine? I know something like this from HP-
-UX. You can choose between a 32 and a 64 bit kernel when installing, so knowing 
-that you have a 64 bit capable machine does not say that you have a 64 bit 
-kernel.
-And I want to have the kernel bits, not the processor bits.
+perhaps I invented a new English word "achronal impostor", i.e. impostor
+even if he was there before others ;)
 
+And, to emphasize my respect to Al Viro, I would like to explain that I
+sometimes spell "my personal humble opinion" as "we all know", just read
+between the lines and you will be Ok.
 
-Matti Aarnio <matti.aarnio@zmailer.org> wrote:
+Regards,
+Tigran
 
-> On Wed, Nov 22, 2000 at 09:25:46AM +0100, 64738 wrote:
-> > Is there a syscall or something that can tell me whether I'm working
-> on a 32- 
-> > or a 64-bit kernel?
-> 
-> 	uname(2)
-> 
-> 	It gives out various strings from which you must then deduce,
-> 	what kind of kernel is needed to run at what kind of machine.
-> 
-> 	And even though the machine is running with 64-bit kernel
-> 	(e.g. alpha/sparc64/mips64/ia64), your userspace code might
-> 	be running in 32-bit mode.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

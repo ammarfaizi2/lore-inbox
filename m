@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261443AbUDOKVr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 06:21:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbUDOKVr
+	id S262080AbUDOK0Q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 06:26:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262257AbUDOK0Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 06:21:47 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:4011 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261443AbUDOKVo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 06:21:44 -0400
-Subject: Re: [SECURITY] CAN-2004-0177 (was: Re: [SECURITY] CAN-2004-0075)
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Marc-Christian Petersen <m.c.p@kernel.linux-systeme.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <200404150135.03714@WOLK>
-References: <20040414171147.GB23419@redhat.com> <200404142230.33553@WOLK>
-	 <200404150135.03714@WOLK>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1082024495.2100.41.camel@sisko.scot.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 15 Apr 2004 11:21:35 +0100
+	Thu, 15 Apr 2004 06:26:16 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:32621 "EHLO
+	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S262080AbUDOK0P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 06:26:15 -0400
+Date: Thu, 15 Apr 2004 11:26:09 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: Rajesh Venkatasubramanian <vrajesh@umich.edu>,
+       Andrea Arcangeli <andrea@suse.de>, <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] anobjrmap 9 priority mjb tree
+In-Reply-To: <35840000.1082010202@[10.10.2.4]>
+Message-ID: <Pine.LNX.4.44.0404151122190.6954-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Thu, 2004-04-15 at 00:35, Marc-Christian Petersen wrote:
-
-> > Okay, now while we are at fixing security holes, is there any chance we
-> > can get the attached patch in?
+On Wed, 14 Apr 2004, Martin J. Bligh wrote:
 > 
-> Okay, we are at it, so what's about the attached one too? ;)
-> 
-> In WOLK for some time too. I am not 100% sure if this is correct, but I think 
-> it is. Andrew? Stephen?
+> FYI, even without prio-tree, I get a 12% boost from converting i_shared_sem
+> into a spinlock. I'll try doing the same on top of prio-tree next.
 
-Looks OK to me.  I'll see if I can detect any performance cost from it,
-but it's unlikely to be significant even if it's measurable.
+Good news, though not a surprise.
 
---Stephen
+Any ideas how we might handle latency from vmtruncate (and
+try_to_unmap) if using prio_tree with i_shared_lock spinlock?
+
+Hugh
 

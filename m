@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261265AbTEEUdU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 16:33:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261272AbTEEUdU
+	id S261301AbTEEUiR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 16:38:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261311AbTEEUiR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 16:33:20 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28873 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261265AbTEEUdT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 16:33:19 -0400
-Message-ID: <3EB6CD68.9010506@pobox.com>
-Date: Mon, 05 May 2003 16:45:28 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@lst.de>
-CC: viro@parcelfarce.linux.theplanet.co.uk, perex@suse.cz,
-       torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove unused funcion proc_mknod
-References: <20030505190045.A22238@lst.de> <20030505192248.GD10374@parcelfarce.linux.theplanet.co.uk> <20030505213004.B24006@lst.de>
-In-Reply-To: <20030505213004.B24006@lst.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 5 May 2003 16:38:17 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:9385 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S261301AbTEEUiQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 16:38:16 -0400
+Date: Mon, 5 May 2003 16:50:45 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200305052050.h45KojH30693@devserv.devel.redhat.com>
+To: D.A.Fedorov@inp.nsk.su
+cc: linux-kernel@vger.kernel.org
+Subject: Re: The disappearing sys_call_table export.
+In-Reply-To: <mailman.1052142720.4060.linux-kernel2news@redhat.com>
+References: <mailman.1052142720.4060.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> Jaroslav, can we just drop that junk or is it still used by userland.
-> And if yes how long will it take to get an alsa-libs release out to
-> not rely on it?
+> I use the following calls:
+> 
+> sys_mknod
+> sys_chown
+> sys_umask
+> sys_unlink
+> 
+> for creating/deleting /dev entries dynamically on driver
+> loading/unloading. It allows me to acquire dynamic major
+> number without devfs and external utility of any kind.
 
+Well, duh. "Without devds and external utility" is a no-goal.
+You set it, you screw trying to achieve it. It's like a well-known
+Russian joke: "[...] We remove the adenoid tissue... through
+the anal opening with a blowtorch".
 
-Not commenting on this issue specifically, but in general, alsa-lib can 
-be used to mitigate the effect of kernel changes on userland.
+> I use sys_write to output loading/device detection/diagnostic
+> messages to process's stderr when appropriate. Yes, it may look as
+> "wrong thing" but it uses only legal kernel mechanisms and it saves
+> lots of time with e-mail support:
+> /sbin/insmod driver verbose=1 2>&1 | mail -s 'it does not works' me@
 
-This was a big selling point for ALSA, back when we were trying to 
-decide what to do about OSS.
+And pray tell how is syslog different?
 
-	Jeff
-
-
-
+-- Pete

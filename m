@@ -1,66 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262579AbVCVJSW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262582AbVCVJVI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262579AbVCVJSW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 04:18:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262582AbVCVJSW
+	id S262582AbVCVJVI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 04:21:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262583AbVCVJVI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 04:18:22 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:28431 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262579AbVCVJSQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 04:18:16 -0500
-Date: Tue, 22 Mar 2005 10:18:14 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, arjanv@infradead.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc1-mm1
-Message-ID: <20050322091814.GC3982@stusta.de>
-References: <20050321025159.1cabd62e.akpm@osdl.org> <200503210915.53193.jbarnes@engr.sgi.com> <20050321202506.GA3982@stusta.de> <200503211642.00796.jbarnes@engr.sgi.com>
+	Tue, 22 Mar 2005 04:21:08 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:58787 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262582AbVCVJVC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 04:21:02 -0500
+Date: Tue, 22 Mar 2005 10:20:32 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Esben Nielsen <simlo@phys.au.dk>
+Cc: "Paul E. McKenney" <paulmck@us.ibm.com>, dipankar@in.ibm.com,
+       shemminger@osdl.org, akpm@osdl.org, torvalds@osdl.org,
+       rusty@au1.ibm.com, tgall@us.ibm.com, jim.houston@comcast.net,
+       manfred@colorfullife.com, gh@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: Real-Time Preemption and RCU
+Message-ID: <20050322092032.GA20240@elte.hu>
+References: <20050322055327.GB1295@us.ibm.com> <Pine.OSF.4.05.10503220929500.5287-100000@da410.phys.au.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200503211642.00796.jbarnes@engr.sgi.com>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <Pine.OSF.4.05.10503220929500.5287-100000@da410.phys.au.dk>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 21, 2005 at 04:42:00PM -0800, Jesse Barnes wrote:
-> On Monday, March 21, 2005 12:25 pm, Adrian Bunk wrote:
-> > On Mon, Mar 21, 2005 at 09:15:53AM -0800, Jesse Barnes wrote:
-> > > On Monday, March 21, 2005 2:51 am, Andrew Morton wrote:
-> > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc
-> > > >1/2. 6.12-rc1-mm1/
-> > >
-> > > Andrew, please drop
-> > >
-> > > revert-allow-oem-written-modules-to-make-calls-to-ia64-oem-sal-functions.
-> > >patch
-> > >
-> > > The tiocx.c driver is now in the tree, and it uses those functions.
-> >
-> > IOW:
-> > The EXPORT_SYMBOL's should still be removed, but the functions
-> > themselves should stay.
-> 
-> Actually, no, since tiocx can be built modular.  The patch should just be 
-> dropped.
 
-???
+* Esben Nielsen <simlo@phys.au.dk> wrote:
 
-config SGI_TIOCX
-	bool "SGI TIO CX driver support"
+> On the other hand with a rw-lock being unlimited - and thus do not
+> keep track of it readers - the readers can't be boosted by the writer.
+> Then you are back to square 1: The grace period can take a very long
+> time.
 
-> Thanks,
-> Jesse
+btw., is the 'very long grace period' a real issue? We could avoid all
+the RCU read-side locking latencies by making it truly unlocked and just
+living with the long grace periods. Perhaps it's enough to add an
+emergency mechanism to the OOM handler, which frees up all the 'blocked
+by preemption' RCU callbacks via some scheduler magic. (e.g. such an
+emergency mechanism could be _conditional_ locking on the read side -
+i.e. new RCU read-side users would be blocked until the OOM situation
+goes away, or something like that.)
 
-cu
-Adrian
+your patch is implementing just that, correct? Would you mind redoing it
+against a recent -RT base? (-40-04 or so)
 
--- 
+also, what would be the worst-case workload causing long grace periods?
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+	Ingo

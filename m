@@ -1,41 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262458AbSJKOFK>; Fri, 11 Oct 2002 10:05:10 -0400
+	id <S262455AbSJKOC7>; Fri, 11 Oct 2002 10:02:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262461AbSJKOFK>; Fri, 11 Oct 2002 10:05:10 -0400
-Received: from barkley.vpha.health.ufl.edu ([159.178.78.160]:34500 "EHLO
-	barkley.vpha.health.ufl.edu") by vger.kernel.org with ESMTP
-	id <S262458AbSJKOFK>; Fri, 11 Oct 2002 10:05:10 -0400
-Message-ID: <1034345470.3da6dbfe5451d@webmail.health.ufl.edu>
-Date: Fri, 11 Oct 2002 10:11:10 -0400
-From: sridhar vaidyanathan <sridharv@ufl.edu>
-To: linux-kernel@vger.kernel.org
-Subject: kgdb stty problem
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.0
-X-Originating-IP: 163.181.250.3
+	id <S262457AbSJKOC7>; Fri, 11 Oct 2002 10:02:59 -0400
+Received: from users.linvision.com ([62.58.92.114]:60825 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S262455AbSJKOC6>; Fri, 11 Oct 2002 10:02:58 -0400
+Date: Fri, 11 Oct 2002 16:08:28 +0200
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+Cc: Larry McVoy <lm@work.bitmover.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Walter Landry <wlandry@ucsd.edu>, linux-kernel@vger.kernel.org
+Subject: Re: A simple request (was Re: boring BK stats)
+Message-ID: <20021011160828.B345@bitwizard.nl>
+References: <20021009.163920.85414652.wlandry@ucsd.edu> <3DA58B60.1010101@pobox.com> <20021010072818.F27122@work.bitmover.com> <20021011153538.A345@bitwizard.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021011153538.A345@bitwizard.nl>
+User-Agent: Mutt/1.3.22.1i
+Organization: BitWizard.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sorry for the posting it the second time. i had missed the subject the first 
-time.
+On Fri, Oct 11, 2002 at 03:35:38PM +0200, Rogier Wolff wrote:
+> On Thu, Oct 10, 2002 at 07:28:18AM -0700, Larry McVoy wrote:
+> > > The laptop has 200MB RAM, and mozilla and a ton of xterms loaded.  IDE 
+> > > drives w/ Intel PIIX4 controller.  The Dual Athlon has 512MB RAM, and I 
+> > > forget what kind of IDE controller -- I think AMD.  IDE drives as well.
+> > > 
+> > > BitKeeper must scan the entire tree when doing a checkin or checkout, so 
+> 
+> [...]
+> 
+> > In low memory situations you really want to run the tree compressed.  
+> > ON a fast machine do a "bk -r admin -Z" and then clone that onto your
+> > laptop.  I think that will drop the tree to about 145MB which will
+> > help, maybe.  I suspect that you use enough of the rest of your 200MB
+> > that it still won't fit.
+> 
+> [...]
+> > There is only so much we can do when you are trying to cram 10 pounds of
+> > crap in a 5 pound bag :(
+> 
+> The reason that one or two years ago my "diff+multiple trees" beat
+> bitkeeper on the performance front was that diff would only touch
+> inode-metadata, and not the files themselves. You can cache the
+> file-metadata (inodes) of a 200M tree in a couple of megabytes of RAM.
 
-I am trying to debug a kernel over a remote serial console. I get 
-Ignoring packet error .. 
-kgdb page suggests that it might be due to the speed mismatch. i tried 
-stty ispeed 9600 ospeed 9600 < /dev/ttyS0 
-on the development machine and have passed serial=0,9600n8 option and 
-gdbbaud=9600 via lilo to the debug kernel. 
- 
-when i run 
-%stty speed 
-on the development machine it still reports 38400. 
-so i changed the gdbbaud and serial= values to 38400 on the test machine. even 
-this doesn't work. 
-any ideas
---sridhar
-ps: i have tried redirecting the kernel messages( without patching it with 
-kgdb) over the serial line and read it with minicom . that works fine. 
-please email as i am not subscribed. 
+Jeff: 
+
+The trick is that I would have hardlinked trees. Thus 
+
+	linux-2.2.18.clean/drivers/char/tty_ioctl.c
+and
+	linux-2.2.18.rio/drivers/char/tty_ioctl.c
+
+would have the same inode number, and diff wouldn't even bother to
+open the file.... 
+
+				Roger. 
+
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* The Worlds Ecosystem is a stable system. Stable systems may experience *
+* excursions from the stable situation. We are currenly in such an       * 
+* excursion: The stable situation does not include humans. ***************

@@ -1,126 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263079AbVAFWIp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263082AbVAFWJe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263079AbVAFWIp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 17:08:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263071AbVAFWHt
+	id S263082AbVAFWJe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 17:09:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263078AbVAFWJK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 17:07:49 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:55564 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S263064AbVAFWGi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 17:06:38 -0500
-Date: Thu, 6 Jan 2005 23:06:30 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
+	Thu, 6 Jan 2005 17:09:10 -0500
+Received: from host62-24-231-113.dsl.vispa.com ([62.24.231.113]:39052 "EHLO
+	cenedra.walrond.org") by vger.kernel.org with ESMTP id S263077AbVAFWIn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 17:08:43 -0500
+From: Andrew Walrond <andrew@walrond.org>
+To: linux-raid@vger.kernel.org
+Subject: Re: No swap can be dangerous (was Re: swap on RAID (was Re: swp - Re: ext3 journal on software raid))
+Date: Thu, 6 Jan 2005 22:08:39 +0000
+User-Agent: KMail/1.7.2
+References: <41DC9420.5030701@h3c.com> <20050106093811.GB99565@caffreys.strugglers.net> <41DD798F.8030902@h3c.com>
+In-Reply-To: <41DD798F.8030902@h3c.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] efs: make a struct static (fwd)
-Message-ID: <20050106220629.GB28628@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200501062208.39563.andrew@walrond.org>
+X-Spam-Score: 4.3 (++++)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch forwarded below still applies and compiles against 2.6.10-mm2.
+On Thursday 06 January 2005 17:46, Mike Hardy wrote:
+>
+> You are correct that I was getting at the zero swap argument - and I
+> agree that it is vastly different from simply not expecting it. It is
+> important to know that there is no inherent need for swap in the kernel
+> though - it is simply used as more "memory" (albeit slower, and with
+> some optimizations to work better with real memory) and if you don't
+> need it, you don't need it.
+>
 
-Please apply.
+If I recollect a recent thread on LKML correctly, your 'no inherent need for 
+swap' might be wrong.
 
+I think the gist was this: the kernel can sometimes needs to move bits of 
+memory in order to free up dma-able ram, or lowmem. If I recall correctly, 
+the kernel can only do this move via swap, even if there is stacks of free 
+(non-dmaable or highmem) memory.
 
------ Forwarded message from Adrian Bunk <bunk@stusta.de> -----
+I distinctly remember the moral of the thread being "Always mount some swap, 
+if you can"
 
-Date:	Sun, 12 Dec 2004 03:10:54 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] efs: make a struct static
+This might have changed though, or I might have got it completely wrong. - 
+I've cc'ed LKML incase somebody more knowledgeable can comment...
 
-
-...
-
-
-The patch below makes a needessly global struct in the efs code static.
-
-
-diffstat output:
- fs/efs/super.c         |   20 ++++++++++++++++++++
- include/linux/efs_vh.h |   17 -----------------
- 2 files changed, 20 insertions(+), 17 deletions(-)
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.10-rc2-mm4-full/include/linux/efs_vh.h.old	2004-12-12 00:28:23.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/include/linux/efs_vh.h	2004-12-12 00:30:45.000000000 +0100
-@@ -47,23 +47,6 @@
- struct pt_types {
- 	int	pt_type;
- 	char	*pt_name;
--} sgi_pt_types[] = {
--	{0x00,		"SGI vh"},
--	{0x01,		"SGI trkrepl"},
--	{0x02,		"SGI secrepl"},
--	{0x03,		"SGI raw"},
--	{0x04,		"SGI bsd"},
--	{SGI_SYSV,	"SGI sysv"},
--	{0x06,		"SGI vol"},
--	{SGI_EFS,	"SGI efs"},
--	{0x08,		"SGI lv"},
--	{0x09,		"SGI rlv"},
--	{0x0A,		"SGI xfs"},
--	{0x0B,		"SGI xfslog"},
--	{0x0C,		"SGI xlv"},
--	{0x82,		"Linux swap"},
--	{0x83,		"Linux native"},
--	{0,		NULL}
- };
- 
- #endif /* __EFS_VH_H__ */
---- linux-2.6.10-rc2-mm4-full/fs/efs/super.c.old	2004-12-12 00:29:46.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/fs/efs/super.c	2004-12-12 00:30:32.000000000 +0100
-@@ -32,6 +32,26 @@
- 	.fs_flags	= FS_REQUIRES_DEV,
- };
- 
-+static struct pt_types sgi_pt_types[] = {
-+	{0x00,		"SGI vh"},
-+	{0x01,		"SGI trkrepl"},
-+	{0x02,		"SGI secrepl"},
-+	{0x03,		"SGI raw"},
-+	{0x04,		"SGI bsd"},
-+	{SGI_SYSV,	"SGI sysv"},
-+	{0x06,		"SGI vol"},
-+	{SGI_EFS,	"SGI efs"},
-+	{0x08,		"SGI lv"},
-+	{0x09,		"SGI rlv"},
-+	{0x0A,		"SGI xfs"},
-+	{0x0B,		"SGI xfslog"},
-+	{0x0C,		"SGI xlv"},
-+	{0x82,		"Linux swap"},
-+	{0x83,		"Linux native"},
-+	{0,		NULL}
-+};
-+
-+
- static kmem_cache_t * efs_inode_cachep;
- 
- static struct inode *efs_alloc_inode(struct super_block *sb)
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
------ End forwarded message -----
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Andrew Walrond

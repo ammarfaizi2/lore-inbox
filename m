@@ -1,46 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262906AbUERKby@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262438AbUERKtr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262906AbUERKby (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 May 2004 06:31:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262909AbUERKbx
+	id S262438AbUERKtr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 May 2004 06:49:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbUERKtr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 May 2004 06:31:53 -0400
-Received: from web90109.mail.scd.yahoo.com ([66.218.94.80]:49284 "HELO
-	web90109.mail.scd.yahoo.com") by vger.kernel.org with SMTP
-	id S262906AbUERKbw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 May 2004 06:31:52 -0400
-Message-ID: <20040518062857.80216.qmail@web90109.mail.scd.yahoo.com>
-Date: Mon, 17 May 2004 23:28:57 -0700 (PDT)
-From: linux lover <linux_lover2004@yahoo.com>
-Subject: tracing calls of output(skb)
-To: linuxkernel <linux-kernel@vger.kernel.org>
-Cc: netdev <netdev@oss.sgi.com>,
-       netfilter <netfilter-devel@lists.netfilter.org>
+	Tue, 18 May 2004 06:49:47 -0400
+Received: from dialpool2-178.dial.tijd.com ([62.112.11.178]:13696 "EHLO
+	precious.kicks-ass.org") by vger.kernel.org with ESMTP
+	id S262438AbUERKtp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 May 2004 06:49:45 -0400
+From: Jan De Luyck <lkml@kcore.org>
+To: Len Brown <len.brown@intel.com>
+Subject: Re: [2.6.6] Synaptics driver is 'jumpy' -- FIXED
+Date: Tue, 18 May 2004 12:49:41 +0200
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>,
+       Alexander Bruder <anib@uni-paderborn.de>
+References: <A6974D8E5F98D511BB910002A50A6647615FBC01@hdsmsx403.hd.intel.com> <1084821553.12352.358.camel@dhcppc4>
+In-Reply-To: <1084821553.12352.358.camel@dhcppc4>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200405181249.41787.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello friends,
-          can anybody knows where does this
-skb->dst->output(skb) call goes? it is written in
-output_maybe_reroute function call in ip_output.c?
-also let me know whether following two calls also
-point to same destination funcaion as above function?
-   hh->hh_output(skb);
-   return dst->neighbour->output(skb);
-if yes to which function they point (dev_queue_xmit)?
+On Monday 17 May 2004 21:19, Len Brown wrote:
+> On Mon, 2004-05-17 at 03:04, Jan De Luyck wrote:
+> 2.6.6 dmesg:
+>
+> ACPI: PCI Interrupt Link [LNKE] (IRQs 3 4 5 7 9 11 12) *10
+> ACPI: PCI Interrupt Link [LNKE] enabled at IRQ 12
+>
+> Detected ipw2100 PCI device at 0000:02:04.0, dev: eth1, mem:
+> 0xD0206000-0xD0206FFF -> e19e8000, irq: 12
+>
+> You need this patch:
+> http://bugme.osdl.org/show_bug.cgi?id=2665
 
-Thanking you.
-linux_lover
+Thanks Len, this does the trick. 
 
+Jan
 
-
-
-
-	
-		
-__________________________________
-Do you Yahoo!?
-SBC Yahoo! - Internet access at a great low price.
-http://promo.yahoo.com/sbc/
+-- 
+His life was formal; his actions seemed ruled with a ruler.

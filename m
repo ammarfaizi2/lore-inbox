@@ -1,49 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264912AbUHMMLh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264973AbUHMMM6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264912AbUHMMLh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 08:11:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264929AbUHMMLh
+	id S264973AbUHMMM6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 08:12:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265022AbUHMMM6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 08:11:37 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:5822 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S264912AbUHMMLg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 08:11:36 -0400
-Date: Fri, 13 Aug 2004 14:11:28 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
+	Fri, 13 Aug 2004 08:12:58 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:48133 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264973AbUHMMMo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Aug 2004 08:12:44 -0400
+Date: Fri, 13 Aug 2004 13:12:36 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
 To: Adrian Bunk <bunk@fs.tum.de>
-cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>, linux-kernel@vger.kernel.org
+Cc: Roman Zippel <zippel@linux-m68k.org>,
+       Evgeniy Polyakov <johnpol@2ka.mipt.ru>, linux-kernel@vger.kernel.org
 Subject: Re: [2.6 patch] let W1 select NET
-In-Reply-To: <20040813110137.GY13377@fs.tum.de>
-Message-ID: <Pine.LNX.4.58.0408131312390.20634@scrub.home>
-References: <20040813101717.GS13377@fs.tum.de> <Pine.LNX.4.58.0408131231480.20635@scrub.home>
- <1092394019.12729.441.camel@uganda> <Pine.LNX.4.58.0408131253000.20634@scrub.home>
- <20040813110137.GY13377@fs.tum.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20040813131236.B5416@flint.arm.linux.org.uk>
+Mail-Followup-To: Adrian Bunk <bunk@fs.tum.de>,
+	Roman Zippel <zippel@linux-m68k.org>,
+	Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+	linux-kernel@vger.kernel.org
+References: <20040813101717.GS13377@fs.tum.de> <Pine.LNX.4.58.0408131231480.20635@scrub.home> <1092394019.12729.441.camel@uganda> <Pine.LNX.4.58.0408131253000.20634@scrub.home> <20040813110137.GY13377@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040813110137.GY13377@fs.tum.de>; from bunk@fs.tum.de on Fri, Aug 13, 2004 at 01:01:37PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Aug 13, 2004 at 01:01:37PM +0200, Adrian Bunk wrote:
+> On Fri, Aug 13, 2004 at 12:54:25PM +0200, Roman Zippel wrote:
+> > Hi,
+> > 
+> > On Fri, 13 Aug 2004, Evgeniy Polyakov wrote:
+> > 
+> > > On Fri, 2004-08-13 at 14:32, Roman Zippel wrote:
+> > > > Hi,
+> > > > 
+> > > > On Fri, 13 Aug 2004, Adrian Bunk wrote:
+> > > > 
+> > > > >  config W1
+> > > > >  	tristate "Dallas's 1-wire support"
+> > > > > +	select NET
+> > > > 
+> > > > What's wrong with a simple dependency?
+> > > 
+> > > W1 requires NET, and thus depends on it.
+> > > If you _do_ want W1 then you _do_ need network and then NET must be
+> > > selected.
+> > 
+> > A simple "depends on NET" does this as well, I see no reason to abuse 
+> > select.
+> 
+> In the case of NET the discussion is mostly hypothetically since nearly 
+> everyone has enabled NET.
 
-On Fri, 13 Aug 2004, Adrian Bunk wrote:
+In which case, can we remove the user-visibility of CONFIG_NET and
+instead make all the protocols automatically select it.
 
-> But the similar case of USB_STORAGE selecting SCSI is an example where 
-> select is a big user-visible improvement over depends.
+I find the over-use of "select" distasteful, and produces a counter-
+intuitive configuration system.  I'll carry on complaining each time
+I see a patch on LKML which introduces yet another over-use of this
+feature without properly considering the consequences of doing so.
 
-comment "USB storage requires SCSI"
-	depends on SCSI=n
-
-That's also user visible and doesn't confuse the user later, why he can't 
-deselect SCSI.
-
-Abusing select is really the wrong answer. What is needed is an improved 
-user interface, which allows to search through the kconfig information or 
-even can match hardware information to a driver and aids the user in 
-selecting the required dependencies.
-Keeping the kconfig database clean and making kernel configuration easier 
-are really two separate problems and we shouldn't sacrifice the former for 
-the latter.
-
-bye, Roman
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

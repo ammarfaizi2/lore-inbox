@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272955AbTG3QXO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 12:23:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272960AbTG3QXO
+	id S272948AbTG3Q2Q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 12:28:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272958AbTG3Q2Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 12:23:14 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:523 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S272955AbTG3QXN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 12:23:13 -0400
-Date: Wed, 30 Jul 2003 12:02:12 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: "Serge A. Suchkov" <ss@e1.bmstu.ru>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test2 bugreport
-In-Reply-To: <03072912312701.10545@XP1700>
-Message-ID: <Pine.LNX.3.96.1030730120100.31524A-100000@gatekeeper.tmr.com>
+	Wed, 30 Jul 2003 12:28:16 -0400
+Received: from obsidian.spiritone.com ([216.99.193.137]:4564 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S272948AbTG3Q2P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 12:28:15 -0400
+Date: Wed, 30 Jul 2003 09:27:46 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test2-mm1 results
+Message-ID: <28310000.1059582465@[10.10.2.4]>
+In-Reply-To: <200307310128.50189.kernel@kolivas.org>
+References: <5110000.1059489420@[10.10.2.4]> <170360000.1059513518@flay> <17830000.1059577281@[10.10.2.4]> <200307310128.50189.kernel@kolivas.org>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Jul 2003, Serge A. Suchkov wrote:
+> On Thu, 31 Jul 2003 01:01, Martin J. Bligh wrote:
+>> OK, so test2-mm1 fixes the panic I was seeing in test1-mm1.
+>> Only noticeable thing is that -mm tree is consistently a little slower
+>> at kernbench
+> 
+> Could conceivably be my hacks throwing the cc cpu hogs onto the expired array 
+> more frequently.
 
-> 
-> Hi,
-> 
-> I"m test 2.6.0-test2, quick bugreport below...
-> 
-> 
-> 1) No logo in vesafb ;) (in 2.6.0-test1 logo present)
+OK, do you have that against straight mainline? I can try it broken
+out if so ...
 
-There appears to be a problem with dependencies, if you just do a make
-again it seems to work (did for me).
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+M.
 

@@ -1,57 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271246AbRH3D0k>; Wed, 29 Aug 2001 23:26:40 -0400
+	id <S271276AbRH3DhT>; Wed, 29 Aug 2001 23:37:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271252AbRH3D03>; Wed, 29 Aug 2001 23:26:29 -0400
-Received: from codepoet.org ([166.70.14.212]:9810 "HELO winder.codepoet.org")
-	by vger.kernel.org with SMTP id <S271246AbRH3D0T>;
-	Wed, 29 Aug 2001 23:26:19 -0400
-Date: Wed, 29 Aug 2001 21:26:40 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+	id <S271288AbRH3DhJ>; Wed, 29 Aug 2001 23:37:09 -0400
+Received: from [209.250.53.22] ([209.250.53.22]:43794 "EHLO
+	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S271276AbRH3Dg6>; Wed, 29 Aug 2001 23:36:58 -0400
+Date: Wed, 29 Aug 2001 22:36:10 -0500
+From: Steven Walter <srwalter@yahoo.com>
+To: Robert Lowery <Robert.Lowery@colorbus.com.au>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Novell Attacks Linux
-Message-ID: <20010829212640.A4268@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	"Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
+Subject: Re: [Slightly OT]  Where should SIS 6326 mpeg2 hardware acceleration code live?
+Message-ID: <20010829223610.A4472@hapablap.dyn.dhs.org>
+Mail-Followup-To: Steven Walter <srwalter@yahoo.com>,
+	Robert Lowery <Robert.Lowery@colorbus.com.au>,
 	linux-kernel@vger.kernel.org
-In-Reply-To: <20010825020114.A12724@vger.timpanogas.org> <3B8809A5.DB7B6764@baywinds.org> <20010825153009.B14524@vger.timpanogas.org> <9mcurg$cuo$1@forge.intermeta.de> <20010827122838.A20599@vger.timpanogas.org> <9mfka8$sb$1@forge.intermeta.de> <20010829210356.B29267@vger.timpanogas.org>
+In-Reply-To: <370747DEFD89D2119AFD00C0F017E6614A62CF@cbus613-server4.colorbus.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20010829210356.B29267@vger.timpanogas.org>
-User-Agent: Mutt/1.3.20i
-X-Operating-System: Linux 2.4.8-ac10-rmk1-rmk2, Rebel-NetWinder(Intel sa110 rev 3), 262.14 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <370747DEFD89D2119AFD00C0F017E6614A62CF@cbus613-server4.colorbus.com.au>; from Robert.Lowery@colorbus.com.au on Thu, Aug 30, 2001 at 10:18:52AM +1000
+X-Uptime: 4:16pm  up 2 days, 22:54,  0 users,  load average: 1.00, 1.01, 1.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed Aug 29, 2001 at 09:03:56PM -0700, Jeff V. Merkey wrote:
->
-> state, depending on the circumstances.  You are allowed to have multiple
-> wives, and the State will support all of them for you with child support
-> so long as they are older than 16.  If you are a Mormon, you get to tell 
-> these wives they will not be allowed in heaven unless they do whatever
-> you tell them.  
+On Thu, Aug 30, 2001 at 10:18:52AM +1000, Robert Lowery wrote:
+> Hi,
+> 
+> I have recently acquired a PCI graphics card based on the SIS 6326 chipset.
+> This chipset supports YUV->RGB conversion, Hardware motion compensation and
+> iDCT in hardware.  Using Windows 98 and PowerDVD I am able to playback full
+> screen DVD without any skipped frames on a Pentium 233MMX.  All for the
+> cheap price of around $US20.
+> 
+> The full specs on this chipset are available at
+> http://www.sis.com/ftp/Databook/6326/6326ds10.exe
+> 
+> The hardware acceleration of this card does not appear to be supported under
+> linux, and I am unsure where the code should even go if I was to try and
+> write it.
+> 
+> I have tried mailing to the livid-devel@linuxvideo.org, as I first thought
+> this is where the code would belong, but have had no responses at all in 4
+> days.  Is this Livid/OMS project still alive.
+> 
+> Alternatives (that I am aware of) are
+> video4linux
+> fbcon
+> Xv
+> 
+> Where should this hardware support live, I suspect it does not belong in the
+> kernel ;) and who should I be talking to.  I am willing to do a lot of the
+> work to get this chipset supported, but since my device driver experience is
+> somewhat limited, I would probably need a mentor ;)
+> 
+> Please cc any repies to me as I am not subscribed
+> 
+> Cheers
+> 
+> -Robert
 
-Thank you for your ideas.  But lets be clear here, they are _your_ ideas
-and have as little to do with fact as your legal problems with Novell have 
-to do with Linux.
+This is definitely a job for XFree86, and Xv specificially.
+Unfortunately, Xv only support the YUV->RGB conversion.  For the fancier
+stuff, you'll need to use XvMC (motion compensation) which is still
+somewhat experimental.
 
-Quoting from the Utah State Consitution:
-    http://www.le.state.ut.us/~code/const/htm/co_17003.htm
-
-    "An Act to punish polygamy and other kindred offenses," approved February
-    4th, A.D. 1892, in so far as the same defines and imposes penalties for
-    polygamy, is hereby declared to be in force in the State of Utah. 
-
-There was even a very recent case where a polygamist was charged and convicted.
-I suggest you take a look:
-    http://www.cnn.com/2001/LAW/05/19/utah.polygamy/
-
- -Erik
-
---
-Erik B. Andersen   email:  andersee@debian.org
---This message was written using 73% post-consumer electrons--
+Redirect this question to the XFree86 devel lists and I think you'll get
+better results.  Good luck on getting this supported!
+-- 
+-Steven
+In a time of universal deceit, telling the truth is a revolutionary act.
+			-- George Orwell

@@ -1,32 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317487AbSFIAhK>; Sat, 8 Jun 2002 20:37:10 -0400
+	id <S317491AbSFIAk3>; Sat, 8 Jun 2002 20:40:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317490AbSFIAhJ>; Sat, 8 Jun 2002 20:37:09 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:15620 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S317487AbSFIAhI>; Sat, 8 Jun 2002 20:37:08 -0400
-Date: Sat, 8 Jun 2002 17:37:35 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Thunder from the hill <thunder@ngforever.de>
-cc: Dan Aloni <da-x@gmx.net>, Brian Gerst <bgerst@didntduck.org>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] More list_del_init cleanups
-In-Reply-To: <Pine.LNX.4.44.0206081832200.15675-100000@hawkeye.luckynet.adm>
-Message-ID: <Pine.LNX.4.44.0206081737130.28580-100000@home.transmeta.com>
+	id <S317492AbSFIAk2>; Sat, 8 Jun 2002 20:40:28 -0400
+Received: from [209.237.59.50] ([209.237.59.50]:16567 "EHLO
+	zinfandel.topspincom.com") by vger.kernel.org with ESMTP
+	id <S317491AbSFIAk2>; Sat, 8 Jun 2002 20:40:28 -0400
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PCI DMA to small buffers on cache-incoherent arch
+In-Reply-To: <52vg8ta4ki.fsf@topspin.com>
+	<20020608.160300.37239939.davem@redhat.com>
+X-Message-Flag: Warning: May contain useful information
+X-Priority: 1
+X-MSMail-Priority: High
+From: Roland Dreier <roland@topspin.com>
+Date: 08 Jun 2002 17:40:24 -0700
+Message-ID: <52lm9p9tdz.fsf@topspin.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "David" == David S Miller <davem@redhat.com> writes:
 
+    David> There is no allocation scheme legal for PCI DMA which gives
+    David> you smaller than a cacheline of data, this includes SLAB.
+    David> This is why stack buffers and the like are illegal for PCI
+    David> DMA.
 
-On Sat, 8 Jun 2002, Thunder from the hill wrote:
->
-> I might have the function, but what do you mean by go through the
-> maintainers of the appropriate sub-systems?
+    David> If the architecture allows SLAB to give smaller than
+    David> cacheline sized data, it must handle PCI DMA map/unmap
+    David> flushing in an appropriate fashion (ie. handle
+    David> sub-cacheline buffers).
+   
+Thanks, that's great information.  However, there is one question you
+didn't cover.  How about using a sub-cache-line piece of a kmalloc()'ed
+buffer (eg the case I described of using one member from a struct as a
+DMA buffer)?  As far as I can see there is no guarantee that this will
+always work.  Do you agree that this should be treated as a bug and
+fixed when it is found?  Or should we leave that usage unless it is
+observed causing problems (since we almost always get lucky and don't
+touch the rest of the cache line near the DMA)?
 
-Basically, send them patches to gauge whether they want the thing or not..
-
-		Linus
-
+Thanks,
+  Roland

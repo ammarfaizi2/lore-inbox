@@ -1,42 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287244AbSBGKwb>; Thu, 7 Feb 2002 05:52:31 -0500
+	id <S287212AbSBGKvl>; Thu, 7 Feb 2002 05:51:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287254AbSBGKwW>; Thu, 7 Feb 2002 05:52:22 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:17216 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S287244AbSBGKwN>; Thu, 7 Feb 2002 05:52:13 -0500
-To: "Daniel J Blueman" <daniel.blueman@btinternet.com>
-Cc: "'Benny Sjostrand'" <gorm@cucumelo.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: 512 Mb DIMM not detected by the BIOS!
-In-Reply-To: <000001c1ac30$2ed408a0$0100a8c0@stratus>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 07 Feb 2002 03:48:16 -0700
-In-Reply-To: <000001c1ac30$2ed408a0$0100a8c0@stratus>
-Message-ID: <m1u1st600f.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S287244AbSBGKvb>; Thu, 7 Feb 2002 05:51:31 -0500
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:33545 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S287212AbSBGKvT>; Thu, 7 Feb 2002 05:51:19 -0500
+Date: Thu, 7 Feb 2002 11:50:32 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: <roman@serv>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
+In-Reply-To: <Pine.LNX.4.33.0202061529280.1714-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0202071141580.5615-100000@serv>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Daniel J Blueman" <daniel.blueman@btinternet.com> writes:
+Hi,
 
-> Hey Benny,
-> 
-> This is a chipset problem. Chipsets support up to x CAS (column) lines
-> and y RAS (row) lines, and depending on your DIMM memory module layout
-> and configuration, you 512MB DIMM will be detected as a different sized
-> module.
-> 
-> Eg. The venerable Intel 440BX (PII) chipset supports a max of 256MB per
-> slot. Ah well.
-> 
-> Since it's a chipset (ie hardware) issue, it's not possible to work
-> around this problem - you need a newer chipset. Sorry.
+On Wed, 6 Feb 2002, Linus Torvalds wrote:
 
-Additionally memory is generally and practically a setup once thing in
-every chipset I have looked at.  Even if the chipsets supports it
-would be very difficult ``fix'' this afterwards.
+> The problem I have with piping patches directly to bk is that I don't like
+> to switch back-and-forth between reading email and applying (and fixing
+> up) patches. Even if the patch applies cleanly (which most of them tend to
+> do) I still usually need to do at least some minimal editing of the commit
+> message etc (removing stuff like "Hi Linus" etc).
 
-Eric
+I don't know how much your scripts already do, so below is just a
+suggestion how to do some of the preprocessing of patches already during
+email reading (the bk magic has to be added by someone else).
+
+bye, Roman
+
+#! /bin/bash
+
+rm -f /tmp/test-patch /tmp/test-log
+
+IFS=""
+log=y
+while read -r line; do
+case "$line" in
+---\ *)
+	log=n
+	;;
+esac
+test $log = y && echo "$line" >> /tmp/test-log
+echo "$line" >> /tmp/test-patch
+done
+
+(
+	oldtty=`stty -g`
+	reset -Q
+	vim -o /tmp/test-log /tmp/test-patch
+	echo -n "ok?"
+	read
+	# do more
+	stty $oldtty
+) < /dev/tty >& /dev/tty
+
+

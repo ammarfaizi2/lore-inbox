@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261797AbUKJMsg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261717AbUKJM6c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261797AbUKJMsg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 07:48:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261781AbUKJMsg
+	id S261717AbUKJM6c (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 07:58:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261788AbUKJM6c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 07:48:36 -0500
-Received: from shinjuku.zaphods.net ([194.97.108.52]:29662 "EHLO
-	shinjuku.zaphods.net") by vger.kernel.org with ESMTP
-	id S261797AbUKJMsc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 07:48:32 -0500
-Date: Wed, 10 Nov 2004 13:48:11 +0100
-From: Stefan Schmidt <zaphodb@zaphods.net>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Nick Piggin <piggin@cyberone.com.au>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: 2.6.10-rc1-mm4 -1 EAGAIN after allocation failure was: Re: Kernel 2.6.9 Multiple Page Allocation Failures
-Message-ID: <20041110124810.GG28163@zaphods.net>
-References: <20041109223558.GR1309@mail.muni.cz> <20041109144607.2950a41a.akpm@osdl.org> <20041109235201.GC20754@zaphods.net> <20041110012733.GD20754@zaphods.net> <20041109173920.08746dbd.akpm@osdl.org> <20041110020327.GE20754@zaphods.net> <419197EA.9090809@cyberone.com.au> <20041110102854.GI20754@zaphods.net> <20041110120624.GF28163@zaphods.net> <20041110085831.GB10740@logos.cnet>
+	Wed, 10 Nov 2004 07:58:32 -0500
+Received: from nibbel.kulnet.kuleuven.ac.be ([134.58.240.41]:29338 "EHLO
+	nibbel.kulnet.kuleuven.ac.be") by vger.kernel.org with ESMTP
+	id S261717AbUKJM6a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 07:58:30 -0500
+Date: Wed, 10 Nov 2004 13:58:29 +0100
+To: linux-kernel@vger.kernel.org
+Subject: 2.4 virtual terminal timing
+Message-ID: <20041110125828.GB15767@zzz.i>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041110085831.GB10740@logos.cnet>
-X-Origin-AS: AS5430
-X-NCC-nic-hdl: ZAP-RIPE
-User-Agent: Mutt/1.5.6+20040907i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: zaphodb@zaphods.net
-X-SA-Exim-Scanned: No (on shinjuku.zaphods.net); SAEximRunCond expanded to false
+User-Agent: Mutt/1.5.6+20040722i
+From: Tom Schouten <doelie@zzz.kotnet.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 10, 2004 at 06:58:31AM -0200, Marcelo Tosatti wrote:
-> > > > Can you try the following patch, please? It is diffed against 2.6.10-rc1,
-> > I did. No apparent change with mm4 and vm.min_free_kbytes = 8192. I will try
-> > latest bk next.
 
-> > > I set it back to CONFIG_PACKET_MMAP=y and if the application does not freeze
-> > > for some hours at this load we can blame at least this issue (-1 EAGAIN) on
-> > > that parameter.
-> > Nope, that didn't change anything, still getting EAGAIN, checked two times.
-> Its not clear to me - do you have Nick's watermark patch in? 
-Yes i have vm.min_free_kbytes=8192 and Nick's patch in mm4. I'll try
-rc1-bk19 with his restore-atomic-buffer patch in a few minutes.
+hi all,
 
-	Stefan
--- 
-The reason computer chips are so small is computers don't eat much.
+kernel noob first post beware..
+i am using a virtual terminal on i386 arch to do reaction time measurement
+for a perception psychology vision/hearing experiment.
+
+i am trying to find out if there is a direct path in 2.4.x from
+keyboard interrupt, through console/tty stuff to process wakeup,
+for a 2 thread process with one thread blocking on tty read, 
+running SCHED_FIFO, or a single thread process with async IO.
+
+i suspect there is no direct path to wakeup or SIGIO delivery,
+so i walked the tty/console code for a day and i can't tell really. 
+i got very confused. i'm not using 2.6 yet (other scheduling problems).
+
+so, questions: 
+- where exactly does wake-up after keyboard interrupt happen?
+- if no direct path, how can i get reasonable timing from keyboard?
+- anyone has keyboard driver code or incredibly dirty hack replacing tty code
+  that can record time stamps for keys pressed/released?
+- any pointers to documentation or other hints that could put me on the right track??
+
+i'm a bit lost
+
+cheers
+tom

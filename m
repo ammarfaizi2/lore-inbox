@@ -1,58 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269207AbUJFLgd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269210AbUJFLzy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269207AbUJFLgd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 07:36:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269210AbUJFLgd
+	id S269210AbUJFLzy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 07:55:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269213AbUJFLzx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 07:36:33 -0400
-Received: from smtp.poczta.interia.pl ([217.74.65.43]:62530 "EHLO
-	smtp.poczta.interia.pl") by vger.kernel.org with ESMTP
-	id S269207AbUJFLgb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 07:36:31 -0400
-Message-ID: <4163D8BB.8080507@interia.pl>
-Date: Wed, 06 Oct 2004 13:36:27 +0200
-From: Patryk Jakubowski <patrics@interia.pl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040630
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Invisible threads in 2.6.9
-References: <S268296AbUJDTjb/20041004193948Z+2396@vger.kernel.org> <41630B2C.5020709@interia.pl> <4163619C.4070600@vgertech.com> <4163A3E2.2060609@stud.feec.vutbr.cz> <4163C574.50805@interia.pl> <20041006110721.GC4380@vana.vc.cvut.cz>
-In-Reply-To: <20041006110721.GC4380@vana.vc.cvut.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-EMID: 20abaacc
+	Wed, 6 Oct 2004 07:55:53 -0400
+Received: from colin2.muc.de ([193.149.48.15]:62980 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S269210AbUJFLzw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 07:55:52 -0400
+Date: 6 Oct 2004 13:55:50 +0200
+Date: Wed, 6 Oct 2004 13:55:50 +0200
+From: Andi Kleen <ak@muc.de>
+To: Zachary Amsden <zach@vmware.com>
+Cc: linux-kernel@vger.kernel.org, Riley@Williams.Name, davej@codemonkey.org.uk,
+       hpa@zytor.com, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] i386/gcc bug with do_test_wp_bit
+Message-ID: <20041006115550.GA58628@muc.de>
+References: <41634E21.6020808@vmware.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41634E21.6020808@vmware.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Petr Vandrovec wrote:
+On Tue, Oct 05, 2004 at 06:45:05PM -0700, Zachary Amsden wrote:
+> Playing around with gcc 3.3.3, I compiled a 2.6 series kernel for i386 
+> and discovered it panics on boot.  The problem was gcc 3.3.3 can inline 
+> functions even if declared after their call sites.  This causes i386 to 
+> not boot, since do_test_wp_bit() must not exist in the __init section.  
+> Similar problems may exist in the boot code for other architectures, but 
+> I can't confirm that at this time.  x86_64 is not affected.
 
->ChangeSet@1.1832.29.23, 2004-08-27 10:34:04-07:00, roland@redhat.com
->  [PATCH] fix MT reparenting when thread group leader dies
->
->but it is possible that it worked before that patch and this one
->actually rebroke it.
->
->/proc/<tid> is visible because of:
->
->ChangeSet@1.1371.477.18, 2004-03-01 23:03:02-08:00, akpm@osdl.org
->  [PATCH] revert the /proc thread visibility fix
->
->which was needed to get gdb to work.
->							Petr
->
->
->  
->
-I think this should be fixed in stable kernel version, but it isn't. I 
-have consulted this problem in a forum. Few people can reproduce the 
-bug. They have kernels 2.6.7, 2.6.8. I am pretty sure I have kernel 
-2.6.9-rc3 from kernel.org :) I downloaded it to check if the bug is not 
-fixed.
+That should have been fixed long ago by sorting the exception
+table. I checked and the code is still there: 
 
-       Pat
+asmlinkage void __init start_kernel(void)
+{
+	...
+        sort_main_extable();
 
 
-----------------------------------------------------------------------
-Portal INTERIA.PL zaprasza... >>> http://link.interia.pl/f17cb
+Something must be rotten in your setup. I definitely don't see the
+same problems with a unit-at-a-time 3.3 gcc. 
 
+Can you double check that the sort is really done?
+
+The patch is imho not needed.
+
+-Andi

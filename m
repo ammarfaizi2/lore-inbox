@@ -1,39 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281067AbRKOVV3>; Thu, 15 Nov 2001 16:21:29 -0500
+	id <S281070AbRKOVW3>; Thu, 15 Nov 2001 16:22:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281070AbRKOVVU>; Thu, 15 Nov 2001 16:21:20 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:26910 "EHLO
-	svldns02.veritas.com") by vger.kernel.org with ESMTP
-	id <S281067AbRKOVVH> convert rfc822-to-8bit; Thu, 15 Nov 2001 16:21:07 -0500
-Date: Thu, 15 Nov 2001 21:22:55 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-To: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-cc: "David S. Miller" <davem@redhat.com>, anton@samba.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] small sym-2 fix
-In-Reply-To: <20011115183811.F1902-100000@gerard>
-Message-ID: <Pine.LNX.4.21.0111152105500.1588-100000@localhost.localdomain>
+	id <S281072AbRKOVWV>; Thu, 15 Nov 2001 16:22:21 -0500
+Received: from dialin-145-254-150-103.arcor-ip.net ([145.254.150.103]:18962
+	"EHLO picklock.adams.family") by vger.kernel.org with ESMTP
+	id <S281070AbRKOVWJ>; Thu, 15 Nov 2001 16:22:09 -0500
+Message-ID: <3BF43013.30433D08@loewe-komp.de>
+Date: Thu, 15 Nov 2001 22:13:55 +0100
+From: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+Organization: B16
+X-Mailer: Mozilla 4.78 [de] (X11; U; Linux 2.4.13-xfs i686)
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+To: summer@os2.ami.com.au
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: BOOTP and 2.4.14
+In-Reply-To: <200111150629.fAF6SKg20602@numbat.os2.ami.com.au>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Nov 2001, Gérard Roudier wrote:
+summer@os2.ami.com.au schrieb:
 > 
-> To be serious, the right fix is to have some logical page be some power of
-> two of the physical page when the physical page is too small. Can we hope
-> Linux-2.5 to allow this?
+> I'm trying to configure a system to boot with root on NFS. I have it
+> working, but there are problems.
+> 
+> The most serious are that the DNS domain name is set wrongly, and NIS
+> domain's not set at all.
+> 
+> The IP address offered and accepted in 192.168.1.20.
+> 
+> The DNS domain name being set is 168.1.20, and the host name 192.
+> 
 
-It's certainly doable.  I have an i386 patch against 2.4.7 which did that,
-MMUPAGE_SIZE 4kB distinguished from PAGE_SIZE 4kB, 8kB, 16kB or 32kB
-(but 64kB truncates to 0 in unsigned short b_size, doesn't work so well!);
-while still presenting the 4kB EXEC_PAGESIZE to userspace.
 
-It's a bit tedious working through each kernel update, to decide which
-PAGEs should be MMUPAGEs etc, and I didn't see an immediate reward of
-a huge leap in performance, so I haven't kept it up to date since then.
+Uh, how about to specify a NAME.DOMAIN.COM instead of an 
+dotted IP. Check your bootp configuration.
 
-Hugh
 
+> I'm looking at the ipconfig.c source, around line 1324 where I see this
+> code:
+>                         case 4:
+>                                 if ((dp = strchr(ip, '.'))) {
+>                                         *dp++ = '\0';
+>                                         strncpy(system_utsname.domainname, dp, __NEW_UTS_LEN);
+>                                         system_utsname.domainname[__NEW_UTS_LEN] = '\0';
+>                                 }
+>                                 strncpy(system_utsname.nodename, ip, __NEW_UTS_LEN);
+>                                 system_utsname.nodename[__NEW_UTS_LEN] = '\0';
+>                                 ic_host_name_set = 1;
+>                                 break;
+> 
+> I can see how the dnsdomain name's being set, and it does not look
+> right to me.
+> 
+> If someone can prepare a patch for me, I'll be delighted to test it.
+>

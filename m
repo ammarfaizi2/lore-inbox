@@ -1,61 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317427AbSGDPTd>; Thu, 4 Jul 2002 11:19:33 -0400
+	id <S317432AbSGDPjC>; Thu, 4 Jul 2002 11:39:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317430AbSGDPTc>; Thu, 4 Jul 2002 11:19:32 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:58890 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id <S317427AbSGDPTb>;
-	Thu, 4 Jul 2002 11:19:31 -0400
-Date: Thu, 4 Jul 2002 17:22:03 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: writing to serial console
-Message-ID: <20020704152203.GI31342@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20020704151450.75171.qmail@mail.com>
+	id <S317433AbSGDPjB>; Thu, 4 Jul 2002 11:39:01 -0400
+Received: from host194.steeleye.com ([216.33.1.194]:20493 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S317432AbSGDPjA>; Thu, 4 Jul 2002 11:39:00 -0400
+Message-Id: <200207041541.g64FfNW02097@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Anton Altaparmakov <aia21@cantab.net>
+cc: James.Bottomley@SteelEye.com, linux-kernel@vger.kernel.org,
+       sullivan@austin.ibm.com
+Subject: [BUG-2.5.24-BK] DriverFS panics on boot!
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="lqaZmxkhekPBfBzr"
-Content-Disposition: inline
-In-Reply-To: <20020704151450.75171.qmail@mail.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux mail 2.4.18 
+Content-Type: multipart/mixed ;
+	boundary="==_Exmh_-20731811840"
+Date: Thu, 04 Jul 2002 11:41:22 -0400
+From: James Bottomley <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multipart MIME message.
 
---lqaZmxkhekPBfBzr
+--==_Exmh_-20731811840
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Thu, 2002-07-04 10:14:50 -0500, Lee Chin <leechin@mail.com>
-wrote in message <20020704151450.75171.qmail@mail.com>:
-> Hi,
-> I'm trying to write status messages to the serial console as the kernel b=
-oots up.  I tried writing to ttyS0 in main.c, but the kernel crashes with a=
- paging violation.  Is there an easy way to do this?
+Er, oops, I think this one's my fault.
 
-Simply use printk() and boot up your kernel with "console=3DttyS0" or like
-that. See ./linux/Documentation/serial-console.txt .
+The recent driverfs additions for SCSI also added partition handling in 
+driverfs.  The code is slightly more invasive than it should be so the IDE 
+driver needs to know how to use it (which it doesn't yet).  In theory there's 
+a NULL pointer check in driverfs_create_partitions for precisely this case, 
+but it looks like the IDE code is forgetting to zero out a kmalloc of a struct 
+gendisk somewhere (hence the 5a5a... contents).  At a cursory glance, this 
+seems to be in ide/probe.c, so does the attached patch fix it?
 
-MfG, JBG
+I'll try to reproduce, but I'm all SCSI here except for my laptop.
 
---=20
-Jan-Benedict Glaw   .   jbglaw@lug-owl.de   .   +49-172-7608481
-	 -- New APT-Proxy written in shell script --
-	   http://lug-owl.de/~jbglaw/software/ap2/
+James
 
---lqaZmxkhekPBfBzr
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+--==_Exmh_-20731811840
+Content-Type: text/plain ; name="tmp.diff"; charset=us-ascii
+Content-Description: tmp.diff
+Content-Disposition: attachment; filename="tmp.diff"
 
-iD8DBQE9JGgbHb1edYOZ4bsRArMdAJ4kRABNxXQQdJOihBJaEfvNZwCApgCbBqT1
-tn0ncSUYfSvsnelZ3JgyKl4=
-=ROBE
------END PGP SIGNATURE-----
+===== drivers/ide/probe.c 1.58 vs edited =====
+--- 1.58/drivers/ide/probe.c	Fri Jun 14 09:11:19 2002
++++ edited/drivers/ide/probe.c	Thu Jul  4 10:31:35 2002
+@@ -1143,6 +1143,7 @@
+ 	if (!gd)
+ 		goto err_kmalloc_gd;
+ 
++	memset(gd, 0, sizeof(struct gendisk));
+ 	gd->sizes = kmalloc(ATA_MINORS * sizeof(int), GFP_KERNEL);
+ 	if (!gd->sizes)
+ 		goto err_kmalloc_gd_sizes;
 
---lqaZmxkhekPBfBzr--
+--==_Exmh_-20731811840--
+
+

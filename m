@@ -1,56 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284763AbRLXLuS>; Mon, 24 Dec 2001 06:50:18 -0500
+	id <S284786AbRLXMK0>; Mon, 24 Dec 2001 07:10:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284766AbRLXLuH>; Mon, 24 Dec 2001 06:50:07 -0500
-Received: from [212.84.226.66] ([212.84.226.66]:659 "EHLO master")
-	by vger.kernel.org with ESMTP id <S284763AbRLXLtz>;
-	Mon, 24 Dec 2001 06:49:55 -0500
-Date: Mon, 24 Dec 2001 12:48:03 +0100
-From: Denis Oliver Kropp <dok@directfb.org>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Total system lockup with Alt-SysRQ-L
-Message-ID: <20011224114803.GA23494@master.directfb.org>
-Reply-To: Denis Oliver Kropp <dok@directfb.org>
-In-Reply-To: <20011223175846.B27993@flint.arm.linux.org.uk> <E16IKwX-0002U3-00@the-village.bc.nu> <20011224083752.A1181@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011224083752.A1181@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.3.24i
+	id <S284775AbRLXMKG>; Mon, 24 Dec 2001 07:10:06 -0500
+Received: from mustard.heime.net ([194.234.65.222]:43481 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S284766AbRLXMJ5>; Mon, 24 Dec 2001 07:09:57 -0500
+Date: Mon, 24 Dec 2001 13:09:31 +0100 (CET)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Caching problems while reading multiple large files...
+Message-ID: <Pine.LNX.4.30.0112232018170.11923-100000@mustard.heime.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Russell King (rmk@arm.linux.org.uk):
-> On Mon, Dec 24, 2001 at 02:34:20AM +0000, Alan Cox wrote:
-> > > When pid1 exits (maybe due to a kill signal), we lockup hard in (iirc)
-> > > exit_notify.  I don't remember the details I'm afraid.
-> > 
-> > pid1 ends up trying to kill pid1 and it goes deeply down the toilet from
-> > that point onwards. The Unix traditional world reboots when pid 1 dies.
-> 
-> The problem was definitely in the exit_notify code, where it manipulated
-> the task links indefinitely.  (I think it was cptr never becomes null,
-> so the loop never terminates).
-> 
-> However, if we're saying that "pid1 must not die" then maybe we should get
-> rid of the 'killall' sysrq option since it serves no useful purpose, and
-> add a suitable panic in the do_exit path?
+hi all
 
-Another annoying thing that happens sometimes is that I accidently
-press 'L' or 'E' instead of 'K' or 'R', the mostly used SysRQs for me.
+Some time ago, I sent a message regarding what I thought had to be the
+RAID subsystem. I'm more convinced that this is the buffer cache messing
+up.
 
-An additional modifier for the harmful actions would be useful, e.g. Shift.
-So pressing Alt-SysRQ-E would do nothing until Shift is pressed, too.
+scenario:
 
--- 
-Best regards,
-  Denis Oliver Kropp
+read 200 large files from disk concurrently (for instance dd of=file01
+of=/dev/null, dd of=file02 of=/dev/null &c.).
 
-.------------------------------------------.
-| DirectFB - Hardware accelerated graphics |
-| http://www.directfb.org/                 |
-"------------------------------------------"
+As this is a 2x120g IDE RAID-0 config, I get pretty good throughtput,
+eveny though I'm reading multiple files concurrently (40-50 megs per sec).
 
-           convergence integrated media GmbH
+But...At the time I've read ~800 megs of data (which is the same amount as
+the free memory before I start), it suddenly slows down to a mere 1 meg
+per sec.
+
+But... If I try doing another i/o operation, even to the same block
+device, it works fine.
+
+Can anyone help me out here?
+
+roy
+
+--
+Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+
+Computers are like air conditioners.
+They stop working when you open Windows.
+
+

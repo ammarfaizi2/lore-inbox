@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130339AbRAaKtQ>; Wed, 31 Jan 2001 05:49:16 -0500
+	id <S129367AbRAaKwQ>; Wed, 31 Jan 2001 05:52:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130420AbRAaKtG>; Wed, 31 Jan 2001 05:49:06 -0500
-Received: from smtp.mountain.net ([198.77.1.35]:58377 "EHLO riker.mountain.net")
-	by vger.kernel.org with ESMTP id <S130339AbRAaKs7>;
-	Wed, 31 Jan 2001 05:48:59 -0500
-Message-ID: <3A77ED7F.466582F0@mountain.net>
-Date: Wed, 31 Jan 2001 05:48:31 -0500
-From: Tom Leete <tleete@mountain.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0 i486)
-X-Accept-Language: en-US,en-GB,en,fr,es,it,de,ru
+	id <S129771AbRAaKwG>; Wed, 31 Jan 2001 05:52:06 -0500
+Received: from as3-3-4.ml.g.bonet.se ([194.236.33.69]:36364 "EHLO
+	tellus.mine.nu") by vger.kernel.org with ESMTP id <S129367AbRAaKvr>;
+	Wed, 31 Jan 2001 05:51:47 -0500
+Date: Wed, 31 Jan 2001 11:51:14 +0100 (CET)
+From: Tobias Ringstrom <tori@tellus.mine.nu>
+To: Jurgen Botz <jurgen@botz.org>
+cc: Eric Molitor <emolitor@molitor.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: Wavelan IEEE driver 
+In-Reply-To: <200101302222.OAA04184@nova.botz.org>
+Message-ID: <Pine.LNX.4.30.0101311141170.13529-100000@svea.tellus>
 MIME-Version: 1.0
-To: Peter Samuelson <peter@cadcamlab.org>
-CC: David Ford <david@linux.com>, Stephen Frost <sfrost@snowman.net>,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.x and SMP fails to compile (`current' undefined)
-In-Reply-To: <3A777E1A.8F124207@linux.com> <20010130220148.Y26953@ns> <3A77966E.444B1160@linux.com> <3A77C6E7.606DDA67@mountain.net> <20010131042616.A32636@cadcamlab.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Samuelson wrote:
-> 
-> [Tom Leete]
-> > It's not an incompatibility with the k7 chip, just bad code in
-> > include/asm-i386/string.h.
-> 
-> So you're saying SMP *is* supported on Athlon?  Do motherboards exist?
-> 
-> Peter
+On Tue, 30 Jan 2001, Jurgen Botz wrote:
+> and appears to work.  I did observe a problem with iwconfig dumping
+> core, but it seems to do its job before it dies, so this may be non-
+> critical.
 
-No, I'm saying that SMP locking etc. is compatible with Athlon. The failure
-to build is not a workaround but a coding error. SMP builds for UP machines
-are supposed to work.
+Make sure you compile wireless-tools using the right headers.  You must
+manually insert -I/path/to/running-linux-version/include in the Makefile.
 
-Tom
--- 
-The Daemons lurk and are dumb. -- Emerson
+This is due to a bad (non-existing) ioctl backward and forward
+compatibility, and is being worked on.  Basically, you cannot use the
+tools compiled with one version of the wireless extension headers on a
+kernel with another version of the wireless extensions.  The symptom is at
+best a SEGV, but you may also get strange values.
+
+/Tobias
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261548AbTEKOPt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 10:15:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261566AbTEKOPt
+	id S261444AbTEKOUt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 10:20:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbTEKOUt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 10:15:49 -0400
-Received: from pb148.mielec.sdi.tpnet.pl ([80.49.1.148]:23557 "EHLO
-	enigma.put.mielec.pl") by vger.kernel.org with ESMTP
-	id S261548AbTEKOPs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 10:15:48 -0400
-Message-ID: <3EBE5E04.4020806@put.mielec.pl>
-Date: Sun, 11 May 2003 16:28:20 +0200
-From: Grzegorz Wilk <toulouse@put.mielec.pl>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; PL; rv:1.3) Gecko/20030312
-X-Accept-Language: pl, en-us, en
-MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] SiS648 support for agpgart, kernel 2.4.21-rc2-ac1
-References: <Pine.SOL.4.30.0305111531430.4788-100000@mion.elka.pw.edu.pl>
-In-Reply-To: <Pine.SOL.4.30.0305111531430.4788-100000@mion.elka.pw.edu.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 11 May 2003 10:20:49 -0400
+Received: from ulima.unil.ch ([130.223.144.143]:28593 "EHLO ulima.unil.ch")
+	by vger.kernel.org with ESMTP id S261444AbTEKOUs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 10:20:48 -0400
+Date: Sun, 11 May 2003 16:33:30 +0200
+From: Gregoire Favre <greg@ulima.unil.ch>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: lilo and 2.5.69?
+Message-ID: <20030511143330.GA11792@ulima.unil.ch>
+References: <fa.esb041l.fng3gd@ifi.uio.no> <fa.fb22044.i12sp4@ifi.uio.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <fa.fb22044.i12sp4@ifi.uio.no>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uzytkownik Bartlomiej Zolnierkiewicz napisal:
-> [...]
-> It is a bit misleading, read once again and look at "GENERAL FEATURES",
-> 2X and 4X supported and 8X *compatible*.
-> Look also at R9200(PRO) spec, it is a R9000(PRO) with AGP3.0 support.
+In fa.linux.kernel, you wrote:
 
-You're right. The information provided by ATI is confusing.
-It dosen't make much differece to me. By the time
-a game or application capable of taking any benefits from agp8x
-will be released R9k will be too poor to work with it anyway... ;)
+> You need to fix lilo to not assume the names listet in /proc/partitions are
+> actual device files.  In 2.5.69 there's a bug that it prints truncated devfs
+> names instead of traditional device names as it should, but relying on the
+> names to mean anything is broken - that kernel can't enforce the device names
+> used.
+> 
+> The following patch that is in Linus BK tree should get it working for you
+> again for now..
 
-Still I have enough of companies mixing my mind with
-such statements as ATI (I'm not really into hardware
-so together with my poor english results in such mistakes).
+Great ;-)
 
-> btw. R9100 is both faster/cheaper than R9000PRO.
+I'll compil with your patch: thank you very much,
 
-I bought my R9k at the end of 2002 when it's power/economy indicator
-used to be much higher than today is.
-
-
+	Grégoire
+________________________________________________________________
+http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

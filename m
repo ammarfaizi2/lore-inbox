@@ -1,39 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267548AbUJCPlm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267976AbUJCPsC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267548AbUJCPlm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Oct 2004 11:41:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267974AbUJCPlm
+	id S267976AbUJCPsC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Oct 2004 11:48:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267978AbUJCPsC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Oct 2004 11:41:42 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:235 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S267548AbUJCPli (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Oct 2004 11:41:38 -0400
-Date: Sun, 3 Oct 2004 08:39:36 -0700
-From: Paul Jackson <pj@sgi.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: pwil3058@bigpond.net.au, frankeh@watson.ibm.com, dipankar@in.ibm.com,
-       akpm@osdl.org, ckrm-tech@lists.sourceforge.net, efocht@hpce.nec.com,
-       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
-       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
-       linux-kernel@vger.kernel.org, colpatch@us.ibm.com, Simon.Derr@bull.net,
-       ak@suse.de, sivanich@sgi.com
-Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
-Message-Id: <20041003083936.7c844ec3.pj@sgi.com>
-In-Reply-To: <821020000.1096814205@[10.10.2.4]>
-References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
-	<20040805190500.3c8fb361.pj@sgi.com>
-	<247790000.1091762644@[10.10.2.4]>
-	<200408061730.06175.efocht@hpce.nec.com>
-	<20040806231013.2b6c44df.pj@sgi.com>
-	<411685D6.5040405@watson.ibm.com>
-	<20041001164118.45b75e17.akpm@osdl.org>
-	<20041001230644.39b551af.pj@sgi.com>
-	<20041002145521.GA8868@in.ibm.com>
-	<415ED3E3.6050008@watson.ibm.com>
-	<415F37F9.6060002@bigpond.net.au>
-	<821020000.1096814205@[10.10.2.4]>
-Organization: SGI
+	Sun, 3 Oct 2004 11:48:02 -0400
+Received: from smtp-100-sunday.nerim.net ([62.4.16.100]:48132 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S267976AbUJCPrz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Oct 2004 11:47:55 -0400
+Date: Sun, 3 Oct 2004 17:48:37 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: LM Sensors <sensors@stimpy.netroedge.com>
+Cc: Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Fourth auto-fan control interface proposal
+Message-Id: <20041003174837.5eb0ae72.khali@linux-fr.org>
+Reply-To: LM Sensors <sensors@stimpy.netroedge.com>
 X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -41,61 +23,114 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin wrote:
-> Matt had proposed having a separate sched_domain tree for each cpuset, which
-> made a lot of sense, but seemed harder to do in practice because "exclusive"
-> in cpusets doesn't really mean exclusive at all.
+Hi all,
 
-See my comments on this from yesterday on this thread.
+Here comes my fourth (and hopefully last) sysfs interface proposal for
+implementing auto-fan control in 2.6. Previous proposals have been
+discussed here:
 
-I suspect we don't want a distinct sched_domain for each cpuset, but
-rather a sched_domain for each of several entire subtrees of the cpuset
-hierarchy, such that every CPU is in exactly one such sched domain, even
-though it be in several cpusets in that sched_domain.  Perhaps each
-cpuset in such a subtree points to the same reference counted
-sched_domain, or perhaps each cpuset except the one at the root of the
-subtree has a flag set, telling the scheduler to search up the cpuset
-tree to find a sched_domain.  Probably the former, for performance
-reasons.
+[1] http://archives.andrew.net.au/lm-sensors/msg07517.html
+[2] http://archives.andrew.net.au/lm-sensors/msg08049.html
+[3] http://archives.andrew.net.au/lm-sensors/msg18008.html
 
-As I can see even my own eyes glazing over trying to read what I just
-wrote, let me give an example.
+The interface is still made up of two parts: per fan temp channels
+selection, and trip points selection. Changes from the third proposal:
 
-Let's say we have a 256 CPU system.  At the top level, we divide it into
-five non-overlapping cpusets, of sizes 64, 64, 32, 28 and 4.  Each of
-these five cpusets has its sched_domain, except the third one, of 32 CPUs.
-That one is subdivided into 4 cpusets, of 8 CPUs each, non-overlapping,
-each of the four with its own sched_domain.
+pwm[1-*]_enable value 2 is now used to explicitely state the auto pwm
+mode. This was proposed by Mark D. Studebaker [4].
 
-[Aside - granted this is topologically equivalent to the flattened
-partitioning into the eight cpusets of sizes 64, 64, 8, 8, 8, 8, 28 and
-4.  Perhaps the 32 CPUs were farmed out to the Professor of Eccentric
-Economics, who has permission to manage his 32 CPUs and divide them
-further, but who lacks permission to modify the top layer of the cpuset
-hierarchy.]
+[4] http://archives.andrew.net.au/lm-sensors/msg18011.html
 
-So we have eight cpusets, non-overlapping and covering the entire
-system, each with its own sched_domain.  Now within those cpusets,
-for various application reasons, further subdivisions occur.  But
-no more sched_domains are created, and the existing sched_domains
-apply to all tasks attached to any cpuset in their cpuset subtree.
+Temp channels selection
+=======================
 
-On the other topic you raise, of the meaning (or lack thereof) of
-"exclusive".  Perhaps "exclusive" should not a property of a node in
-this tree, but rather a property of a node under a certain covering or
-mapping.  You note we need a map from the range of CPUs to the domain
-sched_domain's, specifying for each CPU its unique sched_domain.  And we
-might have some other map on these same CPUs or Memory Nodes for other
-purposes.  I am afraid I've forgotten too much of my math from long long
-ago to state this with exactly the right terms.  But I can imagine
-adding a little bit more code to cpusets, that kept a small list of such
-mappings over the domains of CPUs and Memory Nodes, and that validated,
-on each cpuset change, that each mapping preserved whatever properties
-of covering and non-overlapping that it was marked for.  One of these
-mappings could be into the range of sched_domains and be marked for both
-covering and non-overlapping.
+Renamed files from fan[1-*]_auto_channels to
+pwm[1-*]_auto_channels_temp. The change from fan tp pwm is to match the
+recent renaming suggested by Mark M. Hoffman [5]. The "_temp" suffix is
+to leave some room for a "_fan" suffix at a later time if new chips
+drive auto pwm according to fan speeds instead of temperature.
+
+[5] http://archives.andrew.net.au/lm-sensors/msg18797.html
+
+Trip points
+===========
+
+Trip points are now numbered (point1, point2, etc...) instead of named
+(_off, _min, _max, _full...). This solves the problem of various chips
+having a different number of trip points. The interface is still chip
+independent in that it doesn't require chip-specific knowledge to be
+used by user-space apps.
+
+The reason for this change is that newer chips tend to have more trip
+points. the LM63 has 8, the LM93 has no less than 12. Also, I read in
+the LM63 datasheet that ideal pwm vs temperature curve were parabolic in
+shape. Seems hard to achieve this if we arbitrarily lock the number of
+trip points to 3 ;)
+
+I also introduced an optional hysteresis temperature for trip points.
+The LM63 has this. Since it makes full sense I'd expect other chips to
+propose this as well.
+
+As before, there are two sets of files, each chip driver picks the one
+matching its internal model: trip points are either temperature
+channel-dependent (ADM1031...) or pwm channel-dependent (IT87xx...). If
+we ever come accross fan speed-driven pwm outputs where trip points are
+fan channel-dependent we may have to offer a third set of files. We'll
+see when/if this happens.
+
+I hope I have taken everyone's comments and advice into account and we
+can make this interface proposal part of the sysfs interface standard
+now. I'm sorry it took so long. Comments welcome.
+
+Thanks.
+
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
+
+--- linux-2.6.9-rc2-mm4/Documentation/i2c/sysfs-interface.orig	2004-10-03 16:42:09.000000000 +0200
++++ linux-2.6.9-rc2-mm4/Documentation/i2c/sysfs-interface	2004-10-03 17:43:13.000000000 +0200
+@@ -138,6 +138,7 @@
+ *******
+ * PWM *
+ *******
++
+ pwm[1-3]	Pulse width modulation fan control.
+ 		Integer value in the range 0 to 255
+ 		Read/Write
+@@ -147,9 +148,31 @@
+ 		Switch PWM on and off.
+ 		Not always present even if fan*_pwm is.
+ 		0 to turn off
+-		1 to turn on
++		1 to turn on in manual mode
++		2 to turn on in automatic mode
+ 		Read/Write
+ 
++pwm[1-*]_auto_channels_temp
++		Select which temperature channels affect this PWM output in
++		auto mode. Bitfield, 1 is temp1, 2 is temp2, 4 is temp3 etc...
++		Which values are possible depend on the chip used.
++
++pwm[1-*]_auto_point[1-*]_pwm
++pwm[1-*]_auto_point[1-*]_temp
++pwm[1-*]_auto_point[1-*]_temp_hyst
++		Define the PWM vs temperature curve. Number of trip points is
++		chip-dependent. Use this for chips which associate trip points
++		to PWM output channels.
++
++OR
++
++temp[1-*]_auto_point[1-*]_pwm
++temp[1-*]_auto_point[1-*]_temp
++temp[1-*]_auto_point[1-*]_temp_hyst
++		Define the PWM vs temperature curve. Number of trip points is
++		chip-dependent. Use this for chips which associate trip points
++		to temperature channels.
++
+ 
+ ****************
+ * Temperatures *
+
 
 -- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Jean Delvare
+http://khali.linux-fr.org/

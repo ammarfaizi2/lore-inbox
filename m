@@ -1,47 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129066AbQKCFwq>; Fri, 3 Nov 2000 00:52:46 -0500
+	id <S129112AbQKCF5G>; Fri, 3 Nov 2000 00:57:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129112AbQKCFwg>; Fri, 3 Nov 2000 00:52:36 -0500
-Received: from twinlark.arctic.org ([204.107.140.52]:28689 "HELO
-	twinlark.arctic.org") by vger.kernel.org with SMTP
-	id <S129066AbQKCFwY>; Fri, 3 Nov 2000 00:52:24 -0500
-Date: Thu, 2 Nov 2000 21:52:22 -0800 (PST)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Paul Marquis <pmarquis@iname.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: select() bug
-In-Reply-To: <E13rUD4-00026g-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0011022141330.30081-100000@twinlark.arctic.org>
-X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
+	id <S129353AbQKCF44>; Fri, 3 Nov 2000 00:56:56 -0500
+Received: from www.wen-online.de ([212.223.88.39]:19211 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S129112AbQKCF4j>;
+	Fri, 3 Nov 2000 00:56:39 -0500
+Date: Fri, 3 Nov 2000 06:56:07 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+To: Jens Axboe <axboe@suse.de>
+cc: Val Henson <vhenson@esscom.com>, Rik van Riel <riel@conectiva.com.br>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [BUG] /proc/<pid>/stat access stalls badly for swapping process,
+ 2.4.0-test10
+In-Reply-To: <20001102173727.C11439@suse.de>
+Message-ID: <Pine.Linu.4.10.10011030419430.818-100000@mikeg.weiden.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Semantic issues aside, since Apache does the test I mentionned earlier
-> > to determine child status and since it could be misled, should this
-> > feature be turned off?
+On Thu, 2 Nov 2000, Jens Axboe wrote:
+
+> On Thu, Nov 02 2000, Val Henson wrote:
+> > > > 3) combine this with the elevator starvation stuff (ask Jens
+> > > >    Axboe for blk-7 to alleviate this issue) and you have a
+> > > >    scenario where processes using /proc/<pid>/stat have the
+> > > >    possibility to block on multiple processes that are in the
+> > > >    process of handling a page fault (but are being starved)
+> > > 
+> > > I'm experimenting with blk.[67] in test10 right now.  The stalls
+> > > are not helped at all.  It doesn't seem to become request bound
+> > > (haven't instrumented that yet to be sure) but the stalls persist.
+> > > 
+> > > 	-Mike
+> > 
+> > This is not an elevator starvation problem.
 > 
-> Or made smarter yes
+> True, but the blk-xx patches help work-around (what I believe) is
+> bad flushing behaviour by the vm.
 
-i'm scratching my head wondering what i was thinking when i wrote that
-code.  the specific thing the parent wants to handle there is the case of
-a stuck logger... you'd think i would have at least put some debouncing
-logic in there.
+I very much agree.  Kflushd is still hungry for free write
+bandwidth here.
 
-(the parent is able to replace a logger without disturbing the children
-because it keeps a copy of both halves of the logging pipes.)
+Of course it's _going_ to have to wait if you're doing max IO
+throughput, but when you're flushing, you need to let kflushd
+have the bandwidth it needs to do it's job.  I don't think it's
+getting what it needs, and am trying two things.
 
-an alternative would be to look for many children stuck in the logging
-state (they make a note in the scoreboard before going into it).
+1.  Revoke read's ability to steal requests while we're in a
+heavy flushing situation.  Flushing must proceed, and it must
+go at full speed.  (Actually, reversing the favoritism when
+you need flush bandwidth makes sense to me, and does help if
+limited.. if not limited, it hurts like hell)
 
-paul -- if you want to just eliminate that feature (it'll still be able to
-replace the logger if the logger exits) go into src/http_log.c,
-piped_log_maintenance and comment out the OC_REASON_UNWRITEABLE.
+2.  Use the information that we are starving (or going full bore)
+to tell the VM to keep it's fingers off dirty buffers.  If we're
+flushing at disk speed, page_launder() can't do anything useful
+with dirty buffers, it can only do harm IMHO.
 
--dean
+	-Mike
+
+P.S.  Before I revert to Luke Codecrawler mode, I have a wild
+problem theory I'd appreciate comments on.. preferably the kind
+where I become extremely busy thinking about their content ;-)
+
+If one __alloc_pages() is waiting for kswapd, kswapd tries to do
+synchronous flushing.. if the write queue is nearly (or) exausted
+and page_launder() couldn't clean any buffers on it's first pass,
+it blasts the queue some more and stalls.  If kswapd, kflushd and
+kupdate are all waiting for a request, and then say a GFP_BUFFER
+allocation comes along.. (we're low on memory) we do SCHED_YIELD
+schedule().  If we're holding IO locks, nobody can do IO.  OK, if
+there's nobody else running, we come right back and either finish
+the allocation of fail.  But, if you have other allocations trying
+to flush buffers (GFP_KERNEL eg), they are not only in danger of
+stacking up due to a request shortage, but they can't get whatever
+IO locks the GFP_BUFFER allocation is holding anyway so are doomed
+until we do schedule back to the GFP_BUFFER allocating task.
+
+Isn't scheduling while holding IO locks the wrong thing to do?  It's
+protected from neither GFP_BUFFER nor PF_MEMALLOC.
+
+I must be missing something.. but what?
+
+<ears at maximum gain>
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

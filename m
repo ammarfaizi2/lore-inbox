@@ -1,47 +1,25 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275940AbSIUUn2>; Sat, 21 Sep 2002 16:43:28 -0400
+	id <S263627AbSIUUxI>; Sat, 21 Sep 2002 16:53:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275943AbSIUUn2>; Sat, 21 Sep 2002 16:43:28 -0400
-Received: from holomorphy.com ([66.224.33.161]:19086 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S275940AbSIUUn2>;
-	Sat, 21 Sep 2002 16:43:28 -0400
-Date: Sat, 21 Sep 2002 13:41:50 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.37 won't run X?
-Message-ID: <20020921204150.GS3530@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andries Brouwer <aebr@win.tue.nl>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	Helge Hafting <helgehaf@aitel.hist.no>,
-	linux-kernel@vger.kernel.org
-References: <20020921161702.GA709@iucha.net> <597384533.1032600316@[10.10.2.3]> <20020921185939.GA1771@iucha.net> <20020921202353.GA15661@win.tue.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <20020921202353.GA15661@win.tue.nl>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S275934AbSIUUxH>; Sat, 21 Sep 2002 16:53:07 -0400
+Received: from 62-190-218-141.pdu.pipex.net ([62.190.218.141]:1285 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S263627AbSIUUxH>; Sat, 21 Sep 2002 16:53:07 -0400
+Date: Sat, 21 Sep 2002 22:06:15 +0100
+From: jbradford@dial.pipex.com
+Message-Id: <200209212106.g8LL6FKP001764@darkstar.example.net>
+To: linux-kernel@vger.kernel.org
+Subject: Serial port monitoring with keyboard LEDs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 21, 2002 at 01:59:39PM -0500, Florin Iucha wrote:
->> X is not locked up, as it eats all the CPU. And 2.5.36 works just fine.
+Hi,
 
-On Sat, Sep 21, 2002 at 10:23:53PM +0200, Andries Brouwer wrote:
-> I noticed that the pgrp-related behaviour of some programs changed.
-> Some programs hang, some programs loop. The hang occurs when they
-> are stopped by SIGTTOU. The infinite loop occurs when they catch SIGTTOU
-> (and the same signal is sent immediately again when they leave the
-> signal routine).
-> Have not yet investigated details.
+I'm trying to add code to use the keyboard LEDs as serial port Tx/Rx LEDs, somwehat analogous to an external modem, (I.E. for links to things other than modems, that typically don't have LEDs).
 
-I'm looking into it.
+I'm using a 2.4.19 kernel as a reference, and looking at putting my code in /drivers/char/serial.c, specifically at the serial_in and serial_out functions, is this the Right Thing or not?  Obviously the LEDs won't actually reflect what is going out on the serial line, because of buffering, etc, and also, what's going to be more useful - just flash on and off for each byte sent, or LED on for 1, LED off for 0 bit?  That would be even more of an approximation to what's actually happening on the serial line, because obviously we're sending a byte at a time to the serial port.
 
+Any pointers to docs I should read would be appreicated :-)
 
-Thanks,
-Bill
+John.

@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131274AbRCRWXr>; Sun, 18 Mar 2001 17:23:47 -0500
+	id <S131286AbRCRXUl>; Sun, 18 Mar 2001 18:20:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131275AbRCRWXh>; Sun, 18 Mar 2001 17:23:37 -0500
-Received: from uucp.nl.uu.net ([193.79.237.146]:39622 "EHLO uucp.nl.uu.net")
-	by vger.kernel.org with ESMTP id <S131274AbRCRWX0>;
-	Sun, 18 Mar 2001 17:23:26 -0500
-Date: Sun, 18 Mar 2001 21:11:46 +0100 (CET)
-From: kees <kees@schoen.nl>
-To: Aaron Lunansky <alunansky@rim.net>
-cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-        "'kees@shoen.nl'" <kees@shoen.nl>
-Subject: Re: [OT] how to catch HW fault
-In-Reply-To: <A9FD1B186B99D4119BCC00D0B75B4D8104D4AA30@xch01ykf.rim.net>
-Message-ID: <Pine.LNX.4.21.0103182107460.20316-100000@schoen3.schoen.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131297AbRCRXUW>; Sun, 18 Mar 2001 18:20:22 -0500
+Received: from 24dyn111.com21.casema.net ([213.17.94.111]:64530 "HELO
+	home.ds9a.nl") by vger.kernel.org with SMTP id <S131286AbRCRXUH>;
+	Sun, 18 Mar 2001 18:20:07 -0500
+Date: Mon, 19 Mar 2001 00:18:25 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: linux-kernel@vger.kernel.org
+Subject: right way to export VM data to userspace for a performance tool
+Message-ID: <20010319001825.A13169@home.ds9a.nl>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi everybody,
 
-I tried memtest86 for 24 hours also and that didn't gave a clue. When bad
-ram was really involved I'd expected to find things like:
-failing fsck's, failing kernel compiles and such. But none of them
-the system runs perfect if it doesn't freeze(lockup).
+I want to write a tool that can extract information from the kernel about
+the VM situation. Conceptually, I want something that looks like this:
 
-So yes, only the CPU's and the mobo are at question. What I was looking
-for was a tool like memtest86 but now for motherboards.....
+# cacheinfo /var/mysql/data/powerdns/records.MYD
+75% of blocks in memory
+12% dirty
+# cacheinfo -d -v /var/mysql/data/powerdns/records.MYD
+0	M
+1	M
+2	-
+3	-
+4	D
+....
 
-regards
+Before writing this, I'm wondering how the kernel people feel that this sort
+of information should be exported to userland. There are lots of options,
+but not being a kernel architect/philosopher, I don't have a clue.
 
-Kees
+My goal is to have a patch included in the main kernel, so it is very
+important that I write stuff people will agree on.
 
+Please let me know what you think.
 
-On Sat, 17 Mar 2001, Aaron Lunansky wrote:
+Kind regards,
 
-> Sounds like the only thing you haven't swapped out of your machine is the
-> ram/cpu.
-> 
-> It could very well be your ram (I don't suspect the cpu). If you can, try a
-> different stick of ram.
-> 
-> 
+bert
 
+-- 
+http://www.PowerDNS.com      Versatile DNS Services  
+Trilab                       The Technology People   
+'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet

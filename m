@@ -1,97 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271736AbTHDNdE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 09:33:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271737AbTHDNdE
+	id S271734AbTHDNYM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 09:24:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271731AbTHDNYM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 09:33:04 -0400
-Received: from www.13thfloor.at ([212.16.59.250]:12680 "EHLO www.13thfloor.at")
-	by vger.kernel.org with ESMTP id S271736AbTHDNc6 (ORCPT
+	Mon, 4 Aug 2003 09:24:12 -0400
+Received: from main.gmane.org ([80.91.224.249]:65189 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S271734AbTHDNXX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 09:32:58 -0400
-Date: Mon, 4 Aug 2003 15:33:07 +0200
-From: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
-To: Steven Micallef <steven.micallef@world.net>
-Cc: "'Ben Collins'" <bcollins@debian.org>, linux-kernel@vger.kernel.org
-Subject: Re: chroot() breaks syslog() ?
-Message-ID: <20030804133307.GA4225@www.13thfloor.at>
-Reply-To: herbert@13thfloor.at
-Mail-Followup-To: Steven Micallef <steven.micallef@world.net>,
-	'Ben Collins' <bcollins@debian.org>, linux-kernel@vger.kernel.org
-References: <6416776FCC55D511BC4E0090274EFEF5080024AC@exchange.world.net>
+	Mon, 4 Aug 2003 09:23:23 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Sergey Vlasov <vsu@altlinux.ru>
+Subject: Re: 2.6.0-test2, sensors and sysfs
+Date: Thu, 31 Jul 2003 20:52:22 +0400
+Message-ID: <20030731205222.0f1521f1.vsu@altlinux.ru>
+References: <1059669362.23100.12.camel@laurelin>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <6416776FCC55D511BC4E0090274EFEF5080024AC@exchange.world.net>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@main.gmane.org
+X-Newsreader: Sylpheed version 0.9.4cvs2 (GTK+ 1.2.10; i586-alt-linux-gnu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 04, 2003 at 03:49:48PM +1000, Steven Micallef wrote:
-> You're right - my mistake, it doesn't actually work on 2.4.8 either, I think
-> I was looking at the wrong thing when I thought it was actually working.
-> 
-> Is it worth considering (optionally) making /dev available to chroot()'ed
-> environments, or would that just defeat the whole purpose of chroot()?
+On 31 Jul 2003 18:36:02 +0200
+Flameeyes <daps_mls@libero.it> wrote:
 
-IMHO, devfs in chroot environment, is defeating the purpose
-because if you have access to raw devices, like the device
-your chroot dir is on, you can easily mount that device 
-again, and voila you have access to the full tree, if you
-just have access to, lets say a ramdisk (as raw device of
-course), you can also easily write on it, and create the
-required device nodes yourself, then mount, and again 
-everything is available ...
+> I need to know the system temperature for check some stability problems,
+> under 2.4 I was using lm_sensors patches, using i2c-viapro as i2c bus
+> and via686a as chip driver (I'm using a via 686 southbridge, see the
+> lspci output attached), and I was able to use sensors for see the
+> temperatures.
+> With the 2.6.0-test2 (and all earlier kernels since 2.5.69), I'm not
+> able anymore to see the temperature, nor with sensor (or libsensor
+> library) nor with sysfs (that, AFAIK, should be the new method to access
+> sensors data).
+> The only i2c device that I can see in the sysfs is the tuner of my
+> bt-based tv card.
+> I tried either with i2c-viapro and via686a as modules, and built-in in
+> kernel. Nothing	changes. Also dmesg doesn't output anything.
+> I have missed something?
 
-best thing to do is to copy only those devices, which are
-absolutely required to the chrooted environment ...
+Currently (2.6.0-test2) i2c-viapro and via686a don't work together -
+you can use only one of them. This is because they want to work with
+the same PCI device - and having multiple drivers for one device is
+not allowed for obvious reasons.
 
-HTH,
-Herbert
+This issue is already known to the lm_sensors developers.
 
-> Regards,
-> 
-> Steve.
-> 
-> > -----Original Message-----
-> > From: Ben Collins [mailto:bcollins@debian.org]
-> > Sent: Monday, 4 August 2003 3:19 PM
-> > To: Steven Micallef
-> > Cc: 'linux-kernel@vger.kernel.org'
-> > Subject: Re: chroot() breaks syslog() ?
-> > 
-> > 
-> > > connect(3, {sin_family=AF_UNIX, path="/dev/log"}, 16) = -1 
-> > ENOENT (No such
-> > > file or directory)
-> > > 
-> > > Is this intentional? If so, is there a work-around? I 
-> > discovered this when
-> > > debugging 'rwhod', but I imagine there are many more utils 
-> > that would be
-> > > affected too.
-> > 
-> > I don't know how it ever did work, if in fact it did for you. /dev/log
-> > is not a kernel device, it's just a normal socket created by syslogd.
-> > 
-> > Now, if you use devfs, and mount devfs under the chroot, it magically
-> > propogates /dev/log. But that's not the normal thing.
-> > 
-> > -- 
-> > Debian     - http://www.debian.org/
-> > Linux 1394 - http://www.linux1394.org/
-> > Subversion - http://subversion.tigris.org/
-> > WatchGuard - http://www.watchguard.com/
-> > __________ Information from NOD32 1.449 (20030630) __________
-> > 
-> > This message was checked by NOD32 for Exchange e-mail monitor.
-> > http://www.nod32.com
-> > 
-> > 
-> > 
-> > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+So you will need to remove i2c-viapro for now (but leave i2c-isa);
+then you will see the via686a sensors again.
+

@@ -1,118 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262389AbRENTPU>; Mon, 14 May 2001 15:15:20 -0400
+	id <S262392AbRENTRk>; Mon, 14 May 2001 15:17:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262392AbRENTPK>; Mon, 14 May 2001 15:15:10 -0400
-Received: from thimm.dialup.fu-berlin.de ([160.45.217.207]:33029 "EHLO
-	pua.physik.fu-berlin.de") by vger.kernel.org with ESMTP
-	id <S262389AbRENTOx>; Mon, 14 May 2001 15:14:53 -0400
-Date: Mon, 14 May 2001 21:14:40 +0200
-From: Axel Thimm <Axel.Thimm@physik.fu-berlin.de>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH 2.4.5.1: Fix Via interrupt routing issues
-Message-ID: <20010514211440.A3896@pua.nirvana>
-In-Reply-To: <3AFEC426.50B00B78@mandrakesoft.com> <20010514172104.A2160@pua.nirvana> <3B0004F7.4C54E2E4@mandrakesoft.com> <20010514210556.A3371@pua.nirvana>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="qDbXVdCdHGoSgWSk"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010514210556.A3371@pua.nirvana>; from Axel.Thimm@physik.fu-berlin.de on Mon, May 14, 2001 at 09:05:56PM +0200
+	id <S262402AbRENTRa>; Mon, 14 May 2001 15:17:30 -0400
+Received: from mailproxy.de.uu.net ([192.76.144.34]:36764 "EHLO
+	mailproxy.de.uu.net") by vger.kernel.org with ESMTP
+	id <S262392AbRENTRS>; Mon, 14 May 2001 15:17:18 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Tim Jansen <tim@tjansen.de>
+To: linux-kernel@vger.kernel.org
+Subject: [RFC] proc fs extension for "one-value-per-file"
+Date: Mon, 14 May 2001 20:59:33 +0200
+X-Mailer: KMail [version 1.2]
+MIME-Version: 1.0
+Message-Id: <01051420593300.00951@cookie>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The following patch extends the proc fs api as discussed in the thread "/proc 
+format" last month (http://marc.theaimsgroup.com/?t=98822545000007&w=2&r=1). 
 
---qDbXVdCdHGoSgWSk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+It adds the following features:
+- dynamic directories. Enables you to use directories for enumerations, 
+similar to the per-process directories (/proc/<number>) or usbdevfs. 
+- context callbacks for directories. They can do things that are common for 
+all files in a directory, like locking, and are also used for dynamic 
+directories.
+- special functions with context support for proc files that containing short 
+strings, integers or enums
 
-On Mon, May 14, 2001 at 09:05:56PM +0200, Axel Thimm wrote:
-> Anyway, I am sending the dmesg with "#define DEBUG 1" in pci-i386.h. It is a
-> 2.4.4-ac5 defconfig kernel, but 2.4.4 has the same errors. System is an
-> MS-6330 v3.0 (MSI K7T Turbo), KT133A, Duron 700. I you have any idea, how I
-> could fix the pirq table I'd be glad to test further.
+These things give the proc filesystem the functionality that I need for the 
+Device Registry patch to replace the XML output with the one-value-per-file 
+approach. The api is documented in fs/proc/onevalue.c. 
 
-Perhaps I should have also sent it ...
-Here it comes.
--- 
-Axel.Thimm@physik.fu-berlin.de
+You can download the patch for 2.4.4 here (40 kB):
+http://www.tjansen.de/devreg/proc_ov-2.4.4.diff
 
---qDbXVdCdHGoSgWSk
-Content-Type: application/x-bzip2
-Content-Disposition: attachment; filename="dmesg-2.4.4-ac5.log.bz2"
-Content-Transfer-Encoding: base64
+bye...
 
-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
-
---qDbXVdCdHGoSgWSk--

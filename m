@@ -1,62 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270192AbRHGN7m>; Tue, 7 Aug 2001 09:59:42 -0400
+	id <S270142AbRHGNwW>; Tue, 7 Aug 2001 09:52:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270211AbRHGN7c>; Tue, 7 Aug 2001 09:59:32 -0400
-Received: from darkwing.uoregon.edu ([128.223.142.13]:11484 "EHLO
-	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
-	id <S270192AbRHGN71>; Tue, 7 Aug 2001 09:59:27 -0400
-Date: Tue, 7 Aug 2001 07:05:29 -0700 (PDT)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: <joelja@twin.uoregon.edu>
-To: "Christopher E. Brown" <cbrown@woods.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Encrypted Swap
-In-Reply-To: <Pine.LNX.4.31.0108070403480.30491-100000@spruce.woods.net>
-Message-ID: <Pine.LNX.4.33.0108070704590.6350-100000@twin.uoregon.edu>
+	id <S270212AbRHGNwM>; Tue, 7 Aug 2001 09:52:12 -0400
+Received: from sunrise.pg.gda.pl ([153.19.40.230]:36298 "EHLO
+	sunrise.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S270142AbRHGNv7>; Tue, 7 Aug 2001 09:51:59 -0400
+From: Andrzej Krzysztofowicz <ankry@pg.gda.pl>
+Message-Id: <200108071351.PAA03284@sunrise.pg.gda.pl>
+Subject: Re: is this a bug?
+To: thodoris@cs.teiher.gr (Thodoris Pitikaris)
+Date: Tue, 7 Aug 2001 15:51:48 +0200 (MET DST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3B6FD644.7020409@cs.teiher.gr> from "Thodoris Pitikaris" at Aug 07, 2001 02:51:32 PM
+Reply-To: ankry@green.mif.pg.gda.pl
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-can't pull over now, this is bat country...
+"Thodoris Pitikaris wrote:"
+> As you will see in the attached file (it's a dmesg from the boot)
+> I have an 1Ghz athlon cpu with a VIA KT133 on a gigabyte GA-7ZX 
+> motherboard with 100mhz SDRAM.When I compiled the kernel with 
+> cputype=Athlon I continiusly experienced this crash.When I compiled with 
+> cputype=i686 everything went smooth (OS is Redhat 7.1)        
 
-joelja
+Try the newest -ac patches. They contain discussed on the list workaround
+for a VIA chipset bug.
+VIA chipsets seem to be unstable when processing fast memory-to-memory
+copy.
 
-On Tue, 7 Aug 2001, Christopher E. Brown wrote:
+It is definitely not an Athlon processor problem.
 
->
->
-> On Mon, 6 Aug 2001, Rob Landley wrote:
-> >
-> > I can think of scenarios where "must" doesn't apply here.  I've never
-> > personally been that paranoid, but the feds pay people to be clinically
-> > certifiable 24/7.  (Okay, find people who are clinically certifiable and then
-> > hire them to do something nominally productive with it...)
->
->
-> 	But sir I had to hit the scram button and set off the thermite
-> charges in order to preserve data security.  The purple spiders and
-> the dust bunnies were in league, and offing a fiendish infiltration
-> plot against the United Protectorate, gOD, and the CPU!  If I had not
-> we would have an army of cutefuzzycyberdustbunnies rampaging down the
-> information superhighways in a yellow steam locomotive!
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+Andrzej
 -- 
---------------------------------------------------------------------------
-Joel Jaeggli				       joelja@darkwing.uoregon.edu
-Academic User Services			     consult@gladstone.uoregon.edu
-     PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E
---------------------------------------------------------------------------
-It is clear that the arm of criticism cannot replace the criticism of
-arms.  Karl Marx -- Introduction to the critique of Hegel's Philosophy of
-the right, 1843.
-
-
+=======================================================================
+  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
+  phone (48)(58) 347 14 61
+Faculty of Applied Phys. & Math.,   Technical University of Gdansk

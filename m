@@ -1,41 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261435AbUCJCLR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 21:11:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbUCJCLR
+	id S261443AbUCJCbV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 21:31:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261445AbUCJCbV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 21:11:17 -0500
-Received: from gate.crashing.org ([63.228.1.57]:35538 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261435AbUCJCLP (ORCPT
+	Tue, 9 Mar 2004 21:31:21 -0500
+Received: from gate.crashing.org ([63.228.1.57]:40146 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261443AbUCJCbU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 21:11:15 -0500
-Subject: Re: ppc/ppc64 and x86 vsyscalls
+	Tue, 9 Mar 2004 21:31:20 -0500
+Subject: [RESEND][PATCH] Fix PCI<->OF matching on G5 AGP bus
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <404E62B4.4000200@redhat.com>
-References: <1078708647.5698.196.camel@gaston> <404D7AC3.9050207@redhat.com>
-	 <1078830318.9746.3.camel@gaston>  <404E33A7.6070800@redhat.com>
-	 <1078867992.9745.25.camel@gaston>  <404E62B4.4000200@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Message-Id: <1078884483.9745.45.camel@gaston>
+Message-Id: <1078885686.9739.48.camel@gaston>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 10 Mar 2004 13:08:03 +1100
+Date: Wed, 10 Mar 2004 13:28:06 +1100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+(I noticed more recent patches got in while this one didn't, just
+re-sending this one in case it went unnoticed :)
 
-> 
-> Basically yes.  But you don't actually need the stub functions.  You
-> just need a symbol table entry which can be arranged via an alias to any
-> one of the real functions.
+----
 
+Strangely, I though I fixed that a long time ago, but it was still
+broken in the current tree... So drivers like radeonfb fail to
+find the OF device matching a given PCI device on the G5 AGP bus
+because of some bus renumbering tricks. This patch fixes the
+problem by fixing the bus numbers in the OF node. This corrects
+radeonfb and other drivers looking for EDID / PLL datas in the
+OF node.
 
-Ok, thanks.
-
-Ben.
-
+===== arch/ppc64/kernel/pmac_pci.c 1.3 vs edited =====
+--- 1.3/arch/ppc64/kernel/pmac_pci.c	Mon Mar  1 11:50:37 2004
++++ edited/arch/ppc64/kernel/pmac_pci.c	Tue Mar  9 20:20:53 2004
+@@ -719,6 +719,17 @@
+ 	/* Setup the linkage between OF nodes and PHBs */ 
+ 	pci_devs_phb_init();
+ 
++	/* Fixup the PCI<->OF mapping for U3 AGP due to bus renumbering. We
++	 * assume there is no P2P bridge on the AGP bus, which should be a
++	 * safe assumptions hopefully.
++	 */
++	if (u3_agp) {
++		struct device_node *np = u3_agp->arch_data;
++		np->busno = 0xf0;
++		for (np = np->child; np; np = np->sibling)
++			np->busno = 0xf0;
++	}
++
+ 	pmac_check_ht_link();
+ 
+ 	/* Tell pci.c to use the common resource allocation mecanism */
 
 

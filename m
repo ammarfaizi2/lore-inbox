@@ -1,85 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265805AbUF2Q4N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265808AbUF2Q5M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265805AbUF2Q4N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jun 2004 12:56:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265808AbUF2Q4N
+	id S265808AbUF2Q5M (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 12:57:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265813AbUF2Q5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jun 2004 12:56:13 -0400
-Received: from cantor.suse.de ([195.135.220.2]:42720 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265805AbUF2Q4I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jun 2004 12:56:08 -0400
-Date: Tue, 29 Jun 2004 18:56:00 +0200
-From: Kurt Garloff <garloff@suse.de>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Timothy Miller <miller@techsource.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Nice 19 process still gets some CPU
-Message-ID: <20040629165600.GI4732@tpkurt.garloff.de>
-Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
-	Con Kolivas <kernel@kolivas.org>,
-	Timothy Miller <miller@techsource.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <40E035CE.1020401@techsource.com> <40E03376.20705@kolivas.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="G2kvLHdEX2DcGdqq"
-Content-Disposition: inline
-In-Reply-To: <40E03376.20705@kolivas.org>
-X-Operating-System: Linux 2.6.5-17-KG i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: SUSE/Novell
-User-Agent: Mutt/1.5.6i
+	Tue, 29 Jun 2004 12:57:12 -0400
+Received: from fmx5.freemail.hu ([195.228.242.225]:20009 "HELO
+	fmx5.freemail.hu") by vger.kernel.org with SMTP id S265808AbUF2Q5I convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jun 2004 12:57:08 -0400
+Date: Tue, 29 Jun 2004 18:57:06 +0200 (CEST)
+From: Debi Janos <debi.janos@freemail.hu>
+Subject: Re: 2.6.7-mm1 - 2.6.7-mm4 weird http behavior
+To: bert hubert <ahu@ds9a.nl>
+cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040629154551.GA6181@outpost.ds9a.nl>
+Message-ID: <freemail.20040529185706.6941@fm3.freemail.hu>
+X-Originating-IP: [81.182.188.233]
+X-HTTP-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040626 Firefox/0.9.1
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=ISO-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+bert hubert <ahu@ds9a.nl> írta:
 
---G2kvLHdEX2DcGdqq
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Tue, Jun 29, 2004 at 03:20:06PM +0200, Debi Janos wrote:
+> > I am found an interesting (bug?) feature in kernels between
+> > 2.6.7-mm1 and 2.6.7-mm4
+> 
+> Without further looking at it, try checking if ECN is
+turned on.
+> /proc/sys/net/ipv4/tcp_ecn if memory serves me well.
 
-Hi Con, Timothy,
+Hi!
 
-On Tue, Jun 29, 2004 at 01:04:22AM +1000, Con Kolivas wrote:
-> Timothy wrote:
-> | I would expect that nice 0 processes should get SO MUCH more than nice
-> | 19 processes that the nice 19 process would practically starve (and in
-> | the case of a nice 19 process, I think starvation by nice 0 processes is
-> | just fine), but it looks like it's not starving.
-> |
-> | Why is that?
->=20
-> It definitely should _not_ starve. That is the unixy way of doing
-> things. Everything must go forward. Around 5% cpu for nice 19 sounds
-> just right. If you want scheduling only when there's spare cpu cycles
-> you need a sched batch(idle) implementation.
+Thanks. I have tried, but still have problem.
 
-5% seems a bit much for many people and they'd rather like to see 0%,
-but given that we need to make progress, it could be tuned to ~1%.
+Another site which not working:
 
-Note that whenever the compiler will need to wait for the disk (page in
-binary code, swapping, reading headers), the nice process will get to
-run, so in practice the compiler does lose less than it seems at first
-sight. If the nice process weren't, you'd see a certain percentage of
-I/O wait ...
-
-Regards,
---=20
-Kurt Garloff  <garloff@suse.de>                            Cologne, DE=20
-SUSE LINUX AG / Novell, Nuernberg, DE               Director SUSE Labs
-
---G2kvLHdEX2DcGdqq
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFA4Z8gxmLh6hyYd04RAulwAJ4qdyprY5tQerH3F/RGHh7yGWwm2ACeJv8v
-a2kJ8iqy/2AKPFBq93hW9T4=
-=NNhJ
------END PGP SIGNATURE-----
-
---G2kvLHdEX2DcGdqq--
+http://packages.gentoo.org/

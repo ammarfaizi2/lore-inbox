@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130766AbRCEXYU>; Mon, 5 Mar 2001 18:24:20 -0500
+	id <S130770AbRCEXYA>; Mon, 5 Mar 2001 18:24:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130768AbRCEXYL>; Mon, 5 Mar 2001 18:24:11 -0500
-Received: from pneumatic-tube.sgi.com ([204.94.214.22]:61756 "EHLO
-	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
-	id <S130766AbRCEXX7>; Mon, 5 Mar 2001 18:23:59 -0500
-Message-ID: <3AA41FE0.E7681291@sgi.com>
-Date: Mon, 05 Mar 2001 15:23:12 -0800
-From: Rajagopal Ananthanarayanan <ananth@sgi.com>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.16-4SGI_20smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: ramfs & a_ops->truncatepage()
+	id <S130768AbRCEXXv>; Mon, 5 Mar 2001 18:23:51 -0500
+Received: from ns1.uklinux.net ([212.1.130.11]:42505 "EHLO s1.uklinux.net")
+	by vger.kernel.org with ESMTP id <S130766AbRCEXXo>;
+	Mon, 5 Mar 2001 18:23:44 -0500
+Envelope-To: linux-kernel@vger.kernel.org
+Date: Mon, 5 Mar 2001 23:20:53 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: David Brownell <david-b@pacbell.net>
+Cc: Manfred Spraul <manfred@colorfullife.com>, zaitcev@redhat.com,
+        linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: SLAB vs. pci_alloc_xxx in usb-uhci patch
+Message-ID: <20010305232053.A16634@flint.arm.linux.org.uk>
+In-Reply-To: <001f01c0a5c0$e942d8f0$5517fea9@local> <00d401c0a5c6$f289d200$6800000a@brownell.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <00d401c0a5c6$f289d200$6800000a@brownell.org>; from david-b@pacbell.net on Mon, Mar 05, 2001 at 02:52:24PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Mar 05, 2001 at 02:52:24PM -0800, David Brownell wrote:
+> I didn't see that thread.  I agree, pci_alloc_consistent() already has
+> a signature that's up to the job.  The change you suggest would need
+> to affect every architecture's implementation of that code ... which
+> somehow seems not the best solution at this time.
 
-I'm looking at this part of 2.4.2-ac8:
+Needless to say that USB is currently broken for the architectures that
+need pci_alloc_consistent.
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.4.0/mm/filemap.c
-linux.ac/mm/filemap.c
---- linux-2.4.0/mm/filemap.c    Wed Jan  3 02:59:45 2001
-+++ linux.ac/mm/filemap.c       Thu Jan 11 17:26:55 2001
-@@ -206,6 +206,9 @@
-        if (!page->buffers || block_flushpage(page, 0))
-                lru_cache_del(page);
+A while ago, I looked at what was required to convert the OHCI driver
+to pci_alloc_consistent, and it turns out that the current interface is
+highly sub-optimal.  It looks good on the face of it, but it _really_
+does need sub-page allocations to make sense for USB.
 
-+       if (page->mapping->a_ops->truncatepage)
-+               page->mapping->a_ops->truncatepage(page);
-+
-        /*
-         * We remove the page from the page cache _after_ we have
-         * destroyed all buffer-cache references to it. Otherwise some
-----------
+At the time, I didn't feel like creating a custom sub-allocator just
+for USB, and since then I haven't had the inclination nor motivation
+to go back to trying to get my USB mouse or iPAQ communicating via USB.
+(I've not used this USB port for 3 years anyway).
 
-Does anyone know who proposed these changes as part of
-ramfs enhancements? Basically, we have a very similar
-operation in XFS, but would like the call to truncatepage
-be _before_ the call to block_flushpage(). As far as ramfs
-is concerned, such a change would be a no-op since ramfs doesn't
-have page->buffers. Is this correct?
+I'd be good to get it done "properly" at some point though.
 
-thanks,
-
-ananth.
-
---------------------------------------------------------------------------
-Rajagopal Ananthanarayanan ("ananth")
-Member Technical Staff, SGI.
---------------------------------------------------------------------------
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html

@@ -1,72 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263401AbUKZWKH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263426AbUKZWNd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263401AbUKZWKH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 17:10:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263391AbUKZWJK
+	id S263426AbUKZWNd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 17:13:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263424AbUKZWMb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 17:09:10 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:9379 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S263448AbUKZTvD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:51:03 -0500
-Subject: Re: Suspend 2 merge: 16/51: Disable cache reaping during suspend.
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041125181809.GF1417@openzaurus.ucw.cz>
-References: <1101292194.5805.180.camel@desktop.cunninghams>
-	 <1101295167.5805.254.camel@desktop.cunninghams>
-	 <20041125181809.GF1417@openzaurus.ucw.cz>
-Content-Type: text/plain
-Message-Id: <1101420039.27250.51.camel@desktop.cunninghams>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Fri, 26 Nov 2004 09:00:39 +1100
+	Fri, 26 Nov 2004 17:12:31 -0500
+Received: from 213-229-38-66.static.adsl-line.inode.at ([213.229.38.66]:54196
+	"HELO mail.falke.at") by vger.kernel.org with SMTP id S264029AbUKZV40
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 16:56:26 -0500
+Message-ID: <41A6166B.9050104@winischhofer.net>
+Date: Thu, 25 Nov 2004 18:29:15 +0100
+From: Thomas Winischhofer <thomas@winischhofer.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041124 Thunderbird/0.9 Mnenhy/0.6.0.104
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: torvalds@osdl.org, akpm@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: SiS framebuffer driver update 1.7.17
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+[Resent after mail server failure at odsl]
 
-On Fri, 2004-11-26 at 05:18, Pavel Machek wrote:
-> Hi!
-> > I have to admit to being a little unsure as to why this is needed, but
-> > suspend's reliability is helped a lot by disabling cache reaping while
-> > suspending. Perhaps one of the mm guys will be able to enlighten me
-> > here. Might be SMP related.
-> 
-> It would be good to understand it. Rather than slowing common code... why
-> not down(&cache_chain_sem) in suspend2?
+Linus,
+Andrew,
 
-Didn't consider it, to be honest.
+at
 
-That said, if/when we start to use cpu hotplug for SMP, we'll deadlock
-in cpuup_callback if we've got the sem.
+http://www.winischhofer.net/sis/sisfb_patch_2.6.10rc2.diff.gz
 
-> >  {
-> >  	struct list_head *walk;
-> >  
-> > -	if (down_trylock(&cache_chain_sem)) {
-> > +	if ((unlikely(test_suspend_state(SUSPEND_RUNNING))) ||
-> > +		(down_trylock(&cache_chain_sem))) 
-> > +	{
-> >  		/* Give up. Setup the next iteration. */
-> >  		schedule_delayed_work(&__get_cpu_var(reap_work), REAPTIMEOUT_CPUC + smp_processor_id());
-> >  		return;
-> > 
-> > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
+there is an update for sisfb, lifting it up to version 1.7.17.
+
+It contains all changes done behind my back by other people (viro,
+torvalds, adaplas) in the meantime. Furthermore,
+
+- all remaining sparse warnings were fixed (mainly caused by the ROM code)
+
+- problems with very old and brand new BIOSes from SiS were fixed,
+
+- LCD setup was simplified, allowing more display modes than before,
+
+- UMC/charter bridge type handling was added,
+
+- a code clean-up was performed, the new FB_BLANK-flags were taken over,
+VBLANK status info was corrected, etc.
+
+Patch is against 2.6.10rc2 vanilla.
+
+
+Signed-off-by: Thomas Winischhofer <thomas@winischhofer.net>
+
+
+Thanks for listening,
+
+Thomas
+
 -- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
+Thomas Winischhofer
+Vienna/Austria
+thomas AT winischhofer DOT net	       *** http://www.winischhofer.net
+twini AT xfree86 DOT org
 
-You see, at just the right time, when we were still powerless, Christ
-died for the ungodly.		-- Romans 5:6
 

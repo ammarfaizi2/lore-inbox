@@ -1,91 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261236AbULAASU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbULAASU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261236AbULAASU (ORCPT <rfc822;willy@w.ods.org>);
+	id S261156AbULAASU (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 30 Nov 2004 19:18:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbULAAQq
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261236AbULAAQb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 19:16:46 -0500
-Received: from mail.kroah.org ([69.55.234.183]:38116 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261202AbULAAOR convert rfc822-to-8bit
+	Tue, 30 Nov 2004 19:16:31 -0500
+Received: from mail.kroah.org ([69.55.234.183]:36580 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261198AbULAAOQ convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 19:14:17 -0500
-X-Fake: the user-agent is fake
-Subject: Re: [PATCH] More PCI fixes for 2.6.10-rc2
-User-Agent: Mutt/1.5.6i
-In-Reply-To: <11018598042987@kroah.com>
-Date: Tue, 30 Nov 2004 16:10:04 -0800
-Message-Id: <11018598042649@kroah.com>
+	Tue, 30 Nov 2004 19:14:16 -0500
+Subject: Re: [PATCH] I2C fixes for 2.6.10-rc2
+In-Reply-To: <11018600181498@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Tue, 30 Nov 2004 16:13:38 -0800
+Message-Id: <11018600183171@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
 Content-Transfer-Encoding: 7BIT
 From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2223.2.4, 2004/11/29 11:13:49-08:00, ak@suse.de
+ChangeSet 1.2223.2.2, 2004/11/24 14:24:32-08:00, johnpol@2ka.mipt.ru
 
-[PATCH] PCI: Disable mmconfig on AMD CPUs.
+[PATCH] w1: do not stop and oops if netlink socket was not allocated.
 
-Disable mmconfig on AMD CPUs.
+Do not panic if netlink socket was not created.
+This will allow only first device to broadcast it's slave updates.
+We need kernel connector here.
 
-This patch fixes various problems on PCI Express boards, like the
-Nforce4. They have a MCFG table in ACPI, but not all devices can be
-accessed using MMCONFIG.  e.g. the CPU builtin PCI devices in the A64
-Northbridge can't.  Linux happily uses mmconfig for all PCI devices and
-that cause failures and memory corruption.
-
-Right solution apparently is to get more information from MCFG which is
-supposed to tell for which busses mmconfig is legal and for which ones
-not. But that would be a much more complicated patch and I don't have
-a specification of this enhanced table.
-
-This patch just disable MMCONFIG on all AMD CPUs. This is a kludge,
-but works around the problem for now.
-
-Patch for both i386 and x86-64
-
-Signed-off-by: Andi Kleen <ak@suse.de>
+Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- arch/i386/pci/mmconfig.c   |    7 +++++++
- arch/x86_64/pci/mmconfig.c |    7 +++++++
- 2 files changed, 14 insertions(+)
+ drivers/w1/w1_int.c     |    9 +++------
+ drivers/w1/w1_netlink.c |    3 +++
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
 
-diff -Nru a/arch/i386/pci/mmconfig.c b/arch/i386/pci/mmconfig.c
---- a/arch/i386/pci/mmconfig.c	2004-11-30 15:47:12 -08:00
-+++ b/arch/i386/pci/mmconfig.c	2004-11-30 15:47:12 -08:00
-@@ -102,6 +102,13 @@
- 	if (!pci_mmcfg_base_addr)
- 		goto out;
+diff -Nru a/drivers/w1/w1_int.c b/drivers/w1/w1_int.c
+--- a/drivers/w1/w1_int.c	2004-11-30 16:01:21 -08:00
++++ b/drivers/w1/w1_int.c	2004-11-30 16:01:21 -08:00
+@@ -89,11 +89,8 @@
+ 	dev->seq = 1;
+ 	dev->nls = netlink_kernel_create(NETLINK_NFLOG, NULL);
+ 	if (!dev->nls) {
+-		printk(KERN_ERR "Failed to create new netlink socket(%u).\n",
+-			NETLINK_NFLOG);
+-		memset(dev, 0, sizeof(struct w1_master));
+-		kfree(dev);
+-		dev = NULL;
++		printk(KERN_ERR "Failed to create new netlink socket(%u) for w1 master %s.\n",
++			NETLINK_NFLOG, dev->dev.bus_id);
+ 	}
  
-+	/* Kludge for now. Don't use mmconfig on AMD systems because
-+	   those have some busses where mmconfig doesn't work,
-+	   and we don't parse ACPI MCFG well enough to handle that. 
-+	   Remove when proper handling is added. */
-+	if (boot_cpu_data.x86_vendor == X86_VENDOR_AMD)
-+		goto out; 
-+
- 	printk(KERN_INFO "PCI: Using MMCONFIG\n");
- 	raw_pci_ops = &pci_mmcfg;
- 	pci_probe = (pci_probe & ~PCI_PROBE_MASK) | PCI_PROBE_MMCONF;
-diff -Nru a/arch/x86_64/pci/mmconfig.c b/arch/x86_64/pci/mmconfig.c
---- a/arch/x86_64/pci/mmconfig.c	2004-11-30 15:47:12 -08:00
-+++ b/arch/x86_64/pci/mmconfig.c	2004-11-30 15:47:12 -08:00
-@@ -78,6 +78,13 @@
- 	if (!pci_mmcfg_base_addr)
- 		return 0;
+ 	err = device_register(&dev->dev);
+@@ -112,7 +109,7 @@
+ void w1_free_dev(struct w1_master *dev)
+ {
+ 	device_unregister(&dev->dev);
+-	if (dev->nls->sk_socket)
++	if (dev->nls && dev->nls->sk_socket)
+ 		sock_release(dev->nls->sk_socket);
+ 	memset(dev, 0, sizeof(struct w1_master) + sizeof(struct w1_bus_master));
+ 	kfree(dev);
+diff -Nru a/drivers/w1/w1_netlink.c b/drivers/w1/w1_netlink.c
+--- a/drivers/w1/w1_netlink.c	2004-11-30 16:01:21 -08:00
++++ b/drivers/w1/w1_netlink.c	2004-11-30 16:01:21 -08:00
+@@ -34,6 +34,9 @@
+ 	struct w1_netlink_msg *data;
+ 	struct nlmsghdr *nlh;
  
-+	/* Kludge for now. Don't use mmconfig on AMD systems because
-+	   those have some busses where mmconfig doesn't work,
-+	   and we don't parse ACPI MCFG well enough to handle that. 
-+	   Remove when proper handling is added. */
-+	if (boot_cpu_data.x86_vendor == X86_VENDOR_AMD)
-+		return 0; 
++	if (!dev->nls)
++		return;
 +
- 	/* RED-PEN i386 doesn't do _nocache right now */
- 	pci_mmcfg_virt = ioremap_nocache(pci_mmcfg_base_addr, MMCONFIG_APER_SIZE);
- 	if (!pci_mmcfg_virt) { 
+ 	size = NLMSG_SPACE(sizeof(struct w1_netlink_msg));
+ 
+ 	skb = alloc_skb(size, GFP_ATOMIC);
 

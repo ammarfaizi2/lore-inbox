@@ -1,66 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261345AbTKBD5n (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Nov 2003 22:57:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbTKBD5n
+	id S261368AbTKBEDq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Nov 2003 23:03:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261397AbTKBEDq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Nov 2003 22:57:43 -0500
-Received: from obsidian.spiritone.com ([216.99.193.137]:37316 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S261345AbTKBD5l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Nov 2003 22:57:41 -0500
-Date: Sat, 01 Nov 2003 19:57:31 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: cesarb@nitnet.com.br
-Subject: [Bug 1474] New: NTP needs too much time correction on	2.6.0-test9 
-Message-ID: <6270000.1067745451@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Sat, 1 Nov 2003 23:03:46 -0500
+Received: from ginger.lcs.mit.edu ([18.26.0.82]:45828 "EHLO ginger.lcs.mit.edu")
+	by vger.kernel.org with ESMTP id S261368AbTKBEDn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Nov 2003 23:03:43 -0500
+Message-Id: <200311020403.hA243XWB025951@ginger.lcs.mit.edu>
+From: Tim Shepard <shep@alum.mit.edu>
+To: linux-usb-devel@lists.sourceforge.net
+cc: linux-kernel@vger.kernel.org
+Subject: (2.6.0-test9) usb_storage/uhci_hcd much slower write than linux-2.4
+Date: Sat, 01 Nov 2003 23:03:33 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=1474
 
-           Summary: NTP needs too much time correction on 2.6.0-test9
-    Kernel Version: 2.6.0-test9
-            Status: NEW
-          Severity: normal
-             Owner: johnstul@us.ibm.com
-         Submitter: cesarb@nitnet.com.br
+I have a 160 GB USB 2.0 drive which I plug into my two identical
+laptops for purposes of doing file system backups (runs overnight).
+The laptops unfortunately only have USB 1.1 interfaces, but it has
+been fast enough for doing the backups when running linux-2.4.
 
+I now have one laptop running linux-2.6.0-test9, and have found that
+the write speed is more than 5 times slower than it is under 2.4
+kernels (linux-2.4.21-rc1 in particular, but earlier 2.4 kernels as
+well).  This is no longer fast enough.  My full backup (using dump)
+which could complete in about 5 hours under linux-2.4 now would take
+more than 25 hours under linux-2.6, so I now have to reboot into
+linux-2.4 to do an overnight full backup.
 
-Distribution: Debian testing/unstable
-Hardware Environment: K6II-350
-Software Environment: ntpd 4.1.2a
-Problem Description:
-
-After upgrading from 2.6.0-test8 to 2.6.0-test9, I started seeing too many time
-reset messages from ntpd (about two or three every hour), all saying the clock
-was set back between 0.5s and 1.5s. Checking the status with ntpq I noticed it
-had a large offset (on the order of 500ms ahead of the peers) and a huge
-frequency correction (about -490). Removing ntp.drift (to restore the correction
-to 0) and rebooting didn't help; after a few hours it was back at -500 (the
-maximum allowed backwards correction) and still stepping the clock.
-
-Rebooting back into 2.6.0-test8 fixed it; the frequency correction is now around
--70 and it is no longer losing sync.
-
-While it was in 2.6.0-test9, a highly unscientific test (running "date" in it
-and in a 2.4 box also using ntpd, in that order, gave me a result 1 second
-higher for the first box consistently) shows that ntpd's statistics weren't
-bogus; the time in the 2.6 box was really ahead by about 1 second all the time,
-even with ntp trying to slew it (it didn't get higher since ntpd gave up and
-stepped it after some time).
-
-Steps to reproduce:
-
-I can reproduce it here simply booting back into 2.6.0-test9; I don't know which
-changes made the difference. I suspect a highly suspicious change in the timer
-code between 2.6.0-test8 and 2.6.0-test9; I will try to find out how to get the
-exact cset in the bkbits web interface and revert by hand to see if it works.
+But reads are a little bit faster under linux-2.6.  Reads from the
+USB drive (of a big file that has not been read since rebooting) are
+about 1.33 times faster under linux-2.6.0-test9 than under
+linux-2.4.
 
 
+uhci_hcd and usb_storage are the relevant modules in linux-2.6.0-test9.
+usb-uhci and usb-storage are the relevant modules in linux-2.4.21-rc1.
+
+I'm seeing 147,000 bytes/sec write speed under linux-2.6.0-test9.
+I'm seeing 774,000 bytes/sec write speed under linux-2.4.21-rc1.
+
+The write speeds which I measured are to a new file in an ext3 file
+system (which spans the entire 160 GB usb drive), and I included the
+time to do a sync (since it takes almost no time to write a file that
+fits in memory), e.g.:
+
+   $ mkdir /usb_drive/tmp
+   $ sync
+   $ time dd if=/dev/zero bs=4k count=8192 of=/usb_drive/tmp/tmp && time sync
+   8192+0 records in
+   8192+0 records out
+   33554432 bytes transferred in 0.730587 seconds (45928043 bytes/sec)
+   
+   real    0m1.155s
+   user    0m0.013s
+   sys     0m0.580s
+   
+   real    3m46.462s
+   user    0m0.001s
+   sys     0m0.004s
+   $ dc
+   4096 8192 * p
+   33554432
+   1.155  3 60 * 46.462 + + p
+   227.617
+   / p
+   147416
+
+
+(that is 147,000 bytes/sec)
+
+The relevant output from lspci -v is:
+
+  00:05.0 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
+	  Flags: bus master, medium devsel, latency 0
+  
+  00:05.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01) (prog-if 80 [Master])
+	  Flags: bus master, medium devsel, latency 64
+	  I/O ports at 1000 [size=16]
+  
+  00:05.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01) (prog-if 00 [UHCI])
+	  Flags: bus master, medium devsel, latency 64, IRQ 11
+	  I/O ports at ffe0 [size=32]
+  
+  00:05.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 02)
+	  Flags: medium devsel, IRQ 9
+
+
+Has anyone else noticed that their writes to usb_storage over USB 1.1
+are much slower since upgrading to a linux-2.6.0-test* kernel?
+
+Anyone have any ideas how I might be able to recover the (somewhat)
+faster write speed while running a linux-2.6.0-test* kernel?
+
+			-Tim Shepard

@@ -1,93 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271978AbRIIOrF>; Sun, 9 Sep 2001 10:47:05 -0400
+	id <S271981AbRIIOqz>; Sun, 9 Sep 2001 10:46:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271977AbRIIOq4>; Sun, 9 Sep 2001 10:46:56 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:30002 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S271978AbRIIOqv>; Sun, 9 Sep 2001 10:46:51 -0400
-Date: Sun, 9 Sep 2001 16:47:38 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alexander Viro <viro@math.psu.edu>
-Subject: Re: linux-2.4.10-pre5
-Message-ID: <20010909164738.T11329@athlon.random>
-In-Reply-To: <20010909061620.O11329@athlon.random> <Pine.LNX.4.33.0109082115270.1161-100000@penguin.transmeta.com>
-Mime-Version: 1.0
+	id <S271977AbRIIOqp>; Sun, 9 Sep 2001 10:46:45 -0400
+Received: from morrison.empeg.co.uk ([193.119.19.130]:11253 "EHLO
+	fatboy.internal.empeg.com") by vger.kernel.org with ESMTP
+	id <S271978AbRIIOqe>; Sun, 9 Sep 2001 10:46:34 -0400
+Message-ID: <3B9B80E2.C9D5B947@riohome.com>
+Date: Sun, 09 Sep 2001 15:46:58 +0100
+From: John Ripley <jripley@riohome.com>
+X-Mailer: Mozilla 4.5 [en] (X11; I; Linux 2.4.9 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+Subject: Re: COW fs (Re: Editing-in-place of a large file)
+In-Reply-To: <20010902152137.L23180@draal.physics.wisc.edu> <318476047.20010903002818@port.imtp.ilyichevsk.odessa.ua>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0109082115270.1161-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Sat, Sep 08, 2001 at 09:28:43PM -0700
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 08, 2001 at 09:28:43PM -0700, Linus Torvalds wrote:
+VDA wrote:
 > 
-> On Sun, 9 Sep 2001, Andrea Arcangeli wrote:
+> Sunday, September 02, 2001, 11:21:37 PM, Bob McElrath wrote:
+> BM> I would like to take an extremely large file (multi-gigabyte) and edit
+> BM> it by removing a chunk out of the middle.  This is easy enough by
+> BM> reading in the entire file and spitting it back out again, but it's
+> BM> hardly efficent to read in an 8GB file just to remove a 100MB segment.
+
+> BM> Is there another way to do this?
+
+> BM> Is it possible to modify the inode structure of the underlying
+> BM> filesystem to free blocks in the middle?  (What to do with the half-full
+> BM> blocks that are left?)  Has anyone written a tool to do something like
+> BM> this?
+
+> BM> Is there a way to do this in a filesystem-independent manner?
+
+> A COW fs is a far more useful and cool. A fs where a copy of a file
+> does not duplicate all blocks. Blocks get copied-on-write only when
+> copy of a file is written to. There could be even a fs compressor
+> which looks for and merges blocks with exactly same contents from
+> different files.
 > 
-> > On Sat, Sep 08, 2001 at 08:58:26PM -0700, Linus Torvalds wrote:
-> > > I'd rather fix that, then.
-> >
-> > we'd just need to define a new kind of communication API between a ro
-> > mounted fs and the blkdev layer to avoid the special cases.
+> Maybe ext2/3 folks will play with this idea after ext3?
 > 
-> No, notice how the simple code _should_ work for ro-mounted filesystems
-> as-is. AND it should work for read-only opens of disks with rw-mounted
+> I'm planning to write a test program which will scan my ext2 fs and
+> report how many duplicate blocks with the same contents it sees (i.e
+> how many would I save with a COW fs)
 
-correct.
+I've tried this idea. I did an MD5 of every block (4KB) in a partition
+and counted the number of blocks with the same hash. Only about 5-10% of
+blocks on several filesystem were actually duplicates. This might be
+better if you reduced the block size to 512 bytes, but there's a
+question of how much extra space filesystem structures would then take
+up.
 
-> filesystems. The only case it doesn't like is the "rw-open of a device
-> that is rw-mounted".
+Basically, it didn't look like compressing duplicate blocks would
+actually be worth the extra structures or CPU.
 
-it also doesn't work for ro-open of a device that is rw-mounted, hdparm
--t as said a million of times now.
+On the other hand, a COW fs would be excellent for making file copying
+much quicker. You can do things like copying the linux kernel tree using
+'cp -lR', but the files do not act as if they are unique copies - and
+I've been bitten many times when I forgot this. If you had COW, you
+could just copy the entire tree and forget about the fact they're
+linked.
 
-> It's only filesystems that have modified buffers without marking them
-> dirty (by virtue of having pointers to buffers and delaying the dirtying
-> until later) that are broken by the "try to make sure all buffers are
-> up-to-date by reading them in" approach.
+The problem is this needs a bit of userland support, which could only be
+done automatically if you did this:
 
-All filesystems marks the buffers dirty after modifying them. The
-problem is that they don't always lock_buffer(); modify ; mark_dirty();
-unlock_buffer(), so we cannot safely do the update-I/O from disk to
-buffer cache on the pinned buffers or we risk to screwup the
-filesystem while it's in the "modify; mark_dirty()" part.
+- Keep a hash of the contents of blocks in the buffer-cache.
+- The kernel compares the hash of each block write to all blocks already
+in the buffer-cache.
+- If a duplicate is found, the kernel generates a COW link instead of
+writing the block to disk.
 
-> And as I don't think the concurrent "rw-open + rw-mount" case makes any
-> sense, I think the sane solution is simply to disallow it completely.
+Obviously this would involve large amounts of CPU. I think a simple
+userland call for 'COW this file to this new file' wouldn't be too
+hideous a solution.
 
-I don't disallow it, I just don't guarantee coherency after that, the fs
-could be screwedup if you rw-open + rw-mount and that's ok.
-
-the case where it is not ok is hdparm: ro-open + rw-mounted.
-
-> So if we simply disallow that case, then we do not have any problem:
-> either the device was opened read-only (in which case it obviously doesn't
-> need to flush anything to disk, or invalidate/revalidate existing disk
-
-Then you are making a special case "the device was opened read-only in
-which case it obviously doesn't need to flush anything to disk" means
-you are not running the update_buffers() if the open was O_RDONLY (if
-you make this special case you would be safe on that side).  But also
-the user may do O_RDWR open and not modify the device, and still we must
-not screwup a rw-mountd fs under it.
-
-as far I can tell my synchronization code is the simpler possible and
-it's completly safe, without changing the synchronization API with the
-pinned buffers, or without making getblk to be backed on the blkdev
-pagecache enterely that has larger impact on the kernel.
-
-Making getblk to be blkdev pagecache backed seems the cleaner way to get
-rid of those aliasing issues to be allowed to just limit the very latest
-close to a __block_fsync + truncate_inode_pages() [which is a 5 lines
-cleanup compared to my current state of the patch], with it not even the
-last blkdev release will run the block_fsync since the fs still holds a
-reference on the same side, the fs will be just another blkdev user like
-if it came from userspace. However this logic is potentially more
-invasive than the blkdev-pagecache code that matters and it doesn't
-provide a single advantage to the user, so this isn't in my top list at
-the moment, sounds 2.5 cleanup material.
-
-Andrea
+-- 
+John Ripley

@@ -1,31 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271722AbRH0NgS>; Mon, 27 Aug 2001 09:36:18 -0400
+	id <S271692AbRH0NqA>; Mon, 27 Aug 2001 09:46:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271720AbRH0NgI>; Mon, 27 Aug 2001 09:36:08 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:19215 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S271722AbRH0Nf4>; Mon, 27 Aug 2001 09:35:56 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Christian Engwer <christi@fsmath.zbt.uni-heidelberg.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: kernel patch to keep control over batch processes
-Date: Mon, 27 Aug 2001 15:42:41 +0200
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <20010827134715.A21058@mathphys.fsk.uni-heidelberg.de>
-In-Reply-To: <20010827134715.A21058@mathphys.fsk.uni-heidelberg.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010827133605Z16129-32383+1629@humbolt.nl.linux.org>
+	id <S271719AbRH0Npu>; Mon, 27 Aug 2001 09:45:50 -0400
+Received: from tisch.mail.mindspring.net ([207.69.200.157]:45362 "EHLO
+	tisch.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S271692AbRH0Npe>; Mon, 27 Aug 2001 09:45:34 -0400
+Subject: Re: Updated Linux kernel preemption patches
+From: Robert Love <rml@tech9.net>
+To: Cliff Albert <cliff@oisec.net>
+Cc: linux-kernel@vger.kernel.org, nigel@nrg.org
+In-Reply-To: <20010827093835.A15153@oisec.net>
+In-Reply-To: <998877465.801.19.camel@phantasy> 
+	<20010827093835.A15153@oisec.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.12.99+cvs.2001.08.21.23.41 (Preview Release)
+Date: 27 Aug 2001 09:46:12 -0400
+Message-Id: <998919973.1782.65.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On August 27, 2001 01:47 pm, Christian Engwer wrote:
-> PS: If this is not the right place to post this mail... please don't
->     flame me - it's my first patch
+On Mon, 2001-08-27 at 03:38, Cliff Albert wrote:
+> Kernel won't compile when this patch is applied to 2.4.8-ac12
 
-It's the right place :-)
+is CONFIG_SMP set? the preempt patch and SMP are untested together.
 
---
-Daniel
+-- 
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
+

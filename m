@@ -1,208 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263365AbVBDHio@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261603AbVBDHiv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263365AbVBDHio (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 02:38:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261725AbVBDHhR
+	id S261603AbVBDHiv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 02:38:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263344AbVBDHiE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 02:37:17 -0500
-Received: from [211.58.254.17] ([211.58.254.17]:37545 "EHLO hemosu.com")
-	by vger.kernel.org with ESMTP id S263258AbVBDHNU (ORCPT
+	Fri, 4 Feb 2005 02:38:04 -0500
+Received: from [211.58.254.17] ([211.58.254.17]:36009 "EHLO hemosu.com")
+	by vger.kernel.org with ESMTP id S263254AbVBDHNU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 4 Feb 2005 02:13:20 -0500
 To: bzolnier@gmail.com, linux-ide@vger.kernel.org,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.11-rc2 04/14] ide_pci: Merges cy82c693.h into cy82c693.c
+Subject: Re: [PATCH 2.6.11-rc2 01/14] ide_pci: Remove lousy macros from aec62xx.
 From: Tejun Heo <tj@home-tj.org>
 In-Reply-To: <42032014.1020606@home-tj.org>
 References: <42032014.1020606@home-tj.org>
-Message-Id: <20050204071318.1206813264F@htj.dyndns.org>
-Date: Fri,  4 Feb 2005 16:13:18 +0900 (KST)
+Message-Id: <20050204071317.A06E013264C@htj.dyndns.org>
+Date: Fri,  4 Feb 2005 16:13:17 +0900 (KST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-04_ide_pci_cy82c693_merge.patch
+01_ide_pci_aec62xx_cleanup.patch
 
-	Merges ide/pci/cy82c693.h into cy82c693.c.
+	Removes SPLIT_BYTE, MAKE_WORD and BUSCLOCK macros which are
+	just better off directly coded from ide/pci/aec62xx driver.
 
 
 Signed-off-by: Tejun Heo <tj@home-tj.org>
 
 
-Index: linux-idepci-export/drivers/ide/pci/cy82c693.c
+Index: linux-idepci-export/drivers/ide/pci/aec62xx.c
 ===================================================================
---- linux-idepci-export.orig/drivers/ide/pci/cy82c693.c	2005-02-04 16:07:36.959349793 +0900
-+++ linux-idepci-export/drivers/ide/pci/cy82c693.c	2005-02-04 16:08:24.953533218 +0900
-@@ -54,7 +54,64 @@
+--- linux-idepci-export.orig/drivers/ide/pci/aec62xx.c	2005-02-04 16:07:37.175314620 +0900
++++ linux-idepci-export/drivers/ide/pci/aec62xx.c	2005-02-04 16:08:23.966693938 +0900
+@@ -89,10 +89,11 @@ static u8 aec62xx_ratemask (ide_drive_t 
  
- #include <asm/io.h>
- 
--#include "cy82c693.h"
-+/* the current version */
-+#define CY82_VERSION	"CY82C693U driver v0.34 99-13-12 Andreas S. Krebs (akrebs@altavista.net)"
-+
-+/*
-+ *	The following are used to debug the driver.
-+ */
-+#define	CY82C693_DEBUG_LOGS	0
-+#define	CY82C693_DEBUG_INFO	0
-+
-+/* define CY82C693_SETDMA_CLOCK to set DMA Controller Clock Speed to ATCLK */
-+#undef CY82C693_SETDMA_CLOCK
-+
-+/*
-+ *	NOTE: the value for busmaster timeout is tricky and I got it by
-+ *	 trial and error!  By using a to low value will cause DMA timeouts
-+ *	 and drop IDE performance, and by using a to high value will cause
-+ *	 audio playback to scatter.
-+ *	 If you know a better value or how to calc it, please let me know.
-+ */
-+
-+/* twice the value written in cy82c693ub datasheet */
-+#define BUSMASTER_TIMEOUT	0x50
-+/*
-+ * the value above was tested on my machine and it seems to work okay
-+ */
-+
-+/* here are the offset definitions for the registers */
-+#define CY82_IDE_CMDREG		0x04
-+#define CY82_IDE_ADDRSETUP	0x48
-+#define CY82_IDE_MASTER_IOR	0x4C	
-+#define CY82_IDE_MASTER_IOW	0x4D	
-+#define CY82_IDE_SLAVE_IOR	0x4E	
-+#define CY82_IDE_SLAVE_IOW	0x4F
-+#define CY82_IDE_MASTER_8BIT	0x50	
-+#define CY82_IDE_SLAVE_8BIT	0x51	
-+
-+#define CY82_INDEX_PORT		0x22
-+#define CY82_DATA_PORT		0x23
-+
-+#define CY82_INDEX_CTRLREG1	0x01
-+#define CY82_INDEX_CHANNEL0	0x30
-+#define CY82_INDEX_CHANNEL1	0x31
-+#define CY82_INDEX_TIMEOUT	0x32
-+
-+/* the max PIO mode - from datasheet */
-+#define CY82C693_MAX_PIO	4
-+
-+/* the min and max PCI bus speed in MHz - from datasheet */
-+#define CY82C963_MIN_BUS_SPEED	25
-+#define CY82C963_MAX_BUS_SPEED	33
-+
-+/* the struct for the PIO mode timings */
-+typedef struct pio_clocks_s {
-+        u8	address_time;	/* Address setup (clocks) */
-+	u8	time_16r;	/* clocks for 16bit IOR (0xF0=Active/data, 0x0F=Recovery) */
-+	u8	time_16w;	/* clocks for 16bit IOW (0xF0=Active/data, 0x0F=Recovery) */
-+	u8	time_8;		/* clocks for 8bit (0xF0=Active/data, 0x0F=Recovery) */
-+} pio_clocks_t;
- 
- /*
-  * calc clocks using bus_speed
-@@ -422,6 +479,18 @@ void __init init_iops_cy82c693(ide_hwif_
- 	}
- }
- 
-+static ide_pci_device_t cy82c693_chipsets[] __devinitdata = {
-+	{	/* 0 */
-+		.name		= "CY82C693",
-+		.init_chipset	= init_chipset_cy82c693,
-+		.init_iops	= init_iops_cy82c693,
-+		.init_hwif	= init_hwif_cy82c693,
-+		.channels	= 1,
-+		.autodma	= AUTODMA,
-+		.bootable	= ON_BOARD,
-+	}
-+};
-+
- static int __devinit cy82c693_init_one(struct pci_dev *dev, const struct pci_device_id *id)
+ static int aec6210_tune_chipset (ide_drive_t *drive, u8 xferspeed)
  {
- 	ide_pci_device_t *d = &cy82c693_chipsets[id->driver_data];
-Index: linux-idepci-export/drivers/ide/pci/cy82c693.h
+-	ide_hwif_t *hwif	= HWIF(drive);
+-	struct pci_dev *dev	= hwif->pci_dev;
+-	u16 d_conf		= 0;
+-	u8 speed	= ide_rate_filter(aec62xx_ratemask(drive), xferspeed);
++	ide_hwif_t *hwif = HWIF(drive);
++	struct pci_dev *dev = hwif->pci_dev;
++	struct chipset_bus_clock_list_entry *busclock = pci_get_drvdata(dev);
++	u16 d_conf = 0;
++	u8 speed = ide_rate_filter(aec62xx_ratemask(drive), xferspeed);
+ 	u8 ultra = 0, ultra_conf = 0;
+ 	u8 tmp0 = 0, tmp1 = 0, tmp2 = 0;
+ 	unsigned long flags;
+@@ -100,16 +101,15 @@ static int aec6210_tune_chipset (ide_dri
+ 	local_irq_save(flags);
+ 	/* 0x40|(2*drive->dn): Active, 0x41|(2*drive->dn): Recovery */
+ 	pci_read_config_word(dev, 0x40|(2*drive->dn), &d_conf);
+-	tmp0 = pci_bus_clock_list(speed, BUSCLOCK(dev));
+-	SPLIT_BYTE(tmp0,tmp1,tmp2);
+-	MAKE_WORD(d_conf,tmp1,tmp2);
++	tmp0 = pci_bus_clock_list(speed, busclock);
++	d_conf = ((tmp0 & 0xf0) << 4) | (tmp0 & 0xf);
+ 	pci_write_config_word(dev, 0x40|(2*drive->dn), d_conf);
+ 
+ 	tmp1 = 0x00;
+ 	tmp2 = 0x00;
+ 	pci_read_config_byte(dev, 0x54, &ultra);
+ 	tmp1 = ((0x00 << (2*drive->dn)) | (ultra & ~(3 << (2*drive->dn))));
+-	ultra_conf = pci_bus_clock_list_ultra(speed, BUSCLOCK(dev));
++	ultra_conf = pci_bus_clock_list_ultra(speed, busclock);
+ 	tmp2 = ((ultra_conf << (2*drive->dn)) | (tmp1 & ~(3 << (2*drive->dn))));
+ 	pci_write_config_byte(dev, 0x54, tmp2);
+ 	local_irq_restore(flags);
+@@ -118,10 +118,11 @@ static int aec6210_tune_chipset (ide_dri
+ 
+ static int aec6260_tune_chipset (ide_drive_t *drive, u8 xferspeed)
+ {
+-	ide_hwif_t *hwif	= HWIF(drive);
+-	struct pci_dev *dev	= hwif->pci_dev;
+-	u8 speed	= ide_rate_filter(aec62xx_ratemask(drive), xferspeed);
+-	u8 unit		= (drive->select.b.unit & 0x01);
++	ide_hwif_t *hwif = HWIF(drive);
++	struct pci_dev *dev = hwif->pci_dev;
++	struct chipset_bus_clock_list_entry *busclock = pci_get_drvdata(dev);
++	u8 speed = ide_rate_filter(aec62xx_ratemask(drive), xferspeed);
++	u8 unit = (drive->select.b.unit & 0x01);
+ 	u8 tmp1 = 0, tmp2 = 0;
+ 	u8 ultra = 0, drive_conf = 0, ultra_conf = 0;
+ 	unsigned long flags;
+@@ -129,12 +130,12 @@ static int aec6260_tune_chipset (ide_dri
+ 	local_irq_save(flags);
+ 	/* high 4-bits: Active, low 4-bits: Recovery */
+ 	pci_read_config_byte(dev, 0x40|drive->dn, &drive_conf);
+-	drive_conf = pci_bus_clock_list(speed, BUSCLOCK(dev));
++	drive_conf = pci_bus_clock_list(speed, busclock);
+ 	pci_write_config_byte(dev, 0x40|drive->dn, drive_conf);
+ 
+ 	pci_read_config_byte(dev, (0x44|hwif->channel), &ultra);
+ 	tmp1 = ((0x00 << (4*unit)) | (ultra & ~(7 << (4*unit))));
+-	ultra_conf = pci_bus_clock_list_ultra(speed, BUSCLOCK(dev));
++	ultra_conf = pci_bus_clock_list_ultra(speed, busclock);
+ 	tmp2 = ((ultra_conf << (4*unit)) | (tmp1 & ~(7 << (4*unit))));
+ 	pci_write_config_byte(dev, (0x44|hwif->channel), tmp2);
+ 	local_irq_restore(flags);
+Index: linux-idepci-export/drivers/ide/pci/aec62xx.h
 ===================================================================
---- linux-idepci-export.orig/drivers/ide/pci/cy82c693.h	2005-02-04 16:07:36.959349793 +0900
-+++ /dev/null	1970-01-01 00:00:00.000000000 +0000
-@@ -1,83 +0,0 @@
--#ifndef CY82C693_H
--#define CY82C693_H
+--- linux-idepci-export.orig/drivers/ide/pci/aec62xx.h	2005-02-04 16:07:37.175314620 +0900
++++ linux-idepci-export/drivers/ide/pci/aec62xx.h	2005-02-04 16:08:23.967693775 +0900
+@@ -51,16 +51,6 @@ static struct chipset_bus_clock_list_ent
+ 	{	0,		0x00,	0x00	}
+ };
+ 
+-#ifndef SPLIT_BYTE
+-#define SPLIT_BYTE(B,H,L)	((H)=(B>>4), (L)=(B-((B>>4)<<4)))
+-#endif
+-#ifndef MAKE_WORD
+-#define MAKE_WORD(W,HB,LB)	((W)=((HB<<8)+LB))
+-#endif
 -
--#include <linux/config.h>
--#include <linux/pci.h>
--#include <linux/ide.h>
+-#define BUSCLOCK(D)	\
+-	((struct chipset_bus_clock_list_entry *) pci_get_drvdata((D)))
 -
--/* the current version */
--#define CY82_VERSION	"CY82C693U driver v0.34 99-13-12 Andreas S. Krebs (akrebs@altavista.net)"
--
--/*
-- *	The following are used to debug the driver.
-- */
--#define	CY82C693_DEBUG_LOGS	0
--#define	CY82C693_DEBUG_INFO	0
--
--/* define CY82C693_SETDMA_CLOCK to set DMA Controller Clock Speed to ATCLK */
--#undef CY82C693_SETDMA_CLOCK
--
--/*
-- *	NOTE: the value for busmaster timeout is tricky and I got it by
-- *	 trial and error!  By using a to low value will cause DMA timeouts
-- *	 and drop IDE performance, and by using a to high value will cause
-- *	 audio playback to scatter.
-- *	 If you know a better value or how to calc it, please let me know.
-- */
--
--/* twice the value written in cy82c693ub datasheet */
--#define BUSMASTER_TIMEOUT	0x50
--/*
-- * the value above was tested on my machine and it seems to work okay
-- */
--
--/* here are the offset definitions for the registers */
--#define CY82_IDE_CMDREG		0x04
--#define CY82_IDE_ADDRSETUP	0x48
--#define CY82_IDE_MASTER_IOR	0x4C	
--#define CY82_IDE_MASTER_IOW	0x4D	
--#define CY82_IDE_SLAVE_IOR	0x4E	
--#define CY82_IDE_SLAVE_IOW	0x4F
--#define CY82_IDE_MASTER_8BIT	0x50	
--#define CY82_IDE_SLAVE_8BIT	0x51	
--
--#define CY82_INDEX_PORT		0x22
--#define CY82_DATA_PORT		0x23
--
--#define CY82_INDEX_CTRLREG1	0x01
--#define CY82_INDEX_CHANNEL0	0x30
--#define CY82_INDEX_CHANNEL1	0x31
--#define CY82_INDEX_TIMEOUT	0x32
--
--/* the max PIO mode - from datasheet */
--#define CY82C693_MAX_PIO	4
--
--/* the min and max PCI bus speed in MHz - from datasheet */
--#define CY82C963_MIN_BUS_SPEED	25
--#define CY82C963_MAX_BUS_SPEED	33
--
--/* the struct for the PIO mode timings */
--typedef struct pio_clocks_s {
--        u8	address_time;	/* Address setup (clocks) */
--	u8	time_16r;	/* clocks for 16bit IOR (0xF0=Active/data, 0x0F=Recovery) */
--	u8	time_16w;	/* clocks for 16bit IOW (0xF0=Active/data, 0x0F=Recovery) */
--	u8	time_8;		/* clocks for 8bit (0xF0=Active/data, 0x0F=Recovery) */
--} pio_clocks_t;
--
--static unsigned int init_chipset_cy82c693(struct pci_dev *, const char *);
--static void init_hwif_cy82c693(ide_hwif_t *);
--static void init_iops_cy82c693(ide_hwif_t *);
--
--static ide_pci_device_t cy82c693_chipsets[] __devinitdata = {
--	{	/* 0 */
--		.name		= "CY82C693",
--		.init_chipset	= init_chipset_cy82c693,
--		.init_iops	= init_iops_cy82c693,
--		.init_hwif	= init_hwif_cy82c693,
--		.channels	= 1,
--		.autodma	= AUTODMA,
--		.bootable	= ON_BOARD,
--	}
--};
--
--#endif /* CY82C693_H */
+ static int init_setup_aec6x80(struct pci_dev *, ide_pci_device_t *);
+ static int init_setup_aec62xx(struct pci_dev *, ide_pci_device_t *);
+ static unsigned int init_chipset_aec62xx(struct pci_dev *, const char *);

@@ -1,33 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272003AbRIIPb0>; Sun, 9 Sep 2001 11:31:26 -0400
+	id <S271998AbRIIPcq>; Sun, 9 Sep 2001 11:32:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271998AbRIIPbG>; Sun, 9 Sep 2001 11:31:06 -0400
-Received: from nef.ens.fr ([129.199.96.32]:53253 "EHLO nef.ens.fr")
-	by vger.kernel.org with ESMTP id <S271997AbRIIPbD>;
-	Sun, 9 Sep 2001 11:31:03 -0400
-Date: Sun, 9 Sep 2001 17:31:15 +0200
-From: =?ISO-8859-1?Q?=C9ric?= Brunet <ebrunet@quatramaran.ens.fr>
-Message-Id: <200109091531.f89FVFx18487@quatramaran.ens.fr>
-To: arjan@fenrus.demon.nl, linux-kernel@vger.kernel.org
-Subject: Re: Two bugs: PCMCIA doesn't work and bad DMA/APM interaction
-In-Reply-To: <m15flku-000QFYC@amadeus.home.nl>
-In-Reply-To: <20010908190133.B5716@serifos.unige.ch> <m15flku-000QFYC@amadeus.home.nl>
+	id <S272002AbRIIPcg>; Sun, 9 Sep 2001 11:32:36 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:23606 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S271998AbRIIPcX>; Sun, 9 Sep 2001 11:32:23 -0400
+Date: Sun, 9 Sep 2001 17:33:13 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        torvalds@transmeta.com
+Subject: Re: Purpose of the mm/slab.c changes
+Message-ID: <20010909173313.V11329@athlon.random>
+In-Reply-To: <3B9B4CFE.E09D6743@colorfullife.com> <20010909162613.Q11329@athlon.random> <001201c13942$b1bec9a0$010411ac@local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <001201c13942$b1bec9a0$010411ac@local>; from manfred@colorfullife.com on Sun, Sep 09, 2001 at 05:18:00PM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In linux-kernel, you wrote:
->
->that's because you need the "yenta_socket.o" module for cardbus!
+On Sun, Sep 09, 2001 at 05:18:00PM +0200, Manfred Spraul wrote:
+> >
+> > it provides lifo allocations from both partial and unused slabs.
+> >
+> 
+> lifo/fifo for unused slabs is obviously superflous - free is free, it
+> doesn't matter which free page is used first/last.
 
-Thanks a lot, it works beautifully with this module. I hadn't noticed
-that hte module had changed between the 2.2 and 2.4 kernels, and I was
-further confused by the fact that the i82365 sort of half worked with the
-2.4.2...
+then why don't you also make fifo the buddy allocator and the partial
+list as well if free is free and fifo/lifo doesn't matter?
 
-So, now, any idea about my problem with APM and DMA disk transfers ?
+> Did you run any benchmarks? If yes, could you post them?
 
-Éric Brunet
+I didn't run any specific benchmark for such change but please let me
+know if you can find that any real benchmark is hurted by it. I think
+the cleanup and the potential for lifo in the free slabs is much more
+sensible than the other factors you mentioned, of course there's less
+probability of having to fall into the free slabs rather than in the
+partial ones during allocations, but that doesn't mean that cannot
+happen very often, but I will glady suggest to remove it if you prove me
+wrong. All I'm saying here is that the dummy allocations with no access
+to the ram returned are not interesting numbers.
+
+Andrea

@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265709AbTFSGf1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 02:35:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265710AbTFSGf0
+	id S265712AbTFSGkd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 02:40:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265714AbTFSGkd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 02:35:26 -0400
-Received: from palrel11.hp.com ([156.153.255.246]:56543 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S265709AbTFSGfV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 02:35:21 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Thu, 19 Jun 2003 02:40:33 -0400
+Received: from dsl-213-023-225-224.arcor-ip.net ([213.23.225.224]:50053 "EHLO
+	server1.intern.kubla.de") by vger.kernel.org with ESMTP
+	id S265712AbTFSGk3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 02:40:29 -0400
+From: Dominik Kubla <dominik@kubla.de>
+To: Martin List-Petersen <martin@list-petersen.dk>,
+       Scott Robert Ladd <coyote@coyotegulch.com>
+Subject: Re: Sco vs. IBM
+Date: Thu, 19 Jun 2003 08:54:21 +0200
+User-Agent: KMail/1.5.2
+Cc: linux-kernel@vger.kernel.org
+References: <063301c32c47$ddc792d0$3f00a8c0@witbe> <3EF0ABB8.40007@coyotegulch.com> <1055960244.16828.18.camel@loke>
+In-Reply-To: <1055960244.16828.18.camel@loke>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16113.23790.747711.102222@napali.hpl.hp.com>
-Date: Wed, 18 Jun 2003 23:49:18 -0700
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: davidm@hpl.hp.com, linux-kernel@vger.kernel.org
-Subject: Re: common name for the kernel DSO
-In-Reply-To: <3EF15C41.2020908@zytor.com>
-References: <16112.47509.643668.116939@napali.hpl.hp.com>
-	<bcrkiq$dta$1@cesium.transmeta.com>
-	<16113.22348.748334.416581@napali.hpl.hp.com>
-	<3EF15C41.2020908@zytor.com>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+Message-Id: <200306190854.21768.dominik@kubla.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Wed, 18 Jun 2003 23:46:25 -0700, "H. Peter Anvin" <hpa@zytor.com> said:
+Am Mittwoch, 18. Juni 2003 20:17 schrieb Martin List-Petersen:
+>
+> I see no reason to panic yet, either.
+>
+> In Europe this is taken very relaxed, also if you see the court rulings
+> that have been done (in Germany etc.). Sco get's no foot on the ground
+> before they show us some legitimate proof.
+>
 
-  HPA> There is a lot of "linux" in userspace too, though.  ld-linux.so.* to 
-  HPA> start out with...
+Exactly.
 
-Of course, those should be ld-gnu-linux.so.*
-
-Ducking for cover now... ;-)
+There might also be some unexpected benefit for us in Europe lurking there 
+since it sheds a very unfavourable light on US IP and SW patent law which the 
+EU is currently being trying to adopt. So all of you living in the EU, please  
+point your MEP (and your state and national MP for that matter) towards this 
+mess and explain to him/her why software patents and all the other crap the 
+EU commission wants to inflict on us is not in the interest of EU consumers 
+and companies alike and let's see what happens...
 
-	--david
+Regards,
+  Dominik
+-- 
+Those who can make you believe absurdities can make you commit
+atrocities.    (Francois Marie Arouet aka Voltaire, 1694-1778)
+

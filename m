@@ -1,55 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132478AbQLNVGf>; Thu, 14 Dec 2000 16:06:35 -0500
+	id <S132636AbQLNVJP>; Thu, 14 Dec 2000 16:09:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132636AbQLNVGZ>; Thu, 14 Dec 2000 16:06:25 -0500
-Received: from smtp01.mrf.mail.rcn.net ([207.172.4.60]:4035 "EHLO
-	smtp01.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S132478AbQLNVGR>; Thu, 14 Dec 2000 16:06:17 -0500
-Date: Thu, 14 Dec 2000 15:35:48 -0500 (EST)
-From: "Mohammad A. Haque" <mhaque@haque.net>
-To: Ion Badulescu <ionut@cs.columbia.edu>
-cc: "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: ip_defrag is broken (was: Re: test12 lockups -- need feedback)
-In-Reply-To: <Pine.LNX.4.30.0012141204210.27848-100000@age.cs.columbia.edu>
-Message-ID: <Pine.LNX.4.30.0012141535310.12994-100000@viper.haque.net>
+	id <S133040AbQLNVJF>; Thu, 14 Dec 2000 16:09:05 -0500
+Received: from SMTP3.ANDREW.CMU.EDU ([128.2.10.83]:7589 "EHLO
+	smtp3.andrew.cmu.edu") by vger.kernel.org with ESMTP
+	id <S132636AbQLNVIy>; Thu, 14 Dec 2000 16:08:54 -0500
+Date: Thu, 14 Dec 2000 15:39:19 -0500
+From: Frank Davis <fdavis@andrew.cmu.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Re: test13-pre1 changelog
+Message-ID: <1850783421.976808359@primetime2>
+In-Reply-To: <Pine.LNX.4.21.0012141210420.10916-100000@sol.compendium-tech.com>
+Originator-Info: login-token=Mulberry:01vsT5pCQoWhr5QkgbCURwExEhcNBEL4bsJ2YZvjRsLQ==;
+ token_authority=postmaster@andrew.cmu.edu
+X-Mailer: Mulberry/2.0.3 (Win32)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'll be trying in a few hours.
+Hello,
+  Linus didn't annnounce test13-pre1 as far as I am aware of.
+Regards,
+Frank
 
-On Thu, 14 Dec 2000, Ion Badulescu wrote:
+--On Thursday, December 14, 2000 12:11 PM -0800 "Dr. Kelsey Hudson" 
+<kernel@blackhole.compendium-tech.com> wrote:
 
-> On Thu, 14 Dec 2000, David S. Miller wrote:
+> On Thu, 14 Dec 2000, David Riley wrote:
 >
-> > If you turn off netfilter, ip_conntrack, etc. does the OOPS still
-> > occur?
+>> Did I miss a post from Linus on the list, or is there no posted
+>> changelog for test13-pre1?  Nothing's posted at kernel.org yet, either.
+>>
 >
-> I'm afraid I won't be able to answer this question, since I'm leaving for
-> a 3-week vacation in about 50 minutes and I need my firewall functional
-> until then. :-) Maybe other people who have seen this problem can
-> experiment further.
+> I musta missed the post too... But then again I went back and looked for
+> it and couldnt find it so...
 >
-> If I get a few moments, I'll do a quick test before leaving and will let
-> you know. The chance of that happening is extremely slim, though.
+> i'd like to know what changed, anyways :)
 >
-> Thanks,
-> Ion
+>  Kelsey Hudson
+>  khudson@ctica.com  Software Engineer
+>  Compendium Technologies, Inc                               (619) 725-0771
+> -------------------------------------------------------------------------
+> --
 >
->
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 
--- 
 
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/
-                                               mhaque@haque.net
 
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

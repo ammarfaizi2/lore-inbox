@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262085AbUDXI4n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262114AbUDXJ0G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262085AbUDXI4n (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Apr 2004 04:56:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262080AbUDXI4n
+	id S262114AbUDXJ0G (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Apr 2004 05:26:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262132AbUDXJ0F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Apr 2004 04:56:43 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:44559 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262085AbUDXI4m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Apr 2004 04:56:42 -0400
-Date: Sat, 24 Apr 2004 09:56:28 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: linux-kernel@vger.kernel.org,
-       Hans Ulrich Niedermann <linux-kernel@n-dimensional.de>
-Subject: Re: [2.6 patch] Canonically reference files in Documentation/ code comments part
-Message-ID: <20040424095628.B25661@flint.arm.linux.org.uk>
-Mail-Followup-To: Adrian Bunk <bunk@fs.tum.de>,
-	linux-kernel@vger.kernel.org,
-	Hans Ulrich Niedermann <linux-kernel@n-dimensional.de>
-References: <20040423231057.GF24948@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040423231057.GF24948@fs.tum.de>; from bunk@fs.tum.de on Sat, Apr 24, 2004 at 01:10:58AM +0200
+	Sat, 24 Apr 2004 05:26:05 -0400
+Received: from tan7.ncr.com ([192.127.94.7]:48928 "EHLO ncrhub2.NCR.COM")
+	by vger.kernel.org with ESMTP id S262114AbUDXJ0D (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Apr 2004 05:26:03 -0400
+Date: Sat, 24 Apr 2004 05:26:02 -0400 (EDT)
+From: Mail Delivery Subsystem <MAILER-DAEMON@ncrhub2.NCR.COM>
+Message-Id: <200404240926.i3O9Q21v021877@ncrhub2.NCR.COM>
+To: <linux-kernel@vger.kernel.org>
+Subject: Returned mail: see transcript for details
+Auto-Submitted: auto-generated (failure)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 24, 2004 at 01:10:58AM +0200, Adrian Bunk wrote:
-> Below is an updated version of a patch by 
-> Hans Ulrich Niedermann <linux-kernel@n-dimensional.de> to 
-> change all references in comments to files in Documentation/ to start 
-> with Documentation/ .
+The original message was received at Sat, 24 Apr 2004 05:26:01 -0400 (EDT)
+from localhost [127.0.0.1]
 
-I'd prefer to include the 'linux/' part so its obvious that we're
-referring to the kernel tree.  I've given people pointers to files
-in the past, and just giving "Documentation/foo/bar" usually results
-in "I've looked on the web here, there and somewhere else and can't
-find the file."
+   ----- The following addresses had permanent fatal errors -----
+<parmee@postecss.ncrfran.france.ncr.com>
+    (reason: 550 Host unknown)
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+   ----- Transcript of session follows -----
+550 5.1.2 <parmee@postecss.ncrfran.france.ncr.com>... Host unknown (Name server: postecss.ncrfran.france.ncr.com.: host not found)
+
+   ----- Message header follows -----
+
+Return-Path: <linux-kernel@vger.kernel.org>
+Received: from ncrgw2.NCR.COM (localhost [127.0.0.1])
+	by ncrhub2.NCR.COM (8.12.10/8.12.10) with ESMTP id i3O9Q11v021875
+	for <parmee@postecss.ncrfran.france.ncr.com>; Sat, 24 Apr 2004 05:26:01 -0400 (EDT)
+Received: from postecss.ncrfran.france.ncr.com (bb-203-125-90-178.singnet.com.sg [203.125.90.178])
+	by ncrgw2.NCR.COM (8.12.10/8.12.10) with ESMTP id i3O9PtZi018538
+	for <parmee@postecss.ncrfran.france.ncr.com>; Sat, 24 Apr 2004 05:25:56 -0400 (EDT)
+Message-Id: <200404240925.i3O9PtZi018538@ncrgw2.NCR.COM>
+From: linux-kernel@vger.kernel.org
+To: parmee@postecss.ncrfran.france.ncr.com
+Subject: Mail Delivery (failure parmee@postecss.ncrfran.france.ncr.com)
+Date: Sat, 24 Apr 2004 17:25:58 +0800
+MIME-Version: 1.0
+Content-Type: multipart/related;
+	type="multipart/alternative";
+	boundary="----=_NextPart_000_001B_01C0CA80.6B015D10"
+X-Priority: 3
+X-MSMail-Priority: Normal
+
+   ----- Message body suppressed -----
+

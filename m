@@ -1,62 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290968AbSBFXpS>; Wed, 6 Feb 2002 18:45:18 -0500
+	id <S290958AbSBFXyi>; Wed, 6 Feb 2002 18:54:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290965AbSBFXpE>; Wed, 6 Feb 2002 18:45:04 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:3054 "EHLO e21.nc.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S290966AbSBFXoP>;
-	Wed, 6 Feb 2002 18:44:15 -0500
-Message-ID: <3C61BFC9.8030905@us.ibm.com>
-Date: Wed, 06 Feb 2002 15:44:09 -0800
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Removal of big kernel lock from isdn drivers
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S290967AbSBFXy2>; Wed, 6 Feb 2002 18:54:28 -0500
+Received: from bitmover.com ([192.132.92.2]:36298 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S290958AbSBFXyT>;
+	Wed, 6 Feb 2002 18:54:19 -0500
+Date: Wed, 6 Feb 2002 15:54:18 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Roman Zippel <zippel@linux-m68k.org>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
+Message-ID: <20020206155418.B21185@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Roman Zippel <zippel@linux-m68k.org>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C618AFD.7148EEAA@linux-m68k.org> <Pine.LNX.4.33.0202061529280.1714-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.33.0202061529280.1714-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Wed, Feb 06, 2002 at 03:36:01PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been examining the continuing additions of the big kernel lock 
-(BKL) to the 2.5 tree.  I noticed that in 2.5.3, the ISDN subsystem 
-added the BKL to several places.  In response to this, I have written 
-several patches to attempt removal of the BKL from the ISDN subsystem. 
-I have little knowledge of the drivers themselves, so I would like some 
-assistance from those of you who understand them better.  I probably 
-have an over-simplified view of the code, so my patches may be too 
-simplistic.  They're a bit big, so I've made them available here:
-http://www.sr71.net/ibm/isdn/
+On Wed, Feb 06, 2002 at 03:36:01PM -0800, Linus Torvalds wrote:
+> do) I still usually need to do at least some minimal editing of the commit
+> message etc (removing stuff like "Hi Linus" etc).
 
-isdn.bkl-remove.ippp_lock.patch:
-   http://www.sr71.net/ibm/isdn/isdn.bkl-remove.isdn_dev_sem.patch
-   added ippp_lock to ippp_struct
-   * It appeared that the BKL was being used to guard the file struct's
-     private data field, which is a ippp_struct.  I added a semaphore to
-     that structure which can be locked instead of the BKL.
+And I think once we finalize the generic patch comment format, you will
+be able to scan it email, see it looks good, and dump it to apply and
+move on.  Then people can send you mail like what is below and it's 
+painless.  Aside from the coffee/tea issues.
 
-isdn.bkl-remove.hydsn_cards_sem.patch:
-   http://www.sr71.net/ibm/isdn/isdn.bkl-remove.hydsn_cards_sem.patch
-   adds rwsemaphore hydsn_cards_sem
-* hydsn_cards_sem guards the card_root list.  It is a read/write
-   semaphore which must be held for write when modifying the list.
+Hi Linus, 
 
-isdn.bkl-remove.isdn_dev_rwsem.patch:
-http://www.sr71.net/ibm/isdn/isdn.bkl-remove.ppp_lock.patch
-* changes name of "dev" to "isdn_dev"
-      - If there are going to be global variables,
-        they can at least not have exceedingly generic
-        names like "dev"!
-* adds global isdn_dev_rwsem
-      - isdn_dev_rwsem must be held when manipulating "isdn_dev"
+How's the wife and kids, mine are fine, here's a patch that makes coffee
+from /dev/coffee bits, see the changelog.  Next week we will send you
+the patch which removes /dev/emacs and replaces it with /dev/vi, the
+one true editor.  I trust you will have no issues with these patches.
 
-I know that these patches should probably be separate, but this is 
-easier for me.
+Thank you,
 
+Joe Hacker.
+
+### Comments for ChangeSet
+This is the coffee patch.  It is the one true coffee patch and it should
+put an end to the coffee versus tea debate.  There is no /dev/tea, there
+is only a /dev/coffee, in spite of our best efforts to implement /dev/tea,
+we could not fix the problem of multiple Oopses on SMP machines when we
+did a "cat /dev/tea > /dev/cup".  "cat /dev/coffee > /dev/cup" always
+works, so we think this is proof positive that coffee is better than tea.
+
+### Comments for drivers/char/coffee.c
+I like coffee, I don't like tea,
+I'm as happy as a little wired bee.
+
+### Comments for drivers/char/tea.c
+Didn't work.  It's a sign from above.
+
+<diffs>
+
+
+:-)
+
+Yup, a little punchy back here at BitMover, but trying to maintain a sense
+of humor.
 -- 
-Dave Hansen
-haveblue@us.ibm.com
-
-
-
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

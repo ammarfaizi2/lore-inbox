@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129786AbQKOLX0>; Wed, 15 Nov 2000 06:23:26 -0500
+	id <S129858AbQKOLd1>; Wed, 15 Nov 2000 06:33:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129741AbQKOLXG>; Wed, 15 Nov 2000 06:23:06 -0500
-Received: from jalon.able.es ([212.97.163.2]:64468 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S129652AbQKOLW6>;
-	Wed, 15 Nov 2000 06:22:58 -0500
-Date: Wed, 15 Nov 2000 11:52:50 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: net mods installed under misc in 2.2.18-pre21
-Message-ID: <20001115115250.A1231@werewolf.able.es>
-Reply-To: jamagallon@able.es
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.0.0
+	id <S130127AbQKOLdR>; Wed, 15 Nov 2000 06:33:17 -0500
+Received: from quechua.inka.de ([212.227.14.2]:57888 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S129858AbQKOLdJ>;
+	Wed, 15 Nov 2000 06:33:09 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: More modutils: It's probably worse.
+In-Reply-To: <8us4ji$dbl$1@cesium.transmeta.com> <11900.974244463@ocs3.ocs-net>
+Organization: private Linux site, southern Germany
+Date: Wed, 15 Nov 2000 11:43:54 +0100
+From: Olaf Titz <olaf@bigred.inka.de>
+Message-Id: <E13w02k-000172-00@g212.hadiko.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone.
+> The original exploit had nothing to do with filenames masquerading as
+> options, it was: ping6 -I ';chmod o+w .'.  Then somebody pointed out
 
-I have noticed that some kernel modules are installed under
-/lib/modules/XXX/misc,
-instead of /net. I have been checking the drivers/net/Makefile (little knowledge
-of 
-kernel make infraestructure...), and MOD_LIST_NAME is set properly, but the only
-content of modules/NET_MODULES is dummy.o.
+Why is there any reason that a shell should be invoked anywhere in the
+request_module->modprobe->insmod chain?
+If implemented correctly, this attack should have the same result as
+insmod ';chmod o+w .' (and it should not matter if it gets renamed so
+that the actual command executed is insmod 'netdevice-;chmod o+w .')
 
-There is no important issue, but that i build newer net drivers got from Scyld,
-and
-installed them under modules/XXX/net. But modprobe was still getting the old
-ones,
-because 'misc' is before 'net'...
+> The problem is the combination of kernel code passing user space
+> parameters through unchanged (promoting user input to root)
 
-Kernel is plain standard kernel 2.2.17 + 2.2.18-pre21-patch + VM-patch + i2c-lm
-patch.
+Which means that all parts of the chain which deal with possible user
+input in elevated privilege mode must do input validation. This means
+the kernel _and_ modprobe in my book.
 
-I will dig into the makefiles, but someone has a clue ? Perhaps this also
-affects
-other modules.
+> plus the
+> modprobe meta expansion algorithm.
 
--- 
-Juan Antonio Magallon Lacarta                                 #> cd /pub
-mailto:jamagallon@able.es                                     #> more beer
+and I see no reason why modprobe should do any such thing, apart from
+configurations dealt with in modules.conf anyway.
 
+Olaf
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

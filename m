@@ -1,20 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266105AbUFEAKa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266049AbUFEAKC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266105AbUFEAKa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 20:10:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266106AbUFEAKa
+	id S266049AbUFEAKC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 20:10:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266105AbUFEAKC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 20:10:30 -0400
-Received: from mail.dif.dk ([193.138.115.101]:29647 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S266105AbUFEAKZ (ORCPT
+	Fri, 4 Jun 2004 20:10:02 -0400
+Received: from mail.dif.dk ([193.138.115.101]:27343 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S266049AbUFEAJ7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 20:10:25 -0400
-Date: Sat, 5 Jun 2004 02:09:46 +0200 (CEST)
+	Fri, 4 Jun 2004 20:09:59 -0400
+Date: Sat, 5 Jun 2004 02:09:20 +0200 (CEST)
 From: Jesper Juhl <juhl-lkml@dif.dk>
 To: linux-kernel@vger.kernel.org
 Cc: trivial@rustcorp.com.au
-Subject: [PATCH] Trivial, add missing newline at EOF in drivers/tc/lk201.h
-Message-ID: <8A43C34093B3D5119F7D0004AC56F4BC082C7F89@difpst1a.dif.dk>
+Subject: [PATCH] Trivial, add missing newline at EOF in
+ Documentation/networking/packet_mmap.txt
+Message-ID: <8A43C34093B3D5119F7D0004AC56F4BC082C7F88@difpst1a.dif.dk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -28,18 +29,18 @@ newline to the few files in the kernel that are missing it.
 This patch makes no functional changes at all to the kernel.
 Patch is against 2.6.7-rc2
 
-Here's the patch adding a newline to drivers/tc/lk201.h
+Here's the patch adding a newline to Documentation/networking/packet_mmap.txt
 
 
---- linux-2.6.7-rc2/drivers/tc/lk201.h-orig	2004-06-05 01:36:33.000000000 +0200
-+++ linux-2.6.7-rc2/drivers/tc/lk201.h	2004-06-05 01:38:28.000000000 +0200
-@@ -50,4 +50,4 @@
- #define LK_KEY_REPEAT 180
- #define LK_KEY_ACK 186
-
--extern unsigned char scancodeRemap[256];
+--- linux-2.6.7-rc2/Documentation/networking/packet_mmap.txt-orig	2004-06-05 01:45:05.000000000 +0200
++++ linux-2.6.7-rc2/Documentation/networking/packet_mmap.txt	2004-06-05 01:45:22.000000000 +0200
+@@ -409,4 +409,4 @@ then poll for frames.
+ -
+ To unsubscribe from this list: send the line "unsubscribe linux-net" in
+ the body of a message to majordomo@vger.kernel.org
+-More majordomo info at  http://vger.kernel.org/majordomo-info.html
 \ No newline at end of file
-+extern unsigned char scancodeRemap[256];
++More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 
 --

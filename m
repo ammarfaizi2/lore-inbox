@@ -1,98 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280975AbSAAQsX>; Tue, 1 Jan 2002 11:48:23 -0500
+	id <S285159AbSAAQnk>; Tue, 1 Jan 2002 11:43:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280725AbSAAQsN>; Tue, 1 Jan 2002 11:48:13 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:22288 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S280975AbSAAQrx>;
-	Tue, 1 Jan 2002 11:47:53 -0500
-Date: Tue, 1 Jan 2002 17:47:51 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: brian@worldcontrol.com
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Bounce from andre@linuxdiskcert.org
-Message-Id: <20020101174751.6bc07b98.skraw@ithnet.com>
-In-Reply-To: <20011231175816.A2909@top.worldcontrol.com>
-In-Reply-To: <WHITEvJ1xKjtgZe0J64000008b1@white.pocketinet.com>
-	<200112301911.UAA07512@webserver.ithnet.com>
-	<20011231013817.A3377@top.worldcontrol.com>
-	<20011231163800.57cda2f7.skraw@ithnet.com>
-	<20011231175816.A2909@top.worldcontrol.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S286311AbSAAQna>; Tue, 1 Jan 2002 11:43:30 -0500
+Received: from [62.47.19.152] ([62.47.19.152]:38530 "HELO twinny.dyndns.org")
+	by vger.kernel.org with SMTP id <S285159AbSAAQnW>;
+	Tue, 1 Jan 2002 11:43:22 -0500
+Message-ID: <3C31E513.BECEF41@webit.com>
+Date: Tue, 01 Jan 2002 17:34:27 +0100
+From: Thomas Winischhofer <tw@webit.com>
+X-Mailer: Mozilla 4.78 [en] (Windows NT 5.0; U)
+X-Accept-Language: en,en-GB,en-US,de-AT,de-DE,de-CH,sv
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] sis drm module (revised)
+Content-Type: multipart/mixed;
+ boundary="------------92C19835745EA52BE508B326"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 Dec 2001 17:58:17 -0800
-brian@worldcontrol.com wrote:
+This is a multi-part message in MIME format.
+--------------92C19835745EA52BE508B326
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-> Trying to find interesting email among 'Hot Young Teen Girls', which
-> is at least honest, and among the less forthright emails trying to
-> masquarade as something else in order to get me to read them certainly
-> makes me angry regardless of how they are addressed.
+Hi,
 
-Hm, this is of course getting very philosophical, but: you must have a very bad
-feeling in everyday life, if I take your words serious. How can you cope with
-the fact that basically _every_ ad ever published is a _lie_ to a certain
-extent. Does this make you angry, too? How can you life with that? Ads do
-nothing else but disguise the fact that something should be sold and make
-someone real rich. And most of the things sold are really ridiculous stuff
-nobody ever needs. Some is even harmful to people, and still they buy it (e.g.
-drugs). Emails are only a mirror of The Real Life (tm).
+without this patch, only root can execute DRI applications under X.
+Users can't and just receive a (incorrect) "out of video memory" error,
+which is basically a "permission denied".
 
-> > What I basically want to say: just live with it.
-> 
-> Interesting philosophy.  You are saying that anyone may speak at you
-> and you have to at least read the subject line.
+The revised version of this patch also makes newer DRI applications
+(such as "Soldier of Furtune") run.
 
-Yes, plain and simple: yes.
+Please apply. Now for real! :)
 
->  I wonder what your
-> corrollary for real life would be?
+Thomas
 
-Hm, I am not quite sure if I get what you like to know, but how about:
-_learning_ ??
+PS: The file to be patched is located in drivers/char/drm/ in the kernel
+tree.
 
-> We are at absolutely opposite extremes.
+-- 
+Thomas Winischhofer
+Vienna/Austria
+mailto:tw@webit.com              *** http://www.webit.com/tw
+--------------92C19835745EA52BE508B326
+Content-Type: text/plain; charset=us-ascii;
+ name="sis_drm_patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="sis_drm_patch"
 
-Maybe, maybe not. I tend to think we are both on a road heading in a direction
-we both do not know, maybe we meet each other sometime, I can't tell. I guess
-your picture of the world is a bit too static currently. "Can you colorize my
-life I'm so sick of black and white?" (Jim Steinman, 1993)
+--- sis_drv_old.c	Thu Dec 27 23:52:11 2001
++++ sis_drv.c	Tue Jan  1 16:45:03 2002
+@@ -40,12 +40,12 @@
+ #define DRIVER_PATCHLEVEL  0
+ 
+ #define DRIVER_IOCTLS \
+-        [DRM_IOCTL_NR(SIS_IOCTL_FB_ALLOC)]   = { sis_fb_alloc,	  1, 1 }, \
+-        [DRM_IOCTL_NR(SIS_IOCTL_FB_FREE)]    = { sis_fb_free,	  1, 1 }, \
++        [DRM_IOCTL_NR(SIS_IOCTL_FB_ALLOC)]   = { sis_fb_alloc,	  1, 0 }, \
++        [DRM_IOCTL_NR(SIS_IOCTL_FB_FREE)]    = { sis_fb_free,	  1, 0 }, \
+         /* AGP Memory Management */					  \
+-        [DRM_IOCTL_NR(SIS_IOCTL_AGP_INIT)]   = { sisp_agp_init,	  1, 1 }, \
+-        [DRM_IOCTL_NR(SIS_IOCTL_AGP_ALLOC)]  = { sisp_agp_alloc,  1, 1 }, \
+-        [DRM_IOCTL_NR(SIS_IOCTL_AGP_FREE)]   = { sisp_agp_free,	  1, 1 }
++        [DRM_IOCTL_NR(SIS_IOCTL_AGP_INIT)]   = { sisp_agp_init,	  1, 0 }, \
++        [DRM_IOCTL_NR(SIS_IOCTL_AGP_ALLOC)]  = { sisp_agp_alloc,  1, 0 }, \
++        [DRM_IOCTL_NR(SIS_IOCTL_AGP_FREE)]   = { sisp_agp_free,	  1, 0 }
+ #if 0 /* these don't appear to be defined */
+ 	/* SIS Stereo */						 
+ 	[DRM_IOCTL_NR(DRM_IOCTL_CONTROL)]    = { sis_control,	  1, 1 }, 
 
-> > PS: If you want to go ahead in this talk, please keep it off LKML, it
-> > doesn't look like common interest to me.
-> 
-> That has always been a tough issue for me.  Your email, which was cc'ed
-> to l-k, will go into the various archives and forever be "findable" via
-> google groups and other archives.  If I reply offline from histories
-> perspective I will never have replied.
-
-This is an either interesting point of view. It looks like you live in a world
-where the real and absolute truth is still existing, neglecting the fact that
-so much knowledge has vanished from this planet and has partly been
-rediscovered by later generations. It is very easy to understand that all
-archives are by definition limited, and therefore the information inside can
-only be limited and never _complete_. So if you read some thread in google (or
-whereever) it is very likely you do not get the full picture, because some
-information (maybe even important) is simply hidden for various reasons. An
-answer not found in google does not mean it never existed. You have to keep
-that in mind, if you read the corresponding question there.
-
-> [...]
-> On the other hand, when looking at the archives it looks like I didn't
-> respond to some criticisms, which in many people minds means they
-> are valid.
-
-Well, this cannot be your fault, you are not Jesus. And most likely even he did
-not answer every question to full extent, although I tend to think he tried
-hard to _listen_ to it.
-
-:-)
-
-Regards,
-Stephan
+--------------92C19835745EA52BE508B326--
 

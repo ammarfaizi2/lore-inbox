@@ -1,39 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266457AbUAOJRO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 04:17:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266461AbUAOJRO
+	id S266499AbUAOJUQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 04:20:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266502AbUAOJUQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 04:17:14 -0500
-Received: from cliff.cse.wustl.edu ([128.252.166.5]:33777 "EHLO
-	cliff.cse.wustl.edu") by vger.kernel.org with ESMTP id S266457AbUAOJRN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 04:17:13 -0500
-Date: Thu, 15 Jan 2004 03:17:12 -0600 (CST)
-From: Cheng Huang <cheng@cs.wustl.edu>
-To: linux-kernel@vger.kernel.org
-cc: cheng@cse.wustl.edu
-Subject: Hang with Promise Ultra100 TX2 (kernel 2.4.18)
-Message-ID: <Pine.GSO.4.58.0401150308350.1943@siesta.cs.wustl.edu>
+	Thu, 15 Jan 2004 04:20:16 -0500
+Received: from smtprelay02.ispgateway.de ([62.67.200.157]:48846 "EHLO
+	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
+	id S266499AbUAOJUL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 04:20:11 -0500
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH] 2.6.1: Update PCI Name database, fix gen-devlist.c for  long device names.
+Date: Thu, 15 Jan 2004 10:17:21 +0100
+User-Agent: KMail/1.5.4
+References: <5.1.0.14.2.20040115140515.00af1318@mail.mgpenguin.net> <40061188.8060705@pobox.com>
+In-Reply-To: <40061188.8060705@pobox.com>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200401151017.22996.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have to use kernel 2.4.18 because I need to install KURT (realtime
-linux) with it. However, my system hangs on boot with the following
-message:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-PDC20268: not 100% native mode: will probe irqs later
-PDC20268: ROM enabled at 0xff900000
-    ide2: BM-DMA at 0xfcc0-0xfcc7, BIOS settings: hde:pio, hdf:pio
-    ide3: BM-DMA at 0xfcc8-0xfccf, BIOS settings: hdg:pio, hdh:pio
+On Thursday 15 January 2004 05:05, Jeff Garzik wrote:
+> We don't need these strings in the kernel at all.  pci.ids is just a
+> static lookup table that is best kept in userspace.
 
-I have tried tricks I could find in through google, like setting boot
-parameters "hde=4866,255,63 hde=noprobe hdg=24321,255,163 hdg=noprobe".
-But it didn't work.
+Where it is always out of date, according to my experience. People tend
+to update their kernel more often than lspci, so on most machines I've
+been on, I usally point lspci to the kernel copy of it.
 
-Could anybody provide some clue about how to fix this problem? Thanks
-very much.
+sth. needs to be done in this area in the main distros (e.g. more
+frequent updates of just this file as a package would be fine).
 
--- Cheng
+
+Regards
+
+Ingo Oeser
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQFABlqhU56oYWuOrkARAs9AAKDhW5bfSVSV6VqpF1e7aDxgy3ZuQwCeKAk6
+Bqu9S7eWlqtwLlimEA2Y0mE=
+=Rvll
+-----END PGP SIGNATURE-----
+

@@ -1,88 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261441AbTCTN0Q>; Thu, 20 Mar 2003 08:26:16 -0500
+	id <S261453AbTCTNgb>; Thu, 20 Mar 2003 08:36:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261443AbTCTN0P>; Thu, 20 Mar 2003 08:26:15 -0500
-Received: from loki.a-q.co.uk ([195.224.50.15]:7941 "EHLO loki.a-q.co.uk")
-	by vger.kernel.org with ESMTP id <S261441AbTCTN0O>;
-	Thu, 20 Mar 2003 08:26:14 -0500
-Date: Thu, 20 Mar 2003 13:37:12 +0000
-From: James Wright <james@jigsawdezign.com>
-To: "Nakajima, Jun" <jun.nakajima@intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: P4 3.06Ghz Hyperthreading with 2.4.20?
-Message-Id: <20030320133712.468930bd.james@jigsawdezign.com>
-In-Reply-To: <3014AAAC8E0930438FD38EBF6DCEB564013393B6@fmsmsx407.fm.intel.com>
-References: <3014AAAC8E0930438FD38EBF6DCEB564013393B6@fmsmsx407.fm.intel.com>
-Organization: Jigsaw Dezign
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S261455AbTCTNgb>; Thu, 20 Mar 2003 08:36:31 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:30856 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S261453AbTCTNg2>; Thu, 20 Mar 2003 08:36:28 -0500
+Date: Thu, 20 Mar 2003 08:49:02 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: John Jasen <jjasen@realityfailure.org>
+cc: John Bradford <john@grabjohn.com>, "H. Peter Anvin" <hpa@zytor.com>,
+       mirrors@kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Deprecating .gz format on kernel.org
+In-Reply-To: <Pine.LNX.4.44.0303200744010.2365-100000@bushido>
+Message-ID: <Pine.LNX.4.53.0303200819070.3415@chaos>
+References: <Pine.LNX.4.44.0303200744010.2365-100000@bushido>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 20 Mar 2003, John Jasen wrote:
 
-   So i can apply the ACPI patch to 2.4.20, and it will work, even though my motherboard BIOS
-doesn't provide the MPS table? Do i still need to use "acpismp=force" option? What do you mean
-by *configuring* acpi, do i need the "acpid" or other resources, than just enabling it?
+>
+> Among the latest 2.4-release kernels (2.4.19 and 2.4.20), it seems that
+> bz2 saves ~6MB.
+>
+> Downloads: 1.5MB DSL
+>
+> time `ncftpget ftp://ftp.kernel.org/pub/linux/kernel/v2.4/linux-2.4.20.tar.gz`
+> real    3m24.004s
+> <snipped>
+>
+> time `ncftpget ftp://ftp.kernel.org/pub/linux/kernel/v2.4/linux-2.4.20.tar.bz2`
+> real    2m51.481s
+> <snipped>
+>
+> Uncompression: Dual AMD 1600+, 512MB ram, 30 GB seagate EIDE
+> time `gunzip linux-2.4.20.tar.gz`
+> real    0m5.428s
+> user    0m2.285s
+> sys     0m1.096s
+>
+> time `bunzip2 linux-2.4.20.tar.bz2 `
+> real    0m28.892s
+> user    0m27.318s
+> sys     0m1.363s
+>
+> Compression: Dual AMD 1600+, 512MB ram, 30 GB seagate EIDE
+> time `gzip linux-2.4.20.tar`
+> real    0m18.771s
+> user    0m17.990s
+> sys     0m0.674s
+>
+> time `gzip -9 linux-2.4.20.tar`
+> real    0m42.032s
+> user    0m40.725s
+> sys     0m0.791s
+>
+> time `bzip2 linux-2.4.20.tar`
+> real    1m50.411s
+> user    1m49.197s
+> sys     0m0.555s
+>
+> bz2 is about 18% of the size of the tarfile. gz is 22%. gzip -9 saved a
+> whopping 310k compared to gzip.
+>
+> --
+> -- John E. Jasen (jjasen@realityfailure.org)
+> -- User Error #2361: Please insert coffee and try again.
+>
 
-Thanks,
-James
+Simple question. Has anybody provided a modified `tar` that
+will properly extract `tar -xzf ...` without having to determine
+ahead of time if it's a bz2 or gzip file? If not, you will
+obsolete bz(2)illions of scripts that are in use for automatic
+functions world-wide.
 
+If tar will filter through past, present, and future compression
+programs without human intervention, then you can get rid of
+anything you want. But, until this is done, you need to leave
+the "past" alone. There are many machines that get and install
+stuff from tapes and home-brew CDs. They may not even have
+'bz' stuff. Right now you have to modify scripts to use
+tar -xjf after parsing the file-type to check its name and,
+      |______ Dumb, doesn't make any sense.
+some working systems don't even have bzip2 and are not connected
+to the Internet.
 
-On Wed, 19 Mar 2003 18:50:59 -0800
-"Nakajima, Jun" <jun.nakajima@intel.com> wrote:
+Last year, I was in Kuala Lumpur, Malaysia (a nice modern city).
+My company sent me a new CD to install a software update on
+a 3-year old system. The compression was in "@$^_@%" bz format.
+There was no such thing on that machine. I had to buy some
+"Distribution" and waste time finding out how to extract the
+bzip2 stuff from the CD/ROM. Not easy to do when the Distribution
+CD/ROM was designed to install a complete operating system.
 
-> You need to apply the ACPI patch: http://sourceforge.net/projects/acpi and *configure* APIC. 
-> 
-> The 2.4 kernel depends on the MPS table for all but logical processors. If MPS table is not present, it will fall back to UP.
-> 
-> Thanks,
-> Jun
-> 
-> > -----Original Message-----
-> > From: James Wright [mailto:james@jigsawdezign.com]
-> > Sent: Wednesday, March 19, 2003 5:34 PM
-> > To: linux-kernel@vger.kernel.org
-> > Subject: P4 3.06Ghz Hyperthreading with 2.4.20?
-> > 
-> > Hello,
-> > 
-> >    I have kernel 2.4.20 with a single P4 3.06Ghz CPU and Asus P4G8X
-> > motherboard
-> > (with the Intel E7205) Chipset. I have enabled Hyperthreading in the BIOS
-> > options,
-> > compiled in SMP & ACPI support, and also tried adding "acpismp=force" to
-> > my lilo
-> > kernel cmdline, but it just doesn't seem to detect the second Logical CPU.
-> > My
-> > current theory is that this is bcos Linux expects the motherboard to be an
-> > SMP
-> > item (as with the Xeon boards) but this board is a Single processor board,
-> > ansd
-> > doesn't have an MP table, but the cpu info is held in the ACPI tables.?!?
-> > 
-> > I have tried installing 2.5.65 but can't get past the compile due to
-> > compile-time
-> > errors... Is this a known problem? SHall i just disable Hyperthreading
-> > until a new
-> > kernel release?
-> > 
-> > 
-> > Thanks,
-> > James
-> > 
-> > 
-> > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+So my advise is to let the past slowly die away. Do not convert
+any older distributions into something new. Leave them alone.
+Make sure that any new distribution has the tools to handle the
+old stuff and the next stuff. Then you can't go wrong.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
+

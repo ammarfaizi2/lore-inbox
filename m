@@ -1,83 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263193AbTH0Gue (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 02:50:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263203AbTH0Gud
+	id S263185AbTH0HDy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 03:03:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263210AbTH0HDy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 02:50:33 -0400
-Received: from us01smtp1.synopsys.com ([198.182.44.79]:4559 "EHLO
-	boden.synopsys.com") by vger.kernel.org with ESMTP id S263193AbTH0Gu3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 02:50:29 -0400
-Date: Wed, 27 Aug 2003 08:50:16 +0200
-From: Alex Riesen <alexander.riesen@synopsys.COM>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: akpm@zip.com.au, mingo@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] Futex minor fixes
-Message-ID: <20030827065016.GA11214@Synopsys.COM>
-Reply-To: alexander.riesen@synopsys.COM
-Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
-	akpm@zip.com.au, mingo@redhat.com, linux-kernel@vger.kernel.org
-References: <20030826092631.GN16080@Synopsys.COM> <20030827051853.1E6422C0EA@lists.samba.org>
+	Wed, 27 Aug 2003 03:03:54 -0400
+Received: from mail3.ithnet.com ([217.64.64.7]:20918 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S263185AbTH0HDx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 03:03:53 -0400
+X-Sender-Authentication: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
+Date: Wed, 27 Aug 2003 09:03:51 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Ville Herva <vherva@niksula.hut.fi>
+Cc: linux-kernel@vger.kernel.org, tejun@aratech.co.kr
+Subject: Re: 2.4.22pre8 hangs too (Re: 2.4.21-jam1 solid hangs)
+Message-Id: <20030827090351.51a0fc31.skraw@ithnet.com>
+In-Reply-To: <20030827064301.GF150921@niksula.cs.hut.fi>
+References: <20030729073948.GD204266@niksula.cs.hut.fi>
+	<20030730071321.GV150921@niksula.cs.hut.fi>
+	<Pine.LNX.4.55L.0307301149550.29648@freak.distro.conectiva>
+	<20030730181003.GC204962@niksula.cs.hut.fi>
+	<20030827064301.GF150921@niksula.cs.hut.fi>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030827051853.1E6422C0EA@lists.samba.org>
-Organization: Synopsys, Inc.
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell, Wed, Aug 27, 2003 04:40:14 +0200:
-> In message <20030826092631.GN16080@Synopsys.COM> you write:
-> > Rusty Russell, Tue, Aug 26, 2003 05:05:56 +0200:
-> > > Hi Andrew, Ingo,
-> > > 
-> > > 	This was posted before, but dropped.
-> > > 
-> > > Name: Minor futex comment tweaks and cleanups
-> > > Author: Rusty Russell
-> > > Status: Tested on 2.6.0-test4-bk2
-> > > 
-> > > D: Changes:
-> > > D: 
-> > > D: (1) don't return 0 from futex_wait if we are somehow
-> > > D: spuriously woken up, return -EINTR on any such case,
-> > 
-> > Here. EINTR is often (if not always) assumed to be caused by a signal.
-> > And someone may rightfully depend on it being that way.
+On Wed, 27 Aug 2003 09:43:02 +0300
+Ville Herva <vherva@niksula.hut.fi> wrote:
+
+> On Wed, Jul 30, 2003 at 09:10:03PM +0300, you [Ville Herva] wrote:
+> [...]
+>   - HW: Intel 815EEA2LU mobo, i815, Celeron Tualatin 1.3GHz. Adaptec 2940,
+>     9GB Seagate, HP C1537A tapedrive (not used), IBM-DTLA-305030 ide disk.
+>   - The aic7xxx driver has been acting up in past: crashes on boot and 
+>     sometimes at runtime too. I don't know if this is at all related to the
+>     lock ups.
+>   - Kernels tried: 2.4.22-pre8/gcc-2.96-85, 2.4.21-jam1/2.4.21-jam1, 
+>     2.4.21-jam1/gcc-3.2.1-2, 2.4.20pre7 -- all hang.
 > 
-> Yes.  Changed code to loop in this case.  I don't know of anyone who
-> actually randomly wakes processes, but just in case.  Returning "0"
-> always means as "you were woken up by someone using FUTEX_WAKE", and
-> some callers *need to know*.
-> 
-> How's this?
+> Perhaps this is related to the "Race condition in 2.4 tasklet handling
+> (cli() broken?)" problem TeJun Huh and Stephan von Krawczynski have been
+> discussing?
 
-Now it's consistent with what EINTR conventionally mean :)
+This is no SMP box, is it? If it is no SMP is it probably unrelated.
 
-> Rusty.
-> --
-...
-> +
-> +	/* Were we woken up (and removed from queue)?  Always return
-> +	 * success when this happens. */
->  	if (!unqueue_me(&q))
->  		ret = 0;
-> -	put_page(q.page);
-> +	else if (time == 0)
-> +		ret = -ETIMEDOUT;
-> +	else if (signal_pending(current))
-> +		ret = -EINTR;
-> +	else
-> +		/* Spurious wakeup somehow.  Loop. */
-> +		goto again;
->  
->  	return ret;
-
-Btw, what could that spurious wakeups be?
-It set to loop unconditionally, so if the source of wakeup insists on
-wakeing up the code could result in endless loop, right?
-
--alex
-
+Regards,
+Stephan

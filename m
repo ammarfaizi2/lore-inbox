@@ -1,81 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261254AbRFASry>; Fri, 1 Jun 2001 14:47:54 -0400
+	id <S261297AbRFATFK>; Fri, 1 Jun 2001 15:05:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261213AbRFASro>; Fri, 1 Jun 2001 14:47:44 -0400
-Received: from smtpnotes.altec.com ([209.149.164.10]:20487 "HELO
-	smtpnotes.altec.com") by vger.kernel.org with SMTP
-	id <S261217AbRFASr2>; Fri, 1 Jun 2001 14:47:28 -0400
-X-Lotus-FromDomain: ALTEC
-From: Wayne.Brown@altec.com
-To: Alan Cox <laughing@shared-source.org>
-cc: linux-kernel@vger.kernel.org
-Message-ID: <86256A5E.0066F63D.00@smtpnotes.altec.com>
-Date: Fri, 1 Jun 2001 13:45:55 -0500
-Subject: Re: Linux 2.4.5-ac6
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S261357AbRFATEu>; Fri, 1 Jun 2001 15:04:50 -0400
+Received: from [195.211.46.202] ([195.211.46.202]:46886 "EHLO serv02.lahn.de")
+	by vger.kernel.org with ESMTP id <S261297AbRFATEi>;
+	Fri, 1 Jun 2001 15:04:38 -0400
+Date: Fri, 1 Jun 2001 09:34:08 +0200 (CEST)
+From: Philipp Matthias Hahn <pmhahn@titan.lahn.de>
+Reply-To: <pmhahn@titan.lahn.de>
+To: CZUCZY Gergely <phoemix@mayday.hu>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: isdn connecting error(auth failed) with 2.4.4-ac9 and
+ 2.4.5
+In-Reply-To: <Pine.LNX.4.21.0105312020010.20643-100000@hirosima.martos.bme.hu>
+Message-ID: <Pine.LNX.4.33.0106010930340.6131-100000@titan.lahn.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 31 May 2001, CZUCZY Gergely wrote:
 
+> May 27 15:00:52 kign ipppd[391]: Remote message: Access Denied
+> May 27 15:00:52 kign ipppd[391]: PAP authentication failed
+You passwors in /etc/{ppp,isdn}/pap-secrets is wrong.
 
-The oops problem with the cs46xx in my ThinkPad 600X under -ac4 and -ac5 has
-changed now.  It no longer gives an oops; instead the program trying to access
-the sound card hangs (until I kill it).  Subsequent attempts to access the sound
-card get a "Device or resource busy" error.  There are no messages on the screen
-or sent to syslog (or messages or debug) when the hang occurs.  I don't know if
-it will help or not, but here are the last few lines of an strace of the hanging
-process:
+> Modules Loaded         NVdriver hisax isdn slhc au8820
+                         ^^^^^^^^                 ^^^^^^
+Don't report errors to Linux Kernel Mailing List with two
+binary-only-kernel-modules loaded. Nobody will help you expect Nvidia and
+Aureal(now Create Labs) themselves.
 
-stat("/usr/bin/sox", {st_mode=S_IFREG|0755, st_size=120744, ...}) = 0
-rt_sigprocmask(SIG_BLOCK, ~[], [], 8)   = 0
-rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
-rt_sigprocmask(SIG_BLOCK, [INT CHLD], [], 8) = 0
-fork()                                  = 186
-rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
-rt_sigprocmask(SIG_BLOCK, [CHLD], [], 8) = 0
-rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
-rt_sigprocmask(SIG_BLOCK, [CHLD], [], 8) = 0
-rt_sigaction(SIGINT, {0x806c04c, [], 0x4000000}, {SIG_DFL}, 8) = 0
-wait4(-1, 0xbffff744, 0, NULL)          = ? ERESTARTSYS (To be restarted)
---- SIGTERM (Terminated) ---
-+++ killed by SIGTERM +++
-
-At the point of the hang, the output stops at "wait4(-1, " and the rest of that
-line (and the next two lines) appears after I kill the process.
-
-
-Here are the last few lines of another strace of the same program under
-2.4.5-ac3, which works fine:
-
-stat("/usr/bin/sox", {st_mode=S_IFREG|0755, st_size=120744, ...}) = 0
-rt_sigprocmask(SIG_BLOCK, ~[], [], 8)   = 0
-rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
-rt_sigprocmask(SIG_BLOCK, [INT CHLD], [], 8) = 0
-fork()                                  = 435
-rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
-rt_sigprocmask(SIG_BLOCK, [CHLD], [], 8) = 0
-rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
-rt_sigprocmask(SIG_BLOCK, [CHLD], [], 8) = 0
-rt_sigaction(SIGINT, {0x806c04c, [], 0x4000000}, {SIG_DFL}, 8) = 0
-wait4(-1, [WIFEXITED(s) && WEXITSTATUS(s) == 0], 0, NULL) = 435
-rt_sigprocmask(SIG_BLOCK, [CHLD TTOU], [CHLD], 8) = 0
-rt_sigprocmask(SIG_SETMASK, [CHLD], NULL, 8) = 0
-rt_sigprocmask(SIG_BLOCK, [CHLD], [CHLD], 8) = 0
-rt_sigprocmask(SIG_SETMASK, [CHLD], NULL, 8) = 0
-rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
---- SIGCHLD (Child exited) ---
-wait4(-1, 0xbffff438, WNOHANG, NULL)    = -1 ECHILD (No child processes)
-sigreturn()                             = ? (mask now [])
-rt_sigaction(SIGINT, {SIG_DFL}, {0x806c04c, [], 0x4000000}, 8) = 0
-rt_sigprocmask(SIG_BLOCK, NULL, [], 8)  = 0
-rt_sigprocmask(SIG_BLOCK, [CHLD TTOU], [], 8) = 0
-rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
-rt_sigprocmask(SIG_BLOCK, [CHLD], [], 8) = 0
-rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
-read(255, "", 4472)                     = 0
-_exit(0)                                = ?h
-
+BYtE
+Philipp
+-- 
+  / /  (_)__  __ ____  __ Philipp Hahn
+ / /__/ / _ \/ // /\ \/ /
+/____/_/_//_/\_,_/ /_/\_\ pmhahn@titan.lahn.de
 

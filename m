@@ -1,75 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261350AbVBWPeX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261287AbVBWPgH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261350AbVBWPeX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 10:34:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261374AbVBWPeX
+	id S261287AbVBWPgH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 10:36:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261382AbVBWPgH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 10:34:23 -0500
-Received: from elided.info ([24.173.235.14]:57985 "EHLO elided.info")
-	by vger.kernel.org with ESMTP id S261350AbVBWPeR (ORCPT
+	Wed, 23 Feb 2005 10:36:07 -0500
+Received: from mo01.iij4u.or.jp ([210.130.0.20]:40931 "EHLO mo01.iij4u.or.jp")
+	by vger.kernel.org with ESMTP id S261287AbVBWPfw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 10:34:17 -0500
-Date: Wed, 23 Feb 2005 15:35:34 +0000 (UTC)
-From: Rob Levin <04wdxti1@somegeek.org>
-To: linux-kernel@vger.kernel.org
-Subject: Freenode, Tor, Linux channels (Was: Slightly OT: We should move
- linux...)
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-Message-Id: <E1D3yY2-0002EZ-2b@elided.info>
+	Wed, 23 Feb 2005 10:35:52 -0500
+Date: Thu, 24 Feb 2005 00:35:42 +0900
+From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+To: Andrew Morton <akpm@osdl.org>
+Cc: yuasa@hh.iij4u.or.jp, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.6.11-rc4-mm1] mips: fixed confliction types for
+ pcibios_align_resource
+Message-Id: <20050224003542.18cb80b4.yuasa@hh.iij4u.or.jp>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick,
+This patch fixes confliction types for pcibios_align_resource.
 
-> Today lilo (the FreeNode network owner) has decided to make one step away
-> in a direction opposite of freedom, and banned all Tor users from the
-> FreeNode network.
+  CC      arch/mips/pci/pci.o
+arch/mips/pci/pci.c:55: error: conflicting types for 'pcibios_align_resource'
+include/linux/pci.h:729: error: previous declaration of 'pcibios_align_resource' was here
+make[1]: *** [arch/mips/pci/pci.o] Error 1
+make: *** [arch/mips/pci] Error 2
 
-The actual PDPC policy on access to Freenode via the Electronic Frontier
-Foundation's Tor project is here:
+Yoichi
 
-   http://freenode.net/policy.shtml#tor
+Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
 
-To summarize, freenode supports the Tor project and works closely with its
-developers.  Any anonymizing service can be abused, and we have to deal on a
-daily basis with the results of such abuse.  Freenode provides Tor users
-with randomly-generated, per-session, easily-identifiable hostname cloaks
-and thus gives each channel the option of either allowing access to Tor
-users or denying it.
-
-We do occasionally block access from Tor exit nodes or remove Tor users from
-the network, in the course of trying to deal with attacks on channels. 
-We're trying to cut down. ;) For example, this morning we repeatedly killed
-out a small clonebot net that was causing problems on unattended channels. 
-We added the capability of specifically turning off new Tor connections
-during periods when there's no other way to prevent abuse. In the process of
-resolving bugs in that new network feature, we killed out several legitimate
-Tor users by mistake. Nevertheless, we're committed to keeping freenode
-available to Tor users as continuously as it is possible to do so.
-
-Patrick, I'm sorry you felt the need to spam multiple community mailing
-lists with this distorted interpretation of freenode policy.  I'm willing to
-assume that you are simply ignorant of network policy, rather than advancing
-some malicious agenda.
-
-I'm posting this single reply in LKML only, to try to avoid adding to
-off-topic discussion in the mailing lists Patrick has posted his comments
-in; anyone who feels the need can quote this email in some other forum.
-
-Regards,
-
-
-Robert Levin
-Head of Staff, freenode
-Executive Director, PDPC
-----
-Peer-Directed Projects Center
-10100 Main Street #31 /Houston, Texas 77025-5237 USA
-Ph. +1.832.4768694
-
-PDPC is a Texas nonprofit corporation and an IRS 501(c)(03) charitable and
-educational organization, chartered in 2002 to provide resources to
-peer-directed projects, including those of the Free and Open Source Software
-communities.  PDPC runs the freenode interactive network.
-
+diff -urN -X dontdiff a-orig/arch/mips/pci/pci.c a/arch/mips/pci/pci.c
+--- a-orig/arch/mips/pci/pci.c	Sun Feb 13 12:06:55 2005
++++ a/arch/mips/pci/pci.c	Thu Feb 24 00:11:17 2005
+@@ -50,8 +50,7 @@
+  * which might have be mirrored at 0x0100-0x03ff..
+  */
+ void
+-pcibios_align_resource(void *data, struct resource *res,
+-		       unsigned long size, unsigned long align)
++pcibios_align_resource(void *data, struct resource *res, u64 size, u64 align)
+ {
+ 	struct pci_dev *dev = data;
+ 	struct pci_controller *hose = dev->sysdata;

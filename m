@@ -1,64 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261704AbVCGIun@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261706AbVCGIvk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261704AbVCGIun (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 03:50:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbVCGIun
+	id S261706AbVCGIvk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 03:51:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261713AbVCGIvk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 03:50:43 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:33291 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261704AbVCGIuQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 03:50:16 -0500
-Date: Mon, 7 Mar 2005 09:50:13 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Greg KH <greg@kroah.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Nishanth Aravamudan <nacc@us.ibm.com>
-Subject: Re: [BK PATCH] I2C patches for 2.6.11
-Message-ID: <20050307085013.GD3170@stusta.de>
-References: <20050304203531.GA31644@kroah.com> <20050305125902.71286764.khali@linux-fr.org> <20050306065555.GD14943@kroah.com>
+	Mon, 7 Mar 2005 03:51:40 -0500
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:27084 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S261706AbVCGIvf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 03:51:35 -0500
+Subject: Re: 2.6.11-mm1
+From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050304033215.1ffa8fec.akpm@osdl.org>
+References: <20050304033215.1ffa8fec.akpm@osdl.org>
+Date: Mon, 07 Mar 2005 09:51:36 +0100
+Message-Id: <1110185497.8407.4.camel@frecb000711.frec.bull.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050306065555.GD14943@kroah.com>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.2 
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 07/03/2005 10:00:43,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 07/03/2005 10:00:44,
+	Serialize complete at 07/03/2005 10:00:44
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 05, 2005 at 10:55:55PM -0800, Greg KH wrote:
-> On Sat, Mar 05, 2005 at 12:59:02PM +0100, Jean Delvare wrote:
-> > Hi Greg,
-> > 
-> > > Here is a I2C update for 2.6.11.  It includes a number of fixes, and
-> > > some new i2c drivers.  All of these patches have been in the past few
-> > > -mm releases.
-> > 
-> > I checked against my own list of patches and found that I have two more,
-> > which were posted to the sensors and kernel-janitors list in early
-> > february:
-> > http://archives.andrew.net.au/lm-sensors/msg29340.html
-> > http://archives.andrew.net.au/lm-sensors/msg29342.html
-> > 
-> > They never made it to your own i2c tree, nor Andrew's tree. What do we
-> > want to do with these?
-> 
-> They should show up in the -kj tree, right?  That will make it to the
-> -mm tree, and then the kernel janitor maintainer will split them up and
-> send them to me and you.
->...
+I don't see the connector module [cn.ko] in this new release. Do you
+remove it from your tree definitely?
 
--kj is not included in -mm.
-
-> thanks,
-> 
-> greg k-h
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Best regards,
+Guillaume
 

@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287817AbSAIQZq>; Wed, 9 Jan 2002 11:25:46 -0500
+	id <S287804AbSAIQ0q>; Wed, 9 Jan 2002 11:26:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287816AbSAIQZh>; Wed, 9 Jan 2002 11:25:37 -0500
-Received: from thebsh.namesys.com ([212.16.0.238]:26129 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S287804AbSAIQZ2>; Wed, 9 Jan 2002 11:25:28 -0500
-Date: Wed, 9 Jan 2002 19:25:26 +0300
-From: Oleg Drokin <green@namesys.com>
-To: Chris Mason <mason@suse.com>
-Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org,
-        reiserfs-dev@namesys.com, adilger@turbolabs.com
-Subject: Re: [reiserfs-dev] [PATCH] UUID & volume labels support for reiserfs
-Message-ID: <20020109192526.A1732@namesys.com>
-In-Reply-To: <20020109155504.A4551@namesys.com> <52160000.1010591279@tiny> <20020109185826.A1680@namesys.com> <100150000.1010592449@tiny>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <100150000.1010592449@tiny>
-User-Agent: Mutt/1.3.22.1i
+	id <S287809AbSAIQ0a>; Wed, 9 Jan 2002 11:26:30 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:65152 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S287804AbSAIQZm>; Wed, 9 Jan 2002 11:25:42 -0500
+Date: Wed, 9 Jan 2002 11:27:58 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Michael Zhu <mylinuxk@yahoo.ca>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: About Loop Device
+In-Reply-To: <20020109161927.23679.qmail@web14907.mail.yahoo.com>
+Message-ID: <Pine.LNX.3.95.1020109112617.5394A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Wed, 9 Jan 2002, Michael Zhu wrote:
+[SNIPPED...]
 
-On Wed, Jan 09, 2002 at 11:07:29AM -0500, Chris Mason wrote:
+> connection between my own loop device with the floppy
+> disk? I mean how I can connect the loop device with
+> the floppy disk to hook the READ/WRITE operations to
+> the floppy disk.
+> 
+> Michael
+> 
 
-> >> This should not be applied until an updated (non beta) reiserfsprogs
-> >> package that supports these features has been released.
-> > Hey, reserving some space in superblock won't hurt.
-> Reserving it is fine ;-)  Using it isn't a good idea until the progs
-So we did it (reserved) ;)
-We do not use it. (generating of UUID does not count)
+mount -o loop /dev/fd0 /mnt
 
-> understand it.  Our policy should be to never require a progs update in a
-> stable kernel series (just like most stable parts of the kernel).
-We do not require progs upadte. But if someone will update their progs voluntarily,
-we cannot forbit them to! ;))
+Cheers,
+Dick Johnson
 
-> Neither should this patch (even though it is a much smaller problem).
-You just said that reserving is ok.
+Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
 
-Bye,
-    Oleg
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
+

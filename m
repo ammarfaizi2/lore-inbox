@@ -1,60 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265858AbTFSRXf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 13:23:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265859AbTFSRXf
+	id S265860AbTFSRbF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 13:31:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265862AbTFSRbE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 13:23:35 -0400
-Received: from [65.244.37.61] ([65.244.37.61]:55726 "EHLO
-	WSPNYCON1IPC.corp.root.ipc.com") by vger.kernel.org with ESMTP
-	id S265858AbTFSRXc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 13:23:32 -0400
-Message-ID: <170EBA504C3AD511A3FE00508BB89A920234CD34@exnanycmbx4.ipc.com>
-From: "Downing, Thomas" <Thomas.Downing@ipc.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Troll Tech [was RE: Sco vs. IBM]
-Date: Thu, 19 Jun 2003 13:37:28 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Thu, 19 Jun 2003 13:31:04 -0400
+Received: from mail.hometree.net ([212.34.181.120]:3794 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP id S265860AbTFSRa7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 13:30:59 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: SCM domains [was Re: Linux 2.5.71]
+Date: Thu, 19 Jun 2003 17:44:56 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <bcssqo$c6l$1@tangens.hometree.net>
+References: <20030615002153.GA20896@work.bitmover.com> <bcneo1$osd$1@cesium.transmeta.com> <20030618013940.GA19176@work.bitmover.com>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1056044696 12501 212.34.181.4 (19 Jun 2003 17:44:56 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Thu, 19 Jun 2003 17:44:56 +0000 (UTC)
+X-Copyright: (C) 1996-2003 Henning Schmiedehausen
+X-No-Archive: yes
+User-Agent: nn/6.6.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm no authority, but IMHO
- 
-> In article <20030619141443.GR29247@fs.tum.de>,
-> Adrian Bunk  <bunk@fs.tum.de> wrote:
-> >There's no license reason today why there are two big 
-> desktop projects 
-> >(GNOME and KDE).
-> 
-> There is. If you want to develop a commercial application under
-> KDE you need to pay TrollTech for the Qt license. Basically
-> TrollTech controls all commercial KDE applications.
+Larry McVoy <lm@bitmover.com> writes:
 
-No, you don't, IFF you distribute the source code.  Doesn't make
-a lot of sense though.  So consider, a for-profit company licenses
-QT for a proprietary app.  They send bug fixes/enhancements to QT
-to TrollTech.  If these migrate to Free QT, you're ahead of the game.
-If they don't, what did you lose?
- 
-> Which makes no sense. You're not at the mercy of Linus or the
-> kernel developers, neither at that of the KDE developers, but
-> TrollTech controls the KDE desktop wrt commercial apps.
+>I'm happy to buy, register, and manage a neutral domain if someone can
+>think of one.  Obviously, one of the BK based domains is not going to 
+>cut it because people will think we're using it to advertise how BK is
+>going to rule the world, etc. etc.  The only really neutral domain I 
+>have is reggaeware.com and I'm not sure the world is ready to fill their
+>CVS needs from cvs.reggaeware.com, eh?  
 
-No, they don't.  KDE uses the GPL for QT.  If I build a commercial
-app using KDE, it is GPL.  If I build a commercial app not using
-KDE, but using commercial QT, that has no effect on the KDE desktop.
- 
-> What if TrollTech decides to only license (or sell) Qt
-> to, say, Microsoft? What does that mean for, say, the Kompany ?
+>If someone can think of a cool name so we could have
 
-They can't.  They released the code under GPL.  They can stop maintaining
-that code, and continue on a proprietary track.  If they did, what
-did you lose?
+>    bk.coolname.com
+>    cvs.coolname.com
+>    svn.coolname.com
 
-In summary, QT -> GPL, GNOME - GPL, what about _that_ makes one or
-the other inherently preferable or better?
+According to InterNIC, hereisthesource.org is free... :-)
 
-P.S. for once I am in complete agreement with larry m. ;-)
+	Regards
+		Henning
+
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH
+hps@intermeta.de        +49 9131 50 654 0   http://www.intermeta.de/
+
+Java, perl, Solaris, Linux, xSP Consulting, Web Services 
+freelance consultant -- Jakarta Turbine Development  -- hero for hire

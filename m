@@ -1,44 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264940AbTCEV3b>; Wed, 5 Mar 2003 16:29:31 -0500
+	id <S262812AbTCEVdB>; Wed, 5 Mar 2003 16:33:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265008AbTCEV3b>; Wed, 5 Mar 2003 16:29:31 -0500
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:13199 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S264940AbTCEV3a>; Wed, 5 Mar 2003 16:29:30 -0500
-Date: Wed, 5 Mar 2003 15:39:51 -0600 (CST)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: ravikumar.chakaravarthy@amd.com
-cc: mbligh@aracnet.com, <linux-kernel@vger.kernel.org>
-Subject: RE: Loading and executing kernel from a non-standard address usin
- g SY SLINUX
-In-Reply-To: <99F2150714F93F448942F9A9F112634CA54B08@txexmtae.amd.com>
-Message-ID: <Pine.LNX.4.44.0303051536250.31461-100000@chaos.physics.uiowa.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263204AbTCEVdA>; Wed, 5 Mar 2003 16:33:00 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:12036 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S262812AbTCEVc7>; Wed, 5 Mar 2003 16:32:59 -0500
+Date: Wed, 5 Mar 2003 22:43:29 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Pavel Machek <pavel@ucw.cz>, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: sys32_ioctl -> compat_ioctl -- generic
+Message-ID: <20030305214329.GJ2958@atrey.karlin.mff.cuni.cz>
+References: <20030303232122.GA24018@elf.ucw.cz> <20030305102849.61469d19.sfr@canb.auug.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030305102849.61469d19.sfr@canb.auug.org.au>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Mar 2003 ravikumar.chakaravarthy@amd.com wrote:
+Hi!
 
-> Yes the kernel is uncompressed to the right location (0x200000), in my
-> case. When I try to uncompress it to a non standard address (other than
-> 0x100000), the address mapping is affected. Thats why I tried to change
-> the PAGE_OFFSET value to 0xc0100000, which should be the right value
-> corresponding to (0x200000).
+> > This is generic part of sys32_ioctl -> compat_ioctl. Please apply,
+> 
+> Thanks for this - you saved me a headache :-)
 
-> So the problem now is that, when a function is invoked it is unable to
-> fetch the right physical address, since my address mapping (System.map)
-> does not change when I change the value of PAGE_OFFSET and recompile the
-> kernel.
+Well, I fear total sum of headache stayed constant ;-).
 
-Well, this sounds very much like your vmlinux is relocated to the wrong 
-adresses, and then it's not surprising it doesn't work. You definitely 
-want to change arch/i386/vmlinux.lds.S. I'm not sure if you actually want 
-to change PAGE_OFFSET, but I don't see a fundamental reason why it should 
-be needed, so I think you should try as-is.
-
---Kai
+Anyway, producing these patches seems "easy" compared to actually
+merging them. You seem to have some experience with this, would you be
+willing to help?
 
 
+> Some comments:
+> 
+> > --- clean/kernel/compat.c	2003-03-03 23:39:39.000000000 +0100
+> > +++ linux/kernel/compat.c	2003-02-20 10:48:21.000000000 +0100
+> 
+> All this really belongs in fs/compat.c ...
+> 
+> One thing that Linus (and I) wanted from the compatability layer is
+> to try to keep all 32 bit assumptions out of the generic code - I
+> understand that this my not be possible, but we would like to try.
+> 
+> So maybe you could start by changing ioctl32 to compat_ioctl everywhere -
+> I know that this is just cosmetic, but it gives the better impression of
+> what the code is about ...
+
+I thought about that, but I fear resulting diff would be too big (and
+would bitrot extremely quickly). I thought I'd try to merge simple (&
+small) stuff first, to see how bit it will be.....
+
+						Pavel
+
+
+-- 
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

@@ -1,54 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318251AbSGWUcR>; Tue, 23 Jul 2002 16:32:17 -0400
+	id <S318256AbSGWUdg>; Tue, 23 Jul 2002 16:33:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318250AbSGWUcR>; Tue, 23 Jul 2002 16:32:17 -0400
-Received: from ns.suse.de ([213.95.15.193]:12307 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S318251AbSGWUbq>;
-	Tue, 23 Jul 2002 16:31:46 -0400
-Date: Tue, 23 Jul 2002 22:34:56 +0200
-From: Dave Jones <davej@suse.de>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: Markus Pfeiffer <profmakx@profmakx.org>, linux-kernel@vger.kernel.org
+	id <S318250AbSGWUdg>; Tue, 23 Jul 2002 16:33:36 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:32128 "EHLO cherise.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S318256AbSGWUdG>;
+	Tue, 23 Jul 2002 16:33:06 -0400
+Date: Tue, 23 Jul 2002 13:34:37 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise.pdx.osdl.net
+To: Dave Jones <davej@suse.de>
+cc: Markus Pfeiffer <profmakx@profmakx.org>, <linux-kernel@vger.kernel.org>
 Subject: Re: CPU detection broken in 2.5.27?
-Message-ID: <20020723223456.C16446@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Patrick Mochel <mochel@osdl.org>,
-	Markus Pfeiffer <profmakx@profmakx.org>, linux-kernel@vger.kernel.org
-References: <20020723212957.B16446@suse.de> <Pine.LNX.4.44.0207231314390.954-100000@cherise.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.44.0207231314390.954-100000@cherise.pdx.osdl.net>; from mochel@osdl.org on Tue, Jul 23, 2002 at 01:26:38PM -0700
+In-Reply-To: <20020723223456.C16446@suse.de>
+Message-ID: <Pine.LNX.4.44.0207231333330.954-100000@cherise.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 23, 2002 at 01:26:38PM -0700, Patrick Mochel wrote:
 
- > Heh. They've always been there, then. I really did re-add the table from 
- > an older arch/i386/kernel/setup.c ;)
- > 
- > The Celeron detection happens in init_intel(). 
+> Which stepping do you have ?
 
-Ah, ok. Then all those cases should magically work..
+2.
 
- > Added. Wait, isn't Foster the one with HT?
+>  > Updated patch appended. This updated version hasn't been tested, as I
+>  > don't have any of those processors at my disposal...
+> 
+> -ENOAPPENDAGE.
 
-AFAIK yes. Don't have one to test with, so can't say for sure.
+Sorry, it was in the invisible charset. 
 
- > The ones I have say that they 
- > support it, so wouldn't that be a Foster (as well as stepping 5)? 
+	-pat
 
-Which stepping do you have ?
- 
- > Updated patch appended. This updated version hasn't been tested, as I
- > don't have any of those processors at my disposal...
+===== arch/i386/kernel/cpu/intel.c 1.3 vs edited =====
+--- 1.3/arch/i386/kernel/cpu/intel.c	Wed Jul 10 03:46:31 2002
++++ edited/arch/i386/kernel/cpu/intel.c	Tue Jul 23 13:25:01 2002
+@@ -232,15 +232,19 @@
+ 	if (c->x86 == 6) {
+ 		switch (c->x86_model) {
+ 		case 5:
+-			if (l2 == 0)
+-				p = "Celeron (Covington)";
+-			if (l2 == 256)
+-				p = "Mobile Pentium II (Dixon)";
++			if (c->x86_mask == 0) {
++				if (l2 == 0)
++					p = "Celeron (Covington)";
++				else if (l2 == 256)
++					p = "Mobile Pentium II (Dixon)";
++			}
+ 			break;
+ 			
+ 		case 6:
+ 			if (l2 == 128)
+ 				p = "Celeron (Mendocino)";
++			else if (c->x86_mask == 0 || c->x86_mask == 5)
++				p = "Celeron-A";
+ 			break;
+ 			
+ 		case 8:
+@@ -348,6 +352,26 @@
+ 			  [4] "Pentium MMX",
+ 			  [7] "Mobile Pentium 75 - 200", 
+ 			  [8] "Mobile Pentium MMX"
++		  }
++		},
++		{ X86_VENDOR_INTEL,     6,
++		  { 
++			  [0] "Pentium Pro A-step",
++			  [1] "Pentium Pro", 
++			  [3] "Pentium II (Klamath)", 
++			  [4] "Pentium II (Deschutes)", 
++			  [5] "Pentium II (Deschutes)", 
++			  [6] "Mobile Pentium II",
++			  [7] "Pentium III (Katmai)", 
++			  [8] "Pentium III (Coppermine)", 
++			  [10] "Pentium III (Cascades)",
++			  [11] "Pentium III (Tualatin)",
++		  }
++		},
++		{ X86_VENDOR_INTEL,     15,
++		  {
++			  [1] "Pentium 4 (Foster)",
++			  [5] "Pentium 4 (Foster)",
+ 		  }
+ 		},
+ 	},
 
--ENOAPPENDAGE.
-
-        Dave
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs

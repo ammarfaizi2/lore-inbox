@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267142AbSLaEXs>; Mon, 30 Dec 2002 23:23:48 -0500
+	id <S267148AbSLaEhJ>; Mon, 30 Dec 2002 23:37:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267145AbSLaEXs>; Mon, 30 Dec 2002 23:23:48 -0500
-Received: from smtp-server3.tampabay.rr.com ([65.32.1.41]:28110 "EHLO
-	smtp-server3.tampabay.rr.com") by vger.kernel.org with ESMTP
-	id <S267142AbSLaEXr>; Mon, 30 Dec 2002 23:23:47 -0500
-From: "Scott Robert Ladd" <scott@coyotegulch.com>
-To: "J Sloan" <joe@tmsusa.com>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: RE: [2.5.52] NFS works with 2.4.20, not with Win2K/SFU
-Date: Mon, 30 Dec 2002 23:32:14 -0500
-Message-ID: <FKEAJLBKJCGBDJJIPJLJAENKDOAA.scott@coyotegulch.com>
+	id <S267149AbSLaEhJ>; Mon, 30 Dec 2002 23:37:09 -0500
+Received: from 5-116.ctame701-1.telepar.net.br ([200.193.163.116]:35208 "EHLO
+	5-116.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S267148AbSLaEhJ>; Mon, 30 Dec 2002 23:37:09 -0500
+Date: Tue, 31 Dec 2002 02:45:21 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Ed Tomlinson <tomlins@cam.org>
+cc: David Schwartz <davids@webmaster.com>, "" <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH,RFC] fix o(1) handling of threads
+In-Reply-To: <200212302303.50119.tomlins@cam.org>
+Message-ID: <Pine.LNX.4.50L.0212310244150.2429-100000@imladris.surriel.com>
+References: <20021230230030.AAA103@shell.webmaster.com@whenever>
+ <200212302303.50119.tomlins@cam.org>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <3E110417.1050209@tmsusa.com>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> My experience suggests that you'll have much
-> better luck using samba for your unix-to-pc
-> connectivity needs.
+On Mon, 30 Dec 2002, Ed Tomlinson wrote:
+> On December 30, 2002 06:00 pm, David Schwartz wrote:
+> >
+> > 	In general, changes that cause the system to become less efficient as load
+> > increases are not such a good idea. By reducing timeslices, you increase
+> > context-switching overhead. So the busier you are, the less efficient you
+> > get. I think it would be wiser to keep the timeslice the same but assign
+> > fewer timeslices.
+>
+> That would be better - I cannot see a way to do it using O(1).
 
-I'm already using Samba; however, since most of my network is Linux-based
-with NFS shares, it seemed reasonable to try and use NFS for everything. I
-dislike creating two access points (NFS and Samba) for the same share -- but
-then again, I probably over-estimated the ability of Windows.
+I've been thinking about this problem for a while, but haven't
+found a good solution yet.  I've got a long way to go before I
+can port the per-user fair scheduling stuff to the O(1) base.
 
-..Scott
+cheers,
 
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://guru.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>

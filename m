@@ -1,41 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262220AbVAKUdi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261949AbVAKUgB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262220AbVAKUdi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 15:33:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262174AbVAKUdi
+	id S261949AbVAKUgB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 15:36:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262117AbVAKUgA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 15:33:38 -0500
-Received: from fw.osdl.org ([65.172.181.6]:32981 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262155AbVAKUd1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 15:33:27 -0500
-Date: Tue, 11 Jan 2005 12:33:20 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Steve G <linux_4ever@yahoo.com>
-Cc: linux-kernel@vger.kernel.org, lorenzo@gnu.org
-Subject: Re: [PATCH] Trusted Path Execution LSM 0.2 (20050108)
-Message-ID: <20050111123320.S469@build.pdx.osdl.net>
-References: <20050111195542.76809.qmail@web50605.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20050111195542.76809.qmail@web50605.mail.yahoo.com>; from linux_4ever@yahoo.com on Tue, Jan 11, 2005 at 11:55:41AM -0800
+	Tue, 11 Jan 2005 15:36:00 -0500
+Received: from mail1.fw-sj.sony.com ([160.33.82.68]:59832 "EHLO
+	mail1.fw-sj.sony.com") by vger.kernel.org with ESMTP
+	id S261949AbVAKUfv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 15:35:51 -0500
+Message-ID: <41E43899.3080301@am.sony.com>
+Date: Tue, 11 Jan 2005 12:35:37 -0800
+From: Geoff Levand <geoffrey.levand@am.sony.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20041020)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: mporter@mvista.com
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH][PPC32] Fix ebony build warnings
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Steve G (linux_4ever@yahoo.com) wrote:
-> This patch leaks memory in the error paths. For example: 
-> 
-> +static ssize_t trustedlistadd_read_file(struct tpe_list *list, char *buf)
-> +{
-> <snip>
-> + char *buffer = kmalloc(400, GFP_KERNEL);
-> +
-> + user = (char *)__get_free_page(GFP_KERNEL);
-> + if (!user)
-> + return -ENOMEM;
+ebony-fix-warnings-05.01.11.patch:
 
-Helps to inform the author ;-)
+This patch fixes some 'makes pointer from integer without a cast' build 
+warnings for ebony.
 
--chris
+Signed-off-by: Geoff Levand <geoffrey.levand@am.sony.com> for CELF
+---
+
+ ebony.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+--- linux-2.6.10.orig/arch/ppc/platforms/4xx/ebony.c	2004-12-24 13:35:40.000000000 -0800
++++ fixed/arch/ppc/platforms/4xx/ebony.c	2005-01-11 12:27:13.253449121 -0800
+@@ -179,7 +179,7 @@
+ }
+ 
+ #define PCIX_WRITEL(value, offset) \
+-	(writel(value, (u32)pcix_reg_base+offset))
++	(writel(value, (void*)((u32)pcix_reg_base+offset)))
+ 
+ /*
+  * FIXME: This is only here to "make it work".  This will move
+

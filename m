@@ -1,27 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264028AbUD2Jwx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264048AbUD2J6n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264028AbUD2Jwx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 05:52:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264021AbUD2Jwx
+	id S264048AbUD2J6n (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 05:58:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbUD2J6n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 05:52:53 -0400
-Received: from gprs214-162.eurotel.cz ([160.218.214.162]:14720 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S262175AbUD2Jww (ORCPT
+	Thu, 29 Apr 2004 05:58:43 -0400
+Received: from gprs214-162.eurotel.cz ([160.218.214.162]:15232 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S264048AbUD2J6l (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 05:52:52 -0400
-Date: Thu, 29 Apr 2004 11:52:37 +0200
+	Thu, 29 Apr 2004 05:58:41 -0400
+Date: Thu, 29 Apr 2004 11:58:30 +0200
 From: Pavel Machek <pavel@suse.cz>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Timothy Miller <miller@techsource.com>, "Theodore Ts'o" <tytso@mit.edu>,
-       Miquel van Smoorenburg <miquels@cistron.nl>,
-       linux-kernel@vger.kernel.org
-Subject: Re: File system compression, not at the block layer
-Message-ID: <20040429095237.GC390@elf.ucw.cz>
-References: <408951CE.3080908@techsource.com> <c6bjrd_pms_1@news.cistron.nl> <20040423174146.GB5977@thunk.org> <20040427203426.GB6116@openzaurus.ucw.cz> <409036C4.7030102@techsource.com> <20040429094644.GA6098@wohnheim.fh-wedel.de>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz
+Subject: Re: locking in psmouse
+Message-ID: <20040429095830.GD390@elf.ucw.cz>
+References: <20040428213040.GA954@elf.ucw.cz> <200404282347.47411.dtor_core@ameritech.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040429094644.GA6098@wohnheim.fh-wedel.de>
+In-Reply-To: <200404282347.47411.dtor_core@ameritech.net>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -29,19 +27,49 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > I've always felt that way, but every time I mention it, people tell me 
-> > it's not worth the CPU overhead.  For many years, I have felt that there 
-> > should be an IP socket type which was inherently compressed.
+> > psmouse-base.c does not have any locking. For example psmouse_command
+> > could race with data coming from the mouse, resulting in problem. This
+> > should fix it.
 > 
-> Ever heard of ssh? ;)
+> Although I am not arguing that locking might be needed in psmouse module I
+> am somewhat confused how it will help in case of data stream coming from the
+> mouse... If mouse sent a byte before the kernel issue a command then it will
+> be delivered by KBC controller and will be processed by the interrupt handler,
+> probably messing up detection process. That's why as soon as we decide that
+> the device behind PS/2 port is some kind of mouse we disable the stream mode.
 
-Its too high level, and if you want compression but not encryption
-that's tricky to do.
+Does that mean that mouse can not talk while we are sending commands
+to it? That would help a bit.
 
-> Depending on speed of network and cpus involved, scp can be faster
-> than nfs.
+Anyway, locking still seems to be needed: 
 
-Well... but that's due to nfs being broken, right?
-								Pavel
+        while (psmouse->cmdcnt && timeout--) {
+
+                if (psmouse->cmdcnt == 1 && command == PSMOUSE_CMD_RESET_BAT &&
+                                timeout > 100000) /* do not run in a endless loop */
+                        timeout = 100000; /* 1 sec */
+
+                if (psmouse->cmdcnt == 1 && command == PSMOUSE_CMD_GETID &&
+                    psmouse->cmdbuf[1] != 0xab && psmouse->cmdbuf[1] != 0xac) {
+                        psmouse->cmdcnt = 0;
+                        break;
+                }
+
+                spin_unlock_irq(&psmouse_lock);
+                udelay(1);
+                spin_lock_irq(&psmouse_lock);
+        }
+
+racing with
+
+        if (psmouse->cmdcnt) {
+                psmouse->cmdbuf[--psmouse->cmdcnt] = data;
+                goto out;
+        }
+
+now... if each runs on different CPU, it can be possible that
+psmouse->cmdcnt is seen as 1 but data are not yet in
+psmouse->cmdbuf... Locking seems neccessary here.
+							Pavel
 -- 
 934a471f20d6580d5aad759bf0d97ddc

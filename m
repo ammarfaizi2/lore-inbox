@@ -1,94 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261633AbVASO0T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261668AbVASOab@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261633AbVASO0T (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 09:26:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261668AbVASO0T
+	id S261668AbVASOab (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 09:30:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbVASOaa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 09:26:19 -0500
-Received: from mail.joq.us ([67.65.12.105]:58255 "EHLO sulphur.joq.us")
-	by vger.kernel.org with ESMTP id S261633AbVASO0M (ORCPT
+	Wed, 19 Jan 2005 09:30:30 -0500
+Received: from rproxy.gmail.com ([64.233.170.194]:25926 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261668AbVASOaP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 09:26:12 -0500
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       rlrevell@joe-job.com, paul@linuxaudiosystems.com,
-       CK Kernel <ck@vds.kolivas.org>
-Subject: Re: [PATCH][RFC] sched: Isochronous class for unprivileged soft rt
- scheduling
-References: <41ED08AB.5060308@kolivas.org> <87is5tx61a.fsf@sulphur.joq.us>
-	<41EE12AB.9020604@kolivas.org>
-From: "Jack O'Quin" <joq@io.com>
-Date: Wed, 19 Jan 2005 08:27:48 -0600
-In-Reply-To: <41EE12AB.9020604@kolivas.org> (Con Kolivas's message of "Wed,
- 19 Jan 2005 18:56:27 +1100")
-Message-ID: <87y8eptrx7.fsf@sulphur.joq.us>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 19 Jan 2005 09:30:15 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=D6GUppP/elfCNnQjzpnb94GMt0+1d3nyF41RsPVD52Ha+nVjJVfD0StcfWm+NNiwp/jVd6ZbX4yYlYBBaqWBJ8cJbYSQVWdYyYBMwJxLySKyTmWYdHUR+4u8rEjourKRoNljHAfZPn2plavGaa21Lkba2JLVHnZZZENIazM8X+0=
+Message-ID: <d120d500050119063040de00a7@mail.gmail.com>
+Date: Wed, 19 Jan 2005 09:30:14 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Hannes Reinecke <hare@suse.de>
+Subject: Re: [PATCH 0/2] Remove input_call_hotplug
+Cc: Greg KH <greg@kroah.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Vojtech Pawlik <vojtech@suse.cz>
+In-Reply-To: <41EE4AE0.9030308@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <41ED23A3.5020404@suse.de> <20050118213002.GA17004@kroah.com>
+	 <d120d50005011813495b49907c@mail.gmail.com>
+	 <20050118215820.GA17371@kroah.com>
+	 <d120d500050118142068157a78@mail.gmail.com>
+	 <20050119013133.GD23296@kroah.com> <41EE4AE0.9030308@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas <kernel@kolivas.org> writes:
+On Wed, 19 Jan 2005 12:56:16 +0100, Hannes Reinecke <hare@suse.de> wrote:
+> Greg KH wrote:
+> > On Tue, Jan 18, 2005 at 05:20:40PM -0500, Dmitry Torokhov wrote:
+> >
+> >>I was mostly talking about the need of 2 separate classes and this
+> >>patch lays groundwork for it althou lifetime rules in input system
+> >>need to be cleaned up before we can go all the way.
+> >
+> >
+> > I agree.  But I think only 1 class is needed, that way we don't break
+> > userspace, which is a pretty important thing.
+> > 
+> Well, if you could show me how to do this with the class_interface thing
+> I'd be happy to comply.
+> 
+> The input layer design is like this:
+> - Physical devices present one (or several) abstract input devices
+> (which correspond to struct input_dev)
+> - Each input device can be linked to one or several input handlers
+> (which correspond to struct input_handle)
+> - Each handler is represented to userspace with a device node.
+> 
+> The problem with the current input layer is that each 'struct
+> input_handle' is associated with a class_simple device.
+> This class is named 'input', so we're getting 'input' events from it.
+> But each instantiation of struct input_dev is also sending 'input'
+> events as it is doing the call_usermodehelper call directly.
+> 
 
-> Jack O'Quin wrote:
->> Con Kolivas <kernel@kolivas.org> writes:
->>
->>>This patch for 2.6.11-rc1 provides a method of providing real time
->>>scheduling to unprivileged users which increasingly is desired for
->>>multimedia workloads.
->> I ran some jack_test3.2 runs with this, using all the default
->> settings.  The results of three runs differ quite significantly for no
->> obvious reason.  I can't figure out why the DSP load should vary so
->> much.  These may be bogus results.  It looks like a libjack bug
->> sometimes
->> causes clients to crash when deactivating.  I will investigate more
->> tomorrow, and come up with a fix.
->> For comparison, I also made a couple of runs using the realtime-lsm
->> to
->> grant SCHED_FIFO privileges.  There was some variablility, but nowhere
->> near as much (and no crashes).  I used schedtool to verify that the
->> jackd threads actually have the expected scheduler type.
->
-> Thanks for those. If you don't know what to make of the dsp variation
-> and the crashing then I'm not sure what I should make of it
-> either. It's highly likely that my code still needs fixing to ensure
-> it behaves as expected. Already one bug has been picked up in testing
-> with respect to yield() so there may be others. By design, if you set
-> iso_cpu to 100 it should be as good as SCHED_RR. If not, then the
-> implementation is still buggy.
+Yes, this is the problem and needs to be resolved. Thankfully most
+people have keyboard support compiled in so it's not fatal but we
+probably waht hotplug package be updated first before we commit this
+change.
 
-I fixed that bug in libjack, eliminating the crashes on disconnect.
+> 
+> But if we were going to implement this with device_interface, we'd be
+> having a /sys/class structure like:
+> 
+> class
+> |- isa0060-serio0-input0
+> |  |- event0
+> |  |  `dev
+> |  |- key
+> |  |- ...
+> |- ..
+> 
+> So we'd be moving the 'dev' attribute one directory down, again
+> incurring a userland breakage.
+> Plus it would be far more coding involved as the entire input layer
+> structure would have to be redone.
+> 
 
-They must have been perturbing the numbers quite a bit.  Here are
-three more runs (all SCHED_ISO).  The results are much more
-consistent.  The only significant anomaly I see now is that small
-Delay Max in the first run.
+If I understand correctly we do not have subclasses so it will look like
+class
+|- input_device
+|  |- input0
+|  |- input1
+|
+|- input
+|  |-event0
+|  |-event1
+|  |-mouse0
 
-*** Terminated Wed Jan 19 01:04:55 CST 2005 ***
-************* SUMMARY RESULT ****************
-Total seconds ran . . . . . . :   300
-Number of clients . . . . . . :    20
-Ports per client  . . . . . . :     4
-Frames per buffer . . . . . . :    64
-*********************************************
-Timeout Count . . . . . . . . :(    1)          (    5)         (    3)         
-XRUN Count  . . . . . . . . . :     2               16              15          
-Delay Count (>spare time) . . :     0                0               0          
-Delay Count (>1000 usecs) . . :     0                0               0          
-Delay Maximum . . . . . . . . : 11932   usecs    101053  usecs   98719   usecs  
-Cycle Maximum . . . . . . . . :   868   usecs     1099   usecs     887   usecs  
-Average DSP Load. . . . . . . :    37.9 %           33.6 %          36.0 %      
-Average CPU System Load . . . :    10.2 %            9.0 %           9.9 %      
-Average CPU User Load . . . . :    24.5 %           22.7 %          23.0 %      
-Average CPU Nice Load . . . . :     0.0 %            0.0 %           0.0 %      
-Average CPU I/O Wait Load . . :     0.6 %            3.4 %           0.4 %      
-Average CPU IRQ Load  . . . . :     0.7 %            0.7 %           0.7 %      
-Average CPU Soft-IRQ Load . . :     0.0 %            0.0 %           0.0 %      
-Average Interrupt Rate  . . . :  1688.1 /sec      1696.1 /sec     1685.2 /sec   
-Average Context-Switch Rate . : 11727.9 /sec     10642.4 /sec    11568.3 /sec
-*********************************************
+So breakage is really minimal.
 
-I should probably experiment with higher thresholds on the SCHED_ISO class.
 -- 
-  joq
+Dmitry

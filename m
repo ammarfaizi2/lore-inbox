@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263398AbTIWVEW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 17:04:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261470AbTIWVEW
+	id S263426AbTIWVMK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 17:12:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263440AbTIWVMK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 17:04:22 -0400
-Received: from cpc1-cwma1-5-0-cust4.swan.cable.ntl.com ([80.5.120.4]:64459
-	"EHLO dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261334AbTIWVEU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 17:04:20 -0400
-Subject: RE: NS83820 2.6.0-test5 driver seems unstable on IA64
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Luck, Tony" <tony.luck@intel.com>
-Cc: "David S. Miller" <davem@redhat.com>, davidm@hpl.hp.com,
-       davidm@napali.hpl.hp.com, peter@chubb.wattle.id.au, bcrl@kvack.org,
-       ak@suse.de, iod00d@hp.com, peterc@gelato.unsw.edu.au,
-       linux-ns83820@kvack.org, linux-ia64@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <DD755978BA8283409FB0087C39132BD101B01194@fmsmsx404.fm.intel.com>
-References: <DD755978BA8283409FB0087C39132BD101B01194@fmsmsx404.fm.intel.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1064350834.11760.4.camel@dhcp23.swansea.linux.org.uk>
+	Tue, 23 Sep 2003 17:12:10 -0400
+Received: from rav-az.mvista.com ([65.200.49.157]:56570 "EHLO
+	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
+	id S263426AbTIWVMH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Sep 2003 17:12:07 -0400
+Date: Tue, 23 Sep 2003 14:22:07 -0700
+From: Deepak Saxena <dsaxena@mvista.com>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@osdl.org, marcelo.tosatti@cyclades.com.br
+Subject: [PATCH] Fix %x parsing in vsscanf()
+Message-ID: <20030923212207.GA25234@xanadu.az.mvista.com>
+Reply-To: dsaxena@mvista.com
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-7) 
-Date: Tue, 23 Sep 2003 22:00:34 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+Organization: MontaVista Software, Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-09-23 at 19:21, Luck, Tony wrote:
-> a) the programmer is playing fast and loose with types and/or casts.
-> b) the end-user is going to be disappointed with the performance.
 
-c) the programmer is being clever and knows the unaligned access is
-cheaper on average than the cost of making sure it cant happen
+The existing code in kernel/vsprintf.c:vsscanf() does not properly 
+handle the case where the format is specfied as %x or %X and the
+string contains the number in the format "0xinteger". Instead of
+reading "0xinteger", the code currently only sees the '0' and treats
+the 'x' as a delimiter. Following patch (against 2.4 and 2.6) fixes
+this.  Another option is to put the check in simple_strtoul() and
+simple_strtoull() if that is preferred. I like this better b/c
+we only have the check once.
 
-> Looking at a couple of ia64 build servers here I see zero unaligned
-> access messages in the logs.
+Please apply,
+~Deepak
 
-Anyone who can deliver network traffic to your box can soon fix that...
+===== lib/vsprintf.c 1.2 vs edited =====
+--- 1.2/lib/vsprintf.c	Mon Aug 11 04:54:01 2003
++++ edited/lib/vsprintf.c	Tue Sep 23 13:50:50 2003
+@@ -615,6 +615,8 @@
+ 		case 'x':
+ 		case 'X':
+ 			base = 16;
++			if(str[0] == '0' && (str[1] == 'x' || str[1] == 'X'))
++				str += 2;
+ 			break;
+ 		case 'd':
+ 		case 'i':
 
 
+-- 
+Deepak Saxena
+MontaVista Software - Powering the Embedded Revolution - www.mvista.com

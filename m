@@ -1,54 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261468AbVALWJR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261485AbVALWJS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261468AbVALWJR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 17:09:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261485AbVALWIe
+	id S261485AbVALWJS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 17:09:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261484AbVALWIY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 17:08:34 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:31172 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261468AbVALVyY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 16:54:24 -0500
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-From: Lee Revell <rlrevell@joe-job.com>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: "Jack O'Quin" <joq@io.com>, Chris Wright <chrisw@osdl.org>,
-       Paul Davis <paul@linuxaudiosystems.com>, Matt Mackall <mpm@selenic.com>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       mingo@elte.hu, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-In-Reply-To: <20050112074906.GB5735@devserv.devel.redhat.com>
-References: <20050111214152.GA17943@devserv.devel.redhat.com>
-	 <200501112251.j0BMp9iZ006964@localhost.localdomain>
-	 <20050111150556.S10567@build.pdx.osdl.net> <87y8ezzake.fsf@sulphur.joq.us>
-	 <20050112074906.GB5735@devserv.devel.redhat.com>
-Content-Type: text/plain
-Date: Wed, 12 Jan 2005 16:12:45 -0500
-Message-Id: <1105564365.3357.3.camel@krustophenia.net>
+	Wed, 12 Jan 2005 17:08:24 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:39078 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S261485AbVALVsF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 16:48:05 -0500
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+In-Reply-To: <20051121347.3xXrBXJCB2Hv1qHb@topspin.com>
+X-Mailer: Roland's Patchbomber
+Date: Wed, 12 Jan 2005 13:47:45 -0800
+Message-Id: <20051121347.SllTsxtwWAwPk3Gh@topspin.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+To: akpm@osdl.org
+From: Roland Dreier <roland@topspin.com>
+X-SA-Exim-Connect-IP: 127.0.0.1
+X-SA-Exim-Mail-From: roland@topspin.com
+Subject: [PATCH][2/18] InfiniBand/mthca: trivial formatting fix
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on eddore)
+X-OriginalArrivalTime: 12 Jan 2005 21:47:46.0110 (UTC) FILETIME=[5A1FF5E0:01C4F8F0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-01-12 at 08:49 +0100, Arjan van de Ven wrote: 
-> On Tue, Jan 11, 2005 at 07:43:29PM -0600, Jack O'Quin wrote:
-> > > This is straying from the core issue...  But, Arjan's saying that an RT
-> > > (non-root) task could trash the filesystem if it deadlocks the machine
-> > > (because those important fs and IO threads don't run).
-> > 
-> > Lexicographic ambiguity: Lee and Paul are using "trash" for things
-> > like installing a hidden suid root shell or co-opting sendmail into an
-> > open spam relay.  Arjan just means crashing the system which forces
-> > reboot to run fsck.
-> 
-> I actually meant data corruption.
+Trivial formatting fix for empty for loops.
 
-OK, so the ability to run RT tasks implies the ability to possibly
-corrupt data.  It appears that this can't be fixed until we have a real
-isochronous scheduling class; for the forseeable future RT tasks will
-need SCHED_FIFO and nonroot users will need to run them.
+Signed-off-by: Roland Dreier <roland@topspin.com>
 
-Anyway it's good to see the problem finally being taken seriously.
-
-Lee
+--- linux/drivers/infiniband/hw/mthca/mthca_mr.c	(revision 1420)
++++ linux/drivers/infiniband/hw/mthca/mthca_mr.c	(revision 1421)
+@@ -197,7 +197,7 @@
+ 	for (i = dev->limits.mtt_seg_size / 8, mr->order = 0;
+ 	     i < list_len;
+ 	     i <<= 1, ++mr->order)
+-		/* nothing */ ;
++		; /* nothing */
+ 
+ 	mr->first_seg = mthca_alloc_mtt(dev, mr->order);
+ 	if (mr->first_seg == -1)
+@@ -337,7 +337,7 @@
+ 	for (i = 1, dev->mr_table.max_mtt_order = 0;
+ 	     i < dev->limits.num_mtt_segs;
+ 	     i <<= 1, ++dev->mr_table.max_mtt_order)
+-		/* nothing */ ;
++		; /* nothing */
+ 
+ 	dev->mr_table.mtt_buddy = kmalloc((dev->mr_table.max_mtt_order + 1) *
+ 					  sizeof (long *),
 

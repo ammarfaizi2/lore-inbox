@@ -1,62 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270274AbRHHCji>; Tue, 7 Aug 2001 22:39:38 -0400
+	id <S270280AbRHHCyj>; Tue, 7 Aug 2001 22:54:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270276AbRHHCjS>; Tue, 7 Aug 2001 22:39:18 -0400
-Received: from adsl-204-0-249-112.corp.se.verio.net ([204.0.249.112]:39930
-	"EHLO tabby.cats-chateau.net") by vger.kernel.org with ESMTP
-	id <S270274AbRHHCjL>; Tue, 7 Aug 2001 22:39:11 -0400
-From: Jesse Pollard <jesse@cats-chateau.net>
-Reply-To: jesse@cats-chateau.net
-To: Keith Owens <kaos@ocs.com.au>,
-        Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-Subject: Re: using mount from SUID scripts?
-Date: Tue, 7 Aug 2001 21:29:07 -0500
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
-Cc: Kernel Developer List <linux-kernel@vger.kernel.org>
-In-Reply-To: <27034.997233173@kao2.melbourne.sgi.com>
-In-Reply-To: <27034.997233173@kao2.melbourne.sgi.com>
+	id <S270281AbRHHCy3>; Tue, 7 Aug 2001 22:54:29 -0400
+Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:37604 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S270280AbRHHCyR>;
+	Tue, 7 Aug 2001 22:54:17 -0400
+Message-ID: <3B70A9E1.E9D1F48C@candelatech.com>
+Date: Tue, 07 Aug 2001 19:54:25 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <01080721385400.15022@tabby>
-Content-Transfer-Encoding: 7BIT
+To: Stuart Duncan <sety@perth.wni.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ARP's frustrating behavior
+In-Reply-To: <5.1.0.14.0.20010808094513.00ab72c8@mailhost> <5.1.0.14.0.20010808103510.00aafbb0@mailhost>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 07 Aug 2001, Keith Owens wrote:
->On Tue, 7 Aug 2001 16:29:39 -0700, 
->Matthew Dharm <mdharm-kernel@one-eyed-alien.net> wrote:
->>I've got an SUID perl script (yes, it's EUID is really 0) which I'd like to
->>use mount from to mount a file via loopback...
->>
->>Unfortunately, it looks like mount refuses to actually mount anything if
->>the EUID and UID aren't the same....
->
->Are you sure the problem is mount?  Some versions of bash drop euid(0)
->when they execute scripts from setuid programs.
->
+Stuart Duncan wrote:
+> 
+> >Evidently, this is considered a feature.  However, to turn it off:
+> >echo 1 > /proc/sys/net/ipv4/conf/all/arp_filter
+> 
+> I've tried this and it doesn't work.  I understand that arp_filter uses
+> routing tables to determine which interfaces should respond to ARP
+> queries.  In my case, both interfaces are on the same network.
+> 
+> There isn't a lot of documentation available for the use of arp_filter.
+> 
 
-not mount, and likely not the shell - the thing is that perl doesn't like it
-when the  effective uid is not equal to the real uid. Perl is very good at
-limiting the damange an unsuspecting script does. This is to prevent passing
-a "confused" environment to the shell.
+I put interfaces on the same network too, and it works for me.  I do
+use source-based routing (using the 'ip' command) though, which
+may be why it works for me...
 
-The following can work around this:
-
-	($r,$e) = ( $>, $< );	# save real and effective uid's
-	$< = $e;		# force real uid to the effective
-	`/bin/mount ....`
-	($>, $<) = ($r,$e);	# restore mixed state
-
-Remember, the options to mount should come from a fixed table with user
-selected input used to select which table entry to use... or a strictly
-fixed mount command.
-
-Otherwise you have an even bigger security hole.
+Ben
 
 -- 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: jesse@cats-chateau.net
-
-Any opinions expressed are solely my own.
+Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear

@@ -1,42 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264770AbUEKOoY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264775AbUEKOot@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264770AbUEKOoY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 10:44:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264772AbUEKOoY
+	id S264775AbUEKOot (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 10:44:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264774AbUEKOot
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 10:44:24 -0400
-Received: from terra.inf.ufsc.br ([150.162.60.10]:53730 "EHLO
-	terra.inf.ufsc.br") by vger.kernel.org with ESMTP id S264770AbUEKOoW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 10:44:22 -0400
-Message-ID: <40A0E808.2020602@inf.ufsc.br>
-Date: Tue, 11 May 2004 11:49:44 -0300
-From: Thiago Robert <robert@inf.ufsc.br>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
+	Tue, 11 May 2004 10:44:49 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:64417 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S264772AbUEKOol (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 10:44:41 -0400
+From: "Sourav Sen" <souravs@india.hp.com>
+To: "'Greg KH'" <greg@kroah.com>, "'Sourav Sen'" <souravs@india.hp.com>
+Cc: <Matt_Domsch@dell.com>, <matthew.e.tolentino@intel.com>,
+       <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: RE: [2.6.6 PATCH] Exposing EFI memory map
+Date: Tue, 11 May 2004 20:14:27 +0530
+Message-ID: <00b201c43766$7646a670$39624c0f@india.hp.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Write-combining
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+In-Reply-To: <20040507214903.GE13511@kroah.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello there!
++ -----Original Message-----
++ From: Greg KH [mailto:greg@kroah.com]
++ Sent: Saturday, May 08, 2004 3:19 AM
++ To: Sourav Sen
++ Cc: Matt_Domsch@dell.com; matthew.e.tolentino@intel.com;
++ linux-ia64@vger.kernel.org; linux-kernel@vger.kernel.org
++ Subject: Re: [2.6.6 PATCH] Exposing EFI memory map
++ 
++ 
++ On Fri, May 07, 2004 at 03:15:30PM +0530, Sourav Sen wrote:
++ > Here we have "Array of values of same types". And it does 
++ not do much
++ > nifty formatting either. Is that not acceptable?
++ 
++ But they are not of the same time, as you admitted :)
++ 
 
-Is there an easy way to be sure about wether the PCI write-combining is 
-enabled or not for a given memory region?
+	Right. On similar lines I believe we need to split 
+firmware/efi/systab as well.
 
-I'm writting user-level communication software for a Myrinet network. I 
-use Write PIO and I'm aware that WPIO performance is greatly influencied 
-by the presence of write combining. Based on the performance I measured 
-I can only conclude that Write Combining is enabled but I would like to 
-be sure about it (since I'm planning to publish my research).
++ Also, they could be bigger than a single page, right?  That is not
++ possible right now in sysfs.
++ 
++ > If that is not, how about the following.
++ > 
++ > 	1. Create a directory "memmap" under firmware/efi/
++ > 	2. Create files "map_start", "map_size" and "mapdesc_size" under
++ >          that exposing ia64_boot_param->efi_memmap,
++ > ia64_boot_param->efi_memmap_size
++ > 	   and ia64_boot_param->efi_memdesc_size respectively.
++ > 
++ > Userland can make meaning out of them by knowing the values 
++ and knowing
++ > about "efi_memory_desc_t" which is already there in
++ > /usr/include/asm/efi.h
++ 
++ I think you should address the other issues in this thread before
++ worrying about the sysfs interface (why have this at all, incorrect
++ data for hotplug mem, etc.)
++ 
+	I did not hear whether the idea of updating efi memory map on a 
+hotplug is good or bad. In any case, can somebody tell me to how do 
+I get the available physical range map (only the ranges that VM is 
+using at a given point in time) from userland. I believe I outlined 
+a legitimate requirement earlier in this thread :-)
 
-Is the default behaviour of the Linux kernel to enable write-combining? 
-How can I be sure if it is enabled or not?
-
-Thanks in advance.
-
-__________________________
-Thiago Robert
+Thanks
+Sourav 

@@ -1,36 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130078AbQKHWNX>; Wed, 8 Nov 2000 17:13:23 -0500
+	id <S129611AbQKHWTO>; Wed, 8 Nov 2000 17:19:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129611AbQKHWNN>; Wed, 8 Nov 2000 17:13:13 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:27155 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S130078AbQKHWNB>;
-	Wed, 8 Nov 2000 17:13:01 -0500
-Date: Wed, 8 Nov 2000 23:13:00 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-        "J . A . Magallon" <jamagallon@able.es>,
-        Michael Rothwell <rothwell@holly-springs.nc.us>,
-        linux-kernel@vger.kernel.org
-Subject: Re: continuing VM madness
-Message-ID: <20001108231300.A7845@inspiron.suse.de>
-In-Reply-To: <Pine.LNX.3.96.1001108174731.7153B-100000@artax.karlin.mff.cuni.cz> <E13tZF5-0000EX-00@the-village.bc.nu>
+	id <S129957AbQKHWTD>; Wed, 8 Nov 2000 17:19:03 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:26189
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S129611AbQKHWS5>; Wed, 8 Nov 2000 17:18:57 -0500
+Date: Wed, 8 Nov 2000 23:11:11 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: malloc(1/0) ??
+Message-ID: <20001108231111.D622@jaquet.dk>
+In-Reply-To: <NCBBLIEPOCNJOAEKBEAKEEAJLMAA.davids@webmaster.com> <Pine.LNX.4.21.0011080149010.32613-100000@server.serve.me.nl> <8ucj2m$oiq$1@cesium.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E13tZF5-0000EX-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Nov 08, 2000 at 05:42:33PM +0000
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <8ucj2m$oiq$1@cesium.transmeta.com>; from hpa@zytor.com on Wed, Nov 08, 2000 at 02:11:34PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 08, 2000 at 05:42:33PM +0000, Alan Cox wrote:
-> add page aging then in theory it'll be as good as 2.2 but in practice who 
+On Wed, Nov 08, 2000 at 02:11:34PM -0800, H. Peter Anvin wrote:
+> Followup to:  <Pine.LNX.4.21.0011080149010.32613-100000@server.serve.me.nl>
+> By author:    Igmar Palsenberg <maillist@chello.nl>
+> In newsgroup: linux.dev.kernel
 
-Agreed.
+[snip]
 
-Andrea
+> > May I remind you guys that a malloc(0) is equal to a free(). There is no
+> > way that any mem get's malloced. 
+> > 
+> 
+> Where the heck did you get idea?
+> 
+> 	-hpa
+
+Probably from the malloc man page where it is stated that *realloc* 
+with size 0 equals free :)
+-- 
+        Rasmus(rasmus@jaquet.dk)
+
+Which is worse: Ignorance or Apathy?
+Who knows? Who cares?
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

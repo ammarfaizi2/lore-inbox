@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311940AbSCXLe4>; Sun, 24 Mar 2002 06:34:56 -0500
+	id <S311960AbSCXLo7>; Sun, 24 Mar 2002 06:44:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311960AbSCXLer>; Sun, 24 Mar 2002 06:34:47 -0500
-Received: from ns.caldera.de ([212.34.180.1]:24495 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S311940AbSCXLed>;
-	Sun, 24 Mar 2002 06:34:33 -0500
-Date: Sun, 24 Mar 2002 12:34:14 +0100
-From: Christoph Hellwig <hch@caldera.de>
-To: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Cc: velco@fadata.bg
-Subject: [PATCH] updated radix-tree pagecache
-Message-ID: <20020324123414.A12686@caldera.de>
-Mail-Followup-To: Christoph Hellwig <hch@caldera.de>, linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org, velco@fadata.bg
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S312053AbSCXLot>; Sun, 24 Mar 2002 06:44:49 -0500
+Received: from moutvdomng1.kundenserver.de ([212.227.126.181]:12267 "EHLO
+	moutvdomng1.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S311968AbSCXLok>; Sun, 24 Mar 2002 06:44:40 -0500
+Message-ID: <3C9DBC24.1010908@ngforever.de>
+Date: Sun, 24 Mar 2002 04:44:36 -0700
+From: Thunder from the hill <thunder@ngforever.de>
+Organization: The LuckyNet Administration
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:0.9.4) Gecko/20011126 Netscape6/6.2.1
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Tom Rini <trini@kernel.crashing.org>
+CC: Larry McVoy <lm@work.bitmover.com>, Pavel Machek <pavel@suse.cz>,
+        Dave Jones <davej@suse.de>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Bitkeeper licence issues
+In-Reply-To: <20020318212617.GA498@elf.ucw.cz> <20020318144255.Y10086@work.bitmover.com> <20020318231427.GF1740@atrey.karlin.mff.cuni.cz> <20020319002241.K17410@suse.de> <20020319220631.GA1758@elf.ucw.cz> <20020319152502.J14877@work.bitmover.com> <20020319233432.GS3762@opus.bloom.county>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've just uploaded a new version of the radix-tree pagecache patch
-to kernel.org.  This version should fix the OOPSens in the last 
-version by beeing more carefull with the page->flags handling.
+Hi,
 
-I have tested the 2.4 version under varying loads for about 20 hours
-now and it seems stabel, the 2.5 version just got a compiles & boots,
-I don't really trust 2.5 in this stage..
+>>	c) put the symlink in /tmp/installer$pid
 
-The only real difference between the two patches is the use of Ingo
-Molnar's mempool interface in the 2.5 version, this is needed to not
-deadlock under extreme loads.  If you want to have this with a 2.4-based
-kernel you have to get a mempool backport from somewhere and just copy
-lib/radix-tree.c from the 2.5 radix pagecache patch.
+What then about $HOME/tmp? Might be a lot less available for crackers, 
+and if it doesn't exist, we create it (still as 0700).
 
-The patches are located at:
-
-	ftp://ftp.kernel.org/pub/linux/kernel/people/hch/patches/v2.4/2.4.19-pre4/linux-2.4.19-radixpagecache.patch.gz
-	ftp://ftp.kernel.org/pub/linux/kernel/people/hch/patches/v2.4/2.4.19-pre4/linux-2.4.19-radixpagecache.patch.bz2
-
-	ftp://ftp.kernel.org/pub/linux/kernel/people/hch/patches/v2.5/2.5.7/linux-2.5.7-radixpagecache.patch.gz
-	ftp://ftp.kernel.org/pub/linux/kernel/people/hch/patches/v2.5/2.5.7/linux-2.5.7-radixpagecache.patch.bz2
-
-Please give them some beating so I can declare them ready for 2.5 when
-Linus is back from vacation..
-
-	Christoph
+Thunder
+-- 
+begin-base64 755 -
+IyEgL3Vzci9iaW4vcGVybApteSAgICAgJHNheWluZyA9CSMgVGhlIHNjcmlw
+dCBvbiB0aGUgbGVmdCBpcyB0aGUgcHJvb2YKIk5lbmEgaXN0IGVpbiIgLgkj
+IHRoYXQgaXQgaXNuJ3QgYWxsIHRoZSB3YXkgaXQgc2VlbXMKIiB2ZXJhbHRl
+dGVyICIgLgkjIHRvIGJlIChlc3BlY2lhbGx5IG5vdCB3aXRoIG1lKQoiTkRX
+LVN0YXIuXG4iICA7CiRzYXlpbmcgPX4Kcy9ORFctU3Rhci9rYW5uXAogdW5z
+IHJldHRlbi9nICA7CiRzYXlpbmcgICAgICAgPX4Kcy92ZXJhbHRldGVyL2Rp
+XAplIExpZWJlL2c7CiRzYXlpbmcgPX5zL2Vpbi8KbnVyL2c7JHNheWluZyA9
+fgpzL2lzdC9zYWd0LC9nICA7CiRzYXlpbmc9fnMvXG4vL2cKO3ByaW50Zigk
+c2F5aW5nKQo7cHJpbnRmKCJcbiIpOwo=
+====
+Extract this and see what will happen if you execute my
+signature. Just save it to file and do a
+ > uudecode $file | perl
 

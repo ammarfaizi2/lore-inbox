@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316465AbSEUAgH>; Mon, 20 May 2002 20:36:07 -0400
+	id <S316469AbSEUAoQ>; Mon, 20 May 2002 20:44:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316467AbSEUAgG>; Mon, 20 May 2002 20:36:06 -0400
-Received: from kweetal.tue.nl ([131.155.2.7]:12533 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S316465AbSEUAgF>;
-	Mon, 20 May 2002 20:36:05 -0400
-Date: Tue, 21 May 2002 02:36:04 +0200
-From: Guest section DW <dwguest@win.tue.nl>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Miquel van Smoorenburg <miquels@cistron.nl>,
-        linux-kernel@vger.kernel.org
-Subject: Re: IO stats in /proc/partitions
-Message-ID: <20020521003604.GA400@win.tue.nl>
-In-Reply-To: <E17899v-0003Cl-00@the-village.bc.nu> <Pine.LNX.3.96.1020520141820.29156A-100000@gatekeeper.tmr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
+	id <S316473AbSEUAoQ>; Mon, 20 May 2002 20:44:16 -0400
+Received: from nacho.alt.net ([207.14.113.18]:16908 "HELO nacho.alt.net")
+	by vger.kernel.org with SMTP id <S316469AbSEUAoO>;
+	Mon, 20 May 2002 20:44:14 -0400
+Date: Mon, 20 May 2002 17:44:10 -0700 (PDT)
+From: Chris Caputo <ccaputo@alt.net>
+To: netdev@oss.sgi.com
+cc: linux-kernel@vger.kernel.org, <linux-net@vger.kernel.org>
+Subject: [PATCH] net/core/sock.c - 2.4.18
+Message-ID: <Pine.LNX.4.44.0205201738180.19839-100000@nacho.alt.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 20, 2002 at 02:19:48PM -0400, Bill Davidsen wrote:
-> On Thu, 16 May 2002, Alan Cox wrote:
+This patch corrects a typo in net/core/sock.c.  The assignment to
+sysctl_wmem_default was done twice in a row, rather than to
+sysctl_wmem_default and sysctl_rmem_default.
 
-> > Pretty much every vendor shipped the /proc/partitions changes and
-> > has tools that will look for them. Its annoying to change stuff but
-> > long term /proc/partitions is the wrong place for disk stats
+This patch applies to 2.4.18.
 
->   Changes belong in 2.5, /proc/partitions is the wrong place, but it's
-> also the place the tools expect. I hope that's not going to change in the
-> stable kernel.
+Chris
 
-You misunderstand.
-Everybody agrees that /proc/partitions is the wrong place.
-Up to now these statistics have not been part of any official
-kernel, stable or not.
-However, someone wanted to introduce them for the first time
-in 2.4.19 and put them in /proc/partitions. That is a really bad idea,
-especially when they will be somewhere else in 2.5.
+--- net/core/sock.c.orig        Fri Dec 21 09:42:05 2001
++++ net/core/sock.c     Mon May 20 17:35:43 2002
+@@ -626,7 +626,7 @@
+                sysctl_wmem_max = 32767;
+                sysctl_rmem_max = 32767;
+                sysctl_wmem_default = 32767;
+-               sysctl_wmem_default = 32767;
++               sysctl_rmem_default = 32767;
+        } else if (num_physpages >= 131072) {
+                sysctl_wmem_max = 131071;
+                sysctl_rmem_max = 131071;
 
-Andries

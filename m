@@ -1,68 +1,137 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265306AbRFVBgY>; Thu, 21 Jun 2001 21:36:24 -0400
+	id <S265307AbRFVBn4>; Thu, 21 Jun 2001 21:43:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265307AbRFVBgO>; Thu, 21 Jun 2001 21:36:14 -0400
-Received: from w115.z208177135.sjc-ca.dsl.cnc.net ([208.177.135.115]:4235 "EHLO
-	technolunatic.com") by vger.kernel.org with ESMTP
-	id <S265306AbRFVBgJ>; Thu, 21 Jun 2001 21:36:09 -0400
-Date: Thu, 21 Jun 2001 18:36:03 -0700
-From: Dionysius Wilson Almeida <dwilson@technolunatic.com>
-To: Andrey Savochkin <saw@saw.sw.com.sg>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: eepro100: wait_for_cmd_done timeout
-Message-ID: <20010621183603.A28081@technolunatic.com>
-Reply-To: dwilson@technologist.com
-In-Reply-To: <20010620163134.A22173@technolunatic.com> <20010620195134.A6877@saw.sw.com.sg> <20010620170202.B22565@technolunatic.com>
-Mime-Version: 1.0
+	id <S265308AbRFVBnr>; Thu, 21 Jun 2001 21:43:47 -0400
+Received: from sncgw.nai.com ([161.69.248.229]:24734 "EHLO mcafee-labs.nai.com")
+	by vger.kernel.org with ESMTP id <S265307AbRFVBnd>;
+	Thu, 21 Jun 2001 21:43:33 -0400
+Message-ID: <XFMail.20010621184645.davidel@xmailserver.org>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010620170202.B22565@technolunatic.com>; from dwilson@technolunatic.com on Wed, Jun 20, 2001 at 05:02:02PM -0700
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+Date: Thu, 21 Jun 2001 18:46:45 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+To: linux-kernel@vger.kernel.org
+Subject: About I/O callbacks ...
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I tried inserting a udelay(1) and increasing the count ..but
-the same behaviour.  
 
-any clues ? btw, i've been able to compile the redhat 7.1 intel e100
-driver and it works fine for my card.
+I was just thinking to implement I/O callbacks inside the kernel and test which
+kind of performance could result compared to a select()/poll() implementation.
+I prefer IO callbacks against async-io coz in this way is more direct to
+implement an I/O driven state machine + coroutines.
+This is a first draft :
 
--Wilson
 
-* Dionysius Wilson Almeida (dwilson@technolunatic.com) wrote:
-> No..that was pretty much what i saw in the logs.
-> 
-> I see wait_for_cmd_done timeout being the only one being repeated in the
-> logs
-> 
-> -Wilson
-> `
-> * Andrey Savochkin (saw@saw.sw.com.sg) wrote:
-> > What was the first error message from the driver?
-> > NETDEV WATCHDOG report went before wait_for_cmd_done timeout and is more
-> > important.  I wonder if you had some other messages before the watchdog one.
-> > 
-> > 	Andrey
-> > 
-> > On Wed, Jun 20, 2001 at 04:31:34PM -0700, Dionysius Wilson Almeida wrote:
-> > > And this is the log when the card hangs :
-> > > =========================================
-> > > Jun 20 16:10:18 debianlap kernel: NETDEV WATCHDOG: eth0: transmit timed out
-> > > Jun 20 16:10:18 debianlap kernel: eth0: Transmit timed out: status 0050  0c80 at 314/342 command 000c0000.
-> > > Jun 20 16:10:18 debianlap kernel: eth0: Tx ring dump,  Tx queue 342 / 314:
-> > > Jun 20 16:14:07 debianlap kernel: eepro100: wait_for_cmd_done timeout!
-> > > Jun 20 16:14:38 debianlap last message repeated 5 times
-> 
-> -- 
-> Eat shit -- billions of flies can't be wrong.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 
--- 
-Fortune's Office Door Sign of the Week:
+#define ASCB_INFO_NPARAMS 4
 
-	Incorrigible punster -- Do not incorrige.
+struct ascb_info {
+        unsigned long param[ASCB_INFO_NPARAMS];
+};
+
+struct iocb {
+        struct iocb * next;
+        struct task_struct * task;
+        unsigned long event;
+        int (*iocb_func)(struct ascb_info *, void *);
+        void * data;
+};
+
+struct ascb {
+        struct ascb * next;
+        int (*ascb_func)(struct ascb_info *, void *);
+        void * data;
+        struct ascb_info info;
+};
+
+
+
+
+
+struct task_struct {
+        ...
+        struct ascb * ascb_list;
+        spinlock_t ascb_list_lock;
+        ...
+};
+
+
+struct file {
+        ...
+        struct iocb * iocb_list;
+        spinlock_t iocb_list_lock;
+        ...
+};
+
+
+
+
+The user call some user-space api to add the callback to the fd and this will
+result ( inside the kernel ) to a call to :
+
+
+
+int iocb_file_add(struct file * file,
+                int (*iocb_func)(struct ascb_info *, void *), void * data,
+                unsigned long event) {
+
+/*
+ *  Add the callback to the file list with task = current
+ */
+
+
+}
+
+
+
+This is used to add callbacks to the task's list :
+
+int ascb_task_add(struct task_struct * task,
+                int (*ascb_func)(struct ascb_info *, void *),
+                void * data, struct ascb_info * info) {
+
+/*
+ *  Add the callback to the task list
+ */
+
+}
+
+
+
+
+Low level I/O layers will call this to dispatch I/O events :
+
+
+int iocb_file_dispatch(struct file * file, unsigned long event) {
+
+/*
+ *  Scan the iocb_list and ( if event match ) call ascb_task_add()
+ *  and remove ( y/n ? ) the callback from iocb_list
+ */
+
+
+}
+
+
+
+
+In entry.S we'll have a call like do_signal() that will build the frame for a
+callback call ( like do_signal() ) and will remove the entry from the list.
+My first implementation should address only sockets but once the concept of
+async callbacks is inside the task_struct this could be gradually extended to
+std files and even used as an extension of signals.
+
+Comments ?
+
+
+
+
+
+- Davide
+
+

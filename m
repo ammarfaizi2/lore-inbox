@@ -1,48 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261684AbUDWXSu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261685AbUDWXWg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261684AbUDWXSu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 19:18:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbUDWXSu
+	id S261685AbUDWXWg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 19:22:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbUDWXWg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 19:18:50 -0400
-Received: from mail.kroah.org ([65.200.24.183]:9903 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261684AbUDWXSt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 19:18:49 -0400
-Date: Fri, 23 Apr 2004 16:18:12 -0700
-From: Greg KH <greg@kroah.com>
-To: Duncan Sands <baldrick@free.fr>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Frederic Detienne <fd@cisco.com>
-Subject: Re: [PATCH 1/9] USB usbfs: take a reference to the usb device
-Message-ID: <20040423231811.GA10398@kroah.com>
-References: <200404141229.26677.baldrick@free.fr>
+	Fri, 23 Apr 2004 19:22:36 -0400
+Received: from seraph3.grc.nasa.gov ([128.156.10.12]:22515 "EHLO
+	seraph3.grc.nasa.gov") by vger.kernel.org with ESMTP
+	id S261685AbUDWXWe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Apr 2004 19:22:34 -0400
+Date: Fri, 23 Apr 2004 19:19:14 -0400
+From: Wesley Eddy <weddy@grc.nasa.gov>
+To: David Stevens <dlstevens@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: TCP rto estimation patch
+Message-ID: <20040423231914.GB9057@grc.nasa.gov>
+Reply-To: weddy@grc.nasa.gov
+References: <20040423142445.GC501@grc.nasa.gov> <OFE28EC49F.335C9D5D-ON88256E7F.0073BC2E-88256E7F.0073F700@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="nVMJ2NtxeReIH9PS"
 Content-Disposition: inline
-In-Reply-To: <200404141229.26677.baldrick@free.fr>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <OFE28EC49F.335C9D5D-ON88256E7F.0073BC2E-88256E7F.0073F700@us.ibm.com>
+X-People-Whose-Mailers-Cant-See-This-Header-Are-Lame: true
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 14, 2004 at 12:29:26PM +0200, Duncan Sands wrote:
-> Hi Greg, this is the first of a series of patches that replace the
-> per-file semaphore ps->devsem with the per-device semaphore
-> ps->dev->serialize.  The role of devsem was to protect against
-> device disconnection.  This can be done equally well using
-> ps->dev->serialize.  On the other hand, ps->dev->serialize
-> protects against configuration and other changes, and has
-> already been introduced into usbfs in several places.  Using
-> just one semaphore simplifies the code and removes some
-> remaining race conditions.  It should also fix the oopses some
-> people have been seeing.  In this first patch, a reference is
-> taken to the usb device as long as the usbfs file is open.  That
-> way we can use ps->dev->serialize for as long as ps exists.
 
-Nice, I've applied all 9 patches here (with the updated patch 8
-version).  Feel free to send me an update for the warning issue you and
-Oliver talked about if you want to.
+--nVMJ2NtxeReIH9PS
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-thanks,
+On Fri, Apr 23, 2004 at 02:06:39PM -0700, David Stevens wrote:
+> I believe "2" and "3" are the scale factors for the fixed-point=20
+> representation
+> of the data, not the "alpha" and "beta" I remember from the estimator=20
+> paper.
+>
 
-greg k-h
+The math is done with bit shifts instead of floating point multiplications.
+It's the same thing though.  The 2 means beta of 1/4 and the 3 means alpha
+of 1/8.
+
+-Wes=20
+
+--nVMJ2NtxeReIH9PS
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAiaRyzBuYqbnj3IwRAkQ4AJ9dXt7Odh3p18MhTydzRxoXrIiGsACdEZfs
+7aHa74eaeQkk2fp2VeDNwfA=
+=CQbL
+-----END PGP SIGNATURE-----
+
+--nVMJ2NtxeReIH9PS--

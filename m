@@ -1,51 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266136AbUHSNeo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266139AbUHSNg0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266136AbUHSNeo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 09:34:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266137AbUHSNen
+	id S266139AbUHSNg0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 09:36:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266137AbUHSNg0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 09:34:43 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:11907 "EHLO
+	Thu, 19 Aug 2004 09:36:26 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:12675 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S266136AbUHSNef (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 09:34:35 -0400
-Subject: Re: serialize access to ide device
+	id S266139AbUHSNgV convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 09:36:21 -0400
+Subject: Re: CD/DVD record
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Jens Axboe <axboe@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200408191514.13022.bzolnier@elka.pw.edu.pl>
-References: <20040802131150.GR10496@suse.de>
-	 <200408191514.13022.bzolnier@elka.pw.edu.pl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1092918716.28141.19.camel@localhost.localdomain>
+To: root@chaos.analogic.com
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.53.0408190917140.19253@chaos>
+References: <Pine.LNX.4.53.0408190917140.19253@chaos>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1092918833.28129.22.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 19 Aug 2004 13:32:06 +0100
+Date: Thu, 19 Aug 2004 13:33:54 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2004-08-19 at 14:14, Bartlomiej Zolnierkiewicz wrote:
-> What about adding new kind of REQ_SPECIAL request and converting 
-> set_using_dma(), set_xfer_rate(), ..., to be callback functions for this 
-> request?
+On Iau, 2004-08-19 at 14:25, Richard B. Johnson wrote:
+> Hello all...
+> Recording this stuff is basically sending some commands to
+> a device and then keeping a FIFO full until done.
 
-Definitely the right direction but it doesn't ultimately fix the bigger
-problem which is that in some cases you need to issue multiple commands
-in order to set up the drive and cannot do that in one sequence if the
-drive is active. This could also be done with some kind of ATA_IO SG_IO
-like functionality for the most part (the drive side).
+"Driving consists of basically pressing down the pedals and moving
+ the wheel, an four year old could do it"
 
-The reset() logic also has the same problem when it occurs from process
-context. The newer 2.4 code in 2.6 as well is only a bandaid that
-normally works.
+> Maybe the `cdrecord` author needs some competition. This sounds
+> like a good beginner's project....
 
-Serialization is indeed needed for some controllers (CMD64x in some
-cases, RZ1000 and others). Certain controllers have drive pair
-constraints and in some cases BIOSes know a lot about DMA suitability of
-their configurations. Thats more an argument that using hdparm -d1 at
-random is playing with fire.
+Jörg may not be the best user interface on the planet but there is a
+fair bit of complexity to CD burning.
 
 Alan
 

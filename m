@@ -1,72 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262733AbVAFF07@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262734AbVAFF3y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262733AbVAFF07 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 00:26:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262735AbVAFF06
+	id S262734AbVAFF3y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 00:29:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262737AbVAFF3x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 00:26:58 -0500
-Received: from fw.osdl.org ([65.172.181.6]:17065 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262733AbVAFF0f (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 00:26:35 -0500
-Date: Wed, 5 Jan 2005 21:26:29 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: =?iso-8859-1?Q?Lorenzo_Hern=E1ndez_Garc=EDa-Hierro?= 
-	<lorenzo@gnu.org>
-Cc: linux-kernel@vger.kernel.org, linux-security-module@wirex.com,
-       narahimi@us.ibm.com
-Subject: Re: [PATCH] Enhanced Trusted Path Execution (TPE) Linux Security Module
-Message-ID: <20050105212629.K469@build.pdx.osdl.net>
-References: <1104979908.8060.34.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1104979908.8060.34.camel@localhost.localdomain>; from lorenzo@gnu.org on Thu, Jan 06, 2005 at 03:51:48AM +0100
+	Thu, 6 Jan 2005 00:29:53 -0500
+Received: from dialup-4.246.108.239.Dial1.SanJose1.Level3.net ([4.246.108.239]:3969
+	"EHLO nofear.bounceme.net") by vger.kernel.org with ESMTP
+	id S262734AbVAFF2r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 00:28:47 -0500
+Message-ID: <41DCCCF6.1030505@syphir.sytes.net>
+Date: Wed, 05 Jan 2005 21:30:30 -0800
+From: "C.Y.M" <syphir@syphir.sytes.net>
+Reply-To: syphir@syphir.sytes.net
+Organization: CooLNeT
+User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: ACPI-1138 Error starting with 2.6.10-bk3
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Lorenzo Hernández García-Hierro (lorenzo@gnu.org) wrote:
-> This patch adds support for an enhanced Trusted Path Execution (TPE)
-> subsystem relying in the Linux Security Modules framework.
-> It's a rewrite of the IBM's TPE LSM module by Niki A. Rahimi, which
-> adds a couple of improvements and feature enhancements.
+I have been getting the following ACPI errors since 2.6.10-bk3.  Is there some new configuration I 
+need to enable?
 
-Thanks for taking interest and working on this.
-
-> The most notable of them are support for per-gid basis access control
-> lists in runtime and kernel-configuration time (adds support for trusted
-> and untrusted user groups), procfs interface for statistics and runtime
-> information and debugging capabilities (for limiting the garbage
-> messages).
-
-How does per-gid help in this case (esp. the desktop scenario you
-mentioned)?  And the /proc/tpe file might as well go under sysfs with
-the rest of the other entries instead of cluttering /proc.
-
-> The reasons that give sense for including this, are that standard
-> Vanilla kernels have SELinux and LSM (SELinux already supports TPE
-> functionalities), but SELinux has less possibilities of being used by
-> those desktop or just not experienced users who are not already using
-> their distribution-specific SELinux implementation, even if they want
-> simple protections for their every-day system use, also, the
-> availability of some patch-sets with security enhancements (like
-> grsecurity) distracts users of being using the LSM framework or even
-> SELinux itself, in addition, this TPE has more features than
-> grsecurity's one in terms of per-users and groups acl basis, which make
-> easy the management of the TPE protection.
-> In short, after a first review you can see that it could worthy to
-> include this in the kernel sources.
-
-The two biggest issues are 1) it's trivial to bypass:
-$ /lib/ld.so /untrusted/path/to/program
-and 2) that there's no (visible/vocal) user base calling for the feature.
-
-So working those issues will help make a better case for mainline
-inclusion.
-
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Jan  5 09:00:14 nofear kernel: Linux version 2.6.10-bk8.010505.1 (root@nofear) (gcc version 3.3.5 
+(Debian 1:3.3.5-5)) #1 Wed Jan 5 08:50:21 PST 2005
+Jan  5 09:00:14 nofear kernel: BIOS-provided physical RAM map:
+Jan  5 09:00:14 nofear kernel:  BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+Jan  5 09:00:14 nofear kernel:  BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
+Jan  5 09:00:14 nofear kernel:  BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
+Jan  5 09:00:14 nofear kernel:  BIOS-e820: 0000000000100000 - 000000001fff0000 (usable)
+Jan  5 09:00:14 nofear kernel:  BIOS-e820: 000000001fff0000 - 000000001fff3000 (ACPI NVS)
+Jan  5 09:00:14 nofear kernel:  BIOS-e820: 000000001fff3000 - 0000000020000000 (ACPI data)
+Jan  5 09:00:14 nofear kernel:  BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
+Jan  5 09:00:14 nofear kernel: 511MB LOWMEM available.
+Jan  5 09:00:14 nofear kernel: On node 0 totalpages: 131056
+Jan  5 09:00:14 nofear kernel:   DMA zone: 4096 pages, LIFO batch:1
+Jan  5 09:00:14 nofear kernel:   Normal zone: 126960 pages, LIFO batch:16
+Jan  5 09:00:14 nofear kernel:   HighMem zone: 0 pages, LIFO batch:1
+Jan  5 09:00:14 nofear kernel: DMI 2.2 present.
+Jan  5 09:00:14 nofear kernel: __iounmap: bad address c00f0000
+Jan  5 09:00:14 nofear kernel: ACPI: RSDP (v000 VIA694                                ) @ 0x000f64a0
+Jan  5 09:00:14 nofear kernel: ACPI: RSDT (v001 VIA694 AWRDACPI 0x42302e31 AWRD 0x00000000) @ 0x1fff3000
+Jan  5 09:00:14 nofear kernel: ACPI: FADT (v001 VIA694 AWRDACPI 0x42302e31 AWRD 0x00000000) @ 0x1fff3040
+Jan  5 09:00:14 nofear kernel: ACPI: DSDT (v001 VIA694 AWRDACPI 0x00001000 MSFT 0x0100000c) @ 0x00000000
+Jan  5 09:00:14 nofear kernel: ACPI: PM-Timer IO Port: 0x4008
+Jan  5 09:00:14 nofear kernel:     ACPI-1138: *** Error: Method execution failed [\STRC] (Node 
+c14d8e20), AE_AML_BUFFER_LIMIT
+Jan  5 09:00:14 nofear kernel:     ACPI-1138: *** Error: Method execution failed [\_SB_.PCI0._INI] 
+(Node c14d7b40), AE_AML_BUFFER_LIMIT

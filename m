@@ -1,40 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275982AbRI1IwB>; Fri, 28 Sep 2001 04:52:01 -0400
+	id <S275983AbRI1I4K>; Fri, 28 Sep 2001 04:56:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275985AbRI1Ivu>; Fri, 28 Sep 2001 04:51:50 -0400
-Received: from hal.grips.com ([62.144.214.40]:45738 "EHLO hal.grips.com")
-	by vger.kernel.org with ESMTP id <S275982AbRI1Ivn>;
-	Fri, 28 Sep 2001 04:51:43 -0400
-Message-Id: <200109280851.f8S8pKL29417@hal.grips.com>
-Content-Type: text/plain; charset=US-ASCII
-From: Gerold Jury <gjury@hal.grips.com>
-To: Robert Cohen <robert.cohen@anu.edu.au>, linux-kernel@vger.kernel.org
-Subject: Re: [BENCH] Problems with IO throughput and fairness with 2.4.10 and  2.4.9-ac15
-Date: Fri, 28 Sep 2001 10:51:20 +0200
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <3BB31F99.941813DD@anu.edu.au>
-In-Reply-To: <3BB31F99.941813DD@anu.edu.au>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S275984AbRI1I4C>; Fri, 28 Sep 2001 04:56:02 -0400
+Received: from pc-62-30-107-95-az.blueyonder.co.uk ([62.30.107.95]:28654 "EHLO
+	kushida.degree2.com") by vger.kernel.org with ESMTP
+	id <S275983AbRI1Izw>; Fri, 28 Sep 2001 04:55:52 -0400
+Date: Fri, 28 Sep 2001 09:55:09 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Padraig Brady <padraig@antefacto.com>, linux-kernel@vger.kernel.org
+Subject: Re: CPU frequency shifting "problems"
+Message-ID: <20010928095509.A11996@kushida.degree2.com>
+In-Reply-To: <3BB319ED.5020406@antefacto.com> <Pine.LNX.4.33.0109271619250.25667-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0109271619250.25667-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Sep 27, 2001 at 04:23:38PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have tried 2.4.9-xfs against 2.4.10-xfs with dbench.
-The machine has 384 MB ram.
+Linus Torvalds wrote:
+> With a CPU that does makes TSC appear constant-frequency, the fact that
+> the CPU itself can go faster/slower doesn't matter - from a kernel
+> perspective that's pretty much equivalent to the different speeds you get
+> from cache miss behaviour etc.
 
-The throughput is roughly the same for both with dbench 2.
-dbench 32 runs fine on 2.4.9-xfs but does not finish on 2.4.10-xfs.
-dbench 24 will finish on 2.4.10 but it takes a very very long time.
-All dbench processes are stuck in D state after 10 seconds.
+On a Transmeta chip, does the TSC clock advance _exactly_ uniformly, or
+is there a cumulative error due to speed changes?
 
-I am not sure if it is the xfs part, the VM or both.
+I'll clarify.  I imagine that the internal clocks are driven by PLLs,
+DLLs or something similar.  Unless multiple oscillators are used, this
+means that speed switching is gradual, over several hundred or many more
+clock cycles.
 
-Can you give the dbench 32 a try ?
+You said that Crusoe does a floating point op to scale the TSC value.
+Now suppose I have a 600MHz Crusoe.  I calibrate the clock and it comes
+out as 600.01MHz.
 
-Regards
-Gerold
+I can now use `rdtsc' to measure time in userspace, rather more
+accurately than gettimeofday().  (In fact I have worked with programs
+that do this, for network traffic injection.).  I can do this over a
+period of minutes, expecting the clock to match "wall clock" time
+reasonably accurately.
 
-On Thursday 27 September 2001 14:46, Robert Cohen wrote:
-> Given the recent flurry of changes in the Linux kernel VM subsystems I
-> decided to do a bit of benchmarking.
+Suppose the CPU clock speed changes.  Can I be confident that
+600.01*10^6 (+/- small tolerance) cycles will still be counted per
+second, or is there a cumulative error due to the gradual clock speed
+change and the floating-point scale factor not integrating the gradual
+change precisely?
+
+(One hardware implementation that doesn't have this problem is to run a
+small counter, say 3 or 4 bits, at the nominal clock speed all the time,
+and have the slower core sample that.  But it may use a little more
+power, and your note about FP scaling tells me you don't do that).
+
+thanks,
+-- Jamie

@@ -1,44 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277873AbRJNVu0>; Sun, 14 Oct 2001 17:50:26 -0400
+	id <S277882AbRJNV6h>; Sun, 14 Oct 2001 17:58:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277878AbRJNVuG>; Sun, 14 Oct 2001 17:50:06 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:38650 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S277873AbRJNVuF>;
-	Sun, 14 Oct 2001 17:50:05 -0400
-Date: Sun, 14 Oct 2001 17:50:22 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Andreas Gietl <a.gietl@e-admin.de>
-cc: linux-kernel@vger.kernel.org, =?iso-8859-1?q?Kr=E4mer?= <kraemer@crasu.de>,
-        =?iso-8859-1?q?K=FChne?= <kuehne@power-netz.de>
-Subject: Re: fs mounted twice, writing to wrong partition with 3ware escalade
- ide-raid
-In-Reply-To: <E15sqSI-0008P9-00@d101.x-mailer.de>
-Message-ID: <Pine.GSO.4.21.0110141743320.7054-100000@weyl.math.psu.edu>
+	id <S277883AbRJNV62>; Sun, 14 Oct 2001 17:58:28 -0400
+Received: from cc1095243-a.thrp1.fl.home.com ([24.37.231.148]:33287 "EHLO
+	Artifact") by vger.kernel.org with ESMTP id <S277882AbRJNV6L>;
+	Sun, 14 Oct 2001 17:58:11 -0400
+Message-ID: <038101c154fb$676dfb30$c800000a@Artifact>
+From: "Wilson" <defiler@null.net>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <EXCH01SMTP01CjnZS080002edb6@smtp.netcabo.pt>
+Subject: Re: Problem with 2.4.12
+Date: Sun, 14 Oct 2001 17:58:49 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I vote that you swap the cable positions of the CD-ROM and CD-RW.
+By the way.. It's not safe to trust an ABIT board with that much memory. :)
+
+They accused us of suppressing freedom of expression. This was a lie and we
+could not let them publish it.
+-- Nelba Blandon, Nicaraguan Interior Ministry Director of Censorship
+
+----- Original Message -----
+From: "Ricardo Ferreira" <stormlabs@gmx.net>
+To: <linux-kernel@vger.kernel.org>
+Sent: Sunday, October 14, 2001 2:46 PM
+Subject: Problem with 2.4.12
 
 
-On Sun, 14 Oct 2001, Andreas Gietl wrote:
+> I have an ABIT VP6 (YT bios) with dual p3-1Ghz and 1Gb SDRAM. I have my
+boot
+> disk (hda) and my CDROM (hdc) connected to the VIA controller. My /home
+disk
+> (hdi) and my CDRW (hdk) are connected to the onboard HPT370 controller. I
+> also have a Promise ULTRA66 in the box but its currently empty. I have no
+> problems except, sometimes when i go to burn a CD, the proccess fails
+midway
+> (therefore ruining the CDR) and more often than not these messages are in
+the
+> logs:
+>
+> Oct 14 19:32:58 thor kernel: ide-scsi: CoD != 0 in idescsi_pc_intr
+> Oct 14 19:32:58 thor kernel: hdk: ATAPI reset complete
+>
+> Does anybody know whats going on ?
+> I attach the relevant info. If you need any more, please ask.
+> --
+> Ricardo Ferreira
 
-> a strace on the mount command shows that the syscall mount is executed w/o 
-> error.
-> 
-> mount("/dev/sda5", "/mnt/", "ext2", 0xc0ed0000, 0) = 0  
-> 
-> As far as i know it should return EBUSY on a fs that is already mounted.
-
-No, it shouldn't.  HOWEVER, trees should be in sync (actually, there's
-only one tree and only one superblock).
-
-> Second mystery:
-> 
-> the mounted /dev/hda3 contains the same data as /dev/sda5 and changes to one 
-> of them affect both partitions.
-
-Please, post your /proc/mounts.  Results of ls -l /dev/hda3 /dev/sda5
-would also be very interesting.
 

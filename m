@@ -1,72 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262599AbVCVKCM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262604AbVCVKD5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262599AbVCVKCM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 05:02:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262600AbVCVKCM
+	id S262604AbVCVKD5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 05:03:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262602AbVCVKD5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 05:02:12 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:50908 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262599AbVCVKCA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 05:02:00 -0500
-Date: Tue, 22 Mar 2005 11:01:53 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-05
-Message-ID: <20050322100153.GA23143@elte.hu>
-References: <20050319191658.GA5921@elte.hu> <20050320174508.GA3902@us.ibm.com> <20050321085332.GA7163@elte.hu> <20050321090122.GA8066@elte.hu> <20050321090622.GA8430@elte.hu> <20050322054345.GB1296@us.ibm.com> <20050322072413.GA6149@elte.hu> <20050322092331.GA21465@elte.hu> <20050322093201.GA21945@elte.hu>
+	Tue, 22 Mar 2005 05:03:57 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:7597 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262601AbVCVKDt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 05:03:49 -0500
+Subject: Re: 2.6.11: suspending laptop makes system randomly unstable
+From: Arjan van de Ven <arjan@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Miguelanxo Otero Salgueiro <miguelanxo@telefonica.net>,
+       linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz
+In-Reply-To: <20050322015538.5db28ed5.akpm@osdl.org>
+References: <422618F0.3020508@telefonica.net>
+	 <20050321141049.5d804609.akpm@osdl.org> <423FE7C5.8080402@telefonica.net>
+	 <20050322015538.5db28ed5.akpm@osdl.org>
+Content-Type: text/plain
+Date: Tue, 22 Mar 2005 11:03:39 +0100
+Message-Id: <1111485819.7096.58.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050322093201.GA21945@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+> Also, I'd consider it a regression that you had to go and find new X
+> drivers due to a kernel change.  We shouldn't do that.
 
-> hm, another thing: i think call_rcu() needs to take the read-lock.
-> Right now it assumes that it has the data structure private, but
-> that's only statistically true on PREEMPT_RT: another CPU may have
-> this CPU's RCU control structure in use. So IRQs-off (or preempt-off)
-> is not a guarantee to have the data structure, the read lock has to be
-> taken.
+depends really on how bad the bug in the X driver was....
+there is limits on how bug-2-bug compatible we can and want to be...
 
-i've reworked the code to use the read-lock to access the per-CPU data
-RCU structures, and it boots with 2 CPUs and PREEMPT_RT now. The -40-05
-patch can be downloaded from the usual place:
 
-  http://redhat.com/~mingo/realtime-preempt/
-
-had to add two hacks though:
-
- static void rcu_advance_callbacks(struct rcu_data *rdp)
- {
-        if (rdp->batch != rcu_ctrlblk.batch) {
-                if (rdp->donetail) // HACK
-                        *rdp->donetail = rdp->waitlist;
-		...
-
- void fastcall call_rcu(struct rcu_head *head,
-          void (*func)(struct rcu_head *rcu))
- [...]
-        rcu_advance_callbacks(rdp);
-        if (rdp->waittail) // HACK
-                *rdp->waittail = head;
-	...
-
-without them it crashes during bootup.
-
-maybe we are better off with the completely unlocked read path and the
-long grace periods.
-
-	Ingo

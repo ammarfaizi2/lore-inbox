@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261371AbSK0Hw1>; Wed, 27 Nov 2002 02:52:27 -0500
+	id <S261664AbSK0Hxo>; Wed, 27 Nov 2002 02:53:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261646AbSK0Hw1>; Wed, 27 Nov 2002 02:52:27 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:19097 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261371AbSK0Hw1>;
-	Wed, 27 Nov 2002 02:52:27 -0500
-Date: Tue, 26 Nov 2002 23:58:10 -0800 (PST)
-Message-Id: <20021126.235810.22015752.davem@redhat.com>
-To: sfr@canb.auug.org.au
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, anton@samba.org,
-       ak@muc.de, davidm@hpl.hp.com, schwidefsky@de.ibm.com, ralf@gnu.org,
+	id <S261669AbSK0Hxo>; Wed, 27 Nov 2002 02:53:44 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:60900 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S261664AbSK0Hxk>;
+	Wed, 27 Nov 2002 02:53:40 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15844.31669.896101.983575@napali.hpl.hp.com>
+Date: Wed, 27 Nov 2002 00:00:53 -0800
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Linus <torvalds@transmeta.com>, LKML <linux-kernel@vger.kernel.org>,
+       anton@samba.org, "David S. Miller" <davem@redhat.com>, ak@muc.de,
+       davidm@hpl.hp.com, schwidefsky@de.ibm.com, ralf@gnu.org,
        willy@debian.org
 Subject: Re: [PATCH] Start of compat32.h (again)
-From: "David S. Miller" <davem@redhat.com>
 In-Reply-To: <20021127184228.2f2e87fd.sfr@canb.auug.org.au>
 References: <20021127184228.2f2e87fd.sfr@canb.auug.org.au>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Stephen Rothwell <sfr@canb.auug.org.au>
-   Date: Wed, 27 Nov 2002 18:42:28 +1100
+>>>>> On Wed, 27 Nov 2002 18:42:28 +1100, Stephen Rothwell <sfr@canb.auug.org.au> said:
 
-   How's this one :-)
-   
-I don't think this is the way to go.
+  Stephen> I make the follwing assumptions: returning s32 from a 32
+  Stephen> bit compatibility system call is the same as returning long
+  Stephen> or int.
 
-I think we really need to give the 32-bit compatability
-types names and allow 64-bit arches to define what their
-32-bit counterparts use.
+That is not a safe assumption.  The ia64 ABI requires that a 32-bit
+result is returned in the least-significant 32 bits only---the upper
+32 bits may contain garbage.  It should be safe to declare the syscall
+return type always as "long", no?
 
-For example, nlink_t is going to need to be different
-for sparc 32-bit compat vs. most other platforms because
-we use a signed short there.
-
-Linus what is you big beef with the names used before, the "__kernel"
-part of the name?  We can't just use "u32" for ino_t althroughout the
-compat32 code or whatever your idea seems to be.
-
-Please clarify.
+	--david

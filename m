@@ -1,64 +1,120 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284728AbSAGSPS>; Mon, 7 Jan 2002 13:15:18 -0500
+	id <S284761AbSAGSUs>; Mon, 7 Jan 2002 13:20:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284755AbSAGSPJ>; Mon, 7 Jan 2002 13:15:09 -0500
-Received: from zero.tech9.net ([209.61.188.187]:33541 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S284728AbSAGSO7>;
-	Mon, 7 Jan 2002 13:14:59 -0500
-Subject: [PATCH] preemptible kernel patch for 2.4 and 2.5
-From: Robert Love <rml@tech9.net>
-To: linux-kernel@vger.kernel.org
-Cc: kpreempt-tech@lists.sourceforge.net
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.0.99+cvs.2001.12.18.08.57 (Preview Release)
-Date: 07 Jan 2002 13:16:58 -0500
-Message-Id: <1010427419.1519.24.camel@phantasy>
-Mime-Version: 1.0
+	id <S284794AbSAGSUj>; Mon, 7 Jan 2002 13:20:39 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:13699 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S284761AbSAGSUW>; Mon, 7 Jan 2002 13:20:22 -0500
+Date: Mon, 7 Jan 2002 13:22:59 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: lseek() on an iso9660 file
+In-Reply-To: <a1cn1j$sev$1@cesium.transmeta.com>
+Message-ID: <Pine.LNX.3.95.1020107131256.19774A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Announcing the next revision of the fully preemptible linux kernel
-patch, available for 2.4 and 2.5 trees now at:
+On 7 Jan 2002, H. Peter Anvin wrote:
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/rml/preempt-kernel
+> Followup to:  <Pine.LNX.3.95.1020107091316.18091A-100000@chaos.analogic.com>
+> By author:    "Richard B. Johnson" <root@chaos.analogic.com>
+> In newsgroup: linux.dev.kernel
+> > 
+> > Using Linux 2.4.1 I discovered a problem with lseek on CDROM files
+> > (iso9660). I just installed 2.4.17 and found the same problem.
+> > 
+> > The problem:
+> > 
+> > (1) A portion of the file, existing on a CDROM,  is read and its the
+> >     contents are written to an output file on writable media.
+> > 
+> > (2) The current input file-position is obtained using
+> >     pos = lseek(fd, 0, SEEK_CUR); The value returned is exactly
+> >     the expected value.
+> > 
+> > (3) The rest of the CDROM file is read and written to the output file.
+> > 
+> > (4) The file-position of the CDROM file is then set back to the saved
+> >     position using lseek(fd, pos, SEEK_SET); The value returned is
+> >     exactly the expected value.
+> > 
+> > (5) The CDROM file is then read and its contents are observed to be
+> >     scrambled in some strange manner in which word-length groups of
+> >     bytes from near the end of the file are interleaved with the
+> >     correct bytes. Basically, the file ends up being about twice
+> >     as long as the original, with every-other two-byte interval
+> >     being filled with bytes from near the end of the file.
+> > 
+> 
+> a) How long is the file?
 
-and your favorite mirrors.  Diffs for 2.4.18-pre1 and 2.5.2-pre9 are
-available along with previous patches.
+The file is 43,814,956 bytes in length.
 
-This patch, which we are all familiar with by now, makes the kernel
-preemptible.  This means that a higher priority process can preempt a
-lower priority process, even if it is running inside the kernel. 
-Reentrancy is protected by SMP lock points.  Despite the warnings to the
-contrary about throughput, benchmarking actually shows a marked
-increase, probably due to faster scheduling of woken I/O tasks. 
-Complexity added is minimal.
+> b) What is the offset?
 
-ARM, i386, and SH are supported.  UP and SMP is supported.  There are no
-outstanding bugs.
+Both 36 and 44 bytes hurt.
 
-Perhaps a feature that is often overlooked is the growth for performance
-gains in the future.  As we continue to make locks finer grained (and,
-especially, remove the BKL) performance will increase.  Thus we now have
-an architecture where by we can continue to improve performance.
+> c) What particular iso9660 options (RockRidge, Joliet, zisofs...)
+>    does your disk use?
 
-Changes:
+RockRidge attributes created by:
 
-- (2.5 only) include linux/sched.h in fs/char_dev.c
+if  ! test $1 ; then
+    echo "Usage cp.iso <directory>"
+    exit 1
+fi
+umount /mnt 2>/dev/null
+DEV=`cdrecord -scanbus | grep ROM | cut -f2,2`
+echo Using CD-ROM device, ${DEV}
+echo Trying to erase the media
+cdrecord dev=${DEV} blank=fast
+echo Starting to write the media 
+nice --18 mkisofs -L -l -R $1 | cdrecord -v fs=6m dev=${DEV} speed=4 -eject - 
 
-- SH arch: fix certain code path not hitting preempt_enable (Jeremy
-Siegel)
 
-- stop locking task to CPU across preemptions.
- 
-- back out console race fix as it was merged with mainline
+> d) Mount options?
+> 
 
-Todo:
+Just what 'mount' finds:
 
-- Port the scheduling details to Ingo's O(1) scheduler
+mount /dev/cdrom /mnt
 
-Enjoy,
+It gets "fixed" by doing:
 
-	Robert Love
+mount -o loop /dev/cdrom /mnt
+
+/dev/cdrom is a sym-link to /dev/scd0
+
+
+> This seems to be a rather serious bug, so I'd like to get to the
+> bottom with it.
+> 
+
+This showed up when trying to use a "wave-file-copy-truncation" routine
+with the source file on a CDROM.
+
+The source-code for these "wave-file" tools is:
+
+	ftp://boneserver.analogic.com/pub/downloads/wave_tools.tar.gz
+
+Broken windows users have to access as:
+
+	ftp:/boneserver.analogic.com/pub/downloads/wave_tools.tar.gz
+  or else windows adds ..//ftp/.., a known bug.
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
 

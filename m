@@ -1,62 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266458AbUHBLmL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266479AbUHBLrA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266458AbUHBLmL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 07:42:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266460AbUHBLmL
+	id S266479AbUHBLrA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 07:47:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266481AbUHBLrA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 07:42:11 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:5880 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S266458AbUHBLmG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 07:42:06 -0400
-Date: Mon, 2 Aug 2004 13:34:26 +0200 (MEST)
-Message-Id: <200408021134.i72BYQdN026747@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: bunk@fs.tum.de
-Subject: Re: Some cleanup patches for: '...lvalues is deprecated'
-Cc: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com
+	Mon, 2 Aug 2004 07:47:00 -0400
+Received: from li2-47.members.linode.com ([69.56.173.47]:60686 "EHLO
+	li2-47.members.linode.com") by vger.kernel.org with ESMTP
+	id S266479AbUHBLq6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 07:46:58 -0400
+Date: Mon, 2 Aug 2004 06:46:56 -0500
+From: Randall Nortman <linuxkernellist@wonderclown.com>
+To: linux-kernel@vger.kernel.org
+Cc: Tony Lindgren <tony@atomide.com>
+Subject: Re: MSI K8N Neo + powernow-k8: ACPI info is worse than BIOS PST
+Message-ID: <20040802114655.GD18254@li2-47.members.linode.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Tony Lindgren <tony@atomide.com>
+References: <20040731140008.GJ4108@li2-47.members.linode.com> <20040802100658.GC10412@atomide.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040802100658.GC10412@atomide.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 1 Aug 2004 12:40:26 +0200, Adrian Bunk wrote:
->On Sat, Jul 31, 2004 at 10:41:53AM +0200, Mikael Pettersson wrote:
->>...
->> Did you know that there is a larger gcc-3.4 fixes patch:
->> <http://www.csd.uu.se/~mikpe/linux/patches/2.4/patch-gcc340-fixes-v4-2.4.27-rc3>
->> ?
->> 
->> This patch handles all issues when using gcc-3.4 to compile
->> the current 2.4 kernel, of which cast-as-lvalue is just one.
->> The only difference, AFAIK, is that gcc-3.4 "merely" warns
->> about cast-as-lvalue while gcc-3.5 errors out on them.
->> 
->> All changes in the gcc-3.4 fixes patch are backports from
->> the 2.6 kernel, except in very few cases when 2.4 and 2.6
->> have diverged making slightly different fixes more appropriate
->> for 2.4.
->>...
->
->
->BTW:
->
->Please don't include the compiler.h part of your patch.
->It's already reverted in -mm, and we're currently fixing the inlines
->in 2.6 .
->
->This was started after with this patch in 2.6 somewhere a required 
->inlining did no longer occur (and a compile error is definitely better 
->than a potential runtime problem).
+On Mon, Aug 02, 2004 at 03:07:01AM -0700, Tony Lindgren wrote:
+> * Randall Nortman <linuxkernellist@wonderclown.com> [040731 07:01]:
+> > 
+> > If anybody qualified to hack this code is interested in creating a
+> > real workaround for BIOSes like this, I offer my system (and my time,
+> > as I cannot give remote access) for testing.  I would suggest adding a
+> > compile-time or load-time option to prefer the BIOS over ACPI (as in
+> > powernow-k7, I think), and maybe a compile-time option to use Tony's
+> > hardcoded tables.
+> 
+> Just to clarify a bit, my patch only uses the 800MHz hardcoded, which
+> should work on all AMD64 processors. The max value used is the current
+> running value.
 
-Which one was that? DaveM wrote recently that they had eliminated
-SPARC's save_flags/restore_flags-in-same-stack-frame requirement.
 
->Although fixing it correctly touches at about three dozen files, these 
->are pretty straightforward patches (removing inlines or moving code 
->inside files). After all these issues are sorted out in 2.6, the inline 
->fixes could be backported to 2.4 .
+Actually, thanks to an off-list response from Anton Ertl (anton at
+mips dot complang dot tuwien dot ac dot at), I have made an important
+discovery that's relevant to my situation and your patch: newer amd64
+cores (Newcastle cores) cannot clock down to 800MHz!  I apparently am
+lucky enough to have gotten the CG stepping of my CPU, which supports
+1000, 1800, and 2000MHz modes, exactly as reported by the BIOS.  I
+have therefore backed out your patch, and the result is that my system
+is actually snappier.  (I suspect that really weird things were
+happening when cpufreq tried to clock down to 800MHz; I was getting
+high CPU load, periodic temporary freezes, and audio glitches, all of
+which went away when I set the minimum clock to 1000MHz.  I hope I
+didn't do any permanent damage.)  These new cores actually consume
+less power at 1000MHz than the old ones did at 800MHz, so it's a
+win-win for the lucky ones like me.
 
-I'll consider attacking the inlining issues, after I've reviewed my
-cast-as-lvalue and fastcall fixes -- I noticed that at least one fix
-had changed in 2.6 since I first adapted it to 2.4.
+Now that I see that my BIOS table was correct after all, I'm left
+wondering why MSI would have gotten that right but the ACPI wrong,
+since Windows uses the ACPI information afaik.  And that leads me to
+suspect that perhaps the bug is in the powernow-k8 ACPI code rather
+than my firmware.  Any thoughts?
 
-/Mikael
+Randall Nortman

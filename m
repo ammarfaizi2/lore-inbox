@@ -1,32 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261360AbVCWKjD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261523AbVCWKk3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261360AbVCWKjD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 05:39:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261521AbVCWKjD
+	id S261523AbVCWKk3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 05:40:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261521AbVCWKk3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 05:39:03 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:11680 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261360AbVCWKi5 (ORCPT
+	Wed, 23 Mar 2005 05:40:29 -0500
+Received: from fire.osdl.org ([65.172.181.4]:48584 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261523AbVCWKjh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 05:38:57 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <Pine.LNX.4.62.0503222223180.2683@dragon.hyggekrogen.localhost> 
-References: <Pine.LNX.4.62.0503222223180.2683@dragon.hyggekrogen.localhost> 
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: security/keys/key.c broken with defconfig 
-X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
-Date: Wed, 23 Mar 2005 10:38:53 +0000
-Message-ID: <26892.1111574333@redhat.com>
+	Wed, 23 Mar 2005 05:39:37 -0500
+Date: Wed, 23 Mar 2005 02:38:53 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org
+Subject: Re: Samsung 40G drive locking up 2.6.11
+Message-Id: <20050323023853.28c9a432.akpm@osdl.org>
+In-Reply-To: <200503221431.31549.vda@ilport.com.ua>
+References: <200503221431.31549.vda@ilport.com.ua>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl <juhl-lkml@dif.dk> wrote:
+Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> wrote:
+>
+> dd if=/dev/hdc of=/dev/null with this disk
+>  kills the system. Drive may do it's work
+>  for minute or two, but then it does 'klak' sound.
+>  With udma5 (default) Linux froze solid, no SysRq key, nothing.
+>  Powercycling helps.
+> 
+>  With udma3, it did not die, but still spews IDE errors.
+>  I will try to collect more data points.
 
-> If I just do a 'make defconfig' and then try to build security/keys/ the 
-> build breaks.  Doing 'make allyesconfig' fixes it by defining CONFIG_KEYS 
-> which makes include/linux/key-ui.h include the full struct key definition.
-
-What arch? Please can you provide a copy of your .config file.
-
-David
+Did it work OK under earlier kernels?  If so, which?

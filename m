@@ -1,56 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287119AbSABOmF>; Wed, 2 Jan 2002 09:42:05 -0500
+	id <S283204AbSABO4p>; Wed, 2 Jan 2002 09:56:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287697AbSABOlz>; Wed, 2 Jan 2002 09:41:55 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:3597 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S287119AbSABOlw>;
-	Wed, 2 Jan 2002 09:41:52 -0500
-Date: Wed, 2 Jan 2002 06:40:46 -0800
-From: Greg KH <greg@kroah.com>
-To: Roger Leblanc <r_leblanc@videotron.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Deadlock in kernel on USB shutdown
-Message-ID: <20020102064046.I27118@kroah.com>
-In-Reply-To: <3C322EB9.6080300@videotron.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C322EB9.6080300@videotron.ca>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Wed, 05 Dec 2001 11:36:26 -0800
+	id <S287827AbSABO4h>; Wed, 2 Jan 2002 09:56:37 -0500
+Received: from lilac.csi.cam.ac.uk ([131.111.8.44]:6861 "EHLO
+	lilac.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S283204AbSABO4b>; Wed, 2 Jan 2002 09:56:31 -0500
+Date: Wed, 2 Jan 2002 14:56:03 +0000 (GMT)
+From: "Joseph S. Myers" <jsm28@cam.ac.uk>
+X-X-Sender: <jsm28@kern.srcf.societies.cam.ac.uk>
+To: Tom Rini <trini@kernel.crashing.org>
+cc: Momchil Velikov <velco@fadata.bg>, <linux-kernel@vger.kernel.org>,
+        <gcc@gcc.gnu.org>, <linuxppc-dev@lists.linuxppc.org>
+Subject: Re: [PATCH] C undefined behavior fix
+In-Reply-To: <20020101234350.GN28513@cpe-24-221-152-185.az.sprintbbd.net>
+Message-ID: <Pine.LNX.4.33.0201021451390.18982-100000@kern.srcf.societies.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 01, 2002 at 04:48:41PM -0500, Roger Leblanc wrote:
-> Hi,
-> 
-> I just compiled version 2.4.17 of the Linux kernel for my Pentium III. 
-> It is compiled with modular USB support so I can run my USB scanner (an 
-> Epson Perfection 1200U).
-> 
-> The scanner works fine but the system freeses when I shut it down. I 
-> investigated a bit and found that in the file:
-> <kernel_root>/drivers/usb/usb.c
-> in function:
-> usb_disconnect(struct usb_device **pdev)
-> 
-> there is a call to function:
-> usbdevfs_remove_device(dev)
-> at line 2423.
-> 
-> That is the exact point where it freeses. If I comment out that line, 
-> everything goes fine. I know! This is not the proper way to fix it! But 
-> at least, it fixes my problem. Since I'm not a kernel expert, I will 
-> leave it to you to find the right way to fix it.
+On Tue, 1 Jan 2002, Tom Rini wrote:
 
-Does the system lock up when you unload the usbcore module by hand
-without shutting the system down?
+> 3) We could also try turning off this particular optimization
+> (-fno-builtin perhaps) on this file, and not worry about it.
 
-Are your init scripts unmounting the usbdevfs filesystem properly before
-trying to unload the usbcore module?
+In particular, it would probably make sense for the kernel to use 
+-ffreestanding (which implies -fno-builtin) throughout then selectively 
+enable the built-in functions that are wanted with macros such as
 
-thanks,
+#define strcpy(d, s) __builtin_strcpy((d), (s))
 
-greg k-h
+in an appropriate header, then #undef these macros in the files that
+shouldn't use the built-in functions.
+
+-- 
+Joseph S. Myers
+jsm28@cam.ac.uk
+

@@ -1,60 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132021AbRASAiB>; Thu, 18 Jan 2001 19:38:01 -0500
+	id <S136098AbRASAkB>; Thu, 18 Jan 2001 19:40:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135463AbRASAhv>; Thu, 18 Jan 2001 19:37:51 -0500
-Received: from felix.convergence.de ([212.84.236.131]:58637 "EHLO
-	convergence.de") by vger.kernel.org with ESMTP id <S132021AbRASAhi>;
-	Thu, 18 Jan 2001 19:37:38 -0500
-Date: Fri, 19 Jan 2001 01:36:49 +0100
-From: Felix von Leitner <leitner@convergence.de>
-To: linux-kernel@vger.kernel.org
-Subject: Off-Topic: how do I trace a PID over double-forks?
-Message-ID: <20010119013649.A30163@convergence.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
+	id <S136438AbRASAjv>; Thu, 18 Jan 2001 19:39:51 -0500
+Received: from baldur.fh-brandenburg.de ([195.37.0.5]:38135 "HELO
+	baldur.fh-brandenburg.de") by vger.kernel.org with SMTP
+	id <S136098AbRASAjp>; Thu, 18 Jan 2001 19:39:45 -0500
+Date: Fri, 19 Jan 2001 01:18:01 +0100 (MET)
+From: Roman Zippel <zippel@fh-brandenburg.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Andreas Dilger <adilger@turbolinux.com>,
+        Rogier Wolff <R.E.Wolff@bitwizard.nl>, linux-kernel@vger.kernel.org
+Subject: Re: Is sendfile all that sexy?
+In-Reply-To: <Pine.LNX.4.10.10101181120070.18387-100000@penguin.transmeta.com>
+Message-ID: <Pine.GSO.4.10.10101182335320.3304-100000@zeus.fh-brandenburg.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is more a Unix API question than a Linux question.
+Hi,
 
-I hope the issue is interesting enough to be of interest to some of you.
+On Thu, 18 Jan 2001, Linus Torvalds wrote:
 
-Basically, I am writing an init which features process watching
-capabilities.  My init has a management channel with which you can tell
-it "the PID of the ssh process is really 123 instead of 12".
+> It's too damn device-dependent, and it's not worth it. There's no way to
+> make it general with any current hardware, and there probably isn't going
+> to be for at least another decade or so. And because it's expensive and
+> slow to do even on a hardware level, it probably won't be done even then.
+> 
+> [...]
+> 
+> An important point in interface design is to know when you don't know
+> enough. We do not have the internal interfaces for doing anything like
+> this, and I seriously doubt they'll be around soon.
 
-When init forks a getty and that getty exits, it is restarted.  So far
-so good.  But I want my init to be able to restart uncooperative
-processes like sendmail that fork in the background.  sendmail may be a
-bad example because the sources are available, but please imagine you
-didn't have the sources to sendmail or didn't want to touch them.
+I agree, it's device dependent, but such hardware exists. It needs of
+course its own memory, but then you can see it as a NUMA architecture and
+we already have the support for this. Create a new memory zone for the
+device memory and keep the pages reserved. Now you can use it almost like
+other memory, e.g. reading from/writing to it using address_space_ops.
 
-Now, the back channel for my init has a function that allows to set the
-PID of a process.  The idea is that the init does not start sendmail but
-a wrapper.  The wrapper forks, runs sendmail, does some magic trickery
-to find the real PID of the daemonized sendmail and tells init this PID
-so init will know it has to restart sendmail when it exits and won't
-restart the wrapper when that exits.
+An application, where I'd like to use it, is audio recording/playback
+(24bit, 96kHz on 144 channels). Although it's possible to copy that amount
+of data around, but then you can't do much beside this. All the data is
+most of the time only needed on the soundcard, so why should I copy it
+first to the main memory?
 
-Follow me this far?  Great!  The real problem at hand is: what kind of
-trickery can I employ in that wrapper.  I was hoping for something that
-is not Linux specific, but I haven't found anything yet.  I was also
-hoping that I could find a method that does not rely on /proc being
-there or on any filesystem being mounted read-write (yes, my back
-channel works if the filesystem is mounted read-only).  So, using
-/proc and relying on something like /var/run/sendmail.pid are out.
+Right now I'm stuck to accessing a scsi device directly, but I would love
+to use the generic file/address_space interface for that, so you can
+directly stream to/from any filesystem. The only problem is that the fs
+interface is still to slow.
 
-Someone suggested using fcntl to create a lock and then use fcntl again
-to see who holds the lock.  That sounded good at first, but fork() does
-not seem to inherit locks.  Does anyone have another idea?
+That's btw the reason I suggested to split the get_block function. If you
+record into a file, you first just want to allocate any block from the fs
+for that file. A bit later when you start the write, you need a real
+block. And again a bit later you can still update the inode. These three
+stages have completely different locking requirements (except the page
+lock) and you can use the same mechanism for delayed writes.
 
-In case I made you wonder: http://www.fefe.de/minit/
+Anyway, now with the zerocopy network patches, there are basically already
+all the needed interfaces and you don't have to wait for 10 years, so I
+think you need to polish your crystal ball. :-)
 
-Felix
+bye, Roman
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,42 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266511AbUJONvZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267893AbUJONyK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266511AbUJONvZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 09:51:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267798AbUJONuA
+	id S267893AbUJONyK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 09:54:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267798AbUJONvn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 09:50:00 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:8911 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267777AbUJONsB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 09:48:01 -0400
-Subject: Re: [Linux-fbdev-devel] Generic VESA framebuffer driver and Video
-	card BOOT?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       penguinppc-team@lists.penguinppc.org
-In-Reply-To: <Pine.GSO.4.61.0410151437050.10040@waterleaf.sonytel.be>
-References: <416E6ADC.3007.294DF20D@localhost> <87d5zkqj8h.fsf@bytesex.org>
-	 <Pine.GSO.4.61.0410151437050.10040@waterleaf.sonytel.be>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1097844301.9863.11.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 15 Oct 2004 13:45:10 +0100
+	Fri, 15 Oct 2004 09:51:43 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:24704 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S267776AbUJONup
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 09:50:45 -0400
+Date: Fri, 15 Oct 2004 09:50:19 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       David Woodhouse <dwmw2@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: __attribute__((unused))
+In-Reply-To: <1097843465.9862.5.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.61.0410150948400.24590@chaos.analogic.com>
+References: <20041014220243.B28649@flint.arm.linux.org.uk> 
+ <1097791496.5788.2034.camel@baythorne.infradead.org> 
+ <20041014230802.C28649@flint.arm.linux.org.uk> <1097843465.9862.5.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2004-10-15 at 13:38, Geert Uytterhoeven wrote:
-> Why not? Of course you won't get any output before the graphics card has been
-> re-initialized to a sane and usable state...
+On Fri, 15 Oct 2004, Alan Cox wrote:
 
-That will depend on the system. The AMD64 boxes I have all allow the
-bios to post the video card on S3 resume. 
+> On Iau, 2004-10-14 at 23:08, Russell King wrote:
+>> It's the "later compilers" which I'm worried about here - I think they
+>> defined "unused" to mean "this really really isn't used and you can
+>> discard it".  Hence my concern with the above.
+>
+> This was the explanation I got some time ago
+>
+> -- quote --
+>
+> So "used" cases that used "unused" could break, though older compilers
+> in essence used "unused" to mean both "used" and "unused".  Since
+> "unused" becomes useless for using in "used" cases, we now must be sure
+> to use "used" when that's the use that's useful.
+> 			-- Roland McGrath
+>
+>
+> I found it so helpful it became a .sig 8)
+>
+Yes. Just like "less" is more than "more"......and whos on first base.
 
-For a lot of other stuff we can run the bios directly on the resume path
-without emulation (or for intel call the video restore bios
-int). For the rest this could be a useful weapon.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.8 on an i686 machine (5537.79 BogoMips).
+             Note 96.31% of all statistics are fiction.
 

@@ -1,104 +1,109 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288008AbSAQAPN>; Wed, 16 Jan 2002 19:15:13 -0500
+	id <S288019AbSAQAUD>; Wed, 16 Jan 2002 19:20:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288012AbSAQAPD>; Wed, 16 Jan 2002 19:15:03 -0500
-Received: from arm.t19.ds.pwr.wroc.pl ([156.17.236.105]:20996 "EHLO
-	arm.t19.ds.pwr.wroc.pl") by vger.kernel.org with ESMTP
-	id <S288008AbSAQAOw>; Wed, 16 Jan 2002 19:14:52 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Andre IDE patches + Promise, UDMA detection
-X-Attribution: arekm
-X-URL: http://www.t17.ds.pwr.wroc.pl/~misiek/ipv6/
-Organization: PLD Linux Distribution Team
-From: Arkadiusz Miskiewicz <misiek@pld.ORG.PL>
-Date: 17 Jan 2002 01:14:30 +0100
-Message-ID: <87n0zd25qx.fsf@arm.t19.ds.pwr.wroc.pl>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S288012AbSAQATq>; Wed, 16 Jan 2002 19:19:46 -0500
+Received: from air-1.osdl.org ([65.201.151.5]:14600 "EHLO osdlab.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S289113AbSAQATb>;
+	Wed, 16 Jan 2002 19:19:31 -0500
+Date: Wed, 16 Jan 2002 16:17:14 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: [patch] Alt-SysRq loglevel on cheapo keyboards
+Message-ID: <Pine.LNX.4.33L2.0201161604450.13155-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
 Hi,
 
-I'm using 2.4.17 with ide.2.4.16.12102001.patch.bz2 + other
-patches (listed here: http://cvs.pld.org.pl/SPECS/kernel.spec?rev=1.70.2.390)
-on FIC LX based (quite old) mainboard + external PCI controller:
+In using some cheapo keyboards, I've run across a few that
+don't generate a keycode on Alt-SysRq-N (for changing
+console loglevel).  Actually, some values of N work and
+some values don't work in the cases that I have seen.
 
-00:07.1 IDE interface: Intel Corp. 82371AB PIIX4 IDE (rev 01)
-00:08.0 Unknown mass storage controller: Promise Technology, Inc. 20268 (rev 01)
+I've been using this patch for the last 3 months or so.
+It adds Alt-SysRq-Y to increase the loglevel and
+Alt-SysRq-V to decrease the loglevel.
 
-My IDE setup is fully modular (well, whole kernel is):
-xfs                   479200   4  (autoclean)
-xfs_support             6216   0  (autoclean) [xfs]
-pagebuf                22112   4  (autoclean) [xfs xfs_support]
-nls_iso8859-1           2880   1  (autoclean)
-nls_cp437               4384   1  (autoclean)
-vfat                    9788   1  (autoclean)
-fat                    30680   0  (autoclean) [vfat]
-sr_mod                 13656   0  (autoclean) (unused)
-scsi_mod               86776   1  (autoclean) [sr_mod]
-ide-cd                 27552   0 
-cdrom                  28320   0  [sr_mod ide-cd]
-ext3                   58772   1  (autoclean)
-ide-disk                9712   8  (autoclean)
-ide-mod               153756   8  (autoclean) [ide-cd ide-disk]
-jbd                    34424   1  (autoclean) [ext3]
-
-Kernel boots fine:
-Linux version 2.4.17 (builder@kenny) (gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)) #1 Tue Jan 15 13:19:47 UTC 2002
-...
-Freeing initrd memory: 174k freed
-VFS: Mounted root (romfs filesystem) readonly.
-Journalled Block Device driver loaded
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-PIIX4: IDE controller on PCI bus 00 dev 39
-PIIX4: chipset revision 1
-PIIX4: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:pio, hdb:pio
-    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:pio, hdd:pio
-PDC20268: IDE controller on PCI bus 00 dev 40
-PCI: Found IRQ 11 for device 00:08.0
-PDC20268: chipset revision 1
-PDC20268: not 100% native mode: will probe irqs later
-PDC20268: ROM enabled at 0xea000000
-    ide2: BM-DMA at 0xe400-0xe407, BIOS settings: hde:pio, hdf:pio
-    ide3: BM-DMA at 0xe408-0xe40f, BIOS settings: hdg:pio, hdh:pio
-hda: ASUS CD-S500/A, ATAPI CD/DVD-ROM drive
-hde: IBM-DTLA-307030, ATA DISK drive
-hdf: IBM-DTLA-305040, ATA DISK drive
-hdh: ST360021A, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide2 at 0xd400-0xd407,0xd802 on irq 11
-ide3 at 0xdc00-0xdc07,0xe002 on irq 11
-hde: 60036480 sectors (30739 MB) w/1916KiB Cache, CHS=59560/16/63, UDMA(33)
-hdf: 80418240 sectors (41174 MB) w/380KiB Cache, CHS=79780/16/63, UDMA(33)
-hdh: 117231408 sectors (60022 MB) w/2048KiB Cache, CHS=116301/16/63, UDMA(33)
-Partition check:
- /dev/ide/host2/bus0/target0/lun0: p1 p2 p3 p4 < p5 p6 >
- /dev/ide/host2/bus0/target1/lun0: p1 p2
- /dev/ide/host2/bus1/target1/lun0: p1
-kjournald starting.  Commit interval 5 seconds
-EXT3-fs: mounted filesystem with ordered data mode.
-VFS: Mounted root (ext3 filesystem) readonly.
-
-Unfortunately it thinks that all my harddrives (connected to promise
-via 80wire cable) are UDMA33! Now _sometimes_ after boot it detects
-these (properly) as UDMA100 and sometimes (seems more frequently)
-as UDMA33.
-
-Now when ide module detect my disk as UDMA33 and I have in my
-initscripts hdparm (4.6) -X69 -c1 -d1 -m16 then some my processes
-hang in D-state accessing hardrive (hdh for example).
-Removing -X69 fixes that even if my kernel thinks that my drivers
-are UDMA33 only... 
-
-So now it will be great to get ide module properly detecting UDMA.
+Enjoy.
 -- 
-Arkadiusz Mi¶kiewicz   IPv6 ready PLD Linux at http://www.pld.org.pl
-misiek(at)pld.org.pl   AM2-6BONE, 1024/3DB19BBD, arekm(at)ircnet, PWr
+~Randy
+
+
+patch_name:	sysrq-logupdown.dif
+patch_version:	2002.01.16
+author:		Randy Dunlap (rddunlap@osdl.org)
+description:	adds Alt-Sysrq-Y and Alt-Sysrq-V to increase/decrease
+		console loglevel for keyboards on which some combo keys
+		(like Alt-SysRq-9) don't work.
+product:	Linux kernel
+product_versions: 2.4.16, 2.5.0, 2.5.1
+changelog:
+URL:		http://www.osdl.org/archive/rddunlap/patches/
+requires:	none
+conflicts:	none
+
+diffstat:
+ sysrq.c |   36 ++++++++++++++++++++++++++++++++++--
+ 1 files changed, 34 insertions(+), 2 deletions(-)
+
+
+--- linux/drivers/char/sysrq.c.org	Tue Oct  2 09:20:37 2001
++++ linux/drivers/char/sysrq.c	Tue Jan 15 14:07:52 2002
+@@ -56,6 +56,38 @@
+ 	action_msg:	"Changing Loglevel",
+ };
+
++/* Loglevel Up sysrq handler */
++static void sysrq_handle_loglevel_up(int key, struct pt_regs *pt_regs,
++		struct kbd_struct *kbd, struct tty_struct *tty) {
++	int i = console_loglevel;
++	if (i < 9)
++		i++;
++	printk("%d\n", i);
++	console_loglevel = i;
++}
++
++/* Loglevel Down sysrq handler */
++static void sysrq_handle_loglevel_down(int key, struct pt_regs *pt_regs,
++		struct kbd_struct *kbd, struct tty_struct *tty) {
++	int i = console_loglevel;
++	if (i > 0)
++		i--;
++	printk("%d\n", i);
++	console_loglevel = i;
++}
++
++static struct sysrq_key_op sysrq_loglevel_up = {
++	handler:	sysrq_handle_loglevel_up,
++	help_msg:	"loglevelYup",
++	action_msg:	"Loglevel set to ",
++};
++
++static struct sysrq_key_op sysrq_loglevel_down = {
++	handler:	sysrq_handle_loglevel_down,
++	help_msg:	"loglevelVdown",
++ 	action_msg:	"Loglevel set to ",
++ };
++
+
+ /* SAK sysrq handler */
+ #ifdef CONFIG_VT
+@@ -377,10 +409,10 @@
+ /* s */	&sysrq_sync_op,
+ /* t */	&sysrq_showstate_op,
+ /* u */	&sysrq_mountro_op,
+-/* v */	NULL,
++/* v */	&sysrq_loglevel_down,
+ /* w */	NULL,
+ /* x */	NULL,
+-/* w */	NULL,
++/* y */	&sysrq_loglevel_up,
+ /* z */	NULL
+ };
+
+
 

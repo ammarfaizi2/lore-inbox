@@ -1,60 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267283AbUHSTOu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267287AbUHSTPm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267283AbUHSTOu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 15:14:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267287AbUHSTOu
+	id S267287AbUHSTPm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 15:15:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267291AbUHSTPl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 15:14:50 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:30850 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S267283AbUHSTOm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 15:14:42 -0400
-From: jmerkey@comcast.net
-To: Rik van Riel <riel@redhat.com>
-Cc: linux-kernel@vger.kernel.org, <jmerkey@drdos.com>
-Subject: Re: kallsyms 2.6.8 address ordering
-Date: Thu, 19 Aug 2004 19:14:40 +0000
-Message-Id: <081920041914.20259.4124FC20000DAD5E00004F232200762302970A059D0A0306@comcast.net>
-X-Mailer: AT&T Message Center Version 1 (Jul 16 2004)
-X-Authenticated-Sender: am1lcmtleUBjb21jYXN0Lm5ldA==
+	Thu, 19 Aug 2004 15:15:41 -0400
+Received: from elektroni.ee.tut.fi ([130.230.131.11]:61063 "HELO
+	elektroni.ee.tut.fi") by vger.kernel.org with SMTP id S267287AbUHSTPi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 15:15:38 -0400
+Date: Thu, 19 Aug 2004 22:15:37 +0300
+From: Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>
+To: Tim Schmielau <tim@physik3.uni-rostock.de>
+Cc: john stultz <johnstul@us.ibm.com>,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       george anzinger <george@mvista.com>, Andrew Morton OSDL <akpm@osdl.org>,
+       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+       lkml <linux-kernel@vger.kernel.org>, voland@dmz.com.pl,
+       nicolas.george@ens.fr, david+powerix@blue-labs.org
+Subject: Re: [PATCH] Re: boot time, process start time, and NOW time
+Message-ID: <20040819191537.GA24060@elektroni.ee.tut.fi>
+Mail-Followup-To: Tim Schmielau <tim@physik3.uni-rostock.de>,
+	john stultz <johnstul@us.ibm.com>,
+	Albert Cahalan <albert@users.sourceforge.net>,
+	george anzinger <george@mvista.com>,
+	Andrew Morton OSDL <akpm@osdl.org>,
+	OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+	lkml <linux-kernel@vger.kernel.org>, voland@dmz.com.pl,
+	nicolas.george@ens.fr, david+powerix@blue-labs.org
+References: <87smcf5zx7.fsf@devron.myhome.or.jp> <20040816124136.27646d14.akpm@osdl.org> <Pine.LNX.4.53.0408172207520.24814@gockel.physik3.uni-rostock.de> <412285A5.9080003@mvista.com> <1092782243.2429.254.camel@cog.beaverton.ibm.com> <Pine.LNX.4.53.0408180051540.25366@gockel.physik3.uni-rostock.de> <1092787863.2429.311.camel@cog.beaverton.ibm.com> <1092781172.2301.1654.camel@cube> <1092791363.2429.319.camel@cog.beaverton.ibm.com> <Pine.LNX.4.53.0408180927450.14935@gockel.physik3.uni-rostock.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53.0408180927450.14935@gockel.physik3.uni-rostock.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Aug 18, 2004 at 09:42:17AM +0200, Tim Schmielau wrote:
+> Updated patch below. It's not very well tested, but it compiles, boots, 
+> and fixes the problem on i386 with the default HZ=1000 and USER_HZ=100.
 
-
-
-> On Thu, 19 Aug 2004 jmerkey@comcast.net wrote:
-> 
-> > kallsyms in 2.6.8 is presenting module symbol tables with out of order
-> > addresses in 2.6.X.  This makes maintaining a commercial kernel debugger
-> > for Linux 2.6 kernels nighmareish. 
-> 
-> How hard could it be to sort the table in your debugger ?
-> 
-
-How about not sorting it at all and not being required to increase memory consumption for 
-debugging purposes?  
-
-
-
-> > Also, the need to kmalloc name strings (like kdb does) from kallsyms in
-> > kdbsupport.c while IN THE DEBUGGER makes it impossible to debug large
-> > portions of the kernel code with kdb, so I have rewritten large sections
-> > of kallsyms.c to handle all these broken, brain-dead cases in mdb and I
-> > am not relying much on kdb hooks anymore.
->      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 
-> Sounds like your commercial debugger might just be violating
-> the GPL ;)
-
-No.  it's not.  Chris makes a suggestion I should make it work on unpatched kernels.  
-I will address on his thread.
-
-Jeff
-
-> 
-> -- 
-> "Debugging is twice as hard as writing the code in the first place.
-> Therefore, if you write the code as cleverly as possible, you are,
-> by definition, not smart enough to debug it." - Brian W. Kernighan
-> 
+Yes, it works nicely now.

@@ -1,53 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261701AbTBXWiG>; Mon, 24 Feb 2003 17:38:06 -0500
+	id <S261495AbTBXWeg>; Mon, 24 Feb 2003 17:34:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261742AbTBXWiF>; Mon, 24 Feb 2003 17:38:05 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:37364 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S261701AbTBXWiE>; Mon, 24 Feb 2003 17:38:04 -0500
-Message-ID: <B9ECACBD6885D5119ADC00508B68C1EA0D19BB1A@orsmsx107.jf.intel.com>
-From: "Moore, Robert" <robert.moore@intel.com>
-To: "'Pavel Machek'" <pavel@ucw.cz>, "Moore, Robert" <robert.moore@intel.com>
-Cc: "'Bjorn Helgaas'" <bjorn_helgaas@hp.com>,
-       "Grover, Andrew" <andrew.grover@intel.com>,
-       "Walz, Michael" <michael.walz@intel.com>, t-kochi@bq.jp.nec.com,
-       linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-Subject: RE: [ACPI] [PATCH] 1/3 ACPI resource handling
-Date: Mon, 24 Feb 2003 14:48:06 -0800
+	id <S261530AbTBXWeg>; Mon, 24 Feb 2003 17:34:36 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:38417 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261495AbTBXWee>; Mon, 24 Feb 2003 17:34:34 -0500
+Date: Mon, 24 Feb 2003 14:39:36 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andreas Schwab <schwab@suse.de>
+cc: Jeff Garzik <jgarzik@pobox.com>,
+       "Richard B. Johnson" <root@chaos.analogic.com>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] s390 (7/13): gcc 3.3 adaptions.
+In-Reply-To: <jeu1et5o4i.fsf@sykes.suse.de>
+Message-ID: <Pine.LNX.4.44.0302241429150.13406-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Yes, as long as the code is used more than once (which it appears to be),
-then of course it should be procedurized.
-Bob
-
-
------Original Message-----
-From: Pavel Machek [mailto:pavel@ucw.cz] 
-Sent: Sunday, February 23, 2003 2:55 PM
-To: Moore, Robert
-Cc: 'Bjorn Helgaas'; Grover, Andrew; Walz, Michael; t-kochi@bq.jp.nec.com;
-linux-kernel@vger.kernel.org; acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] [PATCH] 1/3 ACPI resource handling
-
-Hi!
-
-> 1) This seems like a good idea to simplify the parsing of the resource
-lists
+On Mon, 24 Feb 2003, Andreas Schwab wrote:
 > 
-> 2) I'm not convinced that this buys a whole lot -- it just hides the code
-> behind a macro (something that's not generally liked in the Linux world.)
-> Would this procedure be called from more than one place?
+> But that's not the point.  It's the runtime value of i that gets converted
+> (to unsigned), not the compile time value of COUNT.  Thus if i ever gets
+> negative you have a problem.
 
-Well, reducing code duplication *is* liked in Linux world. Use inline
-function instead of macro if possible, through.
-	
-Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+The point is that the compiler should see that the run-time value of i is 
+_obviously_never_negative_ and as such the warning is total and utter 
+crap.
+
+The compiler actually does end up doing some of that kind of analysis when
+optimizing, since it is required for some of the loop optimizations 
+anyway. But the warning is emitted before the analysis has taken place.
+
+In other words, gcc is stupidly warning about something that is obviously 
+not an error. And it is obviously not an error because:
+
+ - array indexes are "int". They aren't size_t, and never have been. Thus 
+   it is _correct_ to use "int" for the index. You write
+
+	int array[5];
+
+   and you do NOT write
+
+	int array[5UL];
+
+   and anybody who writes 'array[5UL]' is considered a stupid git and a 
+   geek. Face it.
+
+   Claiming that you should index an array with a size_t is crap.
+
+ - the way this has traditionally always been done is the example I 
+   posted. Warning about correct, obvious, and traditional code is WRONG, 
+   if it causes the programmer to have to write something _less_ obvious
+   just to make a stupid compiler warning go away makes the warnign WORSE 
+   THAN USELESS.
+
+And yes, gcc could do the work necessary to only give the warning if it 
+actually has reason to believe that the code is wrong. As it is, it gives 
+the warning for code that is good.
+
+		Linus
+

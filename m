@@ -1,58 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265740AbUFDLdH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265743AbUFDLlH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265740AbUFDLdH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 07:33:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265742AbUFDLdH
+	id S265743AbUFDLlH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 07:41:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265745AbUFDLlH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 07:33:07 -0400
-Received: from holomorphy.com ([207.189.100.168]:16037 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S265740AbUFDLdC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 07:33:02 -0400
-Date: Fri, 4 Jun 2004 04:32:53 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Mikael Pettersson <mikpe@csd.uu.se>, Paul Jackson <pj@sgi.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, rusty@rustcorp.com.au,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, ak@muc.de,
-       ashok.raj@intel.com, hch@infradead.org, jbarnes@sgi.com,
-       joe.korty@ccur.com, manfred@colorfullife.com, colpatch@us.ibm.com,
-       Simon.Derr@bull.net
-Subject: Re: [PATCH] cpumask 5/10 rewrite cpumask.h - single bitmap based implementation
-Message-ID: <20040604113252.GA21007@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Mikael Pettersson <mikpe@csd.uu.se>, Paul Jackson <pj@sgi.com>,
-	Nick Piggin <nickpiggin@yahoo.com.au>, rusty@rustcorp.com.au,
-	linux-kernel@vger.kernel.org, akpm@osdl.org, ak@muc.de,
-	ashok.raj@intel.com, hch@infradead.org, jbarnes@sgi.com,
-	joe.korty@ccur.com, manfred@colorfullife.com, colpatch@us.ibm.com,
-	Simon.Derr@bull.net
-References: <20040603101010.4b15734a.pj@sgi.com> <1086313667.29381.897.camel@bach> <40BFD839.7060101@yahoo.com.au> <20040603221854.25d80f5a.pj@sgi.com> <16576.16748.771295.988065@alkaid.it.uu.se> <20040604093712.GU21007@holomorphy.com> <16576.17673.548349.36588@alkaid.it.uu.se> <20040604095929.GX21007@holomorphy.com> <16576.23059.490262.610771@alkaid.it.uu.se> <20040604112744.GZ21007@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 4 Jun 2004 07:41:07 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:30879 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265743AbUFDLlC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jun 2004 07:41:02 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Jens Axboe <axboe@suse.de>, mattia <mattia@nixlab.net>
+Subject: Re: DriveReady SeekComplete Error
+Date: Fri, 4 Jun 2004 13:44:30 +0200
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+References: <E1BWBjw-0003QZ-1h@andromeda.hostvector.com> <20040604102258.GR1946@suse.de>
+In-Reply-To: <20040604102258.GR1946@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040604112744.GZ21007@holomorphy.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Message-Id: <200406041344.30738.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 04, 2004 at 04:27:44AM -0700, William Lee Irwin III wrote:
-> If you care to export an architecture-neutral and/or 32/64 -bit
-> compatible binary representation of a bitmap, please provide the
-> implementation in lib/bitmap.c; I'm relatively agnostic on the ASCII
-> vs. whatever issue. Others may not be...
-> The cpu count for cpumask_t should be visible to userspace as the
-> dreaded sysconf(_SC_NPROCESSORS_CONF)...  don't ask how this is
-> implemented, you don't want to know.
-> Thanks.
-> -- wli
+On Friday 04 of June 2004 12:22, Jens Axboe wrote:
+> damnit, don't trim the cc list!
+>
+> On Fri, Jun 04 2004, mattia wrote:
+> > I have the following error (kernel 2.6.6):
+> >
+> > Jun  4 08:05:43 blink kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+> > Jun  4 08:05:43 blink kernel: hdc: Maxtor 6Y160P0, ATA DISK drive
+> > Jun  4 08:05:43 blink kernel: hdd: Maxtor 6Y120L0, ATA DISK drive
+> > Jun  4 08:05:43 blink kernel: ide1 at 0x170-0x177,0x376 on irq 15
+> > Jun  4 08:05:43 blink kernel: hda: max request size: 128KiB
+> > Jun  4 08:05:43 blink kernel: hda: 78177792 sectors (40027 MB) w/1819KiB
+> > Cache, CHS=65535/16/63, UDMA(100)
+> > Jun  4 08:05:43 blink kernel:  hda: hda1 hda2 hda3
+> > Jun  4 08:05:43 blink kernel: hdc: max request size: 1024KiB
+> > Jun  4 08:05:43 blink kernel: hdc: 320173056 sectors (163928 MB)
+> > w/7936KiB Cache, CHS=19929/255/63, UDMA(100)
+> > Jun  4 08:05:43 blink kernel:  hdc: hdc1
+> > Jun  4 08:05:43 blink kernel: hdd: max request size: 128KiB
+> > Jun  4 08:05:43 blink kernel: hdd: 240121728 sectors (122942 MB)
+> > w/2048KiB Cache, CHS=65535/16/63, UDMA(100)
+> > Jun  4 08:05:43 blink kernel:  hdd: hdd1 hdd2 hdd3
+> > Jun  4 08:05:43 blink kernel: hdd: task_no_data_intr: status=0x51 {
+> > DriveReady SeekComplete Error }
+> > Jun  4 08:05:43 blink kernel: hdd: task_no_data_intr: error=0x04 {
+> > DriveStatusError }
+> > Jun  4 08:05:43 blink kernel: hdd: Write Cache FAILED Flushing!
+> >
+> >
+> > I found somewhere that's something wrong with that maxtor drive.
+> > However, everything works fine.
+>
+> There's nothing wrong with the drive technically, it's just odd (lba48
+> without FLUSH_CACHE_EXT). It's really a linux ide bug that's fixed in
+> newer kernels. 2.6.7 will fix your problem.
 
-Hmm. Okay, I'd better confess. It parses /proc/cpuinfo... except there's
-no information there about the NR_CPUS used for cpumask_t, but rather
-only num_cpus_online().
+Wrong.
 
-akpm, apps are in trouble. Some interface is needed to export NR_CPUS
-so the kernel doesn't clobber their memory if they guess too low. Andi,
-how does libnuma cope with this?
+Bug is a combination of a very minor firmware quirk
+and lack of strict checking in Linux IDE driver.
 
+FLUSH_CACHE_EXT bit is set but it is not supported
+(but it is not a problem because LBA48 is not supported also).
 
--- wli
+It is fixed in 2.6.7-rc1 but your IDE barrier patch has this problem
+(just reminding you that it is still not fixed in 2.6.7-rc2-mm2).
+
+Cheers,
+Bartlomiej
+

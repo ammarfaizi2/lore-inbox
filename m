@@ -1,53 +1,127 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293390AbSCFN1t>; Wed, 6 Mar 2002 08:27:49 -0500
+	id <S293518AbSCFNov>; Wed, 6 Mar 2002 08:44:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293510AbSCFN1k>; Wed, 6 Mar 2002 08:27:40 -0500
-Received: from mail.sonytel.be ([193.74.243.200]:49337 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S293390AbSCFN11>;
-	Wed, 6 Mar 2002 08:27:27 -0500
-Date: Wed, 6 Mar 2002 14:26:39 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Andi Kleen <ak@suse.de>
-cc: Andrew Morton <akpm@zip.com.au>,
-        Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Petition Against Official Endorsement of BitKeeper by Linux  
- Maintainers
-In-Reply-To: <p73vgca11b7.fsf@oldwotan.suse.de>
-Message-ID: <Pine.GSO.4.21.0203061424190.14695-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293526AbSCFNom>; Wed, 6 Mar 2002 08:44:42 -0500
+Received: from smtp2.vol.cz ([195.250.128.42]:1540 "EHLO smtp2.vol.cz")
+	by vger.kernel.org with ESMTP id <S293525AbSCFNof>;
+	Wed, 6 Mar 2002 08:44:35 -0500
+Date: Wed, 6 Mar 2002 00:34:37 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>, torvalds@transmeta.com,
+        "Marcelo W. Tosatti" <marcelo@conectiva.com.br>
+Subject: execve() fails to report errors
+Message-ID: <20020305233437.GA130@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6 Mar 2002, Andi Kleen wrote:
-> Andrew Morton <akpm@zip.com.au> writes:
-> > The Open Source Club at The Ohio State University wrote:
-> > > 
-> > > [ succinctness ]
-> > >
-> > 
-> > fwiw, I prefer to not use bitkeeper, for the reasons which
-> > you outline.
-> 
-> I also prefer not to use Bitkeeper as long as possible for similar reasons 
-> and because it is too slow and clumpsy 
-> (although it is already very hard because often source is only available 
-> through it, e.g. for ppc or for 2.5 pre patches now -- hopefully this trend
-> does not continue)
+Hi!
 
-The PPC trees are available through rsync as well.
+Take this trivial .c program. Obviously correct.
 
-    http://www.penguinppc.org/dev/kernel.shtml
 
-Gr{oetje,eeting}s,
+struct foo {
+        char fill[1*1024*1024*1024];
+};
 
-						Geert
+struct foo a;
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+void
+main(void)
+{
+}
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Compile. Run. Segfault.
 
+Whose fault? Kernels; it fails to corectly report not enough address
+space.
+
+Now, I do not know if this is the right fix (binfmt_elf looks
+spaghetty to me) but its certainly better than it was.
+
+							Pavel
+
+--- clean/fs/binfmt_elf.c	Tue Mar  5 21:52:44 2002
++++ linux/fs/binfmt_elf.c	Wed Mar  6 00:14:31 2002
+@@ -79,13 +79,19 @@
+ 
+ #define BAD_ADDR(x)	((unsigned long)(x) > TASK_SIZE)
+ 
+-static void set_brk(unsigned long start, unsigned long end)
++static int set_brk(unsigned long start, unsigned long end)
+ {
++	int error;
+ 	start = ELF_PAGEALIGN(start);
+ 	end = ELF_PAGEALIGN(end);
+ 	if (end <= start)
+-		return;
+-	do_brk(start, end - start);
++		return 0;
++	
++	error = do_brk(start, end - start);
++	if (error!=start) {
++		return error;
++	}
++	return 0;
+ }
+ 
+ 
+@@ -606,7 +613,9 @@
+ 			/* There was a PT_LOAD segment with p_memsz > p_filesz
+ 			   before this one. Map anonymous pages, if needed,
+ 			   and clear the area.  */
+-			set_brk (elf_bss + load_bias, elf_brk + load_bias);
++			retval = set_brk (elf_bss + load_bias, elf_brk + load_bias);
++			if (retval)
++				goto out_free_dentry;
+ 			nbyte = ELF_PAGEOFFSET(elf_bss);
+ 			if (nbyte) {
+ 				nbyte = ELF_MIN_ALIGN - nbyte;
+@@ -721,8 +730,7 @@
+ 	/* Calling set_brk effectively mmaps the pages that we need
+ 	 * for the bss and break sections
+ 	 */
+-	set_brk(elf_bss, elf_brk);
+-
++	retval = set_brk(elf_bss, elf_brk);
+ 	padzero(elf_bss);
+ 
+ #if 0
+@@ -745,6 +753,7 @@
+ 		error = do_mmap(NULL, 0, 4096, PROT_READ | PROT_EXEC,
+ 				MAP_FIXED | MAP_PRIVATE, 0);
+ 		up_write(&current->mm->mmap_sem);
++		/* FIXME: Check return from mmap! */
+ 	}
+ 
+ #ifdef ELF_PLAT_INIT
+@@ -760,8 +769,7 @@
+ 	start_thread(regs, elf_entry, bprm->p);
+ 	if (current->ptrace & PT_PTRACED)
+ 		send_sig(SIGTRAP, current, 0);
+-	retval = 0;
+ out:
+ 	return retval;
+ 
+ 	/* error cleanup */
+@@ -842,9 +852,9 @@
+ 
+ 	len = ELF_PAGESTART(elf_phdata->p_filesz + elf_phdata->p_vaddr + ELF_MIN_ALIGN - 1);
+ 	bss = elf_phdata->p_memsz + elf_phdata->p_vaddr;
+-	if (bss > len)
+-		do_brk(len, bss - len);
+ 	error = 0;
++	if (bss > len)
++		error = do_brk(len, bss - len);
+ 
+ out_free_ph:
+ 	kfree(elf_phdata);
+
+-- 
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

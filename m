@@ -1,91 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267568AbSLEWjA>; Thu, 5 Dec 2002 17:39:00 -0500
+	id <S267566AbSLEWhU>; Thu, 5 Dec 2002 17:37:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267569AbSLEWjA>; Thu, 5 Dec 2002 17:39:00 -0500
-Received: from willow.compass.com.ph ([202.70.96.38]:46340 "EHLO
-	willow.compass.com.ph") by vger.kernel.org with ESMTP
-	id <S267568AbSLEWi6>; Thu, 5 Dec 2002 17:38:58 -0500
-Subject: Re: [Linux-fbdev-devel] [PATCH] FBDev: vga16fb port
-From: Antonino Daplas <adaplas@pol.net>
-To: Sven Luther <luther@dpt-info.u-strasbg.fr>
-Cc: James Simmons <jsimmons@infradead.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021205204442.GA1103@iliana>
-References: <20021205180314.GA860@iliana>
-	<Pine.LNX.4.44.0212052035330.31967-100000@phoenix.infradead.org> 
-	<20021205204442.GA1103@iliana>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1039138551.1024.43.camel@localhost.localdomain>
+	id <S267567AbSLEWhT>; Thu, 5 Dec 2002 17:37:19 -0500
+Received: from covert.black-ring.iadfw.net ([209.196.123.142]:29194 "EHLO
+	covert.brown-ring.iadfw.net") by vger.kernel.org with ESMTP
+	id <S267566AbSLEWhS>; Thu, 5 Dec 2002 17:37:18 -0500
+Date: Thu, 5 Dec 2002 16:44:50 -0600
+From: Art Haas <ahaas@airmail.net>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] GCC patch for detecting pre-C99 initializers
+Message-ID: <20021205224450.GA10638@debian>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 06 Dec 2002 06:36:31 +0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-12-06 at 01:44, Sven Luther wrote: 
-> On Thu, Dec 05, 2002 at 08:37:08PM +0000, James Simmons wrote:
-> > 
-> > > > Not really. When X closes /dev/fb then fb_release is called which if the 
-> > > 
-> > > That supposes X is fbdev aware (either using the fbdev driver or the
-> > > UseFBDev option), right ? What if X knows nothing about fbdev, it will
-> > > try restoring stuff as if it was in text mode.
-> > 
-> > That is what X will try. 
-> 
-> Mmm, is it enough for X to just save/restore the registers it modifies ?
-> 
-Life will be easy if native X does that always.  However, it does not
-always restore all the registers it modifies. Common example, the cursor
-registers.  If fbdev is also using a hardware cursor, you will see X's
-cursor replacing your console's block cursor when switching from X to
-the console.
+Hi.
 
-Some ATI cards freezes the system when native X and fbdev are running
-concurrently.
+The latest kernels have stamped out many of the pre-C99 initializers,
+and 2.5.51 will remove even more. There are still a few hanging around
+here and there, and some will be fixed when Linus merges updates for
+various bits of code (i.e. framebuffer, things in drivers/mtd, etc).
 
-James,
+Here's a handy little patch I've just built GCC with that will warn if
+the obsolete style initializers are used. GCC-3.2 can do this now if the
+'-pedantic' flag is used, but building a kernel with that flag generates
+a huge amount of noise, and adding '-std=gnu99' reduces some of it, but
+then the kernel fails to build do to compiler problems. This patch
+changes GCC so it always warns if it encounters an old style
+initializer. No flags are needed to activate this warning (and none turn
+it off), so it will always catch these obsolete constructs.  This patch
+flagged a few initializers that my script for doing the changes had missed,
+so it's proven useful to me already. Hopefully others will agree.
 
-Without the set_var hook 2.5 as is in 2.4, this will become more of a
-problem. Most drivers in 2.4 refreshes their registers during set_var.
+If you rebuild the compiler with this patch and run the test suite, be
+aware that a number of failures will occur due to the warnings printed
+out because of the old initializers. A few files in the test suite need
+patching so they either use the new initializers or expect the warnings.
+Also, building a 2.4 kernel with the modified compiler will produce lots
+of warnings, so the compiler would best be used for just dealing with
+2.5 kernels.
 
-> Also, i suppose if i am comming from fbdev, what X saves or restores
-> does not really count, since fbdev knows what relevant thing to save.
+The patch is against the current gcc-3-2 branch. I don't have a patch
+for what will become 3-3, but I'll bet this could be used there. As the
+old style constructs have been obsolete since gcc-2.5, it may be
+worthwhile to try and get this into the GCC-3.3 compiler. I don't know
+what the feelings are regarding that are, so I'll see what sort of
+feedback I get from posting this ( no flames please! :-) ) before it
+would be sent off to GCC land.
 
-Yes, the same thing too if the X driver supports Option "Usefbdev". Instead
-of restoring the hardware registers, X (or XFBdev) will call fb_set_var 
-to restore fbcon's state.
+Art Haas
 
-> 
-> Still i sense that there may be some issues involved here, especially
-> if you switch from text mode to fbdev or between fbdevs while not in X.
-> 
-
-State saves and restores are pertinent only for state changes within a single card.
-Ie, the state of the vga core and the graphics state. Thus, this is relevant to
-vgacon, vga16fb, the native fbdev driver, and of course X since all can coexist 
-in one card. I have already run vgacon, vga16fb and native fbdev simultaneously
-already.  Fortunately, the X driver was nice too, so I was able to run X also.  
-
-In multiple fbdev's with each on it's own hardware, this does not matter since 
-the state of the other hopefully does not affect the other. The only problem I can think
-of is that one card is the primary (thus with an active vga core) and the others are
-non primary (thus with an inactive vga core).  If the non-primary drivers are not
-careful, they may attempt to save/restore the VGA state that they have no business of
-knowing.  There can be several solutions to this:
-
-1.  There is probably a flag somewhere that says that the hardware's vga core is 
-inactive, and if so, do not attempt to save/restore the state..
-
-2.  Most hardware with a vga core most probably has the VGA registers memory mapped. 
-If this is the case, all it needs to do is fill up fb_vgastate.vgabase, and the 
-save/restore module will instead do mmio instead of pio, leaving the actual VGA registers
-untouched.
-
-Tony
-
-
+Index: gcc/c-parse.in
+===================================================================
+RCS file: /cvsroot/gcc/gcc/gcc/c-parse.in,v
+retrieving revision 1.127.2.2.4.2
+diff -u -r1.127.2.2.4.2 c-parse.in
+--- gcc/c-parse.in	21 Oct 2002 18:37:41 -0000	1.127.2.2.4.2
++++ gcc/c-parse.in	5 Dec 2002 22:29:12 -0000
+@@ -1520,12 +1520,10 @@
+ 		{ if (pedantic && ! flag_isoc99)
+ 		    pedwarn ("ISO C89 forbids specifying subobject to initialize"); }
+ 	| designator initval
+-		{ if (pedantic)
+-		    pedwarn ("obsolete use of designated initializer without `='"); }
++		{ warning ("obsolete use of designated initializer without `='"); }
+ 	| identifier ':'
+ 		{ set_init_label ($1);
+-		  if (pedantic)
+-		    pedwarn ("obsolete use of designated initializer with `:'"); }
++		  warning ("obsolete use of designated initializer with `:'"); }
+ 	  initval
+ 		{}
+ 	| initval
+-- 
+They that can give up essential liberty to obtain a little temporary safety
+deserve neither liberty nor safety.
+ -- Benjamin Franklin, Historical Review of Pennsylvania, 1759

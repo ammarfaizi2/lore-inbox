@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316796AbSEVAKn>; Tue, 21 May 2002 20:10:43 -0400
+	id <S316797AbSEVAPX>; Tue, 21 May 2002 20:15:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316798AbSEVAKn>; Tue, 21 May 2002 20:10:43 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:37392 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S316796AbSEVAKl>; Tue, 21 May 2002 20:10:41 -0400
-Date: Tue, 21 May 2002 17:10:58 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.5.17
-In-Reply-To: <3CEAD9AF.9F6FD0FC@linux-m68k.org>
-Message-ID: <Pine.LNX.4.44.0205211709300.3589-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316798AbSEVAPW>; Tue, 21 May 2002 20:15:22 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:18704 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S316797AbSEVAPW>; Tue, 21 May 2002 20:15:22 -0400
+Date: Wed, 22 May 2002 02:15:25 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+        ACPI mailing list <acpi-devel@lists.sourceforge.net>
+Subject: Re: suspend-to-{RAM,disk} for 2.5.17
+Message-ID: <20020522001525.GG27021@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20020521233312.GA27021@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.44.0205211707001.3589-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
+> > I need to know more than they are sleeping. I also know they are
+> > sleeping *without holding any semaphores*. I need working system to be
+> > able to save state to disk. That's why I hacked it into signal
+> > handler.
+> 
+> Sorry, I should have been more clear. I think the signal handler approach
+> is fine for user processes, I was just wondering why you needed anything
+> like that for kernel threads..
+> 
+> When a kernel thread is sleeping, I don't see that it has much state at
+> all: it will be re-started anyway on the next boot, and I don't see it
+> having any "state".
 
-On Wed, 22 May 2002, Roman Zippel wrote:
->
-> Alternative suggestion: remove the present bit from the pgd/pmd entry.
-> After you flushed the tlb, you can clean up the page tables without a
-> hurry. That will work on any sane system and you don't have to force
-> data and table pages into the same interface.
+If that kernel thread is sleeping because it waits for disk, it has
+some state, and I do not want to freeze it just now (because it might
+hold some lock). I only want to freeze them at safe point, and it
+seemed to me that for kernel threads it is easiest to mark safe points
+by hand.
 
-Sounds sane, except for the fact that some architectures do not actually
-care about the "Present" bit in the pgd at all.
-
-x86, to be exact ;(
-
-		Linus
-
+Does it compile for you for now?
+								Pavel
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

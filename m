@@ -1,40 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262828AbRE0RVj>; Sun, 27 May 2001 13:21:39 -0400
+	id <S262827AbRE0RUj>; Sun, 27 May 2001 13:20:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262831AbRE0RVb>; Sun, 27 May 2001 13:21:31 -0400
-Received: from twilight.cs.hut.fi ([130.233.40.5]:6201 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S262828AbRE0RVZ>; Sun, 27 May 2001 13:21:25 -0400
-Date: Sun, 27 May 2001 20:21:19 +0300
-From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: cesar.da.silva@cyberdude.com, kernellist <linux-kernel@vger.kernel.org>
-Subject: Re: Please help me fill in the blanks.
-Message-ID: <20010527202119.I11981@niksula.cs.hut.fi>
-In-Reply-To: <20010527021808.80979.qmail@web13407.mail.yahoo.com> <3B1065FD.3F8D7EDF@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B1065FD.3F8D7EDF@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Sat, May 26, 2001 at 10:27:09PM -0400
+	id <S262828AbRE0RU3>; Sun, 27 May 2001 13:20:29 -0400
+Received: from ti34a31-0057.dialup.online.no ([130.67.66.57]:29700 "EHLO
+	anfield.bjerkeset.com") by vger.kernel.org with ESMTP
+	id <S262827AbRE0RUL>; Sun, 27 May 2001 13:20:11 -0400
+Message-ID: <3B113742.518984CD@bjerkeset.com>
+Date: Sun, 27 May 2001 19:20:02 +0200
+From: "Bjerkeset, Svein Olav" <svein.olav@bjerkeset.com>
+Reply-To: svbj@online.no
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: no, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: BUG?: 2.4.5 breaks reiserfs (kernel BUG)
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+X-MIME-Autoconverted: from base64 to 8bit by leeloo.zip.com.au id DAA03077
 
-> > * Dynamic Memory Resilience
-> 
-> RAM fault tolerance?  There was a patch a long time ago which detected
-> bad ram, and would mark those memory clusters as unuseable at boot. 
-> However that is clearly not dynamic.
+Hi,
 
-If you are referring to Badram patch by Rick van Rein
-(http://rick.vanrein.org/linux/badram/), it doesn't detect the bad ram,
-memtest86 does that part (and does it well) -- you enter then enter the
-badram clusters as boot param. But I have to say badram patch works
-marvellously (thanks, Rick.) Shame it didn't find its way to standard
-kernel.
+Today I downloaded kernel 2.4.5 and compiled it. The kernel worked fine
+until
+I tried to halt the computer. When trying to unmount the reiserfs
+filesystems,
+the system freezes with the following output:
 
- 
--- v --
+journal_begin called without kernel lock held
+kernel BUG at journal.c:423!
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[<c01b5fb0>]
+EFLAGS: 00210282
+eax: 0000001d   ebx: c1eb1f28   ecx: c7ab2000   edx: 00000001
+esi: c13c8200   edi: 3b11320b   ebp: 0000000a   esp: c1eb1ec0
+ds: 0018   es: 0018   ss: 0018
+Process umount (pid: 1027, stackpage=c1eb1000)
+Stack: c02ef289 c02ef3e4 000001a7 c01b855b c02f0401 c1eb1f28 c13c8200
+c034e020
+       c13c8234 3b11320b 00000000 c67f55c0 c13c8200 c1eb0000 c13c8244
+c01b876e
+       c1eb1f28 c13c8200 0000000a 00000000 c01a92f8 c1eb1f28 c13c8200
+0000000a
+Call Trace: [<c01b855b>] [<c01b876e>] [<c01a92f8>] [<c0137baa>]
+[<c0137be1>] [<c0136e8c>] [<c013cecc>]
+       [<c013808d>] [<c0122f62>] [<c01380c4>] [<c0106efb>]
 
-v@iki.fi
+Code: 0f 0b 83 c4 0c c3 89 f6 31 c0 c3 90 31 c0 c3 90 56 be 40 2f
+
+
+BTW: The kernel is compiled with egcs 2.91.66
+
+Please CC to svbj@online.no as I am not subscribed to this list
+
+Svein Olav Bjerkeset
+ı:.Ë›±Êâmçë¢kaŠÉb²ßìzwm…ébïîË›±Êâmébìÿ‘êçz_âØ^n‡r¡ö¦zËëh™¨è­Ú&£ûàz¿äz¹Ş—ú+€Ê+zf£¢·hšˆ§~†­†Ûiÿÿïêÿ‘êçz_è®æj:+v‰¨ş)ß£ømšSåy«­æ¶…­†ÛiÿÿğÃí»è®å’i

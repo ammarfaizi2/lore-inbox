@@ -1,65 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262287AbUCBWpD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 17:45:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262278AbUCBWnx
+	id S262202AbUCBWsi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 17:48:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262296AbUCBWrw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 17:43:53 -0500
-Received: from fed1mtao08.cox.net ([68.6.19.123]:52382 "EHLO
-	fed1mtao08.cox.net") by vger.kernel.org with ESMTP id S262299AbUCBWlr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 17:41:47 -0500
-Date: Tue, 2 Mar 2004 15:41:46 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: George Anzinger <george@mvista.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       kgdb-bugreport@lists.sourceforge.net,
-       "Amit S. Kale" <amitkale@emsyssoft.com>
-Subject: Re: [Kgdb-bugreport] [PATCH] Kill kgdb_serial
-Message-ID: <20040302224146.GJ20227@smtp.west.cox.net>
-References: <20040302213901.GF20227@smtp.west.cox.net> <40450468.2090700@mvista.com> <20040302221106.GH20227@smtp.west.cox.net> <20040302223143.GE1225@elf.ucw.cz>
+	Tue, 2 Mar 2004 17:47:52 -0500
+Received: from mail.gmx.de ([213.165.64.20]:54948 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262289AbUCBWql (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Mar 2004 17:46:41 -0500
+X-Authenticated: #271361
+Date: Tue, 2 Mar 2004 23:46:26 +0100
+From: Edgar Toernig <froese@gmx.de>
+To: Albert Cahalan <albert@users.sf.net>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>, hpa@zytor.com,
+       cloos@jhcloos.com, root@chaos.analogic.com, nuno@itsari.org
+Subject: Re: something funny about tty's on 2.6.4-rc1-mm1
+Message-Id: <20040302234626.1f00e788.froese@gmx.de>
+In-Reply-To: <1078254284.2232.385.camel@cube>
+References: <1078254284.2232.385.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040302223143.GE1225@elf.ucw.cz>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 02, 2004 at 11:31:43PM +0100, Pavel Machek wrote:
-
-> Hi!
+Albert Cahalan wrote:
+>
+> > As RBJ said, ptys are now recycled in pid-like fashion,
+> > which means numbers won't be reused until wraparound
+> > happens.  This is good for security/fault tolerance,
+> > at least to some minor degree.
 > 
-> > > Tom Rini wrote:
-> > > >Hello.  The following interdiff kills kgdb_serial in favor of function
-> > > >names.  This only adds a weak function for kgdb_flush_io, and documents
-> > > >when it would need to be provided.
-> > > 
-> > > It looks like you are also dumping any notion of building a kernel that can 
-> > > choose which method of communication to use for kgdb at run time.  Is this 
-> > > so?
-> > 
-> > Yes, as this is how Andrew suggested we do it.  It becomes quite ugly if
-> > you try and allow for any 2 of 3 methods.
+> Ouch. It's bad for display and bad for typing.
+> What is easier to type?
 > 
-> I do not think that having kgdb_serial is so ugly. Are there any other
-> uglyness associated with that?
+> ps -t pts/6
+> ps -t pts/1014962
 
-Yes, switching from one of 3 choices to the other.  It's not as simple
-as 8250 or eth.  It's 8250 or eth or arch for things which don't depend
-on other initcalls.
-This leads to things in the PPC code like:
-#ifdef CONFIG_KGDB_8250
-	extern ...
-	kgdb_serial = &kgdb8250_serial;
-#elif defined(CONFIG_PPC_SIMPLE_SERIAL)
-	kgdb_serial = &kgdbppc_serial;
-#endif
+IMHO more important: what about utmp?  It would become terribly
+large.  Beside that, such huge numbers won't fit into ut_id.
 
-And then all kgdb_arch_init's have to have kgdb_serial =
-&kgdb8250_serial, for it to work prior to the initcall setting it.
+Ciao, ET.
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+--[man utmp extract]--
+...
+    char ut_id[4];     /* init id or abbrev. ttyname */
+...
+    xterm(1)  and  other  terminal emulators directly create a
+    USER_PROCESS record and generate the ut_id  by  using  the
+    last  two  letters  of  /dev/ttyp%c  or  by  using p%d for
+    /dev/pts/%d.  If they find a  DEAD_PROCESS  for  this  id,
+    they  recycle  it,  otherwise they create a new entry.
+...

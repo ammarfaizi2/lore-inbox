@@ -1,38 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317169AbSIIMCk>; Mon, 9 Sep 2002 08:02:40 -0400
+	id <S317182AbSIIMND>; Mon, 9 Sep 2002 08:13:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317176AbSIIMCk>; Mon, 9 Sep 2002 08:02:40 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:3806 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S317169AbSIIMCk>;
-	Mon, 9 Sep 2002 08:02:40 -0400
-Date: Mon, 9 Sep 2002 14:11:09 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
+	id <S317189AbSIIMND>; Mon, 9 Sep 2002 08:13:03 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40202 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317182AbSIIMND>;
+	Mon, 9 Sep 2002 08:13:03 -0400
+Date: Mon, 9 Sep 2002 13:17:44 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: linux-kernel@vger.kernel.org
-Subject: [patch] CLONE_DETACHED fix, BK-curr
-Message-ID: <Pine.LNX.4.44.0209091408250.7712-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: [PATCH] Important per-cpu fix.
+Message-ID: <20020909131744.G10583@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rusty wrote:
+> Yeah, but you can still leave a spinlock uninitialized, and it'll
+> work.
 
-the attached patch avoids a crash that can be caused by a CLONE_DETACHED
-thread.
+If your architecture has load-and-zero as its only atomic primitive,
+leaving spinlocks uninitialised will _not_ work ;-)
 
-	Ingo
-
---- linux/kernel/exit.c.orig	Mon Sep  9 14:06:05 2002
-+++ linux/kernel/exit.c	Mon Sep  9 14:06:25 2002
-@@ -532,7 +532,7 @@
- 	 *	
- 	 */
- 	
--	if(current->exit_signal != SIGCHLD &&
-+	if(current->exit_signal != SIGCHLD && current->exit_signal != -1 &&
- 	    ( current->parent_exec_id != t->self_exec_id  ||
- 	      current->self_exec_id != current->parent_exec_id) 
- 	    && !capable(CAP_KILL))
-
+-- 
+Revolutions do not require corporate support.

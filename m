@@ -1,60 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262304AbSJGBqA>; Sun, 6 Oct 2002 21:46:00 -0400
+	id <S262337AbSJGB4E>; Sun, 6 Oct 2002 21:56:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262331AbSJGBqA>; Sun, 6 Oct 2002 21:46:00 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:60178
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S262304AbSJGBp7>; Sun, 6 Oct 2002 21:45:59 -0400
-Date: Sun, 6 Oct 2002 18:48:48 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: "Murray J. Root" <murrayr@brain.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.40-ac4  kernel BUG at slab.c:1477!
-In-Reply-To: <3DA03B17.8010501@colorfullife.com>
-Message-ID: <Pine.LNX.4.10.10210061845320.23945-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S262342AbSJGB4E>; Sun, 6 Oct 2002 21:56:04 -0400
+Received: from blowme.phunnypharm.org ([65.207.35.140]:63494 "EHLO
+	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
+	id <S262337AbSJGB4E>; Sun, 6 Oct 2002 21:56:04 -0400
+Date: Sun, 6 Oct 2002 22:01:39 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Nicolas Pitre <nico@cam.org>, Ulrich Drepper <drepper@redhat.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: New BK License Problem?
+Message-ID: <20021007020139.GY566@phunnypharm.org>
+References: <3D9F3C5C.1050708@redhat.com> <Pine.LNX.4.44.0210051533310.5197-100000@xanadu.home> <20021005125412.E11375@work.bitmover.com> <20021005125624.F11375@work.bitmover.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021005125624.F11375@work.bitmover.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Whoops, forgot one thing.  Take the GNU CSSC sources, they look for
+> 
+> 	^Ah%05u\n
 
-Only that if it is SG it must conform the ATA/ATAPI DMA on 64kb on 4b
-boundaries.  Some what basic stuff iirc, but remember this is piped via
-scsi and the eh-stratagy/joke leaves something to be desired.
+Here's a patch for those interested
 
-One concern could be crossing SG lists with the device in PIO, that could
-get hairy.
-
-On Sun, 6 Oct 2002, Manfred Spraul wrote:
-
->  > This happens at random during boot when loading modules.
->  > About half of the time ide-scsi works fine.
->  > The system continues to boot after the BUG with /dev/hdc unaccessible.
-> 
-> from mm/slab.c:
-> 
-> 1475 if (xchg((unsigned long *)objp, RED_MAGIC1) != RED_MAGIC2)
-> 1476     /* Either write before start, or a double free. */
-> 1477     BUG();
-> 
-> You run an uniprocessor kernel, with slab debugging enabled, and the 
-> red-zoning test notices a write before the beginning of the buffer 
-> during scsi_probe_and_add_lun, with ide-scsi.
-> 
-> Andre: Do you know if ide-scsi makes any assumptions about memory 
-> alignment of the input buffers? With slab debugging disabled, the 
-> alignment is 32 or 64 bytes, with debugging enabled, it's just 4 byte 
-> [actually sizeof(void*)] aligned.
-> 
-> Murray, could you apply the attached patch? It dumps the redzone value 
-> during scsi_probe_and_add_lun. Hopefully this will help to find who 
-> corrupts the buffers.
-> 
-> --
-> 	Manfred
-> 
-
-Andre Hedrick
-LAD Storage Consulting Group
-
+diff -urN CSSC-0.14alpha.pl0.orig/sccsfile.cc CSSC-0.14alpha.pl0/sccsfile.cc
+--- CSSC-0.14alpha.pl0.orig/sccsfile.cc	2002-03-24 19:07:09.000000000 -0500
++++ CSSC-0.14alpha.pl0/sccsfile.cc	2002-10-06 21:52:12.000000000 -0400
+@@ -73,13 +73,17 @@
+       return NULL;
+     }
+   
+-  if (getc(f_local) != '\001' || getc(f_local) != 'h')
++  if (getc(f_local) != '\001')
+     {
+-      (void)fclose(f_local);
+-      s_corrupt_quit("%s: No SCCS-file magic number.  "
+-		     "Did you specify the right file?", name);
+-      /*NOTEACHED*/
+-      return NULL;
++      int tmp_c = getc(f_local);
++      if (tmp_c != 'h' && tmp_c != 'H')
++        {
++	  (void)fclose(f_local);
++	  s_corrupt_quit("%s: No SCCS-file magic number.  "
++			 "Did you specify the right file?", name);
++	  /*NOTEACHED*/
++	  return NULL;
++	}
+     }
+   
+   
+@@ -532,7 +536,7 @@
+     }
+   
+   int c = read_line();
+-  ASSERT(c == 'h');
++  ASSERT(c == 'h' || c == 'H');
+ 
+   /* the checksum is represented in the file as decimal.
+    */

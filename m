@@ -1,65 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131261AbRDBVVt>; Mon, 2 Apr 2001 17:21:49 -0400
+	id <S131304AbRDBVgu>; Mon, 2 Apr 2001 17:36:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131296AbRDBVVa>; Mon, 2 Apr 2001 17:21:30 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:43725 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S131261AbRDBVVV>;
-	Mon, 2 Apr 2001 17:21:21 -0400
-From: "Richard A. Smith" <rsmith@bitworks.com>
-To: "adrian@humboldt.co.uk" <adrian@humboldt.co.uk>
-Cc: "andre@linux-ide.org" <andre@linux-ide.org>,
-   "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-   "Padraig Brady" <Padraig@AnteFacto.com>,
-   "Steffen Grunewald" <steffen@gfz-potsdam.de>
-Date: Mon, 02 Apr 2001 16:19:25 -0500
-Reply-To: "Richard A. Smith" <rsmith@bitworks.com>
-X-Mailer: PMMail 2000 Professional (2.20.2030) For Windows 98 (4.10.2222)
-In-Reply-To: <3AC8E633.9070503@humboldt.co.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Subject: Re: Cool Road Runner (was CFA as Ide.)
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-X-Return-Path: RSmith@bitworks.com
-Message-ID: <MDAEMON-F200104021623.AA231904MD92067@bitworks.com>
+	id <S131320AbRDBVgk>; Mon, 2 Apr 2001 17:36:40 -0400
+Received: from ohiper3-113.apex.net ([209.250.52.128]:24328 "EHLO
+	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S131304AbRDBVgZ>; Mon, 2 Apr 2001 17:36:25 -0400
+Date: Mon, 2 Apr 2001 16:35:10 -0500
+From: Steven Walter <trwalter@apex.net>
+To: Richard Russon <kernel@flatcap.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: bug database braindump from the kernel summit
+Message-ID: <20010402163510.A26109@hapablap.dyn.dhs.org>
+In-Reply-To: <Pine.LNX.3.96.1010401181724.28121i-100000@mandrakesoft.mandrakesoft.com> <986189206.789.0.camel@home.flatcap.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <986189206.789.0.camel@home.flatcap.org>; from kernel@flatcap.org on Mon, Apr 02, 2001 at 06:26:45AM +0100
+X-Uptime: 4:21pm  up 1 day, 38 min,  1 user,  load average: 1.03, 1.08, 1.14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 02 Apr 2001 21:50:59 +0100, Adrian Cox wrote:
+On Mon, Apr 02, 2001 at 06:26:45AM +0100, Richard Russon wrote:
+> On 01 Apr 2001 18:21:29 -0500, Jeff Garzik wrote:
+> > Let's hope it's not a flamewar, but here goes :)
+> > 
+> > We -need- .config, but /proc/config seems like pure bloat.
+> 
+> Don't ask me for sample code, but...
+> 
+> The init code for many drivers is freed up after it's used.
+> Could we apply the same technique and compile in .config,
+> then printk the entire lot (boot option) and free up the
+> space afterwards?
 
->> IIRC SanDisk was the original people to come out with IDE CFA and everyone
->> else just copied them.  I have the SanDisk datasheets that I can send you
->> if you need them to verify stuff.  I believe that if you verify it with 
->> the SanDisk then all the other MFG's should work as well.
->
->If only. In my limited experience SanDisk cards have been the most 
->tolerant. I suspect that Sandisk actually implement the full range of 
->timings documented in the spec, and nobody else bothers.
->
->This isn't normally a problem on PC hardware, but if you try to 
->implement an interface to talk to a CF card in an embedded system you 
->find this out.
+Though this would save memory at run-time, you'd still increase the size
+of the image.
 
-Hmmm... most of our embedded systems are based on a PC somehow either via a processor card or  
-an actual PC system that we design so perhaps I have't stressed the limits yet.
-
-We do actually use SST (Silcon Storage Technolog) CF's as well and they seem to function just 
-identical to the SanDisk but not quite as robust... I have had several of the SST's develope 
-a problem in the partition table and as thus the just error when you try to mount them.
-Several people on the liunx-embedded list also have similar experiences.
-
-That seems to follow your observations...
-
-Will it be worth while for you if I break out the scope and examine how our CF's handle the 
-PDIAG signal or can we just go on faith that they do indeed work as expected?
-
-
---
-Richard A. Smith                         Bitworks, Inc.               
-rsmith@bitworks.com               501.846.5777                        
-Sr. Design Engineer        http://www.bitworks.com   
-
-
-
-
+-- 
+-Steven
+Freedom is the freedom to say that two plus two equals four.

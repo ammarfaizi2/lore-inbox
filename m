@@ -1,65 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279296AbRJWGyu>; Tue, 23 Oct 2001 02:54:50 -0400
+	id <S279292AbRJWG5m>; Tue, 23 Oct 2001 02:57:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279295AbRJWGyl>; Tue, 23 Oct 2001 02:54:41 -0400
-Received: from mail1.amc.com.au ([203.15.175.2]:13828 "HELO mail1.amc.com.au")
-	by vger.kernel.org with SMTP id <S279292AbRJWGy3>;
-	Tue, 23 Oct 2001 02:54:29 -0400
-Message-Id: <5.1.0.14.0.20011023161901.00a65870@mail.amc.localnet>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 23 Oct 2001 16:54:59 +1000
-To: linux-kernel@vger.kernel.org
-From: Stuart Young <sgy@amc.com.au>
-Subject: SiS630S FrameBuffer & LCD
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S279295AbRJWG5c>; Tue, 23 Oct 2001 02:57:32 -0400
+Received: from cx552039-a.elcjn1.sdca.home.com ([24.177.44.17]:8905 "EHLO
+	tigger.unnerving.org") by vger.kernel.org with ESMTP
+	id <S279292AbRJWG5N>; Tue, 23 Oct 2001 02:57:13 -0400
+Date: Mon, 22 Oct 2001 23:57:40 -0700 (PDT)
+From: Gregory Ade <gkade@bigbrother.net>
+X-X-Sender: <gkade@tigger.unnerving.org>
+To: Alan Cox <laughing@shared-source.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Linux 2.4.12-ac5 typo
+In-Reply-To: <20011022004549.A32210@lightning.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.33.0110222342200.9744-100000@tigger.unnerving.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Like my previous SiS post, I'm once again using the Clevo lp200t (SiS630S 
-chipset), and trying to enable the SiS FrameBuffer device. Once again, this 
-happens on 2.4.9, 2.4.10, and 2.4.12.
+I'm not sure why i haven't seen a patch for this one yet, or why it seems
+nobody else has said anything, but here's a typo fix for 2.4.12-ac5.
 
-On issuing of 'modprobe sisfb' the LCD display gives one of the following 
-symptoms:
+-- 
+Gregory K. Ade <gkade@unnerving.org>
+http://unnerving.org/~gkade
+OpenPGP Key ID: EAF4844B  keyserver: pgpkeys.mit.edu
 
-  1. The display goes totally blank.
-  2. The display "glows" an indeterminate color and eventually fades out 
-(may take a minute to fade out).
 
-In either case, the machine continues to run happily, and I can either ssh 
-in and/or run programs stuff in the shell (with no visual output). Seems 
-fbset makes no difference (went through all the resolution/scan/bit-depths 
-with no luck - from an su'd session via ssh and specifying the FrameBuffer 
-device directly). The machine has an external VGA port, that by default is 
-a "mirror" of the LCD display. Plugging a display in makes no difference, 
-and the display is also blank (tried at boot, before and after the module 
-has been loaded).
 
-This problem also appears with the XFree86 SiS chipset drivers on the same 
-machine, and appears to be related to the code that sets the resolutions. 
-Disabling resolution changes (hacking up the XFree86 SiS driver) and using 
-Vesa FrameBuffer to set 1024x768 at boot only provides a clumsy workaround 
-(you can still change bit-depths and scan rates fine, but you can't change 
-the resolution - changing that causes the problem).
+diff -u --new-file --recursive linux-2.4.12-ac5.orig/net/ipv4/ipconfig.c linux-2.4.12-ac5/net/ipv4/ipconfig.c
+--- linux-2.4.12-ac5.orig/net/ipv4/ipconfig.c	Mon Oct 22 23:26:32 2001
++++ linux-2.4.12-ac5/net/ipv4/ipconfig.c	Mon Oct 22 23:53:11 2001
+@@ -53,7 +53,7 @@
 
-A few messages off the XFree86 Xpert list seem to have shed a little light 
-on the problem, in that it seems some registers return values that the code 
-may not understand how to deal with.
+ #include <asm/uaccess.h>
+ #include <asm/checksum.h>
+-#inclued <asm/processor.h>
++#include <asm/processor.h>
 
-It seems plausible that the documentation that SiS has provided is now 
-out--of-date, and/or the drivers are assuming the wrong things in cases of 
-the unknown. The problem is easily reproducible, and the SiS630S chipset 
-(which seems to be the one affected, but may not necessarily be the only 
-one) is becoming more widespread in laptop/all-in-one PC's.
-
-If you need more information and/or debug output to help resolve this, just 
-ask.
-
-AMC Enterprises P/L    - Stuart Young
-First Floor            - Network and Systems Admin
-3 Chesterville Rd      - sgy@amc.com.au
-Cheltenham Vic 3192    - Ph:  (03) 9584-2700
-http://www.amc.com.au/ - Fax: (03) 9584-2755
+ /* Define this to allow debugging output */
+ #undef IPCONFIG_DEBUG
 

@@ -1,53 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261918AbTEHRvx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 13:51:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261936AbTEHRvx
+	id S261971AbTEHRyK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 13:54:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261989AbTEHRyK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 13:51:53 -0400
-Received: from mail.coastside.net ([207.213.212.6]:31207 "EHLO
-	mail.coastside.net") by vger.kernel.org with ESMTP id S261918AbTEHRvw
+	Thu, 8 May 2003 13:54:10 -0400
+Received: from hypatia.llnl.gov ([134.9.11.73]:2688 "EHLO hypatia.llnl.gov")
+	by vger.kernel.org with ESMTP id S261971AbTEHRyI convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 13:51:52 -0400
-Mime-Version: 1.0
-Message-Id: <p0521060abae04b745ea6@[207.213.214.37]>
-In-Reply-To: <200305081009_MC3-1-37FA-2407@compuserve.com>
-References: <200305081009_MC3-1-37FA-2407@compuserve.com>
-Date: Thu, 8 May 2003 11:04:19 -0700
-To: linux-kernel <linux-kernel@vger.kernel.org>
-From: Jonathan Lundell <linux@lundell-bros.com>
-Subject: Re: top stack (l)users for 2.5.69
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+	Thu, 8 May 2003 13:54:08 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Dave Peterson <dsp@llnl.gov>
+Organization: Lawrence Livermore National Laboratory
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: [PATCH] fixes for linked list bugs in block I/O code
+Date: Thu, 8 May 2003 11:06:38 -0700
+User-Agent: KMail/1.4.1
+Cc: linux-kernel@vger.kernel.org, davej@suse.de
+References: <200305071622.36352.dsp@llnl.gov> <20030508062942.GB823@suse.de>
+In-Reply-To: <20030508062942.GB823@suse.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200305081106.38002.dsp@llnl.gov>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 10:08am -0400 5/8/03, Chuck Ebbert wrote:
->  > I have no idea, what a 'typical processor' might look like. But the
->>  thing most CPU seem to have in common is that they save two registers
->>  either on the stack or into other registers that only exist for this
->>  purpose (SRR on PPC).
->>
->>  Once that has happened, the OS has the job to figure out where it's
->>  stack (or equivalent) is located, *without* clobbering the registers.
->>  Once that is done, it can save all the registern on the stack,
->>  including SRR.
+On Wednesday 07 May 2003 11:29 pm, Jens Axboe wrote:
+> This is convoluted nonsense, bhtail->b_reqnext is NULL by definition. So
+> a simple
 >
->   On i386 the CPU automatically switches to the stack corresponding to
->the privilege level (PL) of the interrupt handler, then pushes the
->instruction pointer and flags onto that stack.  It is theoretically
->possible to write unprivileged interrupt handlers by using conforming
->code segments, in which case a stack switch will not occur, but such a
->handler cannot touch anything but registers and stack so it's not very
->useful.
+> 	bh->b_reqnext = NULL;
+>
+> is much clearer.
 
-In particular, the interrupt stack is the kernel stack of the current 
-task. This is (in part) what leads to stack overflows. If the current 
-task is running in the kernel, using a significant hunk of its stack, 
-an interrupt is limited to the balance of that stack. And if that 
-interrupt triggers a soft irq that runs, say, a network stack, and 
-that softirq handler in turn gets interrupted, we've got, 
-effectively, three processes sharing the stack. And of course hard 
-interrupts can be nested, so it's pretty damn difficult to specify a 
-safe upper limit for stack usage.
--- 
-/Jonathan Lundell.
+Ok, that's fine with me.  Setting it explicitly to NULL is also correct
+and perhaps a bit more clear.
+
+> >                         req->bhtail->b_reqnext = bh;
+> >                         req->bhtail = bh;
+> >                         req->nr_sectors = req->hard_nr_sectors += count;
+> > @@ -1061,6 +1062,7 @@
+> >         req->waiting = NULL;
+> >         req->bh = bh;
+> >         req->bhtail = bh;
+> > +       bh->b_reqnext = NULL;
+> >         req->rq_dev = bh->b_rdev;
+> >         req->start_time = jiffies;
+> >         req_new_io(req, 0, count);
+>
+> Bart already covered why 2.5 definitely does not need it. I dunno what
+> to say for 2.4, to me it looks like a BUG if you pass in a buffer_head
+> with uninitialized b_reqnext. Why should that member be any different?
+
+Ok, agreed that 2.5 does not need the patch.
+
+> In fact, from where did you see this buffer_head coming from? Who is
+> submitting IO on a not properly inited bh? To me, that sounds like not a
+> block layer bug but an fs bug.
+
+I would argue that __make_request() is where the insertion of the buffer_head
+into the request structure is performed, and setting the b_reqnext field of
+the buffer_head to its proper value is an integral part of performing the
+insertion.  Why not keep all of the insertion logic in one place rather than
+distribuing it throughout the code and requiring all callers of
+__make_request() to remember to initialize b_reqnext?  Localizing the
+insertion logic makes the code clearer, more compact, and easier to maintain.
+
+-Dave

@@ -1,73 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262730AbTKVTlL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Nov 2003 14:41:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262738AbTKVTlK
+	id S262738AbTKVTve (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Nov 2003 14:51:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262746AbTKVTve
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Nov 2003 14:41:10 -0500
-Received: from modemcable067.88-70-69.mc.videotron.ca ([69.70.88.67]:39555
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S262730AbTKVTlH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Nov 2003 14:41:07 -0500
-Date: Sat, 22 Nov 2003 14:39:50 -0500 (EST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Remi Colinet <remi.colinet@wanadoo.fr>
-cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test9-mm5 : compile error
-In-Reply-To: <3FBFA6DA.3070707@wanadoo.fr>
-Message-ID: <Pine.LNX.4.53.0311221438150.2498@montezuma.fsmlabs.com>
-References: <3FBF5C79.5050409@wanadoo.fr> <Pine.LNX.4.53.0311220946280.2498@montezuma.fsmlabs.com>
- <3FBF99E6.1070402@wanadoo.fr> <Pine.LNX.4.53.0311221218350.2498@montezuma.fsmlabs.com>
- <3FBFA6DA.3070707@wanadoo.fr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 22 Nov 2003 14:51:34 -0500
+Received: from mail.jlokier.co.uk ([81.29.64.88]:42424 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S262738AbTKVTvd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Nov 2003 14:51:33 -0500
+Date: Sat, 22 Nov 2003 19:50:52 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Timothy Miller <miller@techsource.com>,
+       Andreas Dilger <adilger@clusterfs.com>,
+       Justin Cormack <justin@street-vision.com>,
+       Jesse Pollard <jesse@cats-chateau.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: OT: why no file copy() libc/syscall ??
+Message-ID: <20031122195052.GA17077@mail.shareable.org>
+References: <1068512710.722.161.camel@cube> <03111209360001.11900@tabby> <20031120172143.GA7390@deneb.enyo.de> <03112013081700.27566@tabby> <1069357453.26642.93.camel@lotte.street-vision.com> <3FBD27A0.50803@techsource.com> <20031120140739.I20568@schatzie.adilger.int> <3FBD328C.1070607@techsource.com> <20031122145031.GA189@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031122145031.GA189@elf.ucw.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 22 Nov 2003, Remi Colinet wrote:
+Pavel Machek wrote:
+> > It is, though.  If you run out of space copying a file, you know it when 
+> > you're copying.  Applications don't usually expect to get out-of-space 
+> > errors while overwriting something in the middle of a file.
+> 
+> Same can happen on compressed filesystem...
 
-> Zwane Mwaikambo wrote:
-> >
-> I have dowloaded linux-2.6.0-test9.tar.bz2 and 2.6.0-test9-mm5.bz2. Here 
-> is the begining of my arch/i386/kernel/process.c file after applying the 
-> mm patch :
+Or a filesystem with snapshots, e.g. using LVM.
 
-Thanks for verifying that, the error was in my auto cvs import script. It 
-seems to have generated rejects. I presume the following patch would 
-suffice (including your other changes)?
-
-Index: linux-2.6.0-test9-mm5/drivers/oprofile/oprofile_stats.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.6.0-test9-mm5/drivers/oprofile/oprofile_stats.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 oprofile_stats.c
---- linux-2.6.0-test9-mm5/drivers/oprofile/oprofile_stats.c	21 Nov 2003 20:59:40 -0000	1.1.1.1
-+++ linux-2.6.0-test9-mm5/drivers/oprofile/oprofile_stats.c	21 Nov 2003 21:27:44 -0000
-@@ -10,7 +10,8 @@
- #include <linux/oprofile.h>
- #include <linux/cpumask.h>
- #include <linux/threads.h>
-- 
-+#include <linux/smp.h>
-+
- #include "oprofile_stats.h"
- #include "cpu_buffer.h"
-  
-Index: linux-2.6.0-test9-mm5/include/linux/cpumask.h
-===================================================================
-RCS file: /build/cvsroot/linux-2.6.0-test9-mm5/include/linux/cpumask.h,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 cpumask.h
---- linux-2.6.0-test9-mm5/include/linux/cpumask.h	21 Nov 2003 20:59:57 -0000	1.1.1.1
-+++ linux-2.6.0-test9-mm5/include/linux/cpumask.h	21 Nov 2003 21:52:39 -0000
-@@ -39,9 +39,8 @@ typedef unsigned long cpumask_t;
- 
- 
- #ifdef CONFIG_SMP
--
-+#include <asm/smp.h>
- extern cpumask_t cpu_online_map;
--extern cpumask_t cpu_possible_map;
- 
- #define num_online_cpus()		cpus_weight(cpu_online_map)
- #define cpu_online(cpu)			cpu_isset(cpu, cpu_online_map)
+-- Jamie

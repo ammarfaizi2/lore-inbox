@@ -1,54 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277119AbRJDEej>; Thu, 4 Oct 2001 00:34:39 -0400
+	id <S277124AbRJDEsj>; Thu, 4 Oct 2001 00:48:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277120AbRJDEe3>; Thu, 4 Oct 2001 00:34:29 -0400
-Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:63635 "EHLO
-	mirai.cx") by vger.kernel.org with ESMTP id <S277119AbRJDEeY>;
-	Thu, 4 Oct 2001 00:34:24 -0400
-Message-ID: <3BBBE6E5.DE958923@pobox.com>
-Date: Wed, 03 Oct 2001 21:34:45 -0700
-From: J Sloan <jjs@pobox.com>
-Organization: J S Concepts
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.11-pre2 i686)
+	id <S277125AbRJDEsa>; Thu, 4 Oct 2001 00:48:30 -0400
+Received: from mx2.fuse.net ([216.68.1.120]:49120 "EHLO mta02.fuse.net")
+	by vger.kernel.org with ESMTP id <S277124AbRJDEsQ>;
+	Thu, 4 Oct 2001 00:48:16 -0400
+Message-ID: <3BBBEA1E.8060304@fuse.net>
+Date: Thu, 04 Oct 2001 00:48:30 -0400
+From: Nathan <wfilardo@fuse.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011001
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Stephen Torri <storri@ameritech.net>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: HTTP problem running v2.4 kernel
-In-Reply-To: <Pine.LNX.4.33.0110032351450.1056-100000@base.torri.linux>
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.10 hangs on console switch
+In-Reply-To: <E15oURs-0005XB-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ecn?
+Alan Cox wrote:
 
-Stephen Torri wrote:
+>>>You are using the Nvidia drivers aren't you. They seem to have timing
+>>>dependant screen mode switch problems. The timing has changed in 2.4.10
+>>>
+>>Not the nvidia supplied drivers. I am using the nvidia driver (nv)  that
+>>comes with XFree86 4.1.0. I did not compile in kernel agpgart and driver
+>>support.
+>>
+>
+>I'm seeing  reports of this one always with nvidia cards and with both sets
+>of Nvidia drivers - I guess they both do the same thing and have the same
+>bug, or the user mode XFree bit is in both cases doing it.
+>
+>Right now thats all I can really point at as a pattern, I dont know why the
+>problem should be there
+>
+>Alan
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+Don't have that problem here [least, haven't run into it yet].  I'm 
+currently running 2.4.10+RML's preempt and net entropy patches, system 
+is a VIA chipset Athlon 900Mhz with nVidia's proprietary drivers and a 
+GeForce2 GTS 64MB.  Help shed any light on the issue?
 
-> Has anyone noticed that certain websites that use to load reliable are no
-> longer accessible? I used to be able to get into www.nvidia.com and now it
-> doesn't load. The reason I believe this might be a kernel problem is what
-> happened when I changed on the same system to kernel 2.2.19-7.0.8smp
-> (RedHat 7.0 kernel). When I switched to that kernel the website loaded
-> with out problems. Nothing changed on the same. Same software used with
-> all the kernels I have used.
->
-> The kernel version that I have noticed the problem:
->
-> 2.4.10-ac4
-> 2.4.9-ac16
->
-> Not sure if I noticed it on earlier versions. I will check again.
->
-> How can I track down the what is really causing the problem.
->
-> Stephen
-> storri@ameritech.net
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+--Nathan
+
+
 

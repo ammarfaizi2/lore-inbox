@@ -1,100 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262440AbSI2KMJ>; Sun, 29 Sep 2002 06:12:09 -0400
+	id <S262439AbSI2KHc>; Sun, 29 Sep 2002 06:07:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262441AbSI2KMJ>; Sun, 29 Sep 2002 06:12:09 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:34435 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S262440AbSI2KMI>;
-	Sun, 29 Sep 2002 06:12:08 -0400
-Date: Sun, 29 Sep 2002 12:27:11 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Axel <Axel.Zeuner@gmx.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
-       NPT library mailing list <phil-list@redhat.com>,
-       Ulrich Drepper <drepper@redhat.com>
-Subject: Re: 2.5.39: Signal delivery to thread groups: Bug or feature
-In-Reply-To: <200209281638.g8SGcQi23877@mx1.redhat.com>
-Message-ID: <Pine.LNX.4.44.0209291222500.18396-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262440AbSI2KHb>; Sun, 29 Sep 2002 06:07:31 -0400
+Received: from natwar.webmailer.de ([192.67.198.70]:34971 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S262439AbSI2KHa>; Sun, 29 Sep 2002 06:07:30 -0400
+Date: Sun, 29 Sep 2002 12:10:18 +0200
+From: Dominik Brodowski <linux@brodo.de>
+To: Gerald Britton <gbritton@alum.mit.edu>
+Cc: linux-kernel@vger.kernel.org, cpufreq@www.linux.org.uk
+Subject: Re: [PATCH] Re: [2.5.39] (3/5) CPUfreq i386 drivers
+Message-ID: <20020929121018.A811@brodo.de>
+References: <20020928112503.E1217@brodo.de> <20020928134457.A14784@brodo.de> <20020928134739.A11797@light-brigade.mit.edu> <20020929111603.F1250@brodo.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.16i
+In-Reply-To: <20020929111603.F1250@brodo.de>; from linux@brodo.de on Sun, Sep 29, 2002 at 11:16:03AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Sep 29, 2002 at 11:16:03AM +0200, Dominik Brodowski wrote:
+> > If I fix the init by moving the !low || !high test below the loop, and prevent
+> > bad data from being passed into the notifier chains, I start getting memory
+> > corruption being detected by slab poisioning.
+> Any idea why this is happening??? The only dynamically allocated struct is
+> struct cpfureq_driver driver; and it is only kfree'd in speedstep_exit... 
+I think I found the problem: it should be GFP_ATOMIC and not GFP_KERNEL in
+the allocation of struct cpufreq_driver. Will be fixed in the next release.
 
-On Sat, 28 Sep 2002, Axel wrote:
 
-> The main signal dispatching function send_sig_info in kernel/signal.c
-> requires at the moment an installed signal handler for delivery of
-> signals to members of the thread group.
-
-i fixed this bug, see the attached attached patch, it's against BK-curr.  
-
-It fixes the testcase Ulrich created from your description - does it fix
-your testcase as well? (Ulrich added this testcase to NPTL, should show up
-in the next drop.)
-
-we still have one more problem left in the signal handling area: atomicity
-of signal delivery. Eg. right now it's possible to have a signal 'in
-flight' for one specific thread, which manages to block it before handling
-the signal. What should the behavior be in that case? Does POSIX say
-anything about this?
-
-	Ingo
-
---- linux/kernel/signal.c.orig	Sun Sep 29 11:59:03 2002
-+++ linux/kernel/signal.c	Sun Sep 29 12:17:14 2002
-@@ -874,9 +874,23 @@
- 	return err;
- }
- 
-+struct task_struct * find_unblocked_thread(struct task_struct *p, int signr)
-+{
-+	struct task_struct *tmp;
-+	struct list_head *l;
-+	struct pid *pid;
-+
-+	for_each_task_pid(p->tgid, PIDTYPE_TGID, tmp, l, pid)
-+		if (!sigismember(&tmp->blocked, signr) &&
-+					!sigismember(&tmp->real_blocked, signr))
-+			return tmp;
-+	return NULL;
-+}
-+
- int
- send_sig_info(int sig, struct siginfo *info, struct task_struct *p)
- {
-+	struct task_struct *t;
- 	unsigned long flags;
- 	int ret = 0;
- 
-@@ -905,21 +919,19 @@
- 	if (sig_ignored(p, sig))
- 		goto out_unlock;
- 
--	/* blocked (or ptraced) signals get posted */
--	spin_lock(&p->sigmask_lock);
--	if ((p->ptrace & PT_PTRACED) || sigismember(&p->blocked, sig) ||
--					sigismember(&p->real_blocked, sig)) {
--		spin_unlock(&p->sigmask_lock);
-+	if (sig_kernel_specific(sig))
- 		goto out_send;
--	}
--	spin_unlock(&p->sigmask_lock);
- 
-+	/* Does any of the threads unblock the signal? */
-+	t = find_unblocked_thread(p, sig);
-+	if (!t) {
-+		ret = __send_sig_info(sig, info, p, 1);
-+		goto out_unlock;
-+	}
- 	if (sig_kernel_broadcast(sig) || sig_kernel_coredump(sig)) {
- 		ret = __broadcast_thread_group(p, sig);
- 		goto out_unlock;
- 	}
--	if (sig_kernel_specific(sig))
--		goto out_send;
- 
- 	/* must not happen */
- 	BUG();
-
+	Dominik

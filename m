@@ -1,64 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265063AbUADF7D (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 00:59:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265140AbUADF7D
+	id S265143AbUADF4H (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 00:56:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265147AbUADF4H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 00:59:03 -0500
-Received: from c211-28-147-198.thoms1.vic.optusnet.com.au ([211.28.147.198]:26048
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S265063AbUADF7A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 00:59:00 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Tim Connors <tconnors+linuxkernel1073186591@astro.swin.edu.au>,
+	Sun, 4 Jan 2004 00:56:07 -0500
+Received: from citrine.spiritone.com ([216.99.193.133]:44230 "EHLO
+	citrine.spiritone.com") by vger.kernel.org with ESMTP
+	id S265143AbUADF4F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 00:56:05 -0500
+Date: Sat, 03 Jan 2004 21:55:43 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Ananda Bhattacharya <anandab@cabm.rutgers.edu>,
        linux-kernel@vger.kernel.org
-Subject: Re: xterm scrolling speed - scheduling weirdness in 2.6 ?!
-Date: Sun, 4 Jan 2004 16:58:57 +1100
-User-Agent: KMail/1.5.3
-References: <Pine.LNX.4.44.0401031439060.24942-100000@coffee.psychology.mcmaster.ca> <200401041242.47410.kernel@kolivas.org> <slrn-0.9.7.4-25573-3125-200401041423-tc@hexane.ssi.swin.edu.au>
-In-Reply-To: <slrn-0.9.7.4-25573-3125-200401041423-tc@hexane.ssi.swin.edu.au>
+Subject: Re: Pentium 4 HT SMP
+Message-ID: <2840000.1073195743@[10.10.2.4]>
+In-Reply-To: <Pine.LNX.4.44.0401032330270.16379-100000@puma.cabm.rutgers.edu>
+References: <Pine.LNX.4.44.0401032330270.16379-100000@puma.cabm.rutgers.edu>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200401041658.57796.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 4 Jan 2004 14:32, Tim Connors wrote:
-> > Not quite. The scheduler retains high priority for X for longer so it's
-> > no new dynamic adjustment of any sort, just better cpu usage by X (which
-> > is why it's smoother now at nice 0 than previously).
-> >
-> > > If either the scheduler or xterm was a bit smarter or
-> > > used different thresholds, the problem would go away. It would also
-> > > explain why there are people who cannot reproduce it. Perhaps a
-> > > somewhat faster or slower system makes the problem go away. Honnestly,
-> > > it's the first time that I notice that my xterms are jump-scrolling, it
-> > > was so much fluid anyway.
-> >
-> > Very thorough but not a scheduler problem as far as I'm concerned. Can
-> > you not disable smooth scrolling and force jump scrolling?
->
-> AFAIK the definition of jump scrolling is that if xterm is falling
-> behind, it jumps. Jump scrolling is enabled by default.
->
-> What this slowness means is that xterm is getting CPU at just the
-> right moments that it isn't falling behind, so it doesn't jump - which
-> means X gets all the CPU to redraw, which means your ls/dmesg anything
-> else that reads from disk[1] doesn't get any CPU.
->
-> Xterm is already functioning as designed - you can't force jump
-> scrolling to jump more - it is at the mercy of how it gets
-> scheduled. If there is nothing more in the pipe to draw, it has to
-> draw.
->
-> These bloody interactive changes to make X more responsive are at the
-> expense of anything that does *real* work.
+> 	I was wondering if one compiles a kernel for a 
+> Pentium 4 which has HyperThreading will we need to recompile 
+> SMP support for a single physical CPU or will one need to 
+> have SMP enabled to take advantag of hyperthreading.
 
-Harsh words considering it is the timing sensitive nature of xterm that relies 
-on X running out of steam in the old scheduler design to appear smooth.
+You need SMP.
 
-Con
+M.
 

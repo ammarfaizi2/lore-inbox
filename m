@@ -1,54 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261586AbULVBnb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261939AbULVCGP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261586AbULVBnb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 20:43:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbULVBnb
+	id S261939AbULVCGP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 21:06:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbULVCGP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 20:43:31 -0500
-Received: from siaag2ae.compuserve.com ([149.174.40.135]:20550 "EHLO
-	siaag2ae.compuserve.com") by vger.kernel.org with ESMTP
-	id S261586AbULVBn3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 20:43:29 -0500
-Date: Tue, 21 Dec 2004 20:40:47 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: Increase page fault rate by prezeroing V1 [1/3]:
-  Introduce __GFP_ZERO
-To: Christoph Lameter <clameter@sgi.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200412212043_MC3-1-916E-5C5E@compuserve.com>
+	Tue, 21 Dec 2004 21:06:15 -0500
+Received: from pop.gmx.net ([213.165.64.20]:43979 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261939AbULVCGK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Dec 2004 21:06:10 -0500
+X-Authenticated: #21910825
+Message-ID: <41C8D689.3020502@gmx.net>
+Date: Wed, 22 Dec 2004 03:06:01 +0100
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.6) Gecko/20040114
+X-Accept-Language: de, en
 MIME-Version: 1.0
+To: acpi-devel@lists.sourceforge.net
+CC: Matthias Hentges <mailinglisten@hentges.net>,
+       Oliver Dawid <od@fet.uni-hannover.de>,
+       =?ISO-8859-1?Q?Stefan_D=F6singer?= <stefandoesinger@gmx.at>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-fbdev-devel@lists.sourceforge.net
+Subject: Re: [ACPI] Re: Samsung P35 and S3 suspend
+References: <41BFC3AD.5030001@gmx.net> <1103117333.5924.3.camel@mhcln03>	 <41C07B6F.70900@gmx.net> <1103159022.5924.17.camel@mhcln03> <41C0FFF3.4010902@gmx.net> <41C19BD8.7050201@gmx.net> <41C1CFA2.20304@gmx.net>
+In-Reply-To: <41C1CFA2.20304@gmx.net>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Dec 2004 at 11:56:07 -0800 Christoph Lameter wrote:
+Carl-Daniel Hailfinger wrote:
 
-> --- linux-2.6.9.orig/include/asm-i386/page.h  2004-12-17 14:40:16.000000000 -0800
-> +++ linux-2.6.9/include/asm-i386/page.h       2004-12-21 10:19:37.000000000 -0800
-> @@ -20,6 +20,7 @@
-> 
->  #define clear_page(page)     mmx_clear_page((void *)(page))
->  #define copy_page(to,from)   mmx_copy_page(to,from)
-> +#define zero_page(page, order)       mmx_zero_page(page, order)
-> 
->  #else
-> 
-> @@ -29,6 +30,7 @@
->   */
-> 
->  #define clear_page(page)     memset((void *)(page), 0, PAGE_SIZE)
-> +#define zero_page(page, ordeR)       memset((void *)(page), 0, PAGE_SIZE << order)
+> OK, I got S3 working with all kernels since 2.6.9 (well, your
+> patches had to be modified slightly). Right now I'm running on the
+> latest Linus -bk tree.
+>
+> I will now try other configurations and a full bootup.
+>
+> OK, it is working perfectly with the latest Linus -bk tree and
+> everything configured in (SuSE .config, comparable to allmodconfig).
 
- Oops - - - - - - - - - - - - -^
+It turns out that (at least for 2.6.10-rc3 and later) the kernel
+resumes from S3 perfectly regardless of .config as long as
+- no framebuffer console is activated (kernel param video=vesa:off )
+- pci-resume-2.6.10.patch and resume-finish-split-2.6.10.patch
+  are applied
+- suspend and resume happen with an active TEXT console (chvt 2)
+- VESA registers are saved before suspend
+- the radeon card is POSTed after resume
+- the VESA registers are restored after that
+- now you are free to change back to X if you want.
 
->  #define copy_page(to,from)   memcpy((void *)(to), (void *)(from), PAGE_SIZE)
-> 
-> #endif
+You do NOT need
+- a patched X server
+- a special kernel .config
+- sacrifices of any kind.
 
---
-Please take it as a sign of my infinite respect for you,
-that I insist on you doing all the work.
-                                        -- Rusty Russell
+See my other mail to acpi-devel for details about how to save/restore
+the VESA registers and POST the card.
+
+Question for the framebuffer experts: Is it possible to forbid access
+to the video card after resume until the card has been POSTed and all
+registers are restored? Any access to the card before that will freeze
+the machine.
+
+Regards,
+Carl-Daniel
+-- 
+http://www.hailfinger.org/

@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263870AbUC3Tkd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 14:40:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263885AbUC3Tkd
+	id S263874AbUC3Ton (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 14:44:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263897AbUC3Ton
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 14:40:33 -0500
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:40965 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S263870AbUC3Tk1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 14:40:27 -0500
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Ben Greear <greearb@candelatech.com>,
-       Chris Friesen <cfriesen@nortelnetworks.com>
-Subject: Re: sched_yield() version 2.4.24
-Date: Tue, 30 Mar 2004 21:40:05 +0200
-User-Agent: KMail/1.5.4
-Cc: root@chaos.analogic.com, Linux kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.53.0403301138260.6967@chaos> <4069AED1.4020102@nortelnetworks.com> <4069B3CC.1040904@candelatech.com>
-In-Reply-To: <4069B3CC.1040904@candelatech.com>
+	Tue, 30 Mar 2004 14:44:43 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:45074 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S263874AbUC3Tol (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 14:44:41 -0500
+From: Jesse Barnes <jbarnes@sgi.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5-rc1-mm2
+Date: Tue, 30 Mar 2004 11:44:26 -0800
+User-Agent: KMail/1.6.1
+Cc: Andrew Morton <akpm@osdl.org>
+References: <20040317201454.5b2e8a3c.akpm@osdl.org> <200403301127.05151.jbarnes@sgi.com> <20040330113620.33d01d9c.akpm@osdl.org>
+In-Reply-To: <20040330113620.33d01d9c.akpm@osdl.org>
 MIME-Version: 1.0
+Content-Disposition: inline
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200403302140.05820.vda@port.imtp.ilyichevsk.odessa.ua>
+Message-Id: <200403301144.26050.jbarnes@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 30 March 2004 19:52, Ben Greear wrote:
-> Chris Friesen wrote:
-> > The cpu util accounting code in kernel/timer.c hasn't changed in 2.4
-> > since 2002.  Must be somewhere else.
-> >
-> > Anyone else have any ideas?
->
-> As another sample point, I have fired up about 100 processes with
-> each process having 10+ threads.  On my dual-xeon, I see maybe 15
-> processes shown as 99% CPU in 'top'.  System load was near 25
-> when I was looking, but the machine was still quite responsive.
+On Tuesday 30 March 2004 11:36 am, Andrew Morton wrote:
+> I don't see anything especially hangy in 2.6.5-rc1-mm2 - maybe it's
+> something which was sucked in via one of the "external trees".  rc3-mm1
+> boots OK on my ia64 box.
 
-There was a top bug with exactly this symptom. Fixed.
-I use procps-2.0.18.
+Well, like I said, the BK trees (both Linus' linux-2.5 and David's 
+to-linus-2.5) continue to work, all the way up through today, and 
+2.6.5-rc1-mm1 worked too.
 
-> I'm guessing this is just an artifact of having lots of processes running
-> very often and top is just not able to calculate with fine enough
-> granularity?
->
-> This is on 2.4.25 kernel.
->
-> Ben
---
-vda
+> Do you not have the means to work out where things are stuck at?
 
+It looks like there's a bug in the sysrq implementation in the sn_serial 
+driver.  Once the initial console is opened, sysrq no longer works.  All I've 
+determined so far is that both CPUs in my box are in cpu_idle somewhere...  
+Anyway, I'll keep looking.
+
+Thanks,
+Jesse

@@ -1,79 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274744AbRI2QTH>; Sat, 29 Sep 2001 12:19:07 -0400
+	id <S276541AbRI2QUR>; Sat, 29 Sep 2001 12:20:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276539AbRI2QS6>; Sat, 29 Sep 2001 12:18:58 -0400
-Received: from as2-1-8.va.g.bonet.se ([194.236.117.122]:61450 "EHLO
-	boris.prodako.se") by vger.kernel.org with ESMTP id <S274744AbRI2QSt>;
-	Sat, 29 Sep 2001 12:18:49 -0400
-Date: Sat, 29 Sep 2001 18:19:13 +0200 (CEST)
-From: Tobias Ringstrom <tori@ringstrom.mine.nu>
-X-X-Sender: <tori@boris.prodako.se>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.4.10 VM, active cache pages, and OOM
-Message-ID: <Pine.LNX.4.33.0109291645260.16885-100000@boris.prodako.se>
+	id <S276540AbRI2QUH>; Sat, 29 Sep 2001 12:20:07 -0400
+Received: from www.fagotten.org ([212.73.164.10]:14097 "EHLO
+	joxer.fagotten.org") by vger.kernel.org with ESMTP
+	id <S276539AbRI2QT5>; Sat, 29 Sep 2001 12:19:57 -0400
+Message-ID: <3BB5F4C6.DDB15B49@fagotten.org>
+Date: Sat, 29 Sep 2001 18:20:22 +0200
+From: Daniel Elvin <daniel.elvin@fagotten.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.17-ide i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: AST P/75 causes Machine Check Exception type 0x9 on v2.4.10
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-First I'd like to say that the 2.4.10 VM works great for my desktop and
-home server, much better than previous versions.  I have not tried Alan's
-kernels.
+Summary
+Booting an AST Bravo P/75 with kernel v2.4.10 results in a "CPU#0
+Machine Check Exception: 0x10C938 (type: 0x9)".
 
-I do have one problem, though, and it is illustrated by the following very
-simple program:
+Description
+The AST Bravo P/75
+<http://www.ari-service.com/support/summary.asp?pn=501701-411&x=26&y=12>
+boots fine on a v2.2.19pre17-kernel but both v2.4.10 and v2.4.9 causes
+the Machine Check Exception-error with either of the config options
+M586TSC, M586, or M386 set. A TB from AST
+<http://www.ari-service.com/bulletin/TB/1641TB.HTM> reports a problem
+with parity checking using Netware on a number of AST Pentium computers,
+caused by the cache parity bit connector to the Pentium processor isn't
+connected to the cache. I have not found any information if this is also
+the case of the Bravo P/75. 
 
-	#include <unistd.h>
-	int main()
-	{
-		char buf[512];
-		while (read(0, buf, sizeof(buf)) == sizeof(buf))
-			;
-		return 0;
-	}
+Keywords
+2.4.10, Machine Check Exception, AST Bravo P/75.
 
-The program should be reading a block device, but a big file probably does
-the trick as well.
+Regards,
+Daniel Elvin
 
-	./a.out < /dev/hde1
-
-When the program is running, all cached pages pop up in the active list,
-and when the memory is full of active pages, the computer starts to page
-out stuff, becomes VERY unresponsive, and after half a minute or so it
-goes OOM and starts killing processes.  There are lots and lots of free
-swap at this time.  I also get a bunch of 0-order allocation failures in
-the log.
-
-(I'd say that the OOM killer does seem to kill the most memory-hog-like
-processes, but the problem is that it is not the processes that use up all
-the memory, it is the active cache pages.)
-
-If the buf size is changed to a multiple of the page size, such as 4096,
-the cache pages are instead added to the inactive list, and the system is
-very responsive, no paging occurs, and it does not go OOM.  In other
-words, it works perfectly.
-
-I assume that the difference between a buf size of 512 and 4096 is that
-for the 512-byte case, each page is touched more than once, and that's why
-the system think the pages are active.  This is a very wrong decision,
-since I'm doing a sequential read.
-
-Fixing that particular problem will get rid of my problem, but I'm
-guessing that it would only hide another real problem, which is that
-2.4.10 has a huge problem freeing pages from the list of active pages,
-even if they are clean, and thus making a wrong decision on the
-availibility of free(able) pages.
-
-Am I right to assume that if I would make the program do random seeks, or
-read each page twice, the pages would again be added to the active list,
-even if I would read whole pages at a time?
-
-I also wonder why the system get so unresponsive before it goes OOM.
-Perhaps there is a kernel process running, scanning lists trying to free
-memory, but not finding any, wasting all CPU cycles.
-
-What do you think?
-
-/Tobias
-
+=========================================
+ Daniel Elvin  daniel.elvin@fagotten.org
+=========================================
+ Flojtvagen 8B     phone: +46 708 159351
+ SE-224 68 Lund
+ Sweden

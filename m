@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266020AbTBGQ0Y>; Fri, 7 Feb 2003 11:26:24 -0500
+	id <S266038AbTBGQ3o>; Fri, 7 Feb 2003 11:29:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266038AbTBGQ0Y>; Fri, 7 Feb 2003 11:26:24 -0500
-Received: from ns.investici.org ([213.140.29.37]:54930 "EHLO
-	astio.investici.org") by vger.kernel.org with ESMTP
-	id <S266020AbTBGQ0X>; Fri, 7 Feb 2003 11:26:23 -0500
-Message-ID: <3E43ED99.2060003@autistici.org>
-Date: Fri, 07 Feb 2003 17:32:09 +0000
-From: c1cc10 <c1cc10@autistici.org>
-Reply-To: c1cc10@autistici.org
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: en
+	id <S266041AbTBGQ3o>; Fri, 7 Feb 2003 11:29:44 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:54535 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S266038AbTBGQ3n>;
+	Fri, 7 Feb 2003 11:29:43 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200302071639.h17Gd9EZ001493@darkstar.example.net>
+Subject: Re: [PATCH] 2.5.59 morse code panics
+To: ryan@michonline.com (Ryan Anderson)
+Date: Fri, 7 Feb 2003 16:39:09 +0000 (GMT)
+Cc: spacey-linux-kernel@lenin.nu, linux-kernel@vger.kernel.org
+In-Reply-To: <20030207155144.GD13861@michonline.com> from "Ryan Anderson" at Feb 07, 2003 10:51:44 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Cyrix III processor and kernel boot problem
-References: <3E43C79A.2010506@autistici.org> <20030207141052.GA22687@codemonkey.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
+> > > Especially since a number of Linux developers have ham radio
+> > > experience.
+> > 
+> > Well most linux users don't.  I'm sure its really easy to find a morse
+> > code chart in many hundreds of places online.  But 2 scripts - one
+> > that turns keyboard input or mic input into dots and dashes (so you
+> > can enter it yourself or put the phone up to the system's microphone)
+> > would help.  Then all you'd need is a morse->ascii converter.
+> > 
+> > So who's got a good morse->ascii program?  And who has the
+> > dot-dash->.-.-.- translator?  And the audio->.-.-.- translator?
 
-> Which gcc did you use? And (silly question), did you make mrproper
-> before building the cyrix3 kernel ? If there were left behind .o
-> files, that could confuse it. Possibly ccache too.
-> if you were using that rm -rf ~/.ccache to be sure.
+We already discussed the idea of a userspace program to decode the
+morse:
 
-ok, I'll jump directly to the point: I did not make any mrproper.
-after your answer I tried and it worked.
-sorry for the false alarm
+http://marc.theaimsgroup.com/?l=linux-kernel&m=104401177724846&w=2
 
-c1cc10
--- 
-pub  1024D/76A9AC52 2002-12-13 ciunociciunozero (PORCODIO) <c1cc10@ecn.org>
-      Key fingerprint = 64A9 9498 B297 B49F D676  AAA1 9DA9 CABA 76A9 AC52
-sub  2048g/F248FA79 2002-12-13 [expires: 2004-12-12]
+> emacs (I'm not a user, though) has something like M-x-morse that will
+> convert back and forth.
 
+Yes, M-x morse-region.
 
+John.

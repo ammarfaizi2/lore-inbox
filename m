@@ -1,155 +1,252 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266368AbTAJWI6>; Fri, 10 Jan 2003 17:08:58 -0500
+	id <S266552AbTAJWPB>; Fri, 10 Jan 2003 17:15:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266377AbTAJWI6>; Fri, 10 Jan 2003 17:08:58 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:45953 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S266368AbTAJWIw>; Fri, 10 Jan 2003 17:08:52 -0500
-Message-Id: <200301102217.h0AMHPLK015074@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
-To: Jochen Hein <jochen@jochen.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [2.5.55, PCI, PCMCIA, XIRCOM] 
-In-Reply-To: Your message of "Fri, 10 Jan 2003 20:00:31 +0100."
-             <87y95sakz4.fsf@jupiter.jochen.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <87znq9ynz4.fsf@jupiter.jochen.org> <200301101713.h0AHDYLK010367@turing-police.cc.vt.edu>
-            <87y95sakz4.fsf@jupiter.jochen.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1613235860P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Fri, 10 Jan 2003 17:17:25 -0500
+	id <S266555AbTAJWPB>; Fri, 10 Jan 2003 17:15:01 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:1286 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id <S266552AbTAJWO4>; Fri, 10 Jan 2003 17:14:56 -0500
+Date: Fri, 10 Jan 2003 17:23:31 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+X-X-Sender: root@oddball.prodigy.com
+Reply-To: Bill Davidsen <davidsen@tmr.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [BUG] 2.5.5x can't find my printer
+Message-ID: <Pine.LNX.4.44.0301101719240.1476-200000@oddball.prodigy.com>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-649536206-1042237411=:1476"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1613235860P
-Content-Type: multipart/mixed ;
-	boundary="==_Exmh_-1749969480"
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-This is a multipart MIME message.
+--8323328-649536206-1042237411=:1476
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
---==_Exmh_-1749969480
-Content-Type: text/plain; charset=us-ascii
+The 2.5.5x kernels can't find my printer. 2.4 kernels work fine. dmesg 
+attached, I'll send config if anyone cares.
 
-On Fri, 10 Jan 2003 20:00:31 +0100, Jochen Hein said:
-
-> > - and I've seen a report it causes an OOPS
-> > on 2.5.53.  I've not tried it on post-52, but I had a -54 kernel OOPS
-> > right around that point in bootup (right after IDE and somewhere in PCI
-> > init).  Haven't chased that one at all...
-
-if it OOPSes without my patch, then it's somebody else's problem.  If it
-does so with my patch, but just gives the infamous "resource collisions"
-message without it, then it's my fault ;)
-
-> cs: cb_alloc(bus 1): vendor 0x115d, device 0x0003
-
-OK.. we obviously made it *into* cb_alloc()..
-
-> PCI: Enabling device 01:00.0 (0000 -> 0003)
-
-This is coming out of pcibios_enable_resources() - the same function that
-without my patch would have given the 'resource collisions' error and
-returned.  
-
-> PCI: Setting latency timer of device 01:00.0 to 64
-
-xircom_probe to pci_set_master to pcibios_set_master, and we've returned
-from pci_enable_device. and thus we've gotten past where my patch is. Only
-possibility is that my code has re-arraigned some pointers in an evil way.
-
-Now, it's pretty obvious that *some* call to pci_assign_resource has to
-happen before pci_enable_device() for these Xircom cards for things to work
-at all (and note that they work just fine in 2.4 and pre-2.5.47).  
-
-I wonder if the *current* problem with the OOPs is due to this change in the
-.53 patches to pci/setup_{bus,res}.c - as per the changelog:
-
-<ink@jurassic.park.msu.ru>
-	[PATCH] PCI: setup-xx fixes
-	
-	Don't disable PCI devices before changing the BARs, as discussed
-	recently.  Disabling PCI_COMMAND_MASTER bit is an obvious bug.
-	
-	Further, pdev_enable_device() is a leftover from very old (2.0, I guess)
-	alpha PCI code.  It's used in pci_assign_unassigned_resources() to
-	enable *every* PCI device in the system.  So, if we have two graphic
-	cards on the same bus, both with legacy VGA IO...  oops.
-	
-	Actually, only alpha relied on that due to the lack of
-	pcibios_enable_device (which has been already fixed).
-
-After this patch, we no longer go into pdev_enable_device, which may have
-been doing something that was in fact still needed by the Xircom code,
-although I'm mostly guessing that it's the 'disable the ROM'. The other
-possibility is that ink's patch exposes a problem with the way my patch
-calls pci_alloc_resource() before pci_enable_device().
-
-In any case, I've attached a new *UNTESTED* patch, that only tries to gratuitously
-assign resources of MEM class, and disables the ROM once it does so.
-
-No, I don't claim to fully understand this code.  And if you're not brave
-enough or can't test it yourself, I'll be taking the 2.5.56 plunge sometime
-this weekend. ;)  And all you other kernel hackers are welcome to jump right
-in and tell me what I'm doing wrong.. ;)
-
-/Valdis
-
---==_Exmh_-1749969480
-Content-Type: text/plain ; name="pcmcia.temp"; charset=us-ascii
-Content-Description: pcmcia.temp
-Content-Disposition: attachment; filename="pcmcia.temp"
-
---- drivers/pcmcia/cardbus.c.old	2003-01-10 16:49:11.000000000 -0500
-+++ drivers/pcmcia/cardbus.c.new	2003-01-10 16:48:24.000000000 -0500
-@@ -283,18 +283,26 @@
- 		dev->hdr_type = hdr & 0x7f;
- 
- 		pci_setup_device(dev);
--		if (pci_enable_device(dev))
--			continue;
- 
- 		strcpy(dev->dev.bus_id, dev->slot_name);
- 
- 		/* FIXME: Do we need to enable the expansion ROM? */
- 		for (r = 0; r < 7; r++) {
- 			struct resource *res = dev->resource + r;
--			if (res->flags)
-+			if (res->flags & IORESOURCE_MEM) {
- 				pci_assign_resource(dev, r);
-+				if (dev->rom_base_reg) {
-+					pci_read_config_dword(dev, dev->rom_base_reg, &reg);
-+					reg &= ~PCI_ROM_ADDRESS_ENABLE;
-+					pci_write_config_dword(dev, dev->rom_base_reg, reg);
-+					dev->resource[PCI_ROM_RESOURCE].flags &= ~PCI_ROM_ADDRESS_ENABLE;
-+				}
-+			}
- 		}
- 
-+		if (pci_enable_device(dev))
-+			continue;
-+
- 		/* Does this function have an interrupt at all? */
- 		pci_readb(dev, PCI_INTERRUPT_PIN, &irq_pin);
- 		if (irq_pin) {
+Known problem, new problem, or just some config error? The modules load 
+but don't find anything.
 
 
---==_Exmh_-1749969480--
+lsmod:
+Module                  Size  Used by
+apm                    15140
+parport_pc             33320
+parport                34496
+-- 
+bill davidsen <davidsen@tmr.com>
 
+--8323328-649536206-1042237411=:1476
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="dmesg-2.5.54"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0301101719241.1476@oddball.prodigy.com>
+Content-Description: 
+Content-Disposition: attachment; filename="dmesg-2.5.54"
 
-
---==_Exmh_-1613235860P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+H0Z0cC3lWbTT17ARAv1QAJwMnzOa3vEJSMOf5I9QAbVz38XyIQCg3ZOl
-jDbC72wCSFDfBGassGUQovg=
-=ed87
------END PGP SIGNATURE-----
-
---==_Exmh_-1613235860P--
+TGludXggdmVyc2lvbiAyLjUuNTQgKHJvb3RAb2RkYmFsbC5wcm9kaWd5LmNv
+bSkgKGdjYyB2ZXJzaW9uIDIuOTYgMjAwMDA3MzEgKFJlZCBIYXQgTGludXgg
+Ny4zIDIuOTYtMTEwKSkgIzEgV2VkIEphbiA4IDE5OjIwOjQ0IEVTVCAyMDAz
+DQpWaWRlbyBtb2RlIHRvIGJlIHVzZWQgZm9yIHJlc3RvcmUgaXMgZmZmZg0K
+QklPUy1wcm92aWRlZCBwaHlzaWNhbCBSQU0gbWFwOg0KIEJJT1MtZTgyMDog
+MDAwMDAwMDAwMDAwMDAwMCAtIDAwMDAwMDAwMDAwOWY4MDAgKHVzYWJsZSkN
+CiBCSU9TLWU4MjA6IDAwMDAwMDAwMDAwOWY4MDAgLSAwMDAwMDAwMDAwMGEw
+MDAwIChyZXNlcnZlZCkNCiBCSU9TLWU4MjA6IDAwMDAwMDAwMDAwZTc0MDAg
+LSAwMDAwMDAwMDAwMTAwMDAwIChyZXNlcnZlZCkNCiBCSU9TLWU4MjA6IDAw
+MDAwMDAwMDAxMDAwMDAgLSAwMDAwMDAwMDA0MGZkYzAwICh1c2FibGUpDQog
+QklPUy1lODIwOiAwMDAwMDAwMDA0MGZkYzAwIC0gMDAwMDAwMDAwNDBmZjgw
+MCAoQUNQSSBkYXRhKQ0KIEJJT1MtZTgyMDogMDAwMDAwMDAwNDBmZjgwMCAt
+IDAwMDAwMDAwMDQwZmZjMDAgKEFDUEkgTlZTKQ0KIEJJT1MtZTgyMDogMDAw
+MDAwMDAwNDBmZmMwMCAtIDAwMDAwMDAwMDYwMDAwMDAgKHVzYWJsZSkNCiBC
+SU9TLWU4MjA6IDAwMDAwMDAwZmZmZTc0MDAgLSAwMDAwMDAwMTAwMDAwMDAw
+IChyZXNlcnZlZCkNCjk2TUIgTE9XTUVNIGF2YWlsYWJsZS4NCk9uIG5vZGUg
+MCB0b3RhbHBhZ2VzOiAyNDU3Ng0KICBETUEgem9uZTogNDA5NiBwYWdlcywg
+TElGTyBiYXRjaDoxDQogIE5vcm1hbCB6b25lOiAyMDQ4MCBwYWdlcywgTElG
+TyBiYXRjaDo1DQogIEhpZ2hNZW0gem9uZTogMCBwYWdlcywgTElGTyBiYXRj
+aDoxDQpCdWlsZGluZyB6b25lbGlzdCBmb3Igbm9kZSA6IDANCktlcm5lbCBj
+b21tYW5kIGxpbmU6IEJPT1RfSU1BR0U9Mi41LjU0LTEgcm8gcm9vdD0zMDMg
+Qk9PVF9GSUxFPS9ib290L3ZtbGludXotMi41LjU0IG5taV93YXRjaGRvZz0x
+DQpJbml0aWFsaXppbmcgQ1BVIzANCkRldGVjdGVkIDM0OC40MDIgTUh6IHBy
+b2Nlc3Nvci4NCkNvbnNvbGU6IGNvbG91ciBWR0ErIDgweDI1DQpDYWxpYnJh
+dGluZyBkZWxheSBsb29wLi4uIDY4OC4xMiBCb2dvTUlQUw0KTWVtb3J5OiA5
+MzkzMmsvOTgzMDRrIGF2YWlsYWJsZSAoMTY2MGsga2VybmVsIGNvZGUsIDM4
+NDBrIHJlc2VydmVkLCA2MDVrIGRhdGEsIDI4NGsgaW5pdCwgMGsgaGlnaG1l
+bSkNCkRlbnRyeSBjYWNoZSBoYXNoIHRhYmxlIGVudHJpZXM6IDE2Mzg0IChv
+cmRlcjogNSwgMTMxMDcyIGJ5dGVzKQ0KSW5vZGUtY2FjaGUgaGFzaCB0YWJs
+ZSBlbnRyaWVzOiA4MTkyIChvcmRlcjogNCwgNjU1MzYgYnl0ZXMpDQpNb3Vu
+dC1jYWNoZSBoYXNoIHRhYmxlIGVudHJpZXM6IDUxMiAob3JkZXI6IDAsIDQw
+OTYgYnl0ZXMpDQotPiAvZGV2DQotPiAvZGV2L2NvbnNvbGUNCi0+IC9yb290
+DQpDUFU6IEwxIEkgY2FjaGU6IDE2SywgTDEgRCBjYWNoZTogMTZLDQpDUFU6
+IEwyIGNhY2hlOiA1MTJLDQpDUFU6ICAgICBBZnRlciBnZW5lcmljLCBjYXBz
+OiAwMTgzZjlmZiAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMA0KQ1BVOiBJ
+bnRlbCBQZW50aXVtIElJIChEZXNjaHV0ZXMpIHN0ZXBwaW5nIDAxDQpFbmFi
+bGluZyBmYXN0IEZQVSBzYXZlIGFuZCByZXN0b3JlLi4uIGRvbmUuDQpDaGVj
+a2luZyAnaGx0JyBpbnN0cnVjdGlvbi4uLiBPSy4NClBPU0lYIGNvbmZvcm1h
+bmNlIHRlc3RpbmcgYnkgVU5JRklYDQpMaW51eCBORVQ0LjAgZm9yIExpbnV4
+IDIuNA0KQmFzZWQgdXBvbiBTd2Fuc2VhIFVuaXZlcnNpdHkgQ29tcHV0ZXIg
+U29jaWV0eSBORVQzLjAzOQ0KSW5pdGlhbGl6aW5nIFJUIG5ldGxpbmsgc29j
+a2V0DQptdHJyOiB2Mi4wICgyMDAyMDUxOSkNCmRldmljZSBjbGFzcyAnY3B1
+JzogcmVnaXN0ZXJpbmcNCmRldmljZSBjbGFzcyBjcHU6IGFkZGluZyBkcml2
+ZXIgc3lzdGVtOmNwdQ0KUENJOiBQQ0kgQklPUyByZXZpc2lvbiAyLjEwIGVu
+dHJ5IGF0IDB4ZmQ5OTQsIGxhc3QgYnVzPTENClBDSTogVXNpbmcgY29uZmln
+dXJhdGlvbiB0eXBlIDENCmRldmljZSBjbGFzcyBjcHU6IGFkZGluZyBkZXZp
+Y2UgQ1BVIDANCmludGVyZmFjZXM6IGFkZGluZyBkZXZpY2UgQ1BVIDANCkJJ
+TzogcG9vbCBvZiAyNTYgc2V0dXAsIDE1S2IgKDYwIGJ5dGVzL2JpbykNCmJp
+b3ZlYyBwb29sWzBdOiAgIDEgYnZlY3M6IDE4MiBlbnRyaWVzICgxMiBieXRl
+cykNCmJpb3ZlYyBwb29sWzFdOiAgIDQgYnZlY3M6IDE4MiBlbnRyaWVzICg0
+OCBieXRlcykNCmJpb3ZlYyBwb29sWzJdOiAgMTYgYnZlY3M6IDE4MiBlbnRy
+aWVzICgxOTIgYnl0ZXMpDQpiaW92ZWMgcG9vbFszXTogIDY0IGJ2ZWNzOiAg
+OTEgZW50cmllcyAoNzY4IGJ5dGVzKQ0KYmlvdmVjIHBvb2xbNF06IDEyOCBi
+dmVjczogIDQ1IGVudHJpZXMgKDE1MzYgYnl0ZXMpDQpiaW92ZWMgcG9vbFs1
+XTogMjU2IGJ2ZWNzOiAgMjIgZW50cmllcyAoMzA3MiBieXRlcykNCkxpbnV4
+IFBsdWcgYW5kIFBsYXkgU3VwcG9ydCB2MC45MyAoYykgQWRhbSBCZWxheQ0K
+cG5wOiB0aGUgZHJpdmVyICdzeXN0ZW0nIGhhcyBiZWVuIHJlZ2lzdGVyZWQN
+CnBucDogRW5hYmxpbmcgUGx1ZyBhbmQgUGxheSBDYXJkIFNlcnZpY2VzLg0K
+UG5QQklPUzogRm91bmQgUG5QIEJJT1MgaW5zdGFsbGF0aW9uIHN0cnVjdHVy
+ZSBhdCAweGMwMGY2ZjcwDQpQblBCSU9TOiBQblAgQklPUyB2ZXJzaW9uIDEu
+MCwgZW50cnkgMHhmMDAwMDoweDlkYjMsIGRzZWcgMHg0MDANCnBucDogcG5w
+OiBtYXRjaCBmb3VuZCB3aXRoIHRoZSBQblAgZGV2aWNlICcwMDowMCcgYW5k
+IHRoZSBkcml2ZXIgJ3N5c3RlbScNCnBucDogcG5wOiBtYXRjaCBmb3VuZCB3
+aXRoIHRoZSBQblAgZGV2aWNlICcwMDowMScgYW5kIHRoZSBkcml2ZXIgJ3N5
+c3RlbScNCnBucDogMDA6MDE6IGlvcG9ydCByYW5nZSAweDM3MC0weDM3MSBo
+YXMgYmVlbiByZXNlcnZlZA0KcG5wOiBwbnA6IG1hdGNoIGZvdW5kIHdpdGgg
+dGhlIFBuUCBkZXZpY2UgJzAwOjAyJyBhbmQgdGhlIGRyaXZlciAnc3lzdGVt
+Jw0KcG5wOiBwbnA6IG1hdGNoIGZvdW5kIHdpdGggdGhlIFBuUCBkZXZpY2Ug
+JzAwOjBiJyBhbmQgdGhlIGRyaXZlciAnc3lzdGVtJw0KcG5wOiAwMDowYjog
+aW9wb3J0IHJhbmdlIDB4NGQwLTB4NGQxIGhhcyBiZWVuIHJlc2VydmVkDQpw
+bnA6IDAwOjBiOiBpb3BvcnQgcmFuZ2UgMHg4MDAwLTB4ODAzZiBoYXMgYmVl
+biByZXNlcnZlZA0KcG5wOiAwMDowYjogaW9wb3J0IHJhbmdlIDB4NzAwMC0w
+eDcwMGYgaGFzIGJlZW4gcmVzZXJ2ZWQNCnBucDogcG5wOiBtYXRjaCBmb3Vu
+ZCB3aXRoIHRoZSBQblAgZGV2aWNlICcwMDowYycgYW5kIHRoZSBkcml2ZXIg
+J3N5c3RlbScNClBuUEJJT1M6IDE3IG5vZGVzIHJlcG9ydGVkIGJ5IFBuUCBC
+SU9TOyAxNyByZWNvcmRlZCBieSBkcml2ZXINCmJsb2NrIHJlcXVlc3QgcXVl
+dWVzOg0KIDEyOCByZXF1ZXN0cyBwZXIgcmVhZCBxdWV1ZQ0KIDEyOCByZXF1
+ZXN0cyBwZXIgd3JpdGUgcXVldWUNCiA4IHJlcXVlc3RzIHBlciBiYXRjaA0K
+IGVudGVyIGNvbmdlc3Rpb24gYXQgMzENCiBleGl0IGNvbmdlc3Rpb24gYXQg
+MzMNCmRyaXZlcnMvdXNiL2NvcmUvdXNiLmM6IHJlZ2lzdGVyZWQgbmV3IGRy
+aXZlciB1c2Jmcw0KZHJpdmVycy91c2IvY29yZS91c2IuYzogcmVnaXN0ZXJl
+ZCBuZXcgZHJpdmVyIGh1Yg0KUENJOiBQcm9iaW5nIFBDSSBoYXJkd2FyZQ0K
+UENJOiBQcm9iaW5nIFBDSSBoYXJkd2FyZSAoYnVzIDAwKQ0KUENJOiBBZGRy
+ZXNzIHNwYWNlIGNvbGxpc2lvbiBvbiByZWdpb24gNyBvZiBicmlkZ2UgMDA6
+MDcuMyBbODAwMDo4MDNmXQ0KUENJOiBBZGRyZXNzIHNwYWNlIGNvbGxpc2lv
+biBvbiByZWdpb24gOCBvZiBicmlkZ2UgMDA6MDcuMyBbNzAwMDo3MDFmXQ0K
+UENJOiBVc2luZyBJUlEgcm91dGVyIFBJSVggWzgwODYvNzExMF0gYXQgMDA6
+MDcuMA0KU0xJUDogdmVyc2lvbiAwLjguNC1ORVQzLjAxOS1ORVdUVFkgKGR5
+bmFtaWMgY2hhbm5lbHMsIG1heD0yNTYpICg2IGJpdCBlbmNhcHN1bGF0aW9u
+IGVuYWJsZWQpLg0KQ1NMSVA6IGNvZGUgY29weXJpZ2h0IDE5ODkgUmVnZW50
+cyBvZiB0aGUgVW5pdmVyc2l0eSBvZiBDYWxpZm9ybmlhLg0KU0xJUCBsaW5l
+ZmlsbC9rZWVwYWxpdmUgb3B0aW9uLg0KRW5hYmxpbmcgU0VQIG9uIENQVSAw
+DQphaW9fc2V0dXA6IHNpemVvZihzdHJ1Y3QgcGFnZSkgPSA0MA0KSm91cm5h
+bGxlZCBCbG9jayBEZXZpY2UgZHJpdmVyIGxvYWRlZA0KSW5zdGFsbGluZyBr
+bmZzZCAoY29weXJpZ2h0IChDKSAxOTk2IG9raXJAbW9uYWQuc3diLmRlKS4N
+CkluaXRpYWxpemluZyBDcnlwdG9ncmFwaGljIEFQSQ0KTGltaXRpbmcgZGly
+ZWN0IFBDSS9QQ0kgdHJhbnNmZXJzLg0KaXNhcG5wOiBTY2FubmluZyBmb3Ig
+UG5QIGNhcmRzLi4uDQppc2FwbnA6IE5vIFBsdWcgJiBQbGF5IGRldmljZSBm
+b3VuZA0KU2VyaWFsOiA4MjUwLzE2NTUwIGRyaXZlciAkUmV2aXNpb246IDEu
+OTAgJCBJUlEgc2hhcmluZyBkaXNhYmxlZA0KdHR5UzAgYXQgSS9PIDB4M2Y4
+IChpcnEgPSA0KSBpcyBhIDE2NTUwQQ0KcG5wOiB0aGUgZHJpdmVyICdzZXJp
+YWwnIGhhcyBiZWVuIHJlZ2lzdGVyZWQNCnBucDogcG5wOiBtYXRjaCBmb3Vu
+ZCB3aXRoIHRoZSBQblAgZGV2aWNlICcwMDowZScgYW5kIHRoZSBkcml2ZXIg
+J3NlcmlhbCcNCmRldmljZSBjbGFzcyAndHR5JzogcmVnaXN0ZXJpbmcNCnB0
+eTogMjU2IFVuaXg5OCBwdHlzIGNvbmZpZ3VyZWQNClJlYWwgVGltZSBDbG9j
+ayBEcml2ZXIgdjEuMTENClNvZnR3YXJlIFdhdGNoZG9nIFRpbWVyOiAwLjA2
+LCBzb2Z0X21hcmdpbjogNjAgc2VjLCBub3dheW91dDogMA0KTGludXggYWdw
+Z2FydCBpbnRlcmZhY2UgdjAuMTAwIChjKSBEYXZlIEpvbmVzDQphZ3BnYXJ0
+OiBEZXRlY3RlZCBJbnRlbCA0NDBCWCBjaGlwc2V0DQphZ3BnYXJ0OiBNYXhp
+bXVtIG1haW4gbWVtb3J5IHRvIHVzZSBmb3IgYWdwIG1lbW9yeTogNjJNDQph
+Z3BnYXJ0OiBBR1AgYXBlcnR1cmUgaXMgNjRNIEAgMHhmODAwMDAwMA0KRmxv
+cHB5IGRyaXZlKHMpOiBmZDAgaXMgMS40NE0NCkZEQyAwIGlzIGEgcG9zdC0x
+OTkxIDgyMDc3DQpSQU1ESVNLIGRyaXZlciBpbml0aWFsaXplZDogMTYgUkFN
+IGRpc2tzIG9mIDQwOTZLIHNpemUgMTAyNCBibG9ja3NpemUNCmxvb3A6IGxv
+YWRlZCAobWF4IDggZGV2aWNlcykNCkludGVsKFIpIFBSTy8xMDAgTmV0d29y
+ayBEcml2ZXIgLSB2ZXJzaW9uIDIuMS4yNC1rMg0KQ29weXJpZ2h0IChjKSAy
+MDAyIEludGVsIENvcnBvcmF0aW9uDQoNClBDSTogRm91bmQgSVJRIDkgZm9y
+IGRldmljZSAwMDowNi4wDQpQQ0k6IFNoYXJpbmcgSVJRIDkgd2l0aCAwMDow
+Ny4yDQplMTAwOiBzZWxmdGVzdCBPSy4NCkZyZWVpbmcgYWxpdmUgZGV2aWNl
+IGM1ZjBhMDAwLCBldGglZA0KZTEwMDogZXRoMDogSW50ZWwoUikgODI1NTgt
+YmFzZWQgSW50ZWdyYXRlZCBFdGhlcm5ldCB3aXRoIFdha2Ugb24gTEFOKg0K
+ICBNZW06MHhmNjIwMDAwMCAgSVJROjkgIFNwZWVkOjAgTWJwcyAgRHg6Ti9B
+DQoNClVuaWZvcm0gTXVsdGktUGxhdGZvcm0gRS1JREUgZHJpdmVyIFJldmlz
+aW9uOiA3LjAwYWxwaGEyDQppZGU6IEFzc3VtaW5nIDMzTUh6IHN5c3RlbSBi
+dXMgc3BlZWQgZm9yIFBJTyBtb2Rlczsgb3ZlcnJpZGUgd2l0aCBpZGVidXM9
+eHgNClBJSVg0OiBJREUgY29udHJvbGxlciBhdCBQQ0kgc2xvdCAwMDowNy4x
+DQpQSUlYNDogY2hpcHNldCByZXZpc2lvbiAxDQpQSUlYNDogbm90IDEwMCUg
+bmF0aXZlIG1vZGU6IHdpbGwgcHJvYmUgaXJxcyBsYXRlcg0KICAgIGlkZTA6
+IEJNLURNQSBhdCAweDEwMjAtMHgxMDI3LCBCSU9TIHNldHRpbmdzOiBoZGE6
+RE1BLCBoZGI6cGlvDQogICAgaWRlMTogQk0tRE1BIGF0IDB4MTAyOC0weDEw
+MmYsIEJJT1Mgc2V0dGluZ3M6IGhkYzpETUEsIGhkZDpwaW8NCmhkYTogTWF4
+dG9yIDkwODQ1RDQsIEFUQSBESVNLIGRyaXZlDQpoZGI6IFdEQyBBQzMxNjAw
+SCwgQVRBIERJU0sgZHJpdmUNCmhkYjogRGlzYWJsaW5nIChVKURNQSBmb3Ig
+V0RDIEFDMzE2MDBIDQppZGUwIGF0IDB4MWYwLTB4MWY3LDB4M2Y2IG9uIGly
+cSAxNA0KaGRjOiBORUMgQ0QtUk9NIERSSVZFOjI4QywgQVRBUEkgQ0QvRFZE
+LVJPTSBkcml2ZQ0KaWRlMSBhdCAweDE3MC0weDE3NywweDM3NiBvbiBpcnEg
+MTUNCmhkYTogaG9zdCBwcm90ZWN0ZWQgYXJlYSA9PiAxDQpoZGE6IDE2NTE0
+MDY0IHNlY3RvcnMgKDg0NTUgTUIpIHcvNTEyS2lCIENhY2hlLCBDSFM9MTYz
+ODMvMTYvNjMsIFVETUEoMzMpDQogaGRhOiBoZGExIGhkYTIgaGRhMyBoZGE0
+IDwgaGRhNSA+DQpoZGI6IHRhc2tfbm9fZGF0YV9pbnRyOiBzdGF0dXM9MHg1
+MSB7IERyaXZlUmVhZHkgU2Vla0NvbXBsZXRlIEVycm9yIH0NCmhkYjogdGFz
+a19ub19kYXRhX2ludHI6IGVycm9yPTB4MTAgeyBTZWN0b3JJZE5vdEZvdW5k
+IH0sIExCQXNlY3Q9MCwgc2VjdG9yPTANCmhkYjogMzE3MzE4NCBzZWN0b3Jz
+ICgxNjI1IE1CKSB3LzEyOEtpQiBDYWNoZSwgQ0hTPTMxNDgvMTYvNjMNCiBo
+ZGI6IGhkYjEgaGRiMiBoZGIzDQpoZGM6IEFUQVBJIDMyWCBDRC1ST00gZHJp
+dmUsIDEyOGtCIENhY2hlLCBVRE1BKDMzKQ0KVW5pZm9ybSBDRC1ST00gZHJp
+dmVyIFJldmlzaW9uOiAzLjEyDQplbmRfcmVxdWVzdDogSS9PIGVycm9yLCBk
+ZXYgaGRjLCBzZWN0b3IgMA0KZGV2aWNlIGNsYXNzICdpbnB1dCc6IHJlZ2lz
+dGVyaW5nDQpyZWdpc3RlciBpbnRlcmZhY2UgJ21vdXNlJyB3aXRoIGNsYXNz
+ICdpbnB1dCcNCm1pY2U6IFBTLzIgbW91c2UgZGV2aWNlIGNvbW1vbiBmb3Ig
+YWxsIG1pY2UNCmlucHV0OiBQQyBTcGVha2VyDQppbnB1dDogSW1QUy8yIExv
+Z2l0ZWNoIFdoZWVsIE1vdXNlIG9uIGlzYTAwNjAvc2VyaW8xDQpzZXJpbzog
+aTgwNDIgQVVYIHBvcnQgYXQgMHg2MCwweDY0IGlycSAxMg0KaW5wdXQ6IEFU
+IFNldCAyIGtleWJvYXJkIG9uIGlzYTAwNjAvc2VyaW8wDQpzZXJpbzogaTgw
+NDIgS0JEIHBvcnQgYXQgMHg2MCwweDY0IGlycSAxDQpORVQ0OiBMaW51eCBU
+Q1AvSVAgMS4wIGZvciBORVQ0LjANCklQOiByb3V0aW5nIGNhY2hlIGhhc2gg
+dGFibGUgb2YgNTEyIGJ1Y2tldHMsIDRLYnl0ZXMNClRDUDogSGFzaCB0YWJs
+ZXMgY29uZmlndXJlZCAoZXN0YWJsaXNoZWQgODE5MiBiaW5kIDgxOTIpDQpp
+cF9jb25udHJhY2sgdmVyc2lvbiAyLjEgKDc2OCBidWNrZXRzLCA2MTQ0IG1h
+eCkgLSAzMDQgYnl0ZXMgcGVyIGNvbm50cmFjaw0KaXBfdGFibGVzOiAoQykg
+MjAwMC0yMDAyIE5ldGZpbHRlciBjb3JlIHRlYW0NCk5FVDQ6IFVuaXggZG9t
+YWluIHNvY2tldHMgMS4wL1NNUCBmb3IgTGludXggTkVUNC4wLg0Ka2pvdXJu
+YWxkIHN0YXJ0aW5nLiAgQ29tbWl0IGludGVydmFsIDUgc2Vjb25kcw0KRVhU
+My1mczogbW91bnRlZCBmaWxlc3lzdGVtIHdpdGggb3JkZXJlZCBkYXRhIG1v
+ZGUuDQpWRlM6IE1vdW50ZWQgcm9vdCAoZXh0MyBmaWxlc3lzdGVtKSByZWFk
+b25seS4NCkZyZWVpbmcgdW51c2VkIGtlcm5lbCBtZW1vcnk6IDI4NGsgZnJl
+ZWQNCkFkZGluZyAyMDA4MDRrIHN3YXAgb24gL2Rldi9oZGEyLiAgUHJpb3Jp
+dHk6LTEgZXh0ZW50czoxDQpFWFQzIEZTIDIuNC0wLjkuMTYsIDAyIERlYyAy
+MDAxIG9uIGlkZTAoMywzKSwgaW50ZXJuYWwgam91cm5hbA0Ka2pvdXJuYWxk
+IHN0YXJ0aW5nLiAgQ29tbWl0IGludGVydmFsIDUgc2Vjb25kcw0KRVhUMyBG
+UyAyLjQtMC45LjE2LCAwMiBEZWMgMjAwMSBvbiBpZGUwKDMsMSksIGludGVy
+bmFsIGpvdXJuYWwNCkVYVDMtZnM6IG1vdW50ZWQgZmlsZXN5c3RlbSB3aXRo
+IG9yZGVyZWQgZGF0YSBtb2RlLg0Ka2pvdXJuYWxkIHN0YXJ0aW5nLiAgQ29t
+bWl0IGludGVydmFsIDUgc2Vjb25kcw0KRVhUMyBGUyAyLjQtMC45LjE2LCAw
+MiBEZWMgMjAwMSBvbiBpZGUwKDMsNSksIGludGVybmFsIGpvdXJuYWwNCkVY
+VDMtZnM6IG1vdW50ZWQgZmlsZXN5c3RlbSB3aXRoIG9yZGVyZWQgZGF0YSBt
+b2RlLg0Ka2pvdXJuYWxkIHN0YXJ0aW5nLiAgQ29tbWl0IGludGVydmFsIDUg
+c2Vjb25kcw0KRVhUMyBGUyAyLjQtMC45LjE2LCAwMiBEZWMgMjAwMSBvbiBp
+ZGUwKDMsNjcpLCBpbnRlcm5hbCBqb3VybmFsDQpFWFQzLWZzOiBtb3VudGVk
+IGZpbGVzeXN0ZW0gd2l0aCBvcmRlcmVkIGRhdGEgbW9kZS4NCmVuZF9yZXF1
+ZXN0OiBJL08gZXJyb3IsIGRldiBoZGMsIHNlY3RvciAwDQplbmRfcmVxdWVz
+dDogSS9PIGVycm9yLCBkZXYgaGRjLCBzZWN0b3IgMA0KaGRjOiBETUEgZGlz
+YWJsZWQNCnBucDogdGhlIGRyaXZlciAncGFycG9ydF9wYycgaGFzIGJlZW4g
+cmVnaXN0ZXJlZA0KcG5wOiBwbnA6IG1hdGNoIGZvdW5kIHdpdGggdGhlIFBu
+UCBkZXZpY2UgJzAwOjEyJyBhbmQgdGhlIGRyaXZlciAncGFycG9ydF9wYycN
+CnBucDogdGhlIGRldmljZSAnMDA6MTInIGhhcyBiZWVuIGFjdGl2YXRlZA0K
+cGFycG9ydDA6IFBDLXN0eWxlIGF0IDB4Mzc4ICgweDc3OCkgW1BDU1BQLFRS
+SVNUQVRFXQ0KcGFycG9ydDA6IGlycSA3IGRldGVjdGVkDQpwYXJwb3J0MDog
+Y3BwX211eDogYWE1NWYwMGY1MmFkNTEoODApDQpwYXJwb3J0MDogY3BwX2Rh
+aXN5OiBhYTU1MDBmZig4MCkNCnBhcnBvcnQwOiBhc3NpZ25fYWRkcnM6IGFh
+NTUwMGZmKDgwKQ0KTW9kdWxlIHBhcnBvcnQgY2Fubm90IGJlIHVubG9hZGVk
+IGR1ZSB0byB1bnNhZmUgdXNhZ2UgaW4gaW5jbHVkZS9saW51eC9tb2R1bGUu
+aDozNDcNCk1vZHVsZSBwYXJwb3J0X3BjIGNhbm5vdCBiZSB1bmxvYWRlZCBk
+dWUgdG8gdW5zYWZlIHVzYWdlIGluIGluY2x1ZGUvbGludXgvbW9kdWxlLmg6
+MzQ3DQpwYXJwb3J0MDogY3BwX211eDogYWE1NWYwMGY1MmFkNTEoODApDQpw
+YXJwb3J0MDogY3BwX2RhaXN5OiBhYTU1MDBmZig4MCkNCnBhcnBvcnQwOiBh
+c3NpZ25fYWRkcnM6IGFhNTUwMGZmKDgwKQ0KZTEwMDogZXRoMCBOSUMgTGlu
+ayBpcyBVcCAxMCBNYnBzIEhhbGYgZHVwbGV4DQp3YXJuaW5nOiBwcm9jZXNz
+IGB1cGRhdGUnIHVzZWQgdGhlIG9ic29sZXRlIGJkZmx1c2ggc3lzdGVtIGNh
+bGwNCkZpeCB5b3VyIGluaXRzY3JpcHRzPw0Kd2FybmluZzogcHJvY2VzcyBg
+dXBkYXRlJyB1c2VkIHRoZSBvYnNvbGV0ZSBiZGZsdXNoIHN5c3RlbSBjYWxs
+DQpGaXggeW91ciBpbml0c2NyaXB0cz8NCg==
+--8323328-649536206-1042237411=:1476--

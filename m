@@ -1,38 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269198AbUINIMg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269203AbUINIVL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269198AbUINIMg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 04:12:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269191AbUINII4
+	id S269203AbUINIVL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 04:21:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269237AbUINIVB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 04:08:56 -0400
-Received: from rproxy.gmail.com ([64.233.170.193]:39104 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S269209AbUINIHk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 04:07:40 -0400
-Message-ID: <3ed7d0be040914010716566e16@mail.gmail.com>
-Date: Tue, 14 Sep 2004 13:37:39 +0530
-From: karthi n <linuxkarthi@gmail.com>
-Reply-To: karthi n <linuxkarthi@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: QM_MODULES
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 14 Sep 2004 04:21:01 -0400
+Received: from dialup-4.246.93.207.Dial1.SanJose1.Level3.net ([4.246.93.207]:61056
+	"EHLO nofear.bounceme.net") by vger.kernel.org with ESMTP
+	id S269201AbUINIUr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 04:20:47 -0400
+Reply-To: <syphir@syphir.sytes.net>
+From: "C.Y.M." <syphir@syphir.sytes.net>
+To: "'Jens Axboe'" <axboe@suse.de>
+Cc: <linux-kernel@vger.kernel.org>, "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
+Subject: RE: Changes to ide-probe.c in 2.6.9-rc2 causing improper detection
+Date: Tue, 14 Sep 2004 01:20:21 -0700
+Organization: CooLNeT
+Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA9mKu6AlYok2efOpJ3sb3O+KAAAAQAAAAlWQshEZFqEyYIBOxibqMHgEAAAAA@syphir.sytes.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcSaKuS7nVobyvWZSCCSRVMFZYOtaAACFDEg
+In-Reply-To: <20040914071555.GJ2336@suse.de>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hai,  
-          i am new to this list, while i boot the box with newly
-complied kernel 2.6.8-1, i lost my network connection, err msg is
+> 
+> Forgot to attach the code, here it is...
+> 
 
-"ifup: QM_MODULES: Function not implemented"
+When I use your test application on the disabled drives, I get the following
+results:
 
-in somany places, can you help me to solve this issue,
+issuing FLUSH_CACHE: worked
+issuing FLUSH_CACHE_EXT: failed 0x51/0x4!
 
-thanks in advance,
-regards,
-karthikeyan.N
+Is FLUSH_CACHE_EXT also a requirement?  Would it not be possible to just add
+this test function to ide-probe.c instead of looking for what the drive may
+or may not be advertising properly?
 
--- 
-winners don't do different things
-they do things differently
+--
+C.Y.M.
+

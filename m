@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132516AbRDQCh6>; Mon, 16 Apr 2001 22:37:58 -0400
+	id <S132520AbRDQDAF>; Mon, 16 Apr 2001 23:00:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132517AbRDQChs>; Mon, 16 Apr 2001 22:37:48 -0400
-Received: from relay1.pair.com ([209.68.1.20]:28683 "HELO relay1.pair.com")
-	by vger.kernel.org with SMTP id <S132516AbRDQChg>;
-	Mon, 16 Apr 2001 22:37:36 -0400
-X-pair-Authenticated: 203.164.4.223
-From: "Manfred Bartz" <md-linux-kernel@logi.cc>
-Message-ID: <20010417023716.7748.qmail@logi.cc>
-To: linux-kernel@vger.kernel.org
-Subject: Re: IP Acounting Idea for 2.5
-In-Reply-To: <Pine.LNX.4.33.0104152039130.1616-100000@asdf.capslock.lan> <01041708461209.00352@workshop> <20010416020732.30431.qmail@logi.cc> <20010416224321.O16697@corellia.laforge.distro.conectiva>
-X-Subversion: anarchy bomb crypto drug explosive fission gun nuclear sex terror
-In-Reply-To: Harald Welte's message of "Mon, 16 Apr 2001 22:43:21 -0300"
-Organization: rows-n-columns
-Date: 17 Apr 2001 12:37:16 +1000
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) XEmacs/21.1 (Bryce Canyon)
+	id <S132521AbRDQC7z>; Mon, 16 Apr 2001 22:59:55 -0400
+Received: from james.kalifornia.com ([208.179.59.2]:26470 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S132520AbRDQC7r>; Mon, 16 Apr 2001 22:59:47 -0400
+Message-ID: <3ADBA2C5.3000002@kalifornia.com>
+Date: Mon, 16 Apr 2001 18:56:21 -0700
+From: Ben Ford <ben@kalifornia.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.17-14 i686; en-US; rv:0.8.1+) Gecko/20010416
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Randolph Bentson <bentson@grieg.holmsjoen.com>
+CC: Miles Lane <miles@megapathdsl.net>, linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.5 Workshop RealVideo streams -- next time, please get better audio.
+In-Reply-To: <3ADB922B.4DE1F9A4@megapathdsl.net> <20010416185305.B22650@grieg.holmsjoen.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Harald Welte <laforge@gnumonks.org> writes:
+Randolph Bentson wrote:
 
-> On Mon, Apr 16, 2001 at 12:07:31PM +1000, Manfred Bartz wrote:
-> > Resetable counters guarantee that no two programs can co-exists if
-> > they happen to reset the same counters.
-> 
-> That sounds like crap (sorry). 
-
-Care to explain how two independent apps can co-exists if they happen
-to reset the same counters?
-
-> so why are your applications resetting counters then? 
-
-Ask the authors, not me.  I wiped those apps from my system.
-Its just a pity about the time wasted.
-
-> Nobody forces you to reset them right now.
-
-Why do authors then write apps (f.e. ipac) which reset counters?  
-Perhaps only because they can, not because it makes sense.
+>On Mon, Apr 16, 2001 at 05:45:31PM -0700, Miles Lane wrote:
+>
+>>There is one major shortcoming of the recordings.
+>>Usually, only the comments of the presenter(s)
+>>can be heard.
+>>
+>
+>I've heard of conferences where a wireless audience
+>microphone was put inside a Nerf ball.  It could
+>then be tossed to the audience member who wished
+>to speak.
+>
+That sounds more Linux-like  *lol*
 
 -- 
-Manfred Bartz
+Three things are certain:
+Death, taxes, and lost data
+Guess which has occurred.
+- - - - - - - - - - - - - - - - - - - -
+Patched Micro$oft servers are secure today . . . but tomorrow is another story!
+
+
+

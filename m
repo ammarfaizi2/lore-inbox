@@ -1,73 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262138AbTEPVt1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 17:49:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262148AbTEPVt0
+	id S261192AbTEPVrz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 17:47:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbTEPVrz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 17:49:26 -0400
-Received: from ns.xdr.com ([209.48.37.1]:39892 "EHLO xdr.com")
-	by vger.kernel.org with ESMTP id S262138AbTEPVtY (ORCPT
+	Fri, 16 May 2003 17:47:55 -0400
+Received: from palrel13.hp.com ([156.153.255.238]:3532 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S261192AbTEPVry (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 17:49:24 -0400
-Date: Fri, 16 May 2003 15:02:21 -0700
-From: David Ashley <dash@xdr.com>
-Message-Id: <200305162202.h4GM2LGN024925@xdr.com>
-To: linux-kernel@vger.kernel.org
-Subject: Problem in ARP 2.4.20 kernel
+	Fri, 16 May 2003 17:47:54 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16069.24454.349874.198470@napali.hpl.hp.com>
+Date: Fri, 16 May 2003 15:00:38 -0700
+To: Andrew Morton <akpm@digeo.com>
+Cc: Andi Kleen <ak@muc.de>, Arjan van de Ven <arjanv@redhat.com>,
+       john stultz <johnstul@us.ibm.com>, linux-kernel@vger.kernel.org,
+       David Mosberger <davidm@napali.hpl.hp.com>
+Subject: Re: time interpolation hooks
+In-Reply-To: <20030516142311.3844ee97.akpm@digeo.com>
+References: <20030516142311.3844ee97.akpm@digeo.com>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm working on a mechanism to load balance across multiple 100 mbit interfaces
-using the 2.4.20 linux kernel + custom server software. I have several
-interfaces all on the same subnet with different IP addresses. They are
-all connected to the same multi-port switch.
+>>>>> On Fri, 16 May 2003 14:23:11 -0700, Andrew Morton <akpm@digeo.com> said:
 
-The intent is that a client can connect to any of the IP addresses
-specifically and only burden that one. Some clients can connect to #1, others
-to #2, etc.
+  Andrew> It will need per-arch support.  I'm not sure what that looks
+  Andrew> like; maybe David can outline what the reset/update
+  Andrew> functions should do?
 
-The problem I ran into was the kernel's handling of ARP requests. What linux
-does is each interface receives the arp request, and every single one
-answers the request. So it becomes a race condition which response gets to
-the client, and the client will have usually an incorrect mac address/ip
-address arp entry.
+See below.
 
-I fixed this problem by modifying net/ipv4/arp.c:
-//add to top of file in the #includes
-#include <linux/inetdevice.h> // (DA) 20030515 to fix arp problem
-//...then later in function arp_process()
-		if (addr_type == RTN_LOCAL) {
-			n = neigh_event_ns(&arp_tbl, sha, &sip, dev);
-			if (n) {
-+				struct in_device *ind;
-				int dont_send = 0;
-				if (IN_DEV_ARPFILTER(in_dev))
-					dont_send |= arp_filter(sip,tip,dev); 
-+// (DA) 20030515 only send arp response if dev's IP address matches
-+				if((ind=__in_dev_get(dev))) {
-+					struct in_ifaddr *ifa;
-+					ifa=ind->ifa_list;
-+					while(ifa)
-+					{
-+						if(ifa->ifa_address==tip) break;
-+						ifa=ifa->ifa_next;
-+					}
-+					if(!ifa) dont_send=1;
-+				}
-				if (!dont_send)
-					arp_send(ARPOP_REPLY,ETH_P_ARP,sip,dev,tip,sha,dev->dev_addr,sha);
+  Andrew> (Those function pointers should go away in favour of
+  Andrew> optionally-stubbed-out static calls.  Minor point).
 
-				neigh_release(n);
-			}
-			goto out;
+Really?  On ia64, we want to use cycle-based interpolation by default,
+but if firmware indicates that the cycle-counters may drift, we want
+to switch to one of several possible external counters (which counter
+gets used depends on hardware/drivers are is present).  Yes, we could
+have a static call into ia64 specific code and then do an indirection
+there, but if most platforms need an indirect call (I suspect they
+do), it makes more sense to have the indirection directly in the core
+code (especially if you believe Linus' mantra that indirect calls are
+only going to get cheaper).
 
-Before sending the arp response, the requested IP address is checked against
-the interface's configured IP address, and only if there is a match will an
-ARP response be sent.
+Anyhow, back to the reset/update functions:
 
-I think the the check is harmless in any case. It's not clear to me if you'd
-ever want each interface answering the ARP requests, and it is clear there
-is a valid reason for wanting to wire up a computer this way. Enjoy!
+For cycle-counter-based interpolation, the relevant file is this one:
 
--Dave
+http://lia64.bkbits.net:8080/linux-ia64-2.5/anno/arch/ia64/kernel/time.c@1.24
 
+Functions ia64_reset_wall_time() and ia64_update_wall_time() are what
+the hooks would normally point to.  Note that there is also an
+important matching piece that updates last_nsec_offset in
+do_gettimeofday().
+
+(ia64_gettimeoffset() also reads last_nsec_offset, but only to handle
+a rare error-case).
+
+An example of the callback routines for an external high-precision
+counter can be found here:
+
+http://lia64.bkbits.net:8080/linux-ia64-2.5/anno/arch/ia64/sn/kernel/sn2/timer.c@1.2
+
+in functions sn2_update_wall_time() and sn2_reset_wall_time().  Note
+that sn2_update_wall_time() needs to be updated to decrement
+rtc_offset based on delta_nsec instead of rtc_per_timer_tick, but
+since this isn't my code and since I added the delta_nsec offset only
+recently, this hasn't been done yet.
+
+The ia64 implementation does rely on having single-word cmpxchg.  On
+platforms that don't have this, it should be possible to emulate
+cmpxchg with a spinlock, but you'd obviously end up serializing
+concurrent gettimeofday() calls.  And, in case it isn't obvious,
+platforms that do not use time-interpolation don't have to do
+anything, as the callbacks will default to doing nothing.
+
+	--david

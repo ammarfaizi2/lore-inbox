@@ -1,59 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318746AbSICKGL>; Tue, 3 Sep 2002 06:06:11 -0400
+	id <S318744AbSICKJJ>; Tue, 3 Sep 2002 06:09:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318741AbSICKGL>; Tue, 3 Sep 2002 06:06:11 -0400
-Received: from ns.suse.de ([213.95.15.193]:64517 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S318739AbSICKGK>;
-	Tue, 3 Sep 2002 06:06:10 -0400
-Date: Tue, 3 Sep 2002 12:10:41 +0200
-From: Andi Kleen <ak@suse.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: ak@suse.de, kuznet@ms2.inr.ac.ru, scott.feldman@intel.com,
-       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-       haveblue@us.ibm.com, Manand@us.ibm.com, christopher.leech@intel.com
-Subject: Re: TCP Segmentation Offloading (TSO)
-Message-ID: <20020903121041.A20066@wotan.suse.de>
-References: <20020903.164243.21934772.taka@valinux.co.jp.suse.lists.linux.kernel> <20020903.005119.50342945.davem@redhat.com.suse.lists.linux.kernel> <p73y9ajqw85.fsf@oldwotan.suse.de> <20020903.030025.07037175.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020903.030025.07037175.davem@redhat.com>
-User-Agent: Mutt/1.3.22.1i
+	id <S318747AbSICKJJ>; Tue, 3 Sep 2002 06:09:09 -0400
+Received: from h181n1fls11o1004.telia.com ([195.67.254.181]:52097 "EHLO
+	ringstrom.mine.nu") by vger.kernel.org with ESMTP
+	id <S318744AbSICKJI>; Tue, 3 Sep 2002 06:09:08 -0400
+Date: Tue, 3 Sep 2002 12:13:34 +0200 (CEST)
+From: Tobias Ringstrom <tori@ringstrom.mine.nu>
+X-X-Sender: tori@boris.prodako.se
+To: Ingo Molnar <mingo@elte.hu>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Problem with the O(1) scheduler in 2.4.19
+In-Reply-To: <Pine.LNX.4.44.0209030750380.2379-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0209031150310.6862-100000@boris.prodako.se>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 03, 2002 at 03:00:25AM -0700, David S. Miller wrote:
->    From: Andi Kleen <ak@suse.de>
->    Date: 03 Sep 2002 11:05:30 +0200
+On Tue, 3 Sep 2002, Ingo Molnar wrote:
+
+> On Mon, 2 Sep 2002, Tobias Ringstrom wrote:
 > 
->    x86-64 handles it (also in csum-copy). I think at least Alpha does it 
->    too (that is where I stole the C csum-partial base from) But it's ugly.
->    See the odd hack. 
+> > But I still do not understand why the process is classified as
+> > non-interactive...  Around 20 times per second it does a nanosleep for 1
+> > ms which takes around 40 ms in reality.  (Seeing this makes me believe
+> > that I should try to increase HZ, but that is a separate issue.)
 > 
-> Ok I think we really need to fix this then in the arches
-> where broken.  Let's do an audit. :-)
-
-Yes, it's needed because users can pass unaligned addresses in from
-userspace to sendmsg
-
+> what CPU usage does it have? 70% CPU usage is not interactive.
 > 
-> I question if x86 is broken at all.  It checks odd lengths
-> and x86 handles odd memory accesses transparently.  Please,
-> some x86 guru make some comments here :-)
+> well, even 70% CPU usage can be interactive if you lower its priority to
+> -20. But with the default nice value a task will lose its interactivity
+> much quicker.
 
-x86 is just slower for this case because all accesses will eat the 
-unaligned penalty, but should work.
+If I understand the code in sched.c correctly, the dynamic prio [-5...5]
+is calculated using sleep_avg, but the name is deceiving, it's more like
+the edge of a knife.  If a process is sleeping, its sleep_avg is
+incremented by one per timer tick, and if it is running it is decremented
+by one per timer tick.  This means (for a periodic task) that if it sleeps
+for less than 50% of the timer ticks, it will get a sleep_avg of zero
+(dynamic prio +5), and if it is sleeping for more than 50%, it will get a 
+sleep_avg of MAX_SLEEP_AVG (dynamic prio -5).
 
-I could have done it this way on x86-64 too, but chose to handle it.
+For the case of a game server, this means that when the CPU utilization 
+gets above 50% (roughly), it will switch from -5 to +5 in dynamic priority 
+in a few seconds and stay there until the CPU utilization drops under 50%.
 
-> It looks like sparc64 is the only platform where oddly aligned buffer
-> can truly cause problems and I can fix that easily enough.
+Is my analysis correct, and is this what we want?
 
-It could allow everybody to generate packets with bogus addresses on 
-the network.
+Have you experimented with other averaging algorithms?
 
-I suspect on sparc64 it will just be all handled by the unalignment handler
-in the kernel ? If yes it will be incredibly slow, but should work.
+> also, could you increase HZ to 1000 (in asm/param.h, full recompile of the
+> kernel is needed), does it make a difference?
 
--Andi
+I tried that yesterday (without the O(1) scheduler), and it does wonders
+for the in-game latency (i.e. ping).  I suppose that the dynamic prio will
+still be +5 at 70% CPU utilization even with a HZ of 1000 using the O(1)  
+scheduler.  Why would it make a difference?
+
+/Tobias
+

@@ -1,42 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284726AbRLZShG>; Wed, 26 Dec 2001 13:37:06 -0500
+	id <S284850AbRLZSmp>; Wed, 26 Dec 2001 13:42:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284728AbRLZSg4>; Wed, 26 Dec 2001 13:36:56 -0500
-Received: from colorfullife.com ([216.156.138.34]:28934 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S284726AbRLZSgs>;
-	Wed, 26 Dec 2001 13:36:48 -0500
-Message-ID: <002f01c18e3c$493bead0$010411ac@local>
-From: "Manfred Spraul" <manfred@colorfullife.com>
-To: <toxischerabflussreiniger@gmx.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: writing device drivers for commercial hardware
-Date: Wed, 26 Dec 2001 19:36:47 +0100
+	id <S284842AbRLZSmg>; Wed, 26 Dec 2001 13:42:36 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:41995 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S284831AbRLZSm3>; Wed, 26 Dec 2001 13:42:29 -0500
+Subject: Re: Kernel crash with knfsd
+To: dave@rudedog.org (Dave Carrigan)
+Date: Wed, 26 Dec 2001 18:52:36 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <87heqdanpx.fsf@pdaverticals.com> from "Dave Carrigan" at Dec 26, 2001 09:35:38 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+Message-Id: <E16JJAK-0002hB-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'd start with:
+ > The server is running 2.4.16 with XFS patches. The nfs-exported
+> directories are both xfs and rieserfs. The laptop runs kernel autofs,
+> and probably would have both of the server's xfs and reiserfs
+> filesystems mounted at suspend time, because Nautilus tends to keep some
+> filesystems permanently mounted.
 
-- read the existing smartcard drivers
-- check the windows driver - there is software that monitors the serial port and logs all calls.
-http://www.sysinternals.com/ntw2k/freeware/portmon.shtml
-Try to reverse engineer the protocol between the driver and the smartcard reader.
-- open the smartcard reader, and check if you can identify the producer of the ICs that are used. Then try to find the datasheet.
-google often helps.
-- Ask the company that makes the smartcard reader - perhaps they'll help you?
-
-I'm not sure if the driver should be user space or kernel space, but I'd definitively start in userspace.
-
-Good luck,
---
-    Manfred
-
-
+Can you duplicate the problem with a base kernel not an XFS hacked one ?
+Thats important info to know whether its an XFS patch bug or a core kernel
+bug you are somehow tripping

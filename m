@@ -1,38 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266520AbSKZSp6>; Tue, 26 Nov 2002 13:45:58 -0500
+	id <S266507AbSKZSuG>; Tue, 26 Nov 2002 13:50:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266527AbSKZSp5>; Tue, 26 Nov 2002 13:45:57 -0500
-Received: from kweetal.tue.nl ([131.155.2.7]:33034 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S266520AbSKZSp5>;
-	Tue, 26 Nov 2002 13:45:57 -0500
-Date: Tue, 26 Nov 2002 19:53:12 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: ebuddington@wesleyan.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.49: "hdb: cannot handle device with more than 16 heads"
-Message-ID: <20021126185312.GA5060@win.tue.nl>
-References: <20021126125019.A81@ma-northadams1b-112.nad.adelphia.net>
+	id <S266514AbSKZSuG>; Tue, 26 Nov 2002 13:50:06 -0500
+Received: from [132.248.33.226] ([132.248.33.226]:24472 "EHLO
+	garaged.homeip.net") by vger.kernel.org with ESMTP
+	id <S266507AbSKZSuF>; Tue, 26 Nov 2002 13:50:05 -0500
+Subject: swap usage on most 2.4.x kernels
+From: Max Valdez <maxvaldez@yahoo.com>
+To: kernel <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-B1OQJK4ncuAsltJ6CjtM"
+X-Mailer: Ximian Evolution 1.0.8-3mdk 
+Date: 26 Nov 2002 12:57:45 +0000
+Message-Id: <1038315477.3403.18.camel@garaged.fis.unam.mx>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021126125019.A81@ma-northadams1b-112.nad.adelphia.net>
-User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 26, 2002 at 12:50:19PM -0500, Eric Buddington wrote:
 
-> This is 2.5.49, compiled for i386 with almost all modules using
-> gcc-3.2.  On my PII Omnibook 4100, the messages stop after the first
-> hda: message (where it would normally identify the drive). The same
-> problem existed in 2.4.48.
-> 
-> When booting on my Athlon (hda:Maxtor 5T040H4, hdb: Maxtor 90840D6), I
-> get the following boot messages:
-> 
-> hda: cannot handle device with more than 16 heads - giving up
+--=-B1OQJK4ncuAsltJ6CjtM
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-You don't want to use the new ide driver instead of the legacy hd one?
+Hi all:
 
-Andries
+I have the same question that most people must have, why I need to
+manually erase swap to avoid excesive paging after a couple of uptime
+days ??.
+
+Once i have most of my RAM ocupied (more than 50% by cache ona a 1GB
+box) the swaping starts to be a problem,  I know the problem is that i
+like a fancy desktop style, and memory eating programs to read the damn
+email, but I think there should be a way to decrese the swaping isnt it
+??.. after all, most of the ram is in chache !!, is it really that
+necesary ??
+
+BTW, im starting to have the same "old" pagging problem with
+2.4.20-rc2-ac3. after 1 uptime day. and it seems to be getting worst,
+could it be a hardware problem ??, maybe my ram chips are passing the
+way ?
+
+If i'm doing something wrong please send me some recomendations.
+Best regards
+Max
+
+--=20
+uname -a: Linux garaged.fis.unam.mx 2.4.20-rc2-ac3 #2 SMP Thu Nov 21
+17:15:31 UTC 2002 i686 unknown unknown GNU/Linux
+-----BEGIN GEEK CODE BLOCK-----
+GS/
+d-s:a-C++ILIHA+++P-L++E--W++N+K-w++++O-M--V--PS+PEY+PGP-tXRtv++b+DI--D+Ge++=
+h---r+++z+++
+-----END GEEK CODE BLOCK-----
+gpg-key: http://garaged.homeip.net/gpg-key.txt
+
+--=-B1OQJK4ncuAsltJ6CjtM
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA942/IsvQlVyd+QikRAq2+AJ0TK2n1DXjQBUj0GisVQDO46PeUYwCeJwsU
+f/5mckirin+jL6l+m7njNLY=
+=LDvh
+-----END PGP SIGNATURE-----
+
+--=-B1OQJK4ncuAsltJ6CjtM--
+

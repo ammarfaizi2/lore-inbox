@@ -1,78 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129501AbQKSTwp>; Sun, 19 Nov 2000 14:52:45 -0500
+	id <S129416AbQKSTzq>; Sun, 19 Nov 2000 14:55:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129689AbQKSTwf>; Sun, 19 Nov 2000 14:52:35 -0500
-Received: from jabberwock.ucw.cz ([62.168.0.131]:27658 "EHLO jabberwock.ucw.cz")
-	by vger.kernel.org with ESMTP id <S129501AbQKSTwS>;
-	Sun, 19 Nov 2000 14:52:18 -0500
-Date: Sun, 19 Nov 2000 20:22:10 +0100
-From: Martin Mares <mj@suse.cz>
-To: linux-kernel@vger.kernel.org
-Subject: Re: reordering pci interrupts?
-Message-ID: <20001119202210.B272@albireo.ucw.cz>
-In-Reply-To: <20001118163258.A1643@cerebro.laendle>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001118163258.A1643@cerebro.laendle>; from pcg@goof.com on Sat, Nov 18, 2000 at 04:32:58PM +0100
+	id <S129534AbQKSTzg>; Sun, 19 Nov 2000 14:55:36 -0500
+Received: from einhorn.colt.in-berlin.de ([213.61.118.8]:60173 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id <S129416AbQKSTz0> convert rfc822-to-8bit; Sun, 19 Nov 2000 14:55:26 -0500
+Date: Sun, 19 Nov 2000 20:03:52 +0100 (CET)
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Keith Owens <kaos@ocs.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: BTTV detection broken in 2.4.0-test11-pre5 
+In-Reply-To: <7411.974641779@ocs3.ocs-net>
+Message-ID: <Pine.LNX.4.21.0011191956060.1015-100000@bogomips.masq.in-berlin.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Mon, 20 Nov 2000, Keith Owens wrote:
 
-> I have a motherboard with a broken bios that is unable to set interrupts
-> correctly, i.e. it initializes the devices corerctly but swaps the
-> interrupts for slot1/slot3 and slot2/slot4.
+> On 19 Nov 2000 12:56:17 GMT, 
+> kraxel@bytesex.org (Gerd Knorr) wrote:
+> >Some generic way to make module args available as kernel args too
+> >would be nice.  Or at least some simple one-liner I could put next to
+> >the MODULE_PARM() macro...
 > 
-> Now, is there a way to forcefully re-order the pci-interrupts? I do not
-> have an io-apic (thus no pirq=xxx), and I tried to poke the interrupt
-> values directly into /proc/bus/pic/*/*, but the kernel has it's own idea.
-> 
-> Thanks a lot for any info (I guess I'll just patch the kernel).
+> On my list for 2.5.  If foo is declared as MODULE_PARM in object bar
+> then you will be able to boot with bar.foo=27 or even foo=27 as long as
+> variable foo is unique amongst all objects in the kernel.
 
-Please try this patch and boot with "pci=autoirq" on the kernel command line.
+Cool.  Any plans how to handle drivers which are build from multiple
+object files like bttv?  Think "bar" needs to be configurable handle this
+nicely.  bttv should have bttv.card=xxx because the module is called
+"bttv", but the source file where the card insmod option is declared is
+bttv-cards.c ...
 
-				Have a nice fortnight
+  Gerd
+
 -- 
-Martin `MJ' Mares <mj@ucw.cz> <mj@suse.cz> http://atrey.karlin.mff.cuni.cz/~mj/
-"veni, vidi, nuclei deceiri - I came, I saw, I core dumped"
+Wirtschaftsinformatiker == Leute, die zwar die aktuellen Aktienkurse
+jedes Softwareherstellers kennen, aber keines der Produkte auch nur
+ansatzweise bedienen können.		-- Benedict Mangelsdorff
 
-
---- arch/i386/kernel/pci-pc.c.mj	Sun Nov 19 20:18:14 2000
-+++ arch/i386/kernel/pci-pc.c	Sun Nov 19 20:18:14 2000
-@@ -1035,6 +1035,9 @@
- 	} else if (!strncmp(str, "lastbus=", 8)) {
- 		pcibios_last_bus = simple_strtol(str+8, NULL, 0);
- 		return NULL;
-+	} else if (!strcmp(str, "autoirq")) {
-+		pci_probe |= PCI_AUTOIRQ;
-+		return NULL;
- 	}
- 	return str;
- }
---- arch/i386/kernel/pci-i386.h.mj	Sun Nov 19 20:18:32 2000
-+++ arch/i386/kernel/pci-i386.h	Sun Nov 19 20:18:32 2000
-@@ -18,6 +18,7 @@
- #define PCI_NO_SORT 0x100
- #define PCI_BIOS_SORT 0x200
- #define PCI_NO_CHECKS 0x400
-+#define PCI_AUTOIRQ 0x800
- #define PCI_ASSIGN_ROMS 0x1000
- #define PCI_BIOS_IRQ_SCAN 0x2000
- 
---- arch/i386/kernel/pci-irq.c.mj	Sun Nov 19 20:18:50 2000
-+++ arch/i386/kernel/pci-irq.c	Sun Nov 19 20:18:50 2000
-@@ -487,7 +487,7 @@
- 		 * If the BIOS has set an out of range IRQ number, just ignore it.
- 		 * Also keep track of which IRQ's are already in use.
- 		 */
--		if (dev->irq >= 16) {
-+		if (dev->irq >= 16 || (pci_probe & PCI_AUTOIRQ)) {
- 			DBG("%s: ignoring bogus IRQ %d\n", dev->slot_name, dev->irq);
- 			dev->irq = 0;
- 		}
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,63 +1,81 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317846AbSFMVue>; Thu, 13 Jun 2002 17:50:34 -0400
+	id <S317848AbSFMVuU>; Thu, 13 Jun 2002 17:50:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317847AbSFMVud>; Thu, 13 Jun 2002 17:50:33 -0400
-Received: from csl.Stanford.EDU ([171.64.66.149]:50334 "EHLO csl.Stanford.EDU")
-	by vger.kernel.org with ESMTP id <S317846AbSFMVuc>;
-	Thu, 13 Jun 2002 17:50:32 -0400
-From: Dawson Engler <engler@csl.Stanford.EDU>
-Message-Id: <200206132150.OAA14200@csl.Stanford.EDU>
-Subject: Re: [CHECKER] 37 stack variables >= 1K in 2.4.17
-To: viro@math.psu.edu (Alexander Viro)
-Date: Thu, 13 Jun 2002 14:50:28 -0700 (PDT)
-Cc: ak@muc.de (Andi Kleen), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0206131420010.20315-100000@weyl.math.psu.edu> from "Alexander Viro" at Jun 13, 2002 02:26:54 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S317846AbSFMVuT>; Thu, 13 Jun 2002 17:50:19 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:6678 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S317844AbSFMVuR>; Thu, 13 Jun 2002 17:50:17 -0400
+Date: Thu, 13 Jun 2002 17:50:19 -0400
+From: Doug Ledford <dledford@redhat.com>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: axboe@suse.de, linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Proposed changes to generic blk tag for use in SCSI (1/3)
+Message-ID: <20020613175019.A4515@redhat.com>
+Mail-Followup-To: James Bottomley <James.Bottomley@SteelEye.com>,
+	axboe@suse.de, linux-scsi@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <dledford@redhat.com> <200206132126.g5DLQiQ24889@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On 13 Jun 2002, Andi Kleen wrote:
+On Thu, Jun 13, 2002 at 05:26:44PM -0400, James Bottomley wrote:
+> On Mon, Jun 10, 2002 at 10:46:44PM -0400, James Bottomley wrote:
+> > 2) The SCSI queue will stall if it gets an untagged request in the stream, so 
+> > once tagged queueing is enabled, all commands (including SPECIALS) must be 
+> > tagged.  I altered the check in blk_queue_start_tag to permit this.
 > 
-> > Alexander Viro <viro@math.psu.edu> writes:
-> > > 
-> > > I mean that due to the loop (link_path_walk->do_follow_link->foofs_follow_link
-> > > ->vfs_follow_link->link_path_walk) you will get infinite maximal depth
-> > > for everything that can be called by any of these functions.  And that's
-> > > a _lot_ of stuff.
-> > 
-> > Surely an analysis pass can detect recursive function chains and flag them
-> > (e.g. the global IPA alias analysis pass in open64 does this)
+> dledford@redhat.com said:
+> > Hmmm...this seems broken to me.  Switching from tagged to untagged
+> > momentarily and then back is perfectly valid.  Can the bio layer
+> > handle this and not the scsi layer, or are both layers unable to
+> > handle  this sort of tag manipulation?  
 > 
-> Ugh...  OK, let me try again:
-> 
-> One bit of apriory information needed to get anything interesting from
-> this analysis:  there is a set of mutually recursive functions (see above)
-> and there is a limit (5) on the depth of recursion in that loop.
-> 
-> It has to be known to checker.  Explicitly, since
-> 	a) automatically deducing it is not realistic
-> 	b) cutting off the stuff behind that loop will cut off a _lot_ of
-> things - both in filesystems and in VFS (and in block layer, while we are
-> at it).
+> The layers can cope with the switch easily enough.  The problem is that to 
+> send an untagged command to a SCSI device you have to wait for the outstanding 
+> tags to clear which is what causes the stall.
 
-We're all about jamming system specific information into the checking
-extensions.  It's usually just a few if statements.  So to be clear: we
-can simply assume that the loop 
-   link_path_walk
-	->do_follow_link
-		->foofs_follow_link
-			->vfs_follow_link
-				->link_path_walk
-can happen exactly 5 times?
+Well, intentional behaviour is hardly what I would call a stall.  I 
+thought you were implying that it would stall the queue indefinitely.  I'm 
+fully aware that it forces the queue to wait until all outstanding 
+commands have completed before sending the untagged command, that's part 
+of the desired behaviour in that case.
 
-In general such restrictions are interesting, since they concretely
-show how having a way to include system-specific knowlege into checking
-is useful.  Are there any other such relationships?  The other example
-I know of is the do_page_fault (sp?) routine that can potentially be
-invoked at very copy_*_user site that page faults.  You need to know
-this to detect certain classes of deadlock, but there's no way to
-discern this path from the code without a priori knowlege.
+>  The scsi mid-layer queue push 
+> back system pushes all commands back to the BIO layer marked as REQ_SPECIAL 
+> (because the upper layer drivers generate the commands and it has no idea what 
+> they are supposed to be doing) if the driver cannot handle them.  This means 
+> for those drivers (like the new adaptec) which load up the device until it 
+> returns a queue full (thus causing push back into the bio layer) we'd get 
+> stutter in the command pipeline.  The cleanest solution is to allow (but not 
+> require) tagging of every request type.
+
+This I'm not following.  If you get a QUEUE_FULL from the adaptec driver, 
+then the commands you are pushing back should still be tagged and no stall 
+should be required beyond just waiting for any outstanding command on the 
+drive to complete or for a timeout to pass.  It should not require any 
+untagged type stall where you have to drain the entire pipeline...
+
+> I thought about doing this.  The problem is that the blk layer doesn't have 
+> very good instrumentation for detecting the condition.  The SCSI layer is the 
+> one that has per command timers and all the other necessaries so it can detect 
+> when a command should have returned and take corrective action.
+
+I would think that, eventually, the bio layer will support I/O fencing via 
+tagged commands (aka, ext3 needs an I/O fence and the bio layer does as 
+needed to enforce that, which on scsi may mean an ordered queue tag is 
+generated instead of a regular tag and on IDE it may mean something else).  
+It will have to be able to tell that some of these conditions have been 
+satisfied in those cases, so I see no reason why it shouldn't be made 
+aware of them now.  Just my $.02
+
+-- 
+  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
+         Red Hat, Inc. 
+         1801 Varsity Dr.
+         Raleigh, NC 27606
+  

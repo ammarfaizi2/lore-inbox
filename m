@@ -1,51 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263151AbTCYRiu>; Tue, 25 Mar 2003 12:38:50 -0500
+	id <S263107AbTCYR3l>; Tue, 25 Mar 2003 12:29:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263143AbTCYRit>; Tue, 25 Mar 2003 12:38:49 -0500
-Received: from a089148.adsl.hansenet.de ([213.191.89.148]:43394 "EHLO
-	ds666.starfleet") by vger.kernel.org with ESMTP id <S263151AbTCYRiM>;
-	Tue, 25 Mar 2003 12:38:12 -0500
-Message-ID: <3E8096A4.3010009@portrix.net>
-Date: Tue, 25 Mar 2003 18:49:24 +0100
-From: Jan Dittmer <j.dittmer@portrix.net>
-Organization: portrix.net GmbH
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4a) Gecko/20030305
-X-Accept-Language: en
-MIME-Version: 1.0
-To: James Simmons <jsimmons@infradead.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: problems with rivafb again
-References: <Pine.LNX.4.44.0303251723480.3789-100000@phoenix.infradead.org>
-In-Reply-To: <Pine.LNX.4.44.0303251723480.3789-100000@phoenix.infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S263111AbTCYR2k>; Tue, 25 Mar 2003 12:28:40 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:64123 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S263118AbTCYR2b>; Tue, 25 Mar 2003 12:28:31 -0500
+Date: Tue, 25 Mar 2003 17:39:40 GMT
+Message-Id: <200303251739.h2PHde7s006907@sisko.scot.redhat.com>
+From: Stephen Tweedie <sct@redhat.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org,
+       alan@lxorguk.ukuu.org.uk, ext2-devel@lists.sourceforge.net
+Cc: Stephen Tweedie <sct@redhat.com>
+Subject: [Patch 5/8] 2.4: Add less-severe assert-failure form for ext3.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Simmons wrote:
->>I'm getting plenty of those when switch from X (nv driver) to console 
->>(rivafb) since your latest code got merged in bk. Also, the console 
->>screen is really corrupted when switching back from X (sort of worked 
->>before) and the little penguin isn't drawn anymore at bootup time.
-> 
-> 
-> Do you have "UseFBdev" in your XF96Config file? You need to enable that 
-> otherwise X and fbdev will conflict when setting the hardware. As for the 
-> little penguin you need need to enable the Logo code in the video menu. 
-> The logo code is also used by the SGI Newport driver.
-> 
-> 
-I've no such settings in my XF86Config. But it used to work before 
-without it - I'll try.
-And as you may have seen from my .config options, the logo code _is_ 
-enabled or did I overlook something?
+Add a new form of assert failure in ext3 which allows us to flag events
+which are *usually* bugs, but which can be legally triggered in the
+presence of IO failures.  Don't panic the kernel on such errors unless
+we've defined #JBD_PARANOID_IOFAIL, which will normally be set only for
+testing purposes.
 
-Jan
-
-# Logo configuration
-CONFIG_LOGO=y
-# CONFIG_LOGO_LINUX_MONO is not set
-# CONFIG_LOGO_LINUX_VGA16 is not set
-CONFIG_LOGO_LINUX_CLUT224=y
-
+--- linux-2.4-ext3push/include/linux/jbd.h.=K0004=.orig	2003-03-25 10:59:15.000000000 +0000
++++ linux-2.4-ext3push/include/linux/jbd.h	2003-03-25 10:59:15.000000000 +0000
+@@ -40,6 +40,15 @@
+  */
+ #undef JBD_PARANOID_WRITES
+ 
++/*
++ * Define JBD_PARANIOD_IOFAIL to cause a kernel BUG() if ext3 finds
++ * certain classes of error which can occur due to failed IOs.  Under
++ * normal use we want ext3 to continue after such errors, because
++ * hardware _can_ fail, but for debugging purposes when running tests on
++ * known-good hardware we may want to trap these errors.
++ */
++#undef JBD_PARANOID_IOFAIL
++
+ #ifdef CONFIG_JBD_DEBUG
+ /*
+  * Define JBD_EXPENSIVE_CHECKING to enable more expensive internal
+@@ -263,6 +272,23 @@ void buffer_assertion_failure(struct buf
+ #define J_ASSERT(assert)	do { } while (0)
+ #endif		/* JBD_ASSERTIONS */
+ 
++#if defined(JBD_PARANOID_IOFAIL)
++#define J_EXPECT(expr, why...)		J_ASSERT(expr)
++#define J_EXPECT_BH(bh, expr, why...)	J_ASSERT_BH(bh, expr)
++#define J_EXPECT_JH(jh, expr, why...)	J_ASSERT_JH(jh, expr)
++#else
++#define __journal_expect(expr, why...)					     \
++	do {								     \
++		if (!(expr)) {						     \
++			printk(KERN_ERR "EXT3-fs unexpected failure: %s;\n", # expr); \
++			printk(KERN_ERR ## why);			     \
++		}							     \
++	} while (0)
++#define J_EXPECT(expr, why...)		__journal_expect(expr, ## why)
++#define J_EXPECT_BH(bh, expr, why...)	__journal_expect(expr, ## why)
++#define J_EXPECT_JH(jh, expr, why...)	__journal_expect(expr, ## why)
++#endif
++
+ enum jbd_state_bits {
+ 	BH_JWrite
+ 	  = BH_PrivateStart,	/* 1 if being written to log (@@@ DEBUGGING) */

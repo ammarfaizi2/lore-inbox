@@ -1,63 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269210AbUI3AP5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269225AbUI3AVD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269210AbUI3AP5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 20:15:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269218AbUI3AP4
+	id S269225AbUI3AVD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 20:21:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269218AbUI3AVC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 20:15:56 -0400
-Received: from serio.al.rim.or.jp ([202.247.191.123]:60058 "EHLO
-	serio.al.rim.or.jp") by vger.kernel.org with ESMTP id S269210AbUI3APw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 20:15:52 -0400
-Message-ID: <415B5034.6060809@yk.rim.or.jp>
-Date: Thu, 30 Sep 2004 09:15:48 +0900
-From: Chiaki <ishikawa@yk.rim.or.jp>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: ja, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: FSCK message suppressed during booting? (2.6.9-rc2)
+	Wed, 29 Sep 2004 20:21:02 -0400
+Received: from mail.kroah.org ([69.55.234.183]:56806 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S269227AbUI3ASn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 20:18:43 -0400
+Date: Wed, 29 Sep 2004 17:18:06 -0700
+From: Greg KH <greg@kroah.com>
+To: Roland Dreier <roland@topspin.com>
+Cc: pj@sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][1/2] [take 2] kobject: add add_hotplug_env_var
+Message-ID: <20040930001806.GA27400@kroah.com>
+References: <200409281919.Xvizfpbjxoiv0MeE@topspin.com> <200409281919.aKAVlO4yKkPzE7f0@topspin.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <200409281919.aKAVlO4yKkPzE7f0@topspin.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am using 2.6.9-rc2.
-I had a hard hung (only Alt-SysReq-b helped me in recovering.).
-Anyway, during the rebooting and expecting fsck run,
-I had this very uncomfortable experience of
-fsck message not displayed at all.
+On Tue, Sep 28, 2004 at 07:19:34PM -0700, Roland Dreier wrote:
+> Add a (non-inlined) add_hotplug_env_var() function to <linux/kobject.h>
+> and lib/kobject.c.  There's a lot of boilerplate code involved in
+> setting environment variables in a hotplug method, so we should have a
+> convenience function to consolidate it (and avoid subtle bugs).
 
-That is, under previous 2.4.xx kernel, I would have gotten
-"The disk was not unmounted cleanly. Running fsck." or
-some such message and fsck printed its
-progress bar using ASCII characters.
+Cool.  Well the code in kobject.c has changed a lot recently (see the
+-mm tree) and the kernel-doc comments should be with the .c code, not
+the header file, so here's the version I committed to my trees.
 
-But this message was not shown at all and
-fsck seemed to have run without any message at all.
+thanks,
 
-This is very disturbing to a home user.
-I wish that this fsck message is restored
-and visible during booting.
-Since I was testing the release candidate version,
-when I didn't see the fsck message and yet hear
-the disk head moving around, I was afraid that something
-amiss was happening and RESET the pc box and
-rebooted in 2.4.2x kernel and made sure fsck run
-to completeion with its visible message lines.
+greg k-h
 
-(Maybe somebody decided to hide the fsck messages
-for users with thousands of disks attached?
-I am not sure if this is a good idea to disable the
-message by default.)
-
-
-Please cc: me if you need a response from me.
-I am not subscribed to LKML.
-
--- 
-int main(void){int j=2003;/*(c)2003 cishikawa. */
-char t[] ="<CI> @abcdefghijklmnopqrstuvwxyz.,\n\"";
-char *i ="g>qtCIuqivb,gCwe\np@.ietCIuqi\"tqkvv is>dnamz";
-while(*i)((j+=strchr(t,*i++)-(int)t),(j%=sizeof t-1),
-(putchar(t[j])));return 0;}/* under GPL */
+===== include/linux/kobject.h 1.31 vs edited =====
+--- 1.31/include/linux/kobject.h	2004-09-15 11:26:10 -07:00
++++ edited/include/linux/kobject.h	2004-09-29 16:51:02 -07:00
+@@ -237,9 +237,17 @@
+ extern void subsys_remove_file(struct subsystem * , struct subsys_attribute *);
+ 
+ #ifdef CONFIG_HOTPLUG
+-extern void kobject_hotplug(struct kobject *kobj, enum kobject_action action);
++void kobject_hotplug(struct kobject *kobj, enum kobject_action action);
++int add_hotplug_env_var(char **envp, int num_envp, int *cur_index,
++			char *buffer, int buffer_size, int *cur_len,
++			const char *format, ...)
++	__attribute__((format (printf, 7, 8)));
+ #else
+ static inline void kobject_hotplug(struct kobject *kobj, enum kobject_action action) { }
++static inline int add_hotplug_env_var(char **envp, int num_envp, int *cur_index, 
++				      char *buffer, int buffer_size, int *cur_len, 
++				      const char *format, ...)
++{ return 0; }
+ #endif
+ 
+ #endif /* __KERNEL__ */
+===== lib/kobject_uevent.c 1.4 vs edited =====
+--- 1.4/lib/kobject_uevent.c	2004-09-15 14:15:24 -07:00
++++ edited/lib/kobject_uevent.c	2004-09-29 16:54:19 -07:00
+@@ -290,6 +290,56 @@
+ 	return;
+ }
+ EXPORT_SYMBOL(kobject_hotplug);
+-#endif /* CONFIG_HOTPLUG */
+ 
++/**
++ * add_hotplug_env_var - helper for creating hotplug environment variables
++ * @envp: Pointer to table of environment variables, as passed into
++ * hotplug() method.
++ * @num_envp: Number of environment variable slots available, as
++ * passed into hotplug() method.
++ * @cur_index: Pointer to current index into @envp.  It should be
++ * initialized to 0 before the first call to add_hotplug_env_var(),
++ * and will be incremented on success.
++ * @buffer: Pointer to buffer for environment variables, as passed
++ * into hotplug() method.
++ * @buffer_size: Length of @buffer, as passed into hotplug() method.
++ * @cur_len: Pointer to current length of space used in @buffer.
++ * Should be initialized to 0 before the first call to
++ * add_hotplug_env_var(), and will be incremented on success.
++ * @format: Format for creating environment variable (of the form
++ * "XXX=%x") for snprintf().
++ *
++ * Returns 0 if environment variable was added successfully or -ENOMEM
++ * if no space was available.
++ */
++int add_hotplug_env_var(char **envp, int num_envp, int *cur_index,
++			char *buffer, int buffer_size, int *cur_len,
++			const char *format, ...)
++{
++	va_list args;
++
++	/*
++	 * We check against num_envp - 1 to make sure there is at
++	 * least one slot left after we return, since the hotplug
++	 * method needs to set the last slot to NULL.
++	 */
++	if (*cur_index >= num_envp - 1)
++		return -ENOMEM;
++
++	envp[*cur_index] = buffer + *cur_len;
++
++	va_start(args, format);
++	*cur_len += vsnprintf(envp[*cur_index],
++			      max(buffer_size - *cur_len, 0),
++			      format, args) + 1;
++	va_end(args);
+ 
++	if (*cur_len > buffer_size)
++		return -ENOMEM;
++
++	(*cur_index)++;
++	return 0;
++}
++EXPORT_SYMBOL(add_hotplug_env_var);
++
++#endif /* CONFIG_HOTPLUG */

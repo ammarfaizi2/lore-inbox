@@ -1,44 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262131AbSJDPyt>; Fri, 4 Oct 2002 11:54:49 -0400
+	id <S262490AbSJDQ5V>; Fri, 4 Oct 2002 12:57:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262148AbSJDPyt>; Fri, 4 Oct 2002 11:54:49 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:43793 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262131AbSJDPys>;
-	Fri, 4 Oct 2002 11:54:48 -0400
-Date: Fri, 4 Oct 2002 17:00:21 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Mark Peloquin <peloquin@us.ibm.com>
-Cc: Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] add safe version of list_for_each_entry() to list.h
-Message-ID: <20021004170021.F18545@parcelfarce.linux.theplanet.co.uk>
-References: <OFDA00C8D3.E99FDDA0-ON85256C48.005322C4@pok.ibm.com>
+	id <S262491AbSJDQ5V>; Fri, 4 Oct 2002 12:57:21 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:13839 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262490AbSJDQ5T>;
+	Fri, 4 Oct 2002 12:57:19 -0400
+Date: Fri, 4 Oct 2002 09:59:55 -0700
+From: Greg KH <greg@kroah.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] pcibios_* removals for 2.5.40
+Message-ID: <20021004165955.GC6978@kroah.com>
+References: <20021003224011.GA2289@kroah.com> <Pine.LNX.4.44.0210040930581.1723-100000@home.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <OFDA00C8D3.E99FDDA0-ON85256C48.005322C4@pok.ibm.com>; from peloquin@us.ibm.com on Fri, Oct 04, 2002 at 10:48:33AM -0500
+In-Reply-To: <Pine.LNX.4.44.0210040930581.1723-100000@home.transmeta.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 04, 2002 at 10:48:33AM -0500, Mark Peloquin wrote:
-> list_empty() can be used on check list heads *or*
-> to check if a list element is currently in a list,
-> assuming the coder uses list_del_init(). However,
-> if the coder chooses to use list_del() [which sets
-> the prev and next fields to 0] instead, there is no
-> corresponding function to indicate if that element
-> is currently on a list. This function does that.
+On Fri, Oct 04, 2002 at 09:33:08AM -0700, Linus Torvalds wrote:
+> 
+> On Thu, 3 Oct 2002, Greg KH wrote:
+> > 
+> > Here's some changesets that remove the pcibios_find_class(),
+> > pci_find_device(), and pcibios_present() functions.  These functions
+> > have been marked as obsolete since the 2.2 kernel, so it's about time
+> > that we removed them.
+> 
+> They are still in use by a lot of drivers..
 
-That behaviour for list_del is new and, IMNSHO, bogus.  There's now _zero_
-gain in using list_del instead of list_del_init.  akpm changed it about
-5 months ago with a comment that says:
+Not all that many drivers:
 
-"list_head debugging"
+pcibios_find_class is used in the following files:
+ 	drivers/net/aironet4500_card.c
+	drivers/net/wan/lmc/lmc_main.c
 
-so i think it's pretty safe to assume that this behaviour will not
-remain into 2.6.  if you think you want list_member, use list_del_init
-and list_empty() instead.
+The lmc driver has only had 1 janitor cleanup in all of 2.5, and the
+aironet4500_card driver has had only trivial changes too.  But I'll try
+to fix them up, if anyone uses them, and I break them, I'm sure I'll
+hear about it :)
 
--- 
-Revolutions do not require corporate support.
+pcibios_find_device is used in only 11 different drivers.  I'll go clean
+up those instances too.
+
+And I thought I caught all of the places that pcibios_present() was used
+already, but I'll go verify that again.
+
+> I hate to break even more drivers at this point in 2.5.x, and so quite
+> frankly I'd rather just do this in early 2.7.x instead. Unless
+> somebody really steps up to the plate and also fixes the drivers
+> ("it's a ton of fun, and imagine all the adoration you'll get from
+> teenage girls/boys/ninja turtles for doing it")
+
+I'll clean them all up and resubmit these changes to you when finished.
+
+thanks,
+
+greg k-h
+(who can't wait for the ninja turtles to finally start adoring him!)

@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263922AbTFWHIc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 03:08:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264029AbTFWHIc
+	id S264188AbTFWHJ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 03:09:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264262AbTFWHJ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 03:08:32 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:24840 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263922AbTFWHIb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 03:08:31 -0400
-Date: Mon, 23 Jun 2003 08:22:35 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: David Woodhouse <dwmw2@redhat.com>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       David Woodhouse <dwmw2@cambridge.redhat.com>
-Subject: Re: [PATCH] Fix mtdblock / mtdpart / mtdconcat
-Message-ID: <20030623082235.A22114@flint.arm.linux.org.uk>
-Mail-Followup-To: David Woodhouse <dwmw2@redhat.com>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>,
-	David Woodhouse <dwmw2@cambridge.redhat.com>
-References: <20030623010031.E16537@flint.arm.linux.org.uk> <1056352749.29264.0.camel@passion.cambridge.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1056352749.29264.0.camel@passion.cambridge.redhat.com>; from dwmw2@redhat.com on Mon, Jun 23, 2003 at 08:19:09AM +0100
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+	Mon, 23 Jun 2003 03:09:59 -0400
+Received: from dp.samba.org ([66.70.73.150]:34741 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S264188AbTFWHJy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 03:09:54 -0400
+From: Rusty Trivial Russell <rusty@rustcorp.com.au>
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: [TRIVIAL] [resend patch] CONFIG_X86_GENERIC description fixup
+Date: Mon, 23 Jun 2003 17:19:06 +1000
+Message-Id: <20030623072401.577D62C2E7@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 23, 2003 at 08:19:09AM +0100, David Woodhouse wrote:
-> On Mon, 2003-06-23 at 01:00, Russell King wrote:
-> > Dirtily disable ECC support; it doesn't work when mtdpart is layered
-> > on top of mtdconcat on top of CFI flash.
-> 
-> Please define "doesn't work".
+From:  Stewart Smith <stewart@linux.org.au>
 
-Remember those errors I reported to you last night?  That "doesn't work".
+  as per thread on lkml a little while ago, a better explanation
+  of the X86_GENERIC config option follows. The person who questioned
+  it originally seemed to like this improved version, so that's one point :)
+  
+  
 
+--- trivial-2.5.73/arch/i386/Kconfig.orig	2003-06-23 17:04:46.000000000 +1000
++++ trivial-2.5.73/arch/i386/Kconfig	2003-06-23 17:04:46.000000000 +1000
+@@ -303,9 +303,13 @@
+ config X86_GENERIC
+        bool "Generic x86 support" 
+        help
+-       	  Including some tuning for non selected x86 CPUs too.
+-	  when it has moderate overhead. This is intended for generic 
+-	  distributions kernels.
++	  Instead of just including optimizations for the selected
++	  x86 variant (e.g. PII, Crusoe or Athlon), include some more
++	  generic optimizations as well. This will make the kernel
++	  perform better on x86 CPUs other than that selected.
++
++	  This is really intended for distributors who need more
++	  generic optimizations.
+ 
+ #
+ # Define implied options from the CPU selection here
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+  What is this? http://www.kernel.org/pub/linux/kernel/people/rusty/trivial/
+  Don't blame me: the Monkey is driving
+  File: Stewart Smith <stewart@linux.org.au>: [resend patch] CONFIG_X86_GENERIC description fixup

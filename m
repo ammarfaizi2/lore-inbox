@@ -1,51 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317701AbSIODvt>; Sat, 14 Sep 2002 23:51:49 -0400
+	id <S317708AbSIOENo>; Sun, 15 Sep 2002 00:13:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317708AbSIODvs>; Sat, 14 Sep 2002 23:51:48 -0400
-Received: from packet.digeo.com ([12.110.80.53]:24194 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S317701AbSIODvs>;
-	Sat, 14 Sep 2002 23:51:48 -0400
-Message-ID: <3D8408A9.7B34483D@digeo.com>
-Date: Sat, 14 Sep 2002 21:12:25 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
+	id <S317742AbSIOENo>; Sun, 15 Sep 2002 00:13:44 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:25105
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S317708AbSIOENn>; Sun, 15 Sep 2002 00:13:43 -0400
+Date: Sat, 14 Sep 2002 21:16:21 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Alex Davis <alex14641@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Possible bug and question about ide_notify_reboot in 2.4.19
+In-Reply-To: <20020914214152.15900.qmail@web40512.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.10.10209141548370.6925-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: Daniel Phillips <phillips@arcor.de>
-CC: lkml <linux-kernel@vger.kernel.org>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>
-Subject: Re: 2.5.34-mm2
-References: <3D803434.F2A58357@digeo.com> <E17qQMq-0001JV-00@starship>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Sep 2002 03:56:36.0676 (UTC) FILETIME=[E36F1840:01C25C6B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
-> 
-> On Thursday 12 September 2002 08:29, Andrew Morton wrote:
-> > url: http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.34/2.5.34-mm2/
-> >
-> > -sleeping-release_page.patch
-> 
-> What's this one?  Couldn't find it as a broken-out patch.
+On Sat, 14 Sep 2002, Alex Davis wrote:
 
-The `-' means it was removed from the patchset.  Linus merged it.
-See  2.5.34/2.5.34-mm1/broken-out/sleeping-release_page.patch
+> --- Andre Hedrick <andre@linux-ide.org> wrote:
+> > 
+> > Hi Alex,
+> > 
+> > We (T13 Standards) only recently required (shall) all non-packet device to
+> > support flush cache.  No where does it state that a device supporting PM
+> > for a standby (shall), the key word here is "shall", issue a flush-cache.
+> I am assuming that a hard drive is a non-packet device. Let me make sure I'm
 
-> On the nonblocking vm front, does it rule or suck?
+Today, yes ...  In the past no.
+There are a handfull of these strange beasts which still exists.
 
-It rules, until someone finds something at which it sucks.
+> interpreting this correctly: older ( and some current ) drives may flush cache
+> on standby/sleep; current and future drives may not. In addition, older drives
 
->  I heard you
-> mention, on the one hand, huge speedups on some load (dbench I think)
-> but your in-patch comments mention slowdown by 1.7X on kernel
-> compile.
+It means there are not rules (rules is a loose term) for how to do this in
+the standard.
 
-You misread.  Relative times for running `make -j6 bzImage' with mem=512m:
+> may not support the flush cache command.
 
-Unloaded system:		                     1.0
-2.5.34-mm4, while running 4 x `dbench 100'           1.7
-Any other kernel while running 4 x `dbench 100'      basically infinity
+There is supported v/s enabled, and these  can be optional.
+Optional == (Mandatory Optional) because nobody wants to not have the
+feature ready or they will miss the sale.
+
+> > I will not break support for older hardware, on a whim.
+> Not my intention.
+
+Cool.
+
+> > You said you can make a patch, please do so and apply it to your tree.
+> > Now, if you want the option, submit the patch for review.  For two or
+> > three days there has been no patch to test.
+> Still testing locally. I also want to fix the code so that the flush is
+> done before the standby.
+
+Wait, how did the order go south?
+
+> > 
+> > To be absolutely honest, I really do not like to give options in the
+> > kernel-config build which can cause backwards compatablity problems.
+> This wouldn't be a config option. You would have to modify ide.c by
+> hand to disable standby.
+
+So a manual config option?  That is more reasonable and not doable by
+accident.
+
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
+

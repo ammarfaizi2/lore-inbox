@@ -1,76 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261191AbVC0R0a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261213AbVC0R2m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261191AbVC0R0a (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 12:26:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261213AbVC0R0a
+	id S261213AbVC0R2m (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 12:28:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261233AbVC0R2m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 12:26:30 -0500
-Received: from colin2.muc.de ([193.149.48.15]:29965 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S261191AbVC0R00 (ORCPT
+	Sun, 27 Mar 2005 12:28:42 -0500
+Received: from colin2.muc.de ([193.149.48.15]:48912 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S261213AbVC0R2k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 12:26:26 -0500
-Date: 27 Mar 2005 19:26:25 +0200
-Date: Sun, 27 Mar 2005 19:26:25 +0200
+	Sun, 27 Mar 2005 12:28:40 -0500
+Date: 27 Mar 2005 19:28:39 +0200
+Date: Sun, 27 Mar 2005 19:28:39 +0200
 From: Andi Kleen <ak@muc.de>
 To: Christophe Saout <christophe@saout.de>
 Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: x86-64 preemption fix from IRQ and BKL in 2.6.12-rc1-mm2
-Message-ID: <20050327172625.GC18506@muc.de>
-References: <20050324044114.5aa5b166.akpm@osdl.org> <1111778785.14840.13.camel@leto.cs.pocnet.net>
+Subject: Re: [PATCH] Fix preemption off of irq context on x86-64 with PREEMPT_BKL
+Message-ID: <20050327172839.GD18506@muc.de>
+References: <20050324044114.5aa5b166.akpm@osdl.org> <1111778785.14840.13.camel@leto.cs.pocnet.net> <1111882746.32348.6.camel@leto.cs.pocnet.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1111778785.14840.13.camel@leto.cs.pocnet.net>
+In-Reply-To: <1111882746.32348.6.camel@leto.cs.pocnet.net>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 25, 2005 at 08:26:25PM +0100, Christophe Saout wrote:
-> Fortunately the kernel locked up and there was no data corruption.
+On Sun, Mar 27, 2005 at 01:19:06AM +0100, Christophe Saout wrote:
+> Hi,
 > 
-> I've got PREEMPT and PREEMPT_BKL enabled under UP.
+> > x86_64-fix-config_preempt.patch
+> >   x86_64: Fix CONFIG_PREEMPT
 > 
-> I just took a look at the change and found this:
+> This patch causes another bug to show up some lines below with
+> CONFIG_PREEMPT_BKL. schedule releases the BKL which it shouldn't do.
 > 
-> x86-64 does this (in entry.S):
-> 
->         bt   $9,EFLAGS-ARGOFFSET(%rsp)  /* interrupts off? */
->         jnc   retint_restore_args
->         movl $PREEMPT_ACTIVE,threadinfo_preempt_count(%rcx)
->         sti
->         call schedule
->         cli
->         GET_THREAD_INFO(%rcx)
->         movl $0,threadinfo_preempt_count(%rcx)
->         jmp exit_intr
-> 
-> while i386 does this:
-> 
->         testl $IF_MASK,EFLAGS(%esp)     # interrupts off (exception path) ?
->         jz restore_all
->         call preempt_schedule_irq
->         jmp need_resched
-> 
-> preempt_schedule_irq is not an i386 specific function and seems to take
-> special care of BKL preemption and since reiserfs does use the BKL to do
-> certain things I think this actually might be the problem...?
+> Call preempt_schedule_irq instead (like for i386). This seems to fix the
+> easily reproducible filesystem errors I've seen (with reiserfs, which
+> heavily relies on the BKL).
 
-Hmm, preempt_schedule_irq is not in mainline as far as I can see.
-My patches are always for mainline; i dont do a special
-patch kit for -mm*
-
-It looks like a unfortunate interaction with some other patches
-in mm. Andrew, can you disable CONFIG_PREEMPT on x86-64 in
-mm for now?
-
-Just calling preempt_schedule_irq may also work, 
-but most likely the patch that introduces that function needs
-careful reading if it does not require more support from architectures.
-BTW I suspect it will break other archs too...
-
-> Unfortunately I don't have a amd64 machine to play with, so can somebody
-> please check this?
-
-How did you generate the crash dumps above then?
+I would not apply this one for now. It needs checking if the
+patch that requires this change does not require more changes.
 
 -Andi
+
+

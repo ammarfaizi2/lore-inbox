@@ -1,48 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261291AbUKWPt6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261325AbUKWPvx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261291AbUKWPt6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 10:49:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261284AbUKWPt5
+	id S261325AbUKWPvx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 10:51:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261284AbUKWPuF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 10:49:57 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:30841 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261291AbUKWPUo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 10:20:44 -0500
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-X-Message-Flag: Warning: May contain useful information
-References: <20041122713.Nh0zRPbm8qA0VBxj@topspin.com>
-	<200411231313.57758.arnd@arndb.de>
-From: Roland Dreier <roland@topspin.com>
-Date: Tue, 23 Nov 2004 07:20:35 -0800
-In-Reply-To: <200411231313.57758.arnd@arndb.de> (Arnd Bergmann's message of
- "Tue, 23 Nov 2004 13:13:57 +0100")
-Message-ID: <52vfbw7fss.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: roland@topspin.com
-Subject: Re: [PATCH][RFC/v1][0/12] Initial submission of InfiniBand patches
- for review
+	Tue, 23 Nov 2004 10:50:05 -0500
+Received: from mail.kroah.org ([69.55.234.183]:19648 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261306AbUKWPa7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 10:30:59 -0500
+Date: Tue, 23 Nov 2004 07:29:36 -0800
+From: Greg KH <greg@kroah.com>
+To: Guillaume Thouvenin <Guillaume.Thouvenin@Bull.net>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       linux-security-module@wirex.com
+Subject: Re: [PATCH 2.6.9] fork: move security_task_alloc() after p->parent initialization
+Message-ID: <20041123152936.GB29107@kroah.com>
+References: <1101220731.6210.142.camel@frecb000711.frec.bull.fr>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 23 Nov 2004 15:20:41.0074 (UTC) FILETIME=[FE453520:01C4D16F]
+Content-Disposition: inline
+In-Reply-To: <1101220731.6210.142.camel@frecb000711.frec.bull.fr>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Arnd> Patches 1, 3 and 5 didn't make it to lkml. Did you hit the
-    Arnd> 100kb size limit for mails?
+On Tue, Nov 23, 2004 at 03:38:51PM +0100, Guillaume Thouvenin wrote:
+> If we register a LSM hook and if we use the parameter passed to
+> security_task_alloc(struct task_struct *p), the value of p->parent is
+> wrong. This patch move the call to security_task_alloc() after the
+> initialization of the field p->parent. 
 
-Ah, that must be what happened.  I was confused because gmane.org did
-pick them up, but I think that's because gmane is also subscribed to
-openib-general (which is cc'ed).
+No, that's way too late for this hook.
 
-I'll reroll the patches, splitting the too-large pieces, and send
-soon.
+> --- kernel/fork.c.orig	2004-10-19 08:41:53.000000000 +0200
+> +++ kernel/fork.c	2004-11-23 15:29:25.799903744 +0100
+> @@ -1006,8 +1006,6 @@ static task_t *copy_process(unsigned lon
+>   	}
+>  #endif
+>  
+> -	if ((retval = security_task_alloc(p)))
+> -		goto bad_fork_cleanup_policy;
+>  	if ((retval = audit_alloc(p)))
+>  		goto bad_fork_cleanup_security;
+>  	/* copy all the process information */
+> @@ -1092,6 +1090,9 @@ static task_t *copy_process(unsigned lon
+>  		p->real_parent = current;
+>  	p->parent = p->real_parent;
+>  
+> +	if ((retval = security_task_alloc(p)))
+> +		goto bad_fork_cleanup_policy;
+> +
 
-Thanks,
-  Roland
+And the error path is wrong :)
 
+thanks,
+
+greg k-h

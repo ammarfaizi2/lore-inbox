@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274701AbRIYXLL>; Tue, 25 Sep 2001 19:11:11 -0400
+	id <S274708AbRIYXPs>; Tue, 25 Sep 2001 19:15:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274697AbRIYXKt>; Tue, 25 Sep 2001 19:10:49 -0400
-Received: from [195.223.140.107] ([195.223.140.107]:56048 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S274695AbRIYXKn>;
-	Tue, 25 Sep 2001 19:10:43 -0400
-Date: Wed, 26 Sep 2001 01:11:16 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Olivier Sessink <olivier@lx.student.wau.nl>, linux-kernel@vger.kernel.org
-Subject: Re: weird memory related problems, negative memory usage or fake memory usage?
-Message-ID: <20010926011116.X8350@athlon.random>
-In-Reply-To: <20010926003626.L8350@athlon.random> <Pine.LNX.4.33L.0109251952330.26091-100000@duckman.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33L.0109251952330.26091-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Tue, Sep 25, 2001 at 07:54:07PM -0300
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S274711AbRIYXPi>; Tue, 25 Sep 2001 19:15:38 -0400
+Received: from norwich.jmjones.com ([216.238.56.67]:10500 "EHLO
+	mail.jmjones.com") by vger.kernel.org with ESMTP id <S274708AbRIYXP1>;
+	Tue, 25 Sep 2001 19:15:27 -0400
+Date: Tue, 25 Sep 2001 19:15:39 -0400 (EDT)
+From: jmjones@jmjones.com
+To: Crispin Cowan <crispin@wirex.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-security-module@wirex.com,
+        linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+Subject: Re: Binary only module overview
+In-Reply-To: <3BB10E8E.10008@wirex.com>
+Message-ID: <Pine.LNX.3.96.1010925191352.9815B-100000@dixie>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 25, 2001 at 07:54:07PM -0300, Rik van Riel wrote:
-> On Wed, 26 Sep 2001, Andrea Arcangeli wrote:
-> > On Mon, Sep 24, 2001 at 07:03:20PM -0300, Rik van Riel wrote:
-> > > On Mon, 24 Sep 2001, Olivier Sessink wrote:
-> 
-> > > >   PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
-> > > >  1262 root       5 -10 50764  -1M  1320 S <   2.7 99.9   0:01 XFree86
-> > >
-> > > It seems Andrea wasn't careful with the merge and
-> > > backed out some of the locking wrt mm->rss.
-> >
-> > thanks for forwarding this report, actually I just noticed this
-> > here and that's good so I can reproduce :)
-> >
-> > it is possible it is my mistake, but I don't think so, infact I
-> > don't recall to have changed rss stuff or locking around it.
-> 
-> Mmm, then it could also be one of the bugs which got
-> fixed in -ac but where Linus never reacted to the
+On Tue, 25 Sep 2001, Crispin Cowan wrote:
 
-possibly yes but maybe not, dunno right now or I would be just sending
-the fix inline in this email :).  As said I never seen it before Ben's
-tlb shootdown was merged into mainline, but again I repeat it can
-_really_ be just an unlucky coincidence. But I guess because of this
-coincidence the tlb shootdown will be the first things I will audit
-tomorrow.
+> How does that sound to folks?
 
-Andrea
+It sounds both wise and consistant with what I expected from LSM.
+I can live with that.
+
+> 
+> Crispin
+> 
+...
+> -- 
+> Crispin Cowan, Ph.D.
+> Chief Scientist, WireX Communications, Inc. http://wirex.com
+> Security Hardened Linux Distribution:       http://immunix.org
+> Available for purchase: http://wirex.com/Products/Immunix/purchase.html
+
+
+Bravo,
+J. Melvin Jones
+
+|>------------------------------------------------------
+||  J. MELVIN JONES            jmjones@jmjones.com 
+|>------------------------------------------------------
+||  Microcomputer Systems Consultant  
+||  Software Developer
+||  Web Site Design, Hosting, and Administration
+||  Network and Systems Administration
+|>------------------------------------------------------
+||  http://www.jmjones.com/
+|>------------------------------------------------------
+
+
+

@@ -1,43 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261586AbULFR1Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261584AbULFRaQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261586AbULFR1Z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 12:27:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261587AbULFR1Y
+	id S261584AbULFRaQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 12:30:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbULFRaP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 12:27:24 -0500
-Received: from 4.Red-80-32-108.pooles.rima-tde.net ([80.32.108.4]:25216 "EHLO
-	gimli") by vger.kernel.org with ESMTP id S261586AbULFR1N (ORCPT
+	Mon, 6 Dec 2004 12:30:15 -0500
+Received: from mail45.messagelabs.com ([140.174.2.179]:25749 "HELO
+	mail45.messagelabs.com") by vger.kernel.org with SMTP
+	id S261584AbULFR3W convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 12:27:13 -0500
-Message-ID: <41B4971E.6060401@sombragris.com>
-Date: Mon, 06 Dec 2004 18:30:06 +0100
-From: Miguel Angel Flores <maf@sombragris.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
-X-Accept-Language: en
+	Mon, 6 Dec 2004 12:29:22 -0500
+X-VirusChecked: Checked
+X-Env-Sender: justin.piszcz@mitretek.org
+X-Msg-Ref: server-20.tower-45.messagelabs.com!1102354159!8144439!1
+X-StarScan-Version: 5.4.2; banners=-,-,-
+X-Originating-IP: [66.10.26.57]
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: aic7xxx driver large integer warning
-References: <41B3A683.8060008@sombragris.com> <1102339898.13423.28.camel@localhost.localdomain>
-In-Reply-To: <1102339898.13423.28.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: FS Corruption [Re: Linux 2.6.10-rc3]
+Date: Mon, 6 Dec 2004 12:29:17 -0500
+Message-ID: <2E314DE03538984BA5634F12115B3A4E01BC414D@email1.mitretek.org>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: FS Corruption [Re: Linux 2.6.10-rc3]
+Thread-Index: AcTbuN4d1PMmmwdYT2y0zWxpLU1ZKgAABeoA
+From: "Piszcz, Justin Michael" <justin.piszcz@mitretek.org>
+To: "Kristofer T. Karas" <ktk@enterprise.bidmc.harvard.edu>,
+       "Linus Torvalds" <torvalds@osdl.org>
+Cc: "Kernel Mailing List" <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+I also got FS corruption with XFS under 2.6.10-rc2.
+Booting back to 2.6.9 did not fix the problem, had to re-install.
 
->Add (dma_addr_t) casts and it will go away. The compiler just wants to
->know you mean it.
->  
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Kristofer T.
+Karas
+Sent: Monday, December 06, 2004 12:23 PM
+To: Linus Torvalds
+Cc: Kernel Mailing List
+Subject: FS Corruption [Re: Linux 2.6.10-rc3]
+
+Linus Torvalds wrote:
+
+>Ok, it's out there in all the normal places, and here's the shortlog
+for
+>the thing.
 >
-Sure, but the 39 bit variable is only used when the type of dma_addr_t 
-is u64. I think that is more clean to put this assignement inside the if 
-block, like the rest of the CONFIG_HIGHMEM64G code. Anyway the 
-(dma_addr_t) cast can be added too.
 
-¿how you would solve this?
+Hi Linus - I'm seeing filesystem corruption (on ext3 anyway) with -rc3; 
+there is no such corruption on -rc2.  It would be better if somebody 
+with a clue reported this; but since I haven't seen anything, I thought 
+I'd hollar before somebody loses work as a result.  (Everybody does real
 
-Cheers,
-MaF
+work on -rc kernels, don't they? :-)
 
+I untarred a kernel tarball into a directory, renamed it "foo", reboot 
+(to clear disk cache), and then did this:
+
+pinhead:/usr/src/kernels# rm -r foo &
+[1] 3268
+pinhead:/usr/src/kernels# tar xzf linux-2.6.9.tar.gz
+rm: cannot remove `foo/include/asm-ppc/linkage.h': No such file or
+directory
+rm: cannot remove `foo/include/asm-x86_64/rtc.h': No such file or
+directory
+rm: cannot remove `foo/include/asm-m68knommu/mcftimer.h': No such file
+or directory
+rm: cannot remove `foo/include/asm-m68k/linkage.h': No such file or
+directory
+rm: cannot remove `foo/include/asm-sparc64/rwsem.h': No such file or
+directory
+rm: cannot remove `foo/include/asm-sparc/psr.h': No such file or
+directory
+[1]+  Exit 1                  rm -r foo
+pinhead:/usr/src/kernels#
+
+
+Running e2fsck on the next boot reports I've got a damaged filesystem.
+
+System is a generic PC (a Dell GX110) - I810 chipset, PIII, IDE.  
+Untainted vanilla kernel.  Other config details upon request.
+
+Kris
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

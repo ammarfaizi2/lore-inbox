@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287141AbSABWue>; Wed, 2 Jan 2002 17:50:34 -0500
+	id <S287156AbSABWvo>; Wed, 2 Jan 2002 17:51:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287145AbSABWuS>; Wed, 2 Jan 2002 17:50:18 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:56963
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S287179AbSABWuG>; Wed, 2 Jan 2002 17:50:06 -0500
-Date: Wed, 2 Jan 2002 15:50:04 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Richard Henderson <rth@redhat.com>, Momchil Velikov <velco@fadata.bg>,
-        linux-kernel@vger.kernel.org, gcc@gcc.gnu.org,
-        linuxppc-dev@lists.linuxppc.org,
-        Franz Sirl <Franz.Sirl-kernel@lauterbach.com>,
-        Paul Mackerras <paulus@samba.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Corey Minyard <minyard@acm.org>
-Subject: Re: [PATCH] C undefined behavior fix
-Message-ID: <20020102225004.GN1803@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <87g05py8qq.fsf@fadata.bg> <20020102190910.GG1803@cpe-24-221-152-185.az.sprintbbd.net> <20020102133632.C10362@redhat.com> <20020102220548.GL1803@cpe-24-221-152-185.az.sprintbbd.net> <20020102142712.B10474@redhat.com> <20020102223557.GM1803@cpe-24-221-152-185.az.sprintbbd.net> <20020102144435.A10500@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020102144435.A10500@redhat.com>
-User-Agent: Mutt/1.3.24i
+	id <S287143AbSABWvZ>; Wed, 2 Jan 2002 17:51:25 -0500
+Received: from ns.suse.de ([213.95.15.193]:30223 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S287150AbSABWvS>;
+	Wed, 2 Jan 2002 17:51:18 -0500
+Date: Wed, 2 Jan 2002 23:51:17 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Lionel Bouton <Lionel.Bouton@free.fr>
+Cc: <esr@thyrsus.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: ISA slot detection on PCI systems?
+In-Reply-To: <3C338DCC.3020707@free.fr>
+Message-ID: <Pine.LNX.4.33.0201022349200.427-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 02, 2002 at 02:44:35PM -0800, Richard Henderson wrote:
-> On Wed, Jan 02, 2002 at 03:35:57PM -0700, Tom Rini wrote:
-> > That's not really an option.
-> 
-> Oh come on.  It shouldn't take very much code at all to properly
-> relocate the binary.  You can use either -fpic or -mrelocatable
-> to get hold of the set of addresses in question.
+On Wed, 2 Jan 2002, Lionel Bouton wrote:
 
-Have you looked at all of the code in question?  We're doing a lot of things
-before we properly relocate ourself.  And as long as things aren't being
-optimized away, it just works.
+> > But this is not a bad reason.  Allowing people to avoid running suid
+> > programs is a *good* reason.
+> Usually yes. But for a code that simply parses /dev/kmem content without
+> taking args...
+> Just took a quick look at dmidecode.c and auditing this code doesn't
+> seem out of reach.
 
-And the other thing is if we want gcc-3.0 to produce a good kernel on
-PPC in 2.4.x, the kernel-side changes should be as minimal as possible.
+Exactly. And 90% of it can be ditched.
+
+> What's the difference security-wise between running this code in kernel
+> space and in a suid prog? Avoiding loading libraries?
+> Frankly I don't see the point.
+
+*shrug* about the same point as having a /proc/acpi/dsdt I'd guess.
+(Which worked fine as a run-as-root program called acpidmp, but
+ for some reason someone thought it'd be good to dump in /proc)
 
 -- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
+

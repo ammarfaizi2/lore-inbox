@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268089AbUJSJO6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268107AbUJSJXP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268089AbUJSJO6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 05:14:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268092AbUJSJO6
+	id S268107AbUJSJXP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 05:23:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268104AbUJSJXO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 05:14:58 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:11925 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S268089AbUJSJOs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 05:14:48 -0400
-Date: Tue, 19 Oct 2004 11:15:57 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
-       Linus Torvalds <torvalds@osdl.org>, Paul Mackerras <paulus@samba.org>,
-       Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH] generic irq subsystem: ppc64 port
-Message-ID: <20041019091557.GA17473@elte.hu>
-References: <200410190714.i9J7Elnx027734@hera.kernel.org> <1098174500.11449.65.camel@gaston>
+	Tue, 19 Oct 2004 05:23:14 -0400
+Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:20923 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S268101AbUJSJXL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 05:23:11 -0400
+Date: Tue, 19 Oct 2004 11:23:07 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Matthias Andree <matthias.andree@gmx.de>,
+       Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: SOLVED: 2.6.9 BK build broken
+Message-ID: <20041019092307.GA13868@merlin.emma.line.org>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20041019021719.GA22924@merlin.emma.line.org> <41747CA6.7030400@pobox.com> <41748ADE.70403@pobox.com> <Pine.LNX.4.58.0410182208020.2287@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1098174500.11449.65.camel@gaston>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <Pine.LNX.4.58.0410182208020.2287@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 18 Oct 2004, Linus Torvalds wrote:
 
-* Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+> I bet the thing is fixed by changing the
+> 
+> 	#define __builtin_warning(x, ...) (1)
+> 
+> into
+> 
+> 	#define __builtin_warning(x, y...) (1)
 
-> I still like the idea of the patch, so it would be useful if you added
-> the possibility for us to just change that behaviour, that is replace
-> all occursences of irq_descs + i with get_irq_desc() and provide a
-> generic one that just does that, with a #ifndef so that the
-> architecture can provide it's own. 
+Indeed it is. I just did bk pull and found that
+torvalds@ppc970.osdl.org|ChangeSet|20041019071619|06021
+compiles fine on gcc-3.3.4, 3.4.2 and SuSE's gcc-3.3.3-41.
 
-sure, we could do that. But since there are other architectures with
-large irq-vector spaces too, you might want to try to move it into the
-generic IRQ code and just provide a way to switch between 1:1 mapped and
-sparse-mapped variants.
+Thank you.
 
-(of course this still means all of the direct indexing in kernel/irq/*.c
-would have to change.)
-
-	Ingo
+-- 
+Matthias Andree

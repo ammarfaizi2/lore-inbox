@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263633AbTEJDOI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 23:14:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263637AbTEJDOI
+	id S261890AbTEJDWx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 23:22:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263637AbTEJDWx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 23:14:08 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:27911 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S263633AbTEJDOH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 23:14:07 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH] i386 uaccess to fixmap pages
-Date: 9 May 2003 20:26:40 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <b9hrhg$5v7$1@cesium.transmeta.com>
-References: <20030509124042.GB25569@mail.jlokier.co.uk> <Pine.LNX.4.44.0305090856500.9705-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+	Fri, 9 May 2003 23:22:53 -0400
+Received: from nessie.weebeastie.net ([61.8.7.205]:43146 "EHLO
+	nessie.weebeastie.net") by vger.kernel.org with ESMTP
+	id S261890AbTEJDWw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 23:22:52 -0400
+Date: Sat, 10 May 2003 13:35:04 +1000
+From: CaT <cat@zip.com.au>
+To: Andi Kleen <ak@muc.de>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Use correct x86 reboot vector
+Message-ID: <20030510033504.GA1789@zip.com.au>
+References: <20030510025634.GA31713@averell>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030510025634.GA31713@averell>
+User-Agent: Mutt/1.3.28i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.44.0305090856500.9705-100000@home.transmeta.com>
-By author:    Linus Torvalds <torvalds@transmeta.com>
-In newsgroup: linux.dev.kernel
-> 
-> It actually does have some cost in that form, namely the fact that the
-> kernel 1:1 mapping needs to be 4MB-aligned in order to take advantage of
-> large-pte support. So we'd have to move the kernel to something like
-> 0xc0400000 (and preferably higher, to make sure there is a nice hole in
-> between - say 0xc1000000), which in turn has a cost of verifying that 
-> nothing assumes the current lay-out (we've had the 1/2/3GB TASK_SIZE 
-> patches floating around, but they've never had "odd sizes").
-> 
-> There's another cost, which is that right now we share the pgd with the 
-> kernel fixmaps, and this would mean that we'd have a new one. That's just 
-> a single page, though.
-> 
-> But it might "just work", and it would be interesting to see what the
-> patch would look like. Hint hint.
-> 
+On Sat, May 10, 2003 at 04:56:34AM +0200, Andi Kleen wrote:
+> Extensive discussion by various experts on the discuss@x86-64.org
+> mailing list concluded that the correct vector to restart an 286+ 
+> CPU is f000:fff0, not ffff:0000. Both seem to work on current systems, 
+> but the first is correct.
 
-Another option would be to put it in the "user" part of the address
-space at 0xbffff000 (and move the %esp base value.)  That would have
-the nice side benefit that stuff like UML or whatever who wanted to
-map something over the vsyscall could do so.  Downside: each process
-needs a PTE for this.
+Could this bug, by any chance, cause a system to shutdown instead of
+rebooting? This is what happens to me at the moment but not each and
+every time.
 
-	-hpa
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+Martin's distress was in contrast to the bitter satisfaction of some
+of his fellow marines as they surveyed the scene. "The Iraqis are sick
+people and we are the chemotherapy," said Corporal Ryan Dupre. "I am
+starting to hate this country. Wait till I get hold of a friggin' Iraqi.
+No, I won't get hold of one. I'll just kill him."
+	- http://www.informationclearinghouse.info/article2479.htm

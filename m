@@ -1,59 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261934AbVCUX7L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262238AbVCVADt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261934AbVCUX7L (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 18:59:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262192AbVCUX5O
+	id S262238AbVCVADt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 19:03:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262234AbVCUX7m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 18:57:14 -0500
-Received: from smtp-out.hotpop.com ([38.113.3.61]:11666 "EHLO
-	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S261934AbVCUXhH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 18:37:07 -0500
-From: "Antonino A. Daplas" <adaplas@hotpop.com>
-Reply-To: adaplas@pol.net
-To: linux-fbdev-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
-       Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Subject: Re: [Linux-fbdev-devel] Re: [2.6.11 Permedia-2 Framebuffer] driver broken (?).
-Date: Tue, 22 Mar 2005 07:37:08 +0800
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org, jim.hague@acm.org,
-       linux-fbdev-devel@lists.sourceforge.net
-References: <Pine.LNX.4.60.0503052355320.12643@poirot.grange> <20050321145936.6f742d89.akpm@osdl.org>
-In-Reply-To: <20050321145936.6f742d89.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 21 Mar 2005 18:59:42 -0500
+Received: from fire.osdl.org ([65.172.181.4]:59106 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262144AbVCUXzc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 18:55:32 -0500
+Date: Mon, 21 Mar 2005 15:55:20 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Grzegorz Kulewski <kangur@polcom.net>
+Cc: len.brown@intel.com, duncan.sands@free.fr,
+       linux-usb-users@lists.sourceforge.net, gregkh@suse.de,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org, bjorn.helgaas@hp.com
+Subject: Re: 2.6.11 (stable and -rc) ACPI breaks USB
+Message-Id: <20050321155520.6e1d2a87.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.62.0503212329190.6194@alpha.polcom.net>
+References: <Pine.LNX.4.62.0503030053120.6789@alpha.polcom.net>
+	<20050321142056.7609d615.akpm@osdl.org>
+	<Pine.LNX.4.62.0503212329190.6194@alpha.polcom.net>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503220737.08763.adaplas@hotpop.com>
-X-HotPOP: -----------------------------------------------
-                   Sent By HotPOP.com FREE Email
-             Get your FREE POP email at www.HotPOP.com
-          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 22 March 2005 06:59, Andrew Morton wrote:
-> Guennadi Liakhovetski <g.liakhovetski@gmx.de> wrote:
-> > Hi
+Grzegorz Kulewski <kangur@polcom.net> wrote:
+>
+> On Mon, 21 Mar 2005, Andrew Morton wrote:
+> 
+> > Grzegorz Kulewski <kangur@polcom.net> wrote:
+> >>
+> >> Hi,
+> >>
+> >> I just installed 2.6.11 and I was hit by the same bug (or feature?) I
+> >> found in -rcs. Basically my USB will work only if acpi=off was passed to
+> >> the kernel. It looks like without acpi=off it will assign IRQ 10 and with
+> >> acpi=off it will assign IRQ9. It worked at least with 2.6.9. I do not know
+> >> if the USB is completly broken but at least my speedtouch modem will not
+> >> work (the red led will be on for some time then completly black).
+> >>
 > >
-> > Worked on 2.6.10-rc2. With 2.6.11 during boot upon switching to fb, text
-> > becomes orange, penguins look sick (not sharp). X starts and runs normal
-> > (doesn't use fb), switching to vt not possible any more. Disabling
-> > fb-console in kernel config fixes VTs. Reverting pm2fb.c fixes the
-> > problem.
->
-> Guennadi, could you please confirm that
->
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc1/2.
->6.12-rc1-mm1/broken-out/pm2fb-x-and-vt-switching-crash-fix.patch
->
-> fixes this one?
->
+> > I didn't really follow all the ins and outs on this one.  Will it end up
+> > being adequately resolved for 2.6.12?
+> 
+> It was identified (by Bjorn) to be some ACPI VIA PCI IRQ routing quirk 
+> logic change (as far as I understand it). Unfortunatelly it is not good 
+> for my board (AMD 761 North and VIA 686B South). Bjorn (huge thanks to 
+> him) produced testing patch that fixed it for me. Further patches were 
+> presented and discussed in the other thread. The newest one is waiting for 
+> final testing from me (in couple of minutes probably). I will CC you on my 
+> reply (if you are not already). As of what to do next with this patch (if 
+> it still works) Bjorn and others should reply.
 
-Actually, he was the one that confirmed that the above patch fixes this
-problem.
-
-Tony
-
+Great, thanks.  I dunno if it's really fixed yet, but it's obvious I won't
+help anything by spamming people over it, so I'll cross this one off the
+list.
 

@@ -1,18 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135626AbRDXOC3>; Tue, 24 Apr 2001 10:02:29 -0400
+	id <S135640AbRDXOHs>; Tue, 24 Apr 2001 10:07:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135628AbRDXOCS>; Tue, 24 Apr 2001 10:02:18 -0400
-Received: from corp2.cbn.net.id ([202.158.3.25]:26896 "HELO corp2.cbn.net.id")
-	by vger.kernel.org with SMTP id <S135626AbRDXOCI>;
-	Tue, 24 Apr 2001 10:02:08 -0400
-Date: Tue, 24 Apr 2001 21:04:02 +0700 (JAVT)
-From: <imel96@trustix.co.id>
-To: Daniel Stone <daniel@kabuki.openfridge.net>
-cc: Alexander Viro <viro@math.psu.edu>, <linux-kernel@vger.kernel.org>
-Subject: problem found (was Re: [PATCH] Single user linux)
-In-Reply-To: <20010424233801.A6067@piro.kabuki.openfridge.net>
-Message-ID: <Pine.LNX.4.33.0104242046250.16242-100000@tessy.trustix.co.id>
+	id <S135633AbRDXOHi>; Tue, 24 Apr 2001 10:07:38 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:45526 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S135631AbRDXOH3>;
+	Tue, 24 Apr 2001 10:07:29 -0400
+Date: Tue, 24 Apr 2001 10:07:18 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: ttel5535@artax.karlin.mff.cuni.cz
+cc: "Mike A. Harris" <mharris@opensourceadvocate.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [OFFTOPIC] Re: [PATCH] Single user linux
+In-Reply-To: <Pine.LNX.4.21.0104241550510.12074-100000@artax.karlin.mff.cuni.cz>
+Message-ID: <Pine.GSO.4.21.0104240957120.6992-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -20,28 +21,13 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Tue, 24 Apr 2001, Daniel Stone wrote:
-> Aah. I see. Where was this? I never saw it.
+On Tue, 24 Apr 2001, Tomas Telensky wrote:
 
-psst, it's a proto.
+> Thanks for the comment. And why not just let it listen to 25 and then
+> being run as uid=nobody, gid=mail?
 
-> That may be so, so hack up your own OS. It's a MOBILE PHONE, it needs to be
-> absolutely *rock solid*. Look at the 5110, that's just about perfect. The
-> 7110, on the other hand ...
+Handling of .forward, for one thing. Or pipe aliases, or...
 
-mobile phone to you! already, people has put linux on pdas.
-
-> There are Linux advocates, but I'd say most of us are sane enough to use the
-> right-tool-for-the-job approach. And UNIX on a phone is pure overkill.
-
-problem is you guys are to unix-centric, try to be user-centric a little.
-it's not like it ruins everything. that patch basically do something
-like allowing access to port <1024 to everybody, someone just need
-to bring a notebook to get passwd from nis.
-multi-user security is useless at home as physical access is there.
-
-
-		imel
-
-
+None of this stuff is unsolvable (e.g. handling of .forward belongs to
+MDA, not MTA), but changing that will break existing setups.
 

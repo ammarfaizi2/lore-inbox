@@ -1,62 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262747AbVAJXRk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262597AbVAJXWi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262747AbVAJXRk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 18:17:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262757AbVAJXMc
+	id S262597AbVAJXWi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 18:22:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262615AbVAJXTB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 18:12:32 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60083 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262747AbVAJXH1
+	Mon, 10 Jan 2005 18:19:01 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:44968 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262745AbVAJXMR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 18:07:27 -0500
-Date: Mon, 10 Jan 2005 18:05:14 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Edjard Souza Mota <edjard@gmail.com>
-Cc: Mauricio Lin <mauriciolin@gmail.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: User space out of memory approach
-Message-ID: <20050110200514.GA18796@logos.cnet>
-References: <3f250c71050110134337c08ef0@mail.gmail.com> <20050110192012.GA18531@logos.cnet> <4d6522b9050110144017d0c075@mail.gmail.com>
+	Mon, 10 Jan 2005 18:12:17 -0500
+Date: Mon, 10 Jan 2005 15:12:06 -0800
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: kj <kernel-janitors@lists.osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: [UPDATE PATCH] message/mptbase: replace schedule_timeout() with ssleep()
+Message-ID: <20050110231206.GI9186@us.ibm.com>
+References: <20050110164703.GD14307@nd47.coderock.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4d6522b9050110144017d0c075@mail.gmail.com>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <20050110164703.GD14307@nd47.coderock.org>
+X-Operating-System: Linux 2.6.10 (i686)
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 11, 2005 at 12:40:24AM +0200, Edjard Souza Mota wrote:
-> Hi,
+On Mon, Jan 10, 2005 at 05:47:03PM +0100, Domen Puncer wrote:
+> Patchset of 171 patches is at http://coderock.org/kj/2.6.10-bk13-kj/
 > 
-> I guess it the idea was not fully and well explained. It is not the OOM Killer
-> itself that was moved to user space but rather its ranking algorithm.
-> Ranking is not an specific functionality of kernel space. Kernel only need
-> to know which process whould be killed.
-> 
-> In that sense the approach is different and might be worth testing, mainly for
-> cases where we want to allow better policies of ranking. For example, an
-> embedded device with few resources and important different running applications:
-> whic one is the best? To my understanding the current ranking policy
-> does not necessarily chooses the best one to be killed.
+> Quick patch summary: about 30 new, 30 merged, 30 dropped.
+> Seems like most external trees are merged in -linus, so i'll start
+> (re)sending old patches.
 
-Sorry, I misunderstood. Should have read the code before shouting.
+<snip> 
 
-The feature is interesting - several similar patches have been around with similar
-functionality (people who need usually write their own, I've seen a few), but none 
-has ever been merged, even though it is an important requirement for many users.
+> msleep_interruptible-drivers_message_fusion_mptbase.patch
 
-This is simple, an ordered list of candidate PIDs. IMO something similar to this 
-should be merged. Andrew ?
+Please consider replacing with the following patch:
 
-Few comments about the code:
+Description: Use ssleep() instead of schedule_timeout() to guarantee
+the task delays as expected. The original code does use TASK_INTERRUPTIBLE, but
+does not check for signals or early return from schedule_timeout() so ssleep()
+seems more appropriate.
 
- retry:
--       p = select_bad_process();
-+       printk(KERN_DEBUG "A good walker leaves no tracks.\n");
-+       p = select_process();
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
 
-You want to fallback to select_bad_process() if no candidate has been selected at
-select_process().
 
-You also want to move "oom" to /proc/sys/vm/.
-
+--- 2.6.10-v/drivers/message/fusion/mptbase.c	2004-12-24 13:35:50.000000000 -0800
++++ 2.6.10/drivers/message/fusion/mptbase.c	2005-01-05 14:23:05.000000000 -0800
+@@ -3137,8 +3137,7 @@ mpt_diag_reset(MPT_ADAPTER *ioc, int ign
+ 
+ 				/* wait 1 sec */
+ 				if (sleepFlag == CAN_SLEEP) {
+-					set_current_state(TASK_INTERRUPTIBLE);
+-					schedule_timeout(1000 * HZ / 1000);
++					ssleep(1);
+ 				} else {
+ 					mdelay (1000);
+ 				}

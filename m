@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284043AbRLAKZW>; Sat, 1 Dec 2001 05:25:22 -0500
+	id <S281555AbRLAKbw>; Sat, 1 Dec 2001 05:31:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284047AbRLAKZN>; Sat, 1 Dec 2001 05:25:13 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:51976 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S284043AbRLAKY7>;
-	Sat, 1 Dec 2001 05:24:59 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Did someone try to boot 2.4.16 on a 386 ? [SOLVED] 
-In-Reply-To: Your message of "Sat, 01 Dec 2001 10:47:33 BST."
-             <20011201094733.84784.qmail@web20505.mail.yahoo.com> 
+	id <S281556AbRLAKbn>; Sat, 1 Dec 2001 05:31:43 -0500
+Received: from [213.96.124.18] ([213.96.124.18]:50666 "HELO dardhal")
+	by vger.kernel.org with SMTP id <S281555AbRLAKbX>;
+	Sat, 1 Dec 2001 05:31:23 -0500
+Date: Sat, 1 Dec 2001 11:31:15 +0100
+From: =?iso-8859-1?Q?Jos=E9_Luis_Domingo_L=F3pez?= 
+	<jdomingo@internautas.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Tweaking The Kernel
+Message-ID: <20011201113115.B1952@dardhal.mired.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <3C085A49.2DD36384@starband.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 01 Dec 2001 21:24:46 +1100
-Message-ID: <14098.1007202286@ocs3.intra.ocs.com.au>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <3C085A49.2DD36384@starband.net>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 1 Dec 2001 10:47:33 +0100 (CET), 
-=?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr> wrote:
->Keith Owens wrote
->> Even if you
->> never compile in tree1 and tree2 at the same time,
->> when you switch back and forth between trees you
->> will get semi-random time stamp changes.
->
->so a recursive touch before a make in such a tree
->should be safer ?
+On Friday, 30 November 2001, at 23:19:21 -0500,
+war wrote:
 
-Yes, as long as you only touch the source files, not any objects that
-have already been created.
+> Does anyone have a web page or doc which explains how to tweak all of
+> the /proc/sys settings?
+> Like /proc/sys/vm/ settingsm etc?
+> 
+It seems that powetweak (powertweak.sourceforge.net) has descriptions
+for many of this tunable parameters. Some others are documented under
+/usr/src/linux/kernel/Documentation, some others seem not to be
+documented at all, but maybe a look at the sources would be helpful.
 
-As I mentioned before, all these problems are solved in kbuild 2.5.
-http://sourceforge.net/projects/kbuild/, Package kbuild-2.5.  I just
-putting the 1.10 release together, against kernel 2.4.16.
+-- 
+José Luis Domingo López
+Linux Registered User #189436     Debian Linux Woody (P166 64 MB RAM)
+ 
+jdomingo EN internautas PUNTO org  => ¿ Spam ? Atente a las consecuencias
+jdomingo AT internautas DOT   org  => Spam at your own risk
 

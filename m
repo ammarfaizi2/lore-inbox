@@ -1,63 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265800AbUITCfL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262418AbUITCnT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265800AbUITCfL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Sep 2004 22:35:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265795AbUITCfL
+	id S262418AbUITCnT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Sep 2004 22:43:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265477AbUITCnT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Sep 2004 22:35:11 -0400
-Received: from holomorphy.com ([207.189.100.168]:26043 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S265800AbUITCfC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Sep 2004 22:35:02 -0400
-Date: Sun, 19 Sep 2004 19:34:52 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc2-mm1
-Message-ID: <20040920023452.GR9106@holomorphy.com>
-References: <20040916024020.0c88586d.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040916024020.0c88586d.akpm@osdl.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Sun, 19 Sep 2004 22:43:19 -0400
+Received: from jaures31-1-82-228-83-187.fbx.proxad.net ([82.228.83.187]:46396
+	"HELO valhalla.trou.net") by vger.kernel.org with SMTP
+	id S262418AbUITCnR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Sep 2004 22:43:17 -0400
+Message-ID: <414E43C3.9000404@twilight-hall.net>
+Date: Mon, 20 Sep 2004 04:43:15 +0200
+From: =?ISO-8859-1?Q?Rapha=EBl_Rigo?= <raphael.rigo@twilight-hall.net>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040917)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [RAID1 Bug] bio too big device md0 (248 > 200) (2.6.9-rc2-mm1)
+References: <414E076F.5010801@twilight-hall.net> <16718.7181.394343.887783@cse.unsw.edu.au>
+In-Reply-To: <16718.7181.394343.887783@cse.unsw.edu.au>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 16, 2004 at 02:40:20AM -0700, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc2/2.6.9-rc2-mm1/
-> - Added lots of Ingo's low-latency patches
-> - Lockmeter doesn't compile.  Don't enable CONFIG_LOCKMETER.
-> - Several architecture updates
+Neil Brown wrote:
+> On Monday September 20, raphael.rigo@twilight-hall.net wrote:
+> 
+>>Hello,
+>>kernel version : 2.6.9-rc2-mm1
+>>i'm using a RAID1 array over 2 disks : one ATA, and another one in 
+>>"SATA" (if we can call the ICH5 a real SATA controller).
+>>During array synchronisation, I get "bio too big device md0 (248 > 200)" 
+>>error, which I fixed in doing
+>>//#define RESYNC_BLOCK_SIZE (64*1024)
+>>#define RESYNC_BLOCK_SIZE PAGE_SIZE
+>>in raid1.c, following the instruction on an old thread (for kernel 2.6.0).
+>>I would like to know if there is any better fix now, else then this mail 
+>>  will act as a remainder ;)
+> 
+> 
+> This is not (as far as I can tell) a raid1 bug.
+> 
+>    bio too big device md0
+> 
+> means that someone sent a request to md0 that was too large. (124K
+> instead of the max 100K).
+> 
+> raid1 never does that.  It send requests to the underlying devices.
+> So if you make your raid1 from hde and sda, then a message like
+>    bio to big device sda
+> might indicate a problem with raid1.
+> 
+> Are you sure you quoted the error message correctly?
+> If you, how was the array being used? What filesystem?
+> 
+> NeilBrown
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-top(1) shows no tasks on sparc64. Large negative inode numbers appear
-to be showing up for /proc/stat and other /proc/ special files on
-64-bit irrespective of endianness, and all processes appear to have the
-same inode number once again irrespective of endianness. It's unclear
-why top(1) enumerates tasks on x86-64 and does not do so on sparc64,
-unless 2.6.9-rc2-mm1 shows some behavior procps-3.2.3 is sensitive to
-that 3.2.1 is not, or some numbers are overflowing on 32-bit apps but
-not 64-bit ones (top(1) is 64-bit on x86-64 but 32-bit on sparc64)
-that userspace barfs on and not the kernel (no error returns from
-syscalls are visible in strace). ls and cat appear to work where top(1)
-does not.
 
-acahalan cc:'d as he last touched fs/proc/.
+Is I am sure I did the right quote (copy paste from kern.log).
+The array was being recovered (it is a newly created array), copying 
+from hda to sda. The filesystem used is ext3.
+Btw the first number in the message did vary.
 
-$ stat /proc/stat
-  File: `/proc/stat'
-  Size: 0               Blocks: 0          IO Block: 1024   regular empty file
-Device: 3h/3d   Inode: -268435443  Links: 1
-Access: (0444/-r--r--r--)  Uid: (    0/    root)   Gid: (    0/    root)
-Access: 2004-09-19 18:46:38.246034917 -0700
-Modify: 2004-09-19 18:46:38.246034917 -0700
-Change: 2004-09-19 18:46:38.246034917 -0700
-$ stat /proc/[0-9]*|grep Inode|sort -u -k 4,4
-Device: 3h/3d   Inode: 2           Links: 3
+I did the modification in raid1.c based on this mail you wrote :
+http://groups.google.com/groups?hl=en&lr=&ie=UTF-8&frame=right&th=69e566d020ab2da6&seekm=Pine.LNX.4.58.0312232253140.7841%40infocalypse.jimlawson.org.lucky.linux.kernel#link5
 
-(the same on x86-64 and sparc64).
+Hope this helps,
 
-
--- wli
+Raphaël Rigo

@@ -1,51 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265396AbSKFADe>; Tue, 5 Nov 2002 19:03:34 -0500
+	id <S265395AbSKFACq>; Tue, 5 Nov 2002 19:02:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265397AbSKFADe>; Tue, 5 Nov 2002 19:03:34 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:33437 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S265396AbSKFADb>;
-	Tue, 5 Nov 2002 19:03:31 -0500
-Date: Wed, 6 Nov 2002 01:10:07 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Peter Chubb <peter@chubb.wattle.id.au>, jw schultz <jw@pegasys.ws>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: ps performance sucks (was Re: dcache_rcu [performance results])
-Message-ID: <20021106001007.GA15200@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	Peter Chubb <peter@chubb.wattle.id.au>, jw schultz <jw@pegasys.ws>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <15816.19206.959160.739312@wombat.chubb.wattle.id.au> <26610000.1036541181@flay> <20021105231649.GA14511@outpost.ds9a.nl> <27920000.1036544267@flay>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <27920000.1036544267@flay>
-User-Agent: Mutt/1.3.28i
+	id <S265396AbSKFACq>; Tue, 5 Nov 2002 19:02:46 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:5368 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S265395AbSKFACo>;
+	Tue, 5 Nov 2002 19:02:44 -0500
+Message-ID: <72B3FD82E303D611BD0100508BB29735046DFF7E@orsmsx102.jf.intel.com>
+From: "Lee, Jung-Ik" <jung-ik.lee@intel.com>
+To: "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Cc: linux-ia64@linuxia64.org
+Subject: patch for 2.5.45 fusion mptscsih
+Date: Tue, 5 Nov 2002 16:09:17 -0800 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_000_01C28528.BF12C6A0"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 05, 2002 at 04:57:47PM -0800, Martin J. Bligh wrote:
+This message is in MIME format. Since your mail reader does not understand
+this format, some or all of this message may not be legible.
 
-> > 'To measure is to know'
-> 
-> Errm... we have profiled it. Look at the subject line ... this started
-> off as a dcache_rcu discussion. The dcache lookup ain't cheap, for 
-> starters, but that's not really the problem ... it's O(number of tasks),
-> which sucks.
+------_=_NextPart_000_01C28528.BF12C6A0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 
-Ok - but if opening a few files is the problem, the solution is not to roll
-those files into one but to figure out why opening the files is slow in the
-first place.
+The attached patch fixes message/fusion/mptscsih.h that causes kernel build
+error.
 
-Apologies for misinterpreting some of the comments I saw, I'm a bit hyper
-from my futex documenting spree.
+ mptscsih.h |    3 +--
+ 1 files changed, 1 insertion(+), 2 deletions(-)
 
-Regards,
+thanks,
+J.I.
 
-bert
 
--- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+------_=_NextPart_000_01C28528.BF12C6A0
+Content-Type: application/octet-stream;
+	name="fusion_2545.diff"
+Content-Disposition: attachment;
+	filename="fusion_2545.diff"
+
+diff -ur linux-2.5.45.org/drivers/message/fusion/mptscsih.h linux-2.5.45-ia64-021031-phpa/drivers/message/fusion/mptscsih.h
+--- linux-2.5.45.org/drivers/message/fusion/mptscsih.h	Wed Oct 30 16:43:46 2002
++++ linux-2.5.45-ia64-021031-phpa/drivers/message/fusion/mptscsih.h	Tue Nov  5 13:33:03 2002
+@@ -267,8 +268,7 @@
+ 	.sg_tablesize			= MPT_SCSI_SG_DEPTH,	\
+ 	.max_sectors			= MPT_SCSI_MAX_SECTORS,	\
+ 	.cmd_per_lun			= MPT_SCSI_CMD_PER_LUN,	\
+-	.use_clustering			= ENABLE_CLUSTERING,	\
+-	.slave_attach			x_scsi_slave_attach,	\
++	.use_clustering			= ENABLE_CLUSTERING	\
+ }
+ 
+ #else  /* LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,1) */
+
+------_=_NextPart_000_01C28528.BF12C6A0--

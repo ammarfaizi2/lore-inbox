@@ -1,23 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262830AbSJLGtw>; Sat, 12 Oct 2002 02:49:52 -0400
+	id <S262826AbSJLGsO>; Sat, 12 Oct 2002 02:48:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262831AbSJLGtw>; Sat, 12 Oct 2002 02:49:52 -0400
-Received: from fastmail.fm ([209.61.183.86]:22463 "EHLO www.fastmail.fm")
-	by vger.kernel.org with ESMTP id <S262830AbSJLGtu>;
-	Sat, 12 Oct 2002 02:49:50 -0400
+	id <S262829AbSJLGsO>; Sat, 12 Oct 2002 02:48:14 -0400
+Received: from fastmail.fm ([209.61.183.86]:5305 "EHLO www.fastmail.fm")
+	by vger.kernel.org with ESMTP id <S262826AbSJLGsN>;
+	Sat, 12 Oct 2002 02:48:13 -0400
 X-Mail-from: robm@fastmail.fm
 X-Spam-score: -0.1
-X-Epoch: 1034405738
-X-Sasl-enc: QyKsU21bMQmO698f9VYkAA
-Message-ID: <101101c271bc$2eebf080$1900a8c0@lifebook>
+X-Epoch: 1034405637
+X-Sasl-enc: g0AFF8l6O0Bn/eUf+nH2hA
+Message-ID: <0ff701c271bb$f2e8a0b0$1900a8c0@lifebook>
 From: "Rob Mueller" <robm@fastmail.fm>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Joseph D. Wagner" <wagnerjd@prodigy.net>,
-       "Jeremy Howard" <jhoward@fastmail.fm>
-References: <001401c2719b$9d45c4a0$53241c43@joe>
+To: "Andrew Morton" <akpm@digeo.com>
+Cc: <linux-kernel@vger.kernel.org>, "Jeremy Howard" <jhoward@fastmail.fm>
+References: <0f3201c2718c$750a13b0$1900a8c0@lifebook> <3DA77A20.2D28DBE7@digeo.com> <0f4301c27196$af8a8880$1900a8c0@lifebook> <3DA791E0.F0A1B11@digeo.com> <0fe701c271b9$e86ea910$1900a8c0@lifebook> <3DA7C4C2.58BCE2BC@digeo.com>
 Subject: Re: Strange load spikes on 2.4.19 kernel
-Date: Sat, 12 Oct 2002 16:54:14 +1000
+Date: Sat, 12 Oct 2002 16:52:31 +1000
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
@@ -30,70 +29,40 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> 1) If you don't need to know when a file was last accessed, mount the
-> ext3 file system with the -noatime option.  This disables updating of
-> the "Last Accessed On:" property, which should significantly increase
-> throughput.
+> It commits your changes to the journal every five seconds.  But your data
+> is then only in the journal.  It still needs to be written into your
+files.
+> That writeback is controlled by the normal kernel 30-second writeback
+> timing.  If that writeback isn't keeping up, kjournald needs to
+> force the writeback so it can recycle that data's space in the journal.
+>
+> While that writeback is happening, everything tends to wait on it.
 
-Yes, already did that. Should have noted our fstab entry:
+Doesn't bdflush let you control this? I noted in my first post that we'd
+played with changing bdflush params as described here:
 
-/dev/sda2  /   ext3    defaults,noatime 1 1
+http://www-106.ibm.com/developerworks/linux/library/l-fs8.html?dwzone=linux
 
-> /sbin/elvtune -r 16384 -w 8192 /dev/mount-point
-> where mount-point is the partition (e.g. /dev/hda5)
+And set them to this:
 
-Thanks, we'll give this a try. Didn't know about this one before.
+[root@server5 hm]# cat /proc/sys/vm/bdflush
+39      500     0       0       60      300     60      0       0
 
-> 3) If the above don't work, double the journal size.
+Shouldn't this reduce it to writing every 3 seconds? We tried lowering some
+of the values even further based on the description here:
 
-As you noted, we seem to be doing more reads than writes, so I'd be suprised
-if 192M wasn't enough...
+http://www.bb-zone.com/zope/bbzone/docs/slgfg/part2/cha04/sec04
 
-> P.S.  You'd probably get more help from the ext3 mailing list.
+So we altered the first one (nfract) to 10(%) to try and keep the dirty
+buffer list small, but that didn't help either. I sort of thought that
+age_buffer at 3 seconds would be more likely to activate anyway than 40% of
+buffers being dirty?
 
-I wasn't too sure that it was an I/O problem, which is why I posted here. As
-the vmstat output showed, there didn't seem to be any sudden excessive I/O
-occuring, but the load would jump enormously.
+> It is suspected that ext3 gets the flushtime on those buffers
+> wrong as well, so the writeback isn't happening right.
 
-Maybe we should definitely try some different journaling modes, or disabling
-journalling all together, to test if that is the actual culprit...
+So you're saying that ext3 is somehow breaking the standard kernel writeback
+code? Is this something they know about, and/or are addressing?
 
 Rob
-
-PS. I forgot to include the uptime dump in my last post. I just wanted to
-show how spikey it was. Basically there's a long falling off decay, and then
-a sudden spike again... which decays off... and then spikes again...
-basically repeat what you see below over and over and over in 5-10 minute
-intervals...
-
-  1:29am  up 23:50,  3 users,  load average: 0.35, 2.49, 2.73
-  1:29am  up 23:51,  2 users,  load average: 0.45, 2.44, 2.71
-  1:29am  up 23:51,  2 users,  load average: 0.70, 2.42, 2.71
-  1:29am  up 23:51,  2 users,  load average: 0.59, 2.34, 2.68
-  1:29am  up 23:51,  2 users,  load average: 0.58, 2.28, 2.65
-  1:29am  up 23:51,  2 users,  load average: 0.49, 2.21, 2.62
-  1:30am  up 23:51,  2 users,  load average: 0.49, 2.15, 2.60
-  1:30am  up 23:52,  2 users,  load average: 21.39, 6.43, 3.98
-  1:30am  up 23:52,  2 users,  load average: 18.10, 6.22, 3.94
-  1:30am  up 23:52,  2 users,  load average: 15.32, 6.01, 3.89
-  1:30am  up 23:52,  2 users,  load average: 13.04, 5.83, 3.86
-  1:30am  up 23:52,  2 users,  load average: 11.03, 5.64, 3.81
-  1:31am  up 23:52,  2 users,  load average: 9.41, 5.47, 3.78
-  1:31am  up 23:53,  2 users,  load average: 7.96, 5.29, 3.74
-  1:31am  up 23:53,  2 users,  load average: 6.81, 5.13, 3.70
-  1:31am  up 23:53,  2 users,  load average: 5.76, 4.96, 3.66
-  1:31am  up 23:53,  2 users,  load average: 4.88, 4.80, 3.62
-  1:31am  up 23:53,  2 users,  load average: 4.13, 4.64, 3.58
-  1:32am  up 23:53,  2 users,  load average: 3.49, 4.48, 3.54
-  1:32am  up 23:54,  2 users,  load average: 2.95, 4.34, 3.51
-  1:32am  up 23:54,  2 users,  load average: 2.50, 4.19, 3.47
-  1:32am  up 23:54,  2 users,  load average: 2.12, 4.05, 3.43
-  1:32am  up 23:54,  2 users,  load average: 1.79, 3.92, 3.39
-  1:32am  up 23:54,  2 users,  load average: 1.51, 3.79, 3.36
-  1:33am  up 23:54,  2 users,  load average: 1.43, 3.70, 3.33
-  1:33am  up 23:55,  2 users,  load average: 1.21, 3.58, 3.30
-  1:33am  up 23:55,  2 users,  load average: 1.03, 3.46, 3.26
-  1:33am  up 23:55,  2 users,  load average: 1.03, 3.38, 3.23
-  1:33am  up 23:55,  2 users,  load average: 0.87, 3.27, 3.20
-  1:33am  up 23:55,  2 users,  load average: 0.82, 3.17, 3.17
 

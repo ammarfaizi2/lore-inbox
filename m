@@ -1,78 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270214AbTHQORO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 10:17:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270210AbTHQORO
+	id S270222AbTHQOel (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 10:34:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270248AbTHQOel
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 10:17:14 -0400
-Received: from 5.Red-80-32-157.pooles.rima-tde.net ([80.32.157.5]:46344 "EHLO
-	smtp.newipnet.com") by vger.kernel.org with ESMTP id S270208AbTHQORL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 10:17:11 -0400
-Message-ID: <200308171555280781.0067FB36@192.168.128.16>
-In-Reply-To: <1061127715.21885.35.camel@dhcp23.swansea.linux.org.uk>
-References: <Pine.LNX.3.96.1030728222606.21100A-100000@gatekeeper.tmr.com>
- <20030728213933.F81299@coredump.scriptkiddie.org>
- <200308171509570955.003E4FEC@192.168.128.16>
- <200308171516090038.0043F977@192.168.128.16>
- <1061127715.21885.35.camel@dhcp23.swansea.linux.org.uk>
-X-Mailer: Calypso Version 3.30.00.00 (4)
-Date: Sun, 17 Aug 2003 15:55:28 +0200
-From: "Carlos Velasco" <carlosev@newipnet.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: "Lamont Granquist" <lamont@scriptkiddie.org>,
-       "Bill Davidsen" <davidsen@tmr.com>,
-       "David S. Miller" <davem@redhat.com>, bloemsaa@xs4all.nl,
-       "Marcelo Tosatti" <marcelo@conectiva.com.br>, netdev@oss.sgi.com,
-       linux-net@vger.kernel.org, layes@loran.com, torvalds@osdl.org,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
-Content-Type: text/plain; charset="us-ascii"
+	Sun, 17 Aug 2003 10:34:41 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:39954 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S270222AbTHQOej (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Aug 2003 10:34:39 -0400
+Date: Sun, 17 Aug 2003 15:34:35 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Cc: linux-pcmcia@lists.infradead.org
+Subject: [CFT] Clean up yenta_socket
+Message-ID: <20030817153435.A24478@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+	linux-pcmcia@lists.infradead.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17/08/2003 at 14:41 Alan Cox wrote:
+Patch set:
 
->On Sul, 2003-08-17 at 14:16, Carlos Velasco wrote:
->> So,
->> 
->> According to RFC 1027:
->> http://www.ietf.org/rfc/rfc1027.txt
->
->Proxy ARP only.
+	http://patches.arm.linux.org.uk/pcmcia/yenta-20030817*
 
-So, if you have a router performing Proxy ARP... you don't need to
-reply to the "bad" Linux ARP Request, right?
+	The tar file contains all patches.
 
->>    A.3.  ARP datagram
->> 
->>       An ARP reply is discarded if the destination IP address does
-not
->>       match the local host address.  
->
->Linux counts all the IP addresses it has as being local host address.
+This is a patch set aimed to cleaning up the yenta controller quirks,
+working around some of the warts which have appeared (eg, overwriting
+of yenta_operations init pointer.) and adding better power management
+support.
 
-You should pay more attention, the real thing is on the second phrase:
+Unfortunately, since my laptop continues to have an argument with the
+2.6 kernel APM, I am unable to properly test the suspend/hibernate/resume
+functionality.
 
-"An ARP request is discarded if the source IP address is not in the
-same subnet."
+yenta-20030817-1-zv.diff
 
->And Linux btw has arpfilter which can do far more than just imitate
-your
->favourite network religion of the week
+	Use #defined constants for TI ZV initialisation
 
-And you can just use other OS and solve the problem without messing
-with firewalling and mangling techniques.
-Maybe the "favourite network religion" should be called as "RedHat
-favourite network religion"?
-Or maybe it should be called... "Linux approaching Microsoft", as both
-don't listen to real users.
+yenta-20030817-2-override.diff
 
-Linux versus all other OSes and systems (Cisco, Foundry, ...)
-It's clear this is not MY religious war... maybe others war.... I don't
-live from Linux.
+	Clean up yenta overrides - move the quirks to the main
+	PCI ID table, and list the quirks by type.
 
-Regards,
-Carlos Velasco
+yenta-20030817-3-sockinit.diff
 
+	Move socket initialisation to the quirk table.
+
+yenta-20030817-4-pm.diff
+
+	Add per-quirk power management (to aid saving/restoring
+	controller specific state.)  Also, add proper pci state
+	saving/restoring.  Note that Cardbus bridges have to
+	save and restore at least 0x48 bytes of configuration
+	space, not 0x40.  WIBNI pci_save_state/pci_restore_state
+	took "start, length" parameters...
+
+yenta-20030817-5-pm2.diff
+
+	Remove PM restore from socket initialisation; less reason
+	for socket initialisation to vary between controller types
+	now.  In fact, we could very well get rid of much of the
+	TI-specific socket initialisation quirk handling, since
+	TI realised that they should be more compatible with other
+	implementations in later versions of their bridges.
+
+yenta-20030817-6-init.diff
+
+	Move re-initialisation from the socket init/resume paths to
+	where it belongs - the main initialisation path.
+
+yenta-20030817-7-quirks.diff
+
+	Move more controllers to the more advanced quirks.
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

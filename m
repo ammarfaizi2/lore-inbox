@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316591AbSGQTiO>; Wed, 17 Jul 2002 15:38:14 -0400
+	id <S316594AbSGQTjp>; Wed, 17 Jul 2002 15:39:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316594AbSGQTiN>; Wed, 17 Jul 2002 15:38:13 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:50954 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S316592AbSGQTiN>; Wed, 17 Jul 2002 15:38:13 -0400
-Date: Wed, 17 Jul 2002 16:41:01 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Daniel Phillips <phillips@arcor.de>
-cc: Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@transmeta.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 1/13] minimal rmap
-In-Reply-To: <E17Uud4-0004PN-00@starship>
-Message-ID: <Pine.LNX.4.44L.0207171639480.12241-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316601AbSGQTjp>; Wed, 17 Jul 2002 15:39:45 -0400
+Received: from ns.suse.de ([213.95.15.193]:45064 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S316594AbSGQTjn>;
+	Wed, 17 Jul 2002 15:39:43 -0400
+Date: Wed, 17 Jul 2002 21:42:39 +0200
+From: Dave Jones <davej@suse.de>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Guillaume Boissiere <boissiere@adiglobal.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [STATUS 2.5]  July 17, 2002
+Message-ID: <20020717214239.A32389@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Rik van Riel <riel@conectiva.com.br>,
+	Guillaume Boissiere <boissiere@adiglobal.com>,
+	linux-kernel@vger.kernel.org
+References: <3D34C75C.13697.11D651E4@localhost> <Pine.LNX.4.44L.0207171625140.12241-100000@imladris.surriel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L.0207171625140.12241-100000@imladris.surriel.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Jul 2002, Daniel Phillips wrote:
-> On Wednesday 17 July 2002 21:31, Rik van Riel wrote:
-> > On Wed, 17 Jul 2002, Daniel Phillips wrote:
-> > > On Wednesday 17 July 2002 07:29, Andrew Morton wrote:
-> > > > 11: The nightly updatedb run is still evicting everything.
-> > >
-> > > That is not a problem with rmap per se, it's a result of not properly
-> > > handling streaming IO.
-> >
-> > Umm, updatedb isn't exactly streaming...
->
-> You're right, it's not exactly, it's hitting every directory entry on
-                                                     ^^^^^^^^^^^^^^^
-> the system, hopefully just once.  Let's not call it streaming, let's
-> call it... err... use-once? ;-)
+On Wed, Jul 17, 2002 at 04:25:56PM -0300, Rik van Riel wrote:
+ > On Wed, 17 Jul 2002, Guillaume Boissiere wrote:
+ > 
+ > > New week, new status update...
+ > > The details are at http://www.kernelnewbies.org/status/
+ > >
+ > > With the code freeze date approaching soon, it is obvious that many
+ > > of these projects will not get merged in the next 3 months.
+ > > What would you rather me do?  Keep them in here just for reference,
+ > > mark them as post-code freeze or just delete them?
+ > 
+ > Please keep them as post-code freeze.  They might not go into
+ > 2.5 and early 2.6, but that doesn't mean we should throw away
+ > our TODO list ;)
 
-Nope. If it hits every directory entry once, it'll hit every
-page with directory or inode information multiple times, causing
-that page to enter the active list and push out process pages.
+Indeed. It may even be an idea to take what I started doing at
+http://www.codemonkey.org.uk/Linux-2.5.html, merging the two
+and Guillaume running with this if you have time, because these days,
+between hacking and merging patches, I'm kept pretty busy, so updates
+to that file are getting less frequent.
 
-This is exactly what we want to prevent.
+        Dave
 
-regards,
-
-Rik
 -- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

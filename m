@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261668AbSJINlH>; Wed, 9 Oct 2002 09:41:07 -0400
+	id <S261678AbSJINtq>; Wed, 9 Oct 2002 09:49:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261671AbSJINlH>; Wed, 9 Oct 2002 09:41:07 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14340 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261668AbSJINlH>;
-	Wed, 9 Oct 2002 09:41:07 -0400
-Message-ID: <3DA4334E.2070006@pobox.com>
-Date: Wed, 09 Oct 2002 09:46:54 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S261711AbSJINtq>; Wed, 9 Oct 2002 09:49:46 -0400
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:35588 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S261678AbSJINtq>; Wed, 9 Oct 2002 09:49:46 -0400
+Date: Wed, 9 Oct 2002 15:55:13 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Roman Zippel <zippel@linux-m68k.org>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       kbuild-devel <kbuild-devel@lists.sourceforge.net>
+Subject: Re: linux kernel conf 0.8
+In-Reply-To: <3DA43094.8040104@pobox.com>
+Message-ID: <Pine.LNX.4.44.0210091546070.8911-100000@serv>
 MIME-Version: 1.0
-To: Hans Reiser <reiser@namesys.com>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BK] ReiserFS v3 changesets resend
-References: <3DA41105.3020300@namesys.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser wrote:
->     You can pull these from bk://thebsh.namesys.com/bk/reiser3-linux-2.5
-> 
-> Diffstats:
->  fs/reiserfs/inode.c         |    2 +-
->  include/linux/reiserfs_fs.h |    3 ++-
->  2 files changed, 3 insertions(+), 2 deletions(-)
-> 
->  super.c |    6 +++++-
->  1 files changed, 5 insertions(+), 1 deletion(-)
-> 
->  do_balan.c        |  105 +++++++++++++++++++++++++++---------------------------
->  inode.c           |   48 ++++++++++++++++++++----
->  tail_conversion.c |    5 +-
->  3 files changed, 95 insertions(+), 63 deletions(-)
+Hi,
 
+On Wed, 9 Oct 2002, Jeff Garzik wrote:
 
-You guys need to use a better format for emailing Linus...  see his 
-posts on the subject, or just use Documentation/BK-usage/bk-make-sum 
-script.  Having N diffstat outputs followed by N changeset descriptions 
-is just non-sensical.  Linus should not need to count down diffstats to 
-figure out which one corresponds to which changeset.
+> Well, my basic preference is
+>
+> * something other than Config.new (the original name in your config system)
+> * something other than Config.in
+>
+> I think it is a mistake to name a totally different format the same name
+> as an older format...  even "config.in" would be better than "Config.in"...
 
-Further, an overall [single] diffstat gives a better picture of what he 
-will pull when he does a 'bk pull'...
+My first plan was to use Config.in, but I can't overwrite the old files
+yet, so I named it Config.new. Personally I only prefer that it starts
+with a capital letter (like Makefile, Readme), so it's at the top of a
+dir listing, but otherwise I don't care much about the name.
 
-	Jeff
-
-
+bye, Roman
 

@@ -1,121 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266223AbUGOUgH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266237AbUGOUhs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266223AbUGOUgH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jul 2004 16:36:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266237AbUGOUgH
+	id S266237AbUGOUhs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jul 2004 16:37:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266240AbUGOUhs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jul 2004 16:36:07 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:40344 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266223AbUGOUf4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jul 2004 16:35:56 -0400
-Date: Thu, 15 Jul 2004 22:35:53 +0200
-From: Heinz Mauelshagen <mauelshagen@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: *** Announcement: dmraid 1.0.0-rc2 ***
-Message-ID: <20040715203553.GA18640@redhat.com>
-Reply-To: mauelshagen@redhat.com
+	Thu, 15 Jul 2004 16:37:48 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:42464 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S266237AbUGOUhZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jul 2004 16:37:25 -0400
+Date: Thu, 15 Jul 2004 22:37:17 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: chas@cmf.nrl.navy.mil
+Cc: linux-atm-general@lists.sourceforge.net, davem@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: [patch] remove bouncing email addresses of Marko Kiiskila
+Message-ID: <20040715203717.GG25633@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I tried to Cc Marko Kiiskila when sending a patch that affects a file 
+where his email address is in the header.
 
-               *** Announcement: dmraid 1.0.0-rc2 ***
+Unfortunately, both of his email addresses in the kernel sources are 
+bouncing.
 
-Following a good tradition, dmraid 1.0.0-rc2 is available at
-http://people.redhat.com:/~heinzm/sw/dmraid/ in source and i386 rpm,
-before I leave for a 2 weeks vacation trip followed by LWE ;)
+Unless someone knows a current address of Marko, I'd suggest the patch 
+below to remove the outdated addresses.
 
-Won't read my email before July, 30th.
-
-dmraid (Device-Mapper Raid tool) discovers, [de]activates and displays
-properties of software RAID sets (ie. ATARAID) and contained DOS
-partitions using the device-mapper runtime of the 2.6 kernel.
-
-The following ATARAID types are supported on Linux 2.6:
-
-Highpoint HPT37X
-Highpoint HPT45X
-Intel Software RAID
-Promise FastTrack
-Silicon Image Medley
-
-This ATARAID type can be discovered only in this version:
-LSI Logic MegaRAID
-
-Please provide insight to support those metadata formats completely.
-
-Thanks.
-
-See files README and CHANGELOG, which come with the source tarball for
-prerequisites to run this software, further instructions on installing
-and using dmraid!
-
-CHANGELOG is contained below for your convenience as well.
+diffstat output:
+ CREDITS                |    1 -
+ include/linux/atmlec.h |    2 +-
+ net/atm/lec.c          |    2 +-
+ net/atm/lec.h          |    2 +-
+ net/atm/lec_arpc.h     |    2 +-
+ 5 files changed, 4 insertions(+), 5 deletions(-)
 
 
-Call for testers:
------------------
+Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
 
-I need testers with the above ATARAID types, to check that the mapping
-created by this tool is correct (see options "-t -ay") and access to the ATARAID
-data is proper.
+--- linux-2.6.8-rc1-full/include/linux/atmlec.h.old	2004-07-15 22:21:34.000000000 +0200
++++ linux-2.6.8-rc1-full/include/linux/atmlec.h	2004-07-15 22:22:32.000000000 +0200
+@@ -2,7 +2,7 @@
+  * 
+  * ATM Lan Emulation Daemon vs. driver interface
+  *
+- * carnil@cs.tut.fi
++ * Marko Kiiskila
+  *
+  */
+ 
+--- linux-2.6.8-rc1-full/net/atm/lec.h.old	2004-07-15 22:21:34.000000000 +0200
++++ linux-2.6.8-rc1-full/net/atm/lec.h	2004-07-15 22:22:41.000000000 +0200
+@@ -2,7 +2,7 @@
+  *
+  * Lan Emulation client header file
+  *
+- * Marko Kiiskila carnil@cs.tut.fi
++ * Marko Kiiskila
+  *
+  */
+ 
+--- linux-2.6.8-rc1-full/net/atm/lec.c.old	2004-07-15 22:21:34.000000000 +0200
++++ linux-2.6.8-rc1-full/net/atm/lec.c	2004-07-15 22:22:47.000000000 +0200
+@@ -1,6 +1,6 @@
+ /*
+  * lec.c: Lan Emulation driver 
+- * Marko Kiiskila carnil@cs.tut.fi
++ * Marko Kiiskila
+  *
+  */
+ 
+--- linux-2.6.8-rc1-full/net/atm/lec_arpc.h.old	2004-07-15 22:21:34.000000000 +0200
++++ linux-2.6.8-rc1-full/net/atm/lec_arpc.h	2004-07-15 22:22:59.000000000 +0200
+@@ -1,6 +1,6 @@
+ /*
+  * Lec arp cache
+- * Marko Kiiskila carnil@cs.tut.fi
++ * Marko Kiiskila
+  *
+  */
+ #ifndef _LEC_ARP_H
+--- linux-2.6.8-rc1-full/CREDITS.old	2004-07-15 22:21:34.000000000 +0200
++++ linux-2.6.8-rc1-full/CREDITS	2004-07-15 22:23:09.000000000 +0200
+@@ -1633,7 +1633,6 @@
+ S: United Kingdom
+ 
+ N: Marko Kiiskila
+-E: marko@iprg.nokia.com
+ D: Author of ATM Lan Emulation
+ S: 660 Harvard Ave. #7
+ S: Santa Clara, CA 95051
 
-You can activate your ATARAID sets without danger of overwriting
-your metadata, because dmraid accesses it read-only unless you use
-option -E with -r in order to erase ATARAID metadata (see 'man dmraid')!
-
-This is a release candidate version so you want to have backups of your valuable
-data *and* you want to test accessing your data read-only first in order to
-make sure that the mapping is correct before you go for read-write access.
-
-
-The author is reachable at <Mauelshagen@RedHat.com>.
-Later, I told you ;)
-
-For test results, mapping information, discussions, questions, patches,
-enhancement requests and the like, please subscribe and mail
-to <ataraid@redhat.com>.
-
-CHANGELOG:
----------
-
-Changelog from dmraid 1.0.0-rc1 to 1.0.0-rc2		2004.07.15
-
-o Intel Software RAID discovery and activation support
-o allow more than one format handler name with --format
-o display "raid10" sets properly rather than just "mirror"
-o enhanced activate.c to handle partial activation of sets (eg, degraded RAID0)
-o enhanced command line option checks
-o implemented a library context for variables such as debug etc.
-o fixed memory leak in discover_partitions
-o fixed recursion in _find_set()
-o continued writing subsets in case we fail on one because of RAID1
-o format handler template update
-o fixed dietlibc build
-o fixed shared library configure
-o use default_list_set() instead of &raid_sets where possible
-o name change of list_head members to the more commonly used 'list'
-o renamed msdos partition format handler to dos
-o lots of inline comments corrected/updated
-o streamlined tools/*.[ch]
-o moved get.*level() and get_status to metadata.[ch] and changed level
-  name to type
-
---
-
-Regards,
-Heinz    -- The LVM Guy --
-
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-Heinz Mauelshagen                                 Red Hat GmbH
-Consulting Development Engineer                   Am Sonnenhang 11
-                                                  56242 Marienrachdorf
-                                                  Germany
-Mauelshagen@RedHat.com                            +49 2626 141200
-                                                       FAX 924446
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

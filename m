@@ -1,83 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265048AbUFVSoe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265025AbUFVS3V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265048AbUFVSoe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 14:44:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265089AbUFVSoP
+	id S265025AbUFVS3V (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 14:29:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265140AbUFVS3A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 14:44:15 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:36806 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S265048AbUFVSmW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 14:42:22 -0400
-Date: Tue, 22 Jun 2004 20:42:20 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Petr Vandrovec <VANDROVE@vc.cvut.cz>
+	Tue, 22 Jun 2004 14:29:00 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:22409 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S265025AbUFVSVW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 14:21:22 -0400
+Message-ID: <40D878DF.7060109@tmr.com>
+Date: Tue, 22 Jun 2004 14:22:23 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040608
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matthias Andree <matthias.andree@gmx.de>
+CC: linux-kernel@vger.kernel.org
 Subject: Re: Stop the Linux kernel madness
-Message-ID: <20040622184220.GF20632@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Christoph Hellwig <hch@infradead.org>,
-	Petr Vandrovec <VANDROVE@vc.cvut.cz>
-References: <A095D7F069C@vcnet.vc.cvut.cz> <20040622151236.GE20632@lug-owl.de> <20040622173215.GA6300@infradead.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="YsNt2QKQqRd9BMTd"
-Content-Disposition: inline
-In-Reply-To: <20040622173215.GA6300@infradead.org>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.6i
+References: <20040620052836.GC28363@michonline.com><20040620052836.GC28363@michonline.com> <20040622151759.GB11760@merlin.emma.line.org>
+In-Reply-To: <20040622151759.GB11760@merlin.emma.line.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Matthias Andree wrote:
+> On Sun, 20 Jun 2004, Ryan Anderson wrote:
+> 
+> 
+>>>What do I need commercial OSS for after all when Alsa works well for me?
+>>
+>>Well, for what it's worth, there are a few devices out there for which
+>>there is no open source driver:
+>>0000:02:02.0 Multimedia audio controller: Creative Labs [SB Live! Value]
+>>EMU10k1X
+>>(Dell Dimension 2100, *I think* - it's at work right, and I'm not)
+>>
+>>I believe 4Front provides the only driver for that specific device (it's
+>>a crippled EMU10k1, probably what could be called a "WinSoundchip")
+> 
+> 
+> So what? If the mutilated hardware requires a commercial driver one
+> might as well spend the third-party driver cost on better hardware.
 
---YsNt2QKQqRd9BMTd
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The beauty of FOSS is that people have a *choice* of where to spend 
+their money. If you prefer an o/s which limits your choices there is 
+one... upgrade the hardware is not always a choice, not all Linux 
+systems are PCs, even the Intel-based systems.
 
-On Tue, 2004-06-22 18:32:15 +0100, Christoph Hellwig <hch@infradead.org>
-wrote in message <20040622173215.GA6300@infradead.org>:
-> On Tue, Jun 22, 2004 at 05:12:36PM +0200, Jan-Benedict Glaw wrote:
-> > Just merge the vmware modules upstream. Then, such breakage will be
-> > detected early and probably fixed without putting a lot of work into it
-> > (from your point of view).
->=20
-> a) vmware modules themselves aren't under a free license
-
-That can be changed.
-
-> b) even if they were there's not really much interest in modules that can=
-'t
->    work with non-free userspace
-
-=2E..as well as this issue. They'd get some (limited but sufficient) free
-maintainence for their software back. See? No technical issues 8^P The
-very same could be said about 4Front's OSS drivers.
-
-MfG, JBG
-
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
-PA));
-
---YsNt2QKQqRd9BMTd
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFA2H2MHb1edYOZ4bsRAuV7AJ4pDpt1t/+hXGMSqHwKNBp+GUyeRQCdHIfj
-g5k4BNeJduXV5SS4jBUxKYo=
-=RzkP
------END PGP SIGNATURE-----
-
---YsNt2QKQqRd9BMTd--
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

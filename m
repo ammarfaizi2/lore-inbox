@@ -1,41 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266695AbUHIQZ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266705AbUHIQ0O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266695AbUHIQZ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 12:25:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266705AbUHIQZ6
+	id S266705AbUHIQ0O (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 12:26:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266708AbUHIQ0O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 12:25:58 -0400
-Received: from vivaldi.madbase.net ([81.173.6.10]:54249 "HELO
-	vivaldi.madbase.net") by vger.kernel.org with SMTP id S266695AbUHIQZ5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 12:25:57 -0400
-Date: Mon, 9 Aug 2004 12:25:56 -0400 (EDT)
-From: Eric Lammerts <eric@lammerts.org>
-X-X-Sender: eric@vivaldi.madbase.net
-To: Paul Jackson <pj@sgi.com>
-cc: =?ISO-8859-1?Q?Mari=E1n?= Tomko <macros@lmxmail.sk>,
+	Mon, 9 Aug 2004 12:26:14 -0400
+Received: from rproxy.gmail.com ([64.233.170.199]:13843 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S266705AbUHIQ0L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 12:26:11 -0400
+Message-ID: <d577e5690408090926c9b3bf1@mail.gmail.com>
+Date: Mon, 9 Aug 2004 12:26:10 -0400
+From: Patrick McFarland <diablod3@gmail.com>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Cc: dwmw2@infradead.org, james.bottomley@steeleye.com,
+       alan@lxorguk.ukuu.org.uk, axboe@suse.de, eric@lammerts.org,
        linux-kernel@vger.kernel.org
-Subject: Re: howto apply supermount patch only....
-In-Reply-To: <20040809062127.46acc804.pj@sgi.com>
-Message-ID: <Pine.LNX.4.58.0408091224040.8693@vivaldi.madbase.net>
-References: <411734E1.5070508@lmxmail.sk> <411734E1.5070508@lmxmail.sk>
- <20040809062127.46acc804.pj@sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <200408091440.i79EeqrH010640@burner.fokus.fraunhofer.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <200408091440.i79EeqrH010640@burner.fokus.fraunhofer.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 9 Aug 2004 16:40:52 +0200 (CEST), Joerg Schilling
+<schilling@fokus.fraunhofer.de> wrote:
+> People who use the official cdrecord know that they need to run cdrecord
+> with root privilleges. People who run the bastardized version from SuSE
+> don't know this and fail to write CDs.
 
-On Mon, 9 Aug 2004, Paul Jackson wrote:
-> > patch: **** Only garbage was found in the patch input.
->
-> Usually this means that your patch file, supermount-ng204.diff in the
-> case you describe, doesn't contain an actual, correctly formatted,
-> patch.
+This is why people should be using Debian to begin with. Debian asks
+if you want to install cdrecord with suid so everyone can burn cds
+without needing to be root first.
 
-Maybe your patch is gzipped? Some browsers strip the .gz extension but
-forget to decompress the file, or vice versa.
-
-Try "zcat ../supermount-ng204.diff | patch -p1"
-
-Eric
+-- 
+Patrick "Diablo-D3" McFarland || diablod3@gmail.com
+"Computer games don't affect kids; I mean if Pac-Man affected us as kids, we'd 
+all be running around in darkened rooms, munching magic pills and listening to
+repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989

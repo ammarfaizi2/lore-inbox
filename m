@@ -1,64 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263851AbUAUUil (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 15:38:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264132AbUAUUil
+	id S264145AbUAUUlF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 15:41:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264147AbUAUUlF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 15:38:41 -0500
-Received: from [199.45.143.209] ([199.45.143.209]:36616 "EHLO 199.45.143.209")
-	by vger.kernel.org with ESMTP id S263851AbUAUUij (ORCPT
+	Wed, 21 Jan 2004 15:41:05 -0500
+Received: from mail.gmx.net ([213.165.64.20]:31654 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264145AbUAUUlB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 15:38:39 -0500
-Subject: Re: List 'linux-dvb' closed to public posts
-From: Zan Lynx <zlynx@acm.org>
+	Wed, 21 Jan 2004 15:41:01 -0500
+X-Authenticated: #20450766
+Date: Wed, 21 Jan 2004 21:37:02 +0100 (CET)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: Dave Jones <davej@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0401211155300.2123@home.osdl.org>
-References: <ecartis-01212004203954.14209.1@mail.convergence2.de>
-	 <20040121194315.GE9327@redhat.com>
-	 <Pine.LNX.4.58.0401211155300.2123@home.osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-wgWhqxveWRhC5+GDOqUO"
-Message-Id: <1074717499.18964.9.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Wed, 21 Jan 2004 13:38:19 -0700
+cc: "Justin T. Gibbs" <gibbs@scsiguy.com>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: AIC7xxx kernel problem with 2.4.2[234] kernels
+In-Reply-To: <Pine.LNX.4.58.0401192259330.2123@home.osdl.org>
+Message-ID: <Pine.LNX.4.44.0401212117020.5441-100000@poirot.grange>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 19 Jan 2004, Linus Torvalds wrote:
 
---=-wgWhqxveWRhC5+GDOqUO
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Wed, 2004-01-21 at 12:56, Linus Torvalds wrote:
-> On Wed, 21 Jan 2004, Dave Jones wrote:
+> On Mon, 19 Jan 2004, Justin T. Gibbs wrote:
 > >
-> > *sigh*, anyone object to patches marking such mailing lists in
-> > MAINTAINERS as 'subscription only' ?
->=20
-> Sounds like they shouldn't be in MAINTAINERS at all if they can't be=20
-> posted to. I mean, what's the point?
->=20
-> 		Linus
+> > Does the maintainer have the ability to veto changes that harm the
+> > code they maintain?
+>
+> Nope. Nobody has that right.
+>
+> Even _I_ don't veto changes that the right people push (my motto:
+> "everybody is wrong sometimes: when enough people complain, even I am
+> wrong").
+>
+> In particular, maintainers of "conceptually higher" generally always have
+> priority. If Al Viro says a filesystem is doing something wrong from a VFS
+> standpoint, then that filesystem is broken - regardless of whether the
+> filesystem maintainer agrees or not. Because the VFS layer requirements
+> trump any low-level filesystem issues.
 
-Compared to the time required to write up a good bug report or patch,
-what's the problem with the couple minutes needed to subscribe,
-authorize and _then_ post to the list?
---=20
-Zan Lynx <zlynx@acm.org>
+Linus
 
---=-wgWhqxveWRhC5+GDOqUO
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+May I try to sweeten the pill a bit? I think, I am not contradicting what
+you said, but just complementing it, thinking, that the direct code
+maintainer has a right and priority in modifying the code, even over the
+"conceptionally higher" level. Say, if some code is found to be broken,
+the problem and possible fixes should first be reported to the direct
+maintainer. And only if the maintainer is not co-operating suitably (e.g.,
+in the opinion of those "higher" ones), only then necessary modifications
+can be made directly. In other words, a situation, when, say, a subsystem
+maintainer silently modifies some driver-code, without even letting the
+direct maintainer know, is undesirable. A better solution would be to
+inform the driver maintainer of the problem / send a patch. And only if no
+suitable action follows, force the necessary modifications.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+That was just a mere speculation, not pertaining to any specific case.
 
-iD8DBQBADuM7G8fHaOLTWwgRAgxXAKCGdhCC7blZsyMIeM38WxZGWPNL4wCffOJq
-npSnS96VfwHFHodcK7O2Vko=
-=lKTz
------END PGP SIGNATURE-----
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski
 
---=-wgWhqxveWRhC5+GDOqUO--
+
+
 

@@ -1,64 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277321AbRJEGhN>; Fri, 5 Oct 2001 02:37:13 -0400
+	id <S277322AbRJEHBW>; Fri, 5 Oct 2001 03:01:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277322AbRJEGhE>; Fri, 5 Oct 2001 02:37:04 -0400
-Received: from femail20.sdc1.sfba.home.com ([24.0.95.129]:45716 "EHLO
-	femail20.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S277321AbRJEGg4>; Fri, 5 Oct 2001 02:36:56 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-Reply-To: landley@trommello.org
-Organization: Boundaries Unlimited
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Whining about NUMA. :)  [Was whining about 2.5...]
-Date: Thu, 4 Oct 2001 19:59:00 -0400
-X-Mailer: KMail [version 1.2]
-Cc: riel@conectiva.com.br (Rik van Riel), linux-kernel@vger.kernel.org
-In-Reply-To: <E15pFUQ-00045y-00@the-village.bc.nu>
-In-Reply-To: <E15pFUQ-00045y-00@the-village.bc.nu>
-MIME-Version: 1.0
-Message-Id: <01100419590005.02393@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+	id <S277323AbRJEHBM>; Fri, 5 Oct 2001 03:01:12 -0400
+Received: from t2.redhat.com ([199.183.24.243]:57844 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S277322AbRJEHBG>; Fri, 5 Oct 2001 03:01:06 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <3982.1002260102@kao2.melbourne.sgi.com> 
+In-Reply-To: <3982.1002260102@kao2.melbourne.sgi.com> 
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+        alan@lxorguk.ukuu.org.uk
+Subject: Re: [patch] 2.4.11-pre4 EXPORT_SYMBOLS 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 05 Oct 2001 08:01:13 +0100
+Message-ID: <17653.1002265273@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 04 October 2001 16:53, Alan Cox wrote:
-> > Is there really a NUMA machine out there where you can DMA out of another
-> > node's 16 bit ISA space?  So far the differences in the zones seem to be
->
-> DMA engines are tied to the node the device is tied to not to the processor
-> in question in most NUMA systems.
 
-Oh good.  I'd sort of guessed that part, but wasn't quite sure.  (I've seen 
-hardware people do some amazingly odd things before.  Luckily not recently, 
-though...)
+kaos@ocs.com.au said:
+> Some developers are forgetting to update export-objs in the Makefile,
+> the bug is silent until somebody compiles with modversions.  This
+> patch catches missing Makefile changes.
 
-So would a workable (if naieve) attempt to use Andrea's 
-memory-zones-grouped-into-classes approach on NUMA just involve making a 
-class/zone list for each node?  (Okay, you've got to identify nodes, and 
-group together processors, bridges, DMAable devices, etc, but it seems like 
-that has to be done anyway, class/zone or not.)  How does what people want to 
-do for NUMA improve on that?
+Thanks. Patch below, which fixes this and also hides a couple of 
+ARM-specific modules so you can't attempt to build them for other targets.
 
-Is a major goal of NUMA figuring out how to borrow resources from adjacent 
-nodes (and less-adjacent nodes) in a "second choice, third choice, twelfth 
-choice" kind of way?  Or is a "this resource set is local to this node, and 
-allocating beyond this group is some variant of swapping behavior" approach 
-an acceptable first approximation?
+Index: drivers/mtd/chips/Makefile
+===================================================================
+RCS file: /home/cvs/mtd/drivers/mtd/chips/Makefile,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -u -r1.6 -r1.7
+--- drivers/mtd/chips/Makefile	2001/09/02 18:57:01	1.6
++++ drivers/mtd/chips/Makefile	2001/10/05 06:53:51	1.7
+@@ -1,11 +1,11 @@
+ #
+ # linux/drivers/chips/Makefile
+ #
+-# $Id: Makefile,v 1.6 2001/09/02 18:57:01 dwmw2 Exp $
++# $Id: Makefile,v 1.7 2001/10/05 06:53:51 dwmw2 Exp $
+ 
+ O_TARGET	:= chipslink.o
+ 
+-export-objs	:= chipreg.o
++export-objs	:= chipreg.o gen_probe.o
+ 
+ #                       *** BIG UGLY NOTE ***
+ #
+Index: drivers/mtd/Config.in
+===================================================================
+RCS file: /home/cvs/mtd/drivers/mtd/Config.in,v
+retrieving revision 1.70
+retrieving revision 1.71
+diff -u -r1.70 -r1.71
+--- drivers/mtd/Config.in	2001/08/11 16:13:38	1.70
++++ drivers/mtd/Config.in	2001/10/03 11:38:38	1.71
+@@ -1,5 +1,5 @@
+ 
+-# $Id: Config.in,v 1.70 2001/08/11 16:13:38 dwmw2 Exp $
++# $Id: Config.in,v 1.71 2001/10/03 11:38:38 dwmw2 Exp $
+ 
+ mainmenu_option next_comment
+ comment 'Memory Technology Devices (MTD)'
+@@ -13,8 +13,10 @@
+    fi
+    dep_tristate '  MTD partitioning support' CONFIG_MTD_PARTITIONS $CONFIG_MTD
+    dep_tristate '  RedBoot partition table parsing' CONFIG_MTD_REDBOOT_PARTS $CONFIG_MTD_PARTITIONS
++if [ "$CONFIG_ARM" = "y" ]; then
+    dep_tristate '  Compaq bootldr partition table parsing' CONFIG_MTD_BOOTLDR_PARTS $CONFIG_MTD_PARTITIONS
+    dep_tristate '  ARM Firmware Suite partition parsing' CONFIG_MTD_AFS_PARTS $CONFIG_MTD_PARTITIONS
++fi
+ 
+ comment 'User Modules And Translation Layers'
+    dep_tristate '  Direct char device access to MTD devices' CONFIG_MTD_CHAR $CONFIG_MTD
 
-If class/zone is so evil for NUMA, what's the alternative that's being 
-considered?  (Pointer to paper?)
 
-I'm wondering how the class/zone approach is more evil than the alternative 
-of having lots and lots of little zones which have different properties for 
-each processor and DMAable device on the system, and then trying to figure 
-out what to do from there at allocation time or during each attempt to 
-inflict I/O upon buffers.
+--
+dwmw2
 
-Rob
 
-P.S.  Rik pointed out in email (replying to my "master of stupid questions" 
-signoff) that I am indeed confused about a great many things, but didn't 
-elaborate.  Of course I agree with this, but I do try to make it up on volume 
-:).

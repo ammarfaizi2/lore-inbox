@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266285AbUARJBX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jan 2004 04:01:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266300AbUARJBX
+	id S266300AbUARJ2u (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jan 2004 04:28:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266307AbUARJ2u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jan 2004 04:01:23 -0500
-Received: from host213-160-108-25.dsl.vispa.com ([213.160.108.25]:22926 "HELO
-	cenedra.office") by vger.kernel.org with SMTP id S266285AbUARJBW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jan 2004 04:01:22 -0500
-From: Andrew Walrond <andrew@walrond.org>
-To: "Yu, Luming" <luming.yu@intel.com>
-Subject: Re: ACPI: problem on ASUS PR-DLS533
-Date: Sun, 18 Jan 2004 09:01:20 +0000
-User-Agent: KMail/1.5.4
-References: <3ACA40606221794F80A5670F0AF15F8401720CE8@PDSMSX403.ccr.corp.intel.com>
-In-Reply-To: <3ACA40606221794F80A5670F0AF15F8401720CE8@PDSMSX403.ccr.corp.intel.com>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401180901.20662.andrew@walrond.org>
+	Sun, 18 Jan 2004 04:28:50 -0500
+Received: from main.gmane.org ([80.91.224.249]:55725 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S266300AbUARJ2t (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jan 2004 04:28:49 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Sergey Vlasov <vsu@altlinux.ru>
+Subject: Re: License question
+Date: Sun, 18 Jan 2004 12:27:04 +0300
+Message-ID: <pan.2004.01.18.09.27.04.13217@altlinux.ru>
+References: <20040117195702.67bc83ea.pochini@shiny.it> <200401171925.i0HJPPBR008879@turing-police.cc.vt.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Pan/0.14.0 (I'm Being Nibbled to Death by Cats!)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 18 Jan 2004 4:18 am, Yu, Luming wrote:
-> > unfortunately neither 2.4.23 or 2.4.24 will boot from the
-> > Mylex 170 Raid card
-> > (DAC960) with ACPI enabled, so I never get to lspci :(
->
-> Are you sure, you can verify it with acpi=off.
->
+On Sat, 17 Jan 2004 14:25:24 -0500, Valdis.Kletniek wrote:
 
-Yes, I'm sure. I's running the same kernel fine with pci=noacpi
+> http://www.opensource.org/licenses/
+> 
+> There's enough of the damned things already.  Please don't invent another one.
+
+In fact, exactly the same text is there:
+
+http://www.opensource.org/licenses/UoI-NCSA.php
 

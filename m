@@ -1,59 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264984AbTAWHwS>; Thu, 23 Jan 2003 02:52:18 -0500
+	id <S264943AbTAWHvM>; Thu, 23 Jan 2003 02:51:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265037AbTAWHwR>; Thu, 23 Jan 2003 02:52:17 -0500
-Received: from mail.hometree.net ([212.34.181.120]:21961 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S264984AbTAWHwO>; Thu, 23 Jan 2003 02:52:14 -0500
+	id <S264950AbTAWHvM>; Thu, 23 Jan 2003 02:51:12 -0500
+Received: from adsl-67-64-81-217.dsl.austtx.swbell.net ([67.64.81.217]:42669
+	"HELO digitalroadkill.net") by vger.kernel.org with SMTP
+	id <S264943AbTAWHvK>; Thu, 23 Jan 2003 02:51:10 -0500
+Subject: Kernel build problem, Need help.
+From: GrandMasterLee <masterlee@digitalroadkill.net>
 To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: [OT] Re: Linux in the News! WooHoo!
-Date: Thu, 23 Jan 2003 08:01:23 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <b0o7gj$3kl$1@forge.intermeta.de>
-References: <Pine.LNX.4.44.0301222203480.4030-100000@phoenix.infradead.org> <200301222223.h0MMN4QY011055@turing-police.cc.vt.edu>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1043308883 14041 212.34.181.4 (23 Jan 2003 08:01:23 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Thu, 23 Jan 2003 08:01:23 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: Digitalroadkill.net
+Message-Id: <1043308727.8275.9.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 23 Jan 2003 01:58:48 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu writes:
+I patched 2.4.20 with O(1) sched + P4 O(1) sched patches and the kernel
+will not build fully. I added a line to list.h "typedef struct list_head
+list_t;" and that made it at least compile for a few mins till ld is
+called for kernel.o, then poof.
 
->It's open sourced.  The rest is left as an exercise for the reader.
+Error output is here:
 
-Netscape was open sourced too and look what it took to bring it where
-it is now. This is not your average 2,500 lines GNU tool. Even the
-Linux kernel isn't that complex. It is written in a much simpler
-language (C vs. C++) and if you remove all the drivers, you end up
-with quite a compact core.
+http://digitalroadkill.net/public/kernel/2.4.20-rmap15b-xfs-o1-lvm106-error3.txt
 
-OpenOffice installed more than 300 (!) Megabytes software while RedHat
-8 install. Linux kernel with all options is what? 2 MBytes?
+I'm trying to get this set of patches into my beta environment asap, but
+I'm not sure why I've run into this. If anyone can help I'd appreciate
+it.
 
-I'd think, most people simply underestimate the complexity of some
-dozen millions of lines of projected, specified and engineered
-code. This isn't the same league as your average php open source
-project. Maybe not even the same discipline.
+TIA.
 
-Enough exercising for you?
+--
+GrandMasterLee
 
-	Regards
-		Henning
-
-
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   

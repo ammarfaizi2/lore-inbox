@@ -1,94 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315526AbSECBWA>; Thu, 2 May 2002 21:22:00 -0400
+	id <S315525AbSECB3K>; Thu, 2 May 2002 21:29:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315525AbSECBV6>; Thu, 2 May 2002 21:21:58 -0400
-Received: from CPE-203-51-25-114.nsw.bigpond.net.au ([203.51.25.114]:9982 "EHLO
-	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
-	id <S315526AbSECBVX>; Thu, 2 May 2002 21:21:23 -0400
-Message-ID: <3CD1E60B.2E9FDD6F@eyal.emu.id.au>
-Date: Fri, 03 May 2002 11:21:15 +1000
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.19-pre8: compile failure - umem.c, sdla_fr.c
-In-Reply-To: <Pine.LNX.4.21.0205021845430.10896-100000@freak.distro.conectiva>
+	id <S315527AbSECB3J>; Thu, 2 May 2002 21:29:09 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:60593 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S315525AbSECB3J>;
+	Thu, 2 May 2002 21:29:09 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Re: module choices affecting base kernel size??? 
+In-Reply-To: Your message of "Thu, 02 May 2002 20:57:40 -0400."
+             <Pine.LNX.4.44.0205022054160.8024-100000@conn6m.toms.net> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Fri, 03 May 2002 11:28:57 +1000
+Message-ID: <3271.1020389337@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
-> Here goes the pre8. I plan just one more -pre before starting the -rc
-> stage.
+On Thu, 2 May 2002 20:57:40 -0400 (EDT), 
+Tom Oehser <tom@toms.net> wrote:
+>
+>> Tom Oehser <tom@toms.net> wrote:
+>> >Changing all =m to =n in my config makes a 4K difference in the kernel size.
+>
+>On Fri, 3 May 2002, Keith Owens wrote:
+>
+>> The majority of modules have no effect on kernel size but some modules
+>> require base kernel code as well.  This is typically common code or low
+>> level setup functions.  You will find that those modules will not load
+>> now or will break.
+>
+>Great.  I must have missed the list of exactly *which* modules do this...
+>
+>Any ideas on a reasonable way of how to identify them?
 
-I do not have the time to investigate this, so just the failure reports
-follow.
+Not easy.  Some of it is in the Makefiles, some of it is in the code.
+Looking for conditional EXPORT_SYMBOLS() will find some of the extra
+space, I don't know of any way of finding all of the extra code/data,
+apart from compiling and measuring.
 
-
-gcc -D__KERNEL__ -I/data2/usr/local/src/linux-2.4-pre/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
--fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686
--malign-functions=4  -DMODULE -DMODVERSIONS -include
-/data2/usr/local/src/linux-2.4-pre/include/linux/modversions.h 
--nostdinc -I /usr/lib/gcc-lib/i386-linux/2.95.4/include
--DKBUILD_BASENAME=umem  -c -o umem.o umem.c
-umem.c:955: warning: `set_bh_page' redefined
-/data2/usr/local/src/linux-2.4-pre/include/linux/modules/buffer.ver:8:
-warning: this is the location of the previous definition
-umem.c:136: field `tasklet' has incomplete type
-umem.c: In function `mm_start_io':
-umem.c:343: warning: right shift count >= width of type
-umem.c: In function `mm_unplug_device':
-umem.c:386: warning: implicit declaration of function `local_bh_disable'
-umem.c:388: warning: implicit declaration of function `local_bh_enable'
-umem.c: In function `mm_interrupt':
-umem.c:646: warning: implicit declaration of function `tasklet_schedule'
-umem.c: In function `mm_pci_probe':
-umem.c:1178: warning: implicit declaration of function
-`tasklet_init_Ra5808bbf'
-umem.c: In function `mm_pci_remove':
-umem.c:1313: warning: implicit declaration of function
-`tasklet_kill_R79ad224b'
-make[2]: *** [umem.o] Error 1
-make[2]: Leaving directory
-`/data2/usr/local/src/linux-2.4-pre/drivers/block'
-
-I deselected CONFIG_BLK_DEV_UMEM
-
-
-gcc -D__KERNEL__ -I/data2/usr/local/src/linux-2.4-pre/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
--fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686
--malign-functions=4  -DMODULE -DMODVERSIONS -include
-/data2/usr/local/src/linux-2.4-pre/include/linux/modversions.h 
--nostdinc -I /usr/lib/gcc-lib/i386-linux/2.95.4/include
--DKBUILD_BASENAME=sdla_fr  -c -o sdla_fr.o sdla_fr.c
-sdla_fr.c: In function `process_route':
-sdla_fr.c:2819: warning: unknown conversion type character `U' in format
-sdla_fr.c:2819: warning: too many arguments for format
-sdla_fr.c: In function `process_ARP':
-sdla_fr.c:4351: structure has no member named `ida_list'
-sdla_fr.c:4351: structure has no member named `ida_list'
-sdla_fr.c:4351: structure has no member named `ida_list'
-sdla_fr.c:4351: structure has no member named `ida_list'
-sdla_fr.c:4353: structure has no member named `ida_list'
-sdla_fr.c:4353: structure has no member named `ida_list'
-sdla_fr.c:4353: structure has no member named `ida_list'
-sdla_fr.c:4353: structure has no member named `ida_list'
-make[3]: *** [sdla_fr.o] Error 1
-make[3]: Leaving directory
-`/data2/usr/local/src/linux-2.4-pre/drivers/net/wan'
-
-I deselected CONFIG_WANPIPE_FR
-
-
-ufs fails to build, I applied the patch that was posted earlier to
-the list.
-
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>

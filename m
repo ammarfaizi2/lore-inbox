@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266849AbSL3Kfk>; Mon, 30 Dec 2002 05:35:40 -0500
+	id <S266859AbSL3KoG>; Mon, 30 Dec 2002 05:44:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266854AbSL3Kfk>; Mon, 30 Dec 2002 05:35:40 -0500
-Received: from adsl-67-121-154-100.dsl.pltn13.pacbell.net ([67.121.154.100]:224
-	"EHLO localhost") by vger.kernel.org with ESMTP id <S266849AbSL3Kfj>;
-	Mon, 30 Dec 2002 05:35:39 -0500
-Date: Mon, 30 Dec 2002 02:43:57 -0800
-To: John Bradford <john@grabjohn.com>
-Cc: linux-kernel@vger.kernel.org, abacus_an@yahoo.co.in
-Subject: Re: kernel compilation: pls send cc to me
-Message-ID: <20021230104357.GB13892@localhost>
-References: <20021230103025.GA13892@localhost> <200212301038.gBUAcZWw000609@darkstar.example.net>
+	id <S266868AbSL3KoG>; Mon, 30 Dec 2002 05:44:06 -0500
+Received: from kiruna.synopsys.com ([204.176.20.18]:5286 "HELO
+	kiruna.synopsys.com") by vger.kernel.org with SMTP
+	id <S266859AbSL3KoF>; Mon, 30 Dec 2002 05:44:05 -0500
+Date: Mon, 30 Dec 2002 11:52:15 +0100
+From: Alex Riesen <alexander.riesen@synopsys.COM>
+To: Folkert van Heusden <folkert@vanheusden.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: EINTR
+Message-ID: <20021230105215.GA26221@riesen-pc.gr05.synopsys.com>
+Reply-To: alexander.riesen@synopsys.COM
+References: <007301c2aeca$193892c0$3640a8c0@boemboem>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200212301038.gBUAcZWw000609@darkstar.example.net>
+In-Reply-To: <007301c2aeca$193892c0$3640a8c0@boemboem>
 User-Agent: Mutt/1.4i
-From: "Joshua M. Kwan" <joshk@ludicrus.ath.cx>
+Organization: Synopsys, Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oh...
-Well, I stand corrected. I never noticed any difference compiling with 
-gcc-2.95 versus compiling with 3.2.
-
-What is the recommended version then?
-
-Regards
-Josh
-
-On Mon, Dec 30, 2002 at 10:38:35AM +0000, John Bradford wrote:
-> > The kernel is meant to be very portable anyway.
+Folkert van Heusden, Sun, Dec 29, 2002 00:37:34 +0100:
+> Hi,
 > 
-> Not really.  The kernel is designed to compiled with a specific
-> compiler.  A GCC version other than the recommended version might
-> uncover bugs that should be fixed anyway, but it might also break
-> things that are worked around for the recommended GCC version.
-> 
-> John.
+> I always thought: you should always check for errno==EINTR when doing
+> read/write/recv/recvfrom/sendto.
+> But today I heard that when using Linux, EINTR does NEVER occur when
+> doing read/etc. on files.
+> Is this true?
+
+It was definitely true for 2.4.9.
+Even on NFS mounted files.
+What happen if the volumes mounted with intr, btw?
+
+> And also: is this also true for sockets? and recv & friends?
+
+No. You _have_to_ check EINTR for sockets, fifos, and pipes.
+
+-alex

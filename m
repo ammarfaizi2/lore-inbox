@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262073AbUC1VLW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Mar 2004 16:11:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbUC1VLW
+	id S262176AbUC1VRM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Mar 2004 16:17:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262351AbUC1VRM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Mar 2004 16:11:22 -0500
-Received: from aspfw1.asp-networks.co.uk ([217.169.14.2]:22955 "HELO
-	neptune.asp-networks.co.uk") by vger.kernel.org with SMTP
-	id S262073AbUC1VLU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Mar 2004 16:11:20 -0500
-X-Qmail-Scanner-Mail-From: sasa@kcore.ath.cx via neptune.asp-networks.co.uk
-X-Qmail-Scanner: 1.20 (Clear:RC:0(81.93.80.110):SA:0(-4.9/5.0):. Processed in 1.00842 secs)
-Date: Sun, 28 Mar 2004 23:11:15 +0200
-From: Sasa U <sasa@kcore.ath.cx>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Very poor performance with 2.6.4
-Message-Id: <20040328231115.70b6ffad.sasa@kcore.ath.cx>
-In-Reply-To: <40672F39.5040702@p3EE062D5.dip0.t-ipconnect.de>
-References: <40672F39.5040702@p3EE062D5.dip0.t-ipconnect.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 28 Mar 2004 16:17:12 -0500
+Received: from 1-2-2-1a.has.sth.bostream.se ([82.182.130.86]:24247 "EHLO
+	K-7.stesmi.com") by vger.kernel.org with ESMTP id S262176AbUC1VRJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Mar 2004 16:17:09 -0500
+Message-ID: <406740B9.9040409@stesmi.com>
+Date: Sun, 28 Mar 2004 23:16:41 +0200
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7b) Gecko/20040316
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Nick Piggin <nickpiggin@yahoo.com.au>, linux-ide@vger.kernel.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] speed up SATA
+References: <4066021A.20308@pobox.com> <40661049.1050004@yahoo.com.au> <406611CA.3050804@pobox.com> <406616EE.80301@pobox.com> <40667FAB.2090802@stesmi.com> <406734D3.7070501@pobox.com>
+In-Reply-To: <406734D3.7070501@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Jeff.
 
-I also have problems with speed under 2.6 ...
+> SATA ATAPI looks and works just like PATA ATAPI, with one notable 
+> exception:  S/ATAPI will include "asynchronous notification", a feature 
+> that allows you to eliminate the polling of the cdrom driver that 
+> normally occurs.
+> 
+> You can use ATAPI on SATA today, using a PATA->SATA bridge.  In fact 
+> that's the only way I can test SATA ATAPI at all, right now.
+> 
+> I hope somebody sends me one of these Plextor devices for testing ;-)
 
-However, disk I/O is slower under 2.6 ... comparing to 2.4.
+Would that mean that one uses the same (sub)drivers as normal SCSI
+devices do ?
 
-I talked to some people about it .. and they have the same experience ...
+sd/sg/etc ...
 
-Aksed once about that on this mailing list, but didn't get answers ...
-
-
-Regards
-S
+// Stefan

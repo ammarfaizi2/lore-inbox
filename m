@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312719AbSCZVGr>; Tue, 26 Mar 2002 16:06:47 -0500
+	id <S312735AbSCZVQM>; Tue, 26 Mar 2002 16:16:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312720AbSCZVGh>; Tue, 26 Mar 2002 16:06:37 -0500
-Received: from pool-151-204-73-76.delv.east.verizon.net ([151.204.73.76]:516
-	"EHLO trianna.2y.net") by vger.kernel.org with ESMTP
-	id <S312719AbSCZVGW>; Tue, 26 Mar 2002 16:06:22 -0500
-Date: Tue, 26 Mar 2002 16:06:38 -0500
-From: Malcolm Mallardi <magamo@ranka.2y.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.19-pre4-ac1 vmware and emu10k1 problems
-Message-ID: <20020326160638.A2103@trianna.upcommand.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S312738AbSCZVQD>; Tue, 26 Mar 2002 16:16:03 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:44477 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S312736AbSCZVPs>;
+	Tue, 26 Mar 2002 16:15:48 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Tue, 26 Mar 2002 21:15:44 GMT
+Message-Id: <UTC200203262115.VAA429771.aeb@cwi.nl>
+To: Andries.Brouwer@cwi.nl, balbir_soni@yahoo.com, jholly@cup.hp.com,
+        plars@austin.ibm.com
+Subject: Re: readv() return and errno
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The vmware modules will not compile properly under 2.4.19-pre4-ac1, or
-under 2.4.19-pre2-ac2, but compile fine on their mainline kernel
-counterparts.  Here is the errors that I get from vmware-config.pl:
+    From jholly@cup.hp.com Tue Mar 26 18:13:40 2002
 
-Building the vmmon module.
+    Doesn't seem confusing at all.
 
-make: Entering directory `/tmp/vmware-config1/vmmon-only'
-make[1]: Entering directory `/tmp/vmware-config1/vmmon-only'
-make[2]: Entering directory
-`/tmp/vmware-config1/vmmon-only/driver-2.4.19-pre4-ac1'
-In file included from .././linux/driver.c:38:
-/lib/modules/2.4.19-pre4-ac1/build/include/linux/malloc.h:4: #error
-linux/malloc.h is deprecated, use linux/slab.h instead.
-make[2]: *** [driver.d] Error 1
-make[2]: Leaving directory
-`/tmp/vmware-config1/vmmon-only/driver-2.4.19-pre4-ac1'
-make[1]: *** [deps] Error 2
-make[1]: Leaving directory `/tmp/vmware-config1/vmmon-only'
-make: *** [auto-build] Error 2
-make: Leaving directory `/tmp/vmware-config1/vmmon-only'
-Unable to build the vmmon module.
+    RETURN VALUE
+           On  success  readv  returns  the number of bytes read.  On
+           success writev returns the number of  bytes  written.   On
+           error, -1 is returned, and errno is set appropriately.
 
+    ERRORS
+           EINVAL An  invalid  argument was given. For instance count
+                  might be greater than MAX_IOVEC, or zero.  fd could
+                  also  be  attached to an object  which  is  unsuit-
+                  able  for  reading  (for  readv)  or  writing  (for
+                  writev).
 
-Also, under 2.4.19-pre4-ac1, when the emu10k1 module is loaded, I get a
-large amount of constant static until I rmmod it.  2.4.19-pre4's
-initialization of the emu10k1 driver is fine, and when the emu10k1
-driver is replaced with the latest CVS version of the emu10k1 driver,
-it initializes and performs normally.
+    I don't see much in the way of waffle words. If count is greater than
+    MAX_IOVEC or zero you get EINVAL.
 
---
-Malcolm D. Mallardi - Dark Freak At Large
-"Captain, we are receiving two-hundred eighty-five THOUSAND hails."
-AOL: Nuark  UIN: 11084092 Y!: Magamo Jabber: Nuark@jabber.com
-http://ranka.2y.net:8008/~magamo/index.htm
+Yes, without hesitation you choose the wrong interpretation.
+That is why I explained in so much detail what the right
+interpretation is. Since you perhaps still do not understand,
+let me reiterate:
+
+The above ERRORS section says: In case this call returns EINVAL
+one of the possible reasons is that an invalid argument was given.
+There do exist Unix-like systems (not necessarily Linux) that
+consider a zero count invalid.
+
+Andries

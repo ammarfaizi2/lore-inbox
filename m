@@ -1,121 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261560AbSIXFCm>; Tue, 24 Sep 2002 01:02:42 -0400
+	id <S261564AbSIXFIb>; Tue, 24 Sep 2002 01:08:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261563AbSIXFCm>; Tue, 24 Sep 2002 01:02:42 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41738 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261560AbSIXFCk>;
-	Tue, 24 Sep 2002 01:02:40 -0400
-Message-ID: <3D8FF30A.1060609@pobox.com>
-Date: Tue, 24 Sep 2002 01:07:22 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S261565AbSIXFIa>; Tue, 24 Sep 2002 01:08:30 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:50149 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S261564AbSIXFI3>; Tue, 24 Sep 2002 01:08:29 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Andi Kleen <ak@muc.de>
+Date: Tue, 24 Sep 2002 15:13:37 +1000
 MIME-Version: 1.0
-To: Albert Cranford <ac9410@attbi.com>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-       Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] linux-2.5.38 new i2c parallel port adapter
-References: <Pine.LNX.4.44.0209240044400.16117-200000@home1>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15759.62593.58936.153791@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Nanosecond resolution for stat(2) 
+In-Reply-To: message from Andi Kleen on Monday September 23
+References: <20020923214836.GA8449@averell>
+X-Mailer: VM 7.07 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert Cranford wrote:
-> +#define DEFAULT_BASE 0x378
+On Monday September 23, ak@muc.de wrote:
+> 
+> The kernel internally always keeps the nsec (or rather 1ms) resolution
+> stamp. When a filesystem doesn't support it in its inode (like ext2) 
+> and the inode is flushed to disk and then reloaded then an application
+> that is nanosecond aware could in theory see a backwards jumping time.
+> I didn't do anything anything against that yet, because it looks more
+> like a theoretical problem for me. If it should be one in practice 
+> it could be fixed by rounding the time up in this case.
 
-surely there is a parport define for this?
+Would it make sense, when loading a time from disk, for the low order,
+non-stored bits of the time to be initialised high rather than low.
+i.e. to 999,999,999 rather than 0.
+This way time stamps would never seem to jump backwards, only
+forwards, which seems less likely to cause confusion and will mean that a
+change is not missed (I'm thinking NFS here where cache correctness
+depends heavily on mtime).
 
+Also, would it make sense, for filesystems that don't store the full
+resolution, to make that forward jump appear as early as
+possible. i.e. if the mtime (ctime/atime) is earlier than the current
+time at the resoltion of the filesystem, then make the mtime appear to
+be what it would be if reloaded from storage...  Maybe an example
+would help.
 
-> +static int base=0;
-> +static unsigned char PortData = 0;
+Assuming an internal resolution on 1millisecond (to save on digits)
+and a stored resolution of 1 second
 
-don't explicitly init to zero... you were told this before :)
+time        change is made         Apparent timestamp 
 
+23.100         X                      23.100
+23.200                                23.100
+23.300         X                      23.300
+23.500         X                      23.500
+23.900                                23.500
+24.001                                23.999
+25.000                                23.999
 
-> +static int bit_pport_init(void)
-> +{
-> +	if (!request_region((base+2),1, "i2c (PPORT adapter)")) {
-> +		return -ENODEV;	
-> +	} else {
-> +
-> +		/* test for PPORT adap. 	*/
-> +	
-> +
-> +		PortData=inb(base+2);
-> +		PortData= (PortData SET_SDA) SET_SCL;
-> +		outb(PortData,base+2);				
-> +
-> +		if (!(inb(base+2) | 0x06)) {	/* SDA and SCL will be high	*/
-> +			DEBINIT(printk("i2c-pport.o: SDA and SCL was low.\n"));
-> +			return -ENODEV;
+Thus the only incorrect observation that an application can make is
+that there is an extra change at the end of a second when other
+changes were made.  I think this is better than an apparent change
+suddenly becoming visible many minutes after the time of that apparent
+change, and definately better than a timestamp moving backwards.
 
-leak, no release_region
-
-
-> +		} else {
-> +		
-> +			/*SCL high and SDA low*/
-> +			PortData = PortData SET_SCL CLR_SDA;
-> +			outb(PortData,base+2);	
-> +			schedule_timeout(400);
-
-ugly... use a constant based on HZ
-
-
-
-> +			if ( !(inb(base+2) | 0x4) ) {
-> +				//outb(0x04,base+2);
-> +				DEBINIT(printk("i2c-port.o: SDA was high.\n"));
-> +				return -ENODEV;
-
-likewise
-
-
-> +static void bit_pport_inc_use(struct i2c_adapter *adap)
-> +{
-> +#ifdef MODULE
-> +	MOD_INC_USE_COUNT;
-> +#endif
-> +}
-> +
-> +static void bit_pport_dec_use(struct i2c_adapter *adap)
-> +{
-> +#ifdef MODULE
-> +	MOD_DEC_USE_COUNT;
-> +#endif
-> +}
-
-remove the ifdefs... you were told this too :)
-
-
-
-> +int __init i2c_bitpport_init(void)
-> +{
-> +	printk("i2c-pport.o: i2c Primitive parallel port adapter module version %s (%s)\n", I2C_VERSION, I2C_DATE);
-> +
-> +	if (base==0) {
-> +		/* probe some values */
-> +		base=DEFAULT_BASE;
-> +		bit_pport_data.data=(void*)DEFAULT_BASE;
-> +		if (bit_pport_init()==0) {
-> +			if(i2c_bit_add_bus(&bit_pport_ops) < 0)
-> +				return -ENODEV;
-
-bug, no release_region
-
-
-> +		} else {
-> +			return -ENODEV;
-> +		}
-> +	} else {
-> +		bit_pport_data.data=(void*)base;
-> +		if (bit_pport_init()==0) {
-> +			if(i2c_bit_add_bus(&bit_pport_ops) < 0)
-> +				return -ENODEV;
-
-likewise
-
-
+NeilBrown

@@ -1,41 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286218AbRLTMLs>; Thu, 20 Dec 2001 07:11:48 -0500
+	id <S286223AbRLTMOV>; Thu, 20 Dec 2001 07:14:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286219AbRLTMLm>; Thu, 20 Dec 2001 07:11:42 -0500
-Received: from hq.pm.waw.pl ([195.116.170.10]:9366 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id <S286217AbRLTMLV>;
-	Thu, 20 Dec 2001 07:11:21 -0500
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: bug/problem  on 2.4.16 ???
-In-Reply-To: <F187Z1i6bdVJWrGW6Ex00007bcf@hotmail.com>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 19 Dec 2001 22:42:57 +0100
-In-Reply-To: <F187Z1i6bdVJWrGW6Ex00007bcf@hotmail.com>
-Message-ID: <m3heqmzy1q.fsf@defiant.pm.waw.pl>
-MIME-Version: 1.0
+	id <S286217AbRLTMLn>; Thu, 20 Dec 2001 07:11:43 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:53767 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S286218AbRLTML0>;
+	Thu, 20 Dec 2001 07:11:26 -0500
+Date: Thu, 20 Dec 2001 13:11:16 +0100
+From: Jens Axboe <axboe@suse.de>
+To: A Guy Called Tyketto <tyketto@wizard.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 'eject' process stuck in "D" state
+Message-ID: <20011220131116.C710@suse.de>
+In-Reply-To: <20011220111249.GA15692@wizard.com> <20011220122325.A710@suse.de> <20011220113654.GA1271@wizard.com> <20011220123904.B710@suse.de> <20011220120750.GA1429@wizard.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011220120750.GA1429@wizard.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Andre Couture" <nomade1999@hotmail.com> writes:
+On Thu, Dec 20 2001, A Guy Called Tyketto wrote:
+> In the messages file, I've taken it from the initial time I saw the problem, 
 
-> kernel 2.4.16 SMP PIII Katmai
-> 
-> the system is installed from mandrake 8.1 CD's.
-> 
-> then I've installed and recompile a new kernel.
-> 
-> i've attached the .config (just in case)
-> 
-> see below for more info
-> 
-> Any help would be appreciated, in the mean while i will recompile the
-> kswapd and ipopd3
+_Please_, grab them from _dmesg_, things are getting cut...
 
-No point in recompiling ipop3d, and kswapd is a part of the kernel.
-It's clearly kernel bug, and should be fixed just there.
-I'd try 2.4.17-rc2 or later.
 -- 
-Krzysztof Halasa
-Network Administrator
+Jens Axboe
+

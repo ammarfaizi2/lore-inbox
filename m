@@ -1,98 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265306AbUFTVbS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265515AbUFTVco@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265306AbUFTVbS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 17:31:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265510AbUFTVbS
+	id S265515AbUFTVco (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 17:32:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265537AbUFTVcn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 17:31:18 -0400
-Received: from wblv-235-33.telkomadsl.co.za ([165.165.235.33]:8631 "EHLO
-	gateway.lan") by vger.kernel.org with ESMTP id S265306AbUFTVbP
+	Sun, 20 Jun 2004 17:32:43 -0400
+Received: from wblv-235-33.telkomadsl.co.za ([165.165.235.33]:11447 "EHLO
+	gateway.lan") by vger.kernel.org with ESMTP id S265515AbUFTVcW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 17:31:15 -0400
-Subject: Re: [PATCH 0/2] kbuild updates
+	Sun, 20 Jun 2004 17:32:22 -0400
+Subject: Re: [PATCH 2/2] kbuild: Improved external module support
 From: Martin Schlemmer <azarah@nosferatu.za.org>
 Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+To: arjanv@redhat.com
+Cc: Sam Ravnborg <sam@ravnborg.org>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
        Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
        Andreas Gruenbacher <agruen@suse.de>,
        Geert Uytterhoeven <geert@linux-m68k.org>,
        Kai Germaschewski <kai@germaschewski.name>
-In-Reply-To: <20040620211905.GA10189@mars.ravnborg.org>
+In-Reply-To: <1087766729.2805.15.camel@laptop.fenrus.com>
 References: <20040620211905.GA10189@mars.ravnborg.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-h01NS+3yzyDpc7a+QaU6"
-Message-Id: <1087767034.14794.42.camel@nosferatu.lan>
+	 <20040620212353.GD10189@mars.ravnborg.org>
+	 <1087766729.2805.15.camel@laptop.fenrus.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-YGG/PRmqJXmXn/IA04AO"
+Message-Id: <1087767103.14794.44.camel@nosferatu.lan>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 20 Jun 2004 23:30:34 +0200
+Date: Sun, 20 Jun 2004 23:31:44 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-h01NS+3yzyDpc7a+QaU6
+--=-YGG/PRmqJXmXn/IA04AO
 Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, 2004-06-20 at 23:19, Sam Ravnborg wrote:
+On Sun, 2004-06-20 at 23:25, Arjan van de Ven wrote:
+> > #   3) The build symlink now points to the output of the kernel
+> > #      compile.
+> > #      - When a kernel is compiled with output and source
+> > #        mixed, the build and source symlinks will point
+> > #        to the same directory. In this case there is
+> > #        no change in behaviour.
+>=20
+> > #   It is recommended that distributions pick up this
+> > #   method, and especially start shipping kernel output and
+> > #   source separately.
+> > #  =20
+>=20
+> I don't see the point of this; module builds don't use the output of the
+> kernel compile but the SOURCE, eg the headers and Makefiles.
+>=20
+> I don't see a reason for this change; at least what I ship right now for
+> the Fedora Core 2 kernel seems to work for all modules with sane
+> makefiles so far....
 
-Hiya,
+And is going to break a lot of things - IMHO not an change for a
+'stable' release.
 
-> 2) Improved support for external modules.
->    It has been debated what to name the symlink in /lib/modules/`uname -r=
-`
->    and where it should point.
->    Now that there is a possibility to build the kernel with a separate ou=
-tput
->    directory, there is a need to utilise this in the install.
->    From now on build will point to the output directory, and source will =
-point
->    to the kernel source.
-
-I know Sam's mta blocks my mail at least (lame isp), but for the rest,
-please reconsider using this.  Many external modules, libs, etc use
-/lib/modules/`uname -r`/build to locate the _source_, and this will
-break them all.
-
-Once again I do not argue the logic behind this, but please then rather
-do it in 2.7, or just keep 'build', and make the output one 'output' or
-'object' or something.
-
->  No effort whatsoever will be done to keep external modules working if
->  they do not use the kbuild infrastructure. There is no reason not to
->  do so.
-
-Given, but to 'use' the kbuild infrastructure, you must still call it
-via:
-
-  make -C _path_to_sources M=3D`pwd`
-
-and any external project that at least tries to automate things a bit
-(because some things are not always distributed with vendor distro,
- or updated regularly by vendor distro, and most users know at least
- how to do 'make && make install') will break.
-
-Lastly, if the 'build'/whatever symlinks is not an 'kbuild'
-infrastructure (as Sam want to make it, and thus base his reasoning why
-it is Ok to build it) for finding the source of the current running
-kernel, then what is, why have it in the first place?
-
-
-Thanks,
 
 --=20
 Martin Schlemmer
 
---=-h01NS+3yzyDpc7a+QaU6
+--=-YGG/PRmqJXmXn/IA04AO
 Content-Type: application/pgp-signature; name=signature.asc
 Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQBA1gH6qburzKaJYLYRAp0RAJ0UihCDFOhiZKSivhxrjmNh9fCjAACfdOtN
-ePyGi/RmEc2Bj9kLIpHCa8I=
-=IIHG
+iD8DBQBA1gI/qburzKaJYLYRAg1qAJ993BSrbmEN8HH6xglKmkeQKOe4mACeO3WF
+9aox7tprDCqGOH8z/nZkLrE=
+=aLG+
 -----END PGP SIGNATURE-----
 
---=-h01NS+3yzyDpc7a+QaU6--
+--=-YGG/PRmqJXmXn/IA04AO--
 

@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135874AbREFV40>; Sun, 6 May 2001 17:56:26 -0400
+	id <S135879AbREFWAH>; Sun, 6 May 2001 18:00:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135875AbREFV4Q>; Sun, 6 May 2001 17:56:16 -0400
-Received: from p3E9D32A0.dip.t-dialin.net ([62.157.50.160]:1775 "EHLO
-	infinity.bzimage.de") by vger.kernel.org with ESMTP
-	id <S135874AbREFV4G>; Sun, 6 May 2001 17:56:06 -0400
-Date: Sun, 6 May 2001 23:54:26 +0200
-From: Norbert Tretkowski <tretkowski@bzimage.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: XFS and Alan kernel tree
-Message-ID: <20010506235426.A16127@infinity.bzimage.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20010505230816.A31544@witch.underley.eu.org>
+	id <S135882AbREFV75>; Sun, 6 May 2001 17:59:57 -0400
+Received: from turnover.lancs.ac.uk ([148.88.17.220]:33275 "EHLO
+	helium.chromatix.org.uk") by vger.kernel.org with ESMTP
+	id <S135879AbREFV7l>; Sun, 6 May 2001 17:59:41 -0400
+Message-Id: <l03130303b71b795cab9b@[192.168.239.105]>
+In-Reply-To: <Pine.A41.4.31.0105062307290.59664-100000@pandora.inf.elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <20010505230816.A31544@witch.underley.eu.org>; from underley@underley.eu.org on Sat, May 05, 2001 at 11:08:16PM +0200
-Organization: <defunct>
-Mail-Copies-To: never
+Content-Type: text/plain; charset="us-ascii"
+Date: Sun, 6 May 2001 22:59:19 +0100
+To: BERECZ Szabolcs <szabi@inf.elte.hu>, <linux-kernel@vger.kernel.org>
+From: Jonathan Morton <chromi@cyberspace.org>
+Subject: Re: page_launder() bug
+Cc: <linux-mm@kvack.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Daniel Podlejski <underley@underley.eu.org> wrote:
-> I merge XFS witch Alan tree (2.4.4-ac5). It's seems to be stable.
+>-			 page_count(page) == (1 + !!page->buffers));
 
-ld -m elf_i386  -r -o fs.o open.o read_write.o devices.o file_table.o
-buffer.o super.o block_dev.o stat.o exec.o pipe.o namei.o fcntl.o
-ioctl.o readdir.o select.o fifo.o locks.o dcache.o inode.o attr.o
-bad_inode.o file.o iobuf.o dnotify.o filesystems.o noquot.o ext_attr.o
-noposix_acl.o binfmt_script.o binfmt_elf.o proc/proc.o
-partitions/partitions.o ext2/ext2.o nls/nls.o
-ld: cannot open noposix_acl.o: No such file or directory
-make[2]: *** [fs.o] Error 1
-make[2]: Leaving directory `/usr/src/linux-2.4.4-ac5-xfs/fs'
-make[1]: *** [first_rule] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.4.4-ac5-xfs/fs'
-make: *** [_dir_fs] Error 2
+Two inversions in a row?  I'd like to see that made more explicit,
+otherwise it looks like a bug to me.  Of course, if it IS a bug...
+
+--------------------------------------------------------------
+from:     Jonathan "Chromatix" Morton
+mail:     chromi@cyberspace.org  (not for attachments)
+big-mail: chromatix@penguinpowered.com
+uni-mail: j.d.morton@lancaster.ac.uk
+
+The key to knowledge is not to rely on people to teach you it.
+
+Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
+
+-----BEGIN GEEK CODE BLOCK-----
+Version 3.12
+GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
+PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
+-----END GEEK CODE BLOCK-----
 
 
-Norbert

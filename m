@@ -1,31 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261322AbTEEVSU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 17:18:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbTEEVSU
+	id S261387AbTEEVcC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 17:32:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbTEEVcC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 17:18:20 -0400
-Received: from siaag2aa.compuserve.com ([149.174.40.131]:22481 "EHLO
-	siaag2aa.compuserve.com") by vger.kernel.org with ESMTP
-	id S261322AbTEEVST (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 17:18:19 -0400
-Date: Mon, 5 May 2003 17:29:20 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: The disappearing sys_call_table export.
-To: Terje Eggestad <terje.eggestad@scali.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200305051730_MC3-1-3780-86E0@compuserve.com>
-MIME-Version: 1.0
+	Mon, 5 May 2003 17:32:02 -0400
+Received: from pointblue.com.pl ([62.89.73.6]:14863 "EHLO pointblue.com.pl")
+	by vger.kernel.org with ESMTP id S261387AbTEEVcB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 17:32:01 -0400
+Subject: Re: [COMPILATION ERROR] 2.5.69 drivers/bluetooth/hci_usb.c
+	USB_ZERO_PACKET
+From: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
+To: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1052170326.11699.2.camel@nalesnik>
+References: <1052170326.11699.2.camel@nalesnik>
+Content-Type: text/plain
+Organization: K4 labs
+Message-Id: <1052170720.11697.6.camel@nalesnik>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 05 May 2003 22:38:43 +0100
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Lets deal, I'll GPL the trace module if you get me a 
-> EXPORT_SYMBOL_GPL(sys_call_table);
+On Mon, 2003-05-05 at 22:32, Grzegorz Jaskiewicz wrote:
+> drivers/bluetooth/hci_usb.c : 
+> USB_ZERO_PACKET definition is missing if CONFIG_BT_SUB_ZERO_PACKET is
+> not defined.
+> 
+> #define USB_ZERO_PACKET 0
+> 
+> in this file helps, but i guess it is not the best and fully correct
+> solution :)
+Oh, one small question. I am wondering, shouldn't this define be done in
+some USB header file ? 
+If so, please give me some hints i will correct it my self :) 
 
- You could always use the rootkit techniques from Phrack 58 to find
-the table... seems kind of silly to do that in kernel mode, but it
-should work.
+-- 
+Grzegorz Jaskiewicz <gj@pointblue.com.pl>
+K4 labs
+
+

@@ -1,75 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262602AbSLTPjV>; Fri, 20 Dec 2002 10:39:21 -0500
+	id <S262580AbSLTPjR>; Fri, 20 Dec 2002 10:39:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262620AbSLTPjV>; Fri, 20 Dec 2002 10:39:21 -0500
-Received: from eamail1-out.unisys.com ([192.61.61.99]:1958 "EHLO
-	eamail1-out.unisys.com") by vger.kernel.org with ESMTP
-	id <S262602AbSLTPjS>; Fri, 20 Dec 2002 10:39:18 -0500
-Message-ID: <3FAD1088D4556046AEC48D80B47B478C0101F55D@usslc-exch-4.slc.unisys.com>
-From: "Van Maren, Kevin" <kevin.vanmaren@unisys.com>
-To: "'William Lee Irwin III'" <wli@holomorphy.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       James Cleverdon <jamesclv@us.ibm.com>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Martin Bligh <mbligh@us.ibm.com>, John Stultz <johnstul@us.ibm.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>,
-       "Saxena, Sunil" <sunil.saxena@intel.com>,
-       "Van Maren, Kevin" <kevin.vanmaren@unisys.com>
-Cc: "Protasevich, Natalie" <Natalie.Protasevich@unisys.com>
-Subject: RE: [PATCH][2.4]  generic cluster APIC support for systems with m
-	ore than 8 CPUs
-Date: Fri, 20 Dec 2002 09:46:19 -0600
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2656.59)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S262602AbSLTPjR>; Fri, 20 Dec 2002 10:39:17 -0500
+Received: from crack.them.org ([65.125.64.184]:61159 "EHLO crack.them.org")
+	by vger.kernel.org with ESMTP id <S262580AbSLTPjP>;
+	Fri, 20 Dec 2002 10:39:15 -0500
+Date: Fri, 20 Dec 2002 10:48:29 -0500
+From: Daniel Jacobowitz <dan@debian.org>
+To: Roland McGrath <roland@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@redhat.com>
+Subject: Re: PTRACE_GET_THREAD_AREA
+Message-ID: <20021220154829.GB17007@nevyn.them.org>
+Mail-Followup-To: Roland McGrath <roland@redhat.com>,
+	linux-kernel@vger.kernel.org, Ingo Molnar <mingo@redhat.com>
+References: <200212200832.gBK8Wfg29816@magilla.sf.frob.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200212200832.gBK8Wfg29816@magilla.sf.frob.com>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Thu, Dec 19, 2002 at 06:04:55PM -0800, James Cleverdon wrote:
-> >>> A generic patch should also support Unisys' new box, the ES7000 or
-> >>> some such.
+On Fri, Dec 20, 2002 at 12:32:41AM -0800, Roland McGrath wrote:
+> This patch vs 2.5.51 (should apply fine to 2.5.52) adds two new ptrace
+> requests for i386, PTRACE_GET_THREAD_AREA and PTRACE_SET_THREAD_AREA.
+> These let another process using ptrace do the equivalent of performing
+> get_thread_area and set_thread_area system calls for another thread.
 > 
-> On Fri, Dec 20, 2002 at 08:00:50AM +0000, Christoph Hellwig wrote:
-> >> That box needs more changes than just the apic setup.  Unfortunately
-> >> unisys thinks they shouldn't send their patches to lkml, but when you
-see
-> >> them e.g. in the suse tree it's a bit understandable that they don't
-want
-> >> anyone to really see their mess :)
+> We are working on gdb support for the new threading code in the kernel
+> using the new NPTL library, and use PTRACE_GET_THREAD_AREA for that.
+> This patch has been working fine for that.
+> 
+> I added PTRACE_SET_THREAD_AREA just for completeness, so that you can
+> change all the state via ptrace that you can read via ptrace as has
+> previously been the case.  It doesn't have an equivalent of set_thread_area
+> with .entry_number = -1, but is otherwise the same.
+> 
+> Both requests use the ptrace `addr' argument for the entry number rather
+> than the entry_number field in the struct.  The `data' parameter gives the
+> address of a struct user_desc as used by the set/get_thread_area syscalls.
+> 
+> The code is quite simple, and doesn't need any special synchronization
+> because in the ptrace context the thread must be stopped already.
+> 
+> I chose the new request numbers arbitrarily from ones not used on i386.
+> I have no opinion on what values should be used.
+> 
+> People I talked to preferred adding this interface over putting an array of
+> struct user_desc in struct user as accessed by PTRACE_PEEKUSR/POKEUSR
+> (which would be a bit unnatural since those calls access one word at a time).
 
-No need to sugar-coat anything :-)
+In general, I like this.  However, I have to ask one question: how much
+of the i386-centrism of this patch is actually necessary?  What
+information does GDB _use_ from this, and is there some way we can
+expose it that will be useful in other places?
 
-Natalie is the engineer who added support for the ES7000 to Linux.
-Fortunately she is in the cube next to me.
+Eventually most or all targets will have thread-specific data
+implemented; I don't want to have to redo this for each one.
 
-She has sent the patches to SuSe/United Linux, and is in the final process
-of testing them on 2.5.5x before submitting them to LKML for comment.
+Your choice of numbers is fine if this remains i386-centric; if we
+expect there to be a common interface then it should go in
+<linux/ptrace.h> and the 0x4200 range instead.
 
-> >> And btw, the box isn't that new, but three years ago or so when they
-first
-> >> showed it on cebit they even refused to talk about linux due to their
-> >> restrictive agreements with Microsoft..
->
-> On Fri, Dec 20, 2002 at 03:24:01AM -0800, William Lee Irwin III wrote:
-> > Kevin, you're the only lkml-posting contact point I know of within
-Unisys.
-> > Is there any chance you could flag down some of the ia32 crew there for
-> > some commentary on this stuff? (or do so yourself if you're in it)
-
-I mostly work on our 16-32p IA64 machines.  Natalie or someone else will
-have to comment on the clustered-apic code.
-
-I do know that a lot of the code for the ES7000 is optional, and only
-required to support value-added management functionality, which is
-especially useful if you are running more than one OS instance on the
-machine (it supports 8 fully-independent partitions).
-
-Also, as a clarification, our 32-processor systems are NOT NUMA: there
-is a full non-blocking crossbar to memory.  So clustered APIC support
-should not be dependant on NUMA.
-
-Kevin
+-- 
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

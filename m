@@ -1,77 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278954AbRKAOBM>; Thu, 1 Nov 2001 09:01:12 -0500
+	id <S278949AbRKAN5X>; Thu, 1 Nov 2001 08:57:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278959AbRKAOBC>; Thu, 1 Nov 2001 09:01:02 -0500
-Received: from adsl-63-197-0-76.dsl.snfc21.pacbell.net ([63.197.0.76]:51469
-	"HELO www.pmonta.com") by vger.kernel.org with SMTP
-	id <S278954AbRKAOAt>; Thu, 1 Nov 2001 09:00:49 -0500
-From: Peter Monta <pmonta@pmonta.com>
-To: linux-kernel@vger.kernel.org
-Subject: ns83820: UDP not working?
-Message-Id: <20011101140048.A0B441C5@www.pmonta.com>
-Date: Thu,  1 Nov 2001 06:00:48 -0800 (PST)
+	id <S278951AbRKAN5M>; Thu, 1 Nov 2001 08:57:12 -0500
+Received: from shed.alex.org.uk ([195.224.53.219]:37785 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S278949AbRKAN5J>;
+	Thu, 1 Nov 2001 08:57:09 -0500
+Date: Thu, 01 Nov 2001 13:57:04 -0000
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Riley Williams <rhw@MemAlpha.cx>, Kurt Roeckx <Q@ping.be>
+Cc: Ian Maclaine-cross <iml@ilm.mech.unsw.edu.au>,
+        Linux Kernel <linux-kernel@vger.kernel.org>,
+        Ian Maclaine-cross <iml@debian.org>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: PROBLEM: Linux updates RTC secretly when clock synchronizes
+Message-ID: <1301130987.1004623024@[10.132.113.67]>
+In-Reply-To: <Pine.LNX.4.21.0111010045050.28028-100000@Consulate.UFP.CX>
+In-Reply-To: <Pine.LNX.4.21.0111010045050.28028-100000@Consulate.UFP.CX>
+X-Mailer: Mulberry/2.1.0 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I can't seem to get a UDP test (ttcp -u) to work with the
-ns83820 driver.  I'm using DGE-500T cards on both ends, with
-a point-to-point link (no switch), if it matters.  ttcp -u
-works as expected on the 100baseT interfaces also in the
-boxes.  The kernel is 2.4.14-pre3.
 
-Here is what ifconfig shows after waiting ten seconds,
-then interrupting ttcp:
 
-(receiver, "ttcp -r -u -s")
+--On Thursday, November 01, 2001 12:52 AM +0000 Riley Williams 
+<rhw@MemAlpha.cx> wrote:
 
-eth1      Link encap:Ethernet  HWaddr xx:xx:xx:xx:xx:xx
-          inet addr:10.1.1.1  Bcast:10.255.255.255  Mask:255.0.0.0
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:44 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:1 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:100 
-          RX bytes:59124 (57.7 kb)  TX bytes:42 (42.0 b)
+> The offset needs to be sufficient to handle the case of the RTC being
+> set to local time and the boot and first ntp sync occurring on opposite
+> sides of a Daylight Savings Time change. A couple of timezones use a DST
+> offset of 90 minutes, so if it's less than that, there will be problems.
 
-(transmitter, "ttcp -t -u -s 10.1.1.1")
+There is a related problem, where if you are running something which
+can suspend, like a laptop, but not using integrated apm to do it (for
+instance a laptop which has a broken BIOS), then suspending 'freezes'
+the system time, which is wrong on resume (as the power management
+event appears to be invisible to Linux). Then this goes and blats
+over the (correct) RTC time. If you then get a network connection up,
+ntp won't adjust the time as it's too far out. What I wanted was
+an option which did the copy the other way on a large offset - i.e.
+keep the RTC in sync for smallish offsets, but if the offset is
+wrong by more than 5 minutes (and RTC is in advance), copy RTC to
+system time as the laptop probably suspended. There might of course
+be a better hueristic to detect this (perhaps every time it does
+the check see if it got out of sync by > the interval between
+checks). Short of this, it would be useful to be able to turn /off/
+futzing with the rtc.
 
-eth1      Link encap:Ethernet  HWaddr xx:xx:xx:xx:xx:xx
-          inet addr:10.1.1.2  Bcast:10.255.255.255  Mask:255.0.0.0
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:1 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:1 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:100 
-          RX bytes:64 (64.0 b)  TX bytes:42 (42.0 b)
-
-TCP works fine.
-
-I suspect the UDP transmit rapidly fills up the TX queue, but
-then things never get unblocked for some reason.  Some of the
-trials show 127 or 128 packets having been transmitted, which
-might be related to the TX ring size of 256 packets and what
-looks like some internal tx_size/2 flow control logic.  With TCP
-so many packets in the TX queue is unlikely, I guess, due to
-the window.
-
-I can get continuous UDP transmit to work with small enough
-packets:
-
-[200 byte UDP payload:]
-
-s0# ttcp -t -u -s -l 200 -n 10000 225.5.5.6
-ttcp-t: buflen=200, nbuf=10000, align=16384/0, port=5001  udp  -> 225.5.5.6
-ttcp-t: socket
-ttcp-t: 2000000 bytes in 0.07 real seconds = 27377.70 KB/sec +++
-ttcp-t: 10006 I/O calls, msec/call = 0.01, calls/sec = 140257.92
-ttcp-t: 0.0user 0.0sys 0:00real 42% 0i+0d 0maxrss 0+1pf 0+0csw
-
-[300 byte UDP payload:]
-
-s0# ttcp -t -u -s -l 300 -n 10000 225.5.5.6
-ttcp-t: buflen=300, nbuf=10000, align=16384/0, port=5001  udp  -> 225.5.5.6
-ttcp-t: socket
-
-(hangs)
-
-Cheers,
-Peter Monta
+--
+Alex Bligh

@@ -1,52 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130596AbRBSQvf>; Mon, 19 Feb 2001 11:51:35 -0500
+	id <S129907AbRBSQwf>; Mon, 19 Feb 2001 11:52:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129907AbRBSQvZ>; Mon, 19 Feb 2001 11:51:25 -0500
-Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:27635 "EHLO
-	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S130597AbRBSQvP>; Mon, 19 Feb 2001 11:51:15 -0500
-Date: Mon, 19 Feb 2001 17:51:05 +0100
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: David Balazic <david.balazic@uni-mb.si>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Flusing caches on shutdown
-Message-ID: <20010219175105.J724@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <3A911585.E0A8006E@uni-mb.si>
-Mime-Version: 1.0
+	id <S130225AbRBSQwZ>; Mon, 19 Feb 2001 11:52:25 -0500
+Received: from smtp.bellnexxia.net ([209.226.175.26]:5091 "EHLO
+	tomts6-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S129907AbRBSQwP>; Mon, 19 Feb 2001 11:52:15 -0500
+Message-ID: <3A914E57.9990EB7C@sympatico.ca>
+Date: Mon, 19 Feb 2001 11:48:23 -0500
+From: Jeremy Jackson <jeremy.jackson@sympatico.ca>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jaswinder Singh <jaswinder.singh@3disystems.com>
+CC: peterw@dascom.com.au, "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Kernel executation from ROM
+In-Reply-To: <XFMail.20010219124909.peterw@dascom.com.au> <01e701c09a2a$21e789a0$bba6b3d0@Toshiba>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <3A911585.E0A8006E@uni-mb.si>; from david.balazic@uni-mb.si on Mon, Feb 19, 2001 at 01:45:57PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 19, 2001 at 01:45:57PM +0100, David Balazic wrote:
-> It is a good idea IMO to flush the write cache of storage devices
-> at shutdown and other critical moments.
+Jaswinder Singh wrote:
 
-Not needed. All device drivers should disable write caches of
-their devices, that need another signal than switching it off by
-the power button to flush themselves.
+> Dear Sirs,
+>
+> Thanks for your help,
+>
+> I see . The biggest negative point of running kernel from ROM is that ROM
+> speed is slow :(
 
-> Loosing data at powerdown due to write caches have been reported,
-> so this is no a theoretical problems. Also the journaled filesystems
-> are safe only in theory if the journal is not stored on non-volatile
-> memory, which is not guarantied in the current kernel.
+Also, the PCI specification forbids executing code from ROMs over the PCI bus.
+The system BIOS in a PC is not on the PCI bus, bus, but everything else is.
 
-Fine. If users/admins have write caching enabled, they either
-know what they do, or should disable it (which is the default for
-all mass storage drivers AFAIK).
-
-Hardware Level caching is only good for OSes which have broken
-drivers and broken caching (like plain old DOS).
-
-Linux does a good job in caching and cache control at software
-level.
-
-Regards
-
-Ingo Oeser
--- 
-10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
-         <<<<<<<<<<<<       come and join the fun       >>>>>>>>>>>>

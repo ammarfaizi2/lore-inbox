@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274147AbRISTaY>; Wed, 19 Sep 2001 15:30:24 -0400
+	id <S274145AbRISTaO>; Wed, 19 Sep 2001 15:30:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274148AbRISTaO>; Wed, 19 Sep 2001 15:30:14 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:1008
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S274147AbRIST37>; Wed, 19 Sep 2001 15:29:59 -0400
-Date: Wed, 19 Sep 2001 12:30:18 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: the Gimp and pre11
-Message-ID: <20010919123018.B12820@mikef-linux.matchmail.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20010919034412.092EB9CF9@oscar.casa.dyndns.org> <1000907347.6897.8.camel@sonja>
+	id <S274148AbRISTaE>; Wed, 19 Sep 2001 15:30:04 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:27387 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S274145AbRIST3x>; Wed, 19 Sep 2001 15:29:53 -0400
+From: Andreas Dilger <adilger@turbolabs.com>
+Date: Wed, 19 Sep 2001 13:29:35 -0600
+To: Wayne Whitney <whitney@math.berkeley.edu>
+Cc: Fabian Arias <dewback@vtr.net>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.9-ac12 - problem mounting reiserfs (parse error?)
+Message-ID: <20010919132935.M14526@turbolinux.com>
+Mail-Followup-To: Wayne Whitney <whitney@math.berkeley.edu>,
+	Fabian Arias <dewback@vtr.net>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0109191053400.1244-100000@portland.hansa.lan> <Pine.LNX.4.40.0109191248360.5460-100000@ronto.dewback.cl> <200109191904.f8JJ40001476@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1000907347.6897.8.camel@sonja>
+In-Reply-To: <200109191904.f8JJ40001476@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
 User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 19, 2001 at 03:48:57PM +0200, Daniel Egger wrote:
-> On Mit, 2001-09-19 at 05:44, Ed Tomlinson wrote:
+On Sep 19, 2001  12:04 -0700, Wayne Whitney wrote:
+> I also have reiserfs mounts from /etc/fstab failing in 2.4.9-ac12, so
+> I straced the mount process.  With options "defaults" in /etc/fstab,
+> "mount /usr/local" does:
 > 
-> > I am editing 6 Megapixel files (2800x2048) and things like rotations seem to 
-> > have delays that were not happening with previous kernels.  My box has 320M.
-> > Seems that pre11 does not swap out as much as pre10 so Gimp has less to work
-> > with.
-> 
-> Since GIMP uses it's own memory management using a tile approach I
-> hardly doubt this is caused by swap usage if you defined the maximum
-> amount of memory GIMP should use correctly; though it may be that the
-> kernel swaps out tiles that the tilemanager considers to be active (and
-> thus in memory) this behaviour should not happen as long as the kernel
-> is not to eagerly swapping out memory and considering that the tiles
-> are referenced quite often it should not swap them to disc at all IF
-> the recently introduced algorithms work correctly.
-> 
-> Anyhow, just to make sure, would you please mention much memory you
-> assigned to GIMP and what else is running on the system?
-> 
+>   mount("/dev/hde8", "/usr/local", "reiserfs", 0xc0ed0000, 0x80597a8) = -1 EINVAL (Invalid argument)
 
-Also, try a test with pre11 with swap turned off, and see how that affects
-your system.
+Could you run gdb on your mount and show us what *data contains at this
+point (last parameter).  According to man(8) "defaults" expands to
+"rw,suid,dev,exec,auto,nouser,async".  You could also try putting
+all of these in /etc/fstab explicitly and remove them one at a time
+until we find which one it is complaining about.  Either mount(8)
+shouldn't be appending this option to the mount data, or reiserfs
+needs to parse it in the kernel.
 
-Please note: I am not recommending running without swap under normal
-circumstances...
+> While "mount /dev/hde8 /usr/local" gives:
+> 
+>   mount("/dev/hde8", "/usr/local", "reiserfs", 0xc0ed0000, 0) = 0
+
+Works OK, no option data passed.
+
+> But with the options "notail" in /etc/fstab, "mount /usr/local" does:
+> 
+>   mount("/dev/hde8", "/usr/local", "reiserfs", 0xc0ed0000, 0x806d3e0) = 0
+
+Works OK, has "notail" but not any other options from "defaults".
+
+Cheers, Andreas
+--
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+

@@ -1,47 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264857AbUG1VpF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264685AbUG1Vpz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264857AbUG1VpF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 17:45:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264858AbUG1VpE
+	id S264685AbUG1Vpz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 17:45:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264984AbUG1Vpz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 17:45:04 -0400
-Received: from opersys.com ([64.40.108.71]:30468 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S264857AbUG1Vo5 (ORCPT
+	Wed, 28 Jul 2004 17:45:55 -0400
+Received: from ns1.lanforge.com ([66.165.47.210]:226 "EHLO www.lanforge.com")
+	by vger.kernel.org with ESMTP id S264685AbUG1Vpv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 17:44:57 -0400
-Message-ID: <41081CC9.3090501@opersys.com>
-Date: Wed, 28 Jul 2004 17:38:17 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Wed, 28 Jul 2004 17:45:51 -0400
+Message-ID: <41081E8B.7030607@candelatech.com>
+Date: Wed, 28 Jul 2004 14:45:47 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Scott Wood <scott@timesys.com>, Ingo Molnar <mingo@elte.hu>,
-       "La Monte H.P. Yarroll" <piggy@timesys.com>,
-       Manas Saksena <manas.saksena@timesys.com>,
-       Philippe Gerum <rpm@xenomai.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] IRQ threads
-References: <20040727225040.GA4370@yoda.timesys>	 <4107CA18.4060204@opersys.com> <1091039327.747.26.camel@mindpipe>	 <4107FA93.3030801@opersys.com> <1091043218.766.10.camel@mindpipe>	 <41080540.9040401@opersys.com> <1091046954.791.27.camel@mindpipe>	 <41081771.1010307@opersys.com> <1091051005.791.45.camel@mindpipe>
-In-Reply-To: <1091051005.791.45.camel@mindpipe>
+To: Andrew Morton <akpm@osdl.org>
+CC: Alan Cox <alan@redhat.com>, jgarzik@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: PATCH: VLAN support for 3c59x/3c90x
+References: <20040728124256.GA31246@devserv.devel.redhat.com> <20040728143634.0931ee07.akpm@osdl.org>
+In-Reply-To: <20040728143634.0931ee07.akpm@osdl.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
+> Alan Cox <alan@redhat.com> wrote:
+> 
+>>This adds VLAN support to the 3c59x/90x series hardware.
+> 
+> 
+> Sigh.  This has been floating about for ever.  My reluctance stemmed
+> from largely-theoretical-sounding objections from Don Becker which I
+> didn't fully understand at the time and have now forgotten.
+> 
+> Ben, does the patch look complete/correct to you?
 
-Lee Revell wrote:
-> Yes, agreed.  I am glad this did not escalate, and I hope you can
-> understand how I would have overlooked your actual argument due to my
-> perceiving the first paragraph as vaguely ad hominem. 
+I don't have such hardware, but I don't see any obvious problems
+with the patch.
 
-Yes I do understand, and thanks for taking the time to sort this out :)
+In my opinion Becker's complaints were invalid, or maybe I just
+didn't understand what he was trying to say.  At any rate, lots of
+other NICs have supported larger MTUs and VLANs w/out problem, so
+it is unlikely that there is a fundamental flaw in accepting larger
+frames.
 
-Karim
+There are patches for tulip floating around too.  I have been running
+traffic on these patches for a while with no obvious problems
+(on 2.4 kernel, however).  Jeff, if you want me to re-send this to you,
+please let me know!
+
+Ben
+
 -- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
 

@@ -1,52 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290730AbSBFSRL>; Wed, 6 Feb 2002 13:17:11 -0500
+	id <S290722AbSBFSQv>; Wed, 6 Feb 2002 13:16:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290728AbSBFSRE>; Wed, 6 Feb 2002 13:17:04 -0500
-Received: from dsl-65-186-161-49.telocity.com ([65.186.161.49]:9220 "EHLO
-	nic.osagesoftware.com") by vger.kernel.org with ESMTP
-	id <S290729AbSBFSQw>; Wed, 6 Feb 2002 13:16:52 -0500
-Message-Id: <4.3.2.7.2.20020206131121.00b1f670@mail.osagesoftware.com>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Wed, 06 Feb 2002 13:16:58 -0500
-To: lkml <linux-kernel@vger.kernel.org>
-From: David Relson <relson@osagesoftware.com>
-Subject: Re: How to check the kernel compile options ?
-In-Reply-To: <20020206172423.3967123CD3@persephone.dmz.logatique.fr>
-In-Reply-To: <20020206162657.GD534915@niksula.cs.hut.fi>
- <m3ofj2galz.fsf@linux.local>
- <E16YSs7-0005GY-00@the-village.bc.nu>
- <20020206162657.GD534915@niksula.cs.hut.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S290728AbSBFSQl>; Wed, 6 Feb 2002 13:16:41 -0500
+Received: from ns.caldera.de ([212.34.180.1]:65426 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S290722AbSBFSQc>;
+	Wed, 6 Feb 2002 13:16:32 -0500
+Date: Wed, 6 Feb 2002 18:20:46 +0100
+Message-Id: <200202061720.g16HKk812411@ns.caldera.de>
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Cc: aia21@cam.ac.uk (Anton Altaparmakov),
+        linux-kernel@vger.kernel.org (linux-kernel),
+        vda@port.imtp.ilyichevsk.odessa.ua
+Subject: Re: kernel: ldt allocation failed
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <E16YSLg-00056Z-00@the-village.bc.nu>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.13 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 12:26 PM 2/6/02, you wrote:
-
-
->... snip ...
+In article <E16YSLg-00056Z-00@the-village.bc.nu> you wrote:
+>> I am ignorant on the subject, but why LDT is used in Linux at all?
+>> LDT register can be set to 0, this can speed up task switch time and save 
+>> some memory used for LDT.
 >
->         * having /usr/src/linux/patches is not practical : it will be a 
-> big mess wrt
->to conflict
+> Wine and certain threaded applications
 
-Indeed, if /usr/src/linux/patches was a file, the conflicts would be 
-impossible to manage.  But suppose it was a directory and each patch 
-created a small description file in that directory.  This would provide the 
-desired information without having the big mess :-)
-
-It's been suggested that config info be saved using the following:
-
-         <.config sed -e '/^#/d' -e '/^[    ]*$/d' | gzip -9 >> image
-
-The patch descriptions could be saved in a similar manner:
-
-         cat /usr/src/linux/patches/* | gzip -9 >> image
-
-Alternatively, instead of outputting to image, one could output to 
-/boot/patch-$KERNELVERSION, (or wherever)
-
-David
-
+Xenix/286 binary emulation.
 

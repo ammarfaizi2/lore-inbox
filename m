@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285720AbRLHBLg>; Fri, 7 Dec 2001 20:11:36 -0500
+	id <S285719AbRLHBKq>; Fri, 7 Dec 2001 20:10:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285721AbRLHBLR>; Fri, 7 Dec 2001 20:11:17 -0500
-Received: from cx518206-a.irvn1.occa.home.com ([24.21.107.122]:16380 "HELO
-	cx518206-b.irvn1.occa.home.com") by vger.kernel.org with SMTP
-	id <S285720AbRLHBLP>; Fri, 7 Dec 2001 20:11:15 -0500
-Subject: Re: Linux 2.4.17-pre6 drm-4.0
-To: kaos@ocs.com.au (Keith Owens)
-Date: Fri, 7 Dec 2001 16:12:40 -0800 (PST)
-Cc: rml@tech9.net (Robert Love), linux-ia64@linuxia64.org,
-        linux-kernel@vger.kernel.org (lkml)
-In-Reply-To: <4719.1007767953@ocs3.intra.ocs.com.au> from "Keith Owens" at Dec 08, 2001 10:32:33 AM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S285720AbRLHBKg>; Fri, 7 Dec 2001 20:10:36 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:53969 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S285719AbRLHBKV>;
+	Fri, 7 Dec 2001 20:10:21 -0500
+From: David Mosberger <davidm@hpl.hp.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <20011208001240.A9C5089EF4@cx518206-b.irvn1.occa.home.com>
-From: barryn@pobox.com (Barry K. Nathan)
+Message-ID: <15377.26745.265632.705793@napali.hpl.hp.com>
+Date: Fri, 7 Dec 2001 17:10:17 -0800
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: David Mosberger <davidm@hpl.hp.com>, Andrew Morton <akpm@zip.com.au>,
+        j-nomura@ce.jp.nec.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.16 kernel/printk.c (per processorinitializationcheck)
+In-Reply-To: <Pine.LNX.4.21.0112071906430.22884-100000@freak.distro.conectiva>
+In-Reply-To: <15377.16385.380923.588249@napali.hpl.hp.com>
+	<Pine.LNX.4.21.0112071906430.22884-100000@freak.distro.conectiva>
+X-Mailer: VM 6.76 under Emacs 20.4.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Linus ditched drm 4.0 months ago.  It only survives in arch add on
-> patches like ia64 and in -ac trees.
+>>>>> On Fri, 7 Dec 2001 19:09:03 -0200 (BRST), Marcelo Tosatti <marcelo@conectiva.com.br> said:
 
-No, it also survives as an add-on tarball for the standard kernel:
-http://www.kernel.org/pub/linux/kernel/v2.4/drm-4.0.x.tar.bz2
+  >> I'm not entirely sure whether this particular problem is
+  >> architecture specific.  Perhaps it is and, if so, I'm certainly
+  >> happy to fix it in the ia64 specific code. However, are you
+  >> really 100% certain that on x86 there are no console drivers
+  >> which in some fashion depend on cpu_init() having completed
+  >> execution?  Note that the x86 version of cpu_init() also has
+  >> printk()s.  If you're not certain of this, the AP startup problem
+  >> could occur on x86, too.  I haven't looked at all the other
+  >> platforms, but I suspect similar things will be true, there.
 
-Let me dig through my old mail so I can quote Linus on this... Here's
-what he said in his Linux 2.4.8 announcement message (Subject
-"Linux-2.4.8", sent on August 10th of this year):
+  Marcelo> Prove, please. If you show me it can also happen on other
+  Marcelo> architectures, I'll be glad to apply the patch.
 
-> Ok, this one has various VM niceness tweaks that have made some people
-> much happier. It also does a upgrade to the XFree86-4.1.x style DRM code,
-> which means that people with XFree86-4.0.x can no longer use the built-in
-> kernel DRM by default.
-> 
-> However, never fear. It's actually very easy to get the old DRM code too:
-> if you used to use the standard kernel DRM and do not want to upgrade to a
-> new XFree86 setup, just get the "drm-4.0.x" package from the same place
-> you get the kernel from, and do
-> 
->  - unpack the kernel
->  - cd linux/drivers/char
->  - unpack the "drm-4.0.x" package here
->  - mv drm new-drm
->  - mv drm-4.0.x drm
-> 
-> and you should be all set.
+I'm no x86 expert, but I have the impression that
+current_cpu_data.loops_per_jiffy will be invalid (probably 0) until
+smp_store_cpu_info() is called in smp_callin().  If so, a console
+driver using udelay() might not work properly.  I suspect there are
+other issues, but this is just based on looking at the x86 source code
+for 5 minutes.
 
-The impression I get (for 2.4) is that DRM 4.1 comes standard but you
-should still be able to use 4.0 if you want, via that tarball.
-
--Barry K. Nathan <barryn@pobox.com>
+	--david

@@ -1,51 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279959AbRJaKhZ>; Wed, 31 Oct 2001 05:37:25 -0500
+	id <S279968AbRJaKiZ>; Wed, 31 Oct 2001 05:38:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278842AbRJaKhP>; Wed, 31 Oct 2001 05:37:15 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:27149 "HELO holly.csn.ul.ie")
-	by vger.kernel.org with SMTP id <S279961AbRJaKhB>;
-	Wed, 31 Oct 2001 05:37:01 -0500
-Date: Wed, 31 Oct 2001 10:37:31 +0000 (GMT)
-From: Dave Airlie <airlied@csn.ul.ie>
-X-X-Sender: <airlied@skynet>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: oops on 2.4.13-pre5 in prune_dcache
-In-Reply-To: <200110310054.f9V0sEf01836@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.32.0110311032580.20516-100000@skynet>
+	id <S278842AbRJaKiG>; Wed, 31 Oct 2001 05:38:06 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:31757 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S279961AbRJaKh7>; Wed, 31 Oct 2001 05:37:59 -0500
+Subject: Re: Local APIC option (CONFIG_X86_UP_APIC) locks up Inspiron 8100
+To: stevie@qrpff.net (Stevie O)
+Date: Wed, 31 Oct 2001 10:44:54 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <5.1.0.14.2.20011030235723.022818d8@whisper.qrpff.net> from "Stevie O" at Oct 31, 2001 12:06:57 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15ysre-0003FD-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> and because dentry->d_op isn't NULL, we oops on the d_op->d_iput
-> dereference.
->
-> Something is setting a bit in your dentry. Either RAM errors (do you
-> have ECC memory or a history of SIGSEGV's to give any indication either
-> way?) or a wild "set_bit()" pointer or similar.
->
+> 2) Anytime I change the plugged-in status of the AC adapter (if it wasn't 
+> plugged in, if I plug it in; if it was plugged in, if I unplug it), the 
+> machine locks up completely.
 
-well I've never seen any OOPS on this machine before or segv on this
-machine and I use it for cross-compiling glibc/gdb/binutils/gcc/kernels
-etc for the VAX port of Linux so I'm sure I'd have seen one before if it
-was memory... I can run memtest on it at some stage over the next couple
-of days but I'm pretty confident the RAM is okay.. granted its not ECC...
+Not all BIOS firmware can cope when we switch to UP-APIC. Some laptops 
+really don't like it one bit.
 
-I have nothing unusual in my config I don't think,
+> One other thing: how would the kernel react to the "SpeedStep" feature of 
+> changing the CPU speed while things are still running?
 
-ext2, nfsd, vfat, sb16, parport, ne2k-pci (x2 cards)...I can post my
-.config later on today when I get back home..
-
-Dave.
-
-
- >
-
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied@skynet.ie
-pam_smb / Linux DecStation / Linux VAX / ILUG person
-
-
+Depends on the laptop. Speedstop is not documented by intel so either it
+works because the APM bios did the right thing, or it doesn't work because
+it didn't. The only kernel issue is delay loops. We calibrate them at boot
+and assume the base clock is constant. In practice this isnt showing up as
+a real problem, although we do need to switch to the ACPI timers on later
+laptops

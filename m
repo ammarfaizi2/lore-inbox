@@ -1,128 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268690AbUJTSnx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268771AbUJTStp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268690AbUJTSnx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 14:43:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268915AbUJTSWE
+	id S268771AbUJTStp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 14:49:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268944AbUJTStJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 14:22:04 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:60430 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S268980AbUJTSQb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 14:16:31 -0400
-Date: Wed, 20 Oct 2004 19:16:26 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Subject: Stop people including linux/irq.h
-Message-ID: <20041020191626.G14627@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 20 Oct 2004 14:49:09 -0400
+Received: from wang.choosehosting.com ([212.42.1.230]:23249 "EHLO
+	wang.choosehosting.com") by vger.kernel.org with ESMTP
+	id S269056AbUJTSrS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 14:47:18 -0400
+From: Thomas Stewart <thomas@stewarts.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: belkin usb serial converter (mct_u232), break not working
+Date: Wed, 20 Oct 2004 19:46:35 +0100
+User-Agent: KMail/1.6.2
+X-PGP-Key: http://www.stewarts.org.uk/public-key.asc
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200410201946.35514.thomas@stewarts.org.uk>
+X-Scanner: Exiscan on wang.choosehosting.com at 2004-10-20 19:47:14
+X-Spam-Score: 0.0
+X-Spam-Bars: /
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, Andrew,
+Hi,
 
-Here is an extreme attempt at preventing the fuckage known as including
-linux/irq.h inappropriately.  Since people don't seem to get the message,
-the only option is to remove the bloody file.
+I'm having trouble with a Belkin USB serial adapter, I can't get it to send a 
+break down the serial cable to a console.
 
-Shame this breaks everyone using the generic IRQ infrastructure, but I
-see no other option to educate people.
+I made a quick program to send a break to a port (mostly ripped off from 
+minicom). 
 
-Maybe someone can add it back as linux/include/asm-generic/irq.h, which
-is where it should've been in the first place.
+porttest.c:
+#include <sys/fcntl.h>
+#include <sys/ioctl.h>
+main () {
+        int fd = open("/dev/ttyS0", O_RDWR|O_NOCTTY);
+        ioctl(fd, TCSBRK, 0);
+        close(fd);
+}
 
---- linux/include/linux/irq.h	Tue Apr 13 14:10:15 2004
-+++ /dev/null	Sat Apr 26 08:56:46 1997
-@@ -1,80 +0,0 @@
--#ifndef __irq_h
--#define __irq_h
--
--/*
-- * Please do not include this file in generic code.  There is currently
-- * no requirement for any architecture to implement anything held
-- * within this file.
-- *
-- * Thanks. --rmk
-- */
--
--#include <linux/config.h>
--
--#if !defined(CONFIG_ARCH_S390)
--
--#include <linux/cache.h>
--#include <linux/spinlock.h>
--#include <linux/cpumask.h>
--
--#include <asm/irq.h>
--#include <asm/ptrace.h>
--
--/*
-- * IRQ line status.
-- */
--#define IRQ_INPROGRESS	1	/* IRQ handler active - do not enter! */
--#define IRQ_DISABLED	2	/* IRQ disabled - do not enter! */
--#define IRQ_PENDING	4	/* IRQ pending - replay on enable */
--#define IRQ_REPLAY	8	/* IRQ has been replayed but not acked yet */
--#define IRQ_AUTODETECT	16	/* IRQ is being autodetected */
--#define IRQ_WAITING	32	/* IRQ not yet seen - for autodetection */
--#define IRQ_LEVEL	64	/* IRQ level triggered */
--#define IRQ_MASKED	128	/* IRQ masked - shouldn't be seen again */
--#define IRQ_PER_CPU	256	/* IRQ is per CPU */
--
--/*
-- * Interrupt controller descriptor. This is all we need
-- * to describe about the low-level hardware. 
-- */
--struct hw_interrupt_type {
--	const char * typename;
--	unsigned int (*startup)(unsigned int irq);
--	void (*shutdown)(unsigned int irq);
--	void (*enable)(unsigned int irq);
--	void (*disable)(unsigned int irq);
--	void (*ack)(unsigned int irq);
--	void (*end)(unsigned int irq);
--	void (*set_affinity)(unsigned int irq, cpumask_t dest);
--};
--
--typedef struct hw_interrupt_type  hw_irq_controller;
--
--/*
-- * This is the "IRQ descriptor", which contains various information
-- * about the irq, including what kind of hardware handling it has,
-- * whether it is disabled etc etc.
-- *
-- * Pad this out to 32 bytes for cache and indexing reasons.
-- */
--typedef struct irq_desc {
--	unsigned int status;		/* IRQ status */
--	hw_irq_controller *handler;
--	struct irqaction *action;	/* IRQ action list */
--	unsigned int depth;		/* nested irq disables */
--	unsigned int irq_count;		/* For detecting broken interrupts */
--	unsigned int irqs_unhandled;
--	spinlock_t lock;
--} ____cacheline_aligned irq_desc_t;
--
--extern irq_desc_t irq_desc [NR_IRQS];
--
--#include <asm/hw_irq.h> /* the arch dependent stuff */
--
--extern int setup_irq(unsigned int , struct irqaction * );
--
--extern hw_irq_controller no_irq_type;  /* needed in every arch ? */
--
--#endif
--
--#endif /* __irq_h */
+Both minicom and my program send a break fine to a regular pc serial port (eg 
+ttyS0). In this case it drops my sun box to an "ok" prompt.
 
+However if I use the usb serial adapter both minicom and my program are unable 
+to send breaks, they just seem to get ignored.
 
+I loaded the modules with debugging information turned on:-
+modprobe usbserial debug=1
+modprobe mct_u232 debug=1
+
+$ sudo tail -f /var/log/syslog &
+$ ./porttest
+Oct 20 15:45:42 hydra kernel: drivers/usb/serial/usb-serial.c: serial_open
+Oct 20 15:45:42 hydra kernel: drivers/usb/serial/mct_u232.c: mct_u232_open 
+port 1
+Oct 20 15:45:42 hydra kernel: drivers/usb/serial/mct_u232.c: set_modem_ctrl: 
+state=0x6 ==> mcr=0xb
+Oct 20 15:45:42 hydra kernel: drivers/usb/serial/mct_u232.c: set_line_ctrl: 
+0x3
+Oct 20 15:45:42 hydra kernel: drivers/usb/serial/mct_u232.c: get_modem_stat: 
+0x30
+Oct 20 15:45:42 hydra kernel: drivers/usb/serial/mct_u232.c: msr_to_state: 
+msr=0x30 ==> state=0x126
+Oct 20 15:45:42 hydra kernel: drivers/usb/serial/usb-serial.c: 
+serial_chars_in_buffer = port 1
+Oct 20 15:45:42 hydra kernel: drivers/usb/serial/generic.c: 
+usb_serial_generic_chars_in_buffer - port 1
+Oct 20 15:45:42 hydra kernel: drivers/usb/serial/generic.c: 
+usb_serial_generic_chars_in_buffer - returns 0
+Oct 20 15:45:42 hydra kernel: drivers/usb/serial/usb-serial.c: serial_break - 
+port 1
+Oct 20 15:45:42 hydra kernel: drivers/usb/serial/mct_u232.c: 
+mct_u232_break_ctlstate=-1
+Oct 20 15:45:42 hydra kernel: drivers/usb/serial/mct_u232.c: set_line_ctrl: 
+0x43
+Oct 20 15:45:42 hydra kernel: drivers/usb/serial/usb-serial.c: serial_break - 
+port 1
+Oct 20 15:45:42 hydra kernel: drivers/usb/serial/mct_u232.c: 
+mct_u232_break_ctlstate=0
+Oct 20 15:45:42 hydra kernel: drivers/usb/serial/mct_u232.c: set_line_ctrl: 
+0x3
+Oct 20 15:45:42 hydra kernel: drivers/usb/serial/usb-serial.c: serial_close - 
+port 1
+Oct 20 15:45:42 hydra kernel: drivers/usb/serial/mct_u232.c: mct_u232_close 
+port 1
+Oct 20 15:45:42 hydra kernel: drivers/usb/serial/mct_u232.c: 
+mct_u232_read_int_callback - port 1
+Oct 20 15:45:42 hydra kernel: drivers/usb/serial/mct_u232.c: 
+mct_u232_read_int_callback - urb shutting down with status: -2
+Oct 20 15:45:42 hydra kernel: drivers/usb/serial/mct_u232.c: 
+mct_u232_read_int_callback - port 1
+Oct 20 15:45:42 hydra kernel: drivers/usb/serial/mct_u232.c: 
+mct_u232_read_int_callback - urb shutting down with status: -2
+
+set_line_ctrl gets changed from 0x3 to 0x43 and back to 0x3. According to 
+mct_u232.h the 6th bit of the line control register is the "set break" bit. 
+So It looks like it thinks its sending a break, but as far as I can tell it 
+is not actually sending it (because my sun box is not dropped to an ok 
+prompt)
+
+Anyone got any ideas about how to get it to work? (Or an alternative?)
+
+(Can replies be CC'ed to me as I'm not subscribed. Thanks)
+
+Regards
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Tom
+
+PGP Fingerprint [DCCD 7DCB A74A 3E3B 60D5  DF4C FC1D 1ECA 68A7 0C48]
+PGP Publickey   [http://www.stewarts.org.uk/public-key.asc]
+PGP ID  [0x68A70C48]

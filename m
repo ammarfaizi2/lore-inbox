@@ -1,57 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129491AbRBSOpg>; Mon, 19 Feb 2001 09:45:36 -0500
+	id <S130032AbRBSOp6>; Mon, 19 Feb 2001 09:45:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129620AbRBSOp0>; Mon, 19 Feb 2001 09:45:26 -0500
-Received: from [200.43.18.234] ([200.43.18.234]:9736 "EHLO
-	radius.telpin.com.ar") by vger.kernel.org with ESMTP
-	id <S129491AbRBSOpL>; Mon, 19 Feb 2001 09:45:11 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Kernel Oops
-Message-ID: <982593844.3a9131343a98c@webmail.telpin.com.ar>
-Date: Mon, 19 Feb 2001 11:44:04 -0300 (ARST)
-From: Alberto Bertogli <albertogli@telpin.com.ar>
+	id <S129620AbRBSOpr>; Mon, 19 Feb 2001 09:45:47 -0500
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:3894 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S130032AbRBSOpg>; Mon, 19 Feb 2001 09:45:36 -0500
+Date: Mon, 19 Feb 2001 08:45:19 -0600 (CST)
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+To: Matthew Kirkwood <matthew@hairy.beasts.org>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: sendfile from char device?
+In-Reply-To: <Pine.LNX.4.10.10102191356240.11164-100000@sphinx.mythic-beasts.com>
+Message-ID: <Pine.LNX.3.96.1010219084411.17842A-100000@mandrakesoft.mandrakesoft.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: IMP/PHP IMAP webmail program 2.2.1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yesterday I got an oops in a Dell PowerEdge 4100/200.
-It was almost idle (the process list is listed below).
-There was no SysRQ, VT, hd work, network or keyboard response.
-The oops was, obviously, copied by hand; and kernel is
-plain 2.4.1 compiled with egcs 2.91.66.
+On Mon, 19 Feb 2001, Matthew Kirkwood wrote:
+> I'm looking for a fast way to initialise a file to zeroes
+> (without holes) and reckoned that sendfile from /dev/zero
+> would be the way to go.
+> 
+> But, unfortunately, sendfile (in 2.2 and 2.4) appears not
+> to support sendfile(2)ing a device:
 
-uname -a:
-Linux sol 2.4.1 #3 SMP Wed Feb 14 18:14:33 ARST 2001 i686 unknown
+Correct... sendfile(2) is only for sources/destinations that can be
+ripped through the page cache.  I converted Lineo's BusyBox to use
+sendfile, only to see it die when used on anything but a normal file or
+a socket.
 
-Hardware:
-2xiPPro 200mhz
-128Mb ram
-Intel eepro100
-(dmesg attached)
+	Jeff
 
-process list:
-syslogd
-klogd 
-httpd 
- \_ 5x httpd
-crond
-atd
-bash 
- \_ mailsnarf 
-bash
-agetty
-agetty
-agetty
-bash
- \_ vmstat 1
-inetd
 
-Attached are the plain oops, the oops passed through ksymoops, the dmesg
-output and the kernel config.
 
-Thanks,
-        Alberto
+

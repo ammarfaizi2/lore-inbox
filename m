@@ -1,33 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130075AbRATKxp>; Sat, 20 Jan 2001 05:53:45 -0500
+	id <S130359AbRATKzp>; Sat, 20 Jan 2001 05:55:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130359AbRATKxg>; Sat, 20 Jan 2001 05:53:36 -0500
-Received: from quechua.inka.de ([212.227.14.2]:12598 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S130075AbRATKx1>;
-	Sat, 20 Jan 2001 05:53:27 -0500
-From: Bernd Eckenfels <inka-user@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: select() on TCP socket sleeps for 1 tick even if data  available
-Message-Id: <E14Jve9-0001jN-00@sites.inka.de>
-Date: Sat, 20 Jan 2001 11:53:25 +0100
+	id <S131212AbRATKzf>; Sat, 20 Jan 2001 05:55:35 -0500
+Received: from ezri.xs4all.nl ([194.109.253.9]:31178 "HELO ezri.xs4all.nl")
+	by vger.kernel.org with SMTP id <S130359AbRATKz0>;
+	Sat, 20 Jan 2001 05:55:26 -0500
+Date: Sat, 20 Jan 2001 11:55:24 +0100 (CET)
+From: Eric Lammerts <eric@lammerts.org>
+To: Felix von Leitner <leitner@convergence.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Off-Topic: how do I trace a PID over double-forks?
+In-Reply-To: <20010119013649.A30163@convergence.de>
+Message-ID: <Pine.LNX.4.32.0101201146050.14165-100000@ally.lammerts.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3A68F855.6F16F152@att.net> you wrote:
-> My problem is that if data is NOT available when select()
-> starts, but becomes available immediately afterwards, select()
-> doesn't wake up immediately, but sleeps for 1/100 second.
 
-It does not sleep for a 1/100second, it will but the process in the run queue
-and of course the process needs to wait for the current scheduled process to
-finish it's scheduling. This happens only every tick.
+On Fri, 19 Jan 2001, Felix von Leitner wrote:
+> Now, the back channel for my init has a function that allows to set the
+> PID of a process.  The idea is that the init does not start sendmail but
+> a wrapper.  The wrapper forks, runs sendmail, does some magic trickery
+> to find the real PID of the daemonized sendmail and tells init this PID
+> so init will know it has to restart sendmail when it exits and won't
+> restart the wrapper when that exits.
 
-If there is no process in the run queue, mabe this can be done faster (already
-is done faster?)
+> Someone suggested using fcntl to create a lock and then use fcntl again
+> to see who holds the lock.  That sounded good at first, but fork() does
+> not seem to inherit locks.  Does anyone have another idea?
 
-Greetings
-Bernd
+Take a look at fghack (http://cr.yp.to/daemontools/fghack.html). It
+opens a pipe, gives the write end to the daemon (but the daemon is not
+aware of that) and monitors the read end. When the daemon process
+exits, the read end of the pipe gets EOF.
+
+If the daemon closes all filehandles, you're out of luck.
+
+Eric
+
+-- 
+Eric Lammerts <eric@lammerts.org> | The best way to accelerate a computer
+http://www.lammerts.org           | running Windows is at 9.8 m/s^2.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

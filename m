@@ -1,81 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129144AbRBHSJr>; Thu, 8 Feb 2001 13:09:47 -0500
+	id <S129360AbRBHSQ3>; Thu, 8 Feb 2001 13:16:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129393AbRBHSJi>; Thu, 8 Feb 2001 13:09:38 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:52228 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129144AbRBHSJ0>; Thu, 8 Feb 2001 13:09:26 -0500
-Date: Thu, 8 Feb 2001 10:09:05 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: "Stephen C. Tweedie" <sct@redhat.com>, Pavel Machek <pavel@suse.cz>,
-        Jens Axboe <axboe@suse.de>, Manfred Spraul <manfred@colorfullife.com>,
-        Ben LaHaise <bcrl@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Steve Lord <lord@sgi.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        kiobuf-io-devel@lists.sourceforge.net, Ingo Molnar <mingo@redhat.com>
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
-In-Reply-To: <Pine.LNX.4.21.0102081000450.25219-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.10.10102081000220.6741-100000@penguin.transmeta.com>
+	id <S130064AbRBHSQJ>; Thu, 8 Feb 2001 13:16:09 -0500
+Received: from cmr0.ash.ops.us.uu.net ([198.5.241.38]:52167 "EHLO
+	cmr0.ash.ops.us.uu.net") by vger.kernel.org with ESMTP
+	id <S129129AbRBHSPu>; Thu, 8 Feb 2001 13:15:50 -0500
+Message-ID: <3A82E1FB.75361E04@uu.net>
+Date: Thu, 08 Feb 2001 13:14:19 -0500
+From: Alex Deucher <adeucher@UU.NET>
+Organization: UUNET
+X-Mailer: Mozilla 4.74 [en] (WinNT; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jeff Hartmann <jhartmann@valinux.com>
+CC: Petr Vandrovec <VANDROVE@vc.cvut.cz>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.x, drm, g400 and pci_set_master
+In-Reply-To: <14E9CDBC07F1@vcnet.vc.cvut.cz> <3A82DB9B.3050008@valinux.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Thu, 8 Feb 2001, Marcelo Tosatti wrote:
+Jeff Hartmann wrote:
 > 
-> On Thu, 8 Feb 2001, Stephen C. Tweedie wrote:
+> Petr Vandrovec wrote:
 > 
-> <snip>
+> > On  8 Feb 01 at 12:15, Alex Deucher wrote:
+> >
+> >> I wasn't talking about the drm driver I was talking about programming
+> >> the PCI controller directly using setpci 1.0.0 .... or some such
+> >> command, I can't remember off hand.  Which turns on busmastering if it
+> >> is off for a particular device.
+> >
+> >
+> > OK.
+> >
+> >> Jeff Hartmann wrote:
+> >>
+> >>> The DRM drivers don't know about the pcidev structure at all.  All this
+> >>> is done in the XFree86 ddx driver.  You can probably add something like
+> >>> this to MGAPreInit (after pMga->PciTag is set, in my copy its
+> >>> mga_driver.c:1232 yours might be at a slightly different line number
+> >>> depending on the version your using):
+> >>>
+> >>> {
+> >>>    CARD32 temp;
+> >>>    temp = pciReadLong(pMga->PciTag, PCI_CMD_STAT_REG);
+> >>>    pciWriteLong(pMga->PciTag, PCI_CMD_STAT_REG, temp |
+> >>> PCI_CMD_MASTER_ENABLE);
+> >>> }
+> >>
+> >
+> > Jeff, do you say that drm code does not use dynamic DMA mapping, which is
+> > specified as only busmastering interface for kernels 2.4.x, at all? Now
+> > I understand what had one friend in the mind when he laughed when I said
+> > that it must be easy to get it to work on Alpha...
+> >                             Thanks anyway for all suggestions,
+> >                                         Petr Vandrovec
+> >                                         vandrove@vc.cvut.cz
+> >
+> >
+> It does not use dynamic DMA mapping, because it doesn't do PCI DMA at
+> all.  It uses AGP DMA.  Actually, it shouldn't be too hard to get it to
+> work on the Alpha (just a few 32/64 bit issues probably.)  Someone just
+> needs to get agpgart working on the Alpha, thats the big step.
 > 
-> > > How do you write high-performance ftp server without threads if select
-> > > on regular file always returns "ready"?
-> > 
-> > Select can work if the access is sequential, but async IO is a more
-> > general solution.
-> 
-> Even async IO (ie aio_read/aio_write) should block on the request queue if
-> its full in Linus mind.
+> -Jeff
 
-Not necessarily. I said that "READA/WRITEA" are only worth exporting
-inside the kernel - because the latencies and complexities are low-level
-enough that it should not be exported to user space as such.
 
-But I could imagine a kernel aio package that does the equivalent of
+That shouldn't be too hard since many (all?) AGP alpha boards (UP1000's
+anyway) are based on the AMD 751 Northbridge? And there is already
+support for that in the kernel for x86. 
 
-	bh->b_end_io = completion_handler;
-	generic_make_request(WRITE, bh);	/* this may block */
-	bh= bh->b_next;
-
-	/* Now, fill it up as much as we can.. */
-	current->state = TASK_INTERRUPTIBLE;
-	while (more data to be written) {
-		if (generic_make_request(WRITEA, bh) < 0)
-			break;
-		bh = bh->b_next;
-	}
-
-	return;
-
-and then you make the _completion handler_ thing continue to feed more
-requests. Yes, you may block at some points (because you need to always
-have at least _one_ request in-flight in order to have the state machine
-active, but you can basically try to avoid blocking more than necessary.
-
-But do you see why the above can't be done from user space? It requires
-that the completion handler (which runs in an interrupt context) be able
-to continue to feed requests and keep the queue filled. If you don't do
-that, you'll never have good throughput, because it takes too long to send
-signals, re-schedule or whatever to user mode.
-
-And do you see how it has to block _sometimes_? If people do hundreds of
-AIO requests, we can't let memory just fill up with pending writes..
-
-		Linus
-
+Alex
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,73 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264030AbTDJMjo (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 08:39:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264035AbTDJMjo (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 08:39:44 -0400
-Received: from mail.ithnet.com ([217.64.64.8]:19974 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id S264030AbTDJMjn (for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Apr 2003 08:39:43 -0400
-Date: Thu, 10 Apr 2003 13:20:55 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Cc: alan@lxorguk.ukuu.org.uk, 76306.1226@compuserve.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] aic7* claims all checked EISA io ranges
-Message-Id: <20030410132055.1745749c.skraw@ithnet.com>
-In-Reply-To: <194120000.1049909641@aslan.btc.adaptec.com>
-References: <200304082124_MC3-1-3399-FBD0@compuserve.com>
-	<1049886804.9901.19.camel@dhcp22.swansea.linux.org.uk>
-	<194120000.1049909641@aslan.btc.adaptec.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id S264035AbTDJMpG (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 08:45:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264037AbTDJMpF (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 08:45:05 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:62950 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S264035AbTDJMpD (for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Apr 2003 08:45:03 -0400
+Date: Thu, 10 Apr 2003 14:56:28 +0200 (MEST)
+Message-Id: <200304101256.h3ACuSw3022796@harpo.it.uu.se>
+From: mikpe@csd.uu.se
+To: linuxppc-dev@lists.linuxppc.org
+Subject: gcc-2.95 broken on PPC?
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 09 Apr 2003 11:34:01 -0600
-"Justin T. Gibbs" <gibbs@scsiguy.com> wrote:
+It seems gcc-2.95, specifically 2.95.4 as included in YDL2.3,
+generates incorrect code for recent 2.4 standard kernels on PPC.
 
-> > On Mer, 2003-04-09 at 02:21, Chuck Ebbert wrote:
-> >> And your code goes for long periods of time without merging good fixes,
-> >> like this one (from 2.4.20):
-> > 
-> > Which is one reason Justin's patches don't get merged. They are giant
-> > changes which back out other clear corrections.
-> 
-> This tells me two things:
-> 
-> 1) You don't trust maintainers.  If a maintainer can't make large changes,
->    who can?
-> 
-> 2) When a maintainer makes a mistake (fails to integrate a good change,
->    or introduces a bug), the maintainers changes are simply dropped rather
->    then notify (either politely or not I don't much care) the maintainer
->    of his/her mistake.
-> 
-> Neither of the above applied to integration of the aic79xx driver into
-> the 2.4.X tree, but it still took something like 8 months.
-> 
-> There must be a better way.
+Background: Boot floppies made with 2.2 kernels work on my PM4400,
+but ones made from recent standard 2.4 kernels fail with a CLAIM error
+just after OF has loaded vmlinux.coff. To debug this, I've been slowly
+moving forwards from older to newer kernels, making patches at each
+point a new kernel version broke vmlinux.coff.
 
-As I am probably one of the victims of these differing opinions, can anyone
-tell me where to get a really-known-to-work aic-driver for 2.4? I am
-experiencing zapping-black events while reading from a SDLT drive (writing to
-it does fine).
+For the latest standard kernel, 2.4.21-pre7, I need three distinct
+patches to make vmlinux.coff boot correctly. They are:
 
-Short hardware story:
-02:03.0 SCSI storage controller: Adaptec AIC-7899P U160/m (rev 01)
-02:03.1 SCSI storage controller: Adaptec AIC-7899P U160/m (rev 01)
+1. 2.4.19-pre4 changed arch/ppc/boot/zlib.c in what appears to be a
+   reversal to an older version, causing a CLAIM error at the boot
+   "clearing .bss" line; my patch reverts that change (but see below)
+2. starting with 2.4.20, I get a CLAIM error at the "loading .data"
+   line; a well-known patch posted to linuxppc-dev fixed that
+   (change arch/ppc/boot/ld.script .data ALIGN(8) to ALIGN(4096))
+3. 2.4.21-pre6 changed include/asm-ppc/div64.h to use long long
+   arithmetic, again causing a CLAIM error at the "clearing .bss" line;
+   my patch reverts that change (but see below)
 
-Host: scsi0 Channel: 00 Id: 08 Lun: 00
-  Vendor: IBM      Model: IC35L073UWDY10-0 Rev: S21E
-  Type:   Direct-Access                    ANSI SCSI revision: 03
-Host: scsi1 Channel: 00 Id: 02 Lun: 00
-  Vendor: QUANTUM  Model: SDLT320          Rev: 3838
-  Type:   Sequential-Access                ANSI SCSI revision: 02
+However, bugs #1 (zlib.c) and #3 (div64.h) disappear if I compile
+my kernels with gcc-3.2.2 instead of 2.95.4, which is a strong
+indication that 2.95.4 is broken on PPC. Is this something that's
+well-known to PPC people?
 
-Any hints welcome
+The patches are included below for reference.
 
-Regards,
-Stephan
+/Mikael
 
+--- linux-2.4.21-pre7/arch/ppc/boot/lib/zlib.c.~1~	Wed Apr  9 10:32:51 2003
++++ linux-2.4.21-pre7/arch/ppc/boot/lib/zlib.c	Wed Apr  9 10:39:41 2003
+@@ -925,10 +925,7 @@
+       {
+         r = t;
+         if (r == Z_DATA_ERROR)
+-	{
+-          ZFREE(z, s->sub.trees.blens, s->sub.trees.nblens * sizeof(uInt));
+           s->mode = BADB;
+-	}
+         LEAVE
+       }
+       s->sub.trees.index = 0;
+@@ -964,7 +961,6 @@
+           if (i + j > 258 + (t & 0x1f) + ((t >> 5) & 0x1f) ||
+               (c == 16 && i < 1))
+           {
+-            ZFREE(z, s->sub.trees.blens, s->sub.trees.nblens * sizeof(uInt));
+             s->mode = BADB;
+             z->msg = "invalid bit length repeat";
+             r = Z_DATA_ERROR;
+@@ -992,10 +988,7 @@
+         if (t != Z_OK)
+         {
+           if (t == (uInt)Z_DATA_ERROR)
+-	  {
+-            ZFREE(z, s->sub.trees.blens, s->sub.trees.nblens * sizeof(uInt));
+             s->mode = BADB;
+-	  }
+           r = t;
+           LEAVE
+         }
+--- linux-2.4.21-pre7/arch/ppc/boot/ld.script.~1~	Sat Nov 30 17:12:23 2002
++++ linux-2.4.21-pre7/arch/ppc/boot/ld.script	Wed Apr  9 10:38:43 2003
+@@ -39,7 +39,7 @@
+   PROVIDE (etext = .);
+ 
+   /* Read-write section, merged into data segment: */
+-  . = ALIGN(8);
++  . = ALIGN(4096);
+   .data    :
+   {
+     *(.data)
+--- linux-2.4.21-pre7/include/asm-ppc/div64.h.~1~	Wed Apr  9 10:34:58 2003
++++ linux-2.4.21-pre7/include/asm-ppc/div64.h	Wed Apr  9 10:38:11 2003
+@@ -1,23 +1,10 @@
+ #ifndef __PPC_DIV64
+ #define __PPC_DIV64
+ 
+-#include <linux/types.h>
+-
+-extern u32 __div64_32(u64 *dividend, u32 div);
+-
+-#define do_div(n, div)	({			\
+-	u64 __n = (n);				\
+-	u32 __d = (div);			\
+-	u32 __q, __r;				\
+-	if ((__n >> 32) == 0) {			\
+-		__q = (u32)__n / __d;		\
+-		__r = (u32)__n - __q * __d;	\
+-		(n) = __q;			\
+-	} else {				\
+-		__r = __div64_32(&__n, __d);	\
+-		(n) = __n;			\
+-	}					\
+-	__r;					\
+-})
++#define do_div(n,base) ({ \
++int __res; \
++__res = ((unsigned long) n) % (unsigned) base; \
++n = ((unsigned long) n) / (unsigned) base; \
++__res; })
+ 
+ #endif

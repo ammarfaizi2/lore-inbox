@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264838AbRF1XYd>; Thu, 28 Jun 2001 19:24:33 -0400
+	id <S264849AbRF1X1D>; Thu, 28 Jun 2001 19:27:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265051AbRF1XYO>; Thu, 28 Jun 2001 19:24:14 -0400
-Received: from pipt.oz.cc.utah.edu ([155.99.2.7]:40905 "EHLO
-	pipt.oz.cc.utah.edu") by vger.kernel.org with ESMTP
-	id <S264838AbRF1XYE>; Thu, 28 Jun 2001 19:24:04 -0400
-Date: Thu, 28 Jun 2001 17:23:58 -0600 (MDT)
-From: james rich <james.rich@m.cc.utah.edu>
-To: Luigi Genoni <kernel@Expansa.sns.it>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Announcing Journaled File System (JFS) release 1.0.0 available
-In-Reply-To: <Pine.LNX.4.33.0106290056350.27056-100000@Expansa.sns.it>
-Message-ID: <Pine.GSO.4.05.10106281717430.10211-100000@pipt.oz.cc.utah.edu>
+	id <S264945AbRF1X0x>; Thu, 28 Jun 2001 19:26:53 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:46764 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S264849AbRF1X0j>;
+	Thu, 28 Jun 2001 19:26:39 -0400
+Message-ID: <3B3BBD4E.BDDF63DA@mandrakesoft.com>
+Date: Thu, 28 Jun 2001 19:27:10 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Khachaturov, Vassilii" <Vassilii.Khachaturov@comverse.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RFC: Changes for PCI
+In-Reply-To: <6B1DF6EEBA51D31182F200902740436802678FB5@mail-in.comverse-in.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Jun 2001, Luigi Genoni wrote:
-
-> On Fri, 29 Jun 2001, Yaacov Akiba Slama wrote:
+"Khachaturov, Vassilii" wrote:
 > 
-> > So it seems that even if JFS is less complete than XFS (no ACL, quotas
-> > for instance), and even if it is less robust (I don't know if it is, I
-> It is not less complete nor less robust, it's a different technology and a
-> totally different approach.
-> Remember XFS was designed thinking to a kind of HW totally different from
-> PC, and so was for jfs. But somehow JFS is a better choice if you
-> do not have the last fastest CPU, and the last fastest scsi disk.
+> On Wed, 27 Jun 2001, Jeff Garzik wrote:
+> 
+> > However, I think the driver (only going by your
+> description) would be
+> > more correct to use a pointer to struct pci_dev.  We have a
+> token in the
+> > kernel that is guaranteed 100% unique to any given PCI device:  the
+> > pointer to its struct pci_dev.
+> 
+> Is it? With a hotplug device removed and another one added,
+> isn't there a slight chance that the pci_dev pointer to the new device
+> will get allocated in place of the old one?
 
-This is simply not true.  I run xfs on three systems - none of which have
-anything close to the latest cpu.  Each system runs faster after
-installing xfs.  Since linux-kernel is not the place for advocacy I
-suggest a comparison be for your particular setup to determine which is
-best for you.
+If you want to get pedantic, yes ;-)  The pci_dev pointer is unique for
+the lifetime of the PCI device, which works just as well in the example
+used in the thread.
 
-James Rich
-james.rich@m.cc.utah.edu
-
+-- 
+Jeff Garzik      | Andre the Giant has a posse.
+Building 1024    |
+MandrakeSoft     |

@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287971AbSABU0g>; Wed, 2 Jan 2002 15:26:36 -0500
+	id <S287944AbSABU2q>; Wed, 2 Jan 2002 15:28:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287948AbSABU03>; Wed, 2 Jan 2002 15:26:29 -0500
-Received: from tmhoyle.gotadsl.co.uk ([195.149.46.162]:31238 "EHLO
-	mail.cvsnt.org") by vger.kernel.org with ESMTP id <S287968AbSABUZw>;
-	Wed, 2 Jan 2002 15:25:52 -0500
-Mailbox-Line: From tmh@nothing-on.tv  Wed Jan  2 20:25:48 2002
-Message-ID: <3C336CD0.9060905@nothing-on.tv>
-Date: Wed, 02 Jan 2002 20:25:52 +0000
-From: Tony Hoyle <tmh@nothing-on.tv>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011224
-MIME-Version: 1.0
-To: timothy.covell@ashavan.org
-Cc: adrian kok <adriankok2000@yahoo.com.hk>, linux-kernel@vger.kernel.org
-Subject: Re: system.map
-In-Reply-To: <20020102191157.49760.qmail@web21204.mail.yahoo.com> <200201021930.g02JUCSr021556@svr3.applink.net> <3C336209.8000808@nothing-on.tv> <200201022006.g02K6vSr021827@svr3.applink.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S287949AbSABU2f>; Wed, 2 Jan 2002 15:28:35 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:24707
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S287944AbSABU2X>; Wed, 2 Jan 2002 15:28:23 -0500
+Date: Wed, 2 Jan 2002 15:15:39 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: ISA slot detection on PCI systems?
+Message-ID: <20020102151539.A14925@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timothy Covell wrote:
+Is there any way to safely probe a PCI motherboard to determine whether
+or not it has ISA cards present, or ISA card slots?
 
+Note: the question is *not* about a probe for whether the board has an ISA
+bridge, but a probe for the presence of actual ISA cards (or slots).
 
-> Not on grub.  I quote:
+(Yes, I'm working on a smart autoconfigurator.  It's a development of
+Giacomo Catenazzi's code, but able to use the CML2 deduction engine.)
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-
-It works fine on grub.  I use grub.
-
-make install is completely installation agnostic.  It just calls 
-/sbin/installkernel with the paths of the various files.  On any sane 
-distribution this will work.  If it doesn't it's only a shell script 
-with a few symlink & copy commands in it... just write your own.
-
-Tony
-
+[W]hat country can preserve its liberties, if its rulers are not
+warned from time to time that [the] people preserve the spirit of
+resistance?  Let them take arms...The tree of liberty must be
+refreshed from time to time, with the blood of patriots and tyrants.
+	-- Thomas Jefferson, letter to Col. William S. Smith, 1787 

@@ -1,30 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265128AbSJaDB4>; Wed, 30 Oct 2002 22:01:56 -0500
+	id <S265127AbSJaC6t>; Wed, 30 Oct 2002 21:58:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265130AbSJaDBz>; Wed, 30 Oct 2002 22:01:55 -0500
-Received: from sex.inr.ac.ru ([193.233.7.165]:32401 "HELO sex.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S265128AbSJaDBx>;
-	Wed, 30 Oct 2002 22:01:53 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200210310307.GAA29266@sex.inr.ac.ru>
-Subject: Re: [STATUS 2.5] October 30, 2002
-To: davem@redhat.com (David S. Miller)
-Date: Thu, 31 Oct 2002 06:07:34 +0300 (MSK)
-Cc: yoshfuji@linux-ipv6.org, boissiere@adiglobal.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20021030.184443.87162307.davem@redhat.com> from "David S. Miller" at Oct 30, 2 06:44:43 pm
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S265128AbSJaC6s>; Wed, 30 Oct 2002 21:58:48 -0500
+Received: from probity.mcc.ac.uk ([130.88.200.94]:37136 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S265127AbSJaC6s>; Wed, 30 Oct 2002 21:58:48 -0500
+Date: Thu, 31 Oct 2002 03:05:03 +0000
+From: John Levon <levon@movementarian.org>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] fix timer_pit.c warning
+Message-ID: <20021031030500.GA3642@compsoc.man.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
+X-Scanner: exiscan *1875dr-000Jmk-00*Muyyca3JeZI* (Manchester Computing, University of Manchester)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-> Please implement source address selection properly, then resubmit.
+make x86_do_profile available when UP=y,LOCAL_APIC=n
 
-Actually, I would propose... not to worry about this for a while.
-The issue might happen to dissolve after cleaning the space
-around ip6_route_output().
+please apply
 
-Alexey
+thanks
+john
+
+
+diff -Naur -X dontdiff linux-linus/arch/i386/kernel/timers/timer_pit.c linux/arch/i386/kernel/timers/timer_pit.c
+--- linux-linus/arch/i386/kernel/timers/timer_pit.c	Sat Oct 12 16:54:44 2002
++++ linux/arch/i386/kernel/timers/timer_pit.c	Thu Oct 31 02:30:45 2002
+@@ -6,6 +6,7 @@
+ #include <linux/spinlock.h>
+ #include <linux/module.h>
+ #include <linux/device.h>
++#include <linux/irq.h>
+ #include <asm/mpspec.h>
+ #include <asm/timer.h>
+ #include <asm/io.h>

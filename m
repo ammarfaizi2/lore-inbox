@@ -1,50 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136617AbREJN7q>; Thu, 10 May 2001 09:59:46 -0400
+	id <S136635AbREJN7p>; Thu, 10 May 2001 09:59:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136641AbREJN7g>; Thu, 10 May 2001 09:59:36 -0400
+	id <S136664AbREJN7g>; Thu, 10 May 2001 09:59:36 -0400
 Received: from zeus.kernel.org ([209.10.41.242]:54674 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S136638AbREJN7W>;
-	Thu, 10 May 2001 09:59:22 -0400
-Date: Wed, 9 May 2001 20:57:01 -0700
-Message-Id: <200105100357.UAA16327@mail25.bigmailbox.com>
-Content-Type: text/plain
-Content-Disposition: inline
-Content-Transfer-Encoding: binary
-X-Mailer: MIME-tools 4.104 (Entity 4.116)
-Mime-Version: 1.0
-X-Originating-Ip: [202.67.238.249]
-From: "Jacky Liu" <jq419@my-deja.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.4 kernel freeze for unknown reason
+	by vger.kernel.org with ESMTP id <S136635AbREJN7Q>;
+	Thu, 10 May 2001 09:59:16 -0400
+To: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
+Subject: tulip: no link beat, media switching to 10Base2
+From: Russell Senior <seniorr@aracnet.com>
+Date: 09 May 2001 20:58:45 -0700
+In-Reply-To: Jeff Garzik's message of "Wed, 09 May 2001 08:48:34 -0400"
+Message-ID: <86wv7p7t3e.fsf_-_@coulee.tdb.com>
+X-Mailer: Gnus v5.7/Emacs 20.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear All,
- 
-I would like to post a question regarding to a problem of unknown freeze of my linux firewall/gateway.
- 
-Here is the hardware configuration of my machine:
- 
-AMD K-6 233 MHz
-2theMax P-55 VP3 mobo
-64Mb RAM in a single module (PC-100)
-Maxtor 6G UDMA-33 harddisk
-Matrox MG-II display card w/8Mb RAM
-3Com 3C905B-TX NIC
-RealTek 8129 10/100 NIC
- 
-It's running 2.4.4 kernel (RedHat 7.1) and acting as a firewall using Netfilter (gShield and Snort), DNS (Cache-Only DNS) and NAT gateway (ip-masq.) for my home network. I used 3C905B-TX NIC as my internal NIC and RealTek 8129 as my external NIC. Here is the problem:
- 
-The machine has been randomly lockup (totally freeze) for number of times without any traceable clue or error message. Usually the time frame between each lockup is between 24 to 72 hours. The screen just freeze when it's lockup (either in Console or X) and no "kernel panic" type or any error message prompt up. All services (SSH, DNS, etc..) are dead when it's lockup and I cannot find any useful information in /var/log/messages. I cannot reproduce the lockup since it's totally randomly. The lockup happened either when I was playing online game (A LOT, like getting thousands of server status in counter-strike in a very short time frame, of NAT traffic), surfing the web (normal traffic) or the machine was totally in idle (lockup when I was sleeping). It was lockup this morning when I was playing online game (when my game machine was trying to establish connection to a game server).
- 
-If there is any information you would like to obtain, please let me know. I would like to receive a copy of your reply, thank you very much for your kindly attention.
- 
-Best Regards,
-Jacky Liu
- 
-"Genius or Wacko? Majority or Minority… "
 
-------------------------------------------------------------
---== Sent via Deja.com ==--
-http://www.deja.com/
+[a repost of a message sent to the tulip bugtracking system on sourceforge]
+
+I am using the tulip driver from vanilla linux-2.4.4, and when I
+disconnect the rj45 from the card I get the following message:
+
+eth1: No 21041 10baseT link beat, Media switched to 10base2.
+
+... and it never switches back (until I ifdown/ifup the interface,
+which is mighty inconvenient when I am off-site, which is usually).
+
+Here are the bootup messages in 2.4.4:
+
+[...] 
+Linux Tulip driver version 0.9.14e (April 20, 2001) 
+tulip0: 21041 Media table, default media 0800 (Autosense). 
+tulip0: 21041 media #0, 10baseT. 
+tulip0: 21041 media #4, 10baseT-FDX. 
+tulip0: 21041 media #1, 10base2. 
+eth0: Digital DC21041 Tulip rev 17 at 0xf880, 21041 mode, 00:00:C0:D4:74:D6, IRQ 5. 
+tulip1: 21041 Media table, default media 0800 (Autosense). 
+tulip1: 21041 media #0, 10baseT. 
+tulip1: 21041 media #4, 10baseT-FDX. 
+tulip1: 21041 media #1, 10base2. 
+eth1: Digital DC21041 Tulip rev 17 at 0xf800, 21041 mode, 00:00:C0:6A:7F:D5, IRQ 11. 
+[...] 
+
+There are two identical(-ish) cards in the machine (it is acting as a
+router), both the same brand anyway (SMC EtherPower PCI). I was able
+to hack in 10BaseT stability in a previous kernel (2.4.1) using
+TULIP_DEFAULT_MEDIA and TULIP_NO_MEDIA_SWITCH, but I noticed in the
+ChangeLog for 2.4.4 that these features were removed. How do I get
+reliable 10BaseT operation inspite of possible cabling disconnections.
+
+
+-- 
+Russell Senior         ``The two chiefs turned to each other.        
+seniorr@aracnet.com      Bellison uncorked a flood of horrible       
+                         profanity, which, translated meant, `This is
+                         extremely unusual.' ''                      

@@ -1,50 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316957AbSHAUNf>; Thu, 1 Aug 2002 16:13:35 -0400
+	id <S316997AbSHAUP2>; Thu, 1 Aug 2002 16:15:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316959AbSHAUNf>; Thu, 1 Aug 2002 16:13:35 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:46023 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S316957AbSHAUNe>; Thu, 1 Aug 2002 16:13:34 -0400
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200208012016.g71KGwK27981@devserv.devel.redhat.com>
-Subject: Accelerating user mode linux
-To: linux-kernel@vger.kernel.org
-Date: Thu, 1 Aug 2002 16:16:58 -0400 (EDT)
-X-Mailer: ELM [version 2.5 PL6]
+	id <S317002AbSHAUP1>; Thu, 1 Aug 2002 16:15:27 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:56073 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S316997AbSHAUPZ>; Thu, 1 Aug 2002 16:15:25 -0400
+Message-ID: <3D49967B.7000004@evision.ag>
+Date: Thu, 01 Aug 2002 22:13:47 +0200
+From: Marcin Dalecki <dalecki@evision.ag>
+Reply-To: martin@dalecki.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en, pl, ru
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+CC: martin@dalecki.de, Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] 2.5.29 IDE 110
+References: <200208011851.g71IpWA377111@saturn.cs.uml.edu>
+Content-Type: text/plain; charset=US-ASCII;
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Proposal for a sigaltmm()
+Uz.ytkownik Albert D. Cahalan napisa?:
 
-There is a problem with performance when running virtualised environments
-(notably user mode linux). The performance of the mprotect calls needed to 
-handle syscalls and protect the UML kernel from its user space are large and
-the alternatives like a seperate process and ptrace are not pretty either
+> 
+> BTW, you are dropping support for typical Pentium boxes.
+> If this is OK, then the f00f check can go, etc.
 
-The cunning plan goes like this
+???! Could you elaborate on the "typical Pentium" please.
+I don't see the point, since I never ever needed the code in
+question. Neither did I ever see anybody using it.
 
-Add
-	current->alt_mm
-	A per task flag for 'supervisory' mode
-
-
-Tasks start with current->alt_mm NULL and the flag set to supervisory
-On exec/exit tear down alt_mm as well as mm
-
-Signal delivery checks if alt_mm != NULL && supervisory is clear
-if so it sets supervisory and switches mm/alt_mm, flush the tlb and 
-continue handling the signal in the new space
-
-We add
-	sys_switchmm(address);
-
-This switches to the altmm (creating one if it doesnt exist as a copy of
-the current mm), flushes the tlb and jumps to the address given.
-
-Any opinions, spanners to throw in the works ?
-
-Alan

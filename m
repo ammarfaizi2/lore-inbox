@@ -1,72 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267247AbUBMXvD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 18:51:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267237AbUBMXvC
+	id S267235AbUBMXsd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 18:48:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267247AbUBMXrr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 18:51:02 -0500
-Received: from msgbas1x.cos.agilent.com ([192.25.240.36]:25565 "EHLO
-	msgbas1x.cos.agilent.com") by vger.kernel.org with ESMTP
-	id S267247AbUBMXtm convert rfc822-to-8bit (ORCPT
+	Fri, 13 Feb 2004 18:47:47 -0500
+Received: from fw.osdl.org ([65.172.181.6]:34267 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267235AbUBMXq3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 18:49:42 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-content-class: urn:content-classes:message
-MIME-Version: 1.0
+	Fri, 13 Feb 2004 18:46:29 -0500
+Date: Fri, 13 Feb 2004 15:48:15 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Daniel McNeil <daniel@osdl.org>
+Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.3-rc2-mm1] __block_write_full patch
+Message-Id: <20040213154815.42e74cb5.akpm@osdl.org>
+In-Reply-To: <1076715039.1956.104.camel@ibm-c.pdx.osdl.net>
+References: <20040212015710.3b0dee67.akpm@osdl.org>
+	<1076707830.1956.46.camel@ibm-c.pdx.osdl.net>
+	<20040213143836.0a5fdabb.akpm@osdl.org>
+	<1076715039.1956.104.camel@ibm-c.pdx.osdl.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: what is the best 2.6.2 kernel code?
-Date: Fri, 13 Feb 2004 16:49:40 -0700
-Message-ID: <0A78D025ACD7C24F84BD52449D8505A15A80D1@wcosmb01.cos.agilent.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: what is the best 2.6.2 kernel code?
-Thread-Index: AcPygfTSfrMI3L/SSiyrgO7gA7b3kwACWkgQ
-From: <yiding_wang@agilent.com>
-To: <riel@redhat.com>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 13 Feb 2004 23:49:41.0251 (UTC) FILETIME=[0C516530:01C3F28C]
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks fro all of your explanation.  It looks like I have to make sure all my software is updated for 2.6.2 build process (my original linux is 2.4.18.  I will check and try it again!
+Daniel McNeil <daniel@osdl.org> wrote:
+>
+> My only concern is that a racing mpage_writepages(WB_SYNC_NONE)
+> with a mpage_write_pages(WB_SYNC_ALL) from a filemap_write_and_wait. 
+> Both could be processing the io_pages list, if the
+> mpage_writepages(WB_SYNC_NONE) moves a page that has locked buffers 
+> back to the dirty_pages list, then when the filemap_write_and_wait()
+> calls filemap_fdatawait, it will not wait for the page moved back
+> to the dirty list.
 
-Thanks again!
+Yes.  I suspect we simply cannot get this right without insane locking. 
+We're trying to do something here which the writeback code simply does not
+and cannot generally do, namely write and wait upon IO and dirtyings which
+are initiated by other processes.
 
-Eddie
+The best way to handle *all* this crap is to remove the address_space page
+lists completely and replace all these things with radix tree walks, but I
+never got onto that.  Sad.
 
-> -----Original Message-----
-> From: Rik van Riel [mailto:riel@redhat.com]
-> Sent: Friday, February 13, 2004 2:37 PM
-> To: WANG,YIDING (A-SanJose,ex1)
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: what is the best 2.6.2 kernel code?
-> 
-> 
-> On Fri, 13 Feb 2004 yiding_wang@agilent.com wrote:
-> 
-> > I downloaded kernel linux-2.6.2.tar.gz and patch-2.6.2.bz2 
-> from kernel
-> > source.  Both files are dated 03-Feb.-2004.
-> > 
-> > Building new kernel from the source failed on fs/proc/array.o.  
-> > Patching with patch file will have numerous warning message 
-> which says
-> > "Reversed patch detected! Assume -R [n]".
-> 
-> linux-2.6.1 + patch-2.6.2 results in linux-2.6.2
-> 
-> If you download linux-2.6.2 you don't need to apply
-> any patches.
-> 
-> Please see http://www.kernelnewbies.org/
-> 
-> cheers,
-> 
-> Rik
-> -- 
-> "Debugging is twice as hard as writing the code in the first place.
-> Therefore, if you write the code as cleverly as possible, you are,
-> by definition, not smart enough to debug it." - Brian W. Kernighan
-> 
-> 
+Maybe we could implement some form of per-address_space serialisation which
+permts multiple WB_SYNC_NONE writers, but exclusive WB_SYNC_ALL writers. 
+That's basically an rwsem, but we don't want to block WB_SYNC_NONE
+processes if there's a sync in progress.
+
+So WB_SYNC_NONE callers would use down_read_trylock() and WB_SYNC_ALL
+callers would use down_write().   That just fixes all this stuff up.
+

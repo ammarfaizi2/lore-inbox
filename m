@@ -1,46 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287881AbSAPVcU>; Wed, 16 Jan 2002 16:32:20 -0500
+	id <S287918AbSAPVfD>; Wed, 16 Jan 2002 16:35:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287896AbSAPVcK>; Wed, 16 Jan 2002 16:32:10 -0500
-Received: from pD9E10BC9.dip.t-dialin.net ([217.225.11.201]:26246 "EHLO
-	fefe.de") by vger.kernel.org with ESMTP id <S287881AbSAPVcF>;
-	Wed, 16 Jan 2002 16:32:05 -0500
-Date: Wed, 16 Jan 2002 22:31:59 +0100
-From: Felix von Leitner <usenet-20020116@fefe.de>
-To: "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org
-Subject: Re: Penelope builds a kernel
-Message-ID: <20020116213159.GC950@fefe.de>
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020114165909.A20808@thyrsus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020114165909.A20808@thyrsus.com>
-User-Agent: Mutt/1.3.25i
+	id <S287932AbSAPVet>; Wed, 16 Jan 2002 16:34:49 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:43974 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S287939AbSAPVeg>;
+	Wed, 16 Jan 2002 16:34:36 -0500
+Date: Thu, 17 Jan 2002 00:31:56 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Robert Love <rml@tech9.net>
+Cc: Justin Carlson <justincarlson@cmu.edu>,
+        Rusty Russell <rusty@rustcorp.com.au>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] I3 sched tweaks...
+In-Reply-To: <1011216429.1083.95.camel@phantasy>
+Message-ID: <Pine.LNX.4.33.0201170021550.21473-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thus spake Eric S. Raymond (esr@thyrsus.com):
-> Scenario #3: Penelope goes where the geeks are surfing.
 
-Why are you posting all this crap to linux-kernel?
+On 16 Jan 2002, Robert Love wrote:
 
-[58 lines that say "I want ./configure for the kernel" deleted]
-Ever put a recent SuSE or RedHat CD in your computer?
+> current is stored in a register (esp) in x86, too. [...]
 
-Eric, there are hundreds of perfectly fine Linux problems you could
-solve.  Distributions will ship with generic kernels and lots of
-modules.  You are not supposed to patch the kernel unless you have some
-minimal expertise.  Requiring users to use Python will not help the
-situation at all.  Pardon the French, but don't you have any real
-problems to solve?
+it's stored in a register, but then it also needs to do some more work to
+get at the true pointer. The typical way to load 'current' on x86 into
+%eax:
 
-You know, the kind of problem where solving it would actually help a few
-people?  Almost no standard user like Aunt Tilly or Penelope has a
-reason to compile a kernel, ever.  Rule 1 of computing: optimize the
-_common_ case.  This case is not common.
+        b8 00 e0 ff ff          mov    $0xffffe000,%eax
+        21 e0                   and    %esp,%eax
 
-Felix
+7 bytes icache footprint.
+
+while the cost of moving an already calculated 'current' pointer to the
+stack is:
+
+        50                      push   %eax
+
+1 byte instruction.
+
+and in addition, consider that for larger functions, the 'current' value
+will be moved to a gcc spill register anyway, it will end up looking like
+this:
+
+        b8 00 e0 ff ff          mov    $0xffffe000,%edi
+        21 e0                   and    %esp,%edi
+        89 7c 24 14             mov    %edi,0x14(%esp,1)
+
+while in the function-call variant the pointer is on the stack already, so
+accessing it is easy:
+
+        89 7c 24 14             mov    0x10(%esp,1), %eax
+
+so on x86, considering the sched_tick() case, it's slightly faster to pass
+the argument. But there isnt any big difference.
+
+but add an instruction or two to the 'current' calculation method, and the
+icache footprint and actual overhead will be more clearly in favor of
+function calls.
+
+i agree that on architectures where 'current' is stored in a register it's
+better to use 'current' explicitly.
+
+	Ingo
 

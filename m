@@ -1,62 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267033AbTAFRXB>; Mon, 6 Jan 2003 12:23:01 -0500
+	id <S267078AbTAFRSX>; Mon, 6 Jan 2003 12:18:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267041AbTAFRXB>; Mon, 6 Jan 2003 12:23:01 -0500
-Received: from [213.228.128.56] ([213.228.128.56]:18372 "HELO
-	front1.netvisao.pt") by vger.kernel.org with SMTP
-	id <S267033AbTAFRXA>; Mon, 6 Jan 2003 12:23:00 -0500
-Date: Mon, 6 Jan 2003 17:31:16 +0000
-From: "Paulo Andre'" <fscked@netvisao.pt>
-To: rms@gnu.org
-Cc: mark@mark.mielke.cc, lm@bitmover.com, linux-kernel@vger.kernel.org,
-       billh@gnuppy.monkey.org, paul@clubi.ie, riel@conectiva.com.br,
-       Hell.Surfers@cwctv.net
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-Message-Id: <20030106173116.267361f8.fscked@netvisao.pt>
-In-Reply-To: <E18Vao9-0002JZ-00@fencepost.gnu.org>
-References: <20030102013736.GA2708@gnuppy.monkey.org>
-	<Pine.LNX.4.44.0301020245080.8691-100000@fogarty.jakma.org>
-	<20030102055859.GA3991@gnuppy.monkey.org>
-	<20030102061430.GA23276@mark.mielke.cc>
-	<E18UIZS-0006Cr-00@fencepost.gnu.org>
-	<20030103040612.GA10651@work.bitmover.com>
-	<20030104220651.GA30907@merlin.emma.line.org>
-	<20030104222330.GA1386@work.bitmover.com>
-	<E18VFaz-0008S0-00@fencepost.gnu.org>
-	<20030105221345.GA31840@mark.mielke.cc>
-	<E18Vao9-0002JZ-00@fencepost.gnu.org>
-Organization: Corleone Hacking Corp.
-X-Mailer: Sylpheed version 0.8.6claws (GTK+ 1.2.10; )
+	id <S267110AbTAFRSX>; Mon, 6 Jan 2003 12:18:23 -0500
+Received: from thanatos.clara.net ([195.8.69.60]:13068 "EHLO
+	thanatos.clara.net") by vger.kernel.org with ESMTP
+	id <S267078AbTAFRSW>; Mon, 6 Jan 2003 12:18:22 -0500
+Date: Mon, 6 Jan 2003 17:26:48 +0000
+From: Faye Pearson <faye@clara.net>
+To: Andrew McGregor <andrew@indranet.co.nz>
+Cc: Andrew Morton <akpm@digeo.com>, "Grover, Andrew" <andrew.grover@intel.com>,
+       Pavel Machek <pavel@ucw.cz>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [ACPI] acpi_os_queue_for_execution()
+Message-ID: <20030106172648.GA1743@clara.net>
+References: <F760B14C9561B941B89469F59BA3A84725A107@orsmsx401.jf.intel.com> <3E196C17.7D318CAF@digeo.com> <20150000.1041857884@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20150000.1041857884@localhost.localdomain>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.4.18 on an i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 06 Jan 2003 12:13:01 -0500
-Richard Stallman <rms@gnu.org> wrote:
+Andrew McGregor [andrew@indranet.co.nz] wrote:
+> So *that* is why ACPI kernels are so slow on my laptop (Dell i8k), and make 
+> so much heat.  I bet one of those threads ends up busy looping because of 
+> other brokenness.
 
->     You *chose* GNU/Linux to parallel Unix? I assume you mean that you
->     influenced GNU into using a Unix base with the eventual goal of having
->     some sort of GNU Unix base (the Hurd?). The words you selected above
->     are rather assuming.
-> 
-> I decided in 1983 to develop a Unix-compatible operating system, and
-> then chose the name GNU for it.  In 1990, after finding or writing
-> most of the necessary components, we started developing a kernel for
-> the GNU system; that kernel is the GNU Hurd.  Since Linux was working
-> long before the Hurd, people mostly use GNU with Linux instead.
+My laptop was a lot happier when I removed the GPE _L00 method from my
+DSDT which was busylooping sending a processor 0x80 event.
 
-Richard,
 
-I have the utmost respect for your earlier efforts which were of unquestionable
-importance for the dawn of the free software movement. Can't say the same for
-your sick GNU/Linux rant though. But considering this is the linux-kernel
-_development_ list (let alone the fact that this discussion stinks) I do think
-it would be a much better move if you and your zealots would go away and
-(perhaps) actually go do some CODING on your GNU/Hurd/whatever instead. All
-this ranting is more than likely why it got started in 1990 and it's still not
-near finished.
+Faye
 
-		Paulo Andre'
+-- 
+Faye Pearson,
+Covert Development
+ClaraNET Ltd.       Tel 020 7903 3000
+
+Familiarity breeds contempt -- and children.
+		-- Mark Twain

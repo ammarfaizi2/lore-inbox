@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292770AbSCDTNA>; Mon, 4 Mar 2002 14:13:00 -0500
+	id <S292800AbSCDTPK>; Mon, 4 Mar 2002 14:15:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292779AbSCDTMu>; Mon, 4 Mar 2002 14:12:50 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12556 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292770AbSCDTMf>;
-	Mon, 4 Mar 2002 14:12:35 -0500
-Message-ID: <3C83C737.397989BE@mandrakesoft.com>
-Date: Mon, 04 Mar 2002 14:12:55 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: David Dillow <dillowd@y12.doe.gov>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] IBM Lanstreamer bugfixes (round 3)
-In-Reply-To: <Pine.LNX.4.33.0203041023580.11065-100000@janetreno.austin.ibm.com>
-		 <3C83A925.F93BF448@mandrakesoft.com> <3C83AE6B.9B5DE85F@y12.doe.gov>
-		 <3C83B2E7.B5EB0FB5@mandrakesoft.com> <3C83C0B8.659F1AE@y12.doe.gov> <3C83C258.FCF57746@mandrakesoft.com> <3C83C4B6.B7A95B5A@y12.doe.gov>
+	id <S292796AbSCDTPB>; Mon, 4 Mar 2002 14:15:01 -0500
+Received: from ns.suse.de ([213.95.15.193]:26632 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S292779AbSCDTOq>;
+	Mon, 4 Mar 2002 14:14:46 -0500
+Date: Mon, 4 Mar 2002 20:14:35 +0100
+From: Dave Jones <davej@suse.de>
+To: Robert Love <rml@tech9.net>
+Cc: Andrey Panin <pazke@orbita1.ru>, Andries.Brouwer@cwi.nl,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] swapfile.c
+Message-ID: <20020304201434.D23524@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Robert Love <rml@tech9.net>, Andrey Panin <pazke@orbita1.ru>,
+	Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+In-Reply-To: <UTC200203022125.VAA144817.aeb@cwi.nl> <20020304112824.GA279@pazke.ipt> <1015267692.15277.13.camel@phantasy>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1015267692.15277.13.camel@phantasy>; from rml@tech9.net on Mon, Mar 04, 2002 at 01:48:08PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Dillow wrote:
-> Jeff Garzik wrote:
-> > pci_enable_device doesn't touch PCI_COMMAND_INVALIDATE either, on most
-> > platforms (particularly ia32, i.e. the popular one :))
+On Mon, Mar 04, 2002 at 01:48:08PM -0500, Robert Love wrote:
+ > > Fixed in -dj tree.
+ > Eww, nice spotting Andries.  If it is in the -dj tree, someone want to
+ > push that bit to Linus?
 
-> This seems to be a common thing to set; shouldn't we have a helper for
-> it as well, or have pci_enable_device() do it?
-
-Quoting my message to you from a couple hours ago:
-> I need to create a pci_set_mwi() helper function.
-
-	Jeff
-
-
+ Actually, I only just applied that to my tree last night.
+ Possibly Andrey was mixing it up to the IS_ERR fix that went in
+ a while ago..
 
 -- 
-Jeff Garzik      |
-Building 1024    |
-MandrakeSoft     | Choose life.
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

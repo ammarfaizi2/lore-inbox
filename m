@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129208AbQKQUaJ>; Fri, 17 Nov 2000 15:30:09 -0500
+	id <S129147AbQKQUat>; Fri, 17 Nov 2000 15:30:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129147AbQKQU37>; Fri, 17 Nov 2000 15:29:59 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:6273 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S129208AbQKQU3o>; Fri, 17 Nov 2000 15:29:44 -0500
-Date: Fri, 17 Nov 2000 14:59:04 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Russell King <rmk@arm.linux.org.uk>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org,
-        mj@suse.cz
-Subject: Re: VGA PCI IO port reservations
-In-Reply-To: <200011171953.TAA01877@raistlin.arm.linux.org.uk>
-Message-ID: <Pine.LNX.3.95.1001117145621.23447A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129651AbQKQUak>; Fri, 17 Nov 2000 15:30:40 -0500
+Received: from smtp-fwd.valinux.com ([198.186.202.196]:58885 "EHLO
+	mail.valinux.com") by vger.kernel.org with ESMTP id <S129147AbQKQUaZ>;
+	Fri, 17 Nov 2000 15:30:25 -0500
+Date: Fri, 17 Nov 2000 12:01:20 -0800
+From: David Hinds <dhinds@valinux.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Russell King <rmk@arm.linux.org.uk>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, tytso@valinux.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pcmcia event thread. (fwd)
+Message-ID: <20001117120120.M7939@valinux.com>
+In-Reply-To: <3A155F6A.28783D4A@mandrakesoft.com> <Pine.LNX.4.10.10011170843050.2272-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.6i
+In-Reply-To: <Pine.LNX.4.10.10011170843050.2272-100000@penguin.transmeta.com>; from Linus Torvalds on Fri, Nov 17, 2000 at 08:47:44AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Nov 2000, Russell King wrote:
 
-> Richard B. Johnson writes:
-> > The code necessary to find the lowest unaliased address looks like
-> > this:
+> 2. Even when I specify cs_irq=27, it resorts to polling:
 > 
-> Any chance of providing something more readable?  I may be able to read
-> some x86 asm, but I don't have the time to try to decode that lot.
+>         Intel PCIC probe:
+>           Intel i82365sl DF ISA-to-PCMCIA at port 0x8400 ofs 0x00, 2 sockets
+>             host opts [0]: none
+>             host opts [1]: none
+>             ISA irqs (default) = none! polling interval = 1000 ms
 
-It's Intel assembly on Intel machines. It's a hell of a lot more
-readable than AT&T assembly. This stuff has to be set up before you
-have any resources necessary to execute the output of a 'C' compiler,
-so, if you are looking for 'C' syntax, you are out of luck.
+The driver means it when it says "ISA irqs".  A value of 27 is not
+valid for cs_irq because this is an ISA irq number and must be 0..15;
+this is not a property of the host system, this is a property of the
+i82365 register specification.  PCI interrupts have to be handled
+differently (well, the stripped-down i82365 driver just can't handle
+them at all)
 
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+-- Dave
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,40 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267722AbUHJUig@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267734AbUHJUkx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267722AbUHJUig (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 16:38:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267725AbUHJUhC
+	id S267734AbUHJUkx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 16:40:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267725AbUHJUkx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 16:37:02 -0400
-Received: from gprs214-95.eurotel.cz ([160.218.214.95]:32129 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S267724AbUHJUga (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 16:36:30 -0400
-Date: Tue, 10 Aug 2004 22:36:12 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: David Brownell <david-b@pacbell.net>
-Cc: Patrick Mochel <mochel@digitalimplant.org>, linux-kernel@vger.kernel.org,
-       benh@kernel.crashing.org
-Subject: Re: [RFC] Fix Device Power Management States
-Message-ID: <20040810203612.GS28113@elf.ucw.cz>
-References: <Pine.LNX.4.50.0408090311310.30307-100000@monsoon.he.net> <Pine.LNX.4.50.0408092156480.24154-100000@monsoon.he.net> <20040810101308.GE9034@atrey.karlin.mff.cuni.cz> <200408101136.38387.david-b@pacbell.net>
-Mime-Version: 1.0
+	Tue, 10 Aug 2004 16:40:53 -0400
+Received: from ezoffice.mandrakesoft.com ([212.11.15.34]:35221 "EHLO
+	office.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id S267724AbUHJUjV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 16:39:21 -0400
+To: kernel@mandrakesoft.com
+Cc: "lkml " <linux-kernel@vger.kernel.org>, nplanel@mandrakesoft.com,
+       tmb@mandrake.org
+Subject: Re: [Kernel] Re: New dev model
+X-URL: <http://www.linux-mandrake.com/
+References: <14610.1090502271@www50.gmx.net>
+From: Thierry Vignaud <tvignaud@mandrakesoft.com>
+Organization: Mandrakesoft
+Date: Tue, 10 Aug 2004 22:39:16 +0200
+In-Reply-To: <14610.1090502271@www50.gmx.net> (Svetoslav Slavtchev's message
+ of "Thu, 22 Jul 2004 15:17:51 +0200 (MEST)")
+Message-ID: <m2oeliohhn.fsf@vador.mandrakesoft.com>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408101136.38387.david-b@pacbell.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+"Svetoslav Slavtchev" <svetljo@gmx.de> writes:
 
-> > > > Well, "no DMA" needs to be part of definition, too, because some
-> > > > devices (USB) do DMA only if they have nothing to do.
+> once again, sorry for this way of replying,
+> could you keep me CC'd as i'm not subscribed to lkml
+
+(...)
+
+> That could be done by sending in smaller patches that remove devfs
+> calls from drivers.  If nothing in the kernel is using devfs, then
+> there is no reason to keep it around anymore...
+
+well actually removing such bits from dac960.c and cciss.c would
+restore devfs support for them :-(
+
+> please don't do it /*at least not in the following two months :-)*/
 > 
-> I think that should read "even if they have ...", not "only if ...".
+> what does this buy us ?
+> 
+> once again about the upcoming Mandrake 10.1, we already have readded
+> devfs support to isdn, should we start tracking bk-head for such
+> patches that remove devfs support from drivers and revert them ?
+> should we stay with 2.6.7 (or eventually 2.6.8)?  there is really no
+> time to integarate/test udev as replacement of devfs for the next
+> release.
 
-Yes, sorry.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+the odds're high we'll go out with udev by default.
+it works smoothly for most devices (dvb and a few others seems missing
+but patches are pending).
+
+drakx installer is know fully aware of it (as of today's cvs)
+

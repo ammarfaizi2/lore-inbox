@@ -1,50 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261250AbTI3Kaj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 06:30:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261277AbTI3Kai
+	id S261267AbTI3Kf4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 06:35:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbTI3Kf4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 06:30:38 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:42952 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S261250AbTI3Kah (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 06:30:37 -0400
-Date: Tue, 30 Sep 2003 12:28:39 +0200 (CEST)
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Message-Id: <200309301028.h8UASdTI004280@burner.fokus.fraunhofer.de>
-To: linux-kernel@vger.kernel.org
-Subject: Kernel includefile bug not fixed after a year :-(
+	Tue, 30 Sep 2003 06:35:56 -0400
+Received: from rumms.uni-mannheim.de ([134.155.50.52]:4314 "EHLO
+	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id S261267AbTI3Kfr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 06:35:47 -0400
+From: Thomas Schlichter <schlicht@uni-mannheim.de>
+To: Miles Bader <miles@gnu.org>
+Subject: Re: [PATCH] document optimizing macro for translating PROT_ to VM_ bits
+Date: Tue, 30 Sep 2003 12:35:32 +0200
+User-Agent: KMail/1.5.9
+Cc: Muli Ben-Yehuda <mulix@mulix.org>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>
+References: <20030929090629.GF29313@actcom.co.il> <buoad8m3dvn.fsf@mcspd15.ucom.lsi.nec.co.jp> <20030930092403.GR29313@actcom.co.il>
+In-Reply-To: <20030930092403.GR29313@actcom.co.il>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_5xVe/KKS4awfMLT";
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200309301235.37246.schlicht@uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A year after I did report this inconsistency, it is still not fixed
 
-If include/scsi/scsi.h is included without __KERNEL__ #defined, then this
-error message apears.
+--Boundary-02=_5xVe/KKS4awfMLT
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-/usr/src/linux/include/scsi/scsi.h:172: parse error before "u8"
-/usr/src/linux/include/scsi/scsi.h:172: warning: no semicolon at end of struct 
-or union
-/usr/src/linux/include/scsi/scsi.h:173: warning: data definition has no type or 
-storage class
+Hi,
 
-Is there no interest in user applications for kernel features or is there just
-no kernel maintainer left over who makes the needed work?
+here just my 2 cents...
 
+On Tuesday 30 September 2003 11:24, Muli Ben-Yehuda wrote:
 
-Hints:
+  ~~ snip ~~
 
--	A type named "u8" is superfluous (even with __KERNEL__ #defined)
-	because we have a standard type uint8_t
+> /*
+>  * assert that only a single bit is on in 'bit'
+>  */
+> #define assert_single_bit(bit) do { \
+>         if (__builtin_constant_p(bit)) {			        \
+> 		if ((bit & (bit -1)))					\
+> 			__assert_single_bit_failed_dont_exist();	\
+> 	}  else								\
+> 		BUG_ON(!(bit & (bit - 1)));				\
+> 	} while(0)
 
--	Kernel include files should be checked for use compliance with level 
-	compilations on a regular base. It is the duty of the persons who
-	make changes to make sure that their changes don't break things.
+In the BUG_ON statement the "!" looks wrong to me...
 
-Jörg
+> /*
+>  * Optimisation function.  It is equivalent to:
+>  *      (x & bit1) ? bit2 : 0
+>  * but this version is faster.
+>  * ("bit1" and "bit2" must be single bits).
+>  */
+> static inline unsigned long
+> inline_calc_vm_trans(unsigned long x, unsigned long bit1, unsigned long
+> bit2) {
+> 	assert_single_bit(bit1);
+> 	assert_single_bit(bit2);
+>
+> 	return ((bit1) <= (bit2) ? ((x) & (bit1)) * ((bit2) / (bit1))
+>
+> 		: ((x) & (bit1)) / ((bit1) / (bit2)));
+>
+> }
 
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
- URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily
+Why don't we do:
+
+static inline unsigned long calc_vm_trans(const unsigned long x,
+		const unsigned long bit1, const unsigned long bit2) {
+	assert_single_bit(bit1);
+	assert_single_bit(bit2);
+
+	/* Optimisation function */
+	if (__builtin_constant_p(bit1) && __builtin_constant_p(bit2)) {
+		return ((bit1) <= (bit2) ? ((x) & (bit1)) * ((bit2) / (bit1))
+			: ((x) & (bit1)) / ((bit1) / (bit2)));
+	}
+
+	return (x & bit1) ? bit2 : 0;
+}
+
+Best regards
+   Thomas Schlichter
+
+--Boundary-02=_5xVe/KKS4awfMLT
+Content-Type: application/pgp-signature
+Content-Description: signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA/eVx5YAiN+WRIZzQRAp2/AJ9/jJqhqkRW5DIVcf43IHgimDr/QACfRyUP
+QAaFPguusYSwbLSwVzB6QvI=
+=Fnr1
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_5xVe/KKS4awfMLT--

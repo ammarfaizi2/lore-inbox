@@ -1,50 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263147AbSIPWKy>; Mon, 16 Sep 2002 18:10:54 -0400
+	id <S263167AbSIPWRP>; Mon, 16 Sep 2002 18:17:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263165AbSIPWKy>; Mon, 16 Sep 2002 18:10:54 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:59921
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S263147AbSIPWKx>; Mon, 16 Sep 2002 18:10:53 -0400
-Subject: Re: [PATCH] BUG(): sched.c: Line 944
-From: Robert Love <rml@tech9.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0209161438220.3732-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0209161438220.3732-100000@home.transmeta.com>
-Content-Type: text/plain
+	id <S263170AbSIPWRP>; Mon, 16 Sep 2002 18:17:15 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:15367 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S263167AbSIPWRO>; Mon, 16 Sep 2002 18:17:14 -0400
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200209162222.g8GMMAD28467@devserv.devel.redhat.com>
+Subject: Re: [PATCH] Experimental IDE oops dumper v0.1
+To: vojtech@suse.cz (Vojtech Pavlik)
+Date: Mon, 16 Sep 2002 18:22:10 -0400 (EDT)
+Cc: alan@redhat.com (Alan Cox), rusty@rustcorp.com.au (Rusty Russell),
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20020916215255.A60197@ucw.cz> from "Vojtech Pavlik" at Sep 16, 2002 09:52:55 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 16 Sep 2002 18:15:52 -0400
-Message-Id: <1032214552.1203.55.camel@phantasy>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-09-16 at 17:41, Linus Torvalds wrote:
+> > to do for legacy free cases but the other bits like LBA48 and retuning
+> > probably can be handled with some small chipset specific hooks
+> 
+> Retuning not needed, LBA48 might be needed. Not sure about LBA48 in PIO
+> mode, it might work even without chipset support - it's usually the
+> LBA48+DMA combination that confuses the chips.
 
-> Ok. Let's just make the masking explicit in in_atomic() then, like you 
-> suggest:
-
-OK.
-
-But, ugh, more fun: we preempt_disable() in do_exit().  Every exiting
-task hits the test.  My syslog is huge.
-
-At least for now, can we please revert the check to in_interrupt() ?
-
-	Robert Love
-
-diff -urN linux-2.5.35/kernel/sched.c linux/kernel/sched.c
---- linux-2.5.35/kernel/sched.c	Sun Sep 15 22:18:24 2002
-+++ linux/kernel/sched.c	Mon Sep 16 18:17:06 2002
-@@ -940,7 +940,7 @@
- 	struct list_head *queue;
- 	int idx;
- 
--	if (unlikely(in_atomic()))
-+	if (unlikely(in_interrupt()))
- 		BUG();
- 
- #if CONFIG_DEBUG_HIGHMEM
-
+Well we know if it wont work pretty easily, but we need the dump code
+LBA48 aware otherwise a dump on the end of the disk may end up dumping
+on the wrong part if it wraps - again could be detected

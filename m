@@ -1,114 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265479AbUANBrr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 20:47:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265649AbUANBrq
+	id S265649AbUANCdt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 21:33:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265767AbUANCdt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 20:47:46 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:45031 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S265479AbUANBro
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 20:47:44 -0500
-From: James Cleverdon <jamesclv@us.ibm.com>
-Reply-To: jamesclv@us.ibm.com
-Organization: IBM LTC
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH] 2.6.1-mm2: Adjust MAX_MP_BUSSES for summit and generic subarches
-Date: Tue, 13 Jan 2004 17:47:31 -0800
-User-Agent: KMail/1.5
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Chris McDermott <lcm@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_1+JBA/Ifqb0sfCr"
-Message-Id: <200401131747.33107.jamesclv@us.ibm.com>
+	Tue, 13 Jan 2004 21:33:49 -0500
+Received: from mailout1.samsung.com ([203.254.224.24]:19191 "EHLO
+	mailout1.samsung.com") by vger.kernel.org with ESMTP
+	id S265649AbUANCds (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 21:33:48 -0500
+Date: Wed, 14 Jan 2004 11:29:30 +0900
+From: Bharata B Rao <rao.bharata@samsung.com>
+Subject: [2.6.1 PM] runtime device power management
+To: linux-kernel@vger.kernel.org
+Reply-to: rao.bharata@samsung.com
+Message-id: <4004A98A.3020301@samsung.com>
+Organization: Samsung Electronics
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=us-ascii
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
---Boundary-00=_1+JBA/Ifqb0sfCr
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+I have been trying to suspend and resume a device in runtime using the 
+/sys/devices/pci.../power/state interface.
 
-We're overflowing some of the bus arrays on 32-way x445s (the BIOS reserves 
-lots of busses for PCI hot-plug), and probably would do the same on a 16-way 
-x440 with dual PCI expansion boxes.  This should make enough room.
+First time the device suspend/resume works correctly.
 
+But since, during resume the power_state is not set for the device(as is 
+done during suspend), it still retains the old suspended state value.
+Because of which, it can't be suspended again. (kernel thinks its 
+already suspended)
 
-diff -pru 2.6.1-mm2/include/asm-i386/mach-generic/mach_mpspec.h 
-q1mm2/include/asm-i386/mach-generic/mach_mpspec.h
---- 2.6.1-mm2/include/asm-i386/mach-generic/mach_mpspec.h	2004-01-08 
-22:59:45.000000000 -0800
-+++ q1mm2/include/asm-i386/mach-generic/mach_mpspec.h	2004-01-13 
-17:08:23.823784680 -0800
-@@ -8,6 +8,12 @@
- 
- #define MAX_IRQ_SOURCES 256
- 
--#define MAX_MP_BUSSES 32
-+/* Summit or generic (i.e. installer) kernels need lots of bus entries. */
-+#if defined(CONFIG_X86_SUMMIT) || defined(CONFIG_X86_GENERICARCH)
-+/* Maximum 256 PCI busses, plus 1 ISA bus in each of 4 cabinets. */
-+# define MAX_MP_BUSSES 260
-+#else
-+# define MAX_MP_BUSSES 32
-+#endif
- 
- #endif /* __ASM_MACH_MPSPEC_H */
-diff -pru 2.6.1-mm2/include/asm-i386/mach-summit/mach_mpspec.h 
-q1mm2/include/asm-i386/mach-summit/mach_mpspec.h
---- 2.6.1-mm2/include/asm-i386/mach-summit/mach_mpspec.h	2004-01-08 
-22:59:26.000000000 -0800
-+++ q1mm2/include/asm-i386/mach-summit/mach_mpspec.h	2004-01-13 
-16:59:24.706742928 -0800
-@@ -8,6 +8,7 @@
- 
- #define MAX_IRQ_SOURCES 256
- 
--#define MAX_MP_BUSSES 32
-+/* Maximum 256 PCI busses, plus 1 ISA bus in each of 4 cabinets. */
-+#define MAX_MP_BUSSES 260
- 
- #endif /* __ASM_MACH_MPSPEC_H */
+This can be fixed by just setting the dev->power.power_state to 
+appropriate value in drivers/base/power/runtime.c:runtime_resume() or in 
+any other suitable place.
 
---Boundary-00=_1+JBA/Ifqb0sfCr
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="max_mp_busses_2004-01-13_2.6.1-mm2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="max_mp_busses_2004-01-13_2.6.1-mm2"
+Regards,
+Bharata.
 
-diff -pru 2.6.1-mm2/include/asm-i386/mach-generic/mach_mpspec.h q1mm2/include/asm-i386/mach-generic/mach_mpspec.h
---- 2.6.1-mm2/include/asm-i386/mach-generic/mach_mpspec.h	2004-01-08 22:59:45.000000000 -0800
-+++ q1mm2/include/asm-i386/mach-generic/mach_mpspec.h	2004-01-13 17:08:23.823784680 -0800
-@@ -8,6 +8,12 @@
- 
- #define MAX_IRQ_SOURCES 256
- 
--#define MAX_MP_BUSSES 32
-+/* Summit or generic (i.e. installer) kernels need lots of bus entries. */
-+#if defined(CONFIG_X86_SUMMIT) || defined(CONFIG_X86_GENERICARCH)
-+/* Maximum 256 PCI busses, plus 1 ISA bus in each of 4 cabinets. */
-+# define MAX_MP_BUSSES 260
-+#else
-+# define MAX_MP_BUSSES 32
-+#endif
- 
- #endif /* __ASM_MACH_MPSPEC_H */
-diff -pru 2.6.1-mm2/include/asm-i386/mach-summit/mach_mpspec.h q1mm2/include/asm-i386/mach-summit/mach_mpspec.h
---- 2.6.1-mm2/include/asm-i386/mach-summit/mach_mpspec.h	2004-01-08 22:59:26.000000000 -0800
-+++ q1mm2/include/asm-i386/mach-summit/mach_mpspec.h	2004-01-13 16:59:24.706742928 -0800
-@@ -8,6 +8,7 @@
- 
- #define MAX_IRQ_SOURCES 256
- 
--#define MAX_MP_BUSSES 32
-+/* Maximum 256 PCI busses, plus 1 ISA bus in each of 4 cabinets. */
-+#define MAX_MP_BUSSES 260
- 
- #endif /* __ASM_MACH_MPSPEC_H */
-
---Boundary-00=_1+JBA/Ifqb0sfCr--
 

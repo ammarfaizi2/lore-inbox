@@ -1,52 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262203AbVATWsb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262204AbVATWv5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262203AbVATWsb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 17:48:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262204AbVATWsb
+	id S262204AbVATWv5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 17:51:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262208AbVATWv5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 17:48:31 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:2739 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262203AbVATWsQ (ORCPT
+	Thu, 20 Jan 2005 17:51:57 -0500
+Received: from smtp07.auna.com ([62.81.186.17]:16783 "EHLO smtp07.retemail.es")
+	by vger.kernel.org with ESMTP id S262204AbVATWvq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 17:48:16 -0500
-Date: Thu, 20 Jan 2005 16:48:12 -0600
-To: Paul Mackerras <paulus@samba.org>
-Cc: anton@samba.org, akpm@osdl.org, linuxppc64-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PPC64: EEH Recovery
-Message-ID: <20050120224812.GK9140@austin.ibm.com>
-References: <20050106192413.GK22274@austin.ibm.com> <20050117201415.GA11505@austin.ibm.com> <16877.63693.915740.385920@cargo.ozlabs.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16877.63693.915740.385920@cargo.ozlabs.ibm.com>
-User-Agent: Mutt/1.5.6+20040818i
-From: Linas Vepstas <linas@austin.ibm.com>
+	Thu, 20 Jan 2005 17:51:46 -0500
+Date: Thu, 20 Jan 2005 22:51:42 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: [patch 3/3] spinlock fix #3: type-checking spinlock primitives,
+ x86
+To: linux-kernel@vger.kernel.org
+References: <20050120114317.GA29876@elte.hu>
+	<20050120115947.GA31305@elte.hu> <20050120120905.GA3493@elte.hu>
+In-Reply-To: <20050120120905.GA3493@elte.hu> (from mingo@elte.hu on Thu Jan
+	20 13:09:05 2005)
+X-Mailer: Balsa 2.2.6
+Message-Id: <1106261502l.7080l.0l@werewolf.able.es>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=PGP-SHA1;
+	protocol="application/pgp-signature"; boundary="=-TO5RHc5WYTTg8qLztRrx"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 19, 2005 at 05:06:05PM +1100, Paul Mackerras was heard to remark:
-> Linas Vepstas writes:
-> 
-> > p.s.  It was not clear to me if the EEH patch previously sent 
-> > (6 January 2005, same subject line) will be wending its way into 
-> > the main Torvalds kernel tree, or not.  I hadn't really gotten
-> > confirmation one way or another.
-> 
-> I'm not really totally happy with it yet, on a number of fronts:
+--=-TO5RHc5WYTTg8qLztRrx
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-[...]
 
-I forgot to mention: while I agree with some/many of these points,
-especially with regards to recovery, I'd also like to note that the 
-patch was mailed in two independent parts:  
+On 2005.01.20, Ingo Molnar wrote:
+>=20
+> this patch would have caught the bug in -BK-curr (that patch #1 fixes),
+> via a compiler warning. Test-built/booted on x86.
+>=20
+> 	Ingo
+>=20
+> Signed-off-by: Ingo Molnar <mingo@elte.hu>
+>=20
+> --- linux/include/asm-i386/spinlock.h.orig
+> +++ linux/include/asm-i386/spinlock.h
+> @@ -36,7 +36,10 @@ typedef struct {
+> =20
+>  #define SPIN_LOCK_UNLOCKED (spinlock_t) { 1 SPINLOCK_MAGIC_INIT }
+> =20
+> -#define spin_lock_init(x)	do { *(x) =3D SPIN_LOCK_UNLOCKED; } while(0)
+> +static inline void spin_lock_init(spinlock_t *lock)
 
--- a number of generic infrastructure routines, all in a ppc64 patch, and
--- the code that actually performs the recovery, as a patch to 
-   the drivers/pci/hotplug subsystem.
+Will have any real effect if you add things like:
 
-While the actual recovery code is controversial (e.g. no support of 
-scsi recovery), I'd like to at least get in the the generic 
-infrastructure pieces.  
++static inline void spin_lock_init(spinlock_t *lock) __attribute__((__pure_=
+_));
 
---linas
+??
+
+TIA
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like se=
+x:
+werewolf!able!es                         \         It's better when it's fr=
+ee
+Mandrakelinux release 10.2 (Cooker) for i586
+Linux 2.6.10-jam4 (gcc 3.4.3 (Mandrakelinux 10.2 3.4.3-3mdk)) #2
+
+
+--=-TO5RHc5WYTTg8qLztRrx
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQBB8DX+RlIHNEGnKMMRAkBpAJ4rVWijoxBJYxhmRFePtXvIfzBPggCfXLI5
+GMbO9jkjGtu/ve4COaT1wnk=
+=avOj
+-----END PGP SIGNATURE-----
+
+--=-TO5RHc5WYTTg8qLztRrx--
+

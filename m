@@ -1,47 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263980AbTLENCH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 08:02:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263985AbTLENCH
+	id S263983AbTLENFi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 08:05:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264110AbTLENFb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 08:02:07 -0500
-Received: from mail.fh-wedel.de ([213.39.232.194]:53737 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S263980AbTLENCF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 08:02:05 -0500
-Date: Fri, 5 Dec 2003 14:02:02 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: David Wagner <daw-usenet@taverner.cs.berkeley.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: partially encrypted filesystem
-Message-ID: <20031205130202.GA31855@wohnheim.fh-wedel.de>
-References: <1070485676.4855.16.camel@nucleon> <20031204141725.GC7890@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0312040712270.2055@home.osdl.org> <20031204172653.GA12516@wohnheim.fh-wedel.de> <bqo1a2$s8i$1@abraham.cs.berkeley.edu>
+	Fri, 5 Dec 2003 08:05:31 -0500
+Received: from natsmtp01.rzone.de ([81.169.145.166]:17640 "EHLO
+	natsmtp01.rzone.de") by vger.kernel.org with ESMTP id S264106AbTLENFQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 08:05:16 -0500
+Date: Fri, 5 Dec 2003 14:05:20 +0100
+From: Kristian Peters <kristian.peters@korseby.net>
+To: Andrea Arcangeli <andrea@suse.de>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: oom killer in 2.4.23
+Message-Id: <20031205140520.39289a3a.kristian.peters@korseby.net>
+In-Reply-To: <Zbyn-23P-29@gated-at.bofh.it>
+References: <Z6Iv-7O2-29@gated-at.bofh.it>
+	<Z8Ag-3BK-3@gated-at.bofh.it>
+	<Zbyn-23P-29@gated-at.bofh.it>
+X-Mailer: Sylpheed version 0.8.10claws13 (GTK+ 1.2.10; i386-debian-linux-gnu)
+X-Operating-System: i686 Linux 2.4.23-ck1
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <bqo1a2$s8i$1@abraham.cs.berkeley.edu>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 December 2003 19:18:26 +0000, David Wagner wrote:
-> 
-> What?  No.  Modern cryptosystems are designed to be secure against
-> known plaintext attacks.  Making your system more convoluted merely to
-> avoid providing known plaintext is a lousy design approach: the extra
-> complexity usually adds more risk than it removes.
+Andrea Arcangeli <andrea@suse.de> schrieb:
+> Marcelo asked me to to make it configurable at runtime so you could go
+> in the deadlock prone stautus of 2.4.22 on demand, but I'm not going to
+> add more features to 2.4 today unless they're blocker bugs (even if that
+> would be simple to implement), actually it's not even my choice so don't
+> ask me for that sorry.
 
-All cryptosystems are designed around the hope that noone figures out
-how to break them.  Many smart people trying and failing to do so
-gives a good general feeling, but nothing more.  It remains hope.
+Andrea, your vm does not work correctly in any cases.
 
-How can you claim that modern cryptosystems are immune to known
-plaintext attacks?
+It's so simple. I've tried to fill up my memory with that crappy khexedit that comes with kde2. You'll see how my memory fills with the contents of the whole file I load. When I have started 2 or 3 instances of khexedit my memory was nearly completely filled. Than I tried to start another khexedit (with a file that should nearly fit into memory), and the pain began.
 
-Jörn
+See:
 
--- 
-When you close your hand, you own nothing. When you open it up, you
-own the whole world.
--- Li Mu Bai in Tiger & Dragon
+Dec  5 13:33:52 adlib kernel: __alloc_pages: 2-order allocation failed (gfp=0x1f0/0)
+Dec  5 13:33:52 adlib kernel: __alloc_pages: 0-order allocation failed (gfp=0x1f0/0)
+Dec  5 13:33:59 adlib kernel: __alloc_pages: 0-order allocation failed (gfp=0xf0/0)
+Dec  5 13:33:59 adlib kernel: __alloc_pages: 0-order allocation failed (gfp=0x1f0/0)
+Dec  5 13:34:00 adlib kernel: __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
+Dec  5 13:34:01 adlib kernel: __alloc_pages: 0-order allocation failed (gfp=0x1f0/0)
+Dec  5 13:34:02 adlib last message repeated 3 times
+
+-------> kernel killed wmfire without saying
+
+Dec  5 13:34:02 adlib kernel: __alloc_pages: 0-order allocation failed (gfp=0xf0/0)
+Dec  5 13:34:03 adlib kernel: __alloc_pages: 0-order allocation failed (gfp=0xf0/0)
+Dec  5 13:34:18 adlib kernel: __alloc_pages: 0-order allocation failed (gfp=0x1f0/0)
+Dec  5 13:34:18 adlib kernel: __alloc_pages: 0-order allocation failed (gfp=0x1f0/0)
+Dec  5 13:34:22 adlib kernel: __alloc_pages: 0-order allocation failed (gfp=0xf0/0)
+Dec  5 13:34:22 adlib kernel: __alloc_pages: 0-order allocation failed (gfp=0x1f0/0)
+Dec  5 13:34:28 adlib last message repeated 3 times
+
+-------> kernel killed xosview without mentioning
+
+Dec  5 13:34:29 adlib kernel: __alloc_pages: 0-order allocation failed (gfp=0xf0/0)
+Dec  5 13:34:29 adlib kernel: __alloc_pages: 0-order allocation failed (gfp=0x1f0/0)
+Dec  5 13:34:32 adlib kernel: __alloc_pages: 0-order allocation failed (gfp=0xf0/0)
+Dec  5 13:34:41 adlib kernel: __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
+Dec  5 13:34:41 adlib kernel: VM: killing process khexedit
+
+-------> that was intended
+
+
+
+Ok. That still is acceptable but when I tried to start mozilla, it got even worse:
+
+Dec  5 13:37:26 adlib kernel: __alloc_pages: 0-order allocation failed (gfp=0x1f0/0)
+Dec  5 13:37:27 adlib kernel: __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
+Dec  5 13:37:27 adlib kernel: VM: killing process mozilla-bin
+Dec  5 13:37:27 adlib kernel: __alloc_pages: 0-order allocation failed (gfp=0xf0/0)
+Dec  5 13:37:27 adlib kernel: __alloc_pages: 0-order allocation failed (gfp=0x1f0/0)
+Dec  5 13:37:28 adlib kernel: __alloc_pages: 0-order allocation failed (gfp=0x1f0/0)
+Dec  5 13:37:30 adlib kernel: __alloc_pages: 0-order allocation failed (gfp=0xf0/0)
+Dec  5 13:37:30 adlib last message repeated 2 times
+Dec  5 13:37:30 adlib kernel: __alloc_pages: 0-order allocation failed (gfp=0x1f0/0)
+Dec  5 13:37:40 adlib last message repeated 3 times
+Dec  5 13:37:56 adlib kernel: __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
+Dec  5 13:37:56 adlib kernel: VM: killing process mozilla-bin
+
+-------> that was intended too
+-------> but not the killing of another xosview and aterm
+
+Dec  5 13:37:57 adlib kernel: __alloc_pages: 0-order allocation failed (gfp=0x1f0/0)
+Dec  5 13:37:57 adlib kernel: __alloc_pages: 0-order allocation failed (gfp=0xf0/0)
+Dec  5 13:37:58 adlib kernel: __alloc_pages: 0-order allocation failed (gfp=0x1f0/0)
+Dec  5 13:40:32 adlib kernel: __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
+Dec  5 13:40:32 adlib kernel: VM: killing process XFree86
+
+-------> ouch ...
+
+
+Ok. Could you please describe what your vm really does here in my specific case ?
+Rick's old vm worked better. It'd have killed the task that had last allocated memory.
+
+PS: If you need more details it should be no problem to do this again.
+
+*Kristian
+
+
+   _o)
+   /\\
+  _\_V
+

@@ -1,34 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266952AbTAUJO1>; Tue, 21 Jan 2003 04:14:27 -0500
+	id <S266859AbTAUJRw>; Tue, 21 Jan 2003 04:17:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266961AbTAUJO1>; Tue, 21 Jan 2003 04:14:27 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:55822 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S266952AbTAUJO0>;
-	Tue, 21 Jan 2003 04:14:26 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: "Ph. Marek" <philipp.marek@bmlv.gv.at>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: printk() without KERN_ prefixes? (in 2.5.59) and Q: small kernel image doc 
-In-reply-to: Your message of "Tue, 21 Jan 2003 09:58:43 BST."
-             <200301210930.14551.philipp.marek@bmlv.gv.at> 
-Mime-Version: 1.0
+	id <S266961AbTAUJRw>; Tue, 21 Jan 2003 04:17:52 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:47343 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S266859AbTAUJRv>;
+	Tue, 21 Jan 2003 04:17:51 -0500
+Message-ID: <3E2D1245.131E41DB@mvista.com>
+Date: Tue, 21 Jan 2003 01:26:29 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-14smp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+CC: Thomas Schlichter <schlicht@uni-mannheim.de>, linux-kernel@vger.kernel.org
+Subject: Re: problem using integer division in kernel modules
+References: <200301151941.29690.schlicht@uni-mannheim.de> <20030115191122.GV27709@mea-ext.zmailer.org>
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 21 Jan 2003 20:23:20 +1100
-Message-ID: <12940.1043141000@ocs3.intra.ocs.com.au>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Jan 2003 09:58:43 +0100, 
-"Ph. Marek" <philipp.marek@bmlv.gv.at> wrote:
->Should they be fixed to KERN_INFO or some such? I'm willing to contribute a 
->patch (which will be done by script, of course). Or am I missing something 
->and they shall stay as they are?
+Matti Aarnio wrote:
+> 
+> On Wed, Jan 15, 2003 at 07:41:29PM +0100, Thomas Schlichter wrote:
+> > Hi,
+> >
+> > I am writing at a small kernel module and have a problem now using / and %. If
+> > I do so I get following unresolved symbols when the module should be loaded:
+> >   __divdi3
+> >   __moddi3
+> 
+>   64-bit division with non-constant non-power-of-two divider.
+> 
+> > Could you please help me and tell me what I do wrong..?
+> 
+>   The kernel is linked without gcc builtin libraries.
+>   Reasons can be found from FAQ (see footer), or archives.
 
-Do not blindly add KERN_*.  Some prints are done with multiple calls to
-printk(), only the first call should have KERN_*, otherwise you get
-lines like this, with embedded '<n>' strings.
+You may want to check out .../include/asm-???/div64.h.  It
+allows some limited divides with 64-bit numbers.  Look at
+several so you understand what it does and does not do.
 
-  /dev/xscsi/pci01.00.0-1/target0/lun0:<6> p1<6> p2<6> p3<6> p4 <<6> p5<6> p6<6> p7 >
+-g
+> 
+> /Matti Aarnio
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
+-- 
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

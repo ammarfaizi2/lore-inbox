@@ -1,51 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288154AbSAQDhS>; Wed, 16 Jan 2002 22:37:18 -0500
+	id <S288158AbSAQDyA>; Wed, 16 Jan 2002 22:54:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288156AbSAQDhH>; Wed, 16 Jan 2002 22:37:07 -0500
-Received: from [202.135.142.196] ([202.135.142.196]:10507 "EHLO
-	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
-	id <S288154AbSAQDhB>; Wed, 16 Jan 2002 22:37:01 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: mingo@elte.hu
-Cc: Ingo Molnar <mingo@redhat.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] I3 sched tweaks... 
-In-Reply-To: Your message of "Wed, 16 Jan 2002 23:46:45 BST."
-             <Pine.LNX.4.33.0201162343290.18971-100000@localhost.localdomain> 
-Date: Thu, 17 Jan 2002 14:37:09 +1100
-Message-Id: <E16R3MT-0004Ji-00@wagner.rustcorp.com.au>
+	id <S288159AbSAQDxv>; Wed, 16 Jan 2002 22:53:51 -0500
+Received: from 24.213.60.123.up.mi.chartermi.net ([24.213.60.123]:56280 "EHLO
+	front1.chartermi.net") by vger.kernel.org with ESMTP
+	id <S288158AbSAQDxl>; Wed, 16 Jan 2002 22:53:41 -0500
+From: reddog83 <reddog83@chartermi.net>
+Reply-To: reddog83@chartermi.net
+To: alan@lxorguk.ukuu.org.uk
+Subject: [PATCH] radeonfb for kernel-2.4.18-pre1
+Date: Wed, 16 Jan 2002 22:54:35 -0500
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_ZID2S9A9YWNNISWEUVNP"
+Message-ID: <auto-000047991150@front1.chartermi.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.33.0201162343290.18971-100000@localhost.localdomain> you
- write:
-> 
-> On Wed, 16 Jan 2002, Rusty Russell wrote:
-> 
-> > > > 4) scheduler_tick needs no args (p is always equal to current).
-> > >
-> > > i have not taken this part. We have 'current' calculated in
-> > > update_process_times(), so why not pass it along to the scheduler_tick()
-> > > function?
-> >
-> > Because it's redundant.  It's *always* p == current (and the code
-> > assumes this!), but I had to grep the callers to find out.
-> 
-> we pass pointers across functions regularly, even if the pointer could be
-> calculated within the function. We do this in the timer code too.
 
-Look at it semantically: scheduler_tick() is just a function called
-regularly for scheduler maintenance.  It might need the CPU number,
-the runqueue length, or phase of the moon: the caller shouldn't care.
+--------------Boundary-00=_ZID2S9A9YWNNISWEUVNP
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-If it was a static fn, maybe this optimization makes sense.  But it's
-an interface wart, and the "optimization" is utterly marginal anyway.
+Hi this patch fix's up the compiling issue with the Radeon Frame Buffer 
+driver. With this patch it should compile. I checked all over the LKML and 
+there has ben acouple of people who have sent the same patch in but have not 
+been acknowledged. Please apply this patch. Or Alan would you please include 
+this patch in your next ac release if you do have one? 
+Thank you Victor
+--------------Boundary-00=_ZID2S9A9YWNNISWEUVNP
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="radeonfb.diff"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="radeonfb.diff"
 
-That said, I never would have sent such a trivial patch by itself: I
-can't believe how many keystrokes were wasted over this issue!
+LS0tIGxpbnV4LTIuNC4xOC1wcmUxL2RyaXZlcnMvdmlkZW8vcmFkZW9uZmIuYy5vcmlnICAgU2F0
+IERlYyAyOSAyMDo0ODowNyAyMDAxCisrKyBsaW51eC0yLjQuMTgtcHJlMS9kcml2ZXJzL3ZpZGVv
+L3JhZGVvbmZiLmMgICAgICAgIFNhdCBEZWMgMjkgMjI6MzU6MjEgMjAwMQpAQCAtNzYsNiArNzYs
+NyBAQAogI2luY2x1ZGUgPHZpZGVvL2ZiY29uLWNmYjMyLmg+CiAjaW5jbHVkZSAicmFkZW9uLmgi
+CisjZGVmaW5lIExWRFNfU1RBVEVfTUFTSyAweEZGRkZGRkZGCgogI2RlZmluZSBERUJVRyAgICAg
+ICAgMApAQCAtMjI4MCw3ICsyMjgxLDcgQEAKICAgICAgc2F2ZS0+bHZkc19nZW5fY250bCA9IElO
+UkVHKExWRFNfR0VOX0NOVEwpOwogICAgICBzYXZlLT5sdmRzX3BsbF9jbnRsID0gSU5SRUcoTFZE
+U19QTExfQ05UTCk7CiAgICAgIHNhdmUtPnRtZHNfY3JjID0gSU5SRUcoVE1EU19DUkMpOwotICAg
+ICBzYXZlLT50bWRzX3RyYW5zbWl0dGVyX2NudGwgPSBJTlJFRyhUTURTX1RSQU5TTUlUVEVSX0NO
+VEwpOworLyogICBzYXZlLT50bWRzX3RyYW5zbWl0dGVyX2NudGwgPSBJTlJFRyhUTURTX1RSQU5T
+TUlUVEVSX0NOVEwpOyAqLwogfQoKQEAgLTI1NTcsOCArMjU1OCw4IEBACiAgICAgICAgICAgICAg
+fSBlbHNlIHsKICAgICAgICAgICAgICAgICAgICAgIC8qIERGUCAqLwogICAgICAgICAgICAgICAg
+ICAgICAgbmV3bW9kZS5mcF9nZW5fY250bCB8PSAoRlBfRlBPTiB8IEZQX1RNRFNfRU4pOwotICAg
+ICAgICAgICAgICAgICAgICAgbmV3bW9kZS50bWRzX3RyYW5zbWl0dGVyX2NudGwgPSAoVE1EU19S
+QU5fUEFUX1JTVCB8Ci0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICBJQ0hDU0VMKSAmIH4oVE1EU19QTExSU1QpOworLyogICAgICAgICAgICAgICAg
+ICAgbmV3bW9kZS50bWRzX3RyYW5zbWl0dGVyX2NudGwgPSAoVE1EU19SQU5fUEFUX1JTVCB8Cisg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBJQ0hD
+U0VMKSAmIH4oVE1EU19QTExSU1QpOyAqLwogICAgICAgICAgICAgICAgICAgICAgbmV3bW9kZS5j
+cnRjX2V4dF9jbnRsICY9IH5DUlRDX0NSVF9PTjsKICAgICAgICAgICAgICB9CiBAQCAtMjY0Nyw3
+ICsyNjQ4LDcgQEAKICAgICAgICAgICAgICBPVVRSRUcoRlBfVkVSVF9TVFJFVENILCBtb2RlLT5m
+cF92ZXJ0X3N0cmV0Y2gpOwogICAgICAgICAgICAgIE9VVFJFRyhGUF9HRU5fQ05UTCwgbW9kZS0+
+ZnBfZ2VuX2NudGwpOwogICAgICAgICAgICAgIE9VVFJFRyhUTURTX0NSQywgbW9kZS0+dG1kc19j
+cmMpOwotICAgICAgICAgICAgIE9VVFJFRyhUTURTX1RSQU5TTUlUVEVSX0NOVEwsIG1vZGUtPnRt
+ZHNfdHJhbnNtaXR0ZXJfY250bCk7CisvKiAgICAgICAgICAgT1VUUkVHKFRNRFNfVFJBTlNNSVRU
+RVJfQ05UTCwgbW9kZS0+dG1kc190cmFuc21pdHRlcl9jbnRsKTsgKi8KICAgICAgICAgICAgICAg
+aWYgKHByaW1hcnlfbW9uID09IE1UX0xDRCkgewogICAgICAgICAgICAgICAgICAgICAgdW5zaWdu
+ZWQgaW50IHRtcCA9IElOUkVHKExWRFNfR0VOX0NOVEwpOwo=
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+--------------Boundary-00=_ZID2S9A9YWNNISWEUVNP--

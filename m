@@ -1,31 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315414AbSILLuA>; Thu, 12 Sep 2002 07:50:00 -0400
+	id <S315419AbSILMcy>; Thu, 12 Sep 2002 08:32:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315416AbSILLuA>; Thu, 12 Sep 2002 07:50:00 -0400
-Received: from ookhoi.xs4all.nl ([213.84.114.66]:52117 "EHLO
-	sparsus.humilis.net") by vger.kernel.org with ESMTP
-	id <S315414AbSILLt7>; Thu, 12 Sep 2002 07:49:59 -0400
-Date: Thu, 12 Sep 2002 13:54:48 +0200
-From: Ookhoi <ookhoi@humilis.net>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.34 on Sony PictureBook fails to boot
-Message-ID: <20020912135447.C19239@humilis>
-Reply-To: ookhoi@humilis.net
-References: <200209111722.KAA03149@adam.yggdrasil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200209111722.KAA03149@adam.yggdrasil.com>
-User-Agent: Mutt/1.3.19i
-X-Uptime: 16:10:13 up 95 days, 15:35, 21 users,  load average: 0.02, 0.03, 0.00
+	id <S315437AbSILMcy>; Thu, 12 Sep 2002 08:32:54 -0400
+Received: from mail.cyberus.ca ([216.191.240.111]:61057 "EHLO cyberus.ca")
+	by vger.kernel.org with ESMTP id <S315419AbSILMcx>;
+	Thu, 12 Sep 2002 08:32:53 -0400
+Date: Thu, 12 Sep 2002 08:30:44 -0400 (EDT)
+From: jamal <hadi@cyberus.ca>
+To: Todd Underwood <todd@osogrande.com>
+cc: "David S. Miller" <davem@redhat.com>,
+       "tcw@tempest.prismnet.com" <tcw@tempest.prismnet.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "netdev@oss.sgi.com" <netdev@oss.sgi.com>
+Subject: Re: Early SPECWeb99 results on 2.5.33 with TSO on e1000
+In-Reply-To: <Pine.LNX.4.44.0209120119580.25406-100000@gp>
+Message-ID: <Pine.GSO.4.30.0209120811300.16149-100000@shell.cyberus.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam J. Richter wrote (ao):
-> 	Attempting to boot 2.5.34 compiled with SMP on a Sony
-> PictureBook results in the computer being reset before the kernel
-> activates the console.
 
-Which picturebook? (intel or crusoe cpu?)  And why smp? Just curious.
+
+Good work. The first time i have seen someone say Linux's way of
+reverse order is a GoodThing(tm). It was also great to see de-mything
+some of the old assumption of the world.
+
+BTW, TSO is not a intelligent as what you are suggesting.
+If i am not mistaken you are not only suggesting fragmentation and
+assembly at that level you are also suggesting retransmits at the NIC.
+This could be dangerous for practical reasons (changes in TCP congestion
+control algorithms etc). TSO as was pointed in earlier emails is just a
+dumb sender of packets. I think even fragmentation is a misnomer.
+Essentially you shove a huge buffer to the NIC and it breaks it into MTU
+sized packets for you and sends them.
+
+In regards to the receive side CPU utilization improvements: I think
+that NAPI does a good job at least in getting ridding of the biggest
+offender -- interupt overload. Also with NAPI also having got rid of
+intermidiate queues to the socket level, facilitating of zero copy receive
+should be relatively easy to add but there are no capable NICs in
+existence (well, ok not counting the TIGONII/acenic that you can hack
+and the fact that the tigon 2 is EOL doesnt help other than just for
+experiments). I dont think theres any NIC that can offload reassembly;
+that might not be such a bad idea.
+
+Are you still continuing work on this?
+
+cheers,
+jamal
+

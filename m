@@ -1,57 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262175AbVAABtZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262177AbVAACWX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262175AbVAABtZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 20:49:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbVAABtZ
+	id S262177AbVAACWX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 21:22:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262179AbVAACWW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 20:49:25 -0500
-Received: from out003pub.verizon.net ([206.46.170.103]:21442 "EHLO
-	out003.verizon.net") by vger.kernel.org with ESMTP id S262175AbVAABtU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 20:49:20 -0500
-Message-ID: <41D601B3.1000507@cwazy.co.uk>
-Date: Fri, 31 Dec 2004 20:49:39 -0500
-From: Jim Nelson <james4765@cwazy.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Fri, 31 Dec 2004 21:22:22 -0500
+Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:28849 "HELO
+	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262177AbVAACWK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Dec 2004 21:22:10 -0500
+Message-ID: <41D6094C.3040908@yahoo.com.au>
+Date: Sat, 01 Jan 2005 13:22:04 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org,
-       kernel-janitors@lists.osdl.org
-Subject: Re: [KJ] Re: [PATCH] esp: Make driver SMP-correct
-References: <20041231014403.3309.58245.96163@localhost.localdomain> <200412311901.50638.gene.heskett@verizon.net> <20050101001311.D10216@flint.arm.linux.org.uk> <200412312014.39618.gene.heskett@verizon.net> <20050101013357.A29907@flint.arm.linux.org.uk>
-In-Reply-To: <20050101013357.A29907@flint.arm.linux.org.uk>
+To: Christoph Lameter <clameter@sgi.com>
+CC: "Luck, Tony" <tony.luck@intel.com>, Robin Holt <holt@sgi.com>,
+       Adam Litke <agl@us.ibm.com>, linux-ia64@vger.kernel.org,
+       torvalds@osdl.org, linux-mm@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Increase page fault rate by prezeroing V1 [2/3]: zeroing and
+ scrubd
+References: <B8E391BBE9FE384DAA4C5C003888BE6F02900FBD@scsmsx401.amr.corp.intel.com> <41C20E3E.3070209@yahoo.com.au> <Pine.LNX.4.58.0412211154100.1313@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0412211156090.1313@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.58.0412211156090.1313@schroedinger.engr.sgi.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [209.158.220.243] at Fri, 31 Dec 2004 19:49:19 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> On Fri, Dec 31, 2004 at 08:14:39PM -0500, Gene Heskett wrote:
-> 
->>On Friday 31 December 2004 19:13, Russell King wrote:
->>
->>>To: no To-header on input <>
->>
->>Thats the To: line of this message Russell, as it came in here.  I 
->>assume it was originally filled in to be to me and that you cleaned 
->>that to prevent your getting a bounce from verizon?
-> 
-> 
-> Indeed, and I now have a better solution which I don't even have to
-> think about anymore, and doesn't damage the headers in the message. 8)
-> 
-> Let me know if and when verizon comes back to reality please.
+Christoph Lameter wrote:
+> o Add page zeroing
+> o Add scrub daemon
+> o Add ability to view amount of zeroed information in /proc/meminfo
 > 
 
-Not anytime soon, methinks.  Verizon was one of the first ISP's to block Gnutella 
-on their networks, and are unresponsive to any appeals to unblock it.  I've sent a 
-nastygram to their security "experts", and am actively seeking another ISP - I 
-think there are 1 or 2 other DSL providers in my area.
+I quite like how you're handling the page zeroing now. It seems
+less intrusive and cleaner in its interface to the page allocator
+now.
 
-It's a shame, really - their field techs are top-notch and I've had no 
-connectivity issues in 3 years, but the PHBs who set policy are as bad as my 
-bosses at Greyhound - which is a major insult, in my book.
+I think this is pretty close to what I'd be happy with if we decide
+to go with zeroing.
 
-In the meantime, I'll just be a Virginia boy with a .co.uk e-mail address :)
+Just one small comment - there is a patch in the -mm tree that may
+be of use to you; mm-keep-count-of-free-areas.patch is used later
+by kswapd to handle and account higher order free areas properly.
+You may be able to use it to better implement triggers/watermarks
+for the scrub daemon.
+
+Also...
+
+> +
+> +/*
+> + * zero_highest_order_page takes a page off the freelist
+> + * and then hands it off to block zeroing agents.
+> + * The cleared pages are added to the back of
+> + * the freelist where the page allocator may pick them up.
+> + */
+> +int zero_highest_order_page(struct zone *z)
+> +{
+> +	int order;
+> +
+> +	for(order = MAX_ORDER-1; order >= sysctl_scrub_stop; order--) {
+> +		struct free_area *area = z->free_area[NOT_ZEROED] + order;
+> +		if (!list_empty(&area->free_list)) {
+> +			struct page *page = scrubd_rmpage(z, area, order);
+> +			struct list_head *l;
+> +
+> +			if (!page)
+> +				continue;
+> +
+> +			page->index = order;
+> +
+> +			list_for_each(l, &zero_drivers) {
+> +				struct zero_driver *driver = list_entry(l, struct zero_driver, list);
+> +				unsigned long size = PAGE_SIZE << order;
+> +
+> +				if (driver->start(page_address(page), size) == 0) {
+> +
+> +					unsigned ticks = (size*HZ)/driver->rate;
+> +					if (ticks) {
+> +						/* Wait the minimum time of the transfer */
+> +						current->state = TASK_INTERRUPTIBLE;
+> +						schedule_timeout(ticks);
+> +					}
+> +					/* Then keep on checking until transfer is complete */
+> +					while (!driver->check())
+> +						schedule();
+> +					goto out;
+> +				}
+
+Would you be better off to just have a driver->zero_me(...) call, with this
+logic pushed into those like your BTE which need it? I'm thinking this would
+help flexibility if you had say a BTE-thingy that did an interrupt on
+completion, or if it was done synchronously by the CPU with cache bypassing
+stores.
+
+Also, would there be any use in passing a batch of pages to the zeroing driver?
+That may improve performance on some implementations, but could also cut down
+the inefficiency in your timeout mechanism due to timer quantization (I guess
+probably not much if you are only zeroing quite large areas).
+
+BTW, that while loop is basically a busy-wait. Not a critical problem, but you
+may want to renice scrubd to the lowest scheduling priority to be a bit nicer?
+(I think you'd want to do that anyway). And put a cpu_relax() call in there?
+
+Just some suggestions.
+
+Nick

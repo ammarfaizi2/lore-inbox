@@ -1,56 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263867AbSITWGZ>; Fri, 20 Sep 2002 18:06:25 -0400
+	id <S263874AbSITWGx>; Fri, 20 Sep 2002 18:06:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263874AbSITWGY>; Fri, 20 Sep 2002 18:06:24 -0400
-Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:36738 "EHLO
-	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S263867AbSITWGX>; Fri, 20 Sep 2002 18:06:23 -0400
-Date: Fri, 20 Sep 2002 19:11:15 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Russ Lewis <spamhole-2001-07-16@deming-os.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: is any virtual address space reserved?
-In-Reply-To: <3D8B8E5B.FBEF44B3@deming-os.org>
-Message-ID: <Pine.LNX.4.44L.0209201909430.1857-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S263881AbSITWGx>; Fri, 20 Sep 2002 18:06:53 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:46494 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S263874AbSITWGc>;
+	Fri, 20 Sep 2002 18:06:32 -0400
+Date: Fri, 20 Sep 2002 15:07:34 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       "Bond, Andrew" <Andrew.Bond@hp.com>
+cc: Dave Hansen <haveblue@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: TPC-C benchmark used standard RH kernel
+Message-ID: <81250000.1032559653@flay>
+In-Reply-To: <20020920205653.GM3530@holomorphy.com>
+References: <45B36A38D959B44CB032DA427A6E106402D09E43@cceexc18.americas.cpqcorp.net> <20020920205653.GM3530@holomorphy.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Sep 2002, Russ Lewis wrote:
+>> This isn't as recent as I would like, but it will give you an idea.
+>> Top 75 from readprofile.  This run was not using bigpages though.
+>> Andy
+> 
+>> 00000000 total                                      7872   0.0066
+>> c0105400 default_idle                               1367  21.3594
+>> c012ea20 find_vma_prev                               462   2.2212
+>> c0142840 create_bounce                               378   1.1250
+>> c0142540 bounce_end_io_read                          332   0.9881
+>> c0197740 __make_request                              256   0.1290
+>> c012af20 zap_page_range                              231   0.1739
+>> c012e9a0 find_vma                                    214   1.6719
+>> c012e780 avl_rebalance                               160   0.4762
+> 
+> Looks like you're doing a lot of mmapping or faulting requiring VMA
+> lookups, or the number of VMA's associated with a task makes the
+> various VMA manipulations extremely expensive.
+> 
+> Can you dump /proc/pid/maps on some of these processes?
 
-> Is any of a userland application's virtual address space reserved?
-> Certainly, some memory is used at startup: the code is loaded into some
-> of the virtual space, as well as the stack.  There needs to always be
-> enough space for the stack to grow as necessary.  But is any of the
-> space actually marked off as "reserved"?  If we just mmap'ed the same
-> file over and over again, could we fill the 4Gb address space with
-> identical mappings, or would we run out?
+Isn't that the magic Oracle 32Kb mmap hack at work here, in order
+to get a >2Gb SGA?
 
-There are a number of issues here:
-
-1) userspace has 3 GB space, kernel has the other 1 GB
-
-2) if you want to mmap a file over and over again, you'll
-   need to have the code that maps the file and the glibc
-   mmap(3) stuff mapped into your address space ;)
-
-3) your process will want to have a stack somewhere
-
-4) address 0 is reserved to trap NULL pointer dereferences
-   both in kernel and user space
-
-cheers,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Spamtraps of the month:  september@surriel.com trac@trac.org
+M.
 

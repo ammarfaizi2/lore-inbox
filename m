@@ -1,45 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262310AbUCTQ5e (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 11:57:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262424AbUCTQ5e
+	id S262309AbUCTQ4z (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 11:56:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262310AbUCTQ4y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 11:57:34 -0500
-Received: from holomorphy.com ([207.189.100.168]:55176 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262310AbUCTQ5c (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 11:57:32 -0500
-Date: Sat, 20 Mar 2004 08:57:26 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: can device drivers return non-ram via vm_ops->nopage?
-Message-ID: <20040320165726.GG2045@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-References: <20040320133025.GH9009@dualathlon.random> <20040320144022.GC2045@holomorphy.com> <20040320150621.GO9009@dualathlon.random> <20040320154419.A6726@flint.arm.linux.org.uk> <20040320155739.GQ9009@dualathlon.random> <20040320161538.C6726@flint.arm.linux.org.uk> <20040320162534.GU9009@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 20 Mar 2004 11:56:54 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:35493 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262309AbUCTQ4w
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 11:56:52 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Chris Mason <mason@suse.com>
+Subject: Re: [PATCH] barrier patch set
+Date: Sat, 20 Mar 2004 18:05:26 +0100
+User-Agent: KMail/1.5.3
+Cc: Jens Axboe <axboe@suse.de>, Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20040319153554.GC2933@suse.de> <200403201723.11906.bzolnier@elka.pw.edu.pl> <1079800362.11062.280.camel@watt.suse.com>
+In-Reply-To: <1079800362.11062.280.camel@watt.suse.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040320162534.GU9009@dualathlon.random>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Message-Id: <200403201805.26211.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 20, 2004 at 05:25:34PM +0100, Andrea Arcangeli wrote:
-> they're using MMIO pci space or it wouldn't catch my BUG_ON on x86.
-> The whole point is that it is non ram, if it would be ram, x86 couldn't
-> notice the virt_to_page, since the page_t would be in the range of the
-> mem_map_t and pfn_valid would be happy with it.
-> If it was dma_alloc_coherent it would return ram I think, not non-ram.
+On Saturday 20 of March 2004 17:32, Chris Mason wrote:
+> On Sat, 2004-03-20 at 11:23, Bartlomiej Zolnierkiewicz wrote:
+> > > > - why are we doing pre-flush?
+> > >
+> > > To ensure previously written data is on platter first.
+> >
+> > I know this, I want to know what for you are doing this?
+> >
+> > Previously written data is already acknowledgment to the upper layers so
+> > you can't do much even if you hit error on flush cache.  IMO if error
+> > happens we should just check if failed sector is of our ordered write if
+> > not well report it and continue.  It's cleaner and can give some (small?)
+> > performance gain.
+>
+> The journaled filesystems need this.  We need to make sure that before
+> we write the commit block for a transaction, all the previous log blocks
+> we're written are safely on media.  Then we also need to make sure the
+> commit block is on media.
 
-Any idea what driver? /dev/mem, which is where X typically gets its
-mappings of mmiospace, doesn't actually use ->nopage(). Maybe rmk's
-notion of doing it all from within the drivers is the right idea in
-general, or at least until we hit cases that can't be handled that
-way at all.
+For low-level driver it shouldn't really matter whether sectors to be
+written are the commit block for a transaction or the previous log blocks
+and in the current implementation it does matter.
 
+> We end up with a log blocks, pre-flush, commit block, post-flush cycle,
+> which is what gives the proper transaction ordering on disk.
 
--- wli
+Jens, can you explain how this translates to the block layer?
+If "log blocks" is a separate request from "commit block",
+we can just do: log blocks, flush, commit block, flush cycle.
+
+> For data blocks we only need the post flush, which is why Jens made
+> blkdev_issue_flush skip the pre-flush.
+
+Yes.
+
+Thanks,
+Bartlomiej
+

@@ -1,71 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262419AbULCRRv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262395AbULCRSE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262419AbULCRRv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 12:17:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262389AbULCRPU
+	id S262395AbULCRSE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 12:18:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262389AbULCRSD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 12:15:20 -0500
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:56469
-	"EHLO animx.eu.org") by vger.kernel.org with ESMTP id S262427AbULCRNI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 12:13:08 -0500
-Date: Fri, 3 Dec 2004 12:22:14 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: linux-kernel@vger.kernel.org
-Subject: USB DVD ... Again.
-Message-ID: <20041203172214.GA28067@animx.eu.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Fri, 3 Dec 2004 12:18:03 -0500
+Received: from wproxy.gmail.com ([64.233.184.194]:29605 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262395AbULCRQs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Dec 2004 12:16:48 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=aFlO6GvhQZKJ65GNcOdzWq50ulZNRwODAa3UTKB8BQ41U4gT9eo/kmEPMcMR4BQvnTPueUf77ab1Vq8K3b27DHEZkNlPo5MQZVhqhyRB6zsWTJtKEDU2ifAy+7os/ZyHN83YnoQ2BFepel4JCZDzeBXcBJPsARjBJSklpv4FJ0w=
+Message-ID: <64b1faec041203091654251b18@mail.gmail.com>
+Date: Fri, 3 Dec 2004 18:16:43 +0100
+From: Sylvain <autofr@gmail.com>
+Reply-To: Sylvain <autofr@gmail.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: distinguish kernel thread / user task
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm about lost onthis one =)
+Hi all,
 
------ Forwarded message from Alan Stern <stern@rowland.harvard.edu> -----
+I have little question while doing some kernel implementation.
+How can I distinguish whether a task_struct is actually kernel thread
+or mere user task?
 
-Date: Fri, 3 Dec 2004 10:22:43 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-To: Wakko Warner <wakko@animx.eu.org>
-cc: linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] FWD: Re: USB DVD
+My idea was to look at task_struct "mm" field to discriminate them,
+but that was wrong...
 
-On Thu, 2 Dec 2004, Wakko Warner wrote:
+Thanks,
 
-> I have the debug information at
-> http://veg.animx.eu.org/usb-storage.debug.dvd.txt
-> It's around 190kb in size.
-> 
-> ----- Forwarded message from Greg KH <greg@kroah.com> -----
-> 
-> Date:	Fri, 26 Nov 2004 19:28:17 -0800
-> From: Greg KH <greg@kroah.com>
-> To: linux-kernel@vger.kernel.org
-> Subject: Re: USB DVD
-> X-Mailing-List:	linux-kernel@vger.kernel.org
-> 
-> On Thu, Nov 25, 2004 at 10:03:13AM -0500, Wakko Warner wrote:
-> > I have a USB DVD writer (I don't think the 'writer' part makes a difference)
-> > that when I attempt to view a DVD Movie, it can't read some of the sectors
-> > (DVD Auth I guess).  The same drive internally on ide works.  Is a problem
-> > with USB or the enclosure?
-> 
-> Odds are it's the enclosure :)
-> 
-> But to be sure, can you enable CONFIG_USB_STORAGE_DEBUG and send the
-> resulting log to the linux-usb-devel mailing list?
-
-It's not a USB problem.  The device is returning an error code with sense 
-key = 0x05 (Illegal Request) and ASC/ASCQ = 0x6f, 0x04 (I don't know what 
-those mean).  Maybe someone who is familiar with the SCSI DVD protocol can 
-explain.  However it's clear that the low-level USB transport is working 
-without errors.
-
-Alan Stern
-
-
------ End forwarded message -----
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+Sylvain

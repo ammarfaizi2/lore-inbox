@@ -1,39 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262578AbVCSQGf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262584AbVCSQTF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262578AbVCSQGf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Mar 2005 11:06:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262579AbVCSQGe
+	id S262584AbVCSQTF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Mar 2005 11:19:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262587AbVCSQTF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Mar 2005 11:06:34 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:62736 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262578AbVCSQGb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Mar 2005 11:06:31 -0500
-Date: Sat, 19 Mar 2005 16:06:22 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Alex Williamson <alex.williamson@hp.com>
+	Sat, 19 Mar 2005 11:19:05 -0500
+Received: from jade.aracnet.com ([216.99.193.136]:6865 "EHLO
+	jade.spiritone.com") by vger.kernel.org with ESMTP id S262584AbVCSQTC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Mar 2005 11:19:02 -0500
+Date: Sat, 19 Mar 2005 08:18:57 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] new hp diva console port
-Message-ID: <20050319160622.A23907@flint.arm.linux.org.uk>
-Mail-Followup-To: Alex Williamson <alex.williamson@hp.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <1111163422.6693.6.camel@tdi>
-Mime-Version: 1.0
+Subject: Scheduling changes in -mm tree
+Message-ID: <505920000.1111249137@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1111163422.6693.6.camel@tdi>; from alex.williamson@hp.com on Fri, Mar 18, 2005 at 09:30:22AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 18, 2005 at 09:30:22AM -0700, Alex Williamson wrote:
->    The patch below adds IDs and setup for a new PCI Diva console port.
-> This device provides a single UART described by PCI Bar 1.  ID already
-> submitted to pciids.sf.net.  Please apply.  Thanks,
+I don't think these are doing much for performance. Or at least 
+*something* in your tree isn't ...
 
-Applied, thanks.
+Kernbench: 
+                                     Elapsed    System      User       CPU
+ elm3b67      2.6.11                   50.24    146.60   1117.61   2516.67
+ elm3b67      2.6.11-mm1               52.27    141.14   1099.91   2374.33
+ elm3b67      2.6.11-mm2               51.88    142.41   1104.85   2403.67
+ elm3b67      2.6.11-mm4               51.23    145.04   1100.70   2431.00
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+(elm3b67 is a 16x x440 ia32 NUMA system + HT)
+
+Is there an easy way to just test those sched changes alone?
+
+M.
+

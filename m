@@ -1,51 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266329AbTGEKam (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jul 2003 06:30:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266332AbTGEKam
+	id S266324AbTGEKgR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jul 2003 06:36:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266325AbTGEKgR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jul 2003 06:30:42 -0400
-Received: from [213.39.233.138] ([213.39.233.138]:56970 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S266329AbTGEKah (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jul 2003 06:30:37 -0400
-Date: Sat, 5 Jul 2003 12:44:28 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: benh@kernel.crashing.org,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linuxppc-dev@lists.linuxppc.org, linuxppc64-dev@lists.linuxppc.org
-Subject: Re: [PATCH 2.5.73] Signal stack fixes #1 introduce PF_SS_ACTIVE
-Message-ID: <20030705104428.GA19311@wohnheim.fh-wedel.de>
-References: <20030704201840.GH22152@wohnheim.fh-wedel.de> <Pine.LNX.4.44.0307041725180.1744-100000@home.osdl.org> <20030705073031.GB32363@wohnheim.fh-wedel.de>
+	Sat, 5 Jul 2003 06:36:17 -0400
+Received: from maila.telia.com ([194.22.194.231]:61432 "EHLO maila.telia.com")
+	by vger.kernel.org with ESMTP id S266324AbTGEKgP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jul 2003 06:36:15 -0400
+X-Original-Recipient: linux-kernel@vger.kernel.org
+Subject: Re: Linux - 3Com 3CR990 driver
+From: Christian Axelsson <smiler@lanil.mine.nu>
+Reply-To: smiler@lanil.mine.nu
+To: yogesh@unipune.ernet.in
+Cc: dillowd@y12.doe.gov, linux-kernel@vger.kernel.org
+In-Reply-To: <32995.196.1.114.224.1057226672.squirrel@unipune.ernet.in>
+References: <32995.196.1.114.224.1057226672.squirrel@unipune.ernet.in>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-EnxAOkjKQzSnXpoJO9T1"
+Organization: LANIL
+Message-Id: <1057402216.2295.46.camel@sm-wks1.lan.irkk.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030705073031.GB32363@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.2.4- 
+Date: 05 Jul 2003 12:50:16 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 5 July 2003 09:30:31 +0200, Jörn Engel wrote:
-> On Fri, 4 July 2003 17:39:01 -0700, Linus Torvalds wrote:
-> > 
-> > So how about something like the appended? Very simple patch,i and in fact 
-> > it's more logical than the old behaviour (the old behaviour punched 
-> > through blocked signals, the new ones says "if you block or ignore the 
-> > signal we will just kill you through the default action").
-> 
-> That seems to be the best solution.  Thanks!
 
-Except that the patch didn't match the description.  My test loops
-just as happily as before and the conditional part of give_sigsegv is
-pointless now.  That might really break some threading stuff.
+--=-EnxAOkjKQzSnXpoJO9T1
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Anyway, the idea still makes sense, so I will try to come up with a
-working patch.
+On Thu, 2003-07-03 at 12:04, Yogesh Subhash Talekar wrote:
+> Hello,
+>=20
+> Firstly sorry for such an unexpected distrurbance. But I saw your posts o=
+n
+> Linux kernel lists which raised my hopes and hence this mail.
+>=20
+> We at University of Pune, India run the campus network whose backbone run=
+s
+> on OFC. We decided to upgrade it to 100 mbps from 10mbps and bought 3COM
+> 3CR990 cards to install them in 20 Linux servers we have.
+>=20
+> Now that has landed us in big trouble. The driver which 3COM provided on
+> CD-ROMs is not working. Also the one we downloaded from 3COM's website is
+> also not working.
+>=20
+> Whenever we make the cards up and try to check simple FTP speeds from one
+> machine to other it comes to about 800 kbps! We changed the CISCO-2990
+> fiber switch to make sure that it is not because of the faulty switch..
+> but in vein.
+>=20
+> We also tried 2.5.X but it fails to compile.
+>=20
+> Does anyone of you has a solution / advice/ code?
+>=20
+> Please help.....
+>=20
+> --yogesh talekar
 
-Jörn
+Im also very intressed in this since I have a few off these (that works
+like a charm under w2k btw).
+Im CC:ing the LKML, maybe someone has more answers.
 
--- 
-"Translations are and will always be problematic. They inflict violence 
-upon two languages." (translation from German)
+--=20
+Christian Axelsson
+smiler@lanil.mine.nu
+
+--=-EnxAOkjKQzSnXpoJO9T1
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/Bq1oyqbmAWw8VdkRAkXqAJ9vVRfo5xY0YqtDLbHVoUkDIDxnRACfa1er
+3z4DYtKl8fsuG594s6dyCak=
+=xY0R
+-----END PGP SIGNATURE-----
+
+--=-EnxAOkjKQzSnXpoJO9T1--
+

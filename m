@@ -1,43 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261605AbUF0NU5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262422AbUF0NVm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261605AbUF0NU5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jun 2004 09:20:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbUF0NU5
+	id S262422AbUF0NVm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jun 2004 09:21:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbUF0NVm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jun 2004 09:20:57 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:64149 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261605AbUF0NUz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jun 2004 09:20:55 -0400
-Date: Sun, 27 Jun 2004 09:20:50 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Marc-Christian Petersen <m.c.p@kernel.linux-systeme.com>
-cc: Dan Kegel <dank@kegel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.20 rh9 thrashing unreasonably
-In-Reply-To: <200406271134.42853@WOLK>
-Message-ID: <Pine.LNX.4.44.0406270919130.3889-100000@chimarrao.boston.redhat.com>
+	Sun, 27 Jun 2004 09:21:42 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:52180 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S262422AbUF0NVk convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jun 2004 09:21:40 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Rob Landley <rob@landley.net>
+Subject: Re: Process in D state with USB and swsuspsp
+Date: Sun, 27 Jun 2004 15:22:40 +0200
+User-Agent: KMail/1.6.2
+Cc: Brad Campbell <brad@wasp.net.au>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+References: <200406262031.14464.rob@landley.net> <40DE5BC0.7080206@wasp.net.au> <200406270350.46641.rob@landley.net>
+In-Reply-To: <200406270350.46641.rob@landley.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200406271522.40302.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 27 Jun 2004, Marc-Christian Petersen wrote:
-> On Sunday 27 June 2004 05:27, Dan Kegel wrote:
-> 
-> > Any suggestions on tuning the existing kernel before I pitch it?
-> 
-> use a non-RH kernel.
+Am Sonntag, 27. Juni 2004 10:50 schrieb Rob Landley:
+> It's just that a hot-pluggable bus, it should be possible to convince the 
+> thing to reprobe all devices on a bus reset.  Oh well.
 
-Or a Fedora Legacy kernel.  The RHL9 product hasn't been
-supported by Red Hat since april, currently the Fedora
-Legacy people are taking care of the older distributions.
+No, we cannot reprobe. How are we supposed to do that?
+Probe() works only on new devices. Suspend/resume cycles must
+leave driver bindings alone. All we could do is fail resume().
+That however is not taken notice of in the driver core.
 
-	http://www.fedoralegacy.org/
-
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
-
+	Regards
+		Oliver

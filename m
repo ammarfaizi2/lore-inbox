@@ -1,94 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272519AbTGZOgm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 10:36:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272518AbTGZOgc
+	id S272542AbTGZOds (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 10:33:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272541AbTGZOds
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 10:36:32 -0400
-Received: from amsfep15-int.chello.nl ([213.46.243.28]:3649 "EHLO
-	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
-	id S272520AbTGZOco (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 10:32:44 -0400
-Date: Sat, 26 Jul 2003 16:51:51 +0200
-Message-Id: <200307261451.h6QEpp1t002394@callisto.of.borg>
+	Sat, 26 Jul 2003 10:33:48 -0400
+Received: from amsfep14-int.chello.nl ([213.46.243.22]:48406 "EHLO
+	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
+	id S272499AbTGZOcX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 10:32:23 -0400
+Date: Sat, 26 Jul 2003 16:51:28 +0200
+Message-Id: <200307261451.h6QEpSeQ002268@callisto.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Linus Torvalds <torvalds@transmeta.com>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       macro@ds2.pg.gda.pl, Ralf Baechle <ralf@linux-mips.org>,
+Cc: Paul Mackerras <paulus@samba.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] NCR53C9x unused SCp.have_data_in
+Subject: [PATCH] Valkyriefb link fix
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-NCR53C9x: Remove unused initialization of SCp.have_data_in (from Maciej W.
-Rozycki). This affects the following drivers:
-  - DECstation SCSI
-  - Amiga Oktagon SCSI
+Valkyriefb: Fix link error by adding missing macmodes.o (for Mac/m68k) and cfb*
+(for Mac/m68k and PowerMac/PPC) object files
 
---- linux-2.6.x/drivers/scsi/NCR53C9x.c	2002-09-12 03:20:28.000000000 +0000
-+++ linux-m68k-2.6.x/drivers/scsi/NCR53C9x.c	2002-10-22 23:02:09.000000000 +0000
-@@ -917,7 +917,7 @@ static void esp_get_dmabufs(struct NCR_E
- 		if (esp->dma_mmu_get_scsi_one)
- 			esp->dma_mmu_get_scsi_one(esp, sp);
- 		else
--			sp->SCp.have_data_in = (int) sp->SCp.ptr =
-+			sp->SCp.ptr =
- 				(char *) virt_to_phys(sp->request_buffer);
- 	} else {
- 		sp->SCp.buffer = (struct scatterlist *) sp->buffer;
---- linux-2.6.x/drivers/scsi/dec_esp.c	2002-10-02 17:22:42.000000000 +0000
-+++ linux-m68k-2.6.x/drivers/scsi/dec_esp.c	2002-10-22 23:49:24.000000000 +0000
-@@ -323,7 +323,7 @@ static int dma_bytes_sent(struct NCR_ESP
- static void dma_drain(struct NCR_ESP *esp)
- {
- 	unsigned long nw = *scsi_scr;
--	unsigned short *p = KSEG1ADDR((unsigned short *) ((*scsi_dma_ptr) >> 3));
-+	unsigned short *p = (unsigned short *)KSEG1ADDR((*scsi_dma_ptr) >> 3);
- 
-     /*
- 	 * Is there something in the dma buffers left?
-@@ -437,8 +437,7 @@ static void dma_setup(struct NCR_ESP *es
-  */
- static void dma_mmu_get_scsi_one(struct NCR_ESP *esp, Scsi_Cmnd * sp)
- {
--	sp->SCp.have_data_in = PHYSADDR(sp->SCp.buffer);
--	sp->SCp.ptr = (char *) ((unsigned long) sp->SCp.have_data_in);
-+	sp->SCp.ptr = (char *)PHYSADDR(sp->SCp.buffer);
- }
- 
- static void dma_mmu_get_scsi_sgl(struct NCR_ESP *esp, Scsi_Cmnd * sp)
-@@ -484,8 +483,8 @@ static void pmaz_dma_init_write(struct N
- {
- 	volatile int *dmareg = (volatile int *) ( esp->slot + DEC_SCSI_DMAREG );
- 
--	memcpy((void *) (esp->slot + DEC_SCSI_SRAM + ESP_TGT_DMA_SIZE),
--			KSEG0ADDR((void *) vaddress), length);
-+	memcpy((void *)(esp->slot + DEC_SCSI_SRAM + ESP_TGT_DMA_SIZE),
-+	       (void *)KSEG0ADDR(vaddress), length);
- 
- 	*dmareg = TC_ESP_DMAR_WRITE |
- 		TC_ESP_DMA_ADDR(esp->slot + DEC_SCSI_SRAM + ESP_TGT_DMA_SIZE);
-@@ -516,7 +515,5 @@ static void pmaz_dma_setup(struct NCR_ES
- 
- static void pmaz_dma_mmu_get_scsi_one(struct NCR_ESP *esp, Scsi_Cmnd * sp)
- {
--	sp->SCp.have_data_in = (int) sp->SCp.ptr =
--	    (char *) KSEG0ADDR((sp->request_buffer));
-+	sp->SCp.ptr = (char *)KSEG0ADDR((sp->request_buffer));
- }
--
---- linux-2.6.x/drivers/scsi/oktagon_esp.c	Thu Jun 27 02:59:32 2002
-+++ linux-m68k-2.6.x/drivers/scsi/oktagon_esp.c	Mon Nov 25 12:11:43 2002
-@@ -548,7 +548,7 @@ static void dma_invalidate(struct NCR_ES
- 
- void dma_mmu_get_scsi_one(struct NCR_ESP *esp, Scsi_Cmnd *sp)
- {
--        sp->SCp.have_data_in = (int) sp->SCp.ptr =
-+        sp->SCp.ptr =
-                 sp->request_buffer;
- }
- 
+--- linux-2.6.x/drivers/video/Makefile	Tue Apr  8 10:05:26 2003
++++ linux-m68k-2.6.x/drivers/video/Makefile	Sun May 25 15:40:39 2003
+@@ -26,7 +26,7 @@
+ obj-$(CONFIG_FB_IGA)              += igafb.o cfbfillrect.o cfbcopyarea.o cfbimgblt.o
+ obj-$(CONFIG_FB_CONTROL)          += controlfb.o
+ obj-$(CONFIG_FB_PLATINUM)         += platinumfb.o
+-obj-$(CONFIG_FB_VALKYRIE)         += valkyriefb.o
++obj-$(CONFIG_FB_VALKYRIE)         += valkyriefb.o macmodes.o cfbfillrect.o cfbcopyarea.o cfbimgblt.o
+ obj-$(CONFIG_FB_CT65550)          += chipsfb.o cfbfillrect.o cfbcopyarea.o cfbimgblt.o
+ obj-$(CONFIG_FB_ANAKIN)           += anakinfb.o cfbfillrect.o cfbcopyarea.o cfbimgblt.o
+ obj-$(CONFIG_FB_CLPS711X)         += clps711xfb.o cfbfillrect.o cfbcopyarea.o cfbimgblt.o
 
 Gr{oetje,eeting}s,
 

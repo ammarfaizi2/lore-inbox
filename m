@@ -1,83 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267160AbSKTAvE>; Tue, 19 Nov 2002 19:51:04 -0500
+	id <S267027AbSKTA5P>; Tue, 19 Nov 2002 19:57:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267161AbSKTAvE>; Tue, 19 Nov 2002 19:51:04 -0500
-Received: from cerebus.wirex.com ([65.102.14.138]:51185 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id <S267160AbSKTAvD>; Tue, 19 Nov 2002 19:51:03 -0500
-Date: Tue, 19 Nov 2002 16:55:56 -0800
-From: Chris Wright <chris@wirex.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Chris Wright <chris@wirex.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] sys_capget should use current if the pid argument is 0
-Message-ID: <20021119165556.A5806@figure1.int.wirex.com>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	Chris Wright <chris@wirex.com>, linux-kernel@vger.kernel.org
-References: <20021010144715.A30806@figure1.int.wirex.com> <Pine.LNX.4.44.0210111954280.5671-100000@home.transmeta.com> <20021119211453.GA20562@nevyn.them.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20021119211453.GA20562@nevyn.them.org>; from dan@debian.org on Tue, Nov 19, 2002 at 04:14:53PM -0500
+	id <S267035AbSKTA5P>; Tue, 19 Nov 2002 19:57:15 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:28125 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S267027AbSKTA5O>;
+	Tue, 19 Nov 2002 19:57:14 -0500
+To: Andrew Morton <akpm@digeo.com>
+cc: vasya vasyaev <vasya197@yahoo.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>, linux-kernel@vger.kernel.org
+Reply-To: Gerrit Huizenga <gh@us.ibm.com>
+From: Gerrit Huizenga <gh@us.ibm.com>
+Subject: Re: Machine's high load when HIGHMEM is enabled 
+In-reply-to: Your message of Tue, 19 Nov 2002 01:40:31 PST.
+             <3DDA070F.CF2047BF@digeo.com> 
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <18339.1037754225.1@us.ibm.com>
+Date: Tue, 19 Nov 2002 17:03:45 -0800
+Message-Id: <E18EJHN-0004lr-00@w-gerrit2>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Daniel Jacobowitz (dan@debian.org) wrote:
-> On Fri, Oct 11, 2002 at 07:58:46PM -0700, Linus Torvalds wrote:
+Oracle usually likes its SGA locked in memory, so if it is
+set to request 800 MG of RAM on a 1 GB machine, I think you
+have tuned Oracle to be requesting too much SGA for your
+hardware.
+
+gerrit
+
+In message <3DDA070F.CF2047BF@digeo.com>, > : Andrew Morton writes:
+> vasya vasyaev wrote:
 > > 
-> > On Thu, 10 Oct 2002, Chris Wright wrote:
-> > > 
-> > > The patch below fixes my oversight.  The locking is left the way it was,
-> > > and just the pid 0 part is fixed as well as the duplicate code removed.
+> > Hi again,
 > > 
-> > All right, call me stupid, but twhere is the "duplication" in the code you 
-> > removed?
+> > Let me try to explain what is this all about...
 > > 
-> > I see the "security/capability.c" thing, yes, but I also look at
-> > "security/dummy.c", and it appears that at least for that case nobody
-> > would ever initialize the capabilities that we return to user space at
-> > all.
-> > 
-> > So there's a bug somewhere there, and removing the duplication makes 
-> > things worse (admittedly for a case which isn't enabled in the regular 
-> > kernel, but still..)
-> > 
-> > So I'd ask you to have patience with me, and send a third patch that gets 
-> > this thing right too.. 
+> > Box has 1 GB of RAM, it's running oracle database.
+> > After some disk activity disk cache has 400 Mb, so 600
+> > Mb is free
 > 
-> Since this is still broken a month later... I don't know what to do
-> about the "duplication" question, but I'll leave that to Chris.  This
-> is the uncontroversial portion of Chris's patch; its affect is to
-> change my zsh shell prompt back to a '%' as I'd expect.
-
-Thanks Daniel.  I've been using the patch below, which differs only
-slightly from the one you posted (code style matches the same lookup in
-sys_capset).  I'll follow up with the patch that removes the duplicate
-code.
-
-[PATCH] sys_capget should use current if the pid argument is 0
-
-===== kernel/capability.c 1.5 vs edited =====
---- 1.5/kernel/capability.c	Sun Sep 15 12:19:29 2002
-+++ edited/kernel/capability.c	Tue Nov 19 15:57:15 2002
-@@ -54,11 +54,14 @@
-      spin_lock(&task_capability_lock);
-      read_lock(&tasklist_lock); 
- 
--     target = find_task_by_pid(pid);
--     if (!target) {
--          ret = -ESRCH;
--          goto out;
--     }
-+     if (pid && pid != current->pid) {
-+	     target = find_task_by_pid(pid);
-+	     if (!target) {
-+	          ret = -ESRCH;
-+	          goto out;
-+	     }
-+     } else
-+	     target = current;
- 
-      data.permitted = cap_t(target->cap_permitted);
-      data.inheritable = cap_t(target->cap_inheritable); 
+> And the other 400 megabytes will be freed up on demand.
+> 
+> > Oracle is tuned for using of 800 Mb of RAM for SGA (as
+> > shared memory segment), so Oracle needs 800 Mb of RAM
+> > to be free before it's start, right ?
+> 
+> No...  If that were so, you'd never be able to start any
+> applications.
+> 
+> > So when oracle starts it can't allocate this 800 Mb
+> > for SGA and fails to start...
+> 
+> Well, maybe Oracle is failing to start.  But maybe that's
+> not for the reasons you are assuming.
+> 
+> > Where is a problem - in kernel which can't reduce disk
+> > cache to allow allocating of shared memory segment or
+> > in oracle ?
+> 
+> If Oracle requests 800 megabytes from the kernel, it will get it.
+> It won't be able to mlock it (I'm guessing here).
+>  
+> > BTW, free doesn't show that shared memory is in use
+> > when oracle is started and requested shared memory
+> > segment is allocated (and ipcs shows it).
+> 
+> Yup, the "shared" accounting is always zero.  Maybe we should
+> fix that, or remove it.
+>  
+> > We need to control disk cache to reduce it as much as
+> > possible because it's not needed for oracle, much
+> > better is to allow oracle to control the RAM
+> > for it's use.
+> > 
+> > As to compare, on solaris we mount ufs with
+> > "forcedirectio" mount option, which tells not to use
+> > disk cache.
+> 
+> Please ensure that the failure is not some Oracle-specific setup
+> thing, and then provide specific details on the problem which you
+> are observing.  The assumptions which you are making may not be
+> correct.
+> 
+> Thanks.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

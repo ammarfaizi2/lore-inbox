@@ -1,109 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261619AbSJHIEc>; Tue, 8 Oct 2002 04:04:32 -0400
+	id <S261714AbSJHILg>; Tue, 8 Oct 2002 04:11:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261714AbSJHIEc>; Tue, 8 Oct 2002 04:04:32 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:44940 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S261619AbSJHIEX>;
-	Tue, 8 Oct 2002 04:04:23 -0400
-Date: Tue, 8 Oct 2002 10:09:41 +0200
+	id <S261725AbSJHILf>; Tue, 8 Oct 2002 04:11:35 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:55692 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S261714AbSJHILf>;
+	Tue, 8 Oct 2002 04:11:35 -0400
+Date: Tue, 8 Oct 2002 10:17:11 +0200
 From: Vojtech Pavlik <vojtech@suse.cz>
-To: Krishnakumar B <kitty@cse.wustl.edu>
-Cc: Thomas Molina <tmolina@cox.net>, linux-kernel@vger.kernel.org
-Subject: Keyboard problems with Linux-2.5.40
-Message-ID: <20021008100941.B4412@ucw.cz>
+To: Stian Jordet <liste@jordet.nu>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: Mouse/Keyboard problems with 2.5.38
+Message-ID: <20021008101711.F4290@ucw.cz>
+References: <20020926133725.A8851@ucw.cz> <1033054211.587.6.camel@chevrolet> <20020926185717.B27676@ucw.cz> <1033080648.593.12.camel@chevrolet> <20020927091040.B1715@ucw.cz> <1033127503.589.6.camel@chevrolet> <20021007150052.A1380@ucw.cz> <1034020510.1499.8.camel@chevrolet> <20021007220106.A1640@ucw.cz> <1034036449.688.8.camel@chevrolet>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
+In-Reply-To: <1034036449.688.8.camel@chevrolet>; from liste@jordet.nu on Tue, Oct 08, 2002 at 02:20:49AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> I am using a MS Natural Pro Keyboard with a PS/2 adapter (if I use it as
-> a USB keyboard I am not able to use it to select the kernel to load i.e
-> use the keyboard before the kernel is loaded, anybody know how to get
-> around this ? )
-
-You need to enable 'USB Legacy keyboard support: Boot' or similar option
-in your BIOS configuration.
-
-> I get the following in my kernel logs when I press XF86AudioMedia or
-> XF86Refresh. And the window manager doesn't do anything i.e it doesn't
-> start XMMS or reload the page under the browser
+On Tue, Oct 08, 2002 at 02:20:49AM +0200, Stian Jordet wrote:
+> man, 2002-10-07 kl. 22:01 skrev Vojtech Pavlik:
+> > On Mon, Oct 07, 2002 at 09:55:10PM +0200, Stian Jordet wrote:
+> [snip]
+> > > I was starting to think you had forgot me :)
+> > 
+> > In that case you should have reminded me of your problem. I tend to
+> > forget when e-mails accumulate beyond a couple hundreds. ;)
 > 
-> atkbd.c: Unknown key (set 2, scancode 0x150, on isa0060/serio0) pressed.
-> atkbd.c: Unknown key (set 2, scancode 0x120, on isa0060/serio0) pressed.
-
-> Also when I press XF86AudioLowerVolume, I get the same behaviour as
-> XF86HomePage i.e another instance of the browser is started. All other
-> keys work fine.
+> I kinda did, in a polite manner. Perhaps I was to polite :)
 > 
-> Can someone help me with this annoying problem ? Is there any package
-> that I should upgrade ? Have the keycodes for this keyboard changed
-> with the new kernel or have I miscompiled the kernel ? None of these
-> problems occur with Linux-2.4.19.
+> > > The patch helped a lot. Now it doesn't crash at all. But when I use
+> > > RIGHT-ALT+PAGE-UP, I get these errors a couple of times, then it
+> > > suddenly works as it should.
+> [snip}
+> > I still don't like this behavior - the keyboard shouldn't reinitialize.
+> > Can you repeat the same with I8042_DEBUG_IO?
+> > 
+> > I definitely wasn't able to reproduce this here with very violent
+> > bashing at my keyboard. And l/r alt-pageup works here just fine.
+> 
+> Ok, this is very weird. I tried many times that first boot, and it
+> wouldn't crash what so ever. Ok, it came up with some errors, but I
+> couldn't get it to crash. After a recompile with debug enabled,
+> everything went totally nuts. It didn't crash, but if I pressed S (or
+> what ever key) I would get a screen full of that. Everything was crazy.
+> But still no crash. I rebootet, still same behavior. Then I turned of
+> debugging, and compiled again. And this time it started crashing again
+> (!). I have no idea why, but now it's like it have always been. I have
+> tried several times, used a fresh kerneltree, and patched again, no
+> help. Freezes just like before. I will try some more tomorrow (I'm going
+> to university in five hours), but I really can't understand what have
+> happened. 
+> 
+> Thanks anyway for you work :)
 
-Patch:
+I really wonder what your keyboard sends for those keys. To avoid the
+freeze (and rescanning of the keyboard), you should be able to
+comment-out these lines in atkbd.c:
 
-===================================================================
-
-diff -Nru a/drivers/char/keyboard.c b/drivers/char/keyboard.c
---- a/drivers/char/keyboard.c	Tue Oct  8 10:08:56 2002
-+++ b/drivers/char/keyboard.c	Tue Oct  8 10:08:56 2002
-@@ -917,14 +917,14 @@
- 	 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
- 	 80, 81, 82, 83, 43, 85, 86, 87, 88,115,119,120,121,375,123, 90,
- 	284,285,309,298,312, 91,327,328,329,331,333,335,336,337,338,339,
--	367,294,293,286,350, 92,334,512,116,377,109,111,373,347,348,349,
--	360, 93, 94, 95, 98,376,100,101,357,316,354,304,289,102,351,355,
--	103,104,105,275,281,272,306,106,274,107,288,364,358,363,362,361,
--	291,108,381,290,287,292,279,305,280, 99,112,257,258,113,270,114,
-+	367,288,302,304,350, 92,334,512,116,377,109,111,373,347,348,349,
-+	360, 93, 94, 95, 98,376,100,101,321,316,354,286,289,102,351,355,
-+	103,104,105,275,287,279,306,106,274,107,294,364,358,363,362,361,
-+	291,108,381,281,290,272,292,305,280, 99,112,257,258,359,270,114,
- 	118,117,125,374,379,115,112,125,121,123,264,265,266,267,268,269,
--	271,273,276,277,278,282,283,295,296,297,299,300,301,302,303,307,
--	308,310,313,314,315,317,318,319,320,321,322,323,324,325,326,330,
--	332,340,341,342,343,344,345,346,356,359,365,368,369,370,371,372 };
-+	271,273,276,277,278,282,283,295,296,297,299,300,301,293,303,307,
-+	308,310,313,314,315,317,318,319,320,357,322,323,324,325,326,330,
-+	332,340,365,342,343,344,345,346,356,113,341,368,369,370,371,372 };
+         case ATKBD_KEY_BAT:
+                 serio_rescan(atkbd->serio);
+                 return;
  
- #ifdef CONFIG_MAC_EMUMOUSEBTN
- extern int mac_hid_mouse_emulate_buttons(int, int, int);
-diff -Nru a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
---- a/drivers/input/keyboard/atkbd.c	Tue Oct  8 10:08:56 2002
-+++ b/drivers/input/keyboard/atkbd.c	Tue Oct  8 10:08:56 2002
-@@ -55,11 +55,11 @@
- 	252,253,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 	254,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,255,
- 	  0,  0, 92, 90, 85,  0,137,  0,  0,  0,  0, 91, 89,144,115,  0,
--	136,100,255,  0, 97,149,164,  0,156,  0,  0,140,115,  0,  0,125,
--	  0,150,  0,154,152,163,151,126,112,166,  0,140,  0,147,  0,127,
--	159,167,139,160,163,  0,  0,116,158,  0,150,165,  0,  0,  0,142,
--	157,  0,114,166,168,  0,  0,  0,155,  0, 98,113,  0,148,  0,138,
--	  0,  0,  0,  0,  0,  0,153,140,  0,255, 96,  0,  0,  0,143,  0,
-+	217,100,255,  0, 97,165,164,  0,156,  0,  0,140,115,  0,  0,125,
-+	173,114,  0,113,152,163,151,126,128,166,  0,140,  0,147,  0,127,
-+	159,167,115,160,164,  0,  0,116,158,  0,150,166,  0,  0,  0,142,
-+	157,  0,114,166,168,  0,  0,  0,155,  0, 98,113,  0,163,  0,138,
-+	226,  0,  0,  0,  0,  0,153,140,  0,255, 96,  0,  0,  0,143,  0,
- 	133,  0,116,  0,143,  0,174,133,  0,107,  0,105,102,  0,  0,112,
- 	110,111,108,112,106,103,  0,119,  0,118,109,  0, 99,104,119
- };
-diff -Nru a/include/linux/input.h b/include/linux/input.h
---- a/include/linux/input.h	Tue Oct  8 10:08:56 2002
-+++ b/include/linux/input.h	Tue Oct  8 10:08:56 2002
-@@ -332,6 +332,7 @@
- #define KEY_CANCEL		223
- #define KEY_BRIGHTNESSDOWN	224
- #define KEY_BRIGHTNESSUP	225
-+#define KEY_MEDIA		226
- 
- #define KEY_UNKNOWN		240
- 
-
-===================================================================
+-- 
+Vojtech Pavlik
+SuSE Labs

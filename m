@@ -1,46 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265164AbTLZKpb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Dec 2003 05:45:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265165AbTLZKpb
+	id S265165AbTLZKqZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Dec 2003 05:46:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265168AbTLZKqZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Dec 2003 05:45:31 -0500
-Received: from dbl.q-ag.de ([80.146.160.66]:58243 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S265164AbTLZKpa (ORCPT
+	Fri, 26 Dec 2003 05:46:25 -0500
+Received: from rat-4.inet.it ([213.92.5.94]:12247 "EHLO rat-4.inet.it")
+	by vger.kernel.org with ESMTP id S265165AbTLZKqT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Dec 2003 05:45:30 -0500
-Message-ID: <3FEC1142.7050803@colorfullife.com>
-Date: Fri, 26 Dec 2003 11:45:22 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
+	Fri, 26 Dec 2003 05:46:19 -0500
+From: Paolo Ornati <ornati@despammed.com>
+To: John Gluck <jgluckca@netscape.net>
+Subject: Re: question about setup.c
+Date: Fri, 26 Dec 2003 11:47:31 +0100
+User-Agent: KMail/1.5.2
+References: <3FE88CE8.1020109@netscape.net>
+In-Reply-To: <3FE88CE8.1020109@netscape.net>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Page aging broken in 2.6
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200312261147.31179.ornati@despammed.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben wrote:
-
->I can imagine that an architecture with TLBs will usually evict
->the entry from the TLB sooner or later and the accessed bit will end
->up beeing set again. On PPC, that isn't the case, the entry can well
->stay a loooong time in the hash and if not evicted, _PAGE_ACCESSED
->will never be set again.
+On Tuesday 23 December 2003 19:43, John Gluck wrote:
+> Hi
 >
-One risk for i386 are the huge tlbs that AMD uses (512 entries?) - hot 
-pages might stay in the TLB forever.
-
->Or does it snoop accesses
->to the PTE to "catch" somebody clearing the bits ?
+> I've been poking around the kernel startup code to try and understand
+> the sequence of events. I came across something I don't understand and
+> which might be redundant.
 >
-No. AMD K8 cpu partially snoop PDE/PTE accesses and ignore tlb flush 
-instructions if they are certain that the tlb is valid, but I'm not 
-aware that anyone snoops the complete tlb cache.
+> This is from the 2.6.0 kernel:
+>
+> In arch/i386/kernel/setup.c the parse_cmdline_early() function, the
+> argument "mem=XXX[kKmM]" is parsed.
+>
+> In arch/sh/kernel/setup.c the parse_cmdline() function also parses
+> "mem=XXX[kKmM]"
+>
+> Could someone please explain this.
 
---
-    Manfred
+This is because they are two different architectures!
+If you are compiling for i386 you aren't compiling for any other 
+architecture, and vice versa!
+
+IOW: only one subdirectory of "linux/arch" is used for each compilation.
+
+>
+> I am not subscribed to this list so a reply directly to me would be
+> appreciated.
+>
+> Thanks and a Merry Christmas to everyone
+>
+> John
+>
+
+BYE
+
+-- 
+	Paolo Ornati
+	Linux v2.4.23
 

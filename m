@@ -1,35 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271399AbRHOUJr>; Wed, 15 Aug 2001 16:09:47 -0400
+	id <S271395AbRHOUNH>; Wed, 15 Aug 2001 16:13:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271398AbRHOUJh>; Wed, 15 Aug 2001 16:09:37 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:61453 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S271399AbRHOUJY>; Wed, 15 Aug 2001 16:09:24 -0400
-Subject: Re: Problems with sound in 2.4.x (.7 and .8 definitely) with CS4248
-To: vichu@digitalme.com (Trever Adams)
-Date: Wed, 15 Aug 2001 21:11:55 +0100 (BST)
+	id <S271398AbRHOUM5>; Wed, 15 Aug 2001 16:12:57 -0400
+Received: from c2bapps2.btconnect.com ([193.113.209.22]:48825 "HELO
+	c2bapps2.btconnect.com") by vger.kernel.org with SMTP
+	id <S271395AbRHOUMn>; Wed, 15 Aug 2001 16:12:43 -0400
+Date: Wed, 15 Aug 2001 21:13:03 +0100
+To: linux-lvm@sistina.com
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010815193502Z271373-760+2100@vger.kernel.org> from "Trever Adams" at Aug 15, 2001 07:24:51 PM
-X-Mailer: ELM [version 2.5 PL5]
-MIME-Version: 1.0
+Subject: Re: [linux-lvm] Re: *** ANNOUNCEMENT *** LVM 1.0 available at www.sistina.com
+Message-ID: <20010815211303.B1221@btconnect.com>
+In-Reply-To: <20010815185005.A32239@sistina.com> <200108151755.f7FHtmTH013535@webber.adilger.int>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15X719-0003ua-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200108151755.f7FHtmTH013535@webber.adilger.int>; from adilger@turbolinux.com on Wed, Aug 15, 2001 at 11:55:48AM -0600
+From: Joe Thornber <thornber@btconnect.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Whether it be MP3, OGG, or whatever, I cannot play sound
-> without getting the following message in 2.4.7 and 2.4.8 (I
-> don't believe I tried any other versions).  However, I
-> believe it works (unless hardware failure has happened in
-> the past 6 mos) in 2.2.x.
-> 
-> Sound: DMA (output) timed out - IRQ/DRQ config error?
+Andreas,
 
-This message occurs when the audio doesn't generate an interrupt for
-the completion of a block of sound. It might for example indicate that the
-irq setting passed when you configured it was wrong.
+On Wed, Aug 15, 2001 at 11:55:48AM -0600, Andreas Dilger wrote:
+> Sorry, I don't get the list email anymore, despite it telling me I'm
+> subscribed (may be my fault, I don't know), please reply to l-k where
+> I know I will see it.
 
-Alan
+Your mail is broken, I have tried to mail you many times over the last
+few weeks from different email addresses and different ISP's.  Other
+people have been trying too.  Did you notice a time when it suddenly
+went quiet ?
+
+> Saying you "need" the old versions of the installed tools to read the
+> on disk data is bogus, IMNSHO.  You could easily have a flag which says
+> "calculate the PE offsets using the old algorithm or the new algorithm".
+> This could easily be keyed off of the presence/absence of the new
+> pe_offset field in the pv_data struct on disk, and whether or not you
+> actually have the misaligned PEs in the first place.
+
+That assumes you have just two alternatives, this is not the case.
+
+> When I talked to them last, the IBM EVMS folks didn't have any such
+> problems correctly reading either the old (possibly offset) or new
+> layouts with the same driver.
+
+Then they don't understand the problem, though hopefully by the time they
+release people will have migrated to the new format.
+
+- Joe

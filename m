@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136475AbREDSHD>; Fri, 4 May 2001 14:07:03 -0400
+	id <S136476AbREDSOz>; Fri, 4 May 2001 14:14:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136476AbREDSGx>; Fri, 4 May 2001 14:06:53 -0400
-Received: from chromium11.wia.com ([207.66.214.139]:59403 "EHLO
-	neptune.kirkland.local") by vger.kernel.org with ESMTP
-	id <S136475AbREDSGe>; Fri, 4 May 2001 14:06:34 -0400
-Message-ID: <3AF2F09C.C5731842@chromium.com>
-Date: Fri, 04 May 2001 11:10:36 -0700
-From: Fabio Riccardi <fabio@chromium.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en
+	id <S136477AbREDSOp>; Fri, 4 May 2001 14:14:45 -0400
+Received: from colorfullife.com ([216.156.138.34]:28942 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S136476AbREDSOb>;
+	Fri, 4 May 2001 14:14:31 -0400
+Message-ID: <3AF2F18D.15A52CD9@colorfullife.com>
+Date: Fri, 04 May 2001 20:14:37 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-To: mingo@elte.hu
-CC: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Christopher Smith <x@xman.org>, Andrew Morton <andrewm@uow.edu.au>,
-        "Timothy D. Witham" <wookie@osdlab.org>, David_J_Morse@Dell.com
-Subject: Re: X15 alpha release: as fast as TUX but in user space
-In-Reply-To: <Pine.LNX.4.33.0105041028430.2178-100000@localhost.localdomain>
+To: appro@fy.chalmers.se
+CC: linux-kernel@vger.kernel.org
+Subject: Re: modularized SYSENTER support
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ok, I'm totally ignorant here, what is a pipelined request?
+> Q. How come the handler doesn't manage so called "bottom halves" or 
+>    "soft IRQs"? 
+> A. There is no need for this. Soft IRQs can only appear at exit from 
+>    hardware interrupt handlers. Indeed, we can't count on user app. 
+>    being around and performing a system call when it comes to 
+>    interrupt handling, right? 
 
-btw: please be kind with my mistakes, X15 _is_ alpha code anyway... :)
+That's probably a bug.
+syscall
+* spin_lock_bh()
+* hardware interrupt arrives
+* BH's are blocked, delayed
+* spin_unlock_bh()
+* return from syscall.
 
- - Fabio
+You must check for softirq's before returning.
 
-Ingo Molnar wrote:
-
-> yet another anomaly i noticed. X15 does not appear to handle pipelined
-> HTTP/1.1 requests properly, it ignores the second request if two requests
-> arrive in the same packet.
->
-> SPECweb99 does not send pipelined requests, but a number of RL web clients
-> do. (Mozilla, apt-get, etc.)
->
->         Ingo
-
+--
+	Manfred

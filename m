@@ -1,74 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129112AbRBLWst>; Mon, 12 Feb 2001 17:48:49 -0500
+	id <S129488AbRBLWuj>; Mon, 12 Feb 2001 17:50:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129422AbRBLWsk>; Mon, 12 Feb 2001 17:48:40 -0500
-Received: from dspnet.claranet.fr ([212.43.196.92]:34574 "HELO
-	dspnet.claranet.fr") by vger.kernel.org with SMTP
-	id <S129112AbRBLWsJ>; Mon, 12 Feb 2001 17:48:09 -0500
-Date: Mon, 12 Feb 2001 23:48:03 +0100
-From: Jean-Luc Leger <reiga@dspnet.claranet.fr>
-To: linux-kernel@vger.kernel.org
-Subject: mispellings and other preprocessing problems
-Message-ID: <20010212234803.A17684@dspnet.claranet.fr>
-Mime-Version: 1.0
+	id <S129406AbRBLWu3>; Mon, 12 Feb 2001 17:50:29 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:57605 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129402AbRBLWuK>; Mon, 12 Feb 2001 17:50:10 -0500
+Subject: Re: LILO and serial speeds over 9600
+To: jas88@cam.ac.uk (James Sutherland)
+Date: Mon, 12 Feb 2001 22:50:04 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), hpa@zytor.com (H. Peter Anvin),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.SOL.4.21.0102122211370.22949-100000@yellow.csi.cam.ac.uk> from "James Sutherland" at Feb 12, 2001 10:46:57 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14SRnM-0008Mv-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> It's not a huge undertaking, I know, but UDP will probably still be
+> a bit simpler. Turn the question around: would using TCP bring any real
+> benefits, in a system which will only be used to shift a few kb each boot
+> time?
 
-I am a computer scientist from France. I currently play with
-a source code analyser of mine.
- 
-Here are some "bugs" (or are they not ?) it detected :
-(my own comments begin with ->)
- 
-/usr/src/linux-2.4.1/include/asm-parisc/som.h : EOF in comment
--> this one is self explained ..
+Im not convinced it will be any smaller by the time your UDP code has dealt
+with retransmits, out of order acks, and backoff.
 
-/usr/src/linux-2.4.1/drivers/char/dz.c : 233    IDENTIFIER expected in #ifdef
--> line 233 is : #ifdef 0
--> maybe #if 0 ? (and then, it is not so important since cpp understand it
-->  correctly)
+> for the kernel-side code: once you have a fully-fledged IP stack, why not
+> use it. There's no reason the server couldn't support both, and machines
+> would just use whichever was more appropriate at the time.
 
-/usr/src/linux-2.4.1/arch/ia64/sn/io/klgraph_hack.c : 
- 142       IDENTIFIER expected in #ifdef
--> same thing with #ifdef 0
-
-/usr/src/linux-2.4.1/drivers/char/joystick/amijoy.c : 
- EOF in string started in line 116
--> unknown identifier 'Denise' (probably should be 'i')
--> unexpected double quote which is the origin of the problem
-
-/usr/src/linux-2.4.1/drivers/scsi/NCR5380.c : 
- 2267      NEWLINE expected in #ifdef
--> line 2267 is : #ifdef READ_OVERRUNS if (p & SR_IO) { c -= 2;
--> this line should be split in 2
- 
-/usr/src/linux-2.4.1/drivers/atm/nicstar.h : 616        unknown directive
-/usr/src/linux-2.4.1/drivers/atm/nicstar.h : 628        unknown directive
--> #eliif in place of #elif
-
-/usr/src/linux-2.4.1/arch/ia64/sn/io/klconflib.c : 
- 514  Constant expression expected in #ifdef
--> closing bracket at wrong position in expression
-
-/usr/src/linux-2.4.1/arch/ia64/sn/io/ml_SN_init.c : 
- 351 NEWLINE expected in #ifdef
--> #ifdef CONFIG_SGI_IP35 || CONFIG_IA64_SGI_SN1 || CONFIG_IA64_GENERIC
--> should be : 
--> #if defined (CONFIG_SGI_IP35) || defined(CONFIG_IA64_SGI_SN1) 
-       || defined(CONFIG_IA64_GENERIC)
-
-
-That's all. Of course, I advise those who know to check my corrections :)
-
-Thanks for this interesting system :)
-
-	JLL
+The IP layer is easy. Thats about 30 lines of code for a minimal IP. You'll
+need more code to implement ARP, which you will require
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268614AbRHWPjC>; Thu, 23 Aug 2001 11:39:02 -0400
+	id <S268714AbRHWPkM>; Thu, 23 Aug 2001 11:40:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268996AbRHWPiw>; Thu, 23 Aug 2001 11:38:52 -0400
-Received: from [216.151.155.121] ([216.151.155.121]:3590 "EHLO
-	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
-	id <S268614AbRHWPin>; Thu, 23 Aug 2001 11:38:43 -0400
-To: John Weber <weber@nyc.rr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ext2 2GB Limit?
-In-Reply-To: <3B851EE9.80406@nyc.rr.com>
-From: Doug McNaught <doug@wireboard.com>
-Date: 23 Aug 2001 11:38:37 -0400
-In-Reply-To: John Weber's message of "Thu, 23 Aug 2001 11:19:05 -0400"
-Message-ID: <m3pu9meqgy.fsf@belphigor.mcnaught.org>
-User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S268970AbRHWPjx>; Thu, 23 Aug 2001 11:39:53 -0400
+Received: from ns.ithnet.com ([217.64.64.10]:5894 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S268957AbRHWPjq>;
+	Thu, 23 Aug 2001 11:39:46 -0400
+Date: Thu, 23 Aug 2001 17:39:20 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, riel@conectiva.com.br
+Subject: Re: 2.4.8/2.4.9 problem
+Message-Id: <20010823173920.652a175a.skraw@ithnet.com>
+In-Reply-To: <20010823144024Z16183-32384+397@humbolt.nl.linux.org>
+In-Reply-To: <200108171310.PAA26032@lambik.cc.kuleuven.ac.be>
+	<20010820211403Z16263-32383+585@humbolt.nl.linux.org>
+	<20010823140444.A14798@spylog.ru>
+	<20010823144024Z16183-32384+397@humbolt.nl.linux.org>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.5.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Weber <weber@nyc.rr.com> writes:
+On Thu, 23 Aug 2001 16:46:54 +0200
+Daniel Phillips <phillips@bonn-fries.net> wrote:
 
-> Is the 2GB limit on files for ext2 only true for linux 2.2.x on intel?
+> Marcelo already posted a patch to fix this problem (bounce buffer allocation). 
+> Look under subject "Re: With Daniel Phillips Patch (was: aic7xxx with 2.4.9 on
+> 7899P)" with a correction in his next post.
 
-Well, for large files on Intel, you need 2.4.x (or 2.2 with LFS
-patches) plus a reasonably recent glibc, plus utilities compiled
-properly.
+Aehm, Daniel, just to inform you: Marcelos patch does not solve the problem. I just proofed it here. Is completely the same with or without patch.
+I tried another thing which might be interesting. I think your opinion is that page_launder gives you free memory if available when the system runs short. But it does not. I tried the following:
+DEF_PRIORITY in vmscan.c set to 0. This should come out as page_launder doing the complete pagelist over in search of free pages. And guess what: it does not find enough to keep the system running. In other words: at least the search strategy in page_launder is broken, too. I can see 500 Megs of Inact_dirty mem, but page_launder cannot find enough clean ones to keep a simple filecopy running.
+Any ideas left.
 
-So you're generally right, but there are some caveats.
+Regards,
+Stephan
 
--Doug
--- 
-Free Dmitry Sklyarov! 
-http://www.freesklyarov.org/ 
-
-We will return to our regularly scheduled signature shortly.

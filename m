@@ -1,51 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265487AbUH2Few@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266561AbUH2FmP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265487AbUH2Few (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 01:34:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266561AbUH2Few
+	id S266561AbUH2FmP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 01:42:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266679AbUH2FmO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 01:34:52 -0400
-Received: from smtp107.mail.sc5.yahoo.com ([66.163.169.227]:2686 "HELO
-	smtp107.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S265487AbUH2Far convert rfc822-to-8bit (ORCPT
+	Sun, 29 Aug 2004 01:42:14 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:33436 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S266561AbUH2FmM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 01:30:47 -0400
-Date: Sat, 28 Aug 2004 22:30:18 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Tomasz =?ISO-8859-1?Q?K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
-Cc: alan@lxorguk.ukuu.org.uk, milek@rudy.mif.pg.gda.pl,
-       usenet-20040502@usenet.frodoid.org, miles.lane@comcast.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: DTrace-like analysis possible with future Linux kernels?
-Message-Id: <20040828223018.53ec62e2.davem@davemloft.net>
-In-Reply-To: <Pine.LNX.4.60L.0408290154030.15099@rudy.mif.pg.gda.pl>
-References: <200408191822.48297.miles.lane@comcast.net>
-	<87hdqyogp4.fsf@killer.ninja.frodoid.org>
-	<Pine.LNX.4.60L.0408210520380.3003@rudy.mif.pg.gda.pl>
-	<1093174557.24319.55.camel@localhost.localdomain>
-	<Pine.LNX.4.60L.0408232107270.13955@rudy.mif.pg.gda.pl>
-	<1093354658.2810.31.camel@localhost.localdomain>
-	<Pine.LNX.4.60L.0408290154030.15099@rudy.mif.pg.gda.pl>
-Organization: DaveM Loft Enterprises
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+	Sun, 29 Aug 2004 01:42:12 -0400
+Date: Sun, 29 Aug 2004 07:43:39 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Daniel Schmitt <pnambic@unu.nu>, "K.R. Foley" <kr@cybsft.com>,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Mark_H_Johnson@raytheon.com
+Subject: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q4
+Message-ID: <20040829054339.GA16673@elte.hu>
+References: <20040823221816.GA31671@yoda.timesys> <1093715573.8611.38.camel@krustophenia.net> <20040828194449.GA25732@elte.hu> <200408282210.03568.pnambic@unu.nu> <20040828203116.GA29686@elte.hu> <1093727453.8611.71.camel@krustophenia.net> <20040828211334.GA32009@elte.hu> <1093727817.860.1.camel@krustophenia.net> <1093737080.1385.2.camel@krustophenia.net> <1093746912.1312.4.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1093746912.1312.4.camel@krustophenia.net>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 Aug 2004 02:14:03 +0200 (CEST)
-Tomasz K³oczko <kloczek@rudy.mif.pg.gda.pl> wrote:
 
-> If fact Solaris works quite well on usual desktop size computer.
+* Lee Revell <rlrevell@joe-job.com> wrote:
 
-Check out the Solaris driver selection on x86 these days,
-it still stinks.  It is unlikely they'll ever have the coverage
-Linux does any time soon.
+> Some more info:
+> 
+> This bug is 100% reproducible.  During boot, as soon as the i8042 driver
+> is loaded:
+> 
+> serio: i8042 AUX port at 0x60,0x64 irq 12
+> serio: i8042 KBD port at 0x60,0x64 irq 1
+> input: AT Translated Set 2 keyboard on isa0060/serio0
+> 
+> the keyboard freezes, with 'Num Lock' stuck on.
+> 
+> The problem only occurs when CONFIG_PREEMPT_HARDIRQS=y.  Works fine
+> otherwise.
 
-Frankly, if the only specific technical feature Sun has to brag
-about in Solaris 10 is DTrace, that's pretty sad.  Even more so,
-most of the bugs I see being fixed in Solaris kernel patches
-are performance regressions against Linux.  This, given how things
-were 6 or 7 years ago and the things the Solaris folks used to
-flame us for, I find particularly amusing.
+i suspect it's the generic_synchronize_irq() change. Does -Q4 boot?:
+
+  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc1-bk4-Q4
+
+-Q4 reverts this change. (this doesnt solve the problems Scott noticed
+though.)
+
+another solution would be to boot Q3 with preempt_hardirqs=0 and then
+turn on threading for all IRQs but the keyboard.
+
+	Ingo

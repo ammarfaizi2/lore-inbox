@@ -1,65 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312590AbSEaAPF>; Thu, 30 May 2002 20:15:05 -0400
+	id <S312619AbSEaARl>; Thu, 30 May 2002 20:17:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312619AbSEaAPE>; Thu, 30 May 2002 20:15:04 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15891 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S312590AbSEaAPC>;
-	Thu, 30 May 2002 20:15:02 -0400
-Message-ID: <3CF6C009.6040206@mandrakesoft.com>
-Date: Thu, 30 May 2002 20:12:57 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/00200205
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Leif Sawyer <lsawyer@gci.com>
-CC: Lista Linux-Kernel <linux-kernel@vger.kernel.org>,
-        "J.A. Magallon" <jamagallon@able.es>, Dave Jones <davej@suse.de>
-Subject: Re: [PATCH] x86 cpu selection (first hack)
-In-Reply-To: <BF9651D8732ED311A61D00105A9CA31508EC0CD6@berkeley.gci.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S312938AbSEaARk>; Thu, 30 May 2002 20:17:40 -0400
+Received: from supreme.pcug.org.au ([203.10.76.34]:3720 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S312619AbSEaARi>;
+	Thu, 30 May 2002 20:17:38 -0400
+Date: Fri, 31 May 2002 10:16:52 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>, Linus <torvalds@transmeta.com>
+Cc: Trivial Kernel Patches <trivial@rustcorp.com.au>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Laurent Latil <laurent@latil.nom.fr>
+Subject: [PATCH] APM patch for idle_period handling
+Message-Id: <20020531101652.246d7fcc.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Leif Sawyer wrote:
+Hi Marcelo, Linus,
 
->Dave Jones replied to 
->  
->
->>Jeff Garzik who wrote:
->>
->>    
->>
->>>[I] wonder if making the CPU features selectable is useful? 
->>>i.e. provide an actual config option for MMX memcpy, F00F bug,
->>>WP, etc. Normal (current) logic is to look at the cpu selected,
->>>and deduce these options.
->>>      
->>>
->>J.A's comment that most people compiling kernels shouldn't 
->>need to know what bugs their CPU has before they pick it is
->>a good one imo
->>
->>    
->>
->
->Perhaps a comprimise could be made?
->
->Envision a config option where you would have 'expert' choices
->for MMX, FOOF, WP, etc.
->  
->
+This patch from Laurent Latil <laurent@latil.nom.fr> fixes a copy
+and paste error.  The patch applies to 2.4.19-pre9 and 2.5.19 (with
+some offsets).
 
+Please apply.
 
-Well...  let's rein in the horses.  Before we go too far down this road, 
-I would rather that we just get one thing, individual cpu selection, 
-correct.  After that, we can look at making processor features 
-selectable, or grouping cpus based on "expert" details like lack of WP 
-or supporting TSC.
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
-    Jeff
-
-
-
-
+--- linux-2.4.18/arch/i386/kernel/apm.c	Mon Apr  1 12:12:48 2002
++++ linux/arch/i386/kernel/apm.c	Wed May 22 20:51:35 2002
+@@ -1788,7 +1788,7 @@
+ 			idle_threshold = simple_strtol(str + 15, NULL, 0);
+ 		if ((strncmp(str, "idle-period=", 12) == 0) ||
+ 		    (strncmp(str, "idle_period=", 12) == 0))
+-			idle_threshold = simple_strtol(str + 15, NULL, 0);
++			idle_period = simple_strtol(str + 12, NULL, 0);
+ 		invert = (strncmp(str, "no-", 3) == 0) ||
+ 			(strncmp(str, "no_", 3) == 0);
+ 		if (invert)

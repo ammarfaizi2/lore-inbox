@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263982AbTEFQbi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 12:31:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263981AbTEFQap
+	id S263943AbTEFQZe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 12:25:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263936AbTEFQZb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 12:30:45 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:7808 "EHLO mail.jlokier.co.uk")
-	by vger.kernel.org with ESMTP id S263973AbTEFQaU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 12:30:20 -0400
-Date: Tue, 6 May 2003 17:42:52 +0100
-From: Jamie Lokier <jamie@shareable.org>
+	Tue, 6 May 2003 12:25:31 -0400
+Received: from mail.convergence.de ([212.84.236.4]:10441 "EHLO
+	mail.convergence.de") by vger.kernel.org with ESMTP id S263943AbTEFQOA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 12:14:00 -0400
+Message-ID: <3EB7E206.9050200@convergence.de>
+Date: Tue, 06 May 2003 18:25:42 +0200
+From: Michael Hunold <hunold@convergence.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.3) Gecko/20030408
+X-Accept-Language: de-at, de, en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Using GPL'd Linux drivers with non-GPL, binary-only kernel
-Message-ID: <20030506164252.GA5125@mail.jlokier.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+CC: torvalds@transmeta.com
+Subject: [PATCH[[2.5][11-11] sorry, no patch in here...
+X-Enigmail-Version: 0.73.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was mulling over a commercial project proposal, and this question
-came up:
+Hello,
 
-What's the position of kernel developers towards using the GPL'd Linux
-kernel modules - that is, device drivers, network stack, filesystems
-etc. - with a binary-only, closed source kernel that is written
-independently of Linux?
+no patch in here, sorry for the inconvenience, I did not count correctly.
 
-I realise that linking the modules directly with the binary kernel is
-a big no no, but what if they are dynamically loaded?
+... and thanks for your patience. 8-)
 
-There seems to be a broad agreement, and I realise it isn't unanimous,
-that dynamically loading binary-only modules into the Linux kernel is
-ok.  Furthermore, there are some funny rules about which interfaces a
-binary-only module may use and which it may not, before it's
-considered a derivative work of the kernel.
+Thanks
+Michael Hunold.
 
-So, as dynamic loading is ok between parts of Linux and binary-only
-code, that seems to imply we could build a totally different kind of
-binary-only kernel which was able to make use of all the Linux kernel
-modules.  We could even modularise parts of the kernel which aren't
-modular now, so that we could take advantage of even more parts of Linux.
 
-What do you think?
 
--- Jamie
+
+
+
+
+
+
+
+
+
 
 

@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315445AbSGNJwm>; Sun, 14 Jul 2002 05:52:42 -0400
+	id <S315709AbSGNKEz>; Sun, 14 Jul 2002 06:04:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315709AbSGNJwl>; Sun, 14 Jul 2002 05:52:41 -0400
-Received: from ns.suse.de ([213.95.15.193]:27664 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S315445AbSGNJwl>;
-	Sun, 14 Jul 2002 05:52:41 -0400
-Date: Sun, 14 Jul 2002 11:55:25 +0200
+	id <S315720AbSGNKEy>; Sun, 14 Jul 2002 06:04:54 -0400
+Received: from ns.suse.de ([213.95.15.193]:60945 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S315709AbSGNKEy>;
+	Sun, 14 Jul 2002 06:04:54 -0400
+Date: Sun, 14 Jul 2002 12:07:46 +0200
 From: Dave Jones <davej@suse.de>
-To: Ben Clifford <benc@hawaga.org.uk>
-Cc: Heinz Diehl <hd@cavy.de>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.25-dj2
-Message-ID: <20020714115525.C28859@suse.de>
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Cc: Thunder from the hill <thunder@ngforever.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Q] Objects with EXPORT_NO_SYMBOLS
+Message-ID: <20020714120746.D28859@suse.de>
 Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Ben Clifford <benc@hawaga.org.uk>, Heinz Diehl <hd@cavy.de>,
-	linux-kernel@vger.kernel.org
-References: <20020713172627.GA5606@chiara.cavy.de> <Pine.LNX.4.44.0207131046510.5808-100000@barbarella.hawaga.org.uk>
+	Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+	Thunder from the hill <thunder@ngforever.de>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0207131610320.3331-100000@hawkeye.luckynet.adm> <Pine.LNX.4.44.0207131841430.6108-100000@chaos.physics.uiowa.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0207131046510.5808-100000@barbarella.hawaga.org.uk>
+In-Reply-To: <Pine.LNX.4.44.0207131841430.6108-100000@chaos.physics.uiowa.edu>
 User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 13, 2002 at 10:47:40AM -0700, Ben Clifford wrote:
- > -----BEGIN PGP SIGNED MESSAGE-----
+On Sat, Jul 13, 2002 at 06:44:43PM -0500, Kai Germaschewski wrote:
+ > On Sat, 13 Jul 2002, Thunder from the hill wrote:
+ > 
+ > > Should an object which explicitly defines EXPORT_NO_SYMBOLS be listed in 
+ > > export-objs? If not, then I just found some candidates...
+ > 
+ > In 2.5, there shouldn't be any source which has an "EXPORT_NO_SYMBOLS"  
+ > line, if so just delete it.
 
- > >   ide-scsi24.c:847: unknown field abort' specified in initializer
- > >   ide-scsi24.c:847: warning: initialization from incompatible pointer type
- > >   ide-scsi24.c:848: unknown field reset' specified in initializer
- > >   ide-scsi24.c:848: warning: initialization from incompatible pointer type
-
-Just kill those lines.
+Unless a driver author is sharing the same source between 2.4/2.5
+Adding a (harmless) EXPORT_NO_SYMBOLS to 2.5 source would be preferable
+to wrapping it in a kernel version ifdef.
 
         Dave
 

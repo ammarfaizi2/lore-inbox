@@ -1,34 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262385AbTCMOU1>; Thu, 13 Mar 2003 09:20:27 -0500
+	id <S262374AbTCMOTf>; Thu, 13 Mar 2003 09:19:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262387AbTCMOU0>; Thu, 13 Mar 2003 09:20:26 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:8142
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262385AbTCMOUZ>; Thu, 13 Mar 2003 09:20:25 -0500
-Subject: Re: Patches, effort, motivation
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <20030313131728.A4861@flint.arm.linux.org.uk>
-References: <20030313131728.A4861@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1047569959.25944.37.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 13 Mar 2003 15:39:19 +0000
+	id <S262377AbTCMOTf>; Thu, 13 Mar 2003 09:19:35 -0500
+Received: from imap.gmx.net ([213.165.64.20]:27876 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S262374AbTCMOTe> convert rfc822-to-8bit;
+	Thu, 13 Mar 2003 09:19:34 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Torsten Foertsch <torsten.foertsch@gmx.net>
+To: Srihari Vijayaraghavan <harisri@bigpond.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Request for help - tcpdump on many ethernet cards simulateneously
+Date: Thu, 13 Mar 2003 15:25:16 +0100
+User-Agent: KMail/1.4.3
+References: <200303140051.19453.harisri@bigpond.com>
+In-Reply-To: <200303140051.19453.harisri@bigpond.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200303131525.26530.torsten.foertsch@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-03-13 at 13:17, Russell King wrote:
-> 	8 PCI patches (1 needs to be further cut up)
-> 	10 PCMCIA patches (1 needs to be further cut up)
-> 	1 tty_io.c patch
-> 	16 serial csets
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-You are welcome to feed them the -ac tree. The only reason I skipped
-the PCI one before is that I ended up with parts 2-8 only
+On Thursday 13 March 2003 14:51, Srihari Vijayaraghavan wrote:
+> Is there anyone out there who has done similar work and would like to share
+> the knowledge about:
 
+Have a look at http://www.endace.com/. They have done it in hardware.
+
+Torsten
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE+cJTWwicyCTir8T4RAnwxAJsF2xJBzwemer1Pt42EKV5Kb6ArxACgmt5g
+/rqXukvi2xoZWm2GXeUWpYw=
+=XwNO
+-----END PGP SIGNATURE-----

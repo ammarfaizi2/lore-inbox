@@ -1,46 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318467AbSGSISZ>; Fri, 19 Jul 2002 04:18:25 -0400
+	id <S318469AbSGSIZW>; Fri, 19 Jul 2002 04:25:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318468AbSGSISZ>; Fri, 19 Jul 2002 04:18:25 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:19422 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S318467AbSGSISY>;
-	Fri, 19 Jul 2002 04:18:24 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Jeff Dike <jdike@karaya.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] check shm mount succeeded in shmem_file_setup 
-In-reply-to: Your message of "Thu, 18 Jul 2002 22:54:27 EST."
-             <200207190354.WAA05241@ccure.karaya.com> 
-Date: Fri, 19 Jul 2002 17:53:06 +1000
-Message-Id: <20020719080027.EEA964479@lists.samba.org>
+	id <S318471AbSGSIZW>; Fri, 19 Jul 2002 04:25:22 -0400
+Received: from divine.city.tvnet.hu ([195.38.100.154]:23839 "EHLO
+	divine.city.tvnet.hu") by vger.kernel.org with ESMTP
+	id <S318469AbSGSIZV>; Fri, 19 Jul 2002 04:25:21 -0400
+Date: Fri, 19 Jul 2002 09:30:32 +0200 (MEST)
+From: Szakacsits Szabolcs <szaka@sienet.hu>
+To: Robert Love <rml@tech9.net>
+cc: <root@chaos.analogic.com>, <linux-mm@kvack.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] strict VM overcommit for stock 2.4
+In-Reply-To: <1027019414.1085.143.camel@sinai>
+Message-ID: <Pine.LNX.4.30.0207190843200.30902-100000@divine.city.tvnet.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <200207190354.WAA05241@ccure.karaya.com> you write:
-> The kern_mount(&tmpfs_fs_type) in init_shmem_fs can fail, leaving shm_mnt
-> NULL.  A subsequent shmget will enter shmem_file_setup, which will blindly
-> dereference shm_mnt.  EIO was my best guess as to the appropriate errno.
 
-I think the bug is checking the return value at all.  This code cannot
-be a module (at least without significant furthur work), despite the
-fact that someone nicely wrote an exitfunction for it.
+On 18 Jul 2002, Robert Love wrote:
+> Btw, without this it is possible to OOM any machine.  OOM is a
+> by-product of allowing overcommit and poor accounting (and perhaps
+> poor software/users), not an incorrectly configured machine.
 
-And if the initialization fails at boot, we're screwed anyway.
+Very well said, now I try to explain again what's missing from the
+patch: livelock is a by-product of allowing strict VM overcommit and
+poor accounting (and perhaps poor software/users), not an incorrectly
+configured machine.
 
-> --- orig/mm/shmem.c     Mon Feb 25 12:50:45 2002
-> +++ um/mm/shmem.c       Thu Jul 18 22:16:11 2002
-> @@ -1455,6 +1455,9 @@
->         if (!vm_enough_memory((size) >> PAGE_CACHE_SHIFT))
->                 return ERR_PTR(-ENOMEM);
->  
-> +       if(shm_mnt == NULL)
-> +               return ERR_PTR(-EIO);
-> +
->         this.name = name;
->         this.len = strlen(name);
->         this.hash = 0; /* will go */
+So where is the solution for "poor accounting (and perhaps poor
+software/users), not an incorrectly configured machine" users? These
+are part of life and please don't claim all your work was perfect at
+first shoot and automatically adapted in all changing environments
+whitout ever touching it again on a general purpose system. Even if
+it would be true, not everybody supergenius.
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+So which one is better? OOM killer that considers root owned processes
+to make his decision or strict VM overcommit that doesn't distinguish
+root and non-root users and potentially will livelock [if you don't
+have some custom solution, like "trigger OOM handler through sysrq"
+patch posted here a year ago].
+
+For embedded systems the later, for general purpose systems the first
+is better in average however this is not linux-embedded and later on
+people using Linux for general purpose could get the impression strict
+VM overcommit is useful for them and potentially would end up in a
+worse situation than without it (see my example sent, default kernel
+OOM killed the bad process, with your patch reset the box).
+
+*However* distinguishing root and non-root users also in strict VM
+overcommit would make a significant difference for general purpose
+systems, this was always my point.
+
+Can you see the non-orthogonality now?
+
+	Szaka
+

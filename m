@@ -1,35 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135597AbRAUGpf>; Sun, 21 Jan 2001 01:45:35 -0500
+	id <S135460AbRAUHIa>; Sun, 21 Jan 2001 02:08:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135460AbRAUGpZ>; Sun, 21 Jan 2001 01:45:25 -0500
-Received: from saw.sw.com.sg ([203.120.9.98]:52101 "HELO saw.sw.com.sg")
-	by vger.kernel.org with SMTP id <S135597AbRAUGpQ>;
-	Sun, 21 Jan 2001 01:45:16 -0500
-Message-ID: <20010121144505.A17287@saw.sw.com.sg>
-Date: Sun, 21 Jan 2001 14:45:05 +0800
-From: Andrey Savochkin <saw@saw.sw.com.sg>
-To: Kostas Nikoloudakis <kostas@corp124.com>, linux-kernel@vger.kernel.org
-Subject: Re: eepro100 error messages
-In-Reply-To: <3A650B5B.EE1CCB07@corp124.com>
+	id <S135673AbRAUHIU>; Sun, 21 Jan 2001 02:08:20 -0500
+Received: from dsl-45-165.muscanet.com ([208.164.45.165]:30093 "EHLO grace")
+	by vger.kernel.org with ESMTP id <S135460AbRAUHIL>;
+	Sun, 21 Jan 2001 02:08:11 -0500
+Date: Sun, 21 Jan 2001 01:07:59 -0600
+From: Josh Myer <josh@joshisanerd.com>
+To: "Mike A . Harris" <mharris@opensourceadvocate.org>
+Cc: Admin Mailing Lists <mlist@intergrafix.net>,
+        Ragnar Hojland Espinosa <ragnar_hojland@eresmas.com>,
+        profmakx.fmp@gmx.de, linux-kernel@vger.kernel.org
+Subject: Re: [OT?] Coding Style
+Message-ID: <20010121010759.B2705@grace>
+In-Reply-To: <Pine.LNX.4.10.10101210048360.17920-100000@athena.intergrafix.net> <Pine.LNX.4.32.0101210057110.7610-100000@asdf.capslock.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93.2i
-In-Reply-To: <3A650B5B.EE1CCB07@corp124.com>; from "Kostas Nikoloudakis" on Tue, Jan 16, 2001 at 07:02:52PM
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.32.0101210057110.7610-100000@asdf.capslock.lan>; from mharris@opensourceadvocate.org on Sat, Jan 20, 2001 at 23:58:07 -0600
+X-Mailer: Balsa 1.0.pre5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 16, 2001 at 07:02:52PM -0800, Kostas Nikoloudakis wrote:
-> Jan 16 00:49:04 cd20 kernel: eth0: card reports no resources. 
-> Jan 16 00:49:06 cd20 kernel: eth0: can't fill rx buffer (force 0)! 
+We would never parody Monty Python! This is an excerpt from Judas, one of
+the gospels that was in dispute.
 
-The driver can't allocate buffers for incoming packets.
-Increase /proc/sys/vm/freepages numbers to start freeing the memory earlier
-and reserve more memory for allocation bursts.
+I'm sorry, I must go, as there's a man in a military uniform here, shouting
+at me to stop being silly...
 
-Best regards
-					Andrey V.
-					Savochkin
+-josh
+
+On Sat, 20 Jan 2001 23:58:07 Mike A. Harris wrote:
+> On Sun, 21 Jan 2001, Admin Mailing Lists wrote:
+> 
+> >> And the lord spake, saying, "First shalt thou write thy holy code.
+.
+> If I'm not mistaken, the above is a parody on Monty Python's Holy
+> Grail.  The Holy Hand Grenade of Antinoch if I'm correct.  It's
+> been a while..
+> 
+. 
+(i modified Mike's copyrighted document. do i need to get a license from
+all of the people he quoted as well as his? ;^)
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

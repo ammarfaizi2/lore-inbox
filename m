@@ -1,56 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262955AbRE1Dug>; Sun, 27 May 2001 23:50:36 -0400
+	id <S262957AbRE1E0Z>; Mon, 28 May 2001 00:26:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262954AbRE1Du0>; Sun, 27 May 2001 23:50:26 -0400
-Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:37881 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S262955AbRE1DuQ>; Sun, 27 May 2001 23:50:16 -0400
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200105280349.f4S3nrff021434@webber.adilger.int>
-Subject: Re: Console display in portrait mode with unusual dpi resolution
-In-Reply-To: <3B1150DB.ADF2178A@bluewin.ch> "from Otto Wyss at May 27, 2001 09:09:16
- pm"
-To: otto.wyss@bluewin.ch
-Date: Sun, 27 May 2001 21:49:53 -0600 (MDT)
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-X-Mailer: ELM [version 2.4ME+ PL87 (25)]
+	id <S262958AbRE1E0P>; Mon, 28 May 2001 00:26:15 -0400
+Received: from mail.turbolinux.co.jp ([210.171.55.67]:521 "EHLO
+	mail.turbolinux.co.jp") by vger.kernel.org with ESMTP
+	id <S262957AbRE1E0F>; Mon, 28 May 2001 00:26:05 -0400
+Message-ID: <3B11D36C.2967AFDC@turbolinux.co.jp>
+Date: Mon, 28 May 2001 13:26:20 +0900
+From: Go Taniguchi <go@turbolinux.co.jp>
+Organization: Turbolinx Inc.
+X-Mailer: Mozilla 4.75 [ja] (X11; U; Linux 2.2.18-10 i686)
+X-Accept-Language: ja
 MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH]initrd unmount problem
+Content-Type: multipart/mixed;
+ boundary="------------84577076693BE99D2FC32024"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-O Wyss writes:
-> [Running flatscreen in portrait mode]
->
-> The portrait mode software starts working just about before the logon
-> screen is shown. All the BIOS and system messages are shown in landscape
-> mode. From the nature of a software solution I guess this can't be
-> changed neither of Windows NT4 nor Linux.
+This is a multi-part message in MIME format.
+--------------84577076693BE99D2FC32024
+Content-Type: text/plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 7bit
 
-Probably the place to hack this is in the framebuffer console code.  This
-will not help with BIOS messages, but you _should_ be able to get all
-Linux output in the portrait rotated mode with the FB console.
+Hi,
 
-> 3. Obstacle
-> The EIZO L675 has a pixel pitch of 0.28x0.28 which is equivalent to
-> about 90dpi. Since Windows (any version) uses a default value on 96dpi,
-> everything is enlarged by about 5%. So even with an 18" display an A4
-> page can't be normally viewed in Word. Current status from Microsoft
-> "problem is recognized, we are working on it". While there is no
-> solution for Windows (probably until SP1 for XP) what's the status of
-> Linux? 
+It seems that ioctl_by_bdev() in fs/block_dev.c has a problem.
+When initrd is unmounted it can cause OOPS. 
+This problem occurs in recent ac patches.
+May be vanilla too.
 
-X does not have a standard DPI, so it doesn't really matter.  On CRT
-screens, you could adjust your DPI via XFree86 modelines.  On LCD
-screens DPI is fixed so you have to work with that.  If the screen
-supports DDC (it should if it is new), it will tell the X server what
-the DPI is, so you don't need to set it manually.  Running "xdpyinfo"
-under X will tell you what the resolution is (my current screen happens
-to report 109x112 DPI = 1600x1200 on a 19" screen).  I think GIMP can
-work with the DPI info reported from the X server.
+change_root() in fs/super.c calls ioctl_by_bdev() in
+fs/block_dev.c which does not set inode_fake.i_bdev.
 
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+But ioctl of ramdisk (rd_ioctl() in rd.c) accesses to
+i_bdev->bd_openers of the inode and which causes OOPS.
+
+I attach the patch.
+
+- GO!
+--------------84577076693BE99D2FC32024
+Content-Type: text/plain; charset=iso-2022-jp;
+ name="block_dev.c.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="block_dev.c.patch"
+
+--- linux/fs/block_dev.c.orig	Mon May 28 12:40:12 2001
++++ linux/fs/block_dev.c	Mon May 28 12:40:12 2001
+@@ -602,6 +602,7 @@
+ 	if (!bdev->bd_op->ioctl)
+ 		return -EINVAL;
+ 	inode_fake.i_rdev=rdev;
++	inode_fake.i_bdev=bdev;
+ 	init_waitqueue_head(&inode_fake.i_wait);
+ 	set_fs(KERNEL_DS);
+ 	res = bdev->bd_op->ioctl(&inode_fake, NULL, cmd, arg);
+
+--------------84577076693BE99D2FC32024--
+

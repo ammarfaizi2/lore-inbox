@@ -1,34 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261757AbREPBcZ>; Tue, 15 May 2001 21:32:25 -0400
+	id <S261756AbREPBbF>; Tue, 15 May 2001 21:31:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261758AbREPBcP>; Tue, 15 May 2001 21:32:15 -0400
-Received: from viper.haque.net ([66.88.179.82]:31903 "EHLO mail.haque.net")
-	by vger.kernel.org with ESMTP id <S261757AbREPBcA>;
-	Tue, 15 May 2001 21:32:00 -0400
-Message-ID: <3B01D88F.691DB4E2@haque.net>
-Date: Tue, 15 May 2001 21:31:59 -0400
-From: "Mohammad A. Haque" <mhaque@haque.net>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre1 i686)
-X-Accept-Language: en
+	id <S261757AbREPBaz>; Tue, 15 May 2001 21:30:55 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:32019 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261756AbREPBar>; Tue, 15 May 2001 21:30:47 -0400
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Message-ID: <3B01D82B.8CAE38B5@transmeta.com>
+Date: Tue, 15 May 2001 18:30:19 -0700
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ymfpci.h add PCIR_DSXPWRCTRL1 && PCIR_DSXPWRCTRL2
-In-Reply-To: <3B01D6BC.7714E184@haque.net>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+CC: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: Getting FS access events
+In-Reply-To: <200105152231.f4FMVSC246046@saturn.cs.uml.edu> <5.1.0.14.2.20010516020702.00acce40@pop.cus.cam.ac.uk>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Woops....this is for 2.4.5-pre2
+Anton Altaparmakov wrote:
+> 
+> And how are you thinking of this working "without introducing new
+> interfaces" if the caches are indeed incoherent? Please correct me if I
+> understand wrong, but when two caches are incoherent, I thought it means
+> that the above _would_ screw up unless protected by exclusive write locking
+> as I suggested in my previous post with the side effect that you can't
+> write the boot block without unmounting the filesystem or modifying some
+> interface somewhere.
+> 
+
+Not if direct device acess and the superblock exist in the same mapping
+space, OR an explicit interface to write the boot block is created.
+
+	-hpa
 
 -- 
-
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/ 
-                                               mhaque@haque.net
-
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

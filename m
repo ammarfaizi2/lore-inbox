@@ -1,84 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261256AbVAMSAb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261334AbVAMSEX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261256AbVAMSAb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 13:00:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbVAMR7r
+	id S261334AbVAMSEX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 13:04:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbVAMSDs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 12:59:47 -0500
-Received: from rproxy.gmail.com ([64.233.170.196]:26846 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261256AbVAMR6b (ORCPT
+	Thu, 13 Jan 2005 13:03:48 -0500
+Received: from colin2.muc.de ([193.149.48.15]:40711 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S261382AbVAMSCH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 12:58:31 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=X8KqZ+cz0QlcvyVlbUnvXgAAHoV/luFCrOEm3C6Rk4EfZmS1fi6NNGQJNK4GlfsfucqneW36qYVX+3TMeKUUn3x4D247NSIC+HbcFFGIXSw8feOCW/mvyIYIv3+TnEpJQCVQ1PhYpXnNqdbmKpKicBzKb/U6fmwUZx0y+/EDv14=
-Message-ID: <29495f1d050113095856d998ea@mail.gmail.com>
-Date: Thu, 13 Jan 2005 09:58:27 -0800
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-To: johnpol@2ka.mipt.ru
-Subject: Re: Kernel conector. Reincarnation #1.
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050113001611.0a5d8bf8@zanzibar.2ka.mipt.ru>
+	Thu, 13 Jan 2005 13:02:07 -0500
+Date: 13 Jan 2005 19:02:05 +0100
+Date: Thu, 13 Jan 2005 19:02:05 +0100
+From: Andi Kleen <ak@muc.de>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org, hugh@veritas.com, linux-mm@kvack.org,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       benh@kernel.crashing.org
+Subject: Re: page table lock patch V15 [0/7]: overview
+Message-ID: <20050113180205.GA17600@muc.de>
+References: <Pine.LNX.4.58.0501120833060.10380@schroedinger.engr.sgi.com> <20050112104326.69b99298.akpm@osdl.org> <41E5AFE6.6000509@yahoo.com.au> <20050112153033.6e2e4c6e.akpm@osdl.org> <41E5B7AD.40304@yahoo.com.au> <Pine.LNX.4.58.0501121552170.12669@schroedinger.engr.sgi.com> <41E5BC60.3090309@yahoo.com.au> <Pine.LNX.4.58.0501121611590.12872@schroedinger.engr.sgi.com> <20050113031807.GA97340@muc.de> <Pine.LNX.4.58.0501130907050.18742@schroedinger.engr.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <1101286481.18807.66.camel@uganda>
-	 <1101287606.18807.75.camel@uganda> <20041124222857.GG3584@kroah.com>
-	 <1102504677.3363.55.camel@uganda> <20041221204101.GA9831@kroah.com>
-	 <1103707272.3432.6.camel@uganda> <20050112190319.GA10885@kroah.com>
-	 <20050112233345.6de409d0@zanzibar.2ka.mipt.ru>
-	 <20050113001611.0a5d8bf8@zanzibar.2ka.mipt.ru>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0501130907050.18742@schroedinger.engr.sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Jan 2005 00:16:11 +0300, Evgeniy Polyakov
-<johnpol@2ka.mipt.ru> wrote:
-> Sorry, forget about nasty typo.
-> Current one is right.
+On Thu, Jan 13, 2005 at 09:11:29AM -0800, Christoph Lameter wrote:
+> On Wed, 13 Jan 2005, Andi Kleen wrote:
+> 
+> > Alternatively you can use a lazy load, checking for changes.
+> > (untested)
+> >
+> > pte_t read_pte(volatile pte_t *pte)
+> > {
+> > 	pte_t n;
+> > 	do {
+> > 		n.pte_low = pte->pte_low;
+> > 		rmb();
+> > 		n.pte_high = pte->pte_high;
+> > 		rmb();
+> > 	} while (n.pte_low != pte->pte_low);
+> > 	return pte;
 
-<snip>
+It should be return n; here of course.
 
-> diff -Nru /tmp/empty/cn_queue.c linux-2.6.9/drivers/connector/cn_queue.c
-> --- /tmp/empty/cn_queue.c       1970-01-01 03:00:00.000000000 +0300
-> +++ linux-2.6.9/drivers/connector/cn_queue.c    2005-01-12 23:23:45.000000000 +0300
+> > }
+> >
+> > No atomic operations, I bet it's actually faster than the cmpxchg8.
+> > There is a small risk for livelock, but not much worse than with an
+> > ordinary spinlock.
+> 
+> Hmm.... This may replace the get of a 64 bit value. But here could still
+> be another process that is setting the pte in a non-atomic way.
 
-<snip>
+The rule in i386/x86-64 is that you cannot set the PTE in a non atomic way
+when its present bit is set (because the hardware could asynchronously 
+change bits in the PTE that would get lost). Atomic way means clearing
+first and then replacing in an atomic operation.
 
-> +       while (atomic_read(&cbq->cb->refcnt)) {
-> +               printk(KERN_INFO "Waiting for %s to become free: refcnt=%d.\n",
-> +                      cbq->pdev->name, atomic_read(&cbq->cb->refcnt));
-> +               set_current_state(TASK_INTERRUPTIBLE);
-> +               schedule_timeout(HZ);
-> +
-> +               if (current->flags & PF_FREEZE)
-> +                       refrigerator(PF_FREEZE);
-> +
-> +               if (signal_pending(current))
-> +                       flush_signals(current);
-> +       }
+This helps you because you shouldn't be looking at the pte anyways
+when pte_present is false. When it is not false it is always updated
+atomically.
 
-<snip>
-
-> +       while (atomic_read(&dev->refcnt)) {
-> +               printk(KERN_INFO "Waiting for %s to become free: refcnt=%d.\n",
-> +                      dev->name, atomic_read(&dev->refcnt));
-> +               set_current_state(TASK_INTERRUPTIBLE);
-> +               schedule_timeout(HZ);
-> +
-> +               if (current->flags & PF_FREEZE)
-> +                       refrigerator(PF_FREEZE);
-> +
-> +               if (signal_pending(current))
-> +                       flush_signals(current);
-> +       }
-
-Would it be possible to use msleep_interruptible(1000) in both of
-these locations? You only seem to be concerned with signals (not
-wait-queue events) and the time is rather long (1000 msec).
-signals_pending(current) will still be true upon return from
-msleep_interruptible(), so it's a minimal change, I think.
-
-Thanks,
-Nish
+-Andi

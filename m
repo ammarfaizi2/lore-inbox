@@ -1,64 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264373AbTL3EJf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 23:09:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264374AbTL3EJf
+	id S264366AbTL3EB6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 23:01:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264367AbTL3EB6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 23:09:35 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40335 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264373AbTL3EJd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 23:09:33 -0500
-Message-ID: <3FF0FA6A.8000904@pobox.com>
-Date: Mon, 29 Dec 2003 23:09:14 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Problem with dev_kfree_skb_any() in 2.6.0
-References: <1072567054.4112.14.camel@gaston> <20031227170755.4990419b.davem@redhat.com>
-In-Reply-To: <20031227170755.4990419b.davem@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 29 Dec 2003 23:01:58 -0500
+Received: from cpe-024-033-224-91.neo.rr.com ([24.33.224.91]:64644 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id S264366AbTL3EBp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 23:01:45 -0500
+Date: Mon, 29 Dec 2003 22:50:37 +0000
+From: Adam Belay <ambx1@neo.rr.com>
+To: Amit Gurdasani <amitg@alumni.cmu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: EISA ID for PnP modem and resource allocation
+Message-ID: <20031229225037.GB3198@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	Amit Gurdasani <amitg@alumni.cmu.edu>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.56.0312261610200.1798@athena> <20031229143711.GA3176@neo.rr.com> <Pine.LNX.4.56.0312300338360.1163@athena>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.56.0312300338360.1163@athena>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
-> On Sun, 28 Dec 2003 10:17:34 +1100
-> Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
-> 
-> 
->>We should probably fix dev_kfree_skb_any() ? Still ugly imho though...
->>
->>-        if (in_irq())
->>+        if (in_irq() || irqs_disabled())
->>
-> 
-> 
-> That's not the right fix, the sungem PM code path TX queue
-> packet freeing should be instead done outside of IRQ spinlocks.
+On Tue, Dec 30, 2003 at 03:59:16AM +0400, Amit Gurdasani wrote:
+> :Without special hardware modifications, it is usually unsafe to share irqs
+> :between isa devices.
+>
+> Ah. So 2.4's behavior was broken then?
 
+Perhaps in this case.
 
-Not really...  pretty much _all_ TX queue packet freeing occurs inside 
-an irq handler and inside the driver spinlock.  Further, we don't want 
-to reinvent some sort of "queue skb for freeing" code in every driver.
+>
+> :> The reason I ask is that I also have a jumpered SB16 on IRQ 5, and loading
+> :> the 8250 driver before the snd_sb16 driver results in the SB16's IRQ being
+> :> allocated for the modem, which prevents the SB16 driver from loading.
+> :> Loading the SB16 driver first results in resource starvation for the modem,
+> :> and the 8250 driver is only able to set up the onboard serial ports ttyS0
+> :> and ttyS1.
+> :
+> :You may want to try changing the jumper on your SB16 to allow for PnP
+> :autoconfiguration.
+>
+> It's a pre-PnP SB16 from 1994, as far as I can tell -- IRQ, I/O port and DMA
+> channels can be set only by setting jumpers. I suppose I could pull the card
+> out and set its IRQ setting to something the modem won't claim.
 
-Look at what a driver really wants from the net stack:
+Because of detection limitations in legacy hardware, you may have to notify the
+Plug and Play Layer that your device is using irq 5.  Booting with the parameter
+pnp_reserve_irq=5 will prevent resource conflicts with the legacy SB16 device.
 
-	if (you can free the skb now)
-		free skb
-	otherwise
-		queue it to be freed later
+>
+> :> In the meantime, I'm using the isapnptools to set up the modem with IRQ 4
+> :> before loading either driver. The result is that the SB16 driver gets IRQ 5
+> :> as needed, and ttyS0 is set up with IRQ 0 (is this OK?), but I'd really like
+> :> to use the kernel ISA PnP support.
+> :
+> :Could I please see a copy of your /proc/interrupts.
+>
+>            CPU0
+>   0:     314288          XT-PIC  timer
+>   1:       1024          XT-PIC  i8042
+>   2:          0          XT-PIC  cascade
+>   5:       7444          XT-PIC  SoundBlaster
+>   8:          1          XT-PIC  rtc
+>   9:       4675          XT-PIC  ide2
+>  10:         41          XT-PIC  eth0
+>  11:      89930          XT-PIC  i91u
+>  12:      10092          XT-PIC  i8042
+>  15:         57          XT-PIC  ide1
+> NMI:          0
+> LOC:          0
+> ERR:          0
+> MIS:          0
+>
+> Apart from these, dmesg output shows these IRQs allocated:
+>
+> ttyS0 at I/O 0x3f8 (irq = 0) is a 16550A
+> ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
+> ttyS2 at I/O 0x3e8 (irq = 4) is a 16550A
+> parport0: irq 7 detected
 
-The driver _shouldn't_ care about the conditions under which an skb can 
-be freed.  That's entirely the net stack's domain (and should be)... 
-heck, the net stack should even be free to change said conditions, 
-without breaking or confusing drivers.
+Hmm, it shouldn't be reporting irq 0.  The probbing code may be confused.
+I would guess it is on irq 4.
 
-	Jeff
+>
+> Additionally, pnpdump says the modem can only claim an IRQ line from among
+> 3, 4, 5, 7, 9, 10, 11, 12 or 15 in various configurations.
 
+It appears that you have an unresolvable resource conflict.  I'm working on
+a more flexable resource manager for the 2.7 kernel.  For now, I recommend that
+you disable one of your serial ports in your BIOS configuration interface and
+try booting with pnp_reserve_irq=5.
 
+Alternatively you could try enabling PnPBIOS support.  There's a slight chance
+that the pci code will reroute ide2 to 14 (assuming ide2 is pci), leaving room
+for your modem on 9.  You'll still need to reserve irq 5 as stated above.
 
+Thanks,
+Adam

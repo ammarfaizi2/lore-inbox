@@ -1,73 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261611AbVCaSSU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261615AbVCaSSJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261611AbVCaSSU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 13:18:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261609AbVCaSSU
+	id S261615AbVCaSSJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 13:18:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261619AbVCaSSI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 13:18:20 -0500
-Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:12965 "EHLO
-	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S261611AbVCaSSE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 13:18:04 -0500
-X-ORBL: [69.107.61.180]
-From: David Brownell <david-b@pacbell.net>
-To: Patrick Mochel <mochel@digitalimplant.org>
-Subject: Re: klists and struct device semaphores
-Date: Thu, 31 Mar 2005 10:18:01 -0800
-User-Agent: KMail/1.7.1
-Cc: Alan Stern <stern@rowland.harvard.edu>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44L0.0503311054410.1510-100000@ida.rowland.org> <Pine.LNX.4.50.0503310947180.7249-100000@monsoon.he.net>
-In-Reply-To: <Pine.LNX.4.50.0503310947180.7249-100000@monsoon.he.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503311018.02135.david-b@pacbell.net>
+	Thu, 31 Mar 2005 13:18:08 -0500
+Received: from vms044pub.verizon.net ([206.46.252.44]:33759 "EHLO
+	vms044pub.verizon.net") by vger.kernel.org with ESMTP
+	id S261615AbVCaSR5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 13:17:57 -0500
+Date: Thu, 31 Mar 2005 13:17:54 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-07
+In-reply-to: <20050331174927.GA11483@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Ingo Molnar <mingo@elte.hu>, Steven Rostedt <rostedt@goodmis.org>,
+       Esben Nielsen <simlo@phys.au.dk>
+Message-id: <200503311317.55230.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <Pine.OSF.4.05.10503302042450.2022-100000@da410.phys.au.dk>
+ <1112290916.12543.19.camel@localhost.localdomain>
+ <20050331174927.GA11483@elte.hu>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 31 March 2005 9:59 am, Patrick Mochel wrote:
-> On Thu, 31 Mar 2005, Alan Stern wrote:
-> > On Wed, 30 Mar 2005, Patrick Mochel wrote:
-> 
-> > > In fact, we probably want to add a counter to every device for all "open
-> > > connections" so the device doesn't try to automatically sleep while a
-> > > device node is open. Once it reaches 0, we can have it enter a
-> > > pre-configured state, which should save us a bit of power for very little
-> > > pain.
-> >
-> > By "open connections", do you mean something more than unsuspended
-> > children?
-> 
-> Yes, I mean anything that requires the device be awake and functional.
+On Thursday 31 March 2005 12:49, Ingo Molnar wrote:
+>* Steven Rostedt <rostedt@goodmis.org> wrote:
+>> Oh, and did your really want to assign debug = .1?
+>>
+>> - .debug = .1, .file = __FILE__, .line = __LINE__
+>> + .debug = 1, .file = __FILE__, .line = __LINE__
+>
+>doh - indeed. This means rwlocks were nondebug all along? Ouch. I've
+>uploaded -42-08 with the fix.
+>
+> Ingo
 
-So for example a device that's suspended and enabled for wakeup could be
-"open" ... which fights against your "doesn't try to sleep" policy.
+It wasn't there when I looked yet, so I just built 42-05, Ingo.  
+Almost everything works except I can't get any video out of tvtime, 
+and the audio quality is still intermittently tinny,  sometimes cured 
+by an internal tvtime restart with earlier versions but not this 
+version.  Tinny sound seem to be forever now.
 
-Maybe you mean "don't power-off" rather than "don't sleep"?  Or are
-you maybe assuming PC-style PCI, where nothing (on current Linux)
-seems to process PME# wakeup events outside of system sleep states?
-(Even when "lspci" shows PME# as active for a device ...)
+Also, lots of logging from tvtime, as if it was getting the video but 
+missing a frame occasionally, and spit this out when I quit it.
+
+Mar 31 13:05:00 coyote kernel: rtc latency histogram of {tvtime/5251, 
+1303 samples}:
+Mar 31 13:05:00 coyote kernel: 4 1
+Mar 31 13:05:00 coyote kernel: 5 190
+Mar 31 13:05:00 coyote kernel: 6 455
+Mar 31 13:05:00 coyote kernel: 7 264
+Mar 31 13:05:00 coyote kernel: 8 84
+Mar 31 13:05:00 coyote kernel: 9 42
+Mar 31 13:05:00 coyote kernel: 10 22
+Mar 31 13:05:00 coyote kernel: 11 34
+Mar 31 13:05:00 coyote kernel: 12 15
+Mar 31 13:05:00 coyote kernel: 13 21
+Mar 31 13:05:00 coyote kernel: 14 19
+Mar 31 13:05:00 coyote kernel: 15 18
+Mar 31 13:05:00 coyote kernel: 16 10
+Mar 31 13:05:00 coyote kernel: 17 6
+Mar 31 13:05:00 coyote kernel: 18 8
+Mar 31 13:05:00 coyote kernel: 19 6
+Mar 31 13:05:00 coyote kernel: 20 8
+Mar 31 13:05:00 coyote kernel: 21 1
+Mar 31 13:05:00 coyote kernel: 22 2
+Mar 31 13:05:00 coyote kernel: 23 2
+Mar 31 13:05:00 coyote kernel: 25 1
+Mar 31 13:05:00 coyote kernel: 26 2
+Mar 31 13:05:00 coyote kernel: 29 1
+Mar 31 13:05:00 coyote kernel: 30 2
+Mar 31 13:05:00 coyote kernel: 47 1
+Mar 31 13:05:00 coyote kernel: 9999 88
 
 
-> This would include open device nodes for many devices, open network
-> connections for network devices, active children for bridges and
-> controllers, etc.
+I have -08 now, so I'll go build that one next.  Other than these, 
+this one 'feels' good.
 
-Same thing applies.  Many devices can be suspended but wake up on demand.
-And even pass the wakeup events up the hardware connectivity tree.  In
-fact, being able to do that is a requirement to support that "USB mouse
-on Centrino laptop" example:  USB mouse suspended, ditto the USB host
-controller, then the CPU can enter C3 state and save a few more Watts.
-Move mouse, wakeup the USB controller, CPU leaves C3.
+>-
+>To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
-In general, good power management will _want_ to leverage such modes.
-
-Worth noting:  it's very similar to what modern CPUs do internally,
-powering parts off until they're needed.  The same model can apply
-to other chips; and to boards that integrate those chips...
-
-- Dave
-
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.34% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

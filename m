@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264905AbSIWHLe>; Mon, 23 Sep 2002 03:11:34 -0400
+	id <S265020AbSIWHP3>; Mon, 23 Sep 2002 03:15:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264916AbSIWHLe>; Mon, 23 Sep 2002 03:11:34 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:39912 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S264905AbSIWHLe>;
-	Mon, 23 Sep 2002 03:11:34 -0400
-Date: Mon, 23 Sep 2002 09:16:33 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@digeo.com>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>
-Subject: Re: 2.5.38-mm2
-Message-ID: <20020923071633.GA15479@suse.de>
-References: <3D8E96AA.C2FA7D8@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D8E96AA.C2FA7D8@digeo.com>
+	id <S265002AbSIWHP3>; Mon, 23 Sep 2002 03:15:29 -0400
+Received: from merkur.ipht-jena.de ([194.94.32.22]:31389 "EHLO
+	merkur.ipht-jena.de") by vger.kernel.org with ESMTP
+	id <S264918AbSIWHP2>; Mon, 23 Sep 2002 03:15:28 -0400
+Message-ID: <3D8EC0B5.3050104@hh59.org>
+Date: Mon, 23 Sep 2002 09:20:21 +0200
+From: "Axel H. Siebenwirth" <axel@hh59.org>
+Organization: hh59.org
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.0.2) Gecko/20020919
+X-Accept-Language: de-de, de, en-us, en
+MIME-Version: 1.0
+To: Con Kolivas <conman@kolivas.net>
+CC: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       Ville Herva <vherva@niksula.hut.fi>, Daniel Jacobowitz <dan@debian.org>,
+       Robert Love <rml@tech9.net>
+Subject: Re: [BENCHMARK] gcc3.2 v 2.95.3 (contest and linux-2.5.38)
+References: <1032750261.3d8e84b5486a9@kolivas.net> <3D8E8D7F.810EF57F@digeo.com> <20020923034626.GA28612@nevyn.them.org> <1032753047.3d8e8f973e17d@kolivas.net> <3D8E9158.4E3DE029@digeo.com> <1032754853.3d8e96a520836@kolivas.net> <3D8E988F.DCB3196D@digeo.com> <1032757988.3d8ea2e4a0618@kolivas.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 22 2002, Andrew Morton wrote:
-> +read-latency.patch
-> 
->  Fix the writer-starves-reader elevator problem.  This is basically
->  the read_latency2 patch from -ac kernels.
-> 
->  On IDE it provides a 100x improvement in read throughput when there
->  is heavy writeback happening.  40x on SCSI.  You need to disable
 
-Ah interesting. I do still think that it is worth to investigate _why_
-both elevator_linus and deadline does not prevent the read starvation.
-The read-latency is a hack, not a solution imo.
+Con Kolivas wrote:
 
->  tagged command queueing on scsi - it appears to be quite stupidly
->  implemented.
+> If you think I've made a mistake then you're probably correct. I'm investigating
+> this further. Please do NOT pass judgement on these benchmarks until I
+> completely retest everything, ensuring gcc is fixed for everything except the
+> kernel being tested. Disregard until I have a fresh set of confirmed results.
 
-Ahem I think you are being excessively harsh, or maybe passing judgement
-on something you haven't even looked at. Did you consider that you
-_drive_ may be the broken component? Excessive turn-around times for
-request when using deep tcq is not unusual, by far.
+And do not forget to use gcc from CVS, they're at 3.2.1 (prerelease) 
+right now. Or even checkout 3.3 while you're at it.
 
--- 
-Jens Axboe
+Regards,
+Axel
 

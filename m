@@ -1,58 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266245AbUIJAeH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262329AbUIJAim@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266245AbUIJAeH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 20:34:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266574AbUIJAeH
+	id S262329AbUIJAim (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 20:38:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266244AbUIJAil
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 20:34:07 -0400
-Received: from open.hands.com ([195.224.53.39]:42463 "EHLO open.hands.com")
-	by vger.kernel.org with ESMTP id S266245AbUIJAeB (ORCPT
+	Thu, 9 Sep 2004 20:38:41 -0400
+Received: from ozlabs.org ([203.10.76.45]:62410 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262329AbUIJAik (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 20:34:01 -0400
-Date: Fri, 10 Sep 2004 01:45:17 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: linux-kernel@vger.kernel.org
-Cc: coreteam@netfilter.org
-Subject: why is sk->skb->sk_socket->file  NULL on incoming packets?
-Message-ID: <20040910004517.GC7587@lkcl.net>
+	Thu, 9 Sep 2004 20:38:40 -0400
+Date: Fri, 10 Sep 2004 10:35:05 +1000
+From: Anton Blanchard <anton@samba.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       Paul Mackerras <paulus@samba.org>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>
+Subject: Re: [PATCH][5/8] Arch agnostic completely out of line locks / ppc64
+Message-ID: <20040910003505.GG11358@krispykreme>
+References: <Pine.LNX.4.58.0409021231570.4481@montezuma.fsmlabs.com> <16703.60725.153052.169532@cargo.ozlabs.ibm.com> <Pine.LNX.4.53.0409090810550.15087@montezuma.fsmlabs.com> <20040909154259.GE11358@krispykreme> <20040909171954.GW3106@holomorphy.com> <16704.52551.846184.630652@cargo.ozlabs.ibm.com> <20040909220040.GM3106@holomorphy.com> <16704.59668.899674.868174@cargo.ozlabs.ibm.com> <20040910000903.GS3106@holomorphy.com> <Pine.LNX.4.58.0409091712270.5912@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-hands-com-MailScanner: Found to be clean
-X-hands-com-MailScanner-SpamScore: s
-X-MailScanner-From: lkcl@lkcl.net
+In-Reply-To: <Pine.LNX.4.58.0409091712270.5912@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi, simple question - if a userspace ip_queue program (fireflier)
-can determine the pid of an incoming packet, why can't ipt_owner.c
-do the same?
+ 
+Hi,
 
-how do i force, even by using a userspace thing which asks the
-packet to be "re-examined", the skb->sk->sk_socket->file to be
-set?
+> Why do we care about profile_pc() here? It should do the right thing 
+> as-is.
 
-i _need_ this to work!
+With preempt off profile_pc works as expected, timer ticks in spinlocks
+are apportioned to the calling function. Turn preempt on and you end up
+with one big bucket called __preempt_spin_lock where most of the
+spinlock ticks end up.
 
-_yes_ i have a modified version of ipt_owner.c which can track down
-the full path name of the program.
+> What you care about is wchan, and stack unwiding _over_ the spinlocks. 
+> Since a spinlock can never be part of the wchan callchain, I vote we just 
+> change "in_sched_functions()" to claim that anything in the spinlock 
+> section is also a scheduler function as far as it's concerned.
+> 
+> That makes wchan happy, and profile_pc() really never should care.
 
-_yes_ i'm happy with creating more than one per-executable-program-name
-rule for instances where sockets are shared between executables
-(e.g. they're passed over unix-domain-sockets).
+At the moment profile_pc is simple and only looks at the timer interrupt
+pt_regs. With 2 levels of locks (_spin_lock -> __preempt_spin_lock) we
+now have to walk the stack. Obviously fixable, it just a bit more work
+in profile_pc. We would also need to move __preempt_spin_lock into the 
+lock section which should be fine if we change wchan backtracing to do
+as you suggest.
 
-help, help!
-
-l.
-
-
--- 
---
-Truth, honesty and respect are rare commodities that all spring from
-the same well: Love.  If you love yourself and everyone and everything
-around you, funnily and coincidentally enough, life gets a lot better.
---
-<a href="http://lkcl.net">      lkcl.net      </a> <br />
-<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
-
+Anton

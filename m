@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314600AbSDTKAk>; Sat, 20 Apr 2002 06:00:40 -0400
+	id <S314603AbSDTKPZ>; Sat, 20 Apr 2002 06:15:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314601AbSDTKAj>; Sat, 20 Apr 2002 06:00:39 -0400
-Received: from pop.gmx.de ([213.165.64.20]:27508 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S314600AbSDTKAi>;
-	Sat, 20 Apr 2002 06:00:38 -0400
-Subject: Re: idea to enhance get_pid()
-From: Dan Aloni <da-x@gmx.net>
-To: lenny lv <lennylv@hotmail.com>
-Cc: linux-kernel@vger.kernel.org, qiang@suda.edu.cn
-In-Reply-To: <F74PKipeUekcMrvgldU00000fc8@hotmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 20 Apr 2002 12:59:27 +0300
-Message-Id: <1019296776.24728.40.camel@callisto.yi.org>
+	id <S314604AbSDTKPY>; Sat, 20 Apr 2002 06:15:24 -0400
+Received: from sv1.valinux.co.jp ([202.221.173.100]:54281 "HELO
+	sv1.valinux.co.jp") by vger.kernel.org with SMTP id <S314603AbSDTKPX>;
+	Sat, 20 Apr 2002 06:15:23 -0400
+Date: Sat, 20 Apr 2002 19:14:19 +0900 (JST)
+Message-Id: <20020420.191419.35011774.taka@valinux.co.jp>
+To: habanero@us.ibm.com
+Cc: trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] zerocopy NFS updated
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+In-Reply-To: <200204192128.QAA24592@popmail.austin.ibm.com>
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
 Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-04-20 at 12:15, lenny lv wrote:
+Hi,
 
-> I've got an idea to speed up linux/kernel/fork.c/get_pid(). Why not use 
-> bitmap to alloc/free the pids? Is it because 4KB(32K/8) memory scanning is 
-> slower than the current get_pid() version? Does anyone benchmark them?
+> With all this talk on serialization on UDP, and have a question.  first, let 
+> me explain the situation.  I have an NFS test which calls 48 clients to read 
+> the same 200 MB file on the same server.  I record the time for all the 
+> clients to finish and then calculate the total throughput. The server is a 
+> 4-way IA32.  (I used this test to measure the zerocopy/tcp/nfs patch)  Now, 
+> right before the test, the 200 MB file is created on the server, so there is 
+> no disk IO at all during the test.  It's just an very simple cached read.  
+> Now, when the clients use udp, I can only get a run queue length of 1, and I 
+> have confirmed there is only one nfsd thread in svc_process() at one time, 
+> and I am 65% idle.  With tcp, I can get all nfsd threads running, and max all 
+> CPUs.  Am I experiencing a bottleneck/serialization due to a single UDP 
+> socket?  
 
-This could have been a good idea if Linux was to stay with 15-bit pids
-forever. The code you are suggesting will have to be rewritten sometime
-to support 32 bit pids. 
+What version do you use?
+2.5.8 kernel has a problem in readahead of NFSD.
+It doesn't work at all.
 
-The last time I checked, the only thing that stops the move back to
-32-bit pids is a bug in the bash shell, and just a few workable IPC
-interfaces and libc breakages.
+It can be easy to fix.
 
-Are 32 bit pids planned for 2.5?
-
+Thank you,
+Hirokazu Takahashi.

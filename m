@@ -1,49 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274862AbSAGQov>; Mon, 7 Jan 2002 11:44:51 -0500
+	id <S276424AbSAGQpL>; Mon, 7 Jan 2002 11:45:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276424AbSAGQol>; Mon, 7 Jan 2002 11:44:41 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:32262 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S274862AbSAGQoa>; Mon, 7 Jan 2002 11:44:30 -0500
-Date: Mon, 7 Jan 2002 08:43:04 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Matthias Hanisch <mjh@vr-web.de>
-cc: Davide Libenzi <davidel@xmailserver.org>,
-        Mikael Pettersson <mikpe@csd.uu.se>, <axboe@suse.de>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.2-pre performance degradation on an old 486
-In-Reply-To: <Pine.LNX.4.10.10201070803290.135-100000@pingu.franken.de>
-Message-ID: <Pine.LNX.4.33.0201070841260.6450-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S279798AbSAGQpC>; Mon, 7 Jan 2002 11:45:02 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:65042 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S276424AbSAGQox>;
+	Mon, 7 Jan 2002 11:44:53 -0500
+Date: Mon, 7 Jan 2002 17:44:50 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: christian e <cej@ti.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: swapping,any updates ?? Just wasted money on mem upgrade performance still suck :-(
+Message-Id: <20020107174450.5d20d2ad.skraw@ithnet.com>
+In-Reply-To: <3C396B45.6040702@ti.com>
+In-Reply-To: <3C386DC9.307@ti.com>
+	<20020106170204.7e04e81f.skraw@ithnet.com>
+	<3C396B45.6040702@ti.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 07 Jan 2002 10:32:53 +0100
+christian e <cej@ti.com> wrote:
 
-On Mon, 7 Jan 2002, Matthias Hanisch wrote:
+> Stephan von Krawczynski wrote:
+> 
+> 
+> > Besides the fact I couldn't identify the kernel version from your mail, I
+would> > try:
+> > 
+> > 1) Turn off swap, then
+> > 2) Use 2.4.17 with patch I send you off LKML.
+> > 
+> > Then give us a hint if things got better.
 >
-> To answer your question, I wanted to profile 2.5.2-pre8 against
-> 2.5.2-pre8-old-scheduler. _Fortunately_ I made some mistake and forgot to
-> back out the following chunk of memory.
->
-> --- v2.5.1/linux/arch/i386/kernel/process.c     Thu Oct  4 18:42:54 2001
-> +++ linux/arch/i386/kernel/process.c    Thu Dec 27 08:21:28 2001
-> @@ -125,7 +125,6 @@
->         /* endless idle loop with no priority at all */
->         init_idle();
->         current->nice = 20;
-> -       current->counter = -100;
->
->         while (1) {
->                 void (*idle)(void) = pm_idle;
+> Sorry forgot that.Currently running 2.4.17-mjc1.
 
-Hey, that would do it. It looks like the idle task ends up being a
-_normal_ process (just nice'd down), so it will get real CPU time instead
-of only getting scheduled when nothing else is runnable.
+Please try a stock 2.4.17 (with the patch), otherwise we will have no idea what
+is going on.
 
-Davide, I think the bounce-buffer is a red herring, it's simply that we're
-wasting time in idle..
+> Turning off swap is apparently not an option 'cause now VMware won't run 
+> anymore (really a swap happy app if I ever saw one :o) I get this error 
+> when starting to log on to my virtual Windows XP Pro:
+> 
+> AIO: unexpected loss of channel ide0:0 (thread ide 0:0)
+> 
+> and turning swap back on it runs with no problems..*sigh*
 
-		Linus
+Uh, this is no good. How much mem does your XP need? I can't really believe you
+need more than the 512 MB you have to get this config running. Really: please
+try stock kernel with patch.
+
+> Can I make a RAM drive and then use that for swap ??Will the patch you 
+> sent me work with swap turned on ??
+
+Yes, it will work of course. But we would like to see this config without swap
+running too, won't we?
+
+> For info my system:
+> 
+> Dell latitude cpx j650GT,650 MHz P3
+> 512 MB mem
+> 12 GB hdd
+> 3com 3c575ct pcmcia NIC
+
+Nice box. Must work somehow.
+
+Regards,
+Stephan
+
 

@@ -1,74 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264277AbTLPW4n (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 17:56:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264342AbTLPW4n
+	id S264134AbTLPWxT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 17:53:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264142AbTLPWxT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 17:56:43 -0500
-Received: from b1.ovh.net ([213.186.33.51]:27590 "EHLO mail8.ha.ovh.net")
-	by vger.kernel.org with ESMTP id S264277AbTLPWzT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 17:55:19 -0500
-Message-ID: <1071615336.3fdf8d6840208@ssl0.ovh.net>
-Date: Tue, 16 Dec 2003 23:55:36 +0100
-From: Miroslaw KLABA <totoro@totoro.be>
-To: john stultz <johnstul@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Double Interrupt with HT
-References: <20031215155843.210107b6.totoro@totoro.be> <1071603069.991.194.camel@cog.beaverton.ibm.com>
-In-Reply-To: <1071603069.991.194.camel@cog.beaverton.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.1
-X-Originating-IP: 81.250.170.171
+	Tue, 16 Dec 2003 17:53:19 -0500
+Received: from wblv-224-192.telkomadsl.co.za ([165.165.224.192]:19594 "EHLO
+	gateway.lan") by vger.kernel.org with ESMTP id S264134AbTLPWxQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Dec 2003 17:53:16 -0500
+Subject: 2.6.0-test11-bk{9,11,12} (possibly bk0) breaks k3b device scanning
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: azarah@nosferatu.za.org
+To: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+Cc: Jens Axboe <axboe@suse.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-LcxaDlQg5uHiOSEV0Jba"
+Message-Id: <1071615313.5067.7.camel@nosferatu.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 17 Dec 2003 00:55:13 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I had the problem with 2.4.22, 2.4.22-ac4, 2.4.23 and 2.4.24-pre1.
-The problem is that all the kernel is working "twice the speed".
-The command "while true; do date; sleep 1; done;" shows that the date is growing
-2 seconds per second... :/
-I found a patch for irqbalance for 2.4.23, and now I don't have the problem 
-anymore with the clock.
-http://www.hardrock.org/kernel/2.4.23/irqbalance-2.4.23-jb.patch
+--=-LcxaDlQg5uHiOSEV0Jba
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-With 2.6.0-test11, I didn't have any problem, but we can't switch to 2.6.0 yet
-production.
-I think it is a bug with the via chipset, but I'm not able to get deeper in the
-kernel code.
+Hi
 
-Thanks
-Miro
+Have not been able to test much kernels lately due to time issues,
+but trying to run k3b with above kernels give below issue.  test9
+kernels that I still have around seems fine though.
+
+Error:
+
+--
+# k3b
+QPixmap: Cannot create a QPixmap when no GUI is being used
+QPixmap: Cannot create a QPixmap when no GUI is being used
+QPixmap: Cannot create a QPixmap when no GUI is being used
+QPixmap: Cannot create a QPixmap when no GUI is being used
+kbuildsycoca running...
+ERROR: (K3bCdDevice) Unable to do inquiry.
+ERROR: (K3bCdDevice) Unable to do inquiry.
+--
+
+Which results in no devices being detected (using ATAPI interface).
+If i run cdrecord though, it seems to work ok:
+
+--
+[?]
+[?]
+scsidev: '/dev/hdb'
+devname: '/dev/hdb'
+scsibus: -2 target: -2 lun: -2
+Warning: Open by 'devname' is unintentional and not supported.
+Linux sg driver version: 3.5.27
+Using libscg version 'schily-0.7'
+Device type    : Removable CD-ROM
+Version        : 0
+Response Format: 1
+Vendor_info    : 'ASUS    '
+Identifikation : 'CRW-2410A       '
+Revision       : '1.0 '
+Device seems to be: Generic mmc CD-RW.
+Using generic SCSI-3/mmc   CD-R/CD-RW driver (mmc_cdr).
+Driver flags   : MMC-3 SWABAUDIO BURNFREE
+Supported modes: TAO PACKET SAO SAO/R96P SAO/R96R RAW/R16 RAW/R96P
+RAW/R96R
+--
+
+Suggestions to what patch to try and back out?
 
 
+Thanks,
 
+--=20
+Martin Schlemmer
 
+--=-LcxaDlQg5uHiOSEV0Jba
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-Quoting john stultz <johnstul@us.ibm.com>:
+iD8DBQA/341RqburzKaJYLYRAlDqAKCBS/aOKNvAWQy6ZclZ42ZttlLHuQCcDf0J
+9+VbyrBL6CcWAkQqEBtp2TA=
+=XXGm
+-----END PGP SIGNATURE-----
 
-> On Mon, 2003-12-15 at 06:58, Miroslaw KLABA wrote:
-> > I've got a problem while using Hyper-Threading on a motherboard with Via
-> P4M266A
-> > chipset with 2.4.23 kernel.
-> 
-> Could you try to narrow down when the problem first appeared? Was it not
-> seen in 2.4.23-pre3 but showed up in 2.4.23-rc1? The narrower the
-> better. 
-> 
-> thanks
-> -john
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+--=-LcxaDlQg5uHiOSEV0Jba--
 

@@ -1,100 +1,151 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267487AbTBRKwh>; Tue, 18 Feb 2003 05:52:37 -0500
+	id <S267534AbTBRLAa>; Tue, 18 Feb 2003 06:00:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267534AbTBRKwh>; Tue, 18 Feb 2003 05:52:37 -0500
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:8854 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S267487AbTBRKwf>; Tue, 18 Feb 2003 05:52:35 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: "David S. Miller" <davem@redhat.com>
-Date: Tue, 18 Feb 2003 22:00:37 +1100
+	id <S267554AbTBRLAa>; Tue, 18 Feb 2003 06:00:30 -0500
+Received: from wiprom2mx1.wipro.com ([203.197.164.41]:31667 "EHLO
+	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
+	id <S267534AbTBRLA2>; Tue, 18 Feb 2003 06:00:28 -0500
+From: "Sowmya Adiga" <sowmya.adiga@wipro.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: [BENCHMARK] unixbench result for kernel 2.5.62.
+Date: Tue, 18 Feb 2003 16:40:11 +0530
+Message-ID: <015d01c2d73e$4ddc42a0$6009720a@wipro.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-ID: <15954.4693.893707.471216@notabene.cse.unsw.edu.au>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, linux-kernel@vger.kernel.org,
-       "Alexey N. Kuznetsov" <kuznet@ms2.inr.ac.ru>
-Subject: Re: sendmsg and IP_PKTINFO
-In-Reply-To: message from David S. Miller on  February 17
-References: <15949.40369.601166.550803@notabene.cse.unsw.edu.au>
-	<1045552237.4501.8.camel@rth.ninka.net>
-X-Mailer: VM 7.07 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.3416
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
+X-OriginalArrivalTime: 18 Feb 2003 11:10:11.0287 (UTC) FILETIME=[4DCAB670:01C2D73E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  February 17, davem@redhat.com wrote:
-> On Fri, 2003-02-14 at 17:53, Neil Brown wrote:
-> > No.
-> > My application (which is just using standard rpc server libraries) is
-> > saying
-> >   "This is in reply to a request that came in through a given
-> >   interface".
-> > 
-> > It is not reasonable to treat that statement as equivalent to:
-> >   "This packet must go out that interface"
-> > 
-> > which is what appears to be happening.
-> 
-> You misunderstand what this control message knob means during
-> a sendmsg() then, it means "send this over interface X"
-> 
-> There is no other valid expectation.
-> 
-> I'm curious where you read something that would suggest otherwise
-> for sendmsg() behavior wrt. ip_pktinfo
+Hi,
+	Here is the unixbench result for kernel 2.5.62. when compared
+with kernel 2.5.61 there was no significant difference in the test
+results.	
 
-man 7 ip
+Test Machine details
+---------------------
+processor : 0(single processor)
+vendor_id : GenuineIntel
+cpu family : 6
+model  : 8
+model name : Pentium III (Coppermine)
+stepping : 10
+cpu MHz  : 868.275
+cache size : 256 KB
+fdiv_bug : no
+hlt_bug  : no
+f00f_bug : no
+coma_bug : no
+fpu  : yes
+fpu_exception : yes
+cpuid level : 2
+wp  : yes
+flags  : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov
+pat pse36 mmx fxsr sse bogomips : 1716.22
+------------------------------------------------------------------------
+---
+				    kernel-2.5.62
+------------------------------------------------------------------------
+---
+BYTE UNIX Benchmarks (Version 4.1.0)
+System -- Linux sowmya 2.5.62 #4 SMP Tue Feb 18 11:34:19 IST 2003 i686
+i686 i386 GNU/Linux
+Start Benchmark Run: Tue Feb 18 14:03:10 IST 2003
+1 interactive users.
+2:03pm  up 2 min,  1 user,  load average: 0.06, 0.08, 0.03
+lrwxrwxrwx    1 root     root            4 Feb  4 15:21 /bin/sh -> bash
+/bin/sh: symbolic link to bash
+/dev/hda3              9835584   3097284   6238680  34% /home
 
-on debian (unstable).
+Dhrystone 2 using register variables    1822052.3 lps (10.0
+secs,10samples)
+Double-Precision Whetstone              481.7 MWIPS   (10.0
+secs,10samples)
+System Call Overhead                    391196.7 lps  (10.0
+secs,10samples)
+Pipe Throughput                         314888.8 lps  (10.0
+secs,10samples)
+Pipe-based Context Switching            137403.8 lps  (10.0
+secs,10samples)
+Process Creation                        5633.4 lps    (30.0 secs,
+3samples)
+Execl Throughput                        1227.5 lps    (29.9 secs,
+3samples)
+File Read 1024 bufsize 2000 maxblocks   220065.0 KBps (30.0 secs,
+3samples)
+File Write 1024 bufsize 2000 maxblocks  98244.0 KBps  (30.0 secs,
+3samples)
+File Copy 1024 bufsize 2000 maxblocks   66163.0 KBps  (30.0 secs,
+3samples)
+File Read 256 bufsize 500 maxblocks     96529.0 KBps  (30.0 secs,
+3samples)
+File Write 256 bufsize 500 maxblocks    53600.0 KBps  (30.0 secs,
+3samples)
+File Copy 256 bufsize 500 maxblocks     31818.0 KBps  (30.0 secs,
+3samples)
+File Read 4096 bufsize 8000 maxblocks   321094.0 KBps (30.0 secs,
+3samples)
+File Write 4096 bufsize 8000 maxblocks  125955.0 KBps (30.0 secs,
+3samples)
+File Copy 4096 bufsize 8000 maxblocks   88010.0 KBps  (30.0 secs,
+3samples)
+Shell Scripts (1 concurrent)            828.3 lpm     (60.0 secs,
+3samples)
+Shell Scripts (8 concurrent)            107.0 lpm     (60.0 secs,
+3samples)
+Shell Scripts (16 concurrent)           54.0 lpm      (60.0 secs,
+3samples)
+Arithmetic Test (type = short)          217572.4 lps  (10.0 secs,
+3samples)
+Arithmetic Test (type = int)            224318.0 lps  (10.0 secs,
+3samples)
+Arithmetic Test (type = long)           224324.9 lps  (10.0 secs,
+3samples)
+Arithmetic Test (type = float)          227467.1 lps  (10.0 secs,
+3samples)
+Arithmetic Test (type = double)         227454.4 lps  (10.0 secs,
+3samples)
+Arithoh                                 3990121.3 lps (10.0 secs,
+3samples)
+C Compiler Throughput                   364.3 lpm     (60.0 secs,
+3samples)
+Dc: sqrt(2) to 99 decimal places        40483.0 lpm   (30.0 secs,
+3samples)
+Recursion Test--Tower of Hanoi          32009.9 lps   (20.0 secs,
+3samples)
 
-I quote:
 
-       IP_PKTINFO
-              Pass an IP_PKTINFO ancillary message  that  contains  a  pktinfo
-              structure  that  supplies  some  information  about the incoming
-              packet.  This only works for  datagram  oriented  sockets.   The
-              argument  is a flag that tells the socket whether the IP_PKTINFO
-              message should be passed or not. The message itself can only  be
-              sent/retrieved as control message with a packet using recvmsg(2)
-              or sendmsg(2).
+                     INDEX VALUES            
+TEST                                      BASELINE     RESULT      INDEX
 
-              struct in_pktinfo {
-                  unsigned int   ipi_ifindex;  /* Interface index */
-                  struct in_addr ipi_spec_dst; /* Local address */
-                  struct in_addr ipi_addr;     /* Header Destination address */
-              };
+Dhrystone 2 using register variables      116700.0  1822052.3      156.1
+Double-Precision Whetstone                55.0      481.7          87.6
+Execl Throughput                          43.0      1227.5         285.5
+File Copy 1024 bufsize 2000 maxblocks     3960.0    66163.0        167.1
+File Copy 256 bufsize 500 maxblocks       1655.0    31818.0        192.3
+File Copy 4096 bufsize 8000 maxblocks     5800.0    88010.0        151.7
+Pipe Throughput                           12440.0   314888.8       253.1
+Process Creation                          126.0     5633.4         447.1
+Shell Scripts (8 concurrent)              6.0       107.0          178.3
+System Call Overhead                      15000.0   391196.7       260.8
+ 
+=========
+     FINAL SCORE                                                   199.6
+------------------------------------------------------------------------
+---
+Regards
+ 
+Sowmya Adiga
+Project Engineer
+Wipro Technologies
+53/1,Hosur Road,Madivala
+Bangalore-560 068,INDIA
+Tel: +91-80-5502001 Extn.5086
 
-              ipi_ifindex is the unique index of the interface the packet  was
-              received  on.   ipi_spec_dst  is the local address of the packet
-              and ipi_addr is the destination address in  the  packet  header.
-              If  IP_PKTINFO  is passed to sendmsg(2) then the outgoing packet
-              will be sent over the interface specified  in  ipi_ifindex  with
-              the destination address set to ipi_spec_dst
-
-
-Note that the in_pktinfo is described as "some information about the
-incoming packet".  In particular ipi_ifindex is "the unique index of
-the interface the packets was received on".
-
-i.e. it is more about the incoming than the outgoing packet.
-
-It does go on to say that the outgoing packet will be sent over the
-same interface, however I feel that is an illogical conclusion given
-the description of the meaning of the field.
-
-So yes, the current behaviour seems to match part of the
-documentation.  However I argue that the documented behaviour is
-irrational.
-A more rational behaviour is
- "the outgoing packet will be sent over the interface specified in
- ipi_ifindex if that interface has a valid route to the packets
- destination.  Otherwise normal rouing rules apply".
-
-I further argue that this is not only more rational, but is actually
-more useful (which is a more telling point).
-
-NeilBrown

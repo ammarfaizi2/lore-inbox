@@ -1,33 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264461AbRGIOk5>; Mon, 9 Jul 2001 10:40:57 -0400
+	id <S264564AbRGIOoH>; Mon, 9 Jul 2001 10:44:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264564AbRGIOkr>; Mon, 9 Jul 2001 10:40:47 -0400
-Received: from blacksun.leftmind.net ([204.225.88.62]:41476 "HELO
-	blacksun.leftmind.net") by vger.kernel.org with SMTP
-	id <S264461AbRGIOkn>; Mon, 9 Jul 2001 10:40:43 -0400
-Date: Mon, 9 Jul 2001 10:40:43 -0400
-From: Anthony DeBoer <adb@leftmind.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [Acpi] Re: ACPI fundamental locking problems
-Message-ID: <20010709104043.A17563@leftmind.net>
-In-Reply-To: <Pine.GSO.4.21.0107070727030.24836-100000@weyl.math.psu.edu> <9i73bg$psv$1@pccross.average.org> <3B471399.1D6BBED6@mandrakesoft.com> <01070719241107.22952@starship>
-Mime-Version: 1.0
+	id <S264924AbRGIOn5>; Mon, 9 Jul 2001 10:43:57 -0400
+Received: from horus.its.uow.edu.au ([130.130.68.25]:18573 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S264564AbRGIOnt>; Mon, 9 Jul 2001 10:43:49 -0400
+Message-ID: <3B49C300.185DFCA4@uow.edu.au>
+Date: Tue, 10 Jul 2001 00:43:12 +1000
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
+CC: Abraham vd Merwe <abraham@2d3d.co.za>,
+        Linux Kernel Development <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: msync() bug
+In-Reply-To: <20010709105044.A29658@crystal.2d3d.co.za> <3B49A44B.F5E3C6A7@uow.edu.au>,
+		<3B49A44B.F5E3C6A7@uow.edu.au>; from andrewm@uow.edu.au on Mon, Jul 09, 2001 at 10:32:11PM +1000 <20010709162131.F1594@athlon.random>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Newsgroups: leftmind.lists.linux-kernel
-In-Reply-To: <20010707233108.B10109@pcep-jamie.cern.ch>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier <lk@tantalophile.demon.co.uk> wrote:
->(tar has a silly pad-to-multiple-of-512-byte per file rule, which is
->inappropriate for this).  GNU cpio creates cpio format just fine.
+Andrea Arcangeli wrote:
+> 
+> Wrong fix, `page' is just garbage if some non memory was mapped in
+> userspace (like framebuffers or similar mmio regions were mapped etc..).
 
-Tarballs are almost universally compressed, and that pad squishes fairly
-well then.  Certainly in kernel-piggyback mode that step wouldn't get
-omitted.
+Now we're getting somewhere.  Thanks.  Tell me if this is right:
+ 
 
--- 
-Anthony de Boer, curator, Anthony's Home for Aged Computing Machinery
-<adb@leftmind.net>
+> if (VALID_PAGE(page)
+
+If the physical address of the page is somewhere inside our
+working RAM.
+
+> !PageReserved(page)
+
+And it's not a reserved page (discontigmem?)
+
+> ptep_test_and_clear_dirty(ptep))
+
+And if it was modified via this mapping
+
+> +                       flush_tlb_page(vma, address);
+> +                       set_page_dirty(page);
+
+Question:  What happens if a program mmap's a part of /dev/mem
+which passes all of these tests?   Couldn't it then pick some
+arbitrary member of mem_map[] which may or may not have
+a non-zero ->mapping?

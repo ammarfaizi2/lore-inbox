@@ -1,44 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262240AbVBVHiQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262242AbVBVHxX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262240AbVBVHiQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 02:38:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262241AbVBVHiQ
+	id S262242AbVBVHxX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 02:53:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262243AbVBVHxX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 02:38:16 -0500
-Received: from web52210.mail.yahoo.com ([206.190.39.92]:46942 "HELO
-	web52210.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262240AbVBVHiJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 02:38:09 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=Pdh7w6pzeR2Bny409b75aRjgLlk9t6aV25em383rNty7D5kZwh/rGbQJnQl26NGf5h17WYcQ4vZm7vybXmLwAEdj28AExaCLk2N1rrS0CR8VkAZjYWxn+ayM9PP7N3WiqSWXO9/ihNyoB0DcZf1golr5hdUlK6jlwJ8mw9PXFo8=  ;
-Message-ID: <20050222073808.2221.qmail@web52210.mail.yahoo.com>
-Date: Mon, 21 Feb 2005 23:38:08 -0800 (PST)
-From: linux lover <linux_lover2004@yahoo.com>
-Subject: Which types of functions are exported by kernel source?
-To: linux-kernel@vger.kernel.org, lkg india <lkg_india@yahoogroups.com>
-MIME-Version: 1.0
+	Tue, 22 Feb 2005 02:53:23 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:9680 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262242AbVBVHxT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 02:53:19 -0500
+Date: Tue, 22 Feb 2005 08:53:04 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ray Bryant <raybry@sgi.com>, mort@wildopensource.com, pj@sgi.com,
+       linux-kernel@vger.kernel.org, hilgeman@sgi.com
+Subject: Re: [PATCH/RFC] A method for clearing out page cache
+Message-ID: <20050222075304.GA778@elte.hu>
+References: <20050214154431.GS26705@localhost> <20050214193704.00d47c9f.pj@sgi.com> <20050221192721.GB26705@localhost> <20050221134220.2f5911c9.akpm@osdl.org> <421A607B.4050606@sgi.com> <20050221144108.40eba4d9.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050221144108.40eba4d9.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-     While browsing linux source code what i found
-that if function is defined as 
-asmlinkage long sys_open(const char * filename, int
-flags, int mode)
-then its not exported to kenrel and thus not seen in
-/proc/ksyms. But if function in kernel source is not
-defined with asmlinkage then it is exported to kernel
-and seen in /proc/ksyms.
-      Is that correct??
-regards,
-linux_lover.
 
+* Andrew Morton <akpm@osdl.org> wrote:
 
-		
-__________________________________ 
-Do you Yahoo!? 
-All your favorites on one personal page – Try My Yahoo!
-http://my.yahoo.com 
+> > However, the first step is to do this manually from user space.
+> 
+> Yup.  The thing is, lots of people want this feature for various
+> reasons.  Not just numerical-computing-users-on-NUMA.  We should get
+> it right for them too.
+> 
+> Especially kernel developers, who have various nasty userspace tools
+> which will manually reclaim pagecache.  But non-kernel-developers will
+> use it too, when they think the VM is screwing them over ;)
+
+app designers very frequently think that the VM gets its act wrong (most
+of the time for the wrong reasons), and the last thing we want to enable
+them is to hack real problems around. How are we supposed to debug VM
+problems where one player periodically flushes the whole pagecache? If
+that flushing, when disabled, 'results in the app being broken' (_if_
+the app gives any option to disable the flushing). Providing APIs to
+flush system caches, sysctl or syscall, is the road to VM madness.
+
+If the goal is to override the pagecache (and other kernel caches) on a
+given node then for God's sake, think a bit harder. E.g. enable users to
+specify an 'allocation priority' of some sort, which kicks out the
+pagecache on the local node - or something like that. Giving a
+half-assed tool to clean out one aspect of the system caches will only
+muddy the waters, with no real road back to sanity.
+
+	Ingo

@@ -1,57 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264104AbUAIDlP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 22:41:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265506AbUAIDlP
+	id S265564AbUAIDtr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 22:49:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265578AbUAIDtr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 22:41:15 -0500
-Received: from pat.uio.no ([129.240.130.16]:49088 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S264104AbUAIDlD (ORCPT
+	Thu, 8 Jan 2004 22:49:47 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:2510 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265564AbUAIDtp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 22:41:03 -0500
-Message-ID: <33532.141.211.133.197.1073619655.squirrel@webmail.uio.no>
-Date: Fri, 9 Jan 2004 04:40:55 +0100 (CET)
-Subject: Re: [NFS] Re: [NFS client] NFS locks not released on abnormal process termination
-From: <trond.myklebust@fys.uio.no>
-To: <yamamoto@valinux.co.jp>
-In-Reply-To: <1073616986.525187.4709.nullmailer@yamt.dyndns.org>
-References: <35311.68.42.103.198.1073580656.squirrel@webmail.uio.no>
-        <1073616986.525187.4709.nullmailer@yamt.dyndns.org>
-X-Priority: 3
-Importance: Normal
-Cc: <phil@fifi.org>, <theonetruekenny@yahoo.com>,
-       <linux-kernel@vger.kernel.org>, <nfs@lists.sourceforge.net>
-X-Mailer: SquirrelMail (version 1.2.11 - UIO)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
-X-UiO-MailScanner: No virus found
-X-UiO-Spam-info: not spam, SpamAssassin (score=-4.74, required 12,
-	BAYES_00 -4.90, NO_REAL_NAME 0.16)
+	Thu, 8 Jan 2004 22:49:45 -0500
+Date: Fri, 9 Jan 2004 09:25:10 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Daniel McNeil <daniel@osdl.org>
+Cc: Janet Morgan <janetmor@us.ibm.com>, Badari Pulavarty <pbadari@us.ibm.com>,
+       "linux-aio@kvack.org" <linux-aio@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH linux-2.6.0-test10-mm1] dio-read-race-fix
+Message-ID: <20040109035510.GA3279@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <3FCD4B66.8090905@us.ibm.com> <1070674185.1929.9.camel@ibm-c.pdx.osdl.net> <1070907814.707.2.camel@ibm-c.pdx.osdl.net> <1071190292.1937.13.camel@ibm-c.pdx.osdl.net> <20031230045334.GA3484@in.ibm.com> <1072830557.712.49.camel@ibm-c.pdx.osdl.net> <20031231060956.GB3285@in.ibm.com> <1073606144.1831.9.camel@ibm-c.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1073606144.1831.9.camel@ibm-c.pdx.osdl.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> The RPC layer blocks all signals except SIGKILL, so the signalled
->> process has no choice but to exit immediately if something gets
->> through.
->
-> we're talking about interruptible mounts, aren't we?
->
-> are you referring to rpc_clnt_sigmask() ?
-> i think it isn't safe to assume sa_handler isn't changed during
-> blocking for lock.  consider CLONE_SIGHAND, for example.
+On Thu, Jan 08, 2004 at 03:55:44PM -0800, Daniel McNeil wrote:
+> On Tue, 2003-12-30 at 22:09, Suparna Bhattacharya wrote:
+> 
+> > Since the first filemap_write_and_wait call is redundant and somewhat
+> > suspect since its called w/o i_sem (I can think of unexpected side effects
+> > on parallel filemap_write_and_wait calls), have you thought of disabling that
+> > and then trying to see if you can still recreate the problem ? It may
+> > not make a difference, but it seems like the right thing to do and could
+> > at least simplify some of the debugging.
+> > 
+> > Regards
+> > Suparna
+> > 
+> 
+> 
+> Ok, I retried my test without the filemap_write_and_wait() that is not
+> protected by i_sem and the test still sees uninitialized data.  I'm
+> still running with test10-mm1 + all the patches I sent out before.
+> I'm haven't tried 2.6.0-rc*-mm1 yet.  I need to move all my debug code
+> over to the latest mm kernel.  I also did not want to change too much
+> at same time.
 
-So what? If you decide handle a signal, then you are taking full
-responsibility for the recovery process. It is up to _you_ to take action
-to either recover the lock or to undo it, not the kernel. To determine
-whether or not the lock was taken on the server you can just do a
-fcntl(GETLK) call.
+Did you have a chance to try akpm's patch for filemap_fdatawait ? 
+(you should be able to apply it to the same kernel that you are running
+with, I think)
 
-All the kernel cares about is that when the process exits, it needs to
-clean up all the locks that are owned by that pid.
+Regards
+Suparna
 
-Cheers,
-  Trond
+> 
+> Daniel
+> 
+> 
+> 
+> --
+> To unsubscribe, send a message with 'unsubscribe linux-aio' in
+> the body to majordomo@kvack.org.  For more info on Linux AIO,
+> see: http://www.kvack.org/aio/
+> Don't email: <a href=mailto:"aart@kvack.org">aart@kvack.org</a>
 
+-- 
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Lab, India
 

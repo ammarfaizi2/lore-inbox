@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319183AbSH2KrA>; Thu, 29 Aug 2002 06:47:00 -0400
+	id <S319184AbSH2K5g>; Thu, 29 Aug 2002 06:57:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319181AbSH2KrA>; Thu, 29 Aug 2002 06:47:00 -0400
-Received: from [62.70.77.106] ([62.70.77.106]:58022 "EHLO mail.pronto.tv")
-	by vger.kernel.org with ESMTP id <S319172AbSH2Kq7> convert rfc822-to-8bit;
-	Thu, 29 Aug 2002 06:46:59 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: ProntoTV AS
-To: "David S. Miller" <davem@redhat.com>
-Subject: Re: e1000 in 2.4?
-Date: Thu, 29 Aug 2002 12:52:34 +0200
-User-Agent: KMail/1.4.1
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-References: <200208291045.36310.roy@karlsbakk.net> <20020829.014043.69424944.davem@redhat.com> <200208291246.32438.roy@karlsbakk.net>
-In-Reply-To: <200208291246.32438.roy@karlsbakk.net>
+	id <S319185AbSH2K5g>; Thu, 29 Aug 2002 06:57:36 -0400
+Received: from 212.Red-80-35-44.pooles.rima-tde.net ([80.35.44.212]:1664 "EHLO
+	DervishD.pleyades.net") by vger.kernel.org with ESMTP
+	id <S319184AbSH2K5g>; Thu, 29 Aug 2002 06:57:36 -0400
+Date: Thu, 29 Aug 2002 13:10:29 +0200
+From: DervishD <raul@pleyades.net>
+Organization: Pleyades
+Reply-To: DervishD <raul@pleyades.net>
+To: pavel@ucw.cz, vojtech@ucw.cz, linux-kernel@vger.kernel.org
+Subject: Re: Blank now key
+Message-ID: <3D6E0125.mailNS116UKT@pleyades.net>
+References: <20020828221644.GA30122@elf.ucw.cz>
+In-Reply-To: <20020828221644.GA30122@elf.ucw.cz>
+User-Agent: nail 9.31 6/18/02
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200208291252.34322.roy@karlsbakk.net>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Mailer: DervishD TWiSTiNG Mailer
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Could someone send me a patch with that alone, please? I don't dare run
-> preXs on this server ...
+    Hi Pavel :))
 
-sorry - found it on sourceforge :-)
-didn't see the other mail before I'd answered this one
+>Being able to "blank now" is very important for handheld devices
 
-just one thing - do I need all the patches at sourceforge? (1a, 2, 3, 4, .. )?
+    And for computers that are always up with the monitor powered off
+;). This key is just a *great* idea. No I will be able to turn off my
+monitor 'by software' ;)) (BTW I don't use power saver nor
+autoblanking and must switch off my monitor if I want to save power
+and/or CRT life).
 
-roy
+    Thanks for the idea (and the patch, of course ;))
 
--- 
-Roy Sigurd Karlsbakk, Datavaktmester
-ProntoTV AS - http://www.pronto.tv/
-Tel: +47 9801 3356
-
-Computers are like air conditioners.
-They stop working when you open Windows.
-
+    Raúl

@@ -1,37 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316986AbSEWTKx>; Thu, 23 May 2002 15:10:53 -0400
+	id <S316988AbSEWTNG>; Thu, 23 May 2002 15:13:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316988AbSEWTKw>; Thu, 23 May 2002 15:10:52 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:28943 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S316986AbSEWTKv>; Thu, 23 May 2002 15:10:51 -0400
-Message-ID: <3CED2FE0.2050903@evision-ventures.com>
-Date: Thu, 23 May 2002 20:07:28 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: "Gryaznova E." <grev@namesys.botik.ru>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>,
-        Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>
+	id <S316990AbSEWTNF>; Thu, 23 May 2002 15:13:05 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:22283
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S316988AbSEWTNE>; Thu, 23 May 2002 15:13:04 -0400
+Date: Thu, 23 May 2002 12:11:25 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+cc: Tomas Szepe <szepe@pinerecords.com>,
+        "Gryaznova E." <grev@namesys.botik.ru>, linux-kernel@vger.kernel.org
 Subject: Re: IDE problem: linux-2.5.17
-In-Reply-To: <3CECF59B.D471F505@namesys.botik.ru> <3CECFA15.8040707@evision-ventures.com> <3CED2B73.ABA3C95F@namesys.botik.ru>
-Content-Type: text/plain; charset=KOI8-R; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <3CED2B9D.4080402@evision-ventures.com>
+Message-ID: <Pine.LNX.4.10.10205231204500.22581-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Gryaznova E. napisa?:
-> I have 40 wires cable. When ide=nodma is passed to 2.5.17 kernel - kernel boots.
-> Am I correct that it is not possible to have DMA on with such cable?
-> Is there any reason for doing that?
+
+Well if people are doing embedded in close quarters and they can use the
+knowledge, they need to have it.  The drive is/was designed to deal with
+this issue in several ways.
+
+Testing the for the decay from POST for DEVICE side detection of any
+capable cable.  Next if the HOST also supports detection and it senses its
+own cable capacitance is acceptable, then it will work.
+
+You need to be able to support conclusions of how and why, because people
+will see this in the real world and wonder why.
+
+Cheers,
+
+
+On Thu, 23 May 2002, Martin Dalecki wrote:
+
+> Uz.ytkownik Andre Hedrick napisa?:
+> > Not true at all.
+> > 
+> > Many of the OEM's use 40c's to do 66 and 100, just they have to be very
+> > high quality and about 6" in length.
+> > 
 > 
-> Note that bus speed is 33 MHz when kernel fails to boot.
- > I mean - how do I specify slower bus speed: 22 MHz?
+> Please don't confuse people the standard is clear.
+> The OEM's are just cheap becous they can controll what they
+> put in to the box and how they layout the cables inside
+> the box. If someone asks. The 80 lines are half the same
+> contacts as before and half signal shilding. So indeed
+> 40 wire cables can turn out to work, but thats subjec to
+> "quality" assurance on behalf of the OEM's.
+> 
 
-You know what? I don't answer you directly I will just put a note
-about this in to Documentation/ide.txt which is long overdue anyway :-).
-You should better don't do UDMA>>66 with 40 write cablings. That's all.
-
+Andre Hedrick
+LAD Storage Consulting Group
 

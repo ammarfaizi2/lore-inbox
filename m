@@ -1,37 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268960AbTCDBjZ>; Mon, 3 Mar 2003 20:39:25 -0500
+	id <S268986AbTCDB4t>; Mon, 3 Mar 2003 20:56:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268963AbTCDBjY>; Mon, 3 Mar 2003 20:39:24 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:997 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S268960AbTCDBjY>;
-	Mon, 3 Mar 2003 20:39:24 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Tue, 4 Mar 2003 02:49:30 +0100 (MET)
-Message-Id: <UTC200303040149.h241nUR02366.aeb@smtp.cwi.nl>
-To: greg@kroah.com, mdharm-usb@one-eyed-alien.net, mmoneta@optonline.net
-Subject: [PATCH] Re: [Fwd: Re: SDDR-09]
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+	id <S268989AbTCDB4t>; Mon, 3 Mar 2003 20:56:49 -0500
+Received: from almesberger.net ([63.105.73.239]:49668 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id <S268986AbTCDB4s>; Mon, 3 Mar 2003 20:56:48 -0500
+Date: Mon, 3 Mar 2003 23:07:06 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: chas williams <chas@locutus.cmf.nrl.navy.mil>
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][ATM] make atm (and clip) modular + try_module_get()
+Message-ID: <20030303230706.R2791@almesberger.net>
+References: <200303032220.h23MKVGi028878@locutus.cmf.nrl.navy.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200303032220.h23MKVGi028878@locutus.cmf.nrl.navy.mil>; from chas@locutus.cmf.nrl.navy.mil on Mon, Mar 03, 2003 at 05:20:31PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+chas williams wrote:
+> (and exported) and skb_migrate moved to clip -- this really depends
 
-    From mmoneta@optonline.net  Mon Mar  3 20:08:12 2003
+Actually, skb_migrate is something that I'd always have liked to
+see getting moved to net/core/skbuff.c, because it seems to provide
+a reasonably generic function.
 
-    The 2.4 support has been available since April of 2002:
-    http://www.kernel.org/pub/linux/kernel/people/aeb
+- Werner
 
-    It was announced on the kernel mailing list, and doesn't seem to have
-    gotten any negative feedback, but it never became part of the kernel.
-    It appears to work, and many people say it works.
-
-    Apparently, this patch to support SDDR09 write capability was never
-    submitted.  Are there any plans to do so?
-
-I just fetched this patch again, rediffed against 2.4.21-pre5
-booted and verified that I could write a file. This version
-lives in .../kernel/people/aeb/sddr09-driver-for-2.4.21pre5 .
-
-Greg, Matt: probably this driver was never submitted. Let me do it now.
-
-Andries
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

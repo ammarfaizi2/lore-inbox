@@ -1,72 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132675AbRDBLK4>; Mon, 2 Apr 2001 07:10:56 -0400
+	id <S132683AbRDBLT4>; Mon, 2 Apr 2001 07:19:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132684AbRDBLKr>; Mon, 2 Apr 2001 07:10:47 -0400
-Received: from lacrosse.corp.redhat.com ([207.175.42.154]:16790 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S132675AbRDBLKb>; Mon, 2 Apr 2001 07:10:31 -0400
-Date: Mon, 2 Apr 2001 12:09:40 +0100
-From: Tim Waugh <twaugh@redhat.com>
-To: Destroy micro$oft <ihate_ms@hotmail.com>
+	id <S132678AbRDBLTq>; Mon, 2 Apr 2001 07:19:46 -0400
+Received: from ns.caldera.de ([212.34.180.1]:51720 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S132677AbRDBLTd>;
+	Mon, 2 Apr 2001 07:19:33 -0400
+Date: Mon, 2 Apr 2001 13:18:35 +0200
+Message-Id: <200104021118.NAA12450@ns.caldera.de>
+From: Christoph Hellwig <hch@caldera.de>
+To: WRohdewald@dplanet.ch (Wolfgang Rohdewald)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.3 instabilities, kernel panic with IrDA, ps, etc.
-Message-ID: <20010402120940.G27876@redhat.com>
-In-Reply-To: <F103G5aYY61LEdyt3ce00004d5e@hotmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="sClP8c1IaQxyux9v"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <F103G5aYY61LEdyt3ce00004d5e@hotmail.com>; from ihate_ms@hotmail.com on Mon, Apr 02, 2001 at 10:40:00AM +0000
+Subject: Re: 2.2.19 breaks iBCS2: Patch
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <20010402095543.AEEF0400D2@poboxes.com>
+User-Agent: tin/1.4.1-19991201 ("Polish") (UNIX) (Linux/2.2.14 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <20010402095543.AEEF0400D2@poboxes.com> you wrote:
+> Btw will iBCS2 ever be ported to the 2.4 kernel? I'm stuck with 2.2
+> until this is ported.
 
---sClP8c1IaQxyux9v
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+It has been superceeded by linux-abi.  Look at http://linux-abi.sourceforge.net
+for deatils.
 
-On Mon, Apr 02, 2001 at 10:40:00AM +0000, Destroy micro$oft wrote:
+	Christoph
 
-> The first time I booted 2.4.3, the system came
-> up to the login prompt and promptly froze.
-> The second time, I tried to start X, and it
-> froze again. Never seen this with the older
-> kernels.
-
-Version of X?
-
-> I've got my actisys IrDA dongle working with
-> the 2.2.x and 2.4.2 kernels, and tried the
-> 2.4.3 kernel. As soon as a connection was initiated,
-> I got an Oops, kernel panic, and an Aieeee!
-> This behaviour was repeated infrequently - it
-> does this once every 5 connect requests.
-
-Exact message?
-
-> With ps -ax | grep something, it complained
-> about not being able to do something with
-> file descriptor 1 and 4.
-
-In order to say anything useful about your problems, we need much more
-detailed information.
-
-Tim.
-*/
-
---sClP8c1IaQxyux9v
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6yF3zONXnILZ4yVIRAjhQAJwK03GzL39KW7MuTd+luPQcGg5lTQCfQTd/
-eQ3I5t+Eo+epDun0f9i8vfs=
-=8laC
------END PGP SIGNATURE-----
-
---sClP8c1IaQxyux9v--
+-- 
+Of course it doesn't work. We've performed a software upgrade.

@@ -1,75 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263280AbTEIPNs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 11:13:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263275AbTEIPNs
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 11:13:48 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:56021 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S263280AbTEIPNp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S262177AbTEIPNp (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 9 May 2003 11:13:45 -0400
-Date: Fri, 9 May 2003 17:24:36 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ioctl32_unregister_conversion & modules
-Message-ID: <20030509152436.GA762@elf.ucw.cz>
-References: <20030509100039$6904@gated-at.bofh.it> <200305091213.h49CDuO4029947@post.webmailer.de>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263275AbTEIPNp
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 9 May 2003 11:13:45 -0400
+Received: from [66.186.193.1] ([66.186.193.1]:54278 "HELO
+	unix113.hosting-network.com") by vger.kernel.org with SMTP
+	id S262177AbTEIPNo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 11:13:44 -0400
+X-Comments: BlackMail headers - Mail to abuse@featureprice.com to report spam.
+X-Authenticated-Connect: 64.122.104.99
+X-Authenticated-Timestamp: 11:31:41(EDT) on May 09, 2003
+X-HELO-From: [10.134.0.76]
+X-Mail-From: <thoffman@arnor.net>
+X-Sender-IP-Address: 64.122.104.99
+Subject: RE: ALSA busted in 2.5.69
+From: Torrey Hoffman <thoffman@arnor.net>
+To: Giuliano Pochini <pochini@shiny.it>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <XFMail.20030509100906.pochini@shiny.it>
+References: <XFMail.20030509100906.pochini@shiny.it>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1052493821.1209.6.camel@torrey.et.myrio.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200305091213.h49CDuO4029947@post.webmailer.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 09 May 2003 08:23:42 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, 2003-05-09 at 01:09, Giuliano Pochini wrote:
+> On 08-May-2003 Torrey Hoffman wrote:
+> > ALSA isn't working for me in 2.5.69.  It appears to be because
+> > /proc/asound/dev is missing the control devices.
+...
+> If you are not using devfs, you need to create the devices. There is a
+> script in the ALSA-driver package to do that. Otherwise I can't help
+> you because I never tried devfs and linux 2.5.x.
 
-> > ...what is the problem?
-> > 
-> > It seems that function pointers into modules do not need any special
-> > treatmeant [I *know* there was talk about this on l-k; but I can't
-> > find anything in Documentation/]:
-> > 
-> >                 if (!capable(CAP_SYS_ADMIN))
-> >                         return -EACCES;
-> >                 if (disk->fops->ioctl) {
-> >                         ret = disk->fops->ioctl(inode, file, cmd, arg);
-> >                         if (ret != -EINVAL)
-> >                                 return ret;
-> >                 }
-> 
-> This is protected against unload by the reference counting done in 
-> open()/release(). ->ioctl() can be called only for open devices,
-> so you know the ioctl handler is not getting unloaded while it
-> is running.
->  
-> > So... what's the problem with {un}register_ioctl32_conversion being
-> > called from module_init/module_exit? Drivers in the tree do it
-> > already...
-> 
-> The problem is that when the conversion handler is called, the reference
-> counting is only done for the module listed as ->owner in the
-> file operations. For example in the patch you submitted to add 
-> register_ioctl32_conversion() to drivers/serial/core.c I see nothing
-> stopping you from unloading core.ko while the handler is running
-> on a device owned by drivers/char/cyclades.c or any other serial driver.
-> It does not even have to be run on a serial driver, a user might try
-> to do ioctl(TIOCGSERIAL, ...) on a regular file...
+No.  /dev/snd is a symbolic link to /proc/asound/dev,
+and that symbolic link was created by the script you mention.
+(I am not using devfs.)
 
-Oh.... Yep, that's pretty clear.
+So the missing "/dev/snd/controlC0" should actually be created
+by the ALSA modules in the proc filesystem as
+"/proc/asound/dev/controlC0".  But only the timer device is there.
 
-So what you are saying is that all existing
-register_ioctl32_conversion-s that are in unloadable module are
-broken. Ouch.
+(This works under Red Hat 9's standard kernel with the ALSA 0.9.3
+drivers, by the way.)
 
-Fixing that would require resgister_ioctl32_conversion() to have 3-rd
-parameter "this module" and some magic inside fs/compat_ioctl.c,
-right?
+Torrey
 
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+

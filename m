@@ -1,37 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130063AbRBZAhp>; Sun, 25 Feb 2001 19:37:45 -0500
+	id <S130064AbRBZAiZ>; Sun, 25 Feb 2001 19:38:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130064AbRBZAhf>; Sun, 25 Feb 2001 19:37:35 -0500
-Received: from shell.ca.us.webchat.org ([216.152.64.152]:57530 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S130063AbRBZAh3>; Sun, 25 Feb 2001 19:37:29 -0500
-Message-ID: <030d01c09f8c$e01b57a0$7c4cf9d1@geeksparadise.com>
-Reply-To: "davids" <davids@webmaster.com>
-From: "davids" <davids@webmaster.com>
-To: "Adam Fritzler" <mid@earth.zigamorph.net>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.21.0102250925230.26932-100000@earth.zigamorph.net>
-Subject: Re: Core dumps for threads
-Date: Sun, 25 Feb 2001 16:36:17 -0800
+	id <S130071AbRBZAiG>; Sun, 25 Feb 2001 19:38:06 -0500
+Received: from andromeda.dsdk12.net ([207.109.100.251]:45787 "HELO
+	patriot.dsdk12.net") by vger.kernel.org with SMTP
+	id <S130070AbRBZAh5>; Sun, 25 Feb 2001 19:37:57 -0500
+Date: Sun, 25 Feb 2001 17:37:53 -0700 (MST)
+From: Derrik Pates <dpates@andromeda.dsdk12.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: IDE floppy drives and devfs - no device nodes if no disk loaded at
+ boot
+Message-ID: <Pine.LNX.4.33.0102251733400.11946-100000@andromeda.dsdk12.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Subject says about all there is to say. I have figured out that IDE drives
+are enumerated as part of the boot-time partition check in
+fs/partitions/check.c, but if I don't have something loaded at boot time
+(IDE SuperDisk in PC at home, IDE Zip 100 in G3 tower at work), I never
+get device nodes at all with devfs. Something really needs to be done
+about this, IMHO.
 
-
-> It does work, however. It effectively dumps the thread that caused the
-> fault.
-
-    If you want that behavior, catch SIGSEGV, fork, and have the child
-process (in which only the faulting thread exists) call abort.
-
-    DS
-
+Derrik Pates      | Sysadmin, Douglas School|    _   #linuxOS on EFnet
+dpates@dsdk12.net |  District (dsdk12.net)  |   | |   and now OPN too!
+   Student @ South Dakota School of Mines   | __| |___ _ _ _   ___ _ _   ____
+       & Technology (www.sdsmt.edu)         |/ _  / -_) ' \ '\/ _ \ ' \ (____)
+UNIX: Because you want to USE your computer.|\___,\___|_||_||_\___/_||_|
 

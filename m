@@ -1,58 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267293AbUHDHBE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267287AbUHDHEV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267293AbUHDHBE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 03:01:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267287AbUHDHBE
+	id S267287AbUHDHEV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 03:04:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267302AbUHDHEV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 03:01:04 -0400
-Received: from acheron.informatik.uni-muenchen.de ([129.187.214.135]:20453
-	"EHLO acheron.informatik.uni-muenchen.de") by vger.kernel.org
-	with ESMTP id S267293AbUHDHBB (ORCPT
+	Wed, 4 Aug 2004 03:04:21 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:50655 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S267287AbUHDHEU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 03:01:01 -0400
-Message-ID: <411089A8.8070104@bio.ifi.lmu.de>
-Date: Wed, 04 Aug 2004 09:00:56 +0200
-From: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040503)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: Miquel van Smoorenburg <miquels@cistron.nl>
-Subject: Re: NFS-mounted, read-only /dev unusable in 2.6
-References: <410F481C.9090408@bio.ifi.lmu.de> <64bf.410f9d6f.62af@altium.nl> <ceouv0$7s8$2@news.cistron.nl> <41108380.6080809@bio.ifi.lmu.de> <20040804064716.GA31600@traveler.cistron.net>
-In-Reply-To: <20040804064716.GA31600@traveler.cistron.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 4 Aug 2004 03:04:20 -0400
+Date: Wed, 4 Aug 2004 09:05:25 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Michal Kaczmarski <fallow@op.pl>, Shane Shrybman <shrybman@aei.ca>
+Subject: Re: [PATCH] V-3.0 Single Priority Array O(1) CPU Scheduler Evaluation
+Message-ID: <20040804070525.GA4719@elte.hu>
+References: <20040802134257.GE2334@holomorphy.com> <410EDD60.8040406@bigpond.net.au> <20040803020345.GU2334@holomorphy.com> <410F08D6.5050200@bigpond.net.au> <20040803104912.GW2334@holomorphy.com> <41102FE5.9010507@bigpond.net.au> <20040804005034.GE2334@holomorphy.com> <41103DBB.6090100@bigpond.net.au> <20040804015115.GF2334@holomorphy.com> <41104C8F.9080603@bigpond.net.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41104C8F.9080603@bigpond.net.au>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miquel van Smoorenburg wrote:
 
-> Assuming you have a way to reproduce this, to the NFS client
-> maintainer - see the file MAINTAINERS in the kernel source.
+* Peter Williams <pwil3058@bigpond.net.au> wrote:
 
-Thanks! I will do so.
-
+> >>Unfortunately, to ensure no starvation, promotion has to continue even 
+> >>when there are tasks in MAX_RT_PRIO's slot.
+> >
+> >One may either demote to evict MAX_RT_PRIO immediately prior to
+> >rotation or rely on timeslice expiry to evict MAX_RT_PRIO. Forcibly
+> >evicting MAX_RT_PRIO undesirably accumulates tasks at the fencepost.
 > 
-> But I just tried to reproduce this on 2.6.7-rc2 (it's what my
-> workstation happens to be running) and I can't. I can mount an
-> nfs-exported /dev from both 2.4 and 2.6 servers read-only and
-> I can open devices on that read-only mount just fine.
+> It's starting to get almost as complex as the current scheme :-)
 
-It happens only when the server exports the fs read-only. When it
-exports the fs rw and you mount it ro on the client, it works. But
-with exporting ro, it fails.
+hey, it's 'complex' for a reason ;)
 
-Before I report this, I guess I should try 2.6.8-rc3 and see if it
-works there.
-
-Thanks!
-cu,
-Frank
-
--- 
-Dipl.-Inform. Frank Steiner   Web:  http://www.bio.ifi.lmu.de/~steiner/
-Lehrstuhl f. Bioinformatik    Mail: http://www.bio.ifi.lmu.de/~steiner/m/
-LMU, Amalienstr. 17           Phone: +49 89 2180-4049
-80333 Muenchen, Germany       Fax:   +49 89 2180-99-4049
-
+	Ingo

@@ -1,80 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261372AbULXOFt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261381AbULXOM1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261372AbULXOFt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Dec 2004 09:05:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261381AbULXOFt
+	id S261381AbULXOM1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Dec 2004 09:12:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261402AbULXOM1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Dec 2004 09:05:49 -0500
-Received: from pcsmail.patni.com ([203.124.139.197]:50585 "EHLO
-	pcsmail.patni.com") by vger.kernel.org with ESMTP id S261372AbULXOFl convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Dec 2004 09:05:41 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Fri, 24 Dec 2004 09:12:27 -0500
+Received: from salazar.rnl.ist.utl.pt ([193.136.164.251]:24543 "EHLO
+	admin.rnl.ist.utl.pt") by vger.kernel.org with ESMTP
+	id S261381AbULXOMW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Dec 2004 09:12:22 -0500
+Message-ID: <41CC23C4.4000505@rnl.ist.utl.pt>
+Date: Fri, 24 Dec 2004 14:12:20 +0000
+From: "Pedro Venda (SYSADM)" <pjvenda@rnl.ist.utl.pt>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041209)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: Pseudo Driver hangs :b_elv_sequence ?SUSE 8.0 SP3
-Date: Fri, 24 Dec 2004 19:35:39 +0530
-Message-ID: <374639AB1012AA4C840022842AA95BC203C70374@ruby.patni.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: What's wrong with Documentation/DocBook/kernel-api.tmpl? (was Re: Something wrong when transform Documentation/DocBook/*.tmpl into pdf)
-Thread-Index: AcTpr8DiPj5xQBunRsqzO3hhC3fOvAAcxhuwAAQgf0A=
-From: "Kotian, Deepak" <Deepak.Kotian@patni.com>
-To: <linux-kernel@vger.kernel.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: name resolve problem kernel dependent
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please ignore this POST, I am getting a response from SUSE.
+hi everyone,
 
-Thanks and Regard
-Deepak
+I'm having this weird problem with both my laptop and desktop.
 
+when using kernels 2.6.10-rc3 through 2.6.10-rc3-bk15, including mm patches or 
+ck patches, not all programs can resolve hostnames.
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Kotian, Deepak
-Sent: Friday, December 24, 2004 4:27 AM
-To: linux-kernel@vger.kernel.org
-Subject: Pseudo Driver hangs :b_elv_sequence ?SUSE 8.0 SP3
-Importance: High
+lynx www.google.pt
+fails because it can't resolve the hostname.
 
+host www.google.pt
+works.
 
-Hi,
+lynx www.google.pt
+fails again. appearently it's not using the same resolve method as host.
 
-I saw a response from you on  b_elv_sequence over here.
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0301.3/0472.html
+I've tried other hostnames and the results are consistent. The solution, I 
+found, was to leave only "nameserver" lines in /etc/resolv.conf. weird, I guess, 
+but it solves the problem. the resolv.conf is written by the dhcp client and 
+it's not wrong, since it worked and other kernels don't have problems.
 
-I have observed a similar problem in 2.4.21-138 kernel which comes along 
-with SUSE 8.0 SP3. 
+this doesn't happen with 2.6.9, 2.6.9-ck3, 2.6.9-ac16 kernels. they work ok.
 
-This is mainly for SUSE. I presume, SUSE folks are active on this forum and would respond immediately.Please excuse others, sorry.
+any tips? I can print straces if someone finds them useful.
 
-In Our pseudo block driver a Defect occurs only when read is done from urandom device & 
-write to raw device. It basically hangs in kiobuf module.
+this is ALLWAYS reproducible. could it be a kernel bug?
 
-We are using the buffer_head structure.
+regards,
+pedro venda.
+-- 
 
-We have found by trial and error and looking the source at of raid and md devices that if b_elv_sequence parameter is set to zero, it is OK and our driver does not have a problem.
-On looking at the site,we found that you are aware of it. Could you please elaborate.
+Pedro João Lopes Venda
+email: pjvenda@rnl.ist.utl.pt
+http://maxwell.rnl.ist.utl.pt
 
-Question:
- Please let us know your views on the b_elv_sequence and reason to set it to zero. 
- We need to justify whether our fix is correct.
-
-Also, this is not there SLES 9.0 with kernel 2.6 as buffer head concept is gone.
-But is the functionality mapped of this flag mapped somewhere in 2.6 or it is not
-needed. Anyone here is aware of it.
-
-P.S.
-I have posted on SUSE support, not sure when I get response after internal
-processing. As it is very urgent for me. I am posting it here as well.
-
-Thanks and Regards
-Deepak
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+Equipa de Administração de Sistemas
+Rede das Novas Licenciaturas (RNL)
+Instituto Superior Técnico
+http://www.rnl.ist.utl.pt
+http://mega.ist.utl.pt

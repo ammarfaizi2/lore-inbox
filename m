@@ -1,81 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262655AbUKRPuP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262488AbUKRQS7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262655AbUKRPuP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 10:50:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262756AbUKRPsY
+	id S262488AbUKRQS7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 11:18:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262527AbUKRQRf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 10:48:24 -0500
-Received: from mail1.webmaster.com ([216.152.64.168]:55561 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP id S262655AbUKRPq3
+	Thu, 18 Nov 2004 11:17:35 -0500
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:6416 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S262488AbUKRQRG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 10:46:29 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: <mrmacman_g4@mac.com>, "Dmitry Torokhov" <dtor_core@ameritech.net>
-Cc: <clemens@endorphin.org>, <linux-kernel@vger.kernel.org>
-Subject: RE: GPL version, "at your option"?
-Date: Thu, 18 Nov 2004 07:46:01 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKCECDPOAA.davids@webmaster.com>
+	Thu, 18 Nov 2004 11:17:06 -0500
+Date: Thu, 18 Nov 2004 16:17:01 +0000 (GMT)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: Stas Sergeev <stsp@aknet.ru>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.10-rc1-mm5
+In-Reply-To: <419CB75C.3080605@aknet.ru>
+Message-ID: <Pine.LNX.4.58L.0411181557430.30376@blysk.ds.pg.gda.pl>
+References: <41967669.3070707@aknet.ru> <Pine.LNX.4.58L.0411150112520.22313@blysk.ds.pg.gda.pl>
+ <4198EFE5.5010003@aknet.ru> <Pine.LNX.4.58L.0411151821050.3265@blysk.ds.pg.gda.pl>
+ <419A38EE.8000202@aknet.ru> <Pine.LNX.4.58L.0411162226500.8068@blysk.ds.pg.gda.pl>
+ <419CB75C.3080605@aknet.ru>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <81348C10-390F-11D9-85DC-000393ACC76E@mac.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-Importance: Normal
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Thu, 18 Nov 2004 07:22:25 -0800
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Thu, 18 Nov 2004 07:22:25 -0800
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 18 Nov 2004, Stas Sergeev wrote:
 
-> On Nov 17, 2004, at 21:50, Dmitry Torokhov wrote:
-> > Yes, but the additions I made will be GPLv3 only (no sources). So I
-> > will
-> > gladly provide you with the sources off kernel.org and you will never
-> > see
-> > the sources for a driver I wrote. See?
->
-> What about section 2, subsection B of the GPL:
-> > b) You must cause any work that you distribute or publish, that in
-> >     whole or in part contains or is derived from the Program or any
-> >     part thereof, to be licensed as a whole at no charge to all third
-> >     parties under the terms of this License.
->
-> "this License", would refer to the specific version of the license.
+> Another thing I am wondering about,
+> is why the lapic produces the NMI on
+> my Athlon so slowly. It is something
+> like 1 NMI in 20 seconds or so. And
+> it looks like the frequency changes
+> from one boot to another.
 
-	Precisely!
+ The local APIC NMI watchdog, lacking a better source, uses the "cycles
+unhalted" event.  As you may guess it doesn't tick when the CPU is in the
+halted state (which happens when the system is idle) and thus the NMI
+counter's progress depends on the system's activity.  Thy running
+something CPU-intensive, like:
 
-> This means
-> that since the original code is dual-licensed under both versions, any
-> code
-> that is a derivative work must _also_ be dual-licensed (This assumes of
-> course that the other license has a similar clause).  In any case, any
-> work
-> derived from a GPLv2'ed work must also be licensable under the GPLv2.
-> Therefore, my request for _your_ source-code under the GPLv2 is
-> perfectly
-> valid.
+int main(void)
+{
+	while (1);
+	return 0;
+}
 
-	No, the code being dual-licensed means you get to choose which license you
-wish to comply with, not that you must comply with both. So long as you
-comply with either license, you have the right to do whatever the license
-you comply with gives you the right to do.
+and observe the NMI counter ticking every second.
 
-	Let's suppose, hypothetically, that you were right. Then let's further
-suppose that GPL version 3 did not let you modify the source code at all.
-Would you argue that all code with the "at your option" clause now can't be
-modified? (Since modifying it would violate the GPLv3 license, and you seem
-to think you can't violate either license.)
+> It didn't work properly with any kernel,
+> so maybe the lapic itself is buggy,
+> but maybe this is a kernel's bug that
+> can be debugged out somehow? Or is
+> there anywhere something that allows
+> me to specify the frequency? The rate
+> I currently have, is really pretty
+> much useless for anything.
 
-	DS
+ Don't worry -- if your system locks up on anything but the "hlt"  
+processor instruction, the watchdog will trigger very soon as the "cycles
+unhalted"  event will happen every clock tick.  If it locks up on "hlt",
+then you are out of luck -- the event will not happen at all and the
+watchdog won't trigger.  This is a shortcoming of the local APIC watchdog
+-- unfortunately there is no "clock ticks" event that would work all the
+time.
 
+ The I/O APIC watchdog is driven externally and has no such shortcoming.  
+But its NMI frequency is much higher, resulting in a more significant hit
+to the overall system performance.
 
+  Maciej

@@ -1,72 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272404AbTHBJ4B (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Aug 2003 05:56:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272457AbTHBJ4B
+	id S272468AbTHBJ5z (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Aug 2003 05:57:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272472AbTHBJ5z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Aug 2003 05:56:01 -0400
-Received: from viriato1.servicios.retecal.es ([212.89.0.44]:33689 "EHLO
-	viriato1.servicios.retecal.es") by vger.kernel.org with ESMTP
-	id S272404AbTHBJz7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Aug 2003 05:55:59 -0400
-Subject: Re: [2.6.0-test2-mm2] Badness in device_release at
-	drivers/base/core.c:84
-From: =?ISO-8859-1?Q?Ram=F3n?= Rey =?UTF-8?Q?Vicente?=
-	 =?UTF-8?Q?=F3=AE=A0=92?= <ramon.rey@hispalinux.es>
-To: Greg KH <greg@kroah.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20030802025621.GA2651@kroah.com>
-References: <1059785617.1873.5.camel@debian>
-	 <20030802025621.GA2651@kroah.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-jtOICpDKfPfgW7PlxKmI"
-Organization: Hispalinux - http://www.hispalinux.es
-Message-Id: <1059818154.1037.8.camel@debian>
+	Sat, 2 Aug 2003 05:57:55 -0400
+Received: from sunpizz1.rvs.uni-bielefeld.de ([129.70.123.31]:25056 "EHLO
+	mail.rvs.uni-bielefeld.de") by vger.kernel.org with ESMTP
+	id S272468AbTHBJ5x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Aug 2003 05:57:53 -0400
+Subject: Re: Linux 2.4.22-pre10-ac1
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Manuel Estrada Sainz <ranty@debian.org>
+Cc: "Barry K. Nathan" <barryn@pobox.com>, Alan Cox <alan@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030802094153.GA4901@ranty.pantax.net>
+References: <200308012216.h71MGLe31285@devserv.devel.redhat.com>
+	<20030802040917.GA22776@ip68-4-255-84.oc.oc.cox.net>
+	<20030802063749.GA23189@ranty.pantax.net>
+	<1059816240.22299.31.camel@pegasus> 
+	<20030802094153.GA4901@ranty.pantax.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 02 Aug 2003 11:57:31 +0200
+Message-Id: <1059818258.22190.43.camel@pegasus>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 02 Aug 2003 11:55:56 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Manuel,
 
---=-jtOICpDKfPfgW7PlxKmI
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: quoted-printable
+> > > > ccache gcc -D__KERNEL__ -I/home/barryn/lsx/kernels/2.4/build/linux-2.4.22-pre10-ac1/include -Wall -Wstrict-prototypes -Wno-trigraphs -Os -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=athlon -DMODULE -DMODVERSIONS -include /home/barryn/lsx/kernels/2.4/build/linux-2.4.22-pre10-ac1/include/linux/modversions.h  -nostdinc -iwithprefix include -DKBUILD_BASENAME=firmware_class  -DEXPORT_SYMTAB -c firmware_class.c
+> > > > firmware_class.c: In function `call_helper':
+> > > > firmware_class.c:78: error: `hotplug_path' undeclared (first use in this function)
+> > > > firmware_class.c:78: error: (Each undeclared identifier is reported only once
+> > > > firmware_class.c:78: error: for each function it appears in.)
+> > > > make[1]: *** [firmware_class.o] Error 1
+> > > > make[1]: Leaving directory `/home/barryn/lsx/kernels/2.4/build/linux-2.4.22-pre10-ac1/lib'
+> > > > make: *** [_mod_lib] Error 2
+> > > [snip]
+> > > > # CONFIG_HOTPLUG is not set
+> > > 
+> > >  CONFIG_HOTPLUG needs to be enabled, attached patch to make it explicit:
+> > 
+> > your patch didn't fix the problem, because it will be the same if some
+> > internal driver needs request_firmware() and CONFIG_HOTPLUG is not set.
+> > The call_helper() funtcion needs to be put into #idef's.
+> 
+>  request_firmware() needs hotplug to do anything useful, without
+>  hotplug it doesn't make any sense. It is useless.
 
-El s?, 02-08-2003 a las 04:56, Greg KH escribi=F3:
-> On Sat, Aug 02, 2003 at 02:53:38AM +0200, Ram=F3n Rey Vicente???? wrote:
-> > Hi.
-> >=20
-> > I obtain the included log messages on reboots
-> >=20
-> > Badness in device_release at drivers/base/core.c:84
-> > Badness in kobject_cleanup at lib/kobject.c:402
->=20
-> Please search the archives before posting this kind of stuff.
->=20
-> These problems have been fixed and are in Linus's tree.
+not quite true. If hotplug is not enabled it tells the driver that the
+firmware can't be loaded. It is the same if hotplug_path is zero, or you
+don't have the firmware.agent script, or your firmware is not present on
+the filesystem or any other worse happens. But to handle these problems
+is up to the driver.
 
-Ups, I'm sorry , I'll be more careful the next time :(.=20
+You will have the same problem, if you disable the /proc filesystem or
+don't mount it. You can't control all things a user is doing from inside
+the kernel.
 
-Good job Greg!
---=20
-Ram=F3n Rey Vicente       <ramon dot rey at hispalinux dot es>
-        jabber ID       <rreylinux at jabber dot org>
-------------------------------------------------------------
-gpg public key ID 0xBEBD71D5 # http://pgp.escomposlinux.org/
+Regards
 
---=-jtOICpDKfPfgW7PlxKmI
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
-	digitalmente
+Marcel
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/K4qqRGk68b69cdURAnwOAJ0c/3lNqAQ5iscILG0eoiNMsOOAoACfZfJe
-lGgY2sKqMN27r+l8RUsaFPo=
-=8CwI
------END PGP SIGNATURE-----
-
---=-jtOICpDKfPfgW7PlxKmI--
 

@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267767AbTAXPoI>; Fri, 24 Jan 2003 10:44:08 -0500
+	id <S267765AbTAXPph>; Fri, 24 Jan 2003 10:45:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267765AbTAXPoI>; Fri, 24 Jan 2003 10:44:08 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:57223 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267761AbTAXPoG>;
-	Fri, 24 Jan 2003 10:44:06 -0500
-Date: Fri, 24 Jan 2003 07:53:11 -0800
-From: Dave Olien <dmo@osdl.org>
-To: Jens Axboe <axboe@suse.de>
-Cc: akpm@digeo.com, linux-kernel@vger.kernel.org, markw@osdl.org,
-       cliffw@osdl.org, maryedie@osdl.org, jenny@osdl.org
-Subject: Re: [BUG] BUG_ON in I/O scheduler, bugme # 288
-Message-ID: <20030124075311.B10818@acpi.pdx.osdl.net>
-References: <20030123135448.A8801@acpi.pdx.osdl.net> <20030124075001.GE910@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030124075001.GE910@suse.de>; from axboe@suse.de on Fri, Jan 24, 2003 at 08:50:01AM +0100
+	id <S267761AbTAXPph>; Fri, 24 Jan 2003 10:45:37 -0500
+Received: from dial-ctb05175.webone.com.au ([210.9.245.175]:7428 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id <S267765AbTAXPpg>;
+	Fri, 24 Jan 2003 10:45:36 -0500
+Message-ID: <3E3161D0.1060403@cyberone.com.au>
+Date: Sat, 25 Jan 2003 02:54:56 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
+MIME-Version: 1.0
+To: Andrew Morton <akpm@digeo.com>
+CC: rwhron@earthlink.net, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net
+Subject: Re: big ext3 sequential write improvement in 2.5.51-mm1 gone in 2.5.53-mm1
+References: <20030124044119.GA15252@rushmore> <20030123231117.29c8eb98.akpm@digeo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
 
+>rwhron@earthlink.net wrote:
+>
+>>qsbench creates heavy swap load and simultaneous ed build. (small gnu package 
+>>"tar xzf/configure/make/make check").
+>>
+>
+>[snip]
+>(Well, 2.5 _used_ to run it faster.  The anticipatory scheduling patch makes
+>2.5's qsbench a little slower than 2.4.  `qsbench -m 350' on `mem=256m').
+>
+Some regressions are probably unavoidable, however a lot should be
+able to be tuned out.
 
-OK, I was able to reproduce at least the problem with I/O apparently
-never completing on my smaller test machine.  I've been assuming this
-was related to whatever was causing the BUG_ON().  But in case it
-isn't, I'm going to continue to look into what's going on on the running
-system and I'll let you know what I find.
+Nick
 
-In the mean time, once you've generated a patch, I'll give it a try
-as soon as I get it.  I'll also pass it on to the dbt2 workload guys.
-
-On Fri, Jan 24, 2003 at 08:50:01AM +0100, Jens Axboe wrote:
-> 
-> A request got on the fifo, but not in the sort tree. This is most likely
-> an  alias. Ah yes I see it, it can happen when two requests are merged.
-> I'll be back with a fix for this soon.
-> 
-> -- 
-> Jens Axboe
-> 

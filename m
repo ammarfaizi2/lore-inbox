@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261320AbSJ1P5f>; Mon, 28 Oct 2002 10:57:35 -0500
+	id <S261330AbSJ1QND>; Mon, 28 Oct 2002 11:13:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261321AbSJ1P5f>; Mon, 28 Oct 2002 10:57:35 -0500
-Received: from dbl.q-ag.de ([80.146.160.66]:33980 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S261320AbSJ1P5e>;
-	Mon, 28 Oct 2002 10:57:34 -0500
-Message-ID: <3DBD5FDE.6070604@colorfullife.com>
-Date: Mon, 28 Oct 2002 17:03:42 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nikita Danilov <Nikita@Namesys.COM>
-CC: Marcus Alanen <marcus@infa.abo.fi>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH,RFC] faster kmalloc lookup
-References: <3DBBEA2F.6000404@colorfullife.com>	<3DBAEB64.1090109@colorfullife.com>	<1035671412.13032.125.camel@irongate.swansea.linux.org.uk>	<3DBBBB30.20409@colorfullife.com>	<15805.13847.945978.673664@laputa.namesys.com>	<200210281318.PAA19085@infa.abo.fi> <15805.15113.459553.881857@laputa.namesys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261332AbSJ1QNC>; Mon, 28 Oct 2002 11:13:02 -0500
+Received: from mailout08.sul.t-online.com ([194.25.134.20]:16024 "EHLO
+	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S261330AbSJ1QNC>; Mon, 28 Oct 2002 11:13:02 -0500
+Date: Mon, 28 Oct 2002 17:15:49 +0100
+From: Heinz.Mauelshagen@t-online.de (Heinz J . Mauelshagen)
+To: linux-kernel@vger.kernel.org
+Subject: *** ANNOUNCEMENT *** LVM 1.0.6 available at www.sistina.com
+Message-ID: <20021028171549.A18232@sistina.com>
+Reply-To: mauelshagen@sistina.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nikita Danilov wrote:
 
->Marcus Alanen writes:
-> > >Most kmalloc calls get constant size argument (usually
-> > >sizeof(something)). So, if switch() is used in stead of loop (and
-> > >kmalloc made inline), compiler would be able to optimize away
-> > >cache_sizes[] selection completely. Attached (ugly) patch does this.
-> > 
-> > Perhaps a compile-time test to check if the argument is
-> > a constant, and only in that case call your new kmalloc, otherwise
-> > a non-inline kmalloc call? With your current patch, a non-constant
-> > size argument to kmalloc means that the function is inlined anyway,
-> > leading to unnecessary bloat in the resulting image.
->
->Yes, exactly.
->  
->
-I agree, I have an old patch that does that.
+*** ANNOUNCEMENT *** LVM 1.0.6 available at www.sistina.com
 
-http://www.colorfullife.com/~manfred/slab/patch-km_div
+Hi all,
 
-Please ignore the part about fixed point division, it's not needed - the 
-'div' instructions is now outside of the hot path.
+A tarball is available at
 
-The problem is that the -mm tree contains around 10 slab patches, I want 
-to see them in Linus' tree before I add further patches.
+   <http://www.sistina.com/>
 
---
-    Manfred
+for download.
+
+Follow the "products" link on top of the Sistina web page
+and then the "Logical Volume Manager" link.
+
+
+LVM 1.0.6 contains lvrename and vgimport bug fixes beside others.
+
+We changed the default physical extent size to 32Mb to support up
+to 2Tb logical volume size.
+
+See the CHANGELOG and WHATSNEW files contained in the tarball
+for further information.
+
+
+Feed back LVM related information to <linux-lvm@sistina.com>.
+
+Thanks a lot for your support of LVM.
 

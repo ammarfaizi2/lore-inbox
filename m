@@ -1,63 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266963AbUAXPw0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 10:52:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266964AbUAXPw0
+	id S266955AbUAXPog (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 10:44:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266957AbUAXPog
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 10:52:26 -0500
-Received: from av5-1-sn1.fre.skanova.net ([81.228.11.111]:56043 "EHLO
-	av5-1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S266963AbUAXPwZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 10:52:25 -0500
-Subject: Re: [net/8139cp] still crashes my notebook
-From: Thomas Svedberg <thsv@am.chalmers.se>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: Andreas Happe <andreashappe@gmx.net>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <87vfn24kgn.fsf@devron.myhome.or.jp>
-References: <slrnc104io.mp.andreashappe@flatline.ath.cx>
-	 <87vfn24kgn.fsf@devron.myhome.or.jp>
-Content-Type: text/plain; charset=iso-8859-1
-Message-Id: <1074959508.13666.4.camel@Athlon1.hemma.se>
+	Sat, 24 Jan 2004 10:44:36 -0500
+Received: from delerium.codemonkey.org.uk ([81.187.208.145]:65201 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S266955AbUAXPoe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jan 2004 10:44:34 -0500
+Date: Sat, 24 Jan 2004 15:42:49 +0000
+From: Dave Jones <davej@redhat.com>
+To: Wakko Warner <wakko@animx.eu.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Illegal instruction with gl
+Message-ID: <20040124154249.GA2499@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Wakko Warner <wakko@animx.eu.org>, linux-kernel@vger.kernel.org
+References: <20040123181512.A6632@animx.eu.org> <20040124103919.A7924@animx.eu.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Sat, 24 Jan 2004 16:51:49 +0100
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040124103919.A7924@animx.eu.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-fre 2004-01-23 klockan 18.56 skrev OGAWA Hirofumi:
-> Andreas Happe <andreashappe@gmx.net> writes:
-> 
-> > hi,
-> > 
-> > my notebook (hp/compaq nx7000) still crashes when using 8139cp (runs
-> > rock solid with 8139too driver). The computer just locks up, there is no
-> > dmesg output. This has happened since I've got this laptop (around
-> > november '03).
-> 
-> It seems 8139cp.c has the race condition of rx_poll and interrupt.
-> Does the following patch fix this problem?
-> 
-> NOTE, since I don't have this device, patch is untested. Sorry.
+On Sat, Jan 24, 2004 at 10:39:19AM -0500, Wakko Warner wrote:
+ > Just to add to the below, I disabled acpi, highmem, smp, and preempt.  Same
+ > problem.  I also tried 2.4.24 kernel, same results.
+ > 
+ > I modified agpgart on 2.4.24 to use generic intel init which didn't change
+ > anything.
+ > 
+ > This is the first system with an intel E7505 I've used so I don't know if
+ > it's a board problem or a kernel problem.  Or if it's with the matrox g400.
+ > 
+ > Here's the kernel messages for agp/drm from 2.6.1 (everything enabled that I
+ > disabled):
+ > agpgart: Detected an Intel E7505 Chipset.
+ > agpgart: Maximum main memory to use for agp memory: 941M
+ > agpgart: AGP aperture is 32M @ 0xf8000000
+ > [drm] Initialized mga 3.1.0 20021029 on minor 0
+ > agpgart: Found an AGP 3.0 compliant device at 0000:00:00.0.
+ > agpgart: Device is in legacy mode, falling back to 2.x
+ > agpgart: Putting AGP V2 device at 0000:00:00.0 into 1x mode
+ > agpgart: Putting AGP V2 device at 0000:01:00.0 into 1x mode
+ > 
+ > I placed some files in:
+ > http:// veg.animx.eu.org/e7505/
+ > with some extra information (config, full dmesg, lspci -v)
 
-I can confirm that this patch fixes the same complete lockup I have had
-since 2.6.0-test4 or so, (See: "Hard lock with recent 2.6.0-test
-kernels").
+I see no evidence that this is an agpgart problem.  When that does something
+wrong, you usually end up with either a system lockup, or massive memory
+corruption. Apps segfaulting would suggest to me that you have a problem with
+your X GL libraries.
 
-Tested against 2.6.2-rc1-mm2 which locks har without patch and works
-great with it.
+You may have more luck asking the folks at dri-devel@lists.sf.net about it.
 
--- 
-/ Thomas
-.......................................................................
- Thomas Svedberg
- Department of Applied Mechanics
- Chalmers University of Technology
+		Dave
 
- Address: S-412 96 Göteborg, SWEDEN
- E-mail : thsv@bigfoot.com, thsv@am.chalmers.se
- Phone  : +46 31 772 1522
- Fax    : +46 31 772 3827
-.......................................................................
+
 

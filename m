@@ -1,57 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263484AbUDZUkp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263529AbUDZUzH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263484AbUDZUkp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 16:40:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263529AbUDZUkp
+	id S263529AbUDZUzH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 16:55:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263551AbUDZUzH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 16:40:45 -0400
-Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:61088 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S263484AbUDZUkm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 16:40:42 -0400
-Date: Mon, 26 Apr 2004 22:40:37 +0200
-From: Matthias Andree <ma+rfs@dt.e-technik.uni-dortmund.de>
-To: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: I oppose Chris and Jeff's patch to add an unnecessary	additional namespace to ReiserFS
-Message-ID: <20040426204037.GA21455@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	reiserfs-list@namesys.com
-References: <1082750045.12989.199.camel@watt.suse.com> <408D3FEE.1030603@namesys.com> <1083000711.30344.44.camel@watt.suse.com> <408D51C4.7010803@namesys.com> <1083006783.30344.102.camel@watt.suse.com>
+	Mon, 26 Apr 2004 16:55:07 -0400
+Received: from gprs214-184.eurotel.cz ([160.218.214.184]:1665 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S263529AbUDZUzB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Apr 2004 16:55:01 -0400
+Date: Mon, 26 Apr 2004 22:54:49 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Grzegorz Piotr Jaskiewicz <gj@pointblue.com.pl>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp: fix error handling in "not enough swap space"
+Message-ID: <20040426205449.GD24587@elf.ucw.cz>
+References: <opr6xykbzqruvnp2@laptop-linux.wpcb.org.au> <4089E761.5050708@pointblue.com.pl> <opr6x0o10uruvnp2@laptop-linux.wpcb.org.au> <4089F0E5.3050006@pointblue.com.pl> <20040424183505.GB2525@elf.ucw.cz> <408B7C13.1000708@pointblue.com.pl> <20040425204506.GG24375@elf.ucw.cz> <408D6F77.4060303@pointblue.com.pl> <20040426203238.GA24587@elf.ucw.cz> <408D7555.1000607@pointblue.com.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1083006783.30344.102.camel@watt.suse.com>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <408D7555.1000607@pointblue.com.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Apr 2004, Chris Mason wrote:
+Hi!
 
-> I hope v4 does improve the xattr api, and I hope it manages to do so for
-> more then just reiser4.  It is important that application writers are
-> able to code to a single interface and get coverage across all the major
-> linux filesystems.
+> >>>Quite easy to say. I don't really understeand all changes that 've been 
+> >>>done over mm between 2.6.6-rc2-bk2 and 2.6.5.
+> >>>     
+> >>>
+> >
+> >I know its easy to say ;-).
+> > 
+> >
+> I am looking forward to see someone explaining me what has changed there 
+> acctually. This time, I am sure, obviously, kernel is counting free 
+> pages wrong. At least it does it incorrectly when it's about to
+> 'hibernate'.
 
-Interesting point, given that SuSE were early adopters of alternative
-file systems such as JFS, ReiserFS, and XFS (in lexicographical order
-rather than order of appearance). These have always diversified the
-semantics offered, not only in adding features that other systems didn't
-have, but also in omitting features the other file systems did have -
-chattr, for instance, or tail merging that confused boot loaders, for
-another.
+I do not know what went wrong there. If I did, I'd just fix it.
 
-With respect to Hans's reasoning about name spaces, is there an official
-standard that mandates a particular API for the ACL stuff ("POSIX")?
+*But* if your test program doing malloc() in loop broke, you probably
+want to post test program to l-k, get akpm's attetion, and make
+someone fix it.
 
-If so, the whole discussion is about getting out of the frying pan and
-into the fire. The traditional approach will then be standards compliant
-but be out-of-band and outside of the file system name space, the new
-approach will be outside of the standards, requiring application
-developers to produce a Linux and a POSIX version.
+> >If you do something stupid, its okay that kernel is not able to
+> >suspend. F3 on /dev/kmem counts as "something stupid". If you find out
+> >something normal user (not root) can do... we are more likely to fix
+> >that.
+> >
+> >I'd say that /dev/kmem issue is not worth fixing. NFS issue may be
+> >worth fixing, but I do not use NFS that much. Any other problems?
+> > 
+> >
+> Those were just ways of reproducing problem. I know they are not very 
+> likely to be the case in real life, but simmilar lock up may occur 
+> somewhere else.
 
-Or am I barking up the wrong tree?
+Similar lock probably is there in few more places. Approach is "fix
+them one by one". Not the nicest one, but...
 
+So yes, I'm aware there are probably more cases like that; I just
+don't know effective way to find them all.
+
+> Well, maybe all beside nfs case. It just happends sometimes that network 
+> is over congested, just the real life.
+
+freeze_processes tries for 5 seconds. That should be enough to handle
+common network congestion.
+								Pavel
 -- 
-Matthias Andree
-
-Encrypt your mail: my GnuPG key ID is 0x052E7D95
+934a471f20d6580d5aad759bf0d97ddc

@@ -1,214 +1,286 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261519AbVCORLi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261510AbVCORMM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261519AbVCORLi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 12:11:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261543AbVCORLi
+	id S261510AbVCORMM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 12:12:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261558AbVCORMM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 12:11:38 -0500
-Received: from mail.kroah.org ([69.55.234.183]:49095 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261519AbVCORL1 (ORCPT
+	Tue, 15 Mar 2005 12:12:12 -0500
+Received: from mail.kroah.org ([69.55.234.183]:49607 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261510AbVCORL2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 12:11:27 -0500
-Date: Tue, 15 Mar 2005 09:10:33 -0800
+	Tue, 15 Mar 2005 12:11:28 -0500
+Date: Tue, 15 Mar 2005 09:09:35 -0800
 From: Greg KH <greg@kroah.com>
 To: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
 Cc: Kay Sievers <kay.sievers@vrfy.org>
 Subject: Re: [RFC] Changes to the driver model class code.
-Message-ID: <20050315171033.GD25475@kroah.com>
-References: <20050315170834.GA25475@kroah.com> <20050315170935.GB25475@kroah.com> <20050315171000.GC25475@kroah.com>
+Message-ID: <20050315170935.GB25475@kroah.com>
+References: <20050315170834.GA25475@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050315171000.GC25475@kroah.com>
+In-Reply-To: <20050315170834.GA25475@kroah.com>
 User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-patch 3 of 4
+patch 1 of 4
 
- Subject: INPUT: move to use the new class code, instead of class_simple
-  
+ Subject: CLASS: move a "simple" class logic into the class core.
+
+One step on improving the class api so that it can not be used incorrectly.
+This also fixes the module owner issue with the dev files that happened when
+the devt logic moved to the class core.
+
+Based on a patch originally written by Kay Sievers <kay.sievers@vrfy.org>
+
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-diff -Nru a/drivers/input/evdev.c b/drivers/input/evdev.c
---- a/drivers/input/evdev.c	2005-03-15 08:54:28 -08:00
-+++ b/drivers/input/evdev.c	2005-03-15 08:54:28 -08:00
-@@ -431,9 +431,9 @@
+diff -Nru a/drivers/base/class.c b/drivers/base/class.c
+--- a/drivers/base/class.c	2005-03-15 08:52:00 -08:00
++++ b/drivers/base/class.c	2005-03-15 08:52:00 -08:00
+@@ -16,6 +16,7 @@
+ #include <linux/init.h>
+ #include <linux/string.h>
+ #include <linux/kdev_t.h>
++#include <linux/err.h>
+ #include "base.h"
  
- 	devfs_mk_cdev(MKDEV(INPUT_MAJOR, EVDEV_MINOR_BASE + minor),
- 			S_IFCHR|S_IRUGO|S_IWUSR, "input/event%d", minor);
--	class_simple_device_add(input_class,
--				MKDEV(INPUT_MAJOR, EVDEV_MINOR_BASE + minor),
--				dev->dev, "event%d", minor);
-+	class_device_create(input_class,
-+			MKDEV(INPUT_MAJOR, EVDEV_MINOR_BASE + minor),
-+			dev->dev, "event%d", minor);
- 
- 	return &evdev->handle;
+ #define to_class_attr(_attr) container_of(_attr, struct class_attribute, attr)
+@@ -162,6 +163,51 @@
+ 	subsystem_unregister(&cls->subsys);
  }
-@@ -443,7 +443,8 @@
- 	struct evdev *evdev = handle->private;
- 	struct evdev_list *list;
  
--	class_simple_device_remove(MKDEV(INPUT_MAJOR, EVDEV_MINOR_BASE + evdev->minor));
-+	class_device_destroy(input_class,
-+			MKDEV(INPUT_MAJOR, EVDEV_MINOR_BASE + evdev->minor));
- 	devfs_remove("input/event%d", evdev->minor);
- 	evdev->exist = 0;
++static void class_create_release(struct class *cls)
++{
++	kfree(cls);
++}
++
++static void class_device_create_release(struct class_device *class_dev)
++{
++	kfree(class_dev);
++}
++
++struct class *class_create(struct module *owner, char *name)
++{
++	struct class *cls;
++	int retval;
++
++	cls = kmalloc(sizeof(struct class), GFP_KERNEL);
++	if (!cls) {
++		retval = -ENOMEM;
++		goto error;
++	}
++	memset(cls, 0x00, sizeof(struct class));
++
++	cls->name = name;
++	cls->owner = owner;
++	cls->class_release = class_create_release;
++	cls->release = class_device_create_release;
++
++	retval = class_register(cls);
++	if (retval)
++		goto error;
++
++	return cls;
++
++error:
++	kfree(cls);
++	return ERR_PTR(retval);
++}
++
++void class_destroy(struct class *cls)
++{
++	if ((cls == NULL) || (IS_ERR(cls)))
++		return;
++
++	class_unregister(cls);
++}
  
-diff -Nru a/drivers/input/input.c b/drivers/input/input.c
---- a/drivers/input/input.c	2005-03-15 08:54:28 -08:00
-+++ b/drivers/input/input.c	2005-03-15 08:54:28 -08:00
-@@ -702,13 +702,13 @@
- static inline int input_proc_init(void) { return 0; }
- #endif
+ /* Class Device Stuff */
  
--struct class_simple *input_class;
-+struct class *input_class;
- 
- static int __init input_init(void)
+@@ -375,7 +421,6 @@
  {
- 	int retval = -ENOMEM;
+ 	return print_dev_t(buf, class_dev->devt);
+ }
+-static CLASS_DEVICE_ATTR(dev, S_IRUGO, show_dev, NULL);
  
--	input_class = class_simple_create(THIS_MODULE, "input");
-+	input_class = class_create(THIS_MODULE, "input");
- 	if (IS_ERR(input_class))
- 		return PTR_ERR(input_class);
- 	input_proc_init();
-@@ -718,7 +718,7 @@
- 		remove_proc_entry("devices", proc_bus_input_dir);
- 		remove_proc_entry("handlers", proc_bus_input_dir);
- 		remove_proc_entry("input", proc_bus);
--		class_simple_destroy(input_class);
-+		class_destroy(input_class);
- 		return retval;
+ void class_device_initialize(struct class_device *class_dev)
+ {
+@@ -412,7 +457,31 @@
+ 	if ((error = kobject_add(&class_dev->kobj)))
+ 		goto register_done;
+ 
+-	/* now take care of our own registration */
++	/* add the needed attributes to this device */
++	if (MAJOR(class_dev->devt)) {
++		struct class_device_attribute *attr;
++		attr = kmalloc(sizeof(*attr), GFP_KERNEL);
++		if (!attr) {
++			error = -ENOMEM;
++			kobject_del(&class_dev->kobj);
++			goto register_done;
++		}
++		memset(attr, sizeof(*attr), 0x00);
++		attr->attr.name = "dev";
++		attr->attr.mode = S_IRUGO;
++		attr->attr.owner = parent->owner;
++		attr->show = show_dev;
++		attr->store = NULL;
++		class_device_create_file(class_dev, attr);
++		class_dev->devt_attr = attr;
++	}
++
++	class_device_add_attrs(class_dev);
++	if (class_dev->dev)
++		sysfs_create_link(&class_dev->kobj,
++				  &class_dev->dev->kobj, "device");
++
++	/* notify any interfaces this device is now here */
+ 	if (parent) {
+ 		down(&parent->sem);
+ 		list_add_tail(&class_dev->node, &parent->children);
+@@ -422,14 +491,6 @@
+ 		up(&parent->sem);
  	}
  
-@@ -728,7 +728,7 @@
- 		remove_proc_entry("handlers", proc_bus_input_dir);
- 		remove_proc_entry("input", proc_bus);
- 		unregister_chrdev(INPUT_MAJOR, "input");
--		class_simple_destroy(input_class);
-+		class_destroy(input_class);
- 	}
- 	return retval;
- }
-@@ -741,7 +741,7 @@
- 
- 	devfs_remove("input");
- 	unregister_chrdev(INPUT_MAJOR, "input");
--	class_simple_destroy(input_class);
-+	class_destroy(input_class);
+-	if (MAJOR(class_dev->devt))
+-		class_device_create_file(class_dev, &class_device_attr_dev);
+-
+-	class_device_add_attrs(class_dev);
+-	if (class_dev->dev)
+-		sysfs_create_link(&class_dev->kobj,
+-				  &class_dev->dev->kobj, "device");
+-
+  register_done:
+ 	if (error && parent)
+ 		class_put(parent);
+@@ -443,6 +504,41 @@
+ 	return class_device_add(class_dev);
  }
  
- subsys_initcall(input_init);
-diff -Nru a/drivers/input/joydev.c b/drivers/input/joydev.c
---- a/drivers/input/joydev.c	2005-03-15 08:54:28 -08:00
-+++ b/drivers/input/joydev.c	2005-03-15 08:54:28 -08:00
-@@ -452,9 +452,9 @@
++struct class_device *class_device_create(struct class *cls, dev_t devt,
++					 struct device *device, char *fmt, ...)
++{
++	va_list args;
++	struct class_device *class_dev = NULL;
++	int retval = -ENODEV;
++
++	if (cls == NULL || IS_ERR(cls))
++		goto error;
++
++	class_dev = kmalloc(sizeof(struct class_device), GFP_KERNEL);
++	if (!class_dev) {
++		retval = -ENOMEM;
++		goto error;
++	}
++	memset(class_dev, 0x00, sizeof(struct class_device));
++
++	class_dev->devt = devt;
++	class_dev->dev = device;
++	class_dev->class = cls;
++
++	va_start(args, fmt);
++	vsnprintf(class_dev->class_id, BUS_ID_SIZE, fmt, args);
++	va_end(args);
++	retval = class_device_register(class_dev);
++	if (retval)
++		goto error;
++
++	return class_dev;
++
++error:
++	kfree(class_dev);
++	return ERR_PTR(retval);
++}
++
+ void class_device_del(struct class_device *class_dev)
+ {
+ 	struct class * parent = class_dev->class;
+@@ -459,6 +555,11 @@
  
- 	devfs_mk_cdev(MKDEV(INPUT_MAJOR, JOYDEV_MINOR_BASE + minor),
- 			S_IFCHR|S_IRUGO|S_IWUSR, "input/js%d", minor);
--	class_simple_device_add(input_class,
--				MKDEV(INPUT_MAJOR, JOYDEV_MINOR_BASE + minor),
--				dev->dev, "js%d", minor);
-+	class_device_create(input_class,
-+			MKDEV(INPUT_MAJOR, JOYDEV_MINOR_BASE + minor),
-+			dev->dev, "js%d", minor);
+ 	if (class_dev->dev)
+ 		sysfs_remove_link(&class_dev->kobj, "device");
++	if (class_dev->devt_attr) {
++		class_device_remove_file(class_dev, class_dev->devt_attr);
++		kfree(class_dev->devt_attr);
++		class_dev->devt_attr = NULL;
++	}
+ 	class_device_remove_attrs(class_dev);
  
- 	return &joydev->handle;
- }
-@@ -464,7 +464,7 @@
- 	struct joydev *joydev = handle->private;
- 	struct joydev_list *list;
- 
--	class_simple_device_remove(MKDEV(INPUT_MAJOR, JOYDEV_MINOR_BASE + joydev->minor));
-+	class_device_destroy(input_class, MKDEV(INPUT_MAJOR, JOYDEV_MINOR_BASE + joydev->minor));
- 	devfs_remove("input/js%d", joydev->minor);
- 	joydev->exist = 0;
- 
-diff -Nru a/drivers/input/mousedev.c b/drivers/input/mousedev.c
---- a/drivers/input/mousedev.c	2005-03-15 08:54:28 -08:00
-+++ b/drivers/input/mousedev.c	2005-03-15 08:54:28 -08:00
-@@ -642,9 +642,9 @@
- 
- 	devfs_mk_cdev(MKDEV(INPUT_MAJOR, MOUSEDEV_MINOR_BASE + minor),
- 			S_IFCHR|S_IRUGO|S_IWUSR, "input/mouse%d", minor);
--	class_simple_device_add(input_class,
--				MKDEV(INPUT_MAJOR, MOUSEDEV_MINOR_BASE + minor),
--				dev->dev, "mouse%d", minor);
-+	class_device_create(input_class,
-+			MKDEV(INPUT_MAJOR, MOUSEDEV_MINOR_BASE + minor),
-+			dev->dev, "mouse%d", minor);
- 
- 	return &mousedev->handle;
- }
-@@ -654,7 +654,8 @@
- 	struct mousedev *mousedev = handle->private;
- 	struct mousedev_list *list;
- 
--	class_simple_device_remove(MKDEV(INPUT_MAJOR, MOUSEDEV_MINOR_BASE + mousedev->minor));
-+	class_device_destroy(input_class,
-+			MKDEV(INPUT_MAJOR, MOUSEDEV_MINOR_BASE + mousedev->minor));
- 	devfs_remove("input/mouse%d", mousedev->minor);
- 	mousedev->exist = 0;
- 
-@@ -730,8 +731,8 @@
- 
- 	devfs_mk_cdev(MKDEV(INPUT_MAJOR, MOUSEDEV_MINOR_BASE + MOUSEDEV_MIX),
- 			S_IFCHR|S_IRUGO|S_IWUSR, "input/mice");
--	class_simple_device_add(input_class, MKDEV(INPUT_MAJOR, MOUSEDEV_MINOR_BASE + MOUSEDEV_MIX),
--				NULL, "mice");
-+	class_device_create(input_class,
-+			MKDEV(INPUT_MAJOR, MOUSEDEV_MINOR_BASE + MOUSEDEV_MIX), NULL, "mice");
- 
- #ifdef CONFIG_INPUT_MOUSEDEV_PSAUX
- 	if (!(psaux_registered = !misc_register(&psaux_mouse)))
-@@ -750,7 +751,8 @@
- 		misc_deregister(&psaux_mouse);
- #endif
- 	devfs_remove("input/mice");
--	class_simple_device_remove(MKDEV(INPUT_MAJOR, MOUSEDEV_MINOR_BASE + MOUSEDEV_MIX));
-+	class_device_destroy(input_class,
-+			MKDEV(INPUT_MAJOR, MOUSEDEV_MINOR_BASE + MOUSEDEV_MIX));
- 	input_unregister_handler(&mousedev_handler);
+ 	kobject_del(&class_dev->kobj);
+@@ -475,6 +576,24 @@
+ 	class_device_put(class_dev);
  }
  
-diff -Nru a/drivers/input/tsdev.c b/drivers/input/tsdev.c
---- a/drivers/input/tsdev.c	2005-03-15 08:54:28 -08:00
-+++ b/drivers/input/tsdev.c	2005-03-15 08:54:28 -08:00
-@@ -414,9 +414,9 @@
- 			S_IFCHR|S_IRUGO|S_IWUSR, "input/ts%d", minor);
- 	devfs_mk_cdev(MKDEV(INPUT_MAJOR, TSDEV_MINOR_BASE + minor + TSDEV_MINORS/2),
- 			S_IFCHR|S_IRUGO|S_IWUSR, "input/tsraw%d", minor);
--	class_simple_device_add(input_class,
--				MKDEV(INPUT_MAJOR, TSDEV_MINOR_BASE + minor),
--				dev->dev, "ts%d", minor);
-+	class_device_create(input_class,
-+			MKDEV(INPUT_MAJOR, TSDEV_MINOR_BASE + minor),
-+			dev->dev, "ts%d", minor);
++void class_device_destroy(struct class *cls, dev_t devt)
++{
++	struct class_device *class_dev = NULL;
++	struct class_device *class_dev_tmp;
++
++	down(&cls->sem);
++	list_for_each_entry(class_dev_tmp, &cls->children, node) {
++		if (class_dev_tmp->devt == devt) {
++			class_dev = class_dev_tmp;
++			break;
++		}
++	}
++	up(&cls->sem);
++
++	if (class_dev)
++		class_device_unregister(class_dev);
++}
++
+ int class_device_rename(struct class_device *class_dev, char *new_name)
+ {
+ 	int error = 0;
+@@ -574,6 +693,8 @@
+ EXPORT_SYMBOL_GPL(class_unregister);
+ EXPORT_SYMBOL_GPL(class_get);
+ EXPORT_SYMBOL_GPL(class_put);
++EXPORT_SYMBOL_GPL(class_create);
++EXPORT_SYMBOL_GPL(class_destroy);
  
- 	return &tsdev->handle;
- }
-@@ -426,7 +426,8 @@
- 	struct tsdev *tsdev = handle->private;
- 	struct tsdev_list *list;
+ EXPORT_SYMBOL_GPL(class_device_register);
+ EXPORT_SYMBOL_GPL(class_device_unregister);
+@@ -582,6 +703,8 @@
+ EXPORT_SYMBOL_GPL(class_device_del);
+ EXPORT_SYMBOL_GPL(class_device_get);
+ EXPORT_SYMBOL_GPL(class_device_put);
++EXPORT_SYMBOL_GPL(class_device_create);
++EXPORT_SYMBOL_GPL(class_device_destroy);
+ EXPORT_SYMBOL_GPL(class_device_create_file);
+ EXPORT_SYMBOL_GPL(class_device_remove_file);
+ EXPORT_SYMBOL_GPL(class_device_create_bin_file);
+diff -Nru a/include/linux/device.h b/include/linux/device.h
+--- a/include/linux/device.h	2005-03-15 08:52:00 -08:00
++++ b/include/linux/device.h	2005-03-15 08:52:00 -08:00
+@@ -143,6 +143,7 @@
+  */
+ struct class {
+ 	char			* name;
++	struct module		* owner;
  
--	class_simple_device_remove(MKDEV(INPUT_MAJOR, TSDEV_MINOR_BASE + tsdev->minor));
-+	class_device_destroy(input_class,
-+			MKDEV(INPUT_MAJOR, TSDEV_MINOR_BASE + tsdev->minor));
- 	devfs_remove("input/ts%d", tsdev->minor);
- 	devfs_remove("input/tsraw%d", tsdev->minor);
- 	tsdev->exist = 0;
-diff -Nru a/include/linux/input.h b/include/linux/input.h
---- a/include/linux/input.h	2005-03-15 08:54:28 -08:00
-+++ b/include/linux/input.h	2005-03-15 08:54:28 -08:00
-@@ -1010,7 +1010,7 @@
- 	dev->absbit[LONG(axis)] |= BIT(axis);
- }
+ 	struct subsystem	subsys;
+ 	struct list_head	children;
+@@ -185,6 +186,7 @@
+ 	struct kobject		kobj;
+ 	struct class		* class;	/* required */
+ 	dev_t			devt;		/* dev_t, creates the sysfs "dev" */
++	struct class_device_attribute *devt_attr;
+ 	struct device		* dev;		/* not necessary, but nice to have */
+ 	void			* class_data;	/* class-specific data */
  
--extern struct class_simple *input_class;
-+extern struct class *input_class;
+@@ -244,6 +246,12 @@
  
- #endif
- #endif
+ extern int class_interface_register(struct class_interface *);
+ extern void class_interface_unregister(struct class_interface *);
++
++extern struct class *class_create(struct module *owner, char *name);
++extern void class_destroy(struct class *cls);
++extern struct class_device *class_device_create(struct class *cls, dev_t devt,
++						struct device *device, char *fmt, ...);
++extern void class_device_destroy(struct class *cls, dev_t devt);
+ 
+ /* interface for class simple stuff */
+ extern struct class_simple *class_simple_create(struct module *owner, char *name);

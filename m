@@ -1,45 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272932AbTHIRrL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 13:47:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273071AbTHIRrK
+	id S272437AbTHIRnX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 13:43:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272582AbTHIRnW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 13:47:10 -0400
-Received: from web80708.mail.yahoo.com ([66.163.170.65]:58296 "HELO
-	web80708.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S272932AbTHIRrC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 13:47:02 -0400
-Message-ID: <20030809174659.28581.qmail@web80708.mail.yahoo.com>
-Date: Sat, 9 Aug 2003 10:46:59 -0700 (PDT)
-From: Venkat Raghu <venkatraghu2002@yahoo.com>
-Subject: flat memory in ppc
-To: linux kernel <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 9 Aug 2003 13:43:22 -0400
+Received: from imap.gmx.net ([213.165.64.20]:44673 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S272437AbTHIRnV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 13:43:21 -0400
+Message-Id: <5.2.1.1.2.20030809183021.0197ae00@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
+Date: Sat, 09 Aug 2003 19:47:27 +0200
+To: Daniel Phillips <phillips@arcor.de>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: [patch] SCHED_SOFTRR starve-free linux scheduling policy
+  ...
+Cc: Davide Libenzi <davidel@xmailserver.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200308091505.45295.phillips@arcor.de>
+References: <Pine.LNX.4.55.0307131442470.15022@bigblue.dev.mcafeelabs.com>
+ <Pine.LNX.4.55.0307131442470.15022@bigblue.dev.mcafeelabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+At 03:05 PM 8/9/2003 +0100, Daniel Phillips wrote:
+>Hi Davide,
+>
+>On Sunday 13 July 2003 22:51, Davide Libenzi wrote:
+> > This should (hopefully) avoid other tasks starvation exploits :
+> >
+> > http://www.xmailserver.org/linux-patches/softrr.html
+>
+>    "We will define a new scheduler policy SCHED_SOFTRR that will make the
+>    target task to run with realtime priority while, at the same time, we will
+>    enforce a bound for the CPU time the process itself will consume."
+>
+>This needs to be a global bound, not per-task, otherwise realtime tasks can
+>starve the system, as others have noted.
+>
+>But the patch has a much bigger problem: there is no way a SOFTRR task can be
+>realtime as long as higher priority non-realtime tasks can preempt it.  The
+>new dynamic priority adjustment makes it certain that we will regularly see
+>normal tasks with priority elevated above so-called realtime tasks.  Even
+>without dynamic priority adjustment, any higher priority system task can
+>unwttingly make a mockery of realtime schedules.
 
-I am a newbie. Often it is mentioned that ppc
-based systems are "flat memory". 
-So Please clarify
-1)what exactly flat memory means?
-2) Please give comparision of x86 and ppc, showing
-the places where they are different.
-3) So is there any difference in drivers that 
-work on ppc platforms.
+Not so.  Dynamic priority adjustment will not put a SCHED_OTHER task above 
+SCHED_RR, SCHED_FIFO or SCHED_SOFTRR, so they won't preempt.  Try 
+this.  Make a SCHED_FIFO task loop, then try to change vt's.  You won't 
+ever get there from here unless you have made 'events' a higher priority 
+realtime task than your SCHED_FIFO cpu hog.  (not equal, must be higher 
+because SCHED_FIFO can't be requeued via timeslice expiration... since it 
+doesn't have one)
 
-Any links/pointers will also be helpful.
+I do see ~problems with this idea though...
 
-Please mail back to venkatraghu2002@yahoo.com,
-as I did't subscribe.
+1.  SCHED_SOFTRR tasks can disturb (root) SCHED_RR/SCHED_FIFO tasks as is. 
+SCHED_SOFTRR should probably be a separate band, above SCHED_OTHER, but 
+below realtime queues.
 
-Regards
-Venkat.
+2.   It's not useful for video (I see no difference between realtime 
+component of video vs audio), and if the cpu restriction were opened up 
+enough to become useful, you'd end up with ~pure SCHED_RR, which you can no 
+way allow Joe User access to.  As a SCHED_LOWLATENCY, it seems like it 
+might be useful, but I wonder how useful.
 
+         -Mike 
 
-__________________________________
-Do you Yahoo!?
-Yahoo! SiteBuilder - Free, easy-to-use web site design software
-http://sitebuilder.yahoo.com

@@ -1,86 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263178AbTDLGxg (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 02:53:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263179AbTDLGxg (for <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Apr 2003 02:53:36 -0400
-Received: from [196.41.29.142] ([196.41.29.142]:61426 "EHLO
-	workshop.saharact.lan") by vger.kernel.org with ESMTP
-	id S263178AbTDLGxe (for <rfc822;linux-kernel@vger.kernel.org>); Sat, 12 Apr 2003 02:53:34 -0400
-Subject: VT and VT_CONSOLE not present with menuconfig if INPUT=m  (was:
-	2.5.67+ BK-current fails to boot on Athlon MP)
-From: Martin Schlemmer <azarah@gentoo.org>
-To: Krishnakumar B <kitty@cse.wustl.edu>
-Cc: KML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@digeo.com>
-In-Reply-To: <16023.20727.42247.824975@samba.doc.wustl.edu>
-References: <16023.20727.42247.824975@samba.doc.wustl.edu>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1050130858.2754.77.camel@workshop.saharact.lan>
+	id S263177AbTDLGvs (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 02:51:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263178AbTDLGvs (for <rfc822;linux-kernel-outgoing>);
+	Sat, 12 Apr 2003 02:51:48 -0400
+Received: from mail017.syd.optusnet.com.au ([210.49.20.175]:62904 "EHLO
+	mail017.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S263177AbTDLGvr (for <rfc822;linux-kernel@vger.kernel.org>); Sat, 12 Apr 2003 02:51:47 -0400
+Message-Id: <4.3.1.2.20030412164450.02817b10@mail>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.1
+Date: Sat, 12 Apr 2003 17:03:28 +1000
+To: linux-kernel@vger.kernel.org
+From: Troy Rollo <linux@troy.rollo.name>
+Subject: Re: DMA Timeouts with 3112 SATA Controller (status == 0x21)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3- 
-Date: 12 Apr 2003 09:00:58 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-04-12 at 01:34, Krishnakumar B wrote:
-> Hi,
-> 
-> I am trying to get 2.5.x to boot on my new Athlon 2400+ MP box. For some
-> reason, the kernel doesn't progress beyond
-> 
-> Uncompressing Linux...Ok, booting the kernel.
-> 
+"Me too" - when I enable DMA it's not long before the system stops 
+responding altogether. Without DMA, I get a data read rate of about 800KBps.
 
-You need 'Virtual terminal' and 'Console on VT' enabled:
+But also, I have two identical drives attached - hda and hde (both 
+ST380023AS). Even if I don't turn on DMA, if I am using both fairly 
+intensively at the same time (at least that's the only thing I can identify 
+as an apparent common difference), one will (on random occasions) start 
+returning errors for every access. If this happens to be the drive that the 
+operating system is installed on, the result is somewhat fatal. If it's the 
+other drive I can continue, but any attempt to access it fails. There are 
+some syslog entries that appear to relate to this:
 
-$ grep VT .config
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-$
-
-
-But this brings me to the main issue .. any reason why you need
-to have INPUT=y to be able to select CONFIG_VT and CONFIG_VT_CONSOLE ?
-If INPUT=m for instance, it is not present ...
-
-Won't it be better to make CONFIG_INPUT a bool (only y or n), as with
-this setup, you can still compile the other input drivers as modules ..
-
-------------------------------------------------------------------------
---- 1/drivers/input/Kconfig	2003-04-12 08:53:33.000000000 +0200
-+++ 2/drivers/input/Kconfig	2003-04-12 09:00:17.000000000 +0200
-@@ -5,7 +5,7 @@
- menu "Input device support"
- 
- config INPUT
--	tristate "Input devices (needed for keyboard, mouse, ...)"
-+	bool "Input devices (needed for keyboard, mouse, ...)"
- 	default y
- 	---help---
- 	  Say Y here if you have any input device (mouse, keyboard, tablet,
-@@ -19,11 +19,6 @@
- 
- 	  If unsure, say Y.
- 
--	  This driver is also available as a module ( = code which can be
--	  inserted in and removed from the running kernel whenever you want).
--	  The module will be called input. If you want to compile it as a
--	  module, say M here and read <file:Documentation/modules.txt>.
--
- comment "Userland interfaces"
- 
- config INPUT_MOUSEDEV
-------------------------------------------------------------------------
-
-Sorry, I am not sure who does this bit, so I CC'd Andrew as well, as
-I want to remember that he did some changes to VT and SERIAL console
-in the past.
-
-
-Regards,
-
--- 
-Martin Schlemmer
-
+Apr 11 07:42:49 milat kernel: hde: status timeout: status=0xd0 { Busy }
+Apr 11 07:42:49 milat kernel:
+Apr 11 07:42:49 milat kernel: ide2: reset phy, status=0x00000113, siimage_reset
+Apr 11 07:42:49 milat kernel: hde: no DRQ after issuing WRITE
+Apr 11 07:43:19 milat kernel: ide2: reset timed-out, status=0xd8
+Apr 11 07:43:20 milat kernel: hde: status timeout: status=0xd8 { Busy }
+Apr 11 07:43:20 milat kernel:
+Apr 11 07:43:20 milat kernel: ide2: reset phy, status=0x00000113, siimage_reset
+Apr 11 07:43:20 milat kernel: hde: drive not ready for command
+Apr 11 07:43:51 milat kernel: t: I/O error, dev 21:02 (hde), sector 6183724
+Apr 11 07:43:51 milat kernel: end_request: I/O error, dev 21:02 (hde), 
+sector 6183726
+Apr 11 07:43:51 milat kernel: end_request: I/O error, dev 21:02 (hde), 
+sector 6183728
+Apr 11 07:43:51 milat kernel: end_request: I/O error, dev 21:02 (hde), 
+sector 6183730
+Apr 11 07:43:51 milat kernel: end_request: I/O error, dev 21:02 (hde), 
+sector 6183732
+...
 

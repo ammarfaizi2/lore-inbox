@@ -1,56 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267856AbRGRKUy>; Wed, 18 Jul 2001 06:20:54 -0400
+	id <S267858AbRGRKq2>; Wed, 18 Jul 2001 06:46:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267857AbRGRKUo>; Wed, 18 Jul 2001 06:20:44 -0400
-Received: from t2.redhat.com ([199.183.24.243]:43000 "EHLO
-	meme.surrey.redhat.com") by vger.kernel.org with ESMTP
-	id <S267856AbRGRKU0>; Wed, 18 Jul 2001 06:20:26 -0400
-Date: Wed, 18 Jul 2001 11:18:45 +0100
-From: Tim Waugh <twaugh@redhat.com>
-To: Tim Jansen <tim@tjansen.de>
-Cc: John Levon <moz@compsoc.man.ac.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Kernel Documentation
-Message-ID: <20010718111845.U18302@redhat.com>
-In-Reply-To: <200107172102.OAA19756@altair.dhs.org> <200107172125.OAA20013@altair.dhs.org> <20010718031917.A8164@compsoc.man.ac.uk> <15MnGE-26gM3UC@fmrl03.sul.t-online.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="+OVWeTxrbAwQuiek"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <15MnGE-26gM3UC@fmrl03.sul.t-online.com>; from tim@tjansen.de on Wed, Jul 18, 2001 at 11:06:21AM +0200
+	id <S267859AbRGRKqS>; Wed, 18 Jul 2001 06:46:18 -0400
+Received: from unamed.infotel.bg ([212.39.68.18]:47878 "EHLO l.himel.bg")
+	by vger.kernel.org with ESMTP id <S267858AbRGRKqQ>;
+	Wed, 18 Jul 2001 06:46:16 -0400
+Date: Wed, 18 Jul 2001 13:48:00 +0300 (EEST)
+From: Julian Anastasov <ja@himel.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: cpuid_eax damages registers (2.4.7pre7)
+Message-ID: <Pine.LNX.4.10.10107181347030.16710-100000@l>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---+OVWeTxrbAwQuiek
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	Hello,
 
-On Wed, Jul 18, 2001 at 11:06:21AM +0200, Tim Jansen wrote:
+	I don't know whether cpuid_eax (2.4.7pre) should preserve the
+registers changed from cpuid but I have an oops on boot with 2.4.7pre7 in
+squash_the_stupid_serial_number where cpuid_eax changes ebx and the
+parameter "c" is loaded with "Genu". The following change fixes the
+problem:
 
-> BTW Is there any place where the exact format of the inline docs is
-> explained?
+from:
 
-scripts/kernel-doc, which interprets them. ;-)
+c->cpuid_level = cpuid_eax(0);
 
-Seriously though, there is a comment at the top of the file explaining
-it all.
+to:
 
-Tim.
-*/
+unsigned int dummy;
 
---+OVWeTxrbAwQuiek
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+cpuid(0, &c->cpuid_level, &dummy, &dummy, &dummy);
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
 
-iD8DBQE7VWKCONXnILZ4yVIRAvc+AKCM/J1lXJl1D7yPKAP47clXyhd6mwCfSZTJ
-o9klRvKG6/dB4sxT37Lfw5A=
-=jNE9
------END PGP SIGNATURE-----
+but I'm not sure in the definitions of these cpuid_XXX funcs. I see
+that they are used at many places. IMO, they have to preserve the
+registers.
 
---+OVWeTxrbAwQuiek--
+
+Regards
+
+--
+Julian Anastasov <ja@ssi.bg>
+

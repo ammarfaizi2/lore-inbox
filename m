@@ -1,38 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265401AbTIDSKQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 14:10:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265397AbTIDSKP
+	id S265392AbTIDSIK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 14:08:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265401AbTIDSIK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 14:10:15 -0400
-Received: from 224.Red-217-125-129.pooles.rima-tde.net ([217.125.129.224]:55020
-	"HELO cocodriloo.com") by vger.kernel.org with SMTP id S265401AbTIDSIR
+	Thu, 4 Sep 2003 14:08:10 -0400
+Received: from hermes.py.intel.com ([146.152.216.3]:36571 "EHLO
+	hermes.py.intel.com") by vger.kernel.org with ESMTP id S265392AbTIDSHi convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 14:08:17 -0400
-Date: Thu, 4 Sep 2003 17:38:31 +0200
-From: Antonio Vargas <wind@cocodriloo.com>
-To: Dave Olien <dmo@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: How to get a backtrace (sysrq-t) on a specific task?
-Message-ID: <20030904153831.GG2359@wind.cocodriloo.com>
-References: <20030904171626.GA26054@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030904171626.GA26054@osdl.org>
-User-Agent: Mutt/1.3.28i
+	Thu, 4 Sep 2003 14:07:38 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: [UPDATED PATCH] EFI support for ia32 kernels
+Date: Thu, 4 Sep 2003 11:07:29 -0700
+Message-ID: <D36CE1FCEFD3524B81CA12C6FE5BCAB003D42A54@fmsmsx406.fm.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [UPDATED PATCH] EFI support for ia32 kernels
+Thread-Index: AcNx9M0k2pBio6HdQEeg1mNTus8qYQBEzpiQ
+From: "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "Andrew Morton" <akpm@osdl.org>,
+       "Matt Tolentino" <metolent@snoqualmie.dp.intel.com>,
+       <linux-kernel@vger.kernel.org>, <torvalds@osdl.org>
+X-OriginalArrivalTime: 04 Sep 2003 18:07:30.0394 (UTC) FILETIME=[680DBBA0:01C3730F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 04, 2003 at 10:16:26AM -0700, Dave Olien wrote:
-> 
-> I'm seeing a mkfs.ext2 that never completes under 2.6.0-test4-mm5.
-> I ran 4 mkfs.ext2's concurrntly, each on a seperate partition on the
-> same disk.  Three of the completed.  Here's the sysrq stack trace from
-> the one that didn't.
 
-How do you do a sysrq-T on a specific task???
+> Getting EFI drivers in a byte code format would of course be nice.
+> But mostly this helps the Itanium, not x86.  I can already get
+> standard x86 option roms.
 
-[snip]
+It would be nice.  It is especially nice for vendors because they can reuse a single driver image for multiple architectures assuming there is an interpreter and EFI support.  
 
-Greets, Antonio.
+> I totally agree that it is reasonable to bypass setup.S.  But 
+> to do that reliably requires consensus that the 32bit entry point is 
+> stable.  That has not happen yet, and your patch did nothing to address that.  I
+> know it has to happen because I know the boot process, and what has to
+> happen to boot with a different x86 BIOS implementation.
+
+Ok, so how do we know it is stable and how might one address that?  How have you addressed this with kexec?  
+
+> Entering via the 32bit entry point has not been previously discussed.
+> H. Petern Anvin has not been convinced it should be a stable kernel
+> entry point.  
+
+Why?  I've missed this argument.   
+
+The documentation has not been updated.  A recent RedHat
+> kernel has even shipped with a different 32bit kernel entry point.
+
+I'm afraid I haven't looked at kexec.  Do you employ the standard 32 bit entry point or do you actually go back to real mode or something in between?
+
+> My hunch is that most of the EFI code should actually live in another
+> subarch.  I think the kernel has support for compiling in multiple
+> subarches.  If not it is simply because no one has gotten 
+> that far yet.
+
+I can see how this could be useful and potentially consolidate the efi related code in ia64, the ia32 stuff I've posted, and any other architecture that supports efi in the future, but don't know about compiling in multiple subarchs.  Comments on how this is done?  
+
+matt

@@ -1,43 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262173AbSIZE0B>; Thu, 26 Sep 2002 00:26:01 -0400
+	id <S262176AbSIZEZi>; Thu, 26 Sep 2002 00:25:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262175AbSIZE0B>; Thu, 26 Sep 2002 00:26:01 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:62594 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262173AbSIZEZ7>;
-	Thu, 26 Sep 2002 00:25:59 -0400
-Date: Wed, 25 Sep 2002 21:24:59 -0700 (PDT)
-Message-Id: <20020925.212459.118951005.davem@redhat.com>
-To: akpm@digeo.com
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/4] prepare_to_wait/finish_wait sleep/wakeup API
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3D928813.7EAD7F3C@digeo.com>
-References: <3D928813.7EAD7F3C@digeo.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S262173AbSIZEZh>; Thu, 26 Sep 2002 00:25:37 -0400
+Received: from rwcrmhc53.attbi.com ([204.127.198.39]:65003 "EHLO
+	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
+	id <S262172AbSIZEZe>; Thu, 26 Sep 2002 00:25:34 -0400
+Message-ID: <3D928D7C.6000800@attbi.com>
+Date: Wed, 25 Sep 2002 22:30:52 -0600
+From: Alex Williamson <alex_williamson@attbi.com>
+Reply-To: alex_williamson@attbi.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] raid autodetect for sun disk labels
+Content-Type: multipart/mixed;
+ boundary="------------060309000203000000070803"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Andrew Morton <akpm@digeo.com>
-   Date: Wed, 25 Sep 2002 21:07:47 -0700
-   
-   The main objective of this is to reduce the CPU cost of the wait/wakeup
-   operation.  When a task is woken up, its waitqueue is removed from the
-   waitqueue_head by the waker (ie: immediately), rather than by the woken
-   process.
+This is a multi-part message in MIME format.
+--------------060309000203000000070803
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I don't want to say that your changes cannot be made to work,
-but it's been one of my understandings all these years that
-the fact that the task itself controls it's presence on the
-wait queue is what allows many races to be handled properly and
-cleanly.
 
-For example, the ordering of the test and add/remove from
-the wait queue is pretty important.
+    I wasn't terribly fond of the idea of needing an initrd or weird
+boot options to support root raid on a sparc, so I hacked on the sun
+disk label support a bit to pass "Linux raid autodetect" partitions
+up to md.  The extra breakout of the disk label struct is from the fdisk
+source, hopefully it's not obsolete.  With this I can boot to a root
+raid0 on a sparc 10, but it should of course work on any set of disks w/
+proper magic.  Patch attached for 2.4.20-pre7/8.  Please CC on followup.
+Thanks,
 
-It probably doesn't matter when there is a higher level of locking
-done around the sleep/wakeup (TCP sockets are one good example)
-and if that is what this is aimed at, great.
+	Alex Williamson
+
+--------------060309000203000000070803
+Content-Type: text/plain;
+ name="sun_autoraid.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="sun_autoraid.patch"
+
+--- linux-2.4.19/fs/partitions/sun.c~	Tue Sep 24 23:02:49 2002
++++ linux-2.4.19/fs/partitions/sun.c	Wed Sep 25 20:45:05 2002
+@@ -19,6 +19,10 @@
+ #include "check.h"
+ #include "sun.h"
+ 
++#if CONFIG_BLK_DEV_MD
++extern void md_autodetect_dev(kdev_t dev);
++#endif
++
+ int sun_partition(struct gendisk *hd, struct block_device *bdev, unsigned long first_sector, int first_part_minor)
+ {
+ 	int i, csum;
+@@ -27,7 +31,14 @@
+ 	kdev_t dev = to_kdev_t(bdev->bd_dev);
+ 	struct sun_disklabel {
+ 		unsigned char info[128];   /* Informative text string */
+-		unsigned char spare[292];  /* Boot information etc. */
++		unsigned char spare0[14];
++		struct sun_info {
++			unsigned char spare1;
++			unsigned char id;
++			unsigned char spare2;
++			unsigned char flags;
++		} infos[8];
++		unsigned char spare[246];  /* Boot information etc. */
+ 		unsigned short rspeed;     /* Disk rotational speed */
+ 		unsigned short pcylcount;  /* Physical cylinder count */
+ 		unsigned short sparecyl;   /* extra sects per cylinder */
+@@ -69,6 +80,7 @@
+ 		put_dev_sector(sect);
+ 		return 0;
+ 	}
++
+ 	/* All Sun disks have 8 partition entries */
+ 	spc = be16_to_cpu(label->ntrks) * be16_to_cpu(label->nsect);
+ 	for(i=0; i < 8; i++, p++) {
+@@ -77,8 +89,14 @@
+ 
+ 		st_sector = first_sector + be32_to_cpu(p->start_cylinder) * spc;
+ 		num_sectors = be32_to_cpu(p->num_sectors);
+-		if (num_sectors)
++		if (num_sectors) {
+ 			add_gd_partition(hd, first_part_minor, st_sector, num_sectors);
++#if CONFIG_BLK_DEV_MD
++			if (label->infos[i].id == 0xfd) { /* "Linux raid autodetect" */
++				md_autodetect_dev(MKDEV(hd->major, first_part_minor));
++			}
++#endif
++		}
+ 		first_part_minor++;
+ 	}
+ 	printk("\n");
+
+--------------060309000203000000070803--
+

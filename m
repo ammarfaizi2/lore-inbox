@@ -1,88 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284916AbRLKHAQ>; Tue, 11 Dec 2001 02:00:16 -0500
+	id <S284911AbRLKGz5>; Tue, 11 Dec 2001 01:55:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284913AbRLKG75>; Tue, 11 Dec 2001 01:59:57 -0500
-Received: from hal.astr.lu.lv ([195.13.134.67]:59784 "EHLO hal.astr.lu.lv")
-	by vger.kernel.org with ESMTP id <S284899AbRLKG7o>;
-	Tue, 11 Dec 2001 01:59:44 -0500
-Message-Id: <200112110659.fBB6xLt24936@hal.astr.lu.lv>
-Content-Type: text/plain; charset=US-ASCII
-From: Andris Pavenis <pavenis@latnet.lv>
-To: Doug Ledford <dledford@redhat.com>
-Subject: Re: [PATCH] i810_audio fix for version 0.11
-Date: Tue, 11 Dec 2001 08:59:20 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Nathan Bryant <nbryant@optonline.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.A41.4.05.10112081022560.23064-100000@ieva06> <200112080945.fB89jAC00998@hal.astr.lu.lv> <3C15566B.7010803@redhat.com>
-In-Reply-To: <3C15566B.7010803@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S284914AbRLKGzq>; Tue, 11 Dec 2001 01:55:46 -0500
+Received: from khan.acc.umu.se ([130.239.18.139]:11939 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S284913AbRLKGzg>;
+	Tue, 11 Dec 2001 01:55:36 -0500
+Date: Tue, 11 Dec 2001 07:55:30 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: "Justin Hibbits <jrh29@po.cwru.edu>"@opus.INS.cwru.edu
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: Exporting GPLONLY symbols (Please CC to my email address)
+Message-ID: <20011211075530.O360@khan.acc.umu.se>
+In-Reply-To: <20011210224156.E14022@po.cwru.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <20011210224156.E14022@po.cwru.edu>; from "Justin Hibbits <jrh29@po.cwru.edu>"@opus.INS.cwru.edu on Mon, Dec 10, 2001 at 10:41:56PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 11 December 2001 02:42, Doug Ledford wrote:
-> Andris Pavenis wrote:
-> > Why returning non zero from __start_dac() and similar procedures when
-> > something real has been done there is so bad.
->
-> Personal preference.
+On Mon, Dec 10, 2001 at 10:41:56PM -0500, "Justin Hibbits <jrh29@po.cwru.edu>"@opus.INS.cwru.edu wrote:
+> Umm....I'm a new poster here to the list, but, nonetheless, I have a
+> small complaint about the track the kernel is taking with respect to
+> kernel modules, specifically the exporting of symbols as GPLONLY.  I
+> understand that several hackers are pushing to export many symbols as
+> GPLONLY, which I feel is a very bad idea.  The NVidia drivers will no
+> longer work, and any other module which depends on symbols which will
 
-Thought about slightly different idea but didn't test it (I'm now about 300 km
-away from a box where I did the tests and it will be so up to Cristmas):
+The only thing that makes NVidia's drivers troublesome is that they
+are stupid enough not to open-source it. It's their problem though; they
+have to release fixed versions ever so often to keep up with the kernel.
+They won't have any problems with GPLONLY symbols, however, as none of
+the symbols they use are exported as GPLONLY.
 
-	move both port operations used before and after call to
-	__start_dac() and __start_adc() inside these inline procedures.
-	In this case we would have waiting for results of __start_dac
-	only when it really needed, so no possibility of deadlock
-	there
+> eventually be exported as GPLONLY will also no longer work.  Do you guys
 
->
-> > Using such return code would
-> > ensure we never try to wait for results of __start_dac() if nothing is
-> > done by this procedure.
->
-> That's part of the point.  In this driver, I try to control when things are
-> done and keep track of them in a deterministic way.  Using a return code to
-> tell us a function we called did nothing when we shouldn't have called it
-> in the first place if it wasn't going to do anything is backwards from the
-> way I prefer to handle things.  Namely, find out why the function was
-> called when it shouldn't have been and solve the problem.  Note: I don't
+Linus specifically stated that no old symbols were to be reexported as
+GPLONLY; only new symbols would be eligible for this.
 
-If we moved 
-                outb((inb(port+OFF_CIV)+1)&31, port+OFF_LVI);
-and 
-                while( !(inb(port + OFF_CR) & ((1<<4) | (1<<2))) ) ;
-from inside __i810_update_lvi to __start_adc and __start_dac (inside
-if block) we would avoid deadlocks. If You like to have noticed that
-__start_dac ot __start_adc is called when they should not, then
-add printk with message there (or even disable sound support totally with 
-additional error message in log, so user will complain). I think leaving out 
-possiblility of deadlocks is too dangerous.
+> really want to restrict everyone to using modules licensed under the
+> GPL?  I've read and understand the GPL all too well, and came to the
 
-> follow that philosophy on all functions, only on very simple ones like
-> this, there are a lot of complex functions where you want the function to
-> make those decisions.  So, like I said, personal preference on how to
-> handle these things.
->
-> > I think such way is also more safe against possible future
-> > modifications as real conditions are only in a single place. Keeping them
-> > in 2 places is possible source of bitrot if driver will be updated in
-> > future.
->
-> It's intended to do exactly that.  A lot of what makes this driver work
-> properly right now is the LVI handling.  That was severly busted when I
-> first got hold of the driver.  I *want* things to break if the LVI handling
-> is changed by someone else because that will alert me to the fact that the
-> LVI handling is then busted (at least, if they change it incorrectly, if
-> they do things right then they will catch problems like this and fix them
-> properly and I won't have to do anything).
+Obviously you haven't.
 
-I would suggest to disable sound support and give reasonable error message
-in this case. So user will able to complain if this happens. It's more 
-difficult to get usefull report when deadlock happens (and many users may not 
-want to debug and provide additional info it in this case any more)
+> conclusion that it's a horrible license to begin with, given the simple
+> fact that Stallman's communist views are in it, forcing everything
 
-Andris
+Huh? I find nothing communist about the GPL. Rather, it goes along
+pretty well with my liberal views.
+
+> licensed under it to be under every future license....with one change to
+> the license, he can claim all source licensed under the GPL.
+
+No, it doesn't, and he can't. The existance of newer versions of the GPL
+does _NOT_ override the terms in code licensed with the older ones; you
+simply get the _choice_ of which version to choose. In the Linux-kernel,
+however, the default is that the v2 of the GPL is the only version
+valid, unless specifically stated.
+
+> I agree with Cox that something has to be done to warn the average user
+> that inserting closed source modules might cause something bad, and you
+> guys can't do anything about it, but FORCING all modules to become GPL
+
+It doesn't.
+
+> is the stupidest idea yet!  Linux is starting to take the road of M$,
+> forcing a one-licensed approach.  Not cool guys.
+
+Yeah, it's very not cool to release free software, for free use, to no
+expense what-so-ever by you. Bitch all you like, but don't expect anyone
+to take you seriously. If you're so bloody upset, fire up $EDITOR and
+code your own kernel of choice.
 
 
+/David
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

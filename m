@@ -1,50 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314634AbSHBOll>; Fri, 2 Aug 2002 10:41:41 -0400
+	id <S314835AbSHBOvA>; Fri, 2 Aug 2002 10:51:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314835AbSHBOll>; Fri, 2 Aug 2002 10:41:41 -0400
-Received: from rogue.ncsl.nist.gov ([129.6.101.41]:38367 "EHLO
-	rogue.ncsl.nist.gov") by vger.kernel.org with ESMTP
-	id <S314634AbSHBOll>; Fri, 2 Aug 2002 10:41:41 -0400
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Alan Cox <alan@redhat.com>
-Subject: Booting problem, 2.4.19-rc5-ac1, ali15x3
-References: <9cfu1mp5kru.fsf@rogue.ncsl.nist.gov>
-From: Ian Soboroff <ian.soboroff@nist.gov>
-Date: 02 Aug 2002 10:45:10 -0400
-In-Reply-To: <9cfu1mp5kru.fsf@rogue.ncsl.nist.gov>
-Message-ID: <9cfd6t1nwuh.fsf@rogue.ncsl.nist.gov>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S315162AbSHBOvA>; Fri, 2 Aug 2002 10:51:00 -0400
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:65336 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S314835AbSHBOu7>; Fri, 2 Aug 2002 10:50:59 -0400
+Date: Fri, 2 Aug 2002 09:54:29 -0500 (CDT)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200208021454.JAA37529@tomcat.admin.navo.hpc.mil>
+To: kaih@khms.westfalen.de (Kai Henningsen), linux-kernel@vger.kernel.org
+Subject: Re: 2.5.28 and partitions
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Alan,
-
-2.4.19-rc5-ac1 hangs on boot on my laptop (Fujitsu P-series, TM5800
-CPU), whereas plain[1] rc5 boots fine.  The hang appears to be during IDE
-detection:
-
+kaih@khms.westfalen.de (Kai Henningsen):
 ...
-block: 704 slots per queue, batch=176
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=XX
-ALI15X3: IDE controller on PCI bus 00 dev 78
-PCI: No IRQ known for interrupt pin A of device 00:0f.0. Please try using pci=biosirq
-ALI15X3: chipset revision 195
-ALI15X3: not 100% native mode: will probe irqs later
+> As for finding where to boot from - either have the bootloader define a  
+> partition name it wants to see, or put the relevant name into the boot  
+> loader config. No need to define that in the partition format. That's  
+> trivial: even MS-DOS did that (finding IO.SYS and MSDOS.SYS from the boot  
+> loader)! And neither scanning for '=' and '\n' nor comparing one string  
+> nor converting one number from decimal is any kind of hardship. Maybe half  
+> a screen of assembler, tops.
+> 
 
-With rc5, I get this same error unless I have 'ide0=ata66 ide1=ata66'
-on the kernel command line.  However, -ac1 hangs with or without these
-options.
+Nope.
 
-I had this same problem under rc3-ac1, and rc2-ac2 (last two -ac
-kernels I tried), so this looks to be a long-term problem.  I'm hoping
-maybe I can help debug it before it gets into Marcelo's tree.
+The problem is different - which file system is the file stored in?
+How many different filesystems are there?
+Do think all of them will fit in a boot loader?
+Or even one of them?
+How many different logical volume structures are there?
 
-ian
+Do do this you first have to convince the development people to say that
+"only xxxx filesystem shall be bootable".
 
-[1] Actually, one one-liner patche to extend the ext3 journal
-commit interval to 30 seconds.
+Very unlikely.
+
+And now, you also have to add possible logical volumes on top (or under :)
+of it.
+
+Even more unlikely.
+
+That is why LILO doesn't use file names for boots. It only uses block
+numbers.
+
+Another alternative (possibly just as hard) is to have LILO only
+load a more complex and dynamic loader, which could be configured for
+each filesystem structure. Once that "dynamic loader" is loaded, it
+could find and load the kernel (passing, of course, the boot command line
+from LILO).
+
+I know IRIX gets around the problem by having a tiny filesystem for the
+"disk label". This filesystem contains only contigeous files, and has
+references to the drive partition table, the complex boot program (sash -
+stand alone shell), optional diagnostic boot, and logical volume mebership -
+one reference per logical volume type and partition .. I think it is
+	<lvm type>.<partitionnumber>
+The contents of the file is volume name followed by the order of the partition
+in the lvm (section 1, 2, 3, ..).
+
+And this is not a "mountable" file system. It is only accessed via special
+utilities (like the "mtools" set for non-mounted M$DOS floppies)
+
+At least, I remember IRIX this way - it should be close.
+
+SunOS had something a little different: the initial boot (at the bios level)
+use block numbers to locate a "boot" utility. The "boot" utility knew about
+the filesystem type. I think it was a link of the boot object with a fs
+utility library, where the library was selected by a "makeboot" command
+and by the filesystem type that the kernel(s) was(were) stored on. The
+"makeboot" utility modified/replace the "boot" program, then set the
+block numbers in the boot sector.
+
+All of this has truly horrible effects on boot times though. At a minimum
+I would expect it to take twice as long.
+
+You pay for the additional flexibility though.
+
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.

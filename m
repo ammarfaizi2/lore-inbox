@@ -1,33 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267505AbRHFKC5>; Mon, 6 Aug 2001 06:02:57 -0400
+	id <S267836AbRHFKPH>; Mon, 6 Aug 2001 06:15:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267532AbRHFKCh>; Mon, 6 Aug 2001 06:02:37 -0400
-Received: from mail.zmailer.org ([194.252.70.162]:34321 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S267505AbRHFKCd>;
-	Mon, 6 Aug 2001 06:02:33 -0400
-Date: Mon, 6 Aug 2001 13:02:22 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: alad@hss.hns.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: merge_segment() missing in do_mmap_pgoff in 2.4
-Message-ID: <20010806130222.Q11046@mea-ext.zmailer.org>
-In-Reply-To: <65256AA0.00244DC4.00@sandesh.hss.hns.com>
+	id <S267850AbRHFKO5>; Mon, 6 Aug 2001 06:14:57 -0400
+Received: from [195.157.147.30] ([195.157.147.30]:37646 "HELO
+	pookie.dev.sportingbet.com") by vger.kernel.org with SMTP
+	id <S267836AbRHFKOv>; Mon, 6 Aug 2001 06:14:51 -0400
+Date: Mon, 6 Aug 2001 11:05:04 +0100
+From: Sean Hunter <sean@dev.sportingbet.com>
+To: peter revill <arevill@bigpond.net.au>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: university studies?
+Message-ID: <20010806110504.C4570@dev.sportingbet.com>
+Mail-Followup-To: Sean Hunter <sean@dev.sportingbet.com>,
+	peter revill <arevill@bigpond.net.au>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010801052200.25526.qmail@webmail.com> <Pine.LNX.4.33.0108010801550.9176-100000@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <65256AA0.00244DC4.00@sandesh.hss.hns.com>; from alad@hss.hns.com on Mon, Aug 06, 2001 at 11:59:28AM +0530
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0108010801550.9176-100000@infradead.org>; from rhw@MemAlpha.CX on Wed, Aug 01, 2001 at 08:06:16AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 06, 2001 at 11:59:28AM +0530, alad@hss.hns.com wrote:
-> I was just going through do_mmap_pgoff()  in mmap.c. In 2.2 kernels after
-> inserting the vma in doubly linked list we use to call merge_segments to check
-> the possibility of merging it with other peer segments.
-> This thing is missing in 2.4. Is this left out intentionally ?? and why ??
+I did a graduate diploma in Jazz, contemporary and popular music, and further
+postgraduate music study.  I am now doing my MSc in computer science.  Lack of
+a degree in computer science (or even a science-related subject!) has never
+significantly hindered my career as a developer.
 
-  Look at the ongoing thread in   linux-kernel  list with subject:
-	Re: /proc/<n>/maps growing..
+Sean
 
-> --
-> Amol
+On Wed, Aug 01, 2001 at 08:06:16AM +0100, Riley Williams wrote:
+> Hi Peter.
+> 
+>  > Ok, im 16 and looking at heading into uni as soon as ive
+>  > finished year 12. I'm gonna head on over to uni, i am wondering
+>  > out of curiosity what courses most kernel developers have done?
+>  > im going to do either bachelour of computer science, or
+>  > information technology, at a later date, when im done my studies
+>  > im hoping to help with kernel developing, mozilla etc. etc., so
+>  > i was wondering what people would consider the course that gives
+>  > you "kernel development" sort of skillset-mindset any feedback
+>  > is appriciated, please CC it to my mail adress at
+>  > arevill@bigpond.net.au
+> 
+> Personally, I did "B.Sc. Computer Studies", but I suspect the actual
+> course title is irrelevant, and it's the modules you do in the course
+> that matter. Here's what I would regard as important:
+> 
+>  1. A thorough knowledge of programming in C. Knowledge of C++
+>     will help.
+> 
+>  2. Experience of programming hardware will definitely help.
+> 
+>  3. The ability to think logically is a definite advantage, and
+>     tends to result in 90%+ of your programs working first time.
+> 
+> Additions, anybody?
+> 
+> Best wishes from Riley.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

@@ -1,37 +1,27 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <154600-29165>; Sat, 5 Sep 1998 09:34:07 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:8803 "EHLO penguin.e-mind.com" ident: "TIMEDOUT") by vger.rutgers.edu with ESMTP id <154601-29165>; Sat, 5 Sep 1998 09:32:06 -0400
-Date: Sat, 5 Sep 1998 14:00:34 +0200 (CEST)
-From: Andrea Arcangeli <arcangeli@mbox.queen.it>
-To: Marty Leisner <leisner@twcny.rr.com>
-cc: "Eric S. Raymond" <esr@thyrsus.com>, linux-net@vger.rutgers.edu, linux-kernel@vger.rutgers.edu
-Subject: Re: Linux tcp/ip code has trouble with async network I/O  notification,u
-In-Reply-To: <199809040420.AAA02211@rochester.rr.com>
-Message-ID: <Pine.LNX.3.96.980905135552.405A-100000@dragon.bogus>
-X-PgP-Public-Key-URL: http://e-mind.com/~andrea/aa.asc
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Received: by vger.rutgers.edu id <154693-29165>; Sat, 5 Sep 1998 10:58:08 -0400
+Received: from x2eip14.wmis.net ([209.176.195.207]:1224 "EHLO x2eip14.wmis.net" ident: "tiensivu") by vger.rutgers.edu with ESMTP id <154686-29165>; Sat, 5 Sep 1998 10:50:08 -0400
+Date: Sat, 5 Sep 1998 13:04:14 -0400
+From: Aaron Tiensivu <tiensivu@pilot.msu.edu>
+To: Linux Kernel Digest <linux-kernel@vger.rutgers.edu>
+Subject: [Offtopic] Text mode Quake for Linux
+Message-ID: <19980905130414.A814@msu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.94.4i
+X-OS: Linux 2.1.118 
+X-ICQ: 3085269
+X-URL: http://www.ctechnix.com/~mojomofo
+X-Alt-Email: mojomofo@ctechnix.com
+X-Alt-Email2: mojomofo@hotmail.com
+X-Alt-Email3: mojomofo@yahoo.com
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-On Fri, 4 Sep 1998, Marty Leisner wrote:
+Believe it or not it exists.
+I can't believe someone actually spent time doing this but you can now play
+Quake over a telnet session.
 
->I agree with Eric's basic problems with threads...
->
->A good, single threaded solution is far superior, easier, more
->maintainable, etc. etc. then threads...
->
->
->For more on why threads are a bad idea (usually) see:
->http://www.scriptics.com/people/john.ousterhout/
-
-That document about threads is very very generic (>10 page of repetitions)
-and not interesting. I don' t like such kind of docs (it seems to me to
-study for University also in the spare time). 
-
-The only right repeated point is that threads are well used when there is
-high CPU usage for every thread.
-
-Andrea[s] Arcangeli
+http://webpages.mr.net/bobz/ttyquake/
 
 
 -

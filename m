@@ -1,50 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261562AbTICIkD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 04:40:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbTICIkD
+	id S261675AbTICIuZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 04:50:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261619AbTICIuZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 04:40:03 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:21142 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261562AbTICIkA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 04:40:00 -0400
-Date: Wed, 3 Sep 2003 10:39:53 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Matthew Wilcox <willy@debian.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: CONFIG_64_BIT
-In-Reply-To: <3F54D8C1.1080604@pobox.com>
-Message-ID: <Pine.GSO.4.21.0309031039071.6985-100000@waterleaf.sonytel.be>
+	Wed, 3 Sep 2003 04:50:25 -0400
+Received: from [62.241.33.80] ([62.241.33.80]:52999 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S261642AbTICIuU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 04:50:20 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Adrian Bunk <bunk@fs.tum.de>, Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+Subject: Re: [2.4 patch] Fix IRQ_NONE clash in SCSI drivers
+Date: Wed, 3 Sep 2003 10:48:53 +0200
+User-Agent: KMail/1.5.3
+Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       linux-scsi@vger.kernel.org
+References: <Pine.LNX.4.55L.0308271449170.23236@freak.distro.conectiva> <20030902184436.GO23729@fs.tum.de>
+In-Reply-To: <20030902184436.GO23729@fs.tum.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_1raV/0ydPLcCcrm"
+Message-Id: <200309031048.53818.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Sep 2003, Jeff Garzik wrote:
-> Matthew Wilcox wrote:
-> > What do people think of CONFIG_64_BIT?  It saves us from using
-> 
-> Yes!  Please!
-> 
-> Though I would of course make it CONFIG_64BIT ;-)
 
-Or CONFIG_LINUX64? :-)
+--Boundary-00=_1raV/0ydPLcCcrm
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> Matthew Wilcox wrote:
-> > What do people think of CONFIG_64_BIT?  It saves us from using
+On Tuesday 02 September 2003 20:44, Adrian Bunk wrote:
 
-Why do some many mails from lkml have duplicated contents?
+Hi Adrian,
 
-Gr{oetje,eeting}s,
+> This change added an (empty) IRQ_NONE #define to interrupt.h.
+> Several scsi drivers are already using an IRQ_NONE.  Rename that to
+> SCSI_IRQ_NONE (a similar change was done in 2.5 by Andrew Morton several
+> months ago).
 
-						Geert
+right, but you forgot one header :-) ... Attached is a patch.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Marcelo, please apply this too.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+ciao, Marc
+
+--Boundary-00=_1raV/0ydPLcCcrm
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="irqreturnt-compatibility-2.6-missings.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="irqreturnt-compatibility-2.6-missings.patch"
+
+--- a/drivers/scsi/NCR5380.h	2001-12-21 18:41:55.000000000 +0100
++++ b/drivers/scsi/NCR5380.h	2003-09-03 10:45:57.000000000 +0200
+@@ -233,7 +233,7 @@
+  * Scsi_Host structure
+  */
+ 
+-#define IRQ_NONE	255
++#define SCSI_IRQ_NONE	255
+ #define DMA_NONE	255
+ #define IRQ_AUTO	254
+ #define DMA_AUTO	254
+
+--Boundary-00=_1raV/0ydPLcCcrm--
 

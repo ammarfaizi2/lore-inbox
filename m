@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288952AbSAISNG>; Wed, 9 Jan 2002 13:13:06 -0500
+	id <S288949AbSAISM4>; Wed, 9 Jan 2002 13:12:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288954AbSAISM5>; Wed, 9 Jan 2002 13:12:57 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:33930 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S288952AbSAISMq>; Wed, 9 Jan 2002 13:12:46 -0500
-From: Badari Pulavarty <pbadari@us.ibm.com>
-Message-Id: <200201091812.g09ICBF18477@eng2.beaverton.ibm.com>
-Subject: Re: [PATCH] PAGE_SIZE IO for RAW (RAW VARY)
-To: bcrl@redhat.com (Benjamin LaHaise)
-Date: Wed, 9 Jan 2002 10:12:11 -0800 (PST)
-Cc: pbadari@us.ibm.com (Badari Pulavarty), linux-kernel@vger.kernel.org,
-        marcelo@conectiva.com.br, andrea@suse.de
-In-Reply-To: <20020109125845.B12609@redhat.com> from "Benjamin LaHaise" at Jan 09, 2002 11:58:45 AM PST
-X-Mailer: ELM [version 2.5 PL3]
+	id <S288954AbSAISMq>; Wed, 9 Jan 2002 13:12:46 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:14596 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S288949AbSAISM3>; Wed, 9 Jan 2002 13:12:29 -0500
+Date: Wed, 9 Jan 2002 14:58:45 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Oleg Drokin <green@namesys.com>
+Cc: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
+Subject: Re: [PATCH] certain data corruption may cause reiserfs to panic,
+ fix.
+In-Reply-To: <20020109162207.A15139@namesys.com>
+Message-ID: <Pine.LNX.4.21.0201091458360.21044-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> On Wed, Jan 09, 2002 at 09:41:10AM -0800, Badari Pulavarty wrote:
-> > Could you please consider this for 2.4.18 release ? If you need the
-> > patch on 2.4.18-preX, I can make one quickly.
-> 
-> Do not apply.  This breaks the majority of databases that run under linux.
-> 
-> 		-ben
-> 
 
-why ? could you explain ? I am not expecting that user buffer be aligned
-to PAGE_SIZE.
 
-Thanks,
-Badari
+On Wed, 9 Jan 2002, Oleg Drokin wrote:
+
+> Hello!
+> 
+>     Purpose of this patch is to catch events of corrupted ITEM_TYPE fields, and report these to user.
+>     Without this patch, accessing such items will resukt in dereferencing random memory areas in kernel,
+>     and then ooping (most probably).
+>     Please apply.
+
+Why corruption is happening in the first place ? 
+

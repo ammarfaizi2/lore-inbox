@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268922AbRHaTlr>; Fri, 31 Aug 2001 15:41:47 -0400
+	id <S269223AbRHaUfY>; Fri, 31 Aug 2001 16:35:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269099AbRHaTli>; Fri, 31 Aug 2001 15:41:38 -0400
-Received: from ns1.uklinux.net ([212.1.130.11]:47880 "EHLO s1.uklinux.net")
-	by vger.kernel.org with ESMTP id <S268963AbRHaTlb>;
-	Fri, 31 Aug 2001 15:41:31 -0400
-Envelope-To: <linux-kernel@vger.kernel.org>
-Date: Fri, 31 Aug 2001 20:31:15 +0100 (BST)
-From: Ken Moffat <ken@kenmoffat.uklinux.net>
-To: linux-kernel@vger.kernel.org
-Subject: Spurious VIA bug messages in 2.4.7-ac5
-Message-ID: <Pine.LNX.4.21.0108312022550.711-100000@pppg_penguin.linux.bogus>
+	id <S269206AbRHaUfO>; Fri, 31 Aug 2001 16:35:14 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:9485 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S269186AbRHaUfD>; Fri, 31 Aug 2001 16:35:03 -0400
+Subject: Re: kernel hangs in 118th call to vmalloc
+To: ttabi@interactivesi.com (Timur Tabi)
+Date: Fri, 31 Aug 2001 21:38:29 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+In-Reply-To: <3B8FDA36.5010206@interactivesi.com> from "Timur Tabi" at Aug 31, 2001 01:40:54 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15cv3e-0003vf-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Apologies if this has already been fixed, but I don't remember seeing it
-mentioned before. I've just booted my test box after nearly 3 weeks
-downtime, and I noticed the following message a couple of times in the
-first 5 minutes. I assume it's harmless.
+> What this routine does is call vmalloc() repeatedly for a number of 1MB 
+> chunks until it fails or until it's allocated 128MB (CLEAR_BLOCK_COUNT 
+> is equal to 128 in this case).  Then, it starts freeing them.
+> 
+> The side-effect of this routine is to page-out up to 128MB of RAM. 
+> Unfortunately, on a 128MB machine, the 118th call to vmalloc() hangs the 
+> system.  I was expecting it to return NULL instead.
+> 
+> Is this a bug in vmalloc()?  If so, is there a work-around that I can use?
 
-reg_kipling kernel: probable hardware bug: clock timer configuration lost
-reg_kipling kernel: probable hardware bug: restoring chip configuration.
+vmalloc shouldnt be hanging the box, although in 2.4.2 the out of memory 
+handling is not too reliable. You have to understand vmalloc isnt meant to 
+be used that way and the kernel gets priority over user space for allocs so
+is able to get itself to the point it killed off all user space.
 
-This is from the log, the screen display said something about a probable
-VIA chipset. The only problem is that it doesn't use a VIA chipset. It's 
-a Jetway 542C mobo with a K6/2 and an ALI chipset. I compiled it with 
-gcc-3.0, so it might be a gcc/kernel interaction.
-
-More data (config, whatever) available if required.
-
-Ken
--- 
-   Never drink more than two pangalacticgargleblasters !
-Home page : http://www.kenmoffat.uklinux.net
-
+Alan

@@ -1,118 +1,156 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271775AbTGRPGn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 11:06:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271761AbTGRPFm
+	id S271761AbTGRPGo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 11:06:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271840AbTGRPGF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 11:05:42 -0400
-Received: from 157.Red-80-32-159.pooles.rima-tde.net ([80.32.159.157]:45063
-	"EHLO oxo") by vger.kernel.org with ESMTP id S271763AbTGROt3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 10:49:29 -0400
-Message-ID: <3F180BE3.4050800@iquis.com>
-Date: Fri, 18 Jul 2003 17:01:55 +0200
-From: Juan Pedro Paredes <juampe@iquis.com>
-User-Agent: Mozilla/5.0 (Windows; U; Win98; es-AR; rv:1.4b) Gecko/20030507
-X-Accept-Language: es, en-us
+	Fri, 18 Jul 2003 11:06:05 -0400
+Received: from adsl-66-159-224-106.dslextreme.com ([66.159.224.106]:31756 "EHLO
+	zork.ruvolo.net") by vger.kernel.org with ESMTP id S271765AbTGROtl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 10:49:41 -0400
+Date: Fri, 18 Jul 2003 08:04:29 -0700
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, alsa-devel@lists.sourceforge.net
+Subject: Re: 2.6.0-t1 garbage in /proc/ioports and oops
+Message-ID: <20030718150429.GE15716@ruvolo.net>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, alsa-devel@lists.sourceforge.net
+References: <20030718011101.GD15716@ruvolo.net> <20030717211533.77c0f943.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=_oxo-12059-1058540591-0001-2"
-To: kernel <linux-kernel@vger.kernel.org>
-Subject: Re: linux-2.6.0-test1: ide_cs cannot be unloaded due to unsafe usage
- in include/linux/module.h:482 
-References: <3F17A1DB.10504@iquis.com>
-In-Reply-To: <3F17A1DB.10504@iquis.com>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="XStn23h1fwudRqtG"
+Content-Disposition: inline
+In-Reply-To: <20030717211533.77c0f943.akpm@osdl.org>
+User-Agent: Mutt/1.3.28i
+From: Chris Ruvolo <chris@ruvolo.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME-formatted message.  If you see this text it means that your
-E-mail software does not support MIME-formatted messages.
 
---=_oxo-12059-1058540591-0001-2
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+--XStn23h1fwudRqtG
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+(adding alsa-devel)
+
+On Thu, Jul 17, 2003 at 09:15:33PM -0700, Andrew Morton wrote:
+> You could load all those modules one at a time, doing a `cat /proc/ioport=
+s'
+> after each one.  One sneaky way of doing that would be to make your
+> modprobe executable be:
+
+Ok, this let me track it down to the ALSA snd-sbawe module.  I did not have
+isapnp compiled into the kernel and was relying on the userspace isapnp to
+configure the device (carried over from 2.4).  Apparently the module didn't
+like this.
+
+With isapnp built into the kernel, the module loads successfully.
+
+It seems that the driver is made to not require isapnp, so I'm not sure
+where it is going wrong.
+
+> Have you ever unloaded a module?  The usual source of this crash is some
+> driver forgot to unregister an IO region during module unload.  So a read
+> of /proc/ioports crashes _after_ the module is rmmodded.
+
+No, I hadn't.  I was able to reproduce this by just loading the snd_sbawe
+module on a clean boot.  Transcript follows.
+
+Thanks,
+-Chris
 
 
+# /sbin/isapnp /etc/isapnp.conf
+Board 1 has Identity 0e 10 00 2f 76 45 00 8c 0e:  CTL0045 Serial No 2684476=
+06 [checksum 0e]
+CTL0045/268447606[0]{Audio               }: Ports 0x220 0x330 0x388; IRQ5 D=
+MA1 DMA5 --- Enabled OK
+CTL0045/268447606[2]{WaveTable           }: Port 0x620; --- Enabled OK
 
---=_oxo-12059-1058540591-0001-2
-Content-Type: text/plain; name="ide_cs"; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ide_cs"
+# cat /proc/ioports=20
+0000-001f : dma1
+0020-0021 : pic1
+0040-005f : timer
+0060-006f : keyboard
+0080-008f : dma page reg
+00a0-00a1 : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+0170-0177 : ide1
+01f0-01f7 : ide0
+0376-0376 : ide1
+03c0-03df : vga+
+03f6-03f6 : ide0
+0cf8-0cff : PCI conf1
+4000-403f : Intel Corp. 82371AB/EB/MB PIIX4
+5000-501f : Intel Corp. 82371AB/EB/MB PIIX4
+d000-dfff : PCI Bus #01
+  d000-d0ff : 3Dfx Interactive, In Voodoo 3
+e000-e01f : Intel Corp. 82371AB/EB/MB PIIX4
+e400-e4ff : Lite-On Communicatio LNE100TX
+e800-e87f : VIA Technologies, In IEEE 1394 Host Contr
+ec00-ec07 : US Robotics/3Com 56K FaxModem Model 5
+f000-f00f : Intel Corp. 82371AB/EB/MB PIIX4
+  f000-f007 : ide0
+  f008-f00f : ide1
 
-hde: SanDisk SDCFB-16, CFA DISK drive
-ide2 at 0x140-0x147,0x14e on irq 3
-hde: max request size: 128KiB
-hde: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-hde: task_no_data_intr: error=0x04 { DriveStatusError }
-hde: 31360 sectors (16 MB) w/1KiB Cache, CHS=490/2/32
- /dev/ide/host2/bus0/target0/lun0: p1
- /dev/ide/host2/bus0/target0/lun0: p1
-devfs_mk_bdev: could not append to parent for ide/host2/bus0/target0/lun0/part1
-kobject_register failed for hde1 (-17)
+# modprobe snd_sbawe
+FATAL: Error inserting snd_sbawe (/lib/modules/2.6.0-test1/kernel/sound/isa=
+/sb/snd-sbawe.ko): No such device
+
+# cat /proc/ioports
+Segmentation fault
+
+# dmesg | tail -31
+sbawe: fatal error - EMU-8000 synthesizer not detected at 0x620
+Sound Blaster 16 soundcard not found or device busy
+In case, if you have non-AWE card, try snd-sb16 module
+Unable to handle kernel paging request at virtual address c887d0f5
+ printing eip:
+c01a123a
+*pde =3D 07bc6067
+*pte =3D 00000000
+Oops: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c01a123a>]    Not tainted
+EFLAGS: 00010297
+EIP is at vsnprintf+0x31a/0x450
+eax: c887d0f5   ebx: 0000000a   ecx: c887d0f5   edx: fffffffe
+esi: c739f0d3   edi: 00000000   ebp: c73a3ec0   esp: c73a3e88
+ds: 007b   es: 007b   ss: 0068
+Process cat (pid: 202, threadinfo=3Dc73a2000 task=3Dc73f8140)
+Stack: c739f0cc c739ffff 0000038b 00000000 00000010 00000004 00000002 00000=
+001
+       ffffffff ffffffff c739ffff c13fed60 00000000 c0241301 c73a3edc c0167=
+426
+       c739f0c7 00000f39 c024131a c73a3ef8 c72f3700 c73a3f04 c011cf64 c13fe=
+d60
 Call Trace:
- [<c01f0e99>] kobject_register+0x59/0x60
- [<c01843e9>] register_disk+0x149/0x180
- [<c0283cc1>] add_disk+0x51/0x60
- [<c0283c40>] exact_match+0x0/0x10
- [<c0283c50>] exact_lock+0x0/0x20
- [<c02ae6ba>] idedisk_attach+0x11a/0x1b0
- [<c02aaa01>] ata_attach+0x41/0xd0
- [<c02a3dfe>] ideprobe_init+0x10e/0x12d
- [<c02a8e73>] ide_probe_module+0x13/0x20
- [<c02a9c80>] ide_register_hw+0x150/0x190
- [<e0976265>] idecs_register+0x55/0x70 [ide_cs]
- [<c02d4700>] CardServices+0x210/0x357
- [<e097679e>] ide_config+0x51e/0x850 [ide_cs]
- [<c02cc77e>] set_cis_map+0x3e/0x120
- [<c02cc979>] read_cis_mem+0x119/0x190
- [<c02cd659>] pcmcia_get_tuple_data+0x89/0x90
- [<c02ce978>] pcmcia_parse_tuple+0x108/0x180
- [<c02cea64>] read_tuple+0x74/0x80
- [<c02d6ab6>] yenta_set_mem_map+0x196/0x1e0
- [<c02cd570>] pcmcia_get_next_tuple+0x270/0x2d0
- [<c02cd03c>] pcmcia_get_first_tuple+0xac/0x160
- [<c02d6ab6>] yenta_set_mem_map+0x196/0x1e0
- [<c02cc77e>] set_cis_map+0x3e/0x120
- [<c02cc979>] read_cis_mem+0x119/0x190
- [<c02cd659>] pcmcia_get_tuple_data+0x89/0x90
- [<c02ce978>] pcmcia_parse_tuple+0x108/0x180
- [<c02cea64>] read_tuple+0x74/0x80
- [<c02d6ab6>] yenta_set_mem_map+0x196/0x1e0
- [<c02cd570>] pcmcia_get_next_tuple+0x270/0x2d0
- [<c02cd03c>] pcmcia_get_first_tuple+0xac/0x160
- [<c02ccc48>] read_cis_cache+0xf8/0x190
- [<c02cd570>] pcmcia_get_next_tuple+0x270/0x2d0
- [<c02ceb6f>] pcmcia_validate_cis+0xff/0x1e0
- [<c01aaedc>] _reiserfs_free_block+0x13c/0x150
- [<c01aee27>] free_thrown+0x37/0x70
- [<e0976c5b>] ide_event+0x6b/0x110 [ide_cs]
- [<c02d3211>] pcmcia_register_client+0x221/0x260
- [<c0157799>] bh_lru_install+0xa9/0xe0
- [<c02d469b>] CardServices+0x1ab/0x357
- [<e097610a>] ide_attach+0x10a/0x150 [ide_cs]
- [<e0976bf0>] ide_event+0x0/0x110 [ide_cs]
- [<c02d2528>] pcmcia_bind_device+0x68/0xb0
- [<c02d62e6>] get_pcmcia_driver+0x36/0x50
- [<c02d52ea>] bind_request+0xda/0x1c0
- [<c01f3a00>] __copy_to_user_ll+0x10/0x70
- [<c02d5f1f>] ds_ioctl+0x60f/0x770
- [<c033957f>] sock_def_readable+0x5f/0x70
- [<c038d512>] unix_dgram_sendmsg+0x3c2/0x4a0
- [<c033627e>] sock_sendmsg+0x8e/0xb0
- [<c011c9a0>] do_page_fault+0x140/0x4ad
- [<c016cb01>] wake_up_inode+0x11/0x30
- [<c013f2c1>] buffered_rmqueue+0xb1/0x140
- [<c01214a6>] __mmdrop+0x36/0x47
- [<c0146bfe>] zap_pmd_range+0x4e/0x70
- [<c0146c6e>] unmap_page_range+0x4e/0x90
- [<c0146db3>] unmap_vmas+0x103/0x230
- [<c014a228>] unmap_vma+0x48/0x90
- [<c014a28f>] unmap_vma_list+0x1f/0x30
- [<c014a60e>] do_munmap+0x11e/0x170
- [<c0165881>] sys_ioctl+0xb1/0x230
- [<c010b10f>] syscall_call+0x7/0xb
-                                                                               2Module ide_cs cannot be unloaded due to unsafe usage in include/linux/module.h:
-ide-cs: hde: Vcc = 3.3, Vpp = 0.0
+ [<c0167426>] seq_printf+0x36/0x60
+ [<c011cf64>] do_resource_list+0x64/0xa0
+ [<c011cfeb>] ioresources_show+0x4b/0x70
+ [<c0166e0f>] seq_read+0xef/0x300
+ [<c0149b3a>] vfs_read+0xaa/0x130
+ [<c0149def>] sys_read+0x3f/0x60
+ [<c010940b>] syscall_call+0x7/0xb
+
+Code: 80 38 00 74 07 40 4a 83 fa ff 75 f4 29 c8 83 e7 10 89 c3 75
+ <6>note: cat[202] exited with preempt_count 1
 
 
---=_oxo-12059-1058540591-0001-2--
+--XStn23h1fwudRqtG
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE/GAx9KO6EG1hc77ERAu8vAKC/5/v4MTIhxSr9sjLCOTkZMYkAaACgz/d4
+iVz1FkP6nS7uT6F9wkwdfK4=
+=/UOx
+-----END PGP SIGNATURE-----
+
+--XStn23h1fwudRqtG--

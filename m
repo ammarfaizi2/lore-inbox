@@ -1,68 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129069AbQKPTWQ>; Thu, 16 Nov 2000 14:22:16 -0500
+	id <S129076AbQKPT12>; Thu, 16 Nov 2000 14:27:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129183AbQKPTV4>; Thu, 16 Nov 2000 14:21:56 -0500
-Received: from sisley.ri.silicomp.fr ([62.160.165.44]:23567 "EHLO
-	sisley.ri.silicomp.fr") by vger.kernel.org with ESMTP
-	id <S129069AbQKPTVz>; Thu, 16 Nov 2000 14:21:55 -0500
-Date: Thu, 16 Nov 2000 19:51:48 +0100 (CET)
-From: Jean-Marc Saffroy <saffroy@ri.silicomp.fr>
-To: Alexander Viro <viro@math.psu.edu>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-        Eric Paire <paire@ri.silicomp.fr>
-Subject: Re: [BUG] Inconsistent behaviour of rmdir
-In-Reply-To: <Pine.GSO.4.21.0011161317120.13047-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.21.0011161934370.30811-100000@sisley.ri.silicomp.fr>
+	id <S129183AbQKPT1R>; Thu, 16 Nov 2000 14:27:17 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:61959 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S129076AbQKPT1G>;
+	Thu, 16 Nov 2000 14:27:06 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200011161856.VAA03745@ms2.inr.ac.ru>
+Subject: Re: Local root exploit with kmod and modutils > 2.1.121
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Date: Thu, 16 Nov 2000 21:56:54 +0300 (MSK)
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+In-Reply-To: <E13wThz-0008C0-00@the-village.bc.nu> from "Alan Cox" at Nov 16, 0 06:24:26 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Nov 2000, Alexander Viro wrote:
+Hello!
 
-> > This is a point I don't understand here : do you mean that they are
-> > confused if they can rmdir "." but not if they can rmdir their cwd
-> > differently ? What's the difference ?
+> > It means that test for CAP_SYS_MODULE is illegal, moving pure policy
+> > issue to improper place.
 > 
-> rmdir() is _not_ "kill the directory identified by name and remove all
-> links to it". It's "remove a given link and .. in directory pointed
-> by it, then schedule directory for removal".
+> Definitely not so
+> 
+> What matters is whether the user is requesting a module or the kernel is 
+> choosing to load a module. In the former case where the user can influence the
+> module name then you need to check CAP_SYS_MODULE in the latter you do not
+> care.
 
-Now I see your point : by "." or "foo/." you mean the directory itself,
-while "foo" or "foo/" refer to the link to the directory, and they are
-obviously different objects... at least since hard links on directories
-were introduced. Fine.
+Alan, I honestly peered to this paragraph of text for 10 minutes. 8)8)
 
-> BTW, cwd is irrelevant - /tmp/foo/. would demonstrate the same behaviour.
+It is funny, but I managed to compile it only as:
+"dev_load(i.e. you) need not take of care of this".
 
-We saw it, and found it shocking for the very same reasons...
+I.e. exactly the thing which I said. 8)
 
-> It becomes really obvious when you look at rename() - you act on links,
-> not on inodes. The only reason why we could try to overload that for
-> directories was that there is a special link - one from the parent.
-> However, _finding_ said link in race-free way is extremely nasty.
-> Especially for cases like /tmp/foo/. where /tmp/foo is a symlink to
-> /tmp/bar/baz. AFAIK Linux was the only system that tried to be smart
-> in that area. And that attempt was _not_ successful - there were rather
-> interesting races around the thing.
-
-Ok, now I get it. Thanks for this much clearer explanation.
-
-I guess that this was not a problem in 2.2 precisely because hard links on
-directories were forbidden, right ?
-
-> Besides, we clearly violated
-> all relevant standards - rmdir() and rename() are required to fail
-> if the last component of name happens to "." or "..".
-
-By standard, do you imply 'de facto' ? Or does any source clearly state
-this ?
-
--- 
-Jean-Marc Saffroy - Research Engineer - Silicomp Research Institute
-mailto:jms@migrantprogrammer.com
-
+Alexey
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

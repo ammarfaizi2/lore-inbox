@@ -1,37 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263137AbTIVT12 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 15:27:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263305AbTIVT12
+	id S263056AbTIVTmG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 15:42:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263090AbTIVTmG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 15:27:28 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:33916 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S263137AbTIVT11 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 15:27:27 -0400
-Date: Mon, 22 Sep 2003 21:27:18 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Arjan van de Ven <arjanv@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Can we kill f inb_p, outb_p and other random I/O on port 0x80, in 2.6?
-Message-ID: <20030922212718.A13166@devserv.devel.redhat.com>
-References: <m1isnlk6pq.fsf@ebiederm.dsl.xmission.com> <1064229778.8584.2.camel@dhcp23.swansea.linux.org.uk> <20030922162602.GB27209@mail.jlokier.co.uk> <1064248391.8895.6.camel@dhcp23.swansea.linux.org.uk> <1064250691.6235.2.camel@laptop.fenrus.com> <20030922182808.GA28372@mail.jlokier.co.uk>
+	Mon, 22 Sep 2003 15:42:06 -0400
+Received: from fw.osdl.org ([65.172.181.6]:41691 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263056AbTIVTmB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 15:42:01 -0400
+Date: Mon, 22 Sep 2003 12:22:15 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: khc@pm.waw.pl, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test5-mm4: wanxl doesn't compile with gcc 2.95
+Message-Id: <20030922122215.4f7da13e.akpm@osdl.org>
+In-Reply-To: <20030922191049.GC6325@fs.tum.de>
+References: <20030922013548.6e5a5dcf.akpm@osdl.org>
+	<20030922191049.GC6325@fs.tum.de>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030922182808.GA28372@mail.jlokier.co.uk>; from jamie@shareable.org on Mon, Sep 22, 2003 at 07:28:08PM +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 22, 2003 at 07:28:08PM +0100, Jamie Lokier wrote:
-> Arjan van de Ven wrote:
-> > The first person to complain about the extra branch miss in udelay for
-> > this will get laughed at by me ;)
+Adrian Bunk <bunk@fs.tum.de> wrote:
+>
+> I'm getting the following compile error with gcc 2.95:
 > 
-> udelay(1) is too slow on a 386 even without the branch miss.
+> <--  snip  -->
+> 
+> ...
+>   CC      drivers/net/wan/wanxl.o
+> drivers/net/wan/wanxl.c: In function `pci_map_single_debug':
+> drivers/net/wan/wanxl.c:128: warning: unsigned int format, different type arg (arg 3)
+> drivers/net/wan/wanxl.c: In function `wanxl_tx_intr':
+> drivers/net/wan/wanxl.c:185: parse error before `struct'
 
 
-ok we have ndelay() now as well in 2.6
+ 25-akpm/drivers/net/wan/wanxl.c |    9 +++++----
+ 1 files changed, 5 insertions(+), 4 deletions(-)
+
+diff -puN drivers/net/wan/wanxl.c~wanxl-build-fix drivers/net/wan/wanxl.c
+--- 25/drivers/net/wan/wanxl.c~wanxl-build-fix	Mon Sep 22 12:18:36 2003
++++ 25-akpm/drivers/net/wan/wanxl.c	Mon Sep 22 12:21:30 2003
+@@ -125,7 +125,8 @@ static inline dma_addr_t pci_map_single_
+ 	dma_addr_t addr = pci_map_single(pdev, ptr, size, direction);
+ 	if (addr + size > 0x100000000LL)
+ 		printk(KERN_CRIT "wanXL %s: pci_map_single() returned memory"
+-		       " at 0x%X!\n", card_name(pdev), addr);
++			" at 0x%LX!\n",
++			card_name(pdev), (unsigned long long)addr);
+ 	return addr;
+ }
+ 
+@@ -180,8 +181,7 @@ static inline void wanxl_cable_intr(port
+ static inline void wanxl_tx_intr(port_t *port)
+ {
+ 	while (1) {
+-                desc_t *desc;
+-		desc = &get_status(port)->tx_descs[port->tx_in];
++                desc_t *desc = &get_status(port)->tx_descs[port->tx_in];
+ 		struct sk_buff *skb = port->tx_skbs[port->tx_in];
+ 
+ 		switch (desc->stat) {
+@@ -290,12 +290,13 @@ static irqreturn_t wanxl_intr(int irq, v
+ 
+ static int wanxl_xmit(struct sk_buff *skb, struct net_device *dev)
+ {
++	desc_t *desc;
+ 	hdlc_device *hdlc = dev_to_hdlc(dev);
+         port_t *port = hdlc_to_port(hdlc);
+ 
+         spin_lock(&port->lock);
+ 
+-	desc_t *desc = &get_status(port)->tx_descs[port->tx_out];
++	desc = &get_status(port)->tx_descs[port->tx_out];
+         if (desc->stat != PACKET_EMPTY) {
+                 /* should never happen - previous xmit should stop queue */
+ #ifdef DEBUG_PKT
+
+_
+

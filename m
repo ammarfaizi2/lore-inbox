@@ -1,95 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261626AbULTTUJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261620AbULTTWt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261626AbULTTUJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 14:20:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261616AbULTTUJ
+	id S261620AbULTTWt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 14:22:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261616AbULTTWs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 14:20:09 -0500
-Received: from remus.commandcorp.com ([130.205.32.4]:27037 "EHLO
-	remus.commandcorp.com") by vger.kernel.org with ESMTP
-	id S261617AbULTTR4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 14:17:56 -0500
-Date: Mon, 20 Dec 2004 14:15:30 -0500
-From: "Michael H. Warfield" <mhw@wittsend.com>
+	Mon, 20 Dec 2004 14:22:48 -0500
+Received: from mail-relay-1.tiscali.it ([213.205.33.41]:15330 "EHLO
+	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
+	id S261617AbULTTVZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 14:21:25 -0500
+Date: Mon, 20 Dec 2004 20:20:46 +0100
+From: Andrea Arcangeli <andrea@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] remove obsolete Computone MAINTAINERS entry (fwd)
-Message-ID: <20041220191530.GA25986@alcove.wittsend.com>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
-References: <20041120002559.GB2754@stusta.de> <20041119194735.63d2a257.akpm@osdl.org>
+Cc: James Pearson <james-p@moving-picture.com>, marcelo.tosatti@cyclades.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Reducing inode cache usage on 2.4?
+Message-ID: <20041220192046.GM4630@dualathlon.random>
+References: <41C316BC.1020909@moving-picture.com> <20041217151228.GA17650@logos.cnet> <41C37AB6.10906@moving-picture.com> <20041217172104.00da3517.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="h31gzZEtNLTqOjlF"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041119194735.63d2a257.akpm@osdl.org>
-User-Agent: Mutt/1.4i
-X-Alcove.WittsEnd-MailScanner-Information: Please contact the ISP for more information
-X-Alcove.WittsEnd-MailScanner: Found to be clean
-X-WittsEnd-MailScanner-Information: Please contact the ISP for more information
-X-WittsEnd-MailScanner: Found to be clean
+In-Reply-To: <20041217172104.00da3517.akpm@osdl.org>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---h31gzZEtNLTqOjlF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, Nov 19, 2004 at 07:47:35PM -0800, Andrew Morton wrote:
-> Adrian Bunk <bunk@stusta.de> wrote:
+On Fri, Dec 17, 2004 at 05:21:04PM -0800, Andrew Morton wrote:
+> James Pearson <james-p@moving-picture.com> wrote:
 > >
-> > I'm not sure whether it makes sense to list the previous maintainers fo=
-r=20
-> >  orphaned code, but if such entries contain buouncing mail addresses it=
-'s=20
-> >  IMHO time to simply remove them.
-> >=20
-> > ...
-> >  -M:	Michael H. Warfield <mhw@wittsend.com>
+> > It seems the inode cache has priority over cached file data.
+> 
+> It does.  If the machine is full of unmapped clean pagecache pages the
+> kernel won't even try to reclaim inodes.  This should help a bit:
+> 
+> --- 24/mm/vmscan.c~a	2004-12-17 17:18:31.660254712 -0800
+> +++ 24-akpm/mm/vmscan.c	2004-12-17 17:18:41.821709936 -0800
+> @@ -659,13 +659,13 @@ int fastcall try_to_free_pages_zone(zone
+>  
+>  		do {
+>  			nr_pages = shrink_caches(classzone, gfp_mask, nr_pages, &failed_swapout);
+> -			if (nr_pages <= 0)
+> -				return 1;
+>  			shrink_dcache_memory(vm_vfs_scan_ratio, gfp_mask);
+>  			shrink_icache_memory(vm_vfs_scan_ratio, gfp_mask);
+>  #ifdef CONFIG_QUOTA
+>  			shrink_dqcache_memory(vm_vfs_scan_ratio, gfp_mask);
+>  #endif
+> +			if (nr_pages <= 0)
+> +				return 1;
+>  			if (!failed_swapout)
+>  				failed_swapout = !swap_out(classzone);
+>  		} while (--tries);
 
-> wittsend.com is still there and Michael still runs it.
 
-	Yeah, I'm still here.  I've just been out of town almost one
-week out of every two since June, so I'm more than a little behind on
-catching up on the kernel stuff (yes and the Samba stuff as well,
-I know, I know, sigh...).
+I'm worried this is too aggressive by default and it may hurt stuff. The
+real bug is that we don't do anything when too many collisions happens
+in the hashtables. That is the thing to work on. We should free
+colliding entries in the background after a 'touch' timeout. That should
+work pretty well to age the dcache proprerly too. But the above will
+just shrink everything all the time and it's going to break stuff.
+For 2.6 we can talk about the background shrink based on timeout.
 
-	The message from James ended up in one of my spam cans (CRM-114)
-and I missed it.  He only tried once.  I only found this because I
-jumped onto the list archive trying to find references to system clocks
-going crazy (loosing or gaining time like mad and ntp unable to keep up)
-and ran across the threads...
+My only suggestion for 2.4 is to try with vm_cache_scan_ratio = 20 or
+higher (or alternatively vm_mapped_ratio = 50 or = 20).  There's a
+reason why everything is tunable by sysctl.
 
-	I've got two patches in my queue for the Computone drivers for
-2.6 plus three patches that apply to both the 2.4 and 2.6 kernels.  I've
-got to check to see if Marcelo got around to integrating those patches
-into 2.4 and then jump onto the combined patches.
+I don't think the vm_lru_balance_ratio is the one he's interested
+about. vm_lru_balance_ratio controls how much work is being done at
+every dcache/icache shrinking.
 
-	As Shrek said...  (You didn't slay the dragon?) - "It's on my
-todo list".
+His real objective is to invoke the dcache/icache shrinking more
+frequently, how much work is being done at each pass is a secondary
+issue. If we don't invoke it, nothing will be shrunk, no matter what is
+the value of vm_lru_balance_ratio.
 
-	Mike
---=20
- Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
-  /\/\|=3Dmhw=3D|\/\/       |  (678) 463-0932   |  http://www.wittsend.com/=
-mhw/
-  NIC whois:  MHW9      |  An optimist believes we live in the best of all
- PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!
-
---h31gzZEtNLTqOjlF
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iQCVAwUBQcck0uHJS0bfHdRxAQG0ywQAmrB3XRlMtzU99NlHXL3TQiVXRa3GW0iv
-3dDS2+IKGydwQE8VR4+Yc4I7ZXRVkokreHNUs5Yi/FiYIg/o8ZS3nxbPWCf6k1JA
-bsxVJoUYdqpqJWNGhuRbHpooFLP33V1wlJXV1BLiVLQhJMgFkx6xAIk8QXGKtoGm
-kXSqD+07e88=
-=GfNm
------END PGP SIGNATURE-----
-
---h31gzZEtNLTqOjlF--
+Hope this helps funding an optimal tuning for the workload.

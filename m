@@ -1,36 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129116AbRBEWD2>; Mon, 5 Feb 2001 17:03:28 -0500
+	id <S129280AbRBEWJL>; Mon, 5 Feb 2001 17:09:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129516AbRBEWDT>; Mon, 5 Feb 2001 17:03:19 -0500
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:36626 "EHLO
+	id <S129516AbRBEWJB>; Mon, 5 Feb 2001 17:09:01 -0500
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:38162 "EHLO
 	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S129116AbRBEWDI>; Mon, 5 Feb 2001 17:03:08 -0500
-Message-ID: <3A7F230A.BB1CBA25@Hell.WH8.TU-Dresden.De>
-Date: Mon, 05 Feb 2001 23:02:50 +0100
+	id <S129280AbRBEWIl>; Mon, 5 Feb 2001 17:08:41 -0500
+Message-ID: <3A7F245E.16899A08@Hell.WH8.TU-Dresden.De>
+Date: Mon, 05 Feb 2001 23:08:30 +0100
 From: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
 Organization: Dept. Of Computer Science, Dresden University Of Technology
 X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-ac2 i686)
 X-Accept-Language: en, de-DE
 MIME-Version: 1.0
-To: Peter Horton <pdh@colonel-panic.com>
-CC: linux-kernel@vger.kernel.org
+To: Peter Horton <pdh@colonel-panic.com>, linux-kernel@vger.kernel.org
 Subject: Re: VIA silent disk corruption - bad news
-In-Reply-To: <20010205195331.A736@colonel-panic.com>
+In-Reply-To: <20010205195331.A736@colonel-panic.com> <3A7F230A.BB1CBA25@Hell.WH8.TU-Dresden.De>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Horton wrote:
+"Udo A. Steinberg" wrote:
 > 
-> The patch doesn't work for me. Maybe I need to disable some more of
-> those North bridge features :-(
-> 
-> Oh bum. Back to testing with "normal" ...
+> FWIW, here's the output of my lspci for A7V with working 1003 BIOS
+> and still no corruption (after 2 hours stresstest).
 
-FWIW, here's the output of my lspci for A7V with working 1003 BIOS
-and still no corruption (after 2 hours stresstest).
+Bugger, forgot the end bit. Here's it again:
 
 00:00.0 Host bridge: VIA Technologies, Inc.: Unknown device 0305 (rev 02)
         Subsystem: Asustek Computer, Inc.: Unknown device 8033
@@ -48,8 +44,18 @@ and still no corruption (after 2 hours stresstest).
 10: 08 00 00 e0 00 00 00 00 00 00 00 00 00 00 00 00
 20: 00 00 00 00 00 00 00 00 00 00 00 00 43 10 33 80
 30: 00 00 00 00 a0 00 00 00 00 00 00 00 00 00 00 00
-
-I'll leave the comparing work to you. If you need more info, just holler.
+40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+50: 17 a4 eb b4 06 81 10 10 88 00 04 08 0c 10 10 10
+60: 0f ff 0f b0 e6 e6 e5 00 40 78 86 0f 08 7f 00 00
+70: de c0 cc 0c 0e a1 d2 00 01 b4 11 02 00 00 00 01
+80: 0f 40 00 00 80 00 00 00 03 00 4c 01 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 02 c0 20 00 17 02 00 1f 00 00 00 00 6a 02 14 00
+b0: 5a ec 80 a5 32 33 28 00 00 00 00 00 00 00 00 00
+c0: 01 00 02 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 0e 22 00 00 00 00 00 91 06    
 
 -Udo.
 -

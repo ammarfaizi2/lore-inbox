@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279715AbRJ3Bbj>; Mon, 29 Oct 2001 20:31:39 -0500
+	id <S279722AbRJ3BeT>; Mon, 29 Oct 2001 20:34:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279722AbRJ3Bba>; Mon, 29 Oct 2001 20:31:30 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:46866 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S279715AbRJ3BbN>;
-	Mon, 29 Oct 2001 20:31:13 -0500
-Date: Mon, 29 Oct 2001 23:31:31 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: <bcrl@redhat.com>, <torvalds@transmeta.com>,
-        <linux-kernel@vger.kernel.org>
+	id <S279735AbRJ3BeJ>; Mon, 29 Oct 2001 20:34:09 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:3733 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S279722AbRJ3Bd4>;
+	Mon, 29 Oct 2001 20:33:56 -0500
+Date: Mon, 29 Oct 2001 17:34:00 -0800 (PST)
+Message-Id: <20011029.173400.35036258.davem@redhat.com>
+To: riel@conectiva.com.br
+Cc: bcrl@redhat.com, torvalds@transmeta.com, linux-kernel@vger.kernel.org
 Subject: Re: please revert bogus patch to vmscan.c
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.33L.0110292329560.2963-100000@imladris.surriel.com>
 In-Reply-To: <20011029.155056.23033599.davem@redhat.com>
-Message-ID: <Pine.LNX.4.33L.0110292329560.2963-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	<Pine.LNX.4.33L.0110292329560.2963-100000@imladris.surriel.com>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Oct 2001, David S. Miller wrote:
+   From: Rik van Riel <riel@conectiva.com.br>
+   Date: Mon, 29 Oct 2001 23:31:31 -0200 (BRST)
+   
+   Your numbers are nice for one thing and break for
+   something else, don't you learn anything from our
+   experiments in the past ?
 
-> Numbers talk, bullshit walks.
+I'm asking him to show the case that "breaks for something
+else".
 
-Lies, damn lies and statistics.
-
-Your numbers are nice for one thing and break for
-something else, don't you learn anything from our
-experiments in the past ?
-
-cheers,
-
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Franks a lot,
+David S. Miller
+davem@redhat.com

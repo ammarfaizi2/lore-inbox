@@ -1,56 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314186AbSDME43>; Sat, 13 Apr 2002 00:56:29 -0400
+	id <S313558AbSDMGBn>; Sat, 13 Apr 2002 02:01:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314189AbSDME42>; Sat, 13 Apr 2002 00:56:28 -0400
-Received: from rwcrmhc53.attbi.com ([204.127.198.39]:28646 "EHLO
-	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
-	id <S314186AbSDME41>; Sat, 13 Apr 2002 00:56:27 -0400
-From: "Guillaume Boissiere" <boissiere@attbi.com>
-To: Greg KH <greg@kroah.com>, "Tim Pepper" <tpepper@vato.org>
-Date: Sat, 13 Apr 2002 00:56:20 -0400
-MIME-Version: 1.0
-Subject: Re: [STATUS]  Spring cleanup
-CC: linux-kernel@vger.kernel.org
-Message-ID: <3CB78234.24016.19EC7CEA@localhost>
-In-Reply-To: <20020411130607.A1527@vato.org>
-X-mailer: Pegasus Mail for Windows (v4.01)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+	id <S313559AbSDMGBm>; Sat, 13 Apr 2002 02:01:42 -0400
+Received: from vger.timpanogas.org ([216.250.140.154]:1197 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S313558AbSDMGBl>; Sat, 13 Apr 2002 02:01:41 -0400
+Date: Fri, 12 Apr 2002 23:21:03 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] Dolphin PCI-SCI Drivers 2.5.7 Posted (v1.19-2)
+Message-ID: <20020412232103.A28928@vger.timpanogas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The answer is probably no but I'll ask anyway:  is there one or two people 
-in particular working on this that I could list in my status page and a URL 
-I could point to?
-Thanks,
-
--- Guillaume
 
 
-On 11 Apr 2002 at 13:06, Tim Pepper wrote:
+The Dolphin PCI-SCI Scalable Coherent Interface Drivers v1.19-2 for 
+Linux kernels 2.5.X have been posted to:
 
-> On Wed 10 Apr at 19:03:54 -0700 greg@kroah.com done said:
-> > On Wed, Apr 10, 2002 at 06:31:46PM -0400, Guillaume Boissiere wrote:
-> > > 
-> > > o Pending     Finalize new device naming convention           (Linus Torvalds)
-> > > --> ???  I am not sure what is going on here -- it seems Linus is
-> > > waiting for someone to step up and submit a patch following the new
-> > > device naming convention he vaguely outlined a while back?
-> > 
-> > People are slowly working on this, so I'd mark it "in development /
-> > planning" or something like that.
-> 
-> There's a big thread this week on linux-scsi about this wrt to scsi devices,
-> which is probably one of the places where it's more visible.
-> 
-> t.
-> 
-> -- 
-> *********************************************************
-> *  tpepper@vato dot org             * Venimus, Vidimus, *
-> *  http://www.vato.org/~tpepper     * Dolavimus         *
-> *********************************************************
+ftp://ftp.kernel.org/pub/linux/kernel/people/jmerkey/sci/pci-sci-1.19-2
+ftp://ftp.timpanogas.org:/sci/pci-sci-1.19-2
+ftp://ftp.utah-nac.org:/sci/pci-sci-1.19-2
 
+Changes/Fixes in this release:
+
+IRM 1.11.4-2 ( April 12, 2002 )
+*Linux:  Ported IRM Driver to Linux 2.5.7
+*Linux:  Fixed MINOR/minor macro calls to support larger kdev_t values
+*Linux:  Fixed i_mmap cleanup in sci_close()
+*Linux:  Fixed bus_to_virt/virt_to_phys mappings
+
+SISCI 1.11.4-2 ( April 12, 2002 )
+*Linux:  Ported SISCI Library to Linux 2.5.7
+*Linux:  Fixed MINOR/minor macro calls to support larger kdev_t values
+*Linux:  Fixed i_mmap cleanup in sisci_close()
+*Linux:  Fixed remap_page_range remote mapping
+
+
+Please report bugs/fixed to jmerkey@timpanogas.org or hugo@dolphinics.no.
+
+Jeff V. Merkey
 

@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272778AbRIGRDl>; Fri, 7 Sep 2001 13:03:41 -0400
+	id <S272418AbRIGRKX>; Fri, 7 Sep 2001 13:10:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272781AbRIGRDb>; Fri, 7 Sep 2001 13:03:31 -0400
-Received: from picard.auto.tuwien.ac.at ([128.130.12.4]:23779 "EHLO
-	picard.auto.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id <S272778AbRIGRD2>; Fri, 7 Sep 2001 13:03:28 -0400
-Date: Fri, 7 Sep 2001 19:03:43 +0200 (CEST)
-From: Heinz Deinhart <heinz@auto.tuwien.ac.at>
-To: Dan Hollis <goemon@anime.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: K7/Athlon optimizations and Sacrifices to the Great Ones.
-In-Reply-To: <Pine.LNX.4.30.0109061330420.8699-100000@anime.net>
-Message-ID: <Pine.LNX.4.33.0109071856530.6747-100000@xenon.auto.tuwien.ac.at>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S272782AbRIGRKG>; Fri, 7 Sep 2001 13:10:06 -0400
+Received: from e24.nc.us.ibm.com ([32.97.136.230]:45250 "EHLO
+	e24.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S272418AbRIGRJr>; Fri, 7 Sep 2001 13:09:47 -0400
+Date: Fri, 7 Sep 2001 10:04:56 -0700
+From: lahr <lahr@us.ibm.com>
+To: Peter Wong <wpeter@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
+        Hans Tannenberger <Hans-Joachim.Tannenberger@us.ibm.com>,
+        Ruth Forester <rsf@us.ibm.com>,
+        "Carbonari, Steven" <steven.carbonari@intel.com>
+Subject: Re: Lockmeter Analysis of 2 DDs
+Message-ID: <20010907100456.A11427@us.ibm.com>
+In-Reply-To: <OFBC292301.DC08DA17-ON85256AC0.00555C52@raleigh.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <OFBC292301.DC08DA17-ON85256AC0.00555C52@raleigh.ibm.com>; from wpeter@us.ibm.com on Fri, Sep 07, 2001 at 10:47:37AM -0500
+X-Operating-System: Linux 2.0.32 on an i486
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Sep 2001, Dan Hollis wrote:
 
-> Anyone yet verified if burnMMX2 causes the same failures the
-> athlon-optimized kernel does?
+>      Indeed, io_request_lock is very hot once the bounce buffers were
+> eliminated. Is anyone working on a patch for the io_request_lock that
+> possibly take the global lock and splits it into a per device queue lock?
+> We understand that getting this patch into 2.4 is unlikely, but it would
+> be nice to have this patch available on 2.4 for experimental purposes.
 
-several versions of Robert's burnMMX2 run on by problematic athlons
-without failing for several hours.
+I recently published a patch for 2.4 that addresses this exact issue at
+http://lse.sourceforge.net/io/
 
-I did some trial and error modifications to mmx.c and found out
-that this one makes my athlons happy (but must admin i have
-no clue why). it seems to run stable now.
-
---- linux-2.4.9/arch/i386/lib/mmx.c	Tue May 22 19:23:16 2001
-+++ linux-2.4.9-ac6-hack/arch/i386/lib/mmx.c	Sat Sep  8 00:51:33 2001
-@@ -194,6 +194,9 @@
- 		: : "r" (from), "r" (to) : "memory");
- 		from+=64;
- 		to+=64;
-+	__asm__ __volatile__ (
-+		"  sfence \n" : :
-+	);
- 	}
- 	for(i=(4096-320)/64; i<4096/64; i++)
- 	{
-
-maybe someone with more knowledge can take a look..
-
-ciao,
-heinz
+Jonathan
 
 -- 
-Heinz Deinhart <heinz@auto.tuwien.ac.at>
-+43 1 58801-18321
-Technische Universitaet Wien, Dept. E183/1
+Jonathan Lahr
+IBM Linux Technology Center
+Beaverton, Oregon
+lahr@us.ibm.com
+503-578-3385
 

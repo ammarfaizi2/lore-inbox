@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284997AbRLFFtN>; Thu, 6 Dec 2001 00:49:13 -0500
+	id <S283938AbRLFGFM>; Thu, 6 Dec 2001 01:05:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284826AbRLFFtE>; Thu, 6 Dec 2001 00:49:04 -0500
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:23372 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S284806AbRLFFst>; Thu, 6 Dec 2001 00:48:49 -0500
-Date: Thu, 6 Dec 2001 00:48:48 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Carlo Wood <carlo@alinoe.com>, linux-kernel@vger.kernel.org
-Subject: Re: kqueue, kevent - kernel event notification mechanism
-Message-ID: <20011206004848.C29061@redhat.com>
-In-Reply-To: <20011206013857.A17313@alinoe.com> <E16Bmqo-0008Fj-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E16Bmqo-0008Fj-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Dec 06, 2001 at 12:57:21AM +0000
+	id <S285001AbRLFGFF>; Thu, 6 Dec 2001 01:05:05 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:9999 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S283938AbRLFGEr>; Thu, 6 Dec 2001 01:04:47 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] Endianness-aware mkcramfs
+Date: 5 Dec 2001 22:04:22 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9un1p6$gcj$1@cesium.transmeta.com>
+In-Reply-To: <3C0BD8FD.F9F94BE0@mvista.com> <20011204170235.M25671@mvista.com> <20011204173819.C29968@one-eyed-alien.net> <3C0E11A8.A3057B7D@lightning.ch>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 06, 2001 at 12:57:21AM +0000, Alan Cox wrote:
-> The API isnt directly the problem. In fact you can make a fine scalable select
-> by implementing
+Followup to:  <3C0E11A8.A3057B7D@lightning.ch>
+By author:    Daniel Marmier <daniel.marmier@lightning.ch>
+In newsgroup: linux.dev.kernel
 > 
-> 	poll_setup(..............)
-> 	poll_add/poll_remove
-> 	poll_wait
+> Approved. Byteswapping some metadata fields has a negligible cost.
+> I did not post this patch in the hope it would be integrated, but
+> because Jeremy needed it.
 > 
-> as multiple calls giving basically the same interface that apps expected
-> anyway.  Take a look at the various /dev/poll experimental interfaces and
-> bits of code.
+> If there is consensus about the "always little-endian cramfs" idea,
+> let's go for it and please ignore this patch.
+> 
 
-My aio patches already have a poll operation, however it acts as a one shot 
-operation: an async poll does not complete until the state indicates 
-readiness or it is cancelled.  That's needed as there is a 1-1 relationship 
-between submitted aio operations and the space in the completion ring.  Still, 
-it looks like it will work quite nicely as a means of accelerating exiting 
-poll() based servers.
+It's the only way to do it.
 
-		-ben
-
-		-ben
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263089AbRGNQm2>; Sat, 14 Jul 2001 12:42:28 -0400
+	id <S263416AbRGNQn2>; Sat, 14 Jul 2001 12:43:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263149AbRGNQmS>; Sat, 14 Jul 2001 12:42:18 -0400
-Received: from t2.redhat.com ([199.183.24.243]:54258 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S263089AbRGNQmG>; Sat, 14 Jul 2001 12:42:06 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <200107141414.f6EEEjQ05792@ns.caldera.de> 
-In-Reply-To: <200107141414.f6EEEjQ05792@ns.caldera.de> 
-To: hch@caldera.de (Christoph Hellwig)
-Cc: Gunther.Mayer@t-online.de (Gunther Mayer), paul@paulbristow.net,
-        linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: (patch-2.4.6) Fix oops with Iomega Clik! (ide-floppy) 
-Mime-Version: 1.0
+	id <S263334AbRGNQnS>; Sat, 14 Jul 2001 12:43:18 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:58124 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S263149AbRGNQm7>; Sat, 14 Jul 2001 12:42:59 -0400
+Subject: Re: raid5d, page_launder and scheduling latency
+To: andrewm@uow.edu.au (Andrew Morton)
+Date: Sat, 14 Jul 2001 17:43:43 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), neilb@cse.unsw.edu.au (Neil Brown),
+        mblack@csihq.com (Mike Black), linux-kernel@vger.kernel.org (lkml),
+        ext2-devel@lists.sourceforge.net
+In-Reply-To: <3B50765F.6ECF7B17@uow.edu.au> from "Andrew Morton" at Jul 15, 2001 02:42:07 AM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 14 Jul 2001 17:41:46 +0100
-Message-ID: <17461.995128906@redhat.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15LSW7-0001QO-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> - exit with 1,000 files open
+> - exit with half a million pages to be zapped
+> 
+> And "fixing" copy_*_user is outright dumb.  Just fix the four
+> or five places where it matters.
 
-hch@caldera.de said:
->  Why doe people reverse Jeff's s/malloc.h/slab.h/ changes all the
-> time.  Malloc.h does nothing but including slab.h and should just die.
+Depends if you want to use Linux as a Windows 3.1 replacement or a real OS.
+In the latter case we need to fix the stupid cases too.
 
-"malloc.h" is generic. "slab.h" exposes an implementation detail.
-
-Why should we change code to include slab.h? 
-
-Should we also rename other sanely-named include files to expose 
-implementation details? rwsem-xadd.h? kmod-userhelper.h?
-
---
-dwmw2
-
+Alan
 

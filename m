@@ -1,62 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287439AbSALUjW>; Sat, 12 Jan 2002 15:39:22 -0500
+	id <S287440AbSALUnM>; Sat, 12 Jan 2002 15:43:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287440AbSALUjP>; Sat, 12 Jan 2002 15:39:15 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:13075 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S287439AbSALUjC>; Sat, 12 Jan 2002 15:39:02 -0500
-Date: Sat, 12 Jan 2002 12:44:30 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Robert Love <rml@tech9.net>
-cc: timothy.covell@ashavan.org,
-        =?ISO-8859-1?Q?Fran=E7ois?= Cami <stilgar2k@wanadoo.fr>,
-        Ingo Molnar <mingo@elte.hu>, Mike Kravetz <kravetz@us.ibm.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Anton Blanchard <anton@samba.org>, george anzinger <george@mvista.com>,
-        Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [patch] O(1) scheduler, -G1, 2.5.2-pre10, 2.4.17 (fwd)
-In-Reply-To: <1010814327.2018.5.camel@phantasy>
-Message-ID: <Pine.LNX.4.40.0201121237110.1559-100000@blue1.dev.mcafeelabs.com>
+	id <S287464AbSALUnC>; Sat, 12 Jan 2002 15:43:02 -0500
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:15369 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S287440AbSALUmu>; Sat, 12 Jan 2002 15:42:50 -0500
+Message-ID: <3C409FB2.8D93354F@linux-m68k.org>
+Date: Sat, 12 Jan 2002 21:42:26 +0100
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: yodaiken@fsmlabs.com, Rob Landley <landley@trommello.org>,
+        Robert Love <rml@tech9.net>, nigel@nrg.org,
+        Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+In-Reply-To: <E16PTB7-0002rC-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 Jan 2002, Robert Love wrote:
+Hi,
 
-> On Fri, 2002-01-11 at 16:46, Timothy Covell wrote:
->
-> > But, given the above case, what happens when you have Sendmail on
-> > the first CPU and Squid is sharing the second CPU?  This is not optimal
-> > either, or am I missing something?
->
-> Correct.  I sort of took the "optimal cache use" comment as
-> tongue-in-cheek.  If I am mistaken, correct me, but here is my
-> perception of the scenario:
->
-> 2 CPUs, 3 tasks.  1 task receives 100% of the CPU time on one CPU.  The
-> remaining two tasks share the second CPU.  The result is, of three
-> evenly prioritized tasks, one receives double as much CPU time as the
-> others.
->
-> Aside from the cache utilization, this is not really "fair" -- the
-> problem is, the current design of load_balance (which is quite good)
-> just won't throw the tasks around so readily.  What could be done --
-> cleanly -- to make this better?
+Alan Cox wrote:
 
-My opinion is: if it can be solved with no more than 20 lines of code
-let's do it, otherwise let's see what kind of catastrophe will happen by
-allowing such behavior. Because i've already seen hundreds of lines of
-code added to solve corner cases and removed after 3-4 years because
-someone realized that maybe such corner cases does not matter more than a
-whit.
-I'll be happy to be shut down here ...
+> > Because the IRIX implementation sucks, every implementation has to suck?
+> > Somehow I have the suspicion you're trying to discourage everyone from
+> > even trying, because if he'd succeeded you'd loose a big chunk of
+> > potential RTLinux customers.
+> 
+> Victor has had the same message for years, as have others like Larry McVoy
+> (in fact if Larry and Victor agree on something its unusual enough to
+>  remember). So I can vouch for the fact Victor hasn't changed his tune from
+> before rtlinux was ever any real commercial toy. I think you owe him an
+> apology.
 
+Did I really say something that bad? I would be actually surprised, if
+Victor wouldn't act in the best interest of his company. The other
+possibility is that Victor must have had such a terrible experience with
+IRIX, so that he thinks any attempts to add better soft realtime or even
+hard realtime capabilities (not just as addon) must be doomed to fail.
 
+> RtLinux isn't going to help you one bit when it comes to smooth movie playback
+> because the DVD playback is dependant on the Linux file system layers and a
+> whole pile of other code. Low-latency does this quite nicely, and it takes
+> you to the point where hardware becomes the biggest latency cause for the
+> general case. Pre-empt doesn't buy you anything more. You can spend a
+> millisecond locked in an I/O instruction to an irritating device.
 
-- Davide
+Preemption doesn't solve of course every problem. It's mainly useful to
+get an event as fast as possible from kernel to user space. This can be
+the mouse click or the buffer your process is waiting for. Latencies can
+quickly sum up here to be sensible.
 
-
+bye, Roman

@@ -1,71 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262102AbVAYTkE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262104AbVAYTns@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262102AbVAYTkE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 14:40:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262088AbVAYTju
+	id S262104AbVAYTns (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 14:43:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262095AbVAYTla
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 14:39:50 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:27034
-	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
-	id S262102AbVAYTi7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 14:38:59 -0500
-Subject: Re: [PATCH] fix bad locking in drivers/base/driver.c
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Greg KH <greg@kroah.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Mike Waychison <Michael.Waychison@Sun.COM>,
-       Bill Davidsen <davidsen@tmr.com>, Jirka Kosina <jikos@jikos.cz>,
-       Patrick Mochel <mochel@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <20050125191950.GA11445@kroah.com>
-References: <Pine.LNX.4.58.0501241921310.5857@twin.jikos.cz>
-	 <20050125055651.GA1987@kroah.com> <41F5F623.5090903@sun.com>
-	 <41F64E87.8040501@tmr.com> <41F66F86.4000609@sun.com>
-	 <Pine.LNX.4.58.0501250817430.2342@ppc970.osdl.org>
-	 <20050125191950.GA11445@kroah.com>
-Content-Type: text/plain
-Date: Tue, 25 Jan 2005 20:38:54 +0100
-Message-Id: <1106681934.4538.6.camel@tglx.tec.linutronix.de>
+	Tue, 25 Jan 2005 14:41:30 -0500
+Received: from gprs213-152.eurotel.cz ([160.218.213.152]:21632 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S262090AbVAYTf7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 14:35:59 -0500
+Date: Tue, 25 Jan 2005 20:35:40 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       johnpol@2ka.mipt.ru, greg@kroah.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc2-mm1
+Message-ID: <20050125193539.GA1563@elf.ucw.cz>
+References: <20050124021516.5d1ee686.akpm@osdl.org> <20050125125323.GA19055@infradead.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 (2.0.3-2) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050125125323.GA19055@infradead.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-01-25 at 11:19 -0800, Greg KH wrote:
-> On Tue, Jan 25, 2005 at 08:27:15AM -0800, Linus Torvalds wrote:
-> > 
-> > 
-> > Hmm.. I certainly like the "use completions" patch, since it makes it a
-> > lot more obvious what is going on (and it is what completions were
-> > designed for).
-> > 
-> > However, since it does change semantics very subtly: if you call
-> > "driver_unregister()" twice (which is wrong, but looking at the code it
-> > looks like it would just silently have worked), the old code would just
-> > ignore it. The new code will block on the second one.
-> > 
-> > Now, I don't mind the blocking (it's a bug to call it twice, and blocking
-> > should even give a nice callback when you do the "show tasks"  sysrq, so
-> > it's a good way to _find_ the bug), but together with Mike's comment about
-> > "Compile-tested only", I'd really like somebody (Greg?) to say "trying to
-> > doubly remove the driver is so illegal that we don't care, and btw, I
-> > tested it and it's all ok".
+Hi!
+
+> Review of the superio subsystem sneaked in through bk-i2c.patch:
 > 
-> I will add it to my queue of patches for the driver core, and test it
-> out accordingly before trying it out in the -mm tree for a while.
 > 
+> diff -Nru a/drivers/superio/Kconfig b/drivers/superio/Kconfig
+> --- /dev/null	Wed Dec 31 16:00:00 196900
+> +++ b/drivers/superio/Kconfig	2005-01-23 22:34:15 -08:00
+> @@ -0,0 +1,56 @@
+> +menu "SuperIO subsystem support"
+> +
+> +config SC_SUPERIO
+> +	tristate "SuperIO subsystem support"
+> +	depends on CONNECTOR
+> +	help
+> +	  SuperIO subsystem support.
+> +	
+> +	  This support is also available as a module.  If so, the module
+> +          will be called superio.ko.
+> 
+> This doesn't mention what "SuperIO" is at all.  Also please skip the .ko
+> postfix for the module name as the intree Kconfigs do.  The boilerplate has
+> changed to:
+> 
+>   To compile this driver as a module, choose M here: the
+>   module will be called <foo>.
 
-Exactly the same patch is around since 2004-10-20.
+Could we kill this boilerplate? Just explain modules in CONFIG_MODULE
+or something like that. Or making module name mandatory parameter for
+tristates, or something like that...
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=109836020930855&w=2
-
-It never showed any problems and I have it in my kernels since then.
-Also Ingo's RT patches have it since October. 
-
-tglx
-
-
-
-
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

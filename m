@@ -1,96 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264677AbUGFXCo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264685AbUGFXCD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264677AbUGFXCo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 19:02:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264692AbUGFXCo
+	id S264685AbUGFXCD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 19:02:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264677AbUGFXCD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 19:02:44 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:43475 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S264677AbUGFXCI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 19:02:08 -0400
-Subject: Re: [PATCH] 1/1: Device-Mapper: Remove 1024 devices limitation
-From: Jim Houston <jim.houston@comcast.net>
-Reply-To: jim.houston@comcast.net
-To: Andrew Morton <akpm@osdl.org>
-Cc: kevcorry@us.ibm.com, linux-kernel@vger.kernel.org, dm-devel@redhat.com,
-       torvalds@osdl.org, agk@redhat.com
-In-Reply-To: <20040706152817.38ce1151.akpm@osdl.org>
-References: <200407011035.13283.kevcorry@us.ibm.com>
-	 <200407021233.09610.kevcorry@us.ibm.com>
-	 <20040702124218.0ad27a85.akpm@osdl.org>
-	 <200407061323.27066.kevcorry@us.ibm.com>
-	 <20040706142335.14efcfa4.akpm@osdl.org>
-	 <1089151650.985.129.camel@new.localdomain>
-	 <20040706152817.38ce1151.akpm@osdl.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1089154845.985.164.camel@new.localdomain>
+	Tue, 6 Jul 2004 19:02:03 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:22245 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S264660AbUGFXBs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jul 2004 19:01:48 -0400
+Date: Wed, 7 Jul 2004 01:01:47 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Stephen Hemminger <shemminger@osdl.org>, jamie@shareable.org,
+       netdev@oss.sgi.com, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: PLS help fix: recent 2.6.7 won't connect to anything Re: [PATCH] fix tcp_default_win_scale.
+Message-ID: <20040706230147.GB6694@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	"David S. Miller" <davem@redhat.com>,
+	Stephen Hemminger <shemminger@osdl.org>, jamie@shareable.org,
+	netdev@oss.sgi.com, linux-net@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <20040701133738.301b9e46@dell_ss3.pdx.osdl.net> <20040701140406.62dfbc2a.davem@redhat.com> <20040702013225.GA24707@conectiva.com.br> <20040706093503.GA8147@outpost.ds9a.nl> <20040706114741.1bf98bbe@dell_ss3.pdx.osdl.net> <20040706194034.GA11021@mail.shareable.org> <20040706130549.31daa8e0@dell_ss3.pdx.osdl.net> <20040706132822.70c8174a.davem@redhat.com> <20040706133641.4a58af30@dell_ss3.pdx.osdl.net> <20040706133559.70b6380d.davem@redhat.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 06 Jul 2004 19:00:45 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040706133559.70b6380d.davem@redhat.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-07-06 at 18:28, Andrew Morton wrote:
-> Jim Houston <jim.houston@comcast.net> wrote:
-> >
-> > On Tue, 2004-07-06 at 17:23, Andrew Morton wrote:
-> > > Kevin Corry <kevcorry@us.ibm.com> wrote:
-> > > >
-> > > > After talking with Alasdair a bit, there might be one bug in the "dm-use-idr"
-> > > > patch I submitted before. It seems (based on some comments in lib/idr.c) that
-> > > > the idr_find() routine might not return NULL if the desired ID value is not
-> > > > in the tree.
-> > > 
-> > > 
-> > > Confused.  idr_find() returns the thing it found, or NULL.  To which
-> > > comments do you refer?
-> > 
-> > Hi Andrew, Kevin,
-> > 
-> > Kevin is correct.  It's more of the nonsense related to having a counter
-> > in the upper bits of the id.  If you call idr_find with an id that is
-> > beyond the currently allocated space it ignores the upper bits and
-> > returns one of the entries that is in the allocated space.  This
-> > aliasing is most annoying.
-> 
-> erk, OK, we have vestigial bits still.  Note that MAX_ID_SHIFT is now 31 on
-> 32-bit, so we're still waggling the top bit.
-> 
-> > I'm attaching an untested patch which removes the counter in the upper
-> > bits of the id and makes idr_find return NULL if the requested id is
-> > beyond the allocated space.
-> 
-> Would you have time to get it tested please?
-> 
-> >  I suspect that there are problems with
-> > id values which are less than zero.
-> 
-> Me too.  I'd only be confident in the 0..2G range.
-> 
-> 
-> > -#endif
-> > +	if (id >= (1 << n))
-> > +		return NULL;
-> >  	while (n > 0 && p) {
-> >  		n -= IDR_BITS;
-> >  		p = p->ary[(id >> n) & IDR_MASK];
-> > 
-> 
-> I think the above test is unneeded?
+On Tue, Jul 06, 2004 at 01:35:59PM -0700, David S. Miller wrote:
 
-Hi Everyone,
+> Therefore we do not know which of the following two it really is:
 
-With out the test above an id beyond the allocated space will alias
-to one that exists.  Perhaps the highest id currently allocated is 
-100, there will be two layers in the radix tree and the while loop
-above will only look at the 10 least significant bits.  If you call
-idr_find with 1025 it will return the pointer associated with id 1.
+Anybody with this problem is kindly invited to try to connect to
+213.244.168.210, port 10000, http://213.244.168.210:10000/ should work.
 
-The patch I sent was against linux-2.6.7, so I missed the change to
-MAX_ID_SHIFT.
+If you have a problem, email me with your IP address, I have a tcpdump
+running.
 
-Jim Houston - Concurrent Computer Corp.
+> 1) window scale option being stripped from SYN+ACK
 
+The remote is in fact zeus-pub.kernel.org. I assume it does not have a
+broken firewall, and I sure haven't, and it sends out to me:
+
+00:46:31.936667 192.168.1.4.34018 > 204.152.189.116.80: S 2786942165:2786942165(0) win 5840 
+	<mss 1460,sackOK,timestamp 269093190,nop,wscale 7> (DF)
+
+00:46:32.097745 204.152.189.116.80 > 192.168.1.4.34018: S 2888442437:2888442437(0) 
+	ack 2786942166 win 5792 <mss 1460,sackOK,timestamp 3563902477 26909319,nop,wscale 0> (DF)
+	                                                                                  ^
+00:46:32.098170 192.168.1.4.34018 > 204.152.189.116.80: . ack 1 win 45 
+	<nop,nop,timestamp 26909481 3563902477> (DF)
+
+So I would rule out 1), as this is a network that does not have the problem. 
+
+> 2) non-zero window option being patched into a zero window
+>    scale option
+
+This looks more likely, on the outgoing SYN. We'll know tomorrow evening
+(CEST) or earlier if somebody with the problem volunteers.
+
+Regards,
+
+bert
+
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316856AbSF0OY3>; Thu, 27 Jun 2002 10:24:29 -0400
+	id <S316857AbSF0OYq>; Thu, 27 Jun 2002 10:24:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316857AbSF0OY2>; Thu, 27 Jun 2002 10:24:28 -0400
-Received: from ns.tasking.nl ([195.193.207.2]:21010 "EHLO ns.tasking.nl")
-	by vger.kernel.org with ESMTP id <S316856AbSF0OY1>;
-	Thu, 27 Jun 2002 10:24:27 -0400
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Martin Dalecki <dalecki@evision-ventures.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ATA: cleanup of channel->autodma flags usage
-In-Reply-To: <Pine.SOL.4.30.0206252129130.27820-200000@mion.elka.pw.edu.pl>
-References: <Pine.SOL.4.30.0206252129130.27820-200000@mion.elka.pw.edu.pl>
-X-Attribution: KB
-Reply-To: kees.bakker@altium.nl (Kees Bakker)
-From: Kees Bakker <rnews@altium.nl>
-Date: 27 Jun 2002 16:23:02 +0200
-Message-ID: <siit443int.fsf@koli.tasking.nl>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S316860AbSF0OYp>; Thu, 27 Jun 2002 10:24:45 -0400
+Received: from terminus.zytor.com ([64.158.222.227]:2689 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP
+	id <S316857AbSF0OYo>; Thu, 27 Jun 2002 10:24:44 -0400
+Message-ID: <3D1B200B.5040202@zytor.com>
+Date: Thu, 27 Jun 2002 10:24:11 -0400
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc1) Gecko/20020425
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: davidm@hpl.hp.com
+CC: Andreas Schwab <schwab@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.24: auto_fs.h typo.
+References: <200206251759.34690.schwidefsky@de.ibm.com>	<afb4im$6nl$1@cesium.transmeta.com>	<je7kkm8bma.fsf@sykes.suse.de>	<3D19CE5E.1090704@zytor.com> <15642.36216.782111.506354@napali.hpl.hp.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Bartlomiej" == Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> writes:
+David Mosberger wrote:
+>>>>>>On Wed, 26 Jun 2002 10:23:26 -0400, "H. Peter Anvin" <hpa@zytor.com> said:
+>>>>>
+> 
+>   hpa> Andreas Schwab wrote:
+>   >> |> |> Please change this to:
+>   >> |> 
+>   >> |> #ifndef __alpha__
+>   >> 
+>   >> What about __ia64__?
+> 
+>   hpa> Oh right, that one too...
+> 
+> Isn't this the one which we agreed not to change because it would break
+> existing ia64 automount binaries and because we do not expect x86 automount
+> to run on ia64 machines?
+> 
 
-Bartlomiej> incremental to generic ATA PCI auto-dma patches...
-[...]
-Bartlomiej> 	- remove ATA_F_NOAUTODMA flag from aec62xx.c, hpt34x.c,
-Bartlomiej> 	  sis5513.c and via82cxxx.c drivers, it's use was bogus
-Bartlomiej> 	  in these drivers
+Right, hence:
 
-Bartlomiej> 	  only two usages of ATA_F_NOAUTODMA are left (in ide-pci.c),
-Bartlomiej> 	  probably they can alse be removed due to fact that drivers
-Bartlomiej> 	  should disable autodma not ide-pci (i.e. hpt34x)
-[...]
+#if !defined(__alpha__) && !defined(__ia64__)
 
-That should say: ATA_F_NOADMA
+Alpha and IA64 being the 64-bit architectures which will continue to use 
+the older interface.
 
-I have removed ATA_F_NODMA in ide-pci.c for my VIA8233
-(PCI_DEVICE_ID_VIA_82C586_1). So far it has not failed (using 2.5.20).
+	-hpa
 
---- linux-2.5.20/drivers/ide/ide-pci.c~	Mon Jun  3 14:49:59 2002
-+++ linux-2.5.20/drivers/ide/ide-pci.c	Fri Jun  7 18:52:50 2002
-@@ -742,8 +742,7 @@
- 	{
- 		vendor: PCI_VENDOR_ID_VIA,
- 		device: PCI_DEVICE_ID_VIA_82C586_1,
--		bootable: ON_BOARD,
--		flags: ATA_F_NOADMA
-+		bootable: ON_BOARD
- 	},
- 	{
- 		vendor: PCI_VENDOR_ID_TTI,
 
-- Kees
+
+

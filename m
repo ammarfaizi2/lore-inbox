@@ -1,76 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283309AbRLDStm>; Tue, 4 Dec 2001 13:49:42 -0500
+	id <S283269AbRLDSsA>; Tue, 4 Dec 2001 13:48:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283266AbRLDSsC>; Tue, 4 Dec 2001 13:48:02 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:55473 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S283273AbRLDSq5>;
-	Tue, 4 Dec 2001 13:46:57 -0500
-Date: Tue, 4 Dec 2001 19:46:52 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: =?iso-8859-1?Q?Ra=FAlN=FA=F1ez_de_Arenas_Coronado?= 
-	<raul@viadomus.com>
-Cc: linux-kernel@vger.kernel.org, matthias.andree@stud.uni-dortmund.de,
-        esr@thyrsus.com, hch@caldera.de, kaos@ocs.com.au,
+	id <S283266AbRLDSqY>; Tue, 4 Dec 2001 13:46:24 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:57012
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S283269AbRLDSo7>; Tue, 4 Dec 2001 13:44:59 -0500
+Date: Tue, 4 Dec 2001 13:36:29 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: raul@viadomus.com, linux-kernel@vger.kernel.org,
+        matthias.andree@stud.uni-dortmund.de, hch@caldera.de, kaos@ocs.com.au,
         kbuild-devel@lists.sourceforge.net, torvalds@transmeta.com
 Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
-Message-ID: <20011204194652.F360@khan.acc.umu.se>
-In-Reply-To: <E16BJ3x-0001qq-00@DervishD.viadomus.com>
+Message-ID: <20011204133629.M16578@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Tom Rini <trini@kernel.crashing.org>, raul@viadomus.com,
+	linux-kernel@vger.kernel.org, matthias.andree@stud.uni-dortmund.de,
+	hch@caldera.de, kaos@ocs.com.au, kbuild-devel@lists.sourceforge.net,
+	torvalds@transmeta.com
+In-Reply-To: <E16BJ3x-0001qq-00@DervishD.viadomus.com> <20011204182236.GM17651@cpe-24-221-152-185.az.sprintbbd.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <E16BJ3x-0001qq-00@DervishD.viadomus.com>; from raul@viadomus.com on Tue, Dec 04, 2001 at 06:08:57PM +0100
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011204182236.GM17651@cpe-24-221-152-185.az.sprintbbd.net>; from trini@kernel.crashing.org on Tue, Dec 04, 2001 at 11:22:36AM -0700
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 04, 2001 at 06:08:57PM +0100, RaúlNúñez de Arenas Coronado wrote:
->     Hi Matthias :)
+Tom Rini <trini@kernel.crashing.org>:
+> >     Maybe for you. For me it *is* an issue. I don't like more and
+> > more dependencies for the kernel. I mean, if I can drop kbuild and
+> > keep on building the kernel with the old good 'make config' I won't
+> > worry, but otherwise I don't think that kernel building depends on
+> > something like Python.
 > 
-> >Creating a dependency on Python? Is a non-issue.
-> 
->     Maybe for you. For me it *is* an issue. I don't like more and
-> more dependencies for the kernel. I mean, if I can drop kbuild and
-> keep on building the kernel with the old good 'make config' I won't
-> worry, but otherwise I don't think that kernel building depends on
-> something like Python.
-> 
->     Why must I install Python in order to compile the kernel? I don't
-> understand this. I think there are better alternatives, but kbuild
-> seems to be imposed any way.
-> 
-> >You don't make the pen yourself when writing a letter either.
-> 
->     I don't like to be forced in a particular pen, that's the reason
-> why I use and develop for linux.
-> 
-> >What are the precise issues with Python? Just claiming it is an
-> >issue is not useful for discussing this. Archive pointers are
-> >welcome.
-> 
->     Well, let's start writing kernel drivers with Python, Perl, PHP,
-> awk, etc... And, why not, C++, Ada, Modula, etc...
+> One of the things that I _think_ is happening is that lots of other
+> scripts/ files are being redone, and thus removing them from the list,
+> so in effect we're trading out one or two for just Python.
 
-Noone's suggested writing kernel-drivers in anything but a combination
-of C and assembler (with as little asm as possible), apart from some
-heretics that suggested usage of C++ in the kernel...
+That is my intention.
 
-This only involves usage of Python2 for configuring your kernel.
+> The right tools for the right job.  C is good for the kernel.  Python is
+> good at manipulating strings.
 
->     The kernel should depend just on the compiler and assembler, IMHO.
+*Perl* is good at strings.  Python is good at actual data structures :-).
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-Yeah, let's lose the dependencies on perl, make, awk, sed, ld, ar,
-nm, strip, objcopy, objdump, depmod, grep, xargs, find, gzip,
-wish, tcl/tk and possibly others. That'd surely shave a lot of diskspace
-off my buildsystem. It's not like I use any of them for anything else...
-
-Hey, lets lose C and ASM too, and create all your binaries by
-writing hexvalues into a file.
-
-
-/David Weinehall
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+The people of the various provinces are strictly forbidden to have in their
+possession any swords, short swords, bows, spears, firearms, or other types
+of arms. The possession of unnecessary implements makes difficult the
+collection of taxes and dues and tends to foment uprisings.
+        -- Toyotomi Hideyoshi, dictator of Japan, August 1588

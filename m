@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136655AbRAJVjl>; Wed, 10 Jan 2001 16:39:41 -0500
+	id <S136673AbRAJVlL>; Wed, 10 Jan 2001 16:41:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136673AbRAJVjd>; Wed, 10 Jan 2001 16:39:33 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:62853 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S136655AbRAJVjL>;
-	Wed, 10 Jan 2001 16:39:11 -0500
-Date: Wed, 10 Jan 2001 13:39:01 -0800
-Message-Id: <200101102139.NAA07105@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: hacksaw@hacksaw.org
-CC: kernel@ddx.a2000.nu, linux-kernel@vger.kernel.org
-In-Reply-To: <200101102136.f0ALaEr01228@habitrail.home.fools-errant.com>
-	(message from Hacksaw on Wed, 10 Jan 2001 16:36:14 -0500)
-Subject: Re: unexplained high load
-In-Reply-To: <200101102136.f0ALaEr01228@habitrail.home.fools-errant.com>
+	id <S129401AbRAJVlB>; Wed, 10 Jan 2001 16:41:01 -0500
+Received: from logger.gamma.ru ([194.186.254.23]:48653 "EHLO logger.gamma.ru")
+	by vger.kernel.org with ESMTP id <S136673AbRAJVkv>;
+	Wed, 10 Jan 2001 16:40:51 -0500
+To: linux-kernel@vger.kernel.org
+Path: pccross!not-for-mail
+From: crosser@average.org (Eugene Crosser)
+Newsgroups: linux.kernel
+Subject: Re: 2.4.0 tcp over firewall - no connection
+Date: 11 Jan 2001 00:38:36 +0300
+Organization: Average
+Message-ID: <93ikos$p6r$1@pccross.average.org>
+In-Reply-To: <m3itnnru8n.fsf@belphigor.mcnaught.org>
+Mime-Version: 1.0
+X-Newsreader: knews 0.9.8
+X-Comment-To: Doug McNaught <doug@wireboard.com>
+Content-Type: text/plain; charset=koi8-r
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: 	Wed, 10 Jan 2001 16:36:14 -0500
-   From: Hacksaw <hacksaw@hacksaw.org>
+In article <m3itnnru8n.fsf@belphigor.mcnaught.org>,
+        Doug McNaught <doug@wireboard.com> writes:
 
-   You'll have to reboot to clear it. I believe this is a kernel
-   bug. Try going back to 2.2.14, or maybe up to 2.2.19pre2.
+>> I noticed rather strange behavior: stock 2.4.0 with old ISA 3Com
+>> on UP compiled as UP cannot open TCP connection to hosts behind a
+>> firewall.  E.g. it is impossible to go to http://www.etrade.com/ -
+>> connect just never finishes.  2.2.17 on the same hardware works
+>> right.  2.4.0 on SMP over PPP connection works right too.  MTU
+>> is 1500 in both cases.  In both cases, kernel is compiled with
+>> netfilter as modules, but those are not loaded.
+> 
+> Known problem, exhaustively discussed on the list, and not related
+> to your NIC.  Disable ECN (explicit congestion notification), either
+> in your kernel compile or in /proc/sys/<something>.
 
-He needs to go up if anything.  His sparc64 OOPS had strings in the
-kernel stack, which is indicative of a sparc64 specific bug I only
-fixed very late in the 2.2.18 patches.
+This really was ECN, sorry for noise in this list...
 
-Later,
-David S. Miller
-davem@redhat.com
+Eugene
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,58 +1,164 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261825AbTJWWFr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 18:05:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbTJWWFr
+	id S261831AbTJWWbG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 18:31:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261836AbTJWWbG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 18:05:47 -0400
-Received: from dark.beer.net ([204.145.225.20]:3347 "EHLO dark.beer.net")
-	by vger.kernel.org with ESMTP id S261825AbTJWWFo (ORCPT
+	Thu, 23 Oct 2003 18:31:06 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:58762 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261831AbTJWWa7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 18:05:44 -0400
-Date: Thu, 23 Oct 2003 17:05:40 -0500 (CDT)
-Message-Id: <200310232205.h9NM5eOc004400@dark.beer.net>
-From: "Michael Glasgow" <glasgowNOSPAM@beer.net>
-To: "Theodore Ts'o" <tytso@mit.edu>, <linux-kernel@vger.kernel.org>
-Subject: Re: posix capabilities inheritance
-In-reply-to: <fa.f4bs2b4.fhub0m@ifi.uio.no>
-References: <fa.f4bs2b4.fhub0m@ifi.uio.no>
+	Thu, 23 Oct 2003 18:30:59 -0400
+Date: Thu, 23 Oct 2003 15:30:35 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: lse-tech <lse-tech@lists.sourceforge.net>
+Subject: 2.6.0-test8-mjb1
+Message-ID: <87720000.1066948235@flay>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Ts'o wrote:
-> I agree this is safe, and allows the use of your setuid wrapper
-> script.  The one reason why I think it's better to modify programs is
-> that it's too easy for individual system administrators to screw up
-> the configuration used by your wrapper script, and accidentally
-> introduce a security vulnerability into their system.  It's dangerous
-> to give a program some capability (or reduce the capability given to a
-> program designed to be setuid) without examining the source code and
-> being clueful.  So by making the program setuid and editing the source
-> code to add an explicit capability drop in the program is much, much
-> safer compared to having a random system administrator to edit a
-> config file and trust that he or she does so correctly.
+The patchset contains mainly scalability and NUMA stuff, and anything 
+else that stops things from irritating me. It's meant to be pretty stable, 
+not so much a testing ground for new stuff.
 
-I can see your point, but I guess we'll have to agree to disagree.
+I'd be very interested in feedback from anyone willing to test on any 
+platform, however large or small.
 
-Even with selective capability inheritance enabled in this fashion,
-it is still possible to avoid using it and modify programs directly,
-if you think that's more secure.  Personally, I think that in some
-cases it's slightly more secure to have a very small (statically
-linked) setuid wrapper program which sets up capabilities properly
-than to make a very large program setuid-root (when it was not
-designed to run as root), only to add one capability.
+ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/2.6.0-test8/patch-2.6.0-test8-mjb1.bz2
 
-Yes, you can do the capability-setup first thing in main()... but
-this is occasionally insufficient.  Also, it makes it a pain to
-have, for instance, a backup user with CAP_DAC_READ_SEARCH who is
-able to run several apps, e.g. dump, tar, cpio, rsync, etc.  from
-a restricted shell.
+Since 2.6.0-test6-mjb1 (~ = changed, + = added, - = dropped)
 
-The code to drop privs is not hard, but it's also not trivial.
-Those without a clue are just as likely to screw it up as they are
-a wrapper; and anyway since when did it become a design goal for
-the kernel to cater to the ineptitude of the clueless?  That sounds
-more like a Redmond, Washington philosophy than one fit for Linux. :-)
+Notes: 
+	Mostly a merge forwards.
 
---
-Michael Glasgow < glasgow at beer dot net >
+Now in Linus' tree:
+
+Dropped:
+
+New:
+
++ irqbal_fast					Adam Litke
+	Balance IRQs more readily
+
++ kcg						Adam Litke
+	Acylic call graphs from the kernel. Wheeeeeeeeeeeee!
+
++ numa_mem_equals 				Dave Hansen
+	mem= command line parameter NUMA awareness.
+
++ qlogic driver					Qlogic
+	The qlogic driver
+
++ schedstats					Rick Lindsley
+	Loadsa stats for the analytics amongst us
+
+Pending:
+lotsa_sds
+config_numasched
+4/4 split
+new kgdb
+list_of_lists
+Hyperthreaded scheduler (Ingo Molnar)
+scheduler callers profiling (Anton or Bill Hartner)
+Child runs first (akpm)
+Kexec
+e1000 fixes
+Update the lost timer ticks code
+pidmaps_nodepages (Dave Hansen)
+
+Present in this patch:
+
+early_printk					Dave Hansen / Keith Mannthey
+	Allow printk before console_init
+
+confighz					Andrew Morton / Dave Hansen
+	Make HZ a config option of 100 Hz or 1000 Hz
+
+config_page_offset				Dave Hansen / Andrea
+	Make PAGE_OFFSET a config option
+
+numameminfo					Martin Bligh / Keith Mannthey
+	Expose NUMA meminfo information under /proc/meminfo.numa
+
+sched_tunables					Robert Love
+	Provide tunable parameters for the scheduler (+ NUMA scheduler)
+
+partial_objrmap					Dave McCracken
+	Object based rmap for filebacked pages.
+
+spinlock_inlining				Andrew Morton & Martin J. Bligh
+	Inline spinlocks for profiling. Made into a ugly config option by me.
+
+lockmeter					John Hawkes / Hanna Linder
+	Locking stats.
+
+sched_interactive				Ingo Molnar
+	Bugfix for interactive scheduler
+
+local_balance_exec				Martin J. Bligh
+	Modify balance_exec to use node-local queues when idle
+
+tcp_speedup					Martin J. Bligh
+	Speedup TCP (avoid double copy) as suggested by Linus
+
+disable preempt					Martin J. Bligh
+	I broke preempt somehow, temporarily disable it to stop accidents
+
+ppc64 pci fix					Anton Blanchard
+	Fix some ppc64 pci thing or other.
+
+per_node_idt					Zwane Mwaikambo
+	Per node IDT so we can do silly numbers of IO-APICs on NUMA-Q
+
+aiofix2						Mingming Cao
+	fixed a bug in ioctx_alloc()
+
+config_irqbal					Keith Mannthey
+	Make irqbalance a config option
+
+percpu_real_loadavg				Dave Hansen / Martin J. Bligh
+	Tell me what the real load average is, and tell me per cpu.
+
+nolock						Dave McCracken
+	Nah, we don't like locks.
+
+mbind_part1					Matt Dobson
+	Bind some memory for NUMA.
+
+mbind_part2					Matt Dobson
+	Bind some more memory for NUMA.
+
+per_node_rss					Matt Dobson
+	Track which nodes tasks mem is on, so sched can be sensible.
+
+pfn_to_nid					Martin J. Bligh
+	Dance around the twisted rats nest of crap in i386 include.
+
+gfp_node_strict					Dave Hansen
+	Add a node strict binding as a gfp mask option
+
+page_lock					William Lee Irwin
+	Conditionally convert mapping->page_lock back to an rwlock
+
+irqbal_fast					Adam Litke
+	Balance IRQs more readily
+
+kcg						Adam Litke
+	Acylic call graphs from the kernel. Wheeeeeeeeeeeee!
+
+numa_mem_equals 				Dave Hansen
+	mem= command line parameter NUMA awareness.
+
+qlogic driver					Qlogic
+	The qlogic driver
+
+-mjb						Martin J. Bligh
+	Add a tag to the makefile
+
+

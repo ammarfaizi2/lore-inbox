@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129846AbRAWShB>; Tue, 23 Jan 2001 13:37:01 -0500
+	id <S129759AbRAWSft>; Tue, 23 Jan 2001 13:35:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131216AbRAWSgx>; Tue, 23 Jan 2001 13:36:53 -0500
-Received: from raven.toyota.com ([63.87.74.200]:30478 "EHLO raven.toyota.com")
-	by vger.kernel.org with ESMTP id <S129846AbRAWSgk>;
-	Tue, 23 Jan 2001 13:36:40 -0500
-Message-ID: <3A6DCF36.CF93E926@toyota.com>
-Date: Tue, 23 Jan 2001 10:36:38 -0800
-From: J Sloan <jjs@toyota.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre8-ll i686)
+	id <S129763AbRAWSfa>; Tue, 23 Jan 2001 13:35:30 -0500
+Received: from postfix.conectiva.com.br ([200.250.58.155]:35857 "HELO
+	postfix.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S129759AbRAWSf0>; Tue, 23 Jan 2001 13:35:26 -0500
+Message-ID: <3A6DCEEC.66B15F3F@conectiva.com.br>
+Date: Tue, 23 Jan 2001 16:35:24 -0200
+From: Andrew Clausen <clausen@conectiva.com.br>
+Organization: Conectiva
+X-Mailer: Mozilla 4.76 [pt_BR] (X11; U; Linux 2.2.17-14cl i586)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Jason Venner <jason@vennerable.com>
-CC: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Total loss with 2.4.0 (release)  (win98 not honoring partitioning)
-In-Reply-To: <200101231813.KAA24039@echo.vennerable.com>
+To: Bryan Henderson <hbryan@us.ibm.com>
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        bug-parted@gnu.org
+Subject: Re: Partition IDs in the New World TM
+In-Reply-To: <OF5F9BE7DB.C1ADFB0E-ON872569DD.006485CC@LocalDomain>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jason Venner wrote:
+Bryan Henderson wrote:
+> Allow me to reword to what you probably meant:  Have a partition
+> ID that means "generic partition - check signatures within for
+> details."  (And then get people who develop file systems for use
+> with Linux, at least, to have a policy of always using that).
 
-> Windows 98 and possibly followons doesn't quite honor 'b' type
-> partitions in the extended area of the disk, particularily if you are
-> past the 8gig boundary and the partitions in question are over 2gig.
-> The above numbers are NOT hard boundaries, I have only seen this on 2
-> computers and those numbers are approximate.
+OK.
 
-This should be an FAQ - running windows on a system
-where you have a Linux partition is dangerous, and you
-run the risk of losing all your data. Any Linux system that
-contains important data should NOT dual boot with windows.
+> Incidentally, I just realized that the common name "partition ID"
+> for this value is quite a misnomer.  As far as I know, it has
+> never identified the partition, but rather described its contents.
 
-The voice of experience talking...
+Yes, "partition type ID" is better.
 
-jjs
-
+Andrew Clausen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

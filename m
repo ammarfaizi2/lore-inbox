@@ -1,53 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314050AbSDKNZY>; Thu, 11 Apr 2002 09:25:24 -0400
+	id <S314051AbSDKNZf>; Thu, 11 Apr 2002 09:25:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314051AbSDKNZX>; Thu, 11 Apr 2002 09:25:23 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:9747 "EHLO mail.stock-world.de")
-	by vger.kernel.org with ESMTP id <S314050AbSDKNZW>;
-	Thu, 11 Apr 2002 09:25:22 -0400
-Message-ID: <3CB57FF9.3020804@evision-ventures.com>
-Date: Thu, 11 Apr 2002 14:22:17 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, pl
+	id <S314052AbSDKNZe>; Thu, 11 Apr 2002 09:25:34 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:63494 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S314051AbSDKNZc>; Thu, 11 Apr 2002 09:25:32 -0400
+Date: Thu, 11 Apr 2002 09:22:27 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Keith Owens <kaos@ocs.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: NFS access to loopback mounts
+In-Reply-To: <2576.1018503672@kao2.melbourne.sgi.com>
+Message-ID: <Pine.LNX.3.96.1020411090957.3677G-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-CC: Baldur Norddahl <bbn-linux-kernel@clansoft.dk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: More than 10 IDE interfaces
-In-Reply-To: <Pine.LNX.3.96.1020411085829.3677F-100000@gatekeeper.tmr.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
-> On Thu, 11 Apr 2002, Martin Dalecki wrote:
-> 
-> 
->>Baldur Norddahl wrote:
->>
->>>Hi,
->>>
->>>I have a machine with the following configuration:
->>>
->>>2 on board IDE interfaces (AMD chipset)
->>>2 Promise Technology UltraDMA100 controllers with each 2 IDE interfaces.
->>>4 Promise Technology UltraDMA133 controllers with each 2 IDE interfaces.
->>>
->>>This adds up to 14 IDE interfaces. And I just discovered that the kernel
->>>only supports 10 IDE interfaces :-(
->>>
->>>So I tried to hack the kernel, and I was partially successfull. I changed
->>>MAX_HWIF from 10 to 14. I made up some major numbers for the extra
->>
->>In your case if should be changed to 15 there is an off by one error here in the
->>interpretation of this constant.
+On Thu, 11 Apr 2002, Keith Owens wrote:
 
->   Anyway, if you have a moment to hint why an off by one error is not
-> biting us on ten drives I'd be interested.
+> Is accessing a loopback mount via NFS supposed to work or not?  If not,
+> how do you export iso contents without duplicating the entire iso?
+> 
+> Machine A.
+>   mount -t iso9660 -o ro,loop /foo/iso /mnt/iso
+>   /etc/exports contains /mnt *(rw,no_root_squash,no_all_squash)
+> 
+> Machine B.
+>   mount -t nfs A:/mnt/iso /local/iso
 
-I think simply (not tested) that MAX_HWIF provides only 9 possible interfaces 
-right now.
+> I have a note from April 2000 where NFS access to a loopback mount used
+> to work.  Before I dig through two years of kernels to find out where
+> it stopped working, is it valid to access loopback via NFS?
+> 
+> AFAIK doing NFS first then loopback on the local NFS directory has
+> never worked.
+
+  I usually export a CD by mounting and exporting that, actually. If you
+have the space for the ISO I would think that just copying it from CD to a
+hierarchy would take no more space (although if you want to have the ISO
+image handy for burning that would take more space).
+
+  Can you export the directory with the ISO image and do a loopback mount
+on the client end? haven't tried that, and I'm working on a laptop at the
+end of a slow modem this morning, so I'm not able to try it here.
+
+  Oops, I'm wrong, I could ssh into a machine with an NFS directory
+containing ISO images, and I did nicely mount one and look at the
+contents.
+
+  So to answer your questions, I have no idea why it doesn't work, but you
+can get around it if the NFS client is a Linux machine.
+
+  While we're mentioning loopback problems, mounting a CD with loopack and
+offset:
+  mount -o ro,loop,offset=7480 /dev/cdrom /mnt
+used to work and doesn't. I get these CDs all the time with a chunk of
+binary data of variable length and an ISO image. Used to work, and I can
+mount them on 2.0 and 2.2 systems still. I posted that one before and got
+no feedback other than one private E-mail saying that the format was dumb
+and I should change it. Since it works for the client and is written by
+hardware, LOL.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

@@ -1,34 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262044AbREXOdr>; Thu, 24 May 2001 10:33:47 -0400
+	id <S262045AbREXOgH>; Thu, 24 May 2001 10:36:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262045AbREXOdh>; Thu, 24 May 2001 10:33:37 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:28435 "EHLO
+	id <S262052AbREXOf5>; Thu, 24 May 2001 10:35:57 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:30483 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262044AbREXOdc>; Thu, 24 May 2001 10:33:32 -0400
-Subject: Re: [PATCH] drivers/net/others
-To: tori@unhappy.mine.nu (Tobias Ringstrom)
-Date: Thu, 24 May 2001 15:30:17 +0100 (BST)
-Cc: ankry@green.mif.pg.gda.pl (Andrzej Krzysztofowicz),
-        jgarzik@mandrakesoft.com (Jeff Garzik), akpm@uow.edu.au,
-        alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org (kernel list)
-In-Reply-To: <Pine.LNX.4.33.0105241035230.10914-100000@boris.prodako.se> from "Tobias Ringstrom" at May 24, 2001 10:45:25 AM
+	id <S262045AbREXOfl>; Thu, 24 May 2001 10:35:41 -0400
+Subject: Re: Transmeta Crusoe support?
+To: jeffchua@silk.corp.fedex.com (Jeff Chua)
+Date: Thu, 24 May 2001 15:33:12 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (Linux Kernel), jchua@fedex.com (Jeff Chua)
+In-Reply-To: <Pine.LNX.4.33.0105241809180.1129-100000@boston.corp.fedex.com> from "Jeff Chua" at May 24, 2001 06:25:26 PM
 X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E152w81-00053C-00@the-village.bc.nu>
+Message-Id: <E152wAq-00053X-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > -		printk(version);
-> > +		printk("%s", version);
-> >
-> Could you please explain the purpose of this change?  To me it looks less
-> efficient in both performance and memory usage.
+> Question is whether I need to recompile everything (kernel and binaries)
+> on my current 586 platform in order to move to Crusoe?
 
-its called 'programming in C not taking ugly shortcuts'
+No. Crusoe should work out of the box in that sense. Its actually however
+not brilliantly documented for things like longrun mode where folks have
+actually been poking around the acpi data in order to find out how the thing
+works... thats the ironic part 8)
+
 > 
 

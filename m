@@ -1,69 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262384AbSJPK6B>; Wed, 16 Oct 2002 06:58:01 -0400
+	id <S262128AbSJPLH2>; Wed, 16 Oct 2002 07:07:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264746AbSJPK6B>; Wed, 16 Oct 2002 06:58:01 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:21252 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S262384AbSJPK6A>;
-	Wed, 16 Oct 2002 06:58:00 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Cc: rgooch@atnf.csiro.au, viro@math.psu.edu
-Subject: 2.4.19 breaks devfs mapping for root=
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 16 Oct 2002 21:03:44 +1000
-Message-ID: <30388.1034766224@ocs3.intra.ocs.com.au>
+	id <S264762AbSJPLH2>; Wed, 16 Oct 2002 07:07:28 -0400
+Received: from sccrmhc02.attbi.com ([204.127.202.62]:16821 "EHLO
+	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
+	id <S262128AbSJPLH1>; Wed, 16 Oct 2002 07:07:27 -0400
+Message-ID: <3DAD49F0.8050808@quark.didntduck.org>
+Date: Wed, 16 Oct 2002 07:13:52 -0400
+From: Brian Gerst <bgerst@quark.didntduck.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Melkor Ainur <melkorainur@yahoo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: user space virtual address to a vm_area_struct
+References: <20021016091011.9346.qmail@web21204.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Resend #1 - no response to original.
+Melkor Ainur wrote:
+> Hi,
+> 
+> Is there a recommended way for a driver to take an
+> application provided virtual address while executing
+> in the syscall context of that same application and
+> find the corresponding vm_area_struct (if exists for
+> that address) that spans that virtual address?
+> 
+> Melkor
 
-A change from 2.4.18 to 2.4.19 has broken the way that devfs maps
-root=.  2.4.18 init/main.c::mount_root() has
+down_read(current->mm->mmap_sem);
+vma = find_vma(current->mm, address);
+...
+up_read(current->mm->mmap_sem);
 
-        devfs_make_root (root_device_name);
-        handle = devfs_find_handle (NULL, ROOT_DEVICE_NAME,
-                                    MAJOR (ROOT_DEV), MINOR (ROOT_DEV),
-                                    DEVFS_SPECIAL_BLK, 1);
+--
+				Brian Gerst
 
-where ROOT_DEVICE_NAME maps to the value of root= for non-initrd.  This
-allowed devfs to remap an entry such as sda3 to whatever driver was
-implementing sda3, even if that driver used a different major number.
-The correct major was returned in handle.
-
-2.4.19 init/do_mounts.c::mount_root() has
-
-        devfs_make_root(root_device_name);
-        create_dev("/dev/root", ROOT_DEV, root_device_name);
-
-create_dev() has
-
-	handle = devfs_find_handle(NULL, dev ? NULL : devfs_name,
-                    MAJOR(dev), MINOR(dev), DEVFS_SPECIAL_BLK, 1);
-
-The difference in 2.4.19 is that if dev is already set from
-root_dev_names[] then devfs does NOT get the value of root=, forcing
-the use of major from root_dev_names[].  If a driver reimplements one
-of the standard device names and uses a different major or minor number
-then it no longer works in 2.4.19 because devfs is given incomplete
-information.
-
-Quick and dirty workaround
-
---- 2.4.19/init/do_mounts.c
-+++ 2.4.19/init/do_mounts.c
-@@ -368,7 +368,7 @@
- 	if (!do_devfs)
- 		return sys_mknod(name, S_IFBLK|0600, kdev_t_to_nr(dev));
- 
--	handle = devfs_find_handle(NULL, dev ? NULL : devfs_name,
-+	handle = devfs_find_handle(NULL, devfs_name,
- 				MAJOR(dev), MINOR(dev), DEVFS_SPECIAL_BLK, 1);
- 	if (!handle)
- 		return -1;
-
-But that probably breaks initrd.  What should that code be doing to
-cope with both initrd and still allow devfs to remap root=?
 

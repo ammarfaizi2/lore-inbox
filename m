@@ -1,33 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272672AbRIGO0K>; Fri, 7 Sep 2001 10:26:10 -0400
+	id <S272676AbRIGOmZ>; Fri, 7 Sep 2001 10:42:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272673AbRIGO0A>; Fri, 7 Sep 2001 10:26:00 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:30661 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S272672AbRIGOZo>; Fri, 7 Sep 2001 10:25:44 -0400
-Date: Fri, 7 Sep 2001 10:26:02 -0400
-From: Jakub Jelinek <jakub@redhat.com>
-To: antirez <antirez@invece.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: epic100.c, gcc-2.95.2 compiler bug!
-Message-ID: <20010907102602.J25384@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-In-Reply-To: <20010903130404.B1064@lxmayr6.informatik.tu-muenchen.de> <20010907160159.C621@lxmayr6.informatik.tu-muenchen.de> <20010907160315.D621@lxmayr6.informatik.tu-muenchen.de> <20010907161323.B31574@blu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010907161323.B31574@blu>; from antirez@invece.org on Fri, Sep 07, 2001 at 04:13:23PM +0200
+	id <S272679AbRIGOmP>; Fri, 7 Sep 2001 10:42:15 -0400
+Received: from pat.uio.no ([129.240.130.16]:2440 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S272676AbRIGOmK>;
+	Fri, 7 Sep 2001 10:42:10 -0400
+MIME-Version: 1.0
+Message-ID: <15256.56528.460569.700469@charged.uio.no>
+Date: Fri, 7 Sep 2001 16:42:24 +0200
+To: "Mike Black" <mblack@csihq.com>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.8 NFS Problems
+In-Reply-To: <033a01c1379e$e3514880$e1de11cc@csihq.com>
+In-Reply-To: <024f01c13601$c763d3c0$e1de11cc@csihq.com>
+	<shsae07md9d.fsf@charged.uio.no>
+	<033a01c1379e$e3514880$e1de11cc@csihq.com>
+X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+User-Agent: SEMI/1.13.7 (Awazu) CLIME/1.13.6 (=?ISO-2022-JP?B?GyRCQ2YbKEI=?=
+ =?ISO-2022-JP?B?GyRCJU4+MRsoQg==?=) MULE XEmacs/21.1 (patch 14) (Cuyahoga
+ Valley) (i386-redhat-linux)
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 07, 2001 at 04:13:23PM +0200, antirez wrote:
-> The following seems a gcc 3.0 bug, not sure it was fixed in gcc 3.01.
-> 
-> See the assembly generated with -O3 for the following code:
+>>>>> " " == Mike Black <mblack@csihq.com> writes:
 
-a) what does this have to do with the kernel?
-b) it is not a compiler bug, read info gcc about strict-aliasing
+     > But my timeouts were only 10 seconds -- well below the timeo
+     > and retrans timeout periods.  And my network traffic shows that
 
-	Jakub
+According to the 'nfs' manpage, the default timeo on the mount in
+util-linux is usually 0.7 seconds. retrans is 3.
+
+  0.7 + 1.4 + 2.8 = 4.9 seconds < 10...
+
+     > this is the client causing the problem NOT the server.  It's
+     > the read() that pauses for 10 seconds and then the NFS write
+     > immediately returns EIO.  So...I don't think soft mounts has
+     > anything to do with it.
+
+I think it does.
+
+Cheers,
+  Trond

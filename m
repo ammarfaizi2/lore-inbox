@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268283AbUJHCQB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268501AbUJGVVV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268283AbUJHCQB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 22:16:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268036AbUJHCLc
+	id S268501AbUJGVVV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 17:21:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268392AbUJGVTl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 22:11:32 -0400
-Received: from lakermmtao08.cox.net ([68.230.240.31]:1510 "EHLO
-	lakermmtao08.cox.net") by vger.kernel.org with ESMTP
-	id S268224AbUJGVkp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 17:40:45 -0400
-In-Reply-To: <41659748.9090906@drdos.com>
-References: <100120041740.9915.415D967600014EC2000026BB2200758942970A059D0A0306@comcast.net> <35fb2e590410011509712b7d1@mail.gmail.com> <415DD1ED.6030101@drdos.com> <1096738439.25290.13.camel@localhost.localdomain> <41659748.9090906@drdos.com>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <8B592DC4-18A9-11D9-ABEB-000393ACC76E@mac.com>
-Content-Transfer-Encoding: 7bit
-Cc: "jmerkey@comcast.net" <jmerkey@comcast.net>, jonathan@jonmasters.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Possible GPL Violation of Linux in Amstrad's E3 Videophone
-Date: Thu, 7 Oct 2004 17:40:45 -0400
-To: "Jeff V. Merkey" <jmerkey@drdos.com>
-X-Mailer: Apple Mail (2.619)
+	Thu, 7 Oct 2004 17:19:41 -0400
+Received: from hera.kernel.org ([63.209.29.2]:30188 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S267766AbUJGVFy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 17:05:54 -0400
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: __init poisoning for i386, too
+Date: Thu, 7 Oct 2004 21:05:45 +0000 (UTC)
+Organization: Mostly alphabetical, except Q, which We do not fancy
+Message-ID: <ck4b39$fmp$1@terminus.zytor.com>
+References: <20041006221854.GA1622@elf.ucw.cz> <20041007061610.GU9106@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1097183145 16090 127.0.0.1 (7 Oct 2004 21:05:45 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Thu, 7 Oct 2004 21:05:45 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 07, 2004, at 15:21, Jeff V. Merkey wrote:
-> This offer must be accepted by **ALL** copyright holders and...
+Followup to:  <20041007061610.GU9106@holomorphy.com>
+By author:    William Lee Irwin III <wli@holomorphy.com>
+In newsgroup: linux.dev.kernel
+>
+> On Thu, Oct 07, 2004 at 12:18:55AM +0200, Pavel Machek wrote:
+> > Overwrite __init section so calls to __init functions from normal code
+> > are catched, reliably. I wonder if this should be configurable... but
+> > it is configurable on x86-64 so I copied it. Please apply,
+> 
+> Any chance we could:
+> (a) set the stuff to 0x0f0b so illegal instructions come of it; jumps are
+> 	most often aligned to something > 16 bits anyway
+> (b) poison __initdata, memsetting to some bit pattern oopsable to dereference
+> 
 
-This will never happen.  Even if there is just _one_ GPL idealist who
-doesn't give a rat's ass about receiving money for their kernel code,
-you can't get your license.  Given that, I know several people who
-wouldn't give you a license no matter how much you offered them
-for it.
+What's wrong with using 0xCC (breakpoint instruction)?
 
-Cheers,
-Kyle Moffett
+If you want an illegal instruction, 0xFF 0xFF is an illegal
+instruction, so filling memory with 0xFF will do what you want.
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a17 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
-!y?(-)
-------END GEEK CODE BLOCK------
-
-
+	-hpa

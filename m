@@ -1,58 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313687AbSGKUWb>; Thu, 11 Jul 2002 16:22:31 -0400
+	id <S293203AbSGKUUy>; Thu, 11 Jul 2002 16:20:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315779AbSGKUWa>; Thu, 11 Jul 2002 16:22:30 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:17157 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S313687AbSGKUW3>; Thu, 11 Jul 2002 16:22:29 -0400
-Date: Thu, 11 Jul 2002 16:20:04 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: rwhron@earthlink.net
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lse-tech@lists.sourceforge.net
-Subject: Re: pipe and af/unix latency differences between aa and jam on smp
-In-Reply-To: <20020709005901.GA9616@rushmore>
-Message-ID: <Pine.LNX.3.96.1020711161225.5732A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313687AbSGKUUx>; Thu, 11 Jul 2002 16:20:53 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:31625
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S293203AbSGKUUw>; Thu, 11 Jul 2002 16:20:52 -0400
+Date: Thu, 11 Jul 2002 13:23:23 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Riley Williams <rhw@infradead.org>
+Cc: Justin Hibbits <jrh29@po.cwru.edu>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Michael Elizabeth Chastain <mec@shout.net>
+Subject: Re: Patch for Menuconfig script
+Message-ID: <20020711202323.GH695@opus.bloom.county>
+References: <20020708181838.GL695@opus.bloom.county> <Pine.LNX.4.21.0207112100010.9595-100000@Consulate.UFP.CX>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0207112100010.9595-100000@Consulate.UFP.CX>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Jul 2002 rwhron@earthlink.net wrote:
-
-> Sometimes small differences in LMbench between -jam and -aa are 
-> just CPU bounces on SMP.  The difference for pipe and af/unix latency
-> only appears on SMP too, but it is very consistent.  (My k6/2
-> has small differences between -aa and -jam for pipe and af/unix
-> latency).
+On Thu, Jul 11, 2002 at 09:06:50PM +0100, Riley Williams wrote:
+> Hi Tom.
 > 
-> You will know better what could make the difference:
+> >>>>> This is just a patch to the Menuconfig script (can be easily adapted
+> >>>>> to the other ones) that allows you to configure the kernel without
+> >>>>> the requirement of bash (I tested it with ksh, in POSIX-only mode).  
+> >>>>> Feel free to flame me :P
+> >>>>
+> >>>> Does it also work in the case where the current shell is csh or tcsh
+> >>>> (for example)?
+> >>>
+> >>> Er.. why wouldn't it?
+> >>> $ head -1 scripts/Menuconfig 
+> >>> #! /bin/sh
+> >>>
+> >>> So this removes the /bin/sh is not bash test, yes?
+> >>
+> >>  Q> # ls -l /bin/sh | tr -s '\t' ' '
+> >>  Q> lrwxrwxrwx 1 root root 4 May 7 1999 /bin/sh -> tcsh
+> >>  Q> #
+> >>
+> >> You tell me - the above is from one of the systems I regularly use,
+> >> which does not even have bash installed...
+> > 
+> > So does tcsh work as a POSIX-sh when invoked as /bin/sh ?
 > 
-> This is the averages:
+> You tell me - what exactly defines "a POSIX-sh" ???
+
+http://www.opengroup.org/onlinepubs/007904975/toc.htm
+
+> Probably of more interest is this: Prior to your tweaks, the Menuconfig
+> script just reported that one was trying to run it under the wrong
+> shell. What happens when one tries to run your modified version under
+> those conditions? There are only two valid answers:
+
+Remember, Keith Owens pointed out that it's really a test of
+CONFIG_SHELL, not /bin/sh.
+
+>  1. It runs successfully.
 > 
-> *Local* Communication latencies in microseconds - smaller is better
-> -------------------------------------------------------------------
-> kernel              Pipe    AF/Unix
-> -----------------  -------  -------
-> 2.4.19-pre10-aa4    33.941   70.216
-> 2.4.19-pre10-jam2    7.877   16.699
+>  2. It reports that it can't run under that shell.
+> 
+> You're the one proposing the patch, so you're the one who needs to
+> answer that question.
 
-Small differences? The only thing I would call small is the latency of the
-jam kernel!
+Well, my understanding of the patch is that it removes all of the
+bash'ism and related from the script, so that any shell which will
+accept things from the above URL will work.  So one of two things will
+happen when /bin/sh != /bin/bash
 
-If (a) this is a real value which results in ~5x latency reduction in
-non-benchmark applications, and (b) doesn't have some resulting penalty
-(there are some free lunches in Linux), then it would be desirable.
+1. The shell is complaint, and modulo bugs in the shell or script, it
+will work.  This should be the common case.
 
-I have an IPC test which measures time for a datum to move form process A
-to process B and back, using various methods, I'll try to build these
-kernels and test it in my next free day. I'd love to test latency of SysV
-message queues as well, since these turn out to be good solutions to some
-types of N:M client-server problems.
+2. The shell is not compliant, and the system is misconfigured.
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

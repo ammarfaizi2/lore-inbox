@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261615AbSJUUkd>; Mon, 21 Oct 2002 16:40:33 -0400
+	id <S261678AbSJUUwX>; Mon, 21 Oct 2002 16:52:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261624AbSJUUkc>; Mon, 21 Oct 2002 16:40:32 -0400
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:37843 "EHLO
-	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S261615AbSJUUjv> convert rfc822-to-8bit; Mon, 21 Oct 2002 16:39:51 -0400
-Message-ID: <3DB46781.D4245373@folkwang-hochschule.de>
-Date: Mon, 21 Oct 2002 22:45:53 +0200
-From: Joern Nettingsmeier <nettings@folkwang-hochschule.de>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.20-pre1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S261679AbSJUUwX>; Mon, 21 Oct 2002 16:52:23 -0400
+Received: from ulima.unil.ch ([130.223.144.143]:3200 "HELO ulima.unil.ch")
+	by vger.kernel.org with SMTP id <S261678AbSJUUwW>;
+	Mon, 21 Oct 2002 16:52:22 -0400
+Date: Mon, 21 Oct 2002 22:58:29 +0200
+From: Gregoire Favre <greg@ulima.unil.ch>
 To: linux-kernel@vger.kernel.org
-Subject: trivial netfilter compile problem in 2.5.4[34]-mm2
+Subject: 2.5.44 don't allow ZIP ejection :-((
+Message-ID: <20021021205829.GA6665@ulima.unil.ch>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi *!
+Hello,
 
+in 2.5.n n<44 the eject command didn't work anymore, but I could
+manually eject my disc...
 
-in order to compile 2.5.4[34], i had to add #include
-<linux/netfilter_ipv4> to net/ipv4/raw.c, since it choked on
-NF_IP_LOCAL_OUT being undefined in line 297.
+With 2.5.44 the eject command still don't work, but even worse: I should
+reboot to eject the device:
 
-since i've had this problem for two kernel releases now, i thought i'd
-bring this to your attention.
+Oct 21 16:55:57 ulima kernel:  /dev/ide/host0/bus1/target1/lun0: unknown partition tableOct 21 16:55:57 ulima kernel: ide-floppy: unsupported command in queue: dev 16:40: REQ_NOMERGE REQ_STARTED REQ_BLOCK_PC sector 65680, nr/cnr 8/8
+Oct 21 16:55:57 ulima kernel: bio 00000000, biotail 00000000
+Oct 21 16:55:57 ulima kernel: end_request: I/O error, dev 16:40, sector 65680
 
-regards,
+Thank you,
 
-jörn
-
-(please cc: me on followups, the archive i'm using to read lkml lags
-badly. thx.)
-
--- 
-Jörn Nettingsmeier     
-Kurfürstenstr 49, 45138 Essen, Germany      
-http://spunk.dnsalias.org (my server)
-http://www.linuxdj.com/audio/lad/ (Linux Audio Developers)
+	Grégoire
+________________________________________________________________
+http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

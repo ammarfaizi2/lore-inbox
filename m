@@ -1,44 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265818AbTL3QCa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 11:02:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265820AbTL3QCa
+	id S265826AbTL3QMd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 11:12:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265829AbTL3QMd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 11:02:30 -0500
-Received: from postfix4-1.free.fr ([213.228.0.62]:37341 "EHLO
-	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S265818AbTL3QC3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 11:02:29 -0500
-From: Duncan Sands <baldrick@free.fr>
-To: "Guldo K" <guldo@tiscali.it>
-Subject: Re: speedtouch for 2.6.0
-Date: Tue, 30 Dec 2003 17:02:26 +0100
-User-Agent: KMail/1.5.4
+	Tue, 30 Dec 2003 11:12:33 -0500
+Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:9662 "EHLO
+	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S265826AbTL3QMb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 11:12:31 -0500
+Subject: Re: Fw: LVM2 on Gentoo-Dual Opteron/Amd64 system troubles...
+From: Christophe Saout <christophe@saout.de>
+To: Branko <brankob@avtomatika.com>
 Cc: linux-kernel@vger.kernel.org
-References: <16366.61517.501828.389749@gargle.gargle.HOWL> <200312300911.02044.baldrick@free.fr> <16369.40927.110483.701341@gargle.gargle.HOWL>
-In-Reply-To: <16369.40927.110483.701341@gargle.gargle.HOWL>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+In-Reply-To: <007401c3cee2$80edba60$0a03a8c0@brane>
+References: <007401c3cee2$80edba60$0a03a8c0@brane>
+Content-Type: text/plain
+Message-Id: <1072800771.4290.24.camel@leto.cs.pocnet.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 30 Dec 2003 17:12:51 +0100
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312301702.26973.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It looks like this needs a connection... it couldn't find the server.
-> Of course, I'm offline when doing this. :-(
+Am Di, den 30.12.2003 schrieb Branko um 15:37:
 
-The famous catch-22 of setting up network connectivity...
+>  I have bothered support at Sistina with this, but received no answer yet
+> (being christmas time etc), so I thought of posting it here also...
 
-> This is getting too frustrating...
+Yep, on vacation.
 
-You are nearly there.
+> Manual recommends using special script called lvmcreate_initdr to do initrd
+> initialisations, but my lvm2 doesn't have that script. After many trials and
+> errors  i have made initrd which succeeds with LVM initialisation, but
+> machine reboots just at the point when it should drop initrd environment and
+> jump into root  on LV.
+> [...]
+> -how does one make initrd with LVM ? I had to scavenge script from LVM1,
+> without much success...
 
-> Maybe I'd better get an ethernet modem, shouldn't I?
+How does your initrd look like?
 
-Maybe you should start with 2.4 and not 2.6.
+What boot loader do you use?
 
-Ciao,
+I wrote an initrd myself some time ago that works very well (for me).
 
-Duncan.
+It's only a simle x86 one, but I think the binaries could be replaced
+with the opteron ones. I just copied the binaries from my own (also
+Gentoo) system and stripped them.
+
+You can find it here:
+http://www.saout.de/misc/initrd-2.6.0-lvm2-athlon.gz
+(there's also a small README in that directory)
+
+gunzip it and
+mount initrd-2.6.0-lvm2-athlon /mnt -o loop
+
+Then you can go in there and replace the binaries (some libraries in
+/lib, /bin and /sbin).
+
+/bin/sh is a small shell called "ash" (which can also be emerged). udev
+is used when no devfs is available.
+
+You can try playing with that one until someone writes a script.
+
+It doesn't contain a module loader so device-mapper and ext3 should be
+compiled into the kernel.
+
+You should create a directory called /initrd on your root volume and
+pass root=/path/to/volume to the kernel (instead of the numeric
+root=fe00), then the script will try to mount the root volume itself and
+pivot_root to it which will work better because LVM2 uses dynamic
+minors.
+
+Good luck. :)
+
+

@@ -1,33 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261886AbTCQTVs>; Mon, 17 Mar 2003 14:21:48 -0500
+	id <S261841AbTCQTUM>; Mon, 17 Mar 2003 14:20:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261891AbTCQTVs>; Mon, 17 Mar 2003 14:21:48 -0500
-Received: from mail.jlokier.co.uk ([81.29.64.88]:42629 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP
-	id <S261886AbTCQTVr>; Mon, 17 Mar 2003 14:21:47 -0500
-Date: Mon, 17 Mar 2003 19:32:09 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Daniel Phillips <phillips@arcor.de>, Larry McVoy <lm@bitmover.com>,
-       Roman Zippel <zippel@linux-m68k.org>, Andrea Arcangeli <andrea@suse.de>,
-       Nicolas Pitre <nico@cam.org>, Ben Collins <bcollins@debian.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
-Message-ID: <20030317193209.GA11881@mail.jlokier.co.uk>
-References: <Pine.LNX.4.44.0303161341520.5348-100000@xanadu.home> <Pine.LNX.4.44.0303170104080.5042-100000@serv> <20030317013555.GA26273@work.bitmover.com> <20030317174304.EC6FC3D268@mx01.nexgo.de> <20030317180432.GD9667@gtf.org>
-Mime-Version: 1.0
+	id <S261848AbTCQTUM>; Mon, 17 Mar 2003 14:20:12 -0500
+Received: from web14702.mail.yahoo.com ([216.136.224.119]:26373 "HELO
+	web14702.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S261841AbTCQTUL>; Mon, 17 Mar 2003 14:20:11 -0500
+Message-ID: <20030317193106.41968.qmail@web14702.mail.yahoo.com>
+Date: Mon, 17 Mar 2003 11:31:06 -0800 (PST)
+From: Electroniks New <elektr_new@yahoo.com>
+Subject: mouse and ata
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030317180432.GD9667@gtf.org>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I still don't understand why bkbits.net does not simply make the SCCS
-files available.
+ I have a optical mouse.How do i send command to light
+up the optical mouse o
+n and off.For keyboard i have command EB and other the
+led control like scroll i
+s 0 and other stuff using inb and outb.
+                 How do i  send a signal to mouse.In
+other OS like windows i can
+ see the mouse turns its lights on and off while
+booting.Is it a problem with li
+nux.So what command should i send to turn up the
+lights.
+                 Also where can i find the code and
+docs for it . 
+3)Where can i find a ata harddisk and cdrom generic
+driver.Can't we do it without DMA.I mean usual read
+byte using inb (without dma registers )like scancode
+from keyboard. Code and links would be helpful.
+Thank you
 
-That would render every objection moot.
 
--- Jamie
-
+__________________________________________________
+Do you Yahoo!?
+Yahoo! Platinum - Watch CBS' NCAA March Madness, live on your desktop!
+http://platinum.yahoo.com

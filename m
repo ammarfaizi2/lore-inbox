@@ -1,40 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265915AbTF3WFQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 18:05:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265918AbTF3WFQ
+	id S265922AbTF3WHV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 18:07:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265925AbTF3WHV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 18:05:16 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:63120
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S265915AbTF3WFN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 18:05:13 -0400
-Subject: Re: 2.4.21 IDE problems (lost interrupt, bad DMA status)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Marek Michalkiewicz <marekm@amelek.gda.pl>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030630221542.GA17416@alf.amelek.gda.pl>
-References: <20030630221542.GA17416@alf.amelek.gda.pl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1057011399.17567.50.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 30 Jun 2003 23:16:40 +0100
+	Mon, 30 Jun 2003 18:07:21 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:17422 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S265922AbTF3WHT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 18:07:19 -0400
+Date: Mon, 30 Jun 2003 18:14:19 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.73-mjb2
+In-Reply-To: <20030628143343.GX26348@holomorphy.com>
+Message-ID: <Pine.LNX.3.96.1030630181047.8022B-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-06-30 at 23:15, Marek Michalkiewicz wrote:
-> Hi,
-> 
-> After upgrading the kernel from 2.4.20 to 2.4.21, sometimes I see
-> the following messages:
-> 
-> hda: dma_timer_expiry: dma status == 0x24
-> hda: lost interrupt
-> hda: dma_intr: bad DMA status (dma_stat=30)
-> hda: dma_intr: status=0x50 { DriveReady SeekComplete }
+On Sat, 28 Jun 2003, William Lee Irwin III wrote:
 
-Does it happen if you disable local apic support ?
+> At some point in the past, Szonyi Calin <sony@etc.utt.ro> wrote:
+> >> I tested 2.5.72-mjb2 but it was full of oopses and crashes on my Duron
+> >> so I thought this patch is only for NUMA stuff.
+> 
+> On Sat, Jun 28, 2003 at 07:10:26AM -0700, Martin J. Bligh wrote:
+> > Nope, it should work with any machine  - you got the oopses?
+> > If you have an old distro with glibc < 2.3.1, Bill thinks the upside_down
+> > trick doesn't work because of some invalid assumptions glibc is making.
+> > If that's the case, could you check that 2.5.73-mjb1 works OK?
+> 
+> If this is causing too much confusion and/or other anguish I can live
+> with it getting withdrawn and keep it rolling in the ultra-experimental
+> section (-wli).
+> 
+> Alternatively, it should be trivial to convert to a config option that's
+> off by default.
+
+Haven't had a chance to try this yet, so I don't have a feel for the
+benefit (other than good karma). But having as an option is good,
+depending on how out of date the lib has to be to have troubles should
+determine default, this is not the stock kernel and can be defaulted to
+enable new features IMHO.
+
+The reason I haven't tried it is because I'm trying to find time to shake
+out the 73-wli kernel, which will find a home on my slower boxen.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

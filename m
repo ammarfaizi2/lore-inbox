@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317888AbSFNJLq>; Fri, 14 Jun 2002 05:11:46 -0400
+	id <S317890AbSFNJLv>; Fri, 14 Jun 2002 05:11:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317890AbSFNJLq>; Fri, 14 Jun 2002 05:11:46 -0400
-Received: from mail.gmx.de ([213.165.64.20]:4898 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S317888AbSFNJLo>;
-	Fri, 14 Jun 2002 05:11:44 -0400
-From: "Michael Kerrisk" <michael.kerrisk@gmx.net>
-To: marcelo@conectiva.com.br, lKML <linux-kernel@vger.kernel.org>
-Date: Fri, 14 Jun 2002 11:09:22 +0200
+	id <S317891AbSFNJLu>; Fri, 14 Jun 2002 05:11:50 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:18950
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S317890AbSFNJLs>; Fri, 14 Jun 2002 05:11:48 -0400
+Date: Fri, 14 Jun 2002 02:08:43 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Abraham vd Merwe <abraham@2d3d.co.za>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: linux 2.4.19-preX IDE bugs
+In-Reply-To: <20020614105919.A18127@crystal.2d3d.co.za>
+Message-ID: <Pine.LNX.4.10.10206140200080.21513-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: [PATCH] [2.4.18] Fix adjtimex when txc->modes == 0
-CC: drepper@redhat.com
-Message-ID: <3D09CEE2.5529.1100FEC@localhost>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The glibc implementation of adjtime(delta, old_delta) should return
-the remaining time adjustment value from adjtimex() in old_delta if that
-argument is non-NULL.  
+On Fri, 14 Jun 2002, Abraham vd Merwe wrote:
+> 
+> Regards
+>  Abraham
+> 
+> The reason they're called wisdom teeth is that the experience makes you wise.
 
-This is broken in the case that delta is NULL (i.e., we don't want 
-a change, but just to find out the current time_adjust).  The breakage
-occurs because adjtime specifies txc->modes as 0 (so that no change
-is made to the current offset) and in this case do_adjtimex() does not
-correctly return the required information in txc->offset.  
+Mine were removed, and does this count for "sarcastic response".
 
-The patch below (against 2.4.18pre10) seems to me the simplest way to 
-fix the problem.
+I am happy not to be in 2.5.
+
+But in a serious note "linux 2.4.19-preX" is a very lose term.
+Unless otherwise noted, only Alan Cox has been adopting code as a shake
+down before it goes to Marcelo.  So if these are straight 2.4.19-preX
+kernels, I have not sent anything to Marcelo for offical inclusion.
+If these are 2.4.19-preX-acX that is a different story.
+
+And yes, maybe I have lost the joy of public kernel development.
+Then again, I do not have anyone giving me a cakewalk employment package
+to just write code for kicks now.  The net result is vendors who have an
+interest in customer based support are seeking to offer direct support to
+get direct support.
 
 Cheers,
 
-Michael
+Andre Hedrick
+LAD Storage Consulting Group
 
---- linux-2.4.18/kernel/time.c	Fri Jun 14 10:17:46 2002
-+++ linux-2.4.18-adjtimex/kernel/time.c	Fri Jun 14 09:48:59 2002
-@@ -357,7 +357,9 @@
- 	    /* p. 24, (d) */
- 		result = TIME_ERROR;
- 	
--	if ((txc->modes & ADJ_OFFSET_SINGLESHOT) == ADJ_OFFSET_SINGLESHOT)
-+	if (!txc->modes)
-+	    txc->offset	   = time_adjust;
-+	else if ((txc->modes & ADJ_OFFSET_SINGLESHOT) == ADJ_OFFSET_SINGLESHOT)
- 	    txc->offset	   = save_adjust;
- 	else {
- 	    if (time_offset < 0)
 

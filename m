@@ -1,72 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261657AbVDEKpD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261670AbVDEKwm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261657AbVDEKpD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 06:45:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbVDEKpD
+	id S261670AbVDEKwm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 06:52:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261679AbVDEKwm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 06:45:03 -0400
-Received: from mx02.cybersurf.com ([209.197.145.105]:9710 "EHLO
-	mx02.cybersurf.com") by vger.kernel.org with ESMTP id S261657AbVDEKo6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 06:44:58 -0400
-Subject: Re: Netlink Connector / CBUS
-From: jamal <hadi@cyberus.ca>
-Reply-To: hadi@cyberus.ca
-To: johnpol@2ka.mipt.ru
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, linux-kernel@vger.kernel.org,
-       netdev <netdev@oss.sgi.com>, "David S. Miller" <davem@davemloft.net>,
-       James Morris <jmorris@redhat.com>, rml@novell.com,
-       Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1112686480.28858.17.camel@uganda>
-References: <Xine.LNX.4.44.0504050108260.9383-100000@thoron.boston.redhat.com>
-	 <1112686480.28858.17.camel@uganda>
-Content-Type: text/plain
-Organization: jamalopolous
-Message-Id: <1112697888.1089.44.camel@jzny.localdomain>
+	Tue, 5 Apr 2005 06:52:42 -0400
+Received: from main.gmane.org ([80.91.229.2]:58285 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S261670AbVDEKwk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 06:52:40 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Andres Salomon <dilinger@debian.org>
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
+Date: Tue, 05 Apr 2005 06:42:42 -0400
+Message-ID: <pan.2005.04.05.10.42.36.735570@debian.org>
+References: <20050404192945.GB1829@pegasos> <20050404205527.GB8619@thunk.org> <20050404211931.GB3421@pegasos> <1112689164.3086.100.camel@icampbell-debian> <20050405083217.GA22724@pegasos> <1112690965.3086.107.camel@icampbell-debian> <20050405091144.GA18219@lst.de> <1112693287.6275.30.camel@laptopd505.fenrus.org> <20050405093258.GA18523@lst.de> <1112693819.6275.36.camel@laptopd505.fenrus.org> <20050405093902.GA18669@lst.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 05 Apr 2005 06:44:48 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: cpe-24-194-62-26.nycap.res.rr.com
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
+Cc: debian-kernel@lists.debian.org, debian-legal@lists.debian.org
+Cc: debian-kernel@lists.debian.org, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 05 Apr 2005 11:39:02 +0200, Christoph Hellwig wrote:
 
-To be fair to Evgeniy I am not against the Konnector idea. I think that
-it is a useful feature to have an easy to use messaging between
-kernel-kernel and kernel-userspace. The fact that he leveraged netlink
-instead of inventing things is a bonus. Having said that i have not
-seriously scrutinized the code - and i think the idea of this new thing
-hes tossing around called CBUS maybe pushing it.
+> On Tue, Apr 05, 2005 at 11:36:58AM +0200, Arjan van de Ven wrote:
+>> One of the options is to even ship the firmware in the kernel tarbal but
+>> from a separate directory with a clear license clarification text in it.
+> 
+> I think that's what we should do.  I currently don't have any firmware
+> requiring devices, but I'd volunteer to keep such a tarball for now if
+> no one else wants to do tiny amount of work.
 
-cheers,
-jamal
 
-On Tue, 2005-04-05 at 03:34, Evgeniy Polyakov wrote:
-> On Tue, 2005-04-05 at 01:10 -0400, Herbert Xu wrote:
-> >On Tue, Apr 05, 2005 at 11:03:16AM +0400, Evgeniy Polyakov wrote:
-> >> 
-> >> I received comments and feature requests from Herbert Xu and Jamal Hadi
-> >> Salim,
-> >> almost all were successfully resolved.
-> >
-> >Please do not construe my involvement in these threads as endorsement
-> >for this system.
-> 
-> Sure.
-> I remember you are against it :).
-> 
-> >In fact to this day I still don't understand what problems this thing is
-> >meant to solve.
-> 
-> Hmm, what else can I add to my words?
-> May be checking the size of the code needed to broadcast kobject changes
-> in kobject_uevent.c for example...
-> Netlink socket allocation + skb handling against call to cn_netlink_send().
-> 
-> >-- 
-> >Visit Openswan at http://www.openswan.org/
-> >Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-> >Home Page: http://gondor.apana.org.au/~herbert/
-> >PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
-> 
+FYI, I just created this, it might be useful for all this:
+http://wiki.debian.net/?KernelFirmwareLicensing
+
+I'm still adding driver information..
 

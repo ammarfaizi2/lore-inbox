@@ -1,71 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263584AbTKQTPU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Nov 2003 14:15:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263586AbTKQTPU
+	id S263595AbTKQTZu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Nov 2003 14:25:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263611AbTKQTZu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Nov 2003 14:15:20 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60564 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263584AbTKQTPP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Nov 2003 14:15:15 -0500
-Date: Mon, 17 Nov 2003 19:15:13 +0000
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
-       "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Is initramfs freed after kernel is booted?
-Message-ID: <20031117191513.GA24159@parcelfarce.linux.theplanet.co.uk>
-References: <E1ALlQs-000769-00.arvidjaar-mail-ru@f7.mail.ru> <3FB90A6A.4050505@nortelnetworks.com> <20031117180312.GZ24159@parcelfarce.linux.theplanet.co.uk> <200311172133.59839.arvidjaar@mail.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200311172133.59839.arvidjaar@mail.ru>
-User-Agent: Mutt/1.4.1i
+	Mon, 17 Nov 2003 14:25:50 -0500
+Received: from mout2.freenet.de ([194.97.50.155]:47839 "EHLO mout2.freenet.de")
+	by vger.kernel.org with ESMTP id S263595AbTKQTZs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Nov 2003 14:25:48 -0500
+Message-ID: <1069097145.3fb920b9a10b1@fvs.dnsalias.net>
+Date: Mon, 17 Nov 2003 20:25:45 +0100
+From: Maximilian Mehnert <mmehnert@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: Kernel 2.6.0-test9, deadlock using usb-storage, eventually memory allocation bug
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.2
+X-Originating-IP: 217.186.38.190
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 17, 2003 at 09:33:59PM +0300, Andrey Borzenkov wrote:
-> On Monday 17 November 2003 21:03, viro@parcelfarce.linux.theplanet.co.uk 
-> wrote:
-> > On Mon, Nov 17, 2003 at 12:50:34PM -0500, Chris Friesen wrote:
-> > > viro@parcelfarce.linux.theplanet.co.uk wrote:
-> > > >On Mon, Nov 17, 2003 at 11:06:48AM -0500, Chris Friesen wrote:
-> > > >>Anyone know why it overmounts rather than pivots?
-> > > >
-> > > >Because amount of extra code you lose that way takes more memory than
-> > > >empty roots takes.
-> > > >
-> > > >Remove whatever files you don't need and be done with that.
-> > >
-> > > How do you remove files from the old rootfs after the new one has been
-> > > mounted on top of it?
-> >
-> > You do that before ;-)
-> 
-> would the following work?
-> 
-> pivot_root . /initramfs
-> cd /initramfs && rm -rf *
+Hello, everybody!
 
-No.  pivot_root() will not move the absolute root of tree elsewhere.
+So far I have spoken to Jari Ruusu <jariruusu@users.sourceforge.net> who
+is maintaining loop-AES and to Matthew Dharm <mdharm-usb@one-eyed-alien.net>
+who
+seems to be maintaining usb-storage at the moment.
 
-> ?? doing it before is rather hard ... you apparently still need something to 
-> execute your mounts :)
+Jari Ruusu helped me by locating the whereabouts of the following bug by
+reading
+my syslogs with debugging output from usb-storage and by providing some kernel
+patches to isolate the error:
+I am using a harddisk attached via a cardbus usb 2.0 card. On it I have an
+encrypted partition which I access via loop-AES.
+I can easily reproduce a complete deadlock in the usb-storage system by
+mounting
+my encrypted partition or copying files to or from it (depends on
+configuration).
 
-You do, but you can trivially call unlink() on the executable itself.  It
-will be freed after it does exec() of final /sbin/init...
+That's what Jari Ruusu wrote on Sun, 09 Nov 2003:
+> It was very similar memory allocation failure again: usb storage RAM alloc
+> waited for pages to be freed, and all freeable pages were waiting to be
+> written out to your usb device. Same thing, just different place.
 
-Alternatively, you could
-mkdir /root
-mount final root on /root
 
-chdir("/root");
-mount("/", "initramfs", NULL, MS_BIND, NULL);
-mount(".", "/", NULL, MS_MOVE, NULL);
-chroot(".");
-execve("/sbin/init", ...)
+On Sun, Nov 16, 2003 at 12:48:42PM -0800, Matthew Dharm wrote:
+> You should take this up with linux-kernel@vger.kernel.org -- it's a memory
+> allocation problem, not a usb-storage problem.  I can't fix it.
 
-and have init scripts do rm -rf /initramfs/*; umount /initramfs
+I did without posting my kernel config and my syslog files with the usb-storage
+messages as according to the FAQ this would be overkill.
+
+If anybody is willing to help me I  would gratefully send her/him all my logs
+and my previous correspondence on this topic :)
+
+Greetings from Berlin && excuses for my bad English,
+
+Maximilian
+
+-- 
+Maximilian Mehnert <mmehnert at gmx dot net>
+http://members.lycos.co.uk/endofuniverse/gpg.html
+Fingerprint: 387F 5AA6 5856 2A49 C88C  DA86 FBA8 5122 817B C60E
+
+
+----------------------------------------------------------------
+This message was sent using IMP, the Internet Messaging Program.

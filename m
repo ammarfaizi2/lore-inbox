@@ -1,54 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271385AbTGQLns (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 07:43:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271386AbTGQLns
+	id S271388AbTGQLp3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 07:45:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271387AbTGQLp3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 07:43:48 -0400
-Received: from [65.244.37.61] ([65.244.37.61]:15315 "EHLO
-	WSPNYCON1IPC.corp.root.ipc.com") by vger.kernel.org with ESMTP
-	id S271385AbTGQLmw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 07:42:52 -0400
-Message-ID: <170EBA504C3AD511A3FE00508BB89A920234CD4A@exnanycmbx4.ipc.com>
-From: "Downing, Thomas" <Thomas.Downing@ipc.com>
-To: "'Andrew Morton'" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: RE: 2.6.0-test1-mm1
-Date: Thu, 17 Jul 2003 07:57:38 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Thu, 17 Jul 2003 07:45:29 -0400
+Received: from hirsch.in-berlin.de ([192.109.42.6]:41135 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S271264AbTGQLpU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 07:45:20 -0400
+X-Envelope-From: kraxel@bytesex.org
+Date: Thu, 17 Jul 2003 14:01:21 +0200
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Greg KH <greg@kroah.com>
+Cc: Kernel List <linux-kernel@vger.kernel.org>,
+       video4linux list <video4linux-list@redhat.com>
+Subject: Re: [RFC/PATCH] sysfs'ify video4linux
+Message-ID: <20030717120121.GA15061@bytesex.org>
+References: <20030715143119.GB14133@bytesex.org> <20030715212714.GB5458@kroah.com> <20030716084448.GC27600@bytesex.org> <20030716161924.GA7406@kroah.com> <20030716202018.GC26510@bytesex.org> <20030716210800.GE2279@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030716210800.GE2279@kroah.com>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -----Original Message-----
-> From: Andrew Morton [mailto:akpm@osdl.org]
+On Wed, Jul 16, 2003 at 02:08:00PM -0700, Greg KH wrote:
+> On Wed, Jul 16, 2003 at 10:20:18PM +0200, Gerd Knorr wrote:
+> > Yes, it is allocated/freed by the driver, most seem to simply include
+> > one ore more "struct video_device" somewhere in the per-device struct.
 > 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/
-> 2.6.0-test1/2.6.0-test1-mm1/
+> So you CAN NOT just blindly put a kobject (meaning a class_device)
+> structure inside of there.
+
+Why not ...
+
+> > which want add private properties and rely on video_device->priv
+> > for finding the per-device data.  Problem isn't solved but justed
+> > moved to the next corner ...
 > 
-> . Lots of bugfixes.
-> 
-> . A big one-liner from Mark Haverkamp fixes some hanges which 
-> were being
->   seen with the aacraid driver and may fix the problem which 
-> people have seen
->   on other SCSI drivers: everything getting stuck in 
-> io_schedule() under load.
-> 
-> . Another interactivity patch from Con.  Feedback is needed on this
->   please - we cannot make much progress on this fairly subjective work
->   without lots of people telling us how it is working for them.
+> No, just have the video drivers have a release callback to do the
+> freeing.
 
-I have been testing 2.5.75-mm1.  I was able to cause video skip in xine,
-but not audio.  I will repeat the tests using test1-mm1.  Anyone else
-seen the video-only type skip?  It appears to be caused by other GUI
-operations, not so much by CPU load.  Just dragging windows is not enough,
-it needs to be more intensive than that.
+... if a ->release() callback is required anyway to fix it?  I see two
+ways to handle it:
 
-More results later with test1-mm1
+  (1) mandatory ->release() callback, drivers must make sure the stuff
+      is not freed before the callback was called.  In that case the
+      class_device can be left embedded inside the drivers provate
+      structs.
+  (2) optional ->release() callback (for those drivers which want add
+      private attributes), "struct video_device" must be moved out of
+      the drivers private structs then and released in a new function
+      (which also calls the drivers ->release callback if present).
+      Should probably also be allocated by videodev.c for symmetry.
 
-Thanks for all the great stuff!!
+Both approaches require touching all v4l drivers in non-trivial ways
+through, not sure whenever it is a good idea to do that now.  Any chance
+to get that in before 2.6.0?  Or should I better make that change in
+2.7.x and live with /proc for the time being?
 
-td
+  Gerd
+
+-- 
+sigfault

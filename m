@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266431AbTA2QmI>; Wed, 29 Jan 2003 11:42:08 -0500
+	id <S266453AbTA2Qoh>; Wed, 29 Jan 2003 11:44:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266434AbTA2QmI>; Wed, 29 Jan 2003 11:42:08 -0500
-Received: from mailrelay2.lanl.gov ([128.165.4.103]:44675 "EHLO
-	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP
-	id <S266431AbTA2QmH>; Wed, 29 Jan 2003 11:42:07 -0500
-Subject: [PATCH] 2.5.59 add one help text to drivers/atm/Kconfig
-From: Steven Cole <elenstev@mesatop.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Trivial Patch Monkey <trivial@rustcorp.com.au>
+	id <S266478AbTA2Qoh>; Wed, 29 Jan 2003 11:44:37 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:6029 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S266453AbTA2Qog>;
+	Wed, 29 Jan 2003 11:44:36 -0500
+Subject: Re: 2.5.59-dcl2
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <p73el6wyvz1.fsf@oldwotan.suse.de>
+References: <1043794298.10153.241.camel@dell_ss3.pdx.osdl.net.suse.lists.linux.kernel>
+	 <1043798822.10150.318.camel@dell_ss3.pdx.osdl.net.suse.lists.linux.kernel>
+	 <p73el6wyvz1.fsf@oldwotan.suse.de>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 29 Jan 2003 09:49:05 -0700
-Message-Id: <1043858946.2576.197.camel@spc9.esa.lanl.gov>
+Organization: Open Source Devlopment Lab
+Message-Id: <1043859235.10150.322.camel@dell_ss3.pdx.osdl.net>
 Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 29 Jan 2003 08:53:55 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is a help text from 2.4.21-pre4 Configure.help which is
-needed in 2.5.59 drivers/atm/Kconfig.
+On Wed, 2003-01-29 at 04:35, Andi Kleen wrote:
+> Stephen Hemminger <shemminger@osdl.org> writes:
+> 
+> > > . Lockless gettimeofday                 (Andi Kleen, me)
+> 
+> The original algorithm actually came from Andrea Arcangeli,
+> I just ported it from vsyscalls to do_gettimeofday.
+> 
+> > > . Performance monitoring counters for x86 (Mikael Pettersson)
+> 
+> Isn't that slightly redundant with oprofile?
+> They have different capabilities, but there is still much overlap.
 
-Steven
-
---- linux-2.5.59/drivers/atm/Kconfig.orig	Wed Jan 29 09:27:38 2003
-+++ linux-2.5.59/drivers/atm/Kconfig	Wed Jan 29 09:28:16 2003
-@@ -15,6 +15,11 @@
- config ATM_LANAI
- 	tristate "Efficient Networks Speedstream 3010"
- 	depends on PCI
-+	help
-+	  Supports ATM cards based on the Efficient Networks "Lanai"
-+	  chipset such as the Speedstream 3010 and the ENI-25p.  The
-+	  Speedstream 3060 is currently not supported since we don't
-+	  have the code to drive the on-board Alcatel DSL chipset (yet).
- 
- config ATM_ENI
- 	tristate "Efficient Networks ENI155P"
-
-
-
+They are different.  My point was to have both and let the performance
+team at OSDL try both, and comment on what works/doesn't work
 

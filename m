@@ -1,54 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262420AbTIOFnF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 01:43:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262439AbTIOFnF
+	id S262439AbTIOFxb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 01:53:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262440AbTIOFxb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 01:43:05 -0400
-Received: from dp.samba.org ([66.70.73.150]:42687 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S262420AbTIOFnA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 01:43:00 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Felipe W Damasio <felipewd@terra.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] kernel/futex.c: Uneeded memory barrier 
-In-reply-to: Your message of "Sun, 14 Sep 2003 15:08:39 +0100."
-             <20030914140839.GC16525@mail.jlokier.co.uk> 
-Date: Mon, 15 Sep 2003 13:41:30 +1000
-Message-Id: <20030915054300.947EB2C290@lists.samba.org>
+	Mon, 15 Sep 2003 01:53:31 -0400
+Received: from CPEdeadbeef0000-CM000039d4cc6a.cpe.net.cable.rogers.com ([67.60.40.239]:59264
+	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
+	id S262439AbTIOFx3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 01:53:29 -0400
+Date: Mon, 15 Sep 2003 01:53:26 -0400 (EDT)
+From: Shawn Starr <spstarr@sh0n.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test5: intermittent crash on chvt to X; was console lost
+Message-ID: <Pine.LNX.4.44.0309150150250.377-100000@coredump.sh0n.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20030914140839.GC16525@mail.jlokier.co.uk> you write:
-> Rusty Russell wrote:
-> > I personally *HATE* the set_task_state()/__set_task_state() macros.
-> > Simple assignments shouldn't be hidden behind macros, unless there's
-> > something really subtle involved.
-> 
-> There _is_ something subtle involved.  Back in ye olde days, folk
 
-This is what I hate about EMail.  You had two choices here: either I
-don't understand you, or you don't understand me.  You chose wrong,
-and wasted a lot of time on an (excellent, BTW) explanation.
+I've been experiencing something similar to this.
 
-I wasn't clear: __set_task_state() and __set_current_state() should
-not exist, they are assignments.  set_task_state() should not exist,
-since it's only used for current anyway.  set_current_state should be
-split into set_current_interruptible() and
-set_current_uninterruptible(), except...
+With 2.6.0-test4+ if I start X, and switch consoles back and forth
+randomly, eventually the system will lock hard. I am unable to get a panic
+dump because the system state is completely dead (except oddly, the
+numlock key still works w/ LED).
 
-> Sprinkling special kinds of memory barrier into all the drivers is not
-> the kind of thing driver writers get right.  Also if you look at the
+I am unsure why this is ocurring or if this is related to this issue.
 
-....hiding the subtlety in wrapper functions is the wrong approach.  We
-have excellent wait_event, wait_event_interruptible and
-wait_event_interruptible_timeout macros in wait.h which these drivers
-should be using, which would make them simpler, less buggy and
-smaller.
+Thanks,
 
-Hope that clarifies?
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Shawn S.
+
+---------------------
+
+
+List:     linux-kernel
+Subject:  Re: 2.6.0-test5: intermittent crash on chvt to X; was console
+lost
+From:     Pat LaVarre <p.lavarre () ieee ! org>
+Date:     2003-09-14 23:04:25
+[Download message RAW]
+
+> qestion now is whether this is kernel or X related.
+
+Oh.
+
+> > echo ... | tee -a $log
+> > sync
+> > sleep $wait
+> > chvt ...
+> > sleep $wait
+>
+> the crash may (in your case does) happen later
+
+In repeating those five commands, is there any purpose to the first
+sleep?  I left the first sleep in place to match the original, but once
+I assume sync leaves no writes unflushed then now I do not see what the
+first sleep accomplishes, if anything.
+
+> Have you had this problem with an earlier 2.6 or 2.4 kernel?
+
+Today 2.4.21-xfs Knoppix booted via cd:
+in over 75 cycles I saw no crash so I gave up.
+
+Today 2.4.22 with a near default .config:
+"in over 75 cycles I saw no crash so I gave up".
+
+Today 2.6.0-test4 with a near default .config:
+Counting cycles before crash per boot I saw: 3 2 16 ...
+
+Yester/today 2.6.0-test5 with a near default .config:
+"I saw: 1 18 20 20 ... 4 16 ..." 3 ...
+
+> -test5, post (as tar.bz2) ...
+
+After that last -test5 crash I rebooted and then produced the attached
+via:
+
+#!/bin/bash
+# rm -r chvtx
+mkdir chvtx
+
+sudo /sbin/lspci -v >>chvtx/v.lspci
+sudo cat /var/log/dmesg >>chvtx/var.log.dmesg
+egrep -i 'version|release|driver' /var/log/XFree86.*.log
+>>chvtx/var.log.XFree86.log
+# cp -ip /var/log/XFree86.*.log chvtx/
+cp -ip .config chvtx/config
+
+tar -c chvtx | bzip2 -zc >chvtx.2.6.0-test5.tar.bz2
+
+# Pat LaVarre
+

@@ -1,39 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261333AbUJ3V3w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261348AbUJ3VoQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261333AbUJ3V3w (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 17:29:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261335AbUJ3V3v
+	id S261348AbUJ3VoQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 17:44:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261342AbUJ3Vmt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 17:29:51 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:64659 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S261333AbUJ3V23
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 17:28:29 -0400
-Date: Sun, 31 Oct 2004 01:29:17 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Brian Gerst <bgerst@quark.didntduck.org>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Remove last reference to LDFLAGS_BLOB
-Message-ID: <20041030232917.GE9592@mars.ravnborg.org>
-Mail-Followup-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-	Brian Gerst <bgerst@quark.didntduck.org>,
-	Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-References: <4175C6E2.1080201@quark.didntduck.org> <20041020175927.GE14780@logos.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 30 Oct 2004 17:42:49 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:10765 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S261338AbUJ3Vlm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 17:41:42 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] efs: make a struct static
+Date: Sun, 31 Oct 2004 00:41:25 +0300
+User-Agent: KMail/1.5.4
+References: <20041030175636.GP4374@stusta.de>
+In-Reply-To: <20041030175636.GP4374@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20041020175927.GE14780@logos.cnet>
-User-Agent: Mutt/1.5.6i
+Message-Id: <200410310041.25152.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 20, 2004 at 03:59:27PM -0200, Marcelo Tosatti wrote:
+On Saturday 30 October 2004 20:56, Adrian Bunk wrote:
+> The patch below makes a struct in the efs code static.
 > 
-> No, do not remove that initramfs_data.S section!
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> --- linux-2.6.10-rc1-mm2-full/include/linux/efs_vh.h.old	2004-10-30 14:03:58.000000000 +0200
+> +++ linux-2.6.10-rc1-mm2-full/include/linux/efs_vh.h	2004-10-30 14:04:13.000000000 +0200
+> @@ -44,7 +44,7 @@
+>  #define SGI_EFS		0x07
+>  #define IS_EFS(x)	(((x) == SGI_EFS) || ((x) == SGI_SYSV))
+>  
+> -struct pt_types {
+> +static struct pt_types {
+>  	int	pt_type;
+>  	char	*pt_name;
+>  } sgi_pt_types[] = {
 
-It's in a comment section??
+You made a variable in .h file static. This is a no-no.
 
-Anyway for now I only removed the assignment in m32r Makefile.
+Only fs/efs/super.c includes linux/efs_vh.h now, but if
+it will be ever included into another files, you
+will get silent data duplication.
 
-	Sam
+Unless I miss something, you really wanted to do:
+
+.h file:
+
+struct pt_types {
+	int     pt_type;
+	char    *pt_name;
+};
+extern struct pt_types sgi_pt_types[];
+
+.c file:
+
+struct pt_types sgi_pt_types[] = {
+	{0x00,          "SGI vh"},
+....
+	{0,             NULL}
+};
+
+--
+vda
+

@@ -1,48 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261755AbTIPCjE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 22:39:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbTIPCjE
+	id S261768AbTIPCre (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 22:47:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261769AbTIPCre
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 22:39:04 -0400
-Received: from cmu-24-35-14-252.mivlmd.cablespeed.com ([24.35.14.252]:60044
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261755AbTIPCjB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 22:39:01 -0400
-Date: Mon, 15 Sep 2003 22:38:38 -0400 (EDT)
-From: Thomas Molina <tmolina@cablespeed.com>
-X-X-Sender: tmolina@localhost.localdomain
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 2.7 block ramblings (was Re: DMA for ide-scsi?)
-In-Reply-To: <1063565701.2149.14.camel@dhcp23.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0309152229390.5337-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 15 Sep 2003 22:47:34 -0400
+Received: from [141.154.95.10] ([141.154.95.10]:4065 "EHLO peabody.ximian.com")
+	by vger.kernel.org with ESMTP id S261768AbTIPCrc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 22:47:32 -0400
+Subject: Re: Need fixing of a rebooting system
+From: Kevin Breit <mrproper@ximian.com>
+Reply-To: mrproper@ximian.com
+To: Chris Meadors <clubneon@hereintown.net>
+Cc: Kevin Breit <mrproper@ximian.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+X-Identity-Key: id1
+X-Mozilla-Draft-Info: internal/draft; vcard=0; receipt=0; uuencode=0
+X-Accept-Language: en-us, en
+References: <1063496544.3164.2.camel@localhost.localdomain>
+	 <Pine.LNX.4.53.0309131945130.3274@montezuma.fsmlabs.com>
+	 <3F6450D7.7020906@ximian.com>
+	 <Pine.LNX.4.53.0309140904060.22897@montezuma.fsmlabs.com>
+	 <1063561687.10874.0.camel@localhost.localdomain>
+	 <Pine.LNX.4.53.0309141741050.5140@montezuma.fsmlabs.com>
+	 <3F64FEAF.1070601@ximian.com>
+	 <Pine.LNX.4.53.0309142055560.5140@montezuma.fsmlabs.com>
+	 <1063650478.1516.0.camel@localhost.localdomain>
+	 <1063653132.224.32.camel@clubneon.priv.hereintown.net>
+	 <3F66249A.3020308@ximian.com>
+	 <1063664654.19299.10.camel@clubneon.clubneon.com>
+In-Reply-To: <1063664654.19299.10.camel@clubneon.clubneon.com>
+Content-Type: text/plain
+Organization: Ximian, Inc.
+Message-Id: <1063680432.2128.0.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Mon, 15 Sep 2003 22:47:13 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Sep 2003, Alan Cox wrote:
+Chris Meadors wrote:
 
-> On Sul, 2003-09-14 at 18:01, Andries Brouwer wrote:
-> > I do not understand your complaint.
-> 
-> I sort of do - several vendor installers use fixed labels so
-> two installs on the same box get very confused. I've seen
-> novices tie themselves in knots with it before. That isn't
-> a problem with LABEL=, its an implementation issue with the
-> vendors install tools, and Red Hat certainly is one of the
-> parties that made this mistake.
+>On Mon, 2003-09-15 at 16:44, Kevin Breit wrote
+>
+>>* Preemptible Kernel
+>>* Machine Check Exception
+>>* /dev/cpu/microcode
+>>* /dev/cpu/*/msr
+>>* /dev/cpu/*/cpuid
+>>* BIOS Enhanced Disk Drive calls determine boot disk
+>>    
+>>
+>
+>I'd turn this off, just to see if it makes any change.  It says it is
+>"believed to be safe", but it is experimental, and your controller BIOS
+>almost surely does not support it.
+>
+>  
+>
+Disabling this didn't fix anything.
 
-LABEL= is the wrong solution to the right problem, IMHO.  It only seems to 
-make sense if you are a distributor trying to make a one size mostly fits 
-all.  If you tinker with your system it only seems to get in the way.  
-
-It seems to me that if you are in the position of tinkering, and 
-installing an OS you ought to have an understanding of root and boot 
-disks, and what is in your system.  If you don't understand things well 
-enough to specify the proper boot disk and root disk you shouldn't be 
-tinkering and it won't matter how each is specified.
-
+Kevin
 
 

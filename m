@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274288AbRJEWuG>; Fri, 5 Oct 2001 18:50:06 -0400
+	id <S274292AbRJEWv0>; Fri, 5 Oct 2001 18:51:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274287AbRJEWt4>; Fri, 5 Oct 2001 18:49:56 -0400
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:7434 "HELO mail.pha.ha-vel.cz")
-	by vger.kernel.org with SMTP id <S274236AbRJEWtl>;
-	Fri, 5 Oct 2001 18:49:41 -0400
-Date: Sat, 6 Oct 2001 00:50:06 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: James Simmons <jsimmons@transvirtual.com>
-Cc: Etienne Lorrain <etienne_lorrain@yahoo.fr>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: New Input PS/2 driver
-Message-ID: <20011006005006.A17152@suse.cz>
-In-Reply-To: <20011003133440.28925.qmail@web11804.mail.yahoo.com> <Pine.LNX.4.10.10110031217300.32026-100000@transvirtual.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10110031217300.32026-100000@transvirtual.com>; from jsimmons@transvirtual.com on Wed, Oct 03, 2001 at 12:28:34PM -0700
+	id <S274287AbRJEWvQ>; Fri, 5 Oct 2001 18:51:16 -0400
+Received: from [208.129.208.52] ([208.129.208.52]:5380 "EHLO xmailserver.org")
+	by vger.kernel.org with ESMTP id <S274236AbRJEWvE>;
+	Fri, 5 Oct 2001 18:51:04 -0400
+Date: Fri, 5 Oct 2001 15:56:27 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: george anzinger <george@mvista.com>, Benjamin LaHaise <bcrl@redhat.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Context switch times
+In-Reply-To: <E15pdSv-0007qX-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.40.0110051553220.1523-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 03, 2001 at 12:28:34PM -0700, James Simmons wrote:
-> 
-> >   Would be nice to change the comment describing the Keyboard core
-> >  support (CONFIG_INPUT_KEYBDEV) in this patch: people (as dumb me)
-> >  may read the help in menuconfig and say:
-> >  I have no USB HID or ADB keyboard...
-> >  Recompile, reboot => no keyboard, no control-alt-del => Reset (fsck...).
-> 
-> Yeah. That does need to be added. 
-> 
-> >   Else it is working here on a P133 with nothing special (std PS2 mouse).
-> 
-> >From the several reports I have had with the driver it looks pretty
-> stable. Alan what do you think about adding it to the ac tree?
-> 
-> >   BTW you just undefine I8042_OVERRIDE_KEYLOCK but this define is
-> >  never used.
-> 
-> Not implemented yet.
+On Fri, 5 Oct 2001, Alan Cox wrote:
 
-Quite the opposite: #undef was forgotten in the .h file after the .c
-file converted to a runtime option instead of a compiletime one. I
-removed it in the CVS now.
+> > Let me see if I have this right.  Task priority goes to max on any (?)
+> > sleep regardless of how long.  And to min if it doesn't sleep for some
+> > period of time.  Where does the time slice counter come into this, if at
+> > all?
+> >
+> > For what its worth I am currently updating the MontaVista scheduler so,
+> > I am open to ideas.
+>
+> The time slice counter is the limit on the amount of time you can execute,
+> the priority determines who runs first.
+>
+> So if you used your cpu quota you will get run reluctantly. If you slept
+> you will get run early and as you use time slice count you will drop
+> priority bands, but without pre-emption until you cross a band and there
+> is another task with higher priority.
+>
+> This damps down task thrashing a bit, and for the cpu hogs it gets the
+> desired behaviour - which is that the all run their full quantum in the
+> background one after another instead of thrashing back and forth
 
--- 
-Vojtech Pavlik
-SuSE Labs
+What if we give to  prev  a priority boost P=F(T) where T is the time
+prev  is ran before the current schedule ?
+
+
+
+- Davide
+
+

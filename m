@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263023AbTDBOyf>; Wed, 2 Apr 2003 09:54:35 -0500
+	id <S263019AbTDBOvY>; Wed, 2 Apr 2003 09:51:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263024AbTDBOyf>; Wed, 2 Apr 2003 09:54:35 -0500
-Received: from mail8.kc.rr.com ([24.94.162.176]:9745 "EHLO mail8.wi.rr.com")
-	by vger.kernel.org with ESMTP id <S263023AbTDBOyd>;
-	Wed, 2 Apr 2003 09:54:33 -0500
-From: "John Vincent" <jjaskolski@wi.rr.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: X15 Web Server Source Code?
-Date: Wed, 2 Apr 2003 09:02:42 -0600
-Message-ID: <NGBBKPGKCLDEKAELMLCDEENFCAAA.jjaskolski@wi.rr.com>
+	id <S263020AbTDBOvX>; Wed, 2 Apr 2003 09:51:23 -0500
+Received: from gw.enyo.de ([212.9.189.178]:30989 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id <S263019AbTDBOvW>;
+	Wed, 2 Apr 2003 09:51:22 -0500
+To: Kevin Buhr <buhr@telus.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Stateless dropping of packets
+From: Florian Weimer <fw@deneb.enyo.de>
+Mail-Followup-To: Kevin Buhr <buhr@telus.net>, linux-kernel@vger.kernel.org
+Date: Wed, 02 Apr 2003 17:02:45 +0200
+In-Reply-To: <87d6k5ltmo.fsf@saurus.asaurus.invalid> (Kevin Buhr's message
+ of "01 Apr 2003 14:50:39 -0800")
+Message-ID: <87wuidndre.fsf@deneb.enyo.de>
+User-Agent: Gnus/5.090017 (Oort Gnus v0.17) Emacs/21.2 (gnu/linux)
+References: <87he9ilz05.fsf@deneb.enyo.de>
+	<87d6k5ltmo.fsf@saurus.asaurus.invalid>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Kevin Buhr <buhr@telus.net> writes:
 
-I've been playing around with the Chromium X15 web server (which I
-downloaded some time ago). Recently, my linux box crashed and I lost
-everything.  Fortunately, I had almost everything backed up.  However, I did
-not have my X15-Beta-1.tgz backed up.  Unfortunately, Chromium is now
-defunct and their original download site is unavailable.  Moreover, I have
-been unable to find anyone affiliated with what was once Chromium who can
-help me re-acquire the X15-Beta-1.tgz source file.  So, I'm trying to find
-somebody on the Internet who might have a copy of the source code (which I
-used to have).  When searching the Internet I came across several posts
-indicating that individuals here might have a copy of the source.
+>> Is it possible to drop packets, preferably using 2.4 iptables, before
+>> the packet triggers updates of some caches (e.g. the route cache)?
+>
+> If you DROP the packet in a PREROUTING chain, that should work.  Since
+> the "filter" table doesn't have a PREROUTING chain, you need to use a
+> table that does, like the "mangle" table.  For example:
+>
+>         iptables -t mangle -A PREROUTING -s 10.0.0.0/8 -j DROP
+>
+> should drop everything with a source in 10.0.0.0/8 without touching
+> the routing cache.
 
-Does anyone here have a copy of the X15 source code (X15-Beta-1.tgz)?  If
-you do have it could you please Email me the X15*.tgz?
+It does, thanks a lot. *phew* Looks as if I don't have to try some
+*BSD instead.
 
-Thank you in advance for any assistance that you might be able to provide.
-Or, alternatively, thank you, in advance for any thoughts or ideas you might
-have in regard to how I can re-get the source.
-
-
-Sincerely,
-
-
-Dr. John Vincent Jaskolski
-
+Is this extremely important application of the PREROUTING chain
+documented somewhere?  Should I feel embarrassed? 8-)

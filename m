@@ -1,51 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278170AbRJ3VMM>; Tue, 30 Oct 2001 16:12:12 -0500
+	id <S276344AbRJ3VUO>; Tue, 30 Oct 2001 16:20:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277823AbRJ3VMC>; Tue, 30 Oct 2001 16:12:02 -0500
-Received: from hermes.toad.net ([162.33.130.251]:17118 "EHLO hermes.toad.net")
-	by vger.kernel.org with ESMTP id <S278325AbRJ3VL6>;
-	Tue, 30 Oct 2001 16:11:58 -0500
-Subject: Re: What is standing in the way of opening the 2.5 tree?
-From: Thomas Hood <jdthood@mail.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
+	id <S277823AbRJ3VUD>; Tue, 30 Oct 2001 16:20:03 -0500
+Received: from mail008.mail.bellsouth.net ([205.152.58.28]:33624 "EHLO
+	imf08bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S276344AbRJ3VTt>; Tue, 30 Oct 2001 16:19:49 -0500
+Message-ID: <3BDF1999.CAF5D101@mandrakesoft.com>
+Date: Tue, 30 Oct 2001 16:20:25 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13-pre5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Linus Torvalds <torvalds@transmeta.com>, andrea@suse.de
+Subject: pre5 VM livelock
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.15 (Preview Release)
-Date: 30 Oct 2001 16:11:56 -0500
-Message-Id: <1004476317.4367.24.camel@thanatos>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus has waited long enough to open up 2.5 that both he
-and Alan are failing to resist the temptation to make
-destabilizing changes in 2.4, with the result that
-the day of branching is perpetually postponed.
+2.4.14-pre5 was looking very nice on my alpha, doing RPM builds.  It
+seems to swap only when it needs to, and subjectively, performance
+appears better.
 
-What we have learned from the present experience is that
-no kernel branch is really stable until it is entirely in
-Alan Cox's hands.  Prior to that time, both Linus and Alan
-are in "let's play with this" mode.  This has some benefits.
-I think it's safe to say, though, that having two semi-stable
-branches is inferior to having one stable branch that we
-can rely on and one development branch that we can work on.
+However at this very moment, the kernel is livelocked.  I can type on
+console and do sysrq to your heart's content... I can even sysrq-s and
+sync successfully.  But no processing occurs.  I can ping, but two ssh
+sessions are frozen.
 
-Perhaps a better approach in the future would be for Linus
-to turn the kernel over to Alan as of 2.6.0 and to open 2.7.0
-immediately.  That would be an incentive for Linus to refrain
-from calling unstable kernels "stable" ones, and would allow
-Alan to maintain 2.6 with the single aim of increasing
-stability, according to one person's idea of what it takes
-to do that.  Alan's "-ac" kernels would take the place of
-Linus's "pre" kernels.  Linus would no longer produce "pre"
-kernels because he's worse than Alan at maintaining a stable
-kernel (as he admits) and anyway he would be busy with 2.7.
+Key symptoms:  Free swab 0Kb according to sysrq-m, and several processes
+in run state according to sysrq-t.
 
-Having suggested, this, I'll remind everyone that Linus
-and Alan can do whatever the hell the like.  Which is
-what I like about Linux.
+Let me know if I should poke at this alpha further before rebooting.
 
---
-Thomas Hood
+further info:
+free pages: 2560 kb (0kb highmem)
+( active 2422 inactive 38578 free 320 )
+swap cache: add 850670  delete 850666 find 323063/440091 race 1+0
+free swap: 0kb
+49074 pages of ram
+786 free pages
+1299 reserved pages
+2683 pages shared
+4 pages swap cached
+4 pages in page table cache
+buffer memory: 168kb
+
+This behavior is reproducible, I am pretty sure.
+
+
+-- 
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
 

@@ -1,74 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261198AbUKHU35@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261213AbUKHUct@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261198AbUKHU35 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 15:29:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261213AbUKHU35
+	id S261213AbUKHUct (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 15:32:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261215AbUKHUcs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 15:29:57 -0500
-Received: from mail11.syd.optusnet.com.au ([211.29.132.192]:30340 "EHLO
-	mail11.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261198AbUKHU3y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 15:29:54 -0500
-Message-ID: <418FD73A.2040505@kolivas.org>
-Date: Tue, 09 Nov 2004 07:29:46 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
+	Mon, 8 Nov 2004 15:32:48 -0500
+Received: from ns1.g-housing.de ([62.75.136.201]:32215 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S261213AbUKHUcg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 15:32:36 -0500
+Message-ID: <418FD7BD.2060403@g-house.de>
+Date: Mon, 08 Nov 2004 21:31:57 +0100
+From: Christian Kujau <evil@g-house.de>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
+X-Accept-Language: de-DE, de, en-us, en
 MIME-Version: 1.0
-To: Stephen Warren <SWarren@nvidia.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SCHED_RR and kernel threads
-References: <DBFABB80F7FD3143A911F9E6CFD477B002A7F094@hqemmail02.nvidia.com>
-In-Reply-To: <DBFABB80F7FD3143A911F9E6CFD477B002A7F094@hqemmail02.nvidia.com>
+To: Pekka Enberg <penberg@gmail.com>
+CC: Greg KH <greg@kroah.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, alsa-devel@lists.sourceforge.net,
+       linux-sound@vger.kernel.org
+Subject: Re: Oops in 2.6.10-rc1
+References: <418D7959.4020206@g-house.de> <20041107130553.M49691@g-house.de>	 <418E4705.5020001@g-house.de>	 <Pine.LNX.4.58.0411070831200.2223@ppc970.osdl.org>	 <20041107182155.M43317@g-house.de> <418EB3AA.8050203@g-house.de>	 <Pine.LNX.4.58.0411071653480.24286@ppc970.osdl.org>	 <418F6E33.8080808@g-house.de>	 <84144f0204110810444400761f@mail.gmail.com>	 <20041108190040.GC27386@kroah.com> <84144f02041108111816dc0b3a@mail.gmail.com>
+In-Reply-To: <84144f02041108111816dc0b3a@mail.gmail.com>
 X-Enigmail-Version: 0.86.1.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig482309B7F27828D8103B326A"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig482309B7F27828D8103B326A
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Stephen Warren wrote:
-> Hello.
+Pekka Enberg schrieb:
+> Hi,
 > 
-> We have an application that is running on kernel 2.6.9. This application
-> makes use of real-time threads, namely using the SCHED_RR policy.
+> On Mon, 8 Nov 2004 11:00:40 -0800, Greg KH <greg@kroah.com> wrote:
 > 
-> It appears that during times of high application CPU usage, some
-> *kernel* threads don't get to run. As an example, this means that local
-> keyboard presses aren't processed (or are processed very slowly) by the
-> kernel, so our application never sees them. This has the effect of
-> hanging the system, since the way to get out of the higher CPU usage
-> portion of the application is to press the ESC key, and our application
-> never sees that keypress.
+>>But 2.6.10-rc1-bk15 does have the problem?
+>>
+>>Trying to figure out where the issue is...
+
+i could use the -bk snapshots too, but since i am using bk myself (i try),
+i think we can narrow it down a bit more.
+
 > 
-> This appears to be due to the fact that the kernel threads are all
-> SCHED_OTHER, so our SCHED_RR user-space application trumps them!
+> No, -bk14 is just the kernel I am running right now (I haven't tried
+> -bk15) and I haven't had the problem. I cannot reproduce the oops _at
+> all_ which is why I suspect it's his hardware. I included my lspci and
+> dmesg output because we have similar (but not exactly the same)
+> setups.
 
-Don't run your userspace at SCHED_RR? The kernel threads are 
-SCHED_NORMAL precisely for the reason that you wont get real time 
-performance if the kernel threads rear their ugly heads, albeit rarely.
+i've put an lspci output here:
+http://www.nerdbynature.de/bits/prinz/2.6.10-rc1/lspci-v.txt
+http://www.nerdbynature.de/bits/prinz/2.6.10-rc1/lspci-vv.txt
 
-Cheers,
-Con
+i do not suspect hw problems *yet*, because kernel up to 2.6.9 (tracking
+bk) do not show this behaviour.
 
---------------enig482309B7F27828D8103B326A
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+> FWIW, I've asked Christian for an obdump of the kernel to see if I can
 
+will show up in a couple of minutes here:
+http://www.nerdbynature.de/bits/prinz/2.6.10-rc1/objdump-d_a1.2463.txt.bz2
+
+this is from the vmlinux from a "bk undo -a1.2463" kernel, IOW it still
+contains:
+
+ChangeSet@1.2463, 2004-11-04 17:07:16-08:00, torvalds@ppc970.osdl.org
+  Merge bk://kernel.bkbits.net/gregkh/linux/driver-2.6
+  into ppc970.osdl.org:/home/torvalds/v2.6/linux
+
+
+thank you for the hints,
+Christian.
+
+PS: should we i un'CC linux-sound and alsa-devel, now we are sure it's a
+pci thing?
+- --
+BOFH excuse #228:
+
+That function is not currently supported, but Bill Gates assures us it
+will be featured in the next upgrade.
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
+Version: GnuPG v1.2.5 (GNU/Linux)
 Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-iD8DBQFBj9c9ZUg7+tp6mRURAhiaAJ45pttDMjRiKRTkboIFdRY8mnvgHACcD/Ik
-UcR6RSJJ+3WNOJCNhEJ9qbA=
-=ymzm
+iD8DBQFBj9e9+A7rjkF8z0wRAregAJ9TyK5Mt00CFmCcgA1pOKmzvIxv2QCg0OBi
+/9eNZ41Kp2GAOg4J5l0QR8E=
+=OkFI
 -----END PGP SIGNATURE-----
-
---------------enig482309B7F27828D8103B326A--

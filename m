@@ -1,56 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262134AbSJQUUe>; Thu, 17 Oct 2002 16:20:34 -0400
+	id <S261867AbSJQUV4>; Thu, 17 Oct 2002 16:21:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262135AbSJQUUe>; Thu, 17 Oct 2002 16:20:34 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:61897 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S262134AbSJQUUc>;
-	Thu, 17 Oct 2002 16:20:32 -0400
-Date: Thu, 17 Oct 2002 22:39:12 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Crispin Cowan <crispin@wirex.com>,
-       Greg KH <greg@kroah.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] make LSM register functions GPLonly exports
-In-Reply-To: <Pine.LNX.4.44.0210171015440.7066-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0210172221370.27339-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262022AbSJQUV4>; Thu, 17 Oct 2002 16:21:56 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:43527 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S261867AbSJQUVy>; Thu, 17 Oct 2002 16:21:54 -0400
+Date: Thu, 17 Oct 2002 21:27:49 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Russell Coker <russell@coker.com.au>
+Cc: Greg KH <greg@kroah.com>, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org, linux-security-module@wirex.com
+Subject: Re: [PATCH] remove sys_security
+Message-ID: <20021017212749.A8506@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Russell Coker <russell@coker.com.au>, Greg KH <greg@kroah.com>,
+	torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+	linux-security-module@wirex.com
+References: <20021017195015.A4747@infradead.org> <20021017195838.A5325@infradead.org> <20021017190723.GB32537@kroah.com> <200210172220.21458.russell@coker.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200210172220.21458.russell@coker.com.au>; from russell@coker.com.au on Thu, Oct 17, 2002 at 10:20:21PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Oct 17, 2002 at 10:20:21PM +0200, Russell Coker wrote:
+> Now if every SE system call was to be a full Linux system call then LANANA 
+> would be involved in the discussions every time that a new SE call was added, 
+> which would not be desired by the SE Linux people or the LANANA people.  So 
+> this means having a switch statement for the different SE calls.
 
-On Thu, 17 Oct 2002, Linus Torvalds wrote:
+Then stabilize your interface before going into production use.  Why
+should selinux (or lsm) get special treatment?
 
->    (In other words: for provably non-derived works, whatever kernel
->    license we choose is totally irrelevant)
+> Do we expect that SE Linux or other security system calls will be such a 
+> performance bottleneck that an extra switch or two will hurt?
 
-one more addition here: as long as those works do not copy any part of the
-kernel, be that source code or binary code. Ie. they:
+It's not the performance issues, it's about getting a proper syscall table
+instead of deep nesting without knowing what it actually does.
+Look at e.g. the horrors of doing a proper 32->64bit translation
+of those syscalls.
 
- - dont play fancy games binary-patching the kernel or something to that
-   extent.
+> Also it would mean that developmental projects would be more difficult.
 
-There's been a precedent created in the US just two days ago, at the
-appelate level, that makes certain types of functionality-enhancing
-'binary-patching' practices fall under the copyright of the patched work.
-
-Ie. the GPL qualifies even if the main body of the work in question is not
-derived from the kernel, but the work depends on modifying the kernel. So
-it's a questionable practice even for non-derived bin-only modules to
-patch the kernel or modify it in any not originally intended way.
-
-and the well-known issues of:
-
- - dont use inline functions in headers
-
- - probably even the structure definitions in headers qualify
-
-both can be independently created via the rules of reverse engineering.
-(whatever they are in the country it's done - but be prepared for the US
-to attempt to take jurisdiction over your acts, wherever you are ...)
-
-	Ingo
-
-
+Yes.  In general you should avoid adding syscalls anyway. If we
+wanted to make it easy we'd have created loadable syscalls from the very
+beginning.

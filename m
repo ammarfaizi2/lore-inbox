@@ -1,43 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262881AbUJ1Vu6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262061AbUJ1Vym@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262881AbUJ1Vu6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 17:50:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263093AbUJ1Vqf
+	id S262061AbUJ1Vym (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 17:54:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263037AbUJ1VvT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 17:46:35 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:65141 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S263080AbUJ1Vp2
+	Thu, 28 Oct 2004 17:51:19 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:5627 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S263013AbUJ1Vuj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 17:45:28 -0400
-Date: Fri, 29 Oct 2004 01:45:49 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       linux-arch@vger.kernel.org
-Subject: Re: kbuild/all archs: Sanitize creating offsets.h
-Message-ID: <20041028234549.GB17314@mars.ravnborg.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Andrew Morton <akpm@osdl.org>, linux-arch@vger.kernel.org
-References: <20041028185917.GA9004@mars.ravnborg.org> <20041028204430.C11436@flint.arm.linux.org.uk> <20041028215959.GA17314@mars.ravnborg.org> <20041028220024.D11436@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041028220024.D11436@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.6i
+	Thu, 28 Oct 2004 17:50:39 -0400
+Message-ID: <418169A7.3000308@mvista.com>
+Date: Thu, 28 Oct 2004 14:50:31 -0700
+From: Todd Poynor <tpoynor@mvista.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Lei Yang <lya755@ece.northwestern.edu>
+CC: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       linux-kernel@vger.kernel.org,
+       kernelnewbies <kernelnewbies@nl.linux.org>
+Subject: Re: set blksize of block device
+References: <417FE6A8.5090803@ece.northwestern.edu> <41804F04.4000300@ece.northwestern.edu> <418058A8.5080706@ece.northwestern.edu> <200410280911.15756.vda@port.imtp.ilyichevsk.odessa.ua> <418162A6.80808@ece.northwestern.edu>
+In-Reply-To: <418162A6.80808@ece.northwestern.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 28, 2004 at 10:00:24PM +0100, Russell King wrote:
-> > Did you apply the patch that enabled kbuild files to be named Kbuild?
-> > It looks like this patch is missing.
-> 
-> I applied three patches.  The first was "kbuild: Prefer Kbuild as name of
-> the kbuild files"
-> 
-> > If you did apply the patch could you please check if the asm->asm-arm
-> > symlink exists when the error happens and that a file named Kbuild is
-> > located in the directory: include/asm-arm/
+Lei Yang wrote:
+> Denis Vlasenko wrote:
+...
+>> Can you use read, write and seek system calls?
+...
+> Not really, as I've explained, I want to do all these stuff in kernel 
+> space. More specifically, I want to write a newbie kernel module. In 
+> this module, I'll do something with a raw block device (with no 
+> filesystem). For example, I want to do block I/O operations on ramdisk, 
+> and I want to set the block size of ramdisk to whatever value I want 
+> (power of 2 of course).
 
-OK - I see it now.
-It's in i386 also - I will have a fix ready tomorrow. Thanks for testing!
+Pick up a copy of Linux Device Drivers by Rubini & Corbet (O'Reilly, 
+2001) and start with the example ramdisk block driver in chapter 12.
 
-	Sam
+-- 
+Todd

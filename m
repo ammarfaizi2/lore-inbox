@@ -1,51 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271245AbTHMAuY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 20:50:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271279AbTHMAuY
+	id S271289AbTHMAwM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 20:52:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271302AbTHMAwJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 20:50:24 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:28579 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id S271245AbTHMAuX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 20:50:23 -0400
-Date: Wed, 13 Aug 2003 01:49:42 +0100
-From: Dave Jones <davej@redhat.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, greg@kroah.com, willy@debian.org,
-       davem@redhat.com, linux-kernel@vger.kernel.org,
-       kernel-janitor-discuss@lists.sourceforge.net
-Subject: Re: C99 Initialisers
-Message-ID: <20030813004941.GD2184@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	"Randy.Dunlap" <rddunlap@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-	greg@kroah.com, willy@debian.org, davem@redhat.com,
-	linux-kernel@vger.kernel.org,
-	kernel-janitor-discuss@lists.sourceforge.net
-References: <20030812020226.GA4688@zip.com.au> <1060654733.684.267.camel@localhost> <20030812023936.GE3169@parcelfarce.linux.theplanet.co.uk> <20030812053826.GA1488@kroah.com> <20030812112729.GF3169@parcelfarce.linux.theplanet.co.uk> <20030812180158.GA1416@kroah.com> <3F397FFB.9090601@pobox.com> <20030812171407.09f31455.rddunlap@osdl.org> <3F3986ED.1050206@pobox.com> <20030812173742.6e17f7d7.rddunlap@osdl.org>
+	Tue, 12 Aug 2003 20:52:09 -0400
+Received: from h234n2fls24o900.bredband.comhem.se ([217.208.132.234]:64998
+	"EHLO oden.fish.net") by vger.kernel.org with ESMTP id S271289AbTHMAwC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 20:52:02 -0400
+Date: Wed, 13 Aug 2003 02:54:28 +0200
+From: Voluspa <lista1@telia.com>
+To: linux-kernel@vger.kernel.org
+Cc: kernel@kolivas.org
+Subject: Re: WINE + Galciv + 2.6.0-test3-mm1-O15
+Message-Id: <20030813025428.3569ffbc.lista1@telia.com>
+In-Reply-To: <200308130715.23046.kernel@kolivas.org>
+References: <20030812172358.5afe0cc1.lista1@telia.com>
+	<200308130715.23046.kernel@kolivas.org>
+Organization: The Foggy One
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030812173742.6e17f7d7.rddunlap@osdl.org>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 12, 2003 at 05:37:42PM -0700, Randy.Dunlap wrote:
- > | I would much rather move the PCI ids out of the 
- > | drivers altogether, into some metadata file(s) in the kernel source 
- > | tree, than bloat up tg3, tulip, e100, and the other PCI id-heavy 
- > | drivers' source code.
- > 
- > That last few lines certainly sounds desirable.
+On Wed, 13 Aug 2003 07:15:22 +1000
+Con Kolivas wrote:
 
-What exactly would be the benefit of this ?
-The only thing I could think of was out-of-kernel tools to do
-things like matching modules to pci IDs, but that seems to be
-done mechanically by various distros already reading the pci_driver
-structs.
+> On Wed, 13 Aug 2003 01:23, Voluspa wrote:
+> > On 2003-08-12 14:42:02 gaxt wrote:
+> > Similar experience here running the game-test (xfree86 4.3.99.10,
+> > winex 3.1 and "Baldurs Gate I") on a PII 400 with 128 meg ram. Using
+> > 2.6.0-test3-O14.1int + O14.1-O15int.
+> 
+> Yes known issue for reason I mentioned. Currently investigating.
 
-		Dave
+Yupp, you posted while I was writing.
 
--- 
- Dave Jones     http://www.codemonkey.org.uk
+> > I would say this is the best _and_ worst scheduler I've tried since
+> > Con
+> 
+> Can you give us some idea what your machine is like when it's not
+> running a cpu hog win32 game in wine? Also can you try running your
+> game nice +1
+
+As I've said, it is extremely hard for me to notice the scheduler unless
+I run something graphic intensive, but my comments are of course not
+solely based on that game-test. A general feel of smoothness can always
+be attributed to the placebo effect, though I challenge anyone to
+dispute the following experience.
+
+Fourteen days ago I took home a precompiled Blender 2.28 - previous
+copy of this 3D render program to reside here was 2.23. Grabbing the
+grid which constitutes the world plane (hold third mouse button, drag)
+and rotating it around the axes, I noticed something not present in the
+old version. Jerks...
+
+In kernel time this is 2.6.0-test1/2 and Cons O11int. Since then I've
+done the "world rotate" on plain kernels and all O-patches without
+noticing any improvement. Either mouse pointer or grid gets stuck for
+about 1/2 to 2 seconds, making the movement unsynchronized. Can happen
+while moving slowly, or spinning like crazy.
+
+I don't have DRI with my mach64 (8 meg) because of choice, use Xv
+instead, so I had made up my mind about the blame. Sloppy programming
+and weak CPU.
+
+Until O15int enters the mix. Perfect sync all the time, no matter how
+slow, fast or long I rotate the world plane. That is why I call this
+scheduler the "best". The "worst" part comes from the "known issue" but
+also because I happened to run xmms on a directory of mp3s while
+rotating. I got severe blackouts in the music, ca 10 - 15 seconds long.
+When the blackout starts I no longer have to move the mouse, it is
+enough to hold down the button. The second I release it, the music
+returns.
+
+Xmms has not been involved in the rotating before, so can't tell if the
+blackouts have occurred. Could be due to the "known issue", but I'll
+retest with older kernels when time permits.
+
+Running the game-test with nice +1... Well, I tried that first on
+wineserver, then wine, then X, after which I put -1 on them
+consecutively. No real pattern emerged. Badness all around. And now I'm
+falling asleep. Bye.
+
+Mvh
+Mats Johannesson

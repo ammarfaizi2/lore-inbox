@@ -1,59 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291150AbSBGO5h>; Thu, 7 Feb 2002 09:57:37 -0500
+	id <S291148AbSBGO41>; Thu, 7 Feb 2002 09:56:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291151AbSBGO5Y>; Thu, 7 Feb 2002 09:57:24 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:46597 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S291150AbSBGO4o>;
-	Thu, 7 Feb 2002 09:56:44 -0500
-Date: Thu, 7 Feb 2002 12:56:34 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: "David S. Miller" <davem@redhat.com>, <akpm@zip.com.au>, <bcrl@redhat.com>,
-        Hugh Dickins <hugh@lrel.veritas.com>, <marcelo@conectiva.com.br>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] __free_pages_ok oops
-In-Reply-To: <Pine.LNX.4.21.0202071355450.1149-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.33L.0202071255500.17850-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S291150AbSBGO4T>; Thu, 7 Feb 2002 09:56:19 -0500
+Received: from hanoi.cronyx.ru ([144.206.181.53]:56840 "EHLO hanoi.cronyx.ru")
+	by vger.kernel.org with ESMTP id <S291148AbSBGO4O>;
+	Thu, 7 Feb 2002 09:56:14 -0500
+Message-ID: <3C629514.6080209@cronyx.ru>
+Date: Thu, 07 Feb 2002 17:54:12 +0300
+From: Roman Kurakin <rik@cronyx.ru>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Serial.c driver problem 2.4.17
+Content-Type: multipart/mixed;
+ boundary="------------090908010502060800080003"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Feb 2002, Hugh Dickins wrote:
-> On Thu, 7 Feb 2002, Rik van Riel wrote:
-> > On Thu, 7 Feb 2002, Hugh Dickins wrote:
-> > >
-> > > If this were a common case where many pages end up, yes, we'd
-> > > need a separate special list; but it's a very rare case
-> >
-> > Think of a web or ftp server doing nothing but sendfile()
->
-> Aren't the sendfile() pages in the page cache, and normally taken
-> off LRU at the same time as removed from page cache, in shrink_cache?
+This is a multi-part message in MIME format.
+--------------090908010502060800080003
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-You're right.
+Hi,
 
-> I imagined (not yet tried) in shrink_cache, something like:
+   I have found a bug. It is in support of serial cards which uses 
+memory for I/O
+insted of ports. I made a patch for serial.c and fix one place, but 
+probably the
+problem like this one could be somewhere else.
 
-> 		if (unlikely(!page_count(page))) {
-> 			page_cache_get(page);
-> 			__lru_cache_del(page);
-> 			page_cache_release(page);
-> 			continue;
-> 		}
+Description:
+   If you try to use setserial with such cards you will get "Address in 
+use" (-EADDRINUSE)
 
-I guess this should work.
+Best regards,
+                       Kurakin Roman
 
-regards,
 
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
+--------------090908010502060800080003
+Content-Type: text/plain;
+ name="serial_2.4.17.pch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="serial_2.4.17.pch"
 
-http://www.surriel.com/		http://distro.conectiva.com/
+--- serial.c.orig	Fri Dec 21 20:41:54 2001
++++ serial.c	Fri Jan 25 15:00:20 2002
+@@ -2084,6 +2084,7 @@
+ 	unsigned int		i,change_irq,change_port;
+ 	int 			retval = 0;
+ 	unsigned long		new_port;
++	unsigned long		new_mem;
+ 
+ 	if (copy_from_user(&new_serial,new_info,sizeof(new_serial)))
+ 		return -EFAULT;
+@@ -2094,6 +2095,8 @@
+ 	if (HIGH_BITS_OFFSET)
+ 		new_port += (unsigned long) new_serial.port_high << HIGH_BITS_OFFSET;
+ 
++	new_mem = new_serial.iomem_base;
++	
+ 	change_irq = new_serial.irq != state->irq;
+ 	change_port = (new_port != ((int) state->port)) ||
+ 		(new_serial.hub6 != state->hub6);
+@@ -2134,6 +2137,7 @@
+ 		for (i = 0 ; i < NR_PORTS; i++)
+ 			if ((state != &rs_table[i]) &&
+ 			    (rs_table[i].port == new_port) &&
++			    (rs_table[i].iomem_base == new_mem) &&
+ 			    rs_table[i].type)
+ 				return -EADDRINUSE;
+ 	}
+
+--------------090908010502060800080003--
 

@@ -1,39 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287173AbSALQcp>; Sat, 12 Jan 2002 11:32:45 -0500
+	id <S287163AbSALQhv>; Sat, 12 Jan 2002 11:37:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287158AbSALQbW>; Sat, 12 Jan 2002 11:31:22 -0500
-Received: from ns1.yggdrasil.com ([209.249.10.20]:6100 "EHLO ns1.yggdrasil.com")
-	by vger.kernel.org with ESMTP id <S287173AbSALQbD>;
-	Sat, 12 Jan 2002 11:31:03 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Sat, 12 Jan 2002 08:31:01 -0800
-Message-Id: <200201121631.IAA06475@baldur.yggdrasil.com>
-To: linux-kernel@vger.kernel.org
-Subject: linux-2.5.2-pre11/drivers/loop.c bio question
+	id <S287158AbSALQhl>; Sat, 12 Jan 2002 11:37:41 -0500
+Received: from mx.fluke.com ([129.196.128.53]:57360 "EHLO
+	evtvir03.tc.fluke.com") by vger.kernel.org with ESMTP
+	id <S287163AbSALQh1>; Sat, 12 Jan 2002 11:37:27 -0500
+Date: Sat, 12 Jan 2002 08:37:37 -0800 (PST)
+From: David Dyck <dcd@tc.fluke.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.5.2-pre11 / IDE cdrom_read_intr: data underrun / end_request: I/O
+ error
+In-Reply-To: <Pine.LNX.4.33.0201111841320.193-100000@dd.tc.fluke.com>
+Message-ID: <Pine.LNX.4.33.0201120834140.672-100000@dd.tc.fluke.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Has anyone out there tried to use linux-2.5.2-pre11/drivers/loop.c?
-In my hacked version of loop.c, do_bio_blockbacked is often
-called with a bio that has bio->bi_idx set to 1 rather than 0
-(and with bi->bi_vcnt == 1), so it thinks it has no transfers to do.
-When I add the kludge of doing "bio->bi_idx = 0;" at the beginning
-of the routine, then it works fine.
+On Fri, 11 Jan 2002 at 18:55 -0800, David Dyck <dcd@tc.fluke.com> wrote:
+
+I had been testing 2.5.2-pre11 and earlier, but hadn't looked at
+reading from my cdrom for a while.  Yesterday I created examined several
+large cdrom sets that had been readable earlier and they read partially
+but get read errors.  These same cdroms can be read reliable on
+2.4.18-pre3 using the same hardware, and are readable on other
+PC's runing older kernels.
+
+Has anyone else seen cdrom read errors with 2.5.2-pre* kernels?
+
+Using 2.5.2-pre11
+
+# mount /cdrom && md5sum /cdrom/*
+md5sum: /cdrom/dcd-c.tar.gz: I/O error
+md5sum: /cdrom/dcd-d.tar.gz: I/O error
 
 
-	It is possible that my problem is self-inflicted because I
-am using a version that I have adopted the "initial value" patch to,
-and I also added a temporary hack to force the requests to be processed
-one sector at a time, like so:
+An example of some of the messages were
 
-        blk_queue_max_segment_size(BLK_DEFAULT_QUEUE(MAJOR_NR), 512);
+    ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:pio
+hdc: NEC CD-ROM DRIVE:28B, ATAPI CD/DVD-ROM drive
+hdc: ATAPI 32X CD-ROM drive, 256kB Cache
 
-	However, I think my changes are probably not the cause.  Anyhow,
-I thought I should mention this now to see if anyone else can
-confirm or refute having similar problems.
 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
+VFS: Disk change detected on device ide1(22,0)
+ISO 9660 Extensions: Microsoft Joliet Level 3
+ISOFS: changing to secondary root
+hdc: cdrom_read_intr: data underrun (4294967256 blocks)
+end_request: I/O error, dev 16:00, sector 299300
+hdc: cdrom_read_intr: data underrun (4294967260 blocks)
+end_request: I/O error, dev 16:00, sector 299304
+
+  errors repeated with sector and blocks increasing by 4
+  repeating 118 times
+
+
+using 2.4.18-pre3 I get no errors
+

@@ -1,102 +1,501 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130073AbQKGXN1>; Tue, 7 Nov 2000 18:13:27 -0500
+	id <S129102AbQKGXQ2>; Tue, 7 Nov 2000 18:16:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130202AbQKGXNR>; Tue, 7 Nov 2000 18:13:17 -0500
-Received: from k2.llnl.gov ([134.9.1.1]:42730 "EHLO k2.llnl.gov")
-	by vger.kernel.org with ESMTP id <S130073AbQKGXNG>;
-	Tue, 7 Nov 2000 18:13:06 -0500
-Message-ID: <3A08455E.F3583D1B@scs.ch>
-Date: Tue, 07 Nov 2000 10:09:34 -0800
-From: Reto Baettig <baettig@scs.ch>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.17ext3 i686)
+	id <S129076AbQKGXQS>; Tue, 7 Nov 2000 18:16:18 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:8711 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129057AbQKGXQB>; Tue, 7 Nov 2000 18:16:01 -0500
+Message-ID: <3A088C02.4528F66B@timpanogas.org>
+Date: Tue, 07 Nov 2000 16:10:58 -0700
+From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Organization: TRG, Inc.
+X-Mailer: Mozilla 4.7 [en] (WinNT; I)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Alpha SMP problem
-Content-Type: multipart/mixed;
- boundary="------------ECD6238D6E478D72F2A72E2C"
+To: kernel@kvack.org
+CC: Martin Josefsson <gandalf@wlug.westbo.se>,
+        Tigran Aivazian <tigran@veritas.com>, Anil kumar <anils_r@yahoo.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Installing kernel 2.4
+In-Reply-To: <Pine.LNX.3.96.1001107175009.1482C-100000@kanga.kvack.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------ECD6238D6E478D72F2A72E2C
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 
-Hi
+There are tests for all this in the feature flags for intel and
+non-intel CPUs like AMD -- including MTRR settings.  All of this could
+be dynamic.  Here's some code that does this, and it's similiar to
+NetWare.  It detexts CPU type, feature flags, special instructions,
+etc.  All of this on x86 could be dynamically detected.   
 
-I have a problem whith Alpha SMP's which seems to be kernel-related. I
-discussed this on the bug-glibc list but everybody seems to agree that
-it cannot be a libc problem.
+:-)
 
-I attached a little testprogram which reproduces the bug in < 1Minute. 
-BUT: IT MUST BE STARTED AT LEAST TWICE!
+;*************************************************************************
+;
+;  check current processor type and state
+;
+;*************************************************************************
 
-The strange thing is that a single instance of the program runs just
-fine. When I start the program a second time, I get segfaults and/or
-stuck threads.
+public DetectProcessorInformation
+DetectProcessorInformation proc near
 
-We could reproduce this behaviour on different Machines, both with linux
-2.2.14 and 2.4.0-test10, but 
-ONLY ON ALPHA SMP MACHINES.
+    mov   ax, cs
+    mov   ds, ax
+    mov   es, ax
 
-Here's my configuration:
+    pushf
+    call  get_cpuid
+    call  get_fpuid
+    call  print
+    popf
+    ret
 
-Linux reto1 2.4.0-test10 #2 SMP Tue Oct 31 19:39:51 PST 2000 alpha
-unknown
-                            ^^^                              ^^^^^
-Kernel modules         2.3.19
-Gnu C                  egcs-2.91.66
-Gnu Make               3.78.1
-Binutils               2.9.5.0.22
-Linux C Library        2.1.3
-Dynamic linker         ldd (GNU libc) 2.1.3
-Procps                 2.0.6
-Mount                  2.10f
-Net-tools              1.54
-Console-tools          0.3.3
-Sh-utils               2.0
-Modules Loaded         nfs lockd sunrpc
+DetectProcessorInformation endp
 
-Any ideas?
+get_cpuid proc near
 
-Please tell me when you need more information, or give me some pointers
-where I could start to dig...
+check_8086:
 
-TIA
+    pushf
+    pop   ax
+    mov   cx, ax
+    and   ax, 0fffh
+    push  ax
+    popf
+    pushf
+    pop   ax
+    and   ax, 0f000h
+    cmp   ax, 0f000h    ; flag bits 12-15 are always set on an 8086
+    mov   CPU_TYPE, 0   ; 8086 detected
+    je    end_get_cpuid
 
-Reto
---------------ECD6238D6E478D72F2A72E2C
-Content-Type: application/octet-stream;
- name="malloctest.tgz"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="malloctest.tgz"
+check_80286:
+    or    cx, 0f000h
+    push  cx
+    popf
+    pushf
+    pop   ax
+    and   ax, 0f000h   ; flag bits 12-15 are always clear on 80286 in
+real mode
+    mov   CPU_TYPE, 2  ; 80286 processor
+    jz    end_get_cpuid
 
-H4sIADHC+DkAA+1WW2/bNhTOK/krTtM1kJzYluxcgKQpmtVp+5D4IXWBAVtgyNJxTEwXj6KT
-eIX/+w5JWZGTbH1Khw38YFji4bnf7Mvod5yKFLdeEEEYBIeH+1tBEB4c9Q4aT4vwMNgKjnpB
-0O/vh71D4u/1D8ItCF7SqTUWpYokwNYkQqXEzd/yfe/+P4oPHy/OPn2BU2gPrs7Ph6Ors+GI
-XwxqajpXM4lRwvno7OrT+UgTsyhNi1hhqYBzej+Gn7zq1uc8TjHKjzmTGbSnjRuIC4n8347X
-YRMPtezEL2XjO/PfPzoM1/N/0D8gvrDf2++5+f8R6LY4tKDZBXTWpCss50VeikmKx3RQBfxs
-MwBelYr3ZVx24plfCXwWpSrk8piFYTugTwAfaHEoTBiTE2Locs5fizxOFwnC21IlqZh0Zu+a
-tGXZVcs5ls+QRYaPqEqK/GaTVu2qTWJUlijVY1rWJbUKM03nrxP6DcwRhl8vx6PPV+dngy8Q
-Bpx3W6AjUzNRQiRltAR6yQsFc1kopHwlMFlCtlB4T06DUJAUaDlypEtKmpafYFMA42hRItwh
-qUQo8pS05golJZ+uxZTMIdhASiNeKpGmpBnKIkPyJb+BQlaMS7ot5nNMTILTIr9hwJiajSX+
-8WsjnGta29+CPVidcK5TTAGTpFzECjLMxvQK3ziLZzQKrcliesIZ+QQJpqjwhK/WTCR9W4iE
-j2bjAabR0jNcyuckXKnTlbqNUh0TPUiA2beOuh2XGJMfierSQghOmjcLe+UlCt6AvvUp8IqL
-gQFZIHdi5VEYw68XF5vfO1aXT85aHyFbjqt+GMemET0w9BZMF3m8Vx0ieUPeA+Nszazg/oSM
-UX69R/I792trVoOW9XXeGJtTM6qpt70pAShlIX/Lt32tkTG8F8prh+QkW9V+fpSInnUmayZy
-XZcWvZx6j4l+Rko4u5vRfzcvtF6YA3iviKn9ztbO12bramnLRMgmHjlEzT3Sja0/2byQKqJa
-UsdiXi6k7sDImGu/o34w3sMsKql9MYc7KZSiJ3ETBw09LFGZCWfMjptXS746NTnTMW/cVf5p
-8lRnYC1gKLW0Fa5JVoiowTqF69G9PPtlfHE+BC8Mevst/eXb9A6KEU2Wp0eD4h0PF88mmZ6k
-sRR/ItU/xVzniWidhkFmKRtePe0xXc09qOrp75CEyflGnUi/7nUZ5UmReX7LOqe//CqMLv0N
-G4zp4MMuhLZotW27rD3S8iipnc1883oR2Livd3dNz2wGFmodD83zcOfDk94xjD+oe2ywzzZP
-7TyVxcS5YroVaAJ5FoncJN8UWW8noRmmtDA9YcoI4m1jL9Jxd9dW5Wktbes8VNPUyRd2fPk6
-YxCCVfCQKr2/qmytF8OlKVrZHRkLx9VGsH6d/oNXtYI3+wK296CqqLg2Blh9PDWbctWwaNaO
-9VSiWshcD83K/QF3cHBwcHBwcHBwcHBwcHBwcHBwcHBwcHD4f+Mv6p3CBgAoAAA=
---------------ECD6238D6E478D72F2A72E2C--
+check_80386:
+    mov     bx, sp
+    and     sp, not 3
+    OPND32
+    pushf
+    OPND32
+    pop ax
+    OPND32
+    mov      cx, ax
+    OPND32   35h, 40000h
+    OPND32
+    push     ax
+    OPND32
+    popf
+    OPND32
+    pushf
+    OPND32
+    pop      ax
+    OPND32
+    xor      ax, cx       ; AC bit won't toggle, 80386 detected
+    mov      sp, bx
+    mov      CPU_TYPE, 3  ; 80386 detected
+    jz       end_get_cpuid
 
+    and      sp, not 3
+    OPND32
+    push     cx
+    OPND32
+    popf
+    mov      sp, bx     ; restore stack
+
+
+check_80486:
+    mov      CPU_TYPE, 4     ; default to 80486
+
+    OPND32
+    mov      ax, cx
+    OPND32   35h, 200000h      ; xor ID bit
+    OPND32
+    push ax
+    OPND32
+    popf
+    OPND32
+    pushf
+    OPND32
+    pop      ax
+    OPND32
+    xor      ax, cx           ; cant toggle ID bit
+    je       end_get_cpuid
+
+
+check_vendor:
+    mov     ID_FLAG, 1
+    OPND32
+    xor     ax, ax
+    CPUID
+    OPND32
+    mov     word ptr VENDOR_ID, bx
+    OPND32
+    mov     word ptr VENDOR_ID[+4], dx
+    OPND32
+    mov     word ptr VENDOR_ID[+8], cx
+    mov     si, offset VENDOR_ID
+    mov     di, offset intel_id
+    mov     cx, length intel_id
+
+compare:
+    repe    cmpsb
+    or      cx, cx
+    jnz     end_get_cpuid
+
+intel_processor:
+    mov     INTEL_PROC, 1
+
+cpuid_data:
+    OPND32
+    cmp     ax, 1
+
+    jl      end_get_cpuid
+    OPND32
+    xor     ax, ax
+    OPND32
+    inc     ax
+    CPUID
+    mov     byte ptr ds:STEPPING, al
+    and     STEPPING, STEPPING_MASK
+
+    and     al, MODEL_MASK
+    shr     al, MODEL_SHIFT
+    mov     byte ptr ds:CPU_MODEL, al
+
+    and     ax, FAMILY_MASK
+    shr     ax, FAMILY_SHIFT
+    mov     byte ptr ds:CPU_TYPE, al
+
+    mov     dword ptr FEATURE_FLAGS, edx
+
+end_get_cpuid:
+    ret
+
+get_cpuid  endp
+
+
+get_fpuid proc near
+
+    fninit
+    mov      word ptr ds:FP_STATUS, 5a5ah
+
+    fnstsw   word ptr ds:FP_STATUS
+    mov      ax, word ptr ds:FP_STATUS
+    cmp      al, 0
+
+    mov      FPU_TYPE, 0
+    jne      end_get_fpuid
+
+check_control_word:
+    fnstcw   word ptr ds:FP_STATUS
+    mov      ax, word ptr ds:FP_STATUS
+    and      ax, 103fh
+    cmp      ax, 3fh
+
+    mov      FPU_TYPE, 0
+    jne      end_get_fpuid
+    mov      FPU_TYPE, 1
+
+
+check_infinity:
+    cmp      CPU_TYPE, 3
+    jne      end_get_fpuid
+    fld1
+    fldz
+    fdiv
+    fld      st
+    fchs
+    fcompp
+    fstsw    word ptr ds:FP_STATUS
+    mov      ax, word ptr ds:FP_STATUS
+    mov      FPU_TYPE, 2
+
+    sahf
+    jz       end_get_fpuid
+    mov      FPU_TYPE, 3
+end_get_fpuid:
+    ret
+get_fpuid endp
+
+
+
+print proc near
+    cmp      ID_FLAG, 1
+    je       print_cpuid_data
+
+if (VERBOSE)
+    mov      dx, offset id_msg
+    call     OutputMessage
+endif
+
+print_86:
+    cmp      CPU_TYPE, 0
+    jne      print_286
+
+if (VERBOSE)
+    mov      dx, offset c8086
+    call     OutputMessage
+endif
+    cmp      FPU_TYPE, 0
+    je       end_print
+
+if (VERBOSE)
+    mov      dx, offset fp_8087
+    call     OutputMessage
+endif
+    jmp      end_print
+
+print_286:
+    cmp      CPU_TYPE, 2
+    jne      print_386
+if (VERBOSE)
+    mov      dx, offset c286
+    call     OutputMessage
+endif
+    cmp      FPU_TYPE, 0
+    je       end_print
+if (VERBOSE)
+    mov      dx, offset fp_80287
+    call     OutputMessage
+endif
+    jmp      end_print
+
+print_386:
+    cmp      CPU_TYPE, 3
+    jne      print_486
+if (VERBOSE)
+    mov      dx, offset c386
+    call     OutputMessage
+endif
+    cmp      FPU_TYPE, 0
+    je       end_print
+    cmp      FPU_TYPE, 2
+    jne      print_387
+if (VERBOSE)
+    mov      dx, offset fp_80287
+    call     OutputMessage
+endif
+    jmp      end_print
+
+print_387:
+if (VERBOSE)
+    mov      dx, offset fp_80387
+    call     OutputMessage
+endif
+    jmp      end_print
+
+print_486:
+    cmp      FPU_TYPE, 0
+    je       print_Intel486sx
+if (VERBOSE)
+    mov      dx, offset c486
+    call     OutputMessage
+endif
+    jmp      end_print
+
+print_Intel486sx:
+if (VERBOSE)
+    mov      dx, offset c486nfp
+    call     OutputMessage
+endif
+    jmp      end_print
+
+print_cpuid_data:
+
+cmp_vendor:
+    cmp      INTEL_PROC, 1
+    jne      not_GenuineIntel
+
+    cmp      CPU_TYPE, 4
+    jne      check_Pentium
+if (VERBOSE)
+    mov      dx, offset Intel486_msg
+    call     OutputMessage
+endif
+    jmp      print_family
+
+check_Pentium:
+    cmp      CPU_TYPE, 5
+    jne      check_PentiumPro
+if (VERBOSE)
+    mov      dx, offset Pentium_msg
+    call     OutputMessage
+endif
+    jmp      print_family
+
+check_PentiumPro:
+    cmp      CPU_TYPE, 6
+    jne      print_features
+if (VERBOSE)
+    mov      dx, offset PentiumPro_msg
+    call     OutputMessage
+endif
+
+print_family:
+
+IF VERBOSE
+    mov      dx, offset family_msg
+    call     OutputMessage
+ENDIF
+
+    mov      al, byte ptr ds:CPU_TYPE
+    mov      byte ptr dataCR, al
+    add      byte ptr dataCR, 30h
+
+IF VERBOSE
+    mov      dx, offset dataCR
+    call     OutputMessage
+ENDIF
+
+print_model:
+
+IF VERBOSE
+    mov      dx, offset model_msg
+    call     OutputMessage
+ENDIF
+
+    mov      al, byte ptr ds:CPU_MODEL
+    mov      byte ptr dataCR, al
+    add      byte ptr dataCR, 30h
+
+IF VERBOSE
+    mov      dx, offset dataCR
+    call     OutputMessage
+ENDIF
+
+print_features:
+    mov      ax, word ptr ds:FEATURE_FLAGS
+    and      ax, FPU_FLAG
+    jz       check_mce
+
+if (VERBOSE)
+    mov      dx, offset fpu_msg
+    call     OutputMessage
+ENDIF
+
+check_mce:
+    mov      ax, word ptr ds:FEATURE_FLAGS
+    and      ax, MCE_FLAG
+    jz       check_wc
+
+IF VERBOSE
+    mov      dx, offset mce_msg
+    call     OutputMessage
+ENDIF
+
+check_CMPXCHG8B:
+    mov      ax, word ptr ds:FEATURE_FLAGS
+    and      ax, CMPXCHG8B_FLAG
+    jz       check_4MB_paging
+
+IF VERBOSE
+    mov      dx, offset cmp_msg
+    call     OutputMessage
+ENDIF
+
+chekc_io_break:
+    mov      ax, word ptr ds:FEATURE_FLAGS
+    test     ax, 4
+    jz       check_4MB_paging
+
+IF VERBOSE
+    mov      dx, offset io_break_msg
+    call     OutputMessage
+ENDIF
+
+    ;	Enable Debugging Extensions bit in CR4
+    CR4_TO_ECX
+    or	ecx, 08h
+    ECX_TO_CR4
+
+if (VERBOSE)
+    mov      dx, offset io_break_enable
+    call     OutputMessage
+endif
+
+check_4MB_paging:
+    mov      ax, word ptr ds:FEATURE_FLAGS
+    test     ax, 08h
+    jz       check_PageExtend
+
+IF VERBOSE
+    mov      dx, offset page_4MB_msg
+    call     OutputMessage
+ENDIF
+
+    ;	Enable page size extension bit in CR4
+    CR4_TO_ECX
+    or	     ecx, 10h
+    ECX_TO_CR4
+
+if (VERBOSE)
+    mov      dx, offset p4mb_enable
+    call     OutputMessage
+endif
+
+check_PageExtend:
+    mov      ax, word ptr ds:FEATURE_FLAGS
+    test     ax, 40h
+    jz       check_wc
+
+;; DEBUG DEBUG DEBUG !!!
+    ;	Enable page address extension bit in CR4
+
+    ;; CR4_TO_ECX
+    ;; or	     ecx, 20h
+    ;; ECX_TO_CR4
+
+check_wc:
+    mov      dx, word ptr ds:FEATURE_FLAGS
+    test     dx, 1000h ; MTRR support flag
+    jz       end_print
+
+if (VERBOSE)
+    mov      dx, offset wc_enable
+    call     OutputMessage
+endif
+    jmp      end_print
+
+not_GenuineIntel:
+if (VERBOSE)
+    mov      dx, offset not_Intel
+    call     OutputMessage
+endif
+
+end_print:
+    ret
+print endp
+
+
+kernel@kvack.org wrote:
+> 
+> On Tue, 7 Nov 2000, Jeff V. Merkey wrote:
+> 
+> > So how come NetWare and NT can detect this at run time, and we have to
+> > use a .config option to specifiy it?  Come on guys.....
+> 
+> Then run a kernel compiled for i386 and suffer the poorer code quality
+> that comes with not using newer instructions and including the
+> workarounds for ancient hardware.
+> 
+>                 -ben
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

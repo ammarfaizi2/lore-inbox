@@ -1,52 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132151AbRDNNgN>; Sat, 14 Apr 2001 09:36:13 -0400
+	id <S132224AbRDNN6K>; Sat, 14 Apr 2001 09:58:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132167AbRDNNgE>; Sat, 14 Apr 2001 09:36:04 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:41735 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S132151AbRDNNfs>;
-	Sat, 14 Apr 2001 09:35:48 -0400
-Date: Sat, 14 Apr 2001 10:35:36 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
-Subject: Re: PATCH(?): linux-2.4.4-pre2: fork should run child first
-In-Reply-To: <Pine.LNX.4.31.0104132138310.24573-100000@cesium.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0104141034420.12164-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S132301AbRDNN6B>; Sat, 14 Apr 2001 09:58:01 -0400
+Received: from 4dyn187.delft.casema.net ([195.96.105.187]:15109 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S132224AbRDNN5t>; Sat, 14 Apr 2001 09:57:49 -0400
+Message-Id: <200104141357.PAA15976@cave.bitwizard.nl>
+Subject: Re: Linux-Kernel Archive: No 100 HZ timer !
+In-Reply-To: <Pine.LNX.4.10.10104121448520.4564-100000@master.linux-ide.org>
+ from Andre Hedrick at "Apr 12, 2001 02:52:22 pm"
+To: Andre Hedrick <andre@linux-ide.org>
+Date: Sat, 14 Apr 2001 15:57:38 +0200 (MEST)
+CC: schwidefsky@de.ibm.com, linux-kernel@vger.kernel.org
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Apr 2001, Linus Torvalds wrote:
-> On Sat, 14 Apr 2001, Rik van Riel wrote:
-> >
-> > Also, have you managed to find a real difference with this?
+Andre Hedrick wrote:
 > 
-> It actually makes a noticeable difference on lmbench, so I think adam is
-> 100% right.
+> Okay but what will be used for a base for hardware that has critical
+> timing issues due to the rules of the hardware?
 > 
-> > If it turns out to be beneficial to run the child first (you
-> > can measure this), why not leave everything the same as it is
-> > now but have do_fork() "switch threads" internally ?
+> I do not care but your drives/floppy/tapes/cdroms/cdrws do:
 > 
-> Probably doesn't much matter. We've invalidated the TLB anyway due to
-> the page table copy, so the cost of switching the MM is not all that
-> noticeable.
+> /*
+>  * Timeouts for various operations:
+>  */
+> #define WAIT_DRQ        (5*HZ/100)      /* 50msec - spec allows up to 20ms */
+> #ifdef CONFIG_APM
+> #define WAIT_READY      (5*HZ)          /* 5sec - some laptops are very slow */
+> #else
+> #define WAIT_READY      (3*HZ/100)      /* 30msec - should be instantaneous */
+> #endif /* CONFIG_APM */
+> #define WAIT_PIDENTIFY  (10*HZ) /* 10sec  - should be less than 3ms (?), if all ATAPI CD is closed at boot */
+> #define WAIT_WORSTCASE  (30*HZ) /* 30sec  - worst case when spinning up */
+> #define WAIT_CMD        (10*HZ) /* 10sec  - maximum wait for an IRQ to happen */
+> #define WAIT_MIN_SLEEP  (2*HZ/100)      /* 20msec - minimum sleep time */
 
-And we don't even have to physically switch MM, we could simply
-fake stuff by updating pointers in the parent MM instead of the
-child so by the time we exit do_fork() we're in the child...
+May I make a coding-style suggestion (which is ugly on one hand, neat
+on the other):
 
-regards,
+#define mSec   *Hz/1000     /* Convert millisecs to jiffies */
+#define Sec    *Hz          /* Convert secs to jiffies */
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+#define WAIT_DRQ        (50 mSec)   /* spec allows up to 20ms */
+#ifdef CONFIG_APM
+#define WAIT_READY      ( 5 Sec)    /* some laptops are very slow */
+#else
+#define WAIT_READY      (30 mSec)   /* should be instantaneous */
+#endif /* CONFIG_APM */
+#define WAIT_PIDENTIFY  (10 Sec)    /* should be less than 3ms (?), if all ATAPI CD is closed at boot */
+#define WAIT_WORSTCASE  (30 Sec)    /* worst case when spinning up */
+#define WAIT_CMD        (10 Sec)    /* maximum wait for an IRQ to happen */
+#define WAIT_MIN_SLEEP  (20 mSec)   /* minimum sleep time */
 
+
+I think that this is more readable than the above original. 
+
+Also note that the numbers are not really repeated in the comments. If
+someone changes the numbers, but not the comments, it may confuse
+someone quite some time before he/she notices that the number that
+is used is not the same as the one in the comment. 
+
+
+				Roger. 
+
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 

@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319389AbSIFUxm>; Fri, 6 Sep 2002 16:53:42 -0400
+	id <S319397AbSIFVFQ>; Fri, 6 Sep 2002 17:05:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319393AbSIFUxb>; Fri, 6 Sep 2002 16:53:31 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:8320 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S319389AbSIFUwM>;
-	Fri, 6 Sep 2002 16:52:12 -0400
-Date: Fri, 6 Sep 2002 10:28:50 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Paolo Ciarrocchi <ciarrocchi@linuxmail.org>
-Cc: venom@sns.it, ahu@ds9a.nl, linux-kernel@vger.kernel.org
-Subject: Re: side-by-side Re: BYTE Unix Benchmarks Version 3.6
-Message-ID: <20020906102849.A35@toy.ucw.cz>
-References: <20020905153709.29686.qmail@linuxmail.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20020905153709.29686.qmail@linuxmail.org>; from ciarrocchi@linuxmail.org on Thu, Sep 05, 2002 at 11:37:09PM +0800
+	id <S319402AbSIFVFQ>; Fri, 6 Sep 2002 17:05:16 -0400
+Received: from eos.telenet-ops.be ([195.130.132.40]:13255 "EHLO
+	eos.telenet-ops.be") by vger.kernel.org with ESMTP
+	id <S319397AbSIFVFP>; Fri, 6 Sep 2002 17:05:15 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: DevilKin <devilkin-lkml@blindguardian.org>
+To: <Hell.Surfers@cwctv.net>, linux-kernel@vger.kernel.org
+Subject: Re: Re: ide drive dying?
+Date: Fri, 6 Sep 2002 23:07:01 +0200
+User-Agent: KMail/1.4.1
+References: <0d2bf5139200692DTVMAIL9@smtp.cwctv.net>
+In-Reply-To: <0d2bf5139200692DTVMAIL9@smtp.cwctv.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200209062307.02048.devilkin-lkml@blindguardian.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Friday 06 September 2002 22:40, Hell.Surfers@cwctv.net wrote:
+> Is a drive you cant rely on worth having?
 
-> > I usually run byte bench regularly with every new kernel, so I see some
-> > strange results here.
-> > 
-> > From your numbers, I would say you are using a PIII 600/900 Mhz (more or
-> > less). It is not an AMD AThlon or a PIV, since float and double are too
-> > slow, not it is a K6 because they are too fast.
-> Yes, I ran the test on a HP Omnibook 600 (PIII@900)
+Very good question... 
 
-APM or ACPI? How did you guarantee not going powersave?
-								Pavel
+the DFT has finished it's work, and tells me no more bad sectors are 
+present... for how long?
+
+To the swap guru's: what does linux do if it attempts to write to swap, and 
+gets an error code returned from the ide layer?
+
+DK
 -- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+The streets are safe in Philadelphia, it's only the people who make
+them unsafe.
+		-- Mayor Frank Rizzo
 

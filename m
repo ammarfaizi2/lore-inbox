@@ -1,69 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261196AbVBYTpZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261260AbVBYTtG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261196AbVBYTpZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 14:45:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261260AbVBYTpY
+	id S261260AbVBYTtG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 14:49:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261264AbVBYTtG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 14:45:24 -0500
-Received: from bay10-f59.bay10.hotmail.com ([64.4.37.59]:15147 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S261196AbVBYTpQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 14:45:16 -0500
-Message-ID: <BAY10-F5997532B33F688F40D0298D6650@phx.gbl>
-X-Originating-IP: [61.247.244.188]
-X-Originating-Email: [agovinda04@hotmail.com]
-From: "govind raj" <agovinda04@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Init program not starting
-Date: Sat, 26 Feb 2005 01:14:24 +0530
+	Fri, 25 Feb 2005 14:49:06 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:8210 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261260AbVBYTsg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 14:48:36 -0500
+Date: Fri, 25 Feb 2005 19:48:24 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Paulo Marques <pmarques@grupopie.com>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Sam Ravnborg <sam@ravnborg.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: ARM undefined symbols.  Again.
+Message-ID: <20050225194823.A27842@flint.arm.linux.org.uk>
+Mail-Followup-To: Paulo Marques <pmarques@grupopie.com>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Sam Ravnborg <sam@ravnborg.org>, Linus Torvalds <torvalds@osdl.org>
+References: <20050124154326.A5541@flint.arm.linux.org.uk> <20050131161753.GA15674@mars.ravnborg.org> <20050207114359.A32277@flint.arm.linux.org.uk> <20050208194243.GA8505@mars.ravnborg.org> <20050208200501.B3544@flint.arm.linux.org.uk> <20050209104053.A31869@flint.arm.linux.org.uk> <20050213172940.A12469@flint.arm.linux.org.uk> <4210A345.6030304@grupopie.com>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 25 Feb 2005 19:45:15.0370 (UTC) FILETIME=[86EB0CA0:01C51B72]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <4210A345.6030304@grupopie.com>; from pmarques@grupopie.com on Mon, Feb 14, 2005 at 01:10:29PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We are trying to build a customized kernel from Fedora Core 1
-(Linux kernel version 2.4.29). After building and mounting the
-root filesystem, it seems to be not proceeding further and at
-the same time there is no kernel panic message that is coming
-out as well. With additional kernel debugging, it looks like
-/sbin/init is getting passed as the init program to be execed.
-The permissions of /sbin/init in the root filesystem are proper
-and matches the permissions of the init executable in a running
-system.
+On Mon, Feb 14, 2005 at 01:10:29PM +0000, Paulo Marques wrote:
+> Russell King wrote:
+> > On Wed, Feb 09, 2005 at 10:40:53AM +0000, Russell King wrote:
+> >>On Tue, Feb 08, 2005 at 08:05:01PM +0000, Russell King wrote:
+> >>[...]
+> >>  LD      .tmp_vmlinux1
+> >>.tmp_vmlinux1: error: undefined symbol(s) found:
+> >>         w kallsyms_addresses
+> >>         w kallsyms_markers
+> >>         w kallsyms_names
+> >>         w kallsyms_num_syms
+> >>         w kallsyms_token_index
+> >>         w kallsyms_token_table
+> >>
+> >>Maybe kallsyms needs to provide an empty object with these symbols
+> >>defined for the first linker pass, instead of using weak symbols?
+> > 
+> > 
+> > So, what's the answer?  Maybe this patch?  With this, we can drop the
+> > __attribute__((weak)) from the kallsyms symbols since they're always
+> > provided.
+> > 
+> > diff -up -x BitKeeper -x ChangeSet -x SCCS -x _xlk -x *.orig -x *.rej orig/Makefile linux/Makefile
+> > --- orig/Makefile	Sun Feb 13 17:26:38 2005
+> > +++ linux/Makefile	Sun Feb 13 17:24:17 2005
+> > @@ -702,14 +702,20 @@ quiet_cmd_kallsyms = KSYM    $@
+> >        cmd_kallsyms = $(NM) -n $< | $(KALLSYMS) \
+> >                       $(if $(CONFIG_KALLSYMS_ALL),--all-symbols) > $@
+> >  
+> > -.tmp_kallsyms1.o .tmp_kallsyms2.o .tmp_kallsyms3.o: %.o: %.S scripts FORCE
+> > +.tmp_kallsyms0.o .tmp_kallsyms1.o .tmp_kallsyms2.o .tmp_kallsyms3.o: %.o: %.S scripts FORCE
+> >  	$(call if_changed_dep,as_o_S)
+> >  
+> > +.tmp_kallsyms0.S: FORCE
+> > +	@( echo ".data"; \
+> > +	  for sym in addresses markers names num_syms token_index token_table; \
+> > +	  do echo -e ".globl kallsyms_$$sym\nkallsyms_$$sym:\n"; done; \
+> > +	  echo ".word 0"; ) > $@
+> 
+> I think it would be better to pass an argument to scripts/kallsyms (like 
+> -0 or something) that instructed it to generate the same file it usually 
+> generates but without any actual symbol information.
+> 
+> This way it will be easier to maintain this code in case new symbols are 
+> needed in the future. Having this done in the Makefile means that to add 
+> a new symbol we will have to change scripts/kallsyms, kernel/kallsyms 
+> and a not so clearly related Makefile.
+> 
+> I'll try to make a small patch if I can get some time (maybe later this 
+> week).
 
-The kernel that is being built out of this version is a mini-kernel
-to be used for booting a board. We had taken the pebble distribution
-configuration as a base for building the kernel (with the relevant
-support for serial and console terminals).
+So, what's happening about this?
 
-We faced the same problem with using both LILO and GRUB. The last
-few lines of the output before the boot-up process seems to go into
-an inactive state are as follows(At this time, the terminal still
-responds to keystrokes hinting that it has not gone into a complete
-limbo or paniced state)
-
-----------------------------------------------
-NET4: UNIX domain sockets 1.0/SMP for Linux NET4.0.
-hda:hda1
-hda:hda1
-VFS: Mounted root (ext2 filesystem readonly)
-Freeing unused kerned memory: 76k freed
-
-<No more messages but still responds to key strokes>
-
------------------------------------------------
-
-We are struck on this for a couple of days now and have been trying
-to debug this real hard. Any pointers or clues that you can give us
-to resolve this problem would be much appreciated...
-
-Thanks in advance,
-
-Govind
-
-_________________________________________________________________
-Start you business on Baazee today! 
-http://adfarm.mediaplex.com/ad/ck/4686-26272-10936-31?ck=RegSell Register 
-for Free!
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

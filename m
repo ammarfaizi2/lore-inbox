@@ -1,53 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263127AbRFGUvd>; Thu, 7 Jun 2001 16:51:33 -0400
+	id <S263142AbRFGVCk>; Thu, 7 Jun 2001 17:02:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263130AbRFGUvX>; Thu, 7 Jun 2001 16:51:23 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:54797 "EHLO
+	id <S263141AbRFGVCa>; Thu, 7 Jun 2001 17:02:30 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:17934 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S263127AbRFGUvP>; Thu, 7 Jun 2001 16:51:15 -0400
-Date: Thu, 7 Jun 2001 13:51:05 -0700 (PDT)
+	id <S263142AbRFGVCZ>; Thu, 7 Jun 2001 17:02:25 -0400
+Date: Thu, 7 Jun 2001 14:01:53 -0700 (PDT)
 From: Linus Torvalds <torvalds@transmeta.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-Subject: Re: Background scanning change on 2.4.6-pre1
-In-Reply-To: <Pine.LNX.4.21.0106071330060.6510-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0106071345190.6604-100000@penguin.transmeta.com>
+To: Keitaro Yosimura <ramsy@linux.or.jp>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Configure.help i18n system
+In-Reply-To: <20010607165007.A299.RAMSY@linux.or.jp>
+Message-ID: <Pine.LNX.4.21.0106071351300.6604-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Forgot one comment..
+[ Kernel mailing list added to Cc ]
 
-> > This is going to make all pages have age 0 on an idle system after some
-> > time (the old code from Rik which has been replaced by this code tried to 
-> > avoid that)
+On Thu, 7 Jun 2001, Keitaro Yosimura wrote:
+> 
+> Configure.help i18n system is the thing which uses MD5 SUM of the text
+> of the text as a key, and calls suitable data to the present language
+> setup (it judges from an environment variable).
 
-There's another reason why I think the patch may be ok even without any
-added logic: not only does it simplify the code and remove a illogical
-heuristic, but there is nothing that really says that "age 0" is
-necessarily very bad.
+Quite frankly, I dislike the current Configure.help setup for a lot of
+reasons, none of which are i18n-related.
 
-We should strive to keep the active/inactive lists in LRU order anyway, so
-the ordering does tell you something about how recent (and thus how
-important) the page is. Also, it's certainly MUCH preferable to let pages
-age down to zero, than to let pages retain a maximum age over a long time,
-like the old code used to do.
+One is a "simple" technical detail (the fact that it is all in one big
+file instead of distributed over the places that actually _implement_ the
+different config options), but the other is just that from what I've seen,
+the overlap between people developing the code, and the people trying to
+explain the config options is actually rather small.
 
-If, after long periods of inactivity, we start needing fresh pages again,
-it's probably actually an _advantage_ to give the new pages a higher
-relative importance. Caches tend to lose their usefulness over time, and
-if the old cached pages are really relevant, then the new spurt of usage
-will obviously mark them young again.
+So I wonder if the Configure.help text should not possibly be even _more_
+distributed than just splitting it up into different files. It might very
+well be acceptable to actually distribute it over the net (and have just a
+mapping of config options into www-addresses or something).
 
-And if, after the idle time, the behaviour is different, the old pages
-have appropriately been aged down and won't stand in the way of a new
-cache footprint.
+I suspect that this is actually something that intersects with the i18n
+work: how does the i18n projects distribute the actual help texts? Done
+right, maybe the same distributed environment could be used for
+everything, and getting Configure.help entirely out of the "core kernel"
+tree, and into a separate distribution (where the English version would be
+just one among many distributions).
 
-Do you actually have regular usage that shows the age-down to be a bad
-thing? 
+I like to keep things that belong together in one distribution (especially
+so that when people make changes to infrastructure they can more easily
+change all the users - there's been tons of synchronization problems with
+"external packages"), but on the other hand some things would probably be
+better maintained outside the core package.
+
+Configure.help certainly isn't all that kernel version dependent, and
+could successfully be maintained completely outside the kernel, I suspect.
+
+And I know that I'm bad at maintaining documentation like this, simply
+because I never use it, and I don't care enough. Trying to care about the
+i18n version when I don't even understand what it says would be completely
+impossible for me.
+
+Comments?
 
 		Linus
 

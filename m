@@ -1,59 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261956AbVATVTv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261968AbVATVYt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261956AbVATVTv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 16:19:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261968AbVATVTv
+	id S261968AbVATVYt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 16:24:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261993AbVATVYt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 16:19:51 -0500
-Received: from gw1.cosmosbay.com ([62.23.185.226]:54229 "EHLO
-	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S261956AbVATVTq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 16:19:46 -0500
-Message-ID: <41F0206C.5040605@cosmosbay.com>
-Date: Thu, 20 Jan 2005 22:19:40 +0100
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
-X-Accept-Language: fr, en-us, en
+	Thu, 20 Jan 2005 16:24:49 -0500
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:15550 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261968AbVATVYm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 16:24:42 -0500
+Message-ID: <41F021AA.6050806@comcast.net>
+Date: Thu, 20 Jan 2005 16:24:58 -0500
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: Something very strange on x86_64 2.6.X kernels
-References: <20050119231322.GA2287@lk8rp.mail.xeon.eu.org>	<20050120162807.GA3174@stusta.de>	<20050120164829.GG450@wotan.suse.de>	<41F01A50.1040109@cosmosbay.com> <20050120130848.14a92990.akpm@osdl.org>
-In-Reply-To: <20050120130848.14a92990.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Christoph Hellwig <hch@infradead.org>
+CC: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
+       Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
+       Greg KH <greg@kroah.com>, chrisw@osdl.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: thoughts on kernel security issues
+References: <Pine.LNX.4.58.0501130822280.2310@ppc970.osdl.org> <1105635662.6031.35.camel@laptopd505.fenrus.org> <Pine.LNX.4.58.0501130909270.2310@ppc970.osdl.org> <41E6BE6B.6050400@comcast.net> <20050119103020.GA4417@elte.hu> <41EE96E7.3000004@comcast.net> <20050119174709.GA19520@elte.hu> <41EEA86D.7020108@comcast.net> <20050120104451.GE12665@elte.hu> <41EFF581.6050108@comcast.net> <20050120192258.GA8683@infradead.org>
+In-Reply-To: <20050120192258.GA8683@infradead.org>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> Eric Dumazet <dada1@cosmosbay.com> wrote:
 
->>
->>Every time the crash occurs when one thread is using some ram located at 
->>virtual address 0xffffe6xx
+
+Christoph Hellwig wrote:
+> On Thu, Jan 20, 2005 at 01:16:33PM -0500, John Richard Moser wrote:
+> 
+>>Granted, you're somewhat more diverse than I pointed out; but I don't
+>>keep up on what you're doing.  The point was more that you're not a
+>>major security figure and/or haven't donated your life to security and
+>>forsaken all lovers before it like Joshua Brindle or Brad Spengler or
+>>whoever the anonymous guy who developes PaX is.  I guess less focus on
+>>the developer and more focus on the development.
 > 
 > 
-> What does "using" mean?  Is the program executing from that location?
+> But Ingo is someone who
+> 
+>  - is a known allround kernel hacker
+>  - has a trackrecord of getting things done that actually get used
+>  - lowlevel CPU knowledge
+>  - is able to comunicate with other developers very well
+>  - is able to make good tradeoffs
+>  - has taste
+> 
+> most of that can't be said for your personal heroes
+> 
 
-No, the program text is located between 0x00100000 and 0x001c6000  (no 
-shared libs)
+That's all good, but I notice being exceedingly competant in the needs
+of a proper secured environment is lacking in your list.  Is he
+exceedingly knowledgible about security?  Who is he working with who
+will fill in his gaps in understanding if not?
 
-0xffffe6xx is READ|WRITE data, mapped on Hugetlb fs
+The PaX developer may not be well known, or have anything in the kernel,
+but I've talked to the guy.  He has CPU manuals for practically
+everything, and *gasp* he READS them!  He maintains PaX himself, and it
+works well on my AMD64; he has the manual, but not the CPU.
 
-extract from /proc/pid/maps
-ff400000-100400000 rw-s 82000000 00:0b 12960938 
-    /huge/file
+The trade-off of SEGMEXEC is 50% of VM space and 0.7% CPU.  The
+trade-off of PAGEEXEC (on x86; a real NX bit is used on other CPUs) is
+identical to Exec Shield's until that method fails, then it falls back
+to a potentially very painful CPU trade-off that's necessary to continue
+to offer a supported NX bit.
+
+Explain "Taste."
 
 > 
-> Interesting.  IIRC, opterons will very occasionally (and incorrectly) take
-> a fault when performing a prefetch against a dud pointer.  The kernel will
-> fix that up.  At a guess, I'd say tha the fixup code isn't doing the right
-> thing when the faulting EIP is in the vsyscall page.
+>>*shrug*  The kernel's basic initialization code is in assembly.  On 40
+>>different platforms.  That's pretty complex in terms of kernel code,
+>>which is 99.998% C.
+> 
+> 
+> No, the kernel initialization is not complex at all.  complexity != code size
+> 
 
-Maybe, but I want to say that in this case, the address 'prefetched' is 
-valid (ie mapped read/write by the program, on a huge page too)
+I was more pointing out that it was assembler code.  Clean and simple as
+it may be, you come back in 10 years and try to maintain it.
 
-Thanks
-Eric Dumazet
+> 
+>>Which brings us to a point on (1) and (2).  You and others continue to
+>>pretend that SEGMEXEC is the only NX emulation in PaX.  I should remind
+>>you (again) that PAGEEXEC uses the same method that Exec Shield uses
+>>since I believe kernel 2.6.6.  In the cases where this method fails, it
+>>falls back to kernel-assisted MMU walking, which can produce potentially
+>>high overhead.
+> 
+> 
+> You stated that a few time.  Now let's welcome you to reality:
+> 
+>  - Linus doesn't want to make the tradeoffs for segment based NX-bit
+>    emulation in mainline at all
 
+It's an option, set in menuconfig.  It's not a forced trade-off, so
+integrating it (btw I wasn't and am not currently arguing to get PaX
+integrated) wouldn't really force a trade-off on the user.
+
+Back to the above, this argument doesn't cover page-based NX-bit emulation.
+
+>  - Ingo and his collegues at Red Hat want to have it, but they don't
+>    want to break application nor introduce the addition complexity
+>    of the PaX code.
+> 
+
+Nor guarantee that the NX emulation is actually durable.
+
+> Is is that hard to understand?
+> 
+> 
+
+What's hard to understand is the constant banter about SEGMEXEC when
+there's a second mode AND when it's completely optional.  Are you trying
+to make it sound like you're pretending that PaX isn't innovative and
+that the trade-offs are obscene and infeasible in an every-day
+environment?  Why is PAGEEXEC ignored in every argument, and SEGMEXEC
+focused on, when one or both can be disabled so that the VM split goes away?
+
+Could it be that you can't argue against PAGEEXEC because it uses the
+exact same method that Exec Shield uses, and falls back to a heavier one
+when that fails; yet you argue that Exec Shield shouldn't fail except in
+extremely rare cases, so you can't hold the possibly heavy-overhead case
+in PAGEEXEC to question without invalidating your own arguments?
+
+What's wrong with PAGEEXEC?  Why focus on SEGMEXEC?
+
+The only thing I ever complain about concerning Exec Shield's principle
+implementation is that it can fail in certain conditions.  the
+deployment side (PT_GNU_STACK and automated marking) I don't even know
+why I touched on; perhaps I should try to separate ES from RedHat's
+overall smoke-and-mirrors approach to security, since ES at least
+supplies a partially functional and reciprocating NX-ASLR proteciton.
+
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFB8CGphDd4aOud5P8RAlq/AJ40TYCxoUMi2PsWvZz/BqHsugEnuQCeL5iC
+y2Ot5pTwi+1dbPKN+6WYU4k=
+=Weu3
+-----END PGP SIGNATURE-----

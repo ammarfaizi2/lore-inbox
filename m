@@ -1,89 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264105AbUKZU6a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264069AbUKZUyQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264105AbUKZU6a (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 15:58:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264125AbUKZU5s
+	id S264069AbUKZUyQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 15:54:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264030AbUKZUq6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 15:57:48 -0500
-Received: from pop.gmx.de ([213.165.64.20]:22700 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264105AbUKZU5A (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 15:57:00 -0500
-Date: Thu, 25 Nov 2004 17:30:14 +0100 (MET)
-From: "Michael Kerrisk" <mtk-lkml@gmx.net>
-To: Rik van Riel <riel@redhat.com>
-Cc: hugh@veritas.com, chrisw@osdl.org, manfred@colorfullife.com,
-       torvalds@osdl.org, akpm@osdl.org, michael.kerrisk@gmx.net,
-       linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-References: <Pine.LNX.4.61.0411250941230.10497@chimarrao.boston.redhat.com>
-Subject: Re: Further shmctl() SHM_LOCK strangeness
-X-Priority: 3 (Normal)
-X-Authenticated: #23581172
-Message-ID: <15277.1101400214@www65.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Fri, 26 Nov 2004 15:46:58 -0500
+Received: from coyote.holtmann.net ([217.160.111.169]:34487 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S264125AbUKZUar
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 15:30:47 -0500
+Subject: Re: [PATCH] fix unnecessary increment in firmware_class_hotplug()
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Greg Kroah-Hartman <greg@kroah.com>
+In-Reply-To: <20041125201935.213944c9.tokunaga.keiich@jp.fujitsu.com>
+References: <20041125201935.213944c9.tokunaga.keiich@jp.fujitsu.com>
+Content-Type: multipart/mixed; boundary="=-ctrC57uegPp7IIA6Ar3B"
+Date: Fri, 26 Nov 2004 21:30:24 +0100
+Message-Id: <1101501024.6514.52.camel@pegasus>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik,
 
-> On Thu, 25 Nov 2004, Michael Kerrisk wrote:
-> 
-> > I don't think this is sufficient -- there must
-> > be protection against arbitrary SHM_LOCKs.
-> 
-> Why?   We already have ulimits do that...
+--=-ctrC57uegPp7IIA6Ar3B
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-My gut feeling is that processes should not be able to 
-arbitrarily lock shared memory segments created by other 
-users in memory.  I mean: why should I be able to 
-someone else's segment into shared memory when I 
-can't even access the contents of that shared memory.
-(Such semantics are simply inconsistent with the 
-System V IPC model.)
+Hi Keiichiro,
 
-Also (more below), I don't see any other sensible 
-semantics for these operations, other than the ones 
-I've proposed.
+>   This patch is to fix unnecessary increment of 'i' used to
+> specify an element of an arry 'envp[]' in firmware_class_hotplug().
+> The 'i' is already incremented in add_hotplug_env_var(), actually.
 
-> > How about the following:
-> >
-> > For *both* SHM_LOCK and SHM_UNLOCK, the process should either
-> > be the owner or the creator of the object or have the
-> > CAP_IPC_LOCK capability.
-> 
-> It makes a lot of sense, but I don't know whether or not
-> it'd break any applications...
+you are right. The incrementation is wrong, but it doesn't have any
+negative effect. However the same applies for the usb_hotplug() function
+in drivers/usb/core/usb.c.
 
-There is no reason why it should.  In 2.6.8, the only 
-processes that could lock shared memory segments were those
-with CAP_IPC_LOCK.  Unprivileged processes did not get a 
-look in.
+> Signed-off-by: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
 
-2.6.9 changed things, but it is very unlikely that
-any applications depend on this (yet).  Most userland
-developers are probably not even aware of the changed 
-semantics in 2.6.9.  The time to repair these 
-semantics is *now*, before someone does depend 
-on them.  (In any case changes are required, since 
-at a minimum, SHM_UNLOCK must be repaired.)
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 
-You earlier suggested the idea that SHM_UNLOCK 
-might check to see if the process's user ID matched 
-that of the process that did the SHM_LOCK.  This 
-doesn't work.  Suppose someone else locks *my* segment
-(even though they don't have permission to access its 
-contents or perform other "ctl" operations on it like 
-IPC_RMID).  Under your idea, I would not be able to
-do a SHM_UNLOCK to remove that lock.
+Regards
 
-Cheers,
+Marcel
 
-Michael
 
--- 
-Geschenkt: 3 Monate GMX ProMail + 3 Top-Spielfilme auf DVD
-++ Jetzt kostenlos testen http://www.gmx.net/de/go/mail ++
+--=-ctrC57uegPp7IIA6Ar3B
+Content-Disposition: attachment; filename=patch
+Content-Type: text/plain; name=patch; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+===== drivers/usb/core/usb.c 1.182 vs edited =====
+--- 1.182/drivers/usb/core/usb.c	2004-11-07 23:31:07 +01:00
++++ edited/drivers/usb/core/usb.c	2004-11-26 21:27:08 +01:00
+@@ -656,7 +656,7 @@
+ 			return -ENOMEM;
+ 	}
+ 
+-	envp[i++] = NULL;
++	envp[i] = NULL;
+ 
+ 	return 0;
+ }
+===== drivers/base/firmware_class.c 1.24 vs edited =====
+--- 1.24/drivers/base/firmware_class.c	2004-11-08 03:16:05 +01:00
++++ edited/drivers/base/firmware_class.c	2004-11-26 21:26:48 +01:00
+@@ -103,7 +103,7 @@
+ 			"FIRMWARE=%s", fw_priv->fw_id))
+ 		return -ENOMEM;
+ 
+-	envp[i++] = NULL;
++	envp[i] = NULL;
+ 
+ 	return 0;
+ }
+
+--=-ctrC57uegPp7IIA6Ar3B--
+

@@ -1,60 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263868AbUDONrd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 09:47:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263983AbUDONrd
+	id S263798AbUDONrO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 09:47:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263868AbUDONrO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 09:47:33 -0400
-Received: from webmail2.speakeasy.net ([216.254.0.82]:6026 "EHLO
-	webmail.speakeasy.net") by vger.kernel.org with ESMTP
-	id S263868AbUDONr3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 09:47:29 -0400
-From: ward@speakeasy.net
-To: fedora-test-list@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Importance: Normal
-Sensitivity: Normal
-Message-ID: <W3421210850157201082036847@webmail2>
-X-Mailer: Mintersoft VisualMail, Build 4.0.111601
-X-Originating-IP: [199.196.144.16]
-Date: Thu, 15 Apr 2004 13:47:27 +0000
-Subject: FC2T2 shared memory segments cannot be allocated by DB2 V8.1
+	Thu, 15 Apr 2004 09:47:14 -0400
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:17359 "EHLO
+	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S263798AbUDONrL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 09:47:11 -0400
+Message-ID: <407E9127.8070303@nortelnetworks.com>
+Date: Thu, 15 Apr 2004 09:41:59 -0400
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+To: Rusty Russell <rusty@rustcorp.com.au>
+CC: Sam Ravnborg <sam@ravnborg.org>,
+       Arkadiusz Miskiewicz <arekm@pld-linux.org>,
+       Andrew Morton <akpm@osdl.org>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: modules in 2.6 kernel - question for FAQ?
+References: <200404142142.41137.arekm@pld-linux.org>	 <1081993968.17782.112.camel@bach> <20040415044452.GA2215@mars.ravnborg.org> <1082004860.17780.143.camel@bach>
+In-Reply-To: <1082004860.17780.143.camel@bach>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm running into regular memory related issues with a Fedora Core 2 system
-which appears to have been properly configured using generous sysctl.conf
-settings.
+Rusty Russell wrote:
 
-The symptoms are that I can create a limited number of connections to unique
-databases running on this development system and then after about the fifth or
-sixth I encounter an error indicating a failure to allocate shared memory
-segments.
+> They can only do this if they're not using the kernel makefiles.  So I
+> don't really think it's a priority...
 
-Running ipcs -m at the time of the error I can see 8 shared memory segments
-owned by that userid and 32 total on the system. ipcs -l indicates the
-settings I've made to sysctl.conf...
+Unfortunately some of us have no choice but to use binary-only drivers.
 
------- Shared Memory Limits --------
-max number of segments = 4096
-max seg size (kbytes) = 1048576
-max total shared memory (kbytes) = 8388608
-min seg size (bytes) = 1
+This is starting to change, but they are currently still needed for some 
+hardware.
 
-The database engine indicates this error in its logs as an occurance of a
-Memory allocation failure.
-
-Unsure if this was related to a similar issue which impacts Oracle I explored
-various combinations of kernels and patches including support for the patch
-to add a sysctl capability to control the disable_cap_mlock feature.
-
-Note that after the occurance of a failure I'm experiencing problems with
-the forking of processes. This was seen in kernel compiles and while halting
-the system.
-
-Any ideas?
-
-
+Chris

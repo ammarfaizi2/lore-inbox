@@ -1,53 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129562AbRCBWHw>; Fri, 2 Mar 2001 17:07:52 -0500
+	id <S129555AbRCBWUZ>; Fri, 2 Mar 2001 17:20:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129718AbRCBWHd>; Fri, 2 Mar 2001 17:07:33 -0500
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:8964 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S129584AbRCBWHD>;
-	Fri, 2 Mar 2001 17:07:03 -0500
-Date: Thu, 1 Mar 2001 12:12:11 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Brian Moyle <bmoyle@mvista.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.2-ac6 hangs on boot w/AMD Elan SC520 dev board
-Message-ID: <20010301121210.B34@(none)>
-In-Reply-To: <200102280312.TAA13404@bia.mvista.com> <E14Y539-0005XE-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S129564AbRCBWUP>; Fri, 2 Mar 2001 17:20:15 -0500
+Received: from colorfullife.com ([216.156.138.34]:5894 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S129555AbRCBWUC>;
+	Fri, 2 Mar 2001 17:20:02 -0500
+Message-ID: <3AA01CAF.98726DEC@colorfullife.com>
+Date: Fri, 02 Mar 2001 23:20:31 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17-14 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+CC: pat@isis.co.za, linux-kernel@vger.kernel.org, Alan@redhat.com,
+        Donald Becker <becker@scyld.com>
+Subject: Re: PROBLEM: Network hanging - Tulip driver with Netgear (Lite-On)
+In-Reply-To: <3A9A30C7.3C62E34@colorfullife.com> <3A9AB84C.A17D20AE@mandrakesoft.com> <3A9AC372.A86DC6C7@colorfullife.com> <3AA00D5A.44FA21D0@mandrakesoft.com>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <E14Y539-0005XE-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Feb 28, 2001 at 11:45:40AM +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> >     bios-e820: 000000000009f400 @ 0000000000000000 (usable)
-> >     bios-e820: 0000000000000c00 @ 000000000009f400 (reserved)
-> >     bios-e820: 0000000003f00000 @ 0000000000100000 (usable)
-> >     bios-e820: 0000000003f00000 @ 0000000000100000 (usable)
-> >     bios-e820: 0000000000100000 @ 00000000fff00000 (reserved)
-> >    (at this point, it appears to be in an infinite printk loop <?>)
-> > 
-> > I didn't spend much time looking into the printk loop, but it seems to 
-> > end up there, even if CONFIG_DEBUG_BUGVERBOSE is not defined, as if the 
-> > ".byte 0x0f,0x0b" is causing the loop to begin.
-> > 
-> > Any ideas/suggestions/comments?
+Jeff Garzik wrote:
 > 
-> Having been over the code the problem is indeed the bios reporting overlapping
-> /duplicated ranges. That will cause a crash in mm/bootmem when we try and free
-> the range twice.
+> Manfred Spraul wrote:
+> > Could you double check the code in tulip_core.c, around line 1450?
+> > IMHO it's bogus.
+> >
+> > 1) if the network card contains multiple mii's, then the the advertised
+> > value of all mii's is changed to the advertised value of the first mii.
 > 
-> I suspect you need to add some code to take the E820 map and remove any
-> overlaps from it, favouring ROM over RAM if the types disagree (for safety),
-> and filter them before you register them with the bootmem in 
-> arch/i386/kernel/setup.c
+> I'm really curious about this one myself.
+> 
+> Since I haven't digested all of the tulip media stuff in my brain yet,
+> and since I'm not familiar with all the corner cases, I'm loathe to
+> change the tulip media stuff without fully understanding what's going
+> on.
+> 
+> If you have a single controller with multiple MII phys...  how does one
+> select the phy of choice (for tulip, in the absence of SROM media
+> table...)?
 
-...plus prining ?@#@&#&$ BIOS reports invalid mem map
-seems like good idea, so that bios bugs are fixed.
+I'd choose the first one with a link partner.
 
--- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+> And once phy A has been selected out of N available as the
+> active phy, should you care about the others at all?
+>
 
+Not until the link beat disappears.
+Then scan all existing phy's and select the phy with a link beat as the
+new active phy.
+
+At least that's what the sis900.c driver does. Are there other linux
+drivers that support multiple phy's?
+
+--
+	Manfred

@@ -1,58 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264477AbTFKVIl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 17:08:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264478AbTFKVIl
+	id S264454AbTFKVGE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 17:06:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264460AbTFKVGE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 17:08:41 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:10667 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264477AbTFKVIb (ORCPT
+	Wed, 11 Jun 2003 17:06:04 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:35240 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264454AbTFKVF5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 17:08:31 -0400
-Date: Wed, 11 Jun 2003 14:23:57 -0700 (PDT)
+	Wed, 11 Jun 2003 17:05:57 -0400
+Date: Wed, 11 Jun 2003 14:21:18 -0700 (PDT)
 From: Patrick Mochel <mochel@osdl.org>
 X-X-Sender: mochel@cherise
 To: Pavel Machek <pavel@ucw.cz>
-cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: oprofile broken by sysfs updates
-In-Reply-To: <20030611211220.GA634@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.44.0306111421200.11379-100000@cherise>
+cc: kernel list <linux-kernel@vger.kernel.org>, <torvalds@transmeta.com>
+Subject: Re: Messing up driver model API
+In-Reply-To: <20030611203652.GA599@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.44.0306111407370.11379-100000@cherise>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> I only tried reading the diffs, but:
+> So you just had to mess it up... Having suspend(device *, state,
+> level) might be bad, but having suspend(device *, state, level) in one
+> piece of code and {suspend,save}(device *, state) is *way* worse. (And
+> I did not see any proposal on l-k. I hope I just missed it).
 
-Then maybe you should
+Calm down, Pavel. From a technical standpoint, it's a superior interface. 
+Having the 'level' parameter was a mistake made out of speculative 
+ignorance - we didn't know exactly how the suspend/resume code was going 
+to work, or exactly what we had to do. 
 
-a) Read the entire initial thread (which you participated in), esp this 
-message:
+Having explicit calls to save state, power down the device, power on the
+deivce and restore state is a Good Thing - it dictates exactly what should
+be done at each level. And, it makes more drivers conform to the same
+style. Should there be any special cases, then we will deal with them.  
+Based on the conversations and the code of the last year, those should be
+rare. 
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=105518049424749&w=2
+> So are you going to revert it or convert whole driver model to use
+> {suspend,save}(device *, state)?
 
-b) Read the comments in the code (from drivers/base/sys.c):
+Today: neither. I'm going to see how this works, and if it does, then I 
+may convert all the users of struct device_driver to use the same model. 
 
-/**
- *      sysdev_shutdown - Shut down all system devices.
- *
- *      Loop over each class of system devices, and the devices in each
- *      of those classes. For each device, we call the shutdown method for
- *      each driver registered for the device - the globals, the auxillaries,
- *      and the class driver. 
- *
- *      Note: The list is iterated in reverse order, so that we shut down
- *      child devices before we shut down thier parents. The list ordering
- *      is guaranteed by virtue of the fact that child devices are registered
- *      after their parents. 
- */
+The interfaces are obvious, and they are documented in the changesets, as 
+well as the code. Soon, they will be documented in text files shipped with 
+the kernel. I have complete confidence that anyone that takes the time to 
+become versed enough in current power management semantics will have no 
+problem with the new methods for system devices.
 
-c) Try using the code and stop being a troll.
-
-
-Thanks,
 
 	-pat
-
 

@@ -1,154 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265962AbRGJIsQ>; Tue, 10 Jul 2001 04:48:16 -0400
+	id <S266093AbRGJJR4>; Tue, 10 Jul 2001 05:17:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265948AbRGJIsH>; Tue, 10 Jul 2001 04:48:07 -0400
-Received: from rcum.uni-mb.si ([164.8.2.10]:49938 "EHLO rcum.uni-mb.si")
-	by vger.kernel.org with ESMTP id <S265958AbRGJIsA>;
-	Tue, 10 Jul 2001 04:48:00 -0400
-Date: Tue, 10 Jul 2001 10:47:58 +0200
-From: David Balazic <david.balazic@uni-mb.si>
-Subject: IDE bus problems
-To: testers-list@redhat.com, linux-kernel@vger.kernel.org
-Message-id: <3B4AC13E.8AD30AC5@uni-mb.si>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
+	id <S266109AbRGJJRq>; Tue, 10 Jul 2001 05:17:46 -0400
+Received: from twilight.cs.hut.fi ([130.233.40.5]:3019 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S266093AbRGJJRg>; Tue, 10 Jul 2001 05:17:36 -0400
+Date: Tue, 10 Jul 2001 12:17:25 +0300
+From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
+To: Rob Landley <landley@webofficenow.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VIA Southbridge bug (Was: Crash on boot (2.4.5))
+Message-ID: <20010710121724.Z1503@niksula.cs.hut.fi>
+In-Reply-To: <E15JIVD-0000Qc-00@the-village.bc.nu> <01070912485904.00705@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <01070912485904.00705@localhost.localdomain>; from landley@webofficenow.com on Mon, Jul 09, 2001 at 12:48:59PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I discovered some problems with IDE subsystem in linux :
+On Mon, Jul 09, 2001 at 12:48:59PM -0400, you [Rob Landley] claimed:
+> 
+> (P.S. What kind of CPU load is most likely to send a processor into overheat? 
+>  (Other than "a tight loop", thanks.  I mean what kind of instructions?)  
+> This is going to be CPU specific, isn't it?  Our would a general instruction 
+> mix that doesn't call halt be enough?  It would need to keep the FPU busy 
+> too, wouldn't it?  And maybe handle interrupts.  Hmmm...)
 
-[root@localhost /root]# scsireset/idereset  /dev/hdd # basically an ioctl(hdd,HDIO_DRIVE_RESET); program source below
-hdd: DMA disabled
-scsireset : ioctl succesful
-hdd: ide_set_handler: handler not null; old=c01884a0, new=d08162f0
-bug: kernel timer added twice at c01883c8.
+See Robert Redelmeier's cpuburn:
 
-Excerpt from my System map :
-c0188370 T ide_set_handler
-c01883d0 T current_capacity
-c0188400 T ide_geninit
-c01884a0 t atapi_reset_pollfunc
-c0188570 t reset_pollfunc
+http://users.ev1.net/~redelm/
 
-Is this a bug ?
+It is coded is assembly specificly to heat the CPU as much as possible. See
+the README for details, but it seems that floating point operations are
+tougher than integers and MMX can be even harder (depending on CPU model, of
+course). Not sure what kind of role SSE, SSE2, 3dNow! play these days.
+Perhaps Alan knows?
+ 
+> I wonder...  The torture test Tom's Hardware guide uses for processor 
+> overheating is GCC compiling the Linux kernel. 
 
-It doesn't do much of resetting anyway: I tried to mount a blank
-CD-RW in my CD-ROM unit ( /dev/hdd , HW details below ) and the unit
-locked up. The LED kept on blinking and the drive didn't respond
-any more ( "eject /dev/hdd" failed , for example ). I sent
-a HDIO_DRIVE_RESET to it with my program , but nothing happened.
-A ctrl-alt-del (reboot) fixed it.
-( I also loaded ide-scsi and sent an ioctl("/dev/sg1",SG_SCSI_RESET,SCSI_RESET_DEVICE)
-and it didn't do anything either. I also tried xxx_RESET_{HOST,BUS} )
+That shouldn't really be that good a test. During compilation, CPU spends a
+_lot_ of time waiting for the memory and even for the disk io. For maximum
+heat, you really want a tight loop of instructions, that sits firmly in L1
+cache.
 
-Another thing : 
-- in short : after issuing "idereset /dev/hdd" the ide1
-channel becomes extremely slow, like one packet per minute.
+The gcc compile is a good test for many other tests - it uses a lot of
+memory with complex pointers references (tests memory, and bit errors in
+pointers are likely to sig11 rather than produce subtle errors in output),
+stresses chipset somewhat (memory throughput), and cpu somewhat. But to test
+CPU overheating and nothing else, cpuburn should be a lot better. (Even
+seti@home is better as it uses FPU). Just run them an observe the sensors
+readings. Cpuburn gets several degrees higher.
 
-- long version : 
-I issued "idereset /dev/hdd" a few minutes ago.
-When I'm writing this line both CD units on ide1 are "dead".
-There is a "eject -t /dev/hdc" ( tray is currently open )
-command and a "mount /dev/hdd /mnt/cdrom1" command in "execution". 
-Both are blocked for several minutes now.
-Oh, the tray just closed on hdc and the "eject" command finished.
-a few seconds pass ( cca. 20 )
-/dev/hdd just spun up the CD, "mount ..." is still blocked.
-and after another 30 seconds it finished too.
-I am doing a "ls -R /dev/cdrom1" now. It prints a few files and
-then waits so long that the drive spins down !
+> the compile in a loop, add in a processor temperature detector daemon to kill 
+> the test and HLT the system if the temperature went too high...
 
-Seems as if all IDE traffic on ide1 is going in extreme slow motion.
-ide0 behaves normally. ( I have a single hard drive there , hda )
+Cpuburn exists when CPU miscalculates something (sign of overheat).
 
-Nothing weird in the logs or on console.
-
-System details :
-kernel 2.4.3-12 ( from redhat )
-MSI K7T Pro2A motherboard ( VIA KT133, 686b )
-hdc is an Acer 1208A CD-RW drive
-hdd is a Teac CD532E-B CDROM unit
-
---------------
-source of idereset.c :
+I'm not sure if cpuburn is included in cerberus these days (istr it is), but
+a nice test set for memory, cpu, disk etc to run over night or over weekend
+to catch most of the hw faults would definetely be nice. 
 
 
-/*************************
- * idereset - reset an ide device
- * 
- * Usage : idereset /dev/hdX
- * 
- * 
- * Copyright 2001 David Balazic
- */
+-- v --
 
-#define IDERESET_VERSION "v0.1"
-
-
-#include <string.h>
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/ioctl.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <linux/hdreg.h>
-//#include <scsi/sg.h>
-
-void print_usage(FILE * out_file)
-{
-   fprintf(out_file,"idereset " IDERESET_VERSION "\nArgument error.Usage :\n");
-   fprintf(out_file,"idereset /dev/hdX\n");
-}
-
-int main (int argc,char ** argv)
-{
-//   unsigned long int reset_type; /* the arg for the SG_SCSI_RESET ioctl */
-   int device_fd;                /* file descriptor for the device file */
-   
-   /* evaluate reset type */
-   if ( argc !=2 )
-     {   
-        print_usage(stderr);
-        return 1;
-     }
-   /*
-   if(!strcmp("DEVICE",argv[2]))
-     reset_type = SG_SCSI_RESET_DEVICE;
-   else if(!strcmp("BUS",argv[2]))
-     reset_type = SG_SCSI_RESET_BUS;
-   else if(!strcmp("HOST",argv[2]))
-     reset_type = SG_SCSI_RESET_HOST;
-   else
-     {
-        print_usage(stderr);
-        return 1;
-     }
-   */
-/* open device */
-   device_fd=open(argv[1], O_RDONLY | O_NONBLOCK);
-   if ( device_fd == -1 )
-     {
-        perror(argv[1]);
-        return 1;
-     }
-   /* ioctl */
-   if(ioctl( device_fd, HDIO_DRIVE_RESET , NULL))
-     perror(argv[1]);
-   else
-     printf("idereset : ioctl succesful\n");
-   
-   close(device_fd);
-   
-   return 0;
-}
-
--- 
-David Balazic
---------------
-"Be excellent to each other." - Bill & Ted
-- - - - - - - - - - - - - - - - - - - - - -
+v@iki.fi

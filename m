@@ -1,102 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293642AbSCERnG>; Tue, 5 Mar 2002 12:43:06 -0500
+	id <S293644AbSCERp6>; Tue, 5 Mar 2002 12:45:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293638AbSCERm5>; Tue, 5 Mar 2002 12:42:57 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:20352 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S293642AbSCERmo>; Tue, 5 Mar 2002 12:42:44 -0500
-Date: Tue, 5 Mar 2002 12:42:37 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Christoph Seifert <seifert@ILP.Physik.Uni-Essen.DE>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Problems using ISA card
-In-Reply-To: <Pine.LNX.3.96.1020305172319.12258A-100000@wap8.ilp.physik.uni-essen.de>
-Message-ID: <Pine.LNX.3.95.1020305123423.7616A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293643AbSCERpr>; Tue, 5 Mar 2002 12:45:47 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:15847 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S293638AbSCERph>;
+	Tue, 5 Mar 2002 12:45:37 -0500
+Date: Tue, 5 Mar 2002 09:45:35 -0800
+To: Paul Mackerras <paulus@samba.org>
+Cc: linux-ppp@vger.kernel.org,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: PPP feature request (Tx queue len + close)
+Message-ID: <20020305094535.A792@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+In-Reply-To: <20020304144200.A32397@bougret.hpl.hp.com> <15492.13788.572953.6546@argo.ozlabs.ibm.com> <20020304191947.A32730@bougret.hpl.hp.com> <15492.21937.402798.688693@argo.ozlabs.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <15492.21937.402798.688693@argo.ozlabs.ibm.com>; from paulus@samba.org on Tue, Mar 05, 2002 at 04:20:49PM +1100
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Mar 2002, Christoph Seifert wrote:
-
-> [1.] One line summary of the problem:
-> Acessing memory on PC31 ISA cards does work with 2.2.x, but not with
-> 2.4.x and higher
-> [2.] Full description of the problem/report:
-> Measurement program tries to use home-made(and rebuilt for 2.4.x) kernel
-> module to access so called Dual-Port RAM on the measurement card at
-> address 0xd8000. The kernel reacts with a message, that the the page
-> request for virtual memory at address 000d8000 could not be fulfilled.
-> The measurement program crashes and the kernel resources are not freed
-> again . rmmod mod does not work, as the device is still seen as to
-> busy.
-> I report this as bug, as I think that there should be
-> backward-compatibility in memory access. I don't get any clue from
-> /var/log/messages as to why the request could not be fulfilled, e.g.
-> whether the requested memory space is protected by some other part for
-> e.g. a PCI card or whether it can't find any memory in that space.
-> I tried some different 2.4.x kernels with the same result.
-> There is no difference in hardware or BIOS settings for 2.2.x and 2.4.x
-> verions. The only difference is using a device with major number 240 
-> instead of 254.
+On Tue, Mar 05, 2002 at 04:20:49PM +1100, Paul Mackerras wrote:
+> Jean Tourrilhes writes:
 > 
+> >       IrTTP is another problem. If I were to use TCP instead of
+> > IrTTP, would you still ask me to reduce the window size of TCP ? Let's
+> 
+> Yes, absolutely. :)  It just takes an ioctl to do that for TCP.
 
-Some modules did not access memory properly. The fact that they 'worked'
-does not mean anything. Look at ../linux/Documentation/IO-mapping.txt
-and fix your module.
+	Up to a certain point. If you reduce TCP to only one buffer, I
+don't think it will work properly.
+	I told you, the IrDA queues are totally under my control, so I
+can fix them when I need, as opposed to PPP... What bugs me is that
+each layer is having reasonably sized queues in itself, and that the
+problem is just when we add those layers together...
 
-If the program crashes, it's another module bug, not a kernel bug.
-Again, fix your module.
+> > 	I'm taking the approach that every little thing helps. There
+> > is a trivial win in PPP, and I would be stupid to not exploit it.
+> 
+> Given that the default queue length is only 3 packets for PPP, it
+> seems to me to be a very minor win.  I don't think we could reduce it
+> below 1 packet, and I'm not sure whether that would have other
+> negative consequences.  This is one reason why I asked if you had
+> tried it.
 
-There is no problem accessing memory in the range you suggest.
-You just have to do it correctly.
+	No, I didn't tried it because it was not obvious how to do it.
 
+> It doesn't exist at the moment, but it would be easy enough to add
+> it.  In the short term, you could even add an ifconfig to your
+> /etc/ppp/ip-up script to set the transmit queue length there.
 
-Your memory range:
+	Will try that.
+	Actually, this is why I ask you in advance, so that we have
+the time to think about it without rushing...
 
-000D8000 FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF ................
-000D8010 FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF ................
-000D8020 FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF ................
-000D8030 FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF ................
-000D8040 FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF ................
-000D8050 FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF ................
-000D8060 FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF ................
-000D8070 FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF ................
-000D8080 FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF ................
-000D8090 FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF ................
-000D80A0 FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF ................
-000D80B0 FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF ................
-000D80C0 FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF ................
-000D80D0 FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF ................
-000D80E0 FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF ................
-000D80F0 FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF ................
+> > > Could you produce some numbers showing better throughput, fewer
+> > > retransmissions, or whatever, with a smaller transmit queue length?
+> > 
+> > 	Don't have number, but I don't need number to know that.
+> 
+> Your case for wanting something done will be so much stronger if you
+> show that there is a measurable benefit as opposed to just a gut
+> feeling. :)
 
-The screen-regen buffer:
+	Well, it's pretty obvious when watching tcpdump. You see all
+the Tx clustered together and then nothing get Tx until the TCP window
+opens again. In other word, you have a full TCP window queued in PPP
+and IrDA.
+	This is pretty bad for latency. Actually, you can verify that
+by doing ping while a TCP connection is active, you will see huge
+roundtrips.
 
-000B8000 64 02 69 02 67 02 69 02 65 02 70 02 63 02 61 02 d.i.g.i.e.p.c.a.
-000B8010 2E 02 74 02 78 02 74 02 20 07 20 07 20 07 20 07 ..t.x.t. . . . .
-000B8020 20 07 20 07 20 07 20 07 6D 02 65 02 6D 02 6F 02  . . . .m.e.m.o.
-000B8030 72 02 79 02 2E 02 74 02 78 02 74 02 20 07 20 07 r.y...t.x.t. . .
-000B8040 20 07 20 07 20 07 20 07 20 07 20 07 20 07 20 07  . . . . . . . .
-000B8050 20 07 20 07 20 07 20 07 20 07 20 07 20 07 73 02  . . . . . . .s.
-000B8060 70 02 65 02 63 02 69 02 61 02 6C 02 69 02 78 02 p.e.c.i.a.l.i.x.
-000B8070 2E 02 74 02 78 02 74 02 20 07 20 07 20 07 20 07 ..t.x.t. . . . .
-000B8080 20 07 20 07 20 07 20 07 20 07 20 07 20 07 20 07  . . . . . . . .
-000B8090 20 07 20 07 20 07 20 07 20 07 20 07 20 07 20 07  . . . . . . . .
-000B80A0 64 02 6E 02 6F 02 74 02 69 02 66 02 79 02 2E 02 d.n.o.t.i.f.y...
-000B80B0 74 02 78 02 74 02 20 07 20 07 20 07 20 07 20 07 t.x.t. . . . . .
-000B80C0 20 07 20 07 20 07 20 07 6D 02 6F 02 64 02 75 02  . . . .m.o.d.u.
-000B80D0 6C 02 65 02 73 02 2E 02 74 02 78 02 74 02 20 07 l.e.s...t.x.t. .
-000B80E0 20 07 20 07 20 07 20 07 20 07 20 07 20 07 20 07  . . . . . . . .
-000B80F0 20 07 20 07 20 07 20 07 20 07 20 07 20 07 73 02  . . . . . . .s.
+> My gut feeling is that the transmit queue length is already about as
+> short as we want it, and that if we make it any shorter then we will
+> start dropping a lot of packets at the transmit queue, and lose
+> performance because of that.  But I could be wrong - any networking
+> gurus care to comment?
 
+	I believe that you won't drop packet, but just flow control
+TCP (which in turn will flow control the application). At least, this
+is the way it's happening within the IrDA stack.
 
-Cheers,
-Dick Johnson
+> Paul.
 
-Penguin : Linux version 2.4.18 on an i686 machine (799.53 BogoMips).
+	Have fun...
 
-	Bill Gates? Who?
-
+	Jean

@@ -1,106 +1,495 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261945AbVCNV1x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261951AbVCNVao@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261945AbVCNV1x (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 16:27:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261963AbVCNV0j
+	id S261951AbVCNVao (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 16:30:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261954AbVCNVaE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 16:26:39 -0500
-Received: from ra.tuxdriver.com ([24.172.12.4]:62737 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S261952AbVCNVZX (ORCPT
+	Mon, 14 Mar 2005 16:30:04 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:31411 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261951AbVCNVYv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 16:25:23 -0500
-Date: Mon, 14 Mar 2005 16:25:15 -0500
-From: "John W. Linville" <linville@tuxdriver.com>
-To: linux-kernel@vger.kernel.org
-Cc: netdev@oss.sgi.com, jgarzik@pobox.com, cramerj@intel.com,
-       john.ronciak@intel.com, ganesh.venkatesan@intel.com
-Subject: [patch 2.6.11] e1000: avoid sleeping in watchdog timer context
-Message-ID: <20050314212510.GA12573@tuxdriver.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-	jgarzik@pobox.com, cramerj@intel.com, john.ronciak@intel.com,
-	ganesh.venkatesan@intel.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Mon, 14 Mar 2005 16:24:51 -0500
+Message-ID: <42360122.6070700@us.ltcfwd.linux.ibm.com>
+Date: Mon, 14 Mar 2005 16:24:50 -0500
+From: Wen Xiong <wendyx@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Domen Puncer <domen@coderock.org>
+CC: Wen Xiong <wendyx@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: [ patch 1/5] drivers/serial/jsm: new serial device driver
+References: <20050308064424.GF17022@kroah.com> <422DF525.8030606@us.ltcfwd.linux.ibm.com> <20050308235807.GA11807@kroah.com> <422F1A8A.4000106@us.ltcfwd.linux.ibm.com> <20050309163518.GC25079@kroah.com> <422F2FDD.4050908@us.ltcfwd.linux.ibm.com> <20050309185800.GA27268@kroah.com> <4231B972.5070203@us.ltcfwd.linux.ibm.com> <20050312130637.GA8272@nd47.coderock.org> <4235CB5D.2010209@us.ltcfwd.linux.ibm.com> <20050314202408.GD3955@nd47.coderock.org>
+In-Reply-To: <20050314202408.GD3955@nd47.coderock.org>
+Content-Type: multipart/mixed;
+ boundary="------------040600050806010403090006"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Move bulk of e1000_watchdog to a workqueue to make it safe to call
-functions which can sleep.
+This is a multi-part message in MIME format.
+--------------040600050806010403090006
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Signed-off-by: John W. Linville <linville@tuxdriver.com>
----
-The e1000 driver uses a timer to invoke e1000_watchdog().
-e1000_watchdog() calls e1000_check_for_link() which can call
-e1000_config_dsp_after_link_change().  This in turn can call
-msec_delay().  msec_delay() is, of course, simply a wrapper for
-msleep().
+Domen Puncer wrote:
 
-Since a timer does not have a process context, sleeping is impossible.
-Attempting to do so causes a crash.
+>On 14/03/05 12:35 -0500, Wen Xiong wrote:
+>  
+>
+>>Domen Puncer wrote:
+>>
+>>    
+>>
+>>>Just some nitpicking...
+>>>
+>>>
+>>>
+>>>      
+>>>
+>>Hi Domen, all,
+>>
+>>Thanks for your comments. I  did some minor changes for patch1 based on 
+>>Domen's comment.
+>>
+>>    
+>>
+>
+>And i missed, what is probably a bug:
+>
+>
+>  
+>
+>>+module_param(jsm_debug, int, 0);
+>>+module_param(jsm_rawreadok, int, 1);
+>>    
+>>
+>
+>Last parameter is sysfs file mode, or 0 if no file is to be created.
+>
+>
+>	Domen
+>
+>  
+>
+I should set the mode to 0.
 
-The fix is to move the body of e1000_watchdog() to the newly defined
-e1000_watchdog_task().  This is invoked via the workqueue interface
-from the new version of e1000_watchdog().
+Thanks,
+wendy
 
- drivers/net/e1000/e1000.h      |    1 +
- drivers/net/e1000/e1000_main.c |   15 +++++++++++++--
- 2 files changed, 14 insertions(+), 2 deletions(-)
+--------------040600050806010403090006
+Content-Type: text/plain;
+ name="patch1.jasmine"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch1.jasmine"
 
---- linux-2.6.11/drivers/net/e1000/e1000.h.orig	2005-03-14 16:06:53.000000000 -0500
-+++ linux-2.6.11/drivers/net/e1000/e1000.h	2005-03-14 16:16:37.436364543 -0500
-@@ -203,6 +203,7 @@ struct e1000_adapter {
- 	spinlock_t stats_lock;
- 	atomic_t irq_sem;
- 	struct work_struct tx_timeout_task;
-+	struct work_struct watchdog_task;
- 	uint8_t fc_autoneg;
- 
- 	struct timer_list blink_timer;
---- linux-2.6.11/drivers/net/e1000/e1000_main.c.orig	2005-03-14 16:09:42.991007873 -0500
-+++ linux-2.6.11/drivers/net/e1000/e1000_main.c	2005-03-14 16:16:37.438364260 -0500
-@@ -142,6 +142,7 @@ static void e1000_clean_rx_ring(struct e
- static void e1000_set_multi(struct net_device *netdev);
- static void e1000_update_phy_info(unsigned long data);
- static void e1000_watchdog(unsigned long data);
-+static void e1000_watchdog_task(struct e1000_adapter *adapter);
- static void e1000_82547_tx_fifo_stall(unsigned long data);
- static int e1000_xmit_frame(struct sk_buff *skb, struct net_device *netdev);
- static struct net_device_stats * e1000_get_stats(struct net_device *netdev);
-@@ -574,6 +575,9 @@ e1000_probe(struct pci_dev *pdev,
- 	adapter->watchdog_timer.function = &e1000_watchdog;
- 	adapter->watchdog_timer.data = (unsigned long) adapter;
- 
-+	INIT_WORK(&adapter->watchdog_task,
-+		(void (*)(void *))e1000_watchdog_task, adapter);
+diff -Nuar linux-2.6.11.org/drivers/serial/jsm/jsm_driver.c linux-2.6.11.new/drivers/serial/jsm/jsm_driver.c
+--- linux-2.6.11.org/drivers/serial/jsm/jsm_driver.c	1969-12-31 18:00:00.000000000 -0600
++++ linux-2.6.11.new/drivers/serial/jsm/jsm_driver.c	2005-03-14 15:23:09.283905656 -0600
+@@ -0,0 +1,404 @@
++/************************************************************************
++ * Copyright 2003 Digi International (www.digi.com)
++ *
++ * Copyright (C) 2004 IBM Corporation. All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2, or (at your option)
++ * any later version.
++ * 
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY, EXPRESS OR IMPLIED; without even the 
++ * implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
++ * PURPOSE.  See the GNU General Public License for more details.
++ * 
++ * You should have received a copy of the GNU General Public License 
++ * along with this program; if not, write to the Free Software 
++ * Foundation, Inc., 59 * Temple Place - Suite 330, Boston,
++ * MA  02111-1307, USA.
++ *
++ * Contact Information:
++ * Scott H Kilau <Scott_Kilau@digi.com>
++ * Wendy Xiong   <wendyx@us.ltcfwd.linux.ibm.com>
++ *
++ ***********************************************************************/
++#include <linux/moduleparam.h>
++#include <linux/pci.h>
 +
- 	init_timer(&adapter->phy_info_timer);
- 	adapter->phy_info_timer.function = &e1000_update_phy_info;
- 	adapter->phy_info_timer.data = (unsigned long) adapter;
-@@ -1529,13 +1533,20 @@ e1000_82547_tx_fifo_stall(unsigned long 
- 
- /**
-  * e1000_watchdog - Timer Call-back
-- * @data: pointer to netdev cast into an unsigned long
-+ * @data: pointer to adapter cast into an unsigned long
-  **/
--
- static void
- e1000_watchdog(unsigned long data)
- {
- 	struct e1000_adapter *adapter = (struct e1000_adapter *) data;
++#include "jsm.h"
 +
-+	/* Do the rest outside of interrupt context */
-+	schedule_work(&adapter->watchdog_task);
++MODULE_AUTHOR("Digi International, http://www.digi.com");
++MODULE_DESCRIPTION("Driver for the Digi International Neo PCI based product line");
++MODULE_SUPPORTED_DEVICE("jsm");
++
++#define JSM_DRIVER_NAME "jsm"
++#define NR_PORTS	32 
++#define JSM_MINOR_START	0 
++
++struct uart_driver jsm_uart_driver = {
++	.owner		= THIS_MODULE,
++	.driver_name	= JSM_DRIVER_NAME,
++	.dev_name	= "ttyn", 
++	.major		= 253,
++	.minor		= JSM_MINOR_START, 
++	.nr		= NR_PORTS,
++	.cons		= NULL,
++};
++
++int jsm_debug;
++int jsm_rawreadok;
++module_param(jsm_debug, int, 0);
++module_param(jsm_rawreadok, int, 0);
++MODULE_PARM_DESC(jsm_debug, "Driver debugging level");
++MODULE_PARM_DESC(jsm_rawreadok, "Bypass flip buffers on input");
++
++/*
++ * Globals
++ */
++int		jsm_driver_state = DRIVER_INITIALIZED;
++spinlock_t	jsm_board_head_lock = SPIN_LOCK_UNLOCKED;
++LIST_HEAD(jsm_board_head);
++
++static struct pci_device_id jsm_pci_tbl[] = {
++	{ PCI_DEVICE (PCI_VENDOR_ID_DIGI, PCI_DEVICE_ID_NEO_2DB9),	0,	0,	0 },
++	{ PCI_DEVICE (PCI_VENDOR_ID_DIGI, PCI_DEVICE_ID_NEO_2DB9PRI),	0,	0,	1 },
++	{ PCI_DEVICE (PCI_VENDOR_ID_DIGI, PCI_DEVICE_ID_NEO_2RJ45),	0,	0,	2 },
++	{ PCI_DEVICE (PCI_VENDOR_ID_DIGI, PCI_DEVICE_ID_NEO_2RJ45PRI),	0,	0,	3 },
++	{ 0,}						/* 0 terminated list. */
++};
++MODULE_DEVICE_TABLE(pci, jsm_pci_tbl);
++
++static struct board_id jsm_Ids[] = {
++	{ PCI_DEVICE_NEO_2DB9_PCI_NAME,		2 },
++	{ PCI_DEVICE_NEO_2DB9PRI_PCI_NAME,	2 },
++	{ PCI_DEVICE_NEO_2RJ45_PCI_NAME,	2 },
++	{ PCI_DEVICE_NEO_2RJ45PRI_PCI_NAME,	2 },
++	{ NULL,					0 }
++};
++
++char *jsm_driver_state_text[] = {
++	"Driver Initialized",
++	"Driver Ready."
++};
++
++static int jsm_finalize_board_init(struct jsm_board *brd)
++{
++	int rc = 0;
++
++	jsm_printk(INIT, INFO, &brd->pci_dev, "start\n");
++
++	if (brd->irq) {
++		rc = request_irq(brd->irq, brd->bd_ops->intr, SA_INTERRUPT|SA_SHIRQ, "JSM", brd);
++
++		if (rc) {
++			printk(KERN_WARNING "Failed to hook IRQ %d\n",brd->irq);
++			brd->state = BOARD_FAILED;
++			brd->dpastatus = BD_NOFEP;
++			rc = -ENODEV;
++		} else
++			jsm_printk(INIT, INFO, &brd->pci_dev,
++				"Requested and received usage of IRQ %d\n", brd->irq);
++	}
++	return rc;
 +}
 +
-+static void
-+e1000_watchdog_task(struct e1000_adapter *adapter)
++/*
++ * jsm_found_board()
++ *
++ * A board has been found, init it.
++ */
++static int jsm_found_board(struct pci_dev *pdev, int id)
 +{
- 	struct net_device *netdev = adapter->netdev;
- 	struct e1000_desc_ring *txdr = &adapter->tx_ring;
- 	uint32_t link;
--- 
-John W. Linville
-linville@tuxdriver.com
++	struct jsm_board *brd;
++	int i = 0;
++	int rc = 0;
++	struct list_head *tmp;
++	struct jsm_board *cur_board_entry;
++	unsigned long lock_flags;
++	int adapter_count = 0;
++	int retval;
++
++	brd = kmalloc(sizeof(struct jsm_board), GFP_KERNEL);
++	if (!brd) {
++		dev_err(&pdev->dev, "memory allocation for board structure failed\n");
++		return -ENOMEM;
++	}
++	memset(brd, 0, sizeof(struct jsm_board));
++
++	spin_lock_irqsave(&jsm_board_head_lock, lock_flags);
++	list_for_each(tmp, &jsm_board_head) {
++		cur_board_entry = 
++			list_entry(tmp, struct jsm_board,
++				jsm_board_entry);
++		if (cur_board_entry->boardnum != adapter_count) {
++			break;
++		}
++		adapter_count++;
++	}
++
++	list_add_tail(&brd->jsm_board_entry, &jsm_board_head);
++	spin_unlock_irqrestore(&jsm_board_head_lock, lock_flags);
++
++	/* store the info for the board we've found */
++	brd->boardnum = adapter_count;
++	brd->pci_dev = pdev;
++	brd->name = jsm_Ids[id].name;
++	brd->maxports = jsm_Ids[id].maxports;
++	brd->dpastatus = BD_NOFEP;
++	init_waitqueue_head(&brd->state_wait);
++
++	spin_lock_init(&brd->bd_lock);
++	spin_lock_init(&brd->bd_intr_lock);
++
++	brd->state = BOARD_FOUND;
++
++	for (i = 0; i < brd->maxports; i++)
++		brd->channels[i] = NULL;
++
++	/* store which revision we have */
++	pci_read_config_byte(pdev, PCI_REVISION_ID, &brd->rev);
++
++	brd->irq = pdev->irq;
++
++	switch(brd->pci_dev->device) {
++
++	case PCI_DEVICE_ID_NEO_2DB9:
++	case PCI_DEVICE_ID_NEO_2DB9PRI:
++	case PCI_DEVICE_ID_NEO_2RJ45:
++	case PCI_DEVICE_ID_NEO_2RJ45PRI:
++
++		/*
++		 * This chip is set up 100% when we get to it.
++		 * No need to enable global interrupts or anything. 
++		 */
++		brd->dpatype = T_NEO | T_PCIBUS;
++
++		jsm_printk(INIT, INFO, &brd->pci_dev,
++			"jsm_found_board - NEO adapter\n");
++
++		/* get the PCI Base Address Registers */
++		brd->membase	= pci_resource_start(pdev, 0);
++		brd->membase_end = pci_resource_end(pdev, 0);
++
++		if (brd->membase & 1)
++			brd->membase &= ~3;
++		else
++			brd->membase &= ~15;
++
++		/* Assign the board_ops struct */
++		brd->bd_ops = &jsm_neo_ops;
++
++		brd->bd_uart_offset = 0x200;
++		brd->bd_dividend = 921600;
++
++		brd->re_map_membase = ioremap(brd->membase, 0x1000);
++		jsm_printk(INIT, INFO, &brd->pci_dev,
++			"remapped mem: 0x%p\n", brd->re_map_membase);
++		if (!brd->re_map_membase) {
++			kfree(brd);
++			dev_err(&pdev->dev, "card has no PCI Memory resources, failing board.\n");
++			return -ENOMEM;
++		}
++		break;
++
++	default:
++		dev_err(&pdev->dev, "Did not find any compatible Neo or Classic PCI boards in system.\n");
++		kfree(brd);
++		return -ENXIO;
++	}
++
++	/*
++	 * Do tty device initialization.
++	 */
++	rc = jsm_finalize_board_init(brd);
++	if (rc < 0) {
++		dev_err(&pdev->dev, "Can't finalize board init (%d)\n", rc);
++		brd->state = BOARD_FAILED;
++		retval = -ENXIO;
++		goto failed0;
++	}
++
++	rc = jsm_tty_init(brd);
++	if (rc < 0) {
++		dev_err(&pdev->dev, "Can't init tty devices (%d)\n", rc);
++		brd->state = BOARD_FAILED;
++		retval = -ENXIO;
++		goto failed1;
++	}
++
++	rc = jsm_uart_port_init(brd);
++	if (rc < 0) {
++		dev_err(&pdev->dev, "Can't init uart port (%d)\n", rc);
++		brd->state = BOARD_FAILED;
++		retval = -ENXIO;
++		goto failed1;
++	}
++
++	brd->state = BOARD_READY;
++	brd->dpastatus = BD_RUNNING;
++
++	/* Log the information about the board */
++	dev_info(&pdev->dev, "board %d: %s (rev %d), irq %d\n",adapter_count, brd->name, brd->rev, brd->irq);
++
++	/*
++	 * allocate flip buffer for board.
++	 *
++	 * Okay to malloc with GFP_KERNEL, we are not at interrupt
++	 * context, and there are no locks held.
++	 */
++	brd->flipbuf = kmalloc(MYFLIPLEN, GFP_KERNEL);
++	if (!brd->flipbuf) {
++		dev_err(&pdev->dev, "memory allocation for flipbuf failed\n");
++		brd->state = BOARD_FAILED;
++		retval = -ENOMEM;
++		goto failed1;
++	}
++	memset(brd->flipbuf, 0, MYFLIPLEN);
++
++	jsm_create_driver_sysfiles(pdev->dev.driver);
++
++	wake_up_interruptible(&brd->state_wait);
++	return 0;
++failed1:
++	free_irq(brd->irq, brd);
++failed0:
++	kfree(brd);
++	iounmap(brd->re_map_membase);
++	return retval;
++}
++
++/* returns count (>= 0), or negative on error */
++static int jsm_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
++{
++	int rc;
++
++	rc = pci_enable_device(pdev);
++	if (rc) {
++		dev_err(&pdev->dev, "Device enable FAILED\n");
++		return rc;
++	}
++
++	if ((rc = pci_request_regions(pdev, "jsm"))) {
++	dev_err(&pdev->dev, "pci_request_region FAILED\n");
++		pci_disable_device(pdev);
++		return rc;
++	}
++
++	if ((rc = jsm_found_board(pdev, ent->driver_data))) {
++		dev_err(&pdev->dev, "jsm_found_board FAILED\n");
++		pci_release_regions(pdev);
++		pci_disable_device(pdev);
++	 	return rc;
++	}
++	return rc;
++}
++
++
++/*
++ * jsm_cleanup_board()
++ *
++ * Free all the memory associated with a board
++ */
++static void jsm_cleanup_board(struct jsm_board *brd)
++{
++	int i = 0;
++
++	free_irq(brd->irq, brd);
++	iounmap(brd->re_map_membase);
++
++	/* Free all allocated channels structs */
++	for (i = 0; i < brd->maxports; i++) {
++		if (brd->channels[i]) {
++			if (brd->channels[i]->ch_rqueue)
++				kfree(brd->channels[i]->ch_rqueue);
++			if (brd->channels[i]->ch_equeue)
++				kfree(brd->channels[i]->ch_equeue);
++			if (brd->channels[i]->ch_wqueue)
++				kfree(brd->channels[i]->ch_wqueue);
++			kfree(brd->channels[i]);
++		}
++	}
++
++	pci_release_regions(brd->pci_dev);
++	pci_disable_device(brd->pci_dev);
++	kfree(brd->flipbuf);
++	kfree(brd);
++}
++
++static void jsm_remove_one(struct pci_dev *dev)
++{
++	unsigned long lock_flags;
++	struct list_head *tmp;
++	struct jsm_board *brd;
++
++	spin_lock_irqsave(&jsm_board_head_lock, lock_flags);
++	list_for_each(tmp, &jsm_board_head) {
++		brd = list_entry(tmp, struct jsm_board,
++					jsm_board_entry);
++		if ( brd != NULL && brd->pci_dev == dev) {
++			jsm_remove_uart_port(brd);
++			jsm_cleanup_board(brd);
++			list_del(&brd->jsm_board_entry);
++			break;
++		}
++	}
++	spin_unlock_irqrestore(&jsm_board_head_lock, lock_flags);
++	return;
++}
++
++struct pci_driver jsm_driver = {
++	.name		= "jsm",
++	.probe		= jsm_init_one,
++	.id_table	= jsm_pci_tbl,
++	.remove		= __devexit_p(jsm_remove_one),
++};
++
++/*
++ * jsm_init_module()
++ *
++ * Module load.  This is where it all starts.
++ */
++static int __init jsm_init_module(void)
++{
++	int rc = 0;
++
++	printk(KERN_INFO "%s, Digi International Part Number %s\n",
++			JSM_VERSION, JSM_VERSION);
++
++	/*
++	 * Initialize global stuff
++	 */
++
++	rc = uart_register_driver(&jsm_uart_driver);
++	if (rc < 0) {
++		return rc;
++	}
++
++	rc = pci_register_driver(&jsm_driver);
++	if (rc < 0) {
++		uart_unregister_driver(&jsm_uart_driver);
++		return rc;
++	}
++	jsm_driver_state = DRIVER_READY;
++
++	return rc;
++}
++
++module_init(jsm_init_module);
++
++/*
++ * jsm_exit_module()
++ *
++ * Module unload.  This is where it all ends.
++ */
++static void __exit jsm_exit_module(void)
++{
++	jsm_remove_driver_sysfiles(&jsm_driver.driver);
++
++	pci_unregister_driver(&jsm_driver);
++
++	uart_unregister_driver(&jsm_uart_driver);
++}
++module_exit(jsm_exit_module);
++MODULE_LICENSE("GPL");
+
+--------------040600050806010403090006--
+

@@ -1,41 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269477AbUJSQKG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269479AbUJSQOF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269477AbUJSQKG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 12:10:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269473AbUJSQKF
+	id S269479AbUJSQOF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 12:14:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269492AbUJSQKp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 12:10:05 -0400
-Received: from fw.osdl.org ([65.172.181.6]:48528 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269477AbUJSQFl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 12:05:41 -0400
-Date: Tue, 19 Oct 2004 09:05:36 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Matthias Andree <matthias.andree@gmx.de>
-cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.9 BK build broken
-In-Reply-To: <20041019090019.GA6020@merlin.emma.line.org>
-Message-ID: <Pine.LNX.4.58.0410190904050.2317@ppc970.osdl.org>
-References: <20041019021719.GA22924@merlin.emma.line.org> <41747CA6.7030400@pobox.com>
- <41748ADE.70403@pobox.com> <Pine.LNX.4.58.0410182208020.2287@ppc970.osdl.org>
- <20041019090019.GA6020@merlin.emma.line.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 19 Oct 2004 12:10:45 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:28691 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S269485AbUJSQFG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 12:05:06 -0400
+Date: Tue, 19 Oct 2004 18:04:31 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, jgarzik@pobox.com, mikep@linuxtr.net,
+       p2@ace.ulyssis.student.kuleuven.ac.be
+Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] net/tokenring/olympic.c: remove unused variable (fwd)
+Message-ID: <20041019160431.GA1960@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+The trivial patch forwarded below still applies and compiles against 
+2.6.9-rc4-mm1.
 
-On Tue, 19 Oct 2004, Matthias Andree wrote:
-> 
-> I'd tried SuSE's gcc-3.3.3-41 (as shipped with SuSE Linux 9.1 Pro),
-> pristine gcc 3.3.4, pristine gcc 3.4.2, each of the three failed - and I
-> therefore claim "having really up-to-date compilers" for my system.
+Please apply.
 
-Yes. My problem was that ppc64 doesn't use "-traditional", and the x86
-machine I thought I had tried it on had plain 2.6.9, not my latest tree ;)
 
-Anyway. It should all be fixed in current BK.
 
-		Linus
+----- Forwarded message from Adrian Bunk <bunk@stusta.de> -----
+
+Date:	Thu, 7 Oct 2004 22:58:18 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: jgarzik@pobox.com, mikep@linuxtr.net,
+	p2@ace.ulyssis.student.kuleuven.ac.be
+Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] net/tokenring/olympic.c: remove unused variable
+
+Recent changes in Linus' tree removed all uses of a variable, resulting
+in the following warning:
+
+<--  snip  -->
+
+...
+  CC      drivers/net/tokenring/olympic.o
+drivers/net/tokenring/olympic.c: In function `olympic_arb_cmd':
+drivers/net/tokenring/olympic.c:1404: warning: unused variable `i'
+...
+
+<--  snip  -->
+
+
+The following patch removes this unused variable:
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.9-rc3-mm3/drivers/net/tokenring/olympic.c.old	2004-10-07 22:52:02.000000000 +0200
++++ linux-2.6.9-rc3-mm3/drivers/net/tokenring/olympic.c	2004-10-07 22:53:15.000000000 +0200
+@@ -1401,7 +1401,6 @@
+ 	u16 lan_status = 0, lan_status_diff  ; /* Initialize to stop compiler warning */
+ 	u8 fdx_prot_error ; 
+ 	u16 next_ptr;
+-	int i ; 
+ 
+ 	arb_block = (olympic_priv->olympic_lap + olympic_priv->arb) ; 
+ 	asb_block = (olympic_priv->olympic_lap + olympic_priv->asb) ; 
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+----- End forwarded message -----
+

@@ -1,53 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261840AbTKLHHR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Nov 2003 02:07:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbTKLHHR
+	id S261801AbTKLHaW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Nov 2003 02:30:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbTKLHaV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Nov 2003 02:07:17 -0500
-Received: from continuum.cm.nu ([216.113.193.225]:16771 "EHLO continuum.cm.nu")
-	by vger.kernel.org with ESMTP id S261840AbTKLHHP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Nov 2003 02:07:15 -0500
-Date: Tue, 11 Nov 2003 23:07:10 -0800
-To: linux-kernel@vger.kernel.org
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: Re: 2.4.23 crash on Intel SDS2
-Message-ID: <20031112070710.GA6172@cm.nu>
-References: <20031109210527.GA1936@cm.nu>
-	<Pine.LNX.4.44.0311100846070.16790-100000@logos.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 12 Nov 2003 02:30:21 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:30663
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S261801AbTKLHaT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Nov 2003 02:30:19 -0500
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: mzyngier@freesurf.fr
+Subject: Re: Why can't I shut scsi device support off in -test9?
+Date: Wed, 12 Nov 2003 01:26:59 -0600
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <200311120046.04348.rob@landley.net> <wrpr80e84fm.fsf@hina.wild-wind.fr.eu.org>
+In-Reply-To: <wrpr80e84fm.fsf@hina.wild-wind.fr.eu.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0311100846070.16790-100000@logos.cnet>
-X-No-Archive: yes
-User-Agent: Mutt/1.5.4i
-From: Shane Wegner <shane-keyword-kernel.a35a91@cm.nu>
-X-Delivery-Agent: TMDA/0.86 (Venetian Way)
+Message-Id: <200311120126.59472.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 10, 2003 at 08:46:38AM -0200, Marcelo Tosatti wrote:
-> 
-> 
-> On Sun, 9 Nov 2003, Shane Wegner wrote:
-> 
-> > Hi,
-> > 
-> > I posted some weeks ago regarding a crash I was
-> > experiencing with 2.4.23-pre4.  I am just writing to
-> > confirm that 2.4.23-pre9 is still unable to run relyably on
-> > this machine.  In my earlier post, I thought acpi might be
-> > the culprit as I had it enabled due to a bios bug.  Intel
-> > since fixed that so I was able to boot 2.4.23-pre9 with
-> > acpi totally disabled in make config.
-> 
-> Shane,
-> 
-> Tracking down which -pre this started to happen would help a lot.
+On Wednesday 12 November 2003 00:51, Marc Zyngier wrote:
+> >>>>> "Rob" == Rob Landley <rob@landley.net> writes:
+>
+> Rob> I go into the scsi menu, but scsi device support isn't an option
+> Rob> anymore. It's three dashes, hardwired to on.
+>
+> Rob> I'm fairly certain my laptop hasn't got any scsi devices in it...
+>
+> USB storage, maybe ?
+>
+> 	M.
 
-Ok, it starts happening in pre4.  I am running pre3 now and
-all is stable.  The kernels I am using for testing are
-compiled without acpi but that doesn't make a difference.
+Nope.  That's off.  (Only enabled USB devices is my scanner.)
 
-Shane
+I tried switching SCSI support off by hand (editing .config) and it still 
+showed up in the menu.  (Maybe turned back on by a dependency, but on what?)
+
+Rob

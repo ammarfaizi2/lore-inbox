@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293144AbSBWPGY>; Sat, 23 Feb 2002 10:06:24 -0500
+	id <S293143AbSBWPNz>; Sat, 23 Feb 2002 10:13:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293143AbSBWPGO>; Sat, 23 Feb 2002 10:06:14 -0500
-Received: from jalon.able.es ([212.97.163.2]:9928 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S293144AbSBWPF6>;
-	Sat, 23 Feb 2002 10:05:58 -0500
-Date: Sat, 23 Feb 2002 16:05:44 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: floppy in 2.4.17
-Message-ID: <20020223160544.A1905@werewolf.able.es>
+	id <S293145AbSBWPNg>; Sat, 23 Feb 2002 10:13:36 -0500
+Received: from pD9E10168.dip.t-dialin.net ([217.225.1.104]:32128 "EHLO fefe.de")
+	by vger.kernel.org with ESMTP id <S293143AbSBWPNZ>;
+	Sat, 23 Feb 2002 10:13:25 -0500
+Date: Sat, 23 Feb 2002 16:13:21 +0100
+From: Felix von Leitner <usenet-20020223@fefe.de>
+To: Dan Aloni <da-x@gmx.net>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH] C exceptions in kernel
+Message-ID: <20020223151321.GH301@fefe.de>
+Mail-Followup-To: Dan Aloni <da-x@gmx.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <1014412325.1074.36.camel@callisto.yi.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.3.1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1014412325.1074.36.camel@callisto.yi.org>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Thus spake Dan Aloni (da-x@gmx.net):
+> The attached patch implements C exceptions in the kernel, which *don't*
+> depend on special support from the compiler. This is a 'request for
+> comments'. The patch is very initial, should not be applied.
 
-I am getting problems with floppy drive in 2.4.17.
-All started with floppy not working in 18-rc4, went back to 17
-and still does not work. Just plain 2.4.17, no patching.
+First of all: setjmp/longjmp is quite inefficient.
 
-mkfs -t ext2 /dev/fd0 just hangs forever.
+But my real problem with this is that the point about exceptions in C++
+is the automatic stack unwinding.  You use local variables and if an
+exception is thrown, they automatically self-destruct.  In particular,
+you could implement spin locks as a class, and an exception will release
+the lock automatically.  Since this is not there in C, this is no more
+elegant than using explicit goto.
 
-mkfs -v -t ext2 /dev/fd0 gives:
+Also, it makes understanding the code (and correlating assembly output
+with C code) less easy, because you also have to look at that exception
+implementation.
 
-mke2fs 1.26 (3-Feb-2002)
-mkfs.ext2: bad blocks count - /dev/fd0
-
-Hardware:
-
-Floppy drive(s): fd0 is 1.44M
-FDC 0 is a post-1991 82077
-ide-floppy driver 0.97.sv
-
-???
-
-TIA
-
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.2 (Cooker) for i586
-Linux werewolf 2.4.17 #2 SMP Sat Feb 23 15:08:17 CET 2002 i686
+Felix

@@ -1,62 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271820AbTHLSjM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 14:39:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271890AbTHLSjL
+	id S271222AbTHLSzM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 14:55:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271225AbTHLSzM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 14:39:11 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:38052 "EHLO
-	pd6mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S271820AbTHLSjF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 14:39:05 -0400
-Date: Tue, 12 Aug 2003 11:36:11 -0700
-From: Ken Savage <kens1835@shaw.ca>
-Subject: High CPU load with kswapd and heavy disk I/O
-To: linux kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <200308121136.11979.kens1835@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: KMail/1.5
+	Tue, 12 Aug 2003 14:55:12 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:41344 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S271222AbTHLSzI (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 14:55:08 -0400
+Message-Id: <200308121855.h7CIt6St002437@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test3-mm1 and rootflags
+From: Valdis.Kletnieks@vt.edu
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1439189981P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 12 Aug 2003 14:55:06 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Short version:
-----------------
-kernels 2.4.17 --> 2.4.21
-Dual Athlon SMP system
-4GB RAM, 2GB swap
-3ware RAID, filled with millions of files across thousands of directories.
-reiserfs 3.6
+--==_Exmh_1439189981P
+Content-Type: text/plain; charset=us-ascii
 
-The following command is guaranteed to lock out the box by activating
-kswapd to >95% CPU, blocking out pings, everything.
+OK.. I'm stumped..
 
-    find /RAID/data/ -type f -mtime +180 | xargs rm
+While testing something, I tried to boot with 'rootflags=noatime', and
+found the system wouldn't boot, as ext3, ext2, and reiserfs all failed to
+recognize the option.  Looking at the code in fs/ext3/super.c:parse_options()
+and init/do_mounts.c:root_data_setup(), it appears to be impossible
+to set any of the filesystem-independent flags via rootflags, which explains
+the special-case code for the 'ro' and 'rw' flags.  However, there doesn't
+seem to be any way to pass nodev, noatime, nodiratime, or any of the other
+flags.  (And yes, all 3 of those make sense in my environment - it's a laptop
+and I don't need atime, and I use devfs so nodev on the root makes sense too).
 
-Details:
-----------
-Applying the rmap patch seems to prevent kswapd from hogging the CPU,
-but causes it to freeze up for some other reason.  (The server is remote,
-so I can't view the console.)  Likewise 2.6.0-test* causes freezeups.
-Mind you, the server is under a fair bit of CPU and disk load -- hundreds
-of processes/threads all actively running.  I suspect something in rmap
-has made its way into 2.6 and our usage pattern is triggering the same
-fault in both places.
+Am I missing something?  Or in fact, is this an non-doable?
 
-It appears as though the system is unable to efficiently clean up disk
-buffer memory when called on to do so.  In the Documentation/, there
-is mention of a buffermem sysctl, but that's nowhere to be found.
-It's obviously been removed/replaced...  Is there any way to limit the
-amount of buffer memory used by the system, that way if/when kswapd
-needs to reclaim it, there's very little work for it to do?
+--==_Exmh_1439189981P
+Content-Type: application/pgp-signature
 
-Admittedly, that's just masking the problem, as opposed to solving it.
-Any idea why kswapd is having such a tough go??  Known solutions
-for this problem?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-TIA,
+iD8DBQE/OTgJcC3lWbTT17ARApYVAKCyV7VpXLPRcfDgZt5ZQSwR3pEtvQCdHga3
+n5f7IQIVcYhvbu1Piu6KpT0=
+=S9QY
+-----END PGP SIGNATURE-----
 
-Ken
-
+--==_Exmh_1439189981P--

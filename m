@@ -1,78 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316106AbSEZOQE>; Sun, 26 May 2002 10:16:04 -0400
+	id <S316113AbSEZOZC>; Sun, 26 May 2002 10:25:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316111AbSEZOQD>; Sun, 26 May 2002 10:16:03 -0400
-Received: from rkom.r-kom.de ([212.77.162.22]:36021 "EHLO urfass.r-kom.de")
-	by vger.kernel.org with ESMTP id <S316106AbSEZOQB>;
-	Sun, 26 May 2002 10:16:01 -0400
-Date: Sun, 26 May 2002 16:16:01 +0200
-From: "Stefan M. Brandl" <smb@smbnet.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ioctl() still problem w/2.5.18
-Message-ID: <20020526161601.B14961@urfass.r-kom.de>
-In-Reply-To: <20020526160519.A23832@urfass.r-kom.de>
+	id <S316111AbSEZOZB>; Sun, 26 May 2002 10:25:01 -0400
+Received: from hq.fsmlabs.com ([209.155.42.197]:1296 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S316130AbSEZOZA>;
+	Sun, 26 May 2002 10:25:00 -0400
+Date: Sun, 26 May 2002 08:21:42 -0600
+From: yodaiken@fsmlabs.com
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: yodaiken@fsmlabs.com, David Woodhouse <dwmw2@infradead.org>,
+        Larry McVoy <lm@bitmover.com>,
+        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        Linus Torvalds <torvalds@transmeta.com>, Wolfgang Denk <wd@denx.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
+Message-ID: <20020526082142.C18843@hq.fsmlabs.com>
+In-Reply-To: <20020526072637.A18692@hq.fsmlabs.com> <Pine.LNX.4.21.0205261607470.17583-100000@serv>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-NCC-RegID: de.r-kom
-X-URL: http://www.smbnet.de/
-X-Organization: heavy overdose administration
-X-Location: Regensburg, Bavaria, Germany
+User-Agent: Mutt/1.2i
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->         In 2.5.16, have any restrictions been placed on ioctl()? With 2.5.16,
-> a non-root user is unable to use /dev/cdrom with an ide cd, to play audio cds.
-> An strace of workbone shows this:
+On Sun, May 26, 2002 at 04:09:46PM +0200, Roman Zippel wrote:
+> Hi,
 > 
-> open("/dev/cdrom", O_RDONLY)            = 3
-> ioctl(3, CDROMSUBCHNL, 0xbfffe814)      = -1 EACCES (Permission denied)  
-> ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> rt_sigaction(SIGINT, {SIG_IGN}, {SIG_DFL}, 8) = 0
-> ioctl(0, TCGETS, {B38400 opost isig icanon echo ...}) = 0
-> ioctl(0, SNDCTL_TMR_START, {B38400 opost isig -icanon -echo ...}) = 0
-> ioctl(0, TCGETS, {B38400 opost isig -icanon -echo ...}) = 0
-> write(1, "\n", 1
-> )                       = 1
-> ioctl(0, SNDCTL_TMR_START, {B38400 opost isig icanon echo ...}) = 0
-> ioctl(0, TCGETS, {B38400 opost isig icanon echo ...}) = 0
-> rt_sigaction(SIGINT, {SIG_DFL}, {SIG_IGN}, 8) = 0
-> munmap(0x40017000, 4096)                = 0
-> _exit(0)                                = ?
+> On Sun, 26 May 2002 yodaiken@fsmlabs.com wrote:
 > 
->         Workbone is supposed to access /dev/cdrom, and then wait for user 
-> input from the number pad, to play the cd. the following strace from workbone 
-> in 2.5.7 shows this working properly:
+> > > It's been asserted that the patent licence requires that _all_ userspace 
+> > > apps running on the system by GPL'd. Yet there are many Free Software 
+> > > applications in a standard Linux distribution that are under 
+> > > GPL-incompatible licences. Apache, xinetd, etc...
+> > > 
+> > > If that interpretation is true, it _would_ be a problem, and not just for 
+> > > those trying to make money from it.
+> > 
+> > That interpretation is not just false, it is silly.
 > 
-> write(1, "\33[10m\n", 6
-> ) = 55                                               
-> open("/dev/cdrom", O_RDONLY)            = 3  "..., 55
-> ioctl(3, CDROMSUBCHNL, 0xbfffe654)      = 0
-> ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> ioctl(3, CDROMREADTOCHDR, 0xbfffe626)   = 0
-> ioctl(3, CDROMREADTOCENTRY, 0xbfffe628) = 0
-> ioctl(3, CDROMREADTOCENTRY, 0xbfffe628) = 0
-> ioctl(3, CDROMREADTOCENTRY, 0xbfffe628) = 0
-> ioctl(3, CDROMREADTOCENTRY, 0xbfffe628) = 0
-> ioctl(3, CDROMREADTOCENTRY, 0xbfffe628) = 0
-> ioctl(3, CDROMREADTOCENTRY, 0xbfffe628) = 0
-> ioctl(3, CDROMREADTOCENTRY, 0xbfffe628) = 0
-> ioctl(3, CDROMREADTOCENTRY, 0xbfffe628) = 0
-> ioctl(3, CDROMREADTOCENTRY, 0xbfffe628) = 0
-> ioctl(3, CDROMREADTOCENTRY, 0xbfffe628) = 0
-> ioctl(3, CDROMREADTOCENTRY, 0xbfffe628) = 0
-> rt_sigaction(SIGINT, {SIG_IGN}, {SIG_DFL}, 8) = 0
-> ioctl(0, TCGETS, {B38400 opost isig icanon echo ...}) = 0
+> Then why don't you specify in the license what "use of the Patented
+> Process" means?
 > 
->         This worked as root, and with  a kernel <= 2.5.13. I didn't try this 
-> with 2.5.14 or 2.5.15.
-> 
+> bye, Roman
 
-Same problem here.
-While kernels <= 2.5.15 don't show this error, 2.5.16, 17 and 18 do.
-The bug? must have been introduced with 2.5.16.
+It means just what it says.
 
 
-Stefan
+-- 
+---------------------------------------------------------
+Victor Yodaiken 
+Finite State Machine Labs: The RTLinux Company.
+ www.fsmlabs.com  www.rtlinux.com
+

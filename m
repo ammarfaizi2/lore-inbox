@@ -1,75 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261846AbVDESaN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261871AbVDESc1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261846AbVDESaN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 14:30:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261858AbVDESaN
+	id S261871AbVDESc1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 14:32:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261848AbVDESay
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 14:30:13 -0400
-Received: from tetsuo.zabbo.net ([207.173.201.20]:6617 "EHLO tetsuo.zabbo.net")
-	by vger.kernel.org with ESMTP id S261846AbVDESQr (ORCPT
+	Tue, 5 Apr 2005 14:30:54 -0400
+Received: from thunk.org ([69.25.196.29]:31127 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S261888AbVDESWY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 14:16:47 -0400
-Message-ID: <4252D613.4070204@zabbo.net>
-Date: Tue, 05 Apr 2005 11:16:51 -0700
-From: Zach Brown <zab@zabbo.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Matt Mackall <mpm@selenic.com>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] configfs, a filesystem for userspace-driven kernel object
- configuration
-References: <20050403195728.GH31163@ca-server1.us.oracle.com> <20050405064153.GI25554@waste.org>
-In-Reply-To: <20050405064153.GI25554@waste.org>
+	Tue, 5 Apr 2005 14:22:24 -0400
+Date: Tue, 5 Apr 2005 14:22:02 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Greg KH <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org, davem@davemloft.net,
+       shemminger@osdl.org, netdev@oss.sgi.com
+Subject: Re: [07/08] [TCP] Fix BIC congestion avoidance algorithm error
+Message-ID: <20050405182202.GA11979@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>, Greg KH <gregkh@suse.de>,
+	linux-kernel@vger.kernel.org, stable@kernel.org,
+	davem@davemloft.net, shemminger@osdl.org, netdev@oss.sgi.com
+References: <20050405164539.GA17299@kroah.com> <20050405164758.GH17299@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20050405164758.GH17299@kroah.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Mackall wrote:
-> On Sun, Apr 03, 2005 at 12:57:28PM -0700, Joel Becker wrote:
+On Tue, Apr 05, 2005 at 09:47:59AM -0700, Greg KH wrote:
 > 
-
->>	An interface in /proc where the API is: 
-
->>or an ioctl(2) interface where the API is:
-
->>
->>becomes this in configfs:
->>
->>	# cd /config/mythingy
->>	# mkdir foo
->>	# echo 1 > foo/index
->>	# echo 3 > foo/count
->>	# echo 0x00013 > foo/address
->>
->>	Instead of a binary blob that's passed around or a cryptic
->>string that has to be formatted just so, configfs provides an interface
->>that's completely scriptable and navigable.
+> -stable review patch.  If anyone has any objections, please let us know.
 > 
-> How does the kernel know when to actually create the object?
+> While redoing BIC for the split up version, I discovered that the
+> existing 2.6.11 code doesn't really do binary search. It ends up
+> being just a slightly modified version of Reno.  See attached graphs
+> to see the effect over simulated 1mbit environment.
 
-"actually create", huh? :)
+I hate to be a stickler for the rules, but does this really meet this
+criteria?
 
-In the trivial case Joel describes, the item is almost certainly
-allocated during "# mkdir foo" when the subsystem will get a
-->make_item() call for the 'mythingy' group it registerd.  The various
-attribute writes then find the item by following their
-configfs_attribute argument to the item that its embedded in.
+ - It must fix a real bug that bothers people (not a, "This could be a
+   problem..." type thing.)
 
-But I bet you're not really asking about creation.  I bet you're
-wondering how the kernel will know when enough attributes have been
-filled and that it's safe to use the object.  Misguided items could
-assign magical ordering to the attribute filling such that once a final
-attribute is set, and others have been set, the item goes live.  That's
-what ocfs2 does now, sadly, but certainly not as a long-term solution.
+If the congestion control alogirthm is "Reno-like", what is
+user-visible impact to users?  There are OS's out there with TCP/IP
+stacks that are still using Reno, aren't there?  
 
-The missing piece is the 'commit_item' group operation that is yet to be
-implemented.  The intent is to have a directory of pending items that
-can have their attributes filled before being rename()ed into a
-directory of items that are in active use.  The commit_item() call that
-hits at rename() would give the kernel the chance to refuse the item
-because attributes haven't been filled in or conflict with existing
-items, or whatever.
+Knowing the answer to the question, "How does this bug `bother' either
+users or network administrators?" would probably be really helpful.
 
-- z
+						- Ted

@@ -1,64 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266396AbUAIAtq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 19:49:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266394AbUAIAtq
+	id S266407AbUAIBJq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 20:09:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266408AbUAIBJq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 19:49:46 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:41997 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S266395AbUAIAtm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 19:49:42 -0500
-Date: Fri, 9 Jan 2004 01:49:34 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: u1_amd64@dslr.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: time cat /proc/*/statm ?
-Message-ID: <20040109004934.GC545@alpha.home.local>
-References: <179256560250.20040108135458@dslr.net>
+	Thu, 8 Jan 2004 20:09:46 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:6042 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id S266407AbUAIBJo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 20:09:44 -0500
+Date: Thu, 8 Jan 2004 17:11:08 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Paul Mackerras <paulus@samba.org>
+Cc: joe.korty@ccur.com, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: seperator error in __mask_snprintf_len
+Message-Id: <20040108171108.2c02a387.pj@sgi.com>
+In-Reply-To: <16381.61618.275775.487768@cargo.ozlabs.ibm.com>
+References: <20040107165607.GA11483@rudolph.ccur.com>
+	<20040107113207.3aab64f5.akpm@osdl.org>
+	<20040108051111.4ae36b58.pj@sgi.com>
+	<16381.57040.576175.977969@cargo.ozlabs.ibm.com>
+	<20040108225929.GA24089@tsunami.ccur.com>
+	<16381.61618.275775.487768@cargo.ozlabs.ibm.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <179256560250.20040108135458@dslr.net>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 08, 2004 at 01:54:58PM -0500, u1_amd64@dslr.net wrote:
-> Is it reasonable for a 64bit dual cpu to take 5+ seconds of processing to
-> cat /proc/*/statm when there is hardly more than 1gb of actual memory
-> space used by processes (the rest being filesystem cache)?
+One side note I should warn of - my breakage (if such it be) was not
+consistent.
 
-Here on alpha, it takes 0.023s (0.011 sys) for 58 processes on 2.4.23.
-Perhaps there's something specific to x86_64 ?
+To quote my original patch to Andrew:
 
-Willy
+> Date: Fri, 28 Nov 2003 12:54:28 -0800
+> Subject: [PATCH] new /proc/irq cpumask format; consolidate cpumask display and input code
+> 
+> ...
+> 
+> There are two exceptions to the consolidation - the alpha and
+> sparc64 arch's manipulate bare unsigned longs, not cpumask_t's,
+> on input (write syscall), and do stuff that was more funky than
+> I could make sense of.  So the input side of these two arch's
+> was left as-is.  I'd welcome someone with access to either of
+> these systems to provide additional patches.
 
-> # free
->              total       used       free     shared    buffers     cached
-> Mem:      16278356   16264484      13872          0      85400   14819932
-> -/+ buffers/cache:    1359152   14919204
-> 
-> # ps -eda|wc
->  216     866    6751
-> 
-> # time cat /proc/*/statm
-> :
-> :
-> :
-> real    0m5.740s
-> user    0m0.003s
-> sys     0m5.521s
-> 
-> # uname -a
-> 
-> Linux silver 2.4.21-151-smp #22 SMP Mon Jan 5 21:31:07 PST 2004 x86_64 x86_64 x86_64 GNU/Linux
-> 
-> 
-> thanks!!
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+This suggests that while I may well have broken the output side (what
+the kernel displays when you read cpumasks in /proc/irq/prof_cpu_mask or
+/proc/irq/<pid>/smp_affinity), it is less likely that I broke the input
+side (the affect of writing a mask to these files).
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

@@ -1,59 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266816AbSKHRTg>; Fri, 8 Nov 2002 12:19:36 -0500
+	id <S266818AbSKHRU4>; Fri, 8 Nov 2002 12:20:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266817AbSKHRTg>; Fri, 8 Nov 2002 12:19:36 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:14596 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S266816AbSKHRTf>; Fri, 8 Nov 2002 12:19:35 -0500
-Date: Fri, 8 Nov 2002 09:25:24 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-cc: William Lee Irwin III <wli@holomorphy.com>,
-       "Van Maren, Kevin" <kevin.vanmaren@unisys.com>,
-       <linux-ia64@linuxia64.org>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>,
-       <rusty@rustcorp.com.au>, <dhowells@redhat.com>, <mingo@elte.hu>
-Subject: Re: [Linux-ia64] reader-writer livelock problem
-In-Reply-To: <1036775624.13021.3.camel@ixodes.goop.org>
-Message-ID: <Pine.LNX.4.44.0211080918220.4298-100000@home.transmeta.com>
+	id <S266819AbSKHRU4>; Fri, 8 Nov 2002 12:20:56 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:58760 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S266818AbSKHRUz>; Fri, 8 Nov 2002 12:20:55 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Fri, 8 Nov 2002 09:37:35 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+cc: Rusty Russell <rusty@rustcorp.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [patch] epoll bits 0.30 ...
+In-Reply-To: <20021108160955.GA30234@bjl1.asuk.net>
+Message-ID: <Pine.LNX.4.44.0211080937080.1768-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 8 Nov 2002, Jamie Lokier wrote:
 
-On 8 Nov 2002, Jeremy Fitzhardinge wrote:
-> 
-> The normal way of solving this fairness problem is to make pending write
-> locks block read lock attempts, so that the reader count is guaranteed
-> to drop to zero as read locks are released.  I haven't looked at the
-> Linux implementation of rwlocks, so I don't know how hard this is to
-> do.  Or perhaps there's some other reason for not implementing it this
-> way?
+> Davide Libenzi wrote:
+> > Rusty, the hash is not under pressure over there. The only time seeks is
+> > performed is at file removal ( from the set ) and eventually at file
+> > modify. There's a direct link between the wait queue and its item during
+> > the high frequency event delivery, so need seek is performed.
+>
+> It does seem peculiar to use a prime-sized hash table, though.  These
+> days, good power-of-two-sized hash functions are well known.
 
-There's another reason for not doing it that way: allowing readers to keep 
-interrupts on even in the presense of interrupt uses of readers.
+To make everyone happy the latest code uses hash.h :)
 
-If you do the "pending writes stop readers" approach, you get
 
-		cpu1			cpu2
 
-		read_lock() - get
+- Davide
 
-					write_lock_irq() - pending
-
-		irq happens
-		 - read_lock() - deadlock
-
-and that means that you need to make readers protect against interrupts 
-even if the interrupts only read themselves.
-
-NOTE! I'm not saying the existing practice is necessarily a good tradeoff,
-and maybe we should just make sure to find all such cases and turn the
-read_lock() calls into read_lock_irqsave() and then make the rw-locks
-block readers on pending writers. But it's certainly more work and cause
-for subtler problems than just naively changing the rw implementation.
-
-		Linus
 

@@ -1,68 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264113AbUBDTHr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 14:07:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264137AbUBDTHr
+	id S263983AbUBDTDR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 14:03:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263937AbUBDTDR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 14:07:47 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:5760 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S264113AbUBDTHp
+	Wed, 4 Feb 2004 14:03:17 -0500
+Received: from b074202.adsl.hansenet.de ([62.109.74.202]:46213 "EHLO
+	sfhq.hn.org") by vger.kernel.org with ESMTP id S264137AbUBDTDM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 14:07:45 -0500
-Date: Wed, 4 Feb 2004 14:07:52 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Alok Mooley <rangdi@yahoo.com>
-cc: Dave Hansen <haveblue@us.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>
-Subject: Re: Active Memory Defragmentation: Our implementation & problems
-In-Reply-To: <20040204185446.91810.qmail@web9705.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.53.0402041402310.2722@chaos>
-References: <20040204185446.91810.qmail@web9705.mail.yahoo.com>
+	Wed, 4 Feb 2004 14:03:12 -0500
+Message-ID: <402141E9.7070204@portrix.net>
+Date: Wed, 04 Feb 2004 20:03:05 +0100
+From: Jan Dittmer <j.dittmer@portrix.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: stefan.tell@crashmail.de
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Sensors with kernel 2.6.2
+References: <87u126loxa.fsf@zeus.crashmail.de>
+In-Reply-To: <87u126loxa.fsf@zeus.crashmail.de>
+X-Enigmail-Version: 0.82.4.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigA0C47D83C3209815CFD50773"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Feb 2004, Alok Mooley wrote:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigA0C47D83C3209815CFD50773
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 
->
-> --- Dave Hansen <haveblue@us.ibm.com> wrote:
->
-> > The "work until we get interrupted and restart if
-> > something changes
-> > state" approach is very, very common.  Can you give
-> > some more examples
-> > of just how a page fault would ruin the defrag
-> > process?
-> >
->
-> What I mean to say is that if we have identified some
-> pages for movement, & we get preempted, the pages
-> identified as movable may not remain movable any more
-> when we are rescheduled. We are left with the task of
-> identifying new movable pages.
->
-> -Alok
->
+Stefan 'Steve' Tell wrote:
+> Hi Folks,
+> 
+> I have some problems with my sensors.
+> 
+> In kernel 2.6.1 i received temperatures like 69,5°C CPU and 41°C
+> mainboard. Since 2.6.2 I received 418,5°C CPU and 347,0°C
+> mainboard. This error occured in 2.6.2rc3, too.
 
-If this is an Intel x86 machine, it is impossible for pages
-to get fragmented in the first place. The hardware allows any
-page, from anywhere in memory, to be concatenated into linear
-virtual address space. Even the kernel address space is virtual.
-The only time you need physically-adjacent pages is if you
-are doing DMA that is more than a page-length at a time. The
-kernel keeps a bunch of those pages around for just that
-purpose.
+You have to update to latest userspace sensors cvs. (www.lm-sensors.nu)
 
-So, if you are making a "memory defragmenter", it is a CPU time-sink.
-That's all.
+Jan
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
+--------------enigA0C47D83C3209815CFD50773
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
+iD8DBQFAIUHpLqMJRclVKIYRAmNPAJ9DuHmTfkKy5avYbcRwh2UcwA6NVgCfTiU3
+lV4vnqzkGJQdBBxOMZ4yAl4=
+=hqs+
+-----END PGP SIGNATURE-----
+
+--------------enigA0C47D83C3209815CFD50773--

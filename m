@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293014AbSCDX5k>; Mon, 4 Mar 2002 18:57:40 -0500
+	id <S293031AbSCEACn>; Mon, 4 Mar 2002 19:02:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293020AbSCDX5a>; Mon, 4 Mar 2002 18:57:30 -0500
-Received: from zero.tech9.net ([209.61.188.187]:21522 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S293014AbSCDX5U>;
-	Mon, 4 Mar 2002 18:57:20 -0500
-Subject: Re: latency & real-time-ness.
-From: Robert Love <rml@tech9.net>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Dieter =?ISO-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Ingo Molnar <mingo@elte.hu>, Andrea Arcangeli <andrea@suse.de>
-In-Reply-To: <Pine.LNX.4.44L.0203042047010.2181-100000@imladris.surriel.com>
-In-Reply-To: <Pine.LNX.4.44L.0203042047010.2181-100000@imladris.surriel.com>
-Content-Type: text/plain
+	id <S293026AbSCEACb>; Mon, 4 Mar 2002 19:02:31 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:2573 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S293021AbSCEACW>; Mon, 4 Mar 2002 19:02:22 -0500
+Subject: Re: Q:Shared IRQ
+To: dstroupe@keyed-upsoftware.com (David Stroupe)
+Date: Tue, 5 Mar 2002 00:17:32 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3C8407C0.1000503@keyed-upsoftware.com> from "David Stroupe" at Mar 04, 2002 05:48:16 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 04 Mar 2002 18:56:57 -0500
-Message-Id: <1015286218.1083.21.camel@phantasy>
-Mime-Version: 1.0
+Message-Id: <E16i2e4-0001At-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-03-04 at 18:48, Rik van Riel wrote:
+>  I get not only my interrupts, but also the interrupts of the shared 
+> device, namely the network card.  Is this what I should expect?  If I 
 
-> > If rmap finds its way into 2.5, I and others have some ideas about ways
-> > to optimize the algorithms to reduce lock hold time and benefit from
-> > preemption.  For example, Daniel Phillips has some ideas wrt
-> > zap_page_range.
-> 
-> Feel free to help resolve these issues before rmap code gets
-> merged. I'd prefer to be able to introduce rmap in small bits
-> and pieces without breaking anything.
+Yes.
 
-The above was just an optimization ... rmap and preempt work fine
-together.
+> get a notification for the network card, why is the dev_id the same as 
+> what I passed?  If I didn't have an interrupt pending bit on my 
+> hardware, how would I distinguish between the interrupts?
 
-What Andrew Morton, I, and others intend to do for 2.5 is work on the
-algorithms and locking issues to work on latency issues cleanly.
+If you don't have an interrupt pending bit you are probably completely screwed.
+PCI assumes you can tell if you caused the interrupt or you can service events
+even if not needed (which basically comes down to the same thing).
 
-But I'll surely work on the issues wrt rmap ;)
-
-	Robert Love
-
+Only your driver knows if you are a possible IRQ cause, its up to you to
+handle it

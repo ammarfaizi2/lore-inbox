@@ -1,58 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280006AbRJ3QZ0>; Tue, 30 Oct 2001 11:25:26 -0500
+	id <S279999AbRJ3QZp>; Tue, 30 Oct 2001 11:25:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280005AbRJ3QZP>; Tue, 30 Oct 2001 11:25:15 -0500
-Received: from p15.dynadsl.ifb.co.uk ([194.105.168.15]:49677 "HELO smeg")
-	by vger.kernel.org with SMTP id <S280002AbRJ3QZI>;
-	Tue, 30 Oct 2001 11:25:08 -0500
-Message-ID: <14297.193.132.197.81.1004459024.squirrel@mail.mswinxp.net>
-Date: Tue, 30 Oct 2001 16:23:44 -0000 (GMT)
-Subject: Re: Still having problems with eepro100
-From: "Lee Packham" <linux@mswinxp.net>
-To: jo_ni@telia.com
-In-Reply-To: <20011030123927.74e26501.jo_ni@telia.com>
-In-Reply-To: <20011030123927.74e26501.jo_ni@telia.com>
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: SquirrelMail (version 1.0.6)
+	id <S279989AbRJ3QZf>; Tue, 30 Oct 2001 11:25:35 -0500
+Received: from nick.dcs.qmul.ac.uk ([138.37.88.61]:39592 "EHLO
+	nick.dcs.qmul.ac.uk") by vger.kernel.org with ESMTP
+	id <S280002AbRJ3QZZ>; Tue, 30 Oct 2001 11:25:25 -0500
+Date: Tue, 30 Oct 2001 16:25:45 +0000 (GMT)
+From: Matt Bernstein <matt@theBachChoir.org.uk>
+To: Neale Banks <neale@lowendale.com.au>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Nasty suprise with uptime
+In-Reply-To: <Pine.LNX.4.05.10110301839250.23080-100000@marina.lowendale.com.au>
+Message-ID: <Pine.LNX.4.33.0110301623171.8732-100000@nick.dcs.qmul.ac.uk>
+X-URL: http://www.theBachChoir.org.uk/
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This problem is inherent in FreeBSD, OpenBSD, NetBSD as well as Linux. I 
-spent a few months hacking my Sony Vaio with number of OS's (it has this 
-network card built onto it).
+At 18:46 +1100 Neale Banks wrote:
 
-The problem is fatal unfortunately and the only solution I found was 
-Intel's e100 driver.
+>> It wraps at 496 days. The drivers are aware of it and dont crash the box
+>
+>You mean there was a time when uptime>496days would crash a system?
 
-'nuff said
+Amusingly I had to fight at an old workplace of mine to upgrade to a 2.1
+kernel. I built 2.1.103 with a snapshot of a compiler which eventually
+became egcs-1.0.3 (IIRC) which hit that bug (long after I'd left the job).
 
-
-Lee Packham
-
-> 
-> Hello,
-> Does anyone except me still having problems with the eepro100 drivers ?
-> 
-> The network connection stalls and I'll get this message:
-> 
-> eepro100: wait_for_cmd_done timeout!
-> 
-> I am using the eepro100 drivers with my 100/10 card running in
-> 10mbit and it works in windows.
-> 
-> I have been trying all new kernels + the ac patches but nothing
->seems to work. The fun thing is that I only gets this problem
-> when I am running XFree, is this just a weird coincidence?
-> 
-> /Johan Nilsson
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> in the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+I believe the fix went in at 2.1.106 or so :-/
 

@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129447AbRBAOR1>; Thu, 1 Feb 2001 09:17:27 -0500
+	id <S129294AbRBAORr>; Thu, 1 Feb 2001 09:17:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129294AbRBAORR>; Thu, 1 Feb 2001 09:17:17 -0500
-Received: from live.wasp.net.au ([202.61.164.12]:14 "EHLO live.networx.net.au")
-	by vger.kernel.org with ESMTP id <S129170AbRBAORD>;
-	Thu, 1 Feb 2001 09:17:03 -0500
-Date: Thu, 1 Feb 2001 22:14:40 +0800 (WST)
-From: Matt Kemner <kemner@live.wasp.net.au>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: Rik van Riel <riel@conectiva.com.br>,
-        Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Version 2.4.1 cannot be built. 
-In-Reply-To: <Pine.LNX.3.95.1010131093940.13598C-200000@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.30.0102012212340.3243-100000@live.wasp.net.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129918AbRBAOR1>; Thu, 1 Feb 2001 09:17:27 -0500
+Received: from p3EE3CA62.dip.t-dialin.net ([62.227.202.98]:54023 "HELO
+	emma1.emma.line.org") by vger.kernel.org with SMTP
+	id <S129170AbRBAORU> convert rfc822-to-8bit; Thu, 1 Feb 2001 09:17:20 -0500
+Date: Thu, 1 Feb 2001 15:17:17 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: What does "NAT: dropping untracked packet" mean?
+Message-ID: <20010201151717.D5706@emma1.emma.line.org>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010201133811.D14768@ipe.uni-stuttgart.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010201133811.D14768@ipe.uni-stuttgart.de>; from nils@ipe.uni-stuttgart.de on Thu, Feb 01, 2001 at 13:38:12 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 Jan 2001, Richard B. Johnson wrote:
+On Thu, 01 Feb 2001, Nils Rennebarth wrote:
 
+> Since enabling (but not yet using) firewalling in the 2.4.1 kernel, my log
+> gets clobbered with messages like:
+> 
+> Feb  1 12:58:56 obelix kernel: NAT: 0 dropping untracked packet ce767600 1 129.69.22.21 -> 224.0.0.2
+> 
+> The IP Adresses belong to Windows 98 computers. What does the message mean,
+> and what could I do to stop them?
 
-root> See attached. "Just because you can see the candy doesn't mean
-root> they'll let you have any...."
+It means that your box drops multicast administrative packets on the
+floor.
 
-Richard, I just cut & pasted this from your attachment:
-
-"Please note that the directory structure on ftp.gnu.org was
- redisorganzied fairly recently, such that there is a directory for each
- program.  One side effect of this is that if you cd into the gnu
- directory, and do
- > ls emacs*
- you will get a list of all the files in the emacs directory, but it will
- not be obvious from the ls output that you have to `cd emacs' before you
- can download those files."
-
- - Matt
-
+-- 
+Matthias Andree
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

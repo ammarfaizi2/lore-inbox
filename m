@@ -1,51 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264966AbUFGSLy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264972AbUFGSRD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264966AbUFGSLy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 14:11:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264970AbUFGSLy
+	id S264972AbUFGSRD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 14:17:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264971AbUFGSRD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 14:11:54 -0400
-Received: from mail12.vuinteractive.net ([198.74.37.42]:51981 "EHLO
-	mail2.vuinteractive.com") by vger.kernel.org with ESMTP
-	id S264966AbUFGSLw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 14:11:52 -0400
-From: "Mail Notification" <IMSS2postmaster@vugames.com>
-To: linux-kernel@vger.kernel.org
-Subject: =?us-ascii?Q?Thank_you_for_contacting_Technical_support=2FCustomer_
-	se?=
-	=?us-ascii?Q?rvice?=
-Mime-version: 1.0
-Content-Type: text/plain;
-	charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Date: Mon, 07 Jun 2004 11:13:17 -0700
-Message-ID: <LAE-G-THANOS9jKikEe00026ca1@lae-g-thanos.gamesna.com>
-X-OriginalArrivalTime: 07 Jun 2004 18:11:20.0107 (UTC) FILETIME=[D565E7B0:01C44CBA]
+	Mon, 7 Jun 2004 14:17:03 -0400
+Received: from mail.kroah.org ([65.200.24.183]:53468 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264975AbUFGSRB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 14:17:01 -0400
+Date: Mon, 7 Jun 2004 11:12:23 -0700
+From: Greg KH <greg@kroah.com>
+To: "Sy, Dely L" <dely.l.sy@intel.com>
+Cc: "Luiz Fernando N. Capitulino" <lcapitulino@prefeitura.sp.gov.br>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, Yury Umanets <torque@ukrpost.net>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6.6 memory allocation checks in drivers/pci/hotplug/shpchprm_acpi.c
+Message-ID: <20040607181222.GA18924@kroah.com>
+References: <468F3FDA28AA87429AD807992E22D07E01351A46@orsmsx408>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <468F3FDA28AA87429AD807992E22D07E01351A46@orsmsx408>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jun 07, 2004 at 10:56:54AM -0700, Sy, Dely L wrote:
+> Hi, Luiz,
+> 
+> I sent out the patch to Greg last week and he'll apply it.
 
-Hello, thank you for contacting Technical support/Customer service.  Please click on the link below to go to our online support site.
+Dely, was this in the patch that I applied on Friday?
 
-http://support.vugames.com
+thanks,
 
-Do not respond to this message as we will not see it.
-
-
-----------------------------------------------------
-Vivendi Universal Games- http://www.vugames.com : 
-The information transmitted is intended only for the 
-person or entity to which it is addressed and may 
-contain confidential and/or privileged material of 
-Vivendi Universal Games which is for the exclusive 
-use of the individual designated above as the 
-recipient. Any review, retransmission, dissemination 
-or other use of, or taking of any action in reliance 
-upon, this information by persons or entities other 
-than the intended recipient is prohibited. If you 
-received this in error, please contact immediately 
-the sender by returning e-mail and delete the 
-material from any computer. If you are not the 
-specified recipient, you are hereby notified that 
-all disclosure, reproduction, distribution or action
-taken on the basis of this message is prohibited.
+greg k-h

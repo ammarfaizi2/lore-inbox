@@ -1,41 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266463AbUIWRVV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268179AbUIWRWp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266463AbUIWRVV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 13:21:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266295AbUIWRVV
+	id S268179AbUIWRWp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 13:22:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268177AbUIWRVv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 13:21:21 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:37603 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268200AbUIWRQ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 13:16:27 -0400
-Subject: Re: [PATCH] mark inter_module_* deprecated
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Dave Airlie <airlied@gmail.com>
-Cc: Christoph Hellwig <hch@lst.de>, akpm@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <21d7e99704092218531ec19260@mail.gmail.com>
-References: <20040919101337.GA5910@lst.de>
-	 <21d7e99704092218531ec19260@mail.gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1095956022.6735.34.camel@localhost.localdomain>
+	Thu, 23 Sep 2004 13:21:51 -0400
+Received: from mail.kroah.org ([69.55.234.183]:64469 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266457AbUIWRVM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 13:21:12 -0400
+Date: Thu, 23 Sep 2004 10:20:38 -0700
+From: Greg KH <greg@kroah.com>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@zip.com.au>,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       parisc-linux@parisc-linux.org
+Subject: Re: [PATCH] Sort generic PCI fixups after specific ones
+Message-ID: <20040923172038.GA8812@kroah.com>
+References: <20040922214304.GS16153@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 23 Sep 2004 17:13:43 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040922214304.GS16153@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2004-09-23 at 02:53, Dave Airlie wrote:
-> Most of this stuff is easier if we weren't waiting on Alans vga class
-> support driver to turn up as without it the DRM CVS is blocked, and no
-> DRM developer really wants to start hacking on the vga class stuff as
-> we don't believe it is where our time is best spent until Alan gets
-> code merged into the kernel and gets the fb guys to convert all their
-> drivers... I've already got a patch for converting the DRM to a fixed
-> up version of his last patch...
+On Wed, Sep 22, 2004 at 10:43:04PM +0100, Matthew Wilcox wrote:
+> 
+> The recent change that allowed PCI fixups to be declared everywhere
+> broke IDE on PA-RISC by making the generic IDE fixup be applied before
+> the PA-RISC specific one.  This patch fixes that by sorting generic fixups
+> after the specific ones.  It also obeys the 80-column limit and reduces
+> the amount of grotty macro code.
+> 
+> I'd like to thank Joel Soete for his work tracking down the source of
+> this problem.
+> 
+> Index: linux-2.6/drivers/pci/quirks.c
+> ===================================================================
+> RCS file: /var/cvs/linux-2.6/drivers/pci/quirks.c,v
+> retrieving revision 1.16
+> diff -u -p -r1.16 quirks.c
+> --- linux-2.6/drivers/pci/quirks.c	13 Sep 2004 15:23:21 -0000	1.16
+> +++ linux-2.6/drivers/pci/quirks.c	22 Sep 2004 21:38:17 -0000
+> @@ -543,7 +543,7 @@ static void __devinit quirk_cardbus_lega
+>  		return;
+>  	pci_write_config_dword(dev, PCI_CB_LEGACY_MODE_BASE, 0);
+>  }
+> -DECLARE_PCI_FIXUP_FINAL(PCI_ANY_ID,		PCI_ANY_ID,			quirk_cardbus_legacy );
+> +DECLARE_PCI_FIXUP_FINAL_ALL(quirk_cardbus_legacy);
 
-If you've got it working and everyone is happy just submit it. It looks
-like I'm going to be tty driver hacking for some time yet and you've
-already done the hardest bit - debugging it.
+It looks like you are doing 2 different things here with this new macro.
+Having it run last, and leting the user not type the PCI_ANY_ID macro
+twice.  How about if you want to do a final final type pass, you mark it
+as such, and not try to hide it in this manner.
 
+And do we really want to call it "final final"?  What if we determine
+that we need a "final final final" pass?  Can't you fix this with the
+link order like was previously done?  I'd really prefer to not add
+another level.
+
+Oh, and cc:ing the pci maintainer might be nice next time :)
+
+thanks,
+
+greg k-h

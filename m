@@ -1,20 +1,25 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264365AbTKZXFt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 18:05:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264368AbTKZXFt
+	id S264364AbTKZXBu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 18:01:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264365AbTKZXBt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 18:05:49 -0500
-Received: from [212.35.254.18] ([212.35.254.18]:22466 "EHLO mail2.midnet.co.uk")
-	by vger.kernel.org with ESMTP id S264365AbTKZXFs (ORCPT
+	Wed, 26 Nov 2003 18:01:49 -0500
+Received: from ns.suse.de ([195.135.220.2]:18135 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264364AbTKZXBs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 18:05:48 -0500
-Date: Wed, 26 Nov 2003 23:05:50 +0000
-From: Tim Kelsey <tk@midnet.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Help building module for 2.6.0
-Message-Id: <20031126230550.37785544.tk@midnet.co.uk>
-Organization: Midland Internet
+	Wed, 26 Nov 2003 18:01:48 -0500
+Date: Thu, 27 Nov 2003 00:01:45 +0100
+From: Andi Kleen <ak@suse.de>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: davem@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: Fire Engine??
+Message-Id: <20031127000145.61187530.ak@suse.de>
+In-Reply-To: <shsllq3yy2u.fsf@charged.uio.no>
+References: <BAY1-DAV15JU71pROHD000040e2@hotmail.com.suse.lists.linux.kernel>
+	<20031125183035.1c17185a.davem@redhat.com.suse.lists.linux.kernel>
+	<p73fzgbzca6.fsf@verdi.suse.de>
+	<shsllq3yy2u.fsf@charged.uio.no>
 X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -22,15 +27,33 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ok im trying to build a kernel module (my first :) ) when i build it on a 2.4 box everything is fine when i build it on my laptop running 2.6.0-t10 it builds fine but when i try and insmod it i get 
+On 26 Nov 2003 10:00:09 -0500
+Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
 
-sh$ insmod ./hgn.o 
-insmod: error inserting './hgn.o': -1 Invalid module format
+> >>>>> " " == Andi Kleen <ak@suse.de> writes:
+> 
+>      > - If they tested TCP-over-NFS then I'm pretty sure Linux lost
+>                         ^^^^^^^^^^^^ That would be inefficient 8-)
 
-I have attached my Makefile. Please could some one tell me if this is due to the way i compile the module (my guess) or if it is likly caused by my code. Any pointers would be welcome.
+grin. 
 
-Thnx for any help
-Tim Kelsey
+>      > badly because the current paths for that are just awfully
+>      > inefficient.
+> 
+> ...mind elaborating?
 
+Current sunrpc does two recvmsgs for each record to first get the record length 
+and then the payload.
 
-p.s. I know this is kind of like walking into a filharmonic auchestra with a waveing a tin drum :P so if there is a more apropriate place to post this kind of question pls let me know.
+This means you take all the locks and other overhead twice per packet. 
+
+Having a special function that peeks directly at the TCP receive
+queue would be much faster (and falls back to normal recvmsg when
+there is no data waiting) 
+
+But that's the really obvious case. I think if you got out an profiler
+and optimized carefully you could likely make this path much more
+efficient. Same for sunrpc TX probably, although that seems to be
+in a better shape already.
+
+-Andi 

@@ -1,25 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281870AbRKSBaO>; Sun, 18 Nov 2001 20:30:14 -0500
+	id <S281874AbRKSBu4>; Sun, 18 Nov 2001 20:50:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281871AbRKSBaE>; Sun, 18 Nov 2001 20:30:04 -0500
-Received: from SAPba-01p112.ppp13.odn.ad.jp ([61.116.159.112]:9366 "HELO
-	ender.dyndns.org") by vger.kernel.org with SMTP id <S281870AbRKSBaA>;
-	Sun, 18 Nov 2001 20:30:00 -0500
-Date: Mon, 19 Nov 2001 10:32:08 +0900
-From: Aric Cyr <acyr@alumni.uwaterloo.ca>
-To: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.4.14 breaks NVIDIA-1.0-1541 console switching
-Message-ID: <20011119103208.A12346@alumni.uwaterloo.ca>
-Mime-Version: 1.0
+	id <S281876AbRKSBug>; Sun, 18 Nov 2001 20:50:36 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:19987 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S281874AbRKSBua>;
+	Sun, 18 Nov 2001 20:50:30 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200111190150.fAJ1oSZ68274@saturn.cs.uml.edu>
+Subject: Re: Linux ACL designe - why the POSIX draft?
+To: nmiell@home.com (Nicholas Miell)
+Date: Sun, 18 Nov 2001 20:50:28 -0500 (EST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3BEF7FD8.D9FFB716@home.com> from "Nicholas Miell" at Nov 11, 2001 11:52:56 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.19i-ja0
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been running 2.4.14 since it came out and it works fine.  Try
-running with/without the linux kernel agpgart.  That is, try it with the
-nVidia agp driver and with the kernel agpgart to see if that may be
-the problem.  If you need help you can ask people on IRC at
-irc.openprojects.net, channel #nvidia.
+Nicholas Miell writes:
+
+> With all the recent discussion about ACLs and Linux on
+> linux-kernel, I was wondering why the ACL implementations
+> for Linux are based off the withdrawn POSIX 1003.1e draft
+> 17?
+
+As a group, we are short-sighted herd followers.
+
+> Is there any particular reason why this was chosen for
+> the basis for the Linux ACL system, besides the fact
+> that its what everybody else did? (It is a only a
+> withdrawn draft after all, there's no reason to actually
+> follow it...)
+> 
+> Wouldn't a more flexible solution, perhaps one based on 
+> the NFSv4 ACL design[1] be better?
+
+Of course it would be better, but then we'd all argue over
+the details. (compatibility, API, user interface...)
+
+> Because the NFSv4 design is in effect a superset of the
+> POSIX 1003.1e draft functionality, all Unix filesystems
+> with ACLs could be easily supported by the Linux VFS, and
+> the task of implementing NFSv4, NTFS, and SMB would be
+> made easier[2] because of it.
+
+Sure. Problem is, few have seen NFSv4 ACLs. There is also a
+prejudice against anything that even remotely resembles NT,
+never minding if it is better or is what businesses want.

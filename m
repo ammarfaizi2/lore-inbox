@@ -1,57 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262088AbUCLNZu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 08:25:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262090AbUCLNZu
+	id S262090AbUCLNcO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 08:32:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262099AbUCLNcO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 08:25:50 -0500
-Received: from prosun.first.gmd.de ([194.95.168.2]:5609 "EHLO
-	prosun.first.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S262088AbUCLNZs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 08:25:48 -0500
-Subject: 2.6.4 - powerbook 15" - usb oops+backtrace
-From: Soeren Sonnenburg <kernel@nn7.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1079097936.1837.102.camel@localhost>
-Mime-Version: 1.0
-Date: Fri, 12 Mar 2004 14:25:36 +0100
-Content-Transfer-Encoding: 7bit
+	Fri, 12 Mar 2004 08:32:14 -0500
+Received: from zero.aec.at ([193.170.194.10]:43526 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S262090AbUCLNcM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 08:32:12 -0500
+To: Joe Thornber <thornber@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.4-mm1
+References: <1yygN-7Ut-65@gated-at.bofh.it> <1yyqt-83X-23@gated-at.bofh.it>
+	<1yyqs-83X-17@gated-at.bofh.it> <1yyJK-8mD-41@gated-at.bofh.it>
+	<1yzPs-1bI-21@gated-at.bofh.it> <1yGe9-7Rk-23@gated-at.bofh.it>
+	<1yI6f-1Bj-3@gated-at.bofh.it> <1yQdz-1Uf-7@gated-at.bofh.it>
+	<1yRCI-3lE-19@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Fri, 19 Mar 2004 06:58:26 +0100
+In-Reply-To: <1yRCI-3lE-19@gated-at.bofh.it> (Joe Thornber's message of
+ "Fri, 12 Mar 2004 11:00:20 +0100")
+Message-ID: <m3k71htm2l.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Joe Thornber <thornber@redhat.com> writes:
 
-I got this oops when inserting mouse/keyboard (both usb).
+> Fix ioctl breakage on x86-64.
+> --- diff/include/linux/dm-ioctl.h	2004-03-11 10:20:28.000000000 +0000
+> +++ source/include/linux/dm-ioctl.h	2004-03-12 09:44:58.000000000 +0000
+> @@ -187,23 +187,37 @@ enum {
+>  	DM_TABLE_STATUS_CMD,
+>  };
+>  
+> +/*
+> + * The dm_ioctl struct passed into the ioctl is just the header
+> + * on a larger chunk of memory.  On x86-64 the dm-ioctl struct
+> + * will be padded to an 8 byte boundary so the size will be
+> + * different, which would change the ioctl code - yes I really
+> + * messed up.  This hack forces x86-64 to have the correct ioctl
+> + * code.
+> + */
+> +#ifdef CONFIG_X86_64
+> +typedef char ioctl_struct[308];
+> +#else
+> +typedef struct dm_ioctl ioctl_struct;
+> +#endif
 
-usb 1-1: new low speed USB device using address 4
-input: USB HID v1.00 Mouse [Cypress Sem USB Mouse] on usb-0001:01:18.0-1
-Oops: kernel access of bad area, sig: 11 [#1]
-NIP: 5A5A5A58 LR: C026D8B0 SP: ED6B1E10 REGS: ed6b1d60 TRAP: 0401    Not
-tainted
-MSR: 40009032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
-TASK = edb87320[1332] 'pbbuttonsd' Last syscall: 5 
-GPR00: 5A5A5A5A ED6B1E10 EDB87320 C1991894 E2DB789C 00000000 E7909300
-ED6B1DC0 
-GPR08: 00000000 00000000 C03DA5A0 00000005 84000428 
-Call trace:
- [c02704ac] evdev_open+0x64/0x104
- [c026e814] input_open_file+0x98/0x1cc
- [c00675a8] chrdev_open+0xe0/0x16c
- [c005c0b4] dentry_open+0x15c/0x230
- [c005bf54] filp_open+0x64/0x68
- [c005c43c] sys_open+0x68/0xa0
- [c0005d3c] ret_from_syscall+0x0/0x44
-usb 2-1: new low speed USB device using address 4
-input: USB HID v1.00 Keyboard [PTC HID PS/2 Keyboard - PS/2 Mouse] on
-usb-0001:01:19.0-1
-input: USB HID v1.00 Mouse [PTC HID PS/2 Keyboard - PS/2 Mouse] on
-usb-0001:01:19.0-1
+That's bad because it will break binary compatibility for existing
+x86-64 systems.  Don't add that please. Either emulate it properly
+or I will just declare the 32bit DM emulation broken and users will
+have to live with that.
 
-Thanks for any suggestions...
-
-I can probably give more infos as xmon is compiled in the kernel here.
-
-Thanks in advance,
-Soeren.
+-Andi
 

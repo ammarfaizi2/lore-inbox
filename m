@@ -1,50 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266008AbRF1QLJ>; Thu, 28 Jun 2001 12:11:09 -0400
+	id <S266016AbRF1QST>; Thu, 28 Jun 2001 12:18:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266012AbRF1QK7>; Thu, 28 Jun 2001 12:10:59 -0400
-Received: from mail1.danielind.com ([12.19.96.6]:29201 "EHLO
-	mail1.danielind.com") by vger.kernel.org with ESMTP
-	id <S266008AbRF1QKw>; Thu, 28 Jun 2001 12:10:52 -0400
-Message-ID: <3B3B57F3.FE7F81B5@daniel.com>
-Date: Thu, 28 Jun 2001 11:14:43 -0500
-From: Vipin Malik <vipin.malik@daniel.com>
-Organization: Daniel Industries
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.13 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: chuckw@altaserv.net
-CC: Aaron Lehmann <aaronl@vitelus.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        David Woodhouse <dwmw2@infradead.org>, alan@lxorguk.ukuu.org.uk,
-        jffs-dev@axis.com, linux-kernel@vger.kernel.org
-Subject: Re: Cosmetic JFFS patch.
-In-Reply-To: <Pine.LNX.4.33.0106280732480.10308-100000@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii
+	id <S266012AbRF1QSK>; Thu, 28 Jun 2001 12:18:10 -0400
+Received: from AMontpellier-201-1-2-148.abo.wanadoo.fr ([193.253.215.148]:38149
+	"EHLO awak") by vger.kernel.org with ESMTP id <S266013AbRF1QR5>;
+	Thu, 28 Jun 2001 12:17:57 -0400
+Subject: 2.4.5-ac19: hang on IDE DVD read error
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: liste noyau linux <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.10.99 (Preview Release)
+Date: 28 Jun 2001 18:13:38 +0200
+Message-Id: <993744819.9219.12.camel@nomade>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A /proc/credits maybe?
+Hi,
 
-Vipin
+I retested my scratched DVD on 2.4.5-ac19, and the machine still hangs
+(when using drip) after spitting a few errors in the log:
+Jun 28 00:32:55 bip kernel: Info fld=0x1f49e0, Current sd0b:00: sense key Medium Error
+Jun 28 00:32:55 bip kernel: Additional sense indicates Unrecovered read error
+Jun 28 00:32:55 bip kernel:  I/O error: dev 0b:00, sector 8202112
 
+As I'm under X, I had no chance to try Magic Sysreq. But machine doesn't
+respond on pings.
+A have a Dual PIII, via686b, Hitachi DVD-ROM GD-7500 on builtin IDE
+controler.
+I'm booting with 'noapic acpi=no-idle', more info on demand.
 
-
-
-chuckw@altaserv.net wrote:
-
-> > > Linux NET4.0 for Linux 2.4
-> > > Based upon Swansea University Computer Society NET3.039
-> >
-> > The later line is not something of interest to most people, and if it
-> > happens to be they can research it rather than being force-fed history
-> > on bootup.
->
-> I've never met a single person who shared that opinion. In fact, quite the
-> contrary. It's the main source of currency in this space. If you can't
-> toot your own horn and/or share credit what's all of this open source
-> stuff worth? We aren't all Mother Theresa now...
->
-> -Chuck
+Xav
 

@@ -1,58 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261540AbVCWMRH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261552AbVCWMYa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261540AbVCWMRH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 07:17:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbVCWMRH
+	id S261552AbVCWMYa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 07:24:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261562AbVCWMYa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 07:17:07 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:44761 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261540AbVCWMQ7 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 07:16:59 -0500
-Date: Wed, 23 Mar 2005 12:16:54 +0000
-From: Willem Riede <osst@riede.org>
-Subject: Re: [2.6 patch] drivers/scsi/osst.c: remove unused code
-To: Adrian Bunk <bunk@stusta.de>
-Cc: osst-users@lists.sourceforge.net, James.Bottomley@SteelEye.com,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20050322215948.GP1948@stusta.de>
-In-Reply-To: <20050322215948.GP1948@stusta.de> (from bunk@stusta.de on Tue
-	Mar 22 16:59:48 2005)
-X-Mailer: Balsa 2.3.0
-Message-Id: <1111580214l.12349l.37l@serve.riede.org>
-MIME-Version: 1.0
+	Wed, 23 Mar 2005 07:24:30 -0500
+Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:673 "EHLO
+	faui03.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id S261552AbVCWMYZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 07:24:25 -0500
+Date: Wed, 23 Mar 2005 13:24:23 +0100
+From: Peter Baumann <Peter.B.Baumann@stud.informatik.uni-erlangen.de>
+To: linux-kernel@vger.kernel.org
+Subject: [Bug] invalid mac address after rebooting (kernel 2.6.11.5)
+Message-ID: <20050323122423.GA24316@faui00u.informatik.uni-erlangen.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 03/22/2005 04:59:48 PM, Adrian Bunk wrote:
-> Thanks to both the Coverity checker and GNU gcc, it was found that this 
-> variable is completely unused.
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-And it is so obvious when your attention is drawn to it.
-The code that did use it moved to os_scsi_tape_flush() recently.
+I'm hitting an annoying bug in kernel 2.6.11.5
 
-James, could you make this change in BK too, please?
+Every time I _reboot_ (warmstart) my pc my two network cards won't get
+recognized any longer.
 
-Signed-off-by: Willem Riede <osst@riede.org>
+Following error message appears on my screen:
 
-> --- linux-2.6.12-rc1-mm1-full/drivers/scsi/osst.c.old	2005-03-22 21:04:36.000000000 +0100
-> +++ linux-2.6.12-rc1-mm1-full/drivers/scsi/osst.c	2005-03-22 22:09:32.000000000 +0100
-> @@ -4770,9 +4770,6 @@ static int os_scsi_tape_close(struct ino
->  {
->  	int		      result = 0;
->  	struct osst_tape    * STp    = filp->private_data;
-> -	struct scsi_request * SRpnt  = NULL;
-> -
-> -	if (SRpnt) scsi_release_request(SRpnt);
->  
->  	if (STp->door_locked == ST_LOCKED_AUTO)
->  		do_door_lock(STp, 0);
-> 
+PCI: Enabling device 0000:00:0b.0 (0000 -> 0003)
+ACPI: PCI interrupt 0000:00:0b.0[A] -> GSI 19 (level, low) -> IRQ 19
+3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
+0000:00:0b.0: 3Com PCI 3c905B Cyclone 100baseTx at 0x1000. Vers LK1.1.19
+PCI: Setting latency timer of device 0000:00:0b.0 to 64
+*** EEPROM MAC address is invalid.
+3c59x: vortex_probe1 fails.  Returns -22
+3c59x: probe of 0000:00:0b.0 failed with error -22
+PCI: Enabling device 0000:00:0d.0 (0000 -> 0003)
+ACPI: PCI interrupt 0000:00:0d.0[A] -> GSI 19 (level, low) -> IRQ 19
+0000:00:0d.0: 3Com PCI 3c905B Cyclone 100baseTx at 0x1080. Vers LK1.1.19
+PCI: Setting latency timer of device 0000:00:0d.0 to 64
+*** EEPROM MAC address is invalid.
+3c59x: vortex_probe1 fails.  Returns -22
+3c59x: probe of 0000:00:0d.0 failed with error -22
 
+This doesn't happen with older kernels (especially with 2.6.10) and so
+I've done a binary search and narrowed it down to 2.6.11-rc5 where it
+first hits me.
 
+My config, lspci output and the dmesg output of the working and non-working
+version can be found at [1]
+
+Feel free to ask if any information is missing or if I am supposed to try
+a patch.
+
+Greetings,
+  Peter Baumann
+
+PS: Please reply to me directly as I am not subscribed to lkml
+
+[1] http://wwwcip.informatik.uni-erlangen.de/~siprbaum/kernel

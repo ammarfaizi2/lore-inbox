@@ -1,37 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261558AbTCZKiV>; Wed, 26 Mar 2003 05:38:21 -0500
+	id <S261545AbTCZKfd>; Wed, 26 Mar 2003 05:35:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261559AbTCZKiU>; Wed, 26 Mar 2003 05:38:20 -0500
-Received: from userbb201.dsl.pipex.com ([62.190.241.201]:59299 "EHLO
-	irishsea.home.craig-wood.com") by vger.kernel.org with ESMTP
-	id <S261558AbTCZKiT>; Wed, 26 Mar 2003 05:38:19 -0500
-Date: Wed, 26 Mar 2003 10:48:56 +0000
-From: Nick Craig-Wood <ncw1@axis.demon.co.uk>
-To: Greg KH <greg@kroah.com>
-Cc: Pavel Roskin <proski@gnu.org>, linux-kernel@vger.kernel.org
-Subject: Re: Preferred way to load non-free firmware
-Message-ID: <20030326104856.GA31375@axis.demon.co.uk>
-References: <Pine.LNX.4.50.0303252007420.6656-100000@marabou.research.att.com> <20030326041146.GD20858@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030326041146.GD20858@kroah.com>
-User-Agent: Mutt/1.4i
+	id <S261550AbTCZKfd>; Wed, 26 Mar 2003 05:35:33 -0500
+Received: from mail2.sonytel.be ([195.0.45.172]:55690 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S261545AbTCZKfc>;
+	Wed, 26 Mar 2003 05:35:32 -0500
+Date: Wed, 26 Mar 2003 11:46:38 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Andries.Brouwer@cwi.nl
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Linux 2.5.66
+In-Reply-To: <Pine.GSO.4.21.0303261142390.20738-100000@vervain.sonytel.be>
+Message-ID: <Pine.GSO.4.21.0303261145480.20738-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 25, 2003 at 08:11:46PM -0800, Greg KH wrote:
-> > 7) Encode the firmware into a header file, add it to the driver and
-> > pretend that the copyright issue doesn't exist (like it's done in the
-> > Keyspan USB driver).
+On Wed, 26 Mar 2003, Geert Uytterhoeven wrote:
+> On Tue, 25 Mar 2003 Andries.Brouwer@cwi.nl wrote:
+> > Good! But I don't see my compilation fixes. Will resend.
+> > Below a new one.
+> > 
+> > Andries
+> > 
+> > diff -u --recursive --new-file -X /linux/dontdiff a/fs/partitions/msdos.c b/fs/partitions/msdos.c
+> > --- a/fs/partitions/msdos.c	Mon Feb 24 23:02:56 2003
+> > +++ b/fs/partitions/msdos.c	Tue Mar 25 06:22:31 2003
+> > @@ -219,7 +219,7 @@
+> >   * Create devices for BSD partitions listed in a disklabel, under a
+> >   * dos-like partition. See parse_extended() for more information.
+> >   */
+> > -static void
+> > +void
+> >  parse_bsd(struct parsed_partitions *state, struct block_device *bdev,
+> >  		u32 offset, u32 size, int origin, char *flavour,
+> >  		int max_partitions)
 > 
-> Hey, that's the way I like doing this stuff :)
+> Doesn't it make sense to move parse_bsd() to a separate file? Else we have to
+> add a dependency on MSDOS_PARTITION to NEC98_PARTITION.
 
-If you do this the Debian kernel mainainers will mercilessly rip your
-non-free driver firmware from the standard Debian kernel.  At least
-that is what happened with the Keyspan :-(
+Should have been: ... if BSD_DISKLABEL is set.
 
--- 
-Nick Craig-Wood
-ncw1@axis.demon.co.uk
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

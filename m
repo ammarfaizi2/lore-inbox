@@ -1,71 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263276AbSKRRM7>; Mon, 18 Nov 2002 12:12:59 -0500
+	id <S263105AbSKRRSn>; Mon, 18 Nov 2002 12:18:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263204AbSKRRM7>; Mon, 18 Nov 2002 12:12:59 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:29411 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S263105AbSKRRM6>;
-	Mon, 18 Nov 2002 12:12:58 -0500
-Subject: Re: Bugzilla bug tracking database for 2.5 now available.
-To: Larry McVoy <lm@bitmover.com>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-       linux-kernel-owner@vger.kernel.org, Larry McVoy <lm@bitmover.com>
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OFA53C05E4.3A74A1DA-ON85256C75.005D75FE@pok.ibm.com>
-From: "Khoa Huynh" <khoa@us.ibm.com>
-Date: Mon, 18 Nov 2002 11:19:36 -0600
-X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.11 +SPRs MIAS5EXFG4, MIAS5AUFPV
- and DHAG4Y6R7W, MATTEST |November 8th, 2002) at 11/18/2002 12:19:40 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S263204AbSKRRSn>; Mon, 18 Nov 2002 12:18:43 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:11535 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S263105AbSKRRSm>;
+	Mon, 18 Nov 2002 12:18:42 -0500
+Date: Mon, 18 Nov 2002 18:25:17 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Cc: Bill Davidsen <davidsen@tmr.com>, Sam Ravnborg <sam@ravnborg.org>,
+       Nicolas Pitre <nico@cam.org>, Andreas Steinmetz <ast@domdv.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: make distclean and make dep??
+Message-ID: <20021118172517.GA6825@mars.ravnborg.org>
+Mail-Followup-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+	Bill Davidsen <davidsen@tmr.com>, Sam Ravnborg <sam@ravnborg.org>,
+	Nicolas Pitre <nico@cam.org>, Andreas Steinmetz <ast@domdv.de>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.3.96.1021117024753.18748B-100000@gatekeeper.tmr.com> <Pine.LNX.4.44.0211181034100.24137-100000@chaos.physics.uiowa.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0211181034100.24137-100000@chaos.physics.uiowa.edu>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Nov 18, 2002 at 10:36:20AM -0600, Kai Germaschewski wrote:
+> But when do you need the "clean + rm .config*" behavior? I don't see that 
+> to be such a common case.
+> 
+> That's why I think two targets are enough, "clean" to remove the files
+> generated during the build and "distclean" to remove all other extra stuff
+> to. And just keep mrproper to be an alias for distclean, since that's what
+> "mrproper" traditionally was (AFAIK, Linus used it that way).
 
-Larry McVoy wrote:
+People are used to a mrproper that does NOT delete their editor
+backup files and patch rejects. Thats the only arguments against
+mrproper=distclean.
 
->That's the goal.  I'm hacking on it it currently, we have some issues with
->how it works today, I'll try and get a bk-3.0.1 release out the door which
->fixes them.
->
->The current format is may be seen with a
->
->            bk changes -k -r<rev>
->
->where <rev> is the changeset revision you want.  You'll get something like
->this:
->
->            torvalds@home.transmeta.com|ChangeSet|20021115061315|00914
->
->That's sort of big and ugly, and it currently doesn't work as a name
->in BK/Web.  I'm debugging an implementation of md5 sums of the above
->to see if we can use that instead.  I'll let you know as soon as I
->have something which works.
->
->Assuming that we get some format like dSD4okOiGmLGDcqOTpQPFQ== then
->you'll be able to view the cset with the following URL
->
->
-http://linux.bkbits.net:8080/linux-2.5/cset@dSD4okOiGmLGDcqOTpQPFQ==
->
->and that will always work and never get you different data.
+The main purpose should be to have a clear and logical
+distingush between the two/three.
+As it is today people are confused, and there is no consistency - 
+especially between architectures.
 
-Thanks.  Back when we were setting up the OSDL kernel bugzilla, I thought
-about having a direct, unique URL link between the bugzilla bug reports
-and csets in BK, but could not find anything -- like you said, the revs
-changes as you move the changesets from one repository to another.  So
-I am very happy that you are going to provide a unique URL link for each
-cset.  Please let me know when you get this done and we will have
-a separate field (called "Changeset Link") in kernel bugzilla to hold this.
+I'm fine with a change that moves MRPROPER_{DIRS,FILES} to clean - except
+.config.
+But I'm not fine with the current situation where I have to say goodbye
+to all my .rej files + xx~ files just to force a full recompile.
 
-We expect that bug owners, after putting their patches into BK, will obtain
-the cset "name", and enter it into the "Changeset Link" field in the bug
-report.  After hitting the "Commit" button, the kernel bugzilla will
-translate the cset "name" into a URL link like you indicated above.
+I will do a new patch tomorrow.
 
-This would allow people to view bugs, and if there are already fixes in
-BK for those bugs, they can get directly to the fixes (changesets).
-
-Khoa
-
+	Sam
 

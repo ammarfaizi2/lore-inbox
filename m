@@ -1,48 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132756AbRDQQlc>; Tue, 17 Apr 2001 12:41:32 -0400
+	id <S132757AbRDQQqX>; Tue, 17 Apr 2001 12:46:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132757AbRDQQlM>; Tue, 17 Apr 2001 12:41:12 -0400
-Received: from arpa.it.uc3m.es ([163.117.139.120]:51984 "EHLO arpa.it.uc3m.es")
-	by vger.kernel.org with ESMTP id <S132756AbRDQQlD>;
-	Tue, 17 Apr 2001 12:41:03 -0400
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200104171640.f3HGeRb32326@oboe.it.uc3m.es>
-Subject: block devices don't work without plugging in 2.4.3
-To: "linux kernel" <linux-kernel@vger.kernel.org>
-Date: Tue, 17 Apr 2001 18:40:27 +0200 (MET DST)
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S132758AbRDQQqO>; Tue, 17 Apr 2001 12:46:14 -0400
+Received: from core.devicen.de ([62.159.186.206]:44050 "EHLO core.devicen.de")
+	by vger.kernel.org with ESMTP id <S132757AbRDQQqD>;
+	Tue, 17 Apr 2001 12:46:03 -0400
+Date: Tue, 17 Apr 2001 18:45:52 +0200
+From: Oliver Teuber <teuber@core.devicen.de>
+To: jgarzik@mandrakesoft.com
+Cc: linux-kernel@vger.kernel.org
+Subject: epic100 error
+Message-ID: <20010417184552.A6727@core.devicen.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, anyway, as far as I can tell, the following has been lost from
-__make_request() in ll_rw_blk.c since the 2.4.0 days:
+hi
 
- out:
--       if (!q->plugged)
--               (q->request_fn)(q);
-        if (freereq)
+my smc epic100 card does not work with the device driver from
+linux-2.4.3-ac7. 
 
-The result appears to be that if a block device has called
-blk_queue_pluggable() to register a no-op plug_fn, then
-q->plugged will never be set (it's the duty of the plug_fn),
-and the devices registered request function wil never be called.
+linux-2.2.19 works fine for me.
 
-This behaviour is distinct from 2.4.0, where registering a 
-no-op made things work fine.
+please take a look at my /var/log/messages ...
 
-Is the policy now supposed to be that we do some more work
-in the "no-op"?  What am I supposed to do if I don't want
-plugging(1)(2)?
+Apr 17 09:37:27 olibox kernel: epic100.c:v1.11 1/7/2001 Written by Donald Becker <becker@scyld.com>
+Apr 17 09:37:27 olibox kernel:   http://www.scyld.com/network/epic100.html
+Apr 17 09:37:27 olibox kernel:  (unofficial 2.4.x kernel port, version 1.1.6, January 11, 2001)
+Apr 17 09:37:27 olibox kernel: PCI: Found IRQ 10 for device 00:09.0
+Apr 17 09:37:27 olibox kernel: epic100(00:09.0): MII transceiver #3 control 3000 status 7809.
+Apr 17 09:37:27 olibox kernel: epic100(00:09.0): Autonegotiation advertising 01e1 link partner 0001.
+Apr 17 09:37:27 olibox kernel: eth0: SMSC EPIC/100 83c170 at 0xe800, IRQ 10, 00:e0:29:09:c9:f0.
+Apr 17 09:37:27 olibox kernel: eth0: Setting full-duplex based on MII #3 link partner capability of 45e1.
+Apr 17 09:37:27 olibox kernel: eth0: Too much work at interrupt, IntrStatus=0x008d0004.
+Apr 17 09:37:55 olibox kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Apr 17 09:37:55 olibox kernel: eth0: Transmit timeout using MII device, Tx status 4003.
+Apr 17 09:37:55 olibox kernel: eth0: Restarting the EPIC chip, Rx 1/1 Tx 2/12.
+Apr 17 09:37:55 olibox kernel: eth0: epic_restart() done, cmd status 000a, ctl 0512 interrupt 240000.
+Apr 17 09:37:56 olibox kernel: eth0: Setting half-duplex based on MII #3 link partner capability of 0001.                                                          
 
-(1) goes away and looks ....
-(2) actually, I do want plugging, but I like to keep the
-    no-plug option around so that I can benchmark the difference
-    and also provide a very conservative option setting.
+...
 
-Peter
+Apr 17 09:38:15 olibox kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Apr 17 09:38:15 olibox kernel: eth0: Transmit timeout using MII device, Tx status 000b.
+Apr 17 09:38:15 olibox kernel: eth0: Restarting the EPIC chip, Rx 1/1 Tx 7/17.
+Apr 17 09:38:15 olibox kernel: eth0: epic_restart() done, cmd status 000a, ctl 0512 interrupt 240000.
+Apr 17 09:38:19 olibox kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Apr 17 09:38:19 olibox kernel: eth0: Transmit timeout using MII device, Tx status 000b.
+Apr 17 09:38:19 olibox kernel: eth0: Restarting the EPIC chip, Rx 1/1 Tx 8/17.
+Apr 17 09:38:19 olibox kernel: eth0: epic_restart() done, cmd status 000a, ctl 0512 interrupt 240000.
+Apr 17 09:38:23 olibox kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Apr 17 09:38:23 olibox kernel: eth0: Transmit timeout using MII device, Tx status 000b.
+Apr 17 09:38:23 olibox kernel: eth0: Restarting the EPIC chip, Rx 1/1 Tx 9/17.
+Apr 17 09:38:23 olibox kernel: eth0: epic_restart() done, cmd status 000a, ctl 0512 interrupt 240000.
+Apr 17 09:38:27 olibox kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Apr 17 09:38:27 olibox kernel: eth0: Transmit timeout using MII device, Tx status 000b.
+Apr 17 09:38:27 olibox kernel: eth0: Restarting the EPIC chip, Rx 1/1 Tx 10/17.
+Apr 17 09:38:27 olibox kernel: eth0: epic_restart() done, cmd status 000a, ctl 0512 interrupt 240000.
+Apr 17 09:38:27 olibox kernel: eth0: Too much work at interrupt, IntrStatus=0x008d0004.
+Apr 17 09:38:31 olibox kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Apr 17 09:38:31 olibox kernel: eth0: Transmit timeout using MII device, Tx status 000b.
+Apr 17 09:38:31 olibox kernel: eth0: Restarting the EPIC chip, Rx 1/1 Tx 11/17.
+Apr 17 09:38:31 olibox kernel: eth0: epic_restart() done, cmd status 000a, ctl 0512 interrupt 240000.                                                              
+
+...
+
+olibox:/var/log # cat /proc/interrupts
+           CPU0
+  0:    2068590          XT-PIC  timer
+  1:      51210          XT-PIC  keyboard
+  2:          0          XT-PIC  cascade
+  5:     355790          XT-PIC  es1371
+  8:          1          XT-PIC  rtc
+ 10:      95257          XT-PIC  eth0
+ 12:     625009          XT-PIC  PS/2 Mouse
+ 13:          1          XT-PIC  fpu
+ 14:     304339          XT-PIC  ide0
+ 15:          8          XT-PIC  ide1
+NMI:          0                                                                                                                                                    
+
+olibox:/var/log # lspci
+00:00.0 Host bridge: VIA Technologies, Inc. VT82C691 [Apollo PRO] (rev 06)
+00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598 [Apollo MVP3 AGP]
+00:07.0 ISA bridge: VIA Technologies, Inc. VT82C596 ISA [Apollo PRO] (rev 07)
+00:07.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev 06)
+00:07.3 Host bridge: VIA Technologies, Inc.: Unknown device 3050
+00:09.0 Ethernet controller: Standard Microsystems Corp [SMC] 83C170QF (rev 06)
+00:0b.0 Multimedia audio controller: Ensoniq ES1371 [AudioPCI-97] (rev 06)
+01:00.0 VGA compatible controller: nVidia Corporation Riva TnT2 [NV5] (rev 11)                                                                                     
+ 
+00:09.0 Ethernet controller: Standard Microsystems Corp [SMC] 83C170QF (rev 06)
+        Subsystem: Standard Microsystems Corp [SMC] EtherPower II 10/100
+        Flags: bus master, fast devsel, latency 32, IRQ 10
+        I/O ports at e800
+        Memory at e1000000 (32-bit, non-prefetchable)
+        Expansion ROM at e0000000 [disabled]
+                                                                                                                                                                   
+
+yours, oliver teuber
+
+

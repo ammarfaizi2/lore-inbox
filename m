@@ -1,65 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267317AbRG0PCS>; Fri, 27 Jul 2001 11:02:18 -0400
+	id <S267159AbRG0PCS>; Fri, 27 Jul 2001 11:02:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267602AbRG0PCL>; Fri, 27 Jul 2001 11:02:11 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:19472 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S267317AbRG0PCC>; Fri, 27 Jul 2001 11:02:02 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Joshua Schmidlkofer <menion@srci.iwpsd.org>,
-        Hans Reiser <reiser@namesys.com>
+	id <S267317AbRG0PCM>; Fri, 27 Jul 2001 11:02:12 -0400
+Received: from d122251.upc-d.chello.nl ([213.46.122.251]:41484 "EHLO
+	arnhem.blackstar.nl") by vger.kernel.org with ESMTP
+	id <S267159AbRG0PCB>; Fri, 27 Jul 2001 11:02:01 -0400
+From: bvermeul@devel.blackstar.nl
+Date: Fri, 27 Jul 2001 17:04:48 +0200 (CEST)
+To: Hans Reiser <reiser@namesys.com>
+cc: kernel <linux-kernel@vger.kernel.org>
 Subject: Re: ReiserFS / 2.4.6 / Data Corruption
-Date: Fri, 27 Jul 2001 17:06:46 +0200
-X-Mailer: KMail [version 1.2]
-Cc: kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0107271515200.10139-100000@devel.blackstar.nl> <0107270818120A.06707@widmers.oce.srci.oce.int>
-In-Reply-To: <0107270818120A.06707@widmers.oce.srci.oce.int>
+In-Reply-To: <3B617F34.FE1EE755@namesys.com>
+Message-ID: <Pine.LNX.4.33.0107271653210.12396-100000@devel.blackstar.nl>
 MIME-Version: 1.0
-Message-Id: <0107271706460G.00285@starship>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Friday 27 July 2001 16:18, Joshua Schmidlkofer wrote:
-> I've almost quit using reiser, because everytime I have a power
-> outage, the last 2 or three files that I've editted, even ones that I
-> haven't touched in a while, will usually be hopelessly corrupted.
+On Fri, 27 Jul 2001, Hans Reiser wrote:
 
-My early flush patch will fix this, or at least it will if I get 
-together with the ReiserFS guys and figure out how to integrate their 
-flushing mechanism with the standard bdflush.  Or they could 
-incorporate the ideas from my early flush in their own flush daemon, 
-though generalizing the standard flush would have more value in the 
-long run.
+> we all have different usage patterns and different needs.  I find it
+> extremely convenient to not be using ext2 when my dell laptop with its
+> poor linux power management crashes frequently, or the kernel crashes.
+> I have never had any problem with data corruption.  Many users I know
+> have also had good experiences with leaving behind ext2 and going to
+> reiserfs on their laptops.  For your needs and patterns though, it
+> sounds like you need ext3.
 
-> The '<file>~' that Emacs makes is usually fine though.
+The point is, this can happen every time the kernel crashes, and reiserfs
+wrote something to it's metadata logs (or so I gather from your and Alan's
+explanation). And apart from my source files getting randomly distributed,
+reiserfs works like a charm (I have a Dell as well, and it used to crash a
+lot, which was the main reason for me to switch to reiserfs in the first
+place), is fast, and stable. I like it a lot, but not on a machine where I
+do my development on, nor a machine without a UPS. It just doesn't help
+not knowing if/when a file gets corrupted/wrongly distributed/written
+back/whatever.
 
-Because it's "created" by a rename.
+It looks to me (with all my ignorance) that reiserfs shuffles it's blocks
+a lot when writing back, and that bites when something interrupts it.
+I can't back that up with code, put my finger to it or anything else, but
+that's my take on my problems.
 
-[...]
->     Once,  I lost power in on my SQL box, [it was blessedly during a
-> period of no use.]  I had to rebuild all the indexes.  Not  only
-> THAT, but what happens to that box if I lose power whilst in the
-> middle of operations? I am working on the migration plan to move that
-> to XFS because of these concerns. [However, I am doing a better job
-> of testing with XFS first.]
+Bas Vermeulen
 
-Help is on its way.  You can try full-data journalling with the journal 
-on NVRAM or on a separate disk.  You can also wait for me to get a 
-usable version of Tux2 working.  It's progressed a little slowly 
-because of frequent side trips ;-)  But hopefully I'll be able to do 
-something about that soon.
+-- 
+"God, root, what is difference?"
+	-- Pitr, User Friendly
 
-Which flavor of SQL are you using?  Are the indices in separate files?  
-(Sounds like they are.)
+"God is more forgiving."
+	-- Dave Aronson
 
->   I think that Reiser is cool, and has neat ideology, but I am
-> un-nerved by this behaviour.
-
-I think it's not hard to fix.
-
---
-Daniel

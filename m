@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265835AbUBGVUR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 16:20:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265838AbUBGVUR
+	id S265939AbUBGV2v (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 16:28:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265838AbUBGV2v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 16:20:17 -0500
-Received: from smtp-out7.blueyonder.co.uk ([195.188.213.10]:51606 "EHLO
-	smtp-out7.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S265835AbUBGVUO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 16:20:14 -0500
-Message-ID: <4025568D.5070800@blueyonder.co.uk>
-Date: Sat, 07 Feb 2004 21:20:13 +0000
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Sat, 7 Feb 2004 16:28:51 -0500
+Received: from mta5.srv.hcvlny.cv.net ([167.206.5.78]:31192 "EHLO
+	mta5.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S265939AbUBGV2R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Feb 2004 16:28:17 -0500
+Date: Sat, 07 Feb 2004 16:29:36 -0500
+From: Robert F Merrill <griever@t2n.org>
+Subject: 2.6.2-mm1 won't compile (been doing this since 2.6.1-mm2 or so)
 To: linux-kernel@vger.kernel.org
-Subject: RE: Cisco vpnclient prevents proper shutdown starting with 2.6.2
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Feb 2004 21:20:13.0041 (UTC) FILETIME=[2C5EA610:01C3EDC0]
+Message-id: <402558C0.5010100@t2n.org>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107
+ Debian/1.5-3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Meinhard E. Mayer wrote:
- > Until version 2.6.1 the Cisco VPN module (version 4.0.3(B)) cisco_ipsec,
- > although "tainted" worked fine with all 2.4.22 and 2.6 kernel versions.
- > However, for 2.6.2, although the module compiles and loads, starting the
- > vpnclient hangs, and the client cannot be stoped (i.e.
- > /etc/init.d/vpnclient_init stop also hangs, and therefore both shutdown
- > and reboot of the computer do not complete, and I was forced to "pull
- > the plug." Fortunately the journaled file system prevented serious
- > damage.
- >
- > I used the same .config (which I append) for compiling 2.6, 2.6.1, and
- > 2.6.2, so I assume that something in your networking drivers must have
- > changed to cause this bug.
- >
- > I would appreciate any suggestions for fixing this problem, since I need
- > VPN to access the University library.
-I tried using this client with up to 2.6.1-mm5 and ended up with  Dead 
-processes for cvpnd and vpnclient, nothing else was affected, went back 
-to 2.4.x kernel.
-Regards
-Sid
+When I upgraded to 2.6.1-mm4, I did the usual thing, copied my old 
+.config from 2.6.1-mm1 and did make oldconfig.
 
--- 
-Sid Boyce .... Hamradio G3VBV and keen Flyer
-Linux Only Shop.
+However, when I run make, this happens:
+
+include/asm/processor.h:68: error: `CONFIG_X86_L1_CACHE_SHIFT' 
+undeclared here (not in a function)
+include/asm/processor.h:68: error: requested alignment is not a constant
+make[1]: *** [arch/i386/kernel/asm-offsets.s] Error 1
+
+
+The only way I've found to fix this is to add a manual #define for this 
+symbol to autoconf.h
+
+The config option IS in i386/defconfig, but for some reason doesn't get 
+put into .config
+
+if I add it to .config manually, it gets removed when I run make (?!?).
+
+I don't think this happens if I delete .config and make one from scratch.
+
 

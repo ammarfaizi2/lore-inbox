@@ -1,74 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261312AbTEYEUr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 May 2003 00:20:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbTEYEUr
+	id S261323AbTEYEXC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 May 2003 00:23:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261324AbTEYEXC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 May 2003 00:20:47 -0400
-Received: from vsat-148-64-8-86.c119.t7.mrt.starband.net ([148.64.8.86]:260
-	"EHLO chaos.mshome.net") by vger.kernel.org with ESMTP
-	id S261312AbTEYEUp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 May 2003 00:20:45 -0400
-Date: Sat, 24 May 2003 22:33:20 -0600
-From: Robert Creager <Robert_Creager@LogicalChaos.org>
-To: linux-kernel@vger.kernel.org
-Subject: Problem with virtually no buffer usage in 2.4.21mdk kernel
-Message-Id: <20030524223320.7c1ac413.Robert_Creager@LogicalChaos.org>
-Organization: Starlight Vision, LLC.
-X-Mailer: Sylpheed version 0.8.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.qD0gm5wG3w1/.h"
+	Sun, 25 May 2003 00:23:02 -0400
+Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:5004 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id S261323AbTEYEXB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 May 2003 00:23:01 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: I/O problems in 2.4.19/2.4.20/2.4.21-rc3
+Date: Sun, 25 May 2003 14:37:57 +1000
+User-Agent: KMail/1.5.1
+Cc: Christian Klose <christian.klose@freenet.de>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200305231405.54599.christian.klose@freenet.de> <200305251127.40516.kernel@kolivas.org> <20030525042803.GA8978@holomorphy.com>
+In-Reply-To: <20030525042803.GA8978@holomorphy.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200305251437.57464.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.qD0gm5wG3w1/.h
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+On Sun, 25 May 2003 14:28, William Lee Irwin III wrote:
+> On Sun, May 25, 2003 at 11:27:20AM +1000, Con Kolivas wrote:
+> > Even though you're not Marc I do agree with you. The problem is well
+> > described as either poor interactivity (the window wiggle test) or
+> > starvation in the presence of certain scheduler hogs (for whatever
+> > reason) since the interactivity patch from mingo. Dropping the max
+> > timeslice is a bandaid but destroys priority based timeslice
+> > scheduling. Dropping the min timeslice will bring this back, but at
+> > some point the timeslice will be so low that low priority cpu
+> > intensive tasks will spend most of their time cache trashing.
+>
+> The fact that it's a "bandaid" and that it "destroys priority-based
+> timeslice scheduling" makes it a shenanigan. If you're having problems
 
+I don't disagree it's a shenanigan.
 
-[Please CC me personally, as I'm not subscribed]
+> solved by capping timeslices, you have someone's timeslice and/or
+> priority growing too large for some reason.
 
-Hey folks,
+So there is a benefit to timeslices being as large as 200ms? I'll take your 
+word for it.
 
-I'm using a custom built 2.4.21 kernel from the Mandrake 9.1 distribution.  The hardware is dual AMD Athlon 2600+ system with 2Gb of registered DDR ECC memory, SCSI and ATA disks.
+> It'd be far better to help figure out what went wrong.
 
-My apparent problem is I'm seeing virtually no buffer usage, as checked from /proc/meminfo.  The system has been up for 11 days, with heavy dB and file access activity (Gb's worth per day), yet the buffer usage never budges.  Am I missing something fundamental, have I boffed the kernel build, or is there a problem?  I would appreciate any pointers.
+Love to help. No idea where to begin. All we can do is report what helps the 
+symptoms and hope those in the know can decipher it from that.
 
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  2119151616 2068426752 50724864        0    90112 1888358400
-Swap: 2089177088 70832128 2018344960
-MemTotal:      2069484 kB
-MemFree:         49536 kB
-MemShared:           0 kB
-Buffers:            88 kB
-Cached:        1823808 kB
-SwapCached:      20292 kB
-Active:        1209640 kB
-Inactive:       712324 kB
-HighTotal:     1179136 kB
-HighFree:         2044 kB
-LowTotal:       890348 kB
-LowFree:         47492 kB
-SwapTotal:     2040212 kB
-SwapFree:      1971040 kB
-
-Thanks for your time,
-Rob
-
--- 
-O_
-
---=.qD0gm5wG3w1/.h
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iEYEARECAAYFAj7QR5EACgkQgy51bQc2FFkIdwCg3h6/6edI4AuxL+uT/cyWOgJ/
-zx8AnjFrTJeCApNqbGspLWo88rw2Jxl1
-=AfKr
------END PGP SIGNATURE-----
-
---=.qD0gm5wG3w1/.h--
-
+Con

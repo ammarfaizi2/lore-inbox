@@ -1,65 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271747AbRIJV00>; Mon, 10 Sep 2001 17:26:26 -0400
+	id <S271759AbRIJV0G>; Mon, 10 Sep 2001 17:26:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271789AbRIJV0R>; Mon, 10 Sep 2001 17:26:17 -0400
-Received: from d117.dhcp212-140.cybercable.fr ([212.198.140.117]:20572 "HELO
-	pridamix.molteni.net") by vger.kernel.org with SMTP
-	id <S271747AbRIJV0F>; Mon, 10 Sep 2001 17:26:05 -0400
-Message-ID: <3B9D3001.AF91D8B4@molteni.net>
-Date: Mon, 10 Sep 2001 23:26:25 +0200
-From: Olivier Molteni <olivier@molteni.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Oops NFS Locking in 2.4.x
-In-Reply-To: <3B9C0D36.3EA20B24@molteni.net> <shsae03fizs.fsf@charged.uio.no>
-Content-Type: text/plain; charset=us-ascii
+	id <S271757AbRIJVZr>; Mon, 10 Sep 2001 17:25:47 -0400
+Received: from johnson.mail.mindspring.net ([207.69.200.177]:43806 "EHLO
+	johnson.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S271747AbRIJVZa>; Mon, 10 Sep 2001 17:25:30 -0400
+Subject: Re: Preemption patch, some more feedback
+From: Robert Love <rml@tech9.net>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0109101132410.4681-100000@toy.mandrakesoft.com>
+In-Reply-To: <Pine.LNX.4.30.0109101132410.4681-100000@toy.mandrakesoft.com>
+X-Mailer: Evolution/0.13.99+cvs.2001.09.08.07.08 (Preview Release)
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.13.99+cvs.2001.09.08.07.08 (Preview Release)
+Date: 10 Sep 2001 17:26:08 -0400
+Message-Id: <1000157173.18895.24.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
+On Mon, 2001-09-10 at 11:41, Francis Galiegue wrote:
+> Machine is Athlon 650, AMD Viper chipset, 256 MB RAM. Kernel is
+> 2.4.9-ac10 + preempt patch + irc_conntrack patch from iptables.
+> 
+> The preempt patch largely improves multimedia latency (no surprise on
+> that), I can watch a DivX smoothly (with mplayer, gfx being Matrox G400)
+> and compile various stuff behind.
+> 
+> However, a very simple command destroys this completely:
+> 
+> cat /dev/zero >/dev/null
+> 
+> DivX playback then becomes sluggish, no visible difference in this case
+> between stock kernel and "preempt" kernel.
 
->
-> Looks like 2 processes are trying to free the same lock. The problem
-> is that both processes can call filp_close() at the same
-> time (by calling sys_close()).
->
-> The bug boils down to:
->
->    -  locks_unlock_delete() assumes that the BKL (kernel_lock()) is
->       sufficient to protect against *thisfl_p from disappearing
->       beneath it due to some second process.
-> BUT
->    -  The call to lock() in locks_unlock_delete() sleeps when the
->       underlying filesystem is NFS, hence 2 processes can race despite
->       the BKL assumption.
->
-> Cheers,
->    Trond
+A long-term lock must be held for the duration of `cat /dev/zero >
+/dev/null' -- i dont know if it is in the access to /dev/null or
+/dev/zero or in the basic file operation itself.
 
-Hi (2),
+as long as a lock is held, preemption can not occur.
 
-While searching on the sourceforge nfs list, I saw your message 4583160
-posted on 10/31/2000 08:14:42 and concerning "[NFS] [PATCH] fix deadlocks
-+ blocking in 2.4.0 pre6/7 knfsd locking..."
-You give a patch modifying fs/loks.c wher, among other things, you were
-added the new function locks_unlock_delete().
+what do we do? for the short term, and the benefit of everyone (UP, SMP,
+and preemption users) we need to eliminate long-held locks with a better
+solution.
 
-Do you know if all the patch had been included in the kernel or if some
-part that deals with deadlocks were omited for some reasons ?
-Do you think this corrections failed to definitively fix the deadlocks
-problems ?
+in the long term, we can look at having the preemption patch use various
+different types of locks (priority locks, spin then sleep locks, etc.)
 
-You are talking about semaphores in your post, do you think it's a
-possible way to follow in order to fix the situation ?
-
-
-Cheers,
-Olivier.
-
-
+-- 
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
 

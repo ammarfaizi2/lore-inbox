@@ -1,99 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265904AbTLaAqz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 19:46:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265908AbTLaAqz
+	id S265879AbTLaAog (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 19:44:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265904AbTLaAod
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 19:46:55 -0500
-Received: from h24-76-142-122.wp.shawcable.net ([24.76.142.122]:3345 "HELO
-	signalmarketing.com") by vger.kernel.org with SMTP id S265904AbTLaAqw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 19:46:52 -0500
-Date: Tue, 30 Dec 2003 18:46:44 -0600 (CST)
-From: Derek Foreman <manmower@signalmarketing.com>
-X-X-Sender: manmower@uberdeity
-To: Tomas Szepe <szepe@pinerecords.com>
-cc: DervishD <raul@pleyades.net>, Eugene <spamacct11@yahoo.com>,
-       linux-kernel@vger.kernel.org,
-       "ynezz @ hysteria. sk" <ynezz@hysteria.sk>
-Subject: Re: best AMD motherboard for Linux
-In-Reply-To: <20031230194203.GA8062@louise.pinerecords.com>
-Message-ID: <Pine.LNX.4.58.0312301354130.765@uberdeity>
-References: <3FEF0AFD.4040109@yahoo.com> <20031228172008.GA9089@c0re.hysteria.sk>
- <3FEF0AFD.4040109@yahoo.com> <20031228174828.GF3386@DervishD>
- <20031229165620.GF30794@louise.pinerecords.com> <Pine.LNX.4.58.0312301144340.467@uberdeity>
- <20031230194203.GA8062@louise.pinerecords.com>
+	Tue, 30 Dec 2003 19:44:33 -0500
+Received: from sabe.cs.wisc.edu ([128.105.6.20]:19210 "EHLO sabe.cs.wisc.edu")
+	by vger.kernel.org with ESMTP id S265879AbTLaAob (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 19:44:31 -0500
+Message-ID: <3FF21BE1.9070603@cs.wisc.edu>
+Date: Tue, 30 Dec 2003 16:44:17 -0800
+From: Mike Christie <michaelc@cs.wisc.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031016
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>
+CC: Miquel van Smoorenburg <miquels@cistron.nl>, linux-lvm@sistina.com,
+       linux-kernel@vger.kernel.org, Nick Piggin <piggin@cyberone.com.au>,
+       Jens Axboe <axboe@suse.de>
+Subject: Re: System hangs after echo value > /sys/block/dm-0/queue/nr_requests
+References: <20031229130055.GA30647@cistron.nl> <20031230034239.27950054.akpm@osdl.org>
+In-Reply-To: <20031230034239.27950054.akpm@osdl.org>
+Content-Type: multipart/mixed;
+ boundary="------------020807000803000903020304"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Dec 2003, Tomas Szepe wrote:
+This is a multi-part message in MIME format.
+--------------020807000803000903020304
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> On Dec-30 2003, Tue, 12:32 -0600
-> Derek Foreman <manmower@signalmarketing.com> wrote:
->
-> > > > > planning to get GeForce FX graphics card, if it makes a difference.
-> > > >
-> > > >     Ask here before if you are planning to change your video card.
-> > >
-> > > nVidia translates to "trouble" around here.  Selected Radeon cards,
-> > > on the other hand, work perfectly with opensource drivers and should
-> > > perform comparably.
-> >
-> > I'm not sure how you're defining "comparably".  If you mean they get
-> > similar numbers from glxgears, that's possible.  But the feature sets are
-> > not at all comparable.  Nvidia's linux driver actually exposes the
-> > features available on modern graphics hardware.
-> >
-> > If you're going to advise against the use of their products in a public
-> > forum, I suggest you be a lot more specific.
->
-> The person asking for advice was very articulate in what their primary
-> concerns in choosing hardware were, and my suggestion was made with those
-> in mind.
+Andrew Morton wrote:
 
-His primary requirement was that it (the motherboard) work well with
-linux.  He stated that he was capable of installing drivers if he had to,
-but it would be even better if it wasn't required.
+> Where queue_requests_store() does wake_up(&rl->wait[READ]);
+> 
+> It looks like nobody has called blk_init_queue() for this queue and the
+> waitqueue head is uninitialised.
+> 
 
-Open source drivers, or whether nvidia fits your idea of a "linux
-supporting company" were not on the stated list of requirements.
+DM, MD, rd and loop use blk_alloc_queue and blk_queue_make_request to 
+initialize their queue, because they only use the make_request_fn. The 
+attached patch prevents the queue from being registered if only 
+blk_alloc_queue was called.
 
-In fact, the message wasn't even asking for an opinion on the graphics
-card.
+Mike Christie
 
->            Yes, I'm convinced that a binary only driver is not an adequate
-> solution in "supporting linux."
+--------------020807000803000903020304
+Content-Type: text/plain;
+ name="queue_attr.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="queue_attr.patch"
 
-Paying people to write the driver, write documentation for the driver, and
-provide technical support for the driver does not meet your requirements
-for "supporting linux"...  Your requirements seem steep indeed.
+--- linux-2.6.0-orig/drivers/block/ll_rw_blk.c	2003-12-28 23:09:16.000000000 -0800
++++ linux-2.6.0/drivers/block/ll_rw_blk.c	2003-12-30 16:11:00.690504036 -0800
+@@ -2902,7 +2902,7 @@ int blk_register_queue(struct gendisk *d
+ 
+ 	request_queue_t *q = disk->queue;
+ 
+-	if (!q)
++	if (!q || !q->request_fn)
+ 		return -ENXIO;
+ 
+ 	q->kobj.parent = kobject_get(&disk->kobj);
+@@ -2929,7 +2929,7 @@ void blk_unregister_queue(struct gendisk
+ {
+ 	request_queue_t *q = disk->queue;
+ 
+-	if (q) {
++	if (q && q->request_fn) {
+ 		elv_unregister_queue(q);
+ 
+ 		kobject_unregister(&q->kobj);
 
-There are a lot of drivers in the linux source tree itself that are
-just as closed to you and I as the nvidia ones.  Lots of companies only
-give out their documentation under NDA to "appropriate open source
-developers" (I thought one of the great things about opensource was that
-everyone was an "appropriate developer").  So while we can look at the
-source code, we don't have enough information about it to provide adequate
-peer review or to fix bugs in it ourselves.
+--------------020807000803000903020304--
 
-We still have to contact whoever has the complete documentation, and we
-still have to wait for them to make a fix available.
-
-> And by the way, you are not being specific in naming the "features
-> available on modern graphics hardware," either.
-
-Vertex programs, fragment programs, vertex buffer objects, to name a few
-things.  These are also available in the closed source ATI drivers.
-
-Run glxinfo and look at the gl version strings and the supported
-extensions.  I'll send you the output of mine off-list if you'd like to do
-a comparison.
-
-If you really do have specific complaints about nvidia's drivers, it
-would be polite to email them first - they do reply to their linux-bugs
-email address.
-
-Just claiming "nvidia translates into trouble" is really nothing more
-than FUD.

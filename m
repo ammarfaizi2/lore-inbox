@@ -1,75 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316614AbSIJQ6R>; Tue, 10 Sep 2002 12:58:17 -0400
+	id <S316683AbSIJQ7j>; Tue, 10 Sep 2002 12:59:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316610AbSIJQ6R>; Tue, 10 Sep 2002 12:58:17 -0400
-Received: from swazi.realnet.co.sz ([196.28.7.2]:11669 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S316683AbSIJQ6P>; Tue, 10 Sep 2002 12:58:15 -0400
-Date: Tue, 10 Sep 2002 19:26:17 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@mwaikambo.name>
-X-X-Sender: zwane@linux-box.realnet.co.sz
-To: Greg Kroah-Hartmann <greg@kroah.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH][2.4-ac] trivial ohci fixes
-Message-ID: <Pine.LNX.4.44.0209101922480.1100-100000@linux-box.realnet.co.sz>
+	id <S316838AbSIJQ7j>; Tue, 10 Sep 2002 12:59:39 -0400
+Received: from dsl-213-023-020-046.arcor-ip.net ([213.23.20.46]:39634 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S316683AbSIJQ7i>;
+	Tue, 10 Sep 2002 12:59:38 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Andrew Morton <akpm@digeo.com>
+Subject: Re: invalidate_inode_pages in 2.5.32/3
+Date: Tue, 10 Sep 2002 18:57:01 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Rik van Riel <riel@conectiva.com.br>, trond.myklebust@fys.uio.no,
+       Chuck Lever <cel@citi.umich.edu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <E17natE-0006OB-00@starship> <E17oWsf-0006vQ-00@starship> <3D7D2175.53BFE81D@digeo.com>
+In-Reply-To: <3D7D2175.53BFE81D@digeo.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17ooJx-0007EG-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg, Alan,
-	This is just a trivial patch for the following, and also a 
-buglet (clear_bit usb_register/derister race there?) fix
+On Tuesday 10 September 2002 00:32, Andrew Morton wrote:
+> Daniel Phillips wrote:
+> > 
+> > > > void invalidate_inode_pages(struct inode *inode)
+> > > > {
+> > > >         truncate_inode_pages(mapping, 0);
+> > > > }
+> > > >
+> > > > Is it any harder than that?
+> > >
+> > > Pretty much - need to leave i_size where it was.
+> > 
+> > This doesn't touch i_size.
+> 
+> Sorry - I was thinking vmtruncate(). truncate_inode_pages() would
+> result in all the mmapped pages becoming out-of-date anonymous
+> memory.  NFS needs to take down the pagetables so that processes
+> which are mmapping the file which changed on the server will take
+> a major fault and read a fresh copy.  I believe.
 
-usb-uhci.c: $Revision: 1.1.1.1 $ time 21:43:25 Sep  8 2002
-usb-uhci.c: High bandwidth mode enabled
-usb-uhci.c: v1.275:USB Universal Host Controller Interface driver
-usb-ohci.c: USB OHCI at membase 0xd0012000, IRQ 11
-usb-ohci.c: usb-00:01.2, Silicon Integrated Systems [SiS] 7001
-usb-ohci.c: USB HC TakeOver failed!
-usb.c: USB bus -1 deregistered <--
-
-Index: linux-2.4.20-pre5-ac4/drivers/usb//usb-ohci.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.4.20-pre5-ac4/drivers/usb/usb-ohci.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 usb-ohci.c
---- linux-2.4.20-pre5-ac4/drivers/usb//usb-ohci.c	8 Sep 2002 18:05:41 -0000	1.1.1.1
-+++ linux-2.4.20-pre5-ac4/drivers/usb//usb-ohci.c	8 Sep 2002 21:28:56 -0000
-@@ -2440,8 +2440,9 @@
- 	}
- 	pci_set_drvdata(ohci->ohci_dev, NULL);
- 	if (ohci->bus) {
--		if (ohci->bus->busnum)
-+		if (ohci->bus->busnum != -1)
- 			usb_deregister_bus (ohci->bus);
-+
- 		usb_free_bus (ohci->bus);
- 	}
- 
-Index: linux-2.4.20-pre5-ac4/drivers/usb//usb.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.4.20-pre5-ac4/drivers/usb/usb.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 usb.c
---- linux-2.4.20-pre5-ac4/drivers/usb//usb.c	8 Sep 2002 18:05:41 -0000	1.1.1.1
-+++ linux-2.4.20-pre5-ac4/drivers/usb//usb.c	8 Sep 2002 19:24:48 -0000
-@@ -457,11 +457,10 @@
- 	 */
- 	down (&usb_bus_list_lock);
- 	list_del(&bus->bus_list);
-+	clear_bit(bus->busnum, busmap.busmap);
- 	up (&usb_bus_list_lock);
- 
- 	usbdevfs_remove_bus(bus);
--
--	clear_bit(bus->busnum, busmap.busmap);
- 
- 	usb_bus_put(bus);
- }
+Oh, um.  Yes, we need the additional pte zapping behaviour of 
+vmtruncate_list.  It doesn't look particularly hard to produce a
+variant of vmtruncation that does (doesn't do) what you suggest.
+Let's see how the discussion goes with the NFS crowd.
 
 -- 
-function.linuxpower.ca
-
+Daniel

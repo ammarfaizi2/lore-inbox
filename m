@@ -1,95 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275675AbRJJNCE>; Wed, 10 Oct 2001 09:02:04 -0400
+	id <S275709AbRJJNUi>; Wed, 10 Oct 2001 09:20:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275680AbRJJNBy>; Wed, 10 Oct 2001 09:01:54 -0400
-Received: from wiprom2mx1.wipro.com ([203.197.164.41]:39632 "EHLO
-	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
-	id <S275675AbRJJNBp>; Wed, 10 Oct 2001 09:01:45 -0400
-Message-ID: <3BC446E0.5020604@wipro.com>
-Date: Wed, 10 Oct 2001 18:32:24 +0530
-From: "BALBIR SINGH" <balbir.singh@wipro.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Balbir Singh <balbir.singh@wipro.com>
-CC: landley@trommello.org, Andrew Morton <akpm@zip.com.au>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: is reparent_to_init a good thing to do?
-In-Reply-To: <3BC3118B.8050001@wipro.com> <3BC3223E.902FB7E@zip.com.au> <01100916261802.09423@localhost.localdomain> <3BC42E65.3060706@wipro.com>
-Content-Type: multipart/mixed;
-	boundary="------------InterScan_NT_MIME_Boundary"
+	id <S275716AbRJJNU1>; Wed, 10 Oct 2001 09:20:27 -0400
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:9381 "EHLO
+	mailout04.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S275709AbRJJNUJ>; Wed, 10 Oct 2001 09:20:09 -0400
+Date: Wed, 10 Oct 2001 15:05:52 +0200
+From: Urs.Ganse@t-online.de (Urs Ganse)
+To: linux-kernel@vger.kernel.org
+Cc: gtoumi@messel.emse.fr
+Subject: fbmem.c lacks entries for sstfb
+Message-ID: <20011010150552.A244@interblob>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="WIyZ46R2i8wDzkSu"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This is a multi-part message in MIME format.
+--WIyZ46R2i8wDzkSu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
---------------InterScan_NT_MIME_Boundary
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi everyone!
 
-Balbir Singh wrote:
+Since 2.4.10, sstfb, the Voodoo 1/2 framebuffer driver is included in
+the kernel tree. It works fine as a module, but when it is compiled
+fixed into the kernel, it won't initialize 'cause the appropiate
+entries in fbmem.c are missing (they exist in the ac-branch,
+though). The patch is attached.
 
-> Rob Landley wrote:
->
->> Or long lived kernel threads from short lived login sessions.
->>
->> You have a headless gateway box for your local subnet, administered 
->> via ssh from a machine on the local subnet.  So you SSH into the box 
->> through eth1, ifconfig eth0 down back up again.  If eth0 is an 
->> rtl8039too, this fires off a kernel thread (which, before 
->> reparent_to_init, was parented to your ssh login session).
->>
->> Now exit the login session.  SSH does not exit until all the child 
->> processes exit, so it just hangs there until you kill it from another 
->> console window...
->>
->> Rob
->>
-> The question one can ask is what should a thread do then?
-> Should reparent_to_init() send a SIGCHLD to the process/task
-> that was parent before init became the parent? this should be easy
-> to do, but will this fix the problem? I think so.
->
-> I can patch up something soon, if somebody is willing to test it.
+Sincerely,
+	Urs Ganse
+--WIyZ46R2i8wDzkSu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=fbmem-patch
 
+--- linux/drivers/video/fbmem.c~	Wed Oct 10 12:42:47 2001
++++ linux/drivers/video/fbmem.c	Wed Oct 10 12:56:56 2001
+@@ -124,6 +124,8 @@
+ extern int e1355fb_setup(char*);
+ extern int pvr2fb_init(void);
+ extern int pvr2fb_setup(char*);
++extern int sstfb_init(void);
++extern int sstfb_setup(char*);
+ 
+ static struct {
+ 	const char *name;
+@@ -274,7 +276,9 @@
+ #ifdef CONFIG_FB_PVR2
+ 	{ "pvr2", pvr2fb_init, pvr2fb_setup },
+ #endif
+-
++#ifdef CONFIG_FB_VOODOO1
++	{ "sst", sstfb_init, sstfb_setup },
++#endif
+ 	/*
+ 	 * Generic drivers that don't use resource management (yet)
+ 	 */
 
-Ooh! sorry this is a wrong approach to send SIGCHLD to the previous parent.
-AFAIK, all shells send their children SIGHUP when the shell exits, but SSH
-may have some special security consideration in waiting for all children to
-exit, does anyone know?
-
-Balbir
-
->
-> comments,
-> Balbir
->
->
->
-
-
-
-
---------------InterScan_NT_MIME_Boundary
-Content-Type: text/plain;
-	name="Wipro_Disclaimer.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="Wipro_Disclaimer.txt"
-
-----------------------------------------------------------------------------------------------------------------------
-Information transmitted by this E-MAIL is proprietary to Wipro and/or its Customers and
-is intended for use only by the individual or entity to which it is
-addressed, and may contain information that is privileged, confidential or
-exempt from disclosure under applicable law. If you are not the intended
-recipient or it appears that this mail has been forwarded to you without
-proper authority, you are notified that any use or dissemination of this
-information in any manner is strictly prohibited. In such cases, please
-notify us immediately at mailto:mailadmin@wipro.com and delete this mail
-from your records.
-----------------------------------------------------------------------------------------------------------------------
-
-
---------------InterScan_NT_MIME_Boundary--
+--WIyZ46R2i8wDzkSu--

@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267883AbTBVLtV>; Sat, 22 Feb 2003 06:49:21 -0500
+	id <S267023AbTBVME5>; Sat, 22 Feb 2003 07:04:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267885AbTBVLtV>; Sat, 22 Feb 2003 06:49:21 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:36625 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id <S267883AbTBVLtU>;
-	Sat, 22 Feb 2003 06:49:20 -0500
-Date: Sat, 22 Feb 2003 12:59:23 +0100
-From: romieu@fr.zoreil.com
-To: Marc Haber <mh+linux-kernel@zugschlus.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ethernet-ATM-Router freezing
-Message-ID: <20030222125923.A14935@electric-eye.fr.zoreil.com>
-Reply-To: linux-kernel@vger.kernel.org
-References: <20030222084958.GC23827@torres.ka0.zugschlus.de> <20030222113416.A14834@electric-eye.fr.zoreil.com> <20030222112553.GB24580@torres.ka0.zugschlus.de>
+	id <S267024AbTBVME5>; Sat, 22 Feb 2003 07:04:57 -0500
+Received: from usen-43x235x12x234.ap-USEN.usen.ad.jp ([43.235.12.234]:61330
+	"EHLO miyazawa.org") by vger.kernel.org with ESMTP
+	id <S267023AbTBVME4>; Sat, 22 Feb 2003 07:04:56 -0500
+Date: Sat, 22 Feb 2003 21:15:26 +0900
+From: Kazunori Miyazawa <kazunori@miyazawa.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       usagi-core@linux-ipv6.org, kunihiro@ipinfusion.com
+Subject: Re: [PATCH] IPv6 IPSEC support
+Message-Id: <20030222211526.2884077a.kazunori@miyazawa.org>
+In-Reply-To: <20030222.031326.103246837.davem@redhat.com>
+References: <20030222202623.38d41d8a.kazunori@miyazawa.org>
+	<20030222.031326.103246837.davem@redhat.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030222112553.GB24580@torres.ka0.zugschlus.de>; from mh+linux-kernel@zugschlus.de on Sat, Feb 22, 2003 at 12:25:53PM +0100
-X-Organisation: Marie's fan club - III
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc Haber <mh+linux-kernel@zugschlus.de> :
-[...]
-> 00:0f.0 ATM network controller: FORE Systems Inc PCA-200E
->         Flags: bus master, medium devsel, latency 64, IRQ 9
->         Memory at efa00000 (32-bit, non-prefetchable) [size=2M]
->         Expansion ROM at effe0000 [disabled] [size=8K]
+On Sat, 22 Feb 2003 03:13:26 -0800 (PST)
+"David S. Miller" <davem@redhat.com> wrote:
 
-Ok, 2.4.20-ac1 made me fear an "guess who modified iphase driver" 
-answer :o)
+>    From: Kazunori Miyazawa <kazunori@miyazawa.org>
+>    Date: Sat, 22 Feb 2003 20:26:23 +0900
+> 
+>    I also moved the functions for ah, and esp.
+> 
+> I don't think this is so good idea...
+>    
+>    As a result of moving IPv6 IPsec functions to net/ipv4, it currently prevents to
+>    make IPv6 as a module.
+>    
+> This is one of the reasons why ah/esp ipv6 should stay under ipv6.
+> 
 
-[...]
-> I will downgrade one of the boxes to 2.4.20 later today. This is going
-> to be a busy weekend anyway :-(
+I will fix them and submit patch again.
 
-Finding the first non-working kernel may help but you really should
-include some more setup describing data (lspci -vv, lsmod and others
-as suggested in REPORTING-BUGS file).
+Thank you,
 
-Regards
-
---
-Ueimor
+--Kazunori Miyazawa (Yokogawa Electric Coporation)

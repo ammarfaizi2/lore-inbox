@@ -1,52 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264251AbUESPnp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264265AbUESPvP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264251AbUESPnp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 11:43:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264246AbUESPkk
+	id S264265AbUESPvP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 11:51:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264256AbUESPvO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 11:40:40 -0400
-Received: from gw0.infiniconsys.com ([65.219.193.226]:58351 "EHLO
-	mail.infiniconsys.com") by vger.kernel.org with ESMTP
-	id S264260AbUESPkC convert rfc822-to-8bit (ORCPT
+	Wed, 19 May 2004 11:51:14 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:986 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264246AbUESPu0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 11:40:02 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-Content-Class: urn:content-classes:message
+	Wed, 19 May 2004 11:50:26 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH] implement TIOCGSERIAL in sn_serial.c
+Date: Wed, 19 May 2004 11:50:08 -0400
+User-Agent: KMail/1.6.2
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, pfg@sgi.com,
+       Erik Jacobson <erikj@sgi.com>
+References: <200405191109.51751.jbarnes@engr.sgi.com> <200405191138.04086.jbarnes@engr.sgi.com> <20040519164156.A27947@infradead.org>
+In-Reply-To: <20040519164156.A27947@infradead.org>
 MIME-Version: 1.0
+Content-Disposition: inline
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: [PATCH] Add InfiniCon PCI ID to pci_ids.h
-Date: Wed, 19 May 2004 11:40:01 -0400
-Message-ID: <08628CA53C6CBA4ABAFB9E808A5214CB016973CC@mercury.infiniconsys.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [openib-general] Re: [PATCH] Add InfiniBand HCA IDs to pci_ids.h
-thread-index: AcQ9cC7jD6hyTfIuThas4thfSzSYnQAQ29Cg
-From: "Rimmer, Todd" <trimmer@infiniconsys.com>
-To: "Greg KH" <greg@kroah.com>
-Cc: <linux-kernel@vger.kernel.org>
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200405191150.08967.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We would like to have the InfiniCon PCI Vendor ID added to pci_ids.h
-Below is a context diff, which would would greatly appreciate if you
-applied and included in future kernel releases.
+On Wednesday, May 19, 2004 11:41 am, Christoph Hellwig wrote:
+> > Pat is working on that and should have a patch ready to post soon (is
+> > that right Pat?).  In the meantime, we need this little bit.
+>
+> Huh?  We need this little bit isn't exactly a patch desciption that gets
+> your patch included.
 
-===== include/linux/pci_ids.h 1.157 vs edited =====
---- 1.157/include/linux/pci_ids.h	Mon May 17 16:37:38 2004
-+++ edited/include/linux/pci_ids.h	Tue May 18 21:50:17 2004
-@@ -1885,6 +1890,8 @@
- #define PCI_VENDOR_ID_S2IO		0x17d5
- #define	PCI_DEVICE_ID_S2IO_WIN		0x5731
- #define	PCI_DEVICE_ID_S2IO_UNI		0x5831
-+
-+#define PCI_VENDOR_ID_INFINICON		0x1820
- 
- #define PCI_VENDOR_ID_ARC               0x192E
- #define PCI_DEVICE_ID_ARC_EHCI          0x0101
+Umm... I described the patch in the last mail.  I don't know when Pat will 
+have the conversion to the serial core interface done, but I have a need for 
+this ioctl now.  If you want to wait for the full blown version, then so be 
+it, I just hope it comes soon.
 
-
-Thank You,
-Todd Rimmer
-InfiniCon Systems
+Jesse

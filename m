@@ -1,71 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262124AbVBKNVb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262170AbVBKO24@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262124AbVBKNVb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 08:21:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262158AbVBKNVb
+	id S262170AbVBKO24 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 09:28:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262191AbVBKO24
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 08:21:31 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:40621 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S262124AbVBKNVW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 08:21:22 -0500
-Date: Fri, 11 Feb 2005 13:20:41 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Andrea Arcangeli <andrea@suse.de>
-cc: IWAMOTO Toshihiro <iwamoto@valinux.co.jp>, linux-kernel@vger.kernel.org,
-       lhms-devel@lists.sourceforge.net
-Subject: Re: [RFC] Changing COW detection to be memory hotplug friendly
-In-Reply-To: <20050211085239.GD18573@opteron.random>
-Message-ID: <Pine.LNX.4.61.0502111258310.7808@goblin.wat.veritas.com>
-References: <20050203035605.C981A7046E@sv1.valinux.co.jp> 
-    <Pine.LNX.4.61.0502072041130.30212@goblin.wat.veritas.com> 
-    <Pine.LNX.4.61.0502081549320.2203@goblin.wat.veritas.com> 
-    <20050210190521.GN18573@opteron.random> 
-    <Pine.LNX.4.61.0502101953190.6194@goblin.wat.veritas.com> 
-    <20050210204025.GS18573@opteron.random> 
-    <Pine.LNX.4.61.0502110710150.5866@goblin.wat.veritas.com> 
-    <20050211085239.GD18573@opteron.random>
+	Fri, 11 Feb 2005 09:28:56 -0500
+Received: from nina-2.cs.keele.ac.uk ([160.5.89.35]:16833 "EHLO
+	nina.cs.keele.ac.uk") by vger.kernel.org with ESMTP id S262170AbVBKO2w
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 09:28:52 -0500
+Subject: aacraid fails under kernel 2.6
+To: linux-kernel@vger.kernel.org
+Date: Fri, 11 Feb 2005 14:28:52 +0000 (GMT)
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E1Czbmu-0006yr-00@nina.cs.keele.ac.uk>
+From: Jonathan Knight <jonathan@cs.keele.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Feb 2005, Andrea Arcangeli wrote:
-> 
-> Ok, I'm quite convinced it's correct now. The only thing that can make
-> mapcount go up without the lock on the page without userspace
-> intervention (and userspace intervention would make it an undefined
-> behaviour like in my example with fork), was the swapin, and you covered
-> it by moving the unlock after page_add_anon_rmap (so mapcount changes
-> atomically with the page_swapcount there too). Swapoff was already doing
-> it under the page lock.
 
-Thanks a lot for thinking it through, yes, that's how it is.
 
-(For a while I felt nervous about moving that unlock_page below
-the arch-defined flush_icache_page; but then realized that since it's
-already done with page_table spinlock, PG_locked cannot be an issue.)
+We are having major problems with the aacraid module under fedora core 2 on
+Dell poweredge 2500.  These use PERC3/Di controllers.
 
-> Then we should use the mapcount/swapcount in remove_exclusive_swap_page
-> too.
+01:02.1 RAID bus controller: Dell Computer Corporation PowerEdge Expandable RAID Controller 3 (rev 01)
+01:0c.0 SCSI storage controller: Adaptec AHA-3960D / AIC-7899A U160/m (rev 01)
+01:0c.1 SCSI storage controller: Adaptec AHA-3960D / AIC-7899A U160/m (rev 01)
 
-Originally I thought so, but later wasn't so sure.  There might be
-somewhere which stabilizes PageSwapCache by incrementing page_count,
-rechecks it, waits to get lock_page, then assumes still PageSwapCache?
-(Though it's hard to see why it would need to make such an assumption,
-and in the equivalent file case would have to allow for truncation.)
 
-It just needs a wider audit than the simpler can_share_swap_page case,
-and can be done independently later on.
+interrupts are shared:
 
-By the way, while we're talking of remove_exclusive_swap_page:
-a more functional issue I sometimes wonder about, why don't we
-remove_exclusive_swap_page on write fault?  Keeping the swap slot
-is valuable if read fault, but once the page is dirtied, wouldn't
-it usually be better to free that slot and allocate another later?
+           CPU0
+  0:   16288777          XT-PIC  timer
+  1:         12          XT-PIC  i8042
+  2:          0          XT-PIC  cascade
+  5:    2332026          XT-PIC  aic7xxx, aacraid, eth0
+  7:       4402          XT-PIC  parport0
+  8:          1          XT-PIC  rtc
+  9:          0          XT-PIC  acpi
+ 10:          1          XT-PIC  ohci_hcd
+ 11:    1636985          XT-PIC  aic7xxx, eth1
+ 12:         66          XT-PIC  i8042
+ 14:        489          XT-PIC  ide0
+NMI:          0
+ERR:       4070
 
-But I'm always scared of making such changes to swapping, because
-I cannot imagine a good enough range of swap performance tests.
+We had no problems with Redhat 9 running a 2.4 kernel, but since our move to
+Fedora and the 2.6 kernel nothing has worked well.  The latest 2.6.10 build
+is the worst so far.  We've even gone and unpacked the rc3 for 2.6.11 and
+dug out the aacraid controller but that didn't perform any better.  We think
+2.6.8 was the most usable of the 2.6's so far.
 
-Hugh
+The systems run fine with no users, but as soon as the disks go under load
+we get the following:
+
+Feb 10 08:20:56 romeo kernel: aacraid: Host adapter reset request. SCSI hang ?
+Feb 10 08:21:56 romeo kernel: aacraid: SCSI bus appears hung
+Feb 10 08:21:56 romeo kernel: scsi: Device offlined - not ready after error recovery: host 2 channel 0 id 0 lun 0
+Feb 10 08:21:56 romeo kernel: SCSI error : <2 0 0 0> return code = 0x6000000
+Feb 10 08:21:56 romeo kernel: end_request: I/O error, dev sdc, sector 296582775
+Feb 10 08:21:56 romeo kernel: scsi2 (0:0): rejecting I/O to offline device
+Feb 10 08:21:56 romeo last message repeated 4 times
+Feb 10 08:21:56 romeo kernel: Buffer I/O error on device sdc1, logical block 33660323
+Feb 10 08:21:56 romeo kernel: scsi2 (0:0): rejecting I/O to offline device
+Feb 10 08:21:56 romeo kernel: Buffer I/O error on device sdc1, logical block 33660323
+....and so on.
+
+
+Careful rebooting shows nothing untoward on the raid array and the system
+will start with no problems.
+
+Does anyone know why these controllers are broken under 2.6 and whether
+there is any workaround we can implement?
+
+
+We did discover that the megaraid driver claims to support the PERC3/Di but
+couldn't get the module to recognise the card.  A check on the source code
+seems to show that the code for the PERC3/Di isn't present.
+
+-- 
+  ______    jonathan@cs.keele.ac.uk    Jonathan Knight,
+    /                                  Department of Computer Science
+   / _   __ Telephone: +44 1782 583437 University of Keele, Keele,
+(_/ (_) / / Fax      : +44 1782 713082 Staffordshire.  ST5 5BG.  U.K.

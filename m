@@ -1,65 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264980AbUHCLQL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265772AbUHCLUV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264980AbUHCLQL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 07:16:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265772AbUHCLQK
+	id S265772AbUHCLUV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 07:20:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265792AbUHCLUV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 07:16:10 -0400
-Received: from s124.mittwaldmedien.de ([62.216.178.24]:52642 "EHLO
-	s124.mittwaldmedien.de") by vger.kernel.org with ESMTP
-	id S264980AbUHCLQG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 07:16:06 -0400
-Message-ID: <410F7407.8070903@vcd-berlin.de>
-Date: Tue, 03 Aug 2004 13:16:23 +0200
-From: Elmar Hinz <elmar.hinz@vcd-berlin.de>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
-X-Accept-Language: en-us, en
+	Tue, 3 Aug 2004 07:20:21 -0400
+Received: from ecbull20.frec.bull.fr ([129.183.4.3]:48281 "EHLO
+	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S265772AbUHCLUQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 07:20:16 -0400
+Message-ID: <410F74E1.9020400@bull.net>
+Date: Tue, 03 Aug 2004 13:20:01 +0200
+From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: PATCH: Add support for IT8212 IDE controllers
-References: <2obsK-5Ni-13@gated-at.bofh.it>
-In-Reply-To: <2obsK-5Ni-13@gated-at.bofh.it>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+To: Andi Kleen <ak@muc.de>
+CC: linux-kernel@vger.kernel.org, riel@redhat.com
+Subject: Re: [Patch for review] BSD accounting IO stats
+References: <2oJkL-4sl-41@gated-at.bofh.it> <m3r7qpsoa4.fsf@averell.firstfloor.org>
+In-Reply-To: <m3r7qpsoa4.fsf@averell.firstfloor.org>
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 03/08/2004 13:24:51,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 03/08/2004 13:24:54,
+	Serialize complete at 03/08/2004 13:24:54
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> There is a messy scsi faking vendor driver for this card but this instead
-> is a standard Linux IDE layer driver.
-> 
+Andi Kleen wrote:
 
-I try to answer to this post. As I newly subscribed to this list, I 
-probably won't catch the original thread.
+>>diff -uprN -X dontdiff linux-2.6.8-rc2/drivers/block/ll_rw_blk.c linux-2.6.8-rc2+BSDacct_IO/drivers/block/ll_rw_blk.c
+>>--- linux-2.6.8-rc2/drivers/block/ll_rw_blk.c	2004-07-18 06:57:42.000000000 +0200
+>>+++ linux-2.6.8-rc2+BSDacct_IO/drivers/block/ll_rw_blk.c	2004-07-27 09:17:33.149321480 +0200
+>>@@ -1949,10 +1949,12 @@ void drive_stat_acct(struct request *rq,
+>> 
+>> 	if (rw == READ) {
+>> 		disk_stat_add(rq->rq_disk, read_sectors, nr_sectors);
+>>+		current->rblk += nr_sectors;
+>>    
+>>
+>
+>This doesn't look very useful, because most writes which
+>are flushed delayed would get accounted to pdflushd.
+>Using such inaccurate data for accounting sounds quite dangerous
+>to me.
+>  
+>
+I agree with that. Like you and Andrew said, this metric (write block) 
+is just an estimate (quite wrong indeed) of what really occurred in the 
+system because some writings are accounted elsewhere (pdflush or 
+journaling file system).
 
-After application of this patch I get the following error during 
-compilation. This are my first steps with kernel patching. Probably the 
-fault is on my side.
+I also agree that a rough estimation is not very interesting, therefore 
+I'm working on another patch to provide accurate values.
 
-Regards Elmar
-
-
-
-   CC      drivers/ide/pci/it8212.o
-drivers/ide/pci/it8212.c:643: error: `PCI_DEVICE_ID_ITE_8212' undeclared 
-here (not in a function)
-drivers/ide/pci/it8212.c:643: error: Initialisierungselement ist nicht 
-konstant
-drivers/ide/pci/it8212.c:643: error: (near initialization for 
-`it8212_pci_tbl[0].device')
-drivers/ide/pci/it8212.c:643: error: Initialisierungselement ist nicht 
-konstant
-drivers/ide/pci/it8212.c:643: error: (near initialization for 
-`it8212_pci_tbl[0]')
-drivers/ide/pci/it8212.c:644: error: Initialisierungselement ist nicht 
-konstant
-drivers/ide/pci/it8212.c:644: error: (near initialization for 
-`it8212_pci_tbl[1]')
-make[4]: *** [drivers/ide/pci/it8212.o] Fehler 1
-make[3]: *** [drivers/ide/pci] Fehler 2
-make[2]: *** [drivers/ide] Fehler 2
-make[1]: *** [drivers] Fehler 2
-make[1]: Verlasse Verzeichnis »/usr/src/linux-2.6.8-rc2«
-make: *** [stamp-build] Fehler 2
-
-
+Best,
+Guillaume

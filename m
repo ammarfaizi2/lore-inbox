@@ -1,75 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263053AbTCLGDk>; Wed, 12 Mar 2003 01:03:40 -0500
+	id <S263058AbTCLGEa>; Wed, 12 Mar 2003 01:04:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263058AbTCLGDk>; Wed, 12 Mar 2003 01:03:40 -0500
-Received: from almesberger.net ([63.105.73.239]:10000 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S263053AbTCLGDh>; Wed, 12 Mar 2003 01:03:37 -0500
-Date: Wed, 12 Mar 2003 03:14:08 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Daniel Phillips <phillips@arcor.de>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       Zack Brown <zbrown@tumblerings.org>, linux-kernel@vger.kernel.org
-Subject: Re: BitBucket: GPL-ed KitBeeper clone
-Message-ID: <20030312031407.W2791@almesberger.net>
-References: <200303020011.QAA13450@adam.yggdrasil.com> <20030311184043.GA24925@renegade> <22230000.1047408397@flay> <20030311192639.E72163C5BE@mx01.nexgo.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030311192639.E72163C5BE@mx01.nexgo.de>; from phillips@arcor.de on Tue, Mar 11, 2003 at 08:30:26PM +0100
+	id <S263061AbTCLGEa>; Wed, 12 Mar 2003 01:04:30 -0500
+Received: from divine.city.tvnet.hu ([195.38.100.154]:37674 "EHLO
+	divine.city.tvnet.hu") by vger.kernel.org with ESMTP
+	id <S263058AbTCLGE0>; Wed, 12 Mar 2003 01:04:26 -0500
+Date: Wed, 12 Mar 2003 07:07:26 +0100 (MET)
+From: Szakacsits Szabolcs <szaka@sienet.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.63 accesses below %esp (was: Re: ntfs OOPS (2.5.63))
+In-Reply-To: <b4lvk2$vcd$1@cesium.transmeta.com>
+Message-ID: <Pine.LNX.4.30.0303120622290.15538-100000@divine.city.tvnet.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
-> Coincidently, I was having a little think about that exact thing earlier 
-> today.  Suppose we call the process of turning an exact delta into a 
-> delta-with-context, "softening".
 
-Why not just make all deltas "soft" and just ignore the context in
-cases when you're absolutely sure you can ? (Provided that such
-cases exist and aren't trivial.)
+On 11 Mar 2003, Linus Torvalds wrote:
+>
+> If there is a well-known list of compilers, we should put a BIG warning
+> in some core kernel file to guide people to upgrade (or maybe work
 
-> A soft changeset can be carried forward in the database automatically as long 
-> as there are no conflicts
+Not enough, nobody would notice and today most end user doesn't
+compile the kernel himself, they are just shipped by a broken kernels.
 
-You probably also want to be able to apply them to different
-views, e.g. if I fix X, I may send it off to integration, and
-also apply it independently to my projects Y and Z. When X gets
-merged into whatever I consider my "mainstream" (again, that's a
-local decision, e.g. it may be Linus' tree, plus net/* and anything
-related to changes in net/* from David Miller), I may want to get
-notified, e.g. if there's a conflict, but also such that I can drop
-that part from my fix (which may contain elements that I didn't
-push yet).
+We *also* need a mechanism to know the kernel was compiled with a
+broken compiler (from kernel point of view of course, not the latest
+C++ features). Like the 'tainted' approach but this would be marked as
+broken/miscompiled/etc. To be able to tell the user *immediately* to
+complain to his vendor instead hunting/finding the bug again and
+again, as happening now.
 
-Not all of this needs to be known to the SCM if the right tagging
-tools are available to users. In fact, limiting the number of work
-flows inherently supported by the SCM would probably be a
-feature :-)
+I know all compiler is broken but the severities are different.
 
-> and generate a new soft changeset against some other version.  A name for the 
-> versioned soft changeset can be generated automatically, e.g.:
-> 
->    changset.name-from.version-to.version.
+> around it by forcing -fno-frame-pointer if that fixes it for the
+> affected compilers).
 
-Hmm, I'd distinguish three elements in a change set's name:
+I also doubt this. There are things suppose the code was compiled
+otherwise.
 
- - its history (i.e. all changesets applied to the file(s)
-   when the change set was created)
- - a globally unique ID
- - a human-readable title that doesn't need to be perfectly
-   unique
+> Do we have a list?
 
-I think, for simplicity, changesets should just carry their history
-with them. This can later be compressed, e.g. by omitting items
-before major convergence points (releases), by using automatically
-generated reference points, or simply by fetching additional
-information from a repository if needed (hairy).
+Impossible. Vendors have their own versioning when they patch the
+compiler.
 
-- Werner
+Only way I see is to detect it at build time, BIG warning to the user
+of compiler, print a well visible "kernel was built by broken tools"
+message at boot time to end users and marking the kernel 'broken' in
+case it oopses for developers.
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+And the badly broken compilers' case is closed. Once ..... well, at
+least for a given compiler bug, but the infrastructure would be there
+to deal with them in the future, if kernel can't workaround them.
+
+BTW, if possible having the Code both before and after when a fault
+happens could also help a lot in the future.
+
+And in general, an oops counter would be also useful, not spending too
+much time decoding potentialy bogus oopses.
+
+	Szaka
+

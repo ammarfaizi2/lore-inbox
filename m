@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271197AbTHLVRu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 17:17:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271195AbTHLVQT
+	id S271196AbTHLVS4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 17:18:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271203AbTHLVSz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 17:16:19 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:3992
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S271194AbTHLVQD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 17:16:03 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Simon Kirby <sim@netnation.com>
-Subject: Re: [PATCH]O14int
-Date: Wed, 13 Aug 2003 07:21:43 +1000
-User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org
-References: <20030808220821.61cb7174.lista1@telia.com> <200308101906.34807.kernel@kolivas.org> <20030812175651.GA12036@netnation.com>
-In-Reply-To: <20030812175651.GA12036@netnation.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 12 Aug 2003 17:18:55 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:12509 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S271196AbTHLVSU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 17:18:20 -0400
+Date: Tue, 12 Aug 2003 23:18:16 +0200
+From: Karel Kulhavy <clock@atrey.karlin.mff.cuni.cz>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Possible fix for NFORCE2 IDE hangups
+Message-ID: <20030812211816.GA22799@atrey.karlin.mff.cuni.cz>
+References: <3F3954EB.1080406@gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308130721.43967.kernel@kolivas.org>
+In-Reply-To: <3F3954EB.1080406@gmx.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Aug 2003 03:56, Simon Kirby wrote:
-> On Sun, Aug 10, 2003 at 07:06:34PM +1000, Con Kolivas wrote:
-> > Is this with or without my changes? The old scheduler was not very
-> > scalable; that's why we moved. The new one has other intrinsic issues
-> > that I (and others) have been trying to address, but is much much more
-> > scalable. It was not possible to make the old one more scalable, but it
-> > is possible to make this one more interactive.
->
-> Without your changes.  Are you changing the design or just tuning certain
-> cases?  I was talking more about the theory behind the scheduling
-> decisions and not about particular cases.
+> Hi.
+> 
+> I have an ASUS A7N8X Deluxe board and had those annoying hangups when 
+> the system had high disk activity.
+> I tried to reduce the UDMA level or even remove the amd74xx driver from 
+> my kernel and run the system with PIO, but the system still crashed from 
+> time to time.
 
-I'm just changing the algorithm that gives priority boost or penalty, and 
-creating code to further feedback into that algorithm.
+Yes, exactly the same experience. The frequency of crashes decreased,
+but the crashes were definitely still there!
 
-> The O(1) scheduler changes definitely help scalability and I don't have
-> any problem with that change (unless it introduced the behavior I'm
-> talking about).
+> 
+> Last weekend I disabled the use of the APIC (the system now uses XT-PIC) 
+> and this seems to fix the problem. The system ran stable with UDMA100 
+> enabled for the last 4 days.
 
+Did the famous "spurious interrupt" messages go away too?
+
+What does it mean for enduser if he disables APIC?
+
+I would try it, but I have returned the PC back to the shop for a
+warranty repair because I assumed the southbridge is simply wrong. They
+told me they'll replace the MB with KT400A piece.
+
+Is it possible to download nforce2 datasheets somewhere?
+
+Is it possible to download KT400A datasheets anywhere?
+
+I'm just waiting for anyone to make a GPL chipset.
+
+Cl<

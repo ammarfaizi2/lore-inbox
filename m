@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261322AbTABLAJ>; Thu, 2 Jan 2003 06:00:09 -0500
+	id <S261333AbTABLFN>; Thu, 2 Jan 2003 06:05:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261333AbTABLAJ>; Thu, 2 Jan 2003 06:00:09 -0500
-Received: from are.twiddle.net ([64.81.246.98]:46211 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S261322AbTABLAI>;
-	Thu, 2 Jan 2003 06:00:08 -0500
-Date: Thu, 2 Jan 2003 03:06:20 -0800
-From: Richard Henderson <rth@twiddle.net>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [TGAFB] implement more acceleration hooks; fbdev merge error
-Message-ID: <20030102030620.A821@twiddle.net>
-Mail-Followup-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+	id <S261337AbTABLFN>; Thu, 2 Jan 2003 06:05:13 -0500
+Received: from holomorphy.com ([66.224.33.161]:964 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S261333AbTABLFM>;
+	Thu, 2 Jan 2003 06:05:12 -0500
+Date: Thu, 2 Jan 2003 03:13:13 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: Linux v2.5.54
+Message-ID: <20030102111313.GR9704@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andi Kleen <ak@suse.de>, Rusty Russell <rusty@rustcorp.com.au>,
+	linux-kernel@vger.kernel.org
+References: <20030102043850.GP9704@holomorphy.com> <20030102105049.DE3FC2C252@lists.samba.org> <20030102105537.GA15052@wotan.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030102105537.GA15052@wotan.suse.de>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please pull from
+At some point in the past, Rusty Russell wrote:
+> Hmm, Andi played with the kallsyms code.  Unless this is in a module,
+> I don't think it can be me.
 
-	bk://are.twiddle.net/tga-2.5
+On Thu, Jan 02, 2003 at 11:55:38AM +0100, Andi Kleen wrote:
+> Yes it was me.
+> I already posted a patch to fix this.
+> -Andi
 
-The linux/fb.h fragment re-fixes a 64-bit portability problem.
+Thanks Andi for cleaning it up, and Rusty, you're blameless. I was only
+relying on you to point me in the proper direction for on-the-fly kernel
+code editing etc. issues.
 
 
-
-r~
-
-
-
-
- drivers/video/tgafb.c |  607 ++++++++++++++++++++++++++++++++++++++++++++++++--
- include/linux/fb.h    |    1 
- include/video/tgafb.h |    1 
- 3 files changed, 588 insertions, 21 deletions
-
-through these ChangeSets:
-
-<rth@are.twiddle.net> (03/01/02 1.934)
-   [FB] Re-add fb_readq for non-sparc.
-   
-   This was originally added in rev 1.26.1.2, then dropped 
-   during a merge in rev 1.33.  Please be more careful with
-   those merges, people.
-
-<rth@are.twiddle.net> (03/01/02 1.932)
-   [TGAFB] Implement the fb_copyarea hook.
-
-<rth@are.twiddle.net> (02/12/31 1.911.4.34)
-   [TGAFB] Implement the fb_fillrect hook.
-
+Thanks,
+Bill

@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131327AbRCSCem>; Sun, 18 Mar 2001 21:34:42 -0500
+	id <S131336AbRCSDBR>; Sun, 18 Mar 2001 22:01:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131336AbRCSCeb>; Sun, 18 Mar 2001 21:34:31 -0500
-Received: from ruthenium.btinternet.com ([194.73.73.138]:34280 "EHLO ruthenium")
-	by vger.kernel.org with ESMTP id <S131327AbRCSCeS>;
-	Sun, 18 Mar 2001 21:34:18 -0500
-Date: Mon, 19 Mar 2001 02:33:03 +0000 (GMT)
-From: <davej@suse.de>
-X-X-Sender: <davej@athlon>
-To: <asenec@senechalle.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: /proc/cpuinfo for Intel P4 D850GB
-In-Reply-To: <200103190207.UAA13397@senechalle.net>
-Message-ID: <Pine.LNX.4.31.0103190231270.5005-100000@athlon>
+	id <S131344AbRCSDBH>; Sun, 18 Mar 2001 22:01:07 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:29968 "HELO
+	postfix.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S131336AbRCSDBA>; Sun, 18 Mar 2001 22:01:00 -0500
+Date: Sun, 18 Mar 2001 23:59:18 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: changing mm->mmap_sem  (was: Re: system call for process
+ information?)
+In-Reply-To: <Pine.LNX.4.31.0103181719440.2956-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0103182358200.13050-100000@imladris.rielhome.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 18 Mar 2001 asenec@senechalle.net wrote:
+On Sun, 18 Mar 2001, Linus Torvalds wrote:
+> On Sun, 18 Mar 2001, Rik van Riel wrote:
+> >
+> > Indeed, having threaded apps do multiple page faults at the
+> > same time is the main goal of this patch. However, I don't
+> > see how it would be good for scalability to have multiple
+> > threads fault in the same page at the same time, when they
+> > could just wait for one of them to do the work.
+> 
+> But they will.
+> 
+> That's what lock_page() etc are there for - there's no need for the VM
+> to synchronize because we already have the synchronization primitives
+> at a lower level.
 
-> On a 2.0.36 kernel the above-referenced mb
-> shows:
-> ...
-> Is the problem is due to the older 2.0.36 kernel,
-
-Yes.
-
-> or would the problem also present itself on a newer 2.2.x kernel?
-
-Current 2.2 and 2.4 are both fixed for this problem.
-
-
-This and a few other CPU related fixes should probably be backported
-to 2.0 if someone has the spare time.
+Indeed. I'll go multithread the do_no_page and do_swap_page
+functions tomorrow (maybe even tonight ;)).
 
 regards,
 
-Dave.
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
--- 
-| Dave Jones.        http://www.suse.de/~davej
-| SuSE Labs
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 

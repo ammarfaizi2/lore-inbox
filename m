@@ -1,133 +1,217 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267349AbSLRVRx>; Wed, 18 Dec 2002 16:17:53 -0500
+	id <S267347AbSLRV3G>; Wed, 18 Dec 2002 16:29:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267350AbSLRVRx>; Wed, 18 Dec 2002 16:17:53 -0500
-Received: from c16688.thoms1.vic.optusnet.com.au ([210.49.244.54]:15776 "EHLO
-	mail.kolivas.net") by vger.kernel.org with ESMTP id <S267349AbSLRVRv>;
-	Wed, 18 Dec 2002 16:17:51 -0500
-Message-ID: <1040246749.3e00e7ddcd8c6@kolivas.net>
-Date: Thu, 19 Dec 2002 08:25:49 +1100
-From: Con Kolivas <conman@kolivas.net>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@digeo.com>
-Subject: [BENCHMARK] 2.5.52-mm1 with contest
-MIME-Version: 1.0
+	id <S267350AbSLRV3G>; Wed, 18 Dec 2002 16:29:06 -0500
+Received: from conductor.synapse.net ([199.84.54.18]:527 "HELO
+	conductor.synapse.net") by vger.kernel.org with SMTP
+	id <S267347AbSLRV3D> convert rfc822-to-8bit; Wed, 18 Dec 2002 16:29:03 -0500
 Content-Type: text/plain; charset=US-ASCII
+From: "D.A.M. Revok" <marvin@synapse.net>
+To: Andre Hedrick <andre@linux-ide.org>
+Subject: Re: 2.4.19, don't "hdparm -I /dev/hde" if hde is on a Asus A7V133  Promise ctrlr, or...
+Date: Wed, 18 Dec 2002 16:35:58 -0500
+User-Agent: KMail/1.4.1
+Cc: Manish Lachwani <manish@Zambeel.com>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.10.10212180241580.8350-100000@master.linux-ide.org>
+In-Reply-To: <Pine.LNX.4.10.10212180241580.8350-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1
+Message-Id: <200212181635.58164.marvin@synapse.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Amendment to this email:
+=====================
+I figured out what it is, more...
+hdparm -X12 ( to set PIO instead of UDMA ) /does not/ fix it, so I dug 
+into BIOS and re-enabled the bios for that controller...
+
+I'd disabled it because I've a SCSI burner that I use for backup
+( DAR Disk ARchiver @ http://dar.linux.free.fr/  -- excellent program ),
+as well as for installing distros, and I could not boot from the CD drive 
+if the mobo was waiting for an OS to magically appear on whatever ATA 
+device I had on the Promise-controller.  The BIOS is written to prevent 
+one from choosing SCSI-boot and not Promise-boot while the Promise-BIOS 
+is enabled, so I'd disabled it.
+... when I re-enabled the Promise-BIOS, the problem disappeared.
+
+So.  I /think/ that somehow the Promise controller isn't being 
+initialized properly by the Linux kernel, UNLESS the mobo's BIOS inits 
+it first?
+
+============================
+============================
+
+Ah,
+"What you are doing is not out of spec, just how
+  you are are doing it is."
+eh??
+
+my typing in
+hdparm -l /dev/hde ( upper-case Capital i ), or
+smartctl -a, or
+cat /proc/ide/hde/identify
+are doing things wrong?
+or do you mean that
+ the method-used-by-these-commands is wrong somehow?
+
+IF it'll get this fixed for everyone, then I'll sign an NDA ( probably: 
+I'm reading it first, and discussing the NDA itself, too ), but I don't 
+understand how NDA and GPL driver can mix?
+
+I /want/ this fixed, because it's a problem, if for me, then for others 
+too...
+
+Does my having the "bios" for that controller turned off create the 
+problem? ( I don't boot from those drives, so didn't see any reason to 
+have it...  )
+... hmmm I'll try changing that before contacting you again
+
+One other weird thing is that when I've got my Quantum LM15 on the 
+Promise, I've /got/ to have it on a 40-wire ribbon, or it doesn't work 
+right ( can't remember if it fails to boot, or if the drive isn't 
+accessable, or what )...
+electronically the drive identifies as UDMA 4 or 5 or something, but if I 
+put a UDMA cable on it it don't work ( solution? have a 40-wire cable on 
+it, unless I've got it on the Via chipset port, in which case UDMA's 
+fine... )
+
+If you come-up-with, or have, a diagnostic that'd black-box 
+reverse-engineer the bug, tell me, and I'll run it.
+
+( note that now I'm using DAR
+http://dar.linux.free.fr/
+for backup, so I'm a /lot/ less worried than I used to be about hosing my 
+system: the "backup your system" advice parroted always doesn't come 
+with a good utility for doing so, but with DAR it's only 16 CD-Rs for 
+the crucial stuff   : )   - just figured it's so good you'd benefit from 
+knowing about it...   )
 
 
-Here are contest benchmarks for 2.5.52-mm1 for SMP only:
+On Wed 18 December, 2002 5:44, Andre Hedrick wrote:
+>Guess you two need to head over to promise and get those blood letting
+>NDA's signed.  To figure out what is wrong with your deployment.
+>I have never seen this issue and I know every combination of command
+> calls to avoid.  What you are doing is not out of spec, just how you
+> are are doing it is.
+>
+>Cheers,
+>
+>Andre Hedrick
+>LAD Storage Consulting Group
+>
+>On Wed, 18 Dec 2002, D.A.M. Revok wrote:
+>> Ahem.
+>>
+>> You /may/ want to remind me, next time, that umounting all
+>> filesystems except root, remounting root read-only, AND raid-stop'ing
+>> all arrays would be a good idea before doing this ( I forgot the last
+>> one )
+>>
+>> Also, it seems that all drives de-allocate a sector every time I do
+>> this, and this is costing my system integrity...
+>>
+>>
+>> Yes, it happens on all drives on the controller, and I've 2:
+>> IBM 60GXP, 40GB == /dev/hde
+>> Quantum LM15, 15GB == /dev/hdg
+>>
+>> booting into multiuser command-line mode, no X, login as root, umount
+>> everything, "smartctl -a /dev/hde" ( or hdg ) gets 2 information
+>> lines, the second being the model# of the drive, and it never reaches
+>> the third line ( the newline doesn't appear ), and the drive-light
+>> comes on, and it's permanently hanged.
+>>
+>> I'd thought this would be implicit in the
+>> * "cat /proc/ide/hde/identify" gets the same results *
+>> comment I'd made previously, but did it out of curiosity...
+>>
+>>
+>> When I did it on the Quantum, the Quantum's drive-light came on (
+>> it's in a "mobile-rack" ), so it seems that the drive-light actually
+>> is still connected to the drive at that point, though nothing useful
+>> goes on after...
+>>
+>>
+>> By the way, I seem to have hit this with the earlier 2.4.x kernels, (
+>> IIRC ), but had /so/ much problems with flaky config and flaky
+>> distros at the time, that I didn't get that info out then ( by the
+>> time I got a stable system, I'd forgot, sorry... )
+>>
+>>
+>> * Tell me which kernels you want me to try ( except ext3-broken ones
+>> ), and I'll do it, so you can scope where-the-break-is better, TIA *
+>>
+>>      -me
+>>
+>> On Tue 17 December, 2002 7:09, you wrote:
+>> >Is it happening with all the drives on the controller? Is it
+>> > possible to immediaately gather the SMART data from the drive after
+>> > bootup using smartctl?
+>> >
+>> >Thanks
+>> >Manish
+>> >
+>> >-----Original Message-----
+>>
+>> From: D.A.M. Revok
+>>
+>> >To: linux-kernel@vger.kernel.org
+>> >Sent: 12/15/02 12:49 PM
+>> >Subject: 2.4.19, don't "hdparm -I /dev/hde" if hde is on a Asus
+>> > A7V133 Promise ctrlr, or...
+>> >
+>> >( that's a capital-aye in the hdparm line )
+>> >
+>> >not even the Magic SysReq key will work.
+>> >
+>> >also, don't
+>> >
+>> >"cd /proc/ide/hde ; cat identify"
+>> >
+>> >... same thing
+>> >drive-light comes on, but have to use the power-switch to get the
+>> >machine
+>> >back, ( lost stuff again, fuck )
+>> >
+>> >
+>> >proc says it's pdc202xx
+>> >
+>> >Promise Ultra series driver Ver 1.20.0.7 2002-05-23
+>> >Adapter: Ultra100 on M/B
+>>
+>> --
+>> http://www.drawright.com/
+>>  - "The New Drawing on the Right Side of the Brain" ( Betty Edwards,
+>> check "Theory", "Gallery", and "Exercises" )
+>> http://www.ldonline.org/ld_indepth/iep/seven_habits.html
+>>  - "The 7 Habits of Highly Effective People" ( this site is same
+>> principles as Covey's book )
+>> http://www.eiconsortium.org/research/ei_theory_performance.htm
+>>  - "Working With Emotional Intelligence" ( Goleman: this link is
+>> /revised/ theory, "Working. . . " is practical )
+>> http://www.leadershipnow.com/leadershop/1978-5.html
+>>  - Corps Business: The 30 /Management Principles/ of the U.S. Marines
+>> ( David Freedman )
+>> -
+>> To unsubscribe from this list: send the line "unsubscribe
+>> linux-kernel" in the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> Please read the FAQ at  http://www.tux.org/lkml/
 
-noload:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.50 [5]              39.3    180     0       0       1.09
-2.5.50-mm1 [6]          39.4    181     0       0       1.09
-2.5.51 [3]              39.6    180     0       0       1.09
-2.5.51-mm1 [3]          39.5    181     0       0       1.09
-2.5.51-mm2 [3]          39.1    182     0       0       1.08
-2.5.52 [7]              39.3    181     0       0       1.09
-2.5.52-mm1 [8]          39.7    180     0       0       1.10
+-- 
+http://www.drawright.com/
+ - "The New Drawing on the Right Side of the Brain" ( Betty Edwards, 
+check "Theory", "Gallery", and "Exercises" )
+http://www.ldonline.org/ld_indepth/iep/seven_habits.html
+ - "The 7 Habits of Highly Effective People" ( this site is same 
+principles as Covey's book )
+http://www.eiconsortium.org/research/ei_theory_performance.htm
+ - "Working With Emotional Intelligence" ( Goleman: this link is 
+/revised/ theory, "Working. . . " is practical )
+http://www.leadershipnow.com/leadershop/1978-5.html
+ - Corps Business: The 30 /Management Principles/ of the U.S. Marines ( 
+David Freedman )
 
-cacherun:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.50 [5]              36.5    194     0       0       1.01
-2.5.50-mm1 [6]          36.6    194     0       0       1.01
-2.5.51 [3]              36.5    195     0       0       1.01
-2.5.51-mm1 [2]          36.8    194     0       0       1.02
-2.5.51-mm2 [3]          36.4    195     0       0       1.01
-2.5.52 [7]              36.5    194     0       0       1.01
-2.5.52-mm1 [7]          36.9    194     0       0       1.02
 
-process_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.50 [5]              47.8    148     10      46      1.32
-2.5.50-mm1 [5]          47.6    150     8       43      1.31
-2.5.51 [3]              50.5    139     12      54      1.39
-2.5.51-mm1 [2]          51.0    138     13      56      1.41
-2.5.51-mm2 [3]          48.3    145     11      49      1.33
-2.5.52 [7]              48.7    144     10      49      1.34
-2.5.52-mm1 [7]          49.0    144     10      50      1.35
-
-ctar_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.50 [5]              54.6    157     1       10      1.51
-2.5.50-mm1 [5]          51.3    155     0       4       1.42
-2.5.51 [7]              58.2    158     1       10      1.61
-2.5.51-mm2 [7]          55.1    158     1       11      1.52
-2.5.52 [7]              56.1    161     1       10      1.55
-2.5.52-mm1 [7]          55.5    156     1       10      1.53
-
-xtar_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.50 [5]              116.2   103     2       10      3.21
-2.5.50-mm1 [5]          83.9    111     1       9       2.32
-2.5.51 [7]              104.8   124     2       10      2.89
-2.5.51-mm2 [7]          100.2   112     1       10      2.77
-2.5.52 [7]              83.1    138     1       9       2.29
-2.5.52-mm1 [7]          77.4    122     1       8       2.14
-
-io_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.50 [5]              87.6    102     14      22      2.42
-2.5.50-mm1 [5]          99.0    92      14      21      2.73
-2.5.51 [7]              84.6    102     13      21      2.34
-2.5.51-mm2 [7]          86.4    101     12      21      2.39
-2.5.52 [7]              73.1    111     10      19      2.02
-2.5.52-mm1 [7]          80.5    108     10      19      2.22
-
-io_other:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.50 [5]              59.3    139     7       18      1.64
-2.5.50-mm1 [5]          70.5    125     10      22      1.95
-2.5.51 [7]              64.5    134     7       18      1.78
-2.5.51-mm2 [7]          64.1    133     7       20      1.77
-2.5.52 [7]              75.1    120     10      21      2.07
-2.5.52-mm1 [7]          60.1    131     7       18      1.66
-
-read_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.50 [5]              49.3    151     5       7       1.36
-2.5.50-mm1 [5]          52.1    142     2       3       1.44
-2.5.51 [3]              48.5    154     5       7       1.34
-2.5.51-mm2 [2]          49.4    151     6       7       1.36
-2.5.52 [7]              49.4    151     5       7       1.36
-2.5.52-mm1 [7]          49.9    149     5       6       1.38
-
-list_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.50 [5]              43.4    167     0       8       1.20
-2.5.50-mm1 [5]          44.0    167     0       7       1.22
-2.5.51 [3]              43.5    167     0       8       1.20
-2.5.51-mm2 [2]          43.3    168     0       8       1.20
-2.5.52 [7]              43.2    167     0       9       1.19
-2.5.52-mm1 [7]          43.8    167     0       9       1.21
-
-mem_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.50 [5]              63.3    141     36      3       1.75
-2.5.50-mm1 [5]          67.1    126     39      3       1.85
-2.5.51 [7]              62.6    148     38      3       1.73
-2.5.51-mm2 [7]          63.0    144     38      3       1.74
-2.5.52 [7]              63.5    148     38      3       1.75
-2.5.52-mm1 [7]          71.1    123     36      2       1.96
-
-Shorter times on the io writing loads (io load, io other, xtar load). 
-Slightly longer time on mem_load without any increase in the amount of loads
-performed.
-
-I can't offer meaningful Uniprocessor results because unfortunately doing a make
-clean, mrproper, config, dep in that testbed tree seems to invalidate previous
-results even with the same .config. Why the same config can take longer or
-shorter to compile after cleaning up the tree makes no sense to me but since
-I've observed it I'll mention it and not post the results.
-
-Further details and archived results can be found here:
-http://www.osdl.org/projects/ctdevel/results/
-
-Regards,
-Con

@@ -1,56 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262057AbUJYRAD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261208AbUJYR02@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262057AbUJYRAD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 13:00:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262053AbUJYQ7e
+	id S261208AbUJYR02 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 13:26:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261151AbUJYR0Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 12:59:34 -0400
-Received: from math.ut.ee ([193.40.5.125]:39561 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id S262072AbUJYQzz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 12:55:55 -0400
-Date: Mon, 25 Oct 2004 19:55:42 +0300 (EEST)
-From: Meelis Roos <mroos@linux.ee>
-To: Jens Axboe <axboe@suse.de>
-cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: readcd hangs in blk_execute_rq
-In-Reply-To: <20041021201532.GG32465@suse.de>
-Message-ID: <Pine.GSO.4.44.0410251951340.20253-100000@math.ut.ee>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 25 Oct 2004 13:26:24 -0400
+Received: from brmea-mail-3.Sun.COM ([192.18.98.34]:13259 "EHLO
+	brmea-mail-3.sun.com") by vger.kernel.org with ESMTP
+	id S261169AbUJYRQR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 13:16:17 -0400
+Date: Mon, 25 Oct 2004 13:16:04 -0400
+From: Mike Waychison <Michael.Waychison@Sun.COM>
+Subject: Re: [PATCH 8/28] VFS: Remove MNT_EXPIRE support
+In-reply-to: <20041025150446.GB1603@infradead.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       raven@themaw.net
+Message-id: <417D34D4.3040406@sun.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+References: <10987153211852@sun.com> <10987153522992@sun.com>
+ <20041025150446.GB1603@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Turned DMA off with hdparm -d 0 /dev/hdc, still the same.
-> > Turned ATAPI DMA support off completely (activated "Use DMA only for
-> > disks" compile option), still the same half-hang.
->
-> Can I talk you into trying to find out when this broke? You mention
-> 2.4.18 as working, did 2.4.19 break? Narrowing this down as much as
-> possible would be very helpful.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-OK, did some testing.
+Christoph Hellwig wrote:
+> On Mon, Oct 25, 2004 at 10:42:32AM -0400, Mike Waychison wrote:
+> 
+>>Drop support for MNT_EXPIRE (flag to umount(2)).  Nobody was using it and it
+>>didn't fit into the new expiry framework.
+> 
+> 
+> umm, this is a user API, you can't simply drop it.
+> 
 
-2.4.18, 2.4.19 and 2.4.20 are the same - mostly working. This means that
-it reads non-broken data CD-s with DMA with no problems, but it loses an
-interrupt and disables DMA with a faulty data CD (dmesg below).
+I also wanted to add that given the current interface that is found in
+mainline, there is no way for userspace to even set a mountpoint as
+expiring.  The only consumer is still AFS which handles the
+mark_mounts_for_expiry stuff itself.
 
-The IDE changes in 2.4.21-pre1 cause DMA to fail at first read attempt
-and all later kernels behave the same.
+So even if userspace wanted to use MNT_EXPIRE, it couldn't.
 
-The dmesg from 2.4.18 in case of CD read error (with a known faulty cd):
+- --
+Mike Waychison
+Sun Microsystems, Inc.
+1 (650) 352-5299 voice
+1 (416) 202-8336 voice
 
-hdc: command error: status=0x51 { DriveReady SeekComplete Error }
-hdc: command error: error=0x54
-end_request: I/O error, dev 16:00 (hdc), sector 1274020
-ide_dmaproc: chipset supported ide_dma_lostirq func only: 13
-hdc: lost interrupt
-hdc: status timeout: status=0xd0 { Busy }
-hdc: DMA disabled
-hdc: drive not ready for command
-hdc: ATAPI reset complete
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+NOTICE:  The opinions expressed in this email are held by me,
+and may not represent the views of Sun Microsystems, Inc.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-
--- 
-Meelis Roos (mroos@linux.ee)
-
+iD8DBQFBfTTUdQs4kOxk3/MRAghsAJ41gA73Qov2lS6nHGcC+A3zsIc+DQCeIdCB
+4XisV0zx/CvTDQpQfSfLY04=
+=Qj2Q
+-----END PGP SIGNATURE-----

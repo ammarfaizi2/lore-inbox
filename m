@@ -1,82 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268085AbUJNXWS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267934AbUJNWOv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268085AbUJNXWS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 19:22:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268076AbUJNXWN
+	id S267934AbUJNWOv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 18:14:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267638AbUJNWNx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 19:22:13 -0400
-Received: from postfix3-1.free.fr ([213.228.0.44]:5867 "EHLO
-	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S268019AbUJNXVh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 19:21:37 -0400
-Message-ID: <416F09EF.6040605@free.fr>
-Date: Fri, 15 Oct 2004 01:21:19 +0200
-From: Laurent Riffard <laurent.riffard@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.6) Gecko/20040115
-X-Accept-Language: fr-fr, fr, en
-MIME-Version: 1.0
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: USB development list <linux-usb-devel@lists.sourceforge.net>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>
-Subject: Re: 2.6.9-rc4-mm1 : oops when rmmod uhci_hcd  [was: 2.6.9-rc3-mm2
- : oops...]
-References: <Pine.LNX.4.44L0.0410141703260.1026-100000@ida.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0410141703260.1026-100000@ida.rowland.org>
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig8F8160CFDFDB0196240B4EDE"
+	Thu, 14 Oct 2004 18:13:53 -0400
+Received: from rproxy.gmail.com ([64.233.170.199]:36000 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S267769AbUJNVym (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 17:54:42 -0400
+Message-ID: <9625752b04101414544ac90e1f@mail.gmail.com>
+Date: Thu, 14 Oct 2004 14:54:40 -0700
+From: Danny <dannydaemonic@gmail.com>
+Reply-To: Danny <dannydaemonic@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: mm kernel oops with r8169 & named, PREEMPT
+Cc: "netdev@oss.sgi.com Jon Mason" <jdmason@us.ibm.com>
+In-Reply-To: <200410131703.21726.jdmason@us.ltcfwd.linux.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <9625752b041012230068619e68@mail.gmail.com>
+	 <200410131129.05657.jdmason@us.ltcfwd.linux.ibm.com>
+	 <9625752b04101313283f035423@mail.gmail.com>
+	 <200410131703.21726.jdmason@us.ltcfwd.linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig8F8160CFDFDB0196240B4EDE
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Wed, 13 Oct 2004 17:03:21 -0500, Jon Mason wrote:
+> The only thing that jumps out at me is the fact that you are running with
+> Reiser4, but I don't want to point any fingers yet.  Please try recreating
+> the error without NAPI and preemptable kernel, and if possible without
+> Reiser4.
 
+I can recreate it without NAPI and without the preemptable kernel, but
+I have no means of recreating this with out Reiser4.  Would an oops
+without the NAPI and preemptable kernel be more useful than the one I
+already provided?  If so I can make another oops.
 
-Alan Stern wrote:
-> On Thu, 14 Oct 2004, Laurent Riffard wrote:
-> 
->> Alan Stern wrote: [snip]
->> 
->>> My impression is that this problem arises somewhere within or
->>>  below the free_irq routine.  I don't have the -mm2 sources,
->>> so I can't be any more precise than that.
->> 
->> Here is an updated dmesg for kernel 2.6.9-rc4-mm1. But I'm
->> afraid it won't give more information, as the call stack is
->> identical to the 2.6.9-rc3-mm2 one.
->> 
->> I will try a vanilla kernel if it's needed.
-> 
-> 
-> Yes, try that.  At least if the problem still occurs, it will be
-> easier to track down.
-> 
-> Alan Stern
-> 
+I spoke with Nikita shortly on OFTC and he said the oops "is not
+related to reiser4, at least not directly. Maybe reiser4 corrupted
+some internal data-structures some where in the kernel which caused
+oops later."
 
-I just tried kernel 2.6.9-rc4 : it woks fine, there is no oops when 
-I rmmod uhci_hcd.
-
--- 
-laurent
-
---------------enig8F8160CFDFDB0196240B4EDE
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFBbwn8UqUFrirTu6IRAjagAJ9/xGvH0IaQsvDtdjb8FmPnllp4UgCfbhXX
-SvgpHKmUE1h4P9sZpZh4jw0=
-=pUwA
------END PGP SIGNATURE-----
-
---------------enig8F8160CFDFDB0196240B4EDE--
+Shrug.

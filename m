@@ -1,48 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261679AbVBOLFc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261680AbVBOLGV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261679AbVBOLFc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 06:05:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbVBOLFc
+	id S261680AbVBOLGV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 06:06:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbVBOLGV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 06:05:32 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:64436 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261679AbVBOLF2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 06:05:28 -0500
-Date: Tue, 15 Feb 2005 05:05:06 -0600
-From: Robin Holt <holt@sgi.com>
-To: Ray Bryant <raybry@sgi.com>
-Cc: Andi Kleen <ak@muc.de>, Ray Bryant <raybry@austin.rr.com>,
-       linux-mm <linux-mm@kvack.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC 2.6.11-rc2-mm2 0/7] mm: manual page migration -- overview
-Message-ID: <20050215110506.GD19658@lnx-holt.americas.sgi.com>
-References: <20050212032535.18524.12046.26397@tomahawk.engr.sgi.com> <m1vf8yf2nu.fsf@muc.de> <42114279.5070202@sgi.com>
+	Tue, 15 Feb 2005 06:06:21 -0500
+Received: from chilli.pcug.org.au ([203.10.76.44]:49056 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S261680AbVBOLGR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 06:06:17 -0500
+Date: Tue, 15 Feb 2005 22:06:14 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, paulus@samba.org, anton@samba.org,
+       davem@davemloft.net, ralf@linux-mips.org, tony.luck@intel.com,
+       ak@suse.de, willy@debian.org, schwidefsky@de.ibm.com
+Subject: Re: [PATCH] Consolidate compat_sys_waitid
+Message-Id: <20050215220614.68c4e11e.sfr@canb.auug.org.au>
+In-Reply-To: <20050215095153.GB13952@wotan.suse.de>
+References: <20050215140149.0b06c96b.sfr@canb.auug.org.au>
+	<20050215095153.GB13952@wotan.suse.de>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42114279.5070202@sgi.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 14, 2005 at 06:29:45PM -0600, Ray Bryant wrote:
-> which is what you are asking for, I think.  The library's job
-> (in addition to suspending all of the processes in the list for
-> the duration of the migration operation, plus do some other things
-> that are specific to sn2 hardware) would be to examine the
+Hi Andi,
 
-You probably want the batch scheduler to do the suspend/resume as it
-may be parking part of the job on nodes that have memory but running
-processes of a different job while moving a job out of the way for a
-big-mem app that wants to run on one of this jobs nodes.
+On Tue, 15 Feb 2005 10:51:53 +0100 Andi Kleen <ak@suse.de> wrote:
+>
+> I don't think this will work for sparc64/s390/UML etc.
+> They cannot access kernel data inside KERNEL_DS. You would need to use
+> compat_alloc_user_space() for ru
 
-> do memory placement by first touch, during initialization.  This is,
-> in part, because most of our codes originate on non-NUMA systems,
-> and we've typically done very just what is necessary to make them
+.. and, presumably, for info as well.  Interestingly, this code
+came directly from sparc64 ...
 
-Software Vendors tend to be very reluctant to do things for a single
-architecture unless there are clear wins.
+However, if you are right, there are quite a few other compat sys calls
+that should not be working either.
 
-Thanks,
-Robin
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/

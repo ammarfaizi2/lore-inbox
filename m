@@ -1,36 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262242AbRE2Wgi>; Tue, 29 May 2001 18:36:38 -0400
+	id <S262316AbRE2Wi6>; Tue, 29 May 2001 18:38:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262288AbRE2Wg2>; Tue, 29 May 2001 18:36:28 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:59632 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S262242AbRE2WgT>;
-	Tue, 29 May 2001 18:36:19 -0400
-Date: Tue, 29 May 2001 18:36:13 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Dawson Engler <engler@csl.Stanford.EDU>
-cc: linux-kernel@vger.kernel.org, mc@cs.Stanford.EDU
-Subject: Re: [CHECKER] 84 bugs in 2.4.4/2.4.4-ac8 where NULL pointers are
- deref'd
-In-Reply-To: <200105292149.OAA29781@csl.Stanford.EDU>
-Message-ID: <Pine.GSO.4.21.0105291825410.11321-100000@weyl.math.psu.edu>
+	id <S262296AbRE2Wis>; Tue, 29 May 2001 18:38:48 -0400
+Received: from srvr3.telecom.lt ([212.59.0.2]:31421 "EHLO mail.takas.lt")
+	by vger.kernel.org with ESMTP id <S262295AbRE2Wif>;
+	Tue, 29 May 2001 18:38:35 -0400
+Reply-To: <nerijusb@takas.lt>
+From: "Nerijus Baliunas" <nerijus@users.sourceforge.net>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] fix more typos in Configure.help and fs/nls/Config.in
+Date: Wed, 30 May 2001 00:36:38 +0200
+Message-ID: <NEBBLCJIPPBPKGHOONKOKENEDOAA.nerijus@users.sourceforge.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6600
+In-Reply-To: <E154kmj-0004UA-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > 	Official country name: Belarus
+> > 	Language/Nationality: Belarusian
+> > 
+> > 	Standard has taken things right as we pronounce them.
+> > 
+> > 	Please apply the patch.
+> 
+> Done. Thanks for confirming it is correct
 
+You forgot to apply the second part:
 
-On Tue, 29 May 2001, Dawson Engler wrote:
-
-> [BUG]  seems like it.  it's not guarded.  or is there some weird dependence?
-> /u2/engler/mc/oses/linux/2.4.4-ac8/fs/ext2/dir.c:61:ext2_check_dir_entry: ERROR:INTERNAL_NULL:53:61: [type=set] (set at line 53) Dereferencing NULL ptr "dir" illegally!
-
-No, it's simply a lump of fossilized crap. However, adding one more check
-here is not a solution - it only adds to ugliness. The real fix is to get
-rid of checking simgle entries and do all checks when we read the page -
-at that point we obviously have the inode. Same goes for the second one.
-
-Patch is available - see ftp.math.psu.edu/pub/viro/ext2-dir-patch-S4.gz
-It's going to be very early 2.5.
-
+--- Config.in.orig      Wed May 30 00:27:45 2001
++++ Config.in   Mon May 28 19:32:25 2001
+@@ -29,7 +29,7 @@
+   tristate 'Codepage 852 (Central/Eastern Europe)' CONFIG_NLS_CODEPAGE_852
+   tristate 'Codepage 855 (Cyrillic)'               CONFIG_NLS_CODEPAGE_855
+   tristate 'Codepage 857 (Turkish)'                CONFIG_NLS_CODEPAGE_857
+-  tristate 'Codepage 860 (Portugese)'              CONFIG_NLS_CODEPAGE_860
++  tristate 'Codepage 860 (Portuguese)'              CONFIG_NLS_CODEPAGE_860
+   tristate 'Codepage 861 (Icelandic)'              CONFIG_NLS_CODEPAGE_861
+   tristate 'Codepage 862 (Hebrew)'                 CONFIG_NLS_CODEPAGE_862
+   tristate 'Codepage 863 (Canadian French)'        CONFIG_NLS_CODEPAGE_863
+ 

@@ -1,59 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264694AbUD1ImU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264702AbUD1Isu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264694AbUD1ImU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 04:42:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264697AbUD1ImU
+	id S264702AbUD1Isu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 04:48:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264703AbUD1Isu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 04:42:20 -0400
-Received: from mx2.redhat.com ([66.187.237.31]:982 "EHLO mx2.redhat.com")
-	by vger.kernel.org with ESMTP id S264694AbUD1ImN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 04:42:13 -0400
-Subject: Re: [ACPI x86_64] 2.6.1-rc{1,2} hang while booting on Sun v20z aka
-	Newisys 2100
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Len Brown <len.brown@intel.com>
-Cc: Shantanu Goel <Shantanu.Goel@lehman.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <1082667692.16337.400.camel@dhcppc4>
-References: <A6974D8E5F98D511BB910002A50A6647615F976F@hdsmsx403.hd.intel.com>
-	 <1082653547.16336.335.camel@dhcppc4> <408820D7.10400@lehman.com>
-	 <1082666116.16336.391.camel@dhcppc4>  <40882E49.2040705@lehman.com>
-	 <1082667692.16337.400.camel@dhcppc4>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Nov/GbpO+M0KgeQO4Hhc"
-Organization: Red Hat UK
-Message-Id: <1082811291.3918.0.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Wed, 28 Apr 2004 04:42:04 -0400
+	Wed, 28 Apr 2004 04:48:50 -0400
+Received: from 213-187-164-3.dd.nextgentel.com ([213.187.164.3]:30216 "EHLO
+	ford.pronto.tv") by vger.kernel.org with ESMTP id S264702AbUD1Iso convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 04:48:44 -0400
+To: linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Linux 2.6.6-rc3
+References: <Pine.LNX.4.58.0404271858290.10799@ppc970.osdl.org>
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
+Date: Wed, 28 Apr 2004 10:48:36 +0200
+In-Reply-To: <Pine.LNX.4.58.0404271858290.10799@ppc970.osdl.org> (Linus
+ Torvalds's message of "Tue, 27 Apr 2004 19:03:35 -0700 (PDT)")
+Message-ID: <yw1x1xm8o5cr.fsf@kth.se>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds <torvalds@osdl.org> writes:
 
---=-Nov/GbpO+M0KgeQO4Hhc
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> s390, cifs, ntfs, ppc, ppc64, cpufreq upates. Oh, and DVB and USB.
+>
+> I'm hoping to do a final 2.6.6 later this week, so I'm hoping as many 
+> people as possible will test this.
 
-\
-> Perhaps you can enumerate what kernels do boot on this box.
-> If there is RH special sauce at work, then I'd expect that
-> none of the kernel.org 2.4 kernels boot either.
+I can't see that
+http://marc.theaimsgroup.com/?l=linux-kernel&m=108308929211499&w=2 or
+an equivalent fix has been included yet.  It would be nice to have it
+fixed before the next release.
 
-we have nothing magic in the acpi code in RHEL3 really; just a patch to
-take it to a slightly newer version from you guys... (one that works on
-both x86_64 and ia64)
-
---=-Nov/GbpO+M0KgeQO4Hhc
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQBAimOaxULwo51rQBIRAu43AJ4nboS8DjC/91qGzHBTH6t0bxwU3QCaAt7s
-nnqUSiQEwLIqiGcXikBoFC8=
-=lKEg
------END PGP SIGNATURE-----
-
---=-Nov/GbpO+M0KgeQO4Hhc--
-
+-- 
+Måns Rullgård
+mru@kth.se

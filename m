@@ -1,118 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129069AbQKCQlj>; Fri, 3 Nov 2000 11:41:39 -0500
+	id <S129094AbQKCQvK>; Fri, 3 Nov 2000 11:51:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129094AbQKCQla>; Fri, 3 Nov 2000 11:41:30 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:19304 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S129069AbQKCQlU>; Fri, 3 Nov 2000 11:41:20 -0500
-Date: Fri, 3 Nov 2000 17:41:05 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: dledford@redhat.com, gareth@valinux.com, linux-kernel@vger.kernel.org
-Subject: SETFPXREGS fix
-Message-ID: <20001103174105.C857@athlon.random>
-Mime-Version: 1.0
+	id <S130653AbQKCQuv>; Fri, 3 Nov 2000 11:50:51 -0500
+Received: from smartmail.smartweb.net ([207.202.14.198]:7947 "EHLO
+	smartmail.smartweb.net") by vger.kernel.org with ESMTP
+	id <S129094AbQKCQun>; Fri, 3 Nov 2000 11:50:43 -0500
+Message-ID: <3A02ECEB.B1AE89@dm.ultramaster.com>
+Date: Fri, 03 Nov 2000 11:50:51 -0500
+From: David Mansfield <lkml@dm.ultramaster.com>
+Organization: Ultramaster Group LLC
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: blk-8 oopses at boot (was: blk-7 fails to boot)
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While auditing the PIII-4 patch for 2.2.x I found a local security problem in
-SETFPXREGS that affects 2.4.0-test10 too when it's compiled for PIII
-processors and run on a PIII CPU. The problem is that any user can break the
-FPU by uploading into the kernel a not valid mxcsr value.
+Hi Jens.
 
-I verified with this proggy:
+I've tried your blk-8 patch and it oopses during boot.  I only hand
+copied the stack trace, and ran it through ksymoops:
 
-struct user_fxsr_struct {
-	unsigned short	cwd;
-	unsigned short	swd;
-	unsigned short	twd;
-	unsigned short	fop;
-	long	fip;
-	long	fcs;
-	long	foo;
-	long	fos;
-	long	mxcsr;
-	long	reserved;
-	long	st_space[32];	/* 8*16 bytes for each FP-reg = 128 bytes */
-	long	xmm_space[32];	/* 8*16 bytes for each XMM-reg = 128 bytes */
-	long	padding[56];
-};
+Call Trace: [<c01310e0>] [<c0131f55>] [<c014c88e>] [<c014c3dc>]
+[<c01b9cea>] [<c014c4ea>] [<c014c456>]
+        [<c01ba3a4>] [<c018c7ab>] [<c0105000>] [<c018c8ae>] [<c01070e7>]
+[<c0108ce3>]
+Warning (Oops_read): Code line not seen, dumping what data is available
 
-main()
-{
-	struct user_fxsr_struct fxsr;
-	int pid = fork();
+Trace; c01310e0 <__wait_on_buffer+90/c0>
+Trace; c0131f55 <bread+45/70>
+Trace; c014c88e <msdos_partition+8e/3f0>
+Trace; c014c3dc <check_partition+8c/d0>
+Trace; c01b9cea <sd_init_onedisk+75a/770>
+Trace; c014c4ea <grok_partitions+8a/d0>
+Trace; c014c456 <register_disk+26/30>
+Trace; c01ba3a4 <sd_finish+134/1c0>
+Trace; c018c7ab <scsi_register_device_module+eb/110>
+Trace; c0105000 <empty_bad_page+0/1000>
+Trace; c018c8ae <scsi_register_module+4e/60>
+Trace; c01070e7 <init+7/150>
+Trace; c0108ce3 <kernel_thread+23/30>
 
-	if (pid < 0)
-		perror("fork"), exit(1);
-	else if (!pid) {
-		for (;;)
-			__asm__("fninit");
-	}
+I'm going to try taking MSDOS out of my .config to try to work around
+this.  I'll keep you posted as to my progress.
 
-	if (ptrace(0x10, pid, 0, 0) < 0)
-		perror("attach"), exit(1);
-	memset(&fxsr, 0xff, sizeof(struct user_fxsr_struct));
-	waitpid(pid, 0, 0);
-	if (ptrace(19, pid, 0, &fxsr))
-		perror("setfxsr"), exit(1);
-	if (ptrace(0x11, pid, 0, 17) < 0)
-		perror("detach"), exit(1);
-}
-
-This is the fix against 2.4.0-test10, please include.
-
---- 2.4.0-test10/arch/i386/kernel/i387.c	Thu Nov  2 20:58:58 2000
-+++ PIII/arch/i386/kernel/i387.c	Thu Nov  2 18:44:36 2000
-@@ -440,8 +436,25 @@
- int set_fpxregs( struct task_struct *tsk, struct user_fxsr_struct *buf )
- {
- 	if ( HAVE_FXSR ) {
--		__copy_from_user( &tsk->thread.i387.fxsave, (void *)buf,
--				  sizeof(struct user_fxsr_struct) );
-+		long mxcsr;
-+
-+		if (__copy_from_user(&tsk->thread.i387.fxsave, (void *)buf,
-+				     (long) &((struct user_fxsr_struct *)
-+					      0)->mxcsr))
-+			return -EFAULT;
-+		if (__get_user(mxcsr,
-+			       &((struct user_fxsr_struct *) buf)->mxcsr))
-+			return -EFAULT;
-+		/* bit 6 and 31-16 must be zero for security reasons */
-+		mxcsr &= 0xffbf;
-+		tsk->thread.i387.fxsave.mxcsr = mxcsr;
-+		if (__copy_from_user(&tsk->thread.i387.fxsave.reserved,
-+				     &((struct user_fxsr_struct *)
-+				       buf)->reserved,
-+				     sizeof(struct user_fxsr_struct)-
-+				     (long) &((struct user_fxsr_struct *)
-+					      0)->reserved))
-+			return -EFAULT;
- 		return 0;
- 	} else {
- 		return -EIO;
-
-
-Downloadable also from here:
-
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.4/2.4.0-test10/SETFPXREGS-fix-1
-
-Users of 2.2.18pre17aa1 running their kernel on a PIII cpu are affected as well.
-Workaround is to boot with the `nofxsr' parameter (with the downside that
-PIII instructions to be inibithed like in vanilla 2.2.x), real fix is to
-backout the PIII-4 patch from 2.2.18pre17aa1 and apply this new one:
-
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.2/2.2.18pre19/PIII-5.bz2
-
-PIII-5 also merges some worthwhile diff from Doug, thanks!
-
-Andrea
+David Mansfield
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

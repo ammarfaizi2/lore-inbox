@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267117AbTCEPSq>; Wed, 5 Mar 2003 10:18:46 -0500
+	id <S267190AbTCEP0K>; Wed, 5 Mar 2003 10:26:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267126AbTCEPSq>; Wed, 5 Mar 2003 10:18:46 -0500
-Received: from locutus.cmf.nrl.navy.mil ([134.207.10.66]:17301 "EHLO
-	locutus.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
-	id <S267117AbTCEPSp>; Wed, 5 Mar 2003 10:18:45 -0500
-Message-Id: <200303051528.h25FSqGi006413@locutus.cmf.nrl.navy.mil>
-To: "David S. Miller" <davem@redhat.com>
-cc: wa@almesberger.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][ATM] make atm (and clip) modular + try_module_get() 
-In-reply-to: Your message of "Wed, 05 Mar 2003 06:53:41 PST."
-             <20030305.065341.35361286.davem@redhat.com> 
-X-url: http://www.nrl.navy.mil/CCS/people/chas/index.html
-X-mailer: nmh 1.0
-Date: Wed, 05 Mar 2003 10:28:52 -0500
-From: chas williams <chas@locutus.cmf.nrl.navy.mil>
+	id <S267180AbTCEP0K>; Wed, 5 Mar 2003 10:26:10 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:12759 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S267190AbTCEP0H>; Wed, 5 Mar 2003 10:26:07 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Kevin Corry <corryk@us.ibm.com>
+Organization: IBM
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH] 2.4.20: lib/vsprintf.c: Fix vsscanf of hex digits
+Date: Wed, 5 Mar 2003 09:31:23 -0600
+X-Mailer: KMail [version 1.2]
+Cc: "LKML" <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Message-Id: <0303050931230P.05199@boiler>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20030305.065341.35361286.davem@redhat.com>,"David S. Miller" writes
-:
->I understand why you think you have to lock, that isn't the issue.
->I'm telling you that you should be locking this crap at a much
->higher level.
+Hi,
 
-ok, i see what you are saying now.  since this is used to move the
-stuff queued from the old connection to the new connection i suppose
-clip might want something like?
+The current vsscanf() in 2.4 does not correctly scan hex digits that begin 
+with a-f. (It does work correctly for hex digits that begin with 0-9). This 
+patch fixes that bug, and is based on the fix that was added to 2.5.
 
-	spin_lock_bh(&vcc->recvq.lock)
-        skb_migrate(&vcc->recvq,&copy);
-	spin_unlock_bh(&vcc->recvq.lock);
+-- 
+Kevin Corry
+corryk@us.ibm.com
+http://evms.sourceforge.net/
 
-that would block any more additions to the recvq (which should be
-sk->receieve_queue i suspect -- more on that later) while the skb are
-moved to copy.  i am afraid i dont know much about how the clip driver
-operates.
+
+--- linux-2.4.20a/lib/vsprintf.c	Tue Jan 21 11:12:02 2003
++++ linux-2.4.20b/lib/vsprintf.c	Tue Jan 21 11:11:49 2003
+@@ -637,7 +637,11 @@
+ 		while (isspace(*str))
+ 			str++;
+ 
+-		if (!*str || !isdigit(*str))
++		if (!*str
++		    || (base == 16 && !isxdigit(*str))
++		    || (base == 10 && !isdigit(*str))
++		    || (base == 8 && (!isdigit(*str) || *str > '7'))
++		    || (base == 0 && !isdigit(*str)))
+ 			break;
+ 
+ 		switch(qualifier) {

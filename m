@@ -1,52 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261942AbUB1XYm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Feb 2004 18:24:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261945AbUB1XYm
+	id S261941AbUB1XVq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Feb 2004 18:21:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261947AbUB1XVq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Feb 2004 18:24:42 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44972 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261942AbUB1XYl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Feb 2004 18:24:41 -0500
-Message-ID: <4041232C.7030305@pobox.com>
-Date: Sat, 28 Feb 2004 18:24:28 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-CC: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Worrisome IDE PIO transfers...
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 28 Feb 2004 18:21:46 -0500
+Received: from mail.shareable.org ([81.29.64.88]:2949 "EHLO mail.shareable.org")
+	by vger.kernel.org with ESMTP id S261941AbUB1XVo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Feb 2004 18:21:44 -0500
+Date: Sat, 28 Feb 2004 23:21:36 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Jakub Jelinek <jakub@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add getdents32t syscall
+Message-ID: <20040228232136.GA1048@mail.shareable.org>
+References: <20040226193819.GA3501@sunsite.ms.mff.cuni.cz> <Pine.LNX.4.58.0402261411420.7830@ppc970.osdl.org> <Pine.LNX.4.58.0402261415590.7830@ppc970.osdl.org> <20040226223212.GA31589@devserv.devel.redhat.com> <Pine.LNX.4.58.0402261504230.7830@ppc970.osdl.org> <403E9E4D.6090301@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <403E9E4D.6090301@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ulrich Drepper wrote:
+> > In other words, why doesn't glibc ever just make a new major number and
+> > make its "struct dirent" be the 64-bit version?
+> 
+> You can't be serious.  Can you even imagine the pain this would cause?
 
-Looking at the function that is used to transfer data when in PIO mode...
+Why wouldn't this work?
 
-void taskfile_output_data (ide_drive_t *drive, void *buffer, u32 wcount)
-{
-         if (drive->bswap) {
-                 ata_bswap_data(buffer, wcount);
-                 HWIF(drive)->ata_output_data(drive, buffer, wcount);
-                 ata_bswap_data(buffer, wcount);
-         } else {
-                 HWIF(drive)->ata_output_data(drive, buffer, wcount);
-         }
-}
+Change the 32-bit struct dirent to this:
 
-Swapping the data in-place is very, very wrong...   you don't want to be 
-touching the data that userspace might have mmap'd ...  Additionally, 
-byteswapping back and forth for each PIO sector chews unnecessary CPU.
+    struct direct
+      {
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+        __ino_t d_ino;
+        __u32   __padding1;
+        __off_t d_off;
+        __u32   __padding2;
+#elif __BYTE_ORDER == __BIG_ENDIAN
+        __u32   __padding1;
+        __ino_t d_ino;
+        __u32   __padding2;
+        __off_t d_off;
+#else
+#error Help!
+#endif
+        unsigned short int d_reclen;
+        unsigned char d_type;
+        char d_name[256];
+      };
 
-Seems to me the architecture's OUTS[WL] hook (or a new, similar hook) 
-that swaps as it writes would be _much_ preferred, and eliminate this 
-possible data corruption issue.
+And also change getdirentries() and readdir() to call the kernel's getdents64.
 
-	Jeff
+Use symbol versioning, so that old binaries will link to the old
+(compatible and slower) functions, and newly compiled code, using the
+new definition of struct dirent, uses the fast new versions of those
+functions?
 
+I presume that, if ELF symbol versioning doesn't allow you to do this,
+then the same trick you do with stat() can be used.  From Glibc's
+<sys/stat.h>:
 
+    /* To allow the `struct stat' structure and the file type `mode_t'
+       bits to vary without changing shared library major version number,
+       the `stat' family of functions and `mknod' are in fact inline
+       wrappers around calls to `xstat', `fxstat', `lxstat', and `xmknod',
+       which all take a leading version-number argument designating the
+       data structure and bits used.
 
-
+-- Jamie

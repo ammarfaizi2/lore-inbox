@@ -1,48 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266210AbTCADCu>; Fri, 28 Feb 2003 22:02:50 -0500
+	id <S268295AbTCADI4>; Fri, 28 Feb 2003 22:08:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268212AbTCADCt>; Fri, 28 Feb 2003 22:02:49 -0500
-Received: from are.twiddle.net ([64.81.246.98]:4773 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S266210AbTCADCt>;
-	Fri, 28 Feb 2003 22:02:49 -0500
-Date: Fri, 28 Feb 2003 19:12:53 -0800
-From: Richard Henderson <rth@twiddle.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] s390 (7/13): gcc 3.3 adaptions.
-Message-ID: <20030228191253.B26656@twiddle.net>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	"Richard B. Johnson" <root@chaos.analogic.com>,
-	Martin Schwidefsky <schwidefsky@de.ibm.com>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.3.95.1030224143236.14614A-100000@chaos> <Pine.LNX.4.44.0302241259320.13406-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0302241259320.13406-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Feb 24, 2003 at 01:02:39PM -0800
+	id <S268222AbTCADI4>; Fri, 28 Feb 2003 22:08:56 -0500
+Received: from mx02.cyberus.ca ([216.191.240.26]:519 "EHLO mx02.cyberus.ca")
+	by vger.kernel.org with ESMTP id <S268212AbTCADIx>;
+	Fri, 28 Feb 2003 22:08:53 -0500
+Date: Fri, 28 Feb 2003 22:18:51 -0500 (EST)
+From: jamal <hadi@cyberus.ca>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+cc: linux-kernel@vger.kernel.org, "" <netdev@oss.sgi.com>,
+       "" <linux-net@vger.kernel.org>
+Subject: Re: anyone ever done multicast AF_UNIX sockets?
+In-Reply-To: <3E5F748E.2080605@nortelnetworks.com>
+Message-ID: <20030228212309.C57212@shell.cyberus.ca>
+References: <3E5E7081.6020704@nortelnetworks.com> <20030228083009.Y53276@shell.cyberus.ca>
+ <3E5F748E.2080605@nortelnetworks.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 24, 2003 at 01:02:39PM -0800, Linus Torvalds wrote:
-> Does gcc still warn about things like
-> 
-> 	#define COUNT (sizeof(array)/sizeof(element))
-> 
-> 	int i;
-> 	for (i = 0; i < COUNT; i++)
-> 		...
-> 
-> where COUNT is obviously unsigned (because sizeof is size_t and thus 
-> unsigned)?
-
-Yes.  We don't do complete value-range propagation to figure
-out if a warning is needed.  We only look at the comparison
-itself and note that one of the arguments changed signedness
-due to forced promotions.
 
 
-r~
+On Fri, 28 Feb 2003, Chris Friesen wrote:
+
+>  From lmbench local communication tests:
+>
+> This is a multiproc 1GHz G4
+> Host                 OS 2p/0K  Pipe AF     UDP  RPC/   TCP  RPC/ TCP
+>                          ctxsw       UNIX         UDP         TCP conn
+> --------- ------------- ----- ----- ---- ----- ----- ----- ----- ----
+> pcary0z0. Linux 2.4.18- 0.600 3.756 6.58  10.2  26.4  13.8  36.9 599K
+> pcary0z0. Linux 2.4.18- 0.590 3.766 6.43  10.1  26.7  13.9  37.2 59.1
+>
+>
+> This is a 400MHz uniproc G4
+> Host                 OS 2p/0K  Pipe AF     UDP  RPC/   TCP  RPC/ TCP
+>                          ctxsw       UNIX         UDP         TCP conn
+> --------- ------------- ----- ----- ---- ----- ----- ----- ----- ----
+> zcarm0pd. Linux 2.2.17- 1.710 9.888 21.3  26.4  59.4  43.0 105.4 146.
+> zcarm0pd. Linux 2.2.17- 1.740 9.866 22.2  26.3  60.4  43.1 106.7 147.
+>
+> This is a 1.8GHz P4
+> Host                 OS 2p/0K  Pipe AF     UDP  RPC/   TCP  RPC/ TCP
+>                          ctxsw       UNIX         UDP         TCP conn
+> --------- ------------- ----- ----- ---- ----- ----- ----- ----- ----
+> pcard0ks. Linux 2.4.18- 1.740  10.4 15.9  20.1  33.1  23.5  44.3 72.7
+> pcard0ks. Linux 2.4.18-        10.3 16.1  19.8  36.3  22.8  43.6 74.1
+> pcard0ks. Linux 2.4.18- 1.560  10.6 16.0  23.4  38.1  36.1  44.6 77.4
+>
+>
+>  From these numbers, UDP has 18%-44% higher latency than AF_UNIX, with
+> the difference going up as the machine speed goes up.
+>
+
+Did you also measure throughput?
+You are overlooking the flexibility that already exists in IP based
+transports as an advantage; the fact that you can make them
+distributed instead of localized with a simple addressing change
+is a very powerful abstraction.
+
+
+> Aside from that, IP multicast doesn't seem to work properly.  I enabled
+> multicast on lo and disabled it on eth0, and a ping to 224.0.0.1 still
+> got responses from all the multicast-capable hosts on the network.
+
+I think you may have something misconfigured.
+
+> From
+> userspace, multicast unix would be *simple* to use, as in totally
+> transparent.
+>
+
+You could implement the abstraction in user space as a library today by
+having some server that muxes to several registered clients.
+
+> The other reason why I would like to see this happen is that it just
+> makes *sense*, at least to me. We've got multicast IP, so multicast
+> unix for local machine access is a logical extension in my books.
+>
+
+So whats the addressing scheme for multicast unix? Would it be a
+reserved path?
+I am actually indifferent: You could do this in user space for starters.
+See if it buys you anything. Maybe you could do somethign clever with
+passing unix file descriptors around to avoid a single server point of
+failure etc.
+
+> Do we agree at least that some form of multicast is the logical solution
+> to the case of one sender/many listeners?
+>
+
+Thats what mcast definition is. You need to weigh your options; cost is
+probably worth the flexibility you get with sockets.
+
+cheers,
+jamal

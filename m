@@ -1,26 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281530AbRKMF6I>; Tue, 13 Nov 2001 00:58:08 -0500
+	id <S281504AbRKMGDI>; Tue, 13 Nov 2001 01:03:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281533AbRKMF56>; Tue, 13 Nov 2001 00:57:58 -0500
-Received: from [210.96.145.130] ([210.96.145.130]:37789 "EHLO mx.cintel.co.kr")
-	by vger.kernel.org with ESMTP id <S281530AbRKMF5v>;
-	Tue, 13 Nov 2001 00:57:51 -0500
+	id <S281529AbRKMGC6>; Tue, 13 Nov 2001 01:02:58 -0500
+Received: from mail203.mail.bellsouth.net ([205.152.58.143]:36012 "EHLO
+	imf03bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S281504AbRKMGCv>; Tue, 13 Nov 2001 01:02:51 -0500
+Message-ID: <3BF0B776.4EE31B94@mandrakesoft.com>
+Date: Tue, 13 Nov 2001 01:02:30 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="euc-kr"
-content-class: urn:content-classes:message
-X-MimeOLE: Produced By Microsoft Exchange V6.0.4712.0
-Date: Tue, 13 Nov 2001 14:57:40 +0900
-Message-ID: <AC4A939489924C4DA55396DC6FD30C682DCD78@mx.cintel.co.kr>
-Thread-Index: AcFsCBltEPcvW3JtQLuAw3+TAB+XMQ==
-From: =?euc-kr?B?wvfH9sH4?= <hjcha@cintel.co.kr>
-To: =?euc-kr?B?uK60qr26IMS/s84gKEUtbWFpbCk=?= 
-	<linux-kernel@vger.kernel.org>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.15-pre4 - merge with Alan
+In-Reply-To: <Pine.LNX.4.33.0111121056260.1078-100000@penguin.transmeta.com> <15344.46456.814742.182373@notabene.cse.unsw.edu.au>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 8bit
-X-MIME-Autoconverted: from base64 to 8bit by leeloo.zip.com.au id RAA13161
 
-unsubscribe linux-kernel
-ý:.žË›±Êâmçë¢kaŠÉb²ßìzwm…ébïîžË›±Êâmébžìÿ‘êçz_âžØ^n‡r¡ö¦zËëh™¨è­Ú&£ûàz¿äz¹Þ—ú+€Ê+zf£¢·hšˆ§~†­†Ûiÿÿïêÿ‘êçz_è®æj:+v‰¨þ)ß£ømšSåy«­æ¶…­†ÛiÿÿðÃí»è®å’i
+Neil Brown wrote:
+> I'm still lamenting the loss of the "-Werror" compile switch....
+
+Me too but the kernel won't build basic stuff in fs/*.c code on 64-bit
+platforms with it enabled...
+
+-- 
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
+

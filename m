@@ -1,48 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261917AbVCAOOr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261923AbVCAOSu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261917AbVCAOOr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 09:14:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbVCAOOr
+	id S261923AbVCAOSu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 09:18:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbVCAOSu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 09:14:47 -0500
-Received: from [195.23.16.24] ([195.23.16.24]:23986 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S261917AbVCAONe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 09:13:34 -0500
-Message-ID: <42247822.7030107@grupopie.com>
-Date: Tue, 01 Mar 2005 14:11:46 +0000
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: James Bruce <bruce@andrew.cmu.edu>
-Cc: Bill Davidsen <davidsen@tmr.com>, Gerd Knorr <kraxel@bytesex.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Potentially dead bttv cards from 2.6.10
-References: <20050228134410.GA7499@bytesex><20050228134410.GA7499@bytesex> <42232DFC.6090000@andrew.cmu.edu> <4223A5C3.6010000@tmr.com> <42241491.2060303@andrew.cmu.edu>
-In-Reply-To: <42241491.2060303@andrew.cmu.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 1 Mar 2005 09:18:50 -0500
+Received: from rproxy.gmail.com ([64.233.170.200]:13558 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261924AbVCAOSc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 09:18:32 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=uqHnhEdSSFQYNB8AMrPAd0zaRkArhEkUsRrtQgZSMuVUnR6fbjfDSmSp8+ieiR0XQdFntVYtVy3g32C8VJXbnl0h25RxJz//Xnp9/FYRNYCbXV6e4ho4D0hYkey6i2J0gNI99BwrKnYg4F+gydOosPCux9XShbps9Va01yWgcNs=
+Message-ID: <3f250c710503010617537a3ca@mail.gmail.com>
+Date: Tue, 1 Mar 2005 10:17:56 -0400
+From: Mauricio Lin <mauriciolin@gmail.com>
+Reply-To: Mauricio Lin <mauriciolin@gmail.com>
+To: Hugh Dickins <hugh@veritas.com>
+Subject: Re: [PATCH] A new entry for /proc
+Cc: Andrew Morton <akpm@osdl.org>, wli@holomorphy.com,
+       linux-kernel@vger.kernel.org, rrebel@whenu.com,
+       marcelo.tosatti@cyclades.com, nickpiggin@yahoo.com.au
+In-Reply-To: <3f250c7105030100085ab86bd2@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <20050106202339.4f9ba479.akpm@osdl.org>
+	 <3f250c71050224003110e74704@mail.gmail.com>
+	 <20050224010947.774628f3.akpm@osdl.org>
+	 <3f250c710502240343563c5cb0@mail.gmail.com>
+	 <20050224035255.6b5b5412.akpm@osdl.org>
+	 <3f250c7105022507146b4794f1@mail.gmail.com>
+	 <3f250c71050228014355797bd8@mail.gmail.com>
+	 <3f250c7105022801564a0d0e13@mail.gmail.com>
+	 <Pine.LNX.4.61.0502282029470.28484@goblin.wat.veritas.com>
+	 <3f250c7105030100085ab86bd2@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bruce wrote:
-> [...]
-> The card= option didn't help in my case since my card is not in the 
-> list; For thess cards we went off the reccomendation of other people 
-> doing machine vision in Linux; Next time I guess we'll go name brand 
-> again...
+Well,
 
-I think you should try it anyway, using all the options, because it is 
-very likely that your card might be compatible with one of the listed 
-ones. This is specially true if you don't care about the tuner.
+It is working better now. You are right Hugh. Now the new version is
+faster than the old one. I removed the struct page and its related
+function.
 
-Just modprobe the bttv module with card=X option, test it, rmmod it, 
-modprobe it again with card=X+1, etc., until you find a number that fits.
+Thanks,
 
--- 
-Paulo Marques - www.grupopie.com
+BR,
 
-All that is necessary for the triumph of evil is that good men do nothing.
-Edmund Burke (1729 - 1797)
+Mauricio Lin.
+
+On Tue, 1 Mar 2005 04:08:15 -0400, Mauricio Lin <mauriciolin@gmail.com> wrote:
+> On Mon, 28 Feb 2005 20:41:31 +0000 (GMT), Hugh Dickins <hugh@veritas.com> wrote:
+> > On Mon, 28 Feb 2005, Mauricio Lin wrote:
+> > >
+> > > Now I am testing with /proc/pid/smaps and the values are showing that
+> > > the old one is faster than the new one. So I will keep using the old
+> > > smaps version.
+> >
+> > Sorry, I don't have time for more than the briefest look.
+> >
+> > It appears that your old resident_mem_size method is just checking
+> > pte_present, whereas your new smaps_pte_range method is also doing
+> > pte_page (yet no prior check for pfn_valid: wrong) and checking
+> > !PageReserved i.e. accessing the struct page corresponding to each
+> > pte.  So it's not a fair comparison, your new method is accessing
+> > many more cachelines than your old method.
+> >
+> > Though it's correct to check pfn_valid and !PageReserved to get the
+> > same total rss as would be reported elsewhere, I'd suggest that it's
+> > really not worth the overhead of those struct page accesses: just
+> > stick with the pte_present test.
+> So, I can remove the PageReserved macro without no problems, right?
+> 
+> 
+> >
+> > Your smaps_pte_range is missing pte_unmap?
+> Yes, but I already fixed this problem.  Paul Mundt has checked the
+> unmap missing.
+> 
+> Thanks,
+> 
+> Let me perform new experiments now.
+> 
+> BR,
+> 
+> Mauricio Lin.
+>

@@ -1,69 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129391AbQLSFrf>; Tue, 19 Dec 2000 00:47:35 -0500
+	id <S129465AbQLSGAQ>; Tue, 19 Dec 2000 01:00:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129543AbQLSFrZ>; Tue, 19 Dec 2000 00:47:25 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:2820 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129391AbQLSFrT>; Tue, 19 Dec 2000 00:47:19 -0500
-Date: Mon, 18 Dec 2000 23:16:47 -0600
-To: richard offer <offer@sgi.com>
+	id <S129552AbQLSGAH>; Tue, 19 Dec 2000 01:00:07 -0500
+Received: from kleopatra.acc.umu.se ([130.239.18.150]:4081 "EHLO
+	kleopatra.acc.umu.se") by vger.kernel.org with ESMTP
+	id <S129534AbQLSF7z>; Tue, 19 Dec 2000 00:59:55 -0500
+Date: Tue, 19 Dec 2000 06:29:23 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: michaelc <michaelc@turbolinux.com.cn>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linus's include file strategy redux
-Message-ID: <20001218231647.A980@cadcamlab.org>
-In-Reply-To: <NBBBJGOOMDFADJDGDCPHIENJCJAA.law@sgi.com> <91bnoc$vij$2@enterprise.cistron.net> <20001215155741.B4830@ping.be> <01cf01c066ab$036fc030$890216ac@ottawa.loran.com> <91gr99$bs81o$1@fido.engr.sgi.com> <10012180904.ZM26544@sgi.com>
+Subject: Re: about linux-2.4.0-test13pre3
+Message-ID: <20001219062923.D8435@khan.acc.umu.se>
+In-Reply-To: <5613079312.19991219132302@turbolinux.com.cn>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <10012180904.ZM26544@sgi.com>; from offer@sgi.com on Mon, Dec 18, 2000 at 09:04:58AM -0800
-From: Peter Samuelson <peter@cadcamlab.org>
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <5613079312.19991219132302@turbolinux.com.cn>; from linux-kernel@vger.kernel.org on Sun, Dec 19, 1999 at 01:23:02PM +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Dec 19, 1999 at 01:23:02PM +0800, linux-kernel wrote:
+> Hi,
+> Where can I get the linux-2.4.0-test13pre3
 
-[richard offer]
-> Or userland libraries/applications that need to bypass libc and make
-> direct kernel calls because libc hasn't yet implemented those new
-> kernel calls.
+at ftp.xx.kernel.org /pub/linux/kernel/testing/
 
-Nah, it's still error-prone because it's too hard to guarantee that the
-user compiling your program has up-to-date kernel headers in a location
-you can find.  Too many things can go wrong.
+Where xx is your country-code of preference.
 
-So just '#include <asm/unistd.h>' -- the libc version -- then have your
-own header for those few things you consider "too new to be in libc":
 
-  /* my_unistd.h */
-  /* [not sure if all the __{arch}__ defines are right] */
-  #include <asm/unistd.h>	/* from libc, not from kernel */
-  #ifndef __NR_pivot_root
-  # ifdef __alpha__
-  #  define __NR_pivot_root 374
-  # endif
-  # if defined(__i386__) || defined(__s390__) || defined(__superh__)
-  #  define __NR_pivot_root 217
-  # endif
-  # ifdef __mips__
-  #  define __NR_pivot_root (__NR_Linux + 216)
-  # endif
-  # ifdef __hppa__
-  #  define __NR_pivot_root (__NR_Linux + 67)
-  # endif
-  # ifdef __sparc__
-  #  define __NR_pivot_root 146
-  # endif
-  #endif
-  #ifndef __NR_pivot_root
-  # error Your architecture is not known to support pivot_root(2)
-  #endif
-  _syscall2(int,pivot_root,char *,new,char *,old)
-
-Yes it's clumsy but it's guaranteed to be where you expect it.  (And
-it's not nearly as clumsy if you don't feel the need to support all
-architectures.)
-
-Peter
+/David Weinehall
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Project MCA Linux hacker        //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

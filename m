@@ -1,59 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263001AbTIAQMn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 12:12:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263003AbTIAQMn
+	id S263009AbTIAQW4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 12:22:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262898AbTIAQWz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 12:12:43 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:9889
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S263001AbTIAQMk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 12:12:40 -0400
-Date: Mon, 1 Sep 2003 18:13:16 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Larry McVoy <lm@work.bitmover.com>, Larry McVoy <lm@bitmover.com>,
-       Pascal Schmidt <der.eremit@email.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: bandwidth for bkbits.net (good news)
-Message-ID: <20030901161316.GH11503@dualathlon.random>
-References: <20030831163350.GY24409@dualathlon.random> <20030831164802.GA12752@work.bitmover.com> <20030831170633.GA24409@dualathlon.random> <20030831211855.GB12752@work.bitmover.com> <20030831224938.GC24409@dualathlon.random> <1062370358.12058.8.camel@dhcp23.swansea.linux.org.uk> <20030831230219.GD24409@dualathlon.random> <20030831230728.GA4918@work.bitmover.com> <20030831232224.GF24409@dualathlon.random> <1062416635.13372.17.camel@dhcp23.swansea.linux.org.uk>
+	Mon, 1 Sep 2003 12:22:55 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:37904 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S263011AbTIAQWr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 12:22:47 -0400
+Date: Mon, 1 Sep 2003 18:22:44 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Christoph Hellwig <hch@infradead.org>,
+       Tigran Aivazian <tigran@veritas.com>, linux-kernel@vger.kernel.org,
+       tigran@aivazian.fsnet.co.uk
+Subject: Re: dontdiff for 2.6.0-test4
+Message-ID: <20030901162244.GA1041@mars.ravnborg.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Tigran Aivazian <tigran@veritas.com>, linux-kernel@vger.kernel.org,
+	tigran@aivazian.fsnet.co.uk
+References: <Pine.GSO.4.44.0309010754480.1106-100000@north.veritas.com> <20030901163958.A24464@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1062416635.13372.17.camel@dhcp23.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+In-Reply-To: <20030901163958.A24464@infradead.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 01, 2003 at 12:43:56PM +0100, Alan Cox wrote:
-> On Llu, 2003-09-01 at 00:22, Andrea Arcangeli wrote:
-> > the only difference I believe is that the connections are originated by
-> > my end, but that only changes the syn packet that normally accounts for
-> > a non significant amount of the bandwidth. And while this is located in
-> > a house, this isn't what I would call an home user usage.
+On Mon, Sep 01, 2003 at 04:39:58PM +0100, Christoph Hellwig wrote:
+> > I have updated dontdiff in the usual place:
+> >   http://www.moses.uklinux.net/patches/dontdiff
+> > /usr/src/linux/Documentation/SubmittingPatches
 > 
-> Each ACK that has caused previous delays generally opens up a 64K window
-> so you get bursts of data incoming. A sequence of acks can cause the
+> Btw, what about putting this somewhere in the kernel tree?
 
-the congestion avoidance shouldn't allow what you say. It sends a few
-packets immediatly (cwnd starts > 1 recently), and that's why
-non-keepalive connections are bad, but after that the congestion window
-will remain low if we drop the packets.
+I do not like dontdiff to be part of the kernel tree.
+What is included in dontdiff is redundant information already known
+by kbuild. Effectively dontdiff should not list any files that would
+not be removed during a "make mrproper".
 
-> incoming pipe to fill enough to screw up voip very easily.
-> 
-> Window bending stuff does help and certainly the packeteer boxes use it
-> to good effect. I've never tried that on Linux but even then Im dubious
-> that just cutting the routes down to an 8K window would help
+Instead why not use the knowledge kbuild has and implement
+'make dontdiff'
 
-The only object of my posts was to try to correct the misinformation
-that was spreading from Larry's posts that implied you had to buy a
-speparate connection to shape the bitkeeper connections doing clones of
-the tree. That's what I and everybody else understood. Now apparently he
-was wrong and the hurting factor aren't the bitkeeper clients cloning
-the tree but the webserver. So I'm glad to have reached my object.
+This could generate the list of files used for 'diff -X'.
+I can try to hack up something during the week just to see if
+it looks ok.
 
-Andrea
+	Sam

@@ -1,365 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267511AbUIUIzw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267537AbUIUIzv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267511AbUIUIzw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 04:55:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267543AbUIUIyD
+	id S267537AbUIUIzv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 04:55:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267511AbUIUIyg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 04:54:03 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:51152 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S267538AbUIUIvE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 04:51:04 -0400
-Date: Tue, 21 Sep 2004 17:52:54 +0900
-From: Kenji Kaneshige <kaneshige.kenji@soft.fujitsu.com>
-Subject: [PATCH] PCI IRQ resource deallocation support [3/3]
-To: akpm@osdl.org, greg@kroah.com, len.brown@intel.com, tony.luck@intel.com,
-       linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net,
-       linux-ia64@vger.kernel.org
-Message-id: <414FEBE6.8050505@soft.fujitsu.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: ja
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; ja-JP; rv:1.4)
- Gecko/20030624 Netscape/7.1 (ax)
+	Tue, 21 Sep 2004 04:54:36 -0400
+Received: from fw.osdl.org ([65.172.181.6]:2990 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267537AbUIUIwc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Sep 2004 04:52:32 -0400
+Date: Tue, 21 Sep 2004 01:50:20 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: gene.heskett@verizon.net, sct@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: journal aborted, system read-only
+Message-Id: <20040921015020.7372faac.akpm@osdl.org>
+In-Reply-To: <1095088378.2765.18.camel@sisko.scot.redhat.com>
+References: <200409121128.39947.gene.heskett@verizon.net>
+	<1095088378.2765.18.camel@sisko.scot.redhat.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Stephen C. Tweedie" <sct@redhat.com> wrote:
+>
+> Hi,
+> 
+> On Sun, 2004-09-12 at 16:28, Gene Heskett wrote:
+> 
+> > I just got up, and found advisories on every shell open that the 
+> > journal had encountered an error and aborted, converting my / 
+> > partition to read-only.
+> ...
+> > The kernel is 2.6.9-rc1-mm4.  .config available on request.
+> 
+> > This is precious little info to go on, but basicly I'm wondering if 
+> > anyone else has encountered this?
+> 
+> Well, we really need to see _what_ error the journal had encountered to
+> be able to even begin to diagnose it.  But 2.6.9-rc1-mm3 and -mm4 had a
+> bug in the journaling introduced by low-latency work on the checkpoint
+> code; can you try -mm5 or back out
+> "journal_clean_checkpoint_list-latency-fix.patch" and try again?
+> 
 
-This is an ia64 portion of IRQ resource deallocation. It implements
-pcibios_disable_device() and acpi_unregister_gsi() for ia64.
+Turns out this is due to the reworked buffer/page sleep/wakeup code in
+recent -mm's.  If the journal timer wakes kjournald while kjournald is
+waiting on a read of a journal indirect block, kjournald just plunges ahead
+with a still-locked, non-uptodate buffer.  Which it treats as an I/O error,
+and things don't improve from there.
 
-    o acpi_unregister_gsi()
+This should fix.
 
-        Summary of changes for implementing this interface:
-
-        - Add new function iosapic_unregister_intr() into
-          arch/ia64/kernel/iosapic.c. This function frees an interrupt
-          vector and related data structures.
-
-        - Add new function free_irq_vector() into
-          arch/ia64/kernel/irq_ia64.c. This frees an unused vector.
-
-        - Change assign_irq_vector() to be able to support
-          free_irq_vector().
-
-    o pcibios_disable_device()
-
-        This calls acpi_pci_irq_disable() to deallocate IRQ resources.
-
-Signed-off-by: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-
-
----
-
- linux-2.6.9-rc2-mm1-kanesige/arch/ia64/Kconfig           |    9 +
- linux-2.6.9-rc2-mm1-kanesige/arch/ia64/kernel/acpi.c     |    3 
- linux-2.6.9-rc2-mm1-kanesige/arch/ia64/kernel/iosapic.c  |   82 +++++++++++++--
- linux-2.6.9-rc2-mm1-kanesige/arch/ia64/kernel/irq.c      |    9 +
- linux-2.6.9-rc2-mm1-kanesige/arch/ia64/kernel/irq_ia64.c |   27 ++++
- linux-2.6.9-rc2-mm1-kanesige/arch/ia64/pci/pci.c         |    3 
- linux-2.6.9-rc2-mm1-kanesige/include/asm-ia64/hw_irq.h   |    2 
- linux-2.6.9-rc2-mm1-kanesige/include/asm-ia64/iosapic.h  |    4 
- 8 files changed, 124 insertions(+), 15 deletions(-)
-
-diff -puN arch/ia64/Kconfig~IRQ_deallocation_ia64 arch/ia64/Kconfig
---- linux-2.6.9-rc2-mm1/arch/ia64/Kconfig~IRQ_deallocation_ia64	2004-09-21 15:24:28.251867327 +0900
-+++ linux-2.6.9-rc2-mm1-kanesige/arch/ia64/Kconfig	2004-09-21 15:24:28.271398701 +0900
-@@ -500,6 +500,15 @@ config IA64_PALINFO
- 	  To use this option, you have to ensure that the "/proc file system
- 	  support" (CONFIG_PROC_FS) is enabled, too.
+--- 25/kernel/wait.c~wait_on_bit-must-loop	2004-09-21 01:33:18.000000000 -0700
++++ 25-akpm/kernel/wait.c	2004-09-21 01:44:36.706435616 -0700
+@@ -157,8 +157,9 @@ __wait_on_bit(wait_queue_head_t *wq, str
+ 	int ret = 0;
  
-+config IA64_DEALLOCATE_IRQ
-+	bool "IRQ resource deallocation support (EXPERIMENTAL)"
-+	depends on IOSAPIC && EXPERIMENTAL
-+	default n
-+	help
-+	  Say Y here to experiment with deallocating IRQ resources
-+	  dynamically.
-+	  Say N if you want to disable IRQ resource deallocation.
-+
- source "drivers/firmware/Kconfig"
- 
- source "fs/Kconfig.binfmt"
-diff -puN arch/ia64/kernel/acpi.c~IRQ_deallocation_ia64 arch/ia64/kernel/acpi.c
---- linux-2.6.9-rc2-mm1/arch/ia64/kernel/acpi.c~IRQ_deallocation_ia64	2004-09-21 15:24:28.259679877 +0900
-+++ linux-2.6.9-rc2-mm1-kanesige/arch/ia64/kernel/acpi.c	2004-09-21 15:24:28.272375269 +0900
-@@ -524,6 +524,9 @@ EXPORT_SYMBOL(acpi_register_gsi);
- void
- acpi_unregister_gsi (unsigned int irq)
- {
-+#ifdef CONFIG_IA64_DEALLOCATE_IRQ
-+	iosapic_unregister_intr(irq);
-+#endif
+ 	prepare_to_wait(wq, &q->wait, mode);
+-	if (test_bit(q->key.bit_nr, q->key.flags))
++	do {
+ 		ret = (*action)(q->key.flags);
++	} while (test_bit(q->key.bit_nr, q->key.flags) && !ret);
+ 	finish_wait(wq, &q->wait);
+ 	return ret;
  }
- EXPORT_SYMBOL(acpi_unregister_gsi);
- 
-diff -puN arch/ia64/kernel/iosapic.c~IRQ_deallocation_ia64 arch/ia64/kernel/iosapic.c
---- linux-2.6.9-rc2-mm1/arch/ia64/kernel/iosapic.c~IRQ_deallocation_ia64	2004-09-21 15:24:28.260656445 +0900
-+++ linux-2.6.9-rc2-mm1-kanesige/arch/ia64/kernel/iosapic.c	2004-09-21 15:24:28.273351838 +0900
-@@ -111,6 +111,7 @@ static struct iosapic_intr_info {
- 	unsigned char	dmode	: 3;	/* delivery mode (see iosapic.h) */
- 	unsigned char 	polarity: 1;	/* interrupt polarity (see iosapic.h) */
- 	unsigned char	trigger	: 1;	/* trigger mode (see iosapic.h) */
-+	int		refcnt;		/* reference counter */
- } iosapic_intr_info[IA64_NUM_VECTORS];
- 
- static struct iosapic {
-@@ -177,7 +178,7 @@ gsi_to_irq (unsigned int gsi)
- static void
- set_rte (unsigned int vector, unsigned int dest, int mask)
- {
--	unsigned long pol, trigger, dmode, flags;
-+	unsigned long pol, trigger, dmode;
- 	u32 low32, high32;
- 	char *addr;
- 	int rte_index;
-@@ -218,13 +219,9 @@ set_rte (unsigned int vector, unsigned i
- 	/* dest contains both id and eid */
- 	high32 = (dest << IOSAPIC_DEST_SHIFT);
- 
--	spin_lock_irqsave(&iosapic_lock, flags);
--	{
--		iosapic_write(addr, IOSAPIC_RTE_HIGH(rte_index), high32);
--		iosapic_write(addr, IOSAPIC_RTE_LOW(rte_index), low32);
--		iosapic_intr_info[vector].low32 = low32;
--	}
--	spin_unlock_irqrestore(&iosapic_lock, flags);
-+	iosapic_write(addr, IOSAPIC_RTE_HIGH(rte_index), high32);
-+	iosapic_write(addr, IOSAPIC_RTE_LOW(rte_index), low32);
-+	iosapic_intr_info[vector].low32 = low32;
- }
- 
- static void
-@@ -475,6 +472,7 @@ register_intr (unsigned int gsi, int vec
- 	iosapic_intr_info[vector].addr     = iosapic_address;
- 	iosapic_intr_info[vector].gsi_base = gsi_base;
- 	iosapic_intr_info[vector].trigger  = trigger;
-+	iosapic_intr_info[vector].refcnt++;
- 
- 	if (trigger == IOSAPIC_EDGE)
- 		irq_type = &irq_type_iosapic_edge;
-@@ -576,6 +574,7 @@ iosapic_register_intr (unsigned int gsi,
- 	{
- 		vector = gsi_to_vector(gsi);
- 		if (vector > 0) {
-+			iosapic_intr_info[vector].refcnt++;
- 			spin_unlock_irqrestore(&iosapic_lock, flags);
- 			return vector;
- 		}
-@@ -584,6 +583,8 @@ iosapic_register_intr (unsigned int gsi,
- 		dest = get_target_cpu(gsi, vector);
- 		register_intr(gsi, vector, IOSAPIC_LOWEST_PRIORITY,
- 			polarity, trigger);
-+
-+		set_rte(vector, dest, 1);
- 	}
- 	spin_unlock_irqrestore(&iosapic_lock, flags);
- 
-@@ -592,10 +593,73 @@ iosapic_register_intr (unsigned int gsi,
- 	       (polarity == IOSAPIC_POL_HIGH ? "high" : "low"),
- 	       cpu_logical_id(dest), dest, vector);
- 
--	set_rte(vector, dest, 1);
- 	return vector;
- }
- 
-+#ifdef CONFIG_IA64_DEALLOCATE_IRQ
-+void
-+iosapic_unregister_intr (unsigned int irq)
-+{
-+	unsigned long flags;
-+	irq_desc_t *idesc;
-+	int rte_index;
-+	unsigned int gsi;
-+	unsigned long trigger, polarity;
-+	ia64_vector vector = irq_to_vector(irq);
-+		
-+	idesc = irq_descp(irq);
-+	spin_lock_irqsave(&idesc->lock, flags);
-+	spin_lock(&iosapic_lock);
-+	{
-+		rte_index = iosapic_intr_info[vector].rte_index;
-+		if (rte_index < 0) {
-+			spin_unlock(&iosapic_lock);
-+			spin_unlock_irqrestore(&idesc->lock, flags);
-+			return;		/* not an IOSAPIC interrupt */
-+		}
-+
-+		if (--iosapic_intr_info[vector].refcnt > 0) {
-+			spin_unlock(&iosapic_lock);
-+			spin_unlock_irqrestore(&idesc->lock, flags);
-+			return;
-+		}
-+
-+		/*
-+		 * If interrupt handlers still exists on the irq
-+		 * associated with the gsi, don't unregister the
-+		 * interrupt.
-+		 */
-+		if (unlikely(idesc->action)) {
-+			iosapic_intr_info[vector].refcnt++;
-+			spin_unlock_irqrestore(&idesc->lock, flags);
-+			printk(KERN_WARNING "Cannot unregister GSI. IRQ %u is still in use.\n", irq);
-+			return;
-+		}
-+
-+		/* Clear the interrupt controller descriptor. */
-+		idesc->handler = &no_irq_type;
-+
-+		gsi = iosapic_intr_info[vector].gsi_base + rte_index;
-+		trigger  = iosapic_intr_info[vector].trigger;
-+		polarity = iosapic_intr_info[vector].polarity;
-+
-+		/* Clear the interrupt information. */
-+		memset(&iosapic_intr_info[vector], 0, sizeof(struct iosapic_intr_info));
-+		iosapic_intr_info[vector].rte_index = -1;	/* mark as unused */
-+	}
-+	spin_unlock(&iosapic_lock);
-+	spin_unlock_irqrestore(&idesc->lock, flags);
-+
-+	/* Free the interrupt vector */
-+	free_irq_vector(vector);
-+
-+	printk(KERN_INFO "GSI %u (%s, %s) -> vector %d unregisterd.\n",
-+	       gsi, (trigger == IOSAPIC_EDGE ? "edge" : "level"),
-+	       (polarity == IOSAPIC_POL_HIGH ? "high" : "low"),
-+	       vector);
-+}
-+#endif /* CONFIG_IA64_DEALLOCATE_IRQ */
-+
- /*
-  * ACPI calls this when it finds an entry for a platform interrupt.
-  * Note that the irq_base and IOSAPIC address must be set in iosapic_init().
-diff -puN arch/ia64/kernel/irq.c~IRQ_deallocation_ia64 arch/ia64/kernel/irq.c
---- linux-2.6.9-rc2-mm1/arch/ia64/kernel/irq.c~IRQ_deallocation_ia64	2004-09-21 15:24:28.262609583 +0900
-+++ linux-2.6.9-rc2-mm1-kanesige/arch/ia64/kernel/irq.c	2004-09-21 15:24:28.273351838 +0900
-@@ -879,8 +879,11 @@ int setup_irq(unsigned int irq, struct i
- 	struct irqaction *old, **p;
- 	irq_desc_t *desc = irq_descp(irq);
- 
--	if (desc->handler == &no_irq_type)
-+	spin_lock_irqsave(&desc->lock,flags);
-+	if (desc->handler == &no_irq_type) {
-+		spin_unlock_irqrestore(&desc->lock,flags);
- 		return -ENOSYS;
-+	}
- 	/*
- 	 * Some drivers like serial.c use request_irq() heavily,
- 	 * so we have to be careful not to interfere with a
-@@ -906,7 +909,6 @@ int setup_irq(unsigned int irq, struct i
- 	/*
- 	 * The following block of code has to be executed atomically
- 	 */
--	spin_lock_irqsave(&desc->lock,flags);
- 	p = &desc->action;
- 	if ((old = *p) != NULL) {
- 		/* Can't share interrupts unless both agree to */
-@@ -1040,6 +1042,9 @@ void move_irq(int irq)
- 	irq_desc_t *desc = irq_descp(irq);
- 	int redir = test_bit(irq, pending_irq_redir);
- 
-+	if (unlikely(!desc->handler->set_affinity))
-+		return;
-+
- 	if (!cpus_empty(pending_irq_cpumask[irq])) {
- 		cpus_and(tmp, pending_irq_cpumask[irq], cpu_online_map);
- 		if (unlikely(!cpus_empty(tmp))) {
-diff -puN arch/ia64/kernel/irq_ia64.c~IRQ_deallocation_ia64 arch/ia64/kernel/irq_ia64.c
---- linux-2.6.9-rc2-mm1/arch/ia64/kernel/irq_ia64.c~IRQ_deallocation_ia64	2004-09-21 15:24:28.264562720 +0900
-+++ linux-2.6.9-rc2-mm1-kanesige/arch/ia64/kernel/irq_ia64.c	2004-09-21 15:24:28.274328407 +0900
-@@ -74,15 +74,34 @@ irq_exit (void)
- 	preempt_enable_no_resched();
- }
- 
-+static unsigned long ia64_vector_mask[BITS_TO_LONGS(IA64_NUM_DEVICE_VECTORS)];
-+
- int
- assign_irq_vector (int irq)
- {
--	static int next_vector = IA64_FIRST_DEVICE_VECTOR;
--
--	if (next_vector > IA64_LAST_DEVICE_VECTOR)
-+	int pos, vector;
-+ again:
-+	pos = find_first_zero_bit(ia64_vector_mask, IA64_NUM_DEVICE_VECTORS);
-+	vector = IA64_FIRST_DEVICE_VECTOR + pos;
-+	if (vector > IA64_LAST_DEVICE_VECTOR)
- 		/* XXX could look for sharable vectors instead of panic'ing... */
- 		panic("assign_irq_vector: out of interrupt vectors!");
--	return next_vector++;
-+	if (test_and_set_bit(pos, ia64_vector_mask))
-+		goto again;
-+	return vector;
-+}
-+
-+void
-+free_irq_vector (int vector)
-+{
-+	int pos;
-+
-+	if (vector < IA64_FIRST_DEVICE_VECTOR || vector > IA64_LAST_DEVICE_VECTOR)
-+		return;
-+
-+	pos = vector - IA64_FIRST_DEVICE_VECTOR;
-+	if (!test_and_clear_bit(pos, ia64_vector_mask))
-+		printk(KERN_WARNING "%s: double free!\n", __FUNCTION__);
- }
- 
- extern unsigned int do_IRQ(unsigned long irq, struct pt_regs *regs);
-diff -puN arch/ia64/pci/pci.c~IRQ_deallocation_ia64 arch/ia64/pci/pci.c
---- linux-2.6.9-rc2-mm1/arch/ia64/pci/pci.c~IRQ_deallocation_ia64	2004-09-21 15:24:28.265539289 +0900
-+++ linux-2.6.9-rc2-mm1-kanesige/arch/ia64/pci/pci.c	2004-09-21 15:24:28.274328407 +0900
-@@ -451,6 +451,9 @@ pcibios_enable_device (struct pci_dev *d
- void
- pcibios_disable_device (struct pci_dev *dev)
- {
-+#ifdef CONFIG_IA64_DEALLOCATE_IRQ
-+	acpi_pci_irq_disable(dev);
-+#endif /* CONFIG_IA64_DEALLOCATE_IRQ */
- }
- 
- void
-diff -puN include/asm-ia64/hw_irq.h~IRQ_deallocation_ia64 include/asm-ia64/hw_irq.h
---- linux-2.6.9-rc2-mm1/include/asm-ia64/hw_irq.h~IRQ_deallocation_ia64	2004-09-21 15:24:28.267492426 +0900
-+++ linux-2.6.9-rc2-mm1-kanesige/include/asm-ia64/hw_irq.h	2004-09-21 15:24:28.275304975 +0900
-@@ -50,6 +50,7 @@ typedef u8 ia64_vector;
-  */
- #define IA64_FIRST_DEVICE_VECTOR	0x30
- #define IA64_LAST_DEVICE_VECTOR		0xe7
-+#define IA64_NUM_DEVICE_VECTORS		(IA64_LAST_DEVICE_VECTOR - IA64_FIRST_DEVICE_VECTOR + 1)
- 
- #define IA64_MCA_RENDEZ_VECTOR		0xe8	/* MCA rendez interrupt */
- #define IA64_PERFMON_VECTOR		0xee	/* performanc monitor interrupt vector */
-@@ -83,6 +84,7 @@ extern unsigned long ipi_base_addr;
- extern struct hw_interrupt_type irq_type_ia64_lsapic;	/* CPU-internal interrupt controller */
- 
- extern int assign_irq_vector (int irq);	/* allocate a free vector */
-+extern void free_irq_vector (int vector);
- extern void ia64_send_ipi (int cpu, int vector, int delivery_mode, int redirect);
- extern void register_percpu_irq (ia64_vector vec, struct irqaction *action);
- 
-diff -puN include/asm-ia64/iosapic.h~IRQ_deallocation_ia64 include/asm-ia64/iosapic.h
---- linux-2.6.9-rc2-mm1/include/asm-ia64/iosapic.h~IRQ_deallocation_ia64	2004-09-21 15:24:28.269445563 +0900
-+++ linux-2.6.9-rc2-mm1-kanesige/include/asm-ia64/iosapic.h	2004-09-21 15:24:28.275304975 +0900
-@@ -78,6 +78,9 @@ extern int gsi_to_irq (unsigned int gsi)
- extern void iosapic_enable_intr (unsigned int vector);
- extern int iosapic_register_intr (unsigned int gsi, unsigned long polarity,
- 				  unsigned long trigger);
-+#ifdef CONFIG_IA64_DEALLOCATE_IRQ
-+extern void iosapic_unregister_intr (unsigned int irq);
-+#endif
- extern void __init iosapic_override_isa_irq (unsigned int isa_irq, unsigned int gsi,
- 				      unsigned long polarity,
- 				      unsigned long trigger);
-@@ -97,6 +100,7 @@ extern void __init map_iosapic_to_node (
- #define iosapic_system_init(pcat_compat)			do { } while (0)
- #define iosapic_init(address,gsi_base)				do { } while (0)
- #define iosapic_register_intr(gsi,polarity,trigger)		(gsi)
-+#define iosapic_unregister_intr(irq)				do { } while (0)
- #define iosapic_override_isa_irq(isa_irq,gsi,polarity,trigger)	do { } while (0)
- #define iosapic_register_platform_intr(type,gsi,pmi,eid,id, \
- 	polarity,trigger)					(gsi)
-
 _
 

@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272058AbRHVR1o>; Wed, 22 Aug 2001 13:27:44 -0400
+	id <S272061AbRHVRaY>; Wed, 22 Aug 2001 13:30:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272049AbRHVR1e>; Wed, 22 Aug 2001 13:27:34 -0400
-Received: from barbados.bluemug.com ([63.195.182.101]:10514 "EHLO
-	barbados.bluemug.com") by vger.kernel.org with ESMTP
-	id <S272056AbRHVR1c>; Wed, 22 Aug 2001 13:27:32 -0400
-Date: Wed, 22 Aug 2001 10:27:40 -0700
-To: Robert Love <rml@tech9.net>
-Cc: Oliver Xymoron <oxymoron@waste.org>, linux-kernel@vger.kernel.org,
-        riel@conectiva.com.br
-Subject: Re: [PATCH] let Net Devices feed Entropy, updated (1/2)
-Message-ID: <20010822102740.D27313@bluemug.com>
-Mail-Followup-To: Robert Love <rml@tech9.net>,
-	Oliver Xymoron <oxymoron@waste.org>, linux-kernel@vger.kernel.org,
-	riel@conectiva.com.br
-In-Reply-To: <Pine.LNX.4.30.0108182234250.31188-100000@waste.org> <998193404.653.12.camel@phantasy> <20010821231002.C27313@bluemug.com> <998461609.5166.10.camel@phantasy>
-Mime-Version: 1.0
+	id <S272049AbRHVRaO>; Wed, 22 Aug 2001 13:30:14 -0400
+Received: from h131s117a129n47.user.nortelnetworks.com ([47.129.117.131]:56737
+	"HELO pcard0ks.ca.nortel.com") by vger.kernel.org with SMTP
+	id <S272062AbRHVRaC>; Wed, 22 Aug 2001 13:30:02 -0400
+Message-ID: <3B83EC7B.B10F59C6@nortelnetworks.com>
+Date: Wed, 22 Aug 2001 13:31:39 -0400
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: adding accuracy to random timers on PPC - new config option or runtime 
+ overhead?
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <998461609.5166.10.camel@phantasy>
-X-PGP-ID: 5C09BB33
-X-PGP-Fingerprint: C518 67A5 F5C5 C784 A196  B480 5C97 3BBD 5C09 BB33
-From: Mike Touloumtzis <miket@bluemug.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 22, 2001 at 02:26:36AM -0400, Robert Love wrote:
-> 
-> The solution to this is easy: get something to generate entropy (like my
-> netdev patch! :) and save/restore the entropy seed.
 
-Agreed, I don't think the netdev patch is a bad idea, and it's
-helpful in the case I described.  I was just getting worried
-about the assertions (from various directions) that /dev/random
-and /dev/urandom are practically indistinguishable unless you
-can break SHA-1.  There's enough confusion out there as it is :-).
+I'm looking at putting in PPC-specific code in add_timer_randomness() that would
+be similar to the x86-specific stuff.
 
-miket
+The problem is that the PPC601 uses real time clock registers while the other
+PPC chips use a timebase register, so two different versions will be required.
+Should I try and identify at runtime which it is (which would be extra
+overhead), or should I add another config option to the kernel?
+
+Thanks,
+
+Chris
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

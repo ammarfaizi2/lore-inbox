@@ -1,54 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268730AbRG3XJ6>; Mon, 30 Jul 2001 19:09:58 -0400
+	id <S268712AbRG3XJR>; Mon, 30 Jul 2001 19:09:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268733AbRG3XJr>; Mon, 30 Jul 2001 19:09:47 -0400
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:13136 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S268730AbRG3XJ1>; Mon, 30 Jul 2001 19:09:27 -0400
-Date: Mon, 30 Jul 2001 18:09:33 -0500 (CDT)
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-To: Joshua Schmidlkofer <menion@srci.iwpsd.org>
-cc: Thomas Zehetbauer <thomasz@hostmaster.org>, linux-kernel@vger.kernel.org
-Subject: Re: tulip driver still broken
-In-Reply-To: <01073016571903.25803@widmers.oce.srci.oce.int>
-Message-ID: <Pine.LNX.3.96.1010730180814.27870D-100000@mandrakesoft.mandrakesoft.com>
+	id <S268730AbRG3XJH>; Mon, 30 Jul 2001 19:09:07 -0400
+Received: from [207.195.147.16] ([207.195.147.16]:49167 "EHLO
+	MAILCLUSTER.lith.com") by vger.kernel.org with ESMTP
+	id <S268712AbRG3XJA>; Mon, 30 Jul 2001 19:09:00 -0400
+Message-ID: <AF020C5FC551DD43A4958A679EA16A1501349556@mailcluster.lith.com>
+From: Erik De Bonte <erikd@lithtech.com>
+To: linux-kernel@vger.kernel.org
+Subject: Determining IP:port corresponding to an ICMP port unreachable
+Date: Mon, 30 Jul 2001 16:08:56 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Mon, 30 Jul 2001, Joshua Schmidlkofer wrote:
-> I am afraid of post these days.  However, I must comment that I too am having 
-> trouble with the tulip driver, on several SMC nic's that use the DEC  
-> chipset.  I tried mii_tool, with no success.
-> 
-> I have just been copying the tulip driver from 2.4.4 forward...   because I 
-> don't have enough time to try and create an intelligent error report.
+When an ICMP port unreachable message is received and corresponds to a UDP
+socket, is there a way to determine the corresponding unreachable IP and
+port?  I'm able to retrieve the IP, but not the port.  From looking through
+the kernel source, it appears that the port is never extracted from the
+payload section of the ICMP message.  If this is indeed a limitation of the
+kernel, is there a plan to "fix" it in the future?
 
-Thanks for the report!
+Here are the details on my particular situation:
 
-Currently there are problems with 21041 old chipsets, which include SMC
-and several other cards.  You can use 0.9.14 from
-http://sf.net/projects/tulip/ until I get around to fixing it.
+I'm working on a game server which interacts with a large number of clients
+via a single UDP socket.  Occasionally, one of the clients will die without
+sending a disconnect message.  When this happens, I'd like to remove the
+client as quickly as possible to avoid leaving a ghost in the world that
+other players will see.  In the worst case scenario, the session will time
+out after the server hasn't heard from the client in x seconds.  However, if
+I watch for ICMP port unreachable messages, I should frequently be able to
+react more quickly.
 
-(off vacation, but now moving to new house w/ no Internet :))
+With Winsock, this is easy to do.  Recvfrom fails, an error code tells me
+that an ICMP port unreachable was received, and the address parameter of
+recvfrom is filled in with the dead client's IP and port.  On Linux (I'm
+using 2.2.16, but 2.4.x code appears to be the same in this respect),
+recvfrom fails and errno is set to ECONNREFUSED indicating an ICMP port
+unreachable was received.  However, the address is not filled in.  I'm able
+to retrieve the IP via recvmsg with the MSG_ERRQUEUE flag (and the
+IP_RECVERR sockopt), but the port that it gives me is bogus.
 
-	Jeff
+I apologize if this seems too application specific for linux-kernel, but
+this appears to be a limitation of the kernel, and I haven't been able to
+find any info elsewhere.
 
+Thanks,
+Erik
 
-
-
-> On Monday 30 July 2001 04:19 pm, Thomas Zehetbauer wrote:
-> > My genuine digital network interface card ceased to work with the tulip
-> > driver contained in kernel revisions >= 2.4.4 and the development driver
-> > from sourceforge.net.
-> >
-> > It seems that the driver incorrectly configures the card for full duplex
-> > mode and I could not figure out how to override this with the new
-> > MODULE_PARM macro.
-> >
-> > I am now using the stable driver 0.9.14 from sourceforge.net which works
-> > fine.
-
+Erik L. De Bonte
+Lead Server Programmer
+LithTech, Inc. - http://www.lithtech.com

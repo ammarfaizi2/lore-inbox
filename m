@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263264AbTEMRwt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 13:52:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262383AbTEMRws
+	id S263305AbTEMR4w (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 13:56:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbTEMRzR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 13:52:48 -0400
-Received: from havoc.daloft.com ([64.213.145.173]:24791 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S263264AbTEMRwP (ORCPT
+	Tue, 13 May 2003 13:55:17 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:47063 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262383AbTEMRzJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 13:52:15 -0400
-Date: Tue, 13 May 2003 14:05:00 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Dave Jones <davej@codemonkey.org.uk>,
-       "Mudama, Eric" <eric_mudama@maxtor.com>,
-       Oleg Drokin <green@namesys.com>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Oliver Neukum <oliver@neukum.org>,
-       lkhelp@rekl.yi.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.69, IDE TCQ can't be enabled
-Message-ID: <20030513180459.GB11073@gtf.org>
-References: <785F348679A4D5119A0C009027DE33C102E0D31D@mcoexc04.mlm.maxtor.com> <20030512193509.GB10089@gtf.org> <20030512194245.GG17033@suse.de> <20030512195331.GD10089@gtf.org> <20030513064059.GL17033@suse.de> <20030513180020.GB3309@suse.de> <20030513180334.GJ17033@suse.de>
+	Tue, 13 May 2003 13:55:09 -0400
+Date: Tue, 13 May 2003 11:09:13 -0700
+From: Greg KH <greg@kroah.com>
+To: Paul Fulghum <paulkf@microgate.com>
+Cc: Alan Stern <stern@rowland.harvard.edu>, Andrew Morton <akpm@digeo.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Arnd Bergmann <arnd@arndb.de>, johannes@erdfelt.com
+Subject: Re: 2.5.69 Interrupt Latency
+Message-ID: <20030513180913.GA10752@kroah.com>
+References: <Pine.LNX.4.44L0.0305131117240.3274-100000@ida.rowland.org> <1052840106.2255.24.camel@diemos> <20030513173044.GB10284@kroah.com> <1052830860.1992.2.camel@diemos>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030513180334.GJ17033@suse.de>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <1052830860.1992.2.camel@diemos>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 13, 2003 at 08:03:34PM +0200, Jens Axboe wrote:
-> On Tue, May 13 2003, Dave Jones wrote:
-> > On Tue, May 13, 2003 at 08:40:59AM +0200, Jens Axboe wrote:
-> >  > > Weird.  Mine doesn't seem to assert it, nor does the identify page
-> >  > > indicate it's supported.  Maybe I have a broken drive firmware.
-> >  > 
-> >  > Then the linux code won't work on it, have you tried? I've tried a lot
-> >  > of different IBM models, they all do service interrupts just fine.
+On Tue, May 13, 2003 at 08:01:01AM -0500, Paul Fulghum wrote:
+> On Tue, 2003-05-13 at 12:30, Greg KH wrote:
+> > On Tue, May 13, 2003 at 10:35:07AM -0500, Paul Fulghum wrote:
+> > > On Tue, 2003-05-13 at 10:26, Alan Stern wrote:
+> > > 
+> > > > Putting in a sanity check for the global suspend state will be very easy.  
+> > > > But I would like to point out that this "global suspend" does not refer to
+> > > > the entire system, only the USB bus.
+> > > 
+> > > That is a problem then, because the delay can still
+> > > occur during normal system operation.
 > > 
-> > bug in the firmware version on Jeffs drives perhaps ?
+> > Ok, can you try the attached patch and see if it causes your latency
+> > problem to go away?
 > 
-> It's possible, it would help a lot of Jeff would answer the question
-> above and maybe even share what drive he is using with us.
+> I applied the patch plus a couple of printk statements,
+> and the wakeup_hc() is being continuously called
+> as well as actually executing the delay.
 
-hehe, just did (answer: no).  I'll post hdparm -I for it tomorrow.
+Is the suspend_hc() function ever getting called by anyone in that
+driver? 
 
-	Jeff
+thanks,
 
-
-
+greg k-h

@@ -1,99 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268800AbUHLVjN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268805AbUHLVRc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268800AbUHLVjN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 17:39:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268788AbUHLVjM
+	id S268805AbUHLVRc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 17:17:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268800AbUHLVNs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 17:39:12 -0400
-Received: from everest.2mbit.com ([24.123.221.2]:28605 "EHLO mail.sosdg.org")
-	by vger.kernel.org with ESMTP id S268800AbUHLV2w (ORCPT
+	Thu, 12 Aug 2004 17:13:48 -0400
+Received: from albireo.ucw.cz ([81.27.203.89]:45448 "EHLO albireo.ucw.cz")
+	by vger.kernel.org with ESMTP id S268795AbUHLVKW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 17:28:52 -0400
-Message-ID: <411BE105.4080203@greatcn.org>
-Date: Fri, 13 Aug 2004 05:28:37 +0800
-From: Coywolf Qi Hunt <coywolf@greatcn.org>
-User-Agent: Mozilla Thunderbird 0.7.2 (Windows/20040707)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: sam@ravnborg.org
-CC: kai@tp1.ruhr-uni-bochum.de, akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <411B31A5.70508@greatcn.org>    <20040812172307.GA7365@mars.ravnborg.org>    <411BCE4F.1060002@greatcn.org> <51248.194.237.142.13.1092343524.squirrel@194.237.142.13>
-In-Reply-To: <51248.194.237.142.13.1092343524.squirrel@194.237.142.13>
-X-Scan-Signature: ce21113bd12aaf7d53962de4c3292a8b
-X-SA-Exim-Connect-IP: 218.24.171.72
-X-SA-Exim-Mail-From: coywolf@greatcn.org
-Subject: [PATCH] Remove wildcard on KBUILD_OUTPUT
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Report: * -4.9 BAYES_00 BODY: Bayesian spam probability is 0 to 1%
-	*      [score: 0.0000]
-	*  3.0 RCVD_IN_AHBL_CNKR RBL: AHBL: sender is listed in the AHBL China/Korea blocks
-	*      [218.24.171.72 listed in cnkrbl.ahbl.org]
-X-SA-Exim-Version: 4.0+cvs20040712 (built Mon, 09 Aug 2004 23:30:37 -0500)
+	Thu, 12 Aug 2004 17:10:22 -0400
+Date: Thu, 12 Aug 2004 23:10:19 +0200
+From: Martin Mares <mj@ucw.cz>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Tim Wright <timw@splhi.com>,
+       Joerg Schilling <schilling@fokus.fraunhofer.de>,
+       James.Bottomley@steeleye.com, axboe@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Message-ID: <20040812211019.GC2351@ucw.cz>
+References: <1091899593.20043.14.camel@kryten.internal.splhi.com> <411BDD11.8070400@tmr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <411BDD11.8070400@tmr.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sam@ravnborg.org wrote:
+Hello!
 
->>You misunderstood me.
->>This patch removes unnecessary wildcard on KBUILD_OUTPUT and unused VPATH.
->>If it looks ok, I'd like to send it to lkml and akpm.
->>    
->>
->
->Try building a kernel where you use O= to specify another output directory.
->Try with an existing and a non-existing directory.
->
->You will see why both are needed.
->
->  
->
+> But they *don't* map to consistent device names. All hot pluggable 
+> devices seem to map to the next available name. Looking at one of my 
+> utility systems, it has IDE drives mapped by Redhat with ide-scsi, real 
+> SCSI drives, a couple of flash card slots mapped to SCSI, and a USB 
+> device, all in the /dev/sdX namespace. And in the order in which they 
+> were detected (connected, in other words).
+> 
+> Joerg hasn't made it any better, but it isn't great anyway. I recommend 
+> a script to do discovery and make symlinks somewhere to names which 
+> always match the same device.
 
-I searched VPATH in the manual. I was wrong on removing VPATH.
-But I still think wildcard is unnecessary.
+Exactly. But although this is very easy with addressing by names in /dev
+(just make the symlink), I do not see any sane solution in Joerg's world.
 
-I did build kernel with another output directory, both existing and 
-non-existing before mailling you.
-And even when KBUILD_OUTPUT contains wildcard. Ok, I just saw Kai's 
-reply. I Needn't further explain.
-
-
-Kai Germaschewski wrote:
-
->>Try building a kernel where you use O= to specify another output directory.
->>Try with an existing and a non-existing directory.
->>    
->>
->
->I suspect that the patch works, if $(shell ...) returns what's written to 
->stdout, KBUILD_OUTPUT would be empty and thus the wildcard unnecessary. Of 
->course I'm too lazy to test it out, too...
->
->--Kai
->
->
->  
->
-
-
-Signed-off-by: Coywolf Qi Hunt <coywolf@greatcn.org>
-
---- linux-2.6.8-rc4-mm1/Makefile	2004-08-12 13:59:10.000000000 -0500
-+++ linux-2.6.8-rc4-mm1-cy/Makefile	2004-08-12 16:09:08.171039406 -0500
-@@ -102,7 +102,7 @@ ifneq ($(KBUILD_OUTPUT),)
- # check that the output directory actually exists
- saved-output := $(KBUILD_OUTPUT)
- KBUILD_OUTPUT := $(shell cd $(KBUILD_OUTPUT) && /bin/pwd)
--$(if $(wildcard $(KBUILD_OUTPUT)),, \
-+$(if $(KBUILD_OUTPUT),, \
-      $(error output directory "$(saved-output)" does not exist))
- 
- .PHONY: $(MAKECMDGOALS)
-
-
+				Have a nice fortnight
 -- 
-
-Coywolf Qi Hunt
-Homepage http://greatcn.org/~coywolf/
-Admin of http://GreatCN.org and http://LoveCN.org
-
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+If at first you don't succeed, redefine success.

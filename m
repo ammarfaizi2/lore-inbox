@@ -1,41 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261661AbTJ0M0i (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 07:26:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261667AbTJ0M0i
+	id S261606AbTJ0MW0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 07:22:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261626AbTJ0MW0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 07:26:38 -0500
-Received: from ns.suse.de ([195.135.220.2]:57996 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261661AbTJ0M0i (ORCPT
+	Mon, 27 Oct 2003 07:22:26 -0500
+Received: from f17.mail.ru ([194.67.57.47]:29451 "EHLO f17.mail.ru")
+	by vger.kernel.org with ESMTP id S261606AbTJ0MWY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 07:26:38 -0500
-Date: Mon, 27 Oct 2003 13:26:35 +0100
-From: Andi Kleen <ak@suse.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Andi Kleen <ak@muc.de>, simon.roscic@chello.at,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [2.6.0-test8/9] ethertap oops
-Message-ID: <20031027122635.GB16013@wotan.suse.de>
-References: <L1fo.3gb.9@gated-at.bofh.it> <m3ekwz7h3z.fsf@averell.firstfloor.org> <20031026234828.2cb1f746.davem@redhat.com>
+	Mon, 27 Oct 2003 07:22:24 -0500
+From: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
+	<arvidjaar@mail.ru>
+To: linux-kernel@vger.kernel.org
+Cc: =?koi8-r?Q?=22?=Jan Ploski=?koi8-r?Q?=22=20?= <jpljpl@gmx.de>
+Subject: Re:  2.6.0-testX and pppd/pppoe stuck after connecting
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031026234828.2cb1f746.davem@redhat.com>
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: unknown via proxy [212.30.182.96]
+Date: Mon, 27 Oct 2003 15:22:22 +0300
+Reply-To: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
+	  <arvidjaar@mail.ru>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E1AE6O6-000KbW-00.arvidjaar-mail-ru@f17.mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 26, 2003 at 11:48:28PM -0800, David S. Miller wrote:
-> On Sun, 26 Oct 2003 23:45:52 +0100
-> Andi Kleen <ak@muc.de> wrote:
-> 
-> > diff -u linux-2.6.0test7mm1-averell/drivers/net/ethertap.c-o linux-2.6.0test7mm1-averell/drivers/net/ethertap.c
-> > --- linux-2.6.0test7mm1-averell/drivers/net/ethertap.c-o	2003-09-11 04:12:33.000000000 +0200
-> > +++ linux-2.6.0test7mm1-averell/drivers/net/ethertap.c	2003-10-26 23:41:17.000000000 +0100
-> 
-> This part looks good, applied.
 
-I don't know if it actually fixed the bug, I did not test it
-(sorry, should have stated that in the original mail)
-But at least it should printk now instead of crashing.
+> Ever since I upgraded from 2.4.18 to 2.6.0-test? (now -test8),
+> I have been encountering problems with my pppd/pppoe setup.
+> Specifically, right after the ppp0 interface is brought up, and several
+> packets go through that interface (4-5 packets RX/TX), no more packets
+> are transmitted until I restart pppd and reconnect to my ISP.
+> ping www.google.com will report 100% packet loss, and I cannot see the
+> TX packet count on ppp0 increasing. Nothing suspicious appears in ppp.log.
+> More often than not, I have to reconnect multiple times until at last
+> a working connection is established.
 
--Andi
+I can confirm it with 2.6.0-test8 and simple modem connection (no pppoe). Connection
+is established, I get IP, DNS - everything but no IP packet ever seems to either go out
+or come in. The same works just fine with 2.6.0-test5; I have not tried intermediate
+versions. Probably if test9 is going to have the same problem I will have to. This happens
+every time on boot of test8 and works every time under test5
+
+the system is Mandrake 9.2 without updates, compiler gcc-3.3.1 as shipped with
+mdk 9.2. previous kernel was compiled under mdk 9.1 with whatever compiler it
+had.
+
+Enabling pppd debugging does not show anything interesting except it gets LCP
+echo from remote so some data _is_ flowing between systems. Enabling iptables
+LOG for all packets shows that packets _are_ submitted to ppp0.
+
+So it looks like for whatever resons ppp0 either does not receive packet passed to it
+or never processes them.
+
+As my knowledge of networking layer is near to zero, I appreciate pointers to where
+I can enable debugging, printk or whatever.
+
+TIA
+
+-andrey
+
+
+

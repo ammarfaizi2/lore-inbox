@@ -1,70 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261441AbSIZSmj>; Thu, 26 Sep 2002 14:42:39 -0400
+	id <S261437AbSIZSj5>; Thu, 26 Sep 2002 14:39:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261442AbSIZSmj>; Thu, 26 Sep 2002 14:42:39 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:42645 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S261441AbSIZSmi>;
-	Thu, 26 Sep 2002 14:42:38 -0400
-Message-ID: <3D935655.1030606@colorfullife.com>
-Date: Thu, 26 Sep 2002 20:47:49 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: Ed Tomlinson <tomlins@cam.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch 3/4] slab reclaim balancing
-References: <3D931608.3040702@colorfullife.com> <3D9345C4.74CD73B8@digeo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261438AbSIZSj5>; Thu, 26 Sep 2002 14:39:57 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:6155 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261437AbSIZSj4>;
+	Thu, 26 Sep 2002 14:39:56 -0400
+Date: Thu, 26 Sep 2002 11:43:45 -0700
+From: Greg KH <greg@kroah.com>
+To: David Brownell <david-b@pacbell.net>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Patrick Mochel <mochel@osdl.org>
+Subject: Re: [linux-usb-devel] [RFC] consolidate /sbin/hotplug call for pci and usb
+Message-ID: <20020926184345.GC6250@kroah.com>
+References: <20020925212955.GA32487@kroah.com> <3D9250CD.7090409@pacbell.net> <20020926002554.GB518@kroah.com> <3D92749F.9050504@pacbell.net> <20020926042715.GB1790@kroah.com> <3D933278.9010905@pacbell.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D933278.9010905@pacbell.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+On Thu, Sep 26, 2002 at 09:14:48AM -0700, David Brownell wrote:
 > 
-> (What Ed said - we do hang onto one page.  And I _have_ measured
-> cost in kmem_cache_shrink...)
+> >Yes, Pat and I have talked a lot about the need for a driver "state".  I
+> >think the current goal was to see how far we can get without needing it.
+> >I was certainly cursing the lack of it today when trying to debug this
+> >problem, but in the end, having it would have only masked over the
+> >real problem that was there.
 > 
-I totally agree about kmem_cache_shrink - it's total abuse that 
-fs/dcache.c calls it regularly. It was intended to be called before 
-module unload, or during ifdown, etc.
-On NUMA, it's probably worse, because it does an IPI to all cpus. 
-dcache.c should not call kmem_cache_shrink, and kmem_cache_reap should 
-be improved.
+> It'd actually be a "device state", not a "driver state" ...
 
-> Before:
-> Elapsed: 20.18s User: 192.914s System: 48.292s CPU: 1195.6%
+Doh, yes, that's what I meant, sorry.
+
+> >Well, that's a driver unload issue, which I think everyone agrees on the
+> >fact that it's not ok to do automatic driver unload when a device is
+> >removed, because of this very problem.
 > 
-> After:
-> Elapsed: 19.798s User: 191.61s System: 43.322s CPU: 1186.4%
-> 
-> That's for a kernel compile.
-> 
-UP or SMP?
-And was that the complete patch, or just the modification to slab.c?
+> I think it _could_ be fine to do such rmmods, if all the module
+> remove races were removed ... and (for this issue) if the primitve
+> were actually "remove if the driver is not (a) in active use, or
+> (b) bound to any device".  Today we have races and (a) ... but it's
+> the lack of (b) that prevents hotplug from even trying to rmmod,
+> on the optimistic assumption there are no races.
 
-I've made a microbenchmark of kmem_cache_alloc/free of 4 kb objects, on 
-UP, AMD Duron:
-		1 object	4 objects
-cur		145 cycles	 662 cycles
-patched		133 cycles	2733 cycles
+But how do we accomplish (b) for devices that we can't remove from the
+system?  Like 99.9% of the pci systems?
 
-Summary:
-* for one object, the patch is a slight performance improvement. The 
-reason is that the fallback from partial to free list in 
-kmem_cache_alloc_one is avoided.
-* the overhead of kmem_cache_grow/shrink is around 500 cycles, nearly a 
-slowdown of factor 4. The cache had no constructor/destructor.
-* everything cache hot state. [100 runs in a loop, loop overhead 
-substracted. 98 or 99 runs completed in the given time, except for 
-patched-4obj, where 24 runs completed in 2735 cycles, 72 in 2733 cycles]
+I agree it would be "nice", but probably never realistic :)
 
+thanks,
 
-For SMP and slabs that are per-cpu cached, the change could be right, 
-because the arrays should absorb bursts. But I do not think that the 
-change is the right approach for UP.
-
---
-	Manfred
-
+greg k-h

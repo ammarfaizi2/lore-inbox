@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261575AbTLWP6i (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 10:58:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbTLWP6i
+	id S261522AbTLWQC1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 11:02:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbTLWQC1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 10:58:38 -0500
-Received: from CPEdeadbeef0000-CM000039d4cc6a.cpe.net.cable.rogers.com ([67.60.40.239]:23941
-	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
-	id S261575AbTLWP6h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 10:58:37 -0500
-Date: Tue, 23 Dec 2003 10:59:30 -0500 (EST)
-From: Shawn Starr <spstarr@sh0n.net>
-To: scott.feldman@intel.com
-cc: jgarzik@pobox.com, <linux-kernel@vger.kernel.org>
-Subject: Re: [OOPS][2.6.0][e100 new driver] mii-diag oops with -F option
-Message-ID: <Pine.LNX.4.44.0312231057410.836-100000@coredump.sh0n.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 23 Dec 2003 11:02:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbTLWQCO
+	for
+	<"|/opt/Majordomo/wrapper resend -l linux-kernel -f x-linux-kernel -h vger.kernel.org linux-kernel-outgoing">;
+	Tue, 23 Dec 2003 11:02:14 -0500
+To: linux-kernel@vger.kernel.org
+From: Majordomo@vger.kernel.org
+Subject: Majordomo results
+Reply-To: Majordomo@vger.kernel.org
+Message-Id: <S261522AbTLWQCO/20031223160214Z+3227@vger.kernel.org>
+Date: Tue, 23 Dec 2003 11:02:14 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--
 
-This is correct, when I removed the __devinit's the oops did not occur.
-
-I see this has been fixed in akpm's 2.6.0-mm1 release :-)
-
-Thanks,
-
-Shawn.
-
-List:     linux-kernel
-Subject:  RE: [OOPS][2.6.0][e100 new driver] mii-diag oops with -F option
-Date:     2003-12-22 19:33:08
-
-> New is a bit non-specific :)  What driver version?
-
-It's got to be the e100-2.3.x driver in 2.6.0.
-
-> If you remove all occurences of "__devinit", does the oops go away?
-
-That's the problem.  __devinit's where there shouldn't be __devinit's.
-
-So e100-3.0.x is pending in -exp queue for 2.6.1; do we fix 2.6.0?
-
--scott
-
-
+>>>> subscribe linux-kernel
+**** Your request to Majordomo@vger.kernel.org:
+**** 
+**** 	subscribe linux-kernel linux-kernel@vger.kernel.org
+**** 
+**** must be authenticated.  To accomplish this, another request must be
+**** sent in with an authorization key, which has been sent to:
+**** 	linux-kernel@vger.kernel.org
+**** 
+**** If the message is not received, there is generally a problem with
+**** the address.  Before reporting this as a problem, please note the
+**** following:
+****
+**** You only need to give an address to the subscribe command if you want
+**** to receive list mail at a different address from where you sent the
+**** command.  Otherwise you can simply omit it.
+****
+**** If you do give an address to the subscribe command, it must be a legal
+**** address.  It should not consist solely of your name.  The address must
+**** point to a machine that is reachable from the list server.
+****
+**** If you have any questions about the policy of the list owner, please
+**** contact "linux-kernel-approval@vger.kernel.org".
+**** 
+**** Thanks!
+**** 
+**** Majordomo@vger.kernel.org

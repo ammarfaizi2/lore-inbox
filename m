@@ -1,72 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273484AbRIUMdT>; Fri, 21 Sep 2001 08:33:19 -0400
+	id <S273488AbRIUMea>; Fri, 21 Sep 2001 08:34:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273487AbRIUMdJ>; Fri, 21 Sep 2001 08:33:09 -0400
-Received: from thebsh.namesys.com ([212.16.0.238]:40971 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S273484AbRIUMcv>; Fri, 21 Sep 2001 08:32:51 -0400
-From: Nikita Danilov <Nikita@namesys.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S273487AbRIUMeU>; Fri, 21 Sep 2001 08:34:20 -0400
+Received: from mail.ask.ne.jp ([203.179.96.3]:35045 "EHLO mail.ask.ne.jp")
+	by vger.kernel.org with ESMTP id <S273489AbRIUMeH>;
+	Fri, 21 Sep 2001 08:34:07 -0400
+Date: Fri, 21 Sep 2001 21:31:56 +0900
+From: Bruce Harada <bruce@ask.ne.jp>
+To: Mikael Djurfeldt <djurfeldt@nada.kth.se>, martin@jtrix.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.10-pre12: IO_APIC_init_uniprocessor
+Message-Id: <20010921213156.061abcf6.bruce@ask.ne.jp>
+In-Reply-To: <E15jyPh-0001QM-00@mdj.nada.kth.se>
+In-Reply-To: <E15jyPh-0001QM-00@mdj.nada.kth.se>
+X-Mailer: Sylpheed version 0.6.2 (GTK+ 1.2.6; i686-pc-linux-gnu)
+X-Face: $qrUU,Lz=B[A}i%m2Rg^Ik;~V@]$Ay)$S`wUf3:^aZ1UdLf,_;1y7_xbEh=Yv*wB0=Fv]a1hj14_qQsl[f1KX]q4IdhwmSIeP6>Ap@[e$c$G;;ObLI7?Y<H5";4<{GAPoak2U)!da]-ZJb}!.#>Xsq*)M'3Jp<M,l~'4F{qWpM$%"%p'
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <15275.13092.713804.491153@gargle.gargle.HOWL>
-Date: Fri, 21 Sep 2001 16:31:32 +0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: akpm@zip.com.au (Andrew Morton), george@mvista.com (george anzinger),
-        andrea@suse.de (Andrea Arcangeli), rml@tech9.net (Robert Love),
-        Dieter.Nuetzel@hamburg.de (Dieter =?iso-8859-1?Q?N=FCtzel?=),
-        mason@suse.com (Chris Mason), kuib-kl@ljbc.wa.edu.au (Beau Kuiper),
-        linux-kernel@vger.kernel.org (Linux Kernel List),
-        reiserfs-list@namesys.com (ReiserFS List)
-Subject: Re: [reiserfs-list] Re: [PATCH] Significant performace improvements on reiserfs systems
-In-Reply-To: <E15kPGJ-0008EU-00@the-village.bc.nu>
-In-Reply-To: <15275.2374.92496.536594@gargle.gargle.HOWL>
-	<E15kPGJ-0008EU-00@the-village.bc.nu>
-X-Mailer: VM 6.89 under 21.4 (patch 3) "Academic Rigor" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox writes:
- > > In Solaris, before spinning on a busy spin-lock, thread checks whether
- > > spin-lock holder runs on the same processor. If so, thread goes to sleep
- > > and holder wakes it up on spin-lock release. The same, I guess is going
- > 
- > 
- > > for interrupts that are served as separate threads. This way, one can
- > > re-schedule with spin-locks held.
- > 
- > This is one of the things interrupt handling by threads gives you, but the
- > performance cost is not nice. When you consider that ksoftirqd when it
- > kicks in (currently far too often) takes up to 10% off gigabit ethernet
- > performance, you can appreciate why we don't want to go that path.
+On Thu, 20 Sep 2001 09:38:25 +0200
+Mikael Djurfeldt <mdj@mdj.nada.kth.se> wrote:
 
-I guess, reasoning behind Solaris design was that you have to disable
-interrupts during critical sections more frequently than they would
-actually block in them. So, you lose on interrupt thread creation and
-when interrupts really block on a lock, but you gain because there is no
-more need to disable interrupts when accessing data shared between
-interrupt handler and the rest of the kernel. This can ultimately amount
-to some net advantage especially when coupled with some sort of lazy
-interrupt thread creation.
+> I have the APIC option enabled in my configuration.
+> 
+> When compiling 2.4.10-pre12, the call to IO_APIC_init_uniprocessor in
+> init/main.c is not resolved.  In fact, searching for this symbol, I
+> didn't find it anywhere else in the kernel source.
 
- > 
- > Our spinlock paths are supposed to be very small and predictable. Where 
- > there is sleeping involved we have semaphores.
- > 
- > As lockmeter shows we still have a few io_request_lock cases at least where
- > we lock for far too long
+On Thu, 20 Sep 2001 08:55:38 +0100
+Martin Brooks <martin@jtrix.com> wrote:
 
-Reiserfs also likes to keep BKL while doing binary searches within nodes
-of a tree.
+> init/main.o: In function `smp_init':
+> init/main.o(.text.init+0x74d): undefined reference to 
+> `IO_APIC_init_uniprocessor'
+> make: *** [vmlinux] Error 1
+> 
+> 
+> I'm not subscribed, please CC.
 
- > 
- > Alan
+Patch from Keith Owens below. Please make sure to search the l-k archives for
+compile problems such as this - there's always a good chance that someone will
+have hit the same problem before.
 
-Nikita.
 
- > -
- > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
- > the body of a message to majordomo@vger.kernel.org
- > More majordomo info at  http://vger.kernel.org/majordomo-info.html
- > Please read the FAQ at  http://www.tux.org/lkml/
+--------------- Patch starts -----------------
+
+Index: 10-pre12.1/init/main.c
+--- 10-pre12.1/init/main.c Fri, 06 Jul 2001 09:49:24 +1000 kaos (linux-2.4/k/11_main.c 1.1.5.1.1.8.1.3 644)
++++ 10-pre12.1(w)/init/main.c Wed, 19 Sep 2001 21:28:17 +1000 kaos (linux-2.4/k/11_main.c 1.1.5.1.1.8.1.3 644)
+@@ -483,7 +483,7 @@ extern void cpu_idle(void);
+ #ifdef CONFIG_X86_IO_APIC
+ static void __init smp_init(void)
+ {
+-	IO_APIC_init_uniprocessor();
++	APIC_init_uniprocessor();
+ }
+ #else
+ #define smp_init()	do { } while (0)
+
+---------------- Patch ends -------------------

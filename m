@@ -1,43 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318959AbSICWdU>; Tue, 3 Sep 2002 18:33:20 -0400
+	id <S318964AbSICWib>; Tue, 3 Sep 2002 18:38:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318962AbSICWdU>; Tue, 3 Sep 2002 18:33:20 -0400
-Received: from pD9E23EAA.dip.t-dialin.net ([217.226.62.170]:24962 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S318959AbSICWdU>; Tue, 3 Sep 2002 18:33:20 -0400
-Date: Tue, 3 Sep 2002 16:37:48 -0600 (MDT)
-From: Thunder from the hill <thunder@lightweight.ods.org>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Remco Post <r.post@sara.nl>
-cc: Oliver Pitzeier <o.pitzeier@uptime.at>, <thunder@lightweight.ods.org>,
-       <donaldlf@cs.rose-hulman.edu>, <axp-kernel-list@redhat.com>,
-       <linux-kernel@vger.kernel.org>, <ink@jurassic.park.msu.ru>
-Subject: Re: [PATCH] include/linux/ptrace.h Re: Kernel 2.5.33 compile errors
- (Re: Kernel 2.5.33 successfully compiled)
-In-Reply-To: <20020904002243.7d3a4412.r.post@sara.nl>
-Message-ID: <Pine.LNX.4.44.0209031635160.3373-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf/Steudnitz; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318966AbSICWiZ>; Tue, 3 Sep 2002 18:38:25 -0400
+Received: from smtp02.uc3m.es ([163.117.136.122]:23307 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S318964AbSICWiU>;
+	Tue, 3 Sep 2002 18:38:20 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200209032242.g83MglG21464@oboe.it.uc3m.es>
+Subject: Re: (fwd) Re: [RFC] mount flag "direct"
+In-Reply-To: <5.1.0.14.2.20020903230434.00ac6c50@pop.cus.cam.ac.uk> from Anton
+ Altaparmakov at "Sep 3, 2002 11:19:21 pm"
+To: Anton Altaparmakov <aia21@cantab.net>
+Date: Wed, 4 Sep 2002 00:42:47 +0200 (MET DST)
+Cc: "Peter T. Breuer" <ptb@it.uc3m.es>, david.lang@digitalinsight.com,
+       linux-kernel@vger.kernel.org
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+"Anton Altaparmakov wrote:"
+[snip detailed description for which I am extremely grateful]
+> Ok, so to do a 1 byte read, we just had to perform over 10-20 reads from 
+> very different disk locations (we are talking several seconds _just_ in 
+> seek times, never mind read times!), we had to allocate a lot of memory 
+> buffers to store metadata which we have read from disk temporarily, as well 
+> as a lot of memory in order to be able to decompress the mapping pair 
+> arrays which tell us the logical to physical block mapping.
+> 
+> I am completely serious, we are talking at least hundreds of milliseconds 
+> possibly even several seconds to read that single byte.
+> 
+> What was that about 50GiB/sec performance again...?
 
-On Wed, 4 Sep 2002, Remco Post wrote:
-> Attached patch worked for _compiling_ on my powermac, it might help for
-> you as well....
+Let's maintain a single bit in the superblock that says whether  any
+directory structure or whatever else we're worried about has been
+altered (ecch, well, it has to be a timestamp, never mind ..). Before
+every read we check this "bit" ondisk. If it's not set, we happily dive
+for our data where we expect to find it. Otherwise we go through the
+rigmarole you describe.
 
-I'd rather not include sched.h into ptrace.h, for that way lies madness. 
-You get all the crappy headers when you only include one of them. I'm not 
-saying the change itself is wrong. It's indeed effective. But it's that 
-cleanup vs. messup thing.
+Maybe our programs aren't going to do unexpected things with the file
+structures. Maybe our file systems satisfy assumptions like not
+moving existing data ondisk to make room for other data. I'd be willing
+to only consider such systems as sane enough to work with in a
+distributed shared environment.
 
-			Thunder
--- 
---./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
---/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
-.- -/---/--/---/.-./.-./---/.--/.-.-.-
---./.-/-.../.-./.././.-../.-.-.-
+Can we improve the single-bit approach? Yes. The FS is a tree. When
+we make a change in it we can set a bit everywhere above the change,
+all the way to the root. When we observe the root bot changed, we
+can begin to retrace the path to our data, but abandon the retrace
+when the bit-trail we are following down towards our data turns cold.
 
+No?
+
+Peter

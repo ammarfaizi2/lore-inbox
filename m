@@ -1,45 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314149AbSFXPrx>; Mon, 24 Jun 2002 11:47:53 -0400
+	id <S314277AbSFXPzP>; Mon, 24 Jun 2002 11:55:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314277AbSFXPrw>; Mon, 24 Jun 2002 11:47:52 -0400
-Received: from ftp.realnet.co.sz ([196.28.7.3]:31134 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S314149AbSFXPrv>; Mon, 24 Jun 2002 11:47:51 -0400
-Date: Mon, 24 Jun 2002 17:18:33 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: "Alexandre P. Nunes" <alex@PolesApart.wox.org>
+	id <S314325AbSFXPzO>; Mon, 24 Jun 2002 11:55:14 -0400
+Received: from [62.70.58.70] ([62.70.58.70]:47232 "EHLO mail.pronto.tv")
+	by vger.kernel.org with ESMTP id <S314277AbSFXPzO> convert rfc822-to-8bit;
+	Mon, 24 Jun 2002 11:55:14 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: ProntoTV AS
+To: Jes Sorensen <jes@trained-monkey.org>, Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: acenic >4gig sendfile problem
+Date: Mon, 24 Jun 2002 17:54:59 +0200
+User-Agent: KMail/1.4.1
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: 2.4.19-pre10-ac2 bug in page_alloc.c:131
-In-Reply-To: <3D173578.5080205@PolesApart.wox.org>
-Message-ID: <Pine.LNX.4.44.0206241715080.2033-100000@netfinity.realnet.co.sz>
+References: <3D05204B.4010103@us.ibm.com> <m3r8iwvgl8.fsf@trained-monkey.org>
+In-Reply-To: <m3r8iwvgl8.fsf@trained-monkey.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200206241755.00082.roy@karlsbakk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Jun 2002, Alexandre P. Nunes wrote:
+But...
 
-> Maybe I got it the wrong way, but it seems to me that from your point of 
-> view, as long as proprietary driver is in use, it's not anyone else 
-> problem but to the vendor, even if the bug could happen to be in the 
-> kernel, is that right? If so, everyone else in this list who could try 
-> to fix this (again assuming it could be something related to the kernel 
-> and not to the proprietary driver) necessarily share your oppinion? (I'm 
-> not flaming in here, just trying to get the path).
+sendfile() doesn't support >4gig anyway - does it?
+that's the (yet unimplemented) sendfile64()
 
-This particular one has cropped up a multitude of times, i can assure you 
-that you're not the first. Try searching the archives for 
-__free_pages_ok, nvidia and a few other keywords. I've seen that 
-particular bug first hand and its definitely the work of the nvidia 
-driver. Try their 2314 driver, i can't recall seeing it with that 
-particular version.
-
-Cheers,
-	Zwane
+roy
 
 -- 
-http://function.linuxpower.ca
-		
+Roy Sigurd Karlsbakk, Datavaktmester
+
+Computers are like air conditioners.
+They stop working when you open Windows.
+
+On Monday 24 June 2002 17:31, Jes Sorensen wrote:
+> >>>>> "Dave" == Dave Hansen <haveblue@us.ibm.com> writes:
+>
+> Dave> When doing sendfile with my acenic card on my 8xPIII-700 and PAE
+> Dave> running 2.4.18, I'm getting all zeros in the files being
+> Dave> transmitted.  Running the Redhat 2.4.18-4 kernel fixes the
+> Dave> problem.  I saw this entry in the rpm's changelog: * Sat Aug 25
+> Dave> 2001 Ingo Molnar <mingo@redhat.com> - fix the acenic driver bug
+> Dave> that caused random kernel memory being sent out on the wire, on
+> Dave> x86 systems with more than 4 GB RAM.
+>
+> Actually I think you're hitting a bug in pci_map_page() rather than in
+> the acenic.driver.
+>
+> Try the patch from Ben LaHaise included below.
+>
+> Jes
+>
+>
+> ------- Start of forwarded message -------
+> Resent-Message-Id: <200206102358.g5ANwbx23959@toomuch.toronto.redhat.com>
+> Date: Mon, 10 Jun 2002 19:56:44 -0400
+> From: Benjamin LaHaise <bcrl@redhat.com>
+> To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+>    Linux Kernel <linux-kernel@vger.kernel.org>
+> Subject: highmem pci dma mapping does not work, missing cast in
+> asm-i386/pci.h Message-ID: <20020610195644.C13225@redhat.com>
+> Mime-Version: 1.0
+> Content-Type: text/plain; charset=us-ascii
+> Resent-From: bcrl@redhat.com
+> Resent-Date: Mon, 10 Jun 2002 19:58:37 -0400
+> Resent-To: jes@wildopensource.com
+>
+> Hello all,
+>
+> There's a missing cast in pci_map_page that causes 64 bit capable
+> drivers to access the wrong memory for highmem pages.  Please
+> include the patch below to fix it.
+>
+> 		-ben
 

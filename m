@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264176AbTH1Pvs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 11:51:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264179AbTH1Pvs
+	id S264079AbTH1PzM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 11:55:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264080AbTH1PzM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 11:51:48 -0400
-Received: from fw.osdl.org ([65.172.181.6]:57061 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264176AbTH1Pvp (ORCPT
+	Thu, 28 Aug 2003 11:55:12 -0400
+Received: from mail.ccur.com ([208.248.32.212]:30471 "EHLO exchange.ccur.com")
+	by vger.kernel.org with ESMTP id S264079AbTH1PzI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 11:51:45 -0400
-Date: Thu, 28 Aug 2003 08:46:40 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Tomasz Czaus <tomasz_czaus@go2.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test4 and hardware reports a non fatal incident
-Message-Id: <20030828084640.68fe827d.rddunlap@osdl.org>
-In-Reply-To: <200308281548.44803.tomasz_czaus@go2.pl>
-References: <200308281548.44803.tomasz_czaus@go2.pl>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Thu, 28 Aug 2003 11:55:08 -0400
+Date: Thu, 28 Aug 2003 11:54:52 -0400
+From: Joe Korty <joe.korty@ccur.com>
+To: akpm@osdl.org
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] bad definition of cpus_complement
+Message-ID: <20030828155451.GA16156@tsunami.ccur.com>
+Reply-To: joe.korty@ccur.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Aug 2003 15:48:44 +0200 Tomasz Czaus <tomasz_czaus@go2.pl> wrote:
+One of the definitions of cpus_complement is broke.  Also, cpus_complement is
+the only cpus_* definition which operates in-place rather than in (dst,src)
+form.  I will submit a patch to convert if there is interest.
 
-| Hello,
-| 
-| when my system is booting I can see such a message:
-| 
-| kernel: MCE: The hardware reports a non fatal, correctable incident occurred 
-| on CPU 0.
-| kernel: Bank 0: e664000000000185
-| 
-| What does it mean ??? My kernel 2.6.0-test4 has applyed "Nick's scheduler 
-| policy v8" patch. 
+Joe
 
-Use "parsemce" from here:
-  http://www.codemonkey.org.uk/projects/parsemce/
-to decode it.
+--- include/asm-generic/cpumask_up.h.orig	2003-08-27 06:08:38.000000000 -0400
++++ include/asm-generic/cpumask_up.h	2003-08-28 11:45:09.000000000 -0400
+@@ -28,7 +28,7 @@
+ 
+ #define cpus_complement(map)						\
+ 	do {								\
+-		cpus_coerce(map) = !cpus_coerce(map);			\
++		cpus_coerce(map) = ~cpus_coerce(map);			\
+ 	} while (0)
+ 
+ #define cpus_equal(map1, map2)		(cpus_coerce(map1) == cpus_coerce(map2))
 
-| When I boot 2.4.x kernel I can't see this message.
-
-So 2.6 has more/better/different processor error checking.
-
---
-~Randy

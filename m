@@ -1,56 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264822AbTBEUIj>; Wed, 5 Feb 2003 15:08:39 -0500
+	id <S264657AbTBEUDs>; Wed, 5 Feb 2003 15:03:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264836AbTBEUIi>; Wed, 5 Feb 2003 15:08:38 -0500
-Received: from [195.223.140.107] ([195.223.140.107]:24192 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S264822AbTBEUIh>;
-	Wed, 5 Feb 2003 15:08:37 -0500
-Date: Wed, 5 Feb 2003 21:18:10 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@digeo.com>
-Cc: lm@bitmover.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.5 changeset 1.952.4.2 corrupt in fs/jfs/inode.c
-Message-ID: <20030205201810.GM19678@dualathlon.random>
-References: <20030205174021.GE19678@dualathlon.random> <20030205102308.68899bc3.akpm@digeo.com> <20030205184535.GG19678@dualathlon.random> <20030205114353.6591f4c8.akpm@digeo.com> <20030205195151.GJ19678@dualathlon.random> <20030205120903.1e84c12e.akpm@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030205120903.1e84c12e.akpm@digeo.com>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+	id <S264836AbTBEUC3>; Wed, 5 Feb 2003 15:02:29 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:27140 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S264756AbTBEUCK> convert rfc822-to-8bit; Wed, 5 Feb 2003 15:02:10 -0500
+Date: Wed, 5 Feb 2003 12:07:47 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Pavel =?iso-8859-2?q?Jan=EDk?= <Pavel@Janik.cz>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: gcc 2.95 vs 3.21 performance
+In-Reply-To: <m3k7gfjb6f.fsf@Janik.cz>
+Message-ID: <Pine.LNX.4.44.0302051157580.2999-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-MIME-Autoconverted: from 8bit to quoted-printable by deepthought.transmeta.com id h15KBXF02896
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 05, 2003 at 12:09:03PM -0800, Andrew Morton wrote:
-> Andrea Arcangeli <andrea@suse.de> wrote:
-> >
-> > it might be simply an error in the tarball, maybe Linus's tree isn't in
-> > full sync with bk head. But something definitely is corrupt between
-> > tarball and bk.
+
+On Wed, 5 Feb 2003, Pavel [iso-8859-2] Janík wrote:
 > 
-> Well, the 2.5.59 BK tree shows that function using block_truncate_page() as
-> well.
+> Hi Linus,
 > 
-> The question is why did the Jan 9 changeset in the 2.5.55 timeframe not
-> appear in the tree until post-2.5.59.  Maybe on Jan 9 Linus only part-merged
-> it by some means (making the web interface claim it is there), and this week
-> completed the merge and updated the checkin comment?
+>    > lcc isn't really something I want to use, since the license is so
+>    > strange, and thus can't be improved upon if there are issues with it.
+> 
+> what is the difference between compiler and source management system
+> regarding licenses and improvements?
 
-I don't know how it is supposed to work, but this sounds quite messy, if
-this is the case, how can you order the changesets?
+You snipped the part where I said that the intel compiler is likely to be 
+more interesting to a number of people, since it's at a higher level. So 
+no, I'm not religious about licenses.
 
-I mean if that's "normal", then the changeset diffs that are on the ftp
-site aren't something "constant" they can change over time when non
-controversial stuff changes under them, and in turn it's pointless to
-store them on kernel.org since they may be just changed in the bitkeeper
-database by the time you go read them...
+But the real issue is "does it do what we want it to do?" and "do we have
+a choice?". There are no open-source SCM's that work for me. But there
+_is_ an open-source compiler that does work for me. At which point the
+license matters - simply because there is choice in the matter.
 
-The way it should work to be cleaner, is that if Linus merged a
-modification, no matter how, this modification gets *always* a new
-changeset number at the head. Merging modifications in the past
-invalidates every single changeset on kernel.org and in the mailing list
-from that point in the past to the bk-head.
+Gcc mostly works. But it's slower then I'd like. And it prioritizes things
+I don't care about. And competition is always good. So I would definitely 
+love to see some alternatives.
 
-Andrea
+And if you have issues with BK, maybe you can try to encourage the SCM
+people to see why I consider BK to not even have alternatives right now. 
+
+		Linus
+

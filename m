@@ -1,40 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315282AbSFTQyz>; Thu, 20 Jun 2002 12:54:55 -0400
+	id <S315293AbSFTQz5>; Thu, 20 Jun 2002 12:55:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315279AbSFTQyy>; Thu, 20 Jun 2002 12:54:54 -0400
-Received: from mgw-x2.nokia.com ([131.228.20.22]:57769 "EHLO mgw-x2.nokia.com")
-	by vger.kernel.org with ESMTP id <S315277AbSFTQyw>;
-	Thu, 20 Jun 2002 12:54:52 -0400
-Message-ID: <3D120870.40608@nokia.com>
-Date: Thu, 20 Jun 2002 19:53:04 +0300
-From: Dmitry Kasatkin <dmitry.kasatkin@nokia.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020412 Debian/0.9.9-6
-MIME-Version: 1.0
-Newsgroups: comp.os.linux.networking
-To: Dmitry Kasatkin <dmitry.kasatkin@nokia.com>
-CC: affix-devel@lists.sourceforge.net,
-       Affix support <affix-support@lists.sourceforge.net>,
-       linux-net <linux-net@vger.kernel.org>, linux-kernel@vger.kernel.org
-Subject: [patch] Affix on iPAQ
-References: <3C500D09.4080206@nokia.com> <3C5AB093.5050405@nokia.com> <3C5E4991.6010707@nokia.com> <3C628D6A.2050900@nokia.com> <3C628DCF.40700@nokia.com> <3C6D25F6.4010905@nokia.com> <3C766511.5050808@nokia.com> <3C7F6C0C.6030204@nokia.com> <3C877AC7.8090008@nokia.com> <3C92111C.1070107@nokia.com> <3CA3A149.1080905@nokia.com> <3CAE2484.8090304@nokia.com> <3CB99689.7090105@nokia.com> <3CEEC240.8030905@nokia.com> <3CFF615E.50500@nokia.com> <3D0A74ED.1000902@nokia.com> <3D1202F7.5080907@nokia.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 20 Jun 2002 16:54:52.0912 (UTC) FILETIME=[329EFF00:01C2187B]
+	id <S315285AbSFTQz4>; Thu, 20 Jun 2002 12:55:56 -0400
+Received: from mailhost.tue.nl ([131.155.2.5]:64647 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S315278AbSFTQzx>;
+	Thu, 20 Jun 2002 12:55:53 -0400
+Date: Thu, 20 Jun 2002 18:55:53 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Martin Schwenke <martin@meltin.net>, Kurt Garloff <garloff@suse.de>,
+       Linux kernel list <linux-kernel@vger.kernel.org>,
+       Linux SCSI list <linux-scsi@vger.kernel.org>,
+       Patrick Mochel <mochel@osdl.org>
+Subject: Re: [PATCH] /proc/scsi/map
+Message-ID: <20020620165553.GA16897@win.tue.nl>
+References: <200206200711.RAA10165@thucydides.inspired.net.au> <Pine.LNX.4.44.0206200800260.8012-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0206200800260.8012-100000@home.transmeta.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jun 20, 2002 at 08:13:22AM -0700, Linus Torvalds wrote:
 
-Hi,
+> Try it out yourself. Just do
+> 
+> 	mount -t driverfs /devices /devices
+> 
+> and then look at the whole glory
 
-Please download new patch for Affix
+OK. I just did.
 
-br, Dmitry
+# find . -name name -exec cat {} ";"
+...
+PCI device 8086:7113
+figure out some name...
+USB device 0000:0000
+figure out some name...
+USB device 0000:0000
+figure out some name...
+USB device 0000:0000
+figure out some name...
+USB device 0000:0000
+figure out some name...
+usb_name
+PCI device 8086:7112
+...
+
+At present this does not look very useful, but it may have future.
+
+But there is a pressing present problem. What name do my devices have?
+I plug in a SmartMedia card reader. It will become some SCSI device.
+But which one? The easiest way to find out is just to try
+"blockdev --rereadpt /dev/sdX" for X=a,b,c,d,e to find: yes, today
+this thing is /dev/sde.
+
+Of course file system names are free, so instead of asking what sdX
+this device is, I should ask what major:minor this device is.
+
+In other words, there is the difficult naming problem,
+but there is also the translation problem. The user does
+not recognize the device as USB device 04e6:0005:...
+She thinks of this thing as her DaneElec card reader.
+
+So, there are many names and partial names for the same object,
+and translation is required from one name to another.
+>From sg names to sd names to usb names.
+
+Kurt's patch does not solve all problems, but what it provides
+is a small translation table between different names for the same thing.
+That information is not easily obtainable without his patch.
+I do not see that driverfs provides such information.
+
+Andries
 
 
--- 
-  Dmitry Kasatkin
-  Nokia Research Center / Helsinki
-  Mobile: +358 50 4836365
-  E-Mail: dmitry.kasatkin@nokia.com
-
+[And please, Linus, do not use words like "despise".
+Lately I have seen an increase in the amount of insults
+between Linux people. That is unnecessary.]

@@ -1,41 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262047AbTHZVJX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 17:09:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262667AbTHZVJX
+	id S262667AbTHZVJ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 17:09:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262791AbTHZVJ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 17:09:23 -0400
-Received: from c210-49-26-171.randw1.nsw.optusnet.com.au ([210.49.26.171]:60577
-	"EHLO mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
-	id S262047AbTHZVJV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 17:09:21 -0400
-From: Peter Chubb <peter@chubb.wattle.id.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 26 Aug 2003 17:09:57 -0400
+Received: from fw.osdl.org ([65.172.181.6]:3720 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262667AbTHZVJ0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 17:09:26 -0400
+Date: Tue, 26 Aug 2003 13:53:23 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: cijoml@volny.cz, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test4: CONFIG_KCORE_AOUT doesn't compile
+Message-Id: <20030826135323.2c33e697.akpm@osdl.org>
+In-Reply-To: <20030826105145.GC7038@fs.tum.de>
+References: <200308252332.46101.cijoml@volny.cz>
+	<20030826105145.GC7038@fs.tum.de>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <16203.52320.380770.801056@wombat.chubb.wattle.id.au>
-Date: Wed, 27 Aug 2003 07:08:48 +1000
-To: Ani Joshi <ajoshi@unixbox.com>
-Cc: Peter Chubb <peter@chubb.wattle.id.au>, linux-kernel@vger.kernel.org
-Subject: Re: Radeon FB in 2.6.0-test4 fails for me
-In-Reply-To: <Pine.BSF.4.50.0308261102240.15539-200000@shell.unixbox.com>
-References: <16202.57600.498532.587264@wombat.chubb.wattle.id.au>
-	<Pine.BSF.4.50.0308261102240.15539-200000@shell.unixbox.com>
-X-Mailer: VM 7.14 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Ani" == Ani Joshi <ajoshi@unixbox.com> writes:
+Adrian Bunk <bunk@fs.tum.de> wrote:
+>
+> Is there any specific reason to keep CONFIG_KCORE_AOUT or is it time to 
+> remove this option?
 
-Ani> try the attatched patch (its against test4).
+Time to kill it I suspect.
 
-The patch fixes the text-mode console, but X still cannot use the
-frame buffer (the display with UseFB is skewed, and something appears
-to go wrong so that all disc activity stops, and the keyboard stops
-responding -- as if interrupts were disabled)
+This fixes the linkage problem:
 
-Peter C
+
+diff -puN include/linux/proc_fs.h~kcore-aout-build-fix include/linux/proc_fs.h
+--- 25/include/linux/proc_fs.h~kcore-aout-build-fix	Tue Aug 26 13:29:07 2003
++++ 25-akpm/include/linux/proc_fs.h	Tue Aug 26 13:29:07 2003
+@@ -182,12 +182,6 @@ static inline void proc_net_remove(const
+ 	remove_proc_entry(name,proc_net);
+ }
+ 
+-/*
+- * fs/proc/kcore.c
+- */
+-extern void kclist_add(struct kcore_list *, void *, size_t);
+-extern struct kcore_list *kclist_del(void *);
+-
+ #else
+ 
+ #define proc_root_driver NULL
+@@ -223,6 +217,9 @@ static inline void proc_tty_unregister_d
+ 
+ extern struct proc_dir_entry proc_root;
+ 
++#endif /* CONFIG_PROC_FS */
++
++#if !defined(CONFIG_PROC_FS) || defined(CONFIG_KCORE_AOUT)
+ static inline void kclist_add(struct kcore_list *new, void *addr, size_t size)
+ {
+ }
+@@ -230,8 +227,10 @@ static inline struct kcore_list * kclist
+ {
+ 	return NULL;
+ }
+-
+-#endif /* CONFIG_PROC_FS */
++#else
++extern void kclist_add(struct kcore_list *, void *, size_t);
++extern struct kcore_list *kclist_del(void *);
++#endif
+ 
+ struct proc_inode {
+ 	struct task_struct *task;
+
+_
+

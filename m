@@ -1,75 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261627AbUDCITY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Apr 2004 03:19:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbUDCITY
+	id S261628AbUDCIXS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Apr 2004 03:23:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbUDCIXS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Apr 2004 03:19:24 -0500
-Received: from postfix4-1.free.fr ([213.228.0.62]:34788 "EHLO
-	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S261627AbUDCITV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Apr 2004 03:19:21 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: Drivers *dropped* between releases? (sis5513.c)
-Mail-Copies-To: never
-X-Face: ,MPrV]g0IX5D7rgJol{*%.pQltD?!TFg(`c8(2pkt-F0SLh(g3mIFYU1GYf]C/GuUTbr;cZ5y;3ALK%.OL8A.^.PW14e/,X-B?Nv}2a9\u-j0sSa
-References: <1GDM3-6G3-5@gated-at.bofh.it> <1GFEd-8b8-15@gated-at.bofh.it>
-From: Roland Mas <roland.mas@free.fr>
-Date: Sat, 03 Apr 2004 10:19:17 +0200
-In-Reply-To: <1GFEd-8b8-15@gated-at.bofh.it> (Lionel Bouton's message of
- "Sat, 03 Apr 2004 00:50:09 +0200")
-Message-ID: <87zn9t1nju.fsf@mirexpress.internal.placard.fr.eu.org>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Sat, 3 Apr 2004 03:23:18 -0500
+Received: from gprs214-57.eurotel.cz ([160.218.214.57]:38528 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261628AbUDCIXR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Apr 2004 03:23:17 -0500
+Date: Sat, 3 Apr 2004 10:23:03 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
+       =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>, mj@ucw.cz,
+       jack@ucw.cz, "Patrick J. LoPresti" <patl@users.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cowlinks v2
+Message-ID: <20040403082303.GA1316@elf.ucw.cz>
+References: <s5g7jx31int.fsf@patl=users.sf.net> <20040329231635.GA374@elf.ucw.cz> <20040402165440.GB24861@wohnheim.fh-wedel.de> <20040402180128.GA363@elf.ucw.cz> <20040402181707.GA28112@wohnheim.fh-wedel.de> <20040402182357.GB410@elf.ucw.cz> <20040402200921.GC653@mail.shareable.org> <20040402213933.GB246@elf.ucw.cz> <406DE280.6050109@nortelnetworks.com> <20040403004947.GI653@mail.shareable.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040403004947.GI653@mail.shareable.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lionel Bouton, 2004-04-03 00:50:09 +0200 :
+Hi!
 
-[...]
+> > Could you not change it back to a normal inode when refcount becomes 1? 
+> 
+> You can only do that if the cowid object has a pointer to the last
+> remaining reference to it.  That's possible, but more complicated and
+> would incur a little more I/O per cow operation.
 
-> The driver uses 2 ways of finding SiS Ide chips :
-> - by northbridge PCI ids, which is what was always used historically
-> (and so you had to manually add each known SiS northbridge to a table),
-> - by probing the controller directly (avoids depending on a lazy coder
-> to add entries in a table to make your chip work).
->
-> When the last was added, some PCI ids were removed from the table
-> (being superfluous).
->
-> The very fact that the sis5513.c outputs something in your log means
-> that it has found something to handle, so the detection routine
-> (whichever it is) works.
+You'd have to have pointers to all references to it... because you
+can't tell in advance which one will be the last to go away.
 
-  Indeed.  The logs do show the type and brand of both the hard disk
-drive and the CD-ROM drive.  It's just that, uh, well, the kernel
-doesn't want to do anything with them afterwards...
-
-> I think there's a common problem with SiS chips : interrupt
-> handling. I believe it is the source of your problem. I may find
-> time to hack on this.
-
-  Thanks already :-)
-
-> You could try to remove PCI cards and/or disable VGA IRQ in the
-> bios. On one of my SiS-based systems for example adding a PCI card
-> can make it unbootable.
-
-  Hm.  There's only one PCI card (Radeon 7000), and I'm not sure I can
-boot without it, as there's no on-board VGA controller.  I'll try the
-BIOS hack though.
-
-  More relevant info (maybe): I got an old version of the Debian
-installer, which uses an older kernel, and the process goes on
-normally (well, it halts later because the built-in NIC has a stupid
-MAC address, but that's another problem).
-
-  Thanks for the tips, I'll see how it goes.
-
-Roland.
+But I agree its not a big problem.
+								Pavel
 -- 
-Roland Mas
-
-Food, shelter, source code.
-  -- Cyclic Software
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

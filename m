@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135506AbRD1XKU>; Sat, 28 Apr 2001 19:10:20 -0400
+	id <S132919AbRD2AAJ>; Sat, 28 Apr 2001 20:00:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135586AbRD1XKK>; Sat, 28 Apr 2001 19:10:10 -0400
-Received: from ferret.phonewave.net ([208.138.51.183]:44548 "EHLO
-	tarot.mentasm.org") by vger.kernel.org with ESMTP
-	id <S135506AbRD1XKD>; Sat, 28 Apr 2001 19:10:03 -0400
-Date: Sat, 28 Apr 2001 16:09:54 -0700
-To: linux-kernel@vger.kernel.org
+	id <S132707AbRD1X7u>; Sat, 28 Apr 2001 19:59:50 -0400
+Received: from dfw-smtpout4.email.verio.net ([129.250.36.44]:61104 "EHLO
+	dfw-smtpout4.email.verio.net") by vger.kernel.org with ESMTP
+	id <S132686AbRD1X7k>; Sat, 28 Apr 2001 19:59:40 -0400
+Message-ID: <3AEB5969.6FB678B4@bigfoot.com>
+Date: Sat, 28 Apr 2001 16:59:37 -0700
+From: Tim Moore <timothymoore@bigfoot.com>
+Organization: Yoyodyne Propulsion Systems, Inc.
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19-intel-smp-ide i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: idalton@ferret.phonewave.net
+CC: linux-kernel@vger.kernel.org
 Subject: Re: 2.2.19 locks up on SMP
-Message-ID: <20010428160954.A25712@ferret.phonewave.net>
-In-Reply-To: <Pine.LNX.4.33.0104281402090.2487-100000@age.cs.columbia.edu> <20010429011604.A976@home.ds9a.nl>
-Mime-Version: 1.0
+In-Reply-To: <Pine.LNX.4.33.0104281402090.2487-100000@age.cs.columbia.edu> <20010429011604.A976@home.ds9a.nl> <20010428160954.A25712@ferret.phonewave.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <20010429011604.A976@home.ds9a.nl>; from ahu@ds9a.nl on Sun, Apr 29, 2001 at 01:16:04AM +0200
-From: idalton@ferret.phonewave.net
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 29, 2001 at 01:16:04AM +0200, bert hubert wrote:
-> On Sat, Apr 28, 2001 at 02:21:29PM -0700, Ion Badulescu wrote:
-> > Hi Alan,
-> > 
-> > Over the last week I've tried to upgrade a 4-CPU Xeon box to 2.2.19, but 
-> > the it keeps locking up whenever the disks are stresses a bit, e.g. when 
-> > updatedb is running. I get the following messages on the console:
-> > 
-> > wait_on_bh, CPU 1:
-> > irq:  1 [1 0]
-> > bh:   1 [1 0]
-> > <[8010af71]>
+> > Obvious question is, which compiler.
 > 
-> Obvious question is, which compiler.
+> I hadn't seen any locks, but (on a dual Pmmx 200) it started crawling
+> right after the NIC module (tulip) was loaded. System load decided to
+> skyrocket.
+> 
+> Yadda... 2.2.19 with devfs patch.
+> bicycle:~# gcc -v
+> Reading specs from /usr/lib/gcc-lib/i386-linux/2.95.3/specs
+> gcc version 2.95.3 20010315 (Debian release)
+> 
+> Might be the same problem.
 
-I hadn't seen any locks, but (on a dual Pmmx 200) it started crawling
-right after the NIC module (tulip) was loaded. System load decided to
-skyrocket.
+Twin Abit BP6's, 2.2.19 + 9-Apr ide patch, no problems.
 
-Yadda... 2.2.19 with devfs patch.
-bicycle:~# gcc -v
-Reading specs from /usr/lib/gcc-lib/i386-linux/2.95.3/specs
-gcc version 2.95.3 20010315 (Debian release)
+egcs-2.91.66
 
-Might be the same problem.
+tulip.c:v0.91g-ppc 7/16/99 becker@cesdis.gsfc.nasa.gov
+eth0: Lite-On 82c168 PNIC rev 32 at 0xc800, 00:A0:CC:57:89:93, IRQ 16.
 
--- Ferret
+-- 
+  |  650.390.9613  |  6502247437@messaging.cellone-sf.com

@@ -1,47 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265213AbUGDRDi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265212AbUGDRKd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265213AbUGDRDi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jul 2004 13:03:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265214AbUGDRDi
+	id S265212AbUGDRKd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jul 2004 13:10:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265214AbUGDRKd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jul 2004 13:03:38 -0400
-Received: from bay16-f15.bay16.hotmail.com ([65.54.186.65]:21513 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S265213AbUGDRDg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jul 2004 13:03:36 -0400
-X-Originating-IP: [220.224.19.248]
-X-Originating-Email: [kartik_me@hotmail.com]
-From: "kartikey bhatt" <kartik_me@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: to alan
-Date: Sun, 04 Jul 2004 22:33:36 +0530
+	Sun, 4 Jul 2004 13:10:33 -0400
+Received: from cantor.suse.de ([195.135.220.2]:43966 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265212AbUGDRKb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jul 2004 13:10:31 -0400
+Date: Sun, 4 Jul 2004 19:10:28 +0200
+From: Olaf Hering <olh@suse.de>
+To: Jurriaan <thunder7@xs4all.nl>
+Cc: Antonino Daplas <adaplas@pol.net>, linux-kernel@vger.kernel.org,
+       linuxppc-dev@lists.linuxppc.org
+Subject: Re: 2.6.7-bk16, mode-switch-in-fbcon_blank.patch breaks X on r128
+Message-ID: <20040704171028.GA22469@suse.de>
+References: <20040704160358.GA20970@suse.de> <20040704164037.GA18255@middle.of.nowhere>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <BAY16-F15EZZRrzt4SP0000dcd8@hotmail.com>
-X-OriginalArrivalTime: 04 Jul 2004 17:03:36.0169 (UTC) FILETIME=[D8416D90:01C461E8]
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20040704164037.GA18255@middle.of.nowhere>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi alan,
-sorry to disturb you personally.but i have to resort to you.
-please help me out. i am desperately in need.
+ On Sun, Jul 04, Jurriaan wrote:
 
-I have two questions.
+> From: Olaf Hering <olh@suse.de>
+> Date: Sun, Jul 04, 2004 at 06:03:58PM +0200
+> > 
+> > This patch, which went into 2.6.7-bk16, breaks X on my ibook with r128
+> > chipset. X starts just fine, but the screen stays black. I can switch to
+> > a textconsole and the console login appears.
+> > 
+> > I see no errors in dmesg or XFree86.0.log. Its version 4.3.0 from SuSE 8.2.
+> > 
+> 
+> I also had problems (switching back from X to console rewrote my refresh
+> rate from 85 to 60 Hz) and this patch was posted in the
+> linux-fbdev-devel mailinglist which solved my problems.
+> 
+> could you try it and let Antonino A Daplas (adaplas @ pol.net) know if
+> this worked for you?
 
-(1) in bsd when a socket is created, the process
-creating the socket is passed as a structure
-to so_create call. in linux how can we have
-this mechanism by which when a socket is created
-we can access the task_t of the process creating the
-socket?
-
-
-(2) given the sk_buff* how to lookup the associated
-socket?
-
---Bhatt Kartikey Mahendra
-
-_________________________________________________________________
-Get Citibank Home Loan ! http://go.msnserver.com/IN/52043.asp At an 
-unbelievably low interest rate.
-
+No, this will not work, fbcon_resize() is called before fbcon_blank(). I
+think the removed code in fbcon_blank() is needed.

@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264891AbUFRAmb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264893AbUFRAox@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264891AbUFRAmb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 20:42:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264894AbUFRAmb
+	id S264893AbUFRAox (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 20:44:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264894AbUFRAox
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 20:42:31 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:43648 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S264891AbUFRAm3
+	Thu, 17 Jun 2004 20:44:53 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4010 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264893AbUFRAov
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 20:42:29 -0400
-Date: Thu, 17 Jun 2004 20:42:16 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Davide Libenzi <davidel@xmailserver.org>
-cc: Ben Greear <greearb@candelatech.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: poll
-In-Reply-To: <Pine.LNX.4.58.0406171726000.24496@bigblue.dev.mdolabs.com>
-Message-ID: <Pine.LNX.4.53.0406172041150.3581@chaos>
-References: <Pine.LNX.4.53.0406170954190.702@chaos> <40D21C8E.4040500@candelatech.com>
- <Pine.LNX.4.53.0406171958570.3414@chaos> <Pine.LNX.4.58.0406171726000.24496@bigblue.dev.mdolabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 17 Jun 2004 20:44:51 -0400
+Date: Fri, 18 Jun 2004 01:44:50 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: 4Front Technologies <dev@opensound.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: Stop the Linux kernel madness
+Message-ID: <20040618004450.GT12308@parcelfarce.linux.theplanet.co.uk>
+References: <40D232AD.4020708@opensound.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40D232AD.4020708@opensound.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Jun 2004, Davide Libenzi wrote:
+On Thu, Jun 17, 2004 at 05:09:17PM -0700, 4Front Technologies wrote:
+> Hi Folks,
+> 
+> I am writing this message to bring a huge problem to light. SuSE has been 
+> systematically
+> forking the linux kernel and shipping all kinds of modifications and still 
+> call their
+> kernels 2.6.5 (for example).
+> 
+> Either they ship the stock Linux kernel sources or they stop calling their 
+> distributions
+> as Linux-2.6.x based.
+> 
+> Kernel headers are being changed willy-nilly and SuSE are completely 
+> running rough-shod
+> over the linux kernel with the result ONLY software from SuSE works.
 
-> On Thu, 17 Jun 2004, Richard B. Johnson wrote:
->
-> > This all works fine-and-dandy with kernel 2.4.26. However, Linux
-> > has a history of removing availability of undefined things.
->
-> It'd work just fine in 2.6. The poll infrastructure is just a proxy to the
-> event core, and shouldn't mask anything. Your driver's f_op->poll will
-> return a mask, and this will be and'ed with the mask that you pass to poll(2).
-> Non-zero results will be reported to you. Just do not use bits 30 and 31
-> if you want it to work with epoll.
->
-> - Davide
->
+"Software" == "3rd-party kernel modules" in this case, right?
 
-Thanks. That's what I wanted to hear.
+Remember what had been told to you about in-kernel interfaces?  That's
+right, that they can be changed at zero notice.  Now, if SuSE told you
+otherwise, you might have a cause to complain.  Had they?
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
-            Note 96.31% of all statistics are fiction.
+If they'd promised in-kernel interface stability and lied - sure, go ahead
+and nail them to the wall.  If not - STFU and eat what you are bloody given.
 
-
+Al, not particulary fond of SuSE, but even less so - of misdirecting wankers
+like that...

@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130363AbRBBXAw>; Fri, 2 Feb 2001 18:00:52 -0500
+	id <S130347AbRBBXBc>; Fri, 2 Feb 2001 18:01:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130347AbRBBXAm>; Fri, 2 Feb 2001 18:00:42 -0500
-Received: from main.cyclades.com ([209.128.87.2]:3338 "EHLO cyclades.com")
-	by vger.kernel.org with ESMTP id <S130190AbRBBXAe>;
-	Fri, 2 Feb 2001 18:00:34 -0500
-Date: Fri, 2 Feb 2001 15:00:28 -0800 (PST)
+	id <S130657AbRBBXBX>; Fri, 2 Feb 2001 18:01:23 -0500
+Received: from main.cyclades.com ([209.128.87.2]:4362 "EHLO cyclades.com")
+	by vger.kernel.org with ESMTP id <S130347AbRBBXBH>;
+	Fri, 2 Feb 2001 18:01:07 -0500
+Date: Fri, 2 Feb 2001 15:01:05 -0800 (PST)
 From: Ivan Passos <lists@cyclades.com>
 To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: 2.2.17: weird eepro100 msgs
-Message-ID: <Pine.LNX.4.10.10102021449560.3255-100000@main.cyclades.com>
+Subject: 2.2.18: weird eepro100 msgs
+Message-ID: <Pine.LNX.4.10.10102021500450.3255-100000@main.cyclades.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org

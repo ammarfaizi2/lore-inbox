@@ -1,52 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264692AbRFXVCE>; Sun, 24 Jun 2001 17:02:04 -0400
+	id <S264709AbRFXVGf>; Sun, 24 Jun 2001 17:06:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264709AbRFXVBz>; Sun, 24 Jun 2001 17:01:55 -0400
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:9831
+	id <S264719AbRFXVGZ>; Sun, 24 Jun 2001 17:06:25 -0400
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:18791
 	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S264692AbRFXVBf>; Sun, 24 Jun 2001 17:01:35 -0400
-Date: Sun, 24 Jun 2001 23:01:26 +0200
+	id <S264709AbRFXVGO>; Sun, 24 Jun 2001 17:06:14 -0400
+Date: Sun, 24 Jun 2001 23:06:06 +0200
 From: Rasmus Andersen <rasmus@jaquet.dk>
-To: Eric Lammerts <eric@lammerts.org>
-Cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-        linux-kernel@vger.kernel.org, dhinds@zen.stanford.edu
-Subject: Re: [PATCH] add kmalloc check in drviers/pcmcia/rsrc_mgr.c (245-ac16)
-Message-ID: <20010624230126.F847@jaquet.dk>
-In-Reply-To: <20010624214635.C847@jaquet.dk> <Pine.LNX.4.33.0106242243170.3024-100000@ally.lammerts.org>
+To: linux-computone@lazuli.wittsend.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] catch potential null derefs in drivers/char/ip2main.c (245ac16)
+Message-ID: <20010624230606.G847@jaquet.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0106242243170.3024-100000@ally.lammerts.org>; from eric@lammerts.org on Sun, Jun 24, 2001 at 10:52:31PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 24, 2001 at 10:52:31PM +0200, Eric Lammerts wrote:
-[...] 
-> There are zillions of functions called 'init_module' in the kernel.
-> I think my suggestion was better (and it had a \n at the end!)
+Hi.
 
-Agreed. Actually, 'ouch' on point two :) BTW, was it intentional
-that you dropped the maintainer from the recipient-list back then?
+(My last mail to dougm@computone.com bounced. Is there another
+maintainer for drivers/char/ip2main.c somewhere?)
 
---- linux-245-ac16-clean/drivers/pcmcia/rsrc_mgr.c      Sat May 19 20:59:21 2001+++ linux-245-ac16/drivers/pcmcia/rsrc_mgr.c    Sat Jun 23 15:06:54 2001
-@@ -189,6 +189,11 @@
-     
-     /* First, what does a floating port look like? */
-     b = kmalloc(256, GFP_KERNEL);
-+    if (!b) {
-+       printk(" -- aborting.\n");
-+       printk(KERN_ERR "rsrc_mgr: Out of memory.\n");
-+       return;
-+    }
-     memset(b, 0, 256);
-     for (i = base, most = 0; i < base+num; i += 8) {
-        if (check_io_resource(i, 8))
+The patch below tries to avoid dereferencing (potential)
+NULL pointers. It was reported by the Stanford team way
+back and applies against 245ac16 and 246p6. It could
+probably be done nicer but that would take someone that
+actually understands this code.
+
+--- linux-245-ac16-clean/drivers/char/ip2main.c	Sat May 19 20:58:17 2001
++++ linux-245-ac16/drivers/char/ip2main.c	Sun Jun 24 22:37:27 2001
+@@ -866,36 +866,38 @@
+ 			}
+ 
+ #ifdef	CONFIG_DEVFS_FS
+-			sprintf( name, "ipl%d", i );
+-			i2BoardPtrTable[i]->devfs_ipl_handle =
+-				devfs_register (devfs_handle, name,
+-					DEVFS_FL_DEFAULT,
+-					IP2_IPL_MAJOR, 4 * i,
+-					S_IRUSR | S_IWUSR | S_IRGRP | S_IFCHR,
+-					&ip2_ipl, NULL);
++			if (i2BoardPtrTable[i] && pB) {
++				sprintf( name, "ipl%d", i );
++				i2BoardPtrTable[i]->devfs_ipl_handle =
++					devfs_register (devfs_handle, name,
++							DEVFS_FL_DEFAULT,
++							IP2_IPL_MAJOR, 4 * i,
++							S_IRUSR | S_IWUSR | S_IRGRP | S_IFCHR,
++							&ip2_ipl, NULL);
+ 
+-			sprintf( name, "stat%d", i );
+-			i2BoardPtrTable[i]->devfs_stat_handle =
+-				devfs_register (devfs_handle, name,
+-					DEVFS_FL_DEFAULT,
+-					IP2_IPL_MAJOR, 4 * i + 1,
+-					S_IRUSR | S_IWUSR | S_IRGRP | S_IFCHR,
+-					&ip2_ipl, NULL);
++				sprintf( name, "stat%d", i );
++				i2BoardPtrTable[i]->devfs_stat_handle =
++					devfs_register (devfs_handle, name,
++							DEVFS_FL_DEFAULT,
++							IP2_IPL_MAJOR, 4 * i + 1,
++							S_IRUSR | S_IWUSR | S_IRGRP | S_IFCHR,
++							&ip2_ipl, NULL);
+ 
+-			for ( box = 0; box < ABS_MAX_BOXES; ++box )
+-			{
+-			    for ( j = 0; j < ABS_BIGGEST_BOX; ++j )
+-			    {
+-				if ( pB->i2eChannelMap[box] & (1 << j) )
++				for ( box = 0; box < ABS_MAX_BOXES; ++box )
+ 				{
+-				    tty_register_devfs(&ip2_tty_driver,
+-					0, j + ABS_BIGGEST_BOX *
+-						(box+i*ABS_MAX_BOXES));
+-				    tty_register_devfs(&ip2_callout_driver,
+-					0, j + ABS_BIGGEST_BOX *
+-						(box+i*ABS_MAX_BOXES));
++					for ( j = 0; j < ABS_BIGGEST_BOX; ++j )
++					{
++						if ( pB->i2eChannelMap[box] & (1 << j) )
++						{
++							tty_register_devfs(&ip2_tty_driver,
++									   0, j + ABS_BIGGEST_BOX *
++									   (box+i*ABS_MAX_BOXES));
++							tty_register_devfs(&ip2_callout_driver,
++									   0, j + ABS_BIGGEST_BOX *
++									   (box+i*ABS_MAX_BOXES));
++						}
++					}
+ 				}
+-			    }
+ 			}
+ #endif
+ 
 -- 
 Regards,
         Rasmus(rasmus@jaquet.dk)
 
-You know how dumb the average guy is?  Well, by  definition, half
-of them are even dumber than that.
-            -- J.R. "Bob" Dobbs 
+A chicken and an egg are lying in bed. The chicken is smoking a
+cigarette with a satisfied smile on it's face and the egg is frowning
+and looking a bit pissed off. The egg mutters, to no-one in particular,
+"Well, I guess we answered THAT question..."

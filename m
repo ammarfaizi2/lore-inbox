@@ -1,51 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261304AbTIOKpn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 06:45:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261346AbTIOKpn
+	id S261716AbTIOKlH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 06:41:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262406AbTIOKlH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 06:45:43 -0400
-Received: from MAILGW02.bang-olufsen.dk ([193.89.221.125]:57614 "EHLO
-	mailgw02.bang-olufsen.dk") by vger.kernel.org with ESMTP
-	id S261304AbTIOKpm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 06:45:42 -0400
-Message-ID: <3F659850.9000603@bitplanet.net>
-Date: Mon, 15 Sep 2003 12:45:36 +0200
-From: =?ISO-8859-1?Q?Kristian_H=F8gsberg?= <krh@bitplanet.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030903 Thunderbird/0.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Typo in scripts/postmod.c
-X-MIMETrack: Itemize by SMTP Server on BeoSmtp/Bang & Olufsen/DK(Release 5.0.11  |July
- 24, 2002) at 15-09-2003 12:45:35,
-	Serialize by Router on dzln13/Bang & Olufsen/DK(Release 6.0.2CF1|June 9, 2003) at
- 15-09-2003 12:45:42,
-	Serialize complete at 15-09-2003 12:45:42
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 15 Sep 2003 06:41:07 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:5761 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S261716AbTIOKlE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 06:41:04 -0400
+Date: Mon, 15 Sep 2003 11:54:40 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200309151054.h8FAsepr001086@81-2-122-30.bradfords.org.uk>
+To: john@grabjohn.com, piggin@cyberone.com.au
+Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
+Cc: alan@lxorguk.ukuu.org.uk, davidsen@tmr.com, linux-kernel@vger.kernel.org,
+       zwane@linuxpower.ca
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Rusty,
+> >>>>>That's a non-issue.  300 bytes matters a lot on some systems.  The
+> >>>>>fact that there are drivers that are bloated is nothing to do with
+> >>>>>it.
+> >>>>>
+> >>>>>
+> >>>>Its kind of irrelevant when by saying "Athlon" you've added 128 byte
+> >>>>alignment to all the cache friendly structure padding.
+> >>>>
+> >>>>
+> >>>My intention is that we won't have done 128 byte alignments just by
+> >>>'supporting' Athlons, only if we want to run fast on Athlons.  A
+> >>>distribution kernel that is intended to boot on all CPUs needs
+> >>>workarounds for Athlon bugs, but it doesn't need 128 byte alignment.
+> >>>
+> >>>Obviously using such a kernel for anything other than getting a system
+> >>>up and running to compile a better kernel is a Bad Thing, but the
+> >>>distributions could supply separate Athlon, PIV, and 386 _optimised_
+> >>>kernels.
+> >>>
+> >>>
+> >>Why bother with that complexity? Just use 128 byte lines. This allows
+> >>a decent generic kernel. The people who have space requirements would
+> >>only compile what they need anyway.
+> >>
+> >
+> >So, basically, if you compile a kernel for a 386, but think that maybe
+> >one day you might need to run it on an Athlon for debugging purposes,
+> >you use 128 byte padding, because it's not too bad on the 386?  Seems
+> >pretty wasteful to me when the obvious, simple, elegant solution is to
+> >allow independent selection of workaround inclusion and optimisation.
+> >Especially since half of the work has already been done.
+> >
+>
+> I missed the "simple, elegant" part. Conceptually elegant maybe.
+>
+> If you mean to use the optimise option only to set cache line size, then
+> that might be a bit saner.
+>
+> As far as the case study goes though: if you were worried about being
+> wasteful, why wouldn't you compile just for the 386 and debug from that?
 
-There's a small typo in scripts/postmod.c, see patch below.
+In the model I'm proposing, the 386 kernel would be missing the Athlon
+workarounds.
 
-regards, Kristian
-
---- orig/linux-2.6.0-test5/scripts/modpost.c    2003-09-08
-21:49:55.000000000 +0200
-+++ linux-2.6.0-test5/scripts/modpost.c 2003-09-15 12:00:05.000000000 +0200
-@@ -193,7 +193,7 @@
-
-
-         *size = st.st_size;
-         map = mmap(NULL, *size, PROT_READ|PROT_WRITE, MAP_PRIVATE, fd, 0);
--       if (mmap == MAP_FAILED) {
-+       if (map == MAP_FAILED) {
-                 perror(filename);
-                 abort();
-         }
-
-
+John.

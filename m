@@ -1,71 +1,168 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261366AbUCUWTz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 17:19:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261425AbUCUWSN
-	(ORCPT <rfc822;linux-kernel-outgoing>);
+	id S261392AbUCUWSN (ORCPT <rfc822;willy@w.ods.org>);
 	Sun, 21 Mar 2004 17:18:13 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:57232 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261366AbUCUWQm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 17:16:42 -0500
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: "Acker, Dave" <dacker@infiniconsys.com>, linux-kernel@vger.kernel.org
-Subject: Re: PATCH - InfiniBand Access Layer (IBAL)
-References: <08628CA53C6CBA4ABAFB9E808A5214CB01EE9AD7@mercury.infiniconsys.com>
-	<405C85A0.7010403@redhat.com>
-X-Message-Flag: Warning: May contain useful information
-X-Priority: 1
-X-MSMail-Priority: High
-From: Roland Dreier <roland@topspin.com>
-Date: 21 Mar 2004 14:16:36 -0800
-In-Reply-To: <405C85A0.7010403@redhat.com>
-Message-ID: <52fzc13kxn.fsf@topspin.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261425AbUCUWR4
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Sun, 21 Mar 2004 17:17:56 -0500
+Received: from struggle.mr.itd.umich.edu ([141.211.14.79]:35240 "EHLO
+	struggle.mr.itd.umich.edu") by vger.kernel.org with ESMTP
+	id S261392AbUCUWNS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Mar 2004 17:13:18 -0500
+Date: Sun, 21 Mar 2004 17:13:09 -0500 (EST)
+From: Rajesh Venkatasubramanian <vrajesh@umich.edu>
+X-X-Sender: vrajesh@rust.engin.umich.edu
+To: akpm@osdl.org
+cc: torvalds@osdl.org, hugh@veritas.com, mbligh@aracnet.com, andrea@suse.de,
+       riel@redhat.com, mingo@elte.hu, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: [RFC][PATCH 3/3] Covert objrmap to use prio_tree... 
+In-Reply-To: <Pine.GSO.4.58.0403211634350.10248@azure.engin.umich.edu>
+Message-ID: <Pine.LNX.4.58.0403211712300.29552@rust.engin.umich.edu>
+References: <Pine.LNX.4.44.0403150527400.28579-100000@localhost.localdomain>
+ <Pine.GSO.4.58.0403211634350.10248@azure.engin.umich.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 21 Mar 2004 22:16:36.0787 (UTC) FILETIME=[2D009030:01C40F92]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Ulrich> The only acceptable order in which things can happen is:
 
-    Ulrich> 1. develop API
-    Ulrich> 2. propose API to be accepted by "community"/distributions
-    Ulrich> 3. change API if necessary, and go back to 2.
-    Ulrich> 4. write applications using new API
 
-I don't think this is reasonable, since nothing is settled enough for
-this to work.  On the one hand, InfiniBand and other "fibers" (eg RDMA
-over ethernet) are quite experimental.  No one is sure of the right
-semantics or the best way to use the interconnect.  On the other hand,
-there are people who want to use this stuff right now (eg
-high-performance computing people building clusters, database cluster
-people, etc).
+Convert mm/rmap.c to prio_tree...
 
-There are users who want to use InfiniBand now, and making them wait
-through your whole process above is simply untenable.  You can't
-expect a company selling InfiniBand equipment to say, "Sorry, our
-software isn't perfect (although it would work for you now).  Come
-back in a year or two."
 
-With that in mind, I think the only order things can happen is:
 
-    1. develop API
-    2. implement API
-    2a.learn from mistakes and go back to 1.
-    3. write applications using API
-    4. learn from mistakes and go back to 1.
+ mm/rmap.c |   50 +++++++++++++++++++++++++++++++++++++++++++-------
+ 1 files changed, 43 insertions(+), 7 deletions(-)
 
-It's certainly unfortunate that so much InfiniBand software has been
-developed behind closed doors, but the industry has finally woken up
-and come together around the OpenIB idea to develop Linux support
-completely in the open.
+diff -puN mm/rmap.c~objrmap_prio_tree mm/rmap.c
+--- mmlinux-2.6/mm/rmap.c~objrmap_prio_tree	2004-03-21 16:25:12.000000000 -0500
++++ mmlinux-2.6-jaya/mm/rmap.c	2004-03-21 16:25:12.000000000 -0500
+@@ -129,7 +129,7 @@ find_pte(struct vm_area_struct *vma, str
+ 	loffset = (page->index << (PAGE_CACHE_SHIFT - PAGE_SHIFT));
+ 	address = vma->vm_start + ((loffset - vma->vm_pgoff) << PAGE_SHIFT);
+ 	if (address < vma->vm_start || address >= vma->vm_end)
+-		goto out;
++		BUG();
 
-When does this software make it into distributions?  Obviously that's
-up to the distribution.  Certainly a commercial distribution has
-customers of its own to listen to, and I would assume that the
-decision would be made based on the appropriate combination of
-technical merit and customer demand.
+ 	pgd = pgd_offset(mm, address);
+ 	if (!pgd_present(*pgd))
+@@ -207,6 +207,8 @@ page_referenced_obj(struct page *page)
+ {
+ 	struct address_space *mapping = page->mapping;
+ 	struct vm_area_struct *vma;
++	struct prio_tree_iter iter;
++	unsigned long loffset;
+ 	int referenced = 0;
 
- - Roland
+ 	if (!page->pte.mapcount)
+@@ -221,11 +223,22 @@ page_referenced_obj(struct page *page)
+ 	if (down_trylock(&mapping->i_shared_sem))
+ 		return 1;
+
+-	list_for_each_entry(vma, &mapping->i_mmap, shared)
++	loffset = (page->index << (PAGE_CACHE_SHIFT - PAGE_SHIFT));
++
++	vma = __vma_prio_tree_first(&mapping->i_mmap, &iter, loffset, loffset);
++	while (vma) {
+ 		referenced += page_referenced_obj_one(vma, page);
++		vma = __vma_prio_tree_next(vma, &mapping->i_mmap, &iter,
++				loffset, loffset);
++	}
+
+-	list_for_each_entry(vma, &mapping->i_mmap_shared, shared)
++	vma = __vma_prio_tree_first(&mapping->i_mmap_shared, &iter, loffset,
++			loffset);
++	while (vma) {
+ 		referenced += page_referenced_obj_one(vma, page);
++		vma = __vma_prio_tree_next(vma, &mapping->i_mmap_shared, &iter,
++				loffset, loffset);
++	}
+
+ 	up(&mapping->i_shared_sem);
+
+@@ -511,6 +524,8 @@ try_to_unmap_obj(struct page *page)
+ {
+ 	struct address_space *mapping = page->mapping;
+ 	struct vm_area_struct *vma;
++	struct prio_tree_iter iter;
++	unsigned long loffset;
+ 	int ret = SWAP_AGAIN;
+
+ 	if (!mapping)
+@@ -522,16 +537,25 @@ try_to_unmap_obj(struct page *page)
+ 	if (down_trylock(&mapping->i_shared_sem))
+ 		return ret;
+
+-	list_for_each_entry(vma, &mapping->i_mmap, shared) {
++	loffset = (page->index << (PAGE_CACHE_SHIFT - PAGE_SHIFT));
++
++	vma = __vma_prio_tree_first(&mapping->i_mmap, &iter, loffset, loffset);
++	while (vma) {
+ 		ret = try_to_unmap_obj_one(vma, page);
+ 		if (ret == SWAP_FAIL || !page->pte.mapcount)
+ 			goto out;
++		vma = __vma_prio_tree_next(vma, &mapping->i_mmap, &iter,
++				loffset, loffset);
+ 	}
+
+-	list_for_each_entry(vma, &mapping->i_mmap_shared, shared) {
++	vma = __vma_prio_tree_first(&mapping->i_mmap_shared, &iter, loffset,
++			loffset);
++	while (vma) {
+ 		ret = try_to_unmap_obj_one(vma, page);
+ 		if (ret == SWAP_FAIL || !page->pte.mapcount)
+ 			goto out;
++		vma = __vma_prio_tree_next(vma, &mapping->i_mmap_shared, &iter,
++				loffset, loffset);
+ 	}
+
+ out:
+@@ -749,6 +773,8 @@ int page_convert_anon(struct page *page)
+ 	struct address_space *mapping;
+ 	struct vm_area_struct *vma;
+ 	struct pte_chain *pte_chain = NULL;
++	struct prio_tree_iter iter;
++	unsigned long loffset;
+ 	pte_t *pte;
+ 	int err = 0;
+
+@@ -783,7 +809,10 @@ int page_convert_anon(struct page *page)
+ 	 */
+ 	pte_chain_unlock(page);
+
+-	list_for_each_entry(vma, &mapping->i_mmap, shared) {
++	loffset = (page->index << (PAGE_CACHE_SHIFT - PAGE_SHIFT));
++
++	vma = __vma_prio_tree_first(&mapping->i_mmap, &iter, loffset, loffset);
++	while (vma) {
+ 		if (!pte_chain) {
+ 			pte_chain = pte_chain_alloc(GFP_KERNEL);
+ 			if (!pte_chain) {
+@@ -800,8 +829,13 @@ int page_convert_anon(struct page *page)
+ 			pte_unmap(pte);
+ 		}
+ 		spin_unlock(&vma->vm_mm->page_table_lock);
++		vma = __vma_prio_tree_next(vma, &mapping->i_mmap, &iter,
++				loffset, loffset);
+ 	}
+-	list_for_each_entry(vma, &mapping->i_mmap_shared, shared) {
++
++	vma = __vma_prio_tree_first(&mapping->i_mmap_shared, &iter, loffset,
++			loffset);
++	while (vma) {
+ 		if (!pte_chain) {
+ 			pte_chain = pte_chain_alloc(GFP_KERNEL);
+ 			if (!pte_chain) {
+@@ -818,6 +852,8 @@ int page_convert_anon(struct page *page)
+ 			pte_unmap(pte);
+ 		}
+ 		spin_unlock(&vma->vm_mm->page_table_lock);
++		vma = __vma_prio_tree_next(vma, &mapping->i_mmap_shared, &iter,
++				loffset, loffset);
+ 	}
+
+ out_unlock:
+
+_
+

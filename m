@@ -1,63 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261802AbUDCPlw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Apr 2004 10:41:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261832AbUDCPlw
+	id S261804AbUDCPjt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Apr 2004 10:39:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261802AbUDCPjt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Apr 2004 10:41:52 -0500
-Received: from smtp-roam.Stanford.EDU ([171.64.10.152]:8880 "EHLO
-	smtp-roam.Stanford.EDU") by vger.kernel.org with ESMTP
-	id S261802AbUDCPlu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Apr 2004 10:41:50 -0500
-Message-ID: <406EDB43.6030401@stanford.edu>
-Date: Sat, 03 Apr 2004 17:41:55 +0200
-From: Andy Lutomirski <luto@stanford.edu>
-User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
-X-Accept-Language: en-us, en
+	Sat, 3 Apr 2004 10:39:49 -0500
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:39365 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S261804AbUDCPjs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Apr 2004 10:39:48 -0500
+Date: Sat, 3 Apr 2004 10:40:01 -0500 (EST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH][2.6-mm] early_param console_setup clobbers commandline
+In-Reply-To: <20040403030537.GF31152@smtp.west.cox.net>
+Message-ID: <Pine.LNX.4.58.0404031028090.11690@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.58.0404022026560.11690@montezuma.fsmlabs.com>
+ <20040403030537.GF31152@smtp.west.cox.net>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@epoch.ncsc.mil>, Andrew Morton <akpm@osdl.org>
-CC: Chris Wright <chrisw@osdl.org>, luto@myrealbox.com,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: capabilitiescompute_cred
-References: <20040402033231.05c0c337.akpm@osdl.org>	 <1080912069.27706.42.camel@moss-spartans.epoch.ncsc.mil>	 <20040402111554.E21045@build.pdx.osdl.net>  <406DCB32.8070403@stanford.edu> <1080942432.28777.109.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1080942432.28777.109.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Smalley wrote:
+On Fri, 2 Apr 2004, Tom Rini wrote:
 
-> On Fri, 2004-04-02 at 15:21, Andy Lutomirski wrote:
-> 
->>I agree in principle, but it would still be nice to have a simple way to 
->>have useful capabilities without setting up a MAC system.  I don't see a 
->>capabilities fix adding any significant amount of code; it just takes 
->>some effort to get it right.
-> 
-> 
-> I'm not opposed to making the existing capability logic more useable; I
-> just think that capabilities will ultimately be superseded by TE.
->  
-> 
->>You can find my attempts to get it right in the 
->>linux-kernel archives, and I'll probably try to get something into 2.7 
->>when it forks.  With or without MAC, having a functioning capability 
->>system wouldn't hurt security.
-> 
-> 
-> Does revising the capability logic need to wait on 2.7?  Have you
-> changed the logic significantly since the last patch you posted to lkml?
-> 
+> This shouldn't be a problem 'tho, since we don't allow for spaces in
+> args, and we do find where the next space is, and ensure it's still a
+> space after the call (because console can splice up the command line,
+> but we'd skip over those bits anyhow).
 
-I don't _think_ it's changed, but I'll double-check that in a few days 
-(I'm out of town).  I'll also rediff my patch.  Should it be a config 
-option?
+Another new thing is that all setup functions get called with their
+parameter and any other trailing arguments. So console_setup sees;
 
-Anyway, I have no strong objection to seeing a change in 2.6 -- there's 
-just some risk that it could break something that depends on the current 
-(broken, undocumented) behavior.
+tty0 console=ttyS0,38400 hugepages=20 nmi_watchdog=2
 
-Andrew:  would you be willing to put a capabilities fix into -mm?
+That's different enough to cause potential problems in future.
 
---Andy
+> pci= will clobber as well, which is why I thought I asked Andrew to drop
+> that part of the i386 patch (but perhaps I forgot, and with Rusty's
+> patch, it becomes a non-issue again).
+
+What is the patch name for Rusty's patch?

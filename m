@@ -1,112 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317499AbSGEQP3>; Fri, 5 Jul 2002 12:15:29 -0400
+	id <S317474AbSGEQSP>; Fri, 5 Jul 2002 12:18:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317500AbSGEQP2>; Fri, 5 Jul 2002 12:15:28 -0400
-Received: from twilight.cs.hut.fi ([130.233.40.5]:2684 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S317499AbSGEQP0>; Fri, 5 Jul 2002 12:15:26 -0400
-Date: Fri, 5 Jul 2002 19:17:51 +0300
-From: Ville Herva <vherva@niksula.hut.fi>
-To: Hank Leininger <hlein@progressive-comp.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: prevent breaking a chroot() jail?
-Message-ID: <20020705161750.GO1548@niksula.cs.hut.fi>
-Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
-	Hank Leininger <hlein@progressive-comp.com>,
-	linux-kernel@vger.kernel.org
-References: <200207051516.g65FGYY20854@marc2.theaimsgroup.com>
-Mime-Version: 1.0
+	id <S317500AbSGEQSO>; Fri, 5 Jul 2002 12:18:14 -0400
+Received: from dsl-linz4-236-240.utaonline.at ([212.152.236.240]:23025 "EHLO
+	falke.mail") by vger.kernel.org with ESMTP id <S317474AbSGEQSM>;
+	Fri, 5 Jul 2002 12:18:12 -0400
+Message-ID: <3D25C5DB.1B6B2839@falke.mail>
+Date: Fri, 05 Jul 2002 18:14:19 +0200
+From: Thomas Winischhofer <thomas@winischhofer.net>
+X-Mailer: Mozilla 4.76 [en] (WinNT; U)
+X-Accept-Language: en,en-GB,en-US,de-AT,de-DE,de-CH,sv
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Strange problem with 2.5.24
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200207051516.g65FGYY20854@marc2.theaimsgroup.com>
-User-Agent: Mutt/1.3.25i
+Content-Transfer-Encoding: 7bit
+X-MDRemoteIP: 10.0.0.13
+X-Return-Path: thomas@winischhofer.net
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 05, 2002 at 11:16:34AM -0400, you [Hank Leininger] wrote:
->
-> No, there are many ways that root can break out of chroot(2).  I maintain
-> some patches[1] against 2.2 (and grsecurity[2] has ported most of them to
-> 2.4) which aim to try to make it harder for root to break out of chroot(2),
-> but I won't say I've got them all--in fact I'll say I'm sure I *don't* have
-> them all, and I'd like to hear suggestions for more.  Here are some things
-> to worry about:
 
-I was skimming through FreeBSD jail(2) documents
-(http://docs.freebsd.org/44doc/papers/jail/jail.html). 
+I - well, more precisely one of my testers - experience(s) a strange
+problem with 2.5.24 using my recent sisfb (SiS framebuffer driver) and
+with the SiS X driver. This applies to the SiS630 as well as 650 (and
+possible others as well.)
 
-Compared to jail
-(http://docs.freebsd.org/44doc/papers/jail/jail-5.html#section5):
- 
-> -chroot(2)'ing with an open directory fd
-> -prevent chroot(2) by a process already chrooted ("double-chroot")
+A little background info: The SiS video BIOS provides some information
+on the machine's memory and the buswidth in sequencer register 0x14.
+(Communication with the sequencer is done by writing the address of the
+port to be read/written to port 0x3c4 and read/write the register
+contents to/from port 0x3c5.)
 
-Jail thwarts these.
+Using any of the 2.4 series kernels, the sequencer register 0x14
+contains 0x5f - which means the machine has 32MB shared graphics memory
+(0x1f) and a buswidth of 64 bit (0x40) according to the specs. This is
+correct.
 
-> -block mount(2) attempts inside chroot ("chroot(../..)" ...)
-> -block mknod of char or block devices inside chroot ("mknod /dev/hda",
->    "mknod /dev/kmem")
+When running the 2.5.24 kernel, this register right from the beginning
+(ie. when sisfb's init function is called) says 0xdf - which means 32MB
+of shared memory (0x1f) and a bus width of 32bit (0xc0) - the latter is
+incorrect (0xc0 was only possible on the SiS300 and is not used on the
+630.)
 
-Also prohibited in jail.
+This leads to incorrect timing calculations in sisfb as well as the X
+driver.
 
-> -block chmod +s by a chrooted process
+I have disassembled the video BIOS code now completely and found only
+one place where SR14 is being written. And this code makes it IMPOSSIBLE
+that it contains 0xdf (11011111). The bits 7 and 6 can NEVER contain the
+same value, as the code looks in about like this:
 
-Jail appears to allow this, and you can't get out of jail as (jailed) root
-anyway.
+  and ah, 3fh
+  shl bh,7
+  or ah, bh
+  shr bh, 1
+  xor bh, 40h
+  or ah, bh
+  ...-> write ah to SR14
 
-> -block ptrace(2) by a chrooted process of processes outside the jail
+Bit 0 of bh in the beginning is the result of an undocumented int 15h
+call, holding the code for the buswidth. As you see, xor-ing the bit
+before or-ing it into ah again makes it impossible that the register
+holds 0xdf.
 
-I believe jail prohibits this as well (through its p_trespass() mechanism).
+Again: This does not happen if a 2.4 kernel is used!
 
-> -block most signals by a chrooted process to processes outside the jail
+Since the video BIOS's init routine (which is the only place where SR14
+is set) is very probably *not* called AFTER the kernel has been loaded
+and started, my only idea is that any other kernel component incorrectly
+writes to SR14.
 
-Likewise - it blocks all signals in and out from jail.
+Has anybody any idea why this may happen?
 
-> -block setting capabilities (capset) by a chrooted process of processes 
->    outside the jail
+Thomas
 
-(No idea)
+-- 
+Thomas Winischhofer
+Vienna/Austria                 
+mailto:thomas@winischhofer.net            http://www.winischhofer.net/
 
-> -drop "dangerous" capabilities when chroot(2)'ing.  (See the patch, but
->    basically, various *_ADMIN, *RAW*, etc to block ioctl, sysctl for
->    dangerous things.)
-
-Jail takes care of this by only allowing 35 operations for jailed root (out
-of the 260 allowed for normal root). Capabilies are propably better in linux
-context.
-
-> One area I have not looked at sufficiently is sysv IPC (shared memory,
-> semaphores...).  It's quite possible that a chrooted process can tamper
-> with shared memory segments that other, outside-chroot processes are using
-> (especially if some app is designed to use them to communicate across the
-> chroot boundary; I don't know of any but they could exist) and use that
-> vector to attack and try to subvert the other, non-chrooted process(es).
-
-I would imagine the p_trespass() check is used in FreeBSD to disallow any
-memory sharing between processes that are not in the same jail.
-
-In addition to what has been mentioned above, jail(2) notably limits jailed
-processes to one ip number (that of jail's). That way the jailed processes
-can't connect to hosts services (even through localhost interface) unless
-they listen to jail's ip, nor bind to any ip but the one that has been
-granted to the jail. They also do not allow any ipconfig, routing or kernel
-parameter changes etc from within a jail.
- 
-In general, I wonder if it would make sense to aim for something like
-jail(2). Chroot has its shortcomings, and I take it that many of them have
-to be preserved to maintain standard compliance. Jail isolates processes
-more completely than chroot is ever ment to.
-
-FreeBSD implements jail by adding a jail pointer to struct proc - I'm not
-sure how much of that should/could be done with mere capabilities in linux,
-and how much of the "fortificated chroot" implementation jail has overlaps
-with Al Viro's namespaces.
-
-All in all, I've seen suprisingly little conversation about jail on
-lkml. What do people think of it?
-
-
--- v --
-
-v@iki.fi

@@ -1,42 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262129AbTK1LLo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Nov 2003 06:11:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbTK1LLo
+	id S262127AbTK1LJe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Nov 2003 06:09:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbTK1LJe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Nov 2003 06:11:44 -0500
-Received: from main.gmane.org ([80.91.224.249]:30887 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262129AbTK1LLn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Nov 2003 06:11:43 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: Strange behavior observed w.r.t 'su' command
-Date: Fri, 28 Nov 2003 12:11:40 +0100
-Message-ID: <yw1xy8u021eb.fsf@kth.se>
-References: <3FC707B6.1070704@mailandnews.com> <jeoeuw7pf7.fsf@sykes.suse.de>
- <yw1x65h43h3b.fsf@kth.se> <je3cc87oic.fsf@sykes.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:W1jv0+2lhWfvLN8HLhnYtbosW1w=
+	Fri, 28 Nov 2003 06:09:34 -0500
+Received: from hogthrob.ic.uva.nl ([145.18.240.233]:28804 "EHLO
+	hogthrob.muppets.hoogervorst.net") by vger.kernel.org with ESMTP
+	id S262127AbTK1LJd convert rfc822-to-8bit (ORCPT
+	<rfc822;Linux-kernel@vger.kernel.org>);
+	Fri, 28 Nov 2003 06:09:33 -0500
+From: "J.W. Hoogervorst" <Jeroen@Hoogervorst.net>
+To: <Linux-kernel@vger.kernel.org>
+Subject: FW: Bug in tun driver with devfs
+Date: Fri, 28 Nov 2003 12:09:31 +0100
+Message-ID: <05AB1317EF6EED4DBF540147C451596B4B3D5F@oort.uva.nl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Schwab <schwab@suse.de> writes:
+-----Original Message-----
+From: root [mailto:Jeroen@Hoogervorst.net] 
+Sent: Thursday, November 27, 2003 10:42 PM
+To: eike-kernel@sf-tec.de
+Subject: Re: Bug in tun driver with devfs
 
->> It appears that my su exec()s the shell, whereas the redhat and gentoo
->> su fork() and exec().
->
-> Yes, your su probably does not support PAM.
 
-I don't think it does.  I still don't see the need to fork when using
-PAM.
+Hello,
 
--- 
-Måns Rullgård
-mru@kth.se
+> Are you absolutely sure that this one is made by the
+kernel?
+> I think this type of links is created by devfsd. Disable
+devfsd
+> and look if the link ist still there, if not that is a
+mistake
+> in your /etc/devfsd.conf
+
+Whoops. You're right. It seems standard devfsd
+/lib/dev-state setup on
+my laptop was wrong. Fixed now (I misread misc.c/tun.c about
+this).
+
+Sorry for wasting your time ;-)
+
+Regards,
+Jeroen
+
 

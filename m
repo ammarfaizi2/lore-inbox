@@ -1,146 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S518467AbUKBD5x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S381520AbUKBCVH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S518467AbUKBD5x (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 22:57:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S518698AbUKBD5x
+	id S381520AbUKBCVH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 21:21:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S287505AbUKAXOY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 22:57:53 -0500
-Received: from koto.vergenet.net ([210.128.90.7]:22217 "HELO koto.vergenet.net")
-	by vger.kernel.org with SMTP id S518638AbUKBD5G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 22:57:06 -0500
-Date: Tue, 2 Nov 2004 12:56:35 +0900
-From: Horms <horms@verge.net.au>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Siep Kroonenberg <siepo@cybercomm.nl>,
-       278068@bugs.debian.org
-Subject: Re: chmod messes up permissions on hfs filesystem
-Message-ID: <20041102035635.GA28481@verge.net.au>
-References: <20041101043559.GA12500@verge.net.au> <Pine.LNX.4.61.0411011721560.877@scrub.home>
+	Mon, 1 Nov 2004 18:14:24 -0500
+Received: from mail.kroah.org ([69.55.234.183]:8356 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S284626AbUKAV7V convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 16:59:21 -0500
+X-Donotread: and you are reading this why?
+Subject: Re: [PATCH] Driver Core patches for 2.6.10-rc1
+In-Reply-To: <10993462761856@kroah.com>
+X-Patch: quite boring stuff, it's just source code...
+Date: Mon, 1 Nov 2004 13:57:56 -0800
+Message-Id: <1099346276148@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0411011721560.877@scrub.home>
-X-Cluestick: seven
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 01, 2004 at 05:27:47PM +0100, Roman Zippel wrote:
-> Hi,
-> 
-> On Mon, 1 Nov 2004, Horms wrote:
-> 
-> > -rw-r--r--
-> > after chmod g+w:
-> > -rw-rw-rw-
-> 
-> No, this command will do nothing, as only the owner write bit is checked  
-> and the owner bit is mirrored in the other parts (minus umask).
-> Below is a patch which should fix the original problem.
+ChangeSet 1.2446, 2004/11/01 13:04:46-08:00, akpm@osdl.org
 
-Hi,
+[PATCH] Possible race in sysfs_read_file() and sysfs_write_file()
 
-Thanks for the patch, though the behaviour of the umask still seems
-rather odd. I would like to offer an updated patch which I believe
-makes the umask behave in the expected way. It also ensures
-that the write_lock bit is read from/written to disk correctly.
+From: Simon Derr <Simon.Derr@bull.net>
 
--- 
-Horms
+Add a `needs_read_fill' field in sysfs_buffer so that reading after a write in
+a sysfs file returns valid data.
+
+(instead of the data that have been written, that may be invalid or at the
+wrong offset)
+
+Signed-off-by: Simon Derr <simon.derr@bull.net>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
-===== fs/hfs/inode.c 1.24 vs edited =====
---- 1.24/fs/hfs/inode.c	2004-10-26 05:06:48 +09:00
-+++ edited/fs/hfs/inode.c	2004-11-01 20:56:45 +09:00
-@@ -158,6 +158,7 @@ struct inode *hfs_new_inode(struct inode
- {
- 	struct super_block *sb = dir->i_sb;
- 	struct inode *inode = new_inode(sb);
-+	struct hfs_sb_info *hsb = HFS_SB(dir->i_sb);
- 	if (!inode)
- 		return NULL;
+ fs/sysfs/file.c |    6 +++++-
+ 1 files changed, 5 insertions(+), 1 deletion(-)
+
+
+diff -Nru a/fs/sysfs/file.c b/fs/sysfs/file.c
+--- a/fs/sysfs/file.c	2004-11-01 13:36:42 -08:00
++++ b/fs/sysfs/file.c	2004-11-01 13:36:42 -08:00
+@@ -55,6 +55,7 @@
+ 	char			* page;
+ 	struct sysfs_ops	* ops;
+ 	struct semaphore	sem;
++	int			needs_read_fill;
+ };
  
-@@ -165,7 +166,6 @@ struct inode *hfs_new_inode(struct inode
- 	INIT_LIST_HEAD(&HFS_I(inode)->open_dir_list);
- 	hfs_cat_build_key((btree_key *)&HFS_I(inode)->cat_key, dir->i_ino, name);
- 	inode->i_ino = HFS_SB(sb)->next_id++;
--	inode->i_mode = mode;
- 	inode->i_uid = current->fsuid;
- 	inode->i_gid = current->fsgid;
- 	inode->i_nlink = 1;
-@@ -174,14 +174,15 @@ struct inode *hfs_new_inode(struct inode
- 	HFS_I(inode)->flags = 0;
- 	HFS_I(inode)->rsrc_inode = NULL;
- 	HFS_I(inode)->fs_blocks = 0;
--	if (S_ISDIR(inode->i_mode)) {
-+	if (S_ISDIR(mode)) {
- 		inode->i_size = 2;
- 		HFS_SB(sb)->folder_count++;
- 		if (dir->i_ino == HFS_ROOT_CNID)
- 			HFS_SB(sb)->root_dirs++;
- 		inode->i_op = &hfs_dir_inode_operations;
- 		inode->i_fop = &hfs_dir_operations;
--	} else if (S_ISREG(inode->i_mode)) {
-+		inode->i_mode = (mode & ~0777) | (~hsb->s_dir_umask & 0777);
-+	} else if (S_ISREG(mode)) {
- 		HFS_I(inode)->clump_blocks = HFS_SB(sb)->clumpablks;
- 		HFS_SB(sb)->file_count++;
- 		if (dir->i_ino == HFS_ROOT_CNID)
-@@ -196,6 +197,11 @@ struct inode *hfs_new_inode(struct inode
- 		HFS_I(inode)->cached_blocks = 0;
- 		memset(HFS_I(inode)->first_extents, 0, sizeof(hfs_extent_rec));
- 		memset(HFS_I(inode)->cached_extents, 0, sizeof(hfs_extent_rec));
-+		inode->i_mode = (mode & ~0777) | (~hsb->s_file_umask & 0777);
-+		if (mode & S_IWUSR)
-+			inode->i_mode |= S_IWUGO;
-+		else
-+			inode->i_mode &= ~S_IWUGO;
- 	}
- 	insert_inode_hash(inode);
- 	mark_inode_dirty(inode);
-@@ -314,10 +320,11 @@ int hfs_read_inode(struct inode *inode, 
- 		}
  
- 		inode->i_ino = be32_to_cpu(rec->file.FlNum);
--		inode->i_mode = S_IRUGO | S_IXUGO;
-+		inode->i_mode = S_IRWXUGO & ~hsb->s_file_umask;
- 		if (!(rec->file.Flags & HFS_FIL_LOCK))
- 			inode->i_mode |= S_IWUGO;
--		inode->i_mode &= hsb->s_file_umask;
-+		else
-+			inode->i_mode &= ~S_IWUGO;
- 		inode->i_mode |= S_IFREG;
- 		inode->i_ctime = inode->i_atime = inode->i_mtime =
- 				hfs_m_to_utime(rec->file.MdDat);
-@@ -329,7 +336,7 @@ int hfs_read_inode(struct inode *inode, 
- 		inode->i_ino = be32_to_cpu(rec->dir.DirID);
- 		inode->i_size = be16_to_cpu(rec->dir.Val) + 2;
- 		HFS_I(inode)->fs_blocks = 0;
--		inode->i_mode = S_IFDIR | (S_IRWXUGO & hsb->s_dir_umask);
-+		inode->i_mode = S_IFDIR | (S_IRWXUGO & ~hsb->s_dir_umask);
- 		inode->i_ctime = inode->i_atime = inode->i_mtime =
- 				hfs_m_to_utime(rec->dir.MdDat);
- 		inode->i_op = &hfs_dir_inode_operations;
-@@ -601,7 +608,6 @@ int hfs_inode_setattr(struct dentry *den
- 			attr->ia_mode = inode->i_mode | S_IWUGO;
- 		else
- 			attr->ia_mode = inode->i_mode & ~S_IWUGO;
--		attr->ia_mode &= S_ISDIR(inode->i_mode) ? ~hsb->s_dir_umask: ~hsb->s_file_umask;
+@@ -82,6 +83,7 @@
+ 		return -ENOMEM;
+ 
+ 	count = ops->show(kobj,attr,buffer->page);
++	buffer->needs_read_fill = 0;
+ 	BUG_ON(count > (ssize_t)PAGE_SIZE);
+ 	if (count >= 0)
+ 		buffer->count = count;
+@@ -146,7 +148,7 @@
+ 	ssize_t retval = 0;
+ 
+ 	down(&buffer->sem);
+-	if ((!*ppos) || (!buffer->page)) {
++	if (buffer->needs_read_fill) {
+ 		if ((retval = fill_read_buffer(file->f_dentry,buffer)))
+ 			goto out;
  	}
- 	error = inode_setattr(inode, attr);
- 	if (error)
-===== fs/hfs/super.c 1.32 vs edited =====
---- 1.32/fs/hfs/super.c	2004-10-26 05:06:47 +09:00
-+++ edited/fs/hfs/super.c	2004-11-01 20:01:54 +09:00
-@@ -149,8 +149,8 @@ static int parse_options(char *options, 
- 	/* initialize the sb with defaults */
- 	hsb->s_uid = current->uid;
- 	hsb->s_gid = current->gid;
--	hsb->s_file_umask = 0644;
--	hsb->s_dir_umask = 0755;
-+	hsb->s_file_umask = 0111;
-+	hsb->s_dir_umask = 0000;
- 	hsb->s_type = hsb->s_creator = cpu_to_be32(0x3f3f3f3f);	/* == '????' */
- 	hsb->s_quiet = 0;
- 	hsb->part = -1;
+@@ -182,6 +184,7 @@
+ 	if (count >= PAGE_SIZE)
+ 		count = PAGE_SIZE - 1;
+ 	error = copy_from_user(buffer->page,buf,count);
++	buffer->needs_read_fill = 1;
+ 	return error ? -EFAULT : count;
+ }
+ 
+@@ -299,6 +302,7 @@
+ 	if (buffer) {
+ 		memset(buffer,0,sizeof(struct sysfs_buffer));
+ 		init_MUTEX(&buffer->sem);
++		buffer->needs_read_fill = 1;
+ 		buffer->ops = ops;
+ 		file->private_data = buffer;
+ 	} else
+

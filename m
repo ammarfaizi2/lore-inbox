@@ -1,174 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261622AbVDESow@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261894AbVDESkq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261622AbVDESow (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 14:44:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261565AbVDESmy
+	id S261894AbVDESkq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 14:40:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261885AbVDEShv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 14:42:54 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:59875 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261897AbVDESiw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 14:38:52 -0400
-Date: Tue, 5 Apr 2005 20:34:13 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Brice Goglin <Brice.Goglin@ens-lyon.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc2-mm1
-Message-ID: <20050405183413.GA7122@elte.hu>
-References: <20050405000524.592fc125.akpm@osdl.org> <425240C5.1050706@ens-lyon.org> <20050405083001.GA28068@elte.hu> <42524EE2.5010703@ens-lyon.org>
+	Tue, 5 Apr 2005 14:37:51 -0400
+Received: from vbo91-1-82-238-217-224.fbx.proxad.net ([82.238.217.224]:13960
+	"EHLO mirchusko.localnet") by vger.kernel.org with ESMTP
+	id S261874AbVDESeN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 14:34:13 -0400
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear
+	copyright notice.
+From: Josselin Mouette <joss@debian.org>
+To: linux-os@analogic.com
+Cc: debian-legal@lists.debian.org, debian-kernel@lists.debian.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0504051408190.17159@chaos.analogic.com>
+References: <lLj-vC.A.92G.w4pUCB@murphy> <4252A821.9030506@almg.gov.br>
+	 <Pine.LNX.4.61.0504051123100.16479@chaos.analogic.com>
+	 <1112723637.4878.14.camel@mirchusko.localnet>
+	 <Pine.LNX.4.61.0504051408190.17159@chaos.analogic.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-qqHRZrL1apuDfc2IkDx/"
+Date: Tue, 05 Apr 2005 20:34:05 +0200
+Message-Id: <1112726045.4878.18.camel@mirchusko.localnet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42524EE2.5010703@ens-lyon.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Evolution 2.0.4 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Brice Goglin <Brice.Goglin@ens-lyon.org> wrote:
+--=-qqHRZrL1apuDfc2IkDx/
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-> >could you send the full bootlog (starting at the 'gcc...' line)? I'm not 
-> >sure whether TSC calibration was done on your CPU. If cyc2ns_scale is 
-> >not set up then sched_clock() will return 0, and this could result in 
-> >that printk symptom.
-> 
-> Here you are.
+Le mardi 05 avril 2005 =C3=A0 14:17 -0400, Richard B. Johnson a =C3=A9crit =
+:
+> > You are completely missing the point. I don't care whether the firmware=
+s
+> > should be free, or whether they could be free. The fact is they are not
+> > free, and Debian doesn't distribute non-free software in the "main"
+> > archive. The fact is also that mixing them with a GPLed software gives
+> > an result you can't redistribute - although it seems many people
+> > disagree with that assertion now.
+>=20
+> As previously explained, if I buy a screen-card I get a driver
+> that will allow it to run under Windows. If I extract the stuff
+> from that driver that allows me to run it under Linux, that
+> constitutes fair use. Otherwise there are criminal issues like
+> restraint-of-trade and similar problems for the manufacturer.
+> That firmware is free for use on/in the device you purchased.
 
-weird - none of the WARN_ON(1)'s show up. In particular, the 
-sched_clock() ones should have triggered at least once! I've attached a 
-new version of the patch below (please unapply the previous patch), 
-could you try it and send me the log?  (It will unconditionally print 
-something in tsc_init(), which is always called during the boot 
-process.)
+You are mixing free beer and free speech. Of course I'm free to use it
+in the device I purchased, but it is nevertheless unsuitable for the
+Debian main archive, where there is only free software.
 
-	Ingo
+> > Finally, you shouldn't forget that, technically speaking, using hotplug
+> > for uploading the firmware is much more flexible and elegant than
+> > including it in the kernel. Upgrading the firmware and the module shoul=
+d
+> > be two independent operations. People who are advocating the current
+> > situation are refusing technical improvements just because they are
+> > brought by people they find convenient to call "zealots".
+>=20
+> Throwing in a bit of truth to a pile of bullshit still leaves
+> the bullshit. It isn't relevant to the issue whether or not
+> upgrading firmware as a separate function from loading a module
+> is "good" or "bad".
 
---- linux/arch/i386/kernel/timers/timer_tsc.c.orig
-+++ linux/arch/i386/kernel/timers/timer_tsc.c
-@@ -137,16 +137,15 @@ static unsigned long long monotonic_cloc
- unsigned long long sched_clock(void)
- {
- 	unsigned long long this_offset;
-+	static int once = 1;
- 
--	/*
--	 * In the NUMA case we dont use the TSC as they are not
--	 * synchronized across all CPUs.
--	 */
--#ifndef CONFIG_NUMA
--	if (!use_tsc)
--#endif
-+	if (!cpu_has_tsc) {
-+		if (once) { once = 0; WARN_ON(1); }
- 		/* no locking but a rare wrong value is not a big deal */
- 		return jiffies_64 * (1000000000 / HZ);
-+	}
-+
-+	if (once) { once = 0; WARN_ON(1); }
- 
- 	/* Read the Time Stamp Counter */
- 	rdtscll(this_offset);
-@@ -434,7 +433,8 @@ static void mark_offset_tsc(void)
- 
- static int __init init_tsc(char* override)
- {
--
-+	printk("TSC init.\n");
-+	WARN_ON(1);
- 	/* check clock override */
- 	if (override[0] && strncmp(override,"tsc",3)) {
- #ifdef CONFIG_HPET_TIMER
-@@ -443,6 +443,7 @@ static int __init init_tsc(char* overrid
- 		} else
- #endif
- 		{
-+			WARN_ON(1);
- 			return -ENODEV;
- 		}
- 	}
-@@ -518,8 +519,10 @@ static int __init init_tsc(char* overrid
- 			}
- 			set_cyc2ns_scale(cpu_khz/1000);
- 			return 0;
--		}
-+		} else
-+			WARN_ON(1);
- 	}
-+	WARN_ON(1);
- 	return -ENODEV;
- }
- 
-@@ -528,12 +531,14 @@ static int __init init_tsc(char* overrid
-  * in cpu/common.c */
- static int __init tsc_setup(char *str)
- {
-+	WARN_ON(1);
- 	tsc_disable = 1;
- 	return 1;
- }
- #else
- static int __init tsc_setup(char *str)
- {
-+	WARN_ON(1);
- 	printk(KERN_WARNING "notsc: Kernel compiled with CONFIG_X86_TSC, "
- 				"cannot disable TSC.\n");
- 	return 1;
---- linux/arch/i386/kernel/timers/common.c.orig
-+++ linux/arch/i386/kernel/timers/common.c
-@@ -39,8 +39,10 @@ unsigned long __init calibrate_tsc(void)
- 
- 
- 		/* Error: ECTCNEVERSET */
--		if (count <= 1)
-+		if (count <= 1) {
-+			WARN_ON(1);
- 			goto bad_ctc;
-+		}
- 
- 		/* 64-bit subtract - gcc just messes up with long longs */
- 		__asm__("subl %2,%0\n\t"
-@@ -50,12 +52,16 @@ unsigned long __init calibrate_tsc(void)
- 			 "0" (endlow), "1" (endhigh));
- 
- 		/* Error: ECPUTOOFAST */
--		if (endhigh)
-+		if (endhigh) {
-+			WARN_ON(1);
- 			goto bad_ctc;
-+		}
- 
- 		/* Error: ECPUTOOSLOW */
--		if (endlow <= CALIBRATE_TIME)
-+		if (endlow <= CALIBRATE_TIME) {
-+			WARN_ON(1);
- 			goto bad_ctc;
-+		}
- 
- 		__asm__("divl %2"
- 			:"=a" (endlow), "=d" (endhigh)
-@@ -107,12 +113,16 @@ unsigned long __init calibrate_tsc_hpet(
- 		 "0" (tsc_endlow), "1" (tsc_endhigh));
- 
- 	/* Error: ECPUTOOFAST */
--	if (tsc_endhigh)
-+	if (tsc_endhigh) {
-+		WARN_ON(1);
- 		goto bad_calibration;
-+	}
- 
- 	/* Error: ECPUTOOSLOW */
--	if (tsc_endlow <= CALIBRATE_TIME_HPET)
-+	if (tsc_endlow <= CALIBRATE_TIME_HPET) {
-+		WARN_ON(1);
- 		goto bad_calibration;
-+	}
- 
- 	ASM_DIV64_REG(result, remain, tsc_endlow, 0, CALIBRATE_TIME_HPET);
- 	if (remain > (tsc_endlow >> 1))
+Of course it is. If the proposed solution is technically better and
+pleases the so-called zealots, why are you discussing it at all?
+--=20
+ .''`.           Josselin Mouette        /\./\
+: :' :           josselin.mouette@ens-lyon.org
+`. `'                        joss@debian.org
+  `-  Debian GNU/Linux -- The power of freedom
+
+--=-qqHRZrL1apuDfc2IkDx/
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Ceci est une partie de message
+	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQBCUtodrSla4ddfhTMRAkx4AJwOylQjjkrLeBWM6cbjgG0HkkjEyQCgxqyZ
+ryHNodqy17ewFpgWyBWDYrM=
+=3K8D
+-----END PGP SIGNATURE-----
+
+--=-qqHRZrL1apuDfc2IkDx/--

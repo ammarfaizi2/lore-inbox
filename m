@@ -1,73 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263759AbTFBQQu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 12:16:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263637AbTFBQQu
+	id S263620AbTFBQRi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 12:17:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263654AbTFBQRh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 12:16:50 -0400
-Received: from lvs00-fl.valueweb.net ([216.219.253.199]:10455 "EHLO
-	ams013.ftl.affinity.com") by vger.kernel.org with ESMTP
-	id S263620AbTFBQQs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 12:16:48 -0400
-Message-ID: <3EDB7B83.1020108@coyotegulch.com>
-Date: Mon, 02 Jun 2003 12:29:55 -0400
-From: Scott Robert Ladd <coyote@coyotegulch.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030527 Debian/1.3.1-2
-X-Accept-Language: en
+	Mon, 2 Jun 2003 12:17:37 -0400
+Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:60288
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id S263620AbTFBQRY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 12:17:24 -0400
+Date: Mon, 2 Jun 2003 12:20:00 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: mikpe@csd.uu.se
+cc: "Brian J. Murrell" <brian@interlinx.bc.ca>, "" <alan@lxorguk.ukuu.org.uk>,
+       "" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.5] Honour dont_enable_local_apic flag
+In-Reply-To: <16091.25998.133420.280664@gargle.gargle.HOWL>
+Message-ID: <Pine.LNX.4.50.0306021218210.18864-100000@montezuma.mastecende.com>
+References: <200306012308.h51N8K6j001404@harpo.it.uu.se> <1054511535.6676.85.camel@pc>
+ <Pine.LNX.4.50.0306011950080.31534-100000@montezuma.mastecende.com>
+ <16091.25998.133420.280664@gargle.gargle.HOWL>
 MIME-Version: 1.0
-To: Mike Dresser <mdresser_l@windsormachine.com>
-CC: linux-kernel@vger.kernel.org, linux-smp@vger.kernel.org
-Subject: Re: Hyper-threading
-References: <Pine.LNX.4.33.0306021147460.31561-100000@router.windsormachine.com>
-In-Reply-To: <Pine.LNX.4.33.0306021147460.31561-100000@router.windsormachine.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Dresser wrote:
-> Indeed, I saw that.  On the P4 2.66ghz that you have, the "second" cpu is
-> disabled by intel, as they sell hyperthreading only on the newer Xeon P4
-> (which you don't have), and the new 800FSB (4x200) units, which again
-> you don't have.
-> 
-> ..... CPU clock speed is 2672.7802 MHz.
-> ..... host bus clock speed is 133.6388 MHz.
+On Mon, 2 Jun 2003 mikpe@csd.uu.se wrote:
 
-Some Pentium 4 chips support HT even when they officially "don't". For 
-example, my system has an Intel MB and a Pentium 4 2.8GHz processor; it 
-boots using HT just fine. From a recent boot:
+> Looks good to me. Add a __setup to set dont_enable_local_apic and this
+> should be sufficient for users of severely broken HW or emulations.
 
-Tycho kernel: CPU1: Intel Pentium 4 (Northwood) stepping 07
-Tycho kernel: Total of 2 processors activated (11042.81 BogoMIPS).
-Tycho kernel: cpu_sibling_map[0] = 1
-Tycho kernel: cpu_sibling_map[1] = 0
-Tycho kernel: ENABLING IO-APIC IRQs
-Tycho kernel: Setting 2 in the phys_id_present_map
-Tycho kernel: ...changing IO-APIC physical APIC ID to 2 ... ok.
-Tycho kernel: ..TIMER: vector=0x31 pin1=2 pin2=0
-Tycho kernel: testing the IO APIC.......................
-Tycho kernel: .................................... done.
-Tycho kernel: Using local APIC timer interrupts.
-Tycho kernel: calibrating APIC timer ...
-Tycho kernel: ..... CPU clock speed is 2783.0819 MHz.
-Tycho kernel: ..... host bus clock speed is 132.0562 MHz.
-Tycho kernel: checking TSC synchronization across 2 CPUs: passed.
-Tycho kernel: Starting migration thread for cpu 0
-Tycho kernel: Bringing up 1
-Tycho kernel: CPU 1 IS NOW UP!
-Tycho kernel: Starting migration thread for cpu 1
-Tycho kernel: CPUS done 2
+This should do it then;
 
-Note the "132.0562" MHz bus speed.
+Thanks,
+	Zwane
 
-I obtained my system directly from Intel; however, I know of a few 
-people who obtained Pentium 4 chips from retailers, and their processors 
-support HT with a 4x133 bus.
-
+Index: linux-2.5/Documentation/kernel-parameters.txt
+===================================================================
+RCS file: /home/cvs/linux-2.5/Documentation/kernel-parameters.txt,v
+retrieving revision 1.36
+diff -u -p -B -r1.36 kernel-parameters.txt
+--- linux-2.5/Documentation/kernel-parameters.txt	2 Jun 2003 02:49:19 -0000	1.36
++++ linux-2.5/Documentation/kernel-parameters.txt	2 Jun 2003 15:20:46 -0000
+@@ -624,6 +624,9 @@ running once the system is up.
+ 
+ 	nointroute	[IA-64]
+ 
++	nolapic		[IA-32, APIC]
++			Disable Local APIC.
++
+ 	nomce		[IA-32] Machine Check Exception
+ 
+ 	noresume	[SWSUSP] Disables resume and restore original swap space.
+Index: linux-2.5/arch/i386/kernel/apic.c
+===================================================================
+RCS file: /home/cvs/linux-2.5/arch/i386/kernel/apic.c,v
+retrieving revision 1.54
+diff -u -p -B -r1.54 apic.c
+--- linux-2.5/arch/i386/kernel/apic.c	31 May 2003 19:01:05 -0000	1.54
++++ linux-2.5/arch/i386/kernel/apic.c	2 Jun 2003 15:20:47 -0000
+@@ -602,6 +602,14 @@ static void apic_pm_activate(void) { }
+  */
+ int dont_enable_local_apic __initdata = 0;
+ 
++static int __init nolapic_setup(char *str)
++{
++	dont_enable_local_apic = 1;
++	return 1;
++}
++
++__setup("nolapic", nolapic_setup);
++
+ static int __init detect_init_APIC (void)
+ {
+ 	u32 h, l, features;
+@@ -609,7 +617,7 @@ static int __init detect_init_APIC (void
+ 
+ 	/* Disabled by DMI scan or kernel option? */
+ 	if (dont_enable_local_apic)
+-		return -1;
++		goto no_apic;
+ 
+ 	/* Workaround for us being called before identify_cpu(). */
+ 	get_cpu_vendor(&boot_cpu_data);
+@@ -665,6 +673,7 @@ static int __init detect_init_APIC (void
+ 	return 0;
+ 
+ no_apic:
++	clear_bit(X86_FEATURE_APIC, boot_cpu_data.x86_capability);
+ 	printk("No local APIC present or hardware disabled\n");
+ 	return -1;
+ }
 -- 
-Scott Robert Ladd
-Coyote Gulch Productions (http://www.coyotegulch.com)
-Professional programming for science and engineering;
-Interesting and unusual bits of very free code.
-
+function.linuxpower.ca

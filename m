@@ -1,76 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280136AbRK2Vaf>; Thu, 29 Nov 2001 16:30:35 -0500
+	id <S283408AbRK2VhP>; Thu, 29 Nov 2001 16:37:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283410AbRK2VaZ>; Thu, 29 Nov 2001 16:30:25 -0500
-Received: from [168.159.129.100] ([168.159.129.100]:6928 "EHLO
-	mxic1.isus.emc.com") by vger.kernel.org with ESMTP
-	id <S280136AbRK2VaR>; Thu, 29 Nov 2001 16:30:17 -0500
-Message-ID: <93F527C91A6ED411AFE10050040665D00241AB31@corpusmx1.us.dg.com>
-From: berthiaume_wayne@emc.com
-To: ak@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: Multicast Broadcast
-Date: Thu, 29 Nov 2001 16:29:22 -0500
+	id <S283410AbRK2Vg4>; Thu, 29 Nov 2001 16:36:56 -0500
+Received: from mail.myrio.com ([63.109.146.2]:22004 "HELO smtp1.myrio.com")
+	by vger.kernel.org with SMTP id <S283408AbRK2Vgp> convert rfc822-to-8bit;
+	Thu, 29 Nov 2001 16:36:45 -0500
+Message-ID: <D52B19A7284D32459CF20D579C4B0C0211CAE6@mail0.myrio.com>
+From: Torrey Hoffman <torrey.hoffman@myrio.com>
+To: "'Rene Rebe'" <rene.rebe@gmx.net>, linux-kernel@vger.kernel.org
+Cc: reiserfs-list@namesys.com
+Subject: RE: [reiserfs-list] ReiserFS on RAID5 Linux-2.4 - speed problem
+Date: Thu, 29 Nov 2001 13:36:08 -0800
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
+X-Mailer: Internet Mail Service (5.5.2650.21)
 Content-Type: text/plain;
 	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Andi, forgive my ignorance. I've searched around and can't seem to
-find any references to IP_ADD_MEMBERSHIP and how to use it. I did perform an
-fgrep() and found the switch in net/ipv4/ip_socketglue.c, but where do I
-implement it or how do I call it? Is this something I place in
-/etc/sysconfig/network-scriptsifcfg-eth<x> file? Any help would be
-appreciated.
-Regards,
-Wayne
-EMC Corp
-ObjectStor Engineering
-4400 Computer Drive
-M/S F213
-Westboro,  MA    01580
+René Rebe wrote:
+[...]
+> I run ReiserFS on a RAID5 (of 3 IDE disks) using the latest 
+> 2.4.(e.g.16)
+> kernel for weeks. It works well except that is is painfully 
+> slow. 
+[...]
 
-email:       Berthiaume_Wayne@emc.com
+You are not the only one with these problems...
 
-"One man can make a difference, and every man should try."  - JFK
+I am convinced there is a serious, negative performance 
+interaction between software RAID 5 and ReiserFS, at least
+on IDE.  Performance is less than 25% of what it should be.
 
+---------------
+Concise summary: 
 
------Original Message-----
-From: Andi Kleen [mailto:ak@suse.de]
-Sent: Monday, November 26, 2001 11:16 AM
-To: berthiaume_wayne@emc.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Multicast Broadcast
+dbench of reiserfs on a normal drive partition is slightly
+* faster * than timing a raw "dd" from that partition.
 
+But, dbench of reiserfs on a reiserfs on software RAID5
+is ** only 1/4 as fast ** as a raw "dd" from the RAID5, 
 
-berthiaume_wayne@emc.com writes:
+And, to make it worse, software RAID 5 is significantly 
+slower than I think it should be.  As a result, my nice
+RAID 5 is far, far slower than an ordinary partition.
+These are not just dbench numbers - all sorts of testing
+shows the problem.
 
-> 	One potential work-around is a patch to
-> net/ipv4/igmp.c:ip_mc_join_group.
-> For example:
-> 
-> #ifdef DUAL_MCAST_BIND
->    if(!imr->imr_ifindex) {
->       imr->ifindex=2;  /* eth0 */
->       err=ip_mc_join_group(sk, imr);
->       if (!err) {
->         imr->ifindex=3; /* eth1 */
->         err=ip_mc_join_group(sk, imr);
->       }
->       return err;
->    }
-> #else
->    if(!imr->imr_ifindex)
->      in_dev = ip_mc_find_dev(imr);
-> #endif
-> 
-> 	I'm hoping that there is another way.
+---------------
+Here are the details:
 
-It depends on what you want to do, but this "fix" is the same
-equivalent to executing IP_ADD_MEMBERSHIP twice with 2 and 3 in the
-imr_ifindex field (except that the later doesn't break any programs) 
+I have four Maxtor 60 GB IDE disks, each is master on a single
+cable, using two Promise Ultra TX2/100 cards.  The host is 
+a dual P3-800 with 512 MB of RAM.  I bought this hardware
+specifically to act as a fast, cheap, reliable server...  
+I have no complaints except the speed.  
 
--Andi
+The raid disks are hde, hdg, hdi, hdk, as /dev/md0, not
+partitioned, /dev/md0 is a single 180 GB reiserfs and is 
+mounted on /home.  Chunk size is 1024.
+
+Here's some low level numbers:
+
+Single drive from the RAID:
+time dd if=/dev/hdg of=/dev/null bs=1M count=1024
+- elapsed time 0:37 = 27.65 MB/sec
+
+Raw RAID5:
+time dd if=/dev/md0 of=/dev/null bs=1M count=1024
+- elapsed time 0:25 = 40.96 MB/sec
+
+File on Reiserfs on RAID5:
+time dd if=/home/test_file_1GB of=/dev/null bs=1M count=1024
+- elapsed time 0:33 = 31.03 MB/sec
+
+Old home partition on hda9:
+time dd if=/dev/hda9 of=/dev/null bs=1M count=1024
+- elapsed time 0:41 = 24 MB/sec
+
+dbench tests:
+
+dbench 32 on reiserfs on md0  : 10.7027 MB/sec
+dbench 32 on reiserfs on hda9 : 27.7925 MB/sec
+
+Note that when I first set this hardware up, I tried RAID0
+on the same hardware and saw dbench 32 numbers of 76 MB/sec.
+
+So, I think the dbench number for reiserfs on md0 should be
+** at least ** five times faster than it is.  Are my 
+expectations too high or is there a real problem here?
+
+(tested on 2.4.15-pre5, this problem has been around for
+all 2.4 kernels I've tried.)
+
+Happy to help test and debug... please send suggestions.
+
+Torrey Hoffman

@@ -1,57 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264054AbUFPP3u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263979AbUFPPca@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264054AbUFPP3u (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 11:29:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264058AbUFPP3t
+	id S263979AbUFPPca (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 11:32:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264048AbUFPPc3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 11:29:49 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:21659 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S264054AbUFPP3l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 11:29:41 -0400
-Date: Wed, 16 Jun 2004 16:29:34 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Dimitri Sivanich <sivanich@sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-mm@kvack.org,
+	Wed, 16 Jun 2004 11:32:29 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:13327 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S263979AbUFPPcX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 11:32:23 -0400
+Message-ID: <40D06C0B.7020005@techsource.com>
+Date: Wed, 16 Jun 2004 11:49:31 -0400
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: Petter Larsen <pla@morecom.no>
+CC: ext3 <ext3-users@redhat.com>, ext3@philwhite.org, Nicolas.Kowalski@imag.fr,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: Option to run cache reap in thread mode
-Message-ID: <20040616152934.GA13527@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Dimitri Sivanich <sivanich@sgi.com>, Andrew Morton <akpm@osdl.org>,
-	linux-mm@kvack.org, linux-kernel@vger.kernel.org
-References: <20040616142413.GA5588@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040616142413.GA5588@sgi.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Subject: Re: mode data=journal in ext3. Is it safe to use?
+References: <40FB8221D224C44393B0549DDB7A5CE83E31B1@tor.lokal.lan> <1087322976.1874.36.camel@pla.lokal.lan>
+In-Reply-To: <1087322976.1874.36.camel@pla.lokal.lan>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 16, 2004 at 09:24:13AM -0500, Dimitri Sivanich wrote:
-> Hi,
-> 
-> In the process of testing per/cpu interrupt response times and CPU availability,
-> I've found that running cache_reap() as a timer as is done currently results
-> in some fairly long CPU holdoffs.
-> 
-> I would like to know what others think about running cache_reap() as a low
-> priority realtime kthread, at least on certain cpus that would be configured
-> that way (probably configured at boottime initially).  I've been doing some
-> testing running it this way on CPU's whose activity is mostly restricted to
-> realtime work (requiring rapid response times).
-> 
-> Here's my first cut at an initial patch for this (there will be other changes
-> later to set the configuration and to optimize locking in cache_reap()).
 
-YAKT, sigh..  I don't quite understand what you mean with a "holdoff" so
-maybe you could explain what problem you see?  You don't like cache_reap
-beeing called from timer context?
 
-As for realtime stuff you're probably better off using something like rtlinux,
-getting into the hrt or even real strong soft rt busuniness means messing up
-the kernel horrible.  Given you're @sgi.com address you probably know what
-a freaking mess and maintaince nightmare IRIX has become because of that.
+Petter Larsen wrote:
+
+> 
+> Data integrity is much more important for us than speed.
+> 
+
+
+You might want to consider ReiserFS or one of the others which were 
+designed with journaling in mind.  And I hope you're using RAID1 or RAID5.
 

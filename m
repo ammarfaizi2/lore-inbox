@@ -1,62 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265554AbTIJTEU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 15:04:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265533AbTIJTDJ
+	id S265609AbTIJTXj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 15:23:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265644AbTIJTVG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 15:03:09 -0400
-Received: from gprs145-173.eurotel.cz ([160.218.145.173]:59010 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S265526AbTIJTCQ (ORCPT
+	Wed, 10 Sep 2003 15:21:06 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:15885 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S265609AbTIJTSr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 15:02:16 -0400
-Date: Wed, 10 Sep 2003 21:02:02 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Jamie Lokier <jamie@shareable.org>, Dave Jones <davej@redhat.com>,
-       Mitchell Blank Jr <mitch@sfgoth.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] oops_in_progress is unlikely()
-Message-ID: <20030910190202.GG2834@elf.ucw.cz>
-References: <20030907064204.GA31968@sfgoth.com> <20030907221323.GC28927@redhat.com> <20030910142031.GB2589@elf.ucw.cz> <20030910142308.GL932@redhat.com> <20030910152902.GA2764@elf.ucw.cz> <Pine.LNX.4.53.0309101147040.14762@chaos> <20030910183138.GA23783@mail.jlokier.co.uk> <Pine.LNX.4.53.0309101439390.18459@chaos>
+	Wed, 10 Sep 2003 15:18:47 -0400
+Date: Wed, 10 Sep 2003 21:18:46 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Linus Torvalds <torvalds@osdl.org>, Russell King <rmk@arm.linux.org.uk>,
+       linux-kernel@vger.kernel.org,
+       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+       Roman Zippel <zippel@linux-m68k.org>, linuxppc-dev@lists.linuxppc.org
+Subject: kbuild/ppc*: Remove obsolete _config support
+Message-ID: <20030910191846.GE5604@mars.ravnborg.org>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org,
+	Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+	Roman Zippel <zippel@linux-m68k.org>, linuxppc-dev@lists.linuxppc.org
+References: <20030910191411.GA5517@mars.ravnborg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0309101439390.18459@chaos>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <20030910191411.GA5517@mars.ravnborg.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > Your guess is incorrect.
-> >
-> > > You are always going to take an extra jump in one execution
-> > > path after the function, and you will take a conditional jump
-> > > before the function call in the other execution path. So, you
-> > > always have the "extra" jumps, no matter.
-> >
-> > That is not true.  The "likely" path has no taken jumps.
-> >
-> 
-> Absolutely, positively, irrefutably wrong! Any logical operation
-> with any real processor can only result in a jump upon condition. The
-> path not taken will always require a jump around the code that
-> handled the jump upon condition unless the code exists at
-> the end of a procedure where a 'return' will suffice. Period.
-
-No.
-
-	jz	not_likely
-	likely_code
-go_back:
-	more_likely_core
-	retn	
-
-not_likely:
-	do_whatever_you_need
-	jmp go_back
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1272  -> 1.1273 
+#	   arch/ppc/Makefile	1.43    -> 1.44   
+#	 arch/ppc64/Makefile	1.32    -> 1.33   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/09/10	sam@mars.ravnborg.org	1.1273
+# kbuild/ppc*: Remove obsolete _config support
+# --------------------------------------------
+#
+diff -Nru a/arch/ppc/Makefile b/arch/ppc/Makefile
+--- a/arch/ppc/Makefile	Wed Sep 10 21:15:51 2003
++++ b/arch/ppc/Makefile	Wed Sep 10 21:15:51 2003
+@@ -58,10 +58,6 @@
+ $(BOOT_TARGETS): vmlinux
+ 	$(Q)$(MAKE) $(build)=arch/ppc/boot $@
+ 
+-%_config: arch/ppc/configs/%_defconfig
+-	rm -f .config arch/ppc/defconfig
+-	cp -f arch/ppc/configs/$(@:config=defconfig) .config
+-
+ archclean:
+ 	$(Q)$(MAKE) $(clean)=arch/ppc/boot
+ 
+diff -Nru a/arch/ppc64/Makefile b/arch/ppc64/Makefile
+--- a/arch/ppc64/Makefile	Wed Sep 10 21:15:51 2003
++++ b/arch/ppc64/Makefile	Wed Sep 10 21:15:51 2003
+@@ -41,10 +41,6 @@
+ $(boottarget-y): vmlinux
+ 	$(Q)$(MAKE) $(build)=$(boot) $(boot)/$@
+ 
+-%_config: arch/ppc64/configs/%_defconfig
+-	rm -f .config arch/ppc64/defconfig
+-	cp -f arch/ppc64/configs/$(@:config=defconfig) arch/ppc64/defconfig
+-
+ bootimage-$(CONFIG_PPC_PSERIES) := zImage
+ bootimage-$(CONFIG_PPC_ISERIES) := vmlinux.sm
+ BOOTIMAGE := $(bootimage-y)

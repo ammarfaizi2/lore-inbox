@@ -1,30 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131017AbQK2KTT>; Wed, 29 Nov 2000 05:19:19 -0500
+        id <S129760AbQK2Kct>; Wed, 29 Nov 2000 05:32:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130844AbQK2KTJ>; Wed, 29 Nov 2000 05:19:09 -0500
-Received: from nread2.inwind.it ([212.141.53.75]:22233 "EHLO relay4.inwind.it")
-        by vger.kernel.org with ESMTP id <S131017AbQK2KS4>;
-        Wed, 29 Nov 2000 05:18:56 -0500
-Message-Id: <3.0.6.32.20001129105142.00b7f6a0@pop.tiscalinet.it>
-X-Mailer: QUALCOMM Windows Eudora Light Version 3.0.6 (32)
-Date: Wed, 29 Nov 2000 10:51:42 +0100
-To: linux-kernel@vger.kernel.org
-From: Lorenzo Allegrucci <lenstra@tiscalinet.it>
-Subject: Problem solved (WAS: lmbench on linux-2.4.0-test[4-11])
-Cc: "David S. Miller" <davem@redhat.com>,
-        "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+        id <S129867AbQK2Kcj>; Wed, 29 Nov 2000 05:32:39 -0500
+Received: from smtp03.mrf.mail.rcn.net ([207.172.4.62]:17043 "EHLO
+        smtp03.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+        id <S129760AbQK2Kc0>; Wed, 29 Nov 2000 05:32:26 -0500
+Message-ID: <3A24D40C.D66818A2@haque.net>
+Date: Wed, 29 Nov 2000 05:01:48 -0500
+From: "Mohammad A. Haque" <mhaque@haque.net>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Tigran Aivazian <tigran@veritas.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ext2 filesystem corruptions back from dead? 2.4.0-test11
+In-Reply-To: <Pine.LNX.4.21.0011290853410.1129-100000@penguin.homenet>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+UP
 
-It was a trivial misconfiguration of my portmap and proxy.
-Sorry people and thank you for your patience :-)
+Tigran Aivazian wrote:
+> 
+> Mohammad,
+> 
+> can you please tell me if that 4K corrupted block in a file was on a UP
+> machine or SMP? So far I have not seen a corruption on UP machines, only
+> SMP.
 
---
-Lorenzo
+-- 
+
+=====================================================================
+Mohammad A. Haque                              http://www.haque.net/ 
+                                               mhaque@haque.net
+
+  "Alcohol and calculus don't mix.             Project Lead
+   Don't drink and derive." --Unknown          http://wm.themes.org/
+                                               batmanppc@themes.org
+=====================================================================
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

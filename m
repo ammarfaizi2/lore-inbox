@@ -1,42 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267373AbUG2ANJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267371AbUG2ARp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267373AbUG2ANJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 20:13:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267370AbUG2ANI
+	id S267371AbUG2ARp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 20:17:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267369AbUG2ARo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 20:13:08 -0400
-Received: from holomorphy.com ([207.189.100.168]:3984 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S267378AbUG2AMh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 20:12:37 -0400
-Date: Wed, 28 Jul 2004 17:12:34 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8-rc2 crash(s)?
-Message-ID: <20040729001234.GK2334@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Gene Heskett <gene.heskett@verizon.net>,
-	linux-kernel@vger.kernel.org
-References: <200407242156.40726.gene.heskett@verizon.net> <200407250116.29651.vda@port.imtp.ilyichevsk.odessa.ua> <200407250012.52743.gene.heskett@verizon.net> <200407250037.51874.gene.heskett@verizon.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200407250037.51874.gene.heskett@verizon.net>
-User-Agent: Mutt/1.5.6+20040523i
+	Wed, 28 Jul 2004 20:17:44 -0400
+Received: from hqemgate02.nvidia.com ([216.228.112.145]:5896 "EHLO
+	hqemgate02.nvidia.com") by vger.kernel.org with ESMTP
+	id S267371AbUG2ANO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 20:13:14 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_001_01C47500.D12EB678"
+Subject: [PATCH 2.6.8-rc2] intel8x0.c to include CK804 audio support
+Date: Wed, 28 Jul 2004 17:13:04 -0700
+Message-ID: <DBFABB80F7FD3143A911F9E6CFD477B03F9600@hqemmail02.nvidia.com>
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 2.6.8-rc2] intel8x0.c to include CK804 audio support
+Thread-Index: AcR0yTYMRxawiVFBRo+WsJay75mgOQANsOXg
+From: "Andrew Chew" <achew@nvidia.com>
+To: "Takashi Iwai" <tiwai@suse.de>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 29 Jul 2004 00:12:59.0179 (UTC) FILETIME=[CE1EC7B0:01C47500]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 25, 2004 at 12:37:51AM -0400, Gene Heskett wrote:
-> Update, it looks as if this new mobo is a bit much for the 350 watt 
-> supply in this case, the +5 volt line is wandering around a couple of 
-> hundred millivolts, centered on about 4.86 volts.  IMO thats not 
-> enough, particularly since its wandering around under load.
-> Would everyone agree?
+This is a multi-part message in MIME format.
 
-This is a somewhat intense audit of potential hardware-related issues.
-What behavior have you observed that has led you to believe there may
-be hardware problems affecting your situation?
+------_=_NextPart_001_01C47500.D12EB678
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
+I left out support for two other NVIDIA audio controllers in my previous
+patch.
 
--- wli
+Attached is a patch which adds audio support for MCP04 and MCP2S audio
+controllers for the intel8x0 audio driver.  This patch is to be applied
+on top of the one I had previously submitted (so in total, there should
+be CK804, MCP04, and MCP2S added to the intel8x0 driver as of
+2.6.8-rc2).
+
+------_=_NextPart_001_01C47500.D12EB678
+Content-Type: application/octet-stream;
+	name="intel8x0.diff2"
+Content-Transfer-Encoding: base64
+Content-Description: intel8x0.diff2
+Content-Disposition: attachment;
+	filename="intel8x0.diff2"
+
+ZGlmZiAtcnUgbGludXgtMi42LjctcmMyL2luY2x1ZGUvbGludXgvcGNpX2lkcy5oIGxpbnV4L2lu
+Y2x1ZGUvbGludXgvcGNpX2lkcy5oCi0tLSBsaW51eC0yLjYuNy1yYzIvaW5jbHVkZS9saW51eC9w
+Y2lfaWRzLmgJMjAwNC0wNy0yOCAxNjo1NjozNi4wMDAwMDAwMDAgLTA3MDAKKysrIGxpbnV4L2lu
+Y2x1ZGUvbGludXgvcGNpX2lkcy5oCTIwMDQtMDctMjggMTY6MzM6NTAuMDAwMDAwMDAwIC0wNzAw
+CkBAIC0xMDY1LDYgKzEwNjUsNyBAQAogI2RlZmluZSBQQ0lfREVWSUNFX0lEX05WSURJQV9ORk9S
+Q0VfTUNQMDRfU0FUQQkweDAwMzYKICNkZWZpbmUgUENJX0RFVklDRV9JRF9OVklESUFfTlZFTkVU
+XzEwCQkweDAwMzcKICNkZWZpbmUgUENJX0RFVklDRV9JRF9OVklESUFfTlZFTkVUXzExCQkweDAw
+MzgKKyNkZWZpbmUgUENJX0RFVklDRV9JRF9OVklESUFfTUNQMDRfQVVESU8JMHgwMDNhCiAjZGVm
+aW5lIFBDSV9ERVZJQ0VfSURfTlZJRElBX05GT1JDRV9NQ1AwNF9TQVRBMgkweDAwM2UKICNkZWZp
+bmUgUENJX0RFVklDRV9JRF9OVklESUFfTkZPUkNFX0NLODA0X0lERQkweDAwNTMKICNkZWZpbmUg
+UENJX0RFVklDRV9JRF9OVklESUFfTkZPUkNFX0NLODA0X1NBVEEJMHgwMDU0CkBAIC0xMDc3LDYg
+KzEwNzgsNyBAQAogI2RlZmluZSBQQ0lfREVWSUNFX0lEX05WSURJQV9NQ1AyX0FVRElPCQkweDAw
+NmEKICNkZWZpbmUgUENJX0RFVklDRV9JRF9OVklESUFfTkZPUkNFMlNfSURFCTB4MDA4NQogI2Rl
+ZmluZSBQQ0lfREVWSUNFX0lEX05WSURJQV9OVkVORVRfNAkJMHgwMDg2CisjZGVmaW5lIFBDSV9E
+RVZJQ0VfSURfTlZJRElBX01DUDJTX0FVRElPCTB4MDA4YQogI2RlZmluZSBQQ0lfREVWSUNFX0lE
+X05WSURJQV9OVkVORVRfNQkJMHgwMDhjCiAjZGVmaW5lIFBDSV9ERVZJQ0VfSURfTlZJRElBX05G
+T1JDRTJTX1NBVEEJMHgwMDhlCiAjZGVmaW5lIFBDSV9ERVZJQ0VfSURfTlZJRElBX0lUTlQyCQkw
+eDAwQTAKZGlmZiAtcnUgbGludXgtMi42LjctcmMyL3NvdW5kL3BjaS9pbnRlbDh4MC5jIGxpbnV4
+L3NvdW5kL3BjaS9pbnRlbDh4MC5jCi0tLSBsaW51eC0yLjYuNy1yYzIvc291bmQvcGNpL2ludGVs
+OHgwLmMJMjAwNC0wNy0yOCAxNjozMToyOC4wMDAwMDAwMDAgLTA3MDAKKysrIGxpbnV4L3NvdW5k
+L3BjaS9pbnRlbDh4MC5jCTIwMDQtMDctMjggMTY6MzQ6MjUuMDAwMDAwMDAwIC0wNzAwCkBAIC00
+NjYsOSArNDY2LDExIEBACiAJeyAweDEwMzksIDB4NzAxMiwgUENJX0FOWV9JRCwgUENJX0FOWV9J
+RCwgMCwgMCwgREVWSUNFX1NJUyB9LAkvKiBTSTcwMTIgKi8KIAl7IDB4MTBkZSwgMHgwMWIxLCBQ
+Q0lfQU5ZX0lELCBQQ0lfQU5ZX0lELCAwLCAwLCBERVZJQ0VfTkZPUkNFIH0sCS8qIE5GT1JDRSAq
+LwogCXsgMHgxMGRlLCAweDAwNmEsIFBDSV9BTllfSUQsIFBDSV9BTllfSUQsIDAsIDAsIERFVklD
+RV9ORk9SQ0UgfSwJLyogTkZPUkNFMiAqLworCXsgMHgxMGRlLCAweDAwOGEsIFBDSV9BTllfSUQs
+IFBDSV9BTllfSUQsIDAsIDAsIERFVklDRV9ORk9SQ0UgfSwJLyogTkZPUkNFMiAqLwogCXsgMHgx
+MGRlLCAweDAwZGEsIFBDSV9BTllfSUQsIFBDSV9BTllfSUQsIDAsIDAsIERFVklDRV9ORk9SQ0Ug
+fSwJLyogTkZPUkNFMyAqLwogCXsgMHgxMGRlLCAweDAwZWEsIFBDSV9BTllfSUQsIFBDSV9BTllf
+SUQsIDAsIDAsIERFVklDRV9ORk9SQ0UgfSwJLyogQ0s4UyAqLwogCXsgMHgxMGRlLCAweDAwNTks
+IFBDSV9BTllfSUQsIFBDSV9BTllfSUQsIDAsIDAsIERFVklDRV9ORk9SQ0UgfSwJLyogQ0s4MDQg
+Ki8KKwl7IDB4MTBkZSwgMHgwMDNhLCBQQ0lfQU5ZX0lELCBQQ0lfQU5ZX0lELCAwLCAwLCBERVZJ
+Q0VfTkZPUkNFIH0sCS8qIE1DUDA0ICovCiAJeyAweDEwMjIsIDB4NzQ2ZCwgUENJX0FOWV9JRCwg
+UENJX0FOWV9JRCwgMCwgMCwgREVWSUNFX0lOVEVMIH0sCS8qIEFNRDgxMTEgKi8KIAl7IDB4MTAy
+MiwgMHg3NDQ1LCBQQ0lfQU5ZX0lELCBQQ0lfQU5ZX0lELCAwLCAwLCBERVZJQ0VfSU5URUwgfSwJ
+LyogQU1ENzY4ICovCiAJeyAweDEwYjksIDB4NTQ1NSwgUENJX0FOWV9JRCwgUENJX0FOWV9JRCwg
+MCwgMCwgREVWSUNFX0FMSSB9LCAgIC8qIEFsaTU0NTUgKi8KQEAgLTI2MTYsOSArMjYxOCwxMSBA
+QAogCXsgUENJX0RFVklDRV9JRF9TSV83MDEyLCAiU2lTIFNJNzAxMiIgfSwKIAl7IFBDSV9ERVZJ
+Q0VfSURfTlZJRElBX01DUF9BVURJTywgIk5WaWRpYSBuRm9yY2UiIH0sCiAJeyBQQ0lfREVWSUNF
+X0lEX05WSURJQV9NQ1AyX0FVRElPLCAiTlZpZGlhIG5Gb3JjZTIiIH0sCisJeyBQQ0lfREVWSUNF
+X0lEX05WSURJQV9NQ1AyU19BVURJTywgIk5WaWRpYSBuRm9yY2UyIiB9LAogCXsgUENJX0RFVklD
+RV9JRF9OVklESUFfTUNQM19BVURJTywgIk5WaWRpYSBuRm9yY2UzIiB9LAogCXsgUENJX0RFVklD
+RV9JRF9OVklESUFfQ0s4U19BVURJTywgIk5WaWRpYSBDSzhTIiB9LAogCXsgUENJX0RFVklDRV9J
+RF9OVklESUFfQ0s4MDRfQVVESU8sICJOVmlkaWEgQ0s4MDQiIH0sCisJeyBQQ0lfREVWSUNFX0lE
+X05WSURJQV9NQ1AwNF9BVURJTywgIk5WaWRpYSBNQ1AwNCIgfSwKIAl7IDB4NzQ2ZCwgIkFNRCBB
+TUQ4MTExIiB9LAogCXsgMHg3NDQ1LCAiQU1EIEFNRDc2OCIgfSwKIAl7IDB4NTQ1NSwgIkFMaSBN
+NTQ1NSIgfSwK
+
+------_=_NextPart_001_01C47500.D12EB678--

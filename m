@@ -1,82 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261887AbTEWNh4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 09:37:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264078AbTEWNhy
+	id S262963AbTEWOU3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 10:20:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263186AbTEWOU2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 09:37:54 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:60666 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S264077AbTEWNcD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 09:32:03 -0400
-Date: Fri, 23 May 2003 15:44:57 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: [PATCH] IDE DMA (2.4.x)
-Message-ID: <Pine.GSO.4.21.0305231542290.26586-100000@vervain.sonytel.be>
+	Fri, 23 May 2003 10:20:28 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:46757 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S262963AbTEWOU0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 10:20:26 -0400
+Date: Fri, 23 May 2003 07:33:25 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 741] New: [2.5.69-bk14] Unable to handle kernel null pointer
+Message-ID: <26380000.1053700405@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi Alan,
+           Summary: [2.5.69-bk14] Unable to handle kernel null pointer
+    Kernel Version: 2.5.69-bk14
+            Status: NEW
+          Severity: normal
+             Owner: jsimmons@infradead.org
+         Submitter: s.rivoir@gts.it
 
-IDE DMA suggestions:
-  - Add DMA activity test to ide_raw_build_sglist() (cfr. ide_build_sglist()).
-    Does this make sense? Or should the test in ide_build_sglist() be removed?
-  - Fix linuxdoc comments
-  - Fix typo (probably introduced by the spelling police, thinking that
-    `retune' was a typo ;-)
 
---- linux-2.4.x/drivers/ide/ide-dma.c.orig	Mon May  5 16:26:10 2003
-+++ linux-2.4.x/drivers/ide/ide-dma.c	Thu May 15 18:19:11 2003
-@@ -320,6 +320,9 @@
- 	u8 *virt_addr = rq->buffer;
- 	int sector_count = rq->nr_sectors;
+Distribution: Debian sid 
+Hardware Environment: HP Omnibook XE3l 
+Software Environment: kernel 2.5.69-bk14 
+Problem Description: 
  
-+	if (hwif->sg_dma_active)
-+		BUG();
-+
- 	if (args->command_type == IDE_DRIVE_TASK_RAW_WRITE)
- 		hwif->sg_dma_direction = PCI_DMA_TODEVICE;
- 	else
-@@ -581,7 +584,7 @@
- EXPORT_SYMBOL(__ide_dma_host_off);
+I get this everytime I run SVGATextMode with a resolution with more than 43 
+rows; I'm not sure that this failure it's a kernel bug, but I suppose it 
+should not give this error anyway... 
  
- /**
-- *	__ide_dma_host_off_quietly	-	Generic DMA kill
-+ *	__ide_dma_off_quietly	-	Generic DMA kill
-  *	@drive: drive to control
-  *
-  *	Turn off the current DMA on this IDE controller. 
-@@ -597,7 +600,7 @@
- EXPORT_SYMBOL(__ide_dma_off_quietly);
+Steps to reproduce: 
  
- /**
-- *	__ide_dma_host_off	-	Generic DMA kill
-+ *	__ide_dma_off		-	Generic DMA kill
-  *	@drive: drive to control
-  *
-  *	Turn off the current DMA on this IDE controller. Inform the
-@@ -945,7 +948,7 @@
-  *	__ide_dma_retune	-	default retune handler
-  *	@drive: drive to retune
-  *
-- *	Default behaviour when we decide to return the IDE DMA setup.
-+ *	Default behaviour when we decide to retune the IDE DMA setup.
-  *	The default behaviour is "we don't"
-  */
-  
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+# SVGATextMode "80x50x9" 
+<1>Unable to handle kernel NULL pointer dereference at virtual address 
+00000010 
+ printing eip: 
+ c01be43c 
+ *pde = 00000000 
+ Oops: 0002 [#9] 
+ CPU:    0 
+ EIP:    0060:[<c01be43c>]    Not tainted 
+ EFLAGS: 00013202 
+ EIP is at vt_ioctl+0x1b3c/0x1d30 
+ eax: 00000000   ebx: 000001e0   ecx: 00000000   edx: 00000000 
+ esi: 00000006   edi: 0000000c   ebp: 00000050   esp: c642fea8 
+ ds: 007b   es: 007b   ss: 0068 
+ Process SVGATextMode (pid: 342, threadinfo=c642e000 task=c6af0d00) 
+ Stack: 00000005 00000050 00000028 00000001 c01c6b90 00000009 00000028 
+c7113000 
+        c66e7540 c642fedc c7639ca0 c71eb940 00000101 c7113000 00000001 
+00000000 
+        c71eb940 c11e67bc 00000001 c6f95000 000003e8 c015630c 000003e8 
+c11e67bc 
+ Call Trace: 
+  [<c01c6b90>] con_open+0x0/0x90 
+  [<c015630c>] vfs_permission+0x7c/0x120 
+  [<c015223d>] get_chrfops+0x2d/0x90 
+  [<c015258a>] chrdev_open+0x6a/0xc0 
+  [<c0148b7a>] dentry_open+0x1ea/0x220 
+  [<c01bc900>] vt_ioctl+0x0/0x1d30 
+  [<c01b5e6c>] tty_ioctl+0x45c/0x570 
+  [<c015ada0>] sys_ioctl+0x100/0x280 
+  [<c010922b>] syscall_call+0x7/0xb 
+ 
+ Code: 89 58 10 66 85 ff 74 0a 8b 04 b5 60 7a 2f c0 89 78 68 89 34 
+  Segmentation fault
 

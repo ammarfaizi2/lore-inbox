@@ -1,69 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262103AbVCNJqi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262091AbVCNJqC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262103AbVCNJqi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 04:46:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262101AbVCNJqh
+	id S262091AbVCNJqC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 04:46:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262090AbVCNJqC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 04:46:37 -0500
-Received: from neapel230.server4you.de ([217.172.187.230]:7575 "EHLO
-	neapel230.server4you.de") by vger.kernel.org with ESMTP
-	id S262089AbVCNJmV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 04:42:21 -0500
-Message-ID: <42355C78.1020307@lsrfire.ath.cx>
-Date: Mon, 14 Mar 2005 10:42:16 +0100
-From: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Albert Cahalan <albert@users.sf.net>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk, pj@engr.sgi.com, 7eggert@gmx.de
-Subject: Re: [PATCH][RFC] Make /proc/<pid> chmod'able
-References: <1110771251.1967.84.camel@cube>
-In-Reply-To: <1110771251.1967.84.camel@cube>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 14 Mar 2005 04:46:02 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:33991 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S262091AbVCNJpJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 04:45:09 -0500
+X-Envelope-From: kraxel@bytesex.org
+Date: Mon, 14 Mar 2005 10:41:25 +0100
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Johannes Stezenbach <js@linuxtv.org>, cherry@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: IA32 (2.6.11 - 2005-03-12.16.00) - 56 New warnings
+Message-ID: <20050314094124.GA10276@bytesex>
+References: <200503130508.j2D58jTQ014587@ibm-f.pdx.osdl.net> <20050313124333.GA26569@linuxtv.org> <20050313113500.59e57a87.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050313113500.59e57a87.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert Cahalan wrote:
-> This is a bad idea. Users should not be allowed to
-> make this decision. This is rightly a decision for
-> the admin to make.
-
-Why do you think users should not be allowed to chmod their processes' 
-/proc directories?  Isn't it similar to being able to chmod their home 
-directories?  They own both objects, after all (both conceptually and as 
-attributed in the filesystem).
-
-> Note: I'm the procps (ps, top, w, etc.) maintainer.
+> >  	struct dvb_pll_desc {
+[ ... ]
+> >  		struct {
+[ ... ]
+> >  		} entries[];
+> >  	};
+> > 
+> >  while 2.6.11-mm3 changed it into entries[0].
 > 
-> Probably I'd have to make /bin/ps run setuid root
-> to deal with this. (minor changes needed) The same
-> goes for /usr/bin/top, which I know is currently
-> unsafe and difficult to fix.
+> The original code failed to compile with gcc-2.95.4, so I stuck the [0] in
+> there, then was vaguely surprised when no warnings came out.  Seems that
+> later compilers _do_ warn.
 > 
-> Let's not go there, OK?
+> I guess we could put a 9 in there.
 
-I have to admit to not having done any real testing with those 
-utilities.  My excuse is this isn't such a new feature, Openwall had 
-something similar for at least four years now and GrSecurity contains 
-yet another flavour of it.  Openwall also provides one patch for 
-procps-2.0.6, so I figured that problem (whatever their patch is about) 
-got fixed in later versions.
+Yep, that should do, I think that is enougth for all existing
+entries ...
 
-Why do ps and top need to be setuid root to deal with a resticted /proc? 
-    What information in /proc/<pid> needs to be available to any and all 
-users?
+  Gerd
 
-> If you restricted this new ability to root, then I'd
-> have much less of an objection. (not that I'd like it)
-
-How about a boot parameter or sysctl to enable the chmod'ability of 
-/proc/<pid>, defaulting to off?  But I'd like to resolve your more 
-general objections above first, if possible. :)
-
-Thanks for your comments,
-Rene
+-- 
+#define printk(args...) fprintf(stderr, ## args)

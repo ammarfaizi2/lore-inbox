@@ -1,90 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262082AbUKVMYn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262076AbUKVM11@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262082AbUKVMYn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 07:24:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbUKVMWr
+	id S262076AbUKVM11 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 07:27:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262065AbUKVMZL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 07:22:47 -0500
-Received: from out007pub.verizon.net ([206.46.170.107]:54211 "EHLO
-	out007.verizon.net") by vger.kernel.org with ESMTP id S262067AbUKVMV2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 07:21:28 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: Stupid question
-Date: Mon, 22 Nov 2004 07:21:26 -0500
-User-Agent: KMail/1.7
-References: <200411212045.51606.gene.heskett@verizon.net> <Pine.LNX.4.53.0411220932370.12534@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.53.0411220932370.12534@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Mon, 22 Nov 2004 07:25:11 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:49034 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262085AbUKVMWi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 07:22:38 -0500
+Date: Mon, 22 Nov 2004 14:24:59 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Rui Nuno Capela <rncbc@rncbc.org>
+Cc: Florian Schmidt <mista.tapas@gmx.net>, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>, mark_h_johnson@raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
+       Esben Nielsen <simlo@phys.au.dk>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.30-2
+Message-ID: <20041122132459.GB19577@elte.hu>
+References: <20041116125402.GA9258@elte.hu> <20041116130946.GA11053@elte.hu> <20041116134027.GA13360@elte.hu> <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu> <20041118164612.GA17040@elte.hu> <20041122005411.GA19363@elte.hu> <20041122020741.5d69f8bf@mango.fruits.de> <20041122094602.GA6817@elte.hu> <56781.195.245.190.93.1101119801.squirrel@195.245.190.93>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200411220721.26712.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [151.205.10.220] at Mon, 22 Nov 2004 06:21:27 -0600
+In-Reply-To: <56781.195.245.190.93.1101119801.squirrel@195.245.190.93>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 22 November 2004 03:33, Jan Engelhardt wrote:
->>Greetings;
->>
->>Silly Q of the day probably, but what do I set in a Makefile for
->> the -march=option for building on a 233 mhz Pentium 2?
->
->Now that's really stupid, but here's the answer:
->
->You run `make menuconfig` (or whichever you like) and choose
-> Processor Type "Pentium II".
->
->
->Jan Engelhardt
 
-If I was building a kernel, then yes my question was stupid.
+* Rui Nuno Capela <rncbc@rncbc.org> wrote:
 
-Except I'm not building a kernel, I'm tryng to compile a module to 
-drive some truely dumb hardware, reusing code that was last touched 
-in 1999 when the Makefile could use the -mi486 syntax with gcc-2.95.  
-Now we have gcc 3.3.3, even on a Brain Dead Install of emc 
-(LinuxCNC), which has a 2.4 kernel with the rtai patch kit for real 
-time.  I need to put this directly into the Makefile using the 
-currently valid  -march= & -mcpu= syntax's.
+> > great. I now suspect that some of the xrun problems Rui was observing on
+> > -RT kernel could be (positively) affected by these fixes too.
+> >
+> 
+> Just made some test-runs with RT-V0.7.30-2, with my jackd-R +
+> 8*fluidsynth benchmark on my laptop (P4/UP), and the results don't
+> seem to be eligible to the hall of fame, at least when compared with
+> RT-0.7.7 as the ones I last posted here a few weeks ago.
+> 
+> I hate to say this, but the XRUN rate has increased since RT-0.7.7,
+> and the maximum scheduling delay reported by jackd has also degraded
+> to 1000 usecs (was around 600 usecs).
 
-So far, the closest I've come to getting it right on that box bails 
-out because its being mis-interpreted as -march=mips on that box.  
-Those includes aren't part of an x86 install.  Hence the 
-question. :-)
+well, life would be too easy if two bugs were fixed at once ;) These
+were nodebug runs, right? Could you give me a description of the precise
+commands of how you started jackd and fluidsyth (and their versions) -
+so that i could try to reproduce & debug your setup. It is certainly a
+complex scheduling scenario.
 
-It appears I've got more problems that this one though, lots of "hey 
-you can't do that anymore" warnings when I try to build it on this 
-box (bleeding edge kernel 2.6.10-rc2-bk4-kjt1 etc) and it eventually 
-bails out or course.  It apparently plays mix-n-match with kernel vs 
-glibc headers too.  As a loadable module, I'd assume it should be 
-using kernel headers only?
+(perhaps with a link to the .sf2 and .mid files you used, if they are
+public - or whether it's fine if i use the VintageDreamsWaves-v2.sf2
+sound-fonts that comes with fluidsynth plus a random .mid file from the
+net?)
 
-Yeah, I'm stupid.  Virtually all of my original C coding has been done 
-on much smaller architectures, and 15 to 20 years ago.  Terminal rust 
-has set in on those skills I once had well honed when I was only 55.  
-Now I'm 70, semi-retired, and I'd like to drive some stepper motors 
-on a micromill.
+> OTOH, there's another thing: I don't seem to be able to build an
+> initrd image under the latest RT kernels. Something related to the
+> loopback device. When trying to run mkinitrd it stalls, somewhere
+> under this process:
+> 
+>   mount -t ext2 /root/tmp/initrd.img /root/tmp/initrd.mnt -o loop
 
-While composing this, I also read the man page for gcc and while it 
-has a bunch of options, it doesn't always list/define the valid ones, 
-particularly for x86 stuffs.  Lots of other architectures are covered 
-in much better detail. I guess they figure everyone knows x86 stuff.
+Do you know when this started, roughly?
 
-Sadly, for those of us who came up thru the motorola ranks, such is 
-not the case.  Heck, I'd do this in assembly IF I knew intel asm as 
-well as I know 6x09 asm.
-
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.29% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+	Ingo

@@ -1,53 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132419AbRAaBTG>; Tue, 30 Jan 2001 20:19:06 -0500
+	id <S132027AbRAaBUQ>; Tue, 30 Jan 2001 20:20:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132553AbRAaBS4>; Tue, 30 Jan 2001 20:18:56 -0500
-Received: from snowbird.megapath.net ([216.200.176.7]:16652 "EHLO
-	megapathdsl.net") by vger.kernel.org with ESMTP id <S132419AbRAaBSm>;
-	Tue, 30 Jan 2001 20:18:42 -0500
-Message-ID: <3A776890.53BAFBCD@megapath.net>
-Date: Tue, 30 Jan 2001 17:21:20 -0800
-From: Miles Lane <miles@megapath.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: en
+	id <S132553AbRAaBUG>; Tue, 30 Jan 2001 20:20:06 -0500
+Received: from [64.160.188.242] ([64.160.188.242]:2821 "HELO
+	mail.hislinuxbox.com") by vger.kernel.org with SMTP
+	id <S132027AbRAaBTw>; Tue, 30 Jan 2001 20:19:52 -0500
+Date: Tue, 30 Jan 2001 17:18:54 -0800 (PST)
+From: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
+To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
+Cc: David Raufeisen <david@fortyoz.org>, linux-kernel@vger.kernel.org
+Subject: Re:  VT82C686A corruption with 2.4.x
+In-Reply-To: <Pine.LNX.4.10.10101301743180.30535-100000@coffee.psychology.mcmaster.ca>
+Message-ID: <Pine.LNX.4.21.0101301716490.3105-100000@ns-01.hislinuxbox.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: OT: mount/umount doesn't track used resources correctly?
-In-Reply-To: <Pine.LNX.4.21.0101221201420.1083-100000@antonia.wins.lbl.gov>			<3A6C9CE3.5B26923C@cern.ch> <m3puhfnrlc.fsf@austin.jhcloos.com>			<3A6CBE53.8050400@megapathdsl.net> <m3elxvnouk.fsf@austin.jhcloos.com>			<3A733E33.BEC2174E@cern.ch> <3A73F372.DAA5DFCD@snowbird.megapath.net>			<3A73FB0E.DB64D0C0@cern.ch> <m34ryjqefn.fsf@austin.jhcloos.com> <3A750DC4.2ACB4A9F@snowbird.megapath.net> <3A7530A0.8F3D6AEA@cern.ch> <3A77431E.9010605@megapathdsl.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+OK, here is the output of lspci -v on the SMP box I'm having trouble with
+as requested...
 
-I am having trouble removing the usbide module
-which enables me to access my USB external 
-hard drive.  I think the problem may be due
-to usermode tools not handling the new "mount
-multiple devices to a single mount point" feature,
-but I'm not sure.
 
-Here was my mount configuration for /dev/pda 
-devices (the partitions on my USB BusLink drive)
-before I unmounted all these partitions:
+00:00.0 Host bridge: VIA Technologies, Inc. VT82C691 [Apollo PRO] (rev c4)
+	Flags: bus master, medium devsel, latency 0
+	Memory at d0000000 (32-bit, prefetchable)
+	Capabilities: [a0] AGP version 2.0
+	Capabilities: [c0] Power Management version 2
 
-/dev/pda8              2016016        20   1913584   0% /mnt/pda8
-/dev/pda8              2016016        20   1913584   0% /mnt/pda9
-/dev/pda9              2016016        20   1913584   0% /mnt/pda9
+00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598 [Apollo MVP3 AGP] (prog-if 00 [Normal decode])
+	Flags: bus master, 66Mhz, medium devsel, latency 0
+	Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
+	I/O behind bridge: 00009000-00009fff
+	Memory behind bridge: d4000000-d7ffffff
+	Prefetchable memory behind bridge: d8000000-d9ffffff
+	Capabilities: [80] Power Management version 2
 
-Currently, mount shows:
+00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super] (rev 22)
+	Subsystem: VIA Technologies, Inc. VT82C686/A PCI to ISA Bridge
+	Flags: bus master, stepping, medium devsel, latency 0
 
-/dev/hda7 on / type ext2 (rw)
-none on /proc type proc (rw)
-none on /dev/pts type devpts (rw,mode=0620)
-/dev/hda8 on /home type ext2 (rw)
-/dev/hda1 on /mnt/Win98 type vfat (rw,nosuid,nodev,umask=0)
-none on /proc/bus/usb type usbdevfs (rw)
+00:07.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev 10) (prog-if 8a [Master SecP PriP])
+	Flags: bus master, medium devsel, latency 32
+	I/O ports at a000
+	Capabilities: [c0] Power Management version 2
 
-Any ideas?
+00:07.4 Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 30)
+	Flags: medium devsel
+	Capabilities: [68] Power Management version 2
 
-        Miles
+00:0c.0 Unknown mass storage controller: Promise Technology, Inc.: Unknown device 0d30 (rev 02)
+	Subsystem: Promise Technology, Inc.: Unknown device 4d33
+	Flags: bus master, medium devsel, latency 32, IRQ 11
+	I/O ports at ac00
+	I/O ports at b000
+	I/O ports at b400
+	I/O ports at b800
+	I/O ports at bc00
+	Memory at db000000 (32-bit, non-prefetchable)
+	Capabilities: [58] Power Management version 1
+
+00:0e.0 SCSI storage controller: Advanced System Products, Inc ABP940-UW
+	Flags: bus master, medium devsel, latency 32, IRQ 15
+	I/O ports at c000
+	Memory at db020000 (32-bit, non-prefetchable)
+
+00:10.0 Ethernet controller: Lite-On Communications Inc LNE100TX (rev 20)
+	Subsystem: Netgear FA310TX
+	Flags: bus master, medium devsel, latency 32, IRQ 11
+	I/O ports at c400
+	Memory at db021000 (32-bit, non-prefetchable)
+
+01:00.0 VGA compatible controller: 3Dfx Interactive, Inc. Voodoo 3 (rev 01) (prog-if 00 [VGA])
+	Subsystem: 3Dfx Interactive, Inc. Voodoo3 AGP
+	Flags: 66Mhz, fast devsel
+	Memory at d4000000 (32-bit, non-prefetchable)
+	Memory at d8000000 (32-bit, prefetchable)
+	I/O ports at 9000
+	Capabilities: [54] AGP version 1.0
+	Capabilities: [60] Power Management version 1
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

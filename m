@@ -1,134 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267128AbTBLN2I>; Wed, 12 Feb 2003 08:28:08 -0500
+	id <S267246AbTBLNyN>; Wed, 12 Feb 2003 08:54:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267125AbTBLN1Q>; Wed, 12 Feb 2003 08:27:16 -0500
-Received: from chii.cinet.co.jp ([61.197.228.217]:28800 "EHLO
-	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S267101AbTBLN0n>; Wed, 12 Feb 2003 08:26:43 -0500
-Date: Wed, 12 Feb 2003 22:35:25 +0900
-From: Osamu Tomita <tomita@cinet.co.jp>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCHSET] PC-9800 subarch. support for 2.5.60 (9/34) APM
-Message-ID: <20030212133525.GJ1551@yuzuki.cinet.co.jp>
-References: <20030212131737.GA1551@yuzuki.cinet.co.jp>
+	id <S267254AbTBLNyN>; Wed, 12 Feb 2003 08:54:13 -0500
+Received: from main.gmane.org ([80.91.224.249]:56761 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id <S267246AbTBLNyL>;
+	Wed, 12 Feb 2003 08:54:11 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Lars Magne Ingebrigtsen <larsi@gnus.org>
+Subject: Problems with hyper-threading on Asus P4T533 / Linux 2.4.20
+Date: Wed, 12 Feb 2003 15:03:59 +0100
+Organization: Programmerer Ingebrigtsen
+Message-ID: <m365rpegts.fsf@quimbies.gnus.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030212131737.GA1551@yuzuki.cinet.co.jp>
-User-Agent: Mutt/1.4i
+X-Complaints-To: usenet@main.gmane.org
+Mail-Copies-To: never
+X-Now-Playing: Blaine L. Reininger's _Night Air_: "Crash (Remix)"
+User-Agent: Gnus/5.090015 (Oort Gnus v0.15) Emacs/21.2.50
+ (i686-pc-linux-gnu)
+Cancel-Lock: sha1:AY8jAkm3ZOTVSmZnB5mqPkPo9Bo=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is patchset to support NEC PC-9800 subarchitecture
-against 2.5.60 (9/34).
+We've just gotten an Asus P4T533-based machine with a 3.06GHz P4 CPU,
+bios version 1005.  (P4T533 is i850e-based.)  The bios claims that the
+P4 has hyper-threading, and as you can see from the cpuinfo output
+below, "ht" is among the flags.  (And the manual says that P4T533 is
+ht-enabled.)
 
-APM support for PC98. Including PC98's BIOS bug fix.
+I've tried booting with acpismp=force and without, and it doesn't
+seem to make much difference: Linux still only sees a single CPU.
+I've also tried 2.4.21-pre4 and -ac4, which doesn't seem to make any
+difference, either.
 
-- Osamu Tomita
+Anybody got any ideas why I can't get this to work?
 
-diff -Nru linux-2.5.60/arch/i386/kernel/apm.c linux98-2.5.60/arch/i386/kernel/apm.c
---- linux-2.5.60/arch/i386/kernel/apm.c	2003-02-11 03:37:57.000000000 +0900
-+++ linux98-2.5.60/arch/i386/kernel/apm.c	2003-02-11 10:49:39.000000000 +0900
-@@ -228,6 +228,8 @@
- 
- #include <linux/sysrq.h>
- 
-+#include "io_ports.h"
-+
- extern spinlock_t i8253_lock;
- extern unsigned long get_cmos_time(void);
- extern void machine_real_restart(unsigned char *, int);
-@@ -623,6 +625,9 @@
- 	__asm__ __volatile__(APM_DO_ZERO_SEGS
- 		"pushl %%edi\n\t"
- 		"pushl %%ebp\n\t"
-+#ifdef CONFIG_X86_PC9800
-+		"pushfl\n\t"
-+#endif
- 		"lcall *%%cs:apm_bios_entry\n\t"
- 		"setc %%al\n\t"
- 		"popl %%ebp\n\t"
-@@ -684,6 +689,9 @@
- 		__asm__ __volatile__(APM_DO_ZERO_SEGS
- 			"pushl %%edi\n\t"
- 			"pushl %%ebp\n\t"
-+#ifdef CONFIG_X86_PC9800
-+			"pushfl\n\t"
-+#endif
- 			"lcall *%%cs:apm_bios_entry\n\t"
- 			"setc %%bl\n\t"
- 			"popl %%ebp\n\t"
-@@ -724,7 +732,7 @@
- 
- 	if (apm_bios_call_simple(APM_FUNC_VERSION, 0, *val, &eax))
- 		return (eax >> 8) & 0xff;
--	*val = eax;
-+	*val = pc98 ? ((eax & 0xff00) | ((eax & 0x00f0) >> 4)) : eax;
- 	return APM_SUCCESS;
- }
- 
-@@ -1237,11 +1245,11 @@
- {
- #ifdef INIT_TIMER_AFTER_SUSPEND
- 	/* set the clock to 100 Hz */
--	outb_p(0x34,0x43);		/* binary, mode 2, LSB/MSB, ch 0 */
-+	outb_p(0x34, PIT_MODE);		/* binary, mode 2, LSB/MSB, ch 0 */
- 	udelay(10);
--	outb_p(LATCH & 0xff , 0x40);	/* LSB */
-+	outb_p(LATCH & 0xff, PIT_CH0);	/* LSB */
- 	udelay(10);
--	outb(LATCH >> 8 , 0x40);	/* MSB */
-+	outb(LATCH >> 8, PIT_CH0);	/* MSB */
- 	udelay(10);
- #endif
- }
-diff -Nru linux/include/linux/apm_bios.h linux98/include/linux/apm_bios.h
---- linux/include/linux/apm_bios.h	2003-01-02 12:22:18.000000000 +0900
-+++ linux98/include/linux/apm_bios.h	2003-01-04 13:20:28.000000000 +0900
-@@ -20,6 +20,7 @@
- typedef unsigned short	apm_eventinfo_t;
- 
- #ifdef __KERNEL__
-+#include <linux/config.h>
- 
- #define APM_CS		(GDT_ENTRY_APMBIOS_BASE * 8)
- #define APM_CS_16	(APM_CS + 8)
-@@ -60,6 +61,7 @@
- /*
-  * The APM function codes
-  */
-+#ifndef CONFIG_X86_PC9800
- #define	APM_FUNC_INST_CHECK	0x5300
- #define	APM_FUNC_REAL_CONN	0x5301
- #define	APM_FUNC_16BIT_CONN	0x5302
-@@ -80,6 +82,28 @@
- #define	APM_FUNC_RESUME_TIMER	0x5311
- #define	APM_FUNC_RESUME_ON_RING	0x5312
- #define	APM_FUNC_TIMER		0x5313
-+#else
-+#define	APM_FUNC_INST_CHECK	0x9a00
-+#define	APM_FUNC_REAL_CONN	0x9a01
-+#define	APM_FUNC_16BIT_CONN	0x9a02
-+#define	APM_FUNC_32BIT_CONN	0x9a03
-+#define	APM_FUNC_DISCONN	0x9a04
-+#define	APM_FUNC_IDLE		0x9a05
-+#define	APM_FUNC_BUSY		0x9a06
-+#define	APM_FUNC_SET_STATE	0x9a07
-+#define	APM_FUNC_ENABLE_PM	0x9a08
-+#define	APM_FUNC_RESTORE_BIOS	0x9a09
-+#define	APM_FUNC_GET_STATUS	0x9a3a
-+#define	APM_FUNC_GET_EVENT	0x9a0b
-+#define	APM_FUNC_GET_STATE	0x9a0c
-+#define	APM_FUNC_ENABLE_DEV_PM	0x9a0d
-+#define	APM_FUNC_VERSION	0x9a3e
-+#define	APM_FUNC_ENGAGE_PM	0x9a3f
-+#define	APM_FUNC_GET_CAP	0x9a10
-+#define	APM_FUNC_RESUME_TIMER	0x9a11
-+#define	APM_FUNC_RESUME_ON_RING	0x9a12
-+#define	APM_FUNC_TIMER		0x9a13
-+#endif
- 
- /*
-  * Function code for APM_FUNC_RESUME_TIMER
+buto:~# uname -a
+Linux buto 2.4.20 #3 SMP Wed Feb 12 14:28:49 CET 2003 i686 unknown
+buto:~# cat /proc/cpuinfo 
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 15
+model           : 2
+model name      : Intel(R) Pentium(R) 4 CPU 3.06GHz
+stepping        : 7
+cpu MHz         : 3073.691
+cache size      : 512 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
+bogomips        : 6134.16
+
+
+-- 
+(domestic pets only, the antidote for overdose, milk.)
+   larsi@gnus.org * Lars Magne Ingebrigtsen
+

@@ -1,64 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261745AbUCVFz6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 00:55:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbUCVFz6
+	id S261752AbUCVGOc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 01:14:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261756AbUCVGOc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 00:55:58 -0500
-Received: from pfepa.post.tele.dk ([195.41.46.235]:62802 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S261745AbUCVFz5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 00:55:57 -0500
-Date: Mon, 22 Mar 2004 06:56:17 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Michael Still <mikal@stillhq.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Makefile dependancies: scripts depending on configured kernel?
-Message-ID: <20040322055617.GA2250@mars.ravnborg.org>
-Mail-Followup-To: Michael Still <mikal@stillhq.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <405E1427.6080309@stillhq.com>
+	Mon, 22 Mar 2004 01:14:32 -0500
+Received: from ns.suse.de ([195.135.220.2]:40416 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261752AbUCVGOa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 01:14:30 -0500
+Date: Mon, 22 Mar 2004 07:14:25 +0100
+From: Andi Kleen <ak@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Drop O_LARGEFILE from F_GETFL for POSIX compliance
+Message-Id: <20040322071425.3cd57aca.ak@suse.de>
+In-Reply-To: <20040321213944.2fdb980d.akpm@osdl.org>
+References: <20040322051318.597ad1f9.ak@suse.de>
+	<20040321213944.2fdb980d.akpm@osdl.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <405E1427.6080309@stillhq.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 22, 2004 at 09:16:07AM +1100, Michael Still wrote:
+On Sun, 21 Mar 2004 21:39:44 -0800
+Andrew Morton <akpm@osdl.org> wrote:
+
+> Andi Kleen <ak@suse.de> wrote:
+> >
+> > 
+> > On 64bit architectures open() sets O_LARGEFILE implicitely. This causes the LSB
+> > testsuite to fail, which checks that F_GETFL only returns the flags set by 
+> > a previous open.
+> > 
+> > According to the POSIX standards gurus the Linux behaviour is not compliant.
+> > 
+> > This patch fixes this by just not reporting O_LARGEFILE in F_GETFL.
+> > 
+> > This has been in several shipping SuSE releases and the x86-64.org CVS
+> > treee for a long time, so is unlikely to break anything.
+> > 
+> > -Andi
+> > 
+> > diff -burpN -X ../KDIFX linux-2.4.26-pre5/fs/fcntl.c linux-merge/fs/fcntl.c
+> > --- linux-2.4.26-pre5/fs/fcntl.c	2004-01-13 10:29:17.000000000 +0100
+> > +++ linux-merge/fs/fcntl.c	2003-10-23 15:40:52.000000000 +0200
+> > @@ -271,7 +271,7 @@ static long do_fcntl(unsigned int fd, un
+> >  			set_close_on_exec(fd, arg&1);
+> >  			break;
+> >  		case F_GETFL:
+> > -			err = filp->f_flags;
+> > +			err = filp->f_flags & ~O_LARGEFILE;
+> >  			break;
+> >  		case F_SETFL:
+> >  			lock_kernel();
 > 
-> Hey,
+> eh?   If the application on a 64-bit box does
 > 
-> the top level Makefile specifies that the scripts depend on the kernel 
-> being configured before the scripts can be built:
+> 	open("foo", O_LARGEFILE|O_RDWR);
 > 
-> scripts: scripts_basic include/config/MARKER
-> 	$(Q)$(MAKE) $(build)=$(@)
-> 
-> I think that this is probably a problem, because it means people can't 
-> build any of the documentation targets without having configured the kernel.
+> then a subsequent F_GETFL will now return just O_RDWR, will it not?  So
+> it's still posixly incorrect?
 
-The dependency for docs is (now) wrong.
-It should be:
-# Documentation targets
-# ---------------------------------------------------------------------------
-%docs: scripts_basic FORCE
-        $(Q)$(MAKE) $(build)=Documentation/DocBook $@
+No, because O_LARGEFILE is not part of POSIX :-) (they use open64 etc.)
 
-docproc is the only binary used by Documentation/Docbook, and it is already
-placed in scripts_basic.
 
-Trivial - so I will include this in some other kbuild patch
-I'm preparing.
+> I think open() needs to set O_KERNEL_LARGEFILE, and we mask that off in
+> F_GETFL, and test for (O_LARGEFILE|O_KERNEL_LARGEFILE) everywhere.
 
-> Do any of the scripts actually depend on a configured kernel to build? 
-Yes, several of the ninaries do so. Among others empty.o.
 
-> How can I verify that none of them need a configured kernel? Commenting 
-> out the dependancy didn't break anything.
-Test a bit more, and you will see they are indeed needed.
-Note, some archs other than i386 have a bit different requirements
-because thay do not use an asm-offsett.h file.
+That would be the best solution, agreed But it would be a lot more intrusive
+because all file systems need to be audited and fixed.
 
-	Sam
+-Andi 

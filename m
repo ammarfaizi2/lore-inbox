@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265136AbUFRM7a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265135AbUFRNCe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265136AbUFRM7a (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 08:59:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265135AbUFRM7a
+	id S265135AbUFRNCe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 09:02:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265137AbUFRNCb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 08:59:30 -0400
-Received: from tristate.vision.ee ([194.204.30.144]:40640 "HELO mail.city.ee")
-	by vger.kernel.org with SMTP id S265136AbUFRM6o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 08:58:44 -0400
-Message-ID: <40D2E709.6050901@vision.ee>
-Date: Fri, 18 Jun 2004 15:58:49 +0300
-From: =?ISO-8859-1?Q?Lenar_L=F5hmus?= <lenar@vision.ee>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040605)
-X-Accept-Language: en-us, en
+	Fri, 18 Jun 2004 09:02:31 -0400
+Received: from smtp803.mail.sc5.yahoo.com ([66.163.168.182]:58483 "HELO
+	smtp803.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S265135AbUFRNCa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 09:02:30 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/11] New set of input patches
+Date: Fri, 18 Jun 2004 08:02:28 -0500
+User-Agent: KMail/1.6.2
+Cc: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+References: <200406180344.46191.dtor_core@ameritech.net> <20040618092121.GX20632@lug-owl.de>
+In-Reply-To: <20040618092121.GX20632@lug-owl.de>
 MIME-Version: 1.0
-To: Hans Kristian Rosbach <hans.kristian@isphuset.no>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: ACPI / cpu temperature problem
-References: <1086783539.14784.24.camel@linux.local> <1087561770.8257.6.camel@linux.local>
-In-Reply-To: <1087561770.8257.6.camel@linux.local>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200406180802.28357.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Kristian Rosbach wrote:
+On Friday 18 June 2004 04:21 am, Jan-Benedict Glaw wrote:
+> On Fri, 2004-06-18 03:44:46 -0500, Dmitry Torokhov <dtor_core@ameritech.net>
+> wrote in message <200406180344.46191.dtor_core@ameritech.net>:
+> 
+> > would have parents. But the core integration is done. Unfortunately I do
+> > not have 90% hardware to test my changes so there could be some problems,
+> > although I tried to compile everything I could.
+> 
+> Maybe I'll test at least my two babies (vsxxxaa and lkkbd) to work with
+> these patches. They're using normal serial ports (ISA + USB) with
+> inputattach, these should already have parents, right?
+> 
 
->>Now, the problem with all these supermicro servers is that the
->>temperature seems to be stuck at 27 C. No matter what load or
->>temperature in the room. Something is clearly wrong.
->>What can be done to fix this? We tried setting polling_frequency
->>to '10', but that made no difference.
->>    
->>
->
->I reported this to the kernel bug tracker, but there seems to be
->no forward movement at all. So I'll try here again in the hope that
->someone that know this code atleast has a comment to it.
->
->http://bugme.osdl.org/show_bug.cgi?id=2855
->  
->
-Forwarded some time ago this and my own letter to acpi-devel@sf.net too, 
-but no reaction there either ...
+Right now nothing has a parent except for passthrough ports. I will do more
+patches later, but when I as looking at the serial port code it seemed that
+ther actual devices (as in struct device) were not available for ttys yet.
 
-Lenar
+Please corect me if I am mistaken.
+
+-- 
+Dmitry

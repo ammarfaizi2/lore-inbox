@@ -1,33 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317577AbSGJRvl>; Wed, 10 Jul 2002 13:51:41 -0400
+	id <S317578AbSGJSCs>; Wed, 10 Jul 2002 14:02:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317578AbSGJRvk>; Wed, 10 Jul 2002 13:51:40 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:63732 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S317577AbSGJRvj>; Wed, 10 Jul 2002 13:51:39 -0400
-Subject: Re: [STATUS 2.5]  July 10, 2002
-From: Robert Love <rml@tech9.net>
-To: Guillaume Boissiere <boissiere@adiglobal.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3D2B89AC.25661.91896FEB@localhost>
-References: <3D2B89AC.25661.91896FEB@localhost>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 10 Jul 2002 10:54:21 -0700
-Message-Id: <1026323661.1178.73.camel@sinai>
-Mime-Version: 1.0
+	id <S317579AbSGJSCr>; Wed, 10 Jul 2002 14:02:47 -0400
+Received: from pD952A32F.dip.t-dialin.net ([217.82.163.47]:39553 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S317578AbSGJSCq>; Wed, 10 Jul 2002 14:02:46 -0400
+Date: Wed, 10 Jul 2002 12:05:03 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: "Perches, Joe" <joe.perches@spirentcom.com>
+cc: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, <thunder@ngforever.de>,
+       <bunk@fs.tum.de>, <boissiere@adiglobal.com>,
+       <linux-kernel@vger.kernel.org>, "'Larry Kessler'" <kessler@us.ibm.com>,
+       "'Martin.Bligh@us.ibm.com'" <Martin.Bligh@us.ibm.com>
+Subject: RE: [STATUS 2.5]  July 10, 2002
+In-Reply-To: <629E717C12A8694A88FAA6BEF9FFCD440540BD@brigadoon.spirentcom.com>
+Message-ID: <Pine.LNX.4.44.0207101203200.5067-100000@hawkeye.luckynet.adm>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-07-09 at 22:11, Guillaume Boissiere wrote:
+Hi,
 
-> As usual, feedback welcome!
+On Wed, 10 Jul 2002, Perches, Joe wrote:
+> Do we really need to have the equivalent of:
+> 	printk(tr("Context string %s: %d"),tr("some string"),value);
+> translate/lookups?  Why?  If so, is this facility supposed to be
+> run-time or compile-time?
 
-As of 2.5.25, we have HZ=1000 (on x86) and a scalable user-space
-exported clock_t that remains at 100 HZ to keep user-space compatible. 
-This is attributed to the Commander in Chief, Linus Torvalds.
+Ah, I see. Somewhen I have some piece of english text that I want to send 
+to some japanese people, and when I do C-X in my pine, it gets translated 
+to japanese automatically by the kernel network layer...
 
-	Robert Love
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 

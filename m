@@ -1,161 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261354AbULHUeO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261353AbULHUex@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261354AbULHUeO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 15:34:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbULHUeO
+	id S261353AbULHUex (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 15:34:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbULHUew
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 15:34:14 -0500
-Received: from mail.nextweb.net ([216.237.6.33]:47116 "EHLO mail.nextweb.net")
-	by vger.kernel.org with ESMTP id S261357AbULHUdl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 15:33:41 -0500
-Subject: PROBLEM: incorrect return value checks from kernel_read()
-From: Katrina Tsipenyuk <ytsipenyuk@fortifysoftware.com>
-Reply-To: katrina@fortifysoftware.com
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Fortify Software
-Message-Id: <1102538553.5383.19.camel@localhost.localdomain>
+	Wed, 8 Dec 2004 15:34:52 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:34992 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S261353AbULHUei (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Dec 2004 15:34:38 -0500
+Date: Wed, 8 Dec 2004 14:34:26 -0600
+From: Dean Nelson <dcn@sgi.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: chrisw@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [Patch] export sched_setscheduler() for kernel module use
+Message-ID: <20041208203426.GA6370@sgi.com>
+References: <4198F70D.mailxMSZ11J00J@aqua.americas.sgi.com> <20041115105801.T14339@build.pdx.osdl.net> <20041115203343.GA32173@sgi.com> <20041116104821.GA31395@elte.hu> <20041116201841.GA29687@sgi.com> <20041116223608.GA27550@elte.hu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 08 Dec 2004 12:42:33 -0800
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041116223608.GA27550@elte.hu>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux developers,
-                                                                                                                                                             
-Fortify Software engineering team has looked at linux-2.6.10-rc2
-and performed static analysis of the code. We have discovered several
-instances of the same potential vulnerability in the kernel code.
-Below we provide a more detailed description of the issues.
-                                                                                                                                                             
-[1.] We have found several instances of incorrect return value checks
-from kernel_read().
-[2.] Checking whether the return value from kernel_read() is
-non-negative is not enough. kernel_read() function returns the number of
-bytes that have actually been read, which could be different from the
-number of bytes requested to be read (indicated by the fourth
-parameter). If the number of bytes read differs from the number of bytes
-requested, and an appropriate check is omitted, the wrong assumption is
-made as to what the contents of the destination buffer used for reading
-are. This could lead to unexpected / non-deterministic program behavior,
-which is especially unpleasant for the kernel. We have noticed the same
-problem in several different places. Considering the fact that in other
-cases, the return from kernel_read() is correctly validated, these are
-definite bugs.
-                                                                                                                                                             
-1) fs/binfmt_misc.c:
-                                                                                                                                                             
-...
-187:  bprm->file = interp_file;
-188:  if (fmt->flags & MISC_FMT_CREDENTIALS) {
-189:          /*
-190:           * No need to call prepare_binprm(), it's already been
-191:           * done.  bprm->buf is stale, update from interp_file.
-192:           */
-193:          memset(bprm->buf, 0, BINPRM_BUF_SIZE);
-194:          retval = kernel_read(bprm->file, 0, bprm->buf,
-BINPRM_BUF_SIZE);
-195:  } else
-196:          retval = prepare_binprm (bprm);
-197:
-198:  if (retval < 0)
-199:          goto _error;
-...
-                                                                                                                                                             
-Here, return value from kernel_read() is assigned to retval on line 194,
-and then on line 198 retval is incorrectly validated.
-                                                                                                                                                             
-The same is true for prepare_binprm() function, since it returns
-kernel_read(). Therefore, in the example above, the return from
-prepare_binprm() assigned to retval on line 196, is also incorrectly
-validated on line 198.
-                                                                                                                                                             
-fs/exec.c:
-                                                                                                                                                             
-...
-874: int prepare_binprm(struct linux_binprm *bprm)
-875: {
-...
-918:        return kernel_read(bprm->file,0,bprm->buf,BINPRM_BUF_SIZE);
-919: }
-...
-                                                                                                                                                             
-2) fs/exec.c:
-                                                                                                                                                             
-...
-1016:    retval = prepare_binprm(bprm);
-1017:    if (retval<0)
-1018:            return retval;
-...
-                                                                                                                                                             
-Here, return value from prepare_binprm() is assigned to retval on line
-1016, and then on line 1017 retval is incorrectly validated.
-                                                                                                                                                             
-3) fs/exec.c:
-                                                                                                                                                             
-...
-1132:   retval = prepare_binprm(bprm);
-1133:   if (retval < 0)
-1134:           goto out;
-...
-                                                                                                                                                             
-Here, return value from prepare_binprm() is assigned to retval on line
-1132, and then on line 1133 retval is incorrectly validated.
-                                                                                                                                                             
-4) fs/binfmt_script.c:
-                                                                                                                                                             
-...
-93:   retval = prepare_binprm(bprm);
-94:   if (retval < 0)
-95:           return retval;
-...
-                                                                                                                                                             
-Here, return value from prepare_binprm() is assigned to retval on line
-93, and then on line 94 retval is incorrectly validated.
-                                                                                                                                                             
-5) fs/compat.c:
-                                                                                                                                                             
-...
-1442:   retval = prepare_binprm(bprm);
-1443:   if (retval < 0)
-1444:           goto out;
-...
-                                                                                                                                                             
-Here, return value from prepare_binprm() is assigned to retval on line
-1442, and then on line 1443 retval is incorrectly validated.
-                                                                                                                                                             
-6) fs/binfmt_em86.c:
-                                                                                                                                                             
-...
-91:   retval = prepare_binprm(bprm);
-92:   if (retval < 0)
-93:           return retval;
-...
-                                                                                                                                                             
-Here, return value from prepare_binprm() is assigned to retval on line
-91, and then on line 92 retval is incorrectly validated.
-                                                                                                                                                             
-[3.] Note that in fs/binfmt_elf.c there are several other uses
-of kernel_read() -- lines 337, 537, 586, 630, 971, 994 -- where
-appropriate checks are made, and appropriate actions are taken in case
-of failure, e.g. an error code is returned.
-                                                                                                                                                             
-[4.] Fixing the above issues should be trivial and quick. One just needs
-to perform correct success / failure checks on the return from
-kernel_read() and prepare_binprm(), making sure that the return value
-equals the fourth parameter, and take appropriate actions depending on
-the situation: return an error code, panic, etc. One could even refer to
-other occurrences of kernel_read() and prepaer_binprm() to see what
-actions should be taken in various cases. Some line numbers are provided
-in [3.].
-                                                                                                                                                             
-[5.] For a detailed explanation of related issues, refer to
-http://lwn.net/Articles/110486/.
-                                                                                                                                                             
-                                                                                                                                                             
-                Sincerely,
-                                                                                                                                                             
-                        Fortify Software Team
+On Tue, Nov 16, 2004 at 11:36:08PM +0100, Ingo Molnar wrote:
+> 
+> * Dean Nelson <dcn@sgi.com> wrote:
+> 
+> > > could you make sched_setscheduler() also include a parameter for the
+> > > nice value, so that ->static_prio could be set at the same time too
+> > > (which would have relevance if SCHED_OTHER is used)? This would make it
+> > > a generic kernel-internal API to change all the priority parameters.
+> > > Looks good otherwise.
+> > 
+> > Yeah, I can do that. I'll probably be getting back to you with a
+> > question or two, if what you're after isn't obvious once I start
+> > making the changes for the nice parameter.
+> 
+> another potential API would be to use the linear priority range that the
+> scheduler has internally, from 0 (RT prio 99) to 140 (nice +19). I'm not
+> sure which solution is the better one. Using the linear priority has the
+> advantage of not having to pass any policy value - priorities between 0
+> and 99 implicitly mean SCHED_FIFO, priorities above that would mean
+> SCHED_NORMAL, a pretty natural and compact interface.
 
+I realize that I don't know where you are ultimately headed with your
+ideas for scheduling changes, but as things are it doesn't make sense
+to me to drop the SCHED_RR scheduling policy. There may be existing
+users who depend on the preemptive nature of this policy. It seems too
+much of a risk to eliminate this policy at this time.
+
+Regarding the nice argument itself, it strikes me that it needs to be an
+optional argument in the sense that the caller should be able to indicate
+that they're not passing a nice value. To simply pass the task's current
+nice value has a window of vulnerability in that after fetching the current
+nice value via TASK_NICE(p) but before doing anything with it, another
+thread could change the task's nice value to something else, then we
+end up setting it back to what it was. Would it be better to have callers
+pass the nice value as NICE_TO_PRIO(nice), with sched_setscheduler()
+treating zero as no nice value arg was passed, and ensuring if non-zero
+that '-20 <= PRIO_TO_NICE(nice_prio) <= 19' was true? Or do you simply
+want to ignore the window and always pass?
+
+If the nice value arg was passed, would we want to call
+security_task_setnice() as sys_nice() does? Also, set_user_nice()
+allows the realtime tasks to set the nice value (p->static_prio =
+NICE_TO_PRIO(nice)) but it doesn't take effect until the policy is
+changed to SCHED_NORMAL. I'm assuming we wouldn't support this in
+sched_setscheduler() since you want to tie the nice value arg to
+the SCHED_NORMAL policy only.
+
+I'm assuming that we need to allow for the struct sched_param pointer
+to be NULL, if the caller of sched_scheduler() only wanted to set the
+nice value?
+
+Having asked all of these questions, I must say that I'm not clear on
+the value of adding the nice argument to sched_setscheduler().
+Who do you envision calling sched_setscheduler() with it set? Will it
+be replacing set_user_nice() at some point?
+
+I'm still willing to add a nice argument if you feel it's appropriate
+(and I can get answers to my many questions :-)). But Would it be
+acceptable to you to separate this work into two parts? The first
+part would be along the lines of breaking up setscheduler() into
+do_sched_setscheduler() and sched_setscheduler(), and exporting
+sched_setscheduler() like in my proposed patch. And the second part
+would be to add your nice argument to sched_setscheduler(). I'm
+thinking it may take some fiddling to arrive at a proper nice arg
+patch, and I really need to get the exporting of sched_setscheduler()
+patch accepted in a timely fashion.
+
+Thanks,
+Dean

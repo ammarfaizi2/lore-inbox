@@ -1,51 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264972AbUEYQ4d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264975AbUEYQ5y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264972AbUEYQ4d (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 12:56:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264974AbUEYQ4d
+	id S264975AbUEYQ5y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 12:57:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264973AbUEYQ5x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 12:56:33 -0400
-Received: from mail.zmailer.org ([62.78.96.67]:61638 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id S264972AbUEYQ4a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 12:56:30 -0400
-Date: Tue, 25 May 2004 19:56:27 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: "A. op de Weegh" <aopdeweegh@rockopnh.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Granting some root permissions to certain users
-Message-ID: <20040525165627.GT1749@mea-ext.zmailer.org>
-References: <jbm.20040525185001.f766d1ea@TOSHIBA>
+	Tue, 25 May 2004 12:57:53 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26834 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264971AbUEYQ5k
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 12:57:40 -0400
+Date: Tue, 25 May 2004 13:59:04 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Greg KH <greg@kroah.com>
+Cc: Matthew Wilcox <willy@debian.org>, Arjan van de Ven <arjanv@redhat.com>,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [BK PATCH] PCI Express patches for 2.4.27-pre3
+Message-ID: <20040525165904.GF3385@logos.cnet>
+References: <20040524210146.GA5532@kroah.com> <1085468008.2783.1.camel@laptop.fenrus.com> <20040525080006.GA1047@kroah.com> <20040525113231.GB29154@parcelfarce.linux.theplanet.co.uk> <20040525125452.GC3118@logos.cnet> <20040525144055.GA7252@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <jbm.20040525185001.f766d1ea@TOSHIBA>
+In-Reply-To: <20040525144055.GA7252@kroah.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 25, 2004 at 06:50:01PM +0200, A. op de Weegh wrote:
-> Hi all,
-> At our school, we have a installed Fedora Core 1 on a machine which acts as a 
-> server. Our students may store reports and other products, that they have 
-> created for their lessons, on this machine. Also the teachers have an 
-> account.
->  
-> I would like the teachers to have list access on ALL directories. Just as the 
-> root user has. I wouldn't like the teachers to have all root permissions, but 
-> they should only be able to list ALL directories available. Viewing only, no 
-> writing.
+On Tue, May 25, 2004 at 07:40:56AM -0700, Greg KH wrote:
+> On Tue, May 25, 2004 at 09:54:53AM -0300, Marcelo Tosatti wrote:
+> > 
+> > Hi kernel fellows,
+> > 
+> > On Tue, May 25, 2004 at 12:32:31PM +0100, Matthew Wilcox wrote:
+> > > On Tue, May 25, 2004 at 01:00:06AM -0700, Greg KH wrote:
+> > > > > how does this mesh with the "2.4 is now feature frozen"?
+> > > > 
+> > > > As the major chunk of ACPI support just got added to the tree, and the
+> > > > only reason that went in was for this patch, I assumed that it was
+> > > > acceptable.
+> > 
+> > major? the MMConfig support is minimal as I can see? 
+> 
+> It isn't that big of a patch, but it is make to core PCI code.
+> 
+> > > > Marcelo, feel free to tell me otherwise if you do not want
+> > > > this in the 2.4 tree. 
+> > 
+> > Is this code necessary for PCI-Express devices/busses to work properly?
+> 
+> Not that I can tell, the main point is accessing the extended config
+> space, and speeding up the access to the device to its natural speed.
+> 
+> > > I assume it was added because Len tries to keep ACPI in 2.4 and 2.6 as
+> > > close to identical as possible.  It certainly doesn't hurt anyone to add
+> > > the ACPI functionality without the MMConfig support.
+> > 
+> > I've humbly asked Len to stop doing big updates whenever possible on the 
+> > v2.4 ACPI code, and do bugfixes only instead. Is that a pain in the ass for you, Len?    
+> > 
+> > I asked that because it is common to see new bugs introduced by an ACPI update, 
+> > and you know that more than I do.
+> 
+> Yes, I know that quite well :)
+> 
+> So, because of this, you are saying that we should not apply these
+> patches at this time? 
 
-That is usually done by means of supplementary groups.
+Yeap, I would prefer not to apply them at this time. For one, Arjan told
+me privately it can break XFree86 which accesses the PCI config space directly.
+Right?
 
-And then somehow enforcing users to have their file/directory permissions
-to include group X for directories, and group R for everything.
+> If so, that's fine with me, as now any distro that wants to add this to
+> their 2.4 kernel can, as the patches are public.
 
-This means also, that users are allocated just a few groups, not
-a group for each user (like FC1 does by default)
+Yeap. 
 
-> Any idea how I can achieve this?
->  
-> Thanx,
-> Alex
-
-/Matti Aarnio
+> > PS: Greg, about the PCI-Express hotplug drivers, I assume they are independant 
+> > on any of this?
+> 
+> Yes, that is independant of these changes (that is required as there is
+> no other way to control the pci hotplug controller of those systems,
+> except with the driver I had submitted in the past to you.).
+> 
+> thanks,
+> 
+> greg k-h

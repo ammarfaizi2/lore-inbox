@@ -1,48 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261549AbUKCLR1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261497AbUKCLg4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261549AbUKCLR1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 06:17:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbUKCLR1
+	id S261497AbUKCLg4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 06:36:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbUKCLg4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 06:17:27 -0500
-Received: from cantor.suse.de ([195.135.220.2]:42692 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261549AbUKCLRY (ORCPT
+	Wed, 3 Nov 2004 06:36:56 -0500
+Received: from 252.5.3.213.fix.bluewin.ch ([213.3.5.252]:65386 "EHLO elonex.ch")
+	by vger.kernel.org with ESMTP id S261497AbUKCLgy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 06:17:24 -0500
-Date: Wed, 3 Nov 2004 12:05:11 +0100
-From: Andi Kleen <ak@suse.de>
-To: Daniel Egger <degger@fhm.edu>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8 and 2.6.9 Dual Opteron glitches
-Message-ID: <20041103110511.GA23808@wotan.suse.de>
-References: <5AC1EEB8-2CD7-11D9-BF00-000A958E35DC@fhm.edu.suse.lists.linux.kernel> <p737jp38qs4.fsf@verdi.suse.de> <8A4609E0-2D86-11D9-BF00-000A958E35DC@fhm.edu>
+	Wed, 3 Nov 2004 06:36:54 -0500
+Subject: 2.4 lockup issue (flush_tlb_all)
+From: Thomas Oulevey <thomas.oulevey@elonex.ch>
+Reply-To: thomas.oulevey@elonex.ch
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: Elonex Switzerland
+Date: Wed, 03 Nov 2004 12:36:47 +0100
+Message-Id: <1099481807.4714.85.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <8A4609E0-2D86-11D9-BF00-000A958E35DC@fhm.edu>
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 03, 2004 at 11:53:05AM +0100, Daniel Egger wrote:
-> On 03.11.2004, at 06:06, Andi Kleen wrote:
-> 
-> >>   Replacing those panic(s) by printk make the machine boot just fine
-> >>   and also work (seemingly) without any problems under load.
-> 
-> >Can you print the two values? I've never seen such a problem.
-> >If it works then they must be identical, otherwise user space would
-> >break very quickly.
-> 
-> printk("%p %p %p\n", (unsigned long) &vgettimeofday, &vgettimeofday, 
-> VSYSCALL_ADDR(__NR_vgettimeofday));
-> 
-> ffffffffff600000 ffffffffff600000 ffffffffff600000
-> 
-> I've no idea why it still triggers. Also the next one BTW:
-> vtime link addr brokenIA32
-> 
-> The compiler is: gcc version 3.4.0 20040111 (experimental)
+Hello,
 
-Looks like a compiler bug. I would talk to the gcc people.
+We are experiencing some lockup problems with our SMP configuration. 
+Here are the details :
+- The computers lockup with no relevant logs.
+- The kernel still replies to ping but higher level services are not
+responding.
+- After few hours (5-8), the kernel answers again and the load is around
+40 then decreasing. 
 
--Andi
+We manage to get some SysRq showPc output (screenshot :
+http://www.elonex.ch/shot/)
+According to the basic sysreq debugging, the problem seems to be related
+to the function flush_tlb_all, and it is triggered with a write or read
+(local or on nfs sometimes).
+
+I looked at the LKML, and didn't find any known issues.
+Maybe it has been corrected but not backported by redhat ! 
+I'll appreciate any help.
+
+Thank you in advance.
+
+detailed configuration :
+---------------
+Processor   : 2 x 2.8Ghz Pentium Xeon
+Motherboard : Intel se7501cw2
+Memory      : 4 x 512MB DDR 266 ECC registered
+Kernel      : 2.4.20-31 (Redhat 7.3 with updates)
+
+
+PLEASE CC the answers/comments
+
+-- 
+Thomas OULEVEY System Engineer
+Elonex Switzerland      Email: thomas.oulevey@elonex.ch
+Switzerland
+

@@ -1,52 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263722AbUC3PUa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 10:20:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263714AbUC3PUa
+	id S263714AbUC3PVr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 10:21:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263719AbUC3PVr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 10:20:30 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:51392 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263708AbUC3PSl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 10:18:41 -0500
-Subject: Re: Migrate pages from a ccNUMA node to another - patch
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Zoltan.Menyhart@bull.net
-Cc: linux-ia64@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <40695C68.4A5F551E@nospam.org>
-References: <4063F581.ACC5C511@nospam.org>
-	 <1080321646.31638.105.camel@nighthawk>  <40695C68.4A5F551E@nospam.org>
-Content-Type: text/plain
-Message-Id: <1080659885.3646.2106.camel@nighthawk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 30 Mar 2004 07:18:05 -0800
+	Tue, 30 Mar 2004 10:21:47 -0500
+Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:60363 "EHLO
+	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
+	id S263714AbUC3PV0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 10:21:26 -0500
+Message-ID: <001101c41669$0f7acde0$fc82c23f@pc21>
+From: "Ivan Godard" <igodard@pacbell.net>
+To: "Pavel Machek" <pavel@suse.cz>, "Andi Kleen" <ak@suse.de>
+Cc: <linux-kernel@vger.kernel.org>
+References: <048e01c413b3_3c3cae60_fc82c23f@pc21.suse.lists.linux.kernel> <p73y8pm951k.fsf@nielsen.suse.de> <07b501c41502_48bd4d20_fc82c23f@pc21> <20040329011416.591ad315.ak@suse.de> <20040329153606.GA3084@openzaurus.ucw.cz>
+Subject: Re: Kernel support for peer-to-peer protection models...
+Date: Tue, 30 Mar 2004 07:09:41 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-03-30 at 03:39, Zoltan Menyhart wrote:
-> Dave Hansen wrote:
-> > 
-> > Have you considered any common ground your patch might share with the
-> > people doing memory hotplug?
-> 
-> Comparing my stuff to their work, I just do some small performance enhancements:
-> 
-> - I do not modify a single line on the existing VM paths - if my stuff has no
->   improvement for you, then yo will not be obliged to pay any overhead
-...
-> - I handle only the simplest case: private anonymous pages (...a singe PTE...)
 
-By not modifying a single line in the existing VM path, your patch
-simply duplicates functionality from that existing code, which I'm not
-sure is any better.  
+----- Original Message ----- 
+From: "Pavel Machek" <pavel@suse.cz>
+To: "Andi Kleen" <ak@suse.de>
+Cc: "Ivan Godard" <igodard@pacbell.net>; <linux-kernel@vger.kernel.org>
+Sent: Monday, March 29, 2004 7:36 AM
+Subject: Re: Kernel support for peer-to-peer protection models...
 
-I think there's a lot of commonality with what the swap code, NUMA page
-migration, and memory removal have to do.  However, none of them share
-any code today.  I think all of the implementations could benefit from
-making them a bit more generic.  
 
--- Dave
+> Hi!
+>
+> > > > Overall it sounds like your architecture is not very well suited to
+> > > > run Linux.
+> > >
+> > > We believe we can adopt the Linux protection model (i.e. the 386
+protection
+> > > model) with no more work than any other port to a new architectire
+(ahem).
+> >
+> > Just FYI - Linux has been ported to several architectures with similar
+SASOS
+> > capabilities in hardware (IA64 or ppc64 on iseries) and they have all
+opted to use
+> > an conventional protection model.
+> >
+>
+> It might be actually plus for Ivan: if ia64 and ppc64 benefit from
+> changes for mill, it makes them more acceptable.
+
+
+Interesting point. Although it's not clear how long ia64 will still exist.
+Remember the Alpha?
+
+Ivan
+
 

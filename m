@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289106AbSAOEGM>; Mon, 14 Jan 2002 23:06:12 -0500
+	id <S289395AbSAOEXN>; Mon, 14 Jan 2002 23:23:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289394AbSAOEFw>; Mon, 14 Jan 2002 23:05:52 -0500
-Received: from waste.org ([209.173.204.2]:43175 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S289106AbSAOEFn>;
-	Mon, 14 Jan 2002 23:05:43 -0500
-Date: Mon, 14 Jan 2002 22:05:28 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Andreas Dilger <adilger@turbolabs.com>
-cc: Theodore Tso <tytso@mit.edu>, Juan Quintela <quintela@mandrakesoft.com>,
-        Greg KH <greg@kroah.com>, <linux-kernel@vger.kernel.org>,
-        <felix-dietlibc@fefe.de>, <andersen@codepoet.org>
-Subject: Re: [RFC] klibc requirements, round 2
-In-Reply-To: <20020114204830.E26688@lynx.adilger.int>
-Message-ID: <Pine.LNX.4.44.0201142151410.12435-100000@waste.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289399AbSAOEXD>; Mon, 14 Jan 2002 23:23:03 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:51388 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S289395AbSAOEWx>; Mon, 14 Jan 2002 23:22:53 -0500
+Date: Mon, 14 Jan 2002 21:22:38 -0700
+Message-Id: <200201150422.g0F4Mcc05113@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
+Subject: devfsd-v1.3.21 available
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Jan 2002, Andreas Dilger wrote:
+  Hi, all. I've just released version 1.3.21 of my devfsd (devfs
+daemon) at: http://www.atnf.csiro.au/~rgooch/linux/
 
-> > Interesting point. Modulo any existing LVM brokenness, we can do this with
-> > a read-only snapshot and pivot_root afterwards. Alternately, a read-only
-> > /bootsupport or something of the sort which contains *fsck. What we don't
-> > want is initramfs to get big.
->
-> Err, you think putting the necessary LVM tools in initramfs (vgscan,
-> vgchange, lvcreate, liblvm) will be _smaller_ than e2fsck???
+Tarball directly available from:
+ftp://ftp.??.kernel.org/pub/linux/daemons/devfsd/devfsd.tar.gz
 
-No, I forgot about that dependency entirely. Doh.
+AND:
+ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/daemons/devfsd/devfsd.tar.gz
 
-> Your "modulo" is also a very big one - I'd rather trust e2fsck than LVM
-> in my boot environment any day.
+This works with devfs-patch-v130, kernel 2.3.46 and devfs-patch-v99.7
+(or later).
 
-Fair enough. The deeper point is that the purpose of initramfs is to move
-stuff out of the kernel in to userland. Ergo, this all becomes a
-non-kernel issue. We do not want to be in the business here of packaging
-things into the ramfs archives, we rather want to give external tools and
-distros all the info they need to make intelligent choices about how to
-make the kernel bootable.
+The main changes are:
 
-Let's just try to focus on what we're taking out of the kernel in this
-process and not on all the nifty stuff that can now be added to the
-initial boot process.
+- GNUmakefile changes
 
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+- Created INSTALL file
 
+- Man page improvements
+
+- Switched to extended regular expression support
+
+- Fixed dummy opens of /dev/null
+
+- Sample devfsd.conf updated to use mksymlink().
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,44 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265743AbUHHQL7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265770AbUHHQOd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265743AbUHHQL7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Aug 2004 12:11:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265770AbUHHQL6
+	id S265770AbUHHQOd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Aug 2004 12:14:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265772AbUHHQOd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Aug 2004 12:11:58 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:51348 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S265743AbUHHQL5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Aug 2004 12:11:57 -0400
-Date: Sun, 8 Aug 2004 17:11:46 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andi Kleen <ak@muc.de>
-cc: Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Allow to disable shmem.o
-In-Reply-To: <20040808141908.GA94449@muc.de>
-Message-ID: <Pine.LNX.4.44.0408081705100.1983-100000@localhost.localdomain>
+	Sun, 8 Aug 2004 12:14:33 -0400
+Received: from vivaldi.madbase.net ([81.173.6.10]:23503 "HELO
+	vivaldi.madbase.net") by vger.kernel.org with SMTP id S265770AbUHHQOc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Aug 2004 12:14:32 -0400
+Date: Sun, 8 Aug 2004 12:14:30 -0400 (EDT)
+From: Eric Lammerts <eric@lammerts.org>
+X-X-Sender: eric@vivaldi.madbase.net
+To: Juergen Pabel <jpabel@akkaya.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Masking kernel commandline parameters (2.6.7)
+In-Reply-To: <200408081430.59840.jpabel@akkaya.de>
+Message-ID: <Pine.LNX.4.58.0408081204270.7223@vivaldi.madbase.net>
+References: <200408080413.29905.jpabel@akkaya.de>
+ <Pine.LNX.4.58.0408072238570.22657@vivaldi.madbase.net>
+ <200408081430.59840.jpabel@akkaya.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8 Aug 2004, Andi Kleen wrote:
-> i suspect the standard functionality is already covered by CONFIG_EMBEDDED.
 
-It would still be appropriate to say what functionality is lost
-by configuring out, rather than leaving everyone to guess.
+On Sun, 8 Aug 2004, Juergen Pabel wrote:
+> ps: in case you're referring to the feature itself, what would be a
+> more sensible way of passing sensitive data to the kernel? -I didn't
+> see any other way.
 
-> > You're completely changing the meaning and configurability of
-> > CONFIG_TMPFS.  Perhaps it's not a useful config option any more
-> > (too often needed "y", too little saved by "n"), and yours is
-> > more useful.  But if you want to go this way, you must change
-> > its name and Documentation and #ifdefs too.
-> 
-> Perhaps, but calling it CONFIG_TMPFS is not too bad.
+Yes, I was referring to the feature itself.
 
-Okay, so I come along to clean up after you.  Yes, we could work it that
-way.  But somehow I still prefer Matt's patch, which offers a lot more.
+I don't know much about dmcrypt, but in the (similar) case of
+loop-encrypt, the initrd program could simply call losetup (or mount
+-oloop), which would prompt the user for the key and pass it to the
+kernel using the LOOP_SET_STATUS64 ioctl. After the mount, you can
+pivot_root to your encrypted fs and get rid of the initrd.
 
-Hugh
+I'm sure you can do something similar for dmcrypt.
 
+Eric

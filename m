@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262792AbUAEJTH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 04:19:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263130AbUAEJTH
+	id S262386AbUAEJeY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 04:34:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263173AbUAEJeY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 04:19:07 -0500
-Received: from mail.mediaways.net ([193.189.224.113]:53612 "HELO
-	mail.mediaways.net") by vger.kernel.org with SMTP id S262792AbUAEJTF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 04:19:05 -0500
-Subject: Re: xterm scrolling speed - scheduling weirdness in 2.6 ?!
-From: Soeren Sonnenburg <kernel@nn7.de>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: Willy Tarreau <willy@w.ods.org>, szonyi calin <caszonyi@yahoo.com>,
-       azarah@nosferatu.za.org, Con Kolivas <kernel@kolivas.org>,
-       Mark Hahn <hahn@physics.mcmaster.ca>,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
-       gillb4@telusplanet.net
-In-Reply-To: <20040104234703.GY1882@matchmail.com>
-References: <1073227359.6075.284.camel@nosferatu.lan>
-	 <20040104225827.39142.qmail@web40613.mail.yahoo.com>
-	 <20040104233312.GA649@alpha.home.local>
-	 <20040104234703.GY1882@matchmail.com>
-Content-Type: text/plain
-Message-Id: <1073294318.3247.80.camel@localhost>
+	Mon, 5 Jan 2004 04:34:24 -0500
+Received: from honeydew.cs.uni-dortmund.de ([129.217.4.43]:27025 "EHLO
+	honeydew.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S262386AbUAEJeX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 04:34:23 -0500
+Date: Mon, 5 Jan 2004 10:33:44 +0100
+From: Christoph Pleger <Christoph.Pleger@uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
+Subject: Mailing List
+Message-Id: <20040105103344.0d2b4e29.Christoph.Pleger@uni-dortmund.de>
+Organization: Universitaet Dortmund
+X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; sparc-sun-solaris2.6)
 Mime-Version: 1.0
-Date: Mon, 05 Jan 2004 10:18:39 +0100
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-01-05 at 00:47, Mike Fedyk wrote:
-> On Mon, Jan 05, 2004 at 12:33:12AM +0100, Willy Tarreau wrote:
-> > at a time. I have yet to understand why 'ls|cat' behaves
-> > differently, but fortunately it works and it has already saved
-> > me some useful time.
-> 
-> cat probably does some buffering for you, and sends the output to xterm in
-> larger blocks.
+Hello,
 
-yes indeed, judging from the cat source it does chose optimal buffer
-size, here 1024 byte... so it reads/writes larger chunks... and jump
-scrolling takes place...
+I did not get any message from the kernel mailing list in the last few
+days. Did something happen to LKML or is that a local problem of my
+site? 
 
-Hmmhh,
-Soeren
+Please send a reply to the list with a CC to my private email address.
+The reply to the list can make sure that I receive only one reply
+(because as soon as someone has answered other members of the list can
+see that they do not need send another answer) and the CC makes sure
+that I can read the answer.
 
+Thanks
+  Christoph

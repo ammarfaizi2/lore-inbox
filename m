@@ -1,67 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129789AbRAIMFb>; Tue, 9 Jan 2001 07:05:31 -0500
+	id <S129744AbRAIMEu>; Tue, 9 Jan 2001 07:04:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129773AbRAIMFW>; Tue, 9 Jan 2001 07:05:22 -0500
-Received: from chiara.elte.hu ([157.181.150.200]:5388 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S129632AbRAIMFM>;
-	Tue, 9 Jan 2001 07:05:12 -0500
-Date: Tue, 9 Jan 2001 13:04:49 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Christoph Hellwig <hch@caldera.de>
-Cc: "David S. Miller" <davem@redhat.com>, <riel@conectiva.com.br>,
-        <netdev@oss.sgi.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
-In-Reply-To: <20010109122810.A3115@caldera.de>
-Message-ID: <Pine.LNX.4.30.0101091241490.2424-100000@e2>
+	id <S129789AbRAIMEl>; Tue, 9 Jan 2001 07:04:41 -0500
+Received: from pi4.informatik.uni-mannheim.de ([134.155.48.96]:35490 "EHLO
+	pi4.informatik.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id <S129632AbRAIMEX>; Tue, 9 Jan 2001 07:04:23 -0500
+From: Walter Mueller <walt@pi4.informatik.uni-mannheim.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14938.65088.590283.342@anaxagoras.informatik.uni-mannheim.de>
+Date: Tue, 9 Jan 2001 13:04:16 +0100
+To: linux-kernel@vger.kernel.org
+Subject: Problem compiling linux-2.4.0 for Athlon/K7
+X-Mailer: VM 6.89 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-On Tue, 9 Jan 2001, Christoph Hellwig wrote:
+if  Athlon/K7 is selected as processor type i get the following error
+messages when compiling
 
-> Sure.  But sendfile is not one of the fundamental UNIX operations...
+make -C  kernel CFLAGS="-D__KERNEL__ -I/usr/src/linux-2.4.x/linux-2.4.0/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4  -DMODULE -DMODVERSIONS -include /usr/src/linux-2.4.x/linux-2.4.0/include/linux/modversions.h" MAKING_MODULES=1 modules
+make[1]: Entering directory `/usr/src/linux-2.4.x/linux-2.4.0/kernel'
+make[1]: Nothing to be done for `modules'.
+make[1]: Leaving directory `/usr/src/linux-2.4.x/linux-2.4.0/kernel'
+make -C  drivers CFLAGS="-D__KERNEL__ -I/usr/src/linux-2.4.x/linux-2.4.0/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4  -DMODULE -DMODVERSIONS -include /usr/src/linux-2.4.x/linux-2.4.0/include/linux/modversions.h" MAKING_MODULES=1 modules
+make[1]: Entering directory `/usr/src/linux-2.4.x/linux-2.4.0/drivers'
+make -C block modules
+make[2]: Entering directory `/usr/src/linux-2.4.x/linux-2.4.0/drivers/block'
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.x/linux-2.4.0/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4  -DMODULE -DMODVERSIONS -include /usr/src/linux-2.4.x/linux-2.4.0/include/linux/modversions.h   -DEXPORT_SYMTAB -c loop.c
+In file included from /usr/src/linux-2.4.x/linux-2.4.0/include/linux/irq.h:57,
+                 from /usr/src/linux-2.4.x/linux-2.4.0/include/asm/hardirq.h:6,
+                 from /usr/src/linux-2.4.x/linux-2.4.0/include/linux/interrupt.h:45,
+                 from /usr/src/linux-2.4.x/linux-2.4.0/include/asm/string.h:296,
+                 from /usr/src/linux-2.4.x/linux-2.4.0/include/linux/string.h:21,
+                 from /usr/src/linux-2.4.x/linux-2.4.0/include/linux/fs.h:23,
+                 from /usr/src/linux-2.4.x/linux-2.4.0/include/linux/capability.h:17,
+                 from /usr/src/linux-2.4.x/linux-2.4.0/include/linux/binfmts.h:5,
+                 from /usr/src/linux-2.4.x/linux-2.4.0/include/linux/sched.h:9,
+                 from loop.c:53:
+/usr/src/linux-2.4.x/linux-2.4.0/include/asm/hw_irq.h: In function `x86_do_profile':
+/usr/src/linux-2.4.x/linux-2.4.0/include/asm/hw_irq.h:198: `current' undeclared (first use in this function)
+/usr/src/linux-2.4.x/linux-2.4.0/include/asm/hw_irq.h:198: (Each undeclared identifier is reported only once
+/usr/src/linux-2.4.x/linux-2.4.0/include/asm/hw_irq.h:198: for each function it appears in.)
+In file included from /usr/src/linux-2.4.x/linux-2.4.0/include/asm/string.h:296,
+                 from /usr/src/linux-2.4.x/linux-2.4.0/include/linux/string.h:21,
+                 from /usr/src/linux-2.4.x/linux-2.4.0/include/linux/fs.h:23,
+                 from /usr/src/linux-2.4.x/linux-2.4.0/include/linux/capability.h:17,
+                 from /usr/src/linux-2.4.x/linux-2.4.0/include/linux/binfmts.h:5,
+                 from /usr/src/linux-2.4.x/linux-2.4.0/include/linux/sched.h:9,
+                 from loop.c:53:
+/usr/src/linux-2.4.x/linux-2.4.0/include/linux/interrupt.h: In function `raise_softirq':
+/usr/src/linux-2.4.x/linux-2.4.0/include/linux/interrupt.h:89: `current' undeclared (first use in this function)
+/usr/src/linux-2.4.x/linux-2.4.0/include/linux/interrupt.h: In function `tasklet_schedule':
+/usr/src/linux-2.4.x/linux-2.4.0/include/linux/interrupt.h:160: `current' undeclared (first use in this function)
+/usr/src/linux-2.4.x/linux-2.4.0/include/linux/interrupt.h: In function `tasklet_hi_schedule':
+/usr/src/linux-2.4.x/linux-2.4.0/include/linux/interrupt.h:174: `current' undeclared (first use in this function)
+In file included from /usr/src/linux-2.4.x/linux-2.4.0/include/linux/string.h:21,
+                 from /usr/src/linux-2.4.x/linux-2.4.0/include/linux/fs.h:23,
+                 from /usr/src/linux-2.4.x/linux-2.4.0/include/linux/capability.h:17,
+                 from /usr/src/linux-2.4.x/linux-2.4.0/include/linux/binfmts.h:5,
+                 from /usr/src/linux-2.4.x/linux-2.4.0/include/linux/sched.h:9,
+                 from loop.c:53:
+/usr/src/linux-2.4.x/linux-2.4.0/include/asm/string.h: In function `__constant_memcpy3d':
+/usr/src/linux-2.4.x/linux-2.4.0/include/asm/string.h:305: `current' undeclared (first use in this function)
+/usr/src/linux-2.4.x/linux-2.4.0/include/asm/string.h: In function `__memcpy3d':
+/usr/src/linux-2.4.x/linux-2.4.0/include/asm/string.h:312: `current' undeclared (first use in this function)
+{standard input}: Assembler messages:
+{standard input}:8: Warning: Ignoring changed section attributes for .modinfo
+make[2]: *** [loop.o] Error 1
+make[2]: Leaving directory `/usr/src/linux-2.4.x/linux-2.4.0/drivers/block'
+make[1]: *** [_modsubdir_block] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.x/linux-2.4.0/drivers'
+make: *** [_mod_drivers] Error 2
 
-Neither were eg. kernel-based semaphores. So what? Unix wasnt perfect and
-isnt perfect - but it was a (very) good starting point. If you are arguing
-against the existence or importance of sendfile() you should re-think,
-sendfile() is a unique (and important) interface because it enables moving
-information between files (streams) without involving any interim
-user-space memory buffer. No original Unix API did this AFAIK, so we
-obviously had to add it. It's an important Linux API category.
 
-> If there was no alternative to this I would probably have not said
-> anything, but with the rw_kiovec file op just before the door I don't
-> see any reason to add this _very_ specific file operation.
 
-I do think that the kiovec code has to be rewritten substantially before
-it can be used for networking zero-copy, so right now we do the least
-damange if we do not increase the coverage of kiovec code.
-
-> An alloc_kiovec before and an free_kiovec after the actual call and
-> the memory overhaed of a kiobuf won't hurt so much that it stands
-> against a clean interface, IMHO.
-
-please study the networking portions of the zerocopy patch and you'll see
-why this is not desirable. An alloc_kiovec()/free_kiovec() is exactly the
-thing we cannot afford in a sendfile() operation. sendfile() is
-lightweight, the setup times of kiovecs are not.
-
-basically the current kiovec design does not deal with the realities of
-high-speed, featherweight networking. DO NOT talk in hypotheticals. The
-code is there, do it, measure it. You might not care about performance, we
-do.
-
-another, more theoretical issue is that i think the kernel should not be
-littered with multi-page interfaces, we should keep the one "struct page *
-at a time" interfaces. Eg. check out how the new zerocopy code generates
-perfect MTU sized frames via the ->writepage() interface. No interim
-container objects are necessary.
-
-	Ingo
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

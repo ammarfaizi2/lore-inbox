@@ -1,212 +1,148 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287593AbRLaSTd>; Mon, 31 Dec 2001 13:19:33 -0500
+	id <S287595AbRLaSgO>; Mon, 31 Dec 2001 13:36:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287584AbRLaSTO>; Mon, 31 Dec 2001 13:19:14 -0500
-Received: from cx97923-a.phnx3.az.home.com ([24.1.197.194]:2011 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S287592AbRLaSTG>;
-	Mon, 31 Dec 2001 13:19:06 -0500
-Message-ID: <3C30AC0D.9010700@candelatech.com>
-Date: Mon, 31 Dec 2001 11:18:53 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: "Ryan C. Bonham" <Ryan@srfarms.com>
-CC: "Linux Kernel List (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: Re: Tyan Tomcat i815T(S2080) LAN problems
-In-Reply-To: <19AB8F9FA07FB0409732402B4817D75A1251C7@FILESERVER.SRF.srfarms.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S287597AbRLaSgF>; Mon, 31 Dec 2001 13:36:05 -0500
+Received: from pcd357088.netvigator.com ([203.218.147.88]:6016 "EHLO hingwah")
+	by vger.kernel.org with ESMTP id <S287595AbRLaSfs>;
+	Mon, 31 Dec 2001 13:35:48 -0500
+Date: Tue, 1 Jan 2002 02:35:54 +0800
+To: linux-kernel@vger.kernel.org
+Subject: kernel oops for 2.4.12
+Message-ID: <20011231183554.GA2342@hingwah>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.24i
+From: hingwah@computer.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+My computer hang when I plug out the USB palm hotsync cable which is
+identified as Proliferic usb serial converter which use pl2303.o as module
+and plug in the usb mouse
+after reboot,the following oops message is found in /var/log/messages
+Jan  1 02:14:03 hingwah kernel:  printing eip:
+Jan  1 02:14:03 hingwah kernel: c0172816
+Jan  1 02:14:03 hingwah kernel: Oops: 0000
+Jan  1 02:14:03 hingwah kernel: CPU:    0
+Jan  1 02:14:03 hingwah kernel: EIP:    0010:[get_tty_driver+26/72]
+Tainted:
+PF
+Jan  1 02:14:03 hingwah kernel: EFLAGS: 00210282
+Jan  1 02:14:03 hingwah kernel: eax: 00000005   ebx: 00000001   ecx:
+c0220200
+edx: d0b01180
+Jan  1 02:14:03 hingwah kernel: esi: 00000005   edi: 00000005   ebp:
+c026e744
+esp: c5c97f08
+Jan  1 02:14:03 hingwah kernel: ds: 0018   es: 0018   ss: 0018
+Jan  1 02:14:03 hingwah kernel: Process usbmgr (pid: 5135,
+stackpage=c5c97000)
+Jan  1 02:14:03 hingwah kernel: Stack: c0220200 00000028 c012d82f
+00000501 fffff
+fed c4448c60 cff7e600 c14052e0
+Jan  1 02:14:03 hingwah kernel:        cff7e600 ffffffeb cad0a000
+c0134f87 cff7e
+600 c012d999 00000005 00000001
+Jan  1 02:14:03 hingwah kernel:        c4448c60 cff7e600 00000000
+c012cb15 cff7e
+600 c4448c60 0804e282 cad0a000
+Jan  1 02:14:03 hingwah kernel: Call Trace: [get_chrfops+103/200]
+[permission+43
+/48] [chrdev_open+37/76] [dentry_open+225/392] [filp_open+82/92]
+Jan  1 02:14:03 hingwah kernel:    [sys_open+54/148] [system_call+51/56]
+Jan  1 02:14:03 hingwah kernel:
+n  1 02:14:03 hingwah kernel:
+Jan  1 02:14:03 hingwah kernel: Code: 0f bf 42 10 39 f0 75 16 0f bf 4a
+12 39 cb
+7c 0e 0f bf 42 14
+Jan  1 02:14:03 hingwah kernel:  <1>Unable to handle kernel paging
+request at vi
+rtual address d0afe4c4
+Jan  1 02:14:03 hingwah kernel:  printing eip:
+Jan  1 02:14:03 hingwah kernel: d0afe4c4
+Jan  1 02:14:03 hingwah kernel: Oops: 0000
+Jan  1 02:14:03 hingwah kernel: CPU:    0
+Jan  1 02:14:03 hingwah kernel: EIP:    0010:[<d0afe4c4>]    Tainted: PF
+Jan  1 02:14:03 hingwah kernel: EFLAGS: 00010246
+Jan  1 02:14:03 hingwah kernel: eax: d0afe4c4   ebx: 00000000   ecx:
+c494df58
+edx: 00000000
+Jan  1 02:14:03 hingwah kernel: esi: 00000000   edi: c7624000   ebp:
+c0e75640
+esp: c494dee4
+Jan  1 02:14:03 hingwah kernel: ds: 0018   es: 0018   ss: 0018
+Jan  1 02:14:03 hingwah kernel: Process gpilotd (pid: 6011,
+stackpage=c494d000)
+Jan  1 02:14:03 hingwah kernel: Stack: c01772a5 c7624000 c7624000
+c0e75640 c7a5c
+018 00000003 c0173e53 c7624000
+Jan  1 02:14:03 hingwah kernel:        c0e75640 00000000 c0e75640
+00000145 c0139
+605 c0e75640 00000000 00000000
+Jan  1 02:14:03 hingwah kernel:        00000000 080c46f8 7fffffff
+c01396c9 00000
+009 c7a5c000 c494df58 c494df5c
+Jan  1 02:14:03 hingwah kernel: Call Trace: [normal_poll+253/296]
+[tty_poll+127/
+140] [do_pollfd+73/136] [do_poll+133/220] [sys_poll+477/752]
+Jan  1 02:14:03 hingwah kernel:    [sock_ioctl+33/40]
+[system_call+51/56]
+Jan  1 02:14:03 hingwah kernel:
+Jan  1 02:14:03 hingwah kernel: Code:  Bad EIP value.
+Jan  1 02:14:03 hingwah kernel:  <1>Unable to handle kernel paging
+request at vi
+rtual address d0b012a0
+Jan  1 02:14:03 hingwah kernel:  printing eip:
+Jan  1 02:14:03 hingwah kernel: c017365a
+Jan  1 02:14:03 hingwah kernel: Oops: 0000
+Jan  1 02:14:03 hingwah kernel: CPU:    0
+Jan  1 02:14:03 hingwah kernel: EIP:    0010:[release_dev+250/1276]
+Tainted:
+PF
+Jan  1 02:14:03 hingwah kernel: EFLAGS: 00010293
+Jan  1 02:14:03 hingwah kernel: eax: d0b012a0   ebx: c7624000   ecx:
+00000000
+edx: 00000000
+Jan  1 02:14:03 hingwah kernel: esi: c46aa060   edi: c14052e0   ebp:
+00000000
+esp: c494dd14
+Jan  1 02:14:03 hingwah kernel: ds: 0018   es: 0018   ss: 0018
+Jan  1 02:14:03 hingwah kernel: Process gpilotd (pid: 6011,
+stackpage=c494d000)
+Jan  1 02:14:03 hingwah kernel: Stack: c4558860 c46aa060 c14052e0
+c5a8a7c0 00000
+000 c4366e40 c01b2dba 00000000
+Jan  1 02:14:03 hingwah kernel:        c823d8a0 c5b5b820 00000246
+00000282 c8bcb
+ee0 c3f1d460 c1405260 c8bcbee4
+Jan  1 02:14:03 hingwah kernel:        00000282 00000001 c36cccc0
+c0134868 c03b7
+aa0 c3f1d460 c013489e c3f1d460
+Jan  1 02:14:03 hingwah kernel: Call Trace: [sock_def_wakeup+34/36]
+[pipe_releas
+e+116/136] [pipe_write_release+14/20] [tty_release+10/16] [fput+76/208]
+Jan  1 02:14:03 hingwah kernel:    [filp_close+92/100]
+[put_files_struct+84/188]
+ [do_exit+169/460] [do_page_fault+0/1176] [die+79/80]
+ [do_page_fault+847/1176]
+ Jan  1 02:14:03 hingwah kernel:    [do_page_fault+0/1176]
+ [alloc_skb+210/384] [s
+ ock_def_readable+38/76] [unix_stream_sendmsg+514/700]
+ [error_code+52/60] [normal
+ _poll+253/296]
+ Jan  1 02:14:03 hingwah kernel:    [tty_poll+127/140]
+ [do_pollfd+73/136] [do_pol
+ l+133/220] [sys_poll+477/752] [sock_ioctl+33/40] [system_call+51/56]
+ Jan  1 02:14:03 hingwah kernel:
+ Jan  1 02:14:03 hingwah kernel: Code: 3b 1c 90 74 21 0f b7 83 10 01 00
+ 00 50 e8
+ 54 a3 fb ff 50 8b
+ 
 
 
-Ryan C. Bonham wrote:
-
-> Hi,
-> 
-> Well my first problem, once I got my brain working, was to realize that eth1 was DOA.. so as soon as I get a replacement board, I will try again.. Using the e100 driver, how did you force setting the MAC address?? 
-> 
-> Ryan
 
 
-Make sure you enable the second port in the BIOS, btw.
-
-I forget the exact syntax (I do it in c++ code, not with ifconfig or ip), but
-both ifconfig and ip programs can set the mac address.  Try
-/sbin/ip link help
-
-That should point you in the right direction...  Note that MAC == Hardware-Address
-
-Ben
-
-
-> 
-> 
->>-----Original Message-----
->>From: Ben Greear [mailto:greearb@candelatech.com]
->>Sent: Sunday, December 30, 2001 10:31 PM
->>To: Ryan C. Bonham
->>Cc: Linux Kernel List (E-mail)
->>Subject: Re: Tyan Tomcat i815T(S2080) LAN problems
->>
->>
->>I sort of got it working by using the e100 driver from Intel, and then
->>forcefully setting the MAC address to something other than 0xFF...FF
->>
->>Neither Becker, I, nor someone at Intel could figure out why
->>the MAC (EEPROM) was all FFs.  The best guess was that the BIOS
->>was screwed up somehow (that's what the Intel guy said...)
->>
->>I'd be interested if you get it working...I have two of these marginal
->>boards gathering dust!!
->>
->>Ben
->>
->>Ryan C. Bonham wrote:
->>
->>
->>>Hi,
->>>
->>>I installed kernel 2.4.17 and this problem still exists. I 
->>>
->>have attached the important stuff from demesg and from eepro100-diag. 
->>
->>>
->>>>Has anyone gotten the Dual built-in LAN cards to work on the 
->>>>Tyan S2080 Motherboard?  I am running a Redhat kernel 
->>>>2.4.9-13.. I haven't tried the latest kernel yet.. I saw some 
->>>>talk about this board in the archives but I found no 
->>>>solutions. It says it has a Intel 82559 LAN controller and a 
->>>>ICH2 LAN Controller. I am only seeing one NIC when I boot up. 
->>>>And dmesg is showing
->>>>eth0: Invalid EEPROM checksum 0xFF00, check setting before 
->>>>activating this device!
->>>>
->>>>
->>>>
->>>Thanks,
->>>
->>>
->>>eepro100.c:v1.09j-t 9/29/99 Donald Becker 
->>>
->>http://cesdis.gsfc.nasa.gov/linux/drivers/eepro100.html
->>
->>>eepro100.c: $Revision: 1.36 $ 2000/11/17 Modified by Andrey 
->>>
->>V. Savochkin <saw@saw.sw.com.sg> and others
->>
->>>PCI: Found IRQ 11 for device 01:08.0
->>>eth0: Invalid EEPROM checksum 0xff00, check settings before 
->>>
->>activating this device!
->>
->>>eth0: OEM i82557/i82558 10/100 Ethernet, FF:FF:FF:FF:FF:FF, IRQ 11.
->>>  Board assembly ffffff-255, Physical connectors present: 
->>>
->>RJ45 BNC AUI MII
->>
->>>  Primary interface chip unknown-15 PHY #31.
->>>    Secondary interface chip i82555.
->>>  General self-test: passed.
->>>  Serial sub-system self-test: passed.
->>>  Internal registers self-test: passed.
->>>  ROM checksum self-test: passed (0x04f4518b).
->>>
->>>----------------------------------  eerpro100-diag -aaeef
->>>
->>>eepro100-diag.c:v2.06 12/10/2001 Donald Becker (becker@scyld.com)
->>> http://www.scyld.com/diag/index.html
->>>Index #1: Found a Intel i82562 Pro/100 V adapter at 0xc800.
->>>i82557 chip registers at 0xc800:
->>>  0c000050 07036000 00000000 00080002 3fe1ffff 00000600
->>>  No interrupt sources are pending.
->>>   The transmit unit state is 'Suspended'.
->>>   The receive unit state is 'Ready'.
->>>  This status is normal for an activated but idle interface.
->>> The Command register has an unprocessed command 0c00(?!).
->>>EEPROM contents, size 256x16:
->>>    00: ffff ffff ffff ffff ffff ffff ffff ffff
->>>  0x08: ffff ffff ffff ffff ffff ffff ffff ffff
->>>  0x10: ffff ffff ffff ffff ffff ffff ffff ffff
->>>  0x18: ffff ffff ffff ffff ffff ffff ffff ffff
->>>  0x20: ffff ffff ffff ffff ffff ffff ffff ffff
->>>  0x28: ffff ffff ffff ffff ffff ffff ffff ffff
->>>  0x30: ffff ffff ffff ffff ffff ffff ffff ffff
->>>  0x38: ffff ffff ffff ffff ffff ffff ffff ffff
->>>  0x40: ffff ffff ffff ffff ffff ffff ffff ffff
->>>  0x48: ffff ffff ffff ffff ffff ffff ffff ffff
->>>  0x50: ffff ffff ffff ffff ffff ffff ffff ffff
->>>  0x58: ffff ffff ffff ffff ffff ffff ffff ffff
->>>  0x60: ffff ffff ffff ffff ffff ffff ffff ffff
->>>  0x68: ffff ffff ffff ffff ffff ffff ffff ffff
->>>  0x70: ffff ffff ffff ffff ffff ffff ffff ffff
->>>  0x78: ffff ffff ffff ffff ffff ffff ffff ffff
->>>  0x80: ffff ffff ffff ffff ffff ffff ffff ffff
->>>  0x88: ffff ffff ffff ffff ffff ffff ffff ffff
->>>  0x90: ffff ffff ffff ffff ffff ffff ffff ffff
->>>  0x98: ffff ffff ffff ffff ffff ffff ffff ffff
->>>  0xa0: ffff ffff ffff ffff ffff ffff ffff ffff
->>>  0xa8: ffff ffff ffff ffff ffff ffff ffff ffff
->>>  0xb0: ffff ffff ffff ffff ffff ffff ffff ffff
->>>  0xb8: ffff ffff ffff ffff ffff ffff ffff ffff
->>>  0xc0: ffff ffff ffff ffff ffff ffff ffff ffff
->>>  0xc8: ffff ffff ffff ffff ffff ffff ffff ffff
->>>  0xd0: ffff ffff ffff ffff ffff ffff ffff ffff
->>>  0xd8: ffff ffff ffff ffff ffff ffff ffff ffff
->>>  0xe0: ffff ffff ffff ffff ffff ffff ffff ffff
->>>  0xe8: ffff ffff ffff ffff ffff ffff ffff ffff
->>>  0xf0: ffff ffff ffff ffff ffff ffff ffff ffff
->>>  0xf8: ffff ffff ffff ffff ffff ffff ffff ffff
->>> *****  The EEPROM checksum is INCORRECT!  *****
->>>  The checksum is 0xFF00, it should be 0xBABA!
->>>Intel EtherExpress Pro 10/100 EEPROM contents:
->>>  Station address FF:FF:FF:FF:FF:FF.
->>>  Board assembly ffffff-255, Physical connectors present: 
->>>
->>RJ45 BNC AUI MII
->>
->>>  Primary interface chip i82555 PHY #-1.
->>>    Secondary interface chip i82555, PHY -1.
->>>   Sleep mode is enabled.  This is not recommended.
->>>   Under high load the card may not respond to
->>>   PCI requests, and thus cause a master abort.
->>>   To clear sleep mode use the '-G 0 -w -w -f' options..
->>>-
->>>To unsubscribe from this list: send the line "unsubscribe 
->>>
->>linux-kernel" in
->>
->>>the body of a message to majordomo@vger.kernel.org
->>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>>Please read the FAQ at  http://www.tux.org/lkml/
->>>
->>>
->>>
->>
->>-- 
->>Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
->>President of Candela Technologies Inc      http://www.candelatech.com
->>ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
->>
->>
->>
->>
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
-
-
--- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
-
+My Computer is IBM Thinkpad 390E
 

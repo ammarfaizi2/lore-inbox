@@ -1,108 +1,171 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261450AbVARWZ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261449AbVARW3i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261450AbVARWZ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 17:25:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261453AbVARWZ4
+	id S261449AbVARW3i (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 17:29:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261456AbVARW3i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 17:25:56 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:59264 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261450AbVARWZi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 17:25:38 -0500
-Message-ID: <41ED8D5F.5030409@tmr.com>
-Date: Tue, 18 Jan 2005 17:27:43 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
+	Tue, 18 Jan 2005 17:29:38 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:9419 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261449AbVARW3Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 17:29:24 -0500
+Date: Tue, 18 Jan 2005 16:29:23 -0600 (CST)
+From: Kylene Hall <kjhall@us.ibm.com>
+X-X-Sender: kjhall@jo.austin.ibm.com
+To: linux-kernel@vger.kernel.org
+cc: greg@kroah.com, emilyr@us.ibm.com, toml@us.ibm.com,
+       tpmdd-devel@lists.sourceforge.net
+Subject: [PATCH 1/1] tpm: fix cause of SMP stack traces
+In-Reply-To: <Pine.LNX.4.58.0501121236180.2453@jo.austin.ibm.com>
+Message-ID: <Pine.LNX.4.58.0501181621200.2473@jo.austin.ibm.com>
+References: <Pine.LNX.4.58.0412081546470.24510@jo.austin.ibm.com> 
+ <Pine.LNX.4.58.0412161632200.4219@jo.austin.ibm.com> 
+ <Pine.LNX.4.58.0412171642570.9229@jo.austin.ibm.com> 
+ <Pine.LNX.4.58.0412201146060.10943@jo.austin.ibm.com>
+ <29495f1d041221085144b08901@mail.gmail.com> <Pine.LNX.4.58.0412211209410.14092@jo.austin.ibm.com>
+ <Pine.LNX.4.58.0501121236180.2453@jo.austin.ibm.com>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: "Theodore Ts'o" <tytso@mit.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Dave Jones <davej@redhat.com>, Marek Habersack <grendel@caudium.net>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Greg KH <greg@kroah.com>, Chris Wright <chrisw@osdl.org>, akpm@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: thoughts on kernel security issues
-References: <20050114183415.GA17481@thunk.org><Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org> <Pine.LNX.4.58.0501141047470.2310@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0501141047470.2310@ppc970.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With no disrespect, I don't believe you have ever been a full-time 
-employee system administrator for any commercial or government 
-organization, and I don't believe you have any experience trying to do 
-security when change must be reviewed by technically naive management to 
-justify cost, time, and policy implications. The people on the list who 
-disagree may view the security information issue in a very different 
-context.
+There were misplaced spinlock acquires and releases in the probe, open, 
+close and release paths which were causing might_sleep and schedule while 
+atomic error messages accompanied by stack traces when the kernel was 
+compiled with SMP support. Bug reported by Reben Jenster 
+<ruben@hotheads.de>
 
-
-Linus Torvalds wrote:
-
-> What vendor-sec does is to make it "socially acceptable" to be a parasite. 
-> 
-> I personally think that such behaviour simply should not be encouraged. If
-> you have a security "researcher" that has some reason to delay his
-> disclosure, you should see for for what he is: looking for cheap PR. You
-> shouldn't make excuses for it. Any research organization that sees PR as a
-> primary objective is just misguided.
-
-There are damn fine reasons for not having immediate public disclosure, 
-it allows vandors and administrators to close the hole before the script 
-kiddies get a hold of it. And they are the real problem, because there 
-are so MANY of them, and they tend to do slash and burn stuff, wipe out 
-your files, steal your identity, and other things you have to notice. 
-They aren't smart enough to find holes themselves in most cases, they 
-are too lazy in many cases to read the high-level hacker boards, and a 
-few weeks of delay in many cases lets the careful avoid damage.
-
-Security through obscurity doesn't work, but a small delay for a fix to 
-be developed can prevent a lot of problems. And of course the 
-information should be released, it encourages the creation and 
-installation of fixes.
-
-Oh, and many of the problem reports result in "cheap PR" consisting of a 
-single line mention in a CERT report or similar. Most people are not 
-doing it for the glory.
-
-> What's the alternative? I'd like to foster a culture of
-> 
->  (a) accepting that bugs happen, and that they aren't news, but making 
->      sure that the very openness of the process means that people know
->      what's going on exactly because it is _open_, not because some news 
->      organization had to make a big stink about it just to make a vendor
->      take notice.
-
-Linux vendors aside, many vendors react in direct proportion to the bad 
-publicity engendered. I'd like the world to work that way, but in many 
-places it doesn't.
-> 
->      Right now, people seem to think that big news media warnings on 
->      cnet.com about SP2 fixing 15 vulnerabilities or similar is the proper
->      way to get people to upgrade. That just -cannot- be right.
-
-Unfortunately reality doesn't agree with you. Many organizations have no 
-other effective way to convince management of the need for a fix except 
-newspaper articles and magazine articles. A sometimes that has to get to 
-the horror story stage before action is possible.
-
-
-> And let's not kid ourselves: the security firms may have resources that 
-> they put into it, but the worst-case schenario is actual criminal intent. 
-> People who really have resources to study security problems, and who have 
-> _no_ advantage of using vendor-sec at all. And in that case, vendor-sec is 
-> _REALLY_ a huge mistake. 
-
-I think you are still missing the point, I don't care if a security firm 
-reads mailing lists or tea leaves, does research or just knows where to 
-find it, they are paid to do it and if they do it well and report the 
-problems which apply to me and the source of the fixes they keep me from 
-missing something and at the same time save me time. Even reading only 
-good mailing lists and newsgroups it takes a lot of time to keep 
-current, and you see a lot of stuff you don't need.
-
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
+---
+diff -uprN linux-2.6.10/drivers/char/tpm/tpm.c linux-2.6.10-tpm/drivers/char/tpm/tpm.c
+--- linux-2.6.10/drivers/char/tpm/tpm.c	2005-01-18 16:42:17.000000000 -0600
++++ linux-2.6.10-tpm/drivers/char/tpm/tpm.c	2005-01-18 12:52:53.000000000 -0600
+@@ -373,8 +372,9 @@ int tpm_open(struct inode *inode, struct
+ {
+ 	int rc = 0, minor = iminor(inode);
+ 	struct tpm_chip *chip = NULL, *pos;
++	unsigned long flags;
+ 
+-	spin_lock(&driver_lock);
++	spin_lock_irqsave(&driver_lock, flags);
+ 
+ 	list_for_each_entry(pos, &tpm_chip_list, list) {
+ 		if (pos->vendor->miscdev.minor == minor) {
+@@ -398,7 +398,7 @@ int tpm_open(struct inode *inode, struct
+ 	chip->num_opens++;
+ 	pci_dev_get(chip->pci_dev);
+ 
+-	spin_unlock(&driver_lock);
++	spin_unlock_irqrestore(&driver_lock, flags);
+ 
+ 	chip->data_buffer = kmalloc(TPM_BUFSIZE * sizeof(u8), GFP_KERNEL);
+ 	if (chip->data_buffer == NULL) {
+@@ -413,7 +413,7 @@ int tpm_open(struct inode *inode, struct
+ 	return 0;
+ 
+ err_out:
+-	spin_unlock(&driver_lock);
++	spin_unlock_irqrestore(&driver_lock, flags);
+ 	return rc;
+ }
+ 
+@@ -422,21 +422,25 @@ EXPORT_SYMBOL_GPL(tpm_open);
+ int tpm_release(struct inode *inode, struct file *file)
+ {
+ 	struct tpm_chip *chip = file->private_data;
++	unsigned long flags;
+ 
+-	spin_lock(&driver_lock);
++	file->private_data = NULL;
++
++	spin_lock_irqsave(&driver_lock, flags);
+ 	chip->num_opens--;
++	spin_unlock_irqrestore(&driver_lock, flags);
++
+ 	down(&chip->timer_manipulation_mutex);
+ 	if (timer_pending(&chip->user_read_timer))
+ 		del_singleshot_timer_sync(&chip->user_read_timer);
+ 	else if (timer_pending(&chip->device_timer))
+ 		del_singleshot_timer_sync(&chip->device_timer);
+ 	up(&chip->timer_manipulation_mutex);
++
+ 	kfree(chip->data_buffer);
+ 	atomic_set(&chip->data_pending, 0);
+ 
+ 	pci_dev_put(chip->pci_dev);
+-	file->private_data = NULL;
+-	spin_unlock(&driver_lock);
+ 	return 0;
+ }
+ 
+@@ -524,16 +528,19 @@ EXPORT_SYMBOL_GPL(tpm_read);
+ void __devexit tpm_remove(struct pci_dev *pci_dev)
+ {
+ 	struct tpm_chip *chip = pci_get_drvdata(pci_dev);
++	unsigned long flags;
+ 
+ 	if (chip == NULL) {
+ 		dev_err(&pci_dev->dev, "No device data found\n");
+ 		return;
+ 	}
+ 
+-	spin_lock(&driver_lock);
++	spin_lock_irqsave(&driver_lock, flags);
+ 
+ 	list_del(&chip->list);
+ 
++	spin_unlock_irqrestore(&driver_lock, flags);
++
+ 	pci_set_drvdata(pci_dev, NULL);
+ 	misc_deregister(&chip->vendor->miscdev);
+ 
+@@ -541,8 +548,6 @@ void __devexit tpm_remove(struct pci_dev
+ 	device_remove_file(&pci_dev->dev, &dev_attr_pcrs);
+ 	device_remove_file(&pci_dev->dev, &dev_attr_caps);
+ 
+-	spin_unlock(&driver_lock);
+-
+ 	pci_disable_device(pci_dev);
+ 
+ 	dev_mask[chip->dev_num / 32] &= !(1 << (chip->dev_num % 32));
+@@ -583,12 +588,14 @@ EXPORT_SYMBOL_GPL(tpm_pm_suspend);
+ int tpm_pm_resume(struct pci_dev *pci_dev)
+ {
+ 	struct tpm_chip *chip = pci_get_drvdata(pci_dev);
++	unsigned long flags;
++
+ 	if (chip == NULL)
+ 		return -ENODEV;
+ 
+-	spin_lock(&driver_lock);
++	spin_lock_irqsave(&driver_lock, flags);
+ 	tpm_lpc_bus_init(pci_dev, chip->vendor->base);
+-	spin_unlock(&driver_lock);
++	spin_unlock_irqrestore(&driver_lock, flags);
+ 
+ 	return 0;
+ }
+@@ -650,15 +657,12 @@ dev_num_search_complete:
+ 	chip->vendor->miscdev.dev = &(pci_dev->dev);
+ 	chip->pci_dev = pci_dev_get(pci_dev);
+ 
+-	spin_lock(&driver_lock);
+-
+ 	if (misc_register(&chip->vendor->miscdev)) {
+ 		dev_err(&chip->pci_dev->dev,
+ 			"unable to misc_register %s, minor %d\n",
+ 			chip->vendor->miscdev.name,
+ 			chip->vendor->miscdev.minor);
+ 		pci_dev_put(pci_dev);
+-		spin_unlock(&driver_lock);
+ 		kfree(chip);
+ 		dev_mask[i] &= !(1 << j);
+ 		return -ENODEV;
+@@ -672,7 +676,6 @@ dev_num_search_complete:
+ 	device_create_file(&pci_dev->dev, &dev_attr_pcrs);
+ 	device_create_file(&pci_dev->dev, &dev_attr_caps);
+ 
+-	spin_unlock(&driver_lock);
+ 	return 0;
+ }
+ 

@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131717AbRAaRg3>; Wed, 31 Jan 2001 12:36:29 -0500
+	id <S130312AbRAaRm3>; Wed, 31 Jan 2001 12:42:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130941AbRAaRgU>; Wed, 31 Jan 2001 12:36:20 -0500
-Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:8880 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S130312AbRAaRgE>; Wed, 31 Jan 2001 12:36:04 -0500
-Date: Wed, 31 Jan 2001 18:19:53 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: David Ford <david@linux.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH/REQ] Increase kmsg buffer from 16K to 32K, kernel/printk.c
-In-Reply-To: <E14O0hv-0002hY-00@the-village.bc.nu>
-Message-ID: <Pine.GSO.3.96.1010131181206.16241A-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130507AbRAaRmU>; Wed, 31 Jan 2001 12:42:20 -0500
+Received: from 4dyn210.com21.casema.net ([212.64.95.210]:40974 "HELO
+	home.ds9a.nl") by vger.kernel.org with SMTP id <S130312AbRAaRmM>;
+	Wed, 31 Jan 2001 12:42:12 -0500
+Date: Wed, 31 Jan 2001 18:41:53 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Vanilla 2.4.0 ext2fs error
+Message-ID: <20010131184152.A3287@home.ds9a.nl>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0101311805470.29461-100000@jdi.jdimedia.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre4i
+In-Reply-To: <Pine.LNX.4.30.0101311805470.29461-100000@jdi.jdimedia.nl>; from i.palsenberg@jdimedia.nl on Wed, Jan 31, 2001 at 06:21:04PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 Jan 2001, Alan Cox wrote:
+On Wed, Jan 31, 2001 at 06:21:04PM +0100, Igmar Palsenberg wrote:
 
-> > Does Linus or anyone object to raising the ksmg buffer from 16K to 32K?
-> > 4/5 systems I have now overflow the buffer during boot before init is
-> > even launched.
-> 
-> Thats just an indication that 2.4.x is currently printking too much crap on
-> boot
+> Jan 31 18:01:57 base kernel: EXT2-fs error (device ide0(3,71)):
+> ext2_new_inode:
+> reserved inode or inode > inodes count - block_group = 0,inode=1
 
- We could probably get rid of much of the crap for i386 by #undef
-APIC_DEBUG in include/asm-i386/apic.h.  Too bad broken SMP systems get
-reported every now and then and the crap proves useful in getting what
-actually is wrong. 
+does fsck run on this fs find any errors?
+
+> Igmar Palsenberg
+> JDI Media Solutions
+
+Huge .sig!
 
 -- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
-
+PowerDNS                     Versatile DNS Services  
+Trilab                       The Technology People   
+'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

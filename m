@@ -1,66 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262312AbVDFUOk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262293AbVDFUQG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262312AbVDFUOk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 16:14:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262307AbVDFUOf
+	id S262293AbVDFUQG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 16:16:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262310AbVDFUQG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 16:14:35 -0400
-Received: from rproxy.gmail.com ([64.233.170.207]:1916 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262293AbVDFUOV (ORCPT
+	Wed, 6 Apr 2005 16:16:06 -0400
+Received: from dspnet.fr.eu.org ([213.186.44.138]:63750 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S262293AbVDFUPh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 16:14:21 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=tRtR1XRkbQ5jojtC4NQ+KlzakPzVtpkRFTWX59Q1X0ysTNFsiPMIhq1hdmlI8/nuhZ85WdR2wFSvhNFfNqKkowIItVeI2q93kKGCf4A/6ND97BUm4GJ/Pk9Ost2juTdNkfl+0tJTeKqm0zcR2MibtlBYop14BeEs3U65rwaKcNk=
-Message-ID: <e2a995c305040613143b60f535@mail.gmail.com>
-Date: Wed, 6 Apr 2005 16:14:18 -0400
-From: Chris Lalancette <mailinglist.chris@gmail.com>
-Reply-To: Chris Lalancette <mailinglist.chris@gmail.com>
+	Wed, 6 Apr 2005 16:15:37 -0400
+Date: Wed, 6 Apr 2005 22:15:33 +0200
+From: Olivier Galibert <galibert@pobox.com>
 To: linux-kernel@vger.kernel.org
-Subject: 2.6 libipq kernel hang
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
+Message-ID: <20050406201533.GB77499@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	linux-kernel@vger.kernel.org
+References: <lLj-vC.A.92G.w4pUCB@murphy> <4252A821.9030506@almg.gov.br> <Pine.LNX.4.61.0504051123100.16479@chaos.analogic.com> <1112723637.4878.14.camel@mirchusko.localnet> <4252E6C1.5010701@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4252E6C1.5010701@pobox.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All,
-    I am having a kernel hang with all the latest versions of the 2.6
-kernel (2.6.8.1, 2.6.9, 2.6.10, and 2.6.12-rc2).  Basically, my test
-is this:  I have a simple ipq program that just takes packets in,
-makes a copy of them (using memcpy), then accepts the packets with the
-new buffer (which happens to be a copy of the old buffer).  I run this
-program on two machines, with the following iptables rules:
+On Tue, Apr 05, 2005 at 03:28:01PM -0400, Jeff Garzik wrote:
+> * Most firmwares are a -collection- of images and data.  The firmware 
+> infrastructure should load an -archive- of firmwares and associated data 
+> values.
 
-/sbin/iptables -t mangle -A POSTROUTING -d 192.168.3.0/24 -j QUEUE
-/sbin/iptables -t mangle -A PREROUTING -s 192.168.3.0/24 -j QUEUE
+Why don't you use multiple firmware loading calls with different
+names?  Maybe adding a "group" name, or simply adding a '/' in the
+name.  That way the userspace half will have the choice between using
+directories, tar, zip or whatever.  The speedtouch driver already
+requests multiple files, having them together in one file is a
+userspace problem which the kernel can help but shouldn't try to solve.
 
-I then have a simple server and client program; the server just
-accepts a connection, recv's some data, and then closes the connection
-(in a while(1) loop).  The client connects to the server, send's some
-data, then closes the connection (in a while(1) loop).  With this test
-running, on all of the kernels mentioned above, the kernel will always
-hang after some length of time (it seems to be more or less random).
-No oops, no stack trace, just a hard kernel lock.  I saw in the
-ChangeLog for 2.6.12-rc2 that they may have fixed a race condition in
-netlink; however, 2.6.12-rc2 still did not work for me.  I have also
-tried running a server program that just accepts a connection, and
-recv's data forever, with a client that connects once, and send's data
-forever.  This also locked up the machine, although with slightly
-different behavior (basically the queue program sucked up 100% of the
-processor for a while, then the whole kernel hung).
+> 
+> * The firmware distribution infrastructure is basically non-existent. 
+> There is no standard way to make sure that a firmware separated from the 
+> driver gets to all users.
 
-All of the code I am using, along with the scripts can be found at
+That's the price how having non-gpl compatible firmware though.
 
-http://www.ontologistics.net/OpenSource/libipq
 
-If anyone has any suggestions about what I am doing wrong in either
-the libipq program or the client or server programs, or any ideas
-about what is going on with netlink, please let me know.
+> * The firmware bundling infrastructure is basically non-existent. 
+> (Arjan talked about this)  There needs to be a a way to ensure that the 
+> needed firmwares are automatically added to initramfs/initrd.
 
-Thank you,
-Chris Lalancette
+Yes.  See following too.
 
-P.S.  Sorry if you get this twice; I don't think GMail sent it
-properly the first time.
+
+> * There is no chicken-and-egg problem as Arjan mentions.  Once the above 
+> technical problems are resolved, its trivial to apply a firmware loading 
+> patch.  I believe in hard transitions, not shipping tg3 with firmware 
+> -and- a firmware loading patch.
+
+An infrastructure to add a number of files to the kernel image (_not_
+the initrd/initramfs) which can be found through internal kernel
+calls, firmware loading and probably an export in /proc would be nice.
+Unifying DSDT override, config.gz and early firmware could be nice.
+
+
+> * Firmwares such as tg3 should be shipped with the kernel tarball.
+
+Does it change between kernel versions?  How often?
+
+  OG.

@@ -1,60 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262181AbUBXGRn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 01:17:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbUBXGRm
+	id S262188AbUBXGcc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 01:32:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262187AbUBXGcc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 01:17:42 -0500
-Received: from fw.osdl.org ([65.172.181.6]:17888 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262181AbUBXGRj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 01:17:39 -0500
-Date: Mon, 23 Feb 2004 22:17:40 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Eric Kerin <eric@bootseg.com>
-Cc: alexn@telia.com, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: 2.6.3 oops at kobject_unregister, alsa & aic7xxx
-Message-Id: <20040223221740.5786b0b3.akpm@osdl.org>
-In-Reply-To: <1077602725.3172.19.camel@opiate>
-References: <1077546633.362.28.camel@boxen>
-	<20040223160716.799195d0.akpm@osdl.org>
-	<1077602725.3172.19.camel@opiate>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 24 Feb 2004 01:32:32 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:53217 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S262188AbUBXGc3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 01:32:29 -0500
+Date: Tue, 24 Feb 2004 04:23:46 -0300 (BRT)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Sergey S. Kostyliov" <rathamahata@php4.ru>, linux-kernel@vger.kernel.org,
+       gluk@php4.ru, anton@megashop.ru
+Subject: Re: 2.6.1 IO lockup on SMP systems
+In-Reply-To: <20040223142626.48938d7c.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58L.0402240357350.6209@logos.cnet>
+References: <200401311940.28078.rathamahata@php4.ru> <20040221113044.7deb60b9.akpm@osdl.org>
+ <200402222039.58702.gluk@php4.ru> <200402232027.26958.rathamahata@php4.ru>
+ <20040223142626.48938d7c.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cyclades-MailScanner-Information: Please contact the ISP for more information
+X-Cyclades-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Kerin <eric@bootseg.com> wrote:
+
+
+On Mon, 23 Feb 2004, Andrew Morton wrote:
+
+> "Sergey S. Kostyliov" <rathamahata@php4.ru> wrote:
+> >
+> > > > OK, so everything is stuck trying to allocate memory.  Perhaps you ran out
+> > > > of swapspace, or some process has gone berzerk allocating memory.
+> >
+> > The memory exhaustion is indeed possible for this box. I'll double check
+> > ulimit and /etc/security/limits.conf stuff. The only thing which worries
+> > me that this box had been running for months without any problems with
+> > 2.4.23aa1.
 >
-> On Mon, 2004-02-23 at 19:07, Andrew Morton wrote:
-> > Alexander Nyberg <alexn@telia.com> wrote:
+> It is conceivable that you have some application which runs OK on 2.4.x but
+> has some subtle bug which causes the app to go crazy on a 2.6 kernel
+> consuming lots of memory.  Or there's a bug in the 2.6 kernel ;)
+>
+> > I have added another 2Gb to swap space (hope this give enough time
+> > to find the memory hungry process(es)).
+> >
+> > > >
+> > > > How much memory does the machine have, and how much swap space?
+> > > >
+> > > # free
+> > >              total       used       free     shared    buffers     cached
+> > > Mem:       2073868    2067508       6360          0     232708     897828
+> > > -/+ buffers/cache:     936972    1136896
+> > > Swap:      1535976       5228    1530748
 > > >
-> > > This happens at shutdown when alsa is to close down. I'm running debian
-> > > sid. NOTE: I recently removed my aic7xxx out of the motherboard, so the
-> > > driver obviously can't find it. But if I remove aic7xxx from the modules
-> > > list, this oops does _not_ happen.
-> > 
-> > That's useful infomation.  It indicates that the aic7xxx driver is screwing
-> > up the kobject lists.
-> > 
-> > Just to confirm: are you saying that the aic7xxx driver is loaded at the
-> > tie of the oops, but there is no aic7xxx hardware present in the machine?
-> 
-> 
-> I stumbled up this in early January.  I posted a patch to linux-scsi,
-> but it dosn't seem to be merged at this point.  This problem will also
-> occur with the aic79xx driver.
-> 
-> Here's the location of the original thread:
-> http://marc.theaimsgroup.com/?l=linux-scsi&m=107307695430108&w=2
-> 
-> I just tried the patch on 2.6.3, and it still applies cleanly.
+> > > > I suggest that you run a `vmstat 30' trace on a terminal somewhere, see
+> > > > what it says prior to the hangs.
+> > > Ok.We'll try to get it next time.
+> >
+> > Here it is:
+> > procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
+> >  r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
+> >  1  0 551920   8108 203744 933532    0    0     4    68 1214   426  5  1 92  2
+> >  0  0 551928   7140 203756 930316    0    0    17    61 1240   529  8  1 89  2
+> >  0  0 551976   5788 203772 928224    1    6   360   139 1297   317  7  2 83  8
+> >  0  0 551968   7588 203812 923504    0    0    19   125 1303   308  8  2 87  4
+> >  0  1 551976  10444 203892 914100    0    0    25   127 1433   438 10  3 85  3
+> >  0  0 551976   9220 204004 914804    0    0   123   126 1278   325  6  1 88  5
+> >  0  0 551976   8108 204044 912248    0    0    38    69 1279   291  6  1 91  2
+> >  0  1 551976  11828 204144 912320    1    0   135    94 1249   296  6  1 89  3
+> >  0  5 562204   3280 203952 157084    1  566   305   674 1281   313  6  4 73 17
+> >  0 18 598224   4276   1888  33356   91 2734   233  2761 1090   199  0  2  0 97
+> >  1 38 662520   2760   2104  30520  110 3721   261  3738 1161   831  1  2  0 97
+> > 10 41 699936   2772   1920  28716  123 2924   249  2946 1103  1273  0  3  0 97
+> >  0 39 748588   2956   1956  22668  160 3313   245  3331 1056  1047  0  2  0 98
+> >  0 38 796100   3108   1888  21348  321 3191   430  3206 1045  1002  0  2  0 97
+> >  4 43 844532   3308   1956  17644  518 3719   670  3733 1357   999  0  2  0 98
+> >  0 51 882596   2940   2052  13960  520 2796   705  2810 1048  1182  0  2  0 98
+> >  3 59 913392   2456   2048  10900 1013 2524  1308  2542 1144   601  0  2  0 98
+> >  5 71 937816   2760   2072   8584 1534 2681  1860  2702 1234   607  0  2  0 97
+>
+> OK, so it's doing a lot of swapping and your swap utilisation is
+> continuously increasing.  I would suspect an application or kernel memory
+> leak.
+>
+> I suggest you keep that `vmstat 30' running all the time.  When the machine
+> dies, take a look at the final 20 lines.
+>
+> Also, run
+>
+> 	while true
+> 	do
+> 		cat /proc/meminfo
+> 		sleep 10
+> 	done
+>
+> and record the info which that leaves behind when the machine locks up.
+> This should tell us whether it is an application or kernel memory leak.  If
+> it is indeed a leak.
 
-hm, I was looking at that code but it seemed OK.  You said "left a stale
-entry in the pci_device list".  Is that correct, or was the entry in the
-PCI driver list?  The latter, surely?
+Hi Andrew,
 
-If so, why is that a problem?  ahc_linux_pci_exit() takes it out again?
+Care to explain me why should the kernel hang if due to an application
+leak ?
 
+The hang looks wrong even if the leak is in userspace app, yes?

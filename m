@@ -1,73 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262961AbUDAQ6c (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 11:58:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262969AbUDAQ5r
+	id S262978AbUDARBc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 12:01:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262974AbUDARBC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 11:57:47 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:60112 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262961AbUDAQ5a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 11:57:30 -0500
-Subject: Re: msync() behaviour broken for MS_ASYNC, revert patch?
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-mm <linux-mm@kvack.org>,
-       Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Ulrich Drepper <drepper@redhat.com>, Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <20040401161949.GC25502@mail.shareable.org>
-References: <1080771361.1991.73.camel@sisko.scot.redhat.com>
-	 <Pine.LNX.4.58.0403311433240.1116@ppc970.osdl.org>
-	 <1080776487.1991.113.camel@sisko.scot.redhat.com>
-	 <Pine.LNX.4.58.0403311550040.1116@ppc970.osdl.org>
-	 <1080834032.2626.94.camel@sisko.scot.redhat.com>
-	 <20040401161949.GC25502@mail.shareable.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1080838642.2626.139.camel@sisko.scot.redhat.com>
+	Thu, 1 Apr 2004 12:01:02 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:47745
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262963AbUDAQ7y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 11:59:54 -0500
+Date: Thu, 1 Apr 2004 18:59:52 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, kenneth.w.chen@intel.com
+Subject: Re: disable-cap-mlock
+Message-ID: <20040401165952.GM18585@dualathlon.random>
+References: <20040401135920.GF18585@dualathlon.random> <20040401164825.GD791@holomorphy.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 01 Apr 2004 17:57:22 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040401164825.GD791@holomorphy.com>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Thu, 2004-04-01 at 17:19, Jamie Lokier wrote:
-> Stephen C. Tweedie wrote:
-> > Yes, but we _used_ to have that choice --- call msync() with flags == 0,
-> > and you'd get the deferred kupdated writeback;
+On Thu, Apr 01, 2004 at 08:48:25AM -0800, William Lee Irwin III wrote:
+> On Thu, Apr 01, 2004 at 03:59:20PM +0200, Andrea Arcangeli wrote:
+> > Oracle needs this sysctl, I designed it and Ken Chen implemented it. I
+> > guess google also won't dislike it.
+> > This is a lot simpler than the mlock rlimit and this is people really
+> > need (not the rlimit). The rlimit thing can still be applied on top of
+> > this. This should be more efficient too (besides its simplicity).
+> > can you apply to mainline?
+> > 	http://www.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.6/2.6.5-rc3-aa1/disable-cap-mlock-1
 > 
-> Is that not equivalent to MS_INVALIDATE?  It seems to be equivalent in
-> 2.6.4.
+> Something like this would have the minor advantage of zero core impact.
+> Testbooted only. vs. 2.6.5-rc3-mm4
 
-It is in all the kernels I've looked at, but that's mainly because we
-seem to ignore MS_INVALIDATE.
-
-> Some documentation I'm looking at says MS_INVALIDATE updates the
-> mapped page to contain the current contents of the file.  2.6.4 seems
-> to do the reverse: update the file to contain the current content of
-> the mapped page.  "man msync" agrees with the the latter.  (I can't
-> look at SUS right now).
-
-SUSv3 says
-
-        When MS_INVALIDATE is specified, msync() shall invalidate all
-        cached copies of mapped data that are inconsistent with the
-        permanent storage locations such that subsequent references
-        shall obtain data that was consistent with the permanent storage
-        locations sometime between the call to msync() and the first
-        subsequent memory reference to the data.
-        
-which seems to imply that dirty ptes should simply be cleared, rather
-than propagated to the page dirty bits.
-
-That's easy enough --- we already propagate the flags down to
-filemap_sync_pte, where the page and pte dirty bits are modified.  Does
-anyone know any reason why we don't do MS_INVALIDATE there already?
-
---Stephen
-
-
+I certainly like this too (despite it's more complicated but it might
+avoid us to have to add further sysctl in the future), Andrew what do
+you prefer to merge? I don't mind either ways.

@@ -1,50 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262745AbUKXO21@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262763AbUKXO22@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262745AbUKXO21 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 09:28:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262705AbUKXO1A
+	id S262763AbUKXO22 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 09:28:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262730AbUKXO0t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 09:27:00 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:22793 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S262679AbUKXOZE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 09:25:04 -0500
-Subject: Re: Difference wait_event_interruptible and interruptible_wait_on
-From: Arjan van de Ven <arjan@infradead.org>
-To: Hendrik Wiese <7.e.Q@syncro-community.de>
-Cc: Davide Rossetti <davide.rossetti@roma1.infn.it>,
-       LKLM <linux-kernel@vger.kernel.org>
-In-Reply-To: <41A48FC2.6010701@syncro-community.de>
-References: <41A478F2.3080004@syncro-community.de>
-	 <41A48CFB.2010304@roma1.infn.it>  <41A48FC2.6010701@syncro-community.de>
-Content-Type: text/plain
-Message-Id: <1101306293.2811.18.camel@laptop.fenrus.org>
+	Wed, 24 Nov 2004 09:26:49 -0500
+Received: from colino.net ([213.41.131.56]:32752 "EHLO paperstreet.colino.net")
+	by vger.kernel.org with ESMTP id S262705AbUKXO0E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 09:26:04 -0500
+Date: Wed, 24 Nov 2004 15:25:34 +0100
+From: Colin Leroy <colin@colino.net>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] let fat handle MS_SYNCHRONOUS flag
+Message-ID: <20041124152534.13e07c24@pirandello>
+In-Reply-To: <87pt23wdk1.fsf@devron.myhome.or.jp>
+References: <20041118194959.3f1a3c8e.colin@colino.net>
+	<87pt23wdk1.fsf@devron.myhome.or.jp>
+X-Mailer: Sylpheed-Claws 0.9.12cvs166.1 (GTK+ 2.4.0; i686-redhat-linux-gnu)
+X-Face: Fy:*XpRna1/tz}cJ@O'0^:qYs:8b[Rg`*8,+o^[fI?<%5LeB,Xz8ZJK[r7V0hBs8G)*&C+XA0qHoR=LoTohe@7X5K$A-@cN6n~~J/]+{[)E4h'lK$13WQf$.R+Pi;E09tk&{t|;~dakRD%CLHrk6m!?gA,5|Sb=fJ=>[9#n1Bu8?VngkVM4{'^'V_qgdA.8yn3)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Wed, 24 Nov 2004 15:24:54 +0100
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?ip=80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-11-24 at 14:42 +0100, Hendrik Wiese wrote:
+On 24 Nov 2004 at 23h11, OGAWA Hirofumi wrote:
 
+Hi, 
+
+> > +			bh = sb_bread(sb, MSDOS_SB(sb)->fsinfo_sector);
+> > +			if (bh != NULL) {
+> > +				sync_dirty_buffer(bh);
+> > +				brelse(bh);
+> > +			} else {
+> > +				BUG_ON(1);
+> > +			}
+> > +		}
 > 
-> So what should such a condition be? What should be put there?
+> FAT12/16 doesn't have FSINFO sector.  And if sb_bread() returns NULL,
+> we should return the valid error.
 
-depends on your code.. do you have an URL to your driver source so that
-people can see what you're asking ?
+ok, this is probably not the correct way to get the buffer_head for a 
+given inode... Do you know what I should use?
 
-
+-- 
+Colin

@@ -1,47 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262478AbUKDWEu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262454AbUKDWE4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262478AbUKDWEu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 17:04:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262471AbUKDWCa
+	id S262454AbUKDWE4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 17:04:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262467AbUKDWCT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 17:02:30 -0500
-Received: from brown.brainfood.com ([146.82.138.61]:19848 "EHLO
-	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
-	id S262449AbUKDV5B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 16:57:01 -0500
-Date: Thu, 4 Nov 2004 15:56:50 -0600 (CST)
-From: Adam Heath <doogie@debian.org>
-X-X-Sender: adam@gradall.private.brainfood.com
-To: Valdis.Kletnieks@vt.edu
-cc: Chris Wedgwood <cw@f00f.org>, Christoph Hellwig <hch@infradead.org>,
-       Timothy Miller <miller@techsource.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: support of older compilers 
-In-Reply-To: <200411041831.iA4IVqc1000781@turing-police.cc.vt.edu>
-Message-ID: <Pine.LNX.4.58.0411041555400.1229@gradall.private.brainfood.com>
-References: <41894779.10706@techsource.com> <20041103211353.GA24084@infradead.org>
- <Pine.LNX.4.58.0411031706350.1229@gradall.private.brainfood.com>
- <20041103233029.GA16982@taniwha.stupidest.org>
- <Pine.LNX.4.58.0411041050040.1229@gradall.private.brainfood.com>
- <200411041704.iA4H4sdZ014948@turing-police.cc.vt.edu>           
- <Pine.LNX.4.58.0411041214590.1229@gradall.private.brainfood.com>
- <200411041831.iA4IVqc1000781@turing-police.cc.vt.edu>
+	Thu, 4 Nov 2004 17:02:19 -0500
+Received: from postfix4-1.free.fr ([213.228.0.62]:59777 "EHLO
+	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S262439AbUKDV5K
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 16:57:10 -0500
+Message-ID: <418AA5B3.5050503@ens-lyon.fr>
+Date: Thu, 04 Nov 2004 22:57:07 +0100
+From: Brice Goglin <Brice.Goglin@ens-lyon.fr>
+Reply-To: Brice.Goglin@ens-lyon.org
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: kaz <shigekazun@yahoo.co.jp>
+Cc: Blaisorblade <blaisorblade_spam@yahoo.it>,
+       user-mode-linux-devel@lists.sourceforge.net,
+       user-mode-linux-user@lists.sourceforge.net,
+       Jeff Dike <jdike@addtoit.com>,
+       Bodo Stroesser <bstroesser@fujitsu-siemens.com>,
+       LKML <linux-kernel@vger.kernel.org>, Erik@budgetdedicated.com,
+       Peter <peter@rimuhosting.com>,
+       "Christopher S. Aker" <caker@theshore.net>,
+       Matt Zimmerman <mdz@debian.org>
+Subject: Re: SKAS3/2.6-V7 failed with 2.6.8.1
+References: <200411041932.39733.blaisorblade_spam@yahoo.it> <418AA2B4.5090002@yahoo.co.jp>
+In-Reply-To: <418AA2B4.5090002@yahoo.co.jp>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Nov 2004,  wrote:
+kaz wrote:
+> 
+> host-skas3-2.6.9-v7.patch failed with 2.6.8.1.  The error message was as below;
 
-> On Thu, 04 Nov 2004 12:15:47 CST, Adam Heath said:
->
-> > Use faster hardware to compile a kernel.  Cross-compiling is easy for kernels
-> .
->
-> Hmm.. Send some faster hardware to Zwane then - I seem to recall
-> that his *faster* hardware was a 3-CPU 400mz box.
+This is why it is called host-skas3-2.6.9-v7.patch
+and not host-skas3-2.6.8.1-v7.patch
 
-my home box is dual celeron 333.  If that machine can't keep up, then the make
-system itself is buggy(and yes, I've written a complex automake-like
-system(not released)).
-
+Regards
+--
+Brice Goglin
+================================================
+Ph.D Student
+Laboratoire de l'Informatique et du Parallélisme
+CNRS-ENS Lyon-INRIA-UCB Lyon
+France

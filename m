@@ -1,681 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263162AbVCXNAm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263163AbVCXNCr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263162AbVCXNAm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 08:00:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263159AbVCXNAT
+	id S263163AbVCXNCr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 08:02:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263161AbVCXNCq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 08:00:19 -0500
-Received: from animx.eu.org ([216.98.75.249]:49849 "EHLO animx.eu.org")
-	by vger.kernel.org with ESMTP id S263153AbVCXM5G (ORCPT
+	Thu, 24 Mar 2005 08:02:46 -0500
+Received: from dea.vocord.ru ([217.67.177.50]:20609 "EHLO vocord.com")
+	by vger.kernel.org with ESMTP id S263159AbVCXNCU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 07:57:06 -0500
-Date: Thu, 24 Mar 2005 08:00:46 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: USB problems 2.6.10
-Message-ID: <20050324130045.GA30623@animx.eu.org>
-Mail-Followup-To: linux-usb-devel@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org
+	Thu, 24 Mar 2005 08:02:20 -0500
+Subject: Re: [PATCH] API for true Random Number Generators to add entropy
+	(2.6.11)
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Reply-To: johnpol@2ka.mipt.ru
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: David McCullough <davidm@snapgear.com>, cryptoapi@lists.logix.cz,
+       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
+       Herbert Xu <herbert@gondor.apana.org.au>
+In-Reply-To: <4242B712.50004@pobox.com>
+References: <20050315133644.GA25903@beast>  <20050324042708.GA2806@beast>
+	 <1111665551.23532.90.camel@uganda>  <4242B712.50004@pobox.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-3eAGweWr/GdZnOOn6YrU"
+Organization: MIPT
+Date: Thu, 24 Mar 2005 16:08:27 +0300
+Message-Id: <1111669707.23532.100.camel@uganda>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.4 (2.0.4-1) 
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (vocord.com [192.168.0.1]); Thu, 24 Mar 2005 16:01:16 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please keep me CCd.
 
-I have a system that I just updated to 2.6 and USB fails to work after some
-time (~6-8 hours) giving me the "irq 11:nobody cared" message.
+--=-3eAGweWr/GdZnOOn6YrU
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-This system is a supermicro p3tdde (via chipset)
-I have ACPI and Preempt enabled (which I will disable and try again)
+On Thu, 2005-03-24 at 07:48 -0500, Jeff Garzik wrote:
+> Evgeniy Polyakov wrote:
+> > On Thu, 2005-03-24 at 14:27 +1000, David McCullough wrote:
+> >=20
+> >>Hi all,
+> >>
+> >>Here is a small patch for 2.6.11 that adds a routine:
+> >>
+> >>	add_true_randomness(__u32 *buf, int nwords);
+> >>
+> >>so that true random number generator device drivers can add a entropy
+> >>to the system.  Drivers that use this can be found in the latest releas=
+e
+> >>of ocf-linux,  an asynchronous crypto implementation for linux based on
+> >>the *BSD Cryptographic Framework.
+> >>
+> >>	http://ocf-linux.sourceforge.net/
+> >>
+> >>Adding this can dramatically improve the performance of /dev/random on
+> >>small embedded systems which do not generate much entropy.
+> >=20
+> >=20
+> > People will not apply any kind of such changes.
+> > Both OCF and acrypto already handle all RNG cases - no need for any kin=
+d
+> > of userspace daemon or entropy (re)injection mechanism.
+> > Anyone who want to use HW randomness may use OCF/acrypto mechanism.
+> > For example here is patch to enable acrypto support for hw_random.c
+> > It is very simple and support only upto 4 bytes request, of course it
+> > is=20
+> > not interested for anyone, but it is only 2-minutes example:
+>=20
+> If you want to add entropy to the kernel entropy pool from hardware RNG,=20
+> you should use the userland daemon, which detects non-random (broken)=20
+> hardware and provides throttling, so that RNG data collection does not=20
+> consume 100% CPU.
+>=20
+> If you want to use the hardware RNG directly, it's simple:  just open=20
+> /dev/hw_random.
+>=20
+> Hardware RNG should not go kernel->kernel without adding FIPS tests and=20
+> such.
 
-I notice this rather quickly as my keyboard/mouse are on this controller.  I
-have an NEC chip USB2.0 card installed which is currently working.
+hw_random can not and will not support HIFN, freescale, ixp and=20
+great majority of the existing and future HW crypto devices.
+I mean that userspace daemon(or any other one) which want to contribute
+entropy
+should use crypto framwork to obtain all it's data, but not different
+access methods for each separate driver.
 
-Dmesg output:
-irq 11: nobody cared!
- [<c01385ca>] __report_bad_irq+0x2a/0xa0
- [<c0137f30>] handle_IRQ_event+0x30/0x70
- [<c01386d0>] note_interrupt+0x70/0xb0
- [<c01380a0>] __do_IRQ+0x130/0x140
- [<c0105666>] do_IRQ+0x46/0x70
- =======================
- [<c0103afe>] common_interrupt+0x1a/0x20
- [<c01216eb>] __do_softirq+0x4b/0xd0
- [<c010577a>] do_softirq+0x4a/0x60
- =======================
- [<c0137ef9>] irq_exit+0x39/0x40
- [<c010566d>] do_IRQ+0x4d/0x70
- [<c0103afe>] common_interrupt+0x1a/0x20
- [<c0101030>] default_idle+0x0/0x40
- [<c010105c>] default_idle+0x2c/0x40
- [<c01010f2>] cpu_idle+0x42/0x60
- [<c0334984>] start_kernel+0x154/0x170
- [<c03343a0>] unknown_bootoption+0x0/0x1e0
-handlers:
-[<c022cbd0>] (usb_hcd_irq+0x0/0x70)
-[<c022cbd0>] (usb_hcd_irq+0x0/0x70)
-[<c022cbd0>] (usb_hcd_irq+0x0/0x70)
-Disabling IRQ #11
+> 	Jeff
 
-lspci on the chip that handles usb (full available upon request)
-0000:00:11.0 ISA bridge: VIA Technologies, Inc. VT8233 PCI to ISA Bridge
-        Subsystem: Super Micro Computer Inc: Unknown device 2166
-        Flags: bus master, stepping, medium devsel, latency 0
-        Capabilities: [c0] Power Management version 2
+--=20
+        Evgeniy Polyakov
 
-0000:00:11.1 IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06) (prog-if 8a
-[Master SecP PriP])
-        Subsystem: Super Micro Computer Inc: Unknown device 2166
-        Flags: bus master, medium devsel, latency 32
-        I/O ports at d400 [size=16]
-        Capabilities: [c0] Power Management version 2
+Crash is better than data corruption -- Arthur Grabowski
 
-0000:00:11.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1
-Controller (rev 1b) (prog-if 00 [UHCI])
-        Subsystem: VIA Technologies, Inc. (Wrong ID) USB Controller
-        Flags: bus master, medium devsel, latency 32, IRQ 11
-        I/O ports at d800 [size=32]
-        Capabilities: [80] Power Management version 2
+--=-3eAGweWr/GdZnOOn6YrU
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-0000:00:11.3 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1
-Controller (rev 1b) (prog-if 00 [UHCI])
-        Subsystem: VIA Technologies, Inc. (Wrong ID) USB Controller
-        Flags: bus master, medium devsel, latency 32, IRQ 11
-        I/O ports at dc00 [size=32]
-        Capabilities: [80] Power Management version 2
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
 
-0000:00:11.4 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1
-Controller (rev 1b) (prog-if 00 [UHCI])
-        Subsystem: VIA Technologies, Inc. (Wrong ID) USB Controller
-        Flags: bus master, medium devsel, latency 32, IRQ 11
-        I/O ports at e000 [size=32]
-        Capabilities: [80] Power Management version 2
+iD8DBQBCQrvLIKTPhE+8wY0RAlIzAJ4u2DBKnAmTMThtu5MVr5cngUTVlgCeM/y3
+/pjniENLeMzETvXkgZSkF4g=
+=u8ZX
+-----END PGP SIGNATURE-----
 
-.config (CONFIG_ stripped to save on space =)
-X86=y
-MMU=y
-UID16=y
-GENERIC_ISA_DMA=y
-GENERIC_IOMAP=y
-EXPERIMENTAL=y
-CLEAN_COMPILE=y
-LOCK_KERNEL=y
-LOCALVERSION=""
-SYSVIPC=y
-POSIX_MQUEUE=y
-SYSCTL=y
-LOG_BUF_SHIFT=15
-HOTPLUG=y
-KOBJECT_UEVENT=y
-EMBEDDED=y
-KALLSYMS=y
-FUTEX=y
-EPOLL=y
-SHMEM=y
-CC_ALIGN_FUNCTIONS=0
-CC_ALIGN_LABELS=0
-CC_ALIGN_LOOPS=0
-CC_ALIGN_JUMPS=0
-MODULES=y
-MODULE_UNLOAD=y
-MODULE_FORCE_UNLOAD=y
-OBSOLETE_MODPARM=y
-KMOD=y
-STOP_MACHINE=y
-X86_PC=y
-MPENTIUMIII=y
-X86_CMPXCHG=y
-X86_XADD=y
-X86_L1_CACHE_SHIFT=5
-RWSEM_XCHGADD_ALGORITHM=y
-X86_WP_WORKS_OK=y
-X86_INVLPG=y
-X86_BSWAP=y
-X86_POPAD_OK=y
-X86_GOOD_APIC=y
-X86_INTEL_USERCOPY=y
-X86_USE_PPRO_CHECKSUM=y
-SMP=y
-NR_CPUS=2
-PREEMPT=y
-X86_LOCAL_APIC=y
-X86_IO_APIC=y
-X86_TSC=y
-X86_MCE=y
-EDD=m
-HIGHMEM4G=y
-HIGHMEM=y
-MTRR=y
-IRQBALANCE=y
-HAVE_DEC_LOCK=y
-PM=y
-ACPI=y
-ACPI_BOOT=y
-ACPI_INTERPRETER=y
-ACPI_SLEEP=y
-ACPI_SLEEP_PROC_FS=y
-ACPI_AC=y
-ACPI_BUTTON=y
-ACPI_VIDEO=y
-ACPI_FAN=y
-ACPI_PROCESSOR=y
-ACPI_THERMAL=y
-ACPI_BLACKLIST_YEAR=0
-ACPI_BUS=y
-ACPI_EC=y
-ACPI_POWER=y
-ACPI_PCI=y
-ACPI_SYSTEM=y
-PCI=y
-PCI_GOANY=y
-PCI_BIOS=y
-PCI_DIRECT=y
-PCI_MMCONFIG=y
-BINFMT_ELF=y
-STANDALONE=y
-PREVENT_FIRMWARE_BUILD=y
-FW_LOADER=m
-PARPORT=m
-PARPORT_PC=m
-PARPORT_PC_CML1=m
-PARPORT_PC_FIFO=y
-PARPORT_PC_SUPERIO=y
-PARPORT_1284=y
-BLK_DEV_FD=m
-BLK_DEV_LOOP=m
-BLK_DEV_CRYPTOLOOP=m
-BLK_DEV_RAM_COUNT=16
-INITRAMFS_SOURCE=""
-LBD=y
-CDROM_PKTCDVD=m
-CDROM_PKTCDVD_BUFFERS=8
-IOSCHED_NOOP=y
-IOSCHED_DEADLINE=y
-IOSCHED_CFQ=y
-IDE=y
-BLK_DEV_IDE=y
-BLK_DEV_IDEDISK=y
-IDEDISK_MULTI_MODE=y
-BLK_DEV_IDESCSI=m
-BLK_DEV_IDEPCI=y
-IDEPCI_SHARE_IRQ=y
-BLK_DEV_IDEDMA_PCI=y
-IDEDMA_PCI_AUTO=y
-BLK_DEV_PDC202XX_OLD=y
-PDC202XX_BURST=y
-BLK_DEV_PDC202XX_NEW=y
-PDC202XX_FORCE=y
-BLK_DEV_VIA82CXXX=y
-BLK_DEV_IDEDMA=y
-IDEDMA_AUTO=y
-SCSI=m
-SCSI_PROC_FS=y
-BLK_DEV_SD=m
-CHR_DEV_ST=m
-CHR_DEV_OSST=m
-BLK_DEV_SR=m
-CHR_DEV_SG=m
-SCSI_AIC7XXX=m
-AIC7XXX_CMDS_PER_DEVICE=32
-AIC7XXX_RESET_DELAY_MS=500
-AIC7XXX_DEBUG_ENABLE=y
-AIC7XXX_DEBUG_MASK=0
-AIC7XXX_REG_PRETTY_PRINT=y
-SCSI_QLA2XXX=m
-MD=y
-BLK_DEV_MD=m
-MD_RAID0=m
-MD_RAID1=m
-MD_RAID10=m
-MD_RAID5=m
-MD_RAID6=m
-BLK_DEV_DM=m
-DM_CRYPT=m
-DM_SNAPSHOT=m
-DM_MIRROR=m
-DM_ZERO=m
-NET=y
-PACKET=m
-UNIX=y
-INET=y
-IP_MULTICAST=y
-IP_ADVANCED_ROUTER=y
-IP_MULTIPLE_TABLES=y
-IP_ROUTE_FWMARK=y
-IP_ROUTE_MULTIPATH=y
-IP_ROUTE_VERBOSE=y
-INET_AH=m
-INET_ESP=m
-INET_IPCOMP=m
-INET_TUNNEL=m
-IP_TCPDIAG=m
-NETFILTER=y
-IP_NF_CONNTRACK=m
-IP_NF_CT_ACCT=y
-IP_NF_CONNTRACK_MARK=y
-IP_NF_CT_PROTO_SCTP=m
-IP_NF_FTP=m
-IP_NF_IRC=m
-IP_NF_TFTP=m
-IP_NF_AMANDA=m
-IP_NF_QUEUE=m
-IP_NF_IPTABLES=m
-IP_NF_MATCH_LIMIT=m
-IP_NF_MATCH_IPRANGE=m
-IP_NF_MATCH_MAC=m
-IP_NF_MATCH_PKTTYPE=m
-IP_NF_MATCH_MARK=m
-IP_NF_MATCH_MULTIPORT=m
-IP_NF_MATCH_TOS=m
-IP_NF_MATCH_RECENT=m
-IP_NF_MATCH_ECN=m
-IP_NF_MATCH_DSCP=m
-IP_NF_MATCH_AH_ESP=m
-IP_NF_MATCH_LENGTH=m
-IP_NF_MATCH_TTL=m
-IP_NF_MATCH_TCPMSS=m
-IP_NF_MATCH_HELPER=m
-IP_NF_MATCH_STATE=m
-IP_NF_MATCH_CONNTRACK=m
-IP_NF_MATCH_OWNER=m
-IP_NF_MATCH_ADDRTYPE=m
-IP_NF_MATCH_REALM=m
-IP_NF_MATCH_SCTP=m
-IP_NF_MATCH_COMMENT=m
-IP_NF_MATCH_CONNMARK=m
-IP_NF_MATCH_HASHLIMIT=m
-IP_NF_FILTER=m
-IP_NF_TARGET_REJECT=m
-IP_NF_TARGET_LOG=m
-IP_NF_TARGET_ULOG=m
-IP_NF_TARGET_TCPMSS=m
-IP_NF_NAT=m
-IP_NF_NAT_NEEDED=y
-IP_NF_TARGET_MASQUERADE=m
-IP_NF_TARGET_REDIRECT=m
-IP_NF_TARGET_NETMAP=m
-IP_NF_TARGET_SAME=m
-IP_NF_NAT_LOCAL=y
-IP_NF_NAT_SNMP_BASIC=m
-IP_NF_NAT_IRC=m
-IP_NF_NAT_FTP=m
-IP_NF_NAT_TFTP=m
-IP_NF_NAT_AMANDA=m
-IP_NF_MANGLE=m
-IP_NF_TARGET_TOS=m
-IP_NF_TARGET_ECN=m
-IP_NF_TARGET_DSCP=m
-IP_NF_TARGET_MARK=m
-IP_NF_TARGET_CLASSIFY=m
-IP_NF_TARGET_CONNMARK=m
-IP_NF_TARGET_CLUSTERIP=m
-IP_NF_RAW=m
-IP_NF_TARGET_NOTRACK=m
-IP_NF_ARPTABLES=m
-IP_NF_ARPFILTER=m
-IP_NF_ARP_MANGLE=m
-XFRM=y
-LLC=m
-IPX=m
-NET_CLS_ROUTE=y
-NETDEVICES=y
-TUN=m
-NET_ETHERNET=y
-MII=y
-NET_VENDOR_3COM=y
-VORTEX=m
-NET_TULIP=y
-TULIP=m
-TULIP_MMIO=y
-NET_PCI=y
-EEPRO100=m
-E100=m
-8139TOO=y
-8139TOO_PIO=y
-NET_RADIO=y
-HERMES=m
-PLX_HERMES=m
-TMD_HERMES=m
-PCI_HERMES=m
-ATMEL=m
-PCI_ATMEL=m
-PRISM54=m
-NET_WIRELESS=y
-PPP=m
-PPP_FILTER=y
-PPP_ASYNC=m
-PPP_DEFLATE=m
-PPP_BSDCOMP=m
-INPUT=y
-INPUT_MOUSEDEV=y
-INPUT_MOUSEDEV_SCREEN_X=1024
-INPUT_MOUSEDEV_SCREEN_Y=768
-INPUT_JOYDEV=m
-INPUT_TSDEV=m
-INPUT_TSDEV_SCREEN_X=240
-INPUT_TSDEV_SCREEN_Y=320
-INPUT_EVDEV=m
-INPUT_EVBUG=m
-SOUND_GAMEPORT=y
-SERIO=y
-SERIO_I8042=y
-INPUT_KEYBOARD=y
-KEYBOARD_ATKBD=y
-INPUT_MOUSE=y
-MOUSE_PS2=y
-INPUT_MISC=y
-INPUT_PCSPKR=y
-VT=y
-VT_CONSOLE=y
-HW_CONSOLE=y
-SERIAL_8250=m
-SERIAL_8250_ACPI=y
-SERIAL_8250_NR_UARTS=4
-SERIAL_CORE=m
-UNIX98_PTYS=y
-PRINTER=m
-AGP=m
-AGP_VIA=m
-DRM=y
-DRM_TDFX=m
-DRM_R128=m
-DRM_RADEON=m
-DRM_MGA=m
-I2C=m
-I2C_CHARDEV=m
-I2C_ALGOBIT=m
-I2C_ALGOPCF=m
-I2C_ALGOPCA=m
-I2C_ALI1535=m
-I2C_ALI1563=m
-I2C_ALI15X3=m
-I2C_AMD756=m
-I2C_AMD756_S4882=m
-I2C_AMD8111=m
-I2C_I801=m
-I2C_I810=m
-I2C_ISA=m
-I2C_NFORCE2=m
-I2C_PARPORT=m
-I2C_PARPORT_LIGHT=m
-I2C_PIIX4=m
-I2C_PROSAVAGE=m
-I2C_SAVAGE4=m
-SCx200_ACB=m
-I2C_SIS5595=m
-I2C_SIS630=m
-I2C_SIS96X=m
-I2C_STUB=m
-I2C_VIA=m
-I2C_VIAPRO=m
-I2C_VOODOO3=m
-I2C_PCA_ISA=m
-I2C_SENSOR=m
-SENSORS_ADM1021=m
-SENSORS_ADM1025=m
-SENSORS_ADM1026=m
-SENSORS_ADM1031=m
-SENSORS_ASB100=m
-SENSORS_DS1621=m
-SENSORS_FSCHER=m
-SENSORS_GL518SM=m
-SENSORS_IT87=m
-SENSORS_LM63=m
-SENSORS_LM75=m
-SENSORS_LM77=m
-SENSORS_LM78=m
-SENSORS_LM80=m
-SENSORS_LM83=m
-SENSORS_LM85=m
-SENSORS_LM87=m
-SENSORS_LM90=m
-SENSORS_MAX1619=m
-SENSORS_PC87360=m
-SENSORS_SMSC47M1=m
-SENSORS_VIA686A=m
-SENSORS_W83781D=m
-SENSORS_W83L785TS=m
-SENSORS_W83627HF=m
-SENSORS_EEPROM=m
-SENSORS_PCF8574=m
-SENSORS_PCF8591=m
-SENSORS_RTC8564=m
-VIDEO_DEV=m
-VGA_CONSOLE=y
-DUMMY_CONSOLE=y
-SOUND=m
-SND=m
-SND_TIMER=m
-SND_PCM=m
-SND_HWDEP=m
-SND_RAWMIDI=m
-SND_SEQUENCER=m
-SND_OSSEMUL=y
-SND_MIXER_OSS=m
-SND_PCM_OSS=m
-SND_SEQUENCER_OSS=y
-SND_AC97_CODEC=m
-SND_ENS1371=m
-SND_USB_AUDIO=m
-SND_USB_USX2Y=m
-SOUND_PRIME=m
-SOUND_ES1371=m
-USB=y
-USB_DEVICEFS=y
-USB_ARCH_HAS_HCD=y
-USB_ARCH_HAS_OHCI=y
-USB_EHCI_HCD=y
-USB_OHCI_HCD=y
-USB_UHCI_HCD=y
-USB_AUDIO=m
-USB_MIDI=m
-USB_ACM=m
-USB_PRINTER=m
-USB_STORAGE=m
-USB_STORAGE_DATAFAB=y
-USB_STORAGE_FREECOM=y
-USB_STORAGE_ISD200=y
-USB_STORAGE_DPCM=y
-USB_STORAGE_HP8200e=y
-USB_STORAGE_SDDR09=y
-USB_STORAGE_SDDR55=y
-USB_STORAGE_JUMPSHOT=y
-USB_HID=y
-USB_HIDINPUT=y
-USB_HIDDEV=y
-USB_AIPTEK=m
-USB_WACOM=m
-USB_KBTAB=m
-USB_POWERMATE=m
-USB_MTOUCH=m
-USB_EGALAX=m
-USB_XPAD=m
-USB_ATI_REMOTE=m
-USB_MDC800=m
-USB_MICROTEK=m
-USB_DABUSB=m
-USB_VICAM=m
-USB_DSBR=m
-USB_IBMCAM=m
-USB_KONICAWC=m
-USB_OV511=m
-USB_SE401=m
-USB_SN9C102=m
-USB_STV680=m
-USB_CATC=m
-USB_KAWETH=m
-USB_PEGASUS=m
-USB_RTL8150=m
-USB_USBNET=m
-USB_ALI_M5632=y
-USB_AN2720=y
-USB_BELKIN=y
-USB_GENESYS=y
-USB_NET1080=y
-USB_PL2301=y
-USB_KC2190=y
-USB_ARMLINUX=y
-USB_EPSON2888=y
-USB_ZAURUS=y
-USB_CDCETHER=y
-USB_AX8817X=y
-USB_USS720=m
-USB_SERIAL=m
-USB_SERIAL_GENERIC=y
-USB_SERIAL_BELKIN=m
-USB_SERIAL_DIGI_ACCELEPORT=m
-USB_SERIAL_CYPRESS_M8=m
-USB_SERIAL_EMPEG=m
-USB_SERIAL_FTDI_SIO=m
-USB_SERIAL_VISOR=m
-USB_SERIAL_IPAQ=m
-USB_SERIAL_IR=m
-USB_SERIAL_EDGEPORT=m
-USB_SERIAL_EDGEPORT_TI=m
-USB_SERIAL_IPW=m
-USB_SERIAL_KEYSPAN_PDA=m
-USB_SERIAL_KEYSPAN=m
-USB_SERIAL_KEYSPAN_MPR=y
-USB_SERIAL_KEYSPAN_USA28=y
-USB_SERIAL_KEYSPAN_USA28X=y
-USB_SERIAL_KEYSPAN_USA28XA=y
-USB_SERIAL_KEYSPAN_USA28XB=y
-USB_SERIAL_KEYSPAN_USA19=y
-USB_SERIAL_KEYSPAN_USA18X=y
-USB_SERIAL_KEYSPAN_USA19W=y
-USB_SERIAL_KEYSPAN_USA19QW=y
-USB_SERIAL_KEYSPAN_USA19QI=y
-USB_SERIAL_KEYSPAN_USA49W=y
-USB_SERIAL_KEYSPAN_USA49WLC=y
-USB_SERIAL_KLSI=m
-USB_SERIAL_KOBIL_SCT=m
-USB_SERIAL_MCT_U232=m
-USB_SERIAL_PL2303=m
-USB_SERIAL_SAFE=m
-USB_SERIAL_SAFE_PADDED=y
-USB_SERIAL_CYBERJACK=m
-USB_SERIAL_XIRCOM=m
-USB_SERIAL_OMNINET=m
-USB_EZUSB=y
-USB_EMI62=m
-USB_EMI26=m
-USB_TIGL=m
-USB_AUERSWALD=m
-USB_RIO500=m
-USB_LEGOTOWER=m
-USB_LCD=m
-USB_LED=m
-USB_CYTHERM=m
-USB_PHIDGETKIT=m
-USB_PHIDGETSERVO=m
-EXT2_FS=m
-EXT3_FS=y
-EXT3_FS_XATTR=y
-EXT3_FS_POSIX_ACL=y
-EXT3_FS_SECURITY=y
-JBD=y
-FS_MBCACHE=y
-REISERFS_FS=m
-REISERFS_FS_XATTR=y
-REISERFS_FS_POSIX_ACL=y
-REISERFS_FS_SECURITY=y
-FS_POSIX_ACL=y
-DNOTIFY=y
-ISO9660_FS=m
-JOLIET=y
-UDF_FS=m
-UDF_NLS=y
-FAT_FS=m
-MSDOS_FS=m
-VFAT_FS=m
-FAT_DEFAULT_CODEPAGE=437
-FAT_DEFAULT_IOCHARSET="iso8859-1"
-NTFS_FS=m
-NTFS_RW=y
-PROC_FS=y
-PROC_KCORE=y
-SYSFS=y
-TMPFS=y
-TMPFS_XATTR=y
-TMPFS_SECURITY=y
-RAMFS=y
-HFS_FS=m
-HFSPLUS_FS=m
-NFS_FS=m
-NFS_V3=y
-NFS_V4=y
-NFSD=m
-NFSD_V3=y
-NFSD_V4=y
-NFSD_TCP=y
-LOCKD=m
-LOCKD_V4=y
-EXPORTFS=m
-SUNRPC=m
-SUNRPC_GSS=m
-RPCSEC_GSS_KRB5=m
-RPCSEC_GSS_SPKM3=m
-SMB_FS=m
-SMB_NLS_DEFAULT=y
-SMB_NLS_REMOTE="cp437"
-CIFS=m
-NCP_FS=m
-NCPFS_STRONG=y
-NCPFS_NFS_NS=y
-NCPFS_OS2_NS=y
-NCPFS_SMALLDOS=y
-PARTITION_ADVANCED=y
-MAC_PARTITION=y
-MSDOS_PARTITION=y
-NLS=m
-NLS_DEFAULT="iso8859-1"
-NLS_CODEPAGE_437=m
-NLS_ISO8859_1=m
-NLS_UTF8=m
-DEBUG_KERNEL=y
-MAGIC_SYSRQ=y
-4KSTACKS=y
-X86_FIND_SMP_CONFIG=y
-X86_MPPARSE=y
-KEYS=y
-KEYS_DEBUG_PROC_KEYS=y
-CRYPTO=y
-CRYPTO_HMAC=y
-CRYPTO_NULL=m
-CRYPTO_MD4=m
-CRYPTO_MD5=m
-CRYPTO_SHA1=m
-CRYPTO_SHA256=m
-CRYPTO_SHA512=m
-CRYPTO_WP512=m
-CRYPTO_DES=m
-CRYPTO_BLOWFISH=m
-CRYPTO_TWOFISH=m
-CRYPTO_SERPENT=m
-CRYPTO_AES_586=m
-CRYPTO_CAST5=m
-CRYPTO_CAST6=m
-CRYPTO_TEA=m
-CRYPTO_ARC4=m
-CRYPTO_KHAZAD=m
-CRYPTO_ANUBIS=m
-CRYPTO_DEFLATE=m
-CRYPTO_MICHAEL_MIC=m
-CRYPTO_CRC32C=m
-CRC_CCITT=m
-CRC32=y
-LIBCRC32C=m
-ZLIB_INFLATE=m
-ZLIB_DEFLATE=m
-GENERIC_HARDIRQS=y
-GENERIC_IRQ_PROBE=y
-X86_SMP=y
-X86_HT=y
-X86_BIOS_REBOOT=y
-X86_TRAMPOLINE=y
-                  
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+--=-3eAGweWr/GdZnOOn6YrU--
+

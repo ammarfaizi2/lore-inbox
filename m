@@ -1,81 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276477AbRJUSLY>; Sun, 21 Oct 2001 14:11:24 -0400
+	id <S276505AbRJUSQD>; Sun, 21 Oct 2001 14:16:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276474AbRJUSLO>; Sun, 21 Oct 2001 14:11:14 -0400
-Received: from inway106.cdi.cz ([213.151.81.106]:11436 "EHLO luxik.cdi.cz")
-	by vger.kernel.org with ESMTP id <S276477AbRJUSKz>;
-	Sun, 21 Oct 2001 14:10:55 -0400
-Posted-Date: Sun, 21 Oct 2001 20:11:25 +0200
-Date: Sun, 21 Oct 2001 20:11:25 +0200 (CEST)
-From: Martin Devera <devik@cdi.cz>
-To: "M. Edward Borasky" <znmeb@aracnet.com>
-cc: linux-kernel@vger.kernel.org
-Subject: RE: DOT call graphs of Rik and AA VMs
-In-Reply-To: <HBEHIIBBKKNOBLMPKCBBAEKLDPAA.znmeb@aracnet.com>
-Message-ID: <Pine.LNX.4.10.10110212009430.321-100000@luxik.cdi.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S276507AbRJUSPx>; Sun, 21 Oct 2001 14:15:53 -0400
+Received: from zero.tech9.net ([209.61.188.187]:29459 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S276505AbRJUSPp>;
+	Sun, 21 Oct 2001 14:15:45 -0400
+Subject: Re: [PATCH] updated preempt-kernel
+From: Robert Love <rml@tech9.net>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Colin Phipps <cph@cph.demon.co.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <3BD2E89C.78D757A2@zip.com.au>
+In-Reply-To: <1003562833.862.65.camel@phantasy>,
+	<1003562833.862.65.camel@phantasy> <20011021120539.A1197@cph.demon.co.uk> 
+	<3BD2E89C.78D757A2@zip.com.au>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.16.99+cvs.2001.10.18.15.19 (Preview Release)
+Date: 21 Oct 2001 14:16:18 -0400
+Message-Id: <1003688179.1085.17.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Edward,
+On Sun, 2001-10-21 at 11:24, Andrew Morton wrote:
+> This one has been reported before.
 
-I updated both PS files so that they should print on A4. Try
-do redownload them (probably with holding Shift in IE to bypass
-cache) and print.
-Please tell me whether is it ok. I just printed them using
-gs on linux and it is nicely readable on my LJ4.
-devik
+Colin, can you try Andrew's patch and report back?  This problem has
+been reported before -- its a tty bug that preempt (and SMP I wager)
+just aggravate.  I have a patch that I know fixes it, but Andrew's is
+_much_ simpler.  I will send you that if this fails.  Please let me
+know.
 
-On Sun, 21 Oct 2001, M. Edward Borasky wrote:
+> --- linux-2.4.12-ac3/drivers/char/console.c	Mon Oct 15 16:04:23 2001
+> +++ ac/drivers/char/console.c	Sun Oct 21 08:19:42 2001
+> @@ -2387,9 +2387,15 @@ static void con_flush_chars(struct tty_s
+>  		return;
+>  
+>  	pm_access(pm_con);
+> -	acquire_console_sem();
+> -	set_cursor(vt->vc_num);
+> -	release_console_sem();
+> +	if (vt) {
+> +		/*
+> +		 * If we raced with con_close(), `vt' may be null.
+> +		 * Hence this bandaid.   - akpm
+> +		 */
+> +		acquire_console_sem();
+> +		set_cursor(vt->vc_num);
+> +		release_console_sem();
+> +	}
+>  }
+>  
+>  /*
 
-> I tried to import the "ps" files into Acrobat 5.0 on my Windows system and
-> it cut them off to a single 8" by 10.5" page.
-> 
-> --
-> M. Edward (Ed) Borasky, Chief Scientist, Borasky Research
-> http://www.borasky-research.net
-> mailto:znmeb@borasky-research.net
-> http://groups.yahoo.com/group/pdx-neuro-semantics
-> http://groups.yahoo.com/group/BoraskyResearchJournal
-> 
-> Q: How do you tell when a pineapple is ready to eat?
-> A: It picks up its knife and fork.
-> 
-> > -----Original Message-----
-> > From: linux-kernel-owner@vger.kernel.org
-> > [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Martin Devera
-> > Sent: Sunday, October 21, 2001 10:49 AM
-> > To: Martin J. Bligh
-> > Cc: linux-kernel@vger.kernel.org
-> > Subject: Re: DOT call graphs of Rik and AA VMs
-> >
-> >
-> >
-> >
-> > On Fri, 19 Oct 2001, Martin J. Bligh wrote:
-> >
-> > > These print out badly (just get about 1/4), and get the same viewing in
-> > > ghostscript ... any chance you can make the postscript scale to
-> > fit a page?
-> > > Not sure if that's possible from DOT ... or is the method you used to
-> > > generate these available?
-> >
-> > At http://luxik.cdi.cz/~devik/mm.htm is update. Actualy dot can't scale
-> > it. You can do it yourself (several postscript lines) or try psutils.
-> >
-> > Given high enough demand I'll create script which will scale it
-> > automatically for printer.
-> > devik
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
-> >
-> 
-> 
+	Robert Love
 

@@ -1,31 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311796AbSCNVZS>; Thu, 14 Mar 2002 16:25:18 -0500
+	id <S311797AbSCNV0B>; Thu, 14 Mar 2002 16:26:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311797AbSCNVZI>; Thu, 14 Mar 2002 16:25:08 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:10515 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S311796AbSCNVY6>; Thu, 14 Mar 2002 16:24:58 -0500
-Subject: Re: linux 2.2.21 pre3, pre4 and rc1 problems. (fwd)
-To: mikesw@ns1.whiterose.net (M Sweger)
-Date: Thu, 14 Mar 2002 21:40:47 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, alan@redhat.com
-In-Reply-To: <Pine.BSF.4.21.0203141518590.18036-100000@ns1.whiterose.net> from "M Sweger" at Mar 14, 2002 03:19:56 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S311798AbSCNVZt>; Thu, 14 Mar 2002 16:25:49 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:38661 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S311797AbSCNVZk>; Thu, 14 Mar 2002 16:25:40 -0500
+Date: Thu, 14 Mar 2002 13:24:19 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: John Heil <kerndev@sc-software.com>
+cc: <linux-kernel@vger.kernel.org>,
+        Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
+Subject: Re: IO delay, port 0x80, and BIOS POST codes
+In-Reply-To: <Pine.LNX.4.33.0203141234170.1286-100000@scsoftware.sc-software.com>
+Message-ID: <Pine.LNX.4.33.0203141318130.9855-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16lcxr-0001wc-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> v2.2.21pre4      hangs on boot after the message
-> 		 "Intel machine check architecture supported"
 
-Fixed..
+On Thu, 14 Mar 2002, John Heil wrote:
+> 
+> No, the better/correct port is 0xED which removes the conflict.
 
-> v2.2.21rc1       Oops' on boot after the message "CPU: L2 cache = 512K
->                  with a kernel panic. Note: I don't have any swap turned on.
+Port ED is fine for a BIOS, which (by definition) knows what the
+motherboard devices are, and thus knows that ED cannot be used by
+anything.
 
-Also fixed - can you try pre3 ?
+But it _is_ an unused port, and that's exactly the kind of thing that
+might be used sometime in the future. Remember the port 22/23 brouhaha
+with Cyrix using it for their stuff, and later Intel getting into the fray
+too?
+
+So the fact that ED works doesn't mean that _stays_ working.
+
+The fact that 80 is the post code register means that it is fairly likely 
+to _stay_ that way, without any ugly surprises.
+
+Now, if there is something _else_ than just the fact that it is unused
+that makes ED a good choice in the future too, that might be worth looking
+into (like NT using it for the same purpose as Linux does port 80),
+
+		Linus
+

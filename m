@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280646AbRKNP1U>; Wed, 14 Nov 2001 10:27:20 -0500
+	id <S280663AbRKNPbA>; Wed, 14 Nov 2001 10:31:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280662AbRKNP1N>; Wed, 14 Nov 2001 10:27:13 -0500
-Received: from smtp2.cluster.oleane.net ([195.25.12.17]:29966 "EHLO
-	smtp2.cluster.oleane.net") by vger.kernel.org with ESMTP
-	id <S280655AbRKNP0b>; Wed, 14 Nov 2001 10:26:31 -0500
-Message-ID: <040301c16d21$139206d0$0a01a8c0@beawrk10>
-From: "Philip Dodd" <smpcomputing@free.fr>
-To: "Philip Dodd" <smpcomputing@free.fr>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <03e401c16d1f$21a99460$0a01a8c0@beawrk10>
-Subject: Re: Athlon SMP blues - kernels 2.4.[9 13 15-pre4]
-Date: Wed, 14 Nov 2001 16:28:54 +0100
+	id <S280647AbRKNPaw>; Wed, 14 Nov 2001 10:30:52 -0500
+Received: from mail100.mail.bellsouth.net ([205.152.58.40]:3327 "EHLO
+	imf00bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S280655AbRKNPao>; Wed, 14 Nov 2001 10:30:44 -0500
+Message-ID: <3BF28E0C.C32ACD63@mandrakesoft.com>
+Date: Wed, 14 Nov 2001 10:30:20 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+To: Helge Hafting <helgehaf@idb.hist.no>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] reformat mtrr.c to conform to CodingStyle
+In-Reply-To: <20011112232539.A14409@redhat.com> <Pine.LNX.4.33.0111130903350.16316-100000@penguin.transmeta.com> <20011114080505.A18098@weta.f00f.org> <3BF24AB2.1C8232C0@idb.hist.no>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://forums.2cpu.com/showthread.php?s=470d6ddae5268ddefa2e874f90089b80&thr
-eadid=9916
+Helge Hafting wrote:
+> 
+> Chris Wedgwood wrote:
+> 
+> > If (at some point) people do want coding-style patches then there are
+> > MANY places (eg. entire filesystem sub-trees) which could have
+> > white-space alignment changes and similar things....
+> 
+> Creating lots of such patches looks like unnecessary work to me.
+> Why not let Linus run Lindent on the whole tree and be done with it?
+> find linux/ -name "*.[ch]" | linux/scripts/Lindent
 
-includes some SMP Athlon FAQS on the subject.
+Lindent still does a few dumb things which make me review the code after
+formatting and before submission...
 
-Philip DODD
-Sales Engineer
-SIVA
-Les Fjords - Immeuble Narvik
-19 Avenue de Norvège
-Z.A. de Courtaboeuf 1
-91953 LES ULIS CEDEX
-http://www.siva.fr
+Also, Christoph Hellewig ported NetBSD's indent, which is supposedly a
+bit better overall than GNU indent. Something else to look into.
 
+-- 
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
 

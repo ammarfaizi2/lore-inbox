@@ -1,47 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261198AbULHMsA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261199AbULHMvp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261198AbULHMsA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 07:48:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261199AbULHMsA
+	id S261199AbULHMvp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 07:51:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261200AbULHMvp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 07:48:00 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:16594 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261198AbULHMr6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 07:47:58 -0500
-Date: Wed, 8 Dec 2004 13:47:01 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Time sliced CFQ io scheduler
-Message-ID: <20041208124701.GS19522@suse.de>
-References: <20041208003736.GD16322@dualathlon.random> <1102467253.8095.10.camel@npiggin-nld.site> <20041208013732.GF16322@dualathlon.random> <20041207180033.6699425b.akpm@osdl.org> <20041208065534.GF3035@suse.de> <1102489719.8095.56.camel@npiggin-nld.site> <20041208071141.GB19522@suse.de> <1102490389.8095.69.camel@npiggin-nld.site> <20041208072616.GD19522@suse.de> <20041208093552.GK19522@suse.de>
+	Wed, 8 Dec 2004 07:51:45 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:3343 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261199AbULHMvm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Dec 2004 07:51:42 -0500
+Date: Wed, 8 Dec 2004 13:51:34 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Ron Murray <rjmx@rjmx.net>
+Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>,
+       linux-input@atrey.karlin.mff.cuni.cz
+Subject: Re: [PATCH] CS461x gameport code isn't being included in build
+Message-ID: <20041208125133.GT5496@stusta.de>
+References: <41B237C6.9030404@rjmx.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041208093552.GK19522@suse.de>
+In-Reply-To: <41B237C6.9030404@rjmx.net>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 08 2004, Jens Axboe wrote:
-> On Wed, Dec 08 2004, Jens Axboe wrote:
-> > > Hmm, damn. Lots of stuff. I guess some of the notable ones that I've
-> > > had trouble with are OraSim (Oracle might give you a copy), Andrew's
-> > > patch scripts when applying a stack of patches, pgbench... can't
-> > > really remember any others off the top of my head.
-> > 
-> > The patch scripts case is interesting, last night (when committing other
-> > patches) I was thinking I should try and bench that today. It has a good
-> > mix of reads and writes.
+On Sat, Dec 04, 2004 at 05:18:46PM -0500, Ron Murray wrote:
+>    I've found a typo in drivers/input/gameport/Makefile in kernel
+> 2.6.9 which effectively prevents the CS461x gameport code from
+> being included. Here's the diff:
 > 
-> AS is currently 10 seconds faster for that workload (untar of a kernel
-> and then applying 2237 patches). AS completes it in 155 seconds, CFQ
-> takes 164 seconds.
+> --- linux-2.6.9/drivers/input/gameport/Makefile.orig	2004-10-18 
+> 17:53:06.000000000 -0400
+> +++ linux-2.6.9/drivers/input/gameport/Makefile	2004-12-04 
+> 16:51:12.000000000 -0500
+> @@ -5,7 +5,7 @@
+>  # Each configuration option enables a list of files.
+> 
+>  obj-$(CONFIG_GAMEPORT)		+= gameport.o
+> -obj-$(CONFIG_GAMEPORT_CS461X)	+= cs461x.o
+> +obj-$(CONFIG_GAMEPORT_CS461x)	+= cs461x.o
+>  obj-$(CONFIG_GAMEPORT_EMU10K1)	+= emu10k1-gp.o
+>  obj-$(CONFIG_GAMEPORT_FM801)	+= fm801-gp.o
+>  obj-$(CONFIG_GAMEPORT_L4)	+= lightning.o
+> 
+>    Note: the change is to a lower-case 'x' in
+> 'CONFIG_GAMEPORT_CS461x'. It's hard to see.
+> 
+>    Kconfig in the same directory has
+> 
+> >> config GAMEPORT_CS461x
+> >> 	tristate "Crystal SoundFusion gameport support"
+> >> 	depends on GAMEPORT
+> 
+>    This patch brings the Makefile into line with the spelling in
+> Kconfig.
+>...
 
-Turned out to be a stupid dispatch sort error in cfq, now it has the
-exact same runtime as AS.
+Good catch.
 
--- 
-Jens Axboe
+But by convention, the names of config variables in the kernel are all 
+uppercase.
+
+I'm therefore suggesting the patch below fixing this bug the other way.
+
+>  .....Ron
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.10-rc2-mm4-full/drivers/input/gameport/Kconfig.old	2004-12-08 13:45:53.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/drivers/input/gameport/Kconfig	2004-12-08 13:46:06.000000000 +0100
+@@ -84,7 +84,7 @@
+ 	tristate "ForteMedia FM801 gameport support"
+ 	depends on GAMEPORT
+ 
+-config GAMEPORT_CS461x
++config GAMEPORT_CS461X
+ 	tristate "Crystal SoundFusion gameport support"
+ 	depends on GAMEPORT
+ 
 

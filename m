@@ -1,38 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265015AbUFMITy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264890AbUFMI32@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265015AbUFMITy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jun 2004 04:19:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265024AbUFMITy
+	id S264890AbUFMI32 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jun 2004 04:29:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265024AbUFMI32
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jun 2004 04:19:54 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:35593 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S265015AbUFMITx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jun 2004 04:19:53 -0400
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: ncunningham@linuxmail.org (Nigel Cunningham)
-Subject: Re: Fix memory leak in swsusp
-Cc: akpm@osdl.org, herbert@gondor.apana.org.au, pavel@suse.cz,
-       mochel@digitalimplant.org, linux-kernel@vger.kernel.org
-Organization: Core
-In-Reply-To: <40CB7EBD.2020109@linuxmail.org>
-X-Newsgroups: apana.lists.os.linux.kernel
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.25-1-686-smp (i686))
-Message-Id: <E1BZQ95-0006oU-00@gondolin.me.apana.org.au>
-Date: Sun, 13 Jun 2004 18:15:15 +1000
+	Sun, 13 Jun 2004 04:29:28 -0400
+Received: from loki.snap.net.nz ([202.37.101.41]:43784 "EHLO loki.snap.net.nz")
+	by vger.kernel.org with ESMTP id S264890AbUFMI31 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jun 2004 04:29:27 -0400
+Date: Sun, 13 Jun 2004 20:37:49 +1200 (NZST)
+From: Keith Duthie <psycho@albatross.co.nz>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: linux-kernel@vger.kernel.org, alsa-user@lists.sourceforge.net
+Subject: Re: [PATCH] Fix apm suspend with cs4231 based sound cards
+In-Reply-To: <s5hpt8b2tg8.wl@alsa2.suse.de>
+Message-ID: <Pine.LNX.4.53.0406132028550.615@loki.albatross.co.nz>
+References: <Pine.LNX.4.53.0406080319560.27816@loki.albatross.co.nz>
+ <s5hpt8b2tg8.wl@alsa2.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nigel Cunningham <ncunningham@linuxmail.org> wrote:
-> 
-> At some stage, you copy the page that contains the preempt count for the process that is doing the 
-> suspending. If you use memcpy on a 3Dnow machine, the preempt count is incremented prior to doing 
-> the copy of the page. Then, at resume time, it is one too high.
+On Mon, 7 Jun 2004, Takashi Iwai wrote:
 
-Nope, this function only copies the swsusp page data structure so
-this is irrelevant.
+> Could you check whether the recent kernel works without this patch?
+> There was a mutex deadlock in the suspend code, and I guess it hit
+> you...
+
+The bug is fixed in 2.6.7-rc3; that'll teach me to test the lastest
+release candidate before posting patches...
 -- 
-Visit Openswan at http://www.openswan.org/
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Just because it isn't nice doesn't make it any less a miracle.
+     http://users.albatross.co.nz/~psycho/     O-   -><-

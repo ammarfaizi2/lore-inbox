@@ -1,59 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261532AbVBAUbW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262098AbVBAUlq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261532AbVBAUbW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 15:31:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262098AbVBAUbV
+	id S262098AbVBAUlq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 15:41:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbVBAUlq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 15:31:21 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:20131 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261532AbVBAUbT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 15:31:19 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.11-rc2-V0.7.36-04
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Tom Rini <trini@kernel.crashing.org>, Bill Huey <bhuey@lnxw.com>,
-       linux-kernel@vger.kernel.org, Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Steven Rostedt <rostedt@goodmis.org>
-In-Reply-To: <20050201201704.GA32139@elte.hu>
-References: <20041124101626.GA31788@elte.hu>
-	 <20041203205807.GA25578@elte.hu> <20041207132927.GA4846@elte.hu>
-	 <20041207141123.GA12025@elte.hu> <20041214132834.GA32390@elte.hu>
-	 <20050104064013.GA19528@nietzsche.lynx.com>
-	 <20050104094518.GA13868@elte.hu> <20050107192651.GG5259@smtp.west.cox.net>
-	 <20050126080952.GC4771@elte.hu> <1107288076.18349.7.camel@krustophenia.net>
-	 <20050201201704.GA32139@elte.hu>
-Content-Type: text/plain
-Date: Tue, 01 Feb 2005 15:31:18 -0500
-Message-Id: <1107289878.18349.20.camel@krustophenia.net>
+	Tue, 1 Feb 2005 15:41:46 -0500
+Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:63913 "EHLO
+	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S262098AbVBAUln
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 15:41:43 -0500
+Date: Tue, 1 Feb 2005 12:40:09 -0800
+From: Tony Lindgren <tony@atomide.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Andrea Arcangeli <andrea@suse.de>, George Anzinger <george@mvista.com>,
+       Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Dynamic tick, version 050127-1
+Message-ID: <20050201204008.GD14274@atomide.com>
+References: <20050127212902.GF15274@atomide.com> <20050201110006.GA1338@elf.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050201110006.GA1338@elf.ucw.cz>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-02-01 at 21:17 +0100, Ingo Molnar wrote:
-> * Lee Revell <rlrevell@joe-job.com> wrote:
+* Pavel Machek <pavel@suse.cz> [050201 03:03]:
+> Hi!
 > 
-> > Assuming it's still available, what is the config option to get the
-> > "User-space atomicity debugging" feature?  This feature is extremely
-> > useful for debugging complex JACK clients, several Linux audio
-> > developers have asked me about it but I can't find the config option
-> > anymore.
+> > Thanks for all the comments, here's an updated version of the dynamic
+> > tick patch.
+> > 
+> > I've fixed couple of things:
+> > 
+> > - Dyn-tick now supports local APIC timer. This allows longer sleep time
+> >   inbetween ticks, over 1000 ticks compared to 54 ticks with PIT timer.
+> >   It seems to stop timers on SMP too, but I've only briefly played with
+> >   it on SMP.
 > 
-> it's always-on in the -RT tree (it's a pretty low-overhead thing). I
-> havent changed the mechanism so the jackd hacks from a couple of weeks
-> ago should still work.
-> 
+> I used your config advices from second mail, still it does not work as
+> expected: system gets "too sleepy". Like it takes a nap during boot
+> after "dyn-tick: Maximum ticks to skip limited to 1339", and key is
+> needed to make it continue boot. Then cursor stops blinking and
+> machine is hung at random intervals during use, key is enough to awake
+> it.
 
-OK.  So for application triggered tracing you need 
-LATENCY_TRACING enabled, as described here:
+Hmmm, that sounds like the local APIC does not wake up the PIT
+interrupt properly after sleep. Hitting the keys causes the timer
+interrupt to get called, and that explains why it keeps running. But
+the timer ticks are not happening as they should for some reason.
+This should not happen (tm)...
 
-http://lkml.org/lkml/2004/10/29/312
+I've noticed that the only machine I have with ACPI C2/C3 support
+does not do anything in the C2/C3 loops, it just spins around and
+consumes more power than in C1 with hlt!
 
-Lee
+That's because we currently don't have any code to enable the C2/C3
+states in the southbridges on many Athlon boards. It's the same
+problem on my Crusoe laptop ALi 1533 chipset.
 
+I think we should have some ACPI code that scans the southbridges,
+and sets them up with C2/C3 enable functions that can be
+enabled/disabled via /sys.
+
+Does anybody happen to have documentation for the ALi 1533, 1535
+or M7101 chipset, BTW? I'd like to know how to enable the C2/C3
+on it.
+
+Tony

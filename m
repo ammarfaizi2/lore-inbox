@@ -1,37 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266797AbRHOVbH>; Wed, 15 Aug 2001 17:31:07 -0400
+	id <S266488AbRHOV3S>; Wed, 15 Aug 2001 17:29:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265402AbRHOVa5>; Wed, 15 Aug 2001 17:30:57 -0400
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:49751 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S266706AbRHOVan>; Wed, 15 Aug 2001 17:30:43 -0400
-Date: Wed, 15 Aug 2001 16:30:27 -0500 (CDT)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200108152130.QAA30162@tomcat.admin.navo.hpc.mil>
-To: alan@lxorguk.ukuu.org.uk,
-        ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser)
-Subject: Re: 2.4.8 Resource leaks + limits
-In-Reply-To: <E15X74U-0003va-00@the-village.bc.nu>
-Cc: torvalds@transmeta.com (Linus Torvalds),
-        alan@lxorguk.ukuu.org.uk (Alan Cox), mag@fbab.net,
-        linux-kernel@vger.kernel.org
-X-Mailer: [XMailTool v3.1.2b]
+	id <S265402AbRHOV3H>; Wed, 15 Aug 2001 17:29:07 -0400
+Received: from fenrus.demon.co.uk ([158.152.228.152]:12980 "EHLO
+	amadeus.home.nl") by vger.kernel.org with ESMTP id <S264669AbRHOV2u>;
+	Wed, 15 Aug 2001 17:28:50 -0400
+Message-Id: <m15X8Dk-000PX7C@amadeus.home.nl>
+Date: Wed, 15 Aug 2001 22:29:00 +0100 (BST)
+From: arjan@fenrus.demon.nl
+To: linux-kernel@vger.kernel.org
+Subject: Re: Dell I8000, 2.4.8-ac5 and APM
+In-Reply-To: <29219.997909757@redhat.com>
+X-Newsgroups: fenrus.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <29219.997909757@redhat.com> you wrote:
 
-> > Not really. Large installations use ACLs instead of groups. 
-> 
-> Umm you can't use ACL's for resource management. You have to be able to
-> charge an entity. Its not a permission to access, its a "who is paying" and
-> that requires a real entity to charge to
+> I've been chasing down APM problems on an I8000 today too - the Red Hat 7.2
+> beta kernel (which is based on some 2.4-ac) dies on resume, while a clean
+> 2.4.9-pre4 survives. I'd noticed that the Red Hat kernel was using the local
+> APIC just before giving up on it for the day - turning that off will be the
+> first thing I try in the morning.
 
-And that calls for an accounting id or a project id. As well as the possiblity
-of a user having multiple accounting ids.
+> Apart from the hang on applying or removing power, were you also having 
+> this problem with APM suspend?
 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
+> Strangely, APM suspend was working after a suspend-to-disk. It only failed 
+> after a clean boot.
 
-Any opinions expressed are solely my own.
+Not so strange as suspend to disk most likely disables the apic and
+"forgets" to restore it.... that's actually a bios bug (?) helping you out
+here....

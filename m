@@ -1,52 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261634AbVCNR2M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261637AbVCNR3h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261634AbVCNR2M (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 12:28:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261640AbVCNR2M
+	id S261637AbVCNR3h (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 12:29:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261643AbVCNR20
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 12:28:12 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:44026 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S261634AbVCNR2F (ORCPT
+	Mon, 14 Mar 2005 12:28:26 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:14306 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261637AbVCNR2H (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 12:28:05 -0500
-From: Jesse Barnes <jbarnes@engr.sgi.com>
+	Mon, 14 Mar 2005 12:28:07 -0500
+Date: Mon, 14 Mar 2005 18:27:45 +0100
+From: Pavel Machek <pavel@ucw.cz>
 To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: dmesg verbosity [was Re: AGP bogosities]
-Date: Mon, 14 Mar 2005 09:27:20 -0800
-User-Agent: KMail/1.7.2
-Cc: Pavel Machek <pavel@ucw.cz>, David Lang <david.lang@digitalinsight.com>,
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>,
+       David Lang <david.lang@digitalinsight.com>,
        Dave Jones <davej@redhat.com>,
        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
        Paul Mackerras <paulus@samba.org>, benh@kernel.crashing.org,
        linux-kernel@vger.kernel.org
-References: <16944.62310.967444.786526@cargo.ozlabs.ibm.com> <200503140855.18446.jbarnes@engr.sgi.com> <Pine.LNX.4.58.0503140907380.6119@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0503140907380.6119@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Subject: Re: dmesg verbosity [was Re: AGP bogosities]
+Message-ID: <20050314172744.GF5461@elf.ucw.cz>
+References: <16944.62310.967444.786526@cargo.ozlabs.ibm.com> <Pine.LNX.4.62.0503140026360.10211@qynat.qvtvafvgr.pbz> <20050314083717.GA19337@elf.ucw.cz> <200503140855.18446.jbarnes@engr.sgi.com> <Pine.LNX.4.58.0503140907380.6119@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200503140927.21552.jbarnes@engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.58.0503140907380.6119@ppc970.osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, March 14, 2005 9:18 am, Linus Torvalds wrote:
+Hi!
+
+> > We already have the 'quiet' option, but even so, I think the kernel is *way* 
+> > too verbose.  Someone needs to make a personal crusade out of removing 
+> > unneeded and unjustified printks from the kernel before it really gets better 
+> > though...
+> 
+> The thing is, this comes up every once in a while (pretty often,
+> actually), but the bulk of those messages _do_ end up being useful. For
+> certain classes of bugs, I almost invariably ask for the bootup messages:  
+> the PCI interrupt routing printou stuff is absolutely invaluable.
+> 
 > In fact, even the ones that have no "information" end up often being a big
 > clue about where the hang happened.
 
-Yeah, I use the startup output all the time for stuff like that, no question 
-it's useful.
+Problem is that by now we have so much information that valuable
+scrolls up. Users start to missing trace dumps in bootup phase because
+it just scrolls away too quickly.
+
+I know that "no information" messages can be valuable, but they make
+messages with usefull information less likely to be noticed. And
+people start doing ugly stuff like
+
+*** This is really
+*** important message
+
+when they want their messages to be actually seen. Perhaps we should
+reduce ammount of that "no information" messages? I particulary hate
+"XXX driver registered" even when that driver has no hardware. Kernel
+is quite unlikely to hang at that point.
 
 > And those occasional people are often not going to eb very good at
 > reporting bugs. If they don't see anything happening, they'll just give up
 > rather than bother to report it. So I do think we want the fairly verbose
-> thing enabled by default. You can then hide it with the graphical bootup
+> thing enabled by default. You can then hide it with the graphical bootup 
 > for "most people".
 
-Ok, and for the development kernel that makes a lot of sense.  But as we've 
-seen from this thread, leaving in old printks that were once useful but no 
-longer are tends to clutter things up and hide real errors.  I'd like to see 
-us get better about that--reporting real errors better and keeping the junk 
-to a minimum.
+Does it mean that fbsplash done right would be ok for mainline? ;-).
 
-Jesse
+								Pavel
+
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

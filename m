@@ -1,147 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274294AbRITBhS>; Wed, 19 Sep 2001 21:37:18 -0400
+	id <S274295AbRITBki>; Wed, 19 Sep 2001 21:40:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274295AbRITBhJ>; Wed, 19 Sep 2001 21:37:09 -0400
-Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:64138 "EHLO
-	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id <S274294AbRITBgz>; Wed, 19 Sep 2001 21:36:55 -0400
-Date: Wed, 19 Sep 2001 21:37:14 -0400
-To: sujal@sujal.net
-Cc: codalist@TELEMANN.coda.cs.cmu.edu, linux-kernel@vger.kernel.org,
-        ext3-users@redhat.com
-Subject: [PATCH] Re: Coda and Ext3
-Message-ID: <20010919213713.D8947@cs.cmu.edu>
-Mail-Followup-To: sujal@sujal.net, codalist@coda.cs.cmu.edu,
-	linux-kernel@vger.kernel.org, ext3-users@redhat.com
-In-Reply-To: <3B9792FB.7020708@progress.com> <20010906115302.B826@cs.cmu.edu> <1000909441.2017.20.camel@pcsshah>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1000909441.2017.20.camel@pcsshah>
-User-Agent: Mutt/1.3.20i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+	id <S274298AbRITBk2>; Wed, 19 Sep 2001 21:40:28 -0400
+Received: from [209.202.108.240] ([209.202.108.240]:52498 "EHLO
+	terbidium.openservices.net") by vger.kernel.org with ESMTP
+	id <S274295AbRITBkH>; Wed, 19 Sep 2001 21:40:07 -0400
+Date: Wed, 19 Sep 2001 21:40:08 -0400 (EDT)
+From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Preemption Latency Measurement Tool
+In-Reply-To: <1000939458.3853.17.camel@phantasy>
+Message-ID: <Pine.LNX.4.33.0109192135360.23588-100000@terbidium.openservices.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 19, 2001 at 10:23:36AM -0400, Sujal Shah wrote:
->      The Linux Coda drivers and the ext3 patches don't seem to get along
-> very well, at least in Linux 2.4.7.  I've got a stock 2.4.7 kernel with
+I'm posting this in the hope that someone will find it useful.
 
-The attached patch should fix it. I haven't tested it against ext3, but
-with tmpfs which used to have the same problem, i.e. not using
-generic_file_ functions to access the container files. I'll pass it on
-to Linus and Alan once I get some feedback on whether this solves all
-problems. I believe this will fix the whole batch of problems that are
-have been reported with ext3fs, XFS, and tmpfs.
+Worst 20 latency times of 4647 measured in this period.
+  usec      cause     mask   start line/file      address   end line/file
+ 35735  spin_lock        1   358/memory.c        c012c74a   379/memory.c
+ 14003  spin_lock        1   341/vmscan.c        c013977b   362/vmscan.c
+ 13701  spin_lock        1  1376/sched.c         c0118ef9   697/sched.c
+ 12533        BKL        7  2689/buffer.c        c0149acc   697/sched.c
+ 12459  spin_lock        7   547/sched.c         c0116ca3   697/sched.c
+ 10479  spin_lock        1   703/vmscan.c        c013a213   685/vmscan.c
+ 10443  spin_lock        1   669/inode.c         c015e8dd   696/inode.c
+  9163   reacqBKL        1  1375/sched.c         c0118edb  1381/sched.c
+  8727        BKL        9   164/inode.c         c0171885   188/inode.c
+  8066   usb-uhci        d    76/softirq.c       c0120cf2   119/softirq.c
+  8041        BKL        9   130/attr.c          c015fbd4   143/attr.c
+  7982  spin_lock        8   547/sched.c         c0116ca3   204/namei.c
+  6920   reacqBKL        5  1375/sched.c         c0118edb   697/sched.c
+  6720  spin_lock        0  1376/sched.c         c0118ef9  1380/sched.c
+  6567  spin_lock        0   661/vmscan.c        c013a0f2   764/vmscan.c
+  6365  spin_lock        0   703/vmscan.c        c013a213   764/vmscan.c
+  5680        BKL        1   452/exit.c          c011f6c6   697/sched.c
+  5646  spin_lock        0   227/inode.c         c015df35   696/inode.c
+  5428  spin_lock        1   710/inode.c         c015ea08   696/inode.c
+  4933  spin_lock        0   547/sched.c         c0116ca3  1380/sched.c
 
-It should apply fine for kernel versions 2.4.4 and higher (both the AC
-and the Linus trees).
+This was taken after compiling several packages and running dbench a few
+times.
 
-btw. my comment about disabling ext3 data journalling fixing it was
-bogus, there was a BUG() in Coda that got triggered because f_op->write
-wasn't generic_file_write.
+I also ran it previously while running 'while true ; do python -c range\(3e7\)
+; done', and the first line had minimum latencies of 10000, going as high as
+about 96000 when swapping.
 
-Jan
+This is on an Athlon 1050/100 Asus A7V (KT133) with PC133 CL2 SDRAM running
+2.4.9-ac12-preempt1.
 
-diff -urN --exclude-from=dontdiff linux-2.4.10-pre9/fs/coda/file.c linux/fs/coda/file.c
---- linux-2.4.10-pre9/fs/coda/file.c	Thu Sep  6 20:02:24 2001
-+++ linux/fs/coda/file.c	Wed Sep 19 20:26:41 2001
-@@ -31,28 +31,65 @@
- int use_coda_close;
- 
- static ssize_t
--coda_file_write(struct file *file,const char *buf,size_t count,loff_t *ppos)
-+coda_file_read(struct file *file, char *buf, size_t count, loff_t *ppos)
- {
-+	struct inode *inode = file->f_dentry->d_inode;
-+	struct coda_inode_info *cii = ITOC(inode);
- 	struct file *cfile;
-+
-+	cfile = cii->c_container;
-+	if (!cfile) BUG();
-+
-+	if (!cfile->f_op || !cfile->f_op->read)
-+		return -EINVAL;
-+
-+	return cfile->f_op->read(cfile, buf, count, ppos);
-+}
-+
-+static ssize_t
-+coda_file_write(struct file *file,const char *buf,size_t count,loff_t *ppos)
-+{
- 	struct inode *cinode, *inode = file->f_dentry->d_inode;
- 	struct coda_inode_info *cii = ITOC(inode);
--	ssize_t n;
-+	struct file *cfile;
-+	ssize_t ret;
-+	int flags;
- 
- 	cfile = cii->c_container;
- 	if (!cfile) BUG();
- 
--	if (!cfile->f_op || cfile->f_op->write != generic_file_write)
--		BUG();
-+	if (!cfile->f_op || !cfile->f_op->write)
-+		return -EINVAL;
- 
- 	cinode = cfile->f_dentry->d_inode;
--	down(&cinode->i_sem);
-+	down(&inode->i_sem);
-+	flags = cfile->f_flags;
-+        cfile->f_flags |= file->f_flags & (O_APPEND | O_SYNC);
-+
-+	ret = cfile->f_op->write(cfile, buf, count, ppos);
- 
--	n = generic_file_write(file, buf, count, ppos);
-+	cfile->f_flags = flags;
- 	inode->i_size = cinode->i_size;
-+	up(&inode->i_sem);
-+
-+	return ret;
-+}
-+
-+static int
-+coda_file_mmap(struct file *file, struct vm_area_struct *vma)
-+{
-+	struct inode *inode = file->f_dentry->d_inode;
-+	struct coda_inode_info *cii = ITOC(inode);
-+	struct file *cfile;
-+
-+	cfile = cii->c_container;
-+
-+	if (!cfile) BUG();
- 
--	up(&cinode->i_sem);
-+	if (!cfile->f_op || !cfile->f_op->mmap)
-+		return -ENODEV;
- 
--	return n;
-+	return cfile->f_op->mmap(cfile, vma);
- }
- 
- int coda_open(struct inode *i, struct file *f)
-@@ -237,9 +274,9 @@
- 
- struct file_operations coda_file_operations = {
- 	llseek:		generic_file_llseek,
--	read:		generic_file_read,
-+	read:		coda_file_read,
- 	write:		coda_file_write,
--	mmap:		generic_file_mmap,
-+	mmap:		coda_file_mmap,
- 	open:		coda_open,
- 	flush:  	coda_flush,
- 	release:	coda_release,
-diff -urN --exclude-from=dontdiff linux-2.4.10-pre9/fs/coda/psdev.c linux/fs/coda/psdev.c
---- linux-2.4.10-pre9/fs/coda/psdev.c	Wed Apr 25 19:18:54 2001
-+++ linux/fs/coda/psdev.c	Wed Sep 19 18:45:46 2001
-@@ -414,7 +414,7 @@
- static int __init init_coda(void)
- {
- 	int status;
--	printk(KERN_INFO "Coda Kernel/Venus communications, v5.3.14, coda@cs.cmu.edu\n");
-+	printk(KERN_INFO "Coda Kernel/Venus communications, v5.3.15, coda@cs.cmu.edu\n");
- 
- 	status = init_coda_psdev();
- 	if ( status ) {
+-- 
+Ignacio Vazquez-Abrams  <ignacio@openservices.net>
+

@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266547AbUAWNbh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 08:31:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266556AbUAWNbg
+	id S266567AbUAWNfx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 08:35:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266570AbUAWNfx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 08:31:36 -0500
-Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:35723 "EHLO
-	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S266547AbUAWNbb
+	Fri, 23 Jan 2004 08:35:53 -0500
+Received: from greendale.ukc.ac.uk ([129.12.21.13]:29825 "EHLO
+	greendale.ukc.ac.uk") by vger.kernel.org with ESMTP id S266567AbUAWNfw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 08:31:31 -0500
-Date: Fri, 23 Jan 2004 14:31:29 +0100 (CET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.6] local APIC LVTT init bug
-In-Reply-To: <16401.6720.115695.872847@alkaid.it.uu.se>
-Message-ID: <Pine.LNX.4.55.0401231419460.3223@jurand.ds.pg.gda.pl>
-References: <16400.9569.745184.16182@alkaid.it.uu.se>
- <Pine.LNX.4.55.0401231250310.3223@jurand.ds.pg.gda.pl>
- <16401.6720.115695.872847@alkaid.it.uu.se>
-Organization: Technical University of Gdansk
+	Fri, 23 Jan 2004 08:35:52 -0500
+To: law <lkml@tlinx.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: utf8 or utf-8
+References: <4010108F.2090408@tlinx.org>
+From: Adam Sampson <azz@us-lot.org>
+Organization: Things I did not know at first I learned by doing twice.
+Date: Fri, 23 Jan 2004 13:35:06 +0000
+In-Reply-To: <4010108F.2090408@tlinx.org> (lkml@tlinx.org's message of "Thu,
+ 22 Jan 2004 10:03:59 -0800")
+Message-ID: <y2a65f2n5yt.fsf@cartman.at.fivegeeks.net>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+X-UKC-Mail-System: No virus detected
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Jan 2004, Mikael Pettersson wrote:
+law <lkml@tlinx.org> writes:
 
->  >  Sigh -- why can't designers keep such a trivial backwards
->  > compatibility???  The integrated APIC was said to be backwards compatible
->  > when introduced and so far all implementations used to.  What you write
->  > means that has been broken -- could please say which vendor to blame?
-> 
-> The ASUS L3800C was mentioned. I don't know of any others.
+> Should all references be UTF8 or utf-8?
 
- It seems to be P4-based -- I'm pretty sure the integrated APIC behaves
-the same way regardless of where its plugged in, so why wouldn't this
-problem appear earlier?  I've browsed my mailbox and found a patch that
-was stated to fix problems on the system involved.  But the patch disables
-the timer around certain actions -- that may indeed matter for some broken
-firmware (especially some SMM crap), but I can't see how these bits could.
+>From Markus Kuhn's excellent Unicode FAQ:
 
- That doesn't of course mean your patch shouldn't be applied -- it won't 
-hurt to be overly careful.
-
-  Maciej
+"The official name and spelling of this encoding is UTF-8, where UTF
+stands for UCS Transformation Format. Please do not write UTF-8 in any
+documentation text in other ways (such as utf8 or UTF_8), unless of
+course you refer to a variable name and not the encoding itself."
+<http://www.cl.cam.ac.uk/~mgk25/unicode.html>
 
 -- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+Adam Sampson <azz@us-lot.org>                        <http://offog.org/>

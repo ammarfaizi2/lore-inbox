@@ -1,30 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266159AbUBJR4e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 12:56:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265979AbUBJRyp
+	id S266176AbUBJRxZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 12:53:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266037AbUBJRDe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 12:54:45 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:32781 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S266140AbUBJRv3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 12:51:29 -0500
-Date: Tue, 10 Feb 2004 17:51:26 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Greg KH <greg@kroah.com>
-cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Newest fbdev patch to go mainline.
-In-Reply-To: <Pine.LNX.4.44.0402101747450.6600-100000@phoenix.infradead.org>
-Message-ID: <Pine.LNX.4.44.0402101750150.6600-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 10 Feb 2004 12:03:34 -0500
+Received: from smithers.nildram.co.uk ([195.112.4.54]:14097 "EHLO
+	smithers.nildram.co.uk") by vger.kernel.org with ESMTP
+	id S266029AbUBJRBd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 12:01:33 -0500
+Date: Tue, 10 Feb 2004 17:03:15 +0000
+From: Joe Thornber <thornber@redhat.com>
+To: Joe Thornber <thornber@redhat.com>
+Cc: Linux Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: [Patch 10/10] dm: drop BIO_SEG_VALID bit
+Message-ID: <20040210170315.GP27507@reti>
+References: <20040210163548.GC27507@reti>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040210163548.GC27507@reti>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-One more thing. What should I use for devices like vesafb? Should I use 
-the platform_bus_type like sa1100fb.c?
-
-
+I just noticed that bio_clone copies the BIO_SEG_VALID bit from the
+original bio when it was set. When we modify bi_idx or bi_vcnt
+afterwards the segment counts are invalid and the bit must be dropped
+(though it is fairly unlikely that it has already been set).
+[Christophe Saout]
+--- diff/drivers/md/dm.c	2004-02-10 16:12:10.000000000 +0000
++++ source/drivers/md/dm.c	2004-02-10 16:12:17.000000000 +0000
+@@ -338,6 +338,7 @@
+ 	clone->bi_idx = idx;
+ 	clone->bi_vcnt = idx + bv_count;
+ 	clone->bi_size = to_bytes(len);
++	clone->bi_flags &= ~(1 << BIO_SEG_VALID);
+ 
+ 	return clone;
+ }

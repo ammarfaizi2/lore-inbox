@@ -1,49 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261950AbSJSJa3>; Sat, 19 Oct 2002 05:30:29 -0400
+	id <S265579AbSJSJej>; Sat, 19 Oct 2002 05:34:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263016AbSJSJa3>; Sat, 19 Oct 2002 05:30:29 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:1284 "EHLO www.home.local")
-	by vger.kernel.org with ESMTP id <S261950AbSJSJaW>;
-	Sat, 19 Oct 2002 05:30:22 -0400
-Date: Sat, 19 Oct 2002 11:36:10 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Robert Love <rml@tech9.net>, Neil Conway <nconway.list@ukaea.org.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4: variable HZ
-Message-ID: <20021019093610.GA16046@alpha.home.local>
-References: <1034966657.722.838.camel@phantasy> <Pine.LNX.3.95.1021018152117.150B-100000@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.95.1021018152117.150B-100000@chaos.analogic.com>
-User-Agent: Mutt/1.4i
+	id <S265580AbSJSJej>; Sat, 19 Oct 2002 05:34:39 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:64713 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S265579AbSJSJef>; Sat, 19 Oct 2002 05:34:35 -0400
+Date: Sat, 19 Oct 2002 11:40:34 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Maksim Krasnyanskiy <maxk@qualcomm.com>
+cc: linux-kernel@vger.kernel.org
+Subject: [2.5 patch] fix the compilation of drivers/bluetooth/bluecard_cs.c
+Message-ID: <Pine.NEB.4.44.0210191137530.28761-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 18, 2002 at 03:38:43PM -0400, Richard B. Johnson wrote:
-> If you are not using ELAN, CLOCK_TICK_RATE is 1193180.
+Hi Maksim,
 
-well, in fact it's 1193181.666... (14318180/12).
+your bluetooth patches in 2.5.44 caused the following compile error in
+drivers/bluetooth/bluecard_cs.c that is fixed by the patch below:
 
-> If your HZ is 100, you have 1193180/100 = 1193.18, not too exact.
+<--  snip  -->
 
-you meant 1000, I suppose ?
+...
+  gcc -Wp,-MD,drivers/bluetooth/.bluecard_cs.o.d -D__KERNEL__ -Iinclude
+-Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=k6
+-Iarch/i386/mach-generic
+ -nostdinc -iwithprefix include    -DKBUILD_BASENAME=bluecard_cs   -c -o drivers
+/bluetooth/bluecard_cs.o drivers/bluetooth/bluecard_cs.c
+drivers/bluetooth/bluecard_cs.c: In function `bluecard_receive':
+drivers/bluetooth/bluecard_cs.c:459: `hci_event_hdr' undeclared (first use
+in this function)
+drivers/bluetooth/bluecard_cs.c:459: (Each undeclared identifier is
+reported only once
+drivers/bluetooth/bluecard_cs.c:459: for each function it appears in.)
+drivers/bluetooth/bluecard_cs.c:459: `eh' undeclared (first use in this
+function)
+drivers/bluetooth/bluecard_cs.c:459: warning: statement with no effect
+drivers/bluetooth/bluecard_cs.c:460: `hci_acl_hdr' undeclared (first use
+in this function)
+drivers/bluetooth/bluecard_cs.c:460: `ah' undeclared (first use in this
+function)
+drivers/bluetooth/bluecard_cs.c:460: warning: statement with no effect
+drivers/bluetooth/bluecard_cs.c:461: `hci_sco_hdr' undeclared (first use
+in this function)
+drivers/bluetooth/bluecard_cs.c:461: `sh' undeclared (first use in this
+function)
+drivers/bluetooth/bluecard_cs.c:461: warning: statement with no effect
+drivers/bluetooth/bluecard_cs.c:466: parse error before `)'
+drivers/bluetooth/bluecard_cs.c:472: parse error before `)'
+drivers/bluetooth/bluecard_cs.c:479: parse error before `)'
+drivers/bluetooth/bluecard_cs.c:458: warning: `dlen' might be used
+uninitialized in this function
+make[2]: *** [drivers/bluetooth/bluecard_cs.o] Error 1
 
-> if you use 500, you get 1193180/500 = 2386.36 which has twice as much
-> round-off. If you use 1193180/512 = 2330.43, even a higher fractional
-> part.
+<--  snip  -->
 
-those interested can try 511 Hz (/2334.994) or 1900 Hz (/627.990) which
-has the double advantage of being multiple of 100 Hz and have a little
-drift due to frac part (/628 gives 1899.97 Hz, and /627 gives 1903.001 Hz).
-If you don't need a multiple of 100 Hz, I noticed that dividing by 5709
-gives 209.0001 Hz.
+cu
+Adrian
 
-I'm also wondering why we never use the RTC as an interrupt source. Are
-there any incompatible PCs ?
 
-Cheers,
-Willy
+--- linux-2.5.44-full/drivers/bluetooth/bluecard_cs.c.old	2002-10-19 11:31:32.000000000 +0200
++++ linux-2.5.44-full/drivers/bluetooth/bluecard_cs.c	2002-10-19 11:32:12.000000000 +0200
+@@ -456,27 +456,27 @@
+ 			if (info->rx_count == 0) {
+
+ 				int dlen;
+-				hci_event_hdr *eh;
+-				hci_acl_hdr *ah;
+-				hci_sco_hdr *sh;
++				struct hci_event_hdr *eh;
++				struct hci_acl_hdr *ah;
++				struct hci_sco_hdr *sh;
+
+ 				switch (info->rx_state) {
+
+ 				case RECV_WAIT_EVENT_HEADER:
+-					eh = (hci_event_hdr *)(info->rx_skb->data);
++					eh = (struct hci_event_hdr *)(info->rx_skb->data);
+ 					info->rx_state = RECV_WAIT_DATA;
+ 					info->rx_count = eh->plen;
+ 					break;
+
+ 				case RECV_WAIT_ACL_HEADER:
+-					ah = (hci_acl_hdr *)(info->rx_skb->data);
++					ah = (struct hci_acl_hdr *)(info->rx_skb->data);
+ 					dlen = __le16_to_cpu(ah->dlen);
+ 					info->rx_state = RECV_WAIT_DATA;
+ 					info->rx_count = dlen;
+ 					break;
+
+ 				case RECV_WAIT_SCO_HEADER:
+-					sh = (hci_sco_hdr *)(info->rx_skb->data);
++					sh = (struct hci_sco_hdr *)(info->rx_skb->data);
+ 					info->rx_state = RECV_WAIT_DATA;
+ 					info->rx_count = sh->dlen;
+ 					break;
 

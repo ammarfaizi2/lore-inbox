@@ -1,246 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310338AbSCADjY>; Thu, 28 Feb 2002 22:39:24 -0500
+	id <S293094AbSCACxJ>; Thu, 28 Feb 2002 21:53:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310166AbSCADhh>; Thu, 28 Feb 2002 22:37:37 -0500
-Received: from suntan.tandem.com ([192.216.221.8]:47756 "EHLO
-	suntan.tandem.com") by vger.kernel.org with ESMTP
-	id <S310323AbSCADfw>; Thu, 28 Feb 2002 22:35:52 -0500
-From: bwatson@kahuna.cag.cpqcorp.net
-Message-Id: <200203010250.g212ofF25736@kahuna.cag.cpqcorp.net>
-To: marcelo@conectiva.com.br
-Cc: dhowells@redhat.com, hch@caldera.de, kmsmith@umich.edu,
+	id <S293366AbSCACv0>; Thu, 28 Feb 2002 21:51:26 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:26105
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S310309AbSCACqX>; Thu, 28 Feb 2002 21:46:23 -0500
+Date: Thu, 28 Feb 2002 18:47:10 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Paul Gortmaker <p_gortmaker@yahoo.com>
+Cc: marcelo@conectiva.com.br, alan@lxorguk.ukuu.org.uk,
         linux-kernel@vger.kernel.org
-Date: Thu, 28 Feb 2002 18:46 PST
-Subject: [PATCH] 2.4.19-pre2, trylock for read/write semaphores
+Subject: Re: [PATCH] bluesmoke/MCE support optional
+Message-ID: <20020301024710.GF2711@matchmail.com>
+Mail-Followup-To: Paul Gortmaker <p_gortmaker@yahoo.com>,
+	marcelo@conectiva.com.br, alan@lxorguk.ukuu.org.uk,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3C7E465A.4B3F4D9@yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C7E465A.4B3F4D9@yahoo.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo-
+On Thu, Feb 28, 2002 at 10:01:46AM -0500, Paul Gortmaker wrote:
+> 
+> Meant to do this a while ago.  Could do it via adding "nosmoke.c"  :-)
+> (similar to fs/noquot.c) instead of #ifdef in bluesmoke.c, if somebody
+> had a strong preference one way or the other.
+> 
+> Patch is against 2.4.18, complete with Aunt Tillie(tm) help text, etc.
+> 
+> Paul.
+> 
+> 
+> --- Documentation/Configure.help~	Sat Feb  2 06:50:31 2002
+> +++ Documentation/Configure.help	Thu Feb 28 09:01:28 2002
+> @@ -17450,6 +17450,17 @@
+>    The module is called shwdt.o. If you want to compile it as a module,
+>    say M here and read Documentation/modules.txt.
+>  	      
+> +Machine Check Exception
+> +CONFIG_X86_MCE
+> +  Machine Check Exception support allows the processor to notify the
+> +  kernel if it detects a problem (e.g. overheating, component failure).
+> +  The action the kernel takes depends on the severity of the problem, 
+> +  ranging from a warning message on the console, to halting the machine.
+> +  Your processor must be a Pentium or newer to support this - check the 
+> +  flags in /proc/cpuinfo for mce.  Note that some older Pentium systems
+> +  have a design flaw which leads to false MCE events - for these and
+> +  old non-MCE processors (386, 486), say N.  Otherwise say Y.
+> +
 
-Again I'm submitting a patch that adds trylock routines for 
-read/write semaphores. I haven't seen it appear in either 
-2.4.18 or 2.4.19-pre2.
-
-David Howells has reviewed it and thinks its ready to be 
-submitted. I've tested it and I'm confident it works correctly.
-It doesn't affect the stability of the kernel because nobody's
-using it, yet. All comments and concerns raised on LKML about 
-this patch have been addressed. Both Christoph Hellwig and 
-Kendrick Smith have expressed interest in it for the file 
-system work they're doing.
-
-Is there anything else I need to do to get it accepted into 2.4?
-
-Brian Watson
-Open SSI Clustering Project
-Compaq Computer Corp
-http://opensource.compaq.com/
-
-
-diff -Naur linux-2.4.19-pre2/include/asm-i386/rwsem.h rwsem/include/asm-i386/rwsem.h
---- linux-2.4.19-pre2/include/asm-i386/rwsem.h	Thu Feb 28 15:16:13 2002
-+++ rwsem/include/asm-i386/rwsem.h	Thu Feb 28 15:22:18 2002
-@@ -4,6 +4,8 @@
-  *
-  * Derived from asm-i386/semaphore.h
-  *
-+ * Trylock by Brian Watson (Brian.J.Watson@compaq.com).
-+ *
-  *
-  * The MSW of the count is the negated number of active writers and waiting
-  * lockers, and the LSW is the total number of active locks
-@@ -117,6 +119,29 @@
- }
- 
- /*
-+ * trylock for reading -- returns 1 if successful, 0 if contention
-+ */
-+static inline int __down_read_trylock(struct rw_semaphore *sem)
-+{
-+	__s32 result, tmp;
-+	__asm__ __volatile__(
-+		"# beginning __down_read_trylock\n\t"
-+		"  movl      %0,%1\n\t"
-+		"1:\n\t"
-+		"  movl	     %1,%2\n\t"
-+		"  addl      %3,%2\n\t"
-+		"  jle	     2f\n\t"
-+LOCK_PREFIX	"  cmpxchgl  %2,%0\n\t"
-+		"  jnz	     1b\n\t"
-+		"2:\n\t"
-+		"# ending __down_read_trylock\n\t"
-+		: "+m"(sem->count), "=&a"(result), "=&r"(tmp)
-+		: "i"(RWSEM_ACTIVE_READ_BIAS)
-+		: "memory", "cc");
-+	return result>=0 ? 1 : 0;
-+}
-+
-+/*
-  * lock for writing
-  */
- static inline void __down_write(struct rw_semaphore *sem)
-@@ -141,6 +166,19 @@
- 		: "+d"(tmp), "+m"(sem->count)
- 		: "a"(sem)
- 		: "memory", "cc");
-+}
-+
-+/*
-+ * trylock for writing -- returns 1 if successful, 0 if contention
-+ */
-+static inline int __down_write_trylock(struct rw_semaphore *sem)
-+{
-+	signed long ret = cmpxchg(&sem->count,
-+				  RWSEM_UNLOCKED_VALUE, 
-+				  RWSEM_ACTIVE_WRITE_BIAS);
-+	if (ret == RWSEM_UNLOCKED_VALUE)
-+		return 1;
-+	return 0;
- }
- 
- /*
-diff -Naur linux-2.4.19-pre2/include/linux/rwsem-spinlock.h rwsem/include/linux/rwsem-spinlock.h
---- linux-2.4.19-pre2/include/linux/rwsem-spinlock.h	Thu Nov 22 11:46:19 2001
-+++ rwsem/include/linux/rwsem-spinlock.h	Thu Feb 28 15:22:18 2002
-@@ -3,6 +3,8 @@
-  * Copyright (c) 2001   David Howells (dhowells@redhat.com).
-  * - Derived partially from ideas by Andrea Arcangeli <andrea@suse.de>
-  * - Derived also from comments by Linus
-+ *
-+ * Trylock by Brian Watson (Brian.J.Watson@compaq.com).
-  */
- 
- #ifndef _LINUX_RWSEM_SPINLOCK_H
-@@ -54,7 +56,9 @@
- 
- extern void FASTCALL(init_rwsem(struct rw_semaphore *sem));
- extern void FASTCALL(__down_read(struct rw_semaphore *sem));
-+extern int FASTCALL(__down_read_trylock(struct rw_semaphore *sem));
- extern void FASTCALL(__down_write(struct rw_semaphore *sem));
-+extern int FASTCALL(__down_write_trylock(struct rw_semaphore *sem));
- extern void FASTCALL(__up_read(struct rw_semaphore *sem));
- extern void FASTCALL(__up_write(struct rw_semaphore *sem));
- 
-diff -Naur linux-2.4.19-pre2/include/linux/rwsem.h rwsem/include/linux/rwsem.h
---- linux-2.4.19-pre2/include/linux/rwsem.h	Thu Nov 22 11:46:19 2001
-+++ rwsem/include/linux/rwsem.h	Thu Feb 28 15:22:18 2002
-@@ -2,6 +2,8 @@
-  *
-  * Written by David Howells (dhowells@redhat.com).
-  * Derived from asm-i386/semaphore.h
-+ *
-+ * Trylock by Brian Watson (Brian.J.Watson@compaq.com).
-  */
- 
- #ifndef _LINUX_RWSEM_H
-@@ -46,6 +48,18 @@
- }
- 
- /*
-+ * trylock for reading -- returns 1 if successful, 0 if contention
-+ */
-+static inline int down_read_trylock(struct rw_semaphore *sem)
-+{
-+	int ret;
-+	rwsemtrace(sem,"Entering down_read_trylock");
-+	ret = __down_read_trylock(sem);
-+	rwsemtrace(sem,"Leaving down_read_trylock");
-+	return ret;
-+}
-+
-+/*
-  * lock for writing
-  */
- static inline void down_write(struct rw_semaphore *sem)
-@@ -53,6 +67,18 @@
- 	rwsemtrace(sem,"Entering down_write");
- 	__down_write(sem);
- 	rwsemtrace(sem,"Leaving down_write");
-+}
-+
-+/*
-+ * trylock for writing -- returns 1 if successful, 0 if contention
-+ */
-+static inline int down_write_trylock(struct rw_semaphore *sem)
-+{
-+	int ret;
-+	rwsemtrace(sem,"Entering down_write_trylock");
-+	ret = __down_write_trylock(sem);
-+	rwsemtrace(sem,"Leaving down_write_trylock");
-+	return ret;
- }
- 
- /*
-diff -Naur linux-2.4.19-pre2/lib/rwsem-spinlock.c rwsem/lib/rwsem-spinlock.c
---- linux-2.4.19-pre2/lib/rwsem-spinlock.c	Wed Apr 25 13:31:03 2001
-+++ rwsem/lib/rwsem-spinlock.c	Thu Feb 28 15:22:18 2002
-@@ -4,6 +4,8 @@
-  * Copyright (c) 2001   David Howells (dhowells@redhat.com).
-  * - Derived partially from idea by Andrea Arcangeli <andrea@suse.de>
-  * - Derived also from comments by Linus
-+ *
-+ * Trylock by Brian Watson (Brian.J.Watson@compaq.com).
-  */
- #include <linux/rwsem.h>
- #include <linux/sched.h>
-@@ -149,6 +151,28 @@
- }
- 
- /*
-+ * trylock for reading -- returns 1 if successful, 0 if contention
-+ */
-+int __down_read_trylock(struct rw_semaphore *sem)
-+{
-+	int ret = 0;
-+	rwsemtrace(sem,"Entering __down_read_trylock");
-+
-+	spin_lock(&sem->wait_lock);
-+
-+	if (sem->activity>=0 && list_empty(&sem->wait_list)) {
-+		/* granted */
-+		sem->activity++;
-+		ret = 1;
-+	}
-+
-+	spin_unlock(&sem->wait_lock);
-+
-+	rwsemtrace(sem,"Leaving __down_read_trylock");
-+	return ret;
-+}
-+
-+/*
-  * get a write lock on the semaphore
-  * - note that we increment the waiting count anyway to indicate an exclusive lock
-  */
-@@ -192,6 +216,28 @@
- 
-  out:
- 	rwsemtrace(sem,"Leaving __down_write");
-+}
-+
-+/*
-+ * trylock for writing -- returns 1 if successful, 0 if contention
-+ */
-+int __down_write_trylock(struct rw_semaphore *sem)
-+{
-+	int ret = 0;
-+	rwsemtrace(sem,"Entering __down_write_trylock");
-+
-+	spin_lock(&sem->wait_lock);
-+
-+	if (sem->activity==0 && list_empty(&sem->wait_list)) {
-+		/* granted */
-+		sem->activity = -1;
-+		ret = 1;
-+	}
-+
-+	spin_unlock(&sem->wait_lock);
-+
-+	rwsemtrace(sem,"Leaving __down_write_trylock");
-+	return ret;
- }
- 
- /*
+This should be tied to the processor type options...

@@ -1,85 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261396AbTH2QXJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 12:23:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261410AbTH2QXJ
+	id S261504AbTH2QdA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 12:33:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbTH2Qc6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 12:23:09 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:36224 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261396AbTH2QW6 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 12:22:58 -0400
-Message-Id: <200308291622.h7TGMQGG010465@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test4-mm3 
-In-Reply-To: Your message of "Fri, 29 Aug 2003 08:35:40 PDT."
-             <20030829083540.58c9dd47.akpm@osdl.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <3F4F22D3.9080104@freemail.hu>
-            <20030829083540.58c9dd47.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_445810014P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Fri, 29 Aug 2003 12:32:58 -0400
+Received: from 25.mdrx.com ([65.67.58.25]:15030 "EHLO duallie.mdrx.com")
+	by vger.kernel.org with ESMTP id S261504AbTH2Qbu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 12:31:50 -0400
+From: Brian Jackson <brian@brianandsara.net>
+To: Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org
+Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
+Date: Fri, 29 Aug 2003 11:31:46 -0500
+User-Agent: KMail/1.5.3
+References: <20030829053510.GA12663@mail.jlokier.co.uk>
+In-Reply-To: <20030829053510.GA12663@mail.jlokier.co.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Fri, 29 Aug 2003 12:22:26 -0400
+Content-Disposition: inline
+Message-Id: <200308291131.46895.brian@brianandsara.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_445810014P
-Content-Type: text/plain; charset=us-ascii
+On Friday 29 August 2003 12:35 am, Jamie Lokier wrote:
+> Dear All,
+>
+> I'd appreciate if folks would run the program below on various
+> machines, especially those whose caches aren't automatically coherent
+> at the hardware level.
+>
+<snip>
 
-On Fri, 29 Aug 2003 08:35:40 PDT, Andrew Morton said:
+Didn't see a 512k cache athlon-xp yet
 
-> Meanwhile, I'll alter Valdis's patch so that it warns, but does not fail
-> the make.
-> 
+skyline:/share/linux/projects/cachetest # sh go
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 6
+model           : 10
+model name      : AMD Athlon(tm) XP 2800+
+stepping        : 0
+cpu MHz         : 2088.111
+cache size      : 512 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de tsc msr pae mce cx8 apic sep mtrr pge mca cmov 
+pat pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow
+bogomips        : 4168.08
 
-I've sent Andrew an updated patch (attached) which issues a warning if the
-final depmod actually fails.  The user won't know there's a problem till the
-very end of 'make modules_install', but at least it will give them a hint of
-where to go for self-help.  
+Test separation: 4096 bytes: FAIL - too slow
+Test separation: 8192 bytes: FAIL - too slow
+Test separation: 16384 bytes: FAIL - too slow
+Test separation: 32768 bytes: pass
+Test separation: 65536 bytes: pass
+Test separation: 131072 bytes: pass
+Test separation: 262144 bytes: pass
+Test separation: 524288 bytes: pass
+Test separation: 1048576 bytes: pass
+Test separation: 2097152 bytes: pass
+Test separation: 4194304 bytes: pass
+Test separation: 8388608 bytes: pass
+Test separation: 16777216 bytes: pass
+VM page alias coherency test: minimum fast spacing: 32768 (8 pages)
 
---- Makefile.hold	2003-08-27 01:52:20.000000000 -0400
-+++ Makefile	2003-08-29 11:52:15.542286300 -0400
-@@ -209,7 +209,7 @@
- RPM 		:= $(shell if [ -x "/usr/bin/rpmbuild" ]; then echo rpmbuild; \
- 		    	else echo rpm; fi)
- GENKSYMS	= scripts/genksyms/genksyms
--DEPMOD		= /sbin/depmod
-+DEPMOD		= /sbin/depmod.old
- KALLSYMS	= scripts/kallsyms
- PERL		= perl
- CHECK		= sparse
-@@ -612,7 +612,14 @@
- endif
- .PHONY: _modinst_post
- _modinst_post: _modinst_
--	if [ -r System.map ]; then $(DEPMOD) -ae -F System.map $(depmod_opts) $(KERNELRELEASE); fi
-+	@if [ -r System.map ]; then \
-+		if ! $(DEPMOD) -ae -F System.map $(depmod_opts) $(KERNELRELEASE)   ; then \
-+			echo "*** Depmod failed!!!"; \
-+			echo "*** You may need to install a current version of module-init-tools"; \
-+			echo "*** See http://www.codemonkey.org.uk/post-halloween-2.5.txt"; \
-+			exit 1; \
-+	 	fi \
-+	fi
- 
- else # CONFIG_MODULES
- 
+real    0m0.110s
+user    0m0.070s
+sys     0m0.030s
 
+--Brian Jackson
 
+-- 
+OpenGFS -- http://opengfs.sourceforge.net
+Gentoo -- http://gentoo.brianandsara.net
+Home -- http://www.brianandsara.net
 
---==_Exmh_445810014P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/T33CcC3lWbTT17ARAoPVAKCERc4cvB5UaKK/lptZx/WZvet3gACeOuZw
-axTKcjTY2rn1Wi/+vz8Dkig=
-=faSS
------END PGP SIGNATURE-----
-
---==_Exmh_445810014P--

@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261266AbUL2AR5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261267AbUL2AUx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261266AbUL2AR5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Dec 2004 19:17:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261267AbUL2AR5
+	id S261267AbUL2AUx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Dec 2004 19:20:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261269AbUL2AUx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Dec 2004 19:17:57 -0500
-Received: from lucidpixels.com ([66.45.37.187]:38300 "HELO lucidpixels.com")
-	by vger.kernel.org with SMTP id S261266AbUL2ARz (ORCPT
+	Tue, 28 Dec 2004 19:20:53 -0500
+Received: from mail.dif.dk ([193.138.115.101]:54717 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S261267AbUL2AUs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Dec 2004 19:17:55 -0500
-Date: Tue, 28 Dec 2004 19:17:53 -0500 (EST)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p500
+	Tue, 28 Dec 2004 19:20:48 -0500
+Date: Wed, 29 Dec 2004 01:31:51 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
 To: linux-kernel@vger.kernel.org
-Subject: Kernel Benchmarks With P4+SMP+SMT?
-Message-ID: <Pine.LNX.4.61.0412281914380.11816@p500>
+Cc: akpm@osdl.org
+Subject: [patch] remove bouncing email addr. of Eric van der Maarel from
+ drivers/cdrom/isp16.c
+Message-ID: <Pine.LNX.4.61.0412290128440.3528@dragon.hygekrogen.localhost>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Has anyone performed any benchmarks with:
 
-No SMP w/HT?
-SMP w/HT?
-SMP + SMT w/HT?
+Hi,
 
-[ ] Symmetric multi-processing support
-[ ]   SMT (Hyperthreading) scheduler support
+This tiny patch removes the email address of Eric van der Maarel from 
+drivers/cdrom/isp16.c since it bounces. 
+It seems better to me that he's just listed with his name than also with a 
+useless email address.
 
-   x SMT scheduler support improves the CPU scheduler's decision making
-   x when dealing with Intel Pentium 4 chips with HyperThreading at a
-   x cost of slightly increased overhead in some places. If unsure say
-   x N here.
 
-I'm tempted to try SMT and benchmark these sometime but I am asking the 
-list if anyone has already done this first.
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 
-Question: "slightly increased overhead in some places."
+diff -up linux-2.6.10-orig/drivers/cdrom/isp16.c linux-2.6.10/drivers/cdrom/isp16.c
+--- linux-2.6.10-orig/drivers/cdrom/isp16.c	2004-12-24 22:35:28.000000000 +0100
++++ linux-2.6.10/drivers/cdrom/isp16.c	2004-12-29 01:27:26.000000000 +0100
+@@ -1,6 +1,6 @@
+ /* -- ISP16 cdrom detection and configuration
+  *
+- *    Copyright (c) 1995,1996 Eric van der Maarel <H.T.M.v.d.Maarel@marin.nl>
++ *    Copyright (c) 1995,1996 Eric van der Maarel
+  *
+  *    Version 0.6
+  *
 
-What type of workloads would exhibit such overhead?
-
-Would this option (SMT) be recommended for a desktop or server machine?
-
-Are there any white papers or documentation I can read about this option?
-
-Thanks.
 

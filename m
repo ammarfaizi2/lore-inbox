@@ -1,37 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261548AbSIZVyw>; Thu, 26 Sep 2002 17:54:52 -0400
+	id <S261552AbSIZV6q>; Thu, 26 Sep 2002 17:58:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261549AbSIZVyw>; Thu, 26 Sep 2002 17:54:52 -0400
-Received: from AMarseille-201-1-5-50.abo.wanadoo.fr ([217.128.250.50]:4464
-	"EHLO zion.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S261548AbSIZVyv>; Thu, 26 Sep 2002 17:54:51 -0400
-From: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>
-To: "Richard Zidlicky" <rz@linux-m68k.org>
-Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Linus Torvalds" <torvalds@transmeta.com>,
-       "Andre Hedrick" <andre@linux-ide.org>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Jens Axboe" <axboe@suse.de>
-Subject: Re: [PATCH] fix ide-iops for big endian archs
-Date: Thu, 26 Sep 2002 23:03:04 +0200
-Message-Id: <20020926210304.19470@192.168.4.1>
-In-Reply-To: <20020926225847.B2242@linux-m68k.org>
-References: <20020926225847.B2242@linux-m68k.org>
-X-Mailer: CTM PowerMail 4.0.1 carbon <http://www.ctmdev.com>
-MIME-Version: 1.0
+	id <S261554AbSIZV6q>; Thu, 26 Sep 2002 17:58:46 -0400
+Received: from jalon.able.es ([212.97.163.2]:61103 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S261552AbSIZV6p>;
+	Thu, 26 Sep 2002 17:58:45 -0400
+Date: Fri, 27 Sep 2002 00:03:23 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>,
+       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: Re: Distributing drivers independent of the kernel source tree
+Message-ID: <20020926220323.GA2773@werewolf.able.es>
+References: <A9713061F01AD411B0F700D0B746CA6802FC14D6@vacho6misge.cho.ge.com> <1033074519.2698.5.camel@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <1033074519.2698.5.camel@localhost.localdomain>; from arjanv@redhat.com on Thu, Sep 26, 2002 at 23:08:39 +0200
+X-Mailer: Balsa 1.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->to put it a bit more precise, this is bus endianness, nothing to 
->do with arch endianness.
 
-Well, right, though this is also the way a PCI bus is supposed
-to be wired to a BE CPU, and is the most common way to wire a
-bus with ISA-like chipsets (16 bits busses) on a BE core ;)
+On 2002.09.26 Arjan van de Ven wrote:
+>On Thu, 2002-09-26 at 22:55, Heater, Daniel (IndSys, GEFanuc, VMIC) 
+>> 2. Assuming the kernel source is in /usr/src/linux is not always valid.
+>> 
+>> 3. I currently use /usr/src/linux-`uname -r` to locate the kernel source
+>> which is just as broken as method #2.
+>
+>you have to use
+>
+>/lib/modules/`uname -r`/build
+>(yes it's a symlink usually, but that doesn't matter)
+>
+>
+>that's what Linus decreed and that's what all distributions honor, and
+>that's that make install does for manual builds.
+>
 
-Ben.
+And that does not work if you build against a non-running kernel.
+You force a two step (two reboots!!) procedure for a kernel upgrade.
+Say I use alsa drivers. If I jump from kernel 2.4.18 to 2.4.19
+I have to:
 
+- build 2.4.19
+- boot on 2.4.19 (without alsa and a ton of messages about failed
+  sound services)
+- build alsa
+- boot again
 
+I really hate that 'uname -r'. As far as /usr/src/linux has _nothing_
+to do with current system (glibc has its own headers), you can always
+suppose that /usr/src/linux is the source of the kernel you are working
+with (building, hacking, wahtever), and that it is different from what
+you run. So a kernel upgrade is just
+- build 2.4.19 (on /usr/src/linux-2.4.19, and /usr/src/linux symlinks to it)
+- build alsa against /usr/src/linux
+- reboot and alehop, done in _one_ step.
+
+Where to install the out-of-tree module ? Get the version you are building
+against from /usr/src/linux/include/version.h:
+
+KREL:=$(shell grep UTS_RELEASE /usr/src/linux/include/linux/version.h | cut -d\" -f2)
+
+You can always not-to-hardcode kernel location using something like:
+LINUX=/usr/src/linux
+KREL=$(shell grep UTS_RELEASE $(LINUX)/include/linux/version.h | cut -d\" -f2)
+CFLAGS=-nostdinc -I$(LINUX)/include
+MODDIR=/lib/modules/$(LINUX)/my_private_dir
+
+I use this for adding nvidia and bproc to a kernel and works fine.
+Just one reboot per upgrade.
+
+/juan
+
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.0 (Cooker) for i586
+Linux 2.4.20-pre7-jam0 (gcc 3.2 (Mandrake Linux 9.0 3.2-1mdk))

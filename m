@@ -1,36 +1,168 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263746AbTEYU1Q (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 25 May 2003 16:27:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263748AbTEYU1Q
+	id S263743AbTEYU0b (ORCPT <rfc822;akpm@zip.com.au>);
+	Sun, 25 May 2003 16:26:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263748AbTEYU0b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 May 2003 16:27:16 -0400
-Received: from ip67-95-245-82.z245-95-67.customer.algx.net ([67.95.245.82]:42758
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S263746AbTEYU1M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 May 2003 16:27:12 -0400
-Date: Sun, 25 May 2003 13:37:09 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-   lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.21-rc3 : IDE pb on Alpha
-Message-ID: <20030525203709.GA23651@matchmail.com>
-Mail-Followup-To: Willy Tarreau <willy@w.ods.org>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.55L.0305221915450.1975@freak.distro.conectiva> <20030525173642.GA1365@alpha.home.local> <20030525170046.GA649@alpha.home.local>
-Mime-Version: 1.0
+	Sun, 25 May 2003 16:26:31 -0400
+Received: from [80.81.38.6] ([80.81.38.6]:32957 "EHLO mail.lf.lv")
+	by vger.kernel.org with ESMTP id S263743AbTEYU01 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 May 2003 16:26:27 -0400
+Date: Sun, 25 May 2003 23:39:21 +0300
+From: Peteris Krumins <pkrumins@inbox.lv>
+X-Mailer: The Bat! (v1.62 Christmas Edition) Personal
+Reply-To: Peteris Krumins <pkrumins@inbox.lv>
+X-Priority: 3 (Normal)
+Message-ID: <141440814698.20030525233921@lf.lv>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.21-rc3 wont compile w/ old ide driver
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030525170046.GA649@alpha.home.local>
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 25, 2003 at 07:00:46PM +0200, Willy Tarreau wrote:
-> hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: task_no_data_intr: error=0x04 { DriveStatusError }
+l2.4.21-rc3 wont compile w/ old ide driver:
 
-Can you revert back to your previous kernel and run badblocks read-only on
-it a few times.  Your drive may be going bad.
+...
+ld -m elf_i386  -r -o idedriver.o legacy/idedriver-legacy.o
+ld: cannot open legacy/idedriver-legacy.o: No such file or directory
+make[3]: *** [idedriver.o] Error 1
+make[3]: Leaving directory `/home/pkrumins/lh/linux-2.4.21-rc3/drivers/ide'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/home/pkrumins/lh/linux-2.4.21-rc3/drivers/ide'
+make[1]: *** [_subdir_ide] Error 2
+make[1]: Leaving directory `/home/pkrumins/lh/linux-2.4.21-rc3/drivers'
+make: *** [_dir_drivers] Error 2
+
+--
+.config:
+CONFIG_X86=y
+CONFIG_UID16=y
+CONFIG_MODULES=y
+CONFIG_MODVERSIONS=y
+CONFIG_KMOD=y
+CONFIG_M586TSC=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_X86_USE_STRING_486=y
+CONFIG_X86_ALIGNMENT_16=y
+CONFIG_X86_HAS_TSC=y
+CONFIG_X86_PPRO_FENCE=y
+CONFIG_NOHIGHMEM=y
+CONFIG_X86_TSC=y
+CONFIG_NET=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_ISA=y
+CONFIG_PCI_NAMES=y
+CONFIG_HOTPLUG=y
+CONFIG_PCMCIA=m
+CONFIG_CARDBUS=y
+CONFIG_TCIC=y
+CONFIG_I82092=y
+CONFIG_I82365=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_ELF=y
+CONFIG_MTD=y
+CONFIG_MTD_CHAR=y
+CONFIG_MTD_BLOCK=y
+CONFIG_MTD_CFI=y
+CONFIG_MTD_JEDECPROBE=y
+CONFIG_MTD_GEN_PROBE=y
+CONFIG_MTD_CFI_INTELEXT=y
+CONFIG_MTD_RAM=y
+CONFIG_MTD_ROM=y
+CONFIG_MTD_ABSENT=y
+CONFIG_MTD_OBSOLETE_CHIPS=y
+CONFIG_MTD_SHARP=y
+CONFIG_PNP=y
+CONFIG_ISAPNP=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_RAM=y
+CONFIG_BLK_DEV_RAM_SIZE=4096
+CONFIG_BLK_DEV_INITRD=y
+CONFIG_PACKET=y
+CONFIG_NETFILTER=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IP_ADVANCED_ROUTER=y
+CONFIG_IP_ROUTE_LARGE_TABLES=y
+CONFIG_SYN_COOKIES=y
+CONFIG_IP_NF_CONNTRACK=m
+CONFIG_IP_NF_FTP=m
+CONFIG_IP_NF_IRC=m
+CONFIG_IP_NF_IPTABLES=m
+CONFIG_IP_NF_MATCH_MAC=m
+CONFIG_IP_NF_MATCH_MULTIPORT=m
+CONFIG_IP_NF_MATCH_TTL=m
+CONFIG_IP_NF_MATCH_HELPER=m
+CONFIG_IP_NF_MATCH_STATE=m
+CONFIG_IP_NF_MATCH_CONNTRACK=m
+CONFIG_IP_NF_FILTER=m
+CONFIG_IP_NF_TARGET_REJECT=m
+CONFIG_IP_NF_NAT=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=m
+CONFIG_IP_NF_TARGET_REDIRECT=m
+CONFIG_IP_NF_NAT_IRC=m
+CONFIG_IP_NF_NAT_FTP=m
+CONFIG_IP_NF_MANGLE=m
+CONFIG_IP_NF_TARGET_TOS=m
+CONFIG_IP_NF_TARGET_MARK=m
+CONFIG_IP_NF_TARGET_LOG=m
+CONFIG_BRIDGE=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_HD_ONLY=y
+CONFIG_BLK_DEV_HD=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_BLK_DEV_IDE_MODES=y
+CONFIG_NETDEVICES=y
+CONFIG_NET_ETHERNET=y
+CONFIG_NET_VENDOR_3COM=y
+CONFIG_EL1=y
+CONFIG_EL2=y
+CONFIG_ELPLUS=y
+CONFIG_EL3=y
+CONFIG_3C515=y
+CONFIG_NET_VENDOR_SMC=y
+CONFIG_WD80x3=y
+CONFIG_ULTRA=y
+CONFIG_SMC9194=y
+CONFIG_NET_ISA=y
+CONFIG_NE2000=y
+CONFIG_NET_PCI=y
+CONFIG_EEPRO100=y
+CONFIG_NE2K_PCI=y
+CONFIG_8139TOO=y
+CONFIG_EPIC100=y
+CONFIG_WINBOND_840=y
+CONFIG_NET_RADIO=y
+CONFIG_NET_WIRELESS=y
+CONFIG_NET_PCMCIA=y
+CONFIG_NET_PCMCIA_RADIO=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=64
+CONFIG_EXT3_FS=y
+CONFIG_JBD=y
+CONFIG_JBD_DEBUG=y
+CONFIG_RAMFS=y
+CONFIG_PROC_FS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_ZLIB_INFLATE=m
+CONFIG_ZLIB_DEFLATE=m
+

@@ -1,61 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130063AbQLJQBX>; Sun, 10 Dec 2000 11:01:23 -0500
+	id <S131177AbQLJQuL>; Sun, 10 Dec 2000 11:50:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130747AbQLJQBN>; Sun, 10 Dec 2000 11:01:13 -0500
-Received: from uberbox.mesatop.com ([208.164.122.11]:57613 "EHLO
-	uberbox.mesatop.com") by vger.kernel.org with ESMTP
-	id <S130063AbQLJQBE>; Sun, 10 Dec 2000 11:01:04 -0500
-From: Steven Cole <elenstev@mesatop.com>
-Reply-To: elenstev@mesatop.com
-To: linux-kernel@vger.kernel.org
-Subject: UP 2.2.18 makes kernels 3% faster than UP 2.4.0-test12
-Date: Sun, 10 Dec 2000 08:31:29 -0700
-X-Mailer: KMail [version 1.1.95.2]
-Content-Type: text/plain; charset=US-ASCII
+	id <S131178AbQLJQuC>; Sun, 10 Dec 2000 11:50:02 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:527 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131177AbQLJQto>; Sun, 10 Dec 2000 11:49:44 -0500
+Date: Sun, 10 Dec 2000 08:19:10 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "Theodore Y. Ts'o" <tytso@MIT.EDU>
+cc: rgooch@ras.ucalgary.ca, jgarzik@mandrakesoft.mandrakesoft.com,
+        dhinds@valinux.com, linux-kernel@vger.kernel.org
+Subject: Re: Serial cardbus code.... for testing, please.....
+In-Reply-To: <200012100707.CAA17906@tsx-prime.MIT.EDU>
+Message-ID: <Pine.LNX.4.10.10012100814230.2635-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Message-Id: <00121008312900.00872@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I performed the following tests running both 2.4.0-test12-pre7 and
-2.2.18-pre26.  All kernel builds were done in console mode (no X).
 
-All numbers are seconds required to make bzImage.  Times were 
-obtained using the date command before and after make bzImage in
-a script. Each test was performed three times.
 
- 1   2   3   ave.
+On Sun, 10 Dec 2000, Theodore Y. Ts'o wrote:
+> 
+>    You should also just test having it compiled in - I know some people love
+>    modules, but there is nothing quite as liberating as just having a kernel
+>    that finds the devices it needs and doesn't need anything else.
+> 
+> Interesting.  Yup, the serial driver works with it compiled in.
 
-449 443 440  444   make bzImage for 2.4.0t12p7 running 2.2.18p26
-460 458 454  457.3 make bzImage for 2.4.0t12p7 running 2.4.0t12p7
+Ho humm.. Why wouldn't it work as a module? Strange.
 
-310 310 307  309   make bzImage for 2.2.18p26 running 2.2.18p26
-318 319 317  318   make bzImage for 2.2.18p26 running 2.4.0t12p7
+Are you sure cardmgr inserts the right module? If cardmgr tries to insert
+serial_cb, and you have warring drivers, you'll break. 
 
-2.2.18p26  is shorthand for 2.2.18-pre26.
-2.4.0t12p7 is shorthand for 2.4.0-test12-pre7.
+Oh, serial_cb shouldn't work anyway, I think.
 
-2.2.18-pre26 was patched with reiserfs-3.5.28.
-2.2.18-pre26 was compiled with gcc 2.91.66 (kgcc).
+> However, the epic driver fails after I eject and remove the card, and
+> then re-insert it (it hangs on the re-insertion).  It looks like a
+> deadlock; after it hangs, "ifconfig" also hangs, presumably waiting on
+> the same lock (ps alx reports it's waiting on "down").
 
-2.4.0-test12-pre7 was patched with reiserfs-3.6.22.
-2.4.0-test12-pre7 was compiled with gcc 2.95.3.
+This is almost certainly the silly hotplug issue that we have - there's a
+problem with execin'g /sbin/hotplug and the semaphore that protects the
+device state. That will be fixed in the next patch..
 
-The .config files were unchanged during the tests.
-A make clean was performed before each test.
-The test machine was not connected to a network during the tests.
-Test machine: single processor P-III (450 Mhz), 192MB, IDE disk (ST317221A).
+> In any case, I think I know how to fix the serial driver to not loop in
+> receive_chars().  If I get this working, do you want to take a serial
+> driver update now or post 2.4.0?
 
-Conclusion: UP 2.2.18 makes kernels 3% faster than UP 2.4.0-test12
-using ReiserFS.  However, the margin of victory is small enough that a 
-recount may be necessary.
+Pls do it now, this is only going to clean it up (I bet we'll also be able
+to remove some of the serial.c PCI device lists, because many of them
+probably work with the general "is this a serial device?" test and do not
+need to be explicitly listed).
 
-It would be interesting to see results using ext2fs and results from SMP 
-machines.
+		Linus
 
-Steven
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

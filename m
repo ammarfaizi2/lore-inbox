@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267884AbTGTTnJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 15:43:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267981AbTGTTnJ
+	id S268095AbTGTTsB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 15:48:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268098AbTGTTsA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 15:43:09 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:21779 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S267884AbTGTTnI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 15:43:08 -0400
-Date: Sun, 20 Jul 2003 21:58:08 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Oliver Pitzeier <oliver@linux-kernel.at>
+	Sun, 20 Jul 2003 15:48:00 -0400
+Received: from mout0.freenet.de ([194.97.50.131]:13991 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id S268095AbTGTTr6 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jul 2003 15:47:58 -0400
+From: =?utf-8?q?J=C3=BCrgen=20Stohr?= <juergen.stohr@gmx.de>
+To: andre@linux-ide.org
+Subject: BUG in pdc202xx_old.c
+Date: Sun, 20 Jul 2003 22:06:21 +0200
+User-Agent: KMail/1.5
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Makefile 'rpm' target on Red Hat (8.0/9)
-Message-ID: <20030720195808.GA2323@mars.ravnborg.org>
-Mail-Followup-To: Oliver Pitzeier <oliver@linux-kernel.at>,
-	linux-kernel@vger.kernel.org
-References: <200307201939.h6KJdqxs005419@indianer.linux-kernel.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <200307201939.h6KJdqxs005419@indianer.linux-kernel.at>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200307202206.21872.juergen.stohr@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 20, 2003 at 09:40:23PM +0200, Oliver Pitzeier wrote:
-> If 'rpmbuild' doesn't work on other rpm-based distributions (like the two above) I would recommend checking for /etc/redhat-release... Patch for Makefile (from kver 2.4.21-pre5) attached.
+Hi Andre,
+in pdc202xx_old.c is a bug that prevents the use of "66 Clocking". The driver 
+always falls back to UDMA 33. The reason for this bug is found in function 
+"config_chipset_for_dma" when checking if the "other" drive is capable of 
+UDMA 66. The follwing patch, which should apply against 2.4.22-pre7, solves 
+the problem for me:
 
-That looks horrible.
+--- pdc202xx_old.c.broken       2003-07-20 20:12:39.000000000 +0200
++++ pdc202xx_old.c      2003-07-20 20:18:50.000000000 +0200
+@@ -425,7 +425,7 @@
+                         * check to make sure drive on same channel
+                         * is u66 capable
+                         */
+-                       if (hwif->drives[!(drive->dn%2)].id) {
++                       if (hwif->drives[!(drive->dn%2)].present) {
+                                if (hwif->drives[!(drive->dn%2)].id->dma_ultra 
+& 0x0078) {
+                                        hwif->OUTB(CLKSPD | mask, 
+(hwif->dma_master + 0x11));
+                                } else {
 
-In 2.6-test1 the following code is used:
-RPM             := $(shell if [ -x "/usr/bin/rpmbuild" ]; then echo rpmbuild; \
-                        else echo rpm; fi)
+regards,
+Jürgen
 
-I would suggest to do it this way, avoiding a distro specific check.
-Also there is no reason to export the RPM variable
-
-	Sam

@@ -1,30 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288477AbSANApa>; Sun, 13 Jan 2002 19:45:30 -0500
+	id <S288494AbSANAqs>; Sun, 13 Jan 2002 19:46:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288494AbSANAoC>; Sun, 13 Jan 2002 19:44:02 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:13837 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S288477AbSANAnB>; Sun, 13 Jan 2002 19:43:01 -0500
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-To: Robert.Lowery@colorbus.com.au (Robert Lowery)
-Date: Mon, 14 Jan 2002 00:51:30 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, andrea@suse.de
-In-Reply-To: <370747DEFD89D2119AFD00C0F017E66156A8AE@cbus613-server4.colorbus.com.au> from "Robert Lowery" at Jan 14, 2002 11:33:18 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S288499AbSANAql>; Sun, 13 Jan 2002 19:46:41 -0500
+Received: from cj379137-a.indpdnce1.mo.home.com ([24.179.182.153]:52740 "EHLO
+	ns.brink.cx") by vger.kernel.org with ESMTP id <S288494AbSANAp4>;
+	Sun, 13 Jan 2002 19:45:56 -0500
+From: Andrew Brink <abrink@ns.brink.cx>
+Date: Sun, 13 Jan 2002 18:45:28 -0600
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Getting Out of Memory errors at random intervals.
+Message-ID: <20020114004528.GA1534@ns.brink.cx>
+In-Reply-To: <20020114003907.GB1406@ns.brink.cx> <E16PvMS-00005i-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16PvLX-00005W-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <E16PvMS-00005i-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Quick question from a kernel newbie.
+Will do. However, might be a while, since this isn't reproducable on
+demand.
+
+On Mon, Jan 14, 2002 at 12:52:28AM +0000, Alan Cox wrote:
+> > On Mon, Jan 14, 2002 at 12:44:51AM +0000, Alan Cox wrote:
+> > > > *Shrug* I've done some experimenting with this, having a lab (30 people)
+> > > > all hit the site at the same time. Holds it fine most the time.  Usually
+> > > > the OOM's come during the middle of the night.
+> > > 
+> > > About 4am by any chance ?
+> > 
+> > On second thought, I went and reviewed some logs.
+> > Happened a lot on one box around 8ish.
+> > 
 > 
-> Could this audit be partially automated by the Stanford Checker? or would
-> there be too many false positives from other similar looping code?
-
-Some it can probably be audited but much of this stuff depends on knowing
-the hardware. I've yet to meet a gcc that can read manuals alas
-
+> Ok. Let me know how trying the other things work (also the list). I'm sure
+> Andrea, Marcelo and Rik all want to look at these cases

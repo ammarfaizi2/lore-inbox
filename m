@@ -1,93 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262586AbSJBUEQ>; Wed, 2 Oct 2002 16:04:16 -0400
+	id <S262564AbSJBT7k>; Wed, 2 Oct 2002 15:59:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262588AbSJBUEP>; Wed, 2 Oct 2002 16:04:15 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:12051 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S262586AbSJBUEO>; Wed, 2 Oct 2002 16:04:14 -0400
-Message-Id: <200210022004.g92K4qp31813@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] cli()/sti() fix for drivers/net/3c515.c
-Date: Wed, 2 Oct 2002 22:58:45 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Andrew Morton <akpm@zip.com.au>, Jeff Garzik <jgarzik@mandrakesoft.com>,
-       "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
+	id <S262565AbSJBT7k>; Wed, 2 Oct 2002 15:59:40 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37391 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262564AbSJBT7k>;
+	Wed, 2 Oct 2002 15:59:40 -0400
+Date: Wed, 2 Oct 2002 21:05:08 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Matthew Wilcox <willy@debian.org>, John Levon <levon@movementarian.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: flock(fd, LOCK_UN) taking 500ms+ ?
+Message-ID: <20021002210508.C28586@parcelfarce.linux.theplanet.co.uk>
+References: <20021002023901.GA91171@compsoc.man.ac.uk> <20021002032327.GA91947@compsoc.man.ac.uk> <20021002141435.A18377@parcelfarce.linux.theplanet.co.uk> <3D9B2734.D983E835@digeo.com> <20021002193052.B28586@parcelfarce.linux.theplanet.co.uk> <3D9B4797.8399682@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3D9B4797.8399682@digeo.com>; from akpm@digeo.com on Wed, Oct 02, 2002 at 12:23:03PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-These are my first patches for network drivers.
-Please comment if I'm doing something wrong.
-Compile tested. Testers with hw wanted.
---
-vda
+On Wed, Oct 02, 2002 at 12:23:03PM -0700, Andrew Morton wrote:
+> hm.  This is a tricky thing to guarantee.  If this process is
+> high-priority or SCHED_RR or whatever, we want to ensure that
+> any current holder of the lock gets a CPU slice?
+> 
+> Seems a strange thing to want to do, and if we really want to
+> implement these semantics then there's quite a bit of stuff
+> to do - making *all* blocked processes get some CPU will involve
+> scheduler work, or funny games with semaphores.
+> 
+> Now if we interpret "allowed to run" as meaning "made runnable" then
+> no probs.  Just wake them up.
 
-diff -u --recursive linux-2.5.38orig/drivers/net/3c515.c linux-2.5.38/drivers/net/3c515.c
---- linux-2.5.38orig/drivers/net/3c515.c	Sun Sep 22 04:25:01 2002
-+++ linux-2.5.38/drivers/net/3c515.c	Wed Oct  2 00:49:25 2002
-@@ -422,6 +422,8 @@
- /* Note: this is the only limit on the number of cards supported!! */
- static int options[8] = { -1, -1, -1, -1, -1, -1, -1, -1, };
+Yeah, I think the original author was a little imprecise in his description
+of the semantics.  The freebsd flock(2) manpage says:
 
-+static spinlock_t lock=SPIN_LOCK_UNLOCKED;
-+
- #ifdef MODULE
- static int debug = -1;
- /* A list of all installed Vortex devices, for removing the driver module. */
-@@ -917,8 +919,7 @@
- 		printk("%s: Media selection timer tick happened, %s.\n",
- 		       dev->name, media_tbl[dev->if_port].name);
+     A shared lock may be upgraded to an exclusive lock, and vice versa, sim­
+     ply by specifying the appropriate lock type; this results in the previous
+     lock being released and the new lock applied (possibly after other pro­
+     cesses have gained and released the lock).
 
--	save_flags(flags);
--	cli(); {
-+	spin_lock_irqsave(&lock, flags); {
- 		int old_window = inw(ioaddr + EL3_CMD) >> 13;
- 		int media_status;
- 		EL3WINDOW(4);
-@@ -986,7 +987,7 @@
- 		}
- 		EL3WINDOW(old_window);
- 	}
--	restore_flags(flags);
-+	spin_unlock_irqrestore(&lock,flags);
- 	if (corkscrew_debug > 1)
- 		printk("%s: Media selection timer finished, %s.\n",
- 		       dev->name, media_tbl[dev->if_port].name);
-@@ -1069,8 +1070,7 @@
- 		vp->tx_ring[entry].length = skb->len | 0x80000000;
- 		vp->tx_ring[entry].status = skb->len | 0x80000000;
+So I think what they're trying to say is that changing the lock type is
+exactly equivalent to removing the existing lock and then applying the
+new lock; it just happens to be one syscall.  Using cond_resched() looks
+like the right approach.
 
--		save_flags(flags);
--		cli();
-+		spin_lock_irqsave(&lock, flags);
- 		outw(DownStall, ioaddr + EL3_CMD);
- 		/* Wait for the stall to complete. */
- 		for (i = 20; i >= 0; i--)
-@@ -1085,7 +1085,7 @@
- 			queued_packet++;
- 		}
- 		outw(DownUnstall, ioaddr + EL3_CMD);
--		restore_flags(flags);
-+		spin_unlock_irqrestore(&lock,flags);
-
- 		vp->cur_tx++;
- 		if (vp->cur_tx - vp->dirty_tx > TX_RING_SIZE - 1)
-@@ -1534,10 +1534,9 @@
- 	unsigned long flags;
-
- 	if (netif_running(dev)) {
--		save_flags(flags);
--		cli();
-+		spin_lock_irqsave(&lock, flags);
- 		update_stats(dev->base_addr, dev);
--		restore_flags(flags);
-+		spin_unlock_irqrestore(&lock,flags);
- 	}
- 	return &vp->stats;
- }
+-- 
+Revolutions do not require corporate support.

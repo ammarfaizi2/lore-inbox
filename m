@@ -1,69 +1,232 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318730AbSH1GOJ>; Wed, 28 Aug 2002 02:14:09 -0400
+	id <S318738AbSH1GX4>; Wed, 28 Aug 2002 02:23:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318733AbSH1GOI>; Wed, 28 Aug 2002 02:14:08 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:6931 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id <S318730AbSH1GOI>;
-	Wed, 28 Aug 2002 02:14:08 -0400
-Date: Wed, 28 Aug 2002 08:18:27 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+	id <S318735AbSH1GX4>; Wed, 28 Aug 2002 02:23:56 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:52164 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S318734AbSH1GXv>; Wed, 28 Aug 2002 02:23:51 -0400
+Importance: Normal
+Sensitivity: 
+Subject: [PATCH] IPv6 PMTU/MTU for 2.5.31
 To: linux-kernel@vger.kernel.org
-Subject: Re: Linux v2.5.32
-Message-ID: <20020828061827.GB27967@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.33.0208271239580.2564-100000@penguin.transmeta.com> <Pine.LNX.4.33.0208271239580.2564-100000@penguin.transmeta.com> <20020827202250.GA24265@debian> <6e0.3d6be706.b5d05@gzp1.gzp.hu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Pd0ReVV5GZGQvF3a"
-Content-Disposition: inline
-In-Reply-To: <6e0.3d6be706.b5d05@gzp1.gzp.hu>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux mail 2.4.18 
-x-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-x-gpg-key: wwwkeys.de.pgp.net
+Cc: linux-net@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OFD565F40B.3F590E3A-ON88256C23.0022B7FD@boulder.ibm.com>
+From: "Shirley Ma" <xma@us.ibm.com>
+Date: Tue, 27 Aug 2002 23:27:37 -0700
+X-MIMETrack: Serialize by Router on D03NM037/03/M/IBM(Release 5.0.10 |March 22, 2002) at
+ 08/28/2002 12:28:09 AM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch will fix the following IPv6 PMTU & MTU problems:
 
---Pd0ReVV5GZGQvF3a
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+1.PMTU is not RFC1981 conformance to Section 4. Protocol Requirements.
 
-On Tue, 2002-08-27 20:54:30 -0000, Gabor Z. Papp <gzp@myhost.mynet>
-wrote in message <6e0.3d6be706.b5d05@gzp1.gzp.hu>:
->   gcc -Wp,-MD,./.8250.o.d -D__KERNEL__ -I/usr/src/linux-2.5.32-gzp3/inclu=
-de -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-s=
-trict-aliasing -fno-common -pipe -mpreferred-stack-boundary=3D2 -march=3Di6=
-86 -nostdinc -iwithprefix include -DMODULE -include /usr/src/linux-2.5.32-g=
-zp3/include/linux/modversions.h   -DKBUILD_BASENAME=3D8250 -DEXPORT_SYMTAB =
- -c -o 8250.o 8250.c
-> In file included from 8250.c:34:
-> /usr/src/linux-2.5.32-gzp3/include/linux/serialP.h:50: field `icount' has=
- incomplete type
+An attempt to detect an increase MUST NOT be done less than 5 minutes after
+a Packet Too Big Messages has been received for the give path. The
+recommended setting for this timer is twice its minimum value (10 minutes).
 
-Header file problem. In serialP.h, right at the beginning, there's a
-version check, which unfortunately is in wrong direction. No sources
-available, no patch...
+Without the patch TAHI test failure on detecting PMTU increase, after
+applying this patch all PMTU tests pass.
 
-MfG, JBG
+2. PMTU doesn't set as IPV6_MIN_MTU if detecting any MTU size less than
+IPV6_MIN_MTU.
 
---=20
-Jan-Benedict Glaw   .   jbglaw@lug-owl.de   .   +49-172-7608481
-	 -- New APT-Proxy written in shell script --
-	   http://lug-owl.de/~jbglaw/software/ap2/
+3. Administratively changing MTU doesn't reflect on interface route.
 
---Pd0ReVV5GZGQvF3a
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Produce this problem by doing below steps on one side:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+      a. ifconfig eth0 mtu 1400
+      b. ping6 -s 1450 xxxx (the other side ipv6 address)   (tcpdump will
+find the fragmented packets)
+      c. ifconfig eth0 mtu 1500
+      d. ping6 -s 1450 xxxx (the other side ipv6 address)   (packets are
+still fragmented, pmtu = 1500 will never be taken place.)
 
-iD4DBQE9bGszHb1edYOZ4bsRAiMBAJda9fwE/AqaC+Y+Pyudr4q/aFJ4AJ9ZEeRl
-cddj1rj618wXbfrD5v8xKw==
-=ako+
------END PGP SIGNATURE-----
+4.Interface MTU change isn't taken place for IPv6.
 
---Pd0ReVV5GZGQvF3a--
+There is  a bug in addrconf_notify(). If bring interface down and change
+the MTU size, after bringing the interface up, the changed MTU doesn't
+reflect in IPv6. It is easy to reproduce it.
+
+Produce this problem by doing below steps on one side:
+
+      a. ifdown eth0
+      b. ifconfig eth0 mtu 1400
+      c. ifup eth0
+      d. ping6 -s 1450 xxxx (the other side ipv6 address)
+
+5.  Route dereference is negative in ndisc_na_rcv(). If race happens, check
+route reference == 0 is invalid,  potentially cause poiner to NULL. In file
+ndisc_na_rcv() under linux24/net/ipv6/ndisc.c file, route deference happens
+twice. The derefence before ip6_del_rt() shouldn't happen. ip6_del_rt()
+itself will do the deference.
+
+
+Any comments are welcome!
+
+
+Thanks
+
+Shirley Ma
+
+
+diff -urN linux-2.5.31/net/ipv6/addrconf.c linux-2.5.31pmtu/net/ipv6/addrconf.c
+--- linux-2.5.31/net/ipv6/addrconf.c      Sat Aug 10 18:41:55 2002
++++ linux-2.5.31pmtu/net/ipv6/addrconf.c  Wed Aug 14 09:33:20 2002
+@@ -1272,9 +1272,8 @@
+ int addrconf_notify(struct notifier_block *this, unsigned long event,
+                void * data)
+ {
+-     struct net_device *dev;
+-
+-     dev = (struct net_device *) data;
++     struct net_device *dev = (struct net_device *) data;
++     struct inet6_dev *idev = __in6_dev_get(dev);
+
+      switch(event) {
+      case NETDEV_UP:
+@@ -1291,16 +1290,27 @@
+                  addrconf_dev_config(dev);
+                  break;
+            };
++           if (idev) {
++                 /* If the MTU changed during the interface down, when the
++                    interface up, the changed MTU must be reflected in the
++                    idev as well as routers.
++                  */
++                 if (idev->cnf.mtu6 != dev->mtu && dev->mtu >= IPV6_MIN_MTU) {
++                       rt6_mtu_change(dev, dev->mtu);
++                       idev->cnf.mtu6 = dev->mtu;
++                 }
++                 /* If the changed mtu during down is lower than IPV6_MIN_MTU
++                    stop IPv6 on this interface.
++                  */
++                 if (dev->mtu < IPV6_MIN_MTU)
++                       addrconf_ifdown(dev, event != NETDEV_DOWN);
++           }
+            break;
+
+      case NETDEV_CHANGEMTU:
+-           if (dev->mtu >= IPV6_MIN_MTU) {
+-                 struct inet6_dev *idev;
+-
+-                 if ((idev = __in6_dev_get(dev)) == NULL)
+-                       break;
+-                 idev->cnf.mtu6 = dev->mtu;
++           if ( idev && dev->mtu >= IPV6_MIN_MTU) {
+                  rt6_mtu_change(dev, dev->mtu);
++                 idev->cnf.mtu6 = dev->mtu;
+                  break;
+            }
+
+diff -urN linux-2.5.31/net/ipv6/ndisc.c linux-2.5.31pmtu/net/ipv6/ndisc.c
+--- linux-2.5.31/net/ipv6/ndisc.c   Sat Aug 10 18:41:41 2002
++++ linux-2.5.31pmtu/net/ipv6/ndisc.c     Wed Aug 14 09:27:41 2002
+@@ -1166,7 +1166,6 @@
+                              if (rt) {
+                                    /* It is safe only because
+                                       we aer in BH */
+-                                   dst_release(&rt->u.dst);
+                                    ip6_del_rt(rt);
+                              }
+                        }
+diff -urN linux-2.5.31/net/ipv6/route.c linux-2.5.31pmtu/net/ipv6/route.c
+--- linux-2.5.31/net/ipv6/route.c   Sat Aug 10 18:41:23 2002
++++ linux-2.5.31pmtu/net/ipv6/route.c     Wed Aug 14 09:33:27 2002
+@@ -976,7 +976,11 @@
+            if (net_ratelimit())
+                  printk(KERN_DEBUG "rt6_pmtu_discovery: invalid MTU value %d\n",
+                         pmtu);
+-           return;
++           /* According to RFC1981, the PMTU is set to the IPv6 minimum
++              link MTU if the node receives a Packet Too Big message
++              reporting next-hop MTU that is less than the IPv6 minimum MTU.
++            */
++           pmtu = IPV6_MIN_MTU;
+      }
+
+      rt = rt6_lookup(daddr, saddr, dev->ifindex, 0);
+@@ -1014,9 +1018,14 @@
+            nrt = rt6_cow(rt, daddr, saddr);
+            if (!nrt->u.dst.error) {
+                  nrt->u.dst.pmtu = pmtu;
+-                 dst_set_expires(&rt->u.dst, ip6_rt_mtu_expires);
++                 /* According to RFC 1981, detecting PMTU increase shouldn't be
++                    happened within 5 mins, the recommended timer is 10 mins.
++                    Here this route expiration time is set to ip6_rt_mtu_expires
++                    which is 10 mins. After 10 mins the decreased pmtu is expired
++                    and detecting PMTU increase will be automatically happened.
++                  */
++                 dst_set_expires(&nrt->u.dst, ip6_rt_mtu_expires);
+                  nrt->rt6i_flags |= RTF_DYNAMIC|RTF_EXPIRES;
+-                 dst_release(&nrt->u.dst);
+            }
+      } else {
+            nrt = ip6_rt_copy(rt);
+@@ -1026,9 +1035,18 @@
+            nrt->rt6i_dst.plen = 128;
+            nrt->u.dst.flags |= DST_HOST;
+            nrt->rt6i_nexthop = neigh_clone(rt->rt6i_nexthop);
+-           dst_set_expires(&rt->u.dst, ip6_rt_mtu_expires);
++           dst_set_expires(&nrt->u.dst, ip6_rt_mtu_expires);
+            nrt->rt6i_flags |= RTF_DYNAMIC|RTF_CACHE|RTF_EXPIRES;
+            nrt->u.dst.pmtu = pmtu;
++           /* If there is no reference to this route, this route will be
++              deleted by fib6_run_gc() within 30 secs. The cached decreased
++              PMTU will be gone. It's possible to be deleted before any
++              other protocol using it. Then the old larger pmtu will be used,
++              which against RFC1981: detect an increase MUST NOT be done
++              less than 5 minutes after a Packet Too Big Messages has
++              been received for the given path.
++            */
++           dst_hold(&nrt->u.dst);
+            rt6_ins(nrt);
+      }
+
+@@ -1380,15 +1398,32 @@
+ static int rt6_mtu_change_route(struct rt6_info *rt, void *p_arg)
+ {
+      struct rt6_mtu_change_arg *arg = (struct rt6_mtu_change_arg *) p_arg;
+-
++     struct inet6_dev *idev;
+      /* In IPv6 pmtu discovery is not optional,
+         so that RTAX_MTU lock cannot disable it.
+         We still use this lock to block changes
+         caused by addrconf/ndisc.
+      */
++     idev = __in6_dev_get(arg->dev);
++     /* For administrative MTU increase, there is no way to discover
++        IPv6 PMTU increase, so PMTU increase should be updated here.
++        Since RFC 1981 doesn't include administrative MTU increase
++        update PMTU increase is a MUST. (i.e. jumbo frame)
++      */
++     /*
++        If new MTU is less than route PMTU, this new MTU will be the
++        lowest MTU in the path, update the route PMTU to refect PMTU
++        decreases; if new MTU is greater than route PMTU, and the
++        old MTU is the lowest MTU in the path, update the route PMTU
++        to refect the increase. In this case if the other nodes' MTU
++        also have the lowest MTU, TOO BIG MESSAGE will be lead to
++        PMTU discouvery.
++      */
+      if (rt->rt6i_dev == arg->dev &&
+-         rt->u.dst.pmtu > arg->mtu &&
+-         !(rt->u.dst.mxlock&(1<<RTAX_MTU)))
++         !(rt->u.dst.mxlock&(1<<RTAX_MTU)) &&
++           (rt->u.dst.pmtu > arg->mtu ||
++            (rt->u.dst.pmtu < arg->mtu &&
++           rt->u.dst.pmtu == idev->cnf.mtu6)))
+            rt->u.dst.pmtu = arg->mtu;
+      rt->u.dst.advmss = max_t(unsigned int, arg->mtu - 60, ip6_rt_min_advmss);
+      if (rt->u.dst.advmss > 65535-20)
+
+
+
+
+
+

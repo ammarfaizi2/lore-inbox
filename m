@@ -1,45 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261963AbSJDPHP>; Fri, 4 Oct 2002 11:07:15 -0400
+	id <S262782AbSJDR2q>; Fri, 4 Oct 2002 13:28:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261964AbSJDPGj>; Fri, 4 Oct 2002 11:06:39 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:23788 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S261963AbSJDPFg>;
-	Fri, 4 Oct 2002 11:05:36 -0400
-Date: Fri, 4 Oct 2002 11:11:07 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Christoph Hellwig <hch@infradead.org>
-cc: Kevin Corry <corryk@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] EVMS core 1/4: evms.c
-In-Reply-To: <20021004155639.A32001@infradead.org>
-Message-ID: <Pine.GSO.4.21.0210041104490.19491-100000@weyl.math.psu.edu>
+	id <S262783AbSJDR2G>; Fri, 4 Oct 2002 13:28:06 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:62080 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S262782AbSJDR1w>;
+	Fri, 4 Oct 2002 13:27:52 -0400
+Message-ID: <3D9DCA1D.7070400@colorfullife.com>
+Date: Fri, 04 Oct 2002 19:04:29 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: akpm@digeo.com, linux-kernel@vger.kernel.org
+CC: mbligh@aracnet.com
+Subject: [PATCH] patch-slab-split-03-tail
+Content-Type: multipart/mixed;
+ boundary="------------010100020304010803080807"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------010100020304010803080807
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+part 3:
+[depends on -02-SMP]
+
+If an object is freed from a slab, then move the slab to the tail of the 
+partial list - this should increase the probability that the other 
+objects from the same page are freed, too, and that a page can be 
+returned to gfp later.
+
+The cpu arrays are now always in front of the list, i.e. cache hit rates 
+should not matter.
 
 
-On Fri, 4 Oct 2002, Christoph Hellwig wrote:
+Please apply
 
-> I don't think this is_busy check is a good idea.  Anyways
-> it should be better something like this (then in block_dev.c):
-> 
-> int bd_busy(struct block_device *bdev)
-> {
-> 	int res = 0;
-> 	spin_lock(&bdev_lock);
-> 	if (bdev->bd_holder)
-> 		res = -EBUSY;
-> 	spin_unlock(&bdev_lock);
-> 	return res;
-> }
+--
+	Manfred
 
-It's completely useless - any code that actually relies on its value is
-racy, since there's nothing to prevent bd_claim() from being called
-just as we drop bdev_lock.
 
-The same applies to original version - if you want to protect some area,
-use bd_claim() and don't release it until you are out of critical area,
-damnit.
+--------------010100020304010803080807
+Content-Type: text/plain;
+ name="patch-slab-split-03-tail"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-slab-split-03-tail"
+
+--- 2.5/mm/slab.c	Fri Oct  4 18:59:01 2002
++++ build-2.5/mm/slab.c	Fri Oct  4 18:59:11 2002
+@@ -1478,7 +1478,7 @@
+ 		} else if (unlikely(inuse == cachep->num)) {
+ 			/* Was full. */
+ 			list_del(&slabp->list);
+-			list_add(&slabp->list, &cachep->slabs_partial);
++			list_add_tail(&slabp->list, &cachep->slabs_partial);
+ 		}
+ 	}
+ }
+
+--------------010100020304010803080807--
+
 

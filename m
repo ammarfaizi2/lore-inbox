@@ -1,58 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130309AbRALTWy>; Fri, 12 Jan 2001 14:22:54 -0500
+	id <S131152AbRALTa1>; Fri, 12 Jan 2001 14:30:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131152AbRALTWo>; Fri, 12 Jan 2001 14:22:44 -0500
-Received: from minster.cs.york.ac.uk ([144.32.40.2]:13043 "EHLO
-	minster.cs.york.ac.uk") by vger.kernel.org with ESMTP
-	id <S130309AbRALTWi>; Fri, 12 Jan 2001 14:22:38 -0500
-From: "Laramie Leavitt" <lar@cs.york.ac.uk>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: 2.4.1-pre1 breaks XFree 4.0.2 and "w"
-Date: Fri, 12 Jan 2001 19:19:49 -0000
-Message-ID: <NEBBKCNHIKGLMACGICIGKEKDCCAA.lar@cs.york.ac.uk>
+	id <S131645AbRALTaR>; Fri, 12 Jan 2001 14:30:17 -0500
+Received: from tux.rsn.hk-r.se ([194.47.143.135]:42377 "EHLO tux.rsn.hk-r.se")
+	by vger.kernel.org with ESMTP id <S131152AbRALTaC>;
+	Fri, 12 Jan 2001 14:30:02 -0500
+Date: Fri, 12 Jan 2001 20:30:07 +0100 (CET)
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: Stephen Torri <s.torri@lancaster.ac.uk>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux booting from HD on Promise Ultra ATA 100
+In-Reply-To: <Pine.LNX.4.21.0101121555240.4828-100000@egb070000014.lancs.ac.uk>
+Message-ID: <Pine.LNX.4.21.0101122027230.6699-100000@tux.rsn.hk-r.se>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <20010112195715.A30496@athlon.random>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6600
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Fri, Jan 12, 2001 at 10:35:24AM -0800, Linus Torvalds wrote:
-> > Andreas argument was that earlier kernels weren't consistent, and as
-> > such we shouldn't even bother to try to make newer kernels consistent. 
-> > We would be better off reporting our internal inconsistencies the way
-> > earlier kernels did - the kernel would be confusing, but at least it
-> > would be consistently confusing ;)
-> 
-> The earlier kernels were 98% consistent in providing the 
-> "cpu_has" information
-> via /proc/cpuinfo that is true information too.
-> 
-> What I am suggesting is to fix the few places to make the 
-> /proc/cpuinfo 100%
-> consistent reporting "cpu_has", and to provide the "can_I_use" 
-> information in
-> another place (for example with /proc/osinfo or a new "osflags" row in
-> /proc/cpuinfo).
-> 
-> This way we are 100% consistent and we don't lose the "cpu_has" 
-> information.
-> 
+On Fri, 12 Jan 2001, Stephen Torri wrote:
 
-Yes, but why?  If the features cannot be used by userspace, then 
-2.2 should be fixed to use the current model.  If someone wants
-the information about the cpu that is not provided by the 'cpu_allows'
-(My view of 'can_I_use' ) can't they just do a 'cpuid' and get
-it for themselves anyway?
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> On Fri, 12 Jan 2001, Martin Josefsson wrote:
+> 
+> > My setup looks like this, I boot from hde
+> > I configured my BIOS to boot from SCSI (I have no scsi-adapter but the
+> > promise card reports itself as one at boottime)
+> > 
+> > boot = /dev/hde3
+> > delay = 50
+> > message = /boot/message
+> > vga = extended
+> > read-only
+> > lba32
+> > disk=/dev/hde
+> >   bios=0x80
+> 
+> 
+> The line "lba32" is for what? I have to ask this because I have never seen
+> it in an example of a lilo.conf file before.
 
-Laramie
+it is a BIOS extension that allows you to boot of a partition thats
+located above cylinder 1024. I think it's called EDB or something like
+that.
+
+> Also you put "disk=/dev/hde and bios=0x80" to inform lilo that there was a
+> disk there and its bios address is 0x80. Is this right?
+
+yes.
+
+> If I would follow your example then I would put:
+> 
+> lba32
+> disk=/dev/hdf
+>    bios=0x82
+
+I think that would be correct yes, and install LILO on hde (I think the
+promise-card only tries to boot from primary master when you have selected
+SCSI in BIOS. But I'm not sure.
+
+/Martin
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

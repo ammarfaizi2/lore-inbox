@@ -1,67 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267718AbTGTSg3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 14:36:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267765AbTGTSg3
+	id S267687AbTGTSsi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 14:48:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267705AbTGTSsi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 14:36:29 -0400
-Received: from [65.244.37.61] ([65.244.37.61]:57801 "EHLO
-	WSPNYCON1IPC.corp.root.ipc.com") by vger.kernel.org with ESMTP
-	id S267718AbTGTSfy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 14:35:54 -0400
-Message-ID: <170EBA504C3AD511A3FE00508BB89A920234CD4F@exnanycmbx4.ipc.com>
-From: "Downing, Thomas" <Thomas.Downing@ipc.com>
-To: "'Andrew Morton'" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: RE: 2.6.0-test1-mm1
-Date: Sun, 20 Jul 2003 14:50:40 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Sun, 20 Jul 2003 14:48:38 -0400
+Received: from smtp-2.concepts.nl ([213.197.30.52]:3595 "EHLO
+	smtp-2.concepts.nl") by vger.kernel.org with ESMTP id S267687AbTGTSsg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jul 2003 14:48:36 -0400
+Subject: Re: [2.5.x] doesn't boot at all on one computer
+From: Ronald Bultje <rbultje@ronald.bitfreak.net>
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030713211105.GA8661@suse.de>
+References: <1058115160.2200.7.camel@shrek.bitfreak.net>
+	 <20030713171523.GA28526@suse.de>
+	 <1058118821.2238.11.camel@shrek.bitfreak.net>
+	 <20030713211105.GA8661@suse.de>
+Content-Type: text/plain
+Message-Id: <1058727848.2200.194.camel@shrek.bitfreak.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 20 Jul 2003 21:04:08 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -----Original Message-----
-> From: Andrew Morton [mailto:akpm@osdl.org]
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/
-> 2.6.0-test1/2.6.0-test1-mm1/
-> 
-> . Lots of bugfixes.
-> . Another interactivity patch from Con.  Feedback is needed on this
->   please - we cannot make much progress on this fairly subjective work
->   without lots of people telling us how it is working for them.
-> 
+Hi Dave & all,
 
-I have been testing interactivity now for for a while.  The only
-symptom (subjective) that I can see is occasional but repeatable
-(if you get what I mean) video _only_ skips in xine.  The audio
-does not skip.  The video skips are very short, only a 4-5 frames
-at most.
+On Sun, 2003-07-13 at 23:11, Dave Jones wrote:
+> On Sun, Jul 13, 2003 at 07:53:41PM +0200, Ronald Bultje wrote:
+>  > >  > http://213.197.11.65/ronald/config-2.5.74-worksforothers
+[..]
+> <randomguess>
+> Can you try with CONFIG_VIDEO_SELECT=n ?
 
-They occur _only_ when performing such operations as rendering a 
-large bitmap to the screen.  They do _not_ occur when dragging
-windows (with contents visible during drag,) nor does CPU load
-seem to have an effect.
+I had some time to test this today. Did I mention that you're a hero?
+This fixed it, thanks!
 
-Playing games with nice/renice on xine or on other processes,
-especially GIMP etc., does not seem to have an effect.  
+Ronald
 
->From this it seems to my limited view that the remaining skips
-might be XFree86 issues?
+-- 
+Ronald Bultje <rbultje@ronald.bitfreak.net>
 
-Some pertinent details:
-
-2 x P4 Xeon 2.4 Mhz, 512Mb ram.
-Radeon VQ + Matrox Mystique.
-Premptive kernel
-Hyperthreading enabled.
-IDE DVD, no SCSI in system.
-
-No problems at all, only minor niggles since 2.5.67.  (I have
-been following -mm patches.)
-
-Thanks for the wonderful work!
-
-td

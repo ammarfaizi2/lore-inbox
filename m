@@ -1,80 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264337AbTLESwp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 13:52:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264339AbTLESwp
+	id S264345AbTLESyf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 13:54:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264347AbTLESye
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 13:52:45 -0500
-Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:50671 "EHLO
-	tabby.cats.internal") by vger.kernel.org with ESMTP id S264337AbTLESvg
+	Fri, 5 Dec 2003 13:54:34 -0500
+Received: from lists.us.dell.com ([143.166.224.162]:15010 "EHLO
+	lists.us.dell.com") by vger.kernel.org with ESMTP id S264345AbTLESy2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 13:51:36 -0500
-Content-Type: text/plain;
-  charset="CP 1252"
-From: Jesse Pollard <jesse@cats-chateau.net>
-To: David Dyck <david.dyck@fluke.com>
-Subject: Re: Linux GPL and binary module exception clause?
-Date: Fri, 5 Dec 2003 12:51:11 -0600
-X-Mailer: KMail [version 1.2]
-Cc: David Schwartz <davids@webmaster.com>, linux-kernel@vger.kernel.org
-References: <732BE51FE9901143AE04411A11CC465602F155F3@evtexc02.tc.fluke.com> <Pine.LNX.4.51.0312050824270.9496@dd.tc.fluke.com>
-In-Reply-To: <Pine.LNX.4.51.0312050824270.9496@dd.tc.fluke.com>
-MIME-Version: 1.0
-Message-Id: <03120512511100.22291@tabby>
-Content-Transfer-Encoding: 8bit
+	Fri, 5 Dec 2003 13:54:28 -0500
+Date: Fri, 5 Dec 2003 12:53:51 -0600
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Anton Altaparmakov <aia21@cam.ac.uk>, Meelis Roos <mroos@linux.ee>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23-bk bogus edd changeset - Re: 2.4.23 compile error in edd
+Message-ID: <20031205125351.A22277@lists.us.dell.com>
+References: <Pine.SOL.4.58.0312042225300.26114@yellow.csi.cam.ac.uk> <Pine.LNX.4.44.0312051109580.1782-100000@logos.cnet> <20031205113619.A20371@lists.us.dell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20031205113619.A20371@lists.us.dell.com>; from Matt_Domsch@dell.com on Fri, Dec 05, 2003 at 11:36:19AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 05 December 2003 11:05, David Dyck wrote:
-> On Fri, 5 Dec 2003 at 07:06 -0800, Jesse Pollard <jesse@cats-chateau.net>
->
-> wrote:
-> > Quite simple. If you include the Linux kernel include files you get a
-> > derived program that must be released under GPL if you distribute that
-> > program.
->
-> When I first read this out out of context, I wondered if you were saying
-> that any executable that I write on my libc5 linux system (and those that
-> were compiled on libc5 systems long ago - like my copy of Adobe acrobat,
-> and RealNetworks real audio) must have been distributed under GPL?
->
->     [ Please recall that the kernel header files were included in users
->     programs (since /usr/include/asm and /usr/include/linux were symlinks
->     into the kernel sources) and common include files like dirent.h,
->     errno.h, and signal.h.  This still works with libc5 and todays
->     Linux 2.4.23. ]
->
-> You must not be saying that, since Linus said:
->
->     "There's a clarification that user-space programs that use the standard
->     system call interfaces aren't considered derived works, but even that
->     isn't an "exception" - it's just a statement of a border of what is
->     clearly considered a "derived work". User programs are _clearly_
->     not derived works of the kernel, and as such whatever the kernel
->     license is just doesn't matter."
->
-> And after re-reading more of the thread, you must be refering to modules
-> that include kernel include files, right?
+> Yeah, that's my bad, setup.c should say DISK80_SIG_BUFFER not
+> DISKSIG_BUFFER.
 
-Mostly. Primarily. That is because the only executable that results IS the
-kernel.
+BK patch to fix that:
+Marcelo, please do a
 
-There is the fuzzy area where you write a user mode application that uses
-some Kernel headers for the purpose of doing things like an ext2fs debugger.
-The kernel headers are NOT released under LGPL, but all of the libc functions
-and include files are. The syscall interfaces were explicitly excluded as
-requiring GPL because the Linus quote.
+	bk pull http://mdomsch.bkbits.net/linux-2.4-edd
 
-Personally, I think it would be a good idea to have these specific ones under
-the LGPL instead of GPL, and then use them in both kernel and user space
-(which the LGPL also allows).
+This will update the following files:
 
-If the header is not LGPL (which allows propriatary programs to include
-them), then you run a severe risk of forcing the user mode application into 
-GPL if it is distributed. I think this is more likely if the header includes
-inline functions, and not in the case of those just defining the syscall data 
-structures/interface.
+ arch/i386/kernel/edd.c   |    2 +-
+ arch/i386/kernel/setup.c |    2 +-
+ 2 files changed, 2 insertions, 2 deletions
 
-One area this would clarify would be if someone tried to write a propriatary
-kernel debugger... It would run in user mode, but look at/poke at kernel 
-structures and functions in such detail that it SHOULD be a GPL program.
+through these ChangeSets:
+
+<Matt_Domsch@dell.com> (03/12/05 1.1199)
+   EDD: s/DISKSIG_BUFFER/DISK80_SIG_BUFFER so it compiles
+   
+   bump EDD version number.
+
+
+Tested on my PowerEdge 4600.
+
+-- 
+Matt Domsch
+Sr. Software Engineer, Lead Engineer
+Dell Linux Solutions www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com

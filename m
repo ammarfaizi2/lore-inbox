@@ -1,107 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262253AbUK3Scd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262246AbUK3SdV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262253AbUK3Scd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 13:32:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262249AbUK3Saj
+	id S262246AbUK3SdV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 13:33:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262260AbUK3Scu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 13:30:39 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:52145 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S262243AbUK3S2s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 13:28:48 -0500
-Message-Id: <200411301828.iAUISgf8031548@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.1 10/11/2004 with nmh-1.1-RC3
-To: John Richard Moser <nigelenki@comcast.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Designing Another File System 
-In-Reply-To: Your message of "Mon, 29 Nov 2004 23:32:05 EST."
-             <41ABF7C5.5070609@comcast.net> 
-From: Valdis.Kletnieks@vt.edu
-References: <41ABF7C5.5070609@comcast.net>
+	Tue, 30 Nov 2004 13:32:50 -0500
+Received: from fw.osdl.org ([65.172.181.6]:44439 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262251AbUK3Sbz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 13:31:55 -0500
+Date: Tue, 30 Nov 2004 10:31:50 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: Buffer overrun in arch/x86_64/sys_ia32.c:sys32_ni_syscall()
+Message-ID: <20041130103150.I14339@build.pdx.osdl.net>
+References: <1101787520.4087.5.camel@localhost>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1869105040P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 30 Nov 2004 13:28:42 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1101787520.4087.5.camel@localhost>; from jeremy@goop.org on Mon, Nov 29, 2004 at 08:05:20PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1869105040P
-Content-Type: text/plain; charset=us-ascii
+* Jeremy Fitzhardinge (jeremy@goop.org) wrote:
+> struct task_struct.comm is defined to be 16 chars, but
+> arch/x86_64/sys_ia32.c:sys32_ni_syscall() copies it into a static 8 byte
+> buffer, which will surely cause problems.  This patch makes lastcomm[]
+> the right size, and makes sure it can't be overrun.  Since the code also
+> goes to the effort of getting a local copy of current in "me", we may as
+> well use it for printing the message.
 
-On Mon, 29 Nov 2004 23:32:05 EST, John Richard Moser said:
+Looks good, but you missed sys32_vm86_warning.
 
-(Somebody else can address the performance issues - I'll stick to the
-parts I understand.. ;)
+Signed-off-by: Chris Wright <chrisw@osdl.org>
 
-> - - A design based around preventing information leaking by guaranteed
-> secure erasure of data (insofar that the journal even will finish wiping
-> out data when replaying a transaction)
-
-Consider carefully what threat model you have here - your choices will be
-constrained by it.  If you don't know your threat model, it's time to look
-for other features to design around...
-
-(your comment indicates a level of confusion regarding what paranoia is desired)
-
-Note well that you need to define "Guaranteed secure erasure" - at least for
-US DOD contractors, DOD 5220-22.M requires 3 over-writes (a character, its
-complement, and random) and verify).  That's good for SECRET and below - but
-TOP SECRET and higher still require physical destruction of the media.  Also,
-they punt on the issue of over-writing a sector that's been re-allocated by
-the hardware (apparently the chances of critical secret data being left in
-a reallocated block but still actually readable are "low enough" not to worry).
-
-Also, 5220-22.M is more concerned with the exposure of "You surplus the machine
-and forgot to wipe the drives" - there's a whole *different* set of rules
-regarding how you keep an attacker who steals the system (physical access
-issues) or gets root access (this is a *tough* one) from scavenging the
-drives....
-
-> 2)  Are there any other security concerns aside from information leaking
-> (deleted data being left over on disk, which may pop up in incompletely
-> written files)?
-
-Which of the following are you worried about:
-
-1) On a filesystem that does metadata journalling but not data journalling,
-it's possible for a file to be extended by a write(), the metadata is
-journalled, but the system fails before the actual data makes it to disk.  As a
-result, after the system comes up, stale data is present in the file, causing a
-small data exposure and large reliability issues (opening a file with
-OpenOffice will almost certainly cause Very Bad Errors if it's a file that was
-in the process of being saved when the system went down, so you're actually
-reading blocks of somebody else's old Fortran source code...)  Note that this
-exposure does *NOT* need you to clear data out of the journal - merely to
-journal data (or find other ways to guarantee you never allocate a stale block
-of data).  This is why I suggest that you're unclear regarding your threat
-model.
-
-2) If you're worried about a well-funded attacker managing to scavenge secure
-data out of the journal, what do you do about the attacker scavenging *the rest
-of the disk, including existing files*?  (Hint - cryptoloop is the correct
-answer here, unless you think Jaari Russo is right, in which case *his*
-encrypted filesystem stuff is the right answer).
-
-Alternatively, you may wish to consider a filesystem that does crypto on a
-per-file basis - be prepared to deal with some very hairy key-management and
-information leakage problems if you pursue this route...
-
-In any case, both cryptoloop and Jaari's loop-aes address the "disk captured by
-the attacker" issues, but don't do much for "attacker gets root" - that's a
-whole DIFFERENT set of problems...
-
-
---==_Exmh_1869105040P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFBrLvZcC3lWbTT17ARAr9YAKDXgBcUakoIPySzor05CgrnVFcs6ACeN4Ln
-60RTKoza5Q/hQFUPB6YhKgo=
-=lWbJ
------END PGP SIGNATURE-----
-
---==_Exmh_1869105040P--
+===== arch/x86_64/ia32/sys_ia32.c 1.74 vs edited =====
+--- 1.74/arch/x86_64/ia32/sys_ia32.c	2004-11-02 06:40:37 -08:00
++++ edited/arch/x86_64/ia32/sys_ia32.c	2004-11-30 09:42:26 -08:00
+@@ -525,11 +525,12 @@ sys32_waitpid(compat_pid_t pid, unsigned
+ int sys32_ni_syscall(int call)
+ { 
+ 	struct task_struct *me = current;
+-	static char lastcomm[8];
+-	if (strcmp(lastcomm, me->comm)) {
+-	printk(KERN_INFO "IA32 syscall %d from %s not implemented\n", call,
+-	       current->comm);
+-		strcpy(lastcomm, me->comm); 
++	static char lastcomm[sizeof(me->comm)];
++
++	if (strncmp(lastcomm, me->comm, sizeof(lastcomm))) {
++		printk(KERN_INFO "IA32 syscall %d from %s not implemented\n",
++		       call, me->comm);
++		strncpy(lastcomm, me->comm, sizeof(lastcomm));
+ 	} 
+ 	return -ENOSYS;	       
+ } 
+@@ -1125,11 +1126,11 @@ long sys32_fadvise64_64(int fd, __u32 of
+ long sys32_vm86_warning(void)
+ { 
+ 	struct task_struct *me = current;
+-	static char lastcomm[8];
+-	if (strcmp(lastcomm, me->comm)) {
++	static char lastcomm[sizeof(me->comm)];
++	if (strncmp(lastcomm, me->comm, sizeof(lastcomm))) {
+ 		printk(KERN_INFO "%s: vm86 mode not supported on 64 bit kernel\n",
+ 		       me->comm);
+-		strcpy(lastcomm, me->comm); 
++		strncpy(lastcomm, me->comm, sizeof(lastcomm)); 
+ 	} 
+ 	return -ENOSYS;
+ } 

@@ -1,134 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129104AbRBNKNw>; Wed, 14 Feb 2001 05:13:52 -0500
+	id <S129055AbRBNKtf>; Wed, 14 Feb 2001 05:49:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129106AbRBNKNm>; Wed, 14 Feb 2001 05:13:42 -0500
-Received: from smtp017.mail.yahoo.com ([216.136.174.114]:24082 "HELO
-	smtp017.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S129104AbRBNKNb>; Wed, 14 Feb 2001 05:13:31 -0500
-X-Apparently-From: <p?gortmaker@yahoo.com>
-Message-ID: <3A8A56EF.2DA6AB1D@yahoo.com>
-Date: Wed, 14 Feb 2001 04:59:11 -0500
-From: Paul Gortmaker <p_gortmaker@yahoo.com>
-X-Mailer: Mozilla 3.04 (X11; I; Linux 2.2.18 i486)
+	id <S129057AbRBNKt0>; Wed, 14 Feb 2001 05:49:26 -0500
+Received: from idefix.linkvest.com ([194.209.53.99]:54286 "EHLO
+	idefix.linkvest.com") by vger.kernel.org with ESMTP
+	id <S129055AbRBNKtT>; Wed, 14 Feb 2001 05:49:19 -0500
+Message-ID: <B45465FD9C23D21193E90000F8D0F3DF683955@mailsrv.linkvest.ch>
+From: Jean-Eric Cuendet <Jean-Eric.Cuendet@linkvest.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Cc: "'neilb@cse.unsw.edu.au'" <neilb@cse.unsw.edu.au>,
+        "'Andrew Morton'" <andrewm@uow.edu.au>
+Subject: NFSD die with 2.4.1 (resend with ksymoops)
+Date: Wed, 14 Feb 2001 11:49:06 +0100
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: alan@lxorguk.ukuu.org.uk, ag784@freenet.buffalo.edu,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] sbpcd oops on merged requests
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Two fixes here - 1st is to make the new max_drives its own separate
-module parameter since the driver uses the existing sbpcd module
-parameter internally for more than just module parameters <sigh>.
+Hi all,
+I have a machine with kernel 2.4.1 + acls patch. It exports some volume via
+NFS (installed with RedHat 7.0 + custom 2.4.1 kernel). The underlying
+filesystem is ext2. I tried with NFS v2 and v3 and without ACLs in the
+kernel. results are the same.
 
-2nd is more important - if you read more than 4 blocks from the 
-device, you will get a random crash - meaning you could mount a
-cd and do "ls" and think it worked if that is all you did. Anything
-more gets a rolling oops, EIP pointing off into outer space etc.
+The problem is that NFSD dies unexpectedly with a Oops (see below).
+When booting, I have 8 NFSD processes, but suddenly, they all die. I can't
+see why it happens, because the machine is a production one and I can't
+reboot it too often. But when I reboot, all is fine for a moment. And
+suddenly, the 8 NFSD die altogether... Last time, I rebooted the machine at
+23h00 and NFSD died ~ 9h36 next day : 10h uptime!
+When running lsmod, nfsd.o has 8 locks even after NFSD died, so it's
+impossible to make a rmmod (the 8 NFSD processes don't give their ressources
+back).
+I tried to put NFSD in the kernel directly, without modules. Same thing.
+Anyone have similar problems?
+Thanks for any help on that topic
 
-Tracked this down to the addition of the generic merge request
-handling added to ll_rw_block in 2.3.41 (apparently nobody has
-used this driver since then!!!) - it appears these conflict with
-the molestation of the request list that sbpcd does from within.
+Bye
+-jec
+PS: I'm not in the list, so CC please.
+PS2: Thanks to Andrew M. for his help :-)
 
-Rather than attack sbpcd with a chainsaw, I went for the minimal
-patch approach and simply disabled request merging.  Lets face it,
-performance is not an issue if you are using a 2x speed CD with
-seek times you measure with a wall calendar.
+Oops:
+ksymoops 2.4.0 on i686 2.4.1-acls0.7.5-4.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.1-acls0.7.5-4/ (default)
+     -m /boot/System.map-2.4.1-acls0.7.5-4 (specified)
 
-Patch is against 2.4.2-pre3.
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+00000000
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[acpi_exit+0/-1072693248]
+EFLAGS: 00010286
+eax: 00000000   ebx: c4f5c03c   ecx: c091d040   edx: c0173710
+esi: c4f63424   edi: c4f5c03c   ebp: c4f5c03c   esp: c4f61f38
+ds: 0018   es: 0018   ss: 0018
+Process nfsd (pid: 2690, stackpage=c4f61000)
+Stack: c0173774 c091d040 00008000 c4f63000 c02f9220 c4f5c014 c4f63000
+c091d040
+       a1ffc014 c016bdbb c4f63000 c4f5c01c c4f63400 c4f63138 c02f9220
+c4f63490
+       c0273e38 c4f63000 c4f5c014 c4f60000 0034fdbb c7f68560 c4f60550
+c4f63400
+Call Trace: [nfssvc_encode_diropres+100/520] [nfsd_dispatch+275/360]
+[svc_process+684/1348] [nfsd+401/760] [kernel_thread+35/48]
+Code:  Bad EIP value.
+Using defaults from ksymoops -t elf32-i386 -a i386
 
-Paul.
-
-
---- drivers/cdrom/sbpcd.c~	Wed Feb 14 04:02:04 2001
-+++ drivers/cdrom/sbpcd.c	Wed Feb 14 04:09:55 2001
-@@ -323,7 +323,7 @@
-  *		Andrew J. Kroll <ag784@freenet.buffalo.edu> Wed Jul 26 04:24:10 EDT 2000
-  *
-  *  4.64 Fix module parameters - were being completely ignored.
-- *	 Can also specify max_drives as 3rd setup int to get rid of
-+ *	 Can also specify max_drives=N as a setup int to get rid of
-  *	 "ghost" drives on crap hardware (aren't they all?)   Paul Gortmaker
-  *
-  *  TODO
-@@ -339,6 +339,15 @@
-  *
-  */
- 
-+/*
-+ * Trying to merge requests breaks this driver horribly (as in it goes
-+ * boom and apparently has done so since 2.3.41).  As it is a legacy 
-+ * driver for a horribly slow double speed CD on a hideous interface 
-+ * designed for polled operation, I won't loose any sleep in simply 
-+ * disallowing merging.				Paul G.  02/2001
-+ */
-+#define DONT_MERGE_REQUESTS
-+
- #ifndef SBPCD_ISSUE
- #define SBPCD_ISSUE 1
- #endif SBPCD_ISSUE
-@@ -476,7 +485,8 @@
- #else
- static int sbpcd[] = {CDROM_PORT, SBPRO}; /* probe with user's setup only */
- #endif
--MODULE_PARM(sbpcd, "3i");
-+MODULE_PARM(sbpcd, "2i");
-+MODULE_PARM(max_drives, "i");
- 
- #define NUM_PROBE  (sizeof(sbpcd) / sizeof(int))
- 
-@@ -5566,7 +5576,6 @@
- #else
- 	sbpcd_ioaddr = sbpcd[0];
- 	sbpro_type = sbpcd[1];
--	max_drives = sbpcd[2];
- #endif
- 	
- 	CDo_command=sbpcd_ioaddr;
-@@ -5661,6 +5670,21 @@
- 	msg(DBG_SEQ,"found SoundScape interface at %04X.\n", sbpcd_ioaddr);
- 	return (0);
- }
-+
-+#ifdef DONT_MERGE_REQUESTS
-+static int dont_merge_requests_fn(request_queue_t *q, struct request *req,
-+                                struct request *next, int max_segments)
-+{
-+	return 0;
-+}
-+
-+static int dont_bh_merge_fn(request_queue_t *q, struct request *req,
-+                            struct buffer_head *bh, int max_segments)
-+{
-+	return 0;
-+}
-+#endif
-+
- /*==========================================================================*/
- /*
-  *  Test for presence of drive and initialize it.
-@@ -5828,6 +5852,11 @@
- #endif MODULE
- 	}
- 	blk_init_queue(BLK_DEFAULT_QUEUE(MAJOR_NR), DEVICE_REQUEST);
-+#ifdef DONT_MERGE_REQUESTS
-+	(BLK_DEFAULT_QUEUE(MAJOR_NR))->back_merge_fn = dont_bh_merge_fn;
-+	(BLK_DEFAULT_QUEUE(MAJOR_NR))->front_merge_fn = dont_bh_merge_fn;
-+	(BLK_DEFAULT_QUEUE(MAJOR_NR))->merge_requests_fn = dont_merge_requests_fn;
-+#endif
- 	blk_queue_headactive(BLK_DEFAULT_QUEUE(MAJOR_NR), 0);
- 	read_ahead[MAJOR_NR] = buffers * (CD_FRAMESIZE / 512);
- 	
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+Jean-Eric Cuendet
+Linkvest SA
+Av des Baumettes 19, 1020 Renens Switzerland
+Tel +41 21 632 9043  Fax +41 21 632 9090
+http://www.linkvest.com  E-mail: jean-eric.cuendet@linkvest.com
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
 
-
-
-
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
 

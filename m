@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287943AbSABUOE>; Wed, 2 Jan 2002 15:14:04 -0500
+	id <S287941AbSABUUe>; Wed, 2 Jan 2002 15:20:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287941AbSABUNy>; Wed, 2 Jan 2002 15:13:54 -0500
-Received: from boden.synopsys.com ([204.176.20.19]:19883 "HELO
-	boden.synopsys.com") by vger.kernel.org with SMTP
-	id <S287936AbSABUNl>; Wed, 2 Jan 2002 15:13:41 -0500
-From: Joe Buck <jbuck@synopsys.COM>
-Message-Id: <200201022013.MAA20576@atrus.synopsys.com>
-Subject: Re: [PATCH] C undefined behavior fix
-To: trini@kernel.crashing.org (Tom Rini)
-Date: Wed, 2 Jan 2002 12:13:34 -0800 (PST)
-Cc: velco@fadata.bg (Momchil Velikov), linux-kernel@vger.kernel.org,
-        gcc@gcc.gnu.org, linuxppc-dev@lists.linuxppc.org,
-        Franz.Sirl-kernel@lauterbach.com (Franz Sirl),
-        paulus@samba.org (Paul Mackerras),
-        benh@kernel.crashing.org (Benjamin Herrenschmidt),
-        minyard@acm.org (Corey Minyard)
-In-Reply-To: <20020102190910.GG1803@cpe-24-221-152-185.az.sprintbbd.net> from "Tom Rini" at Jan 02, 2002 12:09:10 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S287944AbSABUUZ>; Wed, 2 Jan 2002 15:20:25 -0500
+Received: from relay-3m.club-internet.fr ([195.36.216.172]:5513 "HELO
+	relay-3m.club-internet.fr") by vger.kernel.org with SMTP
+	id <S287941AbSABUUK>; Wed, 2 Jan 2002 15:20:10 -0500
+Message-ID: <3C336B65.2020905@freesurf.fr>
+Date: Wed, 02 Jan 2002 21:19:49 +0100
+From: Kilobug <kilobug@freesurf.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20011228
+X-Accept-Language: fr-fr, fr, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: timothy.covell@ashavan.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: system.map
+In-Reply-To: <20020102191157.49760.qmail@web21204.mail.yahoo.com> <200201021930.g02JUCSr021556@svr3.applink.net> <3C336209.8000808@nothing-on.tv> <200201022006.g02K6vSr021827@svr3.applink.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Okay, here's a summary of all of the options we have:
-> 1) Change this particular strcpy to a memcpy
-> 2) Add -ffreestanding to the CFLAGS of arch/ppc/kernel/prom.o (If this
-> optimization comes back on with this flag later on, it would be a
-> compiler bug, yes?)
-> 3) Modify the RELOC() marco in such a way that GCC won't attempt to
-> optimize anything which touches it [1]. (Franz, again by Jakub)
-> 4) Introduce a function to do the calculations [2]. (Corey Minyard)
-> 5) 'Properly' set things up so that we don't need the RELOC() macros
-> (-mrelocatable or so?), and forget this mess altogether.
+> 5. sync;sync;shutdown -r now
 
-2) will prevent any future gcc from ever assuming it can transform the
-strcpy into anything but a call to strcpy, or assume anything about the
-semantics of strcpy.  Be careful with 3), as trying to fool the optimizer
-is likely to be only a temporary solution (meaning that the kernel people
-will return to flame the gcc people when the optimizer gets changed
-again).
+Is there any particular reason for this double sync ? One isn't enough ?
+(And is sync even needed with shutdown, all should be synced when 
+filesystems are unmounted or remounted read-only, am I wrong ? )
+
+-- 
+** Gael Le Mignot "Kilobug", Ing3 EPITA - http://kilobug.free.fr **
+Home Mail   : kilobug@freesurf.fr          Work Mail : le-mig_g@epita.fr
+GSM         : 06.71.47.18.22 (in France)   ICQ UIN   : 7299959
+Fingerprint : 1F2C 9804 7505 79DF 95E6 7323 B66B F67B 7103 C5DA
+
+"Software is like sex it's better when it's free.", Linus Torvalds
 

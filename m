@@ -1,55 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263995AbUDZOIr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263860AbUDZOMx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263995AbUDZOIr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 10:08:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263981AbUDZOHv
+	id S263860AbUDZOMx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 10:12:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261852AbUDZOEw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 10:07:51 -0400
-Received: from main.gmane.org ([80.91.224.249]:22419 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S263851AbUDZOFz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 10:05:55 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
-Subject: Re: [PATCH 2/9] DVB: Documentation and Kconfig updazes
-Date: Mon, 26 Apr 2004 16:05:46 +0200
-Message-ID: <yw1x4qr6ltqd.fsf@kth.se>
-References: <10829866821854@convergence.de> <10829867363017@convergence.de>
+	Mon, 26 Apr 2004 10:04:52 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:4841 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S263868AbUDZNqh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Apr 2004 09:46:37 -0400
+Date: Mon, 26 Apr 2004 15:46:36 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@linuxmail.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, 234976@bugs.debian.org,
+       Roland Stigge <stigge@antcom.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Bug#234976: kernel-source-2.6.4: Software Suspend doesn't work
+Message-ID: <20040426134636.GB6285@atrey.karlin.mff.cuni.cz>
+References: <1080315725.2951.10.camel@atari.stigge.org> <20040326155315.GD291@elf.ucw.cz> <1080317555.12244.5.camel@atari.stigge.org> <20040326161717.GE291@elf.ucw.cz> <1080325072.2112.89.camel@atari.stigge.org> <20040426094834.GA4901@gondor.apana.org.au> <20040426104015.GA5772@gondor.apana.org.au> <opr6193np1ruvnp2@laptop-linux.wpcb.org.au> <20040426121145.GA7610@gondor.apana.org.au> <opr62cbzp9ruvnp2@laptop-linux.wpcb.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 213-187-164-3.dd.nextgentel.com
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:vUK/+RPQXAe+mCBaLUe6AfiLUJo=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <opr62cbzp9ruvnp2@laptop-linux.wpcb.org.au>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Hunold <hunold@linuxtv.org> writes:
+Hi!
 
-> diff -urawBN xx-linux-2.6.5/drivers/media/dvb/Kconfig linux-2.6.5-patched/drivers/media/dvb/Kconfig
-> --- xx-linux-2.6.5/drivers/media/dvb/Kconfig	2004-03-12 20:31:28.000000000 +0100
-> +++ linux-2.6.5-patched/drivers/media/dvb/Kconfig	2003-10-13 06:08:45.000000000 +0200
-> @@ -18,12 +18,11 @@
->  	  Please report problems regarding this driver to the LinuxDVB 
->  	  mailing list.
->
-> -	  You might want add the following lines to your /etc/modprobe.conf:
-> +	  You might want add the following lines to your /etc/modules.conf:
->
->  	  	alias char-major-250 dvb
->  	  	alias dvb dvb-ttpci
-> -	  	install dvb-ttpci /sbin/modprobe --first-time -i dvb-ttpci && \
-> -			/sbin/modprobe -a alps_bsru6 alps_bsrv2 \
-> +	  	below dvb-ttpci alps_bsru6 alps_bsrv2 \
->  	  			grundig_29504-401 grundig_29504-491 \
->  	  			ves1820
+> >>come up with a more nuanced test? Better still, though, we should just  
+> >>get
+> >>proper AGP support for suspending and resuming in.
+> >
+> >It's got nothing to do with AGP.  This is a flaw in the swsusp code.
+> >It can be triggered by anything that plays with page attributes.
+> 
+> Not so much a flaw in the suspend code as something that needs to be dealt  
+> with: it's not a bug for pages to have protection, and its not a bug for  
+> us to need it temporarily removed in order to do the copyback. We just  
+> need the support in the drivers to achieve that. When we have it (as we do  
+> in some cases in 2.4), all is well.
 
-This looks wrong for a 2.6 kernel.
-
+No, Herbert is right here. This *is* swsusp fault. Swsusp assumes 4MB
+tables which is not guaranteed even on PSE machines. 
+								Pavel
 -- 
-Måns Rullgård
-mru@kth.se
-
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

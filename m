@@ -1,63 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266997AbRGIJjs>; Mon, 9 Jul 2001 05:39:48 -0400
+	id <S267000AbRGIJns>; Mon, 9 Jul 2001 05:43:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266998AbRGIJji>; Mon, 9 Jul 2001 05:39:38 -0400
-Received: from www.wen-online.de ([212.223.88.39]:11531 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S266997AbRGIJjZ>;
-	Mon, 9 Jul 2001 05:39:25 -0400
-Date: Mon, 9 Jul 2001 11:38:22 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Christoph Rohland <cr@sap.com>
-cc: Rik van Riel <riel@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: VM in 2.4.7-pre hurts...
-In-Reply-To: <m38zhya1rn.fsf@linux.local>
-Message-ID: <Pine.LNX.4.33.0107091130580.448-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266999AbRGIJni>; Mon, 9 Jul 2001 05:43:38 -0400
+Received: from smtp.alcove.fr ([212.155.209.139]:22540 "EHLO smtp.alcove.fr")
+	by vger.kernel.org with ESMTP id <S267000AbRGIJnY>;
+	Mon, 9 Jul 2001 05:43:24 -0400
+To: arjan@fenrus.demon.nl
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PATCH: linux-2.4.7-pre3/drivers/char/sonypi.c would hang some non-Sony notebooks
+In-Reply-To: <m15JCAJ-000P07C@amadeus.home.nl>
+In-Reply-To: <m15JCAJ-000P07C@amadeus.home.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Message-Id: <E15JXZa-0001YZ-00@come.alcove-fr>
+From: Stelian Pop <stelian@alcove.fr>
+Date: Mon, 09 Jul 2001 11:43:22 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9 Jul 2001, Christoph Rohland wrote:
+In alcove.lists.linux.kernel, you wrote:
+> 
+> > I guess this'll still pickup Sony desktops.
+> > Perhaps we need a survey of lspci -nv results for sony and non-sony
+> > machines ?
+> 
+> The DMI table might be bettur up to this job instead...
 
-> Hi Mike,
->
-> On Mon, 9 Jul 2001, Mike Galbraith wrote:
-> > --- mm/shmem.c.org	Mon Jul  9 09:03:27 2001
-> > +++ mm/shmem.c	Mon Jul  9 09:03:46 2001
-> > @@ -264,8 +264,8 @@
-> >  	info->swapped++;
-> >
-> >  	spin_unlock(&info->lock);
-> > -out:
-> >  	set_page_dirty(page);
-> > +out:
-> >  	UnlockPage(page);
-> >  	return error;
-> >  }
-> >
-> > So, did I fix it or just bust it in a convenient manner ;-)
->
-> ... now you drop random pages. This of course helps reducing memory
-> pressure ;-)
+Is seems so, my DMI tables contain some strings that we could
+use to trigger up this laptop recognision (obtained after enabling
+dmi_printk in the source):
+	DMI table at 0x000DC010.
+	BIOS Vendor: Phoenix Technologies LTD
+	BIOS Version: R0204P1
+	BIOS Release: 09/12/00
+	System Vendor: Sony Corporation    .
+	Product Name: PCG-C1VE(FR)        .
+	Version 01                  .
+	Serial Number 28316054-5120966    .
+	Board Vendor: Sony Corporation    .
+	Board Name: PCG-C1VE(FR)        .
 
-(shoot.  I figured that was too easy to be right)
+But it doesn't seem to me like the dmi routines (arch/i386/kernel/dmi_scan.c)
+were designed to be used from outside this scope.
 
-> But still this may be a hint. You are not running out of swap, aren't
-> you?
+I could implement this in two different ways:
+	- add a callback in this file which will initialise
+	  a global var we could test in the driver.
 
-I'm running oom whether I have swap enabled or not.  The inactive
-dirty list starts growing forever, until it's full of (aparantly)
-dirty pages and I'm utterly oom.
+	or
 
-With swap enabled, I keep allocating until there's nothing left.
-Actual space usage is roughly 30mb (of 256mb), but when you can't
-allocate anymore you're toast too, with the same dirt buildup.
+	- export the dmi_ident tab and maybe some check routines/macros
+	  to the rest of the kernel, giving each driver the possibility
+	  to access this info.
 
-	-Mike
+What does the audience think ?
 
+Stelian.
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+|---------------- Free Software Engineer -----------------|
+| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
+|------------- Alcôve, liberating software ---------------|

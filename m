@@ -1,47 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262797AbVA1WW2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262804AbVA1WYk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262797AbVA1WW2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 17:22:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262798AbVA1WW2
+	id S262804AbVA1WYk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 17:24:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262800AbVA1WYk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 17:22:28 -0500
-Received: from s2.home.ro ([193.231.236.41]:44214 "EHLO s2.home.ro")
-	by vger.kernel.org with ESMTP id S262797AbVA1WWW (ORCPT
+	Fri, 28 Jan 2005 17:24:40 -0500
+Received: from fw.osdl.org ([65.172.181.6]:39139 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262798AbVA1WYc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 17:22:22 -0500
-Subject: Re: kernel oops!
-From: ierdnah <ierdnah@go.ro>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0501281218020.2362@ppc970.osdl.org>
-References: <1106437010.32072.0.camel@ierdnac>
-	 <Pine.LNX.4.58.0501222223090.4191@ppc970.osdl.org>
-	 <1106483340.21951.4.camel@ierdnac>
-	 <Pine.LNX.4.58.0501230943020.4191@ppc970.osdl.org>
-	 <1106866066.20523.3.camel@ierdnac>
-	 <Pine.LNX.4.58.0501271532420.2362@ppc970.osdl.org>
-	 <1106942401.27217.8.camel@ierdnac>
-	 <Pine.LNX.4.58.0501281218020.2362@ppc970.osdl.org>
-Content-Type: text/plain
-Date: Sat, 29 Jan 2005 00:22:45 +0200
-Message-Id: <1106950965.15585.1.camel@ierdnac>
+	Fri, 28 Jan 2005 17:24:32 -0500
+Date: Fri, 28 Jan 2005 14:24:30 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Tom Zanussi <zanussi@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com, ak@muc.de,
+       zippel@linux-m68k.org, zanussi@us.ibm.com, bob@watson.ibm.com,
+       tim.bird@AM.SONY.COM, karim@opersys.com
+Subject: Re: [PATCH] relayfs redux, part 2
+Message-Id: <20050128142430.1a066a86.akpm@osdl.org>
+In-Reply-To: <16890.38062.477373.644205@tut.ibm.com>
+References: <16890.38062.477373.644205@tut.ibm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-01-28 at 12:28 -0800, Linus Torvalds wrote:
+Tom Zanussi <zanussi@us.ibm.com> wrote:
+>
+> This patch is the result of the latest round of liposuction on relayfs
+>  - the patch size is now 44K, down from 110K and the 200K before that.
+>  I'm posting it as a patch against 2.6.10 rather than -mm in order to
+>  make it easier to review, but will create one for -mm once the changes
+>  have settled down.
 
+Actually, I'll drop all the relayfs and ltt patches from -mm.  They seem to
+have done their job ;)
 
-> I'm surprised that it makes _that_ much of a difference, but it sounds
-> like you used to be borderline on CPU usage before, and this just made it
-> much worse.
-
-it's musch worst, I had a load of 5 with 250 VPN connections, and now, I
-have a load of 200 with 150 connections
-
--- 
-ierdnah <ierdnah@go.ro>
-
+When things settle down and the code is ready for a new run, you know where
+I sit.

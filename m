@@ -1,131 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268337AbUH2VrO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268342AbUH2VxL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268337AbUH2VrO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 17:47:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268340AbUH2VrO
+	id S268342AbUH2VxL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 17:53:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268343AbUH2VxL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 17:47:14 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:4258 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S268337AbUH2VrE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 17:47:04 -0400
-Subject: Re: [BENCHMARK] nproc: netlink access to /proc information
-From: Albert Cahalan <albert@users.sf.net>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Roger Luethi <rl@hellgate.ch>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Paul Jackson <pj@sgi.com>
-In-Reply-To: <20040829204602.GW5492@holomorphy.com>
-References: <20040828194546.GA25523@k3.hellgate.ch>
-	 <20040828195647.GP5492@holomorphy.com>
-	 <20040828201435.GB25523@k3.hellgate.ch>
-	 <20040829160542.GF5492@holomorphy.com>
-	 <20040829170247.GA9841@k3.hellgate.ch>
-	 <20040829172022.GL5492@holomorphy.com>
-	 <20040829175245.GA32117@k3.hellgate.ch>
-	 <20040829181627.GR5492@holomorphy.com>
-	 <20040829190050.GA31641@k3.hellgate.ch> <1093810645.434.6859.camel@cube>
-	 <20040829204602.GW5492@holomorphy.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1093815946.431.6890.camel@cube>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 29 Aug 2004 17:45:47 -0400
-Content-Transfer-Encoding: 7bit
+	Sun, 29 Aug 2004 17:53:11 -0400
+Received: from fw.osdl.org ([65.172.181.6]:9103 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268342AbUH2Vw7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Aug 2004 17:52:59 -0400
+Date: Sun, 29 Aug 2004 14:50:07 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: viro@parcelfarce.linux.theplanet.co.uk
+cc: Hans Reiser <reiser@namesys.com>, flx@msu.ru, Paul Jackson <pj@sgi.com>,
+       riel@redhat.com, ninja@slaphack.com, diegocg@teleline.es,
+       jamie@shareable.org, christophe@saout.de,
+       vda@port.imtp.ilyichevsk.odessa.ua, christer@weinigel.se,
+       spam@tnonline.net, akpm@osdl.org, wichert@wiggy.net, jra@samba.org,
+       hch@lst.de, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       flx@namesys.com, reiserfs-list@namesys.com
+Subject: Re: silent semantic changes with reiser4
+In-Reply-To: <20040829212700.GA16297@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.58.0408291431070.2295@ppc970.osdl.org>
+References: <Pine.LNX.4.44.0408271043090.10272-100000@chimarrao.boston.redhat.com>
+ <412F7D63.4000109@namesys.com> <20040827230857.69340aec.pj@sgi.com>
+ <20040829150231.GE9471@alias> <4132205A.9080505@namesys.com>
+ <20040829183629.GP21964@parcelfarce.linux.theplanet.co.uk>
+ <20040829185744.GQ21964@parcelfarce.linux.theplanet.co.uk> <41323751.5000607@namesys.com>
+ <20040829212700.GA16297@parcelfarce.linux.theplanet.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-08-29 at 16:46, William Lee Irwin III wrote:
-> On Sun, Aug 29, 2004 at 04:17:26PM -0400, Albert Cahalan wrote:
-> > When the reader falls behind, keep supplying differential
-> > updates as long as practical. When this starts to eat up
-> > lots of memory, switch to supplying the full list until
-> > the reader catches up again.
+
+
+On Sun, 29 Aug 2004 viro@parcelfarce.linux.theplanet.co.uk wrote:
 > 
-> You shouldn't have to try to scan the set of all tasks in any bounded
-> period of time or rely on differential updates. Scanning some part of
-> the list of a bounded size, updating the state based on what was
-> scanned, and reporting the rest as if it hadn't changed is the strategy
-> I'm describing.
+> A slew of cache coherency issues (and memory consumption on top of that).
+> Rigth now we have a signle dentry tree for all fs instances, no matter
+> how many times it and its subtrees are visible in the tree.  Which,
+> obviously, avoids all that crap.  As soon as we start trying to have
+> multiple trees over the same fs, we are in for a *lot* of fun.
 
-That's defective. Users will not like it.
+Al, I think you should make the argument a bit more specific, because I 
+doubt a lot of people understand just what the problems are with aliased 
+names. Just a few examples of the problems involved will illuminate things 
+very well, I think. People who haven't been intimate with the name caches 
+probably simply don't understand why you worry so much.
 
-> > If you won't scan, why update the display? This boils down
-> > to simply setting a lower refresh rate or using "nice".
-> 
-> Some updates can be captured, merely not all. Updating the
-> state given what was captured during the partial scan and
-> then displaying the state derived from what could be
-> captured in the refresh interval is more useful than being
-> nonfunctional at the lower refresh intervals or needlessly
-> beating the kernel in some futile attempt to exhaustively
-> search an impossibly huge dataset in some time bound that
-> can't be satisfied.
+I'll start out with some trivial examples, just to let Hans and others get
+an idea about what the issues are. I think examples of problems are often 
+better ways to explain them than the abstract issues themselves.
 
-nice -n 19 top
+Aliases: let's say that you have filename "a" hard-linked to filename "b", 
+and you have a directory structure of streams under there. So you have
 
-> Roger Luethi writes:
-> >> While I'm not sure I understand how that partial rescan (or its limits)
-> >> would be defined, I agree with the general idea. There is indeed plenty
-> >> of room for improvement in a smart user space. For instance, most apps
-> >> show only the top n processes. So if an app shows the top 20 memory
-> >> users, it could use nproc to get a complete list of pid+vmrss, and then
-> >> request all the expensive fields only for the top 20 in that list.
-> 
-> On Sun, Aug 29, 2004 at 04:17:26PM -0400, Albert Cahalan wrote:
-> > This is crummy. It's done for wchan, since that is so horribly
-> > expensive, but I'm not liking the larger race condition window.
-> > Remember that PIDs get reused. There isn't a generation counter
-> > or UUID that can be checked.
-> 
-> One shouldn't really need to care; periodically rechecking the fields
-> of an active pid should suffice. You don't really care whether it's the
-> same task or not, just that the fields are up-to-date and whether any
-> task with that pid exists.
+	a/file1
+	a/dir1/file2
+	a/dir2/file3
 
-People use the procps tools to kill processes.
-Bad data leads to bad decisions.
+and (through the hard-link with "b") you have aliases of all these same 
+names available as "b/file1", "b/dir1/file2" etc).
 
-> On Sun, Aug 29, 2004 at 04:17:26PM -0400, Albert Cahalan wrote:
-> > While "pid" makes a nice extreme example, note that ps must
-> > handle arbitrary cases like "pmem,comm,wchan,ppid,session".
-> > Now, I direct your attention to "Introduction to Algorithms",
-> > by Cormen, Leiserson, and Rivest. Find the section entitled
-> > "The set-covering problem". It's page 974, section 37.3, in
-> > my version of the book. An example of this would be the
-> > determination of the minimum set of /proc files needed to
-> > supply some required set of process attributes.
-> > Look familiar? It's NP-hard. To me, that just sounds bad. :-)
-> > While there are decent (?) approximations that run in
-> > polynomial time, they are generally overkill. It is very
-> > common to need both the stat and status files. Selection,
-> > sorting, and display all may require data.
-> > But hey, we can go ahead and compute NP-hard problems in
-> > userspace if that makes the kernel less complicated. :-)
-> > Just remember that if I say "this is hard", I mean it.
-> 
-> Actually, the problem size is so small it shouldn't be problematic.
-> There are only 13 /proc/ files associated with a process, so exhaustive
-> search over 2**13 - 1 == 8191 nonempty subsets, e.g. queueing by size
-> and checking for the satisfiability of the reporting, will suffice.
+Now, imagine that you have two processes doing
 
-Nice! Checking for satisfiability is only NP-complete...
+	mv a/dir1 a/dir2/newdir
 
-I do get your point, but I expect to see more /proc files
-as time passes. Also, there is the issue of maintainability.
+and
 
-Example 1: It has crossed my mind to add separate files
-for the least security-critical data, so that an SE Linux
-system with moderate security could provide some minimal
-amount of basic info to normal users.
+	mv b/dir2 b/dir1/newdir
 
-Example 2: There could be files containing only data
-that is easy to generate or that needs the same locking.
+at the same time. Both of them MUST NOT SUCCEED, for pretty obvious 
+reasons (you'd have moved two directories within each other, and now 
+neither would be accessible any more).
 
-Even with the "ps -o pid" example given, opening /proc/*/stat
-is required to get the tty. Opening /proc/*/status is nearly
-required; one can do stat() on the directory to get that
-via st_uid though.
+How do you handle locking for this situation?
 
+Another interesting case is what happens when you have looked up and cache
+the filename "a/file1" and then another process does "rm b/file1". How do
+you update the _other_ cached copy, since they had two different names,
+but _both_ names went away at the same time. Also again, how do you handle
+locking?
 
+The general VFS layer has a lot of rules, and avoids these problems by
+simply never having aliases between two directories. If the same directory
+shows up multiple times (which can happen with bind mounts), they have the
+exact same dentry for the directory, it's just found through two different
+vfsmount instances. That's why vfsmounts exist - they allow the same name
+cache entry to show up in different places at the same time.
+
+So when we do a bind mount, and the same directory shows up under two
+different names "a" and "b", and we do a "rm b/file1", it _automatically_
+disappears from "a/file1" too, simply by virtue of "a" and "b" literally
+being the same dentry. No aliasing ever happens, and this makes coherency
+and locking much easier (which is not to say that they are trivial, but
+they are pretty damn clear in comparison to the alternatives).
+
+What Al (and others) worries about is that the reiser4 name handling has
+_none_ of these issues figured out and protected against. You can protect 
+against them by taking very heavy locks (you can trivially protect against 
+all races by taking one large lock around any operation), but the fact is, 
+that is just not an option for high-performance name lookup. 
+
+These aliasing/locking rules need to be global and wll-though-out. Not 
+just fix the two examples above, but be shown to be safe _in_general_. 
+
+		Linus

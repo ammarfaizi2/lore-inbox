@@ -1,123 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262654AbTIAGNb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 02:13:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262657AbTIAGNb
+	id S262640AbTIAGT4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 02:19:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262635AbTIAGT4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 02:13:31 -0400
-Received: from k-kdom.nishanet.com ([65.125.12.2]:25348 "EHLO
-	mail2k.k-kdom.nishanet.com") by vger.kernel.org with ESMTP
-	id S262654AbTIAGN2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 02:13:28 -0400
-Message-ID: <3F52E0B3.2090001@boxho.com>
-Date: Mon, 01 Sep 2003 02:01:23 -0400
-From: Resident Boxholder <resid@boxho.com>
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
-X-Accept-Language: en-us, en
+	Mon, 1 Sep 2003 02:19:56 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:15004
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S262640AbTIAGTy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 02:19:54 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [BENCHMARK] 2.6.0-test4-mm4 with contest
+Date: Mon, 1 Sep 2003 16:27:28 +1000
+User-Agent: KMail/1.5.3
+Cc: Andrew Morton <akpm@osdl.org>
 MIME-Version: 1.0
-To: Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: many IDE PCI cards "spurious 8259a" irq15(SMBus nforce2)
-References: <3F4EA30C.CEA49F2F@vtc.edu.hk>	 <1062150643.26753.4.camel@dhcp23.swansea.linux.org.uk>	 <3F4F5C9A.5BAA1542@vtc.edu.hk> <200308311443.55543.hpj@urpla.net> <3F5287BC.48A1BCE6@vtc.edu.hk>
-In-Reply-To: <3F5287BC.48A1BCE6@vtc.edu.hk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309011627.28052.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Success story" got me in deeper, another round of disappointment. 
-"spurious 8259a interrrupt on irq15"
-is the only message, irq15 is nforce2 SMBus.
+contest benchmarks.
 
-This got me to try using four hd's on two Promise cards, no drives on 
-mbo's amd74xx in the nforce2 set,
-no cd's. I get lots of hangs. Lots of crashes but this bit of info--many 
-other combos yield no clue just a
-lockup but maybe the irq is SMBus nforce2 and is that io-apic code? 
-"spurious 8259a on irq 15" on
-all sorts of ops on files and drives, fsck, kernel compile, that message 
-sometimes just before hang.
+no_load:
+Kernel          [runs]  Time    CPU%    Loads   LCPU%   Ratio
+2.6.0-test4          1  80      93.8    0.0     0.0     1.00
+2.6.0-test4-mm2      1  79      93.7    0.0     0.0     1.00
+2.6.0-test4-mm4      1  80      93.8    0.0     0.0     1.00
+cacherun:
+Kernel          [runs]  Time    CPU%    Loads   LCPU%   Ratio
+2.6.0-test4          1  75      100.0   0.0     0.0     0.94
+2.6.0-test4-mm2      1  75      98.7    0.0     0.0     0.95
+2.6.0-test4-mm4      1  77      97.4    0.0     0.0     0.96
+process_load:
+Kernel          [runs]  Time    CPU%    Loads   LCPU%   Ratio
+2.6.0-test4          2  108     69.4    64.0    28.7    1.35
+2.6.0-test4-mm2      2  125     59.2    92.5    38.4    1.58
+2.6.0-test4-mm4      2  131     56.5    104.5   41.2    1.64
+ctar_load:
+Kernel          [runs]  Time    CPU%    Loads   LCPU%   Ratio
+2.6.0-test4          3  117     67.5    1.0     5.1     1.46
+2.6.0-test4-mm2      3  115     69.6    1.0     6.1     1.46
+2.6.0-test4-mm4      3  99      80.8    0.0     0.0     1.24
+xtar_load:
+Kernel          [runs]  Time    CPU%    Loads   LCPU%   Ratio
+2.6.0-test4          3  132     58.3    3.0     7.5     1.65
+2.6.0-test4-mm2      3  141     54.6    3.3     7.0     1.78
+2.6.0-test4-mm4      3  109     70.6    1.0     3.7     1.36
+io_load:
+Kernel          [runs]  Time    CPU%    Loads   LCPU%   Ratio
+2.6.0-test4          4  119     64.7    43.4    19.2    1.49
+2.6.0-test4-mm2      4  110     70.0    35.4    16.4    1.39
+2.6.0-test4-mm4      4  129     59.7    43.1    16.9    1.61
+io_other:
+Kernel          [runs]  Time    CPU%    Loads   LCPU%   Ratio
+2.6.0-test4          2  116     67.2    48.0    21.4    1.45
+2.6.0-test4-mm2      2  110     70.0    41.0    18.8    1.39
+2.6.0-test4-mm4      2  111     69.4    40.8    18.8    1.39
+read_load:
+Kernel          [runs]  Time    CPU%    Loads   LCPU%   Ratio
+2.6.0-test4          2  109     72.5    8.6     5.5     1.36
+2.6.0-test4-mm2      2  106     73.6    8.3     5.6     1.34
+2.6.0-test4-mm4      2  100     78.0    6.5     5.0     1.25
+list_load:
+Kernel          [runs]  Time    CPU%    Loads   LCPU%   Ratio
+2.6.0-test4          2  97      79.4    0.0     8.2     1.21
+2.6.0-test4-mm2      2  96      80.2    0.0     7.3     1.22
+2.6.0-test4-mm4      2  95      80.0    0.0     7.4     1.19
+mem_load:
+Kernel          [runs]  Time    CPU%    Loads   LCPU%   Ratio
+2.6.0-test4          2  101     78.2    67.0    3.0     1.26
+2.6.0-test4-mm2      2  98      79.6    66.5    3.1     1.24
+2.6.0-test4-mm4      2  93      84.9    65.0    3.2     1.16
+dbench_load:
+Kernel          [runs]  Time    CPU%    Loads   LCPU%   Ratio
+2.6.0-test4          4  390     19.5    6.2     57.3    4.88
+2.6.0-test4-mm2      3  242     31.8    3.0     44.2    3.06
+2.6.0-test4-mm4      4  260     29.6    3.2     45.0    3.25
 
-I've done 87 reboots 534 fscks 27 kernel compiles failed but I can get a 
-kernel compiled with
-io-apic turned off in config, I'll try it!
+Some i/o effects and some memory balance effects.
 
-Or throw out ide and buy all scsis, but scsi might hang due to io-apic, 
-too, if that's what it is.
-
-cmd680 sii680 card doesn't work either. no error logged there, just hangs.
-
-2 hd's on mobo and two on promise, no
-
-2 hd's on mobo and two on siig sii680, no
-
-none on mobo and four on two Promise cards, no
-
-turn off irq unmask, no
-
-lower udma settings, no
-
-MSI nk7-delta mbo nforce2 amd xp 3000+ tried disabled usb, audio, 
-ethernet, serial, parallel, apic
-
--Bob
-
-Nick Urbanik wrote:
-
->Dear Folks,
->
->Hans-Peter Jansen wrote:
->
->  
->
->>Hi Nick,
->>
->>On Friday 29 August 2003 16:00, Nick Urbanik wrote:
->>    
->>
->>>Performance is a relatively minor issue compared with stability and
->>>low cost.
->>>
->>>Is there _anyone_ who is using a number of ATA133 IDE disks (>=6),
->>>each on its own IDE channel, on a number of PCI IDE cards, and
->>>doing so successfully and reliably?  I begin to suspect not!  If
->>>so, please tell us what motherboard, IDE cards you are using.  I
->>>used to imagine that a terabyte of RAID storage on one P4 machine
->>>with ordinary cheap IDE cards with software RAID would be feasible.
->>> I believe it is not (although I cannot afford to play musical
->>>motherboards).
->>>      
->>>
->>It is. I'm running several pretty stable systems with IDE SW RAID 5
->>on top of Promise TX2/100 (~30 Eur) controllers.
->>    
->>
->
->Is that the PDC20270 chipset?  What motherboard are you using (i.e., I guess
->you are using two IDE channels on the motherboard, so what chipset are you
->using there)?  What kernel?  Are you using ide-scsi at the same time?  A DVD
->player?  If so, how have you connected them?  What is the biggest number of
->hard disks you are using?  What size?
->
->I would like to try this out myself.  Thank you---this is the first success
->story I have heard!
->
->--
->Nick Urbanik   RHCE                               nicku(at)vtc.edu.hk
->Dept. of Information & Communications Technology
->Hong Kong Institute of Vocational Education (Tsing Yi)
->Tel:   (852) 2436 8576, (852) 2436 8713          Fax: (852) 2436 8526
->PGP: 53 B6 6D 73 52 EE 1F EE EC F8 21 98 45 1C 23 7B     ID: 7529555D
->GPG: 7FFA CDC7 5A77 0558 DC7A 790A 16DF EC5B BB9D 2C24   ID: BB9D2C24
->
->
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
->  
->
+Con
 

@@ -1,71 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130164AbQLOPSa>; Fri, 15 Dec 2000 10:18:30 -0500
+	id <S130386AbQLOP2m>; Fri, 15 Dec 2000 10:28:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130386AbQLOPSU>; Fri, 15 Dec 2000 10:18:20 -0500
-Received: from horus.its.uow.edu.au ([130.130.68.25]:44262 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S130164AbQLOPSJ>; Fri, 15 Dec 2000 10:18:09 -0500
-Message-ID: <3A3A2FD3.88FAA330@uow.edu.au>
-Date: Sat, 16 Dec 2000 01:50:59 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-CC: Joseph Cheek <joseph@cheek.com>, linux-kernel@vger.kernel.org,
-        Donald Becker <becker@scyld.com>
-Subject: Re: test12: eth0 trasmit timed out after one hour uptime
-In-Reply-To: <3A37FFC9.19F05305@cheek.com>,
-		<3A37FFC9.19F05305@cheek.com>; from joseph@cheek.com on Wed, Dec 13, 2000 at 03:01:29PM -0800 <20001215161926.D829@nightmaster.csn.tu-chemnitz.de>
+	id <S133063AbQLOP2X>; Fri, 15 Dec 2000 10:28:23 -0500
+Received: from relay.planetinternet.be ([194.119.232.24]:35087 "EHLO
+	relay.planetinternet.be") by vger.kernel.org with ESMTP
+	id <S130386AbQLOP2O>; Fri, 15 Dec 2000 10:28:14 -0500
+Date: Fri, 15 Dec 2000 15:57:42 +0100
+From: Kurt Roeckx <Q@ping.be>
+To: Miquel van Smoorenburg <miquels@traveler.cistron-office.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linus's include file strategy redux
+Message-ID: <20001215155741.B4830@ping.be>
+In-Reply-To: <NBBBJGOOMDFADJDGDCPHIENJCJAA.law@sgi.com> <91bnoc$vij$2@enterprise.cistron.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 1.0pre2i
+In-Reply-To: <91bnoc$vij$2@enterprise.cistron.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Oeser wrote:
+On Fri, Dec 15, 2000 at 12:14:04AM +0000, Miquel van Smoorenburg wrote:
+> In article <NBBBJGOOMDFADJDGDCPHIENJCJAA.law@sgi.com>,
+> LA Walsh <law@sgi.com> wrote:
+> >Which works because in a normal compile environment they have /usr/include
+> >in their include path and /usr/include/linux points to the directory
+> >under /usr/src/linux/include.
 > 
-> On Wed, Dec 13, 2000 at 03:01:29PM -0800, Joseph Cheek wrote:
-> > Dec 13 14:51:46 sanfrancisco kernel: NETDEV WATCHDOG: eth0: transmit
-> > timed out
-> ...
-> I have this too since testX-Kernels are released.
+> No, that a redhat-ism.
 > 
-> I use a "3Com Corporation 3c905B 100BaseTX [Cyclone] (rev 24)"
-> (actually two of them ;-)).
-> 
-> > after reboot it works fine again [i'll give it an hour...]  test12-pre8
-> > and before worked fine.  any ideas?
-> 
-> This seems to be code to debug these timeouts.
-> 
-> It didn't cause any harm AFICS, but I CC'ed the Author of this
-> code anyway.
+> Sane distributions simply include a known good copy of
+> /usr/src/linux/include/{asm,linux} verbatim in their libc6-dev package.
 
-Ingo,
+The glibc FAQ still has this in it:
 
-Donald wrote just about all the Linux netdrivers, but he
-now concentrates upon the drivers which he maintains at
-http://www.scyld.com.  Other people try to help out with the
-drivers which come from kernel.org.
+2.17.   I have /usr/include/net and /usr/include/scsi as symlinks
+        into my Linux source tree.  Is that wrong?
 
-This particular problem does still occur occasionally.
+{PB} This was necessary for libc5, but is not correct when using glibc.
+Including the kernel header files directly in user programs usually does not
+work (see question 3.5).  glibc provides its own <net/*> and <scsi/*> header
+files to replace them, and you may have to remove any symlink that you have
+in place before you install glibc.  However, /usr/include/asm and
+/usr/include/linux should remain as they were.
 
-It's way too infrequent to pin down.  It can certainly
-be caused by a very high collision rate on a hubbed LAN.
-If that were the only cause I would take all the diagnostics
-out, because that's simply ethernet.
 
-Other possible causes are lost interrupts in the kernel
-or hardware, cabling problems, power supply problems or,
-indeed, a driver bug.
+It's the version that's in cvs, I just did an cvs update.  It's
+been in it for ages.  If it's wrong, someone *please* correct it.
 
-If you are able to reproduce this then I'd be very interested
-in working with you on it.  First step is to read the final
-section of Documentation/networking/vortex.txt, then send
-me a long email.
 
-Thanks.
+Kurt
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

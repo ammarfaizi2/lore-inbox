@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266137AbSKFVwp>; Wed, 6 Nov 2002 16:52:45 -0500
+	id <S265755AbSKFVcp>; Wed, 6 Nov 2002 16:32:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266138AbSKFVwp>; Wed, 6 Nov 2002 16:52:45 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:7684 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S266137AbSKFVwp>; Wed, 6 Nov 2002 16:52:45 -0500
-Message-ID: <3DC9909A.6040905@zytor.com>
-Date: Wed, 06 Nov 2002 13:58:50 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
-X-Accept-Language: en-us, en
+	id <S266149AbSKFVcp>; Wed, 6 Nov 2002 16:32:45 -0500
+Received: from mail.cert.uni-stuttgart.de ([129.69.16.17]:26280 "EHLO
+	Mail.CERT.Uni-Stuttgart.DE") by vger.kernel.org with ESMTP
+	id <S265755AbSKFVck>; Wed, 6 Nov 2002 16:32:40 -0500
+To: jamesclv@us.ibm.com
+Cc: Gilad Ben-ossef <gilad@benyossef.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: One for the Security Guru's
+References: <20021023130251.GF25422@rdlg.net>
+	<1035380716.4323.50.camel@irongate.swansea.linux.org.uk>
+	<1035381547.4182.65.camel@klendathu.telaviv.sgi.com>
+	<200210231514.07192.jamesclv@us.ibm.com>
+Mail-Followup-To: jamesclv@us.ibm.com, Gilad Ben-ossef
+ <gilad@benyossef.com>, Linux Kernel Mailing List
+ <linux-kernel@vger.kernel.org>
+From: Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>
+Date: Wed, 06 Nov 2002 22:39:18 +0100
+In-Reply-To: <200210231514.07192.jamesclv@us.ibm.com> (James Cleverdon's
+ message of "Wed, 23 Oct 2002 15:14:07 -0700")
+Message-ID: <87bs529y49.fsf@Login.CERT.Uni-Stuttgart.DE>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.2
+ (i386-debian-linux-gnu)
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Evms-announce] EVMS announcement
-References: <02110516191004.07074@boiler>	<20021106001607.GJ27832@marowsky-bree.de>	<1036590957.9803.24.camel@irongate.swansea.linux.org.uk> 	<aqbv2d$tvd$1@cesium.transmeta.com> <1036617718.9781.73.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Wed, 2002-11-06 at 20:46, H. Peter Anvin wrote:
-> 
->>I presume that means device mapper is capable of using checksum
->>offloading and controller-based block duplication?  If so, that's
->>pretty damned nice.  Good work :)
-> 
-> ataraid is just driving dumb ide controllers in the way bios raid does
- >
+James Cleverdon <jamesclv@us.ibm.com> writes:
 
-I guess I meant it as a more general question than those specific devices.
+> Be surprised:  I run "gpg --verify foo.tgz.sign foo.tgz" every time I download 
+> from kernel.org.  And, "rpm --checksig *.rpm" on stuff from redhat.com too.
+>
+> Given the recent trojaned source packages, I recommend that everyone do the 
+> same.
 
-	-hpa
+Aren't the signatures on kernel.org automatically generated?
 
+-- 
+Florian Weimer 	                  Weimer@CERT.Uni-Stuttgart.DE
+University of Stuttgart           http://CERT.Uni-Stuttgart.DE/people/fw/
+RUS-CERT                          fax +49-711-685-5898

@@ -1,37 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261706AbTD3RCt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 13:02:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262239AbTD3RCt
+	id S262232AbTD3Q7q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 12:59:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262233AbTD3Q7q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 13:02:49 -0400
-Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:2460 "HELO
-	spf1.us.outblaze.com") by vger.kernel.org with SMTP id S261706AbTD3RCs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 13:02:48 -0400
-Message-ID: <20030430171432.70986.qmail@mail.com>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	Wed, 30 Apr 2003 12:59:46 -0400
+Received: from h-66-134-11-58.CHCGILGM.covad.net ([66.134.11.58]:64008 "EHLO
+	miniborg.vocalabs.com") by vger.kernel.org with ESMTP
+	id S262232AbTD3Q7p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 12:59:45 -0400
+Date: Wed, 30 Apr 2003 11:11:54 -0500 (CDT)
+From: Daniel Taylor <dtaylor@vocalabs.com>
+To: linux-kernel@vger.kernel.org
+Subject: Boot failure, VIA chipset.
+Message-ID: <Pine.LNX.4.44.0304301108240.7276-100000@dtaylor.vocalabs.com>
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Subodh S" <subodh_s_1975@mail.com>
-To: linux-scsi@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Date: Wed, 30 Apr 2003 12:14:32 -0500
-Subject: Cmd/Api to view no. of buffer heads
-X-Originating-Ip: 133.145.164.4
-X-Originating-Server: ws1-8.us4.outblaze.com
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I have a KT400-based system that will not boot the 2.5 series kernels.
 
-Is there a way to check the total number of buffer heads available, free and used. Tried to check /proc/slabinfo, didn't make sense, keeps changing all the time. 
+It fails with a hard lock immediately after the video mode query when
+VGA=ask is set in /etc/lilo.conf.
 
--subodh
+If anyone else is working on this contact me, otherwise I'll post
+my results when I get it working.
+
 -- 
-__________________________________________________________
-Sign-up for your own FREE Personalized E-mail at Mail.com
-http://www.mail.com/?sr=signup
+Daniel Taylor        VP Operations and Development   Vocal Laboratories, Inc.
+dtaylor@vocalabs.com   http://www.vocalabs.com/        (952)941-6580x203
 

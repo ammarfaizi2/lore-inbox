@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282747AbRLTJGw>; Thu, 20 Dec 2001 04:06:52 -0500
+	id <S282778AbRLTJLg>; Thu, 20 Dec 2001 04:11:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282757AbRLTJGo>; Thu, 20 Dec 2001 04:06:44 -0500
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:2058 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S282747AbRLTJGa>; Thu, 20 Dec 2001 04:06:30 -0500
-Date: Thu, 20 Dec 2001 08:58:44 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Stevie O <stevie@qrpff.net>
-Cc: "David S. Miller" <davem@redhat.com>, Mika.Liljeberg@welho.com,
-        kuznet@ms2.inr.ac.ru, Mika.Liljeberg@nokia.com,
-        linux-kernel@vger.kernel.org, sarolaht@cs.helsinki.fi
-Subject: Re: TCP LAST-ACK state broken in 2.4.17-pre2 [NEW DATA]
-Message-ID: <20011220085844.A29925@flint.arm.linux.org.uk>
-In-Reply-To: <5.1.0.14.2.20011220022218.01dc2258@whisper.qrpff.net> <3C1FA558.E889A00D@welho.com> <20011218.122813.63057831.davem@redhat.com> <5.1.0.14.2.20011220022218.01dc2258@whisper.qrpff.net> <20011219.234020.98861143.davem@redhat.com> <5.1.0.14.2.20011220024656.01e0cd20@whisper.qrpff.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <5.1.0.14.2.20011220024656.01e0cd20@whisper.qrpff.net>; from stevie@qrpff.net on Thu, Dec 20, 2001 at 02:51:42AM -0500
+	id <S282799AbRLTJLX>; Thu, 20 Dec 2001 04:11:23 -0500
+Received: from mail.chs.ru ([194.154.71.136]:4106 "EHLO mail.unix.ru")
+	by vger.kernel.org with ESMTP id <S282757AbRLTJLH>;
+	Thu, 20 Dec 2001 04:11:07 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: "Sergey S. Kostyliov" <rathamahata@php4.ru>
+To: Jean-Francois Levesque <jfl@jfworld.net>, linux-kernel@vger.kernel.org
+Subject: Re: UDMA problem with Maxtor 7200rpm disk
+Date: Thu, 20 Dec 2001 12:10:51 +0300
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <20011219151636.50e930ac.jfl@jfworld.net>
+In-Reply-To: <20011219151636.50e930ac.jfl@jfworld.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16GzE4-0002dJ-00@mail.unix.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 20, 2001 at 02:51:42AM -0500, Stevie O wrote:
-> hah, I wish. The ARM7 has seven "exception" vectors -- that's it.
+> Hi!
+>
+> I have a problem regarding my new Asus A7V266 board with VIA KT266 chipset.
+>  Byron Stanoszek told me to ask my problem to this list so here it is :
+>
+> My hard drive is a Maxtor 5T030H3 ATA DISK drive (30 gig).  The problem is
+> that I'm not able to read more than 7 MB/sec :
 
-If you're running on a processor without CP#15 register 1, and therefore
-doesn't have the alignment data abort trap (eg, MMUless ARMs), then you're
-on your own.
+Hi,
 
-If you do have it, and you didn't enable the alignment fault handler,
-that's your problem as well.
+I have exactly the same problem with 2.4.2 (RH Linux 7.1 - IIRC)
+and IBM DTLA - 307040
+I think the problem is in VIA82CXX support in 2.4.2
+At least for vt8233
+With current 2.4.16 (and 2.4.17-rc2) my disk works realy nice (37-38 Mb/s)
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+So I think you must get new kernel
+and recompile it with
+VIA82CXX support:
+CONFIG_BLK_DEV_VIA82CXXX=y
+> [root@xyz jfl]# /sbin/hdparm -d1 -X66 /dev/hda
+btw please use 
+/sbin/hdparm -d1 -X69 /dev/hda
+instead (if you need UATA100)
 
+			Best regards,
+			Sergey S. Kostyliov <rathamahata@php4.ru>

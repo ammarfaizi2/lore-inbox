@@ -1,41 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261651AbVB1Pfz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261650AbVB1PhI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261651AbVB1Pfz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 10:35:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261650AbVB1Pfz
+	id S261650AbVB1PhI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 10:37:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261657AbVB1PhH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 10:35:55 -0500
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:14265 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S261651AbVB1Pft (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 10:35:49 -0500
-From: kernel-stuff@comcast.net (Parag Warudkar)
-To: Payasam Manohar <pmanohar@lantana.cs.iitm.ernet.in>,
-       linux-kernel@vger.kernel.org
-Subject: Re: need for user mode linux
-Date: Mon, 28 Feb 2005 15:35:47 +0000
-Message-Id: <022820051535.19606.42233A53000917EE00004C96220073484000009A9B9CD3040A029D0A05@comcast.net>
-X-Mailer: AT&T Message Center Version 1 (Dec 17 2004)
-X-Authenticated-Sender: a2VybmVsLXN0dWZmQGNvbWNhc3QubmV0
+	Mon, 28 Feb 2005 10:37:07 -0500
+Received: from [202.75.205.68] ([202.75.205.68]:59608 "EHLO
+	mail.blr.velankani.com") by vger.kernel.org with ESMTP
+	id S261650AbVB1PhA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 10:37:00 -0500
+From: "Ravindra Nadgauda" <rnadgauda@velankani.com>
+To: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: Signals/ Communication from kernel to user!
+Date: Mon, 28 Feb 2005 21:06:57 +0530
+Message-ID: <042701c51dab$561ef650$280e000a@blr.velankani.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+In-Reply-To: <42233772.7020409@structurenet.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> hai all,
->      I am a newbie to linux kernel module programming.I am going to work on
->   driver modification or calling some programs from driver. I heard about 
-> usermode linux and its uses but I don't know the practical use of usermode 
-> linux. Is it needed for me. How 
-> it will be useful.Ofcourse, it need to be my personal decision, but I am 
-> seeking decision or hints from experts like u.
-
-UML - it is what it sounds like. Run Linux kernel as a user mode program inside a regular Linux operating system. It is generally good to use in situations as yours - learning and experimenting with kernel code without screwing up the hardware and host operating system. So you could do all your development and debugging on UML for instance and if it crashes due to your program error, no big deal just restart UML.
-
-That being said, I am not sure if UML is in usable state with current kernels - Last time I tried I couldn't get it to run with 2.6.10 kernel.
-
-You might want to check http://www.colinux.org - It is similar to UML, but instead of running Linux-under-Linux you run Linux-under-Windows. It is fairly simple to install and various distro images are available. Try out the documentation for colinux.
-
-Parag
 
 
+Hello,
+   We wanted to establish a communication from kernel module (possibly a
+driver) to a user level process.
+
+   Wanted to know whether signals can be used for this purpose OR there any
+other (better) methods of communication??
+
+Regards,
+Ravindra N.
 

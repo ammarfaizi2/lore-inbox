@@ -1,40 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266467AbUJNSOF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266684AbUJNSOC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266467AbUJNSOF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 14:14:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264113AbUJNSOF
+	id S266684AbUJNSOC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 14:14:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264113AbUJNSOC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 14:14:05 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52096 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266467AbUJNRFL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 13:05:11 -0400
-Message-ID: <416EB1B6.5070603@pobox.com>
-Date: Thu, 14 Oct 2004 13:04:54 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mark Lord <lsml@rtr.ca>
-CC: linux-scsi@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Export ata_scsi_simulate() for use by non-libata drivers
-References: <4161A06D.8010601@rtr.ca> <4165B233.9080405@rtr.ca> <416D8A4E.5030106@pobox.com> <416DA951.2090104@rtr.ca> <416DAF1A.2040204@pobox.com> <416DB912.7040805@rtr.ca> <416DBC96.2090602@pobox.com> <416EA996.4040402@rtr.ca> <416EAECC.7070000@rtr.ca>
-In-Reply-To: <416EAECC.7070000@rtr.ca>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 14 Oct 2004 14:14:02 -0400
+Received: from main.gmane.org ([80.91.229.2]:43167 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S266684AbUJNREZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 13:04:25 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Ben Pfaff <blp@cs.stanford.edu>
+Subject: Re: Spam on the list
+Date: Thu, 14 Oct 2004 10:04:21 -0700
+Message-ID: <87zn2pnsdm.fsf@benpfaff.org>
+References: <416EA06E.3050608@colannino.org>
+Reply-To: blp@cs.stanford.edu
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: c-24-6-66-193.client.comcast.net
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
+Cancel-Lock: sha1:Ik/nNb6nxibz3tMxYybFN5fZpvc=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Lord wrote:
-> +void ata_scsi_simulate(u16 *id,
-> +		      struct scsi_cmnd *cmd,
-> +		      void (*done)(struct scsi_cmnd *));
+James Colannino <lkml@colannino.org> writes:
 
-That you are defining a public function in multiple files should be a 
-hint that something is still missing...  :)  Put a prototype in 
-linux/libata.h just like the other public functions, and the patch will 
-be OK.
+> I was just thinking that the list receives a lot of spam.  Shouldn't
+> the list be locked down to be posted to by subsribers only as to curb
+> the bulk of that spam?  That's how most mailing lists I'm on are and
+> it works well.  Please don't flame me for this... :)  Just thought I'd
+> mention it.
 
-	Jeff
-
+You could subscribe via the newsserver at gmane.org.  It has
+additional spam filtering, plus it provides a way for you to help
+out.
+-- 
+Peter Seebach on managing engineers:
+"It's like herding cats, only most of the engineers are already
+ sick of laser pointers."
 

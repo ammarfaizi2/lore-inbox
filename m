@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318075AbSHDDEH>; Sat, 3 Aug 2002 23:04:07 -0400
+	id <S318077AbSHDDUd>; Sat, 3 Aug 2002 23:20:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318077AbSHDDEH>; Sat, 3 Aug 2002 23:04:07 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60165 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318075AbSHDDEH>;
-	Sat, 3 Aug 2002 23:04:07 -0400
-Message-ID: <3D4C9CB6.92504CF0@zip.com.au>
-Date: Sat, 03 Aug 2002 20:17:10 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ed Tomlinson <tomlins@cam.org>
-CC: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       Rik van Riel <riel@conectiva.com.br>
-Subject: Re: [PATCH] slablru for linux-2.5 bk tree
-References: <Pine.LNX.4.44.0207282324340.872-100000@home.transmeta.com> <200208011942.49342.tomlins@cam.org> <3D49C951.AB7C527E@zip.com.au> <200208031527.15093.tomlins@cam.org>
+	id <S318079AbSHDDUd>; Sat, 3 Aug 2002 23:20:33 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:50183 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S318077AbSHDDUd>;
+	Sat, 3 Aug 2002 23:20:33 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.19 warnings with allnoconfig
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Sun, 04 Aug 2002 13:23:52 +1000
+Message-ID: <23899.1028431432@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed Tomlinson wrote:
-> 
-> Hi,
-> 
-> Here the slablru patch ported to 2.5.30.
+2.4.19 with make allnoconfig produces these warnings.  How about
+getting a clean kernel before starting on 2.4.20?
 
-Ed, it's going to take some time/effort to get this shaken down
-and into the tree, I expect.  There's quite a bit banked up
-at present.
+init/do_mounts.c:980: warning: `crd_load' defined but not used
 
-I'll take care of any stability and performance stuff in slablru, but
-the wider question is: what behaviour do we actually _want_ for slab
-pages, and is this code delivering it?   Need to think about that.  But
-we certainly can't do worse than we are at present ;)
+arch/i386/kernel/setup.c: In function `amd_adv_spec_cache_feature': 
+arch/i386/kernel/setup.c:751: warning: implicit declaration of function `have_cpuid_p'
+arch/i386/kernel/setup.c: At top level:
+arch/i386/kernel/setup.c:2629: warning: `have_cpuid_p' was declared implicitly `extern' and later `static'
+arch/i386/kernel/setup.c:751: warning: previous declaration of `have_cpuid_p' 
 
-I've merged your patch on top of the pagemap_lru_lock patches. A whole
-bunch of nastiness went away because those patches allow us to take that
-lock from interrupt context.
+arch/i386/kernel/dmi_scan.c:196: warning: `disable_ide_dma' defined but not used
 
-The locking in slab.c needs some going over - I think it's wrong from a
-2.4 perspective: there's one ranking bug between pagemap_lru_lock and
-the cachep->spinlock.  I'd suggest that you change the 2.4 implementation
-to just drop pagemap_lru_lock before calling from vmscan into
-kmem_shrink_slab().  One thing will lead to another and the locking in slab
-will get simpler. Just make the lru lock nest inside the cachep->spinlock.
+fs/dnotify.c: In function `__inode_dir_notify':
+fs/dnotify.c:139: warning: label `out' defined but not used
 
-The fiddled patch is at http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.30/
-I'll read through it a bit more next week, give it a bit of testing.
+fs/namespace.c: In function `mnt_init':
+fs/namespace.c:1093: warning: implicit declaration of function `init_rootfs'
 
-Thanks.
+drivers/char/random.c:540: warning: `free_entropy_store' defined but not used
+

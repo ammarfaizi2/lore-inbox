@@ -1,76 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271245AbTGWVVM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 17:21:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271330AbTGWVVL
+	id S271331AbTGWVfe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 17:35:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271335AbTGWVfe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 17:21:11 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:24584 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S271245AbTGWVVI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 17:21:08 -0400
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: devfsd/2.6.0-test1
-Date: 23 Jul 2003 21:28:43 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <bfmumb$l7l$1@gatekeeper.tmr.com>
-References: <Pine.LNX.3.96.1030717183139.17023B-100000@gatekeeper.tmr.com> <1058718448.19817.5.camel@nosferatu.lan>
-X-Trace: gatekeeper.tmr.com 1058995723 21749 192.168.12.62 (23 Jul 2003 21:28:43 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Wed, 23 Jul 2003 17:35:34 -0400
+Received: from fw.osdl.org ([65.172.181.6]:51590 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S271331AbTGWVfd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 17:35:33 -0400
+Date: Wed, 23 Jul 2003 14:47:19 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: root@chaos.analogic.com, bernie@develer.com, uclinux-dev@uclinux.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.6 size increase
+Message-Id: <20030723144719.103adc19.rddunlap@osdl.org>
+In-Reply-To: <20030723130712.6ac59b56.davem@redhat.com>
+References: <200307232046.46990.bernie@develer.com>
+	<Pine.LNX.4.53.0307231507300.16939@chaos>
+	<20030723130712.6ac59b56.davem@redhat.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <1058718448.19817.5.camel@nosferatu.lan>,
-Martin Schlemmer  <azarah@gentoo.org> wrote:
-| 
-| --=-7Lt6k6a+JkixQBaZzKBJ
-| Content-Type: text/plain
-| Content-Transfer-Encoding: quoted-printable
-| 
-| On Fri, 2003-07-18 at 00:39, Bill Davidsen wrote:
-| > On 17 Jul 2003, Martin Schlemmer wrote:
-| >=20
-| > > On Thu, 2003-07-17 at 11:17, Mark Watts wrote:
-| >=20
-| > > > I'm running devfs on a 2.6.0-test1 box (Mandrake 9.1 with the new ker=
-| nel)
-| > > >=20
-| > > > Every time I boot, it complains that I don't have an /etc/modprobe.de=
-| vfs.
-| > > > If I symlink modules.devfs, I get a wad of errors about 'probeall'.
-| > > > What should a modprobe.devfs look like for a 2.5/6 kernel?
-| > > >=20
-| > >=20
-| > > The module-init-tools tarball should include one.
-| >=20
-| > Agreed, it should. However, the last version I pulled had zero support fo=
-| r
-| > probeall, and more importantly for probe, which is somewhat harder to do
-| > cleanly without having to rewrite the config file for each kernel you
-| > boot.
-| >=20
-| 
-| Well, it implements probeall in another fashion.  Also, you might
-| try /sbin/generate-modprobe.conf to convert a modules.conf to
-| modprobe.conf syntax.
+On Wed, 23 Jul 2003 13:07:12 -0700 "David S. Miller" <davem@redhat.com> wrote:
 
-Doesn't seem to convert "probe" unless there's a *very* new version, it
-converted my eight line modules.conf including probe to 113 lines of
-code I need to edit before rebooting.
+| On Wed, 23 Jul 2003 15:14:22 -0400 (EDT)
+| "Richard B. Johnson" <root@chaos.analogic.com> wrote:
+| 
+| > On Wed, 23 Jul 2003, Bernardo Innocenti wrote:
+| > It looks like a lot of data may have been initialized in the
+| > newer kernel, i.e. int barf = 0; or struct vomit = {0,}.
+| > If they just declared the static data, it would end up in
+| > .bss which is allocated at run-time (and zeroed) and is
+| > not in the kernel image.
+| 
+| GCC 3.3 and later do this automatically.
+| 
+| It's weird, since we killed TONS of explicit zero initializers during
+| 2.5.x, you'd be pressed to find many examples like the one you
+| mention.
+| 
+| Another thing is that the define_per_cpu() stuff eliminated many huge
+| [NR_CPUS] arrays.  But this probably doesn't apply to his kernel
+| unless he built is with SMP enabled.
 
-The problem has been that certain drivers take turns working in the 2.5
-evolution, e100 and eepro for instance. So if I have e100 I want to load
-it, otherwise try eepro. That's what probe is all about, and I can boot
-one kernel or another, regardless of which driver works (or is compiled)
-in a given kernel.
+Yes, lots were already killed off, but there are also several
+kernel-janitor patches to remove many more static 0 inits.
+They can be found at
+  http://developer.osdl.org/ogasawara/kj-patches/uninit_static/
+and I'll be trying to have them merged, although I don't know
+how well they will be accepted.
 
-Seems like a giant step backward to drop useful functionality, but 2.4
-will be around for a long time.
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+--
+~Randy

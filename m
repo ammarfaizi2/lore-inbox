@@ -1,71 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262432AbVAJSXI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262439AbVAJSsD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262432AbVAJSXI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 13:23:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbVAJSU6
+	id S262439AbVAJSsD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 13:48:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262420AbVAJSoo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 13:20:58 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:27859 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262409AbVAJSTM (ORCPT
+	Mon, 10 Jan 2005 13:44:44 -0500
+Received: from coderock.org ([193.77.147.115]:45756 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S262404AbVAJSmW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 13:19:12 -0500
-Date: Mon, 10 Jan 2005 10:19:05 -0800
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: kj <kernel-janitors@lists.osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: [UPDATE PATCH] scsi/osst: replace schedule_timeout() with msleep()
-Message-ID: <20050110181905.GE3099@us.ibm.com>
-References: <20050110164703.GD14307@nd47.coderock.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050110164703.GD14307@nd47.coderock.org>
-X-Operating-System: Linux 2.6.10 (i686)
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 10 Jan 2005 13:42:22 -0500
+Subject: [patch 1/1] list_for_each_entry: fs-dquot.c
+To: mvw@planets.elm.net
+Cc: linux-kernel@vger.kernel.org, domen@coderock.org, janitor@sternwelten.at
+From: domen@coderock.org
+Date: Mon, 10 Jan 2005 19:42:17 +0100
+Message-Id: <20050110184218.405431F1ED@trashy.coderock.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 10, 2005 at 05:47:03PM +0100, Domen Puncer wrote:
-> Patchset of 171 patches is at http://coderock.org/kj/2.6.10-bk13-kj/
-> 
-> Quick patch summary: about 30 new, 30 merged, 30 dropped.
-> Seems like most external trees are merged in -linus, so i'll start
-> (re)sending old patches.
-
-<snip>
-
-> all patches:
-> ------------
-
-<snip>
-
-> msleep-drivers_scsi_osst.patch
-
-Consider replacing with the following patch, as signals are not dealt with in
-the existing code:
-
-Description: Use msleep() instead of schedule_timeout() to guarantee the task
-delays as expected. Although TASK_INTERRUPTIBLE is used in the current code,
-there is no code dealing with an early return / signals_pending().
 
 
---- 2.6.10-v/drivers/scsi/osst.c	2004-12-24 13:34:45.000000000 -0800
-+++ 2.6.10/drivers/scsi/osst.c	2005-01-05 14:23:05.000000000 -0800
-@@ -1488,8 +1488,7 @@ static int osst_reposition_and_retry(OS_
- 			osst_set_frame_position(STp, aSRpnt, frame + skip, 1);
- 			flag = 0;
- 			attempts--;
--			set_current_state(TASK_INTERRUPTIBLE);
--			schedule_timeout(HZ / 10);
-+			msleep(100);
- 		}
- 		if (osst_get_frame_position(STp, aSRpnt) < 0) {		/* additional write error */
- #if DEBUG
-@@ -1550,7 +1549,7 @@ static int osst_reposition_and_retry(OS_
- 			debugging = 0;
- 		}
- #endif
--		schedule_timeout(HZ / 10);
-+		msleep(100);
- 	}
- 	printk(KERN_ERR "%s:E: Failed to find valid tape media\n", name);
- #if DEBUG
+
+Make code more readable with list_for_each_entry_safe.
+(Didn't compile before, doesn't compile now)
+
+Signed-off-by: Domen Puncer <domen@coderock.org>
+Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
+Signed-off-by: Domen Puncer <domen@coderock.org>
+---
+
+
+ kj-domen/fs/dquot.c |    7 ++-----
+ 1 files changed, 2 insertions(+), 5 deletions(-)
+
+diff -puN fs/dquot.c~list-for-each-entry-safe-fs_dquot fs/dquot.c
+--- kj/fs/dquot.c~list-for-each-entry-safe-fs_dquot	2005-01-10 17:59:46.000000000 +0100
++++ kj-domen/fs/dquot.c	2005-01-10 17:59:46.000000000 +0100
+@@ -406,13 +406,10 @@ out_dqlock:
+  * for this sb+type at all. */
+ static void invalidate_dquots(struct super_block *sb, int type)
+ {
+-	struct dquot *dquot;
+-	struct list_head *head;
++	struct dquot *dquot, *tmp;
+ 
+ 	spin_lock(&dq_list_lock);
+-	for (head = inuse_list.next; head != &inuse_list;) {
+-		dquot = list_entry(head, struct dquot, dq_inuse);
+-		head = head->next;
++	list_for_each_entry_safe(dquot, tmp, &inuse_list, dq_inuse) {
+ 		if (dquot->dq_sb != sb)
+ 			continue;
+ 		if (dquot->dq_type != type)
+_

@@ -1,117 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262235AbVC2IXe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262236AbVC2IYx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262235AbVC2IXe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 03:23:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262224AbVC2IWO
+	id S262236AbVC2IYx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 03:24:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262216AbVC2IVU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 03:22:14 -0500
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:5363 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S262196AbVC2IPb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 03:15:31 -0500
-Message-ID: <42490E9C.3070900@comcast.net>
-Date: Tue, 29 Mar 2005 03:15:24 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050111)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Brandon Hale <brandon@smarterits.com>, ubuntu-hardened@lists.ubuntu.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ubuntu-hardened] Re: Collecting NX information
-References: <42484B13.4060408@comcast.net>	 <1112035059.6003.44.camel@laptopd505.fenrus.org>	 <4248520E.1070602@comcast.net>	 <1112036121.6003.46.camel@laptopd505.fenrus.org>	 <424857B0.4030302@comcast.net>	 <1112043246.10117.5.camel@localhost.localdomain>	 <4248828B.20708@comcast.net> <1112080581.6282.1.camel@laptopd505.fenrus.org>
-In-Reply-To: <1112080581.6282.1.camel@laptopd505.fenrus.org>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
+	Tue, 29 Mar 2005 03:21:20 -0500
+Received: from gate.crashing.org ([63.228.1.57]:51417 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262219AbVC2ITc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 03:19:32 -0500
+Subject: Re: Mac mini sound woes
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Marcin Dalecki <martin@dalecki.de>
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Takashi Iwai <tiwai@suse.de>
+In-Reply-To: <4a7a16914e8d838e501b78b5be801eca@dalecki.de>
+References: <1111966920.5409.27.camel@gaston>
+	 <1112067369.19014.24.camel@mindpipe>
+	 <4a7a16914e8d838e501b78b5be801eca@dalecki.de>
+Content-Type: text/plain
+Date: Tue, 29 Mar 2005 18:18:31 +1000
+Message-Id: <1112084311.5353.6.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-
-
-Arjan van de Ven wrote:
->>You need to consider that in the end I'd need PT_GNU_STACK to do
->>everything PaX wants
+> > dmix has been around for a while but softvol plugin is very new, you
+> > will need ALSA CVS or the upcoming 1.0.9 release.
 > 
-> 
-> why?
-> Why not have independent flags for independent things?
-> That way you have both cleanness of design and you don't break anything.
-> 
+> Instead of the lame claims on how ugly it is to do hardware mixing in
+> kernel space the ALSA fans should ask them self the following questions:
 
-Also, I should have pointed out that independent flags for each part of
-this would require at the very least a 1 byte field per flag, totaling
-6.  In practice, the fields are usually 1 processor word (4 or 8 bytes),
-totalling 24 (or 48) bytes rather than 4 (or 8).
+Well, we are claiming _and_ obviously proposing a solution ;)
 
-As these are all pretty much "control memory space related security
-protections," convergence to a well-defined standard would be both clean
-and non-stuff-breaking.  Now of course there's no standard, but several
-things operating very similarly.  This gives us the opportunity to look
-at how each reacts to each different proprietary marking, take the most
-robust (which just happens to be PT_PAX_FLAGS, no flamewars please), and
-define exactly what each setting controls.
+> 1. Where do you have true "real-time" under linux? Kernel or user space?
 
-I want something very well defined for PAGEEXEC (executable stack,
-heap).  The MPROTECT setting should also be very well defined, which
-will match with PaX because nobody else restricts mprotect().  EMUTRAMP
-should be defined fairly loosely, but enough to say "stuff we can
-predictably identify as exceptions to the rules are caught here."  All
-of these alter the programming environment, so must be predictable to
-the programmer; emutramp is a special case, which allows the programmer
-to assume that he needs PAGEEXEC off while the administrator knows to
-just EMUTRAMP in this case.
+That's bullshit. you don't need "true" real time for the mixing/volume
+processing in most cases. I've been doing sound drivers on various
+platforms who don't have anything that look like true realtime neither
+and beleive, it works. Besides, if doing it linux shows latency
+problems, let's just fix them.
 
-For the two randomizers, "sane for default" should define one and "not
-sane for default" should define the other.  These have little to no
-effect on most programs, VM space fragmentation aside.  We don't need to
-define these too well, but enough to know what they're for.
+> 2. Where would you put the firmware for an DSP? Far away or as near to 
+> hardware as possible?
 
-SEGMEXEC is of course "nothing."  In truth, I want PaX to change to make
-SEGMEXEC absolutely nothing unless PAGEEXEC is on, and only for x86.
-This is because PAGEEXEC can be very clearly defined, and SEGMEXEC can
-be defined as a specific modifier on PAGEEXEC.
+Yes. This point is moot. The firmware is somewhere in your filesystem
+and obtained with the request_firmware() interface, that has nothing to
+do in the kernel. If it's really small, it might be ok to stuff it in
+the kernel. But anyway, this point is totally unrelated to the statement
+you are replying to.
 
-Of course, the effect of any one of these being on is subject to
-implementation; obviously if mprotect() restrictions aren't supported,
-MPROTECT being on does nothing.  I doubt mainline and ES will take that
-particular logic specifically, though either way I have no intention of
-even trying to force them to.  EMUTRAMP, however, I hope would be able
-to enhance mainline and ES both (that means Red Hat/Fedora) by allowing
-some of the PT_GNU_STACK markings to come off.
+> 3. How do you synchronize devices on non real time system?
 
-In the future, an SeLinux hook should go into the pax_parse_elf_flags()
-logic to allow SeLinux policy to control these settings for PaX,
-mainline, and ES in one sweep:
+I'm not sure I understand what you mean here. I suppose it's about
+propagation of clock sources, which is traditionally done in the slave
+way; that is the producer (whatever it is, mixer, app, ...) is "sucked"
+by the lowest level at a given rate, the sample count beeing the
+timestamp, variable sample size having other means (and less precise of
+course) to synchronize.
 
-+       /*Are these broke?  Then get out*/
-+       if (0 > pax_check_flags(&pax_flags))
-+               return -EINVAL;
-+
-(insert hook here)
-+       /*Add to the memory manager flags*/
-+       current->mm->flags |= pax_flags;
+> 4. Why the hell do we have whole network protocols inside the kernel? 
+> Couldn't those
+> be perfectly handled in user space? Or maybe there are good reasons?
+
+Network protocol do very few computation on the data in the packets
+(well, except for IPsec for security reasons mostly) but this is a gain
+totally unrelated. Like comparing apples and pears.
+
+> 5. Should a driver just basically map the hardware to the user space or 
+> shouldn't
+> it perhaps provide abstraction from the actual hardware implementing it?
+
+This is in no way incompatible with having the mixing and volume control
+in userspace. It's actually quite a good idea to have a userland library
+that isolates you from the low level "raw" kernel intefaces of the
+driver, and in the case of sound, provides you with the means to setup
+codec chains, mixing components, etc...
+
+> 6. Is there really a conceptual difference between a DSP+CPU+driver and 
+> just
+> looking at the MMX IP core of the CPU as an DSP?
+
+Again, I don't see how this makes any point in the context of the
+discussion above and your heated reply.
+
+Ben.
 
 
-[...]
-
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
-    Creative brains are a valuable, limited resource. They shouldn't be
-    wasted on re-inventing the wheel when there are so many fascinating
-    new problems waiting out there.
-                                                 -- Eric Steven Raymond
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFCSQ6chDd4aOud5P8RAvr3AJ91i8c7W1CetmjWFGuItG6pCHEiigCbBfXb
-H4RCVuOjFI71R45Q+TUw/AY=
-=dLsN
------END PGP SIGNATURE-----

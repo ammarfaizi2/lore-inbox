@@ -1,66 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264384AbTLKHQY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 02:16:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264386AbTLKHQX
+	id S264366AbTLKH0u (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 02:26:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264367AbTLKH0u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 02:16:23 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:44966 "EHLO
-	VL-MO-MR004.ip.videotron.ca") by vger.kernel.org with ESMTP
-	id S264384AbTLKHQK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 02:16:10 -0500
-Date: Thu, 11 Dec 2003 02:15:29 -0500
-From: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
-Subject: Re: Increasing HZ (patch for HZ > 1000)
-In-reply-to: <1288980000.1071126438@[10.10.2.4]>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Message-id: <1071126929.5149.24.camel@idefix.homelinux.org>
-Organization: =?ISO-8859-1?Q?Universit=C3=A9_de?= Sherbrooke
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7)
-Content-type: multipart/signed; boundary="=-u9jy+NeNcZ6Ie3wWQrrA";
- protocol="application/pgp-signature"; micalg=pgp-sha1
-References: <1071122742.5149.12.camel@idefix.homelinux.org>
- <1288980000.1071126438@[10.10.2.4]>
+	Thu, 11 Dec 2003 02:26:50 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:4844 "EHLO
+	grelber.thyrsus.com") by vger.kernel.org with ESMTP id S264366AbTLKH0r
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 02:26:47 -0500
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: Linus Torvalds <torvalds@osdl.org>, Andre Hedrick <andre@linux-ide.org>
+Subject: Re: Linux GPL and binary module exception clause?
+Date: Thu, 11 Dec 2003 01:26:46 -0600
+User-Agent: KMail/1.5
+Cc: Maciej Zenczykowski <maze@cela.pl>, David Schwartz <davids@webmaster.com>,
+       Jason Kingsland <Jason_Kingsland@hotmail.com>,
+       linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.10.10312100538320.3805-100000@master.linux-ide.org> <Pine.LNX.4.58.0312100745200.29676@home.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0312100745200.29676@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200312110126.46599.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 10 December 2003 10:07, Linus Torvalds wrote:
 
---=-u9jy+NeNcZ6Ie3wWQrrA
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+> Trust me, when you said that the GPL is badly written, you have no clue
+> what you're talking about. It's a very solid license, and your rants about
+> it have no basis in fact. I personally actually like the OSL slightly
+> better in the way it was written (see opensource.org), but your arguments
+> against the GPL are just fundamentally wrong.
 
-> Why would you want to *increase* HZ? I'd say 1000 is already too high
-> personally, but I'm curious what you'd want to do with it? Embedded
-> real-time stuff?
+I believe OSL's patent termination clause would have prevented IBM from using 
+patents in its counter-suit against SCO.
 
-Actually, my reasons may sound a little strange, but basically I'd be
-fine with HZ=3D1000 if it wasn't for that annoying ~1 kHz sound when the
-CPU is idle (probably bad capacitors). By increasing HZ to 10 kHz, the
-sound is at a frequency where the ear is much less sensitive. Anyway, I
-thought some people might be interested in high HZ for other (more
-fundamental) reasons, so I posted the patch.
+This license stuff isn't quite as easy as it looks. :)
 
-	Jean-Marc
-=20
---=20
-Jean-Marc Valin, M.Sc.A., ing. jr.
-LABORIUS (http://www.gel.usherb.ca/laborius)
-Universit=E9 de Sherbrooke, Qu=E9bec, Canada
+> 			Linus
 
---=-u9jy+NeNcZ6Ie3wWQrrA
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Ceci est une partie de message
-	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e=2E?=
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/2BmQdXwABdFiRMQRApxIAJ9kRuOx5kVkjZDRkMHpP/R8rsrivwCfRVqA
-3YW/o/TOFS/GlzkmeawuGMU=
-=FS7G
------END PGP SIGNATURE-----
-
---=-u9jy+NeNcZ6Ie3wWQrrA--
-
+Rob

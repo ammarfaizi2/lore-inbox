@@ -1,121 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278701AbRKFJpf>; Tue, 6 Nov 2001 04:45:35 -0500
+	id <S278714AbRKFJwF>; Tue, 6 Nov 2001 04:52:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278714AbRKFJpZ>; Tue, 6 Nov 2001 04:45:25 -0500
-Received: from pc-62-31-38-224-hy.blueyonder.co.uk ([62.31.38.224]:20881 "EHLO
-	lian.jtfltd.co.uk") by vger.kernel.org with ESMTP
-	id <S278709AbRKFJpR>; Tue, 6 Nov 2001 04:45:17 -0500
-Subject: 2.4.14 doesn't compile: drivers/char/char.o(.text+0x13cb7):
-	undefined reference to `register_serial'
-From: Scott White <scott@clubguide.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+	id <S278911AbRKFJvz>; Tue, 6 Nov 2001 04:51:55 -0500
+Received: from gap.cco.caltech.edu ([131.215.139.43]:30628 "EHLO
+	gap.cco.caltech.edu") by vger.kernel.org with ESMTP
+	id <S278722AbRKFJvl> convert rfc822-to-8bit; Tue, 6 Nov 2001 04:51:41 -0500
+Subject: Re: How can I know the number of current users in the system?
+From: Terje Eggestad <terje.eggestad@scali.no>
+To: weixl@caltech.edu
+Cc: mlist-linux-kernel@NNTP-SERVER.CALTECH.EDU
+In-Reply-To: <3BE5BDFB.B49A8147@caltech.edu>
+In-Reply-To: <3BE5BDFB.B49A8147@caltech.edu>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 X-Mailer: Evolution/0.16 (Preview Release)
-Date: 06 Nov 2001 09:45:14 +0000
-Message-Id: <1005039914.5258.6.camel@lian>
+Date: 06 Nov 2001 10:28:57 +0100
+Message-Id: <1005038940.2134.27.camel@pc-16.office.scali.no>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The short answer is; No.
 
-I hope this is of use to you all.  I am unable to compile 2.4.14 on my
-system.  I will start looking into it.
+The slightly longer answer is that Linux/Unix kernels don't have a
+consept of a logged in user. userids are used for really only one thing,
+owner ship of data. In order to do enforce it a process must be running
+as a spesific user. Once programs had a userid attached to it, things
+rolled on from there. However there is no way of figuring out if a
+process is "online" or something else.
 
-[root@lian linux]# make oldconfig
-....
-[root@lian linux]# make clean && make dep && make && make modules &&
-make modules_install
-....
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.14/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
--march=athlon     -c -o mmx.o mmx.c
-rm -f lib.a
-ar  rcs lib.a checksum.o old-checksum.o delay.o usercopy.o getuser.o
-memcpy.o strstr.o mmx.o
-make[2]: Leaving directory `/usr/src/linux-2.4.14/arch/i386/lib'
-make[1]: Leaving directory `/usr/src/linux-2.4.14/arch/i386/lib'
-ld -m elf_i386 -T /usr/src/linux-2.4.14/arch/i386/vmlinux.lds -e stext
-arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o
-init/version.o \
-	--start-group \
-	arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o
-fs/fs.o ipc/ipc.o \
-	 drivers/char/char.o drivers/block/block.o drivers/misc/misc.o
-drivers/net/net.o drivers/media/media.o drivers/char/drm/drm.o
-drivers/ide/idedriver.o drivers/cdrom/driver.o
-drivers/sound/sounddrivers.o drivers/pci/driver.o
-drivers/net/pcmcia/pcmcia_net.o drivers/net/wireless/wireless_net.o
-drivers/video/video.o \
-	net/network.o \
-	/usr/src/linux-2.4.14/arch/i386/lib/lib.a
-/usr/src/linux-2.4.14/lib/lib.a
-/usr/src/linux-2.4.14/arch/i386/lib/lib.a \
-	--end-group \
-	-o vmlinux
-drivers/char/char.o: In function `register_serial_portandirq':
-drivers/char/char.o(.text+0x13cb7): undefined reference to
-`register_serial'
-make: *** [vmlinux] Error 1
+However, the big iron *ix'es do this, and I can't remember exactly how
+they do it. But another feature often pop up; guaranteeing a users a
+minimum CPU percentage. (Even if I hate it, it has merit for RT/responce
+critical apps.)
+
+My suggestion is to loop thru the processes and collect a list of all
+the userids and form a tree/list of all the processes belonging to each
+of them. Then you fair share schedule between the users.
+
+Another issue: did you want to serialize scheduling? (run all the
+processes for a user in sequence before starting on the next user?)
+Another feature on the "big" *ix'es. 
+
+THis is going to have some side effects! nicing a process up or down may
+only nice relative to the users other processes, not other users. It may
+be what you want, just thought I'd bring it up. 
+
+Next issue, do you want to fair share between root and the other users?
+(and THAT is a time old discussion...)
+
+TJ
 
 
+søn, 2001-11-04 kl. 23:15 skrev Wei Xiaoliang:
+> Hi every one,
+>     I have a problem not clear: Is there any counter for the user number
+> in linux?
+> I want to do anexperiment which will get the number of current user in
+> the system and try fair-share scheduling based on it. I read the sys.c
+> and user.c but cannot find a counter for it. Is there any counter for
+> this things?
+> 
+>     If no, where can I put the inc instruct and dec instruct  or the
+> counter? in the uid_hash_insert and uid_hash_remove?
+>     Thank you!
+> -----------------------------------------------------------------------
+> Xiaoliang (David) Wei                    Graduate Student in CS, Caltech
+> E-mail: weixl@caltech.edu                Office: 158 Jorgensen
+> Phone: 1-(626)-395-3555 (O)        1-(626)-577-5238 (H)
+> Mail:     Xiaoliang Wei, 256-80 Caltech, Pasadena, CA 91125, U.S.A.
+> WWW: http://www.cs.caltech.edu/~weixl    http://166.111.69.241/~wxl
+> -----------------------------------------------------------------------
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+_________________________________________________________________________
 
+Terje Eggestad                  terje.eggestad@scali.no
+Scali Scalable Linux Systems    http://www.scali.com
 
-[root@lian linux]# uname -a
-Linux lian 2.4.10-ac5 #2 Fri Oct 5 19:13:16 BST 2001 i686 unknown
-[root@lian linux]# cat /proc/pci
-PCI devices found:
-  Bus  0, device   0, function  0:
-    Host bridge: PCI device 10b9:1647 (Acer Laboratories Inc. [ALi])
-(rev 2).
-      Prefetchable 32 bit memory at 0xf0000000 [0xf3ffffff].
-  Bus  0, device   1, function  0:
-    PCI bridge: Acer Laboratories Inc. [ALi] M5247 (rev 0).
-      Master Capable.  No bursts.  Min Gnt=14.
-  Bus  0, device   2, function  0:
-    USB Controller: Acer Laboratories Inc. [ALi] M5237 USB (rev 3).
-      IRQ 10.
-      Master Capable.  Latency=64.  Max Lat=80.
-      Non-prefetchable 32 bit memory at 0xdf001000 [0xdf001fff].
-  Bus  0, device   4, function  0:
-    IDE interface: Acer Laboratories Inc. [ALi] M5229 IDE (rev 196).
-      Master Capable.  Latency=32.  Min Gnt=2.Max Lat=4.
-      I/O at 0xd000 [0xd00f].
-  Bus  0, device   7, function  0:
-    ISA bridge: Acer Laboratories Inc. [ALi] M1533 PCI to ISA Bridge
-[Aladdin IV] (rev 0).
-  Bus  0, device  13, function  0:
-    Ethernet controller: 3Com Corporation 3c905C-TX [Fast Etherlink]
-(rev 120).
-      IRQ 11.
-      Master Capable.  Latency=32.  Min Gnt=10.Max Lat=10.
-      I/O at 0xd400 [0xd47f].
-      Non-prefetchable 32 bit memory at 0xdf000000 [0xdf00007f].
-  Bus  0, device  15, function  0:
-    Multimedia audio controller: C-Media Electronics Inc CM8738 (rev
-16).
-      IRQ 10.
-      Master Capable.  Latency=32.  Min Gnt=2.Max Lat=24.
-      I/O at 0xd800 [0xd8ff].
-  Bus  0, device  16, function  0:
-    RAID bus controller: CMD Technology Inc PCI0649 (rev 2).
-      IRQ 10.
-      Master Capable.  Latency=32.  Min Gnt=2.Max Lat=4.
-      I/O at 0xdc00 [0xdc07].
-      I/O at 0xe000 [0xe003].
-      I/O at 0xe400 [0xe407].
-      I/O at 0xe800 [0xe803].
-      I/O at 0xec00 [0xec0f].
-  Bus  0, device  17, function  0:
-    Bridge: Acer Laboratories Inc. [ALi] M7101 PMU (rev 0).
-  Bus  1, device   0, function  0:
-    VGA compatible controller: nVidia Corporation NV11 (GeForce2 MX)
-(rev 178).
-      IRQ 5.
-      Master Capable.  Latency=248.  Min Gnt=5.Max Lat=1.
-      Non-prefetchable 32 bit memory at 0xdc000000 [0xdcffffff].
-      Prefetchable 32 bit memory at 0xd0000000 [0xd7ffffff].
-
+Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
+P.O.Box 70 Bogerud                      +47 975 31 574  (MOBILE)
+N-0621 Oslo                     fax:    +47 22 62 89 51
+NORWAY            
+_________________________________________________________________________
 

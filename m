@@ -1,123 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266327AbUA2Tv6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 14:51:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266337AbUA2Tv5
+	id S266363AbUA2UDu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 15:03:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266365AbUA2UDu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 14:51:57 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:57094 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S266327AbUA2Tvj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 14:51:39 -0500
-Date: Thu, 29 Jan 2004 19:51:34 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>
-cc: linux-kernel <linux-kernel@vger.kernel.org>, <hmallat@cc.hut.fi>,
-       <geert@linux-m68k.org>
-Subject: Re: tdfxfb in linux-2.6 and 1GiB RAM
-In-Reply-To: <20040128161318.5b20d741.vmlinuz386@yahoo.com.ar>
-Message-ID: <Pine.LNX.4.44.0401282255590.31165-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 29 Jan 2004 15:03:50 -0500
+Received: from 62-43-4-76.user.ono.com ([62.43.4.76]:1664 "EHLO
+	mortadelo.pirispons.net") by vger.kernel.org with ESMTP
+	id S266363AbUA2UDq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jan 2004 15:03:46 -0500
+Date: Thu, 29 Jan 2004 21:03:45 +0100
+From: Kiko Piris <kernel@pirispons.net>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Xan <DXpublica@telefonica.net>, Zack Winkles <winkie@linuxfromscratch.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6.1] fbdev console: can't load vga=791 and yes vga=ask!
+Message-ID: <20040129200345.GA1876@pirispons.net>
+Mail-Followup-To: James Simmons <jsimmons@infradead.org>,
+	Xan <DXpublica@telefonica.net>,
+	Zack Winkles <winkie@linuxfromscratch.org>,
+	linux-kernel@vger.kernel.org
+References: <20040127225909.GA5271@sacarino.pirispons.net> <Pine.LNX.4.44.0401272331410.19265-100000@phoenix.infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0401272331410.19265-100000@phoenix.infradead.org>
+User-Agent: Mutt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 27/01/2004 at 23:37, James Simmons wrote:
 
-> I can't use frame buffer (tdfxfb) in linux-2.6 with 1GiB of RAM, but yes with 512MiB.
-> (The linux-2.4 works ok, in both cases.)
+> > In 2.6.1 I could use framebuffer through vesafb just with that parameter
+> > (vga=795, ie. 1280x10224 16M).
 > 
-> HIGHMEM disabled.
+> This is very strange. 
 
-Working on a fix. Basically we need to migrate as many drivers as possible 
-to use acceleration and remove the ioremapping code. To do this tho I have 
-to replace the fb_read and fb_write functions with someothing that uses 
-the accel engines. I haven't finished that code yet.
+Well, back home again and I've been able to do some tests.
 
-> The another problem is, when boot in low resolution default 640x480 and switch with
-> fbset to 1024x768 for example, it changes ok, but can't draw in all screen, only in a
-> small area of 640x480 located at upper left of screen, the same for all VTs.
+vesafb boots fine with 2.6.2-rc2, just I have to specify the parameter
+suggested by Zack Winkles : "vga=0795 video=vesafb:ywrap,pmipal,mtrr"
 
-Fixed in the fbdev tree. That will be synced up soon.
+> Give it a try. If you have problems use my patch at 
+> 
+> http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
+> 
+> > Althoug, I would prefer to use radeonfb instead of vesafb (radeonfb
+> > turns off my monitor and vesafb does not).
+> > 
+> > Anyone with a Radeon 9200 does use radeonfb ? If yes, any special boot
+> > parameter?
+> 
+> Try my newest patch. It has a updated radeon driver.
 
+I tried the patch you mention here:
 
-> If you need more info in logs/proc/sysfs please let me know.
-> 
-> the @dmesg (1GiB) appears:
-> fb: Can't remap 3Dfx Voodoo5 register area.
-> tdfxfb: probe of 0000:01:00.0 failed with error -6
-> 
-> and @dmesg (512MiB):
-> fb: 3Dfx Voodoo5 memory = 32768K
-> 
-> lspci -vv output:
-> 01:00.0 VGA compatible controller: 3Dfx Interactive, Inc. Voodoo 4 / Voodoo 5 (rev 01) (prog-if 00 [VGA])
->         Subsystem: 3Dfx Interactive, Inc.: Unknown device 0004
->         Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
->         Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR+
->         Interrupt: pin A routed to IRQ 11
->         Region 0: Memory at d0000000 (32-bit, non-prefetchable) [size=128M]
->         Region 1: Memory at e0000000 (32-bit, prefetchable) [size=128M]
->         Region 2: I/O ports at c000 [size=256]
->         Expansion ROM at <unassigned> [disabled] [size=64K]
->         Capabilities: [54] AGP version 2.0
->                 Status: RQ=16 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- HTrans- 64bit+ FW- AGP3- Rate=x1,x2
->                 Command: RQ=1 ArqSz=0 Cal=0 SBA- AGP- GART64- 64bit- FW- Rate=<none>
->         Capabilities: [60] Power Management version 2
->                 Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
->                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-> 
-> 
-> /proc/iomem (1GiB)
-> 00000000-0009ffff : System RAM
-> 000a0000-000bffff : Video RAM area
-> 000c0000-000c7fff : Video ROM
-> 000f0000-000fffff : System ROM
-> 00100000-1ffeffff : System RAM
->   00100000-00366df4 : Kernel code
->   00366df5-0043613f : Kernel data
-> 1fff0000-1fff2fff : ACPI Non-volatile Storage
-> 1fff3000-1fffffff : ACPI Tables
-> d0000000-dfffffff : PCI Bus #01
->   d0000000-d7ffffff : 0000:01:00.0
-> e0000000-e7ffffff : PCI Bus #01
->   e0000000-e7ffffff : 0000:01:00.0
-> e8000000-ebffffff : 0000:00:00.0
-> ec000000-ec0000ff : 0000:00:09.0
->   ec000000-ec0000ff : 8139too
-> ec001000-ec0010ff : 0000:00:10.3
-> fec00000-fec00fff : reserved
-> fee00000-fee00fff : reserved
-> ffff0000-ffffffff : reserved
-> 
-> /proc/iomem (512MiB)
-> 00000000-0009ffff : System RAM
-> 000a0000-000bffff : Video RAM area
-> 000c0000-000c7fff : Video ROM
-> 000f0000-000fffff : System ROM
-> 00100000-1ffeffff : System RAM
->   00100000-003504e0 : Kernel code
->   003504e1-0041c13f : Kernel data
-> 1fff0000-1fff2fff : ACPI Non-volatile Storage
-> 1fff3000-1fffffff : ACPI Tables
-> d0000000-dfffffff : PCI Bus #01
->   d0000000-d7ffffff : 0000:01:00.0
->     d0000000-d7ffffff : tdfx regbase
-> e0000000-e7ffffff : PCI Bus #01
->   e0000000-e7ffffff : 0000:01:00.0
->     e0000000-e7ffffff : tdfx smem
-> e8000000-ebffffff : 0000:00:00.0
-> ec000000-ec0000ff : 0000:00:09.0
->   ec000000-ec0000ff : 8139too
-> ec001000-ec0010ff : 0000:00:10.3
-> fec00000-fec00fff : reserved
-> fee00000-fee00fff : reserved
-> ffff0000-ffffffff : reserved
-> 
-> 
-> chau,
->  djgera
-> 
-> 
-> 
+http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
 
+against 2.6.1 (it does not apply to 2.6.2-rc2) and it does not work for
+me. I can only use 640x480. Any other resolution I try results in an
+usupported frequency for my monitor.
 
+My graphics card is:
+
+# lspci -s 01:00.1 -v
+01:00.1 Display controller: ATI Technologies Inc: Unknown device 5d44 (rev 01)
+        Subsystem: Unknown device 18bc:0171
+        Flags: bus master, 66Mhz, medium devsel, latency 32
+        Memory at d8000000 (32-bit, prefetchable) [size=128M]
+        Memory at e5010000 (32-bit, non-prefetchable) [size=64K]
+        Capabilities: [50] Power Management version 2
+
+Please let me know if I can try anything else. I'll be very glad to test
+it (so I can use radeonfb, because as I said, I prefer it over vesafb).
+
+TIA.
+
+-- 
+Kiko

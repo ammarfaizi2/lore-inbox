@@ -1,86 +1,131 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268384AbTBNNCS>; Fri, 14 Feb 2003 08:02:18 -0500
+	id <S268424AbTBNNF1>; Fri, 14 Feb 2003 08:05:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268403AbTBNNCQ>; Fri, 14 Feb 2003 08:02:16 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:53593
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S268384AbTBNNBH>; Fri, 14 Feb 2003 08:01:07 -0500
-Date: Fri, 14 Feb 2003 08:09:33 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: Jeff Dike <jdike@karaya.com>, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH][2.5][13/14] smp_call_function_on_cpu - UML
-In-Reply-To: <Pine.LNX.4.50.0302140411160.3518-100000@montezuma.mastecende.com>
-Message-ID: <Pine.LNX.4.50.0302140756500.3518-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.50.0302140411160.3518-100000@montezuma.mastecende.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268416AbTBNNFN>; Fri, 14 Feb 2003 08:05:13 -0500
+Received: from cs-ats40.donpac.ru ([217.107.128.161]:24846 "EHLO pazke")
+	by vger.kernel.org with ESMTP id <S268414AbTBNMxI>;
+	Fri, 14 Feb 2003 07:53:08 -0500
+Date: Fri, 14 Feb 2003 15:58:21 +0300
+To: linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH] visws: add missing mach_apic.h file (7/13)
+Message-ID: <20030214125821.GG8230@pazke>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Linus Torvalds <torvalds@transmeta.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="a8sldprk+5E/pDEv"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Uname: Linux 2.4.20aa1 i686 unknown
+From: Andrey Panin <pazke@orbita1.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One liner to fix num_cpus == 0 on SMP kernel w/ UP box
 
-Index: linux-2.5.60/arch/um/kernel/smp.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.60/arch/um/kernel/smp.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 smp.c
---- linux-2.5.60/arch/um/kernel/smp.c	10 Feb 2003 22:15:17 -0000	1.1.1.1
-+++ linux-2.5.60/arch/um/kernel/smp.c	14 Feb 2003 12:59:41 -0000
-@@ -255,15 +255,19 @@
- 	atomic_inc(&scf_finished);
- }
- 
--int smp_call_function(void (*_func)(void *info), void *_info, int nonatomic, 
--		      int wait)
-+int smp_call_function_on_cpu(void (*_func)(void *info), void *_info, int wait,
-+				unsigned long mask)
- {
--	int cpus = num_online_cpus() - 1;
--	int i;
-+	int i, cpu, num_cpus;
- 
--	if (!cpus)
-+	cpu = get_cpu();
-+	mask &= ~(1UL << cpu);
-+	num_cpus = hweight32(mask);
-+	if (num_cpus == 0) {
-+		put_cpu_no_resched();
- 		return 0;
--
-+	}
-+	
- 	spin_lock_bh(&call_lock);
- 	atomic_set(&scf_started, 0);
- 	atomic_set(&scf_finished, 0);
-@@ -271,19 +275,24 @@
- 	info = _info;
- 
- 	for (i=0;i<NR_CPUS;i++)
--		if((i != current->thread_info->cpu) && 
--		   test_bit(i, &cpu_online_map))
-+		if (cpu_online(i) && ((1UL << i) & mask))
- 			write(cpu_data[i].ipi_pipe[1], "C", 1);
- 
--	while (atomic_read(&scf_started) != cpus)
-+	while (atomic_read(&scf_started) != num_cpus)
- 		barrier();
- 
- 	if (wait)
--		while (atomic_read(&scf_finished) != cpus)
-+		while (atomic_read(&scf_finished) != num_cpus)
- 			barrier();
- 
- 	spin_unlock_bh(&call_lock);
-+	put_cpu_no_resched();
- 	return 0;
+--a8sldprk+5E/pDEv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+Hi.
+
+This patch adds misiing mach_apic.h file.
+
+Please consider applying.
+
+Best regards.
+
+-- 
+Andrey Panin		| Embedded systems software developer
+pazke@orbita1.ru	| PGP key: wwwkeys.pgp.net
+
+--a8sldprk+5E/pDEv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=patch-visws-mach_apic
+
+diff -urN -X /usr/share/dontdiff linux-2.5.60.vanilla/include/asm-i386/mach-visws/mach_apic.h linux-2.5.60/include/asm-i386/mach-visws/mach_apic.h
+--- linux-2.5.60.vanilla/include/asm-i386/mach-visws/mach_apic.h	Thu Jan  1 03:00:00 1970
++++ linux-2.5.60/include/asm-i386/mach-visws/mach_apic.h	Thu Feb 13 20:42:02 2003
+@@ -0,0 +1,80 @@
++#ifndef __ASM_MACH_APIC_H
++#define __ASM_MACH_APIC_H
++
++#define APIC_DFR_VALUE	(APIC_DFR_FLAT)
++
++#define no_balance_irq (0)
++#define esr_disable (0)
++
++#define INT_DELIVERY_MODE dest_LowestPrio
++#define INT_DEST_MODE 1     /* logical delivery broadcast to all procs */
++
++#ifdef CONFIG_SMP
++ #define TARGET_CPUS cpu_online_map
++#else
++ #define TARGET_CPUS 0x01
++#endif
++
++#define APIC_BROADCAST_ID      0x0F
++#define check_apicid_used(bitmap, apicid) (bitmap & (1 << apicid))
++#define check_apicid_present(bit) (phys_cpu_present_map & (1 << bit))
++
++static inline int apic_id_registered(void)
++{
++	return (test_bit(GET_APIC_ID(apic_read(APIC_ID)), 
++						&phys_cpu_present_map));
 +}
 +
-+int smp_call_function(void (*_func)(void *info), void *_info, int nonatomic, int wait)
++/*
++ * Set up the logical destination ID.
++ *
++ * Intel recommends to set DFR, LDR and TPR before enabling
++ * an APIC.  See e.g. "AP-388 82489DX User's Manual" (Intel
++ * document number 292116).  So here it goes...
++ */
++static inline void init_apic_ldr(void)
 +{
-+	return smp_call_function_on_cpu(_func, _info, wait, cpu_online_map);
- }
- 
- #endif
++	unsigned long val;
++
++	apic_write_around(APIC_DFR, APIC_DFR_VALUE);
++	val = apic_read(APIC_LDR) & ~APIC_LDR_MASK;
++	val |= SET_APIC_LOGICAL_ID(1UL << smp_processor_id());
++	apic_write_around(APIC_LDR, val);
++}
++
++static inline void summit_check(char *oem, char *productid) 
++{
++}
++
++static inline void clustered_apic_check(void)
++{
++}
++
++/* Mapping from cpu number to logical apicid */
++static inline int cpu_to_logical_apicid(int cpu)
++{
++	return 1 << cpu;
++}
++
++static inline int cpu_present_to_apicid(int mps_cpu)
++{
++	return mps_cpu;
++}
++
++static inline unsigned long apicid_to_cpu_present(int apicid)
++{
++	return (1ul << apicid);
++}
++
++#define WAKE_SECONDARY_VIA_INIT
++
++static inline void setup_portio_remap(void)
++{
++}
++
++static inline int check_phys_apicid_present(int boot_cpu_physical_apicid)
++{
++	return test_bit(boot_cpu_physical_apicid, &phys_cpu_present_map);
++}
++
++#endif /* __ASM_MACH_APIC_H */
+
+--a8sldprk+5E/pDEv--

@@ -1,42 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268861AbUJEG5Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268854AbUJEHA3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268861AbUJEG5Z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 02:57:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268868AbUJEG5Y
+	id S268854AbUJEHA3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 03:00:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268860AbUJEHA2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 02:57:24 -0400
-Received: from [217.222.53.238] ([217.222.53.238]:30600 "EHLO mail.gts.it")
-	by vger.kernel.org with ESMTP id S268861AbUJEG5T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 02:57:19 -0400
-Message-ID: <41624598.6030509@gts.it>
-Date: Tue, 05 Oct 2004 08:56:24 +0200
-From: Stefano Rivoir <s.rivoir@gts.it>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: gww@btinternet.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc3-mm2
-References: <20041004020207.4f168876.akpm@osdl.org>	<4161462A.5040806@gts.it>	<20041004121805.2bffcd99.akpm@osdl.org>	<4161BCCB.4080302@btinternet.com>	<20041004143253.50a82050.akpm@osdl.org> <20041004143953.10e6d764.akpm@osdl.org>
-In-Reply-To: <20041004143953.10e6d764.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 5 Oct 2004 03:00:28 -0400
+Received: from mail06.syd.optusnet.com.au ([211.29.132.187]:24261 "EHLO
+	mail06.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S268854AbUJEG7t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 02:59:49 -0400
+References: <200410050216.i952Gb620657@unix-os.sc.intel.com> <Pine.LNX.4.58.0410050229380.31508@devserv.devel.redhat.com> <cone.1096958170.135056.10082.502@pc.kolivas.org> <Pine.LNX.4.58.0410050250580.4941@devserv.devel.redhat.com>
+Message-ID: <cone.1096959567.406629.10082.502@pc.kolivas.org>
+X-Mailer: http://www.courier-mta.org/cone/
+From: Con Kolivas <kernel@kolivas.org>
+To: Ingo Molnar <mingo@redhat.com>
+Cc: Con Kolivas <kernel@kolivas.org>,
+       =?ISO-8859-1?B?Q2hlbiw=?= Kenneth W <kenneth.w.chen@intel.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: bug in sched.c:activate_task()
+Date: Tue, 05 Oct 2004 16:59:27 +1000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed; charset="US-ASCII"
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Ingo Molnar writes:
 
-> Andrew Morton <akpm@osdl.org> wrote:
 > 
->>Could you try this patch?  It'll locate the bug for us.
+> On Tue, 5 Oct 2004, Con Kolivas wrote:
+> 
+>> 	unsigned long long delta = now - next->timestamp;
+>> 
+>> 	if (next->activated == 1)
+>> 		delta = delta * (ON_RUNQUEUE_WEIGHT * 128 / 100) / 128;
+>> 
+>> is in schedule() before we update the timestamp, no?
+> 
+> indeed ... so the patch is just random incorrect damage that happened to
+> distrub the scheduler fixing some balancing problem. Kenneth, what
+> precisely is the balancing problem you are seeing?
 
-OK, applying all of the attached patches, the whole thing works (so, 
-preemp_count fix, and preempt_disable/enable around those two #defines 
-w/smp_processor_id).
+We used to compare jiffy difference in can_migrate_task by comparing it to
+cache_decay_ticks. Somewhere in the merging of sched_domains it was changed 
+to task_hot which uses timestamp.
 
-Thank you all.
-
--- 
-Stefano RIVOIR
+Con
 

@@ -1,96 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273787AbRIXD6C>; Sun, 23 Sep 2001 23:58:02 -0400
+	id <S273784AbRIXEP6>; Mon, 24 Sep 2001 00:15:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273788AbRIXD5w>; Sun, 23 Sep 2001 23:57:52 -0400
-Received: from embolism.psychosis.com ([216.242.103.100]:33038 "EHLO
-	embolism.psychosis.com") by vger.kernel.org with ESMTP
-	id <S273787AbRIXD5f>; Sun, 23 Sep 2001 23:57:35 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: David Cinege <dcinege@psychosis.com>
-Reply-To: dcinege@psychosis.com
-To: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] PART1: Proposed init & module changes for 2.5
-Date: Sun, 23 Sep 2001 23:57:24 -0400
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <E15l2tb-0004KK-00@wagner> <E15l3Qu-0005YQ-00@schizo.psychosis.com> <20010924100942.0a37db8d.rusty@rustcorp.com.au>
-In-Reply-To: <20010924100942.0a37db8d.rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org
+	id <S273788AbRIXEPt>; Mon, 24 Sep 2001 00:15:49 -0400
+Received: from lsmls02.we.mediaone.net ([24.130.1.15]:61330 "EHLO
+	lsmls02.we.mediaone.net") by vger.kernel.org with ESMTP
+	id <S273784AbRIXEPm>; Mon, 24 Sep 2001 00:15:42 -0400
+Message-ID: <3BAEB39B.DE7932CF@kegel.com>
+Date: Sun, 23 Sep 2001 21:16:27 -0700
+From: Dan Kegel <dank@kegel.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E15lMrA-0006ny-00@schizo.psychosis.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Gordon Oliver <gordo@pincoya.com>
+Subject: Re: [PATCH] /dev/epoll update ...
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 23 September 2001 20:09, you wrote:
-> On Sun, 23 Sep 2001 03:12:54 -0400
->
-> David Cinege <dcinege@psychosis.com> wrote:
-> > On Sunday 23 September 2001 2:37, Rusty Russell wrote:
-> >
-> > Russ,
-> >
-> > How about implementing MBS? (Bootloader module loading. IE as implmented
-> > in GRUB) so we can finally have completely modular kernels?
->
-> Hi Dave,
->
-> 	Why duplicate the module code in the boot loader?  Surely a tiny initrd
-> or equiv is a better option here?
+Gordon Oliver <gordo@pincoya.com> wrote:
+> But you missed the obvious optimization of doing an f_ops->poll when
+> the file is _added_. This means that you'll get an initial event when
+> there is data ready. ...
 
-Russ,
+Note that you can do that in userspace by calling poll(), btw.  That
+gets you down to a single extra system call initially.
 
-No. It's much more restrictive. IMO the JOB of the boot loader is to provide 
-minimal lowest level (arch dependant) device access to load and initialise 
-the kernel, with enough user control to manipulate how the kernel
-is initialised. GRUB does a fantastic job of this on x86. It's the first 
-bootloader I've seen 'get it right'.
+> Note that it has the additional advantage of making the dispatch code
+> in the user application easier. You no longer have to do special code
+> to handle the speculative read after adding the fd.
 
-I don't suggest implementing the complete module loading in the boot loader,
-(I'm still not even sure I really like it in the kernel.  ; > )
-only loading the modules themselves into memory for the kernel access during 
-it's exec. (Like an initrd image is loaded) If a boot loader wants to 
-understand and use modules.dep or do on the fly dependency checking, or have 
-kernel userland utils to update it's conifg intelligently, that's it's 
-business. I only want to see a way modules can be preloaded before kernel 
-exec.
+As Davide points out in his reply, /dev/epoll is an exact clone of
+the O_SETSIG/O_SETOWN/O_ASYNC realtime signal way of getting readiness
+change events, but using a memory-mapped buffer instead of signal delivery
+(and obeying an interest mask).  Unlike /dev/poll, it only provides
+information about *changes* in readiness.
 
-This has already been designed and is called the Multi Boot Standard.
-You can read the spec in the GRUB source archive.
-	http://www.gnu.org/software/grub/
-It been around a few years. It's sad only HURD(?) is using it,
+Everyone who has successfully written code using the O_SETSIG/O_SETOWN/O_ASYNC
+code knows that it does not send an initial state event.  This has not
+gotten in the way, as a rule.
 
-Why an initrd solution doesn't even touch on the problem:
-You have a kernel.
-	It's scsi layer and scsi device drivers are all modules.
+If it does turn out to be Very Important for these single-shot readiness
+notification schemes to generate synthetic initial readiness events,
+it should be added both to /dev/epoll and to O_SETSIG/O_SETOWN/O_ASYNC.
 
-You have a system.
-	It contains a single scsi drive.
-	The kernel and modules reside on that drive.
-
-Now the impossible exercise.
-	Get that machine the boot.
-
-All the parts are there but you can't. Your only option is to use an initrd 
-that has the required modules *merged* into it. This is just disgusting and 
-silly. It's also impossible to make that initrd on that machine without a 
-suplementary system. (Yes there are other ways around this by why not just 
-KISS???)
-
-We ALREADY have the boot loader and spec designed to allow reloading
-modules into memory this way. (GRUB) It should not be very hard to implement 
-this from the pre-existing Linux intird code to read the modules out. It's 
-also easy for other boot loaders to use their initrd code to implement the 
-functionality. (Remember when you think about it's usefulness put it in the 
-perspective of bootloaders that can read from a filesystem. IE GRUB and 
-Syslinux.)
-
-Please let's do this already...
-I look forward to one day reaching the point it's *reasonable* to have a 
-completely modular kernel and that any device drivers (even boot devices) can 
-be upgraded without having to update the entire kernel.
-
-If you've never played with GRUB yet, you can grab a nice raw floppy image 
-from my ftp site.  ftp://ftp.psychosis.com/linux/grub
-
-Dave
+I think there is still some confusion out there because of the name
+Davide chose; /dev/epoll is so close to /dev/poll that it lulls many
+people (myself included) into thinking it's a very similar thing.  It ain't.
+(I really have to fix my c10k page to reflect that correctly...)
+- Dan

@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284615AbRLJU0Q>; Mon, 10 Dec 2001 15:26:16 -0500
+	id <S286371AbRLJUlk>; Mon, 10 Dec 2001 15:41:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286376AbRLJU0G>; Mon, 10 Dec 2001 15:26:06 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:64268 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S286375AbRLJUZv>; Mon, 10 Dec 2001 15:25:51 -0500
-Subject: Re: Linux/Pro  -- clusters
-To: Andries.Brouwer@cwi.nl
-Date: Mon, 10 Dec 2001 20:34:24 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk, viro@math.psu.edu, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
-In-Reply-To: <UTC200112101951.TAA270246.aeb@cwi.nl> from "Andries.Brouwer@cwi.nl" at Dec 10, 2001 07:51:39 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S286378AbRLJUlb>; Mon, 10 Dec 2001 15:41:31 -0500
+Received: from waste.org ([209.173.204.2]:55004 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S286371AbRLJUlM>;
+	Mon, 10 Dec 2001 15:41:12 -0500
+Date: Mon, 10 Dec 2001 14:41:01 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Jacek =?iso-8859-2?Q?Pop=B3awski?= <jpopl@interia.pl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: mcrypt hanged my 2.4.16
+In-Reply-To: <20011210144255.A590@localhost.localdomain>
+Message-ID: <Pine.LNX.4.40.0112101440330.10405-100000@waste.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16DX84-0003Lt-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->     And it means we can get proper refcounting. Which as the maintainer of
->     two block drivers that support dynamic volume create/destroy is remarkably
->     good news.
-> 
-> You say this as if that would be a difference between the two
-> approaches. I don't think it is.
+On Mon, 10 Dec 2001, Jacek [iso-8859-2] Pop³awski wrote:
 
-Its easier to make sure its correct when we have a single structure not
-a pile of arrays. Object lifetime becomes explicit, and we don't have to
-worry about re-use races since a new instance of that major,minor will have
-a different object attached to the one in use that is about to be refcounted
-into oblivion by currently active requests
+> On Mon, Dec 10, 2001 at 02:05:03PM +0100, Jacek Pop³awski wrote:
+> > I will run mcrypt again, and if system hangs I will try to rewrite full
+> > message.
+>
+> So it's fully reproductable.
+>
+> Invalid operand: 0000
+> CPU: 0
+> (...registers...)
+> (...stack...)
+
+That'd be the important stuff.
+
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+

@@ -1,44 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317894AbSGKUJS>; Thu, 11 Jul 2002 16:09:18 -0400
+	id <S317892AbSGKUHn>; Thu, 11 Jul 2002 16:07:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317896AbSGKUJQ>; Thu, 11 Jul 2002 16:09:16 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:522 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317894AbSGKUID>;
-	Thu, 11 Jul 2002 16:08:03 -0400
-Message-ID: <3D2DE5D7.B65C7D08@zip.com.au>
-Date: Thu, 11 Jul 2002 13:08:55 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
-X-Accept-Language: en
+	id <S317893AbSGKUHn>; Thu, 11 Jul 2002 16:07:43 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:24714 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S317892AbSGKUHl>; Thu, 11 Jul 2002 16:07:41 -0400
+Date: Thu, 11 Jul 2002 16:13:41 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: "Shipman, Jeffrey E" <jeshipm@sandia.gov>
+cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: ioctl between user/kernel space
+In-Reply-To: <03781128C7B74B4DBC27C55859C9D73809840658@es06snlnt>
+Message-ID: <Pine.LNX.3.95.1020711155541.10054A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: Peter Osterlund <petero2@telia.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.25: buffer layer error at buffer.c:406
-References: <m2ofderr34.fsf@best.localdomain>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Osterlund wrote:
+On Thu, 11 Jul 2002, Shipman, Jeffrey E wrote:
+
+> I'm not sure if this is the right place to ask this, but
+> I have a question about ioctl(). I have a situation where
+> I need to parse a file and build a hash table out of the
+> information in user space. Then, I must pass that hash
+> table into my module that's in kernel space. My question 
+> is: is ioctl() the way to go about this? I really don't
+> know much about the function, but some people have mentioned
+> it to me as the way to pass information between user and
+> kernel space.
 > 
-> When I booted 2.5.25 I got the error "buffer layer error at
-> buffer.c:406". It happened three times within one second. After that it
-> didn't happen again. The error messages didn't seem to cause any harm.
+> If anyone has advice on if this is the way to go about it
+> or how we could go about doing this would be greatly
+> appreciated. Also, if anyone knows of any websites which
+> may be helpful in this area, we'd appreciate that as
+> well.
 > 
-> I rebooted the machine, but the error didn't show up again. The only
-> difference was that on the first boot, the machine decided to run an
-> ext2 file system check.
+> Thanks.
 > 
+> Jeff Shipman - CCD
+> Sandia National Laboratories
+> (505) 844-1158 / MS-1372
 
-Looks like the fsck left some pagecache behind, perhaps with a
-different blocksize.  I have some adjustments in that ares which
-_may_ make it go away - not sure.
+That's what ioctl() is/was designed for. In user-space, you have
 
-Is it the root filesystem?  And could you please send me the
-`dumpe2fs -h' output for that filesystem?
+            int ioctl(fd, FUNCTION_NR, parameter);
 
-Thanks.
+... where fd is your open file-handle, FUNCTION_NR is whatever you want
+to define a specific control for your device, and parameter is usually
+a pointer to some parameters (like a buffer).
 
--
+In the module, you have.
+  
+ int any_name(struct inode *ip, struct file *fp, unsigned int command,
+unsigned long arg);
+
+    'ip' and 'fp' will probably be ignored in your module.
+    'command' is your FUNCTION_NR, and 'arg' is your parameter.
+    You cast 'arg' to a pointer of your choice if the user-mode
+    code supplies a pointer.
+
+    The address (pointer) of your function goes into the
+   'struct file_operations' (7th member) that you pass a pointer
+   to when you initialize your device (register_xxxdev()).
+
+   The normal return code is 0. You return a -ERRNO if any errors
+   are encountered in your function.
+
+   Typically, you do:
+
+   switch(command)
+   {
+   case FIRST_FUNCTION:
+   ....
+   break;
+   default:
+       return -ESPIPE; // Invalid stuff, lets you still test with
+                       // standard text tools (od, hexdump, etc).
+   }
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+                 Windows-2000/Professional isn't.
+

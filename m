@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270684AbTHJUod (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 16:44:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270686AbTHJUoc
+	id S270676AbTHJUzR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 16:55:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270677AbTHJUzR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 16:44:32 -0400
-Received: from galaxy.lunarpages.com ([64.235.234.165]:7813 "EHLO
-	galaxy.lunarpages.com") by vger.kernel.org with ESMTP
-	id S270684AbTHJUoa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 16:44:30 -0400
-Message-ID: <3F36B358.80908@genebrew.com>
-Date: Sun, 10 Aug 2003 17:04:24 -0400
-From: Rahul Karnik <rahul@genebrew.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030706
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bob Gill <gillb4@telusplanet.net>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: test3 responsible for atomic blast!
-References: <1060547281.6445.13.camel@localhost.localdomain>
-In-Reply-To: <1060547281.6445.13.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - galaxy.lunarpages.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - genebrew.com
+	Sun, 10 Aug 2003 16:55:17 -0400
+Received: from mail.gondor.com ([212.117.64.182]:8454 "EHLO moria.gondor.com")
+	by vger.kernel.org with ESMTP id S270676AbTHJUzO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Aug 2003 16:55:14 -0400
+Date: Sun, 10 Aug 2003 22:55:13 +0200
+From: Jan Niehusmann <jan@gondor.com>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: uncorrectable ext2 errors
+Message-ID: <20030810205513.GA6337@gondor.com>
+References: <20030806150335.GA5430@gondor.com> <20030807110641.GA31809@gondor.com> <20030807211236.GA5637@win.tue.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030807211236.GA5637@win.tue.nl>
+X-Request-PGP: http://gondor.com/key.asc
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bob Gill wrote:
+On Thu, Aug 07, 2003 at 11:12:36PM +0200, Andries Brouwer wrote:
+> Last September or so there was a long discussion about a
+> filesystem that was destroyed. But what I recall is that
+> in the end it turned out not to be a hardware problem,
+> but a precedence problem - two missing parentheses in the driver.
+> 
+> Google will tell you all, I suppose. Search for Promise and Isely.
 
-> unknown_bootoption+0x0/0xfa
+Yes, thanks, I found these mails, and they may describe exactly the 
+symptoms I saw on my server. So perhaps the fixes have not been
+(correctly) applied?
 
-What's this? Can you post your kernel command line?
+I only saw the mails from Mike Isely, but no 'official' response. Do you
+remember if the patches got accepted by one of the maintainers? Andre?
 
-Thanks,
-Rahul
--- 
-Rahul Karnik
-rahul@genebrew.com
+Jan
 

@@ -1,16 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261195AbULJVyx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261827AbULJVzD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261195AbULJVyx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 16:54:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261830AbULJVyx
+	id S261827AbULJVzD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 16:55:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261829AbULJVzD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 16:54:53 -0500
-Received: from dfw-gate1.raytheon.com ([199.46.199.230]:28138 "EHLO
-	dfw-gate1.raytheon.com") by vger.kernel.org with ESMTP
-	id S261195AbULJVys (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 16:54:48 -0500
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Mark_H_Johnson@raytheon.com, Amit Shah <amit.shah@codito.com>,
+	Fri, 10 Dec 2004 16:55:03 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:45790 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261827AbULJVyv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Dec 2004 16:54:51 -0500
+Date: Fri, 10 Dec 2004 22:54:43 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark_H_Johnson@Raytheon.com
+Cc: Amit Shah <amit.shah@codito.com>,
        Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
        Adam Heath <doogie@debian.org>, emann@mrv.com,
        Gunther Persoons <gunther_persoons@spymac.com>,
@@ -21,51 +23,64 @@ Cc: Mark_H_Johnson@raytheon.com, Amit Shah <amit.shah@codito.com>,
        Shane Shrybman <shrybman@aei.ca>, Esben Nielsen <simlo@phys.au.dk>,
        Thomas Gleixner <tglx@linutronix.de>,
        Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-From: Mark_H_Johnson@raytheon.com
 Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-15
-Date: Fri, 10 Dec 2004 15:54:07 -0600
-Message-ID: <OF581F8361.CB1F4C7B-ON86256F66.00784FA2-86256F66.00784FB8@raytheon.com>
-X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
- 12/10/2004 03:54:10 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-X-SPAM: 0.00
+Message-ID: <20041210215443.GB7609@elte.hu>
+References: <OF3220A1AC.7E7F07CF-ON86256F66.00749EC3@raytheon.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OF3220A1AC.7E7F07CF-ON86256F66.00749EC3@raytheon.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-2.201, required 5.9,
+	BAYES_00 -4.90, SORTED_RECIPS 2.70
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The code does not quite match either pattern but is perhaps
-more like your second example.
 
-For reference, the cpu_delay loop looks like this...
+* Mark_H_Johnson@Raytheon.com <Mark_H_Johnson@Raytheon.com> wrote:
 
-  t1 = mygettime();
-  for(u=0;u<(loops/1000);u++) {
-    t0 = t1;
-    if (do_a_trace) {
-      gettimeofday(0, (struct timezone*)1);
-    }
-    for (v=0;v<1000;v++)
-      k+=1;
-    t1 = mygettime();
-    if ((t1-t0)>max_delay){
-      delay++;
-      if (do_a_trace) {
-        gettimeofday(0,0);
-        do_a_trace = 0;
-        printf("Trace triggered with %f second delay.\n",t1-t0);
-      }
-    }
-  }
+> Hmm. Now that I look at it, the duration in the header (99 usec) is
+> the duration of lt.01 (as reported by the script) but the total
+> duration of the trace (248 usec) is the duration from the script for
+> lt.02.
 
-I was trying to avoid the extra "rdtsc" overhead (plus the
-floating point calculations) so - yes, I could have cases
-where the time I measure is not caught by the kernel tracer.
+how do your collection scripts access /proc/latency_trace? The output is 
+only atomic if the file is read as a whole, i.e.:
 
-[do some tests...]
-Now I'm 5 for 5 with the revised code. Odd that all the numbers
-are within about 2 or 3 usec (application measured / kernel measured).
-If it was as bad as I was measuring it, I would have expected
-one or two to be really off.
+	cat /proc/latency_trace > wherever
 
-  --Mark
+or:
 
+	cp /proc/latency wherever
+
+but i guess you are doing this already ...
+
+obviously tracing goes on while the scripts are saving the latency
+trace, so the kernel goes to great lengths to try to guarantee
+atomicity. There are 3 levels of tracing buffers:
+
+	- 'current' trace buffers (per CPU)
+	- 'max' trace buffer
+	- 'output' trace buffer
+
+the max trace is updated whenever a new max latency is detected. (not
+stricly true: if one CPU is already saving a trace and this CPU detects
+a new latency too then this CPU skips the trace, instead of spinning
+waiting for the other CPU. This makes the tracing code more atomic, but
+it opens up a window to 'lose' a latency - but statistically every
+_type_ of latency should be saved sooner or later, since the 'dropping'
+of traces is random, not systematic.)
+
+the output trace is atomically filled in from the max trace, whenever
+userspace accesses offset 0 of /proc/latency_trace. It will stay the
+same until userspace finishes reading /proc/latency_trace (arrives to
+the maximum offset of the file). Hence userspace can take all time it
+wants to save a trace, it will stay the same. At least this is the
+theory.
+
+	Ingo

@@ -1,35 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263041AbUFSApr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261925AbUFSApq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263041AbUFSApr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 20:45:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263596AbUFSAnH
+	id S261925AbUFSApq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 20:45:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265649AbUFSAnW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 20:43:07 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41367 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261925AbUFSAdn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 20:33:43 -0400
-Date: Sat, 19 Jun 2004 01:33:42 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux/m68k <linux-m68k@lists.linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] cross-sparse
-Message-ID: <20040619003342.GP12308@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.GSO.4.58.0406172304170.1495@waterleaf.sonytel.be> <Pine.LNX.4.58.0406180925210.4669@ppc970.osdl.org> <Pine.GSO.4.58.0406182245540.23356@waterleaf.sonytel.be>
-Mime-Version: 1.0
+	Fri, 18 Jun 2004 20:43:22 -0400
+Received: from web10904.mail.yahoo.com ([216.136.131.40]:13595 "HELO
+	web10904.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S265537AbUFSAhT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 20:37:19 -0400
+Message-ID: <20040619003712.35865.qmail@web10904.mail.yahoo.com>
+Date: Fri, 18 Jun 2004 17:37:12 -0700 (PDT)
+From: Ashwin Rao <ashwin_s_rao@yahoo.com>
+Subject: Atomic operation for physically moving a page
+To: linux-kernel <linux-kernel@vger.kernel.org>, linux-mm <linux-mm@kvack.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.58.0406182245540.23356@waterleaf.sonytel.be>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 18, 2004 at 10:49:38PM +0200, Geert Uytterhoeven wrote:
-> And even the non-native sparse doesn't know about architecture-specific defines
-> like __mc68000__, causing some code paths being wrong. Guess I have to replace
-> them by e.g. CONFIG_M68K.
+I want to copy a page from one physical location to
+another (taking the appr. locks). To keep the
+operation of copying and updation of all ptes and
+caches atomic one way proposed by my team members was
+to sleep the processes accessing the page.
+ptep_to_mm gives us the mm_struct but container_of
+cannot help to get to task_struct as it contains a
+mm_struct pointer. Is there any way of identifying the
+proccess's from the pte_entry.
+Is there any way out to solve my original problem  of
+keeping the whole operation of copying and updation
+atomic as this is a bad solution for real time
+processes but is there any other way out.
 
-That should be handled in arch/m68k/Makefile - see how it's done on e.g.
-i386.
+Ashwin
+
+
+
+		
+__________________________________
+Do you Yahoo!?
+New and Improved Yahoo! Mail - Send 10MB messages!
+http://promotions.yahoo.com/new_mail 

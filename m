@@ -1,69 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268689AbTGLWur (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 18:50:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268694AbTGLWur
+	id S268680AbTGLW5G (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 18:57:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268683AbTGLW5G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 18:50:47 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:36042 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S268689AbTGLWup (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 18:50:45 -0400
-Subject: [PATCH] gcc -Wpadded
-From: Albert Cahalan <albert@users.sf.net>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1058050640.751.1324.camel@cube>
+	Sat, 12 Jul 2003 18:57:06 -0400
+Received: from ev2.cpe.orbis.net ([209.173.192.122]:2470 "EHLO srv.foo21.com")
+	by vger.kernel.org with ESMTP id S268680AbTGLW5D (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 18:57:03 -0400
+Date: Sat, 12 Jul 2003 18:11:47 -0500
+From: Eric Varsanyi <e0206@foo21.com>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Eric Varsanyi <e0206@foo21.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch][RFC] epoll and half closed TCP connections
+Message-ID: <20030712231147.GI15643@srv.foo21.com>
+References: <20030712181654.GB15643@srv.foo21.com> <20030712194432.GE10450@mail.jlokier.co.uk> <20030712205114.GC15643@srv.foo21.com> <Pine.LNX.4.55.0307121346140.4720@bigblue.dev.mcafeelabs.com> <20030712211941.GD15643@srv.foo21.com> <Pine.LNX.4.55.0307121436460.4720@bigblue.dev.mcafeelabs.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 12 Jul 2003 18:57:20 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.55.0307121436460.4720@bigblue.dev.mcafeelabs.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Explicit padding is better than compiler-generated
-padding, because awareness of the issue reduces
-waste. There's also a security issue, with info
-leaking whenever padded structs get copied to the user.
+> > I guess my only argument would be that edge triggered mode isn't really
+> > workable with TCP connections if there's no way to solve the ambiguity
+> > between EOF and no data in buffer (at least w/o an extra syscall). I just
+> > realized that the race you mention in the man page (reading data from
+> > the 'next' event that hasn't been polled into user mode yet) will lead to
+> > the same issue: how do you know if you got this event because you consumed
+> > the data on the previous interrupt or if this is an EOF condition.
+> 
+> (Sorry, I missed this)
+> You can work that out very easily. When your read/write returns a lower
+> number of bytes, it means that it is time to stop processing this fd. If
+> events happened meanwhile, you will get them at the next epoll_wait(). If
+> not, the next time they'll happen. There's no blind spot if you follow
+> this simple rule, and you do not even have the extra syscall with EAGAIN.
 
-This patch adds -Wpadded for i386, mips, and s390.
+The scenario that I think is still uncovered (edge trigger only):
 
-diff -Naurd old/arch/i386/Makefile new/arch/i386/Makefile
---- old/arch/i386/Makefile	2003-07-12 18:36:52.000000000 -0400
-+++ new/arch/i386/Makefile	2003-07-12 18:47:01.000000000 -0400
-@@ -27,6 +27,8 @@
- # prevent gcc from keeping the stack 16 byte aligned
- CFLAGS += $(call check_gcc,-mpreferred-stack-boundary=2,)
- 
-+CFLAGS += $(call check_gcc,-Wpadded,)
-+
- align := $(subst -functions=0,,$(call
-check_gcc,-falign-functions=0,-malign-functions=0))
- 
- cflags-$(CONFIG_M386)		+= -march=i386
-diff -Naurd old/arch/mips/Makefile new/arch/mips/Makefile
---- old/arch/mips/Makefile	2003-07-12 18:42:12.000000000 -0400
-+++ new/arch/mips/Makefile	2003-07-12 18:46:21.000000000 -0400
-@@ -78,6 +78,7 @@
- 
- AFLAGS		+= $(cflags-y)
- CFLAGS		+= $(cflags-y)
-+CFLAGS		+= $(call check_gcc,-Wpadded,)
- 
- 
- #
-diff -Naurd old/arch/s390/Makefile new/arch/s390/Makefile
---- old/arch/s390/Makefile	2003-07-12 18:41:49.000000000 -0400
-+++ new/arch/s390/Makefile	2003-07-12 18:44:41.000000000 -0400
-@@ -38,6 +38,7 @@
- 
- CFLAGS		+= $(cflags-y)
- CFLAGS		+= $(call check_gcc,-finline-limit=10000,)
-+CFLAGS		+= $(call check_gcc,-Wpadded,)
- CFLAGS 		+= -pipe -fno-strength-reduce -Wno-sign-compare 
- 
- OBJCOPYFLAGS	:= -O binary
+User					Kernel
+--------				----------
+					Read data added to socket
 
+					Socket posts read event to epfd
 
+epoll_wait()				Event cleared from epfd, EPOLLIN
+					  returned to user
 
+					more read data added to socket
+
+					Socket posts a new read event to epfd
+
+read() until short read with EAGAIN 	all data read from socket
+
+epoll_wait()				returns another EPOLLIN for socket and
+					  clears it from epfd
+
+read(), returns 0 right away		socket buffer is empty
+
+This is your 'false positive' case in the epoll(4) man page.
+
+How does the app tell the 0 read here from a read EOF coming from the remote?
+
+If it assumes this is a false positive and there was also an EOF
+indication, the EOF will be lost; if it assumes it an EOF the connection
+will be prematurely terminated.
+
+-Eric

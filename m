@@ -1,49 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261385AbULKNXg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261932AbULKN2b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261385AbULKNXg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Dec 2004 08:23:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbULKNXg
+	id S261932AbULKN2b (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Dec 2004 08:28:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261933AbULKN2b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Dec 2004 08:23:36 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:30050 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261385AbULKNXf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Dec 2004 08:23:35 -0500
-To: Greg KH <greg@kroah.com>
-Cc: David Brownell <david-b@pacbell.net>,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-X-Message-Flag: Warning: May contain useful information
-References: <20041210005055.GA17822@kroah.com>
-	<200412101729.01155.david-b@pacbell.net>
-	<20041211013930.GB12846@kroah.com> <52is797eom.fsf@topspin.com>
-	<20041211023243.GA18663@kroah.com>
-From: Roland Dreier <roland@topspin.com>
-Date: Sat, 11 Dec 2004 05:23:07 -0800
-In-Reply-To: <20041211023243.GA18663@kroah.com> (Greg KH's message of "Fri,
- 10 Dec 2004 18:32:43 -0800")
-Message-ID: <52ekhx6kas.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
+	Sat, 11 Dec 2004 08:28:31 -0500
+Received: from asplinux.ru ([195.133.213.194]:31498 "EHLO relay.asplinux.ru")
+	by vger.kernel.org with ESMTP id S261932AbULKN2a (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Dec 2004 08:28:30 -0500
+Message-ID: <41BAF6A7.6070102@sw.ru>
+Date: Sat, 11 Dec 2004 16:31:19 +0300
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: roland@topspin.com
-Subject: Re: [linux-usb-devel] [RFC PATCH] debugfs - yet another in-kernel
- file system
-Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 11 Dec 2004 13:23:08.0056 (UTC) FILETIME=[8DC79180:01C4DF84]
+To: linux-kernel@vger.kernel.org
+Subject: [VFS-EXPORTS] Why generic_forget_inode() is not exported?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Greg> Oh yes, it would be optional.  I still like the simple
-    Greg> interface that debugfs is providing so far, I'll just add
-    Greg> yet-another-way-to-create-a-file type function that takes a
-    Greg> kobject.
+Hello,
 
-    Greg> Sound ok?
+I have a question about EXPORTS in VEFS:
+if sb->drop_inode method is set, than it's called in iput_final().
+But it's impossible to call neither generic_drop_inode(), nor 
+generic_forget_inode() inside this handler. Only generic_delete_inode() 
+is accessiable.
 
-Yep, that works for me.
+why generic_delete_inode() is exported and generic_forget_inode() is not?
+It looks like it should. At least, from VFS interface point of view.
 
-Thanks,
-  Roland
+Kirill
+

@@ -1,30 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130238AbRBKUbW>; Sun, 11 Feb 2001 15:31:22 -0500
+	id <S130052AbRBKUcc>; Sun, 11 Feb 2001 15:32:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130239AbRBKUbM>; Sun, 11 Feb 2001 15:31:12 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:16654 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130238AbRBKUbD>; Sun, 11 Feb 2001 15:31:03 -0500
-Subject: Re: small patch for unsigned char breakage in rtl8129 driver
-To: philb@gnu.org (Philip Blundell)
-Date: Sun, 11 Feb 2001 20:31:23 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E14S2rf-0003or-00@kings-cross.london.uk.eu.org> from "Philip Blundell" at Feb 11, 2001 08:12:54 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130239AbRBKUcW>; Sun, 11 Feb 2001 15:32:22 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:25101 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130148AbRBKUcL>; Sun, 11 Feb 2001 15:32:11 -0500
+Message-ID: <3A86F6AA.1416F479@transmeta.com>
+Date: Sun, 11 Feb 2001 12:31:38 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
 MIME-Version: 1.0
+To: Olaf Hering <olh@suse.de>
+CC: autofs@linux.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: race in autofs / nfs
+In-Reply-To: <20010211211701.A7592@suse.de>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14S39a-0004wd-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -	char phys[4];						/* MII device addresses. */
-> +	signed char phys[4];				/* MII device addresses. */
+Olaf Hering wrote:
+> 
+> Hi,
+> 
+> there is a race in 2.4.1 and 2.4.2-pre3 in autofs/nfs.
+> When the cwd is on the nfs mounted server (== busy) and you try to
+> reboot the shutdown hangs in "rcautofs stop". I can reproduce it everytime.
+> 
 
-8129 is deprecated for the current 8139too driver which is the only stable
-driver for it. Does 8139too (from current -ac) work on ARM ?
+Sounds like an NFS bug in umount.
+
+	-=hpa
+
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

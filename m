@@ -1,59 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263215AbSKMVUC>; Wed, 13 Nov 2002 16:20:02 -0500
+	id <S262937AbSKMVvS>; Wed, 13 Nov 2002 16:51:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263326AbSKMVTG>; Wed, 13 Nov 2002 16:19:06 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:42726 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S263143AbSKMVRt>; Wed, 13 Nov 2002 16:17:49 -0500
-Message-ID: <013101c28b5b$0efcab80$77d40a0a@amr.corp.intel.com>
-From: "Rusty Lynch" <rusty@linux.co.intel.com>
-To: "Arjan van de Ven" <arjanv@redhat.com>, "Andi Kleen" <ak@suse.de>
-Cc: <linux-kernel@vger.kernel.org>, <rusty@linux.co.intel.com>
-References: <200211132013.gADKDhS01389@linux.intel.com.suse.lists.linux.kernel> <1037220406.2889.4.camel@localhost.localdomain.suse.lists.linux.kernel> <p7365v1w4sh.fsf@oldwotan.suse.de>
-Subject: Re: [PATCH][2.5.47]Add exported valid_kernel_address()
-Date: Wed, 13 Nov 2002 13:24:32 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	id <S262884AbSKMVvR>; Wed, 13 Nov 2002 16:51:17 -0500
+Received: from ngw.bvu.edu ([147.92.2.13]:34317 "EHLO ngw.bvu.edu")
+	by vger.kernel.org with ESMTP id <S264614AbSKMVuX> convert rfc822-to-8bit;
+	Wed, 13 Nov 2002 16:50:23 -0500
+Message-Id: <sdd26bdb.018@ngw.bvu.edu>
+X-Mailer: Novell GroupWise Internet Agent 6.0.1
+Date: Wed, 13 Nov 2002 15:12:10 -0600
+From: "Anthony Murray" <murrant@bvu.edu>
+To: <alan@redhat.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: [bug] i2o_lan modules fails to build in 2.5.47
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had a need for it in a sample kprobes driver where I wanted to verify that
-some address
-was a valid kernel space address before I handed a probe to kprobes.
+Hi, I am hvaing trouble building the i2o_lan module for 2.5.47.  I have a 3com 905 net card and built support for it into the kernel. Here is the errors:
 
-So I would do something like:
+[...snip...]
+make -f scripts/Makefile.build obj=drivers/message/i2o
+  gcc -Wp,-MD,drivers/message/i2o/.i2o_lan.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=pentium3 -Iarch/i386/mach-generic -nostdinc -iwithprefix include -DMODULE -include include/linux/modversions.h   -DKBUILD_BASENAME=i2o_lan   -c -o drivers/message/i2o/i2o_lan.o drivers/message/i2o/i2o_lan.c
+drivers/message/i2o/i2o_lan.c:28:2: #error Please convert me to Documentation/DMA-mapping.txt
+drivers/message/i2o/i2o_lan.c:120: parse error before "struct"
+drivers/message/i2o/i2o_lan.c: In function `i2o_lan_receive_post_reply':
+drivers/message/i2o/i2o_lan.c:385: `run_i2o_post_buckets_task' undeclared (first use in this function)
+drivers/message/i2o/i2o_lan.c:385: (Each undeclared identifier is reported only once
+drivers/message/i2o/i2o_lan.c:385: for each function it appears in.)
+drivers/message/i2o/i2o_lan.c: In function `i2o_lan_register_device':
+drivers/message/i2o/i2o_lan.c:1406: structure has no member named `list'
+drivers/message/i2o/i2o_lan.c:1406: structure has no member named `list'
+drivers/message/i2o/i2o_lan.c:1406: structure has no member named `list'
+drivers/message/i2o/i2o_lan.c:1406: structure has no member named `list'
+drivers/message/i2o/i2o_lan.c:1407: structure has no member named `sync'
+make[3]: *** [drivers/message/i2o/i2o_lan.o] Error 1
+make[2]: *** [drivers/message/i2o] Error 2
+make[1]: *** [drivers/message] Error 2
+make: *** [drivers] Error 2
 
-if (!valid_kernel_address(probe->addr)) {
-    ret = -EINVAL;
-    goto out;
-}
-
-register_kprobe(probe);
-
-and then kpboes will go and attempt to set *(probe->addr) = BREAK_POINT;
-
-    -rustyl
------ Original Message -----
-From: "Andi Kleen" <ak@suse.de>
-To: "Arjan van de Ven" <arjanv@redhat.com>
-Cc: <linux-kernel@vger.kernel.org>; <rusty@linux.co.intel.com>
-Sent: Wednesday, November 13, 2002 1:14 PM
-Subject: Re: [PATCH][2.5.47]Add exported valid_kernel_address()
-
-
-> Arjan van de Ven <arjanv@redhat.com> writes:
->
-> > it is customary that people who ask for an export explain why they need
-> > it.... would you mind explaining that ?
->
-> For modular lkcd I guess. Make a lot of sense to do it modular.
->
-> -Andi
-
+Thanks,
+Tony Murray

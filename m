@@ -1,51 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265798AbUF2QZN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265799AbUF2QZg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265798AbUF2QZN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jun 2004 12:25:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265799AbUF2QZN
+	id S265799AbUF2QZg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 12:25:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265800AbUF2QZg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jun 2004 12:25:13 -0400
-Received: from vsat-148-63-57-162.c001.g4.mrt.starband.net ([148.63.57.162]:61402
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S265798AbUF2QZJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jun 2004 12:25:09 -0400
-Message-ID: <40E19733.4000105@redhat.com>
-Date: Tue, 29 Jun 2004 09:22:11 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a2) Gecko/20040627
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: inconsistency between SIOCGIFCONF and SIOCGIFNAME
-References: <40E0EAC1.50101@redhat.com> <20040629012604.20c3ad8b.davem@redhat.com>
-In-Reply-To: <20040629012604.20c3ad8b.davem@redhat.com>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Tue, 29 Jun 2004 12:25:36 -0400
+Received: from phobos.hpl.hp.com ([192.6.19.124]:40394 "EHLO phobos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id S265799AbUF2QZd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jun 2004 12:25:33 -0400
+Date: Tue, 29 Jun 2004 09:23:39 -0700
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       netdev@oss.sgi.com
+Cc: Jeff Garzik <jgarzik@pobox.com>, "David S. Miller" <davem@redhat.com>
+Subject: Updated Wireless Extension patches
+Message-ID: <20040629162339.GA4356@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=0, required 7)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
+	Hi all,
 
-> Anyways, I guess we could do your suggestion.  SIOCGIFCONF
-> is actually implemented using per-protocol handlers.  So, for
-> example there is an ipv4 handler, an ipv6 one, etc.  We'd need
-> to make the change for all of them.
+	I've been working a bit more on my current set of Wireless
+Extension patches (WPA, Wireless-RtNetlink, ...). I've just updated
+them on my personal web page :
+	http://www.hpl.hp.com/personal/Jean_Tourrilhes/Linux/Tools.html#wext
 
-I might not look for the right thing, but there are only two places
-where register_gifconf is used: in net/ipv4/devinet.c and
-net/decnet/dn_dev.c.  There is no support for IPv6-only interfaces and
-interfaces for other protocols.  So in addition to your change only the
-DECnet stuff needs changing.
+	The main change is that I'm now happy of the format of
+Wireless over RtNetlink, so it should be close to definitive. I've
+also split all the minor changes as a separate patch (WE-17), so it
+doesn't have to wait for WPA and Wireless-RtNetlink that still need a
+bit of work, and I plan to push this patch soon.
+	You will also find patches for various drivers to take
+advantage of the new features. I would like to thank the various
+driver authors that sent me patches, suggestions and comments, and
+thank them for their patience.
 
+	Have fun...
 
-> I enclose a potential implementation for the ipv4 instance.
-> Please at least make sure it does what you want.
+	Jean
 
-I'll try the patch asap.  Thanks,
-
--- 
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖

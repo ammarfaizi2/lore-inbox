@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130607AbRAGXib>; Sun, 7 Jan 2001 18:38:31 -0500
+	id <S132286AbRAHTlQ>; Mon, 8 Jan 2001 14:41:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130870AbRAGXiV>; Sun, 7 Jan 2001 18:38:21 -0500
-Received: from linuxcare.com.au ([203.29.91.49]:11784 "EHLO
-	front.linuxcare.com.au") by vger.kernel.org with ESMTP
-	id <S130607AbRAGXiN>; Sun, 7 Jan 2001 18:38:13 -0500
-From: Rusty Russell <rusty@linuxcare.com.au>
-To: safemode <safemode@voicenet.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ip_conntrack locks up hard on 2.4.0 after about 10 hours 
-In-Reply-To: Your message of "Sat, 06 Jan 2001 10:37:54 CDT."
-             <3A573BD2.C7F7771F@voicenet.com> 
-Date: Sun, 07 Jan 2001 22:27:29 +1100
-Message-Id: <E14FDyz-0004FK-00@halfway>
+	id <S131547AbRAHTlH>; Mon, 8 Jan 2001 14:41:07 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:1540 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S131358AbRAHTkx>;
+	Mon, 8 Jan 2001 14:40:53 -0500
+Message-ID: <20010105234604.C301@bug.ucw.cz>
+Date: Fri, 5 Jan 2001 23:46:04 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: adefacc@tin.it, linux-kernel@vger.kernel.org
+Subject: Re: Confirmation request about new 2.4.x. kernel limits
+In-Reply-To: <3A546385.C50B1092@tin.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <3A546385.C50B1092@tin.it>; from A.D.F. on Thu, Jan 04, 2001 at 11:50:29AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3A573BD2.C7F7771F@voicenet.com> you write:
-> It seems that for one reason or another, ip_conntrack totally locks (not
-> removeable) after about 10 hours of continued use.  All i found were
-> these messages in my dmesg output
+Hi!
 
-What was the contents of /proc/net/ip_conntrack?
+> Hi, I would like to know whether following limits are right for kernel
+> 2.4.x:
+> 
+> Max. N. of CPU:			32	(SMP)
+> Max. CPU speed:			> 2 Ghz	(up to ?)
+> Max. RAM size:			64 GB	(any slowness accessing RAM over 4 GB
+> 					 with 32 bit machines ?)
 
-Being unremovable can happen if someone is holding a packet, which the
-below fix (by Xuan Baldauf) will often alleviate, but connection
-tracking doesn't DROP packets (NAT and packet filtering do).
+64GB on i386. I believe you can get few terabytes with ultrasparc.
 
-Hope that helps,
-Rusty.
---
-http://linux.conf.au The Linux conference Australia needed.
+> Max. file size:	 		1 TB	(?)
+> Max. file system size:		2 TB	(?)
 
-diff -urN -I \$.*\$ -X /tmp/kerndiff.RnRDbE --minimal linux-2.4.0-test13-3/net/ipv4/ip_input.c working-2.4.0-test13-3/net/ipv4/ip_input.c
---- linux-2.4.0-test13-3/net/ipv4/ip_input.c	Tue Dec 12 14:28:06 2000
-+++ working-2.4.0-test13-3/net/ipv4/ip_input.c	Mon Dec 18 17:07:06 2000
-@@ -225,6 +225,13 @@
- 	nf_debug_ip_local_deliver(skb);
- #endif /*CONFIG_NETFILTER_DEBUG*/
- 
-+#ifdef CONFIG_NETFILTER
-+	/* Free reference early: we don't need it any more, and it may
-+           hold ip_conntrack module loaded indefinitely. */
-+	nf_conntrack_put(skb->nfct);
-+	skb->nfct = NULL;
-+#endif /*CONFIG_NETFILTER*/
-+
-         /* Point into the IP datagram, just past the header. */
-         skb->h.raw = skb->nh.raw + iph->ihl*4;
- 
+Again, maybe on i386 with ext2.
+								Pavel
+
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

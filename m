@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271213AbRH3DOR>; Wed, 29 Aug 2001 23:14:17 -0400
+	id <S271286AbRH3Db3>; Wed, 29 Aug 2001 23:31:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271246AbRH3DOH>; Wed, 29 Aug 2001 23:14:07 -0400
-Received: from vger.timpanogas.org ([207.109.151.240]:4104 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S271213AbRH3DN5>; Wed, 29 Aug 2001 23:13:57 -0400
-Date: Wed, 29 Aug 2001 21:19:28 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Cc: Jim Roland <jroland@earth.roland.net>, hps@intermeta.de,
-        linux-kernel@vger.kernel.org
-Subject: Re: Novell Attacks Linux
-Message-ID: <20010829211928.A29330@vger.timpanogas.org>
-In-Reply-To: <1F9458333DC@vcnet.vc.cvut.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <1F9458333DC@vcnet.vc.cvut.cz>; from VANDROVE@vc.cvut.cz on Thu, Aug 30, 2001 at 12:49:19AM +0000
+	id <S271276AbRH3DbT>; Wed, 29 Aug 2001 23:31:19 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:13577 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S271275AbRH3DbI>; Wed, 29 Aug 2001 23:31:08 -0400
+Date: Wed, 29 Aug 2001 20:28:20 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: David Lang <david.lang@digitalinsight.com>,
+        Roman Zippel <zippel@linux-m68k.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
+In-Reply-To: <20010829234316Z16134-32384+1075@humbolt.nl.linux.org>
+Message-ID: <Pine.LNX.4.33.0108292018380.1062-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 30, 2001 at 12:49:19AM +0000, Petr Vandrovec wrote:
-> On 29 Aug 01 at 17:05, Jim Roland wrote:
-> > If it's indeed "stolen", Novell could seek an injunction to have the
-> > download removed.  They would also have to have NCP removed from 
-> > the kernel.  Neither of which they have done.  BTW, your letter
-> 
-> NCP is completely different thing from NWFS. NCP documentation
-> is freely downloadable from Novell site, and nobody from Novell
-> never ever told me that there is something wrong with ncpfs, although
-> they also do not support it. So we are on the safe side of the river AFAIK.
->                                                 Best regards,
->                                                     Petr Vandrovec
->                                                     vandrove@vc.cvut.cz
 
+On Thu, 30 Aug 2001, Daniel Phillips wrote:
+>
+> Yes, in the signed/unsigned case the comparison generated is always
+> unsigned.
 
-Petr's OK.  I have heard they really like and respect him.  I don't think
-he will have any problems with them.  They like him and his stuff.  Craig
-Miller, EVP of NetWare, has spoken highly of him to me and his work.
+Well... No.
 
-Jeff
+If you compare a signed integer with a unsigned char, the char gets
+promoted to a _signed_ integer, and the comparison is signed. It is NOT
+a unsigned comparison.
 
+And THIS is one example of why it gets complicated.
 
->                                                     
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+The C logic for type expansion is just a tad too easy to get wrong, and
+the strict type-checking you normally have with well-written ANSI C simply
+does not exist for integer types. The compiler will silently just do the
+promotion..
+
+Somebody mentioned -Wsign-compare. Try it with the example above. It won't
+warn at all, exactly because under C both sides of such a compare have the
+_same_ sign, even if one is a "unsigned char", and the other is a "signed
+int".
+
+Try it yourself if you don't believe me.
+
+Please guys. The issue of sign in comparisons are a LOT more complicated
+than most of you seem to think.
+
+		Linus
+

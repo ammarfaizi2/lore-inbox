@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129669AbQLKTVO>; Mon, 11 Dec 2000 14:21:14 -0500
+	id <S129730AbQLKTXD>; Mon, 11 Dec 2000 14:23:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129730AbQLKTVD>; Mon, 11 Dec 2000 14:21:03 -0500
-Received: from mercury.nildram.co.uk ([195.112.4.37]:43013 "EHLO
-	mercury.nildram.co.uk") by vger.kernel.org with ESMTP
-	id <S129669AbQLKTUz>; Mon, 11 Dec 2000 14:20:55 -0500
-Message-Id: <200012111850.eBBIoMl19836@mercury.nildram.co.uk>
-From: "Per Jessen" <per@computer.org>
-To: "Heiko.Carstens@de.ibm.com" <Heiko.Carstens@de.ibm.com>,
-        "Matthew D. Pitts" <mpitts@suite224.net>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Date: Mon, 11 Dec 2000 18:48:01 
-Reply-To: "Per Jessen" <per@computer.org>
-X-Mailer: PMMail 98 Professional (2.01.1600) For Windows 95 (4.0.1111)
+	id <S129866AbQLKTWx>; Mon, 11 Dec 2000 14:22:53 -0500
+Received: from web2006.mail.yahoo.com ([128.11.68.206]:61964 "HELO
+	web2006.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S129730AbQLKTWq>; Mon, 11 Dec 2000 14:22:46 -0500
+Message-ID: <20001211185219.28022.qmail@web2006.mail.yahoo.com>
+Date: Mon, 11 Dec 2000 10:52:19 -0800 (PST)
+From: Tom Murphy <freyason@yahoo.com>
+Subject: 2.4.0-test12-pre7 shutdowns and eepro100 woes
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Subject: Re: CPU attachent and detachment in a running Linux system
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Heiko and Matthew -
+Hello all,
 
-I'm pretty certain this is not something beowulfish, unless perhaps 
-you are thinking in terms of mosix and some of the other batch/queueing
-systems. Beowulf after all is a set of distributed processors,
-not SMP (although an individual node maybe SMP).
+   test12-pre7 seems to randomly just power off my machine.
+CONFIG_APM=y and CONFIG_APM_REAL_MODE_POWER_OFF=y as well. Could this
+be what is
+making it power off the machine randomly? Has it been fixed in pre8?
 
-regards,
-Per Jessen, London
+   I wasn't doing much on the machine at the time.. it just happens
+sporadically.
 
+   Also, regarding the eepro100 driver, are there any plans to fix
+support for the following chipset (given by lspci):
 
-On Mon, 11 Dec 2000 13:11:11 -0500, Matthew D. Pitts wrote:
->Heiko,
->If I'm not mistaken, this sort of thing has been done by the beowulf folks.
->
->Matthew D. Pitts
->mpitts@suite224.net
->
->----- Original Message ----- 
->From: <Heiko.Carstens@de.ibm.com>
->To: <linux-kernel@vger.kernel.org>
->Sent: Monday, December 11, 2000 9:03 AM
->Subject: CPU attachent and detachment in a running Linux system
-[snip]
+02:08.0 Ethernet controller: Intel Corporation 82820 820 (Camino 2)
+Chipset Ethernet (rev 01)
 
+  I have one of these at work and I will get the following messages:
 
+Dec 11 10:46:13 morpheus kernel: eepro100: cmd_wait for(0xffffff80)
++timedout with(0xffffff80)!
+Dec 11 10:46:20 morpheus last message repeated 6 times
+
+   (using eepro100 from 2.2.18pre27.. I guess it's not 2.2.18 proper)
+
+  Thanks in advance,
+
+	Tom
+
+ps. please reply to my e-mail address. Thanks!
+   
+
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Shopping - Thousands of Stores. Millions of Products.
+http://shopping.yahoo.com/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

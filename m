@@ -1,44 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261277AbUJYV3N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262014AbUJYVd3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261277AbUJYV3N (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 17:29:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261991AbUJYV0M
+	id S262014AbUJYVd3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 17:33:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261978AbUJYV35
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 17:26:12 -0400
-Received: from fmr03.intel.com ([143.183.121.5]:8174 "EHLO hermes.sc.intel.com")
-	by vger.kernel.org with ESMTP id S261982AbUJYVZq (ORCPT
+	Mon, 25 Oct 2004 17:29:57 -0400
+Received: from mail.dif.dk ([193.138.115.101]:30651 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S261313AbUJYV0q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 17:25:46 -0400
-Message-Id: <200410252122.i9PLMYq08987@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'William Lee Irwin III'" <wli@holomorphy.com>,
-       "Christoph Lameter" <clameter@sgi.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Hugepages demand paging V1 [4/4]: Numa patch
-Date: Mon, 25 Oct 2004 14:25:09 -0700
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: AcS4bw5mNHxItXyeQyWZufruVaaz2ACaavdw
-In-Reply-To: <20041022194040.GC17038@holomorphy.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+	Mon, 25 Oct 2004 17:26:46 -0400
+Date: Mon, 25 Oct 2004 23:35:01 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] binfmt_elf; check clear_user() return value in load_elf_binary()
+Message-ID: <Pine.LNX.4.61.0410252312040.3332@dragon.hygekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Oct 2004, William Lee Irwin III wrote:
->> dequeue_huge_page() seems to want a nodemask, not a vma, though I
->> suppose it's not particularly pressing.
 
-On Fri, Oct 22, 2004 at 12:37:13PM -0700, Christoph Lameter wrote:
-> How about this variation following __alloc_page:
+Andrew,
 
-William Lee Irwin III wrote on Friday, October 22, 2004 12:41 PM
-> Looks reasonable. The bit that struck me as quirky was the mpol_* on
-> the NULL vma. This pretty much eliminates the hidden dispatch, so I'm
-> happy.
+Here's yet another small patch for fs/binfmt_elf.c. This one was created 
+incrementally to my previous patch that dealt with the clear_user() in 
+padzero(). It doesn't depend on that patch, but just so you know why the 
+offsets may be a little fuzzy if you apply it to vanilla.
 
-The allocate from next best node is orthogonal to hugetlb demand paging.
-This should be merged once all the bugs are fixed and later when demand
-paging goes in, we can add the mpol_* stuff.
+The patch gets rid of this warning:
+ fs/binfmt_elf.c: In function `load_elf_binary':
+ fs/binfmt_elf.c:758: warning: ignoring return value of `clear_user', declared with attribute warn_unused_result
 
-- Ken
+And makes sure that we check the return value of clear_user() and fail 
+appropriately if it fails to do its job.
 
+With this and the two previous patches we are now down to only two 
+warnings (and hopefully have a few potential problems less) in 
+binfmt_elf.c - patches for the remaining warnings will appear soon.
+
+Patch has been compile tested.
+Patch has been boot tested.
+Patch needs more eyeballs to make sure sending SIGKILL and returning 
+-EFAULT really is appropriate here.
+
+
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+
+diff -up linux-2.6.10-rc1-bk2/fs/binfmt_elf.c.juhl1 linux-2.6.10-rc1-bk2/fs/binfmt_elf.c
+--- linux-2.6.10-rc1-bk2/fs/binfmt_elf.c.juhl1	2004-10-25 23:01:28.000000000 +0200
++++ linux-2.6.10-rc1-bk2/fs/binfmt_elf.c	2004-10-25 23:15:38.000000000 +0200
+@@ -761,7 +761,11 @@ static int load_elf_binary(struct linux_
+ 				nbyte = ELF_MIN_ALIGN - nbyte;
+ 				if (nbyte > elf_brk - elf_bss)
+ 					nbyte = elf_brk - elf_bss;
+-				clear_user((void __user *) elf_bss + load_bias, nbyte);
++				if (clear_user((void __user *) elf_bss + load_bias, nbyte)) {
++					send_sig(SIGKILL, current, 0);
++					retval = -EFAULT;
++					goto out_free_dentry;
++				}
+ 			}
+ 		}
+ 
 

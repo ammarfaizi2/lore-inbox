@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263319AbTDWJGH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 05:06:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262951AbTDWJGH
+	id S263989AbTDWJZO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 05:25:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263990AbTDWJZO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 05:06:07 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:58602 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S263319AbTDWJGF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 05:06:05 -0400
-Date: Wed, 23 Apr 2003 05:17:05 -0400 (EDT)
-From: Ingo Molnar <mingo@redhat.com>
-X-X-Sender: mingo@devserv.devel.redhat.com
-To: Rick Lindsley <ricklind@us.ibm.com>
-cc: Bill Davidsen <davidsen@tmr.com>, Dave Jones <davej@codemonkey.org.uk>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: several messages 
-In-Reply-To: <200304222338.h3MNcHI01727@owlet.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.44.0304230513030.11873-100000@devserv.devel.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 23 Apr 2003 05:25:14 -0400
+Received: from ns.suse.de ([213.95.15.193]:530 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263989AbTDWJZM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 05:25:12 -0400
+Date: Wed, 23 Apr 2003 11:33:55 +0200
+From: Olaf Hering <olh@suse.de>
+To: Julien Oster <frodo@dereference.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel ring buffer accessible by users
+Message-ID: <20030423113355.A32678@suse.de>
+References: <frodoid.frodo.87wuhmh5ab.fsf@usenet.frodoid.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <frodoid.frodo.87wuhmh5ab.fsf@usenet.frodoid.org>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ On Tue, Apr 22, Julien Oster wrote:
 
-On Tue, 22 Apr 2003, Rick Lindsley wrote:
+> My question now is: Why? I often saw things in the kernel ring buffer
+> which I don't want every user to know (e.g. some telephone numbers with
+> ISDN).
 
-> True.  I have a hunch (and it's only a hunch -- no hard data!) that two
-> threads that are sharing the same data will do better if they can be
-> located on a physical/sibling processor group.  For workloads where you
-> really do have two distinct processes, or even threads but which are
-> operating on wholly different portions of data or code, moving them to
-> separate physical processors may be warranted.  The key is whether the
-> work of one sibling is destroying the cache of another.
+This is a bug in the kernel ISDN code. The userspace daemon must log it
+to syslog, these messages do not belong to the dmesg buffer.
 
-If two threads have a workload that wants to be co-scheduled then the SMP
-scheduler will do damage to them anyway - independently of any HT
-scheduling decisions. One solution for such specific cases is to use the
-CPU-binding API to move those threads to the same physical CPU. If there's
-some common class of applications where this is the common case, then we
-could start thinking about automatic support for them.
-
-	Ingo
-
+-- 
+USB is for mice, FireWire is for men!

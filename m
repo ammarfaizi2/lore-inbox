@@ -1,74 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266358AbUHIIuU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266365AbUHIIwf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266358AbUHIIuU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 04:50:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266359AbUHIIuT
+	id S266365AbUHIIwf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 04:52:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266359AbUHIIup
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 04:50:19 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:60346 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S266358AbUHIItp (ORCPT
+	Mon, 9 Aug 2004 04:50:45 -0400
+Received: from holomorphy.com ([207.189.100.168]:64221 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S266364AbUHIItV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 04:49:45 -0400
-Date: Mon, 9 Aug 2004 10:49:17 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Zinx Verituse <zinx@epicsol.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ide-cd problems
-Message-ID: <20040809084916.GR10418@suse.de>
-References: <20040731182741.GA21845@bliss> <20040731200036.GM23697@suse.de> <20040731210257.GA22560@bliss> <20040805054056.GC10376@suse.de> <1091739966.8418.38.camel@localhost.localdomain> <20040806054424.GB10274@suse.de> <20040806062331.GE10274@suse.de> <1091794470.16306.11.camel@localhost.localdomain> <20040806143258.GB23263@suse.de> <1091887718.18407.51.camel@localhost.localdomain>
+	Mon, 9 Aug 2004 04:49:21 -0400
+Date: Mon, 9 Aug 2004 01:49:14 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc3-mm2
+Message-ID: <20040809084914.GM11200@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20040808152936.1ce2eab8.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1091887718.18407.51.camel@localhost.localdomain>
+In-Reply-To: <20040808152936.1ce2eab8.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 07 2004, Alan Cox wrote:
-> On Gwe, 2004-08-06 at 15:32, Jens Axboe wrote:
-> > That's the case I don't agree with, and why I didn't like the idea
-> > originally. That suddenly requires a patching of the kernel because of
-> > new commands in new devices. Like when dvd readers became common, you
-> > can't just require people to update their kernel because a few new
-> > commands are needed to drive them from user space.
-> 
-> I'm stunning we are even having this argument. You are talking about
-> what appes to be a hardware destruction enabling security level bug in
-> the 2.6 kernel and arguing about whether it is a feature or not.
+On Sun, Aug 08, 2004 at 03:29:36PM -0700, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.8-rc3/2.6.8-rc3-mm2/
+> - Added a little patch to the CPU scheduler which disables its array
+>   switching.
+[...]
 
-Alan, stop putting words into my mouth. I'm not saying it's a feature.
+During the kernel summit, some discussion was had about the support
+requirements for a userspace program loader that loads executables
+into hugetlb on behalf of a major application (Oracle). In order to
+support this in a robust fashion, the cleanup of the hugetlb must be
+robust in the presence of disorderly termination of the programs
+(e.g. kill -9). Hence, the cleanup semantics are those of System V
+shared memory, but Linux' System V shared memory needs one critical
+extension for this use: executability.
 
-> In essence you are saying read access to any raw device node entitles
-> the opener of the file to destroy the attached device (device even not
-> just media). You are arguing that its ok that I can use raw scsi I/O to
-> subvert the read/write permissions too.
+The following microscopic patch enables this major application to
+provide robust hugetlb cleanup.
 
-In essence, yes. I'm arguing that it's not easily doable to
-differentiate between destructive and non-destructive commands. And that
-doing so requires extensive tables because commands are not the same
-across devices.
-
-I'm not saying that I think it's a good thing! Or a feature, for that
-matter. I'm just arguing the feasibility of doing it, the maintenance
-involved, etc.
-
-> In the example code I gave
-> 
-> >               default:
-> >                       if(capable(CAP_SYS_RAWIO))
-> >                       /* Only administrators get to do arbitary things
-> */
-> > 
-> 
-> means there is no need to recompile anything, you just need priviledges
-> to do stuff the kernel doesn't *know* is safe. This is the correct
-> behaviour for people who don't live in cloud cuckoo land.
-
-I'm well aware of the implications. The argument is only whether it's ok
-to policy filter unknown commands. I guess with capability elevating the
-app until the kernels are modified it would be ok, at least it enables
-the apps to work for root.
-
--- 
-Jens Axboe
-
+Index: premm2-2.6.8-rc3/include/linux/shm.h
+===================================================================
+--- premm2-2.6.8-rc3.orig/include/linux/shm.h	2004-08-07 02:17:59.231816608 -0700
++++ premm2-2.6.8-rc3/include/linux/shm.h	2004-08-07 03:46:10.163472736 -0700
+@@ -44,6 +44,7 @@
+ #define	SHM_RDONLY	010000	/* read-only access */
+ #define	SHM_RND		020000	/* round attach address to SHMLBA boundary */
+ #define	SHM_REMAP	040000	/* take-over region on attach */
++#define	SHM_EXEC	0100000	/* execution access */
+ 
+ /* super user shmctl commands */
+ #define SHM_LOCK 	11
+Index: premm2-2.6.8-rc3/ipc/shm.c
+===================================================================
+--- premm2-2.6.8-rc3.orig/ipc/shm.c	2004-08-07 02:17:59.395791680 -0700
++++ premm2-2.6.8-rc3/ipc/shm.c	2004-08-07 02:58:23.613254608 -0700
+@@ -688,6 +688,10 @@
+ 		o_flags = O_RDWR;
+ 		acc_mode = S_IRUGO | S_IWUGO;
+ 	}
++	if (shmflg & SHM_EXEC) {
++		prot |= PROT_EXEC;
++		acc_mode |= S_IXUGO;
++	}
+ 
+ 	/*
+ 	 * We cannot rely on the fs check since SYSV IPC does have an

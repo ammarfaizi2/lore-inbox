@@ -1,102 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266602AbUFWRGB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266585AbUFWRHs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266602AbUFWRGB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 13:06:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266584AbUFWRFy
+	id S266585AbUFWRHs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 13:07:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266560AbUFWRHs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 13:05:54 -0400
-Received: from halon.barra.com ([144.203.11.1]:2713 "EHLO halon.barra.com")
-	by vger.kernel.org with ESMTP id S266602AbUFWREc convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 13:04:32 -0400
-From: Fedor Karpelevitch <fedor@karpelevitch.net>
-To: linux-kernel@vger.kernel.org
-Subject: [BUG] ali5451 not resumed properly under 2.6.7 ( fine under 2.6.6 )
-Date: Wed, 23 Jun 2004 10:04:17 -0700
-User-Agent: KMail/1.6.2
-Cc: matt_wu@acersoftech.com.cn
+	Wed, 23 Jun 2004 13:07:48 -0400
+Received: from umhlanga.stratnet.net ([12.162.17.40]:55076 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S266585AbUFWRHb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 13:07:31 -0400
+To: long <tlnguyen@snoqualmie.dp.intel.com>
+Cc: ak@muc.de, akpm@osdl.org, greg@kroah.com, jgarzik@pobox.com,
+       linux-kernel@vger.kernel.org, tom.l.nguyen@intel.com,
+       zwane@linuxpower.ca, eli@mellanox.co.il
+Subject: Re: [PATCH]2.6.7 MSI-X Update
+X-Message-Flag: Warning: May contain useful information
+References: <200406222148.i5MLmA4Y001949@snoqualmie.dp.intel.com>
+From: Roland Dreier <roland@topspin.com>
+Date: Wed, 23 Jun 2004 09:50:21 -0700
+In-Reply-To: <200406222148.i5MLmA4Y001949@snoqualmie.dp.intel.com> (long's
+ message of "Tue, 22 Jun 2004 14:48:10 -0700")
+Message-ID: <523c4mi5gy.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200406231004.27689.fedor@karpelevitch.net>
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 23 Jun 2004 16:50:21.0345 (UTC) FILETIME=[2BF5A910:01C45942]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+OK, yet another comment on this update :)
 
-Hi,
+Overall I like the idea of separating MSI and MSI-X support and
+getting rid of the msi_alloc_vectors()/msi_free_vectors().  However it
+seems there is a slight asymmetry in how MSI-X is handled now.
 
-I upgraded to 2.6.7 recently and noticed that my ali5451 souncard 
-stopped behaving properly after resuming. 
+If a driver calls pci_enable_msix() (and the call succeeds), then the
+device is immediately put into MSI-X mode -- that is, the enable bit
+of its MSI-X capability is set.  However, this bit will not be cleared
+until the driver calls free_irq() for the last MSI-X vector.
 
-Basically after resume it produces no sound even though everything 
-pretends that the card is working properly (mixer "changes" volume 
-etc...). 
-I found that executing something like 'alsactl -F power A5451 D1' 
-makes it produce sound again although the volume is noticably lower 
-than it should be.
+This means that for a driver to clear the MSI-X enable bit, it must
+first do request_irq() on all the vectors it was assigned and then
+call free_irq().  It seems quite possible to me that a driver may not
+use all the MSI-X vectors it is assigned, so device cleanup becomes a
+problem.  Also, there is no way for the driver to free its unused
+MSI-X vectors.
 
-2.6.6 works just fine.
+It seems we need a pci_disable_msix() call to match the
+pci_enable_msix() call.  (And remove the disabling of MSI-X from the
+free_irq code path) 
 
-I looked at the diff for ali5451.c and noticed that in ali_suspend a 
-call to snd_pcm_suspend_all(chip->pcm) was added, but in ali_resume 
-no call to resume pcm was added. Could that be the cause of the 
-problem?
+I guess there is actually a similar problem with MSI -- if a driver
+calls pci_enable_msi(), MSI will not be disabled until the driver does
+request_irq/free_irq.  This is not quite as serious because a driver
+is unlikely not to use the since MSI vector it gets, but it is still a
+problem for error cleanup paths.  So maybe we need pci_disable_msi()
+as well.
 
-I will try adding that call and see if that fixes the problem.
+What do you think?
 
-
-here is that part of the diff:
-
-
-
-+static int ali_suspend(snd_card_t *card, unsigned int state)
- {
-+       ali_t *chip = snd_magic_cast(ali_t, card->pm_private_data, 
-return -EINVAL);
-        ali_image_t *im;
-        int i, j;
- 
-        im = chip->image;
-        if (! im)
-- -               return;
-+               return 0;
-+
-+       snd_pcm_suspend_all(chip->pcm);
-+       snd_ac97_suspend(chip->ac97);
- 
-        spin_lock_irq(&chip->reg_lock);
-        
-@@ -1940,16 +1943,18 @@
-        outl(0xffffffff, ALI_REG(chip, ALI_STOP));
- 
-        spin_unlock_irq(&chip->reg_lock);
-+       return 0;
- }
- 
-- -static void ali_resume(ali_t *chip)
-+static int ali_resume(snd_card_t *card, unsigned int state)
- {
-+       ali_t *chip = snd_magic_cast(ali_t, card->pm_private_data, 
-return -EINVAL);
-        ali_image_t *im;
-        int i, j;
- 
-        im = chip->image;
-        if (! im)
-- -               return;
-+               return 0;
- 
-        pci_enable_device(chip->pci);
- 
-@@ -1967,27 +1972,15 @@
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFA2bgYw4m50RG4juoRAqTqAJ4+oHXRvOjz6NZLUS82oxIh+d7SIACgl65l
-hCtld2qftBglwS0V0gYNHAw=
-=ZLy7
------END PGP SIGNATURE-----
+Thanks,
+  Roland

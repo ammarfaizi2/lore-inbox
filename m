@@ -1,46 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261906AbUK3Ap6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261909AbUK3AuU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261906AbUK3Ap6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 19:45:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbUK3Ap6
+	id S261909AbUK3AuU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 19:50:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261910AbUK3AuU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 19:45:58 -0500
-Received: from hera.kernel.org ([63.209.29.2]:48003 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S261906AbUK3Apx (ORCPT
+	Mon, 29 Nov 2004 19:50:20 -0500
+Received: from fw.osdl.org ([65.172.181.6]:55992 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261909AbUK3Arh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 19:45:53 -0500
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-Date: Tue, 30 Nov 2004 00:45:47 +0000 (UTC)
-Organization: Mostly alphabetical, except Q, which We do not fancy
-Message-ID: <cogfrr$371$1@terminus.zytor.com>
-References: <19865.1101395592@redhat.com> <Pine.LNX.4.58.0411290926160.22796@ppc970.osdl.org> <oract0thnj.fsf@livre.redhat.lsd.ic.unicamp.br> <Pine.LNX.4.58.0411291458040.22796@ppc970.osdl.org>
+	Mon, 29 Nov 2004 19:47:37 -0500
+Date: Mon, 29 Nov 2004 16:47:32 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Fred Emmott <mail@fredemmott.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] make root_plug more useful via whitelist
+Message-ID: <20041129164732.G14339@build.pdx.osdl.net>
+References: <200411272347.15728.mail@fredemmott.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1101775547 3298 127.0.0.1 (30 Nov 2004 00:45:47 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Tue, 30 Nov 2004 00:45:47 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200411272347.15728.mail@fredemmott.co.uk>; from mail@fredemmott.co.uk on Sat, Nov 27, 2004 at 11:47:15PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.58.0411291458040.22796@ppc970.osdl.org>
-By author:    Linus Torvalds <torvalds@osdl.org>
-In newsgroup: linux.dev.kernel
+* Fred Emmott (mail@fredemmott.co.uk) wrote:
+> patch: http://fredemmott.co.uk/files/rp.patch
 > 
-> If glibc wants to do something new, go wild. The kernel won't care.
+> This adds a whitelist of programs such as /bin/login and /sbin/agetty which 
+> may be ran as root without the USB device prescent. It also includes my 
+> earlier patch to check the USB device's serial number as well as 
+> vendor/product.
 > 
-> And that's really the fundamental issue. The kernel does not care what
-> user land does. The kernel exports functionality, the kernel does _not_
-> ask user land to help.
-> 
-> That _does_ make it a one-way street. Sorry.
-> 
+> This is not meant for inclusion; I'd appreciate comments on anything I've done 
+> wrong, and suggestions on how to make it distribution neutral (at the moment 
+> it probably only works correctly on slackware) - I'm thinking of adding a 
+> security/root_plug_relax/ directory containing files such as "slackware.h" 
+> "redhat.h" etc.
 
-And it SHOULD be a one-way street.  A lot of the ugliness in the
-current stuff comes from the fact that the kernel tries to export
-libc4/5 internals, instead of the real kernel ABI.
+There's a couple of problems here.  First, the serial number thing
+should be done differently.  The serial number should be spcecified by
+a module parameter, and just store it as u8 and do direct compare (this
+will eliminate the unecessary kmalloc, and the subsequent memory leak
+you introduced).  Second, the relax stuff should not be done via config
+parameters.  It, of course, undermines the point of the module, but if
+you want to do it, make it done via userspace writing to some exposed fs
+(e.g.. echo /usr/bin/foo > ..../relax).  Finally, do the lookup there,
+and then keep your whitelist as inode based, not pathname based.
 
-	-hpa
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

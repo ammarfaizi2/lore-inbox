@@ -1,60 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265694AbTL3IGE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 03:06:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265697AbTL3IGE
+	id S265615AbTL3IDm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 03:03:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265675AbTL3IDm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 03:06:04 -0500
-Received: from brain.sedal.usyd.edu.au ([129.78.24.68]:29066 "EHLO
-	brain.sedal.usyd.edu.au") by vger.kernel.org with ESMTP
-	id S265694AbTL3IGB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 03:06:01 -0500
-Message-Id: <5.1.1.5.2.20031230184451.03507598@brain.sedal.usyd.edu.au>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
-Date: Tue, 30 Dec 2003 19:04:23 +1100
+	Tue, 30 Dec 2003 03:03:42 -0500
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:49599 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S265615AbTL3IDl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 03:03:41 -0500
+Date: Tue, 30 Dec 2003 00:03:36 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
 To: linux-kernel@vger.kernel.org
-From: auntvini <auntvini@sedal.usyd.edu.au>
-Subject: UID of the child processes
+Subject: [RFC][PATCH][2.4] Fix negative diskstats
+Message-ID: <20031230080336.GP1882@matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear All,
+Hi,
 
-I am building the linux kernel to  calculate the Load Average of the tasks 
-in a different manner.
+I noticed that my diskstats were reporting negative numbers, and after a
+hint from Andreas Dilger I found the problem.
 
-That would be to seperate the tasks under respective login user and then 
-calculate Load Averages. I was successful partly but there is a problem.
+The variables are unsigned int, but they're being reported as signed in proc.
 
-ps command gives a good idear about my effort.
-
-Though I was able to introduce new code, now I find that as far as a child 
-processors are concerned uid is not the original user id (say 500, 501 etc) 
-of that child processor. This is because the child inherits the user id of 
-the Parent.
-
-Previously I thought that the uid in the struct task_struct
-is going to be original user id. Now I find it is not the case always as 
-child inherits parent uid
-
-Then I used p->uid. which is not true.
-
-acct structure is also has got uid ?
-
-Do you know any global structure that keeps the original user id (say 500, 
-501 etc)?
-
-Thanks
-Sena Seneviratene
-Computer Engineering Lab
-Sydney University
-
-
-
-
-
-
-
-
+--- drivers/block/genhd.c.orig	2003-12-29 18:35:35.000000000 -0800
++++ drivers/block/genhd.c	2003-12-29 18:40:11.000000000 -0800
+@@ -201,7 +201,7 @@
+ 
+ 			disk_round_stats(hd);
+ 			seq_printf(s, "%4d  %4d %10d %s "
+-				      "%d %d %d %d %d %d %d %d %d %d %d\n",
++				      "%u %u %u %u %u %u %u %u %u %u %u\n",
+ 				      gp->major, n, gp->sizes[n],
+ 				      disk_name(gp, n, buf),
+ 				      hd->rd_ios, hd->rd_merges,

@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276350AbRI1WdE>; Fri, 28 Sep 2001 18:33:04 -0400
+	id <S276344AbRI1WeQ>; Fri, 28 Sep 2001 18:34:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276353AbRI1Wcy>; Fri, 28 Sep 2001 18:32:54 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:23799
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S276324AbRI1Wck>; Fri, 28 Sep 2001 18:32:40 -0400
-Date: Fri, 28 Sep 2001 15:33:01 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Tools better than vmstat [was: 2.4.9-ac16 good perfomer?]
-Message-ID: <20010928153301.A23261@mikef-linux.matchmail.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <200109281826.f8SIQLP06585@deathstar.prodigy.com> <Pine.LNX.4.33L.0109281535220.26495-100000@duckman.distro.conectiva> <20010928123455.B8222@mikef-linux.matchmail.com> <20010928210453.B15457@flint.arm.linux.org.uk> <20010928145324.A14801@mikef-linux.matchmail.com> <20010928230034.F15457@flint.arm.linux.org.uk>
-Mime-Version: 1.0
+	id <S276355AbRI1WeF>; Fri, 28 Sep 2001 18:34:05 -0400
+Received: from air-1.osdlab.org ([65.201.151.5]:27657 "EHLO
+	osdlab.pdx.osdl.net") by vger.kernel.org with ESMTP
+	id <S276353AbRI1Wdw>; Fri, 28 Sep 2001 18:33:52 -0400
+Message-ID: <3BB4FA41.DAAFB705@osdlab.org>
+Date: Fri, 28 Sep 2001 15:31:29 -0700
+From: "Randy.Dunlap" <rddunlap@osdlab.org>
+Organization: OSDL
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alex Cruise <acruise@infowave.com>
+CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: apm suspend broken in 2.4.10
+In-Reply-To: <6B90F0170040D41192B100508BD68CA1015A81B6@earth.infowave.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010928230034.F15457@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.3.22i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 28, 2001 at 11:00:34PM +0100, Russell King wrote:
-> On Fri, Sep 28, 2001 at 02:53:24PM -0700, Mike Fedyk wrote:
-> > Is there any possibility of using Russell's patch for this user space tool?
+> > Unload some of these (that you don't really need to run)
+> > and try "apm -s".
+> > If that fails, unload some more of them and try again...
+> > That would at least narrow down the search for us.
 > 
-> There is one property the kernel space method has over any user space
-> tool on a UP machine (and conceivably a SMP machine with more code) -
-> you get a complete atomic snapshot of the VM state.  Might be useful
-> and important, but might not be.
->
-
-Actually, I was suggesting a combined kernel and user space design.
-
-/proc/vm-page-ages would give all of the gory numbers in an atomic way, and
-vm-page-stat would distil that into the percentages much like vmstat
-output...
-
-> It would be pretty easy to change my kernel patch to produce what you're
-> requesting, from another sysrq key combination.
+> I already tried that... Maybe my message didn't get through :)
 > 
+> >AC> Just for fun, I tried removing all of my loaded 2.4.10 modules one by
+> one,
+> >AC> and attempting 'apm --suspend' in between, and still had the same
+> problem
+> >AC> when I got down to the bare minimum (ext3 and jbd)
+> 
+> Anyway, it looks like something keyboard- or A20-related is vetoing my
+> suspend request.  Did you get my "the plot thickens" message?  It's not
+> appearing in the lkml archives, maybe it got lost last night.
 
-Is sysrq easier to code for, or initiate-on-proc-read?
+I saw the keyboard message, and someone else's A20 reference.
+Not one from you IIRC.
 
-I'm just sorry I don't know enough C to do this myself... :(
+~Randy

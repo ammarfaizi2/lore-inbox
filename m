@@ -1,74 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268185AbUILFgw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268458AbUILFhs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268185AbUILFgw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 01:36:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268458AbUILFgw
+	id S268458AbUILFhs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 01:37:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268479AbUILFhs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 01:36:52 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:39587 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S268185AbUILFgj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 01:36:39 -0400
-Date: Sat, 11 Sep 2004 22:35:05 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: anton@samba.org, akpm@osdl.org, Simon.Derr@bull.net,
-       linux-kernel@vger.kernel.org, ak@suse.de, iwamoto@valinux.co.jp
-Subject: Re: [Patch 4/4] cpusets top mask just online, not all possible
-Message-Id: <20040911223505.5bfe6138.pj@sgi.com>
-In-Reply-To: <1094964209.16406.22.camel@localhost>
-References: <20040911082810.10372.86008.84920@sam.engr.sgi.com>
-	<20040911082834.10372.51697.75658@sam.engr.sgi.com>
-	<20040911141001.GD32755@krispykreme>
-	<20040911100731.2f400271.pj@sgi.com>
-	<1094923728.3997.10.camel@localhost>
-	<20040911192156.1da7c636.pj@sgi.com>
-	<1094964209.16406.22.camel@localhost>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 12 Sep 2004 01:37:48 -0400
+Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:57678 "HELO
+	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S268458AbUILFhp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 01:37:45 -0400
+Message-ID: <4143D491.6070006@yahoo.com.au>
+Date: Sun, 12 Sep 2004 14:46:09 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+CC: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, paulus@samba.org,
+       linux-kernel@vger.kernel.org, anton@samba.org, jun.nakajima@intel.com,
+       ak@suse.de, mingo@elte.hu
+Subject: Re: [PATCH] Yielding processor resources during lock contention
+References: <Pine.LNX.4.58.0409021231570.4481@montezuma.fsmlabs.com> <16703.60725.153052.169532@cargo.ozlabs.ibm.com> <Pine.LNX.4.53.0409090810550.15087@montezuma.fsmlabs.com> <Pine.LNX.4.58.0409090751230.5912@ppc970.osdl.org> <Pine.LNX.4.58.0409090754270.5912@ppc970.osdl.org> <Pine.LNX.4.53.0409091107450.15087@montezuma.fsmlabs.com> <Pine.LNX.4.53.0409120009510.2297@montezuma.fsmlabs.com> <20040911220003.0e9061ad.akpm@osdl.org> <Pine.LNX.4.53.0409120108310.2297@montezuma.fsmlabs.com> <4143D16F.30500@yahoo.com.au> <Pine.LNX.4.53.0409120131000.2297@montezuma.fsmlabs.com>
+In-Reply-To: <Pine.LNX.4.53.0409120131000.2297@montezuma.fsmlabs.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave wrote:
-> Is it easy to tell if a given page was influenced by a cpusets
-> allocation?  How would the memory removal code know which task[s] to go
-> and update?
+Zwane Mwaikambo wrote:
+> On Sun, 12 Sep 2004, Nick Piggin wrote:
 
-It is not nearly as easy as for cpus to know which tasks to update,
-because cpus have a list of tasks on them.
+>>I presume the hypervisor switch much incur the same sorts of costs as
+>>a context switch?
+> 
+> 
+> In the PPC64 and P4/HT case the spinning on a lock is a bad utilisation of 
+> the execution resources and that's what we're really trying to avoid, not 
+> necessarily cache thrashing from a context switch.
+> 
 
-And it is not nearly as easy as for cpus to _do_ the update, because a
-tasks memory placement, unlike its cpu placement, can not be changed by
-a third party.  So one has to leave a hint laying in wait for the task
-to be changed, which the task can trip over and use to trigger its own
-memory placement update.  Grep for 'generation' in kernel/cpuset.c for
-the cpuset version of this hint.
+But isn't yielding to the hypervisor and thus causing it to schedule
+something else basically the same as a context switch? (I don't know
+anything about POWER).
 
-We will need two pieces:
-
- 1) We will need some user space code, that walks through
-    all cpusets, and for each cpuset that includes the node
-    in question, updates that cpuset to not have that node
-    (which will bump that cpusets generation).
-
- 2) Then each task that is attached to that cpuset, the next
-    time that task is about to ask for memory (in one of the
-    mm/mempolicy routines, just before entering __alloc_pages())
-    will notice the generation number on its cpuset has changed,
-    and the cpuset_update_current_mems_allowed() code will
-    update the tasks mems_allowed to the correct, online, value.
-
-With what I expect to submit to lkml for *-mm in a few hours,
-piece (2) will be complete and ready to go.  Piece (1) can wait.
-
-> We'll fix it when we get there :)
-
-Yup.
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+If yes, then shouldn't your lock be a blocking lock anyway?

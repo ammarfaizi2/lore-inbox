@@ -1,44 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275131AbRJAOzI>; Mon, 1 Oct 2001 10:55:08 -0400
+	id <S275137AbRJAO72>; Mon, 1 Oct 2001 10:59:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275129AbRJAOyu>; Mon, 1 Oct 2001 10:54:50 -0400
-Received: from waste.org ([209.173.204.2]:31863 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S275117AbRJAOye>;
-	Mon, 1 Oct 2001 10:54:34 -0400
-Date: Mon, 1 Oct 2001 09:55:39 -0500 (CDT)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Rik van Riel <riel@conectiva.com.br>, Kenneth Johansson <ken@canit.se>,
-        "Randy.Dunlap" <rddunlap@osdlab.org>,
-        Andreas Dilger <adilger@turbolabs.com>, <linux-kernel@vger.kernel.org>,
-        <linux-net@vger.kernel.org>, <netdev@oss.sgi.com>
-Subject: Re: [patch] netconsole-2.4.10-B1
-In-Reply-To: <Pine.LNX.4.33.0110010924380.3436-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.30.0110010949130.23404-100000@waste.org>
+	id <S275138AbRJAO7T>; Mon, 1 Oct 2001 10:59:19 -0400
+Received: from snowball.fnal.gov ([131.225.81.94]:17427 "EHLO
+	snowball.fnal.gov") by vger.kernel.org with ESMTP
+	id <S275137AbRJAO7I>; Mon, 1 Oct 2001 10:59:08 -0400
+Date: Mon, 1 Oct 2001 09:59:35 -0500 (CDT)
+From: Steven Timm <timm@fnal.gov>
+To: Marvin Justice <mjustice@austin.rr.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: DMA problem (?) w/2.4.6-xfs and ServerWorks OSB4 Chipset
+In-Reply-To: <01093015371606.00965@bozo>
+Message-ID: <Pine.LNX.4.31.0110010958260.4216-100000@snowball.fnal.gov>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Oct 2001, Ingo Molnar wrote:
+On Sun, 30 Sep 2001, Marvin Justice wrote:
 
-> > Face it, Ingo's use of "client" and "server" is contrary to accepted
-> > usage. You can't finesse around it.
+> The error :
 >
-> 'server' is the box that serves content. 'client' is one that requests and
-> accepts it. in the case of netconsole, it's the netconsole-module box that
-> produces the messages, and the other one gets them.
-
-Server is the side providing the service - direction of data is
-irrelevant. If the service is logging, the side doing the logging is the
-server. If the service is console message generation, then the machine
-generating the messages is the server.  Client/server architecture
-generally implies the possibility of multiple clients per server, and that
-seems to make more sense with a 'logging server' than a 'console message
-server'.
-
---
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+> Curious - OSB4 thinks the DMA is still running.
+> OSB4 wait exit
+>
+> appears to occur during the "rewrite" phase of Bonnie++ every time we run it.
+> The setup is a Tyan 2515 with a Seagate ST310211A drive. Bonnie ran for ~48
+> hours on 2.4.10 without slowdown (I assume this is because the extra check in
+> -ac isn't present) but there was some file system corruption after the 1st 24
+> hours:
+>
+> EXT2-fs error (device ide0(3,6)): ext2_free_blocks: Freeing blocks not in
+> datazone - block = 2138996092, count = 1
+>
+> Here's the lspci:
+>
+> 00:00.0 Host bridge: ServerWorks CNB20LE (rev 06)
+> 	Flags: bus master, medium devsel, latency 32
+>
+> 00:00.1 Host bridge: ServerWorks CNB20LE (rev 06)
+> 	Flags: bus master, medium devsel, latency 16
+>
+> [snip]
+>
+> 00:0f.0 ISA bridge: ServerWorks OSB4 (rev 50)
+> 	Subsystem: ServerWorks OSB4
+> 	Flags: bus master, medium devsel, latency 0
+>
+> 00:0f.1 IDE interface: ServerWorks: Unknown device 0211 (prog-if 8a [Master
+> SecP PriP])
+> 	Flags: bus master, medium devsel, latency 64
+> 	I/O ports at ffa0 [size=16]
+>
+>
+> --
+> Marvin Justice
+> Software Developer
+> BOXX Technologies, Inc.
+> www.boxxtech.com
+> 512-235-6318 (V)
+> 412-835-0434 (F)
+>
 

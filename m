@@ -1,75 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264651AbUDUDTN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264695AbUDUDrl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264651AbUDUDTN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 23:19:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264652AbUDUDTN
+	id S264695AbUDUDrl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 23:47:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264697AbUDUDrl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 23:19:13 -0400
-Received: from smtp808.mail.sc5.yahoo.com ([66.163.168.187]:56462 "HELO
-	smtp808.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S264651AbUDUDTL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 23:19:11 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: /dev/psaux problem (2.6.5)
-Date: Tue, 20 Apr 2004 22:19:06 -0500
-User-Agent: KMail/1.6.1
-Cc: "E.Rodichev" <er@sai.msu.su>
-References: <Pine.GSO.4.58.0404200404360.22353@ra.sai.msu.su> <200404200736.38616.dtor_core@ameritech.net> <Pine.GSO.4.58.0404201718220.4975@ra.sai.msu.su>
-In-Reply-To: <Pine.GSO.4.58.0404201718220.4975@ra.sai.msu.su>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+	Tue, 20 Apr 2004 23:47:41 -0400
+Received: from fw.osdl.org ([65.172.181.6]:4031 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264695AbUDUDrj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Apr 2004 23:47:39 -0400
+Date: Tue, 20 Apr 2004 20:47:21 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm <akpm@osdl.org>
+Subject: [PATCH] Kconfig.debug family
+Message-Id: <20040420204721.06dee590.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200404202219.08935.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 20 April 2004 09:11 am, E.Rodichev wrote:
-> It's not a problem of mousedev, but the problem of make menuconfig.
-> 
-> The relevant part of .config is
-> 
-> #
-> # Userland interfaces
-> #
-> CONFIG_INPUT_MOUSEDEV=y
-> CONFIG_INPUT_MOUSEDEV_PSAUX=y
-> CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-> CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-> # CONFIG_INPUT_JOYDEV is not set
-> # CONFIG_INPUT_TSDEV is not set
-> # CONFIG_INPUT_EVDEV is not set
-> # CONFIG_INPUT_EVBUG is not set
-> 
-> Starting from original linux-2.6.5.tar.gz it seems impossible to
-> disable CONFIG_INPUT_MOUSEDEV_PSAUX without disabling CONFIG_INPUT_MOUSEDEV.
-> 
-> If I comment out the line CONFIG_INPUT_MOUSEDEV_PSAUX by hand, make
-> silently restore this line to yes.
-> 
 
-Ok, in that case why mess with MOUSEDEV and not MOUSEDEV_PSAUX, like this:
+Localizes kernel debug options in lib/Kconfig.debug.
+Puts arch-specific debug options in $ARCH/Kconfig.debug.
 
-===== drivers/input/Kconfig 1.6 vs edited =====
---- 1.6/drivers/input/Kconfig	Thu Sep 11 22:19:35 2003
-+++ edited/drivers/input/Kconfig	Tue Apr 20 22:11:43 2004
-@@ -41,9 +41,16 @@
- 	  module will be called mousedev.
- 
- config INPUT_MOUSEDEV_PSAUX
--	bool "Provide legacy /dev/psaux device" if EMBEDDED
-+	bool "Provide legacy /dev/psaux device"
- 	default y
- 	depends on INPUT_MOUSEDEV
-+	---help---
-+	  Say Y here if you want your mouse also be accessible as char device
-+	  10:1 - /dev/psaux. The data available through /dev/psaux is exactly
-+	  the same as the data from /dev/input/mice.
-+
-+	  If unsure, say Y.
-+
- 
- config INPUT_MOUSEDEV_SCREEN_X
- 	int "Horizontal screen resolution"
+updated for 2.6.6-rc2
+
+http://developer.osdl.org/rddunlap/patches/kconf_debug_1file_266rc2.patch
+
+ arch/alpha/Kconfig           |  104 ---------------------
+ arch/alpha/Kconfig.debug     |   54 +++++++++++
+ arch/arm/Kconfig             |  160 --------------------------------
+ arch/arm/Kconfig.debug       |  113 +++++++++++++++++++++++
+ arch/arm26/Kconfig           |  113 -----------------------
+ arch/arm26/Kconfig.debug     |   58 +++++++++++
+ arch/cris/Kconfig            |   14 --
+ arch/cris/Kconfig.debug      |   14 ++
+ arch/h8300/Kconfig           |   72 --------------
+ arch/h8300/Kconfig.debug     |   66 +++++++++++++
+ arch/i386/Kconfig            |  125 -------------------------
+ arch/i386/Kconfig.debug      |   14 ++
+ arch/ia64/Kconfig            |  114 -----------------------
+ arch/ia64/Kconfig.debug      |   62 ++++++++++++
+ arch/m68k/Kconfig            |   38 -------
+ arch/m68k/Kconfig.debug      |    8 +
+ arch/m68knommu/Kconfig       |   55 -----------
+ arch/m68knommu/Kconfig.debug |   41 ++++++++
+ arch/mips/Kconfig            |  119 ------------------------
+ arch/mips/Kconfig.debug      |   66 +++++++++++++
+ arch/parisc/Kconfig          |   49 ---------
+ arch/parisc/Kconfig.debug    |    5 +
+ arch/ppc/Kconfig             |  124 -------------------------
+ arch/ppc/Kconfig.debug       |   71 ++++++++++++++
+ arch/ppc64/Kconfig           |   80 ----------------
+ arch/ppc64/Kconfig.debug     |   26 +++++
+ arch/s390/Kconfig            |   56 -----------
+ arch/s390/Kconfig.debug      |    6 +
+ arch/sh/Kconfig              |  140 ----------------------------
+ arch/sh/Kconfig.debug        |  110 ++++++++++++++++++++++
+ arch/sparc/Kconfig           |   72 --------------
+ arch/sparc/Kconfig.debug     |   13 ++
+ arch/sparc64/Kconfig         |  104 ---------------------
+ arch/sparc64/Kconfig.debug   |   37 +++++++
+ arch/um/Kconfig              |   60 ------------
+ arch/um/Kconfig.debug        |   34 ++++++
+ arch/v850/Kconfig            |   29 -----
+ arch/v850/Kconfig.debug      |    9 +
+ arch/x86_64/Kconfig          |  101 --------------------
+ arch/x86_64/Kconfig.debug    |   46 +++++++++
+ init/Kconfig                 |    8 -
+ lib/Kconfig.debug            |  211 +++++++++++++++++++++++++++++++++++++++++++
+ 42 files changed, 1084 insertions(+), 1717 deletions(-)
+
+--
+~Randy

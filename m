@@ -1,59 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266914AbRHCJtc>; Fri, 3 Aug 2001 05:49:32 -0400
+	id <S268110AbRHCJ4D>; Fri, 3 Aug 2001 05:56:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267542AbRHCJtX>; Fri, 3 Aug 2001 05:49:23 -0400
-Received: from rcum.uni-mb.si ([164.8.2.10]:46853 "EHLO rcum.uni-mb.si")
-	by vger.kernel.org with ESMTP id <S266914AbRHCJtG>;
-	Fri, 3 Aug 2001 05:49:06 -0400
-Date: Fri, 03 Aug 2001 11:49:14 +0200
-From: David Balazic <david.balazic@uni-mb.si>
-Subject: Linux can't find partitions , again
-To: linux-kernel@vger.kernel.org, testers-list@redhat.com
-Message-id: <3B6A739A.7D6197CD@uni-mb.si>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
+	id <S267615AbRHCJzx>; Fri, 3 Aug 2001 05:55:53 -0400
+Received: from cdt1.tz-juelich.de ([195.37.52.66]:61056 "HELO
+	feivel.credativ.de") by vger.kernel.org with SMTP
+	id <S267579AbRHCJzs>; Fri, 3 Aug 2001 05:55:48 -0400
+Date: Fri, 3 Aug 2001 11:58:07 +0200
+To: Linux-Kernel Mailinglist <linux-kernel@vger.kernel.org>,
+        linux-smp@vger.kernel.org, debian-user@lists.debian.org
+Subject: Problem with customer machine
+Message-ID: <20010803115807.A12739@feivel.credativ.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.18i
+From: Michael.Meskes@credativ.de (Michael Meskes)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi,
 
-Yesterday I did "nothing" (*) and then linux didn't boot anymore.
-It couldn't mount the root FS.
-After I fixed that , it couldn't turn on the swap partition.
+we are setting up a customer machine and experience the following messages
+over and over again:
 
-This really pisses me off ! ( I am cool now, you should see me yesterday )
+Aug  2 17:09:40 MDVTS054 kernel: unexpected IRQ vector 221 on CPU#0!
+Aug  2 17:10:45 MDVTS054 kernel: unexpected IRQ vector 216 on CPU#0!
 
-The problem was that the partitions were renumbered "randomly"
-and linux just can not deal with that. Before linux named the root FS
-partition hda6, but now he names it hda7. Off course the kernel still looks
-for hda6 and fails. After I fix LILO , it boots, but fails to turn on the swap
-as it was renamed from hda7 to hda5. I edit /etc/fstab and all is well.
-Until next time.
+Now I found a lot of mail in some list archives about the same messages or
+at least similar with a different number. But I did not find any reply to
+these messages. AFAICT this means the IRQ handler notices an IRQ it does not
+know how to handle. Is that correct?
 
-This has bitten me and my neighbour enough times that I wrote a kernel patch
-to fix ( 99% fix ) the first problem ( root-FS ) and I don't write kernel patches
-every week !
-I didn't address the second problem ( swap ).
+The machine appears to run stable but the message comes up about once per
+minute. If it does not do any harm I'm willing to just removed the message,
+but before I like to know exactly what's that all about. In particular I
+need to find out if this results from a hardware problem.
 
-The patch works by scanning all known partitions for a matching ext2 UUID ( or label ).
-Maybe a simpler solution would be to search the partition list for a particular
-disk ( hda ) for a partition which has a particular (start,size) pair ? ( less disk access, 
-FS-type neutral , would work for the swap problem too )
+Does anyone know or has a link for me to read about this?
 
-Patch available at
-http://linux-patches.rock-projects.com/v2.2-f/uuid.html
+BTW there is another problem. The machine hangs solid during reboot after
+printing "disabeling symmetric io mode".
 
-Opinions ?
+The machine is a dual Xeon with gdt7629 controller.
 
-* - I created a partition on the free part of the disk, but after a minute
-I changed my mind an deleted it. I used the Disk Administrator tools undwr win2000
+Thanks for any hints.
 
+Michael
+
+P.S.: Please CC me on replies since I am not subscribed here.
 -- 
-David Balazic
---------------
-"Be excellent to each other." - Bill & Ted
-- - - - - - - - - - - - - - - - - - - - - -
+Michael Meskes
+Michael@Fam-Meskes.De
+Go SF 49ers! Go Rhein Fire!
+Use Debian GNU/Linux! Use PostgreSQL!

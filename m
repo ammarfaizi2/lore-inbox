@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288801AbSCCUET>; Sun, 3 Mar 2002 15:04:19 -0500
+	id <S288914AbSCCUOV>; Sun, 3 Mar 2002 15:14:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288896AbSCCUEJ>; Sun, 3 Mar 2002 15:04:09 -0500
-Received: from ns.caldera.de ([212.34.180.1]:39080 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S288801AbSCCUDw>;
-	Sun, 3 Mar 2002 15:03:52 -0500
-Date: Sun, 3 Mar 2002 21:03:46 +0100
-From: Christoph Hellwig <hch@caldera.de>
-To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: [PATCH] radix-tree pagecache for 2.4.19-pre2-ac2
-Message-ID: <20020303210346.A8329@caldera.de>
-Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org
+	id <S288919AbSCCUOL>; Sun, 3 Mar 2002 15:14:11 -0500
+Received: from smtp3.vol.cz ([195.250.128.83]:27923 "EHLO smtp3.vol.cz")
+	by vger.kernel.org with ESMTP id <S288914AbSCCUNz>;
+	Sun, 3 Mar 2002 15:13:55 -0500
+Date: Sat, 2 Mar 2002 14:54:53 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, mingo@elte.hu,
+        Matthew Kirkwood <matthew@hairy.beasts.org>,
+        Benjamin LaHaise <bcrl@redhat.com>, David Axmark <david@mysql.com>,
+        William Lee Irwin III <wli@holomorphy.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Lightweight userspace semaphores...
+Message-ID: <20020302145452.A37@toy.ucw.cz>
+In-Reply-To: <E16f85L-0005QM-00@wagner.rustcorp.com.au> <Pine.LNX.4.33.0202241543550.28708-100000@home.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.33.0202241543550.28708-100000@home.transmeta.com>; from torvalds@transmeta.com on Sun, Feb 24, 2002 at 03:48:58PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have uploaded an updated version of the radix-tree pagecache patch
-against 2.4.19-pre2-ac2.  News in this release:
+Hi!
 
-* fix a deadlock when vmtruncate takes i_shared_lock twice by introducing
-  a new mapping->page_lock that mutexes mapping->page_tree. (akpm)
-* move setting of page->flags back out of move_to/from_swap_cache. (akpm)
-* put back lost page state settings in shmem_unuse_inode. (akpm)
-* get rid of remove_page_from_inode_queue - there was only one caller. (me)
-* replace add_page_to_inode_queue with ___add_to_page_cache. (me)
+> > >   sys_sem_create()
+> > >   sys_sem_destroy()
+> >
+> > There is no create and destroy (init is purely userspace).  There is
+> > "this is a semapore: up it".  This is a feature.
+> 
+> No, that's a bug.
+> 
+> You have to realize that there are architectures that need special
+> initialization and page allocation for semaphores: they need special flags
+> in the TLB for "careful access", for example (sometimes the careful access
+> ends up being non-cached).
 
-Please give it some serious beating while I try to get 2.5 working and
-port the patch over 8)
+Your user part is arch-dependend, anyway. So it can just mmap(..., O_CAREFULL).
 
-Location:
+									Pavel
 
-	ftp://ftp.kernel.org/pub/linux/kernel/people/hch/patches/v2.4/2.4.19-pre2-ac2/linux-2.4.19-radixtree.patch.gz
-	ftp://ftp.kernel.org/pub/linux/kernel/people/hch/patches/v2.4/2.4.19-pre2-ac2/linux-2.4.19-radixtree.patch.bz2
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 

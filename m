@@ -1,69 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265176AbTFEVTK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 17:19:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265179AbTFEVTK
+	id S265188AbTFEVVK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 17:21:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265192AbTFEVVJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 17:19:10 -0400
-Received: from fmr01.intel.com ([192.55.52.18]:43472 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id S265176AbTFEVTI convert rfc822-to-8bit
+	Thu, 5 Jun 2003 17:21:09 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:39620 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S265188AbTFEVUh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 17:19:08 -0400
-Message-ID: <A46BBDB345A7D5118EC90002A5072C780D6F13E8@orsmsx116.jf.intel.com>
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "'lkml (linux-kernel@vger.kernel.org)'" 
-	<linux-kernel@vger.kernel.org>
-Subject: How to initialize complex per-cpu variables?
-Date: Thu, 5 Jun 2003 14:32:26 -0700 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Thu, 5 Jun 2003 17:20:37 -0400
+Date: Thu, 5 Jun 2003 16:34:01 -0500
+Subject: [CHECKER][PATCH] awe_wave.c user pointer dereference
+Content-Type: multipart/mixed; boundary=Apple-Mail-15--767769295
+Mime-Version: 1.0 (Apple Message framework v552)
+Cc: linux-kernel@vger.kernel.org
+To: Linus Torvalds <torvalds@transmeta.com>
+From: Hollis Blanchard <hollisb@us.ibm.com>
+Message-Id: <6CB1C41B-979D-11D7-8338-000A95A0560C@us.ibm.com>
+X-Mailer: Apple Mail (2.552)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi All
+--Apple-Mail-15--767769295
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset=US-ASCII;
+	format=flowed
 
-I am having this issue I don't know how to solve (digged
-the source, it didn't clarify)
+Two ioctl functions in sound/oss/awe_wave.c were directly dereferencing 
+a user-supplied pointer in a few places. Please apply.
 
-I have this kind of half complex data structure that 
-needs to be per-cpu and I need to initialize them. 
+-- 
+Hollis Blanchard
+IBM Linux Technology Center
 
-The problem is it contains an array of list_heads 
-and I cannot initialize that with an static initializer, 
-AFAIK:
 
-#define NUMBER_OF_QUEUES 256
+--Apple-Mail-15--767769295
+Content-Disposition: attachment;
+	filename=awe-userptr.txt
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	x-unix-mode=0644;
+	name="awe-userptr.txt"
 
-struct rtf_h {
-	spinlock_t lock;
-	struct list_head queues[NUMBER_OF_QUEUES];
-}
+===== sound/oss/awe_wave.c 1.12 vs edited =====
+--- 1.12/sound/oss/awe_wave.c	Thu Apr  3 16:35:48 2003
++++ edited/sound/oss/awe_wave.c	Thu Jun  5 16:16:53 2003
+@@ -2046,7 +2046,8 @@
+ 			awe_info.nr_voices = awe_max_voices;
+ 		else
+ 			awe_info.nr_voices = AWE_MAX_CHANNELS;
+-		memcpy((char*)arg, &awe_info, sizeof(awe_info));
++		if (copy_to_user((char*)arg, &awe_info, sizeof(awe_info)))
++			return -EFAULT;
+ 		return 0;
+ 		break;
+ 
+@@ -2063,10 +2064,12 @@
+ 
+ 	case SNDCTL_SYNTH_MEMAVL:
+ 		return memsize - awe_free_mem_ptr() * 2;
++		break;
+ 
+ 	default:
+ 		printk(KERN_WARNING "AWE32: unsupported ioctl %d\n", cmd);
+ 		return -EINVAL;
++		break;
+ 	}
+ }
+ 
+@@ -4314,7 +4317,8 @@
+ 	if (((cmd >> 8) & 0xff) != 'M')
+ 		return -EINVAL;
+ 
+-	level = *(int*)arg;
++	if (get_user(level, (int *)arg))
++		return -EFAULT;
+ 	level = ((level & 0xff) + (level >> 8)) / 2;
+ 	DEBUG(0,printk("AWEMix: cmd=%x val=%d\n", cmd & 0xff, level));
+ 
+@@ -4370,7 +4374,9 @@
+ 		level = 0;
+ 		break;
+ 	}
+-	return *(int*)arg = level;
++	if (put_user(level, (int *)arg))
++		return -EFAULT;
++	return level;
+ }
+ #endif /* CONFIG_AWE32_MIXER */
+ 
 
-static DEFINE_PER_CPU (struct rtf_h, rtf_lh);
+--Apple-Mail-15--767769295--
 
-So I want to initialize those - I cannot use the variable
-initializing because (a) it is very dirty to add a huge 
-number of INIT_LIST_HEAD and (b) it would break the
-DEFINE_PER_CPU() semantics, as I assume they are copied
-and thus the values would be broken.
-
-So I can have it initialized except the list_heads (only
-the locks) and then manually initialize the list_heads 
-with some rth_h_init() function;
-
-Now the question is: how do I walk each structure that is
-associated to each CPU - I mean, something like:
-
-struct rtf_h *h;
-for_each_cpu (h, rtf_lh) {
-	rtf_h_init (h);
-}
-
-TIA
-
-Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
-(and my fault)

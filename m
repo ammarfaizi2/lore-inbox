@@ -1,73 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262034AbTEUIwV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 04:52:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbTEUIwV
+	id S261603AbTEUIiV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 04:38:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261702AbTEUIiV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 04:52:21 -0400
-Received: from pop.gmx.net ([213.165.65.60]:13044 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262034AbTEUIwT (ORCPT
+	Wed, 21 May 2003 04:38:21 -0400
+Received: from tag.witbe.net ([81.88.96.48]:51212 "EHLO tag.witbe.net")
+	by vger.kernel.org with ESMTP id S261603AbTEUIiU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 04:52:19 -0400
-Message-Id: <5.2.0.9.2.20030521074611.00cbe3c0@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
-Date: Wed, 21 May 2003 11:08:34 +0200
-To: Ingo Molnar <mingo@elte.hu>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: [patch] sched-sync-2.5.69-A0
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0305191027420.4382-100000@localhost.localdom
- ain>
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="=====================_58098875==_"
+	Wed, 21 May 2003 04:38:20 -0400
+From: "Paul Rolland" <rol@as2917.net>
+To: <linux-kernel@vger.kernel.org>
+Cc: <rol@as2917.net>
+Subject: e100 latency, cpu cycle saver and e1000...
+Date: Wed, 21 May 2003 10:51:21 +0200
+Message-ID: <00e701c31f76$26fea350$3f00a8c0@witbe>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=====================_58098875==_
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Hello,
 
-At 10:35 AM 5/19/2003 +0200, Ingo Molnar wrote:
+A few days ago, there was a thread about e100 latency related to
+CPU Cycle Saver...
 
->the attached patch fixes the scheduler's sync-wakeup code to be consistent
->on UP as well.
->
->Right now there's a behavioral difference between an UP kernel and an SMP
->kernel running on a UP box: sync wakeups (which are only activated on SMP)
->can cause a wakeup of a higher prio task, without preemption. On UP
->kernels this does not happen. This difference in wakeup behavior is bad.
+Suggestion was to disabled it to return back to some "standard"
+latency.
 
-Cool.  That was the cause of some of the radical differences in behavior 
-between smp and up kernels.  The sync wakeup in pipe wait for example was 
-the irman process load climbs through the roof problem, and it also affects 
-the ext3 concurrency problem if you have gcc using -pipe.  See attached log.
+At the moment, I'm experiencing some strange behavior, not with
+an e100 but with an e1000 on a 2.4.20 kernel...
 
-         -Mike 
---=====================_58098875==_
-Content-Type: text/plain; name="log.txt";
- x-mac-type="42494E41"; x-mac-creator="74747874"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="log.txt"
+Here are some traces, using Corey Minyard test application :
 
-W2JlZm9yZV06IyB0aW1lIC4vaXJtYW4KUmVzcG9uc2UgdGltZSBtZWFzdXJlbWVudHMgKG1pbGxp
-c2Vjb25kcykgZm9yOiAyLjUuNjkKICAgTG9hZCAgICAgICBNYXggICAgICAgTWluICAgICAgIEF2
-ZyBTdGQuIERldi4KICAgTlVMTCAgICAgMC4xNDIgICAgIDAuMDA5ICAgICAwLjAxMSAgICAgMC4w
-MDIKIE1FTU9SWSAgIDEwNy4wNDAgICAgIDAuMDEwICAgICAwLjAyMSAgICAgMC45OTYKRklMRV9J
-TyAgIDMxMC45OTEgICAgIDAuMDEwICAgICAwLjAzMyAgICAgMi41OTgKUFJPQ0VTUyAgMTAyMS44
-NzMgICAgIDAuMDEwICAgICAwLjA1MyAgICAgNS42MjUKCnJlYWwgICAgM20zMi41ODhzCnVzZXIg
-ICAgMG0yOC4zNTBzCnN5cyAgICAgMG0yMS4zNTNzCgpbYmVmb3JlXTojIHRpbWUgbWFrZSAtajMw
-IGJ6SW1hZ2UgKGV4dDMsIGdjYyB1c2luZyAtcGlwZSkKcmVhbCAgICAybTMyLjE0MnMKdXNlciAg
-ICAybTE0LjUwNXMKc3lzICAgICAwbTEwLjY4NXMKCltiZWZvcmVdOiMgZ3JlcCBwc3dwIC9wcm9j
-L3Ztc3RhdApwc3dwaW4gMTQ0OApwc3dwb3V0IDI0MzYKClthZnRlcl06IyB0aW1lIC4vaXJtYW4K
-UmVzcG9uc2UgdGltZSBtZWFzdXJlbWVudHMgKG1pbGxpc2Vjb25kcykgZm9yOiAyLjUuNjkKICAg
-TG9hZCAgICAgICBNYXggICAgICAgTWluICAgICAgIEF2ZyBTdGQuIERldi4KICAgTlVMTCAgICAg
-MC4yODYgICAgIDAuMDEwICAgICAwLjAxMSAgICAgMC4wMDIKIE1FTU9SWSAgIDEwMy4xMTEgICAg
-IDAuMDEwICAgICAwLjAyMSAgICAgMC45OTAKRklMRV9JTyAgIDMwNi4xNTEgICAgIDAuMDEwICAg
-ICAwLjAzMyAgICAgMi41NzgKUFJPQ0VTUyAgIDM1OS4wNzIgICAgIDAuMDEwICAgICAwLjAzMyAg
-ICAgMC42ODcKCnJlYWwgICAgMm0yMy41NDhzCnVzZXIgICAgMG0yNi4xNjBzCnN5cyAgICAgMG0y
-Mi45NDBzCgpbYWZ0ZXJdOiMgdGltZSBtYWtlIC1qMzAgYnpJbWFnZSAoZXh0MywgZ2NjIHVzaW5n
-IC1waXBlKQpyZWFsICAgIDJtMzUuMDE4cwp1c2VyICAgIDJtMTYuMDc1cwpzeXMgICAgIDBtMTEu
-ODk5cwoKW2FmdGVyXTojIGdyZXAgcHN3cCAvcHJvYy92bXN0YXQKcHN3cGluIDE5MjIwCnBzd3Bv
-dXQgMzMwMTkK
---=====================_58098875==_--
+[root@IP3 tmp]# ./test IP1 32000 10000 370
+Average: 201us, Max: 631us, Min: 200us
+[root@IP3 tmp]# ./test IP2 32000 10000 370
+Average: 422us, Max: 47581us, Min: 209us
+
+All three machines are using 2.4.20 and e1000 drivers, they are
+the same hardware.
+
+But, definitely, IP2 is exhibiting much higher max latency...
+
+Increasing the packet size up to 1200 bytes doesn't change the 
+global behavior : IP2 is always much "latent" than IP1...
+
+The problem is that it seems there is no CPU Cycle Saver on e1000
+NIC. Is there some equivalent ? Could someone give a guess on
+what's going on ?
+
+Regards,
+Paul
 

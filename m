@@ -1,63 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264985AbUELFmk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264979AbUELFn1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264985AbUELFmk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 01:42:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264979AbUELFmk
+	id S264979AbUELFn1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 01:43:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265017AbUELFn1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 01:42:40 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.51]:14245 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S264985AbUELFlz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 01:41:55 -0400
-Date: Wed, 12 May 2004 07:41:54 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Numdimmies MUST DIE!
-Message-ID: <20040512054154.GA26138@MAIL.13thfloor.at>
-Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
-	lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>
-References: <1083551201.25582.149.camel@bach>
+	Wed, 12 May 2004 01:43:27 -0400
+Received: from phoenix.infradead.org ([213.86.99.234]:8465 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S264979AbUELFnI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 01:43:08 -0400
+Date: Wed, 12 May 2004 06:42:53 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Wim Coekaerts <wim.coekaerts@oracle.com>, torvalds@transmeta.com
+Cc: hch@infradead.org, Andrew Morton <akpm@osdl.org>, cw@f00f.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-mm1
+Message-ID: <20040512064253.A25250@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Wim Coekaerts <wim.coekaerts@oracle.com>, torvalds@transmeta.com,
+	Andrew Morton <akpm@osdl.org>, cw@f00f.org,
+	linux-kernel@vger.kernel.org
+References: <20040510231146.GA5168@taniwha.stupidest.org> <20040510162818.376b4a55.akpm@osdl.org> <20040510233342.GA5614@taniwha.stupidest.org> <20040510165132.5107472e.akpm@osdl.org> <20040510235312.GA9348@taniwha.stupidest.org> <20040510171413.6c1699b8.akpm@osdl.org> <20040511002426.GD1105@ca-server1.us.oracle.com> <20040510181008.1906ea8a.akpm@osdl.org> <20040511015118.GA4589@ca-server1.us.oracle.com> <20040511151206.GK11353@ca-server1.us.oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1083551201.25582.149.camel@bach>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040511151206.GK11353@ca-server1.us.oracle.com>; from wim.coekaerts@oracle.com on Tue, May 11, 2004 at 08:12:07AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 03, 2004 at 12:26:42PM +1000, Rusty Russell wrote:
-> Status: Vitally Important
+On Tue, May 11, 2004 at 08:12:07AM -0700, Wim Coekaerts wrote:
+> oh and for what it's worth, I didn't like the shmgid solution either, I
+> brought up rlmits first iirc. if there is something better great, but as
+> that was not going anywhere and this is... 
 > 
-> I'm sure this is violating the trademark of a pre-schooler's TV show
-> somewhere in the world.
-> 
-> diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .18765-linux-2.6.6-rc3-bk4/drivers/net/dummy.c .18765-linux-2.6.6-rc3-bk4.updated/drivers/net/dummy.c
-> --- .18765-linux-2.6.6-rc3-bk4/drivers/net/dummy.c	2004-04-29 17:29:43.000000000 +1000
-> +++ .18765-linux-2.6.6-rc3-bk4.updated/drivers/net/dummy.c	2004-05-03 12:25:11.000000000 +1000
-> @@ -104,7 +104,7 @@ static struct net_device **dummies;
->  
->  /* Number of dummy devices to be set up by this module. */
->  module_param(numdummies, int, 0);
-> -MODULE_PARM_DESC(numdimmies, "Number of dummy psuedo devices");
-> +MODULE_PARM_DESC(numdummies, "Number of dummy psuedo devices");
+> let's see if wli can make things work correctly with physdical pages
+> with rlmits and go from there.
 
-hmm, maybe they could evolve, and become pseudo
-devices in this process too? (instead of psuedo)
+Okay, so can we please remove the half-backed non-soloutions from the
+tree now?  Aka, Linus please cset -x
 
-best,
-Herbert
+'[PATCH] Add sysctl to define a hugetlb-capable group', current cset num
+in the tree is 1.1608.6.126
 
->  static int __init dummy_init_one(int index)
->  {
-> 
-> -- 
-> Anyone who quotes me in their signature is an idiot -- Rusty Russell
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/

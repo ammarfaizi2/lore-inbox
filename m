@@ -1,65 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266865AbTAZRmO>; Sun, 26 Jan 2003 12:42:14 -0500
+	id <S266948AbTAZRxe>; Sun, 26 Jan 2003 12:53:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266917AbTAZRmO>; Sun, 26 Jan 2003 12:42:14 -0500
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:49352 "EHLO
+	id <S266959AbTAZRxe>; Sun, 26 Jan 2003 12:53:34 -0500
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:50376 "EHLO
 	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S266865AbTAZRmN>; Sun, 26 Jan 2003 12:42:13 -0500
-Date: Sun, 26 Jan 2003 11:51:22 -0600 (CST)
+	id <S266948AbTAZRxe>; Sun, 26 Jan 2003 12:53:34 -0500
+Date: Sun, 26 Jan 2003 12:02:42 -0600 (CST)
 From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
 X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Christian Zander <zander@minion.de>
-cc: Mark Fasheh <mark.fasheh@oracle.com>,
-       Thomas Schlichter <schlicht@uni-mannheim.de>,
-       "Randy.Dunlap" <rddunlap@osdl.org>, Sam Ravnborg <sam@ravnborg.org>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: no version magic, tainting kernel.
-In-Reply-To: <20030126132923.GB396@kugai>
-Message-ID: <Pine.LNX.4.44.0301261144430.15538-100000@chaos.physics.uiowa.edu>
+To: Keith Owens <kaos@ocs.com.au>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: no version magic, tainting kernel. 
+In-Reply-To: <31273.1043588007@ocs3.intra.ocs.com.au>
+Message-ID: <Pine.LNX.4.44.0301261151580.15538-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 26 Jan 2003, Christian Zander wrote:
+On Mon, 27 Jan 2003, Keith Owens wrote:
 
-> Of course, this only holds true for external projects using kbuild to
-> build the modules; other build systems would not only require that a
-> complete, configured kernel source tree be installed, they would also
-> rely on that source tree to be uncleaned since they have no knowledge
-> of how init/vermagic.o is to be built (and shouldn't make assumptions,
-> not considering possible legal/licensing implications). This I really
-> do consider an unnecessary, burdensome prerequisite.
+> Christian Zander <zander@minion.de> wrote:
+> >The new module
+> >is thus built using gcc 3.0, but init/vermagic.o still indicates gcc
+> >2.95; the module loader will erroneously believe everything is fine.
+> 
+> Congratulations, you have put your finger on a major design flaw in
+> modversions that has been there since 2.0 kernel days.  The modversion
+> data is generated once and everything else blindly uses it, with _NO_
+> checks on whether it is still valid or not.  Rusty knows damn well that
+> this is broken, but appears to be ignoring that fact (Rusty, see my
+> mail to you and Alan Cox on Wed, 24 Oct 2001 14:14:18 +1000).
 
-Well, what I'm trying to say is that external build system will always 
-break one way or other. Since they're external, they're naturally out of 
-reach for me to influence, so there's really nothing I can do it but 
-telling people to using the internal system instead.
+First of all, "modversions" has been used to designate the process of 
+module symbols versioning in the past years, which the above is not. The 
+version magic string is supposed to be a simple check against obvious 
+errors like kernel version mismatch between kernel and module and also to 
+protect against incompatibilities which the ABI checksums (which 
+modversions is about) cannot detect, like incompatible compiler versions.
 
-> Somebody downloaded Linux 2.5.59, configured it and built it using a
-> pre-3.0 version of gcc, e.g. gcc 2.95. The user had plenty of disk
-> space and decided, based on past experiences, that leaving the source
-> tree uncleaned is least likely to cause problems, should he/she ever
-> be intersted in building third-party modules. For some time, the user
-> placed no interest in external modules and used his/her system quite
-> happily; with the release of a new, improved version of a driver, the
-> user decided that he wants to give it a try, however, and built the
-> driver module, which picked up init/vermagic.o; our imaginary user is
-> using a distribution that provides frequent updates and he/she makes
-> regular use of this service - it just so happens that one of these
-> updates installed gcc 3.0 as the new default compiler. The new module
-> is thus built using gcc 3.0, but init/vermagic.o still indicates gcc
-> 2.95; the module loader will erroneously believe everything is fine.
+As such, the information is known beforehand and now complicated 
+bookkeeping needed here. (Also, as I just pointed out in a another mail, 
+the above scenario is not possible).
 
-Again, when you're using your own external build system, it's up to you to 
-mess it up in all possible ways, the above being one of them.
-
-When you're using the kernel build, the above cannot happen, since the 
-kernel build system knows about this dependency and builds a new 
-init/vermagic.o with the correct information before it gets linked into 
-the external module.
+Now your comments seem to rather apply to the actual module symbol 
+versioning process, which I just posted a patch for. Things are handled 
+very much differently now, if you have technical comments on that patch, 
+they'd be much appreciated.
 
 --Kai
 

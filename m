@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262975AbSJBFvg>; Wed, 2 Oct 2002 01:51:36 -0400
+	id <S262973AbSJBFti>; Wed, 2 Oct 2002 01:49:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262978AbSJBFvg>; Wed, 2 Oct 2002 01:51:36 -0400
-Received: from hq.pm.waw.pl ([195.116.170.10]:33497 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id <S262975AbSJBFvf>;
-	Wed, 2 Oct 2002 01:51:35 -0400
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Generic HDLC interface continued
-References: <m3y99nrtsu.fsf@defiant.pm.waw.pl>
-	<20020928202138.A17244@se1.cogenit.fr>
-	<m3smzsnbx9.fsf@defiant.pm.waw.pl>
-	<20020930225437.A19967@se1.cogenit.fr>
-	<m3n0pzm43c.fsf@defiant.pm.waw.pl>
-	<20021001200147.A16700@fafner.intra.cogenit.fr>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 02 Oct 2002 00:09:33 +0200
-In-Reply-To: <20021001200147.A16700@fafner.intra.cogenit.fr>
-Message-ID: <m3fzvpolpe.fsf@defiant.pm.waw.pl>
+	id <S262975AbSJBFth>; Wed, 2 Oct 2002 01:49:37 -0400
+Received: from mx15.sac.fedex.com ([199.81.197.54]:19723 "EHLO
+	mx15.sac.fedex.com") by vger.kernel.org with ESMTP
+	id <S262973AbSJBFtN>; Wed, 2 Oct 2002 01:49:13 -0400
+Date: Wed, 2 Oct 2002 13:53:30 +0800 (SGT)
+From: Jeff Chua <jchua@fedex.com>
+X-X-Sender: root@boston.corp.fedex.com
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.5.40 install ide.o module failed
+Message-ID: <Pine.LNX.4.44.0210021352230.5400-100000@boston.corp.fedex.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 10/02/2002
+ 01:54:35 PM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 10/02/2002
+ 01:54:37 PM,
+	Serialize complete at 10/02/2002 01:54:37 PM
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francois Romieu <romieu@cogenit.fr> writes:
 
-> Ok, the 'type' attribute isn't enough.
-> 
-> I feel like we are trying to do two things at the same time:
-> a) the size of the allocated area isn't required if we need to do something
->    real with the data: if size doesn't match what is expected, we loose 
->    anyway
-> b) if we don't care about the copied data, we actually ask for the subtype
->    of the interface
-> 
-> -> a) and b) are two different operations imho.
+# make modules_install
 
-Depends on the point of view, but generally it might be true.
-However, it is quite practical to do a+b in one call:
-- utilities will always do it in exactly that order,
-- we don't need to worry about races (process A gets type/size; process
-  B changes protocol; process A gets invalid data).
--- 
-Krzysztof Halasa
-Network Administrator
+Installing modules in /lib/modules/2.5.40/kernel/drivers/ide
+cp: cannot stat `ide.o': No such file or directory
+make[2]: *** [modules_install] Error 1
+make[2]: Leaving directory `/v6/src/2540/linux-2.5.40/drivers/ide'
+make[1]: *** [ide] Error 2
+make[1]: Leaving directory `/v6/src/2540/linux-2.5.40/drivers'
+
+
+
+Thanks,
+Jeff
+

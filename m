@@ -1,107 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262023AbVBPOge@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262025AbVBPOjn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262023AbVBPOge (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 09:36:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262024AbVBPOge
+	id S262025AbVBPOjn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 09:39:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262028AbVBPOjn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 09:36:34 -0500
-Received: from web53101.mail.yahoo.com ([206.190.39.204]:9325 "HELO
-	web53101.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262023AbVBPOg0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 09:36:26 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+	Wed, 16 Feb 2005 09:39:43 -0500
+Received: from rproxy.gmail.com ([64.233.170.197]:32111 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262025AbVBPOjl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Feb 2005 09:39:41 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=jLoMZkTe9zl3LMhPtoh7K3y12QgSata1Ng7Fg8+/2HZ65ROa+6FoDG7bN+MOkU6B8L26SbMvZRjFU8M8npJUP4J5CEWNsvPcmzIx3CVmBegMFHhxur8cnxctJ+G2CvLOlsF8ETWmo2TO9tEctRDN73gSpTDPkyOD+9lerk8njNU=  ;
-Message-ID: <20050216143625.8925.qmail@web53101.mail.yahoo.com>
-Date: Wed, 16 Feb 2005 06:36:25 -0800 (PST)
-From: Kent Hunt <kenthunt@yahoo.com>
-Subject: 2.6.11-rc4 + ide + S3 suspend = lockup?
-To: lk <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=k+BOgloyBj+S8tWcEx45TTjP2Q+u6sQ/vpy/jxJZLhuBwCfuY3K8dTFeWplUAKPaLr44psb9CV7NhKUjzjTTWdGi8oAcxxD7zyCF0M9bs10x/AEdyQbTsDjdlm821n2Jokpx7YJT9+yX/O7cBlJAprgV1uFApIHUdua0ypFeYa0=
+Message-ID: <28d670ae050216063960cc4ba9@mail.gmail.com>
+Date: Wed, 16 Feb 2005 15:39:40 +0100
+From: Marcin Kuk <marcin.kuk@gmail.com>
+Reply-To: Marcin Kuk <marcin.kuk@gmail.com>
+To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Toshiba Laptop DMA problem
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-S3 has been working most of the times but sometimes I
-experience lockups. I'm wondering if the error
-messages for hdc may be a possible cause.
+Hi.
 
-dmesg                                                 
-                                                 
-hdc: UJDA755 DVD/CDRW, ATAPI CD/DVD-ROM drive         
-                                                 
-                                                      
-                                                 
-lspci                                                 
-                                                 
-0000:00:1f.1 IDE interface: Intel Corp. 82801DBM
-(ICH4) Ultra ATA Storage Controller (rev 03)          
+If you will help me to set DMA in my Toshiba Laptop I can care about
+this and I will make patches for other users.
+I know that is frequent problem.
 
-0000:00:1e.0 PCI bridge: Intel Corp. 82801 PCI Bridge
-(rev 83)                                          
-0000:00:00.0 Host bridge: Intel Corp. 82855PM
-Processor to I/O Controller (rev 03)                  
-   
-                                                      
-                                                 
-syslog after resuming from S3                         
-                                                 
-                                                      
-                                                 
-hdc: drive_cmd: status=0x51 {DriveReady SeekComplete
-Error }                                            
-drive_cmd: error=0x04 {AbortedCommand }               
-                                                 
-ide: failed opcode was: 0xef                          
-                                                 
-drive_cmd: status=0x51 {DriveReady SeekComplete Error
-}                                                 
-hdc: drive_cmd: error=0x04 {AbortedCommand }          
-                                                 
-ide: failed opcode was: 0xe3                          
-                                                 
-                                                      
-                                                 
-CONFIG_IDE=y                                          
-                                                 
-CONFIG_BLK_DEV_IDE=y                                  
-                                                 
-CONFIG_BLK_DEV_IDEDISK=y                              
-                                                 
-CONFIG_IDEDISK_MULTI_MODE=y                           
-                                                 
-CONFIG_BLK_DEV_IDECS=m                                
-                                                 
-CONFIG_BLK_DEV_IDECD=y                                
-                                                 
-CONFIG_BLK_DEV_IDETAPE=m                              
-                                                 
-CONFIG_BLK_DEV_IDEFLOPPY=m                            
-                                                 
-CONFIG_BLK_DEV_IDESCSI=m                              
-                                                 
-CONFIG_IDE_GENERIC=y                                  
-                                                 
-CONFIG_BLK_DEV_IDEPCI=y                               
-                                                 
-CONFIG_IDEPCI_SHARE_IRQ=y                             
-                                                 
-CONFIG_BLK_DEV_GENERIC=y                              
-                                                 
-CONFIG_BLK_DEV_IDEDMA_PCI=y                           
-                                                 
-CONFIG_IDEDMA_PCI_AUTO=y                              
-                                                 
-CONFIG_BLK_DEV_PIIX=y                                 
-                                                 
-CONFIG_BLK_DEV_IDEDMA=y                               
-                                                 
-CONFIG_IDEDMA_AUTO=y                                  
-                                                 
+If you are interested please reply to me.
 
+Best Regards
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+Marcin Kuk

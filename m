@@ -1,53 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261557AbULTPtn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbULTPxF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261557AbULTPtn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 10:49:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261578AbULTPqO
+	id S261551AbULTPxF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 10:53:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261547AbULTPwj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 10:46:14 -0500
-Received: from gprs215-150.eurotel.cz ([160.218.215.150]:35972 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261571AbULTPl4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 10:41:56 -0500
-Date: Mon, 20 Dec 2004 16:41:38 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Shawn Starr <shawn.starr@rogers.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: swsusp and available swap space
-Message-ID: <20041220154137.GA24978@elf.ucw.cz>
-References: <20041220151414.21977.qmail@web88001.mail.re2.yahoo.com>
+	Mon, 20 Dec 2004 10:52:39 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:28141 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261540AbULTPwd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 10:52:33 -0500
+Subject: Re: Linux 2.6.9-ac16
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0412181606050.21338@yvahk01.tjqt.qr>
+References: <41C2FF09.5020005@tebibyte.org>
+	 <1103222616.21920.12.camel@localhost.localdomain>
+	 <1103349675.27708.39.camel@tglx.tec.linutronix.de>
+	 <41C448BB.1020902@tmr.com>
+	 <Pine.LNX.4.61.0412181606050.21338@yvahk01.tjqt.qr>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1103554123.30268.19.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041220151414.21977.qmail@web88001.mail.re2.yahoo.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 20 Dec 2004 14:48:46 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sad, 2004-12-18 at 15:06, Jan Engelhardt wrote:
+> >> Andrea's fix and the selection changes should go into 2.6.10, but I
+> >> suspect that the VM gurus havent still reached a point, where they
+> >> agree. I also have the feeling that the problem is partially ignored.
+> >> Obviously has everybody plenty of memory in his boxes. </rant off>
+> 
+> Well you can always take out your VMware and cut it down to <few RAM> MB by 
+> hand, just to get an experience how "low-end" users feel.
 
-> If say I have 980KB of memory used (of a total of 1GB
+Or boot with mem=. I actually do test runs with -ac on a 128Mb box with
+about 16Mb of that stolen as video ram. 2.6.9 isn't behaving perfectly
+but seems reasonably ok for most loads except brokenoffice
 
-980MB?
-
-> physical RAM), and rest currently in swap memory
-> giving me 1GB total ram used, and a swap of 1GB, when
-> suspending would this fail? Wouldn't the swapped
-> partition memory have to be moved somewhere? 
-
-Try without highmem, and try suspending just after boot, when not that
-much memory is in use. If too much memory is used after boot, boot
-with init=/bin/bash, swapon and trigger swsusp.
-
-> I can't be sure because I cant suspend to disk yet..
-> it continues to abort and I wonder if its due to the
-> swap size not being big enough for all ram + swapped
-> memory to fit on the swap partition?
-
-Messages from suspend would be helpfull.
-
-
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

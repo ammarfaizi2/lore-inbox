@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263024AbUISUB1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263100AbUISUFd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263024AbUISUB1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Sep 2004 16:01:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263100AbUISUB1
+	id S263100AbUISUFd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Sep 2004 16:05:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263117AbUISUFd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Sep 2004 16:01:27 -0400
-Received: from rproxy.gmail.com ([64.233.170.205]:33239 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S263024AbUISUB0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Sep 2004 16:01:26 -0400
-Message-ID: <35fb2e59040919130154966337@mail.gmail.com>
-Date: Sun, 19 Sep 2004 21:01:22 +0100
-From: Jon Masters <jonmasters@gmail.com>
-Reply-To: jonathan@jonmasters.org
-To: Sergei Haller <sergei.haller@math.uni-giessen.de>
-Subject: Re: lost memory on a 4GB amd64
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0409190007530.31971@fb07-calculator.math.uni-giessen.de>
+	Sun, 19 Sep 2004 16:05:33 -0400
+Received: from tentacle.s2s.msu.ru ([193.232.119.109]:19081 "EHLO
+	tentacle.sectorb.msk.ru") by vger.kernel.org with ESMTP
+	id S263100AbUISUF2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Sep 2004 16:05:28 -0400
+Date: Mon, 20 Sep 2004 00:05:27 +0400
+From: "Vladimir B. Savkin" <master@sectorb.msk.ru>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc2 hangs in posix_locks_deadlock
+Message-ID: <20040919200527.GA7184@tentacle.sectorb.msk.ru>
+References: <20040919160342.GA26409@tentacle.sectorb.msk.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <Pine.LNX.4.58.0409161445110.1290@magvis2.maths.usyd.edu.au>
-	 <200409161528.19409.andrew@walrond.org>
-	 <Pine.LNX.4.58.0409170051200.26494@fb07-calculator.math.uni-giessen.de>
-	 <200409161619.28742.andrew@walrond.org>
-	 <Pine.LNX.4.58.0409170147320.26494@fb07-calculator.math.uni-giessen.de>
-	 <Pine.LNX.4.58.0409190007530.31971@fb07-calculator.math.uni-giessen.de>
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <20040919160342.GA26409@tentacle.sectorb.msk.ru>
+X-Organization: Moscow State Univ., Dept. of Mechanics and Mathematics
+X-Operating-System: Linux 2.6.9-rc2
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 Sep 2004 00:18:38 +1000 (EST), Sergei Haller 
+On Sun, Sep 19, 2004 at 08:03:42PM +0400, Vladimir B. Savkin wrote:
+> I was experiencing kernel hangs with versions 2.6.9-rc2 and
+> 2.6.9-rc2-mm1 on two different boxes.
 
-> * if the memory configuration is as follows: the first 3gb ar at the
->   normal address range, the fourth gb is at the address range 4-5gb.
->   then all 4gb are available (not quite -- a few mb ere missing, but
->   thats ok) and
->    - the SMP kernel panics as soon as I start X
+FYI: I have reverted posix-locking-* patches (as found in 2.6.9-rc2-mm1
+patch set), no hangs since that. 
 
-Just out of interest - can you say what tests you ran here - for
-example whether you tried allocating large amounts of memory from a
-userspace process without running X and/or touching bits of memory
-mapped hardware? You say a kernel compile works fine so can you rule
-out this being X taking down the system (you're previous mail seemed
-somehat unclear).
+> 
+> Today I managed to see the output of Alt+SysRq+P on the
+> hanged box and write down call trace (from screen, so it is incomplete).
+> 
+> EIP (c015da89) was in function posix_locks_deadlock,
+> and the call trace was:
+>  __posix_lock_file
+>  fcntl_setlk
+~
+:wq
+                                        With best regards, 
+                                           Vladimir Savkin. 
 
-Jon.

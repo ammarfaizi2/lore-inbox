@@ -1,55 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261416AbUEQUQo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261421AbUEQUQs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261416AbUEQUQo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 16:16:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbUEQUQo
+	id S261421AbUEQUQs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 16:16:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbUEQUQr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Mon, 17 May 2004 16:16:47 -0400
+Received: from lists.us.dell.com ([143.166.224.162]:13452 "EHLO
+	lists.us.dell.com") by vger.kernel.org with ESMTP id S261421AbUEQUQo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 17 May 2004 16:16:44 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:45072 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261416AbUEQUQm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 16:16:42 -0400
-Date: Mon, 17 May 2004 21:16:30 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Rob Landley <rob@landley.net>
-cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
-       Paul Jackson <pj@sgi.com>, <vonbrand@inf.utfsm.cl>,
-       <nickpiggin@yahoo.com.au>, <jgarzik@pobox.com>,
-       <brettspamacct@fastclick.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
-In-Reply-To: <200405121252.14006.rob@landley.net>
-Message-ID: <Pine.LNX.4.44.0405172114470.2804-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Date: Mon, 17 May 2004 15:16:25 -0500
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: akpm@osdl.org
+Cc: arjanv@redhat.com, linux-kernel@vger.kernel.org
+Subject: EDD: remove unused SCSI header files
+Message-ID: <20040517201625.GA19268@lists.us.dell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 May 2004, Rob Landley wrote:
-> On Friday 07 May 2004 11:57, Pavel Machek wrote:
-> > Hi!
-> >
-> > > > Perhaps what we really want is "swap_back_in" script? That way you
-> > > > could do "updatedb; swap_back_in" in cron and be happy.
-> > >
-> > > swapoff -a; swapon -a
-> >
-> > Good point... it will not bring back executable pages, through.
-> >
-> > 								Pavel
-> 
-> What would the above do if there wasn't enough memory to swap everything back 
-> in?  (Presumably, the swapoff would fail?)
+EDD: Remove no longer needed SCSI header file inclusion.
 
-Repeating my earlier reply to a similar question...
+Thanks to ArjanV for reminding me.
 
-On 2.4 it certainly would be a problem (hang with others OOM-killed).
+-Matt
+-- 
+Matt Domsch
+Sr. Software Engineer, Lead Engineer
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
 
-On 2.6 it shouldn't be a problem: the swapoff may fail upfront if
-there's way too little memory, or it may get itself OOM-killed if
-it runs out on the way, but it ought not to upset other tasks.
 
-But of course, Pavel is right that it does nothing for file backed.
-
-Hugh
-
+===== drivers/firmware/edd.c 1.25 vs edited =====
+--- 1.25/drivers/firmware/edd.c	Mon May 10 06:25:45 2004
++++ edited/drivers/firmware/edd.c	Mon May 17 14:39:49 2004
+@@ -43,12 +43,9 @@
+ #include <linux/device.h>
+ #include <linux/blkdev.h>
+ #include <linux/edd.h>
+-/* FIXME - this really belongs in include/scsi/scsi.h */
+-#include <../drivers/scsi/scsi.h>
+-#include <../drivers/scsi/hosts.h>
+ 
+-#define EDD_VERSION "0.14"
+-#define EDD_DATE    "2004-Apr-28"
++#define EDD_VERSION "0.15"
++#define EDD_DATE    "2004-May-17"
+ 
+ MODULE_AUTHOR("Matt Domsch <Matt_Domsch@Dell.com>");
+ MODULE_DESCRIPTION("sysfs interface to BIOS EDD information");

@@ -1,56 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277686AbRJRKVQ>; Thu, 18 Oct 2001 06:21:16 -0400
+	id <S277695AbRJRKmA>; Thu, 18 Oct 2001 06:42:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277695AbRJRKVG>; Thu, 18 Oct 2001 06:21:06 -0400
-Received: from mail.science.uva.nl ([146.50.4.51]:17909 "EHLO
-	mail.science.uva.nl") by vger.kernel.org with ESMTP
-	id <S277686AbRJRKUq>; Thu, 18 Oct 2001 06:20:46 -0400
-X-Organisation: Faculty of Science, University of Amsterdam, The Netherlands
-X-URL: http://www.science.uva.nl/
-Date: Thu, 18 Oct 2001 12:11:35 +0200 (CEST)
-From: Kamil Iskra <kamil@science.uva.nl>
-To: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
-cc: kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Poor floppy performance in kernel 2.4.10
-In-Reply-To: <20011017204524.88702.qmail@web10404.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.33.0110181158060.6306-100000@krakow.science.uva.nl>
+	id <S277696AbRJRKll>; Thu, 18 Oct 2001 06:41:41 -0400
+Received: from pat.uio.no ([129.240.130.16]:60670 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S277695AbRJRKlh> convert rfc822-to-8bit;
+	Thu, 18 Oct 2001 06:41:37 -0400
+To: Peter =?iso-8859-1?q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: nfsfh.c:nfsd_findparent lookup("..") failure fix in 2.4.4 - xfs related?
+In-Reply-To: <3BCEA924.14415870@loewe-komp.de>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 18 Oct 2001 12:42:01 +0200
+In-Reply-To: Peter =?iso-8859-1?q?W=E4chtler's?= message of "Thu, 18 Oct 2001 12:04:20 +0200"
+Message-ID: <shsitddmdqe.fsf@charged.uio.no>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Oct 2001, [iso-8859-1] Steve Kieu wrote:
+>>>>> " " == Peter Wächtler <pwaechtler@loewe-komp.de> writes:
 
-> Negative here, I am using 2.4.12-ac2 here and did not
-> notice what you said,
+     > The following diff was made in 2.4.4.  diff -u --recursive
+     > --new-file v2.4.4/linux/fs/nfsd/nfsfh.c linux/fs/nfsd/nfsfh.c
+     > --- v2.4.4/linux/fs/nfsd/nfsfh.c Fri Feb 9 11:29:44 2001
+     > +++ linux/fs/nfsd/nfsfh.c Sat May 19 17:47:55 2001
+     > @@ -244,6 +245,11 @@
+     >          */
+     >         pdentry = child->d_inode->i_op->lookup(child->d_inode,
+     >         tdentry); d_drop(tdentry); /* we never want ".." hashed
+     >         */
+     > + if (!pdentry && tdentry->d_inode == NULL) {
+     > + /* File system cannot find ".." ... sad but possible */
+     > + dput(tdentry);
+     > + pdentry = ERR_PTR(-EINVAL);
+     > + }
 
-Well, perhaps the ac series does not suffer from this problem?  As I
-stated in the original mail, I'm using 2.4.12 (from Linus).
 
-> the speed of transfer is still
-> about 23KB/sec when copying a 1.1Mb file from floppy ;
-> it is the same as before, even better :-)
+     > Umh. How is it possible to have a valid dentry which has no
+     > parent?  Even "/.." is linked to "/."
 
-I just measured it for a file of that size, and I even got 29KB/sec.
+Who said these are *valid* dentries?
 
-However, it's performance for small files, directory listing operations
-etc. that I'm complaining about.  And not for a mounted floppy (which
-seems to be fine), but when using mtools.
+There's no way you can fit full path information into an NFS
+filehandle, so when the client passes such an object to nfsd, the
+latter sometimes has to make so-called 'disconnected' dentries. These
+are dentries which contain no path information, and are basically just
+providing a dentry alias for the inode.
 
-So, to reiterate, the conditions known to be necessary to reproduce it
-are: kernel >=2.4.10 (perhaps only the Linus series), small files or
-directory operations, mtools.  The behaviour is as if no caching was done,
-there is a slowdown by a factor of two.  I have this problem both on my
-laptop and on the desktop machine at work.  They are running different
-kernel versions (2.4.12 and 2.4.10), differently configured and compiled
-by two different people.  Kernel 2.4.9 and earlier worked fine.
+The code you are looking at attempts to call the filesystem in order
+to lookup a file named '..' from just such a disconnected dentry. The
+purpose being to actually recreate the path, and hence convert the
+dentry into a valid one...
 
-Regards,
-
--- 
-Kamil Iskra                 http://www.science.uva.nl/~kamil/
-Section Computational Science, Faculty of Science, Universiteit van Amsterdam
-kamil@science.uva.nl  tel. +31 20 525 75 35  fax. +31 20 525 74 90
-Kruislaan 403  room F.202  1098 SJ Amsterdam  The Netherlands
-
+Cheers,
+  Trond

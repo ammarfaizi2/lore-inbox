@@ -1,50 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265966AbUGIUEf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265960AbUGIUGw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265966AbUGIUEf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 16:04:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265959AbUGIUDZ
+	id S265960AbUGIUGw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 16:06:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265955AbUGIUEm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 16:03:25 -0400
-Received: from fw.osdl.org ([65.172.181.6]:12710 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265955AbUGIUB5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 16:01:57 -0400
-Date: Fri, 9 Jul 2004 13:00:45 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jesse Stockall <stockall@magma.ca>
-Cc: s.rivoir@gts.it, linux-kernel@vger.kernel.org, stern@rowland.harvard.edu
-Subject: Re: 2.6.7-mm7
-Message-Id: <20040709130045.211b6d50.akpm@osdl.org>
-In-Reply-To: <1089402736.8067.12.camel@homer.blizzard.org>
-References: <20040708235025.5f8436b7.akpm@osdl.org>
-	<40EE5418.2040000@gts.it>
-	<20040709024112.7ef44d1d.akpm@osdl.org>
-	<40EE732C.5020404@gts.it>
-	<1089373506.8067.7.camel@homer.blizzard.org>
-	<20040709115411.23d96699.akpm@osdl.org>
-	<1089402736.8067.12.camel@homer.blizzard.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 9 Jul 2004 16:04:42 -0400
+Received: from mproxy.gmail.com ([216.239.56.242]:2700 "HELO mproxy.gmail.com")
+	by vger.kernel.org with SMTP id S265964AbUGIUEY convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 16:04:24 -0400
+Message-ID: <7f800d9f0407091304499b4c95@mail.gmail.com>
+Date: Fri, 9 Jul 2004 13:04:20 -0700
+From: Andre Eisenbach <int2str@gmail.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: 2.6.7-np7
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <40EE7450.3080600@yahoo.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+References: <40EE7450.3080600@yahoo.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Stockall <stockall@magma.ca> wrote:
->
-> On Fri, 2004-07-09 at 14:54, Andrew Morton wrote:
->                        down_write_trylock(&usb_all_devices_rwsem));
->  > 
->  > That's a bit unusual.  Could you (or Alan) please explain the reason for
->  > this a little more?
+On Fri, 09 Jul 2004 20:32:48 +1000, Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> http://www.kerneltrap.org/~npiggin/2.6.7-np7/
 > 
->  I believe you want this thread
-> 
->  http://marc.theaimsgroup.com/?l=linux-usb-devel&m=108923404032264&w=2
+> This is 2.6.7-np7 with patches for 2.6.7-bk20 and 2.6.7-mm7.
+> It contains my scheduler interactivity and memory management
+> changes.
 
-Oh, OK.  Recursively taking an rwsem for reading is certainly deadlocky. 
-The main reason for not supporting this is that heavy down_read() traffic
-can trivially livelock down_write() waiters.  Alan's patch will introduce
-that shortcoming.
+Ebuild for Gentoo users here:
+http://ironcreek.net/np-sources/np-sources-2.6.7-r7.ebuild
 
-Really, it would be better to get the locking sorted out.
+Thanks,
+  André

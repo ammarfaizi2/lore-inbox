@@ -1,97 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268151AbRGWIoF>; Mon, 23 Jul 2001 04:44:05 -0400
+	id <S268157AbRGWJDl>; Mon, 23 Jul 2001 05:03:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268154AbRGWInz>; Mon, 23 Jul 2001 04:43:55 -0400
-Received: from [212.17.18.2] ([212.17.18.2]:8196 "EHLO gw.ac-sw.com")
-	by vger.kernel.org with ESMTP id <S268151AbRGWInp> convert rfc822-to-8bit;
-	Mon, 23 Jul 2001 04:43:45 -0400
-Message-Id: <200107230844.f6N8ieq13189@gw.ac-sw.com>
-Content-Type: text/plain; charset=US-ASCII
-From: Stepan Kalichkin <step@ac-sw.com>
-Organization: NGTS
-To: linux-kernel@vger.kernel.org
-Subject: Problem with configure VMWare modules with 2.4.7 kernel
-Date: Mon, 23 Jul 2001 15:44:26 +0700
-X-Mailer: KMail [version 1.2.1]
+	id <S268159AbRGWJDc>; Mon, 23 Jul 2001 05:03:32 -0400
+Received: from nixpbe.pdb.siemens.de ([192.109.2.33]:44739 "EHLO
+	nixpbe.pdb.sbs.de") by vger.kernel.org with ESMTP
+	id <S268157AbRGWJD0>; Mon, 23 Jul 2001 05:03:26 -0400
+Date: Mon, 23 Jul 2001 11:05:04 +0200 (CEST)
+From: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
+To: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Problem: Large file I/O waits (almost) forever
+Message-ID: <Pine.LNX.4.30.0107231043520.24403-100000@biker.pdb.fsc.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi all
 
-When I started vmware-config.pl I've get strange error when vmmon is compiled
+Hi,
 
+I just came across the following phenomenon and would like to inquire
+whether it's a feature or a bug, and what to do about it:
 
-Building the vmmon module.
+I have run our "copy-compare" test during the weekend to test I/O
+stability on a IA64 server running 2.4.5. The test works by generating
+a collection of binary files with specified lengths, copying them between
+different directories, and checking the result a) by checking the
+predefined binary patterns and b) by comparing source and destination with cmp.
 
-make: Entering directory `/tmp/vmware-config4/vmmon-only'
-make[1]: Entering directory `/tmp/vmware-config4/vmmon-only'
-make[2]: Entering directory `/tmp/vmware-config4/vmmon-only/driver-2.4.7'
-make[2]: Leaving directory `/tmp/vmware-config4/vmmon-only/driver-2.4.7'
-make[2]: Entering directory `/tmp/vmware-config4/vmmon-only/driver-2.4.7'
-In file included from /lib/modules/2.4.7/build/include/linux/highmem.h:5,
-                 from /lib/modules/2.4.7/build/include/linux/pagemap.h:16,
-                 from /lib/modules/2.4.7/build/include/linux/locks.h:8,
-                 from 
-/lib/modules/2.4.7/build/include/linux/devfs_fs_kernel.h:6,
-                 from /lib/modules/2.4.7/build/include/linux/miscdevice.h:4,
-                 from ../linux/driver.h:10,
-                 from .././linux/driver.c:58:
-/lib/modules/2.4.7/build/include/asm/pgalloc.h: In function `get_pgd_slow':
-/lib/modules/2.4.7/build/include/asm/pgalloc.h:56: `PAGE_OFFSET' undeclared 
-(first use in this function)
-/lib/modules/2.4.7/build/include/asm/pgalloc.h:56: (Each undeclared 
-identifier is reported only once
-/lib/modules/2.4.7/build/include/asm/pgalloc.h:56: for each function it 
-appears in.)/lib/modules/2.4.7/build/include/asm/pgalloc.h: In function 
-`pte_alloc_one':
-/lib/modules/2.4.7/build/include/asm/pgalloc.h:103: `PAGE_SIZE' undeclared 
-(first use in this function)
-In file included from /lib/modules/2.4.7/build/include/linux/pagemap.h:16,
-                 from /lib/modules/2.4.7/build/include/linux/locks.h:8,
-                 from 
-/lib/modules/2.4.7/build/include/linux/devfs_fs_kernel.h:6,
-                 from /lib/modules/2.4.7/build/include/linux/miscdevice.h:4,
-                 from ../linux/driver.h:10,
-                 from .././linux/driver.c:58:
-/lib/modules/2.4.7/build/include/linux/highmem.h: In function 
-`clear_user_highpage':/lib/modules/2.4.7/build/include/linux/highmem.h:48: 
-`PAGE_SIZE' undeclared (first use in this function)
-/lib/modules/2.4.7/build/include/linux/highmem.h: In function 
-`clear_highpage':
-/lib/modules/2.4.7/build/include/linux/highmem.h:54: `PAGE_SIZE' undeclared 
-(first use in this function)
-/lib/modules/2.4.7/build/include/linux/highmem.h: In function 
-`memclear_highpage':
-/lib/modules/2.4.7/build/include/linux/highmem.h:62: `PAGE_SIZE' undeclared 
-(first use in this function)
-/lib/modules/2.4.7/build/include/linux/highmem.h: In function 
-`memclear_highpage_flush':
-/lib/modules/2.4.7/build/include/linux/highmem.h:76: `PAGE_SIZE' undeclared 
-(first use in this function)
-/lib/modules/2.4.7/build/include/linux/highmem.h: In function 
-`copy_user_highpage':
-/lib/modules/2.4.7/build/include/linux/highmem.h:90: `PAGE_SIZE' undeclared 
-(first use in this function)
-/lib/modules/2.4.7/build/include/linux/highmem.h: In function `copy_highpage':
-/lib/modules/2.4.7/build/include/linux/highmem.h:101: `PAGE_SIZE' undeclared 
-(first
-use in this function)
-.././linux/driver.c: In function `LinuxDriver_Ioctl':
-.././linux/driver.c:928: structure has no member named `dumpable'
-make[2]: *** [driver.o] Error 1
-make[2]: Leaving directory `/tmp/vmware-config4/vmmon-only/driver-2.4.7'
-make[1]: *** [driver] Error 2
-make[1]: Leaving directory `/tmp/vmware-config4/vmmon-only'
-make: *** [auto-build] Error 2
-make: Leaving directory `/tmp/vmware-config4/vmmon-only'
-Unable to build the vmmon module.
+In order to avoid testing only the buffer cache (system has 8GB memory), I
+used exponentially growing file sizes fro 1kb up to 2GB. The
+copy/test/compare cycle for each file size was run 1024 times, tests
+for different file sizes were run simultaneously.
+
+As expected, tests for smaller files run faster than tests for larger
+ones. However, I observed that the very big files (1 GB and 2GB) hardly
+proceeded at all while the others were running. When I came back
+after the weekend, all tests except these two had completed (1024 times
+each), the 1GB test had completed ~500 times, and the 2GB test had not
+even completed once. After I killed the 1GB job, 2GB started to run again
+(i.e. it wasn't dead, just sleeping deeply). Apparently the block requests
+scheduled for I/O by the processes operating on the large file had to
+"yield" to other processes over and over again before being submitted.
+
+I think this is a dangerous behaviour, because the test situation is
+similar to a real-world scenario where applications (e.g. a data
+base) are doing a lot of small-file I/O while a background process is
+trying to do a large backup. If the system behaved similar then, it would
+mean that the backup would take (almost) forever unless database activity
+would cease.
+
+Any comments/suggestions?
+
+Regards,
+Martin
+
+PS: I am not subscribed to LK, but I'm reading the archives regularly.
+
+-- 
+Martin Wilck     <Martin.Wilck@fujitsu-siemens.com>
+FSC EP PS DS1, Paderborn      Tel. +49 5251 8 15113
 
 
-but I did't found any `PAGE_SIZE' or `PAGE_OFFSET' string in 
-thats files position. That is strange.
 
-What's happening???

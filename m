@@ -1,64 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261805AbTC0IMW>; Thu, 27 Mar 2003 03:12:22 -0500
+	id <S261807AbTC0IU3>; Thu, 27 Mar 2003 03:20:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261807AbTC0IMW>; Thu, 27 Mar 2003 03:12:22 -0500
-Received: from dc-mx01.cluster1.charter.net ([209.225.8.11]:60378 "EHLO
-	dc-mx01.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id <S261805AbTC0IMV>; Thu, 27 Mar 2003 03:12:21 -0500
-Date: Thu, 27 Mar 2003 03:23:29 -0500
+	id <S261810AbTC0IU3>; Thu, 27 Mar 2003 03:20:29 -0500
+Received: from holomorphy.com ([66.224.33.161]:4266 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S261807AbTC0IU2>;
+	Thu, 27 Mar 2003 03:20:28 -0500
+Date: Thu, 27 Mar 2003 00:31:24 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Re: [PATCH] Logitech USB mice/trackball extensions
-Message-ID: <20030327082329.GA3200@cy599856-a>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <200303261654.08896.bhards@bigpond.net.au> <200303261727.48908.bhards@bigpond.net.au> <20030327070301.GA3953@BL4ST>
+Subject: missing sched.h comments
+Message-ID: <20030327083124.GN1350@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030327070301.GA3953@BL4ST>
-X-Editor: GNU Emacs 21.1
-X-Operating-System: Debian GNU/Linux 2.5.66-mm1 i686
-X-Processor: Athlon XP 2000+
-X-Uptime: 03:15:57  up  1:26,  3 users,  load average: 0.33, 0.09, 0.03
-User-Agent: Mutt/1.5.4i
-From: Josh McKinney <forming@charter.net>
+User-Agent: Mutt/1.3.28i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On approximately Wed, Mar 26, 2003 at 11:03:01PM -0800, Eric Wong wrote:
-> Brad Hards <bhards@bigpond.net.au> wrote:
-> > > Doing it in kernel space with module options is gross. This is clearly a
-> > > case for userspace.
-> > >
-> > > See:
-> > > http://www.linmagau.org/modules.php?name=Sections&op=viewarticle&artid=40
-> > 
-> > And for those who actually want the code:
-> > http://www.frogmouth.net/logitech-applet-0.2.tar.gz
-> 
-> Cool, works great!
-> 
+Tidy up sched.h a bit.
 
-Ok, the file is there now.  Thanks.  One question though, is this expected
-behavior from the MX700?
+(1) ->personality has a "???" comment sitting above it. Comment it.
+(2) a comment referring to the nonexistent field ->father from before
+	the pidhash merge persists. Remove the comment. The replacements
+	are all already commented.
+(3) ->did_exec, ->leader, ->used_math, and ->keep_capabilities are all
+	boolean, and may fit into the same word. Also comment them.
 
- $ ./logitech_applet 
-001/002     046D/C506   C-BF16-MSE      MX700 Optical Mouse
-Error getting cruise control setting from device : error sending control
-message: Broken pipe   Cruise Control / Smart Scroll: 8 (Unexpected result)
-Unexpected cruise value : 8
-   Result: 8
-   P6  = 20
-   P0  = 3d
-   P4  = 8b
-   P5  = 4d Channel 2    Battery: 5
-   P8  = d7
-   P9  = f
-   PB0 = 1
-   PB1 = ee Two channel   800cpi support   No Horizontal Roller   Vertical
-   Roller   8 buttons 
+ sched.h |   17 +++++------------
+ 1 files changed, 5 insertions(+), 12 deletions(-)
 
-I assume this is because of the MX700 firmware bugs.  Other than that it does
-what it is supposed to.
 
-Josh
+diff -urpN merge-2.5.66-9/include/linux/sched.h merge-2.5.66-10/include/linux/sched.h
+--- merge-2.5.66-9/include/linux/sched.h	2003-03-24 14:00:00.000000000 -0800
++++ merge-2.5.66-10/include/linux/sched.h	2003-03-26 23:52:38.000000000 -0800
+@@ -344,21 +344,16 @@ struct task_struct {
+ 	struct linux_binfmt *binfmt;
+ 	int exit_code, exit_signal;
+ 	int pdeath_signal;  /*  The signal sent when the parent dies  */
+-	/* ??? */
+-	unsigned long personality;
+-	int did_exec:1;
++	unsigned long personality; /* personality, which ABI to emulate */
+ 	pid_t pid;
+ 	pid_t pgrp;
+ 	pid_t tty_old_pgrp;
+ 	pid_t session;
+ 	pid_t tgid;
+-	/* boolean value for session group leader */
+-	int leader;
+-	/* 
+-	 * pointers to (original) parent process, youngest child, younger sibling,
+-	 * older sibling, respectively.  (p->father can be replaced with 
+-	 * p->parent->pid)
+-	 */
++	unsigned int leader:1,		/* the task is a session leader */
++		keep_capabilities:1,	/* keep caps after dropping uid 0 */
++		used_math:1,		/* whether the FPU was used */
++		did_exec:1;		/* has the process exec()'d */
+ 	struct task_struct *real_parent; /* real parent process (when being debugged) */
+ 	struct task_struct *parent;	/* parent process */
+ 	struct list_head children;	/* list of my children */
+@@ -388,11 +383,9 @@ struct task_struct {
+ 	int ngroups;
+ 	gid_t	groups[NGROUPS];
+ 	kernel_cap_t   cap_effective, cap_inheritable, cap_permitted;
+-	int keep_capabilities:1;
+ 	struct user_struct *user;
+ /* limits */
+ 	struct rlimit rlim[RLIM_NLIMITS];
+-	unsigned short used_math;
+ 	char comm[16];
+ /* file system info */
+ 	int link_count, total_link_count;

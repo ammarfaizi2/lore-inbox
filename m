@@ -1,60 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261180AbTHOKWB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 06:22:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275892AbTHOKWB
+	id S275901AbTHOK2w (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 06:28:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275902AbTHOK2w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 06:22:01 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:30472
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S261180AbTHOKV7 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 06:21:59 -0400
-Date: Fri, 15 Aug 2003 03:09:56 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <0@pervalidus.tk>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: How do IDE chipset drivers work as modules ?
-In-Reply-To: <Pine.WNT.4.56.0308142338470.3912@pervalidus>
-Message-ID: <Pine.LNX.4.10.10308150309350.9444-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Fri, 15 Aug 2003 06:28:52 -0400
+Received: from mail3.ithnet.com ([217.64.64.7]:18406 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S275901AbTHOK2a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 06:28:30 -0400
+X-Sender-Authentication: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
+Date: Fri, 15 Aug 2003 12:28:27 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Chris Mason <mason@suse.com>
+Cc: marcelo@conectiva.com.br, green@namesys.com, akpm@osdl.org, andrea@suse.de,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.22-pre lockups (now decoded oops for pre10)
+Message-Id: <20030815122827.067bd429.skraw@ithnet.com>
+In-Reply-To: <1060913337.1493.29.camel@tiny.suse.com>
+References: <20030814084518.GA5454@namesys.com>
+	<Pine.LNX.4.44.0308141425460.3360-100000@localhost.localdomain>
+	<20030814194226.2346dc14.skraw@ithnet.com>
+	<1060913337.1493.29.camel@tiny.suse.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 14 Aug 2003 22:08:58 -0400
+Chris Mason <mason@suse.com> wrote:
 
-When you find out lemme know too.
+> Run 4 or so fsx-linux programs (each to its own file) and use usemem to
+> put your box into swap.  That should hit it pretty quickly, and any
+> errors from fsx indicate problems.
 
-Andre Hedrick
-LAD Storage Consulting Group
+Question: how do I make fsx-linux use big filesizes (GB range) ?
 
-On Thu, 14 Aug 2003, Frédéric L. W. Meunier wrote:
-
-> With 2.6.0-test3. First time I try this. Does initrd make it
-> work ?
-> 
-> I thought modprobe via82cxxx, but:
-> 
-> Aug 14 17:00:36 pervalidus kernel: VP_IDE: IDE controller at PCI slot 0000:00:11.1
-> Aug 14 17:00:36 pervalidus kernel: VP_IDE: chipset revision 6
-> Aug 14 17:00:36 pervalidus kernel: VP_IDE: not 100%% native mode: will probe irqs later
-> Aug 14 17:00:36 pervalidus kernel: ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-> Aug 14 17:00:36 pervalidus kernel: VP_IDE: VIA vt8235 (rev 00) IDE UDMA133 controller on pci0000:00:11.1
-> Aug 14 17:00:36 pervalidus kernel:     ide0: BM-DMA at 0xe800-0xe807, BIOS settings: hda:DMA, hdb:pio
-> Aug 14 17:00:36 pervalidus kernel:     ide1: BM-DMA at 0xe808-0xe80f, BIOS settings: hdc:DMA, hdd:DMA
-> Aug 14 17:00:36 pervalidus kernel: ide0: I/O resource 0x3F6-0x3F6 not free.
-> Aug 14 17:00:36 pervalidus kernel: hda: ERROR, PORTS ALREADY IN USE
-> Aug 14 17:00:36 pervalidus kernel: register_blkdev: cannot get major 3 for ide0
-> Aug 14 17:00:36 pervalidus kernel: ide1: I/O resource 0x376-0x376 not free.
-> Aug 14 17:00:36 pervalidus kernel: hdc: ERROR, PORTS ALREADY IN USE
-> Aug 14 17:00:36 pervalidus kernel: hdd: ERROR, PORTS ALREADY IN USE
-> Aug 14 17:00:36 pervalidus kernel: register_blkdev: cannot get major 22 for ide 1
-> Aug 14 17:00:36 pervalidus kernel: Module via82cxxx cannot be unloaded due to unsafe usage in include/linux/module.h:483
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+Regards,
+Stephan

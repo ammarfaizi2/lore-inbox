@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286246AbRLTNgy>; Thu, 20 Dec 2001 08:36:54 -0500
+	id <S286256AbRLTNjO>; Thu, 20 Dec 2001 08:39:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286252AbRLTNgp>; Thu, 20 Dec 2001 08:36:45 -0500
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:60682 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S286246AbRLTNgf>; Thu, 20 Dec 2001 08:36:35 -0500
-Date: Thu, 20 Dec 2001 13:36:19 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PCI updates - prefetchable memory regions
-Message-ID: <20011220133618.A30517@flint.arm.linux.org.uk>
-In-Reply-To: <20011218235035.P13126@flint.arm.linux.org.uk> <20011220161331.A5330@jurassic.park.msu.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011220161331.A5330@jurassic.park.msu.ru>; from ink@jurassic.park.msu.ru on Thu, Dec 20, 2001 at 04:13:31PM +0300
+	id <S286255AbRLTNjG>; Thu, 20 Dec 2001 08:39:06 -0500
+Received: from mail48-s.fg.online.no ([148.122.161.48]:40617 "EHLO
+	mail48.fg.online.no") by vger.kernel.org with ESMTP
+	id <S286251AbRLTNi6>; Thu, 20 Dec 2001 08:38:58 -0500
+Message-Id: <200112201338.OAA23947@mail48.fg.online.no>
+Content-Type: text/plain; charset=US-ASCII
+From: Svein Ove Aas <svein@crfh.dyndns.org>
+Reply-To: svein.ove@aas.no
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: File copy system call proposal
+Date: Thu, 20 Dec 2001 14:38:50 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <200112100544.fBA5isV223458@saturn.cs.uml.edu> <E16GnIg-0000V5-00@starship.berlin> <20011220110936.A18142@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20011220110936.A18142@atrey.karlin.mff.cuni.cz>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 20, 2001 at 04:13:31PM +0300, Ivan Kokshaysky wrote:
-> This looks fine, but I don't like the idea of artificial splitting
-> the PCI memory region if we want prefetch support.
+On Thursday 20. December 2001 11:09, Pavel Machek wrote:
+>
+> They need to get a clue. No need to work around their bugs in kernel.
+>
+> Anyway copyfile syscall would be nice for other reasons. (cp -a kernel
+> tree then apply patch without waiting for physical copy to be done
+> would be handy).
+> 								Pavel
 
-Could you explain this a bit better.  The reason we need to split the
-prefetchable regions from the non-prefetchable regions is that most
-bridges can only cope with one region which is prefetchable.
+Never mind that it might save a great deal of space...
+I often operate with three/more different kernel trees, but the differences 
+are often trivial.
+If the VFS created a COW node when I use cp -a I would, obviously, save a 
+great deal of space; this goes for numerous other source trees too.
 
-Also, some machines have a limited (sometimes fixed address and size)
-region that can only be used for prefetchable memory.  How do you cater
-for this?
+Now there's a real world example for you.
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+- Svein Ove Aas

@@ -1,65 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288280AbSACSgk>; Thu, 3 Jan 2002 13:36:40 -0500
+	id <S287355AbSACSlv>; Thu, 3 Jan 2002 13:41:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287355AbSACSgb>; Thu, 3 Jan 2002 13:36:31 -0500
-Received: from ns.caldera.de ([212.34.180.1]:59355 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S288277AbSACSgT>;
-	Thu, 3 Jan 2002 13:36:19 -0500
-Date: Thu, 3 Jan 2002 19:35:38 +0100
-From: Christoph Hellwig <hch@caldera.de>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: acme@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: [CFT] [JANITORIAL] Unbork fs.h
-Message-ID: <20020103193537.A13386@caldera.de>
-Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
-	Daniel Phillips <phillips@bonn-fries.net>, acme@conectiva.com.br,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200201031545.g03Fjtj11546@ns.caldera.de> <E16MAbL-00018W-00@starship.berlin>
+	id <S288273AbSACSll>; Thu, 3 Jan 2002 13:41:41 -0500
+Received: from vega.digitel2002.hu ([213.163.0.181]:10951 "EHLO
+	vega.digitel2002.hu") by vger.kernel.org with ESMTP
+	id <S287355AbSACSlY>; Thu, 3 Jan 2002 13:41:24 -0500
+Date: Thu, 3 Jan 2002 19:41:12 +0100
+From: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
+To: Alex <mail_ker@xarch.tu-graz.ac.at>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ISA slot detection on PCI systems?
+Message-ID: <20020103184112.GA30804@vega.digitel2002.hu>
+Reply-To: lgb@lgb.hu
+In-Reply-To: <200201031642.g03GggS2022639@pincoya.inf.utfsm.cl> <Pine.LNX.4.10.10201031901320.31717-100000@xarch.tu-graz.ac.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E16MAbL-00018W-00@starship.berlin>; from phillips@bonn-fries.net on Thu, Jan 03, 2002 at 05:20:12PM +0100
+In-Reply-To: <Pine.LNX.4.10.10201031901320.31717-100000@xarch.tu-graz.ac.at>
+User-Agent: Mutt/1.3.25i
+X-Operating-System: vega Linux 2.4.17 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 03, 2002 at 05:20:12PM +0100, Daniel Phillips wrote:
-> On January 3, 2002 04:45 pm, Christoph Hellwig wrote:
-> > In article <E16M7Gz-00015E-00@starship.berlin> you wrote:
-> > > -	inode = get_empty_inode();
-> > > +	inode = get_empty_inode(sb);
-> > 
-> > How about killing get_empty_inode completly and using new_inode() instead?
-> > There should be no regularly allocated inode without a superblock.
+On Thu, Jan 03, 2002 at 07:06:38PM +0100, Alex wrote:
+> Okay then lemme try to give you a reallife case... I *can* compile the
+> kernel perfectly alright, but let's face it, it can easily end up as a
+> medieval pain in the ***. The 2.2.20+reiserfs patch that I managed to
+> compile didnt swallow the reiserfs that my Suse7.3 linux actually
+> installed already. Well that's beyond ISA in this case but then here we
+> have a lot of old ISA-ethernetcards, for example, that I'd just simply
+> like to work properly....  
 > 
-> There are: sock_alloc rd_load_image.  However that's a nit because the new, 
-> improved get_empty_inode understands the concept of null sb.
+> Let's face the bare fact : Linux life could be *way* more comfortable...
+> This stupid Win2k or even *brrr* XP ^H^H^H detects all the hardware
+> fine when installing. Even ISA. So should Linux. 
 
-get_empty_inode is hopefully going to die in the current, non-static version.
+A big no-no, IMHO. Linux is a UNIX like system. I like Linux, I like UNIX.
+And I want my UNIX to ONLY do what I would like. If I say that there's
+an SB Live, and compile&install ALSA/OSS/whatever for sound card, it's right.
+If my OS want to do it without any request by me it's wrong! Hey this is
+not a child-toy, it's Linux. IMHO.
 
-> (Another thing 
-> we could do is require every inode to have a superblock - that's probably 
-> where it will go in time.)
-
-Any inode that gets into the icache already has and superblock.
-If any other are left they really should use a different allocator.
-
-> We put this inside get_empty_inode:
-> 
-> 	if (inode) {
-> 		inode->i_dev = sb->s_dev;
-> 		inode->i_blkbits = sb->s_blocksize_bits;
-> 	}
-> 
-> then rename it new_inode.  But this is outside of the scope of the fs.h work 
-> I'm doing, don't you think?
-
-Rename your current get_empty_inode to __get_empty_inode and mark it
-static.  Add a new get_empty_inode that calls __get_empty_inode(NULL) or
-better let it die.
-
-	Christoph
-
--- 
-Of course it doesn't work. We've performed a software upgrade.
+- Gabor

@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262632AbUDDTPX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Apr 2004 15:15:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262635AbUDDTPX
+	id S262648AbUDDTk7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Apr 2004 15:40:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262651AbUDDTk7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Apr 2004 15:15:23 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:12463
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262632AbUDDTPS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Apr 2004 15:15:18 -0400
-Date: Sun, 4 Apr 2004 21:15:20 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Marcello Barnaba <l.barnaba@openssl.it>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-aa1: Badness in __remove_from_page_cache at mm/filemap.c:104 && page_remove_rmap at mm/objrmap.c:379
-Message-ID: <20040404191520.GA482@dualathlon.random>
-References: <1081103153.13362.21.camel@nowhere.openssl.softmedia.lan>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1081103153.13362.21.camel@nowhere.openssl.softmedia.lan>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Sun, 4 Apr 2004 15:40:59 -0400
+Received: from x35.xmailserver.org ([69.30.125.51]:5781 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S262648AbUDDTk6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Apr 2004 15:40:58 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Sun, 4 Apr 2004 12:41:06 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Ben Mansell <ben@zeus.com>
+cc: Jamie Lokier <jamie@shareable.org>, Steven Dake <sdake@mvista.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Is POLLHUP an input-only or bidirectional condition? (was: epoll
+ reporting events when it hasn't been asked to)
+In-Reply-To: <Pine.LNX.4.58.0404041912460.5216@stones.cam.zeus.com>
+Message-ID: <Pine.LNX.4.44.0404041236460.14764-100000@bigblue.dev.mdolabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 04, 2004 at 08:25:53PM +0200, Marcello Barnaba wrote:
-> Hi Andrea,
-> 
-> I've just installed 2.6.5-aa1, and after some hours of uptime and
-> testing, with everything working properly, I experienced some WARN_ON()
-> triggered (my syslog became quite big :).
-> 
-> I've got both the nvidia and vmware modules installed.
-> 
-> The bug is fully reproducible, you just have to suspend a virtual
-> machine from the vmware GUI, vmware-vmx starts using 100%CPU (just one
-> in my 2-way SMP system), and the syslog is completely _filled_ with call
-> traces:
-> 
-> vjt@nowhere:~$ grep Badness.in.page.remove.rmap /var/log/syslog | wc -l
-> 8859
-> vjt@nowhere:~$ grep Badness.in.__remove_from_pa /var/log/syslog | wc -l
-> 8767
-> 
-> And here there are two of them (they are all identical).
-> First occur the 8700 __remove_from_page_cache() warnings, and then the
-> page_remove_rmap() ones.
+On Sun, 4 Apr 2004, Ben Mansell wrote:
 
-that's an xfs bug found by Andrew, it started to be visible in -aa
-because of the objrmap hardness checks from Dave. You can safely ignore
-it, the xfs folks are already testing a fix. I didn't delete the WARN_ON
-because it's a race condition we want to trap, but you can go ahead and
-delete by hand mm/filemap.c:104 and mm/objrmap.c:379 if you're annoyed
-by these warning messages. Kernel will work as stable as mainline
-despite of the warnings.
+> With epoll, adding a fd into the epoll set is a separate operation from
+> the epoll_wait(), so if you really don't want to listen for any events
+> on one FD, you'll have to do a EPOLL_DEL, and then later on do a
+> EPOLL_ADD again if you want to bring it back in. Which is a bit nasty
+> and inefficient.
+
+I really fail to see how handling POLLHUP and POLLERR would be a problem, 
+even for fds where you specified a 0 event mask. If you receive them, you 
+remove the fd from the set, and you flag the associated data structure for 
+a lazy removal at the end of the current event loop. Where is the problem 
+here?
+
+
+
+- Davide
+
+

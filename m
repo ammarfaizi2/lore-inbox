@@ -1,46 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262279AbVAUG06@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262280AbVAUG2t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262279AbVAUG06 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 01:26:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262280AbVAUG06
+	id S262280AbVAUG2t (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 01:28:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262281AbVAUG2s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 01:26:58 -0500
-Received: from fw.osdl.org ([65.172.181.6]:13993 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262279AbVAUG05 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 01:26:57 -0500
-Date: Thu, 20 Jan 2005 22:26:30 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org, npiggin@novell.com,
-       Rik van Riel <riel@redhat.com>
-Subject: Re: writeback-highmem
-Message-Id: <20050120222630.6168a4cb.akpm@osdl.org>
-In-Reply-To: <20050121060135.GF12647@dualathlon.random>
-References: <20050121054840.GA12647@dualathlon.random>
-	<20050121054916.GB12647@dualathlon.random>
-	<20050121054945.GC12647@dualathlon.random>
-	<20050121055004.GD12647@dualathlon.random>
-	<20050121055043.GE12647@dualathlon.random>
-	<20050121060135.GF12647@dualathlon.random>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 21 Jan 2005 01:28:48 -0500
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:17848 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S262280AbVAUG2h
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 01:28:37 -0500
+From: David Brownell <david-b@pacbell.net>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Subject: Re: usbmon, usb core, ARM
+Date: Thu, 20 Jan 2005 22:28:31 -0800
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com,
+       linux-usb-devel@lists.sourceforge.net
+References: <20050118212033.26e1b6f0@localhost.localdomain> <200501190908.35210.david-b@pacbell.net> <20050120113545.58ce18a3@localhost.localdomain>
+In-Reply-To: <20050120113545.58ce18a3@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200501202228.31840.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli <andrea@suse.de> wrote:
->
-> This needed highmem fix from Rik is still missing too, so please apply
->  along the other 5 (it's orthogonal so you can apply this one in any
->  order you want).
+On Thursday 20 January 2005 11:35 am, Pete Zaitcev wrote:
+> On Wed, 19 Jan 2005 09:08:34 -0800, David Brownell <david-b@pacbell.net> wrote:
+> I do not like to refer to a dev because I do not quite understand where
+> the necessary usb_dev_get/_put are now. But if you guarantee that the
+> urb->dev is refcounted properly while urb is processed by usb_hcd_giveback_urb,
+> I do not mind an extra indirection.
+
+We have no reason to suspect bugs there; if there were any,
+lots of things would have been breaking for a long time now.
+
+
+> What would be the right test in usb_hcd_giveback_urb, then?
+> It looks to me that you want me to use this:
 > 
->  From: Rik van Riel <riel@redhat.com>
->  Subject: [PATCH][1/2] adjust dirty threshold for lowmem-only mappings
+> urb_is_for_root_hub(urb) {
 
-I've held off on this one because the recent throttling fix should have
-helped this problem.  Has anyone confirmed that this patch still actually
-fixes something?  If so, what was the scenario?
+Actually it'd be more like dev_is_root_hub(dev, bus), since
+both values are readily at hand -- you're basically just
+wanting to wrap "dev == hcd->self.root_hub" in most cases.
+Though I'm still not clear why you'd want to change that
+working code; nothing's broken now, after all.
 
-Thanks.
+
+By the way ... on the topic of usbmon rather than changing
+usbcore, is there a brief writeup of what you want this
+new version to be doing -- and how?  Like, why put the
+spy hooks in that location, rather than any of the other
+choices.  (Many of them would be less surprising to me!)
+
+- Dave
+
+
+>      return urb->dev == urb->dev->bus->hcpriv->self.root_hub;
+> }
+> 
+> This is just ... ewwwww. Can we use pipe for now or do you have
+> a better idea?
+> 
+> -- Pete
+> 

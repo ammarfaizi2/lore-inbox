@@ -1,83 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277418AbRJEPeR>; Fri, 5 Oct 2001 11:34:17 -0400
+	id <S277423AbRJEPg1>; Fri, 5 Oct 2001 11:36:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277417AbRJEPd5>; Fri, 5 Oct 2001 11:33:57 -0400
-Received: from mailrelay3.inwind.it ([212.141.54.103]:54160 "EHLO
-	mailrelay3.inwind.it") by vger.kernel.org with ESMTP
-	id <S277418AbRJEPdp>; Fri, 5 Oct 2001 11:33:45 -0400
-Message-Id: <3.0.6.32.20011005173131.01dee800@pop.tiscalinet.it>
-X-Mailer: QUALCOMM Windows Eudora Light Version 3.0.6 (32)
-Date: Fri, 05 Oct 2001 17:31:31 +0200
-To: Alexei Podtelezhnikov <apodtele@mccammon.ucsd.edu>,
-        <linux-kernel@vger.kernel.org>
-From: Lorenzo Allegrucci <lenstra@tiscalinet.it>
-Subject: Re: VM: 2.4.10 vs. 2.4.10-ac2 and qsort()
-In-Reply-To: <Pine.LNX.4.33.0110041618450.2582-100000@chemcca18.ucsd.edu
- >
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S277424AbRJEPgK>; Fri, 5 Oct 2001 11:36:10 -0400
+Received: from foobar.isg.de ([62.96.243.63]:212 "HELO mail.isg.de")
+	by vger.kernel.org with SMTP id <S277417AbRJEPf5>;
+	Fri, 5 Oct 2001 11:35:57 -0400
+Message-ID: <3BBDD37D.56D7B359@isg.de>
+Date: Fri, 05 Oct 2001 17:36:29 +0200
+From: lkv@isg.de
+Organization: Innovative Software AG
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10 i686)
+X-Accept-Language: German, de, en
+MIME-Version: 1.0
+To: "Kernel, Linux" <linux-kernel@vger.kernel.org>
+Subject: Desperately missing a working "pselect()" or similar...
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 17.03 04/10/01 -0700, Alexei Podtelezhnikov wrote:
->Hi guys,
->
->I've already expressed my concern about using srand(1) in private e-mails.
->I think it's unscientific to use one particular random sequence. Since 
->no one checked if that matters, I changed srand(1) to srand(time(NULL)) 
->and I'm posting my results. I don't do testing of Alan or Linus's kernels, 
->but use recent Red Hat kernel. I think I've shown that it does matter.
->
->Six quick consecutive runs of modified qs on a small set of 8 million 
->integers (obviously no swap activity):
->
->> time ./a.out 8000000
->0 errors.
->24.250u 0.310s 0:24.55 100.0%   0+0k 0+0io 116pf+0w
->0 errors.
->24.290u 0.260s 0:24.55 100.0%   0+0k 0+0io 116pf+0w
->0 errors.
->24.300u 0.260s 0:24.55 100.0%   0+0k 0+0io 116pf+0w
->0 errors.
->24.270u 0.300s 0:24.57 100.0%   0+0k 0+0io 116pf+0w
->0 errors.
->24.290u 0.270s 0:24.56 100.0%   0+0k 0+0io 116pf+0w
->0 errors.
->24.280u 0.280s 0:24.55 100.0%   0+0k 0+0io 116pf+0w
->
->Apparently, no significant deviations in computing times.
->
->Six runs of modified qs on a large set of 80 million integers (a lot of 
->swapping!)
->
->> time ./a.out 80000000
->0 errors.
->261.580u 4.250s 11:09.21 39.7%  0+0k 0+0io 17379pf+0w
->0 errors.
->260.460u 3.660s 9:09.72 48.0%   0+0k 0+0io 13194pf+0w
->0 errors.
->260.620u 4.510s 10:39.80 41.4%  0+0k 0+0io 16714pf+0w
->0 errors.
->261.790u 4.150s 10:09.58 43.6%  0+0k 0+0io 16331pf+0w
->0 errors.
->260.400u 4.140s 9:23.46 46.9%   0+0k 0+0io 13722pf+0w
->0 errors.
->259.980u 3.940s 9:10.22 47.9%   0+0k 0+0io 14240pf+0w
->
->mean = 9m57s; standard deviation = 50s.
->
->Apparently, the random sequence does matter (to the Rik's algorithm at 
->least since it's in RH kernel).
->
->I wonder how big the deviation is for official and AC trees.
->Now Lorenzo's results seem inconclusive.
+Hi,
 
-Yours too, as you have not compared two or more kernels yet.
-You have just proved that the random sequence does matter on that
-particular kernel.
+I'm currently looking for a decent method to wait on either
+an I/O event _or_ a signal coming from another process.
+
+Alas, it seems that the Linux kernel does not have any
+appropriate system call to support what for example "pselect()"
+tries to do: Atomically enable some signals and entering a
+select.
+
+Without a proper pselect() implementation (the one in glibc is just
+a mock-up that doesn't prevent the race condition) I'm currently
+unable to come up with a good idea on how to wait on both types
+of events.
+
+A somewhat bizarre solution would be to have the process create
+a pipe-pair, select on the reading end, and let the signal-handler
+write a byte to the pipe - but this has at least the drawback
+you always spoil one "select-cycle" for each signal you get - as
+the first return from the select() call happenes without any
+fds being flagged as readable, only when you enter select() once
+more the pipe will cause the return and tell you what happened...
 
 
+Arguments against other options I considered:
 
--- 
-Lorenzo
+- Using just signals is at least prevented by SIGIO not being
+  delivered for pipes, and I'm not eager to find out about
+  all the other problems that may arise by devices not behaving
+  as expected
+
+- Unix domain sockets would be awkward to use due to the fact
+  I'd need to come up with some "filenames" for them to bind to,
+  and both security considerations and the danger of "leaking"
+  files that remain on disk forever make me shudder...
+
+
+Any ideas?
+Anyone capable of implementing a system-call for pselect() (or ppoll) ?
+
+Regards,
+
+Lutz Vieweg
+
+--
+ Dipl. Phys. Lutz Vieweg | email: lkv@isg.de
+ Innovative Software AG  | Phone/Fax: +49-69-505030 -120/-505
+ Feuerbachstrasse 26-32  | http://www.isg.de/people/lkv/
+ 60325 Frankfurt am Main | ^^^ PGP key available here ^^^

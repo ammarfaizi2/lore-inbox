@@ -1,74 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319267AbSIKSin>; Wed, 11 Sep 2002 14:38:43 -0400
+	id <S319266AbSIKSgA>; Wed, 11 Sep 2002 14:36:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319272AbSIKSin>; Wed, 11 Sep 2002 14:38:43 -0400
-Received: from pD4B9D6F0.dip.t-dialin.net ([212.185.214.240]:46596 "EHLO
-	router.abc") by vger.kernel.org with ESMTP id <S319267AbSIKSil> convert rfc822-to-8bit;
-	Wed, 11 Sep 2002 14:38:41 -0400
-Message-ID: <3D7F8ECA.21086A5@baldauf.org>
-Date: Wed, 11 Sep 2002 20:43:22 +0200
-From: Xuan Baldauf <xuan--reiserfs@baldauf.org>
-X-Mailer: Mozilla 4.79 [en] (Win98; U)
-X-Accept-Language: de-DE,en
-MIME-Version: 1.0
-To: Oliver Neukum <oliver@neukum.name>
-CC: Rik van Riel <riel@conectiva.com.br>,
-       Xuan Baldauf <xuan--lkml@baldauf.org>, linux-kernel@vger.kernel.org,
-       Reiserfs List <reiserfs-list@namesys.com>
-Subject: Re: Heuristic readahead for filesystems
-References: <Pine.LNX.4.44L.0209111340060.1857-100000@imladris.surriel.com> <3D7F83BC.5DF306A@baldauf.org> <200209112030.27269.oliver@neukum.name>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S319268AbSIKSgA>; Wed, 11 Sep 2002 14:36:00 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:21360 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S319266AbSIKSf6>; Wed, 11 Sep 2002 14:35:58 -0400
+Date: Wed, 11 Sep 2002 20:41:11 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Austin Gonyou <austin@coremetrics.com>
+Cc: Christian Guggenberger 
+	<christian.guggenberger@physik.uni-regensburg.de>,
+       linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: 2.4.20pre5aa2
+Message-ID: <20020911184111.GY17868@dualathlon.random>
+References: <20020911201602.A13655@pc9391.uni-regensburg.de> <1031768655.24629.23.camel@UberGeek.coremetrics.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1031768655.24629.23.camel@UberGeek.coremetrics.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+was a collision between new xfs and new scheduler, you can use this fix
+in the meantime:
 
+--- 2.4.20pre5aa3/fs/xfs/pagebuf/page_buf.c.~1~	Wed Sep 11 05:17:46 2002
++++ 2.4.20pre5aa3/fs/xfs/pagebuf/page_buf.c	Wed Sep 11 06:00:35 2002
+@@ -2055,9 +2055,9 @@ pagebuf_iodone_daemon(
+ 	spin_unlock_irq(&current->sigmask_lock);
+ 
+ 	/* Migrate to the right CPU */
+-	current->cpus_allowed = 1UL << cpu;
+-	while (smp_processor_id() != cpu)
+-		schedule();
++	set_cpus_allowed(current, 1UL << cpu);
++	if (cpu() != cpu)
++		BUG();
+ 
+ 	sprintf(current->comm, "pagebuf_io_CPU%d", bind_cpu);
+ 	INIT_LIST_HEAD(&pagebuf_iodone_tq[cpu]);
 
-Oliver Neukum wrote:
+also remeber to apply the O_DIRECT fixes for reiserfs and ext3 (that
+were left over after merging the new nfs stuff). all will be fixed in
+next -aa of course.
 
-> > In theory, this also could be implemented explicitly if the application
-> > could tell the kernel "I'm going to read these 100 files in the very
-> > near future, please make them ready for me". But wait, maybe the
-> > application can do this (for regular files, not for directory entries
-> > and stat() data): Could it be efficient if the application used
-> > open(file,O_NONBLOCK) for the next 100 files and subsequent read()s on
-> > each of the returned filedescriptors?
->
-> What do you want to trigger the reading ahead, open() or read() ?
+--- 2.4.19pre3aa1/fs/reiserfs/inode.c.~1~	Tue Mar 12 00:07:18 2002
++++ 2.4.19pre3aa1/fs/reiserfs/inode.c	Tue Mar 12 01:24:21 2002
+@@ -2161,10 +2161,11 @@
+ 	}
+ }
+ 
+-static int reiserfs_direct_io(int rw, struct inode *inode, 
++static int reiserfs_direct_io(int rw, struct file * filp,
+                               struct kiobuf *iobuf, unsigned long blocknr,
+ 			      int blocksize) 
+ {
++    struct inode * inode = filp->f_dentry->d_inode->i_mapping->host;
+     return generic_direct_IO(rw, inode, iobuf, blocknr, blocksize,
+                              reiserfs_get_block_direct_io) ;
+ }
+--- 2.4.20pre5aa2/fs/ext3/inode.c.~1~	Mon Sep  9 02:38:08 2002
++++ 2.4.20pre5aa2/fs/ext3/inode.c	Tue Sep 10 05:22:18 2002
+@@ -1385,9 +1385,10 @@ static int ext3_releasepage(struct page 
+ }
+ 
+ static int
+-ext3_direct_IO(int rw, struct inode *inode, struct kiobuf *iobuf,
++ext3_direct_IO(int rw, struct file * filp, struct kiobuf *iobuf,
+ 		unsigned long blocknr, int blocksize)
+ {
++	struct inode * inode = filp->f_dentry->d_inode->i_mapping->host;
+ 	struct ext3_inode_info *ei = EXT3_I(inode);
+ 	handle_t *handle = NULL;
+ 	int ret;
 
-As open() immediately returns, it does not matter by which call the readahead is
-triggered. But I'm unsure about wether it is triggered at all for the amount of
-data the read() requested.
-
->
-> Please correct me, if I am wrong, but wouldn't read() block ?
-
-AFAIK, "man open" tells
-
-[...]
-      int open(const char *pathname, int flags);
-[...]
-       O_NONBLOCK or O_NDELAY
-               The file is opened in non-blocking mode. Neither the open nor any
-__subsequent__ operations  on  the  file  descriptor
-               which is returned will cause the calling process to wait.
-[...]
-
-So read won't block if the file has been opened with O_NONBLOCK.
-
-
->
->
-> Aio should be able to do it. But even that want help you with the stat data.
-
-Aio would help me announcing stat() usage for the future?
-
->
->
->         Regards
->                 Oliver
-
-Xuân.
-
-
+Andrea

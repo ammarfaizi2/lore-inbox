@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264336AbTFKKhG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 06:37:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264340AbTFKKhG
+	id S264340AbTFKKtU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 06:49:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264344AbTFKKtU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 06:37:06 -0400
-Received: from magic-mail.adaptec.com ([208.236.45.100]:28820 "EHLO
-	magic.adaptec.com") by vger.kernel.org with ESMTP id S264336AbTFKKhE
+	Wed, 11 Jun 2003 06:49:20 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:27147 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S264340AbTFKKtT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 06:37:04 -0400
-From: "Mathur, Shobhit" <Shobhit_mathur@adaptec.com>
-To: linux-kernel@vger.kernel.org
-Message-ID: <3EE7B34C.B803F915@adaptec.com>
-Date: Thu, 12 Jun 2003 04:25:08 +0530
-Organization: Adaptec
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
+	Wed, 11 Jun 2003 06:49:19 -0400
+Message-ID: <3EE70D9C.3050804@aitel.hist.no>
+Date: Wed, 11 Jun 2003 13:08:12 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+Organization: AITeL, HiST
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: no, en
 MIME-Version: 1.0
-Subject: Device-driver debugger on Linux ?
-X-Priority: 1 (Highest)
-Content-Type: text/plain; charset=us-ascii
+To: Andrew Morton <akpm@digeo.com>
+CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.70-mm8 - RAID1 and fb works!
+References: <20030611013325.355a6184.akpm@digeo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.70/2.5.70-mm8/
+> 
+> . lots of new fixes
+> 
+This is great, both raid-1 and framebuffer works again!
 
-I would like to know whether there exists a device-driver debugger on
-Linux like SoftIce on Windows. From the working of kgdb, I understand
-that the debugging on the Target machine can happen once the code
-reaches the gdbstub, which is well past the driver-initialisations.
+I'll test raid0 too later this evening.
 
-Can some light be shed on the possiblity of such source-level debugging
-?
+Helge Hafting
 
-- Would be glad to receive help
 
-- TIA
 
-- Shobhit Mathur

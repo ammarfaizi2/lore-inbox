@@ -1,65 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264532AbUEDRej@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264538AbUEDRyK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264532AbUEDRej (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 13:34:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264536AbUEDRej
+	id S264538AbUEDRyK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 13:54:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264543AbUEDRyK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 13:34:39 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20699 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264532AbUEDRei
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 13:34:38 -0400
-Date: Tue, 4 May 2004 14:35:29 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       ckrm-tech <ckrm-tech@lists.sourceforge.net>
-Subject: Re: [RFC] Revised CKRM release
-Message-ID: <20040504173529.GE11346@logos.cnet>
-References: <4090BBF1.6080801@watson.ibm.com>
+	Tue, 4 May 2004 13:54:10 -0400
+Received: from adsl-83-231.38-151.net24.it ([151.38.231.83]:26121 "EHLO
+	gateway.milesteg.arr") by vger.kernel.org with ESMTP
+	id S264538AbUEDRyD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 13:54:03 -0400
+Date: Tue, 4 May 2004 19:54:01 +0200
+From: Daniele Venzano <webvenza@libero.it>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: Re: [PATCH] sis900 fix (Was: [CHECKER] Resource leaks in driver shutdown functions)
+Message-ID: <20040504175401.GA21789@gateway.milesteg.arr>
+Mail-Followup-To: "Randy.Dunlap" <rddunlap@osdl.org>,
+	linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+References: <3580.171.64.70.92.1083609961.spork@webmail.coverity.com> <20040504084326.GA11133@gateway.milesteg.arr> <20040504082849.56f16613.rddunlap@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="qMm9M+Fa2AknHoGS"
 Content-Disposition: inline
-In-Reply-To: <4090BBF1.6080801@watson.ibm.com>
+In-Reply-To: <20040504082849.56f16613.rddunlap@osdl.org>
+X-Operating-System: Debian GNU/Linux on kernel Linux 2.4.25-grsec
+X-Copyright: Forwarding or publishing without permission is prohibited.
+X-Truth: La vita e' una questione di culo, o ce l'hai o te lo fanno.
+X-GPG-Fingerprint: 642A A345 1CEF B6E3 925C  23CE DAB9 8764 25B3 57ED
 User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Thu, Apr 29, 2004 at 04:25:21AM -0400, Shailabh Nagar wrote:
-> The Class-based Resource Management project is happy to release the
-> first bits of a working prototype following a major revision of its
-> interface and internal organization.
->
-> The basic concepts and motivation of CKRM remain the same as described
-> in the overview at http://ckrm.sf.net. Privileged users can define
-> classes consisting of groups of kernel objects (currently tasks and
-> sockets) and specify shares for these classes. Resource controllers,
-> which are independent of each other, can regulate and monitor the
-> resources consumed by classes e.g the CPU controller will control the
-> CPU time received by a class etc. Optional classification engines,
-> implemented as kernel modules, can assist in the automatic
-> classification of the kernel objects (tasks/sockets currently) into
-> classes.
+--qMm9M+Fa2AknHoGS
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Cool!
-
-> New in this release are the following:
+On Tue, May 04, 2004 at 08:28:49AM -0700, Randy.Dunlap wrote:
+> On Tue, 4 May 2004 10:43:26 +0200 Daniele Venzano wrote:
 > 
-> rbce.ckrm-E12:
+> | Thank you for the spotting, the sis900 dirver was really missing a call
+> | to netif_device_detach in sis900_suspend.
+> | 
+> | Attached is a trivial patch that fixes the issue.
 > 
-> Two classification engines (CE) to assist in automatic classification
-> of tasks and sockets. The first one, rbce, implements a rule-based
-> classification engine which is generic enough for most users. The
-> second, called crbce, is a variant of rbce which additionally provides
-> information on significant kernel events (where a task/socket could
-> get reclassified) to userspace as well as reports per-process wait
-> times for cpu, memory, io etc. Such information can be used by user
-> level tools to reclassify tasks to new classes, change class shares
-> etc.
+> Just how trivial is the patch?
+A one liner, against 2.6.5.
 
-It sounds to me the classification engine can be moved to userspace? 
+> -ENOATTACHMENT
+Sorry, now is attached and is available at this url:
+http://teg.homeunix.org/kernel_patches.html
 
-Such "classification" sounds a better suited to be done there.
+The patch is tested, compiles and run. Could not test that very code
+path because of other unrelated errors during suspend, that I was having
+before this change.
+But it's really a bug, there is a call to netif_device_attach inside
+sis900_resume, but there is no corresponding netif_device_detach in
+sis900_suspend.
 
-Note: I haven't read the code yet.
+Hope this clarifies.
+
+-- 
+-----------------------------
+Daniele Venzano
+Web: http://teg.homeunix.org
+
+
+--qMm9M+Fa2AknHoGS
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="sis900-detach.diff"
+
+--- linux-2.6.5/drivers/net/sis900.c	2004-04-05 17:33:30.000000000 +0200
++++ linux-2.6.5-exp/drivers/net/sis900.c	2004-05-04 10:15:06.000000000 +0200
+@@ -2195,6 +2195,7 @@
+ 		return 0;
+ 
+ 	netif_stop_queue(net_dev);
++	netif_device_detach(net_dev);
+ 
+ 	/* Stop the chip's Tx and Rx Status Machine */
+ 	outl(RxDIS | TxDIS | inl(ioaddr + cr), ioaddr + cr);
+
+--qMm9M+Fa2AknHoGS--

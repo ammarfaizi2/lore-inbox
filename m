@@ -1,75 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262499AbUKQTFq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262452AbUKQSFH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262499AbUKQTFq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 14:05:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262438AbUKQTDi
+	id S262452AbUKQSFH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 13:05:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262408AbUKQQkd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 14:03:38 -0500
-Received: from rproxy.gmail.com ([64.233.170.204]:10822 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262460AbUKQTCL (ORCPT
+	Wed, 17 Nov 2004 11:40:33 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:22179 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S262409AbUKQQkG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 14:02:11 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=OLgQ4wlksQQMTiiZLUkgTDc0NsymydY7LtgunKJlkHL0LUzUIKl57uyERQkMA4LlpBQaBZ86SA8xA4SskHZQaPDsnZ86rf6j9AnveP9qsDhrxftdxo123zr7CNZoZrArJL5in0GvT6F66SeumWvYO9q7WebLWKpW4FYNM5qDtVU=
-Message-ID: <d120d500041117110140db624e@mail.gmail.com>
-Date: Wed, 17 Nov 2004 14:01:54 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Greg KH <greg@kroah.com>
-Subject: Re: [RFC] [PATCH] driver core: allow userspace to unbind drivers from devices.
-Cc: ambx1@neo.rr.com, linux-kernel@vger.kernel.org, Tejun Heo <tj@home-tj.org>,
-       Patrick Mochel <mochel@digitalimplant.org>
-In-Reply-To: <20041117175359.GD28285@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20041109223729.GB7416@kroah.com>
-	 <20041116061315.GG29574@neo.rr.com> <20041116201726.GA11069@kroah.com>
-	 <200411170207.14745.dtor_core@ameritech.net>
-	 <20041117175359.GD28285@kroah.com>
+	Wed, 17 Nov 2004 11:40:06 -0500
+Date: Wed, 17 Nov 2004 17:39:59 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: "Steffen A. Mork" <linux-dev@morknet.de>
+cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: dss1_divert ISDN module compile fix for kernel 2.6.8.1
+In-Reply-To: <419B662D.5020904@morknet.de>
+Message-ID: <Pine.LNX.4.53.0411171725120.25776@yvahk01.tjqt.qr>
+References: <419B662D.5020904@morknet.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Nov 2004 09:53:59 -0800, Greg KH <greg@kroah.com> wrote:
-> On Wed, Nov 17, 2004 at 02:07:14AM -0500, Dmitry Torokhov wrote:
-> > On Tuesday 16 November 2004 03:17 pm, Greg KH wrote:
-> > > > 2.) I don't like having an "unbind" file.
-> > >
-> > > Why?
-> >
-> > I do not like interfaces accepting and encouraging writing garbage data. What
-> > value sould be written into "unbind"? Yes, any junk.
-> 
-> Ok, we restrict it to working only if you write a "1" into it.  That was
-> an easy fix :)
-> 
-> > > So, when a device is not bound to a driver, there will be no symlink, or
-> > > a "unbind" file, only a "bind" file. ?Really there is only 1 "control"
-> > > type file present at any single point in time.
-> >
-> > Does that imply that I can not rebind device while it is bound to a driver?
-> 
-> Yes.  You must unbind it first.
-> 
-> > ("bind" would be missing it seems). And what about all other flavors of that
-> > operation - rescan, reconnect? Do we want to have separate attributes for
-> > them as well?
-> 
-> rescan is a bus specific thing, not a driver or device thing.
+>when I switched my installation from kernel 2.4 to 2.6 I
+>recognized that the ISDN module dss1_divert was marked
+>incompilable (config option CONFIG_CLEAN_COMPILE must
+>be turned off). The compile problem was the obsolete using
+>of kernel 2.4 critical sections. I replaced the cli() stuff
+>with spinlocks as explained in the Documentation/spinlocks.txt
+>file. After that the module compiles and runs as expected.
 
-Yes, it is - at least when I am talking about rescan I mean that I want to
-scan a bus for a specific driver for the particular device. I do not want any
-other device to be affected and therefore it is a device thing.
+I had a similar issue, but for me, it only returned a warning rather than a
+compile error.
 
-> reconnect would be the same as "unbind" + "bind" and you can do that
-> with the scheme I posted.
 
-No quite - the point of reconnect is to be able to re-intialize the hardware
-while keeping everything else intact - if I do unbind and then bind on my
-touchpad while GPM and X are running it will jump from /dev/input/event0
-to /dev/input/event4 and I will effectively lose it.
+I posted something similar earlier:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=109937866706186&w=2 and
+http://marc.theaimsgroup.com/?l=linux-kernel&m=109943458323994&w=2 plus
+the latest message I wrote a few secs ago to this list.
 
+
+
+Jan Engelhardt
 -- 
-Dmitry
+Gesellschaft für Wissenschaftliche Datenverarbeitung
+Am Fassberg, 37077 Göttingen, www.gwdg.de

@@ -1,118 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293074AbSCMLLg>; Wed, 13 Mar 2002 06:11:36 -0500
+	id <S292981AbSCMLSa>; Wed, 13 Mar 2002 06:18:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292996AbSCMLLR>; Wed, 13 Mar 2002 06:11:17 -0500
-Received: from atchoum.office.be.wanadoo.com ([195.74.207.5]:4369 "HELO
-	Atchoum.lan.wanadoo.be") by vger.kernel.org with SMTP
-	id <S292992AbSCMLLJ> convert rfc822-to-8bit; Wed, 13 Mar 2002 06:11:09 -0500
-content-class: urn:content-classes:message
+	id <S292996AbSCMLST>; Wed, 13 Mar 2002 06:18:19 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:44046 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S292981AbSCMLSJ>;
+	Wed, 13 Mar 2002 06:18:09 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: John Covici <covici@ccs.covici.com>
+Date: Wed, 13 Mar 2002 12:15:16 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: [OOPS] In 2.4.17 __free_pages_ok
-X-MIMEOLE: Produced By Microsoft Exchange V6.0.5762.3
-Date: Wed, 13 Mar 2002 12:11:12 +0100
-Message-ID: <92D340F1F4235A4EBC8A872482AE5372DC08C1@exchange.lan.wanadoo.be>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [OOPS] In 2.4.17 __free_pages_ok
-Thread-Index: AcHKf6C1ctFDtAZ/T02AQnDcXiO1PQAAASaw
-From: =?iso-8859-1?Q?Fran=E7ois_Baligant_=28Wanadoo=29?= 
-	<francois.baligant@be.wanadoo.com>
-To: <linux-kernel@vger.kernel.org>
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: vmware and 2.5 kernels ?
+CC: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.50
+Message-ID: <144DEE3C7076@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 12 Mar 02 at 15:04, John Covici wrote:
 
-Hi,
+> Hi.  I am trying to get the vmware modules to compile with the 2.5
+> kernel (2.5.6-pre2). I replaced the malloc.h references with slab.h as
+> there is no longer a malloc.h, but I am still getting errors with
+> current->fd structures.
 
-This is 2.4.17-0.18 from RedHat Rawhide on a very busy UP Intel Web server.
+Get patches from usual place 
+(ftp://platan.vc.cvut.cz/pub/vmware/, update8 is currently latest). You 
+must have VMware 3.0, as I do not (and nobody else does AFAIK) support 
+VMware 2.0 on 2.5.x kernels - you need to patch VMware binary to put 
+sysinfo() call into it, instead of parsing /proc/meminfo contents, which 
+changed before 2.5.1 (yes, they did not learn from 2.3.24 /proc/meminfo 
+lesson :-( ) and I have no interest in fixing it in old version. 
+VMware 3.1 will work on 2.5.6. I have no idea about future kernels, as 
+always...
 
-I have done quite a bit of search and found a thread about something
-that look similar here:
+If you are using VMware on oficially unsupported kernels, please
+visit nntp://news.vmware.com/vmware.for-linux.experimental, you'll find
+couple of your possible questions answered there.
 
-From: Hugh Dickins (hugh@veritas.com)
-Subject: Re: [PATCH] __free_pages_ok oops
-Newsgroups: linux.kernel
-
-Date: 2002-02-07 12:30:11 PST
-http://groups.google.com/groups?q=g:thl114668156d&hl=en&newwindow=1&selm=Pin
-e.LNX.4.21.0202071930320.1533-100000%40localhost.localdomain&rnum=33
-
-I checked in 2.4.18 and 2.4.19pre3, this particular patch didn't make it in.
-
-My question is:
-
-- Am I hit by the same bug ? If yes, Can I go with that particular patch ?
-
-kernel BUG at page_alloc.c:131!
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[<c012f92a>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010282
-eax: 00000020   ebx: c152fcf8   ecx: 00000001   edx: 00002183
-esi: 00000000   edi: c1000030   ebp: 00000000   esp: c7f8fde8
-ds: 0018   es: 0018   ss: 0018
-Process httpd (pid: 22189, stackpage=c7f8f000)
-Stack: c02987bb 00000083 c11545c0 c11545f8 c1038030 c02c3408 c1528d30
-c013445d
-       d6149890 00100000 c9f4d4f4 0000f000 17b5f005 c0122e8f c152fcf8
-00000010
-       00000000 4022e000 d48b5400 4012e000 00000000 4022e000 d48b5400
-00000000
-Call Trace: [<c013445d>] page_remove_rmap [kernel] 0x5d
-[<c0122e8f>] do_zap_page_range [kernel] 0x18f
-[<c012feac>] __alloc_pages_limit [kernel] 0x7c
-[<c0123370>] zap_page_range [kernel] 0x50
-[<c0125a9d>] exit_mmap [kernel] 0xbd
-[<c0114796>] mmput [kernel] 0x26
-[<c01189a3>] do_exit [kernel] 0xb3
-[<c011dcb3>] collect_signal [kernel] 0x93
-[<c011dd6d>] dequeue_signal [kernel] 0x6d
-[<c0106da4>] do_signal [kernel] 0x234
-[<c0106275>] restore_sigcontext [kernel] 0x115
-[<c0106359>] sys_sigreturn [kernel] 0xb9
-[<c0106f2c>] signal_return [kernel] 0x14
-Code: 0f 0b 5f 5d 0f b6 43 25 89 f1 c6 43 24 05 89 dd 83 63 18 eb
-
->>EIP; c012f92a <__free_pages_ok+11a/310>   <=====
-Trace; c013445d <page_remove_rmap+5d/70>
-Trace; c0122e8f <do_zap_page_range+18f/250>
-Trace; c012feac <__alloc_pages_limit+7c/b0>
-Trace; c0123370 <zap_page_range+50/80>
-Trace; c0125a9d <exit_mmap+bd/130>
-Trace; c0114796 <mmput+26/50>
-Trace; c01189a3 <do_exit+b3/1f0>
-Trace; c011dcb3 <collect_signal+93/e0>
-Trace; c011dd6d <dequeue_signal+6d/b0>
-Trace; c0106da4 <do_signal+234/2a0>
-Trace; c0106275 <restore_sigcontext+115/140>
-Trace; c0106359 <sys_sigreturn+b9/f0>
-Trace; c0106f2c <signal_return+14/18>
-Code;  c012f92a <__free_pages_ok+11a/310>
-00000000 <_EIP>:
-Code;  c012f92a <__free_pages_ok+11a/310>   <=====
-   0:   0f 0b                     ud2a      <=====
-Code;  c012f92c <__free_pages_ok+11c/310>
-   2:   5f                        pop    %edi
-Code;  c012f92d <__free_pages_ok+11d/310>
-   3:   5d                        pop    %ebp
-Code;  c012f92e <__free_pages_ok+11e/310>
-   4:   0f b6 43 25               movzbl 0x25(%ebx),%eax
-Code;  c012f932 <__free_pages_ok+122/310>
-   8:   89 f1                     mov    %esi,%ecx
-Code;  c012f934 <__free_pages_ok+124/310>
-   a:   c6 43 24 05               movb   $0x5,0x24(%ebx)
-Code;  c012f938 <__free_pages_ok+128/310>
-   e:   89 dd                     mov    %ebx,%ebp
-Code;  c012f93a <__free_pages_ok+12a/310>
-  10:   83 63 18 eb               andl   $0xffffffeb,0x18(%ebx)
-
-regards,
-Francois
-
-
-
-
+And as always - there is no warranty, and I have no idea whether it is
+legal to use my patch in the U.S.
+                                            Best regards,
+                                                  Petr Vandrovec
+                                                  vandrove@vc.cvut.cz
+                                                        

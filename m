@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261643AbUJaOsR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261639AbUJaOxU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261643AbUJaOsR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 09:48:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261639AbUJaOrF
+	id S261639AbUJaOxU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 09:53:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261636AbUJaOqp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 09:47:05 -0500
-Received: from baikonur.stro.at ([213.239.196.228]:63200 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S261641AbUJaOpc
+	Sun, 31 Oct 2004 09:46:45 -0500
+Received: from baikonur.stro.at ([213.239.196.228]:43695 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S261639AbUJaOpc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 31 Oct 2004 09:45:32 -0500
-Date: Sun, 31 Oct 2004 15:45:03 +0100
+Date: Sun, 31 Oct 2004 15:44:54 +0100
 From: maximilian attems <janitor@sternwelten.at>
 To: Jeff Garzik <jgarzik@pobox.com>
 Cc: Margit Schubert-While <margitsw@t-online.de>,
@@ -17,8 +17,8 @@ Cc: Margit Schubert-While <margitsw@t-online.de>,
        mcgrof@studorgs.rutgers.edu, kernel-janitors@lists.osdl.org,
        netdev@oss.sgi.com, Domen Puncer <domen@coderock.org>,
        linux-kernel@vger.kernel.org
-Subject: [patch 4/6] char/shwdt remove duplicate msecs_to_jiffies()
-Message-ID: <20041031144503.GE28667@stro.at>
+Subject: [patch 3/6] sx8 remove duplicate definition msleep(), msecs_to_jiffies()
+Message-ID: <20041031144454.GD28667@stro.at>
 Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
 	Margit Schubert-While <margitsw@t-online.de>,
 	Nishanth Aravamudan <nacc@us.ibm.com>, hvr@gnu.org,
@@ -36,34 +36,38 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-remove duplicate msecs_to_jiffies() definition.
-add include <delay.h>.
+
+remove duplicate definition msleep(), msecs_to_jiffies().
+delay.h already included.
 
 Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
 
 
 ---
 
- linux-2.4.28-rc1-max/drivers/char/shwdt.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+ linux-2.4.28-rc1-max/drivers/block/sx8.c |   11 -----------
+ 1 files changed, 11 deletions(-)
 
-diff -puN drivers/char/shwdt.c~remove-msecs_to_jiffies-drivers_char_shwdt drivers/char/shwdt.c
---- linux-2.4.28-rc1/drivers/char/shwdt.c~remove-msecs_to_jiffies-drivers_char_shwdt	2004-10-31 13:40:49.000000000 +0100
-+++ linux-2.4.28-rc1-max/drivers/char/shwdt.c	2004-10-31 13:42:05.000000000 +0100
-@@ -27,6 +27,7 @@
- #include <linux/reboot.h>
- #include <linux/notifier.h>
- #include <linux/ioport.h>
-+#include <linux/delay.h>
+diff -puN drivers/block/sx8.c~remove-msleep+msecs_to_jiffies-drivers_block_sx8 drivers/block/sx8.c
+--- linux-2.4.28-rc1/drivers/block/sx8.c~remove-msleep+msecs_to_jiffies-drivers_block_sx8	2004-10-31 13:37:56.000000000 +0100
++++ linux-2.4.28-rc1-max/drivers/block/sx8.c	2004-10-31 13:38:56.000000000 +0100
+@@ -548,17 +548,6 @@ static int carm_bdev_ioctl(struct inode 
+ 	return -EOPNOTSUPP;
+ }
  
- #include <asm/io.h>
- #include <asm/uaccess.h>
-@@ -113,7 +114,6 @@
-  */
- static int clock_division_ratio = WTCSR_CKS_4096;
+-static inline unsigned long msecs_to_jiffies(unsigned long msecs)
+-{
+-	return ((HZ * msecs + 999) / 1000);
+-}
+-
+-static void msleep(unsigned long msecs)
+-{
+-	set_current_state(TASK_UNINTERRUPTIBLE);
+-	schedule_timeout(msecs_to_jiffies(msecs) + 1);
+-}
+-
+ static const u32 msg_sizes[] = { 32, 64, 128, CARM_MSG_SIZE };
  
--#define msecs_to_jiffies(msecs)	(jiffies + (HZ * msecs + 9999) / 10000)
- #define next_ping_period(cks)	msecs_to_jiffies(cks - 4)
- 
- static unsigned long shwdt_is_open;
+ static inline int carm_lookup_bucket(u32 msg_size)
 _
+

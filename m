@@ -1,52 +1,108 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130747AbRAINJA>; Tue, 9 Jan 2001 08:09:00 -0500
+	id <S130663AbRAINLA>; Tue, 9 Jan 2001 08:11:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130748AbRAINIu>; Tue, 9 Jan 2001 08:08:50 -0500
-Received: from [62.254.209.2] ([62.254.209.2]:27643 "EHLO cam-gw.zeus.co.uk")
-	by vger.kernel.org with ESMTP id <S130747AbRAINIg>;
-	Tue, 9 Jan 2001 08:08:36 -0500
-Date: Tue, 9 Jan 2001 13:08:26 +0000 (GMT)
-From: Stephen Landamore <stephenl@zeus.com>
-To: linux-kernel@vger.kernel.org
-cc: mingo@elte.hu
-Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
-Message-ID: <Pine.LNX.4.10.10101091301170.18208-100000@phaedra.cam.zeus.com>
+	id <S130846AbRAINKu>; Tue, 9 Jan 2001 08:10:50 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:53513 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S130663AbRAINKg>;
+	Tue, 9 Jan 2001 08:10:36 -0500
+Message-ID: <3A5B0D0C.719E69F@innominate.de>
+Date: Tue, 09 Jan 2001 14:07:24 +0100
+From: Daniel Phillips <phillips@innominate.de>
+Organization: innominate
+X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.2.16 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Scanner: exiscan *14FyVt-00026y-00*WHcqF3YIl3s* http://duncanthrax.net/exiscan/
+To: "Michael D. Crawford" <crawford@goingware.com>,
+        Stephen Rothwell <sfr@linuxcare.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: FS callback routines
+In-Reply-To: <3A5A4958.CE11C79B@goingware.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> On Tue, 9 Jan 2001, Christoph Hellwig wrote:
->
->> Sure.  But sendfile is not one of the fundamental UNIX operations...
->
-> Neither were eg. kernel-based semaphores. So what? Unix wasnt
-> perfect and isnt perfect - but it was a (very) good starting
-> point. If you are arguing against the existence or importance of
-> sendfile() you should re-think, sendfile() is a unique (and
-> important) interface because it enables moving information between
-> files (streams) without involving any interim user-space memory
-> buffer. No original Unix API did this AFAIK, so we obviously had to
-> add it. It's an important Linux API category.
+"Michael D. Crawford" wrote:
+> 
+> Regarding notification when there's a change to the filesystem:
+> 
+> This is one of the most significant things about the BeOS BFS filesystem, and
+> something I'd dearly love to see Linux adopt.  It makes an app very efficient,
+> you just get notified when a directory changes and you never waste time polling.
+> 
+> I think it would require changes to the VFS layer, not just to the filesystems,
+> because this is a concept POSIX filesystems do not presently possess.
+> 
+> The other is indexed filesystem attributes, for example a file can have its
+> mimetype in the filesystem, and any application can add an attribute and have it
+> indexed.
+> 
+> There's a method to do boolean queries on indexed attributes, and you can find
+> files in an entire filesystem that match a query in a blazingly short time, much
+> faster than walking the directory tree.
+> 
+> If you want to try out the BeOS, there's a free-as-in-beer version at
+> http://free.be.com for Pentium PC's.  You can also purchase a version that comes
+> for both PC's and certain PowerPC macs.
+> 
+> There are read-only versions of this for Linux which I believe are under the
+> GPL.  The original author is here:
+> 
+> http://hp.vector.co.jp/authors/VA008030/bfs/
+> 
+> He refers you to here to get a version that works under 2.2.16:
+> 
+> http://milosch.net/beos/
+> 
+> The author's intention was to take it read-write, but it's complex because it is
+> a journaling filesystem.
+> 
+> Daniel Berlin, a BeOS developer modified the Linux BFS driver so it works with
+> 2.4.0-test1.  I don't know if it works with 2.4.0.  The web site where it used
+> to be posted isn't there anymore, and the laptop where I had it is in for
+> repair.  I may have it on a backup, and I'll see if I can track Daniel down.
+> 
+> While Be, Inc.'s implementation is closed-source, the design of the BFS (_not_
+> "befs" as it is sometimes called) is explained in Practical File System Design
+> with the Be File System by Dominic Giampolo, ISBN 1-55860-497-9.  Dominic has
+> since left Be and I understand works at Google now.
 
-Ehh, that's not correct. HP-UX was the first to implement sendfile().
-Linux (and other commercial unices) then copied the idea...
+fs/dnotify.c:
 
-For the record, sendfile() exists because we (Zeus) asked HP for
-it. (So of course we agree that sendfile is important!)
+   /*
+    * Directory notifications for Linux.
+    *
+    * Copyright (C) 2000 Stephen Rothwell
+    ...
 
-Regards,
-Stephen
+The currently defined events are:
+
+	DN_ACCESS	A file in the directory was accessed (read)
+	DN_MODIFY	A file in the directory was modified (write,truncate)
+	DN_CREATE	A file was created in the directory
+	DN_DELETE	A file was unlinked from directory
+	DN_RENAME	A file in the directory was renamed
+	DN_ATTRIB	A file in the directory had its attributes
+			changed (chmod,chown)
+
+It was done last year, quietly and without fanfare, by Stephen Rothwell:
+
+  http://www.linuxcare.com/about-us/os-dev/rothwell.epl
+
+This may be the most significant new feature in 2.4.0, as it allows us
+to take a fundamentally different approach to many different problems. 
+Three that come to mind: mail (get your mail instantly without polling);
+make (don't rely on timestamps to know when rebuilding is needed, don't
+scan huge directory trees on each build); locate (reindex only those
+directories that have changed, keep index database current).  As you
+noticed, there are many others.
+
+Stephen, it would be very interesting to know more about the development
+process you went through and what motivated you to provide this
+fundamental facility.
 
 --
-Stephen Landamore, <slandamore@zeus.com>              Zeus Technology
-Tel: +44 1223 525000                      Universally Serving the Net
-Fax: +44 1223 525100                              http://www.zeus.com
-Zeus Technology, Zeus House, Cowley Road, Cambridge, CB4 0ZT, ENGLAND
-
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,72 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270856AbTHFSMy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 14:12:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270857AbTHFSMy
+	id S271368AbTHFSTi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 14:19:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271373AbTHFSTi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 14:12:54 -0400
-Received: from proibm3.procempa.com.br ([200.248.222.108]:44241 "EHLO
-	portoweb.com.br") by vger.kernel.org with ESMTP id S270856AbTHFSMu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 14:12:50 -0400
-Date: Wed, 6 Aug 2003 15:15:39 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@logos.cnet
-To: Stephan von Krawczynski <skraw@ithnet.com>
-cc: andrea@suse.de, <linux-kernel@vger.kernel.org>, <green@namesys.com>
-Subject: Re: 2.4.22-pre lockups (now decoded oops for pre10)
-In-Reply-To: <20030806094150.4d7b0610.skraw@ithnet.com>
-Message-ID: <Pine.LNX.4.44.0308061506170.4979-100000@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 6 Aug 2003 14:19:38 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.92.226.49]:53633 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S271368AbTHFSTe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 14:19:34 -0400
+Subject: Kernel Panic on 2.6 and Dual AMD Athlon MP
+From: Jason Williams <jwilliams@project-lace.org>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="=-h4RO64BZQgcS7Go/bsdq"
+Message-Id: <1060193971.1824.11.camel@big-blue.project-lace.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 06 Aug 2003 14:19:31 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--=-h4RO64BZQgcS7Go/bsdq
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-On Wed, 6 Aug 2003, Stephan von Krawczynski wrote:
+I downloaded 2.6.0-test2 to see if I could get it running on my dual
+Athlon MP box (which runs 2.4 series just wonderfully).  I have a Tyan
+S2466 motherboard which runs the AMD 760 MPX chipset.  2.6.0-test2
+compiles just fine, but when I go to run it, I get the output detailed
+in the attachment kp-2.6 to this message. Please note, I had to copy
+this by hand since I couldn't get any serial output from the machine. 
+In short, I get a machine check execption and the kernel panics saying
+the CPU context is corrupt.
 
-> Unable to handle kernel NULL pointer dereference at virtual address 00000006
-> c0144b14
-> *pde = 00000000
-> Oops: 0002
-> CPU:    1
-> EIP:    0010:[<c0144b14>]    Not tainted
-> Using defaults from ksymoops -t elf32-i386 -a i386
-> EFLAGS: 00010246
-> eax: 00000000   ebx: f0f66540   ecx: f0f66540   edx: 00000006
-> esi: f0f66540   edi: f0f66540   ebp: c2ce0350   esp: c345df24
-> ds: 0018   es: 0018   ss: 0018
-> Process kswapd (pid: 5, stackpage=c345d000)
-> Stack: c0147ddf f0f66540 00000000 c2ce0350 0001bcad c02eab68 c0139228 c2ce0350
->        000001d0 00000200 000001d0 00000016 00000020 000001d0 00000020 00000006
->        c01394b3 00000006 c345c000 c02eab68 000001d0 00000006 c02eab68 00000000 
-> Call Trace:    [<c0147ddf>] [<c0139228>] [<c01394b3>] [<c013952e>] [<c013963c>]
->   [<c01396c8>] [<c01397f8>] [<c0139760>] [<c0105000>] [<c010592e>] [<c0139760>]
-> Code: 89 02 c7 41 30 00 00 00 00 89 4c 24 04 e9 7a ff ff ff 8d 76 
-> 
-> 
-> >>EIP; c0144b14 <__remove_from_queues+14/30>   <=====
-> 
-> >>ebx; f0f66540 <_end+30bbb320/3852ee40>
-> >>ecx; f0f66540 <_end+30bbb320/3852ee40>
-> >>esi; f0f66540 <_end+30bbb320/3852ee40>
-> >>edi; f0f66540 <_end+30bbb320/3852ee40>
-> >>ebp; c2ce0350 <_end+2935130/3852ee40>
-> >>esp; c345df24 <_end+30b2d04/3852ee40>
+So I got the neat little parsemce program by Dave Jones and the output
+from that is in the attachment mce-output also attached to this message.
+(If they don't come through correctly, let me know and I can forward
+them to the necessary people.)
 
-Stephan,
+I need someone to help me to understand why this is happening with the
+2.6 kernel.  And what direction I might be able to take to try to get
+the 2.6 kernel to run. Also, I had previously tried 2.5.70 and this
+didn't happen.  
 
-I'm pretty worried about this problem.
 
-Your oopses seem to be the result of some kind of memory corruption. On
-the other oopses we could see the kernel oopsing on
-remove_page_from_hash_queue due to corrupted pointers (as Willy pointed 
-out). 
+-- 
+Jason Williams
+Project-Lace.org
+                                                                                
+There are only 10 types of people in the world: Those who understand
+binary, and those who don't
 
-Can you please try to crash your box again with 
 
-CONFIG_DEBUG_SLAB=y 
+--=-h4RO64BZQgcS7Go/bsdq
+Content-Disposition: attachment; filename=kp-2.6
+Content-Type: text/x-troff-man; name=kp-2.6; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-Again, thanks a lot for your reports.
+Intel machine check architecture aupported
+Intel machine check reporting enabled on CPU#1.
+CPU1: AMD Athlon(tm) Processor stepping 02
+Total of 2 processors activated (6610.94 BogoMIPS).
+ENABLING IO-APIC IRQs
+Setting 2 in the physical_id_present_map
+...changing IO-APIC physical APIC ID to 2 ... ok.
+..TIMER: VECTOR=0x31 pin1=2 pin2=0
+testing the IO APIC .......................
+................................... done.
+Using local APIC timer interrupts.
+calibrating APIC timer ...
+..... CPU Clock speed is 1666.0530 MHz.
+..... host bus clock speed is 266.0644 MHz.
+checking TSC syncronization across 2 CPUS: passed
+Starting migration thread for cpu 0
+Bringing up 1
+CPU 1 IS NOW UP!
+Starting migration thread for cpu 1
+CPUS done 2
+Initializing RT netlink socket
+CPU 0: Machine Check Exception 0000000000000004
+Bank 0: f601a00000000833 at 00000000000e4040
+Kernel panic: CPU context corrupt
+ 
+
+--=-h4RO64BZQgcS7Go/bsdq
+Content-Disposition: attachment; filename=mce-output
+Content-Type: text/plain; name=mce-output; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+./parsemce -e 0000000000000004 -b 0 -s f601a00000000833 -a 00000000000e4040
+
+Status: (4) Machine Check in progress.
+Restart IP invalid.
+parsebank(0): f601a00000000833 @ e4040
+        External tag parity error
+        Uncorrectable ECC error
+        CPU state corrupt. Restart not possible
+        Address in addr register valid
+        Error enabled in control register
+        Error not corrected.
+        Error overflow
+        Bus and interconnect error
+        Participation: Local processor originated request
+        Timeout: Request did not timeout
+        Request: Generic error
+        Transaction type : Instruction
+        Memory/IO : Other
+
+
+--=-h4RO64BZQgcS7Go/bsdq--
 

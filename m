@@ -1,64 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262406AbUEWJLo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262434AbUEWJOX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262406AbUEWJLo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 05:11:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbUEWJLo
+	id S262434AbUEWJOX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 05:14:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262450AbUEWJOX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 05:11:44 -0400
-Received: from pa103.nowa-wies.sdi.tpnet.pl ([213.77.149.103]:11021 "EHLO
-	pa103.nowa-wies.sdi.tpnet.pl") by vger.kernel.org with ESMTP
-	id S262406AbUEWJLm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 05:11:42 -0400
-Date: Sun, 23 May 2004 11:11:21 +0200 (CEST)
-From: Jan Meizner <jm@pa103.nowa-wies.sdi.tpnet.pl>
-To: John Bradford <john@grabjohn.com>
-Cc: system <system@eluminoustechnologies.com>, linux-kernel@vger.kernel.org
-Subject: Re: hda Kernel error!!!
-In-Reply-To: <200405221622.i4MGMuhD000211@81-2-122-30.bradfords.org.uk>
-Message-ID: <Pine.LNX.4.55L.0405231054250.20096@pa103.nowa-wies.sdi.tpnet.pl>
-References: <200405221257.28570.system@eluminoustechnologies.com>
- <Pine.LNX.4.55L.0405221515410.32669@pa103.nowa-wies.sdi.tpnet.pl>
- <200405221622.i4MGMuhD000211@81-2-122-30.bradfords.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 23 May 2004 05:14:23 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:55204 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262434AbUEWJOH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 May 2004 05:14:07 -0400
+Date: Sun, 23 May 2004 11:13:56 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Christoph Hellwig <hch@lst.de>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: i486 emu in mainline?
+Message-ID: <20040523091356.GD5889@devserv.devel.redhat.com>
+References: <20040522234059.GA3735@infradead.org> <1085296400.2781.2.camel@laptop.fenrus.com> <20040523084415.GB16071@alpha.home.local>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="RYJh/3oyKhIjGcML"
+Content-Disposition: inline
+In-Reply-To: <20040523084415.GB16071@alpha.home.local>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--RYJh/3oyKhIjGcML
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Sat, 22 May 2004, John Bradford wrote:
-
-> Quote from Jan Meizner <jm@pa103.nowa-wies.sdi.tpnet.pl>:
-> > 
-> > 
-> > > WARNING:  Kernel Errors Present
-> > >    hda: drive_cmd: error=0x04 { DriveStat...:  1Time(s)
-> > >    hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error }...:  1Time(s)
-> > > 
-[...]
-> > So AFAIK this type of error indicates serious problem with hardware, 
-> > unfortunately.
+On Sun, May 23, 2004 at 10:44:15AM +0200, Willy Tarreau wrote:
+> Hi Arjan,
 > 
-> It does not necessarily indicate a serious problem.  Are you sure your
-> error messages were exactly the same?
-Probably you're right. I should rather say it might be an error. I had 
-similar error (i couldn't found log now) but it may differ a bit, and I 
-also get some additional errors (I/O errors).
+> On Sun, May 23, 2004 at 09:13:20AM +0200, Arjan van de Ven wrote:
+> > on first look it seems to be missing a bunch of get_user() calls and
+> > does direct access instead....
+> 
+> It was intentional for speed purpose. The areas are checked once with
+> verify_area() when we need to access memory, then data is copied directly
+> from/to memory. I don't think there's any risk, but I can be wrong.
 
-BTW maybe somebody have similar problem. Unfortunately it's not my machine 
-so I cannot do any test other then looking at dmesg. There is kernel 
-2.4.26. When my friend try to use put there his hard drive (old Segate 
-8GB) it get during boot, or while trying to acces drive (depend on which 
-computer he tries) 4 times CRC Error and machine complitly freeze (don't 
-react on anything, no opps, no panic).
-When I tried to use my Segate (3.2GB) i got lost interupt errors at boot 
-time.
+it's an oopsable offence; nothing is making sure the memory is actually
+present for example.
 
-Both drives are ok (I've checked them).
+--RYJh/3oyKhIjGcML
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-If somebody have any idea what the problem is, I would be very grateful 
-for advice. I could provide specyfic drive types later if it makes any 
-sens.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-Best Regards
-Jan Meizner
+iD8DBQFAsGtUxULwo51rQBIRAvg/AJ47wL3Tg9qQ+wdqN0y8EMNoP1g6kgCfdQ8D
+Wy9Sy4g9yzttsfTeqsQH1XU=
+=wN48
+-----END PGP SIGNATURE-----
+
+--RYJh/3oyKhIjGcML--

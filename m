@@ -1,35 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261763AbSJMWt5>; Sun, 13 Oct 2002 18:49:57 -0400
+	id <S261773AbSJMWyZ>; Sun, 13 Oct 2002 18:54:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261764AbSJMWt5>; Sun, 13 Oct 2002 18:49:57 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:43462 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S261763AbSJMWt4>; Sun, 13 Oct 2002 18:49:56 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Mon, 14 Oct 2002 08:55:17 +1000
+	id <S261776AbSJMWyZ>; Sun, 13 Oct 2002 18:54:25 -0400
+Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:23003 "EHLO
+	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S261773AbSJMWyZ>; Sun, 13 Oct 2002 18:54:25 -0400
+Date: Sun, 13 Oct 2002 21:00:02 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Richard Stallman <rms@gnu.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Bitkeeper outragem, old and new
+In-Reply-To: <E180rX3-0005dL-00@fencepost.gnu.org>
+Message-ID: <Pine.LNX.4.44L.0210132057430.22735-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15785.63957.167015.415347@notabene.cse.unsw.edu.au>
-Cc: okir@monad.swb.de, nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: Patch?: linux-2.5.42/net/sunrpc/sunrpc_syms.c - symbols needed by new nfsd
-In-Reply-To: message from Adam J. Richter on Sunday October 13
-References: <20021013112452.A286@baldur.yggdrasil.com>
-X-Mailer: VM 7.07 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday October 13, adam@yggdrasil.com wrote:
-> 	nfsd in 2.5.42 needs a bunch of symbols that the sunrpc module
-> does not export.  This patch adds them to net/sunrpc/sunrpc_syms.c.
-> I am now running the nfsd and sunrpc modules based on this patch.
+On Sun, 13 Oct 2002, Richard Stallman wrote:
 
-Thanks.  A similar patch has been sent to Linus and hopefully will
-appear in bk soon...
+> If the latest outrage brings the spirit of the non-free Bitkeeper
+> license into clear view, perhaps that will be enough to convince the
+> developers of Linux to stop using Bitkeeper for Linux development.
 
-NeilBrown
+What would be even better is if it convinced free software people
+to develop a tool as good as, or better than, Bitkeeper.
+
+Until such a tool exists I'll tolerate Bitkeeper's licensing, since
+my use of bitkeeper seems to increase rather than decrease the amount
+of free software that's available.
+
+regards,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://distro.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+

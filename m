@@ -1,62 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261721AbULUKSL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261727AbULUKUh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261721AbULUKSL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 05:18:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261727AbULUKSL
+	id S261727AbULUKUh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 05:20:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261728AbULUKUg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 05:18:11 -0500
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:10677 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S261721AbULUKSG
-	(ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Tue, 21 Dec 2004 05:18:06 -0500
-Subject: Re: [nptl] Re: OSDL Bug 3770
-From: Sebastien Decugis <sebastien.decugis@ext.bull.net>
-To: nptl@bullopensource.org
-Cc: Loic Domaigne <loic-dev@gmx.net>, piggin@cyberone.com.au,
+	Tue, 21 Dec 2004 05:20:36 -0500
+Received: from mail.gmx.de ([213.165.64.20]:16812 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261727AbULUKUb (ORCPT
+	<rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Tue, 21 Dec 2004 05:20:31 -0500
+Date: Tue, 21 Dec 2004 11:20:30 +0100 (MET)
+From: "Loic Domaigne" <loic-dev@gmx.net>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: piggin@cyberone.com.au, nptl@bullopensource.org,
        Linux-Kernel@Vger.Kernel.ORG
-In-Reply-To: <20041221100934.GA31538@elte.hu>
-References: <9785.1103562168@www38.gmx.net> <20041221100934.GA31538@elte.hu>
-Organization: Bull S.A.
-Date: Tue, 21 Dec 2004 11:22:27 +0100
-Message-Id: <1103624547.23533.137.camel@decugiss.frec.bull.fr>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 21/12/2004 11:25:33,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 21/12/2004 11:25:34,
-	Serialize complete at 21/12/2004 11:25:34
+MIME-Version: 1.0
+References: <20041221100934.GA31538@elte.hu>
+Subject: Re: Re: OSDL Bug 3770
+X-Priority: 3 (Normal)
+X-Authenticated: #19395655
+Message-ID: <11277.1103624430@www34.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+Hi Ingo, 
 
 > note that my -RT patchset includes scheduler changes that implement
 > "global RT scheduling" on SMP systems. Give it a go, it's at:
 > 
 >    http://redhat.com/~mingo/realtime-preempt/
-> 
-> you have to enable CONFIG_PREEMPT_RT to active this feature. 
 
-[...]
-> 
-> anyway, the first step would be to try this scheduler and give feedback
-> of how well it works for you :-)
+That looks good, at least from a theoritical standpoint.  
+We shall give a go with Seb and post the results. 
 
-Thanks Ingo, this sounds very nice!
-
-I'll try this hopefully before Christmas and give a status with this
-patch applied.
-
-Best regards,
-Seb.
+Thanks! 
+Loic. 
 
 -- 
--------------------------------
-Sebastien DECUGIS
-NPTL Test & Trace Project
-http://nptl.bullopensource.org/
+--
+// Sender address goes to /dev/null (!!) 
+// Use my 32/64 bits, ANSI C89, compliant email-address instead:   
 
-"You may fail if you try.
-You -will- fail if you don't."
+unsigned y[]=
+{0,34432,26811,16721,41866,63119,61007,48155,26147,10986};
+void x(z){putchar(z);}; unsigned t; 
+main(i){if(i<10){t=(y[i]*47560)%65521;x(t>>8);x(t&255);main(++i);}}
 
+Psssst! Mit GMX Handyrechnung senken: http://www.gmx.net/de/go/mail
+100 FreeSMS/Monat (GMX TopMail), 50 (GMX ProMail), 10 (GMX FreeMail)

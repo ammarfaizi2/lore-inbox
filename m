@@ -1,37 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262088AbULMABT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262128AbULMAGy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262088AbULMABT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Dec 2004 19:01:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262115AbULMABT
+	id S262128AbULMAGy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Dec 2004 19:06:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbULMAGy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Dec 2004 19:01:19 -0500
-Received: from s1.conecto.pl ([193.29.205.125]:57228 "EHLO s1.conecto.pl")
-	by vger.kernel.org with ESMTP id S262088AbULMABS (ORCPT
+	Sun, 12 Dec 2004 19:06:54 -0500
+Received: from mail.dif.dk ([193.138.115.101]:14258 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S262128AbULMAGw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Dec 2004 19:01:18 -0500
-From: Marcin =?iso-8859-2?q?Gibu=B3a?= <mg@iceni.pl>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Subject: Re: STIr4200 warnings
-Date: Mon, 13 Dec 2004 01:01:05 +0100
-User-Agent: KMail/1.7.1
-Cc: Oliver Neukum <oliver@neukum.org>, linux-kernel@vger.kernel.org
-References: <200412121153.33981@senat> <200412122309.51065@senat> <41BCCCAA.800@osdl.org>
-In-Reply-To: <41BCCCAA.800@osdl.org>
+	Sun, 12 Dec 2004 19:06:52 -0500
+Date: Mon, 13 Dec 2004 01:17:11 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Danny Beaudoin <beaudoin_danny@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Typo in kernel configuration (xconfig)
+In-Reply-To: <BAY21-F18905FD4E8F32BE43C85BCF3AA0@phx.gbl>
+Message-ID: <Pine.LNX.4.61.0412130114510.3369@dragon.hygekrogen.localhost>
+References: <BAY21-F18905FD4E8F32BE43C85BCF3AA0@phx.gbl>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412130101.05722@senat>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm not seeing  a problem with your .config or with mine.
-> I'd be suspecting something else, like corrupted tarball
-> or not applied correctly, or whatever.
+On Sun, 12 Dec 2004, Danny Beaudoin wrote:
 
-Yes, you were right, it compiles cleanly now.
-And 2.6.10-rc3-bk6 fixes the warning.
+> Hi!
+> If I'm not at the right place, please forward this to the right person.
+> 
+> In Device Drivers/Graphics Support/Support for frame buffer devices:
+> "On several non-X86 architectures, the frame buffer device is the
+> only way to use the graphics hardware."
+> 
+> This should be 'x86' instead, as in the rest of the description.
+> 
+I don't think you are right. On x86 the framebuffer is not your only 
+option, and on some non-x86 archs (like alpha for instance - at least 
+this used to be the case when last I had an alpha box), fb is the 
+only option. I think the text is correct as it stands.
 
 -- 
-mg
+Jesper Juhl
+
+

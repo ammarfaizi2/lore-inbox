@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129937AbQJ0Xtf>; Fri, 27 Oct 2000 19:49:35 -0400
+	id <S129358AbQJ0Xuf>; Fri, 27 Oct 2000 19:50:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129747AbQJ0XtZ>; Fri, 27 Oct 2000 19:49:25 -0400
-Received: from blackhole.compendium-tech.com ([206.55.153.26]:8444 "EHLO
-	sol.compendium-tech.com") by vger.kernel.org with ESMTP
-	id <S129495AbQJ0XtI>; Fri, 27 Oct 2000 19:49:08 -0400
-Date: Fri, 27 Oct 2000 16:49:02 -0700 (PDT)
-From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Off-Topic (or maybe on-topic)
-In-Reply-To: <200010271316.e9RDGSR17634@goliath.kd0yu.com>
-Message-ID: <Pine.LNX.4.21.0010271648000.9794-100000@sol.compendium-tech.com>
+	id <S129622AbQJ0XuZ>; Fri, 27 Oct 2000 19:50:25 -0400
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:18948
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S129358AbQJ0XuW>; Fri, 27 Oct 2000 19:50:22 -0400
+Date: Fri, 27 Oct 2000 16:50:00 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Bartlomiej Zolnierkiewicz <bkz@linux-ide.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] ide-patch for 2.2.18(pre)
+In-Reply-To: <Pine.LNX.4.21.0010280032200.9401-100000@tricky>
+Message-ID: <Pine.LNX.4.10.10010271558070.13704-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Oct 2000 dave@kd0yu.com wrote:
 
-> If Bill said 'screw you' to the blackmailer and made the press release,
-> we should see the source on web sites soon.  Then we can see how bad it
-> really is.  Maybe even fix it.
+Hi Bart,
 
-Why bother fixing it? It's too bloated and stupid in the first
-place...That's why we run Linux.
-Anyways, this is really causing too much clutter for this list.
+The point is that I have stopped with the backport because of 2.4.0 push,
+and I was waiting on you to pick it up again.
 
- Kelsey Hudson                                           khudson@ctica.com 
- Software Engineer
- Compendium Technologies, Inc                               (619) 725-0771
----------------------------------------------------------------------------     
+/pub/linux/kernel/people/hedrick/bkz/ide.2.2.18-17.all.20001027.patch.bz2
+
+There you go Bart.
+
+Cheers,
+
+Andre Hedrick
+The Linux ATA/IDE guy
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

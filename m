@@ -1,65 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266236AbUFUOHp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264113AbUFUOMH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266236AbUFUOHp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 10:07:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266237AbUFUOHp
+	id S264113AbUFUOMH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 10:12:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266241AbUFUOMH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 10:07:45 -0400
-Received: from s150.mancelona.gtlakes.com ([64.68.227.150]:51658 "EHLO
-	linux1.bmarsh.com") by vger.kernel.org with ESMTP id S266236AbUFUOHn convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 10:07:43 -0400
-From: Bruce Marshall <bmarsh@bmarsh.com>
-Reply-To: bmarsh@bmarsh.com
-To: Ragnar Hojland Espinosa <ragnar.hojland@linalco.com>
-Subject: Re: Use of Moxa serial card with SMP kernels
-Date: Mon, 21 Jun 2004 10:07:40 -0400
-User-Agent: KMail/1.6.1
-Cc: linux-kernel@vger.kernel.org, "Randy.Dunlap" <rddunlap@osdl.org>
-References: <200406171112.39485.bmarsh@bmarsh.com> <20040617084132.510d0bcb.rddunlap@osdl.org> <20040618120355.GA22970@linalco.com>
-In-Reply-To: <20040618120355.GA22970@linalco.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200406211007.40186.bmarsh@bmarsh.com>
+	Mon, 21 Jun 2004 10:12:07 -0400
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:11908 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S264113AbUFUOMB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 10:12:01 -0400
+Subject: RE: [PATCH] Handle non-readable binfmt misc executables
+From: Albert Cahalan <albert@users.sf.net>
+To: "Zach, Yoav" <yoav.zach@intel.com>
+Cc: Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <2C83850C013A2540861D03054B478C060416C175@hasmsx403.ger.corp.intel.com>
+References: <2C83850C013A2540861D03054B478C060416C175@hasmsx403.ger.corp.intel.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1087818586.8185.1006.camel@cube>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 21 Jun 2004 07:49:46 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 18 June 2004 08:09 am, Ragnar Hojland Espinosa wrote:
-> On Thu, Jun 17, 2004 at 08:41:32AM -0700, Randy.Dunlap wrote:
-> > Both Moxa serial drivers (moxa & mxser) are BROKEN_ON_SMP because
-> > they use cli() to disable interrupts for critical sections.
-> > See Documentation/cli-sti-removal.txt for details.
-> > They will need some acceptable modern form of protection there,
-> >
-> > Is anyone working on this?  not that I've heard of.
-> > Have you tried this email address:
-> > Copyright (C) 1999-2000  Moxa Technologies (support@moxa.com.tw).
->
-> I'd try writing and asking about it;  they were very helpful when we
-> had problems.
+On Mon, 2004-06-21 at 07:31, Zach, Yoav wrote:
+> >From: Albert Cahalan [mailto:albert@users.sourceforge.net] 
 
-Yes, they are responsive.   Here is the current reply:
+> >So the content of /proc/*/cmdline is correct?
+> 
+> After the translator fixes it - yes.
+> 
+> >At a minimum, you will have a problem at startup.
+> >The process might be observed before you fix argv.
+> 
+> Right. It might happen once in a (long) while that
+> 'ps -f' doesn't show the correct command line. 
 
-Dear Bruce,   
- 
-I've got updated news from the R&D Div., they are testing the latest beta 
-version of the driver for all the Moxa cards, only they can not provide me 
-with a precise schedule. Your case will be remaining open until it is 
-resolved, I will also keep you update with the information. 
- 
-Best Regards, 
- 
-Stephen Lin / Technical Support Engineer 
- Moxa Technologies Co., Ltd.
+So this is a hole in the emulation.
+
+> >It seems cleaner to use some other mechanism.
+> >Assuming your interpreter is ELF, ELF notes are good.
+> 
+> Using ELF notes means changing the binaries, which is not
+> suitable for cases where the use of translator for running
+> the binaries is not 'known' to the binaries. For example,
+> an administrator might start using a translator to enhance
+> performance of existing binaries. In such a case, re-building
+> the binaries will probably be out of the question.
+
+No. Well, the translator would change. The old i386
+binaries would not.
+
+ELF notes are supplied by the kernel. They provide
+data like USER_HZ, the UID, a flag to indicate that
+ld.so must take setuid-type precautions, and so on.
+ELF notes are on the stack, beyond the environment.
+
+> >You might use prctl().
+> 
+> Do you mean enhancing sys_prctl to allow for fixing 
+> the argv ? 
+
+No. I mean enhancing sys_prctl to allow asking for
+the file descriptor number. That way, argv doesn't
+need to get mangled in the first place.
+
+I'm sure there are many other good ways to pass the
+file descriptor number to the interpreter.
 
 
-
--- 
-+----------------------------------------------------------------------------+
-+ Bruce S. Marshall  bmarsh@bmarsh.com  Bellaire, MI         06/21/04 10:06  +
-+----------------------------------------------------------------------------+
-"A billion here, a billion there, sooner or later it adds up to real
-     money."       -Senator Everett Dirksen

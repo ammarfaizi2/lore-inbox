@@ -1,93 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263182AbUJ2COt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263212AbUJ2CTu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263182AbUJ2COt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 22:14:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263167AbUJ2COt
+	id S263212AbUJ2CTu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 22:19:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263189AbUJ2CNX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 22:14:49 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:10502 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S263182AbUJ2AQu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 20:16:50 -0400
-Date: Fri, 29 Oct 2004 02:16:18 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: dri-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] DRM: remove unused functions
-Message-ID: <20041029001618.GF29142@stusta.de>
-References: <20041028221535.GL3207@stusta.de>
+	Thu, 28 Oct 2004 22:13:23 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:26497 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S263284AbUJ2CK5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 22:10:57 -0400
+Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
+From: Lee Revell <rlrevell@joe-job.com>
+To: Paul Davis <paul@linuxaudiosystems.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       mark_h_johnson@raytheon.com, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       jackit-devel <jackit-devel@lists.sourceforge.net>
+In-Reply-To: <200410290057.i9T0v5I8011561@localhost.localdomain>
+References: <200410290057.i9T0v5I8011561@localhost.localdomain>
+Content-Type: text/plain
+Date: Thu, 28 Oct 2004 22:10:53 -0400
+Message-Id: <1099015853.4529.4.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041028221535.GL3207@stusta.de>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ this time without the problems due to a digital signature... ]
+On Thu, 2004-10-28 at 20:57 -0400, Paul Davis wrote:
+> >>   XRUN Rate . . . . . . . . . . .     424         8         4    /hour
+> >>   Delay Rate (>spare time)  . . .     496         0         0    /hour
+> >>   Delay Rate (>1000 usecs)  . . .     940         8         4    /hour
+> >>   Maximum Delay . . . . . . . . .    6904       921       721    usecs
+> >>   Maximum Process Cycle . . . . .    1449      1469      1590    usecs
+> >>   Average DSP CPU Load  . . . . .      38        39        40    %
+> >>   Average Context-Switch Rate . .    7480      8929      9726    /sec
+> >
+> >looks pretty good, doesnt it?
+> 
+> yes and no. its troubling that we're using an extra 100usecs of time
+> for the max process cycle, if the statistics make that number
+> meaningful. and why a 30% increase in the context switch rate? is that
+> an artifact or a real behavioural change? the xrun rate is not bad,
+> although i'd need to know the period size. 4 clicks per hour would
+> actually be unacceptable to most professionals, but this may have been
+> with significant loading outside of JACK - i don't know.
 
-The patch below removes two unused functions from DRM.
+I would not take these results too seriously yet, they are comparing one
+highly experimental kernel to another.  Neither of these setups claims
+to be ready for professional use yet - we are definitely going for zero
+xruns, period, this seems to be achievable with most hardware.  I just
+left this in to give you some context.
 
+Lee
 
-diffstat output:
- drivers/char/drm/i810_dma.c |   18 ------------------
- drivers/char/drm/i915_dma.c |   18 ------------------
- 2 files changed, 36 deletions(-)
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.10-rc1-mm1-full/drivers/char/drm/i810_dma.c.old	2004-10-28 22:55:34.000000000 +0200
-+++ linux-2.6.10-rc1-mm1-full/drivers/char/drm/i810_dma.c	2004-10-28 22:55:45.000000000 +0200
-@@ -51,24 +51,6 @@
- #define up_write up
- #endif
- 
--static inline void i810_print_status_page(drm_device_t *dev)
--{
--   	drm_device_dma_t *dma = dev->dma;
--      	drm_i810_private_t *dev_priv = dev->dev_private;
--	u32 *temp = dev_priv->hw_status_page;
--   	int i;
--
--   	DRM_DEBUG(  "hw_status: Interrupt Status : %x\n", temp[0]);
--   	DRM_DEBUG(  "hw_status: LpRing Head ptr : %x\n", temp[1]);
--   	DRM_DEBUG(  "hw_status: IRing Head ptr : %x\n", temp[2]);
--      	DRM_DEBUG(  "hw_status: Reserved : %x\n", temp[3]);
--	DRM_DEBUG(  "hw_status: Last Render: %x\n", temp[4]);
--   	DRM_DEBUG(  "hw_status: Driver Counter : %d\n", temp[5]);
--   	for(i = 6; i < dma->buf_count + 6; i++) {
--	   	DRM_DEBUG( "buffer status idx : %d used: %d\n", i - 6, temp[i]);
--	}
--}
--
- static drm_buf_t *i810_freelist_get(drm_device_t *dev)
- {
-    	drm_device_dma_t *dma = dev->dma;
---- linux-2.6.10-rc1-mm1-full/drivers/char/drm/i915_dma.c.old	2004-10-28 22:56:35.000000000 +0200
-+++ linux-2.6.10-rc1-mm1-full/drivers/char/drm/i915_dma.c	2004-10-28 22:56:47.000000000 +0200
-@@ -13,24 +13,6 @@
- #include "i915_drm.h"
- #include "i915_drv.h"
- 
--static inline void i915_print_status_page(drm_device_t * dev)
--{
--	drm_i915_private_t *dev_priv = dev->dev_private;
--	u32 *temp = dev_priv->hw_status_page;
--
--	if (!temp) {
--		DRM_DEBUG("no status page\n");
--		return;
--	}
--
--	DRM_DEBUG("hw_status: Interrupt Status : %x\n", temp[0]);
--	DRM_DEBUG("hw_status: LpRing Head ptr : %x\n", temp[1]);
--	DRM_DEBUG("hw_status: IRing Head ptr : %x\n", temp[2]);
--	DRM_DEBUG("hw_status: Reserved : %x\n", temp[3]);
--	DRM_DEBUG("hw_status: Driver Counter : %d\n", temp[5]);
--
--}
--
- /* Really want an OS-independent resettable timer.  Would like to have
-  * this loop run for (eg) 3 sec, but have the timer reset every time
-  * the head pointer changes, so that EBUSY only happens if the ring

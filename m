@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313033AbSC0P3A>; Wed, 27 Mar 2002 10:29:00 -0500
+	id <S313035AbSC0PaK>; Wed, 27 Mar 2002 10:30:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313035AbSC0P2v>; Wed, 27 Mar 2002 10:28:51 -0500
-Received: from relay.uni-heidelberg.de ([129.206.100.212]:55680 "EHLO
-	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
-	id <S313033AbSC0P2k>; Wed, 27 Mar 2002 10:28:40 -0500
-Message-Id: <200203271528.g2RFSZM10812@fubini.pci.uni-heidelberg.de>
-Content-Type: text/plain; charset=US-ASCII
-From: Bernd Schubert <bernd-schubert@web.de>
-To: <linux-kernel@vger.kernel.org>
-Subject: time jumps
-Date: Wed, 27 Mar 2002 16:28:35 +0100
-X-Mailer: KMail [version 1.3.2]
+	id <S313036AbSC0PaC>; Wed, 27 Mar 2002 10:30:02 -0500
+Received: from netfinity.realnet.co.sz ([196.28.7.2]:3565 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S313035AbSC0P3u>; Wed, 27 Mar 2002 10:29:50 -0500
+Date: Wed, 27 Mar 2002 17:18:59 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Cc: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] P4/Xeon Thermal LVT support
+In-Reply-To: <Pine.GSO.3.96.1020327161054.8602D-100000@delta.ds2.pg.gda.pl>
+Message-ID: <Pine.LNX.4.44.0203271716440.5751-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 27 Mar 2002, Maciej W. Rozycki wrote:
 
-we have a computer here, that behaves very strange, from one second to 
-another the clock changes to about 1h in the future. In the next "real" 
-second the time is normal again. 
-Well, I first thought that is might be a X problem, but after running a loop 
-over "date", it really seems that the system clock is affected.  Then I 
-thought it might be a conflict with the hardware clock, but after resetting 
-it to the system time, the problem was still there.
+>  You can't use a vector that is in the range assigned to I/O APIC
+> interrupts (i.e.  0x31 - 0xee).  Otherwise you'll get an overlap when the
+> vector gets assigned to an ordinary IRQ line.  Also you probably want a
 
-The only clock that doesn't seem to be affected is the realtime clock (at 
-least not when doing a loop of cat over the proc-file).
+Thanks, i'll fix that.
 
-The problem is, that this time jumps cause the Xserver to enable its 
-screensaver (and several other small problems).
+> high-priority interrupt as the condition is serious, if not critical --
+> system failures, such as bus exceptions, machine check faults, parity
+> errors, power failures, etc. demand a high priority service. 
 
-System  is: Athlon 650 on VIA board with linux-2.4.17 (unpatched)
+Its really not that critical, its more informational, the interrupt 
+handler in fact only displays a warning, by which time the hardware is 
+already handling the condition.
 
+Thanks for the input.
 
-So has anyone an idea what to do, I'm thinking about a BIOS update (but don't 
-really believe that it will help). Or is it possible to patch the kernel that 
-it uses the realtime clock (could anyone of you send me this patch, if it is 
-possible, please??).
+	Zwane
 
+-- 
+http://function.linuxpower.ca
+		
 
-Of course, I can give further information, if needed.
-
-Thanks in advance, Bernd

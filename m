@@ -1,63 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262081AbUCDTCn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 14:02:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbUCDTCm
+	id S262076AbUCDTKN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 14:10:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262082AbUCDTKM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 14:02:42 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:64449 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262082AbUCDTCh (ORCPT
+	Thu, 4 Mar 2004 14:10:12 -0500
+Received: from fw.osdl.org ([65.172.181.6]:51677 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262076AbUCDTKH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 14:02:37 -0500
-Subject: Re: [RFC][PATCH] linux-2.6.4-pre1_vsyscall-gtod_B3-part3 (3/3)
-From: john stultz <johnstul@us.ibm.com>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <4046E455.4010605@redhat.com>
-References: <1078359081.10076.191.camel@cog.beaverton.ibm.com>
-	 <1078359137.10076.193.camel@cog.beaverton.ibm.com>
-	 <1078359191.10076.195.camel@cog.beaverton.ibm.com>
-	 <1078359248.10076.197.camel@cog.beaverton.ibm.com>
-	 <20040304005542.GZ4922@dualathlon.random>  <40469194.5080506@redhat.com>
-	 <1078368197.10076.252.camel@cog.beaverton.ibm.com>
-	 <4046E455.4010605@redhat.com>
-Content-Type: text/plain
-Message-Id: <1078426940.10076.269.camel@cog.beaverton.ibm.com>
+	Thu, 4 Mar 2004 14:10:07 -0500
+Date: Thu, 4 Mar 2004 11:12:04 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Rui Saraiva <rmps@joel.ist.utl.pt>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.4-rc1-mm2: 3 dumps at __make_request, system freeze
+Message-Id: <20040304111204.6db8bd6e.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0403041834350.28568@joel.ist.utl.pt>
+References: <Pine.LNX.4.58.0403041834350.28568@joel.ist.utl.pt>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 04 Mar 2004 11:02:20 -0800
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-03-04 at 00:09, Ulrich Drepper wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> john stultz wrote:
-> 
-> > Before we start up this larger debate again, might there be some short
-> > term solution for my patch that would satisfy both of you?
-> 
-> I suggest the following:
-> 
-> ~ define a symbol __kernel_gettimeofday_offset in the vdso's symbol
-> table.  This should be an absolute symbol containing the offset of the
-> gettimeofday implementation from the beginning of the vdso (the address
-> passed up in the auxiliary vector)
-> 
-> ~ glibc can then use the equivalent of
-> dlsym("__kernel_gettimeofday_offset").  If the symbol is not defined,
-> it's not used (doh).  If it is defined, the final function address is
-> computed by adding the offset to the vdso address.
-> 
-> 
-> This ensures a direct jump and it still keeps the vdso relocatable
-> without modifying the symbol table.
+Rui Saraiva <rmps@joel.ist.utl.pt> wrote:
+>
+> Yesterday I got these 3 dumps (on dmesg) while compiling (on ext3 fs) the
+> kernel and some other userland utilities. 
 
-Excellent, this sounds similar to what Andrea was suggesting. 
-I'll start working to implement this.
+Could you please add this?
 
-thanks for the momentary truce ;)
--john
+--- 25/drivers/block/ll_rw_blk.c~blk-unplug-when-max-request-queued-fix	Wed Mar  3 16:03:01 2004
++++ 25-akpm/drivers/block/ll_rw_blk.c	Wed Mar  3 16:03:32 2004
+@@ -2004,7 +2004,8 @@ EXPORT_SYMBOL(__blk_attempt_remerge);
+ 
+ static int __make_request(request_queue_t *q, struct bio *bio)
+ {
+-	struct request *req, *freereq = NULL;
++	struct request *req = NULL;
++	struct request *freereq = NULL;
+ 	int el_ret, rw, nr_sectors, cur_nr_sectors, barrier, ra;
+ 	sector_t sector;
+ 
+@@ -2154,7 +2155,7 @@ out:
+ 		int nr_queued = q->rq.count[READ] + q->rq.count[WRITE];
+ 
+ 		if (nr_queued == q->unplug_thresh ||
+-				req->nr_sectors == q->max_sectors)
++				(req && req->nr_sectors == q->max_sectors))
+ 			__generic_unplug_device(q);
+ 	}
+ 	spin_unlock_irq(q->queue_lock);
+
+_
 

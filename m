@@ -1,46 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281191AbRLDRE4>; Tue, 4 Dec 2001 12:04:56 -0500
+	id <S279783AbRLDRD1>; Tue, 4 Dec 2001 12:03:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281165AbRLDRDd>; Tue, 4 Dec 2001 12:03:33 -0500
-Received: from web12302.mail.yahoo.com ([216.136.173.100]:8793 "HELO
-	web12302.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S281199AbRLDRCx>; Tue, 4 Dec 2001 12:02:53 -0500
-Message-ID: <20011204170252.43996.qmail@web12302.mail.yahoo.com>
-Date: Tue, 4 Dec 2001 09:02:52 -0800 (PST)
-From: Stephen Cameron <smcameron@yahoo.com>
-Subject: cciss max SGs is 31, not 32, 2.5.1-pre5
-To: linux-kernel@vger.kernel.org
+	id <S279927AbRLDRB5>; Tue, 4 Dec 2001 12:01:57 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:31492 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S280959AbRLDRBj>; Tue, 4 Dec 2001 12:01:39 -0500
+Subject: Re: OSS driver cleanups.
+To: lk@tantalophile.demon.co.uk (Jamie Lokier)
+Date: Tue, 4 Dec 2001 17:10:10 +0000 (GMT)
+Cc: jgarzik@mandrakesoft.com (Jeff Garzik),
+        zwane@linux.realnet.co.sz (Zwane Mwaikambo),
+        linux-kernel@vger.kernel.org (Linux Kernel),
+        alan@lxorguk.ukuu.org.uk (Alan Cox)
+In-Reply-To: <20011204164943.D28839@kushida.jlokier.co.uk> from "Jamie Lokier" at Dec 04, 2001 04:49:43 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16BJ58-0002hg-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guys,
+> Not least because I have reports from my housemate that ALSA drivers are
+> a b*tch to set up.  To be done only if there isn't an OSS driver for
+> your card.  Whereis with OSS you just load a module and its done.
 
-wrt 2.5.1-pre5
-
-The change below should be reverted.  The controller will reject a command
-with 32 scatter gather entries.  
-
-Thanks,
-
--- steve
-
-diff -u --recursive --new-file v2.5.0/linux/drivers/block/cciss_cmd.h
-linux/drivers/block/cciss_cmd.h
---- v2.5.0/linux/drivers/block/cciss_cmd.h      Fri Nov  2 17:45:42 2001
-+++ linux/drivers/block/cciss_cmd.h     Tue Nov 27 09:23:27 2001
-@@ -7,7 +7,7 @@
-
- //general boundary defintions
- #define SENSEINFOBYTES          32//note that this value may vary between host implementations
--#define MAXSGENTRIES            31
-+#define MAXSGENTRIES            32
- #define MAXREPLYQS              256
-
-
-__________________________________________________
-Do You Yahoo!?
-Buy the perfect holiday gifts at Yahoo! Shopping.
-http://shopping.yahoo.com
+Thats already a "must fix"

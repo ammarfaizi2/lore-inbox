@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317072AbSFBAgq>; Sat, 1 Jun 2002 20:36:46 -0400
+	id <S317003AbSFBAej>; Sat, 1 Jun 2002 20:34:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317088AbSFBAgp>; Sat, 1 Jun 2002 20:36:45 -0400
-Received: from ns3.maptuit.com ([204.138.244.3]:11525 "EHLO gear.torque.net")
-	by vger.kernel.org with ESMTP id <S317072AbSFBAgo>;
-	Sat, 1 Jun 2002 20:36:44 -0400
-Message-ID: <3CF96804.D25F623B@torque.net>
-Date: Sat, 01 Jun 2002 20:34:12 -0400
-From: Douglas Gilbert <dougg@torque.net>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.19 i686)
-X-Accept-Language: en
+	id <S317072AbSFBAei>; Sat, 1 Jun 2002 20:34:38 -0400
+Received: from web10401.mail.yahoo.com ([216.136.130.93]:56195 "HELO
+	web10401.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S317003AbSFBAei>; Sat, 1 Jun 2002 20:34:38 -0400
+Message-ID: <20020602003438.73728.qmail@web10401.mail.yahoo.com>
+Date: Sun, 2 Jun 2002 10:34:38 +1000 (EST)
+From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
+Subject: Re: 2.4.19-pre9-ac3 still OOPS when exiting X with i810 chipset
+To: Andris Pavenis <pavenis@lanet.lv>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3CF8EDEF.3070708@lanet.lv>
 MIME-Version: 1.0
-To: Christian Thalinger <e9625286@student.tuwien.ac.at>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.4.19-pre9 and sym53c8xx problem
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Thalinger wrote:
-> Since 2.4.19-pre8 cdrecord does not work anymore. It worked with -pre6,
-> -pre7 i've missed, don't know about this one. Maybe i'll try it after
-> this mail.
-> 
-> [root@sector17:/proc/scsi]# uname -a
-> Linux sector17.home.at 2.4.19-pre9 #2 SMP Sat Jun 1 19:31:25 CEST 2002 
-> i686 unknown
-> [root@sector17:/proc/scsi]# cdrecord -scanbus
-> Cdrecord 1.11a08 (i686-pc-linux-gnu) Copyright (C) 1995-2001 Jörg Schilling
-> cdrecord: No such file or directory. Cannot open '/dev/pg*'. Cannot open 
-> SCSI driver.
-> cdrecord: For possible targets try 'cdrecord -scanbus'. Make sure you are 
-> root.
+ 
+> Same hardware as I'm using, but I haven't seen any
+> OOPSes
 
-Christian,
-What does the output of "cat /proc/scsi/sg/*" look like?
+Do you enable DRI?  I dont have oopes if I disable DRI
+inXFree86 config file,
+I use XFree86-4.1.0 from Mandrake 8.1; compile using
+its gcc; and usually having no trouble with this so
+far
 
-Cdrecord should see your plextor writer both as /dev/scd0
-and /dev/sg0 (assuming you don't have any other scsi devices).
-Cdrecord goes on to scan the parallel generic devices (i.e. /dev/pg*)
-if it doesn't find anything suitable on its /dev/sg* scan.
 
-Your post doesn't supply any information that would link
-this problem with the sym53c8xxx driver. If there is some
-problem then there will be some "noise" in the /var/log/messages
-file [typically showing multiple scsi bus resets].
+May be I should upgrade to XFree86-4.2.0 but as far as
+I know the dri module in the standard kernel is too
+old for 4.2.0 to enable dri....
 
-BTW The "-vv" switch (and/or "-VV") on cdrecord will yield more
-debug information. strace may also be useful.
 
-Doug Gilbert
+=====
+Steve Kieu
+
+http://www.sold.com.au - The Sold.com.au Big Brand Sale
+- New PCs, notebooks, digital cameras, phones and more ... Sale ends June 12

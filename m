@@ -1,81 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269772AbUJMSGN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269771AbUJMSIb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269772AbUJMSGN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 14:06:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269771AbUJMSGN
+	id S269771AbUJMSIb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 14:08:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269773AbUJMSIb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 14:06:13 -0400
-Received: from blood.actrix.co.nz ([203.96.16.160]:57514 "EHLO
-	blood.actrix.co.nz") by vger.kernel.org with ESMTP id S269772AbUJMSGH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 14:06:07 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Charles Manning <manningc2@actrix.gen.nz>
-Reply-To: manningc2@actrix.gen.nz
-To: Andreas Dilger <adilger@clusterfs.com>
-Subject: Re: Using ilookup?
-Date: Thu, 14 Oct 2004 07:07:12 +1300
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-References: <20041013013930.9BB6649E9@blood.actrix.co.nz> <20041013055035.GH2061@schnapps.adilger.int>
-In-Reply-To: <20041013055035.GH2061@schnapps.adilger.int>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20041013180358.233046CEA@blood.actrix.co.nz>
+	Wed, 13 Oct 2004 14:08:31 -0400
+Received: from mxfep01.bredband.com ([195.54.107.70]:14790 "EHLO
+	mxfep01.bredband.com") by vger.kernel.org with ESMTP
+	id S269771AbUJMSI0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 14:08:26 -0400
+Subject: Re: Periodic posix timer support broke between 2.6.9-rc1 and
+	2.6.9-rc1-bk17
+From: Alexander Nyberg <alexn@dsv.su.se>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: George Anzinger <george@mvista.com>, johnstul@us.ibm.com,
+       Ulrich.Windl@rz.uni-regensburg.de, jbarnes@sgi.com,
+       linux-kernel@vger.kernel.org, roland@redhat.com,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <Pine.LNX.4.58.0410121315170.5785@schroedinger.engr.sgi.com>
+References: <B6E8046E1E28D34EB815A11AC8CA312902CD3264@mtv-atc-605e--n.corp.sgi.com>
+	 <Pine.LNX.4.58.0409240508560.5706@schroedinger.engr.sgi.com>
+	 <4154F349.1090408@redhat.com>
+	 <Pine.LNX.4.58.0409242253080.13099@schroedinger.engr.sgi.com>
+	 <41550B77.1070604@redhat.com>
+	 <B6E8046E1E28D34EB815A11AC8CA312902CD327E@mtv-atc-605e--n.corp.sgi.com>
+	 <Pine.LNX.4.58.0409271344220.32308@schroedinger.engr.sgi.com>
+	 <4159B920.3040802@redhat.com>
+	 <Pine.LNX.4.58.0409282017340.18604@schroedinger.engr.sgi.com>
+	 <415AF4C3.1040808@mvista.com>
+	 <B6E8046E1E28D34EB815A11AC8CA31290322B307@mtv-atc-605e--n.corp.sgi.com>
+	 <Pine.LNX.4.58.0410062150310.18565@schroedinger.engr.sgi.com>
+	 <Pine.LNX.4.58.0410121315170.5785@schroedinger.engr.sgi.com>
+Content-Type: text/plain
+Message-Id: <1097690892.615.32.camel@boxen>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 13 Oct 2004 20:08:12 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 13 October 2004 18:50, Andreas Dilger wrote:
-> On Oct 13, 2004  14:42 +1300, Charles Manning wrote:
-> > YAFFS allocates its own "objectId"s which are used as inode numbers for
-> > most purposes. When objects get deleted (== unlinked), the object numbers
-> > get recycles.  Sometimes though the Linux cache has an inode after the
-> > object has been deleted. Then if that object id gets recycled before the
-> > cached inode is released, a problem occurs since iget() gets the old
-> > inode instead of creating a new one. We then end up with an
-> > inconsistency.
->
-> You can use iget4() along with a filesystem-specific comparison function,
-> which allows you to distinguish inodes with the same number based on
-> some extra data (e.g. generation number, 64-bit inode numbers, etc).  Is
-> there a reason to recycle the inode numbers, or could you just have a
-> 32-bit counter?
+> I ran some test programs and discovered that the periodic timer support
+> is broken. The timer is triggered once and then never again. Single shot
+> timers work fine. 2.6.9-rc1 is fine. The first kernel that I tested where
+> I noticed the breakage was 2.6.9-rc1-bk17. 2.6.9-rc2 and following all
+> cannot do periodic timer signals.
+> 
+> I looked through the changelog but I cannot see anything that would cause
+> the problem. Roland's patch surely could not have done this.
+> 
+> Will try to track this down further, time permitting...
 
-The problem, I believe, with iget4() is that this will make a new inode if 
-one does not exist which seems to be more running around than I really want 
-(especially since in most cases the inode will not exist).
+I took a bit of a look at this, and it looks like some things changed
+with the introduction of the flexible mmap in 2.6.9-rc1-bk1.
 
-The number space is 18 bits, but even with 32 bits incrementing through the 
-list will not make the problem go away, just reduce it to a very small 
-probability.
+If you run the program below it will work, doing as expected. Now
+comment out the the line "memset(&sa, 0, sizeof(struct sigaction));"
+and program won't run as expected.
 
->
-> > 1)  Somehow plug myself into the inode iput() chain so that I know when
-> > an inode is removed from the cache. I can then make sure that I don't
-> > free up the inode number for reuse until the inode is not in the cache.
-> > Any hints on how to do that?
->
-> You can use the ->delete_inode method which is a hook to be called
-> before/instead of the clear_inode() function in iput(), and is
-> the last thing action taken when the inode is being unlinked.  There
-> is also the ->clear_inode inode method, which is called when inodes
-> are being put away but not only when being unlinked.
+Now do "echo -n 1 > /proc/sys/vm/legacy_va_layout" and run the same
+program again (the one with memset commented out).
 
-It seems to me that delete_inode() is the place to hook into. I already use 
-this for regular files, I just need to extend this to directories, pipes and 
-other specials.
+Turning on signal debugging tells us that with legacy_va_layout=0
+"SIG deliver (a.out:415): sp=bffff6c0 pc=08048434 ra=00000000"
+where ra is the 8-byte instruction that's supposed to get us back to
+sys_sigreturn().
 
-I knew about the regular file case because you can do things like:
+Me thinks someone somewhere is using some of the bits that we
+"accidently" pass via sa.sa_flags by not setting it to 0, the regular
+flags don't seem to show this behaviour, and I couldn't see any real
+checking of the passed value of sa.sa_flags.
 
-  f= open("xx"...);; /
- unlink("xx");  // file no longer exists in directory, but still exists 
- read(f...)
- write(f...)
- close(f) ; // file disappears from disk.
+---------------------------------------------------------
 
-I did npt realise that you could essentially achieve the same thing with 
-directories, pipes and other specials.
+#include <stdio.h>
+#include <stdlib.h>
+#include <signal.h>
+#include <sys/time.h>
 
-Thanks for the help.
+void sighandler(int signal)
+{
+	printf("hihi\n");
+}
 
--- Charles
+int main()
+{
+	struct itimerval timeval;
+	struct sigaction sa;
+	
+	memset(&timeval, 0, sizeof(struct timeval));
+	memset(&sa, 0, sizeof(struct sigaction));
+	
+	sa.sa_handler = &sighandler;
+	sigfillset(&sa.sa_mask);
+	
+	sigaction(SIGALRM, &sa, NULL);
+	
+	timeval.it_interval.tv_sec = 2;
+	timeval.it_interval.tv_usec = 0;
+	
+	timeval.it_value.tv_sec = 2;
+	timeval.it_value.tv_usec = 0;
+	
+	if (setitimer(ITIMER_REAL, &timeval, NULL))
+		printf("Nooo!\n");
+
+	for(;;)
+		;
+
+	return 0;
+}
+

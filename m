@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262058AbRETP4d>; Sun, 20 May 2001 11:56:33 -0400
+	id <S262063AbRETQAn>; Sun, 20 May 2001 12:00:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262059AbRETP4X>; Sun, 20 May 2001 11:56:23 -0400
-Received: from t2.redhat.com ([199.183.24.243]:4596 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S262058AbRETP4N>; Sun, 20 May 2001 11:56:13 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20010520114411.A3600@thyrsus.com> 
-In-Reply-To: <20010520114411.A3600@thyrsus.com>  <20010518034307.A10784@thyrsus.com> <E150fV9-0006q1-00@the-village.bc.nu> <20010518105353.A13684@thyrsus.com> <3B053B9B.23286E6C@redhat.com> <20010518112625.A14309@thyrsus.com> <20010518113726.A29617@devserv.devel.redhat.com> <20010518114922.C14309@thyrsus.com> <8485.990357599@redhat.com> <20010520111856.C3431@thyrsus.com> <15823.990372866@redhat.com> 
-To: esr@thyrsus.com
-Cc: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: CML2 design philosophy heads-up 
+	id <S262061AbRETQAe>; Sun, 20 May 2001 12:00:34 -0400
+Received: from geos.coastside.net ([207.213.212.4]:4048 "EHLO
+	geos.coastside.net") by vger.kernel.org with ESMTP
+	id <S262063AbRETQAS>; Sun, 20 May 2001 12:00:18 -0400
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 20 May 2001 16:56:10 +0100
-Message-ID: <16267.990374170@redhat.com>
+Message-Id: <p05100304b72d9979094a@[207.213.214.37]>
+In-Reply-To: <20010521021619.A6946@metastasis.f00f.org>
+In-Reply-To: <811opRpHw-B@khms.westfalen.de>
+ <Pine.LNX.4.21.0105151107290.2112-100000@penguin.transmeta.com>
+ <p05100316b7272cdfd50c@[207.213.214.37]> <811opRpHw-B@khms.westfalen.de>
+ <p05100301b72a335d4b61@[10.128.7.49]> <81BywVLHw-B@khms.westfalen.de>
+ <p0510031eb72c5f11b8c7@[207.213.214.37]>
+ <20010521021619.A6946@metastasis.f00f.org>
+Date: Sun, 20 May 2001 08:57:09 -0700
+To: Chris Wedgwood <cw@f00f.org>
+From: Jonathan Lundell <jlundell@pobox.com>
+Subject: Re: LANANA: To Pending Device Number Registrants
+Cc: Kai Henningsen <kaih@khms.westfalen.de>, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 2:16 AM +1200 2001-05-21, Chris Wedgwood wrote:
+>On Sat, May 19, 2001 at 10:36:14AM -0700, Jonathan Lundell wrote:
+>
+>     I know from system documentation, or can figure out once and for
+>     all by experimentation, the correspondence between PCI
+>     bus/dev/fcn and physical locations. Jeff's extension gives me the
+>     mapping between eth# and PCI bus/dev/fcn, which is not otherwise
+>     available (outside the kernel).
+>
+>Won't work with hotplug PCI (consider plugging in something with a
+>bridge).
 
-esr@thyrsus.com said:
-> There are no `advisory' dependencies in CML2.  They're all absolute.
-> What you call an `advisory' dependency would be simulated by having a
-> policy symbol for Aunt Tillie mode and writing constraints like this:
-
-> require AUNT_TILLIE implies FOO >= BAR
-
-> This is exactly why the CML2 ruleset has EXPERT, WIZARD, and TUNING
-> policy symbols, as hooks for doing things like this.  
-
-Excellent. Then I apologise for not reading the documentation.
-
-After the discussion of MAC and SCSI config options many moons ago in this
-thread, I was left with the impression that the constraints which were 
-being objected to were not dependent upon a NOVICE mode, but were 
-unconditional.
-
-Was this merely a mistake in the conversion of the ruleset? Do you have a 
-policy that the default behaviour should be similar to that of CML1, or at 
-least that such behaviour should be available through one of the 
-modes? If not, please consider doing so.
-
---
-dwmw2
-
-
+It's true that hotplug devices make it more complicated, but I think 
+the result can be achieved by describing the correspondence 
+topologically rather than as a simple b/d/f-to-location table.
+-- 
+/Jonathan Lundell.

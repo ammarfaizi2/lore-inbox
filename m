@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262681AbULPO3i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262684AbULPOcf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262681AbULPO3i (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 09:29:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262679AbULPO2k
+	id S262684AbULPOcf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 09:32:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262679AbULPO34
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 09:28:40 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:13442 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262678AbULPO1t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 09:27:49 -0500
-Subject: Re: [patch, 2.6.10-rc3] safe_hlt() & NMIs
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Lee Revell <rlrevell@joe-job.com>, Andrea Arcangeli <andrea@suse.de>,
-       Manfred Spraul <manfred@colorfullife.com>,
-       George Anzinger <george@mvista.com>, dipankar@in.ibm.com,
-       ganzinger@mvista.com, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>
-In-Reply-To: <Pine.LNX.4.61.0412151909110.5038@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.61.0412110751020.5214@montezuma.fsmlabs.com>
-	 <41BB2108.70606@colorfullife.com> <41BB25B2.90303@mvista.com>
-	 <Pine.LNX.4.61.0412111947280.7847@montezuma.fsmlabs.com>
-	 <41BC0854.4010503@colorfullife.com>
-	 <20041212093714.GL16322@dualathlon.random>
-	 <41BC1BF9.70701@colorfullife.com>
-	 <20041212121546.GM16322@dualathlon.random>
-	 <1103060437.14699.27.camel@krustophenia.net>
-	 <20041214222307.GB22043@elte.hu> <20041214224706.GA26853@elte.hu>
-	 <Pine.LNX.4.58.0412141501250.3279@ppc970.osdl.org>
-	 <1103157476.3585.33.camel@localhost.localdomain>
-	 <Pine.LNX.4.61.0412151909110.5038@montezuma.fsmlabs.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1103203594.3804.19.camel@localhost.localdomain>
+	Thu, 16 Dec 2004 09:29:56 -0500
+Received: from wproxy.gmail.com ([64.233.184.198]:18814 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262684AbULPO30 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 09:29:26 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=O5CXBg4b5EiZh9BFyt8kNgEoM4YD/kRb6x3RxNlvJdCEsuFFKV4fr+DmVy68/0+eegu9deLwr+lKnHrYn2z7K4319hmg1jyh+vtBNjQZYlkkhkjzPiyhXqi3yxwbfeUUR/AOPOOUwX/CKrMD73H8J6DCCP7NDfutZgv2RjHv56c=
+Message-ID: <58cb370e04121606295fe384fc@mail.gmail.com>
+Date: Thu, 16 Dec 2004 15:29:19 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [2.6.10-rc2+] ide1=ata66 -- OBSOLETE OPTION, WILL BE REMOVED SOON!
+Cc: Rene Herman <rene.herman@keyaccess.nl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1103154772.3585.24.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 16 Dec 2004 13:26:35 +0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <41B36021.5050600@keyaccess.nl>
+	 <58cb370e04121313473057143b@mail.gmail.com>
+	 <1103154772.3585.24.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2004-12-16 at 02:10, Zwane Mwaikambo wrote:
-> Might this be because you can't rely on interrupt suppression for back to 
-> back suppressing instructions?
+On Wed, 15 Dec 2004 23:52:52 +0000, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> On Llu, 2004-12-13 at 21:47, Bartlomiej Zolnierkiewicz wrote:
+> > > I do need a way to force an 80c cable on this AMD756 (ATA66 max) board,
+> > > since the BIOS doesn't seem to be setting the cable bits correctly.
+> >
+> > Ugh, I checked AMD datasheets and AMD756 doesn't support host
+> > side cable detection.  Well, we can try doing disk side only for it.
+> > [ ATi and ITE (in -ac kernels) drivers are also doing this. ]
+> 
+> That is probably a good change but not sufficient for things like
+> bladeservers where some vendors use short 40c cables which are within
+> specification but break drive side detection. Removing ata66 forcing
+> doesn't work because of these although perhaps it could be done using
+> subvendor ids so it is automatic ?
 
-The documentation seems to have little to say on this. I've also not
-tried things like interleaved mov->ss, sti to see how the interlocking
-is done. It would make sense given the original 8086 reason was to allow
-ss/sp to be loaded cleanly.
+Yes, one of the aims of deprecating ata66 override was to see what can
+be done automatically.  The fewer special kernel parameters the better
+(w/o sacrificing functionality of course).
 
+> Right now I plan to keep ata66 overrides in -ac.
+
+Fine but I'm not going to remove them soon (warning is a bit strong
+to help us gain more knowledge :), however it would be nice if somebody
+could move them from IDE core to specific host drivers.
+
+Bartlomiej

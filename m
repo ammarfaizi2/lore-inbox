@@ -1,102 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277918AbRLBNYx>; Sun, 2 Dec 2001 08:24:53 -0500
+	id <S277713AbRLBNXW>; Sun, 2 Dec 2001 08:23:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282873AbRLBNYn>; Sun, 2 Dec 2001 08:24:43 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:38546 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S277918AbRLBNY1>; Sun, 2 Dec 2001 08:24:27 -0500
-Date: Sun, 2 Dec 2001 15:28:57 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: <zwane@netfinity.realnet.co.sz>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] floppy.c #defines
-In-Reply-To: <3C0A1B2B.D2285CB@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.33.0112021526530.3767-100000@netfinity.realnet.co.sz>
+	id <S277918AbRLBNXM>; Sun, 2 Dec 2001 08:23:12 -0500
+Received: from fungus.teststation.com ([212.32.186.211]:15367 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id <S277713AbRLBNXB>; Sun, 2 Dec 2001 08:23:01 -0500
+Date: Sun, 2 Dec 2001 14:22:56 +0100 (CET)
+From: Urban Widmark <urban@teststation.com>
+To: "Eric S. Raymond" <esr@thyrsus.com>
+cc: <linux-kernel@vger.kernel.org>, <kbuild-devel@lists.sourceforge.net>
+Subject: Re: Missing Configure,help entries need filling in
+In-Reply-To: <20011201122608.A9983@thyrsus.com>
+Message-ID: <Pine.LNX.4.30.0112021407280.27659-100000@cola.teststation.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 1 Dec 2001, Eric S. Raymond wrote:
 
---- linux-2.5.1-pre5/drivers/block/floppy.c	Sun Dec  2 14:26:22 2001
-+++ linux-2.5.1-pre5-test/drivers/block/floppy.c	Sun Dec  2 15:25:07 2001
-@@ -496,7 +496,7 @@
+> We're down to 120 missing help entries.  If you can fill some of these
+> in, please send me a patch for Configure.help.
+...
+> VIA_RHINE_MMIO
 
- #define NO_SIGNAL (!interruptible || !signal_pending(current))
- #define CALL(x) if ((x) == -EINTR) return -EINTR
--#define ECALL(x) if ((ret = (x))) return ret;
-+#define ECALL(x) if ((ret = (x))) return ret
- #define _WAIT(x,i) CALL(ret=wait_til_done((x),i))
- #define WAIT(x) _WAIT((x),interruptible)
- #define IWAIT(x) _WAIT((x),1)
-@@ -663,23 +663,8 @@
- 	timeout_message = message;
- }
+This bit was included in the original patch.
+Do you want it as a patch for 2.4 also or do you merge by-hand anyway?
 
--static int maximum(int a, int b)
--{
--	if (a > b)
--		return a;
--	else
--		return b;
--}
--#define INFBOUND(a,b) (a)=maximum((a),(b));
--
--static int minimum(int a, int b)
--{
--	if (a < b)
--		return a;
--	else
--		return b;
--}
--#define SUPBOUND(a,b) (a)=minimum((a),(b));
-+#define INFBOUND(a,b) (a)=max((a),(b))
-+#define SUPBOUND(a,b) (a)=min((a),(b))
+/Urban
 
 
- /*
-@@ -2474,12 +2459,12 @@
- 	int size;
-
- 	max_sector = transfer_size(ssize,
--				   minimum(max_sector, max_sector_2),
-+				   min(max_sector, max_sector_2),
- 				   CURRENT->nr_sectors);
-
- 	if (current_count_sectors <= 0 && CT(COMMAND) == FD_WRITE &&
- 	    buffer_max > fsector_t + CURRENT->nr_sectors)
--		current_count_sectors = minimum(buffer_max - fsector_t,
-+		current_count_sectors = min(buffer_max - fsector_t,
- 						CURRENT->nr_sectors);
-
- 	remaining = current_count_sectors << 9;
-@@ -2497,7 +2482,7 @@
- 	}
- #endif
-
--	buffer_max = maximum(max_sector, buffer_max);
-+	buffer_max = max(max_sector, buffer_max);
-
- 	dma_buffer = floppy_track_buffer + ((fsector_t - buffer_min) << 9);
-
-@@ -2653,7 +2638,7 @@
- 	if ((_floppy->rate & FD_2M) && (!TRACK) && (!HEAD)){
- 		max_sector = 2 * _floppy->sect / 3;
- 		if (fsector_t >= max_sector){
--			current_count_sectors = minimum(_floppy->sect - fsector_t,
-+			current_count_sectors = min(_floppy->sect - fsector_t,
- 							CURRENT->nr_sectors);
- 			return 1;
- 		}
-@@ -3506,7 +3491,7 @@
- 	/* copyin */
- 	CLEARSTRUCT(&inparam);
- 	if (_IOC_DIR(cmd) & _IOC_WRITE)
--		ECALL(fd_copyin((void *)param, &inparam, size))
-+		ECALL(fd_copyin((void *)param, &inparam, size));
-
- 	switch (cmd) {
- 		case FDEJECT:
+diff -urN -X exclude linux-2.5.1-pre5-orig/Documentation/Configure.help linux/Documentation/Configure.help
+--- linux-2.5.1-pre5-orig/Documentation/Configure.help	Sat Dec  1 17:24:59 2001
++++ linux/Documentation/Configure.help	Sun Dec  2 14:10:42 2001
+@@ -11002,6 +11002,17 @@
+   a module, say M here and read <file:Documentation/modules.txt> as
+   well as <file:Documentation/networking/net-modules.txt>.
+ 
++VIA Rhine MMIO support (EXPERIMENTAL)
++CONFIG_VIA_RHINE_MMIO
++  This instructs the driver to use PCI shared memory (MMIO) instead of
++  programmed I/O ports (PIO). Enabling this gives an improvement in
++  processing time in parts of the driver.
++
++  It is not known if this works reliably on all "rhine" based cards,
++  but it has been tested successfully on some DFE-530TX adapters.
++
++  If unsure, say N.
++
+ Davicom DM910x/DM980x support
+ CONFIG_DM9102
+   This driver is for DM9102(A)/DM9132/DM9801 compatible PCI cards from
 

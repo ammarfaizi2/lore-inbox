@@ -1,51 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261685AbUKHJqq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261838AbUKHJqp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261685AbUKHJqq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 04:46:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261789AbUKHJcQ
+	id S261838AbUKHJqp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 04:46:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261793AbUKHJcy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 04:32:16 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:21982 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261807AbUKHJEI
+	Mon, 8 Nov 2004 04:32:54 -0500
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:20938 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S261802AbUKHJMh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 04:04:08 -0500
-X-Envelope-From: kraxel@bytesex.org
-Date: Mon, 8 Nov 2004 09:54:54 +0100
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Andrew Morton <akpm@osdl.org>, Kernel List <linux-kernel@vger.kernel.org>
-Subject: [patch] videodev2.h patchlet
-Message-ID: <20041108085454.GA19377@bytesex>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Mon, 8 Nov 2004 04:12:37 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: Grzegorz Kulewski <kangur@polcom.net>
+Subject: Re: Why my computer freeze completely with xawtv ?
+Date: Mon, 8 Nov 2004 10:08:20 +0100
+User-Agent: KMail/1.6.2
+Cc: Con Kolivas <kernel@kolivas.org>,
+       Gregoire Favre <Gregoire.Favre@freesurf.ch>,
+       linux-kernel@vger.kernel.org
+References: <20041107224621.GB5360@magma.epfl.ch> <418EBFE5.5080903@kolivas.org> <Pine.LNX.4.60.0411080919220.32677@alpha.polcom.net>
+In-Reply-To: <Pine.LNX.4.60.0411080919220.32677@alpha.polcom.net>
+MIME-Version: 1.0
+Message-Id: <200411081008.20960.arnd@arndb.de>
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_EezjBP7E83qLmQX";
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-The following patchlet to videodev2.h brings in the "__user" definition
-from linux/compiler.h, making it suitable for inclusion in both kernel
-or user code.
+--Boundary-02=_EezjBP7E83qLmQX
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Stelian.
+On Maandag 08 November 2004 09:30, Grzegorz Kulewski wrote:
 
-Signed-off-by: Stelian Pop <stelian@popies.net>
-Signed-off-by: Gerd Knorr <kraxel@bytesex.org>
----
- include/linux/videodev2.h |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+> I suspect two things:
+> - there is some bug in bttv and similar drivers (DVB) that corrupts memor=
+y=20
+> related with internal mm and vfs structures or does something equally bad,
+> - or maybe PCI bandwitch is overflowed, but I do not think it should=20
+> happen.
+>=20
+> But it is very hard to prove any of these I am afraid.
 
---- 1.8/include/linux/videodev2.h	2004-07-12 10:01:15 +02:00
-+++ edited/include/linux/videodev2.h	2004-10-21 19:12:18 +02:00
-@@ -16,6 +16,7 @@
- #ifdef __KERNEL__
- #include <linux/time.h> /* need struct timeval */
- #endif
-+#include <linux/compiler.h> /* need __user */
- 
- /*
-  *	M I S C E L L A N E O U S
+I have the problem as well since I moved from my K6-II to an Opteron based
+system. As a workaround, I only use the card in grab mode instead of
+overlay, this reduces the frequency of the crashes from once per 30 minutes
+to once per month.
 
--- 
-#define printk(args...) fprintf(stderr, ## args)
+Someone also suggested the problem might be related to the old bt848
+(ca. 1997) chip not behaving well on modern PCI buses.
+
+	Arnd <><
+
+
+
+--Boundary-02=_EezjBP7E83qLmQX
+Content-Type: application/pgp-signature
+Content-Description: signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBjzeE5t5GS2LDRf4RAhoZAJ9aJnFGlbw9V/vzMkdfXA/wJ0xLOgCgg+jw
+NJmgei3lLokTjeMCY0Dj5Nc=
+=6A+f
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_EezjBP7E83qLmQX--

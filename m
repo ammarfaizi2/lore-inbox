@@ -1,64 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261542AbTC3T7l>; Sun, 30 Mar 2003 14:59:41 -0500
+	id <S261545AbTC3UVJ>; Sun, 30 Mar 2003 15:21:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261545AbTC3T7l>; Sun, 30 Mar 2003 14:59:41 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:54032 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261542AbTC3T7k>; Sun, 30 Mar 2003 14:59:40 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: 64-bit kdev_t - just for playing
-Date: 30 Mar 2003 12:10:43 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <b67j03$2os$1@cesium.transmeta.com>
-References: <UTC200303270109.h2R19ME28410.aeb@smtp.cwi.nl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+	id <S261550AbTC3UVJ>; Sun, 30 Mar 2003 15:21:09 -0500
+Received: from mail.coastside.net ([207.213.212.6]:48048 "EHLO
+	mail.coastside.net") by vger.kernel.org with ESMTP
+	id <S261545AbTC3UVJ>; Sun, 30 Mar 2003 15:21:09 -0500
+Mime-Version: 1.0
+Message-Id: <p0521061cbaad04701a02@[207.213.214.37]>
+In-Reply-To: <20030330172306.GA6666@zaurus.ucw.cz>
+References: <7A5D4FEED80CD61192F2001083FC1CF9065148@CHARLY>
+ <20030330172306.GA6666@zaurus.ucw.cz>
+Date: Sun, 30 Mar 2003 12:32:06 -0800
+To: Pavel Machek <pavel@ucw.cz>, "Filipau, Ihar" <ifilipau@sussdd.de>
+From: Jonathan Lundell <linux@lundell-bros.com>
+Subject: Re: inw/outw performance
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <UTC200303270109.h2R19ME28410.aeb@smtp.cwi.nl>
-By author:    Andries.Brouwer@cwi.nl
-In newsgroup: linux.dev.kernel
+At 7:23pm +0200 3/30/03, Pavel Machek wrote:
+>  >   And actually what I have found that on my development P3/1GHz system
+>>    every inw() takes more that 3us. I wasn't measuring outw() yet - but
+>>    I do not expect its timing to be better.
 >
-> >> Maybe I should send another patch tonight, just for playing.
-> 
-> > Please, I'd like that.
-> 
-> Below a random version of kdev_t.h.
-> (The file is smaller than the patch.)
-> 
-> kdev_t is the kernel-internal representation
-> dev_t is the kernel idea of the user space representation
-> (of course glibc uses 64 bits, split up as 8+8 :-)
-> 
-> kdev_t can be equal to dev_t.
-> 
-> The file below completely randomly makes kdev_t
-> 64 bits, split up 32+32, and dev_t 32 bits, split up 12+20.
-> 
+>inw/outw *is* slow. Memory map your
+>registers to speed it up.
 
-I have a few brief questions:
-
-a) Along all of these you have assumed that it's more efficient to
-have a separate type (kdev_t) for kernel-internal "decoded" device number
-handling, as opposed to "encoded" device number handling.  At some
-point, however, it ends up being a struct char_dev * or struct
-block_dev *.  How big is this gap and does it really make sense
-introducing a special type for it?
-
-b) If we do have such a type, would it make more sense to have cdev_t
-and bdev_t, and have per-type distinction of block- versus charness?
-
-c) If we do have such a type, any reason to have it be a "unsigned
-long long" (really should be u64), instead of "u32 major; u32 minor;"?
-
-	-hpa
+Shouldn't be *that* slow, though, especially over PCI, unless the 
+device in question is taking that long to respond--in which case 
+memory mapping won't help.
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+/Jonathan Lundell.

@@ -1,131 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284144AbSBBXdM>; Sat, 2 Feb 2002 18:33:12 -0500
+	id <S282978AbSBBXlO>; Sat, 2 Feb 2002 18:41:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282978AbSBBXdD>; Sat, 2 Feb 2002 18:33:03 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10764 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S282967AbSBBXcs>;
-	Sat, 2 Feb 2002 18:32:48 -0500
-Message-ID: <3C5C76F2.78BA9A54@zip.com.au>
-Date: Sat, 02 Feb 2002 15:32:02 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Lars Christensen <larsch@cs.auc.dk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17 agpgart process hang on crash
-In-Reply-To: <3C5C68E2.32D11734@zip.com.au> <Pine.GSO.4.33.0202030009280.794-100000@peta.cs.auc.dk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S282967AbSBBXlF>; Sat, 2 Feb 2002 18:41:05 -0500
+Received: from hs-gate.handshake.de ([193.141.176.10]:49668 "EHLO
+	hs-gate.handshake.de") by vger.kernel.org with ESMTP
+	id <S282978AbSBBXk6>; Sat, 2 Feb 2002 18:40:58 -0500
+From: columbus@hit.handshake.de (Christoph Bartelmus)
+X-ZC-PGP-Key-Avail: 
+X-Mailer: CrossPoint/OpenXP v3.40RC3@2412012358 R/A18112
+Message-ID: <8IBS9f7Xz9B@hit-columbus.hit.handshake.de>
+Organization: Handshake e.V.
+X-Gateway: ZCONNECT UR hit.handshake.de [DUUCP vom 25.09.2000]
+Subject: PROBLEM: serial port driver grabs occupied port
+Date: 02 Feb 2002 23:21:00 GMT
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lars Christensen wrote:
-> 
-> No luck. Still hangs (e.g. with ./testgart & pkill -ABRT testgart), with
-> and without that patch and with and without 2.4.18-pre7. Does seem to
-> happen when dumping core--it doesn't happen with core dumping disabled.
-> 
+Hi,
 
-This one, please:
+there's a problem with linux/drivers/char/serial.c that appears when using  
+the LIRC serial port drivers (see http://www.lirc.org). Here's how to  
+reproduce the problem:
 
---- linux-2.4.18-pre7/drivers/char/agp/agpgart_fe.c	Sun Aug 12 10:38:48 2001
-+++ linux-akpm/drivers/char/agp/agpgart_fe.c	Sat Feb  2 15:29:49 2002
-@@ -605,19 +605,18 @@ static int agp_mmap(struct file *file, s
- 	agp_client *client;
- 	agp_file_private *priv = (agp_file_private *) file->private_data;
- 	agp_kern_info kerninfo;
-+	int ret = -EPERM;
- 
- 	lock_kernel();
- 	AGP_LOCK();
- 
- 	if (agp_fe.backend_acquired != TRUE) {
--		AGP_UNLOCK();
--		unlock_kernel();
--		return -EPERM;
-+		ret = -EPERM;
-+		goto out;
+1. Load the lirc_serial module (included in the LIRC package). This module  
+uses request_region() for the used serial port's IO space.
+
+2. Load the kernel serial module. In rs_init() the available serial ports  
+are initialized. For the port already claimed by the lirc_serial module  
+check_region() fails and state->type for this port stays PORT_UNKNOWN.
+
+Now the problem:
+3. Open the /dev/ttySx for the port that is occupied by the lirc_serial  
+module. rs_open() does not check the state of the serial port and returns  
+no error. Now you can use setserial to hijack the port... lirc_serial  
+stops working.
+
+The patch below fixes the problem for me (tested with 2.2.19 and 2.2.20).  
+There's one problem with this patch though. Once state->type ist  
+PORT_UNKNOWN for a port there's no way to reclaim the port with e.g.  
+setserial unless you remove the serial port module and load it again.
+
+Christoph
+
+PS: I'm not subscribed, cc me if replying.
+
+--- Schnipp ---
+--- linux/drivers/char/serial.c	Sun Mar 25 18:37:31 2001
++++ serial.c	Tue Jan 15 18:20:59 2002
+@@ -928,6 +928,11 @@
+ 	unsigned short ICP;
+ #endif
+
++	if(state->type == PORT_UNKNOWN)
++	{
++		return -ENODEV;
++	}
++
+ 	page = get_free_page(GFP_KERNEL);
+ 	if (!page)
+ 		return -ENOMEM;
+@@ -1738,7 +1743,10 @@
+ 	info->xmit_fifo_size = state->xmit_fifo_size =
+ 		new_serial.xmit_fifo_size;
+
+-	release_region(state->port,8);
++	if(old_state.type != PORT_UNKNOWN)
++	{
++		release_region(state->port,8);
++	}
+ 	if (change_port || change_irq) {
+ 		/*
+ 		 * We need to shutdown the serial port at the old
+@@ -1750,8 +1758,14 @@
+ 		info->hub6 = state->hub6 = new_serial.hub6;
  	}
- 	if (!(test_bit(AGP_FF_IS_VALID, &priv->access_flags))) {
--		AGP_UNLOCK();
--		unlock_kernel();
--		return -EPERM;
-+		ret = -EPERM;
-+		goto out;
- 	}
- 	agp_copy_info(&kerninfo);
- 	size = vma->vm_end - vma->vm_start;
-@@ -627,52 +626,46 @@ static int agp_mmap(struct file *file, s
- 
- 	if (test_bit(AGP_FF_IS_CLIENT, &priv->access_flags)) {
- 		if ((size + offset) > current_size) {
--			AGP_UNLOCK();
--			unlock_kernel();
--			return -EINVAL;
-+			ret = -EINVAL;
-+			goto out;
- 		}
- 		client = agp_find_client_by_pid(current->pid);
- 
- 		if (client == NULL) {
--			AGP_UNLOCK();
--			unlock_kernel();
--			return -EPERM;
-+			ret = -EPERM;
-+			goto out;
- 		}
- 		if (!agp_find_seg_in_client(client, offset,
- 					    size, vma->vm_page_prot)) {
--			AGP_UNLOCK();
--			unlock_kernel();
--			return -EINVAL;
-+			ret = -EINVAL;
-+			goto out;
- 		}
- 		if (remap_page_range(vma->vm_start,
- 				     (kerninfo.aper_base + offset),
- 				     size, vma->vm_page_prot)) {
--			AGP_UNLOCK();
--			unlock_kernel();
--			return -EAGAIN;
--		}
--		AGP_UNLOCK();
--		unlock_kernel();
--		return 0;
-+			ret = -EAGAIN;
-+			goto out;
+ 	if (state->type != PORT_UNKNOWN)
++	{
++		retval=check_region(state->port,8);
++		if(retval<0)
++		{
++			return retval;
 +		}
-+		ret = 0;
-+		goto out;
- 	}
- 	if (test_bit(AGP_FF_IS_CONTROLLER, &priv->access_flags)) {
- 		if (size != current_size) {
--			AGP_UNLOCK();
--			unlock_kernel();
--			return -EINVAL;
-+			ret = -EINVAL;
-+			goto out;
- 		}
- 		if (remap_page_range(vma->vm_start, kerninfo.aper_base,
- 				     size, vma->vm_page_prot)) {
--			AGP_UNLOCK();
--			unlock_kernel();
--			return -EAGAIN;
--		}
--		AGP_UNLOCK();
--		unlock_kernel();
--		return 0;
-+			ret = -EAGAIN;
-+			goto out;
-+		}
-+		ret = 0;
- 	}
-+out:
- 	AGP_UNLOCK();
- 	unlock_kernel();
-+	if (ret == 0)
-+		vma->vm_flags |= VM_IO;
- 	return -EPERM;
+ 		request_region(state->port,8,"serial(set)");
+-
++	}
+ 	
+ check_and_exit:
+ 	if (!state->port || !state->type)
+@@ -3586,3 +3600,4 @@
+ 	return kmem_start;
  }
+ #endif
++
+--- Schnipp ---

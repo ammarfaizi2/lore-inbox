@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262220AbSJFV2E>; Sun, 6 Oct 2002 17:28:04 -0400
+	id <S262209AbSJFVmA>; Sun, 6 Oct 2002 17:42:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262221AbSJFV2E>; Sun, 6 Oct 2002 17:28:04 -0400
-Received: from bitmover.com ([192.132.92.2]:19857 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S262220AbSJFV15>;
-	Sun, 6 Oct 2002 17:27:57 -0400
-Date: Sun, 6 Oct 2002 14:33:30 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Larry McVoy <lm@bitmover.com>, jbradford@dial.pipex.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: New BK License Problem?
-Message-ID: <20021006143330.S29486@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Rik van Riel <riel@conectiva.com.br>, Larry McVoy <lm@bitmover.com>,
-	jbradford@dial.pipex.com, linux-kernel@vger.kernel.org
-References: <20021006113824.P29486@work.bitmover.com> <Pine.LNX.4.44L.0210061823380.22735-100000@imladris.surriel.com>
-Mime-Version: 1.0
+	id <S262212AbSJFVl7>; Sun, 6 Oct 2002 17:41:59 -0400
+Received: from mta01ps.bigpond.com ([144.135.25.133]:10441 "EHLO
+	mta01ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S262209AbSJFVl6>; Sun, 6 Oct 2002 17:41:58 -0400
+Message-ID: <3DA0AFBE.935D25BA@bigpond.com>
+Date: Mon, 07 Oct 2002 07:48:46 +1000
+From: Allan Duncan <allan.d@bigpond.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.20-pre9 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andries Brouwer <aebr@win.tue.nl>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.40 etc and IDE HDisk geometry
+References: <3D9D9BE4.32421A87@bigpond.com> <20021004215049.GA20192@win.tue.nl>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44L.0210061823380.22735-100000@imladris.surriel.com>; from riel@conectiva.com.br on Sun, Oct 06, 2002 at 06:26:17PM -0300
-X-MailScanner: Found to be clean
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 06, 2002 at 06:26:17PM -0300, Rik van Riel wrote:
-> > If we decided to GPL it, I don't see how it would make sense for us
-> > to do so for any reasonable price.
+Andries Brouwer wrote:
 > 
-> Not only that, but GPLing bitkeeper while you still have a large
-> TODO list seems like a bad thing for the software.
+> On Fri, Oct 04, 2002 at 11:47:16PM +1000, Allan Duncan wrote:
+> 
+> > Question is - what is determining that initial value that becomes the "logical"
+> > CHS, and does it matter?
+> 
+> No, it does not matter at all.
+> CHS are meaningless numbers not used anywhere anymore in Linux.
+> 
+> If you want to influence what geometry *fdisk will use, give it
+> the appropriate options or commands. No need to go via the kernel.
+> But only in rare cases is it necessary to worry about geometry.
 
-*Exactly*.  And don't forget the followon stuff like integrated bug tracking.
-That's not done yet either.  I wasn't pulling that $12M number out of thin
-air, it's very real.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Like LILO.  It complains that the partition tables don't match the
+geometry, or somesuch, despite an explicit "lba32".
+
+Maybe I should start looking at grub, assuming it doesn't do the same.

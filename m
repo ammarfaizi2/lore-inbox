@@ -1,54 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319525AbSIGViV>; Sat, 7 Sep 2002 17:38:21 -0400
+	id <S319524AbSIGViM>; Sat, 7 Sep 2002 17:38:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319528AbSIGViV>; Sat, 7 Sep 2002 17:38:21 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:60146 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S319525AbSIGViU>; Sat, 7 Sep 2002 17:38:20 -0400
-Date: Sat, 7 Sep 2002 23:42:54 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Hans-Peter Jansen <hpj@urpla.net>
-cc: Alan Cox <alan@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.20-pre5-ac4
-In-Reply-To: <200209072328.27543.hpj@urpla.net>
-Message-ID: <Pine.NEB.4.44.0209072340190.7218-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S319525AbSIGViM>; Sat, 7 Sep 2002 17:38:12 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:3568 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S319524AbSIGViL>; Sat, 7 Sep 2002 17:38:11 -0400
+Subject: Re: LMbench2.0 results
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+       Paolo Ciarrocchi <ciarrocchi@linuxmail.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44L.0209071553020.1857-100000@imladris.surriel.com>
+References: <Pine.LNX.4.44L.0209071553020.1857-100000@imladris.surriel.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 07 Sep 2002 22:44:30 +0100
+Message-Id: <1031435070.14390.14.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 7 Sep 2002, Hans-Peter Jansen wrote:
+On Sat, 2002-09-07 at 19:53, Rik van Riel wrote:
+> On Sat, 7 Sep 2002, Jeff Garzik wrote:
+> > Paolo Ciarrocchi wrote:
+> > > Comments?
+> >
+> > Yeah:  "ouch" because I don't see a single category that's faster.
+> 
+> HZ went to 1000, which should help multimedia latencies a lot.
 
-> Hi Alan, Andre, and friends,
-
-Hi Hans-Peter,
-
->...
-> invalid operand: 0000
-> CPU:    0
-> EIP:    0010:[ide_build_sglist+73/384]    Tainted: PF
->...
-> Anything missing? Just ask. 18-pre4 does that mount smoothly. Besides this glitch,
-> 20-pre5-ac4 "feels" a bit more interactively responsive..
-
-which non-free modues (NVidia?) were loaded on your computer? Is the
-problem reproducible without any non-free module loaded _ever_ since the
-last reboot? If it's still reproducible then please run the output through
-ksymoops as described in Documentation/oops-tracing.txt.
-
-> Hans-Peter
-
-cu
-Adrian
-
--- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
-
-
+It shouldn't materially damage performance unless we have other things
+extremely wrong. Its easy enough to verify by putting HZ back to 100 and
+rebenching 
 
 

@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272485AbTHFWC6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 18:02:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272578AbTHFWC6
+	id S272071AbTHFV46 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 17:56:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272355AbTHFV46
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 18:02:58 -0400
-Received: from fw.osdl.org ([65.172.181.6]:2972 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S272485AbTHFWC4 (ORCPT
+	Wed, 6 Aug 2003 17:56:58 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:30883 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S272071AbTHFV45 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 18:02:56 -0400
-Date: Wed, 6 Aug 2003 15:04:34 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Michael Buesch <fsdeveloper@yahoo.de>
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: [2.6] system is very slow during disk access
-Message-Id: <20030806150434.53c4fa8c.akpm@osdl.org>
-In-Reply-To: <200308062129.47113.fsdeveloper@yahoo.de>
-References: <200308062052.10752.fsdeveloper@yahoo.de>
-	<200308062129.47113.fsdeveloper@yahoo.de>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Aug 2003 17:56:57 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: "Albert E. Whale, CISSP" <aewhale@ABS-CompTech.com>
+Date: Wed, 6 Aug 2003 23:56:27 +0200
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: Linux Kernel Question - from non-subscriber
+Cc: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.50
+Message-ID: <965253710F1@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Buesch <fsdeveloper@yahoo.de> wrote:
->
->  I just tried to run the test-scenario on my other Linux-installation
->  on this machine with kernel 2.4.10 and there the output of the program
->  was quite smooth, even it dd was running und the system was still usable.
+On  6 Aug 03 at 16:59, Albert E. Whale, CISSP wrote:
+> I have been searching for a Howto (which is not outdated or Broken), on
+> how to mount a Netware 3.x or 4.x Filesystem on Linux.  I have 2.4.21
+> operating on Linux Mandrake 9.1.  I have installed ncpfs-2.2.2 and
+> desire to mount this filesystem to recover lost information for a
+> Non-Profit Organization.  I will post a HOWTO to the Slueth-kit List for
+> future reference.
 
-Please boot the 2.6 machine with "profile=1" on the kernel boot command line.
+nwfs can be used for this. ncpfs is for connecting to the live server,
+and you apparently do not have live server, if I understand it correctly.
+ 
+> As the Vender list is non-technical (more of a SCO Flamewar) nature
+> currently, and I am in need of this procedure to mount the Drive (I have
+> a 60 GB Disk on a USB Port with the Ghost Image installed on the drive -
+> full Inode replica).
 
-start the `dd', do a `readprofile -r', wait ten seconds, do
+What's wrong with installing NetWare and accessing data through netware? 
+I think that it is simplest way to go. 
 
-	readprofile -m /wherever/System.map
+If netware cannot mount the disk, then nwfs will not mount
+it too. Besides that nwfs is unmaintained - or at least I do not know
+where updated code lives.
+                                                Best regards,
+                                                    Petr Vandrovec
+                                                    vandrove@vc.cvut.cz
+                                                    
 
-then post the results.
-
-Thanks.

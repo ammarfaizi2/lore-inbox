@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270822AbSISI1O>; Thu, 19 Sep 2002 04:27:14 -0400
+	id <S270566AbSISIYe>; Thu, 19 Sep 2002 04:24:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270881AbSISI1O>; Thu, 19 Sep 2002 04:27:14 -0400
-Received: from 205-158-62-105.outblaze.com ([205.158.62.105]:59558 "HELO
-	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S270822AbSISI1N>; Thu, 19 Sep 2002 04:27:13 -0400
-Message-ID: <20020919083034.24458.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-15"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	id <S270621AbSISIYe>; Thu, 19 Sep 2002 04:24:34 -0400
+Received: from packet.digeo.com ([12.110.80.53]:47500 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S270566AbSISIYe>;
+	Thu, 19 Sep 2002 04:24:34 -0400
+Message-ID: <3D898AEA.7E53DF1E@digeo.com>
+Date: Thu, 19 Sep 2002 01:29:30 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
-To: <phillips@arcor.de>, linux-kernel@vger.kernel.org
-Cc: <akpm@digeo.com>
-Date: Thu, 19 Sep 2002 16:30:34 +0800
+To: Daniel Phillips <phillips@arcor.de>
+CC: Paolo Ciarrocchi <ciarrocchi@linuxmail.org>, linux-kernel@vger.kernel.org
 Subject: Re: [chatroom benchmark version 1.0.1] Results
-X-Originating-Ip: 194.185.48.246
-X-Originating-Server: ws4-4.us4.outblaze.com
+References: <20020919080602.2986.qmail@linuxmail.org> <E17rwaz-0000vY-00@starship>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 19 Sep 2002 08:29:30.0811 (UTC) FILETIME=[ACD4D0B0:01C25FB6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Daniel Phillips <phillips@arcor.de>
+Daniel Phillips wrote:
+> 
+> Just thought I'd bounce this one over to Andrew as a warm-n-fuzzy.
 
-[...]
+Is a scheduler test, isn't it?
+
 > There's also some kind of hint that preemption improves throughput
 > here.
-I'm not so sure, but I'm not a developer,
-just looking to the number:
- 
-> > 2.5.34.results:Average throughput : 62941 messages per second
-> > 2.5.36.results:Average throughput : 60858 messages per second
-2.5.34 and 2.5.36 have more or less the same performances... (2.5.34 is preemption ON, 2.5.36 is OFF)
 
-There is an improovement in throughput in 2.5.3* against 2.4.*, and this is _good_ ;-)
+One needs to treat any test which involves networking to localhost
+with caution.  They tend to show large (+/- 10% or more) swings
+in throughput from one run to the next.  Some sort of cache
+associativity thing; not sure.
 
-Ciao,
-       Paolo
--- 
-Get your free email from www.linuxmail.org 
+Running the test between separate machines is much, much more repeatable.
 
-
-Powered by Outblaze
+We'll get the cpu-local hot pages list code going soon; that may
+provide some benefit to this sort of thing.  Even on uniprocessor.

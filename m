@@ -1,56 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263591AbREYGu7>; Fri, 25 May 2001 02:50:59 -0400
+	id <S263598AbREYGyT>; Fri, 25 May 2001 02:54:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263593AbREYGut>; Fri, 25 May 2001 02:50:49 -0400
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:60940 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id <S263591AbREYGub>; Fri, 25 May 2001 02:50:31 -0400
-From: Norbert Preining <preining@logic.at>
-Date: Fri, 25 May 2001 08:50:24 +0200
-To: linux-kernel@vger.kernel.org, webcam@smcc.demon.nl
-Subject: ac15 and 2.4.5-pre6, pwc format conversion
-Message-ID: <20010525085024.A17867@alpha.logic.tuwien.ac.at>
+	id <S263596AbREYGyJ>; Fri, 25 May 2001 02:54:09 -0400
+Received: from pneumatic-tube.sgi.com ([204.94.214.22]:32841 "EHLO
+	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
+	id <S263594AbREYGxz>; Fri, 25 May 2001 02:53:55 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Andreas Dilger <adilger@turbolinux.com>
+cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [CHECKER] large stack variables (>=1K) in 2.4.4 and 2.4.4-ac8 
+In-Reply-To: Your message of "Fri, 25 May 2001 00:33:56 CST."
+             <200105250633.f4P6Xuj2017833@webber.adilger.int> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Date: Fri, 25 May 2001 16:53:47 +1000
+Message-ID: <24688.990773627@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, 25 May 2001 00:33:56 -0600 (MDT), 
+Andreas Dilger <adilger@turbolinux.com> wrote:
+>Keith Owens writes:
+>> You cannot recover from a kernel stack overflow even with kdb.  The
+>> exception handler and kdb use the stack that just overflowed.
+>
+>If it at least tells you that the stack has overflowed, and a backtrace
+>of the stack up to that point, that would at least be useful for fixing
+>the functions which caused the problem.
 
-According to ac ChangeLog:
-o       Rip format conversion out of the pwc driver     (me)
-        | It belongs in user space..
+A small overflow of the kernel stack overwrites the struct task at the
+bottom of the stack, recovery is dubious at best because we rely on
+data in struct task.  A large overflow of the kernel stack either
+corrupts the storage below this task's stack, which could hit anything,
+or it gets a stack fault.
 
-This change is included in 2.4.5-pre6, but
-	drivers/usb/pwc-uncompress.c
-still relies on this files:
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.5.6-packet/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=k6 -DMODULE   -DEXPORT_SYMTAB -c pwc-uncompress.c
-pwc-uncompress.c:25: vcvt.h: No such file or directory
-pwc-uncompress.c: In function `pwc_decompress':
-pwc-uncompress.c:158: warning: implicit declaration of function `vcvt_420i_rgb24'
-pwc-uncompress.c:161: warning: implicit declaration of function `vcvt_420i_bgr24'
-pwc-uncompress.c:164: warning: implicit declaration of function `vcvt_420i_rgb32'
-pwc-uncompress.c:167: warning: implicit declaration of function `vcvt_420i_bgr32'
-pwc-uncompress.c:171: warning: implicit declaration of function `vcvt_420i_yuyv'
-pwc-uncompress.c:185: warning: implicit declaration of function `vcvt_420i_420p'
+If we take a stack fault on ix86, stack_segment() is invoked.  Just
+taking the fault and calling the routine uses the kernel stack which
+has already overflowed, causing a double fault.  The double fault
+handler uses the kernel stack, generating a triple fault.  The machine
+is now dead.
 
-Best wishes
+The only way to avoid those problems is to move struct task out of the
+kernel stack pages and to use a task gate for the stack fault and
+double fault handlers, instead of a trap gate (all ix86 specific).
+Those methods are expensive, at a minimum they require an extra page
+for every process plus an extra stack per cpu.  I have not even
+considered the extra cost of using task gates for the interrupts nor
+how this method would complicate methods for getting the current struct
+task pointer.  It is not worth the bother, we write better kernel code
+than that.
 
-Norbert
-
-PS: Please reply by email since I am not subscribed and I skim the
-mailing list via the web archive.
-THANKS.
-
--- 
-ciao
-norb
-
-+-------------------------------------------------------------------+
-| Norbert Preining              http://www.logic.at/people/preining |
-| University of Technology Vienna, Austria        preining@logic.at |
-| DSA: 0x09C5B094 (RSA: 0xCF1FA165) mail subject: get [DSA|RSA]-key |
-+-------------------------------------------------------------------+

@@ -1,54 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262062AbTIYXkl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 19:40:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262076AbTIYXkk
+	id S262040AbTIYXin (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 19:38:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbTIYXin
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 19:40:40 -0400
-Received: from mta07bw.bigpond.com ([144.135.24.134]:26067 "EHLO
-	mta07bw.bigpond.com") by vger.kernel.org with ESMTP id S262062AbTIYXkj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 19:40:39 -0400
-Date: Fri, 26 Sep 2003 09:41:58 +1000
-From: gb <gillian.bennett@celentia.com>
-Subject: 2.4.20-20.9
-To: linux-kernel@vger.kernel.org
-Message-id: <1064533319.1361.119.camel@rh-possum>
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11)
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
+	Thu, 25 Sep 2003 19:38:43 -0400
+Received: from mailhost.tue.nl ([131.155.2.7]:44292 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S262040AbTIYXim (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 19:38:42 -0400
+Date: Fri, 26 Sep 2003 01:38:37 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: akpm@osdl.org, dtor_core@ameritech.net, petero2@telia.com,
+       Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 6/8] Extend KD?BENT to handle > 256 keycodes.
+Message-ID: <20030925233837.GA21764@win.tue.nl>
+References: <10645086121089@twilight.ucw.cz> <1064508612197@twilight.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1064508612197@twilight.ucw.cz>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Sep 25, 2003 at 06:50:12PM +0200, Vojtech Pavlik wrote:
 
-not sure if this is the right list to try, but I have tried a few now
-and not found an answer to my problem so I thought I would just give
-this a shot. 
+> -struct kbentry {
+> +struct kbentry_old {
+>  	unsigned char kb_table;
+>  	unsigned char kb_index;
+>  	unsigned short kb_value;
+>  };
+> +#define KDGKBENT_OLD	0x4B46	/* gets one entry in translation table (old) */
+> +#define KDSKBENT_OLD	0x4B47	/* sets one entry in translation table (old) */
+> +
+> +struct kbentry {
+> +	unsigned int kb_table;
+> +	unsigned int kb_index;
+> +	unsigned short kb_value;
+> +};
 
-I have just installed 2.4.20-20.9 kernel on my RH9 machine. At boot up,
-it gets as far through rc.sysinit to try to e2fsck / and then halts with
-the error:
+> -#define KDGKBENT	0x4B46	/* gets one entry in translation table */
+> -#define KDSKBENT	0x4B47	/* sets one entry in translation table */
+> +#define KDGKBENT	0x4B73	/* gets one entry in translation table */
+> +#define KDSKBENT	0x4B74	/* sets one entry in translation table */
 
-Checking root filesystem
-/dev/hda3 is mounted. e2fsck: Cannont continue, aborting.
+Please don't.
 
-The command just before this error is :
+As said already, no new ioctls are needed today, but if you add some
+anyway, please leave old names unchanged and add something new, like
+KDSKBENT32 or so.
 
-initlog -c 'fsck -T -a -C /'
+Reusing old ioctl names for new uses is very bad practice.
 
-it exits with a return code of 8 (operational error)
-
-boot loader is grub, and the stanza's look identical. I used the rpm
-version of the kernel so it was all pretty much done for me. I haven't
-yet tried compiling my own kernel because I wanted to sort out this
-problem first.
-
-I also have the old kernel still available and it boots without error.
-Could you please tell me where I can read about fixing this problem, or
-maybe some things I can try?
-
-Thanks, gillian
-
+Andries
 

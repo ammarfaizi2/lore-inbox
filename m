@@ -1,70 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262322AbREROBF>; Fri, 18 May 2001 10:01:05 -0400
+	id <S262324AbREROBP>; Fri, 18 May 2001 10:01:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262326AbREROAz>; Fri, 18 May 2001 10:00:55 -0400
-Received: from hermes.sistina.com ([208.210.145.141]:19472 "HELO sistina.com")
-	by vger.kernel.org with SMTP id <S262322AbREROAm>;
-	Fri, 18 May 2001 10:00:42 -0400
-Date: Fri, 18 May 2001 15:57:32 +0000
-From: "Heinz J. Mauelshagen" <Mauelshagen@Sistina.com>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: Mauelshagen@Sistina.com, Thomas Kotzian <thomasko321k@gmx.at>,
-        Helge Hafting <helgehaf@idb.hist.no>, linux-kernel@vger.kernel.org
-Subject: Re: LANANA: To Pending Device Number Registrants
-Message-ID: <20010518155732.A26161@sistina.com>
-Reply-To: Mauelshagen@Sistina.com
-In-Reply-To: <20010516185845.A14397@sistina.com> <200105170635.f4H6Ztq456282@saturn.cs.uml.edu>
-Mime-Version: 1.0
+	id <S262326AbREROBF>; Fri, 18 May 2001 10:01:05 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:36876 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S262324AbREROAr>; Fri, 18 May 2001 10:00:47 -0400
+Subject: Re: Kernel support for Sony Vaio PCG-FX140
+To: pekon@informatics.muni.cz (Petr Konecny)
+Date: Fri, 18 May 2001 14:57:43 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <qwweltmbxvt.fsf@decibel.fi.muni.cz> from "Petr Konecny" at May 18, 2001 03:16:38 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <200105170635.f4H6Ztq456282@saturn.cs.uml.edu>; from acahalan@cs.uml.edu on Thu, May 17, 2001 at 02:35:55AM -0400
+Content-Transfer-Encoding: 7bit
+Message-Id: <E150klD-00077z-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 17, 2001 at 02:35:55AM -0400, Albert D. Cahalan wrote:
-> Heinz J. Mauelshag writes:
+> 1) The ethernet:
+> 01:08.0 Ethernet controller: Intel Corporation 82820 820 (Camino 2) Chipset Ethernet (rev 03)
+>         Subsystem: Intel Corporation: Unknown device 3013
+>         Flags: bus master, medium devsel, latency 66, IRQ 9
+>         Memory at f4105000 (32-bit, non-prefetchable) [size=4K]
+>         I/O ports at 3000 [size=64]
+>         Capabilities: [dc] Power Management version 2
 > 
-> > LVM does a similar thing storing UUIDs in its private metadata
-> > area on every device used by it.
-> >
-> > Problem is: neither MD nor LVM define a standard in Linux
-> > which *needs* to be used on every device!
-> >
-> > It is just up to the user to configure devices with them or not.
-> >
-> > BTW: in case we had a Linux standard it wouldn't solve the
-> > "different OS" situation mentioned in this thread either.
-> >
-> >
-> > Generally speaking:
-> > 
-> > It is not the problem to reserve some space to store a uuid or
-> > something at such and such location on a device.
-> >
-> > The problem is the lack of a standard which eventually
-> > could be implemented in all OSes at some point in time.
-> 
-> The PC partition table has such an ID. The LILO change log
-> mentions it. I think it's 6 random bytes, with some restriction
-> about being non-zero.
+> works with eepro100 driver on 100Mbit network. But oopses on insmod with
+> CONFIG_EEPRO100_PM=y. I alsoa had some problems on 10Mbit, under heavy
+> load the card starts reporting "eepro100: wait_for_cmd_done timeout!" 
+> and stops receiving, ifconfig down/up fixes that. 
 
-This is just a type identifier showing the parition type and just
-valid on the PC.
+I would be interested in the oops trace for the PM case. 
 
-Won't help it.
+> 2) Audio:
+> 00:1f.5 Multimedia audio controller: Intel Corporation: Unknown device 2445 (rev 03)
+>         Subsystem: Sony Corporation: Unknown device 80df
 
--- 
+Intel ICH2/ICH3
 
-Regards,
-Heinz    -- The LVM Guy --
+> I have no idea what driver to use, if there is one. I tried Intel 8x0
+> driver from alsa, but it did not work:
 
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+Use the i810_audio driver see if that works any better
 
-Heinz Mauelshagen                                 Sistina Software Inc.
-Senior Consultant/Developer                       Am Sonnenhang 11
-                                                  56242 Marienrachdorf
-                                                  Germany
-Mauelshagen@Sistina.com                           +49 2626 141200
-                                                       FAX 924446
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+> 3) It has winmodem, so no luck there.
+> 00:1f.6 Modem: Intel Corporation: Unknown device 2446 (rev 03) (prog-if 00 [Generic])
+>         Subsystem: Sony Corporation: Unknown device 80df
+>         Flags: medium devsel, IRQ 5
+>         I/O ports at 2000 [size=256]
+>         I/O ports at 1880 [size=128]
+
+Almost certainly the modem codec on the i810 chipset. If so its an absolutely
+dumb winmodem - but the hardware iface is doucmented. Someone just has to
+build a working modem stack
+
+

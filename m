@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289348AbSAJGBu>; Thu, 10 Jan 2002 01:01:50 -0500
+	id <S289356AbSAJGJl>; Thu, 10 Jan 2002 01:09:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289353AbSAJGBm>; Thu, 10 Jan 2002 01:01:42 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:25862 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S289348AbSAJGB0>; Thu, 10 Jan 2002 01:01:26 -0500
-Date: Wed, 9 Jan 2002 22:06:44 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] minor sched-E1 tweaks and questions 
-In-Reply-To: <E16OWCo-0000YO-00@wagner.rustcorp.com.au>
-Message-ID: <Pine.LNX.4.40.0201092203370.933-100000@blue1.dev.mcafeelabs.com>
+	id <S289351AbSAJGJb>; Thu, 10 Jan 2002 01:09:31 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:28680 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S289350AbSAJGJW>; Thu, 10 Jan 2002 01:09:22 -0500
+Message-ID: <3C3D2FF9.8040405@zytor.com>
+Date: Wed, 09 Jan 2002 22:08:57 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us, en, sv
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Corey Minyard <minyard@acm.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Moving zlib so that others may use it
+In-Reply-To: <25006.1010627525@kao2.melbourne.sgi.com> <3C3D19AD.60306@acm.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Jan 2002, Rusty Russell wrote:
+Corey Minyard wrote:
 
-> Another question:
->
-> 	if (likely(prev != next)) {
-> 		rq->nr_switches++;
-> 		rq->curr = next;
-> 		next->cpu = prev->cpu;
-> 		context_switch(prev, next);
-> 		/*
-> 		 * The runqueue pointer might be from another CPU
-> 		 * if the new task was last running on a different
-> 		 * CPU - thus re-load it.
-> 		 */
-> 		barrier();
-> 		rq = this_rq();
-> 	}
-> 	spin_unlock_irq(&rq->lock);
->
-> I do not understand this comment.  How can rq (ie. smp_processor_id())
-> change?  Nothing sleeps here, and if it DID change, the
-> spin_unlock_irq() would be wrong...
-
-If you switch you'll on the stack the rq of the previous cpu
-spin_unlock_irq(&rq->lock) is fine if you do not switch and if you switch
-you need to reload rq
+> 
+> I'm not sure I follow you here.  Do you want to completely separate the
+> inflate and deflate stuff (so if something only needs one, it only has
+> to include one)?  I'm not sure of the value, and it would be kind of a
+> pain for maintenance (since zlib is from an external source).
+> 
+> As far as memory management, all the versions I am talking about are
+> almost exactly the same, so that shouldn't be a problem.
+> 
 
 
+It is external, but it's quite well separated anyway.
 
+Look at the inflate_fs one (fs/inflate_fs); it has both the memory 
+management dealt with and decompression factored out...
 
+	-hpa
 
-- Davide
 
 

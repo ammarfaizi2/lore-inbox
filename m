@@ -1,66 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261248AbULTJEG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261284AbULTJJL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261248AbULTJEG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 04:04:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbULTJEG
+	id S261284AbULTJJL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 04:09:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbULTJJL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 04:04:06 -0500
-Received: from mout.alturo.net ([212.227.15.21]:48889 "EHLO mout.alturo.net")
-	by vger.kernel.org with ESMTP id S261248AbULTJDb (ORCPT
+	Mon, 20 Dec 2004 04:09:11 -0500
+Received: from webmail.sub.ru ([213.247.139.22]:13585 "HELO techno.sub.ru")
+	by vger.kernel.org with SMTP id S261287AbULTJIx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 04:03:31 -0500
-Message-ID: <41C694E0.8010609@informatik.uni-bremen.de>
-Date: Mon, 20 Dec 2004 10:01:20 +0100
-From: Arne Caspari <arnem@informatik.uni-bremen.de>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
-X-Accept-Language: en-us, en
+	Mon, 20 Dec 2004 04:08:53 -0500
+Message-ID: <21322.195.133.60.161.1103533647.squirrel@195.133.60.161>
+In-Reply-To: <20041219231250.457deb12.akpm@osdl.org>
+References: <1329986.1103525472726.JavaMail.tomcat@pne-ps1-sn1>
+    <20041219231250.457deb12.akpm@osdl.org>
+Date: Mon, 20 Dec 2004 12:07:27 +0300 (MSK)
+Subject: Re: 2.6.10-rc3: kswapd eats CPU on start of memory-eating task
+From: mr@ramendik.ru
+To: "Andrew Morton" <akpm@osdl.org>
+Cc: lista4@comhem.se, linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au,
+       mr@ramendik.ru, kernel@kolivas.org, riel@redhat.com
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: bcollins@debian.org, linux1394-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] ieee1394_core.c: remove unneeded EXPORT_SYMBOL's
-References: <20041220015320.GO21288@stusta.de>
-In-Reply-To: <20041220015320.GO21288@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian,
+Hello,
 
-Some of these symbols are used by the open source driver "video-2-1394" 
-( http://sourceforge.net/projects/video-2-1394 ).
+> Did anyone come up with a simple step-by-step procedure for reproducing
+> the
+> problem?  It would be good if someone could do this, because I don't think
+> we understand the root cause yet?
 
-This driver is supported by The Imaging Source Europe GmbH and used by 
-quite a few of our customers. For most of these customers, it is OK to 
-compile the driver but not to modify the kernel source.
+Here's a step-by-step explanation of the way I test this:
 
-Please please, do not break the kernel API out of the blue. Supporting a 
-Linux driver is already very frustrating. Currently it is a lot more 
-convenient for our customers to switch to Windows just because the 
-installation and use of the software is much easier there - or at least 
-it is easy enough there to handle the installation where it is not on Linux.
+- Get the Memory Eater and compile it:
 
-Breaking the API now will most likely stop The Imaging Source from 
-supporting open source driver development anymore. We just can not 
-effort any unneccessary development anymore. We are already blocked by 
-shortcomings in the LDM and bugs in the Linux driver handling ( see my 
-posings about a hotplugging issue and about the issue that IEEE-1394 
-modules can not be unloaded ).
+http://lkml.org/lkml/2004/12/13/272
 
-Thanks and best regards,
+- Do a clean boot
 
-Arne Caspari
+- Start top, and some app that has a clock and preferrably a CPU graph (to
+monitor screen freezes and CPU load; it's IceWM for me)
 
-The Imaging Source Europe GmbH
+- Start the Memory Eater
 
+- Give it an amount of megabytes that is more than the actual RAM size. I
+use a value of 300, as my computer has 256 M RAM.
 
+- Enjoy :) "eatmemory" will slowly eat up more and more RAM (visible in
+top as RSS); under 2.6.8.1 no screen freezes come, and under 2.6.9 and
+2.6.10-rc3 they do come; under 2.6.10-rc3 I also see high CPU periods for
+kswapd.
+
+Yours, Mikhail Ramendik
 
 
-Adrian Bunk wrote:
-> The patch below removes 41 unneeded EXPORT_SYMBOL's.
-> 
-> 
-> diffstat output:
->  drivers/ieee1394/ieee1394_core.c |   41 -------------------------------
->  1 files changed, 41 deletions(-)
+
+
+

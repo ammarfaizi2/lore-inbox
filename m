@@ -1,130 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263321AbTHWRAJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 13:00:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263402AbTHWQ6N
+	id S263059AbTHWRAI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 13:00:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263386AbTHWQ5s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 12:58:13 -0400
-Received: from [203.145.184.221] ([203.145.184.221]:63499 "EHLO naturesoft.net")
-	by vger.kernel.org with ESMTP id S263220AbTHWPOu (ORCPT
+	Sat, 23 Aug 2003 12:57:48 -0400
+Received: from ns.aratech.co.kr ([61.34.11.200]:10416 "EHLO ns.aratech.co.kr")
+	by vger.kernel.org with ESMTP id S262998AbTHWPLY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 11:14:50 -0400
-Subject: [PATCH 2.6.0-test4][MTD] pcmciamtd.c: remove release timer
-From: Vinay K Nallamothu <vinay-rc@naturesoft.net>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11) 
-Date: 23 Aug 2003 21:07:07 +0530
-Message-Id: <1061653027.1121.62.camel@lima.royalchallenge.com>
+	Sat, 23 Aug 2003 11:11:24 -0400
+Date: Sun, 24 Aug 2003 00:13:15 +0900
+From: TeJun Huh <tejun@aratech.co.kr>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Race condition in 2.4 tasklet handling (cli() broken?)
+Message-ID: <20030823151315.GA6781@atj.dyndns.org>
+Mail-Followup-To: Stephan von Krawczynski <skraw@ithnet.com>,
+	linux-kernel@vger.kernel.org
+References: <20030823025448.GA32547@atj.dyndns.org> <20030823040931.GA3872@atj.dyndns.org> <20030823052633.GA4307@atj.dyndns.org> <20030823122813.0c90e241.skraw@ithnet.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030823122813.0c90e241.skraw@ithnet.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+On Sat, Aug 23, 2003 at 12:28:13PM +0200, Stephan von Krawczynski wrote:
+> 
+> If we follow your analysis and say it is broken, do you have a suggestion/patch
+> how to fix both? I am willing to try your proposals, as it seems I am one of
+> very few who really experience stability issues on SMP with the current
+> implementation.
+> 
 
-Hopefully the last of the release timer patches.
+ Hello, Stephan.
 
-This patch removes the PCMCIA timer release functionality which is no
-longer required.
+ The race conditions I'm mentioning in this thread are not likely to
+cause real troubles.  The first one does not make any difference on
+x86, and AFAIK bh isn't used extensively anymore so the second one
+isn't very relevant either.  Only the race condition mentioned in the
+other thread is of relvance if there is any :-(.
 
-Please apply.
+ We've been also suffering from random lockups (2.4.21 with various
+patches including in-kernel irqbalancing) which show symptoms somewhat
+different from usual kernel deadlock or panics.  We've seen lock ups
+on several different machines.  All the machines were SMP and quite
+busy with high volume network traffic and a lot of disk I/Os.  A
+lockup takes from a week to a month(!) to take place.  Even though
+they take very long, they occur sort of reliably.
 
-Vinay
+ I had a chance to examine a locked up machine (Dual 3g xeon w/HT).  I
+could turn on and off keyboard LEDs (so, keyboard irq is working) but
+console didn't come back from blanked state.  The kernel was compiled
+with sysrq and I've tried many sysrqs but teh console remained blank.
+After a while, I pressed sysrq reboot key and it rebooted.
+Fortunately, kernel log file did contain all outputs from sysrqs and I
+could do a little bit of post-mortem analysis.
 
-drivers/mtd/maps/pcmciamtd.c |   23 ++++++++---------------
- 1 files changed, 8 insertions(+), 15 deletions(-)
+ The first weird thing was the timestamps.  Time seemed to be stopped
+for a few hours between the lock up and the first sysrq request.
+Then, time start to go again after the first sysrq request.  (NMI
+watchdog was on)
 
-diff -urN linux-2.6.0-test4/drivers/mtd/maps/pcmciamtd.c linux-2.6.0-test4-nvk/drivers/mtd/maps/pcmciamtd.c
---- linux-2.6.0-test4/drivers/mtd/maps/pcmciamtd.c	2003-07-15 17:22:39.000000000 +0530
-+++ linux-2.6.0-test4-nvk/drivers/mtd/maps/pcmciamtd.c	2003-08-23 20:57:27.000000000 +0530
-@@ -344,9 +344,8 @@
-  * still open, this will be postponed until it is closed.
-  */
- 
--static void pcmciamtd_release(u_long arg)
-+static void pcmciamtd_release(dev_link_t *link)
- {
--	dev_link_t *link = (dev_link_t *)arg;
- 	struct pcmciamtd_dev *dev = link->priv;
- 
- 	DEBUG(3, "link = 0x%p", link);
-@@ -564,7 +563,7 @@
- 
- 	if(!dev->win_size) {
- 		err("Cant allocate memory window");
--		pcmciamtd_release((u_long)link);
-+		pcmciamtd_release(link);
- 		return;
- 	}
- 	DEBUG(1, "Allocated a window of %dKiB", dev->win_size >> 10);
-@@ -576,7 +575,7 @@
- 	dev->win_base = ioremap(req.Base, req.Size);
- 	if(!dev->win_base) {
- 		err("ioremap(%lu, %u) failed", req.Base, req.Size);
--		pcmciamtd_release((u_long)link);
-+		pcmciamtd_release(link);
- 		return;
- 	}
- 	DEBUG(1, "mapped window dev = %p req.base = 0x%lx base = %p size = 0x%x",
-@@ -631,7 +630,7 @@
- 	
- 	if(!mtd) {
- 		DEBUG(1, "Cant find an MTD");
--		pcmciamtd_release((u_long)link);
-+		pcmciamtd_release(link);
- 		return;
- 	}
- 
-@@ -671,7 +670,7 @@
- 		map_destroy(mtd);
- 		dev->mtd_info = NULL;
- 		err("Couldnt register MTD device");
--		pcmciamtd_release((u_long)link);
-+		pcmciamtd_release(link);
- 		return;
- 	}
- 	snprintf(dev->node.dev_name, sizeof(dev->node.dev_name), "mtd%d", mtd->index);
-@@ -683,7 +682,7 @@
-  cs_failed:
- 	cs_error(link->handle, last_fn, last_ret);
- 	err("CS Error, exiting");
--	pcmciamtd_release((u_long)link);
-+	pcmciamtd_release(link);
- 	return;
- }
- 
-@@ -710,7 +709,7 @@
- 				del_mtd_device(dev->mtd_info);
- 				info("mtd%d: Removed", dev->mtd_info->index);
- 			}
--			mod_timer(&link->release, jiffies + HZ/20);
-+			pcmciamtd_release(link);
- 		}
- 		break;
- 	case CS_EVENT_CARD_INSERTION:
-@@ -751,10 +750,8 @@
- {
- 	DEBUG(3, "link=0x%p", link);
- 
--	del_timer(&link->release);
--
- 	if(link->state & DEV_CONFIG) {
--		pcmciamtd_release((u_long)link);
-+		pcmciamtd_release(link);
- 	}
- 
- 	if (link->handle) {
-@@ -790,10 +787,6 @@
- 	link = &dev->link;
- 	link->priv = dev;
- 
--	init_timer(&link->release);
--	link->release.function = &pcmciamtd_release;
--	link->release.data = (u_long)link;
--
- 	link->conf.Attributes = 0;
- 	link->conf.IntType = INT_MEMORY;
- 
+ Process list showed that a server process is stuck inside kernel, but
+the stuck position was very weird.  It was freeing a socket after
+receving FIN.  The eip was stuck at the same place over several
+sysrqs, and the instruction at the eip was plain ADD right after a
+CALL instruction to kfree.  I think there is one more frame above
+what's shown but I don't know how sysrq prints stack trace for other
+cpus so I'm not sure.
 
+ To gather more information, we hooked up a machine with kdb and are
+waiting for the lockup to occur again.  My personal feeling is that
+the race conditions I've mentioned are not the causes of the lockups
+we're suffering from.
+
+ It would be helpful if you can tell us more about your lockups.  Have
+you tried sysrq, NMI watchdog, kdb or kgdb?
+
+-- 
+tejun

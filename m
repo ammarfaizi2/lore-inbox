@@ -1,68 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318398AbSHBG2l>; Fri, 2 Aug 2002 02:28:41 -0400
+	id <S318369AbSHBGWv>; Fri, 2 Aug 2002 02:22:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318423AbSHBG2l>; Fri, 2 Aug 2002 02:28:41 -0400
-Received: from florin.dsl.visi.com ([209.98.146.184]:34855 "EHLO
-	bird.iucha.org") by vger.kernel.org with ESMTP id <S318398AbSHBG2k>;
-	Fri, 2 Aug 2002 02:28:40 -0400
-Date: Fri, 2 Aug 2002 01:30:00 -0500
-To: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19rc3-ac5
-Message-ID: <20020802063000.GA14624@iucha.net>
-Mail-Followup-To: Alan Cox <alan@redhat.com>,
-	linux-kernel@vger.kernel.org
-References: <200207301356.g6UDuq900731@devserv.devel.redhat.com> <20020731013611.GA478@iucha.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="oyUTqETQ0mS9luUI"
-Content-Disposition: inline
-In-Reply-To: <20020731013611.GA478@iucha.net>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook: Where do you want [your files] to go today?
-From: florin@iucha.net (Florin Iucha)
+	id <S318398AbSHBGWv>; Fri, 2 Aug 2002 02:22:51 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:14819 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S318369AbSHBGWu>;
+	Fri, 2 Aug 2002 02:22:50 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15690.9727.831144.67179@napali.hpl.hp.com>
+Date: Thu, 1 Aug 2002 23:26:07 -0700
+To: "David S. Miller" <davem@redhat.com>
+Cc: davidm@hpl.hp.com, davidm@napali.hpl.hp.com, gh@us.ibm.com,
+       riel@conectiva.com.br, akpm@zip.com.au, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, rohit.seth@intel.com, sunil.saxena@intel.com,
+       asit.k.mallick@intel.com
+Subject: Re: large page patch 
+In-Reply-To: <20020801.222053.20302294.davem@redhat.com>
+References: <Pine.LNX.4.44L.0208012246390.23404-100000@imladris.surriel.com>
+	<E17aSCT-0008I0-00@w-gerrit2>
+	<15690.6005.624237.902152@napali.hpl.hp.com>
+	<20020801.222053.20302294.davem@redhat.com>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> On Thu, 01 Aug 2002 22:20:53 -0700 (PDT), "David S. Miller" <davem@redhat.com> said:
 
---oyUTqETQ0mS9luUI
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+  DaveM>    From: David Mosberger <davidm@napali.hpl.hp.com> Date:
+  DaveM> Thu, 1 Aug 2002 22:24:05 -0700
 
-On Tue, Jul 30, 2002 at 08:36:11PM -0500, Florin Iucha wrote:
-> On Tue, Jul 30, 2002 at 09:56:52AM -0400, Alan Cox wrote:
-> > Linux 2.4.19rc3-ac5
-> > o	Warn when mounting ext3 as ext2			(Andrew Morton)
->=20
-> It warns all right but then it doesn't mount it at all. I have my root
-> on ext3. It spits a lot of errors about not being able to find modules
-> and dies by the time it gets to syslog.
->=20
-> All kernels up to rc3-ac2 work just fine. (I might have skipped one or
-> two).
+  DaveM>    In my opinion the proposed large-page patch addresses a
+  DaveM> relatively pressing need for databases (primarily).
 
-rc5-ac1 works fine.
+  DaveM> Databases want large pages with IPC_SHM, how can this
+  DaveM> special syscal hack address that?
 
-Thanks,
-florin
+I believe the interface is OK in that regard.  AFAIK, Oracle is happy
+with it.
 
---=20
+  DaveM> It's great for experimentation, but give up syscall slots
+  DaveM> for this?
 
-"If it's not broken, let's fix it till it is."
+I'm a bit concerned about this, too.  My preference would have been to
+use the regular mmap() and shmat() syscalls with some
+augmentation/hint as to what the preferred page size is (Simon
+Winwood's OLS 2002 paper talks about some options here).  I like this
+because hints could be useful even with a transparent superpage
+scheme.
 
-41A9 2BDE 8E11 F1C5 87A6  03EE 34B3 E075 3B90 DFE4
+The original Intel patch did use more of a hint-like approach (the
+hint was a simple binary flag though: give me regular pages or give me
+large pages), but Linus preferred a separate syscall interface, so the
+Intel folks switched over to doing that.
 
---oyUTqETQ0mS9luUI
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9SibnNLPgdTuQ3+QRAv8/AJ9s6n7ijN5lXodVRGuK0RmaN/eSRwCeJPIp
-q4nimBVHq56dJMxBSAzAsKs=
-=z44M
------END PGP SIGNATURE-----
-
---oyUTqETQ0mS9luUI--
+	--david

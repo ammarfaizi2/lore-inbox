@@ -1,29 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129874AbRCAU04>; Thu, 1 Mar 2001 15:26:56 -0500
+	id <S129865AbRCAU0K>; Thu, 1 Mar 2001 15:26:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129875AbRCAU0q>; Thu, 1 Mar 2001 15:26:46 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:13829 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S129874AbRCAU0f>;
-	Thu, 1 Mar 2001 15:26:35 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200103012026.XAA01583@ms2.inr.ac.ru>
-Subject: Re: What is 2.4 Linux networking performance like compared to BSD?
-To: reiser@namesys.COM (Hans Reiser)
-Date: Thu, 1 Mar 2001 23:26:24 +0300 (MSK)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3A9D891C.434E3AA7@namesys.com> from "Hans Reiser" at Mar 1, 1 04:45:00 am
-X-Mailer: ELM [version 2.4 PL24]
+	id <S129875AbRCAUZ5>; Thu, 1 Mar 2001 15:25:57 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:7048 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S129865AbRCAUZ3>;
+	Thu, 1 Mar 2001 15:25:29 -0500
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15006.44940.12004.57998@pizda.ninka.net>
+Date: Thu, 1 Mar 2001 12:22:36 -0800 (PST)
+To: Dan Malek <dan@mvista.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
+Subject: Re: The IO problem on multiple PCI busses
+In-Reply-To: <3A9EAA2F.7C89C88@mvista.com>
+In-Reply-To: <19350124090521.18330@mailhost.mipsys.com>
+	<15006.40524.929644.25622@pizda.ninka.net>
+	<3A9EA3FA.1A86893B@mvista.com>
+	<15006.42475.79484.578530@pizda.ninka.net>
+	<3A9EAA2F.7C89C88@mvista.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-> They know that iMimic's polymix performance on Linux 2.2.* is half what it is on
-> BSD. 
+Dan Malek writes:
+ > It actually caused me to think of something else....I have cards
+ > with multiple memory and I/O spaces (rare, but I have them).
 
-What is "iMimic's polymix"? I am almost sure, it is simply buggy
-and was not _debugged_ under linux.
+So what?  All such bar's within mem/io space are part of unique
+regions of the total MEM/IO space.
 
-Alexey
+Thus you can pass non-conflicting offset/size pairs, based upon the
+BAR value of interest, to mmap and everything is fine.
+
+Later,
+David S. Miller
+davem@redhat.com

@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262046AbUJZCEG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261844AbUJZCEF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262046AbUJZCEG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 22:04:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261935AbUJZCBH
+	id S261844AbUJZCEF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 22:04:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbUJZCCO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 22:01:07 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:19656 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S262065AbUJZB33 (ORCPT
+	Mon, 25 Oct 2004 22:02:14 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:63432 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261844AbUJZBbM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 21:29:29 -0400
-Date: Mon, 25 Oct 2004 18:28:03 -0700 (PDT)
+	Mon, 25 Oct 2004 21:31:12 -0400
+Date: Mon, 25 Oct 2004 18:30:35 -0700 (PDT)
 From: Christoph Lameter <clameter@sgi.com>
 X-X-Sender: clameter@schroedinger.engr.sgi.com
 To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
 cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
-Subject: Hugepages demand paging V2 [2/8]: allocation control
+Subject: Hugepages demand paging V2 [6/8]: sparc64 arch modifications
 In-Reply-To: <Pine.LNX.4.58.0410251825020.12962@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.58.0410251827290.12962@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.58.0410251830010.12962@schroedinger.engr.sgi.com>
 References: <B05667366EE6204181EABE9C1B1C0EB504BFA47C@scsmsx401.amr.corp.intel.com>
  <Pine.LNX.4.58.0410251825020.12962@schroedinger.engr.sgi.com>
 MIME-Version: 1.0
@@ -25,379 +25,113 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Changelog
-	* hugetlb memory allocation control
+	* Extend update_mmu_cache to handle compound pages
+	* Extend flush_dcache_page to handle compound pages
+	* Not built and not tested
 
-Index: linux-2.6.9/fs/hugetlbfs/inode.c
+Index: linux-2.6.9/include/asm-sparc64/pgtable.h
 ===================================================================
---- linux-2.6.9.orig/fs/hugetlbfs/inode.c	2004-10-21 14:50:14.000000000 -0700
-+++ linux-2.6.9/fs/hugetlbfs/inode.c	2004-10-21 20:02:23.000000000 -0700
-@@ -32,6 +32,206 @@
- /* some random number */
- #define HUGETLBFS_MAGIC	0x958458f6
+--- linux-2.6.9.orig/include/asm-sparc64/pgtable.h	2004-10-18 14:53:06.000000000 -0700
++++ linux-2.6.9/include/asm-sparc64/pgtable.h	2004-10-25 16:56:34.000000000 -0700
+@@ -347,6 +347,7 @@
 
-+/* Convert loff_t and PAGE_SIZE counts to hugetlb page counts. */
-+#define VMACCT(x) ((x) >> (HPAGE_SHIFT))
-+#define VMACCTPG(x) ((x) >> (HPAGE_SHIFT - PAGE_SHIFT))
-+
-+static long hugetlbzone_resv;
-+static spinlock_t hugetlbfs_lock = SPIN_LOCK_UNLOCKED;
-+
-+int hugetlb_acct_memory(long delta)
-+{
-+	int ret = 0;
-+
-+	spin_lock(&hugetlbfs_lock);
-+	if (delta > 0 && (hugetlbzone_resv + delta) >
-+			VMACCTPG(hugetlb_total_pages()))
-+		ret = -ENOMEM;
-+	else
-+		hugetlbzone_resv += delta;
-+	spin_unlock(&hugetlbfs_lock);
-+	return ret;
-+}
-+
-+struct file_region {
-+	struct list_head link;
-+	long from;
-+	long to;
-+};
-+
-+static int region_add(struct list_head *head, int f, int t)
-+{
-+	struct file_region *rg;
-+	struct file_region *nrg;
-+	struct file_region *trg;
-+
-+	/* Locate the region we are either in or before. */
-+	list_for_each_entry(rg, head, link)
-+		if (f <= rg->to)
-+			break;
-+
-+	/* Add a new region if the existing region starts above our end.
-+	 * We should already have a space to record. */
-+	if (&rg->link == head || t < rg->from)
-+		BUG();
-+
-+	/* Round our left edge to the current segment if it encloses us. */
-+	if (f > rg->from)
-+		f = rg->from;
-+
-+	/* Check for and consume any regions we now overlap with. */
-+	nrg = rg;
-+	list_for_each_entry_safe(rg, trg, rg->link.prev, link) {
-+		if (&rg->link == head)
-+			break;
-+		if (rg->from > t)
-+			break;
-+
-+		/* If this area reaches higher then extend our area to
-+		 * include it completely.  If this is not the first area
-+		 * which we intend to reuse, free it. */
-+		if (rg->to > t)
-+			t = rg->to;
-+		if (rg != nrg) {
-+			list_del(&rg->link);
-+			kfree(rg);
-+		}
-+	}
-+	nrg->from = f;
-+	nrg->to = t;
-+	return 0;
-+}
-+
-+static int region_chg(struct list_head *head, int f, int t)
-+{
-+	struct file_region *rg;
-+	struct file_region *nrg;
-+	loff_t chg = 0;
-+
-+	/* Locate the region we are before or in. */
-+	list_for_each_entry(rg, head, link)
-+		if (f <= rg->to)
-+			break;
-+
-+	/* If we are below the current region then a new region is required.
-+	 * Subtle, allocate a new region at the position but make it zero
-+	 * size such that we can guarentee to record the reservation. */
-+	if (&rg->link == head || t < rg->from) {
-+		nrg = kmalloc(sizeof(*nrg), GFP_KERNEL);
-+		if (nrg == 0)
-+			return -ENOMEM;
-+		nrg->from = f;
-+		nrg->to   = f;
-+		INIT_LIST_HEAD(&nrg->link);
-+		list_add(&nrg->link, rg->link.prev);
-+
-+		return t - f;
-+	}
-+
-+	/* Round our left edge to the current segment if it encloses us. */
-+	if (f > rg->from)
-+		f = rg->from;
-+	chg = t - f;
-+
-+	/* Check for and consume any regions we now overlap with. */
-+	list_for_each_entry(rg, rg->link.prev, link) {
-+		if (&rg->link == head)
-+			break;
-+		if (rg->from > t)
-+			return chg;
-+
-+		/* We overlap with this area, if it extends futher than
-+		 * us then we must extend ourselves.  Account for its
-+		 * existing reservation. */
-+		if (rg->to > t) {
-+			chg += rg->to - t;
-+			t = rg->to;
-+		}
-+		chg -= rg->to - rg->from;
-+	}
-+	return chg;
-+}
-+
-+static int region_truncate(struct list_head *head, int end)
-+{
-+	struct file_region *rg;
-+	struct file_region *trg;
-+	int chg = 0;
-+
-+	/* Locate the region we are either in or before. */
-+	list_for_each_entry(rg, head, link)
-+		if (end <= rg->to)
-+			break;
-+	if (&rg->link == head)
-+		return 0;
-+
-+	/* If we are in the middle of a region then adjust it. */
-+	if (end > rg->from) {
-+		chg = rg->to - end;
-+		rg->to = end;
-+		rg = list_entry(rg->link.next, typeof(*rg), link);
-+	}
-+
-+	/* Drop any remaining regions. */
-+	list_for_each_entry_safe(rg, trg, rg->link.prev, link) {
-+		if (&rg->link == head)
-+			break;
-+		chg += rg->to - rg->from;
-+		list_del(&rg->link);
-+		kfree(rg);
-+	}
-+	return chg;
-+}
-+
-+#if 0
-+static int region_dump(struct list_head *head)
-+{
-+	struct file_region *rg;
-+
-+	list_for_each_entry(rg, head, link)
-+		printk(KERN_WARNING "rg<%p> f<%lld> t<%lld>\n",
-+				rg, rg->from, rg->to);
-+	return 0;
-+}
-+#endif
-+
-+/* Calculate the commitment change that this mapping implies
-+ * and check it against both the commitment and quota limits. */
-+static int hugetlb_acct_commit(struct inode *inode, int from, int to)
-+{
-+	int chg;
-+	int ret;
-+
-+	chg = region_chg(&inode->i_mapping->private_list, from, to);
-+	if (chg < 0)
-+		return chg;
-+	ret = hugetlb_acct_memory(chg);
-+	if (ret < 0)
-+		return ret;
-+	ret = hugetlb_get_quota(inode->i_mapping, chg);
-+	if (ret < 0)
-+		goto undo_commit;
-+	ret = region_add(&inode->i_mapping->private_list, from, to);
-+	return ret;
-+
-+undo_commit:
-+	hugetlb_acct_memory(-chg);
-+	return ret;
-+}
-+static void hugetlb_acct_release(struct inode *inode, int to)
-+{
-+	int chg;
-+
-+	chg = region_truncate(&inode->i_mapping->private_list, to);
-+	hugetlb_acct_memory(-chg);
-+	hugetlb_put_quota(inode->i_mapping, chg);
-+}
-+
-+int hugetlbfs_report_meminfo(char *buf)
-+{
-+	return sprintf(buf, "HugePages_Reserved: %5lu\n", hugetlbzone_resv);
-+}
-+
- static struct super_operations hugetlbfs_ops;
- static struct address_space_operations hugetlbfs_aops;
- struct file_operations hugetlbfs_file_operations;
-@@ -48,7 +248,6 @@
- static int hugetlbfs_file_mmap(struct file *file, struct vm_area_struct *vma)
- {
- 	struct inode *inode = file->f_dentry->d_inode;
--	struct address_space *mapping = inode->i_mapping;
- 	loff_t len, vma_len;
- 	int ret;
+ struct vm_area_struct;
+ extern void update_mmu_cache(struct vm_area_struct *, unsigned long, pte_t);
++#define huge_update_mmu_cache update_mmu_cache
 
-@@ -79,7 +278,10 @@
- 	if (!(vma->vm_flags & VM_WRITE) && len > inode->i_size)
- 		goto out;
-
--	if (inode->i_size < len)
-+	ret = hugetlb_acct_commit(inode, VMACCTPG(vma->vm_pgoff),
-+		VMACCTPG(vma->vm_pgoff + (vma_len >> PAGE_SHIFT)));
-+
-+	if (ret >= 0 && inode->i_size < len)
- 		inode->i_size = len;
- out:
- 	up(&inode->i_sem);
-@@ -194,7 +396,6 @@
- 			++next;
- 			truncate_huge_page(page);
- 			unlock_page(page);
--			hugetlb_put_quota(mapping);
- 		}
- 		huge_pagevec_release(&pvec);
- 	}
-@@ -213,6 +414,7 @@
-
- 	if (inode->i_data.nrpages)
- 		truncate_hugepages(&inode->i_data, 0);
-+	hugetlb_acct_release(inode, 0);
-
- 	security_inode_delete(inode);
-
-@@ -254,6 +456,7 @@
- 	spin_unlock(&inode_lock);
- 	if (inode->i_data.nrpages)
- 		truncate_hugepages(&inode->i_data, 0);
-+	hugetlb_acct_release(inode, 0);
-
- 	if (sbinfo->free_inodes >= 0) {
- 		spin_lock(&sbinfo->stat_lock);
-@@ -324,6 +527,7 @@
- 		hugetlb_vmtruncate_list(&mapping->i_mmap, pgoff);
- 	spin_unlock(&mapping->i_mmap_lock);
- 	truncate_hugepages(mapping, offset);
-+	hugetlb_acct_release(inode, VMACCT(offset));
- 	return 0;
+ /* Make a non-present pseudo-TTE. */
+ static inline pte_t mk_pte_io(unsigned long page, pgprot_t prot, int space)
+Index: linux-2.6.9/arch/sparc64/mm/init.c
+===================================================================
+--- linux-2.6.9.orig/arch/sparc64/mm/init.c	2004-10-18 14:53:50.000000000 -0700
++++ linux-2.6.9/arch/sparc64/mm/init.c	2004-10-25 17:32:43.000000000 -0700
+@@ -192,6 +192,30 @@
+ 			     : "g5", "g7");
  }
 
-@@ -378,6 +582,7 @@
- 		inode->i_blocks = 0;
- 		inode->i_mapping->a_ops = &hugetlbfs_aops;
- 		inode->i_mapping->backing_dev_info =&hugetlbfs_backing_dev_info;
-+		INIT_LIST_HEAD(&inode->i_mapping->private_list);
- 		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
- 		info = HUGETLBFS_I(inode);
- 		mpol_shared_policy_init(&info->policy);
-@@ -669,15 +874,15 @@
- 	return -ENOMEM;
- }
++static int flush_dcache_pages(struct page *page) {
++	int nr;
++
++	if (!PageCompound(page))
++		return flush_dcache_page_impl(page);
++
++	page = page->private;
++	nr = 1 << page[1].index;
++	while (nr-- >0)
++		flush_dcache_impl(page++)
++}
++
++static int smp_flush_dcache_pages(struct page *page, int cpu) {
++	int nr;
++
++	if (!PageCompound(page))
++		return smp_flush_dcache_page_impl(page, cpu);
++
++	page = page->private;
++	nr = 1 << page[1].index;
++	while (nr-- >0)
++		smp_flush_dcache_impl(page++, cpu)
++}
++
+ extern void __update_mmu_cache(unsigned long mmu_context_hw, unsigned long address, pte_t pte, int code);
 
--int hugetlb_get_quota(struct address_space *mapping)
-+int hugetlb_get_quota(struct address_space *mapping, int blocks)
- {
- 	int ret = 0;
- 	struct hugetlbfs_sb_info *sbinfo = HUGETLBFS_SB(mapping->host->i_sb);
-
- 	if (sbinfo->free_blocks > -1) {
- 		spin_lock(&sbinfo->stat_lock);
--		if (sbinfo->free_blocks > 0)
--			sbinfo->free_blocks--;
-+		if (sbinfo->free_blocks >= blocks)
-+			sbinfo->free_blocks -= blocks;
+ void update_mmu_cache(struct vm_area_struct *vma, unsigned long address, pte_t pte)
+@@ -211,17 +235,32 @@
+ 		 * in the SMP case.
+ 		 */
+ 		if (cpu == this_cpu)
+-			flush_dcache_page_impl(page);
++			flush_dcache_pages(page);
  		else
- 			ret = -ENOMEM;
- 		spin_unlock(&sbinfo->stat_lock);
-@@ -686,13 +891,13 @@
- 	return ret;
- }
+-			smp_flush_dcache_page_impl(page, cpu);
++			smp_flush_dcache_pages(page, cpu);
 
--void hugetlb_put_quota(struct address_space *mapping)
-+void hugetlb_put_quota(struct address_space *mapping, int blocks)
- {
- 	struct hugetlbfs_sb_info *sbinfo = HUGETLBFS_SB(mapping->host->i_sb);
+ 		clear_dcache_dirty_cpu(page, cpu);
 
- 	if (sbinfo->free_blocks > -1) {
- 		spin_lock(&sbinfo->stat_lock);
--		sbinfo->free_blocks++;
-+		sbinfo->free_blocks += blocks;
- 		spin_unlock(&sbinfo->stat_lock);
+ 		put_cpu();
  	}
+-	if (get_thread_fault_code())
+-		__update_mmu_cache(vma->vm_mm->context & TAG_CONTEXT_BITS,
++	if (get_thread_fault_code()) {
++
++		if (PageCompound(page)) {
++			int nr;
++
++			page = page->private;
++			nr = 1 << page[1].index;
++			address = page_address(page);
++			while (nr-- > 0) {
++				__update_mmu_cache(vma->vm_mm->context & TAG_CONTEXT_BITS,
++				   address, pte, get_thread_fault_code());
++				address += PAGE_SIZE;
++			}
++		} else
++			__update_mmu_cache(vma->vm_mm->context & TAG_CONTEXT_BITS,
+ 				   address, pte, get_thread_fault_code());
++
++	}
  }
-@@ -745,9 +950,6 @@
- 	if (!can_do_hugetlb_shm())
- 		return ERR_PTR(-EPERM);
 
--	if (!is_hugepage_mem_enough(size))
--		return ERR_PTR(-ENOMEM);
--
- 	if (!user_shm_lock(size, current->user))
- 		return ERR_PTR(-ENOMEM);
-
-@@ -779,6 +981,14 @@
- 	file->f_mapping = inode->i_mapping;
- 	file->f_op = &hugetlbfs_file_operations;
- 	file->f_mode = FMODE_WRITE | FMODE_READ;
+ void flush_dcache_page(struct page *page)
+@@ -235,9 +274,18 @@
+ 		if (dirty) {
+ 			if (dirty_cpu == this_cpu)
+ 				goto out;
+-			smp_flush_dcache_page_impl(page, dirty_cpu);
++			smp_flush_dcache_pages(page, dirty_cpu);
+ 		}
+-		set_dcache_dirty(page, this_cpu);
 +
-+	/* Account for the memory usage for this segment at create time.
-+	 * This maintains the commit on shmget() semantics of normal
-+	 * shared memory segments. */
-+	error = hugetlb_acct_commit(inode, 0, VMACCT(size));
-+	if (error < 0)
-+		goto out_file;
++		if (PageCompound(page)) {
++			int nr=1;
 +
- 	return file;
-
- out_file:
-Index: linux-2.6.9/fs/proc/proc_misc.c
-===================================================================
---- linux-2.6.9.orig/fs/proc/proc_misc.c	2004-10-21 12:01:24.000000000 -0700
-+++ linux-2.6.9/fs/proc/proc_misc.c	2004-10-21 20:01:09.000000000 -0700
-@@ -235,6 +235,7 @@
- 		vmi.largest_chunk
- 		);
-
-+		len += hugetlbfs_report_meminfo(page + len);
- 		len += hugetlb_report_meminfo(page + len);
-
- 	return proc_calc_metrics(page, start, off, count, eof, len);
-Index: linux-2.6.9/include/linux/hugetlb.h
-===================================================================
---- linux-2.6.9.orig/include/linux/hugetlb.h	2004-10-21 14:50:14.000000000 -0700
-+++ linux-2.6.9/include/linux/hugetlb.h	2004-10-21 20:01:09.000000000 -0700
-@@ -122,8 +122,8 @@
- extern struct file_operations hugetlbfs_file_operations;
- extern struct vm_operations_struct hugetlb_vm_ops;
- struct file *hugetlb_zero_setup(size_t);
--int hugetlb_get_quota(struct address_space *mapping);
--void hugetlb_put_quota(struct address_space *mapping);
-+int hugetlb_get_quota(struct address_space *mapping, int blocks);
-+void hugetlb_put_quota(struct address_space *mapping, int blocks);
-
- static inline int is_file_hugepages(struct file *file)
- {
-@@ -134,11 +134,14 @@
- {
- 	file->f_op = &hugetlbfs_file_operations;
- }
-+int hugetlbfs_report_meminfo(char *);
-+
- #else /* !CONFIG_HUGETLBFS */
-
- #define is_file_hugepages(file)		0
- #define set_file_hugepages(file)	BUG()
- #define hugetlb_zero_setup(size)	ERR_PTR(-ENOSYS)
-+#define hugetlbfs_report_meminfo(buf)	0
-
- #endif /* !CONFIG_HUGETLBFS */
-
++			page = page->private;
++			nr = 1 << page[1].index;
++			while (nr-- >0)
++				set_dcache_dirty(page++, this_cpu);
++		} else
++			set_dcache_dirty(page, this_cpu);
+ 	} else {
+ 		/* We could delay the flush for the !page_mapping
+ 		 * case too.  But that case is for exec env/arg
 

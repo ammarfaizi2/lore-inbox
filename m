@@ -1,92 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268798AbUHLVbf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268804AbUHLV5T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268798AbUHLVbf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 17:31:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268811AbUHLV27
+	id S268804AbUHLV5T (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 17:57:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268819AbUHLV5T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 17:28:59 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:58594 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S268812AbUHLV0s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 17:26:48 -0400
-Date: Thu, 12 Aug 2004 23:26:39 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: James.Bottomley@SteelEye.com
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] fix NCR53C9x.c compile warning (fwd)
-Message-ID: <20040812212639.GP13377@fs.tum.de>
+	Thu, 12 Aug 2004 17:57:19 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:26064 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S268804AbUHLVxt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 17:53:49 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc3-O5
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Florian Schmidt <mista.tapas@gmx.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       jackit-devel <jackit-devel@lists.sourceforge.net>,
+       Paul Davis <paul@linuxaudiosystems.com>
+In-Reply-To: <20040812072127.GA20386@elte.hu>
+References: <20040809104649.GA13299@elte.hu>
+	 <20040810132654.GA28915@elte.hu> <1092174959.5061.6.camel@mindpipe>
+	 <20040811073149.GA4312@elte.hu> <20040811074256.GA5298@elte.hu>
+	 <1092210765.1650.3.camel@mindpipe> <20040811090639.GA8354@elte.hu>
+	 <20040811141649.447f112f@mango.fruits.de> <20040811124342.GA17017@elte.hu>
+	 <1092268536.1090.7.camel@mindpipe>  <20040812072127.GA20386@elte.hu>
+Content-Type: text/plain
+Message-Id: <1092347654.11134.10.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 12 Aug 2004 17:54:15 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2004-08-12 at 03:21, Ingo Molnar wrote:
+> * Lee Revell <rlrevell@joe-job.com> wrote:
+> 
+> > There is definitely some subtle bug in the preempt-timing patch,
+> > because I am getting reports of long non-preemptible sections, which
+> > do not correspond to an xrun in jackd - if these were real then even a
+> > 400usec non-preemptible section would cause an xrun.  I do not seem to
+> > get many xruns during normal jackd operation.
+> 
+> could you send me these latest preempt-timing warnings?
+> 
 
-The trivial patch forwarded below still applies and compiles against 
-2.6.8-rc4-mm1.
+Here are all the XRUN traces and preempt-timing warnings for the last
+~24 hours.  I still have not had a chance to test with the latest
+patches & config changes.
 
-Please apply.
+http://krustophenia.net/2.6.8-rc3-O5/kern.log.txt
 
+Here are some graphs from other test runs:
 
------ Forwarded message from Adrian Bunk <bunk@fs.tum.de> -----
+http://krustophenia.net/testresults.php?dataset=2.6.8-rc3-O5
+http://krustophenia.net/testresults.php?dataset=2.6.8-rc2-mm2-O3
 
-Date:	Sat, 20 Dec 2003 00:13:21 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] fix NCR53C9x.c compile warning
+For reference here's an -mm kernel without the voluntary-preempt
+patches:
 
-I got the following compile warning in 2.6.0-test11-mm1:
+http://krustophenia.net/testresults.php?dataset=2.6.8-rc3-mm2
 
-<--  snip  -->
+Source code for the php script:
 
-...
-  CC [M]  drivers/scsi/NCR53C9x.o
-drivers/scsi/NCR53C9x.c: In function `esp_do_data':
-drivers/scsi/NCR53C9x.c:1838: warning: unused variable `flags'
-...
+http://krustophenia.net/testresults.phps
 
-<--  snip  -->
+I based the php script on this perl script: 
 
+http://www.oddmuse.org/cgi-bin/oddmuse/GnuPlot_Extension
 
-The following patch fixes this warning:
+The web server is my desktop machine, so please don't complain if it
+becomes unavailable without warning.  I will try to keep the links
+working.
 
-
-Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
-
---- linux-2.6.0-test11-mm1-modular-no-smp/drivers/scsi/NCR53C9x.c.old	2003-12-19 23:26:15.000000000 +0100
-+++ linux-2.6.0-test11-mm1-modular-no-smp/drivers/scsi/NCR53C9x.c	2003-12-19 23:27:10.000000000 +0100
-@@ -1835,7 +1835,10 @@
- 		/* loop */
- 		while (hmuch) {
- 			int j, fifo_stuck = 0, newphase;
--			unsigned long flags, timeout;
-+			unsigned long timeout;
-+#if 0
-+			unsigned long flags;
-+#endif
- #if 0
- 			if ( i % 10 )
- 				ESPDATA(("\r"));
-
-
-
-Please apply
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
------ End forwarded message -----
+Lee
 

@@ -1,106 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266192AbUBQOOX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 09:14:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266221AbUBQOOX
+	id S266214AbUBQOXh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 09:23:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266222AbUBQOXh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 09:14:23 -0500
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:47497 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S266192AbUBQOOM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 09:14:12 -0500
-Message-ID: <20040217061400.z9r4gss0gsockws4@carlthompson.net>
-X-Priority: 3 (Normal)
-Date: Tue, 17 Feb 2004 06:14:00 -0800
-From: Carl Thompson <cet@carlthompson.net>
-To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+	Tue, 17 Feb 2004 09:23:37 -0500
+Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:24553 "EHLO
+	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id S266214AbUBQOXf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 09:23:35 -0500
+Date: Tue, 17 Feb 2004 15:23:33 +0100
+From: Martin Waitz <tali@admingilde.org>
+To: Valdis.Kletnieks@vt.edu
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: hard lock using combination of devices
-References: <20040216214111.jxqg4owg44wwwc84@carlthompson.net>
-	<200402170854.22973.vda@port.imtp.ilyichevsk.odessa.ua>
-	<20040216231401.3ig4kksk4k8g8440@carlthompson.net>
-	<200402171149.49985.vda@port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <200402171149.49985.vda@port.imtp.ilyichevsk.odessa.ua>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=_zhyprd6qn4w"
-Content-Transfer-Encoding: 7bit
-User-Agent: Internet Messaging Program (IMP) 4.0-cvs
-X-Originating-IP: 192.168.0.156
+Subject: Re: [RFC][PATCH} 2.6 and grsecurity
+Message-ID: <20040217142333.GF27996@admingilde.org>
+Mail-Followup-To: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
+References: <200402170134.i1H1YIAW016949@turing-police.cc.vt.edu>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="eN+VsUY52o/CFM+1"
+Content-Disposition: inline
+In-Reply-To: <200402170134.i1H1YIAW016949@turing-police.cc.vt.edu>
+User-Agent: Mutt/1.3.28i
+X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message is in MIME format.
 
---=_zhyprd6qn4w
-Content-Type: text/plain; charset="ISO-8859-1"; format="flowed"
+--eN+VsUY52o/CFM+1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
 
-Quoting vda <vda@port.imtp.ilyichevsk.odessa.ua>:
+hi :)
 
-> On Tuesday 17 February 2004 09:14, Carl Thompson wrote:
->> Quoting vda <vda@port.imtp.ilyichevsk.odessa.ua>:
->> > ...
->> >
->> > Your box share IRQs in a big way :)
->>
->> Your point?
->
-> While shared interrupts can in theory work right,
-> lots of hardware and/or drivers do not handle
-> that.
+On Mon, Feb 16, 2004 at 08:34:17PM -0500, Valdis.Kletnieks@vt.edu wrote:
+>  	spin_lock_bh(&inet_peer_idlock);
+> -	id =3D p->ip_id_count;
+> +#ifdef CONFIG_SECURITY_RANDID
+> +	if (security_enable_randid)
+> +		id =3D ip_randomid();
+> +	else
+> +#endif
+> +		id =3D p->ip_id_count;
 
-First, the two devices in question are not on the same interrupt.  Second, it
-is very difficult in this day in age to build a system without interrupt
-sharing.  While I agree that it's better to have as few devices sharing as
-possible, there are simply too many devices in modern systems and too few
-interrupts.  Interrupt sharing needs to work on modern hardware and needs to
-work in Linux.  This notebook is pretty typical in its interrupt distribution
-and I'm not certain that this is a problem.  In fact, while many devices on
-this system use IRQ 11 the only one active at the time was the audio
-controller.  And while IRQ 10 is shared between the CardBus adapters and the
-video card the problems still occur if I don't run X and video interrupts
-shouldn't be generated in console mode, right?
+you could #define security_enable_* to 0 when CONFIG_SECURITY_*
+is disabled. thay way you don't need the ugly #ifdef in the .c file
 
-> I think you should try to reconfigure your
-> system so that devices do not share same IRQ
-> and see whether that 'fix' the problem.
+on the other hand, why do one need a syscall anyway.
+only to justify the existence of some ugly lockdown mode?
 
-There are no options in my notebook's BIOS to reconfigure interrupts or 
-disable
-devices.
-
-> BTW, can you show your /proc/interrupts ?
-
-Attached.
-
-> --
-> vda
-
-Carl Thompson
+well, why make it even configurable?
+eigther it increases security, then by all means: enable it
+unconditionally;
+or it doesn't increase security, and why do we need it then?
 
 
+--=20
+CU,		  / Friedrich-Alexander University Erlangen, Germany
+Martin Waitz	//  Department of Computer Science 12      _________
+______________/// - - - - - - - - - - - - - - - - - - - - ///
+dies ist eine manuell generierte mail, sie beinhaltet    //
+tippfehler und ist auch ohne grossbuchstaben gueltig.   /
 
---=_zhyprd6qn4w
-Content-Type: text/plain; charset="UTF-8"; name="interrupts"
-Content-Disposition: attachment; filename="interrupts"
-Content-Transfer-Encoding: 7bit
+--eN+VsUY52o/CFM+1
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-           CPU0       
-  0:   41027968          XT-PIC  timer
-  1:      26061          XT-PIC  i8042
-  2:          0          XT-PIC  cascade
-  8:          1          XT-PIC  rtc
-  9:       2020          XT-PIC  acpi
- 10:    2187181          XT-PIC  yenta, driverloader
- 11:        111          XT-PIC  ALI 5451
- 12:    2399118          XT-PIC  i8042
- 14:     169829          XT-PIC  ide0
- 15:          1          XT-PIC  ide1
-NMI:          0 
-LOC:   41036749 
-ERR:     275764
-MIS:          0
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
---=_zhyprd6qn4w--
+iD8DBQFAMiPkj/Eaxd/oD7IRAgj4AJ0fZe9I+mmI9CDBGG9GdtLadYdLegCdHDi/
+GKjSIzHiWVoKnq5xotQx6nc=
+=13jY
+-----END PGP SIGNATURE-----
 
+--eN+VsUY52o/CFM+1--

@@ -1,56 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261495AbVA1Rx3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261519AbVA1Rz7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261495AbVA1Rx3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 12:53:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261515AbVA1Rwt
+	id S261519AbVA1Rz7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 12:55:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261516AbVA1Ryc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 12:52:49 -0500
-Received: from fsmlabs.com ([168.103.115.128]:33474 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S261503AbVA1Rnq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 12:43:46 -0500
-Date: Fri, 28 Jan 2005 10:43:42 -0700 (MST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Andi Kleen <ak@suse.de>
-cc: Hugh Dickins <hugh@veritas.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-Subject: Re: [PATCH] Add CONFIG_X86_APIC_OFF for i386/UP
-In-Reply-To: <20050128151839.GI6703@wotan.suse.de>
-Message-ID: <Pine.LNX.4.61.0501281038480.22906@montezuma.fsmlabs.com>
-References: <20050128133927.GC6703@wotan.suse.de>
- <Pine.LNX.4.61.0501281421410.7109@goblin.wat.veritas.com>
- <20050128143010.GE6703@wotan.suse.de> <Pine.LNX.4.61.0501281506100.7207@goblin.wat.veritas.com>
- <20050128151839.GI6703@wotan.suse.de>
+	Fri, 28 Jan 2005 12:54:32 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:35498 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261512AbVA1Rwg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 12:52:36 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Martin Zwickel <martin.zwickel@technotrend.de>
+Subject: Re: [RFC][PATCH] swsusp: do not use higher order memory allocations on suspend
+Date: Fri, 28 Jan 2005 18:52:43 +0100
+User-Agent: KMail/1.7.1
+Cc: LKML <linux-kernel@vger.kernel.org>, hugang@soulinfo.com,
+       Pavel Machek <pavel@suse.cz>,
+       Nigel Cunningham <ncunningham@linuxmail.org>
+References: <200501281454.23167.rjw@sisk.pl> <20050128150756.1d6976cb@phoebee>
+In-Reply-To: <20050128150756.1d6976cb@phoebee>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200501281852.43689.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Jan 2005, Andi Kleen wrote:
-
-> > Forgive me for not wading through the code, but it really needs to
-> > be spelt out in the comments: what's wrong with the existing kernel,
-> > with "noapic nolapic" in the distro's bootstring by default?
+On Friday, 28 of January 2005 15:07, Martin Zwickel wrote:
+> > @@ -373,15 +377,22 @@
+> >  
+> >  static int write_pagedir(void)
+> >  {
+> > -	unsigned long addr = (unsigned long)pagedir_nosave;
+> >  	int error = 0;
+> > -	int n = SUSPEND_PD_PAGES(nr_copy_pages);
+> > -	int i;
+> > +	unsigned n = 0;
+> > +	struct pbe * pbe;
+> > +
+> > +	printk( "Writing pagedir ...");
+> > 
+> > +
+> > +	pr_debug("\b\b\bdone (%u pages)\n", n);
 > 
-> It's harder to explain and traditionally in LILO you couldn't remove
-> any options (in grub you can now). I think it makes much more sense
-> to have an positive option for this too, not a negative one. 
+> Just cosmetic:
+> Why do you use pr_debug here instead of printk like you did above?
 
-Well new distributions with 2.6 most probably aren't using LILO and if 
-you're running 2.6 with some ancient distro you can add commandline 
-options yourself.
+By mistake. :-)  Thanks!  
 
-> Also I must add my patch fixes real bugs in the code, not just
-> adding the new option.
+Greets,
+RJW
 
-Please seperate them then.
 
-> > I'm not going to be the only one confused by this!
-> 
-> I think there is much more confusion in the current way.
-
-I'm going to claim confusion over this one too.
-
-Thanks,
-	Zwane
-
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

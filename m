@@ -1,44 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262781AbVBYWUj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262782AbVBYW0m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262781AbVBYWUj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 17:20:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262782AbVBYWUj
+	id S262782AbVBYW0m (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 17:26:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262783AbVBYW0m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 17:20:39 -0500
-Received: from web50203.mail.yahoo.com ([206.190.38.44]:48977 "HELO
-	web50203.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262781AbVBYWU1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 17:20:27 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=E/NT/1hwgzvxCUkVoCle8q0G6NNi9XFr0XjrRhM0mBZIwVLOjk3eiET0kb465MSsaZoz8DR+iUP9p20xK81zwuCm3G3eu5NkywYOOdkP5r2jeJiwNOA/qhLNos5W+drFlCeUar6zc92s+FaqLzFBczee15F57fntQtJd8gh7KFo=  ;
-Message-ID: <20050225222022.77009.qmail@web50203.mail.yahoo.com>
-Date: Fri, 25 Feb 2005 14:20:21 -0800 (PST)
-From: Johan Braennlund <johan_brn@yahoo.com>
-Subject: Re: ALPS touchpad not seen by 2.6.11 kernels
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <d120d500050225134468f8ffac@mail.gmail.com>
+	Fri, 25 Feb 2005 17:26:42 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:9382 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262782AbVBYW0i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 17:26:38 -0500
+Message-ID: <421FA61B.9050705@us.ibm.com>
+Date: Fri, 25 Feb 2005 14:26:35 -0800
+From: Darren Hart <dvhltc@us.ibm.com>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Chris Wright <chrisw@osdl.org>
+CC: hugh@veritas.com, akpm@osdl.org, andrea@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] allow vma merging with mlock et. al.
+References: <421E74B5.3040701@us.ibm.com> <20050225171122.GE28536@shell0.pdx.osdl.net> <20050225220543.GC15867@shell0.pdx.osdl.net>
+In-Reply-To: <20050225220543.GC15867@shell0.pdx.osdl.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Chris Wright wrote:
+> * Chris Wright (chrisw@osdl.org) wrote:
+> 
+>>* Darren Hart (dvhltc@us.ibm.com) wrote:
+>>
+>>>The were a couple long standing (since at least 2.4.21) superfluous 
+>>>variables and two unnecessary assignments in do_mlock().  The intent of 
+>>>the resulting code is also more obvious.
+>>>
+>>>Tested on a 4 way x86 box running a simple mlock test program.  No 
+>>>problems detected.
+>>
+>>Did you test with multiple page ranges, and locking subsets of vmas?
+>>Seems that splitting could cause a problem since you now sample vm_end
+>>before and after fixup, where the vma could be changed in the middle.
+> 
+> 
+> Actually I think it winds up being fine since we don't do merging with
+> mlock.  But why not?  Patch below remedies that.
 
---- Dmitry Torokhov wrote:
+We don't merge, but we do split if necessary, so the temp variables are 
+still needed.  As I understand it, the reason we don't merge is because 
+it is expected that a task will lock and unlock the same memory range 
+more than once and we don't want to waste our time merging and splitting 
+the VMAs.
 
-> Does i8042 detect presence of an AUX port (check dmesg)? 
+Thanks,
 
-No.
-
-> If not try booting with i8042.noacpi kernel boot option.
-
-Yes, that helped - everything's working now. Thank you.
-
-- Johan
-
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+--Darren

@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269093AbUJWDAS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269319AbUJWDEi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269093AbUJWDAS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 23:00:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268265AbUJVXSe
+	id S269319AbUJWDEi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 23:04:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269318AbUJWDDb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 19:18:34 -0400
-Received: from rproxy.gmail.com ([64.233.170.194]:57878 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S269142AbUJVXNo convert rfc822-to-8bit
+	Fri, 22 Oct 2004 23:03:31 -0400
+Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:26180 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S269109AbUJVXVt
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 19:13:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=hhA6RgKdh6nOwgxTB7xjACdTFj6dYds3ityps8Mq8Kw8r80c7Cp7KL5ASWE4Ba+xIxsH72CSN/d5gPwNNRQFRVrkXL2zTIO+qoTgJP8hOMOQ2BKZI9LmJj+Dg0QKiUBj8B51L9RgGRzMrZXD9FlaU1K7v9GgHezD0ucAzDZEeHE=
-Message-ID: <7aaed09104102216131170194b@mail.gmail.com>
-Date: Sat, 23 Oct 2004 01:13:34 +0200
-From: =?ISO-8859-1?Q?Espen_Fjellv=E6r_Olsen?= <espenfjo@gmail.com>
-Reply-To: =?ISO-8859-1?Q?Espen_Fjellv=E6r_Olsen?= <espenfjo@gmail.com>
-To: Clemens Schwaighofer <cs@tequila.co.jp>
-Subject: Re: The naming wars continue...
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <41798F74.9090200@tequila.co.jp>
+	Fri, 22 Oct 2004 19:21:49 -0400
+Subject: Re: My thoughts on the "new development model"
+From: Paul Fulghum <paulkf@microgate.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Espen =?ISO-8859-1?Q?Fjellv=E6r?= Olsen <espenfjo@gmail.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1098485905.1440.11.camel@krustophenia.net>
+References: <7aaed09104102213032c0d7415@mail.gmail.com>
+	 <7aaed09104102214521e90c27c@mail.gmail.com>
+	 <1098485905.1440.11.camel@krustophenia.net>
+Content-Type: text/plain
+Message-Id: <1098487302.5963.9.camel@at2.pipehead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-References: <Pine.LNX.4.58.0410221431180.2101@ppc970.osdl.org>
-	 <41798F74.9090200@tequila.co.jp>
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Fri, 22 Oct 2004 18:21:42 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/23/2004 07:05 AM, Linus Torvalds wrote:
-> Ok,
->  Linux-2.6.10-rc1 is out there for your pleasure.
->
-> I thought long and hard about the name of this release (*), since one of
-> the main complaints about 2.6.9 was the apparently release naming scheme.
->
-> Should it be "-rc1"? Or "-pre1" to show it's not really considered release
-> quality yet? Or should I make like a rocket scientist, and count _down_
-> instead of up? Should I make names based on which day of the week the
-> release happened? Questions, questions..
+On Fri, 2004-10-22 at 17:58, Lee Revell wrote:
+> Part of the reasoning behind the new development model is that if you
+> want a stable kernel, there are many vendors who will give you one.
 
-Do the -rcs first, let them contain everything that should go into the
-next release.
-And when you feel that you have released enough -rcs(Uh, whenever that
-is...) release the -pres.
-They should only contain critical bugfixes before the final release.
+Precisely what I was thinking:
+Features pass a utility/sanity/style check to get into main line,
+and vendors provide the polished/tuned package.
+
+> If you want to make an omelette you have
+> to break some eggs...
+
+2.6.9 left a few shells on the floor ;-)
 
 -- 
-Mvh / Best regards
-Espen Fjellvær Olsen
-espenfjo@gmail.com
-Norway
+Paul Fulghum
+paulkf@microgate.com
+
+

@@ -1,107 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261563AbUGIAIa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261378AbUGIAMS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261563AbUGIAIa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 20:08:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbUGIAIa
+	id S261378AbUGIAMS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 20:12:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbUGIAMR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 20:08:30 -0400
-Received: from motgate2.mot.com ([144.189.100.101]:63189 "EHLO
-	motgate2.mot.com") by vger.kernel.org with ESMTP id S261563AbUGIAI0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 20:08:26 -0400
-In-Reply-To: <40ED7C51.90103@246tNt.com>
-References: <40ED7C51.90103@246tNt.com>
-Mime-Version: 1.0 (Apple Message framework v618)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <17F799EA-D13C-11D8-A787-000393DBC2E8@freescale.com>
+	Thu, 8 Jul 2004 20:12:17 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:29585 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261378AbUGIAMP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 20:12:15 -0400
+Subject: [PATCH] [0/2] acpiphp extension for 2.6.7 (final)
+From: Vernon Mauery <vernux@us.ibm.com>
+To: Greg KH <greg@kroah.com>
+Cc: pcihpd <pcihpd-discuss@lists.sourceforge.net>, Greg KH <gregkh@us.ibm.com>,
+       lkml <linux-kernel@vger.kernel.org>, Pat Gaughen <gone@us.ibm.com>,
+       Chris McDermott <lcm@us.ibm.com>, Jess Botts <botts@us.ibm.com>
+In-Reply-To: <20040708232827.GA20755@kroah.com>
+References: <1087934028.2068.57.camel@bluerat>
+	 <200407071147.57604@bilbo.math.uni-mannheim.de>
+	 <1089216410.24908.5.camel@bluerat>
+	 <200407081209.42927@bilbo.math.uni-mannheim.de>
+	 <1089328415.2089.194.camel@bluerat>  <20040708232827.GA20755@kroah.com>
+Content-Type: text/plain
+Message-Id: <1089331908.2089.249.camel@bluerat>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 08 Jul 2004 17:11:48 -0700
 Content-Transfer-Encoding: 7bit
-Cc: Linux/PPC Development <linuxppc-dev@lists.linuxppc.org>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-From: Kumar Gala <kumar.gala@freescale.com>
-Subject: Re: [PATCH 1/2] Freescale MPC52xx support for 2.6 - Base part
-Date: Thu, 8 Jul 2004 19:08:23 -0500
-To: Sylvain Munaut <tnt@246tnt.com>
-X-Mailer: Apple Mail (2.618)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A few comments:
+On Thu, 2004-07-08 at 16:28, Greg KH wrote:
+> Those checks are fine with me, I don't have a problem with them.
+> 
+> > Either way, after I make the other fixes (and possibly this one), should
+> > I resubmit both patches together or just 1 of 2 alone?
+> 
+> Resend both of them, that way I'm reminded that they both need to be
+> applied :)
+> 
 
-cputable.c:
-* the 8280/52xx, maybe we should just have G2_LE, (same core exists in 
-8272, 8249, etc.)
+Just for good measure, the description is included below again. :)
 
-mpc52xx_setup.c:
-* what is cpu_52xx[]?
+The two patches are to follow
 
-ppcboot.h:
-* was bi_immr_base not sufficient?
+--Vernon
 
-- kumar
 
-On Jul 8, 2004, at 11:54 AM, Sylvain Munaut wrote:
+After much discussion, dissection, rewriting and reading (documentation
+of course), I finally think this patch is ready to be included in the
+kernel.  I have chosen to split it into 2 parts because really, that's
+what it is -- a patch to acpiphp that allows other modules to register
+attention LED callback functions and also a new module that does just
+that for the IBM ACPI systems.  These patches were made against the
+2.6.7 kernel tree.
 
->
-> This patch adds support for the Freescale MPC5200 and it's LITE5200 
-> platform.
-> Only basic boot support is included here.
->
-> Signed-off-by: Sylvain Munaut <tnt@246tNt.com>
->
->
-> The complete patch set is composed of two parts parts :
-> - [1/2] The base/core part ( include/asm-ppc & arch/ppc )
-> - [2/2] The serial driver part ( include/linux & driver/serial )
-> They have to be applied in order.
->
->
->
-> Due to the size of the patch (>80k), it's not inlined or attached. 
-> It's available from either :
->
-> - bksend generated patch : 
-> http://www.246tNt.com/linux-2.5-mpc52xx-pending-main.bksend
-> - diff -urN style patch  : 
-> http://www.246tNt.com/linux-2.5-mpc52xx-pending-main.diff
-> - bk tree ( contains both patchs ) : 
-> bk://bkbits.246tNt.com/linux-2.5-mpc52xx-pending
->
->
-> diffstat is included :
->
-> ===================================================================
->
->
-> ChangeSet@1.1819, 2004-07-08 16:11:09+02:00, 
-> tnt@246tNt-laptop.lan.ayanami.246tNt.com
->  Add basic support for the Freescale MPC52xx embedded CPU and the 
-> LITE5200 platform.
->
->  Signed-off-by: Sylvain Munaut <tnt@246tNt.com>
->
->
-> Documentation/powerpc/mpc52xx.txt   |   48 +++
-> arch/ppc/Kconfig                    |   28 +-
-> arch/ppc/boot/common/misc-common.c  |   10
-> arch/ppc/boot/simple/Makefile       |    7
-> arch/ppc/boot/simple/mpc52xx_tty.c  |  138 +++++++++++
-> arch/ppc/configs/lite5200_defconfig |  436 
-> ++++++++++++++++++++++++++++++++++++
-> arch/ppc/kernel/cputable.c          |    4
-> arch/ppc/platforms/Makefile         |    1
-> arch/ppc/platforms/lite5200.c       |  152 ++++++++++++
-> arch/ppc/platforms/lite5200.h       |   23 +
-> arch/ppc/platforms/mpc5200.c        |   29 ++
-> arch/ppc/syslib/Makefile            |    1
-> arch/ppc/syslib/mpc52xx_pic.c       |  252 ++++++++++++++++++++
-> arch/ppc/syslib/mpc52xx_setup.c     |  228 ++++++++++++++++++
-> include/asm-ppc/mpc52xx.h           |  380 
-> +++++++++++++++++++++++++++++++
-> include/asm-ppc/mpc52xx_psc.h       |  191 +++++++++++++++
-> include/asm-ppc/ocp_ids.h           |    1
-> include/asm-ppc/ppcboot.h           |    7
-> 18 files changed, 1921 insertions(+), 15 deletions(-)
->
->
-> ** Sent via the linuxppc-dev mail list. See http://lists.linuxppc.org/
+01 - acpiphp-attention-v0.1d.patch
+
+        This patch adds the ability to register callback functions with
+        the acpiphp core to set and get the current attention LED
+        status.  The reason this is needed is because there is not set
+        ACPI standard for how this is done so each hardware platform may
+        implement it differently.  To keep hardware specific code out of
+        acpiphp, we allow other modules to register their code with it.
+
+
+02 - acpiphp_ibm-v1.0.1d.patch
+
+        This patch adds the first driver that actually uses the callback
+        function for attention LEDs that the acpiphp-attention patch
+        adds.  It searches the ACPI namespace for IBM hardware, sets up
+        the callbacks and sets up a handler to read ACPI events and
+        forward them on to /proc/acpi/event.  It also exports an ACPI
+        table that shows current hotplug status to userland.
+
+
 

@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265555AbUBFX6Z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 18:58:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265620AbUBFX6Z
+	id S265682AbUBGAGL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 19:06:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265915AbUBGAGL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 18:58:25 -0500
-Received: from web10408.mail.yahoo.com ([216.136.130.110]:45440 "HELO
-	web10408.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S265555AbUBFX5v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 18:57:51 -0500
-Message-ID: <20040206235749.19346.qmail@web10408.mail.yahoo.com>
-Date: Sat, 7 Feb 2004 10:57:49 +1100 (EST)
-From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
-Subject: Need help about scanner (2.6.2-mm1)
-To: kernel <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 6 Feb 2004 19:06:11 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55277 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265682AbUBGAGK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 19:06:10 -0500
+Date: Sat, 7 Feb 2004 00:06:10 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: walt <wa1ter@myrealbox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.1] Kernel panic with ppa driver updates
+Message-ID: <20040207000610.GQ21151@parcelfarce.linux.theplanet.co.uk>
+References: <4023D098.1000904@myrealbox.com> <20040206182844.GJ21151@parcelfarce.linux.theplanet.co.uk> <4023FCE5.1020300@myrealbox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4023FCE5.1020300@myrealbox.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, Feb 06, 2004 at 12:45:25PM -0800, walt wrote:
+> >Could you post the actual oops? ...
+> 
+> The reason I didn't post it is that it has already scrolled off the top of
+> my console by the time I can read anything :-(   I can see the hex values
+> for the registers and hex values for the stack trace, but nothing earlier
+> than that.  I looked in /var/log/messages but I see that kjournald doesn't
+> start until well after the oops.
+> 
+> I thought about compiling in support for console on serial-or-parallel
+> port but I've never been clear on just what to plug into the serial-or-
+> parallel port after I've done that.  Can you give me a hint how I can
+> get the whole oops message for you?
 
-Hi,
-
-I noticed that 2.6.2-mm1, usb scanner is removed. With
-vanilla 2.6.2, this modules always OOP and somebody
-said we should use libusb instead. However after
-googling for a while I can not find any documentation
-how to use that even in the libusb homepage. Please
-help me , or pinpoint some place I could have some
-guides. Thank
-you.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAJODGv07eUvBr8ysRAl2OAJ9KSpFAM9sYjzjCjCXSXxV/Rqr5iACfXUJd
-feCkFzCcMqIC/WMJDWgExfY=
-=wAHk
------END PGP SIGNATURE-----
-
-
-=====
-S.KIEU
-
-http://greetings.yahoo.com.au - Yahoo! Greetings
-Send your love online with Yahoo! Greetings - FREE!
+Umm...  I wouldn't mess with parallel in this case.  Serial is simple -
+you stick a nullmodem in it and in serial port on another box, then
+run e.g. minicom on the other end.

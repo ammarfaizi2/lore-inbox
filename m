@@ -1,65 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262709AbULQBX1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262710AbULQBXq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262709AbULQBX1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 20:23:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262710AbULQBX1
+	id S262710AbULQBXq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 20:23:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262711AbULQBXq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 20:23:27 -0500
-Received: from mail.kroah.org ([69.55.234.183]:1430 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262709AbULQBXW (ORCPT
+	Thu, 16 Dec 2004 20:23:46 -0500
+Received: from mail.kroah.org ([69.55.234.183]:6294 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262710AbULQBXm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 20:23:22 -0500
-Date: Thu, 16 Dec 2004 16:58:06 -0800
+	Thu, 16 Dec 2004 20:23:42 -0500
+Date: Thu, 16 Dec 2004 17:23:01 -0800
 From: Greg KH <greg@kroah.com>
-To: Alexander Nyberg <alexn@dsv.su.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] debugfs for 2.6.10-rc3
-Message-ID: <20041217005806.GA12339@kroah.com>
-References: <20041216213645.GA9710@kroah.com> <1103244459.1197.15.camel@boxen>
+To: Grzegorz Kulewski <kangur@polcom.net>
+Cc: Pete Zaitcev <zaitcev@redhat.com>,
+       Mike Waychison <Michael.Waychison@Sun.COM>,
+       linux-kernel@vger.kernel.org
+Subject: Re: debugfs in the namespace
+Message-ID: <20041217012301.GA12553@kroah.com>
+References: <20041216190835.GE5654@kroah.com> <41C20356.4010900@sun.com> <20041216221843.GA10172@kroah.com> <20041216144531.3a8d988c@lembas.zaitcev.lan> <20041216225323.GA10616@kroah.com> <Pine.LNX.4.60.0412170033160.25628@alpha.polcom.net> <20041216235147.GC11330@kroah.com> <Pine.LNX.4.60.0412170101530.25628@alpha.polcom.net> <20041217002124.GA11898@kroah.com> <Pine.LNX.4.60.0412170204480.25628@alpha.polcom.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1103244459.1197.15.camel@boxen>
+In-Reply-To: <Pine.LNX.4.60.0412170204480.25628@alpha.polcom.net>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 17, 2004 at 01:47:39AM +0100, Alexander Nyberg wrote:
-> On Thu, 2004-12-16 at 13:36 -0800, Greg KH wrote:
-> > I've added debugfs to my bk driver tree (located at
-> > bk://kernel.bkbits.net/gregkh/linux/driver-2.6) so it will show up in
-> > the next -mm release.  For those who want to see the patch version, or
-> > want to put it in any other kernel tree (Fedora perhaps?) I've included
-> > it below.  I haven't added the kobject interface yet, I'll try to get to
-> > that next week.
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> > 
-> > ----------------------------
-> > 
-> > debugfs: add debugfs
-> > 
-> > debugfs is a filesystem that is just for debug data.
-> > Start moving stuff out of proc and sysfs now :)
+On Fri, Dec 17, 2004 at 02:15:22AM +0100, Grzegorz Kulewski wrote:
+> >>And polluting / with proc, sys, dev, selinux, debug and who knows what
+> >>else is at least equally bad.
+> >
+> >Why?  Each location is defined to have one, specific, well defined thing
+> >there that people can count on (or not count on in the case of /debug.)
 > 
-> Hi Greg
-> 
-> Is there any reason why this shouldn't be buildable as module? I saw no
-> apparent reason and added "|| defined(MODULE)" to debugfs.h and made the
-> Kconfig option tristate. This allowed it to be built as a working module
-> (yay, i didn't have to restart to try it out!).
+> Because in short time we will end with / occupying >1 page of console - 
+> and it will be bad in my opinion. Besides do we really need that many 
+> fses - each for exporting kernel data to userspace?
 
-If debugfs calls are used by any code that is built into the kernel,
-then the build would fail if debugfs is a module.  As that would soon
-get _real_ messy from a Kbuild standpoint, I took the easy way out and
-just made it a Y/N type option :)
+Yes, we do.
 
-> Also I saw there was no debugfs_create_u64() for us on 64bit machines ;)
+> This is at least strange. Why can not /dev, /selinux be merged into
+> /sys (ok, maybe there should be symlinks in /dev to devices in right
+> device directory in /sys). 
 
-If you have a need for it, I'll be glad to add it :)
+Because all three of them are radically different things.
 
-thanks,
+> And I have also other question: Where can I find some info about using 
+> /sys (in kernel)
+
+Documentation/driver-model/* is a good start.  It's a bit out of date,
+but better than nothing.  The lwn.net series of articles is also good to
+look at.
+
+> and some small note about its implementation and overhead (cpu and
+> memory)?
+
+For that you will have to look at the code itself.
+
+Good luck,
 
 greg k-h

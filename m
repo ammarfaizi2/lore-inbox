@@ -1,87 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267644AbTBEA62>; Tue, 4 Feb 2003 19:58:28 -0500
+	id <S267642AbTBEA4y>; Tue, 4 Feb 2003 19:56:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267645AbTBEA62>; Tue, 4 Feb 2003 19:58:28 -0500
-Received: from 4-088.ctame701-1.telepar.net.br ([200.193.162.88]:18601 "EHLO
-	4-088.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S267644AbTBEA60>; Tue, 4 Feb 2003 19:58:26 -0500
-Date: Tue, 4 Feb 2003 23:07:54 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org, "" <tytso@thunk.org>, "" <rddunlap@osdl.org>
-Subject: Re: [PATCH][RESEND 3] disassociate_ctty SMP fix
-In-Reply-To: <Pine.LNX.4.50L.0302042235180.32328-100000@imladris.surriel.com>
-Message-ID: <Pine.LNX.4.50L.0302042306230.32328-100000@imladris.surriel.com>
-References: <Pine.LNX.4.50L.0302042235180.32328-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267643AbTBEA4y>; Tue, 4 Feb 2003 19:56:54 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:5412 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S267642AbTBEA4y>; Tue, 4 Feb 2003 19:56:54 -0500
+Date: Tue, 4 Feb 2003 20:06:25 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: NGROUPS patch in 2.4
+Message-ID: <20030204200625.B30628@devserv.devel.redhat.com>
+References: <20030203165115.C21506@devserv.devel.redhat.com> <200302041038.29019.m.c.p@wolk-project.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200302041038.29019.m.c.p@wolk-project.de>; from m.c.p@wolk-project.de on Tue, Feb 04, 2003 at 10:38:29AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Feb 2003, Rik van Riel wrote:
+> is the attached one the one you are searching for?! :)
 
-> the following patch, against today's BK tree, fixes a small
-> SMP race in disassociate_ctty.  This function gets called
-> from do_exit, without the BKL held.
+No, that's the one which conflicts and I'm trying to adjust.
 
-Here's a better one, this one does the same fix not only
-in disassociate_ctty() but also in do_tty_hangup()
-
-If we're lucky it might fix:
-http://bugme.osdl.org/show_bug.cgi?id=54
-
-Please apply. Thank you,
-
-Rik
-
-===== drivers/char/tty_io.c 1.55 vs edited =====
---- 1.55/drivers/char/tty_io.c	Tue Jan 14 23:37:20 2003
-+++ edited/drivers/char/tty_io.c	Tue Feb  4 23:02:52 2003
-@@ -425,19 +425,21 @@
-  */
- void do_tty_hangup(void *data)
- {
--	struct tty_struct *tty = (struct tty_struct *) data;
-+	struct tty_struct *tty;
- 	struct file * cons_filp = NULL;
- 	struct task_struct *p;
- 	struct list_head *l;
- 	struct pid *pid;
- 	int    closecount = 0, n;
-
--	if (!tty)
--		return;
--
- 	/* inuse_filps is protected by the single kernel lock */
- 	lock_kernel();
--
-+	tty = (struct tty_struct *) data;
-+	if (!tty) {
-+		unlock_kernel();
-+		return;
-+	}
-+
- 	check_tty_count(tty, "do_tty_hangup");
- 	file_list_lock();
- 	for (l = tty->tty_files.next; l != &tty->tty_files; l = l->next) {
-@@ -571,7 +573,7 @@
-  */
- void disassociate_ctty(int on_exit)
- {
--	struct tty_struct *tty = current->tty;
-+	struct tty_struct *tty;
- 	struct task_struct *p;
- 	struct list_head *l;
- 	struct pid *pid;
-@@ -579,6 +581,7 @@
-
- 	lock_kernel();
-
-+	tty = current->tty;
- 	if (tty) {
- 		tty_pgrp = tty->pgrp;
- 		if (on_exit && tty->driver.type != TTY_DRIVER_TYPE_PTY)
+-- Pete

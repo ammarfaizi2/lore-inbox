@@ -1,39 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263340AbUDUQIa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263315AbUDUQIf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263340AbUDUQIa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 12:08:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263336AbUDUQIa
+	id S263315AbUDUQIf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 12:08:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263336AbUDUQIf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 12:08:30 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:34253 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S263355AbUDUQGb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 12:06:31 -0400
-Date: Wed, 21 Apr 2004 17:05:37 +0100
-From: Dave Jones <davej@redhat.com>
-To: Charles Coffing <ccoffing@novell.com>
-Cc: linux-kernel@vger.kernel.org, Dominik Brodowski <linux@brodo.de>
-Subject: Re: [PATCH] unbalanced try_get_module/put_module in cpufreq
-Message-ID: <20040421160537.GA18114@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Charles Coffing <ccoffing@novell.com>, linux-kernel@vger.kernel.org,
-	Dominik Brodowski <linux@brodo.de>
-References: <200404211047.02906.ccoffing@novell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200404211047.02906.ccoffing@novell.com>
-User-Agent: Mutt/1.4.1i
+	Wed, 21 Apr 2004 12:08:35 -0400
+Received: from relay.uni-heidelberg.de ([129.206.100.212]:53413 "EHLO
+	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
+	id S263315AbUDUQIQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Apr 2004 12:08:16 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: logitech mouseMan wheel doesn't work with 2.6.5
+In-Reply-To: <1N4qh-4Ct-13@gated-at.bofh.it>
+References: <1N4qh-4Ct-13@gated-at.bofh.it>
+Date: Wed, 21 Apr 2004 18:08:14 +0200
+Message-Id: <E1BGKGk-0005zP-00@lanczos.pci.uni-heidelberg.de>
+From: Frank Otto <Frank.Otto@tc.pci.uni-heidelberg.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 21, 2004 at 10:47:02AM -0600, Charles Coffing wrote:
- > Hi,
- > 
- > This patch is against 2.6.5.  There's a small bug in cpufreq_add_dev:  If kmalloc fails, try_get_module() is not balanced by a module_put().
- > 
+Erik Steffl <steffl@bigfoot.com> wrote:
+:    it looks that after update to 2.6.5 kernel (debian source package but 
+: I guess it would be the same with stock 2.6.5) the mouse wheel and side 
+: button on Logitech Cordless MouseMan Wheel mouse do not work.
+:
+: [snip]
+:
+:    BTW X windows is confused in the same way (I guess because that's 
+: what it gets from kernel driver - using xev I found that it thinks the 
+: sidebutton is button 2 and that turning the wheel is not an event at all).
 
-Thanks, applied. (Slightly different variant, but same end result).
+What worked for me is to make a change to my XF86Config:
+use /dev/psaux for the mouse device, and choose "ExplorerPS/2"
+for the mouse protocol (I previously used "MouseManPlusPS/2").
 
-		Dave
+HTH,
+Frank
 
+[Sorry if this post falls out of its thread, I'm not subscribed to
+LKML and only read it via the newsgroup interface but that currently
+doesn't allow posting.]

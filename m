@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261234AbTJVVxJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Oct 2003 17:53:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbTJVVxJ
+	id S261188AbTJVVqT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Oct 2003 17:46:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbTJVVqT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Oct 2003 17:53:09 -0400
-Received: from fw.osdl.org ([65.172.181.6]:41707 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261234AbTJVVxI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Oct 2003 17:53:08 -0400
-Subject: Re: 2.6.0-test8: 'sleeping function called from invalid context at
-	include/asm/semaphore.h: 119' at boot
-From: Mark Haverkamp <markh@osdl.org>
-To: bd <bdonlan@users.sourceforge.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <rcug61-a26.ln1@bd-home-comp.no-ip.org>
-References: <rcug61-a26.ln1@bd-home-comp.no-ip.org>
-Content-Type: text/plain
-Message-Id: <1066859275.1499.25.camel@markh1.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Wed, 22 Oct 2003 14:47:56 -0700
-Content-Transfer-Encoding: 7bit
+	Wed, 22 Oct 2003 17:46:19 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:7944 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261188AbTJVVqS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Oct 2003 17:46:18 -0400
+Date: Wed, 22 Oct 2003 22:46:10 +0100 (BST)
+From: James Simmons <jsimmons@infradead.org>
+To: jhf@rivenstone.net
+cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [FBDEV UPDATE] Newer patch.
+In-Reply-To: <20031022205043.GA725@rivenstone.net>
+Message-ID: <Pine.LNX.4.44.0310222242130.25125-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-10-21 at 17:08, bd wrote:
 
+>     The attached patch is needed to make tdfxfb compile after
+> applying this patch and also in test8-mm1 (so presumably in your older
+> patch as well) (tdfxfb_imageblt calls cfb_imageblt).
 
-...
+Thanks.
+ 
+>     tdfx is still badly broken in -mm1 both before and after replacing
+> the older fbdev patch in -mm1 with your new one.  The behavior is much
+> the same as reported with other drivers -- out of range frequencies
+> and the same backtraces.  With fbset working I can set a new
+> resolution which gets me a barely usable console -- lots of
+> artifacts.
 
-> 
-> The system runs fine once it finishes booting, however, except that
-> 'xosview' hangs at startup and must be killed.
+The out frequencies range problems existed before the api change for many 
+drivers. Now that i2c support is being added to drivers this will go away.
+The backtraces is from having debug info turned on. I haven't traced that 
+problem yet. Are the artifacts from shrinking the screen or enlarging it?
 
-I believe that this is because the format of /proc/stat has changed.
-
--- 
-Mark Haverkamp <markh@osdl.org>
 

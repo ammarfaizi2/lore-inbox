@@ -1,61 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261840AbUCBVkJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 16:40:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261815AbUCBVjm
+	id S261966AbUCBVmr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 16:42:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbUCBVme
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 16:39:42 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:33587 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261728AbUCBVj0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 16:39:26 -0500
-To: root@chaos.analogic.com
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: poll() in 2.6 and beyond
-References: <Pine.LNX.4.53.0403021318580.796@chaos>
-	<527jy3qalg.fsf@topspin.com> <Pine.LNX.4.53.0403021510270.1856@chaos>
-	<52vflnq807.fsf@topspin.com> <Pine.LNX.4.53.0403021624300.2296@chaos>
-X-Message-Flag: Warning: May contain useful information
-X-Priority: 1
-X-MSMail-Priority: High
-From: Roland Dreier <roland@topspin.com>
-Date: 02 Mar 2004 13:39:24 -0800
-In-Reply-To: <Pine.LNX.4.53.0403021624300.2296@chaos>
-Message-ID: <52n06zq67n.fsf@topspin.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 02 Mar 2004 21:39:24.0715 (UTC) FILETIME=[D4BC27B0:01C4009E]
+	Tue, 2 Mar 2004 16:42:34 -0500
+Received: from gate.crashing.org ([63.228.1.57]:39875 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261916AbUCBVmI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Mar 2004 16:42:08 -0500
+Subject: [PATCH] ppc32: Fix crash on load  in DACA sound driver
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1078263053.21573.176.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 03 Mar 2004 08:30:54 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Roland> I don't think so.  Even in kernel 2.4, poll_wait() just
-    Roland> calls __pollwait().  I don't see anything in __pollwait()
-    Roland> that sleeps.  Think about it.  How would the kernel handle
-    Roland> userspace calling poll() with more than one file
-    Roland> descriptor if each individual driver slept?
+Hi !
 
-    Richard> Well what to you think they do? Spin?
+The DACA sound driver (early iBook models) doesn't clear the i2c_client
+structure. That cause the embedded struct device (and thus kobject) to
+contain garbage in the "k_name" field, which kobject_set_name will
+later try to kfree... 
+Also removes references to unused struct data_data.
 
-I don't know why I continue this, but.... can you point out the line
-in the kernel 2.4 source for __pollwait() where it sleeps?
+===== sound/oss/dmasound/dac3550a.c 1.2 vs edited =====
+--- 1.2/sound/oss/dmasound/dac3550a.c	Tue Sep 30 10:25:28 2003
++++ edited/sound/oss/dmasound/dac3550a.c	Tue Mar  2 21:32:04 2004
+@@ -42,11 +42,6 @@
+ /* Unique ID allocation */
+ static int daca_id;
+ 
+-struct daca_data
+-{
+-	int arf; /* place holder for furture use */
+-};
+-
+ struct i2c_driver daca_driver = {  
+ 	.owner			= THIS_MODULE,
+ 	.name			= "DAC3550A driver  V " DACA_VERSION,
+@@ -168,12 +163,12 @@
+ {
+ 	const char *client_name = "DAC 3550A Digital Equalizer";
+ 	struct i2c_client *new_client;
+-	struct daca_data *data;
+ 	int rc = -ENODEV;
+ 
+-	new_client = kmalloc(sizeof(*new_client) + sizeof(*data), GFP_KERNEL);
++	new_client = kmalloc(sizeof(*new_client), GFP_KERNEL);
+ 	if (!new_client)
+ 		return -ENOMEM;
++	memset(new_client, 0, sizeof(*new_client));
+ 
+ 	new_client->addr = address;
+ 	new_client->adapter = adapter;
+@@ -181,9 +176,6 @@
+ 	new_client->flags = 0;
+ 	strcpy(new_client->name, client_name);
+ 	new_client->id = daca_id++; /* racy... */
+-
+-	data = (struct daca_data *)(new_client+1);
+-	dev_set_drvdata(&new_client->dev, data);
+ 
+ 	if (daca_init_client(new_client))
+ 		goto bail;
 
-Or think about it.  Suppose a user called poll() with two fds, each of
-which belonged to a different driver.  Suppose each driver slept in
-its poll method.  If the first driver never became ready (and stayed
-asleep), how would poll() return to user space if the second driver
-became ready?
 
-What actually happens is that each driver registers with the kernel
-the wait queues that it will wake up when it becomes ready.  But the
-core kernel is responsible for sleeping, outside of the driver code.
-
-Really, read:
-    <http://www.xml.com/ldd/chapter/book/ch05.html#t3>
-
-You might believe you're familiar with poll() but I think it would
-help to read what the Linux Device Drivers book has to say.  It
-answers the exact question you're asking, and if you don't believe me
-you might believe the definitive published book.
-
- - Roland

@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290721AbSARPRj>; Fri, 18 Jan 2002 10:17:39 -0500
+	id <S290715AbSARPL3>; Fri, 18 Jan 2002 10:11:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290720AbSARPRa>; Fri, 18 Jan 2002 10:17:30 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:31238 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S290721AbSARPRS>;
-	Fri, 18 Jan 2002 10:17:18 -0500
-Date: Fri, 18 Jan 2002 13:17:16 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        boissiere@mediaone.net (Guillaume Boissiere),
-        linux-kernel@vger.kernel.org
-Subject: Re: [STATUS 2.5]  January 18, 2002
-Message-ID: <20020118151716.GB7976@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	boissiere@mediaone.net (Guillaume Boissiere),
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3C477B7F.22875.11D4078A@localhost> <E16RW8L-0006WP-00@the-village.bc.nu> <20020118150951.GA7976@conectiva.com.br>
+	id <S290716AbSARPLK>; Fri, 18 Jan 2002 10:11:10 -0500
+Received: from pl100.nas921.ichikawa.nttpc.ne.jp ([210.165.234.100]:34621 "EHLO
+	mbr.sphere.ne.jp") by vger.kernel.org with ESMTP id <S290715AbSARPK7>;
+	Fri, 18 Jan 2002 10:10:59 -0500
+Date: Sat, 19 Jan 2002 00:10:29 +0900
+From: Bruce Harada <bruce@ask.ne.jp>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] wavelan_cs update (Pcmcia backport)
+Message-Id: <20020119001029.42599989.bruce@ask.ne.jp>
+In-Reply-To: <3C47ADAC.6D92E2A5@mandrakesoft.com>
+In-Reply-To: <20020111151825.C15515@bougret.hpl.hp.com>
+	<3C47ADAC.6D92E2A5@mandrakesoft.com>
+X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.6; i686-pc-linux-gnu)
+X-Face: $qrUU,Lz=B[A}i%m2Rg^Ik;~V@]$Ay)$S`wUf3:^aZ1UdLf,_;1y7_xbEh=Yv*wB0=Fv]a1hj14_qQsl[f1KX]q4IdhwmSIeP6>Ap@[e$c$G;;ObLI7?Y<H5";4<{GAPoak2U)!da]-ZJb}!.#>Xsq*)M'3Jp<M,l~'4F{qWpM$%"%p'
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020118150951.GA7976@conectiva.com.br>
-User-Agent: Mutt/1.3.25i
-X-Url: http://advogato.org/person/acme
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Fri, Jan 18, 2002 at 01:09:51PM -0200, Arnaldo Carvalho de Melo escreveu:
-> Em Fri, Jan 18, 2002 at 10:20:29AM +0000, Alan Cox escreveu:
-> > You seem to be short
-> > 
-> > NetBEUI network stack			Arnaldo Carvalho de Melo (from
-> > 					Procom donated code)
+On Fri, 18 Jan 2002 00:07:56 -0500
+Jeff Garzik <jgarzik@mandrakesoft.com> wrote:
+
+> Jean Tourrilhes wrote:
 > 
-> Right, the 802.2 code as well
+> > @@ -1404,7 +1417,7 @@ wv_init_info(device *     dev)
+> >           printk("2430.5");
+> >           break;
+> >         default:
+> > -         printk("unknown");
+> > +         printk("???");
+> >         }
+> >      }
+> > 
 
-Also please put the 802.2 stack in another line because Jay Schullist is
-working with me in this and has contributed the support for PF_LLC sockets,
-as the procom code had 802.2 available only for higher level protocols,
-with Jay's work it is now possible to use 802.2 sockets from userspace.
+> -       * (does it work for everybody XXX - especially old cards...) */
+> +       * (does it work for everybody ??? - especially old cards...) */
 
-- Arnaldo
+> 
+> you are reverting a change - "???" causes a trigraph-related warning in
+> newer gcc
+
+Just asking, but isn't it just a bit bogus for gcc to raise warnings about
+things in comments?

@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132318AbQKDBjY>; Fri, 3 Nov 2000 20:39:24 -0500
+	id <S129033AbQKDBx0>; Fri, 3 Nov 2000 20:53:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132326AbQKDBjP>; Fri, 3 Nov 2000 20:39:15 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:27149 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S132318AbQKDBjH>;
-	Fri, 3 Nov 2000 20:39:07 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: James Simmons <jsimmons@suse.com>
-cc: tytso@mit.edu, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4 Status / TODO page (Updated as of 2.4.0-test10) 
-In-Reply-To: Your message of "Fri, 03 Nov 2000 17:10:52 -0800."
-             <Pine.LNX.4.21.0011031700150.17266-100000@euclid.oak.suse.com> 
-Mime-Version: 1.0
+	id <S129066AbQKDBxQ>; Fri, 3 Nov 2000 20:53:16 -0500
+Received: from ha2.rdc2.mi.home.com ([24.2.68.69]:36000 "EHLO
+	mail.rdc2.mi.home.com") by vger.kernel.org with ESMTP
+	id <S129033AbQKDBxF>; Fri, 3 Nov 2000 20:53:05 -0500
+Message-ID: <3A037A2B.41D6AAA@didntduck.org>
+Date: Fri, 03 Nov 2000 21:53:31 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-3 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: davej@suse.de
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] x86 boot time check for cpu features
+In-Reply-To: <Pine.LNX.4.21.0011040101090.6163-100000@neo.local>
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 04 Nov 2000 12:38:58 +1100
-Message-ID: <4871.973301938@ocs3.ocs-net>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Nov 2000 17:10:52 -0800 (PST), 
-James Simmons <jsimmons@suse.com> wrote:
->
->>      * VGA Console can cause SMP deadlock when doing printk {CRITICAL}
->>        (Keith Owens)
->
->Still not fixed :-( Here is the patch again. Keith give it a try and tell
->me if it solves your problems.
+davej@suse.de wrote:
+> 
+> Brian Gerst wrote...
+> >> I believe the MII always has CPUID enabled. It was the older Cyrixes
+> >> that did not. DaveJ is the guru..
+> > Well, according to comments in bugs.h, some broken BIOSes disable cpuid.
+> 
+> That bug fix is for the earlier Cyrix 6x86 if I'm not mistaken.
+> The MII is a different monster.
 
-The patch looks OK to me.  I worked around my original problem (screen
-deadlock in kdb) by skipping the cli()/restore_flags() when kdb is
-active, kdb guarantees that only one cpu at a time is doing any work.
+According to the docs on VIA's site, the MII's cpuid can still be turned
+off, but it is on by default at reset.  I wouldn't trust the BIOS to not
+screw it up.
 
+--
+
+					Brian Gerst
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,56 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261216AbUKNEhF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261243AbUKNEjR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261216AbUKNEhF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Nov 2004 23:37:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261243AbUKNEhE
+	id S261243AbUKNEjR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Nov 2004 23:39:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbUKNEjR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Nov 2004 23:37:04 -0500
-Received: from fw.osdl.org ([65.172.181.6]:60096 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261216AbUKNEg7 (ORCPT
+	Sat, 13 Nov 2004 23:39:17 -0500
+Received: from fw.osdl.org ([65.172.181.6]:64704 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261243AbUKNEii (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Nov 2004 23:36:59 -0500
-Date: Sat, 13 Nov 2004 20:36:56 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>
-Subject: Re: ppc: fix up pmac IDE driver for driver core changes
-In-Reply-To: <1100399187.20511.137.camel@gaston>
-Message-ID: <Pine.LNX.4.58.0411132034340.12386@ppc970.osdl.org>
-References: <200411132203.iADM3Lwb004846@hera.kernel.org>
- <1100399187.20511.137.camel@gaston>
+	Sat, 13 Nov 2004 23:38:38 -0500
+Message-ID: <4196E0EB.8050106@osdl.org>
+Date: Sat, 13 Nov 2004 20:36:59 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-os@analogic.com
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: RTC Chip and IRQ8 on 2.6.9
+References: <Pine.LNX.4.61.0411121145520.14827@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0411121145520.14827@chaos.analogic.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sun, 14 Nov 2004, Benjamin Herrenschmidt wrote:
-> On Sat, 2004-11-13 at 20:53 +0000, Linux Kernel Mailing List wrote:
-> > ChangeSet 1.2115, 2004/11/13 12:53:51-08:00, torvalds@ppc970.osdl.org
-> > 
-> > 	ppc: fix up pmac IDE driver for driver core changes
-> > 	
-> > 	device power state is in "dev.power.power_state" now, rather than
-> > 	in "dev.power_state".
-> > 
+linux-os wrote:
 > 
-> Hrm... Missed that core change, where does it come from ?
+> I must use the RTC and IRQ8 in a driver being ported from
+> 2.4.20 to 2.6.9. When I attempt request_irq(8,...), it
+> returns -EBUSY. I have disabled everything in .config
+> that has "RTC" in it.
+> 
+> The RTC interrupt is used to precisely time the sequencing
+> of a precision A/D converter. It is mandatory that I use
+> it because the precise interval is essential for its
+> IIR filter that produces 20 bits of resolution from a
+> 16 bit A/D.
+> 
+>            CPU0
+>   0:   60563767    IO-APIC-edge  timer
+>   1:      57096    IO-APIC-edge  i8042
+>   8:          1    IO-APIC-edge  rtc
+>   9:          0   IO-APIC-level  acpi
+>  12:         66    IO-APIC-edge  i8042
+>  14:     112322    IO-APIC-edge  ide0
+>  16:          0   IO-APIC-level  uhci_hcd, uhci_hcd
+>  18:        640   IO-APIC-level  libata, uhci_hcd, Analogic Corp DLB
+>  19:          0   IO-APIC-level  uhci_hcd
+>  20:    4894484   IO-APIC-level  eth0
+>  21:     110543   IO-APIC-level  aic7xxx
+>  23:          0   IO-APIC-level  ehci_hcd
+> NMI:          0 LOC:   60565403 ERR:          0
+> MIS:          0
+> 
+> This stuff works fine in 2.4.22 and, in fact, I'm the guy
+> that added the global rtc_lock so that this very driver
+> could run without interfering with anybody. Now, some code,
+> somewhere (not in a module), has allocated the interrupt
+> and generated exactly 1 interrupt. The kernel won't let
+> me use that interrupt!
+> 
+> How do I undo this so I can use my hardware on my machine?
 
-It's the core "struct device" shrinkage patch:
+I happen to be running a 2.6.9-rc1 kernel right now, with
+an IO APIC (P4 UP), and no RTC support built into it,
+and /proc/interrupts show IRQ 8 empty/unassigned:
 
-	ChangeSet@1.2092.3.1, 2004-11-12 11:41:25-08:00, david-b@pacbell.net
-	  [PATCH] driver core: shrink struct device a bit
-  
-	  This patch removes two fields from "struct device" that are duplicated
-	  in "struct dev_pm_info":  power_state (which should probably vanish)
-	  and "saved_state".  There were only two "real" uses of saved_state;
-	  both are now switched over to use dev_pm_info.
-  
-	  Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
-	  Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+            CPU0
+   0:  777037582    IO-APIC-edge  timer
+   1:     185323    IO-APIC-edge  i8042
+   7:          0    IO-APIC-edge  parport0
+   9:          0   IO-APIC-level  acpi
+  12:    2838473    IO-APIC-edge  i8042
+  14:    1197859    IO-APIC-edge  ide0
+  15:         42    IO-APIC-edge  ide1
+  17:         49   IO-APIC-level  aic7xxx, ohci_hcd
+  19:          0   IO-APIC-level  uhci_hcd
+  21:        197   IO-APIC-level  ohci1394, ohci_hcd, ohci_hcd, 
+ohci_hcd, ohci_hc
+d, ohci_hcd
+  22:     832350   IO-APIC-level  ehci_hcd, eth0
+  23:      16387   IO-APIC-level  es1371, uhci_hcd
+NMI:          0
+LOC:  776994543
+ERR:          0
+MIS:          0
 
-so I think the people involved agree with you on moving it ever outwards..
 
-		Linus
+Perhaps your .config and a simple test case would help.
+
+-- 
+~Randy

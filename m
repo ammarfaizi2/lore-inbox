@@ -1,93 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268978AbUIXQkh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268957AbUIXRLt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268978AbUIXQkh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 12:40:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268911AbUIXQhO
+	id S268957AbUIXRLt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 13:11:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268950AbUIXRI3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 12:37:14 -0400
-Received: from ppsw-5.csi.cam.ac.uk ([131.111.8.135]:25515 "EHLO
-	ppsw-5.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S268900AbUIXQP7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 12:15:59 -0400
-Date: Fri, 24 Sep 2004 17:15:50 +0100 (BST)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: viro@parcelfarce.linux.theplanet.co.uk, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
-Subject: [PATCH 10/10] Re: [2.6-BK-URL] NTFS: 2.1.19 sparse annotation,
- cleanups and a bugfix
-In-Reply-To: <Pine.LNX.4.60.0409241714520.19983@hermes-1.csi.cam.ac.uk>
-Message-ID: <Pine.LNX.4.60.0409241715170.19983@hermes-1.csi.cam.ac.uk>
-References: <Pine.LNX.4.60.0409241707370.19983@hermes-1.csi.cam.ac.uk>
- <Pine.LNX.4.60.0409241711400.19983@hermes-1.csi.cam.ac.uk>
- <Pine.LNX.4.60.0409241712320.19983@hermes-1.csi.cam.ac.uk>
- <Pine.LNX.4.60.0409241712490.19983@hermes-1.csi.cam.ac.uk>
- <Pine.LNX.4.60.0409241713070.19983@hermes-1.csi.cam.ac.uk>
- <Pine.LNX.4.60.0409241713220.19983@hermes-1.csi.cam.ac.uk>
- <Pine.LNX.4.60.0409241713380.19983@hermes-1.csi.cam.ac.uk>
- <Pine.LNX.4.60.0409241713540.19983@hermes-1.csi.cam.ac.uk>
- <Pine.LNX.4.60.0409241714190.19983@hermes-1.csi.cam.ac.uk>
- <Pine.LNX.4.60.0409241714520.19983@hermes-1.csi.cam.ac.uk>
+	Fri, 24 Sep 2004 13:08:29 -0400
+Received: from smtp08.web.de ([217.72.192.226]:36498 "EHLO smtp08.web.de")
+	by vger.kernel.org with ESMTP id S268957AbUIXRHY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 13:07:24 -0400
+Message-ID: <41545421.5080408@web.de>
+Date: Fri, 24 Sep 2004 19:06:41 +0200
+From: Michael Hunold <hunold-ml@web.de>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-X-Cam-AntiVirus: No virus found
-X-Cam-SpamDetails: Not scanned
+To: Greg KH <greg@kroah.com>
+CC: Michael Hunold <hunold@linuxtv.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       sensors@stimpy.netroedge.com
+Subject: Re: [PATCH][2.6] Add command function to struct i2c_adapter
+References: <414F111C.9030809@linuxtv.org> <20040921154111.GA13028@kroah.com>
+In-Reply-To: <20040921154111.GA13028@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is patch 10/10 in the series.  It contains the following ChangeSet:
+Hi,
 
-<aia21@cantab.net> (04/09/24 1.1956)
-   NTFS: Fix a stupid bug where I forgot to actually do the attribute lookup
-         and then went and used the looked up attribute...  Ooops.
-   
-   Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
+On 21.09.2004 17:41, Greg KH wrote:
+> On Mon, Sep 20, 2004 at 07:19:24PM +0200, Michael Hunold wrote:
+> 
+>> 
+>>+	/* a ioctl like command that can be used to perform specific functions
+>>+	 * with the adapter.
+>>+	 */
+>>+	int (*command)(struct i2c_adapter *adapter, unsigned int cmd, void *arg);
+> 
+> 
+> Ick ick ick.  We don't like ioctls for the very reason they aren't type
+> safe, and you can pretty much stick anything in there you want.  So
+> let's not try to add the same type of interface to another subsystem.
 
-Best regards,
+Ok, Gerd Knorr and I have been discussing this and we have come up with 
+the following idea.
 
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/, http://www-stu.christs.cam.ac.uk/~aia21/
+We like to have an completly isolated i2c adapter, where the device 
+driver can invite i2c drivers to connect an i2c client to. When the 
+connection is made, an "interface" pointer with client-specific data or 
+function pointers can be provided.
 
-===================================================================
+- i2c adapter and i2c clients register themselves as usual
 
-diff -Nru a/fs/ntfs/inode.c b/fs/ntfs/inode.c
---- a/fs/ntfs/inode.c	2004-09-24 17:06:34 +01:00
-+++ b/fs/ntfs/inode.c	2004-09-24 17:06:34 +01:00
-@@ -2287,6 +2287,7 @@
- 	ntfs_inode *ni = NTFS_I(vi);
- 	ntfs_attr_search_ctx *ctx;
- 	MFT_RECORD *m;
-+	int err;
- 
- 	m = map_mft_record(ni);
- 	if (IS_ERR(m)) {
-@@ -2303,6 +2304,24 @@
- 		// FIXME: We can't report an error code upstream.  So what do
- 		// we do?!?  make_bad_inode() seems a bit harsh...
- 		unmap_mft_record(ni);
-+		return;
-+	}
-+	err = ntfs_attr_lookup(ni->type, ni->name, ni->name_len,
-+			CASE_SENSITIVE, 0, NULL, 0, ctx);
-+	if (unlikely(err)) {
-+		if (err == -ENOENT) {
-+			ntfs_error(vi->i_sb, "Open attribute is missing from "
-+					"mft record.  Inode 0x%lx is corrupt.  "
-+					"Run chkdsk.", vi->i_ino);
-+			make_bad_inode(vi);
-+		} else {
-+			ntfs_error(vi->i_sb, "Failed to lookup attribute in "
-+					"inode 0x%lx (error code %d).",
-+					vi->i_ino, err);
-+			// FIXME: We can't report an error code upstream.  So
-+			// what do we do?!?  make_bad_inode() seems a bit
-+			// harsh...
-+		}
- 		goto out;
- 	}
- 	/* If the size has not changed there is nothing to do. */
+- add a new NO_PROBE flag to struct i2c_adapter, so a particular adapter 
+is never probed by anyone
+
+- add these two functions to struct i2c_driver:
+int (*connect)(struct i2c_adapter *adapter, void *interface, struct 
+i2c_client **client);
+int (*disconnect)(struct i2c_client *client);
+
+- add new generic i2c functions:
+struct i2c_driver* i2c_driver_get(char *name);
+void i2c_driver_put(struct i2c_driver *drv);
+
+- the dvb-ttpci driver now can do the following:
+
+struct stv0299_interface {
+	struct dvb_adapter *dvb_adap;
+	int tuner_addr;
+};
+
+struct stv0299_interface s_if;
+struct i2c_driver *drv;
+struct i2c_client *clt;
+
+request_module("stv0299");
+drv = i2c_driver_get("stv0299");
+// fill s_if here
+drv->connect(adap, &s_if, &clt);
+
+Now inside the "connect" function of the stv0299 demodulator i2c driver 
+the device is probed, registered to the adapter and the pointer to the 
+interface with the h/w dependend information is stored.
+
+> thanks,
+> greg k-h
+
+The crucial point is probably the void * interface pointer, isn't it? Is 
+this a no-no in this situation?
+
+The dvb-ttpci driver is inviting a very specific driver, no probing 
+involved. The driver interface is well-defined and will only be hidden 
+behind the void * pointer to avoid a functional reference to the 
+demodulator driver.
+
+We have discussed simply adding a type-safe stv0299-specific connect 
+function as well, but that would introduce a functional dependency. The 
+dvb-ttpci driver can be used with about 8 different frontend drivers, so 
+loading the driver would cause unnecessary frontend drivers to be loaded 
+as well.
+
+CU
+Michael.

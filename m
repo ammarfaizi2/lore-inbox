@@ -1,89 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263772AbTLOQtq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 11:49:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263786AbTLOQtq
+	id S263824AbTLOQyW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 11:54:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263823AbTLOQyW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 11:49:46 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:15597 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S263772AbTLOQto (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 11:49:44 -0500
-Date: Mon, 15 Dec 2003 17:49:33 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Bob <recbo@nishanet.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test11 ps2 mouse giving corrupt data?
-Message-ID: <20031215164933.GA8676@ucw.cz>
-References: <200312121236.38692.andrew@walrond.org> <20031212141521.GA27405@ucw.cz> <3FDA8F5F.1030506@nishanet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FDA8F5F.1030506@nishanet.com>
-User-Agent: Mutt/1.5.4i
+	Mon, 15 Dec 2003 11:54:22 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:20866 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263824AbTLOQyK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 11:54:10 -0500
+Date: Mon, 15 Dec 2003 11:55:53 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
+cc: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>,
+       Mark Hahn <hahn@physics.mcmaster.ca>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Martin Mares <mj@ucw.cz>
+Subject: Re: PCI Express support for 2.4 kernel
+In-Reply-To: <3FDDE39E.1050300@intel.com>
+Message-ID: <Pine.LNX.4.53.0312151150090.10342@chaos>
+References: <Pine.LNX.4.44.0312150917170.32061-100000@coffee.psychology.mcmaster.ca>
+ <3FDDD8C6.3080804@intel.com> <3FDDDC68.80209@backtobasicsmgmt.com>
+ <3FDDE39E.1050300@intel.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 12, 2003 at 11:02:39PM -0500, Bob wrote:
-> Vojtech Pavlik wrote:
-> 
-> >On Fri, Dec 12, 2003 at 12:36:38PM +0000, Andrew Walrond wrote:
-> > 
+On Mon, 15 Dec 2003, Vladimir Kondratiev wrote:
+
+> Kevin,
+> there is no black magic. Compilation goes .c -> .s -> .o; if assembly
+> have nothing added, object have not as well.
+> To be sure, I did the following:
+>
+> [tmp]$ gcc -c t.c; objdump -xs t.o
+>
+> t.o:     file format elf32-i386
+> t.o
+> architecture: i386, flags 0x00000010:
+> HAS_SYMS
+> start address 0x00000000
+>
+> Sections:
+> Idx Name          Size      VMA       LMA       File off  Algn
+>   0 .text         00000000  00000000  00000000  00000034  2**2
+>                   CONTENTS, ALLOC, LOAD, READONLY, CODE
+>   1 .data         00000000  00000000  00000000  00000034  2**2
+>                   CONTENTS, ALLOC, LOAD, DATA
+>   2 .bss          00000008  00000000  00000000  00000034  2**2
+>                   ALLOC
+>   3 .note.GNU-stack 00000000  00000000  00000000  00000034  2**0
+>                   CONTENTS, READONLY
+>   4 .comment      00000033  00000000  00000000  00000034  2**0
+>                   CONTENTS, READONLY
+> SYMBOL TABLE:
+> 00000000 l    df *ABS*    00000000 t.c
+> 00000000 l    d  .text    00000000
+> 00000000 l    d  .data    00000000
+> 00000000 l    d  .bss    00000000
+> 00000000 l     O .bss    00000004 a1
+> 00000004 l     O .bss    00000004 a2
+> 00000000 l    d  .note.GNU-stack    00000000
+> 00000000 l    d  .comment    00000000
+>
+>
+> Contents of section .text:
+> Contents of section .data:
+> Contents of section .note.GNU-stack:
+> Contents of section .comment:
+>  0000 00474343 3a202847 4e552920 332e332e  .GCC: (GNU) 3.3.
+>  0010 31203230 30333038 31312028 52656420  1 20030811 (Red
+>  0020 48617420 4c696e75 7820332e 332e312d  Hat Linux 3.3.1-
+>  0030 312900                               1).
+>
+> Kevin P. Fleming wrote:
+>
+> > Vladimir Kondratiev wrote:
 > >
-> >>I have just switched from l2.4 to 2.6 on my thinkpad, and the mouse does 
-> >>something wierd when I boot into x (kde)
+> >> To illustrate zero cost, I did the following test:
+> >> [tmp]$ cat t.c; gcc -S t.c; cat t.s
+> >> static int a1=0;
+> >> static int a2;
+> >> /* EOF */
 > >>
-> >>startx, then wait for everything to load, then move mouse. Mouse goes 
-> >>crazy, menus pop up everywhere as though I were pressing buttons, and 
-> >>after about 3 seconds, it all settles down and works perfectly.
-> >>   
+> >>    .file    "t.c"
+> >>    .local    a1
+> >>    .comm    a1,4,4
+> >>    .local    a2
+> >>    .comm    a2,4,4
+> >>    .section    .note.GNU-stack,"",@progbits
+> >>    .ident    "GCC: (GNU) 3.3.1 20030811 (Red Hat Linux 3.3.1-1)"
 > >>
+> >> As you can see, assembly code is identical, compiler did this trivial
+> >> optimization for me.
 > >
-> >Most likely X does something nasty to the keyboard controller while it
-> >is starting up. The psmouse kernel driver has an autosync feature which
-> >can get it out of trouble if you don't move the mouse for two seconds.
-> > 
 > >
-> When did the autosync feature arrive?
-> It doesn't work for me(k2.6.11 with
-> MSI K7N2 Delta nforce2 mboard
-> and k2.6.11 with Shuttle Xpc SK41G
-> FX41 mboard with VIA fsb) if ps2
-> kvm switch(Belkin) is switched away.
+> > You've missed the point, though. Initializing a static variable to
+> > zero causes space to be consumed in the resulting object file (not
+> > instruction code to be generated). This is wasted space, because if
+> > you don't initialize to zero the variable will be allocated out of
+> > space that is _automatically_ zeroed for you. This reduces the size of
+> > the kernel image by not filling it with unnecessary zeroes.
+> >
 
-2.5.something.
+Easy way to remember is that if you have either a static or a global
+variable that is initialized, it will be in the .data segment and,
+therefore take up space in the executable. If it is not initialized,
+it will be in the .bss segment, automatically zeroed by the loader.
+In this case, the executable contains length information, not the data.
+Local variables are never initialized unless there's an '=' in the
+code.
 
-Now when your Belkin switch resets the mouse, the autosync will not
-work, as it only compensates for lost bytes, not a complete protocol
-change. Use 'psmouse_noext" on the kernel command line to disable wheel
-handling and it'll work OK.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-(Automatic mouse reinitialization is on the planned feature list.)
 
-> When sync is lost on my pc's I have to
-> reboot. Symptoms are the same, on X or
-> text term--any mouse movement triggers
-> selects and buttons down but the correct
-> events do not occur.
-> 
-> With a kvm switch k-2.6.? loses psmouse
-> sync on the off pc. Rebooting is the only
-> solution. I got tired of this and moved the
-> mouse(logitech trackman fx) to one pc,
-> so the other only has to boot with the
-> mouse attached either to kvm or ps2
-> port on pc. That's fine until moving the
-> mouse back and forth for rebooting
-> causes the pc with X running to lose
-> sync. Then it can't regain sync.
-> 
-> -Bob
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR

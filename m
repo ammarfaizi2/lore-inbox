@@ -1,59 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276348AbRI1WZn>; Fri, 28 Sep 2001 18:25:43 -0400
+	id <S276349AbRI1W2o>; Fri, 28 Sep 2001 18:28:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276322AbRI1WZe>; Fri, 28 Sep 2001 18:25:34 -0400
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:11970 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S276048AbRI1WZR>;
-	Fri, 28 Sep 2001 18:25:17 -0400
-Message-ID: <3BB4FA5A.C30C1AA6@candelatech.com>
-Date: Fri, 28 Sep 2001 15:31:54 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies Inc
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
+	id <S276324AbRI1W2f>; Fri, 28 Sep 2001 18:28:35 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:62987 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S276353AbRI1W2Y>; Fri, 28 Sep 2001 18:28:24 -0400
 Subject: Re: kernel changes
-In-Reply-To: <20010928143205.B3669@md5.ca> <20010928180452.A6093@somanetworks.com>
+To: mark@somanetworks.com (Mark Frazer)
+Date: Fri, 28 Sep 2001 23:33:39 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010928180452.A6093@somanetworks.com> from "Mark Frazer" at Sep 28, 2001 06:04:52 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+Message-Id: <E15n6CR-00008r-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Frazer wrote:
-> 
 > The answer is to treat all linus/ac/aa/... kernels as development
 > kernels.  Don't treat anything as stable until it's been through
 > a real QA cycle.  I've heard Suse, RedHat and the like don't do a
 > bad job at this.
 
-I agree, except that the earlier 2.4.0 kernels they are using
-are also buggy to one degree or another (for instance, the Tulip
-driver didn't start working for my cards untill about 2.4.8, and
-by then the VM seems to have gone berserk...)  Hell, many of the
-official kernels won't even compile with certain options turned
-on, which is really frightening, and makes it hard to run regression
-tests...
+We try. If you want to QA your own kernel the cerberus test suite is
+publically available - and indeed the VA guys are to thank for its origins.
 
-It's almost like we need to fork off a 2.5 kernel just to let the
-pressure for massive change off, and let less panic'ed changes go
-into the 2.4 series...
-
-The fact that there's a 20MB patch to get from Linus to AC is also
-disconcerting!!
-
-Ben
-
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+Alan

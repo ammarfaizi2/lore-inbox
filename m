@@ -1,72 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267941AbTBEM3a>; Wed, 5 Feb 2003 07:29:30 -0500
+	id <S267321AbTBEMlC>; Wed, 5 Feb 2003 07:41:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267942AbTBEM3a>; Wed, 5 Feb 2003 07:29:30 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:7627 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S267941AbTBEM33>;
-	Wed, 5 Feb 2003 07:29:29 -0500
-Date: Wed, 5 Feb 2003 13:37:44 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] Re: New logo code (fwd)
-In-Reply-To: <Pine.GSO.4.21.0301281606580.9269-100000@vervain.sonytel.be>
-Message-ID: <Pine.GSO.4.21.0302051336170.16681-100000@vervain.sonytel.be>
+	id <S267322AbTBEMlC>; Wed, 5 Feb 2003 07:41:02 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:7519 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S267321AbTBEMlC>; Wed, 5 Feb 2003 07:41:02 -0500
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200302051250.h15CoYL08406@devserv.devel.redhat.com>
+Subject: Re: 2.4.21-pre4: PDC ide driver problems with shared interrupts
+To: benh@kernel.crashing.org (Benjamin Herrenschmidt)
+Date: Wed, 5 Feb 2003 07:50:34 -0500 (EST)
+Cc: skraw@ithnet.com (Stephan von Krawczynski), alan@redhat.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1044447738.685.113.camel@zion.wanadoo.fr> from "Benjamin Herrenschmidt" at Feb 05, 2003 01:22:19 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Jan 2003, Geert Uytterhoeven wrote:
-> On Sun, 12 Jan 2003, Geert Uytterhoeven wrote:
-> > The current logo code is messy, complex, and inflexible. So I decided to
-> > rewrite it. My goals were:
-> >   - Logos must be accessible easily by an image editor (currently: hex C source
-> >     data must be converted to another format first)
-> >   - Logos must be stored in ASCII-form in the source tree
-> >   - Support arbitrary logo sizes (currently: fixed 80x80)
-> >   - Allow the logo to be selected statically (at compile time) and/or
-> >     dynamically (at run-time, based on machine type) (currently: at compile
-> >     time only).
-> >   - Allow simple adition of new logos
-> >   - Support grayscale logos (not used yet)
-> > 
-> > The patch achieves all of these. Logos are stored in ASCII PNM format in
-> > drivers/video/logo/, and automatically converted to hex C source arrays using
-> > scripts/pnmtologo. I chose ASCII PNM because (a) it's ASCII, (b) it's very
-> > simple to parse without an external library (XPM is more difficult to parse),
-> > and (c) it can be handled by many image manipulation programs.
-> > 
-> > Code that wants to display a logo just calls fb_find_logo(), specifying the
-> > wanted logo type, and receives a pointer to a suitable logo (or NULL).
-> > 
-> > I also modified fb_show_logo() to return the number of scanlines that are used
-> > by the logo, so fbcon knows how many lines to reserve.
+> > dual-mb the kernel is already compiled for SMP. It is started with "nosmp"
+> > option though. I wanted to mention this not knowing if it is important for the
+> > codepath.
 > 
-> I put a new version at
-> 
->     http://home.tvd.be/cr26864/Linux/fbdev/linux-logo-2.5.59.diff.bz2
-> 
-> Changes:
->   - Merge with 2.5.59
->   - New logo (CLUT224 only) for PA-RISC
->   - Let hgafb and newport_con include logo sources directly, since they need
->     access to the logos in non-init code
-> 
-> All comments are welcomed! Thanks!
+> Shouldn be an issue. I suppose you don't use fancy stuff like preempt or
+> IDE taskfile IO, right ?
 
-Come on, is there really no one to comment on this??
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+IDE taskfile I/O is disabled. Pre-empt and 2.4 IDE don't work together at
+all yet, and probably never will (see the /proc code for why its basically
+unfixable in 2.4)

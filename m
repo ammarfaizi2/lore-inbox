@@ -1,58 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289815AbSA2ShW>; Tue, 29 Jan 2002 13:37:22 -0500
+	id <S289809AbSA2SjC>; Tue, 29 Jan 2002 13:39:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289813AbSA2ShN>; Tue, 29 Jan 2002 13:37:13 -0500
-Received: from host-01.pronet.pl ([213.241.42.209]:36615 "EHLO pronet.pl")
-	by vger.kernel.org with ESMTP id <S289809AbSA2ShE>;
-	Tue, 29 Jan 2002 13:37:04 -0500
-Content-Type: text/plain;
-  charset="iso-8859-2"
-From: Marcin Prejsnar <alex@pronet.pl>
-Organization: ProNet s.c.
-To: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Memory problem 2.4.9-2.4.17
-Date: Tue, 29 Jan 2002 19:36:50 +0100
-X-Mailer: KMail [version 1.3.1]
-Cc: "David S. Miller" <davem@redhat.com>, "Paul Mackerras" <paulus@samba.org>,
-        "Andrew Morton" <akpm@zip.com.au>
-In-Reply-To: <E16Tl3p-00024g-00@alex.pronet.local> <3C56438C.F00994B3@zip.com.au>
-In-Reply-To: <3C56438C.F00994B3@zip.com.au>
+	id <S289812AbSA2Sis>; Tue, 29 Jan 2002 13:38:48 -0500
+Received: from ns.suse.de ([213.95.15.193]:4615 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S289809AbSA2Shi>;
+	Tue, 29 Jan 2002 13:37:38 -0500
+Date: Tue, 29 Jan 2002 19:37:37 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Pete Wyckoff <pw@osc.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [patch] typo in i386 machine check code
+In-Reply-To: <20020129132532.B10960@osc.edu>
+Message-ID: <Pine.LNX.4.33.0201291935370.14218-100000@Appserv.suse.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <E16Vd7j-0001Ve-00@alex.pronet.local>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dnia wto 29. styczeñ 2002 07:39, Andrew Morton napisal:
-> Looks pretty simple to me?
->
-> --- linux-2.4.18-pre7/drivers/net/ppp_generic.c	Thu Oct 11 09:18:31 2001
-> +++ linux-akpm/drivers/net/ppp_generic.c	Mon Jan 28 22:38:43 2002
-> @@ -1528,6 +1528,7 @@ ppp_decompress_frame(struct ppp *ppp, st
->  			   error indication. */
->  			if (len == DECOMP_FATALERROR)
->  				ppp->rstate |= SC_DC_FERROR;
-> +			kfree_skb(ns);
->  			goto err;
->  		}
->
-> Marcin Prejsnar wrote:
-> > -----BEGIN PGP SIGNED MESSAGE-----
-> > Hash: SHA1
-> >
-> > [1.] SUMMARY
-> >         Error packets received on interface ppp cause free memory
-> > decrease.
-> >
+On Tue, 29 Jan 2002, Pete Wyckoff wrote:
 
-	Yes !!! Helped !!! I testet this in 2.4.17. Now system works good.
+>     kernel: CPU 3: Machine Check Exception: 0000000000000007
+>     kernel: Bank 0: b678600022000800 at 3678600022000800
+>
+> The part after the "at" is supposed to be the memory address which
+> was being accessed when the fault was detected.  Instead the code
+> prints out the status field again (with the high bit removed for
+> no apparent reason).
+> Patch is against 2.5.2.
 
-So... that was bug in kernels at least from version 2.4.9 up to 2.4.18-pre7, 
-maybe before too (!!!).
+Patch is correct. I pushed the same fix to Marcelo & Linus
+about a month back.  Alan, 2.2 also needs this. (Can't remember if
+I told you, or you told me 8-)
 
 -- 
-__________________
-| Pozdrawiam
-| Marcin Prejsnar
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
 

@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267268AbRHAO5k>; Wed, 1 Aug 2001 10:57:40 -0400
+	id <S266381AbRHAPAa>; Wed, 1 Aug 2001 11:00:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267295AbRHAO5a>; Wed, 1 Aug 2001 10:57:30 -0400
-Received: from h-207-228-73-44.gen.cadvision.com ([207.228.73.44]:64264 "EHLO
-	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S267268AbRHAO5Z>; Wed, 1 Aug 2001 10:57:25 -0400
-Date: Wed, 1 Aug 2001 08:57:26 -0600
-Message-Id: <200108011457.f71EvQX09093@mobilix.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Kirk Reiser <kirk@braille.uwo.ca>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: my patches won't compile under 2.4.7
-In-Reply-To: <x7u1zsav6y.fsf@speech.braille.uwo.ca>
-In-Reply-To: <x7itgglrmd.fsf@speech.braille.uwo.ca>
-	<E15PUnL-0002bA-00@the-village.bc.nu>
-	<200107312154.f6VLsLl00530@mobilix.ras.ucalgary.ca>
-	<x7u1zsav6y.fsf@speech.braille.uwo.ca>
+	id <S267303AbRHAPAV>; Wed, 1 Aug 2001 11:00:21 -0400
+Received: from stargate.gnyrf.net ([194.165.254.115]:51074 "HELO
+	stargate.gnyrf.net") by vger.kernel.org with SMTP
+	id <S266381AbRHAPAK>; Wed, 1 Aug 2001 11:00:10 -0400
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Subject: Re: resizing of raid5?
+Message-ID: <996685021.3b6834dd0829d@stargate.gnyrf.net>
+Date: Wed, 01 Aug 2001 18:57:01 +0200 (CEST)
+From: Roger Abrahamsson <hyperion@gnyrf.net>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <996657922.3b67cb02ba717@stargate.gnyrf.net> <15207.63232.611617.37794@notabene.cse.unsw.edu.au>
+In-Reply-To: <15207.63232.611617.37794@notabene.cse.unsw.edu.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: IMP/PHP IMAP webmail program 2.2.5
+X-Originating-IP: 212.32.163.13
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kirk Reiser writes:
-> On another note related to devfs though when I compile devfs in the
-> system just hangs.  I am wondering if I am registering my synth device
-> before devfs has memory allocated.  I register very early in the boot
-> process in console_init() and experienced similar problems before because I
-> don't think  kmalloc() may be available that early in the sequence.
+Quoting Neil Brown <neilb@cse.unsw.edu.au>:
+
 > 
-> The question then is, do you think that could be why the system is
-> hanging with devfs configured in?
+> The only way to resize a raid5 array is to back up, rebuild, and
+> re-load.  Any attempt to re-organise the data, or the linkage, to
+> avoid this would be more trouble that it is worth.
+> 
+> NeilBrown
 
-Yes. Calling kmalloc() before MM is set up is not allowed. See the
-comments in drivers/char/console.c which talks about not calling
-kmalloc() before console_init().
-
-Simply move your driver registration after MM is set up. Use
-module_init() to declare your initialisation function. This works for
-both modules and built-in drivers. Registering a driver before MM
-setup is considered bad practice.
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+Well, the problem is that it's not that easy when you want to backup say 200GB
+of data to find anyone that can hold it for the day while you do it. Well, at
+least do it without charge :)
+Having things offline for up to a few days while you do the rebuild is okay for
+my case, but the offloading the data is not. If I have understood md and raid5,
+you create blocks of a fixed size, and calculate the checksum on each "stripe".
+To rebuild this looks a bit like disk defragmentation to me, or am I totally
+wrong here?

@@ -1,57 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261686AbTKOM3w (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Nov 2003 07:29:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbTKOM3w
+	id S261683AbTKOMde (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Nov 2003 07:33:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261687AbTKOMde
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Nov 2003 07:29:52 -0500
-Received: from csl2.consultronics.on.ca ([204.138.93.2]:48022 "EHLO
-	csl2.consultronics.on.ca") by vger.kernel.org with ESMTP
-	id S261686AbTKOM3u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Nov 2003 07:29:50 -0500
-Date: Sat, 15 Nov 2003 07:29:48 -0500
-From: Greg Louis <glouis@dynamicro.on.ca>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.23-pre8-pac1 and -rc1-pac1 NFSv3 problem
-Message-ID: <20031115122948.GA1330@athame.dynamicro.on.ca>
-Mail-Followup-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-References: <20031111182647.GA25026@athame.dynamicro.on.ca> <20031111190000.GA25290@athame.dynamicro.on.ca> <20031114234627.GA12679@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <20031114234627.GA12679@werewolf.able.es>
-Organization: Dynamicro Consulting Limited
+	Sat, 15 Nov 2003 07:33:34 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:3559 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S261683AbTKOMdc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Nov 2003 07:33:32 -0500
+Date: Sat, 15 Nov 2003 10:31:07 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: Shane Wegner <shane-keyword-kernel.a35a91@cm.nu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23 crash on Intel SDS2
+In-Reply-To: <20031112182219.GA2921@cm.nu>
+Message-ID: <Pine.LNX.4.44.0311151029310.10014-100000@logos.cnet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 20031115 (Sat) at 0046:27 +0100, J.A. Magallon wrote:
-> 
-> On 11.11, Greg Louis wrote:
-> > On 20031111 (Tue) at 1326:47 -0500, Greg Louis wrote:
-> > > Kernels 2.4.23-pre7-pac1 and 2.4.23-rc1 are ok but -pre8-pac1 and
-> > > -rc1-pac1 behave as follows: mounting a remote directory via NFS with
-> > > v3 enabled (client and server) seems to work ok, and running mount with
-> > > no parameters shows the NFS mount, but any attempt at access fails with
-> > > a message like
-> > >   /bin/ls: reading directory /whatever/it/was: Input/output error
+
+
+On Wed, 12 Nov 2003, Shane Wegner wrote:
+
+> On Wed, Nov 12, 2003 at 09:21:59AM -0200, Marcelo Tosatti wrote:
+> > > It's an Intel server board model SDS2 with a dual Pentium
+> > > III tualatin 1.13ghz.  I am attaching the dmesg output from
+> > > the kernel in case it is helpful but as there is no panics
+> > > or oops being printed, I am not sure how best I can help
+> > > track this down.  If there is anything further I can do or
+> > > any other information needed, let me know.
 > > 
-> > Reverting all changes to fs/nfs/* since 2.4.23-pre7-pac1, and only
-> > those, corrects the problem.
-
-> /metoo
+> > > On node 0 totalpages: 262144
+> > > > zone(0): 4096 pages.
+> > > zone(1): 225280 pages.
+> > > zone(2): 32768 pages.
+> > 
+> > > What do you (what is your workload) during the few minutes before the
+> > > crash?
 > 
-> It works for some time, and then it breaks.
-> Could you send me the patch you used to revert those changes ?
-> I will try to make a diff from rc1 to pre7 and reverse.
+> It's a database machine running MySQL and Postgres.  The
+> MySQL server runs about 4 queries/sec and PostGres only as
+> needed.  It also does some minor mail service, say 2
+> messages per minute and runs apache at about 10 requests
+> per minute.
+> 
+> > > There are no significant driver changes in -pre4 that could affect you.
+> > > 
+> > > Can you please try with mem=900M? I suspect something in the VM changes
+> > > might be causing this.
+> 
+> Just tried with mem=900m and subsequently mem=850m so as no
+> himem pages were available with no effect.  Machine still
+> crashed.
+> 
+> > Ah, have you tried to boot with "nmi_watchdog=1"  as Mikael suggested?
+> 
+> Will try that next, thanks.
 
-Actually all I did was
-rm fs/nfs/*.c
-cp ../linux-2.4.23pre7/fs/nfs/*.c fs/nfs
+Shane, 
 
-Could well be overkill but it seems to work fine on a farm of mixed
-2.4.22 and 2.4.23rc1-with-this-change machines.
+Have you tried the NMI watchdog? 
 
--- 
-| G r e g  L o u i s         | gpg public key: 0x400B1AA86D9E3E64 |
-|  http://www.bgl.nu/~glouis |   (on my website or any keyserver) |
-|  http://wecanstopspam.org in signatures helps fight junk email. |
+
+

@@ -1,69 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318303AbSGWVZt>; Tue, 23 Jul 2002 17:25:49 -0400
+	id <S318271AbSGWVbz>; Tue, 23 Jul 2002 17:31:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318305AbSGWVZs>; Tue, 23 Jul 2002 17:25:48 -0400
-Received: from mailout.zma.compaq.com ([161.114.64.104]:17681 "EHLO
-	zmamail04.zma.compaq.com") by vger.kernel.org with ESMTP
-	id <S318303AbSGWVZs>; Tue, 23 Jul 2002 17:25:48 -0400
-Date: Tue, 23 Jul 2002 17:24:45 -0400
-From: Jay Estabrook <Jay.Estabrook@compaq.com>
-To: Sven Koch <haegar@sdinet.de>
-Cc: George France <france@handhelds.org>, Martin Brulisauer <martin@uceb.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: kbuild 2.5.26 - arch/alpha
-Message-ID: <20020723172445.A2988@linux04.mro.cpqcorp.net>
-References: <02072315005002.31958@shadowfax.middleearth> <Pine.LNX.4.44.0207232103120.16191-100000@space.comunit.de>
+	id <S318295AbSGWVbz>; Tue, 23 Jul 2002 17:31:55 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:36817 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S318271AbSGWVby>;
+	Tue, 23 Jul 2002 17:31:54 -0400
+Subject: Re: 2.4.19rc2aa1 VM too aggressive?
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Johannes Erdfelt <johannes@erdfelt.com>,
+       Mark Hahn <hahn@physics.mcmaster.ca>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020723203326.GJ1117@dualathlon.random>
+References: <20020719170359.E28941@sventech.com>
+	<Pine.LNX.4.33.0207191722260.6698-100000@coffee.psychology.mcmaster.ca>
+	<20020719174521.F28941@sventech.com>
+	<20020723194826.GH1117@dualathlon.random>
+	<1027455756.11109.7.camel@dell_ss3.pdx.osdl.net> 
+	<20020723203326.GJ1117@dualathlon.random>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 23 Jul 2002 14:34:46 -0700
+Message-Id: <1027460087.14636.102.camel@dell_ss3.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.44.0207232103120.16191-100000@space.comunit.de>; from haegar@sdinet.de on Tue, Jul 23, 2002 at 09:08:26PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 23, 2002 at 09:08:26PM +0200, Sven Koch wrote:
+On Tue, 2002-07-23 at 13:33, Andrea Arcangeli wrote:
+
+> some seldom swapout is ok, the strange thing are those small
+> swapins/swapouts. I also assume it's writing using write(2), not with
+> map_shared+msync.
+
+I am using ben's lahaise new AIO which effectively maps the pages in
+before the i/o. Using normal I/O I don't see swapping, the cached peaks
+at about .827028
+
 > 
-> I am using Stock 2.4.19-rc2 with the following simple patch on an xl-300
-> with milo:
-> (without it, it breaks while initalizing the ncr-scsi-controller)
+> can you try:
 > 
-> --- linux/arch/alpha/kernel/core_cia.c.orig	Sun Oct 21 19:30:58 2001
-> +++ linux/arch/alpha/kernel/core_cia.c	Fri Jul 19 16:11:46 2002
-> @@ -382,10 +382,10 @@
->  	for (i = 0; i < CIA_BROKEN_TBIA_SIZE / sizeof(unsigned long); ++i)
->  		ppte[i] = pte;
+> 	echo 1000 >/proc/sys/vm/vm_mapped_ratio
+
+That file does not exist in 2.4.19rc3ac3
+bash-2.05$ ls /proc/sys/vm 
+bdflush  max_map_count  min-readahead      page-cluster
+kswapd   max-readahead  overcommit_memory  pagetable_cache
 > 
-> -	*(vip)CIA_IOC_PCI_W1_BASE = CIA_BROKEN_TBIA_BASE | 3;
-> -	*(vip)CIA_IOC_PCI_W1_MASK = (CIA_BROKEN_TBIA_SIZE*1024 - 1)
-> +	*(vip)CIA_IOC_PCI_W3_BASE = CIA_BROKEN_TBIA_BASE | 3;
-> +	*(vip)CIA_IOC_PCI_W3_MASK = (CIA_BROKEN_TBIA_SIZE*1024 - 1)
->  				    & 0xfff00000;
-> -	*(vip)CIA_IOC_PCI_T1_BASE = virt_to_phys(ppte) >> 2;
-> +	*(vip)CIA_IOC_PCI_T3_BASE = virt_to_phys(ppte) >> 2;
->  }
+> I also wonder if you've quite some amount of mapped address space durign
+> the benchmark. In such case there's no trivial way around it, the vm
+> will constantly found tons of mapped address space, and it will trigger
+> some swapouts, however the swapins shouldn't happen so fast in such
+> case.
+The AIO will pin some space, but the upper bound should be 
+	NIO(16) * Record Size(64k) = 1 Meg
+
+
+> In any case the sysctl will allow you to tune for your workload.
 > 
->  static void __init
+> Andrea
 
-Yes, this will help on XLT-300.
 
-What this patch does is revert the code to an older version which uses
-PCI DMA window #3 for the scatter/gather operations, thus avoiding the
-use of window #1 for that operation.
-
-On older machines like the XLT-300 and EB164, their core logic, CIA
-Rev 1, appears to have a bug in that PCI DMA windows #1 and #2 cannot
-be used for scatter/gather. Boxes based on CIA rev 2, and PYXIS, do
-not have the same problem.
-
-The patches I attached to an earlier posting essentially do this for
-the rev 1 CIA machines, but leave active the code for dual-address
-cycle (DAC) support for the CIA rev 2  and PYXIS based machines.
-
- --Jay++
-
------------------------------------------------------------------------------
-Jay A Estabrook                            HPTC - LINUX support
-Hewlett-Packard Company - MRO1-2/K15       (508) 467-2080
-200 Forest Street, Marlboro MA 01752       Jay.Estabrook@hp.com
------------------------------------------------------------------------------

@@ -1,219 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265684AbTBTXY2>; Thu, 20 Feb 2003 18:24:28 -0500
+	id <S265687AbTBTXbk>; Thu, 20 Feb 2003 18:31:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265687AbTBTXY2>; Thu, 20 Feb 2003 18:24:28 -0500
-Received: from mailrelay2.lanl.gov ([128.165.4.103]:14038 "EHLO
-	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP
-	id <S265684AbTBTXYY>; Thu, 20 Feb 2003 18:24:24 -0500
-Subject: Re: Linux 2.5.62-ac1
-From: Steven Cole <elenstev@mesatop.com>
-To: Alan Cox <alan@redhat.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200302202233.h1KMX8408821@devserv.devel.redhat.com>
-References: <200302202233.h1KMX8408821@devserv.devel.redhat.com>
-Content-Type: multipart/mixed; boundary="=-PwrQC/KirwSDPU+Uhe8U"
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 20 Feb 2003 16:31:02 -0700
-Message-Id: <1045783862.6615.82.camel@spc9.esa.lanl.gov>
-Mime-Version: 1.0
+	id <S265894AbTBTXbk>; Thu, 20 Feb 2003 18:31:40 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:47085 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S265687AbTBTXbi>; Thu, 20 Feb 2003 18:31:38 -0500
+Date: Thu, 20 Feb 2003 15:47:56 -0800
+From: Hanna Linder <hannal@us.ibm.com>
+Reply-To: Hanna Linder <hannal@us.ibm.com>
+To: lse-tech@lists.sourceforge.net
+cc: linux-kernel@vger.kernel.org
+Subject: Updated Agenda for Con Call Feb 21 
+Message-ID: <135300000.1045784876@w-hlinder>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-PwrQC/KirwSDPU+Uhe8U
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-On Thu, 2003-02-20 at 15:33, Alan Cox wrote:
-> This has more IDE and PCI toys. Handle with care. This brings most of the
-> quirk handling from 2.4 into 2.5. The ALi Magick one requires the video4linux
-> stuff is fixed in 2.5 as well. I've not yet merged the 450NX patch to mtrr
-> (450NX mtrr write combining has errata)
-> 
-> Linux 2.5.62-ac1
-
-Didn't boot. I copied this trace by hand.
-The box is dual PIII, SCSI disks, aic7xxx.
-Results of grep ^CONFIG .config attached as myconfig.
-
-Steven  
-
-Call Trace:
-
-ide_xlate_1024+0xf5
-read_dev_sector+0x69
-handle_ide_mess+0x179
-msdos_partition+0x3c
-call_console_drivers+0xeb
-printk+0x17d
-check_partition+0xac
-register_disk+0xd0
-blk_register_region+0x24
-add_disk+0x35
-exact_match+0x0
-exact_lock+0x0
-sd_attach+0x291
-scsi_register_device+0x94
-init+0x62
-init+0x0
-kernel_thread_helper+0x5
+	Linux Scalability Effort Agenda for Feb 21
 
 
+I. Object Based Rmap: 
+		Rik van Riel, Dave McCracken, Martin J. Bligh
 
---=-PwrQC/KirwSDPU+Uhe8U
-Content-Disposition: attachment; filename=myconfig
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=ISO-8859-1
+	Dave's patch:
+	http://marc.theaimsgroup.com/?l=linux-mm&m=104578127622546&w=2
 
-CONFIG_X86=3Dy
-CONFIG_MMU=3Dy
-CONFIG_SWAP=3Dy
-CONFIG_UID16=3Dy
-CONFIG_GENERIC_ISA_DMA=3Dy
-CONFIG_EXPERIMENTAL=3Dy
-CONFIG_SYSVIPC=3Dy
-CONFIG_BSD_PROCESS_ACCT=3Dy
-CONFIG_SYSCTL=3Dy
-CONFIG_LOG_BUF_SHIFT=3D15
-CONFIG_MORSE_PANICS=3Dy
-CONFIG_X86_PC=3Dy
-CONFIG_MPENTIUMIII=3Dy
-CONFIG_X86_CMPXCHG=3Dy
-CONFIG_X86_XADD=3Dy
-CONFIG_X86_L1_CACHE_SHIFT=3D5
-CONFIG_RWSEM_XCHGADD_ALGORITHM=3Dy
-CONFIG_X86_WP_WORKS_OK=3Dy
-CONFIG_X86_INVLPG=3Dy
-CONFIG_X86_BSWAP=3Dy
-CONFIG_X86_POPAD_OK=3Dy
-CONFIG_X86_TSC=3Dy
-CONFIG_X86_GOOD_APIC=3Dy
-CONFIG_X86_INTEL_USERCOPY=3Dy
-CONFIG_X86_USE_PPRO_CHECKSUM=3Dy
-CONFIG_X86_PREFETCH=3Dy
-CONFIG_HUGETLB_PAGE=3Dy
-CONFIG_SMP=3Dy
-CONFIG_PREEMPT=3Dy
-CONFIG_X86_LOCAL_APIC=3Dy
-CONFIG_X86_IO_APIC=3Dy
-CONFIG_NR_CPUS=3D2
-CONFIG_HIGHMEM4G=3Dy
-CONFIG_HIGHMEM=3Dy
-CONFIG_HIGHPTE=3Dy
-CONFIG_MTRR=3Dy
-CONFIG_HAVE_DEC_LOCK=3Dy
-CONFIG_PCI=3Dy
-CONFIG_PCI_GOANY=3Dy
-CONFIG_PCI_BIOS=3Dy
-CONFIG_PCI_DIRECT=3Dy
-CONFIG_PCI_NAMES=3Dy
-CONFIG_ISA=3Dy
-CONFIG_KCORE_ELF=3Dy
-CONFIG_BINFMT_ELF=3Dy
-CONFIG_BLK_DEV_FD=3Dy
-CONFIG_BLK_DEV_RAM=3Dy
-CONFIG_BLK_DEV_RAM_SIZE=3D4096
-CONFIG_BLK_DEV_INITRD=3Dy
-CONFIG_LBD=3Dy
-CONFIG_IDE=3Dy
-CONFIG_BLK_DEV_IDE=3Dy
-CONFIG_BLK_DEV_IDECD=3Dy
-CONFIG_BLK_DEV_IDEPCI=3Dy
-CONFIG_IDEPCI_SHARE_IRQ=3Dy
-CONFIG_BLK_DEV_IDEDMA_PCI=3Dy
-CONFIG_IDEDMA_PCI_AUTO=3Dy
-CONFIG_BLK_DEV_IDEDMA=3Dy
-CONFIG_BLK_DEV_ADMA=3Dy
-CONFIG_BLK_DEV_SVWKS=3Dy
-CONFIG_IDEDMA_AUTO=3Dy
-CONFIG_BLK_DEV_IDE_MODES=3Dy
-CONFIG_SCSI=3Dy
-CONFIG_BLK_DEV_SD=3Dy
-CONFIG_SCSI_CONSTANTS=3Dy
-CONFIG_SCSI_LOGGING=3Dy
-CONFIG_SCSI_AIC7XXX=3Dy
-CONFIG_AIC7XXX_CMDS_PER_DEVICE=3D8
-CONFIG_AIC7XXX_RESET_DELAY_MS=3D15000
-CONFIG_AIC7XXX_DEBUG_MASK=3D0
-CONFIG_SCSI_EATA=3Dy
-CONFIG_SCSI_EATA_TAGGED_QUEUE=3Dy
-CONFIG_SCSI_EATA_MAX_TAGS=3D16
-CONFIG_CD_NO_IDESCSI=3Dy
-CONFIG_NET=3Dy
-CONFIG_PACKET=3Dy
-CONFIG_NETLINK_DEV=3Dy
-CONFIG_NETFILTER=3Dy
-CONFIG_FILTER=3Dy
-CONFIG_UNIX=3Dy
-CONFIG_INET=3Dy
-CONFIG_IP_MULTICAST=3Dy
-CONFIG_SYN_COOKIES=3Dy
-CONFIG_IP_NF_NAT_NEEDED=3Dy
-CONFIG_IP_NF_COMPAT_IPCHAINS=3Dy
-CONFIG_IPV6_SCTP__=3Dy
-CONFIG_NETDEVICES=3Dy
-CONFIG_NET_ETHERNET=3Dy
-CONFIG_NET_PCI=3Dy
-CONFIG_EEPRO100=3Dy
-CONFIG_FDDI=3Dy
-CONFIG_INPUT=3Dy
-CONFIG_INPUT_MOUSEDEV=3Dy
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=3D1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=3D768
-CONFIG_SOUND_GAMEPORT=3Dy
-CONFIG_SERIO=3Dy
-CONFIG_SERIO_I8042=3Dy
-CONFIG_INPUT_KEYBOARD=3Dy
-CONFIG_KEYBOARD_ATKBD=3Dy
-CONFIG_INPUT_MOUSE=3Dy
-CONFIG_MOUSE_PS2=3Dy
-CONFIG_INPUT_MISC=3Dy
-CONFIG_VT=3Dy
-CONFIG_VT_CONSOLE=3Dy
-CONFIG_HW_CONSOLE=3Dy
-CONFIG_SERIAL_NONSTANDARD=3Dy
-CONFIG_STALDRV=3Dy
-CONFIG_UNIX98_PTYS=3Dy
-CONFIG_UNIX98_PTY_COUNT=3D256
-CONFIG_WATCHDOG=3Dy
-CONFIG_RTC=3Dy
-CONFIG_QUOTA=3Dy
-CONFIG_QUOTACTL=3Dy
-CONFIG_AUTOFS4_FS=3Dy
-CONFIG_EXT3_FS=3Dy
-CONFIG_EXT3_FS_XATTR=3Dy
-CONFIG_EXT3_FS_POSIX_ACL=3Dy
-CONFIG_JBD=3Dy
-CONFIG_TMPFS=3Dy
-CONFIG_RAMFS=3Dy
-CONFIG_ISO9660_FS=3Dy
-CONFIG_JOLIET=3Dy
-CONFIG_PROC_FS=3Dy
-CONFIG_DEVPTS_FS=3Dy
-CONFIG_EXT2_FS=3Dy
-CONFIG_NFSD=3Dy
-CONFIG_SUNRPC=3Dy
-CONFIG_LOCKD=3Dy
-CONFIG_EXPORTFS=3Dy
-CONFIG_FS_MBCACHE=3Dy
-CONFIG_FS_POSIX_ACL=3Dy
-CONFIG_MSDOS_PARTITION=3Dy
-CONFIG_NLS=3Dy
-CONFIG_NLS_DEFAULT=3D"iso8859-1"
-CONFIG_VIDEO_SELECT=3Dy
-CONFIG_VGA_CONSOLE=3Dy
-CONFIG_DUMMY_CONSOLE=3Dy
-CONFIG_DEBUG_KERNEL=3Dy
-CONFIG_MAGIC_SYSRQ=3Dy
-CONFIG_KALLSYMS=3Dy
-CONFIG_X86_EXTRA_IRQS=3Dy
-CONFIG_X86_FIND_SMP_CONFIG=3Dy
-CONFIG_X86_MPPARSE=3Dy
-CONFIG_X86_SMP=3Dy
-CONFIG_X86_HT=3Dy
-CONFIG_X86_BIOS_REBOOT=3Dy
-CONFIG_X86_TRAMPOLINE=3Dy
+	Martin's performance:
+	http://marc.theaimsgroup.com/?l=linux-kernel&m=104571527829166&w=2
 
---=-PwrQC/KirwSDPU+Uhe8U--
+	Rik's comments:
+	http://marc.theaimsgroup.com/?l=linux-mm&m=104576165220677&w=2
+
+II. Large Web Server Hang (aka- Scheduler Deadlock Fixes): 
+		Rick Lindsley, Hanna Linder, William Irwin
+
+	. Patches already accepted by Linus:
+
+http://linux.bkbits.net:8080/linux-2.5/cset@1.1005?nav=index.html|ChangeSet@-1d
+http://linux.bkbits.net:8080/linux-2.5/cset@1.1004?nav=index.html|ChangeSet@-1d
+
+III. gcc 2.96 vs 3.21 performance: Martin Bligh 
+
+	http://marc.theaimsgroup.com/?l=lse-tech&m=104431413716468&w=2
+ 
+IV. Shared Memory Binding: Matthew Dobson (if time permits)
+
+	http://marc.theaimsgroup.com/?l=lse-tech&m=104499755801744&w=2
+
+V. Performance of ext3 on large systems (if time permits)
+
+	http://marc.theaimsgroup.com/?l=lse-tech&m=104544278811103&w=2
+
+
+USA Toll Free:      1-877-849-9636
+International Toll: +1-719-457-5110
+Passcode: 372406 
+9:30am PST (GMT-0800), 11:30am CST, 12:30pm EST every other Friday
+
+
 

@@ -1,73 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263104AbTDFVbw (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 17:31:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263106AbTDFVbw (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 17:31:52 -0400
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:61839 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S263104AbTDFVbv (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 17:31:51 -0400
-Date: Sun, 6 Apr 2003 17:42:51 -0400 (EDT)
-From: Rik van Riel <riel@surriel.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@digeo.com>,
-       <andrea@suse.de>, <mingo@elte.hu>, <hugh@veritas.com>,
-       <dmccr@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <linux-mm@kvack.org>, Bill Irwin <wli@holomorphy.com>
-Subject: Re: subobj-rmap
-In-Reply-To: <1070000.1049664851@[10.10.2.4]>
-Message-ID: <Pine.LNX.4.44.0304061737510.2296-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id S263108AbTDFVfZ (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 17:35:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263111AbTDFVfZ (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 17:35:25 -0400
+Received: from holomorphy.com ([66.224.33.161]:14492 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263108AbTDFVfY (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Apr 2003 17:35:24 -0400
+Date: Sun, 6 Apr 2003 14:46:31 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Robert Love <rml@tech9.net>
+Cc: Zwane Mwaikambo <zwane@linuxpower.ca>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Martin Bligh <mbligh@aracnet.com>
+Subject: Re: 2.5.65-preempt booting on 32way NUMAQ
+Message-ID: <20030406214631.GP993@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Robert Love <rml@tech9.net>, Zwane Mwaikambo <zwane@linuxpower.ca>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Martin Bligh <mbligh@aracnet.com>
+References: <Pine.LNX.4.50.0304060625130.2268-100000@montezuma.mastecende.com> <20030406112340.GM993@holomorphy.com> <1049653846.753.156.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1049653846.753.156.camel@localhost>
+User-Agent: Mutt/1.3.28i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 6 Apr 2003, Martin J. Bligh wrote:
+On Sun, 2003-04-06 at 07:23, William Lee Irwin III wrote:
+>> All that's really left is driver and non-i386 arch coverage if I'm right.
 
-> Supposing we keep a list of areas (hung from the address_space) that 
-> describes independant linear ranges of memory that have the same set
-> of vma's mapping them (call those subobjects). Each subobject has a
-> chain of vma's from it that are mapping that subobject.
-> 
-> address_space ---> subobject ---> subobject ---> subobject ---> subobject
->                        |              |              |              |
->                        v              v              v              v
->                       vma            vma            vma            vma
->                        |                             |              |
->                        v                             v              v
->                       vma                           vma            vma
->                        |                             |        
->                        v                             v        
->                       vma                           vma       
+On Sun, Apr 06, 2003 at 02:30:46PM -0400, Robert Love wrote:
+> If you know of something specific, please share.  I know the tty layer
+> needs work, but as far as I can tell, it is SMP issues that preemption
+> exposes... if any drivers in specific need work, let me know.
 
-OK, lets say we have a file of 1000 pages, or
-offsets 0 to 999, with the following mappings:
+I presumed the audit was perpetual and/or ongoing.
 
-VMA A:   0-999
-VMA B:   0-200
-VMA C: 150-400
-VMA D: 300-500
-VMA E: 300-500
-VMA F:   0-999
 
-How would you describe these with independant
-regions ?
-
-For VMAs D & E and A & F it's a no-brainer,
-but for Oracle shared memory you shouldn't
-assume that you have any similar mappings.
-
-I don't see how the data structure you describe
-would allow us to efficiently select the subset
-of VMAs for which:
-
-1) the start address is smaller than the address we want
-and
-2) the end address is larger than the address we want
-
-Then again, that might just be my lack of imagination.
-
-cheers,
-
-Rik
-
+-- wli

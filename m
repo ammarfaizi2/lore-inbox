@@ -1,49 +1,76 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316548AbSFDSy5>; Tue, 4 Jun 2002 14:54:57 -0400
+	id <S316544AbSFDTCv>; Tue, 4 Jun 2002 15:02:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316477AbSFDSy5>; Tue, 4 Jun 2002 14:54:57 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:12812 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S315447AbSFDSyz>; Tue, 4 Jun 2002 14:54:55 -0400
-Date: Tue, 4 Jun 2002 14:50:39 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Derek Vadala <derek@cynicism.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-raid@vger.kernel.org
-Subject: Re: RAID-6 support in kernel?
-In-Reply-To: <Pine.GSO.4.21.0206021721120.15478-100000@gecko.roadtoad.net>
-Message-ID: <Pine.LNX.3.96.1020604144204.5024D-100000@gatekeeper.tmr.com>
+	id <S316574AbSFDTCu>; Tue, 4 Jun 2002 15:02:50 -0400
+Received: from air-2.osdl.org ([65.201.151.6]:55174 "EHLO geena.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S316544AbSFDTCt>;
+	Tue, 4 Jun 2002 15:02:49 -0400
+Date: Tue, 4 Jun 2002 11:58:39 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@geena.pdx.osdl.net>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+cc: "David S. Miller" <davem@redhat.com>, <anton@samba.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [2.5.19] Oops during PCI scan on Alpha
+In-Reply-To: <20020604210745.A849@jurassic.park.msu.ru>
+Message-ID: <Pine.LNX.4.33.0206041128020.654-100000@geena.pdx.osdl.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2 Jun 2002, Derek Vadala wrote:
 
-> You can always fake this effect by combining two 8-disk RAID-5s into a
-> RAID-0. It's not technically RAID-6, but can withstand a 2-disk failure,
-> although not _any_ 2-disk failure. However, it's my understanding that
-> RAID-6 cannot withstand _any_ two disk failure either (see the above
-> thread). 
+> > Can't it go the other way? Instead of mass-promotion of the setup 
+> > functions, can't we demote the ones that are causing the problems? 
+> 
+> Agreed, but converting everything into initcalls without any good reason
+> looks like a bad idea either.
 
-I think (hope) you meant 1+5, which will stand any three disk failure, and
-up to 1+N/2 if just the right drives fail. They never do, of course.
- 
-> I also suspect that the use of dual RAID-5s combined with the CPU overhead
-> of ATA will kill most systems under any kind of load. For that matter, the
-> 2x parity hit from RAID-6 probably wouldn't make you CPU too happy either,
-> even if there was a kernel driver that implemented it.
+True, but IMO, there are good reasons for converting these to initcalls. 
 
-I doubt it. Unless you run a system with heavy CPU demand there are lots
-of cycles for this stuff. I run 0+1 several places and I don't see serious
-CPU load. I would be very interested in RAID-6 in the kernel, but I have
-the feeling that RAID-6 means diferent things to diferent people, judging
-from posts here and articles online. I haven't found the performance info
-you, I assume I will.
+> > core is used for what's in drivers/base/*.c. unused is unused.
+> 
+> So subsys_initcall(sys_bus_init) in base/sys.c should be
+> core_initcall(sys_bus_init), right? :-)
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+No. The system "bus" is a subsystem, not a piece of the infrastructure. 
+It's a pseudo-bus that provides a parent for system devices (since they 
+otherwise appear as floating, autonomous beings).
+
+> > subsys is intended primarily for initializing and advertising the 
+> > existence of bus types and device class types (network, input, etc). 
+> > Device probing doesn't necessarily have to take place here, and in some 
+> > cases, it can't: e.g. when the firmware is used to inform the system of 
+> > the PCI buses present.
+> 
+> pcibios_init on alpha and some other archs is a lot more than just
+> device probing. Basically it's a firmware, and we want it to be
+> executed early.
+
+Sure. x86 is similar, to an extent. OWOA, there is a distinction between 
+the initialization and the actual probing. And, it appears that alpha 
+already has that. It appears that most of the alpha platforms use 
+common_init_pci() for their init_pci entry point. A few more use 
+cia_init_pci() for init_pci. The rest define their own (except the 
+jensen, which is NULL). 
+
+cia_init_pci does this: 
+
+        verify_tb_operation();
+        common_init_pci();
+
+All the platforms that define their own init_pci callbacks either call 
+common_init_pci() or cia_init_pci() before doing anything else. 
+
+My point is that the only thing pcibios_init() appears to be doing on 
+alpha is probing the bus. Whatever firmware black magic that must take 
+place appears to either not exist, or have already been done by that 
+point. 
+
+I'm not going to try and force you to use a device_initcall. But, it 
+appears that it will work, and it fits the nomenclature. 
+
+	-pat
+
 

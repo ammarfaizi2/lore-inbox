@@ -1,49 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264273AbRFSPCt>; Tue, 19 Jun 2001 11:02:49 -0400
+	id <S264262AbRFSPJt>; Tue, 19 Jun 2001 11:09:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264262AbRFSPCj>; Tue, 19 Jun 2001 11:02:39 -0400
-Received: from dioniso.waptopic.com ([195.110.99.133]:65285 "HELO
-	dioniso.waptopic.com") by vger.kernel.org with SMTP
-	id <S264259AbRFSPCf>; Tue, 19 Jun 2001 11:02:35 -0400
-Date: Tue, 19 Jun 2001 17:02:35 +0200
-From: Simone Piunno <simonep@wseurope.com>
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: compiling with gcc 3.0
-Message-ID: <20010619170235.C2593@pioppo.wired>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: Wireless Solution
-X-Operating-System: Linux 2.4.3
+	id <S264278AbRFSPJj>; Tue, 19 Jun 2001 11:09:39 -0400
+Received: from lightning.hereintown.net ([207.196.96.3]:42641 "EHLO
+	lightning.hereintown.net") by vger.kernel.org with ESMTP
+	id <S264262AbRFSPJa>; Tue, 19 Jun 2001 11:09:30 -0400
+Date: Tue, 19 Jun 2001 11:23:26 -0400 (EDT)
+From: Chris Meadors <clubneon@hereintown.net>
+To: Simone Piunno <simonep@wseurope.com>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: compiling with gcc 3.0
+In-Reply-To: <20010619170235.C2593@pioppo.wired>
+Message-ID: <Pine.LNX.4.31.0106191120450.1531-100000@rc.priv.hereintown.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 19 Jun 2001, Simone Piunno wrote:
 
-Hi,
+> I was trying to compile 2.4.5 with gcc 3.0 but there is a problem
+> (conflicting type) between kernel/timer.c and include/linux/sched.h
+> Apparently the problem solves with this oneline workarond:
+>
+> --- linux/include/linux/sched.h Tue Jun 19 17:00:03 2001
+> +++ linux/include/linux/sched.h.orig    Tue Jun 19 17:00:13 2001
 
-I was trying to compile 2.4.5 with gcc 3.0 but there is a problem
-(conflicting type) between kernel/timer.c and include/linux/sched.h
-Apparently the problem solves with this oneline workarond:
+[short patch snipped]
 
---- linux/include/linux/sched.h Tue Jun 19 17:00:03 2001
-+++ linux/include/linux/sched.h.orig    Tue Jun 19 17:00:13 2001
-@@ -537,7 +537,7 @@
+> don't know if this is the right approach but works for me.
+
+The approach was right, but your argument order to diff was backwards.
+Andrea posted this patch a little while ago:
+
+
+--- 2.4.6pre2aa1/include/linux/sched.h.~1~	Wed Jun 13 00:44:45 2001
++++ 2.4.6pre2aa1/include/linux/sched.h	Wed Jun 13 00:47:23 2001
+@@ -541,7 +541,7 @@
  extern unsigned long volatile jiffies;
  extern unsigned long itimer_ticks;
  extern unsigned long itimer_next;
--extern volatile struct timeval xtime __attribute__ ((aligned (16)));
-+extern struct timeval xtime;
- 
- extern void do_timer(struct pt_regs *)
+-extern struct timeval xtime;
++extern volatile struct timeval xtime;
+ extern void do_timer(struct pt_regs *);
 
-don't know if this is the right approach but works for me.
+ extern unsigned int * prof_buffer;
 
+-Chris
 -- 
-.-----------------------------------------------------------------.
-| Simone Piunno             Wireless Solutions srl - DADA group   |
-| software architect        Europe HQ, via Castiglione 25 Bologna |
-| http://www.wseurope.com   Tel: +390512966823 Fax: +390512966800 |
-| http://www.waptopic.com   God is real, unless declared integer. |
-'-----------------------------------------------------------------'
+Two penguins were walking on an iceberg.  The first penguin said to the
+second, "you look like you are wearing a tuxedo."  The second penguin
+said, "I might be..."                         --David Lynch, Twin Peaks
+

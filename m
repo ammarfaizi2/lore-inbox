@@ -1,33 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274184AbRISU5Z>; Wed, 19 Sep 2001 16:57:25 -0400
+	id <S274187AbRISVDP>; Wed, 19 Sep 2001 17:03:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274187AbRISU5I>; Wed, 19 Sep 2001 16:57:08 -0400
-Received: from anime.net ([63.172.78.150]:23058 "EHLO anime.net")
-	by vger.kernel.org with ESMTP id <S274184AbRISU5D>;
-	Wed, 19 Sep 2001 16:57:03 -0400
-Date: Wed, 19 Sep 2001 13:57:10 -0700 (PDT)
-From: Dan Hollis <goemon@anime.net>
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: Arjan van de Ven <arjanv@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Athlon bug stomper. Pls apply.
-In-Reply-To: <20010919223626.B3775@suse.cz>
-Message-ID: <Pine.LNX.4.30.0109191356460.28278-100000@anime.net>
+	id <S274189AbRISVDG>; Wed, 19 Sep 2001 17:03:06 -0400
+Received: from hank-fep8-0.inet.fi ([194.251.242.203]:39354 "EHLO
+	fep08.tmt.tele.fi") by vger.kernel.org with ESMTP
+	id <S274187AbRISVC4>; Wed, 19 Sep 2001 17:02:56 -0400
+Message-ID: <3BA907F6.3586811C@pp.inet.fi>
+Date: Thu, 20 Sep 2001 00:02:46 +0300
+From: Jari Ruusu <jari.ruusu@pp.inet.fi>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.2.19aa2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "steve j. kondik" <shade@chemlab.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: encrypted swap on loop in 2.4.10-pre12?
+In-Reply-To: <1000912739.17522.2.camel@discord>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Sep 2001, Vojtech Pavlik wrote:
-> Here we go, a TBird 1.1G with KT133 (non-A), normally working with value
-> 89 in reg 55, not exhibiting the bug under any setting.
+"steve j. kondik" wrote:
+> i've been using encrypted swap over loopdev using the new cryptoapi
+> patches.  i just built a 2.4.10-pre12 kernel and i got a panic doing
+> mkswap on the loopdev.  the mkswap process becomes unkillable after this
+> and never finishes.  this is repeatable everytime.  i've had no problems
+> whatsoever until this kernel even under high load..  any ideas? :>
 
-But its 133a experiencing the problem?
+Cryptoapi can't be used to encrypt swap. It has nasties like sleeping in
+make_request_fn() and potential memory allocation deadlock.
 
-Anyone tried kt266...
+loop-AES works with encrypted swap. Announcement is here:
 
--Dan
+    http://mail.nl.linux.org/linux-crypto/2001-09/msg00006.html
+    http://marc.theaimsgroup.com/?l=linux-crypto&m=99953544804810&w=2
 
--- 
-[-] Omae no subete no kichi wa ore no mono da. [-]
+Regards,
+Jari Ruusu <jari.ruusu@pp.inet.fi>
 

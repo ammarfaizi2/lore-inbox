@@ -1,55 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262108AbTFFRYv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 13:24:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbTFFRYv
+	id S262028AbTFFRdU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 13:33:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262066AbTFFRdU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 13:24:51 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:14504 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262108AbTFFRYt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 13:24:49 -0400
-Subject: [ANNOUNCE] Linux Test Project June Release Announcement   
-To: ltp-announce@lists.sourceforge.net, ltp-lists@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 6.0 September 26, 2002
-Message-ID: <OF21DD2357.D72A5EA7-ON85256D3D.006077D9-86256D3D.0061028B@pok.ibm.com>
-From: "Robert Williamson" <robbiew@us.ibm.com>
-Date: Fri, 6 Jun 2003 12:38:29 -0500
-X-MIMETrack: Serialize by Router on D01ML076/01/M/IBM(Release 5.0.11 +SPRs MIAS5EXFG4, MIAS5AUFPV
- and DHAG4Y6R7W, MATTEST |November 8th, 2002) at 06/06/2003 01:38:10 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	Fri, 6 Jun 2003 13:33:20 -0400
+Received: from CPE0080c8c9b431-CM014280010574.cpe.net.cable.rogers.com ([24.43.38.154]:17672
+	"EHLO stargate.coplanar.net") by vger.kernel.org with ESMTP
+	id S262028AbTFFRdT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 13:33:19 -0400
+Subject: Re: PERC4-DI?
+From: Jer Jackson <jerj@coplanar.net>
+To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030606163717.GK8594@rdlg.net>
+References: <20030606163717.GK8594@rdlg.net>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1054921604.27578.11.camel@cherry2000.skynet.coplanar.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 06 Jun 2003 13:46:45 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Linux Test Project test suite has been released. The latest version of
-the testsuite contains 1800+ tests for the Linux OS. Our web site also
-contains other information such as: test results, a Linux test tools
-matrix, an area for keeping up with fixes for known blocking problems in
-the 2.5 kernel releases, technical papers and HowTos on Linux testing, and
-a code coverage analysis tool.
+Be very careful about the Dell PERC controllers.  The 4-DI is *probably*
+a rebranded LSI megaraid, with Dell's firmware.  You *definitely* want
+to subscribe to the linux-megaraid-devel@dell.com list.  You well almost
+certainly have to recompile your kernel with an up to the minute version
+of the megaraid driver.  Problems with the stock driver include server
+performance problems, crashes, inability to use clustering.  Many users
+complain about the megamon utility, and have reverse engineered the
+firmware api and written their own utility to get around the problems. 
+The source isn't available AFAIK.  I don't think it will integrate with
+linux-ha heartbeat for clustering very well.  Some people have tried
+flashing the LSI firmware to fix things.
 
-Highlights:
+I am afraid to use it in a database cluster without a *log* of time to
+debug.  The EVMS clustering support is getting stable, I am currently in
+the testing phase for a postgresql cluster I am building with software
+raid/Adaptec SCSI controllers, and shared disk array.
 
-* Relocation of all Open POSIX Test Suite tests to
-/testcases/open_posix_testsuite.
-* Inclusion of modified `top` tool to allow for system usage data
-gathering.
-* More support for 64bit architectures and large memory machines
-* Fixes and code cleanups. See our Bug Tracker for more details
+Regards,
 
-We encourage the community to post results, patches or new tests on our
-mailing list and use the CVS bug tracking facility to report problems that
-you might encounter with the test suite.
+Jeremy Jackson
 
+On Fri, 2003-06-06 at 12:37, Robert L. Harris wrote:
+> My company is looking at buying some machines with "PERC4-DI" SCSI RAID
+> controllers.  Poking around the .config file I'm not finding anything
+> related to this.  Anyone know off the top of their heads what driver
+> would be used for this controller, any known catastrophic bugs, etc?
 
-Robert V. Williamson <robbiew@us.ibm.com>
-Linux Test Project
-Web: http://ltp.sourceforge.net
-IRC: #ltp on freenode.irc.net
-====================
-"Only two things are infinite, the universe and human stupidity, and I'm
-not sure about the former." -Albert Einstein
-
+-- 
+Jer Jackson <jerj@coplanar.net>
 

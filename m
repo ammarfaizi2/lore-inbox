@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261169AbUCKKrN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 05:47:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261176AbUCKKrN
+	id S261171AbUCKLAP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 06:00:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbUCKLAP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 05:47:13 -0500
-Received: from main.gmane.org ([80.91.224.249]:23941 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261169AbUCKKrM (ORCPT
+	Thu, 11 Mar 2004 06:00:15 -0500
+Received: from main.gmane.org ([80.91.224.249]:32901 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261171AbUCKLAK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 05:47:12 -0500
+	Thu, 11 Mar 2004 06:00:10 -0500
 X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
 From: Giuseppe Bilotta <bilotta78@hotpop.com>
-Subject: Re: [OT] Re: (0 == foo), rather than (foo == 0)
-Date: Thu, 11 Mar 2004 11:47:05 +0100
-Message-ID: <MPG.1aba621532d2115e989682@news.gmane.org>
-References: <905989466451C34E87066C5C13DDF034593392@HYDMLVEM01.e2k.ad.ge.com> <20040310100215.1b707504.rddunlap@osdl.org> <Pine.LNX.4.53.0403101324120.18709@chaos> <404F6375.3080500@blue-labs.org> <20040310212942.GB31500@parcelfarce.linux.theplanet.co.uk> <404F949E.1020905@blue-labs.org> <Pine.LNX.4.53.0403101724250.24470@chaos> <20040311003347.GC3053@luna.mooo.com>
+Subject: Re: Framebuffer with nVidia GeForce 2 Go on Dell Inspiron 8200
+Date: Thu, 11 Mar 2004 11:51:08 +0100
+Message-ID: <MPG.1aba630ad806a4c3989683@news.gmane.org>
+References: <c2o8sp$h3j$1@sea.gmane.org> <Pine.LNX.4.44.0403110112170.24760-100000@phoenix.infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
@@ -25,22 +25,39 @@ X-Newsreader: MicroPlanet Gravity v2.60
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Micha Feigin wrote:
-> On Wed, Mar 10, 2004 at 05:42:20PM -0500, Richard B. Johnson wrote:
-> [ ... snip ... ]
-> > 
-> > When you want text to be read by others, you make sure they
-> > can read it. It's just that simple. There are some assumptions
-> > that you can make. You can assume that they have a way of
-> > reading 80-column text, for instance.
-> > 
+James Simmons wrote:
 > 
-> actually 72 is usually better since it leaves some room for the > of
-> the replies to pile up a bit without passing the 80 column boundary.
+> > 1. The vga framebuffer works. I can even bring the monitor to 800x600 
+> > in tweaked VGA mode.
+> 
+> Cool :-) I assume you mean the vga16fb driver.
 
-Nitpick by nitpick, it should be kept at 66 since lines longer than 
-66 characters become very stressfull on the eyes.
+Yes :)
 
+> > 2. The VESA framebuffer does not work. Apparently, the card is not 
+> > detected as VESA-compatible. (I'm not 100% sure about this --how can 
+> > I check if this is indeed the case?)
+> 
+> Are you sure. Take a look at your vga= parmeter. What is its value?
+
+I tried vga=ask, and no VESA modes are detected.
+
+> > 3. The Riva framebuffer doesn't work either. It detects the video 
+> > card all right, understands that I'm running on a laptop and thus 
+> > with an LCD monitor, but as soon as I "touch" it (be it even just 
+> > with a fbset -i to find the information), the screen goes blank or 
+> > has some very funny graphical effects (fade to black in the middle, 
+> > etc). The system doesn't lock up (I can still blind-type and reset 
+> > it), but I can't use it.
+> > 
+> > Does anybody know what could be wrong?
+> 
+> That is a bug in fbcon layer. Now that I have my home system back up I 
+> plan to test my radeon card to track down the bug that was preventing the 
+> layer from properly resizing the screen.
+
+Is there a particular reason why it would blank out even when just 
+asking for information, without changing any setting?
 
 -- 
 Giuseppe "Oblomov" Bilotta

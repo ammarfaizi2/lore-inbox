@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274302AbRITDyl>; Wed, 19 Sep 2001 23:54:41 -0400
+	id <S274306AbRITEQn>; Thu, 20 Sep 2001 00:16:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274303AbRITDyc>; Wed, 19 Sep 2001 23:54:32 -0400
-Received: from member.michigannet.com ([207.158.188.18]:26129 "EHLO
-	member.michigannet.com") by vger.kernel.org with ESMTP
-	id <S274302AbRITDyR>; Wed, 19 Sep 2001 23:54:17 -0400
-Date: Wed, 19 Sep 2001 23:53:28 -0400
-From: Paul <set@pobox.com>
-To: Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
-Cc: jdike@karaya.com
-Subject: [uPATCH] Re: Linux 2.4.9-ac12
-Message-ID: <20010919235328.K16708@squish.home.loc>
-Mail-Followup-To: Paul <set@pobox.com>,
-	Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org,
-	jdike@karaya.com
-In-Reply-To: <20010918214907.A6707@lightning.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010918214907.A6707@lightning.swansea.linux.org.uk>; from laughing@shared-source.org on Tue, Sep 18, 2001 at 09:49:07PM +0100
+	id <S274305AbRITEQe>; Thu, 20 Sep 2001 00:16:34 -0400
+Received: from nsd.mandrakesoft.com ([216.71.84.35]:21091 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S274143AbRITEQ1>; Thu, 20 Sep 2001 00:16:27 -0400
+Date: Wed, 19 Sep 2001 23:16:49 -0500 (CDT)
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+To: linux-net@vger.kernel.org, netdev@oss.sgi.com
+cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: ethtool 1.3 released
+Message-ID: <Pine.LNX.3.96.1010919230927.16972D-100000@mandrakesoft.mandrakesoft.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+(this is directed to linux-kernel just this once; future announcements
+will be limited to the linux-net and netdev mailing lists.)
 
-	Needed this to get uml to compile:
+A new version of ethtool was just posted on its homepage, at
 
---- 2.4.9-ac12-user/arch/um/kernel/sys_call_table.c.orig	Wed Sep 19 23:11:30 2001
-+++ 2.4.9-ac12-user/arch/um/kernel/sys_call_table.c	Wed Sep 19 23:29:07 2001
-@@ -208,6 +208,7 @@
- extern syscall_handler_t sys_setresgid;
- extern syscall_handler_t sys_getresgid;
- extern syscall_handler_t sys_chown;
-+extern syscall_handler_t sys_personality;
- extern syscall_handler_t sys_setuid;
- extern syscall_handler_t sys_setgid;
- extern syscall_handler_t sys_setfsuid;
-	
-	tuntap (eg. using bootparam 'eth0=tuntap,,,192.168.2.1'
-stopped working for me (but Ive just booted this
-2.4.9-ac12...have to look around a little.)  no eth0 device
-present in uml booted kernel.  Worked on 2.4.9 + uml patch)
+	http://sf.net/projects/gkernel/
 
-Paul
-set@pobox.com
+This version adds Wake-on-LAN support courtesy of Tim Hockin.
+
+You need kernel 2.4.9 or later, hardware which supports Wake-on-LAN, and
+a driver which supports Wake-on-LAN to take advantage of this.
+
+Since it takes a little while for SourceForge's database to post the new
+file locations, you can optionally use this direct (and permanent) link:
+http://prdownloads.sourceforge.net/gkernel/ethtool-1.3.tar.gz
+
+
+What is ethtool?
+
+ethtool is a general diagnostic utility for your network adapter.  It
+allows for general media selection, interrupt-based coalescing and
+mitigation control, NIC diagnostics, and Wake-on-LAN manipulation.
+

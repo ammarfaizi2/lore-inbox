@@ -1,44 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129450AbQL0LdC>; Wed, 27 Dec 2000 06:33:02 -0500
+	id <S130225AbQL0Ls0>; Wed, 27 Dec 2000 06:48:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130109AbQL0Lcx>; Wed, 27 Dec 2000 06:32:53 -0500
-Received: from fw-cam.cambridge.arm.com ([193.131.176.3]:17390 "EHLO
-	fw-cam.cambridge.arm.com") by vger.kernel.org with ESMTP
-	id <S129450AbQL0Lcj>; Wed, 27 Dec 2000 06:32:39 -0500
-Message-Id: <4.3.2.7.2.20001227110018.00e5ba90@cam-pop.cambridge.arm.com>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Wed, 27 Dec 2000 11:01:18 +0000
-To: Arnaud Installe <ainstalle@filepool.com>
-From: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@arm.com>
-Subject: Re: high load & poor interactivity on fast thread creation
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20001130171137.A1851@bartok.filepool.com>
-In-Reply-To: <3A266895.F522A0E2@austin.ibm.com>
- <20001130081443.A8118@bach.iverlek.kotnet.org>
- <3A266895.F522A0E2@austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S130109AbQL0LsQ>; Wed, 27 Dec 2000 06:48:16 -0500
+Received: from xsmtp.ethz.ch ([129.132.97.6]:16484 "EHLO xfe3.d.ethz.ch")
+	by vger.kernel.org with ESMTP id <S130225AbQL0LsB>;
+	Wed, 27 Dec 2000 06:48:01 -0500
+Message-ID: <3A49CF1C.19A0FB55@student.ethz.ch>
+Date: Wed, 27 Dec 2000 12:14:36 +0100
+From: "Giacomo A. Catenazzi" <cate@student.ethz.ch>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Eric S. Raymond" <esr@snark.thyrsus.com>
+CC: linux-kernel@vger.kernel.org, linux-kbuild@torque.net
+Subject: Re: [KBUILD] How do we handle autoconfiguration?
+In-Reply-To: <200012262313.eBQNDBi07719@snark.thyrsus.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 27 Dec 2000 11:17:33.0977 (UTC) FILETIME=[9C359890:01C06FF6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 04:11 PM 11/30/00, Arnaud Installe wrote:
->Could this be correct ?  Also, I haven't seen this happen with NT.  Could
->it be that Java on NT uses user-mode threading and creates threads much
->more slowly, resulting in a lower load ?
+"Eric S. Raymond" wrote:
+> 
+> I backed away from this because Giacomo Catenazzi told me he was
+> working on a separate autoconfigurator that would generate config
+> files in CML1 format.  That's a cleaner design -- one would run his
+> autoconfigurator and then import the resulting config into the CML2
+> configurator as frozen (immutable) symbols.  Giacomo, what's the state
+> of your project?
 
-No. Java on NT uses proper NT threads. However, a thread on NT is a rather 
-different beast to a cloned thread on Linux. I don't know whether the 
-differences are important.
+Status:
+Now I can detect most of modern hardware, and also some software
+protocols.
+My autoconfiguration only in few case say N, because is it difficult
+to say: you don't need this drivers (e.g. the Matrox Millemium
+include a list of PCI devices, but my card is not included,
+but anyway, the driver works, because after the check of PCI ID, it
+do further checks on other video PCI class).
 
-Ruth
--- 
+I'm happy with the autodetection. I need some other software protocols
+to detect, but it is difficult to distinguish: "need protocols" and
+"protocols included in actual kernel (but nobody will use it)".
 
-Ruth 
-Ivimey-Cook                       ruthc@sharra.demon.co.uk
-Technical 
-Author, ARM Ltd              ruth.ivimey-cook@arm.com
 
+I've difficult to merge with the CML1/2:
+
+In CML2-0.8.3 the include frozen flag (-I) is broken, and
+also the new -W flag is broken, thus no real test.
+
+CML2-0.9.0 need Python 2, which is not in the debian unstable
+distribution, and I had no time to compile myself.
+
+CML1: There is to many not answered question (most not important)
+thus it has little value in use with make oldconfig.
+(CML2 has a "oldmenuconfig and oldxconfig")
+Thus I should modify the Configure files, but with CML2....
+
+
+I will also add a NOVICE/NORMAL/EXPERT configuration menu,
+to include ELF, COFF, IPC, SHM, ...  . It is in project since
+lots of days, but ELM, COFF, ELF64 are processor dependent,
+and I don't find (yet) a clean method to include this
+dependence (CML2).
+
+
+	giacomo
+
+
+TODO: a correct/complete autodetection of CPU.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

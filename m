@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270677AbTGUTw6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 15:52:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270682AbTGUTw6
+	id S270675AbTGUTu7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 15:50:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270674AbTGUTu7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 15:52:58 -0400
-Received: from mark.mielke.cc ([216.209.85.42]:17171 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id S270677AbTGUTw4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 15:52:56 -0400
-Date: Mon, 21 Jul 2003 16:07:44 -0400
-From: Mark Mielke <mark@mark.mielke.cc>
-To: RAMON_GARCIA_F <RAMON_GARCIA_F@terra.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Suggestion for a new system call: convert file handle to a cookie for transfering file handles between processes.
-Message-ID: <20030721200744.GA17210@mark.mielke.cc>
-References: <667ff6ab37.6ab37667ff@teleline.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <667ff6ab37.6ab37667ff@teleline.es>
-User-Agent: Mutt/1.4.1i
+	Mon, 21 Jul 2003 15:50:59 -0400
+Received: from tuubi175.adsl.netsonic.fi ([194.29.196.175]:33673 "HELO
+	home.killeri.net") by vger.kernel.org with SMTP id S270675AbTGUTu6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 15:50:58 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Unable to suspend (S4) with the latest 2.5/2.6 kernels
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+From: Kalle Kivimaa <killer@iki.fi>
+Organization: MikaVaan School of Flying
+X-Home-Page: http://killeri.net
+Date: Mon, 21 Jul 2003 23:05:39 +0300
+Message-ID: <8765lvmyr0.fsf@home.killeri.net>
+User-Agent: Gnus/5.1003 (Gnus v5.10.3) XEmacs/21.5 (broccoli, linux)
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 21, 2003 at 09:48:49PM +0200, RAMON_GARCIA_F wrote:
-> I believe that innovation is a public good that should be actively
-> promoted. Otherwise technology would never advance.
+Somewhere along the 2.5.7x series I lost the ability to swsuspend my
+Compaq Evo N1020v laptop. From the logs and the headers it seems that
+the suspend code requires pse feature on the machine. The
+/proc/cpuinfo reports that my machine has psu36 support but not psu
+and the code in include/asm-i386/suspend.h only tests for psu support.
+Is this a bug or a feature? I was able to suspend and resume about 90%
+of the time with the 2.5.69 kernel.
 
-Innovation quite often means working with what you have.
+I even tried to change the cpufeatures.h in 2.5.75 so that it would
+test for the presense of psu36 support but that crashed the kernel
+right at the startup...
 
-mark
+Please CC me on the replies as I'm not on the list (I do read it
+through the archives so I will see your responses even if you forget
+to).
 
 -- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
-
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
-
+*              Dean's Rule #45. The truth hurts for a moment.             *
+*                       A lie hurts for a long time.                      *
+*           PGP public key available @ http://www.iki.fi/killer           *

@@ -1,64 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261296AbTDQJqe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 05:46:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbTDQJqe
+	id S261300AbTDQJue (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 05:50:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbTDQJud
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 05:46:34 -0400
-Received: from ns0.epita.net ([163.5.254.20]:28814 "HELO neo.epita.net")
-	by vger.kernel.org with SMTP id S261296AbTDQJqd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 05:46:33 -0400
-Message-ID: <001901c304c8$93d27740$3602a8c0@team.3ie.org>
-From: "Pestouille" <pestouille@3ie.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: Kernel 2.4.20 AT keyboard present ?
-Date: Thu, 17 Apr 2003 12:03:21 +0200
+	Thu, 17 Apr 2003 05:50:33 -0400
+Received: from ANancy-107-1-10-87.abo.wanadoo.fr ([80.14.221.87]:12298 "EHLO
+	xiii.freealter.fr") by vger.kernel.org with ESMTP id S261300AbTDQJud
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 05:50:33 -0400
+Message-ID: <3E9E7B7C.9090605@freealter.com>
+Date: Thu, 17 Apr 2003 12:01:32 +0200
+From: Ludovic Drolez <ludovic.drolez@freealter.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
+X-Accept-Language: fr, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: ioctl to get partitions infos
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi !
 
-I'm not an expert in kernel compilation but I had this problem :
+As I need more than 'cat /proc/partitions', I wondered if there's an 
+ioctl in 2.4 or 2.5 which will kindly return me all the information the 
+kernel knows about partition (start sector, length, type) ? (pls, don't 
+say that I need the parse the partition table myself ;-( )
 
-keyboard: Timeout - AT keyboard not present?
-keyboard: Timeout - AT keyboard not present?
+Regards,
 
-My system is as follows :
-
-- Dell dimension 8250
-- P4 3.06 with HT (enabled in bios)
-- 512 RDRAM
-- DD Ide 120 Go
-- ATI Radeon 9700 Pro
-- Debian with lastest packages
-
-This problem occurs with a 2.4.20 kernel. With the basic 2.2.20 provided in
-the woody, the system works without problems.
-The thing really odd is when using a 2.4.20 patched kernel for gentoo, I've
-got the keyboard working but the X don't let me use my keyboard either my
-mouse.
-
-I also tried using a 2.4.21-pre7 without success.
-
-I'm open to any suggestions ;)
-
-PS : my kernel is compiled with SMP support and my keyboard and mouse are
-PS/2.
-
-I didn't subscribe to the lkml so If you would be nice enough to send me
-answer by mail.
-
-Thank you.
-
---
-Adrien Pestel
+-- 
+Ludovic DROLEZ                                       Free&ALter Soft
+152, rue de Grigy - Technopole Metz 2000                  57070 METZ
+tel : 03 87 75 55 21                            fax : 03 87 75 19 26
 

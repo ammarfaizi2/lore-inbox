@@ -1,68 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317694AbSHPAGs>; Thu, 15 Aug 2002 20:06:48 -0400
+	id <S317642AbSHPAJj>; Thu, 15 Aug 2002 20:09:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317836AbSHPAGs>; Thu, 15 Aug 2002 20:06:48 -0400
-Received: from blackbird.intercode.com.au ([203.32.101.10]:12548 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id <S317694AbSHPAGr>; Thu, 15 Aug 2002 20:06:47 -0400
-Date: Fri, 16 Aug 2002 10:10:18 +1000 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: Matthew Wilcox <willy@debian.org>
-cc: "David S. Miller" <davem@redhat.com>, <kuznet@ms2.inr.ac.ru>,
-       Andi Kleen <ak@muc.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFC] sigurg/sigio cleanup for 2.5.31
-In-Reply-To: <20020815200436.E29958@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Mutt.LNX.4.44.0208161004310.30494-100000@blackbird.intercode.com.au>
+	id <S317751AbSHPAJj>; Thu, 15 Aug 2002 20:09:39 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:41104 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S317642AbSHPAJj>;
+	Thu, 15 Aug 2002 20:09:39 -0400
+Date: Fri, 16 Aug 2002 02:14:06 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Jamie Lokier <lk@tantalophile.demon.co.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] user-vm-unlock-2.5.31-A2
+In-Reply-To: <Pine.LNX.4.44.0208160205190.6746-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0208160212280.6837-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Aug 2002, Matthew Wilcox wrote:
 
-> In general, this is good... I think it could be better:
-> 
-> > +	lock_kernel();
-> > +	error = f_setown(filp, current->pid);
-> > +	unlock_kernel();
-> 
-> There are a lot of these, and you even batch it up as sock_setown()
-> later.  May I suggest renaming f_setown to __setown and sock_setown
-> to f_setown?
+On Fri, 16 Aug 2002, Ingo Molnar wrote:
 
-Sounds like a good idea.
+> i think i see where the misunderstanding comes from: thread Y does not
+> want to get into the address space of X - this is how the current
+> CLEAR_TID code works and is expected to work. Threads always free their
+> *own* thread state descriptor upon exit (eg. they set a flag in their
+> own thread descriptor), not some field in the parent's domain. So thread
+> Y does not ever want to write into X's address space - it wants to write
+> into the VM that it's part of currently - if a fork() created a new VM
+> then so be it, it's not attached to X in any way.
 
-> this one's particularly silly -- now you've done the good job of wrapping
-> the security_ops up inside f_setown this can simply be:
-> 
-> 			lock_kernel();
-> 			err = f_setown(filp, arg);
-> 			unlock_kernel();
-> 			break;
+and this is the reason why i named the clone flag CLONE_RELEASE_VM - upon
+exit a thread wants to 'release its reference to the VM' - and free all
+state it still holds. Stack or whatever other state it has.
 
-Yep.
-
-> Might make more sense to refactor as:
-> 
-> void sk_send_sigurg(struct sock *sk)
-> {
-> 	if (!sk->socket || !sk->socket->file)
-> 		return;
-> 	if (send_sigurg(&sk->socket->file->f_owner))
-> 		sk_wake_async(sk, 3, POLL_PRI);
-> }
-> 
-
-Possibly.  I guess it's up to the networking guys -- is there any point in 
-keeping these separate?  I can't see any with the current code.
-
-Thanks for the feedback.
-
-
-- James
--- 
-James Morris
-<jmorris@intercode.com.au>
-
+	Ingo
 

@@ -1,73 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267433AbUIFXEs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267445AbUIFXKL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267433AbUIFXEs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 19:04:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267443AbUIFXEs
+	id S267445AbUIFXKL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 19:10:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267449AbUIFXKL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 19:04:48 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:14314 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S267433AbUIFXEq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 19:04:46 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Hans Reiser <reiser@namesys.com>
-Date: Tue, 7 Sep 2004 09:04:33 +1000
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 6 Sep 2004 19:10:11 -0400
+Received: from mail01.syd.optusnet.com.au ([211.29.132.182]:62660 "EHLO
+	mail01.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S267445AbUIFXKD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Sep 2004 19:10:03 -0400
+References: <413CB661.6030303@sgi.com>
+Message-ID: <cone.1094512172.450816.6110.502@pc.kolivas.org>
+X-Mailer: http://www.courier-mta.org/cone/
+From: Con Kolivas <kernel@kolivas.org>
+To: Ray Bryant <raybry@sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
+       Rik van Riel <riel@redhat.com>, Nick Piggin <piggin@cyberone.com.au>,
+       Martin =?ISO-8859-1?B?Si4=?= Bligh <mbligh@aracnet.com>
+Subject: Re: swapping and the value of /proc/sys/vm/swappiness
+Date: Tue, 07 Sep 2004 09:09:32 +1000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed; charset="US-ASCII"
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
-Message-ID: <16700.60673.453455.255327@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org, Alexander Zarochentcev <zam@namesys.com>,
-       vs <vs@thebsh.namesys.com>
-Subject: Re: [PATCH - EXPERIMENTAL] files with forks in the VFS
-In-Reply-To: message from Hans Reiser on Sunday September 5
-References: <16699.44411.361938.856856@cse.unsw.edu.au>
-	<413BFCB5.4010608@namesys.com>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday September 5, reiser@namesys.com wrote:
-> Neil Brown wrote:
+Ray Bryant writes:
+
+> Andrew (et al),
 > 
-> >As a followup to the multi-branching threads about reiser4, I would
-> >like to present this patch for discussion and exploration.
-> >It implements files with fork (which are quite different to files that
-> >provide different views via a subdirectory structure).
-> >  
-> >
-> How are they different?  Having a distinguished file is consistent with 
-> the reiser4 approach.
+> The attached results started as an exercise to try to understand what value of 
+> "swappiness" we should be recommending to our Altix customers when they start 
+> running Linux 2.6 kernels.  The benchmark is very simple -- a task first 
+> mallocs around 90% of memory, touches all of the memory, then sleeps forever.
+> After the task begins to sleep, we start up a bunch of "dd" copies.  When the 
+> dd's all complete, we record the amount of swap used, the size of the page 
+> cache, and the data rates for the dd's.  (Exact details are given in the 
+> attachment.)  The benchmark was repeated for swappiness values of 0, 20, 40, 
+> 60, 80, 100, for a number of recent 2.6 kernels.
 > 
+> What is unexpected is that the amount of swap space used at a particular
+> swappiness setting varies dramatically with the kernel version being tested, 
+> in spite of the fact that the basic swap_tendency calculation in 
+> refile_ianctive_zone() is unchanged.  (Other, subtle changes in the vm as a 
+> whole and this routine in particular clearly effect the impact of that 
+> computation.)
+> 
+> For example, at a swappiness value of 0, Kernel 2.6.5 swapped out 0 bytes,
+> whereas Kernel 2.6.9-rc1-mm3 swapped out 10 GB.  Similarly, most kernels
+> have a significant change in behavior for swappiness values near 100, but
+> for SLES9 the change point occurs at swappness=60.
+> 
+> A scan of the change logs for swappiness related changes shows nothing that 
+> might explain these changes.  My question is:  "Is this change in behavior
+> deliberate, or just a side effect of other changes that were made in the vm?" 
+> and "What kind of swappiness behavior might I expect to find in future kernels?".
 
-They are different at least in my perception.  It is possible that a
-common abstraction and a common implementation could support them
-both, though I am slightly sceptical.
+The change was not deliberate but there have been some other people report 
+significant changes in the swappiness behaviour as well (see archives). It 
+has usually been of the increased swapping variety lately. It has been 
+annoying enough to the bleeding edge desktop users for a swag of out-of-tree 
+hacks to start appearing (like mine).
 
-On the one hand, you have a name space within a file which provides
-access to information that is not part of that file but is only
-loosely associated with it:  an icon for a desktop app, documentation
-for a program, a collection of fonts that a document uses.
+Cheers,
+Con
 
-On the other hand, you have a name space within a file which provides
-alternate views onto information that already exists within that
-file:  "unzip" which presents the file uncompressed, "tar" which
-explodes a tar achieve, "tag" which shows tags in a multi-media
-file. "elf" which exposes sections of an ELF executable.
-
-In the first case, the subordinate files should clearly be writable,
-and should be backed up along with the main file.
-In the second case, it is not clear that subordinate files should or
-could be writable in general (though there may well be specific
-cases), and the data does not need to be backed up.
-
-In the first case, the extra semantic only applies to files, not
-directories (allowing a directory to have extra streams is nothing
-new).
-In the second case, the extra semantic should apply to directories as
-well (as there may we be different views you might want on a
-directory). 
-
-NeilBrown

@@ -1,62 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317034AbSFQV1Q>; Mon, 17 Jun 2002 17:27:16 -0400
+	id <S317030AbSFQV0U>; Mon, 17 Jun 2002 17:26:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317035AbSFQV1P>; Mon, 17 Jun 2002 17:27:15 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:47350 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S317034AbSFQV1M>; Mon, 17 Jun 2002 17:27:12 -0400
-Subject: Re: 2.5.22 fails to compile, constants.c
-From: Robert Love <rml@tech9.net>
-To: Dominik Geisel <devnull@geisel.info>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       torvalds@transmeta.com
-In-Reply-To: <Pine.LNX.4.44.0206172304100.14277-100000@pc1.geisel.info>
-References: <Pine.LNX.4.44.0206172304100.14277-100000@pc1.geisel.info>
-Content-Type: text/plain
+	id <S317031AbSFQV0T>; Mon, 17 Jun 2002 17:26:19 -0400
+Received: from freeside.toyota.com ([63.87.74.7]:25098 "EHLO
+	freeside.toyota.com") by vger.kernel.org with ESMTP
+	id <S317030AbSFQV0Q>; Mon, 17 Jun 2002 17:26:16 -0400
+Message-ID: <3D0E53D8.2020407@lexus.com>
+Date: Mon, 17 Jun 2002 14:25:44 -0700
+From: J Sloan <jjs@lexus.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020605
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: root@chaos.analogic.com
+CC: Emmanuel Michon <emmanuel_michon@realmagic.fr>,
+       linux-kernel@vger.kernel.org
+Subject: Re: binary compatibity (mixing different gcc versions) in modules
+References: <Pine.LNX.3.95.1020617085231.12517B-100000@chaos.analogic.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 17 Jun 2002 14:27:11 -0700
-Message-Id: <1024349231.922.145.camel@sinai>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-06-17 at 14:06, Dominik Geisel wrote:
+I always compile the nvidia tarball against
+whatever kernel I'm running - it has been
+quite stable thus used, and I've used it with
+stock RH kernels, -ac kernels, -aa kernels
+and 2.5 kernels...
 
-> with gcc-3.1.1, kernel 2.5.22 fails to compile with the following output:
-> [...]
-> constants.c: In function `print_sense_internal':
-> constants.c:997: `i' undeclared (first use in this function)
-> constants.c:997: (Each undeclared identifier is reported only once
-> constants.c:997: for each function it appears in.)
+Joe
 
-Hm, not my code but looks simple enough.
+Richard B. Johnson wrote:
 
-Attached patch is against 2.5.22 and fixes the problem ...
+>On 17 Jun 2002, Emmanuel Michon wrote:
+>
+>  
+>
+>>Hi,
+>>
+>>looking at nvidia proprietary driver, the makefile warns
+>>the user against insmod'ing a module compiled with a gcc
+>>version different from the one that was used to compile
+>>the kernel.
+>>
+>>This sounds strange to me, since I never encountered this
+>>problem.
+>>
+>>As a counterpart, what I'm sure of, is that you easily get system
+>>crashes when insmod'ing a module resulting of the linking together 
+>>(with ld -r) of object files (.o) that were not produced by the same gcc.
+>>
+>>Can someone give me a clue on what happens?
+>>
+>>    
+>>
+>
+>Nothing happens if you don't use -fcaller-saves or some other such
+>optimization(s). Even -fomit-frame-pointer is safe across called
+>functions so there should not be a problem mixing and matching.
+>
+>Note that your 'C' runtime library was probably not created by your
+>current C Compiler and your user-mode C programs probably run just
+>fine.
+>
+>Very old GNU C compilers followed the "M$" convention of prepending
+>an underscore on a global variable. Therefore "main:" became "_main:".
+>With such a compiler output, the linker will have trouble.
+>
+>If you link together certain objects to make a module, you must
+>ascertain that the objects were produced using the same kernel
+>structures (read identical kernel version). As an example, the
+>main module structure, used by the kernel to find out where your
+>module's procedures are, is called: "struct file_operations".
+>The first structure member used to be a pointer to lseek(), now
+>it's an opaque object of type THIS_MODULE.
+>
+>Imagine the fun if you made a module with this mixup!
+>
+>Cheers,
+>Dick Johnson
+>
+>Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+>
+>                 Windows-2000/Professional isn't.
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
 
-	Robert Love
 
-diff -urN linux-2.5.22/drivers/scsi/constants.c linux/drivers/scsi/constants.c
---- linux-2.5.22/drivers/scsi/constants.c	Sun Jun 16 19:31:34 2002
-+++ linux/drivers/scsi/constants.c	Mon Jun 17 14:25:02 2002
-@@ -993,10 +993,14 @@
- 	}
-     
- #if !(CONSTANTS & CONST_SENSE)
--	printk("Raw sense data:");
--	for (i = 0; i < s; ++i) 
--		printk("0x%02x ", sense_buffer[i]);
--	printk("\n");
-+	{
-+		int i;
-+
-+		printk("Raw sense data:");
-+		for (i = 0; i < s; ++i) 
-+			printk("0x%02x ", sense_buffer[i]);
-+		printk("\n");
-+	}
- #endif
- }
- 
 

@@ -1,92 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132991AbRECQ7G>; Thu, 3 May 2001 12:59:06 -0400
+	id <S133106AbRECRDR>; Thu, 3 May 2001 13:03:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135735AbRECQ64>; Thu, 3 May 2001 12:58:56 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:1801 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S132991AbRECQ6q>;
-	Thu, 3 May 2001 12:58:46 -0400
-Date: Thu, 3 May 2001 12:59:21 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
-Subject: Re: [kbuild-devel] Why recovering from broken configs is too hard
-Message-ID: <20010503125921.A347@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Keith Owens <kaos@ocs.com.au>, CML2 <linux-kernel@vger.kernel.org>,
-	kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20010503034755.A27693@thyrsus.com> <15180.988884926@ocs3.ocs-net>
-Mime-Version: 1.0
+	id <S133098AbRECRDH>; Thu, 3 May 2001 13:03:07 -0400
+Received: from snowstorm.mail.pipex.net ([158.43.192.97]:48858 "HELO
+	snowstorm.mail.pipex.net") by vger.kernel.org with SMTP
+	id <S133113AbRECRDA>; Thu, 3 May 2001 13:03:00 -0400
+Message-ID: <3AF18F40.BD741542@ukgateway.net>
+Date: Thu, 03 May 2001 18:02:56 +0100
+From: Andy Piper <squiggle@ukgateway.net>
+Reply-To: andy.piper@freeuk.com
+Organization: excalibur
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Dane-Elec PhotoMate Combo
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <15180.988884926@ocs3.ocs-net>; from kaos@ocs.com.au on Thu, May 03, 2001 at 08:15:26PM +1000
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens <kaos@ocs.com.au>:
-> On Thu, 3 May 2001 03:47:55 -0400, 
-> "Eric S. Raymond" <esr@thyrsus.com> wrote:
-> >OK, so you want CML2's "make oldconfig" to do something more graceful than
-> >simply say "Foo! You violated this constraint! Go fix it!"
-> 
-> (i) Start with a valid config.  CML2 will not allow any changes that
->     violate the constraints.  Not a problem.
+(NB I'm not a subscriber to linux-kernel, I picked up this thread from
+one of the NNTP gateways; please cc me on any replies. Thanks)
 
-Right.  This is 99.9% of cases.  All this heat and argument is over a
-very, very unusual situation.  Much more unusual than most of the 
-people arguing about it realize.
+I've recently purchased one of these to use with the SmartMedia cards
+from my Fuji FinePix 4700 (yes, I know the camera is already supported
+as a USB mass storage device). Searching for information on using it
+with Linux pointed me to this thread.
 
-(For those of you haven't caught up with this, *missing symbols do not
-make a configuration invalid*.  Only inconsistencies between explicitly
-set symbols can do that.)
- 
-> (ii) Start with a invalid config.  CML2 makes best effort at correcting
->      it.
-> 
->      (a) Interactive mode (menuconfig, xconfig) - tell the user to fix
->          it.
+I've been unable to get the card reader to work - i.e. get the card
+mounted - using the 2.4.2-2 kernel which came with RedHat 7.1,
+although the device itself appears to be recognised (according to
+/proc/bus/usb/devices). I've also tried 2.4.4, but had even less
+success.
 
-The problem with this is that in order to support it I have to throw away the
-configurator's central invariant -- which is that every change that does not
-lead to a valid configuration is rejected (with an explanation).  
+The discussion here between Matt Dharm and Andries Brouwer seems to
+revolve around the fact that the patch Andries has proposed is
+"risky". Clearly I don't have Matt's level of knowledge in this area,
+so I'm following his advice for the moment.
 
-I'm not going to do that.  It's not worth it to handle a case this marginal.
+I'd quite like to get the device working and stable, and so would
+Andries and at least one other person who has posted to the list of
+supported USB devices hosted at http://www.qbik.ch/usb/devices/ ... so
+the question is simple: what can we do to help? I've not currently got
+any experience contributing to the kernel, and I have next-to-no
+knowledge of USB, but I'm prepared to put some effort in here.
 
->      (b) Batch mode (oldconfig).  Attempt to automatically correct the
->          config using these rules.
-> 
->         (1) Earlier constraints take priority over later constraints.
->             That is, scan the constraints from top to bottom as listed
->             by the rules.
-> 
->         (2) For valid constraints, freeze all variables in the
->             constraint, both guard and dependent.
-> 
->         (3) For failing constraints, freeze the guard variables, change
->             the dependent variable to satisfy the constraint then
->             freeze it.
+Andy
 
-There's the problem.  You don't know which variable(s) are dependent.
-That's not a well-defined notion here.  Consider the case that stimulated
-this whole argument:
-
-	(X86 and SMP) implies RTC!=n
-
-You think you know that RTC is 'dependent', but this is an illusion created
-by the presence of the asymmetrical `implies'.  Go look at the hierarchy.
-You'll see what I mean.
 -- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
-
-Are we at last brought to such a humiliating and debasing degradation,
-that we cannot be trusted with arms for our own defence?  Where is the
-difference between having our arms in our own possession and under our
-own direction, and having them under the management of Congress?  If
-our defence be the *real* object of having those arms, in whose hands
-can they be trusted with more propriety, or equal safety to us, as in
-our own hands?
-        -- Patrick Henry, speech of June 9 1788
+Andy Piper - Fareham, Hampshire (UK)
+andy.piper@freeuk.com - ICQ #86489434
+http://www.andyp.uklinux.net

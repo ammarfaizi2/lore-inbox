@@ -1,24 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129242AbREHIpJ>; Tue, 8 May 2001 04:45:09 -0400
+	id <S130485AbREHJIn>; Tue, 8 May 2001 05:08:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129346AbREHIo7>; Tue, 8 May 2001 04:44:59 -0400
-Received: from www.topmail.de ([212.255.16.226]:27381 "HELO www.topmail.de")
-	by vger.kernel.org with SMTP id <S129242AbREHIop>;
-	Tue, 8 May 2001 04:44:45 -0400
-Subject: Union =?ISO-8859-1?Q?Moui=08nt=3F=3F?=
-Message-Id: <20010508084310.3D529A5AFCC@www.topmail.de>
-Date: Tue,  8 May 2001 10:43:10 +0200 (MET DST)
-From: eccesys@topmail.de
-To: undisclosed-recipients:;
+	id <S130487AbREHJId>; Tue, 8 May 2001 05:08:33 -0400
+Received: from inet.kpn.net ([194.151.95.4]:8872 "EHLO inet.kpn.net")
+	by vger.kernel.org with ESMTP id <S130485AbREHJIR>;
+	Tue, 8 May 2001 05:08:17 -0400
+Message-ID: <000701c0d79e$667dd0e0$a10616c2@nmcgv>
+From: "Ben Castricum" <benc@inet.kpn.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.4.5-pre1 Unresolved symbol in module ide-mod.o
+Date: Tue, 8 May 2001 11:07:38 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I've read recently about union-mount but couldn't find how to do that.
-Puropose: bootfloppy is romfs, additiomnanal tmpfs should allow to add
-e.g. files to /etc (or modify), link/symlink entries to /bin /(from /mount/bin
-for example) etc.
 
-TIA
--mirabilos
+After a clean compile the module ide-mod.o seems to be missing a symbol,
+this problem didn't exist in 2.4.4
+
+root@spike:~# depmod -ae 2.4.5-pre1
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.5-pre1/kernel/drivers/ide/ide-mod.o
+depmod:         invalidate_device_R25a4b0b2
+
+Complete config is available at http://spike.i-lan.nl/.config
+
+Hope this helps,
+Ben
+

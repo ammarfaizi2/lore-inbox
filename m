@@ -1,74 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265008AbUELMeG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263632AbUELMmn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265008AbUELMeG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 08:34:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265040AbUELMeG
+	id S263632AbUELMmn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 08:42:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265040AbUELMmn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 08:34:06 -0400
-Received: from ms002msg.fastwebnet.it ([213.140.2.52]:18941 "EHLO
-	ms002msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S265008AbUELMeC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 08:34:02 -0400
-From: Paolo Ornati <ornati@fastwebnet.it>
-To: "Slawomir Orlowski" <orlowscy@hotpop.com>
-Subject: Re: problem with kernel 2.4.26 installation
-Date: Wed, 12 May 2004 14:34:43 +0200
-User-Agent: KMail/1.6.2
-References: <1ec701c4379c$075d5700$4900a8c0@cympak.com>
-In-Reply-To: <1ec701c4379c$075d5700$4900a8c0@cympak.com>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Wed, 12 May 2004 08:42:43 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:45219 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S263632AbUELMmm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 08:42:42 -0400
+Date: Wed, 12 May 2004 14:38:59 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: John McCutchan <ttb@tentacle.dhs.org>
+Cc: Chris Wedgwood <cw@f00f.org>, nautilus-list@gnome.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC/PATCH] inotify -- a dnotify replacement
+Message-ID: <20040512123859.GA13066@wohnheim.fh-wedel.de>
+References: <1084152941.22837.21.camel@vertex> <20040510021141.GA10760@taniwha.stupidest.org> <1084227460.28663.8.camel@vertex>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200405121434.43355.ornati@fastwebnet.it>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1084227460.28663.8.camel@vertex>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 11 May 2004 23:07, you wrote:
-> Hello there,
->
-> I have got Dell server PowerEdge 2500 with dell installed RH 7.2 and
-> 2.4.7-10 kernel (rpm installation).
-> I wanted to upgrade it to 2.4.26 from source.
->
-> So I have done like always:
-> make mrproper,
-> copied .config from 2.4.7 (did make menuconfig)
-> make dep, clean, bzImage, modules, modules_install, install
->
-> and I got:
-> "
-> bsetup.s: Assembler messages:
-> bsetup.s:2503: Warning: indirect lcall without `*'
-> Root device is (8, 8)
-> Boot sector 512 bytes.
-> Setup is 4768 bytes.
-> System is 835 kB
-> + '[' -x /root/bin/installkernel ']'
-> + '[' -x /sbin/installkernel ']'
-> + exec /sbin/installkernel 2.4.26 bzImage
-> /usr/src/linux-2.4.26/System.map ''
-> /etc/lilo.conf: No such file or directory
-> make[1]: *** [install] Error 1
-> make: *** [install] Error 2
+On Mon, 10 May 2004 18:17:40 -0400, John McCutchan wrote:
+> 
+> I now use ino_t and dev_t , though in struct inode, i_no is unsigned
+> long?
 
-As far as I can tell this problem is related to your "/sbin/installkernel" 
-script... it finds LILO and so calls it, but the lilo configuration file 
-doesn't exist ;-)!
+Correct.  That definition should be changed as well, I just didn't
+care enough to submit a patch yet.  Anyway, old mistakes never justify
+new mistakes.
 
-I think that "/sbin/installkernel" is doing the right thing (from its point 
-of view)...
-
-Shortly: REMOVE LILO, if you don't use it why is it installed?
-
-Another thing you can do is to change "/sbin/installkernel" to never call 
-LILO.
-
-
-Bye
+Jörn
 
 -- 
-	Paolo Ornati
-	Linux v2.6.6
+People will accept your ideas much more readily if you tell them
+that Benjamin Franklin said it first.
+-- unknown

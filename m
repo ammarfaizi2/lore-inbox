@@ -1,57 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261286AbSLUAgd>; Fri, 20 Dec 2002 19:36:33 -0500
+	id <S261292AbSLUAl0>; Fri, 20 Dec 2002 19:41:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261292AbSLUAgd>; Fri, 20 Dec 2002 19:36:33 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:52441 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S261286AbSLUAgc>;
-	Fri, 20 Dec 2002 19:36:32 -0500
-Date: Fri, 20 Dec 2002 16:43:26 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: george anzinger <george@mvista.com>
-cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2/3] High-res-timers part 2 (x86 platform code) take 21
-In-Reply-To: <3E02E875.8BF23AAE@mvista.com>
-Message-ID: <Pine.LNX.4.33L2.0212201641210.1703-100000@dragon.pdx.osdl.net>
+	id <S261310AbSLUAlZ>; Fri, 20 Dec 2002 19:41:25 -0500
+Received: from sabre.velocet.net ([216.138.209.205]:5636 "HELO
+	sabre.velocet.net") by vger.kernel.org with SMTP id <S261292AbSLUAlZ>;
+	Fri, 20 Dec 2002 19:41:25 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Problem with read blocking for a long time on /dev/scd1
+From: Gregory Stark <gsstark@mit.edu>
+Date: 20 Dec 2002 19:49:28 -0500
+Message-ID: <87adj0b3hj.fsf@stark.dyndns.tv>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Dec 2002, george anzinger wrote:
 
-| This is the platform part of the high-res timers for the
-| x86.
-|
-| Changes since last time:
-| CONFIG dependency added to not turn on stuff only needed
-| when CONFIG_HIGH_RES = y.
-| ----------
-|
-| The 3 parts to the high res timers are:
-|  core		The core kernel (i.e. platform independent) changes
-| *i386		The high-res changes for the i386 (x86) platform
-|  hrposix	The changes to the POSIX clocks & timers patch to
-| use high-res timers
-|
-| Please apply.
+I'm having a problem with ogle that seems to be being caused by the scsi or
+ide-scsi driver. The video playback freezes for a second or randomly,
+sometimes every few seconds, sometimes not for several minutes. Every such
+glitch is correlated perfectly with a read syscall reading on /dev/scd1
+blocking for an inordinate amount of time.
 
+Most read syscalls from ogle seem to take between 30us to 100ms depending on
+the size of the read. In fact plotting the time taken reported by strace -T vs
+the size of the read in gnuplot produces a nice obvious linear correlation.
 
-George,
+However occasionally there are outlier samples where the read call blocks for
+between 150ms up to 1s or more. I've seen it block for about 10s once.
 
-This arch/i386/Kconfig file contains some KGDB options that keep
-it from applying cleanly.  Not delaying me, but it might delay someone.
+I've tried this on a machine that was essentially in single-user mode. The
+only processes running were X, ogle, an xterm, and not much else. I'll include
+my normal lsmod output below but the problem still occurred when playing with
+hardly any modules loaded.
 
+There's an FAQ about ogle glitching like this when something tries to probe
+the cd drive, but nothing like that is running. And the glitches aren't
+periodic like that FAQ describes.
 
+The problem is definitely that the kernel simply doesn't schedule the process
+calling read for over a second. 
 
-$ patch -p1 -b --dry-run < ~/cglstage/HRT_2002_1220/03-hrtimers-x86.patch
-patching file arch/i386/Kconfig
-Hunk #2 FAILED at 1665.
-Hunk #3 FAILED at 1857.
-Hunk #4 FAILED at 1866.
-3 out of 4 hunks FAILED -- saving rejects to file arch/i386/Kconfig.rej
+There are no dmesg messages or other indication of problems in the ide-scsi or scsi
+drivers.
 
--- 
-~Randy
+Where would I start to track down what is preventing the kernel from
+scheduling this process? It's presumably some problem in the ide or ide-scsi
+driver, but I'm not sure where to start.
+
+[I'm having trouble sending messages to the list, my ISPs mail server didn't
+seem to deliver it the first time. My apologies if it finally makes it through
+and this is a duplicate]
+
+--
+greg
 

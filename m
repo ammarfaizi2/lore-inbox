@@ -1,46 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264042AbUECVek@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264024AbUECVht@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264042AbUECVek (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 May 2004 17:34:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264040AbUECVek
+	id S264024AbUECVht (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 May 2004 17:37:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264038AbUECVhs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 May 2004 17:34:40 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58278 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264103AbUECVeU
+	Mon, 3 May 2004 17:37:48 -0400
+Received: from mailgate2.mysql.com ([213.136.52.47]:4813 "EHLO
+	mailgate.mysql.com") by vger.kernel.org with ESMTP id S264024AbUECVho
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 May 2004 17:34:20 -0400
-Date: Mon, 3 May 2004 22:34:19 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Rene Herman <rene.herman@keyaccess.nl>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] removal of legacy cdrom drivers (Re: [PATCH] mcdx.c insanity removal)
-Message-ID: <20040503213419.GH17014@parcelfarce.linux.theplanet.co.uk>
-References: <20040502024637.GV17014@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0405011953140.18014@ppc970.osdl.org> <20040503011629.GY17014@parcelfarce.linux.theplanet.co.uk> <4095BAA3.3050000@keyaccess.nl> <20040503055934.GA17014@parcelfarce.linux.theplanet.co.uk> <40968A9F.6070608@keyaccess.nl> <20040503194558.GF17014@parcelfarce.linux.theplanet.co.uk> <4096B810.5060907@keyaccess.nl>
+	Mon, 3 May 2004 17:37:44 -0400
+Subject: Re: Random file I/O regressions in 2.6
+From: Peter Zaitsev <peter@mysql.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ram Pai <linuxram@us.ibm.com>, nickpiggin@yahoo.com.au, alexeyk@mysql.com,
+       linux-kernel@vger.kernel.org, axboe@suse.de
+In-Reply-To: <20040503135719.423ded06.akpm@osdl.org>
+References: <200405022357.59415.alexeyk@mysql.com>
+	 <409629A5.8070201@yahoo.com.au> <20040503110854.5abcdc7e.akpm@osdl.org>
+	 <1083615727.7949.40.camel@localhost.localdomain>
+	 <20040503135719.423ded06.akpm@osdl.org>
+Content-Type: text/plain
+Organization: MySQL
+Message-Id: <1083620245.23042.107.camel@abyss.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4096B810.5060907@keyaccess.nl>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 03 May 2004 14:37:26 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 03, 2004 at 11:22:24PM +0200, Rene Herman wrote:
-> viro@parcelfarce.linux.theplanet.co.uk wrote:
-> 
-> >>However, any "cp" from cd-rom oopses the box.
+On Mon, 2004-05-03 at 13:57, Andrew Morton wrote:
+> Ram Pai <linuxram@us.ibm.com> wrote:
 > >
-> >oopses in driver, oopses by triggering BUG() or oopses in fs/*?  The last
-> >two would be more interesting - isofs _MUST_ be able to survive any IO
-> >errors, simply because CDs get scratched, etc. and that shouldn't crash
-> >the box.
+> > > The place which needs attention is handle_ra_miss().  But first I'd like to
+> > > reacquaint myself with the intent behind the lazy-readahead patch.  Was
+> > > never happy with the complexity and special-cases which that introduced.
+> > 
+> > lazy-readahead has no role to play here.
 > 
-> Doesn't actually look all driver. The CD is good; works fine in this 
-> same drive with its own 2.0 kernel (and on other drives). Please note, 
-> this is a 386. Memory is good. dmesg and .config attached.
-> 
-> Very long crash, but in case it's helpful. Happens when copying anything 
-> from the sbpcd CD-ROM. In between the "do_exit, do_divide_error, 
-> do_page_fault, do_page_fault" oopses it seems to be attempting to give 
-> me back a prompt (it's not succeeding).
 
-Almost certainly a driver-induced memory corruption.
+Andrew,
+
+Could you please clarify how this things become to be dependent on
+read-ahead at all.
+
+At my understanding read-ahead it to catch sequential (or other) access
+pattern and do some advance reading, so instead of 16K request we do
+128K request, or something similar.
+
+But how could read-ahead disabled end up in 16K request converted to
+several sequential synchronous 4K requests ? 
+
+It all looks pretty strange.
+
+
+-- 
+Peter Zaitsev, Senior Support Engineer
+MySQL AB, www.mysql.com
+
+
+

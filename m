@@ -1,42 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264361AbRFLMkr>; Tue, 12 Jun 2001 08:40:47 -0400
+	id <S264373AbRFLNUg>; Tue, 12 Jun 2001 09:20:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264363AbRFLMki>; Tue, 12 Jun 2001 08:40:38 -0400
-Received: from mustart.heime.net ([194.234.65.222]:2055 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S264361AbRFLMkZ>; Tue, 12 Jun 2001 08:40:25 -0400
-Date: Tue, 12 Jun 2001 14:40:06 +0200 (CEST)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Tux vs khttpd? (fwd)
-Message-ID: <Pine.LNX.4.30.0106121439020.29762-100000@mustard.heime.net>
+	id <S264392AbRFLNU0>; Tue, 12 Jun 2001 09:20:26 -0400
+Received: from [212.18.228.90] ([212.18.228.90]:61714 "HELO
+	carrot.linuxgrrls.org") by vger.kernel.org with SMTP
+	id <S264373AbRFLNUO>; Tue, 12 Jun 2001 09:20:14 -0400
+Message-ID: <3B2616E7.5020508@linuxgrrls.org>
+Date: Tue, 12 Jun 2001 14:19:35 +0100
+From: Rachel Greenham <rachel@linuxgrrls.org>
+Organization: LinuxGrrls.Org
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.3-ac6 i686; en-US; rv:0.9.1) Gecko/20010607
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Christian =?ISO-8859-1?Q?Borntr=E4ger?= 
+	<linux-kernel@borntraeger.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VIA KT133A crash *post* 2.4.3-ac6
+In-Reply-To: <3B2606CF.10003@linuxgrrls.org> <001901c0f33d$1a4c8170$3303a8c0@einstein>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone!
+Christian Bornträger wrote:
 
-I tried to send this message to the khttpd group, but got no answer. Can
-any of you help me?
+>>CPU: Athlon 1.33 GHz with 266MHz FSB
+>>Mobo: Asus A7V133 with 266MHz FSB, UltraDMA100 (PDC20265 according to
+>>
+>
+>So you put your IBM drive on the promise, right?
+>
 
----------- Forwarded message ----------
-Date: Thu, 07 Jun 2001 17:31:20 +0000
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: khttpd-users@zgp.org
-Subject: Tux vs khttpd?
+Oh yes. :-)
 
-hi
+>
+>Removing the hard disc from the promise controller and attaching it on the
+>VIA-Controller solved my problems. The system is now rock solid. If you do
+>so, take care that your root partition moves from hde to hda. Prepare a boot
+>disk and pass a parameter like root=/dev/hda to the kernel. After a
+>successful boot, modify fstab and lilo.conf and run lilo.
+>
+Yeah, OTOH I'm also happy for the time being running 2.4.3 (actually 
+2.4.3-ac6 right now) which is OK at full-speed UDMA5, until the problem 
+is fixed. Just thought people might like to know. :-)
 
-Does anyone know any details about how Tux performs in comparison with
-khttpd?
-Is this a separate project, or is it a somehow 'better version' of the
-khttpd?
-Are these going to be merged?
+>sounds absoluty identical to my problem with ASUS A7V133 I reported some
+>weeks ago.
+>
+I only just joined, to report this - I did scan the archives though, and 
+saw a lot of *older* discussion of VIA problems, but didn't see anything 
+that definitely said it was still there after the 2.4.3-ac7 fixes, so 
+wasn't sure if anyone was on the case. :-)
 
-roy
------
-Roy Sigurd Karlsbakk
-<roy@karlsbakk.net>
+-- 
+Rachel
+
 

@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261943AbUCSB7k (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 20:59:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262488AbUCSB7k
+	id S261326AbUCSCCN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 21:02:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262206AbUCSCCN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 20:59:40 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:58893 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261943AbUCSB7i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 20:59:38 -0500
-Date: Thu, 18 Mar 2004 17:56:54 -0800
-From: Paul Jackson <pj@sgi.com>
-To: colpatch@us.ibm.com
-Cc: linux-kernel@vger.kernel.org, mbligh@aracnet.com, akpm@osdl.org,
-       wli@holomorphy.com, haveblue@us.ibm.com, hch@infradead.org
-Subject: Re: [PATCH] Introduce nodemask_t ADT [0/7]
-Message-Id: <20040318175654.435b1639.pj@sgi.com>
-In-Reply-To: <1079659184.8149.355.camel@arrakis>
-References: <1079651064.8149.158.camel@arrakis>
-	<20040318165957.592e49d3.pj@sgi.com>
-	<1079659184.8149.355.camel@arrakis>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 18 Mar 2004 21:02:13 -0500
+Received: from smtp.terra.es ([213.4.129.129]:17246 "EHLO tsmtp15.mail.isp")
+	by vger.kernel.org with ESMTP id S261326AbUCSCCK convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 21:02:10 -0500
+Date: Fri, 19 Mar 2004 02:51:50 +0100
+From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: riel@redhat.com, andrea@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5-rc1-aa1
+Message-Id: <20040319025150.7a45f8a9.diegocg@teleline.es>
+In-Reply-To: <405A4015.40108@tmr.com>
+References: <Pine.LNX.4.44.0403181144290.16728-100000@chimarrao.boston.redhat.com>
+	<20040318211532.293bb63c.diegocg@teleline.es>
+	<405A4015.40108@tmr.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> These (cpumask_t/nodemask_t) are nice because they are
-> optimized for edge cases (UP for cpumask_t and Non-NUMA for nodemask_t)
-> as well as for long mask cases (passing by structs reference). 
+El Thu, 18 Mar 2004 19:34:29 -0500 Bill Davidsen <davidsen@tmr.com> escribió:
 
-When I looked at the assembly code generated on my one lung i386 box for
-native gcc 3.3.2, it looked pretty good (to my untrained eye) using a
-struct of an array of unsigned longs, both for the single unsigned long
-(<= 32 bits) and multiple unsigned long cases.
+> Have a bit of caution there, cdrecord sets itself realtime priority, 
+> locks pages in memory, and ensures that the process is likely to work 
+> even under load. I don't think addressing just a part of the problem 
+> will result in reliability under load. You would have to look at 
+> capabilities to allow these things to be done, under load they may not 
+> keep up depending on what's going on. Good to get a start, don't assume 
+> all the issues are addressed.
 
-Except for the sparc64 guys and their friends who disparage passing
-structs on the stack, I conjecture that the single implementation of a
-struct of an array of unsigned longs is nearly ideal for all
-architectures.
 
-... go ahead ... prove me wrong.  It probably won't be hard ;).
+Yes, the following message is:
+cdrecord: Operation not permitted. WARNING: Cannot set RR-scheduler
+cdrecord: Permission denied. WARNING: Cannot set priority using setpriority().
+cdrecord: WARNING: This causes a high risk for buffer underruns.
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+But since 2.6 uses DMA for recording the CPU usage is really low...I guess
+people will still use suid for that :)

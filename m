@@ -1,72 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282757AbRLOQDG>; Sat, 15 Dec 2001 11:03:06 -0500
+	id <S282792AbRLOQGQ>; Sat, 15 Dec 2001 11:06:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282769AbRLOQC4>; Sat, 15 Dec 2001 11:02:56 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:7948 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S282757AbRLOQCx>; Sat, 15 Dec 2001 11:02:53 -0500
-Date: Sat, 15 Dec 2001 16:02:39 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NFS woes in 2.5.1-pre8
-Message-ID: <20011215160239.A32750@flint.arm.linux.org.uk>
-In-Reply-To: <20011212164334.B16377@flint.arm.linux.org.uk> <shsofl49mpi.fsf@charged.uio.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <shsofl49mpi.fsf@charged.uio.no>; from trond.myklebust@fys.uio.no on Wed, Dec 12, 2001 at 10:02:01PM +0100
+	id <S282784AbRLOQGH>; Sat, 15 Dec 2001 11:06:07 -0500
+Received: from tomts6.bellnexxia.net ([209.226.175.26]:47352 "EHLO
+	tomts6-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S282778AbRLOQFz>; Sat, 15 Dec 2001 11:05:55 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: linux-kernel@vger.kernel.org
+Subject: Re: Unfreeable buffer/cache problem in 2.4.17-rc1 still there
+Date: Sat, 15 Dec 2001 11:05:21 -0500
+X-Mailer: KMail [version 1.3.2]
+Cc: Andrea Arcangeli <andrea@suse.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011215160522.7103D6D97@oscar.casa.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 12, 2001 at 10:02:01PM +0100, Trond Myklebust wrote:
-> There are (as of yet) no changes to the NFS client in 2.5.x.
+Andrea Arcangeli wrote:
+
+> On Sat, Dec 15, 2001 at 01:36:11PM +0100, Chris Chabot wrote:
+>> inode_cache       686896 686896    480 85862 85862    1 :  124   62
+>> dentry_cache      696810 696810    128 23227 23227    1 :  252  126
 > 
-> Do you have any idea which syscall the above EIO is coming from? From
-> your tcpdump, it didn't appear to be coming from the server, and the
-> file attributes are getting displayed...
+> this is an icache/dcache problem, can you reproduce on 2.4.17rc1aa1, it
+> will shrink more aggressively.
+> 
+> really to get an even better balance we should add the icache/dcache
+> slab pages into the lru as well... that would trigger the icache/dcache
+> flushes more easily when too much ram is in those caches.
 
-Ok, I've just seen it again.  Here's the call that's failing:
+Interesting idea.  Is this what you are thinking?  We find a slab page at the tail of the
+lru so we call the related shrink function.  If the page is still active after shrinking, we 
+requeue it at the head of the lru.   The slab page freeing logic would have to how to 
+unlink from the lru.
 
-lstat("../lib/libts_variance-0.0.so.0", 0xbffffb98) = -1 EIO (Input/output error)
+The priority arguement of the shink functions would now allow us to keep the ratio of
+lru size vs icache/dcache/dqcache under control.   This might be a knob that would
+be interesting to have in proc...
 
-It seems that sometimes I can provoke it 4 or more times in a row, other
-times no matter how hard I try, I can't.  "4 times in a row" here means
-umounting and then remounting the export on the assabet.
-
-As I mentioned in my last (private) mail, the setup was slightly different
-from my first description.
-
-flint (nfs client) is responsible for writing these files onto the NFS server
-(raistlin), and the programs are run on assabet (nfs client).
-
-flint
------
-  kernel 2.2.18-cdhs (raid)
-
-  mount indicates:
-  raistlin:/usr/src on /net/raistlin/src type nfs (rw,rsize=4096,wsize=4096,addr=192.168.0.3)
-
-raistlin
---------
-  kernel 2.4.16
-  universal NFS server 2.2beta48
-
-  raistlin's exports file looks similar to the following:
-
-  /usr/src	flint(rw,no_root_squash)
-  /usr/src/v2.5	assabet(ro)
-
-assabet
--------
-  kernel 2.5.1-pre10
-
-  mount indicates:
-  raistlin:/usr/src/v2.5 on /usr/src/v2.5 type nfs (ro,nolock,addr=192.168.0.3)
-
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Comments?
+Ed Tomlinson
 

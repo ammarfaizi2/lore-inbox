@@ -1,105 +1,66 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262856AbVDATKv (ORCPT <rfc822;ralf@linux-mips.org>);
-	Fri, 1 Apr 2005 14:10:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262853AbVDATKv
+	id S261687AbVDBEtP (ORCPT <rfc822;ralf@linux-mips.org>);
+	Fri, 1 Apr 2005 23:49:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261690AbVDBEtP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 14:10:51 -0500
-Received: from [211.36.37.47] ([211.36.37.47]:28591 "HELO mail.qsv17.com")
-	by vger.kernel.org with SMTP id S262857AbVDATKP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 14:10:15 -0500
-Date: 1 Apr 2005 20:39:49 +0900
-Message-ID: <20050401113949.11861.qmail@mail.qsv17.com>
-From: info@qsv17.com
-To: linux-kernel@vger.kernel.org
-Subject: =?ISO-8859-1?Q?=204=1B$B7n$N=1B(B=22=1B$BD?= =?ISO-8859-1?Q?6=1B(B=22=1B$B$*%H%/$J?=
-	=?ISO-8859-1?Q?%-=1B(B?=
-	 =?ISO-8859-1?Q?=20=1B$B%c%s%Z!<%s!*=1B?= =?ISO-8859-1?Q?(B?=
+	Fri, 1 Apr 2005 23:49:15 -0500
+Received: from [216.64.66.34] ([216.64.66.34]:56068 "EHLO
+	IPOfCard3.guest-tek.com") by vger.kernel.org with ESMTP
+	id S261687AbVDBEtK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 23:49:10 -0500
+Message-Id: <200504020448.j324mqY11661@IPOfCard3.guest-tek.com>
+From: "Department of Communication" <contact@3223376.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: 4/1/2005   Press release     linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Date: Fri, 1 Apr 2005 23:49:07 -0500
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S262856AbVDATKv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261687AbVDBEtP@vger.kernel.org>
 
+**********************
+linux-kernel@vger.kernel.org
+**********************
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-■■■　 ■■■　　 ■　　 ■     　■■■    ■■■      ■
-■　　■ ■        ■■           　■    ■ ■    ■     ■
-■　　■ ■■■   ■  ■   ■     　■    ■ ■           ■
-■　　■ ■      ■■■■  ■     　■■■   ■           ■
-■■■　 ■■■ ■      ■ ■   　　■       ■    ■
-                                  　■        ■■■      ■
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Canadian Business Publications is pleased 
+to announce the introduction of the 
+Canadian Business Database
+a high-performance database application
+containing more than 900,000 Canadian 
+businesses on cd-rom.
 
-┏━◆*◇ 4月の超おトクなキャンペーン！急いでアクセス下さい◇*◆━━┓
-┃登┃録┃者┃に┃総┃額┃抽┃選┃で┃百┃万┃円┃プ┃レ┃ゼ┃ン┃ト┃
-┗━┛━┛━┛━┛━┛━┛━┛━┛━┛━┛━┛━┛━┛━┛━┛━┛━┛
+The Canadian Business Database 2005 is an 
+easily mastered database application 
+designed to provide precise marketing leads.
 
-〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓
+Features:
+*100% exportable in .txt, .dbf, .wk1, .bas, .slk, .mer, .htm...
+*Compatible with most popular softwares;
+Avery label, Winfax, Exel, Filemaker, 
+Act, Goldmine, MS office application 
+or any other database software or spreadsheet..
+*Advanced searching functions
+*Advanced sorting functions
+*Cross region reports
 
-　★　毎日随時当サイト内で抽選会は実施され　　　　　　　　　　★
-　☆　当選者には即刻メールにて『お知らせ』しております！　　　☆
-　★　会員様同士のメールの中にて発表されるので　　　　　　　　★
-　☆　”出会い”＆”＄”　超ドキドキ感満点の特大キャンペーン　☆
+Promo version.............$ 149.95
 
-〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓
+To obtain a copy, please call:
+CANADIAN BUSINESS PUBLICATIONS
+4865 hwy. 138
+St-Andrews west
+On,Canada
+K0C 2A0
 
-◆出会いの案内板◆
-
-＜　恋人探し！　＞
-⇒　http://com.deai-pc.com/index.php?num=2001
-
-＜　不倫願望？　＞
-⇒　http://com.deai-pc.com/index.php?num=2002
-
-＜　とにかく即エッチ☆　＞
-⇒　http://com.deai-pc.com/index.php?num=2003
-
-＜　年下願望　＞
-⇒　http://com.deai-pc.com/index.php?num=2004
-
-
-■□■□■□■□■□■□■□■□■□■□■□■□■□■□■□■□■□■□■
-
-　　…………★　出会い系サイトで成功（性交）を収める　★…………
-☆━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━☆
-
-　ほとんどがサクラ運営である「出会い系サイト」を攻略するための鍵は？
-
-　もちろんサクラを雇うにも人件費がかかる。我々は無駄な（サクラ）人件費
-
-　を排除し、全て女性向広告として予算を組んでおります！
+toll free : 866 322 3376 in North America
+Elsewhere : 819 322 3376 (Canada country code)
 
 
 
-　　　　…………★　出会い体験者の数々の成功例　★…………
-☆━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━☆
-
-　神奈川県　横浜市　会社員　３２歳　様の体験談
-
-　彼女がいることを隠して、「出会いＰＣ」でセフレを作ってしまいました（笑）
-
-　前払いだから勝手に料金が発生することは無いし、思ったより簡単にＧＥＴでき
-
-　たので、多分ポイント追加します（笑）
-
-　コンパとか行くと、結局周りに気を使っちゃって持ち帰れない僕ですが、こんな
-
-　に女性を口説く才能があったんですね！？
-
-ココから⇒　http://com.deai-pc.com/?num=2010
-
-☆━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━☆
 
 
-　　出┃会┃い┃Ｐ┃Ｃ┃で┃
-　　━┛━┛━┛━┛━┛━┛
-　　素┃敵┃な┃セ┃フ┃レ┃を┃
-　　━┛━┛━┛━┛━┛━┛━┛
-　　Ｇ┃Ｅ┃Ｔ┃し┃ろ┃！┃
-　　━┛━┛━┛━┛━┛━┛
 
-    ↓↓↓↓↓↓↓↓↓↓↓↓↓↓
-
-　http://com.deai-pc.com/?num=2010　
-
-※当メールマガジンは無断転載をご遠慮しております
-
+To be removed from our mailing list 
+email at: contact@3223376.net

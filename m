@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284732AbRLZTFZ>; Wed, 26 Dec 2001 14:05:25 -0500
+	id <S280126AbRLZTRn>; Wed, 26 Dec 2001 14:17:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284800AbRLZTFP>; Wed, 26 Dec 2001 14:05:15 -0500
-Received: from cmailg4.svr.pol.co.uk ([195.92.195.174]:18256 "EHLO
-	cmailg4.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S284732AbRLZTE7>; Wed, 26 Dec 2001 14:04:59 -0500
-Posted-Date: Wed, 26 Dec 2001 19:04:26 GMT
-Date: Wed, 26 Dec 2001 19:04:26 +0000 (GMT)
-From: Riley Williams <rhw@MemAlpha.cx>
-Reply-To: Riley Williams <rhw@MemAlpha.cx>
-To: Rene Engelhard <mail@rene-engelhard.de>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help.
-In-Reply-To: <B8490A4D.4093%mail@rene-engelhard.de>
-Message-ID: <Pine.LNX.4.21.0112261902280.32161-100000@Consulate.UFP.CX>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281916AbRLZTRd>; Wed, 26 Dec 2001 14:17:33 -0500
+Received: from 217-126-161-163.uc.nombres.ttd.es ([217.126.161.163]:53120 "EHLO
+	DervishD.viadomus.com") by vger.kernel.org with ESMTP
+	id <S281794AbRLZTRP>; Wed, 26 Dec 2001 14:17:15 -0500
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: An unusual question...
+Message-Id: <E16JJju-00008f-00@DervishD.viadomus.com>
+Date: Wed, 26 Dec 2001 20:29:22 +0100
+From: =?ISO-8859-1?Q?Ra=FAl?= =?ISO-8859-1?Q?N=FA=F1ez?= de Arenas
+	 Coronado <raul@viadomus.com>
+Reply-To: =?ISO-8859-1?Q?Ra=FAl?= =?ISO-8859-1?Q?N=FA=F1ez?= de Arenas
+	   Coronado <raul@viadomus.com>
+X-Mailer: DervishD TWiSTiNG Mailer
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Rene.
+    Hello all :))
 
->> If I just say off the cuff that I'm going to send you a megabyte of
->> data, do I mean 1,000,000 bytes, 1,048,576 bytes, or 1,024,000
->> bytes?
+    An unusual question about Linux...
 
-> What _you_ mean can not be determied from me. But *I* would mean
-> 1.048.574, otherwise I would say the 9xxx number or say nearly 1 MB.
+    I want a radio card for linux, just a *radio* card, not a TV-FM
+combo. I've seen that the Aimslabs RadioTrack is fully supported by
+the kernel, but I don't know about other brands and models.
 
-You obviously give short change as a matter of course then...
+    My question is: what radio card models (PCI, please) are fully
+supported by the kernel and *where* can I buy them? I don't find any
+Linux supported radio card in the stores here in Spain...
 
-(Assuming that you use . as a thousands separator rather than as a
-decimal point the way most of the Enlish speaking world does)
+    Thanks a lot :))
 
-Best wishes from Riley.
-
+    Raúl

@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263177AbTC1WYs>; Fri, 28 Mar 2003 17:24:48 -0500
+	id <S263181AbTC1WjP>; Fri, 28 Mar 2003 17:39:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263178AbTC1WYs>; Fri, 28 Mar 2003 17:24:48 -0500
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:24737 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id <S263177AbTC1WYq>; Fri, 28 Mar 2003 17:24:46 -0500
-Message-ID: <3E84CE29.8070806@nortelnetworks.com>
-Date: Fri, 28 Mar 2003 17:35:21 -0500
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Ronald Bultje <rbultje@ronald.bitfreak.net>
-Cc: linux-kernel@vger.kernel.org
+	id <S263185AbTC1WjP>; Fri, 28 Mar 2003 17:39:15 -0500
+Received: from sponsa.its.UU.SE ([130.238.7.36]:1740 "EHLO sponsa.its.uu.se")
+	by vger.kernel.org with ESMTP id <S263181AbTC1WjJ>;
+	Fri, 28 Mar 2003 17:39:09 -0500
+Date: Fri, 28 Mar 2003 23:50:01 +0100 (MET)
+Message-Id: <200303282250.h2SMo1V7019959@harpo.it.uu.se>
+From: mikpe@csd.uu.se
+To: linux-kernel@vger.kernel.org, rbultje@ronald.bitfreak.net
 Subject: Re: some 2.5.66 issues
-References: <1048893853.1314.8.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ronald Bultje wrote:
+On 29 Mar 2003 00:24:14 +0100, Ronald Bultje wrote:
+>people are asking for comments on 2.5.x, so here goes. gcc-2.96, RH-7.3,
+>kernel 2.5.66 with module-init-tools-0.9.10.
+...
+>* module_request() is still broken - it returns 0 but the specified
+>module isn't loaded
 
-> Now, something more problematic. I'm being told to use try_module_get()
-> instead of MOD_INC_USE_COUNT. Cool. Somehow, it returns 1. I had a look
-> at the code in linux/module.h and am a bit confused:
+To summarise: RH user-space, 2.5 kernel, modules don't autoload.
 
-> Why does it only return 0 if the module is not alive? This sounds...
-> er... weird? Can someone please enlighten me?
+This is a well-known user-space (*) bug. Fix below.
 
-Presumably so you can treat the result as a boolean true/false value.
+(*) Well, unless "dropping /proc/ksyms for no good reason" counts
+as a 2.5 kernel bug.
 
-Chris
-
-
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
-
+--- /etc/rc.d/rc.sysinit.~1~	2002-08-22 23:10:52.000000000 +0200
++++ /etc/rc.d/rc.sysinit	2003-01-14 03:04:57.000000000 +0100
+@@ -334,7 +334,7 @@
+     IN_INITLOG=
+ fi
+ 
+-if ! grep -iq nomodules /proc/cmdline 2>/dev/null && [ -f /proc/ksyms ]; then
++if ! grep -iq nomodules /proc/cmdline 2>/dev/null && [ -f /proc/modules ]; then
+     USEMODULES=y
+ fi
+ 

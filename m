@@ -1,72 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261608AbUJ0DLu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261615AbUJ0DDx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261608AbUJ0DLu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 23:11:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261611AbUJ0DLu
+	id S261615AbUJ0DDx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 23:03:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261616AbUJ0DDw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 23:11:50 -0400
-Received: from smtp.dei.uc.pt ([193.137.203.228]:29582 "EHLO smtp.dei.uc.pt")
-	by vger.kernel.org with ESMTP id S261608AbUJ0DLr (ORCPT
+	Tue, 26 Oct 2004 23:03:52 -0400
+Received: from fw.osdl.org ([65.172.181.6]:440 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261615AbUJ0DBI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 23:11:47 -0400
-Date: Wed, 27 Oct 2004 04:05:15 +0100 (WEST)
-From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
-To: Ed Tomlinson <edt@aei.ca>
-cc: Massimo Cetra <mcetra@navynet.it>,
-       "'Chuck Ebbert'" <76306.1226@compuserve.com>,
-       "'Bill Davidsen'" <davidsen@tmr.com>,
-       "'William Lee Irwin III'" <wli@holomorphy.com>,
-       "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: Re: My thoughts on the "new development model"
-In-Reply-To: <200410261719.56474.edt@aei.ca>
-Message-ID: <Pine.LNX.4.61.0410270402340.20284@student.dei.uc.pt>
-References: <00c201c4bb4c$56d1b8b0$e60a0a0a@guendalin> <200410261719.56474.edt@aei.ca>
+	Tue, 26 Oct 2004 23:01:08 -0400
+Date: Tue, 26 Oct 2004 20:00:18 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+cc: Andrea Arcangeli <andrea@novell.com>, Larry McVoy <lm@work.bitmover.com>,
+       Joe Perches <joe@perches.com>,
+       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Larry McVoy <lm@bitmover.com>, akpm@osdl.org
+Subject: Re: BK kernel workflow
+In-Reply-To: <Pine.LNX.4.61.0410270223080.877@scrub.home>
+Message-ID: <Pine.LNX.4.58.0410261931540.28839@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0410191510210.2317@ppc970.osdl.org>
+ <20041023161253.GA17537@work.bitmover.com> <4d8e3fd304102403241e5a69a5@mail.gmail.com>
+ <20041024144448.GA575@work.bitmover.com> <4d8e3fd304102409443c01c5da@mail.gmail.com>
+ <20041024233214.GA9772@work.bitmover.com> <20041025114641.GU14325@dualathlon.random>
+ <1098707342.7355.44.camel@localhost.localdomain> <20041025133951.GW14325@dualathlon.random>
+ <20041025162022.GA27979@work.bitmover.com> <20041025164732.GE14325@dualathlon.random>
+ <Pine.LNX.4.58.0410251017010.27766@ppc970.osdl.org>
+ <Pine.LNX.4.61.0410252350240.17266@scrub.home> <Pine.LNX.4.58.0410251732500.427@ppc970.osdl.org>
+ <Pine.LNX.4.61.0410270223080.877@scrub.home>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-UC-FCTUC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
-X-UC-FCTUC-DEI-MailScanner: Found to be clean
-X-MailScanner-From: marado@student.dei.uc.pt
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-On Tue, 26 Oct 2004, Ed Tomlinson wrote:
 
->> 2.4 tree is still the best solution for production.
->> 2.6 tree is great for gentoo users who like gcc consuming all CPU
->> (maxumum respect to gentoo but I prefer debian)
+On Wed, 27 Oct 2004, Roman Zippel wrote:
 >
-> The issue is that Linus _has_ changed the development model.  What we have
-> now is more flexable and much more responsive to changes.  This does
-> lead to stable releases that are not quite a stable as some of the previous
-> stable series...  This is why I suggest a fix/security branch.  The idea being
-> that after a month or so of fixes etc it will be a very stable kernel and it will
-> not have slowed down development.
+> Linus, what disturbs me here is that I don't see that you don't even try 
+> to acknowledge that the bk license might be part of problem
 
-The sole existence of this discussion prooves that there's already the need of
-a new step. But why trying to re-invent the wheel? Yes, relating to 2.6 we need
-already a "very stable kernel" and a "not-slowed down development kernel". When
-it happened in 2.4 2.5 was created. Isn't all this just the indication that we
-need a 2.6 development like 2.4 is, and we need 2.7 to be created?
+Why?
 
-Mind Booster Noori
+What's the problem? You don't like it, you don't use it. It's literally 
+that simple.
 
-- -- 
-/* *************************************************************** */
-    Marcos Daniel Marado Torres	     AKA	Mind Booster Noori
-    http://student.dei.uc.pt/~marado   -	  marado@student.dei.uc.pt
-    () Join the ASCII ribbon campaign against html email, Microsoft
-    /\ attachments and Software patents.   They endanger the World.
-    Sign a petition against patents:  http://petition.eurolinux.org
-/* *************************************************************** */
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Made with pgp4pine 1.76
+This is the same thing as with the GPL. I absolutely _detest_ people who 
+whine about the GPL - and there are more GPL haters out there than BK 
+haters. It's _their_ problem. 
 
-iD8DBQFBfxBtmNlq8m+oD34RAtIwAKDjVsTaY8v5EB8jfYqGywlziU3WfACfZ6dH
-XlhH9UPCngBYZ8R1mrHusSs=
-=PxeH
------END PGP SIGNATURE-----
+EXACT SAME THING. Nobody has the right to whine about another persons
+choice of license. You have a choice: use it or don't. Complaining about
+the license to the author isn't part of it.
 
+Larry can tell you that we've discussed the BK license in private, and he
+definitely knows that I'd really like for it to be an open source license.  
+But I also suspect that Larry will tell you that I haven't been whining
+about it - I've been trying to come up with ways it could work out for
+him, considering that he's got employees to take care of, and I haven't
+been able to come up with anything that would convince him. Fair enough.
+
+Because it really is his choice.  Not mine.  Not yours. Not Andrea's.
+
+And dammit, that choice is as close to "sacred" as anything can get in
+software development as far as I'm concerned. 
+
+To paraphrase Voltaire - "I may disagree with your choice of license, but
+I shall defend to the death your right to choose it". That goes for Larry,
+and for the BSD people and for all the people who write software for a
+living using some really nasty licenses.
+
+And the same thing goes for users. Anybody who tells me I can't use a
+program because it's not open source, go suck on rms. I'm not interested. 
+99% of that I run tends to be open source, but that's _my_ choice, dammit.
+
+		Linus

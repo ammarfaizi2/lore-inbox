@@ -1,40 +1,62 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S154214AbQDAG7a>; Sat, 1 Apr 2000 01:59:30 -0500
-Received: by vger.rutgers.edu id <S154249AbQDAG6c>; Sat, 1 Apr 2000 01:58:32 -0500
-Received: from eax.student.umd.edu ([129.2.220.2]:63049 "EHLO pepsi.eax.com") by vger.rutgers.edu with ESMTP id <S154213AbQDAG6O>; Sat, 1 Apr 2000 01:58:14 -0500
-Date: Sat, 1 Apr 2000 00:00:01 -0000
-From: Linus Torvalds <t0rvalds@transmeta.com>
-To: linux-kernel@vger.rutgers.edu
-X-April-Fools-Day: True
-Message-ID: <Pine.LNX.4.10.2000-04-01.000-100000@penguin.transmeta.com>
-Subject: Linux 2000(tm)(r)
+Received: by vger.rutgers.edu via listexpand id <S154136AbQDCXbl>; Mon, 3 Apr 2000 19:31:41 -0400
+Received: by vger.rutgers.edu id <S153990AbQDCXbX>; Mon, 3 Apr 2000 19:31:23 -0400
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:1525 "EHLO master.linux-ide.org") by vger.rutgers.edu with ESMTP id <S154179AbQDCXbG>; Mon, 3 Apr 2000 19:31:06 -0400
+Date: Mon, 3 Apr 2000 15:36:48 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Andries.Brouwer@cwi.nl
+Cc: linux-kernel@vger.rutgers.edu
+Subject: Re: Future Linux fun, PARTIES and BEER
+In-Reply-To: <UTC200004032248.AAA04846.aeb@arend.cwi.nl>
+Message-ID: <Pine.LNX.4.10.10004031524480.6462-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Dear Linux Users,         
+On Tue, 4 Apr 2000 Andries.Brouwer@cwi.nl wrote:
 
-        I'm pleased to announce jointly with Microsoft(tm)(r) Corporation
-release of Linux 2000 Professional Enterprise.
+> > Andries,
+> > Do you know about this?
+> 
+> > PARTIES, BEER
+> 
+> Yes, I know all about it. I just celebrated my birthday.
 
-        As you probably already know I'm busy with my family and I already
-have full-time job with Transmeta. Thus, it has been necessary for me to
-look for some responsible partner who would help me develop Linux.
+You forgot to invite me........ ;-)
 
-        After extensive search, I have decided upon Microsoft Corporation
-which has been known on market for long time from their high quality
-software.
+> [Have here d1367r1.pdf. In principle this is something
+> that does not concern us right now, but it may produce
+> a lot of trouble later. Details will depend on the BIOS.]
 
-        Thus the upcoming Linux 2.4.0 will become Linux 2000(tm)(r).
+That is only the "PARTIES", your forgot the "BEER".
 
-        Pricing will be determined at later time. However, I would like to
-take opportunity now to remind people who have unlicensed version of Linux
-to delete it from hard disk and then wait until official release of Linux
-2000(tm)(r) will become available.
+"BEER" comes first at the end of disk.  Only after the "BEER" is
+located, can one access the "PARTIES".  Since the "PARTIES" first entry
+point is after the last sector of "BEER".
 
-        Effective April 1st 2000, midnight, all older versions of Linux
-are illegal under Digital Millennium Copyright Act.
+Don't forget to drop by EDD's place.
+
+You know, Enhanced Disk Drive Services (EDD) [was EDD 3.0].
+
+We have to look address EDD's requirements to be able to find the location
+of "BEER" and handle the future "PARTIES".  Of course, working to support
+"EDD"'s "BEER" "PARTIES" in principle should prevent a drive crash........
 
 
-                        Linus
+The documents about which we spoke are at:
+
+ftp://fission.dt.wdc.com/x3t13/technical/D98128R0.doc
+	(Boot Engineering Extension Record - BEER)
+ftp://fission.dt.wdc.com/x3t13/project/d1386r3.zip (or .pdf)
+	(BIOS Enhanced Disk Drive Services (EDD) [was EDD 3.0])
+ftp://fission.dt.wdc.com/x3t13/project/d1367r1.zip (or .pdf)
+	(Protected Area Run Time Interface Extension Services - PARTIES)
+
+The fun you can have with words and phrases........
+
+Andre Hedrick
+The Linux ATA/IDE guy
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

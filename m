@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272578AbTHGAXb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 20:23:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272379AbTHGAXb
+	id S272379AbTHGAYp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 20:24:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272637AbTHGAYo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 20:23:31 -0400
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:58556 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S272578AbTHGAX3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 20:23:29 -0400
-Message-ID: <3F319CD5.7060706@pacbell.net>
-Date: Wed, 06 Aug 2003 17:27:01 -0700
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en, fr
+	Wed, 6 Aug 2003 20:24:44 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:23823 "HELO
+	kinesis.swishmail.com") by vger.kernel.org with SMTP
+	id S272379AbTHGAYl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 20:24:41 -0400
+Message-ID: <3F319F4C.9030709@techsource.com>
+Date: Wed, 06 Aug 2003 20:37:32 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Daniel Blueman <daniel.blueman@gmx.net>
-CC: linux-kernel@vger.kernel.org, greg@kroah.com,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] [2.6.0-test2-bk5] OHCI USB printing causing
- system lockup...
-References: <19853.1060209099@www44.gmx.net>
-In-Reply-To: <19853.1060209099@www44.gmx.net>
+To: jw schultz <jw@pegasys.ws>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Euro-English
+References: <20030805233308.GD928@matchmail.com> <200308052014.31133.gene.heskett@verizon.net> <Pine.LNX.4.51.0308061115400.16005@dns.toxicfilms.tv> <20030806231403.GF1380@pegasys.ws>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Blueman wrote:
-> When printing a test page on an Epson C62 through an unpowered USB 1.1 hub,
-> the printer printed part of the page, then stopped.
+
+
+jw schultz wrote:
+> On Wed, Aug 06, 2003 at 11:16:51AM +0200, Maciej Soltysiak wrote:
 > 
-> The 'error -110' messages were being sent to the syslogs, and after pulling
-> the connector to the USB hub, the system locked up.
+>>>>If zis mad yu smil, pleas pas it on to oza pepl.
+>>>
+>>>Chuckle...  Some people have way too much time on their hands. :-)
+>>
+>>Oh, come on, it really points something out.
+>>Europe is a place where everybody speaks bad english :)
+>>And people who know english and bad english tend to use bad english.
+> 
+> 
+> As you have just done ;)
+> 
+> I also disagree.  Many in Europe speak English much better
+> than those born to it.
+> 
 
-So it seems like there are two errors:
+The trained Linguist in me speaks:
 
-  - timeouts during printing, reported recently on UHCI too;
+What is "good" English?
 
-  - the usb_buffer_free() oops from printer cleanup, likewise.
-
-Seems more related to the printer driver than to OHCI ...
-
-- Dave
+Do you mean "broadly understandable"?  Or do you mean "as defined by 
+pedants"?
 

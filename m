@@ -1,118 +1,101 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S154446AbQBNPBc>; Mon, 14 Feb 2000 10:01:32 -0500
-Received: by vger.rutgers.edu id <S154338AbQBNOSQ>; Mon, 14 Feb 2000 09:18:16 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:4991 "HELO ms2.inr.ac.ru") by vger.rutgers.edu with SMTP id <S154574AbQBNOJ6>; Mon, 14 Feb 2000 09:09:58 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200002141812.VAA02531@ms2.inr.ac.ru>
-Subject: "softnet" drivers: an attempt to clarify
-To: jgarzik@mandrakesoft.com, manfreds@colorfullife.com, davem@redhat.com (Dave Miller), alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.rutgers.edu
-Date: Mon, 14 Feb 2000 21:12:23 +0300 (MSK)
-X-Mailer: ELM [version 2.4 PL24]
+Received: by vger.rutgers.edu via listexpand id <S154478AbQBNPj2>; Mon, 14 Feb 2000 10:39:28 -0500
+Received: by vger.rutgers.edu id <S154698AbQBNP21>; Mon, 14 Feb 2000 10:28:27 -0500
+Received: from deliverator.sgi.com ([204.94.214.10]:7923 "EHLO deliverator.sgi.com") by vger.rutgers.edu with ESMTP id <S154740AbQBNP0N>; Mon, 14 Feb 2000 10:26:13 -0500
+Message-ID: <38A85787.FB76CFCC@engr.sgi.com>
+Date: Mon, 14 Feb 2000 11:29:11 -0800
+From: Aman Singla <aman@cthulhu.engr.sgi.com>
+Organization: SGI
+X-Mailer: Mozilla 4.7C-SGI [en] (X11; I; IRIX 6.5 IP32)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Larry McVoy <lm@bitmover.com>
+Cc: "Brandon S. Allbery KF8NH" <allbery@kf8nh.apk.net>, linux-kernel@vger.rutgers.edu
+Subject: Re: Scheduled Transfer Protocol on Linux
+References: <200002132058.MAA22259@work.bitmover.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Hello!
+I think Larry's description (below) about how STP works is pretty
+much accurate modulo 'various levels of details / mechanisms' but
+hey, thats what protocol spec's are for :-)
+http://www.hippi.org/cST.html
 
-The simplest way to convert driver:
+The STP Long Message Transfer stuff is realized to be useful for
+network enabled storage - may it be through higher performance
+solutions in the upper layer - NFS/BDS etc., or via the lower layers
+like SCSI over STP.
 
-1. dev->start = 1   -> nil
-   dev->start = 0   -> nil
-   (dev->start != 0)  -> test_bit(LINK_STATE_START, &dev->state)
+What I'd like to add is, that STP also specifies persistent (longer
+duration - spanning multiple messages) mappings and pinning down of
+memory which is useful for low latency communications a'la clustering
+applications. Again, what STP offers here is an open, media-independent
+and scalable protocol.
 
-   START flag is changed by top level, as it was proposed by Donald
-   Becker. Namely, it is set after device is opened succesfully and
-   cleared before closedown sequence is started.
+Are there any other applications that people can forsee?
 
-   [ It is my mistake #1. All these things should be macros to keep source
-     compatibility. I apologize, my vocabulary does not allow to generate
-     such amount of macro names. 8) ]
+thanks,
 
-2. All references to "dev->interrupt" are deleted. If someone feels that life
-   is too boring without this flag, (s)he may use bit RXSEM or
-   an internal device variable. Again, it was proposed by Donald.
+:a
 
-3. dev->tbusy = 1   -> netif_stop_queue()
-   dev->tbusy = 0   -> netif_wake_queue()
-   [ The exception: if the device is not open yet, i.e. it is the first
-     clearing tbusy in dev->open, macro netif_start_queue() should be used 
-     instead. ]
-
-   (dev->tbusy != 0) -> test_bit(LINK_STATE_XOFF, &dev->state)
-   [ It is my mistake #2. This must be a macro. netif_queue_is_stopped()? ]
-
-   mark_bh(NET_BH)  -> nil
-
-4. Clause:
-	 if (test_and_set_bit(0, &dev->tbusy))
-		do_timeout_work;
-
-  on entry to dev->hard_start_xmit() is replaced with netif_stop_queue()
-  and do_timeout_work is moved to separate xxx_tx_timeout() routine,
-  if it is already not there. All the drivers maintained by Donald have
-  this work already done (it is also his idea).
-
-
-====================================================================
-That's all. Following this way you inevitably arrive to working
-driver provided it worked in 2.2 and 2.3. If it still does not work,
-diff it to base version and check, that you followed rules.
-If you did, blame one me, curse me, kill me.
-====================================================================
-
-
-Common mistake, which I saw until now is using netif_start_queue().
-Both Jamal's and Dave's docs say that dev->tbusy = 0 is equivalent
-to netif_start_queue(). It is _TRUTH_. But it is not all the truth.
-Safe replacement is dev->tbusy = 0  -> netif_wake_queue().
-The reason of this is explain in that docs in words (earlier the
-function made by netif_wake_queue() was made by dev_queue_xmit() upon
-exit from dev->hard_start_xmit()), but it is not highlighten enough.
-
-[ It is my mistake #3 and the worst one. It should be macro with name
-  different of netif_wake_queue() to keep parallel with 2.2 and
-  to allow some optimizations. ]
-
-
-After the driver works second pass follows. Some drivers can be optimized.
-The most common case is devices using controller spinlock.
-
-If the device uses controller spinlock, you can delete netif_stop_queue()
-(which replaced test_and_set_bit(tbusy) in turn) from preamble
-and on exit from driver _before_ releasing spinlock you check
-for condition opposite to netif_wake_queue() and make netif_stop_queue()
-instead. See? If you do not raise XOFF strobe you need not to wake
-up. It is impossible for lock-free devices, simply because they are
-not lock-free really, but rather function of lock is entailed
-to tbusy/XOFF.
-
-
-About rtl8139 case. I falled in panic yesterday, but after looking
-at its original source I found that panic had no base.
-The race condition, which results inevitably to cleared tbusy while
-ring is full and to corruption of tx ring is evident.
-Just grep original source of tupip.c and rtl8139.c for tbusy and see
-at difference. (Shortly, if hard_start_xmit() overlap to interrupt routine
-state of tbusy is inpredictable.) I have no idea why it looked like
-working earlier, the hole is evident, I falled to it hundred times
-when hacking tulip. Look: tulip uses property that new elements to ring
-are added only in hard_start_xmit(), which is not entered if tbusy is set.
-So that interrupt routine does the following:
-
-	if (dev->tbusy &&
-	/* tbusy is set. Hence ring is frozen! */
-	    we_have_some_free_slots())
-		netif_wake_queue().
-
-See? This genius trick is pretty suspicious (depends on memory write order),
-but it works. rtl has not it, hence it cannot work.
-
-Jeff tried to fix this adding some netif_stop_queue() to the driver,
-this trick will not work. Then it will stay with stuck tbusy sometimes.
-
-I think, it is easier to add controller spinlock to rtl than to repeat
-fine tuning made by Donald f.e. for tulip.
-
-Alexey
+> What it does do is give you a high bandwidth, low CPU cycle way of moving
+> the data.
+> 
+> The simplified view of STP is really just remote DMA.  How it works, again
+> greatly simplified, is sort of like this:
+> 
+>         client                                  server
+>         request to send 1GB ->
+> 
+>                         <- please wait while I set up some pages (optional)
+> 
+>                         <- clear to send first 100MB of data, here's a cookie
+> 
+>         data on wire, prefixed with incrementing cookie ->
+>         data on wire, prefixed with incrementing cookie ->
+>         data on wire, prefixed with incrementing cookie ->
+>         data on wire, prefixed with incrementing cookie ->
+>         data on wire, prefixed with incrementing cookie ->
+>         data on wire, prefixed with incrementing cookie ->
+>         data on wire, prefixed with incrementing cookie ->
+>         data on wire, prefixed with incrementing cookie ->
+>         data on wire, prefixed with incrementing cookie ->
+> 
+>                         -> data hits NIC, cockie is index into CAM, exactly
+>                            like an ethernet switch indexes MAC addresses,
+>                            except that the value here is a physical page
+>                            address instead of an outgoing port
+> 
+>                         -> data hits NIC ....
+>                         -> data hits NIC ....
+>                         -> data hits NIC ....
+>                         -> data hits NIC ....
+>                         -> data hits NIC ....
+>                         -> data hits NIC .... we're at 75MB or so
+> 
+>                            server goes off and locks down another 100MB
+> 
+>                         <- CTS another 100MB (this happens well before the
+>                            first 100MB is drained, so there are no bubbles,
+>                            the pipe is 100% full at all times)
+> 
+> I trust that the SGI guys, who know this stuff better than I, will correct
+> and problems with this description.  I'm sure there are some, but I'm also
+> sure this is pretty close to how it works modulo flow control, security,
+> and other important bits.
+> 
+> What's important is that you notice two things:
+> 
+>     (a) this is what I call "polite networking".  Normal networking is
+>         impolite, the packets show up on your doorstep uninvited.  Here,
+>         the receiver is nicely asked if it is OK, and gets to set things
+>         up first.  Just like in DMA.
+> 
+>     (b) There is some hardware on the NIC that translates from packets to
+>         physical page addresses, this happens inline, so the packet gets
+>         DMAed into memory as it is coming off the wire.  Very low buffering
+>         requirements.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

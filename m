@@ -1,85 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289738AbSAXDQ7>; Wed, 23 Jan 2002 22:16:59 -0500
+	id <S289874AbSAXD3w>; Wed, 23 Jan 2002 22:29:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289874AbSAXDQu>; Wed, 23 Jan 2002 22:16:50 -0500
-Received: from hydra.acs.uci.edu ([128.200.16.3]:39089 "EHLO hydra.acs.uci.edu")
-	by vger.kernel.org with ESMTP id <S289738AbSAXDQg>;
-	Wed, 23 Jan 2002 22:16:36 -0500
-Date: Wed, 23 Jan 2002 19:16:34 -0800
-From: Richard Massa <rmassa@hydra.acs.uci.edu>
-To: "Punj, Arun" <Arun.Punj@marconi.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: NEWBIE : can't find /lib/modules/2.4.17/modules.dep error
-Message-ID: <20020123191634.J31984@smaug.acs.uci.edu>
-In-Reply-To: <313680C9A886D511A06000204840E1CF40B60A@whq-msgusr-02.pit.comms.marconi.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="RUqJLqMNe5u4kDWT"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <313680C9A886D511A06000204840E1CF40B60A@whq-msgusr-02.pit.comms.marconi.com>; from Arun.Punj@marconi.com on Wed, Jan 23, 2002 at 06:35:47PM -0500
+	id <S290240AbSAXD3m>; Wed, 23 Jan 2002 22:29:42 -0500
+Received: from c9mailgw.prontomail.com ([216.163.188.202]:16905 "EHLO
+	C9Mailgw01.prontomail.com") by vger.kernel.org with ESMTP
+	id <S289874AbSAXD3b>; Wed, 23 Jan 2002 22:29:31 -0500
+Message-ID: <3C4F7F92.564A4989@starband.net>
+Date: Wed, 23 Jan 2002 22:29:22 -0500
+From: Justin Piszcz <war@starband.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: apiszcz@mitre.org
+Subject: Quick question about 2.4.18-pre7.
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+- Fix 3dfx fb crash with high pixelclock        (Jurriaan on Alpha)
 
---RUqJLqMNe5u4kDWT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I see that there is a 3DFX fix with high pixelclock.
 
-You need to make modules and make modules_install too :)
+Without the fix, could this be a reason why my machine locks up when
+I am scrolling through various MPG or DIVX movies with mplayer
+(sometimes)?
 
-On Wed, Jan 23, 2002 at 06:35:47PM -0500, Punj, Arun wrote:
->=20
-> Folks,
->=20
-> I upgraded the 2.4.7-10 kernel that comes with RH7.2 to 2.4.17.=20
-> [ I could compile it fine and grub is able to load it too...]
->=20
-> However, I see the error : can't find /lib/modules/2.4.17/modules.dep
-> multiple times.
->=20
-> Afcourse there is no such file or directory. I suspect that this
-> directory and file should have been created when I compiled 2.4.17=20
-> kernel but it did not. ( I did make bzImage )
->=20
-> Can you please point out the problem and also the effect of this
-> error because I cannot see any side effect of this error.
->=20
-> Thanks
-> Arun
->=20
->=20
-> This e-mail and any attachments are confidential. If you are not the
-> intended recipient, please notify us immediately by reply e-mail and then
-> delete this message from your system. Do not copy this e-mail or any
-> attachment, use the contents for any purposes, or disclose the contents to
-> any other person: to do so could be a breach of confidence.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+I have a 3DFX Voodoo 3 3000 AGP.
 
---=20
-"With Blue--uncertain stumbling Buzz--
- Between the light--and me--
- And then the Windows failed--and then
- I could not see to see--"
-                      -emily dickinson
 
---RUqJLqMNe5u4kDWT
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8T3yRjtKbcZaB/fERAo+oAJ4z6zo9QYPGbfvz7GY6UbtrlpmuDwCggDzt
-HCVmaf1d/G3QXBPibdxBktE=
-=lwoE
------END PGP SIGNATURE-----
-
---RUqJLqMNe5u4kDWT--

@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129027AbRBLLAp>; Mon, 12 Feb 2001 06:00:45 -0500
+	id <S129031AbRBLLCy>; Mon, 12 Feb 2001 06:02:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129031AbRBLLAe>; Mon, 12 Feb 2001 06:00:34 -0500
-Received: from agsite2.demon.co.uk ([212.229.103.106]:13319 "EHLO
-	gateway.agsite2.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S129027AbRBLLAY>; Mon, 12 Feb 2001 06:00:24 -0500
-Message-ID: <3A87C234.A483485A@agelectronics.co.uk>
-Date: Mon, 12 Feb 2001 11:00:04 +0000
-From: Adrian Cox <apc@agelectronics.co.uk>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17pre6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Mike Galbraith <mikeg@wen-online.de>
-CC: christophe barbe <christophe.barbe@inup.com>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Animated framebuffer logo for 2.4.1
-In-Reply-To: <Pine.Linu.4.10.10102090955270.1886-100000@mikeg.weiden.de>
+	id <S129092AbRBLLCo>; Mon, 12 Feb 2001 06:02:44 -0500
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:27402 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S129031AbRBLLCi>; Mon, 12 Feb 2001 06:02:38 -0500
+Date: Mon, 12 Feb 2001 11:58:35 +0100
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: Brian Grossman <brian@SoftHome.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sysinfo.sharedram not accounted for on i386 ?
+Message-ID: <20010212115835.C1691@arthur.ubicom.tudelft.nl>
+In-Reply-To: <20010212070503.31764.qmail@lindy.softhome.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010212070503.31764.qmail@lindy.softhome.net>; from brian@SoftHome.net on Mon, Feb 12, 2001 at 12:05:03AM -0700
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Galbraith wrote:
-> I give users more credit in the curiosity/observation department.  In
-> my experience, when a user fires up his/her box, independent of OS,
-> they watch it pretty closely.  This behavior begins roughly the first
-> time they lose a chunk of work ;-)
+On Mon, Feb 12, 2001 at 12:05:03AM -0700, Brian Grossman wrote:
+> On i386, sysinfo.sharedram is not accounted for, leading /proc/meminfo to
+> always report MemShared as 0.  Is this the intended behavior?
 
-I want to use this for embedded systems. For example, last weekend I was
-on a bus where the advertising screen at the front went through a
-complete (uncustomised) Windows 2000 boot. I want to do better than
-that, and build an application specific splash screen early into the
-boot process, with the detailed messages coming out through the serial
-port.
+Yes.
 
-- Adrian Cox
+
+Erik
+
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266381AbRHAPAa>; Wed, 1 Aug 2001 11:00:30 -0400
+	id <S267446AbRHAPxr>; Wed, 1 Aug 2001 11:53:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267303AbRHAPAV>; Wed, 1 Aug 2001 11:00:21 -0400
-Received: from stargate.gnyrf.net ([194.165.254.115]:51074 "HELO
-	stargate.gnyrf.net") by vger.kernel.org with SMTP
-	id <S266381AbRHAPAK>; Wed, 1 Aug 2001 11:00:10 -0400
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Subject: Re: resizing of raid5?
-Message-ID: <996685021.3b6834dd0829d@stargate.gnyrf.net>
-Date: Wed, 01 Aug 2001 18:57:01 +0200 (CEST)
-From: Roger Abrahamsson <hyperion@gnyrf.net>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <996657922.3b67cb02ba717@stargate.gnyrf.net> <15207.63232.611617.37794@notabene.cse.unsw.edu.au>
-In-Reply-To: <15207.63232.611617.37794@notabene.cse.unsw.edu.au>
+	id <S266579AbRHAPx1>; Wed, 1 Aug 2001 11:53:27 -0400
+Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:36247 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S266400AbRHAPxS>;
+	Wed, 1 Aug 2001 11:53:18 -0400
+Message-ID: <3B682593.AB3D143C@candelatech.com>
+Date: Wed, 01 Aug 2001 08:51:47 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: IMP/PHP IMAP webmail program 2.2.5
-X-Originating-IP: 212.32.163.13
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+CC: Thomas Zehetbauer <thomasz@hostmaster.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: tulip driver still broken
+In-Reply-To: <20010731001907.A21982@hostmaster.org> <3B66B13B.28BD0324@nortelnetworks.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Neil Brown <neilb@cse.unsw.edu.au>:
-
+Chris Friesen wrote:
 > 
-> The only way to resize a raid5 array is to back up, rebuild, and
-> re-load.  Any attempt to re-organise the data, or the linkage, to
-> avoid this would be more trouble that it is worth.
+> Thomas Zehetbauer wrote:
+> >
+> > My genuine digital network interface card ceased to work with the tulip
+> > driver contained in kernel revisions >= 2.4.4 and the development driver from
+> > sourceforge.net.
 > 
-> NeilBrown
+> How is the sourceforge driver different than the one at www.scyld.com?
+> 
 
-Well, the problem is that it's not that easy when you want to backup say 200GB
-of data to find anyone that can hold it for the day while you do it. Well, at
-least do it without charge :)
-Having things offline for up to a few days while you do the rebuild is okay for
-my case, but the offloading the data is not. If I have understood md and raid5,
-you create blocks of a fixed size, and calculate the checksum on each "stripe".
-To rebuild this looks a bit like disk defragmentation to me, or am I totally
-wrong here?
+Becker (Scyld) has only recently gotten his drivers to even compile
+on 2.4 kernel, and they are still beta quality for 2.4, evidently.
+
+There seem to be attempts to keep the drivers in sync, functionally,
+but the architectures have diverged quite a lot...
+
+Ben
+
+-- 
+Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear

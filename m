@@ -1,66 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265155AbUBORik (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 12:38:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265170AbUBORik
+	id S265118AbUBORem (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 12:34:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265136AbUBORem
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 12:38:40 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.51]:23709 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S265155AbUBORih (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 12:38:37 -0500
-Date: Sun, 15 Feb 2004 18:38:36 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel Cross Compiling
-Message-ID: <20040215173835.GA22567@MAIL.13thfloor.at>
-Mail-Followup-To: Geert Uytterhoeven <geert@linux-m68k.org>,
-	Linux Kernel Development <linux-kernel@vger.kernel.org>
-References: <20040213205743.GA30245@MAIL.13thfloor.at.suse.lists.linux.kernel> <p73n07my8nn.fsf@verdi.suse.de> <20040213234554.GA32440@MAIL.13thfloor.at> <Pine.GSO.4.58.0402151214520.22078@waterleaf.sonytel.be>
+	Sun, 15 Feb 2004 12:34:42 -0500
+Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:9373 "EHLO
+	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S265118AbUBORek (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Feb 2004 12:34:40 -0500
+Subject: Re: Oopsing cryptoapi (or loop device?) on 2.6.*
+From: Christophe Saout <christophe@saout.de>
+To: Michal Kwolek <miho@centrum.cz>
+Cc: jmorris@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <402A4B52.1080800@centrum.cz>
+References: <402A4B52.1080800@centrum.cz>
+Content-Type: text/plain
+Message-Id: <1076866470.20140.13.camel@leto.cs.pocnet.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.58.0402151214520.22078@waterleaf.sonytel.be>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 15 Feb 2004 18:34:31 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 15, 2004 at 12:16:10PM +0100, Geert Uytterhoeven wrote:
-> On Sat, 14 Feb 2004, Herbert Poetzl wrote:
-> >   linux-2.4.25-rc2        config  dep     kernel  modules
-> >   m68k/m68k:              OK      OK      OK      OK
-> 
-> Good! :-)
+Hi,
 
-yeah but,
+> I've got a reproducible oops when using cryptoloop on vanilla 2.6.0,
+> 2.6.1 and 2.6.2 (2.4.* works fine).
+> [also reported a deadlock while trying loop-aes]
 
-			2.6.2-rc3       2.6.3-rc2
-[ARCH m68k/m68k]        failed.         failed.       
+could you try dm-crypt? It uses the device-mapper instead of the loop
+device but should be compatible (uses cryptoapi too). It's going to be
+added to the kernel soon I hope.
 
-Bad! :(
+You can find a patch on http://www.saout.de/misc/ against the vanilla
+kernel (dm-crypt.diff), I just rediffed it against linux 2.6.2.
 
-> 
-> One related question: anyone who knows how to run a cross-depmod, 
-> so I can find missing symbol exports without running depmod 
-> on the target?
+You need the dmsetup tool from the device-mapper package to set up
+encryption. There's also a shell script called cryptsetup on the page
+that wraps around dmsetup. It requires the hashalot program.
 
-../modutils-2.4.26/configure --target=m68k-linux
+It shouldn't oops. But if the deadlock you were seeing didn't come from
+loop-aes it might also show up here. If you're willing to test - let me
+know. :)
 
-seems to do something, so it might even work ...
 
-depmod: ELF file /lib/.../kernel/crypto/aes.o not for this architecture
-depmod: ELF file /lib/.../kernel/crypto/blowfish.o not for this architecture
-
-HTH,
-Herbert
-
-> Gr{oetje,eeting}s,
-> 						Geert
-> 
-> --
-> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-> 
-> In personal conversations with technical people, I call myself a hacker. But
-> when I'm talking to journalists I just say "programmer" or something like that.
-> 							    -- Linus Torvalds

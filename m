@@ -1,39 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316309AbSGQTE2>; Wed, 17 Jul 2002 15:04:28 -0400
+	id <S316322AbSGQTJF>; Wed, 17 Jul 2002 15:09:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316322AbSGQTE2>; Wed, 17 Jul 2002 15:04:28 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:17147 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316309AbSGQTE2>; Wed, 17 Jul 2002 15:04:28 -0400
-Subject: Re: 2.4.19rc2 and Promise RAID controller
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Klaus Dittrich <kladit@t-online.de>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       linux mailing-list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.10.10207170950050.10225-100000@master.linux-ide.org>
-References: <Pine.LNX.4.10.10207170950050.10225-100000@master.linux-ide.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 17 Jul 2002 21:17:09 +0100
-Message-Id: <1026937029.1688.160.camel@irongate.swansea.linux.org.uk>
+	id <S316390AbSGQTJF>; Wed, 17 Jul 2002 15:09:05 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:56847 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S316322AbSGQTJE>;
+	Wed, 17 Jul 2002 15:09:04 -0400
+Date: Wed, 17 Jul 2002 21:18:17 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] bitops operate on unsigned long
+Message-ID: <20020717211817.A7164@mars.ravnborg.org>
+References: <Pine.GSO.4.21.0207021303460.25055-100000@vervain.sonytel.be>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.GSO.4.21.0207021303460.25055-100000@vervain.sonytel.be>; from geert@linux-m68k.org on Tue, Jul 02, 2002 at 01:05:01PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-07-17 at 17:54, Andre Hedrick wrote:
+On Tue, Jul 02, 2002 at 01:05:01PM +0200, Geert Uytterhoeven wrote:
 > 
-> This is just proves that accepting the patch code from Promise will begin
-> to remove basic support for hardware.  I warned everyone of this and
-> people do not listen.  So I suggest that you find another vendors product
-> to use as the PDC20270 shall not be supported anymore.
+> Bitops must operate on unsigned long.
+> -u32 zorro_unused_z2ram[4] = { 0, 0, 0, 0 };
+> +unsigned long zorro_unused_z2ram[128/BITS_PER_LONG];
 
-Andre, this is not the case. We all agreed to sort out the raid detect. 
-I sent Marcelo a diff and some instructions. He applied the diff but I
-guess my instructions were too confusing. It'll get fixed for -rc3
+Consider using bitmap_member from linux/types.h
 
-If you want a conspiracy to play with look elsewhere (there are no
-shortage of real ones 8))
-
+	Sam

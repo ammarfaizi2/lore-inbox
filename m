@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261778AbUK0Gr3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261153AbUK0Gsq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261778AbUK0Gr3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 01:47:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbUK0Gr2
+	id S261153AbUK0Gsq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 01:48:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbUKZTKx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 01:47:28 -0500
-Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:18910 "EHLO
-	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S261788AbUKZTLD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:11:03 -0500
-From: David Brownell <david-b@pacbell.net>
-To: linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] [PATCH] Ohci-hcd: fix endless loop
-Date: Fri, 26 Nov 2004 09:21:26 -0800
-User-Agent: KMail/1.7.1
-Cc: Colin Leroy <colin@colino.net>, linux-kernel@vger.kernel.org,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Greg KH <greg@kroah.com>
-References: <20041125191726.5ca95299@jack.colino.net> <200411260838.10508.david-b@pacbell.net> <20041126175454.17b62cf5@pirandello>
-In-Reply-To: <20041126175454.17b62cf5@pirandello>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Fri, 26 Nov 2004 14:10:53 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:32190 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S261153AbUKZTG4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 14:06:56 -0500
+Date: Thu, 25 Nov 2004 16:27:24 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Rui Nuno Capela <rncbc@rncbc.org>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [patch, 2.6.10-rc2] floppy boot-time detection fix
+Message-ID: <20041125152724.GA12731@elte.hu>
+References: <20041118123521.GA29091@elte.hu> <20041118164612.GA17040@elte.hu> <20041122005411.GA19363@elte.hu> <20041123175823.GA8803@elte.hu> <20041124101626.GA31788@elte.hu> <20041124112745.GA3294@elte.hu> <21889.195.245.190.93.1101377024.squirrel@195.245.190.93> <20041125120133.GA22431@elte.hu> <20041125143337.GA32051@elte.hu> <20041125144810.GA8160@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200411260921.26628.david-b@pacbell.net>
+In-Reply-To: <20041125144810.GA8160@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 26 November 2004 08:54, Colin Leroy wrote:
-> On 26 Nov 2004 at 08h11, David Brownell wrote:
+
+* Ingo Molnar <mingo@elte.hu> wrote:
+
+> > (this does not solve the irq threading related SMP lockup though, i'm
+> > attacking that problem next - now that my fd0 gets detected fine ;-) )
 > 
-> Hi, 
-> 
-> > The infinite loop means that something trashed the stack, yes?
-> > 
-> > The "limit-- < -1000" test below should never be able to succeed
-> > unless the previous "limit-- == 0" test got trashed by having
-> > something obliterate the stack. 
-> 
-> Sure? the (limit -- == 0) gotoes higher to test again.
-> from what I understand the loop goes back to rescan 1000 times, then once 
-> to sanitize, then to back to rescan again infinetely...
-> I may be wrong but I don't think there's a stack corruption there.
+> in fact, i cannot reproduce the SMP lockup anymore and the floppy works
+> just fine. [...]
 
-The "limit" isn't tested a 1001st time, since the ED state
-changed.
+it turns out that this was the side-effect of me doing idle=poll.
 
-For that matter, any time that the IRQ lossage appears,
-there's always been something that damaged the IRQ setup.
+The reason for the lockup was a bug in the -RT patch, it broke
+disable_hlt() which resulted in all CPUs spinning in idle with
+interrupts disabled - with an obvious hard lockup as a result.
+Fixed it in my tree.
 
-- Dave
-
+	Ingo

@@ -1,110 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265841AbUALAlg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 19:41:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265842AbUALAlg
+	id S265933AbUALAxT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 19:53:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265962AbUALAxT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 19:41:36 -0500
-Received: from 66-95-121-230.client.dsl.net ([66.95.121.230]:61371 "EHLO
-	mail.lig.net") by vger.kernel.org with ESMTP id S265841AbUALAld
+	Sun, 11 Jan 2004 19:53:19 -0500
+Received: from x35.xmailserver.org ([69.30.125.51]:47786 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S265933AbUALAwy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 19:41:33 -0500
-Message-ID: <4001ECBE.1020009@lig.net>
-Date: Sun, 11 Jan 2004 19:39:26 -0500
-From: "Stephen D. Williams" <sdw@lig.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
+	Sun, 11 Jan 2004 19:52:54 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Sun, 11 Jan 2004 16:52:14 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Bart Samwel <bart@samwel.tk>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][TRIVIAL] Remove bogus "value 0x37ffffff truncated to
+ 0x37ffffff" warning.
+In-Reply-To: <4001EED8.1000908@samwel.tk>
+Message-ID: <Pine.LNX.4.44.0401111649160.20018-100000@bigblue.dev.mdolabs.com>
 MIME-Version: 1.0
-To: tabris <tabris@tabris.net>
-Cc: "Hunt, Adam" <ahunt@solvone.com>, linux-kernel@vger.kernel.org
-Subject: High Quality Random sources, was: Re: SecuriKey
-References: <5117BFF0551DD64884B32EE8CA57D3DB01548A3F@revere.nwpump.com> <200401111446.27403.tabris@tabris.net>
-In-Reply-To: <200401111446.27403.tabris@tabris.net>
-Content-Type: multipart/mixed;
- boundary="------------040206000607010908050108"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040206000607010908050108
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Mon, 12 Jan 2004, Bart Samwel wrote:
 
-Impossible?  I think not.  Some "mechanical" devices do exhibit true 
-random capability, especially when enhanced by algorithmic means.
-To wit:  http://www.lavarand.org/
+> Davide Libenzi wrote:
+> >>Now it seems to behave correctly: for '~' it always warns, for '-' it 
+> >>only warns if the negative value is below -0x80000000. I'll submit a 
+> >>patch to this effect (including the format extensions) to the binutils 
+> >>people.
+> > 
+> > binutils 2.14 works fine, so I believe they already fixed it.
+> 
+> Against your code, yes. I'm using binutils 2.14 as well. Check it when 
+> declaring a .long, like the kernel code does. Then it warns.
 
-Let me know if you can prove their methods don't provide a true "high 
-quality" random source.
+Nope. It does not. Tested on three versions of binutils:
 
-I'd like to see their code as a module with an automatic test to make 
-sure that the random source is high quality.  In this case, that would 
-mean making sure that the cap was not off the camera.
+[davide@bigblue davide]$ as << EOF
+> PG=0xC0000000
+> VM=(128 << 20)
+> .long (-PG - VM) - 1
+> .long (~PG + 1 - VM) - 1
+> EOF
+[davide@bigblue davide]$ objdump -D a.out 
 
-sdw
+a.out:     file format elf32-i386
 
-tabris wrote:
+Disassembly of section .text:
 
->...
->	I should also mention that the problem with 'generating' an OTP via any 
->mechanical or algorithmic means is impossible as at best an OTP will only 
->be pseudo-random, and therefore with identical inputs (assuming it is 
->possible, which we can assume here for the sake of theory and security), 
->the same OTP can be generated, thus breaking our assumption/necessity of 
->non-deterministic output.
->
->	I'd say more but I'm on my way to work.
->- --
->tabris
->- -
->I do not know whether I was then a man dreaming I was a butterfly, or
->whether I am now a butterfly dreaming I am a man.
->		-- Chuang-tzu
->-----BEGIN PGP SIGNATURE-----
->Version: GnuPG v1.2.3 (GNU/Linux)
->
->iD8DBQFAAagR1U5ZaPMbKQcRAmo2AJ0Wc6xTLCd/swZYlEO6emktLhOtRgCfUUP5
->OB4YFi6bh1yrVMzGIoN6XNs=
->=O/uT
->-----END PGP SIGNATURE-----
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->  
->
+00000000 <.text>:
+   0:   ff                      (bad)  
+   1:   ff                      (bad)  
+   2:   ff 37                   pushl  (%edi)
+   4:   ff                      (bad)  
+   5:   ff                      (bad)  
+   6:   ff 37                   pushl  (%edi)
+Disassembly of section .data:
 
 
--- 
-swilliams@hpti.com http://www.hpti.com Personal: sdw@lig.net http://sdw.st
-Stephen D. Williams 703-724-0118W 703-995-0407Fax 20147-4622 AIM: sdw
+Also, most important, the `make bzImage` does not give any warnings.
 
 
---------------040206000607010908050108
-Content-Type: text/x-vcard; charset=utf8;
- name="sdw.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="sdw.vcf"
 
-begin:vcard
-fn:Stephen Williams
-n:Williams;Stephen
-org:High Performance Technologies, Inc.
-adr:;;43392 Wayside Circle;Ashburn;VA;20147;US
-email;internet:sdw@lig.net
-title:Senior Technical Director
-tel;work:703-724-0118
-tel;fax:703-995-0407
-tel;pager:sdwpage@lig.net
-tel;home:703-729-5405
-tel;cell:703-371-9362
-x-mozilla-html:FALSE
-url:http://www.hpti.com
-version:2.1
-end:vcard
+- Davide
 
 
---------------040206000607010908050108--

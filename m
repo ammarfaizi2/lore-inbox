@@ -1,70 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268479AbUJJVMQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268487AbUJJVPT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268479AbUJJVMQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Oct 2004 17:12:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268497AbUJJVMQ
+	id S268487AbUJJVPT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Oct 2004 17:15:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268497AbUJJVPS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Oct 2004 17:12:16 -0400
-Received: from blfd-d9bb97c9.pool.mediaWays.net ([217.187.151.201]:19216 "EHLO
-	citd.de") by vger.kernel.org with ESMTP id S268479AbUJJVMN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Oct 2004 17:12:13 -0400
-Date: Sun, 10 Oct 2004 23:12:08 +0200
-From: Matthias Schniedermeyer <ms@citd.de>
-To: Olaf =?unknown-8bit?Q?Fr=B1czyk?= <olaf@cbk.poznan.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to umount a busy filesystem?
-Message-ID: <20041010211208.GA6986@citd.de>
-References: <1097441558.2235.9.camel@venus>
+	Sun, 10 Oct 2004 17:15:18 -0400
+Received: from smtp812.mail.sc5.yahoo.com ([66.163.170.82]:20846 "HELO
+	smtp812.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S268487AbUJJVPJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Oct 2004 17:15:09 -0400
+Date: Sun, 10 Oct 2004 14:15:07 -0700
+To: Andrew Morton <akpm@osdl.org>
+Cc: roland@redhat.com,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Weirdness with suspending jobs in 2.6.9-rc3
+Message-ID: <20041010211507.GB3316@triplehelix.org>
+Mail-Followup-To: joshk@triplehelix.org,
+	Andrew Morton <akpm@osdl.org>, roland@redhat.com,
+	linux-kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20041005063324.GA7445@darjeeling.triplehelix.org> <20041009101552.GA3727@stusta.de> <20041009140551.58fce532.akpm@osdl.org> <pan.2004.10.10.07.39.54.154306@triplehelix.org> <20041010004524.0bf6d42e.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="VLAOICcq5m4DWEYr"
 Content-Disposition: inline
-In-Reply-To: <1097441558.2235.9.camel@venus>
-User-Agent: Mutt/1.3.27i
+In-Reply-To: <20041010004524.0bf6d42e.akpm@osdl.org>
+X-Habeas-SWE-1: winter into spring
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+User-Agent: Mutt/1.5.6+20040722i
+From: joshk@triplehelix.org (Joshua Kwan)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10.10.2004 22:52, Olaf Fr?czyk wrote:
-> Hi,
-> 
-> Why I cannot umount filesystem if it is being accessed?
-> I tried MNT_FORCE option but it doesn't work.
-> 
-> Killing all processes that access a filesystem is not an option. They
-> should just get an error when accessing filesystem that is umounted.
-> 
-> Any idea how to do it?
 
-umount -l
+--VLAOICcq5m4DWEYr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-removes the mount in "lazy"-mode, this way the mount-point "vanishes"
-for all programs whose working-dirs aren't "within" that mount-point.
-After all files are closed the filesystem is unmounted totally.
-You can "reuse" the mount-point immediatly.
+On Sun, Oct 10, 2004 at 12:45:24AM -0700, Andrew Morton wrote:
+> Useful, thanks.
 
-iow. If a programs want to open a file with an absolute path (including
-the "<path_to_mountpoint>") then it will fail (or see the other
-mountpoint). A program whose working dir is "inside" the mountpoint
-(e.g. if it was started from a path "inside" the mountpoint) can still
-open file if they use relative paths. Also when you have a bash whose
-working dir is "inside" the mountpoint, you can still start programs
-that can access the files within that mountpoint.
+Maybe this is useful too?
 
-If you have luck then the program(s) can't open new files (or "see" the
-new mountpint). But many (maybe most) programs don't have problems with
-a lazy-unmounted mountpoint. Personally i have only encountered one
-program that (failed/saw the "other"), which was "acroread" (xpdf on the
-other side still can open files in a lazy unmounted mountpoint)
+Started make on that test Makefile, and
 
-Seems this is the best you can do.
+% strace -p 31810
+Process 31810 attached - interrupt to quit
+wait4(-1073750280, NULL, 0, NULL)       =3D -1 ECHILD (No child processes)
 
+it then immediately proceeded to give the old 'no child processes.
+Stop.' thing.
 
+Strangely, the bug is experienced only sporadically when using make -j2
+on a kbuild. Maybe that's just a coincidence.
 
-Bis denn
+--=20
+Joshua Kwan
 
--- 
-Real Programmers consider "what you see is what you get" to be just as 
-bad a concept in Text Editors as it is in women. No, the Real Programmer
-wants a "you asked for it, you got it" text editor -- complicated, 
-cryptic, powerful, unforgiving, dangerous.
+--VLAOICcq5m4DWEYr
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: http://triplehelix.org/~joshk/pubkey_gpg.asc
+
+iQIVAwUBQWmmWqOILr94RG8mAQJ3uA//ceYUqNEOlyA+YGgsnuSU6u2akZ/O3fe0
+oiRH3H8oU+xPHb7dU7HCmk+v+ggfm4r4LFq6C9fI3icudqtl/PhUBndD4OWfUWLl
+mwClZNezyJ4ofXforzNvL0Aakmw1ziKPRGX8j4vDKa6HJ7UzxI97Ck9l7h0sbXY9
+ACK/uzVGCZtmom8ayXGu2UKwd8b7IvfQWxbl2tiABdXhmigI724rGaECI+AK7+Uj
+GP0YsPKKE15rh64Q5j2EUCtvU8bdlSQs5QfhdyCIi1BiGRnR2OBMJ77vz2Z62I0A
+6D3bs7gmVne/fsl9wnIVg8yX9TMpPsQl/0aE29r8hr7Vif9rnugLXH6m7a3OwEax
+uKGfI6SDukABl//OXp+m9Jo3wrPvzGTM38YLLj/SVv//NJ+VuVHpjTXSbOwanL5v
+kUpyPPXxysg60TyEmBofdyQLrLtTa4MLudSuy+P8D0ulDRO2EgWzC00b9S/cfUWF
+pOHZDlgrKoyEGMMHhVZdhbtV1Wa2yEr4NbrLNu1ng2UOomIoTVbjQQEPnv3PHli6
+ZZmMprjG19ujL486zmTU5L9aQhW6V/LKOC/UF6yZoGSd5q2BgqvBWZkcZZ8Xbopb
+e1LIrOYrvQiBM5wxDIs3kEOdy40Ob0iryihvCbj2+uQbi2guQAxODUUZ+zAf7aOl
+1ihRDFAwSgE=
+=ahIL
+-----END PGP SIGNATURE-----
+
+--VLAOICcq5m4DWEYr--

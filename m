@@ -1,41 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263114AbTDMDD2 (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 23:03:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263128AbTDMDD2 (for <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Apr 2003 23:03:28 -0400
-Received: from holomorphy.com ([66.224.33.161]:30137 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S263114AbTDMDD1 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Apr 2003 23:03:27 -0400
-Date: Sat, 12 Apr 2003 20:14:40 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Jeremy Hall <jhall@maoz.com>
-Cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Andrew Morton <akpm@digeo.com>, LKML <linux-kernel@vger.kernel.org>,
+	id S263128AbTDMDKQ (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 23:10:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263131AbTDMDKQ (for <rfc822;linux-kernel-outgoing>);
+	Sat, 12 Apr 2003 23:10:16 -0400
+Received: from h80ad2778.async.vt.edu ([128.173.39.120]:49026 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S263128AbTDMDKP (for <RFC822;linux-kernel@vger.kernel.org>); Sat, 12 Apr 2003 23:10:15 -0400
+Message-Id: <200304130317.h3D3HprZ021939@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/02/2003 with nmh-1.0.4+dev
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Cc: Andrew Morton <akpm@digeo.com>, LKML <linux-kernel@vger.kernel.org>,
        linux-mm@kvack.org
-Subject: Re: 2.5.67-mm2
-Message-ID: <20030413031440.GA14357@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Jeremy Hall <jhall@maoz.com>,
-	Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-	Andrew Morton <akpm@digeo.com>, LKML <linux-kernel@vger.kernel.org>,
-	linux-mm@kvack.org
-References: <1050198928.597.6.camel@teapot.felipe-alfaro.com> <200304130303.h3D33kkr031006@sith.maoz.com>
+Subject: Re: 2.5.67-mm2 
+In-Reply-To: Your message of "Sun, 13 Apr 2003 03:55:29 +0200."
+             <1050198928.597.6.camel@teapot.felipe-alfaro.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <20030412180852.77b6c5e8.akpm@digeo.com>
+            <1050198928.597.6.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200304130303.h3D33kkr031006@sith.maoz.com>
-User-Agent: Mutt/1.3.28i
-Organization: The Domain of Holomorphy
+Content-Type: multipart/signed; boundary="==_Exmh_-1394136846P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sat, 12 Apr 2003 23:17:42 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 12, 2003 at 11:03:46PM -0400, Jeremy Hall wrote:
-> I dunno about that, but mm2 locks in the boot process and doesn't display 
-> anything to me through gdb even though it is supposed to.  I have gdb 
-> console=gdb but that doesn't make the messages flow.
+--==_Exmh_-1394136846P
+Content-Type: text/plain; charset=us-ascii
 
-An early printk patch (any of the several going around) may give you an
-idea of where it's barfing.
+On Sun, 13 Apr 2003 03:55:29 +0200, Felipe Alfaro Solana said:
+
+> Any patches for CardBus/PCMCIA support? It's broken for me since
+> 2.5.66-mm2 (it works with 2.5.66-mm1) probably due to PCI changes or the
+> new PCMCIA state machine: if I boot my machine with my 3Com CardBus NIC
+> plugged in, the kernel deadlocks while checking the sockets, but it
+> works when booting with the card unplugged, and then plugging it back
+> once the system is stable (for example, init 1).
+
+Also seeing this with a Xircom card under vanilla 2.5.67.
+
+lspci reports this card as:
+
+03:00.0 Ethernet controller: Xircom Cardbus Ethernet 10/100 (rev 03)
+03:00.1 Serial controller: Xircom Cardbus Ethernet + 56k Modem (rev 03)
+
+Russel King posted an analysis back on April 1, which indicated he knew
+about the problem, understood it, and was working on it.
 
 
--- wli
+--==_Exmh_-1394136846P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+mNbVcC3lWbTT17ARAusmAKD8gvTxjgQBWOiK8m2vFeNgq1WyQACeP9FN
+TT0oNQcSp3IMtjZKUvMUZ54=
+=HZZf
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1394136846P--

@@ -1,47 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273588AbRJOFr6>; Mon, 15 Oct 2001 01:47:58 -0400
+	id <S274544AbRJOFzv>; Mon, 15 Oct 2001 01:55:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274544AbRJOFrs>; Mon, 15 Oct 2001 01:47:48 -0400
-Received: from mail.sirinet.net ([198.203.196.92]:17425 "EHLO mail.sirinet.net")
-	by vger.kernel.org with ESMTP id <S273588AbRJOFrf>;
-	Mon, 15 Oct 2001 01:47:35 -0400
-Subject: Re: IDE DVD problem under 2.4: status=0x51 { DriveReady
-	SeekComplete Error }
-From: John J Tobin <ogre@sirinet.net>
-To: Igor Bukanov <boukanov@fi.uib.no>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3BCA3CAF.5050807@fi.uib.no>
-In-Reply-To: <3BCA3CAF.5050807@fi.uib.no>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.15 (Preview Release)
-Date: 15 Oct 2001 00:40:34 -0500
-Message-Id: <1003124442.32577.3.camel@ogre>
+	id <S274667AbRJOFzl>; Mon, 15 Oct 2001 01:55:41 -0400
+Received: from h183n3fls22o974.telia.com ([213.64.105.183]:59060 "EHLO
+	milou.dyndns.org") by vger.kernel.org with ESMTP id <S274544AbRJOFz0>;
+	Mon, 15 Oct 2001 01:55:26 -0400
+Message-Id: <200110150555.f9F5tt725407@milou.dyndns.org>
+X-Mailer: exmh version 2.5_20010923 01/15/2001 with nmh-1.0.4
+To: linux-kernel@vger.kernel.org
+Subject: IEEE1284_PH_DIR_UNKNOWN undeclared in 2.4.12
+From: Anders Eriksson <aer-list@mailandnews.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 15 Oct 2001 07:55:55 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2001-10-14 at 20:32, Igor Bukanov wrote:
-> I tried to setup my Dell Inspiron 7500 notebook (Celeron 466/512MB) with 
-> TORiSAN DVD-ROM DRD-U62 (RPC-2 drive :-( ) to watch DVD and found the 
-> following when using decss to read the encrypted vob files (other ways 
-> to access the file eventually produce the same error) under  2.4.12 
-> kernel, RedHat Linux 7.1. After I authenticated the drive and got a 
-> title key for some file, css-cat always fails on the first 2-3 attempts 
-> to read the file due to input-output error with kernel message:
-> 
-> hdc: command error: status=0x51 { DriveReady SeekComplete Error }
-> hdc: command error: error=0x50
-> end_request: I/O error, dev 16:00 (hdc), sector 563008
-> 
-Under the IDE/ATAPI configuration stuff in the kernel configuration
-select the option "Use multi-mode by default." That may solve your
-problem.				
 
--- 
-John Tobin
-ogre@sirinet.net; AOL IM: ogre7929
-http://ogre.rocky-road.net
-http://ogre.rocky-road.net/cdr.shtml
+Just downloaded 2.4.12, and the compile barfs as follows, any 
+suggestions? The thing is nowhere in the source.
+
+/Anders
+
+
+gcc -D__KERNEL__ -I/home/ander/tmp/linux-milou-12/include -Wall 
+-Wstrict-prototy
+pes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing 
+-fno-common -pi
+pe -mpreferred-stack-boundary=2 -march=i686 -DMODULE -DMODVERSIONS 
+-include /hom
+e/ander/tmp/linux-milou-12/include/linux/modversions.h   -c -o 
+ieee1284_ops.o ie
+ee1284_ops.c
+ieee1284_ops.c: In function `ecp_forward_to_reverse':
+ieee1284_ops.c:365: `IEEE1284_PH_DIR_UNKNOWN' undeclared (first use 
+in this func
+tion)
+ieee1284_ops.c:365: (Each undeclared identifier is reported only once
+ieee1284_ops.c:365: for each function it appears in.)
+ieee1284_ops.c: In function `ecp_reverse_to_forward':
+ieee1284_ops.c:397: `IEEE1284_PH_DIR_UNKNOWN' undeclared (first use 
+in this func
+tion)
+make[2]: *** [ieee1284_ops.o] Error 1
+make[2]: Leaving directory `/home/ander/tmp/linux-milou-12/drivers/par
+port'
+
+
+$ find . -type f | xargs grep IEEE1284_PH_DIR_UNKNOW
+N
+./drivers/parport/ieee1284_ops.c:               port->ieee1284.phase 
+= IEEE1284_PH_DIR_UNK
+NOWN;
+./drivers/parport/ieee1284_ops.c:               port->ieee1284.phase 
+= IEEE1284_PH_DIR_UNK
+NOWN;
+
 

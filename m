@@ -1,83 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261707AbVASMxp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261712AbVASM7t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261707AbVASMxp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 07:53:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261713AbVASMxp
+	id S261712AbVASM7t (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 07:59:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261713AbVASM7t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 07:53:45 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:43239 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261707AbVASMxj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 07:53:39 -0500
-Date: Wed, 19 Jan 2005 13:52:57 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: "Luck, Tony" <tony.luck@intel.com>, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: pipe performance regression on ia64
-Message-ID: <20050119125257.GA8112@elte.hu>
-References: <200501181741.j0IHfGf30058@unix-os.sc.intel.com> <Pine.LNX.4.58.0501180951050.8178@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0501180951050.8178@ppc970.osdl.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 19 Jan 2005 07:59:49 -0500
+Received: from mail-06.iinet.net.au ([203.59.3.38]:37087 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S261712AbVASM7r
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 07:59:47 -0500
+Message-ID: <41EE59BD.5070801@cyberone.com.au>
+Date: Wed, 19 Jan 2005 23:59:41 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Mauricio Lin <mauriciolin@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       Mauricio Lin <mauricio.lin@indt.org.br>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] A new entry for /proc
+References: <3f250c7105010613115554b9d9@mail.gmail.com> <20050106202339.4f9ba479.akpm@osdl.org> <3f250c7105011414466f22fc37@mail.gmail.com> <20050114154209.6b712e55.akpm@osdl.org> <3f250c71050117100332774211@mail.gmail.com> <3f250c71050117110241dfc46c@mail.gmail.com> <20050117173023.GA22202@logos.cnet> <20050117213544.GA8896@holomorphy.com> <41EC614F.9070205@cyberone.com.au>
+In-Reply-To: <41EC614F.9070205@cyberone.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Linus Torvalds <torvalds@osdl.org> wrote:
 
-> The "wake_up_sync()" hack only helps for the special case where we
-> know the writer is going to write more. Of course, we could make the
-> pipe code use that "synchronous" write unconditionally, and benchmarks
-> would look better, but I suspect it would hurt real life.
+Nick Piggin wrote:
 
-not just that, it's incorrect scheduling, because it introduces the
-potential to delay the woken up task by a long time, amounting to a
-missed wakeup.
+>
+>
+> William Lee Irwin III wrote:
+>
+>
+>> It also is used in a particular euphemism that made
+>> it seem odd to me. I suspect it wasn't thought of when it was chosen.
+>>
+>>
+>
+> No. What's the euphemism?
+>
+>
+... a few private responses later...
 
-> I don't know how to make the benchmark look repeatable and good,
-> though.  The CPU affinity thing may be the right thing.
+Thanks for the enlightenment, everyone. Next time I won't ask! ;)
 
-the fundamental bw_pipe scenario is this: the wakeup will happen earlier
-than the waker suspends. (because it's userspace that decides about
-suspension.) So the kernel rightfully notifies another, idle CPU to run
-the freshly woken task. If the message passing across CPUs and the
-target CPU is fast enough to 'grab' the task, then we'll get the "slow"
-benchmark case, waker remaining on this CPU, wakee running on another
-CPU. If this CPU happens to be fast enough suspending, before that other
-CPU had the chance to grab the CPU (we 'steal the task back') then we'll
-see the "fast" benchmark scenario.
+But hey, what was the alternative? phd? Nah, I wouldn't like to
+give Hugh the satisfaction! (http://lwn.net/Articles/111506/)
 
-i've seen traces where a single bw_pipe testrun showed _both_ variants
-in chunks of 100s of milliseconds, probably due to cacheline placement
-putting the overhead sometimes above the critical latency, sometimes
-below it.
-
-so there will always be this 'latency and tendency to reschedule on
-another CPU' thing that will act as a barrier between 'really good' and
-'really bad' numbers, and if a test happens to be around that boundary
-it will fluctuate back and forth.
-
-and this property also has another effect: _worse_ scheduling decisions
-(not waking up an idle CPU when we could) can result in _better_ bw_pipe
-numbers. Also, a _slower_ scheduler can sometimes move the bw_pipe
-workload below the threshold, resulting in _better_ numbers. So as far
-as SMP systems are concerned, bw_pipe numbers have to be considered very
-carefully.
-
-this is a generic thing: message passing latency scales inversely always
-to the quality of distribution of SMP tasks. The better we are at
-spreading out tasks, the worse message passing latency gets. (nothing
-will beat passive, work-less 'message passing' between two tasks on the
-same CPU.)
-
-	Ingo

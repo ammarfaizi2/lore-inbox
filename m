@@ -1,88 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268740AbUHLU3l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268771AbUHLUdB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268740AbUHLU3l (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 16:29:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268750AbUHLU3l
+	id S268771AbUHLUdB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 16:33:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268768AbUHLUdA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 16:29:41 -0400
-Received: from web14928.mail.yahoo.com ([216.136.225.87]:64112 "HELO
-	web14928.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S268740AbUHLU2J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 16:28:09 -0400
-Message-ID: <20040812202808.19586.qmail@web14928.mail.yahoo.com>
-Date: Thu, 12 Aug 2004 13:28:08 -0700 (PDT)
-From: Jon Smirl <jonsmirl@yahoo.com>
-Subject: Re: [PATCH] add PCI ROMs to sysfs
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Greg KH <greg@kroah.com>, Jesse Barnes <jbarnes@engr.sgi.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Martin Mares <mj@ucw.cz>, linux-pci@atrey.karlin.mff.cuni.cz,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Petr Vandrovec <VANDROVE@vc.cvut.cz>
-In-Reply-To: <1092311491.21995.19.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 12 Aug 2004 16:33:00 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:42679 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S268757AbUHLUcI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 16:32:08 -0400
+Subject: Re: [PATCH] SCSI midlayer power management
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Nathan Bryant <nbryant@optonline.net>,
+       Linux SCSI Reflector <linux-scsi@vger.kernel.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>
+In-Reply-To: <20040812202622.GD14556@elf.ucw.cz>
+References: <4119611D.60401@optonline.net>
+	<20040811080935.GA26098@elf.ucw.cz> <411A1B72.1010302@optonline.net>
+	<1092231462.2087.3.camel@mulgrave> <1092267400.2136.24.camel@gaston>
+	<1092314892.1755.5.camel@mulgrave> <20040812131457.GB1086@elf.ucw.cz>
+	<1092328173.2184.15.camel@mulgrave> <20040812191120.GA14903@elf.ucw.cz>
+	<1092339247.1755.36.camel@mulgrave>  <20040812202622.GD14556@elf.ucw.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 12 Aug 2004 16:31:51 -0400
+Message-Id: <1092342716.2184.56.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+On Thu, 2004-08-12 at 16:26, Pavel Machek wrote:
+> Yes.
 
-> On Iau, 2004-08-12 at 00:31, Jon Smirl wrote:
-> > How are we supposed to implement this without a copy? Once the
-> device
-> > driver is loaded there is never a safe way access the ROM again
-> because
-> > an interrupt or another CPU might use the PCI decoders to access
-> the
-> > other hardware and disrupt the ROM read. You have to copy the ROM
-> when
-> > the driver says it is safe.
-> 
-> It's never safe essentially. The only way you can make it safe for
-> this
-> case is to put the knowledge in the device driver for that specific
-> card
-> rather than sysfs.
+Well, that makes the suspend and resume functions rather complex. 
+They're not going to be coded simply if we have to save and restore the
+register state of the cards and reinitialise them.  I assume if you had
+to pick three drivers to do this for, that would be aic7xxx, aic79xx and
+sym_2?
 
-I added these two calls to the pci API just for the case of partially
-decoded hardware. The device driver for the hardware needs to make
-these calls.
-
-unsigned char *pci_map_rom_copy(struct pci_dev *dev, size_t *size);
-
-Call this one from the driver when it is safe to read the ROM. It will
-copy it and then provide a virtual address so that you can read it. The
-copy is stored in the kernel so that the sysfs attribute will work
-right.
-
-void pci_remove_rom(struct pci_dev *dev);
-
-Call this one from the driver to simply remove the ROM attribute.
-
-Before the driver is loaded we have to assume that it safe to read the
-ROM normally and the sysfs attribute will directly access the ROM.
+James
 
 
-unsigned char *pci_map_rom(struct pci_dev *dev, size_t *size);
-
-For normal hardware that implements full decoding use this call. It
-will automatically sort out the need to use the real ROM or a shadow
-copy.
-
-void pci_unmap_rom(struct pci_dev *dev, unsigned char *rom);
-
-When you are done with a mapping use this
-
-Normal ROMs do not make copies. The only time a copy happens is when a
-device driver for a partially decoded device calls pci_map_rom_copy().
-
-=====
-Jon Smirl
-jonsmirl@yahoo.com
-
-
-		
-__________________________________
-Do you Yahoo!?
-New and Improved Yahoo! Mail - Send 10MB messages!
-http://promotions.yahoo.com/new_mail 

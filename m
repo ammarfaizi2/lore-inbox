@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269897AbUJTEKw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270074AbUJTEKx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269897AbUJTEKw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 00:10:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270210AbUJSXjK
+	id S270074AbUJTEKx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 00:10:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270193AbUJSXi3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 19:39:10 -0400
-Received: from mail.kroah.org ([69.55.234.183]:8074 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S270118AbUJSWqc convert rfc822-to-8bit
+	Tue, 19 Oct 2004 19:38:29 -0400
+Received: from mail.kroah.org ([69.55.234.183]:8330 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S270074AbUJSWqc convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 19 Oct 2004 18:46:32 -0400
 X-Fake: the user-agent is fake
 Subject: Re: [PATCH] PCI fixes for 2.6.9
 User-Agent: Mutt/1.5.6i
-In-Reply-To: <10982257353938@kroah.com>
-Date: Tue, 19 Oct 2004 15:42:15 -0700
-Message-Id: <10982257352551@kroah.com>
+In-Reply-To: <1098225736472@kroah.com>
+Date: Tue, 19 Oct 2004 15:42:16 -0700
+Message-Id: <1098225736981@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
@@ -23,155 +23,172 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1997.37.26, 2004/10/06 12:25:27-07:00, greg@kroah.com
+ChangeSet 1.1997.37.37, 2004/10/06 13:01:19-07:00, greg@kroah.com
 
-[PATCH] PCI: get rid of pci_find_device() from arch/i386/*
+[PATCH] ibmasm: fix __iomem warnings
 
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- arch/i386/kernel/cpu/cpufreq/gx-suspmod.c |    3 ++-
- arch/i386/kernel/cpu/cyrix.c              |   12 ++++++++++--
- arch/i386/pci/acpi.c                      |    2 +-
- arch/i386/pci/i386.c                      |    4 ++--
- arch/i386/pci/irq.c                       |   20 +++++++++++++-------
- 5 files changed, 28 insertions(+), 13 deletions(-)
+ drivers/misc/ibmasm/ibmasm.h   |    2 +-
+ drivers/misc/ibmasm/ibmasmfs.c |    4 ++--
+ drivers/misc/ibmasm/lowlevel.c |    2 +-
+ drivers/misc/ibmasm/lowlevel.h |   30 +++++++++++++++---------------
+ drivers/misc/ibmasm/uart.c     |    2 +-
+ 5 files changed, 20 insertions(+), 20 deletions(-)
 
 
-diff -Nru a/arch/i386/kernel/cpu/cpufreq/gx-suspmod.c b/arch/i386/kernel/cpu/cpufreq/gx-suspmod.c
---- a/arch/i386/kernel/cpu/cpufreq/gx-suspmod.c	2004-10-19 15:25:25 -07:00
-+++ b/arch/i386/kernel/cpu/cpufreq/gx-suspmod.c	2004-10-19 15:25:25 -07:00
-@@ -199,7 +199,7 @@
- 	}
+diff -Nru a/drivers/misc/ibmasm/ibmasm.h b/drivers/misc/ibmasm/ibmasm.h
+--- a/drivers/misc/ibmasm/ibmasm.h	2004-10-19 15:24:21 -07:00
++++ b/drivers/misc/ibmasm/ibmasm.h	2004-10-19 15:24:21 -07:00
+@@ -158,7 +158,7 @@
+ struct service_processor {
+ 	struct list_head	node;
+ 	spinlock_t		lock;
+-	void 			*base_address;
++	void __iomem		*base_address;
+ 	unsigned int		irq;
+ 	struct command		*current_command;
+ 	struct command		*heartbeat;
+diff -Nru a/drivers/misc/ibmasm/ibmasmfs.c b/drivers/misc/ibmasm/ibmasmfs.c
+--- a/drivers/misc/ibmasm/ibmasmfs.c	2004-10-19 15:24:21 -07:00
++++ b/drivers/misc/ibmasm/ibmasmfs.c	2004-10-19 15:24:21 -07:00
+@@ -520,7 +520,7 @@
  
- 	/* detect which companion chip is used */
--	while ((gx_pci = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, gx_pci)) != NULL) {
-+	while ((gx_pci = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, gx_pci)) != NULL) {
- 		if ((pci_match_device (gx_chipset_tbl, gx_pci)) != NULL) {
- 			return gx_pci;
- 		}
-@@ -499,6 +499,7 @@
- static void __exit cpufreq_gx_exit(void)
+ static ssize_t remote_settings_file_read(struct file *file, char __user *buf, size_t count, loff_t *offset)
  {
- 	cpufreq_unregister_driver(&gx_suspmod_driver);
-+	pci_dev_put(gx_params->cs55x0);
- 	kfree(gx_params);
+-	unsigned long address = (unsigned long)file->private_data;
++	void __iomem *address = (void __iomem *)file->private_data;
+ 	unsigned char *page;
+ 	int retval;
+ 	int len = 0;
+@@ -554,7 +554,7 @@
+ 
+ static ssize_t remote_settings_file_write(struct file *file, const char __user *ubuff, size_t count, loff_t *offset)
+ {
+-	unsigned long address = (unsigned long)file->private_data;
++	void __iomem *address = (void __iomem *)file->private_data;
+ 	char *buff;
+ 	unsigned int value;
+ 
+diff -Nru a/drivers/misc/ibmasm/lowlevel.c b/drivers/misc/ibmasm/lowlevel.c
+--- a/drivers/misc/ibmasm/lowlevel.c	2004-10-19 15:24:21 -07:00
++++ b/drivers/misc/ibmasm/lowlevel.c	2004-10-19 15:24:21 -07:00
+@@ -58,7 +58,7 @@
+ {
+ 	u32	mfa;
+ 	struct service_processor *sp = (struct service_processor *)dev_id;
+-	void *base_address = sp->base_address;
++	void __iomem *base_address = sp->base_address;
+ 
+ 	if (!sp_interrupt_pending(base_address))
+ 		return IRQ_NONE;
+diff -Nru a/drivers/misc/ibmasm/lowlevel.h b/drivers/misc/ibmasm/lowlevel.h
+--- a/drivers/misc/ibmasm/lowlevel.h	2004-10-19 15:24:21 -07:00
++++ b/drivers/misc/ibmasm/lowlevel.h	2004-10-19 15:24:21 -07:00
+@@ -52,51 +52,51 @@
+ #define SCOUT_COM_C_BASE         0x0200   
+ #define SCOUT_COM_D_BASE         0x0300   
+ 
+-static inline int sp_interrupt_pending(void *base_address)
++static inline int sp_interrupt_pending(void __iomem *base_address)
+ {
+ 	return SP_INTR_MASK & readl(base_address + INTR_STATUS_REGISTER);
  }
  
-diff -Nru a/arch/i386/kernel/cpu/cyrix.c b/arch/i386/kernel/cpu/cyrix.c
---- a/arch/i386/kernel/cpu/cyrix.c	2004-10-19 15:25:25 -07:00
-+++ b/arch/i386/kernel/cpu/cyrix.c	2004-10-19 15:25:25 -07:00
-@@ -192,6 +192,7 @@
- 	unsigned char dir0, dir0_msn, dir0_lsn, dir1 = 0;
- 	char *buf = c->x86_model_id;
- 	const char *p = NULL;
-+	struct pci_dev *dev;
- 
- 	/* Bit 31 in normal CPUID used for nonstandard 3DNow ID;
- 	   3DNow is IDd by bit 31 in extended CPUID (1*32+31) anyway */
-@@ -274,9 +275,16 @@
- 		/*
- 		 *  The 5510/5520 companion chips have a funky PIT.
- 		 */  
--		if (pci_find_device(PCI_VENDOR_ID_CYRIX, PCI_DEVICE_ID_CYRIX_5510, NULL) ||
--		    pci_find_device(PCI_VENDOR_ID_CYRIX, PCI_DEVICE_ID_CYRIX_5520, NULL))
-+		dev = pci_get_device(PCI_VENDOR_ID_CYRIX, PCI_DEVICE_ID_CYRIX_5510, NULL);
-+		if (dev) {
-+			pci_dev_put(dev);
- 			pit_latch_buggy = 1;
-+		}
-+		dev =  pci_find_device(PCI_VENDOR_ID_CYRIX, PCI_DEVICE_ID_CYRIX_5520, NULL);
-+		if (dev) {
-+			pci_dev_put(dev);
-+			pit_latch_buggy = 1;
-+		}
- 
- 		/* GXm supports extended cpuid levels 'ala' AMD */
- 		if (c->cpuid_level == 2) {
-diff -Nru a/arch/i386/pci/acpi.c b/arch/i386/pci/acpi.c
---- a/arch/i386/pci/acpi.c	2004-10-19 15:25:25 -07:00
-+++ b/arch/i386/pci/acpi.c	2004-10-19 15:25:25 -07:00
-@@ -35,7 +35,7 @@
- 	 * also do it here in case there are still broken drivers that
- 	 * don't use pci_enable_device().
- 	 */
--	while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL)
-+	while ((dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL)
- 		acpi_pci_irq_enable(dev);
- 
- #ifdef CONFIG_X86_IO_APIC
-diff -Nru a/arch/i386/pci/i386.c b/arch/i386/pci/i386.c
---- a/arch/i386/pci/i386.c	2004-10-19 15:25:25 -07:00
-+++ b/arch/i386/pci/i386.c	2004-10-19 15:25:25 -07:00
-@@ -124,7 +124,7 @@
- 	u16 command;
- 	struct resource *r, *pr;
- 
--	while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
-+	while ((dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
- 		pci_read_config_word(dev, PCI_COMMAND, &command);
- 		for(idx = 0; idx < 6; idx++) {
- 			r = &dev->resource[idx];
-@@ -168,7 +168,7 @@
- 	int idx;
- 	struct resource *r;
- 
--	while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
-+	while ((dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
- 		int class = dev->class >> 8;
- 
- 		/* Don't touch classless devices and host bridges */
-diff -Nru a/arch/i386/pci/irq.c b/arch/i386/pci/irq.c
---- a/arch/i386/pci/irq.c	2004-10-19 15:25:25 -07:00
-+++ b/arch/i386/pci/irq.c	2004-10-19 15:25:25 -07:00
-@@ -455,12 +455,18 @@
- 
- static __init int intel_router_probe(struct irq_router *r, struct pci_dev *router, u16 device)
+-static inline int uart_interrupt_pending(void *base_address)
++static inline int uart_interrupt_pending(void __iomem *base_address)
  {
-+	struct pci_dev *dev1, *dev2;
-+
- 	/* 440GX has a proprietary PIRQ router -- don't use it */
--	if (	pci_find_device(PCI_VENDOR_ID_INTEL,
--				PCI_DEVICE_ID_INTEL_82443GX_0, NULL) ||
--		pci_find_device(PCI_VENDOR_ID_INTEL,
--				PCI_DEVICE_ID_INTEL_82443GX_2, NULL))
-+	dev1 = pci_get_device(PCI_VENDOR_ID_INTEL,
-+				PCI_DEVICE_ID_INTEL_82443GX_0, NULL);
-+	dev2 = pci_get_device(PCI_VENDOR_ID_INTEL,
-+				PCI_DEVICE_ID_INTEL_82443GX_2, NULL);
-+	if ((dev1 != NULL) || (dev2 != NULL)) {
-+		pci_dev_put(dev1);
-+		pci_dev_put(dev2);
- 		return 0;
-+	}
+ 	return UART_INTR_MASK & readl(base_address + INTR_STATUS_REGISTER);
+ }
  
- 	switch(device)
- 	{
-@@ -804,7 +810,7 @@
- 	printk(KERN_INFO "PCI: %s IRQ %d for device %s\n", msg, irq, pci_name(dev));
+-static inline void ibmasm_enable_interrupts(void *base_address, int mask)
++static inline void ibmasm_enable_interrupts(void __iomem *base_address, int mask)
+ {
+-	void *ctrl_reg = base_address + INTR_CONTROL_REGISTER;
++	void __iomem *ctrl_reg = base_address + INTR_CONTROL_REGISTER;
+ 	writel( readl(ctrl_reg) & ~mask, ctrl_reg);
+ }
  
- 	/* Update IRQ for all devices with the same pirq value */
--	while ((dev2 = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev2)) != NULL) {
-+	while ((dev2 = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev2)) != NULL) {
- 		pci_read_config_byte(dev2, PCI_INTERRUPT_PIN, &pin);
- 		if (!pin)
- 			continue;
-@@ -838,7 +844,7 @@
- 	u8 pin;
+-static inline void ibmasm_disable_interrupts(void *base_address, int mask)
++static inline void ibmasm_disable_interrupts(void __iomem *base_address, int mask)
+ {
+-	void *ctrl_reg = base_address + INTR_CONTROL_REGISTER;
++	void __iomem *ctrl_reg = base_address + INTR_CONTROL_REGISTER;
+ 	writel( readl(ctrl_reg) | mask, ctrl_reg);
+ }
  
- 	DBG("PCI: IRQ fixup\n");
--	while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
-+	while ((dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
- 		/*
- 		 * If the BIOS has set an out of range IRQ number, just ignore it.
- 		 * Also keep track of which IRQ's are already in use.
-@@ -854,7 +860,7 @@
- 	}
+-static inline void enable_sp_interrupts(void *base_address)
++static inline void enable_sp_interrupts(void __iomem *base_address)
+ {
+ 	ibmasm_enable_interrupts(base_address, SP_INTR_MASK);
+ }
  
- 	dev = NULL;
--	while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
-+	while ((dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
- 		pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &pin);
- #ifdef CONFIG_X86_IO_APIC
- 		/*
+-static inline void disable_sp_interrupts(void *base_address)
++static inline void disable_sp_interrupts(void __iomem *base_address)
+ {
+ 	ibmasm_disable_interrupts(base_address, SP_INTR_MASK);
+ }
+ 
+-static inline void enable_uart_interrupts(void *base_address)
++static inline void enable_uart_interrupts(void __iomem *base_address)
+ {
+ 	ibmasm_enable_interrupts(base_address, UART_INTR_MASK); 
+ }
+ 
+-static inline void disable_uart_interrupts(void *base_address)
++static inline void disable_uart_interrupts(void __iomem *base_address)
+ {
+ 	ibmasm_disable_interrupts(base_address, UART_INTR_MASK); 
+ }
+ 
+ #define valid_mfa(mfa)	( (mfa) != NO_MFAS_AVAILABLE )
+ 
+-static inline u32 get_mfa_outbound(void *base_address)
++static inline u32 get_mfa_outbound(void __iomem *base_address)
+ {
+ 	int retry;
+ 	u32 mfa;
+@@ -109,12 +109,12 @@
+ 	return mfa;
+ }
+ 
+-static inline void set_mfa_outbound(void *base_address, u32 mfa)
++static inline void set_mfa_outbound(void __iomem *base_address, u32 mfa)
+ {
+    	writel(mfa, base_address + OUTBOUND_QUEUE_PORT);
+ }
+ 
+-static inline u32 get_mfa_inbound(void *base_address)
++static inline u32 get_mfa_inbound(void __iomem *base_address)
+ {
+ 	u32 mfa = readl(base_address + INBOUND_QUEUE_PORT);
+ 
+@@ -124,12 +124,12 @@
+ 	return mfa;
+ }
+ 
+-static inline void set_mfa_inbound(void *base_address, u32 mfa)
++static inline void set_mfa_inbound(void __iomem *base_address, u32 mfa)
+ {
+    	writel(mfa, base_address + INBOUND_QUEUE_PORT);
+ }
+ 
+-static inline struct i2o_message *get_i2o_message(void *base_address, u32 mfa)
++static inline struct i2o_message *get_i2o_message(void __iomem *base_address, u32 mfa)
+ {
+ 	return (struct i2o_message *)(GET_MFA_ADDR(mfa) + base_address);
+ }
+diff -Nru a/drivers/misc/ibmasm/uart.c b/drivers/misc/ibmasm/uart.c
+--- a/drivers/misc/ibmasm/uart.c	2004-10-19 15:24:21 -07:00
++++ b/drivers/misc/ibmasm/uart.c	2004-10-19 15:24:21 -07:00
+@@ -34,7 +34,7 @@
+ void ibmasm_register_uart(struct service_processor *sp)
+ {
+ 	struct serial_struct serial;
+-	unsigned char *iomem_base;
++	void __iomem *iomem_base;
+ 
+ 	iomem_base = sp->base_address + SCOUT_COM_B_BASE;
+ 
 

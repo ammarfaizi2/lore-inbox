@@ -1,65 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264030AbTKSL5k (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Nov 2003 06:57:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264034AbTKSL5k
+	id S264022AbTKSM1Y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Nov 2003 07:27:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264024AbTKSM1Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Nov 2003 06:57:40 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:5003 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S264030AbTKSL5i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Nov 2003 06:57:38 -0500
-Date: Wed, 19 Nov 2003 12:57:34 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Ronald Lembcke <es186@fen-net.de>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: bugfix =?iso-8859-1?Q?f=FC?= =?iso-8859-1?Q?r?= RadeonFB
- (against 2.4.22-ac4, bug in 2.6.0-test9, too)
-In-Reply-To: <20031119115016.GA2912@defiant.crash>
-Message-ID: <Pine.GSO.4.21.0311191254160.7852-100000@waterleaf.sonytel.be>
+	Wed, 19 Nov 2003 07:27:24 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:44982 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S264022AbTKSM1T
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Nov 2003 07:27:19 -0500
+Date: Wed, 19 Nov 2003 10:17:32 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.4.23-rc2
+Message-ID: <Pine.LNX.4.44.0311191013530.1383-100000@logos.cnet>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Nov 2003, Ronald Lembcke wrote:
-> On Wed, Nov 19, 2003 at 10:50:22AM +0100, Geert Uytterhoeven wrote:
-> > Your change is not correct: bpp is the _physical_ bits per pixel, i.e. it's 16
-> > for both color depth 15 (5/5/5 mode) and color depth 16 (5/6/5).
-> > 
-> > To differentiate between 5/5/5 and 5/6/5, you have to look at green.length, and
-> > apply standard fbdev fit-our-round-up[*] rules.
-> I don't see where this rule applies here. I searched on google, but
-> did't find anything about rounding of color depth.
-> 
-> > Note that some hardware in addition does RGBA4444, too.
-> Yes, but that nothing to do with these patches.
-> 
-> Sorry, I don't see, where my patches for intelfb and radonfb (as said
-> before, I'm not sure about the imsttfb patch anyway) make the driver
-> less correct. Where are they wrong?
-> 
-> Nothing about the use of bits_per_pixel is changed.
-> The only change is whether 555 or 565 is default.
 
-Which depends on the color bitmask lengths...
+Hi, 
 
-> If those patches are wrong, than matroxfb and rivafb are buggy, too:
+Here it goes -rc2. 
 
-Most drivers indeed don't apply the fit-our-round-up rules to the color bitmask
-lengths.
+Important netfilter fixes, several ACPI fixes, few driver corrections 
+(tulip, tg3, megaraid2), amongst others.
 
-My main concern is that while you touch those parts of the code, you should
-make it follow the rules instead of doing some ad-hoc changes.
+If no problems shows up this should become final in a few days.
 
-Gr{oetje,eeting}s,
 
-						Geert
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Summary of changes from v2.4.23-rc1 to v2.4.23-rc2
+============================================
+
+<atul.mukker:lsil.com>:
+  o [scsi megaraid2] fix DMA sync to use correct S/G list pointer
+
+<davej:redhat.com>:
+  o Correct cmpci fix
+
+<khali:linux-fr.org>:
+  o Update I2C maintainers entry
+
+<len.brown:intel.com>:
+  o [ACPI] fix CONFIG_HOTPLUG_PCI_ACPI config (Xose Vazquez Perez)
+  o [ACPI] If ACPI is disabled by DMI BIOS date, then turn it off completely, including table parsing for HT.
+  o [ACPI] In ACPI mode, delay print_IO_APIC() to make its output valid
+  o [ACPI] fix poweroff failure ala 2.6 (Ducrot Bruno) http://bugzilla.kernel.org/show_bug.cgi?id=1456
+  o [ACPI] fix ACPI/legacy interrupt sharing issue ala 2.6 http://bugzilla.kernel.org/show_bug.cgi?id=1283
+  o [ACPI] print_IO_APIC() only after it is actually programmed http://bugzilla.kernel.org/show_bug.cgi?id=1177
+  o [ACPI] "acpi_pic_sci=edge" in case platform requires Edge Triggered SCI http://bugzilla.kernel.org/show_bug.cgi?id=1390
+  o [ACPI ] pci=acpi ineffective fix from i386 2.6 (Thomas Schlichter) http://bugzilla.kernel.org/show_bug.cgi?id=1219
+  o [ACPI] Re-enable IRQ balacning if IOAPIC mode http://bugzilla.kernel.org/show_bug.cgi?id=1440
+  o [ACPI] fix x86_64 build errors
+  o [ACPI] Maintainer: Andy Grover -> Len Brown
+  o [ACPI] fix x86_64 !CONFIG_ACPI build
+  o 2.4.23 build x86_64 build fixes
+  o i386 build fix from previous cset
+  o x86_64 build fix from previous cset
+  o [ACPI] sync some i386 ACPI build fixes into x86_64 to fix !CONFIG_ACPI build
+  o "pci=noacpi" use pci_disable_acpi() instead of touching use_acpi_pci directly
+
+<livio:ime.usp.br>:
+  o Backport inode_hash race fix
+
+<marcelo:logos.cnet>:
+  o Exclude broken netfilter hunk: laforge@netfilter.org|ChangeSet|20030904111137|30468
+  o Cset exclude: xose@wanadoo.es|ChangeSet|20031115132946|56340
+  o Changed EXTRAVERSION to -rc2
+  o Cset exclude: davej@redhat.com|ChangeSet|20031114154840|57070
+
+<pmeda:akamai.com>:
+  o [netdrvr tulip] fix hashed setup frame code
+
+<xose:wanadoo.es>:
+  o pci-irq.c bad PCI ident of 440GX host bridge
+
+Adrian Bunk:
+  o fixup after synclink update
+
+Andi Kleen:
+  o Readd IORR changes to Nvidia k7 driver
+  o Remaining x86-64 updates
+  o Add memory clobber to ip_fast_csum
+
+Harald Welte:
+  o Netfilter: Sane ip_ct_tcp_timeout_close_wait value
+
+Herbert Xu:
+  o [netdrvr tg3] fix tqueue initialization
+
+
 

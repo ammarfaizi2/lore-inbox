@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129041AbRBJWVJ>; Sat, 10 Feb 2001 17:21:09 -0500
+	id <S129027AbRBJW3K>; Sat, 10 Feb 2001 17:29:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129849AbRBJWU7>; Sat, 10 Feb 2001 17:20:59 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:28925 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129041AbRBJWU4>; Sat, 10 Feb 2001 17:20:56 -0500
-Date: Sat, 10 Feb 2001 20:20:27 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Dag Wieers <dag@mind.be>, linux-kernel@vger.kernel.org
-Subject: Re: Unresolved symbols for wavelan_cs in 2.4.1-ac9
-In-Reply-To: <E14RfiI-0002AB-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0102102019410.2378-100000@duckman.distro.conectiva>
+	id <S129041AbRBJW2v>; Sat, 10 Feb 2001 17:28:51 -0500
+Received: from thalia.fm.intel.com ([132.233.247.11]:60421 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S129027AbRBJW2l>; Sat, 10 Feb 2001 17:28:41 -0500
+Message-ID: <D5E932F578EBD111AC3F00A0C96B1E6F07DBE02F@orsmsx31.jf.intel.com>
+From: "Dunlap, Randy" <randy.dunlap@intel.com>
+To: "'Hasan Abbasi'" <u970066@giki.edu.pk>, linux-kernel@vger.kernel.org
+Subject: RE: Unresolved Symbol error
+Date: Sat, 10 Feb 2001 14:28:04 -0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="windows-1252"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 10 Feb 2001, Alan Cox wrote:
-
-> > I noticed a single unresolved symbol in wavelan_cs.o and I fixed it as
-> > described below.
+> I am trying to create a catcher module that will provide a 
+> distributed layer over the file system. To do this I am using 
+> a kernel module to intercept and pre process the open system 
+> call. However I need to use some functions such as strlen() 
+> and memcpy() etc. When I try to compile the module it 
+> compiles fine. Without any errors. However when I insert the 
+> module using insmod <module name> I get an error:
+> catcher.o: unresolved symbol strlen
 > 
-> Rejected. It is meant not to be there.
+> I am compiling the module using -D__KERNEL__ -DMODULE -DLINUX 
+> options. Is there some thing else that I have to do to use 
+> the strlen function. 
 
-To be more specific ... __bad_udelay() is meant to be an
-unresolvable symbol, which is referenced when people call
-udelay with a "wrong" timeout.
+Also use -O2 .
 
-regards,
-
-Rik
---
-Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
-
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+~Randy
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

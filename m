@@ -1,96 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132615AbRDWKDQ>; Mon, 23 Apr 2001 06:03:16 -0400
+	id <S132629AbRDWKVj>; Mon, 23 Apr 2001 06:21:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132724AbRDWKDH>; Mon, 23 Apr 2001 06:03:07 -0400
-Received: from mail2.zrz.TU-Berlin.DE ([130.149.4.14]:57570 "EHLO
-	mail2.zrz.tu-berlin.de") by vger.kernel.org with ESMTP
-	id <S132615AbRDWKC6>; Mon, 23 Apr 2001 06:02:58 -0400
-Date: Mon, 23 Apr 2001 12:02:21 +0200
-From: Daniel Dorau <woodst@cs.tu-berlin.de>
-To: Mick_Tantasirikorn@Dell.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Inspiron 8000 does not resume after suspend
-Message-ID: <20010423120221.A422@woodstock.home.xxx>
-In-Reply-To: <B7D17C5753C8D111AFD200A0C99DAFF405EC01AC@ausxmbrh07.aus.amer.dell.com>
-Mime-Version: 1.0
+	id <S132659AbRDWKVa>; Mon, 23 Apr 2001 06:21:30 -0400
+Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:3845 "EHLO
+	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S132629AbRDWKVR>; Mon, 23 Apr 2001 06:21:17 -0400
+From: rjd@xyzzy.clara.co.uk
+Message-Id: <200104231021.f3NAL7P22306@xyzzy.clara.co.uk>
+Subject: New driver for FarSite synchronous cards
+To: linux-kernel@vger.kernel.org
+Date: Mon, 23 Apr 2001 11:21:07 +0100 (BST)
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <B7D17C5753C8D111AFD200A0C99DAFF405EC01AC@ausxmbrh07.aus.amer.dell.com>; from Mick_Tantasirikorn@Dell.com on Sun, Apr 22, 2001 at 09:45:37PM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 22, 2001 at 21:45:37 -0500, Mick_Tantasirikorn@Dell.com wrote:
-> Try turning off DRI in XF86Config-4.
-> 
-> Please let me know if this helps.
+Hi,
 
-Yes, removing agpgart gives me back earlier behaviour: The notebook
-wakes up after suspending with following restrictions:
+I've just completed the first draft of a new device driver for the FarSite
+Communications, FarSync T2P and T4P cards.  These cards are intelligent
+synchronous serial cards supporting 2 or 4 ports running at up to 8Mbps with
+X.21, V.35 or V.24 signalling.
 
-1. Internal NIC and maybe even modem do not wakeup
-   (kernel: eepro100: wait_for_cmd_done timeout!)
-   Can be temporarily fixed by restoring PCI settings with
-   setpci ... (script found on linux-kernel in february)
-   and ifdown eth0; ifup eth0
+This mail is basically a call for testers and reviewers, and a plea to find
+the overall maintainer for WAN card drivers.
 
-2. I can not use DRI since it doesn't wake up then (agpgart loaded)
+In house testing and review of the drivers is underway and until that is
+complete I can't put the sources on the company web site.  However I have been
+given permission to place the sources on my home site so that I can hopefully
+get some early testing and reviews from the community.  So please pull them
+apart guys.
 
-3. When running X (4.0.2) mouse is jumping around after resume
-   and needs to be reset by switching to console and back to X
+The sources are available at http://www.xyzzy.clara.co.uk/farsync either as a
+complete package with firmware, support utilities, driver etc for 2.2.x (from
+2.2.15) and 2.4.x systems, or as a driver only patch for 2.4.3ac12.  The latter
+I'm keen to get adopted as part of the standard kernel source (once reviewed
+of course) and hence the need to find the maintainer for that part of the
+kernel.  If it's you please get in contact, meantime I'm going to assume it's
+the much overworked Alan Cox.
 
-4. Keyboard repeat-rate is slowed down after resume
 
+Sources and patches at:
+    http://www.xyzzy.clara.co.uk/farsync/
 
-Is there a way to have at least 1.+2. fixed? Is this a problem
-with Dell's BIOS or Linux?
+More info on cards and other drivers at:
+    http://www.farsite.co.uk/
 
-
-Thanks,
-Daniel
-
- 
-> -----Original Message-----
-> From: Daniel Dorau [mailto:woodst@cs.tu-berlin.de]
-> Sent: Saturday, April 21, 2001 7:52 AM
-> To: linux-kernel@vger.kernel.org
-> Subject: Inspiron 8000 does not resume after suspend
-> 
-> 
-> Hello,
-> my Inspiron 8000 (BIOS A09) notebook running 2.4.3 does not resume 
-> after suspending. I have APM compiled in with the following options:
-> 
-> - Enable PM at boot time
-> - Make CPU Idle calls whe ide
-> - Enable console blanking using APM
-> - RTC stores time in GMT
-> 
-> Suspending with apm -s seem to work ok - at least it looks like.
-> Resuming however, does not work. There is a short disc
-> activity, then the harddrive LED is on for about 20 sec without
-> any noticable disc activity. Display doesn't switch on,
-> NIC (PCI, not PCMCIA) does not wake up (link LED stays off) and the
-> whole thing  keeps 'dead'.
-> With an older BIOS version that I upgraded because of a newer
-> ATI BIOS needed, it woke up execpt some PCI bridge(?) that I 
-> could re-activate with a setpci-script that I found in a
-> linux-kernel archive. So I think the problem is the same as
-> before.
-> Is there any way to fix that? I would really like to use
-> PM on my notebook.
-> 
-> Regards, 
-> Daniel
-> 
-> -- 
-> Daniel Dorau
-> woodst@cs.tu-berlin.de 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+-- 
+        Bob Dunlop                      FarSite Communications
+        rjd@xyzzy.clara.co.uk           bob.dunlop@farsite.co.uk
+        www.xyzzy.clara.co.uk           www.farsite.co.uk

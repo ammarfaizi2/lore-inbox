@@ -1,40 +1,69 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S156825AbPJDAhV>; Sun, 3 Oct 1999 20:37:21 -0400
-Received: by vger.rutgers.edu id <S156709AbPJDAhB>; Sun, 3 Oct 1999 20:37:01 -0400
-Received: from runyon.cygnus.com ([205.180.230.5]:33917 "EHLO cygnus.com") by vger.rutgers.edu with ESMTP id <S156680AbPJDAgp>; Sun, 3 Oct 1999 20:36:45 -0400
-Message-ID: <19991003203621.D1712@elmo.cygnus.com>
-Date: Sun, 3 Oct 1999 20:36:21 -0400
-From: Michael Meissner <meissner@cygnus.com>
-To: Wakko Warner <wakko@animx.eu.org>, linux-kernel@vger.rutgers.edu
-Subject: Re: How do I boot over network
-References: <19991002133802.A14240@animx.eu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.91.1
-In-Reply-To: <19991002133802.A14240@animx.eu.org>; from Wakko Warner on Sat, Oct 02, 1999 at 01:38:02PM -0400
+Received: by vger.rutgers.edu via listexpand id <S157086AbPJDDOr>; Sun, 3 Oct 1999 23:14:47 -0400
+Received: by vger.rutgers.edu id <S156782AbPJDDOX>; Sun, 3 Oct 1999 23:14:23 -0400
+Received: from isunix.it.ilstu.edu ([138.87.124.103]:1110 "EHLO isunix.it.ilstu.edu") by vger.rutgers.edu with ESMTP id <S156961AbPJDDM3>; Sun, 3 Oct 1999 23:12:29 -0400
+From: Tim Hockin <thockin@isunix.it.ilstu.edu>
+Message-Id: <199910040304.WAA13049@isunix.it.ilstu.edu>
+Subject: New Pset version
+To: linux-kernel@vger.rutgers.edu, linux-smp@vger.rutgers.edu
+Date: Sun, 3 Oct 1999 22:04:53 -0500 (CDT)
+Content-Type: text
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-On Sat, Oct 02, 1999 at 01:38:02PM -0400, Wakko Warner wrote:
-> I have an intel etherexpress 10/100 in a diskless machine.  It gets it's ip
-> address and tftp's the kernel image.  Once it transfers control to the
-> image, I get 8000 scrolling down the screen and the floppy drive is
-> constantly on.
+The newest version of Pset (against 2.2.12 still) is now available.
 
-You might want to look at:
+This is version 0.65, and can be found at
+http://isunix.it.ilstu.edu/~thockin/pset/.
 
-	http://nilo.on.openprojects.net/
 
-NILO is the Network Interface Loader. NILO will boot Linux, FreeBSD, Windows
-95/98/NT4 and support the Intel PXE standard, and is suitable for burning into
-ROM. It is an evolution of the previous Etherboot and Netboot projects, and was
-authored by Ken Yap, until Rob Savoye took over active development..
+Attached is the original announcement.  If this is interesting to you,
+please use it, and let me know how it goes!
 
-(I've not used it, but I used to work with Rob).
+Thanks,
+Tim
 
--- 
-Michael Meissner, Cygnus Solutions
-PMB 198, 174 Littleton Road #3, Westford, Massachusetts 01886
-email: meissner@cygnus.com	phone: 978-486-9304	fax: 978-692-4482
+
+
+
+PSET - Processor Sets for the Linux kernel
+http://isunix.it.ilstu.edu/~thockin/pset/
+
+Announcing pset/sysmp for Linux/SMP !!
+--------------------------------------------------------
+This project has undergone a complete, from-scratch rewrite since v0.5x.
+If you are using a version earlier than 0.60, I encourage you to get to
+at LEAST 0.60.  If you are using anything less than the latest, I
+reccomend you get the latest :)
+
+The goal of this project is to make a source compatible and functionally
+equivalent version of pset (as defined by SGI - partially removed from
+their IRIX kernel 6.4 and up) for Linux.  This enables users to determine 
+which processor or set of processors a process may run on.
+
+It is focused around the syscall sysmp().  This function takes a number of
+parameters that determine which function is requested.  Functions include:
+	* binding a process/thread to a specific CPU
+	* restricting a CPU's ability to execute some processes
+	* restricting a CPU from running at all
+	* forcing a cpu to run _only_ one process (and its children)
+	* getting information about a CPU's state
+	* creating/destroying sets of processors, to which processes may be
+	  bound
+
+A secondary goal is to provide a library of routines that will act as wrappers 
+for sysmp() and provide source-compatibility with other UNIX API's which do the 
+same thing.  Currently targeted are processor_bind() + family and bind_to_cpu() 
++ family.
+
+Tim
+thockin@isunix.it.ilstu.edu
+
+DISCLAIMER
+----------
+All standard disclaimers, blah blah blah.  This is not guaranteed to be
+useful, or to even work.  There is no warrantee, not even that of fitness
+for a purpose.  For all I know, your system will blow up.  It hasn't
+happened yet, but it could.  It's not my fault. :)
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

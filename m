@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272632AbRIGMxM>; Fri, 7 Sep 2001 08:53:12 -0400
+	id <S272635AbRIGM4c>; Fri, 7 Sep 2001 08:56:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272633AbRIGMxD>; Fri, 7 Sep 2001 08:53:03 -0400
-Received: from prfdec.natur.cuni.cz ([195.113.56.1]:60420 "EHLO
-	prfdec.natur.cuni.cz") by vger.kernel.org with ESMTP
-	id <S272632AbRIGMwv>; Fri, 7 Sep 2001 08:52:51 -0400
-X-Envelope-From: mmokrejs
-Posted-Date: Fri, 7 Sep 2001 14:53:07 +0200 (MET DST)
-Date: Fri, 7 Sep 2001 14:53:07 +0200 (MET DST)
-From: =?iso-8859-2?Q?Martin_MOKREJ=A9?= <mmokrejs@natur.cuni.cz>
-To: Daniel Phillips <phillips@bonn-fries.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: __alloc_pages: 0-order allocation failed.
-In-Reply-To: <20010904160546Z16284-32383+3441@humbolt.nl.linux.org>
-Message-ID: <Pine.OSF.4.21.0109071451120.11540-100000@prfdec.natur.cuni.cz>
+	id <S272634AbRIGM4W>; Fri, 7 Sep 2001 08:56:22 -0400
+Received: from kaboom.dsl.xmission.com ([166.70.14.108]:10027 "EHLO
+	mail.oobleck.net") by vger.kernel.org with ESMTP id <S272633AbRIGM4L>;
+	Fri, 7 Sep 2001 08:56:11 -0400
+Date: Fri, 7 Sep 2001 06:56:26 -0600 (MDT)
+From: Chris Ricker <kaboom@gatech.edu>
+Reply-To: Chris Ricker <kaboom@gatech.edu>
+To: Robert Love <rml@tech9.net>
+Cc: World Domination Now! <linux-kernel@vger.kernel.org>
+Subject: Re: Linux Preemptive patch success 2.4.10-pre4 + lots of other
+ patches
+In-Reply-To: <999840042.1164.14.camel@phantasy>
+Message-ID: <Pine.LNX.4.33.0109070635220.26784-100000@verdande.oobleck.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Sep 2001, Daniel Phillips wrote:
+On 7 Sep 2001, Robert Love wrote:
 
-Hi,
-
-> On September 4, 2001 03:11 pm, Martin MOKREJ? wrote:
-> > Hi,
-> >   I'm getting the above error on 2.4.9 kernel with kernel HIGHMEM option
-> > enabled to 2GB, 2x Intel PentiumIII. The machine has 1GB RAM
-> > physically. Althougj I've found many report to linux-kernel list during
-> > past months, not a real solution. Maybe only:
-> > http://www.alsa-project.org/archive/alsa-devel/msg08629.html
+> On Fri, 2001-09-07 at 01:19, Daniel Phillips wrote:
+> > The other Unices are at least evenly split, or mostly preemptible.
+> > Typically, a more complex strategy is used where spinlocks can sleep
+> > after a few spins.  This patch is very conservative in that regard,
+> > it basically just uses the structure we already have, SMP spinlocks.
 > 
-> Try 2.4.10-pre4.
+> I did not know other Unices were (in general) preemptible.  Solaris is?
+> The only one I thought was preemptible was Irix.
 
-Hmm, so after a day of run we got it again:
-__alloc_pages: 0-order allocation failed (gfp=0x70/1).
+Solaris is, and has been since good ol' Solaris 2.0.  So's AIX and even more
+obscure things like DG/UX.  I'd think all SysVR4 derivatives have to be, by
+virtue of the SysV schedular (threads have priorities from 0 to 159; system
+threads run from 60 to 99, so the schedular must be able to preempt system 
+threads for the real-time threads from 100 to 159).
 
-> > so I think it's another problem in 2.4.9, right?
-> 
-> Yep.  Most probably bounce buffers, patch by Marcelo already in Linus's
-> tree.
+later,
+chris
 
-So it did not fix it? But the output now has extra "(gfp=0x70/1)" string
-appended.
-
-Any ideas?
 -- 
-Martin Mokrejs - PGP5.0i key is at http://www.natur.cuni.cz/~mmokrejs
-MIPS / Institute for Bioinformatics <http://mips.gsf.de>
-GSF - National Research Center for Environment and Health
-Ingolstaedter Landstrasse 1, D-85764 Neuherberg, Germany
+Chris Ricker                                               kaboom@gatech.edu
+                                                          chris@gurulabs.com
 

@@ -1,82 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266111AbTFWTHu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 15:07:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266112AbTFWTHu
+	id S266105AbTFWTFc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 15:05:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266111AbTFWTFc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 15:07:50 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50911 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266111AbTFWTHr
+	Mon, 23 Jun 2003 15:05:32 -0400
+Received: from mailf.telia.com ([194.22.194.25]:7154 "EHLO mailf.telia.com")
+	by vger.kernel.org with ESMTP id S266105AbTFWTFZ convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 15:07:47 -0400
-Date: Mon, 23 Jun 2003 20:21:54 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: [willy@debian.org: [PATCH] Missing Kconfig dependencies]
-Message-ID: <20030623192154.GB25982@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 23 Jun 2003 15:05:25 -0400
+X-Original-Recipient: linux-kernel@vger.kernel.org
+From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Daniel Gryniewicz <dang@fprintf.net>
+Subject: Memory? Re: O(1) scheduler & interactivity improvements
+Date: Mon, 23 Jun 2003 21:21:01 +0200
+User-Agent: KMail/1.5.9
+Cc: Helge Hafting <helgehaf@aitel.hist.no>,
+       LKML <linux-kernel@vger.kernel.org>
+References: <1056298069.601.18.camel@teapot.felipe-alfaro.com> <1056385266.1968.22.camel@athena.fprintf.net> <1056394770.587.8.camel@teapot.felipe-alfaro.com>
+In-Reply-To: <1056394770.587.8.camel@teapot.felipe-alfaro.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200306232121.02432.roger.larsson@skelleftea.mail.telia.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On måndagen den 23 juni 2003 20.59, Felipe Alfaro Solana wrote:
+> On Mon, 2003-06-23 at 18:21, Daniel Gryniewicz wrote:
+> > > So then, why I can easily starve the X11 server (which should be marked
+> > > interactive), Evolution or OpenOffice simply by running "while true; do
+> > > a=2; done". Why don't they get an increased priority boost to stop the
+> > > from behaving so jerky?
+> >
+> > You're own metric will kill you here.  You're while true; loop is
+> > running in the shell, which is interactive (it has accepted user in put
+> > in the past) and can therefore easily starve anything else.  You need a
+> > an easy way to make an interactive process non-interactive, and that's
+> > what these threads are all about, making interactive threads
+> > non-interactive (and the other way around) in a fashion that maximises
+> > the user experience.  A history of user input is not necessarily a good
+> > metric, as many non-interactive CPU hogs start out life as interactive
+> > threads (like your loop above).
+>
+> OK, replace "while true; ..." with a parallel kernel compile, for
+> example, and the effect, on a 700Mhz laptop, is nearly the same: you can
+> easily starve XMMS, and X11 feels jerky. Changing between virtual
+> desktops in KDE produces the same effect, also.
 
-DavidM wants these to go via you, Russell.
+And you are shure that you do not fill up your RAM?
+(700MHz laptop does not sound like lots of RAM...)
 
------ Forwarded message from Matthew Wilcox <willy@debian.org> -----
+* Parallel kernel compile, unlimited?
+* Changing virtual desktops might be memory limited too...
 
-Date:	Mon, 23 Jun 2003 20:11:47 +0100
-From:	Matthew Wilcox <willy@debian.org>
-To:	linux-ia64@vger.kernel.org
-Subject: [PATCH] Missing Kconfig dependencies
-User-Agent: Mutt/1.4.1i
-Precedence: bulk
-X-Mailing-List:	linux-ia64@vger.kernel.org
+Check with 'vmstat'
 
-
-If one turns off SERIAL_8250, these items shouldn't be selectable.
-Also gets the indentation right in `make oldconfig'.
-
-Index: drivers/serial/Kconfig
-===================================================================
-RCS file: /var/cvs/linux-2.5/drivers/serial/Kconfig,v
-retrieving revision 1.13
-diff -u -p -r1.13 Kconfig
---- a/drivers/serial/Kconfig	23 Jun 2003 03:30:31 -0000	1.13
-+++ b/drivers/serial/Kconfig	23 Jun 2003 19:01:59 -0000
-@@ -80,14 +80,14 @@ config SERIAL_8250_CS
- config SERIAL_8250_ACPI
- 	bool "8250/16550 device discovery via ACPI namespace"
- 	default y if IA64
--	depends on ACPI_BUS
-+	depends on ACPI_BUS && SERIAL_8250
- 	---help---
- 	  If you wish to enable serial port discovery via the ACPI
- 	  namespace, say Y here.  If unsure, say N.
- 
- config SERIAL_8250_HCDP
- 	bool "8250/16550 device discovery support via EFI HCDP table"
--	depends on IA64
-+	depends on IA64 && SERIAL_8250
- 	---help---
- 	  If you wish to make the serial console port described by the EFI
- 	  HCDP table available for use as serial console or general
+/RogerL
 
 -- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk
--
-To unsubscribe from this list: send the line "unsubscribe linux-ia64" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
-
-
------ End forwarded message -----
-
--- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk
+Roger Larsson
+Skellefteå
+Sweden

@@ -1,46 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292970AbSCDXKX>; Mon, 4 Mar 2002 18:10:23 -0500
+	id <S292967AbSCDXLx>; Mon, 4 Mar 2002 18:11:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292967AbSCDXKO>; Mon, 4 Mar 2002 18:10:14 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:30625 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S292970AbSCDXKB>; Mon, 4 Mar 2002 18:10:01 -0500
+	id <S292982AbSCDXLq>; Mon, 4 Mar 2002 18:11:46 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:50957 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S292967AbSCDXLi>;
+	Mon, 4 Mar 2002 18:11:38 -0500
+Date: Mon, 4 Mar 2002 20:11:21 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
 To: Andrea Arcangeli <andrea@suse.de>
-cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-        Rik van Riel <riel@conectiva.com.br>,
+Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
         Daniel Phillips <phillips@bonn-fries.net>,
         Bill Davidsen <davidsen@tmr.com>, Mike Fedyk <mfedyk@matchmail.com>,
-        linux-kernel@vger.kernel.org
-Reply-To: Gerrit Huizenga <gh@us.ibm.com>
-From: Gerrit Huizenga <gh@us.ibm.com>
-Subject: Re: 2.4.19pre1aa1 
-In-Reply-To: Your message of Mon, 04 Mar 2002 23:25:44 +0100.
-             <20020304232544.P20606@dualathlon.random> 
-Date: Mon, 04 Mar 2002 15:09:51 -0800
-Message-Id: <E16i1aZ-0000jQ-00@w-gerrit2>
+        <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.19pre1aa1
+In-Reply-To: <20020305000102.S20606@dualathlon.random>
+Message-ID: <Pine.LNX.4.44L.0203042007240.2181-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 5 Mar 2002, Andrea Arcangeli wrote:
+> On Mon, Mar 04, 2002 at 06:36:47PM -0300, Rik van Riel wrote:
+> > On Mon, 4 Mar 2002, Andrea Arcangeli wrote:
+> >
+> > > > 2) We can do local per-node scanning - no need to bounce
+> > > > information to and fro across the interconnect just to see what's
+> > > > worth swapping out.
+> > >
+> > > the lru lists are global at the moment, so for the normal swapout
+> > > activitiy rmap won't allow you to do what you mention above
+> >
+> > Actually, the lru lists are per zone and have been for a while.
+>
+> They're not in my tree
 
-In message <20020304232544.P20606@dualathlon.random>, > : Andrea Arcangeli writ
-es:
-> it's better to make sure to use all available ram in all nodes instead
-> of doing migrations when the local node is low on mem. But this again
-> depends on the kind of numa system, I'm considering the new numas, not
-> the old ones with the huge penality on the remote memory.
+Yeah, but you shouldn't judge rmap by what's in your tree ;))
 
-Andrea, don't forget that the "old" NUMAs will soon be the "new" NUMAs
-again.  The internal bus and clock speeds are still quite likely to
-increase faster than the speeds of most interconnects.  And even quite
-a few "big SMP" machines today are really somewhat NUMA-like with a
-2 to 1 - remote to local memory latency (e.g. the Corollary interconnect
-used on a lot of >4-way IA32 boxes is not as fast as the two local
-busses).
+Balancing is quite simple, too.
 
-So, desiging for the "new" NUMAs is fine if your code goes into
-production this year.  But if it is going into production in two to
-three years, you might want to be thinking about some greater memory
-latency ratios for the upcoming hardware configurations...
+> > The thing which was lacking up to now is a pagecache_lru_lock
+> > per zone, because this clashes with truncate().  Arjan came up
+> > with a creative solution to fix this problem and I'll integrate
+> > it into -rmap soon...
+>
+> making it a per-lru spinlock is natural scalability optimization, but
+> anyways pagemap_lru_lock isn't a very critical spinlock.
 
-gerrit
+That's what I used to think, too.  The folks at IBM showed
+me I was wrong and the pagemap_lru_lock is critical.
+
+
+> > I'd appreciate it if you could look at the implementation and
+> > look for areas to optimise. However, note that I don't believe
+>
+> I didn't had time to look too much into that yet (I had only a short
+> review so far), but I will certainly do that in some more time, looking
+> at it with a 2.5 long term prospective. I didn't liked too much that you
+> resurrected some of the old code that I don't think pays off. I would
+> preferred if you had rmap on top of my vm patch without reintroducing
+> the older logics. I still don't see the need of inactive_dirty and the
+> fact you dropped classzone and put the unreliable "plenty stuff" that
+> reintroduces design bugs that will lead kswapd go crazy again. But ok, I
+> don't worry too much about that, the rmap bits that maintains the
+> additional information are orthogonal with the other changes and that's
+> the interesting part of the patch after all.
+
+OK, lets try to put classzone on top of a Hammer "NUMA" system.
+
+You'll have one CPU starting to allocate from zone A, falling
+back to zone B and then further down.
+
+Another CPU starts allocating at zone B, falling back to A
+and then further down.
+
+How would you express this in classzone ?  I've looked at it
+for quite a while and haven't found a clean way to get this
+situation right with classzone, which is why I have removed
+it.
+
+As for kswapd going crazy, that is nicely fixed by having
+per zone lru lists... ;)
+
+regards,
+
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

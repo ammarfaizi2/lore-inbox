@@ -1,43 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277633AbRJLLgV>; Fri, 12 Oct 2001 07:36:21 -0400
+	id <S277629AbRJLLgl>; Fri, 12 Oct 2001 07:36:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277630AbRJLLgL>; Fri, 12 Oct 2001 07:36:11 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:32592 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S277629AbRJLLf6>; Fri, 12 Oct 2001 07:35:58 -0400
-Date: Fri, 12 Oct 2001 13:35:51 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Ville Herva <vherva@mail.niksula.cs.hut.fi>
-Cc: "T. A." <tkhoadfdsaf@hotmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Which kernel (Linus or ac)?
-Message-ID: <20011012133551.H714@athlon.random>
-In-Reply-To: <XFMail.20011011094548.jkp@riker.nailed.org> <3BC5E152.3D81631@bigfoot.com> <3BC5E3AF.588D0A55@lexus.com> <OE22ITtCsuSYkbAY0Jp0000df3f@hotmail.com> <20011012095618.R22640@niksula.cs.hut.fi>
+	id <S277630AbRJLLgc>; Fri, 12 Oct 2001 07:36:32 -0400
+Received: from elin.scali.no ([62.70.89.10]:6929 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S277629AbRJLLgO>;
+	Fri, 12 Oct 2001 07:36:14 -0400
+Subject: Re: so, no way to kill process? have to reboot?
+From: Terje Eggestad <terje.eggestad@scali.no>
+To: paulus@samba.org
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <15302.35510.947325.295210@cargo.ozlabs.ibm.com>
+In-Reply-To: <3BC6097F.79B6E2D1@nortelnetworks.com> 
+	<15302.35510.947325.295210@cargo.ozlabs.ibm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.15 (Preview Release)
+Date: 12 Oct 2001 13:36:42 +0200
+Message-Id: <1002886602.12392.73.camel@pc-16.office.scali.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011012095618.R22640@niksula.cs.hut.fi>; from vherva@niksula.hut.fi on Fri, Oct 12, 2001 at 09:56:19AM +0300
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 12, 2001 at 09:56:19AM +0300, Ville Herva wrote:
-> On Fri, Oct 12, 2001 at 12:37:01AM -0400, you [T. A.] claimed:
-> > Well I'd have to agree that for stability I'd also go for 2.2.x.  2.4.x
-> > isn't bad but 2.2.x is just rock stable right now.  Furthermore its been
-> > hard to gain confidence in 2.4.x with all the bugs that have yet to be
-> > worked out.  I'd use 2.2.x almost exclusively if it would just gain support
-> > for the latest EIDE chipsets, a journaling filesystem, and the latest SMP
-> > boards.  iptables and large file support would also be great.
-> 
-> Of course, you can get most of the IDE chipset support, fs support (reiserfs
-> 3.5, ext3) and LFS support as patches for 2.2:
 
-btw, just a reminder, 2.2.20pre10aa1 has full lfs support too
-(everything, including getdents64, nfv3, lockd all 64bit).
+fre, 2001-10-12 kl. 08:16 skrev Paul Mackerras:
+    Christopher Friesen writes:
+    
+    > Well, the unkillable process continues on.  Does nobody else have any ideas on
+    > how to kill an unkillable process in the R state thats sucking up all my unused
+    > cpu cycles?
+    
+    I would suspect that it is actually looping inside the kernel, which
+    would mean that there indeed was no way to kill it.  You could try
+    alt-scrolllock on the console and see if you get a register dump of
+    it, or maybe one of the alt-sysrq magic keys might give you some
+    information.  But I suspect that rebooting is ultimately going to be
+    your only solution.
+    
+You might find out if it's looping inside the kernel by doing strace -p
+<pid>, if you're stuck in a syscall, I *belive* strace'll tell you.
 
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.2/2.2.20pre10aa1.bz2
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.2/2.2.20pre10aa1/40_lfs-2.2.20pre10aa1-28.bz2
+You wouldn't by any chance be developing a kernel module??
 
-Andrea
+    Paul.
+    
+    -
+    To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+    the body of a message to majordomo@vger.kernel.org
+    More majordomo info at  http://vger.kernel.org/majordomo-info.html
+    Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+_________________________________________________________________________
+
+Terje Eggestad                  terje.eggestad@scali.no
+Scali Scalable Linux Systems    http://www.scali.com
+
+Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
+P.O.Box 70 Bogerud                      +47 975 31 574  (MOBILE)
+N-0621 Oslo                     fax:    +47 22 62 89 51
+NORWAY            
+_________________________________________________________________________
+

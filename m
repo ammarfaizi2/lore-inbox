@@ -1,50 +1,172 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261339AbVCNIns@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262081AbVCNIpj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261339AbVCNIns (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 03:43:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262066AbVCNIns
+	id S262081AbVCNIpj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 03:45:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262079AbVCNIpi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 03:43:48 -0500
-Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:54187 "HELO
-	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261339AbVCNInq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 03:43:46 -0500
-Message-ID: <42354EBA.3070504@yahoo.com.au>
-Date: Mon, 14 Mar 2005 19:43:38 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
-X-Accept-Language: en
+	Mon, 14 Mar 2005 03:45:38 -0500
+Received: from ozlabs.org ([203.10.76.45]:19593 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262066AbVCNIod (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 03:44:33 -0500
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Ingo Molnar <mingo@elte.hu>, Hugh Dickins <hugh@veritas.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] break_lock forever broken
-References: <Pine.LNX.4.61.0503111847450.9320@goblin.wat.veritas.com>	 <20050311203427.052f2b1b.akpm@osdl.org>	 <Pine.LNX.4.61.0503122311160.13909@goblin.wat.veritas.com>	 <20050314070230.GA24860@elte.hu> <42354562.1080900@yahoo.com.au>	 <20050314081402.GA26589@elte.hu>  <42354A3F.4030904@yahoo.com.au> <1110789270.6288.53.camel@laptopd505.fenrus.org>
-In-Reply-To: <1110789270.6288.53.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16949.20257.750890.165845@cargo.ozlabs.ibm.com>
+Date: Mon, 14 Mar 2005 19:45:21 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: akpm@osdl.org
+Cc: Arnd Bergmann <arnd@arndb.de>, anton@samba.org,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] PPC64 Make RTAS code usable on non-pSeries machines
+X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
->>Yes that's the tradeoff. I just feel that the former may be better,
->>especially because the latter can be timing dependant (so you may get
->>things randomly "happening"), and the former is apparently very low
->>overhead compared with the cost of taking the lock. Any numbers,
->>anyone?
-> 
-> 
-> as I said, since the cacheline just got dirtied, the write is just half
-> a cycle which is so much in the noise that it really doesn't matter.
-> 
+This patch is from Arnd Bergmann <arndb@de.ibm.com>.
 
-Yes, you were the "apparently" that I cited :)
+RTAS is not actually pSeries specific, but some PPC64 code that relies
+on RTAS is currently protected by CONFIG_PPC_PSERIES.
+This introduces a generic configuration option PPC_RTAS that can be used
+by other subarchitectures as well. The existing option with the same
+name is renamed to the more specific RTAS_PROC.
 
-I just wondered if Ingo has or has seen numbers that make
-him dislike this way of doing it.
+Signed-off-by: Arnd Bergmann <arndb@de.ibm.com>
+Signed-off-by: Paul Mackerras <paulus@samba.org>
 
-I would have thought that the spinlock structure and code bloat,
-and the lock break checks in fast paths would be the far greater
-cost of lockbreak than what Hugh's patch adds. But real numbers
-are pretty important when it comes to this kind of thing.
-
+diff -urN linux-2.5/arch/ppc64/Kconfig test/arch/ppc64/Kconfig
+--- linux-2.5/arch/ppc64/Kconfig	2005-03-14 08:25:07.000000000 +1100
++++ test/arch/ppc64/Kconfig	2005-03-14 19:31:22.000000000 +1100
+@@ -255,16 +255,21 @@
+ 
+ 
+ config PPC_RTAS
+-	bool "Proc interface to RTAS"
++	bool
+ 	depends on PPC_PSERIES
++	default y
++
++config RTAS_PROC
++	bool "Proc interface to RTAS"
++	depends on PPC_RTAS
+ 
+ config RTAS_FLASH
+ 	tristate "Firmware flash interface"
+-	depends on PPC_RTAS
++	depends on RTAS_PROC
+ 
+ config SCANLOG
+ 	tristate "Scanlog dump interface"
+-	depends on PPC_RTAS
++	depends on RTAS_PROC && PPC_PSERIES
+ 
+ config LPARCFG
+ 	tristate "LPAR Configuration Data"
+diff -urN linux-2.5/arch/ppc64/kernel/Makefile test/arch/ppc64/kernel/Makefile
+--- linux-2.5/arch/ppc64/kernel/Makefile	2005-03-07 08:21:53.000000000 +1100
++++ test/arch/ppc64/kernel/Makefile	2005-03-14 19:31:22.000000000 +1100
+@@ -39,7 +39,7 @@
+ obj-$(CONFIG_RTAS_FLASH)	+= rtas_flash.o
+ obj-$(CONFIG_SMP)		+= smp.o
+ obj-$(CONFIG_MODULES)		+= module.o ppc_ksyms.o
+-obj-$(CONFIG_PPC_RTAS)		+= rtas-proc.o
++obj-$(CONFIG_RTAS_PROC)		+= rtas-proc.o
+ obj-$(CONFIG_SCANLOG)		+= scanlog.o
+ obj-$(CONFIG_VIOPATH)		+= viopath.o
+ obj-$(CONFIG_LPARCFG)		+= lparcfg.o
+diff -urN linux-2.5/arch/ppc64/kernel/entry.S test/arch/ppc64/kernel/entry.S
+--- linux-2.5/arch/ppc64/kernel/entry.S	2005-02-07 07:55:28.000000000 +1100
++++ test/arch/ppc64/kernel/entry.S	2005-03-14 19:31:22.000000000 +1100
+@@ -616,7 +616,7 @@
+ 	bl	.unrecoverable_exception
+ 	b	unrecov_restore
+ 
+-#ifdef CONFIG_PPC_PSERIES
++#ifdef CONFIG_PPC_RTAS
+ /*
+  * On CHRP, the Run-Time Abstraction Services (RTAS) have to be
+  * called with the MMU off.
+@@ -753,7 +753,7 @@
+ 	mtlr    r0
+         blr				/* return to caller */
+ 
+-#endif /* CONFIG_PPC_PSERIES */
++#endif /* CONFIG_PPC_RTAS */
+ 
+ #ifdef CONFIG_PPC_MULTIPLATFORM
+ 
+diff -urN linux-2.5/arch/ppc64/kernel/misc.S test/arch/ppc64/kernel/misc.S
+--- linux-2.5/arch/ppc64/kernel/misc.S	2005-03-14 08:25:07.000000000 +1100
++++ test/arch/ppc64/kernel/misc.S	2005-03-14 19:31:22.000000000 +1100
+@@ -680,7 +680,7 @@
+ 	ld	r30,-16(r1)
+ 	blr
+ 
+-#ifndef CONFIG_PPC_PSERIES	/* hack hack hack */
++#ifdef CONFIG_PPC_RTAS /* hack hack hack */
+ #define ppc_rtas	sys_ni_syscall
+ #endif
+ 
+diff -urN linux-2.5/arch/ppc64/kernel/prom.c test/arch/ppc64/kernel/prom.c
+--- linux-2.5/arch/ppc64/kernel/prom.c	2005-03-10 09:14:12.000000000 +1100
++++ test/arch/ppc64/kernel/prom.c	2005-03-14 19:31:22.000000000 +1100
+@@ -894,7 +894,7 @@
+ 	if (get_flat_dt_prop(node, "linux,iommu-force-on", NULL) != NULL)
+ 		iommu_force_on = 1;
+ 
+-#ifdef CONFIG_PPC_PSERIES
++#ifdef CONFIG_PPC_RTAS
+ 	/* To help early debugging via the front panel, we retreive a minimal
+ 	 * set of RTAS infos now if available
+ 	 */
+@@ -910,7 +910,7 @@
+ 			rtas.size = *prop;
+ 		}
+ 	}
+-#endif /* CONFIG_PPC_PSERIES */
++#endif /* CONFIG_PPC_RTAS */
+ 
+ 	/* break now */
+ 	return 1;
+diff -urN linux-2.5/arch/ppc64/kernel/rtc.c test/arch/ppc64/kernel/rtc.c
+--- linux-2.5/arch/ppc64/kernel/rtc.c	2004-11-17 09:38:21.000000000 +1100
++++ test/arch/ppc64/kernel/rtc.c	2005-03-14 19:31:22.000000000 +1100
+@@ -337,7 +337,7 @@
+ }
+ #endif
+ 
+-#ifdef CONFIG_PPC_PSERIES
++#ifdef CONFIG_PPC_RTAS
+ #define MAX_RTC_WAIT 5000	/* 5 sec */
+ #define RTAS_CLOCK_BUSY (-2)
+ void pSeries_get_boot_time(struct rtc_time *rtc_tm)
+diff -urN linux-2.5/arch/ppc64/kernel/setup.c test/arch/ppc64/kernel/setup.c
+--- linux-2.5/arch/ppc64/kernel/setup.c	2005-03-07 08:21:53.000000000 +1100
++++ test/arch/ppc64/kernel/setup.c	2005-03-14 19:31:22.000000000 +1100
+@@ -605,12 +605,12 @@
+ 	 */
+ 	initialize_cache_info();
+ 
+-#ifdef CONFIG_PPC_PSERIES
++#ifdef CONFIG_PPC_RTAS
+ 	/*
+ 	 * Initialize RTAS if available
+ 	 */
+ 	rtas_initialize();
+-#endif /* CONFIG_PPC_PSERIES */
++#endif /* CONFIG_PPC_RTAS */
+ 
+ 	/*
+ 	 * Check if we have an initrd provided via the device-tree
+diff -urN linux-2.5/arch/ppc64/oprofile/op_model_power4.c test/arch/ppc64/oprofile/op_model_power4.c
+--- linux-2.5/arch/ppc64/oprofile/op_model_power4.c	2005-03-07 08:21:53.000000000 +1100
++++ test/arch/ppc64/oprofile/op_model_power4.c	2005-03-14 19:31:22.000000000 +1100
+@@ -224,7 +224,7 @@
+ 	if (mmcra & MMCRA_SIPR)
+ 		return pc;
+ 
+-#ifdef CONFIG_PPC_PSERIES
++#ifdef CONFIG_PPC_RTAS
+ 	/* Were we in RTAS? */
+ 	if (pc >= rtas.base && pc < (rtas.base + rtas.size))
+ 		/* function descriptor madness */

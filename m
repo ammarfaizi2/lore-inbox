@@ -1,47 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264259AbRFDNmX>; Mon, 4 Jun 2001 09:42:23 -0400
+	id <S263106AbRFCQh3>; Sun, 3 Jun 2001 12:37:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264260AbRFDNmO>; Mon, 4 Jun 2001 09:42:14 -0400
-Received: from jalon.able.es ([212.97.163.2]:57305 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S264259AbRFDNmE>;
-	Mon, 4 Jun 2001 09:42:04 -0400
-Date: Mon, 4 Jun 2001 15:41:46 +0200
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Pavel Machek <pavel@suse.cz>
-Cc: "J . A . Magallon" <jamagallon@able.es>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: here comes the summer...
-Message-ID: <20010604154146.A2155@werewolf.able.es>
-In-Reply-To: <20010530233055.A1138@werewolf.able.es> <20010602135800.A33@toy.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20010602135800.A33@toy.ucw.cz>; from pavel@suse.cz on Sat, Jun 02, 2001 at 15:58:01 +0200
-X-Mailer: Balsa 1.1.5
+	id <S263673AbRFCQVI>; Sun, 3 Jun 2001 12:21:08 -0400
+Received: from [129.187.154.153] ([129.187.154.153]:53512 "EHLO
+	pc40.e18.physik.tu-muenchen.de") by vger.kernel.org with ESMTP
+	id <S263449AbRFCP5D>; Sun, 3 Jun 2001 11:57:03 -0400
+Date: Sun, 3 Jun 2001 17:56:28 +0200 (CEST)
+From: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+cc: <linux-kernel@vger.kernel.org>
+Subject: iptables port remapping problem (was: [newbie] NFS client:
+ port-unreachable)
+In-Reply-To: <15129.25972.433708.994343@charged.uio.no>
+Message-ID: <Pine.LNX.4.31.0106031550060.19522-100000@pc40.e18.physik.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 3 Jun 2001, Trond Myklebust wrote:
 
-On 06.02 Pavel Machek wrote:
-> Hi!
-> 
-> > ...again (I think I asked just the same last summer)
-> > and lm_sensors is still out of the kernel (we have got 40ºC in Spain
-> > this week, and I would like to know how my PIIs suffer...)
-> 
-> Send some summer over here. It is 15C outside...
-> 
-> You should try latest ACPI patches, they include thermal managment, too.
-> 
+> Are /home and /compass on the same mount point on the client though?
+> If not, then they won't share the same port.
+>
+> IOW: they will only share the same port if you have '/' as the NFS
+> mountpoint.
 
-I have tried the latest CVS i2c+lm_sensors2, and the patches it generates
-look like much more clean. I am waiting for the announced 2.6 relase, and
-then will try to send a patch to Alan (if official mantainer do not does it
-himself...)
+When I mount via nfs each mount gets its own local port to communicate
+with the server. Looking at /proc/net/ip_conntrack I see that one such
+port (797) got remapped to 772, so I see packets emerging from 772 and
+getting back from the server, but the mapping is not done upon receive, so
+that it does not reach port 797 (where it originally came from) but port
+772 which has no process attached. This results in an ICMP_PORT_UNREACH to
+the server and an nfs client not getting an answer. This problem can be
+cured by 'rmmod ip_conntrack' and restarting the firewall, which is not a
+good solution.
 
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Linux Mandrake release 8.1 (Cooker) for i586
-Linux werewolf 2.4.5-ac6 #2 SMP Sat Jun 2 01:52:13 CEST 2001 i686
+My conclusion: Either iptables has a problem when remapping ports under
+moderate load (several RPCs masqueraded per second) or the nfs-client does
+not properly reserve the local port when mounting.
+
+BTW: I use util-linux-2.11d but still get 'nfs warning: mount version
+older than kernel'.
+
+DETAILS: I have a DECstation being nis domain server and nfs server for
+/home, /compass, /usr/local and some other things (all different
+directories on the server, I have given the mount points for the clients).
+There are a dozen clients being served without problems, mostly running
+2.2.14 (RedHat 6.2), some 2.4.2 (SuSE 7.1). Besides I have another server
+(RedHat 7.1, kernel 2.4.4 with knfsd-reiserfs-patch from namesys.com),
+which also mounts /home and /compass from the DEC and serves some internal
+disk space to a linux cluster (RedHat 6.2). This server has IP 217, but
+masquerades (via iptables -j SNAT) the cluster as having IPs 218 or 219
+(roughly half of the 32 machines on each address), since the cluster
+machines have no other connection to the internet because we ran out of
+IPs.
+
+Ciao,
+					Roland
+
++-----------------------------------------------------+
+|    Tel.:    089/32649332        0561/873744         |
+|    in       Radeberger Weg 8    Am Fasanenhof 16    |
+|             85748 Garching      34125 Kassel        |
++---------------------------+-------------------------+
+|    Physik-Department E18  |  Raum    3558           |
+|    James-Franck-Str.      |  Telefon 089/289-12592  |
+|    85747 Garching         |                         |
++---------------------------+-------------------------+
+|             May the Source be with you!             |
++-----------------------------------------------------+
+
+
+

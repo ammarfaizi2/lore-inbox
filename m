@@ -1,62 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264946AbUGZHEn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264953AbUGZHLq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264946AbUGZHEn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 03:04:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264953AbUGZHEn
+	id S264953AbUGZHLq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 03:11:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264960AbUGZHLq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 03:04:43 -0400
-Received: from fw.osdl.org ([65.172.181.6]:23208 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264946AbUGZHEl (ORCPT
+	Mon, 26 Jul 2004 03:11:46 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:59310 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264953AbUGZHLo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 03:04:41 -0400
-Date: Mon, 26 Jul 2004 00:03:13 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ext3 and SPEC SFS Run rules.
-Message-Id: <20040726000313.3fbf8403.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0407221933520.2152-100000@einstein.homenet>
-References: <Pine.LNX.4.44.0407221933520.2152-100000@einstein.homenet>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 26 Jul 2004 03:11:44 -0400
+Date: Mon, 26 Jul 2004 00:11:34 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: marcelo.tosatti@cyclades.com
+Cc: zaitcev@redhat.com, linux-kernel@vger.kernel.org, <wolfgang@iksw-muees.de>
+Subject: Patch for USB in 2.4 to fix endless resubmit in auerswald
+Message-Id: <20040726001134.57949a45@lembas.zaitcev.lan>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed;
+ boundary="Multipart=_Mon__26_Jul_2004_00_11_34_-0700_r3WNKfKQnJn/Pnwm"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tigran Aivazian <tigran@aivazian.fsnet.co.uk> wrote:
->
-> I have a simple question --- does ext3 conform to the SPEC SFS Run rules 
->  with default mount options or does one need to force the correct 
->  behaviour by mounting in some "special" way?. Here is the URL for the 
->  rules:
-> 
->    http://www.spec.org/sfs97r1/docs/runrules.html
-> 
->  In particular, the bit that is worrying me is:
-> 
->    For NFS Version 3, the server adheres to the protocol specification. In 
->    particular the requirement that for STABLE write requests and COMMIT 
->    operations the NFS server must not reply to the NFS client before any 
->    modified file system data or metadata, with the exception of access times, 
->    are written to stable storage for that specific or related operation. 
->    See RFC 1813, NFSv3 protocol specification for a definition of STABLE 
->    and COMMIT for NFS write requests.
-> 
->  As far as I can see from nfsd source this means:
-> 
->  a) write with 'stable' flag set does a f_op->write() with O_SYNC.
-> 
->  b) COMMIT3 just means f_op->fsync().
-> 
->  So, the question is really --- do ext3 O_SYNC write and fsync require some 
->  special mount options to work _properly_ or are they fine by default?
-> 
->  Looking at ext3_sync_file() it seems OK by default.
-> 
->  However, looking at ext3 ->write() operation it seems to forcibly commit 
->  only if it is mounted with EXT3_MOUNT_JOURNAL_DATA option (or if it is not 
->  a regular file or if EXT3_JOURNAL_DATA_FL inode flag is set).
+This is a multi-part message in MIME format.
 
-ext3 should be fully syncing data and metadata for both fsync() and O_SYNC
-writes in all three journalling modes.  If not, that's a big bug.
+--Multipart=_Mon__26_Jul_2004_00_11_34_-0700_r3WNKfKQnJn/Pnwm
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+
+Patch from Wolfgang Mues - fixes an endless loop on disconnect.
+
+I am sorry for MIME attachement, but the source code contains
+a European character, which makes my mailer to encode the mail
+and thus corrupt the patch, when sent normally.
+
+-- Pete
+
+--Multipart=_Mon__26_Jul_2004_00_11_34_-0700_r3WNKfKQnJn/Pnwm
+Content-Type: application/octet-stream;
+ name="linux-2.4.27-rc3-auer.diff"
+Content-Disposition: attachment;
+ filename="linux-2.4.27-rc3-auer.diff"
+Content-Transfer-Encoding: base64
+
+UGF0Y2ggZnJvbSBXb2xmZ2FuZyBNdWVzLgoKZGlmZiAtdXJwIC1YIGRvbnRkaWZmIGxpbnV4LTIu
+NC4yNy1yYzMvZHJpdmVycy91c2IvYXVlcm1haW4uYyBsaW51eC0yLjQuMjctcmMzLXVzYi9kcml2
+ZXJzL3VzYi9hdWVybWFpbi5jCi0tLSBsaW51eC0yLjQuMjctcmMzL2RyaXZlcnMvdXNiL2F1ZXJt
+YWluLmMJMjAwNC0wMi0yNiAxNDowOTo1Ny4wMDAwMDAwMDAgLTA4MDAKKysrIGxpbnV4LTIuNC4y
+Ny1yYzMtdXNiL2RyaXZlcnMvdXNiL2F1ZXJtYWluLmMJMjAwNC0wNy0yNSAyMzozNzowOS4wMDAw
+MDAwMDAgLTA3MDAKQEAgLTU1LDcgKzU1LDcgQEAgZG8gewkJCVwKIAogLyotLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tKi8K
+IC8qIFZlcnNpb24gSW5mb3JtYXRpb24gKi8KLSNkZWZpbmUgRFJJVkVSX1ZFUlNJT04gIjEuMi42
+IgorI2RlZmluZSBEUklWRVJfVkVSU0lPTiAiMS4yLjciCiAjZGVmaW5lIERSSVZFUl9BVVRIT1Ig
+ICJXb2xmZ2FuZyBNw7xlcyA8d29sZmdhbmdAaWtzdy1tdWVlcy5kZT4iCiAjZGVmaW5lIERSSVZF
+Ul9ERVNDICAgICJBdWVyc3dhbGQgUEJYL1N5c3RlbSBUZWxlcGhvbmUgdXNiIGRyaXZlciIKIApA
+QCAtMTEwLDggKzExMCw4IEBAIHN0YXRpYyBpbnQgYXVlcnN3YWxkX3N0YXR1c19yZXRyeShpbnQg
+c3QKIAljYXNlIDA6CiAJY2FzZSAtRVRJTUVET1VUOgogCWNhc2UgLUVPVkVSRkxPVzoKKwljYXNl
+IC1FRkJJRzoKIAljYXNlIC1FQUdBSU46Ci0JY2FzZSAtRVBJUEU6CiAJY2FzZSAtRVBST1RPOgog
+CWNhc2UgLUVJTFNFUToKIAljYXNlIC1FTk9TUjoK
+
+--Multipart=_Mon__26_Jul_2004_00_11_34_-0700_r3WNKfKQnJn/Pnwm--

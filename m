@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130967AbRAYXTz>; Thu, 25 Jan 2001 18:19:55 -0500
+	id <S130970AbRAYXUZ>; Thu, 25 Jan 2001 18:20:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130970AbRAYXTp>; Thu, 25 Jan 2001 18:19:45 -0500
-Received: from austin.jhcloos.com ([206.224.83.202]:35594 "HELO
-	austin.jhcloos.com") by vger.kernel.org with SMTP
-	id <S130967AbRAYXTi>; Thu, 25 Jan 2001 18:19:38 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: hotmail can't deal with ECN
-In-Reply-To: <14960.29127.172573.22453@pizda.ninka.net>
-	<200101251905.f0PJ5ZG216578@saturn.cs.uml.edu>
-	<14960.31423.938042.486045@pizda.ninka.net>
-	<20010125115214.D9992@draco.foogod.com>
-From: "James H. Cloos Jr." <cloos@jhcloos.com>
-In-Reply-To: <20010125115214.D9992@draco.foogod.com>
-Date: 25 Jan 2001 17:19:37 -0600
-Message-ID: <m3itn3i5iu.fsf@austin.jhcloos.com>
+	id <S135545AbRAYXUT>; Thu, 25 Jan 2001 18:20:19 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:59657 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S130970AbRAYXUD>; Thu, 25 Jan 2001 18:20:03 -0500
+Date: Thu, 25 Jan 2001 19:30:20 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Daniel Phillips <phillips@innominate.de>
+cc: "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: inode->i_dirty_buffers redundant ?
+In-Reply-To: <3A708722.C21EC12A@innominate.de>
+Message-ID: <Pine.LNX.4.21.0101251925190.11559-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "alex" == alex  <alex@foogod.com> writes:
 
-alex> I think the point of a test address is that this could
-alex> conceivably affect more providers than just Hotmail, and it
-alex> would be useful for people to be able to check to make sure
-alex> their own provider isn't also ECN brain damaged ...
+On Thu, 25 Jan 2001, Daniel Phillips wrote:
 
-I have to agree with this.
+> "Stephen C. Tweedie" wrote:
+> > We also maintain the 
+> > per-page buffer lists as caches of the virtual-to-physical mapping to
+> > avoid redundant bmap()ping.
+> 
+> Could you clarify that one, please?
 
-Are there any well know sites using ECN we can test against?
+Daniel, 
 
-Doesn't have to be a mail server, of course.  Maybe a web server with
-auth lookups turned on?  or an ftp server supporting only non-passive
-xfers.  An open squid.  Several possibilities exist for the general
-case.  (Although for some who want to test a mail autoresponder may be
-the only useable option....)
+With "physical mapping" Stephen means on-disk block number.
 
--JimC
--- 
-James H. Cloos, Jr.  <http://jhcloos.com/public_key>     1024D/ED7DAEA6 
-<cloos@jhcloos.com>  E9E9 F828 61A4 6EA9 0F2B  63E7 997A 9F17 ED7D AEA6
+If the buffer(s) for a page are mapped with valid information (ie
+BH_Mapped) we avoid calling get_block(). 
+
+See?
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

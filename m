@@ -1,47 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316789AbSH0Sgc>; Tue, 27 Aug 2002 14:36:32 -0400
+	id <S316728AbSH0SfO>; Tue, 27 Aug 2002 14:35:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316792AbSH0Sgc>; Tue, 27 Aug 2002 14:36:32 -0400
-Received: from smtp02.uc3m.es ([163.117.136.122]:49671 "HELO smtp.uc3m.es")
-	by vger.kernel.org with SMTP id <S316789AbSH0Sgb>;
-	Tue, 27 Aug 2002 14:36:31 -0400
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200208271840.g7RIeiH08814@oboe.it.uc3m.es>
-Subject: Re: block device/VM question
-In-Reply-To: From "(env:" "ptb)" at "Aug 27, 2002 08:04:48 pm"
-To: ptb@it.uc3m.es
-Date: Tue, 27 Aug 2002 20:40:44 +0200 (MET DST)
-Cc: Thunder from the hill <thunder@lightweight.ods.org>,
-       linux kernel <linux-kernel@vger.kernel.org>
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S316753AbSH0SfO>; Tue, 27 Aug 2002 14:35:14 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:11013 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S316728AbSH0SfN>; Tue, 27 Aug 2002 14:35:13 -0400
+Date: Tue, 27 Aug 2002 14:32:53 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: conman@kolivas.net
+cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: VM changes added to performance patches for 2.4.19
+In-Reply-To: <1030170794.3d6728aa24046@kolivas.net>
+Message-ID: <Pine.LNX.3.96.1020827142205.14697A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"ago ptb wrote:"
-> In dentry_open(), we get a struct file f = get_empty_filp(), and then
-> fill out various of its fields with enormously obscure things.  And for
-> the O_DIRECT flag we seem to do alloc_kiovec(1, &f->f_iobuf).
+On Sat, 24 Aug 2002 conman@kolivas.net wrote:
+
 > 
-> I feel that the latter is all I want to do, and the question is to what,
-> where (I'll clean up on release). Do I do this every time the devices
-> _open() function is called? Or just once, and what do I do it to? I
-> should do it to the struct file that gets passed into to the driver
-> open()? I'll try that. And set the flag.
+> With the patch against 2.4.19:
+> 
+> Scheduler O(1), Preemptible, Low Latency
+> 
+> I have now added two extra alternative patches that include 
+> either Rik's rmap (thanks Rik) or AA's vm changes (thanks to Nuno Monteiro for
+> merging this)
+> 
+> For the record, with the (very) brief usage of these two patches I found the
+> rmap patch a little faster. This is very subjective and completely untested.
+> 
+> Check them out here and tell me what you think(please read the FAQ):
+> http://kernel.kolivas.net
 
-Well, that was fun! I checked that on entry into the devices
-open function, the file->f_iobuf field was null, and then called
-alloc_kiovec on it while I set the O_DIRECT flag on file-_f_flags.
+I tried the 2.4.19-ck3-aa patch last night, and did a few informal tests
+against my current production kernel, 2.4.19-ac4. Machine in Athlon
+1400MHz, 1GB RAM, 20+30GB WD disks.
 
-The result was that all read/write calls on the device failed
-with EINVAL! Whee!
+Kernel compile was about 7 sec faster with ck3-aa, 6:58 vs 7:05 (no -j
+values).
 
-But ioctls worked. Apparently I am supposed to fill out
-some more fields of something else with some methods. Hmm. OK.
-I'll look. I guess this will be the a_ops field of i_mapping.
+Then I did my nightly backup of a scanned documentation project, making a
+CD image from the scans, currently ~570MB. I was on ck3-aa, and I said
+"self, that seemed pretty fast!" So I rebooted cold and tried the mkisofs
+with both kernels, twice each.
 
+			2.4.19-ac4		2.4.19-ck3-aa
+mkisofs 570MB		2:05			1:14
 
-Peter
+It was repeatably 40% faster! More testing, and now I'll build a stock
+2.4.19 kernel for additional testing, and pull that responsiveness
+benchmark and try that, too.
+
+Looks like a nice job overall, I'm putting it on a laptop tonight, which
+may give a better idea of how fast, or not, it really is.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

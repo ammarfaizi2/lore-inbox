@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270606AbRHNMs3>; Tue, 14 Aug 2001 08:48:29 -0400
+	id <S270609AbRHNM43>; Tue, 14 Aug 2001 08:56:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270610AbRHNMsT>; Tue, 14 Aug 2001 08:48:19 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:23568 "EHLO
+	id <S270612AbRHNM4T>; Tue, 14 Aug 2001 08:56:19 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:27920 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S270608AbRHNMsD>; Tue, 14 Aug 2001 08:48:03 -0400
-Subject: Re: Are we going too fast?
-To: tegeran@home.com
-Date: Tue, 14 Aug 2001 13:49:53 +0100 (BST)
-Cc: david@blue-labs.org (David Ford), pf-kernel@mirkwood.net (PinkFreud),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <01081321193002.00204@c779218-a> from "Nicholas Knight" at Aug 13, 2001 09:19:30 PM
+	id <S270609AbRHNM4H>; Tue, 14 Aug 2001 08:56:07 -0400
+Subject: Re: Swapping for diskless nodes
+To: pavel@suse.cz (Pavel Machek)
+Date: Tue, 14 Aug 2001 13:57:54 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), abali@us.ibm.com (Bulent Abali),
+        dws@dirksteinberg.de (Dirk W. Steinberg),
+        ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser),
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+In-Reply-To: <20010811011329.C55@toy.ucw.cz> from "Pavel Machek" at Aug 11, 2001 01:13:29 AM
 X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15Wddp-00016h-00@the-village.bc.nu>
+Message-Id: <E15Wdla-00018V-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If this is truely the case, I'd suggest that kernel.org be modified, as 
-> it refers to them as *stable*
-> as of 9:18PM PDT, direct copy & paste from kernel.org page:
+> > Ultimately its an insoluble problem, neither SunOS, Solaris or NetBSD are
+> > infallible, they just never fail for any normal situation, and thats good
+> > enough for me as a solution
 > 
-> The latest stable version of the Linux kernel is: 2.4.8 2001-08-11 04:13 
-> UTC Changelog 
-> 
-> The latest prepatch (alpha) version appears to be: 2.4.9-pre3 2001-08-13 
-> 23:56 UTC Changelog
+> Oops,  really? And if I can DoS such machine with ping -f (to eat atomic
+> ram)? And what are you going to tel your users? "It died so reboot"?
 
-Kernel.org certainly should list the 2.2 status (hey I maintain it I'm
-allowed to be biased). Its unfortunate it many ways that people are still so
-programmed to the "latest version" obsession of the proprietary world some
-times. For most people 2.4 is the right choice but for absolute stability
-why change 8)
+For the simplistic case you can stop queueing data to user sockets but that
+isnt neccessarily a cure - it can lead to bogus OOM by preventing progress
+of apps that would otherwise read a packet then exit.
+
+The good example of the insoluble end of it is a box with no default route
+doing BGP4 routing with NFS swap. Now thats an extremely daft practical 
+proposition but it illustrates the fact the priority ordering is not known
+to the kernel

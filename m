@@ -1,35 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262200AbVAAIyU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262201AbVAAJBQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262200AbVAAIyU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jan 2005 03:54:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262201AbVAAIyU
+	id S262201AbVAAJBQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jan 2005 04:01:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbVAAJBQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jan 2005 03:54:20 -0500
-Received: from mail-in-04.arcor-online.net ([151.189.21.44]:49284 "EHLO
-	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
-	id S262200AbVAAIyS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jan 2005 03:54:18 -0500
-From: Bodo Eggert <7eggert@gmx.de>
-Subject: Re: kconfig: help includes dependency information
-To: Ingo Oeser <ioe-lkml@axxeo.de>, linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Sat, 01 Jan 2005 09:58:36 +0100
-References: <fa.hcrei7d.knakqt@ifi.uio.no> <fa.gau82p1.1g24ton@ifi.uio.no>
-User-Agent: KNode/0.7.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <E1Ckf5o-000126-00@be1.7eggert.dyndns.org>
+	Sat, 1 Jan 2005 04:01:16 -0500
+Received: from smtp3.pp.htv.fi ([213.243.153.36]:30415 "EHLO smtp3.pp.htv.fi")
+	by vger.kernel.org with ESMTP id S262201AbVAAJBL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jan 2005 04:01:11 -0500
+Date: Sat, 1 Jan 2005 11:01:10 +0200
+From: Paul Mundt <lethal@linux-sh.org>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org, sam@ravnborg.org, pmarques@grupopie.com
+Subject: Re: sh: inconsistent kallsyms data
+Message-ID: <20050101090110.GA22697@linux-sh.org>
+Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
+	Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org,
+	sam@ravnborg.org, pmarques@grupopie.com
+References: <20041231172549.GA18211@linux-sh.org> <7184.1104551959@ocs3.ocs.com.au>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="d6Gm4EdcadzBjdND"
+Content-Disposition: inline
+In-Reply-To: <7184.1104551959@ocs3.ocs.com.au>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Oeser wrote:
 
->> #   kconfig: help includes dependency information
+--d6Gm4EdcadzBjdND
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> "depends on:" is not really needed, since you usually cannot select any
-> option, where you didn't fulfill the dependencies, AFAICS.
+On Sat, Jan 01, 2005 at 02:59:19PM +1100, Keith Owens wrote:
+> This corner case only occurs with CONFIG_KALLSYMS_ALL=3Dn.  That is the
+> only time that we drop symbols outside the ranges _stext ... _etext and
+> _sinittext ... _einittext.  For CONFIG_KALLSYMS_ALL=3Dn, we want the
+> _etext and _einittext labels, but not any other symbols that have the
+> same numeric value as _etext or _einittext.
+>=20
+> Paul, please test this patch.  Build with CONFIG_KALLSYMS_ALL=3Dn and
+> CONFIG_KALLSYMS_EXTRA_PASS=3Dn.
+>=20
+Works fine for me, thanks.
 
-If you can't select the option, you'll still be able to see it in xconfig
-and read which option you missed to select.
+--d6Gm4EdcadzBjdND
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQFB1mbW1K+teJFxZ9wRAj2sAJ9w8j5lInlXyL5izKbH/36OKpn24QCeNFia
+cmy5dQnS51BbgwNqRNJZA0k=
+=h57v
+-----END PGP SIGNATURE-----
+
+--d6Gm4EdcadzBjdND--

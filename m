@@ -1,51 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268268AbUHFTuY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268254AbUHFTj4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268268AbUHFTuY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 15:50:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268267AbUHFTsc
+	id S268254AbUHFTj4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 15:39:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268259AbUHFTjC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 15:48:32 -0400
-Received: from fw.osdl.org ([65.172.181.6]:15844 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268265AbUHFTrw (ORCPT
+	Fri, 6 Aug 2004 15:39:02 -0400
+Received: from gprs214-146.eurotel.cz ([160.218.214.146]:43136 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S268256AbUHFTgo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 15:47:52 -0400
-Date: Fri, 6 Aug 2004 12:46:09 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Phillip Lougher <phillip@lougher.demon.co.uk>
-Cc: nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: [PATCH] VFS readahead bug in 2.6.8-rc[1-3]
-Message-Id: <20040806124609.3d489a0d.akpm@osdl.org>
-In-Reply-To: <4113D977.9040105@lougher.demon.co.uk>
-References: <41127371.1000603@lougher.demon.co.uk>
-	<4112D6FD.4030707@yahoo.com.au>
-	<4112EAAB.8040005@yahoo.com.au>
-	<4113B8A2.4050609@lougher.demon.co.uk>
-	<4113D4CD.5080109@yahoo.com.au>
-	<4113D977.9040105@lougher.demon.co.uk>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 6 Aug 2004 15:36:44 -0400
+Date: Fri, 6 Aug 2004 21:36:27 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Patrick Mochel <mochel@digitalimplant.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [6/25] Merge pmdisk and swsusp
+Message-ID: <20040806193627.GJ3048@elf.ucw.cz>
+References: <Pine.LNX.4.50.0407171528280.22290-100000@monsoon.he.net> <20040718221302.GC31958@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.50.0408012020200.30101-100000@monsoon.he.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.50.0408012020200.30101-100000@monsoon.he.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Phillip Lougher <phillip@lougher.demon.co.uk> wrote:
->
-> Nick Piggin wrote:
-> 
-> > No, I suggest you start to code assuming this interface does
-> > what it does. I didn't say there is no bug here, but nobody
-> > else's filesystem breaks.
-> > 
-> 
-> To stop this silly argument from escalating, I will patch my code.
-> 
+Hi!
 
-Well I don't think it's silly.
+> > > +/**
+> > > + *	enough_free_mem - Make sure we enough free memory to snapshot.
+> > > + *
+> > > + *	Returns TRUE or FALSE after checking the number of available
+> > > + *	free pages.
+> > > + */
+> > > +
+> > > +static int enough_free_mem(void)
+> > > +{
+> > > +	if(nr_free_pages() < (nr_copy_pages + PAGES_FOR_IO)) {
+> > > +		pr_debug("pmdisk: Not enough free pages: Have %d\n",
+> > > +			 nr_free_pages());
+> > > +		return 0;
+> > > +	}
+> > > +	return 1;
+> > > +}
+> 
+> > Perhaps enough_free_* should return 0 / -ERROR to keep it consistent
+> > with rest of code, no need to explain TRUE/FALSE etc?
+> 
+> Well, then they wouldn't read like plain language..
 
-We are deterministically asking the fs to read a page which lies outside
-EOF, and we shouldn't.  If for no other reason than that the ever-popular
-"read a million 4k files" workload will consume extra CPU and twice the
-pagecache.
+Hmm, it would probably need to be called check_free_mem...
 
+> Besides, they're superfluous and racy anyway - the amount of memory and
+> swap space free could change at any time, so we should just remove them
+> and make sure our error handlin is correct later down the line when
+> allocations fail..
+
+I do not think this is doable. ... ... .. 
+
+Yes, it probably is doable. We should mark ourselves as some kind of
+"memory cleaning thread" so we get errors instead of deadlock when we
+run out of memory while writing pages, and then we just need to handle
+that errors, carefully. Ok.
+									Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

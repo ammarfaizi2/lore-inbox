@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262055AbUBRDOC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 22:14:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263475AbUBRDOC
+	id S262123AbUBRDVM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 22:21:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbUBRDVL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 22:14:02 -0500
-Received: from fw.osdl.org ([65.172.181.6]:54747 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262055AbUBRDN7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 22:13:59 -0500
-Date: Tue, 17 Feb 2004 19:13:32 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: UTF-8 practically vs. theoretically in the VFS API
-In-Reply-To: <c0ukd2$3uk$1@terminus.zytor.com>
-Message-ID: <Pine.LNX.4.58.0402171910550.2686@home.osdl.org>
-References: <04Feb13.163954est.41760@gpu.utcc.utoronto.ca>
- <200402161948.i1GJmJi5000299@81-2-122-30.bradfords.org.uk>
- <Pine.LNX.4.58.0402161141140.30742@home.osdl.org> <20040216202142.GA5834@outpost.ds9a.nl>
- <c0ukd2$3uk$1@terminus.zytor.com>
+	Tue, 17 Feb 2004 22:21:11 -0500
+Received: from web40705.mail.yahoo.com ([66.218.78.162]:54115 "HELO
+	web40705.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262123AbUBRDVJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 22:21:09 -0500
+Message-ID: <20040218032105.10779.qmail@web40705.mail.yahoo.com>
+Date: Tue, 17 Feb 2004 19:21:05 -0800 (PST)
+From: Niranjan <niranjan_cs2905@yahoo.com>
+Subject: Mapping /proc file to multiple module
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+I want to read the the /proc file created by kernel
+module A from another kernel module B. The structure
+is shared by both the module. 
+In another way, can I have a /proc file shared between
+many kernel modules so that I can pass parameters
+between these module using /proc file ?
+ 
+Regards,
+-Niranjan
 
 
-On Wed, 18 Feb 2004, H. Peter Anvin wrote:
-> 
-> Those of us who have been involved with the issue have fought
-> *extremely* hard against DWIM decoders which try to decode the latter
-> sequences into ".." -- it's incorrect, and a security hazard.  The
-> only acceptable decodings is to throw an error, or use an out-of-band
-> encoding mechanism to denote "bad bytecode."
-
-Somebody correctly pointed out that you do not need any out-of-band 
-encoding mechanism - the very fact that it's an invalid sequence is in 
-itself a perfectly fine flag. No out-of-band signalling required.
-
-The only thing you should make sure of is to not try to normalize it (that 
-would hide the error). Just keep carrying the bad sequence along, and 
-everybody is happy. Including the filesystem functions that get the "bad" 
-name and match it exactly to what it should be matched against.
-
-		Linus
+__________________________________
+Do you Yahoo!?
+Yahoo! Mail SpamGuard - Read only the mail you want.
+http://antispam.yahoo.com/tools

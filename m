@@ -1,28 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264650AbUF1FQB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264668AbUF1FS6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264650AbUF1FQB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 01:16:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264660AbUF1FQA
+	id S264668AbUF1FS6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 01:18:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264685AbUF1FS6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 01:16:00 -0400
-Received: from smtp805.mail.sc5.yahoo.com ([66.163.168.184]:19820 "HELO
+	Mon, 28 Jun 2004 01:18:58 -0400
+Received: from smtp805.mail.sc5.yahoo.com ([66.163.168.184]:33132 "HELO
 	smtp805.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S264650AbUF1FMM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 01:12:12 -0400
+	id S264668AbUF1FNF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jun 2004 01:13:05 -0400
 From: Dmitry Torokhov <dtor_core@ameritech.net>
 To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: [PATCH 3/19] serio renames 1
-Date: Mon, 28 Jun 2004 00:11:51 -0500
+Subject: [PATCH 4/19] serio renames 2
+Date: Mon, 28 Jun 2004 00:12:57 -0500
 User-Agent: KMail/1.6.2
 Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <200406280008.21465.dtor_core@ameritech.net> <200406280009.37987.dtor_core@ameritech.net> <200406280010.46417.dtor_core@ameritech.net>
-In-Reply-To: <200406280010.46417.dtor_core@ameritech.net>
+References: <200406280008.21465.dtor_core@ameritech.net> <200406280010.46417.dtor_core@ameritech.net> <200406280011.51876.dtor_core@ameritech.net>
+In-Reply-To: <200406280011.51876.dtor_core@ameritech.net>
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200406280011.51876.dtor_core@ameritech.net>
+Message-Id: <200406280012.59311.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -30,482 +30,1124 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 ===================================================================
 
 
-ChangeSet@1.1777, 2004-06-27 15:45:46-05:00, dtor_core@ameritech.net
-  Input: rename serio->driver to serio->port_data in preparation
-         to sysfs integration
+ChangeSet@1.1778, 2004-06-27 15:46:16-05:00, dtor_core@ameritech.net
+  Input: more renames in serio in preparations to sysfs integration
+         - serio_dev -> serio_driver
+         - serio_[un]register_device -> serio_[un]register_driver
   
   Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 
 
- drivers/input/mouse/synaptics.c |    4 ++--
- drivers/input/serio/ambakmi.c   |   22 +++++++++++-----------
- drivers/input/serio/gscps2.c    |    8 ++++----
- drivers/input/serio/i8042.c     |   14 +++++++-------
- drivers/input/serio/maceps2.c   |   36 ++++++++++++++++++------------------
- drivers/input/serio/pcips2.c    |    8 ++++----
- drivers/input/serio/sa1111ps2.c |    8 ++++----
- drivers/input/serio/serport.c   |    6 +++---
- drivers/serial/sunsu.c          |    8 ++++----
- drivers/serial/sunzilog.c       |    8 ++++----
- include/linux/serio.h           |    2 +-
- 11 files changed, 62 insertions(+), 62 deletions(-)
+ drivers/input/joystick/iforce/iforce-main.c  |    4 -
+ drivers/input/joystick/iforce/iforce-serio.c |    6 +-
+ drivers/input/joystick/iforce/iforce.h       |    2 
+ drivers/input/joystick/magellan.c            |   10 +--
+ drivers/input/joystick/spaceball.c           |   10 +--
+ drivers/input/joystick/spaceorb.c            |   10 +--
+ drivers/input/joystick/stinger.c             |   10 +--
+ drivers/input/joystick/twidjoy.c             |   10 +--
+ drivers/input/joystick/warrior.c             |   10 +--
+ drivers/input/keyboard/atkbd.c               |   14 ++---
+ drivers/input/keyboard/lkkbd.c               |   10 +--
+ drivers/input/keyboard/newtonkbd.c           |   10 +--
+ drivers/input/keyboard/sunkbd.c              |   10 +--
+ drivers/input/keyboard/xtkbd.c               |   10 +--
+ drivers/input/mouse/psmouse-base.c           |   14 ++---
+ drivers/input/mouse/sermouse.c               |   10 +--
+ drivers/input/mouse/synaptics.c              |    2 
+ drivers/input/mouse/vsxxxaa.c                |   10 +--
+ drivers/input/serio/serio.c                  |   72 +++++++++++++--------------
+ drivers/input/serio/serport.c                |    2 
+ drivers/input/touchscreen/gunze.c            |   10 +--
+ drivers/input/touchscreen/h3600_ts_input.c   |   10 +--
+ include/linux/serio.h                        |   22 ++++----
+ 23 files changed, 139 insertions(+), 139 deletions(-)
 
 
 ===================================================================
 
 
 
+diff -Nru a/drivers/input/joystick/iforce/iforce-main.c b/drivers/input/joystick/iforce/iforce-main.c
+--- a/drivers/input/joystick/iforce/iforce-main.c	2004-06-27 17:47:51 -05:00
++++ b/drivers/input/joystick/iforce/iforce-main.c	2004-06-27 17:47:51 -05:00
+@@ -524,7 +524,7 @@
+ 	usb_register(&iforce_usb_driver);
+ #endif
+ #ifdef CONFIG_JOYSTICK_IFORCE_232
+-	serio_register_device(&iforce_serio_dev);
++	serio_register_driver(&iforce_serio_drv);
+ #endif
+ 	return 0;
+ }
+@@ -535,7 +535,7 @@
+ 	usb_deregister(&iforce_usb_driver);
+ #endif
+ #ifdef CONFIG_JOYSTICK_IFORCE_232
+-	serio_unregister_device(&iforce_serio_dev);
++	serio_unregister_driver(&iforce_serio_drv);
+ #endif
+ }
+ 
+diff -Nru a/drivers/input/joystick/iforce/iforce-serio.c b/drivers/input/joystick/iforce/iforce-serio.c
+--- a/drivers/input/joystick/iforce/iforce-serio.c	2004-06-27 17:47:51 -05:00
++++ b/drivers/input/joystick/iforce/iforce-serio.c	2004-06-27 17:47:51 -05:00
+@@ -124,7 +124,7 @@
+ 	return IRQ_HANDLED;
+ }
+ 
+-static void iforce_serio_connect(struct serio *serio, struct serio_dev *dev)
++static void iforce_serio_connect(struct serio *serio, struct serio_driver *drv)
+ {
+ 	struct iforce *iforce;
+ 	if (serio->type != (SERIO_RS232 | SERIO_IFORCE))
+@@ -137,7 +137,7 @@
+ 	iforce->serio = serio;
+ 	serio->private = iforce;
+ 
+-	if (serio_open(serio, dev)) {
++	if (serio_open(serio, drv)) {
+ 		kfree(iforce);
+ 		return;
+ 	}
+@@ -158,7 +158,7 @@
+ 	kfree(iforce);
+ }
+ 
+-struct serio_dev iforce_serio_dev = {
++struct serio_driver iforce_serio_drv = {
+ 	.write_wakeup =	iforce_serio_write_wakeup,
+ 	.interrupt =	iforce_serio_irq,
+ 	.connect =	iforce_serio_connect,
+diff -Nru a/drivers/input/joystick/iforce/iforce.h b/drivers/input/joystick/iforce/iforce.h
+--- a/drivers/input/joystick/iforce/iforce.h	2004-06-27 17:47:51 -05:00
++++ b/drivers/input/joystick/iforce/iforce.h	2004-06-27 17:47:51 -05:00
+@@ -187,5 +187,5 @@
+ int iforce_upload_condition(struct iforce*, struct ff_effect*, int is_update);
+ 
+ /* Public variables */
+-extern struct serio_dev iforce_serio_dev;
++extern struct serio_driver iforce_serio_drv;
+ extern struct usb_driver iforce_usb_driver;
+diff -Nru a/drivers/input/joystick/magellan.c b/drivers/input/joystick/magellan.c
+--- a/drivers/input/joystick/magellan.c	2004-06-27 17:47:51 -05:00
++++ b/drivers/input/joystick/magellan.c	2004-06-27 17:47:51 -05:00
+@@ -146,7 +146,7 @@
+  * it as an input device.
+  */
+ 
+-static void magellan_connect(struct serio *serio, struct serio_dev *dev)
++static void magellan_connect(struct serio *serio, struct serio_driver *drv)
+ {
+ 	struct magellan *magellan;
+ 	int i, t;
+@@ -184,7 +184,7 @@
+ 
+ 	serio->private = magellan;
+ 
+-	if (serio_open(serio, dev)) {
++	if (serio_open(serio, drv)) {
+ 		kfree(magellan);
+ 		return;
+ 	}
+@@ -199,7 +199,7 @@
+  * The serio device structure.
+  */
+ 
+-static struct serio_dev magellan_dev = {
++static struct serio_driver magellan_drv = {
+ 	.interrupt =	magellan_interrupt,
+ 	.connect =	magellan_connect,
+ 	.disconnect =	magellan_disconnect,
+@@ -211,13 +211,13 @@
+ 
+ int __init magellan_init(void)
+ {
+-	serio_register_device(&magellan_dev);
++	serio_register_driver(&magellan_drv);
+ 	return 0;
+ }
+ 
+ void __exit magellan_exit(void)
+ {
+-	serio_unregister_device(&magellan_dev);
++	serio_unregister_driver(&magellan_drv);
+ }
+ 
+ module_init(magellan_init);
+diff -Nru a/drivers/input/joystick/spaceball.c b/drivers/input/joystick/spaceball.c
+--- a/drivers/input/joystick/spaceball.c	2004-06-27 17:47:51 -05:00
++++ b/drivers/input/joystick/spaceball.c	2004-06-27 17:47:51 -05:00
+@@ -201,7 +201,7 @@
+  * it as an input device.
+  */
+ 
+-static void spaceball_connect(struct serio *serio, struct serio_dev *dev)
++static void spaceball_connect(struct serio *serio, struct serio_driver *drv)
+ {
+ 	struct spaceball *spaceball;
+ 	int i, t, id;
+@@ -254,7 +254,7 @@
+ 
+ 	serio->private = spaceball;
+ 
+-	if (serio_open(serio, dev)) {
++	if (serio_open(serio, drv)) {
+ 		kfree(spaceball);
+ 		return;
+ 	}
+@@ -269,7 +269,7 @@
+  * The serio device structure.
+  */
+ 
+-static struct serio_dev spaceball_dev = {
++static struct serio_driver spaceball_drv = {
+ 	.interrupt =	spaceball_interrupt,
+ 	.connect =	spaceball_connect,
+ 	.disconnect =	spaceball_disconnect,
+@@ -281,13 +281,13 @@
+ 
+ int __init spaceball_init(void)
+ {
+-	serio_register_device(&spaceball_dev);
++	serio_register_driver(&spaceball_drv);
+ 	return 0;
+ }
+ 
+ void __exit spaceball_exit(void)
+ {
+-	serio_unregister_device(&spaceball_dev);
++	serio_unregister_driver(&spaceball_drv);
+ }
+ 
+ module_init(spaceball_init);
+diff -Nru a/drivers/input/joystick/spaceorb.c b/drivers/input/joystick/spaceorb.c
+--- a/drivers/input/joystick/spaceorb.c	2004-06-27 17:47:51 -05:00
++++ b/drivers/input/joystick/spaceorb.c	2004-06-27 17:47:51 -05:00
+@@ -162,7 +162,7 @@
+  * it as an input device.
+  */
+ 
+-static void spaceorb_connect(struct serio *serio, struct serio_dev *dev)
++static void spaceorb_connect(struct serio *serio, struct serio_driver *drv)
+ {
+ 	struct spaceorb *spaceorb;
+ 	int i, t;
+@@ -201,7 +201,7 @@
+ 
+ 	serio->private = spaceorb;
+ 
+-	if (serio_open(serio, dev)) {
++	if (serio_open(serio, drv)) {
+ 		kfree(spaceorb);
+ 		return;
+ 	}
+@@ -213,7 +213,7 @@
+  * The serio device structure.
+  */
+ 
+-static struct serio_dev spaceorb_dev = {
++static struct serio_driver spaceorb_drv = {
+ 	.interrupt =	spaceorb_interrupt,
+ 	.connect =	spaceorb_connect,
+ 	.disconnect =	spaceorb_disconnect,
+@@ -225,13 +225,13 @@
+ 
+ int __init spaceorb_init(void)
+ {
+-	serio_register_device(&spaceorb_dev);
++	serio_register_driver(&spaceorb_drv);
+ 	return 0;
+ }
+ 
+ void __exit spaceorb_exit(void)
+ {
+-	serio_unregister_device(&spaceorb_dev);
++	serio_unregister_driver(&spaceorb_drv);
+ }
+ 
+ module_init(spaceorb_init);
+diff -Nru a/drivers/input/joystick/stinger.c b/drivers/input/joystick/stinger.c
+--- a/drivers/input/joystick/stinger.c	2004-06-27 17:47:51 -05:00
++++ b/drivers/input/joystick/stinger.c	2004-06-27 17:47:51 -05:00
+@@ -134,7 +134,7 @@
+  * it as an input device.
+  */
+ 
+-static void stinger_connect(struct serio *serio, struct serio_dev *dev)
++static void stinger_connect(struct serio *serio, struct serio_driver *drv)
+ {
+ 	struct stinger *stinger;
+ 	int i;
+@@ -172,7 +172,7 @@
+ 	stinger->dev.private = stinger;
+ 	serio->private = stinger;
+ 
+-	if (serio_open(serio, dev)) {
++	if (serio_open(serio, drv)) {
+ 		kfree(stinger);
+ 		return;
+ 	}
+@@ -187,7 +187,7 @@
+  * The serio device structure.
+  */
+ 
+-static struct serio_dev stinger_dev = {
++static struct serio_driver stinger_drv = {
+ 	.interrupt =	stinger_interrupt,
+ 	.connect =	stinger_connect,
+ 	.disconnect =	stinger_disconnect,
+@@ -199,13 +199,13 @@
+ 
+ int __init stinger_init(void)
+ {
+-	serio_register_device(&stinger_dev);
++	serio_register_driver(&stinger_drv);
+ 	return 0;
+ }
+ 
+ void __exit stinger_exit(void)
+ {
+-	serio_unregister_device(&stinger_dev);
++	serio_unregister_driver(&stinger_drv);
+ }
+ 
+ module_init(stinger_init);
+diff -Nru a/drivers/input/joystick/twidjoy.c b/drivers/input/joystick/twidjoy.c
+--- a/drivers/input/joystick/twidjoy.c	2004-06-27 17:47:51 -05:00
++++ b/drivers/input/joystick/twidjoy.c	2004-06-27 17:47:51 -05:00
+@@ -187,7 +187,7 @@
+  * it as an input device.
+  */
+ 
+-static void twidjoy_connect(struct serio *serio, struct serio_dev *dev)
++static void twidjoy_connect(struct serio *serio, struct serio_driver *drv)
+ {
+ 	struct twidjoy_button_spec *bp;
+ 	struct twidjoy *twidjoy;
+@@ -232,7 +232,7 @@
+ 	twidjoy->dev.private = twidjoy;
+ 	serio->private = twidjoy;
+ 
+-	if (serio_open(serio, dev)) {
++	if (serio_open(serio, drv)) {
+ 		kfree(twidjoy);
+ 		return;
+ 	}
+@@ -246,7 +246,7 @@
+  * The serio device structure.
+  */
+ 
+-static struct serio_dev twidjoy_dev = {
++static struct serio_driver twidjoy_drv = {
+ 	.interrupt =	twidjoy_interrupt,
+ 	.connect =	twidjoy_connect,
+ 	.disconnect =	twidjoy_disconnect,
+@@ -258,13 +258,13 @@
+ 
+ int __init twidjoy_init(void)
+ {
+-	serio_register_device(&twidjoy_dev);
++	serio_register_driver(&twidjoy_drv);
+ 	return 0;
+ }
+ 
+ void __exit twidjoy_exit(void)
+ {
+-	serio_unregister_device(&twidjoy_dev);
++	serio_unregister_driver(&twidjoy_drv);
+ }
+ 
+ module_init(twidjoy_init);
+diff -Nru a/drivers/input/joystick/warrior.c b/drivers/input/joystick/warrior.c
+--- a/drivers/input/joystick/warrior.c	2004-06-27 17:47:51 -05:00
++++ b/drivers/input/joystick/warrior.c	2004-06-27 17:47:51 -05:00
+@@ -139,7 +139,7 @@
+  * it as an input device.
+  */
+ 
+-static void warrior_connect(struct serio *serio, struct serio_dev *dev)
++static void warrior_connect(struct serio *serio, struct serio_driver *drv)
+ {
+ 	struct warrior *warrior;
+ 	int i;
+@@ -185,7 +185,7 @@
+ 
+ 	serio->private = warrior;
+ 
+-	if (serio_open(serio, dev)) {
++	if (serio_open(serio, drv)) {
+ 		kfree(warrior);
+ 		return;
+ 	}
+@@ -199,7 +199,7 @@
+  * The serio device structure.
+  */
+ 
+-static struct serio_dev warrior_dev = {
++static struct serio_driver warrior_drv = {
+ 	.interrupt =	warrior_interrupt,
+ 	.connect =	warrior_connect,
+ 	.disconnect =	warrior_disconnect,
+@@ -211,13 +211,13 @@
+ 
+ int __init warrior_init(void)
+ {
+-	serio_register_device(&warrior_dev);
++	serio_register_driver(&warrior_drv);
+ 	return 0;
+ }
+ 
+ void __exit warrior_exit(void)
+ {
+-	serio_unregister_device(&warrior_dev);
++	serio_unregister_driver(&warrior_drv);
+ }
+ 
+ module_init(warrior_init);
+diff -Nru a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+--- a/drivers/input/keyboard/atkbd.c	2004-06-27 17:47:51 -05:00
++++ b/drivers/input/keyboard/atkbd.c	2004-06-27 17:47:51 -05:00
+@@ -732,7 +732,7 @@
+  * to the input module.
+  */
+ 
+-static void atkbd_connect(struct serio *serio, struct serio_dev *dev)
++static void atkbd_connect(struct serio *serio, struct serio_driver *drv)
+ {
+ 	struct atkbd *atkbd;
+ 	int i;
+@@ -785,7 +785,7 @@
+ 
+ 	serio->private = atkbd;
+ 
+-	if (serio_open(serio, dev)) {
++	if (serio_open(serio, drv)) {
+ 		kfree(atkbd);
+ 		return;
+ 	}
+@@ -861,10 +861,10 @@
+ static int atkbd_reconnect(struct serio *serio)
+ {
+ 	struct atkbd *atkbd = serio->private;
+-	struct serio_dev *dev = serio->dev;
++	struct serio_driver *drv = serio->drv;
+ 	unsigned char param[1];
+ 
+-	if (!dev) {
++	if (!drv) {
+ 		printk(KERN_DEBUG "atkbd: reconnect request, but serio is disconnected, ignoring...\n");
+ 		return -1;
+ 	}
+@@ -890,7 +890,7 @@
+ 	return 0;
+ }
+ 
+-static struct serio_dev atkbd_dev = {
++static struct serio_driver atkbd_drv = {
+ 	.interrupt =	atkbd_interrupt,
+ 	.connect =	atkbd_connect,
+ 	.reconnect = 	atkbd_reconnect,
+@@ -900,13 +900,13 @@
+ 
+ int __init atkbd_init(void)
+ {
+-	serio_register_device(&atkbd_dev);
++	serio_register_driver(&atkbd_drv);
+ 	return 0;
+ }
+ 
+ void __exit atkbd_exit(void)
+ {
+-	serio_unregister_device(&atkbd_dev);
++	serio_unregister_driver(&atkbd_drv);
+ }
+ 
+ module_init(atkbd_init);
+diff -Nru a/drivers/input/keyboard/lkkbd.c b/drivers/input/keyboard/lkkbd.c
+--- a/drivers/input/keyboard/lkkbd.c	2004-06-27 17:47:51 -05:00
++++ b/drivers/input/keyboard/lkkbd.c	2004-06-27 17:47:51 -05:00
+@@ -622,7 +622,7 @@
+  * lkkbd_connect() probes for a LK keyboard and fills the necessary structures.
+  */
+ static void
+-lkkbd_connect (struct serio *serio, struct serio_dev *dev)
++lkkbd_connect (struct serio *serio, struct serio_driver *drv)
+ {
+ 	struct lkkbd *lk;
+ 	int i;
+@@ -665,7 +665,7 @@
+ 
+ 	serio->private = lk;
+ 
+-	if (serio_open (serio, dev)) {
++	if (serio_open (serio, drv)) {
+ 		kfree (lk);
+ 		return;
+ 	}
+@@ -703,7 +703,7 @@
+ 	kfree (lk);
+ }
+ 
+-static struct serio_dev lkkbd_dev = {
++static struct serio_driver lkkbd_drv = {
+ 	.connect = lkkbd_connect,
+ 	.disconnect = lkkbd_disconnect,
+ 	.interrupt = lkkbd_interrupt,
+@@ -715,14 +715,14 @@
+ int __init
+ lkkbd_init (void)
+ {
+-	serio_register_device (&lkkbd_dev);
++	serio_register_driver(&lkkbd_drv);
+ 	return 0;
+ }
+ 
+ void __exit
+ lkkbd_exit (void)
+ {
+-	serio_unregister_device (&lkkbd_dev);
++	serio_unregister_driver(&lkkbd_drv);
+ }
+ 
+ module_init (lkkbd_init);
+diff -Nru a/drivers/input/keyboard/newtonkbd.c b/drivers/input/keyboard/newtonkbd.c
+--- a/drivers/input/keyboard/newtonkbd.c	2004-06-27 17:47:51 -05:00
++++ b/drivers/input/keyboard/newtonkbd.c	2004-06-27 17:47:51 -05:00
+@@ -82,7 +82,7 @@
+ 
+ }
+ 
+-void nkbd_connect(struct serio *serio, struct serio_dev *dev)
++void nkbd_connect(struct serio *serio, struct serio_driver *drv)
+ {
+ 	struct nkbd *nkbd;
+ 	int i;
+@@ -106,7 +106,7 @@
+ 	nkbd->dev.private = nkbd;
+ 	serio->private = nkbd;
+ 
+-	if (serio_open(serio, dev)) {
++	if (serio_open(serio, drv)) {
+ 		kfree(nkbd);
+ 		return;
+ 	}
+@@ -138,7 +138,7 @@
+ 	kfree(nkbd);
+ }
+ 
+-struct serio_dev nkbd_dev = {
++struct serio_driver nkbd_drv = {
+ 	.interrupt =	nkbd_interrupt,
+ 	.connect =	nkbd_connect,
+ 	.disconnect =	nkbd_disconnect
+@@ -146,13 +146,13 @@
+ 
+ int __init nkbd_init(void)
+ {
+-	serio_register_device(&nkbd_dev);
++	serio_register_driver(&nkbd_drv);
+ 	return 0;
+ }
+ 
+ void __exit nkbd_exit(void)
+ {
+-	serio_unregister_device(&nkbd_dev);
++	serio_unregister_driver(&nkbd_drv);
+ }
+ 
+ module_init(nkbd_init);
+diff -Nru a/drivers/input/keyboard/sunkbd.c b/drivers/input/keyboard/sunkbd.c
+--- a/drivers/input/keyboard/sunkbd.c	2004-06-27 17:47:51 -05:00
++++ b/drivers/input/keyboard/sunkbd.c	2004-06-27 17:47:51 -05:00
+@@ -221,7 +221,7 @@
+  * sunkbd_connect() probes for a Sun keyboard and fills the necessary structures.
+  */
+ 
+-static void sunkbd_connect(struct serio *serio, struct serio_dev *dev)
++static void sunkbd_connect(struct serio *serio, struct serio_driver *drv)
+ {
+ 	struct sunkbd *sunkbd;
+ 	int i;
+@@ -257,7 +257,7 @@
+ 
+ 	serio->private = sunkbd;
+ 
+-	if (serio_open(serio, dev)) {
++	if (serio_open(serio, drv)) {
+ 		kfree(sunkbd);
+ 		return;
+ 	}
+@@ -301,7 +301,7 @@
+ 	kfree(sunkbd);
+ }
+ 
+-static struct serio_dev sunkbd_dev = {
++static struct serio_driver sunkbd_drv = {
+ 	.interrupt =	sunkbd_interrupt,
+ 	.connect =	sunkbd_connect,
+ 	.disconnect =	sunkbd_disconnect
+@@ -313,13 +313,13 @@
+ 
+ int __init sunkbd_init(void)
+ {
+-	serio_register_device(&sunkbd_dev);
++	serio_register_driver(&sunkbd_drv);
+ 	return 0;
+ }
+ 
+ void __exit sunkbd_exit(void)
+ {
+-	serio_unregister_device(&sunkbd_dev);
++	serio_unregister_driver(&sunkbd_drv);
+ }
+ 
+ module_init(sunkbd_init);
+diff -Nru a/drivers/input/keyboard/xtkbd.c b/drivers/input/keyboard/xtkbd.c
+--- a/drivers/input/keyboard/xtkbd.c	2004-06-27 17:47:51 -05:00
++++ b/drivers/input/keyboard/xtkbd.c	2004-06-27 17:47:51 -05:00
+@@ -86,7 +86,7 @@
+ 	return IRQ_HANDLED;
+ }
+ 
+-void xtkbd_connect(struct serio *serio, struct serio_dev *dev)
++void xtkbd_connect(struct serio *serio, struct serio_driver *drv)
+ {
+ 	struct xtkbd *xtkbd;
+ 	int i;
+@@ -111,7 +111,7 @@
+ 
+ 	serio->private = xtkbd;
+ 
+-	if (serio_open(serio, dev)) {
++	if (serio_open(serio, drv)) {
+ 		kfree(xtkbd);
+ 		return;
+ 	}
+@@ -143,7 +143,7 @@
+ 	kfree(xtkbd);
+ }
+ 
+-struct serio_dev xtkbd_dev = {
++struct serio_driver xtkbd_drv = {
+ 	.interrupt =	xtkbd_interrupt,
+ 	.connect =	xtkbd_connect,
+ 	.disconnect =	xtkbd_disconnect
+@@ -151,13 +151,13 @@
+ 
+ int __init xtkbd_init(void)
+ {
+-	serio_register_device(&xtkbd_dev);
++	serio_register_driver(&xtkbd_drv);
+ 	return 0;
+ }
+ 
+ void __exit xtkbd_exit(void)
+ {
+-	serio_unregister_device(&xtkbd_dev);
++	serio_unregister_driver(&xtkbd_drv);
+ }
+ 
+ module_init(xtkbd_init);
+diff -Nru a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+--- a/drivers/input/mouse/psmouse-base.c	2004-06-27 17:47:51 -05:00
++++ b/drivers/input/mouse/psmouse-base.c	2004-06-27 17:47:51 -05:00
+@@ -693,7 +693,7 @@
+  * psmouse_connect() is a callback from the serio module when
+  * an unhandled serio port is found.
+  */
+-static void psmouse_connect(struct serio *serio, struct serio_dev *dev)
++static void psmouse_connect(struct serio *serio, struct serio_driver *drv)
+ {
+ 	struct psmouse *psmouse;
+ 
+@@ -715,7 +715,7 @@
+ 	psmouse_set_state(psmouse, PSMOUSE_CMD_MODE);
+ 
+ 	serio->private = psmouse;
+-	if (serio_open(serio, dev)) {
++	if (serio_open(serio, drv)) {
+ 		kfree(psmouse);
+ 		serio->private = NULL;
+ 		return;
+@@ -768,9 +768,9 @@
+ static int psmouse_reconnect(struct serio *serio)
+ {
+ 	struct psmouse *psmouse = serio->private;
+-	struct serio_dev *dev = serio->dev;
++	struct serio_driver *drv = serio->drv;
+ 
+-	if (!dev || !psmouse) {
++	if (!drv || !psmouse) {
+ 		printk(KERN_DEBUG "psmouse: reconnect request, but serio is disconnected, ignoring...\n");
+ 		return -1;
+ 	}
+@@ -803,7 +803,7 @@
+ }
+ 
+ 
+-static struct serio_dev psmouse_dev = {
++static struct serio_driver psmouse_drv = {
+ 	.interrupt =	psmouse_interrupt,
+ 	.connect =	psmouse_connect,
+ 	.reconnect =	psmouse_reconnect,
+@@ -828,13 +828,13 @@
+ int __init psmouse_init(void)
+ {
+ 	psmouse_parse_proto();
+-	serio_register_device(&psmouse_dev);
++	serio_register_driver(&psmouse_drv);
+ 	return 0;
+ }
+ 
+ void __exit psmouse_exit(void)
+ {
+-	serio_unregister_device(&psmouse_dev);
++	serio_unregister_driver(&psmouse_drv);
+ }
+ 
+ module_init(psmouse_init);
+diff -Nru a/drivers/input/mouse/sermouse.c b/drivers/input/mouse/sermouse.c
+--- a/drivers/input/mouse/sermouse.c	2004-06-27 17:47:51 -05:00
++++ b/drivers/input/mouse/sermouse.c	2004-06-27 17:47:51 -05:00
+@@ -237,7 +237,7 @@
+  * an unhandled serio port is found.
+  */
+ 
+-static void sermouse_connect(struct serio *serio, struct serio_dev *dev)
++static void sermouse_connect(struct serio *serio, struct serio_driver *drv)
+ {
+ 	struct sermouse *sermouse;
+ 	unsigned char c;
+@@ -279,7 +279,7 @@
+ 	sermouse->dev.id.product = c;
+ 	sermouse->dev.id.version = 0x0100;
+ 
+-	if (serio_open(serio, dev)) {
++	if (serio_open(serio, drv)) {
+ 		kfree(sermouse);
+ 		return;
+ 	}
+@@ -289,7 +289,7 @@
+ 	printk(KERN_INFO "input: %s on %s\n", sermouse_protocols[sermouse->type], serio->phys);
+ }
+ 
+-static struct serio_dev sermouse_dev = {
++static struct serio_driver sermouse_drv = {
+ 	.interrupt =	sermouse_interrupt,
+ 	.connect =	sermouse_connect,
+ 	.disconnect =	sermouse_disconnect
+@@ -297,13 +297,13 @@
+ 
+ int __init sermouse_init(void)
+ {
+-	serio_register_device(&sermouse_dev);
++	serio_register_driver(&sermouse_drv);
+ 	return 0;
+ }
+ 
+ void __exit sermouse_exit(void)
+ {
+-	serio_unregister_device(&sermouse_dev);
++	serio_unregister_driver(&sermouse_drv);
+ }
+ 
+ module_init(sermouse_init);
 diff -Nru a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
---- a/drivers/input/mouse/synaptics.c	2004-06-27 17:47:31 -05:00
-+++ b/drivers/input/mouse/synaptics.c	2004-06-27 17:47:31 -05:00
-@@ -214,7 +214,7 @@
-  ****************************************************************************/
- static int synaptics_pt_write(struct serio *port, unsigned char c)
- {
--	struct psmouse *parent = port->driver;
-+	struct psmouse *parent = port->port_data;
- 	char rate_param = SYN_PS_CLIENT_CMD; /* indicates that we want pass-through port */
+--- a/drivers/input/mouse/synaptics.c	2004-06-27 17:47:51 -05:00
++++ b/drivers/input/mouse/synaptics.c	2004-06-27 17:47:51 -05:00
+@@ -470,7 +470,7 @@
+ 		if (unlikely(priv->pkt_type == SYN_NEWABS))
+ 			priv->pkt_type = synaptics_detect_pkt_type(psmouse);
  
- 	if (psmouse_sliced_command(parent, c))
-@@ -273,7 +273,7 @@
- 	port->serio.name = "Synaptics pass-through";
- 	port->serio.phys = "synaptics-pt/serio0";
- 	port->serio.write = synaptics_pt_write;
--	port->serio.driver = psmouse;
-+	port->serio.port_data = psmouse;
- 
- 	port->activate = synaptics_pt_activate;
- }
-diff -Nru a/drivers/input/serio/ambakmi.c b/drivers/input/serio/ambakmi.c
---- a/drivers/input/serio/ambakmi.c	2004-06-27 17:47:31 -05:00
-+++ b/drivers/input/serio/ambakmi.c	2004-06-27 17:47:31 -05:00
-@@ -54,7 +54,7 @@
- 
- static int amba_kmi_write(struct serio *io, unsigned char val)
- {
--	struct amba_kmi_port *kmi = io->driver;
-+	struct amba_kmi_port *kmi = io->port_data;
- 	unsigned int timeleft = 10000; /* timeout in 100ms */
- 
- 	while ((readb(KMISTAT) & KMISTAT_TXEMPTY) == 0 && timeleft--)
-@@ -68,7 +68,7 @@
- 
- static int amba_kmi_open(struct serio *io)
- {
--	struct amba_kmi_port *kmi = io->driver;
-+	struct amba_kmi_port *kmi = io->port_data;
- 	unsigned int divisor;
- 	int ret;
- 
-@@ -105,7 +105,7 @@
- 
- static void amba_kmi_close(struct serio *io)
- {
--	struct amba_kmi_port *kmi = io->driver;
-+	struct amba_kmi_port *kmi = io->port_data;
- 
- 	writeb(0, KMICR);
- 
-@@ -131,15 +131,15 @@
- 
- 	memset(kmi, 0, sizeof(struct amba_kmi_port));
- 
--	kmi->io.type	= SERIO_8042;
--	kmi->io.write	= amba_kmi_write;
--	kmi->io.open	= amba_kmi_open;
--	kmi->io.close	= amba_kmi_close;
--	kmi->io.name	= dev->dev.bus_id;
--	kmi->io.phys	= dev->dev.bus_id;
--	kmi->io.driver	= kmi;
-+	kmi->io.type		= SERIO_8042;
-+	kmi->io.write		= amba_kmi_write;
-+	kmi->io.open		= amba_kmi_open;
-+	kmi->io.close		= amba_kmi_close;
-+	kmi->io.name		= dev->dev.bus_id;
-+	kmi->io.phys		= dev->dev.bus_id;
-+	kmi->io.port_data	= kmi;
- 
--	kmi->base	= ioremap(dev->res.start, KMI_SIZE);
-+	kmi->base		= ioremap(dev->res.start, KMI_SIZE);
- 	if (!kmi->base) {
- 		ret = -ENOMEM;
- 		goto out;
-diff -Nru a/drivers/input/serio/gscps2.c b/drivers/input/serio/gscps2.c
---- a/drivers/input/serio/gscps2.c	2004-06-27 17:47:31 -05:00
-+++ b/drivers/input/serio/gscps2.c	2004-06-27 17:47:31 -05:00
-@@ -288,7 +288,7 @@
- 
- static int gscps2_write(struct serio *port, unsigned char data)
- {
--	struct gscps2port *ps2port = port->driver;
-+	struct gscps2port *ps2port = port->port_data;
- 
- 	if (!gscps2_writeb_output(ps2port, data)) {
- 		printk(KERN_DEBUG PFX "sending byte %#x failed.\n", data);
-@@ -304,7 +304,7 @@
- 
- static int gscps2_open(struct serio *port)
- {
--	struct gscps2port *ps2port = port->driver;
-+	struct gscps2port *ps2port = port->port_data;
- 
- 	gscps2_reset(ps2port);
- 
-@@ -319,7 +319,7 @@
- 
- static void gscps2_close(struct serio *port)
- {
--	struct gscps2port *ps2port = port->driver;
-+	struct gscps2port *ps2port = port->port_data;
- 	gscps2_enable(ps2port, DISABLE);
+-		if (psmouse->ptport && psmouse->ptport->serio.dev && synaptics_is_pt_packet(psmouse->packet))
++		if (psmouse->ptport && psmouse->ptport->serio.drv && synaptics_is_pt_packet(psmouse->packet))
+ 			synaptics_pass_pt_packet(&psmouse->ptport->serio, psmouse->packet);
+ 		else
+ 			synaptics_process_packet(psmouse);
+diff -Nru a/drivers/input/mouse/vsxxxaa.c b/drivers/input/mouse/vsxxxaa.c
+--- a/drivers/input/mouse/vsxxxaa.c	2004-06-27 17:47:51 -05:00
++++ b/drivers/input/mouse/vsxxxaa.c	2004-06-27 17:47:51 -05:00
+@@ -482,7 +482,7 @@
  }
  
-@@ -372,7 +372,7 @@
- 		(ps2port->id == GSC_ID_KEYBOARD) ? "keyboard" : "mouse" );
- 
- 	memcpy(&ps2port->port, &gscps2_serio_port, sizeof(gscps2_serio_port));
--	ps2port->port.driver = ps2port;
-+	ps2port->port.port_data = ps2port;
- 	ps2port->port.name = ps2port->name;
- 	ps2port->port.phys = dev->dev.bus_id;
- 
-diff -Nru a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
---- a/drivers/input/serio/i8042.c	2004-06-27 17:47:31 -05:00
-+++ b/drivers/input/serio/i8042.c	2004-06-27 17:47:31 -05:00
-@@ -223,7 +223,7 @@
- 
- static int i8042_aux_write(struct serio *port, unsigned char c)
+ static void
+-vsxxxaa_connect (struct serio *serio, struct serio_dev *dev)
++vsxxxaa_connect (struct serio *serio, struct serio_driver *drv)
  {
--	struct i8042_values *values = port->driver;
-+	struct i8042_values *values = port->port_data;
- 	int retval;
+ 	struct vsxxxaa *mouse;
+ 
+@@ -524,7 +524,7 @@
+ 	mouse->dev.id.bustype = BUS_RS232;
+ 	mouse->serio = serio;
+ 
+-	if (serio_open (serio, dev)) {
++	if (serio_open (serio, drv)) {
+ 		kfree (mouse);
+ 		return;
+ 	}
+@@ -540,7 +540,7 @@
+ 	printk (KERN_INFO "input: %s on %s\n", mouse->name, mouse->phys);
+ }
+ 
+-static struct serio_dev vsxxxaa_dev = {
++static struct serio_driver vsxxxaa_drv = {
+ 	.connect = vsxxxaa_connect,
+ 	.interrupt = vsxxxaa_interrupt,
+ 	.disconnect = vsxxxaa_disconnect,
+@@ -549,14 +549,14 @@
+ int __init
+ vsxxxaa_init (void)
+ {
+-	serio_register_device (&vsxxxaa_dev);
++	serio_register_driver(&vsxxxaa_drv);
+ 	return 0;
+ }
+ 
+ void __exit
+ vsxxxaa_exit (void)
+ {
+-	serio_unregister_device (&vsxxxaa_dev);
++	serio_unregister_driver(&vsxxxaa_drv);
+ }
+ 
+ module_init (vsxxxaa_init);
+diff -Nru a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
+--- a/drivers/input/serio/serio.c	2004-06-27 17:47:51 -05:00
++++ b/drivers/input/serio/serio.c	2004-06-27 17:47:51 -05:00
+@@ -48,27 +48,27 @@
+ EXPORT_SYMBOL(serio_unregister_port);
+ EXPORT_SYMBOL(serio_unregister_port_delayed);
+ EXPORT_SYMBOL(__serio_unregister_port);
+-EXPORT_SYMBOL(serio_register_device);
+-EXPORT_SYMBOL(serio_unregister_device);
++EXPORT_SYMBOL(serio_register_driver);
++EXPORT_SYMBOL(serio_unregister_driver);
+ EXPORT_SYMBOL(serio_open);
+ EXPORT_SYMBOL(serio_close);
+ EXPORT_SYMBOL(serio_rescan);
+ EXPORT_SYMBOL(serio_reconnect);
+ 
+-static DECLARE_MUTEX(serio_sem);				/* protects serio_list and serio_dev_list */
++static DECLARE_MUTEX(serio_sem);	/* protects serio_list and serio_diriver_list */
+ static LIST_HEAD(serio_list);
+-static LIST_HEAD(serio_dev_list);
++static LIST_HEAD(serio_driver_list);
+ 
+-/* serio_find_dev() must be called with serio_sem down.  */
++/* serio_find_driver() must be called with serio_sem down.  */
+ 
+-static void serio_find_dev(struct serio *serio)
++static void serio_find_driver(struct serio *serio)
+ {
+-	struct serio_dev *dev;
++	struct serio_driver *drv;
+ 
+-	list_for_each_entry(dev, &serio_dev_list, node) {
+-		if (serio->dev)
++	list_for_each_entry(drv, &serio_driver_list, node) {
++		if (serio->drv)
+ 			break;
+-		dev->connect(serio, dev);
++		drv->connect(serio, drv);
+ 	}
+ }
+ 
+@@ -153,15 +153,15 @@
+ 				break;
+ 
+ 			case SERIO_RECONNECT :
+-				if (event->serio->dev && event->serio->dev->reconnect)
+-					if (event->serio->dev->reconnect(event->serio) == 0)
++				if (event->serio->drv && event->serio->drv->reconnect)
++					if (event->serio->drv->reconnect(event->serio) == 0)
+ 						break;
+ 				/* reconnect failed - fall through to rescan */
+ 
+ 			case SERIO_RESCAN :
+-				if (event->serio->dev)
+-					event->serio->dev->disconnect(event->serio);
+-				serio_find_dev(event->serio);
++				if (event->serio->drv)
++					event->serio->drv->disconnect(event->serio);
++				serio_find_driver(event->serio);
+ 				break;
+ 			default:
+ 				break;
+@@ -252,7 +252,7 @@
+ {
+ 	spin_lock_init(&serio->lock);
+ 	list_add_tail(&serio->node, &serio_list);
+-	serio_find_dev(serio);
++	serio_find_driver(serio);
+ }
+ 
+ void serio_unregister_port(struct serio *serio)
+@@ -281,58 +281,58 @@
+ {
+ 	serio_remove_pending_events(serio);
+ 	list_del_init(&serio->node);
+-	if (serio->dev)
+-		serio->dev->disconnect(serio);
++	if (serio->drv)
++		serio->drv->disconnect(serio);
+ }
  
  /*
-@@ -251,7 +251,7 @@
- 
- static int i8042_activate_port(struct serio *port)
- {
--	struct i8042_values *values = port->driver;
-+	struct i8042_values *values = port->port_data;
- 
- 	i8042_flush();
- 
-@@ -279,7 +279,7 @@
- 
- static int i8042_open(struct serio *port)
- {
--	struct i8042_values *values = port->driver;
-+	struct i8042_values *values = port->port_data;
- 
- 	if (values->mux != -1)
- 		if (i8042_mux_open++)
-@@ -318,7 +318,7 @@
- 
- static void i8042_close(struct serio *port)
- {
--	struct i8042_values *values = port->driver;
-+	struct i8042_values *values = port->port_data;
- 
- 	if (values->mux != -1)
- 		if (--i8042_mux_open)
-@@ -353,7 +353,7 @@
- 	.write =	i8042_kbd_write,
- 	.open =		i8042_open,
- 	.close =	i8042_close,
--	.driver =	&i8042_kbd_values,
-+	.port_data =	&i8042_kbd_values,
- 	.name =		"i8042 Kbd Port",
- 	.phys =		I8042_KBD_PHYS_DESC,
- };
-@@ -371,7 +371,7 @@
- 	.write =	i8042_aux_write,
- 	.open =		i8042_open,
- 	.close =	i8042_close,
--	.driver =	&i8042_aux_values,
-+	.port_data =	&i8042_aux_values,
- 	.name =		"i8042 Aux Port",
- 	.phys =		I8042_AUX_PHYS_DESC,
- };
-@@ -941,7 +941,7 @@
- 	sprintf(i8042_mux_short[index], "AUX%d", index);
- 	port->name = i8042_mux_names[index];
- 	port->phys = i8042_mux_phys[index];
--	port->driver = values;
-+	port->port_data = values;
- 	values->name = i8042_mux_short[index];
- 	values->mux = index;
- }
-diff -Nru a/drivers/input/serio/maceps2.c b/drivers/input/serio/maceps2.c
---- a/drivers/input/serio/maceps2.c	2004-06-27 17:47:31 -05:00
-+++ b/drivers/input/serio/maceps2.c	2004-06-27 17:47:31 -05:00
-@@ -54,7 +54,7 @@
- 
- static int maceps2_write(struct serio *dev, unsigned char val)
- {
--	struct mace_ps2port *port = ((struct maceps2_data *)dev->driver)->port;
-+	struct mace_ps2port *port = ((struct maceps2_data *)dev->port_data)->port;
- 	unsigned int timeout = MACE_PS2_TIMEOUT;
- 
- 	do {
-@@ -72,7 +72,7 @@
- 				     struct pt_regs *regs)
- {
- 	struct serio *dev = dev_id;
--	struct mace_ps2port *port = ((struct maceps2_data *)dev->driver)->port;
-+	struct mace_ps2port *port = ((struct maceps2_data *)dev->port_data)->port;
- 	unsigned int byte;
- 
- 	if (mace_read(port->status) & PS2_STATUS_RX_FULL) {
-@@ -85,7 +85,7 @@
- 
- static int maceps2_open(struct serio *dev)
- {
--	struct maceps2_data *data = (struct maceps2_data *)dev->driver;
-+	struct maceps2_data *data = (struct maceps2_data *)dev->port_data;
- 
- 	if (request_irq(data->irq, maceps2_interrupt, 0, "PS/2 port", dev)) {
- 		printk(KERN_ERR "Could not allocate PS/2 IRQ\n");
-@@ -106,7 +106,7 @@
- 
- static void maceps2_close(struct serio *dev)
- {
--	struct maceps2_data *data = (struct maceps2_data *)dev->driver;
-+	struct maceps2_data *data = (struct maceps2_data *)dev->port_data;
- 
- 	mace_write(PS2_CONTROL_TX_CLOCK_DISABLE | PS2_CONTROL_RESET,
- 		   data->port->control);
-@@ -118,24 +118,24 @@
- 
- static struct serio maceps2_port0 =
- {
--	.type	= SERIO_8042,
--	.open	= maceps2_open,
--	.close	= maceps2_close,
--	.write	= maceps2_write,
--	.name	= "MACE PS/2 port0",
--	.phys	= "mace/serio0",
--	.driver = &port0_data,
-+	.type		= SERIO_8042,
-+	.open		= maceps2_open,
-+	.close		= maceps2_close,
-+	.write		= maceps2_write,
-+	.name		= "MACE PS/2 port0",
-+	.phys		= "mace/serio0",
-+	.port_data	= &port0_data,
- };
- 
- static struct serio maceps2_port1 =
- {
--	.type	= SERIO_8042,
--	.open	= maceps2_open,
--	.close	= maceps2_close,
--	.write	= maceps2_write,
--	.name	= "MACE PS/2 port1",
--	.phys	= "mace/serio1",
--	.driver = &port1_data,
-+	.type		= SERIO_8042,
-+	.open		= maceps2_open,
-+	.close		= maceps2_close,
-+	.write		= maceps2_write,
-+	.name		= "MACE PS/2 port1",
-+	.phys		= "mace/serio1",
-+	.port_data	= &port1_data,
- };
- 
- static int __init maceps2_init(void)
-diff -Nru a/drivers/input/serio/pcips2.c b/drivers/input/serio/pcips2.c
---- a/drivers/input/serio/pcips2.c	2004-06-27 17:47:31 -05:00
-+++ b/drivers/input/serio/pcips2.c	2004-06-27 17:47:31 -05:00
-@@ -45,7 +45,7 @@
- 
- static int pcips2_write(struct serio *io, unsigned char val)
- {
--	struct pcips2_data *ps2if = io->driver;
-+	struct pcips2_data *ps2if = io->port_data;
- 	unsigned int stat;
- 
- 	do {
-@@ -101,7 +101,7 @@
- 
- static int pcips2_open(struct serio *io)
- {
--	struct pcips2_data *ps2if = io->driver;
-+	struct pcips2_data *ps2if = io->port_data;
- 	int ret, val = 0;
- 
- 	outb(PS2_CTRL_ENABLE, ps2if->base);
-@@ -119,7 +119,7 @@
- 
- static void pcips2_close(struct serio *io)
- {
--	struct pcips2_data *ps2if = io->driver;
-+	struct pcips2_data *ps2if = io->port_data;
- 
- 	outb(0, ps2if->base);
- 
-@@ -155,7 +155,7 @@
- 	ps2if->io.close		= pcips2_close;
- 	ps2if->io.name		= pci_name(dev);
- 	ps2if->io.phys		= dev->dev.bus_id;
--	ps2if->io.driver	= ps2if;
-+	ps2if->io.port_data	= ps2if;
- 	ps2if->dev		= dev;
- 	ps2if->base		= pci_resource_start(dev, 0);
- 
-diff -Nru a/drivers/input/serio/sa1111ps2.c b/drivers/input/serio/sa1111ps2.c
---- a/drivers/input/serio/sa1111ps2.c	2004-06-27 17:47:31 -05:00
-+++ b/drivers/input/serio/sa1111ps2.c	2004-06-27 17:47:31 -05:00
-@@ -95,7 +95,7 @@
+- * Serio device operations
++ * Serio driver operations
   */
- static int ps2_write(struct serio *io, unsigned char val)
+ 
+-void serio_register_device(struct serio_dev *dev)
++void serio_register_driver(struct serio_driver *drv)
  {
--	struct ps2if *ps2if = io->driver;
-+	struct ps2if *ps2if = io->port_data;
- 	unsigned long flags;
- 	unsigned int head;
- 
-@@ -122,7 +122,7 @@
- 
- static int ps2_open(struct serio *io)
- {
--	struct ps2if *ps2if = io->driver;
-+	struct ps2if *ps2if = io->port_data;
- 	int ret;
- 
- 	sa1111_enable_device(ps2if->dev);
-@@ -154,7 +154,7 @@
- 
- static void ps2_close(struct serio *io)
- {
--	struct ps2if *ps2if = io->driver;
-+	struct ps2if *ps2if = io->port_data;
- 
- 	sa1111_writel(0, ps2if->base + SA1111_PS2CR);
- 
-@@ -247,7 +247,7 @@
- 	ps2if->io.close		= ps2_close;
- 	ps2if->io.name		= dev->dev.bus_id;
- 	ps2if->io.phys		= dev->dev.bus_id;
--	ps2if->io.driver	= ps2if;
-+	ps2if->io.port_data	= ps2if;
- 	ps2if->dev		= dev;
- 	sa1111_set_drvdata(dev, ps2if);
- 
-diff -Nru a/drivers/input/serio/serport.c b/drivers/input/serio/serport.c
---- a/drivers/input/serio/serport.c	2004-06-27 17:47:31 -05:00
-+++ b/drivers/input/serio/serport.c	2004-06-27 17:47:31 -05:00
-@@ -44,13 +44,13 @@
- 
- static int serport_serio_write(struct serio *serio, unsigned char data)
- {
--	struct serport *serport = serio->driver;
-+	struct serport *serport = serio->port_data;
- 	return -(serport->tty->driver->write(serport->tty, 0, &data, 1) != 1);
+ 	struct serio *serio;
+ 	down(&serio_sem);
+-	list_add_tail(&dev->node, &serio_dev_list);
++	list_add_tail(&drv->node, &serio_driver_list);
+ 	list_for_each_entry(serio, &serio_list, node)
+-		if (!serio->dev)
+-			dev->connect(serio, dev);
++		if (!serio->drv)
++			drv->connect(serio, drv);
+ 	up(&serio_sem);
  }
  
- static void serport_serio_close(struct serio *serio)
+-void serio_unregister_device(struct serio_dev *dev)
++void serio_unregister_driver(struct serio_driver *drv)
  {
--	struct serport *serport = serio->driver;
-+	struct serport *serport = serio->port_data;
+ 	struct serio *serio;
  
- 	serport->serio.type = 0;
- 	wake_up_interruptible(&serport->wait);
-@@ -83,7 +83,7 @@
- 	serport->serio.type = SERIO_RS232;
- 	serport->serio.write = serport_serio_write;
- 	serport->serio.close = serport_serio_close;
--	serport->serio.driver = serport;
-+	serport->serio.port_data = serport;
+ 	down(&serio_sem);
+-	list_del_init(&dev->node);
++	list_del_init(&drv->node);
  
- 	init_waitqueue_head(&serport->wait);
+ 	list_for_each_entry(serio, &serio_list, node) {
+-		if (serio->dev == dev)
+-			dev->disconnect(serio);
+-		serio_find_dev(serio);
++		if (serio->drv == drv)
++			drv->disconnect(serio);
++		serio_find_driver(serio);
+ 	}
+ 	up(&serio_sem);
+ }
  
-diff -Nru a/drivers/serial/sunsu.c b/drivers/serial/sunsu.c
---- a/drivers/serial/sunsu.c	2004-06-27 17:47:31 -05:00
-+++ b/drivers/serial/sunsu.c	2004-06-27 17:47:31 -05:00
-@@ -994,7 +994,7 @@
- 
- static int sunsu_serio_write(struct serio *serio, unsigned char ch)
+-/* called from serio_dev->connect/disconnect methods under serio_sem */
+-int serio_open(struct serio *serio, struct serio_dev *dev)
++/* called from serio_driver->connect/disconnect methods under serio_sem */
++int serio_open(struct serio *serio, struct serio_driver *drv)
  {
--	struct uart_sunsu_port *up = serio->driver;
-+	struct uart_sunsu_port *up = serio->port_data;
- 	unsigned long flags;
- 	int lsr;
- 
-@@ -1014,7 +1014,7 @@
- 
- static int sunsu_serio_open(struct serio *serio)
- {
--	struct uart_sunsu_port *up = serio->driver;
-+	struct uart_sunsu_port *up = serio->port_data;
- 	unsigned long flags;
- 	int ret;
- 
-@@ -1031,7 +1031,7 @@
- 
- static void sunsu_serio_close(struct serio *serio)
- {
--	struct uart_sunsu_port *up = serio->driver;
-+	struct uart_sunsu_port *up = serio->port_data;
  	unsigned long flags;
  
- 	spin_lock_irqsave(&sunsu_serio_lock, flags);
-@@ -1311,7 +1311,7 @@
- #ifdef CONFIG_SERIO
- 		memset(&up->serio, 0, sizeof(up->serio));
+ 	spin_lock_irqsave(&serio->lock, flags);
+-	serio->dev = dev;
++	serio->drv = drv;
+ 	spin_unlock_irqrestore(&serio->lock, flags);
+ 	if (serio->open && serio->open(serio)) {
+ 		spin_lock_irqsave(&serio->lock, flags);
+-		serio->dev = NULL;
++		serio->drv = NULL;
+ 		spin_unlock_irqrestore(&serio->lock, flags);
+ 		return -1;
+ 	}
+ 	return 0;
+ }
  
--		up->serio.driver = up;
-+		up->serio.port_data = up;
- 
- 		up->serio.type = SERIO_RS232;
- 		if (up->su_type == SU_PORT_KBD) {
-diff -Nru a/drivers/serial/sunzilog.c b/drivers/serial/sunzilog.c
---- a/drivers/serial/sunzilog.c	2004-06-27 17:47:31 -05:00
-+++ b/drivers/serial/sunzilog.c	2004-06-27 17:47:31 -05:00
-@@ -1295,7 +1295,7 @@
- 
- static int sunzilog_serio_write(struct serio *serio, unsigned char ch)
+-/* called from serio_dev->connect/disconnect methods under serio_sem */
++/* called from serio_driver->connect/disconnect methods under serio_sem */
+ void serio_close(struct serio *serio)
  {
--	struct uart_sunzilog_port *up = serio->driver;
-+	struct uart_sunzilog_port *up = serio->port_data;
  	unsigned long flags;
+@@ -340,7 +340,7 @@
+ 	if (serio->close)
+ 		serio->close(serio);
+ 	spin_lock_irqsave(&serio->lock, flags);
+-	serio->dev = NULL;
++	serio->drv = NULL;
+ 	spin_unlock_irqrestore(&serio->lock, flags);
+ }
  
- 	spin_lock_irqsave(&sunzilog_serio_lock, flags);
-@@ -1309,7 +1309,7 @@
+@@ -352,8 +352,8 @@
  
- static int sunzilog_serio_open(struct serio *serio)
+ 	spin_lock_irqsave(&serio->lock, flags);
+ 
+-        if (likely(serio->dev)) {
+-                ret = serio->dev->interrupt(serio, data, dfl, regs);
++        if (likely(serio->drv)) {
++                ret = serio->drv->interrupt(serio, data, dfl, regs);
+ 	} else {
+ 		if (!dfl) {
+ 			if ((serio->type != SERIO_8042 &&
+diff -Nru a/drivers/input/serio/serport.c b/drivers/input/serio/serport.c
+--- a/drivers/input/serio/serport.c	2004-06-27 17:47:51 -05:00
++++ b/drivers/input/serio/serport.c	2004-06-27 17:47:51 -05:00
+@@ -170,7 +170,7 @@
  {
--	struct uart_sunzilog_port *up = serio->driver;
-+	struct uart_sunzilog_port *up = serio->port_data;
- 	unsigned long flags;
- 	int ret;
+ 	struct serport *sp = (struct serport *) tty->disc_data;
  
-@@ -1326,7 +1326,7 @@
+-	serio_dev_write_wakeup(&sp->serio);
++	serio_drv_write_wakeup(&sp->serio);
+ }
  
- static void sunzilog_serio_close(struct serio *serio)
+ /*
+diff -Nru a/drivers/input/touchscreen/gunze.c b/drivers/input/touchscreen/gunze.c
+--- a/drivers/input/touchscreen/gunze.c	2004-06-27 17:47:51 -05:00
++++ b/drivers/input/touchscreen/gunze.c	2004-06-27 17:47:51 -05:00
+@@ -111,7 +111,7 @@
+  * and if yes, registers it as an input device.
+  */
+ 
+-static void gunze_connect(struct serio *serio, struct serio_dev *dev)
++static void gunze_connect(struct serio *serio, struct serio_driver *drv)
  {
--	struct uart_sunzilog_port *up = serio->driver;
-+	struct uart_sunzilog_port *up = serio->port_data;
- 	unsigned long flags;
+ 	struct gunze *gunze;
  
- 	spin_lock_irqsave(&sunzilog_serio_lock, flags);
-@@ -1549,7 +1549,7 @@
- #ifdef CONFIG_SERIO
- 	memset(&up->serio, 0, sizeof(up->serio));
+@@ -142,7 +142,7 @@
+ 	gunze->dev.id.product = 0x0051;
+ 	gunze->dev.id.version = 0x0100;
  
--	up->serio.driver = up;
-+	up->serio.port_data = up;
+-	if (serio_open(serio, dev)) {
++	if (serio_open(serio, drv)) {
+ 		kfree(gunze);
+ 		return;
+ 	}
+@@ -156,7 +156,7 @@
+  * The serio device structure.
+  */
  
- 	up->serio.type = SERIO_RS232;
- 	if (channel == KEYBOARD_LINE) {
+-static struct serio_dev gunze_dev = {
++static struct serio_driver gunze_drv = {
+ 	.interrupt =	gunze_interrupt,
+ 	.connect =	gunze_connect,
+ 	.disconnect =	gunze_disconnect,
+@@ -168,13 +168,13 @@
+ 
+ int __init gunze_init(void)
+ {
+-	serio_register_device(&gunze_dev);
++	serio_register_driver(&gunze_drv);
+ 	return 0;
+ }
+ 
+ void __exit gunze_exit(void)
+ {
+-	serio_unregister_device(&gunze_dev);
++	serio_unregister_driver(&gunze_drv);
+ }
+ 
+ module_init(gunze_init);
+diff -Nru a/drivers/input/touchscreen/h3600_ts_input.c b/drivers/input/touchscreen/h3600_ts_input.c
+--- a/drivers/input/touchscreen/h3600_ts_input.c	2004-06-27 17:47:51 -05:00
++++ b/drivers/input/touchscreen/h3600_ts_input.c	2004-06-27 17:47:51 -05:00
+@@ -373,7 +373,7 @@
+  * new serio device. It looks whether it was registered as a H3600 touchscreen
+  * and if yes, registers it as an input device.
+  */
+-static void h3600ts_connect(struct serio *serio, struct serio_dev *dev)
++static void h3600ts_connect(struct serio *serio, struct serio_driver *drv)
+ {
+ 	struct h3600_dev *ts;
+ 
+@@ -441,7 +441,7 @@
+ 	ts->dev.id.product = 0x0666;  /* FIXME !!! We can ask the hardware */
+ 	ts->dev.id.version = 0x0100;
+ 
+-	if (serio_open(serio, dev)) {
++	if (serio_open(serio, drv)) {
+         	free_irq(IRQ_GPIO_BITSY_ACTION_BUTTON, ts);
+         	free_irq(IRQ_GPIO_BITSY_NPOWER_BUTTON, ts);
+ 		kfree(ts);
+@@ -478,7 +478,7 @@
+  * The serio device structure.
+  */
+ 
+-static struct serio_dev h3600ts_dev = {
++static struct serio_driver h3600ts_drv = {
+ 	.interrupt =	h3600ts_interrupt,
+ 	.connect =	h3600ts_connect,
+ 	.disconnect =	h3600ts_disconnect,
+@@ -490,13 +490,13 @@
+ 
+ static int __init h3600ts_init(void)
+ {
+-	serio_register_device(&h3600ts_dev);
++	serio_register_driver(&h3600ts_drv);
+ 	return 0;
+ }
+ 
+ static void __exit h3600ts_exit(void)
+ {
+-	serio_unregister_device(&h3600ts_dev);
++	serio_unregister_driver(&h3600ts_drv);
+ }
+ 
+ module_init(h3600ts_init);
 diff -Nru a/include/linux/serio.h b/include/linux/serio.h
---- a/include/linux/serio.h	2004-06-27 17:47:31 -05:00
-+++ b/include/linux/serio.h	2004-06-27 17:47:31 -05:00
-@@ -21,7 +21,7 @@
+--- a/include/linux/serio.h	2004-06-27 17:47:51 -05:00
++++ b/include/linux/serio.h	2004-06-27 17:47:51 -05:00
+@@ -39,19 +39,19 @@
+ 	int (*open)(struct serio *);
+ 	void (*close)(struct serio *);
  
- struct serio {
+-	struct serio_dev *dev; /* Accessed from interrupt, writes must be protected by serio_lock */
++	struct serio_driver *drv; /* Accessed from interrupt, writes must be protected by serio_lock */
+ 
+ 	struct list_head node;
+ };
+ 
+-struct serio_dev {
++struct serio_driver {
  	void *private;
--	void *driver;
-+	void *port_data;
  	char *name;
- 	char *phys;
  
+ 	void (*write_wakeup)(struct serio *);
+ 	irqreturn_t (*interrupt)(struct serio *, unsigned char,
+ 			unsigned int, struct pt_regs *);
+-	void (*connect)(struct serio *, struct serio_dev *dev);
++	void (*connect)(struct serio *, struct serio_driver *drv);
+ 	int  (*reconnect)(struct serio *);
+ 	void (*disconnect)(struct serio *);
+ 	void (*cleanup)(struct serio *);
+@@ -59,7 +59,7 @@
+ 	struct list_head node;
+ };
+ 
+-int serio_open(struct serio *serio, struct serio_dev *dev);
++int serio_open(struct serio *serio, struct serio_driver *drv);
+ void serio_close(struct serio *serio);
+ void serio_rescan(struct serio *serio);
+ void serio_reconnect(struct serio *serio);
+@@ -71,8 +71,8 @@
+ void serio_unregister_port(struct serio *serio);
+ void serio_unregister_port_delayed(struct serio *serio);
+ void __serio_unregister_port(struct serio *serio);
+-void serio_register_device(struct serio_dev *dev);
+-void serio_unregister_device(struct serio_dev *dev);
++void serio_register_driver(struct serio_driver *drv);
++void serio_unregister_driver(struct serio_driver *drv);
+ 
+ static __inline__ int serio_write(struct serio *serio, unsigned char data)
+ {
+@@ -82,16 +82,16 @@
+ 		return -1;
+ }
+ 
+-static __inline__ void serio_dev_write_wakeup(struct serio *serio)
++static __inline__ void serio_drv_write_wakeup(struct serio *serio)
+ {
+-	if (serio->dev && serio->dev->write_wakeup)
+-		serio->dev->write_wakeup(serio);
++	if (serio->drv && serio->drv->write_wakeup)
++		serio->drv->write_wakeup(serio);
+ }
+ 
+ static __inline__ void serio_cleanup(struct serio *serio)
+ {
+-	if (serio->dev && serio->dev->cleanup)
+-		serio->dev->cleanup(serio);
++	if (serio->drv && serio->drv->cleanup)
++		serio->drv->cleanup(serio);
+ }
+ 
+ #endif

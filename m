@@ -1,54 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129130AbQKGWEB>; Tue, 7 Nov 2000 17:04:01 -0500
+	id <S129176AbQKGWLW>; Tue, 7 Nov 2000 17:11:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129176AbQKGWDw>; Tue, 7 Nov 2000 17:03:52 -0500
-Received: from blackhole.compendium-tech.com ([206.55.153.26]:38905 "EHLO
-	sol.compendium-tech.com") by vger.kernel.org with ESMTP
-	id <S129130AbQKGWDj>; Tue, 7 Nov 2000 17:03:39 -0500
-Date: Tue, 7 Nov 2000 14:02:23 -0800 (PST)
-From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
-To: Chris Meadors <clubneon@hereintown.net>
-cc: Ulrich Drepper <drepper@redhat.com>, root@chaos.analogic.com,
-        kernel@kvack.org, "Dr. David Gilbert" <dg@px.uk.com>,
-        linux-kernel@vger.kernel.org
+	id <S129431AbQKGWLM>; Tue, 7 Nov 2000 17:11:12 -0500
+Received: from air.lug-owl.de ([62.52.24.190]:16144 "HELO air.lug-owl.de")
+	by vger.kernel.org with SMTP id <S129176AbQKGWLB>;
+	Tue, 7 Nov 2000 17:11:01 -0500
+Date: Tue, 7 Nov 2000 23:10:57 +0100
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
 Subject: Re: Dual XEON - >>SLOW<< on SMP
-In-Reply-To: <Pine.LNX.4.21.0011021334170.83-100000@rc.priv.hereintown.net>
-Message-ID: <Pine.LNX.4.21.0011071401280.4438-100000@sol.compendium-tech.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20001107231056.A23564@lug-owl.de>
+Reply-To: jbglaw@lug-owl.de
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0011021334170.83-100000@rc.priv.hereintown.net> <Pine.LNX.4.21.0011071401280.4438-100000@sol.compendium-tech.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="UlVJffcvxoiEqYs2"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0011071401280.4438-100000@sol.compendium-tech.com>; from kernel@blackhole.compendium-tech.com on Tue, Nov 07, 2000 at 02:02:23PM -0800
+X-Operating-System: Linux air 2.4.0-test8-pre1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This machine isn't even a Xeon, just a PIII CuMine on a ServerWorks HeIII
-> chipset.
 
-Strange, I've got a dual Katmai (non-Xeon) and notice the same...
+--UlVJffcvxoiEqYs2
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-           CPU0       CPU1       
-  0:   95135438   95720832    IO-APIC-edge  timer
-  1:     579101     572402    IO-APIC-edge  keyboard
-  2:          0          0          XT-PIC  cascade
-  3:    1414912    1423496    IO-APIC-edge  serial
-  5:    5563231    5551230    IO-APIC-edge  soundblaster
-  9:          0          0    IO-APIC-edge  acpi
- 10:   10945738   10944261   IO-APIC-level  eth0
- 11:     696382     700477   IO-APIC-level  ide0, ide1
- 12:    7251164    7251575    IO-APIC-edge  PS/2 Mouse
- 13:          0          0          XT-PIC  fpu
- 14:    3079238    3079438   IO-APIC-level  eth1
- 15:        111        130   IO-APIC-level  bttv
-NMI:  190856196  190856196 
-LOC:  190858464  190858463 
-ERR:          0
+On Tue, Nov 07, 2000 at 02:02:23PM -0800, Dr. Kelsey Hudson wrote:
+> > This machine isn't even a Xeon, just a PIII CuMine on a ServerWorks HeI=
+II
+> > chipset.
+>=20
+> Strange, I've got a dual Katmai (non-Xeon) and notice the same...
 
-This cannot be good...
+I've just gotten a dual PIII (Coppermine) to my hands. I *think* that
+this machine is quite slower as it should be... However, I've got
+no old speed values of that box, but...
 
- Kelsey Hudson                                           khudson@ctica.com 
- Software Engineer
- Compendium Technologies, Inc                               (619) 725-0771
----------------------------------------------------------------------------     
+>            CPU0       CPU1      =20
+[...]
+> NMI:  190856196  190856196=20
+> LOC:  190858464  190858463=20
 
+=2E..are these two lines okay? I've noticed that as well, but I've not
+seen that on UP machines as well...
+
+=2EoO( Where did I see those MTRR settings? )
+
+MfG, JBG
+
+--=20
+Fehler eingestehen, Gr=F6=DFe zeigen: Nehmt die Rechtschreibreform zur=FCck=
+!!!
+/* Jan-Benedict Glaw <jbglaw@lug-owl.de> -- +49-177-5601720 */
+keyID=3D0x8399E1BB fingerprint=3D250D 3BCF 7127 0D8C A444 A961 1DBD 5E75 83=
+99 E1BB
+     "insmod vi.o and there we go..." (Alexander Viro on linux-kernel)
+
+--UlVJffcvxoiEqYs2
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.2 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAjoIffAACgkQHb1edYOZ4bscvgCdGCUDm3zTIHI6413UTxY1VkIo
+6yQAn1CAE2HXiweEdT+m7xBCn/PUY92h
+=dKka
+-----END PGP SIGNATURE-----
+
+--UlVJffcvxoiEqYs2--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

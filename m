@@ -1,67 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273648AbRJJGAS>; Wed, 10 Oct 2001 02:00:18 -0400
+	id <S274851AbRJJGHj>; Wed, 10 Oct 2001 02:07:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274368AbRJJGAB>; Wed, 10 Oct 2001 02:00:01 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:34546
+	id <S274863AbRJJGHa>; Wed, 10 Oct 2001 02:07:30 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:38130
 	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S273648AbRJJF7l>; Wed, 10 Oct 2001 01:59:41 -0400
-Date: Tue, 9 Oct 2001 23:00:07 -0700
+	id <S274851AbRJJGHR>; Wed, 10 Oct 2001 02:07:17 -0400
+Date: Tue, 9 Oct 2001 23:07:43 -0700
 From: Mike Fedyk <mfedyk@matchmail.com>
-To: Robert Love <rml@tech9.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Compile Filure on 2.4.10-ac10+preempt+smp
-Message-ID: <20011009230007.B12825@mikef-linux.matchmail.com>
-Mail-Followup-To: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <20011009214655.A26663@mikef-linux.matchmail.com> <1002690949.862.233.camel@phantasy> <20011009222403.A12825@mikef-linux.matchmail.com> <1002692093.1243.238.camel@phantasy>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Context switch times
+Message-ID: <20011009230743.C12825@mikef-linux.matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <3BC067BB.73AF1EB5@welho.com> <200110081519.f98FJnZ10592@deathstar.prodigy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1002692093.1243.238.camel@phantasy>
+In-Reply-To: <200110081519.f98FJnZ10592@deathstar.prodigy.com>
 User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 10, 2001 at 01:34:41AM -0400, Robert Love wrote:
-> On Wed, 2001-10-10 at 01:24, Mike Fedyk wrote:
-> > On Wed, Oct 10, 2001 at 01:15:25AM -0400, Robert Love wrote:
-> > >
-> > > Ahh, yes.  Thank you for spotting this.  include/asm-i386/spinlock.h has
-> > > two separate defines for spin_unlock and we only renamed one of them.  I
-> > > guess you hit the conditional that used the other define...
-> > >
-> > > The attached patch fixes it.
-> > >
-> > 
-> > Thank you.  Will compile now...
+On Mon, Oct 08, 2001 at 11:19:49AM -0400, bill davidsen wrote:
+> In article <3BC067BB.73AF1EB5@welho.com> Mika.Liljeberg@welho.com wrote:
 > 
-> Let me know, I didn't test :)
+> >Yes. However, you still want to balance the queues even if all CPUs are
+> >100% utilized. It's a fairness issue. Otherwise you could have 1 task
+> >running on one CPU and 49 tasks on another.
 > 
-> If it works I will merge it...
+>   You say that as if it were a bad thing... I believe that if you have
+> one long running task and many small tasks in the system CPU affinity
+> will make that happen now. Obviously not if all CPUs are 100% loaded,
+> and your 1 vs. 49 is unrealistic, but having a task stay with a CPU
+> while trivia run on other CPU(s) is generally a good thing under certain
+> load conditions, which I guess are no less likely than your example;-)
 >
 
-Compilation success.
+Lets put an actual load example (which I just happen do be doing now):
 
-Will boot and run over the next couple days.
+On my 2x366 celeron smp box, I have a kernel compile running (-j15), and a
+bzip2 compressing several large files...
 
-> > > I only keep around patches to the last official kernel, plus the latest
-> > > -pre and -ac I patched.  Since the patch itself is being updated, its a
-> > > pain to backport to older kernels.
-> > >
-> > 
-> > No, I'm not asking for backport, just links to one version back just in case
-> > the latest patch has a bug much like this...
-> > 
-> > I'd rather run one (working) version back than have to go to UP just to get
-> > preempt...  Needless to say, I chose to keep smp.
-> 
-> OK, then try editing the URL, I scp the patches in and don't ssh in and
-> actually clean the stuff up but every here and there.
-> 
-> ie, change the ac10 to ac9 in the URL.
-> 
+Right now, (2.4.10-ac4, compiling 2.4.10-ac10+preempt) both of my L2
+processor caches are moot (128KB) because of the several gcc processes
+running, and the very loose affinity.
 
-Yep, thought of that, but didn't try it.  I figured it would be better to
-report than to go silent...
+In this case, bzip2 should probably get a processor (CPU0) to itself, and my kernel
+compile another(CPU1).  
 
-Mike
+It would be interesting to see how a system that has a kind of hierarchy to
+the processors.  All new processes would always start on cpu0, and long
+running processes would get slowly moved up the list of processors the
+longer they run.  Thus, CPU0 would have abysmal L2 cache locality, and CPU7
+would have the best caching possible with its L2.
+
+What do you guys think?

@@ -1,55 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264371AbTCXT13>; Mon, 24 Mar 2003 14:27:29 -0500
+	id <S264314AbTCXTZC>; Mon, 24 Mar 2003 14:25:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264373AbTCXT13>; Mon, 24 Mar 2003 14:27:29 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:10903 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S264371AbTCXT12>; Mon, 24 Mar 2003 14:27:28 -0500
-Subject: Re: [PATCH] anobjrmap 2/6 mapping
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Hugh Dickins <hugh@veritas.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
-       Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <20030320224832.0334712d.akpm@digeo.com>
-References: <Pine.LNX.4.44.0303202310440.2743-100000@localhost.localdomain>
-	 <Pine.LNX.4.44.0303202312560.2743-100000@localhost.localdomain>
-	 <20030320224832.0334712d.akpm@digeo.com>
-Content-Type: text/plain
+	id <S264365AbTCXTZC>; Mon, 24 Mar 2003 14:25:02 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:54027 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S264314AbTCXTZB>; Mon, 24 Mar 2003 14:25:01 -0500
+Message-ID: <3E7F5E1F.2080802@zytor.com>
+Date: Mon, 24 Mar 2003 11:35:59 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030211
+X-Accept-Language: en, sv
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: ftp://ftp.kernel.org/pub/scm/
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1048534712.1907.398.camel@sisko.scot.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 24 Mar 2003 19:38:32 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi all,
 
-On Fri, 2003-03-21 at 06:48, Andrew Morton wrote:
+I have set up a tree on kernel.org for SCM repositories.  Currently it
+contains a mirror of the bk->cvs repository tree at:
 
-> It goes BUG in try_to_free_buffers().
-> 
-> We really should fix this up for other reasons, probably by making ext3's
-> per-page truncate operations wait on commit, and be more aggressive about
-> pulling the page's buffers off the transaction at truncate time.
+ftp://ftp.kernel.org/pub/scm/linux/kernel/bkcvs/
 
-Ouch.
+The main intent for this is to make it possible to rsync the full
+repository; we currently don't have CVS pserver access or anything like
+that (maybe later.)
 
-> The same thing _could_ happen with other filesystems; not too sure about
-> that.
+This tree is mirrored hourly from kernel.bkbits.net.
 
-XFS used to have synchronous truncates, for similar sorts of reasons. 
-It was dog slow for unlinks.  They worked pretty hard to fix that; I'd
-really like to avoid adding extra synchronicity to ext3 in this case.
+I'm hoping someone with a BK license and a kernel.org account could add
+the bk exports file to this tree, as well.
 
-Pulling buffers off the transaction more aggressively would certainly be
-worth looking at.  Trouble is, if a truncate transaction on disk gets
-interrupted by a crash, you really do have to be able to undo it, so you
-simply don't have the luxury of throwing the buffers away until a commit
-has occurred (unless you're in writeback mode.)
-
---Stephen
+	-hpa
 

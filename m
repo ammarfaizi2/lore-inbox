@@ -1,35 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131446AbRDPMn7>; Mon, 16 Apr 2001 08:43:59 -0400
+	id <S131424AbRDPMmh>; Mon, 16 Apr 2001 08:42:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131457AbRDPMnt>; Mon, 16 Apr 2001 08:43:49 -0400
-Received: from lightning.hereintown.net ([207.196.96.3]:7047 "EHLO
-	lightning.hereintown.net") by vger.kernel.org with ESMTP
-	id <S131446AbRDPMnk>; Mon, 16 Apr 2001 08:43:40 -0400
-Date: Mon, 16 Apr 2001 08:56:44 -0400 (EDT)
-From: Chris Meadors <clubneon@hereintown.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.3-ac7
-In-Reply-To: <E14p860-00008u-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.31.0104160852560.16553-100000@rc.priv.hereintown.net>
+	id <S131446AbRDPMm2>; Mon, 16 Apr 2001 08:42:28 -0400
+Received: from mailrelay1.lrz-muenchen.de ([129.187.254.101]:36601 "EHLO
+	mailrelay1.lrz-muenchen.de") by vger.kernel.org with ESMTP
+	id <S131424AbRDPMmK>; Mon, 16 Apr 2001 08:42:10 -0400
+Date: Mon, 16 Apr 2001 14:42:03 +0200 (CEST)
+From: Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>
+To: Pavel Machek <pavel@suse.cz>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Let init know user wants to shutdown
+In-Reply-To: <20010413002920.C43@(none)>
+Message-Id: <Pine.LNX.4.31.0104161427400.13558-100000@phobos.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Apr 2001, Alan Cox wrote:
+On Fri, 13 Apr 2001, Pavel Machek wrote:
 
-> VIA users should test this kernel carefully. It has what are supposed to be
-> the right fixes for the VIA hardware bugs. Obviously the right fixes are not
-> as tested as the deduced ones.
+> > Then a more general user space tool could be used that would do policy
+> > appropriate stuff, ending with init 0.
 
-I saw no mention of the ACPI idle problem I see on my Athlons.  Is the
-acpi=no-idle work around the perminate fix?
+> init _is_ the tool which is right for defining policy on such issues.
 
--Chris
+> Take a look how UPS managment is handled.
+
+A power failure is a different thing from a power button press. There are
+users (me for example) who want to have something different then "init 0"
+mapped to the power button, for example a sleep state (since my box
+doesn't have a dedicated sleep button). I doubt there are many people who
+want something else than a shutdown if the power is out (although I think
+there will be with suspend-to-disk working, so we might have to change UPS
+handling here).
+
+My plan for power management was to have a special daemon that would
+decide what to do based on system state (battery status, local time, ...)
+and events (power/sleep button, last user logged out, ...) [I know that
+from a programmer's POV, both are events]. This daemon could, for example,
+make sure that no services are affected, for example by priming WOL and
+entering a not-so-deep sleep state instead of doing a suspend-to-disk if
+someone is still listening on a port after the "shutdown unimportant
+services" scripts have been run.
+
+   Simon
+
 -- 
-Two penguins were walking on an iceberg.  The first penguin said to the
-second, "you look like you are wearing a tuxedo."  The second penguin
-said, "I might be..."                         --David Lynch, Twin Peaks
+GPG public key available from http://phobos.fs.tum.de/pgp/Simon.Richter.asc
+ Fingerprint: DC26 EB8D 1F35 4F44 2934  7583 DBB6 F98D 9198 3292
+Hi! I'm a .signature virus! Copy me into your ~/.signature to help me spread!
 

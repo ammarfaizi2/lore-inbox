@@ -1,41 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264374AbUBHXGt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Feb 2004 18:06:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264383AbUBHXGt
+	id S264364AbUBHXDZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Feb 2004 18:03:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264374AbUBHXDZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Feb 2004 18:06:49 -0500
-Received: from imladris.demon.co.uk ([193.237.130.41]:7296 "EHLO
-	baythorne.infradead.org") by vger.kernel.org with ESMTP
-	id S264374AbUBHXGs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Feb 2004 18:06:48 -0500
-Subject: Re: When should we use likely() / unlikely() / get_unaligned() ?
-From: David Woodhouse <dwmw2@infradead.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org, matthew@wil.cx, davem@redhat.com
-In-Reply-To: <20040208230331.79FEB2C003@lists.samba.org>
-References: <20040208230331.79FEB2C003@lists.samba.org>
-Content-Type: text/plain
-Message-Id: <1076281602.8563.1.camel@imladris.demon.co.uk>
+	Sun, 8 Feb 2004 18:03:25 -0500
+Received: from relay.uni-heidelberg.de ([129.206.100.212]:24729 "EHLO
+	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
+	id S264364AbUBHXDW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Feb 2004 18:03:22 -0500
+Date: Mon, 9 Feb 2004 00:03:14 +0100
+To: linux-kernel@vger.kernel.org, vojtech@suse.cz,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: psmouse.c, throwing 3 bytes away
+Message-ID: <20040208230314.GA21937@fubini.pci.uni-heidelberg.de>
+References: <20040208215935.GA13280@ucw.cz> <20040208221933.92D0B3F1B@latitude.mynet.no-ip.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8.dwmw2.2) 
-Date: Sun, 08 Feb 2004 23:06:43 +0000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040208221933.92D0B3F1B@latitude.mynet.no-ip.org>
+User-Agent: Mutt/1.3.28i
+From: Bernd Schubert <Bernd.Schubert@tc.pci.uni-heidelberg.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-02-09 at 10:00 +1100, Rusty Russell wrote:
-> > we now support architectures in 2.6 where alignment fixups _cannot_ happen,
-> > and the cost of the 'exception' case should be considered infinite.
+On Sun, Feb 08, 2004 at 11:19:32PM +0100, aeriksson@fastmail.fm wrote:
 > 
-> Um, we do?  I thought it was compulsory in the kernel, otherwise
-> networking breaks on packets w/ wierd hardware headers.
+> > 
+> > > Problem still occurs :-(
+> > 
+> > I have good news - I've managed to reliably reproduce the bug on my
+> > machine and that means I now have a good chance to find and fix it.
+> > 
+> 
+> Another data point. I just tried switching to a non-preempt kernel as
+> was suggested by someone. The problem still occurs.
+> 
 
-We do. It breaks. I'm trying to come up with a solution for it which
-actually lets us optimise elsewhere too, and hence has at least a
-whelk's chance in a supernova of being accepted... :)
+Hello,
 
--- 
-dwmw2
+on IBM Thinkpads R31 this is also easiliy to reproduce:
 
+For 2.6. one only needs to read from /proc/apm or /proc/acpic/...
+and the mouse becomes crazy and one gets the throwing 2 bytes away
+messages in the log files. By fast reading in an endless loop even
+input from the keyboard is ignored.
 
+For 2.4. this only happens on reading from /proc/apm, somehow acpi is not
+affected in 2.4. kernel versions.
+
+Well, for R31's it is said that it is the bad bios, but maybe its
+related? Any ideas why it doesn't happen with acpi and 2.4.? 
+
+My knowlege of the kernel interals is quite low and pretty much limited
+to the basic vfs area, so could you please give me some good advises how to
+debug this?
+
+Thanks,
+	Bernd

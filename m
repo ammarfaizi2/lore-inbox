@@ -1,98 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270646AbUJUAwk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270519AbUJTXnJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270646AbUJUAwk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 20:52:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270668AbUJUAwj
+	id S270519AbUJTXnJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 19:43:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270335AbUJTXab
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 20:52:39 -0400
-Received: from web40723.mail.yahoo.com ([66.218.92.61]:64849 "HELO
-	web40723.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S270646AbUJUAr1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 20:47:27 -0400
-Message-ID: <20041021004721.38359.qmail@web40723.mail.yahoo.com>
-Date: Wed, 20 Oct 2004 17:47:21 -0700 (PDT)
-From: Timothy Miller <theosib@yahoo.com>
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1098318640l.25188l.0l@werewolf.able.es>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 20 Oct 2004 19:30:31 -0400
+Received: from rproxy.gmail.com ([64.233.170.196]:49523 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S270557AbUJTXQL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 19:16:11 -0400
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=lGz1CFzlZUqSa0jKIRN95ZbPm451GyZzMWuKzAhxxGIE3lEqdF5uiEC5D6FcMsP3iaB6X93nYMFO6QyVFfKAcUQN9TTnLb3oywDn5hi0q2zOtfRRbKwkOtNs5LqPILukpug/aF60Wr+wFC3TgA28/jCv2g2d2KRCouGB7WIX9UE
+Message-ID: <b476569a0410201616415b0600@mail.gmail.com>
+Date: Wed, 20 Oct 2004 11:16:05 -1200
+From: Adam Hunt <kinema@gmail.com>
+Reply-To: Adam Hunt <kinema@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: I/O scheduler recomendation for Linux as a VMware guest
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am forced to spend quite a bit of time with my only relatively
+powerful workstation booted into XP so I can do CAD work
+(unfortunately Autodesk's Inventor only runs on Windows).  Because of
+this unfortunate situation I am planning my first attempt to get the
+Linux install that I have on the other drive in this workstation to
+boot using VMware.  VMware has the ability to access raw disk
+partitions (as apposed to partitions stored in a file on a host
+partition) so I figure with some init and /etc magic I should be able
+to boot the system using VMware and when I am not drawing in Inventor
+I should be able to reboot and run Linux natively directly on the
+hardware.
 
---- "J.A. Magallon" <jamagallon@able.es> wrote:
+What I am wondering is what I/O scheduler should I be using when the
+system is running within a VMware instance?  I figure that Windows
+will be scheduling the access to the physical hardware so I would
+assume that I want a bare bones priority based scheduler, something
+with the lowest possible overhead.  Is this correct?  If so, what
+would that scheduler be?
 
-> 
-> On 2004.10.21, Timothy Miller wrote:
-> ...
-> > 
-> > When it comes to desktop applications, the FIRST thing you need is
-> good
-> > 2D acceleration.  In fact, that's really the ONLY thing. 
-> OpenOffice
-> > does not need to use OpenGL.  GNOME doesn't need to use OpenGL.  In
-> > fact, for the most part, they don't bother.  There are some
-> instances
-> > where they use OpenGL, but most of what a workstation user does
-> fits
-> > squarely within all the functionality supplied by Xlib, which is
-> > entirely 2D.
-> > 
-> 
-> Have you looked at xorg-x11 recently ? IE, the Composite, Damage and
-> Render extensions ?
-> 
-> OSX uses OpenGL because it is the API they have to access things like
-> alpha blending, image scaling, and so on, so they can do those nice
-> effects of transparencies, shadows, genie's and so on. At least until
-> Panther. For me, it looks like the new Tiger implementation
-> (CoreImage) is
-> their own implementation of the OpenGL pixel pipeline, talking
-> directly
-> to drivers instead of using OpenGL as intermediary.
-> 
-> Probably desktop systems would not need the T&L part of 3D, but be
-> sure
-> they will need at least managing windows at different depths,
-> blending them,
-> anti-aliasing them an so on.
-> 
-> So, as I see it, for an appealing 2D card, you need to program a 2
-> 1/2
-> graphics engine, with really _fast_ alpha blending and antialiasing.
-> You can only kill the matrix part. I do not know if you will be able
-> to
-> get rid completely of floating point, for those alpha mixes and
-> assorted
-> candy...
+IIRC someone (Ingo?) was working on the ability to change schedules
+during runtime.  How has that work progressed?  Is it available in any
+kernel trees?
 
-
-Alright.  Excellent points.  If I don't have to do any scaling or
-rotation, alpha-blending won't be that big of a deal.  I already would
-have to read the destination of applying a raster-op or a planemask, so
-alpha-blend would become just another part of the merge at the end of
-the pipeline.  
-
-Of course, with only 8 significant bits, you could get noticable
-cumulative round-off error.
-
-As you start to add 3D features to the 2D pipeline, the point in
-keeping them separate diminishes.
-
-
-Oh, and there's antialiasing... now, sometimes, it just LOOKS like
-antialiasing, like with the font server used by X11.  When it renders
-characters, it produces an 8-bit grayscale bitmap which is
-pre-antialiased, which you then have to color while rendering.  If you
-want to do other things, then you get back into scaling, which is just
-a special case of texture-mapping.
-
-
-
-		
-_______________________________
-Do you Yahoo!?
-Declare Yourself - Register online to vote today!
-http://vote.yahoo.com
+--adam

@@ -1,34 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271418AbRHUDDS>; Mon, 20 Aug 2001 23:03:18 -0400
+	id <S271432AbRHUDM3>; Mon, 20 Aug 2001 23:12:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271417AbRHUDDI>; Mon, 20 Aug 2001 23:03:08 -0400
-Received: from rj.SGI.COM ([204.94.215.100]:14785 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S271432AbRHUDCv>;
-	Mon, 20 Aug 2001 23:02:51 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Andr Dahlqvist <andre.dahlqvist@telia.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 'make dep' produces lots of errors with this .config 
-In-Reply-To: Your message of "Fri, 17 Aug 2001 23:46:26 +0200."
-             <20010817234626.A29467@telia.com> 
+	id <S271479AbRHUDMT>; Mon, 20 Aug 2001 23:12:19 -0400
+Received: from ns.suse.de ([213.95.15.193]:7690 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S271432AbRHUDMF>;
+	Mon, 20 Aug 2001 23:12:05 -0400
+Date: Tue, 21 Aug 2001 05:12:19 +0200
+From: Andi Kleen <ak@suse.de>
+To: Paul Jakma <paul@clubi.ie>
+Cc: Andi Kleen <ak@suse.de>, Richard Gooch <rgooch@ras.ucalgary.ca>,
+        tytso@mit.edu, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] let Net Devices feed Entropy, updated (1/2)
+Message-ID: <20010821051219.A21099@gruyere.muc.suse.de>
+In-Reply-To: <oupk7zyqhw3.fsf@pigdrop.muc.suse.de> <Pine.LNX.4.33.0108210353320.7402-100000@fogarty.jakma.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 21 Aug 2001 13:02:57 +1000
-Message-ID: <18695.998362977@kao2.melbourne.sgi.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0108210353320.7402-100000@fogarty.jakma.org>; from paul@clubi.ie on Tue, Aug 21, 2001 at 04:02:47AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Aug 2001 23:46:26 +0200, 
-Andr Dahlqvist <andre.dahlqvist@telia.com> wrote:
->I have come across what might be a problem and what might be completely
->harmless. I have noticed that when I configure my kernel in a certain
->way (the config file is attached) 'make dep' produces these errors while
->it is being run (these are just the errors, normal output is omitted):
+On Tue, Aug 21, 2001 at 04:02:47AM +0100, Paul Jakma wrote:
+> On 21 Aug 2001, Andi Kleen wrote:
+> 
+> > It is not that they are hard to fix; e.g. a $10 sound card
+> > with a noise generating circuit on input and a small daemon to feed
+> > /dev/audio to /dev/random can do it; but few people seem to know about
+> 
+> does this update the entropy count though? from previous 
+> discussions, i believe not, which iiuc means /dev/random will block 
+> just as frequently/infrequently irrespective of whether you feed 
+> stuff into /dev/random.
 
-Ignore all error and warning messages from make dep.  It always
-generates spurious messages, because it tries to read all architecture
-"independent" source files.  The design is broken, make dep will be
-removed in kernel 2.5.
+Just writing into /dev/random feeds it, but only credits a very small
+amount of entropy into the store, so you need to feed a lot of data.
+To feed it with full accounting you need to use a special ioctl on /dev/random;
+e.g. using the rndfeed tool (see ftp.firstfloor.org:/pub/ak/smallsrc/rndfeed.c)
 
+-Andi

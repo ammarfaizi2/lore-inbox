@@ -1,63 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261527AbULNPz5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261532AbULNP6Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261527AbULNPz5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 10:55:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbULNPz5
+	id S261532AbULNP6Y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 10:58:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261534AbULNP6Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 10:55:57 -0500
-Received: from relay01.pair.com ([209.68.5.15]:51725 "HELO relay01.pair.com")
-	by vger.kernel.org with SMTP id S261527AbULNPzu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 10:55:50 -0500
-X-pair-Authenticated: 66.134.112.218
-Subject: Re: [ACPI] [ACPI][2.6.10-rc3][SUSPEND] S3 mode - Cannot resume
-	from PCI devices
-From: Daniel Gryniewicz <dang@fprintf.net>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Shawn Starr <shawn.starr@rogers.com>, linux-kernel@vger.kernel.org,
-       Len Brown <len.brown@intel.com>, acpi-devel@lists.sourceforge.net
-In-Reply-To: <20041214110648.GA2291@elf.ucw.cz>
-References: <200412100315.21725.shawn.starr@rogers.com>
-	 <20041214110648.GA2291@elf.ucw.cz>
-Content-Type: text/plain
+	Tue, 14 Dec 2004 10:58:24 -0500
+Received: from ottawa-hs-64-26-171-227.s-ip.magma.ca ([64.26.171.227]:23459
+	"HELO edgewater.ca") by vger.kernel.org with SMTP id S261532AbULNP6S
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 10:58:18 -0500
+Message-ID: <002d01c4e1f5$a3491790$8500a8c0@WS055>
+From: "Yihan Li" <Yihan.Li@Edgewater.CA>
+To: <linux-kernel@vger.kernel.org>
+Subject: patch RTAI (fusion-0.6.4) with kernel 2.6.9 on Fedora Core 3
+Date: Tue, 14 Dec 2004 10:57:39 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
 Content-Transfer-Encoding: 7bit
-Date: Tue, 14 Dec 2004 10:55:17 -0500
-Message-Id: <1103039717.10857.53.camel@athena.fprintf.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.1.1 
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2180
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-12-14 at 12:06 +0100, Pavel Machek wrote:
-> Hi!
-> 
-> > I have netconsole configured I can see kernel messages on a remote machine, but when I suspend the laptop it goes into S3.
-> > I am unable to capture the (oops) the laptop when bringing it out of S3. It remains in a half suspended-unsuspended state.
-> > (the crescent moon LED is solidly on, video is back on (can see the 'Back to C!' string), cannot use sysctl key combos, 
-> > netconsole doesn't display the output since no PCI devices resume (the video is AGP onboard).
-> > 
-> > Is there any way I can capture this output somehow? I don't think even serial would work (it would be a USB to serial converter which would be PCI)
-> > or even trying to get this to print to lp0 since the laptop is totally unresponsive in its state.
-> > 
-> > I booted into single and sh for init, mounted /proc /sys and with no kernel modules it would fail to resume after suspending.
-> > 
-> > This isn't a nice regression.
-> 
-> So what was the last kernel where it worked?
-> 										Pavel
-> 
+Need help again!
+I am trying to patch RTAI (fusion-0.6.4) with kernel 2.6.9 on Fedora Core 3.
+The following steps are what I was following:
 
-For me, 2.6.9-rc4.  I've tried every -rc and -mm since, and it cannot
-resume.  (I get no video on resume, even with 2.6.9-rc4, until X
-resumes, so I get no information what-so-ever, just a dead box.  That's
-why I haven't reported this before.)
+I download a varnilla version of linux-2.6.9 from www.kernel.org,
+Unpack the kernel source:
+# cd /usr/src
+# tar xvjf linux-2.6.9.tar.bz2
+# ln -s linux-2.6.9 linux
 
-I have a Dell Inspiron 8600 (Centrino) with the nvidia card.
+Unpack or copy RTAI to  /usr/src/fusion-0.6.4.tar.bz2
+# ln -s fusion-0.6.4  rtai
 
-2.6.9-rc4 suspends and resumes fine, both to memory and disk.  Since
-then, nothing has resumed from suspend-to-ram, but occasional versions
-(such as 10-rc3-mm1) resumes from suspend-to-disk.
+Patch the kernel:
+I download patch 2.6.9-ac15 and patch to kernel 2.6.9
+Then I patched RTAI to kernel:
+# cd /usr/src/linux
+# patch -p1 < ../rtai/arch/i386/patches/adeos-linux-2.6.9-i386-r8.patch
 
-I can give any information that people want.
+Copy the existing (Fedora) kernel config file to /usr/src/linux
+# cp /boot/config-2.6.xxxx /usr/src/linux/.configConfigure the kernel:
+# make menuconfig
+# make
 
-Daniel
+After 8 mins, I get error messages as following:
+drivers/scsi/qla2xxx/qla_os.c: In function `qla2x00_queuecommand':
+drivers/scsi/qla2xxx/qla_os.c:315: sorry, unimplemented: inlining failed in
+call to 'qla2x00_callback': function not considered for inlining
+drivers/scsi/qla2xxx/qla_os.c:269: sorry, unimplemented: called from here
+drivers/scsi/qla2xxx/qla_os.c:315: sorry, unimplemented: inlining failed in
+call to 'qla2x00_callback': function not considered for inlining
+drivers/scsi/qla2xxx/qla_os.c:269: sorry, unimplemented: called from here
+make[3]: *** [drivers/scsi/qla2xxx/qla_os.o] Error 1
+make[2]: *** [drivers/scsi/qla2xxx] Error 2
+make[1]: *** [drivers/scsi] Error 2
+make: *** [drivers] Error 2
+
+I looked at the source code of qla_os.c, which belong to Qlogic ISP2x00 
+device driver.
+So I redo my configuration. I didn't choose Qlogic ISP2x00 and Qlogic PCMCIA 
+device driver.
+After that, the make finished without error.
+Then I install the kernel:
+# make modules_install install
+
+The following warning is what I got:
+
+  INSTALL sound/usb/snd-usb-lib.ko
+  INSTALL sound/usb/usx2y/snd-usb-usx2y.ko
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.6.9-ac15; fi
+  CHK     include/linux/version.h
+make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
+  CHK     include/linux/compile.h
+Kernel: arch/i386/boot/bzImage is ready
+sh /usr/src/linux-2.6.9/arch/i386/boot/install.sh 2.6.9-ac15 
+arch/i386/boot/bzImage System.map "/boot"
+WARNING: No module sata_via found for kernel 2.6.9-ac15, continuing anyway
+
+Module sata_via is mainly for what? What can I do now? I need a hand ...
+
+I wish to be personally CC'ed the answers/comments in response to my
+posting.
+
+

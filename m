@@ -1,48 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265279AbUAERwN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 12:52:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265274AbUAERwM
+	id S265233AbUAERrT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 12:47:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265267AbUAERq6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 12:52:12 -0500
-Received: from magic-mail.adaptec.com ([216.52.22.10]:39828 "EHLO
-	magic.adaptec.com") by vger.kernel.org with ESMTP id S265279AbUAERwB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 12:52:01 -0500
-Date: Mon, 05 Jan 2004 10:57:35 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       linux-scsi@vger.kernel.org
-cc: Berkley Shands <berkley@cs.wustl.edu>
-Subject: [BUG] x86_64 pci_map_sg modifies sg list - fails multiple map/unmaps
-Message-ID: <2938942704.1073325455@aslan.btc.adaptec.com>
-X-Mailer: Mulberry/3.1.0 (Linux/x86)
+	Mon, 5 Jan 2004 12:46:58 -0500
+Received: from portraits.wsisiz.edu.pl ([213.135.44.34]:52036 "EHLO
+	portraits.wsisiz.edu.pl") by vger.kernel.org with ESMTP
+	id S265233AbUAERom (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 12:44:42 -0500
+Date: Mon, 5 Jan 2004 18:44:19 +0100
+Message-Id: <200401051744.i05HiJI1005152@lt.wsisiz.edu.pl>
+From: Lukasz Trabinski <lukasz@trabinski.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.24-rc1
+In-Reply-To: <Pine.LNX.4.58L.0401051130250.1188@logos.cnet>
+X-Newsgroups: wsisiz.linux-kernel
+X-PGP-Key-Fingerprint: 5C87 7FF4 9539 6AA9 4EEF  529D 0236 ECCB 70F1 E978
+X-Key-ID: 70F1E978
+User-Agent: tin/1.7.3-20031220 ("Taransay") (UNIX) (Linux/2.4.24-pre3 (i686))
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Berkley Shands recently tripped over this problem.  The 2.6.X pci_map_sg
-code for x86_64 modifies the passed in S/G list to compact it for mapping
-by the GART.  This modification is not reversed when pci_unmap_sg is
-called.  In the case of a retried SCSI command, this causes any attempt
-to map the command a second time to fail with a BUG assertion since the
-nseg parameter passed into the second map call is state.  nseg comes from
-the "use_sg" field in the SCSI command structure which is never touched
-by the HBA drivers invoking pci_map_sg.
+In article <Pine.LNX.4.58L.0401051130250.1188@logos.cnet> you wrote:
+> 
+> The 2.4.24-pre tree with all its modifications becomes 2.4.25-pre.
 
-DMA-API.txt doesn't seem to cover this issue.  Should the low-level DMA
-code restore the S/G list to its original state on unmap or should the
-SCSI HBA drivers be changed to update "use_sg" with the segment count
-reported by the pci_map_sg() API?  If the latter, this seems to contradict
-the mandate in DMA-API that the nseg parameter passed into the unmap call
-be the same as that passed into the map call.  Most of the kernel assumes
-that an S/G list can be mapped an unmapped multiple times using the same
-arguments.  This doesn't seem to me to be an unreasonable expectation.
+When we can expect 2.4.25-pre? 
 
---
-Justin
-
+-- 
+*[ £T ]*

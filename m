@@ -1,81 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264926AbUFAISo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264929AbUFAIVW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264926AbUFAISo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 04:18:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264923AbUFAISo
+	id S264929AbUFAIVW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 04:21:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264933AbUFAIVV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 04:18:44 -0400
-Received: from ee.oulu.fi ([130.231.61.23]:47606 "EHLO ee.oulu.fi")
-	by vger.kernel.org with ESMTP id S264926AbUFAISl (ORCPT
+	Tue, 1 Jun 2004 04:21:21 -0400
+Received: from atlas.informatik.uni-freiburg.de ([132.230.150.3]:54164 "EHLO
+	atlas.informatik.uni-freiburg.de") by vger.kernel.org with ESMTP
+	id S264929AbUFAIVS convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 04:18:41 -0400
-Date: Tue, 1 Jun 2004 11:18:20 +0300 (EEST)
-From: Tuukka Toivonen <tuukkat@ee.oulu.fi>
-X-X-Sender: tuukkat@stekt37
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: Sau Dan Lee <danlee@informatik.uni-freiburg.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: SERIO_USERDEV patch for 2.6
-In-Reply-To: <20040530134246.GA1828@ucw.cz>
-Message-ID: <Pine.GSO.4.58.0406011105330.6922@stekt37>
-References: <xb7r7t2b3mb.fsf@savona.informatik.uni-freiburg.de>
- <20040530111847.GA1377@ucw.cz> <xb71xl2b0to.fsf@savona.informatik.uni-freiburg.de>
- <20040530124353.GB1496@ucw.cz> <xb7aczq9he1.fsf@savona.informatik.uni-freiburg.de>
- <20040530134246.GA1828@ucw.cz>
+	Tue, 1 Jun 2004 04:21:18 -0400
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+References: <20040528195709.GB5175@pclin040.win.tue.nl> <20040525201616.GE6512@gucio> <xb7hdu3fwsj.fsf@savona.informatik.uni-freiburg.de>
+Subject: BUG: atkbd.c keyboard driver bug [Was: keyboard problem with 2.6.6]
+From: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
+Date: 01 Jun 2004 10:21:16 +0200
+Message-ID: <xb73c5f8z9f.fsf@savona.informatik.uni-freiburg.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=big5
+Content-Transfer-Encoding: 8BIT
+Organization: Universitaet Freiburg, Institut fuer Informatik
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 30 May 2004, Vojtech Pavlik wrote:
 
->The newest I could find:
->linux-2.6.5-userdev.20040507.patch
+    Andries> Sau Dan Lee wrote:
 
-Yes, it's still the newest. Applies cleanly against 2.6.6 too.
-I didn't want to add features before getting some feedback.
+    >> Actually, I have a side issue with input/i8042 related things:
+    >> The keyboard on my laptop worked slightly different: On 2.4.*,
+    >> SysRq is activated using a [Fn] key-combo, which agrees with
+    >> the keycap labels on the laptop keyboard. After upgrading to
+    >> 2.6, that key-combo no longer works. Instead, I must use
+    >> Alt-PrintScreen as the key for SysRq. (And unfortunately,
+    >> PrintScreen is a [Fn] combo on the laptop, thus requiring press
+    >> 3 keys at the same time for SysRq, and a fourth key to use the
+    >> various SysRq features. Very inconvenient.) Is this again due
+    >> to some dirty translation processes down in the input layer?
+    >> Is the input layer always assuming that Alt-PrintScreen ==
+    >> SysRq?  This is not always true. Can the input layer be so
+    >> configured that it never tries to interpret the scancodes, but
+    >> pass them to the upper layers?
 
->Coexisting would mean that when someone wants to open the raw device,
->the serio layer would disconnect the psmouse driver, and give control to
->the raw device instead. I believe that could work.
+    Andries> So, what scancodes do you get in 2.4? And in 2.6? (Use
+    Andries> scancode -s.)
 
-If the user is careful, in practice both kernel and userspace drivers
-can work simultaneously with the current code. But if you prefer otherwise,
-I'll change it, no problem. However, this could take a few days
-or so (busy with real work).
+Here they are:
 
-Dmitry suggested adding a kernel parameter to specify which ports would
-allow to be read in raw mode and which would be handled by kernel drivers.
-In my opinion, almost the same is achieved more conveniently by handling
-in raw mode simply exactly those ports that are opened from userspace
-(ie. "cat serio1" would disconnect kernel driver), and everything else by
-kernel drivers.
-No additional parameters would be then necessary, nor module reloads
-to change anything.
+        On Linux 2.4.*:
+        PrintScreen: 0xe0 0x2a 0xe0 0x37 0xe0 0xb7 0xe0 0xaa
+        SysRq:       0x54 0xd4
 
-The only exception I can see is if the kernel driver is loaded first
-and its autodetection confuses a device. Or, for example, kernel
-driver sets Touchpad into its custom mode, but then user wants to run
-standard PS/2 mouse driver in user space. I don't know if the latter
-driver could reset the Touchpad back into PS/2 mouse emulation mode.
+        On Linux 2.6.*:
+        PrintScreen: 0xe0 0x2a 0xe0 0x37 0xe0 0xb7 0xe0 0xaa
+        SysRq:       0xe0 0x2a 0xe0 0x37 0xe0 0xb7 0xe0 0xaa
 
->I'd like to keep it separate from the
->serio.c file, although it's obvious it'll require to be linked to it
->statically, because it needs hooks there
+No  wonder: "showkey  -s"  in 2.6.*  is  deceiving: it  shows what  an
+emulated keyboard  generates, not the  *real* scancodes.  Fortunately,
+the SERIO_USERDEV patch is very very helpful here.
 
-Agreed. I'll do that (serio-dev.c). Disadvantage: the functions
-can not be anymore inline (unless I put lots of stuff into header
-file) which may make code less efficient. Hopefully not significantly.
+Using the SERIO_USERDEV patch from Tuukka Toivonen and me, the correct
+scancodes are displayed:
 
-Also, I have to rename serio.c into serio-core.c so that it can be linked
-into serio.o with serio-dev.o. The diff will be a bit ugly.
+        On Linux 2.6.*: od -t x1 /dev/misc/isa0060/serio0
+        PrintScreen: 0xe0 0x2a 0xe0 0x37 0xe0 0xb7 0xe0 0xaa
+        SysRq:       0x54 0xd4
 
->It's indeed time for me to examine the SERIO_USERDEV patch, and I
 
-Thanks for that :)
+So, obviously, it is the fault of the Linux 2.6.* keyboard driver.
 
->I don't need to test your [San Dan Lee's] userspace drivers,
->as I'm not interested in those.
 
-Fair enough. Just provide a mechanism that allows user space
-protocol drivers, and let other people do them if they insist ;)
+The story continues:
+
+I've studied  the 2.6 keyboard driver  atkbd.c and found  the bug: The
+keyboard  driver is  UNABLE  to distinguish  SysRq and  PrintScreen!!!
+I've checked  this with  the help of  the 'evbug' module.   The driver
+reports both keys to be KEY_SYSRQ, which is obviously wrong.
+
+I've got a patch for this bug already.  See Bugzilla #2808.
+
+
+Relatedly,  drivers/char/keyboard.c  assumes   that  SysRq  cannot  be
+activated unless the Alt key(s) is/are pressed (and not yet released).
+I'm going to fix this.  But since  this not a module, I need to reboot
+to test it.  So, please be patient.
+
+
+See http://bugzilla.kernel.org/show_bug.cgi?id=2808 for more info.
+
+
+
+-- 
+Sau Dan LEE                     §õ¦u´°(Big5)                    ~{@nJX6X~}(HZ) 
+
+E-mail: danlee@informatik.uni-freiburg.de
+Home page: http://www.informatik.uni-freiburg.de/~danlee
+

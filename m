@@ -1,57 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261550AbVAGUtA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261596AbVAGUuw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261550AbVAGUtA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 15:49:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261597AbVAGUtA
+	id S261596AbVAGUuw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 15:50:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261574AbVAGUuv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 15:49:00 -0500
-Received: from waste.org ([216.27.176.166]:62676 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261550AbVAGUrI (ORCPT
+	Fri, 7 Jan 2005 15:50:51 -0500
+Received: from [213.85.13.118] ([213.85.13.118]:130 "EHLO tau.rusteko.ru")
+	by vger.kernel.org with ESMTP id S261557AbVAGUtP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 15:47:08 -0500
-Date: Fri, 7 Jan 2005 12:46:50 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: "Jack O'Quin" <joq@io.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andreas Steinmetz <ast@domdv.de>,
-       Lee Revell <rlrevell@joe-job.com>, Chris Wright <chrisw@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       LAD mailing list <linux-audio-dev@music.columbia.edu>
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-Message-ID: <20050107204650.GY2940@waste.org>
-References: <20050103140359.GA19976@infradead.org> <1104862614.8255.1.camel@krustophenia.net> <20050104182010.GA15254@infradead.org> <1104865034.8346.4.camel@krustophenia.net> <41DB4476.8080400@domdv.de> <1104898693.24187.162.camel@localhost.localdomain> <20050107011820.GC2995@waste.org> <87brc17pj6.fsf@sulphur.joq.us> <20050107200245.GW2940@waste.org> <87mzvl56j5.fsf@sulphur.joq.us>
-Mime-Version: 1.0
+	Fri, 7 Jan 2005 15:49:15 -0500
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Vladimir Saveliev <vs@namesys.com>, linux-mm <linux-mm@kvack.org>,
+       Andrew Morton <akpm@osdl.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] per thread page reservation patch
+References: <20050103011113.6f6c8f44.akpm@osdl.org>
+	<20050103114854.GA18408@infradead.org> <41DC2386.9010701@namesys.com>
+	<1105019521.7074.79.camel@tribesman.namesys.com>
+	<20050107144644.GA9606@infradead.org>
+	<1105118217.3616.171.camel@tribesman.namesys.com>
+	<20050107190545.GA13898@infradead.org>
+From: Nikita Danilov <nikita@clusterfs.com>
+Date: Fri, 07 Jan 2005 23:48:58 +0300
+In-Reply-To: <20050107190545.GA13898@infradead.org> (Christoph Hellwig's
+ message of "Fri, 7 Jan 2005 19:05:45 +0000")
+Message-ID: <m1pt0hq81x.fsf@clusterfs.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.5 (chayote, linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87mzvl56j5.fsf@sulphur.joq.us>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 07, 2005 at 02:27:26PM -0600, Jack O'Quin wrote:
-> Matt Mackall <mpm@selenic.com> writes:
-> 
-> > On Thu, Jan 06, 2005 at 11:54:05PM -0600, Jack O'Quin wrote:
-> >> Note that sched_setschedule() provides no way to handle the mlock()
-> >> requirement, which cannot be done from another process.
-> >
-> > I'm pretty sure that part can be done by a privileged server handing
-> > out mlocked shared memory segments.
-> 
-> If you're "pretty sure", please explain how locking a shared memory
-> segment prevents the code and stack of the client's realtime thread
-> from page faulting.
+Christoph Hellwig <hch@infradead.org> writes:
 
-You just map your RT-dependent routine (PIC, of course) into the
-segment and move your stack pointer into a second segment. I didn't
-say it was easy, but it's all just bits. There's also the rlimit
-issue.
+>> diff -puN include/linux/gfp.h~reiser4-perthread-pages include/linux/gfp.h
+>> --- linux-2.6.10-rc3/include/linux/gfp.h~reiser4-perthread-pages	2004-12-22 20:09:44.153164276 +0300
 
-Or, going the other way, the client app can pass map handles to the
-server to bless. Some juggling might be involved but it's obviously
-doable.
+[...]
 
-As has been pointed out, an rlimit solution exists now as well.
+>
+>> +int perthread_pages_count(void)
+>> +{
+>> +	return current->private_pages_count;
+>> +}
+>> +EXPORT_SYMBOL(perthread_pages_count);
+>
+> Again a completely useless wrapper.
 
--- 
-Mathematics is the supreme nostalgia of our time.
+I disagree. Patch introduces explicit API
+
+int  perthread_pages_reserve(int nrpages, int gfp);
+void perthread_pages_release(int nrpages);
+int  perthread_pages_count(void);
+
+sufficient to create and use per-thread reservations. Using
+current->private_pages_count directly
+
+ - makes API less uniform, not contained within single namespace
+   (perthread_pages_*), and worse,
+
+ - exhibits internal implementation detail to the user.
+
+>
+
+[...]
+
+Nikita.
+

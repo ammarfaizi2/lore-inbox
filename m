@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265849AbTLINzu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 08:55:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265846AbTLINzu
+	id S265855AbTLIOA2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 09:00:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265853AbTLIOA2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 08:55:50 -0500
-Received: from mhub-c6.tc.umn.edu ([160.94.128.36]:61918 "EHLO
-	mhub-c6.tc.umn.edu") by vger.kernel.org with ESMTP id S265849AbTLINzn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 08:55:43 -0500
-Subject: Re: State of devfs in 2.6?
-From: Matthew Reppert <repp0017@tc.umn.edu>
-To: Jan Dittmer <j.dittmer@portrix.net>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <3FD59CED.6090408@portrix.net>
-References: <200312081536.26022.andrew@walrond.org>
-	 <20031208154256.GV19856@holomorphy.com>
-	 <pan.2003.12.08.23.04.07.111640@dungeon.inka.de>
-	 <20031208233428.GA31370@kroah.com> <1070953338.7668.6.camel@simulacron>
-	 <20031209083228.GC1698@kroah.com>  <3FD59CED.6090408@portrix.net>
-Content-Type: text/plain
-Message-Id: <1070978097.1092.8.camel@minerva>
+	Tue, 9 Dec 2003 09:00:28 -0500
+Received: from main.gmane.org ([80.91.224.249]:61915 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S265855AbTLIOAX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 09:00:23 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: Device-mapper submission for 2.4
+Date: Tue, 09 Dec 2003 15:00:15 +0100
+Message-ID: <yw1xekvegkgg.fsf@kth.se>
+References: <20031209115806.GA472@reti> <Pine.LNX.4.44.0312091113510.1289-100000@logos.cnet>
+ <20031209134551.GG472@reti>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 09 Dec 2003 07:54:57 -0600
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:lO1BQQXW4bhoZbM24SaFLaDsFiY=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-12-09 at 03:59, Jan Dittmer wrote:
+Joe Thornber <thornber@sistina.com> writes:
+
+>> I believe 2.6 is the right place for the device mapper. 
 >
-> Btw. I still haven't figured out, how to use udev properly. I just get
-> the nodes of devices I plugin after boot and of the modules I load after
-> boot. IDE et all aren't showing up. How early do I need to load udev or
-> has my kernel to be all modular for it to work properly?
+> So what's the difference between a new filesystem like XFS and a new
+> device driver like dm ?
 
-Since, I believe, version 006, udev has shipped with an init script
-contributed by rml that will create device nodes for devices present
-at system boot. You should be able to just make sure that that runs
-during your boot sequence and be fine. (I just ran this script on
-my system, and made sure it proper nodes for all my IDE drives and
-the partitions contained thereon.)
+None.  Neither will go into 2.4, if I've understood things correctly.
 
-Matt
+-- 
+Måns Rullgård
+mru@kth.se
 

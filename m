@@ -1,60 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbUKFXhm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261313AbUKFXxT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261500AbUKFXhm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Nov 2004 18:37:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261504AbUKFXhl
+	id S261313AbUKFXxT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Nov 2004 18:53:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbUKFXxS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Nov 2004 18:37:41 -0500
-Received: from fw.osdl.org ([65.172.181.6]:55737 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261500AbUKFXhY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Nov 2004 18:37:24 -0500
-Date: Sat, 6 Nov 2004 15:37:03 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andries Brouwer <Andries.Brouwer@cwi.nl>
-cc: alan@lxorguk.ukuu.org.uk, vojtech@ucw.cz, linux-kernel@vger.kernel.org
-Subject: Re: [no problem] PC110 broke 2.6.9
-In-Reply-To: <20041106232228.GA9446@apps.cwi.nl>
-Message-ID: <Pine.LNX.4.58.0411061529200.2223@ppc970.osdl.org>
-References: <20041106232228.GA9446@apps.cwi.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 6 Nov 2004 18:53:18 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:29963 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261313AbUKFXxL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Nov 2004 18:53:11 -0500
+Date: Sun, 7 Nov 2004 00:52:36 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: tytso@mit.edu, support@comtrol.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Licencing of drivers/char/rocket.c ?
+Message-ID: <20041106235236.GX1295@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+
+could you clarify the licensing of drivers/char/rocket.c ?
+
+<--  snip  -->
+
+/*
+ * RocketPort device driver for Linux
+ *
+ * Written by Theodore Ts'o, 1995, 1996, 1997, 1998, 1999, 2000.
+ * 
+ * Copyright (C) 1995, 1996, 1997, 1998, 1999, 2000, 2003 by Comtrol, 
+Inc.
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+...
+/***********************************************************************
+                Copyright 1994 Comtrol Corporation.
+                        All Rights Reserved.
+
+The following source code is subject to Comtrol Corporation's
+Developer's License Agreement.
+
+This source code is protected by United States copyright law and 
+international copyright treaties.
+
+This source code may only be used to develop software products that
+will operate with Comtrol brand hardware.
+
+You may not reproduce nor distribute this source code in its original
+form but must produce a derivative work which includes portions of
+this source code only.
+
+The portions of this source code which you use in your derivative
+work must bear Comtrol's copyright notice:
+
+                Copyright 1994 Comtrol Corporation.
+
+***********************************************************************/
+...
+
+<--  snip  -->
 
 
-On Sun, 7 Nov 2004, Andries Brouwer wrote:
->
-> Yesterday I muttered that 2.6.9 had a mouse problem, and soon
-> afterwards I also noticed that my ADSL didnt work.
-> 
-> I just looked at what was wrong, and the reason turns out to be
-> a correct fix in the pc110pad_init() call of request_region().
-> 
-> Before 2.6.9 the test there was wrong, so that the region was
-> seen as unavailable and pc110pad.c did not do anything.
-> 
-> In 2.6.9 the test is correct, the region and irq are reserved and my
-> ethernet card can no longer reserve its irq and ADSL fails.
-> Moreover, now pc110pad.c does I/O causing my mouse problems.
-> 
-> Easy solution: CONFIG_MOUSE_PC110PAD=n
-> 
-> I write this in some detail in the hope that this inspires somebody
-> to figure out whether it is possible to probe & detect this PC110.
+The third paragraph of the second copyright notice doesn't seem to be 
+compatible with the GPL.
 
-Ahh.. Interesting. One improvement might be to make sure that this driver 
-links in very late in the game, so that if any other drivers have 
-allocated the IO, at least it won't override that. Also, it might make 
-sense to say that the dang thing can share interrupts.
 
-But yes, we should probably make sure to make it harder to enable the
-driver by mistake, and try to do minimal probing of it. I have no idea how
-to probe for the thing, though.
+Could you clarify this?
 
-Alan, Vojtech, do you have any register information on this thing? Some 
-docs to try to realize when it's not there? Or some other way to detect 
-the IBM PC110 hardware (BIOS strings, something?)
 
-		Linus
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

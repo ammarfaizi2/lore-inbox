@@ -1,39 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264830AbRFXWNu>; Sun, 24 Jun 2001 18:13:50 -0400
+	id <S264829AbRFXWOb>; Sun, 24 Jun 2001 18:14:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264828AbRFXWNk>; Sun, 24 Jun 2001 18:13:40 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:19209 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S264830AbRFXWN3>; Sun, 24 Jun 2001 18:13:29 -0400
+	id <S264828AbRFXWOV>; Sun, 24 Jun 2001 18:14:21 -0400
+Received: from dial-10-194-apx-01.btvt.together.net ([209.91.3.194]:30082 "EHLO
+	sparrow.websense.net") by vger.kernel.org with ESMTP
+	id <S264829AbRFXWOE>; Sun, 24 Jun 2001 18:14:04 -0400
+Date: Sun, 24 Jun 2001 18:11:34 -0400 (EDT)
+From: William Stearns <wstearns@pobox.com>
+X-X-Sender: <wstearns@sparrow.websense.net>
+Reply-To: William Stearns <wstearns@pobox.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: John Nilsson <pzycrow@hotmail.com>,
+        ML-linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: Some experience of linux on a Laptop
-To: phillips@bonn-fries.net (Daniel Phillips)
-Date: Sun, 24 Jun 2001 23:12:33 +0100 (BST)
-Cc: pzycrow@hotmail.com (John Nilsson), linux-kernel@vger.kernel.org
-In-Reply-To: <0106242357230C.00430@starship> from "Daniel Phillips" at Jun 24, 2001 11:57:23 PM
-X-Mailer: ELM [version 2.5 PL3]
+In-Reply-To: <E15EHkU-0000Wu-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0106241806460.3807-100000@sparrow.websense.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15EI7N-0000Zr-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > So when you speak of being able to run on 386:es I still have problem
-> > starting X on 266MHz with 32Mb mem. This should not be =)
-> 
-> That's true.  Usually, X by itself starts pretty fast.  Just try 'xinit', no 
-> parameters.  KDE and Gnome both need to go on a diet, especially KDE.  They 
+Good day, John, Alan,
 
-The trick if you want a good GUI environment in 32Mb is to run something like
-XFce (www.xfce.org). My 32Mb test/devel box I use to prove stuff still works
-sanely on non obscene computers is very happy with XFce and with BrowseX as
-the web browser.
+On Sun, 24 Jun 2001, Alan Cox wrote:
 
-That is mostly not a kernel problem.  With XFce 3.8.3 the 32Mb box flies,
-and its happy doing stuff like web browsing while playing dvd movies with the
-Creative DXR2 overlay card, even though its only a Cyrix MII 233
+> > 4: make bzImage && make modules && make modules install && cp
+> > arch/i386/boot/bzImage /boot/'uname -r' something inside make menuconfig
+>
+> So really you want an outside GUI tool that lets you reconfigure build and
+> install kernels. Yeah I'd agree with that. Someone just needs to write the
+> killer gnome/kde config tool. I've got C code for parsing/loading config.in
 
-Alan
+	Buildkernel, at http://buildkernel.stearns.org .  It handles the
+entire build process, from finger to lilo.
+	Not a gui, alas, but certainly reduces the amount of effort
+involved.
+	Cheers,
+	- Bill
+
+---------------------------------------------------------------------------
+	"She worked with a subdued intensity... She once told me that the
+only way to know when you have done something truly great is when your
+spine tingles."
+	- on Alice Kober, cryptanalist, in The Code Book, Simon Singh.
+--------------------------------------------------------------------------
+William Stearns (wstearns@pobox.com).  Mason, Buildkernel, named2hosts,
+and ipfwadm2ipchains are at:                http://www.pobox.com/~wstearns
+LinuxMonth; articles for Linux Enthusiasts! http://www.linuxmonth.com
+--------------------------------------------------------------------------
+
 

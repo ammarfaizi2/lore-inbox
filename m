@@ -1,57 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262706AbTEAV5X (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 17:57:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262707AbTEAV5X
+	id S262707AbTEAWDm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 18:03:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262710AbTEAWDm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 17:57:23 -0400
-Received: from smtp-out.comcast.net ([24.153.64.109]:56240 "EHLO
-	smtp-out.comcast.net") by vger.kernel.org with ESMTP
-	id S262706AbTEAV5W convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 17:57:22 -0400
-Date: Thu, 01 May 2003 18:07:59 -0400
-From: rmoser <mlmoser@comcast.net>
-Subject: Re: Swap Compression
-In-reply-to: <20030430125913.GA21016@wohnheim.fh-wedel.de>
-To: =?UNKNOWN?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+	Thu, 1 May 2003 18:03:42 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:20443 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S262707AbTEAWDk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 May 2003 18:03:40 -0400
+Date: Fri, 2 May 2003 00:15:52 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Christoph Hellwig <hch@lst.de>
 Cc: linux-kernel@vger.kernel.org
-Message-id: <200305011807590220.00677F96@smtp.comcast.net>
-MIME-version: 1.0
-X-Mailer: Calypso Version 3.30.00.00 (3)
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 8BIT
-References: <200304292114.h3TLEHBu003733@81-2-122-30.bradfords.org.uk>
- <200304292059150060.002E747A@smtp.comcast.net>
- <200304301248.07777.kernel@kolivas.org>
- <20030430125913.GA21016@wohnheim.fh-wedel.de>
+Subject: [2.5 patch] fix miropcm20-rds.c compilation
+Message-ID: <20030501221551.GQ21168@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The removal of #include <linux/devfs_fs_kernel.h> broke the compilation 
+of drivers/media/radio/miropcm20-rds.c.old in 2.5.68-bk11:
+
+<--  snip  -->
+
+...
+  gcc-2.95 -Wp,-MD,drivers/media/radio/.miropcm20-rds.o.d -D__KERNEL__ 
+-Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing 
+-fno-common -pipe -mpreferred-stack-boundary=2 -march=k6 
+-Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include    -DKBUILD_BASENAME=miropcm20_rds 
+-DKBUILD_MODNAME=miropcm20_rds -c -o drivers/media/radio/miropcm20-rds.o 
+drivers/media/radio/miropcm20-rds.c
+drivers/media/radio/miropcm20-rds.c:23: warning: `struct inode' declared 
+inside parameter list
+drivers/media/radio/miropcm20-rds.c:23: warning: its scope is only this 
+definition or declaration, which is probably not what you want.
+drivers/media/radio/miropcm20-rds.c:38: warning: `struct inode' declared 
+inside parameter list
+drivers/media/radio/miropcm20-rds.c:106: variable `rds_fops' has 
+initializer but incomplete type
+drivers/media/radio/miropcm20-rds.c:107: unknown field `owner' specified 
+in initializer
+drivers/media/radio/miropcm20-rds.c:107: warning: excess elements in 
+struct initializer
+drivers/media/radio/miropcm20-rds.c:107: warning: (near initialization 
+for `rds_fops')
+drivers/media/radio/miropcm20-rds.c:108: unknown field `read' specified 
+in initializer
+drivers/media/radio/miropcm20-rds.c:108: warning: excess elements in 
+struct initializer
+drivers/media/radio/miropcm20-rds.c:108: warning: (near initialization 
+for `rds_fops')
+drivers/media/radio/miropcm20-rds.c:109: unknown field `open' specified 
+in initializer
+drivers/media/radio/miropcm20-rds.c:109: warning: excess elements in 
+struct initializer
+drivers/media/radio/miropcm20-rds.c:109: warning: (near initialization 
+for `rds_fops')
+drivers/media/radio/miropcm20-rds.c:110: unknown field `release' 
+specified in initializer
+drivers/media/radio/miropcm20-rds.c:111: warning: excess elements in 
+struct initializer
+drivers/media/radio/miropcm20-rds.c:111: warning: (near initialization 
+for `rds_fops')
+make[3]: *** [drivers/media/radio/miropcm20-rds.o] Error 1
+
+<--  snip  -->
+
+The fix is simple:
+
+--- linux-2.5.68-bk11/drivers/media/radio/miropcm20-rds.c.old	2003-05-02 00:07:45.000000000 +0200
++++ linux-2.5.68-bk11/drivers/media/radio/miropcm20-rds.c	2003-05-02 00:11:01.000000000 +0200
+@@ -13,6 +13,7 @@
+ #include <linux/init.h>
+ #include <linux/slab.h>
+ #include <linux/miscdevice.h>
++#include <linux/fs.h>
+ #include <asm/uaccess.h>
+ #include "miropcm20-rds-core.h"
+ 
 
 
->Actually, I'd like a central compression library with a large
->assortment of algorithms. That way the really common code is shared
->between both (or more) projects is shared.
->
->Also, yet another unused compression algorithm hurts about as bad, as
->yet another unused device driver. It just grows the kernel .tar.bz2.
->
->Jörn
+cu
+Adrian
 
+-- 
 
-Had a thought.  Why wait for a compression algorithm?  Jorn, if you are going
-to work on putting the code into the kernel and making the stuff to allow the
-swap code to use it, why not start coding it before the compression code is
-finished?  i.e. get the stuff down for the swap filtering (filtering i.e. passing
-through a compression or encryption routine) and swap-on-ram stuff, and later
-take the compression algo code and place the module interface on it and make
-a kernel module.
-
-At this point, I'd say to allow specified order filters, to allow for swap cyphering
-and compression.  Security, you know; swap files are a security hazard.  Just
-power-off, boot a root disk, pull up the swap partition, rip out the blocks, and
-look for what looks to be the root password.
-
---Bluefox Icy
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,63 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310713AbSCMP4P>; Wed, 13 Mar 2002 10:56:15 -0500
+	id <S310696AbSCMP6p>; Wed, 13 Mar 2002 10:58:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310699AbSCMP4F>; Wed, 13 Mar 2002 10:56:05 -0500
-Received: from fc.capaccess.org ([151.200.199.53]:17426 "EHLO fc.Capaccess.org")
-	by vger.kernel.org with ESMTP id <S310676AbSCMPz4>;
-	Wed, 13 Mar 2002 10:55:56 -0500
-Message-id: <fc.008584120034e424008584120034e424.34e44b@Capaccess.org>
-Date: Wed, 13 Mar 2002 10:55:14 -0500
-Subject: [PATCH] 2.5.6-pre2 IDE cleanup 16
+	id <S310699AbSCMP6f>; Wed, 13 Mar 2002 10:58:35 -0500
+Received: from edge.newton.cam.ac.uk ([131.111.145.141]:63689 "EHLO
+	edge.newton.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S310696AbSCMP6a>; Wed, 13 Mar 2002 10:58:30 -0500
+Date: Wed, 13 Mar 2002 15:58:29 GMT
+Message-Id: <200203131558.g2DFwT118218@edge.newton.cam.ac.uk>
 To: linux-kernel@vger.kernel.org
-From: "Rick A. Hohensee" <rickh@Capaccess.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Subject: Re: IO-APIC -- lockup on machine if enabled
+In-Reply-To: <20020313083422.3262cb35.fryman@cc.gatech.edu> <20020313083422.3262cb35.fryman@cc.gatech.edu> <20020313151024.G7658@suse.de>
+From: jc254@newton.cam.ac.uk (Jonathan H N Chin)
+Organization: Isaac Newton Institute for Mathematical Sciences
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In the credit where due department...
+Dave Jones <davej@suse.de> writes:
+>On Wed, Mar 13, 2002 at 08:34:22AM -0500, Josh Fryman wrote:
+> > i have a new laptop (Dell Latitude C610) running 2.4.18-rc4.  when i built the
+> > new kernel, i thought i would amuse myself by turning on IO-APIC.
 
-New note in osimplay....
-
-                              [ Wrote 5164 lines ]
-
-:; cLIeNUX /dev/tty3  11:14:52   /Ha3sm/colorgOS/tool
-:;. osimplay
-x86
-libo
-:; cLIeNUX /dev/tty3  11:14:55   /Ha3sm/colorgOS/tool
-:;clump h
+> "Don't do that"  8-)
 
 
- clump creates a set of related offset names.  This sort of thing is
-popular for associating arbitrary data items into groups. The data
-associations can themseves be useful information. Data items in a clump
-are defined by thier spacing, and thus have implied sizes.
+Unfortunately, at least on my C800 here, not using it breaks IEEE1394:
 
-        clump clumptypename item0 <size> item1 <size> ...
+    kernel: ohci1394_0: Waking dma ctx=2 ... processing is probably too slow
 
-will make $clumptypename_item0 $clumptypename_item1 and so on be the
-appropriate offsets from $clumptypename in the assembler state.
-$clumptypename itself has a value of zero. A clumptypename_size is also
-created that records the overall size of this type of clump. Sizes are in
-bytes. Those offset values can then be used during assembly to instantiate
-and perhaps initialize clumps of that type, or as address offsets at
-runtime, including offsets on the return stack. For fancy initializations,
-keep in mind that in this implementation of osimplay you have the full
-power of the shell available for extending osimplay, and that if you need
-to you can rewind the osimplay assembly pointer, H.
+and communication breaks down shortly after (have to unload/reload the
+modules to make it work again). On the other hand, with IO-APIC + Local
+APIC enabled (APM and ACPI disabled) firewire works fine.
 
-Linus Torvalds said he'd love to have C structs that could initialize the
-values of particular fields (I think that's what he meant :o). As is often
-the case versus C, osimplay doesn't provide that, but as is always the
-case, osimplay doesn't prevent it either.
+I note that W2K on the same machine appears to have no trouble using
+both IEEE1394 and power management together. (I have booted W2K less
+than ten times though versus half a year of linux use, so this may be
+a false impression.)
 
 
-:; cLIeNUX /dev/tty3  11:14:57   /Ha3sm/colorgOS/tool
-:;
+-jonathan
 
+-- 
+Jonathan H N Chin, 1 dan | deputy computer | Newton Institute, Cambridge, UK
+<jc254@newton.cam.ac.uk> | systems mangler | tel/fax: +44 1223 335986/330508
 
-Rick Hohensee
-
+                "respondeo etsi mutabor" --Rosenstock-Huessy

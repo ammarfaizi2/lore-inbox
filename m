@@ -1,102 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262118AbTCRBnZ>; Mon, 17 Mar 2003 20:43:25 -0500
+	id <S262084AbTCRBlE>; Mon, 17 Mar 2003 20:41:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262126AbTCRBnZ>; Mon, 17 Mar 2003 20:43:25 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:56495 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S262118AbTCRBnW>;
-	Mon, 17 Mar 2003 20:43:22 -0500
-Message-ID: <3E767A36.5020300@us.ibm.com>
-Date: Mon, 17 Mar 2003 17:45:26 -0800
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-Organization: IBM LTC
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Trivial Patch Monkey <trivial@rustcorp.com.au>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org,
-       Patrick Mochel <mochel@osdl.org>
-Subject: [patch] Fix error handling in sysfs registration
-Content-Type: multipart/mixed;
- boundary="------------070903020902050608050208"
+	id <S262085AbTCRBlE>; Mon, 17 Mar 2003 20:41:04 -0500
+Received: from smtp06.iddeo.es ([62.81.186.16]:8367 "EHLO smtp06.retemail.es")
+	by vger.kernel.org with ESMTP id <S262084AbTCRBlC>;
+	Mon, 17 Mar 2003 20:41:02 -0500
+Date: Tue, 18 Mar 2003 02:47:00 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: nfs and getattr
+Message-ID: <20030318014700.GA28769@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 2.0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070903020902050608050208
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+A NFS client through 100Mb Ether takes a loooooooong time to read a database
+from the server, which the server itself reads in less than 10 seconds.
+The database is a scene description for render that basically 'includes'
+the same small set of files (around 10) many times, instanced all over the
+place...
 
-The cpu, memblk, and node driver/device registration should be a little 
-more clean in the way it handles registration failures.  Or at least 
-*consistent* amongst the topology elements.  Right now, failures are 
-either silent, obscure, or leave things in an inconsistent state.
+Mount in client:
+10.0.0.1:/home on /home type nfs (rw,nfsvers=2,noac,addr=10.0.0.1)
 
-Cheers!
+Looking at nfsstats in the server:
+Server rpc stats:
+calls      badcalls   badauth    badclnt    xdrcall
+491811     0          0          0          0       
+Server nfs v2:
+null       getattr    setattr    root       lookup     readlink   
+1       0% 429338 87% 0       0% 0       0% 61474  12% 26      0% 
+read       wrcache    write      create     remove     rename     
+963     0% 0       0% 1       0% 1       0% 0       0% 1       0% 
+link       symlink    mkdir      rmdir      readdir    fsstat     
+0       0% 0       0% 3       0% 0       0% 2       0% 0       0% 
 
--Matt
+Server nfs v3:
+null       getattr    setattr    lookup     access     readlink   
+1      100% 0       0% 0       0% 0       0% 0       0% 0       0% 
+read       write      create     mkdir      symlink    mknod      
+0       0% 0       0% 0       0% 0       0% 0       0% 0       0% 
+remove     rmdir      rename     link       readdir    readdirplus
+0       0% 0       0% 0       0% 0       0% 0       0% 0       0% 
+fsstat     fsinfo     pathconf   commit     
+0       0% 0       0% 0       0% 0       0% 
 
---------------070903020902050608050208
-Content-Type: text/plain;
- name="sysfs_topo_cleanup-2.5.65.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sysfs_topo_cleanup-2.5.65.patch"
+What is that ton of getattr ? Do they come from nfs itself or must be
+done by the reader via stat()s (perhaps it checks for file presence before
+opening) ?
 
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.64-vanilla/drivers/base/cpu.c linux-2.5.64-sysfs_cleanup/drivers/base/cpu.c
---- linux-2.5.64-vanilla/drivers/base/cpu.c	Tue Mar  4 19:29:15 2003
-+++ linux-2.5.64-sysfs_cleanup/drivers/base/cpu.c	Mon Mar 17 14:08:59 2003
-@@ -48,6 +48,9 @@
- 
- int __init cpu_dev_init(void)
- {
--	devclass_register(&cpu_devclass);
--	return driver_register(&cpu_driver);
-+	int error;
-+	if (!(error = devclass_register(&cpu_devclass)))
-+		if (error = driver_register(&cpu_driver))
-+			devclass_unregister(&cpu_devclass);
-+	return error;
- }
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.64-vanilla/drivers/base/memblk.c linux-2.5.64-sysfs_cleanup/drivers/base/memblk.c
---- linux-2.5.64-vanilla/drivers/base/memblk.c	Tue Mar  4 19:29:54 2003
-+++ linux-2.5.64-sysfs_cleanup/drivers/base/memblk.c	Mon Mar 17 14:09:42 2003
-@@ -47,9 +47,12 @@
- }
- 
- 
--static int __init register_memblk_type(void)
-+int __init register_memblk_type(void)
- {
--	int error = devclass_register(&memblk_devclass);
--	return error ? error : driver_register(&memblk_driver);
-+	int error;
-+	if (!(error = devclass_register(&memblk_devclass)))
-+		if (error = driver_register(&memblk_driver))
-+			devclass_unregister(&memblk_devclass);
-+	return error;
- }
- postcore_initcall(register_memblk_type);
-diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.64-vanilla/drivers/base/node.c linux-2.5.64-sysfs_cleanup/drivers/base/node.c
---- linux-2.5.64-vanilla/drivers/base/node.c	Tue Mar  4 19:29:00 2003
-+++ linux-2.5.64-sysfs_cleanup/drivers/base/node.c	Mon Mar 17 14:09:52 2003
-@@ -89,9 +89,12 @@
- }
- 
- 
--static int __init register_node_type(void)
-+int __init register_node_type(void)
- {
--	int error = devclass_register(&node_devclass);
--	return error ? error : driver_register(&node_driver);
-+	int error;
-+	if (!(error = devclass_register(&node_devclass)))
-+		if (error = driver_register(&node_driver))
-+			devclass_unregister(&node_devclass);
-+	return error;
- }
- postcore_initcall(register_node_type);
+Is there any way to speedup that ?
+Will nfs-v3 perform better ?
 
---------------070903020902050608050208--
+TIA
 
+(Kernel is a patched (only bugfixes and bproc) 2.4.21-pre5. No -aa included.)
+
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.1 (Cooker) for i586
+Linux 2.4.21-pre5-jam0 (gcc 3.2.2 (Mandrake Linux 9.1 3.2.2-3mdk))

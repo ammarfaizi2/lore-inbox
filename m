@@ -1,46 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261833AbVCUUAi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261852AbVCUUBs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261833AbVCUUAi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 15:00:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261843AbVCUUAi
+	id S261852AbVCUUBs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 15:01:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261843AbVCUUBr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 15:00:38 -0500
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:62596 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S261833AbVCUUAc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 15:00:32 -0500
-Date: Mon, 21 Mar 2005 21:00:24 +0100
-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/1] pcmcia: select crc32 in Kconfig for PCMCIA [Was: Re: pcmcia compile problems in 2.6.11-mm4 and above]
-Message-ID: <20050321200024.GA24865@gamma.logic.tuwien.ac.at>
-References: <20050321150143.GB14614@gamma.logic.tuwien.ac.at> <20050321191353.GA13659@isilmar.linta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050321191353.GA13659@isilmar.linta.de>
-User-Agent: Mutt/1.3.28i
-From: Norbert Preining <preining@logic.at>
+	Mon, 21 Mar 2005 15:01:47 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:14040 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261852AbVCUUBh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 15:01:37 -0500
+Date: Mon, 21 Mar 2005 21:01:32 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 140 bugs, many of which are post-2.6.10 regressions - got a
+ list?
+In-Reply-To: <20050321114457.44d0282f.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0503212101000.30781@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.62.0503211451140.10323@jjulnx.backbone.dif.dk>
+ <20050321114457.44d0282f.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Mär 2005, Dominik Brodowski wrote:
-> That's a missing dependency on CONFIG_CRC32. Could you check whether this
-> patch helps, please?
+>>  I'm wondering if you have a list of those bugs somewhere?
+>I need to get down and sort through the list, categorise, weed things out.
 
-Yes, thanks.
+How about the "unplugged" list?
 
-Best wishes
 
-Norbert
 
--------------------------------------------------------------------------------
-Norbert Preining <preining AT logic DOT at>                 Università di Siena
-sip:preining@at43.tuwien.ac.at                             +43 (0) 59966-690018
-gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
--------------------------------------------------------------------------------
-DAMNAGLAUR (n.)
-A certain facial expression which actors are required to demonstrate
-their mastery of before they are allowed to play MacBeth.
-			--- Douglas Adams, The Meaning of Liff
+Jan Engelhardt
+-- 

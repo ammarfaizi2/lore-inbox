@@ -1,86 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261842AbULPGGw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261893AbULPGVL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261842AbULPGGw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 01:06:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262582AbULPGGw
+	id S261893AbULPGVL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 01:21:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262606AbULPGVL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 01:06:52 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:40970 "EHLO
+	Thu, 16 Dec 2004 01:21:11 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:41738 "EHLO
 	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S261842AbULPGGt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 01:06:49 -0500
-Date: Thu, 16 Dec 2004 06:49:33 +0100
+	id S261893AbULPGVG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 01:21:06 -0500
+Date: Thu, 16 Dec 2004 07:03:46 +0100
 From: Willy Tarreau <willy@w.ods.org>
 To: Adam Denenberg <adam@dberg.org>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, linux-kernel@vger.kernel.org,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>
 Subject: Re: bind() udp behavior 2.6.8.1
-Message-ID: <20041216054932.GG17946@alpha.home.local>
-References: <1103038728.10965.12.camel@sucka> <Pine.LNX.4.61.0412141700430.24308@yvahk01.tjqt.qr> <1103042538.10965.27.camel@sucka> <Pine.LNX.4.61.0412141742590.22148@yvahk01.tjqt.qr> <1103043716.10965.40.camel@sucka> <Pine.LNX.4.61.0412141806440.5600@yvahk01.tjqt.qr> <1103045881.10965.48.camel@sucka>
+Message-ID: <20041216060346.GH17946@alpha.home.local>
+References: <1103038728.10965.12.camel@sucka> <Pine.LNX.4.61.0412141700430.24308@yvahk01.tjqt.qr> <1103042538.10965.27.camel@sucka> <Pine.LNX.4.61.0412141742590.22148@yvahk01.tjqt.qr> <1103043716.10965.40.camel@sucka> <8AF1BC56-4E1C-11D9-B94B-000393ACC76E@mac.com> <57782EC8-4E40-11D9-B971-003065B11AE8@dberg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1103045881.10965.48.camel@sucka>
+In-Reply-To: <57782EC8-4E40-11D9-B971-003065B11AE8@dberg.org>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Dec 14, 2004 at 09:23:43PM -0500, Adam Denenberg wrote:
+> i think you guys are all right.  However there is one concern.  Not 
+> clearing out a UDP connection in a firewall coming from a high port is 
+> indeed a security risk.  Allowing a high numbered udp port to remain 
+> open for a prolonged period of time would definitely impose a security 
+> risk which is why the PIX is doing what it does.
 
-On Tue, Dec 14, 2004 at 12:38:02PM -0500, Adam Denenberg wrote:
- 
-> My issue is that linux is not randomizing or incrementing the ports it
-> uses for udp connections to prevent this sort of issue since udp is
-> connectionless.  We dont have sequence numbers or the sorts like TCP to
-> sort this out, we only have source ip and port.
+Absolutely NO ! it is not "keeping the port open", it is "keeping a SESSION
+open". The firewall should allow traffic from the same ip:port to the other
+ip:port and from no other server on the net. You new session is totally
+unrelated to the old one.
 
-Most UDP services use the server socket to access remote servers. For
-example, bind will only use its source port 53 to emit requests, ntpd
-will only use source port 123, this *is* how they have been working for
-ages. PIX is totally buggy and does not respect standards, it respects
-what seems to be "common practices" (remember TCP ECN ?). If the
-developpers have observed that freebsd wastes lots of source ports for
-DNS requests, they will decide that using the same one is probably an
-attack. I even remember that it does not support NTP correctly. When
-an NTP server on your LAN "connects" to another one outside, it
-translates the source port 123 to another source port < 1024, which
-most servers and/or firewalls drop (they only let 123 or >=1024 in).
+>  The linux server is 
+> "reusing" the same UDP high numbered socket however it is doing so 
+> exactly as the firewall is clearing its state table (60 ms) from the 
+> first connection which is what is causing the issue.
 
-> Other OS's seem  to do this and thus apps are not getting broken when
-> connections are made thru the firewall, which is why i originally posted
-> the question.
+it is not the same session if you connect to a different remote server,
+and there is absolutely no reason to arbitrary prevent an internal server
+from connecting to two external ones from the same IP:port. Of course, if
+you reconnect to the same destIP:port, it should work because in this case
+it is a continuation of the same session.
 
-Perhaps the other OS you have seen simply close the socket as soon as they
-get their response, and have to create a new one for each new request...
-How does any DNS server forward to outside through your PIX ?
+> I think a firewall ought to be aware of such behavior, but at the same 
+> time be secure enough to not just leave high numbered udp ports wide 
+> open for attack.  I am trying to find out why the PIX chose 60 ms to 
+> clear out the UDP state table.  I think that is a random number and 
+> probably too short of a span for this to occur however i am still 
+> researching it.
 
-> I was hoping that maybe there is some workaround or that
-> hopefully someone else encountered this issue.  I am not saying the
-> firewall is not totally to blame, but i can see why it is behaving the
-> way it is when seeing tons of connections from the same udp ip/port come
-> in.
+it is not the timing which causes trouble, it is the way it confuses new
+and already established sessions. Although 60 ms may seem short (you can
+probably never resolve anything on ADSL with a loaded link), it may be
+perfectly valid if the firewall agrees to open several sessions when you
+connect to several servers. And if you connect several times to the same
+server, of course it must re-open the session.
 
-I doubt you can reliably use any UDP-based application through this
-firewall then... It seems more buggy than other pixes I have encountered,
-and I think you can configure it to be less silly, but I don't know how.
-You agree that a session is defined by these 5 numbers :
-  - proto (udp, tcp, icmp, ...)
-  - source ip, source port
-  - destination ip, destination port
+> Any other insight would be greatly appreciated.
 
-If these 5 parameters are the same within a certain time frame, the packet
-belongs to a known session. If the combination is different, then it is a
-new session, and there is no reason for the firewall to drop a new session
-only based on the fact that 3 parameters out of 5 are the same as other ones.
-It is as stupid as saying that you refuse to establish a new TCP connection
-on some dest:80 because you just did it 30ms ago.
-
-I you want to work around this buggy behaviour without reconfiguring the PIX,
-you can also play with iptables on the linux machine to use a random source
-port range :
-  iptables -t nat -A OUTPUT -p udp --dport 53 -j SNAT --to-source <your ip>:1024-65534
-
-But this is a dirty hack...
+unfortunately, googling for "pix udp problem" returns 25600 responses...
 
 Regards,
-Willy
-
+willy
+ 

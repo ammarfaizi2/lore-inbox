@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262059AbUBWVeI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 16:34:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262024AbUBWVbl
+	id S262047AbUBWVn7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 16:43:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262042AbUBWVn6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 16:31:41 -0500
-Received: from fw.osdl.org ([65.172.181.6]:27619 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262003AbUBWVb2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 16:31:28 -0500
-Date: Mon, 23 Feb 2004 13:36:43 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Rik van Riel <riel@redhat.com>
-cc: Herbert Poetzl <herbert@13thfloor.at>, Mikael Pettersson <mikpe@csd.uu.se>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Intel vs AMD x86-64
-In-Reply-To: <Pine.LNX.4.44.0402231625220.9708-100000@chimarrao.boston.redhat.com>
-Message-ID: <Pine.LNX.4.58.0402231335430.3005@ppc970.osdl.org>
-References: <Pine.LNX.4.44.0402231625220.9708-100000@chimarrao.boston.redhat.com>
+	Mon, 23 Feb 2004 16:43:58 -0500
+Received: from mail.radiozet.pl ([194.242.39.2]:48882 "EHLO
+	mail.sto-procent.art.pl") by vger.kernel.org with ESMTP
+	id S262046AbUBWVn5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 16:43:57 -0500
+Message-ID: <403A72B9.8020207@sto-procent.art.pl>
+Date: Mon, 23 Feb 2004 22:38:01 +0100
+From: boka <boka@sto-procent.art.pl>
+User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: compaq dl380 server with kernel 2.6.3 - errors during boot process
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi !
 
+I have Slackware 9.1 (with all erratas) installed on compaq dl380. I 
+have compiled 2.6.3 kernel and machine can not boot.
 
-On Mon, 23 Feb 2004, Rik van Riel wrote:
-> On Sat, 21 Feb 2004, Linus Torvalds wrote:
-> 
-> > I'm really happy Intel finally got with the program,
-> 
-> With the program?  They still don't have an IOMMU ;)
+ From screen:
 
-Hmm.. Let's see what their chipsets will look like for this thing. Since
-they don't have an integrated memory controller, they can't very well do
-the IOMMU on the CPU, now can they?
+...
+NET: Registered protocol family 2
+IP: routing cache hash table of 8192 buchets, 64Kbytes
+TCP: Hash tables configured (established 262144 bind 65536)
+NET: Registered protocol family 1
+NET: Registered protocol family 17
 
-So you can't blame them for that.
+and boot process stops here.
 
-		Linus
+I tryed with -mm3 patches - same result.
+
+Here is my .config file:
+
+http://www.boka.art.pl/filez/config-2.6.3-mm3
+
+greetz
+boka

@@ -1,41 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261769AbVASQ3N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261770AbVASQg2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261769AbVASQ3N (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 11:29:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261770AbVASQ3N
+	id S261770AbVASQg2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 11:36:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261771AbVASQg2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 11:29:13 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:46242 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S261769AbVASQ3L
+	Wed, 19 Jan 2005 11:36:28 -0500
+Received: from alog0265.analogic.com ([208.224.222.41]:12160 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261770AbVASQg0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 11:29:11 -0500
-Date: Wed, 19 Jan 2005 08:29:02 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Larry McVoy <lm@bitmover.com>
-Subject: Re: Make pipe data structure be a circular list of pages, rather than
-Message-ID: <20050119162902.GA20656@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Larry McVoy <lm@bitmover.com>
-References: <200501070313.j073DCaQ009641@hera.kernel.org> <20050107034145.GI9636@holomorphy.com> <Pine.LNX.4.58.0501062222500.2272@ppc970.osdl.org> <Pine.LNX.4.58.0501062236060.2272@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0501062236060.2272@ppc970.osdl.org>
-User-Agent: Mutt/1.4.1i
+	Wed, 19 Jan 2005 11:36:26 -0500
+Date: Wed, 19 Jan 2005 11:35:55 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Bodo Eggert <7eggert@gmx.de>
+cc: Sam Ravnborg <sam@ravnborg.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>,
+       "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: kbuild: Implicit dependence on the C compiler
+In-Reply-To: <E1CrIPb-0000lS-Oz@be1.7eggert.dyndns.org>
+Message-ID: <Pine.LNX.4.61.0501191128090.10869@chaos.analogic.com>
+References: <fa.e2phu9o.1c30pig@ifi.uio.no> <fa.gakt9b5.1klcr9h@ifi.uio.no>
+ <E1CrIPb-0000lS-Oz@be1.7eggert.dyndns.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think you are going to regret making splice() a system call, it shouldn't
-be, you'll find cases where it won't work.  Make it a library call built
-out of pull() and push(), see my original postings on this and you'll
-follow the logic.  Making splice a system call is like putting ftp 
-into the kernel, not a good idea.
--- 
----
-Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com
+On Wed, 19 Jan 2005, Bodo Eggert wrote:
+
+> Sam Ravnborg <sam@ravnborg.org> wrote:
+>
+>> 1) Unconditionally execute make install assuming vmlinux is up-to-date.
+>>    make modules_install run unconditionally, so this is already know
+>>    practice
+>
+> (o) Vote for this.
+>
+> IMO, a make install should NEVER run the compiler.
+>
+> The reason is: I'm deliberaely compiling as a user on the fastest system
+> before I copy or mount the FS to/on some other box and do a make install.
+> The other box will be _very_ slow while compiling or missing some of the
+> needed components (e.g. gcc).
+>
+
+You must never execute `make install` or `make modules_install` without
+the explicit action of the operator! To do so could (will) result
+in an un-bootable system. I can't imagine what somebody would be
+thinking to propose an automatic install. Whoever proposed this
+must have lots of time and little knowledge. They are going to
+be reinstalling everything from the distribution CD as a hobby.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

@@ -1,57 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265032AbUFANKI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265029AbUFANLS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265032AbUFANKI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 09:10:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265031AbUFANKI
+	id S265029AbUFANLS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 09:11:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265031AbUFANLS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 09:10:08 -0400
-Received: from pD952C7EB.dip.t-dialin.net ([217.82.199.235]:40653 "EHLO
-	router.zodiac.dnsalias.org") by vger.kernel.org with ESMTP
-	id S265029AbUFANKC convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 09:10:02 -0400
-From: Alexander Gran <alex@zodiac.dnsalias.org>
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: [PATCH] Enable suspend/resuming of e1000
-Date: Tue, 1 Jun 2004 15:04:37 +0200
-User-Agent: KMail/1.6.2
-References: <200405281404.10538@zodiac.zodiac.dnsalias.org> <20040601125008.GE10233@elf.ucw.cz>
-In-Reply-To: <20040601125008.GE10233@elf.ucw.cz>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-X-Ignorant-User: yes
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200406011504.40549@zodiac.zodiac.dnsalias.org>
+	Tue, 1 Jun 2004 09:11:18 -0400
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:23452 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S265035AbUFANK5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 09:10:57 -0400
+Subject: [PATCH][SELINUX] Check processed security context length
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
+       lkml <linux-kernel@vger.kernel.org>, selinux@tycho.nsa.gov
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1086095432.13325.39.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 01 Jun 2004 09:10:32 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+This patch against 2.6.7-rc2 changes security_context_to_sid to check the length of the
+processed security context against the full length of the provided
+context, rejecting any further data.  Please apply.
 
-Am Dienstag, 1. Juni 2004 14:50 schrieben Sie:
-> Whitespace damage here (tabs vs. spaces) plus you really should not
-> call procedure before variable declarations. Otherwise looks good.
->
-> 								Pavel
+ security/selinux/ss/mls.c      |    2 +-
+ security/selinux/ss/services.c |    5 +++++
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
-Was my first patch to the kernel, sorry. However I still have trouble 
-reenabling the card. It is recognized again (Withouth the driver thinks 
-EEPROM is wrong).
-tx is ok, but rx doesn't work. I suppose it's an interrupt problem, as the 
-interrupt doesn't increase on rx. Will dig into it a bit further..
+Signed-off-by:  Stephen Smalley <sds@epoch.ncsc.mil>
 
-regards
-Alex
+Index: linux-2.6/security/selinux/ss/services.c
+===================================================================
+RCS file: /nfshome/pal/CVS/linux-2.6/security/selinux/ss/services.c,v
+retrieving revision 1.42
+diff -u -p -r1.42 services.c
+--- linux-2.6/security/selinux/ss/services.c	10 May 2004 13:01:09 -0000	1.42
++++ linux-2.6/security/selinux/ss/services.c	28 May 2004 12:10:33 -0000
+@@ -532,6 +532,11 @@ int security_context_to_sid(char *sconte
+ 	if (rc)
+ 		goto out_unlock;
+ 
++	if ((p - scontext2) < scontext_len) {
++		rc = -EINVAL;
++		goto out_unlock;
++	}
++
+ 	/* Check the validity of the new context. */
+ 	if (!policydb_context_isvalid(&policydb, &context)) {
+ 		rc = -EINVAL;
 
-- -- 
-Encrypted Mails welcome.
-PGP-Key at http://zodiac.dnsalias.org/misc/pgpkey.asc | Key-ID: 0x6D7DD291
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+Index: linux-2.6/security/selinux/ss/mls.c
+===================================================================
+RCS file: /nfshome/pal/CVS/linux-2.6/security/selinux/ss/mls.c,v
+retrieving revision 1.18
+diff -u -p -r1.18 mls.c
+--- linux-2.6/security/selinux/ss/mls.c	28 Oct 2003 14:08:27 -0000	1.18
++++ linux-2.6/security/selinux/ss/mls.c	28 May 2004 18:36:51 -0000
+@@ -290,7 +290,7 @@ int mls_context_to_sid(char oldc,
+ 		if (rc)
+ 			goto out;
+ 	}
+-	*scontext = p;
++	*scontext = ++p;
+ 	rc = 0;
+ out:
+ 	return rc;
 
-iD8DBQFAvH7n/aHb+2190pERAhSLAJ92ZS1cvWwjjo6oLiVkldpiA5XqhQCeKJDV
-lqooJHS8J8ntBjN4hCw3G+k=
-=/9FQ
------END PGP SIGNATURE-----
+
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+

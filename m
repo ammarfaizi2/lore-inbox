@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267886AbTAHVZN>; Wed, 8 Jan 2003 16:25:13 -0500
+	id <S267919AbTAHV0v>; Wed, 8 Jan 2003 16:26:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267908AbTAHVZN>; Wed, 8 Jan 2003 16:25:13 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:37762 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S267886AbTAHVZM>; Wed, 8 Jan 2003 16:25:12 -0500
-Message-Id: <200301082133.h08LXlRA014406@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
-To: John Bradford <john@grabjohn.com>
+	id <S267925AbTAHV0v>; Wed, 8 Jan 2003 16:26:51 -0500
+Received: from gherkin.frus.com ([192.158.254.49]:31872 "EHLO gherkin.frus.com")
+	by vger.kernel.org with ESMTP id <S267919AbTAHV0g>;
+	Wed, 8 Jan 2003 16:26:36 -0500
+Subject: Re: XFree86 vs. 2.5.54 - reboot
+In-Reply-To: <3E1C880A.87A93CFA@digeo.com> "from Andrew Morton at Jan 8, 2003
+ 12:20:26 pm"
+To: Andrew Morton <akpm@digeo.com>
+Date: Wed, 8 Jan 2003 15:35:17 -0600 (CST)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Undelete files on ext3 ?? 
-In-Reply-To: Your message of "Wed, 08 Jan 2003 10:57:01 GMT."
-             <200301081057.h08Av1og000585@darkstar.example.net> 
-From: Valdis.Kletnieks@vt.edu
-References: <200301081057.h08Av1og000585@darkstar.example.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1379394798P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Mailer: ELM [version 2.4ME+ PL82 (25)]
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Date: Wed, 08 Jan 2003 16:33:47 -0500
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <20030108213517.7F32F4EE7@gherkin.frus.com>
+From: rct@gherkin.frus.com (Bob_Tracy(0000))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1379394798P
-Content-Type: text/plain; charset=us-ascii
+Andrew Morton wrote:
+> "Bob_Tracy(0000)" wrote:
+> > AMD K6-III 450 running a 2.4.19 kernel with vesafb, XFree86 4.1.0, and
+> > a USB mouse works fine.  Same setup with a 2.5.54 kernel does a cold
+> > reboot when I type "startx".
+> 
+> I saw exactly the same.  In my case it appears to be due to miscompilation
+> of a particular sysenter patch which went into 2.5.53.  If you're using
+> gcc-2.91.66 (aka `kgcc') then try 2.95.x instead.
 
-On Wed, 08 Jan 2003 10:57:01 GMT, John Bradford said:
+I'm running gcc-2.95.3 here.  Is that a "sufficiently correct" version
+to avoid the miscompilation problem?
 
-> What I was thinking of was a virtual device that allocated a new
-> sector whenever an old one was overwritten - kind of like a journaled
-> filesystem, but without the filesystem, (I.E. just the journal) :-).
-
-$ DIR FOO.TXT;*
-FOO.TXT;1   FOO.TXT;2   FOO.TXT;2
-
-VMS-style file versioning, anybody? ;)
-
---==_Exmh_1379394798P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+HJk7cC3lWbTT17ARAq5sAJ4uDMne9tofPN4TxVKv4t+qWLz3YQCbBV+e
-ysYy3mJ/RP4d+t37rKndtBo=
-=4W2r
------END PGP SIGNATURE-----
-
---==_Exmh_1379394798P--
+-- 
+-----------------------------------------------------------------------
+Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
+rct@frus.com
+-----------------------------------------------------------------------

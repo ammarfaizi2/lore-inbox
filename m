@@ -1,19 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129881AbRBYGLV>; Sun, 25 Feb 2001 01:11:21 -0500
+	id <S129890AbRBYGIW>; Sun, 25 Feb 2001 01:08:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129885AbRBYGLM>; Sun, 25 Feb 2001 01:11:12 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:41726 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129881AbRBYGKy>;
-	Sun, 25 Feb 2001 01:10:54 -0500
-Date: Sun, 25 Feb 2001 01:10:48 -0500 (EST)
+	id <S129885AbRBYGIL>; Sun, 25 Feb 2001 01:08:11 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:2043 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S129881AbRBYGIG>;
+	Sun, 25 Feb 2001 01:08:06 -0500
+Date: Sun, 25 Feb 2001 01:08:04 -0500 (EST)
 From: Alexander Viro <viro@math.psu.edu>
-To: John R Lenton <john@grulic.org.ar>
-cc: Peter Samuelson <peter@cadcamlab.org>, Wakko Warner <wakko@animx.eu.org>,
-        linux-kernel@vger.kernel.org
+To: Wakko Warner <wakko@animx.eu.org>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: OK to mount multiple FS in one dir?
-In-Reply-To: <20010207035959.A2223@grulic.org.ar>
-Message-ID: <Pine.GSO.4.21.0102250108480.24871-100000@weyl.math.psu.edu>
+In-Reply-To: <20010206154616.A9875@animx.eu.org>
+Message-ID: <Pine.GSO.4.21.0102250104530.24871-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -21,23 +20,16 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Wed, 7 Feb 2001, John R Lenton wrote:
+On Tue, 6 Feb 2001, Wakko Warner wrote:
 
-> On Wed, Feb 07, 2001 at 12:25:10AM -0600, Peter Samuelson wrote:
-> > 
-> > [Wakko Warner]
-> > > I have a question, why was this idea even considered?
-> > 
-> > Al Viro likes Plan9 process-local namespaces.  He seems to be trying to
-> > move Linux in that direction.  In the past year he has been hacking the
-> > semantics of filesystems and mounting, probably with namespaces as an
-> > eventual goal, and this is one of the things that has fallen out of the
-> > implementation.
+> > > > I found I could mount three partitions on /mnt
+> > > 
+> > > Yes.  New feature, appeared in the 2.4.0test series, or shortly before.
 > 
-> Aren't "translucid" mounts the idea behind this?
+> I have a question, why was this idea even considered?
 
-Nope. Completely different beast - bindings have nothing to layered
-filesystems. I.e. if we bind /foo to /bar then /foo/barf and /bar/barf
-are the same object. Translucent-type would have one of them redirecting
-all requests to another.
+	Direct request from HPA. Autofs can win from having that (mounting
+atop of mountpoint). I'd rather live without that stuff, but back then it
+looked like an OK idea - we could do that. There is a better solution for
+original problem, but...
 

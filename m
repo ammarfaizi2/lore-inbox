@@ -1,145 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264493AbTFVQiN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jun 2003 12:38:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264494AbTFVQiN
+	id S264535AbTFVQn6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jun 2003 12:43:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264638AbTFVQn6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jun 2003 12:38:13 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:22144 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S264493AbTFVQiJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jun 2003 12:38:09 -0400
-Date: Sun, 22 Jun 2003 09:52:00 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Peter Braam <braam@clusterfs.com>, linux-kernel@vger.kernel.org,
-       akpm@digeo.com
-cc: Alex Tomas <bzzz@tmi.comex.ru>
-Subject: Re: 2.5.72 kgdb woes
-Message-ID: <190170000.1056300719@[10.10.2.4]>
-In-Reply-To: <20030622040644.GF32265@peter.cfs>
-References: <20030622040644.GF32265@peter.cfs>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Sun, 22 Jun 2003 12:43:58 -0400
+Received: from netix1.demon.co.uk ([212.228.80.161]:57604 "EHLO netunix.com")
+	by vger.kernel.org with ESMTP id S264535AbTFVQn4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jun 2003 12:43:56 -0400
+Date: Sun, 22 Jun 2003 18:00:30 +0100 (BST)
+From: "C.Newport" <crn@netunix.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: More Re: Bug - nfsroot fails with 2 NICs (fwd)
+Message-ID: <Pine.LNX.4.33.0306221758280.5233-100000@hek.netunix.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Where'd you get your kgdb from? -mm tree?
-
-I have an older stub in -mjb tree, would be curious to see if that
-one works.
-
-ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/2.5.72
-
-or something like that.
-
-M.
 
 
---Peter Braam <braam@clusterfs.com> wrote (on Saturday, June 21, 2003 22:06:44 -0600):
+---------- Forwarded message ----------
+Date: Sun, 22 Jun 2003 17:53:47 +0100 (BST)
+From: C.Newport <crn@hek.netunix.com>
+To: sparclinux@vger.kernel.org
+Cc: lkml@vger.kernel.org    -----<<<<< oops re-copied to linux-kernel
+Subject: More Re: Bug - nfsroot fails with 2 NICs
 
-> I'm trying to use kgdb with vmware 3.2.  VMware is configured with:
->  
-> serial.v2=False
-> serial0.yieldOnMsrRead = "TRUE"
-> serial0.present= "TRUE"
-> serial0.fileName = "/dev/ptys0"
-> serial0.tryNoRxLoss = "true"
-> serial0.fileType = "tty"
-> 
-> I run linux as: 
-> 
->         append="kgdb gdbttyS=0 gdbbaud=115200 console=kgdb"
-> 
-> and kgdb as:
-> 
-> gdb vmlinux 
->    shell echo -e "\003" >/dev/ttys0
->    set remotebaud 115200
->    target remote /dev/ttys0
-> 
-> -------------------------------------
-> Everything starts fine, but it hangs soon after: 
-> 
-> POSIX conformance testing by UNIFIX
-> Initializing RT netlink socket
-> PCI: PCI BIOS revision 2.10 entry at 0xfd980, last bus=0
-> PCI: Using configuration type 1
-> mtrr: v2.0 (20020519)
-> BIO: pool of 256 setup, 14Kb (56 bytes/bio)
-> biovec pool[0]:   1 bvecs: 256 entries (12 bytes)
-> biovec pool[1]:   4 bvecs: 256 entries (48 bytes)
-> biovec pool[2]:  16 bvecs: 256 entries (192 bytes)
-> biovec pool[3]:  64 bvecs: 256 entries (768 bytes)
-> biovec pool[4]: 128 bvecs: 256 entries (1536 bytes)
-> biovec pool[5]: 256 bvecs: 256 entries (3072 bytes)
-> block request queues:
->  4/128 requests per read queue
->  4/128 requests per write queue
->  enter congestion at 15
->  exit congestion at 17
-> PCI: Probing PCI hardware
-> PCI: Probing PCI hardware (bus 00)
-> PCI: Using IRQ router PIIX [8086/7110] at 00:07.0
-> PCI: Cannot allocate resource region 4 of device 00:07.1
-> pty: 512 Unix98 ptys configured
-> Enabling SEP on CPU 0
-> Journalled Block Device driver loaded
-> Limiting direct PCI/PCI transfers.
-> 
-> -------------------------
-> 
-> Here the systems hangs. The stack is then:
-> 
-> Program received signal SIGTRAP, Trace/breakpoint trap.
-> gdb_interrupt (irq=-1070914560, dev_id=0x0, regs=0xc12afe6c)
->     at arch/i386/lib/kgdb_serial.c:195
-> 195                             continue;
-> (gdb) bt
-># 0  gdb_interrupt (irq=-1070914560, dev_id=0x0, regs=0xc12afe6c)
->     at arch/i386/lib/kgdb_serial.c:195
-># 1  0xc010c453 in handle_IRQ_event (irq=4, regs=0xc12afe6c, action=0x3)
->     at arch/i386/kernel/irq.c:222
-># 2  0xc010c6f2 in do_IRQ (regs=
->       {ebx = 642, ecx = 1016, edx = -1, esi = 71, edi = 4099, ebp = -1054146908, eax = -1070914560, xds = 123, xes = 123, orig_eax = -252, eip = -1071999793, xcs = 96, eflags = 642, esp = 0, xss = -1054146880})
->     at arch/i386/kernel/irq.c:485
-># 3  0xc010ae08 in common_interrupt () at arch/i386/kernel/entry.S:426
-># 4  0xc01a980c in getDebugChar () at arch/i386/lib/kgdb_serial.c:363
-># 5  0xc011433d in putpacket (
->     buffer=0xc0314ea0 "O4c696d6974696e6720646972656374205043492f504349207472616e73666572732e0a") at arch/i386/kernel/kgdb_stub.c:463
-># 6  0xc01158d4 in kgdb_gdb_message (s=0xc03166f3 "", count=0)
->     at arch/i386/kernel/kgdb_stub.c:1969
-># 7  0xc011a7a5 in __call_console_drivers (start=1016, end=3224456935)
->     at kernel/printk.c:294
-># 8  0xc011a893 in call_console_drivers (start=1016, end=2771)
->     at kernel/printk.c:355
-># 9  0xc011ab31 in release_console_sem () at kernel/printk.c:509
-># 10 0xc011aa82 in printk (
->     fmt=0xc0292f40 "<6>Limiting direct PCI/PCI transfers.\n")
->     at kernel/printk.c:449
-># 11 0xc02d3b3a in quirk_natoma (dev=0xc12ea400) at drivers/pci/quirks.c:196
-># 12 0xc01aba60 in pci_do_fixups (dev=0xc12ea400, pass=2, f=0xc02e48dc)
->     at drivers/pci/quirks.c:857
-># 13 0xc01aba93 in pci_fixup_device (pass=2, dev=0xc12ea400)
->     at drivers/pci/quirks.c:866
-># 14 0xc02d3811 in pci_init () at drivers/pci/pci.c:720
-># 15 0xc02c872b in do_initcalls () at init/main.c:494
-># 16 0xc0105055 in init (unused=0x0) at init/main.c:572
-> 
-> The kernel boots fine with kgdb not enabled. Any ideas what is wrong
-> here?
-> 
-> Thanks.
-> 
-> - Peter -
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+
+[ Cc to lkml, please include sparclinux in replies ]
+
+I have done some more tests on this one.
+The failure occurs whenever there are 2 NICs which use the same
+driver. The appears to be a problem in the NIC initialisation
+which ends up with part of the initialisation happening on the
+wrong NIC, most likely a race of some kind.
+
+A quick search reveals that this is a generic issue rather than
+being specific to Sparc. Others in alt.os.linux.slackware have
+noted that (on intel where each NIC has its own MAC) each NIC gets
+initialised with the MAC of the other NIC which is WIERD.
+
+Until this gets fixed it will be necessary to remove additional
+NICs by removing boards before booting from the network. This will
+not be possible on some machines with 2 on-board NICs such as
+the V100 and V150.
+
+This bug appears to have crept into recent kernels within the last
+year or so, between 2.2.20 and 2.2.25. Both 2.4.20 and 2.4.21 are
+affected.
+
+On Fri, 20 Jun 2003, C.Newport wrote:
+
+>
+> Something appears to be broken in the network initialisation code
+> when booting a machine which has more than one NIC from the network.
+>
+>  =============
+> Test case 1 :-
+>
+> Ultra1 Creater 3D with onboard hme plus second hme on fastwideSE+FE card
+> 501-2739  512MB memory.
+> boot net ip=rarp root=nfs
+>  Loops continually with IP-Config: Incomplete network configuration.
+>                         IP-Config: Reopening network devices...
+>  This fault occurs on both the 10Mb hub and the 10/100 switched network.
+>
+> After removing fastwideSE+FE card this machine boots correctly
+> with kernel 2.4.20 and mounts the NFS root.
+>
+>  =============
+>
+> Test case 2 :-
+>
+> SS1000E with 2 x SM81, 512MB, 1 x sunlance on each of 2 boards.
+>  ( = 4 x SM81, 1G, 2 x sunlance total)
+> boot net ip=rarp root=nfs
+>  Looking up port of RPC 100003/2 on 192.168.192.24
+>  neighbour table overflow
+>  neighbour table overflow ........
+>
+> boot net ip=rarp root=/dev/sda1
+>  boots kernel 2.2.25
+>
+> After removing the 2nd system board
+> boot net ip=rarp root=nfs
+>  boots kernel 2.2.25 correctly.
+>
+> This fault does not happen with kernel 2.2.20
+>
+>  =========
+>
+> Test case 3 :-
+>
+> SS20 with 1 x SM71 256Mb sunlance onboard +  hme on fastwideSE+FE card
+>
+> boot net ip=rarp root=nfs
+>  boots correctly to kernel 2.2.25
+>  boots correctly to kernel 2.2.20pre2
+>
+> It seems that sunlance+hme works OK  (at least with 2.2.25)
+> If it would help I will build a 2.4.20 tftp image for this machine
+> in the morning - it is 0 dark 30 here.
+
+The fault does not occur in this case ( with 2.4.20) because we
+have different NICs, sunlance and sunhme.
 
 

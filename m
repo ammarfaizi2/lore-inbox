@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290790AbSAYSv6>; Fri, 25 Jan 2002 13:51:58 -0500
+	id <S290792AbSAYSvr>; Fri, 25 Jan 2002 13:51:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290787AbSAYSvn>; Fri, 25 Jan 2002 13:51:43 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:36339 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S290791AbSAYStM>;
-	Fri, 25 Jan 2002 13:49:12 -0500
-Date: Fri, 25 Jan 2002 13:49:02 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Jonathan Corbet <corbet@lwn.net>
-cc: "Grover, Andrew" <andrew.grover@intel.com>, linux-kernel@vger.kernel.org,
-        acpi-devel@lists.sourceforge.net
-Subject: Re: ACPI mentioned on lwn.net/kernel 
-In-Reply-To: <20020125165045.5104.qmail@eklektix.com>
-Message-ID: <Pine.GSO.4.21.0201251344000.25424-100000@weyl.math.psu.edu>
+	id <S290791AbSAYSvq>; Fri, 25 Jan 2002 13:51:46 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:18304 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S290792AbSAYSt0>; Fri, 25 Jan 2002 13:49:26 -0500
+Date: Fri, 25 Jan 2002 13:50:11 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Uptime again?
+Message-ID: <Pine.LNX.3.95.1020125134800.1544A-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Uptime, when using Linux-2.4.1 doesn't seem to go past 128 days!
+This is a RedHat distrubution, 7.x
 
-On Fri, 25 Jan 2002, Jonathan Corbet wrote:
+These are the last three days:
 
-> Increasingly, it seems that it will not be possible to use modern hardware
-> without ACPI.  So, in a sense, the point will be moot.  Certainly it is
-> only a good thing that Linux has a high-quality ACPI implementation in the
-> works, so that users will have the option to use it.  I expect that most
-> will happily run it and look no further.  
-> 
-> But that doesn't change the fact that a lot of people do not like the ACPI
-> standard.  There is some selling yet to be done if that dislike is to be
-> overcome. 
+ 11:59am  up 128 days, 21:24,  2 users,  load average: 1.03, 1.01, 1.00
+ 10:06am  up 128 days, 12:31,  2 users,  load average: 1.02, 1.00, 1.00
+  1:06pm  up 128 days, 22:31,  2 users,  load average: 1.00, 1.00, 1.00
+Linux boneserver 2.4.1 #15 SMP Thu Aug 9 16:03:49 EDT 2001 i686
+  1:10pm  up 128 days, 22:35,  2 users,  load average: 1.08, 1.02, 1.01
+USER     TTY      FROM              LOGIN@  IDLE   JCPU   PCPU  WHAT
+root     ttyp1    chaos.analogic.com 1:05pm  0.00s  0.12s  0.02s  w 
 
-Well, let's hope that when x86-64 comes out, it will go with saner chipsets.
-Pity that it hadn't happened years ago - world without Itanic would certainly
-be a nicer place...
+
+My Sun, which did NOT reboot several days ago, shows:
+
+  1:11pm  up 2 day(s), 22:30,  1 user,  load average: 0.00, 0.00, 0.01
+
+So it looks like it just 'wrapped'.
+ 
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
 

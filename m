@@ -1,97 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289585AbSAWAVA>; Tue, 22 Jan 2002 19:21:00 -0500
+	id <S289592AbSAWAhc>; Tue, 22 Jan 2002 19:37:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289588AbSAWAUu>; Tue, 22 Jan 2002 19:20:50 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:46349 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S289585AbSAWAUn>; Tue, 22 Jan 2002 19:20:43 -0500
-Message-ID: <3C4E00E3.5050105@namesys.com>
-Date: Wed, 23 Jan 2002 03:16:35 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
-X-Accept-Language: en-us
+	id <S289594AbSAWAhW>; Tue, 22 Jan 2002 19:37:22 -0500
+Received: from fungus.teststation.com ([212.32.186.211]:8714 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id <S289592AbSAWAhM>; Tue, 22 Jan 2002 19:37:12 -0500
+Date: Wed, 23 Jan 2002 01:37:05 +0100 (CET)
+From: Urban Widmark <urban@teststation.com>
+X-X-Sender: <puw@cola.teststation.com>
+To: Justin A <justin@bouncybouncy.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: via-rhine timeouts
+In-Reply-To: <20020122234201.GA835@bouncybouncy.net>
+Message-ID: <Pine.LNX.4.33.0201230107420.4854-100000@cola.teststation.com>
 MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: Chris Mason <mason@suse.com>, Andreas Dilger <adilger@turbolabs.com>,
-        Shawn Starr <spstarr@sh0n.net>, linux-kernel@vger.kernel.org,
-        ext2-devel@lists.sourceforge.net
-Subject: Re: Possible Idea with filesystem buffering.
-In-Reply-To: <Pine.LNX.4.33L.0201222014370.32617-100000@imladris.surriel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
+On Tue, 22 Jan 2002, Justin A wrote:
 
->On Wed, 23 Jan 2002, Hans Reiser wrote:
->
->>Yes, it should get twice as much pressure, but that does not mean it
->>should free twice as many pages, it means it should age twice as many
->>pages, and then the accesses will un-age them.
->>
->>Make more sense now?
->>
->
->So basically you are saying that each filesystem should
->implement the code to age all pages equally and react
->equally to memory pressure ...
->
->... essentially duplicating what the current VM already
->does!
->
->regads,
->
->Rik
->
-If the object appropriate for the subcache is either larger (reiser4 
-slums), or smaller (have to reread that code to remember whether 
-dentries can reasonably be coded to be squeezed over to other pages, I 
-think so, if yes then they are an example of smaller, maybe someone can 
-say something on this) than a page, then you ought to age objects with a 
-granularity other than that of a page.   You can express the aging in 
-units of pages (and the subcache can convert the units), but the aging 
-should be applied in units of the object being cached.
+> I've been getting many errors due to timeouts, everything was fine while
+> I was at home, but here at school it's a major problem:
 
-Just to confuse things, there are middle ground solutions as well.  For 
-instance, reiser4 slums are variable size, and can even have maximums if 
-we want it.  If we are lazy coders (and we might be), we could even 
-choose to track aging at page granularity, and be just like the generic 
-VM code, except for the final flush moment when we will consider 
-flushing 64 nodes to disk to count as 64 agings that our cache yielded 
-up as its fair share.  With regards to that last sentence, I need more 
-time to think about whether that is really reasonably optimal to do and 
-simpler to code.
+You did get them at home too? (with the same (type of) hardware?)
 
-Consider an analogy with reiser4 plugins.  One of my constant battles is 
-that my programmers want to take all the code that they think most 
-plugins will have to do, and force all plugin authors to do it that way 
-by not making the mostly common code part of the  generic plugin 
-templates.  The right way to do it is to create generic templates, let 
-the plugin authors add their couple of function calls that are unique to 
-their plugin to the generic template code, and get them to use the 
-generic template for reasons of convenience not compulsion.  I am asking 
-you to create a cache plugin architecture for VM.  It will be cool, 
-people will use it for all sorts of weird and useful optimizations of 
-obscure but important to someone caches (maybe even dcache if nothing 
-prevents relocating dcache entries, wish I could remember), trust me.:) 
- It is probably more important to caches other than ReiserFS that there 
-be this kind of architecture (we could survive the reduction in 
-optimality from flushing more than our fair share, it wouldn't kill us, 
-but I like to ask for the right design on principle, and I think that 
-for other caches it really will matter.  It is also possible that some 
-future ReiserFS I don't yet imagine will more significantly benefit from 
-such a right design.)
+> Jan 22 18:10:34 bouncybouncy kernel: NETDEV WATCHDOG: eth0: transmit
+> timed out
+> Jan 22 18:10:34 bouncybouncy kernel: eth0: Transmit timed out, status
+> 0000, PHY 
+> status 782d, resetting...
+> 
+> Jan 22 18:10:34 bouncybouncy kernel: eth0: reset did not complete in 10
+> ms.
+> 
+> once it complains about that, it stops working until I reboot.
 
-Ok, so it seems we are it seems much less far apart now than we were 
-previously.:)
+10ms is a very long time. Normally the hardware resets a lot faster than
+that, and when it doesn't I suspect it is in some really bad state.
 
-I remain curious about what dinner cooked by you using fresh Brazilian 
-ingredients tastes like.  The tantalizing thought still lurks in the 
-back of my mind where you planted it.:)   I MUST generate a business 
-requirement for going to Brazil.....:-)
+You are not the first to report this. And it is a message that could be
+caused by a lot of things, I guess.
 
-Hans
 
+But I have finally managed to get these timeouts to happen on my VT6102
+too (using an evil combination of running a remote Internet Explorer over
+VNC). I have planned to examine it, but I probably won't get around to
+that for at least a couple of weeks.
+
+Some ideas you could try:
++ The via-rhine driver at
+  http://www.scyld.com/network/ethercard.html
+  (the one in the kernel is almost the same as this one)
++ Move the card to another slot (remove/re-arrange other cards in the box)
++ Since it appears to be load related, perhaps it can be hidden by slowing
+  things down (eg add a small udelay() to via_rhine_start_tx)
+
+(or you could try to figure out what the driver is doing when these 
+ things happen.)
+
+/Urban
 

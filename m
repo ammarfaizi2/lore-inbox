@@ -1,82 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265758AbUFDL5Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265747AbUFDMAR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265758AbUFDL5Y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 07:57:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265755AbUFDL4a
+	id S265747AbUFDMAR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 08:00:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265750AbUFDMAR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 07:56:30 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:26035 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S265741AbUFDL4T (ORCPT
+	Fri, 4 Jun 2004 08:00:17 -0400
+Received: from [194.85.238.98] ([194.85.238.98]:32975 "EHLO school.ioffe.ru")
+	by vger.kernel.org with ESMTP id S265747AbUFDMAJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 07:56:19 -0400
-Date: Fri, 4 Jun 2004 13:56:13 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: mattia <mattia@nixlab.net>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: DriveReady SeekComplete Error
-Message-ID: <20040604115613.GW1946@suse.de>
-References: <E1BWBjw-0003QZ-1h@andromeda.hostvector.com> <20040604102258.GR1946@suse.de> <200406041344.30738.bzolnier@elka.pw.edu.pl>
+	Fri, 4 Jun 2004 08:00:09 -0400
+Date: Fri, 4 Jun 2004 16:00:02 +0400
+To: linux-kernel@vger.kernel.org
+Cc: James Morris <jmorris@redhat.com>, mason@suse.com, jeffm@suse.com
+Subject: Re: 2.6.7-rc2: open() hangs on ReiserFS with SELinux enabled
+Message-ID: <20040604120002.GB18344@school.ioffe.ru>
+References: <20040602174810.GA31263@school.ioffe.ru> <1086201647.15871.135.camel@moss-spartans.epoch.ncsc.mil> <20040603083622.GA9918@school.ioffe.ru> <1086271751.17657.104.camel@moss-spartans.epoch.ncsc.mil> <1086291991.19025.55.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-In-Reply-To: <200406041344.30738.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <1086291991.19025.55.camel@moss-spartans.epoch.ncsc.mil>
+User-Agent: Mutt/1.3.28i
+From: mitya@school.ioffe.ru (Dmitry Baryshkov)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 04 2004, Bartlomiej Zolnierkiewicz wrote:
-> On Friday 04 of June 2004 12:22, Jens Axboe wrote:
-> > damnit, don't trim the cc list!
-> >
-> > On Fri, Jun 04 2004, mattia wrote:
-> > > I have the following error (kernel 2.6.6):
-> > >
-> > > Jun  4 08:05:43 blink kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> > > Jun  4 08:05:43 blink kernel: hdc: Maxtor 6Y160P0, ATA DISK drive
-> > > Jun  4 08:05:43 blink kernel: hdd: Maxtor 6Y120L0, ATA DISK drive
-> > > Jun  4 08:05:43 blink kernel: ide1 at 0x170-0x177,0x376 on irq 15
-> > > Jun  4 08:05:43 blink kernel: hda: max request size: 128KiB
-> > > Jun  4 08:05:43 blink kernel: hda: 78177792 sectors (40027 MB) w/1819KiB
-> > > Cache, CHS=65535/16/63, UDMA(100)
-> > > Jun  4 08:05:43 blink kernel:  hda: hda1 hda2 hda3
-> > > Jun  4 08:05:43 blink kernel: hdc: max request size: 1024KiB
-> > > Jun  4 08:05:43 blink kernel: hdc: 320173056 sectors (163928 MB)
-> > > w/7936KiB Cache, CHS=19929/255/63, UDMA(100)
-> > > Jun  4 08:05:43 blink kernel:  hdc: hdc1
-> > > Jun  4 08:05:43 blink kernel: hdd: max request size: 128KiB
-> > > Jun  4 08:05:43 blink kernel: hdd: 240121728 sectors (122942 MB)
-> > > w/2048KiB Cache, CHS=65535/16/63, UDMA(100)
-> > > Jun  4 08:05:43 blink kernel:  hdd: hdd1 hdd2 hdd3
-> > > Jun  4 08:05:43 blink kernel: hdd: task_no_data_intr: status=0x51 {
-> > > DriveReady SeekComplete Error }
-> > > Jun  4 08:05:43 blink kernel: hdd: task_no_data_intr: error=0x04 {
-> > > DriveStatusError }
-> > > Jun  4 08:05:43 blink kernel: hdd: Write Cache FAILED Flushing!
-> > >
-> > >
-> > > I found somewhere that's something wrong with that maxtor drive.
-> > > However, everything works fine.
-> >
-> > There's nothing wrong with the drive technically, it's just odd (lba48
-> > without FLUSH_CACHE_EXT). It's really a linux ide bug that's fixed in
-> > newer kernels. 2.6.7 will fix your problem.
+Hello,
+On Thu, Jun 03, 2004 at 03:46:31PM -0400, Stephen Smalley wrote:
+> On Thu, 2004-06-03 at 10:09, Stephen Smalley wrote:
 > 
-> Wrong.
-> 
-> Bug is a combination of a very minor firmware quirk
-> and lack of strict checking in Linux IDE driver.
-> 
-> FLUSH_CACHE_EXT bit is set but it is not supported
-> (but it is not a problem because LBA48 is not supported also).
+> Actually, that last part may be a red herring, since reiserfs_write_lock
+> is simply a macro for lock_kernel.  The more immediate concern is
+> avoiding the inode->i_op->getxattr call from SELinux on the xattr
+> directory inode.  reiserfs xattr code would need to call a new security
+> hook to mark the xattr root directory inode in some manner, so that
+> subsequent security_d_instantiate calls on the per-object subdirectories
+> could be identified by SELinux, and it could then just set the SID on
+> the incore inode to a well-defined value and not call
+> inode->i_op->getxattr for those inodes.
 
-Ah my bad, I didn't realize this bit was actually set correctly (you
-mean (cfs_enable_2 & 0x2400) == 0x2400 is actually true?).
-
-> It is fixed in 2.6.7-rc1 but your IDE barrier patch has this problem
-> (just reminding you that it is still not fixed in 2.6.7-rc2-mm2).
-
-So where's the bug? I don't see it...
-
+Here is a patch, based on discussion with Stephen Smalley, that fixes
+the problem for me. As private files don't have xattrs,
+reiserfs_getxattr should return early for them, thus not trying to lock anything.
 -- 
-Jens Axboe
+With best wishes
+Dmitry Baryshkov
+
+diff -pur linux-2.6.7-rc2-orig/fs/reiserfs/xattr.c linux-2.6.7-rc2/fs/reiserfs/xattr.c
+--- linux-2.6.7-rc2-orig/fs/reiserfs/xattr.c	2004-06-04 00:22:25.000000000 +0400
++++ linux-2.6.7-rc2/fs/reiserfs/xattr.c	2004-06-04 10:13:00.000000000 +0400
+@@ -944,6 +944,16 @@ reiserfs_getxattr (struct dentry *dentry
+ {
+     struct reiserfs_xattr_handler *xah = find_xattr_handler_prefix (name);
+     int err;
++    struct dentry *dpar;
++
++    dpar = dget_parent(dentry);
++    if (is_reiserfs_priv_object (dentry->d_inode) ||
++        (dpar && is_reiserfs_priv_object (dpar->d_inode)))
++    {
++	    dput(dpar);
++	    return -ENODATA;
++    }
++    dput(dpar);
+ 
+     if (!xah || !reiserfs_xattrs(dentry->d_sb) ||
+         get_inode_sd_version (dentry->d_inode) == STAT_DATA_V1)
 

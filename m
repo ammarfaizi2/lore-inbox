@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261351AbTEMOzf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 10:55:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbTEMOzf
+	id S261387AbTEMPEM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 11:04:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbTEMPEM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 10:55:35 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:24808 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261351AbTEMOzd (ORCPT
+	Tue, 13 May 2003 11:04:12 -0400
+Received: from pat.uio.no ([129.240.130.16]:11980 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261387AbTEMPEL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 10:55:33 -0400
-Date: Tue, 13 May 2003 08:08:35 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise
-To: Ben Collins <bcollins@debian.org>
-cc: Christoph Hellwig <hch@infradead.org>,
-       Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Make KOBJ_NAME_LEN match BUS_ID_SIZE
-In-Reply-To: <20030513071412.GS433@phunnypharm.org>
-Message-ID: <Pine.LNX.4.44.0305130808040.9816-100000@cherise>
+	Tue, 13 May 2003 11:04:11 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16065.3159.768256.81302@charged.uio.no>
+Date: Tue, 13 May 2003 17:16:39 +0200
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6 must-fix list, v2
+In-Reply-To: <20030513135756.GA676@suse.de>
+References: <20030512155417.67a9fdec.akpm@digeo.com>
+	<20030512155511.21fb1652.akpm@digeo.com>
+	<shswugvjcy9.fsf@charged.uio.no>
+	<20030513135756.GA676@suse.de>
+X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+X-MailScanner-Information: Please contact postmaster@uio.no for more information
+X-UiO-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> Dave Jones <davej@codemonkey.org.uk> writes:
 
-On Tue, 13 May 2003, Ben Collins wrote:
+     > I can still kill an NFS server in under a minute with fsx.
 
-> On Tue, May 13, 2003 at 08:10:32AM +0100, Christoph Hellwig wrote:
-> > On Tue, May 13, 2003 at 02:26:40AM -0400, Ben Collins wrote:
-> > > This was causing me all sorts of problems with linux1394's 16-18 byte
-> > > long bus_id lengths. The sysfs names were all broken.
-> > > 
-> > > This not only makes KOBJ_NAME_LEN match BUS_ID_SIZE, but fixes the
-> > > strncpy's in drivers/base/ so that it can't happen again (atleast the
-> > > strings will be null terminated).
-> > 
-> > What about defining BUS_ID_SIZE in terms of KOBJ_NAME_LEN?
-> 
-> Ok, then add this in addition to the previous patch.
+I'm more interested in hearing how the client fixes are coping.
+i.e. is the client recovering properly if/when you restart the server
+after such a crash?
 
-I'll add this, and sync with Linus this week, if he doesn't pick it up.
-
-Thanks,
-
-
-	-pat
-
+Cheers,
+  Trond

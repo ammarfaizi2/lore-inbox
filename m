@@ -1,89 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262609AbTDZRPa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Apr 2003 13:15:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262621AbTDZRP2
+	id S262621AbTDZRQ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Apr 2003 13:16:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262624AbTDZRQ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Apr 2003 13:15:28 -0400
-Received: from tomts8.bellnexxia.net ([209.226.175.52]:6277 "EHLO
-	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S262609AbTDZRPZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Apr 2003 13:15:25 -0400
-Date: Sat, 26 Apr 2003 13:21:59 -0400 (EDT)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@dell
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH] more menu reorg for dependency cleanup
-Message-ID: <Pine.LNX.4.44.0304261320590.1825-100000@dell>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 26 Apr 2003 13:16:29 -0400
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:57328 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S262621AbTDZRQZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Apr 2003 13:16:25 -0400
+Subject: Re: ChangeLog suggestion
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Zack Brown <zbrown@tumblerings.org>
+Cc: John Bradford <john@grabjohn.com>, Linus Torvalds <torvalds@transmeta.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030426151200.GA6743@renegade>
+References: <20030426062105.GA1423@renegade>
+	 <200304260652.h3Q6qJmB000386@81-2-122-30.bradfords.org.uk>
+	 <20030426151200.GA6743@renegade>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-54s8n5JnKH/HgMjZYpyu"
+Organization: Red Hat, Inc.
+Message-Id: <1051378087.1421.8.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
+Date: 26 Apr 2003 19:28:07 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-diff -Nru curr/arch/i386/Kconfig rday/arch/i386/Kconfig
---- curr/arch/i386/Kconfig	2003-04-26 13:07:28.000000000 -0400
-+++ rday/arch/i386/Kconfig	2003-04-26 13:14:39.000000000 -0400
-@@ -989,6 +989,11 @@
- 	depends on (X86_VISWS || SMP) && !X86_VOYAGER
- 	default y
- 
-+config X86_IO_APIC
-+	bool
-+	depends on SMP && !(X86_VISWS || X86_VOYAGER)
-+	default y
-+
- config PCI
- 	bool "PCI support" if !X86_VISWS
- 	depends on !X86_VOYAGER
-@@ -1004,11 +1009,6 @@
- 	  information about which PCI hardware does work under Linux and which
- 	  doesn't.
- 
--config X86_IO_APIC
--	bool
--	depends on SMP && !(X86_VISWS || X86_VOYAGER)
--	default y
--
- choice
- 	prompt "PCI access mode"
- 	depends on PCI && !X86_VISWS
-@@ -1048,18 +1048,6 @@
-  	depends on PCI && ((PCI_GODIRECT || PCI_GOANY) || X86_VISWS)
- 	default y
- 
--config SCx200
--	tristate "NatSemi SCx200 support"
--	depends on !X86_VOYAGER
--	help
--	  This provides basic support for the National Semiconductor SCx200 
--	  processor.  Right now this is just a driver for the GPIO pins.
--
--	  If you don't know what to do here, say N.
--
--	  This support is also available as a module.  If compiled as a
--	  module, it will be called scx200.
--
- source "drivers/pci/Kconfig"
- 
- config ISA
-@@ -1105,6 +1093,18 @@
- 
- source "drivers/mca/Kconfig"
- 
-+config SCx200
-+	tristate "NatSemi SCx200 support"
-+	depends on !X86_VOYAGER
-+	help
-+	  This provides basic support for the National Semiconductor SCx200 
-+	  processor.  Right now this is just a driver for the GPIO pins.
-+
-+	  If you don't know what to do here, say N.
-+
-+	  This support is also available as a module.  If compiled as a
-+	  module, it will be called scx200.
-+
- config HOTPLUG
- 	bool "Support for hot-pluggable devices"
- 	---help---
+--=-54s8n5JnKH/HgMjZYpyu
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
+On Sat, 2003-04-26 at 17:12, Zack Brown wrote:
+> Hi John,
+>=20
+> On Sat, Apr 26, 2003 at 07:52:19AM +0100, John Bradford wrote:
+> > > In each changelog entry, it would be really useful to include the
+> > > Message-ID of that email in a regex-parsable location. This way, if t=
+he
+> > > email was cced to lkml it would be possible for folks to track down t=
+he
+> > > actual patch.
+> > >=20
+> > > I'm not familiar with your scripts, but I'd be surprised if this were=
+ very
+> > > difficult to implement. At the same time, there are many cases of cha=
+ngelog
+> > > entries that read only 'USB' or something equally unhelpful, where th=
+ere is
+> > > little chance that anyone could track down the corresponding patch.  =
+Having the
+> > > Message-ID in those cases would make all the difference in the world.
+> >=20
+> > The changelogs are generated by BitKeeper - couldn't we simply include
+> > a link that will let anybody[1] access the relevant changesets?
+> >=20
+> > [1] This can be via HTTP, and _doesn't_ require anybody to use
+> > BitKeeper in any way.
+>=20
+> That would be ideal.
+
+short of that there's the bk commit mailinglist that has all of them
+anyway; it's 3 clicks in evolution to find one given the author ;)
+
+--=-54s8n5JnKH/HgMjZYpyu
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+qsGnxULwo51rQBIRAj69AKCGuAGQ2OenF/yIX37B7CtooPXaCwCffKpE
+ymMECIEbUWXh1YUJ656zeNM=
+=kqQT
+-----END PGP SIGNATURE-----
+
+--=-54s8n5JnKH/HgMjZYpyu--

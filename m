@@ -1,66 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266763AbUHSUxI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267442AbUHSVwH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266763AbUHSUxI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 16:53:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267368AbUHSUxI
+	id S267442AbUHSVwH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 17:52:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267445AbUHSVwG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 16:53:08 -0400
-Received: from mail.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:18379 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S266763AbUHSUxE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 16:53:04 -0400
-Date: Thu, 19 Aug 2004 22:53:01 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: linux-kernel@vger.kernel.org,
-       Joerg Schilling <schilling@fokus.fraunhofer.de>
-Subject: Re: GNU make alleged of "bug" (was: PATCH: cdrecord: avoiding scsi device numbering for ide devices)
-Message-ID: <20040819205301.GA12251@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Joerg Schilling <schilling@fokus.fraunhofer.de>
-References: <200408191600.i7JG0Sq25765@tag.witbe.net> <200408191341.07380.gene.heskett@verizon.net> <20040819194724.GA10515@merlin.emma.line.org> <20040819220553.GC7440@mars.ravnborg.org>
-Mime-Version: 1.0
+	Thu, 19 Aug 2004 17:52:06 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:4026 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S267442AbUHSVvl convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 17:51:41 -0400
+Date: Thu, 19 Aug 2004 14:51:10 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: umount -f /nfsmount hangs
+Message-ID: <268300000.1092952270@flay>
+In-Reply-To: <1092950791.3810.85.camel@lade.trondhjem.org>
+References: <261360000.1092948919@flay> <1092950791.3810.85.camel@lade.trondhjem.org>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040819220553.GC7440@mars.ravnborg.org>
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Aug 2004, Sam Ravnborg wrote:
+--On Thursday, August 19, 2004 17:26:31 -0400 Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
 
-> On Thu, Aug 19, 2004 at 09:47:24PM +0200, Matthias Andree wrote:
-> > # BEGIN Makefile
-> > all:    hello
-> > hello.d:
-> >         makedepend -f- hello.c >$@
-> > include hello.d
-> > # END Makefile
-> > 
-> > You'll get at "make" time:
-> > 
-> > Makefile:5: hello.d: No such file or directory
-> > makedepend -f- hello.c >hello.d
-> > cc   hello.o   -o hello
-> > 
-> > and a working hello program.
+> På to , 19/08/2004 klokka 16:55, skreiv Martin J. Bligh:
+>> NFS server has gone away, was mounted soft, intr:
+>> 
+>> bvrgsa.ibm.com:/gsa/bvrgsa on /bvrgsa type nfs (rw,soft,intr,nfsvers=2,tcp,rsize=8192,wsize=8192,timeo=30,addr=9.47.56.70)
+>> 
+>> but umount -f just hangs ... surely that's not the intended behaviour?
+>> from Alt+SysRq+t:
 > 
-> Using:
-> -include hello.d
-> will result in a silent make.
+> Works fine for me with 2.6.8.1 and the Fedora Core2 2.6.7-based kernel.
+> If you physically turn off the server as opposed to just killing the
+> nfsd processes, then it takes a bit longer than for the networking layer
+> to time out the sock_release etc (isn't that under the control of the
+> tcp_fin_timeout sysctl?), but AFAICS it does eventually get there.
+> 
+> Are there any other details you're omitting?
 
-Indeed it will. However, Solaris' /usr/ccs/bin/make doesn't understand
-the "-include" form:
+Yeah, it did time out eventually and yes, the network got disconnected
+rather than killing nfsd. I guess I was expecting -f to mean "Do it. Now" ...
+However, the damned thing is still mounted as listed by "mount".
 
-make: Fatal error in reader: Makefile, line 5: Unexpected end of line seen
+Viro pointed me to -l as well ... -f -l seems to work OK.
 
-include without leading "-" is fine. BSD make doesn't understand either
-form.
+M.
 
-Jörg, how about Sam's suggestion? It seems compatible with smake.
-
--- 
-Matthias Andree
-
-NOTE YOU WILL NOT RECEIVE MY MAIL IF YOU'RE USING SPF!
-Encrypted mail welcome: my GnuPG key ID is 0x052E7D95 (PGP/MIME preferred)

@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131546AbRAKM7F>; Thu, 11 Jan 2001 07:59:05 -0500
+	id <S130130AbRAKNJL>; Thu, 11 Jan 2001 08:09:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131815AbRAKM6z>; Thu, 11 Jan 2001 07:58:55 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:33984 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S131546AbRAKM6o>;
-	Thu, 11 Jan 2001 07:58:44 -0500
-Date: Thu, 11 Jan 2001 12:56:04 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@suse.de>,
-        Trond Myklebust <trond.myklebust@fys.uio.no>,
-        Daniel Phillips <phillips@innominate.de>, linux-kernel@vger.kernel.org,
-        Stephen Tweedie <sct@redhat.com>
-Subject: Re: Subtle MM bug
-Message-ID: <20010111125604.A17177@redhat.com>
-In-Reply-To: <E14GQyR-0000mh-00@the-village.bc.nu> <Pine.LNX.4.10.10101101210080.4572-100000@penguin.transmeta.com>
-Mime-Version: 1.0
+	id <S130339AbRAKNJC>; Thu, 11 Jan 2001 08:09:02 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:42761 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130130AbRAKNIu>; Thu, 11 Jan 2001 08:08:50 -0500
+Subject: Re: Where did vm_operations_struct->unmap in 2.4.0 go?
+To: kaos@ocs.com.au (Keith Owens)
+Date: Thu, 11 Jan 2001 13:09:13 +0000 (GMT)
+Cc: dwmw2@infradead.org (David Woodhouse),
+        linux-kernel@vger.kernel.org (List Linux-Kernel)
+In-Reply-To: <17071.979217174@ocs3.ocs-net> from "Keith Owens" at Jan 11, 2001 11:46:14 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10101101210080.4572-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Wed, Jan 10, 2001 at 12:11:16PM -0800
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14GhTf-0002CS-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> Stick to one method that works for all routines, dynamic registration.
+> If that imposes the occasional need for a couple of extra calls in some
+> routines and for people to think about initialisation order right from
+> the start then so be it, it is a small price to pay for long term
+> stability and ease of maintenance.
 
-On Wed, Jan 10, 2001 at 12:11:16PM -0800, Linus Torvalds wrote:
-> 
-> That said, we can easily support the notion of CLONE_CRED if we absolutely
-> have to (and sane people just shouldn't use it), so if somebody wants to
-> work on this for 2.5.x...
-
-But is it really worth the pain?  I'd hate to have to audit the entire
-VFS to make sure that it works if another thread changes our
-credentials in the middle of a syscall, so we either end up having to
-lock the credentials over every VFS syscall, or take a copy of the
-credentials and pass it through every VFS internal call that we make.
-
---Stephen
+What happens when we get a loop in init order because of binding and other init
+order conflicts?
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

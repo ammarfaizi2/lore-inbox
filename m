@@ -1,59 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272280AbTHIBXn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 21:23:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272165AbTHIBJ0
+	id S271972AbTHIBsJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 21:48:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272118AbTHIBsJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 21:09:26 -0400
-Received: from ivoti.terra.com.br ([200.176.3.20]:37017 "EHLO
-	ivoti.terra.com.br") by vger.kernel.org with ESMTP id S272235AbTHIBHx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 21:07:53 -0400
-From: Lucas Correia Villa Real <lucasvr@gobolinux.org>
-To: "Cho, joon-woo" <jwc@core.kaist.ac.kr>, <linux-kernel@vger.kernel.org>
-Subject: Re: BT848 driver code
-Date: Fri, 8 Aug 2003 22:08:34 -0300
-User-Agent: KMail/1.5.1
-References: <001f01c35d9e$3df295b0$a5a5f88f@core8fyzomwjks>
-In-Reply-To: <001f01c35d9e$3df295b0$a5a5f88f@core8fyzomwjks>
+	Fri, 8 Aug 2003 21:48:09 -0400
+Received: from mail.suse.de ([213.95.15.193]:12040 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S271972AbTHIBsH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 21:48:07 -0400
+Date: Sat, 9 Aug 2003 03:48:06 +0200 (CEST)
+From: Andreas Gruenbacher <agruen@suse.de>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.4: Restore current->files in flush_old_exec
+In-Reply-To: <20030809011116.GB10487@gondor.apana.org.au>
+Message-ID: <Pine.LNX.4.53.0308090347240.18879@Chaos.suse.de>
+References: <20030808105321.GA5096@gondor.apana.org.au>
+ <20030809010736.GA10487@gondor.apana.org.au> <20030809011116.GB10487@gondor.apana.org.au>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308082208.34618.lucasvr@gobolinux.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, 9 Aug 2003, Herbert Xu wrote:
 
-You may want to give a look at the Video4Linux2 specs:
-http://bytesex.org/v4l/spec/
+> Hi:
+>
+> The unshare_files patch to flush_old_exec() did not restore the original
+> state when exec_mmap fails.  This patch fixes that.
 
-Lucas
+Indeed. This is still needed.
 
+> At this point, I believe the unshare_files stuff should be fine from
+> a correctness point of view.  However, there is still a performance
+> problem as every ELF exec call ends up dupliating the files structure
+> as well as walking through all file locks.
 
-On Friday 08 August 2003 08:14, Cho, joon-woo wrote:
-> I think that data in BT848's memory is transferred to graphic card memory
->
-> to show the captured data at monitor.
->
-> Am i right?
->
-> If right, what variable is pointed to graphic card memory  in device driver
-> code?
->
-> (I think in /drivers/media/video/bttv-driver.c)
->
-> Or is memory  in graphic card managed by more complex scheme as page?
->
->
-> Please answer, thanks.
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+Cheers,
+Andreas.

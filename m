@@ -1,35 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271993AbRIDQhg>; Tue, 4 Sep 2001 12:37:36 -0400
+	id <S271995AbRIDQoR>; Tue, 4 Sep 2001 12:44:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271994AbRIDQh3>; Tue, 4 Sep 2001 12:37:29 -0400
-Received: from are.twiddle.net ([64.81.246.98]:25477 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S271993AbRIDQhS>;
-	Tue, 4 Sep 2001 12:37:18 -0400
-Date: Tue, 4 Sep 2001 09:37:25 -0700
-From: Richard Henderson <rth@twiddle.net>
-To: David Mosberger <davidm@hpl.hp.com>
-Cc: Paul Mackerras <paulus@samba.org>, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org, davem@redhat.com
-Subject: Re: [PATCH] avoid unnecessary cache flushes
-Message-ID: <20010904093725.A18163@twiddle.net>
-Mail-Followup-To: David Mosberger <davidm@hpl.hp.com>,
-	Paul Mackerras <paulus@samba.org>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org, davem@redhat.com
-In-Reply-To: <15247.29338.3671.548678@cargo.ozlabs.ibm.com> <20010903131436.A16069@twiddle.net> <15251.59286.154267.431231@napali.hpl.hp.com> <20010903134125.B16069@twiddle.net> <15251.61303.411698.310497@napali.hpl.hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <15251.61303.411698.310497@napali.hpl.hp.com>; from davidm@hpl.hp.com on Mon, Sep 03, 2001 at 02:00:39PM -0700
+	id <S271998AbRIDQoH>; Tue, 4 Sep 2001 12:44:07 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:47882 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S271997AbRIDQn5>; Tue, 4 Sep 2001 12:43:57 -0400
+Date: Tue, 4 Sep 2001 09:44:10 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Simon Hay <simon@haywired.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Multiple monitors
+In-Reply-To: <3B93CF91.A6D59DA8@haywired.org>
+Message-ID: <Pine.LNX.4.10.10109040941490.22429-100000@transvirtual.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 03, 2001 at 02:00:39PM -0700, David Mosberger wrote:
-> I didn't think there was any path where the kernel would on its own
-> update code after the fact, but I could be missing something.
 
-ptrace?
+> Apologies in advance if this is a question that's already been answered
+> somewhere...  I'm looking for a way to install multiple (or rather, two)
+> PCI/AGP cards in a machine and connect a monitor to each one, and use
+> them both *in console mode* - preferably with some nice way to say
+> 'assign virtual console 2 to the first screen, and 5 to the second' -
+> that way you could have one tailing log files, showing 'top', whatever. 
+> A quick search of the web/newsgroups turned up various patches that
+> looked ideal, but a closer inspection revealed that they either relied
+> on you having a Hercules mono card, or only applied against kernel
+> <0.99, or both...  I was just wondering if anyone's thought
+> about/written a similar patch for more recent hardware/versions?  I was
+> using a console Linux machine running BB (ASCII art demo -
+> http://aa-project.sourceforge.net/) just to attract attention to our
+> stand today and was thinking it would be really neat to have one machine
+> driving several screens...
 
+Hi!
 
-r~
+  Tkae a look at the linux console project.
+
+http://www.sf.net/projects/linuxconsole. 
+
+  I pretty much have rewritten the console system. I have been running a
+multidesktop system for some time now. It needs some more work but the
+core of it is their.  
+

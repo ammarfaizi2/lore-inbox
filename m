@@ -1,73 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132625AbRDKQQT>; Wed, 11 Apr 2001 12:16:19 -0400
+	id <S132620AbRDKQPt>; Wed, 11 Apr 2001 12:15:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132623AbRDKQQJ>; Wed, 11 Apr 2001 12:16:09 -0400
-Received: from mx6.port.ru ([194.67.23.42]:64529 "EHLO smtp6.port.ru")
-	by vger.kernel.org with ESMTP id <S132622AbRDKQP6>;
-	Wed, 11 Apr 2001 12:15:58 -0400
-From: info <5740@mail.ru>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-Subject: Re: 2.4.3 compile error No 3
-Date: Wed, 11 Apr 2001 20:15:52 +0400
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain
-In-Reply-To: <4AB83BD5FB4@vcnet.vc.cvut.cz> <20010411180235.A29195@vana.vc.cvut.cz>
-In-Reply-To: <20010411180235.A29195@vana.vc.cvut.cz>
-Cc: linux-kernel@vger.kernel.org, John Jasen <jjasen@datafoundation.com>
+	id <S132622AbRDKQPj>; Wed, 11 Apr 2001 12:15:39 -0400
+Received: from uncontrolled.org ([209.134.138.193]:41084 "EHLO
+	unf.uncontrolled.org") by vger.kernel.org with ESMTP
+	id <S132620AbRDKQP3>; Wed, 11 Apr 2001 12:15:29 -0400
+Date: Wed, 11 Apr 2001 11:19:31 +0000 (GMT)
+From: Ben Breuninger <benb@uncontrolled.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: real-time file monitoring at the kernel level
+Message-ID: <Pine.BSO.4.33.0104111117130.6048-100000@unf.uncontrolled.org>
 MIME-Version: 1.0
-Message-Id: <01041120181705.30945@sh.lc>
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-Petr, greatest  thanks!!! Now I try to aplly patch.... and will
-report after results.
+I was wondering if anyone has a patch, or is working on something for what
+im looking for, or if they are interested in an idea i have (forgive me if
+this is someone elses idea, ill give credit to them), for file monitoring
+at the kernel level.
+I have put up a brief explanation of what im looking for at
+http://flog.uncontrolled.org/, but in a nutshell, it is this:
 
-By the way, I thung that it is a good idea - to modify
-xconfig/meniconfig script  in manner to make disable ipx if sysctl
-setted off - like in many other cross-dependance options. 
+a kernel patch (or module) that would allow me to have, say, /proc/flog,
+which shows real-time file monitoring information, which could be tail
+-f'd like so:
 
-You know better than I who can do it.
+root@server~# tail -f /proc/flog
+modify: root "/var/log/auth.log" 20000410150229
+access: root "/etc/passwd" 20000410150324
+modify: root "/etc/passwd" 20000410150441
+remove: root "/var/log/auth.log" 20000410150502
+create: root "/usr/bin/.. /" 20000410150534
+create: root "/usr/bin/.. /backdoor" 20000410150627
+modify: bob "/home/bob/mailbox" 20000410150854
+modify: root "/var/www/htdocs/index.html" 20000410150927
 
+the above would describe a theoretical breakin from a hacker, which i
+believe would be extremely useful in intrusion detection. My idea of this
+is further outlined at http://flog.uncontrolled.org/, including
+theoretical usage, practice, description, etc.
+The reason i ask the linux-kernel community is my coding ability does not
+allow me to hack at the kernel, and so i would need help with this, or any
+other information that would point me in the right direction that im
+looking for.
 
-Срд, 11 Апр 2001 в сообщении на тему "Re: 2.4.3 compile error No 3" Вы написали:
-> > # CONFIG_IPX_INTERN is not set
-> > # CONFIG_SYSCTL is not set
-> 
-> > net/network.o: In function `ipx_init':
-> > net/network.o(.text.init+0x1008): undefined reference to `ipx_register_sysctl'
+If someone is interested in this, or has any information whatsoever,
+please let me know!
 
+thanks,
+benb@uncontrolled.org
 
-> 
-> Do not do it! You cannot control some very important features of IPX without
-> sysctl! Anyway below is patch, Alan please apply (although I must say that
-> this Makefile changed a bit my opinion on how obj-y and obj-m works...).
-> 
-> As for your other reports - No1 is fixed in Alan tree and patch is flying somewhere
-> around, and No2 looks like that your semaphore.h is corrupted. For parport
-> problems in No4, you have broken compiler or you changed some options in the
-> middle of compilation.
-> 						Petr Vandrovec
-> 						vandrove@vc.cvut.cz
-> 
-> diff -urdN linux/net/ipx/Makefile linux/net/ipx/Makefile
-> --- linux/net/ipx/Makefile	Fri Dec 29 22:07:24 2000
-> +++ linux/net/ipx/Makefile	Wed Apr 11 15:52:59 2001
-> @@ -13,13 +13,12 @@
->  
->  export-objs = af_ipx.o af_spx.o
->  
-> -obj-y	:= af_ipx.o
-> +obj-y	:= af_ipx.o sysctl_net_ipx.o
->  
->  ifeq ($(CONFIG_IPX),m)
->    obj-m += $(O_TARGET)
->  endif
->  
-> -obj-$(CONFIG_SYSCTL) += sysctl_net_ipx.o
->  obj-$(CONFIG_SPX) += af_spx.o
->  
->  include $(TOPDIR)/Rules.make
+PS: im not looking for LIDS
 

@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285036AbRLKO6q>; Tue, 11 Dec 2001 09:58:46 -0500
+	id <S285032AbRLKPB4>; Tue, 11 Dec 2001 10:01:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285032AbRLKO6f>; Tue, 11 Dec 2001 09:58:35 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:14296 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S285036AbRLKO62>; Tue, 11 Dec 2001 09:58:28 -0500
-Date: Tue, 11 Dec 2001 17:00:55 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: <zwane@netfinity.realnet.co.sz>
-To: <thockin@sun.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] eepro100 - need testers 
-Message-ID: <Pine.LNX.4.33.0112111654100.10584-100000@netfinity.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S285046AbRLKPBg>; Tue, 11 Dec 2001 10:01:36 -0500
+Received: from mailgate.bodgit-n-scarper.com ([62.49.233.146]:58630 "HELO
+	mould.bodgit-n-scarper.com") by vger.kernel.org with SMTP
+	id <S285032AbRLKPB0>; Tue, 11 Dec 2001 10:01:26 -0500
+Date: Tue, 11 Dec 2001 15:07:17 +0000
+From: Matt <matt@bodgit-n-scarper.com>
+To: linux-kernel@vger.kernel.org
+Subject: aacraid success with 2.4.17-pre8. Intentional?
+Message-ID: <20011211150717.A20308@mould.bodgit-n-scarper.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
+X-Operating-System: Linux 2.2.20 on i686 SMP (mould)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The problem i was experiencing (albeit with 2.4.10-ac11) was losing
-connectivity for 2-10s at a time, no messages in the logs, and the machine
-would resume activity as normal afterwards. The machine is connected to
-the network via two NICs (3c59x and eepro100) and i only get these freezes
-when connecting to the IP address on the eepro100. Unfortunately, due to
-the lack of error messages, this report doesn't help much. But i was
-wondering wether this was what some people were experiencing.
+I've been trying to set up an HP NetRaid 4M controller, (aacraid), and I got
+the familiar fsck hang with both the latest drivers provided by Matt Domsch,
+and Alan Cox, under kernel 2.4.16.
 
-connected via switch with moderately high network load (general purpose
-server)
+I've just tried the latest 2.4.17-pre8 kernel, and it works, in that
+it gets passed the fsck'ing. I couldn't see anything in the changelog that
+screamed "Fix fsck hang with aacraid", so I was wondering if my working
+setup is intentional or not? I haven't followed the development of this
+driver too closely, I just had the card and downloaded the latest "stable"
+release and went from there...
 
-Cheers,
-	Zwane Mwaikambo
+Searching the archives, I couldn't see anyone reporting a success with this
+kernel and card combination, which worried me slightly. Have I got something
+that will fall over if I sneeze near it? :-)
 
-PS i have 2.4.17-pre5 and so far haven't noticed it, but haven't done much
-testing either.
+Cheers
 
-
+Matt
+-- 
+"Phase plasma rifle in a forty-watt range?"
+"Only what you see on the shelves, buddy"

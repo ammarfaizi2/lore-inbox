@@ -1,55 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267974AbTCFKLQ>; Thu, 6 Mar 2003 05:11:16 -0500
+	id <S267977AbTCFKQw>; Thu, 6 Mar 2003 05:16:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268044AbTCFKLQ>; Thu, 6 Mar 2003 05:11:16 -0500
-Received: from packet.digeo.com ([12.110.80.53]:43232 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267974AbTCFKLP>;
-	Thu, 6 Mar 2003 05:11:15 -0500
-Date: Thu, 6 Mar 2003 02:21:40 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Alex Tomas <bzzz@tmi.comex.ru>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.64-mm1
-Message-Id: <20030306022140.7c816f32.akpm@digeo.com>
-In-Reply-To: <m365qw3jcx.fsf@lexa.home.net>
-References: <20030305230712.5a0ec2d4.akpm@digeo.com>
-	<m365qw3jcx.fsf@lexa.home.net>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S267980AbTCFKQw>; Thu, 6 Mar 2003 05:16:52 -0500
+Received: from ns.suse.de ([213.95.15.193]:29700 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S267977AbTCFKQt>;
+	Thu, 6 Mar 2003 05:16:49 -0500
+Date: Thu, 6 Mar 2003 11:27:20 +0100
+From: Andi Kleen <ak@suse.de>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: Andi Kleen <ak@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Better CLONE_SETTLS support for Hammer
+Message-ID: <20030306102720.GA23747@wotan.suse.de>
+References: <3E664836.7040405@redhat.com> <20030305190622.GA5400@wotan.suse.de> <3E6650D4.8060809@redhat.com> <20030305212107.GB7961@wotan.suse.de> <3E668267.5040203@redhat.com> <20030306010517.GB17865@wotan.suse.de> <3E66CB1A.6020107@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 06 Mar 2003 10:21:40.0692 (UTC) FILETIME=[2D8D2940:01C2E3CA]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E66CB1A.6020107@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Tomas <bzzz@tmi.comex.ru> wrote:
->
+On Wed, Mar 05, 2003 at 08:14:18PM -0800, Ulrich Drepper wrote:
 > 
-> As far as I understand this isn't error path. 
+> > It should already work on the current kernel, modulo clone.
+> > (but arch_prctl, set_thread_area in 2.5, ldt in 2.4 etc.)
 > 
-> 	lock_kernel();
-> 
-> 	sb = inode->i_sb;
-> 
-> 	if (is_dx(inode)) {
-> 		err = ext3_dx_readdir(filp, dirent, filldir);
-> 		if (err != ERR_BAD_DX_DIR)
-> 			return err;
-> 		/*
-> 		 * We don't set the inode dirty flag since it's not
-> 		 * critical that it get flushed back to the disk.
-> 		 */
-> 		EXT3_I(filp->f_dentry->d_inode)->i_flags &= ~EXT3_INDEX_FL;
-> 	}
-> 
-> So, if ext3_dx_readdir() returns 0 (OK path), then ext3_readdir() finish
-> w/o unlock_kernel(). The remain part of ext3_readdir() gets used if
-> ext3_dx_readdir() can't use HTree and returns ERR_BAD_DX_DIR.
-> 
+> I cannot confirm this.  I wasted a lot of time on getting it to work.
+> Without avail.
 
-hm, yes, it does look that way.
+We're using %fs enabled glibc (currently with arch_prctl, but I would
+like to change that because it's slow) 
 
-It could be that any task which travels that path ends up running under
-lock_kernel() for the rest of its existence, and nobody noticed.
+> And the problem is?  Nobody must mug around with the segment registers
+> without knowing what s/he does.
 
+It's hardcoding the magic fs register in the kernel for once.
+
+> You don't need two interface.  Make prctl() do it automatically.  It has
+> all the info it needs.  Forget about the set_thread_area syscall in
+> 64-bit mode and simply use one fixed GDT entry in case the address
+> passed to pcrtl() is small enough.  Same for clone(): the SETTLS
+> parameter shole be a simple address.  Treat it as passed to prctl() and
+> use a segment or the MSR.
+
+I had some code like this for some time - not in prctl, but in set_thread_area,
+but I removed it because the selector messing looked too ugly.
+
+But that was before prctl reloaded the selector forcefully to zero.
+That was later changed to fix another bug.
+
+Now with it getting reloaded it would make sense to set it in the GDT
+too if possible, I agree. I'll implement that.
+
+It will also transparent speed up the glibcs already using arch_prctl.
+I like that.
+
+I can do a similar thing in clone. It unfortuately also hardcodes fs there,
+but I guess that ugly hack will be needed to get the broken NPTL design for this
+to work.
+
+You just have to guarantee from user space that you don't do nasty
+things with the selector.
+
+> 
+> - - have prctl() return the index and expect the user to load it.  This is
+>   slightly binary incompatible (existing code depends on no such
+>   requirement).  It could be solved by introducing ARCH_SET_FS_AUTO or
+>   so;
+> 
+> - - automatically load the %fs or %gs register with the correct value
+>   before returning from prctl().  This introduces no binary
+>   incompatibilities and it's really the expected behavior.
+
+It's already done (set to zero) to not confuse the lazy switch logic.
+
+> 
+> 
+> If you don't want to do the work help me to get 2.5 running on my
+> machine and I'll come up with a patch.
+
+2.5.64 currently doesn't boot (known issue); 2.5.63 works however.
+I'll look into the .64 problems later today and put a fix onto the
+usual place when done (ftp://ftp.x86-64.org/pub/linux/v2.5/) 
+
+-Andi

@@ -1,62 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289217AbSAGOcA>; Mon, 7 Jan 2002 09:32:00 -0500
+	id <S289219AbSAGOeV>; Mon, 7 Jan 2002 09:34:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289218AbSAGObv>; Mon, 7 Jan 2002 09:31:51 -0500
-Received: from jalon.able.es ([212.97.163.2]:35472 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S289217AbSAGObc>;
-	Mon, 7 Jan 2002 09:31:32 -0500
-Date: Mon, 7 Jan 2002 15:35:33 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Davide Libenzi <davidel@xmailserver.org>, Jens Axboe <axboe@suse.de>,
-        Matthias Hanisch <mjh@vr-web.de>, Mikael Pettersson <mikpe@csd.uu.se>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] 2.5.2 scheduler code for 2.4.18-pre1 ( was 2.5.2-pre performance degradation on an old 486 )
-Message-ID: <20020107153533.A12242@werewolf.able.es>
-In-Reply-To: <20020106112129.D8673@suse.de> <Pine.LNX.4.40.0201061554410.933-100000@blue1.dev.mcafeelabs.com> <20020107023854.F1561@athlon.random>
+	id <S289223AbSAGOeQ>; Mon, 7 Jan 2002 09:34:16 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:48389 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S289219AbSAGOd4>;
+	Mon, 7 Jan 2002 09:33:56 -0500
+Date: Mon, 7 Jan 2002 15:33:48 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Petro <petro@auctionwatch.com>
+Cc: andihartmann@freenet.de, linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Message-Id: <20020107153348.08a4a23f.skraw@ithnet.com>
+In-Reply-To: <20020107071531.GC20760@auctionwatch.com>
+In-Reply-To: <200201040019.BAA30736@webserver.ithnet.com>
+	<3C360D6E.9020207@athlon.maya.org>
+	<20020105092442.GC26154@auctionwatch.com>
+	<20020105164405.5d9f5232.skraw@ithnet.com>
+	<20020107071531.GC20760@auctionwatch.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20020107023854.F1561@athlon.random>; from andrea@suse.de on Mon, Jan 07, 2002 at 02:38:54 +0100
-X-Mailer: Balsa 1.3.0
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 6 Jan 2002 23:15:31 -0800
+Petro <petro@auctionwatch.com> wrote:
 
-On 20020107 Andrea Arcangeli wrote:
->
->yes please (feel free to CC me on the answers), I'd really like to
->reduce the scheduler O(N) overhead to the number of the running tasks,
->rather than doing the recalculate all over the processes in the machine.
->O(1) scheduler would be even better of course, but the below would
->ensure not to hurt the 1 task running case, and it's way simpler to
->check for correctness (so it's easier to include it as a start).
->
+> On Sat, Jan 05, 2002 at 04:44:05PM +0100, Stephan von Krawczynski wrote:
+> > On Sat, 5 Jan 2002 01:24:42 -0800
+> > Petro <petro@auctionwatch.com> wrote:
+> > 
+> > > "We" (Auctionwatch.com) are experiencing problems that appear to be
+> > > related to VM, I realize that this question was not directed at me:
+> > 
+> > And how exactly do the problems look like?
+> 
+>     After some time, ranging from 1 to 48 hours, mysql quits in an
+>     unclean fashion (dies leaving tables improperly closed) with a dump
+>     in the mysql log file that looks like: 
 
-It looks like you all are going to turn the scheduler upside-down.
-Hmm, as a non-kernel-hacker observer from the world outside, could I
-make a suggestion ?
-Is it easy to split the thing in steps:
-- Move from single-queue to per-cpu-queue, with just the same algorithm
-  that is running now for per-queue scheduling.
-- Get that running for 2.18.18 and 2.5.2
-- Then start to play with the per-queue scheduling algorithm:
-	* better O(n)
-	* O(1)
-	* O(1) with different queues for RT and non RT
-	etc...
+mysql question: is this a binary from some distro or self-compiled? If
+self-compiled can you show your ./configure paras, please?
 
-Is it easy enough or are both steps so related that can not be split ?
 
-Thanks.
+>     Which the Mysql support team says appears to be memory corruption.
+>     Since this has happened on 4 different machines, and one of them had
+>     memtest86 run on it (coming up clean), they seem (witness Sasha's
+>     post) to think this may have something to do with the memory
+>     handling in the kernel. 
 
-(a linux user that tries experimental kernels and is seeing them grow
-like mushrooms in latest weeks...)
+There is a big difference between memory _corruption_ and a VM deficiency. No
+app can cope with a _corruption_ and is perfectly allowed to core dump or exit
+(or trash your disk). But this should not happen on allocation failures.
 
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.2 (Cooker) for i586
-Linux werewolf 2.4.18-pre1-beo #1 SMP Fri Jan 4 02:25:59 CET 2002 i686
+Unless all your RAM is from the same series I do not really believe in mem
+corruption. I would try Martins small VM patch, as it looks like being a bit
+more efficient in low mem conditions and this may well be the case you are
+running into. This means 2.4.17 standard + patch.
+
+Regards,
+Stephan
+

@@ -1,43 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268454AbRGXUkK>; Tue, 24 Jul 2001 16:40:10 -0400
+	id <S266013AbRGXU7i>; Tue, 24 Jul 2001 16:59:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268452AbRGXUkB>; Tue, 24 Jul 2001 16:40:01 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:8456 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S268449AbRGXUjt>; Tue, 24 Jul 2001 16:39:49 -0400
-Date: Tue, 24 Jul 2001 22:39:55 +0200
-From: Jan Kara <jack@suse.cz>
-To: kernel-list@kinkaid.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: dqblk or mem_dqblk for quotas?
-Message-ID: <20010724223955.A14114@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <web-233042@kinkaid.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <web-233042@kinkaid.org>; from kernel-list@kinkaid.org on Tue, Jul 24, 2001 at 10:45:22AM -0500
+	id <S266041AbRGXU72>; Tue, 24 Jul 2001 16:59:28 -0400
+Received: from hypnos.cps.intel.com ([192.198.165.17]:30427 "EHLO
+	hypnos.cps.intel.com") by vger.kernel.org with ESMTP
+	id <S266013AbRGXU7Q>; Tue, 24 Jul 2001 16:59:16 -0400
+Message-ID: <4148FEAAD879D311AC5700A0C969E89006CDDFAD@orsmsx35.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Hunt Kent'" <kenthunt@yahoo.com>, lk <linux-kernel@vger.kernel.org>
+Cc: "Acpi-linux (E-mail)" <acpi@phobos.fachschaften.tu-muenchen.de>
+Subject: RE: ACPI AC Adap. and Battery dead in presario laptops
+Date: Tue, 24 Jul 2001 13:59:08 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-  Hello,
+A known BIOS problem.
 
-> Recently, I've been trying to write a utility to edit quotas
-> (specifically on an ext2 filesystem), using the 2.4.x
-> kernel. The man page for quotactl() on my system (RH 7.1)
-> refer to the mem_dqblk struct, which is nowhere to be found
-> in the source to the 2.4 kernels.
-> 
-> Am I missing something, or should I just continue to use the
-> dqblk struct.
-  It depends on version of kernel. In RH 7.1 Alan's kernel is used
-and in it is new quota format -> mem_dqblk must be used.
-In standard Linus's kernel dqblk should be used.
+Sorry -- Andy
 
-							Honza
+> From: Hunt Kent [mailto:kenthunt@yahoo.com]
+> AC Adaptor and Battery status are not showing in /proc
+> for presario 1700 laptops running 2.4.7 kernels.
+> With 2.4.6 kernels the ac adaptor was there but 
+> battery wasn't.
 
---
-Jan Kara <jack@suse.cz>
-SuSE Labs

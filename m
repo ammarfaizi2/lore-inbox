@@ -1,142 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261439AbVCIDDI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261441AbVCIDGt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261439AbVCIDDI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 22:03:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261441AbVCIDDI
+	id S261441AbVCIDGt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 22:06:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261463AbVCIDGs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 22:03:08 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:28059 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261439AbVCIDC6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 22:02:58 -0500
-Subject: Re: [Alsa-devel] Re: intel 8x0 went silent in 2.6.11
-From: Lee Revell <rlrevell@joe-job.com>
-To: Mark Canter <marcus@vfxcomputing.com>
-Cc: Takashi Iwai <tiwai@suse.de>, Pierre Ossman <drzeus-list@drzeus.cx>,
-       Andrew Morton <akpm@osdl.org>, nish.aravamudan@gmail.com,
-       linux-kernel@vger.kernel.org, alsa-devel@lists.sourceforge.net
-In-Reply-To: <Pine.LNX.4.62.0503082050270.3821@krusty.vfxcomputing.com>
-References: <4227085C.7060104@drzeus.cx>
-	 <29495f1d05030309455a990c5b@mail.gmail.com>
-	 <Pine.LNX.4.62.0503031342270.19015@krusty.vfxcomputing.com>
-	 <1109875926.2908.26.camel@mindpipe>
-	 <Pine.LNX.4.62.0503031356150.19015@krusty.vfxcomputing.com>
-	 <1109876978.2908.31.camel@mindpipe>
-	 <Pine.LNX.4.62.0503031527550.30702@krusty.vfxcomputing.com>
-	 <20050303154929.1abd0a62.akpm@osdl.org> <4227ADE7.3080100@drzeus.cx>
-	 <4228D013.8010307@drzeus.cx> <s5hmztfwon1.wl@alsa2.suse.de>
-	 <422CB68A.1050900@drzeus.cx> <s5hekerurz8.wl@alsa2.suse.de>
-	 <422CFB6E.1020002@drzeus.cx> <s5h1xaquzf0.wl@alsa2.suse.de>
-	 <Pine.LNX.4.62.0503082050270.3821@krusty.vfxcomputing.com>
-Content-Type: multipart/mixed; boundary="=-FJZigvHJNOcnzt2N+89+"
-Date: Tue, 08 Mar 2005 22:02:52 -0500
-Message-Id: <1110337373.7123.4.camel@mindpipe>
+	Tue, 8 Mar 2005 22:06:48 -0500
+Received: from gate.crashing.org ([63.228.1.57]:16823 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261441AbVCIDGn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 22:06:43 -0500
+Subject: Re: [PATCH 2/2] No-exec support for ppc64
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Jake Moilanen <moilanen@austin.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Anton Blanchard <anton@samba.org>, Paul Mackerras <paulus@samba.org>
+In-Reply-To: <20050308171326.3d72363a.moilanen@austin.ibm.com>
+References: <20050308165904.0ce07112.moilanen@austin.ibm.com>
+	 <20050308171326.3d72363a.moilanen@austin.ibm.com>
+Content-Type: text/plain
+Date: Wed, 09 Mar 2005 14:02:01 +1100
+Message-Id: <1110337321.32556.26.camel@gaston>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2005-03-08 at 17:13 -0600, Jake Moilanen wrote:
 
---=-FJZigvHJNOcnzt2N+89+
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+> diff -puN arch/ppc64/kernel/iSeries_setup.c~nx-kernel-ppc64 arch/ppc64/kernel/iSeries_setup.c
+> --- linux-2.6-bk/arch/ppc64/kernel/iSeries_setup.c~nx-kernel-ppc64	2005-03-08 16:08:57 -06:00
+> +++ linux-2.6-bk-moilanen/arch/ppc64/kernel/iSeries_setup.c	2005-03-08 16:08:57 -06:00
+> @@ -624,6 +624,7 @@ static void __init iSeries_bolt_kernel(u
+>  {
+>  	unsigned long pa;
+>  	unsigned long mode_rw = _PAGE_ACCESSED | _PAGE_COHERENT | PP_RWXX;
+> +	unsigned long tmp_mode;
+>  	HPTE hpte;
+>  
+>  	for (pa = saddr; pa < eaddr ;pa += PAGE_SIZE) {
+> @@ -632,6 +633,12 @@ static void __init iSeries_bolt_kernel(u
+>  		unsigned long va = (vsid << 28) | (pa & 0xfffffff);
+>  		unsigned long vpn = va >> PAGE_SHIFT;
+>  		unsigned long slot = HvCallHpt_findValid(&hpte, vpn);
+> +
+> +		tmp_mode = mode_rw;
+> +
+> +		/* Make non-kernel text non-executable */
+> +		if (!is_kernel_text(ea))
+> +			tmp_mode = mode_rw | HW_NO_EXEC;
+>  
+>  		if (hpte.dw0.dw0.v) {
+>  			/* HPTE exists, so just bolt it */
 
-On Tue, 2005-03-08 at 20:53 -0500, Mark Canter wrote:
-> I think I've gone through every possible value here from asound.state to 
-> each setting in KDE itself.  Still, the only sound that works is the one 
-> coming from line-out, without the port replicator, no sound exists 
-> whatsoever.  Both of the below controls are set to false in asound.state 
-> and cooresponding KDE settings in kmix.
-> 
-> I think the concern becomes though, regardless of what kde was doing after 
-> the fact, this condition didn't exits in <= 2.6.10 when no other 
-> applications where changed around it.
+tmp_mode doesn't seem to be ever used here ...
 
-If you revert both the attached patches, does it work?
+>  /* Free memory returned from module_alloc */
+> diff -puN arch/ppc64/mm/fault.c~nx-kernel-ppc64 arch/ppc64/mm/fault.c
+> --- linux-2.6-bk/arch/ppc64/mm/fault.c~nx-kernel-ppc64	2005-03-08 16:08:57 -06:00
+> +++ linux-2.6-bk-moilanen/arch/ppc64/mm/fault.c	2005-03-08 16:08:57 -06:00
+> @@ -76,6 +76,21 @@ static int store_updates_sp(struct pt_re
+>  	return 0;
+>  }
+>  
+> +pte_t *lookup_address(unsigned long address) 
+> +{ 
+> +	pgd_t *pgd = pgd_offset_k(address); 
+> +	pmd_t *pmd;
+> +
+> +	if (pgd_none(*pgd))
+> +		return NULL;
+> +
+> +	pmd = pmd_offset(pgd, address); 	       
+> +	if (pmd_none(*pmd))
+> +		return NULL;
+> +
+> +        return pte_offset_kernel(pmd, address);
+> +} 
 
-They are against alsa CVS, so to back these patches out from your 2.6.11
-tree do this:
+Use find_linux_pte() here (asm-ppc64/pgtable.h). It will return NULL of
+the PTE is not present too, so no need to dbl check that. That way, I
+won't have to fix your copy of the function when I get the proper 4L
+headers patch in ;)
 
-  cd linux-2.6.11/sound/pci/ac97
-  patch -p0 -R < ac97-2.patch
-  patch -p0 -R < ac97.patch
+>  /*
+>   * The error_code parameter is
+>   *  - DSISR for a non-SLB data access fault,
+> @@ -94,6 +109,7 @@ int do_page_fault(struct pt_regs *regs, 
+>  	unsigned long is_write = error_code & 0x02000000;
+>  	unsigned long trap = TRAP(regs);
+>   	unsigned long is_exec = trap == 0x400;	
+> +	pte_t *ptep;
+>  
+>  	BUG_ON((trap == 0x380) || (trap == 0x480));
+>  
+> @@ -253,6 +269,15 @@ bad_area_nosemaphore:
+>  		info.si_addr = (void __user *) address;
+>  		force_sig_info(SIGSEGV, &info, current);
+>  		return 0;
+> +	} 
+> +
+> +	ptep = lookup_address(address);
+> +
+> +	if (ptep && pte_present(*ptep) && !pte_exec(*ptep)) {
+> +		if (printk_ratelimit())
+> +			printk(KERN_CRIT "kernel tried to execute NX-protected page - exploit attempt? (uid: %d)\n", current->uid);
+> +		show_stack(current, (unsigned long *)__get_SP());
+> +		do_exit(SIGKILL);
+>  	}
 
-Lee
-
-
-
-
-
---=-FJZigvHJNOcnzt2N+89+
-Content-Disposition: attachment; filename=ac97-2.patch
-Content-Type: text/x-patch; name=ac97-2.patch; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 7bit
-
-Index: ac97_patch.c
-===================================================================
-RCS file: /cvsroot/alsa/alsa-kernel/pci/ac97/ac97_patch.c,v
-retrieving revision 1.69
-retrieving revision 1.70
-diff -u -r1.69 -r1.70
---- ac97_patch.c	17 Jan 2005 13:47:20 -0000	1.69
-+++ ac97_patch.c	20 Jan 2005 11:43:19 -0000	1.70
-@@ -1113,6 +1113,7 @@
- 	switch (subid) {
- 	case 0x103c0890: /* HP nc6000 */
- 	case 0x103c006d: /* HP nx9105 */
-+	case 0x17340088: /* FSC Scenic-W */
- 		/* enable headphone jack sense */
- 		snd_ac97_update_bits(ac97, AC97_AD_JACK_SPDIF, 1<<11, 1<<11);
- 		break;
-
---=-FJZigvHJNOcnzt2N+89+
-Content-Disposition: attachment; filename=ac97.patch
-Content-Type: text/x-patch; name=ac97.patch; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 7bit
-
-Index: ac97_patch.c
-===================================================================
-RCS file: /cvsroot/alsa/alsa-kernel/pci/ac97/ac97_patch.c,v
-retrieving revision 1.68
-retrieving revision 1.69
-diff -u -r1.68 -r1.69
---- ac97_patch.c	11 Jan 2005 15:57:20 -0000	1.68
-+++ ac97_patch.c	17 Jan 2005 13:47:20 -0000	1.69
-@@ -1107,13 +1107,25 @@
- #endif
- };
+Can you try to limit to 80 columns ? (I know, I'm not the best for that
+neither, but I'm trying to cure myself here, I promise my next rewrite
+of radeonfb will be fully 80-columns safe :)
  
-+static void check_ad1981_hp_jack_sense(ac97_t *ac97)
-+{
-+	u32 subid = ((u32)ac97->subsystem_vendor << 16) | ac97->subsystem_device;
-+	switch (subid) {
-+	case 0x103c0890: /* HP nc6000 */
-+	case 0x103c006d: /* HP nx9105 */
-+		/* enable headphone jack sense */
-+		snd_ac97_update_bits(ac97, AC97_AD_JACK_SPDIF, 1<<11, 1<<11);
-+		break;
-+	}
-+}
-+
- int patch_ad1981a(ac97_t *ac97)
- {
- 	patch_ad1881(ac97);
- 	ac97->build_ops = &patch_ad1981a_build_ops;
- 	snd_ac97_update_bits(ac97, AC97_AD_MISC, AC97_AD198X_MSPLT, AC97_AD198X_MSPLT);
- 	ac97->flags |= AC97_STEREO_MUTES;
--	snd_ac97_update_bits(ac97, AC97_AD_JACK_SPDIF, 1<<11, 1<<11); /* HP jack sense */
-+	check_ad1981_hp_jack_sense(ac97);
- 	return 0;
- }
- 
-@@ -1144,7 +1156,7 @@
- 	ac97->build_ops = &patch_ad1981b_build_ops;
- 	snd_ac97_update_bits(ac97, AC97_AD_MISC, AC97_AD198X_MSPLT, AC97_AD198X_MSPLT);
- 	ac97->flags |= AC97_STEREO_MUTES;
--	snd_ac97_update_bits(ac97, AC97_AD_JACK_SPDIF, 1<<11, 1<<11); /* HP jack sense */
-+	check_ad1981_hp_jack_sense(ac97);
- 	return 0;
- }
 
---=-FJZigvHJNOcnzt2N+89+--
+
 

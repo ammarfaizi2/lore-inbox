@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132256AbRCVXfj>; Thu, 22 Mar 2001 18:35:39 -0500
+	id <S132263AbRCVXjj>; Thu, 22 Mar 2001 18:39:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132255AbRCVXfV>; Thu, 22 Mar 2001 18:35:21 -0500
-Received: from mailhost.mipsys.com ([62.161.177.33]:31683 "EHLO
-	mailhost.mipsys.com") by vger.kernel.org with ESMTP
-	id <S132251AbRCVXfC>; Thu, 22 Mar 2001 18:35:02 -0500
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: <frey@cxau.zko.dec.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: kernel_thread vs. zombie
-Date: Fri, 23 Mar 2001 00:33:55 +0100
-Message-Id: <20010322233355.8870@mailhost.mipsys.com>
-In-Reply-To: <007801c0b309$5bca3530$90600410@SCHLEPPDOWN>
-In-Reply-To: <007801c0b309$5bca3530$90600410@SCHLEPPDOWN>
-X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
+	id <S132257AbRCVXjb>; Thu, 22 Mar 2001 18:39:31 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:42762 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S132265AbRCVXjB>; Thu, 22 Mar 2001 18:39:01 -0500
+Subject: Re: [PATCH] Prevent OOM from killing init
+To: dwguest@win.tue.nl (Guest section DW)
+Date: Thu, 22 Mar 2001 23:40:03 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        stephenc@theiqgroup.com (Stephen Clouse),
+        riel@conectiva.com.br (Rik van Riel),
+        orourke@missioncriticallinux.com (Patrick O'Rourke),
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20010323002752.A5650@win.tue.nl> from "Guest section DW" at Mar 23, 2001 12:27:52 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14gEgX-0003Zr-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->daemonize() makes calls that are all protected with the
->big kernel lock in do_exit(). All usages of daemonize have
->the big kernel lock held. So I guess it just needs it.
->
->Please let me know whether you have success if it makes
->a difference with having it held.
+> > Even if malloc fails the situation is no different.
+> Why do you say so?
 
-With a bit more experiments, I have this behaviour:
+Because you will fail on other things - stack overflow, signal delivery,
+eventually it will get you. You just cut the odds down. 
 
-(I hold the kerne lock, daemonize(), and release the kernel lock, then do
-my probe thing which takes a few seconds, and let the thread die by itself)
+> > You can do overcommit avoidance in Linux if you are bored enough to try it.
+> 
+> Would you accept it as the default? Would Linus?
 
- - When started during boot (low PID (9)) It becomes a zombie
- - When started from a process that quits after sending the ioctl,
-   it is correctly "garbage collected".
- - When started from a process that stays around, it becomes a zombie too
-
-So something is not working, or I'm missing something obvious, or whatever...
-
-Any clue ?
-
-Ben.
-
-
-
+I'd like to have it there as an option. As to the default - You would have to
+see how much applications assume they can overcommit and rely on it. You might
+find you need a few Gbytes of swap just to boot
 

@@ -1,195 +1,382 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265895AbUA3ERS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 23:17:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266470AbUA3ERS
+	id S266561AbUA3Eoc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 23:44:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266563AbUA3Eoc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 23:17:18 -0500
-Received: from mail.shareable.org ([81.29.64.88]:12672 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S265895AbUA3ERN
+	Thu, 29 Jan 2004 23:44:32 -0500
+Received: from mail-03.iinet.net.au ([203.59.3.35]:41366 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S266561AbUA3EoU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 23:17:13 -0500
-Date: Fri, 30 Jan 2004 04:17:08 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] linux-2.6.2-rc2_vsyscall-gtod_B1.patch
-Message-ID: <20040130041708.GA2816@mail.shareable.org>
-References: <1075344395.1592.87.camel@cog.beaverton.ibm.com> <401894DA.7000609@redhat.com> <20040129132623.GB13225@mail.shareable.org> <40194B6D.6060906@redhat.com> <20040129191500.GA1027@mail.shareable.org> <4019A5D2.7040307@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4019A5D2.7040307@redhat.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 29 Jan 2004 23:44:20 -0500
+Message-ID: <4019E11C.9090402@cyberone.com.au>
+Date: Fri, 30 Jan 2004 15:44:12 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][CFT] mm swapping improvements
+References: <4019CF5D.4050608@cyberone.com.au>
+In-Reply-To: <4019CF5D.4050608@cyberone.com.au>
+Content-Type: multipart/mixed;
+ boundary="------------000607040601010304080300"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Drepper wrote:
-> > As this is x86, can't the syscall routines in Glibc call directly
-> > without a PLT entry?
-> 
-> No, since this is just an ordinary jump through the PLT.  That the
-> target DSO is synthesized is irrelevant.  It's ld.so which needs the PIC
-> setup, not the called DSO.
+This is a multi-part message in MIME format.
+--------------000607040601010304080300
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I have not explained well.  Please read carefully, as I am certain no
-indirect jumps on the userspace side are needed, including the one
-currently in libc.
 
-It is possible to compile, assemble and link a shared library with
--fno-PIC on x86, and this does work.  I just tested it to make sure.
-Furthermore, the "prelink" program is effective on these libraries.
 
-If you assemble calls into the kernel in Glibc with the instruction
-"call __kernel_vsyscall", i.e. NOT "call __kernel_vsyscall@PLT", then
-the address in the instruction is patched at run time to be a direct
-(not indirect) jump to the kernel entry point.  The address is
-retrieved from the kernel vDSO.
+Nick Piggin wrote:
 
-Generally you do not use the non-PIC form of "call" in a shared
-library, because it causes the page containing the instruction to be
-dirtied in each instance of the program.  If done for all "call"
-instructions in a whole library this is wasteful in time and memory.
+> Hi list,
+>
+> Attached is a patchset against 2.6.2-rc2-mm1 which includes two of
+> Nikita's patches and one of my own, and backs out the RSS limit patch
+> due to some problems (discussion of these patches on linux-mm).
+> The patchset improves VM performance under swapping quite significantly
+> for kbuild - its now close 2.4 or better in some cases.
+>
+> I haven't done many other tests so I would like anyone who's had
+> swapping related slowdowns when moving from 2.4 to 2.6, and is
+> interested in helping improve it to test out the patch please.
+> I can make a patch against the -linus kernel if anyone would like.
+>
+> Some benchmarks: http://www.kerneltrap.org/~npiggin/vm/3/
+> Green is 2.6, red is 2.4, purple is 2.6 with this patch.
+>
 
-However, for the syscall stubs, if they are placed close together,
-then they may fit in one or two pages, and that keeps the dirtying to
-a minimum.  Even better is to place the stubs just after libc's PLT,
-so the dirty pages are the same.
+OK here is the patch for 2.6.2-rc2. Only compile tested but there
+isn't much difference between -linus and -mm in this area so it
+should be fine.
 
-This converts the indirect jump in libc to the kernel entry point to a
-direct jump.
 
-> > With prelinking, because the vdso is always
-> > located at the same address, there isn't even a dirty page overhead to
-> > using non-PIC in this case.
-> 
-> But this isn't true.  The address can change.  There are already two
-> flavors (normal and 4G/4G) and there will probably be more.  Ingo would
-> have to comment on that.
+--------------000607040601010304080300
+Content-Type: text/plain;
+ name="vm-swap-1-linus"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="vm-swap-1-linus"
 
-I'm talking about the "prelink" program.  When you run "prelink" on a
-libc.so which has direct jump instructions as described above, is
-patches the libc.so file to contain the address of the kernel entry
-point at the time "prelink" was run.
+ linux-2.6-npiggin/include/linux/mmzone.h |    6 +
+ linux-2.6-npiggin/mm/page_alloc.c        |   20 ++++
+ linux-2.6-npiggin/mm/vmscan.c            |  152 +++++++++++++++++++------------
+ 3 files changed, 124 insertions(+), 54 deletions(-)
 
-If this libc.so is loaded onto a kernel with the same address for
-__kernel_vsyscall, then the run time linker does not need to alter the
-address, and does not dirty the pages containing direct jumps to that
-address.
+diff -puN include/linux/mmzone.h~rollup include/linux/mmzone.h
+--- linux-2.6/include/linux/mmzone.h~rollup	2004-01-30 15:40:02.000000000 +1100
++++ linux-2.6-npiggin/include/linux/mmzone.h	2004-01-30 15:40:02.000000000 +1100
+@@ -149,6 +149,12 @@ struct zone {
+ 	unsigned long		zone_start_pfn;
+ 
+ 	/*
++	 * dummy page used as place holder during scanning of
++	 * active_list in refill_inactive_zone()
++	 */
++	struct page *scan_page;
++
++	/*
+ 	 * rarely used fields:
+ 	 */
+ 	char			*name;
+diff -puN mm/page_alloc.c~rollup mm/page_alloc.c
+--- linux-2.6/mm/page_alloc.c~rollup	2004-01-30 15:40:02.000000000 +1100
++++ linux-2.6-npiggin/mm/page_alloc.c	2004-01-30 15:40:02.000000000 +1100
+@@ -1230,6 +1230,9 @@ void __init memmap_init_zone(struct page
+ 	memmap_init_zone((start), (size), (nid), (zone), (start_pfn))
+ #endif
+ 
++/* dummy pages used to scan active lists */
++static struct page scan_pages[MAX_NUMNODES][MAX_NR_ZONES];
++
+ /*
+  * Set up the zone data structures:
+  *   - mark all pages reserved
+@@ -1252,6 +1255,7 @@ static void __init free_area_init_core(s
+ 		struct zone *zone = pgdat->node_zones + j;
+ 		unsigned long size, realsize;
+ 		unsigned long batch;
++		struct page *scan_page;
+ 
+ 		zone_table[NODEZONE(nid, j)] = zone;
+ 		realsize = size = zones_size[j];
+@@ -1306,6 +1310,22 @@ static void __init free_area_init_core(s
+ 		atomic_set(&zone->refill_counter, 0);
+ 		zone->nr_active = 0;
+ 		zone->nr_inactive = 0;
++
++		/* initialize dummy page used for scanning */
++		scan_page = &scan_pages[nid][j];
++		zone->scan_page = scan_page;
++		memset(scan_page, 0, sizeof *scan_page);
++		scan_page->flags =
++			(1 << PG_locked) |
++			(1 << PG_error) |
++			(1 << PG_lru) |
++			(1 << PG_active) |
++			(1 << PG_reserved);
++		set_page_zone(scan_page, j);
++		page_cache_get(scan_page);
++		INIT_LIST_HEAD(&scan_page->list);
++		list_add(&scan_page->lru, &zone->active_list);
++
+ 		if (!size)
+ 			continue;
+ 
+diff -puN mm/vmscan.c~rollup mm/vmscan.c
+--- linux-2.6/mm/vmscan.c~rollup	2004-01-30 15:40:02.000000000 +1100
++++ linux-2.6-npiggin/mm/vmscan.c	2004-01-30 15:40:02.000000000 +1100
+@@ -43,14 +43,15 @@
+ int vm_swappiness = 60;
+ static long total_memory;
+ 
++#define lru_to_page(_head) (list_entry((_head)->prev, struct page, lru))
++
+ #ifdef ARCH_HAS_PREFETCH
+ #define prefetch_prev_lru_page(_page, _base, _field)			\
+ 	do {								\
+ 		if ((_page)->lru.prev != _base) {			\
+ 			struct page *prev;				\
+ 									\
+-			prev = list_entry(_page->lru.prev,		\
+-					struct page, lru);		\
++			prev = lru_to_page(&(_page)->lru);		\
+ 			prefetch(&prev->_field);			\
+ 		}							\
+ 	} while (0)
+@@ -64,8 +65,7 @@ static long total_memory;
+ 		if ((_page)->lru.prev != _base) {			\
+ 			struct page *prev;				\
+ 									\
+-			prev = list_entry(_page->lru.prev,		\
+-					struct page, lru);		\
++			prev = lru_to_page(&(_page)->lru);		\
+ 			prefetchw(&prev->_field);			\
+ 		}							\
+ 	} while (0)
+@@ -260,7 +260,7 @@ shrink_list(struct list_head *page_list,
+ 		int may_enter_fs;
+ 		int referenced;
+ 
+-		page = list_entry(page_list->prev, struct page, lru);
++		page = lru_to_page(page_list);
+ 		list_del(&page->lru);
+ 
+ 		if (TestSetPageLocked(page))
+@@ -504,8 +504,7 @@ shrink_cache(const int nr_pages, struct 
+ 
+ 		while (nr_scan++ < nr_to_process &&
+ 				!list_empty(&zone->inactive_list)) {
+-			page = list_entry(zone->inactive_list.prev,
+-						struct page, lru);
++			page = lru_to_page(&zone->inactive_list);
+ 
+ 			prefetchw_prev_lru_page(page,
+ 						&zone->inactive_list, flags);
+@@ -543,7 +542,7 @@ shrink_cache(const int nr_pages, struct 
+ 		 * Put back any unfreeable pages.
+ 		 */
+ 		while (!list_empty(&page_list)) {
+-			page = list_entry(page_list.prev, struct page, lru);
++			page = lru_to_page(&page_list);
+ 			if (TestSetPageLRU(page))
+ 				BUG();
+ 			list_del(&page->lru);
+@@ -564,6 +563,39 @@ done:
+ 	return ret;
+ }
+ 
++
++/* move pages from @page_list to the @spot, that should be somewhere on the
++ * @zone->active_list */
++static int
++spill_on_spot(struct zone *zone,
++	      struct list_head *page_list, struct list_head *spot,
++	      struct pagevec *pvec)
++{
++	struct page *page;
++	int          moved;
++
++	moved = 0;
++	while (!list_empty(page_list)) {
++		page = lru_to_page(page_list);
++		prefetchw_prev_lru_page(page, page_list, flags);
++		if (TestSetPageLRU(page))
++			BUG();
++		BUG_ON(!PageActive(page));
++		list_move(&page->lru, spot);
++		moved++;
++		if (!pagevec_add(pvec, page)) {
++			zone->nr_active += moved;
++			moved = 0;
++			spin_unlock_irq(&zone->lru_lock);
++			__pagevec_release(pvec);
++			spin_lock_irq(&zone->lru_lock);
++		}
++	}
++	return moved;
++}
++
++
++
+ /*
+  * This moves pages from the active list to the inactive list.
+  *
+@@ -590,37 +622,18 @@ refill_inactive_zone(struct zone *zone, 
+ 	int nr_pages = nr_pages_in;
+ 	LIST_HEAD(l_hold);	/* The pages which were snipped off */
+ 	LIST_HEAD(l_inactive);	/* Pages to go onto the inactive_list */
+-	LIST_HEAD(l_active);	/* Pages to go onto the active_list */
++	LIST_HEAD(l_ignore);	/* Pages to be returned to the active_list */
++	LIST_HEAD(l_active);	/* Pages to go onto the head of the
++				 * active_list */
++
+ 	struct page *page;
++	struct page *scan;
+ 	struct pagevec pvec;
+ 	int reclaim_mapped = 0;
+ 	long mapped_ratio;
+ 	long distress;
+ 	long swap_tendency;
+ 
+-	lru_add_drain();
+-	pgmoved = 0;
+-	spin_lock_irq(&zone->lru_lock);
+-	while (nr_pages && !list_empty(&zone->active_list)) {
+-		page = list_entry(zone->active_list.prev, struct page, lru);
+-		prefetchw_prev_lru_page(page, &zone->active_list, flags);
+-		if (!TestClearPageLRU(page))
+-			BUG();
+-		list_del(&page->lru);
+-		if (page_count(page) == 0) {
+-			/* It is currently in pagevec_release() */
+-			SetPageLRU(page);
+-			list_add(&page->lru, &zone->active_list);
+-		} else {
+-			page_cache_get(page);
+-			list_add(&page->lru, &l_hold);
+-			pgmoved++;
+-		}
+-		nr_pages--;
+-	}
+-	zone->nr_active -= pgmoved;
+-	spin_unlock_irq(&zone->lru_lock);
+-
+ 	/*
+ 	 * `distress' is a measure of how much trouble we're having reclaiming
+ 	 * pages.  0 -> no problems.  100 -> great trouble.
+@@ -652,10 +665,59 @@ refill_inactive_zone(struct zone *zone, 
+ 	if (swap_tendency >= 100)
+ 		reclaim_mapped = 1;
+ 
++	scan = zone->scan_page;
++	lru_add_drain();
++	pgmoved = 0;
++	spin_lock_irq(&zone->lru_lock);
++	if (reclaim_mapped) {
++		/*
++		 * When scanning active_list with !reclaim_mapped mapped
++		 * inactive pages are left behind zone->scan_page. If zone is
++		 * switched to reclaim_mapped mode reset zone->scan_page to
++		 * the end of inactive list so that inactive mapped pages are
++		 * re-scanned.
++		 */
++		list_move_tail(&scan->lru, &zone->active_list);
++	}
++	while (nr_pages && zone->active_list.prev != zone->active_list.next) {
++		/*
++		 * if head of active list reached---wrap to the tail
++		 */
++		if (scan->lru.prev == &zone->active_list)
++			list_move_tail(&scan->lru, &zone->active_list);
++		page = lru_to_page(&scan->lru);
++		prefetchw_prev_lru_page(page, &zone->active_list, flags);
++		if (!TestClearPageLRU(page))
++			BUG();
++		list_del(&page->lru);
++		if (page_count(page) == 0) {
++			/* It is currently in pagevec_release() */
++			SetPageLRU(page);
++			list_add(&page->lru, &zone->active_list);
++		} else {
++			page_cache_get(page);
++			list_add(&page->lru, &l_hold);
++			pgmoved++;
++		}
++		nr_pages--;
++	}
++	zone->nr_active -= pgmoved;
++	spin_unlock_irq(&zone->lru_lock);
++
+ 	while (!list_empty(&l_hold)) {
+-		page = list_entry(l_hold.prev, struct page, lru);
++		page = lru_to_page(&l_hold);
+ 		list_del(&page->lru);
+ 		if (page_mapped(page)) {
++
++			if (!reclaim_mapped) {
++				list_add(&page->lru, &l_ignore);
++				continue;
++			}
++
++			/*
++			 * probably it would be useful to transfer dirty bit
++			 * from pte to the @page here.
++			 */
+ 			pte_chain_lock(page);
+ 			if (page_mapped(page) && page_referenced(page)) {
+ 				pte_chain_unlock(page);
+@@ -663,10 +725,6 @@ refill_inactive_zone(struct zone *zone, 
+ 				continue;
+ 			}
+ 			pte_chain_unlock(page);
+-			if (!reclaim_mapped) {
+-				list_add(&page->lru, &l_active);
+-				continue;
+-			}
+ 		}
+ 		/*
+ 		 * FIXME: need to consider page_count(page) here if/when we
+@@ -684,7 +742,7 @@ refill_inactive_zone(struct zone *zone, 
+ 	pgmoved = 0;
+ 	spin_lock_irq(&zone->lru_lock);
+ 	while (!list_empty(&l_inactive)) {
+-		page = list_entry(l_inactive.prev, struct page, lru);
++		page = lru_to_page(&l_inactive);
+ 		prefetchw_prev_lru_page(page, &l_inactive, flags);
+ 		if (TestSetPageLRU(page))
+ 			BUG();
+@@ -711,23 +769,9 @@ refill_inactive_zone(struct zone *zone, 
+ 		spin_lock_irq(&zone->lru_lock);
+ 	}
+ 
+-	pgmoved = 0;
+-	while (!list_empty(&l_active)) {
+-		page = list_entry(l_active.prev, struct page, lru);
+-		prefetchw_prev_lru_page(page, &l_active, flags);
+-		if (TestSetPageLRU(page))
+-			BUG();
+-		BUG_ON(!PageActive(page));
+-		list_move(&page->lru, &zone->active_list);
+-		pgmoved++;
+-		if (!pagevec_add(&pvec, page)) {
++	pgmoved = spill_on_spot(zone, &l_active, &zone->active_list, &pvec);
+ 			zone->nr_active += pgmoved;
+-			pgmoved = 0;
+-			spin_unlock_irq(&zone->lru_lock);
+-			__pagevec_release(&pvec);
+-			spin_lock_irq(&zone->lru_lock);
+-		}
+-	}
++	pgmoved = spill_on_spot(zone, &l_ignore, &scan->lru, &pvec);
+ 	zone->nr_active += pgmoved;
+ 	spin_unlock_irq(&zone->lru_lock);
+ 	pagevec_release(&pvec);
 
-If this libc.so is loaded onto a kernel with a different vsyscall
-address, the run time linker patches the jumps as described above.  So
-it always works, but loads faster on the kernel it is optimised for.
+_
 
-> > If you have to use a PLT entry it is.  If you can do it without a PLT,
-> > direct jump to the optimised syscall address is fastest.
-> 
-> A direct jump is hardcoding the information which is exactly what should
-> be avoided.
-
-I think you misunderstood.  The direct jump is to an address resolved
-at load time by the run time linker, or at preprocessing time by
-"preload".  On x86 both of these work.
-
-> > Being Glibc, you could always tweak ld.so to only look at the last one
-> > if this were really a performance issue.  Btw, every syscall used by
-> > the program requires at least one symbol lookup, usually over the
-> > whole search path, anyway.
-> 
-> The symbol for the syscall stub in libc is looked up, yes, but nothing
-> else.  I fail to see the relevence.  You cannot say that since a call
-> already requires N ns it is OK for it to take 2*N ns.
-
-If you run "preload" it takes 0 ns: these addresses are fixed into
-ld.so and the symbols are not looked up at load time.
-
-However if you don't care to depend on that, other optimisations to
-ld.so are possible too.
-
-> > I hear what you're saying.  These are the things which bother me:
-> > 
-> >    1. There are already three indirect jumps to make a syscall.
-> >       (PLT to libc function, indirect jump to vsyscall entry, indirect
-> >       jump inside kernel).  Another is not necessary (in fact two of
-> >       those aren't necessary either), why add more?
-> 
-> Because they are all at different level and to abstract out different
-> things.
-
-The abstractions are good.  However indirect jumps are not required
-for three out of four of those abstractions, because ld.so and prelink
-can both resolve addresses in direct jumps; ld.so at load time, and
-prelink at preprocessing time.  This is nothing fancy.
-
-> >    2. Table makes the stub for all syscalls slower.
-> 
-> Not as much as any other acceptable solution.  The vdso code is compiled
-> for a given address and therefore the memory loads can use absolute
-> addresses.
-
-> For x86 we have to handle in the same binary old kernels and kernels
-> where the vDSO is at a different address than the stock kernel.  This
-> means the computation of the address consists of several step.  Get the
-> vDSO address (passed up in the auxiliary vector), adding the magic
-> offset, and then jumping.
-
-This is my thesis: system calls do not require _any_ indirect jumps in
-libc or in the user space part of the kernel stub, with no dirty
-pages, and the symbol table lookups can be eliminated.
-
-Because I am sure you don't agree :) this is how to implement it:
-
-  1. ld.so gets the vDSO address from the auxiliary vector, and then
-     includes the vDSO in the list of symbol tables to search.  If
-     there is no vDSO (due to running on an old kernel without one), then
-     it is simply omitted.
-
-  2. The vDSO offers __kernel_vsyscall, the general syscall entry point,
-     and may offer any other __kernel_* symbols for optimised
-     syscalls.  E.g. __kernel_gettimeofday is defined.
-
-  3. After the vDSO in the search list are weak aliases from
-     __kernel_* to __kernel_vsyscall (for each syscall mentioned in libc).
-
-  4. After the vDSO is a definition of __kernel_vsyscall, which
-     does int80.  It's exactly the same as the kernel's int80 stub.
-     This is the code which will be run if we're running on an old kernel
-     without a vDSO.
-
-One way to place the symbols from 3. and 4. after the vDSO in the
-search list is to arrange that ld.so places the vDSO before libc.so.
-There are a few other ways to do it.
-
-  5. Glib's syscall stubs should look a lot like this example:
-
-         movl 0x10(%esp),%edx
-         movl 0x0c(%esp),%ecx
-         movl 0x08(%esp),%ebx
-         movl $3,%eax
-         call __kernel_read
-
-1-5 together implement system calls using direct call instructions (a
-minor run time improvement over current Glibc, at the cost of some
-load time overhead) and also supports optimised system calls in a
-future compatible way.  Add to this:
-
-  6. Group all small routines in libc.so which call __kernel_*
-     together, and locate them as close as possible to the PLT section.
-
-That minimises the run time footprint.
-
-  7. Make "prelink" aware of the vDSO dependency.
-
-  8. Add the prelink signature to the kernel's vDSO object.
-
-  9. Run "prelink", even if only on libc.so or on a sub-library which
-     contains the system call stubs.
-
-That totally eliminates the load time symbol lookups for these kernel
-functions.
-
-Once these changes are made to Glibc, it will automatically take
-advantage of any future vsyscall optimisations in the kernel _and_
-system calls will be a little bit faster than they are now.
-
--- Jamie
+--------------000607040601010304080300--

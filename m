@@ -1,69 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266274AbSLIWUA>; Mon, 9 Dec 2002 17:20:00 -0500
+	id <S266250AbSLIWRf>; Mon, 9 Dec 2002 17:17:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266278AbSLIWT7>; Mon, 9 Dec 2002 17:19:59 -0500
-Received: from packet.digeo.com ([12.110.80.53]:46990 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S266274AbSLIWT6>;
-	Mon, 9 Dec 2002 17:19:58 -0500
-Message-ID: <3DF43855.19F24E73@digeo.com>
-Date: Sun, 08 Dec 2002 22:29:41 -0800
+	id <S266256AbSLIWRf>; Mon, 9 Dec 2002 17:17:35 -0500
+Received: from packet.digeo.com ([12.110.80.53]:18062 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S266250AbSLIWRe>;
+	Mon, 9 Dec 2002 17:17:34 -0500
+Message-ID: <3DF4EEC8.716AF196@digeo.com>
+Date: Mon, 09 Dec 2002 11:28:08 -0800
 From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.50 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Kingsley Cheung <kingsley@aurema.com>
-CC: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: Re: [TRIVIAL PATCH 2.4.20] madvise_willneed makes bad limit comparison
-References: <20021209150426.D12270@aurema.com>
+To: Ravikiran G Thirumalai <kiran@in.ibm.com>
+CC: dipankar@in.ibm.com, linux-kernel@vger.kernel.org,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [patch] kmalloc_percpu  -- 2 of 2
+References: <20021204174209.A17375@in.ibm.com> <20021204174550.B17375@in.ibm.com> <3DEE58CB.737259DB@digeo.com> <20021205091217.A11438@in.ibm.com> <3DEED6FA.B179FAFD@digeo.com> <20021205162329.A12588@in.ibm.com> <3DEFB0EB.9893DB9@digeo.com> <20021209110029.F17375@in.ibm.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 Dec 2002 06:29:42.0340 (UTC) FILETIME=[5BA0F040:01C29F4C]
+X-OriginalArrivalTime: 09 Dec 2002 19:28:08.0554 (UTC) FILETIME=[1AB39CA0:01C29FB9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kingsley Cheung wrote:
+Ravikiran G Thirumalai wrote:
 > 
-> Hi,
-> 
-> 'madvise_willneed' makes an incorrect rss limit comparison.  It
-> directly compares rlim[RLIMIT_RSS].rlim_cur to rss. The former is in
-> bytes, whereas the latter is in pages.  The fix for this is trivial.
-> 
+> ...
+> As for the object sizes
+> 1. We are assuming 32 bytes cachelines in this thread I suppose
+> But ppc64 has a 128 byte cacheline and s390 a 256 byte Jumbo cacheline.
+> I guess with larger cacheline sizes you have lesser no of cachelines --
+> makes cachelines all the more precious.  (Right now, I am speaking
+> in ignorance of the ppc64 and s390 cache architectures .. I
+> can just see L1_CACHE_SHIFT in the kernel sources).  So wouldn't
+> interlaced allocations help these archs .. even when you have 64
+> bytes big objects?
 
-It's surely a bug, but looking at the code, one does ask "what
-on earth is it trying to do"?
+You're assuming that the slab allocator always returns cachesize-padded
+objects.  It does not have to do that.  It can return 4-byte-sized and
+-aligned objects if you ask it to.
 
-1) -EIO is not a recognised (or appropriate) return value.
+> ...
+> Does this make a reasonable case for interlaced allocator now?
+> (Of course, blklist init in the patch has to be modified to create
+> blklists for objects of size 4, 8 .... SMP_CACHE_BYTES/2)
 
-2) If the MADV_WILLNEED call fails, all the user needs to do is to
-   use a smaller chunk, and walk across the file using that chunk
-   size!  The only system-protecting limit here is the request queue
-   size.
+Oh I can see the benefits, but they appear to be rather theoretical.
 
-3) We don't know that the application will try to map all that readahead
-   at the same time anyway.  And if it does, the rlimits will catch it.
+I'm just applying some pressure here against adding another allocator
+unless it is really needed.  On principle.
 
-Linus used "half the size of the inactive list" in sys_readahead. That's
-probably as good as anything else.  I'd suggest that we just share
-that bit of code in madvise.
+A slab cache of 4-byte objects will tend to give you what you want
+anyway, due to the batch filling and freeing of the head arrays.
+If that is proven to be insufficient then it would be better to
+put development effort into strengthening slab, rather than competely
+bypassing it.
 
-hmm.  Also the new readahead code will allocate all that memory up-front
-before putting it under I/O.   I'll fix up do_page_cache_readahead()
-for that.
-
-
-> [As an aside, one question is whether this limit check is needed at
-> all.  Most rss limit enforcement implementations that I've seen are
-> 'soft', whereas this would give the limit 'hard' semantics.  Do we
-> really want 'hard' limit semantics?]
-> 
-
-I agree that failing with an error is inappropriate.
-
-We should limit the readahead according to machine size, disk bandwidth,
-free memory availability, shoe size, etc.  And once that's done then
-it _has_ to return success.  Otherwise the application would see
-different results depending on system size and activity.
-
-It is just "advice".
+(And a really simple solution would be to create a separate slab cache
+per cpu...)

@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263234AbTEIMep (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 08:34:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263235AbTEIMep
+	id S262638AbTEIMbX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 08:31:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262657AbTEIMbX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 08:34:45 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:47885 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263234AbTEIMen (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 08:34:43 -0400
-Date: Fri, 9 May 2003 13:47:19 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: The disappearing sys_call_table export.
-Message-ID: <20030509134719.A22735@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Chuck Ebbert <76306.1226@compuserve.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <200305090843_MC3-1-381B-B2E9@compuserve.com>
+	Fri, 9 May 2003 08:31:23 -0400
+Received: from viefep14-int.chello.at ([213.46.255.13]:34118 "EHLO
+	viefep14-int.chello.at") by vger.kernel.org with ESMTP
+	id S262638AbTEIMbW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 08:31:22 -0400
+Message-Id: <5.2.0.9.2.20030509143954.01d3d3f8@pop.tvnet.hu>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Fri, 09 May 2003 14:45:33 +0100
+To: linux-kernel@vger.kernel.org
+From: Newsmail <newsmail@satimex.tvnet.hu>
+Subject: kernel patches for intel c compiler
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200305090843_MC3-1-381B-B2E9@compuserve.com>; from 76306.1226@compuserve.com on Fri, May 09, 2003 at 08:41:13AM -0400
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 09, 2003 at 08:41:13AM -0400, Chuck Ebbert wrote:
-> Christoph Hellwig wrote:
-> 
-> > You can have multiple mountspoints with the same path, only
-> > the topmost one will be seen by userland.
-> 
->   What keeps users from opening files before the upper layer
-> filesystems get mounted?
+hi everyone,
+at the bottom of this article 
+http://news.zdnet.co.uk/story/0,,t269-s2134430,00.html we can read:
 
-Nothing.  Why would we want to do such silly things?
+Version 7.0 of Intel's compiler has been used to build Linux kernels, but 
+only with special modifications to the kernel, the paper said. Intel hopes 
+to eliminate those modifications by modifying its compiler and by working 
+with the Linux programming community to change some features of the kernel. 
+For example, Intel programmers have submitted kernel patches to permit use 
+of the Intel compiler.
 
-> And how do you handle user-mountable
-> media like CD-ROMS?
+is there any patches availible publicly that we can use to build the kernel 
+with intel's compiler? where can I find one?
+regards,
+greg
 
-look at supermount for a stackable filesystem that does nothing but
-dealing with such media :)  It also shows how the underlying fs
-can be mounted without ever exposing it to userspace..
+ps: please cc me
+
+

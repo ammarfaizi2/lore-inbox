@@ -1,52 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261842AbVADU7m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261853AbVADVDw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261842AbVADU7m (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 15:59:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261869AbVADU7N
+	id S261853AbVADVDw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 16:03:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261832AbVADVDi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 15:59:13 -0500
-Received: from holomorphy.com ([207.189.100.168]:28811 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261842AbVADU6g (ORCPT
+	Tue, 4 Jan 2005 16:03:38 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:35263 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S261700AbVADVBp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 15:58:36 -0500
-Date: Tue, 4 Jan 2005 12:55:13 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Diego Calleja <diegocg@teleline.es>, Willy Tarreau <willy@w.ods.org>,
-       davidsen@tmr.com, aebr@win.tue.nl, solt2@dns.toxicfilms.tv,
-       linux-kernel@vger.kernel.org
-Subject: Re: starting with 2.7
-Message-ID: <20050104205513.GU2708@holomorphy.com>
-References: <20050103011935.GQ29332@holomorphy.com> <20050103053304.GA7048@alpha.home.local> <20050103142412.490239b8.diegocg@teleline.es> <20050103134727.GA2980@stusta.de> <20050104125738.GC2708@holomorphy.com> <20050104150810.GD3097@stusta.de> <20050104153445.GH2708@holomorphy.com> <20050104165301.GF3097@stusta.de> <20050104195725.GQ2708@holomorphy.com> <20050104203444.GL3097@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050104203444.GL3097@stusta.de>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Tue, 4 Jan 2005 16:01:45 -0500
+Message-Id: <200501042058.j04KwFED002211@laptop11.inf.utfsm.cl>
+To: Felipe Alfaro Solana <lkml@mac.com>
+cc: Horst von Brand <vonbrand@inf.utfsm.cl>, linux-kernel@vger.kernel.org,
+       Adrian Bunk <bunk@stusta.de>, Rik van Riel <riel@redhat.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
+       Andries Brouwer <aebr@win.tue.nl>,
+       William Lee Irwin III <wli@debian.org>
+Subject: Re: starting with 2.7 
+In-Reply-To: Message from Felipe Alfaro Solana <lkml@mac.com> 
+   of "Tue, 04 Jan 2005 15:27:04 BST." <B470A11D-5E5C-11D9-A816-000D9352858E@mac.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
+Date: Tue, 04 Jan 2005 17:58:15 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 04, 2005 at 09:34:44PM +0100, Adrian Bunk wrote:
-> <--  snip  -->
-> config BLK_DEV_UB
->         tristate "Low Performance USB Block driver"
->         depends on USB
->         help
->           This driver supports certain USB attached storage devices
->           such as flash keys.
-> 
->           If unsure, say N.
-> <--  snip  -->
-> Call me naive, but at least for me it wouldn't have been obvious that 
-> this option cripples the usb-storage driver.
-> The warning that this option cripples the usb-storage driver was added 
-> after people who accidentially enabled this option ("it can't harm") 
-> in 2.6.9 swamped the USB maintainers with bug reports about problems 
-> with their storage devices.
+Felipe Alfaro Solana <lkml@mac.com> said:
+> On 4 Jan 2005, at 14:27, Horst von Brand wrote:
+> > Felipe Alfaro Solana <lkml@mac.com> said:
 
-The "it can't harm" assumption was flawed. Minimal configs are best for
-a reason. Inappropriate options turned on can and always will be able
-to take down your box and/or render some devices inoperable.
+[...]
 
--- wli
+> >> I think new developments will force a 2.7 branch: when 2.6 feature set
+> >> stabilizes, people will keep more time testing a stable, relatively
+> >> static kernel base, finding bugs, instead of trying to keep up with
+> >> changes.
+
+> > And when 2.7 opens, very few developers will tend 2.6; and as 2.7 
+> > diverges from it, fewer and fewer fixes will find their way back. And
+> > so you finally get a rock-stable (== unchanging) 2.6, but hopelessly
+> > out of date and thus unfixable (if nothing else because there are no
+> > people around who remember how it worked).
+
+> I can see no easy solution for this... If Linus decides to fork off 
+> 2.7, development efforts will go into 2.7 and fixes should get 
+> backported to 2.6. If Linus decides to stay with 2.6, new development 
+> will have to be "conservative" enough not to break things that were 
+> working.
+
+Exactly.
+
+> I tend to prefer forking off 2.7: more agressive features can be 
+> implemented and tested without bothering disrupting the stable 2.6 
+> branch.
+
+Have any particular features in mind? If you have some, you can fork off
+your own BK repository and play there (wait... that is how (currently)
+out-of-tree drivers are developed!). Or you could start an unofficial
+experimental fork. If none of the above, I guess you'd just have to wait
+until Our Fearless Leader decides it is time for 2.7.
+
+Just forcing a 2.7 "because that'll stabilize 2.6" is nonsense. Because
+then 2.6 won't stabilize any faster (probably slower).
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

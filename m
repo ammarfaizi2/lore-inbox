@@ -1,77 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbUGXQHi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbUGXQZ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261239AbUGXQHi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jul 2004 12:07:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbUGXQHi
+	id S261405AbUGXQZ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jul 2004 12:25:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbUGXQZ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jul 2004 12:07:38 -0400
-Received: from gate.crashing.org ([63.228.1.57]:31171 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261239AbUGXQHf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jul 2004 12:07:35 -0400
-Subject: Re: device_suspend() levels [was Re: [patch] ACPI work on aic7xxx]
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Nathan Bryant <nbryant@optonline.net>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@ucw.cz>
-In-Reply-To: <410280E9.5040001@optonline.net>
-References: <40FD38A0.3000603@optonline.net>
-	 <20040720155928.GC10921@atrey.karlin.mff.cuni.cz>
-	 <40FD4CFA.6070603@optonline.net>
-	 <20040720174611.GI10921@atrey.karlin.mff.cuni.cz>
-	 <40FD6002.4070206@optonline.net> <1090347939.1993.7.camel@gaston>
-	 <40FD65C2.7060408@optonline.net> <1090350609.2003.9.camel@gaston>
-	 <40FD82B1.8030704@optonline.net> <1090356079.1993.12.camel@gaston>
-	 <40FD85A3.2060502@optonline.net> <1090357324.1993.15.camel@gaston>
-	 <410280E9.5040001@optonline.net>
-Content-Type: text/plain
-Message-Id: <1090684826.1963.6.camel@gaston>
+	Sat, 24 Jul 2004 12:25:26 -0400
+Received: from 30.Red-80-36-33.pooles.rima-tde.net ([80.36.33.30]:60882 "EHLO
+	linalco.com") by vger.kernel.org with ESMTP id S261405AbUGXQZY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jul 2004 12:25:24 -0400
+Date: Sat, 24 Jul 2004 18:21:11 +0200
+From: Ragnar Hojland Espinosa <ragnar.hojland@linalco.com>
+To: szonyi calin <caszonyi@yahoo.com>
+Cc: Paul Jackson <pj@sgi.com>, Adrian Bunk <bunk@fs.tum.de>, akpm@osdl.org,
+       corbet@lwn.net, linux-kernel@vger.kernel.org
+Subject: Re: New dev model (was [PATCH] delete devfs)
+Message-ID: <20040724162111.GA22206@linalco.com>
+References: <20040722152839.019a0ca0.pj@sgi.com> <20040723081637.93875.qmail@web52903.mail.yahoo.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 24 Jul 2004 12:00:26 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040723081637.93875.qmail@web52903.mail.yahoo.com>
+X-Edited-With-Muttmode: muttmail.sl - 2001-09-27
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-07-24 at 11:31, Nathan Bryant wrote:
-> Benjamin Herrenschmidt wrote:
-> 
-> >save_state is a nonsense, didn't we kill it ? 
+On Fri, Jul 23, 2004 at 10:16:37AM +0200, szonyi calin wrote:
+> Are you sure ? There are a number of distribution who use the
+>  stable kernel from kernel.org and some of them are much faster
+> (if you remember, compiling a kernel to suit your needs
+>  sometimes improve performance). 
+> One size _does not_ fit all.
 
-sysfs only takes care about the bus hierarchy as far as suspend/resume
-is concerned (which is the only sane way to do it imho)
+Right.  Aaaand if I remember correctly you may download the source
+for, say, a RHEL kernel for gratis from Redhat (or a whitebox distro)
+and make menuconfig it and compile it the same way you do vanilla
+kernels.
 
-> queue quiescing must be
-> >done by the upper level, which is a bit nasty with things like md &
-> >multipath... basically, the low level driver must have a way to notify
-> >it's functional parent (as opposed to it's bus parent) that it's going
-> >to sleep, and any path using this low level driver must then be
-> >quiesced, the parent must resume only when all the drivers it relies
-> >on are back up.
-> >
-> Isn't sysfs supposed to take care of this for us? IOW, I shouldn't have 
-> to call up to the SCSI midlayer from pcidev->suspend in order to notify 
-> it of a suspend, the midlayer should call the driver before we ever try 
-> to suspend. This may become important some day when the upper layers 
-> need to decide which order to bring pci devices down
+In fact, a single tree is far better for stable development in general.
+Vanilla things that break get spotted sooner, we avoid 2.x.0 the
+syndrome, and distro kernels in general may get more eyes from clueful
+people that otherwise would ignore them and leave the problems to
+less resourceful users.
 
-No, the ordering cannot be dictated by the upper layer, but by the
-physical bus hierarchy. The low level driver gets the suspend callback
-and need to notify the parent. The md/multipath must keep track that one
-of the device it relies on is going away and thus block the queues.
-
-That is at least for machine suspend/resume.
-
-> Looking in /sys/devices shows that sysfs already knows that 'host0' is a 
-> child of a SCSI PCI device.
-
-Yes, but the PM herarchy is the bus hierarchy, I don't see a simple way
-of going through both in this case ...
-
-> $ ls 
-> /sys/devices/pci0000\:00/0000\:00\:1e.0/0000\:02\:02.0/host0/0\:0\:0\:0/
-> block   detach_state    model  queue_depth  rev         state    type
-> delete  device_blocked  power  rescan       scsi_level  timeout  vendor
+"Dont Panic" :)
 -- 
-Benjamin Herrenschmidt <benh@kernel.crashing.org>
-
+Ragnar Hojland - Project Manager
+Linalco "Specialists in Linux and Free Software"
+http://www.linalco.com  Tel: +34-91-4561700

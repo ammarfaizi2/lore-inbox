@@ -1,46 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268527AbTBWTPR>; Sun, 23 Feb 2003 14:15:17 -0500
+	id <S268902AbTBWTWJ>; Sun, 23 Feb 2003 14:22:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268528AbTBWTPR>; Sun, 23 Feb 2003 14:15:17 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:18192 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S268527AbTBWTPQ>; Sun, 23 Feb 2003 14:15:16 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: object-based rmap and pte-highmem
-Date: Sun, 23 Feb 2003 19:20:36 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <b3b6u4$bt2$1@penguin.transmeta.com>
-References: <96700000.1045871294@w-hlinder> <20030222192424.6ba7e859.akpm@digeo.com> <11090000.1046016895@[10.10.2.4]>
-X-Trace: palladium.transmeta.com 1046028294 27760 127.0.0.1 (23 Feb 2003 19:24:54 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 23 Feb 2003 19:24:54 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S268920AbTBWTWJ>; Sun, 23 Feb 2003 14:22:09 -0500
+Received: from meg.hrz.tu-chemnitz.de ([134.109.132.57]:63725 "EHLO
+	meg.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S268902AbTBWTWI>; Sun, 23 Feb 2003 14:22:08 -0500
+Date: Sun, 23 Feb 2003 20:05:08 +0100
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Andrew Morton <akpm@digeo.com>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ak@suse.de: Re: iosched: impact of streaming read on read-many-files]
+Message-ID: <20030223200508.N21727@nightmaster.csn.tu-chemnitz.de>
+References: <20030222054307.GA22074@wotan.suse.de> <20030221230716.630934cf.akpm@digeo.com> <20030222145728.L629@nightmaster.csn.tu-chemnitz.de> <20030223154002.GG29467@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20030223154002.GG29467@dualathlon.random>; from andrea@suse.de on Sun, Feb 23, 2003 at 04:40:02PM +0100
+X-Spam-Score: -3.3 (---)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18n1rG-0000Mp-00*jhFzb/HOLo6*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <11090000.1046016895@[10.10.2.4]>,
-Martin J. Bligh <mbligh@aracnet.com> wrote:
->> So whole stole the remaining 1.85 seconds?   Looks like pte_highmem.
->
->I have a plan for that (UKVA) ... we reserve a per-process area with 
->kernel type protections (either at the top of user space, changing
->permissions appropriately, or inside kernel space, changing per-process
->vs global appropriately). 
+On Sun, Feb 23, 2003 at 04:40:02PM +0100, Andrea Arcangeli wrote:
+> On Sat, Feb 22, 2003 at 02:57:28PM +0100, Ingo Oeser wrote:
+> > What about implementing io-requests, which can time out? So if it will
+> > not be serviced in time or we know, that it will not be serviced
+> > in time, we can skip that.
+> 
+> that works only if the congestion cames from multimedia apps that are
+> willing to cancel the timed out (now worthless) I/O, that is never the
+> case normally due the low I/O load they generate (usually it's apps not
+> going to cancel the I/O that congest the blkdev layer).
+ 
+I would put it to loads, where it doesn't matter that all streams
+will be serviced all the time and where it does matter more, that
+we stay responsive and show the latest frames available.
 
-Nobody ever seems to have solved the threading impact of UKVA's. I told
-Andrea about it almost a year ago, and his reaction was "oh, duh!" and
-couldn't come up with a solution either.
+> still, it's a good idea, you're basically asking to implement the cancel
+> aio api and I doubt anybody could disagree with that ;).
 
-The thing is, you _cannot_ have a per-thread area, since all threads
-share the same TLB.  And if it isn't per-thread, you still need all the
-locking and all the scalability stuff that the _current_ pte_highmem
-code needs, since there are people with thousands of threads in the same
-process. 
+I'm aware of these, but if we are so heavily busy, that the
+applications looses IO frames already, then calling into an
+application (which might be swapped out) to traverse its
+AIO overhead the cancel makes no sense any more.
 
-Until somebody _addresses_ this issue with UKVA, I consider UKVA to be a
-pipe-dream of people who haven't thought it through.
+I want a deadline attached to them and have them automatically
+cancelled after this deadline. (that's why I quoted the relevant
+part of my e-mail again).
 
-		Linus
+I can see many uses besides multi media applications. Also http
+or ftp server could do this, if they are busier as expected or if
+a connection dropped.
+
+Regards
+
+Ingo Oeser
+-- 
+Science is what we can tell a computer. Art is everything else. --- D.E.Knuth

@@ -1,44 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129148AbQJ3BIj>; Sun, 29 Oct 2000 20:08:39 -0500
+	id <S129214AbQJ3BJt>; Sun, 29 Oct 2000 20:09:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129214AbQJ3BIa>; Sun, 29 Oct 2000 20:08:30 -0500
-Received: from dibbler.ne.mediaone.net ([24.218.56.247]:10510 "EHLO
-	dibbler.ne.mediaone.net") by vger.kernel.org with ESMTP
-	id <S129148AbQJ3BIU>; Sun, 29 Oct 2000 20:08:20 -0500
-Date: Sun, 29 Oct 2000 20:08:18 -0500
-From: Craig Rodrigues <rodrigc@mediaone.net>
-To: linux-kernel@vger.kernel.org
-Subject: POSIX message queue support in Linux kernel?
-Message-ID: <20001029200818.A6164@mediaone.net>
-Mime-Version: 1.0
+	id <S129660AbQJ3BJj>; Sun, 29 Oct 2000 20:09:39 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:12550 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129214AbQJ3BJY>;
+	Sun, 29 Oct 2000 20:09:24 -0500
+Message-ID: <39FCCA3C.27EDB2FF@mandrakesoft.com>
+Date: Sun, 29 Oct 2000 20:09:16 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Rasmus Andersen <rasmus@jaquet.dk>
+CC: Arjan van de Ven <arjan@fenrus.demon.nl>, linux-kernel@vger.kernel.org,
+        David Hinds <dhinds@valinux.com>, corey@world.std.com
+Subject: Re: Compile error in drivers/ide/osb4.c in 240-t10p6
+In-Reply-To: <20001029144822.B622@jaquet.dk> <m13psPR-000OXnC@amadeus.home.nl> <20001029231257.J625@jaquet.dk>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Rasmus Andersen wrote:
+> Thanks for the pointer. However my test build still barfs in the final
+> link phase because we (in t10p6) morphed drivers/pcmcia/cs.c::pcmcia_
+> request_irq into (the static) cs_request_irq. The rename part
+> broke the two other places in cs.c where pcmcia_request_irq was
+> referenced and the static part made its usage in drivers/net/pcmcia/
+> ray_cs.c a bit awkward.
+> 
+> Since I won't presume to question the decision to rename the function
+> the following patch propagates the rename to the rest of the kernel.
+> Furthermore, I presumed to remove the static part so that the ray_cs
+> driver was free to use it. I have added David Hinds and Corey Thomas
+> (the raylink driver maintainer) to the cc on this mail so they can
+> decide what the proper solution is.
 
-Does the Linux kernel support POSIX message queues as defined by
-the Single Unix Specification, v2, ie.
-http://www.opengroup.org/onlinepubs/007908799/xsh/mqueue.h.html
+This is what went to Linus, and David Hinds ack'd it.
 
-stuff like mq_open(), mq_send(), mq_close(), etc.
+http://gtf.org/garzik/kernel/files/patches/2.4/2.4.0-test10/pcmcia-2.4.0.10.6.patch.gz
 
-I've tried grepping the sources for 2.4.0, and could not find anything.
+	Jeff
 
-I noticed that RTLinux seems to support it, in a header file
-called rtl_nfifo.h, in their distribution.
 
-Are there any plans to introduce POSIX message queues in the base-line
-Linux kernel?
 
-Thanks.
 -- 
-Craig Rodrigues        
-http://www.gis.net/~craigr    
-rodrigc@mediaone.net          
+Jeff Garzik             | "Mind if I drive?"  -Sam
+Building 1024           | "Not if you don't mind me clawing at the
+MandrakeSoft            |  dash and shrieking like a cheerleader."
+                        |                     -Max
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

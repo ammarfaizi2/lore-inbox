@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313505AbSFOHVg>; Sat, 15 Jun 2002 03:21:36 -0400
+	id <S314835AbSFOH4C>; Sat, 15 Jun 2002 03:56:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314446AbSFOHVg>; Sat, 15 Jun 2002 03:21:36 -0400
-Received: from angband.namesys.com ([212.16.7.85]:25484 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S313505AbSFOHVf>; Sat, 15 Jun 2002 03:21:35 -0400
-Date: Sat, 15 Jun 2002 11:21:36 +0400
-From: Oleg Drokin <green@namesys.com>
-To: Jordan Breeding <jordan.breeding@inet.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Reiserfs updates in 2.5.22?
-Message-ID: <20020615112136.A30561@namesys.com>
-In-Reply-To: <HAEOIKGLLLDPLCHFOMMOIEGLCAAA.jordan.breeding@inet.com>
+	id <S315119AbSFOH4B>; Sat, 15 Jun 2002 03:56:01 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:17600 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S314835AbSFOHz7>;
+	Sat, 15 Jun 2002 03:55:59 -0400
+Date: Sat, 15 Jun 2002 09:55:51 +0200
+From: Jens Axboe <axboe@suse.de>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: akpm@zip.com.au, linux-kernel@vger.kernel.org
+Subject: Re: bio_chain: proposed solution for bio_alloc failure and large IO simplification
+Message-ID: <20020615075551.GB1359@suse.de>
+In-Reply-To: <200206142339.QAA27000@adam.yggdrasil.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Fri, Jun 14 2002, Adam J. Richter wrote:
+> Andrew Morton <akpm@zip.com.au> wrote:
+> >I have not yet seen a BIO allocation failure in testing.  This
+> >would indicate that either the BIO pool is too large, or I'm 
+> >running the wrong tests.  Either way, I don't think we have
+> >demonstrated any otherwise-unsolvable problems with BIO allocation.
+> 
+> 	You need to prove that this can never happen once the
+> device is initialized, not just that no 2.5 user has reported it
+> yet.
 
-On Fri, Jun 14, 2002 at 02:06:09PM -0500, Jordan Breeding wrote:
-> Will 2.5.22 include the patches sent to the list a few days back from the
-> reiserfs team?  I haven't seen any changelog entries for the reiserfs
-> changes yet in linus' linux-2.5 bitkeepr tree.  Just a question.
+The I/O path allocations all use GFP_NOIO (or GFP_NOFS), which all have
+__GFP_WAIT set. So the bio allocations will try normal allocation first,
+then fall back to the bio pool. If the bio pool is also empty, we will
+block waiting for entries to be freed there. So there never will be a
+failure.
 
-They are in the Linus' BK tree already, so I presume they will be included in
-2.5.22
+-- 
+Jens Axboe
 
-Bye,
-    Oleg

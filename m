@@ -1,88 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266263AbUHBFT2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266273AbUHBFme@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266263AbUHBFT2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 01:19:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266267AbUHBFT2
+	id S266273AbUHBFme (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 01:42:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266274AbUHBFmc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 01:19:28 -0400
-Received: from mail003.syd.optusnet.com.au ([211.29.132.144]:60574 "EHLO
-	mail003.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S266263AbUHBFT0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 01:19:26 -0400
-Message-ID: <410DCEBC.8030600@kolivas.org>
-Date: Mon, 02 Aug 2004 15:18:52 +1000
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
+	Mon, 2 Aug 2004 01:42:32 -0400
+Received: from digitalimplant.org ([64.62.235.95]:50859 "HELO
+	digitalimplant.org") by vger.kernel.org with SMTP id S266273AbUHBFm2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 01:42:28 -0400
+Date: Sun, 1 Aug 2004 22:42:11 -0700 (PDT)
+From: Patrick Mochel <mochel@digitalimplant.org>
+X-X-Sender: mochel@monsoon.he.net
+To: Pavel Machek <pavel@suse.cz>
+cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@zip.com.au>
+Subject: Re: [0/25] Merge pmdisk and swsusp
+In-Reply-To: <20040720164640.GH10921@atrey.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.50.0408012220160.8159-100000@monsoon.he.net>
+References: <Pine.LNX.4.50.0407171449200.28258-100000@monsoon.he.net>
+ <20040720164640.GH10921@atrey.karlin.mff.cuni.cz>
 MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-mm@kvack.org, sjiang@cs.wm.edu, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] token based thrashing control
-References: <Pine.LNX.4.58.0407301730440.9228@dhcp030.home.surriel.com> <Pine.LNX.4.58.0408010856240.13053@dhcp030.home.surriel.com> <20040801175618.711a3aac.akpm@osdl.org> <410DAC89.4000002@kolivas.org> <Pine.LNX.4.58.0408012332080.13053@dhcp030.home.surriel.com> <410DCD84.2070707@kolivas.org>
-In-Reply-To: <410DCD84.2070707@kolivas.org>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigDDAD4F44AF32328151427E49"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigDDAD4F44AF32328151427E49
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Con Kolivas wrote:
-> Rik van Riel wrote:
-> 
->> On Mon, 2 Aug 2004, Con Kolivas wrote:
->>
->>
->>> We have some results that need interpreting with contest.
->>> mem_load:
->>> Kernel    [runs]    Time    CPU%    Loads    LCPU%    Ratio
->>> 2.6.8-rc2      4    78    146.2    94.5    4.7    1.30
->>> 2.6.8-rc2t     4    318    40.9    95.2    1.3    5.13
->>>
->>> The "load" with mem_load is basically trying to allocate 110% of free 
->>> ram, so the number of "loads" although similar is not a true 
->>> indication of how much ram was handed out to mem_load. What is 
->>> interesting is that since mem_load runs continuously and constantly 
->>> asks for too much ram it seems to be receiving the token most 
->>> frequently in preference to the cc processes which are short lived. 
->>> I'd say it is quite hard to say convincingly that this is bad because 
->>> the point of this patch is to prevent swap thrash.
->>
->>
->>
->> It may be worth trying with a shorter token timeout
->> time - maybe even keeping the long ineligibility ?
-> 
-> 
-> Give them a "refractory" bit which is set if they take the token? Next 
-> time they try to take the token unset the refractory bit instead of 
-> taking the token.
+On Tue, 20 Jul 2004, Pavel Machek wrote:
 
-Or take that concept even further; Give them an absolute refractory 
-period where they cannot take the token again and a relative refractory 
-bit which can only be reset after the refractory period is over.
+> Followup patch:
+>
+> * if machine halt fails, it is very dangerous to continue.
+>
+> diff -ur linux.middle/kernel/power/disk.c linux/kernel/power/disk.c
+> --- linux.middle/kernel/power/disk.c	2004-07-19 08:58:08.000000000 -0700
+> +++ linux/kernel/power/disk.c	2004-07-19 15:00:16.000000000 -0700
+> @@ -63,6 +63,9 @@
+>  		break;
+>  	}
+>  	machine_halt();
+> +	/* Valid image is on the disk, if we continue we risk serious data corruption
+> +	   after resume. */
+> +	while(1);
+>  	device_power_up();
+>  	local_irq_restore(flags);
+>  	return 0;
 
-Con
+This is nasty. We have to fail gracefully, ideally without expecting user
+input.
 
---------------enigDDAD4F44AF32328151427E49
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+Adding 'while(1)' will cause the CPU to enter a busy loop, artificially
+increasing the power consumption of the system, which would be counter-
+productive in a system that was configured to suspend when the battery was
+low.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+We need to at least print a message specifying what happened and
+instructing them to reboot. It's dorky, but over time, all every system
+should eventually be fixed to either enter a low-power mode or shut down
+properly.
 
-iD8DBQFBDc68ZUg7+tp6mRURAsjMAKCHVB0gvjtC9ZIU00SIfdKvawD8kwCeKxSp
-CY3PgDqv5FgLbO0/S+cqiP4=
-=5mha
------END PGP SIGNATURE-----
+Perhaps we could also fill in machine_halt(), which the patch below also
+does.
 
---------------enigDDAD4F44AF32328151427E49--
+> * software_suspend() did not check for smp, this fixes it.
+
+Applied, thanks.
+
+> * copy_page() is dangerous. This is actually my fault.
+
+Why is copy_page() dangerous? Shouldn't it be fixed if that is the case?
+
+Thanks,
+
+
+	Pat
+===== arch/i386/kernel/reboot.c 1.16 vs edited =====
+--- 1.16/arch/i386/kernel/reboot.c	2004-07-05 03:28:50 -07:00
++++ edited/arch/i386/kernel/reboot.c	2004-08-01 22:40:58 -07:00
+@@ -367,6 +367,8 @@
+
+ void machine_halt(void)
+ {
++	while (1)
++		asm volatile ("hlt":::"memory");
+ }
+
+ EXPORT_SYMBOL(machine_halt);
+===== kernel/power/disk.c 1.16 vs edited =====
+--- 1.16/kernel/power/disk.c	2004-08-01 20:36:39 -07:00
++++ edited/kernel/power/disk.c	2004-08-01 22:38:19 -07:00
+@@ -59,6 +59,7 @@
+ 		machine_restart(NULL);
+ 		break;
+ 	}
++	printk(KERN_EMERG "Suspend-to-disk succeeded, but power-down failed. Please reboot.\n");
+ 	machine_halt();
+ 	device_power_up();
+ 	local_irq_restore(flags);

@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281680AbRKUI5u>; Wed, 21 Nov 2001 03:57:50 -0500
+	id <S281681AbRKUI6k>; Wed, 21 Nov 2001 03:58:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281681AbRKUI5l>; Wed, 21 Nov 2001 03:57:41 -0500
-Received: from nick.dcs.qmul.ac.uk ([138.37.88.61]:29085 "EHLO
-	nick.dcs.qmul.ac.uk") by vger.kernel.org with ESMTP
-	id <S281680AbRKUI5a>; Wed, 21 Nov 2001 03:57:30 -0500
-Date: Wed, 21 Nov 2001 08:57:29 +0000 (GMT)
-From: Matt Bernstein <matt@theBachChoir.org.uk>
-To: DevilKin <devilkin@gmx.net>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux FSCP (Frequently Submitted Compilation Problems)? (was: 
- Re: Loop.c File !!!!)
-In-Reply-To: <5.1.0.14.2.20011121082413.00abadd0@pop.gmx.net>
-Message-ID: <Pine.LNX.4.33.0111210855440.28523-100000@nick.dcs.qmul.ac.uk>
-X-URL: http://www.theBachChoir.org.uk/
+	id <S281682AbRKUI6c>; Wed, 21 Nov 2001 03:58:32 -0500
+Received: from lilac.csi.cam.ac.uk ([131.111.8.44]:44798 "EHLO
+	lilac.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S281681AbRKUI6V>; Wed, 21 Nov 2001 03:58:21 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: James A Sutherland <jas88@cam.ac.uk>
+To: David Woodhouse <dwmw2@infradead.org>, Dale Amon <amon@vnl.com>
+Subject: Re: A return to PCI ordering problems...
+Date: Wed, 21 Nov 2001 08:57:47 +0000
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011120190316.H19738@vnl.com> <2048.1006291657@redhat.com>
+In-Reply-To: <2048.1006291657@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E166TCM-0004VH-00@lilac.csi.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Gooch tried this a year or two ago; it's the sort of thing which
-readily goes stale.
+On Tuesday 20 November 2001 9:27 pm, David Woodhouse wrote:
+> amon@vnl.com said:
+> > In any case, here is the problem:
+> > 	NIC on motherboard, Realtek
+> > 	NIC on PCI card, Realtek
+> > 	Monolithic (no-module) kernel
+> > 	Motherboard must be set to eth0
+>
+> Why must the motherboard be set to eth0? Why not just configure it as it
+> gets detected?
 
-Maybe it should just be a FAQ: "Why doesn't Linux compile?" "'Cos even the
-Gods are sometimes human. Check the mailing list archives for a patch."
+He has some software licensing thing which checks the MAC address of eth0.
 
-At 08:28 +0100 DevilKin wrote:
+Of course, what he could do is change the MAC address of eth0 to whatever the 
+licensing software wants... :-)
 
->>He's doubtless referring to the deactivate_page()
->Is there - or would it be nice it it would be here - a list of recent
->compilation problems encountered with stock kernels (and what to do about
->it)? (see the loop.c thingy recently, and other problems with other stock
->kernels). So we could just point the people to that thing instead of having
->these 'discussions' over and over again...
+> If you really care about the names, there's an ioctl you can use to change
+> them. You can call them 'fred' and 'sheila' if you so desire.
 
+So you can you swap them, so eth1 becomes eth0? If so, that should solve his 
+problem...
+
+
+James.

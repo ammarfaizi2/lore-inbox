@@ -1,64 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129381AbRBVMid>; Thu, 22 Feb 2001 07:38:33 -0500
+	id <S129306AbRBVMnd>; Thu, 22 Feb 2001 07:43:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129374AbRBVMiN>; Thu, 22 Feb 2001 07:38:13 -0500
-Received: from braga01-cm047.bragatel.pt ([195.61.74.47]:56711 "EHLO
-	nsk.yi.org") by vger.kernel.org with ESMTP id <S129284AbRBVMiG>;
-	Thu, 22 Feb 2001 07:38:06 -0500
-Date: Thu, 22 Feb 2001 12:34:10 -0500
-From: Luciano Miguel Ferreira Rocha <strange@nsk.yi.org>
-To: linux-kernel@vger.kernel.org
-Subject: Loop dev & 2.4.2
-Message-ID: <20010222123410.A3527@nsk.yi.org>
-Reply-To: strange@nsk.yi.org
+	id <S129374AbRBVMnX>; Thu, 22 Feb 2001 07:43:23 -0500
+Received: from mail.isis.co.za ([196.15.218.226]:11022 "EHLO mail.isis.co.za")
+	by vger.kernel.org with ESMTP id <S129306AbRBVMnN>;
+	Thu, 22 Feb 2001 07:43:13 -0500
+Message-Id: <4.3.2.7.0.20010222142631.00ba3cb0@192.168.0.18>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Thu, 22 Feb 2001 14:42:44 +0200
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+From: Pat Verner <pat@isis.co.za>
+Subject: Re: PROBLEM: Network hanging - Tulip driver with Netgear
+  (Lite-On)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E14VtCQ-0003t2-00@the-village.bc.nu>
+In-Reply-To: <4.3.2.7.0.20010222095007.00b9e260@192.168.0.18>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Disclaimer: 'Author of this message is not responsible for any harm done to reader's computer.'
-Organization: 'NSK'
-Section: 'Admin'
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rebuilt the kernel using using 2.4.1 + patch-2.4.1-ac20 :
 
-Hello!
+Initial state is good, and now ping works.  However, if I run IPTRAF, then 
+the card grinds to a halt after receiving about 2.6 Mbytes on try 1, then 
+11 Mbytes on try 2, after which it will neither receive or transmit :-(
 
-I want to report a constant problem I'm having with the loopback block driver
-in the new releases of the 2.4.x series of the Linux kernel.
+After this the card is in a state such that it requires a reboot to be able 
+to do anything further.
 
-The problem is that when that when trying to use a loop device the process
-hangs (whether it is mount/mke2fs, etc, but not losetup). And it can't be
-killed...
+=Pat
 
-It only started doing that in the 2.4.1-ac18, it worked fine in the 2.4.0 and
-2.4.1 versions. I didn't said anything before because I expected the problem
-to go way (or to never show up) in the 2.4.2 version.
+At 10:42 AM 22/02/2001 +0000, Alan Cox wrote:
+> > three Netgear NICs and am experiencing considerable trouble with the=20
+> > combination:
+> >
+> > Kernel 2.4.[01]:        ifconfig shows that the card see's traffic on t=
+> > he=20
+> > network, but does not transmit anything (no response to ping).
+>
+>Use a current 2.4.*-ac. Jeff and co fixed this we think.
+>
+>Alan
 
-Btw, the kernel shows no error messages whatsoever.
+--
+Pat Verner				E-Mail:  pat@isis.co.za
+           Isis Information Systems (Pty) Ltd
+           PO Box 281, Irene, 0062, South Africa
+Phone: +27-12-667-1411	      	Fax: +27-12-667-3800
 
-Here's some info:
-2 systems tested, all running redhat 7.0, kernel compiled wi
-gcc-2.91.66/egcs-1.1.2 (kgcc)
-
-Celeron/Mendocino			Celeron/Coppermine
-450MHz (orig 300 :)			666
-256, sometimes 512 Mb RAM		128
-mb 440 BX				VIA VT82C691/VT82C59[68]?
-
-Relevant upgrades for 2.4.x series:
-util-linux-2.10p-4			util-linux-2.10p-4
-mount-2.10r-2				modutils-2.4.2-1
-modutils-2.4.2-1			binutils-2.10.1.0.4-1
-binutils-2.10.1.0.4-1
-
-(tried 2.4.0,2.4.1 + int/crypto: OK	(2.4.1: OK, 2.4.2: not ok)
-2.4.1-ac18/ac-19, 2.4.2, not ok (w/o int)
-
-I hope this helps...
-
-Also, I'm not subscribed in the lkml, so please CC: me.
-
-hugs
-	Luciano Rocha (strange@nsk.yi.org)

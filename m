@@ -1,62 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281920AbRKUQqu>; Wed, 21 Nov 2001 11:46:50 -0500
+	id <S281918AbRKUQpK>; Wed, 21 Nov 2001 11:45:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281917AbRKUQqk>; Wed, 21 Nov 2001 11:46:40 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:17517 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S281451AbRKUQqY>; Wed, 21 Nov 2001 11:46:24 -0500
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Rik van Riel <riel@conectiva.com.br>, "David S. Miller" <davem@redhat.com>,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.14 + Bug in swap_out.
-In-Reply-To: <Pine.LNX.4.21.0111211558160.1394-100000@localhost.localdomain>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 21 Nov 2001 09:26:21 -0700
-In-Reply-To: <Pine.LNX.4.21.0111211558160.1394-100000@localhost.localdomain>
-Message-ID: <m1y9l0ytsi.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S281917AbRKUQpB>; Wed, 21 Nov 2001 11:45:01 -0500
+Received: from mta.sara.nl ([145.100.16.144]:20631 "EHLO mta.sara.nl")
+	by vger.kernel.org with ESMTP id <S281451AbRKUQow>;
+	Wed, 21 Nov 2001 11:44:52 -0500
+Message-Id: <200111211644.RAA26269@zhadum.sara.nl>
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Remco Post <r.post@sara.nl>
+To: root@chaos.analogic.com
+cc: Christopher Friesen <cfriesen@nortelnetworks.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Swap 
+In-Reply-To: Message from "Richard B. Johnson" <root@chaos.analogic.com> 
+   of "Tue, 20 Nov 2001 12:40:58 EST." <Pine.LNX.3.95.1011120123312.8047A-100000@chaos.analogic.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Date: Wed, 21 Nov 2001 17:44:44 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins <hugh@veritas.com> writes:
-
-> On Wed, 21 Nov 2001, Rik van Riel wrote:
-> > On Wed, 21 Nov 2001, Hugh Dickins wrote:
-> > >
-> > > fork and exec are well ordered in how they add to the mmlist,
-> > > and that ordering (children after parent) suited swapoff nicely,
-> > > to minimize duplication of a swapent while it's being unused;
-> > > except swap_out randomized the order by cycling init_mm around it.
+> On Tue, 20 Nov 2001, Christopher Friesen wrote:
+> 
+> > "Richard B. Johnson" wrote:
+> > > 
+> > > On Tue, 20 Nov 2001, Wolfgang Rohdewald wrote:
+> > > 
+> > > > On Tuesday 20 November 2001 15:51, J.A. Magallon wrote:
+> > > > > When a page is deleted for one executable (because we can re-read it from
+> > > > > on-disk binary), it is discarded, not paged out.
+> > > >
+> > > > What happens if the on-disk binary has changed since loading the program?
+> > > > -
+> > > 
+> > > It can't. That's the reason for `install` and other methods of changing
+> > > execututable files (mv exe-file exe-file.old ; cp newfile exe-file).
+> > > The currently open, and possibly mapped file can be re-named, but it
+> > > can't be overwritten.
 > > 
-> > Urmmm, so the code was obfuscated in order to optimise
-> > swapoff() ?
+> > Actually, with NFS (and probably others) it can.  Suppose I change the file on
+> > the server, and it's swapped out on a client that has it mounted.  When it swaps
+> > back in, it can get the new information.
+> > 
+> > Chris
 > 
-> To speed swapoff, I changed the code back to how fork (see comment
-> on "Add it to the mmlist" in fork.c old and new) and exec seemed to
-> intend.  I don't see see that I _obfuscated_ the code:
-> what's so difficult about swap_mm?
-
-Practical test when I pointed out that something needed to be done
-(and I didn't see the code in mmput) both David & Rik didn't even
-see the problem much less where it was worked around.  And neither
-of the saw the code in mmput.  If people can look at the code
-and see what is going on that is hard to follow, by definition.
-
-The primary problem with swap_mm is that swap_mm is used totally
-unexpectedly in a different file.  Instead of it's usage being small
-local and contained.
-
-> > Exactly how bad was the "mmlist randomising" for swapoff() ?
+> I note that NFS files don't currently return ETXTBSY, but this is a bug.
+> It is 'known' to the OS that the NFS mounted file-system is busy because
+> you can't unmount the file-system while an executable is running. If
+> you can trash it (as you can on Linux), it is surely a bug.
 > 
-> It was unnecessary and counter-productive, I changed it.
-> Exact number?  No, but small.
+> Alan explained a few years ago that NFS was "stateless". Nevertheless
+> it is still a bug.
+> 
+> Cheers,
+> Dick Johnson
+> 
 
-There is some sense in allowing swapoff not to check new processes
-but...  The only optimization that really makes sense with swapoff is
-to turn it inside out and traverse each process only once...  With
-possibly a little of the current logic to handle the shared swap case.
+The Client OS knows the fs is busy, the server does not, so from the server 
+side, I can change a file, unmount parts of the exported fs (nfs does not see 
+fs boudries), or even mount a completely different fs on the exported fs, 
+breaking the nfs client and the nfs server. Been there, done that. Yes, this 
+is not userfriendly, but then again, NFS in not the best networked filesystem 
+in the world, not was it designed to be handled by non-administrators.  (and I 
+think it shouldn't have to be).
 
-Eric
+
+-- 
+Met vriendelijke groeten,
+
+Remco Post
+
+SARA - Stichting Academisch Rekencentrum Amsterdam
+High Performance Computing  Tel. +31 20 592 8008    Fax. +31 20 668 3167
+
+"I really didn't foresee the Internet. But then, neither did the computer
+industry. Not that that tells us very much of course - the computer industry
+didn't even foresee that the century was going to end." -- Douglas Adams
+
+
+

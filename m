@@ -1,59 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261917AbVCNDsO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261927AbVCNDua@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261917AbVCNDsO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Mar 2005 22:48:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261918AbVCNDsO
+	id S261927AbVCNDua (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Mar 2005 22:50:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261921AbVCNDua
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Mar 2005 22:48:14 -0500
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:158 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S261917AbVCNDsK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Mar 2005 22:48:10 -0500
-Subject: Re: [PATCH][RFC] Make /proc/<pid> chmod'able
-From: Albert Cahalan <albert@users.sf.net>
-To: linux-kernel@vger.kernel.org
-Cc: rene.scharfe@lsrfire.ath.cx, akpm@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk, pj@engr.sgi.com, 7eggert@gmx.de
-Content-Type: text/plain
-Date: Sun, 13 Mar 2005 22:34:11 -0500
-Message-Id: <1110771251.1967.84.camel@cube>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+	Sun, 13 Mar 2005 22:50:30 -0500
+Received: from stark.xeocode.com ([216.58.44.227]:45701 "EHLO
+	stark.xeocode.com") by vger.kernel.org with ESMTP id S261927AbVCNDuO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Mar 2005 22:50:14 -0500
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Cc: Greg Stark <gsstark@mit.edu>, linux-kernel@vger.kernel.org,
+       Patrick McFarland <pmcfarland@downeast.net>
+Subject: Re: OSS Audio borked between 2.6.6 and 2.6.10
+References: <87u0ng90mo.fsf@stark.xeocode.com>
+	<200503130152.52342.pmcfarland@downeast.net>
+	<874qff89ob.fsf@stark.xeocode.com>
+	<200503140103.55354.s0348365@sms.ed.ac.uk>
+In-Reply-To: <200503140103.55354.s0348365@sms.ed.ac.uk>
+From: Greg Stark <gsstark@mit.edu>
+Organization: The Emacs Conspiracy; member since 1992
+Date: 13 Mar 2005 22:50:00 -0500
+Message-ID: <87sm2y7uon.fsf@stark.xeocode.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> OK, folks, another try to enhance privacy by hiding
-> process details from other users.  Why not simply use
-> chmod to set the permissions of /proc/<pid> directories?
-> This patch implements it.
->
-> Children processes inherit their parents' proc
-> permissions on fork.  You can only set (and remove)
-> read and execute permissions, the bits for write,
-> suid etc. are not changable.  A user would add
->
->         chmod 500 /proc/$$
->
-> or something similar to his .profile to cloak his processes.
->
-> What do you think about that one?
+Alistair John Strachan <s0348365@sms.ed.ac.uk> writes:
 
-This is a bad idea. Users should not be allowed to
-make this decision. This is rightly a decision for
-the admin to make.
+> The intel8x0 driver is probably one of the most widely used ALSA drivers, so 
+> I'd hope it wasn't broken! 
 
-Note: I'm the procps (ps, top, w, etc.) maintainer.
+I would have hoped so too at the time. Reporting it to the list didn't get any
+response since it was already fixed upstream, but it took a while before it
+was merged down to the linux tree.
 
-Probably I'd have to make /bin/ps run setuid root
-to deal with this. (minor changes needed) The same
-goes for /usr/bin/top, which I know is currently
-unsafe and difficult to fix.
+Also, it seems chipsets can be wired up differently in different motherboards.
+A driver can work perfectly for hundreds of boards and still fail on the same
+chipset on another machine.
 
-Let's not go there, OK?
+In any case "X code is broken" "why not use Y code instead" isn't really
+productive. It's a good thing I was using the OSS drivers; if everyone used
+the alsa drivers and nobody was testing the OSS drivers nobody would know they
+were broken.
 
-If you restricted this new ability to root, then I'd
-have much less of an objection. (not that I'd like it)
-
-
+-- 
+greg
 

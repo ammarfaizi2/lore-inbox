@@ -1,43 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284833AbRLPVeu>; Sun, 16 Dec 2001 16:34:50 -0500
+	id <S283759AbRLPVnK>; Sun, 16 Dec 2001 16:43:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284820AbRLPVea>; Sun, 16 Dec 2001 16:34:30 -0500
-Received: from ns.suse.de ([213.95.15.193]:17681 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S283759AbRLPVeW>;
-	Sun, 16 Dec 2001 16:34:22 -0500
-Date: Sun, 16 Dec 2001 22:34:21 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: More fun with fsx.
-In-Reply-To: <15389.4070.855955.296791@charged.uio.no>
-Message-ID: <Pine.LNX.4.33.0112162226460.16845-100000@Appserv.suse.de>
+	id <S284820AbRLPVnA>; Sun, 16 Dec 2001 16:43:00 -0500
+Received: from [62.98.198.120] ([62.98.198.120]:22532 "EHLO
+	gandalf.rhpk.springfield.inwind.it") by vger.kernel.org with ESMTP
+	id <S283759AbRLPVms>; Sun, 16 Dec 2001 16:42:48 -0500
+Date: Sun, 16 Dec 2001 22:39:01 +0100 (CET)
+From: Cristiano Paris <c.paris@libero.it>
+To: <linux-kernel@vger.kernel.org>
+Subject: 815EP Linux problem with 2.4.17-rc1 (fwd)
+Message-ID: <Pine.LNX.4.33.0112162238460.21090-100000@gandalf.rhpk.springfield.inwind.it>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 16 Dec 2001, Trond Myklebust wrote:
+I've recently bought a Asus Notebook, model L8490K which sports a 815EP
+chipset.
 
-> In that case, I'll need a tcpdump of the point at which the error
-> occurs.
+I've installed the Slackware 8.0 distribution and soon recompiled the
+2.4.17-rc1 kernel.
 
-Sure no problem... any particular preferred options ?
-Want client and server, or just client ?
+After some time of using it I've experienced some kernel oops due to
+unhandled NULL pointer. I've just installed ksymoops so I'll try to debug
+the error myself but I would like to know which is the support status for
+this chipset. Have any problem been reported so far ?
 
-> I'm unable to produce any problem whatsoever with the new patch
-> applied. Certainly not an EIO: that can normally only occur if you are
-> using soft mounts (which I assume is not the case?) or if the server
-> is screwed up...
+Thank you very much for your support.
 
-This is 'defaults' so, I would guess that is the case looking at the
-man page. but, I just tested and its repeatable with hard and soft.
+Cristiano
 
-regards,
-Dave.
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
 

@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269726AbRIDWpC>; Tue, 4 Sep 2001 18:45:02 -0400
+	id <S269718AbRIDWyM>; Tue, 4 Sep 2001 18:54:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269718AbRIDWow>; Tue, 4 Sep 2001 18:44:52 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:35295 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S269726AbRIDWok>; Tue, 4 Sep 2001 18:44:40 -0400
-Date: Tue, 4 Sep 2001 18:43:20 -0400 (EDT)
-From: Richard A Nelson <cowboy@debian.org>
-X-X-Sender: <cowboy@badlands.lexington.ibm.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: fsync(dir) redux
-Message-ID: <Pine.LNX.4.33.0109041839060.2267-100000@badlands.lexington.ibm.com>
-X-No-Markup: yes
-x-No-ProductLinks: yes
-x-No-Archive: yes
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S269777AbRIDWyC>; Tue, 4 Sep 2001 18:54:02 -0400
+Received: from mx1.afara.com ([63.113.218.20]:61913 "EHLO afara-gw.afara.com")
+	by vger.kernel.org with ESMTP id <S269718AbRIDWxt>;
+	Tue, 4 Sep 2001 18:53:49 -0400
+Subject: Re: Applying multiple patches
+From: Thomas Duffy <Thomas.Duffy.99@alumni.brown.edu>
+To: "Elgar, Jeremy" <JElgar@ndsuk.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <F128989C2E99D4119C110002A507409801555FD8@topper.hrow.ndsuk.com>
+In-Reply-To: <F128989C2E99D4119C110002A507409801555FD8@topper.hrow.ndsuk.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.12.99+cvs.2001.08.21.23.41 (Preview Release)
+Date: 04 Sep 2001 15:53:52 -0700
+Message-Id: <999644032.17558.20.camel@tduffy-lnx.afara.com>
+Mime-Version: 1.0
+X-OriginalArrivalTime: 04 Sep 2001 22:49:47.0343 (UTC) FILETIME=[E5B58DF0:01C13593]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, I've got now got open(dir);fsync(dir);close(dir) after my
-rename,unlink, and link calls.
+On Tue, 2001-09-04 at 06:07, Elgar, Jeremy wrote:
 
-Now, I need to know when its needed, and when it isn't allowed!
-I seem to recall that newer Reiserfs wouldn't need it, is that true?
-and if so, at what level?.
+> The problem I have is thus,  I want to apply patch-2.4.9-ac6 (I guess might
+> as well do ac7 now) and the xfs patch
+> but both are from a vanilla 2-4-9.
 
-How about xfs, jfs, etc ?
+I would suggest not trying this out as your first patch conflict fix
+attempt.  Both xfs and ac are large and touch a bunch of core linux
+files.  Getting xfs to apply on top of ac requires an intimate knowledge
+of the xfs (and some ac) code.  If you are interested in trying out, see
+how it was done for the 2.4.3-SGI_XFS_1.0.1 rpm that SGI put out for
+xfs-enabled redhat 7.1.
 
-I also seem to recall discussion that some of this might wind up
-supported in VFS?
+If you download the src.rpm from oss.sgi.com/projects/xfs, you will find
+an xfs patch that applies on an ac patch.  Now, both xfs and ac have
+changed a bunch from the 2.4.3 days, but this will give you a good start
+at figuring out what was done to get the two to play nice together.
 
-Lastly, I just received an error report from a user who is getting
-fsync(dir) errors on an NFS mounted directory ?!?!?
+-tduffy
 
--- 
-Rick Nelson
-"...and scantily clad females, of course.  Who cares if it's below zero
-outside"
-(By Linus Torvalds)
 

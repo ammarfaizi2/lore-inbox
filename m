@@ -1,110 +1,460 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261352AbTCOJLS>; Sat, 15 Mar 2003 04:11:18 -0500
+	id <S261335AbTCOJHU>; Sat, 15 Mar 2003 04:07:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261353AbTCOJLS>; Sat, 15 Mar 2003 04:11:18 -0500
-Received: from [196.41.29.142] ([196.41.29.142]:26364 "EHLO
-	workshop.saharact.lan") by vger.kernel.org with ESMTP
-	id <S261352AbTCOJLO>; Sat, 15 Mar 2003 04:11:14 -0500
-Subject: Re: Newbie with SiS 900 NIC driver, SuSE 8.1 and Fujitsu-Siemens
-	Celvin EasyPC.
-From: Martin Schlemmer <azarah@gentoo.org>
-To: durant@cbn.net.id
-Cc: KML <linux-kernel@vger.kernel.org>
-In-Reply-To: <3E72E4CE.1070005@cbn.net.id>
-References: <3E72E4CE.1070005@cbn.net.id>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1047719971.3504.143.camel@workshop.saharact.lan>
+	id <S261349AbTCOJHU>; Sat, 15 Mar 2003 04:07:20 -0500
+Received: from packet.digeo.com ([12.110.80.53]:42887 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261335AbTCOJHN>;
+	Sat, 15 Mar 2003 04:07:13 -0500
+Date: Sat, 15 Mar 2003 01:17:58 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: 2.5.64-mm7
+Message-Id: <20030315011758.7098b006.akpm@digeo.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2- 
-Date: 15 Mar 2003 11:19:31 +0200
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 15 Mar 2003 09:17:49.0553 (UTC) FILETIME=[BFBB7E10:01C2EAD3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-03-15 at 10:31, Brian Durant wrote:
-> Please personally CC the answers/comments posted to the list in response 
-> to my posting, as I am not a list member. I have tried getting the SiS 
-> 900 driver to run on SuSE 7.3, (and now) 8.1, Mandrake 8, 8.1, 9, Debian 
-> 3 rev.1 as well as running the latest Knoppix, none of which has been 
-> successful. Being a newbie and having only an interest in this one issue 
-> that I have never been able to resolve, I really don't belong on the 
-> list either. However, I believe that there is either a bug in the driver 
-> or my configuration is not supported. Either way, I would like to get 
-> the issue cleared up.
-> 
-> Anyway, to the issue at hand. There is a Fujitsu-Siemens Celvin EasyPC 
-> connected to my home WAN/LAN that I have been trying to get to work with 
-> the SiS 900 driver. The box has a SiS 900 NIC built into a Biostar 
-> motherboard and uses an Award BIOS. The WAN/LAN consists of 4 computers 
-> connected to a LinkSys router and a 3 Com cable modem. All other 
-> computers are able to connect to the Internet through auto DHCP, 
-> including one that is a dual boot Win2k Pro and SuSE 8.1 box. The Celvin 
-> is neither able to connect through auto DHCP or with a static IP 
-> address. I have checked the physical connection using a USB to Ethernet 
-> adapter and Knoppix, so I know the problem doesn't lie there. The SiS 
-> 900 NIC itself, works fine under Win 98 SE. This seems to me to rule out 
-> a number of things. Using SuSE 8.1, I have tried:
-> 
 
-This box I have at work is an Asus CUSI-M with sis900 NIC.  Works
-just dandy.
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.64/2.5.64-mm7/
 
-There are no real caveats I know of, so maybe just include relevant
-info, like full dmesg, lspci, kernel version. output of ifconfig, etc.
+  kernel.org rsync seems broken, so it is also at
 
-Here is mine .. maybe you spot something.  Also, might try a bios update
-...
-
------------------ relevant dmesg -------------------------
-sis900.c: v1.08.06 9/24/2002
-PCI: Found IRQ 10 for device 00:01.1
-PCI: Sharing IRQ 10 with 00:05.0
-eth0: SiS 900 Internal MII PHY transceiver found at address 1.
-eth0: Using transceiver found at address 1 as default
-eth0: SiS 900 PCI Fast Ethernet at 0xd400, IRQ 10, 00:e0:18:27:03:cc.
-eth0: Media Link On 100mbps full-duplex 
-----------------------------------------------------------
-
-----------------------------------------------------------
-workshop module-init-tools-0.9.10 # lsmod | grep sis
-sis                    47904   1 
-sis900                 12236   1 
-workshop module-init-tools-0.9.10 # lspci
-00:00.0 Host bridge: Silicon Integrated Systems [SiS] 630 Host (rev 21)
-00:00.1 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev
-d0)
-00:01.0 ISA bridge: Silicon Integrated Systems [SiS] 85C503/5513
-00:01.1 Ethernet controller: Silicon Integrated Systems [SiS] SiS900
-10/100 Ethernet (rev 83)
-00:01.2 USB Controller: Silicon Integrated Systems [SiS] 7001 (rev 07)
-00:01.3 USB Controller: Silicon Integrated Systems [SiS] 7001 (rev 07)
-00:02.0 PCI bridge: Silicon Integrated Systems [SiS] 5591/5592 AGP
-00:05.0 Multimedia audio controller: C-Media Electronics Inc CM8738 (rev
-10)
-01:00.0 VGA compatible controller: Silicon Integrated Systems [SiS]
-SiS630 GUI Accelerator+3D (rev 21)
-workshop module-init-tools-0.9.10 # ifconfig eth0
-eth0      Link encap:Ethernet  HWaddr 00:E0:18:27:03:CC  
-          inet addr:10.0.4.50  Bcast:10.0.0.255  Mask:255.255.255.0
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:159732 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:137561 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:100 
-          RX bytes:74381620 (70.9 Mb)  TX bytes:23243550 (22.1 Mb)
-          Interrupt:10 Base address:0xd400 
-
-workshop module-init-tools-0.9.10 # uname -a
-Linux workshop 2.4.20-win4lin-r1 #2 Fri Feb 28 10:51:31 SAST 2003 i686
-Celeron (Coppermine) GenuineIntel GNU/Linux
-workshop module-init-tools-0.9.10 # 
-----------------------------------------------------------
+http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.64/2.5.64-mm7/
 
 
-Regards,
+. Niggling bugs in the anticipatory scheduler are causing problems.  I've
+  reset the default to elevator=deadline until we get these fixed up.
 
--- 
-Martin Schlemmer
+. Added Alex's ext2 lock_super-removal patches
+
+. The brlock removal patches are back
+
+. Added /proc/sysrq-trigger.  Writing a character to this has the same
+  effect as typing ALT-sysrq-that_character.
+
+  This is so that sysrq facilities are available remotely.
+
+. Lots of new PCI handling code here from Russell King <rmk@arm.linux.org.uk>
+
+
+
+
+Changes since 2.5.64-mm6:
+
+
+-nfsd-disable-softirq.patch
+-lockd-lockup-fix-2.patch
+-reiserfs-fix-memleaks.patch
+-nfsd-memleak-fix.patch
+
+ Merged
+
++as-eject-BUG-fix.patch
+
+ Fix an anticipatory scheduler BUG when cdroms are ejected
+
++deadline-default.patch
+
+ Default to deadline scheduler
+
++scheduler-starvation-fixes.patch
+
+ CPU scheduler tweaks
+
++timer-cleanup.patch
++timer-readdition-fix.patch
+
+ Fix timer livelock
+
++oprofile-timer-fix.patch
+
+ Oprofile fix
+
++htree-nfs-fix-2.patch
+
+ Another fix for ext3/htree on NFS servers
+
++ext2-balloc-fix.patch
+
+ Fix logic in the ext2 block allocator
+
++ext2-no-lock_super.patch
++ext2-no-lock-super-whitespace-fixes.patch
++ext2-no-lock_super-fix-1.patch
++ext2-no-lock_super-fix-2.patch
++ext2-no-lock_super-fix-3.patch
++ext2-no-lock_super-fix-4.patch
++ext2-no-lock_super-fix-5.patch
++ext2-no-lock_super-fix-6.patch
++ext2-no-lock_super-fix-7.patch
+
+ Removal of lock_super in the ext2 block allocator
+
++brlock-removal-1.patch
++brlock-removal-2.patch
++brlock-removal-3.patch
++brlock-removal-4.patch
++brlock-removal-5.patch
+
+ Second pass of the brlock removal patches
+
++pgd_index-comments.patch
+
+ Add some comments
+
++pci-6.patch
++pci-7.patch
++pci-8.patch
++pci-9.patch
++pci-10.patch
++pci-11.patch
++pci-12.patch
++pci-13.patch
++pci-14.patch
++pci-15.patch
+
+ Some of Russell King's PCI patches.
+
++proc-sysrq-trigger.patch
+
+ Create /proc/sysrq-trigger
+
++aio-bits-fix.patch
+
+ AIO fixes
+
++clean-inode-fix.patch
+
+ Forgot to initialise inode->i_rdev
+
+
+
+
+All 116 patches:
+
+linus.patch
+  Latest from Linus
+
+mm.patch
+  add -mmN to EXTRAVERSION
+
+kgdb.patch
+
+noirqbalance-fix.patch
+  Fix noirqbalance
+
+config_spinline.patch
+  uninline spinlocks for profiling accuracy.
+
+ppc64-reloc_hide.patch
+
+ppc64-pci-patch.patch
+  Subject: pci patch
+
+ppc64-aio-32bit-emulation.patch
+  32/64bit emulation for aio
+
+ppc64-64-bit-exec-fix.patch
+  Pass the load address into ELF_PLAT_INIT()
+
+ppc64-scruffiness.patch
+  Fix some PPC64 compile warnings
+
+ppc64-compat-flock.patch
+  compat_sys_fcntl{,64} 2/9 ppc64 part
+
+ppc64-eeh-fix.patch
+  ppc64 build fix
+
+ppc64-socketcall-fix.patch
+
+sym-do-160.patch
+  make the SYM driver do 160 MB/sec
+
+config-PAGE_OFFSET.patch
+  Configurable kenrel/user memory split
+
+ptrace-flush.patch
+  cache flushing in the ptrace code
+
+buffer-debug.patch
+  buffer.c debugging
+
+warn-null-wakeup.patch
+
+ext3-truncate-ordered-pages.patch
+  ext3: explicitly free truncated pages
+
+reiserfs_file_write-5.patch
+
+tcp-wakeups.patch
+  Use fast wakeups in TCP/IPV4
+
+rcu-stats.patch
+  RCU statistics reporting
+
+ext3-journalled-data-assertion-fix.patch
+  Remove incorrect assertion from ext3
+
+nfs-speedup.patch
+
+nfs-oom-fix.patch
+  nfs oom fix
+
+sk-allocation.patch
+  Subject: Re: nfs oom
+
+nfs-more-oom-fix.patch
+
+rpciod-atomic-allocations.patch
+  Make rcpiod use atomic allocations
+
+linux-isp.patch
+
+isp-update-1.patch
+
+remove-unused-congestion-stuff.patch
+  Subject: [PATCH] remove unused congestion stuff
+
+as-iosched.patch
+  anticipatory I/O scheduler
+
+as-debug-BUG-fix.patch
+
+as-eject-BUG-fix.patch
+  AS: don't go BUG during cdrom eject
+
+cfq-2.patch
+  CFQ scheduler, #2
+
+deadline-default.patch
+  deafult to deadline IO scheduler
+
+smalldevfs.patch
+  smalldevfs
+
+remap-file-pages-2.5.63-a1.patch
+  Subject: [patch] remap-file-pages-2.5.63-A1
+
+hugh-remap-fix.patch
+  hugh's file-offset-in-pte fix
+
+fremap-limit-offsets.patch
+  fremap: limit remap_file_pages() file offsets
+
+fremap-all-mappings.patch
+  Make all executable mappings be nonlinear
+
+filemap_populate-speedup.patch
+  filemap_populate speedup
+
+file-offset-in-pte-x86_64.patch
+  x86_64: support for file offsets in pte's
+
+file-offset-in-pte-ppc64.patch
+
+objrmap-2.5.62-5.patch
+  object-based rmap
+
+objrmap-nonlinear-fixes.patch
+  objrmap fix for nonlinear
+
+scheduler-tunables.patch
+  scheduler tunables
+
+scheduler-starvation-fixes.patch
+  CPU scheduler starvation fixes
+
+timer-cleanup.patch
+  timer code cleanup
+
+timer-readdition-fix.patch
+  timer re-addition lockup fix
+
+show_task-free-stack-fix.patch
+  show_task() fix and cleanup
+
+yellowfin-set_bit-fix.patch
+  yellowfin driver set_bit fix
+
+htree-nfs-fix.patch
+  Fix ext3 htree / NFS compatibility problems
+
+update_atime-ng.patch
+  inode a/c/mtime modification speedup
+
+one-sec-times.patch
+  Implement a/c/time speedup in ext2 & ext3
+
+task_prio-fix.patch
+  simple task_prio() fix
+
+register-tty_devclass.patch
+  Register tty_devclass before use
+
+set_current_state-fs.patch
+  use set_current_state in fs
+
+set_current_state-mm.patch
+  use set_current_state in mm
+
+copy_thread-leak-fix.patch
+  Fix memory leak in copy_thread
+
+slab_store_user-large-objects.patch
+  slab debug: perform redzoning against larger objects
+
+file_list_lock-contention-fix.patch
+  file_list_lock contention fixes
+
+tty_files-fixes.patch
+  file->f_list locking in tty_io.c
+
+file_list_cleanup.patch
+  file_list cleanup
+
+file_list-remove-free_list.patch
+  file_table: remove the private freelist
+
+file-list-less-locking.patch
+  file_list: less locking
+
+vt_ioctl-stack-use.patch
+  stack reduction in drivers/char/vt_ioctl.c
+
+fix-mem-equals.patch
+  Fix mem= options
+
+no-mmu-stubs.patch
+  a few missing stubs for !CONFIG_MMU
+
+nommu-slab.patch
+  slab changes for !CONFIG_MMU
+
+nfs-memleak-fix.patch
+  memleak in fs/nfs/inode.c::nfs_get_sb()
+
+ufs-memleak-fix.patch
+  Memleak in fs/ufs/util.c
+
+hugetlb-unmap_vmas-fix.patch
+  fix the fix for unmap_vmas & hugepages
+
+early-writeback-init.patch
+  Early writeback initialisation
+
+posix-timers-update.patch
+  posix timers update
+
+e100-memleak-fix.patch
+  Memleak in e100 driver
+
+pcmcia-1-kill-get_foo_map.patch
+  pcmcia: 1/6 kill get_*_map
+
+pcmcia-2-remove-bus_foo-abstractions.patch
+  pcmcia: 2/6: Remove bus_* abstractions
+
+pcmcia-3-add-SOCKET_CARDBUS_CONFIG.patch
+  pcmcia: 3/6: add SOCKET_CARDBUS_CONFIG flag
+
+pcmcia-4-add-locking.patch
+  pcmcia: 4/6: Add some locking to rsrc_mgr.c
+
+pcmcia-5-add-CONFIG_PCMCIA_PROBE.patch
+  pcmcia 5/6: Introduce CONFIG_PCMCIA_PROBE
+
+pcmcia-6-remove-old-cardbus-clients.patch
+  pcmcia: 6/6: Remove support for old cardbus clients
+
+oops-counters.patch
+  OOPS instance counters
+
+io_apic-DO_ACTION-cleanup.patch
+  io-apic.c: DO_ACTION cleanup
+
+ext2-ext3-noatime-fix.patch
+  Ext2/3 noatime and dirsync sometimes ignored
+
+oprofile-timer-fix.patch
+  fix oprofile timer race
+
+htree-nfs-fix-2.patch
+  htree nfs fix
+
+ext2-balloc-fix.patch
+  ext2: block allocation fix
+
+ext2-no-lock_super.patch
+  concurrent block allocation for ext2
+
+ext2-no-lock-super-whitespace-fixes.patch
+
+ext2-no-lock_super-fix-1.patch
+
+ext2-no-lock_super-fix-2.patch
+
+ext2-no-lock_super-fix-3.patch
+
+ext2-no-lock_super-fix-4.patch
+
+ext2-no-lock_super-fix-5.patch
+
+ext2-no-lock_super-fix-6.patch
+
+ext2-no-lock_super-fix-7.patch
+
+brlock-removal-1.patch
+  Brlock removal 1/5 - core
+
+brlock-removal-2.patch
+  brlock removal 2/5: remove brlock from snap and vlan
+
+brlock-removal-3.patch
+  brlock removal 3/5: remove brlock from bridge
+
+brlock-removal-4.patch
+  brlock removal 4/5: removal from ipv4/ipv6
+
+brlock-removal-5.patch
+  brlock removal 5/5: remove brlock code
+
+pgd_index-comments.patch
+  pgd_index/pmd_index/pte_index commentary
+
+pci-6.patch
+
+pci-7.patch
+
+pci-8.patch
+
+pci-9.patch
+
+pci-10.patch
+
+pci-11.patch
+
+pci-12.patch
+
+pci-13.patch
+
+pci-14.patch
+
+pci-15.patch
+
+proc-sysrq-trigger.patch
+  /proc/sysrq-trigger: trigger sysrq functions via /proc
+
+aio-bits-fix.patch
+  kiocbClear should use clear_bit instead of set_bit
+
+clean-inode-fix.patch
+  initialise inode->i_rdev
+
 
 

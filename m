@@ -1,50 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262998AbTDFPNl (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 11:13:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263009AbTDFPNk (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 11:13:40 -0400
-Received: from AMarseille-201-1-5-206.abo.wanadoo.fr ([217.128.250.206]:55847
-	"EHLO zion.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S262998AbTDFPNh (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 11:13:37 -0400
-Subject: [PATCH] New radeonfb fork
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: linux-kernel@vger.kernel.org,
-       Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1049642954.550.41.camel@zion.wanadoo.fr>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 06 Apr 2003 17:29:14 +0200
+	id S263012AbTDFPXv (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 11:23:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263016AbTDFPXu (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 11:23:50 -0400
+Received: from wall.ttu.ee ([193.40.254.238]:28678 "EHLO wall.ttu.ee")
+	by vger.kernel.org with ESMTP id S263012AbTDFPXu (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Apr 2003 11:23:50 -0400
+Date: Sun, 6 Apr 2003 18:34:57 +0300 (EET DST)
+From: Siim Vahtre <siim@pld.ttu.ee>
+To: linux-kernel@vger.kernel.org
+cc: linux-fbdev-devel@lists.sourceforge.net
+Subject: i810fb compile/module loading failure on 2.5.66-bk12
+Message-ID: <Pine.GSO.4.53.0304061824230.17774@pitsa.pld.ttu.ee>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
 
-As I told a while ago, I'm forking radeonfb for now, at least
-until Ani (current maintainer) either give me maintainership
-or gets all that stuff in the official version.
+When trying to load module i810 on 2.5.66-bk12 I get:
+i810fb: Unknown symbol __memcpy
 
-I need testers, and I'd appreciate any patches people may have
-for it as well since I know a bunch of ppl have been spreading
-various radeonfb patches around, I want to take over all of these
-and see what is worth getting in. For 2.5, I'm working on a
-complete rewrite (& split) of the driver.
+It also happens (in a bit different way) when I try to link it while
+compiling directly into kernel.
 
-So far, I already have something to play with that fixes a
-bunch of issues. Patches against 2.4.20 and 2.4.21-pre7 can
-be found here: (too big to inline). Note that I also bring
-in various other pci_ids.h updates but that shouldn't harm
-you and is easier that way for me ;)
+I fixed it by changing
+            memcpy_toio(d_addr, s_addr, s_pitch * image->height);
+on drivers/video/i810/i810_accel.c:419 to:
+            memcpy(d_addr, s_addr, s_pitch * image->height);
 
-http://penguinppc.org/~benh/radeonfb-040603-2.4.20.diff
-http://penguinppc.org/~benh/radeonfb-040603-2.4.21-pre7.diff
-
-NOTE: It's known that radeonfb is incompatible with ATI binary
-GL drivers (at least it crashes the machine on a friend's r300),
-I'm investigating.
-
-Ben.
-
-
+I have no idea what I've just done but... it works for me. :-)

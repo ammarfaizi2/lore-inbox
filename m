@@ -1,46 +1,32 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314411AbSESNYN>; Sun, 19 May 2002 09:24:13 -0400
+	id <S314403AbSESNgY>; Sun, 19 May 2002 09:36:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314420AbSESNYM>; Sun, 19 May 2002 09:24:12 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:269 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S314409AbSESNYL>; Sun, 19 May 2002 09:24:11 -0400
-Subject: Re: AUDIT of 2.5.15 copy_to/from_user
-To: rui.sousa@laposte.net (Rui Sousa)
-Date: Sun, 19 May 2002 14:43:06 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), rusty@rustcorp.com.au (Rusty Russell),
-        linux-kernel@vger.kernel.org,
-        kernel-janitor-discuss@lists.sourceforge.net
-In-Reply-To: <Pine.LNX.4.44.0205191444200.18395-100000@localhost.localdomain> from "Rui Sousa" at May 19, 2002 02:58:35 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S314409AbSESNgX>; Sun, 19 May 2002 09:36:23 -0400
+Received: from www.nexus.co.sz ([196.28.7.66]:40408 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S314403AbSESNgW>; Sun, 19 May 2002 09:36:22 -0400
+Date: Sun, 19 May 2002 15:11:54 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: casdcsdc sdfccsdcsd <computrius@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: davicom 9102 and linux 2.5
+In-Reply-To: <20020518235854.33076.qmail@web13905.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.44.0205191510550.8651-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E179Qxm-0003nQ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > __copy_to/from_user() --> the same as above, but can they actually return 
-> > > anything other than 0? My assembler is no good and I'm not able to see if
-> > 
-> > They do the same things, but don't do any initial range checks that might
-> > be done by access_ok before hand
-> 
-> On the emu10k1 driver we use access_ok(VERIFY_READ) once at the beginning
-> of the write() routine to check we can access the user buffer. After that 
-> we always use __copy_from_user() and we trust it not to fail. Is this 
-> correct, or not?
+On Sat, 18 May 2002, casdcsdc sdfccsdcsd wrote:
 
-This is correct
+> it doesnt make any sense, when you make a new version, you ADD
+> FEATURES, YOU DONT TAKE THEM OUT!
 
-> Basically, where in copy_from_user() is it determined the function cannot
-> copy the entire user buffer? Is it in access_ok() only or also in 
-> __constant_copy_user_zeroing()?
+Thats an interesting concept... =)
 
-Static once off checks are done in access_ok
-Dynamic checks are doing in __copy_from_*
+-- 
+http://function.linuxpower.ca
+		
 
-Which are which depends on the platform. On x86 for example access_ok
-is basically a check for 0->0xBFFFFFFF range and no more

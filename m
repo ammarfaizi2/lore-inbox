@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262581AbUKEDK2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262583AbUKEDMu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262581AbUKEDK2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 22:10:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262584AbUKEDK1
+	id S262583AbUKEDMu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 22:12:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262582AbUKEDMu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 22:10:27 -0500
-Received: from pat.uio.no ([129.240.130.16]:42717 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S262581AbUKEDKO (ORCPT
+	Thu, 4 Nov 2004 22:12:50 -0500
+Received: from c3p0.cc.swin.edu.au ([136.186.1.30]:20742 "EHLO swin.edu.au")
+	by vger.kernel.org with ESMTP id S262585AbUKEDMo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 22:10:14 -0500
-Subject: Re: nfs stale filehandle issues with 2.6.10-rc1 in-kernel server
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Brad Campbell <brad@wasp.net.au>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <418AEC14.3040605@pobox.com>
-References: <41877751.502@wasp.net.au>
-	 <1099413424.7582.5.camel@lade.trondhjem.org>  <4187E4E1.5080304@pobox.com>
-	 <1099431364.7854.17.camel@lade.trondhjem.org>  <418AEC14.3040605@pobox.com>
-Content-Type: text/plain
-Date: Thu, 04 Nov 2004 19:09:52 -0800
-Message-Id: <1099624193.25951.17.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
-X-UiO-MailScanner: No virus found
-X-UiO-Spam-info: not spam, SpamAssassin (score=0, required 12)
+	Thu, 4 Nov 2004 22:12:44 -0500
+To: Elladan <elladan@eskimo.com>
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Russell Miller <rmiller@duskglow.com>,
+       Doug McNaught <doug@mcnaught.org>, Jim Nelson <james4765@verizon.net>,
+       DervishD <lkml@dervishd.net>, Gene Heskett <gene.heskett@verizon.net>,
+       linux-kernel@vger.kernel.org, M?ns Rullg?rd <mru@inprovide.com>
+From: Tim Connors <tconnors+linuxkernel1099624161@astro.swin.edu.au>
+Subject: Re: is killing zombies possible w/o a reboot?
+In-reply-to: <20041105023850.GC17010@eskimo.com>
+References: <200411030751.39578.gene.heskett@verizon.net> <87k6t24jsr.fsf@asmodeus.mcnaught.org> <200411031733.30469.rmiller@duskglow.com> <200411040839.34350.vda@port.imtp.ilyichevsk.odessa.ua> <20041105023850.GC17010@eskimo.com>
+X-test-to: Elladan <elladan@eskimo.com>
+X-cc-to: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>, Russell Miller <rmiller@duskglow.com>, Doug McNaught <doug@mcnaught.org>, Jim Nelson <james4765@verizon.net>, DervishD <lkml@dervishd.net>, Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org, M?ns Rullg?rd <mru@inprovide.com>
+X-reply-to-bofh-messageid: <2X2kV-1Ji-21@gated-at.bofh.it>
+X-Face: "0\RuOFb6AcQ}B_F/^%;;AmS%><zZ_q?N1w1%1voDY7#Ywj~qRaL7].8HB'2~pDUS|{E=$R\-s?;+p!RCe:w||kS\T@[(eQHB*-8u;~)ZP4;QYUI`|GJ)NS\`jLbW<e'R*y+Od,S5D+Vz++a<[$g'>"qr*^0t%eriBMe_x]B7&@b8_\i<A/A@T
+Message-ID: <slrn-0.9.7.4-4729-165-200411051409-tc@hexane.ssi.swin.edu.au>
+Date: Fri, 5 Nov 2004 14:10:35 +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-to den 04.11.2004 Klokka 21:57 (-0500) skreiv Jeff Garzik:
+Elladan <elladan@eskimo.com> said on Thu, 4 Nov 2004 18:38:50 -0800:
+> If a process is in D state and receives a SIGKILL, assume it must exit
+> within a few seconds or it's a bug, and dump as much information about
+> it as is practical...?
 
-> Not saying that the client is _generating_ the stale filehandle errors, 
-> only saying that they appear to go away when I boot the _client_ into 
-> older 2.6.9 kernels.
-
-That would point to some pretty nasty memory corruption issues on the
-client then (affecting the cached filehandle in the inode itself).
-
-So... I can't see that any NFS client changes have been pushed to Linus
-after the release of 2.6.9-rc2. Is the latter afflicted with the ESTALE
-problem?
-
-Cheers,
-  Trond
+Of course, it's not necessarily a bug. Someone could have just kicked
+the ethernet, and so your process is stuck waiting for a read/write.
 
 -- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
-
+TimC -- http://astronomy.swin.edu.au/staff/tconnors/
+Theoretically one might have been wearing pants at work.
+        -- Anthony de Boer in Scary Devil Monastry

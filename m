@@ -1,55 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbUKWF2O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262175AbUKWEqI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261187AbUKWF2O (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 00:28:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262168AbUKWF0D
+	id S262175AbUKWEqI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 23:46:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262185AbUKVQd6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 00:26:03 -0500
-Received: from ozlabs.org ([203.10.76.45]:53898 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S262200AbUKWFZ0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 00:25:26 -0500
-Subject: Re: [PATCH 2.6.10-rc2 0/4] module sysfs: module sysfs related
-	clean ups
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Greg KH <greg@kroah.com>
-Cc: Tejun Heo <tj@home-tj.org>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041123043151.GA17580@kroah.com>
-References: <20041123024537.GA7326@home-tj.org>
-	 <1101182308.4842.24.camel@localhost.localdomain>
-	 <20041123043151.GA17580@kroah.com>
-Content-Type: text/plain
-Date: Tue, 23 Nov 2004 16:25:24 +1100
-Message-Id: <1101187524.4842.47.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+	Mon, 22 Nov 2004 11:33:58 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:50649 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S262161AbUKVQAD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 11:00:03 -0500
+Message-ID: <41A20CFA.3050101@namesys.com>
+Date: Mon, 22 Nov 2004 07:59:54 -0800
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jesper Juhl <juhl-lkml@dif.dk>
+CC: lkml <linux-kernel@vger.kernel.org>, vs <vs@thebsh.namesys.com>
+Subject: Re: [patch] silence sparse warning in fs/reiserfs/namei.c about using
+ plain integer as NULL pointer
+References: <Pine.LNX.4.61.0411212304180.3423@dragon.hygekrogen.localhost>
+In-Reply-To: <Pine.LNX.4.61.0411212304180.3423@dragon.hygekrogen.localhost>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-11-22 at 20:31 -0800, Greg KH wrote:
-> On Tue, Nov 23, 2004 at 02:58:28PM +1100, Rusty Russell wrote:
-> > On Tue, 2004-11-23 at 11:45 +0900, Tejun Heo wrote:
-> > >  Hello,
-> > > 
-> > >  These are four patches to simplify/clean up implementation of module
-> > > sysfs stuff.
-> > 
-> > All look good to me.  Thanks!
-> > 
-> > Greg?
+Jesper Juhl wrote:
+
+>Hi,
+>
+>sparse complains about passing 0 to functions execting a pointer argument:
+>
+>  CHECK   fs/reiserfs/namei.c
+>fs/reiserfs/namei.c:617:50: warning: Using plain integer as NULL pointer
+>
+>Trivial patch to change it to pass NULL instead below.
+>
+>Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+>
+>diff -up linux-2.6.10-rc2-bk6-orig/fs/reiserfs/namei.c linux-2.6.10-rc2-bk6/fs/reiserfs/namei.c
+>--- linux-2.6.10-rc2-bk6-orig/fs/reiserfs/namei.c	2004-11-17 01:20:16.000000000 +0100
+>+++ linux-2.6.10-rc2-bk6/fs/reiserfs/namei.c	2004-11-21 22:52:41.000000000 +0100
+>@@ -614,7 +614,7 @@ static int reiserfs_create (struct inode
+>         goto out_failed;
+>     }
 > 
-> No objections from me either, look nice.  Want me to stage them in a bk
-> tree for inclusion in the -mm trees, so they get some coverage for a
-> while?
-> 
-> Or do you want to do that?
-
-Please take it as a sign of my infinite respect for you, that I insist
-on you doing all the work.
-
-Rusty.
--- 
-A bad analogy is like a leaky screwdriver -- Richard Braakman
-
+>-    retval = reiserfs_new_inode (&th, dir, mode, 0, 0/*i_size*/, dentry, inode);
+>+    retval = reiserfs_new_inode (&th, dir, mode, NULL, 0/*i_size*/, dentry, inode);
+>     if (retval)
+>         goto out_failed;
+> 	
+>
+>
+>
+>
+>  
+>
+thanks, vs. will look into it and get back to you.

@@ -1,57 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265142AbRFZWrE>; Tue, 26 Jun 2001 18:47:04 -0400
+	id <S265143AbRFZWvf>; Tue, 26 Jun 2001 18:51:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265143AbRFZWqy>; Tue, 26 Jun 2001 18:46:54 -0400
-Received: from [194.102.102.3] ([194.102.102.3]:23558 "HELO ns1.Aniela.EU.ORG")
-	by vger.kernel.org with SMTP id <S265142AbRFZWqp>;
-	Tue, 26 Jun 2001 18:46:45 -0400
-Date: Wed, 27 Jun 2001 01:47:48 +0300 (EEST)
-From: lk <lk@ns1.Aniela.EU.ORG>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Luigi Genoni <kernel@Expansa.sns.it>, <linux-kernel@vger.kernel.org>
-Subject: Re: When the FUD is all around (sniff).
-In-Reply-To: <E15Es2e-0003T1-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.30.0106270145270.4667-100000@ns1.Aniela.EU.ORG>
+	id <S265148AbRFZWvY>; Tue, 26 Jun 2001 18:51:24 -0400
+Received: from w146.z064001233.sjc-ca.dsl.cnc.net ([64.1.233.146]:63366 "EHLO
+	windmill.gghcwest.com") by vger.kernel.org with ESMTP
+	id <S265143AbRFZWvN>; Tue, 26 Jun 2001 18:51:13 -0400
+Date: Tue, 26 Jun 2001 15:48:09 -0700 (PDT)
+From: "Jeffrey W. Baker" <jwbaker@acm.org>
+X-X-Sender: <jwb@heat.gghcwest.com>
+To: Stefan Hoffmeister <lkml.2001@econos.de>
+cc: Rik van Riel <riel@conectiva.com.br>, John Stoffel <stoffel@casc.com>,
+        Jason McMullan <jmcmullan@linuxcare.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: VM Requirement Document - v0.0
+In-Reply-To: <qn1ijt06guu1014p6om26opk7k5933kb7i@4ax.com>
+Message-ID: <Pine.LNX.4.33.0106261547280.29221-100000@heat.gghcwest.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Speaking of:
-A TV station in my country said that the most pirated products belong to
-M$ because computers cannot work wothout the GUI M$ windows provides.
 
-In my country about 75% percent of M$ software are illegal copies :)
+On Wed, 27 Jun 2001, Stefan Hoffmeister wrote:
 
-
-
-
-
-
-> > I suppose they received some pression from M$, but if people read of a FUD
-> > from a M$ employed, then they can guess what is going on, if it is a
-> > newspaper usually telling facts in a correct way...
+> : On Tue, 26 Jun 2001 18:42:56 -0300 (BRST), Rik van Riel wrote:
 >
-> It is common for newspaper staff to be corrupt, same with magazine people.
-> Sometimes because people generally believe in a cause and are not impartial
-> (which I've seen both pro and anti Linux btw) and sometimes because advertising
-> revenue is a good thing.
+> >On Tue, 26 Jun 2001, John Stoffel wrote:
+> >
+> >> Or that we're doing big sequential reads of file(s) which are
+> >> larger than memory, in which case expanding the cache size buys
+> >> us nothing, and can actually hurt us alot.
+> >
+> >That's a big "OR".  I think we should have an algorithm to
+> >see which of these two is the case, otherwise we're just
+> >making the wrong decision half of the time.
 >
-> > The situation is going to be sad
+> Windows NT/2000 has flags that can be for each CreateFile operation
+> ("open" in Unix terms), for instance
 >
-> There is a saying in he UK 'You can fool all of the people some of the time,
-> you can fool some of the people all the time, but you cannot fool all of the
-> people all of the time'. You only have to look at the incredibly dim view
-> technical people take of most printed reviews to see that.
+>   FILE_ATTRIBUTE_TEMPORARY
 >
-> Alan
+>   FILE_FLAG_WRITE_THROUGH
+>   FILE_FLAG_NO_BUFFERING
+>   FILE_FLAG_RANDOM_ACCESS
+>   FILE_FLAG_SEQUENTIAL_SCAN
 >
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> If Linux does not have mechanism that would allow the signalling of
+> specific use case, it might be helpful to implement such a hinting system?
+
+These flags would be really handy.  We already have the raw device for
+sequential reading of e.g. CDROM and DVD devices.
+
+-jwb
 

@@ -1,49 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265295AbTFZBXd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 21:23:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265325AbTFZBXd
+	id S265298AbTFZBuS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 21:50:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265303AbTFZBuR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 21:23:33 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:45502 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id S265295AbTFZBXb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 21:23:31 -0400
-Date: Thu, 26 Jun 2003 11:37:04 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Linus <torvalds@transmeta.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Arun Sharma <arun.sharma@intel.com>,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>, linux-ia64@vger.kernel.org,
-       "Jin, Gordon" <gordon.jin@intel.com>, trivial@rustcorp.com.au
-Subject: [PATCH][COMPAT][TRIVIAL] fix type in compat_sys_fcntl64
-Message-Id: <20030626113704.700d9c90.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Wed, 25 Jun 2003 21:50:17 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:52233 "EHLO
+	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S265298AbTFZBuO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jun 2003 21:50:14 -0400
+Date: Wed, 25 Jun 2003 19:00:40 -0700
+From: jw schultz <jw@pegasys.ws>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [2.5.73-mm1 XFS] restrict_chown and quotas
+Message-ID: <20030626020039.GD11555@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20030625095126.GD1745@thanes.org> <1056545505.1170.19.camel@laptop.americas.sgi.com> <20030625134129.GG1745@thanes.org> <1056551143.5779.0.camel@laptop.fenrus.com> <20030625153545.A16074@infradead.org> <1056553902.1416.61.camel@laptop.americas.sgi.com> <20030625161627.A20049@infradead.org> <1056554727.1174.86.camel@laptop.americas.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1056554727.1174.86.camel@laptop.americas.sgi.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+On Wed, Jun 25, 2003 at 10:25:26AM -0500, Steve Lord wrote:
+> On Wed, 2003-06-25 at 10:16, Christoph Hellwig wrote:
+> > On Wed, Jun 25, 2003 at 10:11:40AM -0500, Steve Lord wrote:
+> > > This is all backwards compatibility with folks expecting Irix behavior,
+> > > and I think on Irix it is even a backwards compatibility thing. If we
+> > > were not having a major power outage at work right now I could look
+> > > at Irix and confirm this. Imposing different semantics on the rest of
+> > > the filesystems did not seem like the right thing to do.
+> > 
+> > Actually there's a posix option group for finding out exactly that,
+> > (see http://people.redhat.com/drepper/posix-option-groups.html#CHOWN_RESTRICTED)
+> > but yeah it might be more of a legacy thing.
+> > 
+> > Adding a common sysctl for this would allow glibc to properly implement
+> > patchconf(..., _PC_CHOWN_RESTRICTED), but it seems SuSv2/3 sais it must
+> > be always defined:
+> > 
+> > http://www.opengroup.org/onlinepubs/007908799/xsh/chown.html
+> 
+> Thanks, I also found out that the unrestricted  chown behavior is the
+> way AT&T system V did it originally. I vote for this being a legacy
+> thing.
 
-[Pointed out by Bjorn Helgaas via Arun Sharma]
+That is correct.  It had some utility when a process could
+only be a member of one group at a time and for giving files
+to someone else while keeping all others out.  Chown was
+expected to disable s[ug]id bits.  The value of an
+unrestricted chown is very small and will be eliminated by
+ACLs.
 
-This fixes an obvious cut and paste error in my original patch.  Please
-apply.
+Quotas turned it into a security issue.   With unrestricted
+chown a user could chown large files to another (preferably
+unlimited) uid and avoid the limits and usage charges.  It
+also allows one user to sabotage another by causing that
+user to go over quota on files he has no knowledge or control
+over.  Quotas and unrestricted chown do not mix.
 
 -- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
-diff -ruN 2.5.73-bk3/fs/compat.c 2.5.73-bk3-sfr.1/fs/compat.c
---- 2.5.73-bk3/fs/compat.c	2003-06-23 09:59:58.000000000 +1000
-+++ 2.5.73-bk3-sfr.1/fs/compat.c	2003-06-26 11:31:23.000000000 +1000
-@@ -451,7 +451,6 @@
- 			break;
- 		old_fs = get_fs();
- 		set_fs(KERNEL_DS);
--		ret = sys_fcntl(fd, F_GETLK, (unsigned long)&f);
- 		ret = sys_fcntl(fd, (cmd == F_GETLK64) ? F_GETLK :
- 				((cmd == F_SETLK64) ? F_SETLK : F_SETLKW),
- 				(unsigned long)&f);
+		Remember Cernan and Schmitt

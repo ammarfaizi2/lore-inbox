@@ -1,106 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269202AbUIIAX0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269221AbUIIAbx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269202AbUIIAX0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 20:23:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269221AbUIIAX0
+	id S269221AbUIIAbx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 20:31:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269234AbUIIAbx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 20:23:26 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:37625 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S269202AbUIIAXW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 20:23:22 -0400
-From: James Cleverdon <jamesclv@us.ibm.com>
-Reply-To: jamesclv@us.ibm.com
-Organization: IBM LTC (xSeries Solutions
-To: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
-Subject: [PATCH][2.6.8.1-mm4]  phys_proc_id change for x86-64
-Date: Wed, 8 Sep 2004 17:23:16 -0700
-User-Agent: KMail/1.5.4
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>
-References: <200409081647.46980.jamesclv@us.ibm.com>
-In-Reply-To: <200409081647.46980.jamesclv@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_0J6PB9vpAf1ZxkB"
-Message-Id: <200409081723.16929.jamesclv@us.ibm.com>
+	Wed, 8 Sep 2004 20:31:53 -0400
+Received: from rproxy.gmail.com ([64.233.170.206]:22476 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S269221AbUIIAbv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 20:31:51 -0400
+Message-ID: <9e473391040908173179bf4647@mail.gmail.com>
+Date: Wed, 8 Sep 2004 20:31:50 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: multi-domain PCI and sysfs
+Cc: "David S. Miller" <davem@davemloft.net>, jbarnes@engr.sgi.com,
+       willy@debian.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1094683264.12335.35.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <9e4733910409041300139dabe0@mail.gmail.com>
+	 <200409072115.09856.jbarnes@engr.sgi.com>
+	 <20040907211637.20de06f4.davem@davemloft.net>
+	 <200409072125.41153.jbarnes@engr.sgi.com>
+	 <9e47339104090723554eb021e4@mail.gmail.com>
+	 <20040908112143.330a9301.davem@davemloft.net>
+	 <1094683264.12335.35.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 08 Sep 2004 23:41:05 +0100, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> The only way I can see VGA routing working is to have some kind of arch
+> code that can tell you which devices are on the same VGA legacy tree.
+> That then allows a vga layer to walk VGA devices and ask arch code the
+> typically simple question
 
---Boundary-00=_0J6PB9vpAf1ZxkB
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+This is the core problem, I'm missing this piece of data. I need it to
+know how many VGA devices to create since there needs to be one for
+each VGA legacy tree.
 
-The value that cpuinfo returns for command 1 in ebx is the
-physical APIC ID latched when the system comes out of reset.
+All of my previous replies were confused since I was associating VGA
+legacy trees and PCI domains, which apparently have nothing to do with
+each other. I'm working on hardware that has neither multiple legacy
+trees or domains so I have no experience in dealing with them.
 
-Ordinarily, this is identical to the value in the local APIC's ID
-register, because nearly all BIOSes accept the HW assigned value.
+I think the problem is more basic than building a VGA device. I
+wouldn't be having trouble if there were structures for each "PCI IO
+space". An x86 machine would have one of these structs. Other
+architectures would have multiple ones. You need these structs to find
+any PCI legacy device, the problem is not specific to VGA.
 
-Our systems, made up of individual building blocks, can't do
-that.  Each node boots as a separate system and is joined
-together by the BIOS.  Thus, the BIOS rewrites the local APIC ID
-register with a new value.
+Shouldn't we first create a cross platform structure that represents
+the "PCI IO spaces" available in the system? Then I could walk this
+list and easily know how many VGA devices to create. Each VGA device
+would then use this structure to know the PCI base address for each
+"IO space" operation.
 
-Potomac and Nocona chips have a mechanism by which the BIOS
-writer can change bits 7:5 to match the assigned cluster ID. 
-Bits 2:0 come from the thread ID.  However, bits 4:3 are still
-those latched at reset.  Oops!
-
-Summary:  Large clustered systems can't use cpuid to derive the
-sibling information.
-
-Fix:  Use the local APIC ID.  That's the value we use to online
-the CPUs, so it had better be OK.  For non-clustered systems,
-cpuid == local APIC, so nothing but large boxes should be
-affected.
-
-
-
-
-
-
-diff -pruN 2.6.8.1-mm4/arch/x86_64/kernel/setup.c w8.1m4/arch/x86_64/kernel/setup.c
---- 2.6.8.1-mm4/arch/x86_64/kernel/setup.c	2004-08-25 14:48:21.000000000 -0700
-+++ w8.1m4/arch/x86_64/kernel/setup.c	2004-09-02 15:51:55.000000000 -0700
-@@ -724,7 +724,7 @@ static void __init detect_ht(struct cpui
- 		}
- 		if (index_lsb != index_msb )
- 			index_msb++;
--		initial_apic_id = ebx >> 24 & 0xff;
-+		initial_apic_id = hard_smp_processor_id();
- 		phys_proc_id[cpu] = initial_apic_id >> index_msb;
- 		
- 		printk(KERN_INFO  "CPU: Physical Processor ID: %d\n",
-
+I suspect "PCI IO spaces" are a function of PCI bridge chips. We
+already have structures corresponding to these chips.  Maybe all I
+need to know is how to query a bridge chips config and see if it is
+implementing a "PCI IO space". Then I could walk the bridge structures
+and know how many VGA devices to create.
 
 -- 
-James Cleverdon
-IBM LTC (xSeries Linux Solutions)
-{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot comm
-
---Boundary-00=_0J6PB9vpAf1ZxkB
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="cpu_sibling_map_2004-08-31_2.6.8.1-mm4"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="cpu_sibling_map_2004-08-31_2.6.8.1-mm4"
-
-diff -pruN 2.6.8.1-mm4/arch/x86_64/kernel/setup.c w8.1m4/arch/x86_64/kernel/setup.c
---- 2.6.8.1-mm4/arch/x86_64/kernel/setup.c	2004-08-25 14:48:21.000000000 -0700
-+++ w8.1m4/arch/x86_64/kernel/setup.c	2004-09-02 15:51:55.000000000 -0700
-@@ -724,7 +724,7 @@ static void __init detect_ht(struct cpui
- 		}
- 		if (index_lsb != index_msb )
- 			index_msb++;
--		initial_apic_id = ebx >> 24 & 0xff;
-+		initial_apic_id = hard_smp_processor_id();
- 		phys_proc_id[cpu] = initial_apic_id >> index_msb;
- 		
- 		printk(KERN_INFO  "CPU: Physical Processor ID: %d\n",
-
---Boundary-00=_0J6PB9vpAf1ZxkB--
-
+Jon Smirl
+jonsmirl@gmail.com

@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271676AbRIGK35>; Fri, 7 Sep 2001 06:29:57 -0400
+	id <S271677AbRIGKch>; Fri, 7 Sep 2001 06:32:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271677AbRIGK3r>; Fri, 7 Sep 2001 06:29:47 -0400
-Received: from b73254.upc-b.chello.nl ([212.83.73.254]:60420 "EHLO
-	kleintje.nozone.nl") by vger.kernel.org with ESMTP
-	id <S271676AbRIGK33>; Fri, 7 Sep 2001 06:29:29 -0400
-Date: Fri, 7 Sep 2001 12:29:49 +0200 (CEST)
-From: Tony den Haan <tony@chello.nl>
-To: linux-kernel@vger.kernel.org
-Subject: RE: 2.4.8/9 panic on serial with MSI-694D MB
-In-Reply-To: <000001c12f19$94010ff0$f5237ad5@hayholt>
-Message-ID: <Pine.LNX.4.21.0109071226390.2078-100000@kleintje.nozone.nl>
+	id <S271682AbRIGKca>; Fri, 7 Sep 2001 06:32:30 -0400
+Received: from tux.rsn.bth.se ([194.47.143.135]:41709 "EHLO tux.rsn.bth.se")
+	by vger.kernel.org with ESMTP id <S271677AbRIGKcP>;
+	Fri, 7 Sep 2001 06:32:15 -0400
+Date: Fri, 7 Sep 2001 12:31:17 +0200 (CEST)
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: Kain <kain@kain.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: what ever happened to fastpath routing?
+In-Reply-To: <20010907041723.A28390@noir.kain.org>
+Message-ID: <Pine.LNX.4.21.0109071223270.15414-100000@tux.rsn.bth.se>
+X-message-flag: Get yourself a real mail client! http://www.washington.edu/pine/
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Aug 2001, Laramie Leavitt wrote:
+On Fri, 7 Sep 2001, Kain wrote:
 
-> This appears to be the same crash that I have reported 3 times 
-> over the last few weeks.  I have not heard anything, but I suspected
-> that it was a console bug because I have 2 video cards and
-> the <c0105262> addresses are in vgacon...  I didn't think that
-> it might be the serial port.
+> Sorry if I posted this twice.. Email for me has been screwed for most of Sep. 6 and some of Sep. 7.
 > 
-> Thanks for the pointer.  2.4.9 SMP now boots, and everything
-> Seems to work alright.  My new config does not use serial or
-> any power management.
-> 
-> It only appears in SMP mode (I can boot any kernel with maxcpus=1)
-> so it is probably a locking problem.  I did notice that mine stopped
-> right after printing a notice about ttyS0, but the oops pushed that 
-> Off the screen.
+> What ever happened to fastpath routing in the 2.4 Kernel?  I still see the API
+> there, but the only driver I see implementing it is dummy :(
 
-if did more checking, problem started with 2.4.7
-serial.c did show up in patch-2.4.7 :-)
+I don't know why the support for fastrouting was removed from the
+tulip-driver (the only real driver I think ever had it).
 
-tony
+If you are interested in a tulip-driver that has excellent performance
+(even without fastrouting) and has support for fastrouting take a look at
+this:
+
+ftp://robur.slu.se/pub/Linux/net-development/tulip-ss010402-poll.tar.gz
+
+this driver can route over 200k pps _without_ fastrouting on a pII 350.
+(this is obvious with more than two interfaces or with traffic in both
+directions)
+
+This driver is both irq-driven and polling, it polls at high loads.
+
+/Martin
 

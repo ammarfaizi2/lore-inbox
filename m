@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291272AbSCHWy7>; Fri, 8 Mar 2002 17:54:59 -0500
+	id <S291766AbSCHXAJ>; Fri, 8 Mar 2002 18:00:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291214AbSCHWys>; Fri, 8 Mar 2002 17:54:48 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:33017 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S291088AbSCHWyc>; Fri, 8 Mar 2002 17:54:32 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Hubertus Franke <frankeh@watson.ibm.com>
-Reply-To: frankeh@watson.ibm.com
-Organization: IBM Research
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
-Date: Fri, 8 Mar 2002 17:55:20 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: rusty@rustcorp.com.au (Rusty Russell), linux-kernel@vger.kernel.org
-In-Reply-To: <E16jRAU-0007QU-00@the-village.bc.nu>
-In-Reply-To: <E16jRAU-0007QU-00@the-village.bc.nu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020308225425.772D13FE06@smtp.linux.ibm.com>
+	id <S292092AbSCHW7t>; Fri, 8 Mar 2002 17:59:49 -0500
+Received: from jhuml3.jhu.edu ([128.220.2.66]:57301 "EHLO jhuml3.jhu.edu")
+	by vger.kernel.org with ESMTP id <S292150AbSCHW7j>;
+	Fri, 8 Mar 2002 17:59:39 -0500
+Date: Fri, 08 Mar 2002 18:00:40 -0500
+From: Thomas Hood <jdthood@mail.com>
+Subject: PnP BIOS driver status
+To: linux-kernel@vger.kernel.org
+Message-id: <1015628440.14518.212.camel@thanatos>
+MIME-version: 1.0
+X-Mailer: Evolution/1.0.2
+Content-type: text/plain
+Content-transfer-encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 08 March 2002 03:40 pm, Alan Cox wrote:
-> > So I would suggest making the size (and thus alignment check) of locks at
-> > least 8 bytes (and preferably 16). That makes it slightly harder to put
-> > locks on the stack, but gcc does support stack alignment, even if the
-> > code sucks right now.
->
-> Can we go to cache line alignment - for an array of locks thats clearly
-> advantageous
+A couple people have asked me about the status of the 
+PnP BIOS driver, so I thought I'd post an update. 
 
-NO and let me explain.
+History: During the pre-Tosatti 2.4-ac series the driver was 
+hammered into a reliable form.  However it never entered the 
+mainline kernel series. 
 
-I would to be able to integrate the lock with the data.
-This is much more cache friendly then putting the lock on a different 
-cacheline.
+The driver was then stripped down to the core functionality 
+required to make the lspnp and setpnp utilities work. 
+pnpbios_register_driver() and pnpbios_unregister_driver() are 
+still there but aren't used by anything.  Additional /proc/ 
+interface files were then added to allow reading of ESCD info. 
 
-If you want an array you need to pad each element. 
-That's easy enough to do....
-Can't shrink a datastructure on the other hand :-)
+The latest version of the driver seems nice 'n' stable and can 
+be found in Alan's latest 2.4 patches. 
+
+Current 2.5 kernels also contain the driver, but it's a bit out 
+of date.  There's a patch in 2.5-dj but that's also out of date. 
+("Out of date" here means "missing new features and some 
+cleanups".)  Once DJ releases a 2.5.6-dj I'll send him a patch 
+to bring his tree up to date.  Then he can pass it on to Linus. 
 
 -- 
--- Hubertus Franke  (frankeh@watson.ibm.com)
+Thomas Hood
+

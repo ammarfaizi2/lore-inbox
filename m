@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261791AbVASRUq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261801AbVASRXh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261791AbVASRUq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 12:20:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261781AbVASRPe
+	id S261801AbVASRXh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 12:23:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbVASRWG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 12:15:34 -0500
-Received: from mail.tmr.com ([216.238.38.203]:52750 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S261785AbVASROm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 12:14:42 -0500
-Date: Wed, 19 Jan 2005 12:03:44 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Dan Hollis <goemon@anime.net>
-cc: Venkat Manakkal <venkat@rayservers.com>, Andries Brouwer <aebr@win.tue.nl>,
-       Jari Ruusu <jariruusu@users.sourceforge.net>,
-       Fruhwirth Clemens <clemens@endorphin.org>,
-       Paul Walker <paul@black-sun.demon.co.uk>, linux-kernel@vger.kernel.org,
-       linux-crypto@nl.linux.org, James Morris <jmorris@redhat.com>
-Subject: Re: Announce loop-AES-v3.0b file/swap crypto package
-In-Reply-To: <Pine.LNX.4.44.0501181616090.15507-100000@sasami.anime.net>
-Message-ID: <Pine.LNX.3.96.1050119115600.8036H-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 19 Jan 2005 12:22:06 -0500
+Received: from speedy.student.utwente.nl ([130.89.163.131]:36578 "EHLO
+	speedy.student.utwente.nl") by vger.kernel.org with ESMTP
+	id S261790AbVASRPY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 12:15:24 -0500
+Date: Wed, 19 Jan 2005 18:15:15 +0100
+From: Sytse Wielinga <s.b.wielinga@student.utwente.nl>
+To: linux-os <linux-os@analogic.com>
+Cc: Bodo Eggert <7eggert@gmx.de>, Sam Ravnborg <sam@ravnborg.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>,
+       "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: kbuild: Implicit dependence on the C compiler
+Message-ID: <20050119171515.GA31265@speedy.student.utwente.nl>
+Mail-Followup-To: linux-os <linux-os@analogic.com>,
+	Bodo Eggert <7eggert@gmx.de>, Sam Ravnborg <sam@ravnborg.org>,
+	Linux kernel <linux-kernel@vger.kernel.org>,
+	"H. Peter Anvin" <hpa@zytor.com>
+References: <fa.e2phu9o.1c30pig@ifi.uio.no> <fa.gakt9b5.1klcr9h@ifi.uio.no> <E1CrIPb-0000lS-Oz@be1.7eggert.dyndns.org> <Pine.LNX.4.61.0501191128090.10869@chaos.analogic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0501191128090.10869@chaos.analogic.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Jan 2005, Dan Hollis wrote:
-
-> On Tue, 18 Jan 2005, Venkat Manakkal wrote:
-> > As for cryptoloop, I'm sorry, I cannot say the same. The password hashing
-> > system being changed in the past year, poor stability and machine lockups are
-> > what I have noticed, besides there is nothing like the readme here:
+On Wed, Jan 19, 2005 at 11:35:55AM -0500, linux-os wrote:
+> >Sam Ravnborg <sam@ravnborg.org> wrote:
+> >>1) Unconditionally execute make install assuming vmlinux is up-to-date.
+> >>   make modules_install run unconditionally, so this is already know
+> >>   practice
 > 
-> cryptoloop is also unusably slow, even on my x86_64 machines...
+> You must never execute `make install` or `make modules_install` without
+> the explicit action of the operator! To do so could (will) result
+> in an un-bootable system. I can't imagine what somebody would be
+> thinking to propose an automatic install. Whoever proposed this
+> must have lots of time and little knowledge. They are going to
+> be reinstalling everything from the distribution CD as a hobby.
 
-I'm obviously doing something wrong, I just copied about 40MB of old
-kernels (vmlinuz*) and some jpg files into a subdir on my cryptoloop
-filesystem, and I measured 4252.2375kB/s realtime and 18819.7879 kB/s CPU
-time. This doesn't seem unusably slow, even on my mighty P-II/350 and
-eight year old 4GB drives. The hdb is so old it has to run in pio mode, to
-give you an idea, and the original data was not in memory.
+What I think Sam meant was, to let make install assume that vmlinux is
+up-to-date, IOW, just to remove the dependency of install on vmlinux.
 
-Undoubtedly your idea of unusably slow is far more demanding than mine...
+Err, to put it in your words: I can't imagine what somebody would be thinking
+to think he proposed an automatic install. :-P
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+	Sytse

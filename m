@@ -1,54 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268827AbUHLWGX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268812AbUHLWHA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268827AbUHLWGX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 18:06:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268812AbUHLWEA
+	id S268812AbUHLWHA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 18:07:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268817AbUHLWG7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 18:04:00 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:51466 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S268844AbUHLWDm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 18:03:42 -0400
-Date: Thu, 12 Aug 2004 23:03:33 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Todd Poynor <tpoynor@mvista.com>
-Cc: Patrick Mochel <mochel@digitalimplant.org>, linux-kernel@vger.kernel.org,
-       pavel@ucw.cz, benh@kernel.crashing.org, david-b@pacbell.net
-Subject: Re: [RFC] Fix Device Power Management States
-Message-ID: <20040812230333.C13553@flint.arm.linux.org.uk>
-Mail-Followup-To: Todd Poynor <tpoynor@mvista.com>,
-	Patrick Mochel <mochel@digitalimplant.org>,
-	linux-kernel@vger.kernel.org, pavel@ucw.cz,
-	benh@kernel.crashing.org, david-b@pacbell.net
-References: <Pine.LNX.4.50.0408090311310.30307-100000@monsoon.he.net> <41197ABA.6080107@mvista.com>
+	Thu, 12 Aug 2004 18:06:59 -0400
+Received: from mail.tmr.com ([216.238.38.203]:33298 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S268812AbUHLWGl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 18:06:41 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Date: Thu, 12 Aug 2004 18:10:21 -0400
+Organization: TMR Associates, Inc
+Message-ID: <cfgpa6$gu2$1@gatekeeper.tmr.com>
+References: <200408091412.i79EC7iR010554@burner.fokus.fraunhofer.de><200408091412.i79EC7iR010554@burner.fokus.fraunhofer.de> <1092061265.4383.5183.camel@hades.cambridge.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <41197ABA.6080107@mvista.com>; from tpoynor@mvista.com on Tue, Aug 10, 2004 at 06:47:38PM -0700
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Trace: gatekeeper.tmr.com 1092348039 17346 192.168.12.100 (12 Aug 2004 22:00:39 GMT)
+X-Complaints-To: abuse@tmr.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+In-Reply-To: <1092061265.4383.5183.camel@hades.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 10, 2004 at 06:47:38PM -0700, Todd Poynor wrote:
-> Divorcing device power states from ACPI-defined integers would be very 
-> nice for embedded platforms.  Usually the platform bus would be 
-> involved.  Since the proposal tends to place more responsibility on the 
-> bus driver, I'm interested in the intended usage for platform devices. 
-> For example, are platform_device callbacks for 
-> suspend/resume/save/restore of the particular device still needed?  How 
-> does the platform bus driver map (platform-specific?) system states to 
-> device states?
+David Woodhouse wrote:
+> On Mon, 2004-08-09 at 16:12 +0200, Joerg Schilling wrote:
+> 
+>>If you are right, why then is SuSE removing the warnings in cdrecord
+>>that are there to tell the user that cdrecord is running with insufficient 
+>>privilleges?
+> 
+> 
+> Because those warnings are bogus, put there by someone who likes to
+> complain about things that are not _really_ a problem?
 
-platform devices are still a reminance of the previous PM model
-incarnation, and where merely patched over to make them work again
-in todays model.
+Actually they are a problem on a loaded system, it's just that 
+developers seem to run system with enough power to avoid the issues. And 
+if you have a system using burn-free all the time you do use more track 
+and the occasional device won't read it.
 
-It would be nice to have a proper platform_device_driver structure
-so we could finally kill the otherwise unused PM methods in struct
-device_driver and finally get rid of the old PM model.
+If someone would note the capabilities needed to allow these things 
+maybe jrg would have one less thing to complain about.
+
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

@@ -1,44 +1,191 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265602AbTGIBxF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 21:53:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265612AbTGIBxF
+	id S265612AbTGICJI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 22:09:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265613AbTGICJI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 21:53:05 -0400
-Received: from [202.102.142.16] ([202.102.142.16]:65351 "ehlo yahoo.com")
-	by vger.kernel.org with ESMTP id S265602AbTGIBxE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 21:53:04 -0400
-From: 676435@yahoo.com
-Subject: World's Largest buyer
+	Tue, 8 Jul 2003 22:09:08 -0400
+Received: from twinlark.arctic.org ([168.75.98.6]:53696 "EHLO
+	twinlark.arctic.org") by vger.kernel.org with ESMTP id S265612AbTGICI7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 22:08:59 -0400
+Date: Tue, 8 Jul 2003 19:23:35 -0700 (PDT)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain;charset="GB2312"
-Reply-To: 676435@yahoo.com
-Date: Wed, 9 Jul 2003 10:07:42 +0800
-X-Priority: 3
-X-Mailer: FoxMail 4.0 beta 2 [cn]
-Message-Id: <S265602AbTGIBxE/20030709015304Z+21864@vger.kernel.org>
+Subject: Re: 2.5.72 won't boot with keyboard plugged in
+In-Reply-To: <Pine.LNX.4.53.0306211430280.26771@twinlark.arctic.org>
+Message-ID: <Pine.LNX.4.53.0307081920240.4605@twinlark.arctic.org>
+References: <Pine.LNX.4.53.0306211430280.26771@twinlark.arctic.org>
+X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.53.0307081920242.4605@twinlark.arctic.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear sir, 
+hi -- i've done some more debugging on this and i've discovered i can get
+this system to boot (with working keyboard and mouse) if i add
+"i8042_nomux" to the kernel args.  this at least seems like a workaround,
+but this system works fine in 2.4 so it seems something is wrong in 2.5.
 
-Welcome to one of the Largest Trade Community on the Internet , we have 
-over 100,000 buyers, suppliers, importers, exporters in our database, 
-please feel tree to take a look at our website. By Joining us , you will 
-expose yourself to unlimited worldwide business opportunities.
+-dean
 
-    http://www.8he8.com/trade/tradeleads.htm
+On Sat, 21 Jun 2003, dean gaudet wrote:
 
----------------------------
-
-
-一 个 全 球 著 名 的 商 贸 网 站, 每 天 有 超 过 上 十 万 的 浏 览 人 次 .我
-们 的 网 站 中 有 三 万 多 条 贸 易 信 息.
-
-十 万 多 个 来 自 全 球 的 商 贸 会 员 .每 天 都 有 上 千 次 的 贸 易 活 动 
-在 我 们 的 网 站 上 进 行 .参 加 我 们 的 会 员 , 你 就 可 以 马 上 开 展 
-你 的 国 际 商 贸 活 动 , 推 广 产 品 , 寻 找 贸 易 伙 伴 .
-
-   http://www.8he8.com/trade/tradeleads.htm
-
+> i've got a system which boots to this point:
+>
+> ...
+> Uniform CD-ROM driver Revision: 3.12
+> mice: PS/2 mouse device common for all mice
+> i8042.c: Detected active multiplexing controller, rev 1.1.
+> serio: i8042 AUX0 port at 0x60,0x64 irq 12
+> serio: i8042 AUX1 port at 0x60,0x64 irq 12
+> atkbd.c: frame/parity error: 02
+> atkbd.c: frame/parity error: 02
+> atkbd.c: frame/parity error: 02
+> atkbd.c: frame/parity error: 02
+>
+> that message repeats dozens of times then it gets into a crash oops loop,
+> printing oops after oops after oops, which i'm not sure contain any useful
+> data, but i've included the first oops below.
+>
+> the system boots fine if i unplug the keyboard & mouse.
+>
+> any ideas?
+>
+> i attached the non-comments portion of the config.
+>
+> -dean
+>
+> <1>Unable to handle kernel NULL pointer dereference at virtual address 0000005c
+>  printing eip:
+> c011367d
+> *pde = 00000000
+> Oops: 0000 [#1]
+> CPU:    0
+> EIP:    0060:[<c011367d>]    Not tainted
+> EFLAGS: 00010013
+> EIP is at do_page_fault+0x3d/0x3f4
+> eax: dde3e000   ebx: 00000000   ecx: 0000007b   edx: 0000007b
+> esi: 00000000   edi: 0000005c   ebp: dde8a028   esp: dde3e094
+> ds: 007b   es: 007b   ss: 0068
+> Process  (pid: -571573688, threadinfo=dde3c000 task=ddee79cc)
+> Stack: c14d2304 00000032 00000001 000041ed 00000003 00000000 00000000 00000000
+>        00000000 00000000 3e25f0bc 0d394db0 3e25f0bc 0d394db0 3e25f0bc 0d394db0
+>        0000000c 00001000 00000000 00000000 00000000 00000001 00000000 dde3e0f0
+> Call Trace:
+>  [<c0113640>] do_page_fault+0x0/0x3f4
+>  [<c01090d9>] error_code+0x2d/0x38
+>  [<c011367d>] do_page_fault+0x3d/0x3f4
+>  [<c0113640>] do_page_fault+0x0/0x3f4
+>  [<c01090d9>] error_code+0x2d/0x38
+>  [<c011367d>] do_page_fault+0x3d/0x3f4
+>  [<c0113640>] do_page_fault+0x0/0x3f4
+>  [<c01090d9>] error_code+0x2d/0x38
+>  [<c011367d>] do_page_fault+0x3d/0x3f4
+>  [<c0113640>] do_page_fault+0x0/0x3f4
+>  [<c01090d9>] error_code+0x2d/0x38
+>  [<c011367d>] do_page_fault+0x3d/0x3f4
+>  [<c0113640>] do_page_fault+0x0/0x3f4
+>  [<c01090d9>] error_code+0x2d/0x38
+>  [<c011367d>] do_page_fault+0x3d/0x3f4
+>  [<c0113640>] do_page_fault+0x0/0x3f4
+>  [<c01090d9>] error_code+0x2d/0x38
+>  [<c011367d>] do_page_fault+0x3d/0x3f4
+>  [<c0113640>] do_page_fault+0x0/0x3f4
+>  [<c01090d9>] error_code+0x2d/0x38
+>  [<c011367d>] do_page_fault+0x3d/0x3f4
+>  [<c0113640>] do_page_fault+0x0/0x3f4
+>  [<c01090d9>] error_code+0x2d/0x38
+>  [<c011367d>] do_page_fault+0x3d/0x3f4
+>  [<c0113640>] do_page_fault+0x0/0x3f4
+>  [<c01090d9>] error_code+0x2d/0x38
+>  [<c011367d>] do_page_fault+0x3d/0x3f4
+>  [<c0113640>] do_page_fault+0x0/0x3f4
+>  [<c01090d9>] error_code+0x2d/0x38
+>  [<c011367d>] do_page_fault+0x3d/0x3f4
+>  [<c0113640>] do_page_fault+0x0/0x3f4
+>  [<c01090d9>] error_code+0x2d/0x38
+>  [<c011367d>] do_page_fault+0x3d/0x3f4
+>  [<c0113640>] do_page_fault+0x0/0x3f4
+>  [<c01090d9>] error_code+0x2d/0x38
+>  [<c011367d>] do_page_fault+0x3d/0x3f4
+>  [<c0113640>] do_page_fault+0x0/0x3f4
+>  [<c01090d9>] error_code+0x2d/0x38
+>  [<c011367d>] do_page_fault+0x3d/0x3f4
+>  [<c0113640>] do_page_fault+0x0/0x3f4
+>  [<c01090d9>] error_code+0x2d/0x38
+>  [<c011367d>] do_page_fault+0x3d/0x3f4
+>  [<c0113640>] do_page_fault+0x0/0x3f4
+>  [<c01090d9>] error_code+0x2d/0x38
+>  [<c011367d>] do_page_fault+0x3d/0x3f4
+>  [<c0113640>] do_page_fault+0x0/0x3f4
+>  [<c01090d9>] error_code+0x2d/0x38
+>  [<c011367d>] do_page_fault+0x3d/0x3f4
+>  [<c0113640>] do_page_fault+0x0/0x3f4
+>  [<c01090d9>] error_code+0x2d/0x38
+>  [<c011367d>] do_page_fault+0x3d/0x3f4
+>  [<c0113640>] do_page_fault+0x0/0x3f4
+>  [<c01090d9>] error_code+0x2d/0x38
+>  [<c011367d>] do_page_fault+0x3d/0x3f4
+>  [<c0113640>] do_page_fault+0x0/0x3f4
+>  [<c01090d9>] error_code+0x2d/0x38
+>  [<c011367d>] do_page_fault+0x3d/0x3f4
+>  [<c0113640>] do_page_fault+0x0/0x3f4
+>  [<c01090d9>] error_code+0x2d/0x38
+>  [<c011367d>] do_page_fault+0x3d/0x3f4
+>  [<c0113640>] do_page_fault+0x0/0x3f4
+>  [<c01090d9>] error_code+0x2d/0x38
+>  [<c011367d>] do_page_fault+0x3d/0x3f4
+>  [<c0113640>] do_page_fault+0x0/0x3f4
+>  [<c01090d9>] error_code+0x2d/0x38
+>  [<c011367d>] do_page_fault+0x3d/0x3f4
+>  [<c0113640>] do_page_fault+0x0/0x3f4
+>  [<c01090d9>] error_code+0x2d/0x38
+>  [<c011367d>] do_page_fault+0x3d/0x3f4
+>  [<c0113640>] do_page_fault+0x0/0x3f4
+>  [<c01090d9>] error_code+0x2d/0x38
+>  [<c011367d>] do_page_fault+0x3d/0x3f4
+>  [<c01a9774>] pci_release_dev+0x0/0xc
+>  [<c0113640>] do_page_fault+0x0/0x3f4
+>  [<c01090d9>] error_code+0x2d/0x38
+>  [<c011367d>] do_page_fault+0x3d/0x3f4
+>  [<c0113640>] do_page_fault+0x0/0x3f4
+>  [<c01090d9>] error_code+0x2d/0x38
+>  [<c011367d>] do_page_fault+0x3d/0x3f4
+>  [<c0113640>] do_page_fault+0x0/0x3f4
+>  [<c01090d9>] error_code+0x2d/0x38
+>  [<c011367d>] do_page_fault+0x3d/0x3f4
+>  [<c0113640>] do_page_fault+0x0/0x3f4
+>  [<c01090d9>] error_code+0x2d/0x38
+>  [<c011367d>] do_page_fault+0x3d/0x3f4
+>  [<c0113640>] do_page_fault+0x0/0x3f4
+>  [<c01090d9>] error_code+0x2d/0x38
+>  [<c011367d>] do_page_fault+0x3d/0x3f4
+>  [<c01a9774>] pci_release_dev+0x0/0xc
+>  [<c0113640>] do_page_fault+0x0/0x3f4
+>  [<c01090d9>] error_code+0x2d/0x38
+>  [<c011367d>] do_page_fault+0x3d/0x3f4
+>  [<c0113640>] do_page_fault+0x0/0x3f4
+>  [<c01090d9>] error_code+0x2d/0x38
+>  [<c011367d>] do_page_fault+0x3d/0x3f4
+>  [<c0113640>] do_page_fault+0x0/0x3f4
+>  [<c01090d9>] error_code+0x2d/0x38
+>  [<c011367d>] do_page_fault+0x3d/0x3f4
+>  [<c0113640>] do_page_fault+0x0/0x3f4
+>  [<c01090d9>] error_code+0x2d/0x38
+>  [<c011367d>] do_page_fault+0x3d/0x3f4
+>  [<c0113640>] do_page_fault+0x0/0x3f4
+>  [<c01090d9>] error_code+0x2d/0x38
+>  [<c011367d>] do_page_fault+0x3d/0x3f4
+>  [<c0113640>] do_page_fault+0x0/0x3f4
+>  [<c01090d9>] error_code+0x2d/0x38
+>  [<c011367d>] do_page_fault+0x3d/0x3f4
+>  [<c0113640>] do_page_fault+0x0/0x3f4
+>  [<c01090d9>] error_code+0x2d/0x38
+>  [<c011367d>] do_page_fault+0x3d/0x3f4
+>  [<c0113640>] do_page_fault+0x0/0x3f4
+>  [<c01090d9>] error_code+0x2d/0x38
+>  [<c011367d>] do_page_fault+0x3d/0x3f4
+>
+>

@@ -1,52 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261665AbSKCHaG>; Sun, 3 Nov 2002 02:30:06 -0500
+	id <S261669AbSKCHeF>; Sun, 3 Nov 2002 02:34:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261669AbSKCHaG>; Sun, 3 Nov 2002 02:30:06 -0500
-Received: from hacksaw.org ([216.41.5.170]:10233 "EHLO
-	habitrail.home.fools-errant.com") by vger.kernel.org with ESMTP
-	id <S261665AbSKCHaF>; Sun, 3 Nov 2002 02:30:05 -0500
-Message-Id: <200211030736.gA37a2lv007213@habitrail.home.fools-errant.com>
-X-Mailer: exmh version 2.5 08/15/2002 with nmh-1.0.4
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Alexander Viro <viro@math.psu.edu>,
-       Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>,
-       "Theodore Ts'o" <tytso@mit.edu>, Dax Kelson <dax@gurulabs.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
-       davej@suse.de
-Subject: Re: Filesystem Capabilities in 2.6? 
-In-reply-to: Your message of "Sat, 02 Nov 2002 19:35:25 PST."
-             <Pine.LNX.4.44.0211021925230.2382-100000@home.transmeta.com> 
+	id <S261677AbSKCHeF>; Sun, 3 Nov 2002 02:34:05 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:25362 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S261669AbSKCHeE>;
+	Sun, 3 Nov 2002 02:34:04 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Re: invalid character 45 in exportstr for include-config 
+In-reply-to: Your message of "02 Nov 2002 22:20:11 -0800."
+             <1036304411.17126.1.camel@rth.ninka.net> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 03 Nov 2002 02:36:01 -0500
-From: Hacksaw <hacksaw@hacksaw.org>
+Date: Sun, 03 Nov 2002 18:40:20 +1100
+Message-ID: <21441.1036309220@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A call from left field:
+On 02 Nov 2002 22:20:11 -0800, 
+"David S. Miller" <davem@redhat.com> wrote:
+>Kai, this fixes the problem I reported to you on sparc64 with
+>make-3.79   What version of make do you have which accepted this
+>variable name with a dash in it?
 
-As a sys-admin I love the idea of the capabilities, but I hate this mount 
---bind thing. I'd really rather see it have its own command name. If it were 
-strictly something that happens at mount time for a filesystem that'd be one 
-thing, but
-
->mount --bind --capability=xx,yy /usr/bin/foo /usr/bin/foo
-
-looks like a mistake. 
-
-If you were loop mounting the binary into the user's directory, then I could 
-see using mount.
-
-This would be clearer:
-
-setcap -c xx,yy /usr/bin/foo
-
-(I also have nothing against long option names.)
-
-
--- 
-The end is a finish, a conclusion or a completion.
-http://www.hacksaw.org -- http://www.privatecircus.com -- KB1FVD
-
+The message is not coming from make, make accepts almost any variable
+name in export.  The message comes from bash, which restricts the
+format of exported names.
 

@@ -1,56 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293258AbSBWXQ4>; Sat, 23 Feb 2002 18:16:56 -0500
+	id <S293260AbSBWXXI>; Sat, 23 Feb 2002 18:23:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293259AbSBWXQq>; Sat, 23 Feb 2002 18:16:46 -0500
-Received: from smtp-out-3.wanadoo.fr ([193.252.19.233]:15272 "EHLO
-	mel-rto3.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S293258AbSBWXQg> convert rfc822-to-8bit; Sat, 23 Feb 2002 18:16:36 -0500
-Message-ID: <3C782531.6050701@wanadoo.fr>
-Date: Sun, 24 Feb 2002 00:26:41 +0100
-From: =?ISO-8859-15?Q?Fran=E7ois?= Cami <stilgar2k@wanadoo.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us, fr
+	id <S293263AbSBWXW5>; Sat, 23 Feb 2002 18:22:57 -0500
+Received: from clavin.efn.org ([206.163.176.10]:30669 "EHLO clavin.efn.org")
+	by vger.kernel.org with ESMTP id <S293260AbSBWXWp>;
+	Sat, 23 Feb 2002 18:22:45 -0500
+From: Steve VanDevender <stevev@efn.org>
 MIME-Version: 1.0
-To: "J.A. Magallon" <jamagallon@able.es>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCHSET] Linux 2.4.18-rc4-jam1
-In-Reply-To: <20020223234217.C2023@werewolf.able.es>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15480.9247.361123.52834@tzadkiel.efn.org>
+Date: Sat, 23 Feb 2002 15:22:07 -0800
+To: beh@icemark.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Some problems on a ThinkPad A30P (again...)
+In-Reply-To: <Pine.LNX.4.44.0202232340020.1435-100000@berenium.icemark.ch>
+In-Reply-To: <Pine.LNX.4.44.0202232340020.1435-100000@berenium.icemark.ch>
+X-Mailer: VM 7.01 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J.A. Magallon wrote:
-> Hi.
-> 
-> Version for rc4 is out (easy...):
-> 
-> http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.18-rc4-jam1/
-> 
-> Aout reported floppy hangs: I have checked that it hangs even with
-> plain 2.4.17, and so have done other people, so I think it is not
-> an irqrate-A1 or sched-O1 problem.
-> 
-> Nobody uses floppy with 2.4.17 ?
+beh@icemark.net writes:
+ > First, a big thanks for the help I got so far  (reg. kapm-idled thread)...
+ > 
+ > Today I've experimented some more, and found the following:
+ > 
+ > 
+ >  - even ALSA 0.90beta11 can't solve the suspend problem. I also noticed
+ >    something rather strange, that I didn't realize before  (due to
+ >    auto-loading of modules):
+ > 	When I try to load "snd-card-intel8x0" for the first time,
+ > 	modprobe complains about the card not being found or being
+ > 	busy.
+ > 	When I try to load the same module a second time,
+ > 	everything works "fine"...
+ >    But - WHY would linux at first say, the card isn't there, but
+ >    find and initialize the card on the second run?
 
-stock 2.4.17 works here.
-2.4.17-rmap12f-minilowlatency works here too.
+I had been running ALSA 0.9.0beta8a for some time, because whenever I
+upgraded beyond that with either 2.2 or 2.4 kernels I would get similar
+problems, in particular crashes when trying to suspend my laptop.
 
-i've verified this on 3 PCs :
-1/ PIII933 on TUSL2-C (i815ep)
-2/ PII350 on BXMaster (i440BX)
-3/ Celeron 1.2GHz on TUSL2-C (i815ep)
+Eventually I decided to give ALSA 0.9.0beta11 a go with 2.4.17, and
+then my machine would crash just trying to play sounds.
 
-dunno what is the problem...
+So I cursed for a while and then took another look at the ALSA
+documentation.  They no longer say to modprobe "snd-card-foo", but just
+"snd-foo" for your driver of choice.  In addition some other aspects of
+the module hierarchy for ALSA seem to have changed, such that I gathered
+trying to install a newer ALSA module stack over the old one would leave
+some old modules around.
 
-François
-
-> Common patterns ?
-> 
-> Enjoy...
-> 
-> 
-
-
-
+Once I had a from-scratch install of ALSA 0.9.0beta11 over a
+from-scratch install of 2.4.18-rc1 and its modules, and modified
+modules.conf to load snd-intel8x0 instead of snd-card-intel8x0,
+everything started working fine.  In fact, I no longer have to have the
+apmd suspend script to unload all the ALSA modules before a suspend and
+reload them on resume -- the APM support in ALSA seems to have improved
+significantly.

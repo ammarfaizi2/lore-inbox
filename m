@@ -1,55 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261856AbTJABZH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 21:25:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261875AbTJABZH
+	id S261838AbTJABXH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 21:23:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261845AbTJABXH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 21:25:07 -0400
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:43905
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S261856AbTJABZC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 21:25:02 -0400
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: Andries Brouwer <aebr@win.tue.nl>
-Subject: Re: Keyboard dead on bootup on -test6.
-Date: Tue, 30 Sep 2003 20:21:56 -0500
-User-Agent: KMail/1.5
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-References: <200309301632.01498.rob@landley.net> <20031001005214.GC1520@win.tue.nl>
-In-Reply-To: <20031001005214.GC1520@win.tue.nl>
+	Tue, 30 Sep 2003 21:23:07 -0400
+Received: from fmr09.intel.com ([192.52.57.35]:3810 "EHLO hermes.hd.intel.com")
+	by vger.kernel.org with ESMTP id S261838AbTJABXE convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 21:23:04 -0400
+content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309302021.56614.rob@landley.net>
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: [PATCH] deal with lack of acpi prt entries gracefully
+Date: Tue, 30 Sep 2003 21:22:59 -0400
+Message-ID: <BF1FE1855350A0479097B3A0D2A80EE0CC873D@hdsmsx402.hd.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] deal with lack of acpi prt entries gracefully
+Thread-Index: AcN4sgA1vbyWCHpcS4W+0TmuWOwNNQPB0KCQ
+From: "Brown, Len" <len.brown@intel.com>
+To: "Jesse Barnes" <jbarnes@sgi.com>,
+       "Andrew de Quincey" <adq_dvb@lidskialf.net>
+Cc: "Grover, Andrew" <andrew.grover@intel.com>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 01 Oct 2003 01:23:01.0391 (UTC) FILETIME=[8E14F1F0:01C387BA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 30 September 2003 19:52, Andries Brouwer wrote:
-> On Tue, Sep 30, 2003 at 04:32:01PM -0500, Rob Landley wrote:
-> > This was the failure:
-> >
-> > Sep 30 16:17:31 localhost kernel: atkbd.c: Unknown key pressed (raw set
-> > 0, code 0xfc, data 0xfc, on isa0060/serio1).
-> > Sep 30 16:17:31 localhost kernel: serio: i8042 AUX port at 0x60,0x64 irq
-> > 12 Sep 30 16:17:31 localhost kernel: serio: i8042 KBD port at 0x60,0x64
-> > irq 1
-> >
-> > Under -test5, that failure would have left me with a stuck key endlessly
-> > repeating (and an otherwise dead keyboard).  Now at least the stuck key
-> > part has gone away, but the keyboard is still dead until I power cycle
-> > the machine.
->
-> I suppose this is the kernel trying to set LEDs on the mouse,
-> and the mouse complains.
->
-> Andries
+> -----Original Message-----
+> From: Jesse Barnes [mailto:jbarnes@sgi.com] 
+> Sent: Thursday, September 11, 2003 6:05 PM
+> To: Andrew de Quincey
+> Cc: Grover, Andrew; linux-kernel@vger.kernel.org
+> Subject: Re: [PATCH] deal with lack of acpi prt entries gracefully
+> 
+> 
+> On Thu, Sep 11, 2003 at 11:00:30PM +0100, Andrew de Quincey wrote:
+> > > None of the above.  We have our own NUMAlink based 
+> interrupt protocol
+> > > model.
+> > 
+> > Oooer! Hmm, the existing code would probably NOT like 
+> having _PRT entries for 
+> > a model it doesn't know about.... you could add support for 
+> it fairly easily 
+> > though I suppose...
+> 
+> Yeah, that's what Andy suggested too.  I guess I have to use 
+> one of the
+> reserved fields and try to get the ACPI spec updated.
+> 
+> Thanks,
+> Jesse
 
-It's a laptop nipple mouse, a miniature joystick between the G and H keys.  
-There are no LED's anywhere near it.  So I'm not surprised it complains.  But 
-why does that kill my keyboard?  (You'll notice that the keyboard 
-identification line goes missing when this error occurs...)
+Even if this exotic box shouldn't be running this flavor of the code,
+the inifinite loop part struck me as less than bomb proof;-)
+So I pulled the return on count==0 check into the ACPI patch.
 
-Rob
+Thanks,
+-Len

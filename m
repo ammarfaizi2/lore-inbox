@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293109AbSCJRMG>; Sun, 10 Mar 2002 12:12:06 -0500
+	id <S292838AbSCJRNp>; Sun, 10 Mar 2002 12:13:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293111AbSCJRL4>; Sun, 10 Mar 2002 12:11:56 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:41325 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S293109AbSCJRLo>; Sun, 10 Mar 2002 12:11:44 -0500
-Date: Sat, 9 Mar 2002 22:07:51 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Cc: Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
+	id <S293111AbSCJRNf>; Sun, 10 Mar 2002 12:13:35 -0500
+Received: from mail3.aracnet.com ([216.99.193.38]:57283 "EHLO
+	mail3.aracnet.com") by vger.kernel.org with ESMTP
+	id <S292838AbSCJRNX>; Sun, 10 Mar 2002 12:13:23 -0500
+Date: Sun, 10 Mar 2002 09:13:58 -0800
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Samuel Ortiz <sortiz@dbear.engr.sgi.com>
+cc: =?ISO-8859-1?Q?Dieter_N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
         Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Ingo Molnar <mingo@elte.hu>, Robert Love <rml@tech9.net>,
-        Oleg Drokin <green@namesys.com>
+        Andrea Arcange <andrea@suse.de>, Ingo Molnar <mingo@elte.hu>,
+        Robert Love <rml@tech9.net>, Oleg Drokin <green@namesys.com>
 Subject: Re: 23 second kernel compile (aka which patches help scalibility on NUMA)
-Message-ID: <20020309220751.C13379@dualathlon.random>
-In-Reply-To: <200203092044.43456.Dieter.Nuetzel@hamburg.de> <135154151.1015676353@[10.10.2.3]>
-Mime-Version: 1.0
+Message-ID: <210438344.1015751637@[10.10.2.3]>
+In-Reply-To: <Pine.LNX.4.33.0203100120290.26154-100000@dbear.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.33.0203100120290.26154-100000@dbear.engr.sgi.com>
+X-Mailer: Mulberry/2.1.2 (Win32)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <135154151.1015676353@[10.10.2.3]>
-User-Agent: Mutt/1.3.22.1i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 09, 2002 at 12:19:13PM -0800, Martin J. Bligh wrote:
-> some other stuff as well. The -aa tree also seems to be 
-> incompatible (or rather, not trivially fixable) with the O(1)
-> scheduler.
+> Martin, I wrote a patch in order to have a kswap daemon per node. Each
+> daemon swaps pages out only from its node. It might be of some interest
+> for your scalability problem, so let me know if you're interested in it (I
+> can't paste it here because it has also some other stuffs in it, and I
 
-To apply the O(1) scheduler you only need to backout the dyn-sched and
-numa-sched patches first (dyn-sched will be definitely obsoleted by the
-O(1) scheduler, numa-sched should be changed like Mike described a few
-weeks ago but probably O(1) will just work better than my current
-numa-sched). There are no other changes to the scheduler, the
-child-first is an optimization and parent-timeslice is an important
-bugfix.
+How does this interact with the virtual scanning stuff? I
+was under the impression that we scanned for suitable pages
+on a per-process basis ... so I'm confused as to how you'd
+have a per-node kswapd without rmap's physical scanning
+(unless you assume all processes on a node have all their
+mem on that node). Could you explain? 
 
-Andrea
+> have to split the patch in several parts. I also need to port it to -rmap).
+
+I'd certainly be interested to see / try it - I think Bill Irwin
+had an implementation of multiple kswapd's for rmap - you might
+want to look at that before you port.
+
+Thanks,
+
+M
+

@@ -1,55 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261289AbUKWOtN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261273AbUKWOwI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261289AbUKWOtN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 09:49:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261261AbUKWOtN
+	id S261273AbUKWOwI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 09:52:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261280AbUKWOwI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 09:49:13 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:14275 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261275AbUKWOst (ORCPT
+	Tue, 23 Nov 2004 09:52:08 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:42180 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261273AbUKWOv6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 09:48:49 -0500
-Date: Tue, 23 Nov 2004 15:48:13 +0100
+	Tue, 23 Nov 2004 09:51:58 -0500
+Date: Tue, 23 Nov 2004 15:51:13 +0100
 From: Jens Axboe <axboe@suse.de>
-To: Kristian =?iso-8859-1?Q?S=F8rensen?= <ks@cs.aau.dk>
-Cc: umbrella-announce@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: Umbrella-0.5.1 stable released
-Message-ID: <20041123144812.GB13174@suse.de>
-References: <200411231544.09701.ks@cs.aau.dk>
+To: Alan Chandler <alan@chandlerfamily.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ide-cd problem
+Message-ID: <20041123145112.GC13174@suse.de>
+References: <200411201842.15091.alan@chandlerfamily.org.uk> <200411221919.32174.alan@chandlerfamily.org.uk> <200411222348.42149.alan@chandlerfamily.org.uk> <200411230713.32013.alan@chandlerfamily.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200411231544.09701.ks@cs.aau.dk>
+In-Reply-To: <200411230713.32013.alan@chandlerfamily.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 23 2004, Kristian Sørensen wrote:
-> Hi all!
+On Tue, Nov 23 2004, Alan Chandler wrote:
+> On Monday 22 November 2004 23:48, Alan Chandler wrote:
+> ...
+> > If I make the delay 600ns it works - I guess my hardware is a little off
+> > spec.
+> >
 > 
-> We are pleased to inform you that Umbrella 0.5.1 is now released. This is a 
-> very stable release, which has been tested on our workstations for 6+ days 
-> continously.
+> I did a binary chop on the value to find the cut off point between what works 
+> and what doesn't.  Its approx 535ns (534 failed, 537 worked).
 > 
-> Get the release here: 
-> http://prdownloads.sourceforge.net/umbrella/umbrella-0.5.1.tar.bz2?download
+> All this was with 2.6.9, 
 > 
-> The strategy of the further development of Umbrella is to have
-> * STABLE and well tested Umbrella as patches 
-> * UNSTABLE bleeding edge technology in the CVS module umbrella-devel
-> 
-> 
-> We have lots of new stuff and optimizations in the CVS, which slowley will be 
-> applied and tested before getting realeased as patches. Currently we have 
-> these in the CVS:
-> * New, small and efficient bit vector
-> * New datastructure for storing restrictions
->    See this thread for details: 
->    http://sourceforge.net/mailarchive/forum.php?thread_id=5886152&forum_id=42079
-> * Restrictions on process signaling
-> * Authentication of binaries (still under development for the 0.6 release)
+> 2.6.10-rc2 is still failing during the cd initialisation on boot.  Here I 
+> tried with bot 600ns and 700ns delays in drive_is_ready, but both values fail 
+> with what looks like missed interrupts.  I'll try instrumenting this a bit 
+> more to find out what is happening.
 
-And umbrella is?
+It's getting more and more interesting! Look forward to hearing what
+your instrumentation brings.
+
+There are other reports of acpi causing interrupt problems with cdroms
+in 2.6.10-rc2, so it would be best if you stuck to 2.6.9 for testing
+this particular problem.
 
 -- 
 Jens Axboe

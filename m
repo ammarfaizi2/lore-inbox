@@ -1,158 +1,190 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261840AbTEZRel (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 13:34:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261846AbTEZRel
+	id S261846AbTEZRgc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 13:36:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261861AbTEZRgc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 13:34:41 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7864 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261840AbTEZRei
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 13:34:38 -0400
-Message-ID: <3ED2533A.1000602@pobox.com>
-Date: Mon, 26 May 2003 13:47:38 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
+	Mon, 26 May 2003 13:36:32 -0400
+Received: from [193.126.240.148] ([193.126.240.148]:466 "EHLO
+	mcmmta3.mediacapital.pt") by vger.kernel.org with ESMTP
+	id S261846AbTEZRg1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 13:36:27 -0400
+Date: Mon, 26 May 2003 18:50:33 +0100
+From: "Paulo Andre'" <fscked@iol.pt>
+Subject: [PATCH] check copy_*_user return values in remaining WAN drivers
 To: Linus Torvalds <torvalds@transmeta.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCHES] add ata scsi driver
-References: <Pine.LNX.4.44.0305260947430.11328-100000@home.transmeta.com>
-In-Reply-To: <Pine.LNX.4.44.0305260947430.11328-100000@home.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <20030526185033.27160c6c.fscked@iol.pt>
+MIME-version: 1.0
+X-Mailer: Sylpheed version 0.8.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Content-type: multipart/mixed; boundary="Boundary_(ID_anjvUqJFjMYIKqq6WhYVxg)"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> On Mon, 26 May 2003, Jeff Garzik wrote:
-> 
->>>>I think with SATA + drivers/ide, you reach a point of diminishing 
->>>>returns versus amount of time spent on mid-layer coding.
->>>
->>>I think that's a valid approach, and just have a special driver for SATA. 
->>>That's not the part I worry about. 
->>
->>You're still at a point of diminishing returns for a native driver too.
-> 
-> 
-> No, because for a block-queue native driver there would be one huge 
-> advantage: making sure the native queueing is brought up to be a fully 
-> used interface.
-> 
-> Originally, native queueing was all there was, and all drivers interfaced 
-> directly to it. The IDE and SCSI layers ended up being used largely
-> because they allowed drivers to use a global naming scheme, not because 
-> they were "better". In fact, in many ways they were a lot worse than the 
-> native queues, but then they had some other infrastructure that did help.
-> 
-> My bet is that most of that infrastructure today is just not worth it.
+This is a multi-part message in MIME format.
 
-[...]
+--Boundary_(ID_anjvUqJFjMYIKqq6WhYVxg)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
 
-> Clue-in-time: if hotplugging doesn't work on a native level, it won't work 
-> on a SCSI level either. So that _cannot_ be a real issue.
-> 
-> Device model stuff and power management all comes from other areas, and 
-> have little to do with SCSI.
+The following patch adds error checking to the copy_*_user() functions
+to the remaining WAN drivers which did not have this checking made. I'm
+sending a single patch as it's the same change in all files. Affected
+files are:
 
-Correct, but precisely by saying that, you're missing something.
+drivers/net/wan/comx-hw-comx.c
+drivers/net/wan/comx-hw-locomx.c
+drivers/net/wan/comx-hw-mixcom.c
+drivers/net/wan/comx-hw-munich.c
+drivers/net/wan/comx-proto-fr.c
+drivers/net/wan/comx-proto-lapb.c
+drivers/net/wan/pc300_drv.c
+drivers/net/wan/sbni.c
 
-The SCSI midlayer provides infrastructure I need -- which is not 
-specific to SCSI at all.
+Applies cleanly on top of latest bk(-19). Please consider applying.
 
-Device registration, host registration, major/minor sub-allocation, 
-device model, power management, command queueing features, command 
-timeout, error handling thread, userland command submission interface (a 
-la taskfile ioctl or SG_IO)...  all these are possible via the generic 
-block layer -- but the generic block layer does not directly provide 
-these facilities.  Each subsystem (ide, scsi, ...) has to provide bits 
-on top of that to make it usable.  Each native block driver must 
-re-create these for its own subsystem.
+		Paulo
 
-All those "little bits" add up to code I have to write, for a native 
-driver, which I don't have to write for SCSI.
+--Boundary_(ID_anjvUqJFjMYIKqq6WhYVxg)
+Content-type: text/plain; name=patch-drivers_net_wan.diff
+Content-transfer-encoding: 7BIT
+Content-disposition: attachment; filename=patch-drivers_net_wan.diff
 
-IF you are willing to sign off on a generic /dev/disk (bus agnostic), 
-then I am interested.  That allows me to code up the above stuff ONCE, 
-and not see others do the same work when they write a native blk driver 
-(or avoid this work, by using SCSI like I do now).  Otherwise. I'm 
-writing all those little bits YET AGAIN, duplicating stuff scsi already 
-does.
+diff -urN -X dontdiff linux-2.5-vanilla/drivers/net/wan/comx-hw-comx.c linux/drivers/net/wan/comx-hw-comx.c
+--- linux-2.5-vanilla/drivers/net/wan/comx-hw-comx.c	2003-05-26 15:43:32.000000000 +0100
++++ linux/drivers/net/wan/comx-hw-comx.c	2003-05-26 15:49:25.000000000 +0100
+@@ -1084,7 +1084,8 @@
+ 		if (hw->firmware->data) {
+ 			kfree(hw->firmware->data);
+ 		}
+-		copy_from_user(tmp + file->f_pos, buffer, count);
++		if (copy_from_user(tmp + file->f_pos, buffer, count))
++			return -EFAULT;
+ 		hw->firmware->len = entry->size = file->f_pos + count;
+ 		hw->firmware->data = tmp;
+ 		file->f_pos += count;
+diff -urN -X dontdiff linux-2.5-vanilla/drivers/net/wan/comx-hw-locomx.c linux/drivers/net/wan/comx-hw-locomx.c
+--- linux-2.5-vanilla/drivers/net/wan/comx-hw-locomx.c	2003-05-26 15:43:32.000000000 +0100
++++ linux/drivers/net/wan/comx-hw-locomx.c	2003-05-26 15:49:25.000000000 +0100
+@@ -339,7 +339,10 @@
+ 		return -ENOMEM;
+ 	}
+ 
+-	copy_from_user(page, buffer, count = min_t(unsigned long, count, PAGE_SIZE));
++	if (copy_from_user(page, buffer, count = min_t(unsigned long, count, PAGE_SIZE))) {
++		free_page((unsigned long)page);
++		return -EBADF;
++	}
+ 	if (*(page + count - 1) == '\n') {
+ 		*(page + count - 1) = 0;
+ 	}
+diff -urN -X dontdiff linux-2.5-vanilla/drivers/net/wan/comx-hw-mixcom.c linux/drivers/net/wan/comx-hw-mixcom.c
+--- linux-2.5-vanilla/drivers/net/wan/comx-hw-mixcom.c	2003-05-26 15:43:32.000000000 +0100
++++ linux/drivers/net/wan/comx-hw-mixcom.c	2003-05-26 15:49:25.000000000 +0100
+@@ -763,7 +763,10 @@
+ 		return -ENOMEM;
+ 	}
+ 
+-	copy_from_user(page, buffer, count = min_t(unsigned long, count, PAGE_SIZE));
++	if (copy_from_user(page, buffer, count = min_t(unsigned long, count, PAGE_SIZE))) {
++		free_page((unsigned long)page);
++		return -EFAULT;
++	}
+ 	if (*(page + count - 1) == '\n') {
+ 		*(page + count - 1) = 0;
+ 	}
+diff -urN -X dontdiff linux-2.5-vanilla/drivers/net/wan/comx-hw-munich.c linux/drivers/net/wan/comx-hw-munich.c
+--- linux-2.5-vanilla/drivers/net/wan/comx-hw-munich.c	2003-05-26 15:43:32.000000000 +0100
++++ linux/drivers/net/wan/comx-hw-munich.c	2003-05-26 15:49:25.000000000 +0100
+@@ -2414,7 +2414,10 @@
+ 	return -ENOMEM;
+ 
+     /* Copy user data and cut trailing \n */
+-    copy_from_user(page, buffer, count = min(count, PAGE_SIZE));
++    if (copy_from_user(page, buffer, count = min(count, PAGE_SIZE))) {
++	    free_page((unsigned long)page);
++	    return -EFAULT;
++    }
+     if (*(page + count - 1) == '\n')
+ 	*(page + count - 1) = 0;
+     *(page + PAGE_SIZE - 1) = 0;
+diff -urN -X dontdiff linux-2.5-vanilla/drivers/net/wan/comx-proto-fr.c linux/drivers/net/wan/comx-proto-fr.c
+--- linux-2.5-vanilla/drivers/net/wan/comx-proto-fr.c	2003-05-26 15:43:32.000000000 +0100
++++ linux/drivers/net/wan/comx-proto-fr.c	2003-05-26 15:49:25.000000000 +0100
+@@ -657,7 +657,10 @@
+ 		return -ENOMEM;
+ 	}
+ 
+-	copy_from_user(page, buffer, count);
++	if (copy_from_user(page, buffer, count)) {
++		free_page((unsigned long)page);
++		return -EFAULT;
++	}
+ 	if (*(page + count - 1) == '\n') {
+ 		*(page + count - 1) = 0;
+ 	}
+diff -urN -X dontdiff linux-2.5-vanilla/drivers/net/wan/comx-proto-lapb.c linux/drivers/net/wan/comx-proto-lapb.c
+--- linux-2.5-vanilla/drivers/net/wan/comx-proto-lapb.c	2003-05-26 15:43:32.000000000 +0100
++++ linux/drivers/net/wan/comx-proto-lapb.c	2003-05-26 15:49:25.000000000 +0100
+@@ -232,7 +232,10 @@
+ 		return -ENOMEM;
+ 	}
+ 
+-	copy_from_user(page, buffer, count);
++	if (copy_from_user(page, buffer, count)) {
++		free_page((unsigned long)page);
++		return -EFAULT;
++	}
+ 	if (*(page + count - 1) == '\n') {
+ 		*(page + count - 1) = 0;
+ 	}
+diff -urN -X dontdiff linux-2.5-vanilla/drivers/net/wan/pc300_drv.c linux/drivers/net/wan/pc300_drv.c
+--- linux-2.5-vanilla/drivers/net/wan/pc300_drv.c	2003-05-25 15:30:15.000000000 +0100
++++ linux/drivers/net/wan/pc300_drv.c	2003-05-26 15:49:25.000000000 +0100
+@@ -2623,7 +2623,8 @@
+ 					       sizeof(struct net_device_stats));
+ 					if (card->hw.type == PC300_TE)
+ 						memcpy(&pc300stats.te_stats,&chan->falc,sizeof(falc_t));
+-				    copy_to_user(arg, &pc300stats, sizeof(pc300stats_t));
++				    	if (copy_to_user(arg, &pc300stats, sizeof(pc300stats_t)))
++						return -EFAULT;
+ 				}
+ 				return 0;
+ 			}
+diff -urN -X dontdiff linux-2.5-vanilla/drivers/net/wan/sbni.c linux/drivers/net/wan/sbni.c
+--- linux-2.5-vanilla/drivers/net/wan/sbni.c	2003-05-25 15:30:15.000000000 +0100
++++ linux/drivers/net/wan/sbni.c	2003-05-26 15:49:25.000000000 +0100
+@@ -1290,8 +1290,9 @@
+ 		error = verify_area( VERIFY_WRITE, ifr->ifr_data,
+ 				     sizeof(struct sbni_in_stats) );
+ 		if( !error )
+-			copy_to_user( ifr->ifr_data, &nl->in_stats,
+-				      sizeof(struct sbni_in_stats) );
++			if (copy_to_user( ifr->ifr_data, &nl->in_stats,
++				      sizeof(struct sbni_in_stats) ))
++				return -EFAULT;
+ 		break;
+ 
+ 	case  SIOCDEVRESINSTATS :
+@@ -1310,7 +1311,8 @@
+ 		error = verify_area( VERIFY_WRITE, ifr->ifr_data,
+ 				     sizeof flags );
+ 		if( !error )
+-			copy_to_user( ifr->ifr_data, &flags, sizeof flags );
++			if (copy_to_user( ifr->ifr_data, &flags, sizeof flags ))
++				return -EFAULT;
+ 		break;
+ 
+ 	case  SIOCDEVSHWSTATE :
+@@ -1342,7 +1344,8 @@
+ 					  sizeof slave_name )) != 0 )
+ 			return  error;
+ 
+-		copy_from_user( slave_name, ifr->ifr_data, sizeof slave_name );
++		if (copy_from_user( slave_name, ifr->ifr_data, sizeof slave_name ))
++			return -EFAULT;
+ 		slave_dev = dev_get_by_name( slave_name );
+ 		if( !slave_dev  ||  !(slave_dev->flags & IFF_UP) ) {
+ 			printk( KERN_ERR "%s: trying to enslave non-active "
 
-Taking that to a concrete level, that basically means more helpers at 
-the native block level.
-
-Given that I have always agreed a native block driver is the best 
-eventual method, what's stopping me?  Time:
-
-If /dev/disk is a non-starter for 2.6, the best route is to take my SCSI 
-driver and evolve it over time to be a native block driver.  Not start 
-with a native block driver.  That gives us a SATA framework now, and 
-SCSI can disappear eventually.
-#include <linux_is_usable_not_pie_in_sky_theory.h>
-
-
-(re-arranged msg a bit)
->> Userland support is nonexistent, and users would have start using yet 
->> another set of tools to deal with their disks, instead of the existing 
->> [scsi] ones.
-
-> That's not true. The command set is already exported, so that even things 
-> like packet commands can be sent (that's how you write CD-RW under 2.5.x, 
-> and it's the _generic_ layer that does all the command queueing). 
-> 
-> That, btw, i show you should do the ATA transport thing. Even SCSI devices 
-> can get the commands fed that way. It's neither ATA nor SCSI, it's a 
-> "packet interface for the generic queue".
-
-I agree the capabilities are there for packet interface, but one still 
-has to define the userland interface.  Yes, I know about SG_IO.  It's: 
-somewhat SCSI-specific, and sub-optimal.   Think back to December 2001, 
-when you described a packet interface using read(2) and write(2). 
-Basically SG_IO, but better and without scsi specifics.
-
-
-> The only remaining piece of the puzzle (from a user land perspective) ends 
-> up being the mapping from major/minor -> queue. That used to be a _huge_
-> issue, and the main reason you couldn't write a SCSI driver outside the 
-> SCSI layer, for example (but look at DAC960 - it decided to do so 
-> _anyway_, even if it meant being ostracised and put on a separate major).
-> 
-> But that should be much less of an issue now, since our queue mapping is a 
-> lot more flexible these days.
-
-The mapping part is easy, IMO.  I would just have the "generic 
-infrastructure" export chrdrvs for each queue I manage, using the 
-interface you described in December 2001.  sysfs can then describe the 
-{major+minor | CIDR | whatever}-to-queue mapping.
-
-For example, when /dev/disk device registration occurs at runtime, the 
-/dev/disk infrastructure would make a new chrdrv appear.
-
-
-Anyway, stepping back to the larger issue of "userland tools", I'm not 
-just talking about a taskfile I/O interface.  I'm talking about all the 
-little distro tools for IDE and SCSI, like /usr/bin/scsi_unique_id or 
-/sbin/hdparm.  And the assumptions that distro installers make.
-
-Creating yet another set of these tools and standard practices is just 
-not worth it, without bus-agnostic /dev/disk.  Sysadmins are going to be 
-annoyed at yet another interface and yet another not-IDE, not-SCSI (and 
-thus second-class) block major.
-
-It's not worth it for me, with working code now, and it's not worth for 
-the next person who wants to add a bus type to Linux.
-
-Unless I am to be creating infrastructure which non-SATA people can use, 
-your suggestion equates to making the SATA driver a second-class 
-citizen, with lots of additional coding for little gain, and with lots 
-of pain on the distro side that must be repeated again and again for 
-each native block driver.
-
-	Jeff
-
-
-
+--Boundary_(ID_anjvUqJFjMYIKqq6WhYVxg)--

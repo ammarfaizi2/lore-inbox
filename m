@@ -1,40 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268101AbUJJEdL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268105AbUJJEwE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268101AbUJJEdL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Oct 2004 00:33:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268105AbUJJEdL
+	id S268105AbUJJEwE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Oct 2004 00:52:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268115AbUJJEwE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Oct 2004 00:33:11 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:15060 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S268101AbUJJEdJ (ORCPT
+	Sun, 10 Oct 2004 00:52:04 -0400
+Received: from mail.kroah.org ([69.55.234.183]:57818 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S268105AbUJJEwC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Oct 2004 00:33:09 -0400
-Date: Sun, 10 Oct 2004 14:48:19 +1000
-From: Greg Banks <gnb@sgi.com>
-To: Ed Schouten <ed@il.fontys.nl>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [Patch] lockd: remove hardcoded maximum NLM cookie length
-Message-ID: <20041010044819.GC14977@sgi.com>
-References: <60256.217.121.83.210.1097351510.squirrel@217.121.83.210>
+	Sun, 10 Oct 2004 00:52:02 -0400
+Date: Sat, 9 Oct 2004 21:51:31 -0700
+From: Greg KH <greg@kroah.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: CaT <cat@zip.com.au>, Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       "Li, Shaohua" <shaohua.li@intel.com>
+Subject: Re: promise controller resource alloc problems with ~2.6.8
+Message-ID: <20041010045131.GB28920@kroah.com>
+References: <20040927084550.GA1134@zip.com.au> <Pine.LNX.4.58.0409301615110.2403@ppc970.osdl.org> <20040930233048.GC7162@zip.com.au> <Pine.LNX.4.58.0409301646040.2403@ppc970.osdl.org> <20041001103032.GA1049@zip.com.au> <Pine.LNX.4.58.0410010731560.2403@ppc970.osdl.org> <20041002045725.GC1049@zip.com.au> <Pine.LNX.4.58.0410021211120.2301@ppc970.osdl.org> <20041010021929.GA1322@zip.com.au> <Pine.LNX.4.58.0410092002070.3897@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <60256.217.121.83.210.1097351510.squirrel@217.121.83.210>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <Pine.LNX.4.58.0410092002070.3897@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 09, 2004 at 09:51:50PM +0200, Ed Schouten wrote:
-> Hi guys,
+On Sat, Oct 09, 2004 at 08:15:07PM -0700, Linus Torvalds wrote:
 > 
-> At the moment, the NLM cookie length is fixed to 8 bytes, while 1024 is
-> the theoretical maximum. FreeBSD uses 16 bytes, Mac OS X uses 20 bytes.
-> Therefore we need to make the length dynamic (which I set to 32 bytes).
+> I wonder if request_resource() is broken. "insert_resource()" had been 
+> broken for a _loong_ time (since its inception), maybe 
+> "request_resource()" also is. Hmm..
+> 
+> Greg, do you see something I've missed? I feel stupid.
 
-MacOS X has used 8 byte cookies since 10.3.4, so FreeBSD is the only
-known interop issue.
+I don't see anything either :(
 
-Greg.
--- 
-Greg Banks, R&D Software Engineer, SGI Australian Software Group.
-I don't speak for SGI.
+greg k-h

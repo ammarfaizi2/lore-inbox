@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264635AbUFLEgA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264639AbUFLEsm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264635AbUFLEgA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jun 2004 00:36:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264638AbUFLEgA
+	id S264639AbUFLEsm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jun 2004 00:48:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264640AbUFLEsm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jun 2004 00:36:00 -0400
-Received: from waste.org ([209.173.204.2]:20710 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S264635AbUFLEf6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jun 2004 00:35:58 -0400
-Date: Fri, 11 Jun 2004 23:35:47 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Rik van Riel <riel@redhat.com>
-Cc: stian@nixia.no, linux-kernel@vger.kernel.org
-Subject: Re: timer + fpu stuff locks my console race
-Message-ID: <20040612043546.GF5414@waste.org>
-References: <1701.83.109.60.63.1086814977.squirrel@nepa.nlc.no> <Pine.LNX.4.44.0406112252160.13607-100000@chimarrao.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0406112252160.13607-100000@chimarrao.boston.redhat.com>
-User-Agent: Mutt/1.3.28i
+	Sat, 12 Jun 2004 00:48:42 -0400
+Received: from lakermmtao12.cox.net ([68.230.240.27]:36057 "EHLO
+	lakermmtao12.cox.net") by vger.kernel.org with ESMTP
+	id S264639AbUFLEsl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jun 2004 00:48:41 -0400
+In-Reply-To: <20040611201523.X22989@build.pdx.osdl.net>
+References: <772741DF-BC19-11D8-888F-000393ACC76E@mac.com> <20040611201523.X22989@build.pdx.osdl.net>
+Mime-Version: 1.0 (Apple Message framework v618)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <C636D44C-BC2B-11D8-888F-000393ACC76E@mac.com>
+Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: In-kernel Authentication Tokens (PAGs)
+Date: Sat, 12 Jun 2004 00:48:40 -0400
+To: Chris Wright <chrisw@osdl.org>
+X-Mailer: Apple Mail (2.618)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 11, 2004 at 10:53:48PM -0400, Rik van Riel wrote:
-> On Wed, 9 Jun 2004 stian@nixia.no wrote:
-> 
-> > I'm doing some code tests when I came across problems with my program
-> > locking my console (even X if I'm using a xterm).
-> 
-> Reproduced here, on my test system running a 2.6 kernel.
-> I did get a kernel backtrace over serial console, though ;)
+On Jun 11, 2004, at 23:15, Chris Wright wrote:
+> Hrm.  Wouldn't it be possible that two processes with same uid have
+> authenticated in different domains, and as such shouldn't be allowed to
+> touch each other's PAGs?  Or is this not allowed?
 
-I stuck some strategic printks in the kernel. The example code's bogus
-asm is generating an FPU fault in frstor in its signal handler, that's
-bumping us into math_error -> force_sig_info ->
-specific_send_sig_info. Then we hit:
+Linux doesn't really support the idea that a process should not be able 
+to
+affect another process in the same UID.  There's too many things that
+would break or become horribly insecure if we tried to assume that.  For
+example, just attach a debugger to a process that you want the keys of.
+Then just insert a few system calls to retrieve the data, and leave.   
+Linux
+assumes atomicity of a user/UID and it's not practical to change that.
 
-        if (LEGACY_QUEUE(&t->pending, sig))
+Cheers,
+Kyle Moffett
 
-which decides we don't need to send the signal after all and we bail
-all the way back out and recurse.
-
--- 
-Mathematics is the supreme nostalgia of our time.

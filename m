@@ -1,82 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270862AbTHFUzY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 16:55:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271751AbTHFUzY
+	id S272426AbTHFVNw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 17:13:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272387AbTHFVNv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 16:55:24 -0400
-Received: from hendrix.ece.utexas.edu ([128.83.59.42]:17638 "EHLO
-	hendrix.ece.utexas.edu") by vger.kernel.org with ESMTP
-	id S270862AbTHFUzP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 16:55:15 -0400
-Date: Wed, 6 Aug 2003 15:55:02 -0500 (CDT)
-From: "Hmamouche, Youssef" <youssef@ece.utexas.edu>
-To: David Hinds <dhinds@sonic.net>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PROBLEM] xircom CBE2-100(faulty) hangs kernel 2.4.{21, 22-pre8}
- (fwd)
-In-Reply-To: <20030806124759.C30485@sonic.net>
-Message-ID: <Pine.LNX.4.21.0308061514470.2297-100000@linux08.ece.utexas.edu>
+	Wed, 6 Aug 2003 17:13:51 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:24031 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP id S272426AbTHFVNu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 17:13:50 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Andy Isaacson" <adi@hexapodia.org>,
+       "Jesse Pollard" <jesse@cats-chateau.net>
+Cc: <netdev@oss.sgi.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: TOE brain dump
+Date: Wed, 6 Aug 2003 14:13:47 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKOEOCEOAA.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam,
-	SpamAssassin (Disabled due to 10consecutive timeouts)
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <20030806143956.B15543@hexapodia.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+> This statement is completely false.  Ethernet switches *do* read the
+> packet into memory before starting transmission.
 
+	Some do. Some don't. Some are configurable.
 
-I'm a user. When I insert a card "into my laptop" I'd like it to work as
-advertised. If it doesn't work as advertised(because of some hardware
-failure in this case), I'd like the kernel to more or less let me know
-that something went wrong so I can return it. I wouldn't expect the kernel
-to freeze.
+> This must be so,
+> because an Ethernet switch does not propagate runts, jabber frames, or
+> frames with an incorrect ethernet crc.
 
-Faulty hardware is very common in the PC era. I agree that it is hard to
-pin down hardware malfunctions when you don't know what to check
-for. However, There should be concern when it takes your whole system
-down.
+	If they use cut-through switching, they do. Some use adaptive switching,
+which means they use cut-through switching but change to store and forward
+if there are too many runts, jabber frames, bad CRCs, and so on.
 
-I guess this issue can be disregarded but it'll only make the kernel as
-strong as its weakest link.
+	Obviously, you can't always do a cut-through. If the target port is busy,
+cut-through is impossible. If the ports are different speeds, cut-through is
+impossible. The Intel 510T switch for my home network does adaptive
+switching with configurable error thresholds. In fact, it's even smarter
+than that, with an intermediate mode that suppresses runts without doing a
+full store and forward. See:
+http://www.intel.com/support/express/switches/23188.htm
 
-Youssef
+> If the switch starts
+> transmission before it's received the last bit, it is provably
+> impossible for it to avoid propagating crc-failing-frames; ergo,
+> switches must have the entire packet on hand before starting
+> transmission.
 
-On Wed, 6 Aug 2003, David Hinds wrote:
+	Except not all switches always avoid propogating bad frames.
 
-> > Date: Sat, 2 Aug 2003 16:09:30 -0500 (CDT)
-> > From: "Hmamouche, Youssef" <youssef@ece.utexas.edu> 
-> > Hi,
-> > 
-> > I have a xircom CBE2-100 ethernet card that I know(as a matter of fact) is
-> > faulty. The warranty on the card expired and couldn't take it back to
-> > the manufacturer. Anyway, I hotplugged it into the sock with no problem at
-> > all. However, when I try to bring up the interface, the kernel hangs. If I
-> > unplug the card, the kernel comes back to life and resumes. 
-> 
-> Uhh... let me get this straight... the card is known for a fact to be
-> faulty.
-> 
-> > The symptoms of the problem show at
-> > drivers/net/pcmcia/xircom_tulip_cb: xircom_interrupt() where the interrupt
-> > is never acknowledge(due to flawed hardware). 
-> 
-> Perhaps the driver does not ack the interrupt, because the device
-> registers do not indicate that it requires service, and the interrupt
-> pin is just stuck.  Or perhaps the driver does ack and the card is
-> immediately re-triggering or ignoring the ack.
-> 
-> Drivers cannot in general diagnose hardware faults.  Perhaps, if
-> someone had a card broken the same way your card is broken, and they
-> knew the specific reason for the breakage, they could design a test
-> for that particular hardware fault.  But your card might be the only
-> one in the known universe with this particular failure mode.
-> 
-> -- Dave
-> 
-
+	DS
 
 

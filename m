@@ -1,90 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262427AbVCBTZF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262426AbVCBTXA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262427AbVCBTZF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 14:25:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262432AbVCBTXN
+	id S262426AbVCBTXA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 14:23:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262431AbVCBTWr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 14:23:13 -0500
-Received: from zeus.bragatel.pt ([217.70.64.253]:62985 "HELO mail.bragatel.pt")
-	by vger.kernel.org with SMTP id S262427AbVCBTSf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 14:18:35 -0500
-Date: Wed, 2 Mar 2005 19:14:10 +0000
-From: Nuno Monteiro <nuno@itsari.org>
-To: Dave Jones <davej@redhat.com>
-Cc: Andries Brouwer <Andries.Brouwer@cwi.nl>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, torvalds@osdl.org, akpm@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] remove dead cyrix/centaur mtrr init code
-Message-ID: <20050302191410.GA9292@hobbes.itsari.int>
-References: <20050228192001.GA14221@apps.cwi.nl> <1109721162.15795.47.camel@localhost.localdomain> <20050302075037.GH20190@apps.cwi.nl> <20050302080255.GA28512@redhat.com>
+	Wed, 2 Mar 2005 14:22:47 -0500
+Received: from ncc1701.cistron.net ([62.216.30.38]:2512 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S262421AbVCBTR3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 14:17:29 -0500
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: 2.6.11: iostat values broken ?
+Date: Wed, 2 Mar 2005 19:17:28 +0000 (UTC)
+Organization: Cistron
+Message-ID: <d053g8$6et$1@news.cistron.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	Format=Flowed	DelSp=Yes
-Content-Disposition: inline
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20050302080255.GA28512@redhat.com> (from davej@redhat.com on Wed, Mar 02, 2005 at 08:02:55 +0000)
-X-Mailer: Balsa 2.0.15
+X-Trace: ncc1701.cistron.net 1109791048 6621 194.109.0.112 (2 Mar 2005 19:17:28 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: mikevs@cistron.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I just upgrades one of our newsservers from 2.6.9 to 2.6.11. I
+use "iostat -k -x 2" to see live how busy the disks are. But
+I don't believe that Linux optimizes things so much that a disk
+can be 1849.55% busy :)
 
-On 2005.03.02 08:02, Dave Jones wrote:
-> 
-> The Winchips never really sold that well, and stopped being produced
-> when IDT sold off Centaur.  It was a niche processor in 1997. In 2005,
-> I'll be surprised if there are that many of them still working.
-> Mine lost its magic smoke for no reason around ~2002.
-> 
-> If there are any of them still being used out there, I'd be even
-> more surprised if they're running 2.6.  Then again, there are
-> probably loonies out there running it on 386/486's. 8-)
->
+(you'll have to stretch out your xterm to be able to read this):
 
-Heh. Let me brag about it a little:
+Device:    rrqm/s wrqm/s   r/s   w/s  rsec/s  wsec/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await  svctm  %util
+hda          0.00  50.00  0.00 18.18    0.00  545.45     0.00   272.73    30.00     2.35  129.00  86.25 156.82
+hdc          0.00  45.45 77.27 31.82 3927.27  618.18  1963.64   309.09    41.67     6.27   57.42  38.42 419.09
+hdd          4.55   0.00 63.64  0.00   68.18    0.00    34.09     0.00     1.07     1.11   17.43  17.43 110.91
+hde        477.27   0.00 45.45  0.00  522.73    0.00   261.36     0.00    11.50     0.40    8.90   8.90  40.45
+hdg         18.18 70154.55 22.73 172.73   40.91 70727.27    20.45 35363.64   362.07  1010.36 1127.72  94.63 1849.55
 
-$ cat /proc/cpuinfo
-processor       : 0
-vendor_id       : CentaurHauls
-cpu family      : 5
-model           : 4
-model name      : WinChip C6
-stepping        : 1
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu de msr mce cx8 mmx centaur_mcr cid
-bogomips        : 399.76
+With 2.6.9, %util never came above 100% (and that was indeed "fully loaded".
+I have systems with a comparable load running 2.6.10 and 2.6.11-rc3-bk4
+that also don't show this behaviour (but those are SCSI, not IDE).
 
-$ uname -a
-Linux kawasaki 2.6.10-rc3 #3 Fri Dec 17 21:44:53 CET 2004 i586 unknown
+I use CFQ, but changing that to deadline doesn't make a difference.
 
-$ uptime
- 19:00:14 up 58 days,  1:21,  1 user,  load average: 0.37, 0.17, 0.11
-
-Running 2.6 at least since 2.6.0-test11-wli-something, dated Dec 6 2003  
-according to /boot (may have been running other 2.6-test before, but I  
-dont have them around any longer):
-
-$ ls -al /boot/vmlinuz-2.6.0-test11
--rw-r-----    1 root     root       840607 Dec  6  2003 /boot/vmlinuz- 
-2.6.0-test11-wli
-
-
-Not a single hiccup, so far *knock on wood*. Bragging even further, I  
-also have a genuine 80386 DX 33 up and running, although that one is  
-still on 2.0.37, iirc.
-
-Oh, yes, I'm a loonie ;-)
-
-
-Regards,
-
-
-		Nuno
+Mike.
 

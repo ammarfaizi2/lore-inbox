@@ -1,59 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264322AbTLBSxN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 13:53:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264323AbTLBSxN
+	id S264324AbTLBSxm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 13:53:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264323AbTLBSxm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 13:53:13 -0500
-Received: from havoc.gtf.org ([63.247.75.124]:20116 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S264322AbTLBSxJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 13:53:09 -0500
-Date: Tue, 2 Dec 2003 13:49:14 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Greg Stark <gsstark@mit.edu>, Erik Steffl <steffl@bigfoot.com>,
+	Tue, 2 Dec 2003 13:53:42 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:38417
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S264324AbTLBSxk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 13:53:40 -0500
+Date: Tue, 2 Dec 2003 10:53:33 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Tomas Konir <moje@vabo.cz>
+Cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
        linux-kernel@vger.kernel.org
-Subject: Re: libata in 2.4.24?
-Message-ID: <20031202184914.GA7839@gtf.org>
-References: <87fzg4ckej.fsf@stark.dyndns.tv> <3FCBB15F.7050505@rackable.com> <3FCBB9F1.2080300@bigfoot.com> <87n0abbx2k.fsf@stark.dyndns.tv> <20031202055336.GO1566@mis-mike-wstn.matchmail.com> <20031202055852.GP1566@mis-mike-wstn.matchmail.com> <87zneb9o5q.fsf@stark.dyndns.tv> <20031202174048.GQ1566@mis-mike-wstn.matchmail.com> <20031202180458.GC1990@gtf.org> <20031202184648.GU1566@mis-mike-wstn.matchmail.com>
+Subject: Re: Linux 2.4 future
+Message-ID: <20031202185333.GV1566@mis-mike-wstn.matchmail.com>
+Mail-Followup-To: Tomas Konir <moje@vabo.cz>,
+	Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0312011212090.13692-100000@logos.cnet> <200312011226.04750.nbensa@gmx.net> <20031202115436.GA10288@physik.tu-cottbus.de> <20031202120315.GK13388@conectiva.com.br> <Pine.LNX.4.58.0312021402360.17892@moje.vabo.cz> <20031202131512.GU13388@conectiva.com.br> <Pine.LNX.4.58.0312021433360.8417@moje.vabo.cz> <20031202135423.GB13388@conectiva.com.br> <Pine.LNX.4.58.0312021508470.21855@moje.vabo.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031202184648.GU1566@mis-mike-wstn.matchmail.com>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <Pine.LNX.4.58.0312021508470.21855@moje.vabo.cz>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 02, 2003 at 10:46:48AM -0800, Mike Fedyk wrote:
-> On Tue, Dec 02, 2003 at 01:04:58PM -0500, Jeff Garzik wrote:
-> > On Tue, Dec 02, 2003 at 09:40:48AM -0800, Mike Fedyk wrote:
-> > > There are PATA drives that do TCQ too, but you have to look for that feature
-> > > specifically.  IDE TCQ is in 2.6, but is still experemental.  I think Jens
-> > > Axboe was the one working on it IIRC.  He would have more details.
-> > 
-> > Let us distinguish three types of TCQ:
-> > 1) PATA drive-side TCQ (now called "legacy TCQ")
-> > 2) Controller-side TCQ
-> > 3) SATA drive/controller-side TCQ ("first party DMA")
-> > 
-> > libata will never support #1, which is what 2.6 supports in experimental
-> > option.
-> 
-> An experemental option with the ide layer, not libata, right?
+On Tue, Dec 02, 2003 at 03:21:54PM -0500, Tomas Konir wrote:
+> 2.6 is still unstable now. I'm using -test10 on my workstation, but it 
+> takes minimally an half year to use it on server. I can't use ext3 on 
+> server, because of missing features such as ACL, dump (with acl's), 
+> built in qouta and for last much different speed on SMP machine.
 
-Correct.
-
-
-> > libata will support #2 very soon, and will support #3 when hardware is
-> > available.
-> > 
-> 
-> If you have Controller-side TCQ, then will it work with any IDE PATA/SATA
-> drive?
-
-Yes.
-
-	Jeff
-
-
+You have all of that for ext3 in 2.6.  The locking has been improved, there
+is acl support, and quota has been there for a long time (even in 2.4).  I'm
+not sure about the dump, but if dump gets all allocated blocks, then you
+should have ACLs dumped too.
 

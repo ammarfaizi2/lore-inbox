@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267322AbTB0Xpi>; Thu, 27 Feb 2003 18:45:38 -0500
+	id <S267275AbTB0Xny>; Thu, 27 Feb 2003 18:43:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267346AbTB0Xpi>; Thu, 27 Feb 2003 18:45:38 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:36114 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267322AbTB0Xph>; Thu, 27 Feb 2003 18:45:37 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Invalid compilation without -fno-strict-aliasing
-Date: 27 Feb 2003 15:55:43 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <b3m8hv$5fh$1@cesium.transmeta.com>
-References: <20030227203512.GA12623@nevyn.them.org> <Pine.LNX.4.44.0302271234530.9696-100000@home.transmeta.com>
-MIME-Version: 1.0
+	id <S267277AbTB0Xny>; Thu, 27 Feb 2003 18:43:54 -0500
+Received: from ncc1701.cistron.net ([62.216.30.38]:57607 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP
+	id <S267275AbTB0Xnx>; Thu, 27 Feb 2003 18:43:53 -0500
+From: miquels@cistron-office.nl (Miquel van Smoorenburg)
+Subject: Re: About /etc/mtab and /proc/mounts
+Date: Thu, 27 Feb 2003 23:54:13 +0000 (UTC)
+Organization: Cistron Group
+Message-ID: <b3m8f5$i9d$2@news.cistron.nl>
+References: <200302271600.h1RG0Cdh011948@eeyore.valparaiso.cl> <3E5E6B39.3DD1C6A@daimi.au.dk> <200302272213.h1RMDQJT017937@turing-police.cc.vt.edu> <3E5E91B2.8EACF7D0@daimi.au.dk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+X-Trace: ncc1701.cistron.net 1046390053 18733 62.216.29.200 (27 Feb 2003 23:54:13 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.44.0302271234530.9696-100000@home.transmeta.com>
-By author:    Linus Torvalds <torvalds@transmeta.com>
-In newsgroup: linux.dev.kernel
-> 
-> On Thu, 27 Feb 2003, Daniel Jacobowitz wrote:
-> > 
-> > We could work around both of these: disable the sign compare warning,
-> > and use check_gcc to set a high number for -finline-limit...
-> 
-> Oh, both are work-aroundable, no question about it. The same way it was 
-> possible to work around the broken aliasing with previous releases. I'm 
-> just hoping that especially the inline thing can be resolved sanely, 
-> otherwise we'll end up having to use something ugly like
-> 
-> 	-D'inline=inline __attribute__((force_inline))'
-> 
-> on every single command line..
-> 
+In article <3E5E91B2.8EACF7D0@daimi.au.dk>,
+Kasper Dupont  <kasperd@daimi.au.dk> wrote:
+>The only case that couldn't be done from userspace is mounting of the
+>root. Now some people might say nobody would need that feature, and it
+>could be done using initrd and some pivot_root stuff anyway.
 
-Isn't this what compiler.h is for?  If the complaint is that some
-things don't include compiler.h then we may want to force it with
--include.  Better all the cruft in one file IMO.
+Well, the kernel already has a simple rootfs built-in, on top of
+which the real root filesystem gets mounted at boot-time.
 
-	-hpa
+Also POSIX makes a difference between '/' and '//'. '//' might
+point to a different namespace.
+
+So why not mount rootfs on '//', mount the real rootfilesystem
+on //root, then chroot to //root (while keeping it possible to
+chdir("//") ).
+
+If mkdir and rmdir is added to rootfs, you could even mount //mtab.d
+there, or //proc, or //devfs, whatever you want to have available
+when the root filesystem is being fscked or not even mounted yet.
+Perhaps the kernel should mount all those pseudofilesystems there
+by default even.
+
+Apollo/DomainOS had this '//' thing, used for something different
+(it was the equivalent of their /net autofs mountpoint) but it
+worked quite well and didn't get in the way of normal '/' operation.
+
+Mike.
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: cris ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+Anyone who is capable of getting themselves made President should
+on no account be allowed to do the job -- Douglas Adams.
+

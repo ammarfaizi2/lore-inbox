@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262355AbREVCkr>; Mon, 21 May 2001 22:40:47 -0400
+	id <S262358AbREVCwK>; Mon, 21 May 2001 22:52:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262358AbREVCkh>; Mon, 21 May 2001 22:40:37 -0400
-Received: from atlante.atlas-iap.es ([194.224.1.3]:8211 "EHLO
-	atlante.atlas-iap.es") by vger.kernel.org with ESMTP
-	id <S262427AbREVCkY>; Mon, 21 May 2001 22:40:24 -0400
-From: "Ricardo Galli" <gallir@uib.es>
-To: <linux-kernel@vger.kernel.org>
-Cc: <timothy@monkey.org>, <reiser@namesys.com>,
-        "Guillem Cantallops Ramis" <guillem@cantallops.net>
-Subject: New XFS, ReiserFS and Ext2 benchmarks
-Date: Tue, 22 May 2001 04:41:06 +0200
-Message-ID: <LOEGIBFACGNBNCDJMJMOKEADCJAA.gallir@uib.es>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-Importance: Normal
+	id <S262549AbREVCwB>; Mon, 21 May 2001 22:52:01 -0400
+Received: from smtp1.Stanford.EDU ([171.64.14.23]:36771 "EHLO
+	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP
+	id <S262358AbREVCvx>; Mon, 21 May 2001 22:51:53 -0400
+Message-Id: <5.0.2.1.2.20010521193935.00ae8cb8@pxwang.pobox.stanford.edu>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Mon, 21 May 2001 19:50:41 -0700
+To: alan@lxorguk.ukuu.org.uk
+From: Philip Wang <PXWang@stanford.edu>
+Subject: [PATCH] drivers/acpi/driver.c
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+        Dawson Engler <engler@cs.Stanford.EDU>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-	you can find at http://bulma.lug.net/static/ a few new benchmarks among
-Reiser, XFS and Ext2 (also one with JFS).
+Hello!
 
-This time there is a comprehensive Hans' Mongo benchmarks
-(http://bulma.lug.net/static/mongo/ )and a couple of kernel compilations and
-read/write/fsync operations tests (I was very careful of populating the
-cache before the measures for the last two cases).
+There is a bug in driver.c of not freeing memory on error 
+paths.  buf.pointer is allocated but not freed if copy_to_user fails.  The 
+addition I made was to kfree buf.pointer before returning -EFAULT.  Thanks!
 
-Regards,
+Philip
 
---ricardo
-http://m3d.uib.es/~gallir/
+--- /2.4.4/linux/drivers/acpi/driver.c  Fri Feb  9 11:45:58 2001
++++ driver.c    Mon May 21 19:21:14 2001
+@@ -311,8 +311,10 @@
+		size = buf.length - file->f_pos;
+		if (size > *len)
+			size = *len;
+-		if (copy_to_user(buffer, data, size))
+-			return -EFAULT;
++		if (copy_to_user(buffer, data, size)) {
++			kfree(buf.pointer);
++			return -EFAULT;
++		}
+	}
+
+	kfree(buf.pointer);
 

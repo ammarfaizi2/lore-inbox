@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132560AbRCZTHN>; Mon, 26 Mar 2001 14:07:13 -0500
+	id <S132565AbRCZTKX>; Mon, 26 Mar 2001 14:10:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132561AbRCZTHE>; Mon, 26 Mar 2001 14:07:04 -0500
-Received: from laird.ocp.internap.com ([64.94.114.35]:10278 "EHLO
-	laird.ocp.internap.com") by vger.kernel.org with ESMTP
-	id <S132552AbRCZTG7>; Mon, 26 Mar 2001 14:06:59 -0500
-Date: Mon, 26 Mar 2001 11:05:37 -0800 (PST)
-From: Scott Laird <laird@internap.com>
-X-X-Sender: <laird@laird.ocp.internap.com>
-To: Matthew Wilcox <matthew@wil.cx>
-cc: Andreas Dilger <adilger@turbolinux.com>, LA Walsh <law@sgi.com>,
-        <linux-kernel@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>
-Subject: Re: 64-bit block sizes on 32-bit systems
-In-Reply-To: <20010326190945.I31126@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.33.0103261059300.25866-100000@laird.ocp.internap.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132563AbRCZTKP>; Mon, 26 Mar 2001 14:10:15 -0500
+Received: from [213.96.224.204] ([213.96.224.204]:6149 "HELO man.beta.es")
+	by vger.kernel.org with SMTP id <S132562AbRCZTKF>;
+	Mon, 26 Mar 2001 14:10:05 -0500
+Date: Mon, 26 Mar 2001 21:08:46 +0200
+From: Santiago Garcia Mantinan <manty@udc.es>
+To: linux-kernel@vger.kernel.org
+Subject: Problems with Wake on LAN
+Message-ID: <20010326210846.A1182@manty.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
+I've been trying to get Wake on LAN working under kernel 2.4.2 with a 3COM
+3c905C-TX card, standard 2.4.2 drivers, I have manage to get it working, but
+only if I don't compile ACPI and I don't load the network card driver, as
+any of this things make the Wake on LAN not work. APM and other features
+don't seem to affect the card waking, but this two really break it.
 
-On Mon, 26 Mar 2001, Matthew Wilcox wrote:
->
-> people who can afford 2TB of disc can afford to buy a 64-bit processor.
->
+Is there any plan on solving any of this for the future?
 
-Sort of.  A back-of-the-envelope calculation shows that 2 TB is only 25
-80GB IDE drives.  Given 4 3ware 8-channel IDE controllers and a large
-enough case, you could probably build a cheap 2TB RAID0 array for ~$10k.
-You could do RAID5 for only slightly more.
+Is there anything I can do to help get this working?
 
-While this isn't exactly a standard, off-the-shelf, general-purpose sort
-of configuration, it definately has its uses.  Be careful assuming that
-huge amounts of disk storage requires a huge amount of money, or a high
-level of reliability or performance.
+PS: cc me as I'm not on the list.
 
-
-Scott
-
+Regards..
+-- 
+Manty/BestiaTester -> http://manty.net

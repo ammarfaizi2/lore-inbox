@@ -1,58 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262794AbUFBN3e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262850AbUFBNal@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262794AbUFBN3e (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 09:29:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262634AbUFBN3e
+	id S262850AbUFBNal (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 09:30:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262634AbUFBN3l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 09:29:34 -0400
-Received: from holomorphy.com ([207.189.100.168]:31127 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262874AbUFBN1R (ORCPT
+	Wed, 2 Jun 2004 09:29:41 -0400
+Received: from may.priocom.com ([213.156.65.50]:19595 "EHLO may.priocom.com")
+	by vger.kernel.org with ESMTP id S262756AbUFBN2E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 09:27:17 -0400
-Date: Wed, 2 Jun 2004 06:26:54 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com
-Subject: Re: 2.6.7-rc2-mm1
-Message-ID: <20040602132654.GY2093@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	greg@kroah.com
-References: <20040601021539.413a7ad7.akpm@osdl.org>
+	Wed, 2 Jun 2004 09:28:04 -0400
+Subject: [PATCH] 2.6.6 buffer.c: bio_alloc() check
+From: Yury Umanets <torque@ukrpost.net>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1086182887.2898.89.camel@firefly.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040601021539.413a7ad7.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 02 Jun 2004 16:28:08 +0300
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 01, 2004 at 02:15:39AM -0700, Andrew Morton wrote:
-> - NFS server udpates
-> - md updates
-> - big x86 dmi_scan.c cleanup
-> - merged perfctr.  No documentation though :(
-> - cris architecture update
+[PATCH] 2.6.6 buffer.c: adds bio_alloc() check and error handling in
+fs/buffer.c.
 
-Fix warnings about various structs declared inside parameter lists and so
-on seen while compiling compat_ioctl.c.
+Signed-off-by: Yury Umanets <torque@ukrpost.net>
 
+ buffer.c |   25 +++++++++++++++++++++++++
+ 1 files changed, 25 insertions(+)
 
-Index: mm1-2.6.7-rc2/include/linux/hiddev.h
-===================================================================
---- mm1-2.6.7-rc2.orig/include/linux/hiddev.h	2004-06-01 03:11:37.000000000 -0700
-+++ mm1-2.6.7-rc2/include/linux/hiddev.h	2004-06-02 06:15:34.807765000 -0700
-@@ -213,12 +213,12 @@
-  * In-kernel definitions.
-  */
+diff -rupN ./linux-2.6.6/fs/buffer.c ./linux-2.6.6-modified/fs/buffer.c
+--- ./linux-2.6.6/fs/buffer.c	Mon May 10 05:32:38 2004
++++ ./linux-2.6.6-modified/fs/buffer.c	Wed Jun  2 15:21:47 2004
+@@ -2712,6 +2712,31 @@ void submit_bh(int rw, struct buffer_hea
+ 	 * submit_bio -> generic_make_request may further map this bio around
+ 	 */
+ 	bio = bio_alloc(GFP_NOIO, 1);
++	if (bio == NULL) {
++		char b[BDEVNAME_SIZE];
++                
++		printk(KERN_ERR "BIO allocation failed for buffer on device "
++			"%s, logical block %Lu\n", bdevname(bh->b_bdev, b), 
++			(unsigned long long)bh->b_blocknr);
++                
++		/* 
++		 * this is needed here as some of submit_bh() callers have to
++		 * wait until buffer is unlocked (that is IO is finished on it)
++		 * and check its state.
++		 */
++		if (rw == WRITE)
++			set_buffer_write_io_error(bh);
++		clear_buffer_uptodate(bh);
++		SetPageError(bh->b_page);
++                
++		/* 
++		 * making all future wait_on_buffer() callers do not wait
++		 * this buffer as it is errorneous. 
++		 */
++		if (buffer_locked(bh))
++			unlock_buffer(bh);
++		return;
++        }
  
--#ifdef CONFIG_USB_HIDDEV
- struct hid_device;
- struct hid_usage;
- struct hid_field;
- struct hid_report;
- 
-+#ifdef CONFIG_USB_HIDDEV
- int hiddev_connect(struct hid_device *);
- void hiddev_disconnect(struct hid_device *);
- void hiddev_hid_event(struct hid_device *hid, struct hid_field *field,
+ 	bio->bi_sector = bh->b_blocknr * (bh->b_size >> 9);
+ 	bio->bi_bdev = bh->b_bdev;
+
+
+-- 
+umka
+

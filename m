@@ -1,57 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285927AbRLTDVy>; Wed, 19 Dec 2001 22:21:54 -0500
+	id <S285937AbRLTDZD>; Wed, 19 Dec 2001 22:25:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285940AbRLTDVn>; Wed, 19 Dec 2001 22:21:43 -0500
-Received: from tierra.ucsd.edu ([132.239.214.132]:34706 "EHLO burn")
-	by vger.kernel.org with ESMTP id <S285937AbRLTDVd>;
-	Wed, 19 Dec 2001 22:21:33 -0500
-Date: Wed, 19 Dec 2001 19:21:05 -0800
-To: "David S. Miller" <davem@redhat.com>
-Cc: kerndev@sc-software.com, billh@tierra.ucsd.edu, bcrl@redhat.com,
-        torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-        linux-aio@kvack.org
-Subject: Re: aio
-Message-ID: <20011219192105.B26007@burn.ucsd.edu>
-In-Reply-To: <20011219.184527.31638196.davem@redhat.com> <Pine.LNX.3.95.1011219184950.581H-100000@scsoftware.sc-software.com> <20011219.190629.03111291.davem@redhat.com>
+	id <S285946AbRLTDYs>; Wed, 19 Dec 2001 22:24:48 -0500
+Received: from 198.216-123-194-0.interbaun.com ([216.123.194.198]:23562 "EHLO
+	mail.harddata.com") by vger.kernel.org with ESMTP
+	id <S285937AbRLTDYe>; Wed, 19 Dec 2001 22:24:34 -0500
+Date: Wed, 19 Dec 2001 20:24:30 -0700
+From: Michal Jaegermann <michal@harddata.com>
+To: linux-kernel@vger.kernel.org
+Cc: Marcelo Tossati <marcelo@conectiva.com.br>
+Subject: [PATCH] Alpha-Nautilus compilation fix for 2.4.17rc2
+Message-ID: <20011219202430.A8610@mail.harddata.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011219.190629.03111291.davem@redhat.com>; from davem@redhat.com on Wed, Dec 19, 2001 at 07:06:29PM -0800
-From: Bill Huey <billh@tierra.ucsd.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 19, 2001 at 07:06:29PM -0800, David S. Miller wrote:
-> Firstly, you say this as if server java applets do not function at all
-> or with acceptable performance today.  That is not true for the vast
-> majority of cases.
-> 
-> If java server applet performance in all cases is dependent upon AIO
-> (it is not), that would be pretty sad.  But it wouldn't be the first
+To compile 2.4.17rc2 sources on Alpha not "generic" but Nautilus-specic,
+or for any other Alpha type where Irongate chipset is used, the
+following obvious patch is required:
 
-Java is pretty incomplete in this area, which should be addressed to a
-great degree in the new NIO API.
+--- linux-2.4.17rc/arch/alpha/kernel/alpha_ksyms.c.orig	Tue Nov 20 16:49:31 2001
++++ linux-2.4.17rc/arch/alpha/kernel/alpha_ksyms.c	Wed Dec 19 19:21:02 2001
+@@ -258,3 +258,8 @@
+ EXPORT_SYMBOL_NOVERS(memchr);
+ 
+ EXPORT_SYMBOL(get_wchan);
++
++#ifdef CONFIG_ALPHA_IRONGATE
++EXPORT_SYMBOL(irongate_ioremap);
++EXPORT_SYMBOL(irongate_iounmap);
++#endif
 
-The core JVM isn't dependent on this stuff per se for performance, but
-it is critical to server side programs that have to deal with highly
-scalable IO systems, largely number of FDs, that go beyond the current
-expressiveness of select()/poll().
+Without it assorted modules will be really unhappy with depmod spilling
+"unresolved symbols".
 
-This is all standard fare in *any* kind of high performance networking
-application where some kind of high performance kernel/userspace event
-delivery system is needed, kqueue() principally.
+Actually the same patch applies to at least 2.4.16 and possibly earlier
+kernels.  With "generic" kernel configuration 'ioremap' and 'iounmap'
+are not redefined in headers to their "irongate" variants and problem
+does not occur.
 
-> time I've heard crap like that.  There is propaganda out there telling
-> people that 64-bit address spaces are needed for good java
-> performance.  Guess where that came from?  (hint: they invented java
-> and are in the buisness of selling 64-bit RISC processors)
-
-What ? oh god. HotSpot is a pretty amazing compiler and it performs well.
-Swing does well now, but the lingering issue in Java is the shear size
-of it and possibly GC issues. It pretty clear that it's going to get
-larger, which is fine since memory is cheap.
-
-bill
-
+   Michal
+   michal@harddata.com

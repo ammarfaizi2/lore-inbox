@@ -1,64 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262063AbTFPNtG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 09:49:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbTFPNtG
+	id S262176AbTFPNu2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 09:50:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262185AbTFPNu1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 09:49:06 -0400
-Received: from mta3.srv.hcvlny.cv.net ([167.206.5.9]:47269 "EHLO
-	mta3.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S262063AbTFPNtD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 09:49:03 -0400
-Date: Mon, 16 Jun 2003 10:02:41 -0400
-From: Jeff <jeffpc@optonline.net>
-Subject: Re: 64-bit fields in struct net_device_stats
-In-reply-to: <5.1.0.14.2.20030616154156.0253dc98@mira-sjcm-3.cisco.com>
-To: Lincoln Dale <ltd@cisco.com>, Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <200306161002.50506.jeffpc@optonline.net>
-MIME-version: 1.0
-Content-type: Text/Plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-Content-description: clearsigned data
-User-Agent: KMail/1.5.2
-References: <200306152253.36768.jeffpc@optonline.net>
- <5.1.0.14.2.20030616154156.0253dc98@mira-sjcm-3.cisco.com>
+	Mon, 16 Jun 2003 09:50:27 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:19433 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262176AbTFPNuW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 09:50:22 -0400
+Date: Mon, 16 Jun 2003 19:39:07 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] lock_buffer_wq do lock
+Message-ID: <20030616193907.A10977@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <Pine.LNX.4.44.0306161435110.1846-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0306161435110.1846-100000@localhost.localdomain>; from hugh@veritas.com on Mon, Jun 16, 2003 at 02:47:32PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, Jun 16, 2003 at 02:47:32PM +0100, Hugh Dickins wrote:
+> I've twice got fs/buffer.c:2668 submit_bh BUG_ON(!buffer_locked(bh)):
+> when called from sync_dirty_buffer which clearly does the lock_buffer.
+> My suspicion falls on lock_buffer_wq (whereas __lock_page_wq looks OK).
+> 
+> I'm leaving a test running,
+> can't judge until tomorrow whether this is indeed the fix to that.
+> 
+> Hugh
+> 
+> --- 2.5.71-mm1/include/linux/buffer_head.h	Sun Jun 15 12:36:11 2003
+> +++ linux/include/linux/buffer_head.h	Mon Jun 16 14:13:25 2003
+> @@ -291,9 +291,11 @@
+>  
+>  static inline int lock_buffer_wq(struct buffer_head *bh, wait_queue_t *wait)
+>  {
+> -	if (test_set_buffer_locked(bh))
+> -		return __wait_on_buffer_wq(bh, wait);
+> -
+> +	while (test_set_buffer_locked(bh)) {
+> +		int ret = __wait_on_buffer_wq(bh, wait);
+> +		if (ret)
+> +			return ret;
+> +	}
+>  	return 0;
+>  }
 
-On Monday 16 June 2003 01:47, Lincoln Dale wrote:
-> why not a set of counters which are toggled between.
->
-> e.g.
->          struct netdevice... {
->            uint64        tx_pkts_counter[2];
->            uint64 tx_octets_counter[2];
->            uint64        rx_pkts_counter[2];
->            uint64 rx_octets_counter[2];
->            int counter_bounce;
->          ...
->          }
-<snip>
+You are right - this should be a while loop mirroring what
+lock_buffer does.
 
-Hmm, interesting idea. The one thing is: There are 23 fields in struct 
-net_device_stats right now; if each of them is 64bits (=8 bytes), the whole 
-structure would be 184 bytes (with u_int64.) Now if I have two of each, the 
-size would grow to 368 bytes (plus the 4 bytes for counter_bounce). Now, the 
-question: would it be acceptable to have something that size?
+Actually, I probably ought to just avoid the dual paths,
+and make lock_buffer a wrapper for lock_buffer_wq -- less
+chances of divergence between the two. 
 
-Jeff.
+Regards
+Suparna
 
-- -- 
-*NOTE: This message is ROT-13 encrypted twice for extra protection*
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE+7c4FwFP0+seVj/4RAtGxAJsE+YY48y1mp+Y90FFH2Jz+hmU+fgCeK+gj
-6ksJ8KxDYVo7rwxODwSAeT8=
-=Sxo5
------END PGP SIGNATURE-----
+-- 
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Labs, India
 

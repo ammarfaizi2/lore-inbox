@@ -1,62 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129175AbRCFUi1>; Tue, 6 Mar 2001 15:38:27 -0500
+	id <S129424AbRCFUl1>; Tue, 6 Mar 2001 15:41:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129274AbRCFUiR>; Tue, 6 Mar 2001 15:38:17 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:28422 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S129175AbRCFUiH>;
-	Tue, 6 Mar 2001 15:38:07 -0500
-Date: Tue, 6 Mar 2001 21:37:20 +0100
-From: Jens Axboe <axboe@suse.de>
-To: David Balazic <david.balazic@uni-mb.si>
-Cc: torvalds@transmeta.com,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: scsi vs ide performance on fsync's
-Message-ID: <20010306213720.U2803@suse.de>
-In-Reply-To: <3AA53DC0.C6E2F308@uni-mb.si>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3AA53DC0.C6E2F308@uni-mb.si>; from david.balazic@uni-mb.si on Tue, Mar 06, 2001 at 08:42:56PM +0100
+	id <S129419AbRCFUlR>; Tue, 6 Mar 2001 15:41:17 -0500
+Received: from aslan.scsiguy.com ([63.229.232.106]:57092 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S129424AbRCFUlH>; Tue, 6 Mar 2001 15:41:07 -0500
+Message-Id: <200103062040.f26KehO07876@aslan.scsiguy.com>
+To: Doug Ledford <dledford@redhat.com>
+cc: "Rafael E. Herrera" <raffo@neuronet.pitt.edu>,
+        LK <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel 2.4.3 and new aic7xxx 
+In-Reply-To: Your message of "Tue, 06 Mar 2001 15:09:47 EST."
+             <3AA5440B.8FAAB728@redhat.com> 
+Date: Tue, 06 Mar 2001 13:40:43 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 06 2001, David Balazic wrote:
-> > > Wrong model 
-> > > 
-> > > You want a write barrier. Write buffering (at least for short intervals)
-> > > in the drive is very sensible. The kernel needs to able to send
-> > > drivers a write barrier which will not be completed with outstanding
-> > > commands before the 
-> > > barrier. 
-> > 
-> > Agreed. 
-> > 
-> > Write buffering is incredibly useful on a disk - for all the same reasons 
-> > that an OS wants to do it. The disk can use write buffering to speed up 
-> > writes a lot - not just lower the _perceived_ latency by the OS, but to 
-> > actually improve performance too. 
-> > 
-> > But Alan is right - we needs a "sync" command or something. I don't know 
-> > if IDE has one (it already might, for all I know). 
-> 
-> ATA , SCSI and ATAPI all have a FLUSH_CACHE command. (*)
-> Whether the drives implement it is another question ...
+>> Can you provide me with a dmesg from a boot with aic7xxx=verbose?
+>> I just tested this on a 3940AUW and the behavior was as expected.
+>> Perhaps you have a motherboard based controller that has no seeprom?
+>> I don't know how to detect flipped channels in that configuration
+>> but I'll see what I can find out.
+>
+>Your driver uses the new PCI probe code, so there is no gaurantee that you'll
+>see channel A before channel B.
 
-(Usually called SYNCHRONIZE_CACHE btw)
+Unless he's actually hot-plugging the card, I am guarnateed to see both
+the A and the B channel prior to actually registering with the SCSI subsystem
+and from looking at the PCI probe code, function 0 is always added to the
+pci device list before function 1.  It is true that my adapter sorting
+code assumes that function 0 is seen prior to function 1, but I don't see
+(yet) how that assumption is violated.  Since getting rid of the assumption
+is easy enough, I'll do that.  All of the sorting stuff only works for devices
+in the system at driver initialization.  In the hot plug case, you don't know
+that more adapters will show up, so there is no way to defer registration like
+you can on initial driver startup.
 
-SCSI has ordered tag, which fit the model Alan described quite nicely.
-I've been meaning to implement this for some time, it would be handy
-for journalled fs to use such a barrier. Since ATA doesn't do queueing
-(at least not in current Linux), a synchronize cache is probably the
-only way to go there.
-
-> (*) references : 
->   ATA-6 draft standard from www.t13.org
->   MtFuji document from ????????
-
-ftp.avc-pioneer.com
-
--- 
-Jens Axboe
-
+--
+Justin

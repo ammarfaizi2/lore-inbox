@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261231AbUJWPBQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261155AbUJWPU0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261231AbUJWPBQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 11:01:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbUJWPBP
+	id S261155AbUJWPU0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 11:20:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261160AbUJWPU0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 11:01:15 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:1764 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S261200AbUJWPAv (ORCPT
+	Sat, 23 Oct 2004 11:20:26 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:36003 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261155AbUJWPUV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 11:00:51 -0400
-Date: Sat, 23 Oct 2004 16:00:45 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Christoph Hellwig <hch@infradead.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH} Trivial - fix drm_agp symbol export
-In-Reply-To: <9e473391041023075436f6983c@mail.gmail.com>
-Message-ID: <Pine.LNX.4.58.0410231557530.11754@skynet>
-References: <9e473391041022214570eab48a@mail.gmail.com> 
- <20041023095644.GC30137@infradead.org>  <9e473391041023073578b11eb6@mail.gmail.com>
-  <20041023143912.GA32532@infradead.org>  <9e47339104102307441066e4e4@mail.gmail.com>
-  <Pine.LNX.4.58.0410231547410.11754@skynet> <9e473391041023075436f6983c@mail.gmail.com>
+	Sat, 23 Oct 2004 11:20:21 -0400
+Date: Sat, 23 Oct 2004 11:20:18 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Karel Kulhavy <clock@twibright.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Writing linux kernel specification
+In-Reply-To: <20041023133944.GA1204@beton.cybernet.src>
+Message-ID: <Pine.LNX.4.44.0410231118570.25612-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> So the plan then is to eliminate the drm_agp structure and use the
-> entry points directly. The correct function entry points are already
-> exported from AGP so no kernel patch is needed.
+On Sat, 23 Oct 2004, Karel Kulhavy wrote:
 
-It seems like that is the proper way to do it for 2.6....
+> 3) Is Linux kernel meant to have a specification and just a lack of time
+>    prevented it, or is Linux kernel meant to not have a specification?
+> 4) If I produce a specification that is valid, correct and complete enough
+>    to be useful for general public, will it be included on the Linux kernel
+>    homepage http://www.kernel.org under a link "Linux kernel official
+>    specification" upon my request?
 
-> Dave, with the AGP fix up, do you think linux-core is ready for kernel
-> submission yet?
+You can write a specification, but I can guarantee you that
+it will be out of date the moment you run your spell checker
+on it.
 
-I'm hoping to look at it tomorrow, I started on it today but got
-sidetracked catching up on the changes in CVS and stuff in the kernel
-tree.
-
-Dave.
+Linux kernel development continues at a very high speed, and
+things inside the kernel change all the time.  The only thing
+that's stable is the user space ABI (the system calls), since
+the behaviour of those (mostly) follows POSIX and the Single
+Unix Standard (SUS).
 
 -- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-pam_smb / Linux DECstation / Linux VAX / ILUG person
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 

@@ -1,67 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265385AbTAZANx>; Sat, 25 Jan 2003 19:13:53 -0500
+	id <S265506AbTAZAX5>; Sat, 25 Jan 2003 19:23:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265506AbTAZANx>; Sat, 25 Jan 2003 19:13:53 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:10896 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S265385AbTAZANw>; Sat, 25 Jan 2003 19:13:52 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Sat, 25 Jan 2003 16:28:40 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: "J.A. Magallon" <jamagallon@able.es>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] epoll for 2.4.20 updated ...
-In-Reply-To: <20030126001511.GE1507@werewolf.able.es>
-Message-ID: <Pine.LNX.4.50.0301251627180.1855-100000@blue1.dev.mcafeelabs.com>
-References: <Pine.LNX.4.50.0301242004010.2858-100000@blue1.dev.mcafeelabs.com>
- <20030126001511.GE1507@werewolf.able.es>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265612AbTAZAX5>; Sat, 25 Jan 2003 19:23:57 -0500
+Received: from smtp08.iddeo.es ([62.81.186.18]:17873 "EHLO smtp08.retemail.es")
+	by vger.kernel.org with ESMTP id <S265506AbTAZAX4>;
+	Sat, 25 Jan 2003 19:23:56 -0500
+Date: Sun, 26 Jan 2003 01:33:09 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCHSET] Linux 2.4.21-pre3-jam3
+Message-ID: <20030126003309.GG1507@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 2.0.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 26 Jan 2003, J.A. Magallon wrote:
+Hi all.
 
->
-> On 2003.01.25 Davide Libenzi wrote:
-> >
-> > I updated the 2.4.20 patch with the changes posted today and I fixed a
-> > little error about the wait queue function prototype :
-> >
-> > http://www.xmailserver.org/linux-patches/sys_epoll-2.4.20-0.61.diff
-> >
->
-> I needed this to build smbfs:
->
-> --- linux-2.4.21-pre3-jam3/fs/smbfs/sock.c.orig	2003-01-26 01:02:32.000000000 +0100
-> +++ linux-2.4.21-pre3-jam3/fs/smbfs/sock.c	2003-01-26 01:03:11.000000000 +0100
-> @@ -314,7 +314,7 @@
->  smb_receive_poll(struct smb_sb_info *server)
->  {
->  	struct file *file = server->sock_file;
-> -	poll_table wait_table;
-> +	struct poll_wqueues wait_table;
->  	int result = 0;
->  	int timeout = server->mnt->timeo * HZ;
->  	int mask;
-> @@ -323,7 +323,7 @@
->  		poll_initwait(&wait_table);
->                  set_current_state(TASK_INTERRUPTIBLE);
->
-> -		mask = file->f_op->poll(file, &wait_table);
-> +		mask = file->f_op->poll(file, &wait_table.pt);
->  		if (mask & POLLIN) {
->  			poll_freewait(&wait_table);
->  			current->state = TASK_RUNNING;
->
-> Is it correct ?
+Just to announce a new release, with some updates and novelties
+(important ones, aic and epoll...)
+As usual:
 
-I thought this was already been reported and fixed. Your fix is fine, I'll
-make 0.62 ...
+http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.21-pre3-jam3.tar.bz2
+http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.21-pre3-jam3/
 
+NOTE: there is anew version of bproc, but I could not update it 'cause
+the tarball in bproc.sf.net is corrupted...
 
+Changelog:
+- aa updated to -pre3-aa1
+- highpage_init integrated in -aa
+- killed cd-read-audio-dma, because it was giving too much oopses...
+- 08-e100-hw-init.bz2
+    Fix hard reset of controller in some boards.
+    Author: scott.feldman@intel.com 
+- 18-fat-fdmode.bz2
+    Add mount flags for file (fmode=...) and dir (dmode=...) in vfat fs.
+    Author: Paul Evans <nerd@freeuk.com>
+- 32-epoll-0.61.bz2
+    Improved polling interface via sys_epoll call. Faster, lighter and
+    more scalable.
+    Author: Davide Libenzi <davidel@xmailserver.org>
+- 33-epoll-smbfs
+    Fix for smbfs.
+- 37-ext3-scheduling-storm.bz2
+    Fixes an inefficiency and potential system lockup in ext3 filesystem.
+    Anyone who is using tasks which have realtime scheduling policy on ext3
+    systems should apply this change.
+    Author: Andrew Morton <akpm@digeo.com>
+- 50-aic-20030122.bz2
+    AIC 7xxx (upto U160,update) and 79xx (U320,new) scsi drivers.
+    Versions: aic7xxx-6.2.28, aic79xx-1.3.0
+    Author: Justin T. Gibbs <gibbs@scsiguy.com> 
+    URL: http://people.freebsd.org/~gibbs/linux
+- 55-ide-readahead.bz2
+    Fix file_readahead setting in ide-cd and ide-floppy which
+    assumed read-ahead values are kept as bytes.
+    Author: Andrey Borzenkov <arvidjaar@mail.ru>
+- 75-bttv-0.7.102.bz2
+  76-bttv-0.7.102-doc.bz2
+  77-bttv-0.7.102-tuner.bz2
+  78-bttv-0.7.100-bt832.bz2
+  79-bttv-0.7.102-i2c.bz2
+    BTTV updates.
+    Author: Gerd Knorr <kraxel@bytesex.org>
+    URL: http://bytesex.org/bttv/
 
-- Davide
+Enjoy !!
 
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.1 (Cooker) for i586
+Linux 2.4.21-pre3-jam3 (gcc 3.2.1 (Mandrake Linux 9.1 3.2.1-4mdk))

@@ -1,43 +1,618 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263221AbTCNBAn>; Thu, 13 Mar 2003 20:00:43 -0500
+	id <S263200AbTCNA5V>; Thu, 13 Mar 2003 19:57:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263218AbTCNA7x>; Thu, 13 Mar 2003 19:59:53 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:45986 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S263210AbTCNA6b>; Thu, 13 Mar 2003 19:58:31 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Thu, 13 Mar 2003 17:18:37 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [rfc] updated epoll man pages ...
-Message-ID: <Pine.LNX.4.50.0303131711030.1909-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263186AbTCNA44>; Thu, 13 Mar 2003 19:56:56 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:56587 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S263192AbTCNAzo>;
+	Thu, 13 Mar 2003 19:55:44 -0500
+Subject: Re: [PATCH] i2c driver changes for 2.5.64
+In-reply-to: <10476033213315@kroah.com>
+Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+From: Greg KH <greg@kroah.com>
+Content-Type: text/plain; charset=US-ASCII
+Mime-version: 1.0
+Date: Thu, 13 Mar 2003 16:55 -0800
+Message-id: <10476033212149@kroah.com>
+X-mailer: gregkh_patchbomb
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ChangeSet 1.1109, 2003/03/13 11:52:26-08:00, greg@kroah.com
 
-I updated epoll man pages to reflect the new dual LT/ET behaviour. If you
-have feedback about syntax, content and mainly grammatical errors ;)
-please let me know before I post to the man pages repository :
+i2c: add bus driver for Intel PIIX4 devices
 
-http://www.xmailserver.org/linux-patches/epoll.txt
-http://www.xmailserver.org/linux-patches/epoll_create.txt
-http://www.xmailserver.org/linux-patches/epoll_ctl.txt
-http://www.xmailserver.org/linux-patches/epoll_wait.txt
-
-For the ones that want to go wild in editing, I can also give man source
-files :
-
-http://www.xmailserver.org/linux-patches/epoll.4
-http://www.xmailserver.org/linux-patches/epoll_create.2
-http://www.xmailserver.org/linux-patches/epoll_ctl.2
-http://www.xmailserver.org/linux-patches/epoll_wait.2
+This is from the i2c CVS tree.
 
 
+ drivers/i2c/busses/Kconfig     |   25 +
+ drivers/i2c/busses/Makefile    |    1 
+ drivers/i2c/busses/i2c-piix4.c |  529 +++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 554 insertions(+), 1 deletion(-)
 
 
-- Davide
+diff -Nru a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+--- a/drivers/i2c/busses/Kconfig	Thu Mar 13 16:57:33 2003
++++ b/drivers/i2c/busses/Kconfig	Thu Mar 13 16:57:33 2003
+@@ -55,7 +55,7 @@
+ 
+ config I2C_I801
+ 	tristate "  Intel 801"
+-	depends on I2C && I2C_PROC
++	depends on I2C && I2C_PROC && PCI && EXPERIMENTAL
+ 	help
+ 	  If you say yes to this option, support will be included for the Intel
+ 	  801 family of mainboard I2C interfaces.  Specifically, the following
+@@ -71,6 +71,29 @@
+ 	  say M here and read <file:Documentation/modules.txt>.
+ 
+ 	  The module will be called i2c-i801.
++
++	  You will also need the latest user-space utilties: you can find them
++	  in the lm_sensors package, which you can download at 
++	  http://www.lm-sensors.nu
++
++config I2C_PIIX4
++	tristate "  Intel PIIX4"
++	depends on I2C && I2C_PROC && PCI && EXPERIMENTAL
++	help
++	  If you say yes to this option, support will be included for the Intel
++	  PIIX4 family of mainboard I2C interfaces.  Specifically, the following
++	  versions of the chipset is supported:
++	    Intel PIIX4
++	    Intel 440MX
++	    Serverworks OSB4
++	    Serverworks CSB5
++	    SMSC Victory66
++
++	  This can also be built as a module which can be inserted and removed 
++	  while the kernel is running.  If you want to compile it as a module,
++	  say M here and read <file:Documentation/modules.txt>.
++
++	  The module will be called i2c-piix4.
+ 
+ 	  You will also need the latest user-space utilties: you can find them
+ 	  in the lm_sensors package, which you can download at 
+diff -Nru a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+--- a/drivers/i2c/busses/Makefile	Thu Mar 13 16:57:33 2003
++++ b/drivers/i2c/busses/Makefile	Thu Mar 13 16:57:33 2003
+@@ -6,3 +6,4 @@
+ obj-$(CONFIG_I2C_AMD756)	+= i2c-amd756.o
+ obj-$(CONFIG_I2C_AMD8111)	+= i2c-amd8111.o
+ obj-$(CONFIG_I2C_I801)		+= i2c-i801.o
++obj-$(CONFIG_I2C_PIIX4)		+= i2c-piix4.o
+diff -Nru a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/drivers/i2c/busses/i2c-piix4.c	Thu Mar 13 16:57:33 2003
+@@ -0,0 +1,529 @@
++/*
++    piix4.c - Part of lm_sensors, Linux kernel modules for hardware
++              monitoring
++    Copyright (c) 1998 - 2002 Frodo Looijaard <frodol@dds.nl> and
++    Philip Edelbrock <phil@netroedge.com>
++
++    This program is free software; you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation; either version 2 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with this program; if not, write to the Free Software
++    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++*/
++
++/*
++   Supports:
++	Intel PIIX4, 440MX
++	Serverworks OSB4, CSB5
++	SMSC Victory66
++
++   Note: we assume there can only be one device, with one SMBus interface.
++*/
++
++#include <linux/version.h>
++#include <linux/module.h>
++#include <linux/config.h>
++#include <linux/pci.h>
++#include <linux/kernel.h>
++#include <linux/stddef.h>
++#include <linux/sched.h>
++#include <linux/ioport.h>
++#include <linux/i2c.h>
++#include <linux/init.h>
++#include <linux/apm_bios.h>
++#include <asm/io.h>
++
++
++struct sd {
++	const unsigned short mfr;
++	const unsigned short dev;
++	const unsigned char fn;
++	const char *name;
++};
++
++/* Note: We assume all devices are identical
++         to the Intel PIIX4; we only mention it during detection.   */
++
++static struct sd supported[] = {
++	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82371AB_3, 3, "PIIX4"},
++	{PCI_VENDOR_ID_SERVERWORKS, PCI_DEVICE_ID_SERVERWORKS_OSB4, 0, "OSB4"},
++	{PCI_VENDOR_ID_SERVERWORKS, PCI_DEVICE_ID_SERVERWORKS_CSB5, 0, "CSB5"},
++	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82443MX_3, 3, "440MX"},
++	{PCI_VENDOR_ID_EFAR, PCI_DEVICE_ID_EFAR_SLC90E66_3, 0, "Victory66"},
++	{0, 0, 0, NULL}
++};
++
++/* PIIX4 SMBus address offsets */
++#define SMBHSTSTS (0 + piix4_smba)
++#define SMBHSLVSTS (1 + piix4_smba)
++#define SMBHSTCNT (2 + piix4_smba)
++#define SMBHSTCMD (3 + piix4_smba)
++#define SMBHSTADD (4 + piix4_smba)
++#define SMBHSTDAT0 (5 + piix4_smba)
++#define SMBHSTDAT1 (6 + piix4_smba)
++#define SMBBLKDAT (7 + piix4_smba)
++#define SMBSLVCNT (8 + piix4_smba)
++#define SMBSHDWCMD (9 + piix4_smba)
++#define SMBSLVEVT (0xA + piix4_smba)
++#define SMBSLVDAT (0xC + piix4_smba)
++
++/* PCI Address Constants */
++#define SMBBA     0x090
++#define SMBHSTCFG 0x0D2
++#define SMBSLVC   0x0D3
++#define SMBSHDW1  0x0D4
++#define SMBSHDW2  0x0D5
++#define SMBREV    0x0D6
++
++/* Other settings */
++#define MAX_TIMEOUT 500
++#define  ENABLE_INT9 0
++
++/* PIIX4 constants */
++#define PIIX4_QUICK      0x00
++#define PIIX4_BYTE       0x04
++#define PIIX4_BYTE_DATA  0x08
++#define PIIX4_WORD_DATA  0x0C
++#define PIIX4_BLOCK_DATA 0x14
++
++/* insmod parameters */
++
++/* If force is set to anything different from 0, we forcibly enable the
++   PIIX4. DANGEROUS! */
++static int force = 0;
++MODULE_PARM(force, "i");
++MODULE_PARM_DESC(force, "Forcibly enable the PIIX4. DANGEROUS!");
++
++/* If force_addr is set to anything different from 0, we forcibly enable
++   the PIIX4 at the given address. VERY DANGEROUS! */
++static int force_addr = 0;
++MODULE_PARM(force_addr, "i");
++MODULE_PARM_DESC(force_addr,
++		 "Forcibly enable the PIIX4 at the given address. "
++		 "EXTREMELY DANGEROUS!");
++
++static void piix4_do_pause(unsigned int amount);
++static int piix4_transaction(void);
++
++
++static unsigned short piix4_smba = 0;
++
++#ifdef CONFIG_X86
++/*
++ * Get DMI information.
++ */
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,34)
++void dmi_scan_mach(void);
++#endif
++
++static int __init ibm_dmi_probe(void)
++{
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,34)
++	extern int is_unsafe_smbus;
++	return is_unsafe_smbus;
++#else
++#define IBM_SIGNATURE		"IBM"
++	dmi_scan_mach();
++	if(dmi_ident[DMI_SYS_VENDOR] == NULL)
++		return 0;
++	if(strncmp(dmi_ident[DMI_SYS_VENDOR], IBM_SIGNATURE,
++	           strlen(IBM_SIGNATURE)) == 0)
++		return 1;
++	return 0;
++#endif
++}
++#endif
++
++/* Detect whether a PIIX4 can be found, and initialize it, where necessary.
++   Note the differences between kernels with the old PCI BIOS interface and
++   newer kernels with the real PCI interface. In compat.h some things are
++   defined to make the transition easier. */
++int piix4_setup(void)
++{
++	int error_return = 0;
++	unsigned char temp;
++	struct sd *num = supported;
++	struct pci_dev *PIIX4_dev = NULL;
++
++	if (pci_present() == 0) {
++		error_return = -ENODEV;
++		goto END;
++	}
++
++	/* Look for a supported device/function */
++	do {
++		if((PIIX4_dev = pci_find_device(num->mfr, num->dev,
++					        PIIX4_dev))) {
++			if(PCI_FUNC(PIIX4_dev->devfn) != num->fn)
++				continue;
++			break;
++		}
++		PIIX4_dev = NULL;
++		num++;
++	} while (num->mfr);
++
++	if (PIIX4_dev == NULL) {
++		printk
++		  (KERN_ERR "i2c-piix4.o: Error: Can't detect PIIX4 or compatible device!\n");
++		 error_return = -ENODEV;
++		 goto END;
++	}
++	printk(KERN_INFO "i2c-piix4.o: Found %s device\n", num->name);
++
++#ifdef CONFIG_X86
++	if(ibm_dmi_probe()) {
++		printk
++		  (KERN_ERR "i2c-piix4.o: IBM Laptop detected; this module may corrupt\n");
++		printk
++		  (KERN_ERR "             your serial eeprom! Refusing to load module!\n");
++		 error_return = -EPERM;
++		 goto END;
++	}
++#endif
++
++/* Determine the address of the SMBus areas */
++	if (force_addr) {
++		piix4_smba = force_addr & 0xfff0;
++		force = 0;
++	} else {
++		pci_read_config_word(PIIX4_dev, SMBBA, &piix4_smba);
++		piix4_smba &= 0xfff0;
++		if(piix4_smba == 0) {
++			printk(KERN_ERR "i2c-piix4.o: SMB base address uninitialized - upgrade BIOS or use force_addr=0xaddr\n");
++			return -ENODEV;
++		}
++	}
++
++	if (check_region(piix4_smba, 8)) {
++		printk
++		    (KERN_ERR "i2c-piix4.o: SMB region 0x%x already in use!\n",
++		     piix4_smba);
++		error_return = -ENODEV;
++		goto END;
++	}
++
++	pci_read_config_byte(PIIX4_dev, SMBHSTCFG, &temp);
++/* If force_addr is set, we program the new address here. Just to make
++   sure, we disable the PIIX4 first. */
++	if (force_addr) {
++		pci_write_config_byte(PIIX4_dev, SMBHSTCFG, temp & 0xfe);
++		pci_write_config_word(PIIX4_dev, SMBBA, piix4_smba);
++		pci_write_config_byte(PIIX4_dev, SMBHSTCFG, temp | 0x01);
++		printk
++		    (KERN_INFO "i2c-piix4.o: WARNING: SMBus interface set to new "
++		     "address %04x!\n", piix4_smba);
++	} else if ((temp & 1) == 0) {
++		if (force) {
++/* This should never need to be done, but has been noted that
++   many Dell machines have the SMBus interface on the PIIX4
++   disabled!? NOTE: This assumes I/O space and other allocations WERE
++   done by the Bios!  Don't complain if your hardware does weird 
++   things after enabling this. :') Check for Bios updates before
++   resorting to this.  */
++			pci_write_config_byte(PIIX4_dev, SMBHSTCFG,
++					      temp | 1);
++			printk
++			    (KERN_NOTICE "i2c-piix4.o: WARNING: SMBus interface has been FORCEFULLY "
++			     "ENABLED!\n");
++		} else {
++			printk
++			    (KERN_ERR "i2c-piix4.o: Host SMBus controller not enabled!\n");
++			error_return = -ENODEV;
++			goto END;
++		}
++	}
++
++	/* Everything is happy, let's grab the memory and set things up. */
++	request_region(piix4_smba, 8, "piix4-smbus");
++
++#ifdef DEBUG
++	if ((temp & 0x0E) == 8)
++		printk
++		    (KERN_DEBUG "i2c-piix4.o: Using Interrupt 9 for SMBus.\n");
++	else if ((temp & 0x0E) == 0)
++		printk
++		    (KERN_DEBUG "i2c-piix4.o: Using Interrupt SMI# for SMBus.\n");
++	else
++		printk
++		    (KERN_ERR "i2c-piix4.o: Illegal Interrupt configuration (or code out "
++		     "of date)!\n");
++
++	pci_read_config_byte(PIIX4_dev, SMBREV, &temp);
++	printk(KERN_DEBUG "i2c-piix4.o: SMBREV = 0x%X\n", temp);
++	printk(KERN_DEBUG "i2c-piix4.o: SMBA = 0x%X\n", piix4_smba);
++#endif				/* DEBUG */
++
++      END:
++	return error_return;
++}
++
++
++/* Internally used pause function */
++void piix4_do_pause(unsigned int amount)
++{
++	current->state = TASK_INTERRUPTIBLE;
++	schedule_timeout(amount);
++}
++
++/* Another internally used function */
++int piix4_transaction(void)
++{
++	int temp;
++	int result = 0;
++	int timeout = 0;
++
++#ifdef DEBUG
++	printk
++	    (KERN_DEBUG "i2c-piix4.o: Transaction (pre): CNT=%02x, CMD=%02x, ADD=%02x, DAT0=%02x, "
++	     "DAT1=%02x\n", inb_p(SMBHSTCNT), inb_p(SMBHSTCMD),
++	     inb_p(SMBHSTADD), inb_p(SMBHSTDAT0), inb_p(SMBHSTDAT1));
++#endif
++
++	/* Make sure the SMBus host is ready to start transmitting */
++	if ((temp = inb_p(SMBHSTSTS)) != 0x00) {
++#ifdef DEBUG
++		printk(KERN_DEBUG "i2c-piix4.o: SMBus busy (%02x). Resetting... \n",
++		       temp);
++#endif
++		outb_p(temp, SMBHSTSTS);
++		if ((temp = inb_p(SMBHSTSTS)) != 0x00) {
++#ifdef DEBUG
++			printk(KERN_ERR "i2c-piix4.o: Failed! (%02x)\n", temp);
++#endif
++			return -1;
++		} else {
++#ifdef DEBUG
++			printk(KERN_DEBUG "i2c-piix4.o: Successfull!\n");
++#endif
++		}
++	}
++
++	/* start the transaction by setting bit 6 */
++	outb_p(inb(SMBHSTCNT) | 0x040, SMBHSTCNT);
++
++	/* We will always wait for a fraction of a second! (See PIIX4 docs errata) */
++	do {
++		piix4_do_pause(1);
++		temp = inb_p(SMBHSTSTS);
++	} while ((temp & 0x01) && (timeout++ < MAX_TIMEOUT));
++
++#ifdef DEBUG
++	/* If the SMBus is still busy, we give up */
++	if (timeout >= MAX_TIMEOUT) {
++		printk(KERN_ERR "i2c-piix4.o: SMBus Timeout!\n");
++		result = -1;
++	}
++#endif
++
++	if (temp & 0x10) {
++		result = -1;
++#ifdef DEBUG
++		printk(KERN_ERR "i2c-piix4.o: Error: Failed bus transaction\n");
++#endif
++	}
++
++	if (temp & 0x08) {
++		result = -1;
++		printk
++		    (KERN_ERR "i2c-piix4.o: Bus collision! SMBus may be locked until next hard\n"
++		     "reset. (sorry!)\n");
++		/* Clock stops and slave is stuck in mid-transmission */
++	}
++
++	if (temp & 0x04) {
++		result = -1;
++#ifdef DEBUG
++		printk(KERN_ERR "i2c-piix4.o: Error: no response!\n");
++#endif
++	}
++
++	if (inb_p(SMBHSTSTS) != 0x00)
++		outb_p(inb(SMBHSTSTS), SMBHSTSTS);
++
++#ifdef DEBUG
++	if ((temp = inb_p(SMBHSTSTS)) != 0x00) {
++		printk
++		    (KERN_ERR "i2c-piix4.o: Failed reset at end of transaction (%02x)\n",
++		     temp);
++	}
++	printk
++	    (KERN_DEBUG "i2c-piix4.o: Transaction (post): CNT=%02x, CMD=%02x, ADD=%02x, "
++	     "DAT0=%02x, DAT1=%02x\n", inb_p(SMBHSTCNT), inb_p(SMBHSTCMD),
++	     inb_p(SMBHSTADD), inb_p(SMBHSTDAT0), inb_p(SMBHSTDAT1));
++#endif
++	return result;
++}
++
++/* Return -1 on error. */
++s32 piix4_access(struct i2c_adapter * adap, u16 addr,
++		 unsigned short flags, char read_write,
++		 u8 command, int size, union i2c_smbus_data * data)
++{
++	int i, len;
++
++	switch (size) {
++	case I2C_SMBUS_PROC_CALL:
++		printk
++		    (KERN_ERR "i2c-piix4.o: I2C_SMBUS_PROC_CALL not supported!\n");
++		return -1;
++	case I2C_SMBUS_QUICK:
++		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
++		       SMBHSTADD);
++		size = PIIX4_QUICK;
++		break;
++	case I2C_SMBUS_BYTE:
++		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
++		       SMBHSTADD);
++		if (read_write == I2C_SMBUS_WRITE)
++			outb_p(command, SMBHSTCMD);
++		size = PIIX4_BYTE;
++		break;
++	case I2C_SMBUS_BYTE_DATA:
++		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
++		       SMBHSTADD);
++		outb_p(command, SMBHSTCMD);
++		if (read_write == I2C_SMBUS_WRITE)
++			outb_p(data->byte, SMBHSTDAT0);
++		size = PIIX4_BYTE_DATA;
++		break;
++	case I2C_SMBUS_WORD_DATA:
++		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
++		       SMBHSTADD);
++		outb_p(command, SMBHSTCMD);
++		if (read_write == I2C_SMBUS_WRITE) {
++			outb_p(data->word & 0xff, SMBHSTDAT0);
++			outb_p((data->word & 0xff00) >> 8, SMBHSTDAT1);
++		}
++		size = PIIX4_WORD_DATA;
++		break;
++	case I2C_SMBUS_BLOCK_DATA:
++		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
++		       SMBHSTADD);
++		outb_p(command, SMBHSTCMD);
++		if (read_write == I2C_SMBUS_WRITE) {
++			len = data->block[0];
++			if (len < 0)
++				len = 0;
++			if (len > 32)
++				len = 32;
++			outb_p(len, SMBHSTDAT0);
++			i = inb_p(SMBHSTCNT);	/* Reset SMBBLKDAT */
++			for (i = 1; i <= len; i++)
++				outb_p(data->block[i], SMBBLKDAT);
++		}
++		size = PIIX4_BLOCK_DATA;
++		break;
++	}
++
++	outb_p((size & 0x1C) + (ENABLE_INT9 & 1), SMBHSTCNT);
++
++	if (piix4_transaction())	/* Error in transaction */
++		return -1;
++
++	if ((read_write == I2C_SMBUS_WRITE) || (size == PIIX4_QUICK))
++		return 0;
++
++
++	switch (size) {
++	case PIIX4_BYTE:	/* Where is the result put? I assume here it is in
++				   SMBHSTDAT0 but it might just as well be in the
++				   SMBHSTCMD. No clue in the docs */
++
++		data->byte = inb_p(SMBHSTDAT0);
++		break;
++	case PIIX4_BYTE_DATA:
++		data->byte = inb_p(SMBHSTDAT0);
++		break;
++	case PIIX4_WORD_DATA:
++		data->word = inb_p(SMBHSTDAT0) + (inb_p(SMBHSTDAT1) << 8);
++		break;
++	case PIIX4_BLOCK_DATA:
++		data->block[0] = inb_p(SMBHSTDAT0);
++		i = inb_p(SMBHSTCNT);	/* Reset SMBBLKDAT */
++		for (i = 1; i <= data->block[0]; i++)
++			data->block[i] = inb_p(SMBBLKDAT);
++		break;
++	}
++	return 0;
++}
++
++
++u32 piix4_func(struct i2c_adapter *adapter)
++{
++	return I2C_FUNC_SMBUS_QUICK | I2C_FUNC_SMBUS_BYTE |
++	    I2C_FUNC_SMBUS_BYTE_DATA | I2C_FUNC_SMBUS_WORD_DATA |
++	    I2C_FUNC_SMBUS_BLOCK_DATA;
++}
++
++static struct i2c_algorithm smbus_algorithm = {
++	.name		= "Non-I2C SMBus adapter",
++	.id		= I2C_ALGO_SMBUS,
++	.smbus_xfer	= piix4_access,
++	.functionality	= piix4_func,
++};
++
++static struct i2c_adapter piix4_adapter = {
++	.owner		= THIS_MODULE,
++	.name		= "unset",
++	.id		= I2C_ALGO_SMBUS | I2C_HW_SMBUS_PIIX4,
++	.algo		= &smbus_algorithm,
++};
++
++
++
++static struct pci_device_id piix4_ids[] __devinitdata = {
++	{ 0, }
++};
++
++static int __devinit piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
++{
++
++	sprintf(piix4_adapter.name, "SMBus PIIX4 adapter at %04x",
++		piix4_smba);
++
++	i2c_add_adapter(&piix4_adapter);
++}
++
++static void __devexit piix4_remove(struct pci_dev *dev)
++{
++	i2c_del_adapter(&piix4_adapter);
++}
++
++
++static struct pci_driver piix4_driver = {
++	.name		= "piix4 smbus",
++	.id_table	= piix4_ids,
++	.probe		= piix4_probe,
++	.remove		= __devexit_p(piix4_remove),
++};
++
++static int __init i2c_piix4_init(void)
++{
++	printk("i2c-piix4.o version %s (%s)\n", I2C_VERSION, I2C_DATE);
++	return pci_module_init(&piix4_driver);
++}
++
++
++static void __exit i2c_piix4_exit(void)
++{
++	pci_unregister_driver(&piix4_driver);
++	release_region(piix4_smba, 8);
++}
++
++
++
++MODULE_AUTHOR
++    ("Frodo Looijaard <frodol@dds.nl> and Philip Edelbrock <phil@netroedge.com>");
++MODULE_DESCRIPTION("PIIX4 SMBus driver");
++MODULE_LICENSE("GPL");
++
++module_init(i2c_piix4_init);
++module_exit(i2c_piix4_exit);
 

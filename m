@@ -1,207 +1,159 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264097AbUGAGb3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264113AbUGAHCh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264097AbUGAGb3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 02:31:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264113AbUGAGb3
+	id S264113AbUGAHCh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 03:02:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264129AbUGAHCh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 02:31:29 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:62688 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S264097AbUGAGbW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 02:31:22 -0400
-Date: Thu, 1 Jul 2004 08:32:37 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Do x86 NX and AMD prefetch check cause page fault infinite loop?
-Message-ID: <20040701063237.GA16166@elte.hu>
-References: <20040630013824.GA24665@mail.shareable.org> <20040630055041.GA16320@elte.hu> <20040630143850.GF29285@mail.shareable.org> <20040701014818.GE32560@mail.shareable.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="DBIVS5p969aUjpLe"
-Content-Disposition: inline
-In-Reply-To: <20040701014818.GE32560@mail.shareable.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Thu, 1 Jul 2004 03:02:37 -0400
+Received: from mail4.speakeasy.net ([216.254.0.204]:10381 "EHLO
+	mail4.speakeasy.net") by vger.kernel.org with ESMTP id S264113AbUGAHCb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jul 2004 03:02:31 -0400
+Date: Thu, 1 Jul 2004 00:02:24 -0700
+Message-Id: <200407010702.i6172O38019744@magilla.sf.frob.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrea Arcangeli <andrea@suse.de>, Andreas Schwab <schwab@suse.de>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: zombie with CLONE_THREAD
+In-Reply-To: Linus Torvalds's message of  Wednesday, 30 June 2004 21:57:35 -0700 <Pine.LNX.4.58.0406302147350.11212@ppc970.osdl.org>
+X-Fcc: ~/Mail/linus
+X-Zippy-Says: ..  So, if we convert SUPPLY-SIDE SOYBEAN FUTURES into HIGH-YIELD
+   T-BILL INDICATORS, the PRE-INFLATIONARY risks will DWINDLE to a
+   rate of 2 SHOPPING SPREES per EGGPLANT!!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I do think the locking is broken in your patch.
 
---DBIVS5p969aUjpLe
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I was afraid of that.
 
-
-* Jamie Lokier <jamie@shareable.org> wrote:
-
-> Ingo, I think I now know what must be added to your 32-bit NX patch to
-> prevent the "infinite loop without a signal" problem.
+> Since you release the tasklist lock, the children on our list of children 
+> might go away while you released the lock, making the
 > 
-> It appears the correct way to prevent that one possibility I thought
-> of, with no side effects, is to add this test in
-> i386/mm/fault.c:is_prefetch():
+> 	list_for_each_safe(..)
+
+You know, I never really looked at the macros, but seeing "_safe" here made
+me think that exactly this is what it's safe from.  That was obviously a
+silly thing to think, since it's clearly just safe from removing the list
+element during the iteration.
+
+> HOWEVER, I think you can fix it with something like
 > 
->         /* Catch an obscure case of prefetch inside an NX page. */
->         if (error_code & 16)
->                 return 0;
+> 	_n = father->children.next;
 > 
-> That means that it doesn't count as a prefetch fault if it's an
-> _instruction_ fault.  I.e. an instruction fault will always raise a
-> signal.  Bit 4 of error_code was kindly added alongside the NX feature
-> by AMD.
+> after you've re-aquired the lock (that will re-start the loop, but since 
+> we should have gotten rid of all the previous entries, the "restart" is 
+> actually going to just continue at the point where we were going to 
+> continue anyway, so it shouldn't cause any extra iterations).
 > 
-> (Tweak: Because early Intel 64-bit chips don't have NX, perhaps it
-> should say "if ((error_code & 16) && boot_cpu_has(X86_FEATURE_NX))"
-> instead -- if we find the bit isn't architecturally set to 0 for those
-> chips).
+> Does that still work for you, or have I totally messed up?
 
-Thanks for the analysis Jamie, this should certainly solve the problem.
+That does still work.
 
-I've attached a patch against BK that implements this. I've tested the
-patched x86 kernel on an athlon64 box and on a non-NX box - it works
-fine. Bit 4 also simplifies the detection of illegal code execution
-within the kernel - i retested that too and it still works fine.
+> I do agree with Andrea that it's ugly, and my patch just makes it uglier 
+> still. I wonder if there is some cleaner way to do the same thing.
 
-	Ingo
+Well, which thing?  
 
---DBIVS5p969aUjpLe
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="nx-prefetch-fix-2.6.7-A2"
+As to this locking issue, something I was considering to reduce that dance
+was changing release_task to take a flag saying the caller already holds
+some lock.  That would be to make things hold the tasklist_lock for longer
+stretches than it does now, which might not be what we wnat.
 
+I can think of two approaches to simply avoid calling release_task inside
+that loop in forget_original_parent, and so have the locking issue to
+contend with, if that is what you mean.  First, queue them on a list for
+calling release_task later when life is calmer.  The following patch works:
 
-- fix possible prefetch-fault loop on NX page, based on suggestions
-  from Jamie Lokier.
-
-- clean up nx feature dependencies
-
-- simplify detection of NX-violations when the kernel executes code
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
---- linux/arch/i386/mm/fault.c.orig	
-+++ linux/arch/i386/mm/fault.c	
-@@ -188,11 +188,16 @@ static int __is_prefetch(struct pt_regs 
- 	return prefetch;
- }
- 
--static inline int is_prefetch(struct pt_regs *regs, unsigned long addr)
-+static inline int is_prefetch(struct pt_regs *regs, unsigned long addr,
-+			      unsigned long error_code)
+--- linux-2.6.7-mm4/kernel/exit.c.~1~	2004-06-30 16:29:06.000000000 -0700
++++ linux-2.6.7-mm4/kernel/exit.c	2004-06-30 23:03:57.000000000 -0700
+@@ -594,7 +594,8 @@ static inline void reparent_thread(task_
+  * group, and if no such member exists, give it to
+  * the global child reaper process (ie "init")
+  */
+-static inline void forget_original_parent(struct task_struct * father)
++static inline void forget_original_parent(struct task_struct * father,
++					  struct list_head *to_release)
  {
- 	if (unlikely(boot_cpu_data.x86_vendor == X86_VENDOR_AMD &&
--		     boot_cpu_data.x86 >= 6))
-+		     boot_cpu_data.x86 >= 6)) {
-+		/* Catch an obscure case of prefetch inside an NX page. */
-+		if (nx_enabled && (error_code & 16))
-+			return 0;
- 		return __is_prefetch(regs, addr);
-+	}
- 	return 0;
- } 
- 
-@@ -374,7 +379,7 @@ bad_area_nosemaphore:
- 		 * Valid to do another page fault here because this one came 
- 		 * from user space.
- 		 */
--		if (is_prefetch(regs, address))
-+		if (is_prefetch(regs, address, error_code))
- 			return;
- 
- 		tsk->thread.cr2 = address;
-@@ -415,7 +420,7 @@ no_context:
- 	 * had been triggered by is_prefetch fixup_exception would have 
- 	 * handled it.
- 	 */
-- 	if (is_prefetch(regs, address))
-+ 	if (is_prefetch(regs, address, error_code))
-  		return;
- 
- /*
-@@ -425,21 +430,8 @@ no_context:
- 
- 	bust_spinlocks(1);
- 
--#ifdef CONFIG_X86_PAE
--	{
--		pgd_t *pgd;
--		pmd_t *pmd;
--
--
--
--		pgd = init_mm.pgd + pgd_index(address);
--		if (pgd_present(*pgd)) {
--			pmd = pmd_offset(pgd, address);
--			if (pmd_val(*pmd) & _PAGE_NX)
--				printk(KERN_CRIT "kernel tried to access NX-protected page - exploit attempt? (uid: %d)\n", current->uid);
--		}
--	}
--#endif
-+	if (nx_enabled && (error_code & 16))
-+		printk(KERN_CRIT "kernel tried to execute NX-protected page - exploit attempt? (uid: %d)\n", current->uid);
- 	if (address < PAGE_SIZE)
- 		printk(KERN_ALERT "Unable to handle kernel NULL pointer dereference");
- 	else
-@@ -492,7 +484,7 @@ do_sigbus:
- 		goto no_context;
- 
- 	/* User space => ok to do another page fault */
--	if (is_prefetch(regs, address))
-+	if (is_prefetch(regs, address, error_code))
- 		return;
- 
- 	tsk->thread.cr2 = address;
---- linux/arch/i386/mm/init.c.orig	
-+++ linux/arch/i386/mm/init.c	
-@@ -437,7 +437,7 @@ static int __init noexec_setup(char *str
- __setup("noexec=", noexec_setup);
- 
- #ifdef CONFIG_X86_PAE
--static int use_nx = 0;
-+int nx_enabled = 0;
- 
- static void __init set_nx(void)
- {
-@@ -449,7 +449,7 @@ static void __init set_nx(void)
- 			rdmsr(MSR_EFER, l, h);
- 			l |= EFER_NX;
- 			wrmsr(MSR_EFER, l, h);
--			use_nx = 1;
-+			nx_enabled = 1;
- 			__supported_pte_mask |= _PAGE_NX;
+ 	struct task_struct *p, *reaper = father;
+ 	struct list_head *_p, *_n;
+@@ -618,9 +619,19 @@ static inline void forget_original_paren
+ 			reparent_thread(p, father, 0);
+ 		} else {
+ 			ptrace_unlink (p);
+-			if (p->state == TASK_ZOMBIE && p->exit_signal != -1 &&
+-			    thread_group_empty(p))
+-				do_notify_parent(p, p->exit_signal);
++			if (p->state == TASK_ZOMBIE) {
++				if (p->exit_signal == -1) {
++					/*
++					 * This was only a zombie because
++					 * we were tracing it.  Now it should
++					 * disappear as it would have done
++					 * if we hadn't been tracing it.
++					 */
++					list_add(&p->ptrace_list, to_release);
++				}
++				else if (thread_group_empty(p))
++					do_notify_parent(p, p->exit_signal);
++			}
  		}
  	}
-@@ -468,7 +468,7 @@ void __init paging_init(void)
+ 	list_for_each_safe(_p, _n, &father->ptrace_children) {
+@@ -638,6 +649,7 @@ static void exit_notify(struct task_stru
  {
- #ifdef CONFIG_X86_PAE
- 	set_nx();
--	if (use_nx)
-+	if (nx_enabled)
- 		printk("NX (Execute Disable) protection: active\n");
- #endif
+ 	int state;
+ 	struct task_struct *t;
++	struct list_head ptrace_dead, *_p, *_n;
  
---- linux/include/asm-i386/page.h.orig	
-+++ linux/include/asm-i386/page.h	
-@@ -41,6 +41,7 @@
-  */
- #ifdef CONFIG_X86_PAE
- extern unsigned long long __supported_pte_mask;
-+extern int nx_enabled;
- typedef struct { unsigned long pte_low, pte_high; } pte_t;
- typedef struct { unsigned long long pmd; } pmd_t;
- typedef struct { unsigned long long pgd; } pgd_t;
-@@ -48,6 +49,7 @@ typedef struct { unsigned long long pgpr
- #define pte_val(x)	((x).pte_low | ((unsigned long long)(x).pte_high << 32))
- #define HPAGE_SHIFT	21
- #else
-+#define nx_enabled 0
- typedef struct { unsigned long pte_low; } pte_t;
- typedef struct { unsigned long pmd; } pmd_t;
- typedef struct { unsigned long pgd; } pgd_t;
+ 	if (signal_pending(tsk) && !tsk->signal->group_exit
+ 	    && !thread_group_empty(tsk)) {
+@@ -673,7 +685,8 @@ static void exit_notify(struct task_stru
+ 	 *	jobs, send them a SIGHUP and then a SIGCONT.  (POSIX 3.2.2.2)
+ 	 */
+ 
+-	forget_original_parent(tsk);
++	INIT_LIST_HEAD(&ptrace_dead);
++	forget_original_parent(tsk, &ptrace_dead);
+ 	BUG_ON(!list_empty(&tsk->children));
+ 
+ 	/*
+@@ -759,6 +772,12 @@ static void exit_notify(struct task_stru
+ 	_raw_write_unlock(&tasklist_lock);
+ 	local_irq_enable();
+ 
++	list_for_each_safe(_p, _n, &ptrace_dead) {
++		list_del_init(_p);
++		t = list_entry(_p,struct task_struct,ptrace_list);
++		release_task(t);
++	}
++
+ 	/* If the process is dead, release it - nobody will wait for it */
+ 	if (state == TASK_DEAD)
+ 		release_task(tsk);
 
---DBIVS5p969aUjpLe--
+
+The second approach to that is to have some other thread call release_task
+for you.  The benefit there would be no change whatsoever in the main
+exit_notify code path, the only new code in the exit path being in just
+this one unusual case.  To make init do that reaping in the normal course
+of things might be a pain.  The thread would have to be fully divorced from
+its thread group and made a normal zombie (i.e. only one in its own thread
+group) in its own right.  Tweaking the pid hashes to do that entails its
+own locking nightmare.  If not init, it could be some random kernel service
+thread, but I don't see what existing thread would want to do such a thing.
+
+Both of those are probably worse in real costs than the ugliness of
+dropping and reacquiring the lock around calling release_task in the loop.
+
+If you are talking about reorganizing exit handling in a larger sense not
+to have this kind of trouble, then that would take more thought than I am
+going to give it tonight.
+
+
+Thanks,
+Roland

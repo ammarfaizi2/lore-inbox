@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143630AbRA1Vql>; Sun, 28 Jan 2001 16:46:41 -0500
+	id <S143552AbRA1VrM>; Sun, 28 Jan 2001 16:47:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S144242AbRA1Vqb>; Sun, 28 Jan 2001 16:46:31 -0500
-Received: from omega.cisco.com ([171.69.63.141]:55708 "EHLO cisco.com")
-	by vger.kernel.org with ESMTP id <S143552AbRA1VqW>;
-	Sun, 28 Jan 2001 16:46:22 -0500
-Message-Id: <4.3.2.7.2.20010129084117.02ae4f00@171.69.63.141>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Mon, 29 Jan 2001 08:45:32 +1100
-To: Dax Kelson <dax@gurulabs.com>
-From: Lincoln Dale <ltd@cisco.com>
-Subject: Re: ECN fixes for Cisco gear
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.SOL.4.30.0101281429140.6934-100000@ultra1.inconnect.c
- om>
-In-Reply-To: <20010128151835.G13195@xi.linuxpower.cx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S143813AbRA1VrH>; Sun, 28 Jan 2001 16:47:07 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:36619 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S143552AbRA1Vqs> convert rfc822-to-8bit; Sun, 28 Jan 2001 16:46:48 -0500
+Date: Sun, 28 Jan 2001 13:46:16 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Dieter Nützel <Dieter.Nuetzel@hamburg.de>
+cc: Andrew Grover <andrew.grover@intel.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re:  Linux-2.4.1-pre11
+In-Reply-To: <01012820234500.05026@SunWave1>
+Message-ID: <Pine.LNX.4.10.10101281346030.4151-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-MIME-Autoconverted: from 8bit to quoted-printable by deepthought.transmeta.com id NAA22406
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-At 02:33 PM 28/01/2001 -0700, Dax Kelson wrote:
->Here is the fix for PIX:
->
->(see
->http://www.cisco.com/cgi-bin/Support/Bugtool/onebug.pl?bugid=CSCds23698)
->     Bud ID: CSCds23698
->     Headline: PIX sends RSET in response to tcp connections with ECN
->  bits set
->     Product: PIX
->     Component: fw
->     Severity: 2 Status: R [Resolved]
->     Version Found: 5.1(1)
->     Fixed-in Version: 5.1(2.206) 5.1(2.207)  5.2(1.200)
-
-fixes have been incorporated for a number of different release trains for 
-the pix.
-
-Fixed-In Version now covers releases:
-         5.1(2.206), 5.1(2.207), 5.2(1.200), 6.0(0.100), 5.2(3.210)
 
 
-cheers,
+On Sun, 28 Jan 2001, Dieter Nützel wrote:
 
-lincoln.
-NB. it has been posted that Raptor filewalls will also apparently fail to 
-allow connections with ECN bits set.
+> > I just uploaded it to kernel.org, and I expect that I'll do the final
+> > 2.4.1 tomorrow, before leaving for NY and LinuxWorld. Please test that the
+> > pre-kernel works for you..
+> 
+> Hello Linus,
+> 
+> can we please see Andrew's latest ACPI fixes ([Acpi] ACPI source release 
+> updated: 1-25-2001)  in 2.4.1 final?
+
+Does it fix stuff? Andrew?
+
+		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,192 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261427AbTAICo0>; Wed, 8 Jan 2003 21:44:26 -0500
+	id <S261448AbTAICo2>; Wed, 8 Jan 2003 21:44:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261456AbTAICoZ>; Wed, 8 Jan 2003 21:44:25 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:58338 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S261427AbTAICoU>;
-	Wed, 8 Jan 2003 21:44:20 -0500
-Date: Wed, 8 Jan 2003 18:53:00 -0800
-To: Jeff Garzik <jgarzik@mandrakesoft.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.5] : IrDA driver module fixes
-Message-ID: <20030109025300.GC19178@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
+	id <S261456AbTAICo2>; Wed, 8 Jan 2003 21:44:28 -0500
+Received: from adsl-67-121-154-100.dsl.pltn13.pacbell.net ([67.121.154.100]:4320
+	"EHLO localhost") by vger.kernel.org with ESMTP id <S261448AbTAICoW>;
+	Wed, 8 Jan 2003 21:44:22 -0500
+Date: Wed, 8 Jan 2003 18:48:14 -0800
+From: Joshua Kwan <joshk@ludicrus.ath.cx>
+To: rodrigobaroni@yahoo.com.br
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel compile error
+Message-Id: <20030108184814.72ee41eb.joshk@ludicrus.ath.cx>
+In-Reply-To: <20030109021540.80049.qmail@web11105.mail.yahoo.com>
+References: <20030109021540.80049.qmail@web11105.mail.yahoo.com>
+X-Mailer: Sylpheed version 0.8.8claws69 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1"; boundary="=.t72Ns'ASrei5+R"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ir254_driver_module_fixes-2.diff :
---------------------------------
-	o [CORRECT] Use SET_MODULE_OWNER() in various IrDA drivers
+--=.t72Ns'ASrei5+R
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: base64
 
+SGF2ZSB5b3UgY29uc2lkZXJlZCBncmFiYmluZyBhbiBvZmZpY2lhbCAyLjQuMTggc291cmNlIHRy
+ZWUgZnJvbQ0Ka2VybmVsLm9yZyBhbmQgc2VlIGlmIHRoYXQgd29ya3M/DQoNCkJUVywgMi40LjIw
+IGlzIGN1cnJlbnQsIGlmIHlvdSdyZSBnb2luZyB0byBnZXQgc29tZXRoaW5nIG1pZ2h0IGFzIHdl
+bGwNCmdldCB0aGF0Li4uDQoNClJlZ2FyZHMNCkpvc2gNCg0KUmFiaWQgY2hlZXNlYnVyZ2VycyBm
+b3JjZWQiUm9kcmlnbyBGLiBCYXJvbmkiDQo8cm9kcmlnb2Jhcm9uaUB5YWhvby5jb20uYnI+IHRv
+IHdyaXRlIHRoaXMgb24gV2VkLCA4IEphbiAyMDAzDQoyMzoxNTo0MC0wMzAwIChBUlQpOgkNCg0K
+PiBIZWxsbyBhbGwsDQo+IA0KPiANCj4gICAgIFRoZXJlIGlzIGEgZ29vZCB0aW1lIHRoYXQgSSBo
+YXZlIHRyeWluZyB0byBjb21waWxlDQo+IGEga2VybmVsIGluIGEgcGMgMjMzIG1oeiAobW90aGVy
+Ym9hcmQgbG1yIDU5MSAtDQo+IGNoaXBzZXQgc2lzLCBhbGwtb24tYm9hcmQpLCBhbmQgc28gdGhl
+IGZvbGxvdyBlcnJvcg0KPiBiZWxvdyBoYXBwZW4uDQo+IA0KPiANCj4gICAgICBEb2VzIGFueWJv
+ZHkga25vd3Mgd2hhdCBpcyBnb2luZyBvbiBwbGVhc2UgPyENCj4gKGl0J3MgYSAyLjQuMTgga2Vy
+bmVsIGluIGEgZGViaWFuIDMpDQo+IA0KPiANCj4gDQo+IA0KPiBSb2RyaWdvIEYgQmFyb25pDQo+
+IENvbXB1dGVyIFNjaWVuY2UgR3JhZCBTdHVkZW50DQo+IA0KPiBfX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18NCj4gX18g
+QnVzY2EgWWFob28hDQo+IE8gbWVsaG9yIGx1Z2FyIHBhcmEgZW5jb250cmFyIHR1ZG8gbyBxdWUg
+dm9j6iBwcm9jdXJhIG5hIEludGVybmV0DQo+IGh0dHA6Ly9ici5idXNjYS55YWhvby5jb20vDQoN
+Cg0KLS0gDQpKb3NodWEgS3dhbg0Kam9zaGtAbXNwZW5jZXIubmV0DQpwZ3AgcHVibGljIGtleSBh
+dCBodHRwOi8vam9zaGsubXNwZW5jZXIubmV0L3B1YmtleV9ncGcuYXNjDQogDQpJdCdzIGhhcmQg
+dG8ga2VlcCB5b3VyIHNoaXJ0IG9uIHdoZW4geW91J3JlIGdldHRpbmcgc29tZXRoaW5nIG9mZiB5
+b3VyDQpjaGVzdC4=
 
-diff -u -p -r linux/drivers/net/irda-d5/ali-ircc.c linux/drivers/net/irda/ali-ircc.c
---- linux/drivers/net/irda-d5/ali-ircc.c	Wed Jan  8 16:59:49 2003
-+++ linux/drivers/net/irda/ali-ircc.c	Wed Jan  8 17:27:03 2003
-@@ -248,7 +248,6 @@ static int ali_ircc_open(int i, chipio_t
- 	struct ali_ircc_cb *self;
- 	struct pm_dev *pmdev;
- 	int dongle_id;
--	int ret;
- 	int err;
- 			
- 	IRDA_DEBUG(2, "%s(), ---------------- Start ----------------\n", __FUNCTION__);	
-@@ -1303,6 +1302,9 @@ static int ali_ircc_net_init(struct net_
- {
- 	IRDA_DEBUG(2, "%s(), ---------------- Start ----------------\n", __FUNCTION__ );
- 	
-+	/* Keep track of module usage */
-+	SET_MODULE_OWNER(dev);
-+
- 	/* Setup to be a normal IrDA network device driver */
- 	irda_device_setup(dev);
- 
-@@ -1369,8 +1371,6 @@ static int ali_ircc_net_open(struct net_
- 	 */
- 	self->irlap = irlap_open(dev, &self->qos, hwname);
- 		
--	MOD_INC_USE_COUNT;
--
- 	IRDA_DEBUG(2, "%s(), ----------------- End ------------------\n", __FUNCTION__ );	
- 	
- 	return 0;
-@@ -1410,8 +1410,6 @@ static int ali_ircc_net_close(struct net
- 	       
- 	free_irq(self->io.irq, dev);
- 	free_dma(self->io.dma);
--
--	MOD_DEC_USE_COUNT;
- 
- 	IRDA_DEBUG(2, "%s(), ----------------- End ------------------\n", __FUNCTION__ );	
- 	
-diff -u -p -r linux/drivers/net/irda-d5/donauboe.c linux/drivers/net/irda/donauboe.c
---- linux/drivers/net/irda-d5/donauboe.c	Wed Jan  8 16:59:49 2003
-+++ linux/drivers/net/irda/donauboe.c	Wed Jan  8 17:20:06 2003
-@@ -1388,6 +1388,9 @@ toshoboe_net_init (struct net_device *de
- {
-   IRDA_DEBUG (4, "%s()\n", __FUNCTION__);
- 
-+  /* Keep track of module usage */
-+  SET_MODULE_OWNER(dev);
-+
-   /* Setup to be a normal IrDA network device driver */
-   irda_device_setup (dev);
- 
-@@ -1435,8 +1438,6 @@ toshoboe_net_open (struct net_device *de
- 
-   self->irdad = 1;
- 
--  MOD_INC_USE_COUNT;
--
-   return 0;
- }
- 
-@@ -1466,8 +1467,6 @@ toshoboe_net_close (struct net_device *d
-     {
-       toshoboe_stopchip (self);
-     }
--
--  MOD_DEC_USE_COUNT;
- 
-   return 0;
- }
-diff -u -p -r linux/drivers/net/irda-d5/irda-usb.c linux/drivers/net/irda/irda-usb.c
---- linux/drivers/net/irda-d5/irda-usb.c	Wed Jan  8 16:59:49 2003
-+++ linux/drivers/net/irda/irda-usb.c	Wed Jan  8 17:20:06 2003
-@@ -904,6 +904,9 @@ static int irda_usb_net_init(struct net_
- {
- 	IRDA_DEBUG(1, "%s()\n", __FUNCTION__);
- 	
-+	/* Keep track of module usage */
-+	SET_MODULE_OWNER(dev);
-+
- 	/* Set up to be a normal IrDA network device driver */
- 	irda_device_setup(dev);
- 
-@@ -974,7 +977,6 @@ static int irda_usb_net_open(struct net_
- 		irda_usb_submit(self, NULL, self->rx_urb[i]);
- 
- 	/* Ready to play !!! */
--	MOD_INC_USE_COUNT;
- 	return 0;
- }
- 
-@@ -1025,8 +1027,6 @@ static int irda_usb_net_close(struct net
- 	if (self->irlap)
- 		irlap_close(self->irlap);
- 	self->irlap = NULL;
--
--	MOD_DEC_USE_COUNT;
- 
- 	return 0;
- }
-diff -u -p -r linux/drivers/net/irda-d5/nsc-ircc.c linux/drivers/net/irda/nsc-ircc.c
---- linux/drivers/net/irda-d5/nsc-ircc.c	Wed Jan  8 16:59:49 2003
-+++ linux/drivers/net/irda/nsc-ircc.c	Wed Jan  8 17:20:06 2003
-@@ -1866,6 +1866,9 @@ static int nsc_ircc_net_init(struct net_
- {
- 	IRDA_DEBUG(4, "%s()\n", __FUNCTION__);
- 
-+	/* Keep track of module usage */
-+	SET_MODULE_OWNER(dev);
-+
- 	/* Setup to be a normal IrDA network device driver */
- 	irda_device_setup(dev);
- 
-@@ -1934,8 +1937,6 @@ static int nsc_ircc_net_open(struct net_
- 	 */
- 	self->irlap = irlap_open(dev, &self->qos, hwname);
- 
--	MOD_INC_USE_COUNT;
--
- 	return 0;
- }
- 
-@@ -1982,8 +1983,6 @@ static int nsc_ircc_net_close(struct net
- 
- 	/* Restore bank register */
- 	outb(bank, iobase+BSR);
--
--	MOD_DEC_USE_COUNT;
- 
- 	return 0;
- }
-diff -u -p -r linux/drivers/net/irda-d5/w83977af_ir.c linux/drivers/net/irda/w83977af_ir.c
---- linux/drivers/net/irda-d5/w83977af_ir.c	Wed Jan  8 16:59:49 2003
-+++ linux/drivers/net/irda/w83977af_ir.c	Wed Jan  8 17:20:06 2003
-@@ -1197,6 +1197,9 @@ static int w83977af_net_init(struct net_
- {
- 	IRDA_DEBUG(0, "%s()\n", __FUNCTION__ );
- 
-+	/* Keep track of module usage */
-+	SET_MODULE_OWNER(dev);
-+
- 	/* Set up to be a normal IrDA network device driver */
- 	irda_device_setup(dev);
- 
-@@ -1267,8 +1270,6 @@ static int w83977af_net_open(struct net_
- 	 */
- 	self->irlap = irlap_open(dev, &self->qos, hwname);
- 
--	MOD_INC_USE_COUNT;
--
- 	return 0;
- }
- 
-@@ -1316,8 +1317,6 @@ static int w83977af_net_close(struct net
- 
- 	/* Restore bank register */
- 	outb(set, iobase+SSR);
--
--	MOD_DEC_USE_COUNT;
- 
- 	return 0;
- }
+--=.t72Ns'ASrei5+R
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+HOLw6TRUxq22Mx4RAtuuAJ9jRgDTqaGAFSC5DPXeE/Hf0zfihQCgrTXX
+l6GNpidsZf+o3Ui62GEvhew=
+=MjnZ
+-----END PGP SIGNATURE-----
+
+--=.t72Ns'ASrei5+R--

@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131986AbRA2Sw2>; Mon, 29 Jan 2001 13:52:28 -0500
+	id <S131091AbRA2S57>; Mon, 29 Jan 2001 13:57:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131566AbRA2SwS>; Mon, 29 Jan 2001 13:52:18 -0500
-Received: from foobar.napster.com ([64.124.41.10]:19210 "EHLO
-	foobar.napster.com") by vger.kernel.org with ESMTP
-	id <S131986AbRA2SwH>; Mon, 29 Jan 2001 13:52:07 -0500
-Message-ID: <3A75BBB2.63CE124C@napster.com>
-Date: Mon, 29 Jan 2001 10:51:30 -0800
-From: Jordan Mendelson <jordy@napster.com>
-Organization: Napster, Inc.
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: en
+	id <S131525AbRA2S5t>; Mon, 29 Jan 2001 13:57:49 -0500
+Received: from www.topmail.de ([212.255.16.226]:3559 "HELO www.topmail.de")
+	by vger.kernel.org with SMTP id <S131091AbRA2S5g> convert rfc822-to-8bit;
+	Mon, 29 Jan 2001 13:57:36 -0500
+Message-ID: <016501c08a25$527d2490$0100a8c0@homeip.net>
+From: "mirabilos" <eccesys@topmail.de>
+To: "Linux-Kernel ML" <linux-kernel@vger.kernel.org>,
+        "Andreas Huppert" <Andreas.Huppert@philosys.de>
+In-Reply-To: <200101291827.TAA21302@mail.philosys.de>
+Subject: Re: dos-partition mount bug
+Date: Mon, 29 Jan 2001 18:54:00 -0000
+Organization: eccesys.net Linux Distribution Development
 MIME-Version: 1.0
-To: Daniel Walton <zwwe@opti.cgi.net>
-CC: whitney@math.berkeley.edu, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0 Networking oddity
-In-Reply-To: <5.0.2.1.2.20010128140720.03465e38@209.54.94.12>
-	 <5.0.2.1.2.20010128140720.03465e38@209.54.94.12> <5.0.2.1.2.20010129002217.03362fe0@209.54.94.12>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Walton wrote:
-> 
-> The server in question is running the tulip driver.  dmesg reports:
-> 
-> Linux Tulip driver version 0.9.13 (January 2, 2001)
-> 
-> I have seen this same behavior on a couple of my servers running 3com
-> 3c905c adaptors as well.
-> 
-> The last time I was experiencing it I rebooted the system and it didn't
-> solve the problem.  When it came up it was still lagging.  This would lead
-> me to believe that it is caused by some sort of network condition, but what
-> I don't know.
-> 
-> If anyone has ideas, I'd be more than happy to run tests/provide more info..
-> 
+Andreas,
 
-If you are running an intelligent switch, double check to make sure your
-duplex and speed match what the switch sees on it's port. The biggest
-problem I've had with any of my machines is autonegotiation of port
-speed and duplex. Typically all that is required is that I force speed
-and duplex on the Linux end.
+I've checked the bootsector (aka superblock) [i hate od...]
+and found no problems. It even gives the right info about
+start sector and length (same as fdisk).
+
+Your filesystem seems to be intact, but I'd suggest running
+sp^Hcandisk although. Maybe there are other things like a
+corrupt FAT the driver complains about.
+AFAIK it only ought to complain if the bootsector (BPB and
+55AA magic) is corrupt. (Or did so in 2.0.33)
+
+Sorry can't help, seems to be a fs-driver flaw.
+
+-mirabilos
+
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12+(proprietary extensions) # Updated:20010129 nick=mirabilos
+GO/S d@ s--: a--- C++ UL++++ P--- L++$(-^lang) E----(joe) W+(++) loc=.de
+N? o K? w-(+$) O+>+++ M-- V- PS+++@ PE(--) Y+ PGP t+ 5? X+ R+ !tv(silly)
+b++++* DI- D+ G(>++) e(^age) h! r(-) y--(!y+) /* lang=NASM;GW-BASIC;C */
+------END GEEK CODE BLOCK------
 
 
-Jordan
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,72 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261931AbTLDRaV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 12:30:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263364AbTLDRaU
+	id S263364AbTLDRjs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 12:39:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263375AbTLDRjs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 12:30:20 -0500
-Received: from mail.fh-wedel.de ([213.39.232.194]:3996 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S261931AbTLDRaO (ORCPT
+	Thu, 4 Dec 2003 12:39:48 -0500
+Received: from [212.239.226.206] ([212.239.226.206]:27520 "EHLO
+	precious.kicks-ass.org") by vger.kernel.org with ESMTP
+	id S263364AbTLDRjq convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 12:30:14 -0500
-Date: Thu, 4 Dec 2003 18:26:53 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kallol Biswas <kbiswas@neoscale.com>, linux-kernel@vger.kernel.org,
-       "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>
-Subject: Re: partially encrypted filesystem
-Message-ID: <20031204172653.GA12516@wohnheim.fh-wedel.de>
-References: <1070485676.4855.16.camel@nucleon> <20031203214443.GA23693@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0312031600460.2055@home.osdl.org> <20031204141725.GC7890@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0312040712270.2055@home.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Thu, 4 Dec 2003 12:39:46 -0500
+From: Jan De Luyck <lkml@kcore.org>
+To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>,
+       "Randy.Dunlap" <rddunlap@osdl.org>
+Subject: Re: Where'd the .config go?
+Date: Thu, 4 Dec 2003 18:39:35 +0100
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org
+References: <20031204151852.GB16568@rdlg.net> <20031204083331.7660077a.rddunlap@osdl.org> <20031204164455.GD16568@rdlg.net>
+In-Reply-To: <20031204164455.GD16568@rdlg.net>
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.58.0312040712270.2055@home.osdl.org>
-User-Agent: Mutt/1.3.28i
+Message-Id: <200312041839.38523.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 December 2003 07:20:21 -0800, Linus Torvalds wrote:
-> On Thu, 4 Dec 2003, Jörn Engel wrote:
-> >
-> > Isn't that a problem already handled by all compressing filesystems?
-> > Or did I miss something really stupid?
-> 
-> Yes, compression and encryption are really the same thing from a fs
-> implementation standpoint - they just have different goals. So yes, any
-> compressed filesystem will largely have all the same issues.
-> 
-> And compression isn't very easy to tack on later either.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-So - as sick as it sounds - jffs2 may actually be the fs of choice
-when doing encryption, even though working on a hard drive and not
-flash.  Cool. :)
+On Thursday 04 December 2003 17:44, Robert L. Harris wrote:
+> Odd, it's in my 2.4.21-ac3 tree.  Guess it was in the ac for a short
+> durration.
 
-> Encryption does have a few extra problems, simply because of the intent.
-> In a compressed filesystem it is ok to say "this information tends to be
-> small and hard to compress, so let's not" (for example, metadata). While
-> in an encrypted filesystem you shouldn't skip the "hard" pieces..
+IIRC Alan took that patch and merged in his -ac patchset.
 
-Depends on how much security you really care about.  If you really
-don't mind the pain involved, some metadata should explicitly *not* be
-encrypted, to avoid known plaintext attacks.  To a serious attacker,
-this could be a death stroke for ext[23] over cryptoloop, actually.
+Jan
 
-In real life, though, the humans are usually the weakest link, so this
-doesn't matter anyway.
+- -- 
+Your society will be sought by people of taste and refinement.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-> (Encrypted filesystems also have the key management issues, further
-> complicating the thing, but that complication tends to be at a higher
-> level).
+iD8DBQE/z3FZUQQOfidJUwQRArzSAJwNKRJpc1FAmydqR70cQZNiU10lmACeOLF8
+yahbHjdi3+4mR5k40HLaAbI=
+=KjWz
+-----END PGP SIGNATURE-----
 
-Trivial, as long as you can live with a single key for the whole
-filesystem.  If that is not acceptable, there may even be problems in
-the vfs already.
-
-Jörn
-
--- 
-Data dominates. If you've chosen the right data structures and organized
-things well, the algorithms will almost always be self-evident. Data
-structures, not algorithms, are central to programming.
--- Rob Pike

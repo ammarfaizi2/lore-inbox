@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273534AbRJYM4P>; Thu, 25 Oct 2001 08:56:15 -0400
+	id <S273255AbRJYM7X>; Thu, 25 Oct 2001 08:59:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273565AbRJYM4D>; Thu, 25 Oct 2001 08:56:03 -0400
-Received: from f59.law11.hotmail.com ([64.4.17.59]:57866 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S273534AbRJYMz7>;
-	Thu, 25 Oct 2001 08:55:59 -0400
-X-Originating-IP: [193.237.205.20]
-From: "Rob MacGregor" <rob_macgregor@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Kernel 2.4.13 and ACPI not working (HP Omnibook 6000)
-Date: Thu, 25 Oct 2001 12:56:30 +0000
+	id <S273269AbRJYM7N>; Thu, 25 Oct 2001 08:59:13 -0400
+Received: from postfix1-2.free.fr ([213.228.0.130]:35791 "HELO
+	postfix1-2.free.fr") by vger.kernel.org with SMTP
+	id <S273255AbRJYM7D> convert rfc822-to-8bit; Thu, 25 Oct 2001 08:59:03 -0400
+Subject: Re: dvd and filesystem errors under 2.4.13
+From: christophe barbe <christophe.barbe.ml@online.fr>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jim Hull <imaginos@imaginos.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <E15wjKP-0004fk-00@the-village.bc.nu>
+In-Reply-To: <E15wjKP-0004fk-00@the-village.bc.nu>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/0.15 (Preview Release)
+Date: 25 Oct 2001 14:59:34 +0200
+Message-Id: <1004014775.7723.3.camel@turing>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F59K4GB7DEEbRQwGF5u0001425c@hotmail.com>
-X-OriginalArrivalTime: 25 Oct 2001 12:56:30.0256 (UTC) FILETIME=[77426300:01C15D54]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-System is an HP Omnibook 6000 laptop, using the provided BIOS.  Kernel 
-2.4.13 with ACPI enabled as a module.
+>> scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.1
 
-On boot, with the debug enabled I get:
+Rev 6.2.1 from its mail.
 
-tbxface-0107 [01] Acpi_load_tables      : ACPI Tables successfully loaded
-Parsing 
-Methods:............................................................................................................................................................................................................................................................................................................
-300 Control Methods found and parsed (1046 nodes total)
-ACPI Namespace successfully loaded at root c02d03c0
-ACPI: Core Subsystem version [20010831]
-evregion-0217 [22] Ev_address_space_dispa: no handler for region(c184cea8) 
-[PCIConfig]
-exfldio-0222 [21] Ex_read_field_datum   : Region PCIConfig(2) has no handler
-evregion-0217 [22] Ev_address_space_dispa: no handler for region(c184cea8) 
-[PCIConfig]
-exfldio-0597 [21] Ex_write_field_datum  : **** Region type PCIConfig(2) does 
-not have a handler
-ACPI: Subsystem enable failed
+I personnaly use rev 6.2.4 with the 2.4.13.
 
-This is certainly an improvement over previous kernels, however I'd like to 
-get it working.  Any thoughts or is this in the hands of those who 
-understand such things?
+The patch for 2.4.12 apply fine.
+	linux-aic7xxx-6.2.4-2.4.12.patch.gz
 
-Thanks.
+Christophe
 
-Oh, I'm not on the list, but I will see any replies on the archive.  If you 
-want a faster response you'll need to CC me.
+PS: This rev (.4) include the pci table export for the hotplug stuff. I
+hope this will be upgraded in the next stable kernel.
 
---
-Rob  |  Please ask questions the smart way:
-                http://www.tuxedo.org/~esr/faqs/smart-questions.html
-
-    Please don't CC me on anything sent to mailing lists or send
-        me email directly unless it's a privacy issue, thanks.
-
-
-
-_________________________________________________________________
-Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
+le jeu 25-10-2001 at 14:09 Alan Cox a écrit :
+> > Oct 25 01:25:58 rosebud kernel: EXT2-fs error (device sd(8,1)):
+> > ext2_free_blocks: bit already cleared for block 133384
+> > Oct 25 01:25:58 rosebud kernel: EXT2-fs error (device sd(8,1)):
+> > ext2_free_blocks: bit already cleared for block 133385
+> 
+> Thats indicating memory on on disk corruption. It is something you should
+> be concerned about.  What version of aic7xxx is on the kernel that is
+> stable ?
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

@@ -1,73 +1,118 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136447AbREINen>; Wed, 9 May 2001 09:34:43 -0400
+	id <S136450AbREINhX>; Wed, 9 May 2001 09:37:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136446AbREINee>; Wed, 9 May 2001 09:34:34 -0400
-Received: from netcore.fi ([193.94.160.1]:64011 "EHLO netcore.fi")
-	by vger.kernel.org with ESMTP id <S136445AbREINeX>;
-	Wed, 9 May 2001 09:34:23 -0400
-Date: Wed, 9 May 2001 16:34:01 +0300 (EEST)
-From: Pekka Savola <pekkas@netcore.fi>
-To: Matthew Geier <matthew@sleeper.apana.org.au>
-cc: jamal <hadi@cyberus.ca>, <netdev@oss.sgi.com>,
-        <linux-kernel@vger.kernel.org>, <linux-net@vger.rutgers.edu>,
-        Sally Floyd <floyd@aciri.org>, <kk@teraoptic.com>, <jitu@aciri.org>
-Subject: Re: ECN: Volunteers needed
-In-Reply-To: <20010509114437.AD213709E@sleeper.apana.org.au>
-Message-ID: <Pine.LNX.4.33.0105091559260.27312-100000@netcore.fi>
+	id <S136452AbREINhN>; Wed, 9 May 2001 09:37:13 -0400
+Received: from ns.viventus.no ([195.18.200.139]:265 "EHLO viventus.no")
+	by vger.kernel.org with ESMTP id <S136450AbREINhK>;
+	Wed, 9 May 2001 09:37:10 -0400
+From: Rafael Martinez <rafael@viewpoint.no>
+To: linux-kernel@vger.kernel.org
+Reply-To: rafael@viewpoint.no
+Subject: IO errors with 2.4.4 + System hangs a few seconds 
+Date: Wed, 09 May 2001 15:39:21 +0100 (CEST)
+X-Mailer: XCmail 1.2 - with PGP support, PGP engine version 0.5 (Linux)
+X-Mailerorigin: http://www.fsai.fh-trier.de/~schmitzj/Xclasses/XCmail/
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+Message-ID: <auto-000000189557@viventus.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 May 2001, Matthew Geier wrote:
-> > This is to solicit volunteers who will help removing the remaining cruft.
-> > Some vendors (special positive mention goes to CISCO) have released
-> > patches which are unfortunately not being propagated by some of the
-> > site owners.
-> > Help is needed to contact these site owners and politely using a standard
-> > email ask them that their site was non-conformant.
->
->
->  I tried to get my local bank to fix their internet banking service about a
-> month ago. I ran into a 'brick wall'. They only support Windows and MacOS,
-> since neither currently implement ECN, they don't have a problem :-(
->
->  The only answer I got is 'we don't support Linux'. The operator tried
-> to find some one interested in the network, but the answer was always
-> the same. 'We don't support.....'
-[snip]
+Hei
 
-There are a couple of ways to deal with these:
+I have IO problems with a 2.4.4. kernel patched with linux-aic7xxx-6.1.13.
 
- 0) speak to the right persons: don't expect helpdesk can do anything
-about these, especially don't expect anyone to "call you back".  Try to
-get in touch with someone who is a network admin; if the bank is not a
-kiosk with tiny amount of money in the safe, a whois database e.g. RIPE
-might give some clues.  If helpdesk/network admin is clueless, ask to
-speak with their supervisor.
+Trying to do a simple "cat file1 >> file2" a get in console this error:  
+cat: file: Input/output error
 
- 1) vote with your feet: switch the bank.  This is how modern economy
-works; money is power.  Make sure they know you switched (or intend to
-switch) banks, and why.  Make sure their boss, and the person somewhat in
-charge of handling customer relations, knows it.
+And in /var/log/messages:
 
- 2) make it (more) public: if there are potentially more people in the
-area who this would concern, making this public, and causing the bank a
-potential loss of 50 customers, not 1, might wake them to the reality.
+kernel: attempt to access beyond end of device
+kernel: 08:11: rw=0, want=1887469700, limit=53785588
+kernel: attempt to access beyond end of device
+kernel: 08:11: rw=0, want=1887469700, limit=53785588
+kernel: attempt to access beyond end of device
+kernel: 08:11: rw=0, want=1887469700, limit=53785588
+kernel: attempt to access beyond end of device
+kernel: 08:11: rw=0, want=545305784, limit=53785588
+kernel: attempt to access beyond end of device
+kernel: 08:11: rw=0, want=87078212, limit=53785588
+kernel: attempt to access beyond end of device
 
- 3) forget about it: just don't enable ECN.
+[ ........... ]
+[ x lines, it can change from time to time, from 1 to 20 times]
 
-And lastly: do not make them think of this as a Linux problem.  Their
-software breaks Internet standards (soon, anyway :), and eventually they
-will be shut out.  In many cases, the fix is free and easily installable.
 
-.. Let's not start a huge thread (especially with this big Cc: list; there
-should be a smaller forum to discuss this if necessary) on this though.
+This doesn't happen with all the files. With some files it happens with
+others it doesn't.
 
--- 
-Pekka Savola                 "Tell me of difficulties surmounted,
-Netcore Oy                   not those you stumble over and fall"
-Systems. Networks. Security.  -- Robert Jordan: A Crown of Swords
+Another problem is that the system hangs sometimes for a few seconds (from
+2-3 up to 20sec) before giving me the control again . In this time I would
+not get any respons from the system when I try to run a command, they just
+hang, when the system comes back, I get all the results from the different
+commands fast. I am not talking about heavy processes (w, free, ps ax, ls....) 
+
+Any ideas? Do you need more info? 
+
+Thanks for your time.
+Rafael Martinez
+
+
+
+--------------------------------------------
+Machine Info:
+--------------------------------------------
+Intel SPKA4 4 x Xeon/700/1Mb
+2Gb RAM
+
+Redhat 7.1 with all the updates and 2.4.4
+--------------------------------------------
+SCSI system info:
+--------------------------------------------
+SCSI subsystem driver Revision: 1.00
+kernel: ahc_pci:0:1:0: Host Adapter Bios disabled. Using default SCSI device parameters
+kernel: scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.1.13
+kernel:         <Adaptec aic7899 Ultra160 SCSI adapter>
+kernel:         aic7899: Ultra160 Wide Channel A,SCSI Id=7, 32/255 SCBs
+kernel: 
+kernel: scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.1.13
+kernel:         <Adaptec aic7899 Ultra160 SCSI adapter>
+kernel:         aic7899: Ultra160 Wide Channel B,SCSI Id=7, 32/255 SCBs
+kernel: 
+kernel: scsi2 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.1.13
+kernel:         <Adaptec aic7880 Ultra SCSI adapter>
+kernel:         aic7880: Ultra Wide Channel A, SCSI Id=7, 16/255 SCBs
+kernel: 
+kernel:   Vendor: QUANTUM   Model: ATLAS_V__9_WLS  Rev: 0230
+kernel:   Type:   Direct-Access                    ANSI SCSI revision: 03
+kernel:  (scsi0:A:0): 160.000MB/s transfers(80.000MHz DT, offset 63, 16bit)
+kernel: scsi0:0:0:0: Tagged Queuing enabled.  Depth 253
+kernel:   Vendor: ESG-SHV   Model: SCA HSBP M9     Rev: 0.10
+kernel:   Type:   Processor                         ANSI SCSI revision: 02
+kernel: megaraid: v1.14g-ac2 (Release Date: Mar 22,2001; 19:34:02)
+kernel: megaraid: found 0x101e:0x1960:idx 0:bus 9:slot 0:func 0
+kernel: scsi3 : Found a MegaRAID controller at 0xf8808000, IRQ: 17
+kernel: scsi3 : Enabling 64 bit support
+kernel: megaraid: [C158:3.11] detected 1 logical drives
+kernel: scsi3 : AMI MegaRAID C158 254 commands 16 targs 2 chans 40 luns
+kernel: scsi3: scanning channel 1 for devices.
+kernel:   Vendor: ESG-SHV   Model: SCA HSBP M9      Rev: 0.10
+kernel:   Type:   Processor                         ANSI SCSI revision: 02
+kernel: scsi3: scanning channel 2 for devices.
+kernel: scsi3: scanning virtual channel for logical drives.
+kernel:   Vendor: MegaRAID  Model: LD0 RAID5 52527R Rev: C158
+kernel:   Type:   Direct-Access                     ANSI SCSI revision: 02
+kernel: Detected scsi disk sda at scsi0, channel 0,id 0, lun 0
+kernel: Detected scsi disk sdb at scsi3, channel 2,id 0, lun 0
+kernel: SCSI device sda: 17930694 512-byte hdwr sectors (9181 MB)
+kernel: Partition check:
+kernel:  sda: sda1 sda2
+kernel: SCSI device sdb: 107575296 512-byte hdwr sectors (55079 MB)
+kernel:  sdb: sdb1
+kernel: Detected scsi generic sg1 at scsi1, channel 0, id 6, lun 0, type 3
+kernel: Detected scsi generic sg2 at scsi3, channel 0, id 6, lun 0, type 3
+---------------------------------------------
 
 

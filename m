@@ -1,53 +1,61 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317326AbSFGTNT>; Fri, 7 Jun 2002 15:13:19 -0400
+	id <S317333AbSFGTQx>; Fri, 7 Jun 2002 15:16:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317330AbSFGTNR>; Fri, 7 Jun 2002 15:13:17 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:14753 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S317326AbSFGTMO>;
-	Fri, 7 Jun 2002 15:12:14 -0400
-Date: Fri, 7 Jun 2002 13:32:31 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Robert Love <rml@tech9.net>
-Cc: Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] scheduler hints
-Message-ID: <20020607113231.GA133@elf.ucw.cz>
-In-Reply-To: <1023206034.912.89.camel@sinai> <3CFDC796.C05FC7E2@aitel.hist.no> <1023293838.917.283.camel@sinai>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S317334AbSFGTQw>; Fri, 7 Jun 2002 15:16:52 -0400
+Received: from horus.webmotion.com ([209.87.243.246]:44421 "EHLO
+	horus.webmotion.ca") by vger.kernel.org with ESMTP
+	id <S317333AbSFGTQt>; Fri, 7 Jun 2002 15:16:49 -0400
+Message-ID: <3D010688.30101@bonin.ca>
+Date: Fri, 07 Jun 2002 15:16:24 -0400
+From: Andre Bonin <kernel@bonin.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020516
+X-Accept-Language: en-us, fr-ca
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Chris Fuller <cfuller@broadjump.com>, linux-kernel@vger.kernel.org
+Subject: Re: Tyan S2464 (K7 SMP) + EMU10K1 hardlocks
+In-Reply-To: <97B71B827DFB2B448A73EC00E5DA0EE605E04A@logos.inhouse.broadjump.com> 	<3D00F107.8070402@bonin.ca> <1023475933.25522.49.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Alan Cox wrote:
+> On Fri, 2002-06-07 at 18:44, Andre Bonin wrote:
+> 
+>>Creative Labs warns that it's sblive series of cards aren't compatible 
+>>with SMP systems.  Though i've had the S2460 motherboard and the only 
+>>trouble i have had was that EAX didn't work properly.  A friend of mine 
+>>has an sblive with a dual celeron and he also has had this problem of 
+>>deadlocks with the SBLive.  The audigy however is fully compatible.
+> 
+> 
+> On Linux at least I've never had a problem with the SB Live since the
+> SMP bugs in earlier 2.4 trees got fixed (and they were kernel bugs). I
+> can well believe the SB emulation magic doesn't work with old games in
+> SMP mode but we don't drive it in any emulation mode nor need to
+> 
 
-> > Seems to me this particular case is covered by increasing
-> > priority when grabbing the semaphore and normalizing
-> > priority when releasing.  
-> > 
-> > Only root can do that - but only root does real-time
-> > anyway. And I guess only rood should be able to increase 
-> > its timeslice too...
-> 
-> Increasing its priority has no bearing on whether it runs out of
-> timeslice, however.  The idea here is to help the task complete its
-> critical section (and thus not block other tasks) before being
-> preempted.  Only way to achieve that is boost its timeslice.
-> 
-> Boosting its priority will assure there is no priority inversion and
-> that, eventually, the task will run - but it does nothing to avoid the
-> nasty "grab resource, be preempted, reschedule a bunch, finally find
-> yourself running again since everyone else blocked" issue.
-> 
-> And I don't think only root should be able to do this.  If we later
-> punish the task (take back the timeslice we gave it) then this is
-> fair.
+It may be that there software, livewear, is buggy on SMP systems. Again 
+it's cryptic, they do not state if it is the board or only the driver.
 
-Another possibility might be to allow it to *steal* time from another
-processes... Of course only processes of same UID ;-).
-									Pavel
--- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
+Like i said, i've been running windowsXP/linux2.5.20 on a dual athlon 
+motherboard (Tyan S2460 before it busted, now i have an Asus A7M-266) 
+and both worked fine.  My friend's dual celeron didn't take the sblive 
+too nicley.
+
+It could also be a power supply issue.  Maby the sound card is the drop 
+that spills the glass.
+
+I found
+
+http://www.americas.creative.com/support/kbase/article.asp?ID=473&Centric=108
+
+
+
+> 
+> 
+
+
+

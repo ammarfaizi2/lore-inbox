@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272072AbTG2UhL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 16:37:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272073AbTG2UhL
+	id S272074AbTG2UjE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 16:39:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272075AbTG2UjE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 16:37:11 -0400
-Received: from hauptpostamt.charite.de ([193.175.66.220]:58510 "EHLO
-	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
-	id S272072AbTG2UhH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 16:37:07 -0400
-Date: Tue, 29 Jul 2003 22:37:03 +0200
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: neofb problems with 2.6.0-test1-ac3 etc. -- kernel-2.6.x ignoramus
-Message-ID: <20030729203703.GG30351@charite.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20030726124907.GB22804@charite.de> <Pine.LNX.4.44.0307291807490.5874-100000@phoenix.infradead.org>
+	Tue, 29 Jul 2003 16:39:04 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:25350 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S272074AbTG2Uhr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 16:37:47 -0400
+Date: Tue, 29 Jul 2003 22:37:45 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: John Bradford <john@grabjohn.com>
+Cc: linux-kernel@vger.kernel.org, pgw99@doc.ic.ac.uk
+Subject: Re: PATCH : LEDs - possibly the most pointless kernel subsystem ever
+Message-ID: <20030729203745.GA2221@win.tue.nl>
+References: <200307292038.h6TKcqlu000338@81-2-122-30.bradfords.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0307291807490.5874-100000@phoenix.infradead.org>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <200307292038.h6TKcqlu000338@81-2-122-30.bradfords.org.uk>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* James Simmons <jsimmons@infradead.org>:
+On Tue, Jul 29, 2003 at 09:38:52PM +0100, John Bradford wrote:
 
-> > fbset -depth 16
-> > 
-> > fixes things again. To see what I see, look at:
-> > http://sbserv.stahl.bau.tu-bs.de/~hildeb/fbfubar/
+> Ah, I just thought, for debugging purposes we could have LEDs for:
 > 
-> This is because the X server is not fbdev aware. Try adding the UseFBDev 
-> option in your XF86Config. That shoudl fix your problems.
+> * BKL taken
+> * Servicing interrupt
+> * Kernel stack usage > 2K
 
-Sorry, but this can't be: How comes the SAME X Server with the SAME
-XF86Config works OK with 2.4.22-pre8, but not with 2.6.x?
+Ever tried keyboard.c:register_leds() ?
 
-This is on the SAME machine, just with different kernel. Generally,
-all 2.4.x kernels don't show the problem, but 2.6.x does.
 
--- 
-Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
-Charite Campus Mitte                            Tel.  +49 (0)30-450 570-155
-Referat V a - Kommunikationsnetze -             Fax.  +49 (0)30-450 570-916
-AIM: ralfpostfix

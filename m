@@ -1,60 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263687AbUJ3Kvt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263686AbUJ3LE1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263687AbUJ3Kvt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 06:51:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263683AbUJ3Kvt
+	id S263686AbUJ3LE1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 07:04:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263690AbUJ3LE1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 06:51:49 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:33959
-	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
-	id S263690AbUJ3KvA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 06:51:00 -0400
-Subject: Re: Mem issues in 2.6.9 (ever since 2.6.9-rc3) and possible cause
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Hiroyuki KAMEZAWA <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: Chris Ross <chris@tebibyte.org>, Andrew Morton <akpm@osdl.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Rik van Riel <riel@redhat.com>, LKML <linux-kernel@vger.kernel.org>,
-       kernel@kolivas.org
-In-Reply-To: <4183649C.7070601@jp.fujitsu.com>
-References: <Pine.LNX.4.44.0410251823230.21539-100000@chimarrao.boston.redhat.com>
-	 <Pine.LNX.4.44.0410251833210.21539-100000@chimarrao.boston.redhat.com>
-	 <20041028120650.GD5741@logos.cnet> <41824760.7010703@tebibyte.org>
-	 <41834FE7.5060705@jp.fujitsu.com> <418354C0.3060207@tebibyte.org>
-	 <418357C5.4070304@jp.fujitsu.com> <41835F4D.2060508@tebibyte.org>
-	 <4183649C.7070601@jp.fujitsu.com>
-Content-Type: text/plain
-Organization: linutronix
-Date: Sat, 30 Oct 2004 12:42:46 +0200
-Message-Id: <1099132966.22115.89.camel@thomas>
+	Sat, 30 Oct 2004 07:04:27 -0400
+Received: from gprs187-64.eurotel.cz ([160.218.187.64]:27014 "EHLO
+	midnight.suse.cz") by vger.kernel.org with ESMTP id S263686AbUJ3LEW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 07:04:22 -0400
+Date: Sat, 30 Oct 2004 13:04:15 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Sami Farin <7atbggg02@sneakemail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Linux 2.6.9-ac5 - more stupid FAT filesystems
+Message-ID: <20041030110414.GA3130@ucw.cz>
+References: <1099060831.13098.33.camel@localhost.localdomain> <20041030090308.GA6060@m.safari.iki.fi>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041030090308.GA6060@m.safari.iki.fi>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-10-30 at 18:53 +0900, Hiroyuki KAMEZAWA wrote:
-> > Should I move your fix into the loop or move the declaration of area to 
-> > function scope?
+On Sat, Oct 30, 2004 at 12:03:08PM +0300, Sami Farin wrote:
+
+> On Fri, Oct 29, 2004 at 03:40:32PM +0100, Alan Cox wrote:
+> > This update adds some of the more minor fixes as well as a fix
+> > for a nasty __init bug. Nothing terribly pressing for non-S390 users
+> > unless they are hitting one of the bugs described or need the new
+> > driver bits.
 > > 
-> Oh, Okay, my patch was wrong ;(.
-> Very sorry for wrong hack.
-> This one will be Okay.
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/alan/linux-2.6/2.6.9/
+> > 
+> > 2.6.9-ac5
+> > o	Fix oops in and enable IT8212 driver		(me)
+> > o	Minor delkin driver fix				(Mark Lord)
+> > o	Fix NFS mount hangs with long FQDN		(Jan Kasprzak)
+> > 	| I've used this version as its clearly correct for 2.6.9 
+> > 	| although it might not be the right future solution
+> > o	Fix overstrict FAT checks stopping reading of	(Vojtech Pavlik)
+> > 	some devices like Nokia phones
+> 
+> I guess Canon IXUS 400 is overstupid or something.
 
-It fixes at least the corrupted output of show_free_areas().
-DMA: 4294966389*4kB 4294966983*8kB 4294967156*16kB .....
-Normal: 4294954991*4kB 4294962949*8kB 4294965607*16kB ....
+No, the patch from me (included in -ac) is completely bogus. The correct
+patch is attached.
 
-now it's
-DMA: 248*4kB 63*8kB 7*16kB 1*32kB 0*64kB 0*128kB ...
-Normal: 204*4kB 416*8kB 157*16kB 20*32kB 3*64kB ...
+diff -urN linux-2.6.8/fs/fat/inode.c linux-2.6.8-fat/fs/fat/inode.c
+--- linux-2.6.8/fs/fat/inode.c	2004-09-30 15:27:58.343661051 +0200
++++ linux-2.6.8-fat/fs/fat/inode.c	2004-09-30 15:33:32.820915377 +0200
+@@ -1003,6 +1003,8 @@
+ 		/* all is as it should be */
+ 	} else if (media == 0xf8 && FAT_FIRST_ENT(sb, 0xfe) == first) {
+ 		/* bad, reported on pc9800 */
++	} else if (media == 0xf8 && FAT_FIRST_ENT(sb, 0xff) == first) {
++		/* bad, reported on Nokia phone with USB storage */
+ 	} else if (media == 0xf0 && FAT_FIRST_ENT(sb, 0xf8) == first) {
+ 		/* bad, reported with a MO disk on win95/me */
+ 	} else if (first == 0) {
 
-Good catch.
-
-But it still does not fix the random madness of oom-killer. Once it is
-triggered it keeps going even if there is 50MB free memory available.
-
-tglx
-
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,44 +1,63 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315213AbSFELFy>; Wed, 5 Jun 2002 07:05:54 -0400
+	id <S315170AbSFELJc>; Wed, 5 Jun 2002 07:09:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315276AbSFELFx>; Wed, 5 Jun 2002 07:05:53 -0400
-Received: from mail.zmailer.org ([62.240.94.4]:13263 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id <S315213AbSFELFw>;
-	Wed, 5 Jun 2002 07:05:52 -0400
-Date: Wed, 5 Jun 2002 14:05:52 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: "Thomas 'Dent' Mirlacher" <dent@cosy.sbg.ac.at>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [rfc] "laptop mode"
-Message-ID: <20020605140552.U18899@mea-ext.zmailer.org>
-In-Reply-To: <200206051340.47261.root@johnny> <Pine.GSO.4.05.10206051157190.8783-100000@mausmaki.cosy.sbg.ac.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S315335AbSFELJc>; Wed, 5 Jun 2002 07:09:32 -0400
+Received: from mail.loewe-komp.de ([62.156.155.230]:60178 "EHLO
+	mail.loewe-komp.de") by vger.kernel.org with ESMTP
+	id <S315170AbSFELJa>; Wed, 5 Jun 2002 07:09:30 -0400
+Message-ID: <3CFDF1E9.4040601@loewe-komp.de>
+Date: Wed, 05 Jun 2002 13:11:37 +0200
+From: Peter =?ISO-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Daniel Phillips <phillips@bonn-fries.net>
+CC: Oliver Xymoron <oxymoron@waste.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] Adeos nanokernel for Linux kernel
+In-Reply-To: <Pine.LNX.4.44.0206041418460.2614-100000@waste.org> <E17FQPj-0001Rr-00@starship>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 05, 2002 at 12:02:07PM +0200, Thomas 'Dent' Mirlacher wrote:
-> --snip/snip
- [snip/snip the Cc: list too..]
-> > What parts of the filesystem needs to be accessed very often? I think, that placing var on a ramdisk, that is mirrored on the hd and is synced every 30 minutes, would be a good solution.
-> > I think, that we should add a sysrq key to save the ramdisk to the disk. Is there a similar project, that loads an image into a ramdisk at mount, and writes it back at unmount?
+Daniel Phillips wrote:
+> On Tuesday 04 June 2002 21:29, Oliver Xymoron wrote:
 > 
-> a nice thing for that would be to have unionfs (al viro seems to work 
-> on that?), and mount a ramdisk ontop of your var directory (or shichever
-> directory is a hotspot. - or mount it over your whole harddrive, doing 
-> COW on the ramdisk. and once the disk reaches a critical high-water-mark
-> sync the whole set to the underlaying "real" filesystem.
+>>On Mon, 3 Jun 2002, Daniel Phillips wrote:
+>>
+>>
+>>>traditional IT.  Not to mention that I can look forward to a sound
+>>>system where I can be *sure* my mp3s won't skip.
+>>>
+>>Not unless you're loading your entire MP3 into memory, mlocking it down,
+>>and handing it off to a hard RT process. And then your control of the
+>>playback of said song through a non-RT GUI could be arbitrarily coarse,
+>>depending on load.
+>>
 > 
-> any comments?
+> Thanks for biting :-)
+> 
+> First, these days it's no big deal to load an entire mp3 into memory.  
+> 
+> Second, and of more interest to broadcasting industry professionals and the 
+> like, it's possible to write a real-time filesystem that bypasses all the 
+> normal non-realtime facilities of the operating system, and where the latency 
+> of every operation is bounded according to the amount of data transferred.  
+> Such a filesystem could use its own dedicated disk, or, more practically, the 
+> RTOS (or realtime subsystem) could operate the disk's block queue.
+> 
+> If I recall correctly, XFS makes an attempt to provide such realtime 
+> guarantees, or at least the Solaris version does.  However, the operating 
+> system must be able to provide true realtime guarantees in order for the 
+> filesystem to provide them, and I doubt that the combination of XFS and 
+> Solaris can do that.
+> 
+> 
 
-   Things like logfile appending...
-   (Do I need to say more ?)
+It's XFS with a realtime volume under Irix.
+With the React extension Irix is also capable of "hard realtime".
+But these days the term realtime is a lot misused - and leeds to
+assumption of a better "system".
 
-   I myself mount laptop filesystem with  noatime  option.
-   Also killing cron/at helps somewhat.
-
-> 	tm
-
-/Matti Aarnio

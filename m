@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264767AbTFCOwy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 10:52:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265036AbTFCOwy
+	id S265036AbTFCOya (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 10:54:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265037AbTFCOy3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 10:52:54 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:15085
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S264767AbTFCOwx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 10:52:53 -0400
-Subject: Re: software suspend in 2.5.70-mm3.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: hugang <hugang@soulinfo.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030603223511.155ea2cc.hugang@soulinfo.com>
-References: <20030603211156.726366e7.hugang@soulinfo.com>
-	 <1054646566.9234.20.camel@dhcp22.swansea.linux.org.uk>
-	 <20030603223511.155ea2cc.hugang@soulinfo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1054649308.9233.26.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 03 Jun 2003 15:08:29 +0100
+	Tue, 3 Jun 2003 10:54:29 -0400
+Received: from bork.hampshire.edu ([206.153.194.35]:23262 "EHLO
+	bork.hampshire.edu") by vger.kernel.org with ESMTP id S265036AbTFCOy2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 10:54:28 -0400
+Date: Tue, 3 Jun 2003 11:07:53 -0400 (EDT)
+From: "Wm. Josiah Erikson" <josiah@insanetechnology.com>
+X-X-Sender: josiah@bork.hampshire.edu
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: siimage driver status
+In-Reply-To: <1054648192.9234.24.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0306031107350.22515-100000@bork.hampshire.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-06-03 at 15:35, hugang wrote:
-> > The only way to make the suspend work properly is to queue the suspend
-> > sequence wit the other requests. Ben was doing some playing with this
-> > but I'm not sure what happened to it.
-> > 
-> Yes the above patch is not safe, When i'm run updatedb and suspsned, After resume will oops at kjournal. 
-> 
-> Here is another test on it, it can works with updatedb.
+Yeah, I just tried -ac2 and it does the same thing :)
+	-Josiah
 
-Still races. Ben's stuff is needed
+On 3 Jun 2003, Alan Cox wrote:
+
+On Maw, 2003-06-03 at 15:11, Wm. Josiah Erikson wrote:
+> Is there some silly hack I can do to the driver code to force all devices 
+> to DMA on bootup? Everything works fine except for that. I'm using 
+> 2.4.21-rc6-ac1
+
+-ac2 knows the firmware doesn't intialise DMA mode and shouldn't be used
+as a safety guide.
+
+
 

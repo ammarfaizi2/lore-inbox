@@ -1,84 +1,189 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293306AbSC0XR3>; Wed, 27 Mar 2002 18:17:29 -0500
+	id <S293452AbSC0Xgu>; Wed, 27 Mar 2002 18:36:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293337AbSC0XRU>; Wed, 27 Mar 2002 18:17:20 -0500
-Received: from vaak.stack.nl ([131.155.140.140]:54544 "HELO mailhost.stack.nl")
-	by vger.kernel.org with SMTP id <S293306AbSC0XRL>;
-	Wed, 27 Mar 2002 18:17:11 -0500
-Date: Thu, 28 Mar 2002 00:17:06 +0100 (CET)
-From: Jos Hulzink <josh@stack.nl>
-To: jw schultz <jw@pegasys.ws>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: DE and hot-swap disk caddies
-In-Reply-To: <20020327143427.N6223@pegasys.ws>
-Message-ID: <20020327235029.P78593-100000@snail.stack.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293635AbSC0Xgl>; Wed, 27 Mar 2002 18:36:41 -0500
+Received: from 12-252-146-102.client.attbi.com ([12.252.146.102]:18451 "EHLO
+	archimedes") by vger.kernel.org with ESMTP id <S293452AbSC0Xg3>;
+	Wed, 27 Mar 2002 18:36:29 -0500
+Date: Wed, 27 Mar 2002 16:38:12 -0700
+To: linux-kernel@vger.kernel.org
+Subject: [bug] 2.4.19-pre4-ac2 hang at boot with ALI15x3 chipset support
+Message-ID: <20020327233812.GA7310@galileo>
+Mail-Followup-To: James Mayer <james.mayer@acm.org>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Debian: Debian GNU/Linux http://www.debian.org/
+X-Uptime: 16:32 up  30 days,    5:21,    1 user, load 0.00 0.00 0.00
+From: James Mayer <james.mayer@acm.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Mar 2002, jw schultz wrote:
+Hi,
 
-> On Tue, Mar 26, 2002 at 07:01:18PM +0000, Pavel Machek wrote:
-> > > IDE isn't really meant to allow hot swap but it can be done.
-> > >
-> > > As Jeremy says, electrically it is difficult to do it with a
-> > > master+slave on one cable because you really must power down
-> > > the interface (cable) and that would mean downing both devices.
-> >
-> > But that's not a problem most times, right? Downing device on same
-> > channel for 10 second it takes to plug it in should not be a problem.
-> > 								Pavel
->
-> Sure, just be sure you POWER down the device(s) and the
-> interface.  IDE is no more designed to be hot-swap than the
-> ISA buss.  It was originally a buss level emulation of a
-> specific Western Digital controller for ST506 drives.  Talk
-> to an EE familiar with the spec and implementations and make
-> sure that your card can either power down or go buffered
-> tristate.  Smoking can be hazardous to your computer's
-> health.
+I'm seeing a kernel hang at boot with the ALI15x3 driver on a Sony
+PCG-C1MV/M with 2.4.19-pre4-ac2.
 
-Hi, here your EE :)
+The kernel hangs right after printing
+ALI15X3: chipset revision 196
+ALI15X3: not 100% native mode: will probe irqs later
 
-IDE indeed never was ment to be hot pluggable. With SCSI, you can tell a
-hard disk to shut down and disconnect from the bus. With IDE, your
-controller has to shut down completely. You can tell your disk to
-spin down, but in any case, your disk will remain powered. In shutdown
-mode, your disk will not consume much power anymore, but the electronics
-are NOT in a "feel free to disconnect now" state. The disk is still
-listening to the bus.
+After adding printk calls to alim15x3.c, it seems to hang during the
+pci_write_config_byte(isa_dev, 0x79, tmpbyte | 0x02) call on line 588.
 
-This means that unplugging one device can have undetermined results for
-both that device and the complementary device on the bus. As an EE, I must
-admit the chances are VERY, VERY odd that it will actually affect data,
-but personally, I'm one of those guys who say: In theory, it's possible,
-so this is a "don't".
+The kernel successfully loads if I build without ALI15x3 support,
+printing these messages:
 
-There are controllers who say they can shut down completely, but I have
-never seen an IDE disk which can do it. The fact you can bring any disk
-back alive after a sleep command (part of the latest ATA standards), means
-the disk isn't suitable for hot-swapping.
+ALI15X3: chipset revision 196
+ALI15X3: not 100% native mode: will probe irqs later
+ALI15X3: simplex device:  DMA disabled
+ide0: ALI15X3 Bus-Master DMA disabled (BIOS)
+ALI15X3: simplex device:  DMA disabled
+ide1: ALI15X3 Bus-Master DMA disabled (BIOS)
+hda: IC25N020ATDA04-0, ATA DISK drive
 
-If you really want to build in IDE hot swap support, I demand it comes
-with a warning: Enabling this option will probably destroy your harddisks
-and your chipset. Feel free to continue, but don't blame us.
+Is the ALI15x3 driver falsely enabling udma on my system?
 
-> Disclaimer: I am not an Electronics Engineer, nor an expert
-> on IDE/ATA/ATAPI yadda, yadda, yadda.  I wrote because this
-> thread, while useful for the future  was on a tangent that
-> wasn't telling John Summerfield how he might actually do
-> what he wants, today.
+ide0=nodma doesn't help, either...
 
-Disclaimer: I am an EE, well known with IDE/ATA. I wrote this because my
-opinion is Linus should block any attempts of hot pluggable IDE devices,
-for Linux will be the only OS that supports it and destroys your harddisks
-thanks to the fact it supports it (If other OSes support it, please let
-me know, I'll guarantee you there are lots of warnings involved). Hot
-plugging might work, when you are lucky. Luck is not something that should
-be the base of a decent OS. If hot IDE plugging makes its way in, don't
-blame me...
+I'm appending the output from lspci -vv in case that helps.
 
-Jos
+Thanks for any help... 
+ - James
+
+00:00.0 Host bridge: Transmeta Corporation LongRun Northbridge (rev 01)
+	Subsystem: Sony Corporation: Unknown device 80ec
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+	Latency: 0
+	Region 0: Memory at e8000000 (32-bit, non-prefetchable) [size=1M]
+
+00:00.1 RAM memory: Transmeta Corporation SDRAM controller
+	Subsystem: Sony Corporation: Unknown device 80ec
+	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+
+00:00.2 RAM memory: Transmeta Corporation BIOS scratchpad
+	Subsystem: Sony Corporation: Unknown device 80ec
+	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+
+00:06.0 Multimedia audio controller: Acer Laboratories Inc. [ALi] M5451 PCI South Bridge Audio (rev 02)
+	Subsystem: Sony Corporation: Unknown device 80ec
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR+ <PERR+
+	Latency: 64 (500ns min, 6000ns max)
+	Interrupt: pin A routed to IRQ 9
+	Region 0: I/O ports at 1800 [size=256]
+	Region 1: Memory at e8100000 (32-bit, non-prefetchable) [size=4K]
+	Capabilities: <available only to root>
+
+00:07.0 ISA bridge: Acer Laboratories Inc. [ALi] M1533 PCI to ISA Bridge [Aladdin IV]
+	Subsystem: Sony Corporation: Unknown device 80ec
+	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Capabilities: <available only to root>
+
+00:08.0 Modem: Acer Laboratories Inc. [ALi]: Unknown device 5457 (prog-if 00 [Generic])
+	Subsystem: Sony Corporation: Unknown device 80ec
+	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Interrupt: pin A routed to IRQ 9
+	Region 0: Memory at e8101000 (32-bit, non-prefetchable) [disabled] [size=4K]
+	Region 1: I/O ports at 1c00 [disabled] [size=256]
+	Capabilities: <available only to root>
+
+00:09.0 FireWire (IEEE 1394): Texas Instruments: Unknown device 8021 (rev 02) (prog-if 10 [OHCI])
+	Subsystem: Sony Corporation: Unknown device 80ec
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (750ns min, 1000ns max), cache line size 08
+	Interrupt: pin A routed to IRQ 9
+	Region 0: Memory at e8102000 (32-bit, non-prefetchable) [size=2K]
+	Region 1: Memory at e8104000 (32-bit, non-prefetchable) [size=16K]
+	Capabilities: <available only to root>
+
+00:0a.0 Multimedia controller: Citicorp TTI: Unknown device 2011
+	Subsystem: Sony Corporation: Unknown device 80ec
+	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Interrupt: pin A routed to IRQ 9
+	Region 0: I/O ports at 2000 [disabled] [size=256]
+	Region 1: Memory at e8200000 (32-bit, non-prefetchable) [disabled] [size=1M]
+	Capabilities: <available only to root>
+
+00:0b.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139 (rev 10)
+	Subsystem: Sony Corporation: Unknown device 80ec
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (8000ns min, 16000ns max)
+	Interrupt: pin A routed to IRQ 9
+	Region 0: I/O ports at 2400 [size=256]
+	Region 1: Memory at e8102800 (32-bit, non-prefetchable) [size=256]
+	Capabilities: <available only to root>
+
+00:0c.0 VGA compatible controller: ATI Technologies Inc Radeon Mobility M6 LY (prog-if 00 [VGA])
+	Subsystem: Sony Corporation: Unknown device 80ec
+	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping+ SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Interrupt: pin A routed to IRQ 9
+	Region 0: Memory at f0000000 (32-bit, prefetchable) [size=128M]
+	Region 1: I/O ports at 2800 [size=256]
+	Region 2: Memory at e8110000 (32-bit, non-prefetchable) [size=64K]
+	Expansion ROM at <unassigned> [disabled] [size=128K]
+	Capabilities: <available only to root>
+
+00:0f.0 USB Controller: Acer Laboratories Inc. [ALi] M5237 USB (rev 03) (prog-if 10 [OHCI])
+	Subsystem: Sony Corporation: Unknown device 80ec
+	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Interrupt: pin A routed to IRQ 9
+	Region 0: Memory at e8103000 (32-bit, non-prefetchable) [disabled] [size=4K]
+	Capabilities: <available only to root>
+
+00:10.0 IDE interface: Acer Laboratories Inc. [ALi] M5229 IDE (rev c4) (prog-if a0)
+	Subsystem: Sony Corporation: Unknown device 80ec
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (500ns min, 1000ns max)
+	Interrupt: pin A routed to IRQ 0
+	Region 0: [virtual] I/O ports at 01f0 [size=16]
+	Region 1: [virtual] I/O ports at 03f4
+	Region 2: [virtual] I/O ports at 0170 [size=16]
+	Region 3: [virtual] I/O ports at 0374
+	Region 4: I/O ports at 1400 [size=16]
+	Capabilities: <available only to root>
+
+00:11.0 Non-VGA unclassified device: Acer Laboratories Inc. [ALi] M7101 PMU
+	Subsystem: Sony Corporation: Unknown device 80ec
+	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+
+00:12.0 CardBus bridge: Ricoh Co Ltd RL5c475 (rev 80)
+	Subsystem: Sony Corporation: Unknown device 80ec
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 168
+	Interrupt: pin A routed to IRQ 9
+	Region 0: Memory at 10000000 (32-bit, non-prefetchable) [size=4K]
+	Bus: primary=00, secondary=01, subordinate=01, sec-latency=176
+	Memory window 0: 10400000-107ff000 (prefetchable)
+	Memory window 1: 10800000-10bff000
+	I/O window 0: 00004000-000040ff
+	I/O window 1: 00004400-000044ff
+	BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset- 16bInt+ PostWrite+
+	16-bit legacy interface ports at 0001
+
+00:14.0 USB Controller: Acer Laboratories Inc. [ALi] M5237 USB (rev 03) (prog-if 10 [OHCI])
+	Subsystem: Sony Corporation: Unknown device 80ec
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (20000ns max), cache line size 08
+	Interrupt: pin A routed to IRQ 9
+	Region 0: Memory at 000e0000 (32-bit, non-prefetchable) [size=4K]
+	Capabilities: <available only to root>
 

@@ -1,36 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262406AbUEJW6h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263027AbUEJXAA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262406AbUEJW6h (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 18:58:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbUEJW6h
+	id S263027AbUEJXAA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 19:00:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263104AbUEJW6q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 18:58:37 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:41498 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262406AbUEJW6a (ORCPT
+	Mon, 10 May 2004 18:58:46 -0400
+Received: from nevyn.them.org ([66.93.172.17]:61577 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S263041AbUEJW6d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 18:58:30 -0400
-Date: Mon, 10 May 2004 15:57:52 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Edward Falk <efalk@google.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] add path-oriented proc_mkdir_path() function to /proc
-Message-Id: <20040510155752.51e08bcc.pj@sgi.com>
-In-Reply-To: <E1BNIxQ-00013R-Fo@peregrine.corp.google.com>
-References: <E1BNIxQ-00013R-Fo@peregrine.corp.google.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 10 May 2004 18:58:33 -0400
+Date: Mon, 10 May 2004 18:58:19 -0400
+From: Daniel Jacobowitz <dan@debian.org>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: Fabiano Ramos <ramos_fabiano@yahoo.com.br>, Andi Kleen <ak@muc.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ptrace in 2.6.5
+Message-ID: <20040510225818.GA24796@nevyn.them.org>
+Mail-Followup-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+	Fabiano Ramos <ramos_fabiano@yahoo.com.br>, Andi Kleen <ak@muc.de>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1UlcA-6lq-9@gated-at.bofh.it> <m365b4kth8.fsf@averell.firstfloor.org> <1084220684.1798.3.camel@slack.domain.invalid> <877jvkx88r.fsf@devron.myhome.or.jp> <873c67yk5v.fsf@devron.myhome.or.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <873c67yk5v.fsf@devron.myhome.or.jp>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Edward wrote:
-> ... adds the function proc_mkdir_path() ...
+On Tue, May 11, 2004 at 07:47:08AM +0900, OGAWA Hirofumi wrote:
+> OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> writes:
+> 
+> > So single-step exception happen *after* executed the "mov ...".
+> > Probably you need to use the breakpoint instead of single-step.
+> 
+> Ah, sorry. Just use PTRACE_SYSCALL instead of PTRACE_SINGLESTEP.
+> It's will stop before/after does syscall.
 
-Who uses this?
+Doing it this way is pretty lousy - you have to inspect the code after
+every step to see if it's an int $0x80.  Is there some reason not to
+report a trap on the syscall return path if single-stepping?
 
 -- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Daniel Jacobowitz

@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291558AbSBAFst>; Fri, 1 Feb 2002 00:48:49 -0500
+	id <S291560AbSBAF4U>; Fri, 1 Feb 2002 00:56:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291559AbSBAFsa>; Fri, 1 Feb 2002 00:48:30 -0500
-Received: from bitmover.com ([192.132.92.2]:4795 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S291558AbSBAFsV>;
-	Fri, 1 Feb 2002 00:48:21 -0500
-Date: Thu, 31 Jan 2002 21:48:20 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [lkml] Re: A modest proposal -- We need a patch penguin
-Message-ID: <20020131214820.A20225@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200201302239.QAA39272@tomcat.admin.navo.hpc.mil> <20020131032832.KJVO14927.femail22.sdc1.sfba.home.com@there> <20020130224112.A25977@havoc.gtf.org> <9cfy9iefvbt.fsf@rogue.ncsl.nist.gov> <a3d979$22g$1@penguin.transmeta.com>
+	id <S291561AbSBAF4B>; Fri, 1 Feb 2002 00:56:01 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:4622 "HELO thebsh.namesys.com")
+	by vger.kernel.org with SMTP id <S291560AbSBAFzu>;
+	Fri, 1 Feb 2002 00:55:50 -0500
+Date: Fri, 1 Feb 2002 08:55:45 +0300
+From: Oleg Drokin <green@namesys.com>
+To: Martin Bahlinger <ry42@rz.uni-karlsruhe.de>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Current Reiserfs Update / 2.5.2-dj7 Oops
+Message-ID: <20020201085545.A1034@namesys.com>
+In-Reply-To: <1012499057.704.0.camel@hek411> <Pine.LNX.4.31.0201312133490.652-100000@hek411.hek.uni-karlsruhe.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <a3d979$22g$1@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Feb 01, 2002 at 05:31:21AM +0000
+In-Reply-To: <Pine.LNX.4.31.0201312133490.652-100000@hek411.hek.uni-karlsruhe.de>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 01, 2002 at 05:31:21AM +0000, Linus Torvalds wrote:
-> (So far, trying out BK has only meant that I have spent _none_ of my
-> time merging patches and reading email, and most of my time writing
-> helper scripts and emails to Larry to make it possible to use BK in sane
-> ways that suit me. And I'll doubt you'll see any real productivity
-> increase from me for a while ;)
+Hello!
 
-Hey, we're hacking away as well, we'll have some fixes for you ASAP.
-I'm just adding a few touches to Wayne's diff change you wanted.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+On Thu, Jan 31, 2002 at 09:44:32PM +0100, Martin Bahlinger wrote:
+> On 31 Jan 2002, Martin Bahlinger wrote:
+> > After applying those patches to 2.5.3 I still got an Oops after a
+> > PAP-14030 message. I will try to catch the Oops (have never done this
+> > before, may take some time) and feed it to ksymoops.
+> I actually had PAP-5760. And after applying the patches it was the
+> PAP-14030. During all the tests today my reiserfs got currupted. A
+
+You are the only who reporting these errors for now.
+Can you reboot into vanilla 2.5.3 and capture PAP-5760 oops
+and all reiserfs-specific output around it? Thank you.
+
+> reiserfsck ran into a segfault when checking the semantic tree. And this
+
+This means you need updated reiserfsprogs.
+
+Bye,
+    Oleg

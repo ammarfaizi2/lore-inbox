@@ -1,56 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262730AbSKMVOY>; Wed, 13 Nov 2002 16:14:24 -0500
+	id <S262824AbSKMVQg>; Wed, 13 Nov 2002 16:16:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262464AbSKMVNU>; Wed, 13 Nov 2002 16:13:20 -0500
-Received: from mailgw.cvut.cz ([147.32.3.235]:45471 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id <S264639AbSKMVMF>;
-	Wed, 13 Nov 2002 16:12:05 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Wed, 13 Nov 2002 22:18:32 +0100
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
+	id <S262838AbSKMVQf>; Wed, 13 Nov 2002 16:16:35 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:50602 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262824AbSKMVPs>; Wed, 13 Nov 2002 16:15:48 -0500
 Subject: RE: FW: i386 Linux kernel DoS (clarification)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
 Cc: Christoph Hellwig <hch@infradead.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-X-mailer: Pegasus Mail v3.50
-Message-ID: <76D1FF66BB6@vcnet.vc.cvut.cz>
+In-Reply-To: <76D1FF66BB6@vcnet.vc.cvut.cz>
+References: <76D1FF66BB6@vcnet.vc.cvut.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 13 Nov 2002 21:48:15 +0000
+Message-Id: <1037224095.11979.156.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13 Nov 02 at 21:36, Alan Cox wrote:
-
-> Try this
+On Wed, 2002-11-13 at 21:18, Petr Vandrovec wrote:
+> >     pushfl          # We get a different stack layout with call
+> >                 # gates, which has to be cleaned up later..
+> > +   andl $~0x4500, (%esp)   # Clear NT since we are doing an iret
 > 
-> (In the Linus Torvalds tradition its not tested)
+> this will clear 'D' and 'T' in caller after we do
+> iret (if lcall7 returns, of course). I'm not sure that callers
 
-I'll test it, but before kernel compiles...
- 
-> --- arch/i386/kernel/entry.S~   2002-11-13 21:30:37.000000000 +0000
-> +++ arch/i386/kernel/entry.S    2002-11-13 21:29:47.000000000 +0000
-> @@ -126,6 +126,7 @@
->  ENTRY(lcall7)
->     pushfl          # We get a different stack layout with call
->                 # gates, which has to be cleaned up later..
-> +   andl $~0x4500, (%esp)   # Clear NT since we are doing an iret
+You can adjust that if you want, I copied it about - clearing D is fine,
+in fact it may let us avoid the cld
 
-this will clear 'D' and 'T' in caller after we do
-iret (if lcall7 returns, of course). I'm not sure that callers
-expect that.
+> >  error_code:
+> > +   pushfl
+> > +   andl $~0x4500, (%esp)       # NT must be clear, do a cld for free
+> > +   popfl
+> 
+> I believe that NT should be automagically cleared by int.
 
-> @@ -390,6 +392,9 @@
->     pushl $do_divide_error
->     ALIGN
->  error_code:
-> +   pushfl
-> +   andl $~0x4500, (%esp)       # NT must be clear, do a cld for free
-> +   popfl
+Apparently so - you are I think 100% correct that this isnt needed
 
-I believe that NT should be automagically cleared by int.
-                                                Best regards,
-                                                      Petr Vandrovec
-                                                      vandrove@vc.cvut.cz
-                                                      

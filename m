@@ -1,100 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267481AbUGWQHk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267469AbUGWQHk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267481AbUGWQHk (ORCPT <rfc822;willy@w.ods.org>);
+	id S267469AbUGWQHk (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 23 Jul 2004 12:07:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267829AbUGWQHS
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267830AbUGWQHF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 12:07:18 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:15769 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S267825AbUGWPwX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 11:52:23 -0400
-Date: Fri, 23 Jul 2004 17:52:18 +0200
-From: maximilian attems <janitor@sternwelten.at>
-To: viro@math.psu.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch-kj] use list_for_each()/list_for_each_save() in fs/dcache.c
-Message-ID: <20040723155218.GP1795@stro.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040523i
+	Fri, 23 Jul 2004 12:07:05 -0400
+Received: from web52906.mail.yahoo.com ([206.190.39.183]:43698 "HELO
+	web52906.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S267804AbUGWPuq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jul 2004 11:50:46 -0400
+Message-ID: <20040723155045.19770.qmail@web52906.mail.yahoo.com>
+Date: Fri, 23 Jul 2004 17:50:45 +0200 (CEST)
+From: =?iso-8859-1?q?szonyi=20calin?= <caszonyi@yahoo.com>
+Subject: Re: New dev model (was [PATCH] delete devfs)
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Paul Jackson <pj@sgi.com>, Adrian Bunk <bunk@fs.tum.de>,
+       Andrew Morton <akpm@osdl.org>, corbet@lwn.net,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.GSO.4.58.0407231652050.9434@waterleaf.sonytel.be>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--- Geert Uytterhoeven <geert@linux-m68k.org> a écrit : > On
+Fri, 23 Jul 2004, [iso-8859-1] szonyi calin wrote:
+> > And with new devepment model this expenses will be passed to
+> the
+> > end user when the kernel will not be stable enough and will
+> >  crash. Do you you remember the 8k vs 4k stack problem for
+> > Nvidia binary kernel module ?
+> 
+> You want a stable kernel, but you also want to rely on
+> binary-only kernel
+> modules?
+> 
 
-Use list_for_each() where applicable
-- for (list = ymf_devs.next; list != &ymf_devs; list = list->next) {
-+ list_for_each(list, &ymf_devs) {
-pure cosmetic change, defined as a preprocessor macro in:
-include/linux/list.h
+No. I wasn't clear on that one. My example was wrong. AFAIK the
+8k/4k stack kernel problem were causing problems for other 
+people too.
 
-applies cleanly to 2.6.8-rc2
+> The Linux kernel people cannot guarantee stability with
+> binary-only kernel
+> modules. And the Linux kernel people cannot solve that
+> problem...
+> 
 
-From: Domen Puncer <domen@coderock.org>
-Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
+I underestand that. 
+However hpa told me that the stability of the 2.6 kernel will 
+not suffer.
 
+> Gr{oetje,eeting}s,
+> 
+> 						Geert
+> 
 
+Calin
 
----
-
- linux-2.6.7-bk20-max/fs/dcache.c |   21 +++++----------------
- 1 files changed, 5 insertions(+), 16 deletions(-)
-
-diff -puN fs/dcache.c~list_for_each-fs-dcache fs/dcache.c
---- linux-2.6.7-bk20/fs/dcache.c~list_for_each-fs-dcache	2004-07-11 14:40:57.000000000 +0200
-+++ linux-2.6.7-bk20-max/fs/dcache.c	2004-07-11 14:40:57.000000000 +0200
-@@ -288,15 +288,11 @@ struct dentry * dget_locked(struct dentr
- 
- struct dentry * d_find_alias(struct inode *inode)
- {
--	struct list_head *head, *next, *tmp;
-+	struct list_head *tmp, *next;
- 	struct dentry *alias, *discon_alias=NULL;
- 
- 	spin_lock(&dcache_lock);
--	head = &inode->i_dentry;
--	next = inode->i_dentry.next;
--	while (next != head) {
--		tmp = next;
--		next = tmp->next;
-+	list_for_each_safe(tmp, next, &inode->i_dentry) {
- 		prefetch(next);
- 		alias = list_entry(tmp, struct dentry, d_alias);
-  		if (!d_unhashed(alias)) {
-@@ -324,8 +320,7 @@ void d_prune_aliases(struct inode *inode
- 	struct list_head *tmp, *head = &inode->i_dentry;
- restart:
- 	spin_lock(&dcache_lock);
--	tmp = head;
--	while ((tmp = tmp->next) != head) {
-+	list_for_each(tmp, head) {
- 		struct dentry *dentry = list_entry(tmp, struct dentry, d_alias);
- 		if (!atomic_read(&dentry->d_count)) {
- 			__dget_locked(dentry);
-@@ -442,10 +437,7 @@ void shrink_dcache_sb(struct super_block
- 	 * superblock to the most recent end of the unused list.
- 	 */
- 	spin_lock(&dcache_lock);
--	next = dentry_unused.next;
--	while (next != &dentry_unused) {
--		tmp = next;
--		next = tmp->next;
-+	list_for_each_safe(tmp, next, &dentry_unused) {
- 		dentry = list_entry(tmp, struct dentry, d_lru);
- 		if (dentry->d_sb != sb)
- 			continue;
-@@ -457,10 +449,7 @@ void shrink_dcache_sb(struct super_block
- 	 * Pass two ... free the dentries for this superblock.
- 	 */
- repeat:
--	next = dentry_unused.next;
--	while (next != &dentry_unused) {
--		tmp = next;
--		next = tmp->next;
-+	list_for_each_safe(tmp, next, &dentry_unused) {
- 		dentry = list_entry(tmp, struct dentry, d_lru);
- 		if (dentry->d_sb != sb)
- 			continue;
+=====
+--
+A mouse is a device used to point at 
+the xterm you want to type in.
+Kim Alm on a.s.r.
 
 
+	
+
+	
+		
+Vous manquez d’espace pour stocker vos mails ? 
+Yahoo! Mail vous offre GRATUITEMENT 100 Mo !
+Créez votre Yahoo! Mail sur http://fr.benefits.yahoo.com/
+
+Le nouveau Yahoo! Messenger est arrivé ! Découvrez toutes les nouveautés pour dialoguer instantanément avec vos amis. A télécharger gratuitement sur http://fr.messenger.yahoo.com

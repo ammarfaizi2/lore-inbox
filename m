@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265675AbSKAK1D>; Fri, 1 Nov 2002 05:27:03 -0500
+	id <S265678AbSKAKci>; Fri, 1 Nov 2002 05:32:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265678AbSKAK1D>; Fri, 1 Nov 2002 05:27:03 -0500
-Received: from msg.vizzavi.pt ([212.18.167.162]:36277 "EHLO msg.vizzavi.pt")
-	by vger.kernel.org with ESMTP id <S265675AbSKAK1C>;
-	Fri, 1 Nov 2002 05:27:02 -0500
-Date: Thu, 31 Oct 2002 10:31:41 +0000
-From: "Paulo Andre'" <fscked@netvisao.pt>
-To: fdavis@si.rr.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.45 : Documentation/Changes updates ?
-Message-Id: <20021031103141.5655479a.fscked@netvisao.pt>
-In-Reply-To: <3DC1C398.7020904@si.rr.com>
-References: <3DC1C398.7020904@si.rr.com>
-Organization: Tool Enterprises
-X-Mailer: Sylpheed version 0.8.5claws (GTK+ 1.2.10; )
+	id <S265681AbSKAKci>; Fri, 1 Nov 2002 05:32:38 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:20939 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S265678AbSKAKch>;
+	Fri, 1 Nov 2002 05:32:37 -0500
+Date: Fri, 01 Nov 2002 02:27:43 -0800 (PST)
+Message-Id: <20021101.022743.06339817.davem@redhat.com>
+To: levon@movementarian.org
+Cc: weigand@immd1.informatik.uni-erlangen.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [8/7] oprofile - dcookies need to use u32
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20021101043304.GA7421@compsoc.man.ac.uk>
+References: <20021019003415.GA17016@compsoc.man.ac.uk>
+	<20021018.173128.11570989.davem@redhat.com>
+	<20021101043304.GA7421@compsoc.man.ac.uk>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 01 Nov 2002 10:33:03.0756 (UTC) FILETIME=[0F0DB4C0:01C28192]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 Oct 2002 18:58:16 -0500
-Frank Davis <fdavis@si.rr.com> wrote:
+   From: John Levon <levon@movementarian.org>
+   Date: Fri, 1 Nov 2002 04:33:04 +0000
+   
+   The problem is this would trivially break cross-compilation. Would it
+   not be better to stick something in the glibc's bits/types.h
+   per-platform ?
+   
+   Not that I particularly fancy going near glibc...
 
-> Hello all,
->      As I looked at 2.5.45's Documentation/Changes file, I noticed
->      that 
-> the gcc version is still at 2.95.3 . Is that changing to 3.2 , along 
-> with the other minimum tool versions?
+No, becuase this is an attribute of the cpu the binary
+is executing on, not an attribute of the ABI under which
+userland compilation are taking place.
 
-Well, the Changes file clearly states that one should *at least* upgrade
-to the versions mentioned. I still (happily) build kernels with gcc
-2.95.3, so I see no point that the minimum requirement should become
-gcc-3.2, don't you think?
-
-	-- Paulo Andre'
+At run time, you probe this /proc/sys/kernel/pointer_size
+value.  In fact, this should have no effect whatsoever on
+cross-compilation.  I thought we were quite clear on this
+solution?

@@ -1,68 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267998AbUBRUHZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 15:07:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267999AbUBRUHY
+	id S266494AbUBRTF3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 14:05:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267671AbUBRTF3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 15:07:24 -0500
-Received: from node-402418b2.mdw.onnet.us.uu.net ([64.36.24.178]:241 "EHLO
-	found.lostlogicx.com") by vger.kernel.org with ESMTP
-	id S267998AbUBRUHR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 15:07:17 -0500
-Date: Wed, 18 Feb 2004 14:04:39 -0600
-From: Brandon Low <blow@rbsys.com>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.3-mm1
-Message-ID: <20040218200439.GB449@lostlogicx.com>
-References: <20040217232130.61667965.akpm@osdl.org> <40338FE8.60809@tmr.com>
+	Wed, 18 Feb 2004 14:05:29 -0500
+Received: from absinthe.ifi.unizh.ch ([130.60.75.58]:13715 "EHLO
+	diamond.madduck.net") by vger.kernel.org with ESMTP id S266494AbUBRTFS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 14:05:18 -0500
+Date: Wed, 18 Feb 2004 20:05:10 +0100
+From: martin f krafft <madduck@madduck.net>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: the crux with DMA
+Message-ID: <20040218190510.GA14386@diamond.madduck.net>
+Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20040218112052.GA8001@diamond.madduck.net> <4033B3CC.2030609@namesys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="huq684BweRXVnRxX"
 Content-Disposition: inline
-In-Reply-To: <40338FE8.60809@tmr.com>
-X-Operating-System: Linux found.lostlogicx.com 2.6.1-mm2
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <4033B3CC.2030609@namesys.com>
+X-OS: Debian GNU/Linux testing/unstable kernel 2.6.2-diamond i686
+X-Mailer: Mutt 1.5.5.1+cvs20040105i (2003-11-05)
+X-Motto: Keep the good times rollin'
+X-Subliminal-Message: debian/rules!
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 02/18/04 at 11:16:40 -0500, Bill Davidsen wrote:
-> Andrew Morton wrote:
-> >ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.3/2.6.3-mm1/
-> >
-> >- Added the dm-crypt driver: a crypto layer for device-mapper.
-> >
-> >  People need to test and use this please.  There is documentation at
-> >  http://www.saout.de/misc/dm-crypt/.
-> >
-> >  We should get this tested and merged up.  We can then remove the nasty
-> >  bio remapping code from the loop driver.  This will remove the current
-> >  ordering guarantees which the loop driver provides for journalled
-> >  filesystems.  ie: ext3 on cryptoloop will no longer be crash-proof.
-> >
-> >  After that we should remove cryptoloop altogether.
-> >
-> >  It's a bit late but cyptoloop hasn't been there for long anyway and it
-> >  doesn't even work right with highmem systems (that part is fixed in -mm).
-> 
-> What definition of "stable kernel" do you use which includes removal of 
-> features which were reasons to migrate to 2.6 from 2.4? This change 
-> would mean having to add dm to the kernel which otherwise doesn't use 
-> it, carry dm utilities on the system whcih are otherwise unneeded, and 
-> train people to use and not use dm.
-> 
-> I expect major things to change in a development series, but less major 
-> things than this have been pushed to 2.7, why is this being forced in?
->
-I must add my voice here in strong opposition of the removal of
-cryptoloop from the 2.6 series of kernels.  This is no longer a
-development series kernel, I (and others, I'm sure) have been working on
-developing technologies which depend on this functionality and which
-would be _very_ annoying to do with DM (liveCD-on-cryptoloop-on-iso).
 
-Please do not drop cryptoloop!
+--huq684BweRXVnRxX
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thanks,
---
-Brandon Low
-Release Coordinator
-Ribstone Systems
-http://www.ribstonesystems.com
+also sprach Hans Reiser <reiser@namesys.com> [2004.02.18.1949 +0100]:
+> both ext3 and reiserfs are higher performance than XFS for typical file=
+=20
+> sizes.  XFS does very well for streaming video though (as does reiser4).
+
+How about large files (e.g. > 2Gb).
+
+Do you have specs on your above statement? Not that I doubt
+reiserfs, but I have been generally unhappy with its performance,
+especially when huge files are involved. And I have suffered severe
+corruption from a single bad block. A lot of people have suggested
+using XFS. I am not a guru, so these statements are far from
+educated.
+
+--=20
+martin;              (greetings from the heart of the sun.)
+  \____ echo mailto: !#^."<*>"|tr "<*> mailto:" net@madduck
+=20
+invalid/expired pgp subkeys? use subkeys.pgp.net as keyserver!
+=20
+consciousness: that annoying time between naps.
+
+--huq684BweRXVnRxX
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAM7dmIgvIgzMMSnURAoW+AJ4x8KkLX8P+MDZDP3v6aAmL28d4EwCeNaEy
+UhnpjIEaDptlQWzv1rWJetc=
+=EQjg
+-----END PGP SIGNATURE-----
+
+--huq684BweRXVnRxX--

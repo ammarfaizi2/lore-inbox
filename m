@@ -1,43 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261193AbRELGqA>; Sat, 12 May 2001 02:46:00 -0400
+	id <S261195AbRELHpU>; Sat, 12 May 2001 03:45:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261194AbRELGpu>; Sat, 12 May 2001 02:45:50 -0400
-Received: from mail.zmailer.org ([194.252.70.162]:61447 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S261193AbRELGpn>;
-	Sat, 12 May 2001 02:45:43 -0400
-Date: Sat, 12 May 2001 09:45:38 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: testing new vger
-Message-ID: <20010512094538.N5947@mea-ext.zmailer.org>
-In-Reply-To: <15100.53072.165091.885356@pizda.ninka.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <15100.53072.165091.885356@pizda.ninka.net>; from davem@redhat.com on Fri, May 11, 2001 at 10:51:12PM -0700
+	id <S261196AbRELHpJ>; Sat, 12 May 2001 03:45:09 -0400
+Received: from server1.cosmoslink.net ([208.179.167.101]:42603 "EHLO
+	server1.cosmoslink.net") by vger.kernel.org with ESMTP
+	id <S261195AbRELHoz>; Sat, 12 May 2001 03:44:55 -0400
+Message-ID: <007c01c0dab7$98406040$bba6b3d0@Toshiba>
+From: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
+To: "William Stearns" <wstearns@pobox.com>
+Cc: "ML-linux-kernel" <linux-kernel@vger.kernel.org>,
+        "Jaswinder Singh" <jaswinder.singh@3disystems.com>
+In-Reply-To: <Pine.LNX.4.33.0105120126320.27728-100000@sparrow.websense.net>
+Subject: Re: Chat rooms for linux kernel developers
+Date: Sat, 12 May 2001 00:46:03 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 11, 2001 at 10:51:12PM -0700, David S. Miller wrote:
-> Ignore this post please, thanks.
+Dear Bill,
 
-  In my general "ignore this please" interpretation as
-  "help! I need help!" --  New VGER seems to work mostly,
-  but I forgot to change one directory permission, and
-  everybody who have emailed Majordomo for something have
-  gotten some strange error message + the majordomo action..
+Thank you very much for your reply and help.
 
-  All it means is that our Majordomo incoming request log
-  is now incomplete for few hours worth of requests.
-  Not a big deal.
+Best Regards,
 
-  Now I am heading off the network for next 36 or so hours.
-  Good luck, safe riding.
+Jaswinder.
 
-> Later,
-> David S. Miller
-> davem@redhat.com
+----- Original Message -----
+From: "William Stearns" <wstearns@pobox.com>
+To: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
+Cc: "ML-linux-kernel" <linux-kernel@vger.kernel.org>
+Sent: Friday, May 11, 2001 10:27 PM
+Subject: Re: Chat rooms for linux kernel developers
 
-/Matti Aarnio
+
+> Good day, Jaswinder,
+>
+> On Fri, 11 May 2001, Jaswinder Singh wrote:
+>
+> > Is there is any chat (IRC) for linux kernel developers .
+>
+> See irc.linpeople.org, channel #kernelnewbies .
+> Cheers,
+> - Bill
+>
+> --------------------------------------------------------------------------
+-
+>         "If you think technology can solve your security problems, then
+> you don't understand the problems and you don't understand the
+> technology."
+>         -- Bruce Schneier, Secrets and Lies
+> --------------------------------------------------------------------------
+> William Stearns (wstearns@pobox.com).  Mason, Buildkernel, named2hosts,
+> and ipfwadm2ipchains are at:                http://www.pobox.com/~wstearns
+> LinuxMonth; articles for Linux Enthusiasts! http://www.linuxmonth.com
+> --------------------------------------------------------------------------
+>
+

@@ -1,37 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262214AbVBKH75@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262215AbVBKILN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262214AbVBKH75 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 02:59:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262215AbVBKH75
+	id S262215AbVBKILN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 03:11:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262216AbVBKILN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 02:59:57 -0500
-Received: from smtp2.Stanford.EDU ([171.67.16.125]:57267 "EHLO
-	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP id S262214AbVBKH74
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 02:59:56 -0500
-Date: Thu, 10 Feb 2005 23:59:53 -0800 (PST)
-From: Junfeng Yang <yjf@stanford.edu>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: mc@cs.Stanford.EDU
-Subject: [CHECKER] Does sys_sync (ext2, 2.6.x) flush metadata?
-Message-ID: <Pine.GSO.4.44.0502102345540.8091-100000@elaine24.Stanford.EDU>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 11 Feb 2005 03:11:13 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:33486 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S262215AbVBKILK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 03:11:10 -0500
+Date: Fri, 11 Feb 2005 09:11:40 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: InputML <linux-input@atrey.karlin.mff.cuni.cz>,
+       alsa-devel@alsa-project.org, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 0/10] Convert gameport to driver model/sysfs
+Message-ID: <20050211081140.GB1675@ucw.cz>
+References: <200502110158.47872.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200502110158.47872.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Feb 11, 2005 at 01:58:47AM -0500, Dmitry Torokhov wrote:
 
-Hi,
+> This series of patches adds a new "gameport" bus to the driver model.
+> It is implemented very similarly to "serio" bus and also allows
+> individual drivers to be manually bound/disconnected from a port
+> by manipulating port's "drvctl" attribute.
 
-We're working on a file system checker and have a question regarding what
-sys_sync actually does.  It appears to us that sys_sync should sync both
-data and metadata, and wait until both data and metadata hit the disk
-before it returns.  Is this true for all the file systems (especially
-ext2) for kernel 2.6.x?  I've gotten many "error" traces for ext2, where
-directory entries are not flushed to disk after sys_sync.  In other words,
-even if users do call sys_sync, a crash after sys_sync call can still
-cause file losses.  Is this intended?
+Good work! I'm pulling it into my tree. And test.
 
-Thanks,
--Junfeng
+> The changes can also be pulled from my tree (which has Vojtech's
+> input tree as a parent):
+> 
+> 	bk pull bk://dtor.bkbits.net/input 
+> 
+> I am CC-ing ALSA list as the changes touch quite a few sound drivers.
+> 
+> Comments/testing is appreciated.
 
+
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

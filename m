@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262464AbTKDSJv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Nov 2003 13:09:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262482AbTKDSJv
+	id S262458AbTKDSgd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Nov 2003 13:36:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262491AbTKDSgd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Nov 2003 13:09:51 -0500
-Received: from [193.112.238.6] ([193.112.238.6]:26031 "EHLO caveman.xisl.com")
-	by vger.kernel.org with ESMTP id S262464AbTKDSJu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Nov 2003 13:09:50 -0500
-From: John M Collins <jmc@xisl.com>
-Organization: Xi Software Ltd
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Semaphores and threads anomaly and bug?
-Date: Tue, 4 Nov 2003 18:09:28 +0000
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0311040928110.20373-100000@home.osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0311040928110.20373-100000@home.osdl.org>
+	Tue, 4 Nov 2003 13:36:33 -0500
+Received: from mout1.freenet.de ([194.97.50.132]:33730 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id S262458AbTKDSgc convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Nov 2003 13:36:32 -0500
+From: Michael Buesch <mbuesch@freenet.de>
+To: Takashi Iwai <tiwai@suse.de>
+Subject: Re: [Alsa-devel] [2.6.0-test9 ALSA] ALSA-OSS-emulation unable to register
+Date: Tue, 4 Nov 2003 21:35:05 +0100
+User-Agent: KMail/1.5.4
+References: <200311021458.59759.mbuesch@freenet.de> <200311041630.22807.mbuesch@freenet.de> <s5hism0tacc.wl@alsa2.suse.de>
+In-Reply-To: <s5hism0tacc.wl@alsa2.suse.de>
+Cc: alsa-devel@alsa-project.org,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-Message-Id: <200311041809.28543.jmc@xisl.com>
+Message-Id: <200311042136.19042.mbuesch@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 04 November 2003 17:29, Linus Torvalds wrote:
-> On Tue, 4 Nov 2003, John M Collins wrote:
-> > I know this isn't defined anywhere but the seems to be an ambiguity and
-> > discrepancy between versions of Unix and Linux over threads and
-> > semaphores.
-> >
-> > Do the "SEM_UNDO"s get applied when a thread terminates or when the
-> > "whole thing" terminates?
->
-> It's entirely up to you. That's what CLONE_SYSVSEM is supposed to
-> determine.
->
-> However, CLONE_SYSVSEM is fairly recent, and I think you will need to use
-> the new threading libraries to see it.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Thanks.
+On Tuesday 04 November 2003 16:36, Takashi Iwai wrote:
+> the first argument is "enable".  "index" is the second argument.
+> so, you'll need to pass "snd-ens1371=1,1"
 
-Could I possibly draw your attention to the other point I made about the 
-updating of "sempid" which does seem to be a mistake to me?
+Now neither ALSA, nor OSS-emu works. :)
 
--- 
-John Collins Xi Software Ltd www.xisl.com
+> Takashi
+
+- -- 
+Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/qA3BoxoigfggmSgRAkBxAJ9fJnOGw+qCv30AUA7TrXQuBTM3JwCePPAT
+HP5FlPbzkbDMCED/ra4BSYU=
+=6RlG
+-----END PGP SIGNATURE-----
+

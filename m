@@ -1,38 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271037AbTGQPrp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 11:47:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271041AbTGQPro
+	id S270906AbTGQPqR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 11:46:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270938AbTGQPqR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 11:47:44 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:16646 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S271037AbTGQPrS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 11:47:18 -0400
-Date: Thu, 17 Jul 2003 17:01:56 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Frank Cornelis <Frank.Cornelis@elis.ugent.be>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: __put_task_struct
-Message-ID: <20030717170156.B9432@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Frank Cornelis <Frank.Cornelis@elis.ugent.be>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <1058367495.1073.10.camel@tom>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1058367495.1073.10.camel@tom>; from Frank.Cornelis@elis.ugent.be on Wed, Jul 16, 2003 at 04:58:15PM +0200
+	Thu, 17 Jul 2003 11:46:17 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53383 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S270906AbTGQPqP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 11:46:15 -0400
+Message-ID: <3F16C83A.2010303@pobox.com>
+Date: Thu, 17 Jul 2003 12:00:58 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Thomas Schlichter <schlicht@uni-mannheim.de>
+CC: ricardo.b@zmail.pt, linux-kernel@vger.kernel.org,
+       "David S. Miller" <davem@redhat.com>
+Subject: Re: SET_MODULE_OWNER
+References: <1058446580.18647.11.camel@ezquiel.nara.homeip.net> <3F16C190.3080205@pobox.com> <200307171756.19826.schlicht@uni-mannheim.de>
+In-Reply-To: <200307171756.19826.schlicht@uni-mannheim.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 16, 2003 at 04:58:15PM +0200, Frank Cornelis wrote:
+Thomas Schlichter wrote:
+> On Thursday 17 July 2003 17:32, Jeff Garzik wrote:
 > 
-> Hi,
+>>Ricardo Bugalho wrote:
+>>
+>>>Hi all,
+>>>  most net device drivers have replaced MOD_INC/DEC_USE_COUNT with
+>>>SET_MODULE_OWNER but SET_MODULE_OWNER doesn't do nothing.
+>>>  Therefore, those modules (though I can only vouch for 8139too) always
+>>>report 0 use. Some people that had "modprobe -r" in their cronttab found
+>>>it quite annoying.
+>>>  I'd guess that there's a good reason for why struct net_device doesn't
+>>>have .owner field and why this happens. Can someone be so kind to point
+>>>it
+>>>out?
+>>
+>>struct net_device does have an owner field, and SET_MODULE_OWNER
+>>obviously _does_ do something.
 > 
-> When using get/put_task_struct from inside a module, kbuild warns about
-> __put_task_struct being undefined. Can someone export this function?
+> 
+> That's not correct for 2.5.x anymore...
+> Have a look at Changeset 1.1167 from davem.
+> 
+> It removed the owner field about 9 weeks ago. That was the time where 
+> SET_MODULE_OWNER became a NOP...
+> 
+> 
+>>If your interface is up, your net driver's module refcount is greater
+>>than zero.
+> 
+> 
+> Well, as I looked now my netdevice is up, but its reference count is at 0, 
+> too!
 
-Why would you use it in a module?
+Doh.  I missed that.
+
+David?  Does Rusty have a plan here or something?
+
+	Jeff
+
+
 

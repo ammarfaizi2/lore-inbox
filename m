@@ -1,66 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261596AbULTSTz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261604AbULTSY0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261596AbULTSTz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 13:19:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbULTSTz
+	id S261604AbULTSY0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 13:24:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261607AbULTSY0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 13:19:55 -0500
-Received: from stat16.steeleye.com ([209.192.50.48]:10150 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261596AbULTSTu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 13:19:50 -0500
-Subject: [BK PATCH] last scsi fixes for 2.6.10-rc3
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Content-Type: text/plain
-Date: Mon, 20 Dec 2004 12:19:33 -0600
-Message-Id: <1103566774.5267.62.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+	Mon, 20 Dec 2004 13:24:26 -0500
+Received: from dbl.q-ag.de ([213.172.117.3]:49291 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S261604AbULTSYW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 13:24:22 -0500
+Message-ID: <41C718C7.1020908@colorfullife.com>
+Date: Mon, 20 Dec 2004 19:24:07 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ravikiran G Thirumalai <kiran@in.ibm.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Reimplementation of linux dynamic percpu memory allocator
+References: <41C35DD6.1050804@colorfullife.com> <20041220182057.GA16859@in.ibm.com>
+In-Reply-To: <20041220182057.GA16859@in.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-These are all small and fairly essential fixes (except for one minor
-piece of code removal which crept into the wrong bucket but should be
-harmless) that I'd like to get in before 2.6.10
+Ravikiran G Thirumalai wrote:
 
-the patch is available at
+>Hmmm..I knew from some experiments earlier that access to per cpu versions
+>of memory was slow with the slab based implementation -- which this patch
+>addresses, but I didn't know allocs themselves were slow...
+>Creation of a disk should not be a fast path no?
+>  
+>
+No, not fast path. But it can happen a few thousand times. The slab 
+implementation failed due to heavy internal fragmentation. If your code 
+runs fine with a few thousand users, then there shouldn't be a problem.
 
-bk://linux-scsi.bkbits.net/scsi-for-linus-2.6
+>>>      
+>>>
+>>That means no large pte entries for the per-cpu allocations, right?
+>>I think that's a bad idea for non-numa systems. What about a fallback to 
+>>simple getfreepages() for non-numa systems?
+>>    
+>>
+>
+>Can we have large pte entries with PAGE_SIZEd pages?  
+>
+>  
+>
+For non-NUMA systems, I would use get_free_pages() to allocate a 
+multi-page area instead of map_vm_area(). Typically, get_free_pages() is 
+backed by large pte memory and map_vm_area() by normal virtual memory.
 
-The short changelog is:
-
-Adrian Bunk:
-  o scsi/qla2xxx/qla_rscn.c: remove unused functions
-
-James Bottomley:
-  o Fix cable pull problem with USB storage
-
-Jens Axboe:
-  o hack imm.c to work in highmem machines
-
-Mark Haverkamp:
-  o aacraid: 2.6 fix panic on module removal
-
-Sreenivas Bagalkote:
-  o megaraid: fix a bug in kioc dma buffer deallocation
-
-And the diffstat is
-
- Documentation/scsi/ChangeLog.megaraid  |    7 ++++++
- drivers/scsi/aacraid/linit.c           |    3 --
- drivers/scsi/imm.c                     |    4 +++
- drivers/scsi/megaraid/megaraid_ioctl.h |    2 -
- drivers/scsi/megaraid/megaraid_mm.c    |   34 ++++++++++++++++++---------------
- drivers/scsi/megaraid/megaraid_mm.h    |    5 +---
- drivers/scsi/qla2xxx/qla_rscn.c        |   26 -------------------------
- drivers/scsi/sd.c                      |    2 -
- drivers/scsi/sr.c                      |    2 -
- 9 files changed, 36 insertions(+), 49 deletions(-)
-
-James
-
-
+--
+    Manfred

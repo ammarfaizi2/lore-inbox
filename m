@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129226AbRAIRjr>; Tue, 9 Jan 2001 12:39:47 -0500
+	id <S129431AbRAIRjq>; Tue, 9 Jan 2001 12:39:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129538AbRAIRjj>; Tue, 9 Jan 2001 12:39:39 -0500
-Received: from mail2.megatrends.com ([155.229.80.11]:64265 "EHLO
-	mail2.megatrends.com") by vger.kernel.org with ESMTP
-	id <S129431AbRAIRj0>; Tue, 9 Jan 2001 12:39:26 -0500
-Message-ID: <1355693A51C0D211B55A00105ACCFE64E9513D@ATL_MS1>
-From: Venkatesh Ramamurthy <Venkateshr@ami.com>
-To: "'Andi Kleen'" <ak@suse.de>, Matti Aarnio <matti.aarnio@zmailer.org>,
-        Venkatesh Ramamurthy <Venkateshr@ami.com>,
-        "'Pavel Machek'" <pavel@suse.cz>, adefacc@tin.it,
-        linux-kernel@vger.kernel.org
-Cc: timw@splhi.com
-Subject: RE: Confirmation request about new 2.4.x. kernel limits
-Date: Tue, 9 Jan 2001 12:35:02 -0500 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2448.0)
-Content-Type: text/plain
+	id <S129226AbRAIRjI>; Tue, 9 Jan 2001 12:39:08 -0500
+Received: from npt12056206.cts.com ([216.120.56.206]:45586 "HELO
+	forty.spoke.nols.com") by vger.kernel.org with SMTP
+	id <S129324AbRAIRiz>; Tue, 9 Jan 2001 12:38:55 -0500
+Date: Tue, 9 Jan 2001 09:38:53 -0800
+From: David Rees <dbr@spoke.nols.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Invalid Netfilter URL in Documentation/Changes in 2.4.0
+Message-ID: <20010109093853.C2201@spoke.nols.com>
+Mail-Followup-To: David Rees <dbr@spoke.nols.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The link to http://www.samba.org/netfilter/iptables-1.1.1.tar.bz2 is 
+invalid in 2.4.0, this patch simply removes the link.
 
-> Problem is that it needs a driver interface change and cooperation from
-> the
-> drivers. 
-	[Venkatesh Ramamurthy]  Atleast the spec for this new interface,
-that the driver has to support be prepared? Once this is done we can port
-driver by driver to this new standard.
+-Dave
 
-> -Andi
+--- linux/Documentation/Changes.orig    Mon Jan  1 10:00:04 2001
++++ linux/Documentation/Changes Tue Jan  9 09:37:20 2001
+@@ -336,7 +336,6 @@
+ Netfilter
+ ---------
+ o  <http://netfilter.filewatcher.org/iptables-1.1.1.tar.bz2>
+-o  <http://www.samba.org/netfilter/iptables-1.1.1.tar.bz2>
+ o  <http://netfilter.kernelnotes.org/iptables-1.1.1.tar.bz2>
+ 
+ Ip-route2
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

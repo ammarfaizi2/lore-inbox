@@ -1,75 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288211AbSACF6T>; Thu, 3 Jan 2002 00:58:19 -0500
+	id <S288216AbSACGAj>; Thu, 3 Jan 2002 01:00:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288210AbSACF6J>; Thu, 3 Jan 2002 00:58:09 -0500
-Received: from sweetums.bluetronic.net ([66.57.88.6]:53386 "EHLO
-	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
-	id <S288215AbSACF56>; Thu, 3 Jan 2002 00:57:58 -0500
-Date: Thu, 3 Jan 2002 00:57:55 -0500 (EST)
-From: Ricky Beam <jfbeam@bluetronic.net>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-Subject: Re: Two hdds on one channel - why so slow?
-In-Reply-To: <Pine.LNX.4.33.0201022010340.10236-100000@coffee.psychology.mcmaster.ca>
-Message-ID: <Pine.GSO.4.33.0201030012090.28783-100000@sweetums.bluetronic.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288218AbSACGA3>; Thu, 3 Jan 2002 01:00:29 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:49541
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S288216AbSACGAY>; Thu, 3 Jan 2002 01:00:24 -0500
+Date: Thu, 3 Jan 2002 00:46:04 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Dave Jones <davej@suse.de>, Lionel Bouton <Lionel.Bouton@free.fr>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: ISA slot detection on PCI systems?
+Message-ID: <20020103004604.A3842@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Andrew Morton <akpm@zip.com.au>, Dave Jones <davej@suse.de>,
+	Lionel Bouton <Lionel.Bouton@free.fr>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>,
+	kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20020102211038.C21788@thyrsus.com> <Pine.LNX.4.33.0201030327501.5131-100000@Appserv.suse.de> <3C33EC64.8E505D54@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C33EC64.8E505D54@zip.com.au>; from akpm@zip.com.au on Wed, Jan 02, 2002 at 09:30:12PM -0800
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Jan 2002, Mark Hahn wrote:
->my goodness; it's been so long since l-k saw this traditional sport!
->nothing much has changed in the intrim: SCSI still costs 2-3x as much,
->and still offers the same, ever-more-niche set of advantages
->(decent hotswap, somewhat higher reliability, moderately higher performance,
->easier expansion to more disks and/or other devices.)
+Andrew Morton <akpm@zip.com.au>:
+> If Eric can get the entire download-config-build-install process
+> down to a single mouse click, he'll have done us all a great service.
 
-If it's so much of a niche (and by extension desired by so few), why has
-IDE become more and more like SCSI over the past decade?  IDE is just
-beginning (over the last 2-3 years) to acquire the features SCSI has had
-for over a decade.  Give it another decade and IDE will simply be a SCSI
-physical layer.
+Single-mouse-click configuration isn't going to happen soon.  It may 
+not happen at all.
 
-So summarize a decade old arguement:
-(IDE Camp)  SCSI sucks because it's too damned expensive.
+However, I believe pushing in that direction is worthwhile.
+Configuration *can* be made a helluva lot easier than it is now.
+Easier than I think most kernel developers would believe possible, at
+least before sitting down to a serious think and abandoning a lot of
+long-held assumptions about how things `have' to be.
 
-(SCSI Camp) IDE sucks because it isn't SCSI. [followed by a long list of
-            features present in SCSI but not IDE.]
+CML2 was the first step.  It gives us a tool that can guarantee the
+correctness and consistency of configuration changes according to a
+rulebase.
 
-You cannot beat IDE's price/performance with a stick.  However, anyone
-who cares about system performance (and lifespan) will opt for the expense
-of SCSI.
+The autoconfigurator that Giacomo Catenazzi started, which I am now
+integrating with CML2, is the next step.  I expect it to reduce the
+task complexity for typical configuration cases by 90%.  It's pretty
+effective, including more than 2500 probes.
 
->besides having missed the last 2-3 generations of ATA (which include
->things like diskconnect), you have clearly not noticed that entry-level
+I don't know what the third step will be yet.  It depends partly on what
+that remaining 10% looks like.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-And who has diskconnect implemented?  How many devices support it?
-How many years before most of the hideous data destroying bugs and
-incompatibilities are rooted out?
-
->hardware with PoS UDMA100 controllers can sustain more bandwidth than
->you can hope to consume (120 MB/s is pretty easy, even on 32x33 PCI!)
-
-...with only two devices per channel and a rather heavy penalty for more
-than one.  SCSI is only significantly penalized when approaching bus
-saturation.
-
-And looking at the data rates for the Maxtor 160GB drive (infact the
-entire D540X line)... 43.4M/s to/from media (i.e. cache) with sustained
-rates of 35.9/17.8 OD/ID.  Maxtor are the only ones with U133 drives.
-(And the Maxtor SCSI drives kick that thing's ass... internal rate of
- 350-622Mb/s for a sustained throughput of 33-55MB/s.  Expensive but
- much much faster.)
-
->> PS: I once turned down a 360MHz Ultra10 in favor of a 167MHz Ultra1 because
->>     of the absolutely shitty IDE performance.  The U1 was actually faster
->>     at compiling software. (Solaris 2.6, btw)
->
->yeah, if Sun can't make IDE scream, then no one can eh?
-
-Linux wasn't any freakin' better at it.  (Sun's IDE still seriously sucks.)
-
---Ricky
-
-
+"Experience should teach us to be most on our guard to protect liberty when the
+government's purposes are beneficient...The greatest dangers to liberty lurk in
+insidious encroachment by men of zeal, well meaning but without understanding."
+	-- Supreme Court Justice Louis Brandeis

@@ -1,32 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266802AbUIEPRR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266796AbUIEPRx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266802AbUIEPRR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 11:17:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266796AbUIEPRR
+	id S266796AbUIEPRx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 11:17:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266798AbUIEPRx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 11:17:17 -0400
-Received: from pauli.thundrix.ch ([213.239.201.101]:64935 "EHLO
-	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S266786AbUIEPRO
+	Sun, 5 Sep 2004 11:17:53 -0400
+Received: from pauli.thundrix.ch ([213.239.201.101]:65447 "EHLO
+	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S266796AbUIEPRs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 11:17:14 -0400
-Date: Sun, 5 Sep 2004 17:12:49 +0200
+	Sun, 5 Sep 2004 11:17:48 -0400
+Date: Sun, 5 Sep 2004 17:16:42 +0200
 From: Tonnerre <tonnerre@thundrix.ch>
-To: James Bruce <bruce@andrew.cmu.edu>
-Cc: Linus Torvalds <torvalds@osdl.org>, Hans Reiser <reiser@namesys.com>,
-       David Masover <ninja@slaphack.com>, Jamie Lokier <jamie@shareable.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
-       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: linux-kernel@vger.kernel.org, ReiserFS List <reiserfs-list@namesys.com>
 Subject: Re: The argument for fs assistance in handling archives
-Message-ID: <20040905151249.GQ26560@thundrix.ch>
-References: <20040901200806.GC31934@mail.shareable.org> <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org> <20040902002431.GN31934@mail.shareable.org> <413694E6.7010606@slaphack.com> <Pine.LNX.4.58.0409012037300.2295@ppc970.osdl.org> <4136A14E.9010303@slaphack.com> <Pine.LNX.4.58.0409012259340.2295@ppc970.osdl.org> <4136C876.5010806@namesys.com> <Pine.LNX.4.58.0409020030220.2295@ppc970.osdl.org> <41371702.8030704@andrew.cmu.edu>
+Message-ID: <20040905151642.GR26560@thundrix.ch>
+References: <4136E0B6.4000705@namesys.com> <200409021532.i82FW8Si005822@laptop11.inf.utfsm.cl>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="dUqh8vgUBVXHzm9w"
+	protocol="application/pgp-signature"; boundary="8Bx+wEju+vH9ym24"
 Content-Disposition: inline
-In-Reply-To: <41371702.8030704@andrew.cmu.edu>
+In-Reply-To: <200409021532.i82FW8Si005822@laptop11.inf.utfsm.cl>
 X-GPG-KeyID: 0x8BE1C38D
 X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
 X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
@@ -35,21 +29,37 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---dUqh8vgUBVXHzm9w
-Content-Type: text/plain; charset=us-ascii
+--8Bx+wEju+vH9ym24
+Content-Type: text/plain; charset=unknown-8bit
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 Salut,
 
-On Thu, Sep 02, 2004 at 08:50:10AM -0400, James Bruce wrote:
-> filesystem to implement the Berkely DB interface (libdb) for example. =20
+On Thu, Sep 02, 2004 at 11:32:08AM -0400, Horst von Brand wrote:
+> Hans Reiser <reiser@namesys.com> said:
+> > Linus Torvalds wrote:
+>=20
+> > > But _my_ point is, no user program is going to take _advantage_ of
+> > >anything that only one filesystem on one system offers.
+>=20
+> > Apple does not have this problem....
+>=20
+> ... because Apple customers are a captive lot...
 
-Problem is that BerkeleyDB changes its API all the time.
+=E7a suffit!  Stop  that damn evangelization. I've seen  lots of content
+MacOS/X users. Personally  I use MacOS/X, NetBSD and  Linux to develop
+my software, and  I quite like all the  three. I'm actively developing
+Linux and MacOS/X. Why I do that? Because I'm a technician.
 
-			Tonnerre
+Linux users are no  better people whatsoever.  Restricting yourself to
+one OS is  bad. I think most  of the FS developers here  will agree on
+that.
 
---dUqh8vgUBVXHzm9w
+				Tonnerre
+		(who's a technician, not an evangelist)
+
+--8Bx+wEju+vH9ym24
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 Content-Disposition: inline
@@ -57,9 +67,9 @@ Content-Disposition: inline
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.9.2 (GNU/Linux)
 
-iD8DBQFBOyzx/4bL7ovhw40RAv2fAJ0Xys51AcRxAKpXxZ0/nBu//D30uACgr3Af
-T8mZeNJ1kWscqRuauQjeHR4=
-=StgF
+iD8DBQFBOy3Z/4bL7ovhw40RAnwdAJ9u7fquOM8COiiMBnwTUAab2Y/C/ACfWzVP
+LnxRpWJ9BvM8i9HKKXU9JCs=
+=uTyJ
 -----END PGP SIGNATURE-----
 
---dUqh8vgUBVXHzm9w--
+--8Bx+wEju+vH9ym24--

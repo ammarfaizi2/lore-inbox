@@ -1,36 +1,171 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267063AbSKEDb2>; Mon, 4 Nov 2002 22:31:28 -0500
+	id <S276058AbSKED2O>; Mon, 4 Nov 2002 22:28:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276301AbSKEDb2>; Mon, 4 Nov 2002 22:31:28 -0500
-Received: from ns.suse.de ([213.95.15.193]:29715 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S267063AbSKEDb0> convert rfc822-to-8bit;
-	Mon, 4 Nov 2002 22:31:26 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Andreas Gruenbacher <agruen@suse.de>
-Organization: SuSE Linux AG
-To: Chris Wedgwood <cw@f00f.org>
-Subject: Re: What's left over.
-Date: Tue, 5 Nov 2002 04:38:01 +0100
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org
-References: <20021031030143.401DA2C150@lists.samba.org> <20021031031954.56C772C156@lists.samba.org> <20021031062118.GA18007@tapu.f00f.org>
-In-Reply-To: <20021031062118.GA18007@tapu.f00f.org>
+	id <S276072AbSKED2O>; Mon, 4 Nov 2002 22:28:14 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:48527 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S276058AbSKED2I>; Mon, 4 Nov 2002 22:28:08 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 4 Nov 2002 19:44:29 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: Linus Torvalds <torvalds@transmeta.com>
+Subject: [patch] epoll bits 0.30 ...
+Message-ID: <Pine.LNX.4.44.0211041939540.956-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200211050438.01179.agruen@suse.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 31 October 2002 07:21, Chris Wedgwood wrote:
-> Don't get me wrong, I'm not against sane ACLs (POSIX ACLs are not) or
-> EAs [...]
 
-POSIX ACLs are more complicated than what would be inherently necessary, if we 
-were in a situation where we could design from scratch. Unfortunately we are 
-not in that situation. I've heard dozens of people complain about POSIX ACLs 
-(and other kinds as well); nobody was able to come up with something truly 
-better so far.
+These are the latest few bits for epoll. Changes :
 
---Andreas.
+*) Some constant adjusted
+
+*) Comments plus
+
+*) Better hash initialization
+
+*) Correct timeout setup
+
+
+
+
+- Davide
+
+
+
+
+eventpoll.c |   55 ++++++++++++++++++++++++++++++++++++++-----------------
+1 files changed, 38 insertions, 17 deletions
+
+
+
+
+
+diff -Nru linux-2.5.46.vanilla/fs/eventpoll.c linux-2.5.46.epoll/fs/eventpoll.c
+--- linux-2.5.46.vanilla/fs/eventpoll.c	Mon Nov  4 15:45:35 2002
++++ linux-2.5.46.epoll/fs/eventpoll.c	Mon Nov  4 15:50:27 2002
+@@ -61,8 +61,12 @@
+ /* Maximum storage for the eventpoll interest set */
+ #define EP_MAX_FDS_SIZE (1024 * 128)
+
+-/* We don't want the hash to be smaller than this */
+-#define EP_MIN_HASH_SIZE 101
++/*
++ * We don't want the hash to be smaller than this. This is basically
++ * the highest prime lower than (PAGE_SIZE / sizeof(struct list_head)).
++ */
++#define EP_MIN_HASH_SIZE 509
++
+ /*
+  * Event buffer dimension used to cache events before sending them in
+  * userspace with a __copy_to_user(). The event buffer is in stack,
+@@ -188,6 +192,7 @@
+
+
+ static int ep_is_prime(int n);
++static int ep_size_hash(int hintsize);
+ static int ep_getfd(int *efd, struct inode **einode, struct file **efile);
+ static int ep_alloc_pages(char **pages, int numpages);
+ static int ep_free_pages(char **pages, int numpages);
+@@ -252,14 +257,14 @@
+
+
+
+-/* Report if the number is prime. Needed to correctly size the hash  */
++/* Report if the number is prime. Needed to correctly size the hash */
+ static int ep_is_prime(int n)
+ {
+
+ 	if (n > 3) {
+ 		if (n & 1) {
+ 			int i, hn = n / 2;
+-
++
+ 			for (i = 3; i < hn; i += 2)
+ 				if (!(n % i))
+ 					return 0;
+@@ -296,9 +301,30 @@
+ }
+
+
++static int ep_size_hash(int hintsize)
++{
++	int maxsize = (EP_MAX_HPAGES - 1) * EP_HENTRY_X_PAGE;
++
++	/*
++	 * Search the nearest prime number higher than "hintsize" and
++	 * smaller than "maxsize".
++	 */
++	for (; !ep_is_prime(hintsize); hintsize++);
++	if (hintsize < EP_MIN_HASH_SIZE)
++		hintsize = EP_MIN_HASH_SIZE;
++	else if (hintsize >= maxsize)
++		for (hintsize = maxsize - 1; !ep_is_prime(hintsize); hintsize--);
++
++	return hintsize;
++}
++
++
+ /*
+  * It opens an eventpoll file descriptor by suggesting a storage of "size"
+- * file descriptors. It is the kernel part of the userspace epoll_create(2).
++ * file descriptors. The size parameter is just an hint about how to size
++ * data structures. It won't prevent the user to store more than "size"
++ * file descriptors inside the epoll interface. It is the kernel part of
++ * the userspace epoll_create(2).
+  */
+ asmlinkage int sys_epoll_create(int size)
+ {
+@@ -309,10 +335,8 @@
+ 	DNPRINTK(3, (KERN_INFO "[%p] eventpoll: sys_epoll_create(%d)\n",
+ 		     current, size));
+
+-	/* Search the nearest prime number higher than "size" */
+-	for (; !ep_is_prime(size); size++);
+-	if (size < EP_MIN_HASH_SIZE)
+-		size = EP_MIN_HASH_SIZE;
++	/* Correctly size the hash */
++	size = ep_size_hash(size);
+
+ 	/*
+ 	 * Creates all the items needed to setup an eventpoll file. That is,
+@@ -567,7 +591,7 @@
+ eexit_2:
+ 	put_filp(file);
+ eexit_1:
+-	return error;
++	return error;
+ }
+
+
+@@ -723,8 +747,7 @@
+ 	write_unlock_irqrestore(&eplock, flags);
+
+ 	/* Free hash pages */
+-	if (ep->nhpages > 0)
+-		ep_free_pages(ep->hpages, ep->nhpages);
++	ep_free_pages(ep->hpages, ep->nhpages);
+ }
+
+
+@@ -1126,12 +1149,10 @@
+ 	wait_queue_t wait;
+
+ 	/*
+-	 * Calculate the timeout by checking for the "infinite" value ( -1 )
+-	 * and the overflow condition ( > MAX_SCHEDULE_TIMEOUT / HZ ). The
+-	 * passed timeout is in milliseconds, that why (t * HZ) / 1000.
++	 * Calculate the timeout by checking for the "infinite" value ( -1 ).
++	 * The passed timeout is in milliseconds, that why (t * HZ) / 1000.
+ 	 */
+-	jtimeout = timeout == -1 || timeout > MAX_SCHEDULE_TIMEOUT / HZ ?
+-		MAX_SCHEDULE_TIMEOUT: (timeout * HZ) / 1000;
++	jtimeout = timeout == -1 ? MAX_SCHEDULE_TIMEOUT: (timeout * HZ) / 1000;
+
+ retry:
+ 	write_lock_irqsave(&ep->lock, flags);
 

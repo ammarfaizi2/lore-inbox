@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131484AbRDFLkZ>; Fri, 6 Apr 2001 07:40:25 -0400
+	id <S131481AbRDFLip>; Fri, 6 Apr 2001 07:38:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131486AbRDFLkR>; Fri, 6 Apr 2001 07:40:17 -0400
-Received: from smtp1.cern.ch ([137.138.128.38]:30221 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S131484AbRDFLju>;
-	Fri, 6 Apr 2001 07:39:50 -0400
-Date: Fri, 6 Apr 2001 13:39:02 +0200
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: alad@hss.hns.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: __switch_to macro
-Message-ID: <20010406133902.A5783@pcep-jamie.cern.ch>
-In-Reply-To: <65256A26.0031F455.00@sandesh.hss.hns.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <65256A26.0031F455.00@sandesh.hss.hns.com>; from alad@hss.hns.com on Fri, Apr 06, 2001 at 02:42:48PM +0530
+	id <S131484AbRDFLif>; Fri, 6 Apr 2001 07:38:35 -0400
+Received: from filesrv1.baby-dragons.com ([199.33.245.55]:8715 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id <S131481AbRDFLiU>; Fri, 6 Apr 2001 07:38:20 -0400
+Date: Fri, 6 Apr 2001 04:36:52 -0700 (PDT)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: Ion Badulescu <ionut@cs.columbia.edu>
+cc: Andreas Dilger <adilger@turbolinux.com>, Andrew Daviel <advax@triumf.ca>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: syslog insmod please!
+In-Reply-To: <Pine.LNX.4.30.0104052147060.14947-100000@age.cs.columbia.edu>
+Message-ID: <Pine.LNX.4.32.0104060429500.17426-100000@filesrv1.baby-dragons.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-alad@hss.hns.com wrote:
-> There's one thing that confuses me: don't you get a segment_not_present
-> fault?  If so, traps.c's do_segment_not_present doesn't appear to search
-> the exception table, and the code in loadsegment would not work.
-> 
-> >>> well.. I peeked into traps.c.. I do seem a call to die_if_no_fixup
-> in this function. And I think loadsegment is already making an entry in
-> exception table.
 
-Ah, you're right.  I didn't follow DO_ERROR all the way to do_trap and
-hency search_exception_table.
+	Hello Ion ,
 
--- Jamie
+On Thu, 5 Apr 2001, Ion Badulescu wrote:
+> On Thu, 5 Apr 2001, Andreas Dilger wrote:
+> > Why do it from user space?  Simply add a printk() to sys_init_module() or
+> > similar.
+> Agreed, but at that point the solution has absolutely nothing to do with
+> insmod anymore. :-)
+
+> Besides, as you said, I don't really see the point. It certainly doesn't
+> help with logging the actions of an attacker, and on the other hand kmod
+> already logs its own actions.
+	Not the problem being discussed ,  This is a user now root &
+	having gained root is now attempting to from the command line
+	to load a module .  How do we get this event recorded ?  kmod
+	only works when the user calles for the service & then it loads
+	it .  Tia ,  JimL
+       +----------------------------------------------------------------+
+       | James   W.   Laferriere | System  Techniques | Give me VMS     |
+       | Network        Engineer | 25416      22nd So |  Give me Linux  |
+       | babydr@baby-dragons.com | DesMoines WA 98198 |   only  on  AXP |
+       +----------------------------------------------------------------+
+

@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262941AbTJECNa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Oct 2003 22:13:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262942AbTJECNa
+	id S262944AbTJECYb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Oct 2003 22:24:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262948AbTJECYb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Oct 2003 22:13:30 -0400
-Received: from bgp01360964bgs.sandia01.nm.comcast.net ([68.35.68.128]:21888
-	"EHLO orion.dwf.com") by vger.kernel.org with ESMTP id S262941AbTJECN3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Oct 2003 22:13:29 -0400
-Message-Id: <200310050213.h952DSrA002997@orion.dwf.com>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0 - hid-core.c: control queue full
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 04 Oct 2003 20:13:28 -0600
-From: reg@dwf.com
+	Sat, 4 Oct 2003 22:24:31 -0400
+Received: from eleanor.physics.ucsb.edu ([128.111.8.116]:9644 "EHLO
+	eleanor.physics.ucsb.edu") by vger.kernel.org with ESMTP
+	id S262944AbTJECYa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Oct 2003 22:24:30 -0400
+Date: Sat, 4 Oct 2003 19:25:08 -0700 (PDT)
+From: David Whysong <dwhysong@physics.ucsb.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: MCE non fatal errors on an opteron CPU (fwd)
+Message-ID: <Pine.LNX.4.33.0310041924420.5264-100000@eleanor.physics.ucsb.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What is this error?  Twice now I have made what seemed
-(at the time) simple changes to my config file, and each time
-I have ended up with a kernel that spewed the message:
 
-    drivers/usb/input/hid-core.c: control queue full
+Hi,
 
-up the screen, late in the boot.  The only way out is with
-a <ctl><alt><del>, and of course I had NEVER saved my previous
-config file, so it is never obvious what change I had made.
+I'm getting these messages every 15 seconds. Can someone tell me what this
+means?
 
-Each time has wasted a couple of hours of debug time...
+Oct  2 15:55:35 sleepy kernel: MCE: The hardware reports a non fatal,
+correctable incident occurred on CPU 1.
+Oct  2 15:55:35 sleepy kernel: Bank 0: c408400000000833
+Oct  2 15:55:36 sleepy kernel: MCE: The hardware reports a non fatal,
+correctable incident occurred on CPU 1.
+Oct  2 15:55:36 sleepy kernel: Bank 1: d400400000000853
+Oct  2 15:55:36 sleepy kernel: MCE: The hardware reports a non fatal,
+correctable incident occurred on CPU 1.
+Oct  2 15:55:36 sleepy kernel: Bank 2: d400400000000813
+Oct  2 15:55:36 sleepy kernel: MCE: The hardware reports a non fatal,
+correctable incident occurred on CPU 1.
+Oct  2 15:55:36 sleepy kernel: Bank 4: 9408400100000813
 
-Any suggestions (other than 'dont try to use the USB stuff'...)
-will be appreciated.
 
-- -- 
-                                        Reg.Clemens
-
+-- 
+David Whysong                                       dwhysong@physics.ucsb.edu
+Astrophysics graduate student         University of California, Santa Barbara
+My public PGP keys are on my web page - http://www.physics.ucsb.edu/~dwhysong
+DSS PGP Key 0x903F5BD6  :  FE78 91FE 4508 106F 7C88  1706 B792 6995 903F 5BD6
+D-H PGP key 0x5DAB0F91  :  BC33 0F36 FCCD E72C 441F  663A 72ED 7FB7 5DAB 0F91
 

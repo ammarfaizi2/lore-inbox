@@ -1,53 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318272AbSG3OBK>; Tue, 30 Jul 2002 10:01:10 -0400
+	id <S318292AbSG3Ns4>; Tue, 30 Jul 2002 09:48:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318274AbSG3OBK>; Tue, 30 Jul 2002 10:01:10 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:34823 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318272AbSG3OBJ>;
-	Tue, 30 Jul 2002 10:01:09 -0400
-Message-ID: <3D469CEF.1040104@mandrakesoft.com>
-Date: Tue, 30 Jul 2002 10:04:31 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] eepro 0.13a
-References: <20020730125601.GT16077@cathedrallabs.org.suse.lists.linux.kernel> <p73sn21s5ij.fsf@oldwotan.suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S318293AbSG3Ns4>; Tue, 30 Jul 2002 09:48:56 -0400
+Received: from to-velocet.redhat.com ([216.138.202.10]:28153 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S318292AbSG3Nsz>; Tue, 30 Jul 2002 09:48:55 -0400
+Date: Tue, 30 Jul 2002 09:52:18 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Andrea Arcangeli <andrea@suse.de>,
+       linux-kernel@vger.kernel.org, linux-aio@kvack.org
+Subject: Re: async-io API registration for 2.5.29
+Message-ID: <20020730095218.C8978@redhat.com>
+References: <20020730091140.A6726@infradead.org> <Pine.LNX.4.44.0207300637230.2599-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0207300637230.2599-100000@home.transmeta.com>; from torvalds@transmeta.com on Tue, Jul 30, 2002 at 06:40:43AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
->>@@ -633,37 +633,37 @@
->> 
->> 	i = inb(dev->base_addr + ID_REG);
->> 	printk(KERN_DEBUG " id: %#x ",i);
->>-	printk(KERN_DEBUG " io: %#x ", (unsigned)dev->base_addr);
->>+	printk(" io: %#x ", (unsigned)dev->base_addr);
->> 
->> 	switch (lp->eepro) {
->> 		case LAN595FX_10ISA:
->>-			printk(KERN_INFO "%s: Intel EtherExpress 10 ISA\n at %#x,",
->>+			printk("%s: Intel EtherExpress 10 ISA\n at %#x,",
->> 					dev->name, (unsigned)dev->base_addr);
-> 
-> 
-> [more cases deleted]
-> 
-> This surely can't be right. Why are you dropping all the KERN_*s ?
+On Tue, Jul 30, 2002 at 06:40:43AM -0700, Linus Torvalds wrote:
+> I think we can still change the stuff in 2.5.x, but I really want to start
+> seeing some code, so that I'm not taken by surprise by something that
+> obviously sucks.
 
+Sorry, I was away last week.  I'm updating patches to 2.5.29, and should have 
+them ready by the afternoon for people to comment on.  There are a couple of 
+things to check on ia64 and x86-64 ABI-wise, and people need to comment on the 
+in-kernel f_ops->read/write changes.
 
-I have a feeling he ran a diff between his "pure" copy and the kernel 
-copy, and assumed the output was correct....
-
-	Jeff
-
-
-
-
+		-ben
+-- 
+"You will be reincarnated as a toad; and you will be much happier."

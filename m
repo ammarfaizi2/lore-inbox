@@ -1,33 +1,229 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261516AbUCKQlQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 11:41:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261530AbUCKQlP
+	id S261551AbUCKQmQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 11:42:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261533AbUCKQlw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 11:41:15 -0500
-Received: from topaz.cx ([66.220.6.227]:11970 "EHLO mail.topaz.cx")
-	by vger.kernel.org with ESMTP id S261516AbUCKQlN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 11:41:13 -0500
+	Thu, 11 Mar 2004 11:41:52 -0500
+Received: from eurogra4543-2.clients.easynet.fr ([212.180.52.86]:56708 "HELO
+	server5.heliogroup.fr") by vger.kernel.org with SMTP
+	id S261530AbUCKQlX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 11:41:23 -0500
+From: Hubert Tonneau <hubert.tonneau@fullpliant.org>
 To: linux-kernel@vger.kernel.org
-Subject: Re: (0 == foo), rather than (foo == 0) 
-X-Newsgroups: linux.kernel
-In-Reply-To: <1yALu-288-5@gated-at.bofh.it>
-From: chip@pobox.com (Chip Salzenberg)
-References: <1y5oc-8cr-1@gated-at.bofh.it> <1ygjH-3LE-31@gated-at.bofh.it> <1ygMH-4eu-21@gated-at.bofh.it> <1yzZ9-1qq-43@gated-at.bofh.it> <1yAs0-1P6-7@gated-at.bofh.it>
-Organization: NASA Calendar Research
-Message-Id: <E1B1TFB-0007T8-Ss@tytlal>
-Date: Thu, 11 Mar 2004 11:41:13 -0500
+Subject: Linux 2.6 no boot report
+Date: Thu, 11 Mar 2004 16:32:31 GMT
+Message-ID: <043MWM712@server5.heliogroup.fr>
+X-Mailer: Pliant 90
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu writes:
->+       if ((options == (__WCLONE|__WALL)) && (current->uid = 0))
+I've successfully run Linux kernel 2.6 on several boxes, with the exception
+of the Dell PowerEdge 2600:
+The box is:
+. dual Xeon
+. Fusion SCSI controler
+. root partition is software RAID 1
+. Intel pro 1000 ethernet
 
-I remember that.  I wasn't scanning changes, but when it was shown up
-in the news stories, I wasn't visually fooled for even a second.  You
-can't code in C for decades without picking up good = vs. == radar.
--- 
-Chip Salzenberg               - a.k.a. -               <chip@pobox.com>
-"I wanted to play hopscotch with the impenetrable mystery of existence,
-    but he stepped in a wormhole and had to go in early."  // MST3K
+It fails with all 2.6 kernel I tried, including the fresh 2.6.4
+No error message at all, the machine just freezes after displaying network
+protocols and before displaying VFS root mounting message.
+
+CONFIG_2GB:  y
+CONFIG_APM:  y
+CONFIG_APM_ALLOW_INTS:  n
+CONFIG_APM_CPU_IDLE:  y
+CONFIG_APM_DISPLAY_BLANK:  n
+CONFIG_APM_DO_ENABLE:  y
+CONFIG_APM_IGNORE_MULTIPLE_SUSPEND:  y
+CONFIG_APM_IGNORE_SUSPEND_BOUNCE:  y
+CONFIG_APM_IGNORE_USER_SUSPEND:  n
+CONFIG_APM_POWER_OFF:  y
+CONFIG_APM_REAL_MODE_POWER_OFF:  y
+CONFIG_APM_RTC_IS_GMT:  y
+CONFIG_ATALK:  m
+CONFIG_AUTODETECT_RAID:  y
+CONFIG_AUTOFS_FS:  m
+CONFIG_BINFMT_ELF:  y
+CONFIG_BINFMT_MISC:  y
+CONFIG_BLK_DEV_CMD640:  y
+CONFIG_BLK_DEV_FD:  m
+CONFIG_BLK_DEV_GENERIC:  y
+CONFIG_BLK_DEV_IDE:  y
+CONFIG_BLK_DEV_IDECD:  m
+CONFIG_BLK_DEV_IDEDISK:  y
+CONFIG_BLK_DEV_IDEDMA:  y
+CONFIG_BLK_DEV_IDEDMA_PCI:  y
+CONFIG_BLK_DEV_IDEPCI:  y
+CONFIG_BLK_DEV_IDESCSI:  m
+CONFIG_BLK_DEV_LOOP:  m
+CONFIG_BLK_DEV_MD:  y
+CONFIG_BLK_DEV_NBD:  m
+CONFIG_BLK_DEV_PIIX:  y
+CONFIG_BLK_DEV_RAM:  m
+CONFIG_BLK_DEV_RZ1000:  y
+CONFIG_BLK_DEV_SD:  y
+CONFIG_BLK_DEV_SR:  m
+CONFIG_BLK_DEV_TRIRON:  y
+CONFIG_BSD_PROCESS_ACCT:  y
+CONFIG_CHR_DEV_SG:  m
+CONFIG_CHR_DEV_ST:  m
+CONFIG_CODA_FS:  m
+CONFIG_E1000:  y
+CONFIG_EXPERIMENTAL:  y
+CONFIG_EXT2_FS:  y
+CONFIG_FAT_FS:  m
+CONFIG_FILTER:  y
+CONFIG_FIREWALL:  y
+CONFIG_FUSION:  y
+CONFIG_FUSION_CTL:  m
+CONFIG_FUSION_ISENSE:  m
+CONFIG_FUSION_LAN:  m
+CONFIG_HFSPLUS_FS:  m
+CONFIG_HFS_FS:  m
+CONFIG_HIGHMEM:  y
+CONFIG_HIGHMEM4G:  y
+CONFIG_HPFS_FS:  m
+CONFIG_IDE:  y
+CONFIG_IDEDMA_AUTO:  y
+CONFIG_IDEDMA_ONLYDISK:  y
+CONFIG_IDEDMA_PCI_AUTO:  y
+CONFIG_IDEPCI_SHARE_IRQ:  y
+CONFIG_INET:  y
+CONFIG_INPUT:  y
+CONFIG_INPUT_KEYBDEV:  m
+CONFIG_INPUT_KEYBOARD:  y
+CONFIG_INPUT_MOUSE:  y
+CONFIG_INPUT_MOUSEDEV:  m
+CONFIG_IP_ALIAS:  y
+CONFIG_IP_FIREWALL:  y
+CONFIG_IP_MASQUERADE:  y
+CONFIG_IP_MASQUERADE_ICMP:  y
+CONFIG_IP_MASQUERADE_IPPORTFW:  m
+CONFIG_IP_MASQUERADE_MOD:  y
+CONFIG_IP_NF_CONNTRACK:  m
+CONFIG_IP_NF_FILTER:  m
+CONFIG_IP_NF_IPTABLES:  m
+CONFIG_IP_NF_MATCH_LIMIT:  m
+CONFIG_IP_NF_MATCH_MAC:  m
+CONFIG_IP_NF_MATCH_MULTIPORT:  m
+CONFIG_IP_NF_NAT:  m
+CONFIG_IP_NF_TARGET_MASQUERADE:  m
+CONFIG_IP_NF_TARGET_REJECT:  m
+CONFIG_IP_ROUTE_VERBOSE:  y
+CONFIG_ISO9660_FS:  m
+CONFIG_KCORE_ELF:  y
+CONFIG_KEYBOARD_ATKBD:  y
+CONFIG_LOCKD:  m
+CONFIG_M386:  n
+CONFIG_M486:  n
+CONFIG_M586:  n
+CONFIG_M686:  n
+CONFIG_MAC_PARTITION:  y
+CONFIG_MD:  y
+CONFIG_MD_BOOT:  y
+CONFIG_MD_LINEAR:  y
+CONFIG_MD_LVM:  n
+CONFIG_MD_MIRRORING:  y
+CONFIG_MD_RAID0:  y
+CONFIG_MD_RAID1:  y
+CONFIG_MD_RAID5:  y
+CONFIG_MD_STRIPED:  y
+CONFIG_MD_TRANSLUCENT:  n
+CONFIG_MODULES:  y
+CONFIG_MODULE_UNLOAD:  y
+CONFIG_MOUSE:  m
+CONFIG_MOUSE_PS2:  y
+CONFIG_MPENTIUM4:  y
+CONFIG_MSDOS_FS:  m
+CONFIG_MTRR:  y
+CONFIG_NET:  y
+CONFIG_NETDEVICES:  y
+CONFIG_NETFILTER:  y
+CONFIG_NET_ETHERNET:  y
+CONFIG_NET_SCHED:  y
+CONFIG_NET_SCH_CBQ:  m
+CONFIG_NET_SCH_CSZ:  m
+CONFIG_NET_SCH_DSMARK:  m
+CONFIG_NET_SCH_GRED:  m
+CONFIG_NET_SCH_HTB:  m
+CONFIG_NET_SCH_INGRESS:  m
+CONFIG_NET_SCH_PRIO:  m
+CONFIG_NET_SCH_RED:  m
+CONFIG_NET_SCH_SFQ:  m
+CONFIG_NET_SCH_TBF:  m
+CONFIG_NET_SCH_TEQL:  m
+CONFIG_NET_VENDOR_3COM:  y
+CONFIG_NFSD:  m
+CONFIG_NFS_FS:  m
+CONFIG_NLS:  y
+CONFIG_NLS_CODEPAGE_437:  m
+CONFIG_NLS_CODEPAGE_850:  m
+CONFIG_NLS_ISO8859_1:  m
+CONFIG_NLS_UTF8:  m
+CONFIG_NTFS_FS:  m
+CONFIG_OOM_KILLER:  y
+CONFIG_PACKET:  y
+CONFIG_PARPORT:  m
+CONFIG_PARPORT_PC:  m
+CONFIG_PCI:  y
+CONFIG_PCI_BIOS:  y
+CONFIG_PCI_GOANY:  y
+CONFIG_PCI_OLD_PROC:  y
+CONFIG_PCI_QUIRKS:  y
+CONFIG_PIIX_TUNING:  y
+CONFIG_PM:  y
+CONFIG_PPP:  m
+CONFIG_PPPOE:  m
+CONFIG_PPP_ASYNC:  m
+CONFIG_PPP_BSDCOMP:  
+CONFIG_PPP_DEFLATE:  m
+CONFIG_PPP_SYNC_TTY:  m
+CONFIG_PREEMPT:  y
+CONFIG_PRINTER:  m
+CONFIG_PRINTER_READBACK:  y
+CONFIG_PROC_FS:  y
+CONFIG_PSMOUSE:  y
+CONFIG_QNX4FS_FS:  m
+CONFIG_RTC:  y
+CONFIG_SCSI:  y
+CONFIG_SERIAL:  m
+CONFIG_SHAPER:  m
+CONFIG_SLIP:  m
+CONFIG_SMB_FS:  m
+CONFIG_SMP:  y
+CONFIG_SOUND:  m
+CONFIG_SUNRPC:  m
+CONFIG_SYSCTL:  y
+CONFIG_SYSVIPC:  y
+CONFIG_UFS_FS:  m
+CONFIG_UMSDOS_FS:  m
+CONFIG_UNIX:  y
+CONFIG_USB:  m
+CONFIG_USB_ACM:  m
+CONFIG_USB_AUDIO:  m
+CONFIG_USB_CDCETHER:  m
+CONFIG_USB_DEVICEFS:  y
+CONFIG_USB_EHCI_HCD:  m
+CONFIG_USB_HID:  m
+CONFIG_USB_HIDINPUT:  y
+CONFIG_USB_KBD:  m
+CONFIG_USB_MOUSE:  m
+CONFIG_USB_OHCI:  m
+CONFIG_USB_OHCI_HCD:  m
+CONFIG_USB_PRINTER:  m
+CONFIG_USB_STORAGE:  m
+CONFIG_USB_UHCI:  m
+CONFIG_USB_UHCI_ALT:  m
+CONFIG_USB_UHCI_HCD:  m
+CONFIG_VFAT_FS:  m
+CONFIG_VGA_CONSOLE:  y
+CONFIG_VORTEX:  y
+CONFIG_VT:  y
+CONFIG_VT_CONSOLE:  y
+CONFIG_X86_MCE:  y
+CONGIG_KMOD:  y
+

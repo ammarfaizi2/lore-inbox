@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261940AbVCAP1t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261941AbVCAPgo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261940AbVCAP1t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 10:27:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbVCAP1t
+	id S261941AbVCAPgo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 10:36:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbVCAPgo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 10:27:49 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:45068 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261940AbVCAP1j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 10:27:39 -0500
-Date: Tue, 1 Mar 2005 15:27:35 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Valdis.Kletnieks@vt.edu
-Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc5-mm1
-Message-ID: <20050301152735.B1940@flint.arm.linux.org.uk>
-Mail-Followup-To: Valdis.Kletnieks@vt.edu, Greg KH <greg@kroah.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20050301012741.1d791cd2.akpm@osdl.org> <200503011336.j21DaaqC008164@turing-police.cc.vt.edu> <20050301135529.A1940@flint.arm.linux.org.uk> <200503011518.j21FIuQl004840@turing-police.cc.vt.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200503011518.j21FIuQl004840@turing-police.cc.vt.edu>; from Valdis.Kletnieks@vt.edu on Tue, Mar 01, 2005 at 10:18:56AM -0500
+	Tue, 1 Mar 2005 10:36:44 -0500
+Received: from [195.23.16.24] ([195.23.16.24]:1721 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S261941AbVCAPgm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 10:36:42 -0500
+Message-ID: <42248BA1.8080206@grupopie.com>
+Date: Tue, 01 Mar 2005 15:34:57 +0000
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Payasam Manohar <pmanohar@lantana.cs.iitm.ernet.in>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Writng daemon and wake up on demand.
+References: <Pine.LNX.4.60.0503012038170.13310@lantana.cs.iitm.ernet.in>
+In-Reply-To: <Pine.LNX.4.60.0503012038170.13310@lantana.cs.iitm.ernet.in>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 01, 2005 at 10:18:56AM -0500, Valdis.Kletnieks@vt.edu wrote:
-> On Tue, 01 Mar 2005 13:55:29 GMT, Russell King said:
-> > The PCI updates change the prototype of a helper function for 
-> > pci_bus_alloc_resource(), but don't touch the actual helper function
-> > in PCMCIA.
+Payasam Manohar wrote:
 > 
-> That explains the warning messages that gcc was tossing, which I suspected was
-> involved...
-> 
-> > This means that the PCI update is actually broken - if it's merged as
-> > is into Linus' tree, PCMCIA will break there as well.
-> 
-> Is the patch made to PCI actually incorrect, or is the proper way to do this
-> to propagate the changes into the relevant PCMCIA code?
+> I have two doubts,
+>    1) Can we design a linux daemon which will call some shell scripts.
+>    2) How to call this daemon from the keyboard driver  and how
+>       to kill it on demand.
 
-PCI has been updated to accept 64-bit resources, but the PCMCIA code 
-has been missed.  So the correct fix is to propagate the changes where
-necessary into the PCMCIA code.
+I don't want to be impolite, but you're not following the mailing list 
+etiquette *at all*.
 
-The minimalist solution is to fix up the PCMCIA alignment functions.
+In the last five days you sent 15 messages to the list, and you still 
+haven't been able to tell what you're trying to accomplish.
+
+So I can only recommend a few urls:
+
+http://www.tux.org/lkml/
+
+http://www.kernelnewbies.org/
+
+http://linuxconsole.sourceforge.net/input/input.html
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Paulo Marques - www.grupopie.com
+
+All that is necessary for the triumph of evil is that good men do nothing.
+Edmund Burke (1729 - 1797)

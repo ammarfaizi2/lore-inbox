@@ -1,79 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129454AbQKHRds>; Wed, 8 Nov 2000 12:33:48 -0500
+	id <S129227AbQKHRhj>; Wed, 8 Nov 2000 12:37:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129459AbQKHRdi>; Wed, 8 Nov 2000 12:33:38 -0500
-Received: from mail-04-real.cdsnet.net ([63.163.68.109]:53514 "HELO
-	mail-04-real.cdsnet.net") by vger.kernel.org with SMTP
-	id <S129454AbQKHRdU>; Wed, 8 Nov 2000 12:33:20 -0500
-Message-ID: <3A098F11.1B89EB7B@mvista.com>
-Date: Wed, 08 Nov 2000 09:36:17 -0800
-From: George Anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.14-VPN i586)
-X-Accept-Language: en
+	id <S129210AbQKHRha>; Wed, 8 Nov 2000 12:37:30 -0500
+Received: from [207.1.200.39] ([207.1.200.39]:59150 "EHLO
+	ded-tscs.innovsoftd.com") by vger.kernel.org with ESMTP
+	id <S129113AbQKHRhM>; Wed, 8 Nov 2000 12:37:12 -0500
+Date: Wed, 8 Nov 2000 11:38:00 -0600 (CST)
+From: "Gregory S. Youngblood" <greg@tcscs.com>
+Reply-To: greg@tcscs.com
+To: Chmouel Boudjnah <chmouel@mandrakesoft.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: problems with grow_inodes: inode-max limit reached
+In-Reply-To: <m3em0nx7sk.fsf@matrix.mandrakesoft.com>
+Message-ID: <Pine.LNX.4.21.0011081137060.17255-100000@ded-tscs.innovsoftd.com>
 MIME-Version: 1.0
-To: "James A. Sutherland" <jas88@cam.ac.uk>
-CC: Horst von Brand <vonbrand@inf.utfsm.cl>,
-        "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Installing kernel 2.4
-In-Reply-To: <200011081205.eA8C5ui27838@pincoya.inf.utfsm.cl> <00110816543500.01639@dax.joh.cam.ac.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-But, here the customer did run the configure code (he said he did not
-change anything).  Isn't this where the machine should be diagnosed and
-the right options chosen?  Need a way to say it is a cross build, but
-that shouldn't be too hard.
+On 7 Nov 2000, Chmouel Boudjnah wrote:
 
-My $.02 worth.
+> "Gregory S. Youngblood" <greg@tcscs.com> writes:
+> 
+> > The problem occurs with Mandrake 7.0 and 7.1 with kernels 2.2.14, 2.2.16,
+> > and 2.2.17. These are the secure kernels that Mandrake provides.
+> 
+> can you try with a 2.2.17 kernel rpm standard (no smp no secure) ?
 
-George
+I rebooted with the 'failsafe' kernel, which is 2.2.17 no smp no secure
+per your request. If the pattern holds, I will have an update with a
+failure (if it fails) within the next 24 to 72 hours.
 
+Thanks,
+greg
 
-"James A. Sutherland" wrote:
-> 
-> On Wed, 08 Nov 2000, Horst von Brand wrote:
-> > "Jeff V. Merkey" <jmerkey@vger.timpanogas.org> said:
-> >
-> > [...]
-> >
-> > > Your way out in the weeds.  What started this thread was a customer who
-> > > ended up loading the wrong arch on a system and hanging.  I have to
-> > > post a kernel RPM for our release, and it's onerous to make customers
-> > > recompile kernels all the time and be guinea pigs for arch ports.
-> >
-> > I'd prefer to be a guinea pig for one of 3 or 4 generic kernels distributed
-> > in binary than of one of the hundreds of possibilities of patching a kernel
-> > together at boot, plus the (presumamby rather complex and fragile)
-> > machinery to do so *before* the kernel is booted, thank you very much.
-> 
-> Hmm... some mechanism for selecting the appropriate *module* might be nice,
-> after boot...
-> 
-> > Plus I'm getting pissed off by how long a boot takes as it stands today...
-> 
-> Yep: slowing down boottimes is not an attractive idea.
-> 
-> > > They just want it to boot, and run with the same level of ease of use
-> > > and stability they get with NT and NetWare and other stuff they are used
-> > > to.   This is an easy choice from where I'm sitting.
-> >
-> > Easy: i386. Or i486 (I very much doubt your customers run on less, and this
-> > should be geneic enough).
-> 
-> I think there are better options. Jeff could, for example, *optimise* for
-> Pentium II/III, without using PII specific instructions, in the main kernel,
-> then have multiple target binaries for modules.
-> 
-> James.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

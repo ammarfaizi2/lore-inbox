@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135681AbRD3S5W>; Mon, 30 Apr 2001 14:57:22 -0400
+	id <S135738AbRD3TEo>; Mon, 30 Apr 2001 15:04:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135722AbRD3S5L>; Mon, 30 Apr 2001 14:57:11 -0400
-Received: from pop.gmx.net ([194.221.183.20]:24948 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S135681AbRD3S5B>;
-	Mon, 30 Apr 2001 14:57:01 -0400
-Date: Mon, 30 Apr 2001 20:56:09 +0200
-From: Daniel Elstner <daniel.elstner@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.4 SMP: spurious EOVERFLOW "Value too large for defined data type"
-Message-Id: <20010430205609.36599ccd.daniel@master.daniel.homenet>
-X-Mailer: Sylpheed version 0.4.64 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S135789AbRD3TEe>; Mon, 30 Apr 2001 15:04:34 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:65410 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S135738AbRD3TEP>; Mon, 30 Apr 2001 15:04:15 -0400
+Date: Mon, 30 Apr 2001 15:04:02 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Torrey Hoffman <torrey.hoffman@myrio.com>
+cc: "'Kenneth Johansson'" <ken@canit.se>,
+        Jonathan Lundell <jlundell@pobox.com>, linux-kernel@vger.kernel.org
+Subject: RE: 2.4 and 2GB swap partition limit
+In-Reply-To: <B65FF72654C9F944A02CF9CC22034CE22E1B9F@mail0.myrio.com>
+Message-ID: <Pine.LNX.3.95.1010430145555.15714A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 30 Apr 2001, Torrey Hoffman wrote:
 
-With kernel 2.4.4 SMP, I get some spurios errors from several
-user-space programs. Unfortunately it's hard to reproduce, I had most
-luck with the XFree86-4.0.3 build. When doing `make World', soon cpp0
-(called by imake) dies with the following error message:
+> 
+> In general, is there a safe way to replace executable files for
+> programs that might be running while their on-disk images are
+> replaced?
+> 
 
-cpp0: : Value too large for defined data type
+Yes. Perfectly safe:
 
-The message seems to correspond to EOVERFLOW in gcc's libiberty.
-When calling imake directly, it fails 1 out of 10-20 times.
-I couldn't reproduce this with calling cpp directly.
+mv /usr/bin/exeimage /usr/bin/exeimage.sav
+cp /wherever/exeimage /usr/bin/exeimage
 
-I also got a lot of that messages once at shutdown,
-as init was trying to umount /proc.
 
-The error occurs neither with 2.4.3 SMP nor with 2.4.4 UP.
-(I'm using reiserfs, too.)
+The executing task will continue to use the old image until it exits.
+New tasks will use the new image. You can even replace `mv` and `cp`
+this way. It is best to test new programs first, though, so you
+know that it's linked with a runtime library that you have on your
+system.
 
-ABIT VP6
-dual P3 866
-gcc version 2.95.4 20010319 (prerelease)
-binutils 2.11
-glibc 2.2.3
+Cheers,
+Dick Johnson
 
-Could you please give me further advice how to track this down?
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
 
-Thanks,
--- Daniel
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
+

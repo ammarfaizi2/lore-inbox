@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261459AbTCWAdI>; Sat, 22 Mar 2003 19:33:08 -0500
+	id <S262181AbTCWAmR>; Sat, 22 Mar 2003 19:42:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262181AbTCWAdI>; Sat, 22 Mar 2003 19:33:08 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:5154 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S261459AbTCWAdH>; Sat, 22 Mar 2003 19:33:07 -0500
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200303230044.h2N0i9r32560@devserv.devel.redhat.com>
-Subject: Re: Linux 2.5.65-ac3
-To: jgarzik@pobox.com (Jeff Garzik)
-Date: Sat, 22 Mar 2003 19:44:09 -0500 (EST)
-Cc: alan@redhat.com (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <3E7CF48F.9070204@pobox.com> from "Jeff Garzik" at Mar 22, 2003 06:41:03 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262183AbTCWAmR>; Sat, 22 Mar 2003 19:42:17 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:39069
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262181AbTCWAmQ>; Sat, 22 Mar 2003 19:42:16 -0500
+Subject: Re: 2.5.65-ac2:  Zip drive problem continues
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: walt <wa1ter@myrealbox.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3E7CF5D1.9020901@myrealbox.com>
+References: <3E7CF5D1.9020901@myrealbox.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1048385134.10712.5.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 23 Mar 2003 02:05:35 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Once your tty and ide bits are merged, what's left on the plate (in your 
-> opinion) before 2.6.0-test1?
 
-32bit dev_t is a showstopper
+> If I compile ppa into the kernel it causes a panic at boot.
+> If I compile it as a module it still causes error messages
+> when loaded, and doesn't work properly.
 
-then 
+Can you put a report in bugzilla.kernel.org and include the
+message/panic info for both cases. That way the bug report won't
+get lost before 2.6.0. 
 
-Debugging, debugging, and more debugging
-Driver porting
-Driver resyncs with 2.4
-Finding the remaining scsi bugs
-A ton more IDE work before I am happy
-Fixing the pci api hotplug races
-DRM 4.3 cleaned up and working
+In theory ppa should be working but I don't have ppa hardware
 
-
-I think the dev_t one is the only stopper now before we go into
-stop futzing with core code and fix bugs mode

@@ -1,184 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291553AbSBHMQB>; Fri, 8 Feb 2002 07:16:01 -0500
+	id <S291558AbSBHMZb>; Fri, 8 Feb 2002 07:25:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291541AbSBHMPw>; Fri, 8 Feb 2002 07:15:52 -0500
-Received: from green.csi.cam.ac.uk ([131.111.8.57]:30609 "EHLO
-	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S291013AbSBHMPh>; Fri, 8 Feb 2002 07:15:37 -0500
-Message-Id: <5.1.0.14.2.20020208113710.04ecedf0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 08 Feb 2002 12:15:40 +0000
-To: Troy Benjegerdes <hozer@drgw.net>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: [PATCH] bring sanity to div64.h and do_div usage
-Cc: wli@holomorphy.com, torvalds@transmeta.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20020207234555.N17426@altus.drgw.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S291541AbSBHMZW>; Fri, 8 Feb 2002 07:25:22 -0500
+Received: from mail.sonytel.be ([193.74.243.200]:64713 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S291013AbSBHMZO>;
+	Fri, 8 Feb 2002 07:25:14 -0500
+Date: Fri, 8 Feb 2002 13:25:07 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+        Linux Serial Development <linux-serial@vger.kernel.org>
+Subject: CONFIG_SERIAL_ACPI and early_serial_setup
+Message-ID: <Pine.GSO.4.21.0202081320200.29963-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-This patch is broken. Please don't apply as it is.
+If CONFIG_SERIAL_ACPI=y, but CONFIG_SERIAL=m, the kernel (2.4.18-pre9) doesn't
+link because early_serial_setup() is not found.
 
-At 05:45 08/02/02, Troy Benjegerdes wrote:
->This patch introduced include/linux/div64.h and removes asm/div64.h from
->all the architectures that don't have optimized ASM.
->
->I also played janitor and found every file that used asm/div64.h. There
->was some mips stuff that I didn't touch, but now everything else should
->actually work on all platforms linux supports, instead of just those that
->are either 64 bit, or have optimized asm versions.
-[snip]
->diff -N div64.h
->--- /dev/null   Tue May  5 13:32:27 1998
->+++ div64.h     Thu Feb  7 21:33:12 2002
->@@ -0,0 +1,81 @@
->+/*
->+ * include/linux/div64.h
->+ *
->+ * Primarily used by vsprintf to divide a 64 bit int N by a small integer 
->base
->+ * We really do NOT want to encourage people to do slow 64 bit divides in
->+ * the kernel, so the 'default' version of this function panics if you
->+ * try and divide a 64 bit number by anything other than 8 or 16.
->+ *
->+ * If you really *really* need this, and are prepared to be flamed by
->+ * lkml, #define USE_SLOW_64BIT_DIVIDES before including this file.
->+ */
->+#ifndef __DIV64
->+#define __DIV64
->+
->+#include <linux/config.h>
->+
->+/* configurable  */
->+#undef __USE_ASM
->+
->+
->+#ifdef __USE_ASM
->+/* yeah, this is a mess, and leaves out m68k.... */
->+# if defined(CONFIG_X86) || define(CONFIG_ARCH_S390) || defined(CONFIG_MIPS)
->+#  define __USE_ASM__
->+# endif
->+#endif
+I think the correct fix is to not allow CONFIG_SERIAL_ACPI, unless
+CONFIG_SERIAL=y.
 
-Er, what exactly do you think the above does?!?
+--- linux-tux-2.4.18-pre9/drivers/char/Config.in.orig	Fri Feb  8 09:38:36 2002
++++ linux-tux-2.4.18-pre9/drivers/char/Config.in	Fri Feb  8 13:23:25 2002
+@@ -15,9 +15,9 @@
+       tristate '   Atomwide serial port support' CONFIG_ATOMWIDE_SERIAL
+       tristate '   Dual serial port support' CONFIG_DUALSP_SERIAL
+    fi
+-fi
+-if [ "$CONFIG_ACPI" = "y" ]; then
+-   bool '  Support for serial ports defined by ACPI tables' CONFIG_SERIAL_ACPI
++   if [ "$CONFIG_ACPI" = "y" ]; then
++      bool '  Support for serial ports defined by ACPI tables' CONFIG_SERIAL_ACPI
++   fi
+ fi
+ dep_mbool 'Extended dumb serial driver options' CONFIG_SERIAL_EXTENDED $CONFIG_SERIAL
+ if [ "$CONFIG_SERIAL_EXTENDED" = "y" ]; then
 
-It NEVER will define __USE_ASM because you make the definition dependent on 
-the UNDEFINED __USE_ASM! If anything you need to do instead:
+Gr{oetje,eeting}s,
 
-+# if defined(CONFIG_X86) || define(CONFIG_ARCH_S390) || 
-defined(CONFIG_MIPS) || defined(CONFIG_M68K)
-+#  define __USE_ASM__
-+# endif
+						Geert
 
-I.e. remove the #ifdef __USE_ASM and add CONFIG_M68K dependence.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
->+#ifdef __USE_ASM__
->+#include <asm/div64.h>
->+#else /* __USE_ASM__ */
->+static inline int do_div(unsigned long long * n, unsigned long base)
->+{
->+       int res = 0;
->+       unsigned long long t = *n;
->+       if ( t == (unsigned long)t ){ /* this should handle 64 bit 
->platforms */
->+               res = ((unsigned long) t) % base;
->+               t = ((unsigned long) t) / base;
->+       } else {
-
-This check is silly. It is _way_ more efficient to do:
-
-if (BITS_PER_LONG == 64) {
-         res = ((unsigned long)t) % base;
-         t = ((unsigned long)t) / base;
-} else {
-
-This actually only compiles one or the other but not both.
-
->+#ifndef USE_SLOW_64BIT_DIVIDES
-
-This is stupid. If someone knows in advance they are only doing a division 
-by 8 or 16 they would not be using do_div in the first place, they would be 
-using a shift or even just normal division sign which gcc is supposed to 
-optimize to a shift itself (assuming division by constant).
-
-Please remove this. People using do_div() are using it for a reason.
-
->+               switch (base) {
->+                       case 8:
->+                               res = ((unsigned long) t & 0x7);
->+                               t = t >> 3;
->+                               break;
->+                       case 16:
->+                               res = ((unsigned long) t & 0xf);
->+                               t = t >> 4;
->+                               break;
->+                       default:
->+                               panic("do_div called with 64 bit arg and 
->unsupported base\n", base);
-
-Anyway, why do you randomly pick 8 and 16? You could do any power of two 
-via shift by simply doing something along these lines:
-
-if (!(base & (base - 1))) {
-         res = t & (base - 1);
-         t >>= ffs(base) - 1;
-} else
-         panic("blah");
-
-But I still think this is a really stupid thing to do.
-
->+               }
->+#else /* USE_SLOW_64BIT_DIVIDES */
->+               /*
->+               * Nasty ugly generic C 64 bit divide on 32 bit machine
->+               * No one seems to want to take credit for this
->+               */
->+               unsigned long low, low2, high;
->+               low  = (t) & 0xffffffff;
->+               high = (t) >> 32;
-
-Look at asm-parisc/div64.h which has an optimized version of this for t 
-actually being 32bit.
-
->+               res   = high % base;
->+               high  = high / base;
->+               low2  = low >> 16;
->+               low2 += res << 16;
->+               res   = low2 % base;
->+               low2  = low2 / base;
->+               low   = low & 0xffff;
->+               low  += res << 16;
->+               res   = low  % base;
->+               low   = low  / base;
->+               t = low  + ((long long)low2 << 16) +
->+                       ((long long) high << 32);
->+#endif  /* USE_SLOW_64BIT_DIVIDES */
->+       }
->+       *n = t;
->+       return res;
->+}
->+
->+
->+#endif /* __USE_ASM__ */
->+
->+#endif
-[snip]
-
-I think the patch is generally a good idea but it has to be done right...
-
-Best regards,
-
-Anton
-
-
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

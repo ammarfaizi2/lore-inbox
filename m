@@ -1,51 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263295AbTGCOUM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 10:20:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263394AbTGCOUL
+	id S263394AbTGCOX2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 10:23:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263535AbTGCOX2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 10:20:11 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:9413 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S263295AbTGCOUJ
+	Thu, 3 Jul 2003 10:23:28 -0400
+Received: from niobium.golden.net ([199.166.210.90]:39399 "EHLO
+	niobium.golden.net") by vger.kernel.org with ESMTP id S263394AbTGCOX0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 10:20:09 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Daniel Phillips <phillips@arcor.de>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] O1int 0307021808 for interactivity
-Date: Fri, 4 Jul 2003 00:34:49 +1000
-User-Agent: KMail/1.5.2
-Cc: Andrew Morton <akpm@digeo.com>
-References: <200307021823.56904.kernel@kolivas.org> <200307032221.55773.kernel@kolivas.org> <200307031627.11299.phillips@arcor.de>
-In-Reply-To: <200307031627.11299.phillips@arcor.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Jul 2003 10:23:26 -0400
+Date: Thu, 3 Jul 2003 10:37:48 -0400
+From: Paul Mundt <lethal@linux-sh.org>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Bug 868] New: Files missing?
+Message-ID: <20030703143747.GD17942@linux-sh.org>
+Mail-Followup-To: "Martin J. Bligh" <mbligh@aracnet.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <45000000.1057241473@[10.10.2.4]>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="wRRV7LY7NUeQGEoC"
 Content-Disposition: inline
-Message-Id: <200307040034.49102.kernel@kolivas.org>
+In-Reply-To: <45000000.1057241473@[10.10.2.4]>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Jul 2003 00:27, Daniel Phillips wrote:
-> On Thursday 03 July 2003 14:21, Con Kolivas wrote:
-> > Theory? uh erm it's rather involved but basically instead
-> > of working off the accumulated sleeping ticks gathered in ten seconds it
-> > works on the accumulated sleeping ticks gathered till it wakes up. It has
-> > non linear semantics to cope with the fact that you cant accumulate 10
-> > seconds worth of ticks (for example) if only 10 seconds has passed
-> > (likewise for less time). Also idle tasks are no longer considered fully
-> > interactive but idle and receive no boost or penalty. Finally they all
-> > start with some sleep ticks inherited by their parent as though they have
-> > been running for 1 second at least.
->
-> I'm still pretty much in the dark after that.  It says something about your
-> patch, but it doesn't say much about the problem you're solving, i.e.,
-> what's the Context?  (pun intended)
 
-Basically? Who gets to preempt who and for how long. The interactivity 
-estimator should decide that the correct task is interactive and get a 
-dynamically higher priority and larger timeslice. Is this what you're asking?
+--wRRV7LY7NUeQGEoC
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Con
+On Thu, Jul 03, 2003 at 07:11:13AM -0700, Martin J. Bligh wrote:
+> Error message: CC [M]  drivers/video/pm2fb.o
+> drivers/video/pm2fb.c:44:25: video/fbcon.h: No such file or directory
+> drivers/video/pm2fb.c:45:30: video/fbcon-cfb8.h: No such file or directory
+> drivers/video/pm2fb.c:46:31: video/fbcon-cfb16.h: No such file or directo=
+ry
+> drivers/video/pm2fb.c:47:31: video/fbcon-cfb24.h: No such file or directo=
+ry
+> drivers/video/pm2fb.c:48:31: video/fbcon-cfb32.h: No such file or directo=
+ry
+> drivers/video/pm2fb.c:163: error: user_mode causes a section type conflict
+> drivers/video/pm2fb.c:258: error: field `gen' has incomplete type
+> drivers/video/pm2fb.c:287: error: field `disp' has incomplete type
+> drivers/video/pm2fb.c:403: error: variable `pm2fb_hwswitch' has initializ=
+er but=20
+> incomplete type
 
+These files are gone for a good reason. This driver simply needs to be upda=
+ted
+to the new API.
+
+
+--wRRV7LY7NUeQGEoC
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE/BD+71K+teJFxZ9wRApmZAJ9sSz4h7VT6W0191rwOCiFv0Bc17ACfXuPK
+KgL+0//N8FB5CyxfoSI/sb8=
+=Xg09
+-----END PGP SIGNATURE-----
+
+--wRRV7LY7NUeQGEoC--

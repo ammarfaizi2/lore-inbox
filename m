@@ -1,48 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317835AbSGVVX5>; Mon, 22 Jul 2002 17:23:57 -0400
+	id <S317826AbSGVV0I>; Mon, 22 Jul 2002 17:26:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317842AbSGVVX5>; Mon, 22 Jul 2002 17:23:57 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:62735 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S317835AbSGVVX4>;
-	Mon, 22 Jul 2002 17:23:56 -0400
-Date: Mon, 22 Jul 2002 14:24:56 -0700
-From: Greg KH <greg@kroah.com>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.27: s390 fixes.
-Message-ID: <20020722212456.GA12291@kroah.com>
-References: <mailman.1027363500.9793.linux-kernel2news@redhat.com> <200207222100.g6ML0UN08293@devserv.devel.redhat.com> <20020722220413.A12952@infradead.org> <20020722171438.A11295@devserv.devel.redhat.com>
+	id <S317818AbSGVV0I>; Mon, 22 Jul 2002 17:26:08 -0400
+Received: from vana.vc.cvut.cz ([147.32.240.58]:2944 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id <S317791AbSGVV0H>;
+	Mon, 22 Jul 2002 17:26:07 -0400
+Date: Mon, 22 Jul 2002 23:28:47 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: davem@redhat.com
+Cc: acme@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: [PATCH] Unloading of psnap
+Message-ID: <20020722212847.GA1391@vana.vc.cvut.cz>
+References: <20020722194814.GA1668@vana.vc.cvut.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020722171438.A11295@devserv.devel.redhat.com>
+In-Reply-To: <20020722194814.GA1668@vana.vc.cvut.cz>
 User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Mon, 24 Jun 2002 20:21:30 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 22, 2002 at 05:14:38PM -0400, Pete Zaitcev wrote:
-> > Date: Mon, 22 Jul 2002 22:04:13 +0100
-> > From: Christoph Hellwig <hch@infradead.org>
-> 
-> > > > * add sys_security system call
-> > > 
-> > > I do not see the body of the call in the attached patch.
-> > 
-> > Does need to.  Is yet another magic dispatcher that has randomly changing
-> > behaviour depending on the linux crap^H^H^H^Hsecurity module loaded.
-> 
-> I just realized that it comes from the LSM. Sorry.
-> 
-> Why does it need to be added into the architecture and
-> not kept together with the patch-2.5.27-lsm1.gz or such?
-> I am afraid that precludes compilation of architectures
-> without LSM applied.
+Hi Dave,
+  during my work on removing cli/sti from these two files I found that
+removing psnap causes kernel to crash because of it does not unregister
+from 802.2 layer.
 
-Because the LSM framework is now in the kernel, including sys_security.
+  While I was on it, I also added MOD_INC_USE_COUNT/MOD_DEC_USE_COUNT
+into both 802.2 and SNAP. It is not strictly required as all callers
+should have reference by name to register_*_client function, but I do not 
+think that MOD_*_USE_COUNT will slow code down, and now it is directly 
+visible how many snap and 802.2 clients live on system. And I'm sure
+that somebody could through inter_module_get arrange some call path
+so that we could unload p8022/psnap while still having some clients
+registered.
+					Thanks,
+						Petr Vandrovec
+						vandrove@vc.cvut.cz
 
-thanks,
-
-greg k-h
+diff linux-2.5.27-c683/net/802/p8022.c.orig linux-2.5.27-c683/net/802/p8022.c
+--- linux-2.5.27-c683/net/802/p8022.c.orig	2002-07-22 21:32:20.000000000 +0200
++++ linux-2.5.27-c683/net/802/p8022.c	2002-07-22 23:12:43.000000000 +0200
+@@ -95,6 +95,7 @@
+ 		goto out;
+ 	proto = kmalloc(sizeof(*proto), GFP_ATOMIC);
+ 	if (proto) {
++		MOD_INC_USE_COUNT;
+ 		proto->type[0]		= type;
+ 		proto->type_len		= 1;
+ 		proto->rcvfunc		= rcvfunc;
+@@ -121,6 +122,7 @@
+ 			*clients = tmp->next;
+ 			kfree(tmp);
+ 			llc_unregister_sap(type);
++			MOD_DEC_USE_COUNT;
+ 			break;
+ 		}
+ 		clients = &tmp->next;
+diff linux-2.5.27-c683/net/802/psnap.c.orig linux-2.5.27-c683/net/802/psnap.c
+--- linux-2.5.27-c683/net/802/psnap.c.orig	2002-07-22 21:52:11.000000000 +0200
++++ linux-2.5.27-c683/net/802/psnap.c	2002-07-22 23:14:34.000000000 +0200
+@@ -103,7 +103,14 @@
+ 		printk("SNAP - unable to register with 802.2\n");
+ 	return 0;
+ }
++
++static void __exit snap_exit(void)
++{
++	unregister_8022_client(0xAA);
++}
++
+ module_init(snap_init);
++module_exit(snap_exit);
+ 
+ /*
+  *	Register SNAP clients. We don't yet use this for IP.
+@@ -121,6 +128,7 @@
+ 	proto = (struct datalink_proto *) kmalloc(sizeof(*proto), GFP_ATOMIC);
+ 	if (proto != NULL)
+ 	{
++		MOD_INC_USE_COUNT;
+ 		memcpy(proto->type, desc,5);
+ 		proto->type_len = 5;
+ 		proto->rcvfunc = rcvfunc;
+@@ -152,6 +160,7 @@
+ 		{
+ 			*clients = tmp->next;
+ 			kfree(tmp);
++			MOD_DEC_USE_COUNT;
+ 			break;
+ 		}
+ 		else

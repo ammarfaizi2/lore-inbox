@@ -1,36 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261292AbSLHOSL>; Sun, 8 Dec 2002 09:18:11 -0500
+	id <S261286AbSLHOlg>; Sun, 8 Dec 2002 09:41:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261295AbSLHOSL>; Sun, 8 Dec 2002 09:18:11 -0500
-Received: from m1.cs.man.ac.uk ([130.88.192.2]:11021 "EHLO m1.cs.man.ac.uk")
-	by vger.kernel.org with ESMTP id <S261292AbSLHOSK>;
-	Sun, 8 Dec 2002 09:18:10 -0500
-Date: Sun, 8 Dec 2002 14:25:45 +0000 (GMT)
-From: Simon Ward <simon.ward@cs.man.ac.uk>
-X-X-Sender: wards0@tl019.cs.man.ac.uk
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andre Hedrick <andre@linux-ide.org>
-Subject: Re: PROBLEM: Oops.. NULL pointer reference in 2.4.20-ac1
-In-Reply-To: <1039357173.6912.4.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0212081355040.14363-100000@tl019.cs.man.ac.uk>
+	id <S261295AbSLHOlg>; Sun, 8 Dec 2002 09:41:36 -0500
+Received: from 5-106.ctame701-1.telepar.net.br ([200.193.163.106]:44448 "EHLO
+	5-106.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S261286AbSLHOlf>; Sun, 8 Dec 2002 09:41:35 -0500
+Date: Sun, 8 Dec 2002 12:49:00 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Anton Blanchard <anton@samba.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.50-BK + 24 CPUs
+In-Reply-To: <20021208130908.GE19698@krispykreme>
+Message-ID: <Pine.LNX.4.50L.0212081246570.21756-100000@imladris.surriel.com>
+References: <20021208130908.GE19698@krispykreme>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8 Dec 2002, Alan Cox wrote:
+On Mon, 9 Dec 2002, Anton Blanchard wrote:
 
-> Looks like your system returned a totally bogus IRQ for the interface.
-> Are you enabling ACPI by any chance ?
+> profile:
+>  66260 total
+>  54227 cpu_idle
+>   1000 page_remove_rmap
+>    909 __get_page_state
+>    830 page_add_rmap
 
-No, I specifically disable ACPI because it doesn't work properly on the
-system even though it claims to support it.
+Looks like the bitflag locking in rmap is hurting you.
+How does it work with a real spinlock in the struct page
+instead of using a bit in page->flags ?
 
-Simon (please CC to <simon.ward@cs.man.ac.uk>)
+regards,
+
+Rik
 -- 
-Email: simon.ward@cs.man.ac.uk -- ICQ UIN: 63202593
-Your analyst has you mixed up with another patient.  Don't believe a
-thing he tells you.
-
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://guru.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>

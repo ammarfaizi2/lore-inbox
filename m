@@ -1,44 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264261AbUIDWmM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264286AbUIDWpa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264261AbUIDWmM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 18:42:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264265AbUIDWmM
+	id S264286AbUIDWpa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 18:45:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264299AbUIDWpa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 18:42:12 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48579 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264261AbUIDWmD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 18:42:03 -0400
-Date: Sat, 4 Sep 2004 23:41:58 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Dave Airlie <airlied@linux.ie>,
-       Keith Whitwell <keith@tungstengraphics.com>,
-       Jon Smirl <jonsmirl@yahoo.com>, dri-devel@lists.sourceforge.net,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: New proposed DRM interface design
-Message-ID: <20040904224158.GO23987@parcelfarce.linux.theplanet.co.uk>
-References: <20040904104834.B13362@infradead.org> <413997A7.9060406@tungstengraphics.com> <20040904112535.A13750@infradead.org> <4139995E.5030505@tungstengraphics.com> <20040904120352.B14037@infradead.org> <Pine.LNX.4.58.0409041207060.25475@skynet> <20040904121355.E14123@infradead.org> <Pine.LNX.4.58.0409041221580.25475@skynet> <20040904122655.A14407@infradead.org> <1094333675.6575.389.camel@krustophenia.net>
+	Sat, 4 Sep 2004 18:45:30 -0400
+Received: from rproxy.gmail.com ([64.233.170.206]:10941 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S264286AbUIDWpY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 18:45:24 -0400
+Message-ID: <9e47339104090415451c1f454f@mail.gmail.com>
+Date: Sat, 4 Sep 2004 18:45:23 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Subject: Re: multi-domain PCI and sysfs
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <200409041527.50136.jbarnes@engr.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1094333675.6575.389.camel@krustophenia.net>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <9e4733910409041300139dabe0@mail.gmail.com>
+	 <200409041457.46578.jbarnes@engr.sgi.com>
+	 <9e47339104090415123750a1eb@mail.gmail.com>
+	 <200409041527.50136.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 04, 2004 at 05:34:35PM -0400, Lee Revell wrote:
-> On Sat, 2004-09-04 at 07:26, Christoph Hellwig wrote:
-> > Due to the policies of the release manager Debian stable is a totalally lost
-                                               ^^^^^^^^^^^^^
-> > cause.  It's missing all other support bits for i915 plattforms aswell.
-> > 
+Is this a multipath configuration where pci0000:01 and pci0000:02 can
+both get to the same target bus? So both busses are top level busses?
+
+I'm trying to figure out where to stick the vga=0/1 attribute for
+disabling all the VGA devices in a domain. It's starting to look like
+there isn't a single node in sysfs that corresponds to a domain, in
+this case there are two for the same domain.
+
+On Sat, 4 Sep 2004 15:27:50 -0700, Jesse Barnes <jbarnes@engr.sgi.com> wrote:
+> On Saturday, September 4, 2004 3:12 pm, Jon Smirl wrote:
+> > On Sat, 4 Sep 2004 14:57:46 -0700, Jesse Barnes <jbarnes@engr.sgi.com>
+> wrote:
+> > > Yep, on all the machines I've used.
+> > >
+> > > sn2 (ia64):
+> > > [root@flatearth ~]# ls -l /sys/devices
+> > > total 0
+> > > drwxr-xr-x  5 root root 0 Sep  5 08:07 pci0000:01
+> > > drwxr-xr-x  3 root root 0 Sep  5 08:07 pci0000:02
+> > > drwxr-xr-x  2 root root 0 Sep  5 08:07 platform
+> > > drwxr-xr-x  5 root root 0 Sep  5 08:07 system
+> >
+> > sn2 looks wrong. It should be
+> >
+> > > drwxr-xr-x  5 root root 0 Sep  5 08:07 pci0000:01
+> > > drwxr-xr-x  3 root root 0 Sep  5 08:07 pci0001:02
+> > > drwxr-xr-x  2 root root 0 Sep  5 08:07 platform
+> > > drwxr-xr-x  5 root root 0 Sep  5 08:07 system
 > 
-> Wrong and wrong.  If you run Debian unstable (which is WAY more stable
-                               ^^^^^^^^^^^^^^^
+> It only has one domain though, so it's correct.  Both busses are in domain 0.
+> 
+> Jesse
+> 
 
--stable == woody
--unstable == sid (and I really hope you are talking about sarge, actually)
 
-Answering to (correct) statement about woody with "wrong, sid is different"
-is slashdork-level idiocy.
+
+-- 
+
+Jon Smirl
+jonsmirl@gmail.com

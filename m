@@ -1,105 +1,336 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264735AbUEFBIs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264741AbUEFBQb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264735AbUEFBIs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 21:08:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264741AbUEFBIs
+	id S264741AbUEFBQb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 21:16:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264762AbUEFBQb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 21:08:48 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:35065 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S264735AbUEFBIo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 21:08:44 -0400
-Message-ID: <40999017.4090603@mvista.com>
-Date: Wed, 05 May 2004 18:08:39 -0700
-From: Todd Poynor <tpoynor@mvista.com>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
-X-Accept-Language: en-us, en
+	Wed, 5 May 2004 21:16:31 -0400
+Received: from tantale.fifi.org ([216.27.190.146]:60568 "EHLO tantale.fifi.org")
+	by vger.kernel.org with ESMTP id S264741AbUEFBQU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 May 2004 21:16:20 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton OSDL <akpm@osdl.org>
+Subject: Re: errno
+References: <1083634011.952.154.camel@cube>
+	<Pine.LNX.4.58.0405032111450.1636@ppc970.osdl.org>
+	<87r7u0g2cf.fsf@electrolyt.fifi.org>
+Mail-Copies-To: nobody
+From: Philippe Troin <phil@fifi.org>
+Date: 05 May 2004 18:16:15 -0700
+In-Reply-To: <87r7u0g2cf.fsf@electrolyt.fifi.org>
+Message-ID: <87smeejqxs.fsf@ceramic.fifi.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-To: Patrick Mochel <mochel@digitalimplant.org>
-CC: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Hotplug for device power state changes
-References: <20040429202654.GA9971@dhcp193.mvista.com> <Pine.LNX.4.50.0405040819490.3562-100000@monsoon.he.net> <4097FED8.3020003@mvista.com> <Pine.LNX.4.50.0405042110440.30304-100000@monsoon.he.net>
-In-Reply-To: <Pine.LNX.4.50.0405042110440.30304-100000@monsoon.he.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Mochel wrote:
->>The ability to do this was originally requested in the context of a
->>driver managing the power state of its devices (according to some
->>unspecified logic); agreed that state changes requested via sysfs are a
->>less compelling usage scenario.  Small battery-powered gadgets often
->>implement drivers that are more actively involved in managing power
->>state than the desktop/notebook/server norm, invoking LDM suspend
->>routines when an opportunity to power down arises.  But it is also
->>common in wall-plug-wired systems to have a few power state transitions
->>that result from things under kernel control, such as blanking a display
->>device after a timer expires.
+Philippe Troin <phil@fifi.org> writes:
+
+> Linus Torvalds <torvalds@osdl.org> writes:
 > 
+> > On Mon, 3 May 2004, Albert Cahalan wrote:
+> > > 
+> > > The obvious fix would be to stuff errno into the
+> > > task_struct, hmmm?
+> > 
+> > No. "errno" is one of those fundamentally broken things that should not 
+> > exist. It was wrogn in original UNIX, it's wrong now.
+> > 
+> > The kernel usage comes not from the kernel wanting to use it per se (the 
+> > kernel has always used the "negative error" approach), but from some 
+> > misguided kernel modules using the user-space interfaces.
+> > 
+> > The Linux way of returning negative error numbers is much nicer. It's
+> > inherently thread-safe, and it has no performance downsides. Of course, it
+> > does depend on having enough of a result domain that you can always
+> > separate error returns from good returns, but that's true in practice for
+> > all system calls.
 > 
-> It seems like it would best be done at the class level, rather than the
-> core driver level, if you wanted to do it all. For things like
-> communication devices going out of range, you would probably want to
-> easily support multiple drivers of the same type, so you might as well
-> abstract it to the class. And, I don't see a reason for it to be
-> synchronous, since any apps trying to communicate over it will soon
-> realize it's not available; and any policy in userspace shouldn't by
-> definition be that critical to the health of the system.
-> 
-> Display blanking is based on user input inactivity, and already works on
-> most systems.
+> Except of course for fcntl(fd, F_GETOWN) where the owner is a
+> (negative) process group... If the owning process group has a "low
+> enough" PGID, it collides with errors and glibc reports an error and
+> sets errno to -PGID. One might argue that in this instance, that the
+> BSD's overloading of the pid field with pgids is at fault, but the bug
+> still remains :-)
 
-Although there are a number of ways this information could be used, the
-specific use I intended is for system power management purposes.  I wouldn't
-suggest implementing features such as screen blanking (which was brought up
-as an example of a device power state transition that occurs according to kernel
-logic and not at the request of an app) or notifying network applications of
-downed links using this mechanism.  
+This is a patch against 2.6.5 for what I am talking about. Of course,
+glibc needs to be patched as well to transparently issue a
+F_GETOWN_ARG when the user requests F_GETOWN...
 
-Let me throw out an example to help discuss the model best suits that situation.
-An XScale PXA27x "Bulverde", a smartphone platform, has a low-power mode that
-helps conserve battery power during periods of reduced activity while leaving
-the CPU running at a low clock rate (and often idling) to handle any events
-that occur during that time.  In that mode, certain devices must be powered off
-(apparently critical input clocks are turned off and the device may get wedged
-and cease to function).  Among these devices are the LCD controller and serial
-devices such as IrDA and Bluetooth.  If a system power management mechanism such
-as cpufreq is employed to place the system into low-power mode during idle
-periods, some coordination between device state and entering/exiting low-power
-state is needed.
+Phil.
 
-Various interactions to accomplish this coordination are possible.  For the
-patch under discussion it is suggested that an appropriate mechanism by which
-the power management control app may be informed of changes in device state
-would be for the LCD and serial drivers to notify the app about changes in the
-state of their devices at exactly the time the state transition is to occur (and
-that hotplug is an appropriate method to use for this).  The notification
-might be used by the power management app to take the system out of low-power
-mode prior to powering up the device, or to note that low-power mode may be
-entered now that all conflicting devices are off.  So in this case an app not
-using the device for I/O purposes could still benefit from information about
-its state.
-
-A similar request was made by another smartphone development team to handle a
-dual-core CPU + DSP ARM OMAP system, where changes in DSP or network activity
-(i.e., a call or other communication is starting or stopping) are to trigger
-changes in system power state.  In this case, the affected devices might not be
-all-the-way powered off, but in an intermediate lower-power state.
-
-Now it may be the case that application-level state could be used to manage
-these interactions; I have very limited knowledge of what happens above the
-kernel (and the device usage models) in the example systems I'm discussing.
-Placing the ability to notify of power state changes into the drivers would
-seem to be the model that offers the most flexibility, which is probably why
-it was originally requested and why I thought it might be appropriate.  If
-there continue to be strong reservations regarding the suitability of
-kernel-to-userspace device power state notifiers then I'll encourage the
-developers to either add their voices directly to the debate or to explore
-solutions using existing kernel interfaces and/or pure userspace methods.
-
-
--- 
-Todd Poynor
-MontaVista Software
-
+diff -rcN linux-2.6.5.orig/fs/fcntl.c linux-2.6.5/fs/fcntl.c
+*** linux-2.6.5.orig/fs/fcntl.c	Sat Apr  3 19:37:36 2004
+--- linux-2.6.5/fs/fcntl.c	Wed May  5 18:06:02 2004
+***************
+*** 323,328 ****
+--- 323,339 ----
+  			err = filp->f_owner.pid;
+  			force_successful_syscall_return();
+  			break;
++ 		case F_GETOWN_ARG:
++ 			/*
++ 			 * Works around F_GETOWN's return limitations.
++ 			 * Libc will transparently convert F_GETOWN to 
++ 			 * F_GETOWN_ARG.
++ 			 */
++ 			err = 0;
++ 			if (copy_to_user(&filp->f_owner.pid, (void*)arg, 
++ 					 sizeof(filp->f_owner.pid)))
++ 				err = -EFAULT;
++ 			break;
+  		case F_SETOWN:
+  			err = f_setown(filp, arg, 1);
+  			break;
+diff -rcN linux-2.6.5.orig/include/asm-alpha/fcntl.h linux-2.6.5/include/asm-alpha/fcntl.h
+*** linux-2.6.5.orig/include/asm-alpha/fcntl.h	Sat Apr  3 19:37:24 2004
+--- linux-2.6.5/include/asm-alpha/fcntl.h	Wed May  5 17:57:03 2004
+***************
+*** 36,41 ****
+--- 36,43 ----
+  #define F_SETSIG	10	/*  for sockets. */
+  #define F_GETSIG	11	/*  for sockets. */
+  
++ #define F_GETOWN_ARG	12	/*  same as F_GETOWN, but uses arg */
++ 
+  /* for F_[GET|SET]FL */
+  #define FD_CLOEXEC	1	/* actually anything with low bit set goes */
+  
+diff -rcN linux-2.6.5.orig/include/asm-arm/fcntl.h linux-2.6.5/include/asm-arm/fcntl.h
+*** linux-2.6.5.orig/include/asm-arm/fcntl.h	Sat Apr  3 19:36:27 2004
+--- linux-2.6.5/include/asm-arm/fcntl.h	Wed May  5 17:56:51 2004
+***************
+*** 39,44 ****
+--- 39,46 ----
+  #define F_SETLK64	13
+  #define F_SETLKW64	14
+  
++ #define F_GETOWN_ARG	15	/*  same as F_GETOWN, but uses arg */
++ 
+  /* for F_[GET|SET]FL */
+  #define FD_CLOEXEC	1	/* actually anything with low bit set goes */
+  
+diff -rcN linux-2.6.5.orig/include/asm-arm26/fcntl.h linux-2.6.5/include/asm-arm26/fcntl.h
+*** linux-2.6.5.orig/include/asm-arm26/fcntl.h	Sat Apr  3 19:37:40 2004
+--- linux-2.6.5/include/asm-arm26/fcntl.h	Wed May  5 17:56:47 2004
+***************
+*** 39,44 ****
+--- 39,46 ----
+  #define F_SETLK64	13
+  #define F_SETLKW64	14
+  
++ #define F_GETOWN_ARG	15	/*  same as F_GETOWN, but uses arg */
++ 
+  /* for F_[GET|SET]FL */
+  #define FD_CLOEXEC	1	/* actually anything with low bit set goes */
+  
+diff -rcN linux-2.6.5.orig/include/asm-cris/fcntl.h linux-2.6.5/include/asm-cris/fcntl.h
+*** linux-2.6.5.orig/include/asm-cris/fcntl.h	Sat Apr  3 19:36:25 2004
+--- linux-2.6.5/include/asm-cris/fcntl.h	Wed May  5 17:56:41 2004
+***************
+*** 41,46 ****
+--- 41,48 ----
+  #define F_SETLK64      13
+  #define F_SETLKW64     14
+  
++ #define F_GETOWN_ARG	15	/*  same as F_GETOWN, but uses arg */
++ 
+  /* for F_[GET|SET]FL */
+  #define FD_CLOEXEC	1	/* actually anything with low bit set goes */
+  
+diff -rcN linux-2.6.5.orig/include/asm-h8300/fcntl.h linux-2.6.5/include/asm-h8300/fcntl.h
+*** linux-2.6.5.orig/include/asm-h8300/fcntl.h	Sat Apr  3 19:37:43 2004
+--- linux-2.6.5/include/asm-h8300/fcntl.h	Wed May  5 17:56:37 2004
+***************
+*** 39,44 ****
+--- 39,46 ----
+  #define F_SETLK64	13
+  #define F_SETLKW64	14
+  
++ #define F_GETOWN_ARG	15	/*  same as F_GETOWN, but uses arg */
++ 
+  /* for F_[GET|SET]FL */
+  #define FD_CLOEXEC	1	/* actually anything with low bit set goes */
+  
+diff -rcN linux-2.6.5.orig/include/asm-i386/fcntl.h linux-2.6.5/include/asm-i386/fcntl.h
+*** linux-2.6.5.orig/include/asm-i386/fcntl.h	Sat Apr  3 19:37:23 2004
+--- linux-2.6.5/include/asm-i386/fcntl.h	Wed May  5 17:56:21 2004
+***************
+*** 39,44 ****
+--- 39,46 ----
+  #define F_SETLK64	13
+  #define F_SETLKW64	14
+  
++ #define F_GETOWN_ARG	15	/*  same as F_GETOWN, but uses arg */
++ 
+  /* for F_[GET|SET]FL */
+  #define FD_CLOEXEC	1	/* actually anything with low bit set goes */
+  
+diff -rcN linux-2.6.5.orig/include/asm-ia64/fcntl.h linux-2.6.5/include/asm-ia64/fcntl.h
+*** linux-2.6.5.orig/include/asm-ia64/fcntl.h	Sat Apr  3 19:37:23 2004
+--- linux-2.6.5/include/asm-ia64/fcntl.h	Wed May  5 17:56:11 2004
+***************
+*** 43,48 ****
+--- 43,50 ----
+  #define F_SETSIG	10	/*  for sockets. */
+  #define F_GETSIG	11	/*  for sockets. */
+  
++ #define F_GETOWN_ARG	12	/*  same as F_GETOWN, but uses arg */
++ 
+  /* for F_[GET|SET]FL */
+  #define FD_CLOEXEC	1	/* actually anything with low bit set goes */
+  
+diff -rcN linux-2.6.5.orig/include/asm-m68k/fcntl.h linux-2.6.5/include/asm-m68k/fcntl.h
+*** linux-2.6.5.orig/include/asm-m68k/fcntl.h	Sat Apr  3 19:36:53 2004
+--- linux-2.6.5/include/asm-m68k/fcntl.h	Wed May  5 17:55:57 2004
+***************
+*** 39,44 ****
+--- 39,46 ----
+  #define F_SETLK64	13
+  #define F_SETLKW64	14
+  
++ #define F_GETOWN_ARG	15	/*  same as F_GETOWN, but uses arg */
++ 
+  /* for F_[GET|SET]FL */
+  #define FD_CLOEXEC	1	/* actually anything with low bit set goes */
+  
+diff -rcN linux-2.6.5.orig/include/asm-mips/fcntl.h linux-2.6.5/include/asm-mips/fcntl.h
+*** linux-2.6.5.orig/include/asm-mips/fcntl.h	Sat Apr  3 19:37:43 2004
+--- linux-2.6.5/include/asm-mips/fcntl.h	Wed May  5 17:55:36 2004
+***************
+*** 42,47 ****
+--- 42,48 ----
+  #define F_GETOWN	23	/*  for sockets. */
+  #define F_SETSIG	10	/*  for sockets. */
+  #define F_GETSIG	11	/*  for sockets. */
++ #define F_GETOWN_ARG	25	/*  same as F_GETOWN, but uses arg */
+  
+  #ifndef __mips64
+  #define F_GETLK64	33	/*  using 'struct flock64' */
+diff -rcN linux-2.6.5.orig/include/asm-parisc/fcntl.h linux-2.6.5/include/asm-parisc/fcntl.h
+*** linux-2.6.5.orig/include/asm-parisc/fcntl.h	Sat Apr  3 19:37:07 2004
+--- linux-2.6.5/include/asm-parisc/fcntl.h	Wed May  5 17:55:10 2004
+***************
+*** 42,47 ****
+--- 42,48 ----
+  #define F_SETOWN	12	/*  for sockets. */
+  #define F_SETSIG	13	/*  for sockets. */
+  #define F_GETSIG	14	/*  for sockets. */
++ #define F_GETOWN_ARG	15	/*  same as F_GETOWN, but uses arg */
+  
+  /* for F_[GET|SET]FL */
+  #define FD_CLOEXEC	1	/* actually anything with low bit set goes */
+diff -rcN linux-2.6.5.orig/include/asm-ppc/fcntl.h linux-2.6.5/include/asm-ppc/fcntl.h
+*** linux-2.6.5.orig/include/asm-ppc/fcntl.h	Sat Apr  3 19:37:07 2004
+--- linux-2.6.5/include/asm-ppc/fcntl.h	Wed May  5 17:54:59 2004
+***************
+*** 39,44 ****
+--- 39,46 ----
+  #define F_SETLK64	13
+  #define F_SETLKW64	14
+  
++ #define F_GETOWN_ARG	15	/*  same as F_GETOWN, but uses arg */
++ 
+  /* for F_[GET|SET]FL */
+  #define FD_CLOEXEC	1	/* actually anything with low bit set goes */
+  
+diff -rcN linux-2.6.5.orig/include/asm-ppc64/fcntl.h linux-2.6.5/include/asm-ppc64/fcntl.h
+*** linux-2.6.5.orig/include/asm-ppc64/fcntl.h	Sat Apr  3 19:36:15 2004
+--- linux-2.6.5/include/asm-ppc64/fcntl.h	Wed May  5 17:54:51 2004
+***************
+*** 42,47 ****
+--- 42,49 ----
+  #define F_SETSIG	10	/*  for sockets. */
+  #define F_GETSIG	11	/*  for sockets. */
+  
++ #define F_GETOWN_ARG	12	/*  same as F_GETOWN, but uses arg */
++ 
+  /* for F_[GET|SET]FL */
+  #define FD_CLOEXEC	1	/* actually anything with low bit set goes */
+  
+diff -rcN linux-2.6.5.orig/include/asm-s390/fcntl.h linux-2.6.5/include/asm-s390/fcntl.h
+*** linux-2.6.5.orig/include/asm-s390/fcntl.h	Sat Apr  3 19:36:12 2004
+--- linux-2.6.5/include/asm-s390/fcntl.h	Wed May  5 17:54:43 2004
+***************
+*** 48,53 ****
+--- 48,55 ----
+  #define F_SETLKW64	14
+  #endif /* ! __s390x__ */
+  
++ #define F_GETOWN_ARG	15	/*  same as F_GETOWN, but uses arg */
++ 
+  /* for F_[GET|SET]FL */
+  #define FD_CLOEXEC	1	/* actually anything with low bit set goes */
+  
+diff -rcN linux-2.6.5.orig/include/asm-sh/fcntl.h linux-2.6.5/include/asm-sh/fcntl.h
+*** linux-2.6.5.orig/include/asm-sh/fcntl.h	Sat Apr  3 19:37:42 2004
+--- linux-2.6.5/include/asm-sh/fcntl.h	Wed May  5 17:54:29 2004
+***************
+*** 39,44 ****
+--- 39,46 ----
+  #define F_SETLK64	13
+  #define F_SETLKW64	14
+  
++ #define F_GETOWN_ARG	15	/*  same as F_GETOWN, but uses arg */
++ 
+  /* for F_[GET|SET]FL */
+  #define FD_CLOEXEC	1	/* actually anything with low bit set goes */
+  
+diff -rcN linux-2.6.5.orig/include/asm-sparc/fcntl.h linux-2.6.5/include/asm-sparc/fcntl.h
+*** linux-2.6.5.orig/include/asm-sparc/fcntl.h	Sat Apr  3 19:38:20 2004
+--- linux-2.6.5/include/asm-sparc/fcntl.h	Wed May  5 17:54:23 2004
+***************
+*** 39,44 ****
+--- 39,46 ----
+  #define F_SETLK64	13
+  #define F_SETLKW64	14
+  
++ #define F_GETOWN_ARG	15	/*  same as F_GETOWN, but uses arg */
++ 
+  /* for F_[GET|SET]FL */
+  #define FD_CLOEXEC	1	/* actually anything with low bit set goes */
+  
+diff -rcN linux-2.6.5.orig/include/asm-sparc64/fcntl.h linux-2.6.5/include/asm-sparc64/fcntl.h
+*** linux-2.6.5.orig/include/asm-sparc64/fcntl.h	Sat Apr  3 19:38:20 2004
+--- linux-2.6.5/include/asm-sparc64/fcntl.h	Wed May  5 17:54:18 2004
+***************
+*** 35,40 ****
+--- 35,41 ----
+  #define F_SETLKW	9
+  #define F_SETSIG	10	/*  for sockets. */
+  #define F_GETSIG	11	/*  for sockets. */
++ #define F_GETOWN_ARG	12	/*  same as F_GETOWN, but uses arg */
+  
+  /* for F_[GET|SET]FL */
+  #define FD_CLOEXEC	1	/* actually anything with low bit set goes */
+diff -rcN linux-2.6.5.orig/include/asm-v850/fcntl.h linux-2.6.5/include/asm-v850/fcntl.h
+*** linux-2.6.5.orig/include/asm-v850/fcntl.h	Sat Apr  3 19:36:53 2004
+--- linux-2.6.5/include/asm-v850/fcntl.h	Wed May  5 17:53:58 2004
+***************
+*** 39,44 ****
+--- 39,46 ----
+  #define F_SETLK64	13
+  #define F_SETLKW64	14
+  
++ #define F_GETOWN_ARG	15	/*  same as F_GETOWN, but uses arg */
++ 
+  /* for F_[GET|SET]FL */
+  #define FD_CLOEXEC	1	/* actually anything with low bit set goes */
+  
+diff -rcN linux-2.6.5.orig/include/asm-x86_64/fcntl.h linux-2.6.5/include/asm-x86_64/fcntl.h
+*** linux-2.6.5.orig/include/asm-x86_64/fcntl.h	Sat Apr  3 19:36:26 2004
+--- linux-2.6.5/include/asm-x86_64/fcntl.h	Wed May  5 17:53:48 2004
+***************
+*** 34,39 ****
+--- 34,40 ----
+  #define F_GETOWN	9	/*  for sockets. */
+  #define F_SETSIG	10	/*  for sockets. */
+  #define F_GETSIG	11	/*  for sockets. */
++ #define F_GETOWN_ARG	12	/*  same as F_GETOWN, but uses arg */
+  
+  /* for F_[GET|SET]FL */
+  #define FD_CLOEXEC	1	/* actually anything with low bit set goes */

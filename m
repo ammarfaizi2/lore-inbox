@@ -1,43 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262969AbVDBBtL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262978AbVDBBuj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262969AbVDBBtL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 20:49:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262968AbVDBBr7
+	id S262978AbVDBBuj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 20:50:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262962AbVDBBrw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 20:47:59 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:61063 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262965AbVDBBpv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 20:45:51 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.43-00
-From: Lee Revell <rlrevell@joe-job.com>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org, "K.R. Foley" <kr@cybsft.com>,
-       Ingo Molnar <mingo@elte.hu>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Steven Rostedt <rostedt@goodmis.org>
-In-Reply-To: <200504011834.22600.gene.heskett@verizon.net>
-References: <20050325145908.GA7146@elte.hu>
-	 <200504011419.20964.gene.heskett@verizon.net> <424D9F6A.8080407@cybsft.com>
-	 <200504011834.22600.gene.heskett@verizon.net>
-Content-Type: text/plain
-Date: Fri, 01 Apr 2005 20:45:41 -0500
-Message-Id: <1112406342.20579.6.camel@mindpipe>
+	Fri, 1 Apr 2005 20:47:52 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:20883 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262964AbVDBBpU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 20:45:20 -0500
+Date: Fri, 1 Apr 2005 17:44:35 -0800
+From: Paul Jackson <pj@engr.sgi.com>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: mingo@elte.hu, nickpiggin@yahoo.com.au, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Industry db benchmark result on recent 2.6 kernels
+Message-Id: <20050401174435.4117c940.pj@engr.sgi.com>
+In-Reply-To: <200504012232.j31MWTg03706@unix-os.sc.intel.com>
+References: <20050401064611.GA26203@elte.hu>
+	<200504012232.j31MWTg03706@unix-os.sc.intel.com>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-04-01 at 18:34 -0500, Gene Heskett wrote:
-> No one has commented about the loss of video in the tvtime/pcHDTV-3000 
-> card situation, am I on my own, basicly reverting to the 
-> pcHDTV-2.0.tar.gz stuff to overwrite the kernel stuff?
+Kenneth wrote:
+> Paul, you definitely want to check this out on your large numa box.
 
-You didn't really give much of a clue as to where to start looking.  
+Interesting - thanks.  I can get a kernel patched and booted on a big
+box easily enough.  I don't know how to run an "industry db benchmark",
+and benchmarks aren't my forte.
 
-If you report a bug of the "hardware foo stopped working with kernel
-bar" type, and that's all the information you provide, the bug report is
-useless to anyone who does not have the exact same hardware.
+Should I rope in one of our guys who is benchmark savvy, or are there
+some instructions you can point to for running an appropriate benchmark?
 
-Lee
+Or are we just interested, first of all, in what sort of values this
+cost matrix gets initialized with (and how slow it is to compute)?
 
+I can get time on a 64-cpu with a days notice, and time on a 512-cpu
+with 2 or 3 days notice.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

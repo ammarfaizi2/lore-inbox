@@ -1,40 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264016AbTEONop (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 09:44:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264022AbTEONop
+	id S264021AbTEONqg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 09:46:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264025AbTEONqg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 09:44:45 -0400
-Received: from locutus.cmf.nrl.navy.mil ([134.207.10.66]:39322 "EHLO
-	locutus.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
-	id S264016AbTEONoo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 09:44:44 -0400
-Message-Id: <200305151355.h4FDtbGi012336@locutus.cmf.nrl.navy.mil>
-To: David Howells <dhowells@warthog.cambridge.redhat.com>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-       Garance A Drosihn <drosih@rpi.edu>, Jan Harkes <jaharkes@cs.cmu.edu>,
-       David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, openafs-devel@openafs.org
-Subject: Re: [OpenAFS-devel] Re: [PATCH] PAG support, try #2 
-In-reply-to: Your message of "Thu, 15 May 2003 14:35:15 BST."
-             <6445.1053005715@warthog.warthog> 
-X-url: http://www.nrl.navy.mil/CCS/people/chas/index.html
-X-mailer: nmh 1.0
-Date: Thu, 15 May 2003 09:55:37 -0400
-From: chas williams <chas@locutus.cmf.nrl.navy.mil>
+	Thu, 15 May 2003 09:46:36 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:25350 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264021AbTEONqe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 09:46:34 -0400
+Date: Thu, 15 May 2003 14:59:20 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Cc: Patrick Mochel <mochel@osdl.org>
+Subject: [PATCH] IRQ and resource for platform_device
+Message-ID: <20030515145920.B31491@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Patrick Mochel <mochel@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <6445.1053005715@warthog.warthog>,David Howells writes:
->Where's this 1:1 come from? PAGs aren't 1:1 with processes, nor are they 1:1
->with users.
->
->I've tried to implement them as I understand the design information I could
->find (which specified that any process could belong to a single PAG). From the
->comments that have been made, it seems that each user needs some sort of
->fallback token set for any process that doesn't have a PAG.
+The location and interrupt of some platform devices are only known by
+platform specific code.  In order to avoid putting platform specific
+parameters into drivers, place resource and irq members into struct
+platform_device.
 
-PAGs shouldnt be 1:1 with processes or users.  They are closer in nature
-to process groups.  However,  a process wouldnt loose its PAG affiliation
-after calling setsid.  This is the main reason using the process group
-isn't sufficient for PAGs.
+Discussion point: is one resource and one irq enough?
+
+--- orig/include/linux/device.h	Mon May  5 17:40:10 2003
++++ linux/include/linux/device.h	Wed May 14 15:35:40 2003
+@@ -29,6 +29,7 @@
+ #include <linux/list.h>
+ #include <linux/spinlock.h>
+ #include <linux/types.h>
++#include <linux/ioport.h>
+ #include <asm/semaphore.h>
+ #include <asm/atomic.h>
+ 
+@@ -388,6 +389,8 @@
+ 	char		* name;
+ 	u32		id;
+ 	struct device	dev;
++	struct resource	res;
++	unsigned int	irq;
+ };
+ 
+ extern int platform_device_register(struct platform_device *);
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

@@ -1,47 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263041AbRFFEjf>; Wed, 6 Jun 2001 00:39:35 -0400
+	id <S263238AbRFFE5r>; Wed, 6 Jun 2001 00:57:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262629AbRFFEjZ>; Wed, 6 Jun 2001 00:39:25 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:58516 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S263238AbRFFEjM>;
-	Wed, 6 Jun 2001 00:39:12 -0400
-Message-ID: <3B1DB3EC.AF7034@mandrakesoft.com>
-Date: Wed, 06 Jun 2001 00:39:08 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1 i686)
-X-Accept-Language: en
+	id <S263308AbRFFE5h>; Wed, 6 Jun 2001 00:57:37 -0400
+Received: from 216-99-213-120.dsl.aracnet.com ([216.99.213.120]:41993 "HELO
+	clueserver.org") by vger.kernel.org with SMTP id <S263238AbRFFE5Z>;
+	Wed, 6 Jun 2001 00:57:25 -0400
+Date: Tue, 5 Jun 2001 23:08:04 -0700 (PDT)
+From: Alan Olsen <alan@clueserver.org>
+To: linux-kernel@vger.kernel.org
+Cc: Alan Cox <laughing@shared-source.org>
+Subject: SCSI is as SCSI don't...
+In-Reply-To: <3B1DB270.6070603@blue-labs.org>
+Message-ID: <Pine.LNX.4.10.10106052247210.17745-100000@clueserver.org>
 MIME-Version: 1.0
-To: David Ford <david@blue-labs.org>
-Cc: Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.5-ac9
-In-Reply-To: <20010605234928.A28971@lightning.swansea.linux.org.uk> <3B1DB270.6070603@blue-labs.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Ford wrote:
->  >>EIP; c01269f9 <proc_getdata+4d/154>   <=====
-> Trace; c01b1021 <read_eeprom+131/1a8>
-> Trace; c01b1c43 <rtl8139_tx_timeout+143/148>
-> Trace; c01b2643 <rtl8139_interrupt+5f/170>
-> Trace; c0137fc0 <__emul_lookup_dentry+a4/fc>
-> Trace; c0138871 <open_namei+4d1/560>
-> Trace; c0167ccb <leaf_define_dest_src_infos+1a7/1ac>
-> Trace; c012e389 <do_readv_writev+15d/228>
-> Trace; c012e2c2 <do_readv_writev+96/228>
+I am trying to get 2.4.5 and/or 2.4.5-ac9 working.  Both are choking on
+compile with an odd error message or four...
 
-This trace looks corrupted to me... are you sure that System.map for the
-crashed kernel matches -exactly- with the one ksymoops used to decode
-this?  It uses /proc/ksyms by default, which is incorrect for most
-postmortem ksymoops runs...
+In file included from /usr/src/linux-2.4.5-ac9/include/linux/raid/md.h:50,
+                 from ll_rw_blk.c:30:
+/usr/src/linux-2.4.5-ac9/include/linux/raid/md_k.h: In function
+`pers_to_level':/usr/src/linux-2.4.5-ac9/include/linux/raid/md_k.h:41:
+warning: control reaches end of non-void function
 
-rtl8139_interrupt doesn't call tx_timeout, which doesn't call
-read_eeprom, which doesn't call proc_getdata.
+I am seeing similar messages in the AIC7xxx code.
 
--- 
-Jeff Garzik      | An expert is one who knows more and more about
-Building 1024    | less and less until he knows absolutely everything
-MandrakeSoft     | about nothing.
+The basic effect is that the kernel will not load.  Something breaks hard
+in it.
+
+My C is pretty rusty. (Too much IS work as of late...)  Does anyone know
+what this message is and why it is occuring?
+
+I am currently using 2.4.4-ac11 and it does not have this problem.  
+
+My reason for upgrading is that cdrecord gave me the following error, and
+I was hoping that 2.4.5 would have fixed it...
+
+Starting new track at sector: 0
+CDB:  2A 00 00 00 9E FF 00 00 1F 80
+cdrecord: Input/output error. write_teac_g1: scsi sendcmd: retryable error
+Sense Bytes: 70 00 0B 00 00 00 00 0A 00 00 00 01 BA 00 00 00
+status: 0x2 (CHECK CONDITION)
+Sense Key: 0xB Aborted Command, Segment 0
+Sense Code: 0xBA Qual 0x00 (no write data - buffer empty) Fru 0x0
+Sense flags: Blk 0 (not valid)
+
+cdrecord: Input/output error. write_teac_g1: scsi sendcmd: retryable error
+write track data: error after 83359744 bytes
+status: 0x2 (CHECK CONDITION)
+Sense Bytes: 70 00 00 00 00 00 00 0A 00 00 00 00 00 00 00 00 00 00
+WARNING: adding dummy block to close track.
+CDB:  2A 00 00 00 9E FF 00 00 01 00
+Sense Bytes: 70 00 0B 00 00 00 00 0A 00 00 00 01 BA 00 00 00
+Sense Key: 0xB Aborted Command, Segment 0
+Sense Code: 0xBA Qual 0x00 (no write data - buffer empty) Fru 0x0
+Sense flags: Blk 0 (not valid)
+
+Ideas...?  (At least it give me time to finish Linus's autobiography while
+I am rebuilding things, but I am quickly running out of book. ]:> )
+
+alan@ctrl-alt-del.com | Note to AOL users: for a quick shortcut to reply
+Alan Olsen            | to my mail, just hit the ctrl, alt and del keys.
+    "In the future, everything will have its 15 minutes of blame."
+

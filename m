@@ -1,40 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263039AbTJEJcf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 05:32:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263049AbTJEJcf
+	id S263052AbTJEJfY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 05:35:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263053AbTJEJfY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 05:32:35 -0400
-Received: from zero.aec.at ([193.170.194.10]:52740 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S263039AbTJEJce (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 05:32:34 -0400
-To: Enrico Bartky <info@realdos.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VIA KT600
-From: Andi Kleen <ak@muc.de>
-Date: Sun, 05 Oct 2003 11:32:27 +0200
-In-Reply-To: <D2Ld.6Nu.3@gated-at.bofh.it> (Enrico Bartky's message of "Sun,
- 05 Oct 2003 00:10:07 +0200")
-Message-ID: <m3pthcav2s.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.090013 (Oort Gnus v0.13) Emacs/21.2 (i586-suse-linux)
-References: <D06J.319.5@gated-at.bofh.it> <D1ma.4KX.15@gated-at.bofh.it>
-	<D2Ld.6Nu.3@gated-at.bofh.it>
+	Sun, 5 Oct 2003 05:35:24 -0400
+Received: from sisko.nodomain.org ([213.208.99.114]:3992 "EHLO
+	mail.nodomain.org") by vger.kernel.org with ESMTP id S263052AbTJEJfS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Oct 2003 05:35:18 -0400
+Message-ID: <3F7FE5CC.8010602@nodomain.org>
+Date: Sun, 05 Oct 2003 10:35:08 +0100
+From: Tony Hoyle <tmh@nodomain.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.4) Gecko/20030930 Debian/1.4-5
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andi Kleen <ak@colin2.muc.de>
+Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
+Subject: Re: Oops linux 2.4.23-pre6 on amd64
+References: <CYRo.18k.9@gated-at.bofh.it> <m3smm8q22o.fsf@averell.firstfloor.org> <3F7F1D21.1070503@nodomain.org> <20031004205545.GB71123@colin2.muc.de> <3F7F4AFC.7000700@nodomain.org> <20031005092052.GC12880@colin2.muc.de>
+In-Reply-To: <20031005092052.GC12880@colin2.muc.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Enrico Bartky <info@realdos.de> writes:
+Andi Kleen wrote:
 
-> Nothing, I try to boot.... with my S-ATA HardDisk. As IDE Driver a
-> take the VIA82CXXXX...
+> That doesn't sound good. Why did you not mention this first, it's unlikely
+> that such a compiler produces a working kernel.  When the segfaults
+> are not deterministic (go away when you try again) then you likely
+> have some hardware problem, like bad DIMMs (run memtest86 for 12+hours to
+> make sure)
 
-VIA82C... isn't a SATA driver.
+It's had 24 hours under memtest86 (I had to RMA one memory stick when I 
+first got the machine) and as I mentioned handles a make -j255 in 32bit 
+mode without a hitch.  The kernel does work apart from that module (and 
+floppy.o which I discovered later does much the same thing as the 
+ehci-hcd.o).
 
-You would need Jeff Garzik's libata patches. It has a VIA driver in theory.
+> To rule out the compiler you can use the compiler/binutils from
+> 
+> ftp.suse.com:/pub/suse/x86-64/supplementary/CrossTools/8.1-i386/
+> 
+> That's rpms for SuSE 8.1/i386, but I suspect you install it on Debian with
+> rpm2cpio or somesuch. That's an older gcc 3.2 that is known to work.
+> 
+> Then just put /opt/cross/bin in your $PATH and compile with
+> CROSS_COMPILE=x86_64-linux- ARCH=x86_64
+> 
+OK I'll try that.
 
-Unfortunately last time I tested it also didn't work, but that 
-was on a different VIA chipset.
+Tony
 
--Andi

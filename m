@@ -1,61 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262686AbUA0BjC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jan 2004 20:39:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262683AbUA0BjB
+	id S261406AbUA0BwG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jan 2004 20:52:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbUA0BwG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jan 2004 20:39:01 -0500
-Received: from mail017.syd.optusnet.com.au ([211.29.132.168]:22998 "EHLO
-	mail017.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S262569AbUA0Biz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jan 2004 20:38:55 -0500
-From: Christian Unger <chakkerz@optusnet.com.au>
-Reply-To: chakkerz@optusnet.com.au
-Organization: naiv.sourceforge.net
-To: Max Valdez <maxvalde@fis.unam.mx>
-Subject: Re: NVidia and 2.6.1
-Date: Tue, 27 Jan 2004 12:39:21 +1100
-User-Agent: KMail/1.5.4
-References: <200401261807.23071.chakkerz@optusnet.com.au> <1075158281.4775.13.camel@garaged.homeip.net>
-In-Reply-To: <1075158281.4775.13.camel@garaged.homeip.net>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+	Mon, 26 Jan 2004 20:52:06 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30127 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261406AbUA0BwC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jan 2004 20:52:02 -0500
+Message-ID: <4015C434.5070108@pobox.com>
+Date: Mon, 26 Jan 2004 20:51:48 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: "Wiran, Francis" <francis.wiran@hp.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] cpqarray update
+References: <CBD6B29E2DA6954FABAC137771769D6504E15965@cceexc19.americas.cpqcorp.net>
+In-Reply-To: <CBD6B29E2DA6954FABAC137771769D6504E15965@cceexc19.americas.cpqcorp.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401271239.21724.chakkerz@optusnet.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 27 January 2004 10:04, you wrote:
-> Did you changed anything on your bios ??
->
-No actually.
+Wiran, Francis wrote:
+>>You need to check the return value of pci_module_init() for errors.
+> 
+> No, because the return value is determined from number of ctrls found,
+> and not from function return.
+> 
+> int __init cpqarray_init(void)
+> {
+> ...
+> 	pci_module_init(&cpqarray_pci_driver);
+> 	cpqarray_eisa_detect();
+> 
+> 	for(i=0;i<MAX_CTLR;i++) {
+> 		if(hba[i] != NULL)
+> 			num_ctlrs_reg++
+> 	}
+> 
+> 	return (num_ctlrs_reg);
+> }
+> 
+> int __init cpqarray_init_module(void)
+> {
+> 	if (cpqarray_init() == 0)
+> 		return -ENODEV;
+> 	return 0;
+> }
 
-Dropped in the Slackware 9.1 CDs (official ones, last ones were of the net), 
-typed reboot, 
-typed setup,
-formated the disk (mountpoints, swap etc)
-told it to install everything, 
-hit ctrl+alt+delete,
-extracted the kernel sources, 
-told it to use my previous (backed up) config file, 
-compiled and installed everything,
-typed reboot, 
-made the nvidia drivers of the pre-patched stuff.
 
-In there was some minor arguments with XFree86's config regarding my mouse. 
-but the drivers worked straight up this time.
+Nope, this needs to be turned inside out.  The proper PCI driver looks like
 
--- 
-with kind regards,
-  Christian Unger
+static int __init cp_init (void)
+{
+         return pci_module_init (&cp_driver);
+}
 
- - < > - < > - < > - < > - < > - < > - < > - < > -
- 
-  Alt. Email:  chakkerz_dev@optusnet.com.au
-  ICQ:         204184156
-  Mobile:      0402 268904
-  Web:         http://naiv.sourceforge.net
+static void __exit cp_exit (void)
+{
+         pci_unregister_driver (&cp_driver);
+}
+
+We already handle the cases you describe.  The cpqarray code -breaks- 
+the API design by doing it this way.
+
+cpqarray does not fully support the pci_ids features and hotplug without 
+this.
+
+	Jeff
+
+
 

@@ -1,89 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262379AbTENCBh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 22:01:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262454AbTENCBh
+	id S263722AbTENCFs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 22:05:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263725AbTENCFr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 22:01:37 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:3593 "HELO
-	vladimir.pegasys.ws") by vger.kernel.org with SMTP id S262379AbTENCBf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 22:01:35 -0400
-Date: Tue, 13 May 2003 19:12:10 -0700
-From: jw schultz <jw@pegasys.ws>
-To: linux-kernel@vger.kernel.org
-Subject: Re: What exactly does "supports Linux" mean?
-Message-ID: <20030514021210.GD30766@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org
-References: <200305131114_MC3-1-38B0-3C13@compuserve.com> <yw1x3cjifutq.fsf@zaphod.guide>
+	Tue, 13 May 2003 22:05:47 -0400
+Received: from holomorphy.com ([66.224.33.161]:39615 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263722AbTENCFq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 22:05:46 -0400
+Date: Tue, 13 May 2003 19:18:26 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Shawn <core@enodev.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>
+Subject: Re: odd db4 error with 2.5.69-mm4 [was Re: Huraaa for 2.5]
+Message-ID: <20030514021826.GI8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Shawn <core@enodev.com>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@digeo.com>
+References: <1052866461.23191.4.camel@www.enodev.com> <20030514012731.GF8978@holomorphy.com> <1052877161.3569.17.camel@www.enodev.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <yw1x3cjifutq.fsf@zaphod.guide>
-User-Agent: Mutt/1.3.27i
+In-Reply-To: <1052877161.3569.17.camel@www.enodev.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 13, 2003 at 10:36:01PM +0200, Måns Rullgård wrote:
-> Chuck Ebbert <76306.1226@compuserve.com> writes:
-> 
-> > > My general conclusion would be that something not working with a standard
-> > > kernel cannot be called "supporting linux", no matter what distros ever are
-> > > supported. You may call me purist...
-> > 
-> >   If their drivers don't come with full source code then their claims
-> > of supporting Linux are just a bad joke AFAIC.
-> 
-> Even when they do, it's often far from what I would call "Linux
-> support".  I've seen vendor drivers that made such assumptions about
-> the machine that they would only work on IA-32 machines.  I'm talking
-> about things like assuming that sizof(int) == sizeof(void *) == 4, or
-> that physical memory addresses are the same seen from the CPU and from
-> the PCI bus.
+On Tue, May 13, 2003 at 08:52:41PM -0500, Shawn wrote:
+> execve("/bin/rpm", ["rpm", "-qi", "iptables"], [/* 32 vars */]) = 0
+> uname({sys="Linux", node="www.enodev.com", ...}) = 0
+> brk(0)                                  = 0x8069000
+> old_mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x40016000
+> open("/etc/ld.so.preload", O_RDONLY)    = -1 ENOENT (No such file or directory)
+> open("/etc/ld.so.cache", O_RDONLY)      = 3
+> fstat64(3, {st_mode=S_IFREG|0644, st_size=82290, ...}) = 0
+[...]
 
-This is really a trademark related labelling issue.  The
-trademark allows Linus or his assignee to specify in what
-way Linux(tm) may be used in labelling and advertising.
-Linux is just like other products with third-party parts and
-supplies.  If Linus's assignee (Linux international?) where
-to specify explicit guidelines then people would know what
-to expect.  Something like:
 
-Linux certified:
-	Mainline kernel has driver and it has been certified
-	as functioning with this hardware by OSDL or some
-	other officially sanctioned lab.
+okay, the first thing I see is:
 
-Linux supported:
-	Mainline kernel has driver.
+-getgid32()                              = 500
+-getuid32()                              = 500
++getgid32()                              = 0
++getuid32()                              = 0
+ stat64("/", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+ stat64("/var/", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+ stat64("/var/lib/", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+ stat64("/var/lib/rpm", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0
+-access("/var/lib/rpm", W_OK)            = -1 EACCES (Permission denied)
++access("/var/lib/rpm", W_OK)            = 0
++access("/var/lib/rpm/__db.001", F_OK)   = 0
++access("/var/lib/rpm/Packages", F_OK)   = 0
 
-Linux compatible:
-	Source code driver available as a patch.
+They appear to either not be running in equivalent environments or
+something has gone horribly wrong. The diff is incredibly noisy and not
+useful for debugging, could you strace the working kernel's bit as root?
 
-Runs on Linux:
-	Binary only driver available that can be used with
-	mainline kernel.
+Also, things start getting wildly different after both examine DB_CONFIG,
+where 2.4 and 2.5 open different files with different options, i.e. 2.5
+does O_DIRECT on /var/lib/rpm/__db.001 and 2.4 never touches that file,
+and 2.4 never does O_DIRECT either.
 
-Supports Linux:
-	Portion of the purchase price will be donated to
-	Linux International.
+This may very well have something to do with the difference in
+privileges.
 
-You will notice this all relates to mainline kernels (Linus
-and Marcello).  If the product requires a vendor kernel they
-need to negotiate with the vendor to say so.
 
-These are just suggestions.  Many other products (including
-MS windows) have similar labelling restrictions, often with
-logos.  Use of the term "Linux" in packaging or advertising
-or products inconsistent with the official designations would
-be trademark infringement.  Different rules would apply to
-products that exist strictly in user-space.
-
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
-
-		Remember Cernan and Schmitt
+-- wli

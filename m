@@ -1,38 +1,28 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312254AbSD2N5Z>; Mon, 29 Apr 2002 09:57:25 -0400
+	id <S312253AbSD2N7K>; Mon, 29 Apr 2002 09:59:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312253AbSD2N5Y>; Mon, 29 Apr 2002 09:57:24 -0400
-Received: from windsormachine.com ([206.48.122.28]:11019 "EHLO
-	router.windsormachine.com") by vger.kernel.org with ESMTP
-	id <S312254AbSD2N5V>; Mon, 29 Apr 2002 09:57:21 -0400
-Date: Mon, 29 Apr 2002 09:57:10 -0400 (EDT)
-From: Mike Dresser <mdresser_l@windsormachine.com>
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 48-bit IDE [Re: 160gb disk showing up as 137gb]
-In-Reply-To: <200204291106.NAA18202@cave.bitwizard.nl>
-Message-ID: <Pine.LNX.4.33.0204290951460.27860-100000@router.windsormachine.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312255AbSD2N7J>; Mon, 29 Apr 2002 09:59:09 -0400
+Received: from harpo.it.uu.se ([130.238.12.34]:9179 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S312253AbSD2N7I>;
+	Mon, 29 Apr 2002 09:59:08 -0400
+Date: Mon, 29 Apr 2002 15:58:56 +0200 (MET DST)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200204291358.PAA21654@harpo.it.uu.se>
+To: viro@math.psu.edu
+Subject: 2.5.11 busy inodes after unmount
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> For some reason, my 160G disks work on the "native" controllers, but
-> not on the promise cards that I bought for the purpose... After
-> figuring this out I haven't taken the time to find the root cause, as
-> I'm just a user in this respect...
->
-> 			Roger.
+With the 2.5.11 kernel I always get the "VFS: Busy inodes
+after unmount. Self-destruct in 5 seconds.  Have a nice day..."
+message from fs/super.c when shutting down. Rebooting with my
+rescue floppy, fsck complains a lot about "Deleted inode with
+zero dtime", "Block bitmap differences", "Free blocks count wrong",
+"Inode bitmap differences", "Free inodes count wrong", and
+"Directories count wrong". Luckily no files seemed to get trashed.
 
-I seem to remember something about new Promise BIOS's that fix that
-LBA48 issue.  Try updating the bios, and see what happens.
+Very plain but solid box: x86, Intel chipset, IDE, ext2.
 
-Looking at their bios page, I see the Ultra 100 TX2 supports LBA48, don't
-see any info on the Ultra 100, Ultra 66, etc though.  I believe the 133
-TX2 has it built in.
-
-Hope this helps,
-
-Mike
-
+/Mikael

@@ -1,59 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273938AbRIRV1l>; Tue, 18 Sep 2001 17:27:41 -0400
+	id <S273936AbRIRV0L>; Tue, 18 Sep 2001 17:26:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273940AbRIRV1b>; Tue, 18 Sep 2001 17:27:31 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:9691 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S273938AbRIRV1R>;
-	Tue, 18 Sep 2001 17:27:17 -0400
-Date: Tue, 18 Sep 2001 17:27:40 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-cc: Andreas Dilger <adilger@turbolabs.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.10-pre11
-In-Reply-To: <200109182106.f8IL6Js14650@vindaloo.ras.ucalgary.ca>
-Message-ID: <Pine.GSO.4.21.0109181710400.27538-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S273938AbRIRV0B>; Tue, 18 Sep 2001 17:26:01 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:26408 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S273936AbRIRVZx>; Tue, 18 Sep 2001 17:25:53 -0400
+Date: Tue, 18 Sep 2001 23:26:07 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        akpm@zip.com.au
+Subject: Re: 2.4.10pre11 vm rewrite fixes for mainline inclusion and testing
+Message-ID: <20010918232607.K720@athlon.random>
+In-Reply-To: <Pine.LNX.4.21.0109181627340.7836-100000@freak.distro.conectiva> <Pine.LNX.4.21.0109181636200.7836-100000@freak.distro.conectiva> <20010918231150.H720@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010918231150.H720@athlon.random>; from andrea@suse.de on Tue, Sep 18, 2001 at 11:11:50PM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Sep 18, 2001 at 11:11:50PM +0200, Andrea Arcangeli wrote:
+> do it after 2.4.11 (possibly in 2.4.x, it doesn't sound a showstopper).
+				  ^^^ typo, I meant 2.5 :), sorry
 
-
-On Tue, 18 Sep 2001, Richard Gooch wrote:
-
-> Actually, many times I fed Linus smaller patches. I tried to get the
-> FS core itself in separately from the drivers, which was 100% safe
-> (since no existing code was touched), but he wasn't interested. If the
-> devfs core *had* been accepted on it's own, I could then have
-> reasonably split up the driver patches.
-> 
-> However, I disagree with your "long history of problems" comment. You
-> make it sound like devfs hasn't performed reliably, whereas in real
-> life (i.e. normal use, not constructed exploits) it's done quite well.
-> 
-> In any case, if your "I can't be arsed to split my patch" comment is
-> directed at me, I take offense. I did actually take the trouble to
-> split up my patch.
-
-Sheesh... Statement: "non-priveleged user can crash any released version
-of kernel if devfs is compiled in and mounted".  Provably true.  It _does_
-qualify as a problem and yes, I would say that 20 months _is_ long.
-
-Regardless of the reasons why the thing went in once chunk, presence of
-these problems is a direct result.  Anyone who wants to push a large
-patch into the tree is inviting the same result.
-
-BTW, potentially useful observation: if a preliminary chunk of patch
-makes sense on its own, it gets much better chance to get applied.
-Accepting devfs core in one step would be completely useless - it's
-still too large (~100Kb) and if it would be applied first, it would
-get zero testing until the rest went in.
-
-Anyway, Zen And Art Of Feeding Patches Into Tree is a topic for a different
-thread...  AFAICS devfs could be split in meaningful steps (ones that
-would get testing immediately and would add functionality by pieces),
-but by now it's hardly interesting.  If you want details - let's take
-it to private mail, preferably when I'll have some spare time.
-
+Andrea

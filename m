@@ -1,90 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290551AbSARAYM>; Thu, 17 Jan 2002 19:24:12 -0500
+	id <S290552AbSARA0c>; Thu, 17 Jan 2002 19:26:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290552AbSARAYG>; Thu, 17 Jan 2002 19:24:06 -0500
-Received: from green.csi.cam.ac.uk ([131.111.8.57]:41468 "EHLO
-	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S290551AbSARAXs>; Thu, 17 Jan 2002 19:23:48 -0500
-Message-Id: <5.1.0.14.2.20020118002237.00af5be0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 18 Jan 2002 00:23:43 +0000
-To: "Guillaume Boissiere" <boissiere@mediaone.net>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
+	id <S290559AbSARA0T>; Thu, 17 Jan 2002 19:26:19 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:40967 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S290555AbSARAYy>; Thu, 17 Jan 2002 19:24:54 -0500
+Message-ID: <3C476A78.6020500@namesys.com>
+Date: Fri, 18 Jan 2002 03:21:12 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: James Simmons <jsimmons@transvirtual.com>
+CC: Tim Pepper <tpepper@vato.org>,
+        Jose Luis Domingo Lopez <jdomingo@internautas.org>,
+        Guillaume Boissiere <boissiere@mediaone.net>,
+        linux-kernel@vger.kernel.org
 Subject: Re: [STATUS 2.5]  January 17, 2001
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3C463337.24593.CD1AD57@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+In-Reply-To: <Pine.LNX.4.10.10201171458490.3503-100000@www.transvirtual.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just to add my pet point to the list.
+James Simmons wrote:
 
-o Alpha Replace old NTFS driver with NTFS TNG driver
+>>>Have you heard anything about when Linus intends to code freeze?  In my 
+>>>planning I am assuming Sept. 30 is way earlier than 2.6 would ship.  I 
+>>>remember how long 2.4 took, and I simply assume 2.6 will be the same. 
+>>>
+>>I recall in June of 1999 Linus gave a kernel talk at BALUG and said he was
+>>aiming for a year end release of 2.4 (but I think he meant that year ;) and
+>>hoped to get the cycle down towards 6 months.  Is that type of timeline still
+>>the target?
+>>
+>
+>6 months. Never! I think we can do one year. I think this because for 2.5.X
+>we see a bunch of projects working on different things for a long period
+>of time. So it is just a matter of making everything work together. 
+>
+>   . ---
+>   |o_o |
+>   |:_/ |   Give Micro$oft the Bird!!!!
+>  //   \ \  Use Linux!!!!
+> (|     | )
+> /'_   _/`\
+> ___)=(___/
+>
+>
+>
+>
+I think I basically  have no idea when 2.6 will ship and no idea when 
+code freeze will hit, so I should work on the code and not worry until 
+it is done.
 
-Cheers,
+Hans
 
-Anton
-
-At 07:13 17/01/02, Guillaume Boissiere wrote:
->I've seen several times on this list people wondering what features
->were in the works for 2.5 and what the status of the development was.
->I did some grepping on the archive and put together a list of things
->that have been discussed / worked on for 2.5 over the past year or so.
->
->It's probably pretty incomplete and full of errors at this point but
->I'll be happy to update it if you send me email.
->
->o Merged   New scheduler for improved scalability       (Ingo Molnar)
->o Merged   Rewrite of the block IO (bio) layer          (Jens Axboe)
->o Merged   New kernel device structure (kdev_t)         (Linus Torvalds)
->o Merged   Initial support for USB 2.0                  (Greg KH, others)
->o Ready    Add User-Mode Linux (UML)                    (Jeff Dike)
->o Ready    Add ALSA (Advanced Linux Sound Architecture) (ALSA team)
->o Ready    IDE layer update                             (Andre Hedrick)
->o <1 month New kernel build system (kbuild 2.5)         (Keith Owens)
->o <1 month New kernel config system: CML2               (Eric Raymond)
->o Beta     New driver API for Wireless Extensions       (Jean Tourrilhes)
->o Beta     New IO scheduler                             (Jens Axboe)
->o Beta     Add JFS (Journaling FileSystem from SGI)     (JFS team)
->o Beta     New VM with reverse mappings                 (Rik van Riel)
->o Beta     Add preempt kernel option                    (Robert Love)
->o Beta     Add resheduling points to remove latency     (Andrew Morton)
->o Beta     Build option for Linux Trace Toolkit (LTT)   (Karim Yaghmour)
->o Beta     Better event logging for enterprise systems  (evlog team)
->o Ongoing  Better support of high-end NUMA machines     (NUMA team)
->o Alpha    Add Asynchronous IO (aio) support            (Ben LaHaise)
->o Alpha    Integrate EVMS into kernel                   (EVMS team)
->o Started  Rewrite of the framebuffer layer             (James Simmons)
->o Started  New driver model & unified device tree       (Patrick Mochel)
->o Started  Rewrite of the console layer                 (James Simmons)
->o Started  More complete NetBEUI and 802.2 net stacks   (Alnaldo C de M)
->o Draft #2 New lightweight library (klibc)              (Greg KH)
->o Draft #3 Replace initrd by initramfs                  (hpa, Al Viro)
->o Planning Change all drivers to new driver model       (All maintainers)
->o Planning Add thrashing control                        (Rik van Riel)
->o Planning Remove all hardwired drivers from kernel     (Alan Cox, etc)
->o Planning Porting all input devices over to input API  (James Simmons)
->o Planning generic parameter/command line interface     (Keith Owens)
->
->I hope this is helpful. Enjoy!
->
->-- gb
->
->----------------------------------------
->Guillaume Boissiere
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

@@ -1,68 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263286AbTEISyg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 14:54:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263390AbTEISyg
+	id S263365AbTEIStu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 14:49:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263390AbTEIStu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 14:54:36 -0400
-Received: from mail.actcom.co.il ([192.114.47.13]:49637 "EHLO
-	smtp1.actcom.net.il") by vger.kernel.org with ESMTP id S263286AbTEISyf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 14:54:35 -0400
-Date: Fri, 9 May 2003 22:07:08 +0300
-From: Muli Ben-Yehuda <mulix@mulix.org>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: The disappearing sys_call_table export.
-Message-ID: <20030509190708.GA29959@actcom.co.il>
-References: <200305071507_MC3-1-37CF-FE32@compuserve.com> <1052387912.4849.43.camel@pc-16.office.scali.no> <20030508095943.B22255@devserv.devel.redhat.com> <1052398474.4849.57.camel@pc-16.office.scali.no> <20030508135839.A6698@infradead.org> <3EBAAB9D.5000508@shemesh.biz> <20030508201509.A19496@infradead.org> <20030509074208.GA14991@actcom.co.il> <20030509080808.GA6254@kroah.com>
+	Fri, 9 May 2003 14:49:50 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:62851 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S263365AbTEISts (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 14:49:48 -0400
+Message-Id: <200305091902.h49J2Kb9010589@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: root@chaos.analogic.com
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: The disappearing sys_call_table export. 
+In-Reply-To: Your message of "Fri, 09 May 2003 14:27:22 EDT."
+             <Pine.LNX.4.53.0305091345210.25319@chaos> 
+From: Valdis.Kletnieks@vt.edu
+References: <200305091309_MC3-1-3826-6B65@compuserve.com>
+            <Pine.LNX.4.53.0305091345210.25319@chaos>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="J/dobhs11T7y2rNN"
-Content-Disposition: inline
-In-Reply-To: <20030509080808.GA6254@kroah.com>
-User-Agent: Mutt/1.5.4i
+Content-Type: multipart/signed; boundary="==_Exmh_420977712P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Fri, 09 May 2003 15:02:20 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---J/dobhs11T7y2rNN
+--==_Exmh_420977712P
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Fri, May 09, 2003 at 01:08:08AM -0700, Greg KH wrote:
-> On Fri, May 09, 2003 at 10:42:08AM +0300, Muli Ben-Yehuda wrote:
-> >=20
-> > For example, a rogue process is calling settimeofday() on your router
-> > once a month(!). How are you going to find it? There's no LSM hook for
-> > settimeofday()
->=20
-> Yes there is.  Check the capable hook for CAP_SYS_TIME.  LSM modules can
-> get that info quite easily.
+On Fri, 09 May 2003 14:27:22 EDT, "Richard B. Johnson" said:
 
-Indeed, I missed the fact that LSM modules have a capable
-hook. Nonetheless, my original point stands: LSM and hooking kernel
-objects are great for security and auditing, hijacking system calls
-can be quite useful for debugging, both kernel and userspace.
+> powered OFF. Microsoft installed Magic Lantern software within
+> the kernel and within all software updates, (service Pack 2 of
+> Win/2000/Prof as part of their deal with the Justice Department
+> when our attention was diverted after 9/11. This allows any
+> "Duly Authorized...." person to extract the contents of anything,
+> any time it's on the network. Magic Lantern is the hook for
+> "Carnivore" (and others) that uses bits in the same packet area
+> as the ECN bits to tell the M$ kernel not to forward the attached
+> packet on to mail, but to use it as a command for an internal spy
+> engine that sends information back using the same methods. Since
 
-Thanks,=20
-Muli.=20
---=20
-Muli Ben-Yehuda
-http://www.mulix.org
+Umm.. I'm well known as being both a Microsoft and US Govt basher myself, but...
+
+Is this tinfoil-helmet time, or do you have any evidence to back this up?
 
 
---J/dobhs11T7y2rNN
+--==_Exmh_420977712P
 Content-Type: application/pgp-signature
-Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQE+u/xcKRs727/VN8sRAoSkAKCvO8IRxFp1YAtEJkIgglarztSHQgCfdfQi
-y0yhNcpCF41pR4an7N89Ta8=
-=vRm+
+iD8DBQE+u/s8cC3lWbTT17ARAgjyAKDO5Au/wPKk2BflibxbHRyz+GzgkQCePFA8
+CCzNmF93lagqLs5u5pgFn2I=
+=8jQt
 -----END PGP SIGNATURE-----
 
---J/dobhs11T7y2rNN--
+--==_Exmh_420977712P--

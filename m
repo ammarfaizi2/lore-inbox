@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262288AbTFIXOE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 19:14:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262297AbTFIXOD
+	id S262270AbTFIXVL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 19:21:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262271AbTFIXVL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 19:14:03 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:60663 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262288AbTFIXN6 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 19:13:58 -0400
-content-class: urn:content-classes:message
+	Mon, 9 Jun 2003 19:21:11 -0400
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:29970 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id S262270AbTFIXVK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 19:21:10 -0400
+Date: Tue, 10 Jun 2003 01:34:19 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: "David S. Miller" <davem@redhat.com>
+cc: wa@almesberger.net, <chas@cmf.nrl.navy.mil>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][ATM] use rtnl_{lock,unlock} during device operations
+ (take 2)
+In-Reply-To: <20030609.161435.104053652.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44.0306100129460.12110-100000@serv>
+References: <Pine.LNX.4.44.0306100011230.5042-100000@serv>
+ <20030609.160013.74730356.davem@redhat.com> <Pine.LNX.4.44.0306100113420.12110-100000@serv>
+ <20030609.161435.104053652.davem@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: 2.4.22 timeline was RE: 2.4.21-rc7 ACPI broken
-Date: Mon, 9 Jun 2003 16:27:34 -0700
-Message-ID: <F760B14C9561B941B89469F59BA3A84725A2E0@orsmsx401.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.4.22 timeline was RE: 2.4.21-rc7 ACPI broken
-Thread-Index: AcMu02XJ5DkMiQ1nQUaNOUyWB2RRbgACSFCw
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "Marcelo Tosatti" <marcelo@conectiva.com.br>
-Cc: "Grzegorz Jaskiewicz" <gj@pointblue.com.pl>,
-       "lkml" <linux-kernel@vger.kernel.org>,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Saxena, Sunil" <sunil.saxena@intel.com>,
-       "Brown, Len" <len.brown@intel.com>,
-       "Therien, Guy" <guy.therien@intel.com>
-X-OriginalArrivalTime: 09 Jun 2003 23:27:35.0447 (UTC) FILETIME=[B5380270:01C32EDE]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Marcelo Tosatti [mailto:marcelo@conectiva.com.br] 
-> The main reason I didnt want to merge it was due to its size. 
-> Its just too
-> big.
+Hi,
 
-Maybe it's just because I am so familiar with it, but while its size is
-big, I don't view it as terribly big conceptually. The patch is big
-because diff doesn't handle file renames well. Plus, the great majority
-of changes are in drivers/acpi. I would think you could basically ignore
-all that code, and focus your review on the other bits. I'd be happy to
-split that out into a much smaller, easier-to-review patch if that would
-help.
+On Mon, 9 Jun 2003, David S. Miller wrote:
 
-> 2.4.22 will be a fast enough release to not piss you off on 
-> this, trust
-> me.
+>    > netdev->dead = 1;
+>    > netdev->op_this = NULL;
+>    > netdev->op_that = NULL;
+>    > netdev->op_whatever = NULL;
+>    > synchronize_kernel();
+>    
+>    That assumes of course that the functions don't sleep.
+>    (RCU isn't really the answer to everything.)
+>    
+> They hold references to the object, it doesn't matter if
+> they sleep.
 
-I'm looking forward to its swift arrival.
+That's not the point. You also have to wait for the already running 
+operations to finish, before you can allow the module to unload.
 
-Regards -- Andy
+bye, Roman
+

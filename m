@@ -1,57 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317542AbSGETHK>; Fri, 5 Jul 2002 15:07:10 -0400
+	id <S317543AbSGETch>; Fri, 5 Jul 2002 15:32:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317543AbSGETHJ>; Fri, 5 Jul 2002 15:07:09 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:34577 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S317542AbSGETHI>; Fri, 5 Jul 2002 15:07:08 -0400
-Date: Fri, 5 Jul 2002 12:09:28 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux console project <linuxconsole-dev@lists.sourceforge.net>
-Subject: [PATCH] New Console part One.
-Message-ID: <Pine.LNX.4.44.0207051053500.25589-100000@www.transvirtual.com>
+	id <S317544AbSGETcg>; Fri, 5 Jul 2002 15:32:36 -0400
+Received: from chabotc.xs4all.nl ([213.84.192.197]:27572 "EHLO
+	chabotc.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S317543AbSGETcg>; Fri, 5 Jul 2002 15:32:36 -0400
+Message-ID: <3D25F4DC.2040404@xs4all.nl>
+Date: Fri, 05 Jul 2002 21:34:52 +0200
+From: Chris Chabot <chabotc@xs4all.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020625
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Intel PRO/Wireless 5000 support?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+A question for all you out there. Is there any way to get the Intel 
+PRO/Wireless 5000 pcmcia cards working?
+(that are those new 54 Mbs 801.11a pcmcia cards)
 
-After some testings here is the start of the new console system.
-The changes here are removal of struct kbd_struct from handler_sysrq. Only
-two sysrq functions actually use it. Sysrq should work with any kind of
-console system and the major of them will lack a physical keyboard. The
-second change is a cleanup and preparation of moving the VT console system
-input devices over to the input api.
+I've got a couple here playing very non alive and non detected under linux.
 
-   . ---
-   |o_o |
-   |:_/ |   Give Micro$oft the Bird!!!!
-  //   \ \  Use Linux!!!!
- (|     | )
- /'\_   _/`\
- \___)=(___/
+ps, lspci -v reports it as:
 
+09:00.0 Ethernet controller: Unknown device 168c:0007 (rev 01)
+        Subsystem: Intel Corp.: Unknown device 2500
+        Flags: medium devsel, IRQ 10
+        Memory at f2800000 (32-bit, non-prefetchable) [size=64K]
+        Capabilities: [44] Power Management version 2
 
- arch/i386/kernel/apm.c         |    2
- arch/ppc/xmon/start.c          |    2
- arch/ppc64/xmon/start.c        |    2
- drivers/acpi/system.c          |    2
- drivers/char/console.c         |   82 ++--
- drivers/char/keyboard.c        |  781 +++++++++++++++++++++--------------------
- drivers/char/sysrq.c           |   46 +-
- drivers/char/tty_io.c          |   15
- include/linux/console_struct.h |    1
- include/linux/sysrq.h          |   13
- 11 files changed, 487 insertions(+), 459 deletions(-)
+Any info is greatly apreciated
 
-The BK link is
-
-http://linuxconsole.bkbits.net/dev
-
-diff:
-
-http://www.transvirtual.com/~jsimmons/console.diff.gz
+    -- Chris Chabot
 

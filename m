@@ -1,68 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261538AbVA2TK5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261539AbVA2TOw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261538AbVA2TK5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jan 2005 14:10:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261535AbVA2TJu
+	id S261539AbVA2TOw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jan 2005 14:14:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261556AbVA2TND
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jan 2005 14:09:50 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:63438 "EHLO suse.cz")
-	by vger.kernel.org with ESMTP id S261536AbVA2TIL convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jan 2005 14:08:11 -0500
-Subject: [PATCH 2/3] Document the atkbd.softraw module parameter.
-In-Reply-To: <1107017128686@twilight.ucw.cz>
-X-Mailer: gregkh_patchbomb_levon_offspring
-Date: Sat, 29 Jan 2005 17:45:28 +0100
-Message-Id: <11070171283097@twilight.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: torvalds@osdl.org, vojtech@ucw.cz, linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
+	Sat, 29 Jan 2005 14:13:03 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:64718 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S261546AbVA2TIS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jan 2005 14:08:18 -0500
+Date: Fri, 28 Jan 2005 21:25:32 +0100
 From: Vojtech Pavlik <vojtech@suse.cz>
+To: Wiktor <victorjan@poczta.onet.pl>
+Cc: dtor_core@ameritech.net, linux-kernel@vger.kernel.org
+Subject: Re: AT keyboard dead on 2.6
+Message-ID: <20050128202532.GA10301@ucw.cz>
+References: <41F15307.4030009@poczta.onet.pl> <d120d500050121113867c82596@mail.gmail.com> <41F69FFE.2050808@poczta.onet.pl> <20050128143121.GB12137@ucw.cz> <d120d50005012806467cc5ee03@mail.gmail.com> <41FA90F8.6060302@poczta.onet.pl> <d120d5000501281127752561a3@mail.gmail.com> <41FA972F.2000604@poczta.onet.pl> <d120d50005012811534eb1ed70@mail.gmail.com> <41FA9EFC.9040600@poczta.onet.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41FA9EFC.9040600@poczta.onet.pl>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You can pull this changeset from:
-	bk://kernel.bkbits.net/vojtech/for-linus
+On Fri, Jan 28, 2005 at 09:22:20PM +0100, Wiktor wrote:
+> Hi,
+> 
+> >We do test AUX port and your port appears to be perfectly functional
+> >from the kernel point of view - it porperly responds to AUX_LOOP
+> >commands, does not claim to support MUX mode and KBC properly sets
+> >status register when asked to disable interface...
+> 
+> ok, but how AUX block KBD port? if procesor-interface works, it 
+> shouldn't disturb communication in any way!
 
-===================================================================
+The AUX and KBD ports share the same processor interface. If the AUX
+port is enabled, and somehow keeps the interface for itself, then the
+keyboard wouldn't work.
 
-ChangeSet@1.1977.1.2, 2005-01-29 12:27:56+01:00, Andries.Brouwer@cwi.nl
-  input: Document the atkbd.softraw module parameter.
-  
-  From: Andries Brouwer <Andries.Brouwer@cwi.nl>
-  Signed-off-by: Vojtech Pavlik <vojtech@suse.cz>
+For some reason, however, the keyboard is recognized, which means it
+_can_ communicate with the kernel. I don't understand why it doesn't, at
+the moment.
 
+> how it is possible that 
+> tests do not detect broken down port? 
 
- kernel-parameters.txt |   10 +++++++---
- 1 files changed, 7 insertions(+), 3 deletions(-)
+The kernel issues the AUX_TEST command, which instructs the port
+controller to test whether the port is OK. And the controller returns
+with "Yes, it is."
 
-===================================================================
+> if kernel enables it in some way 
+> (when disabling port from command line, KBD works ok), it should be 
+> detected that AUX does not work correctly and lock it somehow? 
 
-diff -Nru a/Documentation/kernel-parameters.txt b/Documentation/kernel-parameters.txt
---- a/Documentation/kernel-parameters.txt	2005-01-29 17:37:19 +01:00
-+++ b/Documentation/kernel-parameters.txt	2005-01-29 17:37:19 +01:00
-@@ -226,15 +226,19 @@
+Remember, it's the keyboard that doesn't work in that case. How the
+kernel should know the AUX port is the cause, and how it should discern
+that from the user not typing?
+
+> can it be 
+> etermined by analyzing data flow? 
+
+No.
+
+> or maybe tests are not enought good, 
+> maybe some corelations when using both KBD and AUX exist and are not 
+> tested? as my keyboard works now, i'm not keen on solving this, but to 
+> make the world better and dominate it, some "runtime hardware failures 
+> handling" could be added.
  
- 	atascsi=	[HW,SCSI] Atari SCSI
- 
--	atkbd.extra=	[HW] Enable extra LEDs and keys on IBM RapidAccess, EzKey
--			and similar keyboards
-+	atkbd.extra=	[HW] Enable extra LEDs and keys on IBM RapidAccess,
-+			EzKey and similar keyboards
- 
- 	atkbd.reset=	[HW] Reset keyboard during initialization
- 
- 	atkbd.set=	[HW] Select keyboard code set 
- 			Format: <int> (2 = AT (default) 3 = PS/2)
- 
--	atkbd.scroll=	[HW] Enable scroll wheel on MS Office and similar keyboards
-+	atkbd.scroll=	[HW] Enable scroll wheel on MS Office and similar
-+			keyboards
-+
-+	atkbd.softraw=	[HW] Choose between synthetic and real raw mode
-+			Format: <bool> (0 = real, 1 = synthetic (default))
- 	
- 	atkbd.softrepeat=
- 			[HW] Use software keyboard repeat
+We're pretty happy when it works on functional hardware at the moment.
 
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

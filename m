@@ -1,40 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317211AbSFRBL3>; Mon, 17 Jun 2002 21:11:29 -0400
+	id <S317212AbSFRBhz>; Mon, 17 Jun 2002 21:37:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317212AbSFRBL2>; Mon, 17 Jun 2002 21:11:28 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:63730 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S317211AbSFRBL2>;
-	Mon, 17 Jun 2002 21:11:28 -0400
-Date: Mon, 17 Jun 2002 18:11:28 -0700
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: irda-users@lists.sourceforge.net,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] : ir250_cache_wait_data-2.diff
-Message-ID: <20020617181128.F6338@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20020610175300.E21783@bougret.hpl.hp.com> <3D0A7219.6000303@mandrakesoft.com>
+	id <S317214AbSFRBhy>; Mon, 17 Jun 2002 21:37:54 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:62897 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S317212AbSFRBhx>;
+	Mon, 17 Jun 2002 21:37:53 -0400
+Subject: Re: [Patch] tsc-disable_A5
+From: john stultz <johnstul@us.ibm.com>
+To: Kurt Garloff <garloff@suse.de>
+Cc: Benjamin LaHaise <bcrl@redhat.com>, marcelo@conectiva.com.br,
+       lkml <linux-kernel@vger.kernel.org>,
+       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+In-Reply-To: <20020618004823.GB3448@gum01m.etpnet.phys.tue.nl>
+References: <1024079726.29929.131.camel@cog>
+	<20020614145307.G22888@redhat.com> 
+	<20020618004823.GB3448@gum01m.etpnet.phys.tue.nl>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 17 Jun 2002 18:31:49 -0700
+Message-Id: <1024363910.942.32.camel@cog>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3D0A7219.6000303@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Fri, Jun 14, 2002 at 06:45:45PM -0400
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 14, 2002 at 06:45:45PM -0400, Jeff Garzik wrote:
-> Patch did not apply...  I think you're a victim of __FUNCTION__ 
-> cleanups, possibly.  Whoever did those in recent 2.5.x kernels didn't 
-> bother notifying any maintainers :(
+On Mon, 2002-06-17 at 17:48, Kurt Garloff wrote:
+> Hi Ben,
+> 
+> On Fri, Jun 14, 2002 at 02:53:07PM -0400, Benjamin LaHaise wrote:
+> > On Fri, Jun 14, 2002 at 11:35:26AM -0700, john stultz wrote:
+> > > This results in sequential calls to gettimeofday to return
+> > > non-sequential time values. By disabling the TSCs on these boxes, it
+> > > forces gettimeofday to use the PIC clock instead, fixing the problem. 
+> > 
+> > This seems to be yet another reason for supporting per-CPU TSC 
+> > calibration, as that would fix machines with different speed cpus, too.
+> 
+> I agree.
+> Maybe the patch I once made to support CPUs with different speeds can serve
+> as a starting point?
+> 
+> http://www.uwsg.iu.edu/hypermail/linux/kernel/0203.1/0481.html
+> 
+> However, one would need to make sure that all CPUs occasionally do receive
+> timer interrupts, otherwise your TSC may overflow. Depending on your
+> hardware (APICs), this might be an issue. I've been told that Fosters do
+> misbehave ...
 
-	By the way, is there any more cleanups in the pipeline ? I
-mean, the whitespace cleanups missed 50% of the code and the
-__FUNCTION__ cleanups missed 90% of the occurences, so should I expect
-more or can I redo my patches this week ?
-	Thanks...
+Hmmm, I've skimmed your patch before, but really only just for the
+lowest common features bit. I didn't quite grasp it last time, but I
+really like what you're doing there. TSC overflow can be almost
+eliminated if we use the full 64bits, but if we can round robin the
+interrupts, that would help compensate for any skew in the clocks.
 
-	Jean
+Thanks for the pointer!
+-john
+
+
+
+

@@ -1,50 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266805AbUIOBTn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266810AbUIOBYl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266805AbUIOBTn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 21:19:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266810AbUIOBTn
+	id S266810AbUIOBYl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 21:24:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266870AbUIOBYl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 21:19:43 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:63419 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S266805AbUIOBTd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 21:19:33 -0400
-Subject: Re: [patch] kernel sysfs events layer
-From: Robert Love <rml@ximian.com>
-To: Greg KH <greg@kroah.com>
-Cc: Kay Sievers <kay.sievers@vrfy.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20040915000753.GA24125@kroah.com>
-References: <20040902083407.GC3191@kroah.com>
-	 <1094142321.2284.12.camel@betsy.boston.ximian.com>
-	 <20040904005433.GA18229@kroah.com> <1094353088.2591.19.camel@localhost>
-	 <20040905121814.GA1855@vrfy.org> <20040906020601.GA3199@vrfy.org>
-	 <20040910235409.GA32424@kroah.com> <1094875775.10625.5.camel@lucy>
-	 <20040911165300.GA17028@kroah.com> <20040913144553.GA10620@vrfy.org>
-	 <20040915000753.GA24125@kroah.com>
-Content-Type: text/plain
-Date: Tue, 14 Sep 2004 21:19:27 -0400
-Message-Id: <1095211167.20763.2.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.94.1 (1.5.94.1-1) 
+	Tue, 14 Sep 2004 21:24:41 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:50351 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S266810AbUIOBYk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 21:24:40 -0400
+Message-ID: <414799D1.7050609@nortelnetworks.com>
+Date: Tue, 14 Sep 2004 19:24:33 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+CC: Anton Blanchard <anton@samba.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>, paulus@samba.org
+Subject: Re: offtopic: how to break huge patch into smaller independent patches?
+References: <41474B15.8040302@nortelnetworks.com> <20040915002023.GD5615@krispykreme> <119340000.1095209242@flay>
+In-Reply-To: <119340000.1095209242@flay>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-09-14 at 17:07 -0700, Greg KH wrote:
+Martin J. Bligh wrote:
 
-> I don't know, the firmware objects already use "add" for an event.  I
-> didn't put a check in the kobject_uevent() calls to prevent the add and
-> remove, but now it's a lot easier to do so if you think it's necessary.
+> If the changes are in fairly independant files, just vi'ing the diff is
+> normally very effective. If they're all intertangled, then starting again
+> from scratch is prob easier ;-)
 
-I have no problem with this, either, so long as we are not too anal or
-strict about adding new actions.
+Unfortunately I've got over 550 files being changed, in probably about 50 
+conceptual areas.
 
-In other words, I like the safety and typo prevention that this gives
-us, but want to keep things flexible and easy.
+It's not going to be fun.
 
-Best,
-
-	Robert Love
-
-
+Chris

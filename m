@@ -1,90 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261676AbVB1QTK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261673AbVB1QVo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261676AbVB1QTK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 11:19:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbVB1QRY
+	id S261673AbVB1QVo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 11:21:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261674AbVB1QVo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 11:17:24 -0500
-Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:10655 "EHLO
-	higgs.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id S261672AbVB1QPf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 11:15:35 -0500
-From: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
-To: Tejun Heo <htejun@gmail.com>
-Subject: Re: [patch ide-dev 8/9] make ide_task_ioctl() use REQ_DRIVE_TASKFILE
-Date: Mon, 28 Feb 2005 17:14:55 +0100
-User-Agent: KMail/1.7.1
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <Pine.GSO.4.58.0502241547400.13534@mion.elka.pw.edu.pl> <200502271731.29448.bzolnier@elka.pw.edu.pl> <422337A1.4060806@gmail.com>
-In-Reply-To: <422337A1.4060806@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 28 Feb 2005 11:21:44 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:53637 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261673AbVB1QVd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 11:21:33 -0500
+Date: Mon, 28 Feb 2005 17:21:29 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Mark Haverkamp <markh@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, dm-devel@redhat.com
+Subject: Re: [PATCH] Fix panic in 2.6 with bounced bio and dm
+Message-ID: <20050228162128.GK8868@suse.de>
+References: <1109351021.5014.10.camel@markh1.pdx.osdl.net> <20050225161947.5fd6d343.akpm@osdl.org> <Pine.LNX.4.58.0502251640050.9237@ppc970.osdl.org> <20050226123934.GA1254@suse.de> <1109604737.30227.3.camel@markh1.pdx.osdl.net> <20050228155127.GI8868@suse.de> <1109607188.30227.16.camel@markh1.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200502281714.55960.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <1109607188.30227.16.camel@markh1.pdx.osdl.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Hi,
-
-On Monday 28 February 2005 16:24, Tejun Heo wrote:
->   Hi,
+On Mon, Feb 28 2005, Mark Haverkamp wrote:
+> On Mon, 2005-02-28 at 16:51 +0100, Jens Axboe wrote:
+> > On Mon, Feb 28 2005, Mark Haverkamp wrote:
+> > > On Sat, 2005-02-26 at 13:39 +0100, Jens Axboe wrote:
+> > > > On Fri, Feb 25 2005, Linus Torvalds wrote:
+> > > > > 
+> > > > > 
+> > > > > On Fri, 25 Feb 2005, Andrew Morton wrote:
+> > > > > > 
+> > > > > > It seems very weird for dm to be shoving NULL page*'s into the middle of a
+> > > > > > bio's bvec array, so your fix might end up being a workaround pending a
+> > > > > > closer look at what's going on in there.
+> > > > > 
+> > > > > Yes. I don't see how this patch can be anything but bandaid to hide the 
+> > > > > real bug. Where do these "non-page" bvec's originate?
+> > > > 
+> > > > Yep that's the fishy part, there should not be NULL pages in the middle
+> > > > (or empty bios, for that matter) submitted for io.
+> > > > 
+> > > > Mark, what was the bug that triggered you to write this patch?
+> > > 
+> > > It happened when some pages of IO from a dm device were bounced.  It
+> > > looks to me when bio's are cloned in the dm code to split it for
+> > > physical devices that only the pointers to pages that apply to that
+> > > device are copied and th bi_idx is adjusted to point to the start,
+> > > leaving some NULL pointers at the start of the bio_vec.
+> > 
+> > This should fix it.
 > 
-> Bartlomiej Zolnierkiewicz wrote:
-> > On Sunday 27 February 2005 08:36, Tejun Heo wrote:
-> > 
-> >> Hello, Bartlomiej.
-> >>
-> >> This patch should be modified to use flagged taskfile if the
-> >>task_end_request_fix patch isn't applied.  As non-flagged taskfile
-> >>won't return valid result registers, TASK ioctl users won't get the
-> >>correct register output.
-> > 
-> > 
-> > Nope, it works just fine because REQ_DRIVE_TASK used only
-> > no-data protocol, please check task_no_data_intr().
-> > 
-> 
->   Sorry, I missed that.  IDE really has a lot of ways to finish a 
-> command, doesn't it?  hdio.txt is gonna look ugly. :-)
+> Wouldn't this potentially create bounce pages that will never be used?
 
-Yep but it was a lot more "fun" when there were three PIO codepaths. ;-)
+Well no, it just points them at the "top" pages from the original bio.
 
-hdio.txt doesn't need to know about driver internals so no problem here.
+-- 
+Jens Axboe
 
-> > 
-> >> IMHO, this flag-to-get-result-registers thing is way too subtle.  How
-> >>about keeping old behavior by just not copying out register outputs in
-> >>ide_taskfile_ioctl() in applicable cases instead of not reading
-> >>registers when ending commands?  That is, unless there's some
-> >>noticeable performance impacts I'm not aware of.
-> > 
-> > 
-> > This would miss whole point of not _reading_ these registers (IO is slow).
-> > IMHO new flags denoting {in,out} registers should be added (to <linux/ata.h>
-> > to share them with libata) so new code can be sane and old flags would map
-> > on new flags when needed.
-> 
->   Please do it.
-> 
->   Or, let me know what you have in mind (added fields, flag names, 
-> etc...); then, I'll do it.  I think we also need to hear Jeff's opinion 
-> as things need to be added to ata.h.
-
-I was thinking about:
-
-* adding ATA_TFLAG_{IN,OUT}_xxx flags (there is enough free
-  place for all flags in ->flags field of struct ata_taskfile)
-* teaching flagged_taskfile() about these flags and mapping ->tf_out_flags
-  onto ATA_TFLAG_OUT_xxx (simple mapping no need to move ->tf_out_flags
-  to ide_taskfile_ioctl() etc. - no risk of breaking something)
-* moving flagged taskfile writing to ide_tf_load_discrete() helper
-* adding ide_tf_read_discrete() helper for use by ide_end_drive_cmd()
-  and mapping ->tf_in_flags onto ATA_TFLAG_IN_xxx (ditto)
-
-If you like this plan feel free to implement it.
-I'm also open for better ideas, comments etc.
-
-Bartlomiej

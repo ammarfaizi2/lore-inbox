@@ -1,62 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267638AbUH0Vso@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268381AbUH0Vso@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267638AbUH0Vso (ORCPT <rfc822;willy@w.ods.org>);
+	id S268381AbUH0Vso (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 27 Aug 2004 17:48:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268381AbUH0VlL
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267614AbUH0Vir
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 17:41:11 -0400
-Received: from smtp.Lynuxworks.com ([207.21.185.24]:46352 "EHLO
-	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S267758AbUH0VeO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 17:34:14 -0400
-Date: Fri, 27 Aug 2004 14:33:31 -0700
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Markus T?rnqvist <mjt@nysv.org>, Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Hans Reiser <reiser@namesys.com>, Andrew Morton <akpm@osdl.org>,
-       hch@lst.de, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com, bhuey@lnxw.com
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040827213331.GA4468@nietzsche.lynx.com>
-References: <412D9FE6.9050307@namesys.com> <200408261812.i7QICW8r002679@localhost.localdomain> <20040827203216.GC1284@nysv.org> <Pine.LNX.4.58.0408271335421.14196@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 27 Aug 2004 17:38:47 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:35592 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S268410AbUH0VcY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 17:32:24 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Subject: Re: Linux 2.6.9-rc1
+Date: Sat, 28 Aug 2004 00:30:20 +0300
+User-Agent: KMail/1.5.4
+Cc: Roman Zippel <zippel@linux-m68k.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Daniel Andersen <anddan@linux-user.net>,
+       "Sartorelli, Kevin" <Kevin.Sartorelli@openpolytechnic.ac.nz>,
+       fraga@abusar.org, linux-kernel@vger.kernel.org
+References: <200408271245.i7RCjgPd002534@localhost.localdomain>
+In-Reply-To: <200408271245.i7RCjgPd002534@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0408271335421.14196@ppc970.osdl.org>
-User-Agent: Mutt/1.5.6+20040818i
-From: Bill Huey (hui) <bhuey@lnxw.com>
+Message-Id: <200408280030.20417.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 27, 2004 at 01:38:28PM -0700, Linus Torvalds wrote:
-> Heh. Considering that WinFS seems to be delayed yet more, I don't think 
-> that's a very strong argument.
+On Friday 27 August 2004 15:45, Horst von Brand wrote:
+> Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> said:
+>
+> [...]
+>
+> > Think about a user who can't risk moving to 2.6.9.1.
+> > [S]he wants to use 2.6.8.n+1 which have only one more fix.
+>
+> They get a distribution kernel, which presumably has survived extensive
+> beating.
 
-Which is another argument, and bragging rights, to integrate something
-like Reiser FS4. :)
+"Train goes from A to B..."
+"But, teacher, why does it go to B?"
 
-> Hell will freeze over before Microsoft does a filesystem right. Besides,
-> WinFS is likely almost in user mode anyway, ie mostly a library, rather
-> like the gnome people are already doing with nome storage.
+I said that some person may use 2.6.8.n in a critical application
+and dare not change *anything* except that one known good bugfix.
 
-They're trying to push their low level storage model into the kernel
-after they saw how slow their userspace version of that is. It makes
-sense to have this kind of stuff directly apart of a lower level FS
-later
- 
-> So there's really no point in trying to push your agenda by trying to 
-> scare people with MS activities. Linux kernel developers do what's right 
-> because it is _right_, not because somebody else does it.
-
-I tried to stay out of this thread, but I couldn't resist after this
-post. :) MS has other problems, namely, they're a large company trying
-to basically replicated Apple's (NeXT) OS X stuff, but onl 10x larger
-and slower than it is. It's really silly what's going on with MS
-development as well as the greater open source X community. The sooner
-folks realize that all rendering models are moving in the direction of
-Apple's OS X, the sooner they can just flat out rip it off.
-
-It's going to require both kernel and userspace changes for this to
-happen.
-
-bill
+Are you trying to say that such person cannot possibly exist?
+--
+vda
 

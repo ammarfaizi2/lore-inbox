@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266203AbSKFWwM>; Wed, 6 Nov 2002 17:52:12 -0500
+	id <S266183AbSKFWlD>; Wed, 6 Nov 2002 17:41:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266204AbSKFWwM>; Wed, 6 Nov 2002 17:52:12 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:64261
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S266203AbSKFWwM>; Wed, 6 Nov 2002 17:52:12 -0500
-Subject: RE: Regarding zerocopy implementation ...
-From: Robert Love <rml@tech9.net>
-To: Manish Lachwani <manish@Zambeel.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <233C89823A37714D95B1A891DE3BCE5202AB184B@xch-a.win.zambeel.com>
-References: <233C89823A37714D95B1A891DE3BCE5202AB184B@xch-a.win.zambeel.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 06 Nov 2002 17:45:46 -0500
-Message-Id: <1036622746.781.1421.camel@phantasy>
-Mime-Version: 1.0
+	id <S266184AbSKFWlD>; Wed, 6 Nov 2002 17:41:03 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:35724 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S266183AbSKFWlC>;
+	Wed, 6 Nov 2002 17:41:02 -0500
+Date: Wed, 6 Nov 2002 17:47:40 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: "Theodore Ts'o" <tytso@mit.edu>
+cc: Christopher Li <chrisl@vmware.com>, Jeremy Fitzhardinge <jeremy@goop.org>,
+       Ext2 devel <ext2-devel@lists.sourceforge.net>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Fix bug in ext3 htree rename: doesn't delete old name,
+ leaves ino with bad nlink
+In-Reply-To: <20021106224112.GA10130@think.thunk.org>
+Message-ID: <Pine.GSO.4.21.0211061746410.10405-100000@steklov.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-11-06 at 17:01, Manish Lachwani wrote:
 
-> Thanks for the response. When you say zerocopy networking, do you refer to
-> zerocopy receives too? What linux kernel version offers this support? I am
-> making use of 2.4.17 ...
 
-No, only sending is supported.  See sendfile().
+On Wed, 6 Nov 2002, Theodore Ts'o wrote:
 
-Yes, zero copy is in 2.4.17.
+> We take the BKL, yes; but if we need to sleep waiting for a block to
+> be read in, that's when another process can run.  Yes, that means
+> another process could end up deleting the entry out from under us ---
+> or make some other change to the directory.  I was actually quite
+> nervous about this, so I spent some time auditing the code paths of
+> when do_split() might sleep, to make sure it would never leave the
+> directory in an unstable condition.
 
-	Robert Love
+HUH?
+
+->rename() holds ->i_sem on both directories.  So do all other directory
+methods.  What the hell is going on there?
 

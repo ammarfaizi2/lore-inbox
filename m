@@ -1,64 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261804AbTC0PNk>; Thu, 27 Mar 2003 10:13:40 -0500
+	id <S261942AbTC0POY>; Thu, 27 Mar 2003 10:14:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261942AbTC0PNk>; Thu, 27 Mar 2003 10:13:40 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:29592 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S261804AbTC0PNj>; Thu, 27 Mar 2003 10:13:39 -0500
-Date: Thu, 27 Mar 2003 07:24:50 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 510] New: USB storage doesn't work on my Sony Vaio C1VE
-Message-ID: <11420000.1048778690@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S262997AbTC0POY>; Thu, 27 Mar 2003 10:14:24 -0500
+Received: from mail1-3.netinsight.se ([212.247.11.2]:7952 "HELO
+	ernst.netinsight.se") by vger.kernel.org with SMTP
+	id <S261942AbTC0POU>; Thu, 27 Mar 2003 10:14:20 -0500
+Message-ID: <3E831774.D494DAE7@netinsight.se>
+Date: Thu, 27 Mar 2003 16:23:32 +0100
+From: Stephane <stephane.tessier@netinsight.se>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.19-16mdk i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+To: linux-kernel@vger.kernel.org
+CC: Stephane Tessier <stephane.tessier@netinsight.se>
+Subject: Re: exit_mmap
+References: <3E830EC7.651EB9CE@netinsight.se>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=510
+Actually I was talking about 2.4.19 but I saw that this was solved in
+2.5,
+sorry for the disturbance
 
-           Summary: USB storage doesn't work on my Sony Vaio C1VE
-    Kernel Version: 2.5.66-bk2
-            Status: NEW
-          Severity: blocking
-             Owner: greg@kroah.com
-         Submitter: stelian@popies.net
+Stephane wrote:
+> 
+> I have a question about mmap and the close operation of a
+> vm_area_struct.
+> Is there a reason why in exit_mmap, when a process dies unexpectedly,
+> the vm_ops->close is called before zap_page_range is called?
+> 
+> The problem is that if you have allocated one or several kernel pages
+> for a vm_area_struct, you can not free them in the vm_ops->close
+> operation since the count field of the pages is not 0 because they are
+> still mapped. The count will be cleared when zap_page_range is called.
+> 
+> This means that exit_mmap calls vm_ops->close and zap_page_range in the
+> reverse order of a normal execution of the process, that is when the
+> process unmap the area before dying.
+> 
+> It would be more deterministic and simple if vm_ops->close was always
+> called when all the pages of the area was unmapped.
+> 
+> PS: please can you CC'ed the answer to stephane.tessier@netinsight.se
+> --
+> Stephane Tessier
+> Net Insight AB          stephane.tessier@netinsight.se
+> Västberga Allé 9        http://www.netinsight.se
+> SE-126 30 Hägersten     phone:+46-8-685 04 60
+> Sweden                  fax:  +46-8-685 04 20
 
-
-Distribution: RedHat 8.0
-Hardware Environment: Sony Vaio C1VE (same as C1VM/C1VN in other countries),
-external USB floppy drive, internal memory stick USB reader
-Software Environment: mount...
-Problem Description: Neither the floppy drive nor the memory stick reader
-work, even if they seem to trigger different bugs
-
-First of all, both the floppy drive and the memory stick reader work
-perfectly under a 2.4 kernel.
-
-When used with 2.5.66, the memory stick reader is seen as a USB device, but
-not always detected as a SCSI disk. The floppy drive is immediately
-recognized as a USB device and a SCSI disk.
-
-However, trying to read/write data (with dd, mount etc) doesn't work,
-errors are shown in the kernel logs and the operations are _very_ slow
-(the mount process hangs for 5 minutes before giving up, it's wchan being
-scsi_wait_req).
-
-I'm attaching several kernel logs:
-* memstick.ok, floppy.ok: kernel logs of successful operations on a
-2.4.21-pre6 kernel
-* memstick.bad, floppy.bad: kernel logs of failure on 2.5.66-bk2
-* usbstorage.oops: an oops I got while playing with 2.5.66-bk2 and tried to
-remove usb-storage to see if it helps to reinsert it. I'm attaching it
-here, and not in a separate bug report because it may be related to my
-failures.
-
-I can give more information if it is needed (enable debugging in USB and/or
-SCSI somewhere, test patches etc.), just say it.
-
-Stelian.
-
+-- 
+Stephane Tessier
+Net Insight AB          stephane.tessier@netinsight.se
+Västberga Allé 9        http://www.netinsight.se
+SE-126 30 Hägersten     phone:+46-8-685 04 60
+Sweden                  fax:  +46-8-685 04 20

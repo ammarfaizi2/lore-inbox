@@ -1,46 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317831AbSGVUx5>; Mon, 22 Jul 2002 16:53:57 -0400
+	id <S317851AbSGVUyn>; Mon, 22 Jul 2002 16:54:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317833AbSGVUx5>; Mon, 22 Jul 2002 16:53:57 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:27400 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S317831AbSGVUxx>; Mon, 22 Jul 2002 16:53:53 -0400
-Date: Mon, 22 Jul 2002 21:57:00 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: Kurt Garloff <garloff@suse.de>,
-       Linux SCSI list <linux-scsi@vger.kernel.org>,
-       Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Patch for 256 disks in 2.4
-Message-ID: <20020722215700.A12813@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Pete Zaitcev <zaitcev@redhat.com>, Kurt Garloff <garloff@suse.de>,
-	Linux SCSI list <linux-scsi@vger.kernel.org>,
-	Linux kernel list <linux-kernel@vger.kernel.org>
-References: <20020720195729.C20953@devserv.devel.redhat.com> <20020722170840.GB19587@nbkurt.etpnet.phys.tue.nl> <20020722164856.D19904@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020722164856.D19904@devserv.devel.redhat.com>; from zaitcev@redhat.com on Mon, Jul 22, 2002 at 04:48:56PM -0400
+	id <S317852AbSGVUym>; Mon, 22 Jul 2002 16:54:42 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:11786 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S317851AbSGVUyk>; Mon, 22 Jul 2002 16:54:40 -0400
+Date: Mon, 22 Jul 2002 16:50:07 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Dave Jones <davej@suse.de>
+cc: Guillaume Boissiere <boissiere@adiglobal.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST
+In-Reply-To: <20020718222229.B21997@suse.de>
+Message-ID: <Pine.LNX.3.96.1020722163826.28574H-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 22, 2002 at 04:48:56PM -0400, Pete Zaitcev wrote:
-> > I've written a patch for sd that makes the allocation of majors
-> > dynamic. The driver just takes 8 at sd_init and further majors are 
-> > allocated when disks are attached. Which saves a lot of memory for
-> > all the gendisk and hd_struct stuff in case you do not have a lot of 
-> > SCSI disks connected. The patch does support up to 160 SD majors, 
-> > though currently, it won't succeed getting more than 132 majors.
-> 
-> That's wonderful, but we cannot ship that. There is no userland
-> support to create device nodes in dynamic fashion and to ensure
-> that they do not conflict. This is why Arjan filed for and received
-> additional majors. Dynamic solutions need some time to float about
-> the community, I think.
+On Thu, 18 Jul 2002, Dave Jones wrote:
 
-I might be stupid, but it looks to me like we want both the new majors
-and the kernel structs dynamically allocated when they get actually used..
+> On Thu, Jul 18, 2002 at 12:46:43PM -0400, Bill Davidsen wrote:
+
+>  > > o Full compliance with IPv6                       (Alexey Kuznetzov, Jun Murai, Yoshifuji Hideaki, USAGI team)
+>  > 	could ease in 2.6.x if not?
+> 
+> Davem's call I guess. ISTR the USAGI work was a rather large patch which
+> if in Davem's shoes, I'd be rather dubious about taking 'all-in-one'.
+
+Before the freeze it should be fine, after all if working IDE is optional
+in a development kernel IPV6 is certainly not a must-have (unless it
+seriously break IPV4, obviously).
+ 
+>  > > o Add support for NFS v4                          (NFS v4 team)
+>  > 	This really shouldn't wait for 2.8!
+> 
+> Last I saw of this patch it was still against something like 2.4.1,
+> so they have a lot of catch up to do. This fact asides, if it doesn't
+> touch common code, there's no reason it can't go in post-feature freeze
+> in the same way as a driver/additional fs. Depends how much it touches.
+> That said, are there really that many NFSv4 hosts out there that make
+> this a *must have* feature ? Are any other *nix vendors shipping NFSv4 yet?
+
+Not that I have used, this was more of a preemptive effort to get it in
+2.6 rather than 2.8, since most vendors will be shipping in less than a
+year if you believe their unofficial comments. And if the benefits are
+there it would be a good thing to have first, perhaps.
+
+>  > > o Overhaul PCMCIA support                         (David Woodhouse, David Hinds)
+>  > 	Sure would be nice if it worked on desktops as well as laptops
+> 
+> "works for me". Admittedly I've not played with pcmcia much, but it
+> seems at least if you choose the right hardware it works fine.
+
+I haven't had it work since about 2.6 on a BP6 with an adaptor, but it did
+work in 2.4.early. Of course it could be related to the new IDE stuff
+making compact flash fail, but even building a uni kernel doesn't help. I
+bought a cheap used laptop just to use as a card reader, but I'd rather
+not stay that way ;-) Guess for now that's the "right hardware."
+
+Thanks for all the additional feedback.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

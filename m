@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262584AbTFKPkF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 11:40:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262589AbTFKPkF
+	id S262577AbTFKPml (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 11:42:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262578AbTFKPml
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 11:40:05 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:4268
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S262584AbTFKPkA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 11:40:00 -0400
-Subject: Re: [PATCH] nfs_unlink() race (was: nfs_refresh_inode: inode
-	number mismatch)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: viro@parcelfarce.linux.theplanet.co.uk, Frank Cusack <fcusack@fcusack.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0306110804360.4413-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0306110804360.4413-100000@home.transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1055346664.2420.5.camel@dhcp22.swansea.linux.org.uk>
+	Wed, 11 Jun 2003 11:42:41 -0400
+Received: from deviant.impure.org.uk ([195.82.120.238]:31207 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S262577AbTFKPmk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 11:42:40 -0400
+Date: Wed, 11 Jun 2003 16:56:14 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Alex Deucher <agd5f@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Via KT400 and AGP 8x Support
+Message-ID: <20030611155614.GA5234@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Alex Deucher <agd5f@yahoo.com>, linux-kernel@vger.kernel.org
+References: <20030611150655.17201.qmail@web11301.mail.yahoo.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 11 Jun 2003 16:51:04 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030611150655.17201.qmail@web11301.mail.yahoo.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-06-11 at 16:08, Linus Torvalds wrote:
-> > cd foo
-> > mv ../file .
-> > more file
-> > 
-> > ESTALE.
-> 
-> Yes, VFAT ends up encoding the parent directory in the FH, so renaming 
-> will invalidate the old file handle, and if you cache inodes (and thus 
-> filehandles) over a directory move, badness happens.
-> 
-> Arguably it's a NFS client problem
+On Wed, Jun 11, 2003 at 08:06:55AM -0700, Alex Deucher wrote:
+ > Actually I believe the new ati 9200 cards support agp 8x and they work
+ > with the current DRI r200 driver.
 
-No no - this happens on LOCAL disk. No NFS needed at all.
+Excellent. It may be worthwhile anyone who buys one of these
+actually letting ATI know the reason for doing so was the
+fact that it's the only AGP x8 card supported by _fully_ open drivers.
+
+		Dave
 

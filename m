@@ -1,64 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbUJETt5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266218AbUJETx5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261875AbUJETt5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 15:49:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266221AbUJETrB
+	id S266218AbUJETx5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 15:53:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265768AbUJETuh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 15:47:01 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:51138 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265127AbUJETmi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 15:42:38 -0400
-Date: Tue, 5 Oct 2004 21:42:08 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: "Johnson, Richard" <rjohnson@analogic.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.6.5-1.358 and Fedora
-Message-ID: <20041005194208.GE11254@devserv.devel.redhat.com>
-References: <1097004565.9975.25.camel@laptop.fenrus.com> <Pine.LNX.4.61.0410052140150.2913@dragon.hygekrogen.localhost>
+	Tue, 5 Oct 2004 15:50:37 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:224 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S265800AbUJETq7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 15:46:59 -0400
+Subject: Re: /dev/misc/inotify 0.11
+From: Robert Love <rml@novell.com>
+To: David Busby <DBusby@SeattleMortgage.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <82C88232E64C7340BF749593380762021166F3@seattleexchange.SMC.LOCAL>
+References: <82C88232E64C7340BF749593380762021166F3@seattleexchange.SMC.LOCAL>
+Content-Type: text/plain
+Date: Tue, 05 Oct 2004 15:45:24 -0400
+Message-Id: <1097005524.4429.13.camel@betsy.boston.ximian.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="LyciRD1jyfeSSjG0"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0410052140150.2913@dragon.hygekrogen.localhost>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2004-10-05 at 09:55 -0700, David Busby wrote:
 
---LyciRD1jyfeSSjG0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+In the future please CC me and John McCutchan <ttb@tentacle.dhs.org> on
+inotify bugs if you can.  Or respond to an existing inotify thread.  I
+almost missed this.  Thanks.
+
+> 1> When I say `cat /dev/misc/inotify' my machine stops responding
+> instantly.  I've not had a chance to see what happens.  I know I'll not
+> normally say that but when I say something else dumb like cat
+> /dev/misc/rtc cat will simply wait, not choke up my whole system.
+
+I cannot reproduce this.
+
+`cat /dev/inotify` simply blocks in inotify_read().
+
+You use devfs?  Can you try it without that?
+
+	Robert Love
 
 
-On Tue, Oct 05, 2004 at 09:46:18PM +0200, Jesper Juhl wrote:
-> On Tue, 5 Oct 2004, Arjan van de Ven wrote:
-> 
-> > If Richard overwrote his modules anyway he must have hacked the Makefile
-> > himself to deliberately cause this, at which point... well saw wind
-> > harvest storm ;)
-> > 
-> While I lack specific Fedora knowledge and thus can't provide exact 
-> details for it I'd say it should still be pretty simple to recover. On 
-> Slackware I'd simply boot a kernel from the install CD and tell it to 
-> mount the installed system on my HD, then you'll have a running system and 
-> can easily clean out the broken modules etc and install the original ones 
-> from your CD and be right back where you started in 5 min. Surely 
-> something similar is possible with Fedora, reinstalling from scratch (as 
-> he said he did) seems like massive overkill to me.
-
-yeah there is rescue mode for that reason on the first cd
-
---LyciRD1jyfeSSjG0
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFBYvkQxULwo51rQBIRApxdAJ9XeWCZdVamUZ8f8+kuC6nyswbAHQCdHSRH
-awWqoVN9bNXTeLR4CR9/UPo=
-=lnip
------END PGP SIGNATURE-----
-
---LyciRD1jyfeSSjG0--

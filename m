@@ -1,107 +1,134 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312277AbSCTKgZ>; Wed, 20 Mar 2002 05:36:25 -0500
+	id <S311618AbSCTGmk>; Wed, 20 Mar 2002 01:42:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312274AbSCTKgG>; Wed, 20 Mar 2002 05:36:06 -0500
-Received: from morrison.empeg.co.uk ([193.119.19.130]:44284 "EHLO
-	fatboy.internal.empeg.com") by vger.kernel.org with ESMTP
-	id <S312277AbSCTKfz>; Wed, 20 Mar 2002 05:35:55 -0500
-Message-ID: <004a01c1cffa$807528e0$2701230a@electronic>
-From: "Peter Hartley" <pdh@utter.chaos.org.uk>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: "Andreas Dilger" <adilger@clusterfs.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <E16nOb2-0008Pk-00@the-village.bc.nu>
-Subject: [PATCH] Re: setrlimit and RLIM_INFINITY causing fsck failure, 2.4.18
-Date: Wed, 20 Mar 2002 10:12:16 -0000
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_0042_01C1CFF7.B67E5950"
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S311619AbSCTGmb>; Wed, 20 Mar 2002 01:42:31 -0500
+Received: from [202.135.142.194] ([202.135.142.194]:46861 "EHLO
+	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S311618AbSCTGmP>; Wed, 20 Mar 2002 01:42:15 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Martin.Wirth@dlr.de
+Cc: Ulrich Drepper <drepper@redhat.com>, pwaechtler@loewe-komp.de,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores) 
+In-Reply-To: Your message of "Tue, 19 Mar 2002 09:34:39 BST."
+             <3C96F81F.1020608@dlr.de> 
+Date: Wed, 20 Mar 2002 17:45:02 +1100
+Message-Id: <E16nZqJ-0004mi-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+In message <3C96F81F.1020608@dlr.de> you write:
+> Rusty Russell wrote:
+> 
+> 
+> > 1) Where this is flawed,
+> 
+> 
+> I. There is a race in __pthread_cond_wait between timeout and a 
+> cond_signal or broadcast. If the signal comes in
+> 
+> } while (ret < 0 && errno == EINTR);
+>  >>>>> we leave with errno==ETIMEDOUT and get signal or broadcast called 
+> here
+> 	if (atomic_dec_and_test(cond->num_waiting))
+> 
+> then you up cond->wait one time to often, leaving it in an invalid state.
 
-------=_NextPart_000_0042_01C1CFF7.B67E5950
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Hmmm... this is true.
 
-AC wrote:
-> Test it and see 8)
+> II. Your implementation relies on the fact that the signal or broadcast
+> caller owns the mutex used in cond_wait. According to the POSIX spec 
+> this need not be the case. The only thing that may happen is that you
+> miss a wakeup. But it is not allowed to screw up the internal state of
+> of the condition variable, which might well happen in your 
+> implementation. (Note: Calling cond_signal without holding the mutex is 
+> not necessarily flawed software. Think of a periodically occurring 
+> new_data or data_changed flag where it is not really important to sleep 
+> race free)
 
-OK, did do. Patch attached. The occurrence in filemap.c was the one killing
-fsck, but I went looking for other occurrences of SIGXFS and made sure they
-did the right thing too.
+I hadn't appreciated this.  That makes it harder.  I think I have to
+abandon the atomics and use a mutex inside the condition variable.
 
-This doesn't address any other wonkiness of rlimit, it just stops it
-applying to block devices.
+> III. Minor nit: You should also clear cond->ack.count
+> in cond_signal otherwise it may wrap around soon (at least for a
+> 24-bit atomic variable) if you mostly use cond_signal.
 
-        Peter
+Yep.
 
+> > 2) Where this is suboptimal,
+> 
+> 
+> As said in a previous e-mail, you need an futex_up(..,n) that
+> really wakes_up n thread at once.
 
-------=_NextPart_000_0042_01C1CFF7.B67E5950
-Content-Type: application/octet-stream;
-	name="sigxfs-vs-blkdev.patch"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="sigxfs-vs-blkdev.patch"
+OK, we could read the value in the kernel's up() and wake that many.
 
-diff -u3 -r linux/fs/buffer.c linux.pdh/fs/buffer.c=0A=
---- linux/fs/buffer.c	Mon Feb 25 19:38:08 2002=0A=
-+++ linux.pdh/fs/buffer.c	Tue Mar 19 19:23:43 2002=0A=
-@@ -1834,7 +1834,7 @@=0A=
- =0A=
- 	err =3D -EFBIG;=0A=
-         limit =3D current->rlim[RLIMIT_FSIZE].rlim_cur;=0A=
--	if (limit !=3D RLIM_INFINITY && size > (loff_t)limit) {=0A=
-+	if (limit !=3D RLIM_INFINITY && size > (loff_t)limit && =
-!S_ISBLK(inode->i_mode)) {=0A=
- 		send_sig(SIGXFSZ, current, 0);=0A=
- 		goto out;=0A=
- 	}=0A=
-diff -u3 -r linux/mm/filemap.c linux.pdh/mm/filemap.c=0A=
---- linux/mm/filemap.c	Mon Feb 25 19:38:13 2002=0A=
-+++ linux.pdh/mm/filemap.c	Tue Mar 19 19:21:17 2002=0A=
-@@ -2885,8 +2885,8 @@=0A=
- 	 * Check whether we've reached the file size limit.=0A=
- 	 */=0A=
- 	err =3D -EFBIG;=0A=
--	=0A=
--	if (limit !=3D RLIM_INFINITY) {=0A=
-+=0A=
-+	if (limit !=3D RLIM_INFINITY && !S_ISBLK(inode->i_mode)) {=0A=
- 		if (pos >=3D limit) {=0A=
- 			send_sig(SIGXFSZ, current, 0);=0A=
- 			goto out;=0A=
-diff -u3 -r linux/mm/memory.c linux.pdh/mm/memory.c=0A=
---- linux/mm/memory.c	Mon Feb 25 19:38:13 2002=0A=
-+++ linux.pdh/mm/memory.c	Tue Mar 19 19:22:45 2002=0A=
-@@ -1059,7 +1059,7 @@=0A=
- =0A=
- do_expand:=0A=
- 	limit =3D current->rlim[RLIMIT_FSIZE].rlim_cur;=0A=
--	if (limit !=3D RLIM_INFINITY && offset > limit)=0A=
-+	if (limit !=3D RLIM_INFINITY && offset > limit && =
-!S_ISBLK(inode->i_mode))=0A=
- 		goto out_sig;=0A=
- 	if (offset > inode->i_sb->s_maxbytes)=0A=
- 		goto out;=0A=
-diff -u3 -r linux/mm/shmem.c linux.pdh/mm/shmem.c=0A=
---- linux/mm/shmem.c	Mon Feb 25 19:38:14 2002=0A=
-+++ linux.pdh/mm/shmem.c	Tue Mar 19 19:23:17 2002=0A=
-@@ -780,7 +780,7 @@=0A=
- 	 * Check whether we've reached the file size limit.=0A=
- 	 */=0A=
- 	err =3D -EFBIG;=0A=
--	if (limit !=3D RLIM_INFINITY) {=0A=
-+	if (limit !=3D RLIM_INFINITY && !S_ISBLK(inode->i_mode)) {=0A=
- 		if (pos >=3D limit) {=0A=
- 			send_sig(SIGXFSZ, current, 0);=0A=
- 			goto out;=0A=
+> > 3) What kernel primitive would help to resolve these?
+> 
+> Your exported waitqueues or my suggestion for a second waitqueue 
+> associated with a futex.
 
-------=_NextPart_000_0042_01C1CFF7.B67E5950--
+Any chance of a rough patch (to the code below, at least)?
 
+Thanks!
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+
+--- non-pthreads.c.19-March-2002	Wed Mar 20 17:37:17 2002
++++ non-pthreads.c	Wed Mar 20 17:43:42 2002
+@@ -11,6 +11,7 @@
+ 
+ typedef struct 
+ {
++	struct futex lock;
+ 	int num_waiting;
+ 	struct futex wait, ack;
+ } pthread_cond_t;
+@@ -48,23 +49,29 @@
+ 
+ int pthread_cond_signal(pthread_cond_t *cond)
+ {
++	futex_down(&cond->lock);
++	/* Reset this so it doesn't overflow */
++	cond->ack.count = 0;
+ 	if (cond->num_waiters)
+ 		return futex_up(&cond->futex, 1);
++	futex_up(&cond->lock, 1);
+ 	return 0;
+ }
+ 
+ int pthread_cond_broadcast(pthread_cond_t *cond)
+ {
+-	unsigned int waiters = cond->num_waiting;
+-
+-	if (waiters) {
+-		/* Re-initialize ACK.  Could have been upped by
+-                   pthread_cond_signal and pthread_cond_wait. */
++	futex_down(&cond->lock);
++	if (cond->num_waiting) {
+ 		cond->ack.count = 0;
++		/* Release the waiters. */
+ 		futex_up(&cond->futex, waiters);
+ 		/* Wait for ack before returning. */
+ 		futex_down(&cond->ack);
++		/* Reset wait, in case someone who was waiting timed
++                   out and didn't decrement. */
++		cond->wait.count = 0;
+ 	}
++	futex_up(&cond->lock);
+ 	return 0;
+ }
+ 
+@@ -75,8 +82,10 @@
+ 	int ret;
+ 
+ 	/* Increment first so broadcaster knows we are waiting. */
++	futex_down(&cond->lock);
+ 	atomic_inc(cond->num_waiting);
+ 	futex_up(&mutex, 1);
++	futex_up(&cond->lock, 1);
+ 	do {
+ 		ret = futex_down_time(&cond, reltime);
+ 	} while (ret < 0 && errno == EINTR);

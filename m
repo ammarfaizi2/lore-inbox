@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319250AbSIFQDi>; Fri, 6 Sep 2002 12:03:38 -0400
+	id <S319238AbSIFPy4>; Fri, 6 Sep 2002 11:54:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319229AbSIFQDi>; Fri, 6 Sep 2002 12:03:38 -0400
-Received: from 2-210.ctame701-1.telepar.net.br ([200.193.160.210]:20181 "EHLO
-	2-210.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S319250AbSIFQDe>; Fri, 6 Sep 2002 12:03:34 -0400
-Date: Fri, 6 Sep 2002 13:07:59 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: "Woller, Thomas" <tom.woller@cirrus.com>
-cc: linux-kernel@vger.kernel.org
-Subject: RE: cs4281 & select in 2.4
-In-Reply-To: <973C11FE0E3ED41183B200508BC7774C05233F87@csexchange.crystal.cirrus.com>
-Message-ID: <Pine.LNX.4.44L.0209061305170.1857-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S319234AbSIFPy4>; Fri, 6 Sep 2002 11:54:56 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:16358 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S319238AbSIFPyy>; Fri, 6 Sep 2002 11:54:54 -0400
+Subject: Re: pid_max hang again...
+From: Paul Larson <plars@linuxtestproject.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0209061738330.24094-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0209061738330.24094-100000@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 06 Sep 2002 10:47:23 -0500
+Message-Id: <1031327243.30451.7.camel@plars.austin.ibm.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Sep 2002, Woller, Thomas wrote:
+On Fri, 2002-09-06 at 10:39, Ingo Molnar wrote:
+> 
+> On 6 Sep 2002, Paul Larson wrote:
+> 
+> > It looks like this change dropped us back to the same error all this was
+> > originally supposed to fix.  When you hit PID_MAX, get_pid() starts
+> > looping forever looking for a free pid and hangs.  I could probably make
+> > my original fix work on this very easily if you'd like.
+> 
+> yes please send a patch for this. Reintroduction of the looping bug was
+> unintended.
+> 
+> > I wonder though, would it be possible to do this in a more simple way by
+> > just throttling max_threads back to something more sane if it gets
+> > defaulted too high?  Since it gets checked before we even get to the
+> > get_pid call in copy_process().  That would keep the number of processes
+> > down to a sane level without the risk.
+> 
+> this is a good approach as well, but now pid_max can be adjusted runtime
+> so truncating max_threads as a side-effect looks a bit problematic. We
+> should rather fail the fork() cleanly.
+I agree, unless this was just going to be temporary.  I'll pull the
+get_pid() fix up to the current version and send it in a bit.
 
-> which 2.4 version are you using? 2.4.19?  There was a ham-radio
-> select(2) fix in the cs4281 driver back in 2.4.17 era, think that
-> it got into the 2.4.18 kernel tree.  I just checked the 2.4.19
-> kernel and the fix does seem to be included.
-
-I'm using 2.4.19, but select() doesn't work just as it
-didn't in 2.4.16.
-
-> i'll place a tarbz2 file out on an FTP server, and if you can try this
-> driver, that would help me out.  if the driver does not build under your
-> tree, let me know, it's circa 2.4.17 and i don't know the 2.4.19 mods
-> concerning drivers.
-
-> i'll put cs4281-src-20011214-01n-tar.bz2 into \cs4281 directory.
-
-Thanks.  I've just grabbed the tarball and will let you know
-if this fixes things.
-
-kind regards,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Spamtraps of the month:  september@surriel.com trac@trac.org
+Thanks,
+Paul Larson
 

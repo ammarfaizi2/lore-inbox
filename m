@@ -1,41 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266451AbUFUU1K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266456AbUFUUdF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266451AbUFUU1K (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 16:27:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266457AbUFUU1K
+	id S266456AbUFUUdF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 16:33:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266457AbUFUUdE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 16:27:10 -0400
-Received: from web90107.mail.scd.yahoo.com ([66.218.94.78]:59788 "HELO
-	web90107.mail.scd.yahoo.com") by vger.kernel.org with SMTP
-	id S266451AbUFUU1D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 16:27:03 -0400
-Message-ID: <20040621202702.91926.qmail@web90107.mail.scd.yahoo.com>
-Date: Mon, 21 Jun 2004 17:27:02 -0300 (ART)
-From: =?iso-8859-1?q?so=20usp?= <so_usp@yahoo.com.br>
-Subject: returning text from a system call
-To: linux-kernel@vger.kernel.org
+	Mon, 21 Jun 2004 16:33:04 -0400
+Received: from [194.158.35.18] ([194.158.35.18]:31976 "HELO di-ve.com")
+	by vger.kernel.org with SMTP id S266456AbUFUUdA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 16:33:00 -0400
+Message-ID: <4280.80.88.155.187.1087849973.squirrel@webmail.di-ve.com>
+Date: Mon, 21 Jun 2004 22:32:53 +0200 (CEST)
+Subject: Sincere associate required.........
+From: franciss@di-ve.com
+To: kfordkf9@AIRMAIL.NET
+User-Agent: SquirrelMail/1.4.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;charset=iso-8859-1
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello ,
 
-I'm implementing a system call, and I want to return
-information (text data) to the user without using the
-/var/log/messages (using the printk function). I've
-been thinking about writing in a file, but I really
-don't know how to manipulate files in kernel mode. The
-text could be returned to the command line as well,
-but I either don't know how to do that. Does anybody
-could help me how to return text (both ways would be
-good) from a system call?
+I am Dr. Francis Salim , Managing Director of Standard TrustBank
+Nig Plc.
+Four years ago a banker of ours died mysteriously and he was Irish
+by nationality. He left in his account a huge sum of money in foreign
+currency ($12.2million united state dollars).
 
-Thanks, and sorry for the English.
-so_usp 
+Since our bankers' death none of his relatives or next of kin have shown
+up to collect his money. We the bank authorities have sent several
+messages to the Irish authorities and embassy and none of them have been
+able to come up with any positive results.
 
-______________________________________________________________________
+Recently the chairman of the board of directors of the bank called me
+and told me in confidence and trust to source for a reliable foreigner who
+would stand as our bankers next of kin. If you are interested in taking
+this opportunity to make it big then reply this mail .
 
-Yahoo! Mail - agora com 100MB de espaço, anti-spam e antivírus grátis!
-http://br.info.mail.yahoo.com/
+ I assure you that this transaction is risk free and you have the right to
+choose the percentage-sharing rate after the money has been transferred
+to your account.
+I also require your tel/fax no if you have any.
+
+Waiting to hear from you as soon as you receive this mail.
+Subject to your satisfaction i will want you to respond to me if you are
+interested as we have scheduled a time frame for thsi business to be
+concluded within a specific time frame.
+
+Regards
+Dr.Francis Salim.
+
+
+
+
+
+___________________________________________________________________
+ Buy gifts for all occasions online from http://shop.di-ve.com

@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261206AbSJHIPj>; Tue, 8 Oct 2002 04:15:39 -0400
+	id <S261399AbSJHIlL>; Tue, 8 Oct 2002 04:41:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261331AbSJHIPj>; Tue, 8 Oct 2002 04:15:39 -0400
-Received: from bohnice.netroute.lam.cz ([212.71.169.62]:53752 "EHLO
-	vagabond.cybernet.cz") by vger.kernel.org with ESMTP
-	id <S261206AbSJHIPi>; Tue, 8 Oct 2002 04:15:38 -0400
-Date: Tue, 8 Oct 2002 10:19:38 +0200
-From: Jan Hudec <bulb@ucw.cz>
-To: Daniel Phillips <phillips@arcor.de>
-Cc: Jesse Pollard <pollard@admin.navo.hpc.mil>,
-       Rob Landley <landley@trommello.org>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
-Subject: Re: The reason to call it 3.0 is the desktop (was Re: [OT] 2.6 not 3.0 - (NUMA))
-Message-ID: <20021008081938.GA20784@vagabond>
-Mail-Followup-To: Jan Hudec <bulb@ucw.cz>,
-	Daniel Phillips <phillips@arcor.de>,
-	Jesse Pollard <pollard@admin.navo.hpc.mil>,
-	Rob Landley <landley@trommello.org>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0210041610220.2465-100000@home.transmeta.com> <200210060130.g961UjY2206214@pimout2-ext.prodigy.net> <200210070856.07356.pollard@admin.navo.hpc.mil> <E17ycWf-0003u4-00@starship>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E17ycWf-0003u4-00@starship>
-User-Agent: Mutt/1.4i
+	id <S261508AbSJHIlL>; Tue, 8 Oct 2002 04:41:11 -0400
+Received: from news.cistron.nl ([62.216.30.38]:33541 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id <S261399AbSJHIlK>;
+	Tue, 8 Oct 2002 04:41:10 -0400
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: experiences with 2.5.40 on a busy usenet news server
+Date: Tue, 8 Oct 2002 08:46:20 +0000 (UTC)
+Organization: Cistron
+Message-ID: <anu60s$oev$1@ncc1701.cistron.net>
+Content-Type: text/plain; charset=iso-8859-15
+X-Trace: ncc1701.cistron.net 1034066780 25055 62.216.29.67 (8 Oct 2002 08:46:20 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 07, 2002 at 08:22:41PM +0200, Daniel Phillips wrote:
-> On Monday 07 October 2002 15:56, Jesse Pollard wrote:
-> > [the mouse] will still stall everytime the mouse crosses the window border IF the
-> > application has specified "enter/leave" event notification. This requires the
-> > application to be swapped in to recieve the event. The only fix is locking
-> > the application/X libraries into memory.
-> 
-> That one could be punted with an hourglass cursor, until the events start flowing.
-> Well.  Not sure how much this has to do with the kernel...
+Just FYI:
 
-Nothing. It's X. And it will take another X protocol extension (so it
-will suck yet more).
+So I booted 2.5.40 with the raid0 fix on our usenet news peering
+server yesterday. It is a box that exchanges binary feeds with
+about 40 peers, 400 GB/day in, 600 GB/day out.
 
--------------------------------------------------------------------------------
-						 Jan 'Bulb' Hudec <bulb@ucw.cz>
+It's a dual PIII/450, 1 GB RAM, 4x18 GB article spool directly
+on partitions (not raw, but normal partitions). INN-2.4/CNFS.
+
+With 2.4.19, it runs fine. With 2.5.40, it goes wildly into
+swap. I'm assuming the I/O is pushing the newsserver binaries
+and database mappings into swap.
+
+# free
+             total       used       free     shared    buffers     cached
+Mem:       1033308    1027316       5992          0     836884      29776
+-/+ buffers/cache:     160656     872652
+Swap:       976888     364032     612856
+
+No need to swap 364 MB when there's 872 MB still free...
+This makes the machine dogslow. An 'expire' process that
+runs every night normally takes 15 minutes to finish now
+has been running for 10 hours and its still not finished.
+
+Article acceptance rate has halved, the machine can't keep up
+with the binaries it is fed.
+
+I'm going to risk corrupting the databases and reboot back
+to 2.4.19 now.
+
+Mike.
+

@@ -1,53 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262563AbSJGTVy>; Mon, 7 Oct 2002 15:21:54 -0400
+	id <S262539AbSJGTU2>; Mon, 7 Oct 2002 15:20:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262513AbSJGTVy>; Mon, 7 Oct 2002 15:21:54 -0400
-Received: from klee.cb.uni-bonn.de ([131.220.219.81]:522 "EHLO
-	klee.cb.uni-bonn.de") by vger.kernel.org with ESMTP
-	id <S262563AbSJGTVw> convert rfc822-to-8bit; Mon, 7 Oct 2002 15:21:52 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Harald van Pee <pee@iskp.uni-bonn.de>
-To: linux-kernel@vger.kernel.org
-Subject: strange smp problem with 2.4.19 not seen with rc1
-Date: Mon, 7 Oct 2002 21:27:25 +0200
-User-Agent: KMail/1.4.1
+	id <S262560AbSJGTU1>; Mon, 7 Oct 2002 15:20:27 -0400
+Received: from dsl-213-023-021-129.arcor-ip.net ([213.23.21.129]:32939 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S262539AbSJGTUZ>;
+	Mon, 7 Oct 2002 15:20:25 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Chris Friesen <cfriesen@nortelnetworks.com>,
+       Andrew Morton <akpm@digeo.com>
+Subject: Re: The reason to call it 3.0 is the desktop (was Re: [OT] 2.6 not 3.0 -  (NUMA))
+Date: Mon, 7 Oct 2002 21:21:28 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Oliver Neukum <oliver@neukum.name>,
+       Rob Landley <landley@trommello.org>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+References: <m17yCIx-006hSwC@Mail.ZEDAT.FU-Berlin.DE> <3DA1D30E.B3255E7D@digeo.com> <3DA1D969.8050005@nortelnetworks.com>
+In-Reply-To: <3DA1D969.8050005@nortelnetworks.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200210072127.25092.pee@iskp.uni-bonn.de>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17ydRY-0003uQ-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I use two programs, the first one writes to a pipe, the other reads from it 
-(houndreds of MB).
+On Monday 07 October 2002 20:58, Chris Friesen wrote:
+> Andrew Morton wrote:
+> 
+> > Go into ext2_new_inode, replace the call to find_group_dir with
+> > find_group_other.  Then untar a kernel tree, unmount the fs,
+> > remount it and see how long it takes to do a
+> > 
+> > 	`find . -type f  xargs cat > /dev/null'
+> > 
+> > on that tree.  If your disk is like my disk, you will achieve
+> > full disk bandwidth.
+> 
+> Pardon my ignorance, but what's the difference between find_group_dir 
+> and find_group_other, and why aren't we using find_group_other already 
+> if its so much faster?
 
-I have no problem with kernel 2.4.19-rc1 smp,
-but with  2.4.19 (smp) the program stops (I don't know why, but it seems its 
-always at the same file position).
-I can kill the start script and the reading program, but the writing one 
-leaves in D state.
+These are the heuristics that determine where in the volume directory
+inodes are allocated:
 
-ps -eo cmd,wchan
+   http://lxr.linux.no/source/fs/ext2/ialloc.c#L221
 
-reports wchan lock_page.
-(can't reproduce the details because its a production system and I have 
-switched back to 2.4.19-rc1).
+Ext2 likes to spread directory inodes around the volume so that there is
+room to keep the associated file blocks nearby.  This interacts rather
+poorly with readahead.
 
-I have seen this problem only with smp machines and smp kernel versions.
-It makes no difference if I run the kernel on an Asus A7M266-D or
-a supermicro P3TDE6. The none smp Version of 2.4.19 have no problem on single 
-processor boards.
-
-The system itself is very stable! Both have 3ware controlers, but on the Asus 
-board the 3ware disks are not mounted and not used.
-I use the same .config file for 2.4.19-rc1 and 2.4.19
-
-My questions are:
-- Is it a known problem and fixed?
-- Is it possible that I have a missconfigured kernel if its stable and I use 
-the same .config file as for 2.4.19-rc1?
-- Which kernel version should I use?
-
-Regards
-Harald
+-- 
+Daniel

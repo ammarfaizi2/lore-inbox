@@ -1,58 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262127AbUJZDLm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262112AbUJZEVk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262127AbUJZDLm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 23:11:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262125AbUJZDLb
+	id S262112AbUJZEVk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 00:21:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262160AbUJZESf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 23:11:31 -0400
-Received: from relay02.pair.com ([209.68.5.16]:49935 "HELO relay02.pair.com")
-	by vger.kernel.org with SMTP id S262154AbUJZDLG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 23:11:06 -0400
-X-pair-Authenticated: 66.190.53.4
-Message-ID: <417DC046.1020806@cybsft.com>
-Date: Mon, 25 Oct 2004 22:11:02 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
+	Tue, 26 Oct 2004 00:18:35 -0400
+Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:53166 "HELO
+	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262155AbUJZERo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 00:17:44 -0400
+Message-ID: <417DCFDD.50606@yahoo.com.au>
+Date: Tue, 26 Oct 2004 14:17:33 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Rui Nuno Capela <rncbc@rncbc.org>, Ingo Molnar <mingo@elte.hu>,
-       Florian Schmidt <mista.tapas@gmx.net>, linux-kernel@vger.kernel.org,
-       mark_h_johnson@raytheon.com, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Alexander Batyrshin <abatyrshin@ru.mvista.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0
-References: <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu>	 <20041025104023.GA1960@elte.hu> <417CDE90.6040201@cybsft.com>	 <20041025111046.GA3630@elte.hu> <20041025121210.GA6555@elte.hu>	 <20041025152458.3e62120a@mango.fruits.de> <20041025132605.GA9516@elte.hu>	 <20041025160330.394e9071@mango.fruits.de> <20041025141008.GA13512@elte.hu>	 <20041025141628.GA14282@elte.hu>	 <33313.192.168.1.5.1098733224.squirrel@192.168.1.5> <1098759671.9166.10.camel@krustophenia.net>
-In-Reply-To: <1098759671.9166.10.camel@krustophenia.net>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Andrea Arcangeli <andrea@novell.com>
+CC: Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: lowmem_reserve (replaces protection)
+References: <20041025170128.GF14325@dualathlon.random> <Pine.LNX.4.44.0410252147330.30224-100000@chimarrao.boston.redhat.com> <20041026015825.GU14325@dualathlon.random> <417DC8F2.7000902@yahoo.com.au> <20041026040429.GW14325@dualathlon.random>
+In-Reply-To: <20041026040429.GW14325@dualathlon.random>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
-> On Mon, 2004-10-25 at 20:40 +0100, Rui Nuno Capela wrote:
+Andrea Arcangeli wrote:
+> On Tue, Oct 26, 2004 at 01:48:02PM +1000, Nick Piggin wrote:
 > 
->>OTOH, jackd -R xruns are awfully back, even thought I (re)prioritize the
->>relevant IRQ thread handlers to be always higher than jackd's.
-> 
-> 
-> Actually they should be lower, except the soundcard.  I was only able to
-> get the xrun free behavior of T3 by setting all IRQ threads except the
-> soundcard to SCHED_OTHER.  Especially important was setting ksoftirqd to
-> SCHED_OTHER, this actually may have been the only one necessary.
-> 
-> The relative priorities of jackd and the soundcard irq do not matter as
-> these two should never contend (aka they are never both runnable at the
-> same time).
-> 
-> Lee 
+>>I see classzone_idx snuck in, can we leave that as alloc_type please?
 > 
 > 
-Not being familiar with jack, does it use rtc?
+> when I wrote that code in 2.4 it was called class_idx. Just to show it
+> was not an opaque type, in this 2.6 I called it classzone_idx but it's
+> the same as class_idx. If you feel classzone_idx is too long I'm sure
+> fine to rename to class_idx like plain 2.4.
+> 
+> The reason I renamed it is that alloc_type tells nothing to who's
+> reading the code. That value in the opaque "alloc_type" variable, is
+> really the classzone_idx that identify the classzone we have to allocate
+> memory from. Classzone 2 means "all ram is good", classzone 2 means
+> "zone-normal + zone-dma is good", classzone 0 means "zone-dma is good".
+> 
 
-kr
+OK that makes sense... it isn't the length of the name, but the fact
+that that naming convention hasn't proliferated thoughout the 2.6 tree;
+maybe could you add a little comment along the lines of the above?
+Thanks

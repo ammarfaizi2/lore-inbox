@@ -1,25 +1,25 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288788AbSAEL7G>; Sat, 5 Jan 2002 06:59:06 -0500
+	id <S288792AbSAEMCf>; Sat, 5 Jan 2002 07:02:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288787AbSAEL6z>; Sat, 5 Jan 2002 06:58:55 -0500
-Received: from tangens.hometree.net ([212.34.181.34]:32669 "EHLO
+	id <S288790AbSAEMCZ>; Sat, 5 Jan 2002 07:02:25 -0500
+Received: from tangens.hometree.net ([212.34.181.34]:36253 "EHLO
 	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S288781AbSAEL6j>; Sat, 5 Jan 2002 06:58:39 -0500
+	id <S288781AbSAEMCI>; Sat, 5 Jan 2002 07:02:08 -0500
 To: linux-kernel@vger.kernel.org
 Path: forge.intermeta.de!not-for-mail
 From: "Henning P. Schmiedehausen" <hps@intermeta.de>
 Newsgroups: hometree.linux.kernel
 Subject: Re: Two hdds on one channel - why so slow?
-Date: Sat, 5 Jan 2002 11:58:37 +0000 (UTC)
+Date: Sat, 5 Jan 2002 12:02:07 +0000 (UTC)
 Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <a16ppd$shs$1@forge.intermeta.de>
-In-Reply-To: <B51F07F0080AD511AC4A0002A52CAB445B2A5A@ottonexc1.ottawa.loran.com>
+Message-ID: <a16pvv$sjv$1@forge.intermeta.de>
+In-Reply-To: <E16MZG4-0001ch-00@sites.inka.de> <Pine.LNX.4.33.0201041127460.29134-100000@windmill.gghcwest.com>
 Reply-To: hps@intermeta.de
 NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1010231917 27731 212.34.181.4 (5 Jan 2002 11:58:37 GMT)
+X-Trace: tangens.hometree.net 1010232127 28023 212.34.181.4 (5 Jan 2002 12:02:07 GMT)
 X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Sat, 5 Jan 2002 11:58:37 +0000 (UTC)
+NNTP-Posting-Date: Sat, 5 Jan 2002 12:02:07 +0000 (UTC)
 X-Warning: This article could contain indecent words in German and/or English.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -29,30 +29,29 @@ X-Copyright: (C) 1996-2002 Henning Schmiedehausen
 X-No-Archive: yes
 X-Newsreader: NN version 6.5.1 (NOV)
 
-Dana Lacoste <dana.lacoste@peregrine.com> writes:
+"Jeffrey W. Baker" <jwbaker@acm.org> writes:
 
->Also the bandwidth differences :
+>> Because Firewire is Consumer electronics and nearly dead. Dont now of
+>> Enterpise Solutions with Firewire. Besides there is no switching support for
+>> it.
 
->Firewire (Generation 1, what you can get now) is 400Mbit/s
->FC Gen 1 is 100MByte/s
->Gen 2 is 200MByte/s
->(OK, I know those last two numbers are right, but I don't
->know what the NAMES of the standards are :)
+>That would explain all of those firewire cameras, VTRs, editing decks,
+>televisions, DVD players, CD players, computers, hard drives, tape drives,
+>CD burners, DVD burners, MP3 players, and oscilloscopes that keep popping
+>up with 1394 interfaces.  You should write to their manufacturers and let
+>them know about their mistake!
 
->Firewire isn't even supposed to be in the same league! :)
+FireWire is an USB competitor. I remember the first IEEE1394
+announcements about five-six years ago and suddently someone (IIRC M$
+and Intel) unveiled their "Universal serial bus" spec and I thought to
+myself "oh look, once again a good solution goes down the drain
+because people with market share drive an inferior solution that is
+five cents cheaper".
 
-That wasn't supposed of IDE in the war against SCSI either, but look
-where we're now. :-)
-
-The one argument that noone brought around here is (and it is the
-killer argument for me in IDE vs. SCSI): "external disk trays". Try
-that with IDE (current IDE please. No SerialATA. ;-) ) without lots of
-"out of spec" cables dangling out of your "enterprise computing
-solution".
-
-If you need more than say, three or four disks, your solution is
-SCSI. Or FibreChannel.
-
+FC really is another league. Talk SAN. Talk storage switch
+fabrics. Talk redundant switched pathes to disks in another
+building. Talk Enterprise solutions.
+ 
 	Regards
 		Henning
 

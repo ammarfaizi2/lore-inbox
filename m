@@ -1,36 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311915AbSCOCya>; Thu, 14 Mar 2002 21:54:30 -0500
+	id <S311914AbSCOCwt>; Thu, 14 Mar 2002 21:52:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311918AbSCOCyV>; Thu, 14 Mar 2002 21:54:21 -0500
-Received: from web10504.mail.yahoo.com ([216.136.130.154]:9740 "HELO
-	web10504.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S311916AbSCOCyP>; Thu, 14 Mar 2002 21:54:15 -0500
-Message-ID: <20020315025415.79521.qmail@web10504.mail.yahoo.com>
-Date: Thu, 14 Mar 2002 18:54:15 -0800 (PST)
-From: Andy Tai <lichengtai@yahoo.com>
-Reply-To: atai@atai.org
-Subject: null pointer error in raw device I/O from kernel threads
+	id <S311915AbSCOCwj>; Thu, 14 Mar 2002 21:52:39 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:43201 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S311914AbSCOCwd>; Thu, 14 Mar 2002 21:52:33 -0500
+Date: Thu, 14 Mar 2002 19:52:31 -0700
+Message-Id: <200203150252.g2F2qVM15051@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
 To: linux-kernel@vger.kernel.org
-Cc: atai@atai.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: VGA blank causes hang with 2.4.18
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, I am trying to do I/O to raw devices from within
-kernel threads.  I got null pointer error because the
-raw device code references current->mm, but for kernel
-threads, current->mm is 0 (NULL).  I tried to force it
-to use current->active_mm but the I/O operation
-returns EFAULT (-14).  
+  Hi, all. Here's a perverse problem: when the screen blanks (text
+console) with 2.4.18, the machine hangs. No ping response, no magic
+SysReq response. I didn't have this problem with 2.4.7.
 
-Any advice on how to make raw device I/O work from
-kernel threads is appreciated.
+The command I used to configure screen blanking was:
+setterm -blank 10 -powerdown 0
 
+This is an Athalon 850 MHz on a Gigabyte GA-7ZM motherboard.
 
+I managed to waste a few hours chasing this, wondering why the machine
+hung a while after boot. Of course, I first blamed the jobs that were
+started on it soon after boot. Turns out the jobs are not to blame!
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Sports - live college hoops coverage
-http://sports.yahoo.com/
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

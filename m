@@ -1,50 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261949AbREURtJ>; Mon, 21 May 2001 13:49:09 -0400
+	id <S261989AbREURyT>; Mon, 21 May 2001 13:54:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261972AbREURs7>; Mon, 21 May 2001 13:48:59 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:61328 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S261949AbREURsv>; Mon, 21 May 2001 13:48:51 -0400
-Date: Mon, 21 May 2001 18:47:58 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Andrew McNamara <andrewm@connect.com.au>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, tytso@valinux.com,
-        linux-kernel@vger.kernel.org, Stephen Tweedie <sct@redhat.com>
-Subject: Re: Ext2, fsync() and MTA's?
-Message-ID: <20010521184758.B24682@redhat.com>
-In-Reply-To: <E14ya9b-0004Bc-00@the-village.bc.nu> <20010512145338.0D3D6285BF@wawura.off.connect.com.au>
+	id <S261995AbREURyJ>; Mon, 21 May 2001 13:54:09 -0400
+Received: from are.twiddle.net ([64.81.246.98]:27776 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S261989AbREURx5>;
+	Mon, 21 May 2001 13:53:57 -0400
+Date: Mon, 21 May 2001 10:53:39 -0700
+From: Richard Henderson <rth@twiddle.net>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: alpha iommu fixes
+Message-ID: <20010521105339.A1907@twiddle.net>
+Mail-Followup-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+	Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010521034726.G30738@athlon.random> <15112.48708.639090.348990@pizda.ninka.net> <20010521105944.H30738@athlon.random> <15112.55709.565823.676709@pizda.ninka.net> <20010521115631.I30738@athlon.random> <15112.59880.127047.315855@pizda.ninka.net> <20010521125032.K30738@athlon.random> <15112.62766.368436.236478@pizda.ninka.net> <20010521131959.M30738@athlon.random> <20010521155151.A10403@jurassic.park.msu.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010512145338.0D3D6285BF@wawura.off.connect.com.au>; from andrewm@connect.com.au on Sun, May 13, 2001 at 12:53:37AM +1000
+In-Reply-To: <20010521155151.A10403@jurassic.park.msu.ru>; from ink@jurassic.park.msu.ru on Mon, May 21, 2001 at 03:51:51PM +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, May 21, 2001 at 03:51:51PM +0400, Ivan Kokshaysky wrote:
+> I'm unable reproduce it with *8Mb* window, so I'm asking.
 
-On Sun, May 13, 2001 at 12:53:37AM +1000, Andrew McNamara wrote:
+Me either.  But Tom Vier, the guy who started this thread
+was able to use up the 8MB.  Which is completely believable.
 
-> I seem to recall that in 2.2, fsync behaved like fdatasync, and that
-> it's only in 2.4 that it also syncs metadata - is this correct?
+The following should aleviate the situation on these smaller
+machines where the direct map does cover all physical memory.
+Really, we were failing gratuitously before.
 
-No, fsync should be safe on 2.2.  There was a problem with O_SYNC not
-syncing all metadata on 2.2 if you were extending a file, but that
-never applied to fsync.
+On Tsunami and Titan, espectially with more than 4G ram we
+should probably just go ahead and allocate the 512M or 1G
+scatter-gather arena.
 
-> Do the BSD's sync the directory data on an fsync of a file? I guess
-> this is the bone of contention
+(BTW, Andrea, it's easy enough to work around the Cypress
+problem by marking the last 1M of the 1G arena in use.)
 
-No --- the old BSDs were safe because their directory operations were
-fully synchronous so they *never* needed to be sync'ed manually.
-According to SuS, an application relying on sync directory updates is
-buggy, because SuS simply makes no such guarantees.
 
-Just set chattr +S on the spool dir.  That's what the flag is for.
-The biggest problem with that is that it propagates to subdirectories
-and files --- would a version of the flag which applied only to
-directories be a help here?
+r~
 
-Cheers,
- Stephen
+
+
+diff -ruNp linux/arch/alpha/kernel/pci_iommu.c linux-new/arch/alpha/kernel/pci_iommu.c
+--- linux/arch/alpha/kernel/pci_iommu.c	Fri Mar  2 11:12:07 2001
++++ linux-new/arch/alpha/kernel/pci_iommu.c	Mon May 21 01:25:25 2001
+@@ -402,8 +402,20 @@ sg_fill(struct scatterlist *leader, stru
+ 	paddr &= ~PAGE_MASK;
+ 	npages = calc_npages(paddr + size);
+ 	dma_ofs = iommu_arena_alloc(arena, npages);
+-	if (dma_ofs < 0)
+-		return -1;
++	if (dma_ofs < 0) {
++		/* If we attempted a direct map above but failed, die.  */
++		if (leader->dma_address == 0)
++			return -1;
++
++		/* Otherwise, break up the remaining virtually contiguous
++		   hunks into individual direct maps.  */
++		for (sg = leader; sg < end; ++sg)
++			if (sg->dma_address == 2 || sg->dma_address == -2)
++				sg->dma_address = 0;
++
++		/* Retry.  */
++		return sg_fill(leader, end, out, arena, max_dma);
++	}
+ 
+ 	out->dma_address = arena->dma_base + dma_ofs*PAGE_SIZE + paddr;
+ 	out->dma_length = size;

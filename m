@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316838AbSHTKrV>; Tue, 20 Aug 2002 06:47:21 -0400
+	id <S316795AbSHTKp1>; Tue, 20 Aug 2002 06:45:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316842AbSHTKrV>; Tue, 20 Aug 2002 06:47:21 -0400
-Received: from daimi.au.dk ([130.225.16.1]:5604 "EHLO daimi.au.dk")
-	by vger.kernel.org with ESMTP id <S316838AbSHTKrU>;
-	Tue, 20 Aug 2002 06:47:20 -0400
-Message-ID: <3D621F2B.73B24DE0@daimi.au.dk>
-Date: Tue, 20 Aug 2002 12:51:23 +0200
-From: Kasper Dupont <kasperd@daimi.au.dk>
-Organization: daimi.au.dk
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-31smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.5.31 problems
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S316838AbSHTKp1>; Tue, 20 Aug 2002 06:45:27 -0400
+Received: from pcow057o.blueyonder.co.uk ([195.188.53.94]:10255 "EHLO
+	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S316795AbSHTKp1>;
+	Tue, 20 Aug 2002 06:45:27 -0400
+Subject: 2.4.20-pre{2-4} boot problems
+From: Sid Boyce <sboyce@blueyonder.co.uk>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 20 Aug 2002 10:49:30 +0000
+Message-Id: <1029840571.2211.15.camel@barrabas>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have some problems with 2.5.31. I boot from an initial
-ramdisk and my /sbin/init script is at the end of the mail.
-I do get sash on both tty's, but typing any command just
-locks up this shell. I tried "cd tmp", "-ls", and a few
-others. Even "-cat sbin/init" locks up. Any attempt to
-reboot using CTRL+ALT+DEL or ALT+SYSRQ+B results in a
-solid lockup, at this point only a hard reset is possible.
-Can anybody provide me a hint on where to find the problem?
-Or do I have to do binary search through the patch?
+When booting any of the above (including -ac), I get the following
+message, 2.4.20-pre1-ac1 is what is currently running fine and the only
+pre1 kernel I've tried. I have reiserfs compiled in, same .config for
+all kernels.
 
-#!/bin/sh
-mount /proc /proc -t proc
-mount /tmp /tmp -t tmpfs
-ifconfig lo 127.0.0.1
-ifconfig eth0 62.xx.xxx.91
-route add default gw 62.xx.xxx.1
-while true
-do
-        open -c 2 -w /bin/sash
-done &
-while true
-do
-        open -c 1 -w /bin/sash
-done
+Freeing initrd memory: 466K freed
+VFS: Mounted root (ext2 filesystem) kmod  failed to exec /sbin/modprobe
+-s -k block-major-3, errno = 2
+VFS Cannot open root device "306" or 03:06
+Please append a correct "root=" boot option
+Kernel panic. VFS: Unable to mount rootfs on 03:06
+----------------------------------------------------
+	I have checked the Changelog and I'm at or above the recommended
+levels. I've tried bot gcc-2.95.3 and gcc-3.0.4 with same results.
+------------------------------------------------------------------
 
+barrabas:/home/lancelot # uname -r;mount
+2.4.20-pre1-ac1
+/dev/hda6 on / type reiserfs (rw)
+proc on /proc type proc (rw)
+devpts on /dev/pts type devpts (rw,mode=0620,gid=5)
+/dev/hda1 on /boot type ext2 (rw)
+/dev/hdc1 on /usr1 type reiserfs (rw)
+/dev/sda1 on /data1 type reiserfs (rw)
+usbdevfs on /proc/bus/usb type usbdevfs (rw,devmode=0666)
+shmfs on /dev/shm type shm (rw)
+===================================================================
+mount: mount-2.11n
+
+Regards
 -- 
-Kasper Dupont -- der bruger for meget tid på usenet.
-For sending spam use mailto:aaarep@daimi.au.dk
-or mailto:mcxumhvenwblvtl@skrammel.yaboo.dk
+Sid Boyce ... hamradio G3VBV ... Cessna/Warrior Pilot
+Linux only shop
+

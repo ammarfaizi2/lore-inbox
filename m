@@ -1,72 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S129550AbQJEQTi>; Thu, 5 Oct 2000 12:19:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S129500AbQJEQT2>; Thu, 5 Oct 2000 12:19:28 -0400
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:23408 "EHLO mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP id <S129134AbQJEQTQ>; Thu, 5 Oct 2000 12:19:16 -0400
-Date: Thu, 5 Oct 2000 11:03:50 -0500 (CDT)
-From: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
-To: Torben Mathiasen <torben@kernel.dk>
-cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] tlan timer fix on tytso's list.
-In-Reply-To: <20001005172502.A4900@torben>
-Message-ID: <Pine.LNX.3.96.1001005110214.19266A-100000@mandrakesoft.mandrakesoft.com>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S130874AbQJIWnl>; Mon, 9 Oct 2000 18:43:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S130865AbQJIWnc>; Mon, 9 Oct 2000 18:43:32 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:16394 "EHLO neon-gw.transmeta.com") by vger.kernel.org with ESMTP id <S129090AbQJIWnX>; Mon, 9 Oct 2000 18:43:23 -0400
+Date: Mon, 9 Oct 2000 15:28:57 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: test10-pre1
+Message-ID: <Pine.LNX.4.10.10010091526450.1090-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As tigran mentions, you should not explicitly zero static vars.
 
-You need to ask yourself if TLAN will -ever- be used in a hotplug
-situation, ie. do you find TLAN hardware on CardBus or PCMCIA cards?
+Largely VM balancing and OOM things (get rid of the VM livelock that
+existed in test9), and USB fixes.
 
-If no, you should:
+And a number of random driver fixes (SMP locking on network drivers, what 
+not).
 
-        s/__devinit/__init/
-        s/__devexit/__exit/
- 
-If yes, you have some small bugs...
- 
-* tlan_remove_one should be __devexit.  Plain 'ole __exit drops the code
-from the static kernel image... which is very bad if you have a hotplug
-TLAN which gets removed during the lifetime of the kernel.
- 
-* return value from pci_module_init and TLan_EisaProbe is never checked.
-If you don't care about the return value, just remove 'rc' var.
- 
-* tlan_init_one is marked __devinit and TLan_probe1 is marked __init.
-If you have hotplug devices, and you insert one after booting,
-TLan_probe1 has already been dropped from the kernel image.  Oops!
- 
-* You do not need to memset(,0,) for TLanPrivateInfo.  init_etherdev
-does this for you.
- 
-* if pci_enable_device fails, you do not clean up.  memory leak.
- 
-* does TLan_EisaProbe work?  It looks like request_region may be called
-twice for the same I/O region, once in TLan_EisaProbe, and once in
-TLan_Init (via TLan_probe1).
- 
-* The following change reverts a bugfix!  You should return the
-request_irq error return as the current code does:
- 
-        if ( err ) {
-                printk(KERN_ERR "TLAN:  Cannot open %s because IRQ %d is already in use.\n", dev->name, dev->irq );
-                MOD_DEC_USE_COUNT;
--               return err;
-+               return -EAGAIN;
-        }
- 
-* You should call netif_wake_queue in TLan_tx_timeout, not
-netif_start_queue.  (some other net drivers need updating for this, too)
-Alarm clock
-You have new mail in /var/spool/mail/jgarzik unnecesary change:
-mandrakesoft:~$
--void TLan_PhyMonitor( struct net_device *dev )
-+void TLan_PhyMonitor( struct net_device *data )
- {
-+       struct net_device *dev = (struct net_device *)data;
-        TLanPrivateInfo *priv = (TLanPrivateInfo *) dev->priv;
- 
+		Linus
+
+-----
+
+ - pre1:
+    - Roger Larsson: ">=" instead of ">" to make the VM not get stuck.
+    - Gideon Glass: brw_kiovec() failure case oops fix
+    - Rik van Riel: better memory balancing and OOM killer
+    - Ivan Kokshaysky: alpha compile fixes
+    - Vojtech Pavlik: forgotten ENOUGH macro in via82cxxx ide driver
+    - Arnaldo Carvalho de Melo: acpi resource leak fix
+    - Brian Gerst: use mov's instead of xchg in kernel trap entry
+    - Torben Mathiasen: tlan timer being added twice bug
+    - Andrzej Krzysztofowicz: config file fixes
+    - Jean Tourrilhes: Wavelan lockup on SMP fix
+    - Roman Zippel: initdata must be initialized (even if it is to zero:
+      gcc is strange)
+    - Jean Tourrilhes: hp100 driver lockup at startup on SMP
+    - Russell King: fix silly minixfs uninitialized error bug
+    - (various): fix uid hashing to use "uid_t" instead of "unsigned short"
+    - Jaroslav Kysela: isapnp timeout fix. NULL ptr dereference fix.
+    - Alain Knaff: fdformat should work again.
+    - Randy Dunlap: USB - fix bluetooth, acm, printer, serial to work
+      with urb->dev changes. 
+    - Randy Dunlap: USB whiteheat serial driver firmware update.
+    - Randy Dunlap: USB hub memory corruption and pegasus driver update
+    - Andre Hedrick: IDE Makefile cleanup
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

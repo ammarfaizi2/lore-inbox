@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262488AbRENUqC>; Mon, 14 May 2001 16:46:02 -0400
+	id <S262489AbRENUyc>; Mon, 14 May 2001 16:54:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262484AbRENUpw>; Mon, 14 May 2001 16:45:52 -0400
-Received: from pat.uio.no ([129.240.130.16]:37268 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S262486AbRENUpn>;
-	Mon, 14 May 2001 16:45:43 -0400
+	id <S262493AbRENUyW>; Mon, 14 May 2001 16:54:22 -0400
+Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:18940 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S262489AbRENUyH>; Mon, 14 May 2001 16:54:07 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200105142053.f4EKrhOh002240@webber.adilger.int>
+Subject: Re: [Re: Inodes]
+In-Reply-To: <9dovmu$eqj$1@cesium.transmeta.com> "from H. Peter Anvin at May
+ 14, 2001 09:04:46 am"
+To: "H. Peter Anvin" <hpa@zytor.com>
+Date: Mon, 14 May 2001 14:53:43 -0600 (MDT)
+CC: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
 MIME-Version: 1.0
-Message-ID: <15104.17393.392226.632794@charged.uio.no>
-Date: Mon, 14 May 2001 22:45:37 +0200
-To: "Chuck Lever" <cel@netapp.com>
-Cc: "Linux Kernel" <linux-kernel@vger.kernel.org>,
-        "NFS maillist" <nfs@lists.sourceforge.net>
-Subject: RE: [NFS] [PATCH] New patch to flush out dirty mmap()ed NFS pages in 2.4.4
-In-Reply-To: <NFBBLKEIKLGDCJAAAEKOMEDACAAA.cel@netapp.com>
-In-Reply-To: <15102.39186.106340.57504@charged.uio.no>
-	<NFBBLKEIKLGDCJAAAEKOMEDACAAA.cel@netapp.com>
-X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-User-Agent: SEMI/1.13.7 (Awazu) CLIME/1.13.6 (=?ISO-2022-JP?B?GyRCQ2YbKEI=?=
- =?ISO-2022-JP?B?GyRCJU4+MRsoQg==?=) MULE XEmacs/21.1 (patch 14) (Cuyahoga
- Valley) (i386-redhat-linux)
-Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Chuck Lever <cel@netapp.com> writes:
+HPA writes:
+> Blesson Paul <blessonpaul@usa.net> writes:
+> > You misunderstood my question. Let take an example.  Let I have a msdos
+> > partition. No msdos files has inode numbers, right. Let I mount that
+> > msdos partition. Then what happens, That is my question. Will the
+> > inode numbers are assigned to all msdos files at mounting time itself
+> > 
+> 
+> The inode numbers are "invented" by the MS-DOS filesystem driver.  In
+> the particular case of the "msdos" driver I believe it uses the
+> location of the directory entry (the functional equivalent of the
+> inode) on disk.
 
-     > the default behavior is that close() waits for all write-backs
-     > to be committed to the server's disk.  you might add support
-     > for the "nocto" mount option so that waiting is skipped for
-     > shared mmap'd files, but then what happens to data that is
-     > pinned on the client because a write-back failed after close()
-     > returns to the application?
+Just to clarify, this means that the "inode numbers" reported by an
+msdos filesystem are a function of the disk-layout itself (i.e. they
+are determined at mount time), and not numbers created when the file
+is first accessed (AFAIK).
 
-It gets written back slowly (by flushd) or the user can speed things
-up using msync(). The latter will wait on completion.
-In addition, I fixed up sys_sync() so that it (and also bdflush, &
-friends) now also synchronizes to the server...
+However, other filesystems are free to do this in other ways.  Reiserfs
+has 64-bit "inode numbers" (actually "packing locality" + unique ID),
+as does NTFS and XFS.  Network filesystems may do something completely
+different (I have no idea what SMBFS does).
 
-     > what's the application domain Linus is trying to optimize?
-
-AFAIK the most common use of (writeable) mmap() is for caching and
-possibly for local IPC.
-
-As I understood it, Linus' position is that we have msync() as a
-documented generic synchronization point. Since, we were unable to
-find any examples of programs that rely on stricter rules for mmap
-(barring those which actually use locking), he suggested that our
-policy should be that which impacts the least on performance.
-
-Cheers,
-   Trond
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

@@ -1,95 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270835AbTHFSFd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 14:05:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270845AbTHFSFd
+	id S270813AbTHFSEb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 14:04:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270814AbTHFSEb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 14:05:33 -0400
-Received: from fw.osdl.org ([65.172.181.6]:26090 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S270835AbTHFSFU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 14:05:20 -0400
-Subject: Re: [RFC][PATCH] linux-2.6.0-test2_mtrr-race-fix_A0
-From: Mark Haverkamp <markh@osdl.org>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Mathias =?ISO-8859-1?Q?Fr=F6hlich?= <Mathias.Froehlich@web.de>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1060190104.10732.52.camel@cog.beaverton.ibm.com>
-References: <200308061052.18550.Mathias.Froehlich@web.de>
-	 <1060190104.10732.52.camel@cog.beaverton.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Message-Id: <1060193108.12048.4.camel@markh1.pdx.osdl.net>
+	Wed, 6 Aug 2003 14:04:31 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:10502
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S270813AbTHFSE3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 14:04:29 -0400
+Date: Wed, 6 Aug 2003 11:04:27 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Diego Calleja Garc?a <diegocg@teleline.es>
+Cc: Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org,
+       reiserfs-list@namesys.com
+Subject: Re: Filesystem Tests
+Message-ID: <20030806180427.GC21290@matchmail.com>
+Mail-Followup-To: Diego Calleja Garc?a <diegocg@teleline.es>,
+	Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org,
+	reiserfs-list@namesys.com
+References: <3F306858.1040202@mrs.umn.edu> <20030805224152.528f2244.akpm@osdl.org> <3F310B6D.6010608@namesys.com> <20030806183410.49edfa89.diegocg@teleline.es>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Wed, 06 Aug 2003 11:05:08 -0700
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030806183410.49edfa89.diegocg@teleline.es>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-08-06 at 10:15, john stultz wrote:
-> On Wed, 2003-08-06 at 01:52, Mathias Fröhlich wrote:
-> > Hi,
-> > 
-> > You should not remove the barrier past mtrr change. If you do that, it is 
-> > possible that cpu's run with inconsistent mtrrs. This can have bad 
-> > sideeffects since at least the cache snooping protocol used by intel uses 
-> > assumptions about the cachability of memory regions. Those information about 
-> > the cachability is also taken from the mtrrs as far as I remember.
-> > This intel cpu developer manual, which documented the early PII and PPro 
-> > chips, recommended this algorithm. Since actual intel cpus use the same old 
-> > cpu to chipset bus protocol, this old documentation most propably still 
-> > applies.
+On Wed, Aug 06, 2003 at 06:34:10PM +0200, Diego Calleja Garc?a wrote:
+> El Wed, 06 Aug 2003 18:06:37 +0400 Hans Reiser <reiser@namesys.com> escribi?:
 > 
-> Hmm. I should dig up that doc. Its a little hazy in my mind, but I think
-> I understand your description. I'm glad you caught this, as I can't
-> imagine the subtle bugs that might have popped up. 
+> > I don't think ext2 is a serious option for servers of the sort that 
+> > Linux specializes in, which is probably why he didn't measure it.
 > 
-> Well, let me look at it again and see if I can come up with a proper
-> fix. 
-> 
-> Thanks for the knowledgeable feedback and sanity checking!
-> -john
+> Why?
 
+Because if you have a power outage, or a crash, you have to run the
+filesystem check tools on it or risk damaging it further.
 
-I added an extra sync up from the caller after the last gate change so
-it is the last one to touch the automatic data.
-
-Mark.
-
-
-===== arch/i386/kernel/cpu/mtrr/main.c 1.29 vs edited =====
---- 1.29/arch/i386/kernel/cpu/mtrr/main.c	Tue Jul 15 10:08:48 2003
-+++ edited/arch/i386/kernel/cpu/mtrr/main.c	Wed Aug  6 10:46:00 2003
-@@ -169,6 +169,7 @@
- 		cpu_relax();
- 		barrier();
- 	}
-+	atomic_dec(&data->count);
- 	local_irq_restore(flags);
- }
- 
-@@ -256,8 +257,18 @@
- 		cpu_relax();
- 		barrier();
- 	}
--	local_irq_restore(flags);
-+	atomic_set(&data.count, num_booting_cpus() - 1);
- 	atomic_set(&data.gate,0);
-+
-+	/* 
-+	 * Wait here for everyone to have seen the gate change
-+	 * So we're the last ones to touch 'data'
-+	 */
-+	while(atomic_read(&data.count)) {
-+		cpu_relax();
-+		barrier();
-+	}
-+	local_irq_restore(flags);
- }
- 
- /**
-
-
--- 
-Mark Haverkamp <markh@osdl.org>
-
+Journaled filesystems have a much smaller chance of having problems after a
+crash.

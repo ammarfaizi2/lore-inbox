@@ -1,56 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264484AbTLCFpr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 00:45:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264486AbTLCFpr
+	id S264508AbTLCIBj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 03:01:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264509AbTLCIBj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 00:45:47 -0500
-Received: from law11-oe65.law11.hotmail.com ([64.4.16.200]:9746 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S264484AbTLCFpq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 00:45:46 -0500
-X-Originating-IP: [203.200.20.226]
-X-Originating-Email: [mohanlaljangir@hotmail.com]
-From: "mohanlal jangir" <mohanlaljangir@hotmail.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Error: junk `adcl $0xffff' after register
-Date: Wed, 3 Dec 2003 11:14:39 +0530
+	Wed, 3 Dec 2003 03:01:39 -0500
+Received: from smtp804.mail.sc5.yahoo.com ([66.163.168.183]:58216 "HELO
+	smtp804.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S264508AbTLCIBh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 03:01:37 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC/PATCH 4/3] Input: correctly activate i0842 ports on resume
+Date: Wed, 3 Dec 2003 03:01:31 -0500
+User-Agent: KMail/1.5.4
+Cc: Pavel Machek <pavel@ucw.cz>, Vojtech Pavlik <vojtech@suse.cz>,
+       Brian Perkins <bperkins@netspace.org>
+References: <200312010215.58533.dtor_core@ameritech.net> <200312010217.16553.dtor_core@ameritech.net> <200312010217.54552.dtor_core@ameritech.net>
+In-Reply-To: <200312010217.54552.dtor_core@ameritech.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4927.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
-Message-ID: <Law11-OE65WSxlXpskA000013b7@hotmail.com>
-X-OriginalArrivalTime: 03 Dec 2003 05:45:45.0690 (UTC) FILETIME=[B25C53A0:01C3B960]
+Content-Disposition: inline
+Message-Id: <200312030301.33600.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have built cygwin (windows) to linux cross compiler and trying to cross
-compile linux kernel. Things were going fine until I encountered this error
-message:
-
-i686-pc-linux-gnu-gcc -D__KERNEL__ -I/home/linux/include -Wall -Wstrict-prot
-otypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-com
-mon -pipe -mpreferred-stack-boundary=2 -march=i686   -DKBUILD_BASENAME=skbuf
-f  -c -o skbuff.o skbuff.c
-{standard input}: Assembler messages:
-{standard input}:2243: Error: junk `adcl $0xffff' after register
-make[3]: *** [skbuff.o] Error 1
-make[3]: Leaving directory `/home/linux/net/core'
-make[2]: *** [first_rule] Error 2
-make[2]: Leaving directory `/home/linux/net/core'
-make[1]: *** [_subdir_core] Error 2
-make[1]: Leaving directory `/home/linux/net'
-make: *** [_dir_net] Error 2
+===================================================================
 
 
-Can somebody give some hint, where should I look at. I found someone facing
-the same problem on Google but no replies for that.
+ChangeSet@1.1517, 2003-12-03 02:52:23-05:00, dtor_core@ameritech.net
+  Input: fix i8042_activate_port() - the port is still disabled on
+         resume, need explicitely enable it (found by Brian Perkins)
 
-Regards
-Mohanlal
 
-[ P.S. - Please CC me in reply. I have not subscribed to the list ]
+ i8042.c |    6 ++++++
+ 1 files changed, 6 insertions(+)
+
+
+===================================================================
+
+
+
+diff -Nru a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+--- a/drivers/input/serio/i8042.c	Wed Dec  3 02:55:54 2003
++++ b/drivers/input/serio/i8042.c	Wed Dec  3 02:55:54 2003
+@@ -226,6 +226,12 @@
+ 
+ 	i8042_flush();
+ 
++	/* 
++	 * Enable port again here because it is disabled if we are
++	 * resuming (normally it is enabled already).
++	 */
++	i8042_ctr &= ~values->disable;
++
+ 	i8042_ctr |= values->irqen;
+ 
+ 	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR)) {

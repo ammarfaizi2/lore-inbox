@@ -1,53 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132051AbRAEPdE>; Fri, 5 Jan 2001 10:33:04 -0500
+	id <S129523AbRAEPdo>; Fri, 5 Jan 2001 10:33:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131964AbRAEPcy>; Fri, 5 Jan 2001 10:32:54 -0500
-Received: from mail.zmailer.org ([194.252.70.162]:28684 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S129523AbRAEPco>;
-	Fri, 5 Jan 2001 10:32:44 -0500
-Date: Fri, 5 Jan 2001 17:32:30 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: "Theodore Y. Ts'o" <tytso@MIT.EDU>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4 todo list update
-Message-ID: <20010105173230.O12545@mea-ext.zmailer.org>
-In-Reply-To: <Pine.LNX.4.21.0101051244440.1295-100000@duckman.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0101051244440.1295-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Fri, Jan 05, 2001 at 12:58:34PM -0200
+	id <S132109AbRAEPd3>; Fri, 5 Jan 2001 10:33:29 -0500
+Received: from pump3.york.ac.uk ([144.32.128.131]:32412 "EHLO pump3.york.ac.uk")
+	by vger.kernel.org with ESMTP id <S131964AbRAEPdM>;
+	Fri, 5 Jan 2001 10:33:12 -0500
+Message-ID: <3A55E901.5030606@demeter.cs.york.ac.uk>
+Date: Fri, 05 Jan 2001 15:32:17 +0000
+From: Michel Salim <mas118@demeter.cs.york.ac.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.13 i686; en-US; 0.6) Gecko/20001205
+X-Accept-Language: en
+MIME-Version: 1.0
+To: David Woodhouse <dwmw2@infradead.org>
+CC: LKML <linux-kernel@vger.kernel.org>, dhinds@valinux.com
+Subject: Re: i82365 PCI-PCMCIA bridge still not working in 2.4.0-test11
+In-Reply-To: <3A52F33D.2050105@demeter.cs.york.ac.uk>  <3A1C6D4C.7060306@demeter.cs.york.ac.uk> <3A1AC075.4020506@cs.york.ac.uk> <4186.974889923@redhat.com> <11299.974975638@redhat.com> <9752.978515885@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 05, 2001 at 12:58:34PM -0200, Rik van Riel wrote:
-> Hi Ted,
+David Woodhouse wrote:
+
+> mas118@demeter.cs.york.ac.uk said:
 > 
-> in the last few weeks quite a few of the bugs listed on your
-> (excellent) http://linux24.sourceforge.net/ have been fixed.
+>> Manually inputting i365_base=0x1030 when loading the module results in
+>>  the same freeze - nothing works at all, had to do a full hardware
+>> reset.  This is on the latest 2.4.0-prerelease... 
+> 
+> 
+> Is this the code in 2.4.0-prerelease or the code I sent you? Sounds like 
+> it's probably dying in an IRQ storm.
+>
+The one in prerelease.
 
-Adding to Rik's items, other things I spot at that "old" list
-having changed over last 6 weeks, or so:
+ 
+> I have a full databook for the i82092aa and a selection of example boards - 
+> was yours one of those or another type? I'm not entirely sure when I'll 
+> have time to poke at it again - I may wait for the 2.5 branch.
+> 
+> mas118@demeter.cs.york.ac.uk said:
+> 
+>> Any chance it's due to IRQ sharing?
+> 
+> 
+> Possibly. Is any driver trying to use irq 11? Can you disable the irq for 
+> the video card in your BIOS?
+> 
+> --
+> dwmw2
 
-o Various Alpha's don't boot under 2.4.0-test9 (PCI-PCI bridge init issues)
-o Alpha SMP problem: RSN reuse
+Well, got it working under 2.2.17. I suspect it is just a matter of the 
+drivers in 2.4.x not accomodating desktop-based PCMCIA readers. In the 
+latest PCMCIA Howto there is a subsection under 2.3 on such devices and 
+workarounds needed to get them running - none of them are recognised by 
+the i82365 driver in 2.4.0-prerelease.
 
-	I assume that latter is typo and in reality ASN reuse.
-	Fixes got merged during the preprelease-diffs
+I think I'll just stick to 2.2.x for the time being - if anyone fancy a 
+go at it I'm more than willing to try out the code.
 
-o Restore O_SYNC functionality ...
-o Forwawrd port 2.2 fixes to allow 2 GHz or faster CPU's. {CRITICAL} 
+Regards,
 
-	Also folded in during prerelease-diffs
-
-
-o mtrr.c is broken for machines with >= 4GB of memory (David Wragg has a fix)
-
-	Merged in at test12 or test13, I think.
-
-o devfs and NFS problems
-
-	fixes are also aplenty over last 6 weeks.
+-- 
+Michèl Alexandre Salim
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

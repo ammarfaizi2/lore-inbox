@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261840AbRE2AJl>; Mon, 28 May 2001 20:09:41 -0400
+	id <S261839AbRE2AMV>; Mon, 28 May 2001 20:12:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261839AbRE2AJV>; Mon, 28 May 2001 20:09:21 -0400
-Received: from mailhost.idcomm.com ([207.40.196.14]:27028 "EHLO
-	mailhost.idcomm.com") by vger.kernel.org with ESMTP
-	id <S261837AbRE2AJR>; Mon, 28 May 2001 20:09:17 -0400
-Message-ID: <3B12E8B4.238DCD11@idcomm.com>
-Date: Mon, 28 May 2001 18:09:24 -0600
-From: "D. Stimits" <stimits@idcomm.com>
-Reply-To: stimits@idcomm.com
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.15-config.2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: kernel-list <linux-kernel@vger.kernel.org>
-Subject: bzdisk broken in 2.4.5?
+	id <S261845AbRE2AML>; Mon, 28 May 2001 20:12:11 -0400
+Received: from smtp1.cern.ch ([137.138.128.38]:1043 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S261839AbRE2AME>;
+	Mon, 28 May 2001 20:12:04 -0400
+Date: Tue, 29 May 2001 02:11:56 +0200
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Richard Zidlicky <rz@linux-m68k.org>, tim@cyberelk.net,
+        linux-kernel@vger.kernel.org, Fred Barnes <Frederick.Barnes@cern.ch>
+Subject: Re: insl/outsl in parport_pc and !CONFIG_PCI
+Message-ID: <20010529021156.B6061@pcep-jamie.cern.ch>
+In-Reply-To: <20010527191613.A2808@rz.informatik.uni-erlangen.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010527191613.A2808@rz.informatik.uni-erlangen.de>; from rz@linux-m68k.org on Sun, May 27, 2001 at 07:16:14PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've tried on two separate machines to test out 2.4.5 through the "make
-bzdisk" boot floppy, and it fails on both (the compile succeeds, but
-boot never gets to LILO, it simply gives "400" and a repeating list of
-AX, BX, CX, and DX registers). Both are scsi aic7xxx, but use different
-controllers, and have scsi directly compiled in. One machine is based on
-RH 7.1 beta, the other on RH 7.1. Both are x86 SMP, with motherboard and
-all hardware being different. Using the same kernel through a
-"mkbootdisk" works, only "make bzdisk" fails. Can anyone here verify
-that "make bzdisk" will create a bootable floppy (I did try an entire
-box of different floppies) on 2.4.5+? Especially, can anyone verify this
-for SMP and/or purely scsi machines? If scsi, do you use aic7xxx?
+Richard Zidlicky wrote:
+> How is that supposed to work on systems without PCI? For now I have
+> defined 
+> 
+> #define insl(port,buf,len)   isa_insb(port,buf,(len)<<2)
+> #define outsl(port,buf,len)  isa_outsb(port,buf,(len)<<2)
 
-D. Stimits, stimits@idcomm.com
+Tim, Fred,
+
+Will 4 * inb() cycles have the same effect as 1 * inl() cycle for an EPP
+mode read?
+
+By the way, it's probably worth a check whether insl() is actually
+faster than a loop doing inl() these days.  Guess I should do that :)
+
+cheers,
+-- Jamie

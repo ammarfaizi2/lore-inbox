@@ -1,140 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262040AbSLMLmW>; Fri, 13 Dec 2002 06:42:22 -0500
+	id <S262312AbSLMLpq>; Fri, 13 Dec 2002 06:45:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262067AbSLMLmV>; Fri, 13 Dec 2002 06:42:21 -0500
-Received: from cmailg4.svr.pol.co.uk ([195.92.195.174]:49426 "EHLO
-	cmailg4.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S262040AbSLMLmT>; Fri, 13 Dec 2002 06:42:19 -0500
-Date: Fri, 13 Dec 2002 11:50:14 +0000
-To: Linux Mailing List <linux-kernel@vger.kernel.org>, lvm-devel@sistina.com,
-       linux-lvm@sistina.com
-Subject: New device-mapper patchset for 2.5.51
-Message-ID: <20021213115014.GA15675@reti>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262067AbSLMLpq>; Fri, 13 Dec 2002 06:45:46 -0500
+Received: from ns.indranet.co.nz ([210.54.239.210]:48597 "EHLO
+	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
+	id <S262266AbSLMLpo>; Fri, 13 Dec 2002 06:45:44 -0500
+Date: Sat, 14 Dec 2002 00:40:43 +1300
+From: Andrew McGregor <andrew@indranet.co.nz>
+To: Nivedita Singhvi <niv@us.ibm.com>, Matti Aarnio <matti.aarnio@zmailer.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Andreani Stefano <stefano.andreani.ap@h3g.it>,
+       "David S. Miller" <davem@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-net@vger.kernel.org
+Subject: Re: R: Kernel bug handling TCP_RTO_MAX?
+Message-ID: <13810000.1039779643@localhost.localdomain>
+In-Reply-To: <3DF965E4.95DEA1F9@us.ibm.com>
+References: <047ACC5B9A00D741927A4A32E7D01B73D66178@RMEXC01.h3g.it>
+ <1039727809.22174.38.camel@irongate.swansea.linux.org.uk>
+ <3DF94565.2C582DE2@us.ibm.com> <20021213033928.GK32122@mea-ext.zmailer.org>
+ <3DF965E4.95DEA1F9@us.ibm.com>
+X-Mailer: Mulberry/3.0.0b9 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
-From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If anyone was experiencing problems with dm could they please try this
-patchset and give me feedback.
+Er, wasn't that SCTP?  If so, that's RFC 3309 and many, many drafts.  You 
+might also want to look at DCCP (draft-ietf-dccp-*) and the various 
+documents from the IETF's PILC group.  There is also a proposal for a new 
+TCP-style protocol with a real differential controller, the name of which I 
+can't recall right now.
 
-Thanks,
+See also draft-allman-tcp-sack for another proposal for a fix that won't 
+break old stacks.  Also draft-ietf-tsvwg-tcp-eifel-alg, 
+draft-ietf-tsvwg-tcp-eifel-response and many more.
 
-- Joe
+I can't claim to be a TCP expert, but TCP_RTO_MIN can certainly have a 
+different value for IPv6, where I believe millisecond reolution timers are 
+required, so 2ms would be correct.
 
+Unfortuntately, TCP is incredibly subtle.  So, the IETF are really 
+conservative about even suggesting modifications to it, because a common 
+and badly behaved stack can cause major disasters in the 'net.
 
+Andrew
 
-http://people.sistina.com/~thornber/patches/2.5-stable/2.5.51/2.5.51-dm-3.tar.bz2
+--On Thursday, December 12, 2002 20:45:24 -0800 Nivedita Singhvi 
+<niv@us.ibm.com> wrote:
 
+>>   You are looking for "STP" perhaps ?
+>>   It has a feature of waking all streams retransmits, in between
+>>   particular machines, when at least one STP frame travels in between
+>>   the hosts.
+>>
+>>   I can't find it now from my RFC collection.  Odd at that..
+>>   Neither as a draft.  has it been abandoned ?
+>
+> Learn something new every day :). Thanks for the ptr. I'll
+> look it up..
+>
+>> > It would be wonderful if we could tune TCP on a per-interface or a
+>> > per-route basis (everything public, for a start, considered the
+>> > internet, and non-routable networks (10, etc), could be configured
+>> > suitably for its environment. (TCP over private LAN - rfc?). Trusting
+>> > users would be a big issue..
+>> >
+>> > Any thoughts? How stupid is this? Old hat??
+>>
+>>   More and more of STP ..
+>
+> thanks,
+> Nivedita
 
-Changes
--------
-
-Revision 1:
-  Four constants:
-     DM_DIR,
-     DM_MAX_TYPE_NAME,
-     DM_NAME_LEN,
-     DM_UUID_LEN
-  
-  Were being declared in device-mapper.h, these are all specific to 
-  the ioctl interface, so they've been moved to dm-ioctl.h.  Nobody
-  in userland should ever include <linux/device-mapper.h> so remove 
-  ifdef __KERNEL guards.
-
-Revision 2:
-  An error value was not being checked correctly in open_dev().
-  [Kevin Corry]
-
-Revision 3:
-  Return -ENOTBLK if lookup_device() finds the inode, but it
-  is not a block device. [Cristoph Hellwig]
-
-Revision 4:
-  No need to validate the parameters if we are doing a
-  REMOVE_ALL command.
-
-Revision 5:
-  check_device_area was comparing the bytes with sectors.
-  [Stefan Lauterbach]
-
-Revision 6:
-  minor change for dm-strip.c. Tests for correct chunksize before it allocates
-  the stripe context. [Heinz Mauelshagen]
-
-Revision 7:
-  There's a bug in the dm-stripe.c constructor failing top check if enough
-  destinations are handed in. [Heinz Mauelshagen]
-
-Revision 8:
-  Give each device its own io mempool to avoid a potential
-  deadlock with stacked devices.  [HM + EJT]
-
-Revision 9:
-  queue_io() was checking the DMF_SUSPENDED flag rather than the new
-  DMF_BLOCK_IO flag.  This meant suspend could deadlock under load.
-
-Revision 10:
-  dm_suspend(): Stop holding the read lock around the while loop that
-  waits for pending io to complete.
-
-Revision 11:
-  Add a blk_run_queues() call to encourage pending io to flush
-  when we're doing a dm_suspend().
-
-Revision 12:
-  dec_pending(): only bother spin locking if io->error is going to be
-  updated. [Kevin Corry]
-
-Revision 13:
-  md->pending was being incremented for each clone rather than just
-  once. [Kevin Corry]
-
-Revision 14:
-  Some fields in the duplicated bio weren't being set up properly in
-  __split_page(). [Kevin Corry]
-
-Revision 15:
-  Remove some paranoia in highmem.c, need to check this with Jens Axboe.
-
-Revision 16:
-  Remove verbose debug message 'Splitting page'.
-
-Revision 17:
-  o  If there's an error you still need to call bio_endio with bio->bi_size
-     as the 'done' param.
-  
-  o  Simplify clone_endio.
-  
-  [Kevin Corry]
-
-Revision 18:
-  The block layer does not honour bio->bi_size when issuing io, instead
-  it performs io to the complete bvecs.  This means we have to change
-  the bio splitting code slightly.
-  
-  Given a bio we repeatedly apply one of the following three operations
-  until there is no more io left in the bio:
-  
-  1) The remaining io does not cross an io/target boundary, so just
-     create a clone and issue all of the io.
-  
-  2) There are some bvecs at the start of the bio that are not split by
-     a target boundary.  Create a clone for these bvecs only.
-  
-  3) The first bvec needs splitting, use bio_alloc() to create *two*
-     bios, one for the first half of the bvec, the other for the second
-     half.  A bvec can never contain more than one boundary.
-
-Revision 19:
-  For large bios it was possible to look up the wrong target.  Bug
-  introduced by the recent splitting changes.
-
-Revision 20:
-  The linear target was getting the start sector wrong when doing a
-  dm_get_device(). [Kevin Corry]
 

@@ -1,61 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261407AbUCSHMG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 02:12:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261703AbUCSHMG
+	id S261451AbUCSHPZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 02:15:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbUCSHPZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 02:12:06 -0500
-Received: from [202.125.86.130] ([202.125.86.130]:5582 "EHLO
-	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
-	id S261407AbUCSHMC convert rfc822-to-8bit (ORCPT
+	Fri, 19 Mar 2004 02:15:25 -0500
+Received: from smtp-out3.iol.cz ([194.228.2.91]:22942 "EHLO smtp-out3.iol.cz")
+	by vger.kernel.org with ESMTP id S261451AbUCSHPQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 02:12:02 -0500
-Content-class: urn:content-classes:message
+	Fri, 19 Mar 2004 02:15:16 -0500
+From: Chris Moore <chris.moore@mail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Subject: SMP Makefile errors
-Content-Transfer-Encoding: 8BIT
-Date: Fri, 19 Mar 2004 12:37:57 +0530
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Message-ID: <1118873EE1755348B4812EA29C55A9721768C9@esnmail.esntechnologies.co.in>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: SMP Makefile errors
-thread-index: AcQNgOhUAkn/5IjZTKKi42vqrCxHqw==
-From: "Srinivas G." <srinivasg@esntechnologies.co.in>
-To: <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16474.40447.453039.89445@chrislap.ourcpu.com>
+Date: Fri, 19 Mar 2004 08:15:11 +0100
+To: linux-kernel@vger.kernel.org
+Subject: Re: problem with sbp2 / ieee1394 in kernel 2.6.3
+In-Reply-To: <16470.13793.211260.738789@chrislap.ourcpu.com>
+References: <16470.13793.211260.738789@chrislap.ourcpu.com>
+X-Mailer: VM 7.18 under Emacs 21.3.50.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bob Gill, Mon Mar 15 2004 - 22:10:19 EST:
 
-Hi,
+> There were a lot of changes to ieee1394 between 2.6.3 and 2.6.4, and
+> haven't seen sbp2 fail since (two or three patches) before
+> 2.6.4. Try the 2.6.4 kernel (or newer) and see if that helps.
 
-I compiled a Device Driver in uni-processor environment. It was working
-fine. The same driver code I compiled in SMP environment. Then, it has
-given the following errors.
+I just compiled 2.6.4.  It fails just the same as in 2.4.x and 2.6.3,
+but this time I got a message I hadn't noticed before - the first
+line, the "unsolicited response" message is new to me:
 
+  Mar 19 07:48:10 chrislap kernel: ieee1394: unsolicited response packet received - no tlabel match
+  Mar 19 07:48:51 chrislap kernel: ieee1394: sbp2: aborting sbp2 command
+  Mar 19 07:48:51 chrislap kernel: Read (10) 00 06 b5 82 bf 00 00 f8 00 
+  Mar 19 07:49:01 chrislap kernel: ieee1394: sbp2: aborting sbp2 command
+  Mar 19 07:49:01 chrislap kernel: Test Unit Ready 00 00 00 00 00 
+  Mar 19 07:49:01 chrislap kernel: ieee1394: sbp2: aborting sbp2 command
+  Mar 19 07:49:01 chrislap kernel: Read (10) 00 06 b5 83 b7 00 00 08 00 
+  Mar 19 07:49:11 chrislap kernel: ieee1394: sbp2: aborting sbp2 command
+  Mar 19 07:49:11 chrislap kernel: Test Unit Ready 00 00 00 00 00 
+  Mar 19 07:49:11 chrislap kernel: ieee1394: sbp2: reset requested
+  Mar 19 07:49:11 chrislap kernel: ieee1394: sbp2: Generating sbp2 fetch agent reset
+  Mar 19 07:49:21 chrislap kernel: ieee1394: sbp2: aborting sbp2 command
+  Mar 19 07:49:21 chrislap kernel: Test Unit Ready 00 00 00 00 00 
+  Mar 19 07:49:21 chrislap kernel: ieee1394: sbp2: reset requested
+  Mar 19 07:49:21 chrislap kernel: ieee1394: sbp2: Generating sbp2 fetch agent reset
+  Mar 19 07:49:41 chrislap kernel: ieee1394: sbp2: aborting sbp2 command
+  Mar 19 07:49:41 chrislap kernel: Test Unit Ready 00 00 00 00 00 
+  Mar 19 07:49:51 chrislap kernel: ieee1394: sbp2: aborting sbp2 command
+  Mar 19 07:49:51 chrislap kernel: Test Unit Ready 00 00 00 00 00 
+  Mar 19 07:49:51 chrislap kernel: ieee1394: sbp2: reset requested
+  [...]
 
+I umounted the drive - got some errors, but it umounted:
 
-In file included from /usr/src/linux-2.4/include/linux/irq.h:69,
-                 from /usr/src/linux-2.4/include/asm/hardirq.h:6,
-                 from /usr/src/linux-2.4/include/linux/interrupt.h:45,
-                 from tiisr.c:13:
-/usr/src/linux-2.4/include/asm/hw_irq.h: In function `x86_do_profile':
-/usr/src/linux-2.4/include/asm/hw_irq.h:202: `current' undeclared (first
-use in this function)
-/usr/src/linux-2.4/include/asm/hw_irq.h:202: (Each undeclared identifier
-is reported only once
-/usr/src/linux-2.4/include/asm/hw_irq.h:202: for each function it
-appears in.)
-make: *** [tiisr.o] Error 1
+  [root@chrislap firewire]# umount g
+  messages:Mar 19 07:55:12 chrislap kernel: scsi1 (1:0): rejecting I/O to offline device
+  messages:Mar 19 07:55:12 chrislap kernel: Buffer I/O error on device sda2, logical block 524
+  messages:Mar 19 07:55:12 chrislap kernel: lost page write due to I/O error on sda2
+  [root@chrislap firewire]# 
 
+but then modprobe hung:
 
+  [root@chrislap firewire]# modprobe -r -v sbp2
+  unloading the sbp2 module:
+  rmmod /lib/modules/2.6.4/kernel/drivers/ieee1394/sbp2.ko
+  ^--note no root prompt came back
 
+So what should I do next?  Incidentally, I don't suppose it is of any
+interest, but the drive has a USB 2 interface too.  My PC doesn't
+have a USB 2 port, but it does have USB 1.  I've managed to read the
+whole disk using the USB 1 interface (albeit VERY slowly).  Perhaps
+that's interesting...
 
-Help me in this regard. What can I do to the existing driver code OR
-What modifications I have to do in the Makefile.
-
-Thanks in advance.
----Srinivas 
-
+Chris.

@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270480AbTHGRMK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 13:12:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270483AbTHGRMK
+	id S269578AbTHGR2F (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 13:28:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269621AbTHGR2F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 13:12:10 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:59144 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S270480AbTHGRMI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 13:12:08 -0400
-Date: Thu, 7 Aug 2003 19:12:06 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Jani Monoses <jani@iv.ro>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OT] bkbits annotated srcs
-Message-ID: <20030807171206.GA1900@mars.ravnborg.org>
-Mail-Followup-To: Jani Monoses <jani@iv.ro>,
-	linux-kernel@vger.kernel.org
-References: <20030807102214.06223100.jani@iv.ro>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030807102214.06223100.jani@iv.ro>
-User-Agent: Mutt/1.4.1i
+	Thu, 7 Aug 2003 13:28:05 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:56075 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S269578AbTHGR2D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 13:28:03 -0400
+Date: Thu, 7 Aug 2003 18:28:01 +0100 (BST)
+From: James Simmons <jsimmons@infradead.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Pavel Machek <pavel@suse.cz>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Pavel Machek <pavel@ucw.cz>
+Subject: Re: [Linux-fbdev-devel] [PATCH] Framebuffer: 2nd try: client
+ notification mecanism & PM
+In-Reply-To: <1060267031.722.3.camel@gaston>
+Message-ID: <Pine.LNX.4.44.0308071827240.13973-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 07, 2003 at 10:22:14AM +0300, Jani Monoses wrote:
-> Is there a way of seeing annotated sources of the kernel via the web
-> interface?
-linux.bkbits.net
--> linux-2.5
--> Browse the source code
 
-Click on file of interest.
--> See annotation
--> In what revision a line was last changed
+> For some reason, it seems that after we have switched to the suspend
+> console, we race with the X server on accel engine, and on resume, the X
+> server just crashes.
 
-	Sam
+Are you shutting down the accel engine in the fbdev driver on suspend?
+
+

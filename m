@@ -1,54 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262369AbVC3SJe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262375AbVC3SMN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262369AbVC3SJe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 13:09:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262370AbVC3SJe
+	id S262375AbVC3SMN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 13:12:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262376AbVC3SMM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 13:09:34 -0500
-Received: from ns9.hostinglmi.net ([213.194.149.146]:59264 "EHLO
-	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S262369AbVC3SJ3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 13:09:29 -0500
-Date: Wed, 30 Mar 2005 20:10:07 +0200
-From: DervishD <lkml@dervishd.net>
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: linux-libc-headers scsi headers vs libc scsi headers
-Message-ID: <20050330181007.GA17835@DervishD>
-Mail-Followup-To: Linux-kernel <linux-kernel@vger.kernel.org>
-References: <20050330162114.GA1028@DervishD>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050330162114.GA1028@DervishD>
-User-Agent: Mutt/1.4.2.1i
-Organization: DervishD
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - dervishd.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Wed, 30 Mar 2005 13:12:12 -0500
+Received: from vsmtp4.tin.it ([212.216.176.224]:61330 "EHLO vsmtp4.tin.it")
+	by vger.kernel.org with ESMTP id S262375AbVC3SLS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 13:11:18 -0500
+To: dsd@gentoo.org
+Cc: linux-kernel@vger.kernel.org
+Subject: rootdelay
+From: davidw@dedasys.com (David N. Welton)
+Supersedes: <87hditj9ls.fsf@dedasys.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+Date: 30 Mar 2005 20:05:36 +0200
+Message-ID: <87wtrphuvj.fsf@dedasys.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi all and sorry for self-answering:
- * DervishD <lkml@dervishd.net> dixit:
 
-> 'linux-libc-headers', but I've noticed that it provides headers for
-> 'scsi/' subdir, and glibc *does that too*. Should I use the scsi
-> headers from llh? Should I instead compiled my new glibc without that
-> headers and let it install them as needed? Should I NOT use any linux
-> header for building my new glibc (2.3.4 BTW)?
+[ Please CC replies to me, thanks! ]
 
-    Yes, I know, this is in the llh FAQ, but the answer starts with
-'Not too sure on this one', that's the reason I'm asking here...
+Hi, I was looking at your patch:
 
-    Raúl Núñez de Arenas Coronado
+http://lkml.org/lkml/2005/1/21/132
 
+Very small, which is nice.
+
+I was wondering if there were any interest in my own efforts in that
+direction:
+
+http://dedasys.com/freesoftware/patches/blkdev_wakeup.patch
+
+which is far more intrusive, and perhaps isn't good kernel programming
+style, but, on the other hand, is the optimal solution in terms of
+boot time because it wakes up the boot process right when the device
+comes on line.
+
+Since I saw your patch included, it looks like there is interest in
+this, and I'd toot my own horn once more before just leaving my patch
+to the bit rot of the ages...
+
+Thanks!
 -- 
-Linux Registered User 88736
-http://www.dervishd.net & http://www.pleyades.net/
-It's my PC and I'll cry if I want to...
+David N. Welton
+ - http://www.dedasys.com/davidw/
+
+Apache, Linux, Tcl Consulting
+ - http://www.dedasys.com/
+
+Got the right list this time too...:-/

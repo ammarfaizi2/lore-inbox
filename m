@@ -1,79 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265361AbUGTEBi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265509AbUGTEON@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265361AbUGTEBi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jul 2004 00:01:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265467AbUGTEBi
+	id S265509AbUGTEON (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jul 2004 00:14:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265510AbUGTEON
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jul 2004 00:01:38 -0400
-Received: from [211.213.220.227] ([211.213.220.227]:43537 "HELO addr.com")
-	by vger.kernel.org with SMTP id S265361AbUGTEB1 (ORCPT
+	Tue, 20 Jul 2004 00:14:13 -0400
+Received: from fw.osdl.org ([65.172.181.6]:5031 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265509AbUGTEOH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jul 2004 00:01:27 -0400
-Date: Tue, 20 Jul 2004 03:56:14 +0000
-From: wdg@interguru.com
-Subject: New O E M software site
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-References: <BFKG7DCCG98635K0@vger.kernel.org>
-In-Reply-To: <BFKG7DCCG98635K0@vger.kernel.org>
-Message-ID: <B08H0C997BIAL328@interguru.com>
-MIME-Version: 1.0
+	Tue, 20 Jul 2004 00:14:07 -0400
+Date: Mon, 19 Jul 2004 21:07:06 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: "Nicolas Ross" <rossnick-lists@cybercat.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Unable to handle kernel NULL pointer dereference
+Message-Id: <20040719210706.0ccdeb80.rddunlap@osdl.org>
+In-Reply-To: <033601c46dc5$dd5470a0$1a07a8c0@civic2k>
+References: <033601c46dc5$dd5470a0$1a07a8c0@civic2k>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Huge of O E M Software! You will find everything you need
-on our site http://ldeege.biz
+On Mon, 19 Jul 2004 15:23:25 -0400 Nicolas Ross wrote:
 
-Microsoft Windows XP Professional
-Retail price: $299.00
-Our low Price: $50.00
-You Save: $249.00
-   
-Adobe Photoshop CS V 8.0 PC
-Retail price: $609.99
-Our low Price: $80.00
-You Save: $529.99
+| Hi all !
+| 
+| I have a firewall box, with a vanilla kernel from kernel.org. I've tried
+| with 2.4.19 and 2.4.24. The system is RedHat 7.3 (it does the same thing
+| with 8.0, and gcc 3)
+| 
+| The kernel is pretty straigh-up, not much options, some net modules,
+| iptables etc.
+| 
+| The only thing out of the ordinary is a custom net/core/dev.c file to
+| support a bandwith management module, wich isn't gpl and is pre-compiled.
+| 
+| When issuing commands to configure the bandwith manager, I get :
+| 
+| Unable to handle kernel NULL pointer dereference at virtual address 00000000
+|  printing eip:
+| 00000000
+| *pde = 00000000
+| Oops: 0000
+| CPU:    0
+| EIP:    0010:[<00000000>]    Tainted: P
 
-Microsoft Office XP Professional
-Retail price: $499.95
-Our low Price: $100.00
-You Save: $399.95
+What module makes it tainted?  Can you reproduce problem without it?
 
-Microsoft Windows 2000 Professional
-Retail price: $320.00
-Our low Price: $50.00
-You Save: $270.00
+| EFLAGS: 00010086
+| eax: ddf5f948   ebx: ddf5e000   ecx: ddf5f980   edx: de9db400
+| esi: c0000000   edi: ddf5f986   ebp: ddf5f9b8   esp: ddf5f92c
+| ds: 0018   es: 0018   ss: 0018
+| Process bwmgr (pid: 1120, stackpage=ddf5f000)
+| Stack: e08c4431 de9db400 ddf5f980 00008946 fffffec4 11860f1f 00000000
+| 0000000a
+|        00000000 00000001 00000000 00000000 00000000 00000000 00000000
+| 00000000
+|        00000000 00bd0c00 00000000 00000000 90c8ebff 6e616c76 e08d0032
+| defec800
+| Call Trace:    [<e08c4431>] [<e08d0032>] [<e08d58d7>] [<e08d68b5>]
+| [<c012b346>]
+|   [<c0120ea3>] [<c012b346>] [<c012995a>] [<c0120ea3>] [<c0120f19>]
+| [<c010f303>]
+|   [<c028407e>] [<e08d95f6>] [<c01216de>] [<c010f1b0>] [<c01071b4>]
+| [<c0282bab>]
+|   [<c010f1b0>] [<c01071b4>] [<c0282bab>] [<e08af1f7>] [<e08c33ec>]
+| [<c01a3a17>]
+|   [<c023af54>] [<c023b138>] [<c023315a>] [<c013e413>] [<c01070a3>]
+| 
+| Code:  Bad EIP value.
+| 
+| After that the system still responds but isn't much usable, I have to
+| reboot, not practicall...
+| 
+| All of this was working with the exact same setup, but on a different MB,
+| and kernel 2.4.19.
+| 
+| Any hints on the source of this exception ?
 
-Adobe Pagemaker V 7.0 PC
-Retail price: $599.95
-Our low Price: $80.00
-You Save: $519.95
-   
-Adobe Illustrator CS V 11.0 PC
-Retail price: $599.95
-Our low Price: $80.00
-You Save: $519.95
+Please run this oops message thru ksymoops and resend it.
+See linux/Documentation/ oops-tracing.txt for details.
 
-CorelDraw Graphics Suite V 12 PC
-Retail price: $349.95
-Our low Price: $100.00
-You Save: $249.95
-   
-Microsoft SQL Server 2000
-Retail price: $1450.00
-Our low Price: $90.00
-You Save: $1360.00
- 
-Symantec Norton Antivirus 2004 Professional
-Retail price: $69.95
-Our low Price: $15.00
-You Save: $54.95
-
-RedHat Linux 9.0
-Retail price: $79.99
-Our low Price: $60.00
-You Save: $19.99
-
-or site is http://ldeege.biz
-
+--
+~Randy

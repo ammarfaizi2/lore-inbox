@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261364AbVAaVBD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261373AbVAaVFD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261364AbVAaVBD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 16:01:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbVAaVAs
+	id S261373AbVAaVFD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 16:05:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbVAaVE4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 16:00:48 -0500
-Received: from alg138.algor.co.uk ([62.254.210.138]:11157 "EHLO
-	mail.linux-mips.net") by vger.kernel.org with ESMTP id S261373AbVAaVAG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 16:00:06 -0500
-Date: Mon, 31 Jan 2005 20:53:43 +0000
-From: Ralf Baechle <ralf@linux-mips.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Atsushi Nemoto <anemo@mba.ocn.ne.jp>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, bunk@stusta.de
-Subject: Re: [PATCH] Fix SERIAL_TXX9 dependencies
-Message-ID: <20050131205342.GA11238@linux-mips.org>
-References: <20050129131134.75dacb41.akpm@osdl.org> <200501301645.14069.arnd@arndb.de> <20050130165839.GB27703@linux-mips.org> <200501312123.11451.arnd@arndb.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200501312123.11451.arnd@arndb.de>
-User-Agent: Mutt/1.4.1i
+	Mon, 31 Jan 2005 16:04:56 -0500
+Received: from mail.joq.us ([67.65.12.105]:65171 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S261368AbVAaVC5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 16:02:57 -0500
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, Alexander Nyberg <alexn@dsv.su.se>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>
+Subject: Re: [PATCH] sched - Implement priority and fifo support for
+ SCHED_ISO
+References: <41F76746.5050801@kolivas.org> <87acqpjuoy.fsf@sulphur.joq.us>
+	<41FE9582.7090003@kolivas.org>
+From: "Jack O'Quin" <joq@io.com>
+Date: Mon, 31 Jan 2005 15:04:46 -0600
+In-Reply-To: <41FE9582.7090003@kolivas.org> (Con Kolivas's message of "Tue,
+ 01 Feb 2005 07:30:58 +1100")
+Message-ID: <87is5dia35.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 31, 2005 at 09:23:10PM +0100, Arnd Bergmann wrote:
+Con Kolivas <kernel@kolivas.org> writes:
 
-> On Sünndag 30 Januar 2005 17:58, Ralf Baechle wrote:
-> > Hmm...  Atushi sent me this new-style serial driver when I asked him for
-> > replacements for the old style drivers in drivers/char/ so my undertanding
-> > was it was a full replacement for all of them.  I'll check on the tx3912
-> > and will try to send an update later today.
-> 
-> I just found that the version in -mm2 does not add the Makefile change, so
-> you need this patchlet on top. If you haven't redone the patch yet, it might
-> be better still to rename the file to txx9.o, as serial/serial_* is a bit
-> redundant.
+> Jack O'Quin wrote:
+>> Loading the realtime-lsm and then running with SCHED_FIFO *does* work
+>> as expected on this kernel.  I should retry the test with *exactly*
+>> the expected patch sequence.  What would that be?
+>
+> Sure enough I found the bug in less than 5 mins, and it would
+> definitely cause this terrible behaviour.
+>
+> A silly bracket transposition error on my part :P
 
-As for the TX3912 issue, there is no remaining user so that driver would
-now be continuing to suffer from accelerated bitrot.  A rewrite to use
-the drivers/serial infrastructure is relativly minor and so I and Atushi
-Nemoto agree in that the old driver should stay removed, as my patch did
-and therefore there was no need for rerolling the patch.  Akpm has in
-the meantime sent the patches to Linus, so what's left would be renaming
-the driver, as per your suggestion.
-
-  Ralf
+Cool.  I'll try that right away.
+-- 
+  joq

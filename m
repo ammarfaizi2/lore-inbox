@@ -1,77 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269007AbUICOZb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269358AbUICO2S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269007AbUICOZb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 10:25:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269003AbUICOZ3
+	id S269358AbUICO2S (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 10:28:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269038AbUICO2S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 10:25:29 -0400
-Received: from ms002msg.fastwebnet.it ([213.140.2.52]:21909 "EHLO
-	ms002msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S268989AbUICOZE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 10:25:04 -0400
-From: Paolo Ornati <ornati@fastwebnet.it>
-Subject: [PATCH] tdfxfb linkage fix v2.0 (the previous one is broken)
-Date: Fri, 3 Sep 2004 16:27:28 +0200
-User-Agent: KMail/1.6.2
+	Fri, 3 Sep 2004 10:28:18 -0400
+Received: from gsstark.mtl.istop.com ([66.11.160.162]:9091 "EHLO
+	stark.xeocode.com") by vger.kernel.org with ESMTP id S269358AbUICO1y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 10:27:54 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Greg Stark <gsstark@mit.edu>, Brad Campbell <brad@wasp.net.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: Crashed Drive, libata wedges when trying to recover data
+References: <87oekpvzot.fsf@stark.xeocode.com> <4136E277.6000408@wasp.net.au>
+	<87u0ugt0ml.fsf@stark.xeocode.com>
+	<1094209696.7533.24.camel@localhost.localdomain>
+In-Reply-To: <1094209696.7533.24.camel@localhost.localdomain>
+From: Greg Stark <gsstark@mit.edu>
+Organization: The Emacs Conspiracy; member since 1992
+Date: 03 Sep 2004 10:27:19 -0400
+Message-ID: <87d613tol4.fsf@stark.xeocode.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Disposition: inline
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409031627.28190.ornati@fastwebnet.it>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch I've sent to fix tdfx frame buffer linkage is broken because it
-can leads to linking errors like this one:
 
-  LD      drivers/video/built-in.o
-drivers/video/tdfxfb_lib.o(.text+0x13e0): In function `cfb_copyarea':
-: multiple definition of `cfb_copyarea'
-drivers/video/cfbcopyarea.o(.text+0x6e0): first defined here
-drivers/video/tdfxfb_lib.o(.text+0x7c0): In function `bitfill32_rev':
-: multiple definition of `bitfill32_rev'
-drivers/video/cfbfillrect.o(.text+0x200): first defined here
-drivers/video/tdfxfb_lib.o(.text+0x690): In function `bitfill':
-: multiple definition of `bitfill'
-drivers/video/cfbfillrect.o(.text+0xd0): first defined here
-drivers/video/tdfxfb_lib.o(.text+0x8b0): In function `bitfill_rev':
-: multiple definition of `bitfill_rev'
-drivers/video/cfbfillrect.o(.text+0x2f0): first defined here
-drivers/video/tdfxfb_lib.o(.text+0x5c0): In function `bitfill32':
-: multiple definition of `bitfill32'
-drivers/video/cfbfillrect.o(.text+0x0): first defined here
-drivers/video/tdfxfb_lib.o(.text+0x0): In function `cfb_imageblit':
-: multiple definition of `cfb_imageblit'
-drivers/video/cfbimgblt.o(.text+0x0): first defined here
-drivers/video/tdfxfb_lib.o(.text+0x9f0): In function `cfb_fillrect':
-: multiple definition of `cfb_fillrect'
-drivers/video/cfbfillrect.o(.text+0x430): first defined here
-make[1]: *** [drivers/video/built-in.o] Error 1
-make: *** [drivers/video/] Error 2
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
+> On Gwe, 2004-09-03 at 05:52, Greg Stark wrote:
+> > I get the same message and the same basic symptom -- any process touching the
+> > bad disk goes into disk-wait for a long time. But whereas before as far as I
+> > know they never came out, now they seem to come out of disk-wait after a good
+> > long time. But then maybe I just never waited long enough with 2.6.6.
+> 
+> This looks hopeful. You are now seeing the IDE layer error dump. Right
+> now it doesn't decode the LBA block number although that data is
+> available in the taskfile so I can knock up a test patch for you to try
+> if you want.
 
-This patch really fixes tdfxfb linkage, please apply:
+Well I still have a problem. It seems once this occurs that *every* further
+access generates the error. Even directories that I had previously been able
+to list fail.
 
---- linux-mm/drivers/video/Makefile.orig	2004-09-03 15:25:08.527030328 +0200
-+++ linux-mm/drivers/video/Makefile	2004-09-03 15:26:57.106523736 +0200
-@@ -34,10 +34,9 @@ obj-$(CONFIG_FB_CYBER)            += cyb
- obj-$(CONFIG_FB_CYBER2000)        += cyber2000fb.o cfbfillrect.o cfbcopyarea.o cfbimgblt.o
- obj-$(CONFIG_FB_GBE)              += gbefb.o cfbfillrect.o cfbcopyarea.o cfbimgblt.o
- obj-$(CONFIG_FB_SGIVW)            += sgivwfb.o cfbfillrect.o cfbcopyarea.o cfbimgblt.o
--obj-$(CONFIG_FB_3DFX)             += tdfxfb.o tdfxfb_lib.o
--tdfxfb_lib-y                      := cfbimgblt.o
-+obj-$(CONFIG_FB_3DFX)             += tdfxfb.o cfbimgblt.o
- ifneq ($(CONFIG_FB_3DFX_ACCEL),y)
--tdfxfb_lib-y                      += cfbfillrect.o cfbcopyarea.o
-+obj-$(CONFIG_FB_3DFX)             += cfbfillrect.o cfbcopyarea.o
- endif
- obj-$(CONFIG_FB_MAC)              += macfb.o macmodes.o cfbfillrect.o cfbcopyarea.o cfbimgblt.o 
- obj-$(CONFIG_FB_HP300)            += hpfb.o cfbfillrect.o cfbimgblt.o
+So while my machine isn't crippled once this happens, I still can't proceed
+with the recovery.
 
+And they seem to take 12 minutes to fail. I guess that indicates they were
+either trying to do 24 blocks of readahead, or some combination of readahead
+and retries from a higher layer.
 
 -- 
-	Paolo Ornati
-	Gentoo Linux (kernel 2.6.8-gentoo-r3)
+greg
+

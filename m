@@ -1,65 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262707AbTK3Skj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Nov 2003 13:40:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262762AbTK3Skj
+	id S262767AbTK3SuM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Nov 2003 13:50:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262782AbTK3SuM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Nov 2003 13:40:39 -0500
-Received: from ppp-RAS1-2-109.dialup.eol.ca ([64.56.225.109]:3968 "EHLO
-	node1.opengeometry.net") by vger.kernel.org with ESMTP
-	id S262707AbTK3Skh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Nov 2003 13:40:37 -0500
-Date: Sun, 30 Nov 2003 13:40:37 -0500
-From: William Park <opengeometry@yahoo.ca>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test11 -- Failed to open /dev/ttyS0: No such device
-Message-ID: <20031130184037.GA294@node1.opengeometry.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20031130071757.GA9835@node1.opengeometry.net> <20031130102351.GB10380@outpost.ds9a.nl>
+	Sun, 30 Nov 2003 13:50:12 -0500
+Received: from holomorphy.com ([199.26.172.102]:29127 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S262767AbTK3SuJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Nov 2003 13:50:09 -0500
+Date: Sun, 30 Nov 2003 10:50:05 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: pgcl-2.6.0-test5-bk3-17
+Message-ID: <20031130185005.GL8039@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+	linux-kernel@vger.kernel.org
+References: <20031128041558.GW19856@holomorphy.com> <20031128072148.GY8039@holomorphy.com> <20031130164301.GK8039@holomorphy.com> <Pine.LNX.4.58.0311301321100.31421@montezuma.fsmlabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031130102351.GB10380@outpost.ds9a.nl>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.58.0311301321100.31421@montezuma.fsmlabs.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 30, 2003 at 11:23:51AM +0100, bert hubert wrote:
-> On Sun, Nov 30, 2003 at 02:17:57AM -0500, William Park wrote:
-> > Does anyone have modem working in 2.6.0-test11?
-> > 
-> > I have external modem connected to /dev/ttyS0 (COM1).  Kernel
-> > 2.6.0-test11 give me
-> 
-> Double check your .config and attach it if in doubt.
-> 
-> Something like grep SERIAL .config might be enlightning.
+On Sun, Nov 30, 2003 at 01:46:24PM -0500, Zwane Mwaikambo wrote:
+> Brilliant!
+> Linux arusha.mastecende.com 2.6.0-test11-pgcl #4 SMP Sun Nov 30 13:30:51 EST 2003 i686 i686 i386 GNU/Linux
+> tcsh          S C0155C8D     0  1132   1131                     (NOTLB)
+> def85e60 00000086 def8b29c c0155c8d def85e44 def85e9c c060b940 c013010f
+>        0001c1ec 00000000 c1143640 00008734 ff21d58e 00000019 dea41fd0 0000000e
+>        fff24fc0 00000008 7fffffff c1657d7c de7f9000 c0131035 dc21bfcc c1119338
+> Call Trace:
+[...]
+>  [<c0121830>] default_wake_function+0x0/0x20
+>  [<c032dfc1>] set_termios+0x111/0x180
+>  [<c0121830>] default_wake_function+0x0/0x20
+>  [<c0326c3b>] tty_read+0x15b/0x1a0
+>  [<c0326ae0>] tty_read+0x0/0x1a0
+>  [<c0326ae0>] tty_read+0x0/0x1a0
+>  [<c016ac9c>] vfs_read+0xac/0xf0
+>  [<c016aead>] sys_read+0x2d/0x50
+>  [<c0109719>] sysenter_past_esp+0x52/0x79
 
-My apology...
+I'll call this pgcl-2.6.0-test11-6, then.
 
-    CONFIG_PARPORT_SERIAL=m
-    # CONFIG_MOUSE_SERIAL is not set
-    # CONFIG_SERIAL_NONSTANDARD is not set
-    CONFIG_SERIAL_8250=m
-    CONFIG_SERIAL_8250_CS=m
-    CONFIG_SERIAL_8250_NR_UARTS=4
-    # CONFIG_SERIAL_8250_EXTENDED is not set
-    CONFIG_SERIAL_CORE=m
-    CONFIG_SND_SERIAL_U16550=m
-    # CONFIG_USB_SERIAL is not set
-
-    CONFIG_PPP=m
-    # CONFIG_PPP_MULTILINK is not set
-    # CONFIG_PPP_FILTER is not set
-    CONFIG_PPP_ASYNC=m
-    CONFIG_PPP_SYNC_TTY=m
-    CONFIG_PPP_DEFLATE=m
-    CONFIG_PPP_BSDCOMP=m
-    CONFIG_PPPOE=m
-
-Everything related to serial and ppp are module.  This is the way I have
-it with 2.4.23.  I haven't tried any earlier version than 2.6.0-test11.
-
--- 
-William Park, Open Geometry Consulting, <opengeometry@yahoo.ca>
-Linux solution for data management and processing. 
+-- wli

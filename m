@@ -1,30 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129554AbRBVW0f>; Thu, 22 Feb 2001 17:26:35 -0500
+	id <S131173AbRBVW1p>; Thu, 22 Feb 2001 17:27:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131173AbRBVW0Z>; Thu, 22 Feb 2001 17:26:25 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:4102 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129554AbRBVW0U>; Thu, 22 Feb 2001 17:26:20 -0500
-Subject: Re: [PATCH] use correct include dir for build tools
-To: rread@datarithm.net (Robert Read)
-Date: Thu, 22 Feb 2001 22:28:58 +0000 (GMT)
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20010222123940.A20319@tenchi.datarithm.net> from "Robert Read" at Feb 22, 2001 12:39:40 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131172AbRBVW1f>; Thu, 22 Feb 2001 17:27:35 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:31750 "HELO
+	postfix.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S131173AbRBVW1T>; Thu, 22 Feb 2001 17:27:19 -0500
+Date: Thu, 22 Feb 2001 18:40:48 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Jens Axboe <axboe@suse.de>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: ll_rw_block/submit_bh and request limits
+In-Reply-To: <20010222223811.A29372@athlon.random>
+Message-ID: <Pine.LNX.4.21.0102221832470.2401-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14W4EP-00055G-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  FINDHPATH      = $(HPATH)/asm $(HPATH)/linux $(HPATH)/scsi $(HPATH)/net
->  
->  HOSTCC         = gcc
-> -HOSTCFLAGS     = -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer
-> +HOSTCFLAGS     = -I$(HPATH) -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer
 
-That seems odd. Which build tools need to find kernel includes for this kernel
-not the standard C includes
+On Thu, 22 Feb 2001, Andrea Arcangeli wrote:
+
+> On Thu, Feb 22, 2001 at 10:59:20AM -0800, Linus Torvalds wrote:
+> > I'd prefer for this check to be a per-queue one.
+> 
+> I'm running this in my tree since a few weeks, however I never had the courage
+> to post it publically because I didn't benchmarked it carefully yet and I
+> prefer to finish another thing first. 
+
+You want to throttle IO if the amount of on flight data is higher than
+a given percentage of _main memory_. 
+
+As far as I can see, your patch avoids each individual queue from being
+bigger than the high watermark (which is a percentage of main
+memory). However, you do not avoid multiple queues together from being
+bigger than the high watermark.
+
+
+

@@ -1,64 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265572AbUAPO04 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 09:26:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265554AbUAPO0z
+	id S265540AbUAPOYT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 09:24:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265550AbUAPOYT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 09:26:55 -0500
-Received: from svr44.ehostpros.com ([66.98.192.92]:9620 "EHLO
-	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S265548AbUAPOZb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 09:25:31 -0500
-From: "Amit S. Kale" <amitkale@emsyssoft.com>
-Organization: EmSysSoft
-To: Christoph Hellwig <hch@infradead.org>, Pavel Machek <pavel@ucw.cz>
-Subject: Re: KGDB 2.0.3 with fixes and development in ethernet interface
-Date: Fri, 16 Jan 2004 19:54:54 +0530
-User-Agent: KMail/1.5
-Cc: kgdb-bugreport@lists.sourceforge.net,
-       kernel list <linux-kernel@vger.kernel.org>
-References: <200401161759.59098.amitkale@emsyssoft.com> <20040116125806.GA7409@elf.ucw.cz> <20040116140728.B24102@infradead.org>
-In-Reply-To: <20040116140728.B24102@infradead.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 16 Jan 2004 09:24:19 -0500
+Received: from mail.ccur.com ([208.248.32.212]:36871 "EHLO exchange.ccur.com")
+	by vger.kernel.org with ESMTP id S265540AbUAPOYK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 09:24:10 -0500
+Date: Fri, 16 Jan 2004 09:23:51 -0500
+From: Joe Korty <joe.korty@ccur.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: akpm@osdl.org, paulus@samba.org, linux-kernel@vger.kernel.org
+Subject: Re: seperator error in __mask_snprintf_len
+Message-ID: <20040116142351.GA2433@tsunami.ccur.com>
+Reply-To: joe.korty@ccur.com
+References: <20040108051111.4ae36b58.pj@sgi.com> <16381.57040.576175.977969@cargo.ozlabs.ibm.com> <20040108225929.GA24089@tsunami.ccur.com> <16381.61618.275775.487768@cargo.ozlabs.ibm.com> <20040114150331.02220d4d.pj@sgi.com> <20040115002703.GA20971@tsunami.ccur.com> <20040114204009.3dc4c225.pj@sgi.com> <20040115081533.63c61d7f.akpm@osdl.org> <20040115181525.GA31086@tsunami.ccur.com> <20040115211402.04c5c2c4.pj@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200401161954.54612.amitkale@emsyssoft.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - emsyssoft.com
+In-Reply-To: <20040115211402.04c5c2c4.pj@sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 16 Jan 2004 7:37 pm, Christoph Hellwig wrote:
-> On Fri, Jan 16, 2004 at 01:58:06PM +0100, Pavel Machek wrote:
-> > ++int kgdbeth_thread(void *data)
-> > ++{
-> > ++      struct net_device *ndev = (struct net_device *)data;
-> > ++      daemonize("kgdbeth");
-> > ++      while (!ndev->ip_ptr) {
-> > ++              schedule();
-> > ++      }
-> > ++      debugger_entry();
-> > ++      return 0;
-> >
-> > Don't you need some locking around ndev->ip_ptr? [Okay, it probably
-> > only matters on SMP, so it is not causing your problems..]
->
-> Not to mention it should use a proper wait_event instead of this
-> really stupid loop.
+On Thu, Jan 15, 2004 at 09:14:02PM -0800, Paul Jackson wrote:
+> I give, Joe.  Given the several details that are better with your
+> solution, I endorse your solution, with the couple of minor edits you
+> have in the pipeline.
+> 
+> It pains me to see the minor code growth (parsing went from 391 bytes
+> of machine code to 625), with non-trivial code duplication of the
+> simple_stroull() routine, and admitted increase in code complexity.
+> 
+> But, yes, better bits than bytes, better not to alloca(), and
+> better using existing bitops than misplaced arch dependencies.
 
-Yep. Will do that. This is just first version to get some thing going.
+First of all, I don't like my parser anymore so I hope you don't back
+out, Paul.  Perhaps all that is needed to make your parser acceptable
+to Andrew is 1) tweak it to use bitmap_shift_right / set_bit, and 2)
+use nbits in the interface but immediately convert it to the nbytes that
+the algorithm actually wants.
 
-Things that'll have to be fixed before this is usable as a debugger.
-1. Change skbuff handling to use kgdb-specific buffers when 
-kgdb_handle_exception begins.
-2. Get rid of this way of bringing up ethernet interface.
--- 
-Amit Kale
-EmSysSoft (http://www.emsyssoft.com)
-KGDB: Linux Kernel Source Level Debugger (http://kgdb.sourceforge.net)
+Over the weekend, I may poke at my version and look over yours again
+and perhaps yet a third version will come out of this.  Which is a good
+thing since lots of choices to pick and merge from is what is best for
+Andrew and for Linux.
 
+Joe

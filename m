@@ -1,102 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266546AbTAGMAW>; Tue, 7 Jan 2003 07:00:22 -0500
+	id <S267047AbTAGMAm>; Tue, 7 Jan 2003 07:00:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267047AbTAGMAW>; Tue, 7 Jan 2003 07:00:22 -0500
-Received: from users.linvision.com ([62.58.92.114]:18919 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S266546AbTAGMAV>; Tue, 7 Jan 2003 07:00:21 -0500
-Date: Tue, 7 Jan 2003 13:08:33 +0100
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: krushka@iprimus.com.au,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Fwd: File system corruption
-Message-ID: <20030107130832.A4953@bitwizard.nl>
-References: <0301062138130A.01466@paul.home.com.au> <1041865580.17472.17.camel@irongate.swansea.linux.org.uk>
+	id <S267050AbTAGMAm>; Tue, 7 Jan 2003 07:00:42 -0500
+Received: from peabody.ximian.com ([141.154.95.10]:17298 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP
+	id <S267047AbTAGMAk>; Tue, 7 Jan 2003 07:00:40 -0500
+Subject: unix_getname buglet - > 2.5.4(?)
+From: Michael Meeks <michael@ximian.com>
+To: linux-kernel@vger.kernel.org
+Cc: evolution <evolution-hackers@ximian.com>, orbit <orbit-list@gnome.org>
+Content-Type: text/plain
+Organization: Ximian.
+Message-Id: <1041941192.25619.293.camel@michael.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1041865580.17472.17.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.22.1i
-Organization: BitWizard.nl
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 07 Jan 2003 12:06:32 +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 06, 2003 at 03:06:20PM +0000, Alan Cox wrote:
-> Might be interesting to see what it does given a totally not FAT
-> environment (eg fill the disk start to end with each sector filled
-> with its sector number repeatedly) and see what comes out the other
-> end.
+Hi there,
 
-How about the following program to do this. 
+	Evolution is non-functioning on recent 2.5.X kernels, due to
+mal-performance in getpeername => net/unix/af_unix.c (unix_getname),
+where it seems we switch 'sk' on 'peer', but not the (previously)
+typecast pointer to it; this fixes it.
 
-			Roger. 
+--- af_unix.c.old       Tue Jan  7 11:59:09 2003
++++ af_unix.c   Tue Jan  7 12:00:45 2003
+@@ -1097,7 +1097,7 @@
+ static int unix_getname(struct socket *sock, struct sockaddr *uaddr,
+int *uaddr_len, int peer)
+ {
+        struct sock *sk = sock->sk;
+-       struct unix_sock *u = unix_sk(sk);
++       struct unix_sock *u;
+        struct sockaddr_un *sunaddr=(struct sockaddr_un *)uaddr;
+        int err = 0;
+  
+@@ -1112,6 +1112,7 @@
+                sock_hold(sk);
+        }
+  
++       u = unix_sk(sk);
+        unix_state_rlock(sk);
+        if (!u->addr) {
+                sunaddr->sun_family = AF_UNIX;
 
+	Thanks Joaquim Fellmann (AFAIR) who chased this down to bitkeeper
+changeset 1.262.2.2. Sadly I didn't have time to read the rest of that
+changeset to see if the mistake pops up elsewhere as well. Please CC me
+with replies, not on linux-kernel.
 
-/* Written By R.E.Wolff@BitWizard.nl 
- *
- * This program is distributed under GPL. */
+	HTH,
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-
-int main (int argc, char **argv)
-{
-  int i;
-  int ascii = 0; 
-  int size = 512;
-  long long secno;
-  char *buf; 
-  int s; 
-
-  for (i=1;i<argc;i++) {
-    if (strcmp (argv[i], "-a") == 0) {
-      ascii = 1;
-    }
-    if (strcmp (argv[i], "-b") == 0) {
-      ascii = 0;
-    }
-
-    if (strncmp (argv[i], "-s", 2) == 0) {
-      if (strlen (argv[i]) > 2)
-	size = atoi (argv[i]+2);
-      else
-	/* Sorry. Will crash if you specify -s as the last argument */
-	size = atoi (argv[++i]);
-    }
-  }
-
-  buf = malloc (size + 16); 
-
-  if (!buf) {
-    fprintf (stderr, "Can't allocate buffer.\n");
-    exit (1);
-  }
-
-  secno = 0; 
-  while (1) {
-    if (ascii) {
-      sprintf (buf, "%lld\n", secno);
-      s = strlen (buf); 
-      for (i=s;i<size;i+=s)
-	sprintf (buf+i, "%lld\n", secno);
-    } else {
-      for (i=0;i<size;i+=sizeof (long long)) 
-	*(long long *)(buf+i) = secno; 
-    }
-    if (write (1, buf, size) < 0)
-      break;
-    secno++;
-  }
-  exit (0); 
-}
+		Michael Meeks.
 
 -- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* The Worlds Ecosystem is a stable system. Stable systems may experience *
-* excursions from the stable situation. We are currently in such an      * 
-* excursion: The stable situation does not include humans. ***************
+ mmeeks@gnu.org  <><, Pseudo Engineer, itinerant idiot
+

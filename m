@@ -1,130 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262016AbVAYRC7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262003AbVAYREb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262016AbVAYRC7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 12:02:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262020AbVAYRC7
+	id S262003AbVAYREb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 12:04:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262018AbVAYREb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 12:02:59 -0500
-Received: from mo00.iij4u.or.jp ([210.130.0.19]:1003 "EHLO mo00.iij4u.or.jp")
-	by vger.kernel.org with ESMTP id S262016AbVAYRAP (ORCPT
+	Tue, 25 Jan 2005 12:04:31 -0500
+Received: from pat.uio.no ([129.240.130.16]:63463 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S262003AbVAYREZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 12:00:15 -0500
-Date: Wed, 26 Jan 2005 02:00:05 +0900
-From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-To: Andrew Morton <akpm@osdl.org>
-Cc: yuasa@hh.iij4u.or.jp, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6.11-rc2-mm1] mips: fix LTT for MIPS
-Message-Id: <20050126020005.7a1f3673.yuasa@hh.iij4u.or.jp>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Tue, 25 Jan 2005 12:04:25 -0500
+Subject: Re: [patch 1/13] Qsort
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Andreas Gruenbacher <agruen@suse.de>
+Cc: Olaf Kirch <okir@suse.de>, Andi Kleen <ak@muc.de>,
+       Nathan Scott <nathans@sgi.com>,
+       Mike Waychison <Michael.Waychison@sun.com>,
+       Jesper Juhl <juhl-lkml@dif.dk>, Felipe Alfaro Solana <lkml@mac.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Buck Huppmann <buchk@pobox.com>, Neil Brown <neilb@cse.unsw.edu.au>,
+       "Andries E. Brouwer" <Andries.Brouwer@cwi.nl>,
+       Andrew Morton <akpm@osdl.org>, Tim Hockin <thockin@hockin.org>
+In-Reply-To: <1106672028.9607.33.camel@winden.suse.de>
+References: <20050122203326.402087000@blunzn.suse.de>
+	 <41F570F3.3020306@sun.com> <20050125065157.GA8297@muc.de>
+	 <200501251112.46476.agruen@suse.de> <20050125120023.GA8067@muc.de>
+	 <20050125120507.GH19199@suse.de>
+	 <1106671920.11449.11.camel@lade.trondhjem.org>
+	 <1106672028.9607.33.camel@winden.suse.de>
+Content-Type: text/plain
+Date: Tue, 25 Jan 2005 09:03:57 -0800
+Message-Id: <1106672637.11449.24.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=0.142, required 12,
+	autolearn=disabled, AWL 0.14)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch had fixed LTT for MIPS.
-This patch is only for 2.6.11-rc2-mm1.
+ty den 25.01.2005 Klokka 17:53 (+0100) skreiv Andreas Gruenbacher:
+> On Tue, 2005-01-25 at 17:52, Trond Myklebust wrote:
+> > So here's an iconoclastic question or two:
+> > 
+> >   Why can't clients sort the list in userland, before they call down to
+> > the kernel?
+> 
+> Tell that to Sun Microsystems.
 
-Yoichi
+Whatever Sun chooses to do or not do changes nothing to the question of
+why our client would want to do a quicksort in the kernel.
 
-Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+Cheers,
+  Trond
+-- 
+Trond Myklebust <trond.myklebust@fys.uio.no>
 
-diff -urN -X dontdiff a-orig/arch/mips/kernel/traps.c a/arch/mips/kernel/traps.c
---- a-orig/arch/mips/kernel/traps.c	Tue Jan 25 09:23:41 2005
-+++ a/arch/mips/kernel/traps.c	Wed Jan 26 01:32:27 2005
-@@ -20,6 +20,7 @@
- #include <linux/smp.h>
- #include <linux/smp_lock.h>
- #include <linux/spinlock.h>
-+#include <linux/unistd.h>
- #include <linux/kallsyms.h>
- 
- #include <asm/bootinfo.h>
-@@ -226,7 +227,7 @@
- 
- 	printk("Cause : %08x\n", cause);
- 
--	cause = (cause & CAUSEF_EXCCODE) >> CAUSEB_EXCCODE;
-+	cause = CAUSE_EXCCODE(cause);
- 	if (1 <= cause && cause <= 5)
- 		printk("BadVA : %0*lx\n", field, regs->cp0_badvaddr);
- 
-@@ -502,7 +503,7 @@
-  */
- asmlinkage void do_fpe(struct pt_regs *regs, unsigned long fcr31)
- {
--	ltt_ev_trap_entry(CAUSE_EXCCODE(regs), CAUSE_EPC(regs));
-+	ltt_ev_trap_entry(CAUSE_EXCCODE(regs->cp0_cause), regs->cp0_epc);
- 	if (fcr31 & FPU_CSR_UNI_X) {
- 		int sig;
- 
-@@ -642,7 +643,7 @@
- 
- 	die_if_kernel("do_cpu invoked from kernel context!", regs);
- 
--	ltt_ev_trap_entry(CAUSE_EXCCODE(regs), CAUSE_EPC(regs));
-+	ltt_ev_trap_entry(CAUSE_EXCCODE(regs->cp0_cause), regs->cp0_epc);
- 
- 	cpid = (regs->cp0_cause >> CAUSEB_CE) & 3;
- 
-@@ -1091,8 +1092,8 @@
- 	if (!user_mode(regs))
- 		goto trace_syscall_end;
- 
--	if (trace_get_config(&use_depth, &use_bounds, &seek_depth,
--			(void*)&lower_bound, (void*)&upper_bound) < 0)
-+	if (ltt_get_trace_config(&use_depth, &use_bounds, &seek_depth,
-+				 (void*)&lower_bound, (void*)&upper_bound) < 0)
- 		goto trace_syscall_end;
- 
- 	/* Heuristic that might work:
-@@ -1124,12 +1125,12 @@
- 	}
- 
- trace_syscall_end:
--	trace_event(LTT_EV_SYSCALL_ENTRY, &trace_syscall_event);
-+	ltt_log_event(LTT_EV_SYSCALL_ENTRY, &trace_syscall_event);
- }
- 
- asmlinkage void trace_real_syscall_exit(void)
- {
--        trace_event(LTT_EV_SYSCALL_EXIT, NULL);
-+        ltt_log_event(LTT_EV_SYSCALL_EXIT, NULL);
- }
- 
- #endif /* (CONFIG_LTT) */
-diff -urN -X dontdiff a-orig/arch/mips/kernel/unaligned.c a/arch/mips/kernel/unaligned.c
---- a-orig/arch/mips/kernel/unaligned.c	Tue Jan 25 09:23:41 2005
-+++ a/arch/mips/kernel/unaligned.c	Wed Jan 26 01:33:12 2005
-@@ -498,7 +498,7 @@
- 	mm_segment_t seg;
- 	unsigned long pc;
- 
--	ltt_ev_trap_entry(CAUSE_EXCCODE(regs), CAUSE_EPC(regs));
-+	ltt_ev_trap_entry(CAUSE_EXCCODE(regs->cp0_cause), regs->cp0_epc);
- 
- 	/*
- 	 * Address errors may be deliberately induced by the FPU emulator to
-diff -urN -X dontdiff a-orig/arch/mips/mm/fault.c a/arch/mips/mm/fault.c
---- a-orig/arch/mips/mm/fault.c	Tue Jan 25 09:23:41 2005
-+++ a/arch/mips/mm/fault.c	Wed Jan 26 01:33:48 2005
-@@ -61,7 +61,7 @@
- 	if (unlikely(address >= VMALLOC_START))
- 		goto vmalloc_fault;
- 
--	ltt_ev_trap_entry(CAUSE_EXCCODE(regs), CAUSE_EPC(regs));
-+	ltt_ev_trap_entry(CAUSE_EXCCODE(regs->cp0_cause), regs->cp0_epc);
- 
- 	/*
- 	 * If we're in an interrupt or have no user
-diff -urN -X dontdiff a-orig/include/asm-mips/mipsregs.h a/include/asm-mips/mipsregs.h
---- a-orig/include/asm-mips/mipsregs.h	Sat Jan 22 10:48:03 2005
-+++ a/include/asm-mips/mipsregs.h	Wed Jan 26 01:35:27 2005
-@@ -369,6 +369,7 @@
-  */
- #define  CAUSEB_EXCCODE		2
- #define  CAUSEF_EXCCODE		(_ULCAST_(31)  <<  2)
-+#define  CAUSE_EXCCODE(cause)	(((cause) & CAUSEF_EXCCODE) >> CAUSEB_EXCCODE)
- #define  CAUSEB_IP		8
- #define  CAUSEF_IP		(_ULCAST_(255) <<  8)
- #define  CAUSEB_IP0		8

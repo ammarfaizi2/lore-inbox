@@ -1,34 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277703AbRJ1FRZ>; Sun, 28 Oct 2001 01:17:25 -0400
+	id <S277720AbRJ1Fpy>; Sun, 28 Oct 2001 01:45:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277717AbRJ1FRP>; Sun, 28 Oct 2001 01:17:15 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:42235
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S277703AbRJ1FRD>; Sun, 28 Oct 2001 01:17:03 -0400
-Date: Sat, 27 Oct 2001 22:17:33 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Samium Gromoff <_deepfire@mail.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Nice stats gathering idea
-Message-ID: <20011027221733.B20280@mikef-linux.matchmail.com>
-Mail-Followup-To: Samium Gromoff <_deepfire@mail.ru>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200110272235.f9RMZv920026@vegae.deep.net>
+	id <S277723AbRJ1Fpo>; Sun, 28 Oct 2001 01:45:44 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:13442 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S277720AbRJ1Fpe>;
+	Sun, 28 Oct 2001 01:45:34 -0400
+Date: Sat, 27 Oct 2001 22:46:02 -0700 (PDT)
+Message-Id: <20011027.224602.74750641.davem@redhat.com>
+To: jgarzik@mandrakesoft.com
+Cc: miles@megapathdsl.net, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: What is standing in the way of opening the 2.5 tree?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3BDB91D7.C7975C44@mandrakesoft.com>
+In-Reply-To: <1004219488.11749.19.camel@stomata.megapathdsl.net>
+	<3BDB91D7.C7975C44@mandrakesoft.com>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200110272235.f9RMZv920026@vegae.deep.net>
-User-Agent: Mutt/1.3.23i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 28, 2001 at 02:35:57AM +0400, Samium Gromoff wrote:
-> 	Hello folks, gotta an idea, well discovery:
->  do vmstat 1; then strike scroll lock
->  wait for the delay you want to measure the overall, and release the scrolling
->  *bah* - you have the overall stats for the VM usage for a given period
-> 
+   From: Jeff Garzik <jgarzik@mandrakesoft.com>
+   Date: Sun, 28 Oct 2001 01:04:23 -0400
+   
+   Most likely we are
+   (a) waiting for stuff to get merged from Alan's tree, and
 
-Or even better, use vmstat 15 or 30 or etc...  That way you know what the
-time period should be...
+For the record, I do not feel comfortable at all with forking
+2.4.x over to Alan until all of the non-trivial bits of the
+AC patches are merged into Linus's tree.
+
+In particular, the quota stuff, which has sat in Alan's tree forever.
+If Linus is ignoring the changes it probably is for a good reason
+but it would be nice for him to let Alan know what that reason is :-)
+
+Franks a lot,
+David S. Miller
+davem@redhat.com

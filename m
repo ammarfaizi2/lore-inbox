@@ -1,73 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267131AbTAQMfn>; Fri, 17 Jan 2003 07:35:43 -0500
+	id <S267492AbTAQMuN>; Fri, 17 Jan 2003 07:50:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267330AbTAQMfn>; Fri, 17 Jan 2003 07:35:43 -0500
-Received: from mail.ilk.de ([194.121.104.8]:21005 "EHLO mail.ilk.de")
-	by vger.kernel.org with ESMTP id <S267131AbTAQMfm> convert rfc822-to-8bit;
-	Fri, 17 Jan 2003 07:35:42 -0500
-Message-ID: <1F6206BC53BCD3119059009027D1D3A2058AA0B1@OEKAEX01.becker.de>
-From: "Jurzitza, Dieter" <JurzitzaD@becker.de>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Question about boot-message
-Date: Fri, 17 Jan 2003 13:38:03 +0100
+	id <S267497AbTAQMuN>; Fri, 17 Jan 2003 07:50:13 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:3000 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S267492AbTAQMuL>;
+	Fri, 17 Jan 2003 07:50:11 -0500
+From: Mikael Pettersson <mikpe@csd.uu.se>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15911.64825.624251.707026@harpo.it.uu.se>
+Date: Fri, 17 Jan 2003 13:55:21 +0100
+To: kai@tp1.ruhr-uni-bochum.de
+Subject: 2.5.59 vmlinux.lds.S change broke modules
+Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear listmembers,
-I upgraded the boot-kernel on my Ultra SPARC 60 SMP (2x360) MHz. I get the
-following messages at bootup I do not understand and would 
-appreciate if someone could give me a comment:
+Previously today I wrote:
+ > 2.5.59 with CONFIG_PACKET=m oopes when af_packet.ko is insmodded:
+ > 
+ > Unable to handle kernel paging request at virtual address 2220c021
+ >  printing eip:
+ > c0124011
+ > *pde = 00000000
+ > Oops: 0000
+ > CPU:    0
+ > EIP:    0060:[<c0124011>]    Not tainted
+ > EFLAGS: 00010097
+ > EIP is at __find_symbol+0x3d/0x7c
+ > eax: c020f70e   ebx: 00000536   ecx: 00000000   edx: c028b600
+ > esi: 2220c021   edi: e8889558   ebp: e8889558   esp: e67c5ecc
+ > ds: 007b   es: 007b   ss: 0068
+ > Process insmod (pid: 482, threadinfo=e67c4000 task=e6c80ce0)
+ > Stack: e8888f34 e8889a40 00000038 e8883f50 c0124960 e8889558 e67c5ef4 00000001 
+ >        e8888f34 e8889374 e67c5f28 c0124b2a e8883f50 00000016 e8889374 e8889558 
+ >        e8889a40 e8883f50 0000000c 00000017 e8889a40 00000000 0000007c c01253a4 
+ > Call Trace:
+ >  [<c0124960>] resolve_symbol+0x20/0x4c
+ >  [<c0124b2a>] simplify_symbols+0x82/0xe4
+ >  [<c01253a4>] load_module+0x5c4/0x7ec
+ >  [<c012562b>] sys_init_module+0x5f/0x194
+ >  [<c0108887>] syscall_call+0x7/0xb
 
-Jan 15 00:16:19 oekalux08 kernel: klogd 1.4.1, ---------- state change
----------- 
-Jan 15 00:16:19 oekalux08 kernel: Inspecting 
-/boot/System.map-2.4.20-SMP
-Jan 15 00:16:20 oekalux08 kernel: Loaded 12988 symbols from
-/boot/System.map-2.4.20-SMP.
-Jan 15 00:16:20 oekalux08 kernel: Symbols match kernel version 2.4.20.
-Jan 15 00:16:20 oekalux08 kernel: Error reading kernel 
-symbols - Cannot
-allocate memory 
+This oops occurs for every module, not just af_packet.ko, at
+resolve_symbol()'s first call to __find_symbol().
 
-The map-file is found, it is parsed - but then the system says "Error
-reading kernel symbols" The System.map-2.4.20-SMP - file is 
-exactly the
-one I got from the build-process. The kernel is vanilla-2.4.20.
+What happens is that __find_symbol() oopses because the kernel's
+symbol table is in la-la land. (Note the bogus kernel adress
+2220c021 it tried to dereference above.)
 
-Any suggestions are highly appreciated!
-Take care
+Reverting 2.5.59's patch to arch/i386/vmlinux.lds.S cured the
+problem and modules now load correctly for me.
 
+I don't know if this is a problem also for non-i386 archs.
 
-Dieter Jurzitza
-
-
--- 
-________________________________________________
-
-HARMAN BECKER AUTOMOTIVE SYSTEMS
-
-Dr.-Ing. Dieter Jurzitza
-Manager Hardware Systems
-         ESI
-
-Industriegebiet Ittersbach
-Becker-Göring Str. 16
-D-76307 Karlsbad / Germany
-
-Phone: +49 (0)7248 71-1577
-Fax:   +49 (0)7248 71-1216
-eMail: JurzitzaD@Becker.de
-Internet: http://www.becker.de
-
-
-*******************************************
-Diese E-Mail enthaelt vertrauliche und/oder rechtlich geschuetzte Informationen. Wenn Sie nicht der richtige Adressat sind oder diese E-Mail irrtuemlich erhalten haben, informieren Sie bitte sofort den Absender und loeschen Sie diese Mail. Das unerlaubte Kopieren sowie die unbefugte Weitergabe dieser Mail ist nicht gestattet.
- 
-This e-mail may contain confidential and/or privileged information. If you are not the intended recipient (or have received this e-mail in error) please notify the sender immediately and delete this e-mail. Any unauthorised copying, disclosure or distribution of the contents in this e-mail is strictly forbidden.
-*******************************************
-
+/Mikael

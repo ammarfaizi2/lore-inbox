@@ -1,57 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265099AbTAEUpI>; Sun, 5 Jan 2003 15:45:08 -0500
+	id <S265168AbTAEUrz>; Sun, 5 Jan 2003 15:47:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265097AbTAEUpI>; Sun, 5 Jan 2003 15:45:08 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:29358
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S265085AbTAEUpH>; Sun, 5 Jan 2003 15:45:07 -0500
-Date: Sun, 5 Jan 2003 15:54:46 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Andries.Brouwer@cwi.nl
-cc: mdharm-kernel@one-eyed-alien.net, "" <linux-kernel@vger.kernel.org>,
-       "" <linux-scsi@vger.kernel.org>,
-       "" <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: inquiry in scsi_scan.c
-In-Reply-To: <UTC200301051307.h05D7da08203.aeb@smtp.cwi.nl>
-Message-ID: <Pine.LNX.4.50.0301051548150.15466-100000@montezuma.mastecende.com>
-References: <UTC200301051307.h05D7da08203.aeb@smtp.cwi.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265169AbTAEUrz>; Sun, 5 Jan 2003 15:47:55 -0500
+Received: from f231.law8.hotmail.com ([216.33.241.231]:19471 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S265168AbTAEUrx>;
+	Sun, 5 Jan 2003 15:47:53 -0500
+X-Originating-IP: [24.44.249.150]
+From: "sean darcy" <seandarcy@hotmail.com>
+To: axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.54 ide-scsi and cdrecord
+Date: Sun, 05 Jan 2003 15:56:23 -0500
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F231ZI5ID1EMwU6yuim00006fea@hotmail.com>
+X-OriginalArrivalTime: 05 Jan 2003 20:56:24.0057 (UTC) FILETIME=[E8387E90:01C2B4FC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 5 Jan 2003 Andries.Brouwer@cwi.nl wrote:
+That did It!
 
-> The SCSI code has no means of knowing the actual length transferred,
-> so has no choice but to believe the length byte in the reply.
-> But the USB code does the transferring itself, and knows precisely
-> how many bytes were transferred. If 36 bytes were transferred and
-> the additional length byte is 0, indicating a length of 5, then the
-> USB code can fix the response and change the additional length byte
-> to 31, indicating a length of 36. That way the SCSI code knows that
-> not 5 but 36 bytes are valid, and it gets actual vendor and model strings.
+[root@amd1900 root]# cdrecord -scanbus -dev=/dev/hdc
+Cdrecord 2.0 (i686-pc-linux-gnu) Copyright (C) 1995-2002 J?rg Schilling
+scsidev: '/dev/hdc'
+devname: '/dev/hdc'
+scsibus: -2 target: -2 lun: -2
+Warning: Open by 'devname' is unintentional and not supported.
+Linux sg driver version: 3.5.27
+Using libscg version 'schily-0.7'
+scsibus0:
+        0,0,0     0) 'SONY    ' 'CD-RW  CRX195E1 ' 'ZYS5' Removable CD-ROM
+        0,1,0     1) *
+        0,2,0     2) *
+        0,3,0     3) *
+        0,4,0     4) *
+        0,5,0     5) *
+        0,6,0     6) *
+        0,7,0     7) *
 
-This looks related to something i also bumped into;
+But look what happens if I use ATAPI:x,y,z ( tried all the combinations - 
+same result):
 
-scsi scan: host 2 channel 0 id 0 lun 0 identifier too long, length 60, max
-50. Device might be improperly identified.
+[root@amd1900 root]# cdrecord -scanbus -dev=ATAPI:1,0,0
+Cdrecord 2.0 (i686-pc-linux-gnu) Copyright (C) 1995-2002 J?rg Schilling
+scsidev: 'ATAPI:1,0,0'
+devname: 'ATAPI'
+scsibus: 1 target: 0 lun: 0
+Warning: Using ATA Packet interface.
+Warning: The related libscg interface code is in pre alpha.
+Warning: There may be fatal problems.
+Using libscg version 'schily-0.7'
+scsibus0:
+        0,0,0     0) 'ADAPTEC ' 'ACB-5500        ' 'FAKE' NON CCS Disk
+        0,1,0     1) *
+        0,2,0     2) *
+        0,3,0     3) *
+        0,4,0     4) *
+        0,5,0     5) *
+        0,6,0     6) *
+        0,7,0     7) *
 
-The 'HBA' is idescsi with a memorex cdrw with an inquiry returning a
-length value of 34
 
-scsi_check_fill_deviceid:
-...
-	if (scsi_check_id_size(sdev, 26 + id_page[3]))
+FWIW, this is what the new xcdroast shows. Just never knew I had an Adaptec 
+cdrw!!
 
-I wrote up an ugly hack to truncate the length in idescsi_transform_pc2,
-but i don't know SCSI and it doesn't seem right.
 
-> [the code I showed does the right things; will submit actual diffs
-> sooner or later]
+BTW, is there a patch to fix ide-scsi yet?
 
-Thanks,
-	Zwane
--- 
-function.linuxpower.ca
+thanks
+
+
+
+
+
+
+>From: Jens Axboe <axboe@suse.de>
+>To: sean darcy <seandarcy@hotmail.com>, linux-kernel@vger.kernel.org
+>Subject: Re: 2.5.54 ide-scsi and cdrecord
+>Date: Sun, 5 Jan 2003 16:37:28 +0100
+>
+>On Sat, Jan 04 2003, sean darcy wrote:
+> > What am I missing? I thought we didn't need the scsi layer anymore.
+>
+>cdrecord -dev=/dev/hdX
+>
+>--
+>Jens Axboe
+
+
+_________________________________________________________________
+Add photos to your e-mail with MSN 8. Get 2 months FREE*. 
+http://join.msn.com/?page=features/featuredemail
+

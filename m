@@ -1,137 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262085AbUJOWfh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266263AbUJOWjt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262085AbUJOWfh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 18:35:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265331AbUJOWfh
+	id S266263AbUJOWjt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 18:39:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266486AbUJOWjs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 18:35:37 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:8117 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262085AbUJOWfa (ORCPT
+	Fri, 15 Oct 2004 18:39:48 -0400
+Received: from atlrel7.hp.com ([156.153.255.213]:27105 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S266263AbUJOWjp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 18:35:30 -0400
-Subject: Re: [Ext2-devel] Ext3 -mm reservations code: is this fix really
-	correct?
-From: mingming cao <cmm@us.ibm.com>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Badari Pulavarty <pbadari@us.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1097878826.1968.162.camel@sisko.scot.redhat.com>
-References: <1097846833.1968.88.camel@sisko.scot.redhat.com>
-	 <1097856114.4591.28.camel@localhost.localdomain>
-	 <1097858401.1968.148.camel@sisko.scot.redhat.com>
-	 <1097872144.4591.54.camel@localhost.localdomain>
-	 <1097878826.1968.162.camel@sisko.scot.redhat.com>
-Content-Type: multipart/mixed; boundary="=-R3aoQy68XBP7mwsIcuTK"
-Organization: IBM LTC
-Message-Id: <1097879695.4591.61.camel@localhost.localdomain>
+	Fri, 15 Oct 2004 18:39:45 -0400
+Subject: Re: [ACPI] Re: [PATCH/RFC] exposing ACPI objects in sysfs
+From: Alex Williamson <alex.williamson@hp.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Andi Kleen <ak@suse.de>, acpi-devel <acpi-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040921210218.GJ30425@elf.ucw.cz>
+References: <1095716476.5360.61.camel@tdi>
+	 <20040921122428.GB2383@elf.ucw.cz> <1095785315.6307.6.camel@tdi>
+	 <20040921172625.GA30425@elf.ucw.cz> <20040921190606.GE18938@wotan.suse.de>
+	 <1095794035.24751.54.camel@tdi> <20040921191826.GF18938@wotan.suse.de>
+	 <1095795954.24751.74.camel@tdi> <20040921195802.GF30425@elf.ucw.cz>
+	 <1095799248.24751.103.camel@tdi>  <20040921210218.GJ30425@elf.ucw.cz>
+Content-Type: text/plain
+Organization: LOSL
+Date: Fri, 15 Oct 2004 16:39:58 -0600
+Message-Id: <1097879998.5971.69.camel@tdi>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 15 Oct 2004 15:34:55 -0700
+X-Mailer: Evolution 2.0.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-R3aoQy68XBP7mwsIcuTK
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+   Back for another round of discussions...  We last left this at:
 
-On Fri, 2004-10-15 at 15:20, Stephen C. Tweedie wrote:
-> Hi,
-> 
-> On Fri, 2004-10-15 at 21:29, mingming cao wrote:
-> 
-> > How about this? Haven't test it, will do it shortly.:)
-> 
->                 if ((my_rsv->rsv_start <= group_end_block) &&
-> -                               (my_rsv->rsv_end > group_end_block))
-> +                               (my_rsv->rsv_end > group_end_block) &&
-> +                               (start_block <= my_rsv->rsv_start))
->                         return -1;
->  
-> That new "<=" should be a ">=", shouldn't it?
+      * The acpi_sysfs evaluate on read interface has problems (imagine
+        tar'ing up /sys/firmware/acpi...)
+      * No support for 32 bit apps on 64 bit kernels.
 
-My bad! It should be ">=":)
+  I played around with an evaluate on write approach, but couldn't come
+up with anything I liked.  I decided to go back to the ioctl dev_acpi
+approach I proposed a few months ago.  It's unfortunate that dev_acpi
+doesn't take advantage of the sysfs namespace, but overall I think its
+more functional.  For instance, the sysfs interface didn't allow
+operations on ACPI devices because they show up as directories in sysfs.
+This isn't an issue with dev_acpi.  I should have written up some new
+documentation on dev_acpi, but the theory of operation hasn't changed
+that much since my original post here:
 
-Updated patch attached. 
+http://groups.google.com/groups?selm=2paXA-7Li-7%40gated-at.bofh.it
 
-Thanks!
+Essentially, it boils down to write(2) parameters (if necessary),
+ioctl(2) with a command and a structure containing ACPI path and return
+buffer size, read(2) data returned (if any).  I don't think I can
+transfer all the data in the ioctl, the data structures are just too
+complex.  The ioctl now clearly defines the point at which we're
+operating on ACPI namespace.
 
-Mingming
+   I finally got hit by the clue bat of what Andi was trying to describe
+with the compatibility layer and found the ioctl32_conversion interface.
+I've made use of these to allow a 32bit application to read and write
+32bit data structures into the device file.  Prior to calling into ACPI,
+the ioctl32 interface converts the write data to native structures.  On
+the other side, native structures are converted to their 32bit
+equivalent and stored in the read buffer.  I've successfully run a 32bit
+x86 binary of my test program on an ia64 system using this interface.
 
+   I've been building dev_acpi as a standalone module, so the makefiles
+and test program are a little large for the mailing list.  The current
+revision is available here:
 
---=-R3aoQy68XBP7mwsIcuTK
-Content-Disposition: attachment; filename=ext3_reservation_window_fix_fix.patch
-Content-Type: text/plain; name=ext3_reservation_window_fix_fix.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+http://free.linux.hp.com/~awilliam/acpi/dev_acpi/dev_acpi-20041015.tar.bz2
 
----
+(Sorry, the makefile is rather kludgey, but should be easy to get
+working given a path to kernel source)  I haven't tested much of the
+32->64 bit compatibility path, but the 64->32 side seems to work fine.
+The provided test program (acpitree) provides a tree listing of ACPI
+namespace with the object type listed next to the name.  Values of
+strings and integers will be printed along with raw dumps of select
+other "safe" objects.  Standard disclaimers apply, this is all
+development code.  The driver could stand a good round or two of code
+cleanup and far more testing, but I wanted to get some feedback on this
+approach before spending too much time on it.  Please take a look and
+let me know what you think.  Thanks,
 
- linux-2.6.9-rc1-mm5-ming/fs/ext3/balloc.c |   21 +++++++++------------
- 1 files changed, 9 insertions(+), 12 deletions(-)
+	Alex
 
-diff -puN fs/ext3/balloc.c~ext3_reservation_window_fix_fix fs/ext3/balloc.c
---- linux-2.6.9-rc1-mm5/fs/ext3/balloc.c~ext3_reservation_window_fix_fix	2004-10-15 18:23:42.824158856 -0700
-+++ linux-2.6.9-rc1-mm5-ming/fs/ext3/balloc.c	2004-10-15 22:38:52.895674208 -0700
-@@ -184,9 +184,10 @@ goal_in_my_reservation(struct reserve_wi
-  * if the goal is not in any window.
-  * Returns NULL if there are no windows or if all windows start after the goal.
-  */
--static struct reserve_window_node *search_reserve_window(struct rb_node *n,
-+static struct reserve_window_node *search_reserve_window(struct rb_root *root,
- 							 unsigned long goal)
- {
-+	struct rb_node *n = root->rb_node;
- 	struct reserve_window_node *rsv;
- 
- 	if (!n)
-@@ -822,10 +823,10 @@ static int alloc_new_reservation(struct 
- 		start_block = goal + group_first_block;
- 
- 	size = atomic_read(&my_rsv->rsv_goal_size);
--	/* if we have a old reservation, start the search from the old rsv */
- 	if (!rsv_is_empty(&my_rsv->rsv_window)) {
- 		/*
- 		 * if the old reservation is cross group boundary
-+		 * and if the goal is inside the old reservation window,
- 		 * we will come here when we just failed to allocate from
- 		 * the first part of the window. We still have another part
- 		 * that belongs to the next group. In this case, there is no
-@@ -838,10 +839,10 @@ static int alloc_new_reservation(struct 
- 		 */
- 
- 		if ((my_rsv->rsv_start <= group_end_block) &&
--				(my_rsv->rsv_end > group_end_block))
-+				(my_rsv->rsv_end > group_end_block) &&
-+				(start_block >= my_rsv->rsv_start))
- 			return -1;
- 
--		search_head = search_reserve_window(&my_rsv->rsv_node, start_block);
- 		if ((atomic_read(&my_rsv->rsv_alloc_hit) >
- 		     (my_rsv->rsv_end - my_rsv->rsv_start + 1) / 2)) {
- 			/*
-@@ -855,14 +856,10 @@ static int alloc_new_reservation(struct 
- 			atomic_set(&my_rsv->rsv_goal_size, size);
- 		}
- 	}
--	else {
--		/*
--		 * we don't have a reservation,
--		 * we set our goal(start_block) and
--		 * the list head for the search
--		 */
--		search_head = search_reserve_window(fs_rsv_root->rb_node, start_block);
--	}
-+	/*
-+	 * shift the search start to the window near the goal block
-+	 */
-+	search_head = search_reserve_window(fs_rsv_root, start_block);
- 
- 	/*
- 	 * find_next_reservable_window() simply finds a reservable window
-
-_
-
---=-R3aoQy68XBP7mwsIcuTK--
+-- 
+Alex Williamson                             HP Linux & Open Source Lab
 

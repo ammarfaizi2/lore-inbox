@@ -1,35 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316751AbSGVLDC>; Mon, 22 Jul 2002 07:03:02 -0400
+	id <S316746AbSGVLAd>; Mon, 22 Jul 2002 07:00:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316747AbSGVLCD>; Mon, 22 Jul 2002 07:02:03 -0400
-Received: from verein.lst.de ([212.34.181.86]:19466 "EHLO verein.lst.de")
-	by vger.kernel.org with ESMTP id <S316739AbSGVLAl>;
-	Mon, 22 Jul 2002 07:00:41 -0400
-Date: Mon, 22 Jul 2002 13:03:42 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Thunder from the hill <thunder@ngforever.de>
-Cc: Val Henson <val@nmt.edu>, Andreas Schuldei <andreas@schuldei.org>,
-       linux-kernel@vger.kernel.org
+	id <S316747AbSGVLAc>; Mon, 22 Jul 2002 07:00:32 -0400
+Received: from moutvdomng1.kundenserver.de ([195.20.224.131]:4078 "EHLO
+	moutvdomng1.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S316746AbSGVK7z>; Mon, 22 Jul 2002 06:59:55 -0400
+Date: Mon, 22 Jul 2002 05:02:53 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Christoph Hellwig <hch@lst.de>
+cc: Thunder from the hill <thunder@ngforever.de>, Val Henson <val@nmt.edu>,
+       Andreas Schuldei <andreas@schuldei.org>, <linux-kernel@vger.kernel.org>
 Subject: Re: using bitkeeper to backport subsystems?
-Message-ID: <20020722130342.B16919@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
-	Thunder from the hill <thunder@ngforever.de>,
-	Val Henson <val@nmt.edu>, Andreas Schuldei <andreas@schuldei.org>,
-	linux-kernel@vger.kernel.org
-References: <20020722124627.A16636@lst.de> <Pine.LNX.4.44.0207220501280.3309-100000@hawkeye.luckynet.adm>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.44.0207220501280.3309-100000@hawkeye.luckynet.adm>; from thunder@ngforever.de on Mon, Jul 22, 2002 at 05:02:53AM -0600
+In-Reply-To: <20020722124627.A16636@lst.de>
+Message-ID: <Pine.LNX.4.44.0207220501280.3309-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 22, 2002 at 05:02:53AM -0600, Thunder from the hill wrote:
-> One can't update a non-existing file in a non-existing directory. But 
-> maybe Bk could track down the changes and find the moved file to update...
+Hi,
 
-BK _does_ track renames.  Could you please at least read the basic docs
-before bullshitting on this list?
+On Mon, 22 Jul 2002, Christoph Hellwig wrote:
+> > Several things have been moved around, note e.g. the 
+> > additional "sound" directory...
+> 
+> What does the movearound of files/directories change?
+
+One can't update a non-existing file in a non-existing directory. But 
+maybe Bk could track down the changes and find the moved file to update...
+
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 

@@ -1,45 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262155AbTEEMJ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 08:09:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262160AbTEEMJ7
+	id S262160AbTEEMYX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 08:24:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262162AbTEEMYX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 08:09:59 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:44452
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S262155AbTEEMJ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 08:09:58 -0400
-Subject: Re: illegal context for sleeping ... rmmod ide-cd + ide-scsi
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: dougg@torque.net
-Cc: Andrew Morton <akpm@digeo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-scsi@vger.kernel.org
-In-Reply-To: <3EB65028.8080402@torque.net>
-References: <3EB62347.8020109@torque.net>
-	 <20030505020104.0abc66ba.akpm@digeo.com>  <3EB65028.8080402@torque.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1052133832.28938.4.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 05 May 2003 12:23:53 +0100
+	Mon, 5 May 2003 08:24:23 -0400
+Received: from [195.95.38.160] ([195.95.38.160]:11759 "HELO mail.vt4.net")
+	by vger.kernel.org with SMTP id S262160AbTEEMYW convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 08:24:22 -0400
+From: DevilKin <devilkin-lkml@blindguardian.org>
+To: linux-kernel@vger.kernel.org, Devilkin-lkml@blindguardian.org
+Subject: [2.5.69] Irda troubles
+Date: Mon, 5 May 2003 14:37:24 +0200
+User-Agent: KMail/1.5.1
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200305051437.30347.devilkin-lkml@blindguardian.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-05-05 at 12:51, Douglas Gilbert wrote:
-> > ide_unregister_subdriver() does spin_lock_irqsave(&ide_lock), then
-> > calls auto_remove_settings(), which does down(&ide_setting_sem);
-> > 
-> > A simple fix might be:
-> 
-> Andrew,
-> Thanks. That patch clears the reported problem.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-This is already fixed in 2.4.x btw. Just hadn't got pushed into 2.5 yet
+Hello list,
 
-The 2.5.x code has another problem as well there is a basically unfixable
-deadlock in the proc and config stuff when flipping a device in and out of
-scsi mode
+Today I've tried to get my infrared synchronisation to my palm pilot working. 
+Unfortunately, it doesn't work - I get nothing at all. It worked fine under 
+2.4.20.
+
+The modules in question are irda, ircomm and ircomm_tty.
+
+Upon load of the modules, this is shown in the logs:
+
+IrCOMM protocol (Dag Brattli)
+Module ircomm_tty cannot be unloaded due to unsafe usage in 
+include/linux/module.h:457
+ircomm_tty_attach_cable()
+ircomm_tty_ias_register()
+ircomm_tty_close()
+ircomm_tty_shutdown()
+ircomm_tty_detach_cable()
+ircomm_close()
+
+And that's all. I cannot open /dev/ircomm0 or ircomm1, which are:
+
+laptop:/usr/src/linux/net/irda/ircomm# ls -l /dev/ircomm*
+crw-rw----    1 root     dialout  161,   0 Dec 16 14:34 /dev/ircomm0
+crw-rw----    1 root     dialout  161,   1 Dec 16 14:34 /dev/ircomm1
+
+Any ideas what i can try?
+
+Thanks!
+
+Jan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+tlsGpuyeqyCEh60RAtT6AJ0Zk6OtrGusNclRDCUaW+WUns+W/gCeJIGT
+/HSsVfdmKWay1z29zJG5xzE=
+=CRAC
+-----END PGP SIGNATURE-----
 

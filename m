@@ -1,35 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280674AbRLHOHH>; Sat, 8 Dec 2001 09:07:07 -0500
+	id <S280686AbRLHO2E>; Sat, 8 Dec 2001 09:28:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280592AbRLHOG5>; Sat, 8 Dec 2001 09:06:57 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:17157 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S280674AbRLHOGo>;
-	Sat, 8 Dec 2001 09:06:44 -0500
-Date: Sat, 8 Dec 2001 15:06:38 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Rich Baum <richbaum@acm.org>
-Cc: linux-kernel@vger.kernel.org, campbell@torque.net
-Subject: Re: [PATCH][RFC] Allow drivers/scsi/imm.c to compile in 2.5.1pre6
-Message-ID: <20011208140638.GB11567@suse.de>
-In-Reply-To: <29EB5FE64EF@coral.indstate.edu> <20011208140227.GA11567@suse.de>
+	id <S280725AbRLHO1y>; Sat, 8 Dec 2001 09:27:54 -0500
+Received: from f205.law11.hotmail.com ([64.4.17.205]:30983 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S280686AbRLHO1h>;
+	Sat, 8 Dec 2001 09:27:37 -0500
+X-Originating-IP: [212.205.234.219]
+From: "PANTELIS PROIOS" <pproios@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: IGNORE, please ignore, testing
+Date: Sat, 08 Dec 2001 16:27:28 +0200
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011208140227.GA11567@suse.de>
+Content-Type: text/plain; format=flowed
+Message-ID: <F2053JkrKdMUPqRnSl100006462@hotmail.com>
+X-OriginalArrivalTime: 08 Dec 2001 14:27:31.0233 (UTC) FILETIME=[786E5910:01C17FF4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 08 2001, Jens Axboe wrote:
-> Two problems:
-> 
-> - detect() is not run with lock held anymore
-> - use of ->address is deprecated
 
-Actually a third one too that is also right in my patch but I neglected
-to mention -- don't rely on using cmd->host _after_ having called
-->scsi_done() on this command.
+will it get through
 
--- 
-Jens Axboe
+_________________________________________________________________
+Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
 

@@ -1,77 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272340AbTHEBsT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 21:48:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272341AbTHEBsT
+	id S272358AbTHEB5S (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 21:57:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272359AbTHEB5S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 21:48:19 -0400
-Received: from warden-p.diginsite.com ([208.29.163.248]:57028 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP id S272340AbTHEBsR
+	Mon, 4 Aug 2003 21:57:18 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:49343 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S272358AbTHEB5P
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 21:48:17 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Werner Almesberger <werner@almesberger.net>
-Cc: "Ihar 'Philips' Filipau" <filia@softhome.net>,
+	Mon, 4 Aug 2003 21:57:15 -0400
+Date: Mon, 4 Aug 2003 18:54:01 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: David Lang <david.lang@digitalinsight.com>
+Cc: Werner Almesberger <werner@almesberger.net>,
+       "Ihar 'Philips' Filipau" <filia@softhome.net>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Date: Mon, 4 Aug 2003 18:46:36 -0700 (PDT)
 Subject: Re: TOE brain dump
-In-Reply-To: <20030804223800.P5798@almesberger.net>
-Message-ID: <Pine.LNX.4.44.0308041841190.7534-100000@dlang.diginsite.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20030805015401.GA15811@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	David Lang <david.lang@digitalinsight.com>,
+	Werner Almesberger <werner@almesberger.net>,
+	Ihar 'Philips' Filipau <filia@softhome.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030804223800.P5798@almesberger.net> <Pine.LNX.4.44.0308041841190.7534-100000@dlang.diginsite.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0308041841190.7534-100000@dlang.diginsite.com>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Aug 2003, Werner Almesberger wrote:
-
-> David Lang wrote:
-> > you missed Alan's point, he was saying you don't do TOE on the NIC,
->
-> Only as far as "traditional TOE" is concerned. My idea is
-> precisely to avoid treating TOE as a special case.
->
-> > just add another CPU to your main system and use non-TOE NIC's the way you
-> > do today.
->
-> For a start, that may be good enough, even though you miss
-> a lot of nice hardware optimizations.
-
-exactly, Alan is saying that the hardware optimizations aren't nessasary.
-putting an Opteron on a NIC card just to match the other processors in
-your system seems like a huge amount of overkill. you aren't going to have
-nearly the same access to memory so that processor will be crippled, but
-stil cost full price (and then some, remember you have to supply the thing
-with power and cool it)
-
-> > Any time you create a cluster of machines you want to create som nice
-> > administrative interfaces for them to maintain your own sanity
->
-> You've got a point there. The question is whether these
-> interface really cover everything we need, and - more
-> importantly - whether they still have the same semantics.
-
-as long as tools are written that have the same command line semantics the
-rest of the complexity can be hidden. and even this isn't strictly
-nessasary, these are special purpose cards and a special procedure for
-configuring them isn't unreasonable.
-
-> > Larry McVoy has the right general idea when he says buy another box to do
-> > the job, he is just missing the idea that there are some advantages of
-> > coupling the cluster more tightly then you can do with a seperate box.
->
-> Clusters are nice, but they don't help if your bottleneck
-> is per-packet processing overhead with a single NIC, or if
-> you can't properly distribute the applications.
->
-> I'm not saying that TOE, even if done in a maintainable way,
-> is always the right approach. E.g. if all you need is a fast
-> path to main memory, Dave's flow cache would be a much
-> cheaper solution. If you can distribute the workload, and
-> the extra hardware doesn't bother you, your clusters become
-> attractive.
-
-I'm saying treat the one machine with 10 of these specialty NIC's in it as
-a 11 machine cluster, one machne running your server software and 10
-others running your networking.
-
-David Lang
+I'd suggest that all of you look at the fact that all of these offload 
+card companies have ended up dieing.  I don't know of a single one that
+made it to profitability.  Doesn't that tell you something?  What has 
+changed that makes this a good idea?
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

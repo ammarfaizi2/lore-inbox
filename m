@@ -1,56 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264930AbUBIC6G (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Feb 2004 21:58:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264925AbUBIC5x
+	id S264905AbUBIC51 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Feb 2004 21:57:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264917AbUBIC50
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Feb 2004 21:57:53 -0500
-Received: from mail.kroah.org ([65.200.24.183]:49083 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264916AbUBIC5s (ORCPT
+	Sun, 8 Feb 2004 21:57:26 -0500
+Received: from [217.157.19.70] ([217.157.19.70]:30213 "EHLO jehova.dsm.dk")
+	by vger.kernel.org with ESMTP id S264905AbUBIC5R (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Feb 2004 21:57:48 -0500
-Date: Sun, 8 Feb 2004 18:57:12 -0800
-From: Greg KH <greg@kroah.com>
-To: Fab Tillier <ftillier@infiniconsys.com>
-Cc: "Hefty, Sean" <sean.hefty@intel.com>, Troy Benjegerdes <hozer@hozed.org>,
-       infiniband-general@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [Infiniband-general] Getting an Infiniband access layer in theLinux kernel
-Message-ID: <20040209025712.GA22737@kroah.com>
-References: <20040208162946.GA2531@kroah.com> <08628CA53C6CBA4ABAFB9E808A5214CB017C1A11@mercury.infiniconsys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 8 Feb 2004 21:57:17 -0500
+From: Thomas Horsten <thomas@horsten.com>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Subject: Re: New mailing list for 2.6 Medley RAID (Silicon Image 3112 etc.) BIOS RAID development
+Date: Mon, 9 Feb 2004 02:56:40 +0000
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
+References: <200402090123.52765.thomas@horsten.com> <16422.62661.604897.780887@notabene.cse.unsw.edu.au>
+In-Reply-To: <16422.62661.604897.780887@notabene.cse.unsw.edu.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <08628CA53C6CBA4ABAFB9E808A5214CB017C1A11@mercury.infiniconsys.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200402090256.40214.thomas@horsten.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 08, 2004 at 08:51:22AM -0800, Fab Tillier wrote:
-> > On Sun, Feb 08, 2004 at 12:31:56AM -0800, Fab Tillier wrote:
-> > >
-> > > I think there is value in allowing the code to be shared between
-> > > kernel mode and user mode.  Would using a macro that resolve to the
-> > > native kernel spin lock structure and functions be acceptable?
-> > 
-> > Probably not, just use the in-kernel call, and be done with it.  If you
-> > _really_ want to share code between userspace and the kernel, keep a
-> > different version of it somewhere else.
-> 
-> Are you suggesting branching the user mode code from the kernel mode code?
-> Duplication is not the same as sharing code - you have twice the number of
-> places that require fixing in the event of a bug.  If we can help it, we'd
-> like to avoid this.
+On Monday 09 February 2004 02:47, Neil Brown wrote:
 
-Do you honestly think that if your code ever makes it into the main
-kernel tree, you would be able somehow to extact that and use it from
-userspace properly?
+> Why a new list?  Why not just start a discussion on linux-raid (or
+> linux-kernel) and if there is enough interest/traffic to annoy the
+> spectators, then fork off a new list.
 
-No, just don't do this.
+There already is, in my personal mailbox :) Hence a list for this topic.
 
-Remember, if you _can_ do this from userspace, then your code doesn't
-need to be in the kernel at all :)
+// Thomas
 
-Oh, and I repeat, let's see some code.  No more bickering about "what
-ifs" anymore.
-
-greg k-h

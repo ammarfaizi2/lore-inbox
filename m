@@ -1,69 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267664AbUHENGd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267661AbUHENGd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267664AbUHENGd (ORCPT <rfc822;willy@w.ods.org>);
+	id S267661AbUHENGd (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 5 Aug 2004 09:06:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267294AbUHENF2
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267676AbUHENFE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 09:05:28 -0400
-Received: from colin2.muc.de ([193.149.48.15]:55559 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S267205AbUHEMy2 (ORCPT
+	Thu, 5 Aug 2004 09:05:04 -0400
+Received: from holomorphy.com ([207.189.100.168]:7619 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S267670AbUHENDN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 08:54:28 -0400
-Date: 5 Aug 2004 14:54:23 +0200
-Date: Thu, 5 Aug 2004 14:54:23 +0200
-From: Andi Kleen <ak@muc.de>
-To: Suparna Bhattacharya <suparna@in.ibm.com>
-Cc: prasanna@in.ibm.com, linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       akpm@osdl.org
-Subject: Re: [1/3] kprobes-func-args-268-rc3.patch
-Message-ID: <20040805125423.GA63682@muc.de>
-References: <2pMJz-13N-9@gated-at.bofh.it> <m3acx9yh6t.fsf@averell.firstfloor.org> <20040805122431.GA4411@in.ibm.com>
+	Thu, 5 Aug 2004 09:03:13 -0400
+Date: Thu, 5 Aug 2004 06:03:08 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc3-mm1
+Message-ID: <20040805130308.GC14358@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20040805031918.08790a82.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040805122431.GA4411@in.ibm.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040805031918.08790a82.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 05, 2004 at 05:54:31PM +0530, Suparna Bhattacharya wrote:
-> > I think you misunderstood Linus' suggestion.  The problem with
-> > modifying arguments on the stack frame is always there because the C
-> > ABI allows it. One suggested solution was to use a second function
-> 
-> I did realise that it is the ABI which allows this, but I thought
-> that the only situation in which we know gcc to actually clobber
-> arguments from the callee in practice is for tailcall optimization. 
+On Thu, Aug 05, 2004 at 03:19:18AM -0700, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.8-rc3/2.6.8-rc3-mm1/
+> - Added David Woodhouse's MTD tree to the "external trees" list
+> - Dropped the staircase scheduler, mainly because the schedstats patch broke
+>   it.
+>   We learned quite a lot from having staircase in there.  Now it's time for
+>   a new scheduler anyway.
 
-It just breaks the most common workaround. 
+One of these changes means we need to be able to dereference struct
+device in include/asm-ia64/dma-mapping.h.
 
-> I'm not sure if that can be guaranteed and yes saving bytes from
-> stack would avoid the problem totally (hence the comment) and make
-> it less tied to expected innards of the compiler. The only issue 
-> with that is deciding the maximum number of arguments so it is 
-> generic enough. 
-
-64bytes, aka 16 arguments seem far enough.
-
-> > call that passes the arguments again to get a private copy. But the
-> > compiler's tail call optimization could sabotate that when you a
-> > are not careful.
-> > 
-> > That's all quite hackish and compiler dependent. I would suggest an 
-> > assembly wrapper that copies the arguments when !CONFIG_REGPARM.
-> > Just assume the function doesn't have more than a fixed number
-> > of arguments, that should be good enough.
-> > 
-> > This way you avoid any subtle compiler dependencies.
-> > With CONFIG_REGPARM it's enough to just save/restore pt_regs,
-> > which kprobes will do anyways.
-> > >  
-> 
-> Even with CONFIG_REGPARM, if you have a large 
-> number of arguments for example, is spill over into stack 
-> a possibility ?
-
-Yes. For more than three (Linux uses -mregparm=3) 
-Also varargs arguments will be always on the stack I think.
-
--Andi
+--- mm1-2.6.8-rc3/include/asm-ia64/dma-mapping.h.orig	2004-08-05 22:56:27.204548702 -0700
++++ mm1-2.6.8-rc3/include/asm-ia64/dma-mapping.h	2004-08-05 22:57:40.435993118 -0700
+@@ -5,7 +5,8 @@
+  * Copyright (C) 2003-2004 Hewlett-Packard Co
+  *	David Mosberger-Tang <davidm@hpl.hp.com>
+  */
+-
++#include <linux/config.h>
++#include <linux/device.h>
+ #include <asm/machvec.h>
+ 
+ #define dma_alloc_coherent	platform_dma_alloc_coherent

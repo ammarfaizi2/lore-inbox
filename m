@@ -1,32 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313508AbSDQKuO>; Wed, 17 Apr 2002 06:50:14 -0400
+	id <S312638AbSDQKxh>; Wed, 17 Apr 2002 06:53:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313509AbSDQKuN>; Wed, 17 Apr 2002 06:50:13 -0400
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:60687 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S313508AbSDQKuN>; Wed, 17 Apr 2002 06:50:13 -0400
-Date: Wed, 17 Apr 2002 11:50:06 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.8: Preempt problems
-Message-ID: <20020417115006.E2386@flint.arm.linux.org.uk>
-In-Reply-To: <20020417114331.D2386@flint.arm.linux.org.uk>
-Mime-Version: 1.0
+	id <S313313AbSDQKxg>; Wed, 17 Apr 2002 06:53:36 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:61454 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S312638AbSDQKxf>; Wed, 17 Apr 2002 06:53:35 -0400
+Subject: Re: offtpic: GPL driver vs. non GPL driver
+To: wom@tateyama.hu (Gabor Kerenyi)
+Date: Wed, 17 Apr 2002 12:11:06 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200204171937.48441.wom@tateyama.hu> from "Gabor Kerenyi" at Apr 17, 2002 07:37:48 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16xnL9-00022l-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 17, 2002 at 11:43:31AM +0100, Russell King wrote:
-> Comments?  Is there some fiddle in the x86 code somewhere that we've
-> missed in the ARM tree to get this to work?
+> First question: Is it possible to write the driver in GPL and then develop a 
+> binary only LIB? (I think yes because the LIB is in user space)
 
-Appologies - just found the problem.  We were missing the call to
-schedule_tail() after a fork.
+Thats a legal question about derivative works again. Its a lawyer question.
+Don't ask lawyers how to program, don't ask programmers how the law works 8)
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+In business terms a binary only driver means that it won't be considered for
+the mainstream kernel and you will need to rebuild it for every exact kernel
+version your customers want. Irrespective of the GPL/lib question it may be
+helpful to provide your customers source code to the kernel part of the
+driver if only so you don't have to keep recompiling it. VMware follows very
+much this model - their kernel bits are source code, vmware itself is most
+definitely proprietary and per copy licensed.
 
+Alan

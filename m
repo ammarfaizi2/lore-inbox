@@ -1,71 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270061AbUJSXmS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267679AbUJTAMT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270061AbUJSXmS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 19:42:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270067AbUJSXlx
+	id S267679AbUJTAMT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 20:12:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270215AbUJTACZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 19:41:53 -0400
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:45717
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S269905AbUJSWsM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 18:48:12 -0400
-Date: Tue, 19 Oct 2004 15:42:49 -0700
-From: "David S. Miller" <davem@davemloft.net>
+	Tue, 19 Oct 2004 20:02:25 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:62987 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S268076AbUJTAA0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 20:00:26 -0400
+Date: Wed, 20 Oct 2004 10:00:09 +1000
 To: Lee Revell <rlrevell@joe-job.com>
-Cc: herbert@gondor.apana.org.au, vda@port.imtp.ilyichevsk.odessa.ua,
-       netdev@oss.sgi.com, linux-kernel@vger.kernel.org, maxk@qualcomm.com,
-       irda-users@lists.sourceforge.net
-Subject: Re: tun.c patch to fix "smp_processor_id() in preemptible code"
-Message-Id: <20041019154249.6afcaaad.davem@davemloft.net>
-In-Reply-To: <1098225729.23628.2.camel@krustophenia.net>
-References: <E1CK1e6-0004F3-00@gondolin.me.apana.org.au>
-	<1098222676.23367.18.camel@krustophenia.net>
-	<20041019215401.GA16427@gondor.apana.org.au>
-	<1098223857.23367.35.camel@krustophenia.net>
-	<20041019153308.488d34c1.davem@davemloft.net>
-	<1098225729.23628.2.camel@krustophenia.net>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
+       "David S. Miller" <davem@davemloft.net>,
+       vda@port.imtp.ilyichevsk.odessa.ua, linux-kernel@gondor.apana.org.au,
+       maxk@qualcomm.com, irda-users@lists.sourceforge.net,
+       Linux Network Development <netdev@oss.sgi.com>,
+       Alain Schroeder <alain@parkautomat.net>
+Subject: Re: [PATCH] Make netif_rx_ni preempt-safe
+Message-ID: <20041020000009.GA17246@gondor.apana.org.au>
+References: <1098230132.23628.28.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1098230132.23628.28.camel@krustophenia.net>
+User-Agent: Mutt/1.5.6+20040722i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Oct 2004 18:42:11 -0400
-Lee Revell <rlrevell@joe-job.com> wrote:
-
-> On Tue, 2004-10-19 at 18:33, David S. Miller wrote:
-> > On Tue, 19 Oct 2004 18:10:58 -0400
-> > Lee Revell <rlrevell@joe-job.com> wrote:
-> > 
-> > >   /*
-> > >    * Since receiving is always initiated from a tasklet (in iucv.c),
-> > >    * we must use netif_rx_ni() instead of netif_rx()
-> > >    */
-> > > 
-> > > This implies that the author thought it was a matter of correctness to
-> > > use netif_rx_ni vs. netif_rx.  But it looks like the only difference is
-> > > that the former sacrifices preempt-safety for performance.
-> > 
-> > You can't really delete netif_rx_ni(), so if there is a preemptability
-> > issue, just add the necessary preemption protection around the softirq
-> > checks.
-> > 
+On Tue, Oct 19, 2004 at 07:55:33PM -0400, Lee Revell wrote:
 > 
-> Why not?  AIUI the only valid reason to use preempt_disable/enable is in
-> the case of per-CPU data.  This is not "real" per-CPU data, it's a
-> performance hack.  Therefore it would be incorrect to add the preemption
-> protection, the fix is not to manually call do_softirq but to let the
-> softirq run by the normal mechanism.
-> 
-> Am I missing something?
+> --- include/linux/netdevice.h~	2004-10-19 18:50:18.000000000 -0400
+> +++ include/linux/netdevice.h	2004-10-19 18:51:01.000000000 -0400
+> @@ -696,9 +696,11 @@
+>   */
+>  static inline int netif_rx_ni(struct sk_buff *skb)
+>  {
+> +       preempt_disable();
+>         int err = netif_rx(skb);
 
-In code paths where netif_rx_ni() is called, there is not a softirq return
-path check, which is why it is checked here.
-
-Theoretically, if you remove the check, softirq processing can be deferred
-indefinitely.
-
-What I'm saying, therefore, is that netif_rx_ni() it not just a performance
-hack, it is necessary for correctness as well.
+This is broken on older compilers.
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

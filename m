@@ -1,53 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263073AbTCSPX3>; Wed, 19 Mar 2003 10:23:29 -0500
+	id <S263070AbTCSPWN>; Wed, 19 Mar 2003 10:22:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263082AbTCSPX3>; Wed, 19 Mar 2003 10:23:29 -0500
-Received: from havoc.daloft.com ([64.213.145.173]:3262 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S263073AbTCSPX2>;
-	Wed, 19 Mar 2003 10:23:28 -0500
-Date: Wed, 19 Mar 2003 10:34:21 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: David Brownell <david-b@pacbell.net>
-Cc: Greg KH <greg@kroah.com>,
-       usb-devel <linux-usb-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Subject: Re: [patch 2.5.65] ehci-hcd, don't use PCI MWI
-Message-ID: <20030319153421.GA26181@gtf.org>
-References: <3E788B06.4090302@pacbell.net>
+	id <S263073AbTCSPWN>; Wed, 19 Mar 2003 10:22:13 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:27602 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S263070AbTCSPWL>; Wed, 19 Mar 2003 10:22:11 -0500
+Date: Wed, 19 Mar 2003 16:33:04 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [patch] 2.5.65-mjb1: lkcd: EXTRA_TARGETS is obsolete
+Message-ID: <20030319153304.GC23258@fs.tum.de>
+References: <8230000.1047975763@[10.10.2.4]>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3E788B06.4090302@pacbell.net>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <8230000.1047975763@[10.10.2.4]>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 19, 2003 at 07:21:42AM -0800, David Brownell wrote:
-> Hi,
-> 
-> Some users have been sending init logs for Athlon kernels that
-> include PCI warning messages about the PCI cache line size
-> getting set incorrectly ... where the kernel thinks that the
-> right value is 16 bytes.  Since 64 bytes is the right number,
-> it's dangerous to enable MWI on such systems.
-> 
-> This patch stops trying to use MWI; it's a workaround for the
-> misbehavior of that PCI cacheline-setting code.  Please apply
-> to 2.5 and 2.4 trees.
+On Tue, Mar 18, 2003 at 12:22:43AM -0800, Martin J. Bligh wrote:
+>...
+> lkcd						LKCD team
+> 	Linux kernel crash dump support
+>...
 
-Please don't -- Ivan has a patch for this, let's get that in instead.
+EXTRA_TARGETS is obsolete in 2.5.
 
-We all acknowledge your patch is a workaround, but this sort of fix does
-not belong in the mainstream kernel.  We want to fix it The Right
-Way(tm), once.  And since a patch already exists for this...
+The following should do the same:
 
-We need to get IvanK's extended-save-restore-state patch in, too.
+--- linux-2.5.65-mjb1/init/Makefile.old	2003-03-19 08:30:22.000000000 +0100
++++ linux-2.5.65-mjb1/init/Makefile	2003-03-19 08:31:22.000000000 +0100
+@@ -1,10 +1,6 @@
+ #
+ # Makefile for the linux kernel.
+ #
+-ifdef CONFIG_CRASH_DUMP
+-EXTRA_TARGETS := kerntypes.o
+-CFLAGS_kerntypes.o := -gstabs
+-endif
+ 
+ obj-y				:= main.o version.o mounts.o initramfs.o
+ mounts-y			:= do_mounts.o
+@@ -12,6 +8,9 @@
+ mounts-$(CONFIG_BLK_DEV_RAM)	+= do_mounts_rd.o
+ mounts-$(CONFIG_BLK_DEV_MD)	+= do_mounts_md.o
+ 
++obj-$(CONFIG_CRASH_DUMP)	+= kerntypes.o
++CFLAGS_kerntypes.o		:= -gstabs
++
+ # files to be removed upon make clean
+ clean-files := ../include/linux/compile.h
+ 
 
-Ivan, would you be up for a repost on lkml?
 
-	Jeff
+cu
+Adrian
 
+-- 
 
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

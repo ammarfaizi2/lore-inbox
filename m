@@ -1,43 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137111AbREKLTd>; Fri, 11 May 2001 07:19:33 -0400
+	id <S136890AbREKLya>; Fri, 11 May 2001 07:54:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137112AbREKLT0>; Fri, 11 May 2001 07:19:26 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:45975 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S137111AbREKLTO>;
-	Fri, 11 May 2001 07:19:14 -0400
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15099.51885.790847.794749@pizda.ninka.net>
-Date: Fri, 11 May 2001 04:19:09 -0700 (PDT)
-To: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-Cc: Andi Kleen <ak@suse.de>, Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Source code compatibility in Stable series????
-In-Reply-To: <200105111039.MAA18522@cave.bitwizard.nl>
-In-Reply-To: <20010511123257.A6023@gruyere.muc.suse.de>
-	<200105111039.MAA18522@cave.bitwizard.nl>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+	id <S136996AbREKLyL>; Fri, 11 May 2001 07:54:11 -0400
+Received: from AMontpellier-201-1-2-100.abo.wanadoo.fr ([193.253.215.100]:61181
+	"EHLO microsoft.com") by vger.kernel.org with ESMTP
+	id <S136890AbREKLyI>; Fri, 11 May 2001 07:54:08 -0400
+Subject: Re: monitor file writes
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Dennis Bjorklund <db@zigo.dhs.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0105080624120.14983-100000@merlin.zigo.dhs.org>
+In-Reply-To: <Pine.LNX.4.30.0105080624120.14983-100000@merlin.zigo.dhs.org>
+Content-Type: text/plain; charset=ISO-8859-1
+X-Mailer: Evolution/0.10 (Preview Release)
+Date: 11 May 2001 13:51:26 +0200
+Message-Id: <989581889.19092.1.camel@nomade>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Le 08 May 2001 06:27:52 +0200, Dennis Bjorklund a écrit :
+> Is there a way in linux to montior file writes?
+> 
+> I have something that is writing to the disk every 5:th second (approx.)
 
-Rogier Wolff writes:
- > But it's always been said that source code compatiblity would be
- > maintained.
+probably kupdate ... look for noflushd on freshmeat.net and read the
+docs.
 
-"when possible", we've made no such total souce level
-compat. guarentee.  And more such changes are coming, for example the
-quota bugs can't be fixed without breaking source level compat. for
-the filesystems.
-
-You may think and argue otherwise, but our ability to break source
-level compatibility is one of our strengths (see solaris rsh root
-owned socket bug of yesteryear for one example as to why).
-
-Later,
-David S. Miller
-davem@redhat.com
+Xav
 

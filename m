@@ -1,90 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266275AbUINW7b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269523AbUINRCr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266275AbUINW7b (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 18:59:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266680AbUINW7R
+	id S269523AbUINRCr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 13:02:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269580AbUINQ5J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 18:59:17 -0400
-Received: from mail14.syd.optusnet.com.au ([211.29.132.195]:36518 "EHLO
-	mail14.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S266275AbUINWxb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 18:53:31 -0400
-Message-ID: <41477661.9030204@kolivas.org>
-Date: Wed, 15 Sep 2004 08:53:21 +1000
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: swapping and the value of /proc/sys/vm/swappiness
-References: <413CB661.6030303@sgi.com> <cone.1094512172.450816.6110.502@pc.kolivas.org> <20040906162740.54a5d6c9.akpm@osdl.org> <1095186713.6309.15.camel@stantz.corp.sgi.com> <20040914201558.GA32254@logos.cnet>
-In-Reply-To: <20040914201558.GA32254@logos.cnet>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 14 Sep 2004 12:57:09 -0400
+Received: from mail-relay-1.tiscali.it ([213.205.33.41]:10413 "EHLO
+	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
+	id S269589AbUINQcb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 12:32:31 -0400
+Date: Tue, 14 Sep 2004 18:31:43 +0200
+From: Andrea Arcangeli <andrea@novell.com>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@osdl.org>,
+       Ray Bryant <raybry@sgi.com>, hawkes@sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [profile] amortize atomic hit count increments
+Message-ID: <20040914163143.GQ4180@dualathlon.random>
+References: <20040913015003.5406abae.akpm@osdl.org> <20040914155103.GR9106@holomorphy.com> <20040914160531.GP4180@dualathlon.random> <200409140916.48786.jbarnes@engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200409140916.48786.jbarnes@engr.sgi.com>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
-> On Tue, Sep 14, 2004 at 11:31:53AM -0700, Florin Andrei wrote:
-> 
->>On Mon, 2004-09-06 at 16:27, Andrew Morton wrote:
->>
->>>Con Kolivas <kernel@kolivas.org> wrote:
->>
->>>> The change was not deliberate but there have been some other people report 
->>>> significant changes in the swappiness behaviour as well (see archives). It 
->>>> has usually been of the increased swapping variety lately. It has been 
->>>> annoying enough to the bleeding edge desktop users for a swag of out-of-tree 
->>>> hacks to start appearing (like mine).
->>>
->>>All of which is largely wasted effort.
->>
->>>From a highly-theoretical, ivory-tower perspective, maybe; i am not the
->>one to pass judgement.
->>>From a realistic, "fix it 'cause it's performing worse than MSDOS
->>without a disk cache" perspective, definitely not true.
->>
->>I've found a situation where the vanilla kernel has a behaviour that
->>makes no sense:
->>
->>http://marc.theaimsgroup.com/?l=linux-kernel&m=109237941331221&w=2
->>http://marc.theaimsgroup.com/?l=linux-kernel&m=109237959719868&w=2
->>http://marc.theaimsgroup.com/?l=linux-kernel&m=109238126314192&w=2
->>
->>A patch by Con Kolivas fixed it:
->>
->>http://marc.theaimsgroup.com/?l=linux-kernel&m=109410526607990&w=2
->>
->>I cannot offer more details, i have no time for experiments, i just need
->>a system that works. The vanilla kernel does not.
-> 
-> 
-> Have you tried to decrease the value of /proc/sys/vm/swappiness 
-> to say 30 and see what you get?
-> 
-> Andrew's point is that we should identify the problem - Con's patch
-> rewrites swapping policy.  
+On Tue, Sep 14, 2004 at 09:16:48AM -0700, Jesse Barnes wrote:
+> the readprofile times, I'd say per-cpu would be the way to go just because it 
+> retains the simplicity of the current approach while allowing it to work on 
+> large machines (as well as limiting the performance impact of builtin 
+> profiling in general).  wli's approach seems like a reasonable tradeoff 
+> though, assuming what you suggest doesn't work.
 
-I already answered this. That hard swappiness patch does not really 
-rewrite swapping policy. It identifies exactly what has changed because 
-it does not count "distress in the swap tendency". Therefore if the 
-swappiness value is the same, the mapped ratio is the same (in the 
-workload) yet the vm is swappinig more, it is getting into more 
-"distress". The mapped ratio is the same but the "distress" is for some 
-reason much higher in later kernels, meaning the priority of our 
-scanning is getting more and more intense. This should help direct your 
-searches.
+per-cpu certainly sounds simple enough conceptually, so if you can
+notice any slowdown even with idle loop ruled out, per-cpu is sure
+better.
 
-These are the relevant lines of code _from mainline_:
-
-distress = 100 >> zone->prev_priority
-mapped_ratio = (sc->nr_mapped * 100) / total_memory;
-swap_tendency = mapped_ratio / 2 + distress + vm_swappiness
-if (swap_tendency >= 100)
--		reclaim_mapped = 1;
-
-
-That hard swappiness patch effectively made "distress == 0" always.
-
-Con
+This bouncing is likely to hurt smaller SMP too (but once the cpu is
+idle normally it's not a too bad thing since it only hurted reschedule
+latency, since we remain stuck in the timer irq for a bit longer than we
+should), but duplicating the ram of the array there doesn't look as nice
+as it would be on the altix, not all SMP have tons of ram. So an
+intermediate solution for this problem still sound worthwhile for the
+normal smp case.

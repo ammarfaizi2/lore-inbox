@@ -1,67 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261743AbTDQRuw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 13:50:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261826AbTDQRuv
+	id S261848AbTDQR5D (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 13:57:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261849AbTDQR5D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 13:50:51 -0400
-Received: from opersys.com ([64.40.108.71]:33028 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261743AbTDQRut (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 13:50:49 -0400
-Message-ID: <3E9EB30B.511F93DD@opersys.com>
-Date: Thu, 17 Apr 2003 13:58:35 +0000
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Martin Hicks <mort@wildopensource.com>
-CC: Daniel Stekloff <dsteklof@us.ibm.com>, Patrick Mochel <mochel@osdl.org>,
-       "Randy.Dunlap" <rddunlap@osdl.org>, hpa@zytor.com, pavel@ucw.cz,
-       jes@wildopensource.com, linux-kernel@vger.kernel.org, wildos@sgi.com,
-       Tom Zanussi <zanussi@us.ibm.com>
-Subject: Re: [patch] printk subsystems
-References: <200304141533.18779.dsteklof@us.ibm.com> <Pine.LNX.4.44.0304161140160.912-100000@cherise> <20030416191619.GA3413@bork.org> <200304161243.58291.dsteklof@us.ibm.com> <20030417155604.GC543@bork.org>
-Content-Type: text/plain; charset=us-ascii
+	Thu, 17 Apr 2003 13:57:03 -0400
+Received: from enterprise.bidmc.harvard.edu ([134.174.118.50]:9488 "EHLO
+	enterprise.bidmc.harvard.edu") by vger.kernel.org with ESMTP
+	id S261848AbTDQR5C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 13:57:02 -0400
+Subject: Re: How to identify contents of /lib/modules/*
+From: "Kristofer T. Karas" <ktk@enterprise.bidmc.harvard.edu>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, steve.cameron@hp.com
+In-Reply-To: <1050502898.28591.76.camel@dhcp22.swansea.linux.org.uk>
+References: <20030416020059.GA27314@zuul.cca.cpqcorp.net> 
+	<1050502898.28591.76.camel@dhcp22.swansea.linux.org.uk>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 17 Apr 2003 14:08:45 -0400
+Message-Id: <1050602925.21408.53.camel@pinhead>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2003-04-16 at 10:21, Alan Cox wrote:
+> if its an rpm based distro
+> 	rpm -qf /lib/modules/[version]/something
+> will tell you which kernel owns the file.
+> 
+> Its a horrible thing to need to do however
 
-Martin Hicks wrote:
-> I don't think relayfs solves the problem either.  This just adds an
-> extra dependency for yet another pseudo-filesystem.  printk is something
-> that needs to "just work" even if the kernel is in the midst of
-> crashing.  Adding the extra complexity of all printk going out through a
-> filesystem/buffer layer is not desirable, IMHO.
+I have a worse problem.  :-)   I often run several instances of the
+identically version-numbered kernel, all available from the LILO boot
+menu, each instance having a different .config or perhaps compiled with
+a different gcc.  If each instance wants to share
+/lib/modules/[sameversion]/... then I've got a problem.  Ditto for
+userspace programs compiled against /usr/include/linux and
+/usr/include/asm, where I want the compiled program to correspond very
+closely with the currently running kernel.  So...
 
-I beg to differ. There's a point where we've got to stop saying "oh,
-this buffering mechanism is special and it requires its own code."
-relayfs is there to provide a unified light-weight mechanism for
-transfering large amounts of data from the kernel to user space.
+I "fixed" this problem by creating /lib/modules/BootsAs/,
+/usr/include/BootsAs/, etc.  Then, rc.sysinit looks in /proc/cmdline to
+figure out what I typed at LILO, greps through /etc/lilo.conf to find
+the physical /boot/[xyzzy].vmlinux that was booted, and it creates
+symlinks so /lib/modules/[sameversion] -> /lib/modules/BootsAs/[xyzzy]
+and so on.  This is also a win when you have several LILO targets that
+point to the same kernel.
 
-> It seems that the relayfs solution for buffer overflows in the printk
-> buffer is to just make lots of buffers.  I really want to be able to
-> turn off prink logging for stuff I don't care about, without the
-> complexity of having fifteen different logs to look in and changing
-> how get get log info from the kernel to syslog.
+Kris -- running heavily hacked Slackware.
 
-Again, as I said earlier, relayfs doesn't care about filtering. That's
-to the upper layers to take care of. It so happens that relayfs simplifies
-filtering by allowing the upper layers to mux their data using separate
-channels. In no way is anyone forced to do that, though. It's there if
-you need it, and if you need to simply have a is_this_message_logged()
-function, then so be it, but that's yours to implement.
-
-As for buffer overflows and printk, automatically resizeable log buffers
-using a water-mark scheme are on the relayfs to-do list.
-
-Karim
-
-===================================================
-                 Karim Yaghmour
-               karim@opersys.com
-      Embedded and Real-Time Linux Expert
-===================================================

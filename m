@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261615AbTJWOb6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 10:31:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263587AbTJWOb6
+	id S263575AbTJWOmp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 10:42:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263582AbTJWOmp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 10:31:58 -0400
-Received: from fw.osdl.org ([65.172.181.6]:54233 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261615AbTJWOb4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 10:31:56 -0400
-Date: Thu, 23 Oct 2003 07:31:46 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-cc: "M.H.VanLeeuwen" <vanl@megsinet.net>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <marcelo.tosatti@cyclades.com>
-Subject: Re: [BUG somewhere] 2.6.0-test8 irq.c, IRQ_INPROGRESS ?
-In-Reply-To: <16279.48084.668213.169062@alkaid.it.uu.se>
-Message-ID: <Pine.LNX.4.44.0310230729000.6753-100000@home.osdl.org>
+	Thu, 23 Oct 2003 10:42:45 -0400
+Received: from obsidian.spiritone.com ([216.99.193.137]:33944 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S263575AbTJWOmo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 10:42:44 -0400
+Date: Thu, 23 Oct 2003 07:42:34 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Con Kolivas <kernel@kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+cc: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Autoregulate vm swappiness 2.6.0-test8
+Message-ID: <8720000.1066920153@[10.10.2.4]>
+In-Reply-To: <200310232337.50538.kernel@kolivas.org>
+References: <200310232337.50538.kernel@kolivas.org>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Thu, 23 Oct 2003, Mikael Pettersson wrote:
-> 
-> It seems 2.4.23-pre8 included something like this apparently broken
-> change (see diff from -pre7 below). Should it be reverted?
+> +	 * Autoregulate vm_swappiness to be application pages % -ck.
+> +	 */
+> +	si_meminfo(&i);
+> +	si_swapinfo(&i);
+> +	pg_size = get_page_cache_size() - i.bufferram ;
+> +	vm_swappiness = 100 - (((i.freeram + i.bufferram +
+> +		(pg_size - swapper_space.nrpages)) * 100) /
+> +		(i.totalram ? i.totalram : 1));
+> +
+> +	/*
 
-No, that one is correct. IRQ_INPROGRESS should indeed be cleared when the 
-first handler is installed. It's only clearing it at enable_irq() that is 
-wrong.
+It seems that you don't need si_swapinfo here, do you? i.freeram,
+i.bufferram, and i.totalram all come from meminfo, as far as I can
+see? Maybe I'm missing a bit ...
 
-Also, the "disable_irq()" function _should_ look something like this:
-
-	void disable_irq(unsigned int irq)
-	{
-	        irq_desc_t *desc = irq_desc + irq;
-	        disable_irq_nosync(irq);
-	        if (desc->action)
-	                synchronize_irq(irq);
-	}
-
-ie it should only do synchronize_irq() if a handler exists. That fixes a
-potential problem with drivers doing multiple disable_irq()/enable_irq()  
-while no handler has been assigned yet.
-
-		Linus
+M.
 

@@ -1,111 +1,87 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316149AbSEKBIJ>; Fri, 10 May 2002 21:08:09 -0400
+	id <S316188AbSEKBeU>; Fri, 10 May 2002 21:34:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316182AbSEKBII>; Fri, 10 May 2002 21:08:08 -0400
-Received: from ip68-4-246-90.oc.oc.cox.net ([68.4.246.90]:8832 "EHLO
-	piggy.ics.uci.edu") by vger.kernel.org with ESMTP
-	id <S316149AbSEKBIH>; Fri, 10 May 2002 21:08:07 -0400
-Date: Fri, 10 May 2002 18:08:07 -0700 (PDT)
-From: Andreas Gal <gal@uci.edu>
+	id <S316189AbSEKBeT>; Fri, 10 May 2002 21:34:19 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:22022 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S316188AbSEKBeS>;
+	Fri, 10 May 2002 21:34:18 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
 To: linux-kernel@vger.kernel.org
-Subject: Dell Inspiron 5000 problems
-Message-ID: <Pine.LNX.4.44.0205101759340.4124-100000@piggy.ics.uci.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Subject: Re: [PATCH] BUG() disassembly tweak 
+In-Reply-To: Your message of "Sat, 11 May 2002 02:04:02 +0100."
+             <Pine.LNX.4.21.0205110122430.1215-100000@localhost.localdomain> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 11 May 2002 11:34:07 +1000
+Message-ID: <2764.1021080847@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, 11 May 2002 02:04:02 +0100 (BST), 
+Hugh Dickins <hugh@veritas.com> wrote:
+>I thought I was the only one dissatisfied (that a disassembler cannot
+>make sense of this line number and filename pointer dumped into the
+>instruction stream after the ud2: laugh at the ingenious instructions
+>ksymoops shows after the ud2 these days).
 
-somehow the recent 2.4 kernels are running worse and worse on my Dell
-Inspiron 5000 (NOT 5000e). I am experiencing a number of quite annoying
-problems:
+IMNSHO the instructions _after_ the oops are almost useless.  I would
+be much happier to see all architectures display the code line like
+this (from alpha):
 
-1. Dell has a BIOS update out for this machine (A08), but I am still
-   using A06. If I update to A08, the keyboard hangs a couple of
-   keystrokes after booting. If I suspend & resume the machine, the
-   keyboard comes back for a while but it will die off again shortly
-   after. I tried to talk to Dell but they only say "we don't support
-   Linux for this notebook ...". A while back I tried a 2.2 kernel
-   and it worked nicely. Btw, using the kbd-reset flag does not help.
-   My gut feeling is that the keyboard interrupt somehow stops
-   occuring. It would really help to get info from Dell what they
-   changed in the BIOS, the Changelog does not say anything keyboard
-   related (any Dell guys reading this?).
+Code: 44220001  f4200003  46520400 <a77d9c38> 6b9b4a40  a44803a8  42425401  42c10403  40603401
 
-2. APM Suspend/Resume: Suspend is working worse with every new release.
-   With early 2.4 it nearly always worked, 2.4.9 hand some hangs,
-   with 2.4.18 (all redhat stock kernels) the machine nearly never
-   survives a suspend. The machine either hangs during suspend
-   (screen goes blank, but backlight is still on) or does not come
-   back after resume. I think this is closely related to PCMCIA,
-   but also happens without a PCMCIA card in the slot. I have
-   apmd set up to eject the PCMCIA card before suspend. I saw some
-   improvements with the latest BIOS (A08) and the PCMCIA card
-   even went alive after resume again (usually I have to pull it
-   out and push it back to get it working again, soft eject
-   does not work). However, even with the latest BIOS A08 (where
-   the keyboard is not working) the machine still hangs often
-   when resuming. I know that probably the Dell BIOS is crappy, but
-   it would be still nice if I wouldn't have to torture ext3
-   so badly. Any clues?
+Showing instructions either side of the oops and marking the
+instruction pointer with <>.  Even that version displays too much data
+after the oops, for debugging you need more instructions leading up to
+the failure and fewer instructions afterwards.
 
-3. USB resets: I have a Microsoft Optical Mouse on the USB port. The
-   USB port is resetting every 2-3 seconds (!). This is really a pain.
-   I saw this in 2.4.9 sometimes, but in 2.4.18 this happens
-   constantly. The mouse has a quite bright LED built in, thus my first
-   guess was overpower protection, but it also happens with non-optical
-   mice.
+The variable length i386 instructions are a problem, finding a decent
+start point is tricky.  ksymoops handles up to 64 bytes of code so
+dumping EIP-56:EIP+8 would increase the chance of the disassembler
+syncing to the correct instructions.  To be absolutely sure, dump two
+code lines on i386.
 
-May 10 17:44:03 piggy kernel: usb.c: USB disconnect on device 61
-May 10 17:44:13 piggy kernel: hub.c: USB new device connect on bus1/1, 
-assigned device number 62
-May 10 17:44:13 piggy kernel: usb-uhci.c: interrupt, status 3, frame# 963
-May 10 17:44:13 piggy kernel: input0: USB HID v1.10 Mouse [Microsoft 
-Microsoft USB Mouse] on usb1:62.0
-May 10 17:44:16 piggy /etc/hotplug/usb.agent: ... no modules for USB 
-product 45e/9/2006
-May 10 17:44:28 piggy kernel: usb.c: USB disconnect on device 62
-May 10 17:44:30 piggy kernel: hub.c: USB new device connect on bus1/1, 
-assigned device number 63
-May 10 17:44:30 piggy kernel: usb-uhci.c: interrupt, status 3, frame# 1762
-May 10 17:44:30 piggy kernel: input0: USB HID v1.10 Mouse [Microsoft 
-Microsoft USB Mouse] on usb1:63.0
-May 10 17:44:32 piggy kernel: usb.c: USB disconnect on device 63
-May 10 17:44:33 piggy kernel: hub.c: USB new device connect on bus1/1, 
-assigned device number 64
-May 10 17:44:33 piggy kernel: input0: USB HID v1.10 Mouse [Microsoft 
-Microsoft USB Mouse] on usb1:64.0
-May 10 17:44:33 piggy /etc/hotplug/usb.agent: ... no modules for USB 
-product 45e/9/2006
-May 10 17:44:35 piggy kernel: usb.c: USB disconnect on device 64
-May 10 17:44:36 piggy kernel: hub.c: connect-debounce failed, port 1 
-disabled
-May 10 17:44:36 piggy /etc/hotplug/usb.agent: ... no modules for USB 
-product 45e/9/2006
-May 10 17:44:44 piggy kernel: hub.c: USB new device connect on bus1/1, 
-assigned device number 65
-May 10 17:44:44 piggy kernel: usb-uhci.c: interrupt, status 3, frame# 1473
-May 10 17:44:44 piggy kernel: input0: USB HID v1.00 Mouse [Microsoft 
-Microsoft Wheel Mouse Optical®] on usb1:65.0
-May 10 17:44:47 piggy /etc/hotplug/usb.agent: Setup hid for USB product 
-45e/40/121
-May 10 17:44:47 piggy /etc/hotplug/usb.agent: Setup mousedev for USB 
-product 45e/40/121
-May 10 17:44:51 piggy kernel: usb.c: USB disconnect on device 65
-May 10 17:44:51 piggy kernel: hub.c: USB new device connect on bus1/1, 
-assigned device number 66
-May 10 17:44:51 piggy kernel: usb-uhci.c: interrupt, status 3, frame# 563
-May 10 17:44:51 piggy kernel: input0: USB HID v1.00 Mouse [Microsoft 
-Microsoft Wheel Mouse Optical®] on usb1:66.0
-May 10 17:44:54 piggy /etc/hotplug/usb.agent: Setup hid for USB product 
-45e/40/121
-May 10 17:44:54 piggy /etc/hotplug/usb.agent: Setup mousedev for USB 
-product 45e/40/121
+Code: EIP-56 ... <EIP> ... EIP+8
+Code: EIP ... EIP+8
 
-----------------
+The second line starts with EIP and does not have <> around any values,
+it guarantees that we get a clean decode of the failing instruction.
+ksymoops will print both code lines, which makes the decoded trace look
+a little strange, but it is worth it to get better debugging.  For
+architectures with fixed length instructions this is not a problem.
 
-Andreas
+Code: c6 05 00 00 00 00 00 <eb> e7 8d 76 00 b8 00 e0 ff ff 21 e0 ff 
+
+>>EIP; c0113f8c No symbols available   <=====
+
+...
+
+Code;  c0113f85 No symbols available
+00000000 <_EIP>:
+Code;  c0113f85 No symbols available
+   0:   c6 05 00 00 00 00 00      movb   $0x0,0x0
+Code;  c0113f8c No symbols available   <=====
+   7:   eb e7                     jmp    fffffff0 <_EIP+0xfffffff0> c0113f75 No symbols available   <=====
+Code;  c0113f8e No symbols available
+   9:   8d 76 00                  lea    0x0(%esi),%esi
+Code;  c0113f91 No symbols available
+   c:   b8 00 e0 ff ff            mov    $0xffffe000,%eax
+Code;  c0113f96 No symbols available
+  11:   21 e0                     and    %esp,%eax
+Code;  c0113f98 No symbols available
+  13:   ff 00                     incl   (%eax)
+
+Code: eb e7 8d 76 00 b8 00 e0 (second code line, no <>)
+
+
+Code;  c0113f8c No symbols available
+00000000 <_EIP>:
+Code;  c0113f8c No symbols available
+   0:   eb e7                     jmp    ffffffe9 <_EIP+0xffffffe9> c0113f75 No symbols available
+Code;  c0113f8e No symbols available
+   2:   8d 76 00                  lea    0x0(%esi),%esi
+Code;  c0113f91 No symbols available
+   5:   b8 00 e0 00 00            mov    $0xe000,%eax
 

@@ -1,64 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263939AbUECXt7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261913AbUECX6J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263939AbUECXt7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 May 2004 19:49:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264010AbUECXt7
+	id S261913AbUECX6J (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 May 2004 19:58:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264010AbUECX6J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 May 2004 19:49:59 -0400
-Received: from ausc60ps301.us.dell.com ([143.166.148.206]:37433 "EHLO
-	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
-	id S263939AbUECXt5 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 May 2004 19:49:57 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6527.0
-Content-Class: urn:content-classes:message
+	Mon, 3 May 2004 19:58:09 -0400
+Received: from smtp015.mail.yahoo.com ([216.136.173.59]:5012 "HELO
+	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261913AbUECX6F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 May 2004 19:58:05 -0400
+Message-ID: <4096DC89.5020300@yahoo.com.au>
+Date: Tue, 04 May 2004 09:58:01 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH 2.4] add SMBIOS information to /proc/smbios -- UPDATED
-Date: Mon, 3 May 2004 18:49:55 -0500
-Message-ID: <0960978B185D2848BF5BBAE1BFB343E104E424@ausx2kmps315.aus.amer.dell.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 2.4] add SMBIOS information to /proc/smbios -- UPDATED
-Thread-Index: AcQxZ9weZ1R+jtB8QjOwIKYy0UeQDwAAVsZg
-From: <Michael_E_Brown@Dell.com>
-To: <marcelo.tosatti@cyclades.com>, <mebrown@michaels-house.net>
-Cc: <linux-kernel@vger.kernel.org>, <viro@parcelfarce.linux.theplanet.co.uk>
-X-OriginalArrivalTime: 03 May 2004 23:49:56.0356 (UTC) FILETIME=[565E3C40:01C43169]
+To: Andrew Morton <akpm@osdl.org>
+CC: Peter Zaitsev <peter@mysql.com>, linuxram@us.ibm.com, alexeyk@mysql.com,
+       linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Re: Random file I/O regressions in 2.6
+References: <200405022357.59415.alexeyk@mysql.com>	<409629A5.8070201@yahoo.com.au>	<20040503110854.5abcdc7e.akpm@osdl.org>	<1083615727.7949.40.camel@localhost.localdomain>	<20040503135719.423ded06.akpm@osdl.org>	<1083620245.23042.107.camel@abyss.local> <20040503145922.5a7dee73.akpm@osdl.org>
+In-Reply-To: <20040503145922.5a7dee73.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, Greg KH has pushed it into current -mm, and intends to push it up
-for 2.6.7.
---
-Michael
+Andrew Morton wrote:
+> Peter Zaitsev <peter@mysql.com> wrote:
+> 
+>>On Mon, 2004-05-03 at 13:57, Andrew Morton wrote:
+>>
+>>>Ram Pai <linuxram@us.ibm.com> wrote:
+>>>
+>>>>>The place which needs attention is handle_ra_miss().  But first I'd like to
+>>>>>reacquaint myself with the intent behind the lazy-readahead patch.  Was
+>>>>>never happy with the complexity and special-cases which that introduced.
+>>>>
+>>>>lazy-readahead has no role to play here.
+>>>
+>>Andrew,
+>>
+>>Could you please clarify how this things become to be dependent on
+>>read-ahead at all.
+> 
+> 
+> readahead is currently the only means by which we build up nice large
+> multi-page BIOs.
+> 
+> 
+>>At my understanding read-ahead it to catch sequential (or other) access
+>>pattern and do some advance reading, so instead of 16K request we do
+>>128K request, or something similar.
+> 
+> 
+> That's one of its usage patterns.  It's also supposed to detect the
+> fixed-sized-reads-seeking-all-over-the-place situation.  In which case it's
+> supposed to submit correctly-sized multi-page BIOs.  But it's not working
+> right for this workload.
+> 
+> A naive solution would be to add special-case code which always does the
+> fixed-size readahead after a seek.  Basically that's
+> 
+> 	if (ra->next_size == -1UL)
+> 		force_page_cache_readahead(...)
+> 
 
-> -----Original Message-----
-> From: Marcelo Tosatti [mailto:marcelo.tosatti@cyclades.com] 
-> Sent: Monday, May 03, 2004 6:40 PM
-> To: Michael Brown
-> Cc: linux-kernel@vger.kernel.org; Brown, Michael E; 
-> viro@parcelfarce.linux.theplanet.co.uk
-> Subject: Re: [PATCH 2.4] add SMBIOS information to 
-> /proc/smbios -- UPDATED
-> 
-> 
-> On Thu, Apr 29, 2004 at 09:21:52PM -0500, Michael Brown wrote:
-> > Marcelo, Al,
-> > 	Below is an updated patch to add SMBIOS information to 
-> /proc/smbios.
-> > Updates have been made per Al's previous comments. Please apply.
-> > 
-> > For reference, here are previous postings:
-> > Previous 2.4 thread:
-> > http://marc.theaimsgroup.com/?t=108321757100001&r=1&w=1
-> > 
-> > Previous 2.6 thread:
-> > http://marc.theaimsgroup.com/?t=108311959700002&r=1&w=1
-> 
-> Hi Michael,
-> 
-> Has your patch been accepted into v2.6? 
-> 
+I think a better solution to this case would be to ensure the
+readahead window is always min(size of read, some large number);
+
+The size of the read is basically a free and accurate "hint" to
+the minimum size of the required readahead.
+
+Either that or do a simple "preread" while you're still in the
+read request window, and run readahead when that completes.

@@ -1,27 +1,33 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314602AbSFNWtr>; Fri, 14 Jun 2002 18:49:47 -0400
+	id <S314634AbSFNWxi>; Fri, 14 Jun 2002 18:53:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314634AbSFNWtq>; Fri, 14 Jun 2002 18:49:46 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60423 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S314602AbSFNWtp>;
-	Fri, 14 Jun 2002 18:49:45 -0400
-Message-ID: <3D0A7235.9080705@mandrakesoft.com>
-Date: Fri, 14 Jun 2002 18:46:13 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/00200205
-X-Accept-Language: en-us, en
+	id <S314680AbSFNWxh>; Fri, 14 Jun 2002 18:53:37 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:16652 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S314634AbSFNWxg>; Fri, 14 Jun 2002 18:53:36 -0400
+Date: Fri, 14 Jun 2002 15:53:05 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Denis Oliver Kropp <dok@directfb.org>
+cc: Russell King <rmk@arm.linux.org.uk>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] [2.5.21] CyberPro 32bit support and other fixes
+In-Reply-To: <20020613092323.GA2384@skunk.convergence.de>
+Message-ID: <Pine.LNX.4.44.0206141550000.21575-100000@www.transvirtual.com>
 MIME-Version: 1.0
-To: jt@hpl.hp.com
-CC: irda-users@lists.sourceforge.net,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] : ir250_headers_init-2.diff
-In-Reply-To: <20020610175143.C21783@bougret.hpl.hp.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch also did not apply...
+
+> Why is the pseudo palette used anyway?
+
+Its a fast way for the console to grab the proper console index color to
+draw to the framebuffer. Otherwise we have to regenerate the color all the
+time. Plus it is always endian code for us :-)
+
+> There's no speed benefit and
+> applications running in true/direct color would look wrong.
+
+For userland no but for the kernel we do have a benifiet.
 

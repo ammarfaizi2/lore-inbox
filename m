@@ -1,63 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265808AbTFVTSo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jun 2003 15:18:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265814AbTFVTSo
+	id S265792AbTFVTcg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jun 2003 15:32:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264904AbTFVTcg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jun 2003 15:18:44 -0400
-Received: from babsi.intermeta.de ([212.34.181.3]:1550 "EHLO mail.intermeta.de")
-	by vger.kernel.org with ESMTP id S265808AbTFVTSm (ORCPT
+	Sun, 22 Jun 2003 15:32:36 -0400
+Received: from mx.laposte.net ([213.30.181.11]:26559 "EHLO mx.laposte.net")
+	by vger.kernel.org with ESMTP id S265792AbTFVTce (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jun 2003 15:18:42 -0400
-Subject: Re: GCC speed (was [PATCH] Isapnp warning)
-From: Henning Schmiedehausen <hps@intermeta.de>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030622121323.1abdd079.akpm@digeo.com>
-References: <20030621125111.0bb3dc1c.akpm@digeo.com>
-	 <20030622103251.158691c3.akpm@digeo.com>
-	 <bd4u7s$jkp$1@tangens.hometree.net>
-	 <20030622121323.1abdd079.akpm@digeo.com>
-Content-Type: text/plain
-Organization: INTERMETA - Gesellschaft  =?ISO-8859-1?Q?=20f=C3=BCr?= Mehrwertdienste mbH
-Message-Id: <1056310361.13095.0.camel@henning-pc.hutweide.de>
+	Sun, 22 Jun 2003 15:32:34 -0400
+Subject: Re: linux-2.4.21 released
+From: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ZdVjSe5RMWFtELa96mkZ"
+Organization: Adresse personnelle
+Message-Id: <1056311197.3679.13.camel@rousalka.dyndns.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 22 Jun 2003 21:32:41 +0200
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.5 () EMAIL_ATTRIBUTION,IN_REP_TO,QUOTED_EMAIL_TEXT,REFERENCES,REPLY_WITH_QUOTES
+X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2) 
+Date: 22 Jun 2003 21:46:37 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-well to me that sounds like a perfect job for a continous build tool. If
-a human must wait on this, then yes, you're right.
+--=-ZdVjSe5RMWFtELa96mkZ
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-	Regards
-		Henning
+***
 
+http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D105572386027023&w=3D2
 
-On Sun, 2003-06-22 at 21:13, Andrew Morton wrote:
-> "Henning P. Schmiedehausen" <hps@intermeta.de> wrote:
-> >
-> >  Your problem is not the compiler but the build tool / system which
-> >  forces you to recompile all of your kernel if you change only small
-> >  parts.
-> 
-> No, the build system is OK.  And ccache nicely fixes up any mistakes which
-> the build system makes, and distcc speeds things up by 2x to 3x.
-> 
-> None of that gets around the fact that code needs to be tested with various
-> combinations of CONFIG_SMP, CONFIG_PREEMPT, different subarchitectures,
-> spinlock debugging, etc, etc.  If the compiler is slow people don't bother
-> doing this and the code breaks.
-> 
-> Cause and effect.
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+Nobody replied but let me do my last report.
 
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+> I just tested with 2.4.21. With IO-APIC everything worked
+> except the ethernet.
+
+My ECS K7VTA3 5.0C is useless with Linux since I can't get
+ethernet to work with IO-APIC, and without it modprobe usb-uhci
+just freezes everything. It may be a broken motherboard. I
+can't believe all 5.0 have so many problems, but...
+
+...I wonder what's so different in Windows XP. As I reported
+ethernet and USB work together there.
+
+***
+
+Just take a look at:
+
+http://bugzilla.kernel.org/show_bug.cgi?id=3D10
+and the children bug
+http://bugzilla.kernel.org/show_bug.cgi?id=3D71
+
+VIA IOAPIC/ACPI brokeness (wrt USB/ethernet) has been known and reported
+for a long time (8 months at least since the initial bug reports predate
+kernel bugzilla). Unfortunately that didn't stop the 2.5 changes to be
+backported to 2.4, and people hit it every other week now.
+
+(and I fear it was even removed from the 2.6 must-fix list after
+figuring in a few of its versions)
+
+Both 2.4 & 2.5 are totally broken with VIA, while 2.4-ac used to work
+fine last year.
+
+Cheers,
+
+--=20
+Nicolas Mailhot
+
+--=-ZdVjSe5RMWFtELa96mkZ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Ceci est une partie de message
+	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA+9gecI2bVKDsp8g0RAkK9AJ96G4vkiVhh4I5bPPZ6lhdmZZG3OACg3ehd
+OCw5UH45UbKinWunp4b9TFU=
+=J/4c
+-----END PGP SIGNATURE-----
+
+--=-ZdVjSe5RMWFtELa96mkZ--
 

@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261456AbVB0SwH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261465AbVB0TGe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261456AbVB0SwH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 13:52:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261465AbVB0SwH
+	id S261465AbVB0TGe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 14:06:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261470AbVB0TGe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 13:52:07 -0500
-Received: from smtp-100-sunday.noc.nerim.net ([62.4.17.100]:10001 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S261456AbVB0SwE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 13:52:04 -0500
-Date: Sun, 27 Feb 2005 19:52:26 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Andreas Oberritter <obi@saftware.de>
-Cc: LM Sensors <sensors@stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] possible bug in i2c-algo-bit's inb function
-Message-Id: <20050227195226.23aa5a51.khali@linux-fr.org>
-In-Reply-To: <1109528034.4564.16.camel@localhost.localdomain>
-References: <E1D5GN2-0000Bi-KG@localhost.localdomain>
-	<20050227103538.218fa1b0.khali@linux-fr.org>
-	<1109528034.4564.16.camel@localhost.localdomain>
-Reply-To: LM Sensors <sensors@stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 27 Feb 2005 14:06:34 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:39152 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261465AbVB0TGc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Feb 2005 14:06:32 -0500
+From: Parag Warudkar <kernel-stuff@comcast.net>
+To: Jean-Marc Valin <Jean-Marc.Valin@usherbrooke.ca>
+Subject: Re: ext3 bug
+Date: Sun, 27 Feb 2005 14:06:30 -0500
+User-Agent: KMail/1.7.92
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+References: <1109487896.8360.16.camel@localhost>
+In-Reply-To: <1109487896.8360.16.camel@localhost>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502271406.30690.kernel-stuff@comcast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andreas,
+On Sunday 27 February 2005 02:04 am, Jean-Marc Valin wrote:
+> Hi,
+>
+> Looks like I ran into an ext3 bug (or at least the log says so). I got a
+> bunch of messages like:
+> ext3_free_blocks_sb: aborting transaction: Journal has aborted in
+> __ext3_journal_get_undo_access<2>EXT3-fs error (device sda2) in
+> ext3_free_blocks_sb: Journal has aborted
+> EXT3-fs error (device sda2): ext3_free_blocks: Freeing blocks in system
+> zones -Block = 228, count = 1
+>
+> It happened while I was doing an "rm -rf" on a directory. The "rm" gave
+> a segfault and now I can't unmount the filesystem: unmount says "device
+> is busy", even though lsof reports nothing. The filesystem is on a USB
+> hard disk. The actual dump is in attachment. I'm running Debian unstable
+> with a custom 2.6.10 kernel on a 1.6 GHz Pentium-M.
+>
+> 	Jean-Marc
 
-> Here's my I2C code:
-> (...)
+Please try stock kernel. 2.6.11-rc3 onwards should be fine. - I saw a similar 
+problem while running 2.6.10 kernel from Fedora Core 3. It doesn't happen 
+with stock kernels.
 
-Looks sane.
-
-> The bus master is a so called Pluto2 by SCM (part of a DVB-T card sold
-> by Satelco). If this is a hardware bug, is it possible to add a flag
-> to struct i2c_algo_bit_data to workaround this bug?
-
-I would try to find out whether the culprit is setscl or getsda
-(assuming I am correct and either of these actually is the problem).
-Once you know which it is, you could modifiy that function to restore
-the SDA line, that should do the trick.
-
-Hope that helps,
--- 
-Jean Delvare
+Parag

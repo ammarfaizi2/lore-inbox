@@ -1,30 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314139AbSEMQ1h>; Mon, 13 May 2002 12:27:37 -0400
+	id <S314138AbSEMQ3e>; Mon, 13 May 2002 12:29:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314223AbSEMQ1f>; Mon, 13 May 2002 12:27:35 -0400
-Received: from fmr02.intel.com ([192.55.52.25]:37583 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S314139AbSEMQZz>; Mon, 13 May 2002 12:25:55 -0400
-Message-ID: <D9223EB959A5D511A98F00508B68C20C0BFB7E68@orsmsx108.jf.intel.com>
-From: "Woodruff, Robert J" <woody@co.intel.com>
-To: linux-kernel@vger.kernel.org, zaitcev@redhat.com
-Subject: InfiniBand BOF @ LSM - topics of interest
-Date: Mon, 13 May 2002 09:25:41 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S314223AbSEMQ3d>; Mon, 13 May 2002 12:29:33 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:3056 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S314138AbSEMQ3b>; Mon, 13 May 2002 12:29:31 -0400
+Subject: Re: [PATCHSET] Linux 2.4.19-pre8-jam2
+From: Robert Love <rml@tech9.net>
+To: rwhron@earthlink.net
+Cc: jamagallon@able.es, linux-kernel@vger.kernel.org
+In-Reply-To: <20020513074514.A25499@rushmore>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 13 May 2002 09:29:28 -0700
+Message-Id: <1021307368.18800.2586.camel@summit>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2002-05-13 at 04:45, rwhron@earthlink.net wrote:
+> > - Re-introduction of wake_up_sync to make pipes run fast again. No idea
+> >  about this is useful or not, that is the point, to test it (Randy ?)
+> 
+> Thanks, I was hoping someone would port that patch to a 2.4 kernel.
+> 2.5 kernels <= 2.5.15 aren't completing umount on the 4 way Xeon.
+> I will benchmark the latest jam on the big box next.
+> 
+> http://home.earthlink.net/~rwhron/kernel/bigbox.html
 
-Hi All, 
+Is umount not completing somehow due to the lack of wake_up_sync ???
 
-Soliciting specific topics that people would like to discuss at the LSM
-InfiniBand BOF.
-There are at least 2 that I thought might be good discussion topics;
-	Sockets Direct Protocol for InfiniBand
-	User Mode Access to the InfiniBand network
-Others ?
+Fwiw, I am not sold that reintroducing wake_up_sync is worth it.  The
+benchmark is synthetic and could very well not represent the general
+case in which the load balancer is capable of handling the scenario
+without the hackery of an explicit sync option.
+
+	Robert Love
 

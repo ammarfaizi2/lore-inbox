@@ -1,60 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263067AbSITRIN>; Fri, 20 Sep 2002 13:08:13 -0400
+	id <S263034AbSITRG5>; Fri, 20 Sep 2002 13:06:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263080AbSITRIM>; Fri, 20 Sep 2002 13:08:12 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:14071 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S263067AbSITRIK>;
-	Fri, 20 Sep 2002 13:08:10 -0400
-Date: Fri, 20 Sep 2002 10:13:15 -0700
-To: thunder@lightweight.ods.org, linux-kernel@vger.kernel.org
-Subject: Re: FW: 2.5.34: IR __FUNCTION__ breakage
-Message-ID: <20020920171314.GD8260@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <MNEMKBGMDIMHCBHPHLGPMEEDDDAA.dag@brattli.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <MNEMKBGMDIMHCBHPHLGPMEEDDDAA.dag@brattli.net>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	id <S263062AbSITRG5>; Fri, 20 Sep 2002 13:06:57 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:29901 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S263034AbSITRG4>; Fri, 20 Sep 2002 13:06:56 -0400
+Date: Fri, 20 Sep 2002 19:11:56 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Linus Torvalds <torvalds@transmeta.com>, Patrick Mochel <mochel@osdl.org>,
+       <andrew.grover@intel.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.37
+In-Reply-To: <Pine.LNX.4.33.0209200840320.2721-100000@penguin.transmeta.com>
+Message-ID: <Pine.NEB.4.44.0209201907480.10334-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 13, 2002 at 08:25:50AM +0200, Dag Brattli wrote:
-> -----Original Message-----
-> From: Thunder from the hill [mailto:thunder@lightweight.ods.org]
-> Sent: 12. september 2002 22:17
-> To: Bob_Tracy
-> Cc: dag@brattli.net; linux-kernel@vger.kernel.org
-> Subject: Re: 2.5.34: IR __FUNCTION__ breakage
-> 
-> 
-> Hi,
-> 
-> On Thu, 12 Sep 2002, Bob_Tracy wrote:
-> > define DERROR(dbg, args...) \
-> > 	{if(DEBUG_##dbg){\
-> > 		printk(KERN_INFO "irnet: %s(): ", __FUNCTION__);\
-> > 		printk(KERN_INFO args);}}
-> > 
-> > which strikes me as not quite what the author intended, although it
-> > should work.
-> 
-> Why not
-> 
-> #define DERROR(dbg, fmt, args...) \
-> 	do { if (DEBUG_##dbg) \
-> 		printk(KERN_INFO "irnet: %s(): " fmt, __FUNCTION, args); \
-> 	} while(0)
-> 
-> ?
-> 
-> 			Thunder
+On Fri, 20 Sep 2002, Linus Torvalds wrote:
 
-	Try it, it won't work when there is zero args.
+>...
+> Patrick Mochel <mochel@osdl.org>:
+>...
+>   o ACPI: move PREFIX to a common header
+>...
 
-	Jean
+
+This patch that moved PREFIX to acpi_bus.h broke the compilation of
+drivers/acpi/numa.c because this file didn't include acpi_bus.h:
+
+<--  snip  -->
+
+...
+  gcc -Wp,-MD,./.numa.o.d -D__KERNEL__
+-I/home/bunk/linux/kernel-2.5/linux-2.5.37-full/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2
+-fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+-march=k6 -I/home/bunk/linux/kernel-2.5/linux-2.5.37-full/arch/i386/mach-generic
+-nostdinc -iwithprefix include  -D_LINUX -I/home/bunk/linux/kernel-2.5/linux-2.5.37-full/d
+rivers/acpi/include -DACPI_DEBUG_OUTPUT  -DKBUILD_BASENAME=numa   -c -o
+numa.o numa.c
+numa.c: In function `acpi_table_print_srat_entry':
+numa.c:48: parse error before `PREFIX'
+...
+make[2]: *** [numa.o] Error 1
+make[2]: Leaving directory
+`/home/bunk/linux/kernel-2.5/linux-2.5.37-full/drivers/acpi'
+
+<--  snip  -->
+
+
+The fix is simple:
+
+
+--- drivers/acpi/numa.c.old	2002-09-20 19:05:06.000000000 +0200
++++ drivers/acpi/numa.c	2002-09-20 19:06:48.000000000 +0200
+@@ -29,6 +29,7 @@
+ #include <linux/types.h>
+ #include <linux/errno.h>
+ #include <linux/acpi.h>
++#include "acpi_bus.h"
+
+ extern int __init acpi_table_parse_madt_family (enum acpi_table_id id, unsigned long madt_size, int entry_id, acpi_madt_entry_handler handler);
+
+
+cu
+Adrian
+
+-- 
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+

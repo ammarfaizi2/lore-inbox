@@ -1,73 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261161AbUDGWTt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 18:19:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbUDGWTt
+	id S261186AbUDGWWL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 18:22:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261197AbUDGWWL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 18:19:49 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:11758 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261161AbUDGWTq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 18:19:46 -0400
-Subject: Re: NUMA API for Linux
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-To: Andi Kleen <ak@suse.de>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>
-In-Reply-To: <20040407234525.4f775c16.ak@suse.de>
-References: <1081373058.9061.16.camel@arrakis>
-	 <20040407232712.2595ac16.ak@suse.de> <1081374061.9061.26.camel@arrakis>
-	 <20040407234525.4f775c16.ak@suse.de>
-Content-Type: text/plain
-Organization: IBM LTC
-Message-Id: <1081376372.9925.2.camel@arrakis>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Wed, 07 Apr 2004 15:19:32 -0700
+	Wed, 7 Apr 2004 18:22:11 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:939 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261186AbUDGWWH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Apr 2004 18:22:07 -0400
+Date: Wed, 07 Apr 2004 15:33:38 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Mike Kravetz <kravetz@us.ibm.com>
+cc: IWAMOTO Toshihiro <iwamoto@valinux.co.jp>, linux-kernel@vger.kernel.org,
+       lhms-devel@lists.sourceforge.net
+Subject: Re: [Lhms-devel] Re: [patch 0/3] memory hotplug prototype
+Message-ID: <3840000.1081377218@flay>
+In-Reply-To: <20040407185953.GC4292@w-mikek2.beaverton.ibm.com>
+References: <20040406105353.9BDE8705DE@sv1.valinux.co.jp> <29700000.1081361575@flay> <20040407185953.GC4292@w-mikek2.beaverton.ibm.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-04-07 at 14:45, Andi Kleen wrote:
-> On Wed, 07 Apr 2004 14:41:02 -0700
-> Matthew Dobson <colpatch@us.ibm.com> wrote:
+--On Wednesday, April 07, 2004 11:59:53 -0700 Mike Kravetz <kravetz@us.ibm.com> wrote:
+
+> On Wed, Apr 07, 2004 at 11:12:55AM -0700, Martin J. Bligh wrote:
+>> > This is an updated version of memory hotplug prototype patch, which I
+>> > have posted here several times.
+>> 
+>> I really, really suggest you take a look at Dave McCracken's work, which
+>> he posted as "Basic nonlinear for x86" recently. It's going to be much
+>> much easier to use this abstraction than creating 1000s of zones ...
+>> 
 > 
-> > On Wed, 2004-04-07 at 14:27, Andi Kleen wrote:
-> > > On Wed, 07 Apr 2004 14:24:19 -0700
-> > > Matthew Dobson <colpatch@us.ibm.com> wrote:
-> > > 
-> > > > 	I must be missing something here, but did you not include mempolicy.h
-> > > > and policy.c in these patches?  I can't seem to find them anywhere?!? 
-> > > > It's really hard to evaluate your patches if the core of them is
-> > > > missing!
-> > > 
-> > > It was in the core patch and also in the last patch I sent Andrew.
-> > > See ftp://ftp.suse.com/pub/people/ak/numa/* for the full patches
-> > 
-> > Ok.. I'll check that link, but what you posted didn't have the files
-> > (mempolicy.h & policy.c) in the patch:
+> I agree.  However, one could argue that taking a zone offline is 'easier'
+> than taking a 'section' offline: at least right now.  Note that I said
+> easier NOT better.  Currently a section represents a subset of one or more
+> zones.  Ideally, these sections represent units that can be added or
+> removed.  IIRC these sections only define a range of physical memory.
+> To determine if it is possible to take a section offline, one needs to
+> dig into the zone(s) that the section may be associated with.  We'll
+> have to do things like:
+> - Stop allocations of pages associated with the section.
+> - Grab all 'free pages' associated with the section.
+> - Try to reclaim/free all pages associated with the section.
+>   - Work on this until all pages in the section are not in use (or free).
+>   - OR give up if we know we will not succeed.
 > 
-> Indeed. Must have gone missing. Here are the files for reference.
-> 
-> The full current broken out patchkit is in 
-> ftp.suse.com:/pub/people/ak/numa/2.6.5mc2/
+> My claim of zones being easier to work with today is due to the
+> fact that zones contain much of the data/infrastructure to make
+> these types of operations easy.  For example, in IWAMOTO's code a
+> node/zone can be take offline when 'z->present_pages == z->free_pages'.
 
-Server isn't taking connections right now.  At least for me... :(
+I really think the level of difference in difficultly here is trivial.
+The hard bit is freeing the pages, not measuring them. I would suspect
+altering the swap path to just not "free" the pages, but put them into
+a pool for hotplug is fairly easy.
 
-Your patch still looks broken.  It includes some files twice:
-
-> diff -u linux-2.6.5-mc2-numa/include/linux/mempolicy.h-o linux-2.6.5-mc2-numa/include/linux/mempolicy.h
-> --- linux-2.6.5-mc2-numa/include/linux/mempolicy.h-o	2004-04-07 12:07:18.000000000 +0200
-> +++ linux-2.6.5-mc2-numa/include/linux/mempolicy.h	2004-04-07 12:07:13.000000000 +0200
-> @@ -0,0 +1,219 @@
-
-<snip>
-
-> diff -u linux-2.6.5-mc2-numa/include/linux/mempolicy.h-o linux-2.6.5-mc2-numa/include/linux/mempolicy.h
-> --- linux-2.6.5-mc2-numa/include/linux/mempolicy.h-o	2004-04-07 12:07:18.000000000 +0200
-> +++ linux-2.6.5-mc2-numa/include/linux/mempolicy.h	2004-04-07 12:07:13.000000000 +0200
-> @@ -0,0 +1,219 @@
-
--Matt
+M.
 

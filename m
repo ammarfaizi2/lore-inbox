@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261727AbTDKUDq (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 16:03:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261722AbTDKUDq (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 16:03:46 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:10500 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261719AbTDKUDB (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 16:03:01 -0400
-Subject: Re: [patch for playing] Patch to support 4000 disks and maintain
-	backward compatibility
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Andries.Brouwer@cwi.nl
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>, pbadari@us.ibm.com
-In-Reply-To: <UTC200304111945.h3BJjU409008.aeb@smtp.cwi.nl>
-References: <UTC200304111945.h3BJjU409008.aeb@smtp.cwi.nl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 11 Apr 2003 15:14:32 -0500
-Message-Id: <1050092073.2078.219.camel@mulgrave>
-Mime-Version: 1.0
+	id S261756AbTDKUFQ (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 16:05:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbTDKUFQ (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 16:05:16 -0400
+Received: from windsormachine.com ([206.48.122.28]:14099 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id S261756AbTDKUFO (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 16:05:14 -0400
+Date: Fri, 11 Apr 2003 16:16:52 -0400 (EDT)
+From: Mike Dresser <mdresser_l@windsormachine.com>
+To: John Bradford <john@grabjohn.com>
+cc: "Richard B. Johnson" <root@chaos.analogic.com>,
+       <linux-kernel@vger.kernel.org>,
+       <linux-hotplug-devel@lists.sourceforge.net>,
+       <message-bus-list@redhat.com>
+Subject: Re: [ANNOUNCE] udev 0.1 release
+In-Reply-To: <200304112016.h3BKG0TM001931@81-2-122-30.bradfords.org.uk>
+Message-ID: <Pine.LNX.4.33.0304111615440.14943-100000@router.windsormachine.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-04-11 at 14:45, Andries.Brouwer@cwi.nl wrote:
-> I think compatibility is very important.
-> Linux does not arbitrarily break old systems. The aim must be
-> to have all combinations of (old/new) kernel with (old/new) glibc
-> to work well in all situations where old kernel + old glibc worked.
+On Fri, 11 Apr 2003, John Bradford wrote:
 
-Well, if you're going to do this, at least make it possible to tie all
-the sd devices to a single major (i.e. the numeric compatibility layer
-simply maps to the new single major scheme internally).  It would also
-be nice for numeric compatibility to be a compile time option too...
+> Now, assuming a voltage drop of 0.05V across each cable...
+>
+> :-)
+>
+> John.
+>
+Ah yes, I was going to mention that, but didn't know which way would be
+better.  My instinct tells me the massively parallel, but I could and
+probably am wrong again. :)
 
-It's also possible that SCSI may not be the only consumer of such a
-compatibility layer (IDE also has multiple majors), so it may be
-worthwhile putting it somewhere more globally useful (like
-fs/block_dev.c)
+I did lose a few bits of my grey matter somewhere, that's for sure.
 
-James
-
+Mike
 

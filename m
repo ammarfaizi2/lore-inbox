@@ -1,100 +1,139 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262567AbSJGS57>; Mon, 7 Oct 2002 14:57:59 -0400
+	id <S262543AbSJGSuY>; Mon, 7 Oct 2002 14:50:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262569AbSJGS57>; Mon, 7 Oct 2002 14:57:59 -0400
-Received: from pimout2-ext.prodigy.net ([207.115.63.101]:46256 "EHLO
-	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id <S262567AbSJGS5y>; Mon, 7 Oct 2002 14:57:54 -0400
-Message-Id: <200210071903.g97J3VSs276692@pimout2-ext.prodigy.net>
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: Jesse Pollard <pollard@admin.navo.hpc.mil>
-Subject: Re: The reason to call it 3.0 is the desktop (was Re: [OT] 2.6 not 3.0 - (NUMA))
-Date: Mon, 7 Oct 2002 10:03:16 -0400
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0210041610220.2465-100000@home.transmeta.com> <200210060130.g961UjY2206214@pimout2-ext.prodigy.net> <200210070856.07356.pollard@admin.navo.hpc.mil>
-In-Reply-To: <200210070856.07356.pollard@admin.navo.hpc.mil>
+	id <S262546AbSJGSuX>; Mon, 7 Oct 2002 14:50:23 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:49916 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S262543AbSJGSuN>;
+	Mon, 7 Oct 2002 14:50:13 -0400
+Message-ID: <3DA1D87E.81A1351C@mvista.com>
+Date: Mon, 07 Oct 2002 11:54:54 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+To: Nicolas Pitre <nico@cam.org>
+CC: Mark Mielke <mark@mark.mielke.cc>, "David S. Miller" <davem@redhat.com>,
+       Russell King <rmk@arm.linux.org.uk>, simon@baydel.com,
+       alan@lxorguk.ukuu.org.uk, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: The end of embedded Linux?
+References: <Pine.LNX.4.44.0210071307420.913-100000@xanadu.home>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 07 October 2002 09:56 am, Jesse Pollard wrote:
+Nicolas Pitre wrote:
+> 
+> On Mon, 7 Oct 2002, Mark Mielke wrote:
+> 
+> > On Mon, Oct 07, 2002 at 09:02:33AM -0700, David S. Miller wrote:
+> > >    From: Nicolas Pitre <nico@cam.org>
+> > >    Date: Mon, 7 Oct 2002 12:05:16 -0400 (EDT)
+> > >    2) Not inlining inb() and friend reduce the bloat but then you further
+> > >       impact performances on CPUs which are generally many order of
+> > >       magnitude slower than current desktop machines.
+> > > I don't buy this one.  You are saying that the overhead of a procedure
+> > > call is larger than the overhead of going out over the I/O bus to
+> > > touch a device?
+> >
+> > I think the key phrase is 'further impact'.
+> >
+> > If anything, the procedure call increases latency.
+> >
+> > Although... I don't see why CONFIG_TINY wouldn't be able to decide whether
+> > inb() should be inlined or not...
+> 
+> Please don't mix up the issues.
+> 
+> The problems with inb() and friends as it stands in the embedded world right
+> now as to do with code cleanness not kernel image bloat.  Nothing to be
+> solved with CONFIG_TINY.  Please let's keep those issues separate.
+> 
+> Here's the IO macro issue:  On some embedded platforms the IO bus is only 8
+> bit wide or only 16 bit wide, or address lines are shifted so registers
+> offsets are not the same, etc.  All this because embedded platforms are
+> often using standard ISA peripheral chipsets since they can be easily glued
+> to any kind of bare buses or static memory banks.
+> 
+> The nice thing here is the fact that only by modifying inb() and friends you
+> can reuse most current kernel drivers without further modifications.
+> However the modifs to inb() are often different whether the peripheral in
+> question is wired to a static memory bank, to the PCMCIA space or onto some
+> expansion board via a CPLD or other weirdness some hardware designers are
+> pleased to come with.  Hence no global inb() and friend tweaking is possible
+> without some performance hit by using a runtime fixup based on the address
+> passed to them.
+> 
+> We therefore end up with something that looks like this in each drivers for
+> which a fixup is needed:
+> 
+> #ifdef CONFIG_ASSABET_NEPONSET
+> 
+> /*
+>  * These functions allow us to handle IO addressing as we wish - this
+>  * ethernet controller can be connected to a variety of busses.  Some
+>  * busses do not support 16 bit or 32 bit transfers.  --rmk
+>  */
+> static inline u8 smc_inb(u_int base, u_int reg)
+> {
+>         u_int port = base + reg * 4;
+> 
+>         return readb(port);
+> }
+> 
+> static inline u16 smc_inw(u_int base, u_int reg)
+> {
+>         u_int port = base + reg * 4;
+> 
+>         return readb(port) | readb(port + 4) << 8;
+> }
+> 
+> static inline void smc_outb(u8 val, u_int base, u_int reg)
+> {
+>         u_int port = base + reg * 4;
+> 
+>         writeb(val, port);
+> }
+> 
+> static inline void smc_outw(u16 val, u_int base, u_int reg)
+> {
+>         u_int port = base + reg * 4;
+> 
+>         writeb(val, port);
+>         writeb(val >> 8, port + 4);
+> }
+> 
+> #endif
+> 
+> As you can see such code duplicated multiple times for all bus arrangements
+> in existence out there is just not pretty and was refused by Alan.  We lack
+> a global lightweight IO abstraction to nicely override the default IO macros
+> for individual drivers at compile time to fix that problem optimally and
+> keep the driver proper clean.
 
-> In other words... don't swap.
+Uh, what about stuff like this (from tulip.h):
+ 
+#ifndef USE_IO_OPS
+#undef inb
+#undef inw
+#undef inl
+#undef outb
+#undef outw
+#undef outl
+#define inb(addr) readb((void*)(addr))
+#define inw(addr) readw((void*)(addr))
+#define inl(addr) readl((void*)(addr))
+#define outb(val,addr) writeb((val), (void*)(addr))
+#define outw(val,addr) writew((val), (void*)(addr))
+#define outl(val,addr) writel((val), (void*)(addr))
+#endif /* !USE_IO_OPS */
 
-"Don't swap this bit", anyway.
 
-> If an application has to be swapped out, all
-> bets are off on response time.
-
-Alright, breaking the problem down into specific, bite-sized chunks, seeing 
-what's easily measurable, and then picking the lowest hanging fruit:
-
-The frequency of mouse pointer stalls, and the worst case response time, is 
-probably something an automated benchmark could measure.  (Z-order's a 
-tricker problem because the window manager's involved, but mouse stalls are 
-EASY to cause.)
-
-On my laptop (with 256 megs ram and 256 megs swap).  Open up 30 or 40 
-konqueror windows of a "this page looks interesting, I'll read it offline" 
-variety until memory's full and you're about 2/3 of the way into swap.  
-(KTimeMon makes this easy to see.)  then do something swap-happy in the 
-background (including downloading a huge file, which causes disk cache to 
-grow and evict stuff, or of course running a big compile).
-
-No matter how much ram the system has, with six desktops full of open windows 
-I can usually drive it DEEP into swap, without even picking an easy target 
-like star/openoffice.  (Yeah, KDE sucketh.  And X should be able to figure 
-out that windows not currently being displayed at all (completely behind 
-other windows, on another desktop, etc) can be swapped out.  But it's just 
-not designed that way...)
-
-> > Even the new threading work can potentially help X spin off a dedicated
-> > high-priority "update the mouse position, and manipulate window borders
-> > and z order, and never swap this thread out" thread.  (I remember the way
-> > OS/2 used to cheat and give extra time slices to anything that got a
-> > Presentation Manager window event, so you could literally speed up your
-> > program on a loaded system by "scrubbing" the mouse across it repeatedly.
-> > The resulting perception was a snappy desktop, whatever the reality was.)
->
-> Not really - the application may want the mouse pointer changed, update
-> data based on where the mouse is located (see what happens to a rule bar on
-> image/word processors). There is also the possibility that multiple
-> processes are watching the mouse.
-
-You may notice that in mozilla when your rat moves over a link, the mouse 
-pointer turns into a hand anywhere up to several seconds later on a 
-pathologically loaded system.  This usually doesn't stop the pointer from 
-moving if you just want to wander past the link and continue on.  "Tooltips" 
-take two or three seconds to pop up, and this is a GOOD thing...
-
-if the mouse movement stalls, you can't navigate with a nipple mouse or 
-touchpad (which is all you get on a laptop), 'cause you'll overshoot. Having 
-the button under the mouse highlight is secondary to being able to get the 
-mouse over the button.
-
-When the system isn't loaded anymore (went away while a compile finished or a 
-file downloaded), you get one or two small (1/4 second) stalls as stuff swaps 
-back in and then life is good.  It's when you swap stuff in and then it swaps 
-back out after 3 seconds of inactivity that it gets to be a real pain 
-(something the deadline I/O scheduler is supposed to help)...
-
-Maybe the correct thing here is a user space fix, with X throwing certain 
-event handlers into an mlocked shared library, just so your mouse pointer 
-always updates smoothly.  But I do know a lot of work has gone into making 
-more intelligent swapping decisions (fundamentally, that's all VM work really 
-is), and it's certainly a heck of a lot better than the 2.4.6 days where you 
-had to go get a beverage when it went swap-happy and it could be 30 seconds 
-between pointer updates.
-
-> Even M$ Windows will lockup when it swaps out the application. The mouse
-> might move... but then the entire system hangs (at least under ME).
-
-The amazing number of things windows manages to screw up should not be used 
-to prevent discussiona about the small number of things they successfully 
-copied from the macintosh.  :)
-
-Rob
+-- 
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

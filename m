@@ -1,48 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267298AbUHIUpi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267256AbUHIUbQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267298AbUHIUpi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 16:45:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267248AbUHIUix
+	id S267256AbUHIUbQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 16:31:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267211AbUHIUaq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 16:38:53 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:59925 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S267209AbUHIUgk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 16:36:40 -0400
-Date: Mon, 9 Aug 2004 22:38:40 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Adrian Bunk <bunk@fs.tum.de>, Roman Zippel <zippel@linux-m68k.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] select FW_LOADER -> depends HOTPLUG
-Message-ID: <20040809203840.GB19748@mars.ravnborg.org>
-Mail-Followup-To: Adrian Bunk <bunk@fs.tum.de>,
-	Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-References: <20040809195656.GX26174@fs.tum.de>
+	Mon, 9 Aug 2004 16:30:46 -0400
+Received: from fw.osdl.org ([65.172.181.6]:59364 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267219AbUHIU1n (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 16:27:43 -0400
+Date: Mon, 9 Aug 2004 13:05:54 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org, sam@ravnborg.org, zippel@linux-m68k.org
+Subject: Re: [PATCH] save kernel version in .config file
+Message-Id: <20040809130554.0405f7e5.rddunlap@osdl.org>
+In-Reply-To: <4117D88E.6080801@tmr.com>
+References: <20040803225753.15220897.rddunlap@osdl.org>
+	<4117D88E.6080801@tmr.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040809195656.GX26174@fs.tum.de>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 09, 2004 at 09:56:56PM +0200, Adrian Bunk wrote:
-> 
-> The contract is easy:
-> If you select something, you have to ensure the depenencies of the 
-> selected option are met.
-> 
-> This is simple.
-> 
-> And most people get it wrong.
+On Mon, 09 Aug 2004 16:03:26 -0400 Bill Davidsen wrote:
 
-No - kconfig gets it wrong.
-When selecting a config option kconfig shall secure that
-'depends on' are evaluated also for the selected symbol.
+| Randy.Dunlap wrote:
+| > (from June/2004 email thread:
+| > http://marc.theaimsgroup.com/?t=108753573200001&r=1&w=2
+| > )
+| > 
+| > Several people found this useful, none opposed (afaik).
+| > 
+| > Saves kernel version in .config file, e.g.:
+| > 
+| > #
+| > # Automatically generated make config: don't edit
+| > # Linux kernel version: 2.6.8-rc3
+| > # Tue Aug  3 22:55:57 2004
+| > #
+| > 
+| > Please merge.
+| > ---
+| > 
+| > Save kernel version info and date when writing .config file.
+| > Tested with 'make {menuconfig|xconfig|gconfig}'.
+| 
+| I don't see "oldconfig" here, I'm sure there are people who don't care 
+| because they want to roll every kernel fresh, but for the rest of us...
 
-Otherwise we will end up in a mintenace nightmare. Just think of how many
-places to fix if we add and additional depends on to FW_LOADER.
+OK, I'll change the description (above):
 
-Roman Zippel added in to:.
+Tested with 'make {menuconfig|xconfig|gconfig|oldconfig}'.
 
-	Sam
+In fact, what I posted in the email ('#' above) was from oldconfig.
+
+--
+~Randy

@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267511AbUH3I5F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267504AbUH3I6g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267511AbUH3I5F (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 04:57:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267504AbUH3I5F
+	id S267504AbUH3I6g (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 04:58:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267514AbUH3I6g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 04:57:05 -0400
-Received: from acheron.informatik.uni-muenchen.de ([129.187.214.135]:62417
-	"EHLO acheron.informatik.uni-muenchen.de") by vger.kernel.org
-	with ESMTP id S267511AbUH3I5C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 04:57:02 -0400
-Message-ID: <4132EBDC.2010302@bio.ifi.lmu.de>
-Date: Mon, 30 Aug 2004 10:57:00 +0200
-From: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040503)
-X-Accept-Language: en-us, en
+	Mon, 30 Aug 2004 04:58:36 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:9740 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S267504AbUH3I62 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 04:58:28 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: "Peter Holik" <peter@holik.at>, <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: fix fealnx.c hangs on SMP, 2.4.27
+Date: Mon, 30 Aug 2004 11:57:02 +0300
+User-Agent: KMail/1.5.4
+References: <38386.192.168.1.2.1093850895.squirrel@www.it-technology.at>
+In-Reply-To: <38386.192.168.1.2.1093850895.squirrel@www.it-technology.at>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Francois Romieu <romieu@fr.zoreil.com>,
+       netdev@oss.sgi.com
 MIME-Version: 1.0
-To: Karl Vogel <karl.vogel@seagha.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8.1+patches: Still a memory leak with cdrecord
-References: <412F4637.8080901@bio.ifi.lmu.de> <412F5624.7010506@seagha.com>
-In-Reply-To: <412F5624.7010506@seagha.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="koi8-r"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200408301157.03334.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Karl Vogel wrote:
+On Monday 30 August 2004 10:28, Peter Holik wrote:
+> static void set_rx_mode(struct net_device *dev)
+> {
+>    spinlock_t *lp = &((struct netdev_private *)dev->priv)->lock;
+>    unsigned long flags;
+>    spin_lock_irqsave(lp, flags);
+>    __set_rx_mode(dev);
+> -  spin_unlock_irqrestore(&lp, flags);
+> +  spin_unlock_irqrestore(lp, flags);
+> }
 
-> You can look at the kernel boot messages to find out, or do the 
-> following in a shell after booting:
-> 
-> # dmesg|grep "io scheduler"
+Oh... it was my change which was buggy... Thanks for the fix!
 
-Yes, it's the default:
-
-galois /root# dmesg|grep "io scheduler"
-Using anticipatory io scheduler
-
-Anyway, no one seems to have a clue on this still existing failure :-(
-
-cu,
-Frank
-
--- 
-Dipl.-Inform. Frank Steiner   Web:  http://www.bio.ifi.lmu.de/~steiner/
-Lehrstuhl f. Bioinformatik    Mail: http://www.bio.ifi.lmu.de/~steiner/m/
-LMU, Amalienstr. 17           Phone: +49 89 2180-4049
-80333 Muenchen, Germany       Fax:   +49 89 2180-99-4049
+Jeff, 2.6 most probably has the same bug.
+--
+vda
 

@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313120AbSDYNG5>; Thu, 25 Apr 2002 09:06:57 -0400
+	id <S313122AbSDYNYD>; Thu, 25 Apr 2002 09:24:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313122AbSDYNG4>; Thu, 25 Apr 2002 09:06:56 -0400
-Received: from [203.200.51.170] ([203.200.51.170]:39921 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S313120AbSDYNGz>; Thu, 25 Apr 2002 09:06:55 -0400
-Message-Id: <200204251310.g3PD9dI00738@localhost.localdomain>
-Content-Type: text/plain; charset=US-ASCII
-From: rpm <rajendra.mishra@timesys.com>
-Reply-To: rajendra.mishra@timesys.com
-Organization: Timesys
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>, Nikita@Namesys.COM,
+	id <S313126AbSDYNYD>; Thu, 25 Apr 2002 09:24:03 -0400
+Received: from ns.suse.de ([213.95.15.193]:65036 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S313122AbSDYNYC>;
+	Thu, 25 Apr 2002 09:24:02 -0400
+To: rajendra.mishra@timesys.com
+Cc: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>, Nikita@Namesys.COM,
         Andrey Ulanov <drey@rt.mipt.ru>, linux-kernel@vger.kernel.org
 Subject: Re: FPU, i386
-Date: Thu, 25 Apr 2002 18:39:38 +0530
-X-Mailer: KMail [version 1.3.1]
 In-Reply-To: <200204171440.JAA76065@tomcat.admin.navo.hpc.mil>
+	<200204251310.g3PD9dI00738@localhost.localdomain>
+X-Yow: Now I'm being INVOLUNTARILY shuffled closer to the CLAM DIP
+ with the BROKEN PLASTIC FORKS in it!!
+From: Andreas Schwab <schwab@suse.de>
+Date: Thu, 25 Apr 2002 15:22:54 +0200
+Message-ID: <je8z7bzzdd.fsf@sykes.suse.de>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) Emacs/21.2.50 (ia64-suse-linux)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 17 April 2002 08:10 pm, Jesse Pollard wrote:
-> ---------  Received message begins Here  ---------
->
+rpm <rajendra.mishra@timesys.com> writes:
 
-> if (int(1/h * 100) == int(5.0 * 100))
->
-> will give a "proper" result within two decimal places. This is still
-> limited since there are irrational numbers within that range that COULD
-> still come out with a wrong answer, but is much less likely to occur.
->
-> Exact match of floating point is not possible - 1/h is eleveated to a
-> float.
->
-> If your 1/h was actually num/h, and num computed by summing .01 100 times
-> I suspect the result would also be "wrong".
->
+|>    I understand that in case of inrrational number it will not give a exact 
+|> value ......but division like 1/.2 is not irrational ! and it should always 
+|> come to 5 !
 
-why is exact match of floating point not possible ?
-what i understand is if you  do a  " x/y " (where x and y are two integers ) 
-division in hardware then you should always get the same value , then why 
-can't we compare floating point "==" operation ?
-   I understand that in case of inrrational number it will not give a exact 
-value ......but division like 1/.2 is not irrational ! and it should always 
-come to 5 !
- 
-rpm
+It is not about irrational number (of course, the result of dividing two
+rational number is always a rational number), but about finite precision.
+You simply cannot represent 0.2 finitely in base 2.
+
+Andreas.
+
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE GmbH, Deutschherrnstr. 15-19, D-90429 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

@@ -1,143 +1,116 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266024AbUBCRqQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 12:46:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266042AbUBCRqQ
+	id S263609AbUBCRha (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 12:37:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265954AbUBCRh3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 12:46:16 -0500
-Received: from aurora.fi.muni.cz ([147.251.50.200]:57509 "EHLO
-	aurora.fi.muni.cz") by vger.kernel.org with ESMTP id S266024AbUBCRqK
+	Tue, 3 Feb 2004 12:37:29 -0500
+Received: from mail.shareable.org ([81.29.64.88]:25294 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S263609AbUBCRhX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 12:46:10 -0500
-Date: Tue, 3 Feb 2004 18:46:06 +0100
-From: Martin =?iso-8859-2?Q?Povoln=FD?= <xpovolny@aurora.fi.muni.cz>
-To: John Bradford <john@grabjohn.com>
-Cc: M?ns Rullg?rd <mru@kth.se>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0, cdrom still showing directories after being erased
-Message-ID: <20040203174606.GG3967@aurora.fi.muni.cz>
-References: <20040203131837.GF3967@aurora.fi.muni.cz> <Pine.LNX.4.53.0402030839380.31203@chaos> <401FB78A.5010902@zvala.cz> <Pine.LNX.4.53.0402031018170.31411@chaos> <200402031602.i13G2NFi002400@81-2-122-30.bradfords.org.uk> <yw1xsmhsf882.fsf@kth.se> <200402031635.i13GZJ9Q002866@81-2-122-30.bradfords.org.uk>
+	Tue, 3 Feb 2004 12:37:23 -0500
+Date: Tue, 3 Feb 2004 17:37:16 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Ulrich Drepper <drepper@redhat.com>, john stultz <johnstul@us.ibm.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] linux-2.6.2-rc2_vsyscall-gtod_B1.patch
+Message-ID: <20040203173716.GC17895@mail.shareable.org>
+References: <1075344395.1592.87.camel@cog.beaverton.ibm.com> <401894DA.7000609@redhat.com> <20040201012803.GN26076@dualathlon.random> <401F251C.2090300@redhat.com> <20040203085224.GA15738@mail.shareable.org> <20040203162515.GY26076@dualathlon.random>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200402031635.i13GZJ9Q002866@81-2-122-30.bradfords.org.uk>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20040203162515.GY26076@dualathlon.random>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dne: Tue, Feb 03, 2004 at 04:35:19PM +0000, John Bradford napsal:
-> Quote from mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=):
-> > John Bradford <john@grabjohn.com> writes:
-> > 
-> > >> That's not what he said and, I assure you that if he unmounted
-> > >> it there would not be any buffers to flush. Execute `man umount`.
-> > >
-> > > I think the original poster was referring to the cache on the device.
+Andrea Arcangeli wrote:
+> could you please explain what's the point of this randomising thing what
+> this attacker is trying to do?
 
-I don't know what cache, I don't understand it :-(
+Most buffer overflow attacks work by overwriting the return address of
+a function to make it jump to a known fixed address.
 
-> > >
-> > > I.E.
-> > >
-> > > mount disc
-> > > view contents
-> > > unmount disc
-> > > erase disc - but don't erase the CD-R drive's cache of the media
-> > > mount disc
-> > > view old contents of the media from the CD-R drive's cache
+The simplest form of that is where the stack is at a known address, so
+the attack overwrites a return address to jump to the stack, to
+instructions which are directly controlled by the attacker (part of
+the same buffer overflow).
 
-That's it exactly.
+When the stack is not executable or randomised, more complex attacks
+are used that take advantage of code sequences in the library or
+executable itself.
 
-> > 
-> > If that's the case, the drive is broken.  We can't help that.
+To counter that, if everything executable is mapped at a random
+address, there is no fixed address that can be jumped to for this kind
+of attack.  More complex attacks which trick code into behaving
+wrongly are required.
 
-That's possible, it's a cheap combo from LG. I have even seen it on the
-list of droken drives (the ones that died trying to install mandrake)
-[http://archives.mandrakelinux.com/expert/2003-10/msg02116.php], even
-though it's a CDRW.
+> nothing can be randomized, as far as the vsyscall can be executed it
+> means its address in the address space is known and not random. If the
+> address is random you can't execute it. The whole vsyscall space is
+> readonly, the attacker can do nothing on it, no way to touch it with
+> put_user either.
 
-It that case sorry for bothering you with crappy hw problem.
+In this context, random means that the process knows the address and
+the (remote) attacker does not.
 
-> 
-> Is it actually a requirement for drives to support anything other than
-> a full erase properly?  Is the 'fast' erase valid per spec, or does it
-> just happen to work on 99% of devices?  Is this problem reproducable
-> if a full erase is done instead of a fast erase?
+> especially having a fixed address per-kernel makes no sense at all since
+> it's trivial to find out by all other tasks anyways.
 
-Yes, it is:
+To put it another way, that protects against some kinds of remote
+attack but it doesn't protect at all against local ones.
 
-$ cdrecord dev=/dev/hdc -blank=all -v
-Cdrecord-Clone 2.01a19 (i686-pc-linux-gnu) Copyright (C) 1995-2003 Jörg Schilling
-TOC Type: 1 = CD-ROM
-scsidev: '/dev/hdc'
-devname: '/dev/hdc'
-scsibus: -2 target: -2 lun: -2
-Warning: Open by 'devname' is unintentional and not supported.
-Linux sg driver version: 3.5.27
-Using libscg version 'schily-0.7'
-SCSI buffer size: 64512
-atapi: 1
-Device type    : Removable CD-ROM
-Version        : 0
-Response Format: 1
-Vendor_info    : 'HL-DT-ST'
-Identifikation : 'RW/DVD GCC-4480B'
-Revision       : '1.00'
-Device seems to be: Generic mmc2 DVD-ROM.
-Current: 0x000A
-Profile: 0x000A (current)
-Profile: 0x0009
-Profile: 0x0008
-Profile: 0x0002 (current)
-Profile: 0x0010
-Using generic SCSI-3/mmc   CD-R/CD-RW driver (mmc_cdr).
-Driver flags   : MMC-2 SWABAUDIO BURNFREE
-Supported modes: TAO PACKET SAO SAO/R96P SAO/R96R RAW/R16 RAW/R96P RAW/R96R
-Drive buf size : 1591744 = 1554 KB
-Current Secsize: 2048
-ATIP info from disk:
-  Indicated writing power: 2
-  Reference speed: 6
-  Is not unrestricted
-  Is erasable
-  Disk sub type: High speed Rewritable (CAV) media (1)
-  ATIP start of lead in:  -11077 (97:34/23)
-  ATIP start of lead out: 359849 (79:59/74)
-  1T speed low:  4 1T speed high: 10
-  2T speed low:  2 2T speed high: 10
-  power mult factor: 2 6
-  recommended erase/write power: 5
-  A1 values: 24 2C DC
-  A2 values: 14 A4 4A
-Disk type:    Phase change
-Manuf. index: 11
-Manufacturer: Mitsubishi Chemical Corporation
-Starting to write CD/DVD at speed 10 in real BLANK mode for single session.
-Last chance to quit, starting real write    0 seconds. Operation starts.
-Performing OPC...
-Blanking entire disk
-Blanking time:  514.223s
-pie:martin:~
-$ mount /cdrom
-pie:martin:~
-$ ls -l /cdrom/
-celkem 64
-dr-xr-xr-x    2 root     root        36864 2004-02-03 18:00 Beskydy2003-2004
-dr-xr-xr-x    2 root     root         4096 2004-02-03 18:00 Cukl-Leden2004
-dr-xr-xr-x    2 root     root         4096 2004-02-03 18:00 unsorted
-dr-xr-xr-x    2 root     root        20480 2004-02-03 18:00 Vanoce2003
+> the current API was presented around two years ago at UKUUG, and it was
+> developed in the open in the x86-64 mailing list (archives should be
+> online), so if there's really a fundamental problem it would been much
+> better if you would send your complains to those lists at that time,
+> instead of coming out of the blue years later when the code runs in
+> production just fine for years (and it's in glibc for a long time too I
+> think).
 
-pie:martin:~
-$ eject /cdrom/; eject -t /cdrom/
-pie:martin:~
-$ LC_ALL=C mount /cdrom/
-/dev/cdrom: Input/output error
-mount: I could not determine the filesystem type, and none was specified
+> Still I'm struggling to understand what's your point about
+> randomization, your request makes no sense at all to me
 
-Could it be also cdrecord problem? Couldn't cdrecord execute some command
-to flush the cdrom's cache after erasing?
+I presume you mean Ulrich's request?  I couldn't care less :)
 
-Thank you all for your interest.
+Also you'll notice that randomised executables & libraries is a
+relatively new feature, nobody was doing it 2 years ago.
 
--- 
-Martin Povolný, xpovolny@fi.muni.cz, http://www.fi.muni.cz/~xpovolny
+> and I cannot imagine any remote security issue related to the
+> current API of the vsyscalls,
+
+Simple: Attack finds buffer overflow, uses it to overwrite a
+function's return address to make the CPU jump to the vsyscall code.
+There's a good change the function will have popped some registers
+before returning, to values also set by the overflow.  If that
+function isn't quite convenient enough, the overflow could overwrite
+the parent function's registers and return address instead.
+
+By making the CPU jump to the vsyscall code and with some register
+values settable, the attack can perform a syscall.  This is the remote
+security issue: it allows a buffer overflow to escalate easily to
+making a syscall.
+
+All systems with non-randomised libc address have this problem at the
+moment, i.e. virtually all systems.  There's just a few that have been
+hardened with the randomised executable and library stuff, and Ulrich
+would like that to be complete, which means the vsyscall page as well.
+
+> furthmore I cannot remotely imagine any difference in terms
+> of security by using a vsyscall table, the only difference to the end
+> user would be that its userspace would be running slower, while right
+> now it's running as fast as the hardware can.
+
+The vsyscall table discussion has nothing to do with security.
+
+At the moment, Glibc is not running as far as the hardware can on
+i386, but the cost of making it do so which includes some program
+startup time and memory cost is considered not worth the minor speed change.
+
+> I would appreciate a more detailed explanation rather than "address must
+> randomized and the api must be changed".
+
+If there's something I missed feel free to ask.
+
+-- Jamie

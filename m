@@ -1,69 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271677AbRH0J0W>; Mon, 27 Aug 2001 05:26:22 -0400
+	id <S271678AbRH0Jbw>; Mon, 27 Aug 2001 05:31:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271678AbRH0J0N>; Mon, 27 Aug 2001 05:26:13 -0400
-Received: from fmfdns02.fm.intel.com ([132.233.247.11]:59102 "EHLO
-	thalia.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S271677AbRH0J0A> convert rfc822-to-8bit; Mon, 27 Aug 2001 05:26:00 -0400
-Message-ID: <4148FEAAD879D311AC5700A0C969E89006CDE0B7@orsmsx35.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Jan Niehusmann'" <jan@gondor.com>,
-        =?iso-8859-1?Q?Dieter_N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        "'mpet@bigfoot.de'" <mpet@bigfoot.de>
-Subject: RE: VCool - cool your Athlon/Duron during idle
-Date: Mon, 27 Aug 2001 02:26:09 -0700
+	id <S271679AbRH0Jbm>; Mon, 27 Aug 2001 05:31:42 -0400
+Received: from cnxt10002.conexant.com ([198.62.10.2]:63664 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S271678AbRH0Jbi>; Mon, 27 Aug 2001 05:31:38 -0400
+Date: Mon, 27 Aug 2001 11:31:44 +0200 (CEST)
+From: <rui.p.m.sousa@clix.pt>
+X-X-Sender: <rsousa@localhost.localdomain>
+To: Thunder from the hill <schemins@netscape.net>
+cc: <linux-kernel@vger.kernel.org>, <emu10k1-devel@opensource.creative.com>
+Subject: Re: emu10k1 driver breakdown in 2.4.9?
+In-Reply-To: <04F07016.7522E748.00A6DFE2@netscape.net>
+Message-ID: <Pine.LNX.4.33.0108271130130.6839-100000@localhost.localdomain>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well I don't want to inhibit your hackerly fervor, but C2 and C3 handling
-are already supported by the ACPI driver, in a vendor-neutral manner.
+On Sat, 25 Aug 2001, Thunder from the hill wrote:
 
-If you take a look at the code, you will notice a few things. First, it only
-transitions to a deeper sleep state after doing some number of lighter
-sleeps. This is to minimize the performance hit caused by C2/C3 entry and
-exit latencies. Second, it only uses a given processor power state if the
-system's ACPI tables indicates they can be used. If you are attempting to
-use C2 even if your system explicitly does not support it, you are asking
-for trouble, just like AMD's errata says.
+Can you strace the player giving you trouble?
+Do you see any kernel oops in /var/log/messages?
 
-Besides I'd think any cooling issues would occur when the CPU was 100%
-utilized, yes? Why are you trying to optimize the idle loop for power when
-it's not the problem? You can throttle the processor or turn a fan on to
-handle a too-hot cpu, but all C2/C3 gets you is reduced power when idle.
-This results in better battery life on a laptop but that is irrelevant on a
-desktop system.
+Rui Sousa
 
-Regards -- Andy
+>
+> ---------4f17ff67523f7284f17ff67523f728
+> Content-Type: text/plain; charset=iso-8859-1
+> Content-Transfer-Encoding: 8bit
+> Content-Disposition: inline
+>
+> Hi,
+>
+> I am running Linux 2.4.9 compiled on gcc-2.95.2 with K6-II optimization and support for the emu10k1 cards, as I'm using a SB Live!. But whenever I play something that does not go straight to the soundcard (e.g. mp3), the program receives a SIGSEGV. No matter which program.
+> It all worked fine on Linux-2.4.2, so it seems not the players fault.
+>
+> config.h appended.
+>
+> Thunder
+>
 
-> -----Original Message-----
-> From: Jan Niehusmann [mailto:jan@gondor.com]
-> Sent: Sunday, August 26, 2001 4:01 PM
-> To: Dieter Nützel
-> Cc: Alan Cox; Linux Kernel List
-> Subject: Re: VCool - cool your Athlon/Duron during idle
-> Importance: High
-> 
-> 
-> On Sun, Aug 26, 2001 at 08:09:34PM +0200, Dieter Nützel wrote:
-> > Have you read something about this Athlon/Duron cooling problem?
-> > Can this code included into your (and/or the official) tree?
-> 
-> I haven't yet measured if this really saves a significant amount of
-> power, but I made a kernel patch closely based on the vcool patch
-> from http://www.naggelgames.de/vcool/
-> 
-> This patch is extremely experimental, but it didn't crash my 
-> machine, yet ;-) Some things could probably be more elegant.
-> 
-> Feel free to comment or use this patch as you like.
-> It does only use stpclk if you boot with idle=stpclk
-> 
-> Jan

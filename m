@@ -1,70 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266689AbSKHAtK>; Thu, 7 Nov 2002 19:49:10 -0500
+	id <S266703AbSKHB1N>; Thu, 7 Nov 2002 20:27:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266694AbSKHAtK>; Thu, 7 Nov 2002 19:49:10 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:39396 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S266689AbSKHAtJ>;
-	Thu, 7 Nov 2002 19:49:09 -0500
-Date: Thu, 7 Nov 2002 16:55:47 -0800
-To: rmk@arm.linux.org.uk,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Martin Diehl <lists@mdiehl.de>
-Subject: Re: [Serial 2.5]: packet drop problem (FE ?)
-Message-ID: <20021108005547.GB837@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20021107224750.GA699@bougret.hpl.hp.com> <20021108001822.E11437@flint.arm.linux.org.uk> <20021108004155.GA837@bougret.hpl.hp.com> <20021108004924.H11437@flint.arm.linux.org.uk>
+	id <S266704AbSKHB1N>; Thu, 7 Nov 2002 20:27:13 -0500
+Received: from are.twiddle.net ([64.81.246.98]:34944 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S266703AbSKHB1N>;
+	Thu, 7 Nov 2002 20:27:13 -0500
+Date: Thu, 7 Nov 2002 17:33:49 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: George France <france@handhelds.org>,
+       axp-list mailing list <axp-list@redhat.com>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] eliminate compile warnings
+Message-ID: <20021107173349.A4017@twiddle.net>
+Mail-Followup-To: George France <france@handhelds.org>,
+	axp-list mailing list <axp-list@redhat.com>,
+	linux-kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20021106214705.A15525@Marvin.DL8BCU.ampr.org> <02110709222600.14483@shadowfax.middleearth> <20021107202855.B17028@Marvin.DL8BCU.ampr.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021108004924.H11437@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021107202855.B17028@Marvin.DL8BCU.ampr.org>; from dl8bcu@dl8bcu.de on Thu, Nov 07, 2002 at 08:28:55PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 08, 2002 at 12:49:24AM +0000, Russell King wrote:
-> On Thu, Nov 07, 2002 at 04:41:55PM -0800, Jean Tourrilhes wrote:
-> > 	Is there a way to see the current flag configuration of the
-> > port with setserial or /proc ?
-> 
-> stty -a -F /dev/ttySx
-> 
-> should do the trick.
+As for the patch itself, it's not correct.  At a glance,
 
-	2.5.X :
------------------------------------
-speed 9600 baud; rows 0; columns 0; line = 11;
-intr = ^C; quit = ^\; erase = ^?; kill = ^U; eof = ^D; eol = <undef>;
-eol2 = <undef>; start = ^Q; stop = ^S; susp = ^Z; rprnt = ^R; werase = ^W;
-lnext = ^V; flush = ^O; min = 1; time = 0;
--parenb -parodd cs8 -hupcl -cstopb cread clocal -crtscts
-ignbrk -brkint ignpar -parmrk -inpck -istrip -inlcr -igncr -icrnl -ixon -ixoff
--iuclc -ixany -imaxbel
--opost -olcuc -ocrnl -onlcr -onocr -onlret -ofill -ofdel nl0 cr0 tab0 bs0 vt0
-ff0
--isig -icanon -iexten -echo -echoe -echok -echonl -noflsh -xcase -tostop
--echoprt -echoctl -echoke
------------------------------------
+> 	addr = arch_get_unmapped_area_1 (PAGE_ALIGN(addr), len, limit);
+> -	if (addr != -ENOMEM)
+> +	if (addr != (unsigned) -ENOMEM)
 
-	2.4.X :
--------------------------
-speed 9600 baud; rows 0; columns 0; line = 11;
-intr = ^C; quit = ^\; erase = ^?; kill = ^U; eof = ^D; eol = <undef>;
-eol2 = <undef>; start = ^Q; stop = ^S; susp = ^Z; rprnt = ^R; werase = ^W;
-lnext = ^V; flush = ^O; min = 1; time = 0;
--parenb -parodd cs8 -hupcl -cstopb cread clocal -crtscts
-ignbrk -brkint ignpar -parmrk -inpck -istrip -inlcr -igncr -icrnl -ixon -ixoff
--iuclc -ixany -imaxbel
--opost -olcuc -ocrnl -onlcr -onocr -onlret -ofill -ofdel nl0 cr0 tab0 bs0 vt0
-ff0
--isig -icanon -iexten -echo -echoe -echok -echonl -noflsh -xcase -tostop
--echoprt -echoctl -echoke
--------------------------
+addr is unsigned long.  If you truncate -ENOMEM to 32-bits, it will
+never match.  There appears to be much more int/long confusion later.
 
-	I'll try to dig further. It might be the hardware...
+You have to be /exceedingly/ careful to fix these warnings without
+introducing new bugs.  If you change the type of a variable, you 
+have to examine each and every use of the variable to determine if
+the semantics are unchanged.  If you add a cast, you have to be sure
+that you cast to a type of the correct width.  If you're adding lots
+of casts, you should think about changing the type of one or more
+variables.
 
-	Jean
+It's enough to make me wish we had -Wno-sign-compare in CFLAGS by
+default for the nonce.  Which, incidentally, is what I've been doing
+for my own builds.
+
+There's absolutely no way I'm going to apply a jumbo patch that
+changes hundreds of these at once.  If you still want to fix these,
+then you'll need to send them one at a time and include analysis of
+why each change is correct.
+
+
+r~

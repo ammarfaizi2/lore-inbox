@@ -1,64 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261849AbVCYWVH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261854AbVCYWYu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261849AbVCYWVH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 17:21:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261843AbVCYWU1
+	id S261854AbVCYWYu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 17:24:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261852AbVCYWY3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 17:20:27 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:33993 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261847AbVCYWSL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 17:18:11 -0500
-Subject: Re: [Ext2-devel] Re: OOM problems on 2.6.12-rc1 with many fsx tests
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: cmm@us.ibm.com, andrea@suse.de, mjbligh@us.ibm.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ext2-devel <ext2-devel@lists.sourceforge.net>
-In-Reply-To: <20050325135630.28cd492c.akpm@osdl.org>
-References: <20050315204413.GF20253@csail.mit.edu>
-	 <20050316003134.GY7699@opteron.random>
-	 <20050316040435.39533675.akpm@osdl.org>
-	 <20050316183701.GB21597@opteron.random>
-	 <1111607584.5786.55.camel@localhost.localdomain>
-	 <20050325135630.28cd492c.akpm@osdl.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1111788665.21169.54.camel@dyn318077bld.beaverton.ibm.com>
+	Fri, 25 Mar 2005 17:24:29 -0500
+Received: from fire.osdl.org ([65.172.181.4]:1969 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261855AbVCYWXb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 17:23:31 -0500
+Date: Fri, 25 Mar 2005 14:23:36 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: jason@stdbev.com, linux-kernel@vger.kernel.org, elenstev@mesatop.com
+Subject: Re: 2.6.12-rc1-mm3 (cannot read cd-rom, 2.6.12-rc1 is OK)
+Message-Id: <20050325142336.12687e09.akpm@osdl.org>
+In-Reply-To: <20050325140654.430714e2.akpm@osdl.org>
+References: <20050325002154.335c6b0b.akpm@osdl.org>
+	<42446B86.7080403@mesatop.com>
+	<424471CB.3060006@mesatop.com>
+	<20050325122433.12469909.akpm@osdl.org>
+	<4244812C.3070402@mesatop.com>
+	<761c884705af2ea412c083d849598ca7@stdbev.com>
+	<20050325140654.430714e2.akpm@osdl.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 25 Mar 2005 14:11:06 -0800
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-03-25 at 13:56, Andrew Morton wrote:
-> Mingming Cao <cmm@us.ibm.com> wrote:
-> >
-> > I run into OOM problem again on 2.6.12-rc1. I run some(20) fsx tests on
-> > 2.6.12-rc1 kernel(and 2.6.11-mm4) on ext3 filesystem, after about 10
-> > hours the system hit OOM, and OOM keep killing processes one by one. I
-> > could reproduce this problem very constantly on a 2 way PIII 700MHZ with
-> > 512MB RAM. Also the problem could be reproduced on running the same test
-> > on reiser fs.
-> > 
-> > The fsx command is:
-> > 
-> > ./fsx -c 10 -n -r 4096 -w 4096 /mnt/test/foo1 &
-> 
-> I was able to reproduce this on ext3.  Seven instances of the above leaked
-> 10-15MB over 10 hours.  All of it permanently stuck on the LRU.
-> 
-> I'll continue to poke at it - see what kernel it started with, which
-> filesystems it affects, whether it happens on UP&&!PREEMPT, etc.  Not a
-> quick process.
+Andrew Morton <akpm@osdl.org> wrote:
+>
+> It's the new rock-ridge bounds checking.
 
-I reproduced *similar* issue with 2.6.11. The reason I say similar, is
-there is no OOM kill, but very low free memory and machine doesn't
-respond at all. (I booted my machine with 256M memory and ran 20 copies
-of fsx on ext3).
+Try this, please?
 
-
-Thanks,
-Badari
+diff -puN fs/isofs/rock.c~rock-handle-directory-overflows-fix fs/isofs/rock.c
+--- 25/fs/isofs/rock.c~rock-handle-directory-overflows-fix	Fri Mar 25 14:21:32 2005
++++ 25-akpm/fs/isofs/rock.c	Fri Mar 25 14:22:01 2005
+@@ -218,12 +218,12 @@ repeat:
+ 		if (rr->len < 3)
+ 			goto out;	/* Something got screwed up here */
+ 		sig = isonum_721(rs.chr);
++		if (rock_check_overflow(&rs, sig))
++			goto eio;
+ 		rs.chr += rr->len;
+ 		rs.len -= rr->len;
+ 		if (rs.len < 0)
+ 			goto eio;	/* corrupted isofs */
+-		if (rock_check_overflow(&rs, sig))
+-			goto eio;
+ 
+ 		switch (sig) {
+ 		case SIG('R', 'R'):
+@@ -316,12 +316,12 @@ repeat:
+ 		if (rr->len < 3)
+ 			goto out;	/* Something got screwed up here */
+ 		sig = isonum_721(rs.chr);
++		if (rock_check_overflow(&rs, sig))
++			goto eio;
+ 		rs.chr += rr->len;
+ 		rs.len -= rr->len;
+ 		if (rs.len < 0)
+ 			goto eio;	/* corrupted isofs */
+-		if (rock_check_overflow(&rs, sig))
+-			goto eio;
+ 
+ 		switch (sig) {
+ #ifndef CONFIG_ZISOFS		/* No flag for SF or ZF */
+@@ -694,12 +694,12 @@ repeat:
+ 		if (rr->len < 3)
+ 			goto out;	/* Something got screwed up here */
+ 		sig = isonum_721(rs.chr);
++		if (rock_check_overflow(&rs, sig))
++			goto out;
+ 		rs.chr += rr->len;
+ 		rs.len -= rr->len;
+ 		if (rs.len < 0)
+ 			goto out;	/* corrupted isofs */
+-		if (rock_check_overflow(&rs, sig))
+-			goto out;
+ 
+ 		switch (sig) {
+ 		case SIG('R', 'R'):
+_
 

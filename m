@@ -1,47 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277833AbRJWQCP>; Tue, 23 Oct 2001 12:02:15 -0400
+	id <S277849AbRJWQHP>; Tue, 23 Oct 2001 12:07:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277851AbRJWQCF>; Tue, 23 Oct 2001 12:02:05 -0400
-Received: from main.sonytel.be ([195.0.45.167]:38800 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S277833AbRJWQBw>;
-	Tue, 23 Oct 2001 12:01:52 -0400
-Date: Tue, 23 Oct 2001 18:01:30 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: drevil@warpcore.org
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+	id <S277851AbRJWQHF>; Tue, 23 Oct 2001 12:07:05 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:30214 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S277849AbRJWQGt>; Tue, 23 Oct 2001 12:06:49 -0400
 Subject: Re: 2.4.13-pre6 breaks Nvidia's kernel module
-In-Reply-To: <20011022203159.A20411@virtucon.warpcore.org>
-Message-ID: <Pine.GSO.4.21.0110231800450.22706-100000@mullein.sonytel.be>
+To: cort@fsmlabs.com (Cort Dougan)
+Date: Tue, 23 Oct 2001 17:13:38 +0100 (BST)
+Cc: tegeran@home.com (Nicholas Knight), drevil@warpcore.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20011022230631.A976@ftsoj.fsmlabs.com> from "Cort Dougan" at Oct 22, 2001 11:06:31 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15w4BO-0006P8-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Oct 2001 drevil@warpcore.org wrote:
-> On Mon, Oct 22, 2001 at 11:50:59PM +0100, Alan Cox wrote:
-> > I really doubt Nvidia will open their driver code. I've heard them explain
-> > some of the reasons they don't and in part they make complete sense.
-> 
-> Microsoft deals with companies that won't always give them access to the drivers
-> directly, but often they will tell users workarounds, or at least attempt to
-> gather enough knowledge since they are tehnically the OS vendor to give to the
-> driver provider to fix the problem. If you are the OS provider, and a change you
-> make breaks user drivers/programs generally I think it's a polite gesture to at
-> least attempt to find out what's going on and then pass that information on to
-> the people who can properly handle it...
+> If the binary only module in question sticks with the "published
+> interface" (as is required) isn't it a problem in Linux then?
 
-Of course the Linux kernel developers provide information: they even provide
-the sources of their kernel.
+But if it stuck the published interface it would work. Clearly. 8)
 
-Gr{oetje,eeting}s,
+Thats the problem - nobody knows why it breaks, and its a complex driver
+doing trick memory management hacks (or at least the older version I 
+got bored enough to reverse engineer a bit to look at the problems did) and
+may well do other horrible things
 
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+Alan

@@ -1,33 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314451AbSFTOSt>; Thu, 20 Jun 2002 10:18:49 -0400
+	id <S313898AbSFTOSq>; Thu, 20 Jun 2002 10:18:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314458AbSFTOSs>; Thu, 20 Jun 2002 10:18:48 -0400
-Received: from harrier.mail.pas.earthlink.net ([207.217.120.12]:64977 "EHLO
-	harrier.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S314451AbSFTOSs>; Thu, 20 Jun 2002 10:18:48 -0400
-Date: Thu, 20 Jun 2002 10:20:41 -0400
-To: davej@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] (1/2) reverse mapping VM for 2.5.23 (rmap-13b)
-Message-ID: <20020620142041.GA32282@rushmore>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-From: rwhron@earthlink.net
+	id <S314451AbSFTOSp>; Thu, 20 Jun 2002 10:18:45 -0400
+Received: from noc.mainstreet.net ([207.5.0.45]:50705 "EHLO noc.mainstreet.net")
+	by vger.kernel.org with ESMTP id <S313898AbSFTOSo>;
+	Thu, 20 Jun 2002 10:18:44 -0400
+From: devnull@adc.idt.com
+Date: Thu, 20 Jun 2002 10:18:25 -0400 (EDT)
+X-X-Sender: <ram@bom.adc.idt.com>
+Reply-To: <devnull@adc.idt.com>
+To: Brian Gerst <bgerst@didntduck.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: >3G Memory support
+In-Reply-To: <3D114C27.4000801@quark.didntduck.org>
+Message-ID: <Pine.GSO.4.31.0206201010340.13158-100000@bom.adc.idt.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> "Use SCSI drivers with broken error handling [DANGEROUS]" in the SCSI
-> submenu will give same behaviour as that driver does in Linus' tree.
-> Ie, it will compile, but possibly not have any working error handling.
-> It should be ok for benchmarking though..
+> >
+> > When i compiled my kernel, i set CONFIG_HIGHMEM4G.
+> >
+> > Does this mean that all my programs should be able to address 4G ?
+>
+> No.  It means the kernel can access all 4GB of memory.  For memory above
+> the 950MB that it can directly map, it needs to use dynamic mappings
+> (kmap).  User space is always 3GB virtual space per process, regardless
+> of the highmem setting.
 
-I will try that with the latest -dj after the current run (2.4.19-pre10 + 
-Jen's blockhighmem + Andy Kleen's select/poll) completes. 
+Is there a way to make a process in the user space to able to access 4GB
+at all. What limits user space to 3GB.
 
--- 
-Randy Hron
-http://home.earthlink.net/~rwhron/
+If not in current 2.4.x / 2.5.x, is this something planned in the future
+releases ?
+
+Thanks for your time.
+
+Regards,
+
+/dev/null
+
+devnull@adc.idt.com
+
+
 

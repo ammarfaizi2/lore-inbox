@@ -1,383 +1,215 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265360AbVBEGdn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265825AbVBEGix@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265360AbVBEGdn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 01:33:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265577AbVBEGdn
+	id S265825AbVBEGix (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 01:38:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265804AbVBEGhp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 01:33:43 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:53418
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S265360AbVBEGcI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 01:32:08 -0500
-Date: Fri, 4 Feb 2005 22:24:28 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: herbert@gondor.apana.org.au, anton@samba.org, okir@suse.de,
-       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] arp_queue: serializing unlink + kfree_skb
-Message-Id: <20050204222428.1a13a482.davem@davemloft.net>
-In-Reply-To: <20050204154855.79340cdb.davem@davemloft.net>
-References: <20050131102920.GC4170@suse.de>
-	<E1CvZo6-0001Bz-00@gondolin.me.apana.org.au>
-	<20050203142705.GA11318@krispykreme.ozlabs.ibm.com>
-	<20050203150821.2321130b.davem@davemloft.net>
-	<20050204113305.GA12764@gondor.apana.org.au>
-	<20050204154855.79340cdb.davem@davemloft.net>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Sat, 5 Feb 2005 01:37:45 -0500
+Received: from mail.kroah.org ([69.55.234.183]:8141 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265754AbVBEGgK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Feb 2005 01:36:10 -0500
+Date: Fri, 4 Feb 2005 22:35:51 -0800
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@osdl.org>, linux-usb-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: bk-usb is now safe (was 2.6.11-rc3-mm1)
+Message-ID: <20050205063551.GB1340@kroah.com>
+References: <20050204103350.241a907a.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050204103350.241a907a.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Feb 2005 15:48:55 -0800
-"David S. Miller" <davem@davemloft.net> wrote:
+On Fri, Feb 04, 2005 at 10:33:50AM -0800, Andrew Morton wrote:
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc3/2.6.11-rc3-mm1/
+> 
+> 
+> - The bk-usb and bk-pci and bk-driver-core trees have been temporarily
+>   dropped from -mm, for they are not healthy at present.
+
+Ok, I've cleaned up the bk-usb tree a bunch.  If anyone had a previous
+copy of it, please just delete it and clone it again.  It's at:
+	bk://kernel.bkbits.net/gregkh/linux/usb-2.6
+and is safe for consumption.
+
+Andrew, can you put it back into the next -mm release?
+
+Oh, and below is the diffstat and changelog of the patches in it.  I've
+also placed a full patch of it, against the 2.6.11-rc3-bk1 tree for
+those who don't like to use bk, or are just curious about putting this
+on top of the latest -mm release:
+	kernel.org/pub/linux/kernel/people/gregkh/usb/2.6/2.6.11-rc3/bk-usb-2.6.11-rc3-mm1.patch
+
+Also, if you have sent me a USB patch that is not already in the
+mainline tree, and is not included in this big patch-bundle, please
+resend it, as my USB patch queue is now empty.  
+
+Oops, no, I have a pending patch from Petko Manolov that didn't make it
+into here, sorry about that Petko, I'll get to that one next week.
+
+Next up, the bk-pci and bk-driver-core mess...
+
+thanks,
+
+greg k-h
+
+-------
+ CREDITS                             |    5 
+ Documentation/usb/sn9c102.txt       |   13 
+ MAINTAINERS                         |    6 
+ drivers/block/ub.c                  |  181 +-
+ drivers/usb/Kconfig                 |    2 
+ drivers/usb/Makefile                |    2 
+ drivers/usb/class/cdc-acm.c         |   84 
+ drivers/usb/class/cdc-acm.h         |   49 
+ drivers/usb/core/hcd.c              |  166 +
+ drivers/usb/core/hcd.h              |   60 
+ drivers/usb/core/hub.c              |   56 
+ drivers/usb/core/hub.h              |    1 
+ drivers/usb/gadget/Kconfig          |    8 
+ drivers/usb/gadget/ether.c          |  237 --
+ drivers/usb/gadget/net2280.c        |   25 
+ drivers/usb/gadget/omap_udc.c       |   30 
+ drivers/usb/gadget/rndis.c          |    2 
+ drivers/usb/gadget/serial.c         |  154 -
+ drivers/usb/host/Kconfig            |   36 
+ drivers/usb/host/ohci-dbg.c         |    4 
+ drivers/usb/host/ohci-hcd.c         |   34 
+ drivers/usb/host/ohci-omap.c        |   98 -
+ drivers/usb/host/ohci-ppc-soc.c     |  299 +++
+ drivers/usb/host/ohci-q.c           |    9 
+ drivers/usb/host/ohci.h             |   48 
+ drivers/usb/host/uhci-debug.c       |    9 
+ drivers/usb/host/uhci-hcd.c         | 1497 -----------------
+ drivers/usb/host/uhci-q.c           | 1488 +++++++++++++++++
+ drivers/usb/image/mdc800.c          |   42 
+ drivers/usb/input/ati_remote.c      |   19 
+ drivers/usb/input/hid-core.c        |   20 
+ drivers/usb/input/wacom.c           |  335 +++
+ drivers/usb/media/sn9c102.h         |    6 
+ drivers/usb/media/sn9c102_core.c    |   52 
+ drivers/usb/misc/Kconfig            |    2 
+ drivers/usb/misc/Makefile           |    2 
+ drivers/usb/misc/auerswald.c        |   19 
+ drivers/usb/misc/sisusbvga/Kconfig  |   14 
+ drivers/usb/misc/sisusbvga/Makefile |    6 
+ drivers/usb/misc/sisusbvga/sisusb.c | 3144 ++++++++++++++++++++++++++++++++++++
+ drivers/usb/misc/sisusbvga/sisusb.h |  278 +++
+ drivers/usb/mon/Kconfig             |   22 
+ drivers/usb/mon/Makefile            |    7 
+ drivers/usb/mon/mon_main.c          |  377 ++++
+ drivers/usb/mon/mon_stat.c          |   74 
+ drivers/usb/mon/mon_text.c          |  395 ++++
+ drivers/usb/mon/usb_mon.h           |   51 
+ drivers/usb/net/Kconfig             |    4 
+ drivers/usb/net/kaweth.c            |   13 
+ drivers/usb/net/usbnet.c            |  571 +++++-
+ drivers/usb/serial/cypress_m8.c     |    6 
+ drivers/usb/serial/ftdi_sio.c       |    3 
+ drivers/usb/serial/ftdi_sio.h       |    1 
+ drivers/usb/serial/io_edgeport.c    |   49 
+ drivers/usb/storage/Kconfig         |   22 
+ drivers/usb/storage/Makefile        |    2 
+ drivers/usb/storage/protocol.c      |   39 
+ drivers/usb/storage/scsiglue.c      |   10 
+ drivers/usb/storage/shuttle_usbat.c | 1258 +++++++++++---
+ drivers/usb/storage/shuttle_usbat.h |   82 
+ drivers/usb/storage/transport.c     |   23 
+ drivers/usb/storage/transport.h     |    5 
+ drivers/usb/storage/unusual_devs.h  |   39 
+ drivers/usb/storage/usb.c           |   10 
+ drivers/usb/storage/usb.h           |    2 
+ include/linux/usb.h                 |    4 
+ include/linux/usb_cdc.h             |  162 +
+ 67 files changed, 9056 insertions(+), 2717 deletions(-)
+
+
+-----
+
+
+<radford:golemgroup.com>:
+  o USB ftdi_sio: an rs485 adaptor from 4n-galaxy.de
+
+Alan Stern:
+  o USB: UHCI: Fix build errors when CONFIG_DEBUG_FS isn't set
+  o USB: Revised fixups for root-hub message handler
+  o USB UHCI: split code from uhci-hcd.c to new file uhci-q.c
+  o USB: Initialize connected ports on newly-activated hubs
+  o USB: Make use_both_schemes=y the default
+  o USB: Retry more aggressively during device initialization
+
+Alex Sanks:
+  o USB: don't power down net2280 on suspend
+
+Bernard Blackham:
+  o USB: fix types in usb suspend
+
+Daniel Drake:
+  o usb-storage: More flexible signature checking mechanism
+  o USB: Add USBAT-based CompactFlash storage support
+  o USB: Add USBAT02 storage support
+  o USB: shuttle_usbat cleanups and generalisations
+
+David Brownell:
+  o USB: ohci ppc driver (2/2):  ohci-ppc-soc.c
+  o USB: ohci ppc driver (1/2):  big-endian tweaks
+  o USB: cdc-acm uses <linux/usb_cdc.h>
+  o USB: serial/acm gadget uses <linux/usb_cdc.h>
+  o USB: Ethernet/RNDIS gadget driver uses <linux/usb_cdc.h>
+  o USB: usbnet uses <linux/usb_cdc.h>
+  o USB: usbnet, cleanups and suspend/resume calls
+  o USB: pxa2xx_udc isn't for pxa27x
+  o USB: omap_udc handles two more devel boards
+  o USB: Ethernet/RNDIS build fix on PXA25x
+  o USB: add <linux/usb_cdc.h>
+  o USB: ohci-omap updates
+  o USB: add 'distrust_firmware' option to ohci
+
+David T. Hollis:
+  o USB: Add ASIX AX88772 10/100 Ethernet support to usbnet
+
+Greg Kroah-Hartman:
+  o USB: remove UB checks in the usb-storage driver
+  o USB: fix sparse bitwise warnings in the sisusb.c driver
+  o USB: give sisusb a valid minor number (133 - 140)
+
+Luca Risolia:
+  o USB: SN9C10x driver bugfix
+  o USB: SN9C10x driver bugfix
+
+Matthew Dharm:
+  o USB Storage: devices which don't process PREVENT-ALLOW MEDIUM REMOVAL
+  o USB storage: make IGNORE_RESIDUE apply for reads (in addition to writes)
+  o USB Storage: Remove fix_capacity routine
+
+Nishanth Aravamudan:
+  o usb/mdc800: replace wake_up() with wake_up_interruptible()
+  o usb/io_edgeport: remove interruptible_sleep_on_timeout() usage
+  o usb/kaweth: use wait_event_timeout()
+  o usb/hid-core: use wait_event_timeout()
+  o usb/ati_remote: use wait_event_timeout()
+  o usb/auerswald: use wait_event_timeout()
+  o usb/mdc800: use wait_event_timeout()
+  o usb/io_edgeport: replace interruptible_sleep_on_timeout() with wait_event_timeout()
+  o usb/cypress_m8: replace schedule_timeout() with msleep()
+
+Pete Zaitcev:
+  o USB: add usbmon, a USB monitoring framework
+  o ub: fix Add ioctls to ub patch
+  o USB: Add ioctls to ub
+
+Phil Dibowitz:
+  o USB: unusual_devs.h update
+
+Ping Cheng:
+  o USB: wacom tablet driver
+
+Thomas Winischhofer:
+  o USB: SiS USB2VGA minor fix
+  o USB: add SiS USB2VGA kernel driver
 
-> Something like that.  I'll update the atomic_ops.txt
-> doc and post and updated version later tonight.
-
-Ok, as promised, here is the updated doc.  Who should
-I author this as?  Perhaps "Anton's evil twin" :-)
-
---- atomic_ops.txt ---
-
-	This document is intended to serve as a guide to Linux port
-maintainers on how to implement atomic counter and bitops operations
-properly.
-
-	The atomic_t type should be defined as a signed integer.
-Also, it should be made opaque such that any kind of cast to
-a normal C integer type will fail.  Something like the following
-should suffice:
-
-	typedef struct { volatile int counter; } atomic_t;
-
-	The first operations to implement for atomic_t's are
-the initializers and plain reads.
-
-	#define ATOMIC_INIT(i)		{ (i) }
-	#define atomic_set(v, i)	((v)->counter = (i))
-
-The first macro is used in definitions, such as:
-
-static atomic_t my_counter = ATOMIC_INIT(1);
-
-The second interface can be used at runtime, as in:
-
-	k = kmalloc(sizeof(*k), GFP_KERNEL);
-	if (!k)
-		return -ENOMEM;
-	atomic_set(&k->counter, 0);
-
-Next, we have:
-
-	#define atomic_read(v)	((v)->counter)
-
-which simply reads the current value of the counter.
-
-Now, we move onto the actual atomic operation interfaces.
-
-	void atomic_add(int i, atomic_t *v);
-	void atomic_sub(int i, atomic_t *v);
-	void atomic_inc(atomic_t *v);
-	void atomic_dec(atomic_t *v);
-
-These four routines add and subtract integral values to/from the given
-atomic_t value.  The first two routines pass explicit integers by
-which to make the adjustment, whereas the latter two use an implicit
-adjustment value of "1".
-
-One very important aspect of these two routines is that
-they DO NOT require any explicit memory barriers.  They
-need only perform the atomic_t counter update in an SMP
-safe manner.
-
-Next, we have:
-
-	int atomic_inc_return(atomic_t *v);
-	int atomic_dec_return(atomic_t *v);
-
-These routines add 1 and subtract 1, respectively, from
-the given atomic_t and return the new counter value after
-the operation is performed.
-
-Unlike the above routines, it is required that explicit memory
-barriers are performed before and after the operation.  It must
-be done such that all memory operations before and after the
-atomic operation calls are strongly ordered with respect to the
-atomic operation itself.
-
-For example, it should behave as if a smp_mb() call existed both
-before and after the atomic operation.
-
-If the atomic instructions used in an implementation provide
-explicit memory barrier semantics which satisfy the above requirements,
-that is fine as well.
-
-Let's move on:
-
-	int atomic_add_return(int i, atomic_t *v);
-	int atomic_sub_return(int i, atomic_t *v);
-
-These behave just like atomic_{inc,dec}_return() except that an
-explicit counter adjustment is given instead of the implicit "1".
-This means that like atomic_{inc,dec}_return(), the memory barrier
-semantics are required.
-
-Next:
-
-	int atomic_inc_and_test(atomic_t *v);
-	int atomic_dec_and_test(atomic_t *v);
-
-These two routines increment and decrement by 1, respectively,
-the given atomic counter.  They return a boolean indicating
-whether the resulting counter value was zero or not.
-
-It requires explicit memory barrier semantics around the operation
-as above.
-
-	int atomic_sub_and_test(int i, atomic_t *v);
-
-This is identical to atomic_dec_and_test() except that an explicit
-decrement is given instead of the implicit "1".  It requires explicit
-memory barrier semantics around the operation.
-
-	int atomic_add_negative(int i, atomic_t *v);
-
-The given increment is added to the given atomic counter value.
-A boolean is return which indicates whether the resulting counter
-value is negative.  It requires explicit memory barrier semantics
-around the operation.
-
-If a caller requires memory barrier semantics around an atomic_t
-operation which does not return a value, a set of interfaces
-are defined which accomplish this:
-
-	void smb_mb__before_atomic_dec(void);
-	void smb_mb__after_atomic_dec(void);
-	void smb_mb__before_atomic_inc(void);
-	void smb_mb__after_atomic_dec(void);
-
-For example, smb_mb__before_atomic_dec() can be used like so:
-
-	obj->dead = 1;
-	smb_mb__before_atomic_dec();
-	atomic_dec(&obj->ref_count);
-
-It makes sure that all memory operations preceeding the atomic_dec()
-call are strongly ordered with respect to the atomic counter
-operation.  In the above example, it guarentees that the assignment
-of "1" to obj->dead will be globally visible to other cpus before
-the atomic counter decrement.
-
-Without the explicitl smb_mb__before_atomic_dec() call, the
-implementation could legally allow the atomic counter update
-visible to other cpus before the "obj->dead = 1;" assignment.
-
-The other three interfaces listed are used to provide explicit
-ordering with respect to memory operations after an atomic_dec()
-call (smb_mb__after_atomic_dec()) and around atomic_inc() calls
-(smb_mb__{before,after}_atomic_inc()).
-
-A missing memory barrier in the cases where they are required
-by the atomic_t implementation above can have disasterous
-results.  Here is an example, which follows a pattern occuring
-frequently in the Linux kernel.  It is the use of atomic counters
-to implement reference counting, and it works such that once
-the counter falls to zero it can be guarenteed that no other
-entity can be accessing the object:
-
-static void obj_list_add(struct obj *obj)
-{
-	obj->active = 1;
-	list_add(&obj->list);
-}
-
-static void obj_list_del(struct obj *obj)
-{
-	list_del(&obj->list);
-	obj->active = 0;
-}
-
-static void obj_destroy(struct obj *obj)
-{
-	BUG_ON(obj->active);
-	kfree(obj);
-}
-
-struct obj *obj_list_peek(struct list_head *head)
-{
-	if (!list_empty(head)) {
-		struct obj *obj;
-
-		obj = list_entry(head->next, struct obj, list);
-		atomic_inc(&obj->refcnt);
-		return obj;
-	}
-	return NULL;
-}
-
-void obj_poke(void)
-{
-	struct obj *obj;
-
-	spin_lock(&global_list_lock);
-	obj = obj_list_peek(&global_list);
-	spin_unlock(&global_list_lock);
-
-	if (obj) {
-		obj->ops->poke(obj);
-		if (atomic_dec_and_test(&obj->refcnt))
-			obj_destroy(obj);
-	}
-}
-
-void obj_timeout(struct obj *obj)
-{
-	spin_lock(&global_list_lock);
-	obj_list_del(obj);
-	spin_unlock(&global_list_lock);
-
-	if (atomic_dec_and_test(&obj->refcnt))
-		obj_destroy(obj);
-}
-
-(This is a simplification of the ARP queue management in the
- generic neighbour discover code of the networking.  Olaf Kirch
- found a bug wrt. memory barriers in kfree_skb() that exposed
- the atomic_t memory barrier requirements quite clearly.)
-
-Given the above scheme, it must be the case that the obj->active
-update done by the obj list deletion be visible to other
-processors before the atomic counter decrement is performed.
-
-Otherwise, the counter could fall to zero, yet obj->active
-would still be set, thus triggering the assertion in
-obj_destroy().  The error sequence looks like this:
-
-	cpu 0				cpu 1
-	obj_poke()			obj_timeout()
-	obj = obj_list_peek();
-	... gains ref to obj, refcnt=2
-					obj_list_del(obj);
-					obj->active = 0 ...
-					... visibility delayed ...
-					atomic_dec_and_test()
-					... refcnt drops to 1 ...
-	atomic_dec_and_test()
-	... refcount drops to 0 ...
-	obj_destroy()
-	BUG() triggers since obj->active
-	still seen as one
-					obj->active update visibility occurs
-
-With the memory barrier semantics required of the atomic_t
-operations which return values, the above sequence of memory
-visibility can never happen.  Specifically, in the above case
-the atomic_dec_and_test() counter decrement would not become
-globally visible until the obj->active update does.
-
-We will now cover the atomic bitmask operations.  You will find
-that their SMP and memory barrier semantics are similar in shape
-and scope to the atomic_t ops above.
-
-Native atomic bit operations are defined to operate on objects
-aligned to the size of an "unsigned long" C data type, and are
-least of that size.  The endianness of the bits within each
-"unsigned long" are the native endianness of the cpu.
-
-	void set_bit(unsigned long nr, volatils unsigned long *addr);
-	void clear_bit(unsigned long nr, volatils unsigned long *addr);
-	void change_bit(unsigned long nr, volatils unsigned long *addr);
-
-These routines set, clear, and change, respectively, the bit
-number indicated by "nr" on the bit mask pointed to by "ADDR".
-
-They must execute atomically, yet there are no implicit memory
-barrier semantics required of these interfaces.
-
-	long test_and_set_bit(unsigned long nr, volatils unsigned long *addr);
-	long test_and_clear_bit(unsigned long nr, volatils unsigned long *addr);
-	long test_and_change_bit(unsigned long nr, volatils unsigned long *addr);
-
-Like the above, except that these routines return a boolean
-which indicates whether the changed bit was set _BEFORE_
-the atomic bit operation.
-
-WARNING! It is incredibly important that the value be a boolean,
-ie. "0" or "1".  Do not try to be fancy and save a few instructions by
-just returning something like "old_val & mask" because that will not
-work.  For one thing, this return value gets truncated to int in many
-code paths, so on 64-bit if the bit is set in the upper 32-bits then
-testers will never see that.
-
-One great example of where this problem crops up are the thread_info
-flag operations.  Routines such as test_and_set_ti_thread_flag()
-chop the return value into an int.  There are other places where
-things like this occur as well.
-
-These routines, like the atomic_t counter operations returning
-values, require explicit memory barrier semantics around their
-execution.  All memory operations before the atomic bit operation
-call must be made visible globally before the atomic bit operation
-is made visible.  Likewise, the atomic bit operation must be
-visible globally before any subsequent memory operation is made
-visible.  For example:
-
-	obj->dead = 1;
-	if (test_and_set_bit(0, &obj->flags))
-		/* ... */;
-	obj->killed = 1;
-
-The implementation of test_and_set_bit() must guarentee that
-"obj->dead = 1;" is visible to cpus before the atomic
-memory operation done by test_and_set_bit() becomes visible.
-Likewise, the atomic memory operation done by test_and_set_bit()
-must become visible before "obj->killed = 1;" is visible.
-
-Finally there is the basic operation:
-
-	long test_bit(unsigned long nr, __const__ volatile unsigned long *addr);
-
-Which returns a boolean indicating if bit "nr" is set in the
-bitmask pointed to by "addr".
-
-If explicit memory barriers are required around clear_bit()
-(which does not return a value, and thus does not need to
- provide memory barrier semantics), two interfaces are provided:
-
-	void smp_mb__before_clear_bit(void);
-	void smp_mb__after_clear_bit(void);
-
-They are used as follows, and are akin to their atomic_t
-operation brothers:
-
-	/* All memory operations before this call will
-	 * be globally visible before the clear_bit().
-	 */
-	smp_mb__before_clear_bit();
-	clear_bit( ... );
-
-	/* The clear_bit() will be visible before all
-	 * subsequent memory operations.
-	 */
-	 smp_mb__after_clear_bit();
-
-Finally, there are non-atomic versions of the bitmask operations
-provided.  They are used in contexts where some other higher-level
-SMP locking scheme is being used to protect the bitmask, and
-thus less expensive non-atomic operations may be used in the
-implementation.  They have names similar to the above bitmask
-operation interfaces, except that two underscores are prefixed
-to the interface name.
-
-	void __set_bit(unsigned long nr, volatile unsigned long *addr);
-	void __clear_bit(unsigned long nr, volatile unsigned long *addr);
-	void __change_bit(unsigned long nr, volatile unsigned long *addr);
-	long __test_and_set_bit(unsigned long nr, volatile unsigned long *addr);
-	long __test_and_clear_bit(unsigned long nr, volatile unsigned long *addr);
-	long __test_and_change_bit(unsigned long nr, volatile unsigned long *addr);
-
-These non-atomic variants also do not require any special
-memory barrier semantics.

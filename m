@@ -1,61 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262704AbUCEVNf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 16:13:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262710AbUCEVNf
+	id S262709AbUCEVR4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 16:17:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262711AbUCEVR4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 16:13:35 -0500
-Received: from ida.rowland.org ([192.131.102.52]:2052 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S262704AbUCEVNd (ORCPT
+	Fri, 5 Mar 2004 16:17:56 -0500
+Received: from main.gmane.org ([80.91.224.249]:7083 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262709AbUCEVRy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 16:13:33 -0500
-Date: Fri, 5 Mar 2004 16:13:31 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: Jamie Lokier <jamie@shareable.org>
-cc: walt <wa1ter@myrealbox.com>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>,
-       <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [linux-usb-devel] Re: [2.6.x]  USB Zip drive kills ps2 mouse.
-In-Reply-To: <20040305204916.GC7254@mail.shareable.org>
-Message-ID: <Pine.LNX.4.44L0.0403051609100.719-100000@ida.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 5 Mar 2004 16:17:54 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: [PATCH] UTF-8ifying the kernel source
+Date: Fri, 05 Mar 2004 22:17:51 +0100
+Message-ID: <yw1xsmgnc7sw.fsf@kth.se>
+References: <20040304100503.GA13970@havoc.gtf.org> <buovfljbsyl.fsf@mcspd15.ucom.lsi.nec.co.jp>
+ <c2ambg$9rs$1@terminus.zytor.com> <4048EA87.1080304@matchmail.com>
+ <4048EADF.1060601@zytor.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: ti211310a080-4136.bb.online.no
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+Cancel-Lock: sha1:UkYkiWcNcg99L8JWewrys6s7LB4=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Mar 2004, Jamie Lokier wrote:
+"H. Peter Anvin" <hpa@zytor.com> writes:
 
-> > I've narrowed it down to the uhci_hcd module -- all the rest can
-> > be compiled in or as modules, doesn't matter.
-> > 
-> > Just in case I was vague:  the Zip drive works great regardless --
-> > it's only the ps2 mouse which is affected by this weird problem.
-> > No cursor movement at all if the Zip is plugged in during boot.
-> 
-> I don't know if it's related, but whenever I load the uhci_hcd module
-> on my laptop, or whenever I plug in a USB device while that module is
-> loaded (sorry, I forget which and can't test it now) - the floppy disk
-> motor and light are turned on for a couple of seconds!
-> 
-> Now, why would a USB event trigger the floppy disk motor?  It doesn't
-> happen with 2.4, and it doesn't happen on my desktop machine which is
-> OHCI+EHCI.
-> 
-> Perhaps the uhci_hcd driver is trampling on some ISA I/O port that it
-> shouldn't be, which is causing both my floppy motor oddity and your
-> mouse problem?
-> 
-> -- Jamie
+> Mike Fedyk wrote:
+>>>
+>>> OK, this is definitely a good reason to go to UTF-8 across the board.
+>> 
+>> So when is "less" going to support utf8?  Right now, it just shows
+>> escape codes... :(
+>>
+>
+> Why don't you ask the "less" maintainer about that?
+>
+> Right now, "less" seems to insist on showing ampersands for *any*
+> non-ASCII character for me...
 
-No, the uhci-hcd driver isn't stepping on any extraneous ISA I/O ports.
+Less version 381 is working fine here with UTF-8.  I have LANG and
+LC_CTYPE set to en_US.UTF-8.
 
-Walt's problem was the result of a buggy BIOS, and turning off legacy USB 
-support in the BIOS fixed it.  Maybe your problem is similar, though it's 
-hard to imagine how.
-
-I've got 3 computers with UHCI controllers.  On none of them does a USB 
-event cause the floppy disk drive to do anything.
-
-Alan Stern
+-- 
+Måns Rullgård
+mru@kth.se
 

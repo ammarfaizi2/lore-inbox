@@ -1,60 +1,103 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311160AbSCHVyJ>; Fri, 8 Mar 2002 16:54:09 -0500
+	id <S288174AbSCHVzT>; Fri, 8 Mar 2002 16:55:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311168AbSCHVyA>; Fri, 8 Mar 2002 16:54:00 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:59825 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S311167AbSCHVx5>; Fri, 8 Mar 2002 16:53:57 -0500
-Date: Fri, 08 Mar 2002 13:50:49 -0800
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Samuel Ortiz <sortiz@dbear.engr.sgi.com>
-cc: Andrea Arcangeli <andrea@suse.de>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] stop null ptr deference in __alloc_pages
-Message-ID: <37610000.1015624249@flay>
-In-Reply-To: <Pine.LNX.4.33.0203081325560.18968-100000@dbear.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.33.0203081325560.18968-100000@dbear.engr.sgi.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S311159AbSCHVzL>; Fri, 8 Mar 2002 16:55:11 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57604 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S288174AbSCHVzC>;
+	Fri, 8 Mar 2002 16:55:02 -0500
+Message-ID: <3C8932CC.761C8829@zip.com.au>
+Date: Fri, 08 Mar 2002 13:53:16 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+CC: Dave Hansen <haveblue@us.ibm.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: truncate_list_pages()  BUG and confusion
+In-Reply-To: <3C880EFF.A0789715@zip.com.au>,
+		<3C8809BA.4070003@us.ibm.com> <3C880EFF.A0789715@zip.com.au> <17920000.1015622098@flay>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I should have also mentioned that:
->> 
->> 1) I shouldn't need the SGI patch, though it might help performance.
->
-> Why shouldn't you need it ? It is NUMA generic, and totally arch
-> independent.
-
-I just mean the kernel shouldn't panic if I don't have it.
-
-> And it actually helps performance. I also allows the kernel to have a
-> single memory allocation path. I think it is cleaner than calling _alloc_pages()
-> from numa.c
+"Martin J. Bligh" wrote:
 > 
->> 2) The kernel panics without my fix, and runs fine with it.
-> I hope so  :-)
-> But your fix is at the same time useless and harmless for UMA machines.
+> ...
+> So truncate_list_pages does a page_cache_get(page), which increments
+> the count. Nowhere does it decrement the count, or do an UnlockPage
+> before it gets into page_cache_release, which looks like this:
 
-Yup, though I suppose we could shave off a couple of nanoseconds by 
-surrounding my little check with #ifdef CONFIG_NUMA.
+well...  truncate_list_pages _does_ unlock the page.  Let's
+snip some bits:
 
-> OTOH, the SGI patch doesn't modify __alloc_pages(). I think I'm a little
-> too picky here...
+truncate_list_pages()
+{
+	...
+	/* Bump the refcount.  From now until the matching
+	 * page_cache_release(), the page *cannot* be freed,
+	 * because we hold a reference
+	 */
+	page_cache_get(page);
 
-With the #ifdef, I won't really do this either (at least for the code generated).
+	lock_page(page);
 
-The SGI patch is probably a good thing, and I'll pick it up and try it 
-sometime soon. The only real problem is that it's not in the mainline
-already. Until such time as it gets there, the fix I posted is trivial,
-and easily seen to be correct (well, I'm biased ;-) ), and should get
-shoved into the mainline much easier.
+	truncate_complete_page(page);
+	-->	{
+			remove_inode_page(page);	/* Remove from pagecache */
+			/*
+			 * We now drop the refcount which is due to
+			 * presence in the pagecache.  This can't free
+			 * the page, because truncate_list_pages() holds a reference
+			 */
+			page_cache_release(page);
+		}
 
-M.
+	<---
+	UnlockPage();		/* Remember, wait_on_page() is an indirect unlock, too */
 
+	/*
+	 * Now truncate_list_pages() drops its temporary reference.
+	 * The page is unlocked.  If this was the last reference
+	 * (and it usually will be) then the page will now be freed.
+	 */
+	page_cache_release(page);
+}
+
+> void page_cache_release(struct page *page)
+> {
+>         if (!PageReserved(page) && put_page_testzero(page)) {
+>                 if (PageLRU(page))
+>                         lru_cache_del(page);
+>                 __free_pages_ok(page, 0);
+>         }
+> }
+> 
+> We enter page_cache_release with the supposedly locked, and its count
+> non-zero (we incremented it).  put_page_testzero does atomic_dec_and_test
+> on count which says it returns true if the result is 0, or false for all other cases.
+> 
+> So if nobody else was holding a reference to the page, we've decremented
+> it's count to 0, and put_page_testzero returns 1. We then try to free the page.
+> It's still locked. BUG.
+
+If the page_cache_release() in truncate_complete_page() is calling
+__free_pages_ok() then something really horrid has happened.
+
+Yes, it could be that the page has had its refcount incorrectly
+decremented somewhere.
+
+Or the page wasn't in the pagecache at all.
+
+Is this happening with the dbench/ENOSPC/1k blocksize testcase?
+In that case, something is clearly going wrong with the association
+of buffers against the page.  And the presence of buffers at page->buffers
+_also_ contributes to page->count.  So there's a commonality here.
+Possibly we forgot to increment the page count when we added buffers,
+or we bogusly thought the page had buffers when it didn't, and then
+dropped the page refcount when we thought we removed the buffers
+which weren't really there.
+
+-

@@ -1,69 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268000AbUIKJVu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268074AbUIKJyz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268000AbUIKJVu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 05:21:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268037AbUIKJUx
+	id S268074AbUIKJyz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 05:54:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268075AbUIKJyz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 05:20:53 -0400
-Received: from smtp-out.hotpop.com ([38.113.3.61]:42683 "EHLO
-	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S268000AbUIKJUr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 05:20:47 -0400
-From: "Antonino A. Daplas" <adaplas@hotpop.com>
-Reply-To: adaplas@pol.net
-To: Dave Airlie <airlied@linux.ie>,
-       Michel =?iso-8859-1?q?D=E4nzer?= <michel@daenzer.net>
-Subject: Re: radeon-pre-2
-Date: Sat, 11 Sep 2004 17:20:38 +0800
-User-Agent: KMail/1.5.4
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jon Smirl <jonsmirl@gmail.com>,
-       Felix =?iso-8859-1?q?K=FChling?= <fxkuehl@gmx.de>,
-       DRI Devel <dri-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
-References: <E3389AF2-0272-11D9-A8D1-000A95F07A7A@fs.ei.tum.de> <1094873412.4838.49.camel@admin.tel.thor.asgaard.local> <Pine.LNX.4.58.0409110600120.26651@skynet>
-In-Reply-To: <Pine.LNX.4.58.0409110600120.26651@skynet>
+	Sat, 11 Sep 2004 05:54:55 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:11907 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S268074AbUIKJyx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Sep 2004 05:54:53 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: swsusp: kill crash when too much memory is free
+Date: Sat, 11 Sep 2004 11:50:28 +0200
+User-Agent: KMail/1.6.2
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>,
+       Patrick Mochel <mochel@digitalimplant.org>
+References: <20040909154219.GB11742@atrey.karlin.mff.cuni.cz> <200409101926.30902.rjw@sisk.pl> <20040910222915.GC1347@elf.ucw.cz>
+In-Reply-To: <20040910222915.GC1347@elf.ucw.cz>
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200409111720.38477.adaplas@hotpop.com>
-X-HotPOP: -----------------------------------------------
-                   Sent By HotPOP.com FREE Email
-             Get your FREE POP email at www.HotPOP.com
-          -----------------------------------------------
+Message-Id: <200409111150.28457.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 11 September 2004 13:19, Dave Airlie wrote:
-> The other thing I think some people are confusing is 2.4 fbdev and 2.6...
-> there is no console support in 2.6 fbdev drivers, it is all in the fbcon
-> stuff, so the fbdev drivers are only doing 2d mode setting and monitor
-> detection, some points I've considered are:
+On Saturday 11 of September 2004 00:29, Pavel Machek wrote:
+> Hi!
+> 
+> > > Can you try my "bigdiff"? Also, does it work okay in 32-bit mode?
+> > 
+> > Well, the good news is that it sort of works.  Still, there are some bad 
+news, 
+> > as usual. ;-)
+> 
+> So it sort-of-works, 32-bit and 64-bit mode? Good.
+> 
+> > First, to make the box wake up, I have to unload ohci_hcd and everything 
+that 
+> > sits on IRQ11 before suspending (on my system that is sk98lin, 
+yenta_socked, 
+> > and ohci1394).  If you want me to show what happens if I don't unload 
+these 
+> > modules, I'll be able to grab some traces in a couple of hours. ;-)  Also, 
+I 
+> > have to compile out the frequency scaling, because otherwise it hangs 
+solid 
+> > at some time after wake-up.
+> > 
+> > Second, after it's woken up, it seems to be very, _very_ slow, and the 
+reason 
+> > is indicated by this:
+> 
+> Hmm, I do not know what nForce3 is (it should use better name at the
+> minimum), but that driver probably needs some work.
 
-Correct.  fbdev is almost completely separate from fbcon. And you can
-actually rip out fbdev and place it anywhere you want. As long as fbcon has
-access to a pointer to framebuffer memory, and the characteristics of the
-display such as depth, pitch, etc, then the framebuffer console will work.
-Throw in a few functions, such as for buffer flipping, and fbcon will be happy. 
+It is the sound chip (ie snd-intel8x0).  If I unload it after resume, 
+everything's fine and dandy.  Moreover, if I unload it before suspend, the 
+box wakes up with no problems (of course, I have to unload the other modules 
+too, as I said before).
 
-Hardware acceleration is entirely optional, and most drivers except for a few
-(such as vga16fb or amiga) can use the cfb_* drawing functions.
+However, I think the problem is with the hardware, not with the driver: if the 
+sound driver is unloaded before suspend and loaded again after resume, the 
+box behaves as though it were loaded all the time (ie IRQ #5 goes mad).  Are 
+there any boot options that may help get around this?
 
-There's also a recent change in the latest bk tree that changes the
-intialization order of the framebuffer system. Previously, fbcon triggers
-fbmem, then fbmem triggers each individual drivers.  This method requires
-that a working fbdev is present, otherwise fbcon will fail (although you can
-do a con2fbmap later, or modprobe a driver). With the change, the
-order is reversed, driver->fbmem->fbcon.  This change is probably
-significant because fbcon can wait until an active framebuffer activates.
+Greets,
+RJW
 
-In theory, one can have a process (kernel or userland) change the video
-mode, then provide the in-kernel driver with the necessary information
-about the layout of the framebuffer.  When this in-kernel driver gets the
-necessary information, it can trigger fbcon. This in-kernel driver need not
-know anything about the hardware (unless 2D acceleration is needed).
-
-Tony
-
-
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

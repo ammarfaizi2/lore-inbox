@@ -1,89 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129819AbRB0USX>; Tue, 27 Feb 2001 15:18:23 -0500
+	id <S129833AbRB0USX>; Tue, 27 Feb 2001 15:18:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129833AbRB0USO>; Tue, 27 Feb 2001 15:18:14 -0500
-Received: from tepid.osl.fast.no ([213.188.9.130]:45068 "EHLO
-	tepid.osl.fast.no") by vger.kernel.org with ESMTP
-	id <S129819AbRB0UR6>; Tue, 27 Feb 2001 15:17:58 -0500
-Date: Tue, 27 Feb 2001 20:32:28 GMT
-Message-Id: <200102272032.UAA74232@tepid.osl.fast.no>
-To: greg@wirex.com
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-        jt@bougret.hpl.hp.com
-From: Dag Brattli <dag@brattli.net>
-Reply-To: dag@brattli.net
-Subject: Re: [patch] patch-2.4.2-irda1 (irda-usb)
-X-Mailer: Pygmy (v0.5.0)
-In-Reply-To: <20010227093329.A10482@wirex.com>
+	id <S129837AbRB0USN>; Tue, 27 Feb 2001 15:18:13 -0500
+Received: from atlrel2.hp.com ([156.153.255.202]:63177 "HELO atlrel2.hp.com")
+	by vger.kernel.org with SMTP id <S129833AbRB0USC>;
+	Tue, 27 Feb 2001 15:18:02 -0500
+Message-ID: <3A9BEF68.72EEF0E8@fc.hp.com>
+Date: Tue, 27 Feb 2001 13:18:16 -0500
+From: Khalid Aziz <khalid@fc.hp.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Camm Maguire <camm@enhanced.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.2.18 IDE tape problem, with ide-scsi
+In-Reply-To: <54u25g3yb9.fsf_-_@intech19.enhanced.com> <3A9BC2A9.F5EE8554@fc.hp.com> <544rxg2gde.fsf@intech19.enhanced.com> <3A9BC8ED.698DCA2C@fc.hp.com> <54vgpvq4y1.fsf@intech19.enhanced.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Feb 2001 09:33:29 -0800, Greg KH wrote:
-> On Tue, Feb 27, 2001 at 08:29:03AM +0000, Dag Brattli wrote:
-> > Linus,
-> > 
-> > Please apply this patch to your latest Linux-2.4.2 source. Changes:
-> > 
-> > o IrDA-USB dongle support [new feature]
+Camm Maguire wrote:
 > 
-> I'd recommend that this file be in the /drivers/usb directory, much like
-> almost all other USB drivers are.
-
-Yes, but do we want to spread the IrDA code around? The same argument
-applies to IrDA device drivers!?
-
-> > +/* These are the currently known IrDA USB dongles. Add new dongles here */
-> > +struct irda_usb_dongle dongles[] = { /* idVendor, idProduct, idCapability */
-> > +	/* ACTiSYS Corp,  ACT-IR2000U FIR-USB Adapter */
-> > +	{ 0x9c4, 0x011, IUC_SPEED_BUG | IUC_NO_WINDOW },
-> > +	/* KC Technology Inc.,  KC-180 USB IrDA Device */
-> > +	{ 0x50f, 0x180, IUC_SPEED_BUG | IUC_NO_WINDOW },
-> > +	/* Extended Systems, Inc.,  XTNDAccess IrDA USB (ESI-9685) */
-> > +	{ 0x8e9, 0x100, IUC_SPEED_BUG | IUC_NO_WINDOW },
-> > +	{ 0, 0, 0 }, /* The end */
-> > +};
+> Greetings!  OK, with st debugging, here are the most common errors
+> with the Conner:
 > 
-> You should also probably add the following snippet to allow the USB
-> hotplug functionality to work properly:
+> Feb 27 14:46:39 intech9 kernel: st0: Error: 28000000, cmd: 8 1 0 0 40 0 Len: 16
+> Feb 27 14:46:39 intech9 kernel: Info fld=0x24, Current st09:00: sns = f0  8
+> Feb 27 14:46:39 intech9 kernel: ASC=14 ASCQ= 3
+> Feb 27 14:46:39 intech9 kernel: Raw sense data:0xf0 0x00 0x08 0x00 0x00 0x00 0x24 0x0a 0x00 0x00 0x00 0x00 0x14 0x03 0x00 0x00
+> Feb 27 14:46:39 intech9 kernel: st0: Sense: f0  0  8  0  0  0 24  a
+> Feb 27 14:46:39 intech9 kernel: st0: Tape error while reading.
+
+This was a read command that failed. Request sense information shows a
+sense key of 0x08 which is a "Blank check". This sense key indicates
+either a blank medium found or another error at EOD. ASC/ASCQ of
+0x14/0x03 say "End-Of-Data not found". This indicates something wrong
+with the tape or maybe the drive needs cleaning. Do you get this error
+with more than one tape?
+
+
+> Feb 27 14:46:40 intech9 kernel: st0: Error: 28000000, cmd: 5 0 0 0 0 0 Len: 16
+> Feb 27 14:46:40 intech9 kernel: [valid=0] Info fld=0x0, Current st09:00: sns = 70  5
+> Feb 27 14:46:40 intech9 kernel: ASC=20 ASCQ= 0
+> Feb 27 14:46:40 intech9 kernel: Raw sense data:0x70 0x00 0x05 0x00 0x00 0x00 0x00 0x0a 0x00 0x00 0x00 0x00 0x20 0x00 0x00 0x00
+> Feb 27 14:46:40 intech9 kernel: st0: Can't read block limits.
+
+This was a "Read Block Limits" command which the drive claimed it does
+not recognize. "Read Block Limits" is a mandatory command for SCSI
+sequential access devices which is why "st" is issuing this command. The
+tape drive you have is not SCSI, so the manufacturer chose not to
+implement this command. The driver may still be able to work after "Read
+Block Limits" fails, but I have not read enough code to be sure.
+
+> Feb 27 14:46:40 intech9 kernel: st0: Mode sense. Length 11, medium b6, WBS 10, BLL 8
+> Feb 27 14:46:40 intech9 kernel: st0: Density 45, tape length: 0, drv buffer: 1
+> Feb 27 14:46:40 intech9 kernel: st0: Block size: 512, buffer size: 32768 (64 blocks).
 > 
-> static __devinitdata struct usb_device_id id_table [] = {
->         { USB_DEVICE(0x09c4, 0x0011) },
->         { USB_DEVICE(0x050f, 0x0180) },
->         { USB_DEVICE(0x08e9, 0x0100) },
->         { }                                     /* Terminating entry */
-> };
-> MODULE_DEVICE_TABLE (usb, id_table);		
+> Any advice appreciated!
 
-OK!
-
-> If IRDA has a class descriptor, can't you just rely on that, and not
-> have to worry about the individual device vendor and product ids?
-
-Sorry, some of the dongles don't follow the spec fully, as you can see from
-our table. Actually none of them follow the spec, since they are all based
-on the same chip which was made before the spec was finished. But there 
-should be a new dongle out now which do follow the spec (but we haven't 
-got hold of it yet)
-
-> 
-> > + * This routine is called by the USB subsystem for each new device
-> > + * in the system. We need to check if the device is ours, and in
-> > + * this case start handling it.
-> > + * Note : it might be worth protecting this function by a global
-> > + * spinlock...
-> > +static void *irda_usb_probe(struct usb_device *dev, unsigned int ifnum,
-> > +			   const struct usb_device_id *id)
-> 
-> A spinlock is not needed as the probe functions are called sequentially.
-> 
-> thanks,
-> 
-> greg k-h
-
-----
-Dag Brattli     <dag@brattli.net>
-My homepage     http://www.brattli.net/dag/
-Try Linux-IrDA: http://irda.sourceforge.net/
-Try Pygmy:      http://pygmy.sourceforge.net/
-
+====================================================================
+Khalid Aziz                             Linux Development Laboratory
+(970)898-9214                                        Hewlett-Packard
+khalid@fc.hp.com                                    Fort Collins, CO

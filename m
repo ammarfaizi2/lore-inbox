@@ -1,50 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263463AbTHZIcT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 04:32:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263515AbTHZIcT
+	id S263512AbTHZIeD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 04:34:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263486AbTHZIeC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 04:32:19 -0400
-Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:9735 "EHLO
-	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
-	id S263463AbTHZIcQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 04:32:16 -0400
-Date: Tue, 26 Aug 2003 17:32:26 +0900 (JST)
-Message-Id: <20030826.173226.114994096.yoshfuji@linux-ipv6.org>
-To: oford@arghblech.com
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [OOPS] less /proc/net/igmp
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <1061878985.3463.2.camel@spider.hotmonkeyporn.com>
-References: <20030825163206.GA1340@penguin.penguin>
-	<20030826.150331.102449369.yoshfuji@linux-ipv6.org>
-	<1061878985.3463.2.camel@spider.hotmonkeyporn.com>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Aug 2003 04:34:02 -0400
+Received: from node-40244ee2.sfo.onnet.us.uu.net ([64.36.78.226]:44713 "EHLO
+	fw.dongkiru.net") by vger.kernel.org with ESMTP id S263512AbTHZIc3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 04:32:29 -0400
+Date: Tue, 26 Aug 2003 01:32:28 -0700 (PDT)
+From: LKML <lkml@dongkiru.net>
+To: Bernhard Rosenkraenzer <bero@arklinux.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.22-[p]ac1
+In-Reply-To: <Pine.LNX.4.53.0308251916340.16422@dot.kde.org>
+Message-ID: <Pine.LNX.4.44.0308260130260.7749-100000@fw.dongkiru.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please CC: netdev.
+Thank you for your effort.  What I would like to see, in addition to the
+patch itself, is the changelog for the patch.
 
-In article <1061878985.3463.2.camel@spider.hotmonkeyporn.com> (at 26 Aug 2003 01:23:06 -0500), Owen Ford <oford@arghblech.com> says:
+TIA,
 
-> > I could not reproduce this issue.  anyone?
-> 
-> I can confirm. I have it with 2.6.0-test4.
-> 
-> Let me know what useful info I can provide.  The oops is the same.
+John
 
-Okay, everyone. I'll try to fix this.
+On Mon, 25 Aug 2003, Bernhard Rosenkraenzer wrote:
 
--- 
-Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
-GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+> Since Alan is no longer around to maintain the -ac series, I've ported the
+> latest -ac patch to 2.4.22.
+>
+> It can be downloaded at
+> http://www.arklinux.org/~bero/kernel/patch-2.4.22-pac1.bz2
+>
+> [pac is short for "Ported -ac"].
+>
+> I'll keep syncing changes that make sense, and adding other stuff [like
+> updated ACPI patches etc.] for a while [at least until we're ready to move
+> to 2.6 fulltime].
+>
+> LLaP
+> bero
+>
+> --
+> Ark Linux - Linux for the masses
+> http://www.arklinux.org/
+>
+> Redistribution and processing of this message is subject to
+> http://www.arklinux.org/terms.php
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

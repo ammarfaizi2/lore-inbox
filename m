@@ -1,74 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262633AbVBDKcH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261892AbVBDKlV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262633AbVBDKcH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 05:32:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261833AbVBDKcG
+	id S261892AbVBDKlV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 05:41:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263295AbVBDKlV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 05:32:06 -0500
-Received: from out005pub.verizon.net ([206.46.170.143]:3804 "EHLO
-	out005.verizon.net") by vger.kernel.org with ESMTP id S261783AbVBDKbo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 05:31:44 -0500
-Message-ID: <42034F0E.5090109@cwazy.co.uk>
-Date: Fri, 04 Feb 2005 05:31:42 -0500
-From: Jim Nelson <james4765@cwazy.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: jerome lacoste <jerome.lacoste@gmail.com>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Huge unreliability - does Linux have something to do with it?
-References: <5a2cf1f605020401037aa610b9@mail.gmail.com>
-In-Reply-To: <5a2cf1f605020401037aa610b9@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 4 Feb 2005 05:41:21 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:43476 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261892AbVBDKlL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 05:41:11 -0500
+Subject: Re: ext3 extended attributes refcounting wrong?
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: Mikael Pettersson <mikpe@user.it.uu.se>, Andrew Morton <akpm@osdl.org>,
+       Andreas Dilger <adilger@clusterfs.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <16899.12681.98586.426731@alkaid.it.uu.se>
+References: <16898.43219.133783.439910@alkaid.it.uu.se>
+	 <1107473817.2058.172.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <16899.12681.98586.426731@alkaid.it.uu.se>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH at out005.verizon.net from [70.16.225.90] at Fri, 4 Feb 2005 04:31:42 -0600
+Message-Id: <1107513634.2245.46.camel@sisko.sctweedie.blueyonder.co.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Fri, 04 Feb 2005 10:40:35 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jerome lacoste wrote:
-> [Sorry for the sensational title]
-> 
-> I have had this laptop for three years. It ran Linux (Debian unstable)
-> from the start and its hardware has been very unreliable: I changed
-> hard disks twice and the motherboard thrice. My DVD drive started
-> failing some days ago (this one is 'original', 3 years old). But I
-> don't mind as I am not under warranty anymore... This morning the
-> machine booted with fsck errors on my hard disk. I am not sure if I
-> did the right thing, but I said clear the inodes, and I ended up
-> loosing some programs(*) (du, dircolors, etc..). The day starts well
-> isn't it? Sounds like I will have to switch disks again...
-> 
-> I halted the machine correctly yesterday night. I never dropped the
-> box in 3 years. Am I just being unlucky? Or could the fact that I am
-> using Linux on the box affect the reliability in some ways on that
-> particular hardware (Dell Inspiron 8100)? I run Linux on 3 other
-> computers and never had single problems with them.
-> 
-> How can the file system (ext3) be messed up the way it was this
-> morning after I stopped the machine correctly yesterday?
-> Could a hardware failure look like bad sectors to fsck?
-> 
+Hi,
 
-It can.  I had a drive crash on my server a couple of months ago, and I had ext3 
-errors show up before the syslog filled up with the ide errors.  The hard disk was 
-only 1 1/2 years old.
+On Fri, 2005-02-04 at 08:25, Mikael Pettersson wrote:
 
-If the bad sectors happen where directory inodes are written, your directory 
-structure will be turned into swiss cheese.  That will *definitely* cause ext3 
-errors, and dump you (in Red Hat systems, at least) to a shell on reboot.
-
-> Attached the output of smartctl -a /dev/hda, whatever that helps.
+>  > In which kernel(s) exactly?  There was a fix for that applied fairly
+>  > recently upstream.
 > 
-> Jerome
-> 
-> (*) I accept tips on discovering and maybe recovering which files have
-> been taken out of my system...
-> 
+> I've been seeing this over the last couple of months, with
+> (at least) 2.4.28 and newer, and 2.6.9 and newer standard kernels.
+> But since I dual boot and switch kernels often, I can't point
+> at any given kernel or kernel series as being the culprit.
 
-You might not have any luck.  After fsck -f, I thought I had saved the drive, 
-copied everything that was left onto another machine, and found that most of the 
-larger files had holes in them - mp3's had skips, jpegs were completely corrupted, 
-etc.
+Plain upstream 2.4.28?  If so, that's probably the trouble, as 2.4
+doesn't have any xattr support, so if you delete a file on 2.4 it won't
+delete the xattr block for it.
 
-That's what made me get a backup FireWire drive... :)
+> How recent was that fix? Maybe I'm seeing the aftereffects of
+> pre-fix corruption?
+
+It went in on the 15th of January this year.
+
+--Stephen
+

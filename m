@@ -1,84 +1,76 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315764AbSEDCYl>; Fri, 3 May 2002 22:24:41 -0400
+	id <S313896AbSEDDQN>; Fri, 3 May 2002 23:16:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315765AbSEDCYk>; Fri, 3 May 2002 22:24:40 -0400
-Received: from jalon.able.es ([212.97.163.2]:24001 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S315764AbSEDCYj>;
-	Fri, 3 May 2002 22:24:39 -0400
-Date: Sat, 4 May 2002 04:24:33 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Cc: Andre Hedrick <andre@linux-ide.org>
-Subject: ide-convert-9 oops on boot
-Message-ID: <20020504022433.GA1803@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-Mailer: Balsa 1.3.5
+	id <S315176AbSEDDQN>; Fri, 3 May 2002 23:16:13 -0400
+Received: from mailsorter.ma.tmpw.net ([63.112.169.25]:36129 "EHLO
+	mailsorter.ma.tmpw.net") by vger.kernel.org with ESMTP
+	id <S313896AbSEDDQL>; Fri, 3 May 2002 23:16:11 -0400
+Message-ID: <61DB42B180EAB34E9D28346C11535A781780F9@nocmail101.ma.tmpw.net>
+From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
+To: "'davem@redhat.com'" <davem@redhat.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        "'ak@muc.de'" <ak@muc.de>
+Subject: RE: my slab cache broken on sparc64
+Date: Fri, 3 May 2002 22:15:56 -0500 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+>
+>It would work if the access was surrounded by:
+>
+>	old_fs = get_fs();
+>	set_fs(KERNEL_DS);
+>	... get_user(kernel_pointer) ...
+>	set_fs (old_fs);
+>
+>But it is not.
 
-Just patched pre8 with ide-convert-9, and system hangs on boot:
+For what it's worth to you, the below patch fixes this issue, at least on my
+box.  I have patched and tested on my Ultra5.  Thanks for the help!
 
-PIIX4: IDE controller on PCI bus 00 dev 39
-PIIX4: chipset revision 1
-PIIX4: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:DMA, hdb:DMA
-    ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:pio
-hda: Conner Peripherals 1080MB - CFS1081A, ATA DISK drive
-hdb: CREATIVE CD5230E, ATAPI CD/DVD-ROM drive
-hdc: YAMAHA CRW8424E, ATAPI CD/DVD-ROM drive
-hdd: IOMEGA ZIP 250 ATAPI, ATAPI FLOPPY drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
+Bruce H.
 
-<=======0 OOPS here, just got hung...
- <usual output follows >
-hda: 2114180 sectors (1082 MB), CHS=524/64/63, DMA
-ide-cd: passing drive hdb to ide-scsi emulation.
-ide-cd: passing drive hdc to ide-scsi emulation.
-ide-floppy driver 0.99.newide
-
-If it is not a known problem, and anyone needs more info I can write
-down the hex and decode it.
-
-TIA
-
-werewolf:/proc/ide# lspci
-00:00.0 Host bridge: Intel Corp. 440GX - 82443GX Host bridge
-00:01.0 PCI bridge: Intel Corp. 440GX - 82443GX AGP bridge
-00:07.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
-00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
-00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
-00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 02)
-00:0d.0 Multimedia video controller: Brooktree Corporation Bt878 Video Capture (rev 11)
-00:0d.1 Multimedia controller: Brooktree Corporation Bt878 Audio Capture (rev 11)
-00:0e.0 SCSI storage controller: Adaptec AHA-2940U2/U2W / 7890/7891 (rev 01)
-00:0f.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 06)
-00:0f.1 Input device controller: Creative Labs SB Live! MIDI/Game Port (rev 06)
-00:10.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8029(AS)
-00:12.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C (rev 10)
-01:00.0 VGA compatible controller: nVidia Corporation NV11 [GeForce2 MX] (rev b2)
-
-werewolf:/proc/ide# cat piix
-
-                                Intel PIIX4 Ultra 33 Chipset.
---------------- Primary Channel ---------------- Secondary Channel -------------
-                 enabled                          enabled
---------------- drive0 --------- drive1 -------- drive0 ---------- drive1 ------
-DMA enabled:    yes              yes             yes               no 
-UDMA enabled:   no               no              no                no 
-UDMA enabled:   X                X               X                 X
-UDMA
-DMA
-PIO
-
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.3 (Cooker) for i586
-Linux werewolf 2.4.19-pre7-jam9 #2 SMP mié may 1 12:09:38 CEST 2002 i686
+--- linus-2.5/mm/slab.c	Wed May  1 08:38:46 2002
++++ sparctest/mm/slab.c	Fri May  3 22:59:24 2002
+@@ -846,11 +846,14 @@
+ 			/* This happens when the module gets unloaded and
+doesn't
+ 			   destroy its slab cache and noone else reuses the
+vmalloc
+ 			   area of the module. Print a warning. */
++			mm_segment_t old_fs = get_fs();
++			set_fs(KERNEL_DS);
+ 			if (__get_user(tmp,pc->name)) { 
+ 				printk("SLAB: cache with size %d has lost
+its name\n", 
+ 					pc->objsize); 
+ 				continue; 
+-			} 	
++			}
++			set_fs(old_fs); 	
+ 			if (!strcmp(pc->name,name)) { 
+ 				printk("kmem_cache_create: duplicate cache
+%s\n",name); 
+ 				up(&cache_chain_sem); 
+@@ -1963,10 +1966,13 @@
+ 
+ 	name = cachep->name; 
+ 	{
+-	char tmp; 
++	char tmp;
++	mm_segment_t old_fs = get_fs();
++	set_fs(KERNEL_DS);
+ 	if (__get_user(tmp, name)) 
+-		name = "broken"; 
+-	} 	
++		name = "broken";
++	set_fs(old_fs); 
++	}
+ 
+ 	seq_printf(m, "%-17s %6lu %6lu %6u %4lu %4lu %4u",
+ 		name, active_objs, num_objs, cachep->objsize,

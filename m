@@ -1,63 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263834AbTJORwR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 13:52:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263832AbTJORwR
+	id S263810AbTJORoa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 13:44:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263812AbTJORoa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 13:52:17 -0400
-Received: from auemail2.lucent.com ([192.11.223.163]:48036 "EHLO
-	auemail2.firewall.lucent.com") by vger.kernel.org with ESMTP
-	id S263834AbTJORvM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 13:51:12 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 15 Oct 2003 13:44:30 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:60649 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id S263810AbTJORo0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 13:44:26 -0400
+From: David Woodhouse <dwmw2@infradead.org>
+To: Andreas Dilger <adilger@clusterfs.com>
+Cc: josh@temp123.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20031015105655.C1593@schatzie.adilger.int>
+References: <1066163449.4286.4.camel@Borogove>
+	 <1066235105.14783.1602.camel@hades.cambridge.redhat.com>
+	 <20031015105655.C1593@schatzie.adilger.int>
+Message-Id: <1066239856.18189.13.camel@imladris.demon.co.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-3.dwmw2.1) 
+Date: Wed, 15 Oct 2003 18:44:16 +0100
+X-SA-Exim-Mail-From: dwmw2@infradead.org
+Subject: Re: Transparent compression in the FS
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-ID: <16269.34470.987994.870487@gargle.gargle.HOWL>
-Date: Wed, 15 Oct 2003 13:40:54 -0400
-From: "John Stoffel" <stoffel@lucent.com>
-To: Peter Maersk-Moller <peter@maersk-moller.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: aic7xxx lockup for SMP for 2.4.22
-In-Reply-To: <3F8D3A47.1000804@maersk-moller.net>
-References: <3F8D1377.3060509@maersk-moller.net>
-	<3F8D3A47.1000804@maersk-moller.net>
-X-Mailer: VM 7.14 under Emacs 20.6.1
+X-SA-Exim-Version: 3.0+cvs (built Mon Aug 18 15:53:30 BST 2003)
+X-SA-Exim-Scanned: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2003-10-15 at 10:56 -0600, Andreas Dilger wrote:
+> Actually, reiserfs also supports ext2-compatible SETFLAGS/GETFLAGS ioctls.
+> This allows us to use the same tools for lsattr and chattr instead of using
+> lsattr.reiserfs, etc.  Our Lustre distributed filesystem does the same.
 
-Peter> More info on the subject. It turns out that a 2.4.22 kernel
-Peter> without SMP-support but with IO-APIC enabled will also
-Peter> lock-up/stop when it installs the aic7xxx driver upon
-Peter> boot. Disabling the IO-APIC and disabling SMP-support makes the
-Peter> kernel boot normally.
+Yeah - I probably will too if I ever get round to letting people
+actually disable the compression :)
 
-Peter> Peter Maersk-Moller wrote:
->> Hi
->> Recent postings on this suggest some changes/problems with
->> aic7xxx, but none of them seems to be like this.
->> It seems that the aic7xxx driver while booting a SMP enabled
->> 2.4.22 kernel waits (lock-up?) forever.
->> The lock-up does not happen if I disable SMP, make distclean
->> and recompile the kernel.
->> The controller used is a PCI based Adaptec 29160 (aic7892).
->> The board is a dual Pentium III DBD100 from Iwill.
->> Compiler GCC 3.2.3
->> Distro : Slackware 9.1
->> Has anyone else seen this ?
+-- 
+dwmw2
 
-I've got a 2.4.21 system running SMP, PIII Xeon, booting off AIC7890,
-using AIC7880, and another 2940 (I think) along with a pair of 120gb
-drives on the IDE controllers.  It's working quite nicely, and I'm
-planning on moving to 2.4.22 soon as well.
 
-My system has the Intel GX chipset, what does yours have?  I've also
-turned off ACPI in the bios, but I do have:
-
-  CONFIG_X86_IO_APIC=y
-  CONFIG_X86_LOCAL_APIC=y
-  CONFIG_X86_GOOD_APIC=y
-
-in my config.  Maybe it's a chipset issue you're seeing?
-
-John

@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262169AbTICNf7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 09:35:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262198AbTICNf7
+	id S262198AbTICNh0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 09:37:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262217AbTICNhZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 09:35:59 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.51]:54926 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S262169AbTICNf6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 09:35:58 -0400
-Date: Wed, 3 Sep 2003 15:35:56 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: [OT] Re: SPAM
-Message-ID: <20030903133556.GC23293@DUK2.13thfloor.at>
-Mail-Followup-To: "Richard B. Johnson" <root@chaos.analogic.com>,
-	Linux kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.53.0309030835180.7233@chaos>
+	Wed, 3 Sep 2003 09:37:25 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:52683 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262198AbTICNg4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 09:36:56 -0400
+Subject: Re: corruption with A7A266+200GB disk?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: steveb@unix.lancs.ac.uk,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200309030255.28645.bzolnier@elka.pw.edu.pl>
+References: <E19uBCi-00054b-00@wing0.lancs.ac.uk>
+	 <200309030255.28645.bzolnier@elka.pw.edu.pl>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1062596153.19059.42.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0309030835180.7233@chaos>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
+Date: Wed, 03 Sep 2003 14:35:54 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 03, 2003 at 08:45:51AM -0400, Richard B. Johnson wrote:
-> 
-> Hello list,
-> Everybody who has an account on yahoo probably knows that
-> they sell their lists of email users to spammers. This is
-> the condition upon which users get "free" service. However,
-> they also send destination addresses to spammers also! This
-> means that if you have a yahoo email address and send your
-> wife or girlfriend a message using yahoo, she will immediately
-> be deluged with spam advertising penis extenders, etc.
-> Be forewarned.
-> 
-> I recently put a new Linux machine "on the air". To see if
-> email worked, I used my yahoo account, N26825@yahoo.com to
-> send mail to the new machine. Within 20 minutes, I had 40
-> SPAM messages on that new machine. Some SPAM arrived BEFORE
-> the message from yahoo. I reported this to abuse@yahoo.com,
-> but it's a logical black hole.
+On Mer, 2003-09-03 at 01:55, Bartlomiej Zolnierkiewicz wrote:
+> If you are ready to take a risk (again ;-) ) you can remove
+> "hwif->no_lba48 = ..." line from a drivers/ide/pci/alim15x3.c,
+> recompile and retest without using DMA (add "ide=nodma"
+> boot option).  Maybe LBA48 will work in PIO mode.
 
-well, otherwise they wouldn't have something to
-fight, together with M$ and AOL ...
+ALi does support LBA48 in PIO mode. Right now the choice is 
+DMA and 137Gb or no DMA and 200Gb, ideally it should be DMA
+and fall back to PIO for the top 70Gb, but not yet a while.
 
-> Again, be warned. They ARE out to get you, even if you are
-> paranoid!
-> 
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.4.22 on an i686 machine (794.73 BogoMips).
->             Note 96.31% of all statistics are fiction.
+I've actually not yet found a controller in my testing that cannot
+manage LBA48 PIO, including nailing a 160Gb drive to a Cyrix box with
+a VIA VP2.
+
+

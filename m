@@ -1,77 +1,125 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263801AbTKXRMN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Nov 2003 12:12:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263803AbTKXRMN
+	id S263794AbTKXRXR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 12:23:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263803AbTKXRXR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Nov 2003 12:12:13 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:8323 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S263801AbTKXRML
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Nov 2003 12:12:11 -0500
-Date: Mon, 24 Nov 2003 12:14:34 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Jakob Lell <jlell@JakobLell.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: hard links create local DoS vulnerability and security problems
-In-Reply-To: <200311241736.23824.jlell@JakobLell.de>
-Message-ID: <Pine.LNX.4.53.0311241205500.18425@chaos>
-References: <200311241736.23824.jlell@JakobLell.de>
+	Mon, 24 Nov 2003 12:23:17 -0500
+Received: from mailhub2.ittralee.ie ([193.1.176.5]:13976 "EHLO
+	mailhub2.ittralee.ie") by vger.kernel.org with ESMTP
+	id S263794AbTKXRXK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Nov 2003 12:23:10 -0500
+Message-ID: <36429.10.9.12.1.1069694580.squirrel@10.9.12.1>
+Date: Mon, 24 Nov 2003 17:23:00 -0000 (GMT)
+Subject: reboot 2.4.22 : kernel BUG at sched.c:564
+From: "Ronan Salmon" <Ronan.Salmon@staff.ittralee.ie>
+To: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.3 [CVS]
+X-Mailer: SquirrelMail/1.4.3 [CVS]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Nov 2003, Jakob Lell wrote:
+Hi,
 
-> Hello,
-> on Linux it is possible for any user to create a hard link to a file belonging
-> to another user. This hard link continues to exist even if the original file
-> is removed by the owner. However, as the link still belongs to the original
-> owner, it is still counted to his quota. If a malicious user creates hard
-> links for every temp file created by another user, this can make the victim
-> run out of quota (or even fill up the hard disk). This makes a local DoS
-> attack possible.
->
+- redhat 9.0 i386
+- mpeg4ip-1.0rc3
+- kernel 2.4.22 from kernel.org
 
-You can create hard-links to any file that a user has given you
-permission to read or execute. This is correct. The new hard-link
-still belongs to the original user, which is also correct.
+I don't have any problem with the kernel 2.4.20 from redhat 9, but with
+kernel 2.4.22 from kernel.org, I get a kernel panic when I run the command
+'reboot'. It seems to crash when it is running the KILLALL script.
 
-To prevent this, a user can set his default permissions so that
-neither group nor world can read the files. This is usually done
-by setting the attributes in the user's top directory.
+When the PC boots up, it runs just X and then mp4player which plays a live
+stream from our local network (broadcast).
 
-> Furthermore, users can even create links to a setuid binary. If there is a
-> security whole like a buffer overflow in any setuid binary, a cracker can
-> create a hard link to this file in his home directory. This link still exists
-> when the administrator has fixed the security whole by removing or replacing
-> the insecure program. This makes it possible for a cracker to keep a security
-> whole open until an exploit is available. It is even possible to create links
-> to every setuid program on the system. This doesn't create new security
-> wholes but makes it more likely that they are exploited.
->
+here is the output of ksymoops :
+[~]# ksymoops -v /usr/src/linux/vmlinux -m /usr/src/linux/System.map
+error.log
+ksymoops 2.4.9 on i686 2.4.22.  Options used
+     -v /usr/src/linux/vmlinux (specified)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.22/ (default)
+     -m /usr/src/linux/System.map (specified)
 
-A setuid binary created with a hard-link will only work as a setuid
-binary if the directory it's in is owned by root. If you have users
-that can create files or hard-links within such directories, you
-have users who either know the root password already or have used
-some exploit to become root. In any case, it's not a hard-link
-problem
+Warning (compare_maps): ksyms_base symbol
+sk_chk_filter_R__ver_sk_chk_filter not found in vmlinux.  Ignoring
+ksyms_base entry
+Warning (compare_maps): ksyms_base symbol
+sk_run_filter_R__ver_sk_run_filter not found in vmlinux.  Ignoring
+ksyms_base entry
+kernel BUG at sched.c:564!
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[<c01164d1>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010286
+eax: 00000018   ebx: cfe3d4a0   ecx: 00000001   edx: c029ef3c
+esi: cbf84000   edi: cbf84000   ebp: cbf85ed4   esp: cbf85eac
+ds: 0018   es: 0018   ss: 0018
+Process mp4player (pid: 1260, stackpage=cbf85000)
+Stack: c0264aea cbf84000 c12cc000 c011c1ab cbf84000 00000000 cbf84000
+cfe3d4a0
+       cff72200 cbf84000 00000009 c011c5ea cbf84000 cfe3d4a0 cbf84000
+00000000
+       cbf85f30 00000009 c0121f3c 00000009 c0122125 00000009 cc9fc644
+00000009
+Call Trace:    [<c011c1ab>] [<c011c5ea>] [<c0121f3c>] [<c0122125>]
+[<c010714e>]
+  [<c0148143>] [<c0147466>] [<c0148506>] [<c0107448>]
+Code: 0f 0b 34 02 e2 4a 26 c0 e9 09 fd ff ff 0f 0b 2d 02 e2 4a 26
 
-> To solve the problem, the kernel shouldn't allow users to create hard
-> links to
-> files belonging to someone else.
->
 
-No. Users must be able to create hard links to files that belong
-to somebody else if they are readable. It's a requirement.
+>>EIP; c01164d1 <schedule+331/350>   <=====
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
+>>ebx; cfe3d4a0 <_end+fb10adc/104f569c>
+>>edx; c029ef3c <log_wait+0/8>
+>>esi; cbf84000 <_end+bc5763c/104f569c>
+>>edi; cbf84000 <_end+bc5763c/104f569c>
+>>ebp; cbf85ed4 <_end+bc59510/104f569c>
+>>esp; cbf85eac <_end+bc594e8/104f569c>
+
+Trace; c011c1ab <exit_notify+cb/300>
+Trace; c011c5ea <do_exit+20a/230>
+Trace; c0121f3c <sig_exit+ac/b0>
+Trace; c0122125 <dequeue_signal+65/d0>
+Trace; c010714e <do_signal+1ae/2a0>
+Trace; c0148143 <do_select+133/230>
+Trace; c0147466 <vfs_readdir+a6/b0>
+Trace; c0148506 <sys_select+296/4e0>
+Trace; c0107448 <signal_return+14/18>
+
+Code;  c01164d1 <schedule+331/350>
+00000000 <_EIP>:
+Code;  c01164d1 <schedule+331/350>   <=====
+   0:   0f 0b                     ud2a      <=====
+Code;  c01164d3 <schedule+333/350>
+   2:   34 02                     xor    $0x2,%al
+Code;  c01164d5 <schedule+335/350>
+   4:   e2 4a                     loop   50 <_EIP+0x50>
+Code;  c01164d7 <schedule+337/350>
+   6:   26                        es
+Code;  c01164d8 <schedule+338/350>
+   7:   c0 e9 09                  shr    $0x9,%cl
+Code;  c01164db <schedule+33b/350>
+   a:   fd                        std
+Code;  c01164dc <schedule+33c/350>
+   b:   ff                        (bad)
+Code;  c01164dd <schedule+33d/350>
+   c:   ff 0f                     decl   (%edi)
+Code;  c01164df <schedule+33f/350>
+   e:   0b 2d 02 e2 4a 26         or     0x264ae202,%ebp
+
+ <0>Kernel panic: Aiee, killing interrupt handler!
+
+2 warnings issued.  Results may not be reliable.
 
 
+
+-----------------------------------------
+This email is subject to the following disclaimer(s) available at http://www.ittralee.ie/EmailDisclaimer.html

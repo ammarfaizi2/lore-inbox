@@ -1,65 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314381AbSGUMnp>; Sun, 21 Jul 2002 08:43:45 -0400
+	id <S314085AbSGUMtH>; Sun, 21 Jul 2002 08:49:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314451AbSGUMnp>; Sun, 21 Jul 2002 08:43:45 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:56815 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S314381AbSGUMno>; Sun, 21 Jul 2002 08:43:44 -0400
-Date: Sun, 21 Jul 2002 14:46:23 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Szakacsits Szabolcs <szaka@sienet.hu>, Robert Love <rml@tech9.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] strict VM overcommit
-In-Reply-To: <1027258349.17234.85.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.NEB.4.44.0207211438440.11656-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314451AbSGUMtH>; Sun, 21 Jul 2002 08:49:07 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:40455 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S314085AbSGUMtG>;
+	Sun, 21 Jul 2002 08:49:06 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Announce: ksymoops 2.4.6 is available 
+Date: Sun, 21 Jul 2002 22:51:44 +1000
+Message-ID: <21426.1027255904@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 21 Jul 2002, Alan Cox wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> On Sun, 2002-07-21 at 10:10, Szakacsits Szabolcs wrote:
-> > On Fri, 19 Jul 2002, Alan Cox wrote:
-> > > Make swapoff -a return -ENOMEM
-> > >
-> > > I've not done this on the basis that this is root specific stupidity and
-> > > generally shouldnt be protected against
-> >
-> > Recommended reading: MIT's Magazin of Innovation Technology Review,
-> > August 2002 issue, cover story: Why Software Is So Bad?
-> >
-> > Next you might read: "... prominent, leading Linux kernel developer
-> > publically labels users stupid instead of handling a special case
->
-> I would suggest you do something quite different. Go and read what K&R
-> had to say about the design of Unix. One of the design goals of Unix is
-> that the system does not think it knows better than the administrator.
-> That is one of the reasons unix works well and is so flexible.
+Content-Type: text/plain; charset=us-ascii
 
-The problem is that at the time K&R said this only real men (tm) were
-administrators of UNIX systems. Nowadays clueless people like me are
-administrators of their Linux system at home.  ;-)
+ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/ksymoops/v2.4
 
-With enough stupidity root can always trash his system but if as Robert
-says the state of the system will be that "no allocations will succeed"
-which seems to be a synonymous for "the system is practically dead" it is
-IMHO a good idea to let "swapoff -a return -ENOMEM".
+ksymoops-2.4.6.tar.gz		Source tarball, includes RPM spec file
+ksymoops-2.4.6-1.src.rpm	As above, in SRPM format
+ksymoops-2.4.6-1.i386.rpm	Compiled with 2.96 20000731, glibc 2.2.2
+patch-ksymoops-2.4.6.gz		Patch from ksymoops 2.4.5 to 2.4.6.
 
-> Alan
+Changelog extract
 
-cu
-Adrian
+	* m68k call trace does not have trailing ' '.  Reported by
+	  Richard Zidlicky.
+	* MIPS has a hole in the register dump, skip $26 and $27 (k0, k1).
+	  Maciej W. Rozycki.
+	* Only print decoded registers if they resolve to kernel symbols.
 
--- 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
 
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
-
-
-
+iD8DBQE9Oq5ei4UHNye0ZOoRAhqWAKDANeYZmpoFTCCkSay0J145efDMdwCeO1ZV
+J5yrpbjdSqFv3vOtRyb1Euo=
+=EzNN
+-----END PGP SIGNATURE-----
 

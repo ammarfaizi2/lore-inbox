@@ -1,33 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265524AbTFMULt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 16:11:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265520AbTFMULc
+	id S265523AbTFMUXP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 16:23:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265525AbTFMUXP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 16:11:32 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:4358 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S265521AbTFMUL1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 16:11:27 -0400
-Date: Fri, 13 Jun 2003 21:25:09 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: Vojtech Pavlik <vojtech@ucw.cz>
-cc: Peter Berg Larsen <pebl@math.ku.dk>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Synaptics TouchPad driver for 2.5.70
-In-Reply-To: <20030613094435.B29859@ucw.cz>
-Message-ID: <Pine.LNX.4.44.0306132118540.29353-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 13 Jun 2003 16:23:15 -0400
+Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:37131 "EHLO
+	krusty.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S265523AbTFMUXN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 16:23:13 -0400
+Date: Fri, 13 Jun 2003 22:36:56 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: SCSI Write Cache Enable in 2.4.20?
+Message-ID: <20030613203656.GB27043@merlin.emma.line.org>
+Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+References: <A5974D8E5F98D511BB910002A50A66470B54CBA3@hdsmsx103.hd.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <A5974D8E5F98D511BB910002A50A66470B54CBA3@hdsmsx103.hd.intel.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 13 Jun 2003, Cress, Andrew R wrote:
 
-Just as a idea for API. How about ABS_AREA or REL_AREA instead of 
-ABS_MISC. The idea is the pressure value returned should be about 
-the same if one presses hard with one finger or softly with a whole 
-hand. So to tell the difference between the two we can report the 
-pressure and the area over which it acted. Say in virtual reality 
-environment simulation poking a object hard with your finger would
-have a very different effect than placing your hand lightly on the 
-object even tho they might register about the same pressure.
+> IMO, it isn't "necessary", but it is very desirable, and should be the
+> default, to disable write cache on SCSI disks for any system that is
+> concerned about reliability.
 
+The question was if Linux was up to using ordered tags between the
+requests, which would allow to use the write cache safely.

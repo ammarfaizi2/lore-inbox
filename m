@@ -1,61 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272886AbRIMGpw>; Thu, 13 Sep 2001 02:45:52 -0400
+	id <S272889AbRIMG4Y>; Thu, 13 Sep 2001 02:56:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272889AbRIMGpm>; Thu, 13 Sep 2001 02:45:42 -0400
-Received: from goliath.siemens.de ([194.138.37.131]:62922 "EHLO
-	goliath.siemens.de") by vger.kernel.org with ESMTP
-	id <S272886AbRIMGp1>; Thu, 13 Sep 2001 02:45:27 -0400
-From: Borsenkow Andrej <Andrej.Borsenkow@mow.siemens.ru>
-To: "'Andreas Dilger'" <adilger@turbolabs.com>
-Cc: linux-kernel@vger.kernel.org,
-        Mandrake cooker list <cooker@linux-mandrake.com>
-Subject: RE: FW: [Cooker] rotflags and initrd
-Date: Thu, 13 Sep 2001 10:45:45 +0400
-Message-ID: <001001c13c1f$b726a360$21c9ca95@mow.siemens.ru>
+	id <S272897AbRIMG4P>; Thu, 13 Sep 2001 02:56:15 -0400
+Received: from motgate4.mot.com ([144.189.100.102]:34995 "EHLO
+	motgate4.mot.com") by vger.kernel.org with ESMTP id <S272889AbRIMG4D>;
+	Thu, 13 Sep 2001 02:56:03 -0400
+Message-ID: <3BA05965.559973E9@mihy.mot.com>
+Date: Thu, 13 Sep 2001 12:29:49 +0530
+From: csaradap <csaradap@mihy.mot.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: "linux-india-help@lists.sourceforge.net" 
+	<linux-india-help@lists.sourceforge.net>,
+        "linux-india-programmers@lists.sourceforge.net" 
+	<linux-india-programmers@lists.sourceforge.net>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: slip login
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-In-Reply-To: <20010913003738.F1541@turbolinux.com>
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am trying to configure my slip login , is it possible to have slip
+server and client same IP, I mean with slip server assigned IP
+192.168.1.1 can I use the same IP to connect to the SLIP
+server..Whenever I try to login I get a message like
 
-> 
-> On Sep 13, 2001  09:46 +0400, Borsenkow Andrej wrote:
-> > > Borsenkow Andrej <Andrej.Borsenkow@mow.siemens.ru> writes:
-> > > > If kernel mounts rootfs directly, you can pass mount options via
-> > > > rootflags boot parameter, like
-> > > >
-> > > > linux rootflags=data=journal
-> > >
-> > > the "rootflags" kernel parameter is not documented in
-> > > linux/Documentation/kernel-parameters.txt and I can find it in the
-> > > whole source only at one place. I'm not sure we should honour
-this.
-> >
-> > Just how "official" the parameter really is? The problem is, you
-want
-> > root on reiser to be in notail mode (if you boot off root - in any
-case,
-> > to avoid problems with bootloaders) and remounting reiser later
-AFAIK
-> > does not change tail conversion mode.
-> 
-> The rootflags parameter is only a part of the ext3 patch, AFAIK.  It
-> is therefore probably in -ac kernels, but not stock Linus kernels.
-> Since it is useful by itself, it may be good to submit it as a patch
-> to Linus (this was done once along with the rootfstype= patch) but
-> I don't think it made it in.
-> 
+Lat login on......
+starting normal SLIP for user XXX
+Your Ip is 192.168.1.1 and your server is 192.168.1.1
 
-Ah ... well, in this case I speak about Mandrake kernel that includes
-ext3. Thank you.
+The login gets killed immidiately..Before this I am just doing the
+following steps..
 
--andrej
+1> slattach -p slip /dev/ttyS0 &
+2>slattach -p slip /dev/ttyS1 &
+3>connecting both the serial port with a cable
+4>ifconfig sl0 192.168.1.1 pointopoint 192.168.1.1 up
+
+
+
+can anyone tell me whether this will work or not....
+
+thanx
+ch.s.p.nanda
+

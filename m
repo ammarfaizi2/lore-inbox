@@ -1,48 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263989AbRFTLfM>; Wed, 20 Jun 2001 07:35:12 -0400
+	id <S264336AbRFTMCf>; Wed, 20 Jun 2001 08:02:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264331AbRFTLfD>; Wed, 20 Jun 2001 07:35:03 -0400
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:24580 "EHLO
-	bug.ucw.cz") by vger.kernel.org with ESMTP id <S263989AbRFTLet>;
-	Wed, 20 Jun 2001 07:34:49 -0400
-Message-ID: <20010619124627.A202@bug.ucw.cz>
-Date: Tue, 19 Jun 2001 12:46:27 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Rik van Riel <riel@conectiva.com.br>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: spindown
-In-Reply-To: <20010615152306.B37@toy.ucw.cz> <20010618222131.A26018@paranoidfreak.co.uk>
-Mime-Version: 1.0
+	id <S264355AbRFTMCZ>; Wed, 20 Jun 2001 08:02:25 -0400
+Received: from phaistos.phaistosnetworks.gr ([212.251.96.163]:51135 "EHLO
+	phaistos.phaistosnetworks.gr") by vger.kernel.org with ESMTP
+	id <S264336AbRFTMCP>; Wed, 20 Jun 2001 08:02:15 -0400
+Message-ID: <3B30910F.6EDCC7A1@phaistosnetworks.gr>
+Date: Wed, 20 Jun 2001 15:03:27 +0300
+From: "Kissandrakis S. George" <kissand@phaistosnetworks.gr>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16-17 i686)
+X-Accept-Language: en, el
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.5 and gcc v3 final
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <20010618222131.A26018@paranoidfreak.co.uk>; from Simon Huggins on Mon, Jun 18, 2001 at 10:21:31PM +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hello
+I suppose that you allready know it
+I have installed gcc v3 released Jun 18 and i tried to compile the
+kernel and i got
+these errors
 
-> > > Roger> It does if you are running on a laptop. Then you do not want
-> > > Roger> the pages go out all the time. Disk has gone too sleep, needs
-> > > Roger> to start to write a few pages, stays idle for a while, goes to
-> > > Roger> sleep, a few more pages, ...
-> > > That could be handled by a metric which says if the disk is spun
-> > > down, wait until there is more memory pressure before writing.  But
-> > > if the disk is spinning, we don't care, you should start writing out
-> > > buffers at some low rate to keep the pressure from rising too
-> > > rapidly.  
-> > Notice that write is not free (in terms of power) even if disk is
-> > spinning.  Seeks (etc) also take some power. And think about
-> > flashcards. It certainly is cheaper tha spinning disk up but still not
-> > free.
-> 
-> Isn't this why noflushd exists or is this an evil thing that shouldn't
-> ever be used and will eventually eat my disks for breakfast?
+in make dep i got several warnings that look like this
 
-It would eat your flash for breakfast. You know, flash memories have
-no spinning parts, so there's nothing to spin down.
-								Pavel
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+/usr/src/linux-2.4.5/include/asm/checksum.h:161:17: warning: multi-line
+string literals are deprecated
+
+but finally passed..
+
+in make bzImage i got
+
+timer.c:35: conflicting types for `xtime'
+/usr/src/linux-2.4.5/include/linux/sched.h:540: previous declaration of
+`xtime'
+
+and compilation stops
+if i remove the decleration of xtime in sched.h (remove the 540 line)
+the compile
+will go on and some compiles after...
+
+time.c: In function `do_normal_gettime':
+time.c:41: `xtime' undeclared (first use in this function)
+
+and some other errors
+if in time.c include the line 540 from sched.h (the xtime) the
+compilation will go on
+until the same error on another file
+i include again the line 540 from sched.h the compilation goes on etc
+etc and after lots
+of errors finally i got bzImage
+
+I didnt test bzImage if it boots 
+
+with gcc v2.x the same kernel and kernel config it compiles,Is it a
+kernel bug, a gcc
+bug or something else (bad installation of gcc, my mistake etc etc)? 
+
+Best Regards
+
+
+--- 
+Kissandrakis S. George                 [kissand@phaistosnetworks.gr]
+Network and System Administrator       [http://www.phaistosnetworks.gr/]
+Tel:(+30 81) 391882/Fax:(+30 892) 23206
+Phaistos Networks S.A. - A DOL Digital Company

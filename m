@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131497AbREHKnn>; Tue, 8 May 2001 06:43:43 -0400
+	id <S131407AbREHKgm>; Tue, 8 May 2001 06:36:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131481AbREHKnd>; Tue, 8 May 2001 06:43:33 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:61707 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131480AbREHKnX>; Tue, 8 May 2001 06:43:23 -0400
-Subject: Re: [PATCH] x86 page fault handler not interrupt safe
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Tue, 8 May 2001 11:45:28 +0100 (BST)
-Cc: bgerst@didntduck.org (Brian Gerst), nigel@nrg.org,
-        alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.31.0105071443080.1195-100000@penguin.transmeta.com> from "Linus Torvalds" at May 07, 2001 02:44:22 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131480AbREHKgd>; Tue, 8 May 2001 06:36:33 -0400
+Received: from mail.inf.elte.hu ([157.181.161.6]:30094 "HELO mail.inf.elte.hu")
+	by vger.kernel.org with SMTP id <S131407AbREHKgX>;
+	Tue, 8 May 2001 06:36:23 -0400
+Date: Tue, 8 May 2001 12:36:18 +0200 (CEST)
+From: BERECZ Szabolcs <szabi@inf.elte.hu>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: page_launder() bug
+In-Reply-To: <15095.26644.491818.92403@pizda.ninka.net>
+Message-ID: <Pine.A41.4.31.0105081216350.76998-100000@pandora.inf.elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14x4zi-0005RA-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, 7 May 2001, Brian Gerst wrote:
-> >
-> > Keep in mind that regs->eflags could be from user space, and could have
-> > some undesirable flags set.  That's why I did a test/sti instead of
-> > reloading eflags.  Plus my patch leaves interrupts disabled for the
-> > minimum time possible.
-> 
-> The plain "popf" should be ok: the way intel works, you cannot actually
-> use popf to set any of the strange flags (if vm86 mode etc).
-> 
-> I like the size of this alternate patch.
+On Mon, 7 May 2001, David S. Miller wrote:
 
-I dont see where the alternative patch ensures the user didnt flip the
-direction flag for one
+> My patch is crap and can cause corruptions, there is not argument
+> about it now :-)
+is it the only bug in the swap handling?
+or why is this bug triggered so heavily if the swap is on a filesystem?
+I had oopses when I used a swapfile on a partition, but that was really
+rare. I even don't think it's becouse page_launder().
+so what's so different if the swap sits on a filesystem?
+
+Bye,
+Szabi
+
 

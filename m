@@ -1,91 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283267AbRK2UbA>; Thu, 29 Nov 2001 15:31:00 -0500
+	id <S283277AbRK2Ufu>; Thu, 29 Nov 2001 15:35:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283277AbRK2Ual>; Thu, 29 Nov 2001 15:30:41 -0500
-Received: from vortex.physik.uni-konstanz.de ([134.34.143.44]:17929 "EHLO
-	vortex.physik.uni-konstanz.de") by vger.kernel.org with ESMTP
-	id <S283267AbRK2Uac>; Thu, 29 Nov 2001 15:30:32 -0500
-Message-Id: <200111292030.fATKU1s05921@vortex.physik.uni-konstanz.de>
-Content-Type: text/plain; charset=US-ASCII
-From: space-00002@vortex.physik.uni-konstanz.de
-Organization: Universitaet Konstanz/Germany
-To: linux-kernel@vger.kernel.org
-Subject: buffer/memory strangeness in 2.4.16
-Date: Thu, 29 Nov 2001 21:39:16 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <200111291201.fATC1pd04206@lists.us.dell.com>
-In-Reply-To: <200111291201.fATC1pd04206@lists.us.dell.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S283281AbRK2Ufk>; Thu, 29 Nov 2001 15:35:40 -0500
+Received: from marine.sonic.net ([208.201.224.37]:49180 "HELO marine.sonic.net")
+	by vger.kernel.org with SMTP id <S283277AbRK2Ufb>;
+	Thu, 29 Nov 2001 15:35:31 -0500
+X-envelope-info: <dalgoda@ix.netcom.com>
+Date: Thu, 29 Nov 2001 12:35:22 -0800
+From: Mike Castle <dalgoda@ix.netcom.com>
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.14 still not making fs dirty when it should
+Message-ID: <20011129123522.G7992@thune.mrc-home.com>
+Reply-To: Mike Castle <dalgoda@ix.netcom.com>
+Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
+	kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011128231504.A26510@elf.ucw.cz> <3C069291.82E205F1@zip.com.au>, <3C069291.82E205F1@zip.com.au> <20011129120826.F7992@thune.mrc-home.com> <3C069919.E679F1F8@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C069919.E679F1F8@zip.com.au>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Nov 29, 2001 at 12:22:49PM -0800, Andrew Morton wrote:
+> What happens is that the superblock is altered in-memory
+> to say "the filesystem needs checking", but it's not written
+> out to disk.
+> 
+> So other things can come in, alter the fs, get written out *before*
+> the superblock and then you crash.  fsck won't be run, and the
+> filesystem is left in an inconsistent state.
 
-I am experiencing a bit of strange system behaviour in a vanilla 2.4.16 
-kernel (2.95.3, very stable machine etc.)
+Ok.  I could see this being a bad thing.
 
-I noticed, that after running for a while (day) I had significantly less 
-memory available for my simulation program than right after booting. Looking 
-at the problem using 'xosview' (or 'free'), I noticed that there was a large 
-number of MBs filled with 'buffers' that did not get wiped when other 
-programs need the memory. The system seems to rather kill an 'offender' than 
-clean out buffers.
+I could also see the easiest thing to implement would be updating the super
+block on mount.
 
-Right after booting, I can allocate about 650MBs memory using the little 
-program attached below. After a day (or after running updatedb), under the 
-same conditions, even in single user mode with only a shell running (!) this 
-is not possible anymore and the program (below), trying to allocate only 
-300-400MBs, gets killed by the system after making it unresponsive for many 
-seconds.
+However, is this a case where Linux tries not to update the superblock
+about being dirty until something has actually changed (ie, be slightly
+smarter), and that's not working, or is the superblock simply not being
+updated on mount?
 
-Apparently this problem occurs after running 'updatedb', which fills 'free 
-memory' and generates lots of filled cache and buffers on my system.
-
-This sort of behaviour must have been introduced after 2.4.13, which does not 
-show these problems.
-
-Please tell me if somebody needs more information to debug this, or if this 
-behaviour is normal or expected. Please cc: me as I am only on lkml-digest.
-
-Cheers
-	Jan
-
-
-P.S. All RAM slots are full, so please don't suggest buying more memory as a 
-solution :^)
-
--------------------%<-----------------------
-
-#include <stdio.h>
-#define ONE_MEG 1024 * 1024
-
-main ()
-{
-        long mem_avail = ONE_MEG;
-        char *buf;
-        char userchar = '@';
-        int howmany;
-
-        while (1)
-        {
-                printf ("Number of MBs to allocate? ");
-                scanf ("%d", &howmany);
-                printf ("Trying to allocate %ld bytes: ", mem_avail*howmany);
-
-                getchar ();
-                if ((buf = (char *) malloc ((size_t) mem_avail*howmany))){
-                        printf (" success!\n");
-                        printf ("Now filling it up...\n");
-                        memset (buf, userchar, mem_avail * howmany);
-                        printf ("Hit ENTER to free the memory.\n");
-                        getchar ();
-                        free (buf);
-                } else {
-                        printf (" failed :(\n");
-                }
-        }
-}
-
--------------------%<-----------------------
+Thanks,
+mrc
+-- 
+     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
+    We are all of us living in the shadow of Manhattan.  -- Watchmen
+fatal ("You are in a maze of twisty compiler features, all different"); -- gcc

@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264718AbSJUDeh>; Sun, 20 Oct 2002 23:34:37 -0400
+	id <S264715AbSJUDnL>; Sun, 20 Oct 2002 23:43:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264719AbSJUDeh>; Sun, 20 Oct 2002 23:34:37 -0400
-Received: from packet.digeo.com ([12.110.80.53]:33791 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S264718AbSJUDeh>;
-	Sun, 20 Oct 2002 23:34:37 -0400
-Message-ID: <3DB37734.434F1678@digeo.com>
-Date: Sun, 20 Oct 2002 20:40:36 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.42 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Oliver Xymoron <oxymoron@waste.org>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: patch management scripts
-References: <3DB30283.5CEEE032@digeo.com> <20021021023546.GK26443@waste.org> <3DB36C70.DFB52831@digeo.com> <20021021033033.GL26443@waste.org>
+	id <S264717AbSJUDnK>; Sun, 20 Oct 2002 23:43:10 -0400
+Received: from florence.buici.com ([206.124.142.26]:38111 "HELO
+	florence.buici.com") by vger.kernel.org with SMTP
+	id <S264715AbSJUDnK>; Sun, 20 Oct 2002 23:43:10 -0400
+Date: Sun, 20 Oct 2002 20:49:13 -0700
+From: Marc Singer <elf@buici.com>
+To: Robert Schwebel <robert@schwebel.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: AMD Elan SC520 CPU speed problem w/patches
+Message-ID: <20021021034912.GA2313@buici.com>
+References: <20021015212310.GA30117@buici.com> <20021020170133.GB8910@pengutronix.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 Oct 2002 03:40:36.0570 (UTC) FILETIME=[9E098BA0:01C278B3]
+Content-Disposition: inline
+In-Reply-To: <20021020170133.GB8910@pengutronix.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Xymoron wrote:
+On Sun, Oct 20, 2002 at 07:01:33PM +0200, Robert Schwebel wrote:
+> On Tue, Oct 15, 2002 at 02:23:10PM -0700, Marc Singer wrote:
+> > There appears to be cleverly hidden problem with the Elan SC520 CPU
+> > speed when running the Linux kernel.
 > 
-> ...
-> > - make changes to a not-topmost patch without having to do
-> >   anything special.
+> My AMD Elan patch for the Linux kernel lives on 
 > 
-> Unless of course you're touching that file somewhere else in the
-> stack.
+>   http://www.pengutronix.de/software/elan_en.html
+> 
+> If you have other stuff for it please send it to me (or port it back to
+> your 2.2 kernel). 
+> 
+> Robert
 
-No, that's OK.  I do this fairly regularly.  It tends to be the
-case that the change you make causes the correct patch to throw
-a reject when you try to take it off, so you remember to refresh
-it.
+I don't understand.  Are you planning to add my fix to your patch?
+Please, if you do so would you put a link to my page so that updates
+to my elan stuff is easy to find?

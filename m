@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261582AbSJYUFr>; Fri, 25 Oct 2002 16:05:47 -0400
+	id <S261587AbSJYUMG>; Fri, 25 Oct 2002 16:12:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261583AbSJYUFr>; Fri, 25 Oct 2002 16:05:47 -0400
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:37124 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261582AbSJYUFq>;
-	Fri, 25 Oct 2002 16:05:46 -0400
-Date: Fri, 25 Oct 2002 13:10:12 -0700
-From: Greg KH <greg@kroah.com>
-To: jlnance@unity.ncsu.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB does not work after 2.4.18 to 2.5.44-ac2 upgrade
-Message-ID: <20021025201012.GK29874@kroah.com>
-References: <20021025024906.GA18214@ncsu.edu>
+	id <S261593AbSJYUMG>; Fri, 25 Oct 2002 16:12:06 -0400
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:17351 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261587AbSJYUMG>; Fri, 25 Oct 2002 16:12:06 -0400
+Subject: Re: [OT]AMD/Intel interrupt latency (jitter) differences?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: markh@compro.net
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3DB99E3D.798B9A5F@compro.net>
+References: <3DB99E3D.798B9A5F@compro.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 25 Oct 2002 21:35:52 +0100
+Message-Id: <1035578152.13244.44.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021025024906.GA18214@ncsu.edu>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 24, 2002 at 10:49:06PM -0400, jlnance@unity.ncsu.edu wrote:
-> Hello All,
->     I decided to do what Linus asked, and try out a 2.5.X kernel.
-> The machine boots fine with the 2.5.44-ac2 kernel I installed, however
-> I am having some problems with USB.  The usb-uhci module seems to be
-> gone.  I read Documentation/usb/uhci.txt and it appears that the
-> uhci module has been rewritten.  I assume the module named uhci-hcd.o
-> is the replacement, but I could not find that written down anywhere.
-> I did an insmod of this module and I can now see the hub in
-> /proc/bus/usb/devices.  I dont see any of my other USB devices in that
-> file, even after I insmod the drivers.
+On Fri, 2002-10-25 at 20:40, Mark Hounschell wrote:
+> When we run this program in the emulation on an intel box all is well. When we
+> run this in the emulation on an AMD MP 1900+ box the determinism (jitter) is
+> very bad. Sometimes as much as 500us. On the Dual Intel 2.2 p4 zeon the
+> determinism (jitter) is under 50us. All the other benchmarks we run under the
+> emulation tell us that the AMD box is the faster box. It's also cheaper. So I
+> guess my question is, are there any known problem with AMD's and interrupt
+> latency jitter. I might also add that the only way we get satisfactory numbers,
 
-Are your devices plugged in? :)
+A lot of the IRQ delivery depends on the APIC. SO for example you'd
+probably see horrible numbers on a PIII, but very good on PIV. It also
+depends on chipset vagueries. You might also need to check that your PCI
+behaviour has no posting errors since the AMD certainly seems to do a
+lot more aggressive PCI posting.
 
-What does the kernel log say when you plug them in?
+Does "noapic" change the jitter ?
 
-thanks,
-
-greg k-h

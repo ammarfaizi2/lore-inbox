@@ -1,34 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262523AbSI0Qew>; Fri, 27 Sep 2002 12:34:52 -0400
+	id <S261526AbSI0Qnc>; Fri, 27 Sep 2002 12:43:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262532AbSI0Qew>; Fri, 27 Sep 2002 12:34:52 -0400
-Received: from sex.inr.ac.ru ([193.233.7.165]:53955 "HELO sex.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S262523AbSI0Qev>;
-	Fri, 27 Sep 2002 12:34:51 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200209271639.UAA21514@sex.inr.ac.ru>
-Subject: Re: [PATCH] IPv6: Refine IPv6 Address Validation Timer
-To: yoshfuji@linux-ipv6.org (YOSHIFUJI Hideaki /
-	=?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?=)
-Date: Fri, 27 Sep 2002 20:39:45 +0400 (MSD)
-Cc: davem@redhat.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       usagi@linux-ipv6.org
-In-Reply-To: <20020928.011439.108856769.yoshfuji@linux-ipv6.org> from "YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?=" at Sep 28, 2 01:14:39 am
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S261562AbSI0Qnc>; Fri, 27 Sep 2002 12:43:32 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:17930 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S261526AbSI0Qnb>; Fri, 27 Sep 2002 12:43:31 -0400
+Date: Fri, 27 Sep 2002 17:48:49 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, linux-security-module@wirex.com
+Subject: Re: [RFC] LSM changes for 2.5.38
+Message-ID: <20020927174849.A32207@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+	linux-security-module@wirex.com
+References: <20020927003210.A2476@sgi.com> <20020926225147.GC7304@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020926225147.GC7304@kroah.com>; from greg@kroah.com on Thu, Sep 26, 2002 at 03:51:48PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Thu, Sep 26, 2002 at 03:51:48PM -0700, Greg KH wrote:
+> > leave the capable in and say it's enough or you add your random hook
+> > and remove that one.  Just adding more and more hooks without thinking
+> > gets us exactly nowhere except to an unmaintainable codebase.
+> 
+> capable is needed to be checked, as we are not modifying the existing
+> permission logic.
 
-> (*) Oops, I slipped at (almost) end of the patch when making patch... sorry;
-> I inteded to refine timing into ~0.5 sec at worst;
+I odn't think it makes sense to have two security checks that both
+end up in the LSM code after each other..
 
-Does this matter? What is special about 0.5sec comparing to 1?
-
-> (do I need to resend complete patch?)
-
-No, I think. Deletion of bad debugging is easier to make after patching.
-
-Alexey

@@ -1,75 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265417AbSJaWXW>; Thu, 31 Oct 2002 17:23:22 -0500
+	id <S265453AbSJaWlA>; Thu, 31 Oct 2002 17:41:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265418AbSJaWXW>; Thu, 31 Oct 2002 17:23:22 -0500
-Received: from ns1.triode.net.au ([202.147.124.1]:22762 "EHLO
-	iggy.triode.net.au") by vger.kernel.org with ESMTP
-	id <S265417AbSJaWXU>; Thu, 31 Oct 2002 17:23:20 -0500
-Message-ID: <3DC1AE60.1040308@torque.net>
-Date: Fri, 01 Nov 2002 09:27:44 +1100
-From: Douglas Gilbert <dougg@torque.net>
-Reply-To: dougg@torque.net
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
-X-Accept-Language: en-us, en
+	id <S265457AbSJaWlA>; Thu, 31 Oct 2002 17:41:00 -0500
+Received: from petasus.ch.intel.com ([143.182.124.5]:53135 "EHLO
+	petasus.ch.intel.com") by vger.kernel.org with ESMTP
+	id <S265453AbSJaWk7>; Thu, 31 Oct 2002 17:40:59 -0500
+Message-ID: <A46BBDB345A7D5118EC90002A5072C7806CAC8B3@orsmsx116.jf.intel.com>
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "'Linus Torvalds'" <torvalds@transmeta.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'lkcd-general@lists.sourceforge.net'" 
+	<lkcd-general@lists.sourceforge.net>,
+       "'lkcd-devel@lists.sourceforge.net'" 
+	<lkcd-devel@lists.sourceforge.net>
+Subject: RE: What's left over.
+Date: Thu, 31 Oct 2002 14:47:14 -0800
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: ieee1394/sbp2.c doesn't compile in 2.5.45
-Content-Type: multipart/mixed;
- boundary="------------070806040400040308060304"
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070806040400040308060304
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Adrian,
-Could you try this patch that I sent to the scsi
-list against 2.5.44-bk3.
+> THAT is what I mean by vendor-driven. If vendors decide they 
+> really want the patches, and I actually start seeing noises on 
+> linux-kernel or getting
+> requests for it being merged from _users_ rather than developers, then
+> that means that the vendor is on to something.
 
-Doug Gilbert
+I am a user and I use it; I'd like it. I am a developer and I use it. I'd
+love it. Forget my intel.com paying my paycheck.
 
---------------070806040400040308060304
-Content-Type: text/plain;
- name="sbp2_2544bk3.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sbp2_2544bk3.diff"
-
---- linux/drivers/ieee1394/sbp2.h	2002-10-26 03:11:32.000000000 +1000
-+++ linux/drivers/ieee1394/sbp2.h2544bk3fix	2002-10-31 11:27:25.000000000 +1100
-@@ -552,7 +552,8 @@
- #if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,28)
- static int sbp2scsi_biosparam (Scsi_Disk *disk, kdev_t dev, int geom[]);
- #else
--static int sbp2scsi_biosparam (Scsi_Disk *disk, struct block_device *dev, int geom[]);
-+static int sbp2scsi_biosparam (struct scsi_device *sdev, 
-+			struct block_device *dev, sector_t capacy, int geom[]);
- #endif
- static int sbp2scsi_abort (Scsi_Cmnd *SCpnt); 
- static int sbp2scsi_reset (Scsi_Cmnd *SCpnt); 
---- linux/drivers/ieee1394/sbp2.c	2002-10-31 09:22:50.000000000 +1100
-+++ linux/drivers/ieee1394/sbp2.c2544bk3fix	2002-10-31 11:30:20.000000000 +1100
-@@ -3137,14 +3137,14 @@
- /*
-  * Called by scsi stack to get bios parameters (used by fdisk, and at boot).
-  */
--#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,44)
-+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,43)
- static int sbp2scsi_biosparam (struct scsi_device *sdev,
--		struct block_device *dev, sector_t capacy, int geom[]) 
-+		struct block_device *dev, sector_t capacity, int geom[]) 
- {
- #else
- static int sbp2scsi_biosparam (Scsi_Disk *disk, kdev_t dev, int geom[]) 
- {
--	sector_t capacy = disk->capacity;
-+	sector_t capacity = disk->capacity;
- #endif
- 	int heads, sectors, cylinders;
- 
-
---------------070806040400040308060304--
+Inaky Perez-Gonzalez -- Not speaking for Intel - opinions are my own [or my
+fault]
 

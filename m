@@ -1,57 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265130AbSKVRsp>; Fri, 22 Nov 2002 12:48:45 -0500
+	id <S265132AbSKVR4C>; Fri, 22 Nov 2002 12:56:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265132AbSKVRsp>; Fri, 22 Nov 2002 12:48:45 -0500
-Received: from host194.steeleye.com ([66.206.164.34]:20241 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S265130AbSKVRsp>; Fri, 22 Nov 2002 12:48:45 -0500
-Message-Id: <200211221755.gAMHtn703551@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-cc: "J.E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-       Sam Ravnborg <sam@ravnborg.org>, john stultz <johnstul@us.ibm.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] [PATCH] subarch cleanup 
-In-Reply-To: Message from "Martin J. Bligh" <mbligh@aracnet.com> 
-   of "Fri, 22 Nov 2002 09:20:36 PST." <1053855634.1037956835@[10.10.2.3]> 
+	id <S265135AbSKVR4C>; Fri, 22 Nov 2002 12:56:02 -0500
+Received: from vger.timpanogas.org ([216.250.140.154]:31961 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S265132AbSKVR4B>; Fri, 22 Nov 2002 12:56:01 -0500
+Date: Fri, 22 Nov 2002 12:05:15 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Robert Olsson <Robert.Olsson@data.slu.se>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: e1000 fixes (NAPI)
+Message-ID: <20021122120515.A5105@vger.timpanogas.org>
+References: <15838.1306.900100.541977@robur.slu.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 22 Nov 2002 11:55:49 -0600
-From: "J.E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <15838.1306.900100.541977@robur.slu.se>; from Robert.Olsson@data.slu.se on Fri, Nov 22, 2002 at 11:21:14AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mbligh@aracnet.com said:
-> Duplicating all the code sections into all the subarches is an
-> impractical maintainance nightmare. Yet that's how it seems to be set
-> up at the moment (kind of OK if you only have 1 subarch apart from
-> generic, but not in general). 
 
-well, the way it works was modelled on the asm-arch to asm-generic setup (and 
-we have currently twenty of those).
+I'll check it out.
 
-But still, I agree that a default fallback is a better way of doing it.
+:-)
 
-> If you have a different suggestion for fixing subarch support, please
-> outline it .... 
+Jeff
 
-Well, I think what Alan does in -ac6 is the correct approach (with 
-mach-default fallback, not mach-generic, which is really PC specific).  The 
-only difference between Alan and John's patches (apart from mach-default) is 
-the _H _C split and the location of the header files.
-
-I've no real objection to the _H _C split, other than it seems a bit 
-contorted.  The intent I originally had was that all subarchs would have a 
-small setup.c file (copied and modified from mach-generic), so I didn't 
-envisage having a subarch which wanted to use the generic setup.c and a 
-different _H directory.  Doing a _H _C split reduces simplicity.
-
-As far as the location of _H.  All I'm really fishing for is a better reason 
-than "because they're header files" basically because I believe interface 
-containment has value.
-
-James
-
-
+On Fri, Nov 22, 2002 at 11:21:14AM +0100, Robert Olsson wrote:
+> 
+> 
+> 
+> Seems like FreeBSD is now getting on this train too. Someone sent me this link.
+> http://info.iet.unipi.it/~luigi/polling/
+> 
+> Cheers.
+> 
+> 						--ro
+> 
+> 
+> Jeff V. Merkey writes:
+>  > 
+>  > Thanks
+>  > 
+>  > jeff
+>  > 
+>  > On Thu, Nov 21, 2002 at 12:31:08PM -0500, Jeff Garzik wrote:
+>  > > Jeff V. Merkey wrote:
+>  > > 
+>  > > > >NAPI poll does not happen in an interrupt.  Doing things in interrupts
+>  > > > >is the source of problems that NAPI is trying to solve.
+>  > > > >
+>  > > > >Other than that, please read the code and NAPI paper...  :)
+>  > > >
+>  > > >
+>  > > >
+>  > > >
+>  > > > Where can I find it?
+>  > > 
+>  > > 
+>  > > 
+>  > > In the link Robert Ollson gave to you (paper), and the Linux kernel (code).
+>  > > 
+>  > > 	Jeff
+>  > > 
+>  > > 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,71 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263976AbTE0Rbr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 13:31:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263979AbTE0Rbr
+	id S263980AbTE0R3x (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 13:29:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263982AbTE0R3x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 13:31:47 -0400
-Received: from web40003.mail.yahoo.com ([66.218.78.21]:17997 "HELO
-	web40003.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263976AbTE0Rbk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 13:31:40 -0400
-Message-ID: <20030527174453.51471.qmail@web40003.mail.yahoo.com>
-Date: Tue, 27 May 2003 10:44:53 -0700 (PDT)
-From: Jeff Smith <whydoubt@yahoo.com>
-Subject: [PATCH] KBuild documentation - make dep
-To: linux-kernel@vger.kernel.org, mec@shout.net
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 27 May 2003 13:29:53 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:15566
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S263980AbTE0R3w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 13:29:52 -0400
+Subject: Re: [patch] sis650 irq router fix for 2.4.x
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Thomas Winischhofer <thomas@winischhofer.net>,
+       Martin Diehl <lists@mdiehl.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.55.0305271000550.2340@bigblue.dev.mcafeelabs.com>
+References: <3ED21CE3.9060400@winischhofer.net>
+	 <Pine.LNX.4.55.0305261431230.3000@bigblue.dev.mcafeelabs.com>
+	 <3ED32BA4.4040707@winischhofer.net>
+	 <Pine.LNX.4.55.0305271000550.2340@bigblue.dev.mcafeelabs.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1054053901.18814.0.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 27 May 2003 17:45:03 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove references to make {dep|depend} in kbuild documentation.
+I'm keeping an eye on it. The correct answer appears to be 
+"use ACPI" once it works on SiS
 
-- Jeff Smith
+I'll probably try some of those changes in a later -ac and see what
+happens
 
-========================================================================
---- a/Documentation/kbuild/commands.txt Mon May 26 20:00:41 2003
-+++ b/Documentation/kbuild/commands.txt Tue May 27 11:59:24 2003
-@@ -17,7 +17,6 @@
- you need:
-
-     make config
--    make dep
-     make bzImage
-
- Instead of 'make config', you can run 'make menuconfig' for a full-screen
-@@ -86,28 +85,5 @@
-
-        You can run 'make checkhelp' without configuring the kernel.
-        Also, 'make checkhelp' does not modify any files.
--
--    make dep, make depend
--
--       'make dep' is a synonym for the long form, 'make depend'.
--
--       This command does two things.  First, it computes dependency
--       information about which .o files depend on which .h files.
--       It records this information in a top-level file named .hdepend
--       and in one file per source directory named .depend.
--
--       Second, if you have CONFIG_MODVERSIONS enabled, 'make dep'
--       computes symbol version information for all of the files that
--       export symbols (note that both resident and modular files may
--       export symbols).
--
--       If you do not enable CONFIG_MODVERSIONS, you only have to run
--       'make dep' once, right after the first time you configure
--       the kernel.  The .hdepend files and the .depend file are
--       independent of your configuration.
--
--       If you do enable CONFIG_MODVERSIONS, you must run 'make dep'
--       every time you change your configuration, because the module
--       symbol version information depends on the configuration.
-
- [to be continued ...]
-
-
-__________________________________
-Do you Yahoo!?
-The New Yahoo! Search - Faster. Easier. Bingo.
-http://search.yahoo.com

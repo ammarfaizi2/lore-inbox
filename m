@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264247AbUFKRtD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264275AbUFKRtD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264247AbUFKRtD (ORCPT <rfc822;willy@w.ods.org>);
+	id S264275AbUFKRtD (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 11 Jun 2004 13:49:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264275AbUFKRs2
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264274AbUFKRsW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 13:48:28 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:59019 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264247AbUFKRr7 (ORCPT
+	Fri, 11 Jun 2004 13:48:22 -0400
+Received: from cantor.suse.de ([195.135.220.2]:35976 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264277AbUFKRqO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 13:47:59 -0400
-Date: Fri, 11 Jun 2004 19:47:57 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] IDE update for 2.6.7-rc3 [11/12]
-Message-ID: <20040611174757.GA4436@suse.de>
-References: <200406111816.10369.bzolnier@elka.pw.edu.pl> <20040611170154.GE4309@suse.de> <200406111949.55984.bzolnier@elka.pw.edu.pl>
+	Fri, 11 Jun 2004 13:46:14 -0400
+Subject: Re: [STACK] >3k call path in reiserfs
+From: Chris Mason <mason@suse.com>
+To: Hans Reiser <reiser@namesys.com>
+Cc: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       Dave Jones <davej@redhat.com>, reiserfs-dev@namesys.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <40C9DE9F.90901@namesys.com>
+References: <20040609122226.GE21168@wohnheim.fh-wedel.de>
+	 <1086784264.10973.236.camel@watt.suse.com>
+	 <1086800028.10973.258.camel@watt.suse.com> <40C74388.20301@namesys.com>
+	 <1086801345.10973.263.camel@watt.suse.com> <40C75141.7070408@namesys.com>
+	 <20040609182037.GA12771@redhat.com> <40C79FE2.4040802@namesys.com>
+	 <20040610223532.GB3340@wohnheim.fh-wedel.de> <40C91DA0.6060705@namesys.com>
+	 <20040611134621.GA3633@wohnheim.fh-wedel.de>  <40C9DE9F.90901@namesys.com>
+Content-Type: text/plain
+Message-Id: <1086976005.10973.364.camel@watt.suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200406111949.55984.bzolnier@elka.pw.edu.pl>
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 11 Jun 2004 13:46:45 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 11 2004, Bartlomiej Zolnierkiewicz wrote:
-> On Friday 11 of June 2004 19:01, Jens Axboe wrote:
-> > On Fri, Jun 11 2004, Bartlomiej Zolnierkiewicz wrote:
-> > > [PATCH] ide: kill task_[un]map_rq()
-> > >
-> > > PIO handlers under CONFIG_IDE_TASKFILE_IO=n are never used for bio
-> > > based requests (rq->bio is always NULL) so we can use rq->buffer
-> > > directly instead of calling ide_[un]map_buffer().
-> >
-> > Not so sure if it's ever used for something requiring performance, and
-> > even if it isn't then it may still be worth it to keep the mapping and
-> > instead fix the task setup to map in user data with blk_rq_map_user() by
-> > fixing up ide_taskfile_ioctl().
+On Fri, 2004-06-11 at 12:32, Hans Reiser wrote:
+
+> Reiser4 is going to obsolete V3 in a few weeks.  V3 will be retained for 
+> compatibility reasons only, as V4 blows it away in performance.
 > 
-> I agree about blk_rq_map_user() (I even did it once around 2.5.60-70).
-> However I think that we are better off (slowly) killing old taskfile
-> handlers completely (this patch is for old taskfile handlers only)
-> and using CONFIG_IDE_TASKFILE_IO versions (which know about rq->bio).
 
-Ah these are the old handlers. Then I fully agree, nuk the mappings.
+This would be the conservative release management you were talking about
+before, right?  It's going to take a considerable amount of time for v4
+to obsolete v3, because it will take a considerable amount of time for
+v4 to become stable under the wide range of conditions that filesystems
+get used.
 
--- 
-Jens Axboe
+Please don't misunderstand this as a statement against v4, I would love
+to see it be 1000x as fast as every other FS.  I'm only asking for some
+kind of realism in the expectations you give the users.
+
+-chris
+
 

@@ -1,34 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132816AbRDDQOD>; Wed, 4 Apr 2001 12:14:03 -0400
+	id <S132784AbRDDQSX>; Wed, 4 Apr 2001 12:18:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132810AbRDDQNq>; Wed, 4 Apr 2001 12:13:46 -0400
-Received: from dentin.eaze.net ([216.228.128.151]:24078 "EHLO xirr.com")
-	by vger.kernel.org with ESMTP id <S132784AbRDDQNY>;
-	Wed, 4 Apr 2001 12:13:24 -0400
-Date: Wed, 4 Apr 2001 11:12:15 -0500 (CDT)
-From: SodaPop <soda@xirr.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: [QUESTION] 2.4.x nice level
-Message-ID: <Pine.LNX.4.30.0104041104510.9687-100000@xirr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132808AbRDDQSN>; Wed, 4 Apr 2001 12:18:13 -0400
+Received: from 216.41.5.host170 ([216.41.5.170]:63404 "EHLO
+	habitrail.home.fools-errant.com") by vger.kernel.org with ESMTP
+	id <S132784AbRDDQSJ>; Wed, 4 Apr 2001 12:18:09 -0400
+Message-Id: <200104041617.f34GHQQ20187@habitrail.home.fools-errant.com>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.3
+To: Mark Lehrer <mark@knm.org>, linux-kernel@vger.kernel.org
+Subject: Re: "linux" terminal type 
+In-Reply-To: Your message of "Tue, 03 Apr 2001 21:07:55 MDT."
+             <200104040307.VAA03580@home.knm.org> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 04 Apr 2001 12:17:26 -0400
+From: Hacksaw <hacksaw@hacksaw.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I too have noticed that nicing processes does not work nearly as
-effectively as I'd like it to.  I run on an underpowered machine,
-and have had to stop running things such as seti because it steals too
-much cpu time, even when maximally niced.
+Look in section 4 of the man pages for entries starting with "console".
 
-As an example, I can run mpg123 and a kernel build concurrently without
-trouble; but if I add a single maximally niced seti process, mpg123 runs
-out of gas and will start to skip while decoding.
+console
+console_codes
+etc.
 
-Is there any way we can make nice levels stronger than they currently are
-in 2.4?  Or is this perhaps a timeslice problem, where once seti gets cpu
-time it runs longer than it should since it makes relatively few system
-calls?
-
--dennis T
 

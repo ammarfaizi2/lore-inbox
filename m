@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293411AbSCEQ1U>; Tue, 5 Mar 2002 11:27:20 -0500
+	id <S293422AbSCEQ2u>; Tue, 5 Mar 2002 11:28:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293422AbSCEQ1K>; Tue, 5 Mar 2002 11:27:10 -0500
-Received: from mail.parknet.co.jp ([210.134.213.6]:6916 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP
-	id <S293411AbSCEQ0y>; Tue, 5 Mar 2002 11:26:54 -0500
-To: frankeh@watson.ibm.com
-Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
-Subject: Re: Fwd: [Lse-tech] get_pid() performance fix
-In-Reply-To: <20020305145004.BFA503FE06@smtp.linux.ibm.com>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Wed, 06 Mar 2002 01:26:20 +0900
-In-Reply-To: <20020305145004.BFA503FE06@smtp.linux.ibm.com>
-Message-ID: <87bse39e1f.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S293424AbSCEQ2b>; Tue, 5 Mar 2002 11:28:31 -0500
+Received: from irmgard.exp-math.uni-essen.de ([132.252.150.18]:47887 "EHLO
+	irmgard.exp-math.uni-essen.de") by vger.kernel.org with ESMTP
+	id <S293422AbSCEQ2W> convert rfc822-to-8bit; Tue, 5 Mar 2002 11:28:22 -0500
+Date: Tue, 5 Mar 2002 17:28:12 +0100 (MEZ)
+From: "Dr. Michael Weller" <eowmob@exp-math.uni-essen.de>
+To: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
+Cc: Greg KH <greg@kroah.com>, Carl-Johan Kjellander <carljohan@kjellander.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: pwc-webcam attached to usb-ohci card blocks on read() indefinitely.
+In-Reply-To: <200203051612.g25GCtc23752@fachschaft.cup.uni-muenchen.de>
+Message-Id: <Pine.A32.3.95.1020305172410.29684G-100000@werner.exp-math.uni-essen.de>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hubertus Franke <frankeh@watson.ibm.com> writes:
+On Tue, 5 Mar 2002, Oliver Neukum wrote:
 
-> @@ -153,13 +155,18 @@
->                               if(last_pid & 0xffff8000)
->                                     last_pid = 300;
->                               next_safe = PID_MAX;
-> +                             goto repeat;
->                         }
-> -                       goto repeat;
-> +                       if(unlikely(last_pid == beginpid))
-> +                             goto nomorepids;
-> +                       continue;
+> Am Dienstag, 5. März 2002 06:11 schrieb Greg KH:
+> > On Tue, Mar 05, 2002 at 02:06:07AM +0100, Carl-Johan Kjellander wrote:
+> > > Attached to each one of these is an Philips ToUCam pro which uses the pwc
+> > > and pwcx modules. (yes, the kernel becomes tainted by the pwcx module)
+> >
+> > As you are using this closed source module, I suggest you take this up
+> > with that module's author.
+> 
+> Perhaps you could first ask whether the hang can be reproduced
+> without that module loaded ?
+> Secondly, that module is unlikely to cause that kind of trouble.
 
-It isn't guaranteed that pid is unique.
+I might completely misunderstand the thread, but I would suspect the
+pwc and pwcx modules to be the drivers for the pwc-webcam which blocks
+forever on read syscalls.
 
-In the case:
-	task->pid = 300, task->xxx = 301
-	pid 301 is free
+How would you perform the read on the pwc-webcam w/o that driver module?
 
-	This get_pid() returns 301.
+Michael.
 
-Regards.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+--
+
+Michael Weller: eowmob@exp-math.uni-essen.de, eowmob@ms.exp-math.uni-essen.de,
+or even mat42b@spi.power.uni-essen.de. If you encounter an eowmob account on
+any machine in the net, it's very likely it's me.
+

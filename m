@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129242AbRDPKHN>; Mon, 16 Apr 2001 06:07:13 -0400
+	id <S130038AbRDPKLc>; Mon, 16 Apr 2001 06:11:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129381AbRDPKHD>; Mon, 16 Apr 2001 06:07:03 -0400
-Received: from colorfullife.com ([216.156.138.34]:54279 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S129242AbRDPKGs>;
-	Mon, 16 Apr 2001 06:06:48 -0400
-Message-ID: <3ADAC46B.7105E631@colorfullife.com>
-Date: Mon, 16 Apr 2001 12:07:39 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-ac3 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: linas@backlot.linas.org, linux-kernel@vger.kernel.org
-Subject: Re: fsck, raid reconstruction 
+	id <S129381AbRDPKLW>; Mon, 16 Apr 2001 06:11:22 -0400
+Received: from linux.kappa.ro ([194.102.255.131]:51925 "EHLO linux.kappa.ro")
+	by vger.kernel.org with ESMTP id <S130038AbRDPKLP>;
+	Mon, 16 Apr 2001 06:11:15 -0400
+X-RAV-AntiVirus: This e-mail has been scanned for viruses on host: linux.kappa.ro
+Date: Mon, 16 Apr 2001 13:10:23 +0300
+From: Mircea Damian <dmircea@kappa.ro>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Jens Axboe <axboe@suse.de>, Arthur Pedyczak <arthur-p@home.com>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: loop problems continue in 2.4.3
+Message-ID: <20010416131023.A19844@linux.kappa.ro>
+In-Reply-To: <20010416104936.B9539@suse.de> <Pine.GSO.4.21.0104160527400.3095-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.4.21.0104160527400.3095-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Mon, Apr 16, 2001 at 05:30:45AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The first 2 problems aren't real problems (modify /etc/fstab, perhaps a
-special ioctl could be added to raid and fsck stops the reconstruction)
-- at most anoying, but clearly no bugs.
-
-But the third one could be a bug:
+On Mon, Apr 16, 2001 at 05:30:45AM -0400, Alexander Viro wrote:
 > 
-> Third problem: 
 > 
-> I just tried boot 2.4.3 today. (after an unclean shutdown) fsck runs 
-> at a crawl on my RAID-1 volume. It would take all day (!! literally) 
-> to fsck. The disk-drive activity light flashes about once a second, 
-> maybe once every two seconds. (with a corresponding click from the 
-> drive). 
+> On Mon, 16 Apr 2001, Jens Axboe wrote:
+> 
+> > > I can mount the same file on the same mountpoint more than once. If I
+> > > mount a file twice (same file on the same mount point)
+> > 
+> > This is a 2.4 feature
+> 
+> Ability to losetup different loop devices to the same underlying
+> file is a bug, though. Not that it was new, though...
 
-Can you boot without the raid-1 volume?
-Run top/vmstat during the fsck+reconstruction - I assume the system runs
-out of memory and bdflush/kswapd are looping.
+But the guy said:
+"
+> disappers from cat /proc/mounts output, but the module 'loop' shows as
+> busy and cannot be removed even though there are no more loop mounts.
+"
 
---	
-	Manfred
+So he has no loop mounts and he can not remove the module. This is a bug!
+
+
+-- 
+Mircea Damian
+E-mails: dmircea@kappa.ro, dmircea@roedu.net
+WebPage: http://taz.mania.k.ro/~dmircea/

@@ -1,31 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278218AbRKHUsQ>; Thu, 8 Nov 2001 15:48:16 -0500
+	id <S278205AbRKHUs4>; Thu, 8 Nov 2001 15:48:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278205AbRKHUsH>; Thu, 8 Nov 2001 15:48:07 -0500
-Received: from 24.213.60.124.up.mi.chartermi.net ([24.213.60.124]:28313 "EHLO
-	front2.chartermi.net") by vger.kernel.org with ESMTP
-	id <S278218AbRKHUsD>; Thu, 8 Nov 2001 15:48:03 -0500
-Date: Thu, 8 Nov 2001 14:49:53 -0600 (CST)
-From: Cheryl Homiak <chomiak@chartermi.net>
-To: linux-kernel@vger.kernel.org
-Subject: loopback device problem and unrequested modules trying to load:
- linux-2.4.14
-Message-ID: <Pine.LNX.4.40.0111081437370.368-100000@maranatha>
+	id <S278269AbRKHUsh>; Thu, 8 Nov 2001 15:48:37 -0500
+Received: from warden.digitalinsight.com ([208.29.163.2]:55027 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S278205AbRKHUsX>; Thu, 8 Nov 2001 15:48:23 -0500
+From: David Lang <david.lang@digitalinsight.com>
+To: Andreas Franck <Andreas.Franck@akustik.rwth-aachen.de>
+Cc: linux-kernel@vger.kernel.org
+Date: Thu, 8 Nov 2001 12:24:25 -0800 (PST)
+Subject: Re: Linux-2.4.[10-13]-acX slows down to crawl...
+In-Reply-To: <3BEABC6D.F1F4E6D9@akustik.rwth-aachen.de>
+Message-ID: <Pine.LNX.4.40.0111081221370.3451-100000@dlang.diginsite.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I experienced dependency problems with the 2.2.14 kernel when I tried to
-compile in loopback block device, as others have reported. In addition to
-this,modprobe was looking for modules which I had not had installed:
-sound-service0-0 and sound-slot (may not have the module names verbatim).
-I have sound support compiled in to the kernel; there should be no sound
-modules loading, and I didn't have any loading before compiling this
-kernel. when I rebooted with my oldkernel, those modules were no longer
-trying to load. I should clarify that the modules weren't actually
-loading; modprobe was trying to find them and couldn't. I double-checked
-my config to make sure I hadn't requested any modules for sound by
-accident.
+with the ipchains compatability module the only problem I have seen is if
+you use the redirect target (although looking at the code masqerading may
+suffer from the same memory leak), if you are just doing filtering you
+will not run into the problem I did.
 
+David Lang
+
+
+
+ On Thu, 8 Nov 2001, Andreas Franck
+wrote:
+
+> Date: Thu, 08 Nov 2001 18:10:05 +0100
+> From: Andreas Franck <Andreas.Franck@akustik.rwth-aachen.de>
+> To: David Lang <david.lang@digitalinsight.com>
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: Linux-2.4.[10-13]-acX slows down to crawl...
+>
+> Hi David,
+>
+> >
+> > are you useing iptables or ipchains on this box?
+> >
+> > I see you have them compiled as modules
+>
+> Yes, I am using the ipchains compatibility module for the
+> firewall - I saw your messages regarding performance
+> problems with this configuration.
+>
+> Can this be the cause? Are there any workarounds?
+>
+> Andreas
+>

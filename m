@@ -1,41 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265260AbUFWOoZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265520AbUFWOrA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265260AbUFWOoZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 10:44:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265249AbUFWOoY
+	id S265520AbUFWOrA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 10:47:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265249AbUFWOq7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 10:44:24 -0400
-Received: from cfcafw.sgi.com ([198.149.23.1]:19722 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S265260AbUFWOm5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 10:42:57 -0400
-Date: Wed, 23 Jun 2004 09:42:17 -0500 (CDT)
-From: Pat Gefre <pfg@sgi.com>
-To: Christoph Hellwig <hch@infradead.org>
-cc: Andrew Morton <akpm@osdl.org>, Pat Gefre <pfg@sgi.com>,
-       linux-kernel@vger.kernel.org, erikj@sgi.com, devies@lanana.org
-Subject: Re: [PATCH 2.6] Altix serial driver
-In-Reply-To: <20040622183621.GA7490@infradead.org>
-Message-ID: <Pine.SGI.3.96.1040623094018.19458B-100000@fsgi900.americas.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 23 Jun 2004 10:46:59 -0400
+Received: from 13.2-host.augustakom.net ([80.81.2.13]:49289 "EHLO phoebee.mail")
+	by vger.kernel.org with ESMTP id S265974AbUFWOq2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 10:46:28 -0400
+Date: Wed, 23 Jun 2004 16:46:27 +0200
+From: Martin Zwickel <martin.zwickel@technotrend.de>
+To: Mikael Bouillot <xaajimri@corbac.com>
+Cc: linux-kernel@vger.kernel.org,
+       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
+Subject: Re: Forcedeth driver bug
+Message-Id: <20040623164627.3234bc29@phoebee>
+In-Reply-To: <20040623142936.GA10440@mail.nute.net>
+References: <20040623142936.GA10440@mail.nute.net>
+X-Mailer: Sylpheed-Claws 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Operating-System: Linux Phoebee 2.6.2 i686 Intel(R) Pentium(R) 4 CPU
+ 2.40GHz
+X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
+ ?J0GVZ4&
+Organization: Technotrend AG
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Jun 2004, Christoph Hellwig wrote:
+On Wed, 23 Jun 2004 14:29:36 +0000
+Mikael Bouillot <xaajimri@corbac.com> bubbled:
 
-+ On Tue, Jun 22, 2004 at 11:24:42AM -0700, Andrew Morton wrote:
-+ > which seems reasonable, I suppose, but a patch to devices.txt is needed
-+ > please.
-+ 
-+ Umm, devices.txt isn managed by LANANA, better ask them.
-+ 
+>   Hi all,
+> 
+>   I'm having trouble with the forcedeth driver in kernel version 2.6.7.
+> >From what I can see, it seems that incoming packets sometime get stuck
+> on their way in.
+> 
+>   What happens is this: some packet enters the NIC, and for some reason,
+> it doesn't come out of the driver. As soon as another incoming packet
+> gets in, both packets are handed down by the driver.
 
+Do you really know that the driver don't get the stuck packet. Or is it possible
+that the kernels network stack does the fault?
 
-Guess I should have said "different" major/minor. We have asked lanana
-for our own major/minor - but, as yet, no response.... So we picked a
-different one.
+I'm asking because I have a similar problem with udp and kernel 2.6.7-rc2-mm2.
+My sendto gets stuck sometimes and only continues if the kernel handles another
+network packet.
 
+But maybe my problem is a totally different one.
 
--- Pat
+Regards,
+Martin
 
+-- 
+MyExcuse:
+YOU HAVE AN I/O ERROR -> Incompetent Operator error
+
+Martin Zwickel <martin.zwickel@technotrend.de>
+Research & Development
+
+TechnoTrend AG <http://www.technotrend.de>

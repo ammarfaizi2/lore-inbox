@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262694AbRF2WV1>; Fri, 29 Jun 2001 18:21:27 -0400
+	id <S262686AbRF2WV1>; Fri, 29 Jun 2001 18:21:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262686AbRF2WVS>; Fri, 29 Jun 2001 18:21:18 -0400
-Received: from 216-60-128-137.ati.utexas.edu ([216.60.128.137]:42885 "HELO
-	tsunami.webofficenow.com") by vger.kernel.org with SMTP
-	id <S262694AbRF2WVC>; Fri, 29 Jun 2001 18:21:02 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@webofficenow.com>
-Reply-To: landley@webofficenow.com
-To: linux-kernel@vger.kernel.org
-Subject: Re: Cosmetic JFFS patch.
-Date: Fri, 29 Jun 2001 13:19:52 -0400
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <Pine.LNX.4.33.0106281040000.10308-100000@localhost.localdomain> <20010628131641.5e10ecca.reynolds@redhat.com> <9hfter$9e7$1@ncc1701.cistron.net>
-In-Reply-To: <9hfter$9e7$1@ncc1701.cistron.net>
+	id <S262829AbRF2WVR>; Fri, 29 Jun 2001 18:21:17 -0400
+Received: from adsl-64-170-199-186.dsl.snfc21.pacbell.net ([64.170.199.186]:41061
+	"EHLO orion.ariodata.com") by vger.kernel.org with ESMTP
+	id <S262686AbRF2WVH> convert rfc822-to-8bit; Fri, 29 Jun 2001 18:21:07 -0400
+content-class: urn:content-classes:message
+Subject: RE: Kernel Module tracing.
+Date: Fri, 29 Jun 2001 15:18:02 -0700
+Message-ID: <8A098FDFC6EED94B872CA2033711F86F01AA96@orion.ariodata.com>
 MIME-Version: 1.0
-Message-Id: <0106291319520Z.01786@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Thread-Topic: Kernel Module tracing.
+Thread-Index: AcEA6Vui8GAimEc9QbGgLl3uw/HW7w==
+From: "Michael Nguyen" <mnguyen@ariodata.com>
+X-MimeOLE: Produced By Microsoft Exchange V6.0.4417.0
+To: "Tom spaziani" <digiphaze@deming-os.org>, <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 28 June 2001 14:36, Miquel van Smoorenburg wrote:
 
-> You know what I hate? Debugging stuff like BIOS-e820, zone messages,
-> dentry|buffer|page-cache hash table entries, CPU: Before vendor init,
-> CPU: After vendor init, etc etc, PCI: Probing PCI hardware,
-> ip_conntrack (256 buckets, 2048 max), the complete APIC tables, etc
+>I've recently been laboring over a kernel module that allows other
+>kernel modules to send messages and tracing statements.  If anyone 
+>has any input on whether this would be a usefull thing or not
+>please let me know. Here is a quick breakdown on how it works.
 
-We've got a couple of VA rackmount servers with adaptec scsi controllers that 
-print out several SCREENS worth of information as they probe all the busses 
-and joyfully announce that yes, there are still hard drives plugged into some 
-of them, and even gives me a list of the ones that DON'T have hard drives 
-plugged into them.
+Here is one raised hand.
+>From your description, I can see that this could be use as a 
+Monitoring tool (heart beat, status, progress, etc..). I would 
+appreciate any additional info.
 
-Interestingly, the bios also goes through a very similar ritual earlier in 
-the boot.
+Thanks in advance,
+Michael.
 
-Rob
+

@@ -1,53 +1,64 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317034AbSFFSMG>; Thu, 6 Jun 2002 14:12:06 -0400
+	id <S317068AbSFFSRQ>; Thu, 6 Jun 2002 14:17:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317068AbSFFSMF>; Thu, 6 Jun 2002 14:12:05 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40969 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317034AbSFFSME>;
-	Thu, 6 Jun 2002 14:12:04 -0400
-Message-ID: <3CFFA55F.8000008@mandrakesoft.com>
-Date: Thu, 06 Jun 2002 14:09:35 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/00200205
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: lei_hu@ali.com.tw, alan@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] update for ALi Audio Driver (0.14.10)
-In-Reply-To: <OF7057B5B9.A6CA3C3B-ON48256BD0.0020BE4E@ali.com.tw> <1023365907.22186.9.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S317072AbSFFSRQ>; Thu, 6 Jun 2002 14:17:16 -0400
+Received: from avscan1.sentex.ca ([199.212.134.11]:24024 "EHLO
+	avscan1.sentex.ca") by vger.kernel.org with ESMTP
+	id <S317068AbSFFSRP>; Thu, 6 Jun 2002 14:17:15 -0400
+Message-ID: <02aa01c20d86$ae9e8bc0$294b82ce@connecttech.com>
+From: "Stuart MacDonald" <stuartm@connecttech.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: [BUG] dd, floppy, 2.5.18
+Date: Thu, 6 Jun 2002 14:19:22 -0400
+Organization: Connect Tech Inc.
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+# uname -a
+Linux moll 2.5.18 #1 SMP Wed May 29 15:18:20 EDT 2002 i686 unknown
 
->On Thu, 2002-06-06 at 07:27, lei_hu@ali.com.tw wrote:
->  
->
->>Dear all
->> I rewrite the part to read/write registers of the audio codec  for Ali 5451
->>Audio Driver.
->>    
->>
->
->The formatting seems to have gone a bit strange but I'll clean that up
->and merge the change
->  
->
+[insert floppy]
+# dd if=/dev/fd0 of=diskette.image
+8+0 records in
+8+0 records out
+# ls -alF diskette.image
+-rw-r--r--    1 root     root         4096 Jun  6 11:49 test
 
+This is obviously wrong. But a second try at it:
 
-Why?  Hardware semaphores are notorious for causing hangs.  Nobody is 
-sharing the hardware under Linux, so I think we should enable access on 
-init, and not disable access until driver close.  IMO the mixer should 
-be guarded by a Linux kernel semaphore...  I have a patch from Thomas 
-Sailer (I think) lying around somewhere that does just that to the via 
-audio driver.  Maybe we can adapt it.
-(I cc'd this little detail, in my ali/trident.c patch review, to you)
+# dd if=/dev/fd0 of=diskette.image
+2880+0 records in
+2880+0 records out
+# ls -alF diskette.image
+-rw-r--r--    1 root     root      1474560 Jun  6 11:49 test
 
-    Jeff
+However:
 
+# tar xvf diskette.image
+wget-1.8.1.tar.gz
+# cmp wget-1.8.1.tar.gz wget-181.tar.gz
+wget-1.8.1.tar.gz wget-181.tar.gz differ: char 7681, line 34
 
+So that's wrong too. This works under RedHat's 2.4.7-10, and has
+worked previously in various 2.4 and 2.2 kernels.
+
+I'm willing to help with some testing to figure out the problem; I use
+this dd method to make diskette images for customers all the time, and
+I will need it fixed for 2.6.x.
+
+Some things I've noticed:
+- the 8 records attempt always happens after a new media insertion. To
+say it another way, the "good" 2880 attempt only happens on the second
+and subsequent attempts on an already inserted floppy.
+- I though I'd noticed that this would corrupt the floppy itself, but
+have been unable to reproduce. May have been two bad floppies in a row
+coincidentally.
+
+..Stu
 
 

@@ -1,46 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263138AbUEKSag@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263107AbUEKScJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263138AbUEKSag (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 14:30:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbUEKSag
+	id S263107AbUEKScJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 14:32:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263147AbUEKScI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 14:30:36 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:56289 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263032AbUEKSae (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 14:30:34 -0400
-Date: Tue, 11 May 2004 20:30:13 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Ricky Beam <jfbeam@bluetronic.net>
-Cc: Bob Tracy <rct@gherkin.frus.com>, Kurt Garloff <garloff@suse.de>,
-       Linux SCSI list <linux-scsi@vger.kernel.org>,
-       Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Format Unit can take many hours
-Message-ID: <20040511183013.GC14789@suse.de>
-References: <20040511162822.C46BFDBDB@gherkin.frus.com> <Pine.GSO.4.33.0405111243300.14297-100000@sweetums.bluetronic.net>
+	Tue, 11 May 2004 14:32:08 -0400
+Received: from adsl-static-1-36.uklinux.net ([62.245.36.36]:24530 "EHLO
+	bristolreccc.co.uk") by vger.kernel.org with ESMTP id S263107AbUEKScA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 14:32:00 -0400
+Subject: problem with sis900 driver 2.6.5 +
+From: mike <mike@bristolreccc.co.uk>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 11 May 2004 19:28:24 +0100
+Message-Id: <1084300104.24569.8.camel@datacontrol>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.33.0405111243300.14297-100000@sweetums.bluetronic.net>
+X-Mailer: Ximian Evolution 1.5.7 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 11 2004, Ricky Beam wrote:
-> On Tue, 11 May 2004, Bob Tracy wrote:
-> >Moreover, it simply "feels" wrong to define a constant for something
-> >that isn't...  The quick fix of increasing the timeout doesn't address
-> >the underlying issue of how long a format should take, and as Ricky
-> >implies, that's probably more the concern of the application rather
-> >than the driver.
-> 
-> The real problem is a lack of being able to specify a timeout for user
-> supplied commands.  In-kernel drivers can set a command timeout.  The
-> IOCTL interface does not export that capability.
+In kernels 2.6.5 and above (may affect 2.6.4 as well) there seems to be
+a problem with the sis900 eth driver
 
-Noone should use that interface, period. That ioctl is about as bad an
-interface as you could imagine. Use any variant of sg and you should be
-fine.
+I have a sis chipset with integrated ethernet sis900 driver which has
+always worked perfectly up to and including 2.6.3 (fedora)
 
--- 
-Jens Axboe
+Now with both fedora 2.6.5 kernel and vanilla 2.6.6 eth0 does not come
+up
 
+relevant messages
+
+sis900 device eth0 does not appear to be present delaying initialisation
+
+and from dmesg eth0: cannot find ISA bridge
+
+2.6.3 works fine
+
+lsmod shows sis and sis900 modules loaded fine
+ 

@@ -1,35 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261840AbULGRXn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261859AbULGRYG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261840AbULGRXn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Dec 2004 12:23:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261856AbULGRXn
+	id S261859AbULGRYG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Dec 2004 12:24:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261860AbULGRYG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Dec 2004 12:23:43 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:14785 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261840AbULGRXm (ORCPT
+	Tue, 7 Dec 2004 12:24:06 -0500
+Received: from [62.206.217.67] ([62.206.217.67]:15034 "EHLO kaber.coreworks.de")
+	by vger.kernel.org with ESMTP id S261859AbULGRYB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Dec 2004 12:23:42 -0500
-Date: Tue, 7 Dec 2004 18:23:30 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: Andy <genanr@emsphone.com>, linux-kernel@vger.kernel.org
-Subject: Re: Rereading disk geometry without reboot
-In-Reply-To: <41B5C96A.5060909@osdl.org>
-Message-ID: <Pine.LNX.4.53.0412071823120.8859@yvahk01.tjqt.qr>
-References: <20041206202356.GA5866@thumper2> <Pine.LNX.4.53.0412071240300.18630@yvahk01.tjqt.qr>
- <41B5C96A.5060909@osdl.org>
+	Tue, 7 Dec 2004 12:24:01 -0500
+Message-ID: <41B5E722.2080600@trash.net>
+Date: Tue, 07 Dec 2004 18:23:46 +0100
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041008 Debian/1.7.3-5
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Thomas Graf <tgraf@suug.ch>
+CC: hadi@cyberus.ca, Andrew Morton <akpm@osdl.org>,
+       Thomas Cataldo <tomc@compaqnet.fr>, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, "David S. Miller" <davem@davemloft.net>
+Subject: Re: Hard freeze with 2.6.10-rc3 and QoS, worked fine with 2.6.9
+References: <1102380430.6103.6.camel@buffy> <20041206224441.628e7885.akpm@osdl.org> <1102422544.1088.98.camel@jzny.localdomain> <41B5E188.5050800@trash.net> <20041207170748.GF1371@postel.suug.ch>
+In-Reply-To: <20041207170748.GF1371@postel.suug.ch>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->There's 'blockdev --rereadpt' also, but neither of these work
->on a mounted filesystem afaik.
+Thomas Graf wrote:
 
-Who said editing the ptab of something that's mounted is good?
+>* Patrick McHardy <41B5E188.5050800@trash.net> 2004-12-07 17:59
+>  
+>
+>>That's also what I thought at first. But the problem is in
+>>tcf_action_copy_stats, it assumes a->priv has the same layout as
+>>struct tcf_act_hdr, which is not true for struct tcf_police. This
+>>patch rearranges struct tcf_police to match tcf_act_hdr.
+>>    
+>>
+>
+>Hehe, see my post a few minutes back. I came up with nearly the same
+>solution ;-> The only difference to my patch is that I don't touch
+>tcf_police if the action code isn't compiled.
+>  
+>
+Either one is fine with me, although I would prefer to see
+the number of ifdefs in this area going down, not up :)
+
+Regards
+Patrick
 
 
-
-Jan Engelhardt
--- 
-ENOSPC

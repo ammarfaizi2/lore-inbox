@@ -1,60 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264185AbUDGT6v (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 15:58:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264188AbUDGT6v
+	id S263585AbUDGUOO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 16:14:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264124AbUDGUON
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 15:58:51 -0400
-Received: from main.gmane.org ([80.91.224.249]:5334 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264185AbUDGT6u (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 15:58:50 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: Rewrite Kernel
-Date: Wed, 07 Apr 2004 21:58:46 +0200
-Message-ID: <yw1xzn9n5zm1.fsf@kth.se>
-References: <20040407125406.209FC39834A@ws5-1.us4.outblaze.com> <1081348038.5049.6.camel@redeeman.linux.dk>
- <200404071455.i37EtOn8000182@81-2-122-30.bradfords.org.uk>
- <20040407150516.GC23517@marowsky-bree.de> <40744481.7050002@virginia.edu>
+	Wed, 7 Apr 2004 16:14:13 -0400
+Received: from pirx.hexapodia.org ([65.103.12.242]:37470 "EHLO
+	pirx.hexapodia.org") by vger.kernel.org with ESMTP id S263585AbUDGUOM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Apr 2004 16:14:12 -0400
+Date: Wed, 7 Apr 2004 15:14:12 -0500
+From: Andy Isaacson <adi@hexapodia.org>
+To: Miquel van Smoorenburg <miquels@cistron.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: dd PATCH: add conv=direct
+Message-ID: <20040407201412.GA23519@hexapodia.org>
+References: <20040406220358.GE4828@hexapodia.org> <20040406173326.0fbb9d7a.akpm@osdl.org> <20040407173116.GB2814@hexapodia.org> <c51jql$7j4$2@news.cistron.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ti211310a080-13635.bb.online.no
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:aJZ0ZACeynzSNO2Fb9IGxhI+dn0=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <c51jql$7j4$2@news.cistron.nl>
+User-Agent: Mutt/1.4.1i
+X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
+X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
+X-Domestic-Surveillance: money launder bomb tax evasion
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Aaron Smith <aws4y@virginia.edu> writes:
+On Wed, Apr 07, 2004 at 07:12:21PM +0000, Miquel van Smoorenburg wrote:
+> In article <20040407173116.GB2814@hexapodia.org>,
+> Andy Isaacson  <adi@hexapodia.org> wrote:
+> >The next feature to add would be OpenBSD-style "KB/s" reporting.  I'm
+> >not going there.
+> >
+> >diff -ur coreutils-5.0.91/doc/coreutils.texi
+> >coreutils-5.0.91-adi/doc/coreutils.texi
+> 
+> Doesn't it already do that ?
+> 
+> $ dd if=/dev/zero of=/tmp/file bs=4K count=100
+> 100+0 records in
+> 100+0 records out
+> 409600 bytes transferred in 0.005108 seconds (80189583 bytes/sec)
 
-> Lars Marowsky-Bree wrote:
->
->>Guys, gals,
->>
->>you are all missing the point.
->>
->>It is obvious that what we really need is a hand-optimized in-kernel
->>core LISP machine written in >i386 assembly, then we need to port the
->>rest of the kernel to run as LISP bytecode on top of that in ring1 (in
->>particular the security policies).
->>
->>Of course, important privileged user-space such as glibc should be
->>ported to this highly efficient non-recursive LISP machine too for
->>efficiency and run on ring 2 for speed and security.
->>
->>
-> What you are talking about is a LISP machine micro-kernel in Ring0
-> which sort of defeats the whole point of Linux being monolithic
-> kernel. Also couldn't we just run HURD, or for that matter EMACS ;-),
+hmmm...
 
-Yes, I use Emacs as my operating system.  It uses Linux as a device
-driver.
+debian/patches/05_dd-performance-counter.patch
 
--- 
-Måns Rullgård
-mru@kth.se
+Not upstream.
 
+-andy

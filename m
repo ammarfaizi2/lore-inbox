@@ -1,48 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264143AbTEOSGj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 14:06:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264145AbTEOSGj
+	id S264153AbTEOSO5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 14:14:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264152AbTEOSO5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 14:06:39 -0400
-Received: from pimout2-ext.prodigy.net ([207.115.63.101]:35766 "EHLO
-	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S264143AbTEOSGi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 14:06:38 -0400
-Message-ID: <3EC3DA43.8080404@myrealbox.com>
-Date: Thu, 15 May 2003 11:19:47 -0700
-From: walt <wa1ter@myrealbox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4a) Gecko/20030401
-X-Accept-Language: en-us, en
+	Thu, 15 May 2003 14:14:57 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:9486 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262032AbTEOSOy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 14:14:54 -0400
+Date: Thu, 15 May 2003 14:21:10 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org,
+       akpm@digeo.com
+Subject: Re: 2.5 kernels fail to start second CPU
+In-Reply-To: <20030515101103.GP8978@holomorphy.com>
+Message-ID: <Pine.LNX.3.96.1030515141540.30631I-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: tg3 question for Jeff/Dave
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jeff and Dave,
+On Thu, 15 May 2003, William Lee Irwin III wrote:
 
-I posted this in response to Linus's release of 2.5.69 but I don't know
-if either of you saw it.
+> On Thu, May 15, 2003 at 02:48:34AM -0700, William Lee Irwin III wrote:
+> > Sparse physical APIC ID's are not handled properly. This should correct
+> > them.
+> 
+> I forgot to count the BSP in the initial count of the number of kicked
+> cpus. This patch does it correctly.
+> 
+> To handle sparse physical APIC ID's properly the phys_cpu_present_map
+> must be scanned beyond bit NR_CPUS while ensuring no more than NR_CPUS
+> are woken in order not to attempt to wake non-addressible cpus.
+> 
+> The following patch adds that logic to smp_boot_cpus() and corrects the
+> failure to wake secondaries reported by dhowells, with successful
+> wakeup, runtime, reboot, and halting reported after it was applied.
 
-The patches for the Broadcom net driver (tg3) did not fix the problem
-I've had with the ASUS A7V8X motherboard which has a Broadcom gigabit
-ethernet chip built in.
+While you are (somewhat) on the topic of starting processors, I want to
+benchmark and application on a dual Xeon system. I want to try these
+configurations, preferably without opening the box, since it's in
+another time zone.
 
-The problem remains the same:  to get the chip to process packets I
-first must do an ifconfig down/up cycle after I reboot the machine,
-even though there are no error messages from any of the initscripts
-during bootup and the output from ifconfig looks perfect.
+  2 cpu w/ ht		normal boot
+  2 cpu w/o ht		noht
+  1 cpu w/o ht		nosmp noht
+  1 cpu w/ ht		???
 
-Once I do the down/up the Broadcom chip works well until the next reboot,
-when the same problem shows up again.  The Broadcom chip apparently is
-not fully initialized and winds up in some furshluginner state until
-another ifconfig down/up is done.
+It looks as if maxcpus=2 counts physical units? I can't try it until Monday.
 
-If I can supply any debugging info please let me know!
-
-Thanks.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

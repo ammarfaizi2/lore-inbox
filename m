@@ -1,54 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268824AbUJKLzY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268831AbUJKL7X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268824AbUJKLzY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 07:55:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268831AbUJKLzY
+	id S268831AbUJKL7X (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 07:59:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268845AbUJKL7X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 07:55:24 -0400
-Received: from port-212-202-157-208.static.qsc.de ([212.202.157.208]:6089 "EHLO
-	zoidberg.portrix.net") by vger.kernel.org with ESMTP
-	id S268824AbUJKLzX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 07:55:23 -0400
-Message-ID: <416A7484.1030703@portrix.net>
-Date: Mon, 11 Oct 2004 13:54:44 +0200
-From: Jan Dittmer <j.dittmer@portrix.net>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
-X-Accept-Language: en-us, en
+	Mon, 11 Oct 2004 07:59:23 -0400
+Received: from zero.aec.at ([193.170.194.10]:62223 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S268831AbUJKL7V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 07:59:21 -0400
+To: "Zhang, Yanmin" <yanmin.zhang@intel.com>
+cc: linux-kernel@vger.kernel.org,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+Subject: Re: ctx64 is not initiated in sys32_io_setup
+References: <2O4lX-4Kf-9@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Mon, 11 Oct 2004 13:59:10 +0200
+In-Reply-To: <2O4lX-4Kf-9@gated-at.bofh.it> (Yanmin Zhang's message of "Mon,
+ 11 Oct 2004 11:10:09 +0200")
+Message-ID: <m34ql1wjn5.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
-To: Cal Peake <cp@absolutedigital.net>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       NetDev Mailing List <netdev@oss.sgi.com>, proski@gnu.org,
-       hermes@gibson.dropbear.id.au
-Subject: Re: [PATCH] Fix readw/writew warnings in drivers/net/wireless/hermes.h
-References: <Pine.LNX.4.61.0410110702590.7899@linaeum.absolutedigital.net>
-In-Reply-To: <Pine.LNX.4.61.0410110702590.7899@linaeum.absolutedigital.net>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cal Peake wrote:
-> Hi,
-> 
-> This patch fixes several dozen warnings spit out when compiling the hermes 
-> wireless driver.
-> 
-> In file included from drivers/net/wireless/orinoco.c:448:
-> drivers/net/wireless/hermes.h: In function `hermes_present':
-> drivers/net/wireless/hermes.h:398: warning: passing arg 1 of `readw' makes pointer from integer without a cast
-> drivers/net/wireless/hermes.h: In function `hermes_set_irqmask':
-> drivers/net/wireless/hermes.h:404: warning: passing arg 2 of `writew' makes pointer from integer without a cast
-> ...
+"Zhang, Yanmin" <yanmin.zhang@intel.com> writes:
 
->  	inw((hw)->iobase + ( (off) << (hw)->reg_spacing )) : \
-> -	readw((hw)->iobase + ( (off) << (hw)->reg_spacing )))
-> +	readw((void __iomem *)(hw)->iobase + ( (off) << (hw)->reg_spacing )))
->  #define hermes_write_reg(hw, off, val) do { \
+> Kernel 2.6.9-rc3-mm3 has a bug in function sys32_io_setup in file
+> arch/x86_64/ia32/sys_ia32.c. Local variable ctx64 is not initiated
+> before sys32_io_setup calls sys_io_setup. If ctx64 is not zero, and
+> sys_io_setup will return -EINVAL. Generic function compat_sys_io_setup
+> has not the bug. 
+>
+> Here is the patch against 2.6.9-rc3-mm3. Just use compat_sys_io_setup to
+> replace sys32_io_setup.
 
-Isn't the correct fix to declare iobase as (void __iomem *) ?
+Thanks merged (by hand because your patch was MIME damaged) 
+Please put me in cc in future x86-64 patches, otherwise it's 
+possible that I miss them.
 
-Thanks,
+-Andi
 
-Jank
+

@@ -1,22 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262190AbTKIGXS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Nov 2003 01:23:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262192AbTKIGWQ
+	id S262181AbTKIGWF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Nov 2003 01:22:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262192AbTKIGWE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Nov 2003 01:22:16 -0500
+	Sun, 9 Nov 2003 01:22:04 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:32708 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262190AbTKIGWB (ORCPT
+	by vger.kernel.org with ESMTP id S262181AbTKIGWA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Nov 2003 01:22:01 -0500
-Date: Sun, 2 Nov 2003 21:52:46 +0800
+	Sun, 9 Nov 2003 01:22:00 -0500
+Date: Mon, 3 Nov 2003 17:20:48 +0800
 From: Geoffrey Lee <glee@gnupilgrims.org>
 To: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
 Subject: Re: [patch] reproducible athlon mce fix
-Message-ID: <20031102135246.GA1155@anakin.wychk.org>
+Message-ID: <20031103092048.GB14080@anakin.wychk.org>
 References: <20031102055748.GA1218@anakin.wychk.org> <20031102125202.GA7992@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="8t9RHnE3ZwKMSgU+"
+Content-Type: multipart/mixed; boundary="W/nzBZO5zC0uMSeA"
 Content-Disposition: inline
 In-Reply-To: <20031102125202.GA7992@redhat.com>
 User-Agent: Mutt/1.5.4i
@@ -24,7 +24,7 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---8t9RHnE3ZwKMSgU+
+--W/nzBZO5zC0uMSeA
 Content-Type: text/plain; charset=big5
 Content-Disposition: inline
 
@@ -43,16 +43,19 @@ On Sun, Nov 02, 2003 at 12:52:03PM +0000, Dave Jones wrote:
 > a P4 kernel, and vice versa.
 > 
 
-Yes, of course.
 
-Would it be sufficient to check for the boot_cpu_data.x86 == 6 and
-boot_cpu_data.x86_vendor == X86_VENDOR_AMD?  This would seem to do
-the right thing.  Updated patch attached.
+(Resending as it seems to have eaten my mail due to dns problems ... apologies
+if you get this twice.)
 
+
+Would checking boot_cpu_data.x86_vendor == X86_VENDOR_AMD and 
+boot_cpu_data.x86 == 6 be sufficient?  It seems to do the right thing ..
+Updated patch attached.
 
 	- g.
 
---8t9RHnE3ZwKMSgU+
+
+--W/nzBZO5zC0uMSeA
 Content-Type: text/plain; charset=big5
 Content-Disposition: attachment; filename="mce-fix.patch"
 
@@ -96,4 +99,4 @@ Content-Disposition: attachment; filename="mce-fix.patch"
  		/* Set the timer to check for non-fatal
  		   errors every MCE_RATE seconds */
 
---8t9RHnE3ZwKMSgU+--
+--W/nzBZO5zC0uMSeA--

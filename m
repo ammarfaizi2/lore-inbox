@@ -1,42 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262334AbTCMN1n>; Thu, 13 Mar 2003 08:27:43 -0500
+	id <S262363AbTCMNbw>; Thu, 13 Mar 2003 08:31:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262335AbTCMN1n>; Thu, 13 Mar 2003 08:27:43 -0500
-Received: from relay.uni-heidelberg.de ([129.206.100.212]:25234 "EHLO
-	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
-	id <S262334AbTCMN1k>; Thu, 13 Mar 2003 08:27:40 -0500
-From: Bernd Schubert <bernd-schubert@web.de>
-To: Torsten Foertsch <torsten.foertsch@gmx.net>,
-       "Jeremy Booker" <JerMe@nc.rr.com>
-Subject: Re: initrd / pivot_root + boot problems
-Date: Thu, 13 Mar 2003 14:38:08 +0100
-User-Agent: KMail/1.5
-Cc: <linux-kernel@vger.kernel.org>
-References: <002801c2e8ea$46aadfb0$6401a8c0@jeremy> <200303130829.29989.torsten.foertsch@gmx.net>
-In-Reply-To: <200303130829.29989.torsten.foertsch@gmx.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	id <S262364AbTCMNbw>; Thu, 13 Mar 2003 08:31:52 -0500
+Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:688 "HELO
+	spf1.us.outblaze.com") by vger.kernel.org with SMTP
+	id <S262363AbTCMNbu>; Thu, 13 Mar 2003 08:31:50 -0500
+Message-ID: <20030313134224.27541.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
-Message-Id: <200303131438.08371.bernd-schubert@web.de>
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Felipe Alfaro Solana" <felipe_alfaro@linuxmail.org>
+To: akpm@digeo.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Date: Thu, 13 Mar 2003 14:42:24 +0100
+Subject: Re: 2.5.64-mm6
+X-Originating-Ip: 213.4.13.153
+X-Originating-Server: ws5-7.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 13 March 2003 08:29, Torsten Foertsch wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
->
-> On Wednesday 12 March 2003 23:54, Jeremy Booker wrote:
-> > kernel /boot/vmlinuz-2.4.7-10 ro root=/dev/sda1
->
-> append to that line "init=/bin/bash" then boot. You will see a bash prompt.
-> Now mount whatever is necessary, change your passwd and reboot. Maybe, you
-> need a "mount -o remount,rw /" prior to changing pw.
->
-And before rebooting you should also run "sync" ;-) otherwise everything you 
-have written to the harddisk (including your password file) would be probably 
-lost.
+----- Original Message ----- 
+From: Andrew Morton <akpm@digeo.com> 
+Date: 	Thu, 13 Mar 2003 03:26:15 -0800 
+To: linux-kernel@vger.kernel.org, linux-mm@kvack.org 
+Subject: 2.5.64-mm6 
+ 
+> . Added all of Russell King's PCMCIA changes.  If anyone tests this on 
+>   cardbus/PCMCIA machines please let us know. 
+ 
+Testing 2.5.64-mm6 on my NEC laptop, TI CardBus Bridge, 
+3Com 3c575. No problems yet ;-) 
+ 
+>   This means that large cache-cold executables start significantly faster. 
+>   Launching X11+KDE+mozilla goes from 23 seconds to 16.  Starting OpenOffice 
+>   seems to be 2x to 3x faster, and starting Konqueror maybe 3x faster too.  
+>   Interesting. 
+ 
+I feel the system a little bit faster and more responsive. I've also set 
+max_timeslice to 50 to experiment a little more with interactive loads. 
+ 
+Thanks! 
+ 
+   Felipe 
+ 
+-- 
+______________________________________________
+http://www.linuxmail.org/
+Now with e-mail forwarding for only US$5.95/yr
 
-Bernd
+Powered by Outblaze

@@ -1,70 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262227AbTFBMR6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 08:17:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262252AbTFBMR6
+	id S262252AbTFBMTj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 08:19:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262253AbTFBMTj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 08:17:58 -0400
-Received: from pan.togami.com ([66.139.75.105]:19098 "EHLO pan.mplug.org")
-	by vger.kernel.org with ESMTP id S262227AbTFBMR5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 08:17:57 -0400
-Subject: Re: 2.5.70 kernel BUG include/linux/dcache.h:271!
-From: Warren Togami <warren@togami.com>
-To: maneesh@in.ibm.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030602100204.GE1256@in.ibm.com>
-References: <1054545600.2020.602.camel@laptop>
-	 <20030602100204.GE1256@in.ibm.com>
-Content-Type: text/plain
-Message-Id: <1054557040.2020.620.camel@laptop>
+	Mon, 2 Jun 2003 08:19:39 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:39949 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262252AbTFBMTh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 08:19:37 -0400
+Date: Mon, 2 Jun 2003 13:32:58 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Mark Haverkamp <markh@osdl.org>,
+       Patrick Mochel <mochel@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] pci bridge class code
+Message-ID: <20030602133258.A776@flint.arm.linux.org.uk>
+Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Mark Haverkamp <markh@osdl.org>, Patrick Mochel <mochel@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1054239461.28608.74.camel@markh1.pdx.osdl.net> <20030529214044.B30661@flint.arm.linux.org.uk> <1054287852.23562.2.camel@dhcp22.swansea.linux.org.uk> <1054554964.535.35.camel@gaston>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.92 (1.3.92-1) (Preview Release)
-Date: 02 Jun 2003 02:30:40 -1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1054554964.535.35.camel@gaston>; from benh@kernel.crashing.org on Mon, Jun 02, 2003 at 01:56:04PM +0200
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-06-02 at 00:02, Maneesh Soni wrote:
-> On Mon, Jun 02, 2003 at 09:21:31AM +0000, Warren Togami wrote:
-> > Hardware:
-> > Sony Vaio FXA36 Athlon laptop
-> > Red Hat Linux Rawhide 
-> > 
-> > After 5 days of uptime on 2.5.70, I noticed this in my dmesg.  I don't
-> > know what I was doing at the time when this happened.  Known bug?  Let
-> > me know if you want more information about my hardware/software setup.
-> > 
-> Hi Togami,
+On Mon, Jun 02, 2003 at 01:56:04PM +0200, Benjamin Herrenschmidt wrote:
+> On Fri, 2003-05-30 at 11:44, Alan Cox wrote:
 > 
-> It will be nice if you can provide some information regarding
-> the filesystem set up you have in your system. Like which filesystem
-> you were using.
+> > The same is true of serveral hot docking bridges such as the one on the
+> > IBM TP600 and also of other devices which happen to be both a PCI-PCI
+> > bridge and have other magic stuck on them. 
 > 
-
-Plain ext3 with UTF-8 filenames, no ACLs or Extended Attributes.  It was
-created with last week's RH rawhide then I moved to 2.5.70, uptime 5
-days now.
-
-Should I be worrying about filesystem corruption now?
-
-> Are you able to recreate this problem?.
+> Maybe we could find some way to prioritize matching ? It's a bit late now,
+> but well... if the match functions returned an integer, 0 beeing lower match,
+> we could have some kind of prioritization.
 > 
+> That way, a class match would have lower priority than a vendorID/deviceID
+> match, etc...
 
-Unfortunately no.  I just noticed that message in dmesg after 5 days of
-uptime.  Hmm, I just noticed this line within that last post:
+That would not help the case when you have the "generic" bridge module
+loaded and the specific bridge driver as a loadable module.
 
- <6>note: updatedb[18515] exited with preempt_count 1
-
-If it happened during updatedb, then it must have been around 22 hours
-ago during cron.daily's updatedb.  My laptop was completely idle during
-that time.
-
-http://www.togami.com/~warren/archive/2003/fxa36-kernel-2.5.70.cfg
-My kernel .config file.
-
-Thanks,
-Warren Togami
-warren@togami.com
-p.s. Please CC me in replies.
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

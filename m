@@ -1,53 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131296AbRCUKPx>; Wed, 21 Mar 2001 05:15:53 -0500
+	id <S131320AbRCULDe>; Wed, 21 Mar 2001 06:03:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131304AbRCUKPn>; Wed, 21 Mar 2001 05:15:43 -0500
-Received: from colorfullife.com ([216.156.138.34]:1811 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S131296AbRCUKPa>;
-	Wed, 21 Mar 2001 05:15:30 -0500
-Message-ID: <001401c0b1ef$cb22f5e0$5517fea9@local>
-From: "Manfred Spraul" <manfred@colorfullife.com>
-To: <jaharkes@cs.cmu.edu>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Question about memory usage in 2.4 vs 2.2
-Date: Wed, 21 Mar 2001 11:14:54 +0100
+	id <S131341AbRCULDY>; Wed, 21 Mar 2001 06:03:24 -0500
+Received: from mailgw.prontomail.com ([216.163.180.10]:10401 "EHLO
+	c0mailgw04.prontomail.com") by vger.kernel.org with ESMTP
+	id <S131320AbRCULDO>; Wed, 21 Mar 2001 06:03:14 -0500
+Message-ID: <3AB88929.D1B324F2@mvista.com>
+Date: Wed, 21 Mar 2001 02:57:45 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: "David S. Miller" <davem@redhat.com>
+CC: Keith Owens <kaos@ocs.com.au>, nigel@nrg.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH for 2.5] preemptible kernel
+In-Reply-To: <Pine.LNX.4.05.10103201920410.26853-100000@cosmic.nrg.org>
+		<22991.985166394@ocs3.ocs-net> <15032.30533.638717.696704@pizda.ninka.net>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> inode_cache 189974 243512 480 30439 30439 1 : 124 62
-> dentry_cache 201179 341940 128 11398 11398 1 : 252 126
+"David S. Miller" wrote:
+> 
+> Keith Owens writes:
+>  > Or have I missed something?
+> 
+> Nope, it is a fundamental problem with such kernel pre-emption
+> schemes.  As a result, it would also break our big-reader locks
+> (see include/linux/brlock.h).
 
-1) number of used objects
-2) number of allocated objects
-3) size of each object
-4) number of slabs that are at least partially in use
-5) number of slabs that are allocated for the cache
-i.e. 5)-4) are the number of freeable slabs in the cache
-6) size in pages for a slab
-:
-7) length of the per-cpu list. Each cpu some objects in a local list it
-can use without acquiring a spinlock
-8) batch count. If the per-cpu list overflows multiple objects are
-freed/allocated in one block.
+He has this one covered.  The patch puts preemption locks around
+read_locks.
 
-7 and 8 are only present if your kernel is compiled for SMP, root can
-tune them with
+By the by, if a preemption lock is all that is needed the patch defines
+it and it is rather fast (an inc going in and a dec & test comming
+out).  A lot faster than a spin lock with its "LOCK" access.  A preempt
+lock does not need to be "LOCK"ed because the only contender is the same
+cpu.
 
-#echo "<slab name> <length> <batchcount>" > /proc/slabinfo
+George
 
-It seems that the dentry cache is severely fragmented, nearly 20 MB (or
-30%) are
-unfreeable due to fragmentation.
-
---
-    Manfred
-
+> 
+> Basically, anything which uses smp_processor_id() would need to
+> be holding some lock so as to not get pre-empted.
+> 
+> Later,
+> David S. Miller
+> davem@redhat.com

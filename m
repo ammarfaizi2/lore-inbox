@@ -1,53 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281909AbRKZQba>; Mon, 26 Nov 2001 11:31:30 -0500
+	id <S281913AbRKZQdk>; Mon, 26 Nov 2001 11:33:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281914AbRKZQbU>; Mon, 26 Nov 2001 11:31:20 -0500
-Received: from vt-lakechamplain2b-114.bur.adelphia.net ([24.50.101.114]:26764
-	"EHLO sparrow.websense.net") by vger.kernel.org with ESMTP
-	id <S281909AbRKZQbB>; Mon, 26 Nov 2001 11:31:01 -0500
-Date: Mon, 26 Nov 2001 10:58:46 -0500 (EST)
-From: William Stearns <wstearns@pobox.com>
-X-X-Sender: <wstearns@sparrow.websense.net>
-Reply-To: William Stearns <wstearns@pobox.com>
-To: Samuel Maftoul <maftoul@esrf.fr>
-cc: ML-linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Firewire hotplug
-In-Reply-To: <20011126153123.A15244@pcmaftoul.esrf.fr>
-Message-ID: <Pine.LNX.4.33.0111261058200.14819-100000@sparrow.websense.net>
+	id <S281914AbRKZQda>; Mon, 26 Nov 2001 11:33:30 -0500
+Received: from maho3msx2.isus.emc.com ([128.221.11.32]:61192 "EHLO
+	maho3msx2.isus.emc.com") by vger.kernel.org with ESMTP
+	id <S281913AbRKZQdQ>; Mon, 26 Nov 2001 11:33:16 -0500
+Message-ID: <93F527C91A6ED411AFE10050040665D00241AB10@corpusmx1.us.dg.com>
+From: berthiaume_wayne@emc.com
+To: ak@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: Multicast Broadcast
+Date: Mon, 26 Nov 2001 11:33:03 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good day, Samuel,
+	Wouldn't the IP address for the two NIC's have to be different for
+that to work? I'm binding the same VIP to the two eth's.
 
-On Mon, 26 Nov 2001, Samuel Maftoul wrote:
+-----Original Message-----
+From: Andi Kleen [mailto:ak@suse.de]
+Sent: Monday, November 26, 2001 11:16 AM
+To: berthiaume_wayne@emc.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Multicast Broadcast
 
-> I have some Firewire disk at work, and need to integrate this to the
-> standart local distribution ( Some scientist come in the institute I'm
-> working in , do their experiences, and must retrieve about 50Gigs, fast
-> ,easly ... back to their home institute).
+
+berthiaume_wayne@emc.com writes:
+
+> 	One potential work-around is a patch to
+> net/ipv4/igmp.c:ip_mc_join_group.
+> For example:
 > 
-> I would like to know the actual Firewire, Hotplug ... status.
+> #ifdef DUAL_MCAST_BIND
+>    if(!imr->imr_ifindex) {
+>       imr->ifindex=2;  /* eth0 */
+>       err=ip_mc_join_group(sk, imr);
+>       if (!err) {
+>         imr->ifindex=3; /* eth1 */
+>         err=ip_mc_join_group(sk, imr);
+>       }
+>       return err;
+>    }
+> #else
+>    if(!imr->imr_ifindex)
+>      in_dev = ip_mc_find_dev(imr);
+> #endif
 > 
-> Can someone help me with it ? Give me some pointers ?
+> 	I'm hoping that there is another way.
 
-	http://sourceforge.net/projects/linux1394
-	Cheers,
-	- Bill
+It depends on what you want to do, but this "fix" is the same
+equivalent to executing IP_ADD_MEMBERSHIP twice with 2 and 3 in the
+imr_ifindex field (except that the later doesn't break any programs) 
 
----------------------------------------------------------------------------
-	"'The Linux port resulted from a strong user demand', said John
-Lenyo, director of marketing at Model Technology.  'To gauge general
-demand, we mentioned it casually in our quarterly newsletter,' he said.
-'You would have thought we were giving away free money.  About two days
-after that newsletter went out we were bombarded with requests from
-customers.'"
---------------------------------------------------------------------------
-William Stearns (wstearns@pobox.com).  Mason, Buildkernel, named2hosts, 
-and ipfwadm2ipchains are at:                http://www.pobox.com/~wstearns
-LinuxMonth; articles for Linux Enthusiasts! http://www.linuxmonth.com
---------------------------------------------------------------------------
-
-
+-Andi

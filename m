@@ -1,63 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262210AbUCABKV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Feb 2004 20:10:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262211AbUCABKV
+	id S262214AbUCABNw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Feb 2004 20:13:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262216AbUCABNv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Feb 2004 20:10:21 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:65503 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262210AbUCABKQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Feb 2004 20:10:16 -0500
-Date: Mon, 1 Mar 2004 02:10:13 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@osdl.org>, greg@kroah.com,
-       Torrey Hoffman <thoffman@arnor.net>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: 2.6.4-rc1-mm1: multiple definitions of `debug'
-Message-ID: <20040301011012.GI13764@fs.tum.de>
+	Sun, 29 Feb 2004 20:13:51 -0500
+Received: from fw.osdl.org ([65.172.181.6]:5821 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262214AbUCABNr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Feb 2004 20:13:47 -0500
+Date: Sun, 29 Feb 2004 17:14:52 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: linux-kernel@vger.kernel.org, Nikita@Namesys.COM
+Subject: Re: 2.6.4-rc1-mm1
+Message-Id: <20040229171452.2e209835.akpm@osdl.org>
+In-Reply-To: <40428B95.1000600@cyberone.com.au>
 References: <20040229140617.64645e80.akpm@osdl.org>
+	<40428B95.1000600@cyberone.com.au>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040229140617.64645e80.akpm@osdl.org>
-User-Agent: Mutt/1.4.2i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 29, 2004 at 02:06:17PM -0800, Andrew Morton wrote:
->...
-> Changes since 2.6.3-mm4:
->...
->  bk-usb.patch
-> 
->  Latest versions of various external trees.
->...
+Nick Piggin <piggin@cyberone.com.au> wrote:
+>
+> I had one addition which is to use a "refill_counter" for inactive
+>  list scanning as well so the scanning is batched up now that we don't
+>  round up the amount to be done. No observed benefits, but I imagine
+>  it would lower the acquisition frequency of the lru locks in some
+>  cases?
 
-I got the following error:
+Might do, yes.
 
-<--  snip  -->
+Also I think you did some work on the inactive-vs-active list balancing?  I
+have spent precisely zero time looking at or working on that since
+2.5.nothing and it's entirely possible that it is doing something
+inappropriate.
 
-...
-  LD      .tmp_vmlinux1
-drivers/built-in.o(.bss+0x85224): multiple definition of `debug'
-arch/i386/kernel/built-in.o(.entry.text+0xfd4): first defined here
-make: *** [.tmp_vmlinux1] Error 1
+>  Should I start testing again, or are you still doing more to vmscan?
 
-<--  snip  -->
+Now would be a good time.  The only thing I'm likely to look at in the next
+several days is accounting for the slab fragmentation.  My current thinking
+is to solve that by making slab account for the number of objects and the
+number of pages, and to use that in shrink_dcache_memory(), so it doesn't
+touch vmscan.c at all.
 
+>  Nikita's dont-rotate-active-list.patch looks to be the only major
+>  casualty. I found this patch pretty important, so I will definitely
+>  like to demonstrate its benefits. One question remains, would you
+>  accept the patch in its current form?
 
-The new drivers/usb/input/ati_remote.c driver thinks "debug" would be a
-good name for a global variable...
+We should bring that back for testing, please.  I need to sit down and
+think a bit more about test suites which replicate workloads which we care
+about before making any decisions.
 
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+One point I would make is that if a workload is only achieving 5% CPU
+anyway, we shouldn't optimise for it.  Sure, it's nice to be able to get it
+up to 7% but it is much more important to get the 50% CPU workload up to
+70%.  The 5% problem is a fiscal one, not an engineering one ;)
 

@@ -1,62 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265477AbUABKLz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 05:11:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265476AbUABKLy
+	id S265465AbUABKIP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 05:08:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265466AbUABKIP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 05:11:54 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:34740 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S265477AbUABKLo (ORCPT
+	Fri, 2 Jan 2004 05:08:15 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:26291 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S265465AbUABKIN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 05:11:44 -0500
-Date: Fri, 2 Jan 2004 11:11:42 +0100
+	Fri, 2 Jan 2004 05:08:13 -0500
+Date: Fri, 2 Jan 2004 11:08:07 +0100
 From: Jens Axboe <axboe@suse.de>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0 performance problems
-Message-ID: <20040102101142.GI5523@suse.de>
-References: <Pine.LNX.4.58.0312291647410.5288@localhost.localdomain> <20031230012551.GA6226@k3.hellgate.ch> <Pine.LNX.4.58.0312292031450.6227@localhost.localdomain> <20031230132145.B32120@hexapodia.org> <20031230194051.GD22443@holomorphy.com> <20031230222403.GA8412@k3.hellgate.ch> <Pine.LNX.4.58.0312301921510.3193@localhost.localdomain> <20031231101741.GA4378@k3.hellgate.ch> <20031231112119.GB3089@suse.de> <20040101230911.GA28438@k3.hellgate.ch>
+To: Peter Osterlund <petero2@telia.com>
+Cc: Andrew Morton <akpm@osdl.org>, packet-writing@suse.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: ext2 on a CD-RW
+Message-ID: <20040102100807.GF5523@suse.de>
+References: <Pine.LNX.4.44.0401020022060.2407-100000@telia.com> <20040101162427.4c6c020b.akpm@osdl.org> <m2llorkuhn.fsf@telia.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040101230911.GA28438@k3.hellgate.ch>
+In-Reply-To: <m2llorkuhn.fsf@telia.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 02 2004, Roger Luethi wrote:
-> On Wed, 31 Dec 2003 12:21:19 +0100, Jens Axboe wrote:
-> > the qsbench suckiness? Do you have numbers for 2.4.x and 2.6.1-rc with
-> > the various io schedulers (it would be interesting to see stock,
-> > elevator=deadline, and elevator=noop).
+On Fri, Jan 02 2004, Peter Osterlund wrote:
+> Andrew Morton <akpm@osdl.org> writes:
 > 
-> For 2.6 AS comes out on top. It seems though that AS may be at least
-> partially responsible for the exploding variance of run times for
-> qsbench.
+> > Peter Osterlund <petero2@telia.com> wrote:
+> > >
+> > > If I create an ext2 filesystem
+> > >  with 2kb blocksize, I hit a bug when I try to write some large files to
+> > >  the filesystem. The problem is that the code in mpage_writepage() fails if
+> > >  a page is mapped to disk across a packet boundary. In that case, the
+> > >  bio_add_page() call at line 543 in mpage.c can fail even if the bio was
+> > >  previously empty. The code then passes an empty bio to submit_bio(), which
+> > >  triggers a bug at line 2303 in ll_rw_blk.c. This patch seems to fix the
+> > >  problem.
+> > > 
+> > >  --- linux/fs/mpage.c.old	2004-01-02 00:26:19.000000000 +0100
+> > >  +++ linux/fs/mpage.c	2004-01-02 00:26:50.000000000 +0100
+> > >  @@ -541,6 +541,11 @@
+> > >   
+> > >   	length = first_unmapped << blkbits;
+> > >   	if (bio_add_page(bio, page, length, 0) < length) {
+> > >  +		if (!bio->bi_size) {
+> > >  +			bio_put(bio);
+> > >  +			bio = NULL;
+> > >  +			goto confused;
+> > >  +		}
+> > >   		bio = mpage_bio_submit(WRITE, bio);
+> > >   		goto alloc_new;
+> > >   	}
+> > 
+> > Confused.  We initially have an empty BIO, and we run bio_add_page()
+> > against it, adding one page.
+> > 
+> > How can that bio_add_page() fail to add the page?
+> > 
+> > Cold you describe the failure a little more please?
 > 
-> I don't think we can compare 2.4 and 2.6 I/O schedulers for these
-> loads. The io scheduler can do only so much if the VM evicts the
-> wrong pages.
+> In bio_add_page(), there is this check:
+> 
+> 	/*
+> 	 * if queue has other restrictions (eg varying max sector size
+> 	 * depending on offset), it can specify a merge_bvec_fn in the
+> 	 * queue to get further control
+> 	 */
+> 	if (q->merge_bvec_fn) {
+> 		/*
+> 		 * merge_bvec_fn() returns number of bytes it can accept
+> 		 * at this offset
+> 		 */
+> 		if (q->merge_bvec_fn(q, bio, bvec) < len) {
+> 			bvec->bv_page = NULL;
+> 			bvec->bv_len = 0;
+> 			bvec->bv_offset = 0;
+> 			return 0;
+> 		}
+> 	}
+> 
+> The packet writing code has the restriction that a bio must not span a
+> packet boundary. (A packet is 32*2048 bytes.) If the page when mapped
+> to disk starts 2kb before a packet boundary, merge_bvec_fn therefore
+> returns 2048, which is less than len, which is 4096 if the whole page
+> is mapped, so the bio_add_page() call fails.
 
-Agree, in case of a thrashing vm it's an impossible job.
+The packet writing code is buggy then, you must always allow a page to
+be added to an empty bio. You'll have to deal with the pieces there, I'm
+afraid.
 
-> Average, times for ten runs (in seconds, ordered).
-> 
-> efax		avg
-> 2.4.23		228.8 227 227 228 229 229 229 229 230 230 230
-> 2.6.0 noop	861.8 833 855 860 865 866 866 867 867 869 870
-> 2.6.0 deadline	846.1 813 827 830 845 850 854 856 859 861 866
-> 2.6.0 as	850.8 827 834 839 840 840 841 864 864 874 885
-> 
-> kbuild		avg
-> 2.4.23		140.4 116 118 124 125 132 150 153 157 161 168
-> 2.6.0 noop	638.2 552 569 596 600 608 631 634 658 712 822
-> 2.6.0 deadline	570.0 494 495 517 529 532 545 596 619 670 703
-> 2.6.0 as	486.1 406 429 453 468 473 477 510 536 542 567
-> 
-> qsbench		avg
-> 2.4.23		223.8 219 220 221 223 223 223 223 225 230 231
-> 2.6.0 noop	380.0 333 343 374 377 382 389 391 391 403 417
-> 2.6.0 deadline	368.8 339 361 361 372 372 373 375 377 377 381
-> 2.6.0 as	329.3 253 279 281 286 300 355 371 374 388 406
+So it's not a bug in mpage. If that was the case, there are other buggy
+places in the kernel.
 
 -- 
 Jens Axboe

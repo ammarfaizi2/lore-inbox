@@ -1,65 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267901AbUHZIsg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266578AbUHZJSz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267901AbUHZIsg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 04:48:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268021AbUHZIpp
+	id S266578AbUHZJSz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 05:18:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267745AbUHZJSL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 04:45:45 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:43191 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S267920AbUHZImF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 04:42:05 -0400
-Message-ID: <412DA25E.9090405@namesys.com>
-Date: Thu, 26 Aug 2004 01:42:06 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@lst.de>
-CC: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       Linus Torvalds <torvalds@osdl.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
+	Thu, 26 Aug 2004 05:18:11 -0400
+Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:4768 "EHLO
+	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S268074AbUHZJDS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 05:03:18 -0400
 Subject: Re: silent semantic changes with reiser4
-References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com> <20040825200859.GA16345@lst.de> <20040825201929.GA16855@lst.de>
-In-Reply-To: <20040825201929.GA16855@lst.de>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Spam <spam@tnonline.net>, Linus Torvalds <torvalds@osdl.org>,
+       reiser@namesys.com, hch@lst.de, linux-fsdevel@vger.kernel.org,
+       lkml <linux-kernel@vger.kernel.org>, flx@namesys.com,
+       reiserfs-list@namesys.com
+In-Reply-To: <20040825163225.4441cfdd.akpm@osdl.org>
+References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com>
+	 <20040825152805.45a1ce64.akpm@osdl.org>
+	 <112698263.20040826005146@tnonline.net>
+	 <Pine.LNX.4.58.0408251555070.17766@ppc970.osdl.org>
+	 <1453698131.20040826011935@tnonline.net>
+	 <20040825163225.4441cfdd.akpm@osdl.org>
+Content-Type: text/plain
+Organization: University of Cambridge Computing Service, UK
+Message-Id: <1093510983.23289.6.camel@imp.csi.cam.ac.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 26 Aug 2004 10:03:04 +0100
 Content-Transfer-Encoding: 7bit
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+X-Cam-AntiVirus: No virus found
+X-Cam-SpamDetails: Not scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
+On Thu, 2004-08-26 at 00:32, Andrew Morton wrote:
+> Spam <spam@tnonline.net> wrote:
+> >
+> > > In other words, if reiserfs does something special, we should make 
+> > > standard interfaces for doing that special thing, so that everybody can
+> > > do it without stepping on other peoples toes.
+> > 
+> >   Agreed  that would be the best. But how much time and effort will it
+> >   be
+> 
+> Zero.
+> 
+> We can add these new features tomorrow, as reiser4-only features, with a
+> plan in hand to generalise them later.
+> 
+> -->>__if__<<-- we think these are features which Linux should offer.
 
->
->Over the last at least five years we've taken as much as possible
->semantics out of the filesystems and into the VFS layer, thus having
->a separation between the semantical layer (VFS) and the low level
->filesystem.
->
-VFS is the common filesystem layer.  The only reason you think semantics 
-belong in the common filesystem layer is that you are not innovating in 
-your semantics, and feel content with stasis.
+Please don't forget that if the reiser4 features are merged as they are
+now, then we will likely be stuck with the API reiser4 chooses.  There
+will be tools that will rely on it springing up no doubt.
 
-I don't.  I expect that semantics will get radically changed over the 
-next few years as we compete with Giampaolo and whatever lesser lights 
-are working at Microsoft.
+Moving the reiser4 features to VFS later is fine and good, but what if
+the VFS doesn't want the same API for those features?  Either we would
+have to allow reiser4 to continue providing the old API even though the
+VFS now provides a new, shiny API or we would have to break all existing
+API users on reiser4.  Things like "I rebooted into the latest kernel
+and my computer failed to boot because essential app FOO failed to
+access the reiser4 API - Help!" spring to mind.
 
->  Your attributes are absoultely a VFS thing and as such
->should not happen at the filesystem layer, and no, that doesn't mean
->they're bad per se, I just think they are a rather bad fit for Linux.
->
->So now go on and try to work together with the other peope doing VFS
->level work instead of hiding, or if you think you can't work together
->with us search a nice research OS where you can take over the VFS layer,
->if your ideas prove to be good I'm sure Linux will pick them up sooner
->or later.
->
->	Christoph
->
->
->  
->
-I tell you what, use xattrs for all the half speed filesystems, and the 
-users and I will use metafiles.
+Yes, I know I am painting a rather black picture here and I know you
+might well say "screw apps", its been done plenty of times in Linux
+kernel development before...
+
+Best regards,
+
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/, http://www-stu.christs.cam.ac.uk/~aia21/
+

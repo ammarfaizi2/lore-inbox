@@ -1,82 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262898AbUCRTnr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 14:43:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262903AbUCRTnr
+	id S262906AbUCRTpv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 14:45:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262905AbUCRTpv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 14:43:47 -0500
-Received: from ida.rowland.org ([192.131.102.52]:31492 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S262898AbUCRTn0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 14:43:26 -0500
-Date: Thu, 18 Mar 2004 14:43:23 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: Andrew Morton <akpm@osdl.org>
-cc: Kernel development list <linux-kernel@vger.kernel.org>
-Subject: PATCH: (as230) Work around compiler error in proc_misc.c
-Message-ID: <Pine.LNX.4.44L0.0403181434100.3530-100000@ida.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 18 Mar 2004 14:45:51 -0500
+Received: from mailgate2.mysql.com ([213.136.52.47]:45957 "EHLO
+	mailgate.mysql.com") by vger.kernel.org with ESMTP id S262903AbUCRTpJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 14:45:09 -0500
+Subject: Re: True  fsync() in Linux (on IDE)
+From: Peter Zaitsev <peter@mysql.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040318064757.GA1072@suse.de>
+References: <1079572101.2748.711.camel@abyss.local>
+	 <20040318064757.GA1072@suse.de>
+Content-Type: text/plain
+Organization: MySQL
+Message-Id: <1079639060.3102.282.camel@abyss.local>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 18 Mar 2004 11:44:21 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew:
+On Wed, 2004-03-17 at 22:47, Jens Axboe wrote:
 
-A change you recently applied to fs/proc/proc_misc.c included a comment
-about splitting a seq_printf into two pieces to work around a bug in
-gcc-2.95.3.  Unfortunately gcc-2.96 still chokes on the statements.  The
-patch below makes it work better, albeit at the cost of generating a
-little more code.
+> > There is solution just to disable drive write cache, but it seems to
+> > slowdown performance way to much.
+> 
+> Chris and I have working real fsync() with the barrier patches. I'll
+> clean it up and post a patch for vanilla 2.6.5-rc today.
 
-Please apply if you think this is correct.
+Good to hear. How is it going to work from user point of view ? 
+Just fsync working back again or there would be some special handling.
 
-Alan Stern
+Also. What is about  fsync() in 2.6 nowadays ?
+
+I've done some tests on 3WARE RAID array and it looks like  it is
+different compared to 2.4 I've been testing previously. 
+
+I have the simple test which has single page writes to the file followed
+by fsync().   First run give you the case when file grows with each
+write, second when you're writing to existing file space.
+
+The results I have on 2.4 is something like  40 sec per 1000 fsyncs for 
+new file, and 0.6 sec for existing file.
+
+With 2.6.3 I have  both existing file and new file to complete in less
+than 1 second. 
 
 
-===== fs/proc/proc_misc.c 1.56 vs edited =====
---- 1.56/fs/proc/proc_misc.c	Mon Mar 15 16:48:00 2004
-+++ edited/fs/proc/proc_misc.c	Thu Mar 18 14:26:25 2004
-@@ -391,24 +391,24 @@
- 		(unsigned long long)jiffies_64_to_clock_t(irq),
- 		(unsigned long long)jiffies_64_to_clock_t(softirq));
- 	for_each_cpu(i) {
--		/* two separate calls here to work around gcc-2.95.3 ICE */
--		seq_printf(p, "cpu%d %llu %llu %llu ",
-+
-+		/* Copy values here to work around gcc-2.95.3, gcc-2.96 */
-+		user = kstat_cpu(i).cpustat.user;
-+		nice = kstat_cpu(i).cpustat.nice;
-+		system = kstat_cpu(i).cpustat.system;
-+		idle = kstat_cpu(i).cpustat.idle;
-+		iowait = kstat_cpu(i).cpustat.iowait;
-+		irq = kstat_cpu(i).cpustat.irq;
-+		softirq = kstat_cpu(i).cpustat.softirq;
-+		seq_printf(p, "cpu%d %llu %llu %llu %llu %llu %llu %llu\n",
- 			i,
--			(unsigned long long)
--			  jiffies_64_to_clock_t(kstat_cpu(i).cpustat.user),
--			(unsigned long long)
--			  jiffies_64_to_clock_t(kstat_cpu(i).cpustat.nice),
--			(unsigned long long)
--			  jiffies_64_to_clock_t(kstat_cpu(i).cpustat.system));
--		seq_printf(p, "%llu %llu %llu %llu\n",
--			(unsigned long long)
--			  jiffies_64_to_clock_t(kstat_cpu(i).cpustat.idle),
--			(unsigned long long)
--			  jiffies_64_to_clock_t(kstat_cpu(i).cpustat.iowait),
--			(unsigned long long)
--			  jiffies_64_to_clock_t(kstat_cpu(i).cpustat.irq),
--			(unsigned long long)
--			  jiffies_64_to_clock_t(kstat_cpu(i).cpustat.softirq));
-+			(unsigned long long)jiffies_64_to_clock_t(user),
-+			(unsigned long long)jiffies_64_to_clock_t(nice),
-+			(unsigned long long)jiffies_64_to_clock_t(system),
-+			(unsigned long long)jiffies_64_to_clock_t(idle),
-+			(unsigned long long)jiffies_64_to_clock_t(iowait),
-+			(unsigned long long)jiffies_64_to_clock_t(irq),
-+			(unsigned long long)jiffies_64_to_clock_t(softirq));
- 	}
- 	seq_printf(p, "intr %llu", (unsigned long long)sum);
- 
+
+
+
+
+
+-- 
+Peter Zaitsev, Senior Support Engineer
+MySQL AB, www.mysql.com
+
+Meet the MySQL Team at User Conference 2004! (April 14-16, Orlando,FL)
+  http://www.mysql.com/uc2004/
 

@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265479AbUAZD1f (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 22:27:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265488AbUAZD1f
+	id S265476AbUAZDjh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 22:39:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265488AbUAZDjh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 22:27:35 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:49375 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265479AbUAZD1d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 22:27:33 -0500
-Date: Mon, 26 Jan 2004 04:27:15 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andi Kleen <ak@muc.de>
-Cc: Fabio Coatti <cova@ferrara.linux.it>, Andrew Morton <akpm@osdl.org>,
-       eric@cisu.net, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Re: Kernels > 2.6.1-mm3 do not boot. - SOLVED
-Message-ID: <20040126032714.GB513@fs.tum.de>
-References: <200401232253.08552.eric@cisu.net> <200401252221.01679.cova@ferrara.linux.it> <20040125214653.GB28576@colin2.muc.de> <200401252308.33005.cova@ferrara.linux.it> <20040125221304.GD28576@colin2.muc.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040125221304.GD28576@colin2.muc.de>
-User-Agent: Mutt/1.4.1i
+	Sun, 25 Jan 2004 22:39:37 -0500
+Received: from adsl-b3-72-49.telepac.pt ([213.13.72.49]:13980 "EHLO
+	puma-vgertech.no-ip.com") by vger.kernel.org with ESMTP
+	id S265476AbUAZDjg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jan 2004 22:39:36 -0500
+Message-ID: <40148C1C.5040102@vgertech.com>
+Date: Mon, 26 Jan 2004 03:40:12 +0000
+From: Nuno Silva <nuno.silva@vgertech.com>
+Organization: VGER, LDA
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: en-us, pt
+MIME-Version: 1.0
+To: Dan Aloni <da-x@gmx.net>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] Cooperative Linux
+References: <20040125193518.GA32013@callisto.yi.org>
+In-Reply-To: <20040125193518.GA32013@callisto.yi.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 25, 2004 at 11:13:04PM +0100, Andi Kleen wrote:
-> On Sun, Jan 25, 2004 at 11:08:33PM +0100, Fabio Coatti wrote:
-> > > does official 2.6.2rc1 (not mm) with -funit-at-a-time enabled in the
-> > > Makefile work?
-> > 
-> > Yes. 
+Hi!
+
+Dan Aloni wrote:
+> Hello fellow developers, kernel hackers, and open source contributors,
 > 
-> Ok, then it is something in -mm*. I would suspect the new weird CPU
-> configuration stuff. Can you double check you configured your CPU correctly? 
->...
+> Cooperative Linux is a port of the Linux kernel which allows it 
+> to run cooperatively under other operating systems in ring0 without 
+> hardware emulation, based on very minimal changes in the architecture 
+> dependent code and almost no changes in functionality.
+> 
+> The bottom line is that it allows us to run Linux on an unmodified
+> Windows 2000/XP system in a practical way (the user just launches 
 
-The .config's were already sent, and they seemed to be correct.
+Very nice! Can we run two (or more) instances of Linux at the same time?
 
-> -Andi
+When will you release a linux-as-host patch? :-)
 
-cu
-Adrian
+Regards,
+Nuno Silva
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

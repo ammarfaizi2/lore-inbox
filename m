@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262792AbTDFEkt (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 23:40:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262795AbTDFEkt (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 23:40:49 -0500
-Received: from [204.60.95.213] ([204.60.95.213]:14565 "EHLO
-	wbkctmsx1ipc.ipc.com") by vger.kernel.org with ESMTP
-	id S262792AbTDFEks (for <rfc822;linux-kernel@vger.kernel.org>); Sat, 5 Apr 2003 23:40:48 -0500
-From: Thomas Downing <thomas.downing@ipc.com>
-Reply-To: thomas.downing@ipc.com
-Organization: IPC Information Systems, Inc.
-To: linux-kernel@vger.kernel.org
-Subject: Unresolved symbol in microcode.ko - 2.5.64bk4
-Date: Wed, 12 Mar 2003 12:22:22 -0500
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	id S262811AbTDFF13 (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 00:27:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262834AbTDFF13 (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 00:27:29 -0500
+Received: from granite.he.net ([216.218.226.66]:53770 "EHLO granite.he.net")
+	by vger.kernel.org with ESMTP id S262811AbTDFF12 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Apr 2003 00:27:28 -0500
+Date: Sat, 5 Apr 2003 21:20:49 -0800
+From: Greg KH <greg@kroah.com>
+To: Antonio Hernandez <ahernandez@augenopticos.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Changing the device between usb printers
+Message-ID: <20030406052049.GA2914@kroah.com>
+References: <3E878F0A.8090709@augenopticos.com> <3E8DD413.80702@augenopticos.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200303121222.22849.thomas.downing@ipc.com>
+In-Reply-To: <3E8DD413.80702@augenopticos.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When building microcode support for i386 PIII as a module, I get an unresolved 
-reference to devfs_set_file_size.  Attached is a patch to fs/devfs/base.c 
-that fixes the problem.
+On Fri, Apr 04, 2003 at 10:50:59AM -0800, Antonio Hernandez wrote:
+> Changing the device between usb printers.
+> 
+> I have several usb printers, each have a device to work 
+> /dev/usb/lp0.../dev/usb/lp1/...etc. an example for the problem. If I 
+> turn off 2 printers, printer #1 (/dev/usb/lp0)and printer #2 
+> (/dev/usb/lp1)  if i turn on first printer#2 and later printer #1 I got 
+> for printer#2 to /dev/usb/lp0 and printer #1 (/dev/usb/lp1), if the 
+> printers are the same is not a problem but if the printers aren't the 
+> same then exist a problem  when I send to print. I put a dmesg in 
+> console and I got messages from "hub.c" that it put the number of 
+> bus3/3/1 for a printer and bus3/3/2 to another but "printer.c" put 
+> always usblp0 for the first printer detected and usblp1 to another. I 
+> think that "printer.c" must to follow the same idea that hub.c to use 
+> like /dev/usb/bus/3/3/2/lp or something like that
 
-Being a newbie, I don't know if that is the appropriate fix, or if devfs 
-should be tweeked instead.
+Yes, this is a problem.  People are working on solutions to this issue
+for 2.5, so it will hopefully be solved some day :)
 
-td
-
----- begin patch ----
-
-*** linux-2.5.64_o/fs/devfs/base.c	Wed Mar 12 12:09:21 2003
---- linux-2.5.64/fs/devfs/base.c	Wed Mar 12 12:10:18 2003
-***************
-*** 1953,1960 ****
---- 1953,1961 ----
-  EXPORT_SYMBOL(devfs_mk_symlink);
-  EXPORT_SYMBOL(devfs_mk_dir);
-  EXPORT_SYMBOL(devfs_remove);
-  EXPORT_SYMBOL(devfs_generate_path);
-+ EXPORT_SYMBOL(devfs_set_file_size);
-  
-  
-  /**
-   *	try_modload - Notify devfsd of an inode lookup by a non-devfsd process.
+greg k-h

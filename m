@@ -1,53 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269210AbUJFLzy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269216AbUJFL7Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269210AbUJFLzy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 07:55:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269213AbUJFLzx
+	id S269216AbUJFL7Z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 07:59:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269218AbUJFL7Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 07:55:53 -0400
-Received: from colin2.muc.de ([193.149.48.15]:62980 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S269210AbUJFLzw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 07:55:52 -0400
-Date: 6 Oct 2004 13:55:50 +0200
-Date: Wed, 6 Oct 2004 13:55:50 +0200
-From: Andi Kleen <ak@muc.de>
-To: Zachary Amsden <zach@vmware.com>
-Cc: linux-kernel@vger.kernel.org, Riley@Williams.Name, davej@codemonkey.org.uk,
-       hpa@zytor.com, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] i386/gcc bug with do_test_wp_bit
-Message-ID: <20041006115550.GA58628@muc.de>
-References: <41634E21.6020808@vmware.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41634E21.6020808@vmware.com>
-User-Agent: Mutt/1.4.1i
+	Wed, 6 Oct 2004 07:59:25 -0400
+Received: from cas-dial-151-104.casper.trib.com ([63.229.151.104]:50698 "HELO
+	cas-dial-151-104.casper.trib.com") by vger.kernel.org with SMTP
+	id S269216AbUJFL7Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 07:59:24 -0400
+Date: Wed, 06 Oct 2004 11:59:17 +0000
+From: imdave@cas-dial-151-104.casper.trib.com
+Subject: (S-o-f-t)on(CD)*(OEM). U. Licensed. c (linux-kernel@vger.kernel.org)
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+References: <94KH6BJCCL03AI4I@vger.kernel.org>
+In-Reply-To: <94KH6BJCCL03AI4I@vger.kernel.org>
+Message-ID: <2KI1C9J928KC9LGH@cas-dial-151-104.casper.trib.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 05, 2004 at 06:45:05PM -0700, Zachary Amsden wrote:
-> Playing around with gcc 3.3.3, I compiled a 2.6 series kernel for i386 
-> and discovered it panics on boot.  The problem was gcc 3.3.3 can inline 
-> functions even if declared after their call sites.  This causes i386 to 
-> not boot, since do_test_wp_bit() must not exist in the __init section.  
-> Similar problems may exist in the boot code for other architectures, but 
-> I can't confirm that at this time.  x86_64 is not affected.
+http://VNbVT.bhneeag.biz/?JsLOfudTihk6_ddLxQMt
 
-That should have been fixed long ago by sorting the exception
-table. I checked and the code is still there: 
-
-asmlinkage void __init start_kernel(void)
-{
-	...
-        sort_main_extable();
-
-
-Something must be rotten in your setup. I definitely don't see the
-same problems with a unit-at-a-time 3.3 gcc. 
-
-Can you double check that the sort is really done?
-
-The patch is imho not needed.
-
--Andi

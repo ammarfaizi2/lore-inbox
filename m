@@ -1,38 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275012AbRJAMyX>; Mon, 1 Oct 2001 08:54:23 -0400
+	id <S275014AbRJAMyd>; Mon, 1 Oct 2001 08:54:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275017AbRJAMyN>; Mon, 1 Oct 2001 08:54:13 -0400
-Received: from ookhoi.xs4all.nl ([213.84.114.66]:1927 "EHLO ookhoi.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S275012AbRJAMx5>;
-	Mon, 1 Oct 2001 08:53:57 -0400
-Date: Mon, 1 Oct 2001 14:54:19 +0200
-From: Ookhoi <ookhoi@dds.nl>
-To: John Jasen <jjasen1@umbc.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OT] New Anti-Terrorism Law makes "hacking" punishable by life in  prison
-Message-ID: <20011001145419.L9327@humilis>
-Reply-To: ookhoi@dds.nl
-In-Reply-To: <20011001104130.32696.qmail@optushome.com.au> <Pine.SGI.4.31L.02.0110010826070.6140106-100000@irix2.gl.umbc.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.SGI.4.31L.02.0110010826070.6140106-100000@irix2.gl.umbc.edu>
-User-Agent: Mutt/1.3.19i
-X-Uptime: 20:50:40 up 1 day, 9 min,  9 users,  load average: 0.08, 0.12, 0.05
+	id <S275017AbRJAMyX>; Mon, 1 Oct 2001 08:54:23 -0400
+Received: from sushi.toad.net ([162.33.130.105]:17812 "EHLO sushi.toad.net")
+	by vger.kernel.org with ESMTP id <S275014AbRJAMyJ>;
+	Mon, 1 Oct 2001 08:54:09 -0400
+Subject: Re: [PATCH] PnPBIOS 2.4.9-ac1[56] Vaio fix
+To: linux-kernel@vger.kernel.org
+Date: Mon, 1 Oct 2001 08:54:01 -0400 (EDT)
+X-Mailer: ELM [version 2.4ME+ PL73 (25)]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <20011001125401.9684B8BF@thanatos.toad.net>
+From: jdthood@home.dhs.org (Thomas Hood)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > .. but at least fixes appear a lot faster for linux.  That alone
-> > > don't usually leave enough timespan for a large-scale exploit.
-> 
-> Someone forget bind and rpc.statd worms of about 6 months ago?
+Stelian: Okay, thanks for testing it.
 
-With bind, the admin could have patched his bind before the worms came
-alive, he could have upgraded to a new major release, he could have run
-bind not as root, and he could have run bind chrooted. (for 'he' you can
-also read 'she').
+Stelian and others:  So the fix works using is_sony_vaio_laptop
+to set the pnp_bios_dont_use_current_config flag.  (Alan can
+shorten this name if he wants ;)  The is_sony_vaio_laptop
+flag is only found in the i386 and x86_64 arches.  Is the
+pnpbios driver used on other arches?  If so then we'll have
+to provide the flag in those arches or pnpbios won't link.
+Alan?
 
-This for sure was not the fault of the os.
-
-	Ookhoi
+Thomas
+-- 
+(Don't reply to the From: address but to jdthood_AT_yahoo.co.uk)

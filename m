@@ -1,51 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131676AbRDCAqm>; Mon, 2 Apr 2001 20:46:42 -0400
+	id <S131476AbRDCApl>; Mon, 2 Apr 2001 20:45:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131832AbRDCAqd>; Mon, 2 Apr 2001 20:46:33 -0400
-Received: from warden.digitalinsight.com ([208.29.163.2]:20981 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id <S131676AbRDCAqQ>; Mon, 2 Apr 2001 20:46:16 -0400
-Date: Mon, 2 Apr 2001 17:39:19 -0700 (PDT)
-From: David Lang <dlang@diginsite.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Jeremy Jackson <jerj@coplanar.net>, Ian Soboroff <ian@cs.umbc.edu>,
-   <linux-kernel@vger.kernel.org>
-Subject: Re: /proc/config idea
-In-Reply-To: <3AC91800.22D66B24@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.33.0104021734400.30128-100000@dlang.diginsite.com>
+	id <S131676AbRDCApc>; Mon, 2 Apr 2001 20:45:32 -0400
+Received: from tomts6.bellnexxia.net ([209.226.175.26]:24276 "EHLO
+	tomts6-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S131476AbRDCApS>; Mon, 2 Apr 2001 20:45:18 -0400
+Message-ID: <3AC91B5B.1612945D@coplanar.net>
+Date: Mon, 02 Apr 2001 20:37:47 -0400
+From: Jeremy Jackson <jerj@coplanar.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+CC: Ian Soboroff <ian@cs.umbc.edu>, linux-kernel@vger.kernel.org
+Subject: Re: /proc/config idea
+In-Reply-To: <877l13whzw.fsf@danube.cs.umbc.edu> <3AC89389.46317572@coplanar.net> <3AC91800.22D66B24@mandrakesoft.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-yes it's unreclaimable memory and that's why we want to minimize how much
-is used.
+Jeff Garzik wrote:
 
-on the other hand there is a factor of reliability in the kernel knowing
-what options were used to compile it that you just cannot match with a
-seperate file, or even with it a part of the on-disk image that is thrown
-out when it gets loaded into memory.
-
-if the distro/sysadmin _always_ installs the kernel the 'right way' then
-the difference isn't nessasarily that large, but if you want reliability
-on any system it may be worth loosing a page or so of memory (hasn't
-someone said that the data can be compressed to <1K?) make it so that you
-need a common external tool to use the data and deliver it from the kernel
-in compressed form and you don't even need to put the decompression
-routine in the kernel (cat /proc/sys/kernel/config |gunzip >config)
-
-David Lang
-
- On Mon, 2 Apr 2001, Jeff Garzik
-wrote:
-
-> Date: Mon, 02 Apr 2001 20:23:28 -0400
-> From: Jeff Garzik <jgarzik@mandrakesoft.com>
-> To: Jeremy Jackson <jerj@coplanar.net>
-> Cc: Ian Soboroff <ian@cs.umbc.edu>, linux-kernel@vger.kernel.org
-> Subject: Re: /proc/config idea
->
 > Jeremy Jackson wrote:
 > > Yes, I like this.  I do this manually, it allows reproducability, and
 > > incremental
@@ -70,18 +47,23 @@ wrote:
 > symlinks to properly installed files at boot time.
 >
 > Putting _files_ in the kernel is plain silly.  This is unreclaimable
+
+not in the kernel in an ELF section, marked not loadable.  it never leaves the
+disk.
+as someone else posted, it's ~900 bytes gzipped (if you want to have it in core)
+
+unfortunately (in the LILO case) x86 doesn't boot an ELF image... (oops)
+
+>
 > memory, folks.  There is no need to special case an operation as simple
+
+If you have a lot of kernels around, which Config-2.4.3 applies to kernel 2.4.3
+given 5 to choose from...the idea (same for System.map) is that it being in the
+same
+file they can't be confused.  Kinda like forks under Mac (but let's not go there
+now)
+
+>
 > as reading a file.  [I think this about firmware images too, but that's
 > another thread]
->
-> --
-> Jeff Garzik       | May you have warm words on a cold evening,
-> Building 1024     | a full moon on a dark night,
-> MandrakeSoft      | and a smooth road all the way to your door.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
 

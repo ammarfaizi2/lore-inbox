@@ -1,50 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293373AbSBZBlX>; Mon, 25 Feb 2002 20:41:23 -0500
+	id <S292631AbSBZBlZ>; Mon, 25 Feb 2002 20:41:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292631AbSBZBlH>; Mon, 25 Feb 2002 20:41:07 -0500
-Received: from dsl-213-023-039-132.arcor-ip.net ([213.23.39.132]:33668 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S293349AbSBZBkr>;
-	Mon, 25 Feb 2002 20:40:47 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Alexander Viro <viro@math.psu.edu>
-Subject: Re: [PATCH] Son of Unbork (1 of 3)
-Date: Sun, 24 Feb 2002 03:33:36 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-In-Reply-To: <Pine.GSO.4.21.0202251323160.3162-100000@weyl.math.psu.edu>
-In-Reply-To: <Pine.GSO.4.21.0202251323160.3162-100000@weyl.math.psu.edu>
+	id <S293349AbSBZBlJ>; Mon, 25 Feb 2002 20:41:09 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:24337 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S293373AbSBZBkx>;
+	Mon, 25 Feb 2002 20:40:53 -0500
+Date: Mon, 25 Feb 2002 22:40:40 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Cc: Shawn Starr <spstarr@sh0n.net>, Linux <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.19-preX: What we really need: -AA patches finally in the
+ tree
+In-Reply-To: <4360000.1014687125@flay>
+Message-ID: <Pine.LNX.4.33L.0202252238250.7820-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16eoTq-0001GK-00@starship.berlin>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On February 25, 2002 07:28 pm, Alexander Viro wrote:
-> On Sat, 23 Feb 2002, Daniel Phillips wrote:
-> > Please tell me who wrote this:
-> > 
-> > struct super_operations {
-> >         struct inode *(*alloc_inode)(struct super_block *sb);
-> >         void (*destroy_inode)(struct inode *)
-> 
-> I had.  With inodes it _does_ provide things that can't be done
-> without these methods.  Namely, common allocation of generic and
-> fs-private part *on* *the* *fast* *path* *for* *class* *with*
-> *many* *instances*.
-> 
-> The latter parts are missing in case of superblocks.  We don't
-> allocate hundreds of thousands of superblocks.  Moreover, ones
-> allocated live much longer than normal struct inode.
-> 
-> IOW, common allocation is worthless in this case and that's the
-> only rationale for ->alloc_inode()/->destroy_inode().
+On Mon, 25 Feb 2002, Martin J. Bligh wrote:
 
-You are being random.  I'll leave the patch as it stands, I'm satisfied with 
-it.  If you want to change it, go ahead, you have it in your mailbox.  Tear 
-the whole thing up and rewrite it if you like.  Just don't delay this 
-important work because of stupid personality issues.
+> > Not to begin the flamewar, but no thanks. rmap-12f blows -aa away AFAIK
+> > on this P200 w/ 64MB ram.
+>
+> rmap still sucks on large systems though. I'd love to see rmap
+> in the main kernel, but it needs to get the scalability fixed first.
+> The main problem seems to be pagemap_lru_lock ... Rik & crew
+> know about this problem, but let's give them some time to fix it
+> before rmap gets put into mainline ....
 
+This isn't very near on my TODO list though, I've got
+the following big items coming up shortly:
+
+rmap 13:   O(1) page_launder    <- working on it now
+
+rmap 14:   pte-highmem support
+
+In addition to this I'm merging some small pieces of code
+with both Linus and Marcelo.
+
+Making the locking more scaleable wrt. the pagemap_lru_lock
+could be either a simple change or a rework of the way the
+VM does locking. I'm not sure which way to go...
+
+regards,
+
+Rik
 -- 
-Daniel
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

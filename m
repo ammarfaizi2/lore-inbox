@@ -1,71 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266914AbUJNSpC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267312AbUJNSpB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266914AbUJNSpC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 14:45:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266912AbUJNSny
+	id S267312AbUJNSpB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 14:45:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266914AbUJNSn5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 14:43:54 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:5280 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S266914AbUJNSAT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 14:00:19 -0400
-Date: Thu, 14 Oct 2004 10:59:38 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-cc: akpm@osdl.org, luto@myrealbox.com, ak@suse.de, nickpiggin@yahoo.com.au,
-       linux-kernel@vger.kernel.org
-Subject: Re: page fault scalability patch V9: [7/7] atomic pte operatiosn
- for s390
-In-Reply-To: <20040928150743.GA6305@mschwid3.boeblingen.de.ibm.com>
-Message-ID: <Pine.LNX.4.58.0410141051560.18209@schroedinger.engr.sgi.com>
-References: <20040928150743.GA6305@mschwid3.boeblingen.de.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 14 Oct 2004 14:43:57 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:32750 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S267170AbUJNSGm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 14:06:42 -0400
+Subject: ACPI hangs at boot  w/ nForce motherboard
+From: john stultz <johnstul@us.ibm.com>
+To: Len Brown <len.brown@intel.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1097777194.20778.8.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 14 Oct 2004 11:06:34 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 28 Sep 2004, Martin Schwidefsky wrote:
+Hey Len,
+	Sorry for the lack of details here, but I figured I should at least let
+you know. On my box at home (nForce1 motherboard w/ voodoo3 video)
+2.6.9-rcX kernels hang on boot. Since its my personal system, I haven't
+had much time to debug or look into the issue, however I have found that
+acpi=off allows me to boot. 
 
-> operation that needs to get implemented by use of the ipte. You'll
-> find a new patch that adds an implementation of ptep_xchg_flush for
-> s390 below, the old patch is broken. Please replace.
+There are no strange error messages, the system just hangs (the
+framebuffer console looks to be locked at well - no blinking cursor). 
 
-Ok. Thanks. Added to my patch.
+Any suggestions?  I plan to try the standard acpi=noirq, and pci=noacpi,
+but I feel like I tried them awhile ago to no effect.
 
+thanks
+-john
 
-> There are some more things that need improvement:
-> * You should introduce a #define for each of the new primitives
->   (__HAVE_ARCH_PTEP_CMPXCHG, __HAVE_ARCH_PTEP_XCHG_FLUSH, etc) so
->   that the architectures can redefine the primitives separatly.
->   For s390 I need to define a ptep_xchg_flush but want to use the
->   default implementation for all the other new primitives.
-
-Ok. done.
-
-> * In the generic implementations of the new primitives please use
->   the mm from the vma to do the locking. To rely on the fact that
->   the memory structure in the functions that use the macros are always
->   called "mm" is quite a hack.
-
-I did not notice that. The vma was passed to the macro but the mm
-was used for locking... Amazingly it worked. Thanks...
-
-> * The ptep_get_clear_flush primitive isn't used anywhere and should
->   be removed.
-
-Done.
-
-> * The flush_tlb_page in the generic ptep_cmpxchg implementation
->   shouldn't be there, the macro is used in code sequences where it
->   isn't needed (the old code didn't flush).
-
-Removed.
-
-Thanks for all the feedback and sorry for the late response. I was busy
-with other stuff and there was a deadline upon us.
-
-Hopefully I will get V10 out soon.
-
-Greetings
-	Christoph

@@ -1,151 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262689AbTDIBme (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 21:42:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262687AbTDIBme (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 21:42:34 -0400
-Received: from mail.casabyte.com ([209.63.254.226]:59406 "EHLO
-	mail.1casabyte.com") by vger.kernel.org with ESMTP id S262689AbTDIBmb (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Apr 2003 21:42:31 -0400
-From: "Robert White" <rwhite@casabyte.com>
-To: "Larry McVoy" <lm@bitmover.com>, "Jamie Lokier" <jamie@shareable.org>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: RE: BitBucket: GPL-ed KitBeeper clone
-Date: Tue, 8 Apr 2003 18:43:43 -0700
-Message-ID: <PEEPIDHAKMCGHDBJLHKGMEMBCGAA.rwhite@casabyte.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+	id S261945AbTDIBse (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 21:48:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262687AbTDIBse (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 21:48:34 -0400
+Received: from miranda.zianet.com ([216.234.192.169]:18955 "HELO
+	miranda.zianet.com") by vger.kernel.org with SMTP id S261945AbTDIBsc (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Apr 2003 21:48:32 -0400
+Subject: Re: 2.5.67 - reiserfs go boom.
+From: Steven Cole <elenstev@mesatop.com>
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030409011802.GD25834@suse.de>
+References: <20030409011802.GD25834@suse.de>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1049853413.31551.27.camel@spc>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2-3mdk 
+Date: 08 Apr 2003 19:56:53 -0600
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <20030409004718.GA1855@work.bitmover.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I would agree if-and-only-if you can demonstrate that you came to the field
-a virgin.  That is, if your own software doesn't rely on anything you have
-"mimicked" from another source then you are right to believe that your work
-should be immune from idea-harvest.
+On Tue, 2003-04-08 at 19:18, Dave Jones wrote:
+> Whilst running fsx.. (Though fsx didn't trigger any error,
+> and is still running)..
+> 
+> 		Dave
+> 
+> buffer layer error at fs/buffer.c:127
+> Call Trace:
+>  [<c016d260>] __wait_on_buffer+0xd0/0xe0
+>  [<c0121760>] autoremove_wake_function+0x0/0x50
+>  [<c0121760>] autoremove_wake_function+0x0/0x50
+>  [<c02886c8>] reiserfs_unmap_buffer+0x68/0xa0
+>  [<c0288768>] unmap_buffers+0x68/0x70
+>  [<c0288948>] indirect2direct+0x1d8/0x2b0
+>  [<c0286584>] reiserfs_cut_from_item+0x3d4/0x4e0
+>  [<c0286955>] reiserfs_do_truncate+0x265/0x520
+>  [<c0170e12>] block_prepare_write+0x32/0x50
+>  [<c027446a>] reiserfs_truncate_file+0x15a/0x3b0
+>  [<c028cfc7>] journal_end+0x27/0x30
+>  [<c0275f2c>] reiserfs_file_release+0x39c/0x600
+>  [<c014c9bb>] check_poison_obj+0x3b/0x1b0
+>  [<c014e934>] kmem_cache_alloc+0x124/0x170
+>  [<c016c711>] get_empty_filp+0x51/0x100
+>  [<c016c9a1>] __fput+0xf1/0x100
+>  [<c016ab3a>] filp_close+0x15a/0x230
+>  [<c01833a3>] do_fcntl+0xe3/0x1c0
+>  [<c0182ebc>] sys_dup2+0xec/0x130
+>  [<c010a457>] syscall_call+0x7/0xb
+> 
 
-I suspect however, that you didn't think you were "stealing" when you
-started with the concept of comparing a new file to an old one. (doing a
-diff) or whenever, in any project, you used buffering, look ahead, look
-behind, regular expressions, sorting, ignoring white space, soundex,
-encryption, sockets, menus, command line interfaces, typing, function keys,
-etc, etc, etc.
-
-All of those things are now in the common consciousness, but they didn't
-start there.  Was the first person to go "hmm, good idea, but I can make it
-better" for each of those and every other idea, a-priori a thief?  By using
-that "stolen thought" are you supporting "theft".
-
-Nope.
-
-All of our computer concepts, whether you realize it or not, come from our
-base language skills.  "To Compare" is an English verb, it is also a verb in
-many other languages, any expression of comparison in any form "steals" from
-the root concept.
-
-So your ideas, once expressed, are irrecoverably contributed to the set of
-all ideas, regardless of how you do that expression.  That fact, that
-process, is wired inextricably into the human brain.  Railing for injunctive
-relief (etc 8-) because of any follow on act is pointless and nonsensical.
-
-The particular crime of derivation without permission and recompense ends,
-in fact *must* end, well short of "took the idea".  Its domain plays out
-somewhere around "copied some of my (literal) code."
-
-If you want to possess an idea, don't disclose it.  IF your product requires
-disclosure for use, you either play in public or take your ball and stay
-home.  That's just the facts organic cognition.
-
-Euphemistically: "Monkey See, Monkey Do."  There is a surprising amount of
-simple biological truth to that old saw.  (ask any second-grader. 8-)
-
-Also, for all that "to steal" and "theft" are feel good rhetoric words, "to
-steal" and idea you have to deprive the original owner of it, the "it" being
-the idea, not the money it could make.  That's why copyright lawyer-speak
-never uses the theft-words.  There is infringement and non-infringement, and
-derivation, but not theft.
-
-Don't get me wrong.
-
-I make software for a living, and I recognize that it would be hypocritical
-beyond measure to not pay for a commercial package that I use.  I have more
-versions of Microsoft Windows than I can shake a stick at, each lawfully
-bought/upgraded etc.  When I left my last employer I removed the copy of
-office that I was entitled to have on my home computer as their employee.
-Yes, I am that kind of nut.  I am not perfect at it, but I get as close as I
-can manage.
-
-I have written a novel, I expect that if I can get it published, I deserve
-commensurate compensation.  I would be angry if someone use some/all of my
-book and published it as their own.  I would even take steps to redress such
-infringement.
-
-But, if the book is good and it gets out there, I *expect* that people of
-various levels of talent will mimic it either consciously or unconsciously.
-I *equally* expect to have some people talk about the similarities between
-it an Robert Jordan (though I think it is less influenced by him and more by
-some of our common antecedents going back for centuries.)
-
-The whole reason d'arte behind the "open software" process is that it gives
-people a way to take advantage of the monkey-see-monkey-do effect, a
-recompense that previously wasn't available at all.  Of course I am not
-expecting my next GNU contribution to pay my bills.
-
-Yep, a fine line, but deep.
-
-Did they copy your code?  Go get some relief...
-Did they copy your idea?  Take the hit and move on...
-Was "your idea" conceived in a vacuum?  If not, bow your head in shame for
-yelling at others for doing "to you" what you yourself have done in greater
-orders of magnitude to all those who came before you.  (that being building
-on someone else's ideas, if you haven't kept up... 8-)
-
-To dip back into that pre-school bin-o-truth: "Turn about is fair play."
-
-Rob.
-
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Larry McVoy
-Sent: Tuesday, April 08, 2003 5:47 PM
-To: Jamie Lokier
-Cc: Larry McVoy; linux-kernel
-Subject: Re: BitBucket: GPL-ed KitBeeper clone
+Gee, that looks remarkably similar to what I was getting
+with ext3.  This happened on every boot with 2.5.67 with
+the base distro being Mandrake 9.1.  Then, I replaced LM 9.1
+with Redhat 9 and I never saw this again with 2.5.67.
 
 
-On Wed, Apr 09, 2003 at 12:19:49AM +0100, Jamie Lokier wrote:
-> Larry McVoy wrote about unreleased improvements to Bitkeeper:
-> > [...] we're worried about the open source guys stealing them.
->
-> Seriously, do you see it as "stealing" if someone mimics your best ideas?
+buffer layer error at fs/buffer.c:127
+Call Trace:
+ [<c0148170>] __wait_on_buffer+0xe0/0xf0
+ [<c0117010>] autoremove_wake_function+0x0/0x50
+ [<c0117010>] autoremove_wake_function+0x0/0x50
+ [<c014a0dd>] __block_prepare_write+0x13d/0x490
+ [<c01821b0>] ext3_mark_inode_dirty+0x50/0x60
+ [<c018d1ba>] start_this_handle+0x9a/0x1c0
+ [<c014acc4>] block_prepare_write+0x34/0x50
+ [<c017f2b0>] ext3_get_block+0x0/0xb0
+ [<c017f962>] ext3_prepare_write+0x92/0x1b0
+ [<c017f2b0>] ext3_get_block+0x0/0xb0
+ [<c012e4d9>] generic_file_aio_write_nolock+0x359/0xa10
+ [<c01496bc>] __find_get_block+0x7c/0x120
+ [<c01815f3>] ext3_get_inode_loc+0xf3/0x1a0
+ [<c0181908>] ext3_read_inode+0x1f8/0x360
+ [<c012eca1>] generic_file_aio_write+0x71/0x90
+ [<c017cf14>] ext3_file_write+0x44/0xe0
+ [<c0146deb>] do_sync_write+0x8b/0xc0
+ [<c0154108>] link_path_walk+0x608/0x900
+ [<c018c85f>] ext3_permission+0x1f/0x30
+ [<c015359a>] permission+0x3a/0x40
+ [<c0147b15>] get_empty_filp+0x75/0xf0
+ [<c0154d1d>] open_namei+0x9d/0x420
+ [<c01460de>] dentry_open+0x16e/0x180
+ [<c0145f68>] filp_open+0x68/0x70
+ [<c0146ede>] vfs_write+0xbe/0x130
+ [<c0146720>] generic_file_llseek+0x0/0xd0
+ [<c0146fee>] sys_write+0x3e/0x60
+ [<c01092bb>] syscall_call+0x7/0xb
 
-Yes.  It is not clear to me that open source community has realized that
-it is much harder to come up with the ideas than it is to copy them.
-Much of the activity in open source community is copying, providing a
-GPLed version of some commercial tool.
+Steven
 
-The problem is that that those things which you wish to copy represent
-easily 10x-100x more work than it would take to copy them.   So we spend
-the order[s] of magnitude more money to get a good answer and you copy it.
-In many cases, before we can recoup our investment.
-
-The short answer is yes, it's stealing in our eyes.  If you're such a
-good programmer, how about you go figure out the SCM answers without
-leveraging our work?  By not honoring that request, you are begging us
-to stop improving the free version of BK.  Also known as "cutting off
-your nose to spite your face".
---
----
-Larry McVoy              lm at bitmover.com
-http://www.bitmover.com/lm
 -
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
 the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html
 Please read the FAQ at  http://www.tux.org/lkml/
+
+
 

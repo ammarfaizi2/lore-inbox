@@ -1,59 +1,42 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: (majordomo@vger.rutgers.edu) by vger.rutgers.edu via listexpand id <S160159AbQGaWUp>; Mon, 31 Jul 2000 18:20:45 -0400
-Received: by vger.rutgers.edu id <S160115AbQGaWTf>; Mon, 31 Jul 2000 18:19:35 -0400
-Received: from enterprise.cistron.net ([195.64.68.33]:1488 "EHLO enterprise.cistron.net") by vger.rutgers.edu with ESMTP id <S160159AbQGaWSw>; Mon, 31 Jul 2000 18:18:52 -0400
-From: miquels@cistron.nl (Miquel van Smoorenburg)
-Subject: Re: RLIM_INFINITY inconsistency between archs
-Date: 31 Jul 2000 22:39:15 GMT
-Organization: Cistron Internet Services B.V.
-Message-ID: <8m4v6j$dkn$1@enterprise.cistron.net>
-References: <8m4q9v$871$1@enterprise.cistron.net> <Pine.LNX.3.95.1000731173215.4111A-100000@chaos.analogic.com>
-X-Trace: enterprise.cistron.net 965083155 13975 195.64.65.200 (31 Jul 2000 22:39:15 GMT)
-X-Complaints-To: abuse@cistron.nl
+Received: (majordomo@vger.rutgers.edu) by vger.rutgers.edu via listexpand id <S160068AbQGaWAp>; Mon, 31 Jul 2000 18:00:45 -0400
+Received: by vger.rutgers.edu id <S160133AbQGaV6k>; Mon, 31 Jul 2000 17:58:40 -0400
+Received: from [209.10.217.66] ([209.10.217.66]:2430 "EHLO neon-gw.transmeta.com") by vger.rutgers.edu with ESMTP id <S160123AbQGaVyF>; Mon, 31 Jul 2000 17:54:05 -0400
 To: linux-kernel@vger.rutgers.edu
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: RLIM_INFINITY inconsistency between archs
+Date: 31 Jul 2000 15:13:55 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <8m4tn3$cri$1@cesium.transmeta.com>
+References: <7iw6kYsXw-B@khms.westfalen.de> <Pine.LNX.3.95.1000731132321.529A-100000@chaos.analogic.com> <8m4q9v$871$1@enterprise.cistron.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-In article >Pine.LNX.3.95.1000731173215.4111A-100000@chaos.analogic.com>,
-Richard B. Johnson <root@chaos.analogic.com> wrote:
->On 31 Jul 2000, Miquel van Smoorenburg wrote:
->> No. Even Linus himself has been saying for years (and recently even
->> in this thread) that /usr/include/linux and /usr/include/asm should
->> NOT EVER be symlinks to /usr/src/linux
->
->I don't think Linus said that at all.
+Followup to:  <8m4q9v$871$1@enterprise.cistron.net>
+By author:    miquels@cistron.nl (Miquel van Smoorenburg)
+In newsgroup: linux.dev.kernel
+> 
+> No. Even Linus himself has been saying for years (and recently even
+> in this thread) that /usr/include/linux and /usr/include/asm should
+> NOT EVER be symlinks to /usr/src/linux
+> 
+> Everything in /usr/include belongs to and depends on glibc, not
+> the currently running kernel.
+> 
 
-That is the problem. Linus has been saying that for years, but
-as I said, for some reason people refuse to listen. You're proving
-my point.
+Unfortunately that doesn't work very well.  For user-space daemons
+which talk to Linux-specific kernel interfaces, such as automount, you
+need both the glibc and the Linux kernel headers.
 
->In fact, the first trees that
->Linus made and distributed were done this way and have become the
->de-facto standard as a result of this.
-
-Read <8lop07$2ee$1@penguin.transmeta.com> in which Linus says:
-
-  >/usr/include/asm is a symlink to /usr/src/linux/include/asm, as in the
-  >original distribution but /usr/src/linux is a 2.4.0-testX tree.
-  >With a 2.2.X source tree, it does not produce any warning.
-  
-  I've asked glibc maintainers to stop the symlink insanity for the last
-  few years now, but it doesn't seem to happen.
-  
-  Basically, that symlink should not be a symlink.  It's a symlink for
-  historical reasons, none of them very good any more (and haven't been
-  for a long time), and it's a disaster unless you want to be a C library
-  developer.  Which not very many people want to be. 
-  
-  The fact is, that the header files should match the library you link
-  against, not the kernel you run on. 
-
-Also read <Pine.LNX.4.10.10007270728480.2768-100000@penguin.transmeta.com>
-for more enlightenment. If you want to join a thread, please make sure
-that you have read all messages in it.
-
-Mike.
+	-hpa
 -- 
-Cistron Certified Internetwork Expert #1. Think free speech; drink free beer.
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

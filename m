@@ -1,33 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284368AbRLCIvt>; Mon, 3 Dec 2001 03:51:49 -0500
+	id <S282928AbRLCIvl>; Mon, 3 Dec 2001 03:51:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284364AbRLCIte>; Mon, 3 Dec 2001 03:49:34 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:58519 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S284398AbRLBXWM>;
-	Sun, 2 Dec 2001 18:22:12 -0500
-Date: Sun, 02 Dec 2001 15:21:57 -0800 (PST)
-Message-Id: <20011202.152157.123925377.davem@redhat.com>
-To: kaos@ocs.com.au
-Cc: hps@intermeta.de, jgarzik@mandrakesoft.com, lm@bitmover.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Coding style - a non-issue 
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <10605.1007169423@ocs3.intra.ocs.com.au>
-In-Reply-To: <1007140529.6655.37.camel@forge>
-	<10605.1007169423@ocs3.intra.ocs.com.au>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S284397AbRLCIuB>; Mon, 3 Dec 2001 03:50:01 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:17356 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S284840AbRLCHSV>; Mon, 3 Dec 2001 02:18:21 -0500
+Date: Mon, 3 Dec 2001 09:22:29 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: <zwane@netfinity.realnet.co.sz>
+To: <rml@tech9.net>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: average user comments on 2.5.1-pre5 
+Message-ID: <Pine.LNX.4.33.0112030920380.25297-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Keith Owens <kaos@ocs.com.au>
-   Date: Sat, 01 Dec 2001 12:17:03 +1100
-   
-   What is ugly in aic7xxx is :-
+I just tried 2.5.1-pre1-preempt with the same results, i'll try
+-pre5-preempt as well soon.
 
-You missed:
+Thanks for the suggestion,
+	Zwane Mwaikambo
 
-* #undef's "current"
+

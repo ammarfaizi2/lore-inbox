@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266417AbRHOVl5>; Wed, 15 Aug 2001 17:41:57 -0400
+	id <S266464AbRHOVmr>; Wed, 15 Aug 2001 17:42:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266464AbRHOVlr>; Wed, 15 Aug 2001 17:41:47 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:38587 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S266417AbRHOVlj>; Wed, 15 Aug 2001 17:41:39 -0400
-Date: Wed, 15 Aug 2001 14:41:15 -0700 (PDT)
-From: Sridhar Samudrala <samudrala@us.ibm.com>
-To: Manfred Bartz <mbartz@optushome.com.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: connect() does not return ETIMEDOUT
-Message-ID: <Pine.LNX.4.21.0108151123510.4809-100000@w-sridhar2.des.sequent.com>
+	id <S266921AbRHOVmh>; Wed, 15 Aug 2001 17:42:37 -0400
+Received: from sj-msg-core-1.cisco.com ([171.71.163.11]:11497 "EHLO
+	sj-msg-core-1.cisco.com") by vger.kernel.org with ESMTP
+	id <S266464AbRHOVmY>; Wed, 15 Aug 2001 17:42:24 -0400
+Message-ID: <098c01c125d3$127095e0$103147ab@cisco.com>
+From: "Hua Zhong" <hzhong@cisco.com>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: Coding convention of function header comments
+Date: Wed, 15 Aug 2001 14:41:41 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux has 2 queues associated with a listening socket to maintain incoming 
-connections before they are accepted.  The first one is syntable which holds 
-the partial connections (SYN received and SYN-ACK sent). This is a hash table 
-and the maximum length is limited by /proc/sys/net/ipv4/tcp_syn_max_backlog.
-The second one is called accept queue which hold the complete connections (3 
-way handshake is complete). The length of this queue is limited by the backlog value specfied with listen(). It is actually backlog+1.
+Hi:
 
-When the accept queue is full, new incoming SYNs are accepted in a burst of 
-2 at a time. These are put in the SYN table expecting that the accept queue
-will open up by the time we receive the ACK. If the accept queue doesn't get
-open up, the ACK is simply dropped and SYN-ACK is sent again after a certain
-timeout period. 
+Sorry maybe this is not the best place to ask, but recently I need to come
+up with coding conventions regarding function header comments which explain
+the usage of functions (meaning of parameters, etc).  <linux/list.h> has sth
+like this:
 
-In your example, 6 connections succeed immediately.
-But only 4 enter ESTABLISHED state.
-2 are accepted by the server. 2 remain in the accept queue (backlog+1).
-2 of them are added to the SYN table. 
+/**
+ * list_add - add a new entry
+ * @new: new entry to be added
+ * @head: list head to add it after
+ *
+ * Insert a new entry after the specified head.
+ * This is good for implementing stacks.
+ */
+static __inline__ void list_add(struct list_head *new, struct list_head
+*head)
+{
+ __list_add(new, head, head->next);
+}
 
-Thanks
-Sridhar
+Similar to Java.  I want to ask that (1) is this a well-known convention or
+was just invented (informally) by someone here (e.g., Linus?)?  Where can I
+find the documentation about this convention? (2) can anyone point me to the
+URL of similar well-known coding conventions (except the Java one)?
 
+Many thanks.
 
-> Questions:
+-Hua
 
-> Once the backlog is exhausted, shouldn't the server side 
-> TCP stop sending SYNs and either be quiet or perhaps send 
-> an appropriate ICMP response?
-
-> Why does the server side keep sending SYNs after the connection
-> handshake was apparently completed?
-
-> -- 
-> Manfred
 

@@ -1,60 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129777AbRAKC5u>; Wed, 10 Jan 2001 21:57:50 -0500
+	id <S129939AbRAKDEa>; Wed, 10 Jan 2001 22:04:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129939AbRAKC5k>; Wed, 10 Jan 2001 21:57:40 -0500
-Received: from ns1.megapath.net ([216.200.176.4]:28427 "EHLO megapathdsl.net")
-	by vger.kernel.org with ESMTP id <S129777AbRAKC5c>;
-	Wed, 10 Jan 2001 21:57:32 -0500
-Message-ID: <3A5D20D6.6090906@megapathdsl.net>
-Date: Wed, 10 Jan 2001 18:56:22 -0800
-From: Miles Lane <miles@megapathdsl.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-ac1 i686; en-US; m18) Gecko/20010107
-X-Accept-Language: en
+	id <S130766AbRAKDEV>; Wed, 10 Jan 2001 22:04:21 -0500
+Received: from chello212186054181.11.vie.surfer.at ([212.186.54.181]:10766
+	"EHLO pluto.i.zmi.at") by vger.kernel.org with ESMTP
+	id <S129939AbRAKDEK> convert rfc822-to-8bit; Wed, 10 Jan 2001 22:04:10 -0500
+From: Michael Zieger <m.zieger@zmi.at>
+Organization: ZMI EDV http://www.zmi.at
+Date: Thu, 11 Jan 2001 04:04:07 +0100
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain;
+  charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Aaron Eppert <eppertan@rose-hulman.edu>
-CC: dhinds@zen.stanford.edu, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0 Patch for 3c575
-In-Reply-To: <20010110204420.A7699@rose-hulman.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-Id: <01011104025105.09006@saturn>
+Content-Transfer-Encoding: 8BIT
+Subject: Display bug at configuration of 2.4.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Huh.  Well, I have a 3CCFE575BT "3c575" card and I have
-had success using the 3c59x driver to enable the card.
+There is a minor display order bug in 2.4.0 when using make menuconfig, 
+under "SCSI":
 
-I only have one bug I am tracking:
+--- Some SCSI devices (e.g. CD jukebox) support multiple LUNs           
+[ ]   Enable extra checks in new queueing code                          
+[ ]   Probe all LUNs on each SCSI device                                
 
-If I have two cardbus cards active in my cardbus slots,
-the 3c59x driver locks up.  I doubt this problem would
-vanish if I were using your 3c575 driver, but I will give
-it a try.
+I believe the "---" line should be after the "Enable extra checks" 
+line, right? Could confuse people.
 
-There's one other annoyance:
-
-The config files for pcmcia-cs expect the 3c575_cb driver,
-so I either have to hack the configuration files or load
-the 3c59x driver by hand.
-
-In case it isn't clear, I am only using the PCMCIA/Cardbus
-drivers from the 2.4.0 kernel tree (yenta and friends).
-I am only using pcmcia-cs utilities and configuration files
-for PCMCIA support and to give me a decent /etc/pcmcia/config.opts
-file.
-
-	Miles
-
-Aaron Eppert wrote:
-
-> Attached is a patch against 2.4.0 to add the 3c575 driver 
-> into the kernel.  Simple reasoning for the addition involves
-> the rather broad use of this card and the need to have it
-> in a standard kernel.
-> 
-> Aaron Eppert
-
-
+mike
+-- 
+// Michael Zieger, BSc.Ing.    ---    Zieger Michael EDV-Lösungen
+// http://www.zmi.at                             Linux 2.4.00 SMP
+//
+// Atheism is a non-prophet organization.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

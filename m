@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266840AbUFYTC2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266854AbUFYTC0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266840AbUFYTC2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 15:02:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266838AbUFYTBn
+	id S266854AbUFYTC0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 15:02:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266832AbUFYTBh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 15:01:43 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:55792 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S266843AbUFYTBV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 15:01:21 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Anssi Saari <as@sci.fi>
-Subject: Re: PROBLEM: booting 2.6.7 hangs with IRQ handling problems
-Date: Fri, 25 Jun 2004 21:06:03 +0200
-User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org
-References: <20040622192942.GA15367@sci.fi> <200406231748.33679.bzolnier@elka.pw.edu.pl> <20040623180431.GA8963@sci.fi>
-In-Reply-To: <20040623180431.GA8963@sci.fi>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 25 Jun 2004 15:01:37 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:47294 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S266839AbUFYS7x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jun 2004 14:59:53 -0400
+Subject: Re: [Lhms-devel] Re: Merging Nonlinear and Numa style memory
+	hotplug
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Yasunori Goto <ygoto@us.fujitsu.com>
+Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       Linux Hotplug Memory Support 
+	<lhms-devel@lists.sourceforge.net>,
+       Linux-Node-Hotplug <lhns-devel@lists.sourceforge.net>,
+       linux-mm <linux-mm@kvack.org>,
+       "BRADLEY CHRISTIANSEN [imap]" <bradc1@us.ibm.com>
+In-Reply-To: <20040625114720.2935.YGOTO@us.fujitsu.com>
+References: <20040624194557.F02B.YGOTO@us.fujitsu.com>
+	 <1088133541.3918.1348.camel@nighthawk>
+	 <20040625114720.2935.YGOTO@us.fujitsu.com>
+Content-Type: text/plain
+Message-Id: <1088189973.29059.231.camel@nighthawk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 25 Jun 2004 11:59:33 -0700
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200406252106.04029.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 23 of June 2004 20:04, Anssi Saari wrote:
-> On Wed, Jun 23, 2004 at 05:48:33PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> > On Tuesday 22 of June 2004 21:29, Anssi Saari wrote:
-> > > Hello,
-> >
-> > Hi,
-> >
-> > > On my home PC I have an AMD Athlon XP 1900+ on an Aopen AK77-600Max
-> > > motherboard, VIA KT600 chipset. It works fine with Linux 2.6.6, apart
-> > > from the apparently nonexistent support for PATA devices on the Promise
-> > > PDC20378, but I can't boot 2.6.7. I've tried vanilla 2.6.7, 2.6.7 with
-> > > acpi-20040326 patch and 2.6.7-bk4. acpi=off, noapic or nolapic don't
-> > > seem to help.
-> >
-> > Since 2.6.6 works and 2.6.7-bk4 doesn't can you try -bk1/2/3 and
-> > do bisection search on specific changesets?  Thanks!
->
-> OK. I find that 2.6.6-bk1 seemed fine, but 2.6.6-bk2 already prints out
-> these messages. It did boot, but then hanged shortly after. I hope this
-> helps to narrow it down?
+On Fri, 2004-06-25 at 11:48, Yasunori Goto wrote:
+> > 
+> > > Should this translation be in common code?
+> > 
+> > What do you mean by common code?  It should be shared by all
+> > architectures.
+> 
+> If physical memory chunk size is larger than the area which
+> should be contiguous like IA32's kmalloc, 
+> there is no merit in this code.
+> So, I thought only mem_section is enough.
+> But I don't know about other architecutures yet and I'm not sure.
+> 
+> Are you sure that all architectures need phys_section?
 
-Does it hang the same way as 2.6.7?
+You don't *need* it, but the alternative is a scan of the mem_section[]
+array, which would be much, much slower.
 
-There were no IDE changes between 2.6.6-bk1 and 2.6.6-bk2.
-Can you do a diff between dmesg outputs from -bk1 and -bk2?
+Do you have an idea for an alternate implementation?
 
-You can also try narrowing it down to a specific changeset
-[ http://linux.bkbits.net:8080/linux-2.5/ ] but it can take a while.
-
-Bartlomiej
+-- Dave
 

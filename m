@@ -1,44 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281810AbRK0XNE>; Tue, 27 Nov 2001 18:13:04 -0500
+	id <S282983AbRK0X3v>; Tue, 27 Nov 2001 18:29:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282984AbRK0XMy>; Tue, 27 Nov 2001 18:12:54 -0500
-Received: from inet-mail4.oracle.com ([148.87.2.204]:8423 "EHLO
-	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
-	id <S281810AbRK0XMh>; Tue, 27 Nov 2001 18:12:37 -0500
-Message-ID: <3C041E4B.CA4D7A8A@oracle.com>
-Date: Wed, 28 Nov 2001 00:14:19 +0100
-From: Alessandro Suardi <alessandro.suardi@oracle.com>
-Organization: Oracle Support Services
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.1-pre2 i686)
-X-Accept-Language: en
+	id <S282961AbRK0X3l>; Tue, 27 Nov 2001 18:29:41 -0500
+Received: from vir.tninet.se ([195.100.94.108]:4367 "EHLO smtp.tninet.se")
+	by vger.kernel.org with ESMTP id <S282983AbRK0X3e>;
+	Tue, 27 Nov 2001 18:29:34 -0500
+Date: Wed, 28 Nov 2001 00:29:31 +0100 (MET)
+From: Per Larsson <tucker@algonet.se>
+To: linux-kernel@vger.kernel.org
+cc: alan@redhat.com
+Subject: Patch for fdomain driver.
+Message-ID: <Pine.SOL.4.10.10111280022080.9380-200000@kairos>
 MIME-Version: 1.0
-To: Massimo Dal Zotto <dz@cs.unitn.it>
-CC: torvalds@transmeta.com, linux-kernel@vger.kernel.org, alan@redhat.com,
-        marcelo@conectiva.com.br
-Subject: Re: [PATCH] latest version of i8k driver
-In-Reply-To: <200111261111.fAQBBUpG011037@dizzy.dz.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-851401618-1006903771=:9380"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Massimo Dal Zotto wrote:
-> 
-> Hi,
-> 
-> here is the latest version of the i8k driver. I have changed the i8k_probe
-> again and now it loads cleanly on most Dell Inspiron and Latitude laptops.
-> I have also disabled by default the power status since this information is
-> already available from apm. The patch is against linux-2.4.15.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-[snipped patch]
+---559023410-851401618-1006903771=:9380
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-Confirmed that it loads cleanly on my Latitude CPx J750GT (no more need
- to "force=1") and it still works. I actually tested it on 2.5.1-pre2.
 
---alessandro
+I've been using my old Quantum ISA-200S fdomain-based scsi-card to
+drive my zipdrive for a few years now, and when I upgraded to 2.4, 
+I got an Oops.
 
- "we live as we dream alone / to break the spell we mix with the others
-  we were not born in isolation / but sometimes it seems that way"
-     (R.E.M., live intro to 'World Leader Pretend')
+After much testing, I found the fdomain driver to be the culprit,
+especially the readb() calls.
+
+Since this is a ISA card, those should apparently rather be isa_readb()
+instead.
+
+There might be more changes needed, but it works for me now.
+
+/Per Larsson.
+
+-- 
+Democracy is the working model of any form of mob rule. The fruit of
+democracy, if unchecked by respect for human rights, is gang violence.
+Always! -- http://www.unquietmind.com/mislaid_iv.html
+
+---559023410-851401618-1006903771=:9380
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="fdomain.diff"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.SOL.4.10.10111280029310.9380@kairos>
+Content-Description: 
+Content-Disposition: attachment; filename="fdomain.diff"
+
+LS0tIC90bXAvZm9vL2Zkb21haW4uYy5vcmlnCVN1biBTZXAgMzAgMjE6MjY6
+MDcgMjAwMQ0KKysrIGRyaXZlcnMvc2NzaS9mZG9tYWluLmMJVHVlIE5vdiAy
+NyAyMzo1OTo1OSAyMDAxDQpAQCAtNzI5LDEzICs3MjksMTMgQEANCiAgICAg
+ICBzd2l0Y2ggKFF1YW50dW0pIHsNCiAgICAgICBjYXNlIDI6CQkJLyogSVNB
+XzIwMFMgKi8NCiAgICAgICBjYXNlIDM6CQkJLyogSVNBXzI1ME1HICovDQot
+CSBiYXNlID0gcmVhZGIoYmlvc19iYXNlICsgMHgxZmEyKSArIChyZWFkYihi
+aW9zX2Jhc2UgKyAweDFmYTMpIDw8IDgpOw0KKwkgYmFzZSA9IGlzYV9yZWFk
+YihiaW9zX2Jhc2UgKyAweDFmYTIpICsgKGlzYV9yZWFkYihiaW9zX2Jhc2Ug
+KyAweDFmYTMpIDw8IDgpOw0KIAkgYnJlYWs7DQogICAgICAgY2FzZSA0OgkJ
+CS8qIElTQV8yMDBTIChhbm90aGVyIG9uZSkgKi8NCi0JIGJhc2UgPSByZWFk
+YihiaW9zX2Jhc2UgKyAweDFmYTMpICsgKHJlYWRiKGJpb3NfYmFzZSArIDB4
+MWZhNCkgPDwgOCk7DQorCSBiYXNlID0gaXNhX3JlYWRiKGJpb3NfYmFzZSAr
+IDB4MWZhMykgKyAoaXNhX3JlYWRiKGJpb3NfYmFzZSArIDB4MWZhNCkgPDwg
+OCk7DQogCSBicmVhazsNCiAgICAgICBkZWZhdWx0Og0KLQkgYmFzZSA9IHJl
+YWRiKGJpb3NfYmFzZSArIDB4MWZjYykgKyAocmVhZGIoYmlvc19iYXNlICsg
+MHgxZmNkKSA8PCA4KTsNCisJIGJhc2UgPSBpc2FfcmVhZGIoYmlvc19iYXNl
+ICsgMHgxZmNjKSArIChpc2FfcmVhZGIoYmlvc19iYXNlICsgMHgxZmNkKSA8
+PCA4KTsNCiAJIGJyZWFrOw0KICAgICAgIH0NCiAgICANCkBAIC0xOTU1LDcg
+KzE5NTUsNyBAQA0KIAkgb2Zmc2V0ID0gYmlvc19iYXNlICsgMHgxZjMxICsg
+ZHJpdmUgKiAyNTsNCiAJIGJyZWFrOw0KICAgICAgIH0NCi0gICAgICBtZW1j
+cHlfZnJvbWlvKCAmaSwgb2Zmc2V0LCBzaXplb2YoIHN0cnVjdCBkcml2ZV9p
+bmZvICkgKTsNCisgICAgICBpc2FfbWVtY3B5X2Zyb21pbyggJmksIG9mZnNl
+dCwgc2l6ZW9mKCBzdHJ1Y3QgZHJpdmVfaW5mbyApICk7DQogICAgICAgaW5m
+b19hcnJheVswXSA9IGkuaGVhZHM7DQogICAgICAgaW5mb19hcnJheVsxXSA9
+IGkuc2VjdG9yczsNCiAgICAgICBpbmZvX2FycmF5WzJdID0gaS5jeWxpbmRl
+cnM7DQo=
+---559023410-851401618-1006903771=:9380--

@@ -1,39 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264668AbUISWZy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264571AbUISWbq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264668AbUISWZy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Sep 2004 18:25:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264571AbUISWZy
+	id S264571AbUISWbq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Sep 2004 18:31:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264704AbUISWbq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Sep 2004 18:25:54 -0400
-Received: from jaures31-1-82-228-83-187.fbx.proxad.net ([82.228.83.187]:59962
-	"HELO valhalla.trou.net") by vger.kernel.org with SMTP
-	id S264668AbUISWZx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Sep 2004 18:25:53 -0400
-Message-ID: <414E076F.5010801@twilight-hall.net>
-Date: Mon, 20 Sep 2004 00:25:51 +0200
-From: =?ISO-8859-1?Q?Rapha=EBl_Rigo?= <raphael.rigo@twilight-hall.net>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040917)
-X-Accept-Language: en-us, en
+	Sun, 19 Sep 2004 18:31:46 -0400
+Received: from cantor.suse.de ([195.135.220.2]:48321 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264571AbUISWbo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Sep 2004 18:31:44 -0400
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Roland McGrath <roland@redhat.com>,
+       Linux/m68k <linux-m68k@lists.linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: notify_parent (was: Re: Linux 2.6.9-rc2)
+References: <200409142019.i8EKJ8HG002560@magilla.sf.frob.com>
+	<Pine.LNX.4.61.0409192213250.14392@anakin>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: Yow!  Am I having fun yet?
+Date: Mon, 20 Sep 2004 00:31:29 +0200
+In-Reply-To: <Pine.LNX.4.61.0409192213250.14392@anakin> (Geert
+ Uytterhoeven's message of "Sun, 19 Sep 2004 22:16:21 +0200 (CEST)")
+Message-ID: <jey8j528n2.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [RAID1 Bug] bio too big device md0 (248 > 200) (2.6.9-rc2-mm1)
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-kernel version : 2.6.9-rc2-mm1
-i'm using a RAID1 array over 2 disks : one ATA, and another one in 
-"SATA" (if we can call the ICH5 a real SATA controller).
-During array synchronisation, I get "bio too big device md0 (248 > 200)" 
-error, which I fixed in doing
-//#define RESYNC_BLOCK_SIZE (64*1024)
-#define RESYNC_BLOCK_SIZE PAGE_SIZE
-in raid1.c, following the instruction on an old thread (for kernel 2.6.0).
-I would like to know if there is any better fix now, else then this mail 
-  will act as a remainder ;)
+Geert Uytterhoeven <geert@linux-m68k.org> writes:
 
-Raphaël Rigo
+> -			regs->sr &= ~PS_T;
+> -
+> -			/* Did we come from a system call? */
+> -			if (regs->orig_d0 >= 0) {
+> -				/* Restart the system call the same way as
+> -				   if the process were not traced.  */
+> -				struct k_sigaction *ka =
+> -					&current->sighand->action[signr-1];
+> -				int has_handler =
+> -					(ka->sa.sa_handler != SIG_IGN &&
+> -					 ka->sa.sa_handler != SIG_DFL);
+> -				handle_restart(regs, ka, has_handler);
+> -			}
+
+This should be put in ptrace_signal_deliver.  That had fixed quite a few
+gdb testsuite failures.
+
+> -			/* We're back.  Did the debugger cancel the sig?  */
+> -			if (!(signr = current->exit_code)) {
+> -			discard_frame:
+> -			    /* Make sure that a faulted bus cycle isn't
+> -			       restarted (only needed on the 680[23]0).  */
+> -			    if (regs->format == 10 || regs->format == 11)
+> -				regs->stkadj = frame_extra_sizes[regs->format];
+
+This is important if you want continue after a SEGV.
+
+Andreas.
+
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

@@ -1,37 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261664AbSLAMd1>; Sun, 1 Dec 2002 07:33:27 -0500
+	id <S261661AbSLAMa3>; Sun, 1 Dec 2002 07:30:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261678AbSLAMd1>; Sun, 1 Dec 2002 07:33:27 -0500
-Received: from dyn-ctb-210-9-246-251.webone.com.au ([210.9.246.251]:5124 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id <S261664AbSLAMd0>;
-	Sun, 1 Dec 2002 07:33:26 -0500
-Message-ID: <3DEA0374.2040306@cyberone.com.au>
-Date: Sun, 01 Dec 2002 23:41:24 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
+	id <S261664AbSLAMa3>; Sun, 1 Dec 2002 07:30:29 -0500
+Received: from carlsberg.amagerkollegiet.dk ([194.182.238.3]:36108 "EHLO
+	carlsberg.amagerkollegiet.dk") by vger.kernel.org with ESMTP
+	id <S261661AbSLAMa2> convert rfc822-to-8bit; Sun, 1 Dec 2002 07:30:28 -0500
+Date: Sun, 1 Dec 2002 13:37:49 +0100 (CET)
+From: =?iso-8859-1?Q?Rasmus_B=F8g_Hansen?= <moffe@amagerkollegiet.dk>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PROBLEM] NFS trouble - file corruptions
+In-Reply-To: <1038580372.13625.8.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0212011331240.1213-100000@grignard.amagerkollegiet.dk>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: lkml <linux-kernel@vger.kernel.org>,
-       "ext3-users@redhat.com" <ext3-users@redhat.com>
-Subject: Re: data corrupting bug in 2.4.20 ext3, data=journal
-References: <3DE9C43D.61FF79C5@digeo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+On 29 Nov 2002, Alan Cox wrote:
 
->In 2.4.20-pre5 an optimisation was made to the ext3 fsync function
->which can very easily cause file data corruption at unmount time.  This
->was first reported by Nick Piggin on November 29th (one day after 2.4.20 was
->released, and three months after the bug was merged.  Unfortunate timing)
+> On Fri, 2002-11-29 at 13:17, Rasmus Bøg Hansen wrote:
+> > I just tried turning off DMA on the server disk (this is just a low-end
+> > IDE-system): No errors in files (compressing the file thrice).
+> >
+> > So it does not at all seem to be a NFS-issue!
+> >
+> > I have no idea what is wrong. If the disk, cable or IDE controller does
+> > bit-flipping when DMA is turned on, why is the problem only seen with
+> > NFS? I have never seem corrupted files or metadata with DMA turned
+> > (except once long ago, when I experimented with high-transfer-modes - I
+> > haven't done that since)...
 >
-In fact it was reported on lkml on 18th July IIRC before 2.4.19 was
-released if that is any help to you. 2.4.19 and 2.4.20 are affected
-and I haven't tested previous releases. I was going to re-report it
-sometime, but Alan brought it to light just the other day.
+> More likely it changes the timings. There is at least one other
+> possibility though. With some via bridges using slightly too slow DDR
+> RAM at a 133MHz clock works reliably _until_ you get a mix of CPU and
+> DMA traffic. It'll even pass memtest86.
 
-Nick
+I couldn't solve the problem by setting timing parameters...
+
+However, the RTL8139-driver is now configured for PIO-mode instead of
+MMIO-mode (CONFIG_8139TOO_PIO), and I don't see corruptions anymore.
+
+Thank you all for your help!
+
+/Rasmus
+
+-- 
+-- [ Rasmus "Møffe" Bøg Hansen ] ---------------------------------------
+Life is that property, which a being will lose as a result of falling
+out of a cold and mysterious cave 30 miles above ground level.
+                     - HitchHikers Guide to the Galaxy, Douglas Adams
+----------------------------------[ moffe at amagerkollegiet dot dk ] --
 

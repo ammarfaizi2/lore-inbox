@@ -1,60 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271158AbTHLSoX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 14:44:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271159AbTHLSoX
+	id S271843AbTHLStM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 14:49:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271890AbTHLStM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 14:44:23 -0400
-Received: from pop.gmx.net ([213.165.64.20]:46008 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S271158AbTHLSoV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 14:44:21 -0400
-Message-Id: <5.2.1.1.2.20030812203720.01a06b08@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
-Date: Tue, 12 Aug 2003 20:48:17 +0200
-To: Timothy Miller <miller@techsource.com>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: WINE + Galciv + 2.6.0-test3-mm1-O15
-Cc: Con Kolivas <kernel@kolivas.org>, gaxt <gaxt@rogers.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <3F39358D.5040506@techsource.com>
-References: <3F38FCBA.1000008@rogers.com>
- <3F22F75D.8090607@rogers.com>
- <200307292246.36808.kernel@kolivas.org>
- <3F38FCBA.1000008@rogers.com>
- <5.2.1.1.2.20030812193758.0197b9c0@pop.gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	Tue, 12 Aug 2003 14:49:12 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:45765 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S271843AbTHLStI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 14:49:08 -0400
+Message-ID: <3F393697.8000508@pobox.com>
+Date: Tue, 12 Aug 2003 14:48:55 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Nakajima, Jun" <jun.nakajima@intel.com>
+CC: Zwane Mwaikambo <zwane@linuxpower.ca>,
+       "Nguyen, Tom L" <tom.l.nguyen@intel.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       long <tlnguyen@snoqualmie.dp.intel.com>
+Subject: Re: Updated MSI Patches
+References: <7F740D512C7C1046AB53446D3720017304AE94@scsmsx402.sc.intel.com>
+In-Reply-To: <7F740D512C7C1046AB53446D3720017304AE94@scsmsx402.sc.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 02:44 PM 8/12/2003 -0400, Timothy Miller wrote:
+Nakajima, Jun wrote:
+> The issue with do_MSI() approach is that it's very similar to do_IRQ(),
+> and we may have maintenance issues there. However, if we make a common
+
+I agree
 
 
->Mike Galbraith wrote:
->
->>That sounds suspiciously similar to my scenario, but mine requires a 
->>third element to trigger.
->><scritch scritch scritch>
->>What about this?  In both your senario and mine, X is running low on cash 
->>while doing work at the request of a client right?  Charge for it.
->>If X is lower on cash than the guy he's working for, pick the client's 
->>pocket... take the remainder of your slice from his sleep_avg for your 
->>trouble.  If you're not in_interrupt(), nothing's free.  Similar to 
->>Robinhood, but you take from the rich, and keep it :)  He's probably 
->>going straight to the bank after he wakes you anyway, so he likely won't 
->>even miss it.  Instead of backboost of overflow, which can cause nasty 
->>problems, you could try backtheft.
->
->
->How is this different from back-boost?
+> do_MSI() code, that might be worth it, and I would expect much fewer
+> architecture-dependent issues there, compared to do_IRQ (the common
+> do_IRQ() hasn't happened yet as far as I know).
 
-With backboost, you take everything that overflows MAX_SLEEP_AVG and give 
-it all to the waker... you always pull-up.  With back-theft (blech;), 
-there's constant pull-up and push-down for all parties instead of only 
-those who reach MAX_SLEEP_AVG, so while you'll still tend to group tasks 
-which are related (the original goal of backboost), it shouldn't (wild 
-theory) go raging out of control.
+However, we have maintenance issues in this area as well :)
 
-         -Mike 
+If you look at each architecture's implementation of do_IRQ, you can see 
+each implementation is strikingly similar... except for some subtle 
+differences.  So there are arguments both ways:  creating a common 
+do_IRQ may add maintenance value...  but also create corner-case 
+problems for the arch maintainers.
+
+So, IMO, do_IRQ is one special case where copying code may be preferred 
+over common code.
+
+And I also feel the same way about do_MSI().  However, I have not looked 
+at non-ia32 MSI implementations to know what sort of issues exist.
+
+	Jeff
+
+
 

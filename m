@@ -1,91 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265387AbUFRQQZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265440AbUFRPc6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265387AbUFRQQZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 12:16:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265361AbUFRQNj
+	id S265440AbUFRPc6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 11:32:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265250AbUFRPXF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 12:13:39 -0400
-Received: from cantor.suse.de ([195.135.220.2]:14261 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265387AbUFRQKe (ORCPT
+	Fri, 18 Jun 2004 11:23:05 -0400
+Received: from gate.crashing.org ([63.228.1.57]:4741 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S265255AbUFRPVR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 12:10:34 -0400
-Subject: Re: [PATCH RFC] __bd_forget should wait for inodes using the
-	mapping
-From: Chris Mason <mason@suse.com>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20040618154330.GY12308@parcelfarce.linux.theplanet.co.uk>
-References: <1087523668.8002.103.camel@watt.suse.com>
-	 <20040618021043.GV12308@parcelfarce.linux.theplanet.co.uk>
-	 <1087563810.8002.116.camel@watt.suse.com>
-	 <20040618142207.GW12308@parcelfarce.linux.theplanet.co.uk>
-	 <1087570031.8002.153.camel@watt.suse.com>
-	 <20040618151558.GX12308@parcelfarce.linux.theplanet.co.uk>
-	 <1087573303.8002.172.camel@watt.suse.com>
-	 <20040618154330.GY12308@parcelfarce.linux.theplanet.co.uk>
+	Fri, 18 Jun 2004 11:21:17 -0400
+Subject: Re: PATCH: Further aacraid work
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andi Kleen <ak@muc.de>
+Cc: Anton Blanchard <anton@samba.org>, mark_salyzyn@adaptec.com,
+       Christoph Hellwig <hch@infradead.org>, Alan Cox <alan@redhat.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-scsi@vger.kernel.org
+In-Reply-To: <m3smcut2z0.fsf@averell.firstfloor.org>
+References: <286GI-5y3-11@gated-at.bofh.it> <286Qp-5EU-19@gated-at.bofh.it>
+	 <m3smcut2z0.fsf@averell.firstfloor.org>
 Content-Type: text/plain
-Message-Id: <1087574752.8002.194.camel@watt.suse.com>
+Message-Id: <1087571840.8207.270.camel@gaston>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 18 Jun 2004 12:05:52 -0400
+Date: Fri, 18 Jun 2004 10:17:21 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-06-18 at 11:43, viro@parcelfarce.linux.theplanet.co.uk
-wrote:
-> On Fri, Jun 18, 2004 at 11:41:43AM -0400, Chris Mason wrote:
-> > > And yes, ->i_mapping flips on "normal" bdev inodes will go away - we set
-> > > ->f_mapping on open directly.
-> > 
-> > Fair enough, I'll cook up some code to bump the inode->bdev->bd_inode
-> > i_count in __sync_single_inode  It won't be pretty either though, I'll
-> > have to drop the inode_lock so that some function can take the bdev_lock
-> > to safely use inode->i_bdev.
-> 
-> *Ugh*
-> 
-> You do realize that ->i_bdev is not promised to be there either?  Could you
-> show the actual code that steps into this mess?
-> 
-Grin, it won't be pretty, i_bdev can't be trusted without the bdev lock,
-and I'll need to check for I_FREEING on it to make sure it isn't in
-clear_inode.
 
-The sequence leading up to all of this looks something like this:
+> The AMD64 IOMMU could do it too (and the code to do it exists in
+> 2.6). But the problem is that the current IO layer doesn't provide a
+> sufficient fallback path when this fails. You have to promise in
+> advance that you can merge and then later it's too late to change your
+> mind without signalling an IO error.
 
-CPU 0:					CPU 1: 
+Well, the way I do it on ppc64 works with failure cases too. The IO
+layer is given my phusical limitations, that is it provides me with an
+SG list that will always fit. If I can do merging, great, that will
+improve, but I don't enforce merging.
 
-pdflush finds				umount /dev/sda1
-FS inode for
-/dev/sda1 in dirty list,
-makes it's way down
-to __sync_single_inode
+You could do exactly the same.
 
-mapping = inode->i_mapping
-(this points bdev address
- space)
-					kill_block_super
-					close_bdev_excl
-					blkdev_put
-					bdput(bdev)
-					iput(bdev->bd_inode)
-					...
-					clear_inode(bdev inode)
-					bdev_clear_inode
-					__bd_forget(inode for /dev/sda1)
-					...
-					destroy_inode(bdev inode)
-...
-do_writepages(mapping, wbc)
+The problem I agree is that this forces the IO layer to give you small
+enough requests, it would be nice to have a "try big and retry smaller"
+path but that require invasive changes.
 
-Since mapping on CPU0 still points to the bdev address space, and that
-has been freed by the destroy inode, we run into problems.  
+> I had a chat with James about this at last year's OLS. The Consensus
+> was iirc that it needs driver interface changes at least.
 
-Maybe the real bug is the FS inode should never have ended up in the
-dirty list.  This should all work fine if the bdev inode were the only
-one to ever hit a dirty list.
-
--chris
-
+Ben.
 

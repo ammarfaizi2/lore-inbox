@@ -1,64 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261494AbVBAIfh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261538AbVBAIu6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261494AbVBAIfh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 03:35:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261538AbVBAIfh
+	id S261538AbVBAIu6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 03:50:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbVBAIu5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 03:35:37 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:47331 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261494AbVBAIfa (ORCPT
+	Tue, 1 Feb 2005 03:50:57 -0500
+Received: from mail.kroah.org ([69.55.234.183]:5561 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261538AbVBAIuy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 03:35:30 -0500
-Subject: Re: Kernel 2.4.21 hangs up
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: baswaraj kasture <kbaswaraj@yahoo.com>
-Cc: inux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20050201082001.43454.qmail@web51102.mail.yahoo.com>
-References: <20050201082001.43454.qmail@web51102.mail.yahoo.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-81++zBIXaURrdVK/V1LD"
-Organization: Red Hat, Inc.
-Date: Tue, 01 Feb 2005 09:35:22 +0100
-Message-Id: <1107246923.4208.53.camel@laptopd505.fenrus.org>
+	Tue, 1 Feb 2005 03:50:54 -0500
+Date: Tue, 1 Feb 2005 00:38:00 -0800
+From: Greg KH <greg@kroah.com>
+To: Mitch Williams <mitch.a.williams@intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/3] change sematics of read flag
+Message-ID: <20050201083800.GB22162@kroah.com>
+References: <Pine.CYG.4.58.0501211452420.3364@mawilli1-desk2.amr.corp.intel.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.CYG.4.58.0501211452420.3364@mawilli1-desk2.amr.corp.intel.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jan 21, 2005 at 02:55:09PM -0800, Mitch Williams wrote:
+> This patch reverses the semantics of the read fill flag, getting rid of an
+> extra assignment at allocation time.
+> 
+> Generated from 2.6.11-rc1.
+> 
+> Signed-off-by:  Mitch Williams <mitch.a.williams@intel.com>
 
---=-81++zBIXaURrdVK/V1LD
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Applied, thanks.
 
-On Tue, 2005-02-01 at 00:20 -0800, baswaraj kasture wrote:
-> Hi,
->=20
-> I compiled kernel 2.4.21 with intel compiler .
-
-2.4.21 isn't supposed to be compilable with the intel compiler...
-
-> fine. I am using IA-64 (Intel Itanium 2 ) with EL3.0.
-
-... and the RHEL3 kernel most certainly isn't.
-
-I strongly suggest that you stick to gcc for compiling the RHEL3 kernel.
-
-
-Also sticking half the world on the CC is considered rude if those
-people have nothing to do with the subject at hand, as is the case here.
-
-
---=-81++zBIXaURrdVK/V1LD
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBB/z9Kpv2rCoFn+CIRAgrUAJ95Rb51pZR+qA1Ku14WuUaNkHzjfgCdEe2n
-BpmXoRqzYU4fGp3Uq1+/KPM=
-=IiUz
------END PGP SIGNATURE-----
-
---=-81++zBIXaURrdVK/V1LD--
-
+greg k-h

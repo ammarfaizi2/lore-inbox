@@ -1,59 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277246AbRJLGHr>; Fri, 12 Oct 2001 02:07:47 -0400
+	id <S277247AbRJLG0m>; Fri, 12 Oct 2001 02:26:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277247AbRJLGHi>; Fri, 12 Oct 2001 02:07:38 -0400
-Received: from [24.0.193.171] ([24.0.193.171]:41858 "EHLO mirai.cx")
-	by vger.kernel.org with ESMTP id <S277246AbRJLGHf>;
-	Fri, 12 Oct 2001 02:07:35 -0400
-Message-ID: <3BC688A2.4C7640B7@pobox.com>
-Date: Thu, 11 Oct 2001 23:07:30 -0700
-From: J Sloan <jjs@pobox.com>
-Organization: J S Concepts
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13-pre1 i686)
-X-Accept-Language: en
+	id <S277253AbRJLG0c>; Fri, 12 Oct 2001 02:26:32 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:63498 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S277252AbRJLG0U>;
+	Fri, 12 Oct 2001 02:26:20 -0400
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-To: "T. A." <tkhoadfdsaf@hotmail.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Re: Which kernel (Linus or ac)?
-In-Reply-To: <XFMail.20011011094548.jkp@riker.nailed.org> <3BC5E152.3D81631@bigfoot.com> <3BC5E3AF.588D0A55@lexus.com> <3BC5EB56.21B4EF88@bigfoot.com> <3BC5FA12.F8E5C91E@lexus.com> <OE64cxtniFKULPEhGD100007fff@hotmail.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15302.36122.167106.102639@cargo.ozlabs.ibm.com>
+Date: Fri, 12 Oct 2001 16:26:34 +1000 (EST)
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: Paul.McKenney@us.ibm.com (Paul McKenney),
+        andrea@suse.de (Andrea Arcangeli), frival@zk3.dec.com (Peter Rival),
+        ink@jurassic.park.msu.ru (Ivan Kokshaysky), Jay.Estabrook@compaq.com,
+        linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
+        rth@twiddle.net (Richard Henderson), cardoza@zk3.dec.com,
+        woodward@zk3.dec.com
+Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of lists with
+In-Reply-To: <200110120543.f9C5hvZ224264@saturn.cs.uml.edu>
+In-Reply-To: <OF206EE8AA.7A83A16B-ON88256AE1.005467E3@boulder.ibm.com>
+	<200110120543.f9C5hvZ224264@saturn.cs.uml.edu>
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"T. A." wrote:
+Albert D. Cahalan writes:
 
-> Rock solid?  You must have better luck than I and many acquaintances with
-> Redhat.  We've tried out many Redhat distros just to be caught in an
-> avalanche of bug and other "issues".
+> This looks an awful lot like the PowerPC architecture.
+> 
+> In an SMP system, one would most likely mark pages as
+> requiring coherency. This means that stores to a memory
+> location from multiple processors will give sane results.
+> Ordering is undefined when multiple memory locations are
+> involved.
 
-That's odd, my Red Hat servers have been
-almost like appliances. Not perfect, but all
-the problems I've seen could be dealt with.
+The current PowerPC Architecture spec actually has a paragraph that
+says that where a processor does two loads and the second load depends
+on the first (i.e. the result from the first load is used in computing
+the address for the second load), that they have to be performed in
+program order with respect to other processors.  In other cases you do
+need a barrier as you say.
 
-I've seen worse problems in commercial
-unices, e.g. unixware - yuk - and hpux.
+This constraint has evidently been added since the original PPC
+architecture book was published.  I strongly doubt that any of the
+older PPC implementations would violate that constraint though.
 
-> Furthermore they appear to just love
-> beta or alpha software.
-
-They do break new ground, and are often the
-first distro to implement new technology.
-
-You have to know the red hat pattern:
-
-x.0 release: New stuff, interesting, buggy
-x.1 release: A passable cleanup of the bugs in .0
-x.2 release: A smooth, polished, evolution of .1
-
-> I still cannot believe that they used an ALPHA
-> version of vim 6.0 as the default system text editor.
-
-(shrug) I had no idea it was alpha - it works
-well for me, and I'm a vi man.
-
-cu
-
-jjs
-
+Paul.

@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313265AbSDTXYC>; Sat, 20 Apr 2002 19:24:02 -0400
+	id <S313293AbSDTXYX>; Sat, 20 Apr 2002 19:24:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313288AbSDTXYB>; Sat, 20 Apr 2002 19:24:01 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:38411 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S313265AbSDTXYA>; Sat, 20 Apr 2002 19:24:00 -0400
-Date: Sat, 20 Apr 2002 16:23:50 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Andi Kleen <ak@suse.de>, Brian Gerst <bgerst@didntduck.org>,
-        "H. Peter Anvin" <hpa@zytor.com>, <linux-kernel@vger.kernel.org>,
-        <jh@suse.cz>
-Subject: Re: [PATCH] Re: SSE related security hole
-In-Reply-To: <20020420232818.N1291@dualathlon.random>
-Message-ID: <Pine.LNX.4.44.0204201619170.3643-100000@home.transmeta.com>
+	id <S313297AbSDTXYW>; Sat, 20 Apr 2002 19:24:22 -0400
+Received: from p5088794B.dip.t-dialin.net ([80.136.121.75]:11184 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S313293AbSDTXYU>; Sat, 20 Apr 2002 19:24:20 -0400
+Date: Sat, 20 Apr 2002 17:24:08 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: "Trever L. Adams" <tadams-lists@myrealbox.com>
+cc: Rob Landley <landley@trommello.org>,
+        Thunder from the hill <thunder@ngforever.de>,
+        Christian Schoenebeck <christian.schoenebeck@epost.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: power off (again)
+In-Reply-To: <1019342816.1165.0.camel@aurora>
+Message-ID: <Pine.LNX.4.44.0204201722470.26337-100000@hawkeye.luckynet.adm>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+On 20 Apr 2002, Trever L. Adams wrote:
+> It is reversed.  If you want power off, you do need the -p.
+Sure. I accidently mixed those files... As you could see, the halt was 
+removed, the halt~ inserted...
 
-On Sat, 20 Apr 2002, Andrea Arcangeli wrote:
->
-> pxor+xorps is definitely faster than fxrestor on athlon-mp.
-
-Andrea, that's not the _comparison_.
-
-The "fxrestor" replaces the "fninit" too, so you have to take that into
-account.
-
-> fxrestor on athlon-mp 1600, on cold cache (the "default fpu state" will
-> be cold most of the time, it's only ever used at the first math fault of
-> a task):
-
-Except it's _never_ cold-cache the way it's coded now. In fact it's always
-hot-cache - which are exactly the numbers I posted.
-
-> Go ahead and try yourself setting the #if to 0 or 1. The benchmark is
-> very accurate.
-
-It may have high precision, but since it's testing something that has
-nothing to do with the problem at hand, it's basically 100% useless.
-
-		Linus
+Regards,
+Thunder
+-- 
+                                                  Thunder from the hill.
+Not a citizen of any town.                   Not a citizen of any state.
+Not a citizen of any country.               Not a citizen of any planet.
+                         Citizen of our universe.
 

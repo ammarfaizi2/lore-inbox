@@ -1,91 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262396AbVC3TDl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262410AbVC3TIN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262396AbVC3TDl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 14:03:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262404AbVC3TBW
+	id S262410AbVC3TIN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 14:08:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262404AbVC3TFg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 14:01:22 -0500
-Received: from mail.dif.dk ([193.138.115.101]:38565 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S262402AbVC3SzR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 13:55:17 -0500
-Date: Wed, 30 Mar 2005 20:57:24 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Paul Jackson <pj@engr.sgi.com>
-Cc: Jesper Juhl <juhl-lkml@dif.dk>, davej@redhat.com, jengelh@linux01.gwdg.de,
-       penberg@gmail.com, rlrevell@joe-job.com, linux-os@analogic.com,
-       arjan@infradead.org, vda@ilport.com.ua, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] no need to check for NULL before calling kfree() -fs/ext2/
-In-Reply-To: <20050327205334.14a7b3c4.pj@engr.sgi.com>
-Message-ID: <Pine.LNX.4.62.0503302053100.2463@dragon.hyggekrogen.localhost>
-References: <Pine.LNX.4.62.0503252307010.2498@dragon.hyggekrogen.localhost>
- <Pine.LNX.4.61.0503251726010.6354@chaos.analogic.com>
- <1111825958.6293.28.camel@laptopd505.fenrus.org>
- <Pine.LNX.4.61.0503261811001.9945@chaos.analogic.com>
- <Pine.LNX.4.62.0503270044350.3719@dragon.hyggekrogen.localhost>
- <1111881955.957.11.camel@mindpipe> <Pine.LNX.4.62.0503271246420.2443@dragon.hyggekrogen.localhost>
- <20050327065655.6474d5d6.pj@engr.sgi.com> <Pine.LNX.4.61.0503271708350.20909@yvahk01.tjqt.qr>
- <20050327174026.GA708@redhat.com> <Pine.LNX.4.62.0503280033130.2459@dragon.hyggekrogen.localhost>
- <20050327205334.14a7b3c4.pj@engr.sgi.com>
+	Wed, 30 Mar 2005 14:05:36 -0500
+Received: from 76.80-203-227.nextgentel.com ([80.203.227.76]:758 "EHLO
+	mail.inprovide.com") by vger.kernel.org with ESMTP id S262383AbVC3TDm convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 14:03:42 -0500
+To: Wiktor <victorjan@poczta.onet.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFD] 'nice' attribute for executable files
+References: <fa.ed33rit.1e148rh@ifi.uio.no>
+	<E1DGNaV-0005LG-9m@be1.7eggert.dyndns.org>
+	<424ACEA9.6070401@poczta.onet.pl>
+	<yw1xpsxhvzsz.fsf@ford.inprovide.com>
+	<424AE18B.1080009@poczta.onet.pl>
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Date: Wed, 30 Mar 2005 21:03:37 +0200
+In-Reply-To: <424AE18B.1080009@poczta.onet.pl> (Wiktor's message of "Wed, 30
+ Mar 2005 19:27:39 +0200")
+Message-ID: <yw1xll85vtva.fsf@ford.inprovide.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Wiktor <victorjan@poczta.onet.pl> writes:
 
-Hi Paul,
+> Måns Rullgård wrote:
+>> It can be done entirely in userspace, if you want it.  Just hack your
+>> shell to examine some extended attribute of your choice, and adjust
+>> the nice value before executing files.  Then arrange to have the shell
+>> run with a negative nice value.  This can be easily accomplished with
+>> a simple wrapper, only for the shell.
+>>
+>
+> this method can be applied, as you've written, only for shell (which
+> have to be hacked before). so, every program that runs any other
+> program should be hacked to use
+> pre-execution-renice-database. rewriting all the programs in the world
+> takes a bit more time than i have to the death. woudn't it be simplier
+> to implement it in kernel, somewhere near setuid/setgid bits? if it
+> would make system slower, support of such attribute could be optional,
+> just like acl-s.
 
-Sorry about the late reply.
+You could wrap /lib/ld-linux.so, and get all dynamically linked
+programs done in one sweep.
 
+> i've found a way to perform such function in userland, but it is
+> awful, and, if some program runs another, that should be reniced, very
+> often, starting a shell (even ash) for each call will surely smoke my
+> cpu.
 
-On Sun, 27 Mar 2005, Paul Jackson wrote:
+Using a shell to run external programs is quite common.  The system()
+and popen() functions both invoke the shell.
 
-> Jesper wrote:
-> > What I'm trying to find out now is if there's a general consensus that 
-> > these patches are worthwile and wanted or if they are unwanted and I'm 
-> > wasting my time. 
-> 
-> Thanks for your good work so far, and your good natured tolerance of
-> the excessively detailed discussions resulting.
-> 
-> I don't have a big preference either way - but a couple of questions:
-> 
->  1) Do you have any wild guess of how many of these you've done so far,
->     and how many potentially remain that could be done?  Tens, hundreds,
->     thousands?
-> 
-That would indeed be a wild guess, I guess I've done somewhere inbetween 
-50 and 200 so far, and I guess there's probably somewhere around 1-2000 
-left... but, I'm guessing.
+> this feature without doubt belongs to kernel - it is performed every
+> time kernel starts a program, and it is not so complicated like, let's
+> say, hotplug support, is it?
 
-
->  2) Any idea what was going on with the numbers you posted yesterday,
->     which, at least from what I saw at first glance, seemed to show
->     "if (likely(p)) kfree(p);" to be a good or best choice, for all
->     cases, including (p != NULL) being very unlikely?  That seemed
->     like a weird result.
-> 
-> If the use of "likely(p)" is almost always a winner, then the changes
-> you've been doing, followed by a header file change:
-> 
-> 	static inline void kfree(const void *p)
-> 	{
-> 		if (likely(p))
-> 			__kfree(p);	/* __kfree(p) doesn't check for NULL p */
-> 	}
-> 
-> along the lines that Jan considered a few posts ago, might be a winner.
-> 
-> But since this "likely(p)" result seems so bizarre, it seems unlikely that
-> the above kfree wrapper would be a winner.
-> 
-I don't think it matters much really. The way I read the numbers they seem 
-to indicate that the performance impact is very small in any case, and I'm 
-not even entirely sure my way of trying to measure is accurate, so I don't 
-know how much should be read into those numbers... 
-
+I'm not so sure it belongs at all.  The can of worms it opens up is a
+bit too big, IMHO.
 
 -- 
-Jesper
-
-
+Måns Rullgård
+mru@inprovide.com

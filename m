@@ -1,40 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267781AbUHEQlV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267784AbUHEQmh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267781AbUHEQlV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 12:41:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267783AbUHEQlV
+	id S267784AbUHEQmh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 12:42:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267785AbUHEQmh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 12:41:21 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:53134 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S267781AbUHEQky (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 12:40:54 -0400
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-From: David Woodhouse <dwmw2@infradead.org>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: axboe@suse.de, kernel@wildsau.enemy.org, linux-kernel@vger.kernel.org
-In-Reply-To: <200408051245.i75CjNfJ004517@burner.fokus.fraunhofer.de>
-References: <200408051245.i75CjNfJ004517@burner.fokus.fraunhofer.de>
-Content-Type: text/plain
-Message-Id: <1091724042.4383.4660.camel@hades.cambridge.redhat.com>
+	Thu, 5 Aug 2004 12:42:37 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:1292 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S267784AbUHEQmf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 12:42:35 -0400
+Date: Thu, 5 Aug 2004 17:42:33 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc3-mm1
+Message-ID: <20040805174233.A1506@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20040805031918.08790a82.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Thu, 05 Aug 2004 17:40:43 +0100
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040805031918.08790a82.akpm@osdl.org>; from akpm@osdl.org on Thu, Aug 05, 2004 at 03:19:18AM -0700
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
 	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-08-05 at 14:45 +0200, Joerg Schilling wrote:
-> ....I am not repsonsible for your mail box....
+> +iteraid.patch
+> +iteraid-cleanup.patch
+> 
+>  New ITE IT8212 RAID controller driver.  Still needs a bit of work before
+>  handoff to the scsi guys to look at.
 
-Actually, you are partly responsible for the mess in my mail box. Please
-fix your mail client to correctly insert References: and/or In-Reply-To:
-headers such that your replies are not each starting a new thread of
-their own.
-
--- 
-dwmw2
-
+Just drop it.  It's not scsi hardware at all, and we have an ide driver for
+that hardware already.

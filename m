@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314228AbSDRP0i>; Thu, 18 Apr 2002 11:26:38 -0400
+	id <S313576AbSDRP2P>; Thu, 18 Apr 2002 11:28:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314334AbSDRP0h>; Thu, 18 Apr 2002 11:26:37 -0400
-Received: from bitmover.com ([192.132.92.2]:62923 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S314228AbSDRP0h>;
-	Thu, 18 Apr 2002 11:26:37 -0400
-Date: Thu, 18 Apr 2002 08:26:36 -0700
-From: Larry McVoy <lm@bitmover.com>
+	id <S314149AbSDRP2O>; Thu, 18 Apr 2002 11:28:14 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:32263 "HELO mx.in-addr.de")
+	by vger.kernel.org with SMTP id <S313576AbSDRP2O>;
+	Thu, 18 Apr 2002 11:28:14 -0400
+Date: Thu, 18 Apr 2002 17:27:58 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
 To: linux-kernel@vger.kernel.org
-Subject: Linux on s/390 is cute
-Message-ID: <20020418082636.O2710@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	linux-kernel@vger.kernel.org
+Subject: Re: Versioning File Systems?
+Message-ID: <20020418172758.Q4498@marowsky-bree.de>
+In-Reply-To: <20020418110558.A16135@borg.org> <20020418082025.N2710@work.bitmover.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.22.1i
+X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I took advantage of IBM's public mainframe system running Linux and 
-compiled up a copy of BitKeeper on it.  Didn't have to change a single
-line, just worked, thanks to gcc -Wall and friends.
+On 2002-04-18T08:20:25,
+   Larry McVoy <lm@bitmover.com> said:
 
-This isn't a BK thing, it's a Linux thing.  It's amazingly cool to me
-that Linux runs on stuff as small as all sorts of embedded devices,
-up to tiny PC's like a netwinder, all the way up to mainframes.
+> It's certainly a fun space, file system hacking is always fun.  There
+> doesn't seem to be a good match between file system operations and
+> SCM operations, especially stuff like checkin.  write != checkin.
+> But you can handle that with
 
-I'd really like to see the IBM guys let the walls between the linux
-instances down a bit.  If I could mmap the other linux instances
-memory, that's a kickass system.
+Either that, or heuristics - file not written to / opened for writing in x
+minutes -> commit.
 
-Anyway, kudos to the people who did the Linux/390 stuff, we'll
-include it in our list of supported platforms next release.
+That would actually be pretty interesting because it might also allow you to
+back out editor screwups ;-)
+
+However, deducing change sets is more difficult.
+
+
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
+
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Immortality is an adequate definition of high availability for me.
+	--- Gregory F. Pfister
+

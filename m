@@ -1,58 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315430AbSGVPIX>; Mon, 22 Jul 2002 11:08:23 -0400
+	id <S316840AbSGVPRj>; Mon, 22 Jul 2002 11:17:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316541AbSGVPIX>; Mon, 22 Jul 2002 11:08:23 -0400
-Received: from ds217-115-141-141.dedicated.hosteurope.de ([217.115.141.141]:56845
-	"EHLO ds217-115-141-141.dedicated.hosteurope.de") by vger.kernel.org
-	with ESMTP id <S315430AbSGVPIW>; Mon, 22 Jul 2002 11:08:22 -0400
-Date: Mon, 22 Jul 2002 17:11:30 +0200
-From: Jochen Suckfuell <jo-lkml@suckfuell.net>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH] Re: Disk IO statistics still buggy
-Message-ID: <20020722171130.A5013@ds217-115-141-141.dedicated.hosteurope.de>
-References: <20020709190019.A19394@ds217-115-141-141.dedicated.hosteurope.de> <Pine.LNX.4.44.0207111826470.21365-100000@freak.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0207111826470.21365-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Thu, Jul 11, 2002 at 06:27:25PM -0300
+	id <S317622AbSGVPRj>; Mon, 22 Jul 2002 11:17:39 -0400
+Received: from dsl-213-023-038-020.arcor-ip.net ([213.23.38.20]:14255 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S316840AbSGVPRi>;
+	Mon, 22 Jul 2002 11:17:38 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Joe Thornber <joe@fib011235813.fsnet.co.uk>,
+       Guillaume Boissiere <boissiere@adiglobal.com>
+Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST
+Date: Mon, 22 Jul 2002 17:22:13 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+References: <3D361091.13618.16DC46FB@localhost> <20020722102342.GE1196@fib011235813.fsnet.co.uk>
+In-Reply-To: <20020722102342.GE1196@fib011235813.fsnet.co.uk>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17Wf0s-0001tS-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Monday 22 July 2002 12:23, Joe Thornber wrote:
+> It would be good if other volume managers embrace device-mapper
+> allowing us to work together on the kernel side, and compete in
+> userland.  Kernel development takes *far* too much manpower for us to
+> be duplicating work.
 
-I'm just curious about the status: will this patch be included in 2.4.19
-final?
+Competition has its own benefits.
 
-On Thu, Jul 11, 2002 at 06:27:25PM -0300, Marcelo Tosatti wrote:
-> 
-> Christoph,
-> Can you take a look at this one ?
-> 
-> On Tue, 9 Jul 2002, Jochen Suckfuell wrote:
-> > The accounting was done on a copy of the request _after_ the request has
-> > been dequeued and the irq_request_lock released. I fixed this by taking
-> > this lock again while calling the accounting function (see the patch
-> > below).
-> >
-> > [...]
-> >
-> > --- linux/drivers/scsi/scsi_lib.c Mon Jul  8 16:15:27 2002
-> > +++ linux_work/drivers/scsi/scsi_lib.c Tue Jul  9 17:56:39 2002
-> > @@ -426,7 +426,9 @@
-> >    if (req->waiting != NULL) {
-> >     complete(req->waiting);
-> >    }
-> > +  spin_lock_irq(&io_request_lock);
-> >    req_finished_io(req);
-> > +  spin_unlock_irq(&io_request_lock);
-> >    add_blkdev_randomness(MAJOR(req->rq_dev));
-> >
-> >          SDpnt = SCpnt->device;
+> For example I released the LVM2 vs EVMS snapshot
+> benchmarks in the hope of encouraging EVMS to move over to
+> device-mapper, unfortunately 2 months later a reply is posted stating
+> that they have now developed equivalent (but broken) code :(
 
-Bye
-Jochen
+Supposing both device-mapper and (the kernel part of) EVMS get into the tree, 
+there's nothing stopping you from submitting a patch to make EVMS use 
+device-mapper.  If there's already equivalent code in EVMS, that just makes 
+the job easier.
 
+I'm firmly in the 'we need both' camp.
+
+EVMS is a full-bloated^W blown enterprise solution, ready to go with every
+imaginable bell and whistle.  Device-mapper represents the classic Linux 
+minimalist approach.  Hopefully, with the two side-by-side in the tree, both 
+will evolve more rapidly.
+
+-- 
+Daniel

@@ -1,29 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272525AbRH3WPr>; Thu, 30 Aug 2001 18:15:47 -0400
+	id <S272523AbRH3WQH>; Thu, 30 Aug 2001 18:16:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272524AbRH3WPi>; Thu, 30 Aug 2001 18:15:38 -0400
-Received: from smtp4vepub.gte.net ([206.46.170.25]:32796 "EHLO
-	smtp4vepub.verizon.net") by vger.kernel.org with ESMTP
-	id <S272523AbRH3WPd>; Thu, 30 Aug 2001 18:15:33 -0400
-Message-ID: <3B8EBB10.524E543F@verizon.net>
-Date: Thu, 30 Aug 2001 18:15:44 -0400
-From: Rafael Herrera <vze26vn8@verizon.net>
-Reply-To: raffo@neuronet.pitt.edu
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7-4GB i686)
+	id <S272524AbRH3WP6>; Thu, 30 Aug 2001 18:15:58 -0400
+Received: from archive.osdlab.org ([65.201.151.11]:37768 "EHLO fire.osdlab.org")
+	by vger.kernel.org with ESMTP id <S272523AbRH3WPp>;
+	Thu, 30 Aug 2001 18:15:45 -0400
+Message-ID: <3B8EB99F.3DA5F005@osdlab.org>
+Date: Thu, 30 Aug 2001 15:09:35 -0700
+From: "Randy.Dunlap" <rddunlap@osdlab.org>
+Organization: OSDL
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Reiserfs: how to mount without journal replay?
-In-Reply-To: <20010826130858.A39@toy.ucw.cz> <15246.11218.125243.775849@gargle.gargle.HOWL> <20010830225323.A18630@atrey.karlin.mff.cuni.cz> <3B8EAD35.5695B30B@namesys.com> <20010830235005.B9330@bug.ucw.cz>
+To: Matthew Fredrickson <matt@fredricknet.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: IBM, are you there?
+In-Reply-To: <20010830165735.A2498@frednet.dyndns.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The SUSE CD has a rescue image which contains reiserfsck. Boot the CD in
-"manual" mode and select "Start rescue system" when you get to the
-install/boot installed/rescue menu.
+Matthew Fredrickson wrote:
+> 
+> Is there anybody here from IBM that might be able to get in contact with
+> me?  I need to ask some questions concerning getting some hardware
+> documentation on the IBM Net Camera (produced by xirlink).  I've tried to
+> get a hold of someone there that might be able to get me some
+> documentation but all the seem to think I need is windows API docs
+> *shrug*.  Here's a good chance for you guys to help linux without having
+> to spend a billion dollars, lol :-D .  No offense intended of course.
+> Just trying to write a driver for this webcam that I bought, thought it
+> might be a bit easier to ask rather than trying to hack this out on my
+> own.  Mostly what I'm concerned about is control documentation and the
+> data compression format of the data coming from the camera.
 
--- 
-     Rafael
+Matthew-
+
+Another option is asking on the linux-usb-devel mailing list
+to see if anyone is already working on this (like Dmitri).
+
+See www.linux-usb.org for mailing list info and present
+IBM webcam support.
+
+~Randy

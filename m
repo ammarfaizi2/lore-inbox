@@ -1,32 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278690AbRJSXXR>; Fri, 19 Oct 2001 19:23:17 -0400
+	id <S278691AbRJSX1t>; Fri, 19 Oct 2001 19:27:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278691AbRJSXXH>; Fri, 19 Oct 2001 19:23:07 -0400
-Received: from inway106.cdi.cz ([213.151.81.106]:61093 "EHLO luxik.cdi.cz")
-	by vger.kernel.org with ESMTP id <S278690AbRJSXXC>;
-	Fri, 19 Oct 2001 19:23:02 -0400
-Posted-Date: Sat, 20 Oct 2001 01:23:35 +0200
-Date: Sat, 20 Oct 2001 01:23:35 +0200 (CEST)
-From: Martin Devera <devik@cdi.cz>
-To: linux-kernel@vger.kernel.org
-Subject: DOT call graphs of Rik and AA VMs
-In-Reply-To: <5.1.0.14.0.20011019235606.00a43a80@pop.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.10.10110200120060.321-100000@luxik.cdi.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S278692AbRJSX1k>; Fri, 19 Oct 2001 19:27:40 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:896 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S278691AbRJSX1Y>;
+	Fri, 19 Oct 2001 19:27:24 -0400
+Date: Fri, 19 Oct 2001 16:27:54 -0700 (PDT)
+Message-Id: <20011019.162754.74749538.davem@redhat.com>
+To: bjh@redhat.com
+CC: linux-kernel@vger.kernel.org
+Subject: re: TCP hash table sizing
+From: "David S. Miller" <davem@redhat.com>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-While I tried to understand MM in 2.4 kernels I decided to create call
-graph of it (in DOT). It could help everyone who tries to understand it.
+Ben had suggested a sysctl tunable, well it turns out that that
+isn't even implementable.
 
-At least they are very nice :) You can also see difference in complexity
-of both VMs.
+It's actually impossible to change the size of the TCP established
+hash table at run time.
 
-http://luxik.cdi.cz/~devik/mm.htm
+It has to do with per-hashchain locking.  Every possible scheme fails
+in one way or another.
 
-Enjoy. devik
+So at best we could provide a boot time option, but thats about the
+extent of it.  I have no problem with this though, anyone is free to
+send me privately patches to do that. :-)
 
+Franks a lot,
+David S. Miller
+davem@redhat.com

@@ -1,72 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261604AbUL3J67@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbUL3KDL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261604AbUL3J67 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 04:58:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261607AbUL3J67
+	id S261607AbUL3KDL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 05:03:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261608AbUL3KDL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 04:58:59 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:20624 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261604AbUL3J6r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 04:58:47 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: Ho ho ho - Linux v2.6.10
-Date: Thu, 30 Dec 2004 10:58:54 +0100
-User-Agent: KMail/1.7.1
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Wichert Akkerman <wichert@wiggy.net>, hugang@soulinfo.com
-References: <Pine.LNX.4.58.0412241434110.17285@ppc970.osdl.org> <200412261445.09336.Rafal.Wysocki@fuw.edu.pl> <20041226193943.GE1661@elf.ucw.cz>
-In-Reply-To: <20041226193943.GE1661@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+	Thu, 30 Dec 2004 05:03:11 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:27659 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S261607AbUL3KDH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Dec 2004 05:03:07 -0500
+Subject: Re: Stack guards, PaX and such
+From: Arjan van de Ven <arjan@infradead.org>
+To: David Jacoby <dj@outpost24.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <41D3C66F.5070909@outpost24.com>
+References: <41D3C66F.5070909@outpost24.com>
+Content-Type: text/plain
+Date: Thu, 30 Dec 2004 11:02:56 +0100
+Message-Id: <1104400976.4170.7.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412301058.55320.rjw@sisk.pl>
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday, 26 of December 2004 20:39, Pavel Machek wrote:
-> Hi!
+On Thu, 2004-12-30 at 10:12 +0100, David Jacoby wrote:
+> Hi everyone!
 > 
-> > > 2.6.10 broke resume for me: when I resume it immediately tries to
-> > > suspend the machine again but gets stuck after suspending USB.
-> > 
-> > Usually, it resumes sucessfully for me, but sometimes it fails, like this 
-(on 
-> > an AMD64):
-> > 
-> >  swsusp: Image: 43552 Pages
-> >  swsusp: Pagedir: 341 Pages
-> > pmdisk: Reading pagedir (341 Pages)
-> > Relocating 
-> > 
-pagedir ...........................................................................................................................0
-> > 
-> > Call Trace:<ffffffff8016de7e>{__alloc_pages+766} 
-> > <ffffffff8016df21>{__get_free_pages+33}
-> >        <ffffffff8056191c>{swsusp_read+1020} 
-> > <ffffffff8015f711>{software_resume+33}
-> >        <ffffffff8010c142>{init+162} <ffffffff8010f57b>{child_rip+8}
-> >        <ffffffff8010c0a0>{init+0} <ffffffff8010f573>{child_rip+0}
-> > 
-> > out of memory
-> 
-> ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::g
-> > PM: Resume from disk failed.
-> 
-> Can you try this one? It would be nice to have reproducible way to
-> trigger this before trying to fix it, through.
+> I hope you had an nice and relaxing x-mas and are ready for a nice new 
+> years eve.
+> I just have a little question, i really dont if this has ben discussed 
+> before, but if it
+> has im really sorry.
 
-It looks like growing the inode and/or dentry cache before suspend does the 
-trick.  It seems that updatedb (again) is quite good for this purpose but 
-it's not 100% "effective".
+are you talking about making the userspace stack not executable or the
+kernel stacks?
+With NX, userspace stacks already are not executable (and if you have a
+cpu without NX you can use the execshield patches or PaX)
 
-Greets,
-RJW
+As for kernel stacks, well, with NX those are not executable either, and
+to be honest, I can't remember the last time there was a user
+exploitable kernel stack buffer overflow. So if your assertion is that
+those are a common type of security problem, I disagree with you.
+(One of the underlying causes is that the kernel stack is only really
+small so it's relatively uncommon and deprecated to put arrays on the
+kernel stack)
 
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+

@@ -1,36 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129496AbRBMW4l>; Tue, 13 Feb 2001 17:56:41 -0500
+	id <S129495AbRBMW5l>; Tue, 13 Feb 2001 17:57:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129772AbRBMW4b>; Tue, 13 Feb 2001 17:56:31 -0500
-Received: from ha1.rdc2.mi.home.com ([24.2.68.68]:55710 "EHLO
-	mail.rdc2.mi.home.com") by vger.kernel.org with ESMTP
-	id <S129496AbRBMWzz>; Tue, 13 Feb 2001 17:55:55 -0500
-Message-ID: <3A89BA64.D85CCB6B@didntduck.org>
-Date: Tue, 13 Feb 2001 17:51:16 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrey Panin <pazke@orbita.don.sitek.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: IRQ conflicts
-In-Reply-To: <E14RfhV-0002A1-00@the-village.bc.nu> <3A85D79C.3DE3A527@didntduck.org> <20010213124400.A1860@debian> <20010213125212.A2135@debian>
+	id <S129617AbRBMW5b>; Tue, 13 Feb 2001 17:57:31 -0500
+Received: from mnh-1-21.mv.com ([207.22.10.53]:53514 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S129495AbRBMW5V>;
+	Tue, 13 Feb 2001 17:57:21 -0500
+Message-Id: <200102140007.TAA04135@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: LA Walsh <law@sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: To Linus: kdb in 2.4? 
+In-Reply-To: Your message of "Tue, 13 Feb 2001 13:53:52 PST."
+             <3A89ACF0.142CB71B@sgi.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Tue, 13 Feb 2001 19:07:59 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrey Panin wrote:
-> 
-> Hi Brian.
-> 
-> I'm sorry, patch itself was not attached in previous post :(
-> 
+law@sgi.com said:
+> I'm wondering about the possibility of re-examining the idea of a
+> kernel debugger option distributed with 2.4.   
 
-Yes, this does fix that part of the problem.  There is still the matter
-of the class code being wrong but I have ideas on how to fix that.
+First off, I'd like to say that I'm highly sympathetic to this, assuming that 
+a kernel debugger doesn't change the kernel's behavior.
 
--- 
+However, 
 
-						Brian Gerst
+> I'm thinking that it could be a great teaching tool to break and
+> examine structures, variables, process states, as well as an aid to
+> people who may not have a grasp of the entire kernel but need to write
+> device drivers. 
+
+you might look at UML (http://user-mode-linux.sourceforge.net) for this.  A 
+number of kernel hackers are very successfully using UML for doing filesystem 
+and mm development and debugging.  With some help from the host, it's also 
+possible to do driver development under UML.
+
+I also know of a number of people using UML to further their education by 
+using it to poke around a running kernel.
+
+> Certainly Buddha doesn't need to know how to read to know his own
+> writings -- and certainly, if everyone meditates and 'evolves' to
+> their Buddha nature, they wouldn't need to read the texts or recognize
+> the letters either.   
+
+So, if you can't convince Buddha of the wisdom of your arguments (or even if 
+you can) check out UML.  It makes a perfectly good kernel debugger available, 
+and it's a lot easier to deal with than a native kernel.
+
+				Jeff
+
+

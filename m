@@ -1,51 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265068AbSJRLLb>; Fri, 18 Oct 2002 07:11:31 -0400
+	id <S265069AbSJRLPW>; Fri, 18 Oct 2002 07:15:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265069AbSJRLLb>; Fri, 18 Oct 2002 07:11:31 -0400
-Received: from tml.hut.fi ([130.233.44.1]:12549 "EHLO tml-gw.tml.hut.fi")
-	by vger.kernel.org with ESMTP id <S265068AbSJRLLa>;
-	Fri, 18 Oct 2002 07:11:30 -0400
-Date: Fri, 18 Oct 2002 14:16:25 +0300
-From: Antti Tuominen <ajtuomin@morphine.tml.hut.fi>
-To: Mitsuru KANDA <mk@linux-ipv6.org>
-Cc: yoshfuji@linux-ipv6.org, davem@redhat.com, kuznet@ms2.inr.ac.ru,
-       netdev@oss.sgi.com, linux-kernel@vger.kernel.org, pekkas@netcore.fi,
-       torvalds@transmeta.com, jagana@us.ibm.com
-Subject: Re: [PATCHSET] Mobile IPv6 for 2.5.43
-Message-ID: <20021018111625.GA19394@morphine.tml.hut.fi>
-References: <20021017162624.GC16370@morphine.tml.hut.fi> <20021018.021802.87011078.yoshfuji@linux-ipv6.org> <m3wuohq78u.wl@karaba.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m3wuohq78u.wl@karaba.org>
-User-Agent: Mutt/1.4i
+	id <S265071AbSJRLPW>; Fri, 18 Oct 2002 07:15:22 -0400
+Received: from [195.77.207.130] ([195.77.207.130]:5894 "HELO telepolis.es")
+	by vger.kernel.org with SMTP id <S265069AbSJRLPV>;
+	Fri, 18 Oct 2002 07:15:21 -0400
+X-Qmail-Scanner-Mail-From: xpegenaute@telepolis.es via mail
+X-Qmail-Scanner: 1.12 (Clear:. Processed in 0.065443 secs)
+Message-ID: <011601c2769a$1e61c400$ca00030a@xavip>
+From: "Xavier Pegenaute" <xpegenaute@telepolis.es>
+To: <linux-kernel@vger.kernel.org>
+Subject: (May be off-topic) .. i want make my final project playing with kernel Linux ..
+Date: Fri, 18 Oct 2002 13:33:02 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 18, 2002 at 02:56:33AM +0900, Mitsuru KANDA wrote:
-> > [ipv6_tunnel]
-> > 
-> > I think this is almost ok.
-> I think so.
-> I know ipv6_tunnel is stable as I use.
+Hi all..
 
-Thanks for the vote of confidence :)
+i'm a student of computer systems and i want make my final project about
+Linux and developing over the kernel.
 
-> plus:
->    (maybe not whole kernel issue)
-> It is important to integrate your ipv6tunnel command into
-> ifconfig(8) and/or ip(8).
+Any one need help about some thing ..?
 
-Obviously we will provide patches to add that functionality to ip (and
-maybe also ifconfig), if the code goes into the kernel.
-
-Regards,
-
-Antti
-
--- 
-Antti J. Tuominen, Gyldenintie 8A 11, 00200 Helsinki, Finland.
-Research assistant, Institute of Digital Communications at HUT
-work: ajtuomin@tml.hut.fi; home: tuominen@iki.fi
+Thanks.
+Xavi.
 

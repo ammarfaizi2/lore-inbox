@@ -1,82 +1,138 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266702AbSLJHoZ>; Tue, 10 Dec 2002 02:44:25 -0500
+	id <S266731AbSLJHsA>; Tue, 10 Dec 2002 02:48:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266708AbSLJHoZ>; Tue, 10 Dec 2002 02:44:25 -0500
-Received: from gettysburg.edu ([138.234.4.100]:63731 "EHLO gettysburg.edu")
-	by vger.kernel.org with ESMTP id <S266702AbSLJHoX>;
-	Tue, 10 Dec 2002 02:44:23 -0500
-Date: Tue, 10 Dec 2002 02:51:52 -0500
-To: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net,
-       pryzju01@gettysburg.edu
-Subject: [PATCH] 2.5.51 ntfs - GCC3
-Message-ID: <20021210075152.GA12219@perseus.homeunix.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	linux-ntfs-dev@lists.sourceforge.net, pryzju01@gettysburg.edu
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="J2SCkAp4GZ/dPZZf"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-From: Justin Pryzby <justinpryzby@users.sourceforge.net>
+	id <S266733AbSLJHsA>; Tue, 10 Dec 2002 02:48:00 -0500
+Received: from packet.digeo.com ([12.110.80.53]:39332 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S266731AbSLJHr6>;
+	Tue, 10 Dec 2002 02:47:58 -0500
+Message-ID: <3DF59DF7.F1E18835@digeo.com>
+Date: Mon, 09 Dec 2002 23:55:35 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Kingsley Cheung <kingsley@aurema.com>
+CC: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: Re: [TRIVIAL PATCH 2.4.20] madvise_willneed makes bad limit comparison
+References: <20021209150426.D12270@aurema.com> <3DF43855.19F24E73@digeo.com> <20021210170841.D8843@aurema.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 10 Dec 2002 07:55:35.0885 (UTC) FILETIME=[85CB3FD0:01C2A021]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Kingsley Cheung wrote:
+> 
+>...
+> So then something of the following without the check is more
+> appropriate or a starting point then?
+> 
 
---J2SCkAp4GZ/dPZZf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Looks good to me.   Here's a 2.5 version...
 
-Trivial patch for GCC3.
-What was going on with 2.96<=__GNUC__<3 ?!
+ include/linux/mm.h |    1 +
+ mm/filemap.c       |   12 +-----------
+ mm/madvise.c       |   23 +++++------------------
+ mm/readahead.c     |   13 +++++++++++++
+ 4 files changed, 20 insertions(+), 29 deletions(-)
 
-Justin
-
-diff -Naur linux-2.5.51.org/fs/ntfs/types.h linux-2.5.51.ntfs/fs/ntfs/types.h
---- linux-2.5.51.org/fs/ntfs/types.h	2002-12-10 02:17:52.000000000 -0500
-+++ linux-2.5.51.ntfs/fs/ntfs/types.h	2002-12-10 02:41:31.000000000 -0500
-@@ -23,12 +23,12 @@
- #ifndef _LINUX_NTFS_TYPES_H
- #define _LINUX_NTFS_TYPES_H
+--- 25/mm/filemap.c~max_sane_readahead	Mon Dec  9 23:44:47 2002
++++ 25-akpm/mm/filemap.c	Mon Dec  9 23:47:14 2002
+@@ -898,20 +898,10 @@ static ssize_t
+ do_readahead(struct address_space *mapping, struct file *filp,
+ 	     unsigned long index, unsigned long nr)
+ {
+-	unsigned long max;
+-	unsigned long active;
+-	unsigned long inactive;
+-
+ 	if (!mapping || !mapping->a_ops || !mapping->a_ops->readpage)
+ 		return -EINVAL;
  
--#if __GNUC__ < 2 || (__GNUC__ == 2 && __GNUC_MINOR__ < 96)
--#define SN(X)   X	/* Struct Name */
--#define SC(P,N) P.N	/* ShortCut: Prefix, Name */
--#else
-+#if __GNUC__ == 2 && __GNUC_MINOR__ >= 96
- #define SN(X)
- #define SC(P,N) N
-+#else
-+#define SN(X)   X	/* Struct Name */
-+#define SC(P,N) P.N	/* ShortCut: Prefix, Name */
- #endif
+-	/* Limit it to a sane percentage of the inactive list.. */
+-	get_zone_counts(&active, &inactive);
+-	max = inactive / 2;
+-	if (nr > max)
+-		nr = max;
+-
+-	do_page_cache_readahead(mapping, filp, index, nr);
++	do_page_cache_readahead(mapping, filp, index, max_sane_readahead(nr));
+ 	return 0;
+ }
  
- /* 2-byte Unicode character type. */
-
-
---J2SCkAp4GZ/dPZZf
-Content-Type: text/plain; charset=us-ascii
-Content-Description: Patch for Linux 2.5.51 ntfs with gcc3
-Content-Disposition: attachment; filename="linux-2.5.51.ntfs"
-
-diff -Naur linux-2.5.51.org/fs/ntfs/types.h linux-2.5.51.ntfs/fs/ntfs/types.h
---- linux-2.5.51.org/fs/ntfs/types.h	2002-12-10 02:17:52.000000000 -0500
-+++ linux-2.5.51.ntfs/fs/ntfs/types.h	2002-12-10 02:41:31.000000000 -0500
-@@ -23,12 +23,12 @@
- #ifndef _LINUX_NTFS_TYPES_H
- #define _LINUX_NTFS_TYPES_H
+--- 25/mm/readahead.c~max_sane_readahead	Mon Dec  9 23:44:55 2002
++++ 25-akpm/mm/readahead.c	Mon Dec  9 23:48:39 2002
+@@ -465,3 +465,16 @@ void handle_ra_miss(struct address_space
+ 			ra->next_size = min;
+ 	}
+ }
++
++/*
++ * Given a desired number of PAGE_CACHE_SIZE readahead pages, return a
++ * sensible upper limit.
++ */
++unsigned long max_sane_readahead(unsigned long nr)
++{
++	unsigned long active;
++	unsigned long inactive;
++
++	get_zone_counts(&active, &inactive);
++	return min(nr, inactive / 2);
++}
+--- 25/include/linux/mm.h~max_sane_readahead	Mon Dec  9 23:47:45 2002
++++ 25-akpm/include/linux/mm.h	Mon Dec  9 23:48:06 2002
+@@ -524,6 +524,7 @@ void page_cache_readaround(struct addres
+ 			   unsigned long offset);
+ void handle_ra_miss(struct address_space *mapping, 
+ 		    struct file_ra_state *ra);
++unsigned long max_sane_readahead(unsigned long nr);
  
--#if __GNUC__ < 2 || (__GNUC__ == 2 && __GNUC_MINOR__ < 96)
--#define SN(X)   X	/* Struct Name */
--#define SC(P,N) P.N	/* ShortCut: Prefix, Name */
--#else
-+#if __GNUC__ == 2 && __GNUC_MINOR__ >= 96
- #define SN(X)
- #define SC(P,N) N
-+#else
-+#define SN(X)   X	/* Struct Name */
-+#define SC(P,N) P.N	/* ShortCut: Prefix, Name */
- #endif
+ /* Do stack extension */
+ extern int expand_stack(struct vm_area_struct * vma, unsigned long address);
+--- 25/mm/madvise.c~max_sane_readahead	Mon Dec  9 23:52:37 2002
++++ 25-akpm/mm/madvise.c	Mon Dec  9 23:52:41 2002
+@@ -51,36 +51,23 @@ static long madvise_behavior(struct vm_a
+ }
  
- /* 2-byte Unicode character type. */
+ /*
+- * Schedule all required I/O operations, then run the disk queue
+- * to make sure they are started.  Do not wait for completion.
++ * Schedule all required I/O operations.  Do not wait for completion.
+  */
+ static long madvise_willneed(struct vm_area_struct * vma,
+ 			     unsigned long start, unsigned long end)
+ {
+-	long error = -EBADF;
+-	struct file * file;
+-	unsigned long size, rlim_rss;
++	struct file *file = vma->vm_file;
+ 
+-	/* Doesn't work if there's no mapped file. */
+ 	if (!vma->vm_file)
+-		return error;
+-	file = vma->vm_file;
+-	size = (file->f_dentry->d_inode->i_size + PAGE_CACHE_SIZE - 1) >>
+-							PAGE_CACHE_SHIFT;
++		return -EBADF;
+ 
+ 	start = ((start - vma->vm_start) >> PAGE_SHIFT) + vma->vm_pgoff;
+ 	if (end > vma->vm_end)
+ 		end = vma->vm_end;
+ 	end = ((end - vma->vm_start) >> PAGE_SHIFT) + vma->vm_pgoff;
+ 
+-	/* Make sure this doesn't exceed the process's max rss. */
+-	error = -EIO;
+-	rlim_rss = current->rlim ?  current->rlim[RLIMIT_RSS].rlim_cur :
+-				LONG_MAX; /* default: see resource.h */
+-	if ((vma->vm_mm->rss + (end - start)) > rlim_rss)
+-		return error;
+-
+-	do_page_cache_readahead(file->f_dentry->d_inode->i_mapping, file, start, end - start);
++	do_page_cache_readahead(file->f_dentry->d_inode->i_mapping,
++			file, start, max_sane_readahead(end - start));
+ 	return 0;
+ }
+ 
 
---J2SCkAp4GZ/dPZZf--
+_

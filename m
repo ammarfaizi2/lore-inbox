@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261705AbSJAPP6>; Tue, 1 Oct 2002 11:15:58 -0400
+	id <S261695AbSJAPNc>; Tue, 1 Oct 2002 11:13:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261706AbSJAPP6>; Tue, 1 Oct 2002 11:15:58 -0400
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:59779 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S261705AbSJAPP4>;
-	Tue, 1 Oct 2002 11:15:56 -0400
-Date: Tue, 1 Oct 2002 16:24:28 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Art Haas <ahaas@neosoft.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] vmalloc.c patch for 2.4.20-pre8-ac3
-Message-ID: <20021001152428.GB126@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Art Haas <ahaas@neosoft.com>, linux-kernel@vger.kernel.org
-References: <20021001004432.GA4230@debian>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021001004432.GA4230@debian>
-User-Agent: Mutt/1.4i
+	id <S261697AbSJAPNc>; Tue, 1 Oct 2002 11:13:32 -0400
+Received: from web13202.mail.yahoo.com ([216.136.174.187]:47152 "HELO
+	web13202.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S261695AbSJAPNb>; Tue, 1 Oct 2002 11:13:31 -0400
+Message-ID: <20021001151857.56361.qmail@web13202.mail.yahoo.com>
+Date: Tue, 1 Oct 2002 16:18:57 +0100 (BST)
+From: =?iso-8859-1?q?Kurt=20Johnson?= <gorydetailz@yahoo.co.uk>
+Subject: kernel.org is down?
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 30, 2002 at 07:44:32PM -0500, Art Haas wrote:
+Hi folks,
 
- > --- linux-2.4.20-pre8-ac3/mm/vmalloc.c.ac3	2002-09-30 18:27:42.000000000 -0500
- > +++ linux-2.4.20-pre8-ac3/mm/vmalloc.c	2002-09-30 13:59:30.000000000 -0500
- > @@ -179,7 +179,7 @@
- >  
- >  	size += PAGE_SIZE;
- >  	if (!size) {
- > -		kfree (addr);
- > +		kfree (area);
- >  		return NULL;
- >  	}
+Is it just me, or {www,ftp}.kernel.org is down? It
+seems so, from this side of the atlantic. And I cant
+find 2.5.40 on any mirror I've tried (which included
+everything listed in dns for www.uk.kernel.org,
+www.us.kernel.org, etc). So, what gives?
 
-Ick, that's my bad. Fix is correct, though davem suggested testing
-for -PAGE_SIZE before we do the kmalloc would be cleaner.
-I tend to agree, but didn't get around to doing it.
+Hope this is just a temporary hiccup. Sorry for the
+disturbance.
 
-		Dave
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
+Regards,
+
+/kj
+
+__________________________________________________
+Do You Yahoo!?
+Everything you'll ever need on one web page
+from News and Sport to Email and Music Charts
+http://uk.my.yahoo.com

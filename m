@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264373AbTDPNmK (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 09:42:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264374AbTDPNmK 
+	id S264381AbTDPNpt (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 09:45:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264383AbTDPNpt 
 	(for <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 09:42:10 -0400
-Received: from sol.cc.u-szeged.hu ([160.114.8.24]:23195 "EHLO
-	sol.cc.u-szeged.hu") by vger.kernel.org with ESMTP id S264373AbTDPNmI 
-	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 09:42:08 -0400
-Date: Wed, 16 Apr 2003 15:53:50 +0200 (CEST)
-From: Geller Sandor <wildy@petra.hos.u-szeged.hu>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-cc: Lukasz Trabinski <lukasz@wsisiz.edu.pl>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.21-pre7 - aic79xx
-In-Reply-To: <Pine.LNX.4.50.0304160856110.16588-100000@montezuma.mastecende.com>
-Message-ID: <Pine.LNX.4.44.0304161543100.22459-100000@petra.hos.u-szeged.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 16 Apr 2003 09:45:49 -0400
+Received: from adsl-67-121-155-183.dsl.pltn13.pacbell.net ([67.121.155.183]:8416
+	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
+	id S264381AbTDPNps (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 16 Apr 2003 09:45:48 -0400
+Date: Wed, 16 Apr 2003 06:57:40 -0700
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: jsimmons@infradead.org
+Subject: [2.5.67-mm3] vesafb is 80x24
+Message-ID: <20030416135740.GA18958@triplehelix.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Kj7319i9nmIyA2yE"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
+From: Joshua Kwan <joshk@triplehelix.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Apr 2003, Zwane Mwaikambo wrote:
 
-> On Wed, 16 Apr 2003, Geller Sandor wrote:
->
-> > On Wed, 16 Apr 2003, Lukasz Trabinski wrote:
-> >
-> > > In article <Pine.LNX.4.53.0304161212390.5122@oceanic.wsisiz.edu.pl> you wrote:
-> > > > Hello
-> > > >
-> > > > I have new machine with aic79xx scsi controler,
-> > >
-> > > exactly is Adaptec AIC7902 Ultra320
-> >
-> > Try the latest aic7xxx drivers:
-> > http://people.FreeBSD.org/~gibbs/linux/SRC/
->
-> This is by no means a solution or even a workaround, but could you tell me
-> what happens if you boot with noapic?
+--Kj7319i9nmIyA2yE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I don't use the aic79xx driver in the -ac tree. In another thread, 1 or 2
-weeks ago Justin Gibbs stated, that his latest drivers are the most
-stable. I'm using an Intel 7501VW2 motherboard in a production server, so
-I don't want to test drivers, which can cause filesystem corruption. Maybe
-Lukasz can test with noapic - I suggest Justin's drivers, and if the
-problem still exists, test with the 'noapic' boot parameter, and track
-down the problem. Regards,
+Somewhere between 2.5.66-mm3 and 2.5.67-mm3, vesafb was changed and now
+my purportedly 128x48 screen is stuck in an 80x24 corner. The display is
+fine, it's just... not filling the screen. Any ideas, James?
 
-  Sandor Geller <wildy@petra.hos.u-szeged.hu>
+Regards
+Josh
 
+--=20
+New PGP public key: 0x27AFC3EE
+
+--Kj7319i9nmIyA2yE
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+nWFUT2bz5yevw+4RAh0vAKCo0w/NUjU5PYwbfMKc6rsMu/ivUQCg0BPP
+9c3UiCp4vhYYGwcN1DhgFPM=
+=6iAI
+-----END PGP SIGNATURE-----
+
+--Kj7319i9nmIyA2yE--

@@ -1,40 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282285AbRKWXbY>; Fri, 23 Nov 2001 18:31:24 -0500
+	id <S282288AbRKWXgZ>; Fri, 23 Nov 2001 18:36:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282283AbRKWXbE>; Fri, 23 Nov 2001 18:31:04 -0500
-Received: from marine.sonic.net ([208.201.224.37]:4197 "HELO marine.sonic.net")
-	by vger.kernel.org with SMTP id <S282285AbRKWXbA>;
-	Fri, 23 Nov 2001 18:31:00 -0500
-X-envelope-info: <dalgoda@ix.netcom.com>
-Date: Fri, 23 Nov 2001 15:30:56 -0800
-From: Mike Castle <dalgoda@ix.netcom.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: e2fsck-1.25 problem
-Message-ID: <20011123153056.A24052@thune.mrc-home.com>
-Reply-To: Mike Castle <dalgoda@ix.netcom.com>
-Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3BFDBB15.AD778DA4@isn.net> <20011122211827.T1308@lynx.no> <3BFE099F.52BB7006@isn.net>
+	id <S282287AbRKWXgQ>; Fri, 23 Nov 2001 18:36:16 -0500
+Received: from ns0.ipal.net ([206.97.148.120]:29614 "HELO vega.ipal.net")
+	by vger.kernel.org with SMTP id <S282288AbRKWXgD>;
+	Fri, 23 Nov 2001 18:36:03 -0500
+Date: Fri, 23 Nov 2001 17:36:02 -0600
+From: Phil Howard <phil-linux-kernel@ipal.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.15: undefined reference to `show_trace_task'
+Message-ID: <20011123173602.A14759@vega.ipal.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3BFE099F.52BB7006@isn.net>
 User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 23, 2001 at 04:32:31AM -0400, Garst R. Reese wrote:
-> The problem is solved. fsck was dependent on libgcc_s.so.1, which had no
-> execute permissions. Don't know how that happened. It was also on
-> /usr/local/lib on another partition and I moved it to /lib
+While compiling 2.4.15 for sparc (32-bit) platform I encounted:
 
-Recently installed gcc-3.0.x, I take it?
+=============================================================================
+ld -m elf32_sparc -T arch/sparc/vmlinux.lds arch/sparc/kernel/head.o arch/sparc/kernel/init_task.o init/main.o init/version.o \
+        --start-group \
+        arch/sparc/kernel/kernel.o arch/sparc/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o arch/sparc/math-emu/math-emu.o arch/sparc/boot/btfix.o \
+         drivers/char/char.o drivers/block/block.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o drivers/scsi/scsidrv.o drivers/cdrom/driver.o drivers/sbus/sbus_all.o drivers/video/video.o \
+        net/network.o \
+        /home/root/kernel-2.4.15/linux/lib/lib.a /home/root/kernel-2.4.15/linux/lib/lib.a /home/root/kernel-2.4.15/linux/arch/sparc/prom/promlib.a /home/root/kernel-2.4.15/linux/arch/sparc/lib/lib.a \
+        --end-group \
+        -o vmlinux
+kernel/kernel.o: In function `show_task':
+kernel/kernel.o(.text+0x16a4): undefined reference to `show_trace_task'
+make: *** [vmlinux] Error 1
+=============================================================================
 
-This was a move I recently regretted, because of this issue.
+I scanned all source files for "show_trace_task" and found:
 
-mrc
+=============================================================================
+arch/alpha/kernel/traps.c:132:void show_trace_task(struct task_struct * tsk)
+arch/arm/kernel/traps.c:154:void show_trace_task(struct task_struct *tsk)
+arch/i386/kernel/traps.c:156:void show_trace_task(struct task_struct *tsk)
+arch/sparc64/kernel/traps.c:1406:void show_trace_task(struct task_struct *tsk)
+kernel/sched.c:1160:            extern void show_trace_task(struct task_struct *tsk);
+kernel/sched.c:1161:            show_trace_task(p);
+=============================================================================
+
+It looks like this didn't get implement across all platforms.
+
+Can the call to show_trace_task() in kernel/sched.c be safely commented
+out for now?
+
 -- 
-     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
-    We are all of us living in the shadow of Manhattan.  -- Watchmen
-fatal ("You are in a maze of twisty compiler features, all different"); -- gcc
+-----------------------------------------------------------------
+| Phil Howard - KA9WGN |   Dallas   | http://linuxhomepage.com/ |
+| phil-nospam@ipal.net | Texas, USA | http://phil.ipal.org/     |
+-----------------------------------------------------------------
+
+
+
+-- 
+-----------------------------------------------------------------
+| Phil Howard - KA9WGN |   Dallas   | http://linuxhomepage.com/ |
+| phil-nospam@ipal.net | Texas, USA | http://phil.ipal.org/     |
+-----------------------------------------------------------------

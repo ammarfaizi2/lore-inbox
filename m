@@ -1,75 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277560AbRJKA35>; Wed, 10 Oct 2001 20:29:57 -0400
+	id <S277652AbRJKAa5>; Wed, 10 Oct 2001 20:30:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277705AbRJKA3s>; Wed, 10 Oct 2001 20:29:48 -0400
-Received: from cerebus.wirex.com ([65.102.14.138]:59631 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id <S277560AbRJKA3g>; Wed, 10 Oct 2001 20:29:36 -0400
-Date: Wed, 10 Oct 2001 17:27:27 -0700
-From: Chris Wright <chris@wirex.com>
-To: linux-kernel@vger.kernel.org
-Cc: alan@lxorguk.ukuu.org.uk, torvalds@transmeta.com
-Subject: [PATCH] minor code duplication in fs/proc/base.c
-Message-ID: <20011010172727.H21401@figure1.int.wirex.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-	torvalds@transmeta.com
+	id <S277705AbRJKAaj>; Wed, 10 Oct 2001 20:30:39 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:33784
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S277652AbRJKAaW>; Wed, 10 Oct 2001 20:30:22 -0400
+Date: Wed, 10 Oct 2001 17:30:47 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: safemode <safemode@speakeasy.net>
+Cc: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@zip.com.au>,
+        Dieter N?tzel <Dieter.Nuetzel@hamburg.de>, Robert Love <rml@tech9.net>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.10-ac10-preempt lmbench output.
+Message-ID: <20011010173047.B3795@mikef-linux.matchmail.com>
+Mail-Followup-To: safemode <safemode@speakeasy.net>,
+	Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@zip.com.au>,
+	Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
+	Robert Love <rml@tech9.net>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200110100358.NAA17519@isis.its.uow.edu.au> <20011010120009.851921E7C9@Cantor.suse.de> <20011010153653.Q726@athlon.random> <20011010234211Z277533-761+17907@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011010234211Z277533-761+17907@vger.kernel.org>
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While looking through the proc code I noticed the standard_permission()
-function is essentially the same as vfs_permission().  It appears there
-is no need to maintain this code separately.  For example, the recent
-tweaks in vfs_permission() didn't make it into standard_permission().
-If it helps, here is a patch.  It is against 2.4.11, but it applies
-cleanly 2.4.10-ac11.
+On Wed, Oct 10, 2001 at 07:42:31PM -0400, safemode wrote:
+> On Wednesday 10 October 2001 09:36, Andrea Arcangeli wrote:
+> > On Wed, Oct 10, 2001 at 08:00:04AM -0400, safemode wrote:
+> > > OK, i copied the mp3 into /dev/shm and without any renicing of anything
+> > > it plays fine during dbench 32.  so the problem is disk access taking too
+> > > long.
+> > >
+> > > Which is strange since i'm running dbench on a separate hdd on a totally
+> > > different controller.
+> >
+> > then if you know it's not disk congestion, it's most probably due the vm
+> > write throttling.
+> >
+> > Andrea
+> 
+> How is it that a process at the same priority as allowed to throttle the 
+> kernel's vm and starve other processes at the same priority.  That sounds 
+> like dbench is being allowed to preempt other processes at the same priority. 
+>  even if it is indirect preemption. The effect is the same. 
 
-thanks,
--chris
+The problem is that the disk subsystem doesn't take into account the
+priority of the process initiating the heavy (or any for that matter) IO.
 
+AFAICT, the only way to get fair disk access is to modify (shorten) the
+elevator queue lengths (which IMHO are much too long).  Check out elvtune
+(I'm testing "-r 500 -w 750" right now) in the util-linux package.
 
---- linux-2.4.11/fs/proc/base.c	Fri Jul 20 12:39:56 2001
-+++ linux-2.4.11-proc/fs/proc/base.c	Wed Oct 10 17:10:25 2001
-@@ -184,29 +184,6 @@
- 
- /* permission checks */
- 
--static int standard_permission(struct inode *inode, int mask)
--{
--	int mode = inode->i_mode;
--
--	if ((mask & S_IWOTH) && IS_RDONLY(inode) &&
--	    (S_ISREG(mode) || S_ISDIR(mode) || S_ISLNK(mode)))
--		return -EROFS; /* Nobody gets write access to a read-only fs */
--	else if ((mask & S_IWOTH) && IS_IMMUTABLE(inode))
--		return -EACCES; /* Nobody gets write access to an immutable file */
--	else if (current->fsuid == inode->i_uid)
--		mode >>= 6;
--	else if (in_group_p(inode->i_gid))
--		mode >>= 3;
--	if (((mode & mask & S_IRWXO) == mask) || capable(CAP_DAC_OVERRIDE))
--		return 0;
--	/* read and search access */
--	if ((mask == S_IROTH) ||
--	    (S_ISDIR(mode)  && !(mask & ~(S_IROTH | S_IXOTH))))
--		if (capable(CAP_DAC_READ_SEARCH))
--			return 0;
--	return -EACCES;
--}
--
- static int proc_check_root(struct inode *inode)
- {
- 	struct dentry *de, *base, *root;
-@@ -249,7 +226,7 @@
- 
- static int proc_permission(struct inode *inode, int mask)
- {
--	if (standard_permission(inode, mask) != 0)
-+	if (vfs_permission(inode, mask) != 0)
- 		return -EACCES;
- 	return proc_check_root(inode);
- }
+Mike

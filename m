@@ -1,79 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262508AbUKLLfT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262510AbUKLLuq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262508AbUKLLfT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 06:35:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262509AbUKLLfT
+	id S262510AbUKLLuq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 06:50:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262511AbUKLLuq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 06:35:19 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:25553 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S262508AbUKLLew (ORCPT
+	Fri, 12 Nov 2004 06:50:46 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:65493 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S262510AbUKLLuk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 06:34:52 -0500
-Date: Fri, 12 Nov 2004 12:34:31 +0100 (MET)
+	Fri, 12 Nov 2004 06:50:40 -0500
+Date: Fri, 12 Nov 2004 12:50:21 +0100 (MET)
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Randy Dunlap <rddunlap@osdl.org>
-cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] more MODULE_PARM conversions
-In-Reply-To: <200411112325.iABNPsWo013185@hera.kernel.org>
-Message-ID: <Pine.GSO.4.61.0411121232570.27077@waterleaf.sonytel.be>
-References: <200411112325.iABNPsWo013185@hera.kernel.org>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Andries.Brouwer@cwi.nl
+Subject: Re: [PATCH] remove if !PARTITION_ADVANCED condition in defaults
+In-Reply-To: <CB00AF16-344E-11D9-857E-000393ACC76E@mac.com>
+Message-ID: <Pine.GSO.4.61.0411121242340.27077@waterleaf.sonytel.be>
+References: <200411112302.iABN2Pu01711@apps.cwi.nl>
+ <Pine.LNX.4.58.0411111507090.2301@ppc970.osdl.org> <CB00AF16-344E-11D9-857E-000393ACC76E@mac.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Nov 2004, Linux Kernel Mailing List wrote:
-> ChangeSet 1.2156, 2004/11/11 13:50:06-08:00, rddunlap@osdl.org
+On Thu, 11 Nov 2004, Kyle Moffett wrote:
+> On Nov 11, 2004, at 18:11, Linus Torvalds wrote:
+> > That's really what EMBEDDED means: ask about things that no sane person
+> > would leave out. So how about just changing that "if PARTITION_ADVANCED"
+> > into "if EMBEDDED" on MSDOS?
 > 
-> 	[PATCH] more MODULE_PARM conversions
-> 	
-> 	Convert MODULE_PARM() to module_param().
-> 	
-> 	Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
-> 	Signed-off-by: Andrew Morton <akpm@osdl.org>
-> 	Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+> If you make this specific to x86, that _may_ be OK, but I suspect others who
+> only have only BSD partitioning schemes may object.
 
-> diff -Nru a/drivers/scsi/mesh.c b/drivers/scsi/mesh.c
-> --- a/drivers/scsi/mesh.c	2004-11-11 15:26:05 -08:00
-> +++ b/drivers/scsi/mesh.c	2004-11-11 15:26:05 -08:00
-> @@ -60,22 +60,22 @@
->  MODULE_DESCRIPTION("PowerMac MESH SCSI driver");
->  MODULE_LICENSE("GPL");
->  
-> -MODULE_PARM(sync_rate, "i");
-> -MODULE_PARM_DESC(sync_rate, "Synchronous rate (0..10, 0=async)");
-> -MODULE_PARM(sync_targets, "i");
-> -MODULE_PARM_DESC(sync_targets, "Bitmask of targets allowed to set synchronous");
-> -MODULE_PARM(resel_targets, "i");
-> -MODULE_PARM_DESC(resel_targets, "Bitmask of targets allowed to set disconnect");
-> -MODULE_PARM(debug_targets, "i");
-> -MODULE_PARM_DESC(debug_targets, "Bitmask of debugged targets");
-> -MODULE_PARM(init_reset_delay, "i");
-> -MODULE_PARM_DESC(init_reset_delay, "Initial bus reset delay (0=no reset)");
-> -
->  static int sync_rate = CONFIG_SCSI_MESH_SYNC_RATE;
->  static int sync_targets = 0xff;
->  static int resel_targets = 0xff;
->  static int debug_targets = 0;	/* print debug for these targets */
->  static int init_reset_delay = CONFIG_SCSI_MESH_RESET_DELAY_MS;
-> +
-> +MODULE_PARM(sync_rate, int, 0);
-   ^^^^^^^^^^^
-Shouldn't these be module_parm?
+Please do at least that! If a (non-ia32) machine doesn't have USB or FireWire,
+it usually doesn't need MS-DOS partitioning. This patch makes it impossible for
+people to leave out some stuff (BTW not limited to MS-DOS partitioning) they
+don't want. I guess Matt will be happy to add the inverse patch to -tiny...
 
-> +MODULE_PARM_DESC(sync_rate, "Synchronous rate (0..10, 0=async)");
-> +MODULE_PARM(sync_targets, int, 0);
-> +MODULE_PARM_DESC(sync_targets, "Bitmask of targets allowed to set synchronous");
-> +MODULE_PARM(resel_targets, int, 0);
-> +MODULE_PARM_DESC(resel_targets, "Bitmask of targets allowed to set disconnect");
-> +MODULE_PARM(debug_targets, int, 0644);
-> +MODULE_PARM_DESC(debug_targets, "Bitmask of debugged targets");
-> +MODULE_PARM(init_reset_delay, int, 0);
-> +MODULE_PARM_DESC(init_reset_delay, "Initial bus reset delay (0=no reset)");
->  
->  static int mesh_sync_period = 100;
->  static int mesh_sync_offset = 0;
+Andries wrote:
+> Many people are being bitten by the fact that if they select
+> CONFIG_PARTITION_ADVANCED in order to get some additional support,
+> they suddenly lose support for the MSDOS_PARTITION type.
+
+Are you sure Kconfig won't keep the old setting of MSDOS_PARTITION?
+Ah IC, this is for people who start from a brand new empty config, willing to
+solve the Kernel Quest with the 100000 Kconfig questions(TM) :-)
+
+This looks like yet another fix for yet another PEBKAC problem...  Will (or
+perhaps this has been done already as well) we hardcode IDE to yes (on ia32)?
 
 Gr{oetje,eeting}s,
 

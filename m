@@ -1,73 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267310AbUG1Qqu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267301AbUG1Qsa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267310AbUG1Qqu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 12:46:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267301AbUG1Qp4
+	id S267301AbUG1Qsa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 12:48:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267311AbUG1Qs3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 12:45:56 -0400
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:4998 "EHLO
-	grelber.thyrsus.com") by vger.kernel.org with ESMTP id S267311AbUG1Qpc
+	Wed, 28 Jul 2004 12:48:29 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:8979 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S267301AbUG1Qr5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 12:45:32 -0400
-From: Rob Landley <rob@landley.net>
-To: Marc Ballarin <Ballarin.Marc@gmx.de>, Paul Jackson <pj@sgi.com>
-Subject: Re: Interesting race condition...
-Date: Wed, 28 Jul 2004 11:46:49 -0500
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <200407222204.46799.rob@landley.net> <20040728010546.3b7933d5.pj@sgi.com> <20040728135444.79e67ea9.Ballarin.Marc@gmx.de>
-In-Reply-To: <20040728135444.79e67ea9.Ballarin.Marc@gmx.de>
+	Wed, 28 Jul 2004 12:47:57 -0400
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix NR_KEYS off-by-one error
+References: <87llhjlxjk.fsf@devron.myhome.or.jp>
+	<20040716164435.GA8078@ucw.cz>
+	<20040716201523.GC5518@pclin040.win.tue.nl>
+	<871xjbkv8g.fsf@devron.myhome.or.jp>
+	<20040728115130.GA4008@pclin040.win.tue.nl>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Thu, 29 Jul 2004 01:46:37 +0900
+In-Reply-To: <20040728115130.GA4008@pclin040.win.tue.nl>
+Message-ID: <87fz7c9j0y.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3.50
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200407281146.49166.rob@landley.net>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 28 July 2004 06:54, Marc Ballarin wrote:
-> On Wed, 28 Jul 2004 01:05:46 -0700
->
-> Paul Jackson <pj@sgi.com> wrote:
-> > Rob wrote:
-> > > I just saw a funky thing.  Here's the cut and past from the xterm...
-> >
-> > Can you reproduce this by cat'ing /proc/<pid>/cmdline?  Can you get a
-> > dump of the proc cmdline file to leak the environment sometimes?
-> >
-> > It is this file that 'ps' is dumping for these options.  Adding the
-> > 'e' option would also dump the /proc/<pid>/environ file (if readable).
-> >
-> > But you aren't adding 'e', so presumably the environment is "leaking"
-> > into the the cmdline file.
-> >
-> > I suspect a kernel bug here - the ps code seems rather obvious and
-> > unimpeachable.
->
-> I ran the following loop for a while (> 9 million times) and could not
-> reproduce the bug, but that might just be coincidence.
-> Conditions were the same as in my other, succesful test.
->
-> while [ 1 ];do
->         cat /proc/self/cmdline >> TEST
-> done
->
-> Marc
+Andries Brouwer <aebr@win.tue.nl> writes:
 
-I might have actually just killed the process I was grepping for (I was 
-grepping to see if it had actually gone away yet).  Dunno if that helps...
+> When an array has an arbitrary upper bound that can be changed
+> via a #define, and for some values of the upper bound a test
+> is superfluous, that does not mean that the test is superfluous.
 
-I haven't been able to reproduce it either.  I think the pipe to grep (or 
-something similar) is important because your test isn't doing what mine did: 
-one process was looking at another process at the instant of process creation 
-(or perhaps exit).  Maybe the appropriate null terminator is written out 
-after the process goes live?
+OK. The patch is the following.
 
-This is a UP system, but I have preemption on...
-
-Rob
+Any comments or suggestions?
 -- 
-www.linucon.org: Linux Expo and Science Fiction Convention
-October 8-10, 2004 in Austin Texas.  (I'm the con chair.)
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
 
+
+[PATCH] Fix NR_KEYS off-by-one error
+
+KDGKBENT ioctl can use 256 entries (0-255), but it was defined as
+key_map[NR_KEYS] (NR_KEYS == 255). The code seems also thinking it's 256.
+
+	key_map[0] = U(K_ALLOCATED);
+	for (j = 1; j < NR_KEYS; j++)
+		key_map[j] = U(K_HOLE);
+
+Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+---
+
+ drivers/char/vt_ioctl.c  |    6 ++++++
+ include/linux/keyboard.h |    2 +-
+ 2 files changed, 7 insertions(+), 1 deletion(-)
+
+diff -puN include/linux/keyboard.h~nr_keys-off-by-one include/linux/keyboard.h
+--- linux-2.6.8-rc2/include/linux/keyboard.h~nr_keys-off-by-one	2004-07-28 03:37:12.000000000 +0900
++++ linux-2.6.8-rc2-hirofumi/include/linux/keyboard.h	2004-07-28 03:37:12.000000000 +0900
+@@ -16,7 +16,7 @@
+ 
+ #define NR_SHIFT	9
+ 
+-#define NR_KEYS		255
++#define NR_KEYS		256
+ #define MAX_NR_KEYMAPS	256
+ /* This means 128Kb if all keymaps are allocated. Only the superuser
+ 	may increase the number of keymaps beyond MAX_NR_OF_USER_KEYMAPS. */
+diff -puN drivers/char/vt_ioctl.c~nr_keys-off-by-one drivers/char/vt_ioctl.c
+--- linux-2.6.8-rc2/drivers/char/vt_ioctl.c~nr_keys-off-by-one	2004-07-29 01:31:12.000000000 +0900
++++ linux-2.6.8-rc2-hirofumi/drivers/char/vt_ioctl.c	2004-07-29 01:35:23.000000000 +0900
+@@ -83,6 +83,12 @@ do_kdsk_ioctl(int cmd, struct kbentry __
+ 	if (copy_from_user(&tmp, user_kbe, sizeof(struct kbentry)))
+ 		return -EFAULT;
+ 
++#if NR_KEYS != 256 || MAX_NR_KEYMAPS != 256
++#error "you should check this too"
++	if (i >= NR_KEYS || s >= MAX_NR_KEYMAPS)
++		return -EINVAL;
++#endif
++
+ 	switch (cmd) {
+ 	case KDGKBENT:
+ 		key_map = key_maps[s];
+_

@@ -1,44 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267187AbTBQQyJ>; Mon, 17 Feb 2003 11:54:09 -0500
+	id <S267163AbTBQQxU>; Mon, 17 Feb 2003 11:53:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267191AbTBQQyJ>; Mon, 17 Feb 2003 11:54:09 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:15366 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S267187AbTBQQyI>;
-	Mon, 17 Feb 2003 11:54:08 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200302171705.h1HH5Isl010627@darkstar.example.net>
-Subject: Re: Performance of ext3 on large systems
-To: matti.aarnio@zmailer.org (Matti Aarnio)
-Date: Mon, 17 Feb 2003 17:05:17 +0000 (GMT)
-Cc: rml@tech9.net, sneakums@zork.net, linux-kernel@vger.kernel.org
-In-Reply-To: <20030217164740.GS1073@mea-ext.zmailer.org> from "Matti Aarnio" at Feb 17, 2003 06:47:40 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S267176AbTBQQxU>; Mon, 17 Feb 2003 11:53:20 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22539 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267163AbTBQQxT>;
+	Mon, 17 Feb 2003 11:53:19 -0500
+Message-ID: <3E5115BB.6020407@pobox.com>
+Date: Mon, 17 Feb 2003 12:02:51 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Osamu Tomita <tomita@cinet.co.jp>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "'Christoph Hellwig'" <hch@infradead.org>
+Subject: Re: [PATCHSET] PC-9800 subarch. support for 2.5.61 (16/26) NIC
+References: <20030217134333.GA4734@yuzuki.cinet.co.jp> <20030217141552.GP4799@yuzuki.cinet.co.jp>
+In-Reply-To: <20030217141552.GP4799@yuzuki.cinet.co.jp>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Well, yes, but that's not what I was saying - what was saying is that
-> > if you are primarily reading anyway, there isn't much to be gained
-> > from using EXT-3, over EXT-2.
-> 
->   Besides of data robustness.
+ > -#ifdef __ISAPNP__	
+ > +#if defined(__ISAPNP__) && !defined(CONFIG_X86_PC9800)
 
-Well yes, but that only matters if the filesystem isn't unmounted
-cleanly.
 
-> > If you are primarily writing, EXT-3 atime should be faster than EXT-2
-> > noatime.  EXT-3 notime will obviously be even faster.
-> 
->   No.  For primarily writing the 'noatime' effect disappears in background
->   noice. Every time you write into file, mtime will be updated, and also
->   ctime.  Only one of i-node timestamps _not_ updated is atime...
+I am curious, does PC9800 support ISAPNP at all?
 
-Well, that's what I was implying, that for primarily writing, EXT-3
-should be better than EXT-2, regardless of the atime configuration.
+Perhaps a dumb question, but I wonder if the above ifdef can be 
+simplified by turning off ISAPNP on PC9800?
 
-So, we agree :-).
-
-John.

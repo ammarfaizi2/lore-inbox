@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129903AbRALXm4>; Fri, 12 Jan 2001 18:42:56 -0500
+	id <S135549AbRALXq7>; Fri, 12 Jan 2001 18:46:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129957AbRALXmr>; Fri, 12 Jan 2001 18:42:47 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:45829 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129903AbRALXma>; Fri, 12 Jan 2001 18:42:30 -0500
-Subject: Re: ide.2.4.1-p3.01112001.patch
-To: vojtech@suse.cz (Vojtech Pavlik)
-Date: Fri, 12 Jan 2001 23:43:23 +0000 (GMT)
-Cc: torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
-In-Reply-To: <20010112204626.A2740@suse.cz> from "Vojtech Pavlik" at Jan 12, 2001 08:46:26 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S135452AbRALXqt>; Fri, 12 Jan 2001 18:46:49 -0500
+Received: from ppp13-pool1c.bham.zebra.net ([209.12.6.204]:1152 "HELO
+	bliss.penguinpowered.com") by vger.kernel.org with SMTP
+	id <S135549AbRALXqd>; Fri, 12 Jan 2001 18:46:33 -0500
+Date: Fri, 12 Jan 2001 17:38:11 -0600
+From: "Forever shall I be." <zinx@magenet.com>
+To: linux-kernel@vger.kernel.org
+Subject: [BUG] 2.4.0-ac8 PS/2 mouse woes
+Message-ID: <20010112173811.A618@bliss.zebra.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14HDqv-0005Fm-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-GPG-Fingerprint: 1A27 513C 33D0 4DB6 BBDD  E891 4E64 FCAA 7455 8D71
+X-GPG-Public-Key: http://pgp5.ai.mit.edu:11371/pks/lookup?op=get&search=0x74558D71
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'd like to hear about such reports so that I can start debugging (and
-> perhaps get me one of those failing boards, they must be quite cheap
-> these days).
+I just booted to 2.4.0-ac8 (from 2.4.0-ac6) and noticed the mouse was
+going rather slow in X, so I pumped up the "Resolution" a bit more and
+restarted it.. Didn't help, and when I exited the kernel gave a nice
+big OOPS in kapm-idled (sorry, i don't have the output), and don't
+know if it's related to the mouse problem, but I do know the mouse
+problem goes away when I back out the changes in the ac8 patch to
+pc_keyb.c..   I also have the cuecat patch applied, and use it over
+the PS/2 mouse port, but I don't think it's interfering..  I doubt
+this will be noticable to people not using the "Resolution" option to
+speed up the mouse, and mine's rather insane:
 
-This is one of the most precise reports I have
+(zinx@bliss)/etc/X11$ cat XF86Config | grep Resolution
+    Option "Resolution" "50000"
 
-|The system is an AMD K6-3 on a FIC PA-2013 mobo with 3 IDE disks.  The
-|size of hda is 4.3 GB, the size of hdb is 854 MB and the size of hdc is
-|1.2 GB.  Hdd is an IDE CDROM drive
+Anyway, just letting you know, and very sorry for the lack of
+information..
 
-I think its significant that two reports I have are FIC PA-2013 but not all.
-What combination of chips is on the 2013 ?
-
-Alan
-
+-- 
+Zinx Verituse                           (See headers for gpg key info)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

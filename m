@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317253AbSIAQfT>; Sun, 1 Sep 2002 12:35:19 -0400
+	id <S317278AbSIAQge>; Sun, 1 Sep 2002 12:36:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317263AbSIAQfT>; Sun, 1 Sep 2002 12:35:19 -0400
-Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:3200 "EHLO
-	dad.molina") by vger.kernel.org with ESMTP id <S317253AbSIAQfS>;
-	Sun, 1 Sep 2002 12:35:18 -0400
-Date: Sun, 1 Sep 2002 11:31:42 -0500 (CDT)
-From: Thomas Molina <tmolina@cox.net>
-X-X-Sender: tmolina@dad.molina
-To: Mikael Pettersson <mikpe@csd.uu.se>
-cc: torvalds@transmeta.com, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.33-bk testing
-In-Reply-To: <200209011159.NAA15370@harpo.it.uu.se>
-Message-ID: <Pine.LNX.4.44.0209011126030.1166-100000@dad.molina>
+	id <S317264AbSIAQge>; Sun, 1 Sep 2002 12:36:34 -0400
+Received: from mons.uio.no ([129.240.130.14]:23796 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S317263AbSIAQgd>;
+	Sun, 1 Sep 2002 12:36:33 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15730.17171.162970.367575@charged.uio.no>
+Date: Sun, 1 Sep 2002 18:40:51 +0200
+To: Luca Barbieri <ldb@ldb.ods.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux FSdevel <linux-fsdevel@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Initial support for struct vfs_cred   [0/1]
+In-Reply-To: <1030890022.2145.52.camel@ldb>
+References: <Pine.LNX.4.44.0208311235110.1255-100000@home.transmeta.com>
+	<1030822731.1458.127.camel@ldb>
+	<15729.17279.474307.914587@charged.uio.no>
+	<1030835635.1422.39.camel@ldb>
+	<15730.4100.308481.326297@charged.uio.no>
+	<15730.8121.554630.859558@charged.uio.no>
+	<1030890022.2145.52.camel@ldb>
+X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 1 Sep 2002, Mikael Pettersson wrote:
+>>>>> " " == Luca Barbieri <ldb@ldb.ods.org> writes:
 
-> I was able to get 2.5.33 (even with your patch) to corrupt data
-> in a few seconds: writes (with dd) put corrupted data on the
-> media, and reads (again with dd) returns data that doesn't
-> match what's on the media.
+    >> You are forgetting that the fscred might simultaneously be
+    >> referenced by an open struct file. Are you saying that this
+    >> file should suddenly see its credential change?
+     > No, it cannot be referenced by an open struct file because you
+     > copy the structure, not pointers to it.
 
-I don't know why I didn't see the corruption the first time around.  
-However, I repeated the tests with Linus' floppy update and saw the same 
-thing you did.
-dd if=/dev/fd0 of=floppyimage
-produced corrupt output, as did a dd write to floppy command.
+So you are proposing to optimize for the rare case of setuid(),
+instead of the more common case of file open()?
 
-> The patch below is an update of the floppy workarounds patch
-> I've been maintaining since the problems began in 2.5.13.
-> With this patch I'm able to reliably read and write to the
-> raw /dev/fd0 device. I'm not suggesting that my hack to
-> bdev->bd_block_size is the correct fix, but maybe someone who
-> understands the block I/O system can see what's going on and
-> do a proper fix.
-
-Thanks.  Adding your workaround produced correct outputs.  I hope we can 
-some other eyes on the code and get it integrated into mainline.
-
+Cheers,
+  Trond

@@ -1,52 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268856AbUJPUk5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268854AbUJPUkr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268856AbUJPUk5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Oct 2004 16:40:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268864AbUJPUk5
+	id S268854AbUJPUkr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Oct 2004 16:40:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268856AbUJPUkr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Oct 2004 16:40:57 -0400
-Received: from mail.timesys.com ([65.117.135.102]:23594 "EHLO
-	exchange.timesys.com") by vger.kernel.org with ESMTP
-	id S268856AbUJPUkx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Oct 2004 16:40:53 -0400
-Message-ID: <4171871D.3000601@timesys.com>
-Date: Sat, 16 Oct 2004 16:39:57 -0400
-From: john cooper <john.cooper@timesys.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org, john cooper <john.cooper@timesys.com>
-Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U4
-References: <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <Pine.LNX.4.58.0410161426020.1223@gradall.private.brainfood.com> <20041016193626.GB10626@elte.hu> <Pine.LNX.4.58.0410161457410.1223@gradall.private.brainfood.com> <20041016201417.GA12371@elte.hu>
-In-Reply-To: <20041016201417.GA12371@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 16 Oct 2004 20:36:04.0406 (UTC) FILETIME=[C1C20560:01C4B3BF]
+	Sat, 16 Oct 2004 16:40:47 -0400
+Received: from gprs214-153.eurotel.cz ([160.218.214.153]:49536 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S268854AbUJPUkq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Oct 2004 16:40:46 -0400
+Date: Sat, 16 Oct 2004 22:40:27 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       ncunningham@linuxmail.org, pascal.schmidt@email.de,
+       Stefan Seyfried <seife@suse.de>
+Subject: Re: swsusp: 8-order allocation failure on demand (update)
+Message-ID: <20041016204027.GA24434@elf.ucw.cz>
+References: <2HO0C-4xh-29@gated-at.bofh.it> <200410142354.25665.rjw@sisk.pl> <20041016164347.GA2636@atrey.karlin.mff.cuni.cz> <200410162131.19761.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200410162131.19761.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo,
-    In reading your -U3 patch the test below (#156)
-wasn't clear to me.   It would seem in the case of
-softirq_preemption, __do_softirq() should be called
-to kick ksoftirqd, otherwise ___do_softirq() would
-be called to exec softirqs in the immediate context.
+Hi!
 
-kernel/softirq.c:
+> > Unfortunately that's rather ugly. You'd ~32 bytes per 4K page, that's
+> > almost 1% overhead, not nice. Better solution (but more work) is to
+> > switch to link-lists or integrate swsusp2.
+> 
+> Well, I wonder if the page allocation failures are a swsusp problem,
+> really.  
 
-  153   asmlinkage void _do_softirq(void)
-  154   {
-  155           local_irq_disable();
-  156           if (!softirq_preemption)
-  157                   __do_softirq();
-  158           else
-  159                   ___do_softirq();
-  160           local_irq_enable();
-  161   }
-
--john
-
+Yes, they are. Kernel memory allocation is not design to do 8-order
+allocations properly. swsusp really should not use them.
+								Pavel
 -- 
-john.cooper@timesys.com
-
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

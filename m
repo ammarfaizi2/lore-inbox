@@ -1,96 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265115AbTGCEu5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 00:50:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265125AbTGCEu5
+	id S265125AbTGCEzI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 00:55:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265135AbTGCEzI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 00:50:57 -0400
-Received: from [61.95.53.28] ([61.95.53.28]:41220 "EHLO dreamcraft.com.au")
-	by vger.kernel.org with ESMTP id S265115AbTGCEuz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 00:50:55 -0400
-Date: Thu, 3 Jul 2003 15:05:15 +1000
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: jgarzik@pobox.com
-Subject: [PATCH] 8139too suspend fix, maybe.
-Message-ID: <20030703050515.GH4359@himi.org>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	jgarzik@pobox.com
+	Thu, 3 Jul 2003 00:55:08 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:53187 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S265125AbTGCEzF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jul 2003 00:55:05 -0400
+Date: Wed, 2 Jul 2003 22:08:35 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Patrick Mansfield <patmans@us.ibm.com>, Larry McVoy <lm@bitmover.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, CaT <cat@zip.com.au>,
+       nick@snowman.net, Vojtech Pavlik <vojtech@suse.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: bkbits.net is down
+Message-ID: <20030703050835.GA4751@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Patrick Mansfield <patmans@us.ibm.com>,
+	Larry McVoy <lm@bitmover.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	CaT <cat@zip.com.au>, nick@snowman.net,
+	Vojtech Pavlik <vojtech@suse.cz>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030627145727.GB18676@work.bitmover.com> <Pine.LNX.4.21.0306271228200.17138-100000@ns.snowman.net> <20030627163720.GF357@zip.com.au> <1056732854.3172.56.camel@dhcp22.swansea.linux.org.uk> <20030627235150.GA21243@work.bitmover.com> <20030627165519.A1887@beaverton.ibm.com> <20030628001625.GC18676@work.bitmover.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ZG+WKzXzVby2T9Ro"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-From: simon@himi.org (Simon Fowler)
+In-Reply-To: <20030628001625.GC18676@work.bitmover.com>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have a 3ware SATA 8500-4 controller with 4x WD 36GB Raptor SATA drives.
+Wow.  Just "wow".  At least a factor of 2 better than what I've seen 
+before.  I think a boatload of that is the 5ms seek time, gotta love 
+that.  
 
---ZG+WKzXzVby2T9Ro
-Content-Type: multipart/mixed; boundary="ev7mvGV+3JQuI2Eo"
-Content-Disposition: inline
+I'm burning them in, if they work then we'll use those for bkbits.net.
+If you guys need me to run any tests/kernels against this mix let me
+know.
 
-
---ev7mvGV+3JQuI2Eo
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-I'm currently trying to get my Fujitsu Lifebook P2120 laptop to
-suspend/resume successfully, and the first stumbling block I've come
-across with a plain Linus bk tree is that while the 8139too driver
-is up and running, the kernel thread it starts doesn't suspend. The
-attatched patch fixes this; I have no idea if this is correct, but
-it works.=20
-
-Getting the radeonfb to resume is the next problem . . .
-
-Simon
-
---=20
-PGP public key Id 0x144A991C, or http://himi.org/stuff/himi.asc
-(crappy) Homepage: http://himi.org
-doe #237 (see http://www.lemuria.org/DeCSS)=20
-My DeCSS mirror: ftp://himi.org/pub/mirrors/css/=20
-
---ev7mvGV+3JQuI2Eo
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="8139too-suspend.patch"
-Content-Transfer-Encoding: quoted-printable
-
-=3D=3D=3D=3D=3D drivers/net/8139too.c 1.57 vs edited =3D=3D=3D=3D=3D
---- 1.57/drivers/net/8139too.c	Thu May 29 14:03:45 2003
-+++ edited/drivers/net/8139too.c	Thu Jul  3 14:46:38 2003
-@@ -109,6 +109,7 @@
- #include <linux/ethtool.h>
- #include <linux/mii.h>
- #include <linux/completion.h>
-+#include <linux/suspend.h>
- #include <linux/crc32.h>
- #include <asm/io.h>
- #include <asm/uaccess.h>
-@@ -1597,6 +1598,8 @@
- 		timeout =3D next_tick;
- 		do {
- 			timeout =3D interruptible_sleep_on_timeout (&tp->thr_wait, timeout);
-+			if (current->flags & PF_FREEZE)
-+				refrigerator(PF_IOTHREAD);
- 		} while (!signal_pending (current) && (timeout > 0));
-=20
- 		if (signal_pending (current)) {
-
---ev7mvGV+3JQuI2Eo--
-
---ZG+WKzXzVby2T9Ro
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE/A7mGQPlfmRRKmRwRAjPXAKDFX5lHdmEsLIqOD2K+FWmLh6+zhgCgu6pu
-IihdCvllHNCndrbgrzmeK18=
-=bMYH
------END PGP SIGNATURE-----
-
---ZG+WKzXzVby2T9Ro--
+These are nice drives.  I got 4 drives and the controller from newegg
+for about $950 shipped including tax.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

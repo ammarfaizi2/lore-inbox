@@ -1,44 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263980AbUGHQDJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264358AbUGHQEC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263980AbUGHQDJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 12:03:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264358AbUGHQDJ
+	id S264358AbUGHQEC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 12:04:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264538AbUGHQEC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 12:03:09 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:51977 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S263980AbUGHQDG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 12:03:06 -0400
-Message-ID: <40ED759C.2010009@techsource.com>
-Date: Thu, 08 Jul 2004 12:26:04 -0400
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: Andrew Morton <akpm@osdl.org>, nigelenki@comcast.net,
+	Thu, 8 Jul 2004 12:04:02 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:19915 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S264358AbUGHQDx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 12:03:53 -0400
+Date: Thu, 8 Jul 2004 11:03:37 -0500
+From: linas@austin.ibm.com
+To: Jake Moilanen <moilanen@austin.ibm.com>
+Cc: Paul Mackerras <paulus@samba.org>, linuxppc64-dev@lists.linuxppc.org,
        linux-kernel@vger.kernel.org
-Subject: Re: Autoregulate swappiness & inactivation
-References: <40EC13C5.2000101@kolivas.org> <40EC1930.7010805@comcast.net> <40EC1B0A.8090802@kolivas.org> <20040707213822.2682790b.akpm@osdl.org> <cone.1089268800.781084.4554.502@pc.kolivas.org> <20040708001027.7fed0bc4.akpm@osdl.org> <cone.1089273505.418287.4554.502@pc.kolivas.org> <20040708010842.2064a706.akpm@osdl.org> <cone.1089275229.304355.4554.502@pc.kolivas.org>
-In-Reply-To: <cone.1089275229.304355.4554.502@pc.kolivas.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH] [2.6] PPC64: log firmware errors during boot.
+Message-ID: <20040708110337.N21634@forte.austin.ibm.com>
+References: <20040629191046.Q21634@forte.austin.ibm.com> <16610.39955.554139.858593@cargo.ozlabs.ibm.com> <20040706084116.11ab7988.moilanen@austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040706084116.11ab7988.moilanen@austin.ibm.com>; from moilanen@austin.ibm.com on Tue, Jul 06, 2004 at 08:41:16AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Con Kolivas wrote:
-
-> /me hides
+On Tue, Jul 06, 2004 at 08:41:16AM -0500, Jake Moilanen wrote:
 > 
-> Umm sorry the control systems I look at are physiological and tend to be 
-> exponential, so ignore me.
+> > > Firmware can report errors at any time, and not atypically during boot.
+> > > However, these reports were being discarded until th rtasd comes up,
+> > > which occurs fairly late in the boot cycle.  As a result, firmware
+> > > errors during boot were being silently ignored.
+> 
+> Linas, the main consumer of error-log is events coming in from
+> event-scan.  We don't call event-scan until rtasd is up (eg they are
+> queued in FW until we call event-scan).  
 
-No.  I see no reason to disregard your understanding of biological 
-control systems.  Millions of years of evolution have fine-tuned some 
-very complex and robust control feedback systems.  While I wouldn't 
-suggest that they're the only way to do the job, they're something that 
-we should definately pay attention to.
+Actually, they don't seem to be queueed at all; when I turned on 
+logging earlier, a whole pile of messages poped out that weren't 
+visible before.
 
-Frankly, I think the cross-pollination that you bring from your 
-background in medicine can do nothing but help us.
+> The only events I see us
+> missing are epow events, 
 
+Depends on what you are doing.  In my case, the fact that the 
+early-boot messages were discarded was hiding a bug (that was causing
+those messages, that I've sent in a patch for).
+
+--linas

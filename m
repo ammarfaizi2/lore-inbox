@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262224AbTJIPWa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 11:22:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbTJIPWa
+	id S262251AbTJIPYD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 11:24:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262262AbTJIPYD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 11:22:30 -0400
-Received: from imr2.ericy.com ([198.24.6.3]:44986 "EHLO imr2.ericy.com")
-	by vger.kernel.org with ESMTP id S262224AbTJIPW3 (ORCPT
+	Thu, 9 Oct 2003 11:24:03 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:23556 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S262251AbTJIPX7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 11:22:29 -0400
-Message-ID: <3F857E63.8050304@ericsson.ca>
-Date: Thu, 09 Oct 2003 11:27:31 -0400
-From: Jean-Guillaume <jean-guillaume.paradis@ericsson.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030903 Thunderbird/0.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: ProcFs: FORCING  remove_proc_entry even if the directory is used
-  (busy)  ??
-References: <3F786E73.6010306@ericsson.ca>
-In-Reply-To: <3F786E73.6010306@ericsson.ca>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+	Thu, 9 Oct 2003 11:23:59 -0400
+Date: Thu, 9 Oct 2003 17:23:50 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Mark Hounschell <markh@compro.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Can't build external module against 2.6.0-test6 kernel
+Message-ID: <20031009152350.GA897@mars.ravnborg.org>
+Mail-Followup-To: Mark Hounschell <markh@compro.net>,
+	linux-kernel@vger.kernel.org
+References: <3F8544DF.85E7CA81@compro.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F8544DF.85E7CA81@compro.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Thu, Oct 09, 2003 at 07:22:07AM -0400, Mark Hounschell wrote:
+> I'm trying to build a driver external to the kernel. I'm running 2.6.0-test6
+> kernel.
+> It appears to me (I'm probably wrong) that there is a kernel include file issue.
+Please follow Documentation/kbuild/modules.txt when building
+external modules.
 
-    I have a program that automaticaly recreate a directory in /proc, 
-based on some events. To do this, I do a remove_proc_entry, and then 
-recreate the directory.
+Please come back if you continue to have problems.
 
-    However, if someone is using a console and is currently IN my /proc 
-directory, remove_proc_entry fails, saying that the dir is "busy".
-
-    Any way to force the deletion? Or any ideas for workarounds?
-
-
-    Many thanks
-
-       Jena-Guillaume
+	Sam

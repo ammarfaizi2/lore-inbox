@@ -1,164 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265107AbUFVUHT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265132AbUFVVml@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265107AbUFVUHT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 16:07:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265052AbUFVT3g
+	id S265132AbUFVVml (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 17:42:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265149AbUFVVki
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 15:29:36 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12955 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265359AbUFVTX7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 15:23:59 -0400
-To: torvalds@osdl.org
-Subject: [PATCH] (2/9) symlink patchkit (against -bk current)
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <E1Bcqs8-0003xQ-EX@www.linux.org.uk>
-From: viro@www.linux.org.uk
-Date: Tue, 22 Jun 2004 20:23:56 +0100
+	Tue, 22 Jun 2004 17:40:38 -0400
+Received: from ipx10069.ipxserver.de ([80.190.240.67]:38331 "EHLO codeblau.de")
+	by vger.kernel.org with ESMTP id S266006AbUFVVim (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 17:38:42 -0400
+Date: Tue, 22 Jun 2004 23:38:30 +0200
+From: Felix von Leitner <felix-kernel@fefe.de>
+To: linux-kernel@vger.kernel.org
+Subject: ieee1394: unsolicited response packet received - no tlabel match
+Message-ID: <20040622213830.GA11770@codeblau.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-        ext2 conversion (helper functions for that one will be actually
-used a lot by other filesystems, so to fs/namei.c they go)
+This is an excerpt from my dmesg.  I am using a large Maxtor firewire
+hard disk as VCR storage.  This happens only when I read large files
+from the external firewire disk, not when watching an AVI movie on it
+(i.e. reading it slowly).
 
-diff -urN RC7-bk5-core/fs/ext2/symlink.c RC7-bk5-ext2/fs/ext2/symlink.c
---- RC7-bk5-core/fs/ext2/symlink.c	Sat Sep 27 22:04:56 2003
-+++ RC7-bk5-ext2/fs/ext2/symlink.c	Tue Jun 22 15:13:10 2004
-@@ -19,23 +19,19 @@
- 
- #include "ext2.h"
- #include "xattr.h"
--
--static int
--ext2_readlink(struct dentry *dentry, char __user *buffer, int buflen)
--{
--	struct ext2_inode_info *ei = EXT2_I(dentry->d_inode);
--	return vfs_readlink(dentry, buffer, buflen, (char *)ei->i_data);
--}
-+#include <linux/namei.h>
- 
- static int ext2_follow_link(struct dentry *dentry, struct nameidata *nd)
- {
- 	struct ext2_inode_info *ei = EXT2_I(dentry->d_inode);
--	return vfs_follow_link(nd, (char *)ei->i_data);
-+	nd_set_link(nd, (char *)ei->i_data);
-+	return 0;
- }
- 
- struct inode_operations ext2_symlink_inode_operations = {
--	.readlink	= page_readlink,
--	.follow_link	= page_follow_link,
-+	.readlink	= generic_readlink,
-+	.follow_link	= page_follow_link_light,
-+	.put_link	= page_put_link,
- 	.setxattr	= ext2_setxattr,
- 	.getxattr	= ext2_getxattr,
- 	.listxattr	= ext2_listxattr,
-@@ -43,7 +39,7 @@
- };
-  
- struct inode_operations ext2_fast_symlink_inode_operations = {
--	.readlink	= ext2_readlink,
-+	.readlink	= generic_readlink,
- 	.follow_link	= ext2_follow_link,
- 	.setxattr	= ext2_setxattr,
- 	.getxattr	= ext2_getxattr,
-diff -urN RC7-bk5-core/fs/namei.c RC7-bk5-ext2/fs/namei.c
---- RC7-bk5-core/fs/namei.c	Tue Jun 22 15:13:10 2004
-+++ RC7-bk5-ext2/fs/namei.c	Tue Jun 22 15:13:10 2004
-@@ -2189,6 +2189,23 @@
- 	return len;
- }
- 
-+/*
-+ * A helper for ->readlink().  This should be used *ONLY* for symlinks that
-+ * have ->follow_link() touching nd only in nd_set_link().  Using (or not
-+ * using) it for any given inode is up to filesystem.
-+ */
-+int generic_readlink(struct dentry *dentry, char __user *buffer, int buflen)
-+{
-+	struct nameidata nd;
-+	int res = dentry->d_inode->i_op->follow_link(dentry, &nd);
-+	if (!res) {
-+		res = vfs_readlink(dentry, buffer, buflen, nd_get_link(&nd));
-+		if (dentry->d_inode->i_op->put_link)
-+			dentry->d_inode->i_op->put_link(dentry, &nd);
-+	}
-+	return res;
-+}
-+
- static inline int
- __vfs_follow_link(struct nameidata *nd, const char *link)
- {
-@@ -2265,6 +2282,30 @@
- 	return res;
- }
- 
-+int page_follow_link_light(struct dentry *dentry, struct nameidata *nd)
-+{
-+	struct page *page;
-+	char *s = page_getlink(dentry, &page);
-+	if (!IS_ERR(s)) {
-+		nd_set_link(nd, s);
-+		s = NULL;
-+	}
-+	return PTR_ERR(s);
-+}
-+
-+void page_put_link(struct dentry *dentry, struct nameidata *nd)
-+{
-+	if (!IS_ERR(nd_get_link(nd))) {
-+		struct page *page;
-+		page = find_get_page(dentry->d_inode->i_mapping, 0);
-+		if (!page)
-+			BUG();
-+		kunmap(page);
-+		page_cache_release(page);
-+		page_cache_release(page);
-+	}
-+}
-+
- int page_follow_link(struct dentry *dentry, struct nameidata *nd)
- {
- 	struct page *page = NULL;
-@@ -2319,8 +2360,9 @@
- }
- 
- struct inode_operations page_symlink_inode_operations = {
--	.readlink	= page_readlink,
--	.follow_link	= page_follow_link,
-+	.readlink	= generic_readlink,
-+	.follow_link	= page_follow_link_light,
-+	.put_link	= page_put_link,
- };
- 
- EXPORT_SYMBOL(__user_walk);
-@@ -2333,6 +2375,8 @@
- EXPORT_SYMBOL(lookup_hash);
- EXPORT_SYMBOL(lookup_one_len);
- EXPORT_SYMBOL(page_follow_link);
-+EXPORT_SYMBOL(page_follow_link_light);
-+EXPORT_SYMBOL(page_put_link);
- EXPORT_SYMBOL(page_readlink);
- EXPORT_SYMBOL(page_symlink);
- EXPORT_SYMBOL(page_symlink_inode_operations);
-@@ -2352,3 +2396,4 @@
- EXPORT_SYMBOL(vfs_rmdir);
- EXPORT_SYMBOL(vfs_symlink);
- EXPORT_SYMBOL(vfs_unlink);
-+EXPORT_SYMBOL(generic_readlink);
-diff -urN RC7-bk5-core/include/linux/fs.h RC7-bk5-ext2/include/linux/fs.h
---- RC7-bk5-core/include/linux/fs.h	Tue Jun 22 15:13:10 2004
-+++ RC7-bk5-ext2/include/linux/fs.h	Tue Jun 22 15:13:10 2004
-@@ -1468,8 +1468,11 @@
- extern int vfs_follow_link(struct nameidata *, const char *);
- extern int page_readlink(struct dentry *, char __user *, int);
- extern int page_follow_link(struct dentry *, struct nameidata *);
-+extern int page_follow_link_light(struct dentry *, struct nameidata *);
-+extern void page_put_link(struct dentry *, struct nameidata *);
- extern int page_symlink(struct inode *inode, const char *symname, int len);
- extern struct inode_operations page_symlink_inode_operations;
-+extern int generic_readlink(struct dentry *, char __user *, int);
- extern void generic_fillattr(struct inode *, struct kstat *);
- extern int vfs_getattr(struct vfsmount *, struct dentry *, struct kstat *);
- void inode_add_bytes(struct inode *inode, loff_t bytes);
+Jun 22 22:58:43 hellhound ieee1394: sbp2: aborting sbp2 command
+Jun 22 22:58:43 hellhound 0x28 00 02 3c 93 a5 00 00 01 00 
+Jun 22 22:58:43 hellhound ieee1394: sbp2: aborting sbp2 command
+Jun 22 22:58:43 hellhound 0x28 00 02 3c 93 a6 00 00 01 00 
+Jun 22 22:58:43 hellhound ieee1394: sbp2: aborting sbp2 command
+Jun 22 22:58:43 hellhound 0x28 00 02 3c 93 a7 00 00 01 00 
+Jun 22 22:58:43 hellhound ieee1394: sbp2: aborting sbp2 command
+Jun 22 22:58:43 hellhound 0x28 00 02 3c 93 a8 00 00 01 00 
+Jun 22 22:58:43 hellhound ieee1394: sbp2: aborting sbp2 command
+Jun 22 22:58:43 hellhound 0x28 00 02 3c 93 a9 00 00 01 00 
+Jun 22 22:58:43 hellhound ieee1394: sbp2: aborting sbp2 command
+Jun 22 22:58:43 hellhound 0x28 00 02 3c 93 aa 00 00 01 00 
+Jun 22 22:58:43 hellhound ieee1394: sbp2: aborting sbp2 command
+Jun 22 22:58:43 hellhound 0x28 00 02 3c 93 ab 00 00 01 00 
+Jun 22 22:58:43 hellhound ieee1394: sbp2: aborting sbp2 command
+Jun 22 22:58:43 hellhound 0x28 00 02 3c 93 ac 00 00 01 00 
+Jun 22 23:25:40 hellhound ieee1394: unsolicited response packet received - no tlabel match
+Jun 22 23:26:44 hellhound ieee1394: sbp2: aborting sbp2 command
+Jun 22 23:26:44 hellhound 0x28 00 13 82 4b 76 00 00 80 00 
+Jun 22 23:26:44 hellhound ieee1394: sbp2: aborting sbp2 command
+Jun 22 23:26:44 hellhound 0x28 00 13 82 4b f6 00 00 01 00 
+Jun 22 23:26:44 hellhound ieee1394: sbp2: aborting sbp2 command
+Jun 22 23:26:44 hellhound 0x28 00 13 82 4b f7 00 00 01 00 
+Jun 22 23:26:44 hellhound ieee1394: sbp2: aborting sbp2 command
+Jun 22 23:26:44 hellhound 0x28 00 13 82 4b f8 00 00 01 00 
+Jun 22 23:26:44 hellhound ieee1394: sbp2: aborting sbp2 command
+Jun 22 23:26:44 hellhound 0x28 00 13 82 4b f9 00 00 01 00 
+Jun 22 23:26:44 hellhound ieee1394: sbp2: aborting sbp2 command
+Jun 22 23:26:44 hellhound 0x28 00 13 82 4b fa 00 00 01 00 
+Jun 22 23:26:44 hellhound ieee1394: sbp2: aborting sbp2 command
+Jun 22 23:26:44 hellhound 0x28 00 13 82 4b fb 00 00 01 00 
+Jun 22 23:26:44 hellhound ieee1394: sbp2: aborting sbp2 command
+Jun 22 23:26:44 hellhound 0x28 00 13 82 4b fc 00 00 01 00 
+Jun 22 23:29:34 hellhound ieee1394: unsolicited response packet received - no tlabel match
+Jun 22 23:33:06 hellhound ieee1394: sbp2: aborting sbp2 command
+Jun 22 23:33:06 hellhound 0x28 00 1c b3 fe ed 00 00 80 00 
+Jun 22 23:33:06 hellhound ieee1394: sbp2: aborting sbp2 command
+Jun 22 23:33:06 hellhound 0x28 00 1c b3 ff 6d 00 00 01 00 
+Jun 22 23:33:06 hellhound ieee1394: sbp2: aborting sbp2 command
+Jun 22 23:33:06 hellhound 0x28 00 1c b3 ff 6e 00 00 01 00 
+Jun 22 23:33:06 hellhound ieee1394: sbp2: aborting sbp2 command
+Jun 22 23:33:06 hellhound 0x28 00 1c b3 ff 6f 00 00 01 00 
+Jun 22 23:33:06 hellhound ieee1394: sbp2: aborting sbp2 command
+Jun 22 23:33:06 hellhound 0x28 00 1c b3 ff 70 00 00 01 00 
+Jun 22 23:33:06 hellhound ieee1394: sbp2: aborting sbp2 command
+Jun 22 23:33:06 hellhound 0x28 00 1c b3 ff 71 00 00 01 00 
+
+[and so on]
+
+After 20-30 seconds, everything gets back to normal.  The copied files
+appear intact despite these timeouts.  Known problem?  Is my hardware
+getting bad?
+
+Felix

@@ -1,52 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263971AbUHSI5T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264085AbUHSI5E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263971AbUHSI5T (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 04:57:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264260AbUHSI5T
+	id S264085AbUHSI5E (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 04:57:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264377AbUHSI5D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 04:57:19 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:7071 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S263971AbUHSI4z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 04:56:55 -0400
-Date: Thu, 19 Aug 2004 10:56:43 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Thomas Charbonnel <thomas@undata.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: [patch] voluntary-preempt-2.6.8.1-P4
-Message-ID: <20040819085643.GA4751@elte.hu>
-References: <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost> <20040816113131.GA30527@elte.hu> <20040816120933.GA4211@elte.hu> <1092716644.876.1.camel@krustophenia.net> <20040817080512.GA1649@elte.hu> <20040819073247.GA1798@elte.hu> <1092902417.8432.108.camel@krustophenia.net> <20040819084001.GA4098@elte.hu> <1092905104.8432.116.camel@krustophenia.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1092905104.8432.116.camel@krustophenia.net>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Thu, 19 Aug 2004 04:57:03 -0400
+Received: from [80.188.250.22] ([80.188.250.22]:46539 "EHLO
+	thinkpad.gardas.net") by vger.kernel.org with ESMTP id S264085AbUHSIyO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 04:54:14 -0400
+Date: Thu, 19 Aug 2004 10:54:00 +0200 (CEST)
+From: Karel Gardas <kgardas@objectsecurity.com>
+X-X-Sender: karel@thinkpad.gardas.net
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: IBM T22/APM suspend does not work with yenta_socket module loaded
+ on 2.6.8.1
+In-Reply-To: <20040819094702.A546@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.43.0408191050420.1006-100000@thinkpad.gardas.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 19 Aug 2004, Russell King wrote:
 
-> > > Any comments on the unmap_vmas issue?
-> > 
-> > wli indicated he's working on the pagetable zapping critical section
-> > issue - wli?
+> On Thu, Aug 19, 2004 at 10:16:04AM +0200, Karel Gardas wrote:
+> > I've found that APM suspend is not working on my IBM T22 properly, when
+> > cardbus services are loaded. I've identified the problematic piece of code
+> > as a yenta_socket module -- when I stop cardmgr and unload this module,
+> > suspend starts to work.
+>
+> So it doesn't even work with cardmgr stopped and yenta loaded?
 
-actually - the unmap_vmas() issue might be different. Could you change
-the '32' in this part of mm/memory.c:
+Yes, cardmgr stopped and all modules loaded (including yenta) results in
+non-functioning suspend. Also I've forgotten to mention that my cardmgr is
+version 3.1.33...
 
-# define ZAP_BLOCK_SIZE \
-                (voluntary_preemption ? (32 * PAGE_SIZE) : __ZAP_BLOCK_SIZE)
+> Have you tried removing any cards plugged in to the sockets?
 
-to 16? Does that roughly halve the ~180 usec latency?
+I don't have any cards in any socket.
 
-	Ingo
+> You could try grabbing the cbdump program from pcmcia.arm.linux.org.uk
+> and trying to identify whether there's any differences in the register
+> settings of the Cardbus bridges - between having no yenta module loaded
+> and having yenta loaded with the sockets suspended using:
+>
+> echo 3 > /sys/class/pcmcia_socket/pcmcia_socket0/device/power/state
+> echo 3 > /sys/class/pcmcia_socket/pcmcia_socket1/device/power/state
+>
+> (echo 0 to these files to resume the sockets.)
+
+Will try and hopefully report results this week.
+
+Thanks,
+
+Karel
+--
+Karel Gardas                  kgardas@objectsecurity.com
+ObjectSecurity Ltd.           http://www.objectsecurity.com
+

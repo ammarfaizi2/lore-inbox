@@ -1,60 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261851AbSJECG6>; Fri, 4 Oct 2002 22:06:58 -0400
+	id <S261863AbSJECPo>; Fri, 4 Oct 2002 22:15:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261863AbSJECG6>; Fri, 4 Oct 2002 22:06:58 -0400
-Received: from postal2.lbl.gov ([131.243.248.26]:16791 "EHLO postal2.lbl.gov")
-	by vger.kernel.org with ESMTP id <S261851AbSJECG5>;
-	Fri, 4 Oct 2002 22:06:57 -0400
-Message-ID: <3D9E47FD.9060205@slackers.net>
-Date: Fri, 04 Oct 2002 19:01:33 -0700
-From: "Matthew N. Andrews" <matt@slackers.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: en-us, en
+	id <S261887AbSJECPo>; Fri, 4 Oct 2002 22:15:44 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:51981 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261863AbSJECPn>; Fri, 4 Oct 2002 22:15:43 -0400
+Date: Fri, 4 Oct 2002 19:22:50 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: viro@math.psu.edu, <linux-kernel@vger.kernel.org>
+Subject: Re: oops in bk pull (oct 03)
+In-Reply-To: <20021004.190053.69975722.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44.0210041913340.1253-100000@home.transmeta.com>
 MIME-Version: 1.0
-To: James Morris <jmorris@intercode.com.au>
-CC: "David S. Miller" <davem@redhat.com>, greearb@candelatech.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: tg3 and Netgear GA302T x 2 locks machine
-References: <Mutt.LNX.4.44.0210051117240.23965-100000@blackbird.intercode.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Morris wrote:
 
->On Fri, 4 Oct 2002, David S. Miller wrote:
->
->  
->
->>   From: Ben Greear <greearb@candelatech.com>
->>   Date: Thu, 03 Oct 2002 21:19:37 -0700
->>
->>   Got my two new Netgear GA302t nics today.  They seem to use the
->>   tg3 driver....
->>   
->>   I put them into the 64/66 slots on my Tyan dual amd motherboard..
->>   Running kernel 2.4.20-pre8
->>   
->>You reported the other week problems with two Acenic's in
->>this same machine right?  The second Acenic wouldn't even probe
->>properly.  And the two Acenic's were identical.
->>
->>    
->>
->
->FWIW, my GA302T seems fine with the kernel he originally reported 
->(2.4.20-pre8).
->
->
->- James
->  
->
-What version of the bios does your motherboard have? I had problems with 
-a dual syskonnect board on this motherboard(tyan 2466) where it would 
-not would not initialize properly under the older bios.
+On Fri, 4 Oct 2002, David S. Miller wrote:
+>    
+>    I think that is the real issue. We're mapping something - probably a host
+>    bridge - at address 0, and then accessing RAM (which is also is mapped at 
+>    PCI address 0) and the host bridge is unhappy.
+> 
+> We're current blindly putting ~0 in there, how can that be any
+> better? :-)
 
--Matt
+Oh, ~0 is better for a lot of reasons:
 
+ - it doesn't clash with RAM on any normal platform, the there is no 
+   confusion in the host bridge where a regular RAM access should go.
+
+   Even PC's with 4GB+ of RAM always leave the top of the 32-bit 
+   address space for PCI mappings (ie they explicitly leave a hole in the 
+   RAM mapping there, exactly so that 32-bit PCI cards can work)
+
+ - it doesn't clash with ISA mappings either
+
+ - it is the standard way of probing sizes, so unlike writing 0, this is 
+   stuff that BIOS writers and system designers have actually seen in real 
+   life, and tested against (since Windows also has to be doing it this
+   way, and it's in all the example books about PCI programming)
+
+ - it is - partly for the same previous reason - pretty much guaranteed to
+   be one of the few areas that won't even clash with other PCI mappings. 
+
+ - Finally, on regular PC's the high 32-bit region is almost always 
+   reserved for other things anyway, ie the APICs are mapped there (and
+   that mapping won't conflict with a host bridge, since APIC mappings 
+   will be resolved on the CPU and never even hit the hostbridge world, 
+   unlike RAM accesses).
+
+So 0 and ~0 are quite fundamentally different here.
+
+> And putting ~0 there is ok?
+
+See above.
+ 
+> From what you're saying, that whole routine is fundamentally broken.
+
+No, the "write ~0, read it back, write the old value" is part of standard
+PCI probing (there isn't any other way to figure out the size of these
+ranges).
+
+It's just that Ivan tried to extend it, and that _extension_ doesn't work.
+
+		Linus
 

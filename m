@@ -1,44 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267180AbTBIJpF>; Sun, 9 Feb 2003 04:45:05 -0500
+	id <S267183AbTBIJxc>; Sun, 9 Feb 2003 04:53:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267183AbTBIJpF>; Sun, 9 Feb 2003 04:45:05 -0500
-Received: from lopsy-lu.misterjones.org ([62.4.18.26]:60631 "EHLO
-	crisis.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
-	id <S267180AbTBIJpE>; Sun, 9 Feb 2003 04:45:04 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: 3c509 driver doesn't compile in 2.5.59
-References: <Pine.LNX.4.30.0302090957570.12534-100000@ghost.cybernet.cz>
-Organization: Metropolis -- Nowhere
-X-Attribution: maz
-Reply-to: mzyngier@freesurf.fr
-From: Marc Zyngier <mzyngier@freesurf.fr>
-In-Reply-To: <Pine.LNX.4.30.0302090957570.12534-100000@ghost.cybernet.cz>
-Date: 09 Feb 2003 10:54:22 +0100
-Message-ID: <wrp1y2hwzht.fsf@hina.wild-wind.fr.eu.org>
+	id <S267184AbTBIJxc>; Sun, 9 Feb 2003 04:53:32 -0500
+Received: from krynn.axis.se ([193.13.178.10]:59553 "EHLO krynn.axis.se")
+	by vger.kernel.org with ESMTP id <S267183AbTBIJxb>;
+	Sun, 9 Feb 2003 04:53:31 -0500
+Message-ID: <3C6BEE8B5E1BAC42905A93F13004E8AB017DE762@mailse01.axis.se>
+From: Mikael Starvik <mikael.starvik@axis.com>
+To: "'Nandakumar  NarayanaSwamy'" <nanda_kn@rediffmail.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: File systems in embedded devices
+Date: Sun, 9 Feb 2003 11:03:10 +0100 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "brain" == brain  <brain@artax.karlin.mff.cuni.cz> writes:
+We use JFFS2 for configuration parameters etc, cramfs for 
+binaries etc  and tmpfs for temporary data (our embedded 
+devices typically have 4 MB flash and 16 MB RAM).
 
-brain> Hello.
-brain> When I turn on 3c509 support in 2.5.59 kernel and try to compile, I get:
+/Mikael
 
-[snip]
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Nandakumar
+NarayanaSwamy
+Sent: Saturday, February 08, 2003 3:20 PM
+To: linux-kernel@vger.kernel.org
+Subject: File systems in embedded devices
 
-You need to update to the latest BK patches (so you get the MCA
-stuff), and then apply the patch I sent to the list yesterday.
 
-brain> I'm not able to attach my config file because you'r mailing
-brain> system rejects the mail even when I put the config into body of
-brain> the message.
+Dear All,
 
-Nope. Your messages made it to the list, 4 times.
-The messages you get is from some very annoying badly configured
-machine from linuxgroup.net, which hit me twice yesterday...
+We are developing a embedded device based on linux. Through the 
+development phase we used NFS. But now we want to move some 
+filesystem
+which can be created in FLASH/RAM.
 
-        M.
--- 
-Places change, faces change. Life is so very strange.
+I have few doubts about the file system in embedded devices.
+
+1) What is the file system which is used normally in all embedded 
+devices? (JFFS/CRAMFS/RAM DISK)
+
+2) We tried using RAM disk as the file system. But since our 
+application is huge it is not able to fit into 8 MB RAM disk 
+created. When we tried to increase the size of the RAM disk, the 
+kernel crashes above 9 MB. We have 32 MB in our target board.
+
+3) I dont know whether we can use cramfs.
+
+Can anybody suggest me some ideas so that i can solve these 
+issues?
+
+Thanks and Regards,
+Nanda
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

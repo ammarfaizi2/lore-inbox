@@ -1,59 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262547AbVCVDAd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262334AbVCVDDr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262547AbVCVDAd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 22:00:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262540AbVCVC7q
+	id S262334AbVCVDDr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 22:03:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262539AbVCVCpk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 21:59:46 -0500
-Received: from wproxy.gmail.com ([64.233.184.193]:60000 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262269AbVCVC7F (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 21:59:05 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=FkCATquLNAviKoVpHkheZ+wbE/WgN+IXvRu0XwmuzFGhN+UneCOvO6biQA606t7DkDRhuW2b7YmWGFXItst2+M+g+W3kNhP9YMBZkg5tWna7Ry9wrZVpDwseojDuxTVhE1H57mlnF3xkNrg/wo1/s7sPVKybI+B2ujXQPb/543M=
-Message-ID: <a44ae5cd050321185947448028@mail.gmail.com>
-Date: Mon, 21 Mar 2005 21:59:05 -0500
-From: Miles Lane <miles.lane@gmail.com>
-Reply-To: Miles Lane <miles.lane@gmail.com>
+	Mon, 21 Mar 2005 21:45:40 -0500
+Received: from ipx10786.ipxserver.de ([80.190.251.108]:57996 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S262334AbVCVCPk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 21:15:40 -0500
+Date: Tue, 22 Mar 2005 03:18:57 +0100
+From: Johannes Stezenbach <js@linuxtv.org>
 To: Andrew Morton <akpm@osdl.org>
-Subject: Re: Who should I write to about this OOPS in 2,6,11-mm3?
-Cc: linux-kernel@vger.kernel.org, LM Sensors <sensors@stimpy.netroedge.com>
-In-Reply-To: <20050321184011.78808b8d.akpm@osdl.org>
+Cc: felix-linuxkernel@fefe.de, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
+Message-ID: <20050322021857.GA17972@linuxtv.org>
+Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
+	Andrew Morton <akpm@osdl.org>, felix-linuxkernel@fefe.de,
+	linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+References: <20050311202122.GA13205@fefe.de> <20050311173308.7a076e8f.akpm@osdl.org> <20050321163358.1b4968a0.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-References: <a44ae5cd05031416392e3addd5@mail.gmail.com>
-	 <200503180702.42247.adaplas@hotpop.com>
-	 <20050317154226.24c1f8f8.akpm@osdl.org>
-	 <200503180754.21258.adaplas@hotpop.com>
-	 <20050321184011.78808b8d.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050321163358.1b4968a0.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
+X-SA-Exim-Connect-IP: 217.231.55.169
+Subject: Re: 2.6.11: USB broken on nforce4, ipv6 still broken, centrino speedstep even more broken than in 2.6.10
+X-SA-Exim-Version: 4.2 (built Tue, 25 Jan 2005 19:36:50 +0100)
+X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, I just did.  I used the .config options I mentioned earlier.  I
-am currently testing the suggested patches and options offered by the
-sensors developers.
-
-BTW, I am cross posting because I am not sure how often the LM Sensors
-folks read the linux-kernel list.  Please don't reply to both lists.
-
-    Miles
-
-
-On Mon, 21 Mar 2005 18:40:11 -0800, Andrew Morton <akpm@osdl.org> wrote:
-> "Antonino A. Daplas" <adaplas@hotpop.com> wrote:
+Andrew Morton wrote:
+> Andrew Morton <akpm@osdl.org> wrote:
 > >
-> > FYI, the original topic of this thread, though, was an oops in
-> >  i2c_add_driver() as mentioned in this thread:
-> >
-> >  http://marc.theaimsgroup.com/?l=linux-kernel&m=111076667232062&w=2
-> >
-> >  Unfortunately, nobody can reproduce this oops.
+> > 
+> > (Added netdev cc)
+> > 
+> > Felix von Leitner <felix-linuxkernel@fefe.de> wrote:
+> > >
+> > > Now about IPv6: npush and npoll are two applications I wrote.  npush
+> > > sends multicast announcements and opens a TCP socket.  npoll receives
+> > > the multicast announcement and connects to the source IP/port/scope_id
+> > > of the announcement.  If both are run on the same machine, npoll sees
+> > > the link local address of eth0 as source IP, and the interface number of
+> > > eth0 as scope_id.  So far so good.  Trying to connect() however hangs.
+> > > Since this has been broken in different ways for as long as I can
+> > > remember in Linux, and I keep complaining about it every half a year or
+> > > so.  Can't someone fix this once and for all?  IPv4 checks whether we
+> > > are connecting to our own address and reroutes through loopback, why
+> > > can't IPv6?
 > 
-> Miles, are you still able to reproduce the i2c_add_driver() oops in
-> 2.6.12-rc1 or 2.6.12-rc1-mm1?
-> 
-> Thanks.
->
+> afaik, this problem is still open.  If you have time, please provide
+> additional info for the net developers.  Maybe the source to npoll anbd
+> npush?
+
+Grab the ncp package from http://www.fefe.de/ncp/, or more specifically
+ftp://ftp.fu-berlin.de/unix/network/ncp/ncp-1.2.3.tar.bz2.
+
+It's a very useful and handy tool for pushing around data within
+a LAN of a small workgroup, one guy does "npush foo" and yells
+at the intended recepient "do npoll". The first one to do
+it wins and gets foo ;-)
+
+Johannes

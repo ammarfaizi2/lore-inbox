@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265763AbUF2OXj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265548AbUF2Oce@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265763AbUF2OXj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jun 2004 10:23:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265764AbUF2OXi
+	id S265548AbUF2Oce (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 10:32:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265768AbUF2Oce
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jun 2004 10:23:38 -0400
-Received: from mailgate1.siemens.ch ([194.204.64.131]:31260 "EHLO
-	mailgate1.siemens.ch") by vger.kernel.org with ESMTP
-	id S265763AbUF2OXf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jun 2004 10:23:35 -0400
-From: Marc Waeckerlin <Marc.Waeckerlin@siemens.com>
-Organization: Siemens Schweiz AG
-To: Dmitry Torokhov <dtor_core@ameritech.net>
+	Tue, 29 Jun 2004 10:32:34 -0400
+Received: from web81303.mail.yahoo.com ([206.190.37.78]:30398 "HELO
+	web81303.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S265548AbUF2Occ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jun 2004 10:32:32 -0400
+Message-ID: <20040629143232.52963.qmail@web81303.mail.yahoo.com>
+Date: Tue, 29 Jun 2004 07:32:32 -0700 (PDT)
+From: Dmitry Torokhov <dtor_core@ameritech.net>
 Subject: Re: Continue: psmouse.c - synaptics touchpad driver sync problem
-Date: Tue, 29 Jun 2004 16:23:03 +0200
-User-Agent: KMail/1.6
+To: Marc Waeckerlin <marc.waeckerlin@siemens.com>
 Cc: t.hirsch@web.de, laflipas@telefonica.net, linux-kernel@vger.kernel.org
-References: <20040625140214.65080.qmail@web81307.mail.yahoo.com>
-In-Reply-To: <20040625140214.65080.qmail@web81307.mail.yahoo.com>
-X-Face: 9PH_I\aV;CM))3#)Xntdr:6-OUC=?fH3fC:yieXSa%S_}iv1M{;Mbyt%g$Q0+&K=uD9w$8bsceC[_/u\VYz6sBz[ztAZkg9R\txq_7]J_WO7(cnD?s#c>i60S
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406291623.03076.Marc.Waeckerlin@siemens.com>
-X-OriginalArrivalTime: 29 Jun 2004 14:23:06.0738 (UTC) FILETIME=[989A1D20:01C45DE4]
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Freitag, 25. Juni 2004 16.02 schrieb Dmitry Torokhov unter "Re: Continue: 
-psmouse.c - synaptics touchpad driver sync problem":
-> Anyway, I also have a tiy patch to try out (attached, not tested/
-> not compiled). Please let me know how ifit makes any improvement.
+Marc Waeckerlin wrote:
+> Am Freitag, 25. Juni 2004 16.02 schrieb Dmitry Torokhov unter "Re:
+> Continue:
+> psmouse.c - synaptics touchpad driver sync problem":
+> > Anyway, I also have a tiy patch to try out (attached, not tested/
+> > not compiled). Please let me know how ifit makes any improvement.
+> 
+> Sorry for the delay.
+> 
+> No, unfortunately no improvement at all.
+>
+ 
+Yeah, I figure there would not be any. Still I have a nagging suspicion
+that the mux gets confused and I would like to see the full dmesg with
+this patch applied and DEBUG enabled. Is there any change of getting it?
 
-Sorry for the delay.
+Actually, if you could change the patch so it would print not only data
+but also str, like this:
 
-No, unfortunately no improvement at all.
+printk(KERN_INFO "i8042.c: MUX reports error condition %02x (%02x)\n",
+       data, str);
 
-I tested with no special kernel option (no i8042.nodemux or similar).
+it would be even better.
 
+Thanks!
 
-Regards
-Marc
+--
+Dmitry 

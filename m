@@ -1,219 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261601AbSJYVUU>; Fri, 25 Oct 2002 17:20:20 -0400
+	id <S261607AbSJYVYD>; Fri, 25 Oct 2002 17:24:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261605AbSJYVUU>; Fri, 25 Oct 2002 17:20:20 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:11697 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S261601AbSJYVUR>;
-	Fri, 25 Oct 2002 17:20:17 -0400
-Date: Fri, 25 Oct 2002 23:25:12 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Cameron, Steve" <Steve.Cameron@hp.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.44-ac3, cciss, more scatter gather elements
-Message-ID: <20021025212512.GI1203@suse.de>
-References: <45B36A38D959B44CB032DA427A6E10640167D070@cceexc18.americas.cpqcorp.net> <20021025211107.GG1203@suse.de> <20021025212438.GH1203@suse.de>
+	id <S261610AbSJYVYD>; Fri, 25 Oct 2002 17:24:03 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:36620
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S261607AbSJYVYC>; Fri, 25 Oct 2002 17:24:02 -0400
+Subject: [PATCH] hyper-threading information in /proc/cpuinfo
+From: Robert Love <rml@tech9.net>
+To: "Nakajima, Jun" <jun.nakajima@intel.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "'Dave Jones'" <davej@codemonkey.org.uk>,
+       "'akpm@digeo.com'" <akpm@digeo.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'chrisl@vmware.com'" <chrisl@vmware.com>,
+       "'Martin J. Bligh'" <mbligh@aracnet.com>
+In-Reply-To: <F2DBA543B89AD51184B600508B68D4000EA1718C@fmsmsx103.fm.intel.com>
+References: <F2DBA543B89AD51184B600508B68D4000EA1718C@fmsmsx103.fm.intel.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 25 Oct 2002 17:30:19 -0400
+Message-Id: <1035581420.734.3873.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021025212438.GH1203@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 25 2002, Jens Axboe wrote:
-> probably go with this one.
+Take three.  This patch displays hyper-threading information in
+/proc/cpuinfo.
 
-Ahem...
+Changes since first post:
 
-===== drivers/block/cciss.c 1.63 vs edited =====
---- 1.63/drivers/block/cciss.c	Fri Oct 18 12:55:58 2002
-+++ edited/drivers/block/cciss.c	Fri Oct 25 23:07:21 2002
-@@ -1681,6 +1681,28 @@
- 	end_that_request_last(cmd->rq);
- }
- 
-+struct cciss_map_state {
-+	CommandList_struct *command;
-+	int data_dir;
-+};
-+
-+static void cciss_map_sg(request_queue_t *q, struct scatterlist *sg, int nseg,
-+			 void *map_cookie)
-+{
-+	struct cciss_map_state *s = map_cookie;
-+	CommandList_struct *c = s->command;
-+	ctlr_info_t *h= q->queuedata;
-+	u64bit temp64;
-+
-+	c->SG[nseg].Len = sg->length;
-+	temp64.val = (__u64) pci_map_page(h->pdev, sg->page, sg->offset,
-+					  sg->length, s->data_dir);
-+
-+	c->SG[nseg].Addr.lower = temp64.val32.lower;
-+	c->SG[nseg].Addr.upper = temp64.val32.upper;
-+	c->SG[nseg].Ext = 0;  // we are not chaining
-+}
-+
- /* 
-  * Get a request and submit it to the controller. 
-  */
-@@ -1690,10 +1712,8 @@
- 	CommandList_struct *c;
- 	int start_blk, seg;
- 	struct request *creq;
--	u64bit temp64;
--	struct scatterlist tmp_sg[MAXSGENTRIES];
-+	struct cciss_map_state map_state;
- 	drive_info_struct *drv;
--	int i, dir;
- 
- 	if (blk_queue_plugged(q))
- 		goto startio;
-@@ -1735,24 +1755,16 @@
- 		(int) creq->nr_sectors);	
- #endif /* CCISS_DEBUG */
- 
--	seg = blk_rq_map_sg(q, creq, tmp_sg);
--
- 	/* get the DMA records for the setup */ 
- 	if (c->Request.Type.Direction == XFER_READ)
--		dir = PCI_DMA_FROMDEVICE;
-+		map_state.data_dir = PCI_DMA_FROMDEVICE;
- 	else
--		dir = PCI_DMA_TODEVICE;
-+		map_state.data_dir = PCI_DMA_TODEVICE;
-+
-+	map_state.command = c;
-+
-+	seg = blk_rq_map_callback(q, creq, cciss_map_sg, &map_state);
- 
--	for (i=0; i<seg; i++)
--	{
--		c->SG[i].Len = tmp_sg[i].length;
--		temp64.val = (__u64) pci_map_page(h->pdev, tmp_sg[i].page,
--			 		  tmp_sg[i].offset, tmp_sg[i].length,
--					  dir);
--		c->SG[i].Addr.lower = temp64.val32.lower;
--                c->SG[i].Addr.upper = temp64.val32.upper;
--                c->SG[i].Ext = 0;  // we are not chaining
--	}
- 	/* track how many SG entries we are using */ 
- 	if( seg > h->maxSG)
- 		h->maxSG = seg; 
-===== drivers/block/ll_rw_blk.c 1.123 vs edited =====
---- 1.123/drivers/block/ll_rw_blk.c	Fri Oct 18 19:41:37 2002
-+++ edited/drivers/block/ll_rw_blk.c	Fri Oct 25 23:22:10 2002
-@@ -765,13 +793,11 @@
- 	return 0;
- }
- 
--/*
-- * map a request to scatterlist, return number of sg entries setup. Caller
-- * must make sure sg can hold rq->nr_phys_segments entries
-- */
--int blk_rq_map_sg(request_queue_t *q, struct request *rq, struct scatterlist *sg)
-+int __blk_rq_map(request_queue_t *q, struct request *rq, map_sg_fn *map,
-+		 void *cookie)
- {
- 	struct bio_vec *bvec, *bvprv;
-+	struct scatterlist sg;
- 	struct bio *bio;
- 	int nsegs, i, cluster;
- 
-@@ -790,7 +816,7 @@
- 			int nbytes = bvec->bv_len;
- 
- 			if (bvprv && cluster) {
--				if (sg[nsegs - 1].length + nbytes > q->max_segment_size)
-+				if (sg.length + nbytes > q->max_segment_size)
- 					goto new_segment;
- 
- 				if (!BIOVEC_PHYS_MERGEABLE(bvprv, bvec))
-@@ -798,14 +824,13 @@
- 				if (!BIOVEC_SEG_BOUNDARY(q, bvprv, bvec))
- 					goto new_segment;
- 
--				sg[nsegs - 1].length += nbytes;
-+				sg.length += nbytes;
- 			} else {
- new_segment:
--				memset(&sg[nsegs],0,sizeof(struct scatterlist));
--				sg[nsegs].page = bvec->bv_page;
--				sg[nsegs].length = nbytes;
--				sg[nsegs].offset = bvec->bv_offset;
--
-+				sg.page = bvec->bv_page;
-+				sg.offset = bvec->bv_offset;
-+				sg.length = nbytes;
-+				map(q, &sg, nsegs, cookie);
- 				nsegs++;
- 			}
- 			bvprv = bvec;
-@@ -815,11 +840,38 @@
- 	return nsegs;
- }
- 
-+static void blk_map_to_sg(request_queue_t *q, struct scatterlist *sg,
-+			  int segment, void *cookie)
-+{
-+	struct scatterlist *sglist = cookie;
-+
-+	sglist[segment].page = sg->page;
-+	sglist[segment].offset = sg->offset;
-+	sglist[segment].length = sg->length;
-+}
-+
-+/*
-+ * map a request to scatterlist, return number of sg entries setup. Caller
-+ * must make sure sg can hold rq->nr_phys_segments entries
-+ */
-+int blk_rq_map_sg(request_queue_t *q, struct request *rq,struct scatterlist *sg)
-+{
-+	return __blk_rq_map(q, rq, blk_map_to_sg, sg);
-+}
-+
-+/*
-+ * map a request to scatterlist, calling the map function for each segment
-+ */
-+int blk_rq_map_callback(request_queue_t *q, struct request *rq, map_sg_fn *map,
-+			void *map_cookie)
-+{
-+	return __blk_rq_map(q, rq, map, map_cookie);
-+}
-+
- /*
-  * the standard queue merge functions, can be overridden with device
-  * specific ones if so desired
-  */
--
- static inline int ll_new_mergeable(request_queue_t *q,
- 				   struct request *req,
- 				   struct bio *bio)
-===== include/linux/blkdev.h 1.76 vs edited =====
---- 1.76/include/linux/blkdev.h	Fri Oct 18 19:50:43 2002
-+++ edited/include/linux/blkdev.h	Fri Oct 25 23:06:51 2002
-@@ -131,6 +136,8 @@
- typedef int (prep_rq_fn) (request_queue_t *, struct request *);
- typedef void (unplug_fn) (void *q);
- 
-+typedef void (map_sg_fn) (request_queue_t *q, struct scatterlist *,int, void *);
-+
- struct bio_vec;
- typedef int (merge_bvec_fn) (request_queue_t *, struct bio *, struct bio_vec *);
- 
-@@ -339,9 +348,11 @@
- extern void blk_queue_assign_lock(request_queue_t *, spinlock_t *);
- extern void blk_queue_prep_rq(request_queue_t *, prep_rq_fn *pfn);
- extern void blk_queue_merge_bvec(request_queue_t *, merge_bvec_fn *);
-+extern void blk_queue_dma_alignment(request_queue_t *, int);
- extern struct backing_dev_info *blk_get_backing_dev_info(struct block_device *bdev);
- 
- extern int blk_rq_map_sg(request_queue_t *, struct request *, struct scatterlist *);
-+extern int blk_rq_map_callback(request_queue_t *, struct request *, map_sg_fn *, void *);
- extern void blk_dump_rq_flags(struct request *, char *);
- extern void generic_unplug_device(void *);
- extern long nr_blockdev_pages(void);
+	- wrap print in "if (cpu_has_ht) { ... }"   (Dave Jones)
+	- remove initdata from phys_proc_id         (Jun Nakajima)
+	- match field names in latest 2.4-ac        (Alan Cox)
 
--- 
-Jens Axboe
+Patch is against 2.5.44.
+
+	Robert Love
+
+ cpu/proc.c |    7 +++++++
+ smpboot.c  |    2 +-
+ 2 files changed, 8 insertions(+), 1 deletion(-)
+
+diff -urN linux-2.5.44/arch/i386/kernel/cpu/proc.c linux/arch/i386/kernel/cpu/proc.c
+--- linux-2.5.44/arch/i386/kernel/cpu/proc.c	2002-10-19 00:02:29.000000000 -0400
++++ linux/arch/i386/kernel/cpu/proc.c	2002-10-25 15:18:03.000000000 -0400
+@@ -17,6 +17,7 @@
+ 	 * applications want to get the raw CPUID data, they should access
+ 	 * /dev/cpu/<cpu_nr>/cpuid instead.
+ 	 */
++	extern int phys_proc_id[NR_CPUS];
+ 	static char *x86_cap_flags[] = {
+ 		/* Intel-defined */
+ 	        "fpu", "vme", "de", "pse", "tsc", "msr", "pae", "mce",
+@@ -74,6 +75,12 @@
+ 	/* Cache size */
+ 	if (c->x86_cache_size >= 0)
+ 		seq_printf(m, "cache size\t: %d KB\n", c->x86_cache_size);
++#ifdef CONFIG_SMP
++	if (cpu_has_ht) {
++		seq_printf(m, "physical processor ID\t: %d\n", phys_proc_id[n]);
++		seq_printf(m, "number of siblings\t: %d\n", smp_num_siblings);
++	}
++#endif
+ 	
+ 	/* We use exception 16 if we have hardware math and we've either seen it or the CPU claims it is internal */
+ 	fpu_exception = c->hard_math && (ignore_irq13 || cpu_has_fpu);
+diff -urN linux-2.5.44/arch/i386/kernel/smpboot.c linux/arch/i386/kernel/smpboot.c
+--- linux-2.5.44/arch/i386/kernel/smpboot.c	2002-10-19 00:01:53.000000000 -0400
++++ linux/arch/i386/kernel/smpboot.c	2002-10-25 17:24:26.000000000 -0400
+@@ -58,7 +58,7 @@
+ 
+ /* Number of siblings per CPU package */
+ int smp_num_siblings = 1;
+-int __initdata phys_proc_id[NR_CPUS]; /* Package ID of each logical CPU */
++int phys_proc_id[NR_CPUS]; /* Package ID of each logical CPU */
+ 
+ /* Bitmask of currently online CPUs */
+ unsigned long cpu_online_map;
+
 

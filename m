@@ -1,60 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261642AbTIVSA5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 14:00:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261643AbTIVSA4
+	id S261353AbTIVSC6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 14:02:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261580AbTIVSC6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 14:00:56 -0400
-Received: from fw.osdl.org ([65.172.181.6]:39584 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261642AbTIVSAz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 14:00:55 -0400
-Date: Mon, 22 Sep 2003 10:53:57 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: akpm <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] ikconfig: remove unneeded include files
-Message-Id: <20030922105357.0c84657c.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Mon, 22 Sep 2003 14:02:58 -0400
+Received: from 24-216-47-19.charter.com ([24.216.47.19]:37546 "EHLO
+	wally.rdlg.net") by vger.kernel.org with ESMTP id S261353AbTIVSC4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 14:02:56 -0400
+Date: Mon, 22 Sep 2003 14:02:54 -0400
+From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Freeswan 2.02 + 2.4.22-bk22 problem
+Message-ID: <20030922180254.GC28020@rdlg.net>
+Mail-Followup-To: Linux-Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="FsscpQKzF/jJk6ya"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi,
-Please merge this small patch.
-
---
-~Randy
+--FsscpQKzF/jJk6ya
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
 
-patch_name:	includes_rm.patch
-patch_version:	2003-09-22.11:02:58
-author:		Randy.Dunlap <rddunlap@osdl.org>
-description:	remove 2 unneeded header files, so that configs.o
-		isn't rebuilt on every 'make bzImage';
-product:	Linux
-product_versions: 2.6.0-922
-maintainer:	Randy.Dunlap <rddunlap@osdl.org>
-diffstat:	=
- kernel/configs.c |    2 --
- 1 files changed, 2 deletions(-)
 
+I'm trying to buildout a 2.4.22-bk22 + freeswan 2.02 setup to replace a
+system vulnerable to the ptrace exploit.  Downloaded the sources,
+patched and built it with the "make oldgo" since the kernel was
+configured right otherwise (no modules, all compiled in).  Installed my
+binaries and the new kernel and rebooted.
 
-diff -Naurp ./kernel/configs.c~includes ./kernel/configs.c
---- ./kernel/configs.c~includes	2003-09-22 08:45:15.000000000 -0700
-+++ ./kernel/configs.c	2003-09-22 11:00:40.000000000 -0700
-@@ -29,8 +29,6 @@
- #include <linux/proc_fs.h>
- #include <linux/seq_file.h>
- #include <linux/init.h>
--#include <linux/compile.h>
--#include <linux/version.h>
- #include <asm/uaccess.h>
- 
- /**************************************************/
+It looks very happy execpt if I do a "ifconfig ipsec0 down".  This will
+hang up and never go away, a reboot is required to clear it.  No error
+messages or output.  Running an strace against the ifconfig doesn't even
+attatch it seems.
+
+I can't currently search the freeswan archives or subscribe to the lists
+due to problems with connecting to the servers but I'm not giving up on
+that route either.
+
+Any thoughts or theories?
+
+:wq!
+---------------------------------------------------------------------------
+Robert L. Harris                     | GPG Key ID: E344DA3B
+                                         @ x-hkp://pgp.mit.edu
+DISCLAIMER:
+      These are MY OPINIONS ALONE.  I speak for no-one else.
+
+Life is not a destination, it's a journey.
+  Microsoft produces 15 car pileups on the highway.
+    Don't stop traffic to stand and gawk at the tragedy.
+
+--FsscpQKzF/jJk6ya
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/bzlO8+1vMONE2jsRArRuAJ0fPs2wsddb+qNZygO6WCGA9xpWxgCg56iC
+gFeGMaDuVymAIpgigzQmBow=
+=Mgqb
+-----END PGP SIGNATURE-----
+
+--FsscpQKzF/jJk6ya--

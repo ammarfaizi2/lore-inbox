@@ -1,36 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288173AbSA3Cz1>; Tue, 29 Jan 2002 21:55:27 -0500
+	id <S288169AbSA3C6g>; Tue, 29 Jan 2002 21:58:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288248AbSA3CzR>; Tue, 29 Jan 2002 21:55:17 -0500
-Received: from khms.westfalen.de ([62.153.201.243]:2954 "EHLO
-	khms.westfalen.de") by vger.kernel.org with ESMTP
-	id <S288173AbSA3CzJ>; Tue, 29 Jan 2002 21:55:09 -0500
-Date: 29 Jan 2002 22:03:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: linux-kernel@vger.kernel.org
-Message-ID: <8Ho-eesXw-B@khms.westfalen.de>
-In-Reply-To: <20020129145344.GC2611@hydra>
-Subject: Re: A modest proposal -- We need a patch penguin
-X-Mailer: CrossPoint v3.12d.kh8 R/C435
+	id <S288256AbSA3C61>; Tue, 29 Jan 2002 21:58:27 -0500
+Received: from dsl-213-023-043-145.arcor-ip.net ([213.23.43.145]:62090 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S288169AbSA3C6Q>;
+	Tue, 29 Jan 2002 21:58:16 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Momchil Velikov <velco@fadata.bg>, torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: [PATCH] Radix-tree pagecache for 2.5
+Date: Wed, 30 Jan 2002 04:02:55 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020129165444.A26626@caldera.de> <a36t3f$oh8$1@penguin.transmeta.com> <877kq04v7w.fsf@fadata.bg>
+In-Reply-To: <877kq04v7w.fsf@fadata.bg>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <20020129145344.GC2611@hydra>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16Vl1T-0000Bd-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-oxygene@studentenbude.ath.cx (Patrick Mauritz)  wrote on 29.01.02 in <20020129145344.GC2611@hydra>:
+On January 30, 2002 12:02 am, Momchil Velikov wrote:
+> Well, these are dbench numbers from December, it's
+> 2.4.17. Unfortunately, it appears OSDL have trouble with 2.5 currently ...
 
-> On Tue, Jan 29, 2002 at 05:47:27PM +0100, Ingo Molnar wrote:
-> > -M:	p2@ace.ulyssis.sutdent.kuleuven.ac.be
-> > +M:	p2@ace.ulyssis.student.ac.be
-> fixing the fix:
-> +M:	p2@ace.ulyssis.student.kuleuven.ac.be
+Have you tested with anything besides dbench?
 
-I thought that was the bouncing address?!
-
-MfG Kai
+-- 
+Daniel

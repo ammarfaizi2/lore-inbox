@@ -1,53 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261832AbULaJ5Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261833AbULaKAr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261832AbULaJ5Q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 04:57:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261833AbULaJ5Q
+	id S261833AbULaKAr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 05:00:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261847AbULaKAr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 04:57:16 -0500
-Received: from mail.portrix.net ([212.202.157.208]:27787 "EHLO
-	zoidberg.portrix.net") by vger.kernel.org with ESMTP
-	id S261832AbULaJ5M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 04:57:12 -0500
-Message-ID: <41D52275.8030100@ppp0.net>
-Date: Fri, 31 Dec 2004 10:57:09 +0100
-From: Jan Dittmer <jdittmer@ppp0.net>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: gene.heskett@verizon.net
-CC: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Linux 2.6.10-ac1
-References: <1104103881.16545.2.camel@localhost.localdomain> <200412300005.31211.gene.heskett@verizon.net> <1104430176.2446.3.camel@localhost.localdomain> <200412302006.19872.gene.heskett@verizon.net>
-In-Reply-To: <200412302006.19872.gene.heskett@verizon.net>
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 31 Dec 2004 05:00:47 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:10509 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261833AbULaKAm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Dec 2004 05:00:42 -0500
+Date: Fri, 31 Dec 2004 10:00:37 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: James Nelson <james4765@verizon.net>, kernel-janitors@lists.osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] esp: Make driver SMP-correct
+Message-ID: <20041231100037.A29868@flint.arm.linux.org.uk>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	James Nelson <james4765@verizon.net>,
+	kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org
+References: <20041231014403.3309.58245.96163@localhost.localdomain> <20041231014611.003281e5.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20041231014611.003281e5.akpm@osdl.org>; from akpm@osdl.org on Fri, Dec 31, 2004 at 01:46:11AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gene Heskett wrote:
-> On Thursday 30 December 2004 18:38, Alan Cox wrote:
+On Fri, Dec 31, 2004 at 01:46:11AM -0800, Andrew Morton wrote:
+> James Nelson <james4765@verizon.net> wrote:
+> >
+> > This is an attempt to make the esp serial driver SMP-correct.  It also removes
+> >  some cruft left over from the serial_write() conversion.
 > 
-> Thanks for the reply Alan, I appreciate it.
+> >From a quick scan:
 > 
-> 
->>On Iau, 2004-12-30 at 05:05, Gene Heskett wrote:
->>
->>>some sort of an error message that looks like it may be memory
->>>related.  There's a pair of half giggers in here, running at 333
->>>fsb, but they are supposedly rated for a 400 mhz fsb. Thats
->>>presumably because I have turned on the MCE stuffs.
->>
->>MCE's generally come from the processor. To decode it you need to
->>know what CPU and then get the manuals out and decode the bits.
->>
+> - startup() does multiple sleeping allocations and request_irq() under
+>   spin_lock_irqsave().  Maybe fixed by this:
 
-Here is a tool for it: (parsemce.c)
+However, can you guarantee that two threads won't enter startup() at
+the same time?  (that's what ASYNC_INITIALIZED is protecting the
+function against, and the corresponding shutdown() as well.)
 
-http://www.kernel.org/pub/linux/kernel/people/davej/tools/
+It's probably better to port ESP to the serial_core structure where
+this type of thing is already taken care of.
 
-Though I do not know for which processors it is supposed to work.
-
-Jan
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

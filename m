@@ -1,46 +1,32 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314380AbSD0Sqo>; Sat, 27 Apr 2002 14:46:44 -0400
+	id <S314385AbSD0Syt>; Sat, 27 Apr 2002 14:54:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314381AbSD0Sqn>; Sat, 27 Apr 2002 14:46:43 -0400
-Received: from ns.suse.de ([213.95.15.193]:13330 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S314380AbSD0Sqm>;
-	Sat, 27 Apr 2002 14:46:42 -0400
-Date: Sat, 27 Apr 2002 20:46:42 +0200
-From: Dave Jones <davej@suse.de>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.10-dj1
-Message-ID: <20020427204641.S14743@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Adrian Bunk <bunk@fs.tum.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020427030823.GA21608@suse.de> <Pine.NEB.4.44.0204272030430.3103-200000@mimas.fachschaften.tu-muenchen.de>
-Mime-Version: 1.0
+	id <S314392AbSD0Sys>; Sat, 27 Apr 2002 14:54:48 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:16146 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S314385AbSD0Syr>; Sat, 27 Apr 2002 14:54:47 -0400
+Subject: Re: spinlocking between user context / tasklet / tophalf question
+To: george@mvista.com (george anzinger)
+Date: Sat, 27 Apr 2002 20:13:26 +0100 (BST)
+Cc: emmanuel_michon@realmagic.fr (Emmanuel Michon),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3CC9816B.88C080A3@mvista.com> from "george anzinger" at Apr 26, 2002 09:33:47 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E171XdO-0000Nv-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 27, 2002 at 08:34:47PM +0200, Adrian Bunk wrote:
- > Hi Dave,
- > 
- > there are changes in the 2.5.10-dj1 patch that aren't in the 2.5.9-dj1
- > patch that include removals of defines for TIMEOUT_VALUE and
- > DEVICE_REQUEST that seem to cause the following compile error:
+> Tasklets are run in interrupt context.  You need the irq versions of the
 
-oops, accidentally dropped that when merging Martins updates.
-
-add a #define TIMEOUT_VALUE  (6*HZ) to hd.c
-Also you should change..
-
--   blk_init_queue(BLK_DEFAULT_QUEUE(MAJOR_NR), DEVICE_REQUEST, &hd_lock);
-+   blk_init_queue(BLK_DEFAULT_QUEUE(MAJOR_NR), do_hd_request, &hd_lock);
-
-At line 830 or so.
+Not always. Ksoftirqd...
 
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+> spinlock in kernel space.  In tasklet space a simple spinlock should be
+> enough as the tasklet can not be reentered.
+
+That depends what you are locking against.

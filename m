@@ -1,66 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267593AbSKQUa3>; Sun, 17 Nov 2002 15:30:29 -0500
+	id <S267596AbSKQU2Q>; Sun, 17 Nov 2002 15:28:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267594AbSKQUa2>; Sun, 17 Nov 2002 15:30:28 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:7517 "EHLO
-	flossy.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S267595AbSKQUaX>; Sun, 17 Nov 2002 15:30:23 -0500
-Date: Sun, 17 Nov 2002 15:38:23 -0500
-From: Doug Ledford <dledford@redhat.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Scsi Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: Several Misc SCSI updates...
-Message-ID: <20021117203823.GF3280@redhat.com>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Linux Scsi Mailing List <linux-scsi@vger.kernel.org>
-References: <20021117202826.GE3280@redhat.com> <Pine.LNX.4.44.0211171228350.1370-100000@home.transmeta.com>
-Mime-Version: 1.0
+	id <S267595AbSKQU2Q>; Sun, 17 Nov 2002 15:28:16 -0500
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:62592
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id <S267596AbSKQU2N>; Sun, 17 Nov 2002 15:28:13 -0500
+Message-ID: <3DD7FD86.7000407@redhat.com>
+Date: Sun, 17 Nov 2002 12:35:18 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021114
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Luca Barbieri <ldb@ldb.ods.org>, Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] threading fix, tid-2.5.47-A3
+References: <Pine.LNX.4.44.0211172212001.18431-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.44.0211172212001.18431-100000@localhost.localdomain>
+X-Enigmail-Version: 0.65.4.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0211171228350.1370-100000@home.transmeta.com>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 17, 2002 at 12:29:25PM -0800, Linus Torvalds wrote:
-> 
-> On Sun, 17 Nov 2002, Doug Ledford wrote:
-> >
-> > These bring the scsi subsys up to the new module loader semantics.  There 
-> > is more work to be done on inter-module locking here, but we need to solve 
-> > the whole module->live is 0 during init problem first or else it's a waste 
-> > of time.
-> 
-> Hey, just remove the "live" test, I think it's over-eager and likely to 
-> just cause extra code to work around it rather than fix anything.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Won't work.  module->live is what Rusty uses to indicate that the module 
-is in the process of unloading, which is when we *do* want the attempt to 
-module_get() to fail.  I think the process out to basically be:
+Ingo Molnar wrote:
+> But i think you are one of
+> the few peoples who are running an NPTL system (ie. with the new
+> NPTL-glibc actually installed as the default system glibc) - is binary
+> compatibility important to you for this specific case?
 
-load module into mem
-set module->live = 1
-call module_init
-export module syms
-done loading module
+It's all encapsulated in the libpthread which is used.  No apps need to
+be recompiled so it is OK to make this incompatible change.
 
-on module exit:
-unexport module syms
-set module->live 0
-call module_exit
-free module memory
-done unloading.
 
-That *should* solve all the races Rusty is trying to solve without the 
-problems we've had so far, but this is only after a few minutes of 
-thinking....
+> we could do that - although we cannot fail the CHILD_SETTID variant, and i
+> wanted to keep it symmetric.
 
--- 
-  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
-         Red Hat, Inc. 
-         1801 Varsity Dr.
-         Raleigh, NC 27606
-  
+I cannot see any reasonable way out if any of the put_user calls fail?
+Do you want the clone() call to fail if the parent's receiving address
+is wrong?  You'd have to go and kill the child again since it's already
+created.
+
+Instead let the user initialize the memory location the clone call is
+supposed to write in with zero.  if the value didn't change the
+user-level code can detect the error and handle appropriately.  So,
+ignore the put_user errors.  Maybe say so explicitly and add (void) in
+front.
+
+- -- 
+- --------------.                        ,-.            444 Castro Street
+Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
+Red Hat         `--' drepper at redhat.com `---------------------------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE91/2G2ijCOnn/RHQRAt34AKCrzkjdPfQ3D1VvEXPW5fwZxmCvWgCgmY0A
+IYWZflwRcxusjo4fMPOx6jk=
+=xjs0
+-----END PGP SIGNATURE-----
+

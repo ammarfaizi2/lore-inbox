@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261779AbTLHScE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 13:32:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbTLHScE
+	id S261217AbTLHSli (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 13:41:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261270AbTLHSli
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 13:32:04 -0500
-Received: from terminus.zytor.com ([63.209.29.3]:25809 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S261779AbTLHScA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 13:32:00 -0500
-Message-ID: <3FD4C375.2060803@zytor.com>
-Date: Mon, 08 Dec 2003 10:31:17 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030630
-X-Accept-Language: en, sv, es, fr
+	Mon, 8 Dec 2003 13:41:38 -0500
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:30347 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261217AbTLHSlh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Dec 2003 13:41:37 -0500
+To: linux-kernel@vger.kernel.org
+Cc: Kendrick Hamilton <hamilton@sedsystems.ca>
+Subject: Re: Linux Kernel and GPL section 2c
+References: <3FD4BF6E.7070503@sedsystems.ca>
+From: Jeremy Maitin-Shepard <jbms@attbi.com>
+Date: Mon, 08 Dec 2003 13:43:32 -0500
+In-Reply-To: <3FD4BF6E.7070503@sedsystems.ca> (Kendrick Hamilton's message
+ of "Mon, 08 Dec 2003 12:14:06 -0600")
+Message-ID: <87ptezgnfv.fsf@jay.local.invalid>
+User-Agent: Gnus/5.1003 (Gnus v5.10.3) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
-To: Nikita Danilov <Nikita@Namesys.COM>
-CC: Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org
-Subject: Re: const versus __attribute__((const))
-References: <200312081646.42191.arnd@arndb.de>	<3FD4B9E6.9090902@zytor.com> <16340.49791.585097.389128@laputa.namesys.com>
-In-Reply-To: <16340.49791.585097.389128@laputa.namesys.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nikita Danilov wrote:
->  > 
->  > These functions are available to userspace, though, and can be compiled 
->  > with -O0; thus not inlined.
-> 
-> And future versions of gcc can be smarter.
-> 
+Kendrick Hamilton <hamilton@sedsystems.ca> writes:
 
-Actually, the reason it doesn't use it for the inlines is because it 
-doesn't need to -- it already has full visibility, so it doesn't need it 
-to be spelled out.
+> Hello all,
+>     I noticed the discussion about linux kernel modules that happened last
+>     week. I was wondering about something with regards to the linux kernel and
+>     Section 2c of the GPL. Why doesn't the kernel on booting print something
+>     about the kernel being free software licensed under the GPL, and shouldn't
+>     it?
 
-So it would be an issue if gcc got dumber, not smarter.
+Presumably, 1) the kernel as a whole is not a "modified" work, but
+rather at least parts of it are the original work, 2) it does not read
+commands interactively when run, 3) it does not normally print such
+announcements.
 
-	-hpa
-
+-- 
+Jeremy Maitin-Shepard

@@ -1,46 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262033AbTKYF4J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 00:56:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262069AbTKYF4J
+	id S262076AbTKYGQi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 01:16:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbTKYGQi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 00:56:09 -0500
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:29126 "EHLO
-	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S262033AbTKYF4I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 00:56:08 -0500
-Date: Tue, 25 Nov 2003 00:54:49 -0500 (EST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Mike Fedyk <mfedyk@matchmail.com>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: OOps! was: 2.6.0-test9-mm5
-In-Reply-To: <20031125054709.GC1331@mis-mike-wstn.matchmail.com>
-Message-ID: <Pine.LNX.4.58.0311250053410.4230@montezuma.fsmlabs.com>
-References: <20031121121116.61db0160.akpm@osdl.org>
- <20031124225527.GB1343@mis-mike-wstn.matchmail.com>
- <Pine.LNX.4.58.0311241840380.8180@montezuma.fsmlabs.com>
- <20031124235807.GA1586@mis-mike-wstn.matchmail.com>
- <20031125003658.GA1342@mis-mike-wstn.matchmail.com>
- <Pine.LNX.4.58.0311242013270.1859@montezuma.fsmlabs.com>
- <20031125051018.GA1331@mis-mike-wstn.matchmail.com>
- <Pine.LNX.4.58.0311250033170.4230@montezuma.fsmlabs.com>
- <20031125054709.GC1331@mis-mike-wstn.matchmail.com>
+	Tue, 25 Nov 2003 01:16:38 -0500
+Received: from pacific.moreton.com.au ([203.143.235.130]:63756 "EHLO
+	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
+	id S262076AbTKYGQg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 01:16:36 -0500
+Message-ID: <3FC2F3FD.9070100@snapgear.com>
+Date: Tue, 25 Nov 2003 16:17:33 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH]: linux-2.6.0-test10-uc0 (MMU-less fixups)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Nov 2003, Mike Fedyk wrote:
+Hi All,
 
-> On Tue, Nov 25, 2003 at 12:33:47AM -0500, Zwane Mwaikambo wrote:
-> > Indeed it looks PnPBIOS related, i'll await your other tests.
->
-> Ok, I'll get started compiling up some kernels.
->
-> Am I right in thinking that the pnpbios patches are in a series, where I
-> should revert 4, then 3, etc?
+An update of the uClinux (MMU-less) fixups against 2.6.0-test10.
+No real changes over linux-2.6.0-test9-uc0 just generated
+and tested against test10.
 
-Yes, that should do it. Whenever in doubt you can always refer to;
+http://www.uclinux.org/pub/uClinux/uClinux-2.6.x/linux-2.6.0-test10-uc0.patch.gz
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test9/2.6.0-test9-mm5/broken-out/series
+As usual I will break up and send important bug fixes to Linus...
+
+Regards
+Greg
+
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Dude          EMAIL:  gerg@snapgear.com
+Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
+825 Stanley St,                                  FAX:    +61 7 3279 1820
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

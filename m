@@ -1,62 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263591AbUDZVqi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263592AbUDZVsU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263591AbUDZVqi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 17:46:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263592AbUDZVqi
+	id S263592AbUDZVsU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 17:48:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263596AbUDZVsT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 17:46:38 -0400
-Received: from [80.81.108.166] ([80.81.108.166]:37864 "EHLO
-	mail.spainconsulting.net") by vger.kernel.org with ESMTP
-	id S263591AbUDZVqg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 17:46:36 -0400
-Date: 26 Apr 2004 21:54:16 -0000
-From: "Sistema Antivirus" <hostmaster@spainconsulting.com>
-To: linux-kernel@vger.kernel.org
-Subject: virus encontrado en el mensaje enviado "Re: Here"
-Message-ID: <bison108301645646121102@bison>
-X-Tnz-Problem-Type: 40
-MIME-Version: 1.0
-Content-type: text/plain
+	Mon, 26 Apr 2004 17:48:19 -0400
+Received: from email-out2.iomega.com ([147.178.1.83]:23774 "EHLO
+	email.iomega.com") by vger.kernel.org with ESMTP id S263592AbUDZVsL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Apr 2004 17:48:11 -0400
+In-Reply-To: <20040424194727.GA3353@dreamland.darkstar.lan>
+References: <20040423195004.GA1885@dreamland.darkstar.lan> <1082751675.3163.
+	 106.camel@patibmrh9> <20040424194727.GA3353@dreamland.darkstar.lan>
+Mime-Version: 1.0 (Apple Message framework v613)
+Content-Type: text/plain;
+	charset=US-ASCII;
+	format=flowed
+Message-Id: <68855BEB-97CB-11D8-B7A7-003065635034@ieee.org>
+Content-Transfer-Encoding: 7bit
+Cc: linux_udf@hpesjro.fc.hp.com, linux-kernel@vger.kernel.org
+From: Pat LaVarre <p.lavarre@ieee.org>
+Subject: Re: Unable to read UDF fs on a DVD
+Date: Mon, 26 Apr 2004 15:48:09 -0600
+To: kronos@kronoz.cjb.net
+X-Mailer: Apple Mail (2.613)
+X-OriginalArrivalTime: 26 Apr 2004 21:48:10.0105 (UTC) FILETIME=[2A9C8E90:01
+	C42BD8]
+X-imss-version: 2.0
+X-imss-result: Passed
+X-imss-scores: Clean:4.30608 C:49 M:1 S:5 R:5
+X-imss-settings: Baseline:1 C:1 M:1 S:1 R:1 (0.0000 0.0000)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Kronos:
 
-Aviso para: linux-kernel@vger.kernel.org
+> Well, Ben Fennema said that he has identified the issue. If it can be
+> usefull I can have my friend burn another DVD (with less data) with 
+> Easy
+> CD and upload the image somewhere.
 
+1) Useful to Ben, maybe not, Ben already understands much.
 
-Se ha encontrado un virus en un mensaje remitido por Vd.
-Este detector de virus lo ha interceptado antes de enviarlo a su
-destinatario.
+2) Useful to you, maybe not, maybe nobody on Earth but Ben can help you 
+rapidly.
 
-El virus encontrado ha sido:
+3) Useful to me, yes.  You put the image on the web, and I'll try to 
+download it, try to reproduce your trouble, and then try to find time 
+to learn ever more about how unamerican chars work inside udf.ko.
 
-W32/Netsky.D@mm
+>> 5)
+>>
+>>> http://web.tiscali.it/kronoz/ucf_test.log
+>>
+>> Any chance this link will still work, a year from now?
+>
+> Yup, no problem.
 
+Thank you, now blogged as the first of:
 
-Por favor actualice su antivirus o contacte con su departamento de sistemas 
-lo antes posible, ya que _su sistema_ parece estar infectado.
+udf fsck failures observed
+http://udfko.blog-city.com/read/585805.htm
 
+Pat LaVarre
 
-Su mensaje contenía como
-
-MAIL FROM: linux-kernel@vger.kernel.org
-RCPT TO:   cpcomercial11@compuspain.com 
-
-... con las siguientes cabeceras:
-
----
-MAILFROM: linux-kernel@vger.kernel.org
-Received: from unknown (HELO compuspain.com) (unknown)
-  by unknown with SMTP; 26 Apr 2004 21:54:14 -0000
-From: linux-kernel@vger.kernel.org
-To: cpcomercial11@compuspain.com
-Subject: Re: Here
-Date: Tue, 27 Apr 2004 00:44:35 -0500
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_0006_0000010F.00006F23"
-X-Priority: 3
-X-MSMail-Priority: Normal
-
-
----

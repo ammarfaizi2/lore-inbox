@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261382AbVBNK0G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261385AbVBNK2V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261382AbVBNK0G (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 05:26:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261383AbVBNK0G
+	id S261385AbVBNK2V (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 05:28:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261384AbVBNK2V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 05:26:06 -0500
-Received: from mail.sf-mail.de ([62.27.20.61]:58082 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S261382AbVBNK0D (ORCPT
+	Mon, 14 Feb 2005 05:28:21 -0500
+Received: from pop.gmx.de ([213.165.64.20]:61586 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261386AbVBNK2J (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 05:26:03 -0500
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] make ACPI_BLACKLIST_YEAR depend on ACPI
-Date: Mon, 14 Feb 2005 11:30:51 +0100
-User-Agent: KMail/1.7.2
-Cc: Linus Torvalds <torvalds@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Mon, 14 Feb 2005 05:28:09 -0500
+X-Authenticated: #8956447
+Subject: Re: [Problem] slow write to dvd-ram since 2.6.7-bk8
+From: Droebbel <droebbel.melta@gmx.de>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20050214085320.GA4910@dose.home.local>
+References: <1108301794.9280.18.camel@localhost.localdomain>
+	 <20050213142635.GA2035@animx.eu.org>
+	 <20050214085320.GA4910@dose.home.local>
+Content-Type: text/plain
+Date: Mon, 14 Feb 2005 11:28:06 +0100
+Message-Id: <1108376886.9495.10.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.1.5 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200502141130.51901@bilbo.math.uni-mannheim.de>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mo, 2005-02-14 at 09:53 +0100, Tino Keitel wrote:
+>I also have low write performance (around 300 kb/s) with several 2.6
+>kernels (2.6.7 to 2.6.9-mm1) and I can hear the head jump around when I
+>use ext2 or UDF. It will be fast when written directly to the device
+>without a file system using dd.  The drive is a LG GSA-4040B. I tried
+>several media types from Panasonic and EMTEC.
+>
+>I'll try to test if the problem disappears with 2.6.6.
 
-this oneliner fixes the situation that I can enter a year to blacklist
-ACPI devices if ACPI is completely disabled.
+I had also tested writing with dd (forgot to mention), it seemed faster
+sometimes, but not as fast as it could be. pre-2.6.7-bk8 was still
+faster, though only about 25%.
 
-Signed-off-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
+Which 2.6.7 did you use? 
 
---- linux-2.6.11-rc3/drivers/acpi/Kconfig	2005-02-07 21:12:45.000000000 +0100
-+++ linux-2.6.11-rc3/drivers/acpi/Kconfig.fixed	2005-02-12 19:58:24.000000000 +0100
-@@ -259,6 +259,7 @@
- 
- config ACPI_BLACKLIST_YEAR
- 	int "Disable ACPI for systems before Jan 1st this year"
-+	depends on ACPI
- 	default 0
- 	help
- 	  enter a 4-digit year, eg. 2001 to disable ACPI by default
+Regards
+David
+

@@ -1,62 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266651AbUAWVnM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 16:43:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266662AbUAWVnL
+	id S266693AbUAWVrc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 16:47:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266696AbUAWVrc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 16:43:11 -0500
-Received: from relay.inway.cz ([212.24.128.3]:1686 "EHLO relay.inway.cz")
-	by vger.kernel.org with ESMTP id S266651AbUAWVnI (ORCPT
+	Fri, 23 Jan 2004 16:47:32 -0500
+Received: from smtp03.web.de ([217.72.192.158]:25611 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id S266693AbUAWVrb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 16:43:08 -0500
-Message-ID: <40119572.5020403@scssoft.com>
-Date: Fri, 23 Jan 2004 22:43:14 +0100
-From: Petr Sebor <petr@scssoft.com>
-Organization: SCS Software
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7a) Gecko/20040110
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Fri, 23 Jan 2004 16:47:31 -0500
 To: linux-kernel@vger.kernel.org
-Subject: [2.6.x] e1000: NETDEV WATCHDOG: eth0: transmit timed out
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [OFFTOPIC]   "smack the penguin"
+X-Face: 8omYku?tAexGd1v,5cQg?N#5RsX"8\+(X=<ysy((i6Hr2uYha{J%Mf!J:,",CqCZSr,>8o[ Ve)k4kR)7DN3VM-`_LiF(jfij'tPzNFf|MK|vL%Z9_#[ssfD[=mFaBy]?VV0&vLi09Jx*:)CVQJ*e3
+ Oyv%0J(}_6</D.eu`XL"&w8`%ArL0I8AD'UKOxF0JODr/<g]
+References: <401177DB.8010901@nortelnetworks.com>
+From: Markus Plail <linux-kernel@gitteundmarkus.de>
+Date: Fri, 23 Jan 2004 22:47:28 +0100
+In-Reply-To: <401177DB.8010901@nortelnetworks.com> (Chris Friesen's message
+ of "Fri, 23 Jan 2004 14:36:59 -0500")
+Message-ID: <87brouxrpr.fsf@plailis.daheim.bs>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Chris Friesen <cfriesen@nortelnetworks.com> writes:
+> Diversion for friday afternoon...how far can you get?
+> Personal best is 586
 
-since we have upgraded cabling on our network and transfer speeds 
-increased a little
-bit, we are experiencing very often situations where the Intel PRO/1000 
-nics just stop
-responding and network dies for a while. Local console works, there are 
-no more error
-messages other than (when the eth0 comes to a life again):
+My record is 594.2, my wife's 593.4 ;-)
 
-NETDEV WATCHDOG: eth0: transmit timed out
-e1000: eth0 NIC Link is Up 1000 Mbps Full Duplex
-
-then its working ok again, until the next watchdog message.
-
-It has happened even before the cabling upgrade, it was just very rare.
-
-I have tried kernels 2.6.0, 2.6.1, 2.6.2-bk1 and it happens all the
-time. It is just that is _seems_ to happen more often with the 2.6.2-bk
-
-The machine in question is an Opteron 244 based server (though kernel
-is compiled for 32bits/Athlon). SMP kernel makes no difference, it will
-eventually happen as well. The server is not heavily loaded... only few 
-users
-can trigger the issue. Board is MSI KT800 based.
-
-I have tried to switch NICs, but there is no difference. Onboard 
-integrated TG3
-gigabit network controller suffers the '100% CPU usage' issue when 
-utilized so
-this unfortunately no option at the moment.
-
-Anyone having a clue what might be wrong here?
-
-Have a nice weekend,
-Petr
+Mar - should have done more useful things - kus
 

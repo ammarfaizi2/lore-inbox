@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264871AbUE0QKS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264866AbUE0QQk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264871AbUE0QKS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 12:10:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264872AbUE0QKR
+	id S264866AbUE0QQk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 12:16:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264869AbUE0QQk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 12:10:17 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53189 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264871AbUE0QKD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 12:10:03 -0400
-Message-ID: <40B612C7.8020502@pobox.com>
-Date: Thu, 27 May 2004 12:09:43 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Zhu, Yi" <yi.zhu@intel.com>
-CC: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Auzanneau Gregory <mls@reolight.net>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: idebus setup problem (2.6.7-rc1)
-References: <3ACA40606221794F80A5670F0AF15F842DB1E0@PDSMSX403.ccr.corp.intel.com>
-In-Reply-To: <3ACA40606221794F80A5670F0AF15F842DB1E0@PDSMSX403.ccr.corp.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 27 May 2004 12:16:40 -0400
+Received: from holomorphy.com ([207.189.100.168]:27016 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S264866AbUE0QQf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 May 2004 12:16:35 -0400
+Date: Thu, 27 May 2004 09:16:14 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: John Bradford <john@grabjohn.com>
+Cc: "Piszcz, Justin Michael" <justin.piszcz@mitretek.org>,
+       Andy Lutomirski <luto@myrealbox.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Tom Felker <tcfelker@mtco.com>,
+       Matthias Schniedermeyer <ms@citd.de>, linux-kernel@vger.kernel.org
+Subject: Re: why swap at all?
+Message-ID: <20040527161614.GG22648@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	John Bradford <john@grabjohn.com>,
+	"Piszcz, Justin Michael" <justin.piszcz@mitretek.org>,
+	Andy Lutomirski <luto@myrealbox.com>,
+	Nick Piggin <nickpiggin@yahoo.com.au>,
+	Tom Felker <tcfelker@mtco.com>,
+	Matthias Schniedermeyer <ms@citd.de>, linux-kernel@vger.kernel.org
+References: <5D3C2276FD64424297729EB733ED1F7606242C53@email1.mitretek.org> <20040527124145.GD22648@holomorphy.com> <200405271559.i4RFxqN3000359@81-2-122-30.bradfords.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200405271559.i4RFxqN3000359@81-2-122-30.bradfords.org.uk>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zhu, Yi wrote:
-> --- linux-2.6.7-rc1-mm1.orig/drivers/ide/ide.c      2004-05-27
-> 23:07:59.405138992 +0800
-> +++ linux-2.6.7-rc1-mm1/drivers/ide/ide.c   2004-05-27
-> 23:09:47.529701560 +0800
-> @@ -2459,7 +2459,8 @@ void cleanup_module (void)
-> 
->  #else /* !MODULE */
-> 
-> -__setup("", ide_setup);
-> +__setup("hd", ide_setup);
-> +__setup("ide", ide_setup);
-> 
->  module_init(ide_init);
+Quote from William Lee Irwin III <wli@holomorphy.com>:
+>> Yes. You want swap so you can physically relocate anonymous pages in the
+>> rare case one ends up somewhere it could cause memory pressure against
+>> allocations that can only be satisfied by a restricted range of memory.
 
+On Thu, May 27, 2004 at 04:59:52PM +0100, John Bradford wrote:
+> I think you are assuming a 100% perfect VM system.  In practice, if
+> the machine isn't heavily loaded, unnecessary swap is more likely to
+> cause, (slight, and possibly negligable), slowdowns, than bring any
+> noticable performance benefit.
 
-module_param() works for both the built-in case (where __setup is used), 
-and also the modular case.  If this is getting changed, might as well do 
-the right change...
+First, the above not a performance issue to begin with. It's a workload
+feasibility issue. Second, the only overhead of swap when it's unused
+is vmallocspace. Third, the only way to eliminate the runtime overhead
+of the swap layer is CONFIG_SWAP=n.
 
-	Jeff
+The above scenario is not particularly common, but can be "fatal" to
+the critical applications whose allocations were infeasible. I'd
+recommend using a small amount of swapspace on your 16GB machine, e.g.
+256MB or 512MB. One method of removing this requirement that swapspace
+be configured so the kernel can get itself out of this pathological
+situation is to implement page migration, so that memory movement e.g.
+between zones need not be carried out through a backing store.
 
-
+-- wli

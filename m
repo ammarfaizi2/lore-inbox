@@ -1,54 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267630AbUHJRRI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267646AbUHJRRH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267630AbUHJRRI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 13:17:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267627AbUHJRLS
+	id S267646AbUHJRRH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 13:17:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267630AbUHJRLy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 13:11:18 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:38537 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S267567AbUHJRK2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 13:10:28 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.8-rc3-O4
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Florian Schmidt <mista.tapas@gmx.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-In-Reply-To: <20040810085849.GC26081@elte.hu>
-References: <20040726083537.GA24948@elte.hu>
-	 <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu>
-	 <20040726204720.GA26561@elte.hu> <20040729222657.GA10449@elte.hu>
-	 <20040801193043.GA20277@elte.hu> <20040809104649.GA13299@elte.hu>
-	 <20040809130558.GA17725@elte.hu> <20040809190201.64dab6ea@mango.fruits.de>
-	 <1092103522.761.2.camel@mindpipe>  <20040810085849.GC26081@elte.hu>
-Content-Type: text/plain
-Message-Id: <1092157841.3290.3.camel@mindpipe>
+	Tue, 10 Aug 2004 13:11:54 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:51644 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S267645AbUHJRGR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 13:06:17 -0400
+Date: Tue, 10 Aug 2004 18:57:52 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: V13 <v13@priest.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       dsaxena@plexity.net, greg@kroah.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6] Remove spaces from PCI IDE pci_driver.name field
+Message-ID: <20040810165752.GD21534@louise.pinerecords.com>
+References: <20040810001316.GA7292@plexity.net> <20040810155701.GB21534@louise.pinerecords.com> <1092154407.10794.14.camel@mindpipe> <200408101952.18710.v13@priest.com> <1092156906.861.9.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 10 Aug 2004 13:10:42 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1092156906.861.9.camel@mindpipe>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-08-10 at 04:58, Ingo Molnar wrote:
+On Aug-10 2004, Tue, 12:55 -0400
+Lee Revell <rlrevell@joe-job.com> wrote:
 
-> another idea: you are running this on a C3, using CONFIG_MCYRIXIII,
-> correct? That is one of the rare configs that triggers X86_USE_3DNOW and
-> MMX ops. If 3dnow is in any way handicapped in that CPU then that could
-> cause trouble. Could you compile for e.g. CONFIG_M586TSC? [that option
-> should be fully compatible with a C3.] - this will exclude the MMX page
-> clearing ops.
+> On Tue, 2004-08-10 at 12:52, V13 wrote:
+> > On Tuesday 10 August 2004 19:13, Lee Revell wrote:
+> > > On Tue, 2004-08-10 at 11:57, Tomas Szepe wrote:
+> > > > Sure, but while with a GUI you can click on almost anything, on the
+> > > > command line spaces in filenames have always been a real pain in
+> > > > the ass, so let's not pretend otherwise.
+> > >
+> > > Ever heard of tab completion?  Think of it as click for the command
+> > > line.
+> > >
+> > > Seriously, do you really *prefer* filenames like
+> > > Foo_Bar-Baa_Baaz_Quux.mp3?
+> > 
+> > Anyone that writes scripts prefers filenames without spaces. It simplifies 
+> > scripts *and* typing a lot. 
+> > 
+> > Card\ 01
+> > Card\ 02
+> > Cardinal
+> > 
+> > Now we have to write: cd Ca<tab>\ <tab>1<tab/space>
 > 
+> Eh, anyone who writes perl scripts on the command line doesn't mind
+> surrounding an expression in quotes.
 
-OK, with CONFIG_M586TSC, I am getting a lot of lockups.  A few happened
-during normal desktop use, and it locks up hard when starting jackd. 
-Could this have anything to do with the ALSA drivers (which I am
-compiling seperately from ALSA cvs) detecting my build system as i686? 
-I have read that the C3 is more like a 486 (with MMX & 3DNow) than a
-686.
+Except when the quotes are already open.
+Let's drop this now, I can see where the thread is leading.
 
-Lee
-
- 
-
+-- 
+Tomas Szepe <szepe@pinerecords.com>

@@ -1,54 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266885AbTGGJAa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 05:00:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266887AbTGGJAa
+	id S266867AbTGGI70 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 04:59:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266869AbTGGI70
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 05:00:30 -0400
-Received: from [81.89.69.194] ([81.89.69.194]:54162 "EHLO tretyak.sun.mcst.ru")
-	by vger.kernel.org with ESMTP id S266885AbTGGJAU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 05:00:20 -0400
-Message-ID: <3F093B60.1010001@mcst.ru>
-Date: Mon, 07 Jul 2003 13:20:32 +0400
-From: "Ilia A. Petrov" <masmas@mcst.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: David Brownell <david-b@pacbell.net>
-CC: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] PROBLEM: when booting from USB-HDD device kernel
- 2.4.21 is trying to mount root file system too early before usb device is
- found on the usb-bus
-References: <3F056D0D.3050101@mcst.ru> <3F05A4C8.9060604@pacbell.net>
-In-Reply-To: <3F05A4C8.9060604@pacbell.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 7 Jul 2003 04:59:26 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:3601 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S266867AbTGGI7Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jul 2003 04:59:25 -0400
+Subject: Re: [PATCH] O3int interactivity for 2.5.74-mm2
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <200307071319.57511.kernel@kolivas.org>
+References: <200307070317.11246.kernel@kolivas.org>
+	 <1057516609.818.4.camel@teapot.felipe-alfaro.com>
+	 <200307071319.57511.kernel@kolivas.org>
+Content-Type: text/plain
+Message-Id: <1057569235.848.2.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 07 Jul 2003 11:13:56 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Brownell wrote:
-> Ilia A. Petrov wrote:
+On Mon, 2003-07-07 at 05:19, Con Kolivas wrote:
+> On Mon, 7 Jul 2003 04:36, Felipe Alfaro Solana wrote:
+> > I'm seeing extreme X starvation with this patch under 2.5.74-mm2 when
+> > starting a CPU hogger:
+> >
+> > 1. Start a KDE session.
+> > 2. Launch a Konsole
+> > 3. Launch Konqueror
+> > 4. Launch XMMS
+> > 5. Make XMMS play an MP3 file
+> > 6. On the Konsole terminal, run "while true; do a=2; done"
+> >
+> > When the "while..." is run, X starves completely for ~5 seconds (e.g.
+> > the mouse cursor doesn't respond to my input events). After those 5
+> > seconds, the mouse cursor goes jerky for a while (~2 seconds) and then
+> > the system gets responsive.
 > 
->> When kernel is mounting root file system it is doing it too fast so 
->> usb-support have not ime to scan bus for mass-storage devices and 
->> connect them.
->> ...
->> or, imho better way, - when completing init of usb bus, first scans it 
->> and connect all devices and only after all devices were connected 
->> returns to main kernel code.
+> Aha!
 > 
-> 
-> That might not entirely solve the problem, since the relevant device
-> could drop off the bus temporarily, but it seems like it'd be a step
-> forward.  How would you make root hub ("bus") initialization do that?
+> Thanks to Felipe who picked this up I was able to find the one bug causing me 
+> grief. The idle detection code was allowing the sleep_avg to get to 
+> ridiculously high levels. This is corrected in the following replacement 
+> O3int patch. Note this fixes the mozilla issue too. Kick arse!!
 
-i'm not familiar with linux usb implementation so may be it's wrong:
-after sending global reset over the bus you can manually check (not 
-trough the hub driver) root port connection status and call enumeration 
-if needed.
+Yeah! I can't reproduce the bug anymore :-) Good work!
 
-another way- add an option to kernel for booting from usb mass-storage, 
-where place an input-waiting code, because my current solution adds such 
-delay for all boots (ide,scsi,usb)
+Is there any tunable to make the scheduler adjust the interactivity/CPU
+usage a little bit faster? Just after launching XMMS and make it play,
+moving the Konqueror window like crazy makes XMMS skip for a few
+seconds.
 

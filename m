@@ -1,62 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262575AbTJYLqM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Oct 2003 07:46:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262576AbTJYLqM
+	id S262580AbTJYMEf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Oct 2003 08:04:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262581AbTJYMEf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Oct 2003 07:46:12 -0400
-Received: from as6-4-8.rny.s.bonet.se ([217.215.27.171]:55568 "EHLO
-	pc2.dolda2000.com") by vger.kernel.org with ESMTP id S262575AbTJYLqL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Oct 2003 07:46:11 -0400
-From: Fredrik Tolf <fredrik@dolda2000.com>
-MIME-Version: 1.0
+	Sat, 25 Oct 2003 08:04:35 -0400
+Received: from eva.fit.vutbr.cz ([147.229.10.14]:31243 "EHLO eva.fit.vutbr.cz")
+	by vger.kernel.org with ESMTP id S262580AbTJYMEd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Oct 2003 08:04:33 -0400
+Date: Sat, 25 Oct 2003 14:04:25 +0200
+From: David Jez <dave.jez@seznam.cz>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: diethotplug-0.4 utility patch
+Message-ID: <20031025120422.GB93355@stud.fit.vutbr.cz>
+References: <20031023184603.GA81234@stud.fit.vutbr.cz> <20031024054145.GA3233@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16282.25212.456947.292339@pc7.dolda2000.com>
-Date: Sat, 25 Oct 2003 13:46:04 +0200
-To: Mike Anderson <andmike@us.ibm.com>
-Cc: Fredrik Tolf <fredrik@dolda2000.com>,
-       Patrick Mansfield <patmans@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: Elevator bug in concert with usb-storage
-In-Reply-To: <20031025062759.GB1288@beaverton.ibm.com>
-References: <16279.15393.575929.983297@pc7.dolda2000.com>
-	<20031023082726.A20073@beaverton.ibm.com>
-	<16280.9893.292564.320412@pc7.dolda2000.com>
-	<20031025062759.GB1288@beaverton.ibm.com>
-X-Mailer: VM 7.17 under Emacs 21.2.1
+Content-Disposition: inline
+In-Reply-To: <20031024054145.GA3233@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Anderson writes:
- > Fredrik Tolf [fredrik@dolda2000.com] wrote:
- > > Sorry, that didn't work well. It doesn't crash on the same thing
- > > anymore, but nonetheless crashes. In addition, when I have removed the
- > > device but not yet umounted the filesystem, I tried to ls its root
- > > dir. Before, nothing extraordinary happened then, but now there's a
- > > couple of oopses for the ls process as well.
- > >
- > > .. snip ..
- > >
- > > Call Trace:
- > >  [<c02176b3>] elv_queue_empty+0x1d/0x20
- > >  [<c0219ab4>] __make_request+0x80/0x4ae
- > >  [<c021a016>] generic_make_request+0x134/0x186
- > 
- > I tried to reproduce this error last night using the scsi_debug driver,
- > but could not. I tried different combinations of file systems (fat, ext2,
- > ext3). I did notice that I had elevator=deadline on the cmdline. I
- > removed this in case the elevator_queue_empty_fn between the two
- > elevators made a difference. I still was unable to reproduce. I will try
- > a few more combinations of things this weekend and let you know what I
- > find out. There might be a race still with our cleanups and I am not
- > able to reproduce it exactly on my system.
+On Thu, Oct 23, 2003 at 10:41:46PM -0700, Greg KH wrote:
+> Hm, remove action will not work.  See the linux-hotplug-devel mailing
+> list archives for why we can not do this.
+  OK, i'll see. But this realy helps me.
 
-Be aware that this was with usb-storage as the back-end driver. I
-don't know if that might make some difference (as opposed to using
-scsi_debug, that is).
+> > - adds pci.rc & usb.rc
+> 
+> Why do you need this?  What's wrong with a small shell script to do
+> this?  Are you using this for a system?  I guess it could be useful for
+> a system that has no shell.
+  Nothing wrong on shell script, but i use this on system without perl,
+awk, if, ...etc... binaries.
 
-Is there anything I can do to help?
-
-Fredrik Tolf
-
+> > - for USB: matching by vendor & class, not only by vendor (-ENODEV bug)
+> 
+> Can you split this patch out?  It looks useful.
+  of course
+-- 
+-------------------------------------------------------
+  David "Dave" Jez                Brno, CZ, Europe
+ E-mail: dave.jez@seznam.cz
+PGP key: finger xjezda00@eva.fit.vutbr.cz
+---------=[ ~EOF ]=------------------------------------

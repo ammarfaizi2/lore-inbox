@@ -1,100 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261632AbVC1AZb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261637AbVC1A1i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261632AbVC1AZb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 19:25:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261637AbVC1AZb
+	id S261637AbVC1A1i (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 19:27:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261641AbVC1A1h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 19:25:31 -0500
-Received: from gate.crashing.org ([63.228.1.57]:8137 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261632AbVC1AZS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 19:25:18 -0500
-Subject: [PATCH] radeonfb: Fix mode setting on CRT monitors
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Mon, 28 Mar 2005 10:24:56 +1000
-Message-Id: <1111969496.5409.40.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+	Sun, 27 Mar 2005 19:27:37 -0500
+Received: from harlech.math.ucla.edu ([128.97.4.250]:36996 "EHLO
+	harlech.math.ucla.edu") by vger.kernel.org with ESMTP
+	id S261637AbVC1A13 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Mar 2005 19:27:29 -0500
+Date: Sun, 27 Mar 2005 16:27:25 -0800 (PST)
+From: Jim Carter <jimc@math.ucla.edu>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Disc driver is module, software suspend fails
+In-Reply-To: <20050325081438.GA17245@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.61.0503271623150.5513@xena.cft.ca.us>
+References: <Pine.LNX.4.61.0503242248530.7785@xena.cft.ca.us>
+ <20050325081438.GA17245@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+On Fri, 25 Mar 2005, Pavel Machek wrote:
 
-Current radeonfb is a bit "anal" about accepting CRT modes, it basically only
-accepts modes that have the exact resolution, which tends to break with fbcon
-on console switches as it provides "approximate" modes. This patch fixes it
-by having the driver chose the closest possible mode instead of looking for
-an exact match.
+> There's another feature that enables you to start resume manually with
+> some echo to /sys... Perhaps it needs to be documented better, I'm
+> looking for a patch ;-).
 
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+But how can it resume from a swap device for which it has no driver?
+Even if you copied the needed module(s) onto the swap device, the kernel
+needs the modules to be loaded before it can read anything.  The driver 
+would be there if resuming happened after the initrd loaded it.  But
+I wasn't able to make that actually work.
 
---- linux-work.orig/drivers/video/aty/radeon_monitor.c	2005-03-11 16:54:25.000000000 +1100
-+++ linux-work/drivers/video/aty/radeon_monitor.c	2005-03-11 16:58:04.000000000 +1100
-@@ -903,7 +903,7 @@
-  */
- 
- /*
-- * This is used when looking for modes. We assign a "goodness" value
-+ * This is used when looking for modes. We assign a "distance" value
-  * to a mode in the modedb depending how "close" it is from what we
-  * are looking for.
-  * Currently, we don't compare that much, we could do better but
-@@ -912,13 +912,11 @@
- static int radeon_compare_modes(const struct fb_var_screeninfo *var,
- 				const struct fb_videomode *mode)
- {
--	int goodness = 0;
-+	int distance = 0;
- 
--	if (var->yres == mode->yres)
--		goodness += 10;
--	if (var->xres == mode->xres)
--		goodness += 9;
--	return goodness;
-+	distance = mode->yres - var->yres;
-+	distance += (mode->xres - var->xres)/2;
-+	return distance;
- }
- 
- /*
-@@ -940,7 +938,7 @@
- 	const struct fb_videomode	*db = vesa_modes;
- 	int				i, dbsize = 34;
- 	int				has_rmx, native_db = 0;
--	int				goodness = 0;
-+	int				distance = INT_MAX;
- 	const struct fb_videomode	*candidate = NULL;
- 
- 	/* Start with a copy of the requested mode */
-@@ -976,19 +974,19 @@
- 	/* Now look for a mode in the database */
- 	while (db) {
- 		for (i = 0; i < dbsize; i++) {
--			int g;
-+			int d;
- 
- 			if (db[i].yres < src->yres)
- 				continue;	
- 			if (db[i].xres < src->xres)
- 				continue;
--			g = radeon_compare_modes(src, &db[i]);
-+			d = radeon_compare_modes(src, &db[i]);
- 			/* If the new mode is at least as good as the previous one,
- 			 * then it's our new candidate
- 			 */
--			if (g >= goodness) {
-+			if (d < distance) {
- 				candidate = &db[i];
--				goodness = g;
-+				distance = d;
- 			}
- 		}
- 		db = NULL;
-
--- 
-Benjamin Herrenschmidt <benh@kernel.crashing.org>
-
+James F. Carter          Voice 310 825 2897    FAX 310 206 6673
+UCLA-Mathnet;  6115 MSA; 405 Hilgard Ave.; Los Angeles, CA, USA 90095-1555
+Email: jimc@math.ucla.edu  http://www.math.ucla.edu/~jimc (q.v. for PGP key)

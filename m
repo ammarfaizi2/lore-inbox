@@ -1,63 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265800AbUJASI6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266115AbUJASNh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265800AbUJASI6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 14:08:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265996AbUJASFr
+	id S266115AbUJASNh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 14:13:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266003AbUJASN1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 14:05:47 -0400
-Received: from mail.kroah.org ([69.55.234.183]:49849 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265800AbUJASBX (ORCPT
+	Fri, 1 Oct 2004 14:13:27 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:34481 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S266115AbUJASMw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 14:01:23 -0400
-Date: Fri, 1 Oct 2004 10:53:12 -0700
-From: Greg KH <greg@kroah.com>
-To: Thomas Stewart <thomas@stewarts.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: udev remove event not sent untill the device is closed
-Message-ID: <20041001175312.GB14015@kroah.com>
-References: <200409272252.36016.thomas@stewarts.org.uk>
-Mime-Version: 1.0
+	Fri, 1 Oct 2004 14:12:52 -0400
+Date: Fri, 01 Oct 2004 11:11:12 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+cc: kernel-janitors@lists.osdl.org, greg@kroah.com, davidm@hpl.hp.com,
+       hannal@us.ibm.com
+Subject: [PATCH 2.6.9-rc2-mm4 sba_iommu.c] Replace pci_find_device with pci_get_device
+Message-ID: <112650000.1096654272@w-hlinder.beaverton.ibm.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200409272252.36016.thomas@stewarts.org.uk>
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 27, 2004 at 10:52:36PM +0100, Thomas Stewart wrote:
-> Hi,
-> 
-> I'm running 2.6.8.1 with udev-031. I have a usb2serial converter which has a 
-> udev rule to give it a persistent name in my dev tree. I want to run a script 
-> when the converter is attached, and another when the converter is removed.
-> 
-> I tried both the /etc/hotplug.d and /etc/dev.d methods to do this (I like the 
-> dev.d method better as I can use my persistent device name). Unfortunately I 
-> ran into problems.
-> 
-> I'm catching the tty event as it sets $DEVPATH to something useful 
-> (e.g. /devices/sys/class/tty/ttyUSB0). And then running a different script 
-> depending on $ACTION.
-> 
-> I made a short script to do this, and put it in /etc/dev.d/default/ttyUSB.dev:
-> #!/bin/sh
-> test "$1" != "tty" && exit
-> test "$ACTION" == "add"    && /usr/local/bin/on
-> test "$ACTION" == "remove" && /usr/local/bin/off
-> 
-> (I removed the various error checking that actually makes sure the tty event 
-> in question was actually the serial converter, and not some other device.)
-> 
-> This works fine, I can add and remove the converter to my hearts content and 
-> both scripts run accordingly.
-> 
-> However, if I attach the device, open it with say a "cat /dev/ttyUSB0" and 
-> then remove the device. No tty events get sent untill I kill the cat.
+As pci_find_device is going away soon I have replaced the call with pci_get_device.
+Judith, could you run these 3 ia64 ones through PLM, please? This should complete the
+arch/ia64 conversion.
 
-This is because the tty device remains until the last userspace process
-releases the device.  You might want to trigger your script off of the
-removal of the USB device instead.
+Thanks a lot.
 
-Hope this helps,
+Hanna Linder
+IBM Linux Technology Center
 
-greg k-h
+Signed-off-by: Hanna Linder <hannal@us.ibm.com>
+
+---
+
+diff -Nrup linux-2.6.9-rc1-mm5/arch/ia64/hp/common/sba_iommu.c linux-2.6.9-rc1-mm5patch/arch/ia64/hp/common/sba_iommu.c
+--- linux-2.6.9-rc1-mm5/arch/ia64/hp/common/sba_iommu.c	2004-09-14 16:25:34.000000000 -0700
++++ linux-2.6.9-rc1-mm5patch/arch/ia64/hp/common/sba_iommu.c	2004-09-21 15:27:16.000000000 -0700
+@@ -1556,7 +1556,7 @@ ioc_iova_init(struct ioc *ioc)
+ 	** We program the next pdir index after we stop w/ a key for
+ 	** the GART code to handshake on.
+ 	*/
+-	while ((device = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, device)) != NULL)
++	while ((device = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, device)) != NULL)
+ 		agp_found |= pci_find_capability(device, PCI_CAP_ID_AGP);
+ 
+ 	if (agp_found && reserve_sba_gart) {
+

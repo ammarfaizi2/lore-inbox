@@ -1,54 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263199AbTDGCnl (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 22:43:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263202AbTDGCnl (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 22:43:41 -0400
-Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:9989 "EHLO
-	mx2.cypherpunks.ca") by vger.kernel.org with ESMTP id S263199AbTDGCnj (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Apr 2003 22:43:39 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@mozart.cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: [PATCH] new syscall: flink
-Date: 7 Apr 2003 02:29:58 GMT
-Organization: University of California, Berkeley
-Distribution: isaac
-Message-ID: <b6qnr6$s4h$1@abraham.cs.berkeley.edu>
-References: <3E907A94.9000305@kegel.com> <200304062156.37325.oliver@neukum.org> <1049663559.1602.46.camel@dhcp22.swansea.linux.org.uk> <b6qo2a$ecl$1@cesium.transmeta.com>
-NNTP-Posting-Host: mozart.cs.berkeley.edu
-X-Trace: abraham.cs.berkeley.edu 1049682598 28817 128.32.153.211 (7 Apr 2003 02:29:58 GMT)
-X-Complaints-To: news@abraham.cs.berkeley.edu
-NNTP-Posting-Date: 7 Apr 2003 02:29:58 GMT
-X-Newsreader: trn 4.0-test74 (May 26, 2000)
-Originator: daw@mozart.cs.berkeley.edu (David Wagner)
+	id S263205AbTDGCqF (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 22:46:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263206AbTDGCqC (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 22:46:02 -0400
+Received: from f10.pav2.hotmail.com ([64.4.37.10]:10250 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id S263205AbTDGCp6 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Apr 2003 22:45:58 -0400
+X-Originating-IP: [129.219.25.77]
+X-Originating-Email: [bhushan_vadulas@hotmail.com]
+From: "shesha bhushan" <bhushan_vadulas@hotmail.com>
+To: 76306.1226@compuserve.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Mail error from Hotmail message (was: patch-2.4.16-rmk1-iop310.1.gz)
+Date: Mon, 07 Apr 2003 02:57:26 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F10U10sZQJxTZkqHZ3W000196e9@hotmail.com>
+X-OriginalArrivalTime: 07 Apr 2003 02:57:26.0785 (UTC) FILETIME=[6BCDB710:01C2FCB1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
->Alan Cox wrote:
->> Suppose I give you an O_RDONLY handle to a file which you then
->> flink and gain write access too ?
+I have no idea. The message I posted was
+-----------------
+Hello Linux ppl,
+
+I was looking for patch-2.4.16-rmk1-iop310.1.gz.
+But ftp://source.mvista.com/pub/xscale/IOP310/patch-2.4.16-rmk1-iop310.1.gz 
+is broken. If any one has this file, could you please provide me ?
+---------------------------
+
+Thanking You
+Shesha
+
+
+
+
+
+>From: Chuck Ebbert <76306.1226@compuserve.com>
+>To: "shesha bhushan" <bhushan_vadulas@hotmail.com>
+>CC: linux-kernel <linux-kernel@vger.kernel.org>
+>Subject: Mail error from Hotmail message (was:  
+>patch-2.4.16-rmk1-iop310.1.gz)
+>Date: Sun, 6 Apr 2003 08:28:15 -0400
 >
->This, I believe, is the real issue.  However, we already have that
->problem:
-
-No, I don't think we already have that problem.  I think flink()
-would introduce a new security hole not already present.
-
-
->  rfd = open("testfile", O_RDONLY|O_CREAT, 0666);
->  /* Now rfd is a read-only file descriptor */
+>I got this error in my mail software from this message:
 >
->  sprintf(filebuf, "/proc/self/fd/%d", rfd);
->  wfd = open(filebuf, O_RDWR);
+>     One or more message parts marked as
+>     "Content-Transfer-Encoding: 7bit"
+>     was invalid for 7Bit decoding.
+>
+>Could this be caused by the ASCII 0x05,0x05 in the hotmail signature?
+>What is it for?
+>
+>--
+>  Chuck
+>  I am not a number!
 
-I don't think this is the same.  With /proc/self/fd, I can't escalate
-privileges on a read-only fd.  You did the wrong test, because the user
-already has write access to "testfile".  Change the above to make rfd a
-read-only file descriptor to a file that I don't have write permission to,
-and you'll find that the test all of a sudden fails.  (For instance, add
-a chmod("testfile", 0444); between the two open()s, and see what happens.)
 
-I think /proc/self/fd is doing the right thing.  /proc/self/fd doesn't
-seem to be a security hole, unless I'm missing something.  I think flink()
-would be a security risk, though.  Or did I overlook something?
+_________________________________________________________________
+War on Iraq. See latest update. 
+http://server1.msn.co.in/completecoverage/bushvssaddam/ News, views and more
+

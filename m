@@ -1,148 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261304AbTHXUjm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Aug 2003 16:39:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261305AbTHXUjm
+	id S261307AbTHXU5w (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Aug 2003 16:57:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261316AbTHXU5w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Aug 2003 16:39:42 -0400
-Received: from h55p111.delphi.afb.lu.se ([130.235.187.184]:42713 "EHLO
-	gagarin.0x63.nu") by vger.kernel.org with ESMTP id S261304AbTHXUjj
+	Sun, 24 Aug 2003 16:57:52 -0400
+Received: from mail1-106.ewetel.de ([212.6.122.106]:56806 "EHLO
+	mail1.ewetel.de") by vger.kernel.org with ESMTP id S261307AbTHXU5s
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Aug 2003 16:39:39 -0400
-Date: Sun, 24 Aug 2003 22:34:26 +0200
+	Sun, 24 Aug 2003 16:57:48 -0400
+Date: Sun, 24 Aug 2003 22:57:30 +0200 (CEST)
+From: Pascal Schmidt <der.eremit@email.de>
 To: linux-kernel@vger.kernel.org
-Cc: zippel@linux-m68k.org, Sam Ravnborg <sam@ravnborg.org>
-Subject: [PATCH] Make menuconfig display helptext in "choice" menus.
-Message-ID: <20030824203426.GA11071@h55p111.delphi.afb.lu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-From: Anders Gustafsson <andersg@0x63.nu>
-X-Scanner: exiscan *19r1ZC-0004xB-00*R7phmYLKqP.*0x63.nu
+cc: sct@redhat.com, <akpm@osdl.org>
+Subject: [2.4.22-rc1] ext3/jbd assertion failure transaction.c:1164 
+Message-ID: <Pine.LNX.4.44.0308242250100.1411-100000@neptune.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-found an old patch lingering in my tree. It fixes the annoying problem that
-helptext can't be displayed in choicemenus with menuconfig.
+Hi!
+
+I was running fsx to test a userspace NFSv3 server. The underlying 
+filesystem was ext3. After about 10 seconds into the fsx run, I hit the 
+following BUG() in transaction.c. data=journal was used. I could not start 
+any new processes after the incident and had to press the reset button.
+
+Is this a known problem?
+
+Assertion failure in journal_dirty_metadata() at transaction.c:1164: 
+"jh->b_frozen_data == 0"
+
+ksymoops 2.4.4 on i686 2.4.22-rc1.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.22-rc1/ (default)
+     -m /boot/System.map-2.4.22-rc1 (default)
+
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
+
+Error (regular_file): read_ksyms stat /proc/ksyms failed
+No modules in ksyms, skipping objects
+No ksyms, skipping lsmod
+kernel BUG at transaction.c:1164!
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[journal_dirty_metadata+359/416]    Not tainted
+EIP:    0010:[<c015dcc7>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010292
+eax: 00000061   ebx: e6044f30   ecx: 00000005   edx: e77a9f44
+esi: e77a67c0   edi: e7c447c0   ebp: e655c940   esp: d1459dcc
+ds: 0018   es: 0018   ss: 0018
+Process fsx (pid: 4689, stackpage=d1459000)
+Stack: c02d8fa0 c02d4126 c02d49b8 0000048c c02d4bd1 d0785640 e655c940 00000000 
+       00001000 c015581a e655c940 d0785640 00000246 00000000 00000246 00000000 
+       d0785640 d07d7000 00001000 0000001e 00001000 d0785640 0000001c c01637f7 
+Call Trace:    [commit_write_fn+26/96] [__jbd_kmalloc+39/160] [walk_page_buffers+93/128] [ext3_commit_write+166/448] [commit_write_fn+0/96]
+Call Trace:    [<c015581a>] [<c01637f7>] [<c015557d>] [<c0155906>] [<c0155800>]
+  [<c01276cd>] [<c0127ad0>] [<c01531ff>] [<c0132245>] [<c0131e20>] [<c0131fce>]
+  [<c01088a3>]
+Code: 0f 0b 8c 04 b8 49 2d c0 83 c4 14 6a 03 ff 75 00 53 e8 43 0a 
+
+>>EIP; c015dcc7 <journal_dirty_metadata+167/1a0>   <=====
+Trace; c015581a <commit_write_fn+1a/60>
+Trace; c01637f7 <__jbd_kmalloc+27/a0>
+Trace; c015557d <walk_page_buffers+5d/80>
+Trace; c0155906 <ext3_commit_write+a6/1c0>
+Trace; c0155800 <commit_write_fn+0/60>
+Trace; c01276cd <do_generic_file_write+29d/3e0>
+Trace; c0127ad0 <generic_file_write+f0/110>
+Trace; c01531ff <ext3_file_write+1f/b0>
+Trace; c0132245 <sys_write+95/f0>
+Trace; c0131e20 <generic_file_llseek+0/b0>
+Trace; c0131fce <sys_lseek+6e/80>
+Trace; c01088a3 <system_call+33/38>
+Code;  c015dcc7 <journal_dirty_metadata+167/1a0>
+00000000 <_EIP>:
+Code;  c015dcc7 <journal_dirty_metadata+167/1a0>   <=====
+   0:   0f 0b                     ud2a      <=====
+Code;  c015dcc9 <journal_dirty_metadata+169/1a0>
+   2:   8c 04 b8                  movl   %es,(%eax,%edi,4)
+Code;  c015dccc <journal_dirty_metadata+16c/1a0>
+   5:   49                        dec    %ecx
+Code;  c015dccd <journal_dirty_metadata+16d/1a0>
+   6:   2d c0 83 c4 14            sub    $0x14c483c0,%eax
+Code;  c015dcd2 <journal_dirty_metadata+172/1a0>
+   b:   6a 03                     push   $0x3
+Code;  c015dcd4 <journal_dirty_metadata+174/1a0>
+   d:   ff 75 00                  pushl  0x0(%ebp)
+Code;  c015dcd7 <journal_dirty_metadata+177/1a0>
+  10:   53                        push   %ebx
+Code;  c015dcd8 <journal_dirty_metadata+178/1a0>
+  11:   e8 43 0a 00 00            call   a59 <_EIP+0xa59> c015e720 <__journal_file_buffer+0/1e0>
+
+
+1 warning and 1 error issued.  Results may not be reliable.
+
 
 -- 
-Anders Gustafsson - andersg@0x63.nu - http://0x63.nu/
+Ciao,
+Pascal
 
-You can import this changeset into BK by piping this whole message to:
-'| bk receive [path to repository]' or apply the patch as usual.
-
-===================================================================
-
-
-ChangeSet@1.1292, 2003-08-24 22:22:55+02:00, andersg@0x63.nu
-  Make menuconfig display helptext in "choice" menus.
-
-
- kconfig/mconf.c      |   20 ++++++++++++++++----
- lxdialog/checklist.c |    3 ++-
- 2 files changed, 18 insertions(+), 5 deletions(-)
-
-
-diff -Nru a/scripts/kconfig/mconf.c b/scripts/kconfig/mconf.c
---- a/scripts/kconfig/mconf.c	Sun Aug 24 22:26:52 2003
-+++ b/scripts/kconfig/mconf.c	Sun Aug 24 22:26:52 2003
-@@ -607,6 +607,7 @@
- 	struct symbol *active;
- 	int stat;
- 
-+	active = sym_get_choice_value(menu->sym);
- 	while (1) {
- 		cprint_init();
- 		cprint("--title");
-@@ -618,13 +619,18 @@
- 		cprint("6");
- 
- 		current_menu = menu;
--		active = sym_get_choice_value(menu->sym);
- 		for (child = menu->list; child; child = child->next) {
- 			if (!menu_is_visible(child))
- 				continue;
- 			cprint("%p", child);
- 			cprint("%s", menu_get_prompt(child));
--			cprint(child->sym == active ? "ON" : "OFF");
-+			if (sym_get_choice_value(menu->sym) == child->sym) {
-+				cprint("ON");
-+			}else if (active== child->sym) {
-+				cprint("SELECTED");
-+			}else{
-+				cprint("OFF");
-+			}
- 		}
- 
- 		stat = exec_conf();
-@@ -634,9 +640,15 @@
- 				break;
- 			sym_set_tristate_value(menu->sym, yes);
- 			return;
--		case 1:
--			show_help(menu);
-+		case 1: {
-+			struct menu *tmp;
-+			if (sscanf(input_buf, "%p", &tmp) == 1) {
-+				show_help(tmp);
-+				active=tmp->sym;
-+			} else
-+				show_help(menu);
- 			break;
-+		}
- 		case 255:
- 			return;
- 		}
-diff -Nru a/scripts/lxdialog/checklist.c b/scripts/lxdialog/checklist.c
---- a/scripts/lxdialog/checklist.c	Sun Aug 24 22:26:52 2003
-+++ b/scripts/lxdialog/checklist.c	Sun Aug 24 22:26:52 2003
-@@ -138,7 +138,7 @@
-     /* Initializes status */
-     for (i = 0; i < item_no; i++) {
- 	status[i] = !strcasecmp (items[i * 3 + 2], "on");
--	if (!choice && status[i])
-+	if ((!choice && status[i]) || (!strcasecmp (items[i * 3 + 2], "selected")))
-             choice = i;
-     }
- 
-@@ -302,6 +302,7 @@
- 	case 'H':
- 	case 'h':
- 	case '?':
-+	    fprintf (stderr, "%s", items[(scroll + choice) * 3]);
- 	    delwin (dialog);
- 	    free (status);
- 	    return 1;
-
-===================================================================
-
-
-This BitKeeper patch contains the following changesets:
-+
-## Wrapped with gzip_uu ##
-
-
-M'XL( (P?23\  \U6:V_;-A3];/Z*6Q<+[*:V^-#++EQD2](M6+<&Z?JI" R:
-MHFW!>D&DG&33_ONN)"=+C#7IV@TH+8#@XQZ>>WD.X>?PP>ARVI-9I$NS(L_A
-MI]S8:8]>^V*<53B^R',<.Y&TTHGTUMGH,M.)L]@XBR2_(KCC7%JUABW&3WML
-M+.YF[$VAI[V+TQ\_O/W^@I#9#([7,EOI]]K";$9L7FYE$IDC:==)GHUM*3.3
-M:BO'*D_KNZTUIY3CSV.!H)Y?,Y^Z0:U8Q)ATF8XH=T/?)=LXDS>C4AUETE:E
-M-OG2CC-M/]Z><OD04="0"\:YX*+V?,_SR0FP,>,3#E0X-'2X"YQ/\?.\0\JG
-ME,*N1$>[TL AAQ$E/\!_F\<Q4?"+W&A(=5:I/%O&*XAB4R3R!M8Z*:R^MA!G
-MT%?K/%:ZW^XS8_(S>"+T G+^=Y')Z%\V0JBDY/43&1E5QH4U3G(=Q3+)5XY:
-M:[5)8F/'ZEZ2+A5^33WJ3^I)N-2!YP:!B#1?\'"_E$]"-K?E<LI"3FON^:Y 
-MDK_'1:&3HR3.JNM1ZH>;<5ZN[EWW+>:F*Z*3-OV.(4-$Z@K.1"VH<&F]G$QD
-M)"(V45X81,+_),-_0+M/SA>3(&BE_EA*3ZO_ZVM,BL:#7X,>TH"*&M7JL=8<
-M[@-GL'#*Z2/.8-^0,SK)O(-1>=5^J/3S1R_H"YQSPEP&C)QU72]>PF#PK&,"
-M!P=@+#Y+YF-\.82ZAL$S8TLEC59I 8/8ZA27X 4(. 1^^1+Z1B=:61WUA\,A
-M.1/4;3 !V[(HX\PBN+%8\Q*W?F?Z+Z&#&&!.>9(@2'?PL(&\'+YZ(,@]!3=:
-M_%^M1,HHJK)$%D>YB9+/1T9;47R@41=A[?K"\UH13CY?A,R'D?L-J;![&SZA
-MPKT"?($ SWPZ:50BE8VW&O#";]+Y2MMY1V2.-:CTH&$S>HU+J(H3GS=:Q2YH
-ME-MT >GU6NT^$8RJ08W%2;0;_M'$]50KSD'_W:]]A,>)/W5B-#1X':M'H]Z?
-MOCT]_NWTY'[L'NZ;-[>+R%H$P)&U"%O6C9N 33M,=%>E;%MZ>&'3XM5=6D;)
-M;#F(LZ*R\T6U;/Q3H'\.<%.;%+ME9=;YU;RYT$&SU +L2CO#B3:!C@DT//="
-AFH,Q!LFU5X)T[_X4M:^,J=(972ZP11'Y"TI,2,:#"0  
- 

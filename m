@@ -1,64 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268972AbUIQU1r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268980AbUIQUcJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268972AbUIQU1r (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 16:27:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268977AbUIQU1q
+	id S268980AbUIQUcJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 16:32:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268979AbUIQUcI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 16:27:46 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:60295 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S268972AbUIQU1m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 16:27:42 -0400
-Message-Id: <200409172027.i8HKRVwY005444@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.1 07/26/2004 with nmh-1.1-RC3
-To: Eric Mudama <edmudama@gmail.com>
-Cc: David Stevens <dlstevens@us.ibm.com>, Netdev <netdev@oss.sgi.com>,
-       leonid.grossman@s2io.com, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: The ultimate TOE design 
-In-Reply-To: Your message of "Fri, 17 Sep 2004 00:46:59 MDT."
-             <311601c90409162346184649eb@mail.gmail.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <4148991B.9050200@pobox.com> <OF8783A4F6.D566336C-ON88256F10.006E51CE-88256F10.006EDA93@us.ibm.com>
-            <311601c90409162346184649eb@mail.gmail.com>
+	Fri, 17 Sep 2004 16:32:08 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:14862 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S268980AbUIQU2t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 16:28:49 -0400
+Date: Fri, 17 Sep 2004 21:28:44 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] mmtimer cleanups
+Message-ID: <20040917212843.A17201@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jesse Barnes <jbarnes@engr.sgi.com>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <200409171313.12302.jbarnes@engr.sgi.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-239910029P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Fri, 17 Sep 2004 16:27:31 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200409171313.12302.jbarnes@engr.sgi.com>; from jbarnes@engr.sgi.com on Fri, Sep 17, 2004 at 01:13:12PM -0700
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-239910029P
-Content-Type: text/plain; charset=us-ascii
-
-On Fri, 17 Sep 2004 00:46:59 MDT, Eric Mudama said:
-> On Wed, 15 Sep 2004 14:11:04 -0600, David Stevens <dlstevens@us.ibm.com> wrot
-e:
-> > Why don't we off-load filesystems to disks instead?
+On Fri, Sep 17, 2004 at 01:13:12PM -0700, Jesse Barnes wrote:
+> A few cleanups that probably should have been done a long time ago:
 > 
-> Disks have had file systems on them since close to the beginning...
+>   o remove test program from mmtimer.h
+>   o move name, desc., etc. #defines from mmtimer.h to mmtimer.c
+>   o document what mmtimer.c is a little better
+>   o some whitespace cleanups for linewrapping and such
+> 
+> Signed-off-by: Jesse Barnes <jbarnes@sgi.com>
+> 
+> Thanks,
+> Jesse
 
-No, he means "offload the processing of the filesystem to the disk itself".
+> +#define MMTIMER_FULLNAME "/dev/mmtimer"
 
-IBM's MVS  systems basically did that - it used the disk's "Search Key" I/O
-opcodes to basically get the equivalent of doing namei() out on the disk itself
-(it did this for system catalog and PDS directory searches from the beginning,
-and added 'indexed VTOC' support in the mid-80s).  So you'd send out a CCW
-(channel command word) stream that basically said "Find me the dataset
-USER3.ACCTING.TESTJOBS", and when the I/O completed, you'd have the DSCB (the
-moral equiv of an inode) ready to go.
+Shouldn't be needed ;-)
 
-
---==_Exmh_-239910029P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFBS0izcC3lWbTT17ARAoKMAJ4pA1BjsPb0sbxLDbLKM9jvox5srACeMV0V
-ZMot5U1QnkpacHYr8pIWeJM=
-=zjf/
------END PGP SIGNATURE-----
-
---==_Exmh_-239910029P--

@@ -1,72 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266067AbRGCXpA>; Tue, 3 Jul 2001 19:45:00 -0400
+	id <S266066AbRGCXou>; Tue, 3 Jul 2001 19:44:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266068AbRGCXov>; Tue, 3 Jul 2001 19:44:51 -0400
-Received: from pedigree.cs.ubc.ca ([142.103.6.50]:14077 "EHLO
-	pedigree.cs.ubc.ca") by vger.kernel.org with ESMTP
-	id <S266067AbRGCXok>; Tue, 3 Jul 2001 19:44:40 -0400
-Date: Tue, 3 Jul 2001 16:44:36 -0700
-From: Dima Brodsky <dima@cs.ubc.ca>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Cc: Dima Brodsky <dima@cs.ubc.ca>
-Subject: RPC: rpciod waiting on sync task!
-Message-ID: <20010703164436.A20309@cascade.cs.ubc.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S266068AbRGCXok>; Tue, 3 Jul 2001 19:44:40 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:56850 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S266066AbRGCXod>;
+	Tue, 3 Jul 2001 19:44:33 -0400
+Date: Tue, 3 Jul 2001 20:44:22 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: "Ph. Marek" <marek@bmlv.gv.at>
+Cc: <linux-kernel@vger.kernel.org>, <phillips@bonn-fries.net>
+Subject: Re: Ideas for TUX2
+In-Reply-To: <3.0.6.32.20010703082513.0091f900@pop3.bmlv.gv.at>
+Message-ID: <Pine.LNX.4.33L.0107032042220.28737-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 3 Jul 2001, Ph. Marek wrote:
 
-I modified the linux NFS client, kernel 2.4.5 and 2.4.6-pre7, to send
-an extra SETATTR, with special values, within nfs_open and nfs_release
-so that I would be able to track file open and close.  For the server I
-am using a slightly modified linux user level nfs server.
+> If a file's data has been changed, it suffices to update the inode and the
+> of free blocks bitmap (fbb).
+> But updating them in one go is not possible
 
-What I noticed is that after this change I get:
+You seem to have missed some fundamental understanding of
+exactly how phase tree works; the wohle point of phase
+tree is to make atomic updates like this possible!
 
-RPC: rpciod waiting on sync task!
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-coming from the kernel under heavy read load, especially with
-larger chunks of data 8k, 16, and 64k.
+http://www.surriel.com/		http://distro.conectiva.com/
 
-The code introduced into nfs_open and nfs_release is:
-
-        memset( &fattr, 0, sizeof(struct nfs_fattr) );
-        memset( &attr, 0, sizeof(struct iattr) );
-
-        attr.ia_valid = ATTR_MODE | ATTR_UID | ATTR_GID | ATTR_SIZE;
-        attr.ia_mode = inode->i_mode;
-        attr.ia_uid = -10;
-        attr.ia_gid = -10;
-        attr.ia_size = -10;
-        attr.ia_atime = -1;
-        attr.ia_mtime = -1;
-        attr.ia_ctime = -1;
-        attr.ia_attr_flags = -1;
-
-        error = NFS_PROTO(inode)->setattr(inode, &fattr, &attr);
-        if ( error ) {
-                printk( "nfs_network_openclose: error=%d\n", error );
-        }
-
-Does anybody see any problems with this code?  The unmodified nfs client
-works fine with the unmodified nfs server.
-
-Thanks
-ttyl
-Dima
-
--- 
-Dima Brodsky                                   dima@cs.ubc.ca
-                                               http://www.cs.ubc.ca/~dima
-201-2366 Main Mall                             (604) 822-6179 (Office)
-Department of Computer Science                 (604) 822-2895 (DSG Lab)
-University of British Columbia, Canada         (604) 822-5485 (FAX)
-
-Computers are like Old Testament gods; lots of rules and no mercy.
-							  (Joseph Campbell)
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

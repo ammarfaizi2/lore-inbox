@@ -1,53 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129625AbQK1S4r>; Tue, 28 Nov 2000 13:56:47 -0500
+        id <S129408AbQK1TMU>; Tue, 28 Nov 2000 14:12:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129710AbQK1S4h>; Tue, 28 Nov 2000 13:56:37 -0500
-Received: from [212.32.186.211] ([212.32.186.211]:32155 "EHLO
-        fungus.svenskatest.se") by vger.kernel.org with ESMTP
-        id <S129625AbQK1S4X>; Tue, 28 Nov 2000 13:56:23 -0500
-Date: Tue, 28 Nov 2000 19:26:12 +0100 (CET)
-From: Urban Widmark <urban@teststation.com>
-To: "Igor Yu. Zhbanov" <bsg@uniyar.ac.ru>
-cc: linux-kernel@vger.kernel.org, vandrove@vc.cvut.cz
-Subject: Re: Bug in date converting functions DOS<=>UNIX in FAT, NCPFS and
- SMBFS drivers
-In-Reply-To: <Pine.GSO.3.96.SK.1001124162224.25896A-200000@univ.uniyar.ac.ru>
-Message-ID: <Pine.LNX.4.21.0011251250460.16600-100000@cola.svenskatest.se>
+        id <S130423AbQK1TML>; Tue, 28 Nov 2000 14:12:11 -0500
+Received: from sneaker.sch.bme.hu ([152.66.226.5]:8722 "EHLO
+        sneaker.sch.bme.hu") by vger.kernel.org with ESMTP
+        id <S129408AbQK1TME>; Tue, 28 Nov 2000 14:12:04 -0500
+Date: Tue, 28 Nov 2000 19:34:22 +0100 (CET)
+From: "Mr. Big" <mrbig@sneaker.sch.bme.hu>
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: crashing kernels
+In-Reply-To: <Pine.GSO.3.96.1001128091924.23460A-100000@delta.ds2.pg.gda.pl>
+Message-ID: <Pine.LNX.3.96.1001128192620.1786A-100000@sneaker.sch.bme.hu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Nov 2000, Igor Yu. Zhbanov wrote:
 
-> Hello!
+> > The output of lspci -v:
+> [...]
+> > 00:0e.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100] (rev 08)
+> >         Subsystem: Intel Corporation 82559 Fast Ethernet LAN on Motherboard
+> >         Flags: bus master, medium devsel, latency 64, IRQ 5
+> 
+>  Hmm, this is the device you reported you have a problem initially, isn't
+> it?  If it is, then...
+> 
+> > 00:12.2 USB Controller: Intel Corporation 82371AB PIIX4 USB (rev 01) (prog-if 00 [UHCI])
+> >         Flags: bus master, medium devsel, latency 64, IRQ 5
+> 
+>  ... it shares its IRQ with an USB host adapter as I suspected.  And you
+> don't have an USB driver installed.  Does the following patch help?  (Hmm,
+> since you tested 2.4.0-test* as well -- it might not as it's just a
+> backport...  Then again -- you might hit a different problem with
+> 2.4.0-test*.) 
 
-Hello, sorry for the slow response.
+Yes You are right. This Ether Express is integrated on the motherboard, so
+we couldn't get it out totally :( But there isn't any cable connected to
+it, we also doesn't have the driver in the kernel. This is the same with
+the USB too. Do You mind, that they could have some kind of conflict just
+on they own, without being really used?
 
-> I have found a bug in drivers of file systems which use a DOS-like format
-> of date (16 bit: years since 1980 - 7 bits, month - 4 bits, day - 5 bits).
+Currently after changing the processors to Katmais, and disabling the
+apic, and some of the other unused peripheries, it seems, that the system
+is more stable. If the errors come again, I'll try to compile the USB
+driver also.
 
-[snip]
 
-> 2) VFAT for example have three kinds of dates: creation date, modification date
->    and access date. Sometimes one of these dates is set to zero (which indicates
->    that this date is not set). Zero is not a valid date (e.g. months are
->    numbered from one, not from zero) and can't be properly converted to
->    UNIX-like format of date (it was converted to date before 1980).
+>  It's not impossible for an I/O APIC to lose an EOI message if there are
+> severe errors during the transmission -- since you already tried
+> 2.4.0-test*: have you seen any APIC errors in the syslog? 
 
-Days are also numbered from one (at least smbfs) and this change doesn't
-do anything about that. An all zero date gives 315446400 (or else my
-testprogram is broken) and you wanted it to give 315532800 (?). So that
-should be fixed too, I think.
+Nope, specially we didn't get errors from the APIC himself. But both
+network cards (except the EtherExpress) were saying errors considering to
+interrupts.
+3Com:
+kernel: eth0: Interrupt posted but not delivered -- IRQ blocked by another
+device?
+kernel:   Flags; bus-master 1, full 0; dirty 112(0) current 112(0).
+kernel:   Transmit list 00000000 vs. f20ac200.
+kernel:   0: @f20ac200  length 80000036 status
+...
+kernel:   15: @f20ac2f0  length 80000042 status
+kernel: eth0: Resetting the Tx ring pointer.
 
-It would be nice if someone would rewrite these shift-and-mask orgies into
-something with a bit more structure (bitfields? hmm, endianess problems?
-undefined compiler behaviour? I don't know ... macros?).
 
-I'm having trouble following these, but maybe that's just me.
+DLink:
+Kernel Panic: skput:over: a00f8d9b: 1526 put: 66 dev: eth1
+In interrupt handler - not syncing
 
-/Urban
+after SysRQ+ALT+u:
+Aiee, killing interrupt handler
+Unable to handle kernel NULL pointer dereference
+
+Thanx for the USB patch, I'll try it also.
+
+
++--------------------------------------------+
+| Nagy Attila                                |
+|   mailto:mrbig@sneaker.sch.bme.hu          |
++--------------------------------------------+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

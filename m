@@ -1,52 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319369AbSIFUxT>; Fri, 6 Sep 2002 16:53:19 -0400
+	id <S319399AbSIFU7g>; Fri, 6 Sep 2002 16:59:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319392AbSIFUwI>; Fri, 6 Sep 2002 16:52:08 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:8064 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S319389AbSIFUwF>;
-	Fri, 6 Sep 2002 16:52:05 -0400
-Date: Fri, 6 Sep 2002 11:31:30 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Dominik Brodowski <devel@brodo.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       cpufreq@www.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.5.32] CPU frequency and voltage scaling (0/4)
-Message-ID: <20020906113129.E39@toy.ucw.cz>
-References: <20020828223939.C816@brodo.de> <Pine.LNX.4.33.0208281400330.16824-100000@penguin.transmeta.com>
+	id <S319396AbSIFU57>; Fri, 6 Sep 2002 16:57:59 -0400
+Received: from vitelus.com ([64.81.243.207]:62222 "EHLO vitelus.com")
+	by vger.kernel.org with ESMTP id <S319397AbSIFU5t>;
+	Fri, 6 Sep 2002 16:57:49 -0400
+Date: Fri, 6 Sep 2002 14:02:14 -0700
+From: Aaron Lehmann <aaronl@vitelus.com>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Nikita Danilov <Nikita@Namesys.COM>, "Stephen C. Tweedie" <sct@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: ext3 throughput woes on certain (possibly heavily fragmented) files
+Message-ID: <20020906210214.GA25666@vitelus.com>
+References: <20020903092419.GA5643@vitelus.com> <20020906170614.A7946@redhat.com> <15736.57972.202889.872554@laputa.namesys.com> <3D78E44E.5020107@namesys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.33.0208281400330.16824-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Wed, Aug 28, 2002 at 02:05:43PM -0700
+Content-Disposition: inline
+In-Reply-To: <3D78E44E.5020107@namesys.com>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, Sep 06, 2002 at 09:22:22PM +0400, Hans Reiser wrote:
+> I think I prefer that we implement a repacker for reiser4 though, as 
+> that, combined with delayed allocation, will be a balanced and thorough 
+> solution.
 
-> > #3 Then the cpufreq driver is called to actually set the CPU frequency. 
-> > 
-> > #3 is absolutely ready
-> 
-> #3 is _not_ ready, if it doesn't include a "policy" part in addition to
-> the frequency. That was what I started off talking about: on some CPU's
-> you absolutely do _not_ want to set a hard frequency, you want to tell the
-> CPU how to behave (possibly together with a frequency _range_).
-> 
-> Until that is done, no other upper layers can use this low-level 
-> functionality, since all upper layers would be forced to come up with a 
-> hard frequency goal.
-> 
-> THAT is the problem. If you want to build infrastructure for upper layers, 
-> then that infrastructure has to be able to pass down sufficient 
-> information from those upper layers.
+How does current ReiserFS fare against extreme fragmentation? What
+about XFS? Without trying to risk a flamewar, what Linux filesystems
+are the most preventive of fragmentation?
 
-So... would you take a patch that passed range down to cpufreq "core"?
-
-Dumb cpus would set speed to upper limit while smart cpus would get all
-the info...
-
-									Pavel
--- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
-
+The filesystem could make a huge difference on a machine like a mail
+server...

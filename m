@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131248AbRDMNLI>; Fri, 13 Apr 2001 09:11:08 -0400
+	id <S131191AbRDMNPm>; Fri, 13 Apr 2001 09:15:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131244AbRDMNK6>; Fri, 13 Apr 2001 09:10:58 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:1292 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131191AbRDMNKt>; Fri, 13 Apr 2001 09:10:49 -0400
-Subject: Re: Data-corruption bug in VIA chipsets
-To: ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser)
-Date: Fri, 13 Apr 2001 14:11:45 +0100 (BST)
-Cc: db@zigo.dhs.org (Dennis Bjorklund), linux-kernel@vger.kernel.org,
-        andre@linux-ide.org (Andre Hedrick), vojtech@suse.cz (Vojtech Pavlik)
-In-Reply-To: <20010413114456.C682@nightmaster.csn.tu-chemnitz.de> from "Ingo Oeser" at Apr 13, 2001 11:44:56 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131244AbRDMNPb>; Fri, 13 Apr 2001 09:15:31 -0400
+Received: from windsormachine.com ([206.48.122.28]:4621 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id <S131191AbRDMNPT>; Fri, 13 Apr 2001 09:15:19 -0400
+Date: Fri, 13 Apr 2001 09:15:07 -0400 (EDT)
+From: Mike Dresser <mdresser@windsormachine.com>
+To: Ed Tomlinson <tomlins@cam.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] ide-tape is readonly here
+In-Reply-To: <01041300541802.06447@oscar>
+Message-ID: <Pine.LNX.3.96.1010413091415.26497A-100000@router.windsormachine.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14o3MZ-0002r6-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> These are the things, that one of the German links[1] suggest
-> (translated only, because I'm not the IDE guy ;-)):
->    
->    - PCI Delay Transaction = 0 (off) (Register 0x70, Bit 1)
->    - PCI Master Read Caching = 0 (off) (Register 0x70, Bit 2)
->    - PCI Latency = 0 (values between 0 and 32 *seem* to be safe,
->         everything above seems to be *not* !)
+back down to 2.2.19, and you'll find you can read your tapes.  From what
+Andre explains, the HP Colorado 7/14 and 10/20 aren't completely compliant
+with standards.  If you run 2.2.19 and the ide patches, you'll have the
+same problems.
+
+On Fri, 13 Apr 2001, Ed Tomlinson wrote:
+
+> Hi,
 > 
-> Note: This also fixes some related USB issues according to [1].
-
-If you set the latency only within 0 and 32 then numerous other cards will
-stop working (because they set the latency up to fix pci bugs or get
-performance) - eg the buslogic scsi cards set the latency in their bios. The
-3c59x needs a high value.
-
-The values they quote are ones people tried and they were pulled because those
-were the values that generated all the 'my tv card has broken' 'my ethernet
-stopped working' reports. 
-
-Alan
+> Upgraded to ac5 tonight.  Problems with 8139too.o
+> caused a few crashes and scrambled a few files.
+> Restoring them was fun.  Seems that while ide-tape
+> can write to my 'HP Colorado 20G' drive, it gets
+> an I/O error when it trys to read...  If I flip to 
+> ide-scsi and friends (much slower for backups btw)
+> the restore works.
+> 
+> What is needed to debug this?
+> 
+> Ed Tomlinson <tomlins@cam.org>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

@@ -1,65 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261528AbVBRWAb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261533AbVBRWRq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261528AbVBRWAb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 17:00:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261532AbVBRWAb
+	id S261533AbVBRWRq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 17:17:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261534AbVBRWRq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 17:00:31 -0500
-Received: from mail1.kontent.de ([81.88.34.36]:48019 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S261528AbVBRWAY (ORCPT
+	Fri, 18 Feb 2005 17:17:46 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:40866 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S261533AbVBRWRo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 17:00:24 -0500
-From: Oliver Neukum <oliver@neukum.org>
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: 2.6: drivers/input/power.c is never built
-Date: Fri, 18 Feb 2005 23:00:21 +0100
-User-Agent: KMail/1.7.1
-Cc: Vojtech Pavlik <vojtech@suse.cz>, dtor_core@ameritech.net,
-       Richard Purdie <rpurdie@rpsys.net>,
-       James Simmons <jsimmons@pentafluge.infradead.org>,
-       Adrian Bunk <bunk@stusta.de>,
-       Linux Input Devices <linux-input@atrey.karlin.mff.cuni.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <047401c515bb$437b5130$0f01a8c0@max> <200502182223.19896.oliver@neukum.org> <20050218213428.GD1403@elf.ucw.cz>
-In-Reply-To: <20050218213428.GD1403@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Feb 2005 17:17:44 -0500
+Date: Fri, 18 Feb 2005 23:18:19 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: "d.c" <aradorlinux@yahoo.es>, "David S. Miller" <davem@davemloft.net>,
+       seanlkml@sympatico.ca, tytso@mit.edu, vonbrand@inf.utfsm.cl,
+       cfriesen@nortel.com, cs@tequila.co.jp, galibert@pobox.com,
+       kernel@crazytrain.com, linux-kernel@vger.kernel.org
+Subject: Re: [BK] upgrade will be needed
+Message-ID: <20050218221819.GA3864@ucw.cz>
+References: <seanlkml@sympatico.ca> <4912.10.10.10.24.1108675441.squirrel@linux1> <200502180142.j1I1gJXC007648@laptop11.inf.utfsm.cl> <1451.10.10.10.24.1108713140.squirrel@linux1> <20050218162729.GA5839@thunk.org> <4075.10.10.10.24.1108751663.squirrel@linux1> <20050218214555.1f71c2e4.aradorlinux@yahoo.es> <20050218131326.650c77ad.davem@davemloft.net> <Pine.LNX.4.60.0502182133490.30371@hermes-1.csi.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200502182300.21420.oliver@neukum.org>
+In-Reply-To: <Pine.LNX.4.60.0502182133490.30371@hermes-1.csi.cam.ac.uk>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Freitag, 18. Februar 2005 22:34 schrieb Pavel Machek:
-
-> Well, if you have power button on usb keyboard -- why should it be
-> handled differently from built-in button?
-
-I see no reason. But that tells you that one subsystem should handle
-that, not which subsystem.
- 
-> > > I think that's all you need to trigger actions. You don't need the exact
-> > > percentage of the battery, and you don't need the exact AC voltage at
-> > > input. 
+On Fri, Feb 18, 2005 at 09:34:47PM +0000, Anton Altaparmakov wrote:
+> On Fri, 18 Feb 2005, David S. Miller wrote:
+> > On Fri, 18 Feb 2005 21:45:55 +0100
+> > "d.c" <aradorlinux@yahoo.es> wrote:
 > > 
-> > That is very debateable. I might want a quiet mode and would be
-> > interested in notifications about thermal data and fan status. 
+> > > 2) And more important, *nobody* works against "linus' bk head".
+> > 
+> > I do, %100 exclusively, for all the networking and sparc
+> > development.
+> > 
+> > I never work against the -mm tree.
 > 
-> Hmm, yes, some thermal notifications are needed. OTOH I'm not sure if
-> all the hardware does sent interrupts for temperature changes (you
-> definitely do not get interrupts for "small" changes that do not cross
+> Dito.  All my kernel development happens against Linus' bk head and I 
+> almost never work against -mm tree.
 
-I suspect that this is really done in SMI.
+Same here, I work on Linus's bk head and all the changes go to -mm for
+testing first, then to Linus for inclusion.
 
-> trip points), and I do not see how you can do interrupts for fan
-> status. Either fans are under Linux control (and kernel could tell you
-> when it turns fan on/off, but...), or they do not exist from Linux's
-> point of few.
-
-They still can have a readable rate, even if not under os control.
-Nevertheless I don't think you can reasonably define what might
-interest user space or not and in which detail.
-
-	Regards
-		Oliver
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

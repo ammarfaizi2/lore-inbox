@@ -1,61 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132652AbRDLCrE>; Wed, 11 Apr 2001 22:47:04 -0400
+	id <S133043AbRDLCuO>; Wed, 11 Apr 2001 22:50:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133043AbRDLCqz>; Wed, 11 Apr 2001 22:46:55 -0400
-Received: from altus.drgw.net ([209.234.73.40]:526 "EHLO altus.drgw.net")
-	by vger.kernel.org with ESMTP id <S132652AbRDLCqp>;
-	Wed, 11 Apr 2001 22:46:45 -0400
-Date: Wed, 11 Apr 2001 21:32:36 -0500
-From: Troy Benjegerdes <hozer@drgw.net>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Torrey Hoffman <torrey.hoffman@myrio.com>, linux-kernel@vger.kernel.org
-Subject: Re: natsemi.c (Netgear FA311 card) probmlems??
-Message-ID: <20010411213236.P13920@altus.drgw.net>
-In-Reply-To: <B65FF72654C9F944A02CF9CC22034CE22E1B59@mail0.myrio.com> <3AC22661.E69BE205@mandrakesoft.com>
+	id <S133044AbRDLCuE>; Wed, 11 Apr 2001 22:50:04 -0400
+Received: from nat-hdqt.valinux.com ([198.186.202.17]:20011 "EHLO
+	golux.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S133043AbRDLCtw>; Wed, 11 Apr 2001 22:49:52 -0400
+Date: Wed, 11 Apr 2001 22:50:55 -0400
+From: esr@thyrsus.com
+To: jeff millar <jeff@wa1hco.mv.com>
+Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net,
+        "Eric S. Raymond" <esr@snark.thyrsus.com>
+Subject: Re: CML2 1.0.0 doesn't remember configuration changes
+Message-ID: <20010411225055.A11009@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: esr@thyrsus.com, jeff millar <jeff@wa1hco.mv.com>,
+	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net,
+	"Eric S. Raymond" <esr@snark.thyrsus.com>
+In-Reply-To: <20010411191940.A9081@thyrsus.com> <E14nU6n-0007po-00@the-village.bc.nu> <20010411204523.C9081@thyrsus.com> <002701c0c2f1$fc672960$0201a8c0@home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-User-Agent: Mutt/1.0.1i
-In-Reply-To: <3AC22661.E69BE205@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Wed, Mar 28, 2001 at 12:58:57PM -0500
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <002701c0c2f1$fc672960$0201a8c0@home>; from jeff@wa1hco.mv.com on Wed, Apr 11, 2001 at 09:43:08PM -0400
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 28, 2001 at 12:58:57PM -0500, Jeff Garzik wrote:
-> There are some improvements in the latest 2.4 test patch, 2.4.3-pre8.  I
-> would be very interested in hearing feedback on that.  I finally got two
-> test cards, FA311 and FA312, so I can work on it a bit too.
+jeff millar <jeff@wa1hco.mv.com>:
+> I'm confused.  Downloaded cml2-1.0.0 installed ran it....appear to work but
+> it doesn't remember my changes.  Just now, I updated to 1.0.3 and it
+> reported cleaning up existing files.  Ran "make config" and it popped up
+> menu under X.  Then I changed the "config policy options" to "expert,
+> wizard, tuning" and exited with "save and exit".
+> 
+> Then re-opened with make config and nothing changed...expert, wizard and
+> tuning not set.  Maybe the program _knows_ I'm not a wizard but it should at
+> least let me _tune_.  (joke)
+> 
+> By the way "make editconfig" shows the changes made under "make config" and
+> allows me to make more changes..
+> 
+> The READ.ME says that "make config" will run configtrans to generate
+> .config.  But that doesn't explain why "make config"  doesn't remember
+> changes made to config.out.
+> 
+> ideas?
+> 
+> jeff
 
-Okay, I finally got around to testing this on 2.4.4-pre1. for the 5 or so 
-minutes I've been using it so far, it seems okay (I'm able to log in this 
-time), and I'm running NetPIPE to check performance.
-
-Perfomance isn't great (the peak bandwidth is 65 Mbps or so), but this
-could be partially due to my switch or the other machine I'm testing it
-with.
-
-> 
-> The 2.4.3-pre8 patch, against kernel 2.4.2, is available from
-> ftp://ftp.us.kernel.org/pub/linux/kernel/testing/
-> 
-> This updated 2.4 natsemi.c merges the changes in Becker's latest, which
-> should fix eeprom/mac address reading as you mention, and it also
-> includes some power management fixes required on some boards. 
-> Differences from 2.2 versions include locking updates and some other
-> small differences.  Please test, if you have an opportunity.
-> 
-> (note you'll have to fix a screwup of mine in drivers/net/Makefile --
-> you need to add net_init.o to export-objs before you can build net
-> drivers as modules.  Building them into the kernel works fine.)
-> 
-> -- 
-> Jeff Garzik       | May you have warm words on a cold evening,
-> Building 1024     | a full moon on a dark night,
-> MandrakeSoft      | and a smooth road all the way to your door.
-> 
-
+I think it's because I misunderstood how the standard productions are supposed
+to work.  If you'll tell me what files you expect them to read on startup,
+and in what order, I can emulate that behavior.
 -- 
-Troy Benjegerdes | master of mispeeling | 'da hozer' |  hozer@drgw.net
------"If this message isn't misspelled, I didn't write it" -- Me -----
-"Why do musicians compose symphonies and poets write poems? They do it
-because life wouldn't have any meaning for them if they didn't. That's 
-why I draw cartoons. It's my life." -- Charles Shulz
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+
+The possession of arms by the people is the ultimate warrant
+that government governs only with the consent of the governed.
+        -- Jeff Snyder

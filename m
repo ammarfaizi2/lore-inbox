@@ -1,90 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265037AbUE0TGA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265047AbUE0THi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265037AbUE0TGA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 15:06:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265047AbUE0TGA
+	id S265047AbUE0THi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 15:07:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265049AbUE0THi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 15:06:00 -0400
-Received: from host171.155.212.251.conversent.net ([155.212.251.171]:15834
-	"EHLO actuality-systems.com") by vger.kernel.org with ESMTP
-	id S265037AbUE0TF5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 15:05:57 -0400
-Subject: Re: Can't make XFS work with 2.6.6
-From: David Aubin <daubin@actuality-systems.com>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <200405271925.24650.dj@david-web.co.uk>
-References: <200405271736.08288.dj@david-web.co.uk>
-	 <200405271854.20787.dj@david-web.co.uk> <1085680806.5311.44.camel@buffy>
-	 <200405271925.24650.dj@david-web.co.uk>
-Content-Type: text/plain
-Message-Id: <1085684685.5311.59.camel@buffy>
+	Thu, 27 May 2004 15:07:38 -0400
+Received: from fw.osdl.org ([65.172.181.6]:39582 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265047AbUE0THh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 May 2004 15:07:37 -0400
+Date: Thu, 27 May 2004 12:05:44 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: schizo@debian.org, mcgrof@studorgs.rutgers.edu,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       prism54-devel@prism54.org, debian-kernel@lists.debian.org
+Subject: Re: [Prism54-devel] Re: [PATCH 0/14] prism54: bring up to sync with
+ prism54.org cvs rep
+Message-Id: <20040527120544.2fbd4b35.akpm@osdl.org>
+In-Reply-To: <40B63639.6080705@pobox.com>
+References: <20040524083003.GA3330@ruslug.rutgers.edu>
+	<40B63132.4050906@pobox.com>
+	<20040527182531.GA8942@scowler.net>
+	<40B63639.6080705@pobox.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Thu, 27 May 2004 15:04:45 -0400
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 27 May 2004 19:04:27.0546 (UTC) FILETIME=[6EB73FA0:01C4441D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Did you create these drives with any of the following
-attributes?
-# CONFIG_XFS_RT is not set
-# CONFIG_XFS_QUOTA is not set
-# CONFIG_XFS_SECURITY is not set
-# CONFIG_XFS_POSIX_ACL is not set
-If you did then please enable them and rebuild your kernel.
+Jeff Garzik <jgarzik@pobox.com> wrote:
+>
+>  Luis, you, or somebody should create a new patch series with just the 
+>  critical fixes, NO WHITESPACE/FORMATTING CHANGES mixed in, and send 
+>  those first.
 
-Also, hd(0,0) is /dev/hda3 correct?  You didn't swap 
-ide cables or anything and are now tring to boot off of
-an old kernel?
+Whitespace changes are often nice, but they should be the very first
+patch[es] in the series.  You should be able to verify that the .o file was
+unchanged before and after.
 
-I don't have an XFS system.  But I belive it works with 2.6.*
-kernels.  You problem looks like you are missing xfs support in
-your kernel.  If you say you have it compilied in, then perhaps
-you are not booting the kernel you think you are.
-
-Best of luck.
-Dave
-
-On Thu, 2004-05-27 at 14:25, David Johnson wrote:
-> On Thursday 27 May 2004 19:00, David Aubin wrote:
-> > Hi Dave,
-> >
-> >   Please include the latest copy of your .config.
-> 
-> Attached.
-> 
-> > Also the boot loader parameter as well.  
-> 
-> >From Grub's menu.lst:
-> 
-> title		Debian GNU/Linux, kernel 2.6.6
-> root		(hd0,0)
-> kernel	/vmlinuz-2.6.6 lapic video=rivafb:mode:1024x768x16 root=/dev/hda3 ro
-> initrd		/initrd.img-2.6.6
-> savedefault
-> boot
-> 
-> > And possibly 
-> > the validation that the root partition is of type XFS?
-> 
-> Here's the mount output from the system running a 2.4 kernel:
-> 
-> lug:/tmp# mount
-> /dev/hda3 on / type xfs (rw)
-> proc on /proc type proc (rw)
-> devpts on /dev/pts type devpts (rw,gid=5,mode=620)
-> tmpfs on /dev/shm type tmpfs (rw)
-> /dev/hda1 on /boot type ext3 (rw)
-> /dev/hda2 on /home type xfs (rw)
-> /dev/sda2 on /var type xfs (rw)
-> usbfs on /proc/bus/usb type usbfs (rw)
-> 
-> >   At a glance it appears that XFS is not compilied in to
-> > your kernel now, if that is your root mount file type.
-> 
-> XFS is compiled in. I really don't know what else to try...
-> 
-> Thanks,
-> David.
-
+That way they become a no-brainer and it becomes easier to review and
+understand the substantive changes.

@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289015AbSAIUpO>; Wed, 9 Jan 2002 15:45:14 -0500
+	id <S287832AbSAIUxE>; Wed, 9 Jan 2002 15:53:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289016AbSAIUpF>; Wed, 9 Jan 2002 15:45:05 -0500
-Received: from mxzilla2.xs4all.nl ([194.109.6.50]:3600 "EHLO
-	mxzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S289015AbSAIUos>; Wed, 9 Jan 2002 15:44:48 -0500
-Date: Wed, 9 Jan 2002 21:44:45 +0100
-From: jtv <jtv@xs4all.nl>
-To: =?iso-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-Cc: "J.A. Magallon" <jamagallon@able.es>, Tim Hollebeek <tim@hollebeek.com>,
-        Bernard Dautrevaux <Dautrevaux@microprocess.com>,
-        "'dewar@gnat.com'" <dewar@gnat.com>, paulus@samba.org, gcc@gcc.gnu.org,
-        linux-kernel@vger.kernel.org, trini@kernel.crashing.org,
-        velco@fadata.bg
-Subject: Re: [PATCH] C undefined behavior fix
-Message-ID: <20020109214445.C11890@xs4all.nl>
-In-Reply-To: <20020108012734.E23665@werewolf.able.es> <20020109204043.T1027-100000@gerard>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	id <S287835AbSAIUwy>; Wed, 9 Jan 2002 15:52:54 -0500
+Received: from 216-42-72-164.ppp.netsville.net ([216.42.72.164]:13779 "EHLO
+	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S287832AbSAIUws>; Wed, 9 Jan 2002 15:52:48 -0500
+Date: Wed, 09 Jan 2002 15:52:09 -0500
+From: Chris Mason <mason@suse.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Oleg Drokin <green@namesys.com>
+cc: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
+Subject: Re: [PATCH] certain data corruption may cause reiserfs to panic,
+ fix.
+Message-ID: <344590000.1010609528@tiny>
+In-Reply-To: <Pine.LNX.4.21.0201091458360.21044-100000@freak.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.21.0201091458360.21044-100000@freak.distro.conectiva
+ >
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020109204043.T1027-100000@gerard>; from groudier@free.fr on Wed, Jan 09, 2002 at 08:47:15PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 09, 2002 at 08:47:15PM +0100, Gérard Roudier wrote:
-> On Tue, 8 Jan 2002, J.A. Magallon wrote:
+
+
+On Wednesday, January 09, 2002 02:58:45 PM -0200 Marcelo Tosatti
+<marcelo@conectiva.com.br> wrote:
+
+> On Wed, 9 Jan 2002, Oleg Drokin wrote:
 > 
-> There is nothing in this code that requires the compiler to allocate
-> memory for 'b'. You just invent the volatile constant concept. :)
+>> Hello!
+>> 
+>>     Purpose of this patch is to catch events of corrupted ITEM_TYPE
+>>     fields, and report these to user. Without this patch, accessing such
+>>     items will resukt in dereferencing random memory areas in kernel,
+>>     and then ooping (most probably).
+>>     Please apply.
+> 
+> Why corruption is happening in the first place ? 
 
-What's so strange about volatile constant?  In C, const means you're
-not allowed to modify something--not that it won't change.  A read-only
-hardware register, for instance, would be const and volatile.
+Oddly, the corruption most often caught by this patch was from the early
+redhat gcc 2.96.
 
-
-Jeroen
+-chris
 

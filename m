@@ -1,44 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266051AbUAFBG6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 20:06:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266053AbUAFBG6
+	id S266027AbUAFBCP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 20:02:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266054AbUAFBCP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 20:06:58 -0500
-Received: from kweetal.tue.nl ([131.155.3.6]:15621 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S266051AbUAFBGz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 20:06:55 -0500
-Date: Tue, 6 Jan 2004 02:06:48 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andries Brouwer <aebr@win.tue.nl>, Daniel Jacobowitz <dan@debian.org>,
-       Rob Love <rml@ximian.com>, rob@landley.net,
-       Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org,
-       Greg KH <greg@kroah.com>
-Subject: Re: udev and devfs - The final word
-Message-ID: <20040106020648.A1153@pclin040.win.tue.nl>
-References: <20040104230104.A11439@pclin040.win.tue.nl> <Pine.LNX.4.58.0401041847370.2162@home.osdl.org> <20040105030737.GA29964@nevyn.them.org> <Pine.LNX.4.58.0401041918260.2162@home.osdl.org> <20040105132756.A975@pclin040.win.tue.nl> <Pine.LNX.4.58.0401050749490.21265@home.osdl.org> <20040105205228.A1092@pclin040.win.tue.nl> <Pine.LNX.4.58.0401051224480.2153@home.osdl.org> <20040106001326.A1128@pclin040.win.tue.nl> <Pine.LNX.4.58.0401051522390.5737@home.osdl.org>
+	Mon, 5 Jan 2004 20:02:15 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:52610 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S266027AbUAFBCE (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 20:02:04 -0500
+Message-Id: <200401060101.i0611qGl012588@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Dax Kelson <dax@gurulabs.com>
+Cc: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net,
+       len.brown@intel.com
+Subject: Re: ACPI battery issue - Dell Inspiron 4150 - 2.6.1-rc1-mm2 
+In-Reply-To: Your message of "Mon, 05 Jan 2004 17:51:33 MST."
+             <1073350293.2802.36.camel@mentor.gurulabs.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <1073350293.2802.36.camel@mentor.gurulabs.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.58.0401051522390.5737@home.osdl.org>; from torvalds@osdl.org on Mon, Jan 05, 2004 at 03:32:03PM -0800
+Content-Type: multipart/signed; boundary="==_Exmh_-1977675352P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 05 Jan 2004 20:01:52 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 05, 2004 at 03:32:03PM -0800, Linus Torvalds wrote:
+--==_Exmh_-1977675352P
+Content-Type: text/plain; charset=us-ascii
 
-> > Something reproducible is better.
+On Mon, 05 Jan 2004 17:51:33 MST, Dax Kelson said:
+
+> Found at boot: 
+> ACPI: Battery Slot [BAT0] (battery present)
+> ACPI: Battery Slot [BAT1] (battery present)
 > 
-> And I've told you why reproducibility is a BAD THING
+> But no run-time information:
 > 
-> Basically, if you cannot 100% guarantee reproducibility,
-> then the _appearance_ of reproducibility is literally a mistake.
+> $ cat /proc/acpi/battery/BAT0/info
+> present:                 yes
+> design capacity:         0 mWh
 
-OK. We now understand perfectly each others point of view.
-It was a pleasure to provoke this discussion - can hardly
-wait for 2.7 :-)
+Glad to see I'm not crazy.. :)
 
-Andries
+--==_Exmh_-1977675352P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/+gkAcC3lWbTT17ARAtRrAKDe8bLbvL7shg3kdh5+8GosStV6+gCdEuxQ
+XianX50qPiV2WyPtK0N7MfU=
+=NSTf
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1977675352P--

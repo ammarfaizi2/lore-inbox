@@ -1,36 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133071AbRDVABX>; Sat, 21 Apr 2001 20:01:23 -0400
+	id <S133076AbRDVADx>; Sat, 21 Apr 2001 20:03:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133072AbRDVABN>; Sat, 21 Apr 2001 20:01:13 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:55053 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S133071AbRDVAA5>; Sat, 21 Apr 2001 20:00:57 -0400
-Subject: Re: Request for comment -- a better attribution system
-To: esr@thyrsus.com
-Date: Sun, 22 Apr 2001 01:02:44 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org (CML2),
-        kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20010421194706.A14896@thyrsus.com> from "Eric S. Raymond" at Apr 21, 2001 07:47:06 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S133079AbRDVADn>; Sat, 21 Apr 2001 20:03:43 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:22034 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S133076AbRDVADa>;
+	Sat, 21 Apr 2001 20:03:30 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200104220003.f3M03R4194742@saturn.cs.uml.edu>
+Subject: Re: [kbuild-devel] CML2 1.1.3 is available
+To: azz@gnu.org (Adam Sampson)
+Date: Sat, 21 Apr 2001 20:03:27 -0400 (EDT)
+Cc: esr@thyrsus.com, linux-kernel@vger.kernel.org
+In-Reply-To: <87itk04gus.fsf@cartman.azz.us-lot.org> from "Adam Sampson" at Apr 20, 2001 12:20:11 AM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14r7Kw-0004dU-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Alan, if MAINTAINERS scaled perfectly I wouldn't have had to spend three months
-> just trying to figure out who was reponsible for each of the [Cc]onfig.in
-> files.  And even with that amount of effort mostly failing.
+Adam Sampson writes:
+> "Eric S. Raymond" <esr@thyrsus.com> writes:
 
-99.9999% of problems don't involve querying the set of maintainers of
-Confg.in files. The system is optimised to the general case of queries people
-need to make. It also happens to be accessible to people who are not
-kernel gurus because it uses roughly English terms for the maintainership
-and area.
+>> If there were already a library in ths stock Python distribution to
+>> digest .Xdefaults files I might consider this.  Perhaps I'll write
+>> one.
+>
+> No, please don't! .Xdefaults files as loaded by xrdb can contain cpp
+> directives which can depend on the arguments given to xrdb ("xrdb
+> -DBIGTERM .Xdefaults", for instance), so you can't assume that what
+> you read from .Xdefaults is the user's setup, even if you emulate
+> cpp. You also shouldn't assume that the user's HOME is on the machine
+> where they loaded their resources from (suppose I start an X session
+> on my workstation, then ssh over to a server and run CML2; it would
+> then read server:~/.Xdefaults rather than workstation:~/.Xdefaults).
+> It's much more sensible to use the normal X mechanisms for reading
+> resources from the X server.
 
-The .0001% case isnt interesting. Thats the difference between real world 
-systems and theory.
+The above absurdity is exactly why newer toolkits don't bother
+to support this config mechanism. There isn't any way to have
+the app support an "Edit --> Preferences --> Save" with this.
+
+If the Python/Tk stuff (or whatever it is Eric is using) doesn't
+yet have a modern dotfile for this sort of thing, then we've just
+stumbled across a nice project.
 

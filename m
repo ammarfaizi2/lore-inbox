@@ -1,58 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262587AbVBXXkG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262578AbVBYAqY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262587AbVBXXkG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 18:40:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262568AbVBXXgs
+	id S262578AbVBYAqY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 19:46:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262602AbVBYApI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 18:36:48 -0500
-Received: from lyle.provo.novell.com ([137.65.81.174]:31100 "EHLO
-	lyle.provo.novell.com") by vger.kernel.org with ESMTP
-	id S262533AbVBXXfX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 18:35:23 -0500
-Date: Thu, 24 Feb 2005 15:34:58 -0800
-From: Greg KH <gregkh@suse.de>
-To: Malcolm Rowe <malcolm-linux@farside.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Symlink /sys/class/block to /sys/block
-Message-ID: <20050224233458.GB26941@suse.de>
-References: <courier.4217CBC9.000027C1@mail.farside.org.uk> <20050222190412.GA23687@suse.de> <courier.421C5047.00003EBA@mail.farside.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <courier.421C5047.00003EBA@mail.farside.org.uk>
-User-Agent: Mutt/1.5.8i
+	Thu, 24 Feb 2005 19:45:08 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:24829 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262558AbVBYAk4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 19:40:56 -0500
+Message-ID: <421E74B5.3040701@us.ibm.com>
+Date: Thu, 24 Feb 2005 16:43:33 -0800
+From: Darren Hart <dvhltc@us.ibm.com>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "lkml, " <linux-kernel@vger.kernel.org>
+Subject: [PATCH] vm: mlock superfluous variable
+Content-Type: multipart/mixed;
+ boundary="------------020902010901010301050703"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 23, 2005 at 09:43:35AM +0000, Malcolm Rowe wrote:
-> Greg KH writes: 
-> 
-> >>Following the discussion in [1], the attached patch creates 
-> >>/sys/class/block
-> >>as a symlink to /sys/block. The patch applies to 2.6.11-rc4-bk7.  
-> >>
-> >>Please cc: me on any replies - I'm not subscribed to the mailing list. 
-> >Hm, your patch is linewrapped, and can't be applied :(
-> 
-> Bah, and I did send it to myself first, but I guess my mailer un-flowed it 
-> for me :-(.  I'll try to find a better mailer. 
-> 
-> >But more importantly:
-> >>static void disk_release(struct kobject * kobj)
-> >
-> >Did you try to remove a disk (like a usb device) and see what happens
-> >here?  Hint, this isn't the proper place to remove the symlink...
-> 
-> Er, yeah. Oops. 
-> 
-> *Is* there a sensible place to remove the symlink from, though?  Nobody 
-> seems to call subsystem_unregister(&block_subsys), which is the place I'd 
-> expect to add a call to, and I can't see anything that's otherwise 
-> obvious... 
+This is a multi-part message in MIME format.
+--------------020902010901010301050703
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-If the subsystem is never unregistered, then don't worry about undoing
-the symlink.
+The were a couple long standing (since at least 2.4.21) superfluous 
+variables and two unnecessary assignments in do_mlock().  The intent of 
+the resulting code is also more obvious.
 
-thanks,
+Tested on a 4 way x86 box running a simple mlock test program.  No 
+problems detected.
 
-greg k-h
+Signed-off-by: Darren Hart <dvhltc@us.ibm.com>n
+
+--------------020902010901010301050703
+Content-Type: text/plain;
+ name="mlock"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="mlock"
+
+diff -purN -X /home/dvhart/.diff.exclude /home/linux/views/linux-2.6.11-rc5/mm/mlock.c 2.6.11-rc5-mlock/mm/mlock.c
+--- /home/linux/views/linux-2.6.11-rc5/mm/mlock.c	2004-12-24 15:26:12.000000000 -0800
++++ 2.6.11-rc5-mlock/mm/mlock.c	2005-02-24 13:57:38.000000000 -0800
+@@ -58,8 +58,8 @@ out:
+ 
+ static int do_mlock(unsigned long start, size_t len, int on)
+ {
+-	unsigned long nstart, end, tmp;
+-	struct vm_area_struct * vma, * next;
++	unsigned long nstart, end;
++	struct vm_area_struct * vma;
+ 	int error;
+ 
+ 	len = PAGE_ALIGN(len);
+@@ -86,13 +86,11 @@ static int do_mlock(unsigned long start,
+ 			break;
+ 		}
+ 
+-		tmp = vma->vm_end;
+-		next = vma->vm_next;
+-		error = mlock_fixup(vma, nstart, tmp, newflags);
++		error = mlock_fixup(vma, nstart, vma->vm_end, newflags);
+ 		if (error)
+ 			break;
+-		nstart = tmp;
+-		vma = next;
++		nstart = vma->vm_end;
++		vma = vma->vm_next;
+ 		if (!vma || vma->vm_start != nstart) {
+ 			error = -ENOMEM;
+ 			break;
+
+--------------020902010901010301050703--

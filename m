@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131036AbRCFR3N>; Tue, 6 Mar 2001 12:29:13 -0500
+	id <S131040AbRCFRde>; Tue, 6 Mar 2001 12:33:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131040AbRCFR3D>; Tue, 6 Mar 2001 12:29:03 -0500
-Received: from rcum.uni-mb.si ([164.8.2.10]:12307 "EHLO rcum.uni-mb.si")
-	by vger.kernel.org with ESMTP id <S131036AbRCFR2u>;
-	Tue, 6 Mar 2001 12:28:50 -0500
-Date: Tue, 06 Mar 2001 18:28:40 +0100
-From: David Balazic <david.balazic@uni-mb.si>
-Subject: Re: Annoying CD-rom driver error messages
-To: law@sgi.com
-Cc: linux-kernel@vger.kernel.org
-Message-id: <3AA51E48.17333215@uni-mb.si>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.76 [en] (WinNT; U)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
+	id <S131041AbRCFRdZ>; Tue, 6 Mar 2001 12:33:25 -0500
+Received: from pneumatic-tube.sgi.com ([204.94.214.22]:62844 "EHLO
+	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
+	id <S131040AbRCFRdG>; Tue, 6 Mar 2001 12:33:06 -0500
+To: dank@alumni.caltech.edu
+Cc: jorge_ortiz@hp.com,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Process vs. Threads
+In-Reply-To: <3AA517DB.A5963C9F@alumni.caltech.edu>
+From: Ulf Carlsson <ulfc@calypso.engr.sgi.com>
+Date: 06 Mar 2001 09:32:00 -0800
+In-Reply-To: Dan Kegel's message of "Tue, 06 Mar 2001 09:01:15 -0800"
+Message-ID: <6ovg0gq952n.fsf@calypso.engr.sgi.com>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-LA Walsh (law@sgi.com) wrote:
+Hi,
 
-> Alan Cox wrote: 
-> > 
-> > > support to function efficiently -- perhaps that technology needs to be further developed 
-> > > on Linux so app writers don't also have to be kernel experts and experts in all the 
-> > > various bus and device types out there? 
-> > 
-> > You mean someone should write a libcdrom that handles stuff like that - quite 
-> > possibly 
-> 
-> ---
->         More generally -- if I want to know if a DVD has been inserted and of what type
-> and/or a floppy has been inserted or a removable media of type "X" or perhaps
-> more generally -- not just if a 'device' has changed but a file or directory?
->         I think that is what famd is supposed to do, but apparently it does so (I'm 
-> guessing from the external description) by polling and says it needs kernel support
-> to be more efficient.  Famd was apparently ported to Linux from Irix where it had
-> the kernel ability to be notified of changed file-space items (file-space = anything
-> accessible w/a pathname).
->         Now if I can just remember where I saw this mythical port of the 'file-access
-> monitoring daemon'....
+> Can someone summarize the state of the thread changes in 2.4?  
+> A lot seemed to happen, but from what I gather, nothing user-visible yet.
 
-This notification exists in 2.4.x ( at least the docs say so :-)
-see /usr/src/linux/Documentation/dnotify.txt 
+We have the concept of thread group now.  A thread group will be
+created if you use the CLONE_THREAD flag from userspace.  The task
+structures for the threads cloned with CLONE_THREAD will be on a list
+for that thread group list and the tgid field will also be copied from
+the parent process.  The tgid is returned to the user by getpid(), so
+all the threads will seem to have the same pid from within the process
+although they will show up with different pids in /proc.  The tgid
+implementation is IMHO braindead.
 
--- 
-David Balazic
---------------
-"Be excellent to each other." - Bill & Ted
-- - - - - - - - - - - - - - - - - - - - - -
+A problem seems to be that we don't check for the tgid field in
+getpid(), so theoretically when you do for example raise() from a
+thread the signal could be sent to a process that you didn't intend to
+send a signal to.
+
+Also if you send a signal to a process it will be delivered to the
+thread with that pid and it will remain pending if that thread is
+blocking the signal, which doesn't comply with pthreads.  I am
+currently working on a patch for this.
+
+I have a list of other issues, but most of them can actually be solved
+within glibc.
+
+Ulf

@@ -1,46 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317773AbSGVSDM>; Mon, 22 Jul 2002 14:03:12 -0400
+	id <S317763AbSGVR7j>; Mon, 22 Jul 2002 13:59:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317782AbSGVSDL>; Mon, 22 Jul 2002 14:03:11 -0400
-Received: from unthought.net ([212.97.129.24]:39299 "EHLO mail.unthought.net")
-	by vger.kernel.org with ESMTP id <S317781AbSGVSDI>;
-	Mon, 22 Jul 2002 14:03:08 -0400
-Date: Mon, 22 Jul 2002 20:06:16 +0200
-From: Jakob Oestergaard <jakob@unthought.net>
-To: linux-kernel@vger.kernel.org
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [PATCH] core file names
-Message-ID: <20020722180616.GE11081@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	linux-kernel@vger.kernel.org,
-	Marcelo Tosatti <marcelo@conectiva.com.br>
-References: <1027358351.12656.24.camel@albatros>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1027358351.12656.24.camel@albatros>
-User-Agent: Mutt/1.3.28i
+	id <S317764AbSGVR7j>; Mon, 22 Jul 2002 13:59:39 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:33159 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S317763AbSGVR7i>;
+	Mon, 22 Jul 2002 13:59:38 -0400
+Date: Mon, 22 Jul 2002 20:01:29 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Russell King <rmk@arm.linux.org.uk>, Christoph Hellwig <hch@lst.de>,
+       <linux-kernel@vger.kernel.org>, Robert Love <rml@tech9.net>
+Subject: Re: [patch] cli()/sti() cleanup, 2.5.27-A2
+In-Reply-To: <Pine.LNX.4.44.0207221004420.2504-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0207221925410.17527-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 22, 2002 at 07:19:11PM +0200, Jes Rahbek Klinke wrote:
-> This patch agains linux-2.4.18 will allow you to configure the way core
-> files are named through the /proc filesystem.
-...
 
-Marcelo, any chance of getting this into 2.4.20 ?
+On Mon, 22 Jul 2002, Linus Torvalds wrote:
 
-The patch doesn't break existing functionality as far as I can see, and
-it's extremely useful for Beowulf-type people, among others.
+> I'd much rather keep the current "local_xxx" versions, since they
+> clearly say that it's local to the CPU. Let's face it, people SHOULD NOT
+> USE THESE!
 
-It even removes a few embarassments from the existing code  :)
+okay, agreed.
 
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+> So I vote for
+> 
+> 	local_irq_save(flags)		- save and disable
+> 	local_irq_restore(flags)	- restore
+> 	local_irq_disable()		- disable
+> 	local_irq_enable()		- enable
+
+i've added this one as well:
+
+	local_save_flags(flags)		- save
+
+a fair number of places want (and need) to use __save_flags(flags)-type of
+functionality, without the irq-disabling side-effect.
+
+But also, a number of places now do:
+
+	local_save_flags(flags);
+	local_irq_disable();
+
+which should be:
+
+	local_irq_save(flags);
+
+(these places will be simplified in an upcoming patch.)
+
+The new __cli/__sti cleanup patch is at:
+
+  http://redhat.com/~mingo/remove-irqlock-patches/cli-sti-cleanup-2.5.27-B2
+
+compiles, boots & works just fine on x86 UP and SMP.
+
+	Ingo
+

@@ -1,49 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261537AbVBAETO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261540AbVBAEfr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261537AbVBAETO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 23:19:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261538AbVBAETO
+	id S261540AbVBAEfr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 23:35:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbVBAEfq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 23:19:14 -0500
-Received: from waste.org ([216.27.176.166]:33422 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261537AbVBAETL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 23:19:11 -0500
-Date: Mon, 31 Jan 2005 20:18:58 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/8] base-small: CONFIG_BASE_SMALL for small systems
-Message-ID: <20050201041858.GT2891@waste.org>
-References: <1.687457650@selenic.com> <200502010055.j110tWbd022651@laptop11.inf.utfsm.cl>
+	Mon, 31 Jan 2005 23:35:46 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:16105
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261538AbVBAEfm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 23:35:42 -0500
+Date: Mon, 31 Jan 2005 20:29:52 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: "" <pmarques@grupopie.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: Re: [PATCH 2.6] 6/7 replace net_sysctl_strdup by kstrdup
+Message-Id: <20050131202952.52e1482c.davem@davemloft.net>
+In-Reply-To: <1107228519.41fef7678e901@webmail.grupopie.com>
+References: <1107228519.41fef7678e901@webmail.grupopie.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200502010055.j110tWbd022651@laptop11.inf.utfsm.cl>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 31, 2005 at 09:55:32PM -0300, Horst von Brand wrote:
-> Matt Mackall <mpm@selenic.com> said:
-> > This patch series introduced a new pair of CONFIG_EMBEDDED options call
-> > CONFIG_BASE_FULL/CONFIG_BASE_SMALL. Disabling CONFIG_BASE_FULL sets
-> > the boolean CONFIG_BASE_SMALL to 1 and it is used to shrink a number
-> > of core data structures. The space savings for the current batch is
-> > around 14k.
+On Tue,  1 Feb 2005 03:28:39 +0000
+"" <pmarques@grupopie.com> wrote:
+
+> This patch removes a strdup implmentation in the networking layer
+> (net_sysctl_strdup), and updates it to use the kstrdup library function.
 > 
-> Why _two_ config options?
+> Signed-off-by: Paulo Marques <pmarques@grupopie.com>
 
-Um, Andrew made me do it?
-
-One option is an int and is used thusly:
-
-#define FOO (CONFIG_BASE_SMALL ? 1 : 1000)
-
-But it's also sometimes useful to have two opposing options so that
-you can use:
-
-obj-(CONFIG_OBJ_A) += a.obj obj-(CONFIG_OBJ_B) += b.obj
-
--- 
-Mathematics is the supreme nostalgia of our time.
+If kstrdup() does in, I'm fine with this change.
+net_sysctl_strdup() only exists because kstrdup() did
+not.

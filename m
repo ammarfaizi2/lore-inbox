@@ -1,27 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262298AbUKZWoK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263513AbUKZTu0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262298AbUKZWoK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 17:44:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262468AbUKZWku
+	id S263513AbUKZTu0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 14:50:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263494AbUKZTuY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 17:40:50 -0500
-Received: from gprs214-243.eurotel.cz ([160.218.214.243]:4481 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262298AbUKZWgf (ORCPT
+	Fri, 26 Nov 2004 14:50:24 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:62401 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262372AbUKZT0S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 17:36:35 -0500
-Date: Fri, 26 Nov 2004 23:36:13 +0100
+	Fri, 26 Nov 2004 14:26:18 -0500
+Date: Fri, 26 Nov 2004 14:37:01 +0100
 From: Pavel Machek <pavel@ucw.cz>
-To: Christoph Hellwig <hch@infradead.org>,
-       Nigel Cunningham <ncunningham@linuxmail.org>,
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: hugang@soulinfo.com, Christoph Hellwig <hch@infradead.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       hugang@soulinfo.com, Andrew Morton <akpm@zip.com.au>
+       Andrew Morton <akpm@zip.com.au>
 Subject: Re: Suspend 2 merge
-Message-ID: <20041126223613.GA1211@elf.ucw.cz>
-References: <20041124132839.GA13145@infradead.org> <1101329104.3425.40.camel@desktop.cunninghams> <20041125192016.GA1302@elf.ucw.cz> <1101422088.27250.93.camel@desktop.cunninghams> <20041125232200.GG2711@elf.ucw.cz> <1101426416.27250.147.camel@desktop.cunninghams> <20041126003944.GR2711@elf.ucw.cz> <1101455756.4343.106.camel@desktop.cunninghams> <20041126123847.GD1028@elf.ucw.cz> <20041126155443.GA9341@infradead.org>
+Message-ID: <20041126133701.GC1687@elf.ucw.cz>
+References: <1101292194.5805.180.camel@desktop.cunninghams> <20041124132839.GA13145@infradead.org> <1101329104.3425.40.camel@desktop.cunninghams> <20041125192016.GA1302@elf.ucw.cz> <1101422088.27250.93.camel@desktop.cunninghams> <20041125232200.GG2711@elf.ucw.cz> <1101426416.27250.147.camel@desktop.cunninghams> <20041126003944.GR2711@elf.ucw.cz> <20041126043203.GA2713@hugang.soulinfo.com> <1101456577.4343.121.camel@desktop.cunninghams>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041126155443.GA9341@infradead.org>
+In-Reply-To: <1101456577.4343.121.camel@desktop.cunninghams>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -29,29 +29,17 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > > Again, when you're running on limited time, twice as fast is still twice
-> > > as fast.
-> > 
-> > My machine suspends in 7 seconds, and that's swsusp1. According to
-> > your numbers, suspend2 should suspend it in 1 second and LZE
-> > compressed should be .5 second.
-> > 
-> > I'd say "who cares". 7 seconds seems like fast enough for me. And I'm
-> > *not* going to add 2000 lines of code for 500msec speedup during
-> > suspend.
+> I don't see the point to saving LRU pages separately when you're still
+> eating all the memory you can. You'll have the same number of pages to
+> save, just fewer to copy (and copying takes far less time than saving).
 > 
-> Yupp.  Premature optimization is the roo of all evil.  swsusp is
+> > Pagecaches still in, but disable by default, active using sysctl, 
+> > I'd like not merge it right now, Hope other chagnes can merge into. :)
 > 
->  a) an absolute slowpath compared to any normal kernel operation,
->     and called extremly seldomly
->  b) only usefull for a small subset of all linux instances
-> 
-> hacking core code (fastpathes) for speedups there is a really bad idea.
-> If you can speed it up without beeing intrusive all power to you.
+> Pavel's going to think you are trying to turn swsusp into suspend2!!
 
-I have to agree here. Swsusp is not really performance critical,
-almost every other part of kernel is more important.
-
+Pavel knows that already, but at least hugang is producing small
+patches ;-).
 								Pavel
 -- 
 People were complaining that M$ turns users into beta-testers...

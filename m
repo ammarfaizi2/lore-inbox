@@ -1,157 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263040AbUCMEOV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 23:14:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263041AbUCMEOV
+	id S263041AbUCMElu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 23:41:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263043AbUCMElu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 23:14:21 -0500
-Received: from [64.62.253.241] ([64.62.253.241]:63249 "EHLO staidm.org")
-	by vger.kernel.org with ESMTP id S263040AbUCMEOR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 23:14:17 -0500
-Date: Fri, 12 Mar 2004 20:15:47 -0800
-From: Bryan Rittmeyer <bryan@staidm.org>
-To: linux-kernel@vger.kernel.org
-Cc: linuxppc-dev list <linuxppc-dev@lists.linuxppc.org>,
-       Paul Mackerras <paulus@samba.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: [PATCH] ppc32 copy_to_user dcbt fixup
-Message-ID: <20040313041547.GB11512@staidm.org>
+	Fri, 12 Mar 2004 23:41:50 -0500
+Received: from fmr06.intel.com ([134.134.136.7]:29665 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S263041AbUCMEls (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 23:41:48 -0500
+Subject: Re: ALSA via82xx fails since 2.6.2
+From: Len Brown <len.brown@intel.com>
+To: =?ISO-8859-1?Q?J=FCrgen?= Repolusk <juerep@gmx.at>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200403130336.36845.juerep@gmx.at>
+References: <A6974D8E5F98D511BB910002A50A6647615F4E8F@hdsmsx402.hd.intel.com>
+	 <1079142765.2175.71.camel@dhcppc4>  <200403130336.36845.juerep@gmx.at>
+Content-Type: text/plain; charset=ISO-8859-1
+Organization: 
+Message-Id: <1079152902.2175.88.camel@dhcppc4>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="azLHFNyN32YCQGCU"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 12 Mar 2004 23:41:43 -0500
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2004-03-12 at 21:36, Jürgen Repolusk wrote:
 
---azLHFNyN32YCQGCU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+>            CPU0
+>   0:   22589343          XT-PIC  timer
+>   1:       3716          XT-PIC  i8042
+>   2:          0          XT-PIC  cascade
+>   8:          2          XT-PIC  rtc
+>   9:     100000          XT-PIC  acpi, uhci_hcd, uhci_hcd, yenta, eth1
+>  10:     453565          XT-PIC  yenta, eth0
+>  11:          0          XT-PIC  sonypi
+>  12:     101345          XT-PIC  i8042
+>  14:      42157          XT-PIC  ide0
+>  15:         22          XT-PIC  ide1
+> NMI:          0
+> LOC:   22589934
+> ERR:      42084
+> MIS:          0
+> 
+> 
 
-copy_tofrom_user and copy_page use dcbt to prefetch source data [1].
-Since at least 2.4.17, these functions have been prefetching
-beyond the end of the source buffer, leading to two problems:
+curious that an audio driver does not show up on irq 5 where the device
+claims to be...
 
-1. Subtly broken software cache coherency. If the area following src
-was invalidate_dcache_range'd prior to submitting for DMA,
-an out-of-bounds dcbt from copy_to_user of a separate slab object
-may read in the area before DMA completion. When the DMA does complete,
-data will not be loaded from RAM because stale data is already in cache.
-Thus you get a corrupt network packet, bogus audio capture, etc.
+> > how about when you boot with acpi=off or pci=noacpi?
+> actually i gave it a try but it doesn't change anything. still the same error.
 
-This problem probably does not affect hardware coherent systems
-(all Apple machines?). However:
+Thanks for confirming that this isn't an ACPI bug;-)
 
-2. The extra 'dcbt' wastes bus bandwidth. Worst case: on a 128 byte copy,
-we currently dcbt 256 bytes. These extra loads trash cache, potentially
-causing writeback of more useful data.
+I think what's happening is that one of the devices on IRQ9 is pulling
+on that line.  ACPI is the 1st to register a handler on IRQ9, doesn't
+know where the interrupts are coming from, and IRQ9 gets shut down
+before the responsible device can register.
 
-The attached patch attempts to reign in dcbt prefetching at the end of
-copies such that we do not read beyond the src area. This change fixes 
-DMA data corruption on software coherent systems and improves
-performance slightly in my lame microbenchmark [2].
+> > Are you sure you didn't see these messages before 2.6.2 -- was ACPI
+> > enabled in the working release?
+> 
+> Yes I'm sure that before 2.6.2 I did not see this message at all - sound was 
+> working real fine. with changin to 2.6.2 up to 2.6.4 now I've this problem.
+> 
+> 	greets, jürgen
 
-[1] csum_partial_copy_generic does not use dcbt/dcbz despite being
-scorching hot in TCP workloads. I'm cooking up another patch to
-dcb?ize it. 
+There are a couple of things you can do to debug.
 
-[2] http://staidm.org/linux/ppc/copy_dcbt/copyuser-microbench.tar.bz2
+boot with "noirqdebug" to treat the symptom.  This will prevent IRQ9
+from getting disabled.  If a device registers and claims those
+interrupts, then the system will function.  If none does, then you'll
+see IRQ9 in /proc/interrupts steadily climb and performance will be
+poor.
 
-Comments?
+remove your USB, yenta and eth1 hardware and see if one makes the issue
+go away.
 
--Bryan
+> ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 5 7 *9 10 11 12)
+
+You can also use a feature in ACPI to distribute the interrupts and
+perhaps isolate the offending device.  Boot with...
+
+acpi_irq_balance acpi_irq_pci=3,4,5,7 acpi_irq_isa=9
+
+This should tell the code to balance interrupts across IRQs where
+possible, tending towards 3,4,5,7 and avoiding 9; it already tends
+towards 10.
+
+cheers,
+-Len
 
 
---azLHFNyN32YCQGCU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="dcbt.patch"
-
---- linuxppc-2.5-benh/arch/ppc/lib/string.S~	2004-03-12 14:06:50.000000000 -0800
-+++ linuxppc-2.5-benh/arch/ppc/lib/string.S	2004-03-12 16:26:09.000000000 -0800
-@@ -443,16 +443,16 @@
- 
- #if !defined(CONFIG_8xx)
- 	/* Here we decide how far ahead to prefetch the source */
-+	li	r12,1
- #if MAX_COPY_PREFETCH > 1
- 	/* Heuristically, for large transfers we prefetch
- 	   MAX_COPY_PREFETCH cachelines ahead.  For small transfers
- 	   we prefetch 1 cacheline ahead. */
- 	cmpwi	r0,MAX_COPY_PREFETCH
--	li	r7,1
- 	li	r3,4
- 	ble	111f
--	li	r7,MAX_COPY_PREFETCH
--111:	mtctr	r7
-+	li	r12,MAX_COPY_PREFETCH
-+111:	mtctr	r12
- 112:	dcbt	r3,r4
- 	addi	r3,r3,CACHELINE_BYTES
- 	bdnz	112b
-@@ -462,9 +462,29 @@
- #endif /* MAX_COPY_PREFETCH */
- #endif /* CONFIG_8xx */
- 
-+	/* don't run dcbt on cachelines outside our src area.
-+       it increases bus traffic, may displace useful data,
-+       and busts software cache coherency. those factors
-+       are typically worse than the extra branch.
-+
-+       if r5 == 0, then we have to stop dcbt when ctr <= r12.  
-+       if r5 != 0 (partial bytes at end) we should do an extra
-+       dcbt for them--kmalloc etc will not put multiple
-+       objects within a single cacheline
-+
-+       -bryan at staidm org
-+    */
-+	cmpwi	r5,0
-+	beq		52f
-+	addi	r12,r12,1
-+
-+52:
- 	mtctr	r0
- 53:
- #if !defined(CONFIG_8xx)
-+	mfctr	r7
-+	cmplw	0,r7,r12
-+	ble		54f
- 	dcbt	r3,r4
- 54:	dcbz	r11,r6
- #endif
---- linuxppc-2.5-benh/arch/ppc/kernel/misc.S~	2004-02-04 13:35:34.000000000 -0800
-+++ linuxppc-2.5-benh/arch/ppc/kernel/misc.S	2004-03-12 17:07:52.000000000 -0800
-@@ -787,15 +787,16 @@
- 
- #ifndef CONFIG_8xx
- #if MAX_COPY_PREFETCH > 1
--	li	r0,MAX_COPY_PREFETCH
-+	li	r12,MAX_COPY_PREFETCH
- 	li	r11,4
--	mtctr	r0
-+	mtctr	r12
- 11:	dcbt	r11,r4
- 	addi	r11,r11,L1_CACHE_LINE_SIZE
- 	bdnz	11b
- #else /* MAX_L1_COPY_PREFETCH == 1 */
- 	dcbt	r5,r4
- 	li	r11,L1_CACHE_LINE_SIZE+4
-+	li	r12,1
- #endif /* MAX_L1_COPY_PREFETCH */
- #endif /* CONFIG_8xx */
- 
-@@ -803,8 +804,11 @@
- 	mtctr	r0
- 1:
- #ifndef CONFIG_8xx
-+	mfctr	r7
-+	cmplw	0,r7,r12
-+	ble		2f
- 	dcbt	r11,r4
--	dcbz	r5,r3
-+2:	dcbz	r5,r3
- #endif
- 	COPY_16_BYTES
- #if L1_CACHE_LINE_SIZE >= 32
-
---azLHFNyN32YCQGCU--

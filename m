@@ -1,71 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132548AbRDUJPf>; Sat, 21 Apr 2001 05:15:35 -0400
+	id <S132547AbRDUJVQ>; Sat, 21 Apr 2001 05:21:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132547AbRDUJPa>; Sat, 21 Apr 2001 05:15:30 -0400
-Received: from mail.cis.nctu.edu.tw ([140.113.23.5]:1545 "EHLO
-	mail.cis.nctu.edu.tw") by vger.kernel.org with ESMTP
-	id <S132553AbRDUJO6>; Sat, 21 Apr 2001 05:14:58 -0400
-Message-ID: <005201c0ca44$755203f0$ae58718c@cis.nctu.edu.tw>
-Reply-To: "gis88530" <gis88530@cis.nctu.edu.tw>
-From: "gis88530" <gis88530@cis.nctu.edu.tw>
-To: <linux-kernel@vger.kernel.org>
-Subject: I can't find out the answer
-Date: Sat, 21 Apr 2001 17:21:32 +0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="big5"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2919.6700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
+	id <S132552AbRDUJVG>; Sat, 21 Apr 2001 05:21:06 -0400
+Received: from libra.cus.cam.ac.uk ([131.111.8.19]:5540 "EHLO
+	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S132547AbRDUJVD>; Sat, 21 Apr 2001 05:21:03 -0400
+Message-Id: <5.0.2.1.2.20010421100423.03d2fd30@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Sat, 21 Apr 2001 10:23:27 +0100
+To: lee@ricis.com
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: Current status of NTFS support
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <01042021072007.00845@linux>
+In-Reply-To: <m34rvjuj3y.fsf@belphigor.mcnaught.org>
+ <86256A34.0079A841.00@smtpnotes.altec.com>
+ <01042020185806.00845@linux>
+ <m34rvjuj3y.fsf@belphigor.mcnaught.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+At 03:07 21/04/2001, Lee Leahu wrote:
+>On Friday 20 April 2001 20:39, you wrote:
+> > Lee Leahu <lee@ricis.com> writes:
+>my boss rememebres reading a very indepth article in one of the msdn
+>magazines.  i could scan the articles in and compress them and send them 
+>to the developers.
 
-I want to calculate the total memory usage of kernel.
-I wonder that we just need to add these(*1) in slabinfo or 
-we need to add each line(*1 and *2) in slabinfo. Thanks.
-AND
-I know the size of size-512 is 512 bytes, but I want to know
-the size of tcp_tw_bucket, tcp_open_request, etc.
-How can I find out this answer? Thanks a lot.
+Since you can access the library for free at msdn.microsoft.com/library 
+that would be a waster of your time. Just give the references to the 
+article. If however you mean the "inside NTFS" and "inside Windows 2000 
+NTFS" by Mark Russinovich then yes they are great but no they are not 
+in-depth enough in that you have to complete the picture by mapping his 
+"logical" information to the actual "physical" on disk information. Which 
+admittedly is not that difficult with NTFS DiskEdit or any other hex editor 
+most of the time... That's how I got the system files indexing keys and 
+indexed data, the format of $Secure, etc, etc... (-;
 
-*1
-size-131072            0      0
-size-65536             0      0
-size-32768             0      0
-size-16384            11     11
-size-8192              1      1
-size-4096              8     12
-size-2048            153    284
-size-1024             20    688
-size-512              54     64
-size-256              51     70
-size-128             396    600
-size-64              942   1050
-size-32             3964   7245
+I would be surprised if you are referring to any articles I haven't found 
+yet but please try me. (-: I would be happy to have missed out some really 
+cool article which gives even more information.
 
-*2
-kmem_cache            30     42
-pio_request            0      0
-tcp_tw_bucket          5    126
-tcp_bind_bucket       45    127
-tcp_open_request       0     63
-skbuff_head_cache     57    693
-sock                  94    132
-dquot                  0      0
-filp                1677   1680
-signal_queue           0     29
-kiobuf                 0      0
-buffer_head        48636  60396
-mm_struct             61     93
-vm_area_struct      2081   2835
-dentry_cache       18304  19933
-files_cache           68     90
-uid_cache             10    127
-slab_cache           183    189
+>i want to help the ntfs movement on linux.  would somebody be willing to 
+>teach me the ropes of reverse engineering of software.  i am a faster 
+>learner, and very interested in reverse engineering of software.
 
+Do you understand assembly language? If not this is a _very_ long learning 
+curve! Reverse engineering consists of three things:
+
+1. Use a hexeditor or NTFS DiskEdit (provided by MS on NT4SP4 CD) and study 
+the structures on disk and play with files, e.g. compress/uncompress, 
+encrypt/decrypt, apply quotas, apply ACLs, and look at how the disk changes.
+
+2. Use a disassembler (I use IDA Pro from www.datarescue.com/idapro, 
+excellent product btw!) to get at the human readable form of ntfs.sys  and 
+associated system files. Fortunately MS provides some debugging symbols on 
+their web site which help a lot as they name some of the functions and 
+global variables so you have some idea of what is going on right away. - 
+This is extremely time consuming. - My current NTFS.sys disassembled file 
+(from WinNT4 ntfs.sys) has 171460 lines! A _lot_ of code...
+
+3. Use a kernel mode debugger (like SoftIce for example) and place break 
+points inside the NTFS driver in memory and then trace execution to see 
+what values are contained in some of the driver's variables, what functions 
+call what, what they do, etc.
+
+Without a working knowledge of assembly language points 2 and 3 are 
+impossible...
+
+>i have access to the msdn library and maganzies
+
+So does everyone. They are free on the net.
+
+>  and have lot of free time for dedicated ntfs code hacking.
+
+Now that is cool. (-:
+
+If you are really interested join the linux-ntfs project on Sourceforge. 
+The documentation provided by the header files is the most in depth and 
+most complete docs about NTFS you will ever find... You can use that 
+knowledge to either help linux-ntfs development or just take the knowledge 
+and use it to fix the existing driver instead. I welcome patches! [Make 
+sure to download CVS and not the released version as that is very out of date.]
+
+Anton
+
+
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://sourceforge.net/projects/linux-ntfs/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

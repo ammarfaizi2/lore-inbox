@@ -1,41 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317058AbSFWQ05>; Sun, 23 Jun 2002 12:26:57 -0400
+	id <S317056AbSFWQXa>; Sun, 23 Jun 2002 12:23:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317059AbSFWQ04>; Sun, 23 Jun 2002 12:26:56 -0400
-Received: from mta6.srv.hcvlny.cv.net ([167.206.5.17]:643 "EHLO
-	mta6.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id <S317058AbSFWQ0z>; Sun, 23 Jun 2002 12:26:55 -0400
-Date: Sun, 23 Jun 2002 12:32:14 -0400
-From: sean darcy <seandarcy@hotmail.com>
-Subject: Re: piggy broken in 2.5.24 build - not piggy; it was BINUTILS
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       linux kernel <linux-kernel@vger.kernel.org>
-Message-id: <3D15F80E.3040401@hotmail.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020605
-References: <linux.kernel.Pine.LNX.4.44.0206222143550.7338-100000@chaos.physics.uiowa.edu>
+	id <S317058AbSFWQX3>; Sun, 23 Jun 2002 12:23:29 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:49122 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S317056AbSFWQX3>; Sun, 23 Jun 2002 12:23:29 -0400
+Date: Sun, 23 Jun 2002 09:21:54 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Dave Hansen <haveblue@us.ibm.com>,
+       William Lee Irwin III <wli@holomorphy.com>
+cc: "Christopher E. Brown" <cbrown@woods.net>,
+       Andreas Dilger <adilger@clusterfs.com>,
+       "Griffiths, Richard A" <richard.a.griffiths@intel.com>,
+       "'Andrew Morton'" <akpm@zip.com.au>, mgross@unix-os.sc.intel.com,
+       "'Jens Axboe'" <axboe@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lse-tech@lists.sourceforge.net
+Subject: Re: [Lse-tech] Re: ext3 performance bottleneck as the number of spindles gets large
+Message-ID: <4170280116.1024824112@[10.10.2.3]>
+In-Reply-To: <3D157C7C.4080007@us.ibm.com>
+References: <3D157C7C.4080007@us.ibm.com>
+X-Mailer: Mulberry/2.1.2 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kai Germaschewski wrote:
+>  >> Yep, 2 independent busses per quad.  That's a _lot_ of busses
+>  >> when you have an 8 or 16 quad system.  (I wonder who has one of
+>  >> those... ;) Almost all of the server-type boxes that we play with
+>  >>  have multiple PCI busses.  Even my old dual-PPro has 2.
+>  >
+>  > I thought I saw 3 PCI and 1 ISA per-quad., but maybe that's the
+>  > "independent" bit coming into play.
+>  >
+> Hmmmm.  Maybe there is another one for the onboard devices.  I thought
+> that there were 8 slots and 4 per bus.  I could
+> be wrong.  BTW, the ISA slot is EISA and as far as I can tell is only
+> used for the MDC.
 
-> 
-> cd /opt/kernel/linux-2.5.24/arch/i386/boot/compressed
-> objcopy -O binary -R .note -R .comment -S /opt/kernel/linux-2.5.24/vmlinux 
-> _tmp_piggy
-> 
-> and see if that generates _tmp_piggy in that directory?
-> 
+NUMA-Q has 2 PCI buses per quad, 3 slots in one, 4 in the other,
+plus the EISA slots.
 
-It was objcopy. I got binutils-2.12.90.0.12 from ftp.kernel.org - just 
-released. It now works.
+Multiple independant PCI buses are also available on other more
+common architecutres, eg Netfinity 8500R, x360, x440, etc. 
 
-Thanks for putting me on the right track.
+Anything with the Intel Profusion chipset will have this feature,
+the bottleneck becomes the "P6 system bus" backplane they're all
+connected to, which has a theoretical limit of 800Mb/s IIRC, though
+nobody's been able to get more than 420Mb/s out of it in practice,
+as far as I know. 
 
-jay
+The thing that makes the NUMA-Q a massive IO shovelling engine is
+having one of these IO backplanes per quad too ... 16 x 800Mb/s
+= 12.8Gb/s ;-)
 
+M.
 

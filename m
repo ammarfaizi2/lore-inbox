@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266685AbUGQCMs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266684AbUGQC3F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266685AbUGQCMs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 22:12:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266686AbUGQCMs
+	id S266684AbUGQC3F (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 22:29:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266686AbUGQC3F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 22:12:48 -0400
-Received: from mail.ocs.com.au ([202.147.117.210]:44484 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S266685AbUGQCMq (ORCPT
+	Fri, 16 Jul 2004 22:29:05 -0400
+Received: from mail.ocs.com.au ([202.147.117.210]:64964 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S266684AbUGQC3B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 22:12:46 -0400
+	Fri, 16 Jul 2004 22:29:01 -0400
 X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
 From: Keith Owens <kaos@ocs.com.au>
 To: William Lee Irwin III <wli@holomorphy.com>
@@ -20,35 +20,41 @@ In-reply-to: Your message of "Fri, 16 Jul 2004 18:19:36 MST."
              <20040717011936.GK3411@holomorphy.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 17 Jul 2004 12:12:39 +1000
-Message-ID: <3310.1090030359@ocs3.ocs.com.au>
+Date: Sat, 17 Jul 2004 12:28:54 +1000
+Message-ID: <3671.1090031334@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Fri, 16 Jul 2004 18:19:36 -0700, 
 William Lee Irwin III <wli@holomorphy.com> wrote:
 >On Sat, Jul 17, 2004 at 10:55:59AM +1000, Keith Owens wrote:
->> 2-3-4 trees are self balancing, which gave decent lookup performance.
->> Since red-black trees are logically equivalent to 2-3-4 trees it should
->> be possible to use lockfree red-black trees.  However I could not come
->> up with a lockfree red-black tree, mainly because an read-black insert
->> requires atomic changes to multiple structures.  The 2-3-4 tree only
->> needs atomic update to one structure at a time.
+>> The beauty of these lockfree algorithms on large structures is that
+>> nothing ever stalls indefinitely.  If the underlying SMP cache hardware
+>> is fair, everything running a lockfree list will make progress.  These
+>> algorithms do not suffer from reader vs. writer starvation.
 >
->This actually appears to confirm my earlier assertion about the linkage
->of the data structure. Is this conclusion what you had in mind?
+>That's a large assumption. NUMA hardware typically violates it.
 
-Not quite.  The 2-3-4 tree has embedded linkage, but it can be done
-lockfree if you really have to.  The problem is that a single 2-3-4
-list entry maps to two red-black list entries.  I could atomically
-update a single 2-3-4 list entry, including its pointers, even when the
-list was being read or updated by other users.  I could not work out
-how to do the equivalent update when the list linkage data was split
-over two red-black nodes.
+True, which is why I mentioned it.  However I suspect that you read
+something into that paragraph which was not intended.
 
-The list structure is an implementation detail, the use of 2-3-4 or
-red-black is completely transparent to the main code.  The main code
-wants to lookup a structure from the list, to update a structure, to
-insert or to delete a structure without waiting.  How the list of
-structures is maintained is a problem for the internals of the API.
+Just reading the lockfree list and the structures on the list does not
+suffer from any NUMA problems, because reading does not perform any
+global updates at all.  The SMP starvation problem only kicks in when
+multiple concurrent updates are being done.  Even with multiple
+writers, one of the writers is guaranteed to succeed every time, so
+over time all the write operations will proceed, subject to fair access
+to exclusive cache lines.
+
+Lockfree reads with Moir's algorithms require extra memory bandwidth.
+In the absence of updates, all the cache lines end up in shared state.
+That reduces to local memory bandwidth for the (hopefully) common case
+of lots of readers and few writers.  Lockfree code is nicely suited to
+the same class of problem that RCU addresses, but without the reader
+vs. writer starvation problems.
+
+Writer vs. writer starvation on NUMA is a lot harder.  I don't know of
+any algorithm that handles lists with lots of concurrent updates and
+also scales well on large cpus, unless the underlying hardware is fair
+in its handling of exclusive cache lines.
 

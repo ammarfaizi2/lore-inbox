@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315416AbSFAIj7>; Sat, 1 Jun 2002 04:39:59 -0400
+	id <S316995AbSFAIle>; Sat, 1 Jun 2002 04:41:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315424AbSFAIjK>; Sat, 1 Jun 2002 04:39:10 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:46090 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S314433AbSFAIik>;
-	Sat, 1 Jun 2002 04:38:40 -0400
-Message-ID: <3CF888DA.57206310@zip.com.au>
-Date: Sat, 01 Jun 2002 01:42:02 -0700
+	id <S316996AbSFAIk1>; Sat, 1 Jun 2002 04:40:27 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:49674 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316993AbSFAIjU>;
+	Sat, 1 Jun 2002 04:39:20 -0400
+Message-ID: <3CF88903.E253A075@zip.com.au>
+Date: Sat, 01 Jun 2002 01:42:43 -0700
 From: Andrew Morton <akpm@zip.com.au>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
 To: Linus Torvalds <torvalds@transmeta.com>
 CC: lkml <linux-kernel@vger.kernel.org>
-Subject: [patch 6/16] buffer_boundary() for ext3
+Subject: [patch 9/16] direct-to-BIO writeback for writeback-mode ext3
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -22,100 +22,120 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Implement buffer_boundary() for ext3.
-
-buffer_boundary() is an I/O scheduling hint which the filesystem's
-get_block() function passes up to the BIO assembly code.  It is
-described in fs/mpage.c
-
-The time to read 1,000 52 kbyte files goes from 8.6 seconds down to 2.9
-seconds.  52 kbytes is the worst-case size.
+Turn on direct-to-BIO writeback for ext3 in data=writeback mode.
 
 
 =====================================
 
---- 2.5.19/fs/ext3/inode.c~ext3-buffer_boundary	Sat Jun  1 01:18:08 2002
-+++ 2.5.19-akpm/fs/ext3/inode.c	Sat Jun  1 01:18:08 2002
-@@ -306,6 +306,8 @@ static inline int verify_chain(Indirect 
-  *	@inode: inode in question (we are only interested in its superblock)
-  *	@i_block: block number to be parsed
-  *	@offsets: array to store the offsets in
-+ *      @boundary: set this non-zero if the referred-to block is likely to be
-+ *             followed (on disk) by an indirect block.
-  *
-  *	To store the locations of file's data ext3 uses a data structure common
-  *	for UNIX filesystems - tree of pointers anchored in the inode, with
-@@ -330,7 +332,8 @@ static inline int verify_chain(Indirect 
-  * get there at all.
-  */
+--- 2.5.19/fs/ext3/inode.c~ext3-writepages	Sat Jun  1 01:18:10 2002
++++ 2.5.19-akpm/fs/ext3/inode.c	Sat Jun  1 01:18:10 2002
+@@ -1389,6 +1389,34 @@ struct address_space_operations ext3_aop
+ 	releasepage:	ext3_releasepage,	/* BKL not held.  Don't need */
+ };
  
--static int ext3_block_to_path(struct inode *inode, long i_block, int offsets[4])
-+static int ext3_block_to_path(struct inode *inode,
-+			long i_block, int offsets[4], int *boundary)
- {
- 	int ptrs = EXT3_ADDR_PER_BLOCK(inode->i_sb);
- 	int ptrs_bits = EXT3_ADDR_PER_BLOCK_BITS(inode->i_sb);
-@@ -338,26 +341,33 @@ static int ext3_block_to_path(struct ino
- 		indirect_blocks = ptrs,
- 		double_blocks = (1 << (ptrs_bits * 2));
- 	int n = 0;
-+	int final = 0;
- 
- 	if (i_block < 0) {
- 		ext3_warning (inode->i_sb, "ext3_block_to_path", "block < 0");
- 	} else if (i_block < direct_blocks) {
- 		offsets[n++] = i_block;
-+		final = direct_blocks;
- 	} else if ( (i_block -= direct_blocks) < indirect_blocks) {
- 		offsets[n++] = EXT3_IND_BLOCK;
- 		offsets[n++] = i_block;
-+		final = ptrs;
- 	} else if ((i_block -= indirect_blocks) < double_blocks) {
- 		offsets[n++] = EXT3_DIND_BLOCK;
- 		offsets[n++] = i_block >> ptrs_bits;
- 		offsets[n++] = i_block & (ptrs - 1);
-+		final = ptrs;
- 	} else if (((i_block -= double_blocks) >> (ptrs_bits * 2)) < ptrs) {
- 		offsets[n++] = EXT3_TIND_BLOCK;
- 		offsets[n++] = i_block >> (ptrs_bits * 2);
- 		offsets[n++] = (i_block >> ptrs_bits) & (ptrs - 1);
- 		offsets[n++] = i_block & (ptrs - 1);
-+		final = ptrs;
- 	} else {
- 		ext3_warning (inode->i_sb, "ext3_block_to_path", "block > big");
- 	}
-+	if (boundary)
-+		*boundary = (i_block & (ptrs - 1)) == (final - 1);
- 	return n;
++/* For writeback mode, we can use mpage_writepages() */
++
++static int
++ext3_writepages(struct address_space *mapping, int *nr_to_write)
++{
++	int ret;
++	int err;
++
++	ret = write_mapping_buffers(mapping);
++	err = mpage_writepages(mapping, nr_to_write, ext3_get_block);
++	if (!ret)
++		ret = err;
++	return ret;
++}
++
++struct address_space_operations ext3_writeback_aops = {
++	readpage:	ext3_readpage,		/* BKL not held.  Don't need */
++	readpages:	ext3_readpages,		/* BKL not held.  Don't need */
++	writepage:	ext3_writepage,		/* BKL not held.  We take it */
++	writepages:	ext3_writepages,	/* BKL not held.  Don't need */
++	sync_page:	block_sync_page,
++	prepare_write:	ext3_prepare_write,	/* BKL not held.  We take it */
++	commit_write:	ext3_commit_write,	/* BKL not held.  We take it */
++	bmap:		ext3_bmap,		/* BKL held */
++	flushpage:	ext3_flushpage,		/* BKL not held.  Don't need */
++	releasepage:	ext3_releasepage,	/* BKL not held.  Don't need */
++};
++
+ /*
+  * ext3_block_truncate_page() zeroes out a mapping from file offset `from'
+  * up to the end of the block which corresponds to `from'.
+@@ -2159,7 +2187,10 @@ void ext3_read_inode(struct inode * inod
+ 	else if (S_ISREG(inode->i_mode)) {
+ 		inode->i_op = &ext3_file_inode_operations;
+ 		inode->i_fop = &ext3_file_operations;
+-		inode->i_mapping->a_ops = &ext3_aops;
++		if (ext3_should_writeback_data(inode))
++			inode->i_mapping->a_ops = &ext3_writeback_aops;
++		else
++			inode->i_mapping->a_ops = &ext3_aops;
+ 	} else if (S_ISDIR(inode->i_mode)) {
+ 		inode->i_op = &ext3_dir_inode_operations;
+ 		inode->i_fop = &ext3_dir_operations;
+@@ -2168,7 +2199,10 @@ void ext3_read_inode(struct inode * inod
+ 			inode->i_op = &ext3_fast_symlink_inode_operations;
+ 		else {
+ 			inode->i_op = &page_symlink_inode_operations;
+-			inode->i_mapping->a_ops = &ext3_aops;
++			if (ext3_should_writeback_data(inode))
++				inode->i_mapping->a_ops = &ext3_writeback_aops;
++			else
++				inode->i_mapping->a_ops = &ext3_aops;
+ 		}
+ 	} else 
+ 		init_special_inode(inode, inode->i_mode,
+--- 2.5.19/include/linux/ext3_jbd.h~ext3-writepages	Sat Jun  1 01:18:10 2002
++++ 2.5.19-akpm/include/linux/ext3_jbd.h	Sat Jun  1 01:18:10 2002
+@@ -299,5 +299,10 @@ static inline int ext3_should_order_data
+ 	return (test_opt(inode->i_sb, DATA_FLAGS) == EXT3_MOUNT_ORDERED_DATA);
  }
  
-@@ -734,7 +744,8 @@ static int ext3_get_block_handle(handle_
- 	Indirect *partial;
- 	unsigned long goal;
- 	int left;
--	int depth = ext3_block_to_path(inode, iblock, offsets);
-+	int boundary = 0;
-+	int depth = ext3_block_to_path(inode, iblock, offsets, &boundary);
- 	struct ext3_inode_info *ei = EXT3_I(inode);
- 	loff_t new_size;
++static inline int ext3_should_writeback_data(struct inode *inode)
++{
++	return !ext3_should_journal_data(inode) &&
++			!ext3_should_order_data(inode);
++}
  
-@@ -752,6 +763,8 @@ reread:
- 		clear_buffer_new(bh_result);
- got_it:
- 		map_bh(bh_result, inode->i_sb, le32_to_cpu(chain[depth-1].key));
-+		if (boundary)
-+			set_buffer_boundary(bh_result);
- 		/* Clean up and exit */
- 		partial = chain+depth-1; /* the whole chain */
- 		goto cleanup;
-@@ -1875,7 +1888,7 @@ void ext3_truncate(struct inode * inode)
- 	ext3_block_truncate_page(handle, inode->i_mapping, inode->i_size);
- 		
+ #endif	/* _LINUX_EXT3_JBD_H */
+--- 2.5.19/include/linux/ext3_fs.h~ext3-writepages	Sat Jun  1 01:18:10 2002
++++ 2.5.19-akpm/include/linux/ext3_fs.h	Sat Jun  1 01:18:10 2002
+@@ -695,6 +695,7 @@ extern struct file_operations ext3_file_
  
--	n = ext3_block_to_path(inode, last_block, offsets);
-+	n = ext3_block_to_path(inode, last_block, offsets, NULL);
- 	if (n == 0)
- 		goto out_stop;	/* error */
+ /* inode.c */
+ extern struct address_space_operations ext3_aops;
++extern struct address_space_operations ext3_writeback_aops;
  
+ /* namei.c */
+ extern struct inode_operations ext3_dir_inode_operations;
+--- 2.5.19/fs/ext3/namei.c~ext3-writepages	Sat Jun  1 01:18:10 2002
++++ 2.5.19-akpm/fs/ext3/namei.c	Sat Jun  1 01:18:10 2002
+@@ -510,7 +510,10 @@ static int ext3_create (struct inode * d
+ 	if (!IS_ERR(inode)) {
+ 		inode->i_op = &ext3_file_inode_operations;
+ 		inode->i_fop = &ext3_file_operations;
+-		inode->i_mapping->a_ops = &ext3_aops;
++		if (ext3_should_writeback_data(inode))
++			inode->i_mapping->a_ops = &ext3_writeback_aops;
++		else
++			inode->i_mapping->a_ops = &ext3_aops;
+ 		ext3_mark_inode_dirty(handle, inode);
+ 		err = ext3_add_nondir(handle, dentry, inode);
+ 	}
+@@ -985,7 +988,10 @@ static int ext3_symlink (struct inode * 
+ 
+ 	if (l > sizeof (EXT3_I(inode)->i_data)) {
+ 		inode->i_op = &page_symlink_inode_operations;
+-		inode->i_mapping->a_ops = &ext3_aops;
++		if (ext3_should_writeback_data(inode))
++			inode->i_mapping->a_ops = &ext3_writeback_aops;
++		else
++			inode->i_mapping->a_ops = &ext3_aops;
+ 		/*
+ 		 * page_symlink() calls into ext3_prepare/commit_write.
+ 		 * We have a transaction open.  All is sweetness.  It also sets
 
 -

@@ -1,32 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132837AbRDIUSB>; Mon, 9 Apr 2001 16:18:01 -0400
+	id <S132839AbRDIUTv>; Mon, 9 Apr 2001 16:19:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132838AbRDIURw>; Mon, 9 Apr 2001 16:17:52 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:38161 "EHLO
+	id <S132840AbRDIUTb>; Mon, 9 Apr 2001 16:19:31 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:38929 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132837AbRDIURe>; Mon, 9 Apr 2001 16:17:34 -0400
-Subject: Re: aic7xxx and 2.4.3 failures
-To: jim@federated.com (Jim Studt)
-Date: Mon, 9 Apr 2001 21:19:13 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200104091933.OAA05314@core.federated.com> from "Jim Studt" at Apr 09, 2001 02:33:27 PM
+	id <S132838AbRDIUTQ>; Mon, 9 Apr 2001 16:19:16 -0400
+Subject: Re: ISIcom cards by Multi-tech
+To: reinelt@eunet.at (Michael Reinelt)
+Date: Mon, 9 Apr 2001 21:20:37 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <3AD21264.7EA4C687@eunet.at> from "Michael Reinelt" at Apr 09, 2001 09:49:56 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14mi85-0002pu-00@the-village.bc.nu>
+Message-Id: <E14mi9Q-0002q4-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> A typical startup with 6.1.9 proceeds like this...  (6.1.10 hangs silently
-> after emitting the scsi0 and scsi1 adapter summaries, maybe it is
-> going through the same gyrations silently.) 
+> > I did a quick port of the old driver over (it wasnt very hard) and people then
+> > added additional bits of support later.
+> > 
+> > multitech never sent me many updates
 > 
+> O well. I thought it went this way....
+> 
+> Do you have sort of a 'patch' from your port? I could take this as a
+> guideline for what has to be changed from 2.2 to 2.4. If I compare the
+> 2.4 driver to the actual 2.2 one, there are far too much differences for
+> me...
 
-Try saying N to the AIC7xxx driver and Y to AIC7XXX_OLD and see if that works.
-This is important both because it might solve your problem for now but also
-because if the old driver works we can be fairly sure the bug is in the 
-new adaptec driver and not elsewhere and triggered on it
-
+I dontt. Other than comparing the 2.2 and 2.4 driver

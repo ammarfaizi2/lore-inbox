@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265411AbRF0V0y>; Wed, 27 Jun 2001 17:26:54 -0400
+	id <S265414AbRF0Vby>; Wed, 27 Jun 2001 17:31:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265412AbRF0V0p>; Wed, 27 Jun 2001 17:26:45 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:42898 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S265411AbRF0V0e>;
-	Wed, 27 Jun 2001 17:26:34 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S265417AbRF0Vbo>; Wed, 27 Jun 2001 17:31:44 -0400
+Received: from imladris.infradead.org ([194.205.184.45]:44050 "EHLO
+	infradead.org") by vger.kernel.org with ESMTP id <S265414AbRF0Vbc>;
+	Wed, 27 Jun 2001 17:31:32 -0400
+Date: Wed, 27 Jun 2001 22:31:22 +0100 (BST)
+From: Riley Williams <rhw@MemAlpha.CX>
+X-X-Sender: <rhw@infradead.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Allocating non-contigious memory
+In-Reply-To: <E15FKQh-0005ef-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0106272229250.26936-100000@infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15162.20357.647877.80788@pizda.ninka.net>
-Date: Wed, 27 Jun 2001 14:26:29 -0700 (PDT)
-To: "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: (reposting) how to get DMA'able memory within 4GB on 64-bit machi
-	ne
-In-Reply-To: <FEEBE78C8360D411ACFD00D0B7477971880ACE@xsj02.sjs.agilent.com>
-In-Reply-To: <FEEBE78C8360D411ACFD00D0B7477971880ACE@xsj02.sjs.agilent.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Alan.
 
-MEHTA,HIREN (A-SanJose,ex1) writes:
- > Is there a way for a driver to ask kernel to
- > give DMA'able memory within 4GB ? I read about
- > pci_alloc_consistent(). But I could not find out
- > whether that guarantees the DMA'able memory to be
- > within 4GB or not. Is there any other kernel routine
- > that I should call from Driver to get such a memory ?
+ >> What is the Right Way[tm] as of 2.4.6 to allocate 16Mb as 4K
+ >> pages and get the pci bus address for each page?  Bonus points
+ >> is they're virtually contiguous, but that's not necessary.
+ >> IIRC, the old vmalloc-then-walk-the-pagetables trick is
+ >> considered out-of-bounds nowadays.
 
-All of the pci_*() DMA allocation/mapping interfaces give you
-32-bit PCI dma addresses.
+ > If you want it virtually contiguous then copy the code from bttv
+ > that out-of-bounds or otherwise is now found in about 8 drivers
+ > in the kernel.
 
-Later,
-David S. Miller
-davem@redhat.com
+Would it be useful to turn that particular code into a subroutine that
+is called from each driver, or would that cause other problems?
+
+Best wishes from Riley.
+

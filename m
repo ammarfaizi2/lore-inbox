@@ -1,143 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267532AbTALVUu>; Sun, 12 Jan 2003 16:20:50 -0500
+	id <S267535AbTALVVO>; Sun, 12 Jan 2003 16:21:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267535AbTALVUu>; Sun, 12 Jan 2003 16:20:50 -0500
-Received: from mta11.srv.hcvlny.cv.net ([167.206.5.46]:13749 "EHLO
-	mta11.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id <S267532AbTALVUs>; Sun, 12 Jan 2003 16:20:48 -0500
-Date: Sun, 12 Jan 2003 16:27:30 -0500
-From: Rob Wilkens <robw@optonline.net>
+	id <S267536AbTALVVO>; Sun, 12 Jan 2003 16:21:14 -0500
+Received: from 5-116.ctame701-1.telepar.net.br ([200.193.163.116]:58603 "EHLO
+	5-116.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S267535AbTALVVM>; Sun, 12 Jan 2003 16:21:12 -0500
+Date: Sun, 12 Jan 2003 19:29:37 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Rob Wilkens <robw@optonline.net>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+       Christoph Hellwig <hch@infradead.org>, Greg KH <greg@kroah.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: any chance of 2.6.0-test*?
-In-reply-to: <20030112211530.GP27709@mea-ext.zmailer.org>
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Reply-to: robw@optonline.net
-Message-id: <1042406849.3162.121.camel@RobsPC.RobertWilkens.com>
-Organization: Robert Wilkens
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.1
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
-References: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com>
- <1042400094.1208.26.camel@RobsPC.RobertWilkens.com>
- <20030112211530.GP27709@mea-ext.zmailer.org>
+In-Reply-To: <1042401596.1209.51.camel@RobsPC.RobertWilkens.com>
+Message-ID: <Pine.LNX.4.50L.0301121925140.26759-100000@imladris.surriel.com>
+References: <Pine.LNX.4.44.0301121134340.14031-100000@home.transmeta.com>
+ <1042401596.1209.51.camel@RobsPC.RobertWilkens.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-01-12 at 16:15, Matti Aarnio wrote:
-> On Sun, Jan 12, 2003 at 02:34:54PM -0500, Rob Wilkens wrote:
-> > Linus,
-> > 
-> > I'm REALLY opposed to the use of the word "goto" in any code where it's
-> > not needed.  OF course, I'm a linux kernel newbie, so I'm in no position
-> > to comment
-> 
-> Bob,
-> 
-> At first, read   Documentation/CodingStyle   of the kernel.
-> Then have a look into:
-> 
->     fs/open.c  file    do_sys_truncate()  function.
-> 
-> Explain how you can do that cleanly, understandably, and without
-> code duplication, or ugly kludges  without using those goto ?
-> (And sticking to coding-style.)
+On Sun, 12 Jan 2003, Rob Wilkens wrote:
 
-I've only compiled (and haven't tested this code), but it should be much
-faster than the original code.  Why?  Because we're eliminating an extra
-"jump" in several places in the code every time open would be called. 
-Yes, it's more code, so the kernel is a little bigger, but it should be
-faster at the same time, and memory should be less of an issue nowadays.
+> However, I have always been taught, and have always believed that
+> "goto"s are inherently evil.  They are the creators of spaghetti code
 
-Here's the patch if you want to apply it (i have only compile tested it,
-I haven't booted with it).. This patch applied to the 2.5.56 kernel.
+If the main flow of the code is through a bunch of hard to trace
+gotos and you choose to blame the tool instead of the programmer,
+I guess you could blame goto.
 
---- open.c.orig	2003-01-12 16:17:01.000000000 -0500
-+++ open.c	2003-01-12 16:22:32.000000000 -0500
-@@ -100,44 +100,58 @@
- 
- 	error = -EINVAL;
- 	if (length < 0)	/* sorry, but loff_t says... */
--		goto out;
-+		return error;
- 
- 	error = user_path_walk(path, &nd);
- 	if (error)
--		goto out;
-+		return error;
- 	inode = nd.dentry->d_inode;
- 
- 	/* For directories it's -EISDIR, for other non-regulars - -EINVAL */
- 	error = -EISDIR;
--	if (S_ISDIR(inode->i_mode))
--		goto dput_and_out;
-+	if (S_ISDIR(inode->i_mode)){
-+		path_release(&nd);
-+		return error;
-+	}
- 
- 	error = -EINVAL;
--	if (!S_ISREG(inode->i_mode))
--		goto dput_and_out;
-+	if (!S_ISREG(inode->i_mode)){
-+		path_release(&nd);
-+		return error;
-+	}
- 
- 	error = permission(inode,MAY_WRITE);
--	if (error)
--		goto dput_and_out;
-+	if (error){
-+		path_release(&nd);
-+		return error;
-+	}
- 
- 	error = -EROFS;
--	if (IS_RDONLY(inode))
--		goto dput_and_out;
-+	if (IS_RDONLY(inode)){
-+		path_release(&nd);
-+		return error;
-+	}
- 
- 	error = -EPERM;
--	if (IS_IMMUTABLE(inode) || IS_APPEND(inode))
--		goto dput_and_out;
-+	if (IS_IMMUTABLE(inode) || IS_APPEND(inode)){
-+		path_release(&nd);
-+		return error;
-+	}
- 
- 	/*
- 	 * Make sure that there are no leases.
- 	 */
- 	error = break_lease(inode, FMODE_WRITE);
--	if (error)
--		goto dput_and_out;
-+	if (error){
-+		path_release(&nd);
-+		return error;
-+	}
- 
- 	error = get_write_access(inode);
--	if (error)
--		goto dput_and_out;
-+	if (error){
-+		path_release(&nd);
-+		return error;
-+	}
- 
- 	error = locks_verify_truncate(inode, NULL, length);
- 	if (!error) {
-@@ -146,9 +160,7 @@
- 	}
- 	put_write_access(inode);
- 
--dput_and_out:
- 	path_release(&nd);
--out:
- 	return error;
- }
+However, the goto can also be a great tool to make the code more
+readable.  The goto statement is, IMHO, one of the more elegant
+ways to code exceptions into a C function; that is, dealing with
+error situations that don't happen very often, in such a way that
+the error handling code doesn't clutter up the main code path.
 
+As an example, you could look at fs/super.c::do_kern_mount()
 
+        mnt = alloc_vfsmnt(name);
+        if (!mnt)
+                goto out;
+        sb = type->get_sb(type, flags, name, data);
+        if (IS_ERR(sb))
+                goto out_mnt;
+
+Do you see how the absence of the error handling cleanup code
+makes the normal code path easier to read ?
+
+regards,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://guru.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>

@@ -1,41 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265116AbRFUTEu>; Thu, 21 Jun 2001 15:04:50 -0400
+	id <S265120AbRFUTHu>; Thu, 21 Jun 2001 15:07:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265117AbRFUTEo>; Thu, 21 Jun 2001 15:04:44 -0400
-Received: from srv01s4.cas.org ([134.243.50.9]:11409 "EHLO srv01.cas.org")
-	by vger.kernel.org with ESMTP id <S265118AbRFUTEb>;
-	Thu, 21 Jun 2001 15:04:31 -0400
-From: Mike Harrold <mharrold@cas.org>
-Message-Id: <200106211904.PAA10433@mah21awu.cas.org>
+	id <S265125AbRFUTHk>; Thu, 21 Jun 2001 15:07:40 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:15364 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S265120AbRFUTH0>; Thu, 21 Jun 2001 15:07:26 -0400
 Subject: Re: Controversy over dynamic linking -- how to end the panic
-To: ttabi@interactivesi.com (Timur Tabi)
-Date: Thu, 21 Jun 2001 15:04:21 -0400 (EDT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <qi1bhC.A.lfF.ZEkM7@dinero.interactivesi.com> from "Timur Tabi" at Jun 21, 2001 01:46:48 PM
-X-Mailer: ELM [version 2.5 PL2]
+To: wweng@kencast.com (Wei Weng)
+Date: Thu, 21 Jun 2001 20:06:19 +0100 (BST)
+Cc: ttabi@interactivesi.com (Timur Tabi), linux-kernel@vger.kernel.org
+In-Reply-To: <993153729.7844.3.camel@Monet> from "Wei Weng" at Jun 21, 2001 04:01:58 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15D9mV-0001wf-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> To be honest, I disagree that #include'ing a GPL header file should force your
-> app to be GPL as well.  That may be how the license reads, but I think it's a
-> very bad idea.  I could write 1 million lines of original code, but if someone
-> told me that but simply adding #include <stdio.h> my code is now a derivative of
-> the stdio.h, I'd tell him to go screw himself.
+> > the stdio.h, I'd tell him to go screw himself.
+> What is the difference between including kernel header file and
+> including GPLed header file? 
 
-Not to mention utterly unenforceable. Consider:
+There are real differences between programs and interface definitions. At this
+point you get into law and the like and its probably best you read up on it
+from a reputable source not l/k
 
-1) Oracle Corp. builds their database for Linux on a Linux system.
-2) Said system comes with standard header files, which happen in this case to
-   be GPL'd header files.
-3) Oracle Corp.'s database becomes GPL.
-
-There's not a court in the civilised world that would uphold the GPL in that
-scenario.
-
-Regards,
-
-/Mike

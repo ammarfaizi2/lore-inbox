@@ -1,56 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262742AbVBYQxj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262748AbVBYQ46@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262742AbVBYQxj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 11:53:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262744AbVBYQxi
+	id S262748AbVBYQ46 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 11:56:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262747AbVBYQ44
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 11:53:38 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:21434 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S262742AbVBYQvm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 11:51:42 -0500
-Message-Id: <200502251649.j1PGnL5w006570@laptop11.inf.utfsm.cl>
-To: linux-os@analogic.com
-cc: Payasam Manohar <pmanohar@lantana.cs.iitm.ernet.in>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Invalid module format in Fedora core2 
-In-Reply-To: Message from linux-os <linux-os@analogic.com> 
-   of "Fri, 25 Feb 2005 10:53:44 CDT." <Pine.LNX.4.61.0502251031170.626@chaos.analogic.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Fri, 25 Feb 2005 13:49:21 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b2 (inti.inf.utfsm.cl [200.1.21.155]); Fri, 25 Feb 2005 13:49:21 -0300 (CLST)
+	Fri, 25 Feb 2005 11:56:56 -0500
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:36879 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S262748AbVBYQzf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 11:55:35 -0500
+Date: Fri, 25 Feb 2005 17:55:50 +0100
+From: Tomasz Torcz <zdzichu@irc.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: linux-2.6.8.1 to linux-2.6.10: Kernel Patching Issues.
+Message-ID: <20050225165550.GA766@irc.pl>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.10.10502251550520.26208-100000@mtfhpc.demon.co.uk> <1109350044.9681.26.camel@krustophenia.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1109350044.9681.26.camel@krustophenia.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os <linux-os@analogic.com> said:
-> On Fri, 25 Feb 2005, Payasam Manohar wrote:
-> > I tried to insert a sample module into Fedora core 2 , But it is giving
-> > an error message that " no module in the object"
-> > The same module was inserted successfully into Redhat linux 9.
+On Fri, Feb 25, 2005 at 11:47:23AM -0500, Lee Revell wrote:
+> On Fri, 2005-02-25 at 16:40 +0000, Mark Fortescue wrote:
+> > The kernel patch files patch-2.6.9 and patch-2.6.10 do not apear to be
+> > correct.
+> 
+> No, you're doing it wrong.  2.6.8.1 was a bugfix release.  The correct
+> patching order is 2.6.8 -> 2.6.9 -> 2.6.10. 
 
-> > Is there any changes from RH 9 to Fedora Core 2 with respect to the module 
-> > writing and insertion.
+ Hi did patch from 2.6.8:
+#v+
+3) bzcat ../patch-2.6.8.1.bz2 | patch -R -p1
+        This gives a 2.6.8 kernel.
+#v-
 
-> Yes. Fedora Core 2 should have the new module tools. It also has
-> a new kernel. These new kernels load a module called "module.ko"
-> instead of "module.o".
-
-Right up to here.
-
->                        Inside the new module is some code used
-> to obfuscate the new module mechanism where 'insmod' and friends
-> has been moved inside the kernel, further bloating the kernel
-
-AFAIR, the resulting code in-kernel is even smaller than before, and diong
-it in-kernel is the only sane way to avoid all kinds of nasty races.
-
-> and, incidentally, making it necessary for modules to be
-> "politically correct", i.e., policy moved into the kernel.
-
-Is this FUD really necesary?
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Tomasz Torcz               "Never underestimate the bandwidth of a station
+zdzichu@irc.-nie.spam-.pl    wagon filled with backup tapes." -- Jim Gray
+

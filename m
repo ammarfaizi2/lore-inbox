@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319195AbSHWTsu>; Fri, 23 Aug 2002 15:48:50 -0400
+	id <S319265AbSHWTu2>; Fri, 23 Aug 2002 15:50:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319217AbSHWTsu>; Fri, 23 Aug 2002 15:48:50 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:22656 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S319195AbSHWTst>;
-	Fri, 23 Aug 2002 15:48:49 -0400
-Date: Fri, 2 Nov 2001 05:55:43 +0000
+	id <S319260AbSHWTtq>; Fri, 23 Aug 2002 15:49:46 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:24704 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S319261AbSHWTtU>;
+	Fri, 23 Aug 2002 15:49:20 -0400
+Date: Fri, 2 Nov 2001 01:25:15 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
-       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] complain about unknown CLONE_* flags
-Message-ID: <20011102055542.N35@toy.ucw.cz>
-References: <20020815233802.A30018@kushida.apsleyroad.org> <Pine.LNX.4.44.0208161207450.3782-100000@localhost.localdomain>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: vda@port.imtp.ilyichevsk.odessa.ua, Andrew Rodland <arodland@noln.com>,
+       Stas Sergeev <stssppnn@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] New PC-Speaker driver
+Message-ID: <20011102012515.A35@toy.ucw.cz>
+References: <3D5A8C2C.9010700@yahoo.com> <20020814184407.4ca9e406.arodland@noln.com> <200208150821.g7F8L6p19730@Port.imtp.ilyichevsk.odessa.ua> <E17fI5E-0002at-00@starship>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.44.0208161207450.3782-100000@localhost.localdomain>; from mingo@elte.hu on Fri, Aug 16, 2002 at 12:17:57PM +0200
+In-Reply-To: <E17fI5E-0002at-00@starship>; from phillips@arcor.de on Thu, Aug 15, 2002 at 12:42:28PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > Ingo, how do you handle this sort of backward compatibility in your
-> > latest pthreads library, or don't you do backward compatibility?
+> > In short: making it work right on wide variety of hardware is next to impossible
+> > and even then results are mediocre (low volume, radio quality).
 > 
-> [btw., it's not me doing it but Ulrich Drepper. I'm mostly doing the 'lets
-> find out how the kernel could help' side of things.]
-> 
-> the proper way of doing this is a way of getting fundamental kernel
-> capabilities, not the 'probing' of the kernel in various ways. Glibc
-> starts looking like old ISA drivers trying to do nonintrusive
-> autodetection: 'lets try this port carefully without disturbing state,
-> perhaps this feature is there'.
-> 
-> one way to handle this cleanly would be to add a kernel capabilities
-> bitmask to sysconf(), and backport this to all mainstream Linux kernels
+> So what?  If it works on *your* hardware then you want the option.
 
-I'm afraid that bitmask will get out-of-date. Doing EINVAL seems like a good
-way to do this. [Hmm, perhaps we need CLONE_DONT which only checks capabilities
-and returns? It still seems better than sysconf...]
+It will work well enough to be used for speech synthesis on most hw. It only
+eats CPU when in use. [Integrating festival into kernel for *speaking* panics?]
+
+
 									Pavel
 -- 
 Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,

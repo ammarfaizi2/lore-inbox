@@ -1,531 +1,342 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268298AbUJJNFz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268296AbUJJNrS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268298AbUJJNFz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Oct 2004 09:05:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268299AbUJJNFz
+	id S268296AbUJJNrS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Oct 2004 09:47:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268300AbUJJNrR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Oct 2004 09:05:55 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:5019 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S268298AbUJJNF2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Oct 2004 09:05:28 -0400
-Message-ID: <4168DFA0.9030807@comcast.net>
-Date: Sun, 10 Oct 2004 07:07:12 +0000
-From: "D. Stimits" <stimits@comcast.net>
-Reply-To: stimits@comcast.net
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+	Sun, 10 Oct 2004 09:47:17 -0400
+Received: from port-212-202-157-208.static.qsc.de ([212.202.157.208]:19420
+	"EHLO zoidberg.portrix.net") by vger.kernel.org with ESMTP
+	id S268296AbUJJNqy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Oct 2004 09:46:54 -0400
+Message-ID: <41693CF9.10905@ppp0.net>
+Date: Sun, 10 Oct 2004 15:45:29 +0200
+From: Jan Dittmer <jdittmer@ppp0.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.3) Gecko/20040918 Thunderbird/0.8 Mnenhy/0.6.0.104
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: kernel oops 2.6.8 SMP
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+CC: Jan Dittmer <jdittmer@ppp0.net>, Greg KH <greg@kroah.com>,
+       Rolf Eike Beer <eike-kernel@sf-tec.de>,
+       Hotplug List <pcihpd-discuss@lists.sourceforge.net>
+Subject: Re: Is there a user space pci rescan method?
+References: <E8F8DBCB0468204E856114A2CD20741F2C13E2@mail.local.ActualitySystems.com> <200409241412.45204@bilbo.math.uni-mannheim.de> <41541009.9080206@ppp0.net> <200409241432.06748@bilbo.math.uni-mannheim.de> <20040924145542.GA17147@kroah.com> <41687EBA.7050506@ppp0.net> <41688985.7030607@ppp0.net>
+In-Reply-To: <41688985.7030607@ppp0.net>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------000509060504050606000601"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am not on this list, so hopefully someone could CC me if there is 
-information that might be useful.
+This is a multi-part message in MIME format.
+--------------000509060504050606000601
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-Not quite 2 weeks ago I sent in a series of what appeared to be random 
-OOPS messages, not quite sure if it was hardware or software, hoping to 
-find out which. I was asked by one person to recompile the kernel 
-without preemption, which I did. The rate of OOPS has gone down 
-dramatically since then, yet I did still get 1 OOPS with heavy machine 
-use over about the last 2 weeks. Obviously there is no guarantee that it 
-is related to preemption when it has still given one OOPS, and since the 
-problem was random and I have had no way to repeat it even with the two 
-other kernel versions (2.6.8 and the stock Fedora Core 2 kernel) that 
-had this random problem on them.
+Jan Dittmer wrote:
+> Jan Dittmer wrote:
+> 
+>>Greg KH wrote:
+>>
+>>
+>>>Please just add the "rescan" support to fakephp, and everyone will be
+>>>happy...
+>>
+>>
+>>Well, I started to work on this for fun. What I currently have is a
+>>stand-alone module which rescans the pci bus on insert and enables
+>>previously disabled devices. This works (at least with my ieee1394 port).
+>>Problem is, that fakephp does not get notified about this new pci device
+>>and no new file is created in /sys/bus/pci/slots. So I'm going to add
+>>this rescan functionality directly to fakephp.
+>>Question is: where? My current idea is a fake hotplug slot "rescan" in
+>>/sys/bus/pci/slots , where you can write "1" into the "power" attribute.
+>>FWIW I've attached the standalone module and a kernel patch which rips
+>>out the pci_bus_add_device functionality from pci_bus_add_devices.
+> 
+> 
+> Well, here is a quick & dirty hack, which adds this function to
+> enable_slot in fakephp. So if you write "1" in the power attribute of
+> any slot, the whole bus gets rescanned (you still need the
+> pci_bus_add_device.patch from the previous mail).
 
-I am sending in the one OOPS I did get. Unfortunately, I think it is 
-incomplete, whatever the problem is, it seems to have caused the OOPS 
-itself to have cut short. This kernel does have all debug information 
-built into it so possibly it might help. I wanted to find out if a 
-partial OOPS like this is at all useful; if not I'll have to wait till I 
-get another OOPS.
+Well one last update. This version also handles deactivation of
+subfunctions correctly, ie. when the parent should be disabled, all
+subfunctions will be disabled first.
 
-I am sending the original OOPS set first, and at the end of this you 
-will find the single new OOPS. Note that the system information such as 
-modules and hardware will be the same on the new OOPS and old OOPS, all 
-that differs is the kernel no longer containing preemption.
+Small demo:
+ # modprobe fakephp
+ # ls /sys/bus/pci/slots | grep "0000:04"
+0000:04:02.0
+0000:04:02.1
+0000:04:02.2
+0000:04:03.0
+0000:04:03.1
+ # echo -n 0 > /sys/bus/pci/slots/0000\:04\:02.0/power
+ # ls /sys/bus/pci/slots | grep "0000:04"
+0000:04:03.0
+0000:04:03.1
+ # echo -n 1 > /sys/bus/pci/slots/0000\:03\:01.0/power
+ # ls /sys/bus/pci/slots | grep "0000:04"
+0000:04:02.0
+0000:04:02.1
+0000:04:02.2
+0000:04:03.0
+0000:04:03.1
+ #lspci | grep "0000:04"
+0000:04:02.0 Multimedia audio controller: Creative Labs SB Audigy (rev 03)
+0000:04:02.1 Input device controller: Creative Labs SB Audigy MIDI/Game
+port (rev 03)
+0000:04:02.2 FireWire (IEEE 1394): Creative Labs SB Audigy FireWire Port
+0000:04:03.0 SCSI storage controller: Adaptec AHA-3960D / AIC-7899A
+U160/m (rev 01)
+0000:04:03.1 SCSI storage controller: Adaptec AHA-3960D / AIC-7899A
+U160/m (rev 01)
 
-Machine is a dual P2-450 on 440BX chipset.
+Sound plays fine afterwards.
+Actually this only works only once or twice. At some point the removal
+command will hang (but I suppose this is a problem with either
+snd-emu10k1 or ieee1394).
 
-D. Stimits, stimits AT comcast DOT net
-
-//***********************************************************
-//**** OLD OOPS *********************************************
-//***********************************************************
-
----------------------------------------------------------------
-/proc/version:
-Linux version 2.6.8-1smp-dbg (root@thecook) (gcc version 3.3.3 20040412 
-(Red Hat Linux 3.3.3-7)) #1 SMP Fri Sep 24 14:10:08 MDT 2004
----------------------------------------------------------------
-cat /proc/modules:
-# cat /proc/modules
-snd_pcm_oss 47912 0 - Live 0xd09ee000
-snd_pcm 88708 1 snd_pcm_oss, Live 0xd09d7000
-snd_page_alloc 9096 1 snd_pcm, Live 0xd0a1e000
-snd_timer 25092 1 snd_pcm, Live 0xd09cc000
-snd_mixer_oss 16384 1 snd_pcm_oss, Live 0xd09c7000
-snd 49508 4 snd_pcm_oss,snd_pcm,snd_timer,snd_mixer_oss, Live 0xd09b9000
-soundcore 8032 1 snd, Live 0xd09b6000
-md5 4352 1 - Live 0xd09d4000
-ipv6 257572 24 - Live 0xd103f000
-parport_pc 30784 1 - Live 0xd0975000
-lp 9708 0 - Live 0xd0971000
-parport 35912 2 parport_pc,lp, Live 0xd0967000
-sunrpc 140772 1 - Live 0xd0981000
-tulip 43424 0 - Live 0xd095b000
-crc32 4352 1 tulip, Live 0xd097e000
-e100 34944 0 - Live 0xd09a6000
-mii 4352 1 e100, Live 0xd085d000
-ipt_REJECT 5888 59 - Live 0xd08a6000
-ipt_LOG 6272 27 - Live 0xd0861000
-iptable_filter 2688 1 - Live 0xd0849000
-ip_tables 17280 3 ipt_REJECT,ipt_LOG,iptable_filter, Live 0xd0843000
-sg 34208 0 - Live 0xd089c000
-microcode 6480 0 - Live 0xd0840000
-dm_mod 50692 0 - Live 0xd088e000
-uhci_hcd 29712 0 - Live 0xd0837000
-ext3 103400 2 - Live 0xd08ad000
-jbd 63384 1 ext3, Live 0xd084c000
-aic7xxx 160696 5 - Live 0xd0865000
----------------------------------------------------------------
-cat /proc/ioports:
-# cat /proc/ioports
-0000-001f : dma1
-0020-0021 : pic1
-0040-005f : timer
-0060-006f : keyboard
-0070-0077 : rtc
-0080-008f : dma page reg
-00a0-00a1 : pic2
-00c0-00df : dma2
-00f0-00ff : fpu
-01f0-01f7 : ide0
-0213-0213 : ISAPnP
-0290-0297 : pnp 00:09
-02e8-02ef : serial
-0378-037a : parport0
-0398-0399 : pnp 00:09
-03c0-03df : vga+
-03f6-03f6 : ide0
-03f8-03ff : serial
-0400-043f : 0000:00:07.3
-0440-045f : 0000:00:07.3
-04d0-04d1 : pnp 00:08
-0a79-0a79 : isapnp write
-0cf8-0cff : PCI conf1
-d000-dfff : PCI Bus #01
-e000-e0ff : 0000:00:12.0
-   e000-e0ff : tulip
-e400-e4ff : 0000:00:0e.0
-e800-e8ff : 0000:00:0e.1
-ef00-ef3f : 0000:00:10.0
-   ef00-ef3f : e100
-ef80-ef9f : 0000:00:07.2
-ffa0-ffaf : 0000:00:07.1
-   ffa0-ffa7 : ide0
----------------------------------------------------------------
-# cat /proc/iomem
-00000000-0009fbff : System RAM
-0009fc00-0009ffff : reserved
-000a0000-000bffff : Video RAM area
-000c0000-000c7fff : Video ROM
-000c8000-000cc7ff : Adapter ROM
-000cc800-000cd7ff : Adapter ROM
-000f0000-000fffff : System ROM
-00100000-0fffffff : System RAM
-   00100000-0030d74c : Kernel code
-   0030d74d-003ec57f : Kernel data
-dea00000-eeafffff : PCI Bus #01
-   e4000000-e7ffffff : 0000:01:00.0
-   e8000000-ebffffff : 0000:01:00.0
-f0000000-f7ffffff : 0000:00:00.0
-fec00000-fec00fff : reserved
-fee00000-fee00fff : reserved
-ff500000-ff5fffff : PCI Bus #01
-   ff5e0000-ff5fffff : 0000:01:00.0
-ff900000-ff9fffff : 0000:00:10.0
-   ff900000-ff9fffff : e100
-ffafcc00-ffafcfff : 0000:00:12.0
-   ffafcc00-ffafcfff : tulip
-ffafd000-ffafdfff : 0000:00:10.0
-   ffafd000-ffafdfff : e100
-ffafe000-ffafefff : 0000:00:0e.0
-   ffafe000-ffafefff : aic7xxx
-ffaff000-ffafffff : 0000:00:0e.1
-   ffaff000-ffafffff : aic7xxx
-fffc0000-ffffffff : reserved
-
----------------------------------------------------------------
-# cat scsi
-Attached devices:
-Host: scsi0 Channel: 00 Id: 03 Lun: 00
-   Vendor: SEAGATE  Model: ST39140W         Rev: 1281
-   Type:   Direct-Access                    ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 04 Lun: 00
-   Vendor: SEAGATE  Model: ST39173WC        Rev: 5698
-   Type:   Direct-Access                    ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 05 Lun: 00
-   Vendor: IBM      Model: DDRS-39130D      Rev: DC1B
-   Type:   Direct-Access                    ANSI SCSI revision: 02
-Host: scsi1 Channel: 00 Id: 08 Lun: 00
-   Vendor: IBM      Model: DDRS-34560D      Rev: DC1B
-   Type:   Direct-Access                    ANSI SCSI revision: 02
-Host: scsi1 Channel: 00 Id: 09 Lun: 00
-   Vendor: IBM      Model: DDRS-34560D      Rev: DC1B
-   Type:   Direct-Access                    ANSI SCSI revision: 02
-
----------------------------------------------------------------
-/proc/cpuinfo:
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 5
-model name      : Pentium II (Deschutes)
-stepping        : 2
-cpu MHz         : 451.066
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de tsc msr pae mce cx8 apic sep mtrr pge mca 
-cmov pat pse36 mmx fxsr
-bogomips        : 888.83
-
-processor       : 1
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 5
-model name      : Pentium II (Deschutes)
-stepping        : 2
-cpu MHz         : 451.066
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de tsc msr pae mce cx8 apic sep mtrr pge mca 
-cmov pat pse36 mmx fxsr
-bogomips        : 899.07
----------------------------------------------------------------
-# lspci -vvv
-00:00.0 Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host bridge 
-(rev 02)
-         Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-         Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
-         Latency: 64
-         Region 0: Memory at f0000000 (32-bit, prefetchable)
-         Capabilities: [a0] AGP version 1.0
-                 Status: RQ=32 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- 
-HTrans- 64bit- FW- AGP3- Rate=x1,x2
-                 Command: RQ=1 ArqSz=0 Cal=0 SBA- AGP- GART64- 64bit- 
-FW- Rate=<none>
-
-00:01.0 PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge 
-(rev 02) (prog-if 00 [Normal decode])
-         Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV+ VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-         Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-         Latency: 64
-         Bus: primary=00, secondary=01, subordinate=01, sec-latency=64
-         I/O behind bridge: 0000d000-0000dfff
-         Memory behind bridge: ff500000-ff5fffff
-         Prefetchable memory behind bridge: dea00000-eeafffff
-         Expansion ROM at 0000d000 [disabled] [size=4K]
-         BridgeCtl: Parity- SERR- NoISA- VGA+ MAbort- >Reset- FastB2B+
-
-00:07.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
-         Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-         Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-         Latency: 0
-
-00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01) 
-(prog-if 80 [Master])
-         Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-         Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-         Latency: 64
-         Region 4: I/O ports at ffa0 [size=16]
-
-00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01) 
-(prog-if 00 [UHCI])
-         Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-         Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-         Interrupt: pin D routed to IRQ 0
-         Region 4: I/O ports at ef80 [size=32]
-
-00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 02)
-         Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-         Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-         Interrupt: pin ? routed to IRQ 9
-
-00:0e.0 SCSI storage controller: Adaptec AHA-2940U/UW / AHA-39xx / 
-AIC-7895 (rev 04)
-         Subsystem: Adaptec AHA-2940U/2940UW Dual AHA-394xAU/AUW/AUWD 
-AIC-7895B
-         Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- 
-ParErr- Stepping- SERR+ FastB2B-
-         Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-         Latency: 64 (2000ns min, 2000ns max), Cache Line Size 08
-         Interrupt: pin A routed to IRQ 11
-         Region 0: I/O ports at e400 [disabled] [size=ffae0000]
-         Region 1: Memory at ffafe000 (32-bit, non-prefetchable) [size=4K]
-         Expansion ROM at 00010000 [disabled]
-         Capabilities: [dc] Power Management version 1
-                 Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:0e.1 SCSI storage controller: Adaptec AHA-2940U/UW / AHA-39xx / 
-AIC-7895 (rev 04)
-         Subsystem: Adaptec AHA-2940U/2940UW Dual AHA-394xAU/AUW/AUWD 
-AIC-7895B
-         Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- 
-ParErr- Stepping- SERR+ FastB2B-
-         Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-         Latency: 64 (2000ns min, 2000ns max), Cache Line Size 08
-         Interrupt: pin B routed to IRQ 11
-         Region 0: I/O ports at e800 [disabled]
-         Region 1: Memory at ffaff000 (32-bit, non-prefetchable) [size=4K]
-         Capabilities: [dc] Power Management version 1
-                 Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:10.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] 
-(rev 08)
-         Subsystem: Intel Corp. EtherExpress PRO/100+ Management Adapter
-         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- 
-ParErr- Stepping- SERR+ FastB2B-
-         Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-         Latency: 64 (2000ns min, 14000ns max), Cache Line Size 08
-         Interrupt: pin A routed to IRQ 10
-         Region 0: Memory at ffafd000 (32-bit, non-prefetchable) 
-[size=ff800000]
-         Region 1: I/O ports at ef00 [size=64]
-         Region 2: Memory at ff900000 (32-bit, non-prefetchable) [size=1M]
-         Expansion ROM at 00100000 [disabled]
-         Capabilities: [dc] Power Management version 2
-                 Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA 
-PME(D0+,D1+,D2+,D3hot+,D3cold-)
-                 Status: D0 PME-Enable+ DSel=0 DScale=2 PME-
-
-00:12.0 Ethernet controller: Linksys NC100 Network Everywhere Fast 
-Ethernet 10/100 (rev 11)
-         Subsystem: Linksys: Unknown device 0574
-         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- 
-ParErr- Stepping- SERR+ FastB2B-
-         Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-         Latency: 64 (16000ns min, 32000ns max), Cache Line Size 08
-         Interrupt: pin A routed to IRQ 9
-         Region 0: I/O ports at e000 [size=ffac0000]
-         Region 1: Memory at ffafcc00 (32-bit, non-prefetchable) [size=1K]
-         Expansion ROM at 00020000 [disabled]
-         Capabilities: [c0] Power Management version 2
-                 Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=100mA 
-PME(D0+,D1+,D2+,D3hot+,D3cold+)
-                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-01:00.0 Display controller: 3DLabs GLINT R3 (rev 01)
-         Subsystem: 3DLabs: Unknown device 0125
-         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-         Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium 
- >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-         Latency: 64 (48000ns min, 48000ns max)
-         Interrupt: pin A routed to IRQ 10
-         Region 0: Memory at ff5e0000 (32-bit, non-prefetchable) 
-[size=ff5d0000]
-         Region 1: Memory at e8000000 (32-bit, prefetchable) [size=64M]
-         Region 2: Memory at e4000000 (32-bit, prefetchable) [size=64M]
-         Expansion ROM at 00010000 [disabled]
-         Capabilities: [4c] Power Management version 1
-                 Flags: PMEClk- DSI+ D1+ D2- AuxCurrent=0mA 
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-         Capabilities: [40] AGP version 2.0
-                 Status: RQ=32 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- 
-HTrans- 64bit- FW- AGP3- Rate=x1
-                 Command: RQ=1 ArqSz=0 Cal=0 SBA- AGP- GART64- 64bit- 
-FW- Rate=<none>
----------------------------------------------------------------
-
-
----------------------------------------------------------------
-Sep 30 13:53:20 localhost kernel: Unable to handle kernel NULL pointer 
-dereference at virtual address 00000004
-Sep 30 13:53:20 localhost kernel:  printing eip:
-Sep 30 13:53:20 localhost kernel: 00000004
-Sep 30 13:53:20 localhost kernel: *pde = 00000000
-Sep 30 13:53:20 localhost kernel: Oops: 0000 [#1]
-Sep 30 13:53:20 localhost kernel: PREEMPT SMP DEBUG_PAGEALLOC
-Sep 30 13:53:20 localhost kernel: Modules linked in: snd_pcm_oss snd_pcm 
-snd_page_alloc snd_timer snd_mixer_oss snd soundcore md5 ipv6 parport_pc 
-lp parport sunrpc tulip crc32 e100 mii ipt_REJECT ipt_LOG iptable_filter 
-ip_tables sg microcode dm_mod uhci_hcd ext3 jbd aic7xxx
-Sep 30 13:53:20 localhost kernel: CPU:    0
-Sep 30 13:53:20 localhost kernel: EIP:    0060:[<00000004>]    Not tainted
-Sep 30 13:53:20 localhost kernel: EFLAGS: 00010296   (2.6.8-1smp-dbg)
-Sep 30 13:53:20 localhost kernel: EIP is at 0x4
-Sep 30 13:53:20 localhost kernel: eax: c7d68ec0   ebx: 00000040   ecx: 
-c017ab80   edx: c7ed3f50
-Sep 30 13:53:21 localhost kernel: esi: 00000000   edi: 00000000   ebp: 
-00000000   esp: c7ed3f14
-Sep 30 13:53:21 localhost kernel: ds: 007b   es: 007b   ss: 0068
-Sep 30 13:53:21 localhost kernel: Process postmaster (pid: 2666, 
-threadinfo=c7ed2000 task=c7ed19b0)
-Sep 30 13:53:21 localhost kernel: Stack: 00000145 00000050 c7ed2000 
-cff34fec cff34fe8 cff34fe4 cff34ff4 cff34ff0
-Sep 30 13:53:21 localhost kernel:        cff34fec 7fffffff 00000000 
-c7ed3f50 c7ed3f8c c7ed3f90 00000007 c0179930
-Sep 30 13:53:21 localhost kernel:        00000000 00000000 fffffff4 
-00000004 00000000 cff34ff8 c7ed3fbc c017a0c8
-Sep 30 13:53:21 localhost kernel: Call Trace:
-Sep 30 13:53:21 localhost kernel:  [<c0108795>] show_stack+0x75/0x90
-Sep 30 13:53:22 localhost kernel:  [<c01088f3>] show_registers+0x123/0x180
-Sep 30 13:53:22 localhost kernel:  [<c0108a96>] die+0xb6/0x170
-Sep 30 13:53:22 localhost kernel:  [<c0118bd0>] do_page_fault+0x1e0/0x59d
-Sep 30 13:53:22 localhost kernel:  [<c01083fd>] error_code+0x2d/0x40
-Sep 30 13:53:22 localhost kernel: Code:  Bad EIP value.
------------------------------------
-
-Sep 30 13:53:22 localhost kernel:  <1>Unable to handle kernel NULL 
-pointer dereference at virtual address 00000004
-Sep 30 13:53:22 localhost kernel:  printing eip:
-Sep 30 13:53:22 localhost kernel: 00000004
-Sep 30 13:53:23 localhost kernel: *pde = 00000000
-Sep 30 13:53:23 localhost kernel: Oops: 0000 [#2]
-Sep 30 13:53:23 localhost kernel: PREEMPT SMP DEBUG_PAGEALLOC
-Sep 30 13:53:23 localhost kernel: Modules linked in: snd_pcm_oss snd_pcm 
-snd_page_alloc snd_timer snd_mixer_oss snd soundcore md5 ipv6 parport_pc 
-lp parport sunrpc tulip crc32 e100 mii ipt_REJECT ipt_LOG iptable_filter 
-ip_tables sg microcode dm_mod uhci_hcd ext3 jbd aic7xxx
-Sep 30 13:53:23 localhost kernel: CPU:    1
-Sep 30 13:53:23 localhost kernel: EIP:    0060:[<00000004>]    Not tainted
-Sep 30 13:53:23 localhost kernel: EFLAGS: 00010296   (2.6.8-1smp-dbg)
-Sep 30 13:53:23 localhost kernel: EIP is at 0x4
-Sep 30 13:53:23 localhost kernel: eax: cb8d31a0   ebx: 00000040   ecx: 
-c017ab80   edx: cbf5df50
-Sep 30 13:53:23 localhost kernel: esi: 00000000   edi: 00000000   ebp: 
-00000000   esp: cbf5df14
-Sep 30 13:53:23 localhost kernel: ds: 007b   es: 007b   ss: 0068
-Sep 30 13:53:23 localhost kernel: Process postmaster (pid: 3937, 
-threadinfo=cbf5c000 task=cb6528a0)
-Sep 30 13:53:23 localhost kernel: Stack: 00000145 00000050 cbf5c000 
-ce2751ec ce2751e8 ce2751e4 ce2751f4 ce2751f0
-Sep 30 13:53:23 localhost kernel:        ce2751ec 7fffffff 00000000 
-cbf5df50 cbf5df8c cbf5df90 00000007 c0179930
-Sep 30 13:53:24 localhost kernel:        00000000 00000000 fffffff4 
-00000004 00000000 ce2751f8 cbf5dfbc c017a0c8
-Sep 30 13:53:24 localhost kernel: Call Trace:
-Sep 30 13:53:24 localhost kernel:  [<c0108795>] show_stack+0x75/0x90
-Sep 30 13:53:24 localhost kernel:  [<c01088f3>] show_registers+0x123/0x180
-Sep 30 13:53:24 localhost kernel:  [<c0108a96>] die+0xb6/0x170
-Sep 30 13:53:24 localhost kernel:  [<c0118bd0>] do_page_fault+0x1e0/0x59d
-Sep 30 13:53:24 localhost kernel:  [<c01083fd>] error_code+0x2d/0x40
-Sep 30 13:53:24 localhost kernel: Code:  Bad EIP value.
------------------------------------
-
-Sep 30 13:56:15 localhost kernel:  <1>Unable to handle kernel paging 
-request at virtual address 36376365
-Sep 30 13:56:15 localhost kernel:  printing eip:
-Sep 30 13:56:15 localhost kernel: c0190b5b
-Sep 30 13:56:15 localhost kernel: *pde = 00000000
-Sep 30 13:56:15 localhost kernel: Oops: 0002 [#3]
-Sep 30 13:56:15 localhost kernel: PREEMPT SMP DEBUG_PAGEALLOC
-Sep 30 13:56:15 localhost kernel: Modules linked in: snd_pcm_oss snd_pcm 
-snd_page_alloc snd_timer snd_mixer_oss snd soundcore md5 ipv6 parport_pc 
-lp parport sunrpc tulip crc32 e100 mii ipt_REJECT ipt_LOG iptable_filter 
-ip_tables sg microcode dm_mod uhci_hcd ext3 jbd aic7xxx
-Sep 30 13:56:15 localhost kernel: CPU:    0
-Sep 30 13:56:15 localhost kernel: EIP:    0060:[<c0190b5b>]    Not tainted
-Sep 30 13:56:15 localhost kernel: EFLAGS: 00010287   (2.6.8-1smp-dbg)
-Sep 30 13:56:15 localhost kernel: EIP is at eventpoll_release_file+0x4b/0xd0
-Sep 30 13:56:15 localhost kernel: eax: 35343200   ebx: 37343664   ecx: 
-c7648ea8   edx: 36376365
-Sep 30 13:56:15 localhost kernel: esi: 00000000   edi: c7648e68   ebp: 
-c7badf8c   esp: c7badf7c
-Sep 30 13:56:15 localhost kernel: ds: 007b   es: 007b   ss: 0068
-Sep 30 13:56:15 localhost kernel: Process anacron (pid: 2713, 
-threadinfo=c7bac000 task=c706ba10)
-Sep 30 13:56:15 localhost kernel: Stack: c7d68ea8 c7d68e20 00000000 
-cff7cf80 c7badfa8 c0165217 c79f34a4 c742abe0
-Sep 30 13:56:15 localhost kernel:        c7d68e20 00000000 cdae9c80 
-c7badfbc c0163846 00000004 00000000 00a800fc
-Sep 30 13:56:15 localhost kernel:        c7bac000 c0107289 00000004 
-00000009 00000004 00000000 00a800fc bffffd18
-Sep 30 13:56:15 localhost kernel: Call Trace:
-Sep 30 13:56:15 localhost kernel:  [<c0108795>] show_stack+0x75/0x90
-Sep 30 13:56:15 localhost kernel:  [<c01088f3>] show_registers+0x123/0x180
-Sep 30 13:56:15 localhost kernel:  [<c0108a96>] die+0xb6/0x170
-Sep 30 13:56:15 localhost kernel:  [<c0118bd0>] do_page_fault+0x1e0/0x59d
-Sep 30 13:56:15 localhost kernel:  [<c01083fd>] error_code+0x2d/0x40
-Sep 30 13:56:15 localhost kernel:  [<c0165217>] __fput+0x137/0x140
-Sep 30 13:56:15 localhost kernel:  [<c0163846>] filp_close+0x46/0x70
-Sep 30 13:56:15 localhost kernel:  [<c0107289>] sysenter_past_esp+0x52/0x79
-Sep 30 13:56:15 localhost kernel: Code: 89 02 89 50 04 c7 01 00 01 10 00 
-c7 41 04 00 02 20 00 8d 73
+Jan
 
 
 
+--------------000509060504050606000601
+Content-Type: text/x-patch;
+ name="fakephp-rescan-on-enable-3.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="fakephp-rescan-on-enable-3.patch"
 
-//***********************************************************
-//**** NEW OOPS *********************************************
-//***********************************************************
+diff -X /home/jdittmer/stuff/diffignore -ur linus/drivers/pci/hotplug/fakephp.c pcirescan/drivers/pci/hotplug/fakephp.c
+--- linus/drivers/pci/hotplug/fakephp.c	2004-01-09 07:59:45.000000000 +0100
++++ pcirescan/drivers/pci/hotplug/fakephp.c	2004-10-10 15:15:55.000000000 +0200
+@@ -165,14 +165,126 @@
+ 		err("Problem unregistering a slot %s\n", dslot->slot->name);
+ }
+ 
++/**
++ * Rescan slot.
++ * Tries hard not to re-enable already existing devices
++ * also handle scanning of subfunctions
++ * 
++ * @param temp   Device template. Should be set: bus and devfn.
++ */
++static void pci_rescan_slot(struct pci_dev *temp)
++{
++	struct pci_bus *bus = temp->bus;
++	struct pci_dev* old_dev = pci_find_slot(bus->number, temp->devfn);
++	struct pci_dev *dev = NULL;
++	int func = 0;
++	int new_multi = 0;  /* new multifunction device */
++	u8 hdr_type;
++	if (!pci_read_config_byte(temp, PCI_HEADER_TYPE, &hdr_type)) {
++		temp->hdr_type = hdr_type & 0x7f;
++		new_multi=hdr_type & 0x80;
++		if (!old_dev) {
++			dev = pci_scan_single_device(bus, temp->devfn);
++			if (dev) {
++				dbg("Found new device on %s function %x:%x %x\n",
++						bus->name, temp->devfn >> 3,
++						temp->devfn & 7,
++						hdr_type);
++				pci_bus_add_device(dev);
++				add_slot(dev);
++			}
++		}
++		if (new_multi) { /* continue scanning for other functions */
++			for (func = 1, temp->devfn++; func < 8; func++, temp->devfn++) {
++				if (pci_read_config_byte(temp, PCI_HEADER_TYPE, &hdr_type))
++					continue;
++				temp->hdr_type = hdr_type & 0x7f;
++
++				old_dev = pci_find_slot(bus->number, temp->devfn);
++				if (!old_dev) {
++					dev = pci_scan_single_device(bus, temp->devfn);
++					if (dev) {
++						dbg("Found new device on %s function %x:%x %x\n",
++								bus->name, temp->devfn >> 3,
++								temp->devfn & 7,
++								hdr_type);
++						pci_bus_add_device(dev);
++						add_slot(dev);
++					}
++				} 
++			}
++		}
++	}
++}
++
++
++/**
++ * Rescan PCI bus.
++ * call pci_rescan_slot for each possible function of the bus
++ * 
++ * @param bus
++ */
++static void pci_rescan_bus(const struct pci_bus *bus)
++{
++	unsigned int devfn;
++	struct pci_dev *dev;
++	dev = kmalloc(sizeof(struct pci_dev), GFP_KERNEL);
++	if (!dev)
++		return;
++
++	memset(dev, 0, sizeof(dev));
++	dev->bus = (struct pci_bus*)bus;
++	dev->sysdata = bus->sysdata;
++	for (devfn = 0; devfn < 0x100; devfn += 8) {
++		dev->devfn = devfn;
++		pci_rescan_slot(dev);
++	}
++	kfree(dev);
++}
++
++/* recursively scan all buses */
++static void pci_rescan_buses(const struct list_head *list)
++{
++	const struct list_head *l;
++	list_for_each(l,list) {
++		const struct pci_bus *b = pci_bus_b(l);
++		pci_rescan_bus(b);
++		pci_rescan_buses(&b->children);
++	}
++}
++
++/* initiate rescan of all pci buses */
++static void pci_rescan(void) {
++	pci_rescan_buses(&pci_root_buses);
++}
++
++
+ static int enable_slot(struct hotplug_slot *hotplug_slot)
+ {
++	/* mis-use enable_slot for rescanning of the pci bus */
++	pci_rescan();
+ 	return -ENODEV;
+ }
+ 
++/* find the hotplug_slot for the pci_dev */
++static struct hotplug_slot *get_slot_from_dev(struct pci_dev *dev) 
++{
++	struct dummy_slot *dslot;
++
++	list_for_each_entry(dslot, &slot_list, node) {
++		if (dslot->dev == dev)
++			return dslot->slot;
++	}
++	return NULL;
++}
++
++
+ static int disable_slot(struct hotplug_slot *slot)
+ {
+ 	struct dummy_slot *dslot;
++	struct hotplug_slot *hslot;
++	struct pci_dev *dev;
++	int func;
+ 
+ 	if (!slot)
+ 		return -ENODEV;
+@@ -185,6 +297,28 @@
+ 		err("Can't remove PCI devices with other PCI devices behind it yet.\n");
+ 		return -ENODEV;
+ 	}
++	/* search for subfunctions and disable them first */
++	if (!(dslot->dev->devfn & 7)) {
++		dbg("Searching for subfunctions\n");
++		for (func=1;func<8;func++) {
++			dbg("Considering %x %x+%x\n", 
++					dslot->dev->bus->number,
++					dslot->dev->devfn,
++					func);
++			dev = pci_find_slot(dslot->dev->bus->number, dslot->dev->devfn + func);
++			if (dev) {
++				dbg("Slot %s Removed <%s>\n", dslot->dev->slot_name, dslot->dev->pretty_name);
++				hslot = get_slot_from_dev(dev);
++				if (hslot)
++					disable_slot(hslot);
++				else {
++					err("Hotplug slot not found for subordinate pci-device\n");
++					return -ENODEV;
++				}
++			} else 
++				dbg("No device in slot found\n");
++		}
++	}
+ 
+ 	/* remove the device from the pci core */
+ 	pci_remove_bus_device(dslot->dev);
 
 
-Oct  8 12:57:57 localhost kernel: Unable to handle kernel NULL pointer 
-dereference at virtual address 0000008b
-Oct  8 12:57:57 localhost kernel:  printing eip:
-Oct  8 12:57:57 localhost kernel: c0297898
-Oct  8 12:57:57 localhost kernel: *pde = 0f872067
-Oct  8 12:57:57 localhost kernel: *pte = 00000000
-Oct  8 12:57:57 localhost kernel: Oops: 0002 [#1]
-Oct  8 12:57:57 localhost kernel: SMP DEBUG_PAGEALLOC
-Oct  8 12:57:57 localhost kernel: Modules linked in: snd_pcm_oss snd_pcm 
-snd_page_alloc snd_timer snd_mixer_oss snd soundcore md5 ipv6 parport_pc 
-lp parport sunrpc tulip crc32 e100 mii ipt_REJECT ipt_LOG iptable_filter 
-ip_tables sg microcode dm_mod uhci_hcd ext3 jbd aic7xxx
-Oct  8 12:57:57 localhost kernel: CPU:    0
-Oct  8 12:57:57 localhost kernel: EIP:    0060:[<c0297898>]    Not tainted
-Oct  8 12:57:57 localhost kernel: EFLAGS: 00210286   (2.6.8-2smp-dbg)
-Oct  8 12:57:57 localhost kernel: EIP is at sock_wfree+0x8/0x40
-Oct  8 12:57:57 localhost kernel: eax: 0000008b   ebx: c0297890   ecx: 
-ca169c00   edx: 00000000
-Oct  8 12:57:57 localhost kernel: esi: ca169c00   edi: 00000000   ebp: 
-c1aefe24   esp: c1aefe20
-Oct  8 12:57:57 localhost kernel: ds: 007b   es: 007b   ss: 0068
-Oct  8 12:57:57 localhost kernel: Process kdeinit (pid: 3121, 
-threadinfo=c1aee000 task=c1453220)
-Oct  8 12:57:57 localhost kernel: Stack: c0297890 c1aefe34 c0298cae 
-ca169c00 00000020 c1aefe9c c02f4da2 ca169c00
-Oct  8 12:57:57 localhost kernel:        c23ba45c c23ba588 00000001 
-00000000 ffffffa1 00000001 00000020 00000000
+--------------000509060504050606000601
+Content-Type: text/x-patch;
+ name="pci_bus_add_device.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="pci_bus_add_device.patch"
 
+--- linus/include/linux/pci.h	2004-10-06 19:58:35.000000000 +0200
++++ pcirescan/include/linux/pci.h	2004-10-10 01:55:41.000000000 +0200
+@@ -704,6 +704,7 @@
+ int pci_scan_slot(struct pci_bus *bus, int devfn);
+ struct pci_dev * pci_scan_single_device(struct pci_bus *bus, int devfn);
+ unsigned int pci_scan_child_bus(struct pci_bus *bus);
++void pci_bus_add_device(struct pci_dev *dev);
+ void pci_bus_add_devices(struct pci_bus *bus);
+ void pci_name_device(struct pci_dev *dev);
+ char *pci_class_name(u32 class);
+diff -ur linus/drivers/pci/bus.c pcirescan/drivers/pci/bus.c
+--- linus/drivers/pci/bus.c	2004-05-10 10:06:44.000000000 +0200
++++ pcirescan/drivers/pci/bus.c	2004-10-10 01:29:50.000000000 +0200
+@@ -69,6 +69,20 @@
+ }
+ 
+ /**
++ * add a single device
++ */
++void __devinit pci_bus_add_device(struct pci_dev *dev) {
++	device_add(&dev->dev);
++
++	spin_lock(&pci_bus_lock);
++	list_add_tail(&dev->global_list, &pci_devices);
++	spin_unlock(&pci_bus_lock);
++
++	pci_proc_attach_device(dev);
++	pci_create_sysfs_dev_files(dev);
++}
++
++/**
+  * pci_bus_add_devices - insert newly discovered PCI devices
+  * @bus: bus to check for new devices
+  *
+@@ -91,16 +105,7 @@
+ 		 */
+ 		if (!list_empty(&dev->global_list))
+ 			continue;
+-
+-		device_add(&dev->dev);
+-
+-		spin_lock(&pci_bus_lock);
+-		list_add_tail(&dev->global_list, &pci_devices);
+-		spin_unlock(&pci_bus_lock);
+-
+-		pci_proc_attach_device(dev);
+-		pci_create_sysfs_dev_files(dev);
+-
++		pci_bus_add_device(dev);
+ 	}
+ 
+ 	list_for_each_entry(dev, &bus->devices, bus_list) {
+@@ -136,5 +141,6 @@
+ }
+ 
+ EXPORT_SYMBOL(pci_bus_alloc_resource);
++EXPORT_SYMBOL(pci_bus_add_device);
+ EXPORT_SYMBOL(pci_bus_add_devices);
+ EXPORT_SYMBOL(pci_enable_bridges);
+
+
+--------------000509060504050606000601--

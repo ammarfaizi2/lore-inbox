@@ -1,63 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262174AbTDAICW>; Tue, 1 Apr 2003 03:02:22 -0500
+	id <S262132AbTDAH60>; Tue, 1 Apr 2003 02:58:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262180AbTDAICW>; Tue, 1 Apr 2003 03:02:22 -0500
-Received: from modemcable226.131-200-24.mtl.mc.videotron.ca ([24.200.131.226]:24572
+	id <S262174AbTDAH60>; Tue, 1 Apr 2003 02:58:26 -0500
+Received: from modemcable226.131-200-24.mtl.mc.videotron.ca ([24.200.131.226]:14844
 	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S262174AbTDAICU>; Tue, 1 Apr 2003 03:02:20 -0500
-Date: Tue, 1 Apr 2003 03:09:24 -0500 (EST)
+	id <S262132AbTDAH6Z>; Tue, 1 Apr 2003 02:58:25 -0500
+Date: Tue, 1 Apr 2003 03:05:24 -0500 (EST)
 From: Zwane Mwaikambo <zwane@linuxpower.ca>
 X-X-Sender: zwane@montezuma.mastecende.com
 To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH][2.5] smp_call_function needs mb()
-Message-ID: <Pine.LNX.4.50.0304010305510.8773-100000@montezuma.mastecende.com>
+cc: Andi Kleen <ak@suse.de>, Dave Jones <davej@suse.de>
+Subject: [PATCH][2.5][RFT] sfence wmb for K7,P3,VIAC3-2(?)
+Message-ID: <Pine.LNX.4.50.0304010242250.8773-100000@montezuma.mastecende.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tested on afflicted 3way P133 system for 3days and on 8way P3 700 for 
-regression.
+Stress tested on 8way PIII 700, Dave, does the C3 have sfence?
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000200
- printing eip:
-00000200
-*pde = 00000000
-Oops: 0000 [#1]
-CPU:    2
-EIP:    0060:[<00000200>]    Not tainted
-EFLAGS: 00210082
-EIP is at 0x200
-eax: 00000026   ebx: c7666000   ecx: c7666000   edx: c7666000
-esi: 00000200   edi: c034ad74   ebp: c0bc8000   esp: c7667fa8
-ds: 007b   es: 007b   ss: 0068
-Process rhn-applet (pid: 1654, threadinfo=c7666000 task=c0785340)
-Stack: c0116407 c034ad74 40a2d760 08458490 00000004 bfffec78 c010a41a 40a2d760 
-       00000000 00000000 08458490 00000004 bfffec78 0830d800 0000007b 0000007b 
-       fffffffb 40a23da4 00000073 00200202 bfffec48 0000007b 
-Call Trace:
- [<c0116407>] smp_call_function_interrupt+0x57/0xb0
- [<c034ad74>] sr_do_ioctl+0x124/0x250
- [<c010a41a>] call_function_interrupt+0x1a/0x20
-
-Code:  Bad EIP value.
- <0>Kernel panic: Aiee, killing interrupt handler!
-
-Index: linux-2.5.66/arch/i386/kernel/smp.c
+Index: linux-2.5.66/arch/i386/Kconfig
 ===================================================================
-RCS file: /build/cvsroot/linux-2.5.66/arch/i386/kernel/smp.c,v
+RCS file: /build/cvsroot/linux-2.5.66/arch/i386/Kconfig,v
 retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 smp.c
---- linux-2.5.66/arch/i386/kernel/smp.c	24 Mar 2003 23:40:27 -0000	1.1.1.1
-+++ linux-2.5.66/arch/i386/kernel/smp.c	28 Mar 2003 05:08:54 -0000
-@@ -522,7 +521,8 @@ int smp_call_function (void (*func) (voi
+diff -u -p -B -r1.1.1.1 Kconfig
+--- linux-2.5.66/arch/i386/Kconfig	24 Mar 2003 23:40:26 -0000	1.1.1.1
++++ linux-2.5.66/arch/i386/Kconfig	1 Apr 2003 08:04:42 -0000
+@@ -368,6 +368,11 @@ config X86_PREFETCH
+ 	depends on MPENTIUMIII || MPENTIUM4 || MVIAC3_2
+ 	default y
  
- 	spin_lock(&call_lock);
- 	call_data = &data;
--	wmb();
-+	mb();
-+	
- 	/* Send a message to all other CPUs and wait for them to respond */
- 	send_IPI_allbutself(CALL_FUNCTION_VECTOR);
++config X86_SSE
++	bool
++	depends on MK7 || MPENTIUMIII || MVIAC3_2
++	default y
++
+ config X86_SSE2
+ 	bool
+ 	depends on MK8 || MPENTIUM4
+Index: linux-2.5.66/include/asm-i386/system.h
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.66/include/asm-i386/system.h,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 system.h
+--- linux-2.5.66/include/asm-i386/system.h	24 Mar 2003 23:40:20 -0000	1.1.1.1
++++ linux-2.5.66/include/asm-i386/system.h	1 Apr 2003 05:39:00 -0000
+@@ -355,11 +355,15 @@ static inline unsigned long __cmpxchg(vo
  
+ #define read_barrier_depends()	do { } while(0)
+ 
++#ifdef CONFIG_X86_SSE
++#define wmb()	__asm__ __volatile__ ("sfence;": : :"memory")
++#else
+ #ifdef CONFIG_X86_OOSTORE
+ #define wmb() 	__asm__ __volatile__ ("lock; addl $0,0(%%esp)": : :"memory")
+ #else
+ #define wmb()	__asm__ __volatile__ ("": : :"memory")
+ #endif
++#endif /* CONFIG_X86_SSE */
+ 
+ #ifdef CONFIG_SMP
+ #define smp_mb()	mb()

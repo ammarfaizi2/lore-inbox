@@ -1,36 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136121AbRAJSV5>; Wed, 10 Jan 2001 13:21:57 -0500
+	id <S136160AbRAJSXH>; Wed, 10 Jan 2001 13:23:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136141AbRAJSVr>; Wed, 10 Jan 2001 13:21:47 -0500
-Received: from host156.207-175-42.redhat.com ([207.175.42.156]:36361 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S136121AbRAJSVj>; Wed, 10 Jan 2001 13:21:39 -0500
-Date: Wed, 10 Jan 2001 13:21:39 -0500
-From: Bill Nottingham <notting@redhat.com>
+	id <S136159AbRAJSW5>; Wed, 10 Jan 2001 13:22:57 -0500
+Received: from et-gw.etinc.com ([207.252.1.2]:38150 "EHLO etinc.com")
+	by vger.kernel.org with ESMTP id <S136141AbRAJSWi>;
+	Wed, 10 Jan 2001 13:22:38 -0500
+Message-Id: <5.0.0.25.0.20010110132141.02096910@mail.etinc.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0
+Date: Wed, 10 Jan 2001 13:22:16 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0 release and ia64
-Message-ID: <20010110132139.A16254@devserv.devel.redhat.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <FEEBE78C8360D411ACFD00D0B747797188093A@xsj02.sjs.agilent.com>
+From: Dennis <dennis@etinc.com>
+Subject: Re: Drivers under 2.4
+In-Reply-To: <5.0.0.25.0.20010109145610.03b02090@mail.etinc.com>
+In-Reply-To: <E14G3kQ-0007Ad-00@the-village.bc.nu>
+ <20010109202036.06741d46.silviu@delrom.ro>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <FEEBE78C8360D411ACFD00D0B747797188093A@xsj02.sjs.agilent.com>; from hiren_mehta@agilent.com on Wed, Jan 10, 2001 at 11:17:07AM -0700
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hiren_mehta@agilent.com (hiren_mehta@agilent.com) said: 
-> It looks like, those patches are for the test kernels.
+At 02:57 PM 01/09/2001, Dennis wrote:
+>Where might one find the definitive document on porting device drivers to 
+>2.4 kernels?
+>
+>DB
 
-There *should* be a patch for 2.4 final:
+should I assume that there are none?
 
-linux-2.4.0-ia64-010109.diff.(bz2|gz)
-
-If not, your mirror isn't up to date.
-
-Bill
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

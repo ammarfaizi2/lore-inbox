@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261212AbVCEWBZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261219AbVCEWGL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261212AbVCEWBZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 17:01:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbVCEWBZ
+	id S261219AbVCEWGL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 17:06:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261222AbVCEWGK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 17:01:25 -0500
-Received: from mail.suse.de ([195.135.220.2]:65410 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261212AbVCEWBV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 17:01:21 -0500
-Message-ID: <422A2C29.8070209@suse.de>
-Date: Sat, 05 Mar 2005 23:01:13 +0100
-From: Stefan Seyfried <seife@suse.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Brice Goglin <Brice.Goglin@ens-lyon.org>
-Cc: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       Len Brown <len.brown@intel.com>
-Subject: Re: s4bios: does anyone use it?
-References: <20050305191405.GA1463@elf.ucw.cz> <422A1FB6.3000504@ens-lyon.org>
-In-Reply-To: <422A1FB6.3000504@ens-lyon.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	Sat, 5 Mar 2005 17:06:10 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:40647 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261219AbVCEWGD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Mar 2005 17:06:03 -0500
+Subject: Re: Linux 2.6.11.1
+From: Lee Revell <rlrevell@joe-job.com>
+To: gene.heskett@verizon.net
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200503051649.58709.gene.heskett@verizon.net>
+References: <20050304175302.GA29289@kroah.com>
+	 <20050305174654.J3282@flint.arm.linux.org.uk>
+	 <Pine.LNX.4.58.0503051316510.2304@ppc970.osdl.org>
+	 <200503051649.58709.gene.heskett@verizon.net>
+Content-Type: text/plain
+Date: Sat, 05 Mar 2005 17:06:02 -0500
+Message-Id: <1110060362.12513.48.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brice Goglin wrote:
+On Sat, 2005-03-05 at 16:49 -0500, Gene Heskett wrote:
+> What he said!  Perfectly good patches, which fix real problems would 
+> appear to be sitting in testing/broken_out till bit rot or ???.
+> 
+> If you want a testers testimony, I'm running the bk-ieee1394.patch, 
+> and all I can say at this point is that it Just Works(TM).  I have 
+> NDI how it got a yesterdays Mar 4) date in the directory listing 
+> there though, I've had it a bit longer than that by 2-3 days as my 
+> copy shows a Mar 1 date.  I first got it via svn fetch at 
+> linux-ieee1394.org or some such in January.
+> 
+> Fixes for real problems that fix real problems should somehow get a 
+> faster track into final.  The current firewire in the kernel as of 
+> 2.6.11 is still badly borked.
 
->  From what I remember, I didn't see any difference between S4 and S4Bios in
-> recent vanilla kernels.
+Driver updates are a hard problem.  Nothing annoys users more than
+unsupported hardware.  But if you aggressively add support for new
+devices you can break things that have worked for ages.
 
-I have seen exactly the same thing and concluded that S4bios is broken.
-Since it is tricky to set up (you usually need a special hibernation
-partition or a special file in a FAT partition) and probably slow as
-hell (at least if it has anything to do with the APM BIOS suspend to
-disk routines, and i assume it does), i'd shed no tears if it would go
-away ;-)
--- 
-Stefan Seyfried, QA / R&D Team Mobile Devices, SUSE LINUX Nürnberg.
+A change that makes your hardware work may break someone else's.  There
+is no such thing as an obviously correct patch when you are flipping
+bits in the hardware.  You can never eliminate 100% of driver
+regressions, all you can do is minimize the impact by getting release
+candidates tested on the widest possible range of hardware.
 
-"Any ideas, John?"
-"Well, surrounding them's out."
+Lee
+

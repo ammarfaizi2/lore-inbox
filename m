@@ -1,73 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261429AbVARVSS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261435AbVARVTQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261429AbVARVSS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 16:18:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261430AbVARVSR
+	id S261435AbVARVTQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 16:19:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261430AbVARVSc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 16:18:17 -0500
-Received: from wproxy.gmail.com ([64.233.184.204]:59930 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261429AbVARVRo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 16:17:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=YZXCSooOwQoMnLACMP2hFZNDtoubTBAqM6i6zez7flq/m4xoPVVgmgYVR+ynqajL6nXXPFQF4soYAHBAFnda08uB1IXjx9Wa1hHa9LjPcA6iqmiLN5vMLrTUrER/NjLe8dlx+tRYLHkRgtnON0WSaE9VH/c4G2q2cZbru9ZgS+0=
-Message-ID: <58cb370e05011813176078d62d@mail.gmail.com>
-Date: Tue, 18 Jan 2005 22:17:44 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: iswraid and 2.4.x?
-Cc: Martins Krikis <mkrikis@yahoo.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <41ED7C38.3080201@pobox.com>
+	Tue, 18 Jan 2005 16:18:32 -0500
+Received: from ext-nj2gw-1.online-age.net ([216.35.73.163]:53695 "EHLO
+	ext-nj2gw-1.online-age.net") by vger.kernel.org with ESMTP
+	id S261428AbVARVSO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 16:18:14 -0500
+From: "Kiniger, Karl (GE Healthcare)" <karl.kiniger@med.ge.com>
+To: linux-kernel@vger.kernel.org
+Date: Tue, 18 Jan 2005 22:18:01 +0100
+Subject: raid 1 - automatic 'repair' possible?
+Message-ID: <20050118211801.GA28400@wszip-kinigka.euro.med.ge.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <41ED56B5.8000603@pobox.com>
-	 <20050118195621.15879.qmail@web30202.mail.mud.yahoo.com>
-	 <58cb370e050118125536c17538@mail.gmail.com>
-	 <41ED7C38.3080201@pobox.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Jan 2005 16:14:32 -0500, Jeff Garzik <jgarzik@pobox.com> wrote:
-> Bartlomiej Zolnierkiewicz wrote:
-> > Hi,
-> >
-> > On Tue, 18 Jan 2005 11:56:21 -0800 (PST), Martins Krikis
-> > <mkrikis@yahoo.com> wrote:
-> >
-> >>--- Jeff Garzik <jgarzik@pobox.com> wrote:
-> >>
-> >>
-> >>>Check your inbox from months ago ;-)  AFAICS his current version
-> >>>addresses all the comments from Alan and myself, from when it hit
-> >>>lkml 6
-> >>>months(?) ago...
-> >>>
-> >>>I'll give it another quick lookover though, sure.
-> >>
-> >>Jeff,
-> >>
-> >>As long as 2.4.30 is planned at all, I have no more
-> >>worries for the moment. But if so, then please don't
-> >>waste your time looking over the current version. In
-> >>about a week there should really be another one out.
-> >>It will add RAID10, and get rid of the "claim disks
-> >>for RAID" mis-feature. I'll let everybody know, of course.
-> >
-> >
-> > I'm just curious.  Is there already a possibility to use
-> > RAID10 metadata in 2.6.x kernels?
-> 
-> Intel or 'md' metadata?
+Hi all,
 
-Intel
- 
-> You need dmraid to use the Intel proprietary format.  I'm not sure if it
-> supports RAID10 yet, but it supports the other levels.
+it has now happened five times to me and now the
+threshold to write to this list has been reached :-) :
+(kernel 2.4.21-9.TLsmp BTW)
 
-I know about other levels, I'm asking about RAID10.
+idea for enhancement of software raid 1:
+
+every time the raid determines that a sector cannot
+be read it could at least try to overwrite the bad are
+with good data from the other disk.
+
+Doing a re-sync of the raid happened to make the failed disk
+error free again. (its a 200 GB disk and re-syncing
+takes some time).
+
+in all cases a smart scan showed the sector really as bad
+and after resync it was readable again and smart
+scanning was error free again.
+
+i already had the disk replaced in the past (same model,
+Model=Maxtor 6Y200P0, FwRev=YAR41BW0, SerialNo=Y63J7TSE)
+the disk is not hot (smart shows 19 celsius which may
+be correct since the room is air conditioned) and
+the bad sectors were not that close together on
+the surface:
+
+# 1  Extended off-line   Completed: read failure       40%      3512         0x02ab8a02
+# 6  Extended off-line   Completed: read failure       40%      2308         0x00057a35
+# 9  Extended off-line   Completed: read failure       40%      2291         0x01b63b6a
+#11  Extended off-line   Completed: read failure       40%      1861         0x01f67b1a
+#18  Extended off-line   Completed: read failure       40%       679         0x01d7052a
+
+interesting: (look at Reallocated_Sector_Ct - it is still zero...)
+
+  4 Start_Stop_Count        0x0032   253   253   000    Old_age      -       3
+  5 Reallocated_Sector_Ct   0x0033   253   253   063    Pre-fail     -       0
+  6 Read_Channel_Margin     0x0001   253   253   100    Pre-fail     -       0
+
+What do you think? Ideas welcome.
+
+Greetings and thanks for your time,
+Karl
+
+-- 
+Karl Kiniger   mailto:karl.kiniger@med.ge.com
+GE Medical Systems Kretztechnik GmbH & Co OHG
+Tiefenbach 15       Tel: (++43) 7682-3800-710
+A-4871 Zipf Austria Fax: (++43) 7682-3800-47

@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279723AbRJYIJT>; Thu, 25 Oct 2001 04:09:19 -0400
+	id <S279722AbRJYIJT>; Thu, 25 Oct 2001 04:09:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279729AbRJYIJF>; Thu, 25 Oct 2001 04:09:05 -0400
-Received: from smtp-rt-8.wanadoo.fr ([193.252.19.51]:33225 "EHLO
-	lantana.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S279723AbRJYII4>; Thu, 25 Oct 2001 04:08:56 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Patrick Mochel <mochel@osdl.org>,
-        Jonathan Lundell <jlundell@pobox.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] New Driver Model for 2.5
-Date: Thu, 25 Oct 2001 10:09:07 +0200
-Message-Id: <20011025080907.28926@smtp.wanadoo.fr>
-In-Reply-To: <20011025080342.1865@smtp.wanadoo.fr>
-In-Reply-To: <20011025080342.1865@smtp.wanadoo.fr>
-X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S279723AbRJYIJF>; Thu, 25 Oct 2001 04:09:05 -0400
+Received: from marine.sonic.net ([208.201.224.37]:30836 "HELO marine.sonic.net")
+	by vger.kernel.org with SMTP id <S279722AbRJYIIu>;
+	Thu, 25 Oct 2001 04:08:50 -0400
+X-envelope-info: <dalgoda@ix.netcom.com>
+Date: Thu, 25 Oct 2001 01:09:23 -0700
+From: Mike Castle <dalgoda@ix.netcom.com>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: modprobe problem with block-major-11
+Message-ID: <20011025010922.B24125@thune.mrc-home.com>
+Reply-To: Mike Castle <dalgoda@ix.netcom.com>
+Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <24102.1003989096@kao2.melbourne.sgi.com>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->In this case, "sg" could add itself when opened, and eventually cause
->sleep requests to be rejected for example.
+On Thu, Oct 25, 2001 at 03:51:36PM +1000, Keith Owens wrote:
+> Check syslog for any error messages.  The only unusual thing is that
+> modprobe is running in safe mode (user supplied input data) which
 
-Well, looks like Linus won't let this one pass ;) A /proc/sgbusy would
-eventually be ok, but I'd rather start defining a proper interface
-to the PM daemon in userland for apps to request that the machine
-doesn't go to sleep. That would be used, among other things, by
-CD burners & firmware updaters. No need to hack thousands of apps,
-I beleive if we get a patch implementing support for that in cdrecord,
-then all burners software will magically start getting it ;)
+Ok.  Another point of interest.
 
-Ben.
+If I do ``head /dev/scd0'' as a user, it fails.
 
+If I do ``head /dev/scd0'' as root, it works.
 
+I had always thought that since I could autoload the sound stuff as a
+normal user, that this would work as well.
 
+Course, I also just noticed that rmmod -a doesn't unload modules either.
+Grrrr.
 
+mrc
+-- 
+     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
+    We are all of us living in the shadow of Manhattan.  -- Watchmen
+fatal ("You are in a maze of twisty compiler features, all different"); -- gcc

@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261268AbTIBVT5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 17:19:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261324AbTIBVT5
+	id S262449AbTIBUCr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 16:02:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261978AbTIBUCr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 17:19:57 -0400
-Received: from mail.kroah.org ([65.200.24.183]:5249 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261268AbTIBVT4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 17:19:56 -0400
-Date: Tue, 2 Sep 2003 14:19:48 -0700
-From: Greg KH <greg@kroah.com>
-To: Duncan Sands <baldrick@wanadoo.fr>
-Cc: Fredrik Noring <noring@nocrew.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       Johannes Erdfelt <johannes@erdfelt.com>,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: 2.6.0-test4: uhci-hcd.c: "host controller process error", slab call trace
-Message-ID: <20030902211947.GB19772@kroah.com>
-References: <1062281812.3378.50.camel@h9n1fls20o980.bredband.comhem.se> <200308310136.02093.baldrick@wanadoo.fr>
+	Tue, 2 Sep 2003 16:02:47 -0400
+Received: from orion.netbank.com.br ([200.203.199.90]:26893 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id S261853AbTIBUCo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Sep 2003 16:02:44 -0400
+Date: Tue, 2 Sep 2003 17:02:30 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       linux-scsi@vger.kernel.org
+Subject: Re: [2.4 patch] Fix IRQ_NONE clash in SCSI drivers
+Message-ID: <20030902200230.GP3398@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Adrian Bunk <bunk@fs.tum.de>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+	linux-scsi@vger.kernel.org
+References: <Pine.LNX.4.55L.0308271449170.23236@freak.distro.conectiva> <20030902184436.GO23729@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200308310136.02093.baldrick@wanadoo.fr>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20030902184436.GO23729@fs.tum.de>
+X-Url: http://advogato.org/person/acme
+Organization: Conectiva S.A.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 31, 2003 at 01:36:01AM +0200, Duncan Sands wrote:
-> Does the attached patch help?
+Em Tue, Sep 02, 2003 at 08:44:36PM +0200, Adrian Bunk escreveu:
+> On Wed, Aug 27, 2003 at 02:52:45PM -0300, Marcelo Tosatti wrote:
+> >...
+> > Summary of changes from v2.4.22 to v2.4.23-pre1
+> > ============================================
+> >...
+> > Arnaldo Carvalho de Melo:
+> >   o irqreturn_t compatibility with 2.6
+> >...
+> 
+> This change added an (empty) IRQ_NONE #define to interrupt.h.
+> 
+> Several scsi drivers are already using an IRQ_NONE.  Rename that to
+> SCSI_IRQ_NONE (a similar change was done in 2.5 by Andrew Morton several
+> months ago).
+> 
+> I've tested the compilation with 2.4.23-pre2.
 
-Ugh, I've been running a bunch of usb stress tests today and kept having
-the uhci driver halt with this error.
+Thanks a lot!
 
-After this patch, it all works with no problems that I can detect
-(ripping a cd image at the same time as syncing a visor and running a
-loop-back test on a usb-serial device and using the mouse and keyboard
-to type.)
-
-> Alan, Johannes, did you have any further thoughts on this problem?
-> I'm still not sure what the best approach is.
-
-So, Johannes, unless you violently disagree, I'm going to apply this
-patch and send it upwards as it does solve the problem for at least 2
-people here :)
-
-thanks,
-
-greg k-h
+- Arnaldo

@@ -1,46 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265341AbTLNEsS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Dec 2003 23:48:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265344AbTLNEsS
+	id S265345AbTLNFCg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Dec 2003 00:02:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265346AbTLNFCg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Dec 2003 23:48:18 -0500
-Received: from 5.86.35.65.cfl.rr.com ([65.35.86.5]:31873 "EHLO
-	drunkencodepoets.com") by vger.kernel.org with ESMTP
-	id S265341AbTLNEsR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Dec 2003 23:48:17 -0500
-Date: Sat, 13 Dec 2003 23:48:24 -0500
-From: Pat Erley <paterley@mail.drunkencodepoets.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Increasing HZ (patch for HZ > 1000)
-Message-Id: <20031213234824.5d400009.paterley@mail.drunkencodepoets.com>
-In-Reply-To: <brgd0o$hr4$1@gatekeeper.tmr.com>
-References: <20031212220853.GA314@elf.ucw.cz>
-	<1071269849.4182.14.camel@idefix.homelinux.org>
-	<brgd0o$hr4$1@gatekeeper.tmr.com>
-Organization: drunkencodepoets.com
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 14 Dec 2003 00:02:36 -0500
+Received: from fw.osdl.org ([65.172.181.6]:31914 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265345AbTLNFCd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Dec 2003 00:02:33 -0500
+Date: Sat, 13 Dec 2003 21:02:30 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Anton Blanchard <anton@samba.org>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: prepare_to_wait/waitqueue_active issues in 2.6
+In-Reply-To: <20031214035356.GM17683@krispykreme>
+Message-ID: <Pine.LNX.4.58.0312132024270.14336@home.osdl.org>
+References: <20031214034059.GL17683@krispykreme> <20031214035356.GM17683@krispykreme>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sometime before now (bill davidsen) wrote this blurb:
 
-> Stop! This is Linux we're talking about, if we can have Morse code panic
-> messages, we can certainly have the idle loop change frequency to play a
-> tune on the output capacitors (or whatever else make noise). How about
-> the Penguin army marching music from the Saturday morning cartoon, and
-> maybe hack LinuxBIOS to check for Windows running and have the idle loop
-> play Twilight of the Gods.
-> 
-> I better stop before someone actually does it.
 
-what about the xfree hack that would let you use a monitor as an AM broadcasting station by tweaking on something?
+On Sun, 14 Dec 2003, Anton Blanchard wrote:
+>
+> > End result is waitqueue_active returns 0 and buffer_locked returns 1.
+> > We miss a wakeup. Game over. Ive attached a patch that forces the check
+> > to happen after we are put on the waitqueue. Thanks to Brian Twichell
+> > for the analysis and suggested fix for this.
+>
+> This time for sure.
 
-http://slashdot.org/articles/01/11/26/2353252.shtml
+Pardon my French, but this patch sure looks like crap.
 
-Pat Erley
+Wouldn't it be better to just make sure "prepare_to_wait()" has the proper
+barriers in it?  If you have problems with fs/buffer.c, then you should
+have problems with the page_unlock() path in mm/filemap.c too, which has
+_exactly_ the same logic.
 
--- 
+In fact, pretty much any use of "prepare_to_wait()" has the potential of
+moving a subsequent test upwards to before the wait-queue addition, so
+we'd have this bug for _any_ use of "waitqueue_active()". The spinlocks
+protect from criticial data moving outside the critical region, but not
+against movement in_to_ the critical region.
+
+In short - as-is, your patch looks to be right, but it only solves a small
+part of what appears to be the larger problem.
+
+So my preference would be to add the barrier into prepare_to_wait(), along
+with a comment on why it is sometimes needed.  Something like the
+appended.. (which just uses "set_current_state()", since that's what it
+exists for).
+
+Does this work for you? I'd much prefer to see a fix that fixes _all_ the
+cases, and is just two lines (plus the comment, which is much more ;)
+
+		Linus
+
+----
+--- 1.147/kernel/fork.c	Fri Dec 12 14:20:03 2003
++++ edited/kernel/fork.c	Sat Dec 13 20:59:29 2003
+@@ -125,15 +125,28 @@
+
+ EXPORT_SYMBOL(remove_wait_queue);
+
++
++/*
++ * Note: we use "set_current_state()" _after_ the wait-queue add,
++ * because we need a memory barrier there on SMP, so that any
++ * wake-function that tests for the wait-queue being active
++ * will be guaranteed to see waitqueue addition _or_ subsequent
++ * tests in this thread will see the wakeup having taken place.
++ *
++ * The spin_unlock() itself is semi-permeable and only protects
++ * one way (it only protects stuff inside the critical region and
++ * stops them from bleeding out - it would still allow subsequent
++ * loads to move into the the critical region).
++ */
+ void prepare_to_wait(wait_queue_head_t *q, wait_queue_t *wait, int state)
+ {
+ 	unsigned long flags;
+
+-	__set_current_state(state);
+ 	wait->flags &= ~WQ_FLAG_EXCLUSIVE;
+ 	spin_lock_irqsave(&q->lock, flags);
+ 	if (list_empty(&wait->task_list))
+ 		__add_wait_queue(q, wait);
++	set_current_state(state);
+ 	spin_unlock_irqrestore(&q->lock, flags);
+ }
+
+@@ -144,11 +157,11 @@
+ {
+ 	unsigned long flags;
+
+-	__set_current_state(state);
+ 	wait->flags |= WQ_FLAG_EXCLUSIVE;
+ 	spin_lock_irqsave(&q->lock, flags);
+ 	if (list_empty(&wait->task_list))
+ 		__add_wait_queue_tail(q, wait);
++	set_current_state(state);
+ 	spin_unlock_irqrestore(&q->lock, flags);
+ }
+

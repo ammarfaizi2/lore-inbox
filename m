@@ -1,104 +1,113 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266017AbRGCVMn>; Tue, 3 Jul 2001 17:12:43 -0400
+	id <S266016AbRGCV3Z>; Tue, 3 Jul 2001 17:29:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266016AbRGCVMe>; Tue, 3 Jul 2001 17:12:34 -0400
-Received: from virgo.cus.cam.ac.uk ([131.111.8.20]:62932 "EHLO
-	virgo.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S266017AbRGCVMY>; Tue, 3 Jul 2001 17:12:24 -0400
-Message-Id: <5.1.0.14.2.20010703215031.00ae2660@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 03 Jul 2001 22:12:34 +0100
-To: "Samium Gromoff" <_deepfire@mail.ru>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: O_DIRECT! or O_DIRECT?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E15HWsV-0000lM-00@f12.port.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S266019AbRGCV3P>; Tue, 3 Jul 2001 17:29:15 -0400
+Received: from jffdns01.or.intel.com ([134.134.248.3]:6613 "EHLO
+	ganymede.or.intel.com") by vger.kernel.org with ESMTP
+	id <S266016AbRGCV3L>; Tue, 3 Jul 2001 17:29:11 -0400
+Message-ID: <4148FEAAD879D311AC5700A0C969E89006CDDF2F@orsmsx35.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, jgarzik@mandrakesoft.com
+Cc: linux-kernel@vger.kernel.org, acpi@phobos.fachschaften.tu-muenchen.de
+Subject: RE: ACPI fundamental locking problems
+Date: Tue, 3 Jul 2001 14:28:49 -0700 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 21:34 03/07/2001, Samium Gromoff wrote:
-[snip]
->        One more problem i see here, and i think it is an
->     *extremely* important one, that making open( ... ,
->     BLA_BLA_BLA | O_DIRECT) is a thing some people may
->     overspeculate with. I mean that implementing O_DIRECT
->     in cp(1), wins the prize, but in the case of, say,
+Some of this discussion's getting a little X-Files-y.
 
-Why should it? It is very well possible that the file(s) being copied have 
-been accessed beforehand and hence are already in the page/buffer cache. 
-Using O_DIRECT would not only completely bypass the page/buffer cache but 
-it would also cause the cache to be flushed (if dirty) and the cache 
-buffers/pages invalidated (otherwise you lose coherency). This is going to 
-be _slower_ than not using O_DIRECT.
+However, there are some points I'd like to touch on...
 
->     find(1) it is definitely not a wise move. The problem
->     may be determined as "poisoning" software with this
->     godblessed O_DIRECT, to the state, when 70% of code
->     on an average machine will use it, thus *completely*
->     killing the advantages of buffered access, and
->     suddenly *bang!*: the overall performance is died.
+> From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
+> Well lets take a look at the asm shall we
+> 1.	It doesnt have a seperate loop when it fails to take the lock
+> 	polling it (See intels own docs on spin locks). You do read your
+> 	own publications ?
 
-Er. Using O_DIRECT means you are doing _unbuffered_ access. - Maybe I am 
-misunderstanding your comments, but is seems to me you have the whole 
-concept of O_DIRECT the wrong way round.
+This goes to the special nature of the Global Lock. If we cannot acquire it,
+we set a bit, and the system interrupts when it is released. Please see
+acpi_ev_acquire_global_lock().
 
->        But the worst thing, is what the process of
->     poisoning is completely uncontrollable: each
->     stupid doodie can think, that His shitful piece of Code,
->     is Especially Important, ant that in his case O_DIRECT
->     is perfectly suitable. And in the case His code is
->     someway performance critical, then most likely O_DIRECT
->     will really improve his Code benchmarks, and that is
->     making things really awful, leading to the hell large
->     crowd of pig happy dudes thinking their useless code
->     is life critical, and thus dooming linux.
+> 2.	It should be using rep nop  (See your own Intel PIV 
+> publications)
+> 3.	Should be asm __volatile__ or gcc can move it
 
-O_DIRECT _decreases_ performance drastically in most cases. So nobody in 
-their right mind would use it for normal applications. - The people who 
-would use it and would actually experience a speed _increase_ would be 
-programmers of large databases which perform their own caching in user 
-space (thus making the normal fs level caching unnecessary, and in fact, 
-worse than the unbuffered case) and programmers of multi media streaming 
-applications (e.g. video/audio streaming including DVD playback[1] for 
-example) which know that A) the data is not in the cache and B) the data 
-will never be accessed again in the near future so caching the data is not 
-only pointless but causes actually useful (other, unrelated) data present 
-in the cache to be displaced out of the cache.
+You are most likely right about all this stuff. Haven't had the need to fix
+it because it's been working fine. Patches accepted.
 
->        Maybe i`m stupid, as these potential dudes, and
->     painting things in too dark colors, but O_DIRECT,
->     i think, is a dangerous thing to play with.
+> I am also somewhat puzzled about contexts here. What happens 
+> if you take
+> an IRQ during the global lock acquire and want to do ACPI. 
+> What happens
+> if you make a callback from the ACPI code - eg power 
+> management that itself
+> needs to call AML code ?
 
-It is indeed. It is only useful in very special circumstances as described 
-above. Using it in "normal" applications is stupid and will lead to 
-degradation of performance of the application using it.
+All we do at interrupt level is signal the semaphore that threads needing
+the GL have blocked on. They continue execution at non-interrupt level.
 
->        Maybe i`m missing the whole point, and thus i want to
->     hear what other people will tell about it.
+> I am assuming the ACPI stuff has no IRQ level execution 
+> ability, but are you
+> sure ACPI never calls a single code path that can require an 
+> ACPI operation
+> from a callback - eg the PM layer ? Otherwise how can you be 
+> sure there won't
+> be any priority inversions between the bios/acpi locking set 
+> and the kernel 
+> locking set
 
-I think you do... I hope I managed to explain what O_DIRECT actually is above.
+We're aware of this issue and have coded accordingly. We have run into these
+issues (specifically with the Embedded Controller driver) and we fix them
+when they crop up.
 
-Shame you didn't attend the Linux Developers Conference (in Manchester) 
-last weekend as Andrea Arcangeli gave a very nice talk explaining O_DIRECT 
-in depth.
+> Microsoft very early on in debugging Win2K problems ask 
+> people to use non
+> ACPI settings. 
 
-Best regards,
+What is your source for this? They certainly could have said that, but
+everything I've heard is that MS was so committed to ACPI, they almost left
+APM support out of W2K.
 
-         Anton
+> > Jeff Garzik:
+> > The difference with ACPI is that vendors can write code 
+> that is executed
+> > in the kernel's context (instead of what you can consider the BIOS's
+> > context).  That is a whole new can of worms.
 
-[1] Actually DVD players make use or raw i/o to access the DVD disk device 
-as a whole, thus bypassing file system code altogether, which is even 
-faster, but if you were to copy a DVD to your hard drive than O_DIRECT 
-would give you the described benefits.
+(I know I'm replying to Jeff's point in your email, sorry)
+1) Vendors can write code that is *interpreted* by the OS.
+2) If vendors write a malicious BIOS, it's game over even without ACPI
+3) ACPI increases visibility of vendor code. You can disassemble AML. You
+can step through it with our debugger.
 
+> For security reasons alone we need to ensure ACPI can be 
+> firmly in the off
+> position. Executing US written binary code in the Linux 
+> kernel will not be
+> acceptable to european corporations, non US military bodies and most 
+> Governments. They'd hate the US to get prior warning of say protestors
+> walking into their top secret menwith hill base playing the 
+> mission impossible
+> theme tune then chaining themselves to things..
 
--- 
-   "Nothing succeeds like success." - Alexandre Dumas
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+You're kidding.........right?
+
+BTW of course ACPI can be turned off via make menuconfig.
+
+> And we have customers who pointedly don't talk to the BIOS 
+> and kill SMI/SMM
+> early on...
+
+And from what I understand, Itanium doesn't necessarily have a Global Lock
+either. Great, no problem. However, we still need to handle machines that
+do.
+
+Regards -- Andy
+
+PS Have I read *all* the Intel pubs? Cover to cover? Um, no. ;-)
 

@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262311AbTCMNZp>; Thu, 13 Mar 2003 08:25:45 -0500
+	id <S262334AbTCMN1n>; Thu, 13 Mar 2003 08:27:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262313AbTCMNZp>; Thu, 13 Mar 2003 08:25:45 -0500
-Received: from ns.suse.de ([213.95.15.193]:39696 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S262311AbTCMNZ2>;
-	Thu, 13 Mar 2003 08:25:28 -0500
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.64-mm6
-References: <20030313032615.7ca491d6.akpm@digeo.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 13 Mar 2003 14:36:14 +0100
-In-Reply-To: Andrew Morton's message of "13 Mar 2003 12:30:11 +0100"
-Message-ID: <p73n0jz4cdt.fsf@amdsimf.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.7
+	id <S262335AbTCMN1n>; Thu, 13 Mar 2003 08:27:43 -0500
+Received: from relay.uni-heidelberg.de ([129.206.100.212]:25234 "EHLO
+	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
+	id <S262334AbTCMN1k>; Thu, 13 Mar 2003 08:27:40 -0500
+From: Bernd Schubert <bernd-schubert@web.de>
+To: Torsten Foertsch <torsten.foertsch@gmx.net>,
+       "Jeremy Booker" <JerMe@nc.rr.com>
+Subject: Re: initrd / pivot_root + boot problems
+Date: Thu, 13 Mar 2003 14:38:08 +0100
+User-Agent: KMail/1.5
+Cc: <linux-kernel@vger.kernel.org>
+References: <002801c2e8ea$46aadfb0$6401a8c0@jeremy> <200303130829.29989.torsten.foertsch@gmx.net>
+In-Reply-To: <200303130829.29989.torsten.foertsch@gmx.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200303131438.08371.bernd-schubert@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@digeo.com> writes:
+On Thursday 13 March 2003 08:29, Torsten Foertsch wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+>
+> On Wednesday 12 March 2003 23:54, Jeremy Booker wrote:
+> > kernel /boot/vmlinuz-2.4.7-10 ro root=/dev/sda1
+>
+> append to that line "init=/bin/bash" then boot. You will see a bash prompt.
+> Now mount whatever is necessary, change your passwd and reboot. Maybe, you
+> need a "mount -o remount,rw /" prior to changing pw.
+>
+And before rebooting you should also run "sync" ;-) otherwise everything you 
+have written to the harddisk (including your password file) would be probably 
+lost.
 
-
->   This means that large cache-cold executables start significantly faster.
->   Launching X11+KDE+mozilla goes from 23 seconds to 16.  Starting OpenOffice
->   seems to be 2x to 3x faster, and starting Konqueror maybe 3x faster too. 
->   Interesting.
-> 
->   This might cause weird thing to happen, especially on small-memory machines.
-
-That's great. It would be nice to have this as a sysctl or perhaps
-some heuristic based on file size and available memory for 2.6.
-
--Andi
-
+Bernd

@@ -1,83 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277407AbRJEPIY>; Fri, 5 Oct 2001 11:08:24 -0400
+	id <S277405AbRJEPPz>; Fri, 5 Oct 2001 11:15:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277406AbRJEPIP>; Fri, 5 Oct 2001 11:08:15 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:27142 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S277405AbRJEPID>; Fri, 5 Oct 2001 11:08:03 -0400
-Subject: Re: Context switch times
-To: bcrl@redhat.com (Benjamin LaHaise)
-Date: Fri, 5 Oct 2001 16:13:37 +0100 (BST)
-Cc: torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
-In-Reply-To: <20011004185340.D18528@redhat.com> from "Benjamin LaHaise" at Oct 04, 2001 06:53:41 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S277406AbRJEPPq>; Fri, 5 Oct 2001 11:15:46 -0400
+Received: from getafix.lostland.net ([216.29.29.44]:42829 "EHLO
+	getafix.lostland.net") by vger.kernel.org with ESMTP
+	id <S277405AbRJEPP3>; Fri, 5 Oct 2001 11:15:29 -0400
+Date: Fri, 5 Oct 2001 11:15:58 -0400 (EDT)
+From: adrian <adrian@lostland.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Tekram 390U2W and 2.4.10
+Message-ID: <Pine.BSO.4.33.0110051048380.24274-100000@getafix.lostland.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15pWfR-0006g5-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I don't quite agree with you that it doesn't matter.  A lot of tests 
-> (volanomark, other silly things) show that the current scheduler jumps 
-> processes from CPU to CPU on SMP boxes far too easily, in addition to the 
-> lengthy duration of run queue processing when loaded down.  Yes, these 
-> applications are leaving too many runnable processes around, but that's 
-> the way some large app server loads behave.  And right now it makes linux 
-> look bad compared to other OSes.
 
-The current scheduler is completely hopeless by the time you hit 3
-processors and a bit flaky on two. Its partly the algorithm and partly
-implementation
+Hello,
 
-#1	We schedule tasks based on a priority that has no cache
-	consideration
+   I have a Tekram SCSI card I've been using for a while, and it's always
+had problems in Windows with the newest drivers from Tekram, but works
+fine with the generic NCR drivers in Windows.  I've never had any problems
+with it in Linux until 2.4.10.  If I try something like:
 
-#2	We have an O(tasks) loop refreshing priority that isnt needed
-	(Montavista fix covers this)
+# dd if=/dev/scd1 of=image.iso
 
-#3	We have an O(runnable) loop which isnt ideal 
+I get:
 
-#4	On x86 we are horribly cache pessimal. All the task structs are
-	on the same cache colour. Multiple tasks waiting for the same event
-	put their variables (like the wait queue) on the same cache line.
+scsi0 channel 0 : resetting for second half of retries.
+SCSI bus is being reset for host 0 channel 0.
+ncr53c8xx_reset: pid=0 reset_flags=1 serial_number=0
+serial_number_at_timeout=0
+scsi0: device driver called scsi_done() for a synchronous reset.
+scsi0 channel 0 : resetting for second half of retries.
+SCSI bus is being reset for host 0 channel 0.
+ncr53c8xx_reset: pid=0 reset_flags=1 serial_number=0
+serial_number_at_timeout=0
+scsi0: device driver called scsi_done() for a synchronous reset.
+SCSI cdrom error : host 0 channel 0 id 4 lun 0 return code = 27070000
+ I/O error: dev 0b:01, sector 400
+scsi0 channel 0 : resetting for second half of retries.
+SCSI bus is being reset for host 0 channel 0.
+ncr53c8xx_reset: pid=0 reset_flags=1 serial_number=0
+serial_number_at_timeout=0
+scsi0: device driver called scsi_done() for a synchronous reset.
+SCSI cdrom error : host 0 channel 0 id 4 lun 0 return code = 27070000
+ I/O error: dev 0b:01, sector 402
+ncr53c895-0-<4,*>: FAST-20 SCSI 20.0 MB/s (50 ns, offset 7)
+ I/O error: dev 0b:01, sector 654
+ I/O error: dev 0b:01, sector 400
 
-The poor cache performance greatly comes from problem 1. Because we prioritize
-blindly on CPU usage with a tiny magic constant fudge factor we are
-executing totally wrong task orders. Instead we need to schedule for cache
-optimal behaviour, and the moderator is the fairness requirement, not the
-other way around.
+I've tried both NCR and SYMBIOS drivers, but same story.  However, I can
+successfully mount partitions and CDROM's and copy data without errors.
+And, in 2.4.9, dd'ing works without problems.  In Windows, the problem I
+had was that the SCSI bus would constantly reset itself every 5 or
+so seconds whenever a device was being access.  I don't know if these
+problems are related, but I thought I'd mention it.  I have tried moving
+the card to another system with a different motherboard, to satisfy
+curiosity.  The problem still exists.  I didn't notice any changes in the
+symbios or ncr drivers.  Any ideas?  Thanks.
 
-The classic example is two steady cpu loads and an occasionally waking
-client (like an editor)
+Regards,
+Adrian
 
-We end up scheduling [A, B are the loads,  C is the editor)
 
-A C B C A C B C A C B C A
 
-whenever a key is hit we swap CPU hog because the priority balanced shifted.
-Really we should have scheduled something looking more like
-
-A C A C A C B C B C B C B 
-
-I would argue there are two needed priorities
-
-1.	CPU usage based priority - the current one
-
-2.	Task priority.
-
-Task priority being set to maximum when a task sleeps and then bounded by
-a function of max(task_priorty, fn(cpupriority)) so that tasks fall down
-priority levels as their cpu usage in the set of time slices. This causes
-tasks that are CPU hogs to sit at the bottom of the pile with the same low
-task_priority meaning they run for long bursts and don't get pre-empted and
-switched with other hogs through each cycle of the scheduler.
-
-This isnt idle speculation - I've done some minimal playing with this but
-my initial re-implementation didnt handle SMP at all and I am still not 100%
-sure how to resolve SMP or how SMP will improve out of the current cunning
-plan.
-
-Alan

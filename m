@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287574AbRLaRYo>; Mon, 31 Dec 2001 12:24:44 -0500
+	id <S287582AbRLaRel>; Mon, 31 Dec 2001 12:34:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287575AbRLaRYc>; Mon, 31 Dec 2001 12:24:32 -0500
-Received: from h00e02954cece.ne.mediaone.net ([24.91.228.68]:17792 "EHLO
-	gonzo.amherst.genlogic.com") by vger.kernel.org with ESMTP
-	id <S287574AbRLaRYT>; Mon, 31 Dec 2001 12:24:19 -0500
-Message-ID: <3C309F51.9050908@mediaone.net>
-Date: Mon, 31 Dec 2001 12:24:33 -0500
-From: Sam Krasnik <genlogic@mediaone.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: kernel lockup?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S287583AbRLaReb>; Mon, 31 Dec 2001 12:34:31 -0500
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:38108 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S287582AbRLaReW>; Mon, 31 Dec 2001 12:34:22 -0500
+Date: Mon, 31 Dec 2001 11:34:08 -0600 (CST)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200112311734.LAA43032@tomcat.admin.navo.hpc.mil>
+To: jgarzik@mandrakesoft.com,
+        Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Subject: Re: how to map network cards ?
+CC: girish@bombay.retortsoft.com, linux-kernel@vger.kernel.org
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-*please cc the replies to me*
+---------  Received message begins Here  ---------
 
-hello
+> 
+> Jesse Pollard wrote:
+> > The only way to determine
+> > the ACTUAL eth0 is via mac number and trial and error.
+> 
+> not correct, as noted in other e-mail.
+> 
+> > I configure ONE interface (all others are down), then plug in to a working
+> > network.
+> > 
+> > If I can ping the other machine then I know which network a given
+> > interface is on - label it.
+> > 
+> > Now down that interface, and initialize another one. Repeat until all
+> > interfaces are identified.
+> 
+> also note that one can rename interfaces, or in the future they might
+> appear out-of-order.  To only way to be obsolutely certain where a
+> network device is on the PCI bus is ETHTOOL_GDRVINFO.
+> 
+> 	Jeff
 
-i have been getting some (i thought) kernel lockups. only a hard reset would
-help. originally i thought it was the emu10k1 sb live driver, and i read
-that 2.4.7 didn't have the problem (i was using 2.4.8). i also tried using
-alsa, which didn't work either.
+Does ETHTOOL_GDRVINFO work on ISA devices too? Last I knew it didn't. And
+I do run a system with both PCI and ISA network cards.
 
-however, after seeing it still happening, i am led to believe that it may
-be some power management problem or not a kernel problem at all...
-(in which case this mailing list is NOT where i should be posting,
-sorry for the distraction if i am wrong). the lockup only happens after
-extended periods of idle time (specifically in the morning after a night
-of not using the computer). the sysrq works, so i guess it isn't a hard
-lockup? if it is kernel...what then? if not...what could be the problem?
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
 
-
-thx
-
---sam
-
+Any opinions expressed are solely my own.

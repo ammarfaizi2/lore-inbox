@@ -1,67 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263998AbTEWJvh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 05:51:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264002AbTEWJvg
+	id S263994AbTEWJ55 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 05:57:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264002AbTEWJ54
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 05:51:36 -0400
-Received: from [62.112.80.35] ([62.112.80.35]:44160 "EHLO ipc1.karo")
-	by vger.kernel.org with ESMTP id S263998AbTEWJvf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 05:51:35 -0400
-Message-ID: <16077.61981.684846.221686@ipc1.karo>
-Date: Fri, 23 May 2003 12:04:13 +0200
-From: "Lothar Wassmann" <LW@KARO-electronics.de>
-To: Andrew Morton <akpm@digeo.com>
-Cc: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [patch] cache flush bug in mm/filemap.c (all kernels >=
- 2.5.30(at least))
-In-Reply-To: <20030523022454.61a180dd.akpm@digeo.com>
-References: <16076.50160.67366.435042@ipc1.karo>
-	<20030522151156.C12171@flint.arm.linux.org.uk>
-	<16077.55787.797668.329213@ipc1.karo>
-	<20030523022454.61a180dd.akpm@digeo.com>
-X-Mailer: VM 7.07 under Emacs 20.7.2
+	Fri, 23 May 2003 05:57:56 -0400
+Received: from mail.convergence.de ([212.84.236.4]:42692 "EHLO
+	mail.convergence.de") by vger.kernel.org with ESMTP id S263994AbTEWJ5z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 05:57:55 -0400
+Message-ID: <3ECDF3B1.8090902@convergence.de>
+Date: Fri, 23 May 2003 12:10:57 +0200
+From: Michael Hunold <hunold@convergence.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.3) Gecko/20030408
+X-Accept-Language: de-at, de, en-us, en
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+CC: linux-kernel@vger.kernel.org, Gerd Knorr <kraxel@bytesex.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [RFC][2.5] generic_usercopy() function (resend, forgot the patches)
+References: <3ECDEBC5.5030608@convergence.de> <20030523104722.B15725@infradead.org>
+In-Reply-To: <20030523104722.B15725@infradead.org>
+X-Enigmail-Version: 0.73.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
-> "Lothar Wassmann" <LW@KARO-electronics.de> wrote:
-> >
-> > And maybe because *every* other call to flush_page_to_ram() has been
-> >  replaced by one of the new interface macros except that one in
-> >  filemap_nopage() in 'mm/filemap.c'.
-> > 
+Hello Christoph,
+
+> This function is small and very useful, I think it should be included unconditional
+> and the prototype maybe moved to kernel.h.
+
+That's ok for me, although I don't know what the exact criteria for 
+adding a function to kernel.h are.
+
+>>+int
+>>+generic_usercopy(struct inode *inode, struct file *file,
+>>+		unsigned int cmd, unsigned long arg,
+>>+		int (*func)(struct inode *inode, struct file *file,
+>>+		unsigned int cmd, void *arg))
 > 
-> flush_page_to_ram() has been deleted from the kernel.
 > 
-Yes, I know. But did you even read, what I have written?
+> The name is a bit mislead.  maybe ioctl_usercopy?  ioctl_uaccess?
 
-The macro has still been there in 2.5.30, but was already defined as a
-NOP. In every source file where it had been used (except filemap.c), it
-was already accompanied by a call to one of 'flush_dcache_page',
-'flush_icache_page', 'copy_user_page' or 'clear_user_page' which
-obviously took over the function that flush_page_to_ram previously
-had. Somewhere around 2.5.46 the obsolete macro was removed and the
-piece of code in filemap.c is the only location where it has not been
-replaced by one of the new macros. This looks very suspicious to me. 
+These are both fine IMHO.
 
-Unfortunately in the i386 Architecture (which I presume is the most
-widely spread Linux arch) this macro has always been a NOP, so that
-noone could notice it missing somewhere.
+> Also file/inode should go away from the prototype (and the callback).
+> Only file is needed because inode == file->f_dentry->d_inode, and even
+> that one should be just some void *data instead.
 
-> filemap_nopage() is a pagecache function and shouldn't be fiddling with
-> cache and/or TLB operations.  Unless it touches the page by hand, which it
-> does not.
+I only copied the function from videodev.c and renamed it, so please 
+don't blame me for the way stuff is done there. 8-)
+
+Perhaps Gerd Knorr or Alan Cox can comment on your changes -- I'll have 
+to investigate if all of these arguments are used anyway.
+
+>>+	case _IOC_READ: /* some v4l ioctls are marked wrong ... */
+> That's crap.  Please move this workaround to v4l not into generic code.
+
+Is it possible to fix the definitons of the v4l ioctls instead without 
+breaking binary compatiblity?
+
+>>+	case _IOC_WRITE:
+>>+	case (_IOC_WRITE | _IOC_READ):
+>>+		if (_IOC_SIZE(cmd) <= sizeof(sbuf)) {
+>>+			parg = sbuf;
+>>+		} else {
+>>+			/* too big to allocate from stack */
+>>+			mbuf = kmalloc(_IOC_SIZE(cmd),GFP_KERNEL);
+>>+			if (NULL == mbuf)
+>>+				return -ENOMEM;
+>>+			parg = mbuf;
 > 
-Ok, but then some function which is called from filemap_nopage()
-should have done the job beforehand.
+> 
+> I wonder whether you should just kmalloc always. 
 
-> Please, test a current kernel.
->
-Is 2.5.68 current enough? The problem was even better reproducible
-with this kernel than with the old one. So I made all my tests with
-2.5.68.
+Since this function is always used in user context and the memory is 
+always freed afterwards, it should be possible to use vmalloc() or a 
+static buffer (what's the maximum size?) instead.
+
+>>+	/* call driver */
+>>+	err = func(inode, file, cmd, parg);
+>>+	if (err == -ENOIOCTLCMD)
+>>+		err = -EINVAL;
+> 
+> 
+> I don't think this is the right place for this substitution - leave it to
+> the drivers.
+
+Agreed.
+
+CU
+Michael.
 
 
-Lothar
+

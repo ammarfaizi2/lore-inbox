@@ -1,62 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269536AbUJLJJo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269534AbUJLJNj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269536AbUJLJJo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 05:09:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269534AbUJLJJo
+	id S269534AbUJLJNj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 05:13:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269553AbUJLJNj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 05:09:44 -0400
-Received: from dsl-kpogw5jd0.dial.inet.fi ([80.223.105.208]:54760 "EHLO
-	safari.iki.fi") by vger.kernel.org with ESMTP id S269536AbUJLJJR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 05:09:17 -0400
-Date: Tue, 12 Oct 2004 12:09:15 +0300
-From: Sami Farin <7atbggg02@sneakemail.com>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH] tcp_output.c: tcp_set_skb_tso_factor ---> tcp_set_skb_tso_segs [Was: Re: Linux 2.6.9-rc4 - pls test (and no more patches)]
-Message-ID: <20041012090915.GA12087@m.safari.iki.fi>
-Mail-Followup-To: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@osdl.org>
-References: <Pine.LNX.4.58.0410102016180.3897@ppc970.osdl.org> <20041012080537.GA6092@merlin.emma.line.org>
+	Tue, 12 Oct 2004 05:13:39 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:16606 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S269534AbUJLJNh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 05:13:37 -0400
+Date: Tue, 12 Oct 2004 11:15:01 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Daniel Walker <dwalker@mvista.com>, "K.R. Foley" <kr@cybsft.com>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Wen-chien Jesse Sung <jesse@cola.voip.idv.tw>,
+       Mark_H_Johnson@Raytheon.com
+Subject: [patch] VP-2.6.9-rc4-mm1-T6
+Message-ID: <20041012091501.GA18562@elte.hu>
+References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com> <20041011215909.GA20686@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041012080537.GA6092@merlin.emma.line.org>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20041011215909.GA20686@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 12, 2004 at 10:05:37AM +0200, Matthias Andree wrote:
-> On Sun, 10 Oct 2004, Linus Torvalds wrote:
-> 
-> >  trying to make ready for the real 2.6.9 in a week or so, so please give
-> > this a beating, and if you have pending patches, please hold on to them
-> > for a bit longer, until after the 2.6.9 release. It would be good to have
-> > a 2.6.9 that doesn't need a dot-release immediately ;)
-> 
-> How about Marcelo's policy that the -final version should differ from
-> the last -rc only in the Makefile VERSION and nothing else (well,
-> documentation perhaps if someone else has proofread it).
-> 
-> Would you be ready to have the last -rc out for, say, five days, before
-> releasing the official, final, blessed, however 2.6.9, in order to catch
-> the showstoppers?
 
-Like this one?  2.6.9-rc4 does not build with
-gcc-2.95.3 + binutils-2.15.92.0.2.
+i've uploaded -T6:
 
-Signed-Off-By: Sami Farin <7atbggg02@sneakemail.com>
+  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-T6
 
---- linux/net/ipv4/tcp_output.c.bak	2004-10-11 18:24:06.000000000 +0300
-+++ linux/net/ipv4/tcp_output.c	2004-10-11 22:12:32.000000000 +0300
-@@ -445,7 +445,7 @@ void tcp_set_skb_tso_segs(struct sk_buff
- 		skb_shinfo(skb)->tso_size = mss_std;
- 	}
- }
--EXPORT_SYMBOL_GPL(tcp_set_skb_tso_factor);
-+EXPORT_SYMBOL_GPL(tcp_set_skb_tso_segs);
- 
- /* Function to create two new TCP segments.  Shrinks the given segment
-  * to the specified size and appends a new segment with the rest of the
+this should fix the UP build issues reported by many. -T6 also brings
+back the ->break_lock framework and converts a few more locks to raw.
 
--- 
+SMP is still expected to be flaky due to the zombie-task problem(s). But
+UP is not out of the 'extremely experimental' status either.
+
+to create a -T6 tree from scratch the patching order is:
+
+   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.8.tar.bz2
+ + http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.9-rc4.bz2
+ + http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc4/2.6.9-rc4-mm1/2.6.9-rc4-mm1.bz2
+ + http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-T6
+
+	Ingo

@@ -1,21 +1,22 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272636AbRJDKIl>; Thu, 4 Oct 2001 06:08:41 -0400
+	id <S273333AbRJDKLB>; Thu, 4 Oct 2001 06:11:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272682AbRJDKIc>; Thu, 4 Oct 2001 06:08:32 -0400
-Received: from wiprom2mx1.wipro.com ([203.197.164.41]:48607 "EHLO
+	id <S273507AbRJDKKv>; Thu, 4 Oct 2001 06:10:51 -0400
+Received: from wiprom2mx1.wipro.com ([203.197.164.41]:51680 "EHLO
 	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
-	id <S272636AbRJDKIX>; Thu, 4 Oct 2001 06:08:23 -0400
-Message-ID: <3BBC3542.6000505@wipro.com>
-Date: Thu, 04 Oct 2001 15:39:06 +0530
+	id <S273487AbRJDKKh>; Thu, 4 Oct 2001 06:10:37 -0400
+Message-ID: <3BBC35BC.5020706@wipro.com>
+Date: Thu, 04 Oct 2001 15:41:08 +0530
 From: "BALBIR SINGH" <balbir.singh@wipro.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
 X-Accept-Language: en-us
 MIME-Version: 1.0
-To: Dan Kegel <dank@kegel.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: NAPI?
-In-Reply-To: <3BBBA6CE.BBE9CD38@kegel.com>
+To: "David S. Miller" <davem@redhat.com>
+CC: James.Bottomley@HansenPartnership.com, jes@sunsite.dk,
+        linuxopinion@yahoo.com, linux-kernel@vger.kernel.org
+Subject: Re: how to get virtual address from dma address
+In-Reply-To: <200110032244.f93MiI103485@localhost.localdomain> <20011003.172439.66056954.davem@redhat.com>
 Content-Type: multipart/mixed;
 	boundary="------------InterScan_NT_MIME_Boundary"
 Sender: linux-kernel-owner@vger.kernel.org
@@ -28,22 +29,33 @@ This is a multi-part message in MIME format.
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
-See http://lwn.net/2001/1004/kernel.php3 this weeks lwn.net kernel
-mailing list summary.
+With Rik's reverse mapping patch, wouldn't we have the virtual address for the given
+physical address ? I have no clue about how the patch works, somebody willing to explain
+it?
 
 Balbir
 
-Dan Kegel wrote:
+David S. Miller wrote:
 
->Manfred wrote:
+>   From: James Bottomley <James.Bottomley@HansenPartnership.com>
+>   Date: Wed, 03 Oct 2001 17:44:18 -0500
 >
->>NAPI seems to be very promising to fix the total system overload case
->>(so many packets arrive that despite irq mitigation the system is still
->>overloaded).
->>
+>   (although I can see it may be expensive to walk iommu page tables)
 >
->What's NAPI?
->- Dan
+>I know of hardware where doing the reverse mapping would not even be
+>possible, the page tables are in hardware registers and are "write
+>only".  This means you can't even read the PTEs back, you'd have to
+>keep track of them in software and that is totally unacceptable
+>overhead when it won't even be used %99 of the time.
+>
+>The DMA API allows us to support such hardware cleanly and
+>efficiently, but once we add this feature which "everyone absolutely
+>needs" we have a problem with the above mentioned piece of hardware.
+>
+>Franks a lot,
+>David S. Miller
+>davem@redhat.com
+>
 >-
 >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 >the body of a message to majordomo@vger.kernel.org

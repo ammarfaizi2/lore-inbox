@@ -1,54 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275319AbTHGNB3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 09:01:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275322AbTHGNB3
+	id S275327AbTHGNIS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 09:08:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275328AbTHGNIS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 09:01:29 -0400
-Received: from core.kaist.ac.kr ([143.248.147.118]:7619 "EHLO core.kaist.ac.kr")
-	by vger.kernel.org with ESMTP id S275319AbTHGNB1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 09:01:27 -0400
-Message-ID: <005f01c35ce3$6b9bcc90$a5a5f88f@core8fyzomwjks>
-From: "Cho, joon-woo" <jwc@core.kaist.ac.kr>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-References: <005a01c35ca7$210f71e0$a5a5f88f@core8fyzomwjks> <1060257946.3123.31.camel@dhcp22.swansea.linux.org.uk>
-Subject: Re: [Q] How can I transfer data from hard disk to PCI device'smemory
-Date: Thu, 7 Aug 2003 21:57:11 +0900
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	Thu, 7 Aug 2003 09:08:18 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:20855 "EHLO
+	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
+	id S275327AbTHGNIP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 09:08:15 -0400
+Date: Thu, 7 Aug 2003 14:09:51 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Theewara Vorakosit <g4685034@alpha.cpe.ku.ac.th>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: sendfile system call on tmpfs
+In-Reply-To: <Pine.LNX.4.33.0308071831240.16498-100000@alpha.cpe.ku.ac.th>
+Message-ID: <Pine.LNX.4.44.0308071357470.2015-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you for your reply, and I am very pleasant to talk with you. ^^
+On Thu, 7 Aug 2003, Theewara Vorakosit wrote:
+> 	I use linux redhat 9 with kernal 2.4.20-13.9smp. I try to use
+> sendfile system. I found that on ext3 file system, it works fine.
+> However, on tmpfs, it error with "Invalid argument". Does sendfile()
+> support on tmpfs or other filesystem?
 
-But english is not mother tongue, so I am little confused about your
-sentence.
+The 2.4 tmpfs did not support sendfile (or loop) until 2.4.22-pre3,
+so Red Hat's 2.4.20-13.9smp won't do it.
 
-> The O_DIRECT I/O handling
-> needs to know about stuff like page reference counts that PCI space
-> doesn't have lots of older (and some current) hardware has real problems
-> with PCI PCI transfers.
+If you're at ease with patching the kernel source and rebuilding your
+kernel, please let me know: I should be able to send you the necessary
+patch (mainly mm/shmem.c) to add those features into your Red Hat 9 tmpfs.
 
-At above sentence, you mean that
-
-'To handle O_DIRECT I/O, stuff like page reference is needed.
-
-But some HW(expecially old HW) doesn't have PCI space,
-
-so that it needs much additional work to add a PCI-PCI transferring.'
-
-Do I understand right?
-
-
-Please reply, thanks.
-
-
-
-> So its a non trivial project, although doable
-
-
+Hugh
 

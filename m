@@ -1,57 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261318AbSK3Xgl>; Sat, 30 Nov 2002 18:36:41 -0500
+	id <S261312AbSK3Xen>; Sat, 30 Nov 2002 18:34:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261337AbSK3Xgl>; Sat, 30 Nov 2002 18:36:41 -0500
-Received: from orion.netbank.com.br ([200.203.199.90]:65297 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id <S261318AbSK3Xgk>; Sat, 30 Nov 2002 18:36:40 -0500
-Date: Sat, 30 Nov 2002 21:43:49 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Christer Weinigel <wingel@nano-system.com>
-Cc: Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org,
-       alan@lxorguk.ukuu.org.uk
-Subject: Re: scx200_gpio.c doesn't compile in 2.5.50
-Message-ID: <20021130234349.GR30931@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Christer Weinigel <wingel@nano-system.com>,
-	Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org,
-	alan@lxorguk.ukuu.org.uk
-References: <20021128013527.GU21307@fs.tum.de> <87of86hdvg.fsf@zoo.weinigel.se> <20021130231622.GO30931@conectiva.com.br> <87isyehbr2.fsf@zoo.weinigel.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87isyehbr2.fsf@zoo.weinigel.se>
-User-Agent: Mutt/1.4i
-X-Url: http://advogato.org/person/acme
+	id <S261318AbSK3Xen>; Sat, 30 Nov 2002 18:34:43 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48644 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261312AbSK3Xel>;
+	Sat, 30 Nov 2002 18:34:41 -0500
+Message-ID: <3DE94CAF.7060704@pobox.com>
+Date: Sat, 30 Nov 2002 18:41:35 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: acc@cs.stanford.edu
+CC: linux-kernel@vger.kernel.org, mc@cs.stanford.edu
+Subject: Re: [CHECKER] 5 additional buffer overruns in 2.5.48
+References: <20021124063756.GA14294@Xenon.stanford.edu>
+In-Reply-To: <20021124063756.GA14294@Xenon.stanford.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Sun, Dec 01, 2002 at 12:35:29AM +0100, Christer Weinigel escreveu:
-> Arnaldo Carvalho de Melo <acme@conectiva.com.br> writes:
+Andy Chou wrote:
+> Here are 6 additional potential buffer overruns in 2.4.58.  Again, we 
+> would appreciate feedback on whether these are really errors or not.
 > 
-> > Em Sat, Nov 30, 2002 at 11:49:39PM +0100, Christer Weinigel escreveu:
-> > > Adrian Bunk <bunk@fs.tum.de> writes:
-> > > 
-> > > > Compilation of drivers/char/scx200_gpio.c fails in 2.5.50 with the error
-> > > > messages below.
-> > > 
-> > > Thanks for the report.  Patch follows.
-> > > 
-> > > Alan, do you want small fixes like these or should I send them to
-> > > someone else?
-> > 
-> > 	I have this one on my misc-2.5 bk tree that I'll be pushing to Linus
-> > RSN. It is also required that we include kdev_t.h, as this driver uses the
-> > minor() macro.
+> -Andy
 > 
-> Thanks.  Is there any list of what include files one must use to use
-> for example the minor macro?  I looked at fs.h and saw that it
-> included kdev_t.h so I skipped including that file myself.  But
-> relying on things like that is what bit me to begin with.
+> 
+> ---------------------------------------------------------
+> [BUG] Forgot to malloc?
+> /u1/acc/linux/2.5.48/fs/cifs/cifssmb.c:233:CIFSSMBLogoff: 
+> ERROR:BUFFER:233:233:Deref uninitialized pointer pSMB
+> 	if (atomic_read(&ses->inUse) > 0) {
+> 		up(&ses->sesSem);
+> 		return -EBUSY;
+> 	}
+>     if(ses->secMode & (SECMODE_SIGN_REQUIRED | SECMODE_SIGN_ENABLED))
+> 
+> Error --->
+>         pSMB->hdr.Flags2 |= SMBFLG2_SECURITY_SIGNATURE;
+> 	rc = smb_init(SMB_COM_LOGOFF_ANDX, 2, 0 /* no tcon anymore */ ,
+> 		      (void **) &pSMB, (void **) &smb_buffer_response);
+> 	if (rc) {
+> ---------------------------------------------------------
+> [BUG] [GEM] base starts at offset 4 of buf
+> /u1/acc/linux/2.5.48/drivers/cdrom/cdrom.c:1170:dvd_read_physical: 
+> ERROR:BUFFER:1170:1170:Array bounds error: base[16] indexed with [16]
+> 	layer->track_density = base[3] & 0xf;
+> 	layer->linear_density = base[3] >> 4;
+> 	layer->start_sector = base[5] << 16 | base[6] << 8 | base[7];
+> 	layer->end_sector = base[9] << 16 | base[10] << 8 | base[11];
+> 	layer->end_sector_l0 = base[13] << 16 | base[14] << 8 | base[15];
+> 
+> Error --->
+> 	layer->bca = base[16] >> 7;
+> 
+> 	return 0;
+> }
+> ---------------------------------------------------------
+> [BUG] Probably forgot to malloc in first branch.
+> /u1/acc/linux/2.5.48/drivers/video/sstfb.c:795:sstfb_get_fix: 
+> ERROR:BUFFER:795:795:Deref uninitialized pointer var
+> 	fix->visual      = FB_VISUAL_TRUECOLOR;
+> 	/*
+> 	 *   According to the specs, the linelength must be of 1024 
+> *pixels*.
+> 	 * and the 24bpp mode is in fact a 32 bpp mode.
+> 	 */
+> 
+> Error --->
+> 	fix->line_length = (var->bits_per_pixel == 16) ? 2048 : 4096 ;
+> 	return 0;
+> #undef sst_info
+> }
+> ---------------------------------------------------------
+> [BUG] Complex.
+> /u1/acc/linux/2.5.48/drivers/net/sunhme.c:3218:happy_meal_pci_init: 
+> ERROR:BUFFER:3218:3218:Array bounds error: qp->happy_meals[4] indexed with 
+> [-1]
+> err_out_free_res:
+> 	pci_release_regions(pdev);
+> 
+> err_out_clear_quattro:
+> 	if (qp != NULL)
+> 
+> Error --->
+> 		qp->happy_meals[qfe_slot] = NULL;
+> 
 
-Well, I rather encourage to include the files that have the definition of 
-symbols in the .c file, that way if, taking your example: if fs.h for some
-reason removed the include kdev_t.h, scx200_gpio.c would stop compiling.
+notabug, qfe_slot is clearly initialized to zero before this code is hit.
 
-- Arnaldo
+
+> ---------------------------------------------------------
+> [BUG]
+> /u1/acc/linux/2.5.48/drivers/net/ni52.c:1133:ni52_timeout: 
+> ERROR:BUFFER:1133:1133:Array bounds error: p->xmit_cmds[1] indexed with 
+> [1]
+
+bug, fixed.
+
+> ---------------------------------------------------------
+> [BUG]
+> /u1/acc/linux/2.5.48/drivers/net/3c523.c:1102:elmc_timeout: 
+> ERROR:BUFFER:1102:1102:Array bounds error: p->xmit_cmds[1] indexed with 
+> [1]
+
+bug, fixed.
+

@@ -1,30 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266274AbSKUMv4>; Thu, 21 Nov 2002 07:51:56 -0500
+	id <S266643AbSKUNDB>; Thu, 21 Nov 2002 08:03:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266609AbSKUMv4>; Thu, 21 Nov 2002 07:51:56 -0500
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:23790 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S266274AbSKUMvv>; Thu, 21 Nov 2002 07:51:51 -0500
-Subject: Re: spinlocks, the GPL, and binary-only modules
-From: Arjan van de Ven <arjanv@redhat.com>
-To: David McIlwraith <quack@bigpond.net.au>
+	id <S266650AbSKUNDB>; Thu, 21 Nov 2002 08:03:01 -0500
+Received: from ns.suse.de ([213.95.15.193]:60932 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S266643AbSKUNC4>;
+	Thu, 21 Nov 2002 08:02:56 -0500
+To: Margit Schubert-While <margit@margit.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <024101c2903f$7650a050$41368490@archaic>
-References: <Pine.LNX.4.44L.0211192349460.4103-100000@imladris.surriel.com>
-	 <024101c2903f$7650a050$41368490@archaic>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 21 Nov 2002 11:36:45 +0100
-Message-Id: <1037875005.1863.0.camel@localhost.localdomain>
-Mime-Version: 1.0
+Subject: Re: L1_CACHE_SHIFT value for P4 ?
+References: <4.3.2.7.2.20021121130236.00b15370@mail.dns-host.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 21 Nov 2002 14:10:02 +0100
+In-Reply-To: Margit Schubert-While's message of "21 Nov 2002 13:16:33 +0100"
+Message-ID: <p73y97nt6fp.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-11-20 at 03:49, David McIlwraith wrote:
-> How should it? The compiler (specifically, the C preprocessor) includes the
-> code, thus it is not the AUTHOR violating the GPL.
+Margit Schubert-While <margit@margit.com> writes:
 
-It is if the AUTHOR then decides to distribute the resulting binary
-which would contain a mix of GPL and non GPL work..
+E> What should be the value of L1_CACHE_SHIFT for a P4 ?
+> L1_CACHE_BYTES is set to 1<<L1_CACHE_SHIFT
+> 
+> In the .config , I notice that L1_CACHE_SHIFT is being set to 7 for the P4.
+> Surely that can't be right or ?
+
+The P4 has 128byte L2 cache lines (2^7). The L1 apparently has smaller lines.
+
+For practical reasons the L1_CACHE_BYTES defines should not be smaller than
+the L2 line size - otherwise slab's cache colouring would not be very 
+effective. In fact the symbol is a bit misnamed, it refers to all CPU caches.
+So it needs to be 7.
+
+
+-Andi

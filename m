@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261914AbVAIWnt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261913AbVAIWoj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261914AbVAIWnt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jan 2005 17:43:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261913AbVAIWnt
+	id S261913AbVAIWoj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jan 2005 17:44:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261921AbVAIWoj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jan 2005 17:43:49 -0500
-Received: from gprs215-6.eurotel.cz ([160.218.215.6]:30592 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261914AbVAIWnh (ORCPT
+	Sun, 9 Jan 2005 17:44:39 -0500
+Received: from pat.uio.no ([129.240.130.16]:2746 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261913AbVAIWod (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 17:43:37 -0500
-Date: Sun, 9 Jan 2005 23:43:25 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: hugang@soulinfo.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: software suspend patch [1/6]
-Message-ID: <20050109224325.GE1353@elf.ucw.cz>
-References: <20041127220752.16491.qmail@science.horizon.com> <20041128082912.GC22793@wiggy.net> <20041128113708.GQ1417@openzaurus.ucw.cz> <20041128162320.GA28881@hugang.soulinfo.com> <20041128165835.GA1214@elf.ucw.cz> <20041129154307.GC4616@hugang.soulinfo.com>
+	Sun, 9 Jan 2005 17:44:33 -0500
+Subject: Re: make flock_lock_file_wait static
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: viro@zenII.uk.linux.org, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20050109194209.GA7588@infradead.org>
+References: <20050109194209.GA7588@infradead.org>
+Content-Type: text/plain
+Date: Sun, 09 Jan 2005 17:44:10 -0500
+Message-Id: <1105310650.11315.19.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041129154307.GC4616@hugang.soulinfo.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=0, required 12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > I can not merge anything before 2.6.10. As you have seen, I have quite
-> > a lot of patches in my tree, and I do not want mix them with these...
-> > 
-> > >  device-tree.diff 
-> > >    base from suspend2 with a little changed.
-> > 
-> > I do not want this one.
-> > 
-> > >  core.diff
-> > >   1: redefine struct pbe for using _no_ continuous as pagedir.
-> > 
-> > Can I get this one as a separate diff?
+su den 09.01.2005 Klokka 19:42 (+0000) skreiv Arjan van de Ven:
+> Hi,
 > 
-> Here is it.
+> the patch below makes flock_lock_file_wait static, because it is only used
+> (once) in fs/locks.c. Making it static allows gcc to generate better code
+> (partial or entirely inlining it, gcc 3.4 also optimizes the calling
+> convention for static functions which are guaranteed only local to the file)
 
-Do you have any updates? It would be nice to separate non-continuous
-pagedir from speeding up check_pagedir?
+Veto. That function is also there for those filesystems that need to
+mirror their locks in the VFS. I believe the GFS people are already
+using it (they implemented all this anyway), and sooner or later, NFS is
+going to have to do it too...
 
-...plus check_pagedir should really use PageNosaveFree flag instead of
-allocating there own (big!) bitmaps. It should also make the code
-simpler...
-								Pavel
+Cheers,
+  Trond
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Trond Myklebust <trond.myklebust@fys.uio.no>
+

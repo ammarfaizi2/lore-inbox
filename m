@@ -1,69 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262424AbUCaAVP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 19:21:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262431AbUCaAVP
+	id S262382AbUCaAXT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 19:23:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262532AbUCaAXT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 19:21:15 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:46027 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262424AbUCaAVJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 19:21:09 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [sata] libata update
-Date: Wed, 31 Mar 2004 02:28:54 +0200
-User-Agent: KMail/1.5.3
-Cc: Petr Sebor <petr@scssoft.com>, linux-kernel@vger.kernel.org
-References: <4064E691.2070009@pobox.com> <200403310139.36003.bzolnier@elka.pw.edu.pl> <406A0704.7060706@pobox.com>
-In-Reply-To: <406A0704.7060706@pobox.com>
+	Tue, 30 Mar 2004 19:23:19 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:48886 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262382AbUCaAXR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 19:23:17 -0500
+Date: Tue, 30 Mar 2004 16:22:35 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>, hari@in.ibm.com
+cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       Andy Whitcroft <apw@shadowen.org>
+Subject: Re: BUG_ON(!cpus_equal(cpumask, tmp));
+Message-ID: <187940000.1080692555@flay>
+In-Reply-To: <20040330151729.1bd0c5d0.rddunlap@osdl.org>
+References: <006701c415a4$01df0770$d100000a@sbs2003.local><20040329162123.4c57734d.akpm@osdl.org><20040329162555.4227bc88.akpm@osdl.org><20040330132832.GA5552@in.ibm.com> <20040330151729.1bd0c5d0.rddunlap@osdl.org>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200403310228.54580.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 31 of March 2004 01:47, Jeff Garzik wrote:
-> Bartlomiej Zolnierkiewicz wrote:
-> > On Wednesday 31 of March 2004 01:16, Jeff Garzik wrote:
-> >>Petr Sebor wrote:
-> >>>Hi Jeff,
-> >>>
-> >>>I have upgraded from 2.6.3 to 2.6.5-rc3 and can't see the secondary
-> >>>sata drive anymore...
-> >>>
-> >>>I am seeing this:
-> >>>-------------------------------------------------------------------
-> >>>libata version 1.02 loaded.
-> >>>sata_via version 0.20
-> >>>sata_via(0000:00:0f.0): routed to hard irq line 11
-> >>>ata1: SATA max UDMA/133 cmd 0xC400 ctl 0xC802 bmdma 0xD400 irq 20
-> >>>ata2: SATA max UDMA/133 cmd 0xCC00 ctl 0xD002 bmdma 0xD408 irq 20
-> >>>ata1: dev 0 cfg 49:2f00 82:346b 83:7f21 84:4003 85:3469 86:3c01 87:4003
-> >>>88:203f
-> >>>ata1: dev 0 ATA, max UDMA/100, 488397168 sectors (lba48)
-> >>>ata1: dev 0 configured for UDMA/100
-> >>>scsi0 : sata_via
-> >>>ata2: no device found (phy stat 00000000)
-> >>>ata2: thread exiting
-> >>>scsi1 : sata_via
-> >>
-> >>oh, and are both disks SATA?
-> >>
-> >>Or is the 37G drive a PATA drive on a PATA->SATA adapter (a.k.a. bridge)?
-> >
-> >    Vendor: ATA       Model: WDC WD360GD-00FN  Rev: 1.00
-> >    Type:   Direct-Access                      ANSI SCSI revision: 05
-> >
-> > WD Raptor electronics includes PATA->SATA bridge.
->
-> Yes, a lot of drives do.
->
-> I meant outside the drive, an adapter/bridge the user plugs into the
-> device, that allows it to pretend it is a SATA device.
+>| We faced this problem starting 2.6.3 while working on kexec. 
+>| 
+>| The problem is because we now initialize cpu_vm_mask for init_mm with 
+>| CPU_MASK_ALL (from 2.6.3 onwards) which makes all bits in cpumask 1 (on SMP). 
+>| Hence BUG_ON(!cpus_equal(cpumask,tmp) fails. The change to set
+>| cpu_vm_mask to CPU_MASK_ALL was done to remove tlb flush optimizations 
+>| for ppc64. 
+>| 
+>| I had posted a patch for this in the earlier thread. Reposting the same
+>| here. This patch removes the assertion and uses "tmp" instead of cpumask. 
+>| Otherwise, we will end up sending IPIs to offline CPUs as well.
+>| 
+>| Comments please.
+> 
+> I'll just say that kexec fails without this patch and works with
+> it applied, so I'd like to see it merged.  If this patch isn't
+> acceptable, let's find out why and try to make one that is.
+> 
+> Thanks for the patch, Hari.
 
-Is there any difference (except cabling and power) ?
+>From discussions with Andy, it seems this still has the same race as before
+just smaller. I don't see how we can fix this properly without having some
+locking on cpu_online_map .... probably RCU as it's massively read-biased
+and we don't want to pay a spinlock cost to read it.
+
+M.
 

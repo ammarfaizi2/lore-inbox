@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269644AbRHCWeM>; Fri, 3 Aug 2001 18:34:12 -0400
+	id <S269645AbRHCWcn>; Fri, 3 Aug 2001 18:32:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269646AbRHCWeC>; Fri, 3 Aug 2001 18:34:02 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:49659 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S269644AbRHCWdp>;
-	Fri, 3 Aug 2001 18:33:45 -0400
-Date: Fri, 3 Aug 2001 18:33:37 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Chris Wedgwood <cw@f00f.org>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Chris Mason <mason@suse.com>
-Subject: Re: [PATCH] 2.4.8-pre3 fsync entire path (+reiserfs fsync semantic
- change patch)
-In-Reply-To: <20010804100143.A17774@weta.f00f.org>
-Message-ID: <Pine.GSO.4.21.0108031814510.5264-100000@weyl.math.psu.edu>
+	id <S269643AbRHCWcc>; Fri, 3 Aug 2001 18:32:32 -0400
+Received: from ns.snowman.net ([63.80.4.34]:6674 "EHLO ns.snowman.net")
+	by vger.kernel.org with ESMTP id <S269644AbRHCWcS>;
+	Fri, 3 Aug 2001 18:32:18 -0400
+Date: Fri, 3 Aug 2001 18:31:24 -0400 (EDT)
+From: <nick@snowman.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: jap3003+response@ksu.edu, "Paul G. Allen" <pgallen@randomlogic.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [OT] DMCA loop hole
+In-Reply-To: <E15Sn80-00044A-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.21.0108031830170.2386-100000@ns>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Yeah it is.  EULA has become totally valid and should be upheld by any
+courts who come across one.  (In the US at least.  I don't know the
+situation outside the US).  One of the recent bills/acts/whatever made
+this change.
+	Nick
 
+On Fri, 3 Aug 2001, Alan Cox wrote:
 
-On Sat, 4 Aug 2001, Chris Wedgwood wrote:
-
-> I really like this idea. Can people please try out the attached patch?
+> > >From Paul G. Allen on Wednesday, 01 August, 2001:
+> > >To take another angle, those of us who actively look for exploits in software (because companies like M$ fail to do so themselves) risk being sued for doing so.
+> > 
+> > Hrm.  Very good point.  However, under most EULA's I've seen, reverse
+> >   engineering is already a no-no.
 > 
-> Please note, it contains a couple of things that need not be there in
-> the final version.
-
-Like an oopsable race absolutely trivial to exploit for any user with write
-access to fs?
-
-	a) dentry can freed under you. Just rename the parent while you
-are syncing it. Then you'll block on attempt to take ->i_sem on
-grandparent and merrily go to hell when parent will be moved away and
-rename(2) will do dput() on grandparent.
-
-	b) access to ->d_parent requires at least one of the following:
-dcache_lock, BKL, i_sem or ->i_zombie on inode of parent.
-
-	c) as it is, you will get a hell of IO load on a dumb fs.
-dumb == anything that uses file_fsync() as ->fsync() of directories.
-You'll do full sync of fs on every bloody step.
-
-	d) sequence of inodes you sync has only one property guaranteed:
-at some moment nth inode is a parent of (n-1)th. That's it. E.g. it's easy
-to get a situation when _none_ of the inodes you sync had ever been a
-grandparent of the original inode.
+> Most EULA's are not legal contracts. In civilised countries the right to
+> disassemble is enshrined in law (ironically it comes in Europe from trying
+> to keep car manufacturers from running monopolistic scams not from the
+> software people doing the same)
+> 
+> In the USA its a lot less clear. You can find laws explicitly claiming both,
+> and since US law is primarily about who has loads of money, its a bit
+> irrelevant
+> 
+> Alan
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129210AbQLEXmF>; Tue, 5 Dec 2000 18:42:05 -0500
+	id <S129183AbQLEXwj>; Tue, 5 Dec 2000 18:52:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129874AbQLEXl4>; Tue, 5 Dec 2000 18:41:56 -0500
-Received: from mout0.freenet.de ([194.97.50.131]:1417 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id <S129210AbQLEXlt>;
-	Tue, 5 Dec 2000 18:41:49 -0500
-From: mkloppstech@freenet.de
-Message-Id: <200012052311.AAA06477@john.epistle>
-Subject: test12-pre5 does not compile
-To: linux-kernel@vger.kernel.org
-Date: Wed, 6 Dec 2000 00:11:23 +0100 (CET)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S129210AbQLEXw3>; Tue, 5 Dec 2000 18:52:29 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:14342 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S129183AbQLEXwS>; Tue, 5 Dec 2000 18:52:18 -0500
+Date: Tue, 5 Dec 2000 17:21:22 -0600
+To: ryan <ryan@javien.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Change of /proc/cpuinfo format
+Message-ID: <20001205172122.H6567@cadcamlab.org>
+In-Reply-To: <3A2D7505.2BB48C48@javien.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A2D7505.2BB48C48@javien.com>; from ryan@javien.com on Tue, Dec 05, 2000 at 03:06:45PM -0800
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I compile dummy.c into the kernel; make bzImage stops with:
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe  -march=i686 -malign-functions=4     -c -o dummy.o dummy.c
-dummy.c: In function `dummy_init_module':
-dummy.c:103: invalid type argument of `->'
-make[3]: *** [dummy.o] Error 1
-make[3]: Leaving directory `/usr/src/linux-2.4.0-test12-pre5/drivers/net'
-make[2]: *** [first_rule] Error 2
-make[2]: Leaving directory `/usr/src/linux-2.4.0-test12-pre5/drivers/net'
-make[1]: *** [_subdir_net] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.4.0-test12-pre5/drivers'
-make: *** [_dir_drivers] Error 2
 
-Mirko Kloppstech
+> I'm not quite sure why the name change is necessary, and even if one
+> wants to keep the name change there is a discontunity of cpuinfo
+> formats and programs which intend to run on kernels 2.2 and 2.4 needs
+> to know this...
+
+The reason is that HPA, who did the recent IA32 CPU detection cleanup,
+felt that the information reported in the new 'features' field was
+sufficiently different from that reported in the old 'flags' field that
+it was worth renaming -- so that programs wouldn't try to rely on the
+old flag names.
+
+(Specifically: some flags were renamed to be distinct between Intel,
+AMD, etc, because the exact behavior of the flag may vary between
+brands.)
+
+> -			        "features\t:",
+> +			        "flags\t:",
+
+This patch is already in test12pre5, and is wrong.  You need two tabs
+after 'flags'.
+
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

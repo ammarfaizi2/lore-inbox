@@ -1,143 +1,134 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263788AbTLTDdm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 22:33:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263791AbTLTDdm
+	id S263791AbTLTDoi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 22:44:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263795AbTLTDoi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 22:33:42 -0500
-Received: from port-212-202-159-243.reverse.qsc.de ([212.202.159.243]:39148
-	"EHLO mail.onestepahead.de") by vger.kernel.org with ESMTP
-	id S263788AbTLTDdj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 22:33:39 -0500
-Subject: Re: 2.6 vs 2.4 regression when running gnomemeeting
-From: Christian Meder <chris@onestepahead.de>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Nick Piggin <piggin@cyberone.com.au>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       William Lee Irwin III <wli@holomorphy.com>
-In-Reply-To: <200312201355.08116.kernel@kolivas.org>
-References: <1071864709.1044.172.camel@localhost>
-	 <1071885178.1044.227.camel@localhost> <3FE3B61C.4070204@cyberone.com.au>
-	 <200312201355.08116.kernel@kolivas.org>
-Content-Type: text/plain
-Message-Id: <1071891168.1044.256.camel@localhost>
+	Fri, 19 Dec 2003 22:44:38 -0500
+Received: from gatekeeper.ncic.ac.cn ([159.226.41.188]:33994 "HELO ncic.ac.cn")
+	by vger.kernel.org with SMTP id S263791AbTLTDoe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Dec 2003 22:44:34 -0500
+Date: Sat, 20 Dec 2003 11:45:48 +0800
+From: Huo =?gb2312?B?WmhpZ2FuZyi79Na+uNUp?= <zghuo@ncic.ac.cn>
+To: linux-kernel@vger.kernel.org
+Subject: lmbench 2.4.20-8(RH9), 2.4.20, 2.6.0
+Message-ID: <20031220034548.GA4809@lucent>
+Reply-To: Huo Zhigang <zghuo@ncic.ac.cn>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 20 Dec 2003 04:32:50 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-12-20 at 03:55, Con Kolivas wrote:
-> On Sat, 20 Dec 2003 13:38, Nick Piggin wrote:
-> > Christian Meder wrote:
-> > >On Sat, 2003-12-20 at 02:26, Nick Piggin wrote:
-> > >>Christian Meder wrote:
-> > >>>On Sat, 2003-12-20 at 01:48, Nick Piggin wrote:
-> > >>>>Sounds reasonable. Maybe its large interrupt or scheduling latency
-> > >>>>caused somewhere else. Does disk activity alone cause a problem?
-> > >>>>find / -type f | xargs cat > /dev/null
-> > >>>>how about
-> > >>>>dd if=/dev/zero of=./deleteme bs=1M count=256
-> > >>>
-> > >>>Ok. I've attached the logs from a run with a call with only an
-> > >>>additional dd. The quality was almost undisturbed only very slightly
-> > >>>worse than the unloaded case.
-> 
-> Since so many things have actually changed it's going to be hard to extract 
-> what role the cpu scheduler has in this setting, but lets do our best.
-> 
-> Is there a reason you're running gnomemeeting niced -10? It is hardly using 
-> any cpu and the problem is actually audio in your case, not the cpu 
-> gnomemeeting is getting. Running dependant things (gnomemeeting, audio 
-> server, gnome etc) at different nice levels is not a great idea as it can 
-> lead to priority inversion scenarios if those apps aren't coded carefully. 
-> 
-> What happens if you run gnomemeeting at nice 0?
+Howdy, 
 
-Exactly the same. It was only reniced to -10 because I tried it and
-forgot to set it back. With your scheduler renicing doesn't make a
-difference. No matter if I renice the compile to 19 or gnomemeeting to
--10. With Nick's scheduler renicing gnomemeeting to -10 improves the
-situation.
+Is the network performance of 2.6.0 so bad or my test
+totally wrong?
 
-> 
-> How is your dma working on your disks?
+Could anyone tell me how to dig into performance
+optimization of linux?
 
-/dev/hda:
- multcount    =  0 (off)
- IO_support   =  0 (default 16-bit)
- unmaskirq    =  0 (off)
- using_dma    =  1 (on)
- keepsettings =  0 (off)
- readonly     =  0 (off)
- readahead    = 256 (on)
- geometry     = 65535/16/63, sectors = 117210240, start = 0
+=================================================================
 
-> What happens if you don't use an audio server (I'm not sure what the audio 
-> server is in gnome); or if you're not using one what happens when you do?
+                 L M B E N C H  3 . 0   S U M M A R Y
+                 ------------------------------------
+		 (Alpha software, do not distribute)
 
-esd was running but I'm not sure gnomemeeting with ALSA support was
-using it. After killing esd and retrying there was no difference.
+Basic system parameters
+------------------------------------------------------------------------------
+Host                 OS Description              Mhz  tlb  cache  mem   scal
+                                                     pages line   par   load
+                                                           bytes  
+--------- ------------- ----------------------- ---- ----- ----- ------ ----
+lucent.rd Linux 2.4.20-       i686-pc-linux-gnu 1595    14   128 1.6100    1
+lucent.rd  Linux 2.4.20       i686-pc-linux-gnu 1592    66   128 1.6700    1
+lucent.rd   Linux 2.6.0       i686-pc-linux-gnu 1572    63   128 1.6600    1
 
-> Renice the audio server instead?
+Processor, Processes - times in microseconds - smaller is better
+------------------------------------------------------------------------------
+Host                 OS  Mhz null null      open slct sig  sig  fork exec sh  
+                             call  I/O stat clos TCP  inst hndl proc proc proc
+--------- ------------- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+lucent.rd Linux 2.4.20- 1595 0.99 1.09 3.25 4.54 8.41 1.57 4.25 194. 671. 3273
+lucent.rd  Linux 2.4.20 1592 1.01 1.11 14.5 15.9 10.4 1.58 5.42 185. 752. 3739
+lucent.rd   Linux 2.6.0 1572 0.29 0.75 17.9 25.9 10.8 1.07 16.1 336. 1223 5075
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~??
 
-gnomemeeting without audio server is showing the same phenomenon like
-gnomemeeting with esd.
+Basic integer operations - times in nanoseconds - smaller is better
+-------------------------------------------------------------------
+Host                 OS  intgr intgr  intgr  intgr  intgr  
+                          bit   add    mul    div    mod   
+--------- ------------- ------ ------ ------ ------ ------ 
+lucent.rd Linux 2.4.20- 0.3200 0.3200 8.8500   36.8   41.3
+lucent.rd  Linux 2.4.20 0.3200 0.3100 8.8400   36.6   40.5
+lucent.rd   Linux 2.6.0 0.3200 0.3200 9.0300   37.7   42.4
 
-> You've already tried different audio drivers right?
+Basic float operations - times in nanoseconds - smaller is better
+-----------------------------------------------------------------
+Host                 OS  float  float  float  float
+                         add    mul    div    bogo
+--------- ------------- ------ ------ ------ ------ 
+lucent.rd Linux 2.4.20- 3.1400 4.3900   27.5   27.1
+lucent.rd  Linux 2.4.20 3.3800 4.3900   27.1   27.1
+lucent.rd   Linux 2.6.0 3.1900 4.4800   27.4   27.4
 
-Yes, the phenomenon occurs for the OSS and the ALSA driver.
+Basic double operations - times in nanoseconds - smaller is better
+------------------------------------------------------------------
+Host                 OS  double double double double
+                         add    mul    div    bogo
+--------- ------------- ------  ------ ------ ------ 
+lucent.rd Linux 2.4.20- 3.1500 4.4300   27.1   27.1
+lucent.rd  Linux 2.4.20 3.1300 4.3700   29.3   27.1
+lucent.rd   Linux 2.6.0 3.1900 4.6600   27.4   27.5
 
-> Nice the compile instead of -nicing the other stuff.
+Context switching - times in microseconds - smaller is better
+-------------------------------------------------------------------------
+Host                 OS  2p/0K 2p/16K 2p/64K 8p/16K 8p/64K 16p/16K 16p/64K
+                         ctxsw  ctxsw  ctxsw ctxsw  ctxsw   ctxsw   ctxsw
+--------- ------------- ------ ------ ------ ------ ------ ------- -------
+lucent.rd Linux 2.4.20- 1.6600 2.0400 2.0900 3.1900   24.4 6.05000    34.6
+lucent.rd  Linux 2.4.20 1.7300 0.8800                 14.7 0.10000    24.9
+lucent.rd   Linux 2.6.0 1.5600 1.6500 1.9200 4.6500   30.5    10.0    40.4
 
-Tried it with same result (see above).
+*Local* Communication latencies in microseconds - smaller is better
+---------------------------------------------------------------------
+Host                 OS 2p/0K  Pipe AF     UDP  RPC/   TCP  RPC/ TCP
+                        ctxsw       UNIX         UDP         TCP conn
+--------- ------------- ----- ----- ---- ----- ----- ----- ----- ----
+lucent.rd Linux 2.4.20- 1.660 8.525 13.3              20.7        60.
+lucent.rd  Linux 2.4.20 1.730 7.541 13.5              63.8        73.
+lucent.rd   Linux 2.6.0 1.560 9.622 73.4             132.6       451.
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~??
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~??
 
-> Try the minor interactivity fix I posted only yesterday for different nice 
-> level latencies:
-> http://ck.kolivas.org/patches/2.6/2.6.0/patch-2.6.0-O21int
+File & VM system latencies in microseconds - smaller is better
+-------------------------------------------------------------------------------
+Host                 OS   0K File      10K File     Mmap    Prot   Page   100fd
+                        Create Delete Create Delete Latency Fault  Fault  selct
+--------- ------------- ------ ------ ------ ------ ------- ----- ------- -----
+lucent.rd Linux 2.4.20-   31.4 4.1380   66.9 8.2450  1124.0 1.327 2.95680 5.316
+lucent.rd  Linux 2.4.20   43.1   15.6   76.2   20.7  1563.0 2.989 3.55410 7.224
+lucent.rd   Linux 2.6.0   67.6   28.5  124.1   58.7  1198.0 1.094 3.41040  10.6
 
-Actually all the posted results were on a 2.6.0-test11-mm1 with your
-patch added on top. So the patch didn't change anything for me.
+*Local* Communication bandwidths in MB/s - bigger is better
+-----------------------------------------------------------------------------
+Host                OS  Pipe AF    TCP  File   Mmap  Bcopy  Bcopy  Mem   Mem
+                             UNIX      reread reread (libc) (hand) read write
+--------- ------------- ---- ---- ---- ------ ------ ------ ------ ---- -----
+lucent.rd Linux 2.4.20- 799. 1348 378.  988.8 1522.1  406.9  418.0 1520 602.8
+lucent.rd  Linux 2.4.20 754. 199.       758.3  900.5  304.3  341.9 971. 438.1
+lucent.rd   Linux 2.6.0 671. 316. 92.9 1044.1 1472.6  447.5  466.0 1472 647.7
 
-> Is your network responsible and the audio unrelated? Some have reported 
-> strange problems with ppp or certain network card drivers?
+Memory latencies in nanoseconds - smaller is better
+    (WARNING - may not be correct, check graphs)
+------------------------------------------------------------------
+Host                 OS   Mhz   L1 $   L2 $    Main mem    Guesses
+--------- -------------   ---   ----   ----    --------    -------
+lucent.rd Linux 2.4.20-  1595 1.2980   11.6       135.9
+lucent.rd  Linux 2.4.20  1592 1.3650   11.7       136.7
+lucent.rd   Linux 2.6.0  1572 1.3000   11.8       144.2
 
-The problem occurs whether I use my WLAN PCMCIA card or my PCMCIA
-Ethernet card.
-
-> As you see it's not a straight forward problem but there's some things for you 
-> to get your teeth stuck into. As it stands the cpu scheduler from your top 
-> output appears to be giving appropriate priorities to the different factors 
-> in your equation.
-
-I know that the problem isn't straight forward that's why I refrained a
-long time before posting to linux-kernel trying to rule out different
-scenarios. As it stands I tried different gnomemeeting versions,
-different audio drivers, different nice levels, different schedulers,
-preemption on and off, ACPI on and off, -mm kernels and pristine Linus
-kernels with no luck. If I put CPU load on my box the gnomemeeting
-audiostream gets badly mutilated (unusable). There's not much left I can
-think of that's why I'm finally posting to linux-kernel.
-
-
-
-				Christian Meder
-
-
--- 
-Christian Meder, email: chris@onestepahead.de
- 
-What's the railroad to me ?
-I never go to see
-Where it ends.
-It fills a few hollows,
-And makes banks for the swallows, 
-It sets the sand a-blowing,
-And the blackberries a-growing.
-                      (Henry David Thoreau)
- 
-
-
-
-
+--
+"Mom-proof" linux is my dream.

@@ -1,41 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269660AbUJMKTl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269668AbUJMK2b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269660AbUJMKTl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 06:19:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269666AbUJMKTl
+	id S269668AbUJMK2b (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 06:28:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269669AbUJMK2b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 06:19:41 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:35511 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S269660AbUJMKTk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 06:19:40 -0400
-Subject: __put_task_struct unresolved when being used in modules
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
-Message-ID: <OF31970E09.9A7F3D25-ONC1256F2C.00380546-C1256F2C.00389262@de.ibm.com>
-From: Thomas Spatzier <thomas.spatzier@de.ibm.com>
-Date: Wed, 13 Oct 2004 12:17:54 +0200
-X-MIMETrack: Serialize by Router on D12ML061/12/M/IBM(Release 6.0.2CF2HF259 | March 11, 2004) at
- 13/10/2004 12:19:38
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+	Wed, 13 Oct 2004 06:28:31 -0400
+Received: from phoenix.infradead.org ([81.187.226.98]:12037 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S269668AbUJMK2a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 06:28:30 -0400
+Date: Wed, 13 Oct 2004 11:28:26 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Danny ter Haar <dth@ncc1701.cistron.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: xfs problems in 2.6.9-rc4 ?
+Message-ID: <20041013102826.GA30851@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Danny ter Haar <dth@ncc1701.cistron.net>,
+	linux-kernel@vger.kernel.org
+References: <ckit8i$np4$1@news.cistron.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ckit8i$np4$1@news.cistron.nl>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Oct 13, 2004 at 09:41:38AM +0000, Danny ter Haar wrote:
+> On our usenet storage server (diablo setup) we are running
+> 2.6.9-rc4 and we see a *lot* of this in dmesg:
+> 
+> xfs: possible memory allocation deadlock in kmem_alloc (mode:0xd0)
+> xfs: possible memory allocation deadlock in kmem_alloc (mode:0xd0)
+> printk: 2899 messages suppressed.
 
-
-
-
-I have a module that keeps a reference to a task_struct and uses
-get_task_struct and put_task_struct to increment/decrement the
-task_struct's ref count.
-Function __put_task_struct defined in kernel/fork.c does not have
-an associated EXPORT_SYMBOL , so I get an unresolved symbol
-error.
-Is there a reason why __put_task_struct is not exported? Otherwise,
-I would just add the missing EXPORT_SYMBOL. There are a number
-of EXPORT_SYMBOLs already defined in fork.c anyway.
-
-Regards,
-Thomas
+Try to increase /proc/sys/vm/min_free_kbytes
 

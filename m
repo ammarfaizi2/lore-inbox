@@ -1,64 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263983AbTJFFUn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 01:20:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263984AbTJFFUn
+	id S263986AbTJFF3W (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 01:29:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263984AbTJFF3W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 01:20:43 -0400
-Received: from smtp3.libero.it ([193.70.192.127]:23804 "EHLO smtp3.libero.it")
-	by vger.kernel.org with ESMTP id S263983AbTJFFUm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 01:20:42 -0400
-Date: Mon, 6 Oct 2003 07:21:54 +0200
-From: "M. Fioretti" <m.fioretti@inwind.it>
-To: linux-kernel@vger.kernel.org
-Cc: io <m.fioretti@inwind.it>
-Subject: Kernel 2.6: new features and older computers
-Message-ID: <20031006052154.GB26388@inwind.it>
-Reply-To: "M. Fioretti" <m.fioretti@inwind.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	Mon, 6 Oct 2003 01:29:22 -0400
+Received: from TYO201.gate.nec.co.jp ([202.32.8.214]:12026 "EHLO
+	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S263986AbTJFF3V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 01:29:21 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH][v850]  Triple the memory size used on the v850 gdb simulator
+Cc: linux-kernel@vger.kernel.org
+Reply-To: Miles Bader <miles@gnu.org>
+Message-Id: <20031006052905.4ED8037C9@mcspd15.ucom.lsi.nec.co.jp>
+Date: Mon,  6 Oct 2003 14:29:05 +0900 (JST)
+From: miles@lsi.nec.co.jp (Miles Bader)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
+Linus, please apply.
 
-I am looking for some information on the issues listed below for two
-reasons. One is an article I am writing for a magazine, the other (as
-the coordinator of the non-profit RULE project, see my signature) is
-to understand if, how and how much the next linux kernel can be kept
-compatible with older computers.
-
-Any feedback is welcome. Should you have the time and right mood to
-answer here or privately with detailed explanations, thanks a thousand
-in advance. If not, please just point me to the relevant stuff to read
-(be it URLs, email threads, comments in specific source files,
-whatever). I have already downloaded the "wonderful world of Linux
-2.6" and the documents pointed in it.
-
-On to the questions now:
-
-1) minimal hw requirements (RAM, disk...) both to *use* and to
-   *compile* the kernel
-
-2) Which compilation switches could be used, if any, to lessen the
-   above requirements and increase performance on obsolete systems
-   (which in RULE means starting from 386/486/586 CPUs, 16+ MB RAM,
-   hard disk ~ 400/500 MB, and the kind of peripherals used 6/7 years ago)
-
-3) Details on how the build system is changed
-4) What is RCU and which kind of performances it will improve
-5) Online Kernel-related tutorials which I could/should mention in the
-   "resource" section of the article
-6) Anything else you might find relevant
-
-Thanks again,
-
-Marco Fioretti
-
--- 
-Marco Fioretti                 m.fioretti, at the server inwind.it
-Red Hat for low memory         http://www.rule-project.org/en/
-
+diff -ruN -X../cludes linux-2.6.0-test6-moo/include/asm-v850/sim.h linux-2.6.0-test6-moo-v850-20031006/include/asm-v850/sim.h
+--- linux-2.6.0-test6-moo/include/asm-v850/sim.h	2003-06-16 14:53:02.000000000 +0900
++++ linux-2.6.0-test6-moo-v850-20031006/include/asm-v850/sim.h	2003-10-03 18:21:48.000000000 +0900
+@@ -25,7 +25,7 @@
+ /* We use a weird value for RAM, not just 0, for testing purposes.
+    These must match the values used in the linker script.  */
+ #define RAM_ADDR		0x8F000000
+-#define RAM_SIZE		0x01000000
++#define RAM_SIZE		0x03000000
+ 
+ 
+ /* For <asm/page.h> */

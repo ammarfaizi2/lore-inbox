@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129552AbQKUQe6>; Tue, 21 Nov 2000 11:34:58 -0500
+	id <S130325AbQKUQmi>; Tue, 21 Nov 2000 11:42:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129835AbQKUQes>; Tue, 21 Nov 2000 11:34:48 -0500
-Received: from sparrow.ists.dartmouth.edu ([129.170.249.49]:36743 "EHLO
-	sparrow.websense.net") by vger.kernel.org with ESMTP
-	id <S129625AbQKUQem>; Tue, 21 Nov 2000 11:34:42 -0500
-Date: Tue, 21 Nov 2000 11:03:06 -0500 (EST)
-From: William Stearns <wstearns@pobox.com>
-Reply-To: William Stearns <wstearns@pobox.com>
-To: "Cox, Alan -- Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-        Alan Cox <alan@redhat.com>
-cc: ML-linux-kernel <linux-kernel@vger.kernel.org>
-Subject: CC=kgcc incomplete in 2.4.0-test11-ac1
-Message-ID: <Pine.LNX.4.30.0011211058200.1207-100000@sparrow.websense.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129999AbQKUQm3>; Tue, 21 Nov 2000 11:42:29 -0500
+Received: from mnh-1-21.mv.com ([207.22.10.53]:23814 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S129835AbQKUQmQ>;
+	Tue, 21 Nov 2000 11:42:16 -0500
+Message-Id: <200011211720.MAA04358@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Rub n Gallardo Fructuoso <ruben@trymedia.com>
+cc: "Linux-Kernel" <linux-kernel@vger.kernel.org>
+Subject: Re: Address translation 
+In-Reply-To: Your message of "Tue, 21 Nov 2000 15:41:26 +0100."
+             <DLECJAOCHAKJBLMJFKPIAEPBCCAA.ruben@trymedia.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 21 Nov 2000 12:20:48 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good day, Alan,
-	A kernel build with your latest prepatch still seems to use gcc
-to compile some of the auxiliary tools:
+ruben@trymedia.com said:
+> Does anybody know a function or method in order to translate an user
+> space pointer into a valid pointer in kernel mode?
 
-gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -o scripts/mkdep scripts/mkdep.c
-gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer gentbl.c -o gentbl -lm
-gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -o scripts/split-include scripts/split-include.c
-gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -o conmakehash conmakehash.c
-gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -o gen-devlist gen-devlist.c
-gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -o tools/build tools/build.c -I/usr/src/linux-2.4.0/include
+> 	I'd like to avoid copying data (such as the 'copy_to_user' and
+> 'copy_from_user' functions do) because it slows down my system. 
 
-	Do any of the above tools need to use kgcc as well, or is gcc
-likely to work just fine?
-	Cheers,
-	- Bill
+The reason that everyone else uses copy_{to,from}_user is that there is no way 
+to guarantee that the userspace pointer is valid.  That memory may have been 
+swapped out.  The copy macros are prepared to fault the memory in.  The rest 
+of the kernel is not.
 
----------------------------------------------------------------------------
-	"Nynex.  Iroquois for Moron"
-	-- A well-known Linux kernel hacker.
---------------------------------------------------------------------------
-William Stearns (wstearns@pobox.com).  Mason, Buildkernel, named2hosts,
-and ipfwadm2ipchains are at:                http://www.pobox.com/~wstearns
-LinuxMonth; articles for Linux Enthusiasts! http://www.linuxmonth.com
---------------------------------------------------------------------------
+				Jeff
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

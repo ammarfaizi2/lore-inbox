@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279736AbRJYJsr>; Thu, 25 Oct 2001 05:48:47 -0400
+	id <S279735AbRJYKC1>; Thu, 25 Oct 2001 06:02:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279735AbRJYJsg>; Thu, 25 Oct 2001 05:48:36 -0400
-Received: from s2.relay.oleane.net ([195.25.12.49]:35333 "HELO
+	id <S279739AbRJYKCS>; Thu, 25 Oct 2001 06:02:18 -0400
+Received: from s2.relay.oleane.net ([195.25.12.49]:29713 "HELO
 	s2.relay.oleane.net") by vger.kernel.org with SMTP
-	id <S279736AbRJYJs0>; Thu, 25 Oct 2001 05:48:26 -0400
+	id <S279735AbRJYKCA>; Thu, 25 Oct 2001 06:02:00 -0400
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: <linux-kernel@vger.kernel.org>,
-        "Eric W. Biederman" <ebiederman@uswest.net>,
+To: Rob Turk <r.turk@chello.nl>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>,
         Patrick Mochel <mochel@osdl.org>
 Subject: Re: [RFC] New Driver Model for 2.5
-Date: Thu, 25 Oct 2001 11:47:04 +0200
-Message-Id: <20011025094704.11412@smtp.adsl.oleane.com>
-In-Reply-To: <Pine.LNX.4.33.0110250224340.1128-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0110250224340.1128-100000@penguin.transmeta.com>
+Date: Thu, 25 Oct 2001 12:01:24 +0200
+Message-Id: <20011025100124.11238@smtp.adsl.oleane.com>
+In-Reply-To: <9r8icv$ukh$1@ncc1701.cistron.net>
+In-Reply-To: <9r8icv$ukh$1@ncc1701.cistron.net>
 X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -23,37 +23,56 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Or another fun common one.  To shut down the interrupt controller, I first
->> need to shut down every device that thinks it can generate interrupts.
->> But my interrupt controller is way out on my pci->isa bridge.  So I
->> can't shut that device down.
->>
->> Sorry this whole device tree idea for shutdown ordering doesn't seem
->> to match my idea of reality.
 >
->Your _examples_ do not match any reality.
+>Doing so will create havoc on sequential devices, such as tape drives. If
+>your system simply suspends, then all is well. Any data that isn't flushed
+>yet is buffered inside the tapedrive. But when the system resumes and resets
+>the SCSI bus, it will cause all data in the tape drive to be lost, and for
+>most tape systems it will also re-position them at LBOT. Any running
+>tar/dump/whatever tape process would not survive such a suspend-resume
+>cycle.
 >
->Don't worry about things like the CPU shutdown: you have to have special
->code for it anyway.
->
->Let's face it, the device tree is for _devices_. It's for shutting down a
->network card before we shut down the PCI bridge that is in front of it.
->
->The issue of "core shutdown" is not covered - and isn't _meant_ to be
->covered. That's the problem of the architecture-specific code. There is no
->point in having a device tree for that, because it's going to be very much
->architecture-specific anyway (ie on x86 we may have to just blindly trust
->some silly APCI table data etc).
+>Another more subtle issue is state information that exists between the SCSI
+>controller and the target devices. At some point they might have negotiated
+>synchronous and/or wide transfer parameters. This information must be
+>preserved, or you'll observe lockups, data corruption and the likes. Since
+>these parameters are maintained at the lowest driver level, they should know
+>about suspend. The low-level driver must know to re-negotiate these
+>parameters when it comes back to life.
 
-Definitelly. I have similar issues with pmacs, clocks generation
-and interrupt controller are in Apple's mac-io ASIC which is on PCI,
-so this ASIC can't be part of the normal PM tree and has to be handled
-as part of the "core" PM code. This kind of issue will still happen, the
-new scheme won't "magically" make PM work on every single laptop out
-there, there will still be some corner cases to deal with, but at least
-these will be limited to real corner cases and most "normal" drivers
-will fit in the new, saner, mecanism.
+This can be handled by having st (or sd, or whatever "client driver" decide
+to take over a SCSI device) register a struct device node that is a child
+of the actual SCSI device.
+
+In fact, I'm wondering if we need a struct device node at all for the
+SCSI device on the bus. The SCSI controller (or USB/storage or
+FireWire SBP2) will expose SCSI devices, that is "interface" to
+which you can feed SCSI requests, but do those really need to have
+a structure device associated ? One possibility would be to only do
+so once attached to a "client" driver like st, sd, sg, ...
+The "client" would then create that structure.
+
+But...
+
+If we still want "unclaimed" devices to have a representation in the
+device tree (because, for example, userland wants to know about them,
+eventually in order to "instanciate" an sg driver), then we could have
+the SCSI subsystem create a simple skeletton struct device when the
+devices are probed, and have the client driver just populate this with
+more infos & PM hooks once attached to the device.
+I don't think there's a need to have 2 struct device stacked.
+
+But it's mostly a matter of taste ;)
+
+Thinking more about it, I think I prefer the second solution. That is
+to have SCSI create "standard" struct device for all devices probed
+on the bus, thus ensuring they are visible from the userland
+representation of the device-tree, and then eventually have drivers like
+sd, st, etc... add entries & PM hooks to those devices if needed when
+attached to them. But doing that, or just having them create a virtual
+node as a child of the device is mostly a matter of taste, I beleive.
 
 Ben.
+
 
 

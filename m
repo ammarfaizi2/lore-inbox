@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293495AbSCKCTZ>; Sun, 10 Mar 2002 21:19:25 -0500
+	id <S293493AbSCKCWZ>; Sun, 10 Mar 2002 21:22:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293493AbSCKCTP>; Sun, 10 Mar 2002 21:19:15 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:54457 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S293491AbSCKCTD>;
-	Sun, 10 Mar 2002 21:19:03 -0500
-Date: Sun, 10 Mar 2002 18:15:51 -0800 (PST)
-Message-Id: <20020310.181551.102654203.davem@redhat.com>
-To: rgooch@ras.ucalgary.ca
-Cc: whitney@math.berkeley.edu, linux-kernel@vger.kernel.org
+	id <S293496AbSCKCWQ>; Sun, 10 Mar 2002 21:22:16 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:36736 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S293493AbSCKCWL>; Sun, 10 Mar 2002 21:22:11 -0500
+Date: Sun, 10 Mar 2002 21:22:10 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: whitney@math.berkeley.edu, rgooch@ras.ucalgary.ca,
+        linux-kernel@vger.kernel.org
 Subject: Re: Broadcom 5700/5701 Gigabit Ethernet Adapters
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200203110210.g2B2Akb25831@vindaloo.ras.ucalgary.ca>
-In-Reply-To: <200203110205.g2B25Ar05044@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
-	<20020310.180456.91344522.davem@redhat.com>
-	<200203110210.g2B2Akb25831@vindaloo.ras.ucalgary.ca>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Message-ID: <20020310212210.A27870@redhat.com>
+In-Reply-To: <20020310.170338.83978717.davem@redhat.com> <200203110114.g2B1EuG24994@vindaloo.ras.ucalgary.ca> <200203110205.g2B25Ar05044@adsl-209-76-109-63.dsl.snfc21.pacbell.net> <20020310.180456.91344522.davem@redhat.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020310.180456.91344522.davem@redhat.com>; from davem@redhat.com on Sun, Mar 10, 2002 at 06:04:56PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Richard Gooch <rgooch@ras.ucalgary.ca>
-   Date: Sun, 10 Mar 2002 19:10:46 -0700
-   
-   As Wayne said:
-   > There is also the D-Link DGE-550T, a 64-bit/66MHz card starting at
-   > US$80 (according to pricewatch).  It apparently uses a different
-   > in-kernel driver, dl2k.o.
-   
-   So this is a different chip from the natsemi, right?
+On Sun, Mar 10, 2002 at 06:04:56PM -0800, David S. Miller wrote:
+>    From: Wayne Whitney <whitney@math.berkeley.edu>
+>    Date: Sun, 10 Mar 2002 18:05:10 -0800
+>    
+>    So does anyone have any comments on the stability and performance of
+>    these cards/drivers?
+> 
+> As I said in a previous email the natsemi chips don't perform
+> too well.
 
-Yes.  And from a cursory glance the dl2k.o driver seems to even
-be quite portable.  I haven't tested it out myself though.
+That's my fault.  The version of the driver in the kernel atm sucks in 
+performance; I'll try to spend the day needed on the driver this week 
+and it should get up to ~800mbit from the current mess.  Getting NAPI 
+in the kernel would help... ;-)
 
-I have no idea how this thing performs, but it does look like
-it has a couple of hardware bugs.
+		-ben
+-- 
+"A man with a bass just walked in,
+ and he's putting it down
+ on the floor."

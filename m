@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265168AbTANUGw>; Tue, 14 Jan 2003 15:06:52 -0500
+	id <S265198AbTANUS4>; Tue, 14 Jan 2003 15:18:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265169AbTANUGv>; Tue, 14 Jan 2003 15:06:51 -0500
-Received: from mark.mielke.cc ([216.209.85.42]:24326 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S265168AbTANUGs>;
-	Tue, 14 Jan 2003 15:06:48 -0500
-Date: Tue, 14 Jan 2003 15:23:59 -0500
-From: Mark Mielke <mark@mark.mielke.cc>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: DervishD <raul@pleyades.net>, Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Changing argv[0] under Linux.
-Message-ID: <20030114202359.GD15412@mark.mielke.cc>
-References: <20030114195005.GD162@DervishD> <Pine.LNX.3.95.1030114145417.13752A-100000@chaos.analogic.com>
-Mime-Version: 1.0
+	id <S265201AbTANUS4>; Tue, 14 Jan 2003 15:18:56 -0500
+Received: from host182-156.pool80116.interbusiness.it ([80.116.156.182]:39043
+	"EHLO igor.opun.it") by vger.kernel.org with ESMTP
+	id <S265198AbTANUSy>; Tue, 14 Jan 2003 15:18:54 -0500
+Message-ID: <3E2472BE.12D0BDC5@libero.it>
+Date: Tue, 14 Jan 2003 21:27:42 +0100
+From: Abramo Bagnara <abramo.bagnara@libero.it>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.20 i686)
+X-Accept-Language: en, it
+MIME-Version: 1.0
+To: Larry McVoy <lm@bitmover.com>
+Cc: Dax Kelson <dax@gurulabs.com>, Richard Stallman <rms@gnu.org>,
+       root@chaos.analogic.com, pollard@admin.navo.hpc.mil,
+       R.E.Wolff@BitWizard.nl, jalvo@mbay.net, linux-kernel@vger.kernel.org
+Subject: Re: [OFFTOPIC] RMS and reactions to him
+References: <20030114190600.GC19154@work.bitmover.com> <Pine.LNX.4.44.0301141233020.23531-100000@mooru.gurulabs.com> <20030114200202.GG19154@work.bitmover.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.95.1030114145417.13752A-100000@chaos.analogic.com>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 14, 2003 at 02:56:35PM -0500, Richard B. Johnson wrote:
-> Well I just grepped through usr/include/bits/posix1_lim.h and it
-> shows 255 (with this 'C' library) so you are probably right.
-> In any event, a "whole line of text" isn't going to overrun it. 
+Larry McVoy wrote:
+> 
+> On Tue, Jan 14, 2003 at 12:56:39PM -0700, Dax Kelson wrote:
+> > For nearly 10 years I've read many posts by RMS and the replies that
+> > follow. RMS's posts seem calm, rational and clearly presented. For the
+> > most part, the replies are emotional, high strung, and mean spirited
+> > personal attacks.
+> 
+> If I calmly, rationally, and clearly state things which are not true,
+> are self serving, and are not relevant to a forum, what should I expect
+> in response?
 
-Looking at the code, it looks to me as if argv[0] can be any size up to
-_SC_ARG_MAX, with the restraining factor being that the environment
-variables and the other arguments must fit in the same space.
+Are you serious about that?
 
-Is this not correct?
+Do you known *any* absolute, objective, irrefutable truth?
 
-mark
+Would you like to perjury that *every* one of your posting is not self
+serving and fully relevant?
+
+Please stop that: I think you know as well as me that Dax is right.
 
 -- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+Abramo Bagnara                       mailto:abramo.bagnara@libero.it
 
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
-
+Opera Unica                          Phone: +39.546.656023
+Via Emilia Interna, 140
+48014 Castel Bolognese (RA) - Italy

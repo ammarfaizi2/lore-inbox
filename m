@@ -1,46 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267542AbTBLPyA>; Wed, 12 Feb 2003 10:54:00 -0500
+	id <S267496AbTBLPsg>; Wed, 12 Feb 2003 10:48:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267536AbTBLPx7>; Wed, 12 Feb 2003 10:53:59 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37896 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267534AbTBLPx5>;
-	Wed, 12 Feb 2003 10:53:57 -0500
-Message-ID: <3E4A7043.1070200@pobox.com>
-Date: Wed, 12 Feb 2003 11:03:15 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ballabio_Dario@emc.com
-CC: manfred@colorfullife.com, warp@mercury.d2dc.net,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       linux-eata@i-connect.net
-Subject: Re: eata irq abuse (was: Re: Linux 2.5.60)
-References: <70652A801D9E0C469C28A0F8BCF49CF9012EBA15@itmi1mx2.corp.emc.com> <3E4A6801.3050702@pobox.com>
-In-Reply-To: <3E4A6801.3050702@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S267494AbTBLPsg>; Wed, 12 Feb 2003 10:48:36 -0500
+Received: from jive.SoftHome.net ([66.54.152.27]:15019 "HELO jive.SoftHome.net")
+	by vger.kernel.org with SMTP id <S267496AbTBLPse>;
+	Wed, 12 Feb 2003 10:48:34 -0500
+Date: Wed, 12 Feb 2003 21:26:04 +0530
+From: Balram Adlakha <b_adlakha@softhome.net>
+To: Lars Magne Ingebrigtsen <larsi@gnus.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problems with hyper-threading on Asus P4T533 / Linux 2.4.20
+Message-Id: <20030212212604.35baafad.b_adlakha@softhome.net>
+In-Reply-To: <m365rpegts.fsf@quimbies.gnus.org>
+References: <m365rpegts.fsf@quimbies.gnus.org>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Ballabio_Dario@emc.com wrote:
+On Wed, 12 Feb 2003 15:03:59 +0100
+Lars Magne Ingebrigtsen <larsi@gnus.org> wrote:
+
+> We've just gotten an Asus P4T533-based machine with a 3.06GHz P4 CPU,
+> bios version 1005.  (P4T533 is i850e-based.)  The bios claims that the
+> P4 has hyper-threading, and as you can see from the cpuinfo output
+> below, "ht" is among the flags.  (And the manual says that P4T533 is
+> ht-enabled.)
 > 
->> Yes, you are correct. I used spin_unlock in order to release the local
->> driver lock
->> during the scsi_register call, but I forgot that I had the irq 
->> disabled as
->> well.
->> SO the correct fix is to use spin_unlock_irq/spin_lock_irq around the
->> scsi_register call. Same fix applies to the u14-34f driver.
+> I've tried booting with acpismp=force and without, and it doesn't
+> seem to make much difference: Linux still only sees a single CPU.
+> I've also tried 2.4.21-pre4 and -ac4, which doesn't seem to make any
+> difference, either.
 > 
-> scsi_register may want to sleep, so that is not a fix at all...
+> Anybody got any ideas why I can't get this to work?
+> 
+> buto:~# uname -a
+> Linux buto 2.4.20 #3 SMP Wed Feb 12 14:28:49 CET 2003 i686 unknown
+> buto:~# cat /proc/cpuinfo 
+> processor       : 0
+> vendor_id       : GenuineIntel
+> cpu family      : 15
+> model           : 2
+> model name      : Intel(R) Pentium(R) 4 CPU 3.06GHz
+> stepping        : 7
+> cpu MHz         : 3073.691
+> cache size      : 512 KB
+> fdiv_bug        : no
+> hlt_bug         : no
+> f00f_bug        : no
+> coma_bug        : no
+> fpu             : yes
+> fpu_exception   : yes
+> cpuid level     : 2
+> wp              : yes
+> flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
+> bogomips        : 6134.16
 
 
-Ooops, I missed the order.  You (and Manfred) are right, 
-unlock-register-lock is desired.
+Thats sounds alright, you have to have an SMP kernel to use HT. Build a new kernel with the SMP option checked.
+After that, you will see something like this with all that is above :
+ siblings         : 2
 
-ENOCAFFEINE, I plead...
-
+And cpuinfo will show info for 2 processors...

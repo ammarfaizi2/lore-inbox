@@ -1,79 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262063AbTJNWuW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 18:50:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbTJNWuV
+	id S261909AbTJNW4p (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 18:56:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262046AbTJNW4p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 18:50:21 -0400
-Received: from mail.tamiweb.com ([194.12.244.146]:4992 "EHLO mail.tamiweb.com")
-	by vger.kernel.org with ESMTP id S262063AbTJNWuQ (ORCPT
+	Tue, 14 Oct 2003 18:56:45 -0400
+Received: from fw.osdl.org ([65.172.181.6]:17289 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261909AbTJNW4o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 18:50:16 -0400
-Subject: apache oops 2.4.22
-From: Kostadin Karaivanov <larry@tamiweb.com>
-Reply-To: larry@tamiweb.com
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-SvH7gT6lJHqKn45TD72N"
-Organization: tamiweb
-Message-Id: <1066171858.1868.4.camel@laptop.minfin.bg>
+	Tue, 14 Oct 2003 18:56:44 -0400
+Date: Tue, 14 Oct 2003 15:56:38 -0700
+From: cliff white <cliffw@osdl.org>
+To: m.fioretti@inwind.it
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Unbloating the kernel, action list
+Message-Id: <20031014155638.7db76874.cliffw@osdl.org>
+In-Reply-To: <16710000.1066170641@flay>
+References: <HMQWM7$61FA432C2B793029C11F4F77EEAABD1F@libero.it>
+	<20031014214311.GC933@inwind.it>
+	<16710000.1066170641@flay>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Wed, 15 Oct 2003 01:50:59 +0300
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 14 Oct 2003 15:30:41 -0700
+"Martin J. Bligh" <mbligh@aracnet.com> wrote:
 
---=-SvH7gT6lJHqKn45TD72N
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> 
+> > 7) Do come in suggesting anything I might have forgotten
+> 
+> If you do automated testing of nightly builds of the mainline 2.6 / 2.7
+> kernels, and point out when they get bigger in consumption, you'll have
+> a much better chance of convincing people to fix it when the patch in
+> question is still topical, and fresh in people's minds.
+> 
+> I'd predict that a lot of the issue is just tuning things dynamically 
+> instead of statically sizing them.
 
-I find this in my logs.
-Two apache servers on different ports, one of them unusable....
-The only starnge thing about machine is that iptables is modular
-and I use modules-init-tools-0.9.14 over original module utils as of
-Slackware 9.1
+We (OSDL + others) are working on a continuous build/test system, using the Mozilla tinderbox.
+Should be available RSN. Tinderbox supports multiple clients, and we'll
+have a client package available for download. 
 
-Oct 14 23:26:21 hosting kernel:  printing eip:
-Oct 14 23:26:21 hosting kernel: c026d9e2
-Oct 14 23:26:21 hosting kernel: *pde =3D 00000000
-Oct 14 23:26:21 hosting kernel: Oops: 0002
-Oct 14 23:26:21 hosting kernel: iptable_filter
-Oct 14 23:26:21 hosting kernel: CPU:    0
-Oct 14 23:26:21 hosting kernel: EIP:    0010:[<c026d9e2>]    Not tainted
-Oct 14 23:26:21 hosting kernel: EFLAGS: 00010246
-Oct 14 23:26:21 hosting kernel: eax: 0000003f   ebx: 03865000   ecx:
-f74f6000 edx: 00000140
-Oct 14 23:26:21 hosting kernel: esi: f4097394   edi: c13a9310   ebp:
-00000000 esp: f74f7e58
-Oct 14 23:26:21 hosting kernel: ds: 0018   es: 0018   ss: 0018
-Oct 14 23:26:21 hosting kernel: Process httpd (pid: 161,
-stackpage=3Df74f7000)
-Oct 14 23:26:21 hosting kernel: Stack: c13a9310 c013469d 03865000
-f7438234 00000cf5 f7d123d4 00000000 f750b6a0
-Oct 14 23:26:21 hosting kernel:        f74382a0 f7438234 f7438180
-00000001 f79a06c0 f73e2308 c0134ad5 f7438180
-Oct 14 23:26:21 hosting kernel:        00000cf5 f74f7ea4 00000001
-00000000 f7555840 c0126be9 f7555840 434c2000
-Oct 14 23:26:21 hosting kernel: Call Trace: [<c013469d>]  [<c0134ad5>]=20
-[<c0126be9>]  [<c0126550>]  [<c0126dc7>]  [<c0148bd3>]  [<c0113e5e>]=20
-[<c01204fd>]  [<c011c902>]  [<c011c816>]  [<c010a4fe>]  [<c0113d00>]=20
-[<c0108f70>]
-Oct 14 23:26:21 hosting kernel: Code: 0f e7 03 0f e7 43 08 0f e7 43 10
-0f e7 43 18 0f e7 43 20 0f
+Marco, if you could supply time on a small client box, and a desired .config,
+we can add you as a Tinderbox client,
+ then you have a place to point people when the size increases. 
 
+Either way, please send me your desired .config - i can and should 
+build a size test into the tinderclient code. 
 
+cliffw
 
---=-SvH7gT6lJHqKn45TD72N
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/jH3Sinq4IVRzHg8RAo3UAJ49PyXPnTgm69poKiFsBkYU2U5YcwCfRbvP
-2nFYRXpsvfqub3i8GFcft8g=
-=boTe
------END PGP SIGNATURE-----
-
---=-SvH7gT6lJHqKn45TD72N--
-
+> 
+> M.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

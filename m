@@ -1,57 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263898AbUFBTpZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263895AbUFBTqs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263898AbUFBTpZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 15:45:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263979AbUFBTpZ
+	id S263895AbUFBTqs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 15:46:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263962AbUFBTqs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 15:45:25 -0400
-Received: from adsl-207-214-87-84.dsl.snfc21.pacbell.net ([207.214.87.84]:9345
-	"EHLO lade.trondhjem.org") by vger.kernel.org with ESMTP
-	id S263898AbUFBTpX convert rfc822-to-8bit (ORCPT
+	Wed, 2 Jun 2004 15:46:48 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:29857 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S263895AbUFBTqj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 15:45:23 -0400
-Subject: Re: NFS client behavior on close
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Simon Kirby <sim@netnation.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040602191603.GC4962@netnation.com>
-References: <20040531213820.GA32572@netnation.com>
-	 <1086159327.10317.2.camel@lade.trondhjem.org>
-	 <20040602154146.GA2481@netnation.com>
-	 <1086194307.17378.106.camel@lade.trondhjem.org>
-	 <20040602191603.GC4962@netnation.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1086205521.4463.23.camel@lade.trondhjem.org>
+	Wed, 2 Jun 2004 15:46:39 -0400
+Date: Wed, 2 Jun 2004 21:45:15 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Davide Libenzi <davidel@xmailserver.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Pavel Machek <pavel@suse.cz>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@redhat.com>,
+       Ingo Molnar <mingo@elte.hu>, Andrea Arcangeli <andrea@suse.de>,
+       Rik van Riel <riel@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC PATCH] explicitly mark recursion count
+Message-ID: <20040602194515.GA4477@wohnheim.fh-wedel.de>
+References: <200406011929.i51JTjGO006174@eeyore.valparaiso.cl> <Pine.LNX.4.58.0406011255070.14095@ppc970.osdl.org> <20040602131623.GA23017@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0406020712180.3403@ppc970.osdl.org> <Pine.LNX.4.58.0406020724040.22204@bigblue.dev.mdolabs.com> <20040602182019.GC30427@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0406021124310.22742@bigblue.dev.mdolabs.com> <20040602185832.GA2874@wohnheim.fh-wedel.de> <20040602193720.GQ12308@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 02 Jun 2004 12:45:21 -0700
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040602193720.GQ12308@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På on , 02/06/2004 klokka 12:16, skreiv Simon Kirby:
+On Wed, 2 June 2004 20:37:20 +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
+> On Wed, Jun 02, 2004 at 08:58:32PM +0200, Jörn Engel wrote:
+> > Note the "in the most general case" part.  You can get things right if
+> > you make some assumptions and those assumptions are actually valid.
+> > In my case the assumptions are:
+> > 1. all relevant function pointers are stuffed into some struct and
+> 
+> Wrong.  They are often passed as arguments to generic helpers, without
+> being ever put into any structures.
 
-> Ok, that makes sense -- if NFSv2 has no fsync(), then using "async" mode
-> definitely sounds broken.  But is this the same with NFSv3?
+Ok.  Would it be ok to use the following then?
 
-The problem is that Linux's "async" implementation short-circuits the
-NFSv3 fsync() equivalent. Not good!
+b1. Function pointer are passed as arguments to functions and
+b2. those pointer are called directly from the function, they are
+    passed to.
 
+Either that or the previous two rules, renamed to a1 and a2.
 
-> NFS should just extend fsync() back to the server -- with minimal caching
-> on the client, normal write-back caching on the server, and where fsync()
-> on the client forces the server to write before returning on the client. 
-> Forcing this to happen on close() doesn't even line up with local file
-> systems.
+(Note that I care more about sane rules than what any random code in
+some dark corner happens to do right now.)
 
-That still leaves room for races with other clients trying to open the
-file after the server comes up after a crash, then finding stale data.
-(Free|Net|Open)BSD choose to ignore that race, and do the above. I'm not
-aware of anybody else doing so, though...
+Jörn
 
-Performance is good, but it should always take second place to data
-integrity. There are more than enough people out there who are
-entrusting research projects, banking data,... to their NFS server.
-
-Cheers,
-  Trond
+-- 
+A surrounded army must be given a way out.
+-- Sun Tzu

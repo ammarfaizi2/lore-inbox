@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319602AbSH2XUb>; Thu, 29 Aug 2002 19:20:31 -0400
+	id <S319599AbSH2XSM>; Thu, 29 Aug 2002 19:18:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319612AbSH2XUb>; Thu, 29 Aug 2002 19:20:31 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30735 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S319602AbSH2XUa>;
-	Thu, 29 Aug 2002 19:20:30 -0400
-Message-ID: <3D6EAD3B.6030108@mandrakesoft.com>
-Date: Thu, 29 Aug 2002 19:24:43 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@fs.tum.de>
-CC: Dave Hansen <haveblue@us.ibm.com>,
-       Michael Obster <michael.obster@bingo-ev.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Compiling 2.5.32
-References: <Pine.NEB.4.44.0208300113410.2879-100000@mimas.fachschaften.tu-muenchen.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S319602AbSH2XSM>; Thu, 29 Aug 2002 19:18:12 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.18.111]:26122 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S319599AbSH2XSJ>; Thu, 29 Aug 2002 19:18:09 -0400
+Date: Fri, 30 Aug 2002 01:22:33 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Pavel Machek <pavel@suse.cz>, Luca Barbieri <ldb@ldb.ods.org>,
+       Linux-Kernel ML <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH 1 / ...] i386 dynamic fixup/self modifying code
+Message-ID: <20020829232233.GA18573@atrey.karlin.mff.cuni.cz>
+References: <1030506106.1489.27.camel@ldb> <20020828121129.A35@toy.ucw.cz> <1030663192.1326.20.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1030663192.1326.20.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> Jeff Garzik doesn't want 1. until "someone actually tells me they are
-> trying to hot-plug such a card" and he didn't apply the following patch to
-> #ifdef the .remove away if the driver is compiled statically into the
-> kernel:
+Hi!
+
+
+> > > Unfortunately with this patch executing invalid code will cause the
+> > > processor to enter an infinite exception loop rather than panic. Fixing
+> > > this is not trivial for SMP+preempt so it's not done at the moment.
+> > 
+> > Using 0xcc for everything should fix that, right?
 > 
+> Except you can't do the fixup on SMP without risking hitting the CPU
+> errata. You also break debugging tools that map kernel code pages r/o
+> and people who ROM it.
 > 
-> --- drivers/net/tulip/de2104x.c.old	2002-08-30 01:06:09.000000000 +0200
-> +++ drivers/net/tulip/de2104x.c	2002-08-30 01:06:45.000000000 +0200
-> @@ -2216,7 +2216,9 @@
->  	.name		= DRV_NAME,
->  	.id_table	= de_pci_tbl,
->  	.probe		= de_init_one,
-> +#ifdef MODULE
->  	.remove		= de_remove_one,
-> +#endif
->  #ifdef CONFIG_PM
->  	.suspend	= de_suspend,
->  	.resume		= de_resume,
+> The latter aren't a big problem (they can compile without runtime
+> fixups). For the other fixups though you -have- to do them before you
+> run the code. That isnt hard (eg sparc btfixup). You generate a list of
+> the addresses in a segment, patch them all and let the init freeup blow 
+> the table away
 
-
-You missed my recent message, I think.
-
-Currently in 2.5.x, you should be able to replace that #ifdef with 
-__devexit_p -- without changing the de_remove_one prototype.  I updated 
-the definition of __devexit_p in 2.5.30 or so.
-
-	Jeff
-
-
-
+Aha, making a list and just patching early at boot is even simpler
+than method I was thinking about.... Why not do it that way?
+								Pavel
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

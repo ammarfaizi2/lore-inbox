@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264924AbRFUHE2>; Thu, 21 Jun 2001 03:04:28 -0400
+	id <S264893AbRFUHXE>; Thu, 21 Jun 2001 03:23:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264926AbRFUHEH>; Thu, 21 Jun 2001 03:04:07 -0400
-Received: from infortrend.com.tw ([203.67.221.1]:21765 "EHLO infortrend.com.tw")
-	by vger.kernel.org with ESMTP id <S264924AbRFUHEG>;
-	Thu, 21 Jun 2001 03:04:06 -0400
-Reply-To: <warren@infortrend.com.tw>
-From: "warren" <warren@infortrend.com.tw>
-To: <linux-kernel@vger.kernel.org>
-Cc: <warren@infortrend.com.tw>
-Subject: Cannot complie aic7xxx_mod.o
-Date: Thu, 21 Jun 2001 15:06:27 +0800
-Message-ID: <001d01c0fa20$b1574d40$321ea8c0@saturn>
+	id <S264926AbRFUHWy>; Thu, 21 Jun 2001 03:22:54 -0400
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:25615 "EHLO
+	mailout05.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S264923AbRFUHWo>; Thu, 21 Jun 2001 03:22:44 -0400
+Date: 21 Jun 2001 09:33:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <83JR8lhmw-B@khms.westfalen.de>
+In-Reply-To: <B7471019.F9CF%bootc@worldnet.fr>
+Subject: Re: temperature standard - global config option?
+X-Mailer: CrossPoint v3.12d.kh7 R/C435
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="big5"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <200106082116.f58LGd2497562@saturn.cs.uml.edu> <B7471019.F9CF%bootc@worldnet.fr>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-    I get the source code of aic7xxx  untar it in my Linux Kernel directory
-and go to the directory "/usr/src/linux/drivers/scsi/aic7xxx" to make
-aic7xxx_mod.o.
-  But i cannot make the modules. The error is as follows:
-  My Linux is RedHat 6.2 and kernel version is 2.2.14-5.0 .
+bootc@worldnet.fr (Chris Boot)  wrote on 08.06.01 in <B7471019.F9CF%bootc@worldnet.fr>:
 
-   Please give me some instructions to achieve it.
+> > Only the truly stupid would assume accuracy from decimal places.
+>
+> Well then, tell all the teachers in this world that they're stupid, and tell
+> everyone who learnt from them as well.
 
-    Best Regards
+*All*?
 
-    Warren
+> I'm in high school (gd. 11, junior)
+> and my physics teacher is always screaming at us for putting too many
+> decimal places or having them inconsistent.
 
+Ok, *yours*.
 
+But yours is not all. I certainly don't remember ever seeing that attitude  
+in school.
 
+And yes, this behaviour *is* stupid. Someone who thinks like that should  
+never be allowed to become a science teacher.
 
+MfG Kai

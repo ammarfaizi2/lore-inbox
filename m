@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143399AbREKVGv>; Fri, 11 May 2001 17:06:51 -0400
+	id <S143398AbREKVGb>; Fri, 11 May 2001 17:06:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143400AbREKVGm>; Fri, 11 May 2001 17:06:42 -0400
-Received: from oss.sgi.com ([216.32.174.190]:7437 "EHLO oss.sgi.com")
-	by vger.kernel.org with ESMTP id <S143399AbREKVGf>;
-	Fri, 11 May 2001 17:06:35 -0400
-Date: Fri, 11 May 2001 01:02:53 -0300
+	id <S143400AbREKVGW>; Fri, 11 May 2001 17:06:22 -0400
+Received: from oss.sgi.com ([216.32.174.190]:57356 "EHLO oss.sgi.com")
+	by vger.kernel.org with ESMTP id <S143398AbREKVGJ>;
+	Fri, 11 May 2001 17:06:09 -0400
+Date: Fri, 11 May 2001 13:32:42 -0300
 From: Ralf Baechle <ralf@uni-koblenz.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Chris Wedgwood <cw@f00f.org>, linux-kernel@vger.kernel.org
-Subject: Re: Athlon possible fixes
-Message-ID: <20010511010253.A1257@bacchus.dhis.org>
-In-Reply-To: <20010506142346.C31269@metastasis.f00f.org> <E14wO16-00023N-00@the-village.bc.nu>
+To: Jonathan Lundell <jlundell@pobox.com>
+Cc: Kai Henningsen <kaih@khms.westfalen.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] adding PCI bus information to SCSI layer
+Message-ID: <20010511133242.B3224@bacchus.dhis.org>
+In-Reply-To: <p05100303b70eadd613b0@[207.213.214.37]> <80BTbI6mw-B@khms.westfalen.de> <p0510030ab716bdcf5556@[207.213.214.37]>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <E14wO16-00023N-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, May 06, 2001 at 01:51:59PM +0100
+In-Reply-To: <p0510030ab716bdcf5556@[207.213.214.37]>; from jlundell@pobox.com on Thu, May 03, 2001 at 12:51:25AM -0700
 X-Accept-Language: de,en,fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 06, 2001 at 01:51:59PM +0100, Alan Cox wrote:
+On Thu, May 03, 2001 at 12:51:25AM -0700, Jonathan Lundell wrote:
 
-> > There really needs to be a hardware fix... this doesn't stop some
-> > application having it's owne optimised code from breaking on some
-> > hardware (think games and similation software perhaps).
+> >What's a lot more important is that the mail standards say that this stuff 
+> >should not be interpreted by the receivers as needing wrapping, so 
+> >irregardless of good or bad design it's just plain illegal.
+> >
+> >If you want to support wrapping with plain text, investigate
+> >format=flowed.
 > 
-> prefetch is virtually addresses. An application would need access to /dev/mem
-> or similar. So the only folks I think it might actually bite are the Xserver
-> people.
+> Yes, I did that.
+> 
+> I'm curious, though: I haven't found the mail standards that forbid 
+> receivers to wrap long lines. Certainly many mail clients do it. 
+> What's the relevant RFC?
 
-Prefetch bugs in hardware have biten Linux/68k as early as '94; a GVP SCSI
-HBA on the Amiga may touch areas beyond the last valid RAM address when
-doing DMA to the last page.  Being a burned child from that time Linux/MIPS
-didn't use the last RAM page just to be on the safe side.
+RFC 2822, 2.1.1.
 
   Ralf

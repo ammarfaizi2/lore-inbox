@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131998AbQKVQS6>; Wed, 22 Nov 2000 11:18:58 -0500
+        id <S131794AbQKVQVI>; Wed, 22 Nov 2000 11:21:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132030AbQKVQSs>; Wed, 22 Nov 2000 11:18:48 -0500
-Received: from nathan.polyware.nl ([193.67.144.241]:44548 "EHLO
-        nathan.polyware.nl") by vger.kernel.org with ESMTP
-        id <S131998AbQKVQSq>; Wed, 22 Nov 2000 11:18:46 -0500
-Date: Wed, 22 Nov 2000 16:48:42 +0100
-From: Pauline Middelink <middelink@polyware.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.2.18-pre19 asm/delay.h problem?
-Message-ID: <20001122164842.A3420@polyware.nl>
-Mail-Followup-To: Pauline Middelink <middelin@polyware.nl>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <E13yNHb-0005O4-00@the-village.bc.nu> <200011220957.KAA26634@cave.bitwizard.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <200011220957.KAA26634@cave.bitwizard.nl>; from R.E.Wolff@BitWizard.nl on Wed, Nov 22, 2000 at 10:57:53AM +0100
+        id <S132030AbQKVQUs>; Wed, 22 Nov 2000 11:20:48 -0500
+Received: from carbon.btinternet.com ([194.73.73.92]:5345 "EHLO
+        carbon.btinternet.com") by vger.kernel.org with ESMTP
+        id <S131794AbQKVQUo>; Wed, 22 Nov 2000 11:20:44 -0500
+Date: Wed, 22 Nov 2000 15:50:27 +0000 (GMT)
+From: davej@suse.de
+To: kumon@flab.fujitsu.co.jp
+cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org,
+        Andrea Arcangeli <andrea@suse.de>
+Subject: Re: [PATCH] livelock in elevator scheduling
+In-Reply-To: <200011221059.TAA03907@asami.proc.flab.fujitsu.co.jp>
+Message-ID: <Pine.LNX.4.21.0011221548080.6184-100000@neo.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Nov 2000 around 10:57:53 +0100, Rogier Wolff wrote:
-[skip]
+On Wed, 22 Nov 2000 kumon@flab.fujitsu.co.jp wrote:
 
-> .... Inside a #if 0. This question keeps on popping up, and people
-> seem to be able to grep for definitions of stuff well enough. Then
-> near the definition you can explain this. It's a form of documenting
-> this "trick"...
-> 
-> #if 0
-> /* Note: This definition is not for real. The idea about __bad_udelay is
-> that you get a compile-time error if you call udelay with a number of 
-> microseconds that is too large for udelay. There is mdelay if you need 
-> delays on the order of miliseconds. Please update the places where
-> udelay is called with this large constant!
-> 
-> If you change the #if 0 to #if 1, the stuff you're trying to compile will
-> compile, but you'll crash your system when it's used.
-> */
-> 
-> #define __bad_udelay() panic("Udelay called with too large a constant")
-> #endif
+> The current Linux has a lot of difficult to set parameters in
+> /proc/sys.
+>  Once a system goes beyond some settable limits, the system behavior
+> changes so sharp.  Bdf_prm.nrfract in fs/buffer.c is one of the
+> difficult parameters.  I hope a tool to monitor or set these value.
 
-I want to bed that somebody will post a "fix" which will patch
-the #if 0 to 1. :)
+http://www.powertweak.org
+(See CVS version). Helpful(?) advice, profiles, and easy to use UI.
+If we missed anything, we take patches, and can always use extra hands :)
 
-    Met vriendelijke groet,
-        Pauline Middelink
+regards,
+
+Davej.
+
 -- 
-PGP Key fingerprint = DE 6B D0 D9 19 AD A7 A0  58 A3 06 9D B6 34 39 E2
-For more details look at my website http://www.polyware.nl/~middelink
+| Dave Jones <davej@suse.de>  http://www.suse.de/~davej
+| SuSE Labs
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,76 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261672AbUBVEN6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Feb 2004 23:13:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261674AbUBVEN6
+	id S261671AbUBVENG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Feb 2004 23:13:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261674AbUBVENG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Feb 2004 23:13:58 -0500
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:56286 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261672AbUBVENx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Feb 2004 23:13:53 -0500
-Subject: 2.4.25 and xfs compile errors
-From: R Dicaire <rdicair@comcast.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1077423230.1589.8.camel@ws.rdb.linux-help.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 21 Feb 2004 23:13:50 -0500
+	Sat, 21 Feb 2004 23:13:06 -0500
+Received: from wbar8.tampa1-4-4-125-218.tampa1.dsl-verizon.net ([4.4.125.218]:18564
+	"EHLO Copernicus") by vger.kernel.org with ESMTP id S261671AbUBVENC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Feb 2004 23:13:02 -0500
+Message-ID: <40382C47.70603@coyotegulch.com>
+Date: Sat, 21 Feb 2004 23:12:55 -0500
+From: Scott Robert Ladd <coyote@coyotegulch.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Intel vs AMD x86-64
+References: <Pine.LNX.4.58.0402171739020.2686@home.osdl.org> <16435.14044.182718.134404@alkaid.it.uu.se> <Pine.LNX.4.58.0402180744440.2686@home.osdl.org> <20040222025957.GA31813@MAIL.13thfloor.at> <Pine.LNX.4.58.0402211907100.3301@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0402211907100.3301@ppc970.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While trying to compile 2.4.25, I get the following:
+Linus Torvalds wrote:
+> Any Intel people on this list: tell your managers to be f*cking ashamed of
+> themselves. Just because Intel didn't care about their customers and has
+> been playing with some other 64-bit architecture that nobody wanted to use
+> is no excuse for not giving credit to AMD for what they did with x86-64.
+> 
+> (I'm really happy Intel finally got with the program, but it's pretty 
+> petty to not even mention AMD in the documentation and try to make it 
+> look like it was all their idea).
 
-ld -m elf_i386 -T /usr/src/linux-2.4.25/arch/i386/vmlinux.lds -e stext
-arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o
-init/version.o init/do_mounts.o \
-        --start-group \
-        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o
-mm/mm.o fs/fs.o ipc/ipc.o \
-         drivers/char/char.o drivers/block/block.o drivers/misc/misc.o
-drivers/net/net.o drivers/ide/idedriver.o drivers/cdrom/driver.o
-drivers/pci/driver.o drivers/video/video.o drivers/media/media.o
-drivers/md/mddev.o \
-        net/network.o \
-        /usr/src/linux-2.4.25/arch/i386/lib/lib.a
-/usr/src/linux-2.4.25/lib/lib.a
-/usr/src/linux-2.4.25/arch/i386/lib/lib.a \
-        --end-group \
-        -o vmlinux
-fs/fs.o(.text+0x6fa94): In function `xfs_bmap_add_attrfork_local':
-: undefined reference to `__constant_c_and_count_memset'
-fs/fs.o(.text+0x72d2b): In function `xfs_bmap_alloc':
-: undefined reference to `xfs_do_div'
-fs/fs.o(.text+0x74506): In function `xfs_bmap_del_extent':
-: undefined reference to `xfs_do_div'
-fs/fs.o(.text+0x74519): In function `xfs_bmap_del_extent':
-: undefined reference to `xfs_do_div'
-fs/fs.o(.text+0x752e3): In function `xfs_bmap_worst_indlen':
-: undefined reference to `xfs_do_div'
-fs/fs.o(.text+0x78afe): In function `xfs_getbmap':
-: undefined reference to `__constant_copy_to_user'
-make: *** [vmlinux] Error 1
-----------------------------------------------------------------------
-System info:
+I couldn't have put it better myself. Were it polite to attach sounds to 
+mailing list posts, I would add thunderous applause to my approbations.
 
-Slackware 9.1 kernel 2.4.23-xfs
+Intel chips have been a part of my professional life for a very long 
+time; I've never owned an AMD processor, and I'm certainly not one of 
+their fanboys. I've worked closely with folk at Intel on some projects, 
+and they have been quite generous at times. Some fine technologists work 
+for them.
 
-gcc -v
-Reading specs from /usr/lib/gcc-lib/i486-slackware-linux/3.2.3/specs
-Configured with: ../gcc-3.2.3/configure --prefix=/usr --enable-shared
---enable-threads=posix --enable-__cxa_atexit --disable-checking
---with-gnu-ld --verbose --target=i486-slackware-linux
---host=i486-slackware-linux
-Thread model: posix
-gcc version 3.2.3
+But on a corporate level, Intel has disappointed me with their arrogant 
+failure to give credit where credit is due.
 
-Am I missing something, not sure but those undefined references usually
-mean some lib or something doesn't support the features trying to be
-compiled, any help would be greatly appreciated, thanks.
+Last week, before Intel's announcement, I ordered a new Linux 
+workstation. As a "lone wolf" consultant, I sometimes agonize over 
+whether I make the right decisions when buying equipment. In this case, 
+I feeling pretty dang good: the new system will arrive with a pair of 
+Opterons on the motherboard.
 
-Please CC rdicair@comcast.net as I'm not subscribed to this list,
-thanks.
+-- 
+Scott Robert Ladd
+Coyote Gulch Productions (http://www.coyotegulch.com)
+Software Invention for High-Performance Computing
 

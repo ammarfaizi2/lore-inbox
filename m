@@ -1,72 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267242AbSLKRuI>; Wed, 11 Dec 2002 12:50:08 -0500
+	id <S267243AbSLKRub>; Wed, 11 Dec 2002 12:50:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267243AbSLKRuI>; Wed, 11 Dec 2002 12:50:08 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:7647 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267242AbSLKRuD>;
-	Wed, 11 Dec 2002 12:50:03 -0500
-Subject: [TRIVIAL PATCH] remove warnings/errors from
-	arch/i386/kernel/suspend_asm.S
-From: Andy Pfiffer <andyp@osdl.org>
-To: pavel@ucw.cz
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 11 Dec 2002 09:57:55 -0800
-Message-Id: <1039629475.30576.109.camel@andyp>
+	id <S267245AbSLKRua>; Wed, 11 Dec 2002 12:50:30 -0500
+Received: from havoc.daloft.com ([64.213.145.173]:15336 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S267243AbSLKRu2>;
+	Wed, 11 Dec 2002 12:50:28 -0500
+Date: Wed, 11 Dec 2002 12:58:10 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5 Changes doc update.
+Message-ID: <20021211175810.GC2612@gtf.org>
+References: <20021211172559.GA8613@suse.de>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021211172559.GA8613@suse.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some earlier versions of gas (2.10.91 specifically) will error out on
-the "movw %eax,%ds" in arch/i386/kernel/suspend_asm.S.  gas 2.11.92
-complains but continues.
+On Wed, Dec 11, 2002 at 05:25:59PM +0000, Dave Jones wrote:
+> Kernel build system.
+> ~~~~~~~~~~~~~~~~~~~~
+> - Versus 2.4, the build system has been much improved.
+>   You should notice quicker builds, and less spontaneous rebuilds
+>   of files on subsequent builds from already built trees.
+> - make xconfig now requires the qt libraries.
+> - Make menuconfig/oldconfig has no user-visible changes other than speed,
+>   whilst numerous improvements have been made.
+> - Several new debug targets exist: 'allyesconfig' 'allnoconfig' 'allmodconfig'.
+> - For infomation: The above improvements are not CML2 / kbuild-2.5 related.
 
-Here is a trivial patch that eliminates two warnings.
+I think the coolest things (to me) of the new build system need to be
+noted too,
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.865   -> 1.866  
-#	arch/i386/kernel/suspend_asm.S	1.2     -> 1.3    
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/12/11	andyp@joe.pdx.osdl.net	1.866
-# Correct syntax to remove assembler warnings and errors.
-# --------------------------------------------
-#
-diff -Nru a/arch/i386/kernel/suspend_asm.S b/arch/i386/kernel/suspend_asm.S
---- a/arch/i386/kernel/suspend_asm.S	Wed Dec 11 09:51:22 2002
-+++ b/arch/i386/kernel/suspend_asm.S	Wed Dec 11 09:51:22 2002
-@@ -6,7 +6,7 @@
- #include <asm/segment.h>
- #include <asm/page.h>
- 
--ENTRY(do_magic):
-+ENTRY(do_magic)
- 	pushl %ebx
- 	cmpl $0,8(%esp)
- 	jne .L1450
-@@ -66,7 +66,7 @@
- .L1453:
- 	movl $104,%eax
- 
--	movw %eax, %ds
-+	movw %ax, %ds
- 	movl saved_context_esp, %esp
- 	movl saved_context_ebp, %ebp
- 	movl saved_context_eax, %eax
-@@ -88,4 +88,4 @@
- loop2:
-        .quad 0
-        .previous
--	
-\ No newline at end of file
-+
-
-
+- "make" is now the preferred target; it does <arch-zimage> and modules.
+- "make -jN" is now the preferred parallel-make execution.  Do not
+  bother to provide "MAKE=xxx".
 

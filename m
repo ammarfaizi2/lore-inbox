@@ -1,30 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129383AbRAYDSn>; Wed, 24 Jan 2001 22:18:43 -0500
+	id <S129444AbRAYEky>; Wed, 24 Jan 2001 23:40:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129401AbRAYDSd>; Wed, 24 Jan 2001 22:18:33 -0500
-Received: from goalkeeper.d2.com ([198.211.88.26]:45183 "HELO
-	goalkeeper.d2.com") by vger.kernel.org with SMTP id <S129383AbRAYDSO>;
-	Wed, 24 Jan 2001 22:18:14 -0500
-Date: Wed, 24 Jan 2001 19:12:46 -0800
+	id <S135383AbRAYEkp>; Wed, 24 Jan 2001 23:40:45 -0500
+Received: from goalkeeper.d2.com ([198.211.88.26]:5416 "HELO goalkeeper.d2.com")
+	by vger.kernel.org with SMTP id <S129383AbRAYEk0>;
+	Wed, 24 Jan 2001 23:40:26 -0500
+Date: Wed, 24 Jan 2001 20:34:51 -0800
 From: Greg from Systems <chandler@d2.com>
 To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
 cc: Peter Rival <frival@zk3.dec.com>, Richard Henderson <rth@twiddle.net>,
         linux-kernel@vger.kernel.org
-Subject: Re: Big Bada Boom...
+Subject: Las message I promise...
 In-Reply-To: <20010124212104.A1294@jurassic.park.msu.ru>
-Message-ID: <Pine.SGI.4.10.10101241912100.29904-100000@hell.d2.com>
+Message-ID: <Pine.SGI.4.10.10101242030170.29904-100000@hell.d2.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Found a fix
-leave the :
-extern long sys_wait4(int, int *, int, struct rusage *);
-line in:
+Ok:
+
+calypso 47# uname -a
+Linux calypso 2.4.0 #6 SMP Wed Jan 24 20:00:01 PST 2001 alpha unknown
+calypso 48#
+
+I used the patch at the bottom of this except for the part that patches:
 linux/include/asm-alpha/unistd.h
+
+Thanks much for your help on that...  Slackware is rocking away on my
+Alpha Server 4100...
+
+I don't know who this should go to, but the only other thing I can find
+wrong is that de4x5 is completely jacked... It panic the OS if compiled
+in or loaded as a module..... I can get the panic info if anyone needs it
+or pass it along to whoever might need it.... tulip is working fine in
+it's place.... but I was kinda hoping to use the real module..
+
+Thanks again for the help
 
 
 On Wed, 24 Jan 2001, Ivan Kokshaysky wrote:

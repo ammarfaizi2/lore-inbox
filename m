@@ -1,79 +1,137 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130535AbQLHTn5>; Fri, 8 Dec 2000 14:43:57 -0500
+	id <S131197AbQLHTrH>; Fri, 8 Dec 2000 14:47:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132161AbQLHTns>; Fri, 8 Dec 2000 14:43:48 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:15838 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S131154AbQLHTnj>;
-	Fri, 8 Dec 2000 14:43:39 -0500
-Date: Fri, 8 Dec 2000 14:13:11 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: kernel BUG at buffer.c:827 in test12-pre6 and 7 
-In-Reply-To: <Pine.LNX.4.10.10012081037160.11302-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0012081353170.27010-100000@weyl.math.psu.edu>
+	id <S130745AbQLHTq5>; Fri, 8 Dec 2000 14:46:57 -0500
+Received: from [207.107.233.99] ([207.107.233.99]:39697 "EHLO
+	posto.microflex.ca") by vger.kernel.org with ESMTP
+	id <S131197AbQLHTqq>; Fri, 8 Dec 2000 14:46:46 -0500
+Reply-To: <jna@microflex.ca>
+From: "Jean-Francois Nadeau" <jna@microflex.ca>
+To: <linux-kernel@vger.kernel.org>
+Subject: Kernel oops 2.2.17
+Date: Fri, 8 Dec 2000 14:14:31 -0500
+Message-ID: <001d01c0614b$1886c1e0$a11410ac@microflex.ca>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook 8.5, Build 4.71.2173.0
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Hi,
 
-On Fri, 8 Dec 2000, Linus Torvalds wrote:
+We run a heavily accessed Apache 1.3.6 Web server on a Redhat 6.0 distro
+over 2.2.17.  We upgraded from 2.2.16 and I now got some kernel oops.
 
-> It's really only __block_prepare_write() that can mark the buffers for
-> sync writes, and even that case is fairly bogus: it really only wants to
-> mark the non-upto-date buffers that it wants to _read_ for sync IO, it
-> just "knows" that it is ok to change every buffer it sees. It isn't.
-> 
-> Moving the 
-> 
-> 	bh->b_end_io = end_buffer_io_sync;
-> 
-> into the read-path should be sufficient (hell, we should move the
-> "ll_rw_block(READ, 1, &bh)" away, and make it one single read with
-> 
-> 	ll_rw_block(READ, wait_bh-wait, wait);
-> 
-> at the end of the loop.
+System is :
 
-Erm... So you want to make ->commit_write() page-unlocking? Fine with me,
-but that will make for somewhat bigger patch. Hey, _you_ are in position
-to change the locking rules, freeze or not, so if it's OK with you...
+AMD Athlon 600 Mhz.
+512 MB RAM.
+gcc version egcs-2.91.66
+glibc 2.1.3-21
 
-> If we do it that way, there is no way the two can clash, because a
-> non-up-to-date buffer head won't ever be touched by the write path, so we
-> can't get this kind of confusion.
-> 
-> Al? I'd really prefer this alternative instead. Do you see any problems
-> with it?
+Kernel tweaks :
 
-If I understood you right - no problems.  I can do such patch, just give
-me a couple of hours to recheck the locking rules.  BTW, what do you
-think about the following:
-	* add_to_page_cache() is not exported and never used. Kill?
-	* __lock_page() is called only in lock_page(). Make the latter
-inlined wrapper or kill the former?
-	* rw_swap_page_base() would be simpler if it didn't leave unlocking the
-page to caller - right now all callers do
-	if (!rw_swap_page_base(...))
-		UnlockPage(page);
-	* ramfs_writepage() needs UnlockPage()
-	* udf_adinicb_writepage() doesn't
-	* brw_page() needs liposuction. _Badly_. Just read it.
-	* Documentations/filesystems/Locking needs an update.
-I can toss any subset of the above into patch - just tell...
- 
-> (New rule that makes 100% sense: NOBODY sets "bh->b_end_io" on any buffer
-> that he isn't actually going to do IO on.  And if there is pending IO on
-> the buffer, it had better only be of the same type as the one you're going
-> to do).
+echo 1 > /proc/sys/net/ipv4/tcp_syncookies
+echo 1 > /proc/sys/net/ipv4/conf/all/hidden
+echo 1 > /proc/sys/net/ipv4/conf/lo/hidden
+echo 60 > /proc/sys/net/ipv4/tcp_fin_timeout
+echo 16384 > /proc/sys/fs/file-max
+echo 32768 > /proc/sys/fs/inode-max
 
-Hrm. Why not move setting ->b_end_io to ll_rw_block() while we are at it?
-Or into ll_rw_block() wrapper...
-							Cheers,
-								Al
+
+I had 5 kernel Oops on the "tar" process every day. (it starts a backup
+every morning).  Then,  the master httpsd stops working and could not be
+killed (even with kill -9 !).
+
+Something strange is that it crashed at the same virtual address :
+
+Dec  5 06:03:20 trinity kernel: Unable to handle kernel NULL pointer
+dereference at virtual address 00000010
+Dec  6 06:03:01 trinity kernel: Unable to handle kernel NULL pointer
+dereference at virtual address 00000010
+Dec  7 06:03:06 trinity kernel: Unable to handle kernel NULL pointer
+dereference at virtual address 00000010
+Dec  7 17:01:54 trinity kernel: Unable to handle kernel NULL pointer
+dereference at virtual address 00000010
+Dec  8 06:03:02 trinity kernel: Unable to handle kernel NULL pointer
+dereference at virtual address 00000010
+
+
+Here's the output from ksymoops for the httpsd crash.
+
+-----------------------
+No modules in ksyms, skipping objects
+Warning, no symbols in lsmod, is /proc/modules a valid lsmod file?
+Dec  7 17:01:54 trinity kernel: Unable to handle kernel NULL pointer
+dereference at virtual address 00000010
+Dec  7 17:01:54 trinity kernel: current->tss.cr3 = 03f00000, %%cr3 =
+03f00000
+Dec  7 17:01:54 trinity kernel: *pde = 00000000
+Dec  7 17:01:54 trinity kernel: Oops: 0000
+Dec  7 17:01:54 trinity kernel: CPU:    0
+Dec  7 17:01:54 trinity kernel: EIP:
+0010:[update_vm_cache_conditional+138/328]
+Dec  7 17:01:54 trinity kernel: EFLAGS: 00010202
+Dec  7 17:01:54 trinity kernel: eax: 00000000   ebx: cb255ed0   ecx:
+00000008   edx: 00000008
+Dec  7 17:01:54 trinity kernel: esi: 00000000   edi: 0001ffff   ebp:
+00000400   esp: c1fb5e9c
+Dec  7 17:01:54 trinity kernel: ds: 0018   es: 0018   ss: 0018
+Dec  7 17:01:54 trinity kernel: Process httpsd (pid: 21775, process nr: 127,
+stackpage=c1fb5000)
+Dec  7 17:01:54 trinity kernel: Stack: cb255ed0 cf1d0c00 00000008 0cb255ed
+c0138ba1 cb255ed0 0000d000 cf1d0c00
+Dec  7 17:01:54 trinity kernel:        00000400 40349000 cf66f660 ffffffea
+cb255f1c 00001000 c9bf8300 c9bf8300
+Dec  7 17:01:54 trinity kernel:        c9bf8300 c1fb5f08 0000d000 00000000
+00000000 00000000 dd6b9a00 00000000
+Dec  7 17:01:54 trinity kernel: Call Trace: [ext2_file_write+1045/1572]
+[__kfree_skb+161/168] [boomerang_interrupt+700/908] [u
+Dec  7 17:01:54 trinity kernel: Code: 39 59 08 75 e1 8b 5c 24 20 39 59 0c 75
+d8 ff 41 14 b8 02 00
+Warning: trailing garbage ignored on Code: line
+  Text: 'Code: 39 59 08 75 e1 8b 5c 24 20 39 59 0c 75 d8 ff 41 14 b8 02 00
+'
+  Garbage: '  '
+
+Code:  00000000 Before first symbol            00000000 <_IP>: <===
+Code:  00000000 Before first symbol               0:    39 59 08
+cmpl   %ebx,0x8(%ecx) <===
+Code:  00000003 Before first symbol               3:    75 e1
+jne     ffffffe6 <END_OF_CODE+3fdb01be/????>
+Code:  00000005 Before first symbol               5:    8b 5c 24 20
+movl   0x20(%esp,1),%ebx
+Code:  00000009 Before first symbol               9:    39 59 0c
+cmpl   %ebx,0xc(%ecx)
+Code:  0000000c Before first symbol               c:    75 d8
+jne     ffffffe6 <END_OF_CODE+3fdb01be/????>
+Code:  0000000e Before first symbol               e:    ff 41 14
+incl   0x14(%ecx)
+Code:  00000011 Before first symbol              11:    b8 02 00 00 00
+movl   $0x2,%eax
+
+
+5 warnings issued.  Results may not be reliable.
+
+-----------------------
+
+
+
+Do you have any idea of the problem ?
+
+Regards,
+
+Jean-Francois Nadeau
+Network Administrator at Microflex
+(418)694-2300 ext.141
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

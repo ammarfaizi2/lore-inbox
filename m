@@ -1,39 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261493AbSJAFiE>; Tue, 1 Oct 2002 01:38:04 -0400
+	id <S261491AbSJAFgx>; Tue, 1 Oct 2002 01:36:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261494AbSJAFiE>; Tue, 1 Oct 2002 01:38:04 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:41222 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261493AbSJAFiE>;
-	Tue, 1 Oct 2002 01:38:04 -0400
-Date: Mon, 30 Sep 2002 22:41:12 -0700
+	id <S261493AbSJAFgx>; Tue, 1 Oct 2002 01:36:53 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:40710 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261491AbSJAFgw>;
+	Tue, 1 Oct 2002 01:36:52 -0400
+Date: Mon, 30 Sep 2002 22:39:57 -0700
 From: Greg KH <greg@kroah.com>
-To: Matthew Dobson <colpatch@us.ibm.com>
-Cc: Patrick Mochel <mochel@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [rfc][patch] driverfs multi-node(board) patch [2/2]
-Message-ID: <20021001054112.GB5177@kroah.com>
-References: <3D98F3AD.2030607@us.ibm.com> <3D98F450.8080003@us.ibm.com>
+To: Steven Cole <elenstev@mesatop.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.39 Oops on boot (device_attach+0x3a)
+Message-ID: <20021001053957.GA5177@kroah.com>
+References: <1033434784.3100.10.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3D98F450.8080003@us.ibm.com>
+In-Reply-To: <1033434784.3100.10.camel@localhost.localdomain>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 30, 2002 at 06:03:12PM -0700, Matthew Dobson wrote:
-> Patrick,
-> 	Ok..  here are the real changes.  I'd really like to get some 
-> 	feedback on what you (or anyone else) thinks of these proposed changes.  
-> This sets up a generic topology initialization routine which should 
-> discover all online nodes (boards), CPUs, and Memory Blocks at boot time.  
-> It also makes the CPUs and memblks it discovers children of the appropriate 
-> nodes.
+On Mon, Sep 30, 2002 at 07:13:02PM -0600, Steven Cole wrote:
+> I tried to boot 2.5.39 on my home machine and got the
+> following oops on boot with CONFIG_KALLSYMS=y (thanks Ingo!).
 
-Can you show an example output of what the directory structure now looks
-like with this patch?
+Do you have CONFIG_ISAPNP enabled?  If so, search the archives for the
+fix for this.  If not, please post your whole .config.
 
-Curious,
+thanks,
 
 greg k-h

@@ -1,40 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268183AbVBFAqn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268159AbVBFAqU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268183AbVBFAqn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 19:46:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267672AbVBFAm1
+	id S268159AbVBFAqU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 19:46:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267766AbVBFAmu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 19:42:27 -0500
-Received: from wproxy.gmail.com ([64.233.184.195]:8007 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S267071AbVBFAgN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 19:36:13 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=ZCmat3b5UzQLaXOOvhFkmAqUn/n2bdA9DoVID4MyPyvhrMSeKDGNCWLV0Fv9Icg/nKgF0BAzh2geCnyC+uPOsV4Spd34YANLIt76fqPc8HVEPsPf9GITKDZ21f3WRtzogXGfyU8MrLc4NtOtUnWsCBbDdAgKZfl6wkN1i4fRYo4=
-Message-ID: <58cb370e05020516327dc24ca8@mail.gmail.com>
-Date: Sun, 6 Feb 2005 01:32:13 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Tejun Heo <tj@home-tj.org>
-Subject: Re: [PATCH 2.6.11-rc2 04/14] ide_pci: Merges cy82c693.h into cy82c693.c
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20050204071318.1206813264F@htj.dyndns.org>
+	Sat, 5 Feb 2005 19:42:50 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:36369 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S272767AbVBFAiW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Feb 2005 19:38:22 -0500
+Date: Sun, 6 Feb 2005 01:38:19 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: werner@isdn4linux.de
+Cc: kkeil@suse.de, kai.germaschewski@gmx.de, isdn4linux@listserv.isdn4linux.de,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/isdn/divert/isdn_divert.c: make 5 functions static
+Message-ID: <20050206003819.GL3129@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <42032014.1020606@home-tj.org>
-	 <20050204071318.1206813264F@htj.dyndns.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri,  4 Feb 2005 16:13:18 +0900 (KST), Tejun Heo <tj@home-tj.org> wrote:
-> 
-> 04_ide_pci_cy82c693_merge.patch
-> 
->         Merges ide/pci/cy82c693.h into cy82c693.c.
-> 
-> Signed-off-by: Tejun Heo <tj@home-tj.org>
+This patch makes five needlessly global functions static.
 
-applied
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+ drivers/isdn/divert/isdn_divert.c |   10 +++++-----
+ 1 files changed, 5 insertions(+), 5 deletions(-)
+
+--- linux-2.6.11-rc3-mm1-full/drivers/isdn/divert/isdn_divert.c.old	2005-02-05 15:39:15.000000000 +0100
++++ linux-2.6.11-rc3-mm1-full/drivers/isdn/divert/isdn_divert.c	2005-02-05 15:39:52.000000000 +0100
+@@ -383,7 +383,7 @@
+ /*************************************************/
+ /* called from common module on an incoming call */
+ /*************************************************/
+-int isdn_divert_icall(isdn_ctrl *ic)
++static int isdn_divert_icall(isdn_ctrl *ic)
+ { int retval = 0;
+   unsigned long flags;
+   struct call_struc *cs = NULL; 
+@@ -552,7 +552,7 @@
+ /****************************************************/
+ /* put a address including address type into buffer */
+ /****************************************************/
+-int put_address(char *st, u_char *p, int len)
++static int put_address(char *st, u_char *p, int len)
+ { u_char retval = 0;
+   u_char adr_typ = 0; /* network standard */
+ 
+@@ -595,7 +595,7 @@
+ /*************************************/
+ /* report a succesfull interrogation */
+ /*************************************/
+-int interrogate_success(isdn_ctrl *ic, struct call_struc *cs)
++static int interrogate_success(isdn_ctrl *ic, struct call_struc *cs)
+ { char *src = ic->parm.dss1_io.data;
+   int restlen = ic->parm.dss1_io.datalen;
+   int cnt = 1;
+@@ -689,7 +689,7 @@
+ /*********************************************/
+ /* callback for protocol specific extensions */
+ /*********************************************/
+-int prot_stat_callback(isdn_ctrl *ic)
++static int prot_stat_callback(isdn_ctrl *ic)
+ { struct call_struc *cs, *cs1;
+   int i;
+   unsigned long flags;
+@@ -781,7 +781,7 @@
+ /***************************/
+ /* status callback from HL */
+ /***************************/
+-int isdn_divert_stat_callback(isdn_ctrl *ic)
++static int isdn_divert_stat_callback(isdn_ctrl *ic)
+ { struct call_struc *cs, *cs1;
+   unsigned long flags;
+   int retval;
+

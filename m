@@ -1,67 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263043AbUKTFOR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263099AbUKTFX1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263043AbUKTFOR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 00:14:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262867AbUKTCiO
+	id S263099AbUKTFX1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 00:23:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263128AbUKTFUx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 21:38:14 -0500
-Received: from baikonur.stro.at ([213.239.196.228]:31891 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S263049AbUKTC3k
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 21:29:40 -0500
-Subject: [patch 5/8]  to arch/sparc64/Kconfig
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, janitor@sternwelten.at, james4765@gmail.com
-From: janitor@sternwelten.at
-Date: Sat, 20 Nov 2004 03:29:39 +0100
-Message-ID: <E1CVL0N-0000W9-Hi@sputnik>
+	Sat, 20 Nov 2004 00:20:53 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:65466 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261709AbUKTFTR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Nov 2004 00:19:17 -0500
+Date: Fri, 19 Nov 2004 21:17:39 -0800
+From: Paul Jackson <pj@sgi.com>
+To: colpatch@us.ibm.com
+Cc: akpm@osdl.org, janis187@us.ibm.com, dvhltc@us.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC PATCH] cpumask_t initializers
+Message-Id: <20041119211739.7bee8bba.pj@sgi.com>
+In-Reply-To: <1100915156.4653.13.camel@arrakis>
+References: <1100915156.4653.13.camel@arrakis>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This parenthesis removing patch looks ok to me.
+I won't be able to test it right away ... too much stuff.
 
+[Happy Thanksgiving, Matthew.  Looks like my two week sabbatical
+from the CKRM/cpuset discussion is taking long than planned ...
+It will be a few more weeks before I can return to it.  -pj]
 
-Description: Remove x86-specific help in arch/sparc64/Kconfig.
-Apply against 2.6.9.
-
-Signed-off by: James Nelson <james4765@gmail.com>
-
-
-Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
----
-
- linux-2.6.10-rc2-bk4-max/arch/sparc64/Kconfig |   10 ++--------
- 1 files changed, 2 insertions(+), 8 deletions(-)
-
-diff -puN arch/sparc64/Kconfig~kconfig-arch_sparc64 arch/sparc64/Kconfig
---- linux-2.6.10-rc2-bk4/arch/sparc64/Kconfig~kconfig-arch_sparc64	2004-11-20 03:04:52.000000000 +0100
-+++ linux-2.6.10-rc2-bk4-max/arch/sparc64/Kconfig	2004-11-20 03:04:52.000000000 +0100
-@@ -92,8 +92,8 @@ config SMP
- 	bool "Symmetric multi-processing support"
- 	---help---
- 	  This enables support for systems with more than one CPU. If you have
--	  a system with only one CPU, like most personal computers, say N. If
--	  you have a system with more than one CPU, say Y.
-+	  a system with only one CPU, say N. If you have a system with more than
-+	  one CPU, say Y.
- 
- 	  If you say N here, the kernel will run on single and multiprocessor
- 	  machines, but will use only one CPU of a multiprocessor machine. If
-@@ -101,17 +101,11 @@ config SMP
- 	  singleprocessor machines. On a singleprocessor machine, the kernel
- 	  will run faster if you say N here.
- 
--	  Note that if you say Y here and choose architecture "586" or
--	  "Pentium" under "Processor family", the kernel will not work on 486
--	  architectures. Similarly, multiprocessor kernels for the "PPro"
--	  architecture may not work on all Pentium based boards.
--
- 	  People using multiprocessor machines who say Y here should also say
- 	  Y to "Enhanced Real Time Clock Support", below. The "Advanced Power
- 	  Management" code will be disabled if you say Y here.
- 
- 	  See also the <file:Documentation/smp.txt>,
--	  <file:Documentation/i386/IO-APIC.txt>,
- 	  <file:Documentation/nmi_watchdog.txt> and the SMP-HOWTO available at
- 	  <http://www.tldp.org/docs.html#howto>.
- 
-_
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.650.933.1373, 1.925.600.0401

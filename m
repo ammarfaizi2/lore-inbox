@@ -1,30 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291614AbSBHPjN>; Fri, 8 Feb 2002 10:39:13 -0500
+	id <S291616AbSBHPmN>; Fri, 8 Feb 2002 10:42:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291616AbSBHPjD>; Fri, 8 Feb 2002 10:39:03 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:2320 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S291614AbSBHPiy>; Fri, 8 Feb 2002 10:38:54 -0500
-Subject: Re: [patch] larger kernel stack (8k->16k) per task
-To: tigran@veritas.com (Tigran Aivazian)
-Date: Fri, 8 Feb 2002 15:52:15 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, hugh@veritas.com (Hugh Dickins)
-In-Reply-To: <Pine.LNX.4.33.0202081511400.1359-100000@einstein.homenet> from "Tigran Aivazian" at Feb 08, 2002 03:20:19 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S291611AbSBHPlx>; Fri, 8 Feb 2002 10:41:53 -0500
+Received: from ns.research-int.com ([194.33.52.130]:52652 "EHLO
+	research-int.com") by vger.kernel.org with ESMTP id <S291616AbSBHPlm>;
+	Fri, 8 Feb 2002 10:41:42 -0500
+Message-ID: <1DD095B27B5AD511A0950002557C77E03C4CA4@rinlxch01.nl.research-int.com>
+From: M.Bakker@research-int.com
+To: linux-kernel@vger.kernel.org
+Subject: Guest section DW: "Re: [PATCH] Fix floppy io ports reservation
+Date: Fri, 8 Feb 2002 15:43:33 -0000 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16ZDJv-00044a-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It is against 2.4.9 but should be easy to port in any direction. (One way
-> the patch could be improved is by making the size CONFIG_ option instead
-> of hardcoding). Oh btw, please don't tell me "but now you'd need _four_
-> physically-contiguous pages to create a task instead of two!" because I
-> know it (and think it's not too bad).
+*	Reply: Guest section DW: "Re: [PATCH] Fix floppy io ports
+reservation" <1110.html> 
+Hmmmm... and how do I tell those 12 faithfull  ps/2's (yep the real ones
+:model 31) still running everyday doing their job.....
+I'm afraid I haven't got the heart.......
+>> ports 0x3f0 and 0x3f1 are used on certain PS/2 systems 
+>> and on some very old AT clones 
+> 
+> [PS/2] Can you point me to the code for the PS/2 systems in question? 
+> [AT] And we care because? 
+You need not worry - these systems have been dead for over fifteen years. 
 
-As a debugging tool its ok. Adding 8K to the kernel stack size
-is a wonderful way to eat huge amounts of RAM though.

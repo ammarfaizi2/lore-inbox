@@ -1,62 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261760AbUKPKBG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261730AbUKPKOd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261760AbUKPKBG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 05:01:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261729AbUKPJ6a
+	id S261730AbUKPKOd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 05:14:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261587AbUKPKOX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 04:58:30 -0500
-Received: from siaar2aa.compuserve.com ([149.174.40.137]:16196 "EHLO
-	siaar2aa.compuserve.com") by vger.kernel.org with ESMTP
-	id S261722AbUKPJ5f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 04:57:35 -0500
-Message-ID: <4199CEFE.7060800@compuserve.com>
-Date: Tue, 16 Nov 2004 01:57:18 -0800
-From: Bryan Batten <BryanBatten@compuserve.com>
-Reply-To: BryanBatten@compuserve.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-CC: Kai.Makisara@kolumbus.fi, Trivial Patch Monkey <trivial@rustcorp.com.au>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH]-2.6.10-rc2: Fix Link Error osst.o, st.o
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 16 Nov 2004 05:14:23 -0500
+Received: from wproxy.gmail.com ([64.233.184.197]:21256 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261730AbUKPKNa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 05:13:30 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=MhiSSfYytPnVDzSGjNG3qIzBszmvl9EfrAQ5ZxdU3H8gnu24Af2RfJIMZ3txwq3//E9pDwgYyp87QHBnoiQDDscqbfthkhRPCCjeY4Niz89fuJfBtZdheOz9RGQI891LmsVo72YEAl3yEYxYGIyZB4fUlOThMMmDP7oVINi+V7w=
+Message-ID: <84144f0204111602136a9bbded@mail.gmail.com>
+Date: Tue, 16 Nov 2004 12:13:29 +0200
+From: Pekka Enberg <penberg@gmail.com>
+Reply-To: Pekka Enberg <penberg@gmail.com>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
+Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+In-Reply-To: <E1CTzKY-0000ZJ-00@dorka.pomaz.szeredi.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+References: <E1CToBi-0008V7-00@dorka.pomaz.szeredi.hu>
+	 <Pine.LNX.4.58.0411151423390.2222@ppc970.osdl.org>
+	 <E1CTzKY-0000ZJ-00@dorka.pomaz.szeredi.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After patching up to 2.6.10-rc2, I get the following error when 
-building the kernel with gcc 2.95:
+Hi Miklos,
 
-drivers/scsi/osst.o(.bss+0x0): multiple definition of `ST_partstat'
-drivers/scsi/st.o(.bss+0x0): first defined here
-make[2]: *** [drivers/scsi/built-in.o] Error 1
-make[1]: *** [drivers/scsi] Error 2
+On Tue, 16 Nov 2004 10:08:54 +0100, Miklos Szeredi <miklos@szeredi.hu> wrote:
+> I did send a pointer to the cleaned up patch, maybe this wasn't
+> explicit enough:
+> 
+>   http://fuse.sourceforge.net/kernel_patches/fuse-2.1-2.6.10-rc2.patch
 
-The error occurs because the change from 'typedef struct {...} 
-ST_buffer;' to 'struct st_buffer {...} ST_buffer;' causes storage to 
-be allocated more than once.
+Few comments:
 
-The fix is to just remove the 'ST_buffer' part from the changed 
-structure definition.
+   - Breaks if CONFIG_PROC_FS is not enabled.
+   - Explicit casts are not needed when converting void pointers
+(found in various places).
 
-Here's the patch to drivers/scsi/st.h:
-
-# diff -up *orig/drivers/scsi/st.h *x/drivers/scsi/st.h
---- *orig/drivers/scsi/st.h     Mon Nov 15 22:44:18 2004
-+++ linux-2.6x/drivers/scsi/st.h        Tue Nov 16 01:27:19 2004
-@@ -67,7 +67,7 @@ struct st_partstat {
-         u32 last_block_visited;
-         int drv_block;          /* The block where the drive head is */
-         int drv_file;
--} ST_partstat;
-+};
-
-  #define ST_NBR_PARTITIONS 4
-
-(Signed-off-by: Bryan Batten <BryanBatten@compuserve.com>)
-
-
-
-
-
+                             Pekka

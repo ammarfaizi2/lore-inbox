@@ -1,45 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261191AbTCFXXr>; Thu, 6 Mar 2003 18:23:47 -0500
+	id <S261271AbTCFXZW>; Thu, 6 Mar 2003 18:25:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261263AbTCFXXq>; Thu, 6 Mar 2003 18:23:46 -0500
-Received: from adsl-157-194-9.dab.bellsouth.net ([66.157.194.9]:50361 "EHLO
-	midgaard.us") by vger.kernel.org with ESMTP id <S261191AbTCFXXq>;
-	Thu, 6 Mar 2003 18:23:46 -0500
-Subject: Re: Kernel bloat 2.4 vs. 2.5
-From: Andreas Boman <aboman@midgaard.us>
-To: Daniel Egger <degger@fhm.edu>
-Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <1046980273.18897.30.camel@sonja>
-References: <20030306142252.22630.qmail@linuxmail.org>
-	 <1046980273.18897.30.camel@sonja>
+	id <S261274AbTCFXZV>; Thu, 6 Mar 2003 18:25:21 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:42246
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S261271AbTCFXZR>; Thu, 6 Mar 2003 18:25:17 -0500
+Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
+From: Robert Love <rml@tech9.net>
+To: Martin Waitz <tali@admingilde.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@digeo.com>,
+       mingo@elte.hu, linux-kernel@vger.kernel.org
+In-Reply-To: <20030306232730.GC1326@admingilde.org>
+References: <20030228202555.4391bf87.akpm@digeo.com>
+	 <Pine.LNX.4.44.0303051910380.1429-100000@home.transmeta.com>
+	 <20030306220307.GA1326@admingilde.org>
+	 <1046988457.715.37.camel@phantasy.awol.org>
+	 <20030306223518.GB1326@admingilde.org>
+	 <1046991366.715.52.camel@phantasy.awol.org>
+	 <20030306232730.GC1326@admingilde.org>
 Content-Type: text/plain
 Organization: 
-Message-Id: <1046993653.30701.3.camel@asgaard.midgaard.us>
+Message-Id: <1046993765.715.101.camel@phantasy.awol.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 06 Mar 2003 18:34:13 -0500
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
+Date: 06 Mar 2003 18:36:06 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-03-06 at 14:51, Daniel Egger wrote:
-> Am Don, 2003-03-06 um 15.22 schrieb Felipe Alfaro Solana:
-> 
-> > ??? I'm using 2.5 and modules do work perfectly... Did you 
-> > get Rusty's latest modutils? 
-> 
-> Negative, I'm using what Debian (unstable in this case) provides
-> me. This system has to be booted by a variety of systems, will the
-> latest modutils work with 2.4 without modification?
-> 
-> This is what I have:
-> ii  modutils       2.4.21-1       Linux module utilities.
->  
+On Thu, 2003-03-06 at 18:27, Martin Waitz wrote:
 
-apt-get install module-init-tools, it will install 'right' and let you
-use modules with 2.4 and 2.5 kernels.
+> schedule() does prev->sleep_timestamp = jiffies; just before
+> deactivating prev.
+> so i guess inactivity is counted towards sleep_avg, too
 
---
-Andreas
+That is just the initial value.  See activate_task() which actually sets
+the sleep_avg value.  If the task is never woken up, sleep_timestamp is
+never used and sleep_avg is not touched.
+
+sleep_avg is the important value.
+
+sleep_timestamp is missed named, its really just the jiffies value at
+which the task last ran.  Ingo renamed it "last_run" in his latest
+patch.
+
+> but most of the time, not _one_ process is waken up, but several at once
+> 
+> if it happens that the first who gets to run is cpu-bound,
+> then all other interactive processes have to wait a long time, even
+> if they would only need 1ms to finish their work.
+
+Interactive tasks also have a higher dynamic priority.  So they will be
+the one to run.
+
+> scheduling overhead was successfully brought down to a minimum
+> thanks to the great work of a lot of people.
+> i think we should use that work to improve latency by reducing
+> the available timeslice for interactive processes.
+>
+> if the process is still considered interactive after the time slice had run
+> out, nothing is lost; it simply gets another one.
+> 
+> but the kernel should get the chance to frequently reschedule
+> when interactivity is needed.
+
+I understand your point, but we get that now without using super small
+timeslices.
+
+Giving interactive tasks larger timeslice ensures they can always run
+when they need to.  It also lets us set an upper bound and not have to
+recalculate timeslices constantly.
+
+If an interactive task _does_ use all its timeslice, then it is no
+longer interactive and that will be noted and it will lose its bonus.
+
+	Robert Love
 

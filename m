@@ -1,99 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270757AbTG0MZN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 08:25:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270759AbTG0MZN
+	id S270759AbTG0Maq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 08:30:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270762AbTG0Maq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 08:25:13 -0400
-Received: from nic.bme.hu ([152.66.115.1]:56792 "EHLO nic.bme.hu")
-	by vger.kernel.org with ESMTP id S270757AbTG0MZF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 08:25:05 -0400
-Message-ID: <3F23C7BF.8040208@namesys.com>
-Date: Sun, 27 Jul 2003 16:38:23 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030210
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Daniel Egger <degger@fhm.edu>
-Cc: linux-kernel@vger.kernel.org,
+	Sun, 27 Jul 2003 08:30:46 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:40414 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S270759AbTG0Map (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jul 2003 08:30:45 -0400
+Date: Sun, 27 Jul 2003 14:45:47 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Nikita Danilov <Nikita@namesys.com>, Shawn <core@enodev.com>,
+       Tupshin Harper <tupshin@tupshin.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
        reiserfs mailing list <reiserfs-list@namesys.com>
 Subject: Re: Reiser4 status: benchmarked vs. V3 (and ext3)
-References: <3F1EF7DB.2010805@namesys.com> <1059062380.29238.260.camel@sonja>
-In-Reply-To: <1059062380.29238.260.camel@sonja>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20030727124547.GD24002@louise.pinerecords.com>
+References: <3F1EF7DB.2010805@namesys.com> <3F1F6005.4060307@tupshin.com> <1059021113.7911.13.camel@localhost> <3F1F66F0.1050406@tupshin.com> <1059024090.9728.22.camel@localhost> <16159.48809.812634.455756@laputa.namesys.com> <3F23C588.10700@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F23C588.10700@namesys.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Egger wrote:
+> [reiser@namesys.com]
+> 
+> Nikita, how about phrasing this as:
+> 
+>    `Dear and esteemed potential Reiser4 user, I apologize that we put a 
+> tarball on our website and let it get so obsolete, thereby wasting your 
+> time.  I am deleting it now, and will soon put a new one up.  In the 
+> meantime, can you use bitkeeper if that is convenient for you?  Here is 
+> the URL with the instructions for doing that.....'
+> 
+> It is the usual American business english used in such cases.;-)
 
->Am Mit, 2003-07-23 um 23.02 schrieb Hans Reiser:
->
->  
->
->>In brief, V4 is way faster than V3, and the wandering logs are indeed 
->>twice as fast as fixed location logs when performing writes in large 
->>batches.
->>    
->>
->
->How do the wandering logs compare to the "wandering" logs of the log
->structured filesystem JFFS2? Does this mean I can achieve an implicit
->wear leveling for flash memory? 
->
-Forgive me for answering your question with a question, but, wouldn't 
-you want to do it at the block device layer?  If no, then it would not 
-be hard to code a block allocation plugin for it.  Probably the main 
-problem would be with the super block and bitmaps, which have fixed 
-locations (and are written twice but we don't normally care because they 
-are small and insignificant to performance.)
-
->
->  
->
->>We are able to perform all filesystem operations fully atomically,
->>while getting dramatic performance improvements.  (Other attempts at
->>introducing transactions into filesystems are said to have failed for
->>performance reasons.)
->>    
->>
->
->How failsafe is it to switch off the power several times? When the
->filesystem really works atomically I should have either the old or the
->new version but no mixture.
->
-It is safe.
-
-> Does it still need to fsck or is the
->transaction replay done at mount time?
->
-mount time.
-
-> In case one still needs fsck,
->what's the probability of needing user interaction? 
->
-0, but an application can still write to two files, and if it does not 
-use our atomic infrastructure (at this time none of them do;-) ), the 
-two separate files will not be certain to be updated as one atom atomically.
-
->How long does it
->need to get a filesystem back into a consistent state after a powerloss
->(approx. per MB/GB)?
->
-I don't have numbers, someone else will have to answer/measure it for you.
-
->
->Background: I'm doing systems on compactflash cards and need a reliable
->filesystem for it. At the moment I'm using a compressed JFFS2 over the
->mtd emulation driver for block devices which works quite well but has a
->few catches...
->
->  
->
-
+Standard American puke inducing pretentious florid business
+language if you want to be completely accurate.  8)
 
 -- 
-Hans
-
-
+Tomas Szepe <szepe@pinerecords.com>

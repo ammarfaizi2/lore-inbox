@@ -1,63 +1,162 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274774AbRIZB6C>; Tue, 25 Sep 2001 21:58:02 -0400
+	id <S274777AbRIZCCC>; Tue, 25 Sep 2001 22:02:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274777AbRIZB5w>; Tue, 25 Sep 2001 21:57:52 -0400
-Received: from [195.223.140.107] ([195.223.140.107]:61937 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S274774AbRIZB5g>;
-	Tue, 25 Sep 2001 21:57:36 -0400
-Date: Wed, 26 Sep 2001 03:58:10 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: "DICKENS,CARY (HP-Loveland,ex2)" <cary_dickens2@hp.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-        "HABBINGA,ERIK (HP-Loveland,ex1)" <erik_habbinga@hp.com>
-Subject: Re: 2.4.10 still slow compared to 2.4.5pre1
-Message-ID: <20010926035810.V1782@athlon.random>
-In-Reply-To: <C5C45572D968D411A1B500D0B74FF4A80418D54B@xfc01.fc.hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <C5C45572D968D411A1B500D0B74FF4A80418D54B@xfc01.fc.hp.com>; from cary_dickens2@hp.com on Tue, Sep 25, 2001 at 08:44:35PM -0400
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S274778AbRIZCBy>; Tue, 25 Sep 2001 22:01:54 -0400
+Received: from fmfdns02.fm.intel.com ([132.233.247.11]:21958 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S274777AbRIZCBr> convert rfc822-to-8bit; Tue, 25 Sep 2001 22:01:47 -0400
+Message-ID: <9678C2B4D848D41187450090276D1FAE1008EBB5@FMSMSX32>
+From: "Cress, Andrew R" <andrew.r.cress@intel.com>
+To: "'Jan-Benedict Glaw'" <jbglaw@lug-owl.de>, linux-kernel@vger.kernel.org
+Subject: RE: Wrong SCSI bus scanning
+Date: Tue, 25 Sep 2001 12:10:34 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 25, 2001 at 08:44:35PM -0400, DICKENS,CARY (HP-Loveland,ex2) wrote:
-> Andrea,
-> 
-> I hate to inform you that we tracked this down and nr_inactive_pages can be
-> zero.  This causes divide by zero in shrink_caches.
-> 
-> This is from the 00_vm-tweaks-1 patch:
->  static int shrink_caches(int priority, zone_t * classzone, unsigned int
-> gfp_mask, int nr_pages)
->  {
-> -	int max_scan = nr_inactive_pages / priority;
-> +	int max_scan;
-> +	int chunk_size = nr_pages;
-> +	unsigned long ratio;
->  
->  	nr_pages -= kmem_cache_reap(gfp_mask);
->  	if (nr_pages <= 0)
->  		return 0;
->  
-> -	/* Do we want to age the active list? */
-> -	if (nr_inactive_pages < nr_active_pages*2)
-> -		refill_inactive(nr_pages);
-> +	spin_lock(&pagemap_lru_lock);
-> +	nr_pages = chunk_size;
-> +	/* try to keep the active list 2/3 of the size of the cache */
-> +	ratio = (unsigned long) nr_pages * nr_active_pages /
-> (nr_inactive_pages * 2);
+Jan,
 
-how can you ever trigger it during boot?
+The sym53c8xx and ncr53c8xx drivers depend on virtually the same chipsets,
+so there is some potential for confusion in detecting adapters that do/dont
+belong to each driver.  This causes confusion for the corresponding drivers
+in NT also.
+Check the scan code in each driver.
 
-anyways that is a real bug, thanks for spotting it, you can just add 1
-to nr_inactive_pages to fix it.
+Andy
 
-	ratio = (unsigned long) nr_pages * nr_active_pages / ((nr_inactive_pages+1) * 2);
+-----Original Message-----
+From: Jan-Benedict Glaw [mailto:jbglaw@lug-owl.de]
+Sent: Monday, September 24, 2001 8:33 PM
+To: linux-kernel@vger.kernel.org
+Subject: Wrong SCSI bus scanning
 
-it will be fixed in the next update of course.
 
-Andrea
+Hi!
+
+For me, SCSI bus # 2 gets double-assigned. Physical layout
+is currently:
+
+	Bus 0:	AIC7xxx (U160 onboard)
+		- ID0:	IBM DDYS-T18350N
+		
+	Bus 1:	AIC7xxx (2nd U160 onboard bus)
+		- unused
+	
+	Bus 2:	sym53c8xx ('875)
+		- ID1:	PLEXTOR CD-R PX-W1210S
+		- ID2:	PLEXTOR CD-ROM PX-40TS
+		- ID3:	PIONEER DVD-ROM DVD-305
+
+	Bus 3:	ncr53c8xx ('810)
+		- ID0:	HP CD-Writer 6020
+		- ID1:	PLASMON CDR4220
+
+The U160 controller attaches to my boot disk, so it is compiled-in.
+Both other drivers are modules.
+
+When I insert modules for busses #2 and #3, *both* of them get
+bus #2 assigned:
+
+==> before additional modules:
+weiss-ich-doch-nicht:~# cdrecord -scanbus
+Cdrecord 1.10 (i686-pc-linux-gnu) Copyright (C) 1995-2001 Jörg Schilling
+Linux sg driver version: 3.1.20
+Using libscg version 'schily-0.5'
+scsibus0:
+        0,0,0     0) 'IBM     ' 'DDYS-T18350N    ' 'S96H' Disk
+        0,1,0     1) *
+        0,2,0     2) *
+        0,3,0     3) *
+        0,4,0     4) *
+        0,5,0     5) *
+        0,6,0     6) *
+        0,7,0     7) *
+
+==> after sym53c8xx:
+weiss-ich-doch-nicht:~# cdrecord -scanbus
+Cdrecord 1.10 (i686-pc-linux-gnu) Copyright (C) 1995-2001 Jörg Schilling
+Linux sg driver version: 3.1.20
+Using libscg version 'schily-0.5'
+scsibus0:
+        0,0,0     0) 'IBM     ' 'DDYS-T18350N    ' 'S96H' Disk
+        0,1,0     1) *
+        0,2,0     2) *
+        0,3,0     3) *
+        0,4,0     4) *
+        0,5,0     5) *
+        0,6,0     6) *
+        0,7,0     7) *
+scsibus2:
+        2,0,0   200) *
+        2,1,0   201) 'PLEXTOR ' 'CD-R   PX-W1210S' '1.02' Removable CD-ROM
+        2,2,0   202) 'PLEXTOR ' 'CD-ROM PX-40TS  ' '1.12' Removable CD-ROM
+        2,3,0   203) 'PIONEER ' 'DVD-ROM DVD-305 ' '1.03' Removable CD-ROM
+        2,4,0   204) *
+        2,5,0   205) *
+        2,6,0   206) *
+        2,7,0   207) *
+
+==> after additional insertion of ncr53c8xx:
+Cdrecord 1.10 (i686-pc-linux-gnu) Copyright (C) 1995-2001 Jörg Schilling
+Linux sg driver version: 3.1.20
+Using libscg version 'schily-0.5'
+scsibus0:
+        0,0,0     0) 'IBM     ' 'DDYS-T18350N    ' 'S96H' Disk
+        0,1,0     1) *
+        0,2,0     2) *
+        0,3,0     3) *
+        0,4,0     4) *
+        0,5,0     5) *
+        0,6,0     6) *
+        0,7,0     7) *
+scsibus2:
+        2,0,0   200) 'HP      ' 'CD-Writer 6020  ' '1.07' Removable CD-ROM
+        2,1,0   201) 'PLEXTOR ' 'CD-R   PX-W1210S' '1.02' Removable CD-ROM
+        2,2,0   202) 'PLEXTOR ' 'CD-ROM PX-40TS  ' '1.12' Removable CD-ROM
+        2,3,0   203) 'PIONEER ' 'DVD-ROM DVD-305 ' '1.03' Removable CD-ROM
+        2,4,0   204) *
+        2,5,0   205) *
+        2,6,0   206) *
+        2,7,0   207) *
+
+==> Now, /proc/scsi/scsi contains:
+
+weiss-ich-doch-nicht:/proc/scsi# cat scsi 
+Attached devices: 
+Host: scsi0 Channel: 00 Id: 00 Lun: 00
+  Vendor: IBM      Model: DDYS-T18350N     Rev: S96H
+  Type:   Direct-Access                    ANSI SCSI revision: 03
+Host: scsi2 Channel: 00 Id: 01 Lun: 00 <---------------------------
+  Vendor: PLEXTOR  Model: CD-R   PX-W1210S Rev: 1.02
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+Host: scsi2 Channel: 00 Id: 02 Lun: 00
+  Vendor: PLEXTOR  Model: CD-ROM PX-40TS   Rev: 1.12
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+Host: scsi2 Channel: 00 Id: 03 Lun: 00
+  Vendor: PIONEER  Model: DVD-ROM DVD-305  Rev: 1.03
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+Host: scsi2 Channel: 00 Id: 00 Lun: 00
+  Vendor: HP       Model: CD-Writer 6020   Rev: 1.07
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+Host: scsi2 Channel: 00 Id: 01 Lun: 00 <---------------------------
+  Vendor: PLASMON  Model: CDR4220          Rev: 1.20
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+
+
+...which is obviously wrong. Any suggestion on where to start
+to search the bug?
+
+MfG, JBG
+
+-- 
+Jan-Benedict Glaw . jbglaw@lug-owl.de . +49-172-7608481
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

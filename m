@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129405AbQKSXmz>; Sun, 19 Nov 2000 18:42:55 -0500
+	id <S129145AbQKSXvq>; Sun, 19 Nov 2000 18:51:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129145AbQKSXmp>; Sun, 19 Nov 2000 18:42:45 -0500
-Received: from [210.149.136.126] ([210.149.136.126]:56961 "EHLO
-	research.imasy.or.jp") by vger.kernel.org with ESMTP
-	id <S129279AbQKSXmj>; Sun, 19 Nov 2000 18:42:39 -0500
-Date: Mon, 20 Nov 2000 08:11:30 +0900
-Message-Id: <200011192311.eAJNBUj02708@research.imasy.or.jp>
-From: Taisuke Yamada <tai@imasy.or.jp>
-To: karrde@callisto.yi.org
-Cc: andre@linux-ide.org, linux-kernel@vger.kernel.org, tai@imasy.or.jp
-Subject: Re: [PATCH] Large "clipped" IDE disk support for 2.4 when using old BIOS
-In-Reply-To: Your message of "Mon, 20 Nov 2000 00:41:51 +0200 (IST)".
-    <Pine.LNX.4.21.0011200036030.775-100000@callisto.yi.org>
-X-Mailer: mnews [version 1.22PL4] 2000-05/28(Sun)
+	id <S129572AbQKSXvh>; Sun, 19 Nov 2000 18:51:37 -0500
+Received: from usuario1-36-191-31.dialup.uni2.es ([62.36.191.31]:6916 "HELO
+	zaknafein.net.dhis.org") by vger.kernel.org with SMTP
+	id <S129145AbQKSXv3>; Sun, 19 Nov 2000 18:51:29 -0500
+Date: Mon, 20 Nov 2000 00:10:42 +0100
+From: Drizzt <drizzt.dourden@iname.com>
+To: linux-kernel@vger.kernel.org
+Subject: USB Mass Storage and test11pre7
+Message-ID: <20001120001042.A777@menzoberrazan.dhis.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have testing a HP 8200e USB CDRW Driver with this version of kernel.
 
-> > > This patch is not good...[snip]
-> >
-> > Please retest with hdc=...
->
-> Ok, I've booted without the parameter, and without the jumper on
-> clipping mode (I'll do it tommorow, it's 1AM now) got something
-> similiar to what you've written, and everything looks ok.
+With the vainilla test10, after wrinting 14 MB, the cdrecotrd proccess lock, 
+and I have the next messsage imn the logs:
 
-Great, so it worked.
+Nov 19 22:35:34 localhost kernel: usb_control/bulk_msg: timeout
 
-# Since it worked, please discard my message I sent you to wait.
+These doesn't happen with test10. But I only have success with the test10 with
+1 cdrom. With Windows and Nero no problems burning cd ( I test for hardware
+problems). How I can help debug these issue.
 
-> Now it reports 90069839 - one sector less. Any damage risk to
-> my filesystems?
+Saludos
+Drizzt
 
-Hmm, that will be trouble if you access that last sector. I'll
-take a look at it after I came back from my work (It's 8AM now
-and got to go to work :-).
-
---
-Taisuke Yamada <tai@imasy.or.jp>
-PGP fingerprint = 6B 57 1B ED 65 4C 7D AE  57 1B 49 A7 F7 C8 23 46
+-- 
+... No es oro todo lo que reluce, ni toda la gente errante anda perdida.
+____________________________________________________________________________
+Drizzt Do'Urden                Three rings for the Elves Kings under the Sky   
+drizzt.dourden@iname.com       Seven for the Dwarf_lords in their  
+                               hall of stone
+                               Nine for the Mortal Men doomed to die 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

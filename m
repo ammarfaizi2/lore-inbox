@@ -1,59 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315981AbSFDAUh>; Mon, 3 Jun 2002 20:20:37 -0400
+	id <S315993AbSFDA30>; Mon, 3 Jun 2002 20:29:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315980AbSFDAUg>; Mon, 3 Jun 2002 20:20:36 -0400
-Received: from [209.184.141.168] ([209.184.141.168]:60849 "HELO UberGeek")
-	by vger.kernel.org with SMTP id <S315975AbSFDAUc>;
-	Mon, 3 Jun 2002 20:20:32 -0400
-Subject: Re: please kindly get back to me
-From: Austin Gonyou <austin@digitalroadkill.net>
-To: J Sloan <joe@tmsusa.com>
-Cc: "M. Edward \(Ed\) Borasky" <znmeb@aracnet.com>,
-        Larry McVoy <lm@bitmover.com>, Matti Aarnio <matti.aarnio@zmailer.org>,
-        "Holzrichter,\
-	Bruce" <bruce.holzrichter@monster.com>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3CFBF795.3090602@tmsusa.com>
+	id <S316023AbSFDA3Z>; Mon, 3 Jun 2002 20:29:25 -0400
+Received: from mx1.afara.com ([63.113.218.20]:50527 "EHLO afara-gw.afara.com")
+	by vger.kernel.org with ESMTP id <S315993AbSFDA3Y>;
+	Mon, 3 Jun 2002 20:29:24 -0400
+Subject: Re: [kbuild-devel] Announce: Kernel Build for 2.5, release 3.0 is
+	available
+From: Thomas Duffy <tduffy@directvinternet.com>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Kbuild Devel <kbuild-devel@lists.sourceforge.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <7791.1023149974@ocs3.intra.ocs.com.au>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Organization: 
-X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
-Date: 03 Jun 2002 19:20:24 -0500
-Message-Id: <1023150024.2615.2.camel@UberGeek>
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 03 Jun 2002 17:29:02 -0700
+Message-Id: <1023150542.25496.18.camel@tduffy-lnx.afara.com>
 Mime-Version: 1.0
+X-OriginalArrivalTime: 04 Jun 2002 00:29:20.0238 (UTC) FILETIME=[DE3100E0:01C20B5E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-06-03 at 18:11, J Sloan wrote:
-> M. Edward (Ed) Borasky wrote:
+On Mon, 2002-06-03 at 17:19, Keith Owens wrote:
+
+> Index: 18.85/scripts/pp_db.c
+> --- 18.85/scripts/pp_db.c Fri, 31 May 2002 17:20:09 +1000 kaos (linux-2.4/T/f/42_pp_db.c 1.17 644)
+> +++ 18.85(w)/scripts/pp_db.c Tue, 04 Jun 2002 10:17:10 +1000 kaos (linux-2.4/T/f/42_pp_db.c 1.17 644)
+> @@ -305,7 +305,7 @@ ppdb_free_space(PPDB * db, int size)
+>  	}
+>  	oldmap = db->header;
+>  	ppdb_close(db);
+> -	if (munmap(db->header, oldsize)) {
+> +	if (munmap(oldmap, oldsize)) {
+>  		fprintf(stderr, "%s: munmap(%s) failed: %m\n", program,
+>  			ppdb_name);
+>  		abort();
 > 
-> >Now that there are Linux viruses, maybe we also need an open source
-> >virus scanner.
-> >  
-> >
-> Ah yes, the perennial "linux virus" scare -
-> the anti virus labs are hard at work trying
-> to drum up new business....
-.....
-> You'd have to dupe an unwitting superuser
-> (now there's a dangerous combination) into
-> running the "virus" by hand - sort of like
-> the "honor system" virus....
+> The previous coding error will have corrupted the database so rm .tmp_db_main.
 
-Bwaaaaaahahahahaha!!!!! 
+awesome.  that fixes the problem.  thanks.
 
-That's the funniest thing I've ever heard. I've never looked at it like
-that! Too damn funny!
+-tduffy
 
-
-
-> Joe
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/

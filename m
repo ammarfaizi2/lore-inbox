@@ -1,69 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262965AbTLQC7b (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 21:59:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263137AbTLQC7b
+	id S262176AbTLQDDb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 22:03:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263267AbTLQDDb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 21:59:31 -0500
-Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:22774 "EHLO
-	mail.kroptech.com") by vger.kernel.org with ESMTP id S262965AbTLQC73
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 21:59:29 -0500
-Date: Tue, 16 Dec 2003 22:04:06 -0500
-From: Adam Kropelin <akropel1@rochester.rr.com>
-To: greg@kroah.com
-Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH] udev-009: Allow build with empty EXTRAS
-Message-ID: <20031216220406.A23608@mail.kroptech.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	Tue, 16 Dec 2003 22:03:31 -0500
+Received: from b1.ovh.net ([213.186.33.51]:2735 "EHLO mail9.ha.ovh.net")
+	by vger.kernel.org with ESMTP id S262176AbTLQDDa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Dec 2003 22:03:30 -0500
+Message-ID: <1071630228.3fdfc794eb353@ssl0.ovh.net>
+Date: Wed, 17 Dec 2003 04:03:48 +0100
+From: Miroslaw KLABA <totoro@totoro.be>
+To: john stultz <johnstul@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Double Interrupt with HT
+References: <20031215155843.210107b6.totoro@totoro.be>  <1071603069.991.194.camel@cog.beaverton.ibm.com>  <1071615336.3fdf8d6840208@ssl0.ovh.net> <1071618630.1013.11.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1071618630.1013.11.camel@cog.beaverton.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.1
+X-Originating-IP: 81.250.170.171
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Need to let the shell expand $EXTRAS so it can properly detect an empty
-list. Without this patch, the build fails whenever $EXTRAS is empty.
+Hello,
 
---Adam
+> Ok, so its been around awhile. Do you remember what was the last 2.4
+> kernel where you did not see this problem?
+> 
 
+In fact, it is a new motherboard we're testing, and with the oldest version of
+the kernel I have, 2.4.18, I have also the problem.
 
---- udev-009/Makefile	Tue Dec 16 19:30:32 2003
-+++ udev-009-adk/Makefile	Tue Dec 16 21:47:49 2003
-@@ -145,7 +145,7 @@
- CFLAGS += -I$(PWD)/libsysfs
- 
- all: $(ROOT)
--	@for target in $(EXTRAS) ; do \
-+	@extras="$(EXTRAS)" ; for target in $$extras ; do \
- 		echo $$target ; \
- 		$(MAKE) prefix=$(prefix) LD="$(LD)" SYSFS="$(SYSFS)" \
- 			-C $$target $@ ; \
-@@ -223,7 +223,7 @@
- 	 | xargs rm -f 
- 	-rm -f core $(ROOT) $(GEN_HEADERS) $(GEN_CONFIGS)
- 	$(MAKE) -C klibc clean
--	@for target in $(EXTRAS) ; do \
-+	@extras="$(EXTRAS)" ; for target in $$extras ; do \
- 		echo $$target ; \
- 		$(MAKE) prefix=$(prefix) LD="$(LD)" SYSFS="$(SYSFS)" \
- 			-C $$target $@ ; \
-@@ -286,7 +286,7 @@
- 	$(INSTALL_DATA) udev.permissions $(DESTDIR)$(configdir)
- 	- rm -f $(DESTDIR)$(hotplugdir)/udev.hotplug
- 	- ln -s $(sbindir)/$(ROOT) $(DESTDIR)$(hotplugdir)/udev.hotplug
--	@for target in $(EXTRAS) ; do \
-+	@extras="$(EXTRAS)" ; for target in $$extras ; do \
- 		echo $$target ; \
- 		$(MAKE) prefix=$(prefix) LD="$(LD)" SYSFS="$(SYSFS)" \
- 			-C $$target $@ ; \
-@@ -303,7 +303,7 @@
- 	- rmdir $(hotplugdir)
- 	- rmdir $(configdir)
- 	- rmdir $(udevdir)
--	@for target in $(EXTRAS) ; do \
-+	@extras="$(EXTRAS)" ; for target in $$extras ; do \
- 		echo $$target ; \
- 		$(MAKE) prefix=$(prefix) LD="$(LD)" SYSFS="$(SYSFS)" \
- 			-C $$target $@ ; \
+> Further I can't see how it fixes the problem, but it may just be working
+> around the issue. I'd be interested in what the patch author thinks. 
+> 
+> > I think it is a bug with the via chipset, but I'm not able to get deeper in
+> the
+> > kernel code.
+> 
+> Could be, but I suspect interrupt routing isn't happening properly at
+> boot time. The irqbalance code just forces it to be readjusted correctly
+> once your up and running. 
+> 
 
+With SMP disabled, I have no problem with any kernel. So it must be in the APIC
+init, I think.
+I don't know how the patch works around this problem, but it's a workaround. I
+can test other kernels to find a "better" patch to find and fix this problem,
+and have a stable 2.4.24 that works with this hardware.
+If you can suggest other things to test or to identify the problem, I can do it.
+
+Thanks
+Miro

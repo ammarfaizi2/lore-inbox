@@ -1,76 +1,195 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265246AbUD3UAi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265240AbUD3UBs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265246AbUD3UAi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 16:00:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265244AbUD3UAh
+	id S265240AbUD3UBs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 16:01:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265248AbUD3UBs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 16:00:37 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:63472 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S265246AbUD3UAf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 16:00:35 -0400
-Message-ID: <4092B02C.5090205@mvista.com>
-Date: Fri, 30 Apr 2004 12:59:40 -0700
-From: Todd Poynor <tpoynor@mvista.com>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: en-us, en
+	Fri, 30 Apr 2004 16:01:48 -0400
+Received: from zero.aec.at ([193.170.194.10]:25357 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S265240AbUD3UB0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Apr 2004 16:01:26 -0400
+To: Ulrich Drepper <drepper@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: NUMA API
+References: <1QAMU-4gf-15@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Fri, 30 Apr 2004 22:01:22 +0200
+In-Reply-To: <1QAMU-4gf-15@gated-at.bofh.it> (Ulrich Drepper's message of
+ "Fri, 30 Apr 2004 09:40:08 +0200")
+Message-ID: <m3n04t9qwd.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Patrick Mochel <mochel@digitalimplant.org>,
-       linux-hotplug-devel@lists.sourceforge.net,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Hotplug for device power state changes
-References: <20040429202654.GA9971@dhcp193.mvista.com> <20040429224243.L16407@flint.arm.linux.org.uk> <40918375.2090806@mvista.com> <1083286226.20473.159.camel@gaston> <20040430093012.A30928@flint.arm.linux.org.uk>
-In-Reply-To: <20040430093012.A30928@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
+Ulrich Drepper <drepper@redhat.com> writes:
 
-> And not being synchronous means that there's no point in calling
-> userland, because userland won't run before the machine has
-> suspended, so there's no point in calling it in the first place.
-> Also consider the case where you suspend, and asynchronously queue
-> up all these suspend scripts to run.  Then you resume and queue up
-> the resume scripts to run.  What order do the suspend and resume
-> scripts ultimately end up being run?
-...
-> Maybe we should have a two-pass approach, where the first pass
-> synchronously tells userspace about the suspend, and the second
-> pass does the actual suspend.  Then for resume the opposite.
+>In the last weeks I have been working on designing a new API for a NUMA
+>support library.  I am aware of the code in libnuma by ak but this code
+>has many shortcomings:
 
-I would argue that a system suspend/resume event does not need to also 
-inform of the individual device suspend/resume events, since these can 
-be implied.  But if we were to include individual device suspend/resume 
-hotplug events as part of system suspend/resume then I would agree with 
-a two-phase model, since notification at the time of actual hardware 
-suspend does not work once something critical to userspace notification 
-is shutdown.
+> ~ a completely unacceptable library interface (e.g., global variables as
+> part of the API, WTF?)
 
-So I'm planning to resubmit patches with the following:
+You mean numa_no_nodes et.al. ? 
 
-* Individual device resume events signalled before, not after, the 
-resume, so that userspace can react to any new requirements before the 
-device is placed into service.
+This is essentially static data that never changes (like in6addr_any).
+numa_all_nodes could maybe in future change with node hotplug support,
+but even then it will be a global property.
 
-* Individual device suspend and resume events converted to synchronous 
-events (that wait for hotplug processing to complete before continuing).
+Everything else is thread local.
 
-* Changes to kobject to allow kobject hotplug to optionally be 
-synchronous if desired.  I'd assume this is a new hotplug_ops field.
+> ~ inadequate topology discovery
 
-* Synchronous hotplug events for system suspend and resume (without 
-individual device notifications).  These events can probably be 
-generated by the kobject hotplug methods by the existing power subsys 
-(once the above enhancement is in place).
+I believe it is good enough for current machines, at least 
+until there is enough experience to really figure out what
+node discovery is needed.. I have seen some proposals
+for complex graph based descriptions, but so far I have seen
+nothing that could really take advantage of something so fancy.
+If it should be really needed it can be added later.
 
-Any comments on this course of action welcomed.
+IMHO we just do not know enough right now to design a good topology
+discovery interface. Until that is fixed it is best to err on the
+side of simplicity.
+
+> ~ fixed cpu set size
+
+That is wrong. The latest version does not have fixed cpu set size.
+
+> ~ no inclusion of SMT/multicore in the cpu hierarchy
+
+Not sure why you would care about that. NUMA is only about "what CPUs
+belong to which memory block". While multicore can affect the number
+of CPUs in a node the actually shared packages only have cache
+effects, but not "sticky memory" effects.  To handle cache effects all
+you need to do is to change scheduling, not NUMA policy. Supporting
+cache policy in the NUMA policy would result in a quite complex
+optimization problem on how to tune the scheduler. But the whole point
+why at least I started libnuma initially was to avoid this complex
+problem, and just use simple hints. For this reasons putting cache
+policy into the memory policy is imho quite misguided.
+
+> As specified, the implementation of the interface is designed with only
+> the requirements of a program on NUMA hardware in mind.  I have paid no
+> attention to the currently proposed kernel extensions.  If the latter do
+> not really allow implementing the functionality programmers need then it
+> is wasted efforts.
+
+Well, I spent a lot of time talking to various users; and IMHO
+it matches the needs of a lot of them. I did not add all the features
+everybody wanted, but that was simply not possible and still comming
+up with a reasonable design.
+
+> For instance, I think the way memory allocated in interleaved fashion is
+> not "ideal".  Interleaved allocation is a property of a specific
+> allocation.  Global states for processes (or threads) are a terrible way
+> to handle this and other properties since it requires the programmer to
+> constantly switch the mode back and forth since any part of the runtime
+> might be NUMA aware and reset the mode.
+
+If you do not want per process state just use the allocation function
+in libnuma instead. They use mbind() and have no per thread state,
+only per VMA state.
+
+The per process state is needed for numactl though.
+
+I kept the support for this visible in libnuma to make it easier to convert
+old code to this (just wrap some code with a policy) For designed from 
+scratch programs it is probably better to use the allocation functions
+with mbind directly.
+
+> Also, the concept of hard/soft sets for CPUs is useful.  Likewise
+> "spilling" over to other memory nodes.  Usually using NUMA means hinting
+> the desired configuration to the system.  It'll be used whenever
+> possible.  If it is not possible (for instance, if a given processor is
+> not available) it is mostly no good idea to completely fail the
+
+Agreed. That is why prefered and bind are different policies
+and you can switch between them in libnuma. 
+
+> execution.  Instead a less optimal resource should be used.  For memory
+> it is hard to know how much memory on which node is in use etc.
+
+numa_node_size()
+
+> Another missing feature in libnuma and the current kernel design is
+> support for changes in the configuration.  CPUs might be added or
+> removed, likewise memory.  Additional interconnects between NUMA blocks
+> might be added etc.
+
+It is version 1.0. So far all the CPU hotplug code seems to be
+still too far in flux to really do something good about it. I expect 
+once all this settles down libnuma will also grow some support
+for dynamic reconfiguration. 
+
+Comments on some (not all of your criticisms):
+
+>
+> Comparison with libnuma
+> =======================
+>
+> nodemask_t:
+>
+>   Unlike nodemask_t, cpu_set_t is already in use in glibc.  The affinity
+>   interfaces use it so there is not need to duplicate the functionality
+>   and no need to define other versions of the affinity interfaces.
+>
+>   Furthermore, the nodemask_t type is of fixed size.  The cpu_set_t
+>   has a convenience version which is of fixed size but can be of
+>   arbitrary size.  This is important has a bit of math shows:
+>
+>     Assume a processor with four cores and 4 threads each
+>
+>     Four such processors on a single NUMA node
+>
+>     That's a total of 64 virtual processors for one node.  With 32 such
+>     nodes the 1024 processors of cpu_set_t would be filled.  And we do
+>     not want to mention the total of 64 supported processors in libnuma's
+>     nodemask_t.  To be future safe the bitset size must be variable.
+
+nodemask_t has nothing to do with virtual CPUs, only with nodes
+(= memory controllers) 
+
+There is no fixed size in the current version for CPUs.
+There was in some earlier version, but I quickly dropped that because
+it was indeed a bad idea.
+
+There is a fixed size nodemask type though, although its upper limit
+is extremly high (4096 nodes on IA64).  I traded this limit 
+for simplicity of use.
 
 
--- 
-Todd Poynor
-MontaVista Software
+> numa_bind()    --> NUMA_mem_set_home() or NUMA_mem_set_home_thread()
+>                   or NUMA_aff_set_cpu(() or NUMA_aff_set_cpu_thread()
+>
+>  numa_bind() misses A LOT of flexibility.  First, memory and CPU need
+>  node be the same nodes. Second, thread handling is missing.  Third,
+>  hard versus soft requirements are not handled for CPU usage.
+
+Correct. That is why lower level functions exist too. numa_bind is
+merely a comfortable high level utility function to make libnuma more
+pleasant to use for many (but not all) users. It trades some
+flexibility to cater to the common case.
+
+> numa_police_memory()  -->  nothing yet
+> 
+ > I don't see why this is necessary.  Yes, address space allocation and
+ > the actual allocation of memory are two steps.  But this should be
+ > taken case of by the allocation functions (if necessary).  To support
+ > memory allocation with other interfaces then those described here and
+ > magically treat them in the "NUMA-way" seems dumb.
+
+You need process policy for command line policy. To make converting
+old programs easier I opted to expose it in libnuma too. For new programs
+I agree it is better to just use the allocator functions.
+
+> numa_set_bind_policy() --> too coarse grained
+>
+>  This cannot be a process property.  And it must be possible to change
+
+It is a per thread property.
+
+-Andi
 

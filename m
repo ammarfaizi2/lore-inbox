@@ -1,54 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277053AbRJQSmx>; Wed, 17 Oct 2001 14:42:53 -0400
+	id <S277047AbRJQSlD>; Wed, 17 Oct 2001 14:41:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277064AbRJQSmh>; Wed, 17 Oct 2001 14:42:37 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:53082 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S277053AbRJQSln>; Wed, 17 Oct 2001 14:41:43 -0400
-Date: Wed, 17 Oct 2001 20:42:04 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Chip Salzenberg <chip@pobox.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-        Maneesh Soni <maneesh@in.ibm.com>
-Subject: Re: [PATCH] 2.4.13pre3aa1: expand_fdset() may use invalid pointer
-Message-ID: <20011017204204.C2380@athlon.random>
-In-Reply-To: <20011017113245.A3849@perlsupport.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20011017113245.A3849@perlsupport.com>; from chip@pobox.com on Wed, Oct 17, 2001 at 11:32:45AM -0700
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S277046AbRJQSkz>; Wed, 17 Oct 2001 14:40:55 -0400
+Received: from postfix2-2.free.fr ([213.228.0.140]:25774 "HELO
+	postfix2-2.free.fr") by vger.kernel.org with SMTP
+	id <S277047AbRJQSkm> convert rfc822-to-8bit; Wed, 17 Oct 2001 14:40:42 -0400
+Date: Wed, 17 Oct 2001 20:35:30 +0200 (CEST)
+From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
+X-X-Sender: <groudier@gerard>
+To: Tim Hockin <thockin@sun.com>
+Cc: <groudier@club-internet.fr>, <alan@redhat.com>, <torvalds@transmeta.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] resubmitting sym53c8xx patches
+In-Reply-To: <3BCCE721.8A72910E@sun.com>
+Message-ID: <20011017201539.E1402-100000@gerard>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 17, 2001 at 11:32:45AM -0700, Chip Salzenberg wrote:
-> In 2.4.13pre3aa1, expand_fdset() in fs/file.c has a couple of
-> execution paths that call kfree() on a pointer that hasn't yet been
-> initialized.  A minimal patch is attached.
-
-Good spotting! Thanks for the fix!! applied.
-
-CC'ed Maneesh since he's maintaining the rcu_fdset patch AFIK.
-
-> -- 
-> Chip Salzenberg               - a.k.a. -              <chip@pobox.com>
->  "We have no fuel on board, plus or minus 8 kilograms."  -- NEAR tech
-
-> 
-> Index: linux/fs/file.c
-> --- linux/fs/file.c.old	Tue Oct 16 23:28:16 2001
-> +++ linux/fs/file.c	Wed Oct 17 00:29:43 2001
-> @@ -203,5 +203,5 @@
->  	fd_set *new_openset = 0, *new_execset = 0;
->  	int error, nfds = 0;
-> -	struct rcu_fd_set *arg;
-> +	struct rcu_fd_set *arg = NULL;
->  
->  	error = -EMFILE;
 
 
+On Tue, 16 Oct 2001, Tim Hockin wrote:
 
-Andrea
+> All,
+>
+> I've submitted this patch a few times, and had it OKed each time, but it
+> hasn't made it in.
+>
+> it does:
+> * cleanup timer handling
+> * spin lock host list
+> * adds a reboot handler
+> * remove __init from a function called from a non __init (needed for reboot
+> handler)
+>
+>
+> Please apply this for the next 2.4.x.
+
+As long as the kernel does not look trustable to me, I avoid to send
+driver changes that are not absolutely needed. Doing so just makes user
+suspect the driver for any breakage that occurs after driver changes and
+this wastes my time for no valuable reasons.
+
+About your proposal, it has not been NOKed, but it is not the way I would
+have implemented it. By the way, I already have cleaned up the module
+timer killing ins sym-2.1.15 driver (easily back-portable to sym53c8xx).
+You may look at it (ftp.tux.org) if you are interested in knowing how I
+would like it to have been done. For example, there are a couple of some
+_smart_ #if that allows to preserve kernel 2.2 compatibility with the same
+source. People who donnot like cpp should switch to Java in my opinion.
+Compiling lot of stuff like inlines that will not in fact be used is false
+cosmetic in my opinion.
+
+The reboot handler stuff is useless in my opinion and OTOH last time I
+looked in the kernel code related to reboot handler stuff it looks to me
+very incomplete. Useless stuff implies additionnal bugs that could have
+been avoided.
+
+I am not opposed to your patch and will not complain if it is applied to
+kernel 2.4. I just haven't time for submitting another patch quickly nor
+have time for following any breakage due to its new interactions with the
+kernel.
+
+Regards,
+  Gérard.
+
+

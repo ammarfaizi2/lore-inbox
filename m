@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281494AbRKTX7A>; Tue, 20 Nov 2001 18:59:00 -0500
+	id <S281496AbRKUAHa>; Tue, 20 Nov 2001 19:07:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281493AbRKTX6v>; Tue, 20 Nov 2001 18:58:51 -0500
-Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:50959 "EHLO
-	almesberger.net") by vger.kernel.org with ESMTP id <S281494AbRKTX6m>;
-	Tue, 20 Nov 2001 18:58:42 -0500
-Date: Wed, 21 Nov 2001 00:58:33 +0100
-From: Werner Almesberger <wa@almesberger.net>
-To: =?iso-8859-1?Q?Ra=FAlN=FA=F1ez_de_Arenas_Coronado?= 
-	<dervishd@jazzfree.com>
-Cc: lm@bitmover.com, linux-kernel@vger.kernel.org
-Subject: Re: LOBOS
-Message-ID: <20011121005833.B7381@almesberger.net>
-In-Reply-To: <E166A4Y-0000D2-00@DervishD>
+	id <S281502AbRKUAHV>; Tue, 20 Nov 2001 19:07:21 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:52727
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S281496AbRKUAHK>; Tue, 20 Nov 2001 19:07:10 -0500
+Date: Tue, 20 Nov 2001 16:06:57 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Lu?s Henriques <lhenriques@criticalsoftware.com>,
+        Anton Altaparmakov <aia21@cam.ac.uk>, linux-kernel@vger.kernel.org
+Subject: Re: copy to suer space
+Message-ID: <20011120160657.A4124@mikef-linux.matchmail.com>
+Mail-Followup-To: Lu?s Henriques <lhenriques@criticalsoftware.com>,
+	Anton Altaparmakov <aia21@cam.ac.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <5.1.0.14.2.20011120165440.00a745b0@pop.cus.cam.ac.uk> <200111201714.fAKHEc276467@criticalsoftware.com> <20011120114124.T1308@lynx.no> <200111201849.fAKInr205178@criticalsoftware.com> <20011120123915.W1308@lynx.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <E166A4Y-0000D2-00@DervishD>; from dervishd@jazzfree.com on Tue, Nov 20, 2001 at 01:32:18PM +0100
+In-Reply-To: <20011120123915.W1308@lynx.no>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-RaúlNúñez de Arenas Coronado wrote:
->     Me too. Really this is a feature that no other OS has.
+On Tue, Nov 20, 2001 at 12:39:15PM -0700, Andreas Dilger wrote:
+> On Nov 20, 2001  18:44 +0000, Lu?s Henriques wrote:
+> > > Maybe if you describe the actual problem that you are trying to solve, and
+> > > not the actual way you are trying to solve it, there may be a better
+> > > method. Usually, if something you are trying to do is very hard to do,
+> > > there is a different (much better) way of doing it.
+> > 
+> > I'm developping a kernel module that needs to delay a process, that is, he 
+> > receives a PID and, when a specific event occurs, that process shall be 
+> > delayed. This delay shall be done in a way that the process keeps burning CPU 
+> > time (it can not be, e.g., put in a waiting-list...).
+> 
+> Putting it into a waiting-list is by far the best solution.  This is a normal
+> Unix operation, like SIGSTOP, SIGCONT, and could even be done from user space.
+> 
+> What is the requirement that it keeps burning CPU for?  Generally, this is
+> what you do NOT want to do.
+> 
 
-No way ;-) Markus Wild implemented this about eight years ago for
-SVR4 on the Amiga.
-
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Lausanne, CH                    wa@almesberger.net /
-/_http://icawww.epfl.ch/almesberger/_____________________________________/
+This to me looks like the main desire is to fool the user.  It looks like it
+doing something, but it really isn't...

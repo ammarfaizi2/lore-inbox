@@ -1,109 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262126AbUA3QzB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 11:55:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbUA3QzA
+	id S261909AbUA3Qxa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 11:53:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261931AbUA3Qxa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 11:55:00 -0500
-Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:1263 "EHLO
-	tabby.cats.internal") by vger.kernel.org with ESMTP id S261931AbUA3Qy4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 11:54:56 -0500
-Content-Type: text/plain;
-  charset="CP 1252"
-From: Jesse Pollard <jesse@cats-chateau.net>
-To: John Bradford <john@grabjohn.com>, Timothy Miller <miller@techsource.com>
-Subject: Re: [OT] Crazy idea: Design open-source graphics chip
-Date: Fri, 30 Jan 2004 10:54:27 -0600
-X-Mailer: KMail [version 1.2]
-Cc: chakkerz@optusnet.com.au,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <4017F2C0.4020001@techsource.com> <4019472D.70604@techsource.com> <200401291855.i0TItHoU001867@81-2-122-30.bradfords.org.uk>
-In-Reply-To: <200401291855.i0TItHoU001867@81-2-122-30.bradfords.org.uk>
+	Fri, 30 Jan 2004 11:53:30 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:11546 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261909AbUA3Qx0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jan 2004 11:53:26 -0500
+Date: Fri, 30 Jan 2004 16:53:30 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: tmpfs sparse file failure in glibc "make check"
+In-Reply-To: <4019D11C.7020706@backtobasicsmgmt.com>
+Message-ID: <Pine.LNX.4.44.0401301552470.1441-100000@localhost.localdomain>
 MIME-Version: 1.0
-Message-Id: <04013010542700.32275@tabby>
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 29 January 2004 12:55, John Bradford wrote:
-> > > Well, the cost of fabricating depends on the device.  I was basically
-> > > thinking of a 68000, an EPROM and a SIMM on a piece of stripboard,
-> > > some ribbon cable and a DB-25 connector.
-> > >
-> > > Maybe our goals are somewhat different :-)
-> >
-> > Very different.  What you're describing is a dumb terminal.
->
-> Hardly.  It's nothing like a dumb terminal whatsoever.
->
-> It's a simple framebuffer, possibly with line drawing, and box filling
-> capabilities.  Nevertheless, it could be used as a general purpose X
-> display, for spreadsheets, simple to moderate wordprocessing,
-> (I.E. probably not DTP-like applications), status displays for various
-> systems, etc.
->
-> So, it does have real world uses.
+On Thu, 29 Jan 2004, Kevin P. Fleming wrote:
+> 
+> I've been tracking down a problem in CVS glibc "make check" and it 
+> appears that either it's a bug in tmpfs or an undocumented limitation of 
+> tmpfs.
+> 
+> My system is running 2.6.2-rc2, with 1G of physical RAM (4G highmem mode 
+> is enabled in the kernel). The glibc test does the following (snipped 
+> from the source because it's a simple test):
+> 
+> int fd;
+> #define TWO_GB 2147483648LL
+> 
+> ...
+> 
+>    fd = mkstemp64 (name);
+>    ret = lseek64 (fd, TWO_GB+100, SEEK_SET);
+>    ret = write (fd, "Hello", 5);
+> 
+> 
+> On my system the temp file is created in /tmp, and tmpfs is mounted on 
+> /tmp (with no mount options limiting maximum size or anything of that 
+> type). With no swap space turned on, this write() returns ENOMEM.
+> 
+> With 512MB or 1GB of swap space, it still returns ENOMEM. With 1.5GB of 
+> swap space, the write() succeeds. However, this is a sparse file with a 
+> total of 6 bytes of content :-)
+> 
+> I could understand if tmpfs was limiting the file size to half of 
+> physical RAM+swap, but the test succeeds at 2.5GB total even though the 
+> sparse file is created at 2GB size.
+> 
+> For now I work around the test failure by pointing glibc to a different 
+> filesystem for this test, but I'm wondering why the tmpfs filesystem 
+> can't pass this test like a "normal" filesystem does...
 
-Yes - but you want it:
+Drat.  Thank you for your efforts to track this down and describe it.
+I'd call it a bug, a regression from 2.4, rather than an undocumented
+limitation (generous of you to allow that interpretation).  Though not
+a very urgent one to fix, given you're the first to notice in 18 months.
 
-1. to use the AGP to gain access to multiple offscreen pages
-2. a DMA controler to copy the data
-3. A simple emulation (either 8bit cpu based or better) of VGA/SVGA
-4. room in the design for future processors.
+It's a side-effect of the non-overcommit memory mode (from 2.4-ac)
+added in 2.5.30.  That was supposed not to change behaviour so long as
+/proc/sys/vm/overcommit_memory remained at its traditional default 0.
+But the extra vm_enough_memory checks needed for mode 2 (here the test
+in shmem_file_write) have inadvertently imposed this limitation on mode 0.
 
-Really - future processors:
-1. including multiple vector multiply processors
-2. general purpose CPU for control
-3. LOTS of memory.
+A workaround is to "echo 1 > /proc/sys/vm/overcommit_memory" (or use
+the VM_OVERCOMMIT_MEMORY sysctl), to skip all such tests.  But I don't
+pretend that's a decent answer - especially not since vm_enough_memory
+became a security_operations function, which may take no interest in
+sysctl_overcommit_memory setting.
 
-What you REALLY need to do (long term) is to move the entire X server
-into a graphics board (including Mesa/OpenGL/... but minus the network
-code, authentication, and resource database...).
+The difficulty is that conflicting conventions collide here in tmpfs.
+In the case of shm and mmap, it's normal to check the full extent of
+the mapping when it's set up (because the only way out later is OOM
+killing); whereas in the case of a filesystem, it's normal to allow
+sparseness and allocate only when written (though mmap of any sparse
+file is an old contentious problem: what to do when no space?).
 
-It is my understanding that a LOT of the effort at speed is lost by using
-a single threaded process to handle the graphics. With a multiple cpu (not
-necessarily SMP mind you) performing the graphics transformations, you have
-a single rendering output step (another case for multiple cpus - 1 cpu: entire
-pixel render, 2: each takes 1/2 display, 4 - 1/4 display...). And with 
-multiple dual ported graphics memory (port to pixel rendering cpu, port to
-frame buffer) you end up wit a very fast graphics display.
+At present, the non-overcommit-memory arithmetic in mm/shmem.c works 
+simply by filesize.  You can imagine an alternative accounting method
+for the tmpfs mounts, which follows the actual page allocation (as
+it already does to enforce its half(-or-whatever%)-of-memory limit).
+But that gets more complicated once you mmap the tmpfs file, the two
+conventions have to be reconciled in a consistent way (and it would
+make a nonsense of strict non-overcommit memory mode to fall back
+on the excuse that other filesystems have a sparse mmap problem).
 
-Limiting factor: it may be bigger than a single slot.
+I ought to fix this, but I'm averse to complexity.  I'll mull over
+the options before fixing it: please don't hold your breath.
 
-It would likely resemble the old SGI type of rendering engine, which used 
-multiple boards, multiple staging memory, and multiported display.
+Hugh
 
-BUT: it would be modular. Pay a little and you only get a frame buffer.
-
-Add a general CPU - you get a basic X server (with slow 3D, but likely
-faster than currently done by the host processor)-- and pay more.
-Add a geometry engine (ie a processor/memory for Mesa) you get faster 3D 
-operations...
-
-Add multiple engines (each takes part of the display) you get speed...
-
-It would likely require one AGP, but two PCI slots; and like the SGI
-engines, an internal connection between the two boards.
-
-This would also allow the project to have price levels - a $20 AGP frame
-buffer wouldn't be bad at all (and not all that slow either...)
-
-Add $40 for a general CPU... with the benifit of offloading the major X
-functions... and still have the ability to use the AGP. (BTY - the AGP
-is bi-directional... you should be able to copy images from the framebuffer)
-
-Add $40 (might have to trade in the existing general CPU... so it could
-actually be ~$80) and you should get options for multiple geometry 
-processors... at $10/20 each?
-
-Note - the costs shown for the last upgrade is very likely wrong.
-
-> > What I'm describing is a PC console graphics card that will let someone
-> > play Quake III at a reasonable framerate.
-> >
-> > Isn't that what most people want?
-
-Something like the above should do.
->
-[snip]

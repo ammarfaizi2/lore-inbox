@@ -1,39 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263735AbTJCOzV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 10:55:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263741AbTJCOzU
+	id S263742AbTJCOzr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 10:55:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263741AbTJCOzr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 10:55:20 -0400
-Received: from havoc.gtf.org ([63.247.75.124]:54404 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S263735AbTJCOzS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 10:55:18 -0400
-Date: Fri, 3 Oct 2003 10:55:18 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Aniket Malatpure <aniket@sgi.com>, akmp@osdl.org, gwh@sgi.com,
-       jeremy@sgi.com, jbarnes@sgi.com, aniket_m@hotmail.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Patch to add support for SGI's IOC4 chipset
-Message-ID: <20031003145518.GA20625@gtf.org>
-References: <3F7CB4A9.3C1F1237@sgi.com> <200310031645.57341.bzolnier@elka.pw.edu.pl>
+	Fri, 3 Oct 2003 10:55:47 -0400
+Received: from mailhost.cs.auc.dk ([130.225.194.6]:37614 "EHLO
+	mailhost.cs.auc.dk") by vger.kernel.org with ESMTP id S263742AbTJCOzo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Oct 2003 10:55:44 -0400
+Subject: Re: Floppy disk working constantly
+From: Emmanuel Fleury <fleury@cs.auc.dk>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.53.0310030909040.12482@chaos>
+References: <1065186072.6517.44.camel@rade7.s.cs.auc.dk>
+	 <Pine.LNX.4.53.0310030909040.12482@chaos>
+Content-Type: text/plain
+Organization: Aalborg University -- Computer Science Dept.
+Message-Id: <1065192909.551.5.camel@rade7.s.cs.auc.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200310031645.57341.bzolnier@elka.pw.edu.pl>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 03 Oct 2003 16:55:12 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 03, 2003 at 04:45:57PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> Most of this declarations are not needed as sgiioc4.h is only included from shiioc4.c.
+On Fri, 2003-10-03 at 15:14, Richard B. Johnson wrote:
+> 
+> What are you using as a boot loader? 
 
+LILO.
 
-I agree...   but if you look at other PCI IDE drivers like piix.c,
-you see the same thing.  Maybe we should blame Alan...   ;-)
+> This may be a problem with
+> the boot loader not turning off the floppy drive motor before
+> it transfers control to Linux. With no built-in floppy driver,
+> the motor would never turn off. With quick boot hard-disks,
+> the floppy motor may still be ON from the initial BIOS access.
+> 
+> Just for kicks, change the order of boot devices in your
+> BIOS so that the floppy is never accessed during boot. This
+> should verify the problem.
 
-	Jeff
+That's it !
 
+I try several time with and without the [boot floppy] option enabled in
+the BIOS. Each time the [boot floppy] option was on, I got the floppy
+driver to spin on endlessly.
 
+Regards
+-- 
+Emmanuel
+
+There's never enough time to do all the nothing you want.
+  -- Calvin & Hobbes (Bill Waterson)
 

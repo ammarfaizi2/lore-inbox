@@ -1,47 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319621AbSH2X22>; Thu, 29 Aug 2002 19:28:28 -0400
+	id <S319636AbSH2Xi3>; Thu, 29 Aug 2002 19:38:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319624AbSH2X22>; Thu, 29 Aug 2002 19:28:28 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:41213
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S319621AbSH2X21>; Thu, 29 Aug 2002 19:28:27 -0400
-Subject: Re: [PATCH 1 / ...] i386 dynamic fixup/self modifying code
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Luca Barbieri <ldb@ldb.ods.org>
-Cc: Pavel Machek <pavel@suse.cz>,
-       Linux-Kernel ML <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <1030663772.1491.107.camel@ldb>
-References: <1030506106.1489.27.camel@ldb>  <20020828121129.A35@toy.ucw.cz>
-	<1030663192.1326.20.camel@irongate.swansea.linux.org.uk> 
-	<1030663772.1491.107.camel@ldb>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
-Date: 30 Aug 2002 00:32:35 +0100
-Message-Id: <1030663955.1327.27.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S319637AbSH2Xi3>; Thu, 29 Aug 2002 19:38:29 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:35292 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S319636AbSH2Xi1>; Thu, 29 Aug 2002 19:38:27 -0400
+Date: Fri, 30 Aug 2002 01:42:49 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Dave Hansen <haveblue@us.ibm.com>,
+       Michael Obster <michael.obster@bingo-ev.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Compiling 2.5.32
+In-Reply-To: <3D6EAD3B.6030108@mandrakesoft.com>
+Message-ID: <Pine.NEB.4.44.0208300138120.2879-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-08-30 at 00:29, Luca Barbieri wrote:
-> Worked around by making sure all other processors are stopped (iret is
-> serializing) sending IPIs if they are not already spinning on the fixup
-> lock. See patch #2.
+On Thu, 29 Aug 2002, Jeff Garzik wrote:
 
-what happens we you do a fixup and the fixup occurs in an IPI handler
-(eg a cross CPU tlb flush).
+> > Jeff Garzik doesn't want 1. until "someone actually tells me they are
+> > trying to hot-plug such a card" and he didn't apply the following patch to
+> > #ifdef the .remove away if the driver is compiled statically into the
+> > kernel:
+> >
+> >
+> > --- drivers/net/tulip/de2104x.c.old	2002-08-30 01:06:09.000000000 +0200
+> > +++ drivers/net/tulip/de2104x.c	2002-08-30 01:06:45.000000000 +0200
+> > @@ -2216,7 +2216,9 @@
+> >  	.name		= DRV_NAME,
+> >  	.id_table	= de_pci_tbl,
+> >  	.probe		= de_init_one,
+> > +#ifdef MODULE
+> >  	.remove		= de_remove_one,
+> > +#endif
+> >  #ifdef CONFIG_PM
+> >  	.suspend	= de_suspend,
+> >  	.resume		= de_resume,
+>
+>
+> You missed my recent message, I think.
+>
+> Currently in 2.5.x, you should be able to replace that #ifdef with
+> __devexit_p -- without changing the de_remove_one prototype.  I updated
+> the definition of __devexit_p in 2.5.30 or so.
+
+>From include/linux/init.h in 2.5.32:
+
+<--  snip  -->
+
+...
+#if defined(MODULE) || defined(CONFIG_HOTPLUG)
+#define __devexit_p(x) x
+#else
+#define __devexit_p(x) NULL
+#endif
+...
+
+<--  snip  -->
 
 
-> > For the other fixups though you -have- to do them before you
-> > run the code. That isnt hard (eg sparc btfixup). You generate a list of
-> > the addresses in a segment, patch them all and let the init freeup blow 
-> > the table away
-> Is doing them at runtime with the aforementioned workaround fine?
+With the .config of Michael a __devexit_p in de2104x.c doesn't help
+because CONFIG_HOTPLUG is defined...
 
-Is doing them all in the beginning not somewhat saner and more
-debuggable. The only reason to do it at runtime is hotplugging a less
-capable CPU. I have a suggestion for that case which is that we don't
-bother about it 8)
+
+> 	Jeff
+
+
+
+cu
+Adrian
+
+-- 
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+
 

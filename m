@@ -1,52 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261503AbUCIHLh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 02:11:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261516AbUCIHLh
+	id S261518AbUCIHYD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 02:24:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261531AbUCIHYD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 02:11:37 -0500
-Received: from is.magroup.ru ([213.33.179.242]:27927 "EHLO is.magroup.ru")
-	by vger.kernel.org with ESMTP id S261503AbUCIHLg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 02:11:36 -0500
-Date: Tue, 9 Mar 2004 10:11:10 +0300
-From: Antony Dovgal <tony2001@phpclub.net>
-To: schierlm@gmx.de
-Cc: schierlm-usenet@gmx.de, linux-kernel@vger.kernel.org
-Subject: Re: APM & device_power_up/down
-Message-Id: <20040309101110.50b55786.tony2001@phpclub.net>
-In-Reply-To: <S261722AbUCFWoa/20040306224430Z+905@vger.kernel.org>
-References: <1uQOH-4Z1-9@gated-at.bofh.it>
-	<S261722AbUCFWoa/20040306224430Z+905@vger.kernel.org>
-X-Mailer: Sylpheed version 0.9.10cvs2 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 9 Mar 2004 02:24:03 -0500
+Received: from mail-05.iinet.net.au ([203.59.3.37]:2716 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S261518AbUCIHYA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Mar 2004 02:24:00 -0500
+Message-ID: <404D7109.10902@cyberone.com.au>
+Date: Tue, 09 Mar 2004 18:23:53 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: Mike Fedyk <mfedyk@matchmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: [RFC][PATCH 4/4] vm-mapped-x-active-lists
+References: <404D56D8.2000008@cyberone.com.au> <404D5784.9080004@cyberone.com.au> <404D5A6F.4070300@matchmail.com> <404D5EED.80105@cyberone.com.au> <20040309070246.GI655@holomorphy.com>
+In-Reply-To: <20040309070246.GI655@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 Mar 2004 07:11:10.0828 (UTC) FILETIME=[B34012C0:01C405A5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 06 Mar 2004 23:44:08 +0100
-Michael Schierl <schierlm-usenet@gmx.de> wrote:
 
-> Hmm. Can you try unapplying it and applying the one in 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=107506063605497&w=2
-> instead? Does it work for you as well as with no patch?
 
-Yes, it works ok for me with this patch.
- 
-> Where do you read something about powering down devices after suspend?
-> The process is:
-> 1- suspend devices
-> 2- (power down devices w/ my patch)
-> 3- asm call to put cpu in suspend mode - it will not return 
->    until you wake it up again
-> 4- (power up devices w/ my patch)
-> 5- resume devices
+William Lee Irwin III wrote:
 
-Err.. thanks for explaining..
+>On Tue, Mar 09, 2004 at 05:06:37PM +1100, Nick Piggin wrote:
+>
+>>Not sure to be honest, I haven't looked at it :\. I'm not really
+>>sure if the rmap mitigation direction is just a holdover until
+>>page clustering or intended as a permanent feature...
+>>Either way, I trust its proponents will take the onus for regressions.
+>>
+>
+>Actually, anobjrmap does wonderful things wrt. liberating pgcl
+>internals from some very frustrating complications having to do with
+>assumptions of a 1:1 correspondence between pte pages and struct pages,
+>so I would regard work in the direction of anobjrmap as useful to
+>advance the state of page clustering regardless of its rmap mitigation
+>overtones.  The "partial" objrmap is actually insufficient to clean up
+>this assumption, and introduces new failure modes I don't like (which
+>it is in fact not necessary to do; aa's code is very close to doing the
+>partial-but-insufficient-for-pgcl objrmap properly apart from trying to
+>allocate more pte_chains than necessary and not falling back to the vma
+>lists for linear/nonlinear mapping mixtures). The current port has some
+>code to deal with this I'm extremely eager to dump as soon as things
+>such as anobjrmap etc. make it possible, if they're merged.
+>
+>Current efforts are now a background/spare time affair centering around
+>non-i386 architectures and driver audits.
+>
 
----
-WBR,
-Antony Dovgal aka tony2001
-tony2001@phpclub.net || antony@dovgal.com
+OK. I had just noticed that the people complaining about rmap most
+are the ones using 4K page size (x86-64 uses 4K, doesn't it?). Not
+that this fact means it is OK to ignore them problem, but I thought
+maybe pgcl might solve it in a more general way.
+
+I wonder how much you gain with objrmap / anobjrmap on say a 64K page
+architecture?
+

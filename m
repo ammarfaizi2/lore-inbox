@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267139AbSLaEPk>; Mon, 30 Dec 2002 23:15:40 -0500
+	id <S267142AbSLaEXs>; Mon, 30 Dec 2002 23:23:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267142AbSLaEPk>; Mon, 30 Dec 2002 23:15:40 -0500
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:32418 "EHLO
-	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S267139AbSLaEPj> convert rfc822-to-8bit; Mon, 30 Dec 2002 23:15:39 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: WOLK - Working Overloaded Linux Kernel
-To: Nathaniel Russell <reddog83@chartermi.net>, <alan@redhat.com>
-Subject: Re: [PATCH][2.4-ac] VT8633 GART Support [RESEND] Corrected
-Date: Tue, 31 Dec 2002 05:23:57 +0100
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0212311106220.995-200000@reddog.example.net>
-In-Reply-To: <Pine.LNX.4.44.0212311106220.995-200000@reddog.example.net>
+	id <S267145AbSLaEXs>; Mon, 30 Dec 2002 23:23:48 -0500
+Received: from smtp-server3.tampabay.rr.com ([65.32.1.41]:28110 "EHLO
+	smtp-server3.tampabay.rr.com") by vger.kernel.org with ESMTP
+	id <S267142AbSLaEXr>; Mon, 30 Dec 2002 23:23:47 -0500
+From: "Scott Robert Ladd" <scott@coyotegulch.com>
+To: "J Sloan" <joe@tmsusa.com>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: RE: [2.5.52] NFS works with 2.4.20, not with Win2K/SFU
+Date: Mon, 30 Dec 2002 23:32:14 -0500
+Message-ID: <FKEAJLBKJCGBDJJIPJLJAENKDOAA.scott@coyotegulch.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200212310523.43390.m.c.p@wolk-project.de>
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <3E110417.1050209@tmsusa.com>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 31 December 2002 17:18, Nathaniel Russell wrote:
+> My experience suggests that you'll have much
+> better luck using samba for your unix-to-pc
+> connectivity needs.
 
-Hi Nathaniel,
+I'm already using Samba; however, since most of my network is Linux-based
+with NFS shares, it seemed reasonable to try and use NFS for everything. I
+dislike creating two access points (NFS and Samba) for the same share -- but
+then again, I probably over-estimated the ability of Windows.
 
-> The first patch i sent to the list was wroung becaue i miss typed out the
-> PCI_DEVICE... it was supposed to be PCI_DEVICE_ID_VIA_8633_0 pci id is
-> 0x3091
-> Well here is the complete fixed and correct version of my patch.
-> I'm sorry about all the hassle.
-> Please apply the corrected patch to 2.4.20-ac2
-> Marc it should complete compile this time around, that is really weird,
-> Thank you though.
-> Nathaniel
-> CC me at reddog83@chartermi.net
-shouldn't this be exactly 8633_1 ? Assuming this is a AGP patch and: 
-http://pciids.sourceforge.net/iii/?m=1&i=1106b091
+..Scott
 
-tells the same, 8633_1 :)
-
-ciao, Marc

@@ -1,71 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261256AbTEMOIF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 10:08:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261260AbTEMOIF
+	id S261320AbTEMOLt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 10:11:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbTEMOLt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 10:08:05 -0400
-Received: from watch.techsource.com ([209.208.48.130]:62396 "EHLO
-	techsource.com") by vger.kernel.org with ESMTP id S261256AbTEMOIE
+	Tue, 13 May 2003 10:11:49 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:3712 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261309AbTEMOLr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 10:08:04 -0400
-Message-ID: <3EC10074.8060806@techsource.com>
-Date: Tue, 13 May 2003 10:25:56 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
+	Tue, 13 May 2003 10:11:47 -0400
+Date: Tue, 13 May 2003 10:24:19 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Stephan von Krawczynski <skraw@ithnet.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: What exactly does "supports Linux" mean?
+In-Reply-To: <1052830415.432.2.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.53.0305131016180.238@chaos>
+References: <20030513151630.75ad4028.skraw@ithnet.com>
+ <1052830415.432.2.camel@dhcp22.swansea.linux.org.uk>
 MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-CC: Ulrich Drepper <drepper@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: hammer: MAP_32BIT
-References: <3EBB5A44.7070704@redhat.com> <20030509092026.GA11012@averell> <16059.37067.925423.998433@gargle.gargle.HOWL> <20030509113845.GA4586@averell> <b9gr03$42n$1@cesium.transmeta.com> <3EBC0084.4090809@redhat.com> <3EBC15B5.4070604@zytor.com> <3EBC2164.6050605@redhat.com> <3EBC29A5.1050005@techsource.com> <3EBC2996.2040908@zytor.com> <3EBC2FD7.2080007@techsource.com> <3EBC389C.2010601@zytor.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 13 May 2003, Alan Cox wrote:
 
+> On Maw, 2003-05-13 at 14:16, Stephan von Krawczynski wrote:
+> > I bought a card from some vendor, claiming "support for Linux". I tried
+> to make
+> > it work in a configuration with a standard 2.4.20 kernel from kernel.org.
+> The
+> > drivers (kernel modules) are binary-only. They did not load because of a
+> > version mismatch. Asking for versions loadable with standard kernels,
+> I got the
+> > response that they only support kernels from Red Hat and SuSE, but
+> no standard
+> > kernels.
+>
 
-H. Peter Anvin wrote:
-> Timothy Miller wrote:
-> 
->>>The purpose is that there is a slight task-switching speed advantage if
->>>the address is in the bottom 4 GB.  Since this affects every process,
->>>and most processes use very little TLS, this is worthwhile.
->>>
->>>This is fundamentally due to a K8 design flaw.
->>
->>Is there an explicit check somewhere for this?  Are the page tables laid
->>out differently?
->>
-> 
-> 
-> No, there are two ways to load the FS base register: use a descriptor,
-> which is limited to 4 GB but is faster, or WRMSR, which is slower, but
-> unlimited.
-> 
+If you really want it to work, try `insmod -f modulename.o`. See of it
+works. RedHat supplies kernels with "intermediate" version numbers
+like linux-2.4.18-24. A perfectly-good module from linux-2.4.18
+may fail to load without the '-f' option, even though it is probably
+compatible. Try it, it may work fine. You can modify /etc/rc.d/rc.local
+to insert the module during startup so you don't have to muck with
+/etc/modules.conf (and having other startup-code change it when it
+"finds" new hardware.
 
-
-Ulrich Drepper wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Timothy Miller wrote:
-> 
-> 
->>Why does there ever need to be an explicit HINT that you would prefer a
->><32 bit address, when it's known a priori that <32 is better?  Why
->>doesn't the mapping code ALWAYS try to use 32-bit addresses before
->>resorting to 64-bit?
-> 
-> 
-> Because not all memory is addressed via GDT entries.  In fact, almost
-> none is, only thread stacks and similar gimicks.  If all mmap memory
-> would by default be served from the low memory pool you soon run out of
-> it and without any good reason.
-
-
-All I have to say is... I appreciate your patience with my ignorant 
-questions.  :)
-
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 

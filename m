@@ -1,44 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262506AbSLaIdR>; Tue, 31 Dec 2002 03:33:17 -0500
+	id <S262528AbSLaIjS>; Tue, 31 Dec 2002 03:39:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262646AbSLaIdR>; Tue, 31 Dec 2002 03:33:17 -0500
-Received: from are.twiddle.net ([64.81.246.98]:32385 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S262506AbSLaIdQ>;
-	Tue, 31 Dec 2002 03:33:16 -0500
-Date: Tue, 31 Dec 2002 00:41:38 -0800
-From: Richard Henderson <rth@twiddle.net>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com
-Subject: [TGAFB] implement the imageblit acceleration hook
-Message-ID: <20021231004138.A13860@twiddle.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+	id <S262662AbSLaIjS>; Tue, 31 Dec 2002 03:39:18 -0500
+Received: from pa158.zgierz.sdi.tpnet.pl ([213.77.180.158]:62662 "HELO
+	ekatalog.com.pl") by vger.kernel.org with SMTP id <S262528AbSLaIjR>;
+	Tue, 31 Dec 2002 03:39:17 -0500
+Date: Tue, 31 Dec 2002 09:47:40 +0100
+From: Filip djMedrzec Zyzniewski <lkml@filip.eu.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: OT: Which Gigabit ethernet card?
+Message-ID: <20021231084740.GA2680@ekatalog.com.pl>
+References: <fa.io6mq9v.11gou0n@ifi.uio.no> <Pine.LNX.3.96.1021230212131.8353A-100000@gatekeeper.tmr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.3.96.1021230212131.8353A-100000@gatekeeper.tmr.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please pull from
+On Mon, Dec 30, 2002 at 09:22:54PM -0500, Bill Davidsen wrote:
 
-	bk://are.twiddle.net/tgafb-2.5
+> I would hope a decent cable tester would test for effects at useful
+> frequency. The frequency of a battery is too low to reveal some problems.
 
+"Frequency of a baterry"? What the hell is that? Baterry provides direct
+current, not alternating one... Tester provides it's own testing signals.
 
-r~
+bye,
 
-
-
- drivers/video/tgafb.c |  255 +++++++++++++++++++++++++++++++++++++++++++++++++-
- include/video/tgafb.h |   27 +++++
- 2 files changed, 281 insertions, 1 deletion
-
-through these ChangeSets:
-
-<rth@are.twiddle.net> (02/12/31 1.954.2.7)
-   [TGAFB] Implement the fb_imageblit hook.
-   
-   Speeds up rendering of text by around 7x for 8bpp cards,
-   as you'd expect from the difference in the volume of data
-   passed across the bus.  Thus the win should be about 31x
-   for 32bpp cards.
+Filip Zyzniewski

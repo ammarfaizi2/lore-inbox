@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262140AbSJNTk1>; Mon, 14 Oct 2002 15:40:27 -0400
+	id <S262139AbSJNTnQ>; Mon, 14 Oct 2002 15:43:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262141AbSJNTk1>; Mon, 14 Oct 2002 15:40:27 -0400
-Received: from inrete-46-20.inrete.it ([81.92.46.20]:24808 "EHLO
-	pdamail1-pdamail.inrete.it") by vger.kernel.org with ESMTP
-	id <S262140AbSJNTk0>; Mon, 14 Oct 2002 15:40:26 -0400
-Message-ID: <3DAB1F00.667B82B5@inrete.it>
-Date: Mon, 14 Oct 2002 21:46:08 +0200
-From: Daniele Lugli <genlogic@inrete.it>
-Organization: General Logic srl
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-rthal5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: unhappy with current.h
-Content-Type: text/plain; charset=us-ascii
+	id <S262141AbSJNTnP>; Mon, 14 Oct 2002 15:43:15 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:51206
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S262139AbSJNTnO>; Mon, 14 Oct 2002 15:43:14 -0400
+Subject: Re: Evolution and 2.5.x
+From: Robert Love <rml@tech9.net>
+To: Thomas Molina <tmolina@cox.net>
+Cc: Andy Pfiffer <andyp@osdl.org>, Eric Blade <eblade@m-net.arbornet.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0210141435440.6072-100000@dad.molina>
+References: <Pine.LNX.4.44.0210141435440.6072-100000@dad.molina>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 14 Oct 2002 15:48:55 -0400
+Message-Id: <1034624937.753.4718.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I recently wrote a kernel module which gave me some mysterious problems.
-After too many days spent in blood, sweat and tears, I found the cause:
+On Mon, 2002-10-14 at 15:41, Thomas Molina wrote:
 
-*** one of my data structures has a field named 'current'. ***
+> I've read this thread and I'm confused.  Is this seen as a problem with 
+> Evolution, ORBit, or the 2.5 kernel?  If it is seen as a possible kernel 
+> problem, I'll add it to my problem report status page and track it.  If I 
+> track it, Eric Blade will get a weekly email asking whether he's still 
+> seeing the problem, at least until I'm told to drop it, or no one 
+> responds.
 
-Pretty common word, isn't it? Would you think it can cause such a
-trouble? But in some of my files I happen to indirectly include
-<asm/current.h> (kernel 2.4.18 for i386), containing the following line:
+It is a problem with ORBit.
 
-#define current get_current()
+Behavior changed somewhere in the kernel - I think a return value is
+different but was not standard before and ORBit relied on it.
 
-so that my structure becomes the owner of a function it has never asked
-for, while it looses a data member. gcc has nothing to complain about
-that.
+	Robert Love
 
-In some other files I don't happen to include <asm/current.h>, so that
-there my structure is sound - but alas! has different size and different
-composition. Again, gcc has nothing to complain.
-
-Moral of the story: in my opinion kernel developers should reduce to a
-minimum the use of #define, and preferably use words in uppercase and/or
-with underscores, in any case not commonly used words.
-In the specific case the said #define just looks to save 6 keystrokes
-and I think it could have been completely avoided.
-
-Regards, Daniele Lugli

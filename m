@@ -1,54 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275583AbTHSGy4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 02:54:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275592AbTHSGy4
+	id S261151AbTHSHPN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 03:15:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261874AbTHSHPN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 02:54:56 -0400
-Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:1287 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id S275583AbTHSGyy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 02:54:54 -0400
-Message-Id: <200308190654.h7J6sIL07040@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: "David Schwartz" <davids@webmaster.com>,
-       "Mike Fedyk" <mfedyk@matchmail.com>,
-       "Hank Leininger" <hlein@progressive-comp.com>
-Subject: Re: Dumb question: Why are exceptions such as SIGSEGV not logged
-Date: Tue, 19 Aug 2003 09:54:17 +0300
-X-Mailer: KMail [version 1.3.2]
-Cc: <linux-kernel@vger.kernel.org>
-References: <MDEHLPKNGKAHNMBLJOLKIEFLFDAA.davids@webmaster.com>
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKIEFLFDAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	Tue, 19 Aug 2003 03:15:13 -0400
+Received: from core.kaist.ac.kr ([143.248.147.118]:23703 "EHLO
+	core.kaist.ac.kr") by vger.kernel.org with ESMTP id S261151AbTHSHPH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 03:15:07 -0400
+Message-ID: <003701c36620$fd9f2d80$a5a5f88f@core8fyzomwjks>
+From: "Cho, joon-woo" <jwc@core.kaist.ac.kr>
+To: <linux-kernel@vger.kernel.org>
+Subject: [Q] IDE drive DMA failure
+Date: Tue, 19 Aug 2003 16:10:37 +0900
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 19 August 2003 01:39, David Schwartz wrote:
-> > And why not just catch the ones sent from the kernel?  That's the one that
-> > is killing the program because it crashed, and that's the one the
-> > origional
-> > poster wants logged...
-> 
-> 	Because sometimes a program wants to terminate. And it is perfectly legal
-> for a programmer who needs to terminate his program as quickly as possible
-> to do this:
-> 
-> char *j=NULL;
-> signal(SIGSEGV, SIG_DFL);
-> *j++;
-> 
-> 	This is a perfectly sensible thing for a program to do with well-defined
-> semantics. If a program wants to create a child every minute like this and
-> kill it, that's perfectly fine. We should be able to do that in the default
-> configuration without a sysadmin complaining that we're DoSing his syslogs.
+Hello
 
-I disagree. _exit(2) is the most sensible way to terminate.
+I send some data from ide disk to some PCI device's RAM directly.
 
-Logginh kernel-induced SEGVs and ILLs are definitely a help when you hunt
-daemons mysteriously crashing. This outweighs DoS hazard.
---
-vda
+At above sentence, 'directly' means that data is not transferred through
+RAM.
+
+Data path is only from ide disk controller to PCI device's RAM.
+
+Anyway data can be transferred by PIO.
+
+But DMA method can't operate. Below is error message.
+
+Aug 18 15:08:12 localhost kernel: hdc: dma_timer_expiry: status=0x58 {
+DriveReady SeekComplete DataRequest }
+Aug 18 15:08:12 localhost kernel: hdc: timeout waiting for DMA
+Aug 18 15:08:12 localhost kernel: ide_dmaproc: chipset supported
+ide_dma_timeout func only: 14
+
+After this DMA timeout error, data is transferred by PIO.
+
+Do you have similar experience?
+
+I want to send data by DMA method.
+
+What is problem? Kernel? Hardware?
+
+And how can I solve this problem?
+
+Please give me anser or hint, Thanks!
+
+
+Below is my system spec
+
+CPU
+celeron 400
+
+Motherboard
+440BX
+
+IDE interface
+Intel Corporation 82371AB PIIX4 IDE (rev 1).
+
+
+HDD
+hdc: IC35L040AVVA07-0, ATA DISK drive (Hitachi)
+
+
+
+
+

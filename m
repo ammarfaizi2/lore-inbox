@@ -1,58 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285677AbRLTAS6>; Wed, 19 Dec 2001 19:18:58 -0500
+	id <S285703AbRLTAYI>; Wed, 19 Dec 2001 19:24:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285669AbRLTASj>; Wed, 19 Dec 2001 19:18:39 -0500
-Received: from mailhost.teleline.es ([195.235.113.141]:800 "EHLO
-	tsmtp3.ldap.isp") by vger.kernel.org with ESMTP id <S285689AbRLTASe>;
-	Wed, 19 Dec 2001 19:18:34 -0500
-Date: Thu, 20 Dec 2001 01:20:46 +0100
-From: Diego Calleja <grundig@teleline.es>
+	id <S285693AbRLTAX6>; Wed, 19 Dec 2001 19:23:58 -0500
+Received: from samba.sourceforge.net ([198.186.203.85]:3598 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S285692AbRLTAXt>;
+	Wed, 19 Dec 2001 19:23:49 -0500
+From: Paul Mackerras <paulus@samba.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15393.11001.446919.939724@argo.ozlabs.ibm.com>
+Date: Thu, 20 Dec 2001 11:04:09 +1100 (EST)
 To: linux-kernel@vger.kernel.org
-Cc: green@namesys.com, reiserfs-list@namesys.com
-Subject: Re: Reiserfs corruption on 2.4.17-rc1!
-Message-ID: <20011220012046.A1866@diego>
-In-Reply-To: <20011217025856.A1649@diego> <13425.1008580831@nova.botz.org> <20011218003359.A555@diego> <20011218125852.A1159@namesys.com> <20011218224848.C377@diego> <20011219095303.A11409@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20011219095303.A11409@namesys.com>; from green@namesys.com on Wed, Dec 19, 2001 at 07:53:03 +0100
-X-Mailer: Balsa 1.0.pre5
+Subject: 2.4.17-rc2 BUG at slab.c:1110
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Dec 2001 07:53:03 Oleg Drokin wrote:
-> Hello!
-> 
-> So why didn't you run reiserfsck --rebuild-tree then?
-I've done it, under 2.4.17-rc2, It seems it's solved (although I can't know
-what happened). reiserfsck -l -->
+I'm seeing BUG messages when I eject a compact flash card from the
+pcmcia slot on my powerbook, not every time but quite often.  The
+stack trace looks like this:
 
-####### Pass 0 #######
-"r5" got 142629 hits
-####### Pass 1 #######
-####### Pass 2 #######
-####### Pass 3 #########
-name "rpc" in directory 2 4160 points to nowhere 4160 68722 - removed
-name "mtab" in directory 2 4160 points to nowhere 4160 68669 - removed
-name "t1lib" in directory 2 4160 points to nowhere 4160 64508 - removed
-name "hotplug" in directory 2 4160 points to nowhere 4160 63049 - removed
-name "serial.conf" in directory 2 4160 points to nowhere 4160 68673 -
-removed
-name "sprucesig" in directory 2 4160 points to nowhere 4160 68377 - removed
-dir 2 4160 has wrong sd_size 5792, has to be 5632
-dir 1 2 has wrong sd_size 480, has to be 512
-####### Pass 3a (lost+found pass) #########
+c002e99c kmem_cache_grow+0x94
+c002ed60 kmem_cache_alloc+0x144
+c008844c devfsd_notify_de+0x60
+c008852c devfsd_notify+0x30
+c0088984 unregister+0x48
+c0088a14 devfs_unregister+0x2c
+c010c950 ide_unregister+0x200
+cd9798b0 ide_release+0x2c
+c001e928 timer_bh+0x2f4
+c001a314 bh_action+0x3c
+c001a1c4 tasklet_hi_action+0x3c
+c0019dc0 do_softirq+0x94
+c000610c timer_interrupt+0x23c
 
+What is happening is that ide_event is doing
 
-Version 3.x.0K-pre13 (the last I found)
-It seems all is working correctly). I'll try to reproduce the bug, althouh
-I think it's no possible
+	mod_timer(&link->release, jiffies + HZ/20);
 
-Diego Calleja
-> 
-> Bye,
->     Oleg
-> 
+on the card removal event, with link->release.function == ide_release.
+Thus ide_release gets called on a timeout, and it calls
+ide_unregister, which calls devfs_unregister, which does various
+things which you shouldn't do in interrupt context, like calling
+schedule and calling kmem_cache_alloc(..., SLAB_KERNEL).
 
+So, is this devfs's fault for not allowing devfs_unregister to be
+called from interrupt context, or is it ide-cs's fault for calling
+ide_unregister from interrupt context?
 
+Paul.

@@ -1,35 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313510AbSDHInQ>; Mon, 8 Apr 2002 04:43:16 -0400
+	id <S313589AbSDHIq3>; Mon, 8 Apr 2002 04:46:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313529AbSDHInP>; Mon, 8 Apr 2002 04:43:15 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:58356
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S313510AbSDHInO>; Mon, 8 Apr 2002 04:43:14 -0400
-Date: Mon, 8 Apr 2002 01:45:15 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Stevie O <stevie@qrpff.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Renaming internal names of network interfaces
-Message-ID: <20020408084515.GQ961@matchmail.com>
-Mail-Followup-To: Stevie O <stevie@qrpff.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <5.1.0.14.2.20020407013139.00acf4d0@whisper.qrpff.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S313588AbSDHIq2>; Mon, 8 Apr 2002 04:46:28 -0400
+Received: from fungus.teststation.com ([212.32.186.211]:3337 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id <S313589AbSDHIq0>; Mon, 8 Apr 2002 04:46:26 -0400
+Date: Mon, 8 Apr 2002 10:46:04 +0200 (CEST)
+From: Urban Widmark <urban@teststation.com>
+X-X-Sender: <puw@cola.teststation.com>
+To: "James H. Cloos Jr." <cloos@jhcloos.com>
+cc: Keith Owens <kaos@ocs.com.au>, <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] Re: 2.4.19-pre6 dead Makefile entries
+In-Reply-To: <m3elhrjkjk.fsf@lugabout.jhcloos.org>
+Message-ID: <Pine.LNX.4.33.0204081015300.7289-100000@cola.teststation.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 07, 2002 at 01:42:08AM -0500, Stevie O wrote:
-> I recall some discussions of MAC address changing, etc., and some of the
-messages referred to a way of changing the name Linux (and thus anything
-using SIOGETIF or whatever) uses to refer to an interface. I can't remember
-any specifics, so I can't find anything in archives :( Could someone please
-point me in the right direction?     
+On 7 Apr 2002, James H. Cloos Jr. wrote:
+
+> >> fs/nls/Makefile nls_cp1252.o
 > 
+> It does seem as though this one would be useful to a significant
+> number of people.  Is there some reason 125[2-46-8] are not included
+> where the rest are?  
 
-Check out bin/ip from the iproute package (in debian at least) specifically
-"ip link name" "ip link help" should help.
+Perhaps they aren't used in a form that makes any linux fs see them.
 
-Mike
+cp1252 is not the codepage used by a windows smb server so you wouldn't
+need it for smbfs (same for vfat, ncpfs?), it would return data in the
+corresponding dos codepage (cp850). NTFS is unicode. cd/dvd formats are 
+... (?)
+
+Maybe I'm missing something.
+
+
+> uniset to output the necessary data.  In fact, it seems like it would
+> be better to include the unicode table files in the kernel tree and
+> use a utility to generate the nls...c files as needed, yes?)
+
+I think so. A tool to build them would be nice, cp1252 or not. I did some
+editing before on them and the editor was perl (ok, so I suck at using awk
+and sed ...).
+
+Some format that allows different implementations to be used. All the
+iso* pages could share one implementation file but let the more advanced
+have different. That could of course be done with a simple "#include".
+
+/Urban
+

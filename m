@@ -1,57 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263267AbSJ1K7W>; Mon, 28 Oct 2002 05:59:22 -0500
+	id <S263276AbSJ1LAX>; Mon, 28 Oct 2002 06:00:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263270AbSJ1K7W>; Mon, 28 Oct 2002 05:59:22 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:6891 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S263267AbSJ1K7V>;
-	Mon, 28 Oct 2002 05:59:21 -0500
-Date: Mon, 28 Oct 2002 12:04:27 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@digeo.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] Fix file-corrupting bug, kernels 2.5.41 to 2.5.44
-Message-ID: <20021028110427.GD844@suse.de>
-References: <3DBCB904.FA9CC188@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DBCB904.FA9CC188@digeo.com>
+	id <S263279AbSJ1LAX>; Mon, 28 Oct 2002 06:00:23 -0500
+Received: from adsl-196-233.cybernet.ch ([212.90.196.233]:46562 "HELO
+	mailphish.drugphish.ch") by vger.kernel.org with SMTP
+	id <S263276AbSJ1K7o>; Mon, 28 Oct 2002 05:59:44 -0500
+Message-ID: <3DBD1A11.2010301@drugphish.ch>
+Date: Mon, 28 Oct 2002 12:05:53 +0100
+From: Roberto Nibali <ratz@drugphish.ch>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: vda@port.imtp.ilyichevsk.odessa.ua
+Cc: Momchil Velikov <velco@fadata.bg>, linux-kernel@vger.kernel.org
+Subject: Re: New csum and csum_copy routines - and a test/benchmark program
+References: <200210280819.g9S8Jfp25782@Port.imtp.ilyichevsk.odessa.ua> <3DBCF9D0.4030602@drugphish.ch> <200210281034.g9SAYip26620@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 27 2002, Andrew Morton wrote:
-> 
-> 
-> This patch fixes a filesystem corrupting bug, present in 2.5.41 through
-> 2.5.44.  It can cause ext2 indirect blocks to not be written out.  A
-> fsck will fix it up.
-> 
-> Under heavy memory pressure a PF_MEMALLOC task attemtps to write out a
-> blockdev page whose buffers are already under writeback and which were
-> dirtied while under writeback.
+> Applied except for a bug ;) see below
 
-Nasty, it's odd how noone else seems to have noticed this?
+Yes, this was wrong. I didn't read the code too closely. This introduced 
+a wrong csum return for me. With your .4 version it works now perfectly.
 
-> The writepage call returns -EAGAIN but because the caller is
-> PF_MEMALLOC, the page was not being marked dirty again.
+> # as --version
+> GNU assembler 2.13.90.0.6 20021002
+> Copyright 2002 Free Software Foundation, Inc.
+> This program is free software; you may redistribute it under the terms of
+> the GNU General Public License.  This program has absolutely no warranty.
+> This assembler was configured for a target of `i386-pc-linux-gnu'.
 > 
-> The page sits on mapping->clean_pages for ever and it not written out.
-> 
-> The fix is to mark that page dirty again for all callers, regardless of
-> PF_MEMALLOC state.
+> What's yours?
 
-I can confirm that this fixes my 'loosing data under vm pressure' bug,
-both for O_DIRECT case and sgio. It passed 1 iteration of both tests, it
-would not even get past the 10% mark before. Thanks!
+# as --version
+GNU assembler 2.11.92.0.10
+Copyright 2001 Free Software Foundation, Inc.
+This program is free software; you may redistribute it under the terms of
+the GNU General Public License.  This program has absolutely no warranty.
+This assembler was configured for a target of `i686-pc-linux-gnu'.
 
-BTW, 2.5.44-mm6 showed some funnies and corrupted data in other
-interesting ways. I'm hesitant to report this as a bug right now, as it
-may just have been that the target fs had not been fsck'ed after being
-run under one of the buggy kernels. But it did crash in the end, dumping
-lots of hot/cold warnings. The above verification was run under 2.5.44 +
-sgio patches + your standalone __set_page_dirty() fix.
+I reckon this explains it all. I'll go and upgrade the damn thing now.
 
+Cheers,
+Roberto Nibali, ratz
 -- 
-Jens Axboe
+echo '[q]sa[ln0=aln256%Pln256/snlbx]sb3135071790101768542287578439snlbxq'|dc
 

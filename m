@@ -1,48 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262771AbTIEOIR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 10:08:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262778AbTIEOIR
+	id S263076AbTIEOp6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 10:45:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263053AbTIEOp6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 10:08:17 -0400
-Received: from imap.gmx.net ([213.165.64.20]:2261 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262771AbTIEOIP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 10:08:15 -0400
-Subject: Re: [2.6.0-test-x] Kernel Oops and pppd segfault
-From: Florian Zimmermann <florian.zimmermann@gmx.net>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030905084126.A15120@infradead.org>
-References: <1062711059.8011.4.camel@mindfsck>
-	 <20030905084126.A15120@infradead.org>
-Content-Type: text/plain
-Message-Id: <1062769373.3377.1.camel@mindfsck>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 05 Sep 2003 15:42:54 +0200
-Content-Transfer-Encoding: 7bit
+	Fri, 5 Sep 2003 10:45:58 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:1408 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S263076AbTIEOoo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 10:44:44 -0400
+Date: Fri, 5 Sep 2003 15:57:57 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200309051457.h85EvvPJ000124@81-2-122-30.bradfords.org.uk>
+To: linux-kernel@vger.kernel.org, ndiamond@wta.att.ne.jp
+Subject: Re: keyboard - was: Re: Linux 2.6.0-test4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-09-05 at 09:41, Christoph Hellwig wrote:
-> On Thu, Sep 04, 2003 at 11:30:59PM +0200, Florian Zimmermann wrote:
-> > I have posted that to linux-ppp mailing list, but
-> > no answer for 2 weeks now..
-> 
-> This should fix the oops, but the failure is still strange.
-   ^^^^^ what? where? when?
-In case you attached a patch, please resend - there was no
-attachement :)
+> > At this late stage, I don't think it is a good idea to completely
+> > rewrite the untranslate algorithm.  So we continue to hack it and hack
+> > it until it works.  :-/
+>
+> Surely not.  Some keyboards which worked since 2.0 and probably 1.something
+> are broken in 2.6.
 
-> 
-> do you already have a ppp device in /dev before loading the module?
+Aren't we over-complicating this?
 
-the module is never loaded btw, but before i try to load the
-module the /device is already there:
+The vast majority of keyboards are usable with translated Set 2, and
+no workarounds.  Some workarounds may break other keyboards, possibly
+ones we don't even know about yet.
 
-crw-r--r--    1 root     root     108,   0 Sep  5  2003 /dev/ppp
+There are advantages to using untranslated Set 2, and Set 3, and some
+keyboards need to be used in those modes them to work correctly.
 
+So, why not:
 
+* Default to translated Set 2 with no work arounds, unless the
+keyboard is known to work fine in Set 3.
 
+Either:
 
+1. It works perfectly.
+2. It doesn't.
+
+In case 1, if the user is happy with translated Set 2, there is no
+problem.  If they are interested in seeing whether the technically
+neater untranslated Set 2, or Set 3 work for them they can test them
+and see.
+
+In case 2, the user can boot with a kernel parameter enabling
+workarounds for broken keyboards.  Conflicting workarounds can be
+moved in to different sets, I.E. boot with inputworkarounds=1 for the
+most common ones, and inputworkarounds=2 for the less common ones.
+
+This should get almost all keyboards working by default.  Most of
+those that don't work due to critical errors such as keys bouncing and
+excessive auto-repeat, and those that don't work fully, should work
+fully with workarounds enabled.
+
+My keyboard which requires Set 3 to operate fully sends a distinctive
+ID, so can be identified, and set to Set 3 automatically.
+
+John.

@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275693AbRIZX2p>; Wed, 26 Sep 2001 19:28:45 -0400
+	id <S275695AbRIZXbp>; Wed, 26 Sep 2001 19:31:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275695AbRIZX2g>; Wed, 26 Sep 2001 19:28:36 -0400
-Received: from d12lmsgate.de.ibm.com ([195.212.91.199]:61658 "EHLO
-	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S275693AbRIZX2Z>; Wed, 26 Sep 2001 19:28:25 -0400
-Importance: Normal
-Subject: Bug in tcp_v4_hnd_req?
-To: davem@redhat.com
-Cc: linux-kernel@vger.kernel.org,
-        "Martin Schwidefsky" <schwidefsky@de.ibm.com>,
-        "Utz Bacher" <utz.bacher@de.ibm.com>
-X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
-Message-ID: <OF9A5AA6CF.110D18E7-ONC1256AD3.0080234F@de.ibm.com>
-From: "Ulrich Weigand" <Ulrich.Weigand@de.ibm.com>
-Date: Thu, 27 Sep 2001 01:27:33 +0200
-X-MIMETrack: Serialize by Router on D12ML028/12/M/IBM(Release 5.0.8 |June 18, 2001) at
- 27/09/2001 01:28:45
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S275696AbRIZXbf>; Wed, 26 Sep 2001 19:31:35 -0400
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:65037 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S275695AbRIZXbR>;
+	Wed, 26 Sep 2001 19:31:17 -0400
+Date: Wed, 26 Sep 2001 16:26:58 -0700
+From: Greg KH <greg@kroah.com>
+To: Crispin Cowan <crispin@wirex.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-security-module@wirex.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: Binary only module overview
+Message-ID: <20010926162658.A20671@kroah.com>
+In-Reply-To: <E15lfKE-00047d-00@the-village.bc.nu> <3BB10E8E.10008@wirex.com> <20010925202417.A16558@kroah.com> <3BB229D1.10401@wirex.com> <20010926130156.B19819@kroah.com> <3BB25BA3.1060505@wirex.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3BB25BA3.1060505@wirex.com>
+User-Agent: Mutt/1.3.21i
+X-Operating-System: Linux 2.2.19 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wed, Sep 26, 2001 at 03:50:11PM -0700, Crispin Cowan wrote:
+> >a small note in it detailing this disagreement might be a nice thing to do.
+> >
+> Fair enough.  How about this:
+> 
+>    "This file is GPL. See the Linux Kernel's COPYING file for details.
+>    There is controversy over whether this permits you to write a module
+>    that #includes this file without placing your module under the GPL.
+>    Consult your lawyer for advice."
 
-the following code in tcp_v4_hnd_req looks broken:
+That's acceptable to me.  I'll go add that to the tree.
 
-     if (nsk) {
-          if (nsk->state != TCP_TIME_WAIT) {
-               bh_lock_sock(nsk);
-               return nsk;
-          }
-          tcp_tw_put((struct tcp_tw_bucket*)sk);
-          return NULL;
-     }
+thanks,
 
-Shouldn't it put *nsk* instead of sk?  This appears to be the cause of
-weird crashes under heavy network load we've been experiencing ...
-
-
-Mit freundlichen Gruessen / Best Regards
-
-Ulrich Weigand
-
---
-  Dr. Ulrich Weigand
-  Linux for S/390 Design & Development
-  IBM Deutschland Entwicklung GmbH, Schoenaicher Str. 220, 71032 Boeblingen
-  Phone: +49-7031/16-3727   ---   Email: Ulrich.Weigand@de.ibm.com
-
+greg k-h

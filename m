@@ -1,44 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266956AbRGQTZa>; Tue, 17 Jul 2001 15:25:30 -0400
+	id <S266960AbRGQThC>; Tue, 17 Jul 2001 15:37:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266960AbRGQTZU>; Tue, 17 Jul 2001 15:25:20 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:42249 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S266959AbRGQTZM>; Tue, 17 Jul 2001 15:25:12 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
+	id <S266971AbRGQTgw>; Tue, 17 Jul 2001 15:36:52 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:14720 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S266960AbRGQTgp>; Tue, 17 Jul 2001 15:36:45 -0400
+Date: Tue, 17 Jul 2001 15:36:24 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: 2.4.6 possible problem
-Date: Tue, 17 Jul 2001 19:24:23 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <9j23d7$1qs$1@penguin.transmeta.com>
-In-Reply-To: <3B54454B.97AA34E6@ueidaq.com> <Pine.LNX.3.95.1010717103652.1430A-100000@chaos.analogic.com>
-X-Trace: palladium.transmeta.com 995397895 24674 127.0.0.1 (17 Jul 2001 19:24:55 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 17 Jul 2001 19:24:55 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+In-Reply-To: <9j23d7$1qs$1@penguin.transmeta.com>
+Message-ID: <Pine.LNX.3.95.1010717153319.6035A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.3.95.1010717103652.1430A-100000@chaos.analogic.com>,
-Richard B. Johnson <root@chaos.analogic.com> wrote:
->
->    ticks = 1 * HZ;        /* For 1 second */
->    while((ticks = interruptible_sleep_on_timeout(&wqhead, ticks)) > 0)
->                  ;
+On Tue, 17 Jul 2001, Linus Torvalds wrote:
 
-Don't do this.
+> In article <Pine.LNX.3.95.1010717103652.1430A-100000@chaos.analogic.com>,
+> Richard B. Johnson <root@chaos.analogic.com> wrote:
+> >
+> >    ticks = 1 * HZ;        /* For 1 second */
+> >    while((ticks = interruptible_sleep_on_timeout(&wqhead, ticks)) > 0)
+> >                  ;
+> 
+> Don't do this.
+> 
+> Imagine what happens if a signal comes in and wakes you up? The signal
+> will continue to be pending, which will make your "sleep loop" be a busy
+> loop as you can never go to sleep interruptibly with a pending signal.
+> 
+> In short: if you have to wait for a certain time or for a certain event,
+> you MUST NOT USE a interruptible sleep.
+> 
+> If it is ok to return early due to signals or similar (which is nice -
+> you can allow people to kill the process), then you use an interruptible
+> sleep, but then you mustn't have the above kind of loop.
+> 
+> 		Linus
 
-Imagine what happens if a signal comes in and wakes you up? The signal
-will continue to be pending, which will make your "sleep loop" be a busy
-loop as you can never go to sleep interruptibly with a pending signal.
+Okay, then ../linux/drivers/net/8139too.c (line 2239) should be fixed
+because that's where it came from.
 
-In short: if you have to wait for a certain time or for a certain event,
-you MUST NOT USE a interruptible sleep.
 
-If it is ok to return early due to signals or similar (which is nice -
-you can allow people to kill the process), then you use an interruptible
-sleep, but then you mustn't have the above kind of loop.
+Cheers,
+Dick Johnson
 
-		Linus
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
+

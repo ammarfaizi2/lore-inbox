@@ -1,69 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264665AbUFSUwX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264677AbUFSUye@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264665AbUFSUwX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 16:52:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264677AbUFSUwW
+	id S264677AbUFSUye (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 16:54:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264685AbUFSUye
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 16:52:22 -0400
-Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:60886 "EHLO
-	websrv.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S264665AbUFSUwO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 16:52:14 -0400
-Subject: Re: 2.6.7 Samba OOPS (in smb_readdir)
-From: Christophe Saout <christophe@saout.de>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Brice Goglin <Brice.Goglin@ens-lyon.fr>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0406191648240.2228@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.58.0406152253390.6392@ppc970.osdl.org>
-	 <20040618163759.GN1146@ens-lyon.fr> <20040618164125.GO1146@ens-lyon.fr>
-	 <Pine.LNX.4.58.0406181309440.2228@montezuma.fsmlabs.com>
-	 <1087585251.13235.3.camel@leto.cs.pocnet.net>
-	 <1087586532.9085.1.camel@leto.cs.pocnet.net>
-	 <Pine.LNX.4.58.0406191624430.2228@montezuma.fsmlabs.com>
-	 <Pine.LNX.4.58.0406191648240.2228@montezuma.fsmlabs.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-3t8DWmHjCRESVp/Zs8Xc"
-Date: Sat, 19 Jun 2004 22:52:02 +0200
-Message-Id: <1087678322.15681.1.camel@leto.cs.pocnet.net>
+	Sat, 19 Jun 2004 16:54:34 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:64493 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S264677AbUFSUyc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jun 2004 16:54:32 -0400
+Date: Sat, 19 Jun 2004 22:52:53 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Jari Ruusu <jariruusu@users.sourceforge.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Stop the Linux kernel madness
+Message-ID: <20040619205253.GO28927@marowsky-bree.de>
+References: <40D232AD.4020708@opensound.com> <mailman.1087541100.18231.linux-kernel2news@redhat.com> <20040618124716.183669f8@lembas.zaitcev.lan> <40D46B6C.9618B196@users.sourceforge.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9.1 
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <40D46B6C.9618B196@users.sourceforge.net>
+X-Ctuhulu: HASTUR
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 2004-06-19T19:35:56,
+   Jari Ruusu <jariruusu@users.sourceforge.net> said:
 
---=-3t8DWmHjCRESVp/Zs8Xc
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> Last time I checked, SUSE kernels include " characters in EXTRAVERSION
+> and KERNELRELEASE Makefile strings. Those " characters need to be
+> filtered out before EXTRAVERSION and KERNELRELEASE strings can be
+> used.
+> 
+> Just another SUSE sillyness.
 
-Am Sa, den 19.06.2004 um 16:49 Uhr -0400 schrieb Zwane Mwaikambo:
-
-> > > The oops is gone but the processes are still hanging. I'm posting the
-> > > SysRq-T trace on bugzilla. Hope it helps. If you need some help
-> > > debugging the problem, please tell me if I can do something.
-> >
-> > This is an updated debugging patch (which is also added to Bugzilla),
-> > please give this a spin. There are still a few issues with this patch b=
-ut
-> > lets try at least avoid oopsing for now.
->=20
-> Hold on, this is buggy garbage. i'll have something in a bit.
-
-Well ok. smbiod was still hanging and all requests timed out, but I was
-able to cleanly unmount the filesystem and unload the module this time.
-No Oops.
+What kind of crap 've you been smokin'? Sue your dealer.
 
 
---=-3t8DWmHjCRESVp/Zs8Xc
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
+With all due respect,
+    Lars Marowsky-Brée <lmb@suse.de>
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBA1KdxZCYBcts5dM0RAr0qAJ0X2AQJkj5S5b/08e30d01h+npewQCgphIX
-FfA3x8qagqLAqr/Fl9tEuPA=
-=6y2l
------END PGP SIGNATURE-----
-
---=-3t8DWmHjCRESVp/Zs8Xc--
+-- 
+High Availability & Clustering	      \ ever tried. ever failed. no matter.
+SUSE Labs			      | try again. fail again. fail better.
+Research & Development, SUSE LINUX AG \ 	-- Samuel Beckett
 

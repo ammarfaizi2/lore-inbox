@@ -1,52 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263762AbTJCPUP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 11:20:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263765AbTJCPUP
+	id S263758AbTJCPZO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 11:25:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263764AbTJCPZO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 11:20:15 -0400
-Received: from pentafluge.infradead.org ([213.86.99.235]:18612 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S263762AbTJCPUM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 11:20:12 -0400
-Subject: Re: [PATCH] macintosh/adbhid.c REP_DELAY fix (was Re: 2.6.0-test5
-	- stuck keys on iBook)
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Brice Figureau <brice@tincell.com>
-Cc: cliff white <cliffw@osdl.org>,
-       linuxppc-dev list <linuxppc-dev@lists.linuxppc.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1065166822.7878.2.camel@localhost>
-References: <20030930143149.4930ec9c.cliffw@osdl.org>
-	 <1065166822.7878.2.camel@localhost>
-Content-Type: text/plain
-Message-Id: <1065194389.23225.23.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 03 Oct 2003 17:19:49 +0200
+	Fri, 3 Oct 2003 11:25:14 -0400
+Received: from kogut.o2.pl ([212.126.20.61]:61865 "EHLO kogut.o2.pl")
+	by vger.kernel.org with ESMTP id S263758AbTJCPZJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Oct 2003 11:25:09 -0400
+From: Mariusz Kozlowski <madx@tlen.pl>
+To: linux-kernel@vger.kernel.org
+Subject: problem with USB on Sony Vaio laptop
+Date: Fri, 3 Oct 2003 17:25:23 +0200
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
-X-SA-Exim-Mail-From: benh@kernel.crashing.org
-X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
-X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
+Content-Disposition: inline
+Message-Id: <200310031725.23040.madx@tlen.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-10-03 at 09:40, Brice Figureau wrote:
-> Hi Cliff,
-> 
-> On Tue, 2003-09-30 at 23:31, cliff white wrote:
-> > Kernel version: latest from ppc.bkbits.net/linuxppc-2.5
-> >
-> > Symptom: keyboard diarrhea - single keypress == 3-7 characters.
-> 
-> Here is a patch that fixes the keyboard problem. The input layer
-> REP_DELAY (and REP_PERIOD) were changed from jiffies to ms but the adb
-> was not updated accordingly.
-> 
-> I hope this will help you.
+Hello,
 
-Thanks, I'll test & commit.
+	I've been using linux succesfully for quite long time. Recently I decided to 
+move to 2.6.x kernel series and all is fine but USB support. The problem 
+looks like this: 
 
-Ben.
+- Without USB support linux boots fine.
 
+- With USB support linux stops booting at some time and computer is just 
+frozen. Keyboard doesn't work. The only thing I can observe is that just 
+during loading USB modules hard disk starts working louder until the manual 
+power_off which is necessary because machine is dead at that time.
+
+All was fine with 2.4.x series. The problems started when I moved to 2.6.x. I 
+tried all 2.6.x versions released until now. None of them works fine with my 
+machine with USB support enabled.
+
+here is a little output from console during booting sequence:
+
+
+drivers/usb/core/usb.c: registered new driver hub
+ehci_hcd 0000:00:0c.2: EHCI Host Controller
+ehci_hcd 0000:00:0c.2: irq 11, pci mem df9e7800
+ehci_hcd 0000:00:0c.2: new USB bus registered, assigned bus number 1
+ehci_hcd 0000:00:0c.2: USB 2.0 enabled, EHCI 0.95, driver 2003-Jun-13
+hub 1-0:1.0: USB hub found
+hub 1-0:1.0: 4 ports detected
+drivers/usb/host/uhci-hcd.c: USB Universal Host Controller Interface driver 
+v2.1
+uhci-hcd 0000:00:0c.0: UHCI Host Controller
+
+That's the last thing i can see. After this computer is dead. 
+
+some more details:
+- Sony Vaio PCG-FR285M laptop
+- linux 2.6.0-test6-bk4
+- no devices connected to USB ports during booting sequence
+- gcc 3.2.2
+- module-init-tools-0.9.15-pre2
+
+Any suggestions on this? If you need some more information please feel free to 
+ask me.
+
+Best Regards,
+
+	Mariusz Kozlowski
 

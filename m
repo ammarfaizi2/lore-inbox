@@ -1,50 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132572AbRDEIQT>; Thu, 5 Apr 2001 04:16:19 -0400
+	id <S132573AbRDEITS>; Thu, 5 Apr 2001 04:19:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132576AbRDEIQJ>; Thu, 5 Apr 2001 04:16:09 -0400
-Received: from jet.caldera.de ([212.34.180.34]:21764 "EHLO jet.caldera.de")
-	by vger.kernel.org with ESMTP id <S132572AbRDEIP4>;
-	Thu, 5 Apr 2001 04:15:56 -0400
-Date: Thu, 5 Apr 2001 10:14:56 +0200
-Message-Id: <200104050814.f358EuT01869@jet.caldera.de>
-From: Marcus Meissner <mm@jet.caldera.de>
-To: psubash@turbolinux.com (Prasanna P Subash), linux-kernel@vger.kernel.org
-Subject: Re: [Problem] 3c90x on 2.4.3-ac3
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <20010404180709.A564@turbolinux.com>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
+	id <S132576AbRDEITI>; Thu, 5 Apr 2001 04:19:08 -0400
+Received: from eschelon.gamesquad.net ([216.115.239.45]:23558 "HELO
+	eschelon.gamesquad.net") by vger.kernel.org with SMTP
+	id <S132573AbRDEITA>; Thu, 5 Apr 2001 04:19:00 -0400
+From: "Vibol Hou" <vhou@khmer.cc>
+To: "Andrew Morton" <andrewm@uow.edu.au>,
+        "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: "Linux-Kernel" <linux-kernel@vger.kernel.org>
+Subject: RE: mysqld [3.2.23] hangs when key_buffer ~256MB on [2.4.2-ac28+]
+Date: Thu, 5 Apr 2001 01:17:17 -0700
+Message-ID: <NDBBKKONDOBLNCIOPCGHEEPPFOAA.vhou@khmer.cc>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <3ACB7C88.40DB16FA@uow.edu.au>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010404180709.A564@turbolinux.com> you wrote:
+Andrew,
 
-> hi lkml,
-> 	I just built 2.4.3-ac3 with my old 2.4.2 .config and somehow networking does not work. 
-> dhclient eventually froze the machine.
+I've applied the patch.  The processes usually start dying within a few
+minutes so it shouldn't be hard to tell if this patch is working or not.
+I'll let you know what's up.
 
-> here is what dhclient complains.
+-Vibol
 
-> [root@psubash linux]# cat /tmp/error.txt
-> skb: pf=2 (unowned) dev=lo len=328
-> PROTO=17 0.0.0.0:68 255.255.255.255:67 L=328 S=0x10 I=0 F=0x0000 T=16
-> DHCPDISCOVER on lo to 255.255.255.255 port 67 interval 14
-> ip_local_deliver: bad loopback skb: PRE_ROUTING LOCAL_IN
-> skb: pf=2 (unowned) dev=lo len=328
-> PROTO=17 0.0.0.0:68 255.255.255.255:67 L=328 S=0x10 I=0 F=0x0000 T=16
-> DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 9
-> DHCPDISCOVER on eth0 to 255.255.255.255 port 67 interval 7
-> DHCPDISCOVER on lo to 255.255.255.255 port 67 interval 12
-> ip_local_deliver: bad loopback skb: PRE_ROUTING LOCAL_IN
-> skb: pf=2 (unowned) dev=lo len=328
+-----Original Message-----
+From: akpm@uow.edu.au [mailto:akpm@uow.edu.au]On Behalf Of Andrew Morton
+Sent: Wednesday, April 04, 2001 12:57 PM
+To: Alan Cox
+Cc: Vibol Hou; Linux-Kernel
+Subject: Re: mysqld [3.2.23] hangs when key_buffer ~256MB on
+[2.4.2-ac28+]
 
-> Here is my ver_linux info
 
-...
-> CONFIG_ACPI=y
+Alan Cox wrote:
+>
+> > I initially upgraded my kernel from 2.4.2-ac5 to 2.4.3 and the first
+thing I
+> > noticed was that mysqld was stuck.  Killing it left it hanging in a D
+state.
+> > Then I tried 2.4.2-ac28 (which I am using now), and the got the same
+result.
+>
+> I'd expect that bit. 2.4.2-ac28 basically has the same new rwlock VM and
+> behaviour as 2.4.3pre8. What would be really useful to know is if anyone
+can
+> duplicate the problem non x86
+>
+> > Can anyone reproduce this problem?
+>
+> Yes
 
-The ACPI powermanagement for the 3c59x devices appears to be a bit broken.
+Untested patch:
 
-Disable ACPI support. Recompile. Reboot. Watch problem disappear hopefully.
 
-Ciao, Marcus
+--- semaphore.c.orig    Wed Apr  4 12:54:30 2001
++++ semaphore.c Wed Apr  4 12:54:58 2001
+@@ -363,26 +363,26 @@
+  */
+ struct rw_semaphore *down_write_failed(struct rw_semaphore *sem)
+ {
+        struct task_struct *tsk = current;
+        DECLARE_WAITQUEUE(wait, tsk);
+
+        __up_write(sem);        /* this takes care of granting the lock
+*/
+
+-       add_wait_queue_exclusive(&sem->wait, &wait);
++       add_wait_queue_exclusive(&sem->write_bias_wait, &wait);
+
+        while (atomic_read(&sem->count) < 0) {
+                set_task_state(tsk, TASK_UNINTERRUPTIBLE);
+                if (atomic_read(&sem->count) >= 0)
+                        break;  /* we must attempt to acquire or bias
+the lock */
+                schedule();
+        }
+
+-       remove_wait_queue(&sem->wait, &wait);
++       remove_wait_queue(&sem->write_bias_wait, &wait);
+        tsk->state = TASK_RUNNING;
+
+        return sem;
+ }
+
+ asm(
+ "
+ .align 4
+

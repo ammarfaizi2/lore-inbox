@@ -1,38 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268253AbUH3ScV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268210AbUH3ScW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268253AbUH3ScV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 14:32:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268210AbUH3SbR
+	id S268210AbUH3ScW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 14:32:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268197AbUH3SbH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 14:31:17 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64192 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S268724AbUH3S3a
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 14:29:30 -0400
-Date: Mon, 30 Aug 2004 19:29:29 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: John Cherry <cherry@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: 47 New compile/sparse warnings (over the weekend)
-Message-ID: <20040830182929.GK16297@parcelfarce.linux.theplanet.co.uk>
-References: <1093887916.2653.10.camel@cherrybomb.pdx.osdl.net>
-Mime-Version: 1.0
+	Mon, 30 Aug 2004 14:31:07 -0400
+Received: from umhlanga.stratnet.net ([12.162.17.40]:55837 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S266069AbUH3SaJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 14:30:09 -0400
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: jmerkey@comcast.net, alan@lxorguk.ukuu.org.uk, wli@holomorphy.com,
+       linux-kernel@vger.kernel.org, jmerkey@drdos.com
+Subject: Re: 1GB/2GB/3GB User Space Splitting Patch 2.6.8.1 (PSEUDO SPAM)
+X-Message-Flag: Warning: May contain useful information
+References: <083020040556.26446.4132C1810009E19F0000674E2200751150970A059D0A0306@comcast.net>
+	<20040830111019.5ddc99ab.rddunlap@osdl.org>
+From: Roland Dreier <roland@topspin.com>
+Date: Mon, 30 Aug 2004 11:28:56 -0700
+In-Reply-To: <20040830111019.5ddc99ab.rddunlap@osdl.org> (Randy Dunlap's
+ message of "Mon, 30 Aug 2004 11:10:19 -0700")
+Message-ID: <524qmk7a53.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1093887916.2653.10.camel@cherrybomb.pdx.osdl.net>
-User-Agent: Mutt/1.4.1i
+X-OriginalArrivalTime: 30 Aug 2004 18:28:56.0958 (UTC) FILETIME=[360791E0:01C48EBF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 30, 2004 at 10:45:16AM -0700, John Cherry wrote:
-> drivers/scsi/megaraid/...
-<tons>
+    Randy> It doesn't barf on me.  I added one other patch on top of
+    Randy> yours: one from Roland Dreier, for
+    Randy> arch/i386/kernel/doublefault.c [below].
 
-Would it be too much to ask people run make C=1 before submitting?
+BTW, I can't imagine my patch would make any difference -- it only
+affects what gets printed out right before the kernel locks up on a
+double fault.
 
-[snip]
+I am running a 2.6.8.1 kernel with PAGE_OFFSET set to 0xb000000 on my
+desktop with USB mouse and keyboard (and 1 GB of RAM) with no problems.
 
-> sound/usb/usx2y/usX2Yhwdep.c:218:6: warning: incorrect type in
-
-... piece of shit code.  Already fixed in a patch submitted to Linus.
-And no, lack of annotations was not the worst part of it.
+ - R.

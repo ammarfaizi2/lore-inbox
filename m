@@ -1,42 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266999AbRGMKl1>; Fri, 13 Jul 2001 06:41:27 -0400
+	id <S267001AbRGMKnh>; Fri, 13 Jul 2001 06:43:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267001AbRGMKlR>; Fri, 13 Jul 2001 06:41:17 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:55568 "EHLO
+	id <S267002AbRGMKn1>; Fri, 13 Jul 2001 06:43:27 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:57104 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S266999AbRGMKlL>; Fri, 13 Jul 2001 06:41:11 -0400
-Subject: Re: Again: Linux 2.4.x and AMD Athlon
-To: puckwork@madz.net (Thomas Foerster)
-Date: Fri, 13 Jul 2001 11:42:03 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010713070503Z266936-720+1911@vger.kernel.org> from "Thomas Foerster" at Jul 13, 2001 09:00:54 AM
+	id <S267001AbRGMKnR>; Fri, 13 Jul 2001 06:43:17 -0400
+Subject: Re: SOMAXCONN - bump up or sysctl?
+To: thockin@sun.com (Tim Hockin)
+Date: Fri, 13 Jul 2001 11:44:08 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <3B4E7EA1.F904DC43@sun.com> from "Tim Hockin" at Jul 12, 2001 09:52:49 PM
 X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15L0OZ-0007iY-00@the-village.bc.nu>
+Message-Id: <E15L0Qa-0007it-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> My BIOS is the latest release.
-> I've just phoned with Epox here in Germany and they told me, that their boards
-> are testet with linux and they are working.
+> We have a request to bump up SOMAXCONN.  Are there are repurcussions to
+> doing so?  Would it be better to make it a sysctl?
 
-They dont test with Athlon optimisations on . ;)
+Its pretty meaningless as a value. People who say they need a larger
+SOMAXCONN are as a general rule simply wrong in the Linux case
 
-> NOTE : Things are ONLY crashing when being NOT root!!
-
-Thats important.
-
->        If i log in as root i can't get KDE/Gnome apps to crash, only when i'm a
->        "normal" user! Opening xterm as normal user, su-ing to root and starting 
->        applications works too!
-
-Do you get random crashes or actual logged kernel oopses. Also what X server
-
-> I'm very, very, very confused!
-
-The kernel isnt known for a tendancy to oops according to user id, so me too
 

@@ -1,69 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268283AbUIGQHb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267749AbUIGQ3J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268283AbUIGQHb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 12:07:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268249AbUIGPC0
+	id S267749AbUIGQ3J (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 12:29:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268177AbUIGQ3H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 11:02:26 -0400
-Received: from verein.lst.de ([213.95.11.210]:20634 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S267749AbUIGO6Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 10:58:16 -0400
-Date: Tue, 7 Sep 2004 16:58:09 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] sched.c gratious export removal
-Message-ID: <20040907145809.GA9200@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+	Tue, 7 Sep 2004 12:29:07 -0400
+Received: from c002781a.fit.bostream.se ([217.215.235.8]:1955 "EHLO
+	mail.tnonline.net") by vger.kernel.org with ESMTP id S267749AbUIGQ0E
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 12:26:04 -0400
+Date: Tue, 7 Sep 2004 18:25:51 +0200
+From: Spam <spam@tnonline.net>
+Reply-To: Spam <spam@tnonline.net>
+X-Priority: 3 (Normal)
+Message-ID: <1401724342.20040907182551@tnonline.net>
+To: Gunnar Ritter <Gunnar.Ritter@pluto.uni-freiburg.de>
+CC: ReiserFS List <reiserfs-list@namesys.com>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: silent semantic changes with reiser4
+In-Reply-To: <413DD5B4.nailC801GI4E2@pluto.uni-freiburg.de>
+References: <200409070206.i8726vrG006493@localhost.localdomain>
+ <413D4C18.6090501@slaphack.com> <m3d60yjnt7.fsf@zoo.weinigel.se>
+ <1183150024.20040907143346@tnonline.net>
+ <413DD5B4.nailC801GI4E2@pluto.uni-freiburg.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sched.c exports a few internal helpers although none of them is used in
-modular code or code that could easily be made modular, nor would we
-want modules to use them.
+
+  
+
+> Spam <spam@tnonline.net> wrote:
+
+>>   One suggestion is missed. It is to provide system calls for copy.
+>>   That would also solve the problem.
+
+> No, it would not. If you read the POSIX.1 specification for cp
+> carefully <http://www.unix.org/version3/online.html>, you will
+> notice that the process for copying a regular file is carefully
+> standardized. A POSIX.1-conforming cp implementation would not
+> be allowed to copy additional streams, unless either additional
+> options are given or the type of the file being copied is other
+> than S_IFREG. And cp is just one example of a standardized file
+> handling program.
+
+  It would solve the problem in Linux. However, it may not be POSIX.1
+  compatible. On the other hand I read that NTFS 5.0 is POSIX.1
+  compliant - and Windows uses copy system call. NTFS also has streams
+  support using special character in the file names to select the
+  streams.
+
+  Surely there must be a solution in Linux that will allow things like
+  streams and meta-data(meta-streams) be visible to the user.
+  ~S
+
+> 	Gunnar
 
 
---- 1.345/kernel/sched.c	2004-09-04 04:28:36 +02:00
-+++ edited/kernel/sched.c	2004-09-07 15:57:22 +02:00
-@@ -1036,8 +1036,6 @@
- 	preempt_enable();
- }
- 
--EXPORT_SYMBOL_GPL(kick_process);
--
- /*
-  * Return a low guess at the load of a migration-source cpu.
-  *
-@@ -2908,7 +2906,6 @@
- 	__wake_up_common(q, mode, nr_exclusive, sync, NULL);
- 	spin_unlock_irqrestore(&q->lock, flags);
- }
--EXPORT_SYMBOL_GPL(__wake_up_sync);	/* For internal use only */
- 
- void fastcall complete(struct completion *x)
- {
-@@ -3142,8 +3139,6 @@
- 	return TASK_NICE(p);
- }
- 
--EXPORT_SYMBOL(task_nice);
--
- /**
-  * idle_cpu - is a given cpu idle currently?
-  * @cpu: the processor in question.
-@@ -3152,8 +3147,6 @@
- {
- 	return cpu_curr(cpu) == cpu_rq(cpu)->idle;
- }
--
--EXPORT_SYMBOL_GPL(idle_cpu);
- 
- /**
-  * find_process_by_pid - find a process with a matching PID value.

@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267547AbTAGQRE>; Tue, 7 Jan 2003 11:17:04 -0500
+	id <S267412AbTAGQ03>; Tue, 7 Jan 2003 11:26:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267548AbTAGQRD>; Tue, 7 Jan 2003 11:17:03 -0500
-Received: from dt081n53.san.rr.com ([204.210.23.83]:42375 "EHLO
-	vortex.ottix.com") by vger.kernel.org with ESMTP id <S267547AbTAGQRC>;
-	Tue, 7 Jan 2003 11:17:02 -0500
-Message-ID: <3E1AFF81.5040705@san.rr.com>
-Date: Tue, 07 Jan 2003 08:25:37 -0800
-From: Matthew Costello <mattc@san.rr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
+	id <S267418AbTAGQ02>; Tue, 7 Jan 2003 11:26:28 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:14085 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S267412AbTAGQ02>; Tue, 7 Jan 2003 11:26:28 -0500
+Date: Tue, 7 Jan 2003 11:32:48 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Matthias Andree <matthias.andree@gmx.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Honest does not pay here ...
+In-Reply-To: <20030107012429.GA12944@merlin.emma.line.org>
+Message-ID: <Pine.LNX.3.96.1030107112114.15952B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: charlton@dynet.com, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: 2.4.19 & 2.4.20 hang without oops...
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've just run in to a similar problem with 2.4.20.
-The system hangs using 2.4.20, and everything is
-fine with 2.4.18-10bigmem (rh73).
+On Tue, 7 Jan 2003, Matthias Andree wrote:
 
-Points of similarity:
+> Only that you can't trust in the el-cheapo vendors claiming Linux
+> support, and an independent certification is needed (not only for Linux,
+> for the *BSDs as well). Without a trusted certification, some crooks may
+> try to claim Linux support and it won't quite work out.
 
-Dual (SMP) P3-450, supermicro (BX) motherboard
-kernel 2.4.20
-red hat (7.3 w/ updates)
+To be honest, support for Windows is much easier than Linux. There are
+only a few versions of Windows out, in terms of how many versions are
+needed, and in many cases the same driver will work for several versions.
 
-Differences:
+For Linux, there are not only dozens of kernel versions around, but the
+uni and smp versions are not the same. Vendors who want to provide drivers
+really want to provide the binary even if the module is open source, just
+because the average person has no desire to build any part of a kernel.
 
-no IDE
-main disks on AHA2940U2W
-Firewire (aua-3121) or scsi AHA-1542
+So it is possible to release a driver and claim in good faith that it
+works, and still not have it work with *your* system. Not because the
+vendor is evil, incompetent, a "crook" (your term), dishonest, or even
+that testing was poor, but because all kernels are very much not created
+equal. 
 
-I've found two separate hangs.  The most interesting is that I have
-two (different) firewire disks.  I can access either of the disks all
-day, but as soon as I access both at the same time the system hangs.
-I am unable to test this on 2.4.18 as one of the firewire disks
-(WD 200GB) is not recognized correctly under 2.4.18, which is
-why I am running 2.4.20 in the first place.
+Try to understand why vendors want to ship binary modules and why they
+don't always work before making accusations.
 
-The second hang seems related to ejecting an audio cd-rom from
-a CD-RW attached to its private AHA-1542 scsi controller.
+All that said, an independent testing service would be of use to the
+vendors, because they could find things before shipping and have someone
+to share the blame if the module didn't work with another kernel.
 
-Both hangs are "hard" without any sort of output to the console.
-I also lose the console echo.  I'd guess that I'm running into a
-SMP deadlock.
-
---- Matthew Costello <mattc@san.rr.com>
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

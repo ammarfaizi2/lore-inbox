@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313988AbSD2RrJ>; Mon, 29 Apr 2002 13:47:09 -0400
+	id <S314124AbSD2RvL>; Mon, 29 Apr 2002 13:51:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314050AbSD2RrI>; Mon, 29 Apr 2002 13:47:08 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:55527 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S313988AbSD2RrH>; Mon, 29 Apr 2002 13:47:07 -0400
-Date: Mon, 29 Apr 2002 13:46:59 -0400
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Arjan van de Ven <arjanv@redhat.com>, Dave Hansen <haveblue@us.ibm.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: devfs: BKL *not* taken while opening devices
-Message-ID: <20020429134659.A26165@devserv.devel.redhat.com>
-In-Reply-To: <3CCD811E.8689F4B0@redhat.com> <Pine.LNX.4.21.0204291937430.23113-100000@serv>
-Mime-Version: 1.0
+	id <S314136AbSD2RvK>; Mon, 29 Apr 2002 13:51:10 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:13922 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S314124AbSD2RvK>; Mon, 29 Apr 2002 13:51:10 -0400
+To: suparna@in.ibm.com
+Cc: linux-kernel@vger.kernel.org, marcelo@brutus.conectiva.com.br,
+        <linux-mm@kvack.org>
+Subject: Re: [PATCH]Fix: Init page count for all pages during higher order allocs
+In-Reply-To: <20020429202446.A2326@in.ibm.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 29 Apr 2002 11:40:21 -0600
+Message-ID: <m1r8ky1jzu.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Suparna Bhattacharya <suparna@in.ibm.com> writes:
 
-On Mon, Apr 29, 2002 at 07:40:08PM +0200, Roman Zippel wrote:
-> Hi,
-> 
-> On Mon, 29 Apr 2002, Arjan van de Ven wrote:
-> 
-> > I'm not convinced of that. It's not nearly a critical path and it's
-> > better to get even the "dumb" drivers safe than to risk having big
-> > security holes in there for years to come.
-> 
-> The BKL doesn't make a driver safe, remember that it's released on
-> schedule.
+> The call to set_page_count(page, 1) in page_alloc.c appears to happen 
+> only for the first page, for order 1 and higher allocations.
+> This leaves the count for the rest of the pages in that block 
+> uninitialised.
 
-I know. But a LOT of in kernel and out-of kernel drives don't schedule
-in open and are therefore safe right now
+Actually it should be zero.
 
+This is deliberate because high order pages should not be referenced by
+their partial pages.  It might make sense to add a PG_large flag and
+then in the immediately following struct page add a pointer to the next
+page, so you can identify these pages by inspection.  Doing something
+similar to the PG_skip flag.
+
+Beyond that I get nervous, that people will treat it as endorsement of
+doing a high order continuous allocation and then fragmenting the page.
+
+Eric

@@ -1,51 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132474AbRCZQ6x>; Mon, 26 Mar 2001 11:58:53 -0500
+	id <S132493AbRCZRDN>; Mon, 26 Mar 2001 12:03:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132488AbRCZQ6n>; Mon, 26 Mar 2001 11:58:43 -0500
-Received: from limes.hometree.net ([194.231.17.49]:7730 "EHLO
-	limes.hometree.net") by vger.kernel.org with ESMTP
-	id <S132474AbRCZQ6d>; Mon, 26 Mar 2001 11:58:33 -0500
-To: linux-kernel@vger.kernel.org
-Date: Mon, 26 Mar 2001 16:51:20 +0000 (UTC)
-From: "Henning P. Schmiedehausen" <hps@tanstaafl.de>
-Message-ID: <99ns28$8cl$1@forge.intermeta.de>
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-In-Reply-To: <Pine.LNX.4.10.10103231028250.9403-100000@innerfire.net>, <Pine.LNX.3.95.1010326095505.32103A-100000@chaos.analogic.com>
-Reply-To: hps@tanstaafl.de
-Subject: Re: Linux Worm (fwd)
+	id <S132491AbRCZRDF>; Mon, 26 Mar 2001 12:03:05 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:19181 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S132488AbRCZRC4>;
+	Mon, 26 Mar 2001 12:02:56 -0500
+Message-ID: <3ABF7615.ED51BB6D@mandrakesoft.com>
+Date: Mon, 26 Mar 2001 12:02:13 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrey Panin <pazke@orbita.don.sitek.net>
+Cc: linux-kernel@vger.kernel.org, kernel-janitor-discuss@lists.sourceforge.net,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] static zero initializers removal
+In-Reply-To: <20010326163004.A14762@debian>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-root@chaos.analogic.com (Richard B. Johnson) writes:
+I'll take a look at merging the drivers/net part of this patch, except
+for where it touches drivers/net/wan.
 
->I have just received notice that my machines will no longer be
->provided access to "The Internet".
-
->"Effective on or before 16:00:00 local time, the only personal
->computers that will be allowed Internet access are those administered
->by a Microsoft Certified Network Administrator. This means that
->no Unix or Linux machines will be provided access beyond the local
->area network. If you require Internet access, the company will
->provide a PC which runs a secure operating system such as Microsoft
->Windows, or Windows/NT. Insecure operating systems like Linux must
->be removed from company owned computers before the end of this week....."
-
-This is a troll, right? I mean, you wouldn't work for a company that
-publishes such internal memos (and allows its employees to post in
-into a public mailing list), would you?
-
-If you're working for a company that considers one OS "more secure"
-than another, your "security administrator" should really get a clue.
-
-I mean, they all suck. Really, all of them. That's why they're OSes. ;-)
-
-	Regards
-		Henning
+Andrey -- for maintainers at least, it might be nice to split these up
+via subsystem -- one patch for drivers/isdn, one patch for drivers/char,
+etc.
 
 -- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+Jeff Garzik       | May you have warm words on a cold evening,
+Building 1024     | a full moon on a dark night,
+MandrakeSoft      | and a smooth road all the way to your door.

@@ -1,73 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317398AbSGDMcN>; Thu, 4 Jul 2002 08:32:13 -0400
+	id <S317395AbSGDMf5>; Thu, 4 Jul 2002 08:35:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317395AbSGDMcM>; Thu, 4 Jul 2002 08:32:12 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:59664 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S317398AbSGDMcL>; Thu, 4 Jul 2002 08:32:11 -0400
-Date: Thu, 4 Jul 2002 08:29:03 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Werner Almesberger <wa@almesberger.net>
-cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [OKS] Module removal
-In-Reply-To: <20020704032929.N2295@almesberger.net>
-Message-ID: <Pine.LNX.3.96.1020704081959.4082A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317399AbSGDMf4>; Thu, 4 Jul 2002 08:35:56 -0400
+Received: from aboukir-101-1-23-willy.adsl.nerim.net ([62.212.114.60]:10003
+	"EHLO www.home.local") by vger.kernel.org with ESMTP
+	id <S317395AbSGDMfz>; Thu, 4 Jul 2002 08:35:55 -0400
+Date: Thu, 4 Jul 2002 14:38:22 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: gphat@cafes.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Large numbers of TCP resets
+Message-ID: <20020704123822.GA26203@alpha.home.local>
+References: <20020703201553.DE9FD68CB5EA@mail.cafes.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020703201553.DE9FD68CB5EA@mail.cafes.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Jul 2002, Werner Almesberger wrote:
+On Wed, Jul 03, 2002 at 08:15:53PM +0000, gphat@cafes.net wrote:
+> Recently, the web-app at the company I work for started having problems load 
+> balancing.  This was traced back to a large number of tcp-resets being sent 
+> from the web servers to the clients.
 
-> Bill Davidsen wrote:
-> > Isn't the right thing to make everything stop using the module before
-> > ending it, for any definition of ending?
-> 
-> This certainly seems to be the most understandable way, yes. I think
-> modules follow basically the principle illistrated below (that's case
-> 4b in the taxonomy I posted earlier), where deregistration doesn't
-> stop everything, but which should be safe except for
-> return-after-removal:
+aren't your load balancers Alteon ACE Directors ? If this is the case, I
+suspect you use "fastage 0", which ends sessions prematurely. This
+particularly happens in case of direct access mode (DAM) because the
+switch needs to remap source ports, and when the session expires, it
+simply routes packets from server to client without DNATing them.
 
-There seems no right thing to do when a module get a service request for
-something which is not active. Anything at that point would be likely to
-corrupt data structures, oops, or leave a process in some unkillable
-state.
+The client then receives ACKs and/or FINs for closed ports, or for
+open ports, but with bad sequence numbers, and then sends RESETS,
+which the server doesn't understand. I observed real RST storms
+during tens of minutes because of this. They disappeared when I
+set "fastage" to something higher than 4 (=keep the session at least
+16 seconds, even in final states).
 
-> I can understand why people don't want to use totally "safe"
-> deregistration, e.g.
-> 
->  - locking gets more complex and you may run into hairy deadlock
->    scenarios
->  - accomplishing timely removal may become more difficult
->  - nobody likes patches that change the world
+I think this is not specific to Linux 2.4 since I observed a similar
+behaviour with Solaris 8.
 
-Everybody loves them in development kernels ;-) Actually, I think this is
-unlikely to result in more than a hang if it fails one way, or no worse
-than what we have if it fails the other.
-
-And if I understand the problem, it only is needed when either smp or
-preempt are built in, so there would be no overhead for small systems, one
-other possible objection to doing it safely.
- 
-> So the entry/return-after-removal issues may still need to be
-> resolved. I'm mainly worried about entry-after-removal, because
-> it seems to me that this is likely to imply data races in
-> non-modules too, so try_inc_mod_count neither sufficient (for it
-> doesn't help with non-modules) nor required (because fixing the
-> race would also eliminate entry-after-removal).
-> 
-> I've seen very few reponses to my analysis. Does everybody think
-> I'm nuts (quite possible :-), or is this worth continuing ?
-
-My read is that eliminating actual unloading of modules won't solve these
-issues, it would just change them. Therefore if you're having a good time
-looking at this I think it would make the kernel more stable, which will
-be a goal of 2.6.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Cheers,
+Willy
 

@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282640AbRLONmj>; Sat, 15 Dec 2001 08:42:39 -0500
+	id <S282670AbRLOOF2>; Sat, 15 Dec 2001 09:05:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282655AbRLONm3>; Sat, 15 Dec 2001 08:42:29 -0500
-Received: from chabotc.xs4all.nl ([213.84.192.197]:20872 "EHLO
-	chabotc.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S282640AbRLONmO>; Sat, 15 Dec 2001 08:42:14 -0500
-Subject: Re: Unfreeable buffer/cache problem in 2.4.17-rc1 still there
-From: Chris Chabot <chabotc@reviewboard.com>
-To: James Stevenson <mistral@stev.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <004601c18567$a8be1600$0801a8c0@Stev.org>
-In-Reply-To: <1008419776.6780.0.camel@gandalf.chabotc.com> 
-	<004601c18567$a8be1600$0801a8c0@Stev.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 15 Dec 2001 14:42:10 +0100
-Message-Id: <1008423731.11229.2.camel@gandalf.chabotc.com>
-Mime-Version: 1.0
+	id <S282683AbRLOOFK>; Sat, 15 Dec 2001 09:05:10 -0500
+Received: from tux.rsn.bth.se ([194.47.143.135]:19893 "EHLO tux.rsn.bth.se")
+	by vger.kernel.org with ESMTP id <S282670AbRLOOEz>;
+	Sat, 15 Dec 2001 09:04:55 -0500
+Date: Sat, 15 Dec 2001 15:03:27 +0100 (CET)
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+cc: Linus Torvalds <torvalds@transmeta.com>, Simon Kirby <sim@netnation.com>,
+        Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kill(-1,sig)
+In-Reply-To: <200112151019.fBFAJgS235075@saturn.cs.uml.edu>
+Message-ID: <Pine.LNX.4.21.0112151501480.21018-100000@tux.rsn.bth.se>
+X-message-flag: Get yourself a real mail client! http://www.washington.edu/pine/
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Stevenson wrote,
-> does the same thing happen when you do
-> find / -type f -print0 |xargs -0 cat > /dev/null
-<snip>
-> what cronjobs are running at night ?
-> this could be normal because free ram is really a waste
-> so it might as well be used for somthing and whats
-> better than speeding up disk access
-> if things do start to use memory they take it from the free section then
-> the disk cache gets droped and refills the free section.
+On Sat, 15 Dec 2001, Albert D. Cahalan wrote:
 
-I apreciate the effort and sentiment. However if you would look at the
-output of 'free' (originaly attached files), you would notice i am
-talking about free = (available + cache + buffer) and not just
-'available' ;-)
+> Linus Torvalds writes:
+> > On Fri, 14 Dec 2001, Simon Kirby wrote:
+> 
+> >> it kills everything _and_ itself.  I frequently use "kill -9 -1" to kill
+> >> everything except my shell, and now I'll have to kill everything else
+> >> manually, one by one.
+> >
+> > I do agree, I've used "kill -9 -1" myself.
+> 
+> This means: EVERYTHING DIE DIE DIE!!!!
+> 
+> On a Digital UNIX system, I do "/bin/kill -9 -1" often. I expect it to
+> kill the shell. This is a nice way to quickly log out and wipe out any
+> background processes that might try to save state or continue running.
 
-This is a problem i only have on one of the 40 or so servers i manage,
-however the one that has it is my personal gateway & firewall machine,
-so it feels prety sore ;-)
+Works the same way in Solaris. 'kill -9 -1' kills your running shell
+aswell.
 
-There are one or two other people on the list who also had the same
-problem, is it fixed for you guys, or still seeing the same problem? I'm
-having the sneaking suspission this behaviour isnt gone yet.
 
-Anyways, thanks for trying to educate james, however i only wish it was
-that simple ;-)
+/Martin
 
-	-- Chris
-
+Never argue with an idiot. They drag you down to their level, then beat you with experience.
 

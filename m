@@ -1,51 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266185AbUHNHSr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268110AbUHNHXG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266185AbUHNHSr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 03:18:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266189AbUHNHSr
+	id S268110AbUHNHXG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 03:23:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268115AbUHNHXG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 03:18:47 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:38558 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S266185AbUHNHSh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 03:18:37 -0400
-Date: Sat, 14 Aug 2004 09:20:09 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Florian Schmidt <mista.tapas@gmx.net>
-Subject: [patch] voluntary-preempt-2.6.8-rc4-O8
-Message-ID: <20040814072009.GA6535@elte.hu>
-References: <20040726124059.GA14005@elte.hu> <20040726204720.GA26561@elte.hu> <20040729222657.GA10449@elte.hu> <20040801193043.GA20277@elte.hu> <20040809104649.GA13299@elte.hu> <20040810132654.GA28915@elte.hu> <20040812235116.GA27838@elte.hu> <1092382825.3450.19.camel@mindpipe> <20040813104817.GI8135@elte.hu> <1092432929.3450.78.camel@mindpipe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1092432929.3450.78.camel@mindpipe>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Sat, 14 Aug 2004 03:23:06 -0400
+Received: from fep22-0.kolumbus.fi ([193.229.0.60]:47471 "EHLO
+	fep22-app.kolumbus.fi") by vger.kernel.org with ESMTP
+	id S268110AbUHNHXA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Aug 2004 03:23:00 -0400
+Date: Sat, 14 Aug 2004 10:22:56 +0300 (EEST)
+From: Kai Makisara <Kai.Makisara@kolumbus.fi>
+X-X-Sender: makisara@kai.makisara.local
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Peter Jones <pmjones@gmail.com>, Linus Torvalds <torvalds@osdl.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: SG_IO and security
+In-Reply-To: <411D1885.8060904@pobox.com>
+Message-ID: <Pine.LNX.4.58.0408141008170.9797@kai.makisara.local>
+References: <1092313030.21978.34.camel@localhost.localdomain>
+ <Pine.LNX.4.58.0408120929360.1839@ppc970.osdl.org>
+ <Pine.LNX.4.58.0408120943210.1839@ppc970.osdl.org> <411BA0F4.9060201@pobox.com>
+ <Pine.LNX.4.58.0408120958000.1839@ppc970.osdl.org>
+ <Pine.LNX.4.58.0408122216300.4586@kai.makisara.local>
+ <9ac707cb040813122522d4a71@mail.gmail.com> <411D1885.8060904@pobox.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 13 Aug 2004, Jeff Garzik wrote:
 
-* Lee Revell <rlrevell@joe-job.com> wrote:
-
-> Here is the trace resulting from the apt-get filemap_sync() issue:
+> Peter Jones wrote:
+> > On Thu, 12 Aug 2004 22:22:36 +0300 (EEST), Kai Makisara
+> > <kai.makisara@kolumbus.fi> wrote:
+> > 
+> >>On Thu, 12 Aug 2004, Linus Torvalds wrote:
+> >>
+> >>>Let's see now:
+> >>>
+> >>>      brw-rw----    1 root     disk       3,   0 Jan 30  2003 /dev/hda
+> >>>
+> >>>would you put people you don't trust with your disk in the "disk" group?
+> >>>
+> >>
+> >>This protects disks in practice but SG_IO is currently supported by other
+> >>devices, at least SCSI tapes. It is reasonable in some organizations to
+> >>give r/w access to ordinary users so that they can read/write tapes. I
+> >>would be worried if this would enable the users, for instance, to mess up
+> >>the mode page contents of the drive or change the firmware.
+> > 
+> > 
+> > Sure, but for that we need command based filtering.
 > 
->  0.000ms (+0.000ms): filemap_sync_pte_range (filemap_sync)
->  0.000ms (+0.000ms): filemap_sync_pte (filemap_sync_pte_range)
+> We have that now (sigh).  See attached patch, which is in BK...
+> 
 
-ok, this is one that is fixed in -mm already. I've put the fix into -O8:
+This patch looks OK except that it includes the command WRITE BUFFER. It 
+is used to flash the firmware for many devices. Even the SCSI standard 
+(draft) specifies that mode 06h is "Download microcode and save". This 
+command _should be removed_ from the list of allowed commands.
 
- http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8-rc4-O8
+> A similar approach could be applied to tape as well.
+> 
+As far as I can read the code, the filtering applies to all devices. 
+Except WRITE BUFFER, the commands are acceptable for tapes considering the 
+opening mode or undefined for tapes. The undefined commands may cause a 
+device with bad firmware to lock the SCSI bus and in this way to cause DoS. 
+However, this applies also to commands defined for a type of device but 
+not implemented because they are optional.
 
-other changes in -O8: the massive kallsyms-lookup speedup from Paulo
-Marque, and tracing is default-on now.
+I am ready to accept this risk of DoS (provided that allowing the filtered 
+commands is really useful for somebody) but this is a risk we must 
+recognize.
 
-	Ingo
+> Though in general I think command-based filtering is not scalable...  at 
+> the very least I would prefer a list loaded from userspace at boot.
+> 
+I think always requiring CAP_RAWIO would be the approach of least 
+surprise.
+
+-- 
+Kai

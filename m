@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263290AbTJKMAZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Oct 2003 08:00:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263291AbTJKMAZ
+	id S263291AbTJKMBO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Oct 2003 08:01:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263292AbTJKMBN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Oct 2003 08:00:25 -0400
-Received: from mail2.scram.de ([195.226.127.112]:57355 "EHLO mail2.scram.de")
-	by vger.kernel.org with ESMTP id S263290AbTJKMAY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Oct 2003 08:00:24 -0400
-Date: Sat, 11 Oct 2003 13:59:42 +0200 (CEST)
-From: Jochen Friedrich <jochen@scram.de>
-X-X-Sender: jochen@ayse.bocc.de
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2/14] firmware update for av7110 dvb driver
-In-Reply-To: <1065624307.5470.242.camel@pegasus>
-Message-ID: <Pine.LNX.4.58.0310111355380.24459@ayse.bocc.de>
-References: <10656197272107@convergence.de> <1065624307.5470.242.camel@pegasus>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 11 Oct 2003 08:01:13 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:64236 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id S263291AbTJKMBK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Oct 2003 08:01:10 -0400
+From: David Woodhouse <dwmw2@infradead.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <1065873664.30987.431.camel@imladris.demon.co.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-2.dwmw2.3) 
+Date: Sat, 11 Oct 2003 13:01:05 +0100
+X-SA-Exim-Mail-From: dwmw2@infradead.org
+Subject: Signals and kernel threads.
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Version: 3.0+cvs (built Mon Aug 18 15:53:30 BST 2003)
+X-SA-Exim-Scanned: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcel,
+Once upon a time, kernel threads could make use of signals for receiving
+control from userspace. Now, the NPTL code looks at the recipient
+thread's userspace handlers for signals, even in the case of a kernel
+thread, and if there's not a handler installed will either discard the
+signal or convert it to SIGKILL.
 
-> the request_firmware() framework is part of Linux 2.4 and 2.6 and so for
-> most drivers the firmware file can be loaded from userspace through proc
-> or sysfs. Please take a look at it.
+Could we disable this behaviour in the case where the recipient is a
+kernel thread please? Or at least make allow_signal() set sa_handler to
+some non-zero dummy value so that the signal is delivered as intended.
 
-Is there a way to use this for ISA devices? I'd like to convert my
-tms380tr request_firmware() as i want to get rid of hardcoded, binary
-only firmware. However, there is no struct device for ISA devices (and
-in particular, no bus id) and unlike the old style PCI DMA mapping, which
-accepts NULL as pci_dev and assumes ISA in this case, request_firmware()
-absolutely needs the parameter...
+-- 
+dwmw2
 
---jochen
+

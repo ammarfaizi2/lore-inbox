@@ -1,63 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262537AbTCMT2k>; Thu, 13 Mar 2003 14:28:40 -0500
+	id <S262502AbTCMT0B>; Thu, 13 Mar 2003 14:26:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262542AbTCMT2k>; Thu, 13 Mar 2003 14:28:40 -0500
-Received: from home.linuxhacker.ru ([194.67.236.68]:62372 "EHLO linuxhacker.ru")
-	by vger.kernel.org with ESMTP id <S262537AbTCMT2c>;
-	Thu, 13 Mar 2003 14:28:32 -0500
-Date: Thu, 13 Mar 2003 22:38:29 +0300
-From: Oleg Drokin <green@linuxhacker.ru>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Now i2o_core.c memleak/incorrectness?
-Message-ID: <20030313193829.GA2940@linuxhacker.ru>
-References: <20030313182819.GA2213@linuxhacker.ru> <1047584663.25948.75.camel@irongate.swansea.linux.org.uk>
+	id <S262508AbTCMT0B>; Thu, 13 Mar 2003 14:26:01 -0500
+Received: from gate.mesa.nl ([194.151.5.70]:35844 "EHLO joshua.mesa.nl")
+	by vger.kernel.org with ESMTP id <S262502AbTCMTZ7>;
+	Thu, 13 Mar 2003 14:25:59 -0500
+Date: Thu, 13 Mar 2003 20:36:32 +0100
+From: "Marcel J.E. Mol" <marcel@mesa.nl>
+To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5 XFree and nvidia geforce.
+Message-ID: <20030313203632.A12305@joshua.mesa.nl>
+Reply-To: marcel@mesa.nl
+References: <3E70086B.6080408@lemur.sytes.net> <20030313201624.GA29107@suse.de> <Pine.LNX.4.51.0303132026210.24455@dns.toxicfilms.tv>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1047584663.25948.75.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.51.0303132026210.24455@dns.toxicfilms.tv>; from solt@dns.toxicfilms.tv on Thu, Mar 13, 2003 at 08:28:56PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+You might take a look at
 
-On Thu, Mar 13, 2003 at 07:44:23PM +0000, Alan Cox wrote:
-> >    There is something strange going on in drivers/scsi/dpt_i2o.c in both
-> >    2.4 and 2.5. adpt_i2o_reset_hba() function allocates 4 bytes 
-> >    for "status" stuff, then tries to reset controller, then 
-> >    if timeout on first reset stage is reached, frees "status" and returns,
-> >    otherwise it proceeds to monitor "status" (which is modified by hardware
-> >    now, btw), and if timeout is reached, just exits.
-> Correctly - I2O does the same thing in this case. Its just better to
-> throw a few bytes away than risk corruption
+http://www.minion.de/
 
-Well, it seems that i2o does not always follow this rule.
-Also i2o_init_outbound_q() seems not free this "status" thing if everything
-went ok, is this intentional?
-Or perhaps something like this patch is needed?
+-Marcel
 
-Bye,
-    Oleg
 
-===== drivers/message/i2o/i2o_core.c 1.12 vs edited =====
---- 1.12/drivers/message/i2o/i2o_core.c	Tue Aug  6 18:42:18 2002
-+++ edited/drivers/message/i2o/i2o_core.c	Thu Mar 13 22:36:40 2003
-@@ -2217,7 +2217,7 @@
- 			else  
- 				printk(KERN_ERR "%s: Outbound queue initialize timeout.\n",
- 					c->name);
--			kfree(status);
-+			// Better leak this for safety: kfree(status);
- 			return -ETIMEDOUT;
- 		}  
- 		schedule();
-@@ -2231,6 +2231,7 @@
- 		return -ETIMEDOUT;
- 	}
- 
-+	kfree(status);
- 	return 0;
- }
- 
+On Thu, Mar 13, 2003 at 08:28:56PM +0100, Maciej Soltysiak wrote:
+> Hi,
+> 
+> I am using nvidia drivers for Xwindows under 2.4.
+> 
+> Under 2.5 i would have to use like svga drivers to run it.
+> 
+> What do you think would run better (generally graphics).
+> 
+> 2.4+nvidia
+> or
+> 2.5+some+generic_drivers
+> 
+> Also, why aren't there X drivers for nvidia?
+> 
+> Best Regards,
+> Maciej Soltysiak
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
+     ======--------         Marcel J.E. Mol                MESA Consulting B.V.
+    =======---------        ph. +31-(0)6-54724868          P.O. Box 112
+    =======---------        marcel@mesa.nl                 2630 AC  Nootdorp
+__==== www.mesa.nl ---____U_n_i_x______I_n_t_e_r_n_e_t____ The Netherlands ____
+ They couldn't think of a number,           Linux user 1148  --  counter.li.org
+    so they gave me a name!  -- Rupert Hine  --  www.ruperthine.com

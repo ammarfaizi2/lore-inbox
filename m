@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317282AbSHAWuf>; Thu, 1 Aug 2002 18:50:35 -0400
+	id <S317261AbSHAWuc>; Thu, 1 Aug 2002 18:50:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317214AbSHAWuf>; Thu, 1 Aug 2002 18:50:35 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:40975 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S317282AbSHAWud>; Thu, 1 Aug 2002 18:50:33 -0400
-Date: Thu, 1 Aug 2002 19:53:45 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Paolo Ciarrocchi <ciarrocchi@linuxmail.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: dbench
-In-Reply-To: <20020801160723.13724.qmail@linuxmail.org>
-Message-ID: <Pine.LNX.4.44L.0208011952450.23404-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S317306AbSHAWu2>; Thu, 1 Aug 2002 18:50:28 -0400
+Received: from zikova.cvut.cz ([147.32.235.100]:18692 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S317214AbSHAWuY>;
+	Thu, 1 Aug 2002 18:50:24 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Alexander Viro <viro@math.psu.edu>
+Date: Fri, 2 Aug 2002 00:53:19 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: IDE from current bk tree, UDMA and two channels...
+CC: Martin Dalecki <dalecki@cs.net.pl>, linux-kernel@vger.kernel.org,
+       torvalds@transmeta.com
+X-mailer: Pegasus Mail v3.50
+Message-ID: <CF125D0F09@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Aug 2002, Paolo Ciarrocchi wrote:
+On  1 Aug 02 at 18:45, Alexander Viro wrote:
+> 
+> On Thu, 1 Aug 2002, Linus Torvalds wrote:
+> 
+> > You probably saw this. Looks like blocksize has been buggered somehow.
+> > Apparently Petr has a 1kB blocksize optical device..
 
-> I performed a test running dbench.
+Just to correct you: it is normal magnetic disk with 512 byte sectors,
+from notebook. It works with 512B UDMA requests if we talk to the drive
+slowly, with pauses here and there. If we talk to it back-to-back, it
+dies. Apparently it forgets that it is doing UDMA transfers and tries
+to do normal PIO or MDMA or what - host terminates transfer in the middle,
+and disk is signaling that it has more data to go.
+ 
+> Looks like we need
+>     a) accurate hardsect_size for these beasts (which is a problem
+> with current setup, since it's per-queue and not per-device; master and
+> slave can have different hardsect sizes).
+>     b) extra check in check_partitions() that would verify that
+> partition doesn't end in the middle of a sector (and round it down
+> if it does).
 
-Why ?
-
-I hope you realise that dbench doesn't really show anything
-about how a kernel reacts to real world performance and is
-mostly useful as a stress test or for measuring lock contention.
-
-regards,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+It will not help. Device is reporting 512B sectors, and it even supports
+them in PIO.
+                                            Petr Vandrovec
+                                            vandrove@vc.cvut.cz
+                                            

@@ -1,72 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263841AbVBDVuW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266137AbVBDVwf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263841AbVBDVuW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 16:50:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266459AbVBDVtm
+	id S266137AbVBDVwf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 16:52:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266454AbVBDVt1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 16:49:42 -0500
-Received: from mail-in-03.arcor-online.net ([151.189.21.43]:18580 "EHLO
-	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
-	id S264530AbVBDVed (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 16:34:33 -0500
-Message-ID: <4203EA83.4020509@arcor.de>
-Date: Fri, 04 Feb 2005 22:34:59 +0100
-From: Prakash Punnoor <prakashp@arcor.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050121)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] udev 051 release
-References: <20050203180528.GB24742@kroah.com>
-In-Reply-To: <20050203180528.GB24742@kroah.com>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigE43EB48FA5627FBF3E328195"
+	Fri, 4 Feb 2005 16:49:27 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:10907 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266406AbVBDVho (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 16:37:44 -0500
+Date: Fri, 4 Feb 2005 13:37:26 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>, zaitcev@redhat.com,
+       linux-usb-devel@lists.sourceforge.net,
+       David Brownell <david-b@pacbell.net>
+Subject: Re: 2.6: USB disk unusable level of data corruption
+Message-ID: <20050204133726.7ba8944f@localhost.localdomain>
+In-Reply-To: <1107519382.1703.7.camel@localhost.localdomain>
+References: <1107519382.1703.7.camel@localhost.localdomain>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.14; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigE43EB48FA5627FBF3E328195
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+On Fri, 04 Feb 2005 23:16:22 +1100, Rusty Russell <rusty@rustcorp.com.au> wrote:
 
-Hi Greg,
+> [...] I have since then had multiple
+> ext3 and ext2 errors: 2.6.8, 2.6.9, 2.6.10 and 2.6.11-rc3 all exhibit
+> the problem within an hour of stress (untarring a fresh kernel tree, cp
+> -al'ing to apply patches repeatedly, my normal workload).
 
-would you consider adding these rules to your default udev rules:
+> I realize "ub" exists, but it doesn't seem to want to deal with a disk
+> device.
 
-KERNEL="dvb[0-9].dvr*",        NAME="dvb/adapter%n/dvr%n", GROUP="video"
-KERNEL="dvb[0-9].demux*",      NAME="dvb/adapter%n/demux%n", GROUP="video"
-KERNEL="dvb[0-9].frontend*",   NAME="dvb/adapter%n/frontend%n", GROUP="video"
-KERNEL="dvb[0-9].audio*",      NAME="dvb/adapter%n/audio%n", GROUP="video"
-KERNEL="dvb[0-9].ca*",         NAME="dvb/adapter%n/ca%n", GROUP="video"
-KERNEL="dvb[0-9].osd*",        NAME="dvb/adapter%n/osd%n", GROUP="video"
-KERNEL="dvb[0-9].net*",        NAME="dvb/adapter%n/net%n", GROUP="video"
-KERNEL="dvb[0-9].video*",      NAME="dvb/adapter%n/video%n", GROUP="video"
+In case your EHCI disconnects devices under load, ub won't help.
+You probably heard my claims that ub helps against certain memory
+pressure related lockups and against problems in the SCSI stack,
+which my even be true. Jury is still out on those and your case
+seems different anyway. Please work with David Brownell on the EHCI
+issues. I applied a few patches of his to the 2.4 which made a difference
+in similar circumstances.
 
-I guess DVD users would appreciate this.
-
-Thanks !
-
---
-Prakash Punnoor
-
-formerly known as Prakash K. Cheemplavam
-
-
---------------enigE43EB48FA5627FBF3E328195
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQFCA+qGxU2n/+9+t5gRAspkAJ0cALr2OwRBWAYTOoRErHtp8nFL8QCcDOgU
-XoOJTU3U7amQAfUkdcYyDTs=
-=ZUb1
------END PGP SIGNATURE-----
-
---------------enigE43EB48FA5627FBF3E328195--
+Good luck,
+-- Pete

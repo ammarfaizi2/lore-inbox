@@ -1,85 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263519AbTJ0TaM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 14:30:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263521AbTJ0TaM
+	id S263489AbTJ0ThF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 14:37:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263490AbTJ0ThF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 14:30:12 -0500
-Received: from zero.aec.at ([193.170.194.10]:41482 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S263519AbTJ0TaG (ORCPT
+	Mon, 27 Oct 2003 14:37:05 -0500
+Received: from yakov.inr.ac.ru ([193.233.7.111]:47511 "HELO yakov.inr.ac.ru")
+	by vger.kernel.org with SMTP id S263489AbTJ0ThD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 14:30:06 -0500
-Date: Mon, 27 Oct 2003 20:29:50 +0100
-From: Andi Kleen <ak@muc.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andi Kleen <ak@muc.de>, vojtech@suse.cz, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PS/2 mouse rate setting
-Message-ID: <20031027192950.GA2192@averell>
-References: <20031027183856.GA1461@averell> <Pine.LNX.4.44.0310271054120.1636-100000@home.osdl.org>
-Mime-Version: 1.0
+	Mon, 27 Oct 2003 14:37:03 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200310271936.WAA07348@yakov.inr.ac.ru>
+Subject: Re: Linux 2.6.0-test9
+To: torvalds@osdl.org (Linus Torvalds)
+Date: Mon, 27 Oct 2003 22:36:21 +0300 (MSK)
+Cc: akpm@osdl.org, Andries.Brouwer@cwi.nl,
+       linux-kernel@vger.kernel.org (Kernel Mailing List), netdev@oss.sgi.com,
+       davem@redhat.com (David S. Miller), kuznet@ms2.inr.ac.ru
+In-Reply-To: <Pine.LNX.4.44.0310261607230.3157-100000@home.osdl.org> from "Linus Torvalds" at Oct 26, 2003 04:21:59 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0310271054120.1636-100000@home.osdl.org>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jOn Mon, Oct 27, 2003 at 10:56:16AM -0800, Linus Torvalds wrote:
-> 
-> Which makes no sense.
+Hello!
 
-Ok new patch with this fixed.
+> And Alexey apparently tried to do the "FIXME" part, but without thinking 
+> about the SIGURG part.
 
----------------------------
+Actually, it was thought a lot for several linux-2.x. :-)
 
-Only set PS/2 mouse rate when the user specified a value.
 
-Allow specifying it from the command line when the driver is compiled in.
+> We _need_ to stop at urgent data and we _should_ return -EINTR, and let
+> the SIGURG handler do the URG read. Otherwise we'll lose urgent data (or
+> we'll just read it inline without realizing that it was urgent data).
 
-Make rates[] static.
+The patch was expected not to break this property. Alas, something
+is overlooked yet. I still do not understand what exactly is broken,
+I feel I have to find some rlogin to experiment in vivo.
 
-diff -u linux-2.6.0test9-averell/drivers/input/mouse/psmouse-base.c-o linux-2.6.0test9-averell/drivers/input/mouse/psmouse-base.c
---- linux-2.6.0test9-averell/drivers/input/mouse/psmouse-base.c-o	2003-09-28 10:53:17.000000000 +0200
-+++ linux-2.6.0test9-averell/drivers/input/mouse/psmouse-base.c	2003-10-27 20:16:25.000000000 +0100
-@@ -40,7 +40,7 @@
- 
- static int psmouse_noext;
- int psmouse_resolution;
--unsigned int psmouse_rate = 60;
-+unsigned int psmouse_rate = 0;
- int psmouse_smartscroll = PSMOUSE_LOGITECH_SMARTSCROLL;
- unsigned int psmouse_resetafter;
- 
-@@ -451,9 +451,12 @@
- 
- static void psmouse_set_rate(struct psmouse *psmouse)
- {
--	unsigned char rates[] = { 200, 100, 80, 60, 40, 20, 10, 0 };
-+	static unsigned char rates[] = { 200, 100, 80, 60, 40, 20, 10, 0 };
- 	int i = 0;
- 
-+	if (!psmouse_rate)
-+		return; 
-+
- 	while (rates[i] > psmouse_rate) i++;
- 	psmouse_command(psmouse, rates + i, PSMOUSE_CMD_SETRATE);
- }
-@@ -651,10 +654,17 @@
- 	return 1;
- }
- 
-+static int __init psmouse_rate_setup(char *str)
-+{
-+	get_option(&str, &psmouse_rate);
-+	return 1;
-+}
-+
- __setup("psmouse_noext", psmouse_noext_setup);
- __setup("psmouse_resolution=", psmouse_resolution_setup);
- __setup("psmouse_smartscroll=", psmouse_smartscroll_setup);
- __setup("psmouse_resetafter=", psmouse_resetafter_setup);
-+__setup("psmouse_rate=", psmouse_rate_setup);
- 
- #endif
- 
+Alexey
+

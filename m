@@ -1,75 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271633AbRHPUqX>; Thu, 16 Aug 2001 16:46:23 -0400
+	id <S266559AbRHPU5S>; Thu, 16 Aug 2001 16:57:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271636AbRHPUqE>; Thu, 16 Aug 2001 16:46:04 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:17819 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S271633AbRHPUqB> convert rfc822-to-8bit;
-	Thu, 16 Aug 2001 16:46:01 -0400
-Importance: Normal
-Subject: Re: Re: limit cpu
-To: Eduardo =?iso-8859-1?Q?Cort=E9s?= <the_beast@softhome.net>
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
-Message-ID: <OF83B3DC6D.E0F03776-ON85256AAA.0070C275@pok.ibm.com>
-From: "Shailabh Nagar" <nagar@us.ibm.com>
-Date: Thu, 16 Aug 2001 16:46:06 -0400
-X-MIMETrack: Serialize by Router on D01ML233/01/M/IBM(Release 5.0.8 |June 18, 2001) at
- 08/16/2001 04:46:07 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 8BIT
+	id <S261289AbRHPU5J>; Thu, 16 Aug 2001 16:57:09 -0400
+Received: from harpo.it.uu.se ([130.238.12.34]:45991 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S271636AbRHPU4j>;
+	Thu, 16 Aug 2001 16:56:39 -0400
+Date: Thu, 16 Aug 2001 22:56:46 +0200 (MET DST)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200108162056.WAA18756@harpo.it.uu.se>
+To: georgn@somanetworks.com, linux-kernel@vger.kernel.org
+Subject: Re: Dell I8000, 2.4.8-ac5 and APM
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 15 Aug 2001 15:57:22 -0400, Georg Nikodym wrote:
 
-
-
-Restricting CPU usage alone can be done relatively easily during
-recalculate . Before renewing the counter for a task, a quick check could
-be made against a newly added user-specific limit. If very precise
-accounting is not needed, the check could be done by one of the periodic
-daemons.....
-
-But a bigger question remains : will doing this achieve the objective of
-isolating a malicious/errant process ? There are a number of other system
-resources that the process/user could overuse to the detriment of other
-users/processes.
-
-Shailabh
-
-
-Eduardo Cortés <the_beast@softhome.net>@vger.kernel.org on 08/16/2001
-03:22:55 PM
-
-Sent by:  linux-kernel-owner@vger.kernel.org
-
-
-To:   linux-kernel@vger.kernel.org
-cc:
-Subject:  Re: Re: limit cpu
-
-
-
-On Thursday 16 August 2001 20:54, you wrote:
-> > If somebody want to develope it, a lot of thanks. I see scheduler could
-> > be better with this feature, opinions?
+>> On my Dell I8000, when running 2.48-ac5 pulling the AC plug out (or
+>> plugging it back) causes the box to hang for a while prior to shutting
+>> itself off.
+>> 
+>> I first reported this in 2.4.5-ac13 but didn't have the time to poke
+>> around.
 >
-> one excellent reason noone has bothered with it is that hardware
-> is dirt cheap.  it's extremely unusual these days to find a machine
-> where hostile users are given shell accounts.  for non-hostile
-> situations (my lab, for instance), or for servers, the feature is
-> useless.
-at server level, this feature will be used for virtual hosts (a lot of
-ISP's). Could be used at home for security reason limitting any user
-95-97%,
-and box will be more secure. A lot of people use applications (for XFree)
-that could crash the box for this reason.
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+>Looking at apm.c, there's not enough difference to account for this
+>regression so I started looking more broadly.  I found that in the -ac
+>tree there's a bunch of power management code that's been added to
+>arch/i386/kernel/apic.c (by Mikael Petterson).
 
+The PM code in apic.c is _required_ if you want power management to
+work at all with a local APIC enabled kernel.
+The problem is that on most UP boxes, the BIOS boots the OS with the
+local APIC disabled, and it expects the local APIC to stay disabled,
+especially at suspend when the BIOS SMM is activated. Failure of the
+OS to disable the local APIC before suspend can cause the machine to
+hang hard. The PM code in apic.c and nmi.c is there to prevent this.
 
+Concerning your problem with pulling the AC plug on your Dell I8000,
+my suspicion is that either (a) the BIOS isn't notifying apm.c of the
+event, or (b) apm.c fails to propagate the event to its PM clients.
 
+(Case (b) is known to cause problems for "apm --standby" since apm.c
+[for whatever reason] doesn't propagate STANDBY events to PM clients.
+See the "2.4.5-ac8 hardlocks when going to standby" thread from early
+June this year.)
+
+>Disabling APIC solves my immediate problem, so personally I'm happy.
+>
+>Obviously, that not The Right Thing (tm) so Mikael, if you want a
+>debugging guinea pig, feel free to contact me.
+
+Try the patch below and configure with CONFIG_X86_UP_APIC disabled.
+Reboot. Pull the AC plug. What debug output did apm.c dump in the
+kernel log? If it said something about send_event() ignoring some
+event, then that's a prime suspect.
+
+/Mikael
+
+--- linux-2.4.8-ac5/arch/i386/kernel/apm.c.~1~	Thu Aug 16 21:32:36 2001
++++ linux-2.4.8-ac5/arch/i386/kernel/apm.c	Thu Aug 16 21:58:40 2001
+@@ -347,7 +347,7 @@
+ static long			clock_cmos_diff;
+ static int			got_clock_diff;
+ #endif
+-static int			debug;
++static int			debug = 1;
+ static int			apm_disabled = -1;
+ #ifdef CONFIG_SMP
+ static int			power_off;
+@@ -947,6 +947,13 @@
+ 		/* map all resumes to ACPI D0 */
+ 		(void) pm_send_all(PM_RESUME, (void *)0);
+ 		break;
++	default:
++		if (debug)
++			printk(KERN_DEBUG "apm: send_event() ignored event 0x%02x (%s)\n",
++			       event,
++			       (event > NR_APM_EVENT_NAME)
++			       ? "unknown"
++			       : apm_event_name[event - 1]);
+ 	}
+ 
+ 	return 1;

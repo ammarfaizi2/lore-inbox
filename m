@@ -1,53 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262257AbUBXOjo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 09:39:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262256AbUBXOjo
+	id S262258AbUBXOmc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 09:42:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262260AbUBXOmc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 09:39:44 -0500
-Received: from wbar8.tampa1-4-4-125-218.tampa1.dsl-verizon.net ([4.4.125.218]:2491
-	"EHLO Copernicus") by vger.kernel.org with ESMTP id S262257AbUBXOjn
+	Tue, 24 Feb 2004 09:42:32 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:8833 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262258AbUBXOmU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 09:39:43 -0500
-Message-ID: <403B622C.5070805@coyotegulch.com>
-Date: Tue, 24 Feb 2004 09:39:40 -0500
-From: Scott Robert Ladd <coyote@coyotegulch.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
+	Tue, 24 Feb 2004 09:42:20 -0500
+Date: Tue, 24 Feb 2004 09:44:03 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Jim Deas <jdeas0648@jadsystems.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: your mail
+In-Reply-To: <200402240558.AA3585540272@jadsystems.com>
+Message-ID: <Pine.LNX.4.53.0402240931310.8074@chaos>
+References: <200402240558.AA3585540272@jadsystems.com>
 MIME-Version: 1.0
-To: Timothy Miller <miller@techsource.com>
-CC: John Heil <kerndev@sc-software.com>,
-       Thomas Zehetbauer <thomasz@hostmaster.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Intel vs AMD x86-64
-References: <Pine.LNX.4.58.0402171739020.2686@home.osdl.org>  <16435.14044.182718.134404@alkaid.it.uu.se>  <Pine.LNX.4.58.0402180744440.2686@home.osdl.org>  <20040222025957.GA31813@MAIL.13thfloor.at>  <Pine.LNX.4.58.0402211907100.3301@ppc970.osdl.org> <1077584461.8414.164.camel@hostmaster.org> <Pine.LNX.4.58.0402231707220.13525@scsoftware.sc-software.com> <403B5257.2030305@techsource.com>
-In-Reply-To: <403B5257.2030305@techsource.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timothy Miller wrote:
-> This is not a comment in favor of Intel... just a lament...
-> 
-> Things may have changed, but when I last built a Linux box (Athlon XP 
-> 2800+), I was not able to find a motherboard for recent AMD processors 
-> with 64bit/66mhz PCI slots.  If I'd needed that, I would have had to go 
-> with Intel.
+On Tue, 24 Feb 2004, Jim Deas wrote:
 
-The Tyan K8W S-2885ANRF (a dual Opteron board) has:
+> Can someone point me in the right direction.
+> I am getting a oops on a driver I am porting from 2.4 to 2.6.2 kernel.
+> I have expanded the file_operations structures and have a driver that
+> loads and inits the hardware but when I call the open function I
+> get an oops. The best I can track it is
+>
 
-One 8X AGP / AGP Pro110 slot
-Two independent PCI-X buses
-Two 64-bit 100/66/33 MHz (3.3-Volt)
-Two 64-bit 133/100/66/33 MHz (3.3-Volt)
-One legacy 32-bit 33MHz (5-Volt) PCI slot
+Fix your line-warp!
 
-This is the board I've ordered in my new workstation. I've heard that 
-people have used this board quite successfully with Linux (fingers crossed).
+> EIP 0060:[c0188954]
+> chrdev_open +0x104
+>
+> What is the best debug tool to put this oops information in clear
+> sight? It appears to never get to my modules open routine so I am
+> at a debugging crossroad. What is the option on a kernel compile
+> to get the compile listing so I can see what is at 0x104 in this
+> block of code?
+>
 
--- 
-Scott Robert Ladd
-Coyote Gulch Productions (http://www.coyotegulch.com)
-Software Invention for High-Performance Computing
+Nothing is going to help with that EIP with a segment value of
+0x60. It looks like some dumb coding error, using a pointer
+that disappeared after the module init function. In other
+words, it's probably something like:
+
+int __init init_module()
+{
+    struct file_operations fops;
+    mset(&fops, 0x00, sizeof(fops));
+    fops.open = open;
+    fops.release = close;
+    fops.owner = THIS_MODULE;
+    register_chrdev(DEV_MAJOR, dev, &fops);
+}
+
+So, everything in init_module is GONE. Your program calls open()
+and the pointer in the kernel gets dereferenced to junk.
+
+There are kernel debugging tools, however I have found that
+the most useful tools are printk() and some discipline.
+
+In the case of code above, don't just change the declaration
+of the fops object to static. Instead, move it outside the
+function, so it's obviously where it won't go away.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
 

@@ -1,58 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262282AbVCBNIT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262285AbVCBNLf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262282AbVCBNIT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 08:08:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262285AbVCBNIT
+	id S262285AbVCBNLf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 08:11:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262286AbVCBNLe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 08:08:19 -0500
-Received: from cam-admin0.cambridge.arm.com ([193.131.176.58]:51091 "EHLO
-	cam-admin0.cambridge.arm.com") by vger.kernel.org with ESMTP
-	id S262282AbVCBNHl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 08:07:41 -0500
-To: lm@bitmover.com
+	Wed, 2 Mar 2005 08:11:34 -0500
+Received: from gate.perex.cz ([82.113.61.162]:10369 "EHLO mail.perex.cz")
+	by vger.kernel.org with ESMTP id S262285AbVCBNLd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 08:11:33 -0500
+Date: Wed, 2 Mar 2005 14:01:41 +0100 (CET)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: perex@pnote.perex-int.cz
+To: Michal Semler <cijoml@volny.cz>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BK] cvs export
-References: <20050302011419.GA30790@bitmover.com>
-From: Catalin Marinas <catalin.marinas@arm.com>
-Date: Wed, 02 Mar 2005 13:07:20 +0000
-Message-ID: <tnxhdjukxh3.fsf@arm.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.3 (gnu/linux)
+Subject: Re: smartlink alsa modem problem in 2.6.11
+In-Reply-To: <200503021354.38603.cijoml@volny.cz>
+Message-ID: <Pine.LNX.4.58.0503021358290.1745@pnote.perex-int.cz>
+References: <200503021354.38603.cijoml@volny.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Larry,
+On Wed, 2 Mar 2005, Michal Semler wrote:
 
-lm@bitmover.com (Larry McVoy) wrote:
-> One problem is that the set of files in patches may not be disjoint,
-> the same file may participate in multiple patches.  I think we can handle
-> that in the following way, we put multiple comments, one for each patch,
-> so you'd see
->
-> 	(Logical change 1.12345.5)
-> 	(Logical change 1.12345.11)
-> 	(Logical change 1.12345.79)
+> Hi,
+> 
+> I tried use snd_intel8x0m  with smartlink modem, but without success:
 
-Since this is one commit, could you also add the $PATCH number in the
-ChangeSet,v log file? For merge operations you get the commit logs
-from the merged tree but they wouldn't be mapped to the "1.x.patch"
-logical change.
+> Mar  2 13:49:37 notas kernel: codec_semaphore: semaphore is not ready [0x1][0x701300]
+> Mar  2 13:49:37 notas kernel: codec_write 1: semaphore is not ready for 
 
-Should the BKrev value in ChangeSet,v have a correspondent on the
-bkbits.net site? For example, for the ChangeSet,v RCS revision
-1.26418, BKrev is 41fe523ecAJ3I6z55zHXaAI1vsDZ8Q. This changeset is
-actually a bundled patch containing several patches but the bkbits
-seems to show an empty patch:
+It's known bug:
 
-http://linux.bkbits.net:8080/linux-2.5/gnupatch@41fe523ecAJ3I6z55zHXaAI1vsDZ8Q
-http://linux.bkbits.net:8080/linux-2.5/cset@41fe523ecAJ3I6z55zHXaAI1vsDZ8Q?nav=index.html
+https://bugtrack.alsa-project.org/alsa-bug/view.php?id=890
 
-On a side note, is the ChangeSet,v file updated before or after (or
-in the same commit) the source files are checked in? It would be
-better if it is updated after a commit since this way you can
-guarantee that for a given revision of this file you have all the
-"logical changes" checked in.
+Have you tried to load "snd-intel8x0m and snd-intel8x0" modules in 
+opposite order? Anyway, further discussion should go to this bug
+report...
 
-Catalin
+						Jaroslav
 
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SUSE Labs

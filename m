@@ -1,70 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273529AbRIUQol>; Fri, 21 Sep 2001 12:44:41 -0400
+	id <S273533AbRIUQne>; Fri, 21 Sep 2001 12:43:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273525AbRIUQoe>; Fri, 21 Sep 2001 12:44:34 -0400
-Received: from [208.129.208.52] ([208.129.208.52]:39436 "EHLO xmailserver.org")
-	by vger.kernel.org with ESMTP id <S273529AbRIUQoU>;
-	Fri, 21 Sep 2001 12:44:20 -0400
-Message-ID: <XFMail.20010921094813.davidel@xmailserver.org>
-X-Mailer: XFMail 1.5.0 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S273529AbRIUQnW>; Fri, 21 Sep 2001 12:43:22 -0400
+Received: from mpdr0.cleveland.oh.ameritech.net ([206.141.223.14]:22750 "EHLO
+	mailhost.cle.ameritech.net") by vger.kernel.org with ESMTP
+	id <S273525AbRIUQnC>; Fri, 21 Sep 2001 12:43:02 -0400
+Date: Fri, 21 Sep 2001 12:43:21 -0400 (EDT)
+From: Stephen Torri <storri@ameritech.net>
+X-X-Sender: <torri@base.torri.linux>
+To: Keith Owens <kaos@ocs.com.au>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Announce: ksymoops 2.4.3 is available
+In-Reply-To: <10723.1001063398@kao2.melbourne.sgi.com>
+Message-ID: <Pine.LNX.4.33.0109211238010.1454-100000@base.torri.linux>
 MIME-Version: 1.0
-In-Reply-To: <9oekvr$fs$1@post.home.lunix>
-Date: Fri, 21 Sep 2001 09:48:13 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-To: <linux-kernel@ton.iguana.be (Ton Hospel)>
-Subject: Re: [PATCH] /dev/epoll update ...
-Cc: linux-kernel@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Recompiling ksymoops with gcc-3.0.2 produces the following errors:
 
-On 21-Sep-2001 Ton Hospel wrote:
-> In article <XFMail.20010919151147.davidel@xmailserver.org>,
->       Davide Libenzi <davidel@xmailserver.org> writes:
->> On 19-Sep-2001 Christopher K. St. John wrote:
->>> Davide Libenzi wrote:
->> Again :
->> 
->> 1)      select()/poll();
->> 2)      recv()/send();
->> 
->> vs :
->> 
->> 1)      if (recv()/send() == FAIL)
->> 2)              ioctl(EP_POLL);
->> 
-> 
-> mm, I don't really get the second one. What if the scenario is:
-> In the place you are in your program, you now decide that a
-> read is in order.  You try read, nothing there yet,
-> the syscall returns, the data event happens and THEN you go into
-> the ioctl ?
-> 
-> Possibilities seem:
-> 1) You hang, having missed the only event that will happen
-> 2) Just having data triggers the ioctl (maybe only the first time),
->    why not leaving out the initial read then and just do it afterwards
->    like select ?
-> 3) It generates a fake event the first time you notify interest, but then
->    the startup case leads to doing the read uselessly twice.
-> 
-> Or is there a fourth way I'm missing this really works ?
+(rpm --rebuild ksymoops-2.4.3-1.src.rpm):
 
-That was a simplified function :
+ksymoops.c:114:1: directives may not be used inside a macro argument
+ksymoops.c:114:1: unterminated argument list invoking macro "printf"
+ksymoops.c: In function `usage':
+ksymoops.c:117: parse error before string constant
 
-        while (recv()/send() == FAIL)
-                ioctl(EP_POLL);
+gcc is using the flags "-march=i386 -mcpu=i686" when it tries to compile
+ksymoops.c
 
-this is the right code.
-If an event happens between the recv() and the ioctl() this is cached by the
-driver and it'll be returned from ioctl().
+(rpm -bb ksymoops.spec after installing):
 
+Reports the same errors as above and uses the same -march and -mcpu flags.
 
+(make within the ksymoops directory):
 
+Compile completes successfully. Although the following warnings are
+produce:
 
-- Davide
+symbol.c:220:58: warning: trigraph ??> ignored
+symbol.c:221:44: warning: trigraph ??> ignored
+symbol.c:225:49: warning: trigraph ??> ignored
+symbol.c:226:35: warning: trigraph ??> ignored
+
+Stephen Torri
+
+On Fri, 21 Sep 2001, Keith Owens wrote:
+
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+>
+> Content-Type: text/plain; charset=us-ascii
+>
+> ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/ksymoops/v2.4
+>
+> ksymoops-2.4.3.tar.gz		Source tarball, includes RPM spec file
+> ksymoops-2.4.3-1.src.rpm	As above, in SRPM format
+> ksymoops-2.4.3-1.i386.rpm	Compiled with 2.96 20000731, glibc 2.2.2
+> ksymoops-2.4.3-1.ia64.rpm	Compiled with gcc 2.96-ia64-20000731,
+> 				glibc-2.2.3.
+> patch-ksymoops-2.4.3.gz		Patch from ksymoops 2.4.2 to 2.4.3.
+>
+> No sparc binary, I do not have access to a sparc system with a decent
+> version of binutils.
+>
+> Changelog extract
+>
+> 	* Add Pid:.
+> 	* Add -A "address list".  Idea pinched from Randy Dunlap's ksysmap.
+>
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.0.4 (GNU/Linux)
+> Comment: Exmh version 2.1.1 10/15/1999
+>
+> iD8DBQE7qwPli4UHNye0ZOoRAqtjAJ9JKaMGxlU8Bwqwmn7ShJ9OhlctmgCg2rPQ
+> M4jW+vdQfuMSFPPRleKTj5Y=
+> =LC33
+> -----END PGP SIGNATURE-----
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

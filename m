@@ -1,59 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265683AbUABWmN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 17:42:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265690AbUABWmN
+	id S265686AbUABWgx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 17:36:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265691AbUABWgw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 17:42:13 -0500
-Received: from mail.shareable.org ([81.29.64.88]:55180 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S265683AbUABWmL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 17:42:11 -0500
-Date: Fri, 2 Jan 2004 22:41:50 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Manfred Spraul <manfred@colorfullife.com>, lse-tech@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC,PATCH] use rcu for fasync_lock
-Message-ID: <20040102224150.GA5864@mail.shareable.org>
-References: <3FE492EF.2090202@colorfullife.com> <20031221113640.GF3438@mail.shareable.org> <3FE594D0.8000807@colorfullife.com> <20031221141456.GI3438@mail.shareable.org> <3FF5DF59.3090905@tmr.com>
+	Fri, 2 Jan 2004 17:36:52 -0500
+Received: from mail023.syd.optusnet.com.au ([211.29.132.101]:16870 "EHLO
+	mail023.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S265686AbUABWgu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jan 2004 17:36:50 -0500
+Message-Id: <6.0.1.1.2.20040103091548.045ab3b8@mail.optusnet.com.au>
+X-Nil: 
+Date: Sat, 03 Jan 2004 09:36:40 +1100
+To: ak@muc.de
+From: Leon Toh <tltoh@attglobal.net>
+Subject: Re: Adaptec/DPT I2O Option Omitted From Linux 2.6.0 Kernel
+  Configuration Tool
+Cc: Linux Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <m3n097hzvh.fsf@averell.firstfloor.org>
+References: <19aKu-6Z-17@gated-at.bofh.it>
+ <19aKu-6Z-19@gated-at.bofh.it>
+ <19aKu-6Z-21@gated-at.bofh.it>
+ <19aKu-6Z-23@gated-at.bofh.it>
+ <19aKu-6Z-25@gated-at.bofh.it>
+ <19aKu-6Z-15@gated-at.bofh.it>
+ <19lcU-64y-19@gated-at.bofh.it>
+ <m3n097hzvh.fsf@averell.firstfloor.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FF5DF59.3090905@tmr.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
-> Jamie Lokier wrote:
-> >We have found the performance impact of the extra ->poll calls
-> >negligable with epoll.  They're simply not slow calls.  It's
-> >only when you're doing select() or poll() of many descriptors
-> >repeatedly that you notice, and that's already poor usage in other
-> >ways.
-> 
-> I do agree with you, but there is a lot of old software, and software 
-> written on/for BSD, which does do this. I'm not prepared to say that BSD 
-> does it better, but it's easier to fix in one place, the kernel, than 
-> many other places.
-> 
-> Your point about the complexity is also correct, but perhaps someone 
-> will offer a better solution to speeding up select(). I think anything 
-> as major as this might be better off in a development series, and that's 
-> a clear prod for someone to find a simpler way to do it ;-)
+At 01:02 PM 2/01/2004, Andi Kleen wrote:
+>Leon Toh <tltoh@attglobal.net> writes:
+>
+> > At this point of time I think fixing this driver for 32bit
+> > architecture now is far more important than addressing 64bit
+> > architecture, don't you agree Andi ?
+>
+>Unclear. The number of 2.4/AMD64 users tripping over this might
+>be not much smaller than the number of early 2.6 adopter 32bit users.
 
-Eliminating up to half of the ->poll calls using wake_up_info() and
-reducing the number of wakeups using an event mask argument to ->poll
-are not the best ways to speed up select() or poll() for large numbers
-of descriptors.
+Ok. So far I have not had anyone requesting for 64 bit Linux OS HBA 
+support. However I'm getting more request for 2.6 32 bit support as they 
+are starting development with it. Might be different in your part of world.
 
-The best way is to maintain poll state in each "struct file".  The
-order of complexity for the bitmap scan is still significant, but
-->poll calls are limited to the number of transitions which actually
-happen.
+I'm not a programmer myself so I'm not sure how involved it would be to 
+tidy the driver up. If it's only a couple of additional lines than it can 
+be address at the same time. But if that's not the case than I think 
+Adaptec should tidy up the 32 bit support before working on 64 bit support. 
+Last I want to see is a complete buggy driver release due to a complete 
+rewrite of the driver for 32 and 64 bit support.
 
-I think somebody, maybe Richard Gooch, has a patch to do this that's
-several years old by now.
+- Leon 
 
--- Jamie

@@ -1,78 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267182AbUFZQJA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267185AbUFZQPI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267182AbUFZQJA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jun 2004 12:09:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267183AbUFZQJA
+	id S267185AbUFZQPI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jun 2004 12:15:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267186AbUFZQPH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jun 2004 12:09:00 -0400
-Received: from stat1.steeleye.com ([65.114.3.130]:45284 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S267182AbUFZQIj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jun 2004 12:08:39 -0400
-Subject: [PATCH] Fix the cpumask rewrite
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Andrew Morton <akpm@osdl.org>, Paul Jackson <pj@sgi.com>,
-       Linus Torvalds <torvalds@osdl.org>
-Cc: PARISC list <parisc-linux@lists.parisc-linux.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 26 Jun 2004 11:08:29 -0500
-Message-Id: <1088266111.1943.15.camel@mulgrave>
+	Sat, 26 Jun 2004 12:15:07 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:56223 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267185AbUFZQPA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jun 2004 12:15:00 -0400
+Subject: Re: SATA_SIL works with 2.6.7-bk8 seagate drive, but oops
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       george@galis.org
+In-Reply-To: <Pine.LNX.4.58.0406260855080.14449@ppc970.osdl.org>
+References: <1088253429.9831.1449.camel@cube>
+	 <1088262728.2805.7.camel@laptop.fenrus.com>
+	 <Pine.LNX.4.58.0406260855080.14449@ppc970.osdl.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-QEaBi8jc6Cdg2xfxSe12"
+Organization: Red Hat UK
+Message-Id: <1088266485.2805.9.camel@laptop.fenrus.com>
 Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sat, 26 Jun 2004 18:14:46 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch:
 
-ChangeSet 1.1828.1.25 2004/06/24 08:51:00 akpm@osdl.org
-  [PATCH] cpumask: rewrite cpumask.h - single bitmap based implementation
-  
-  From: Paul Jackson <pj@sgi.com>
-  
-  Major rewrite of cpumask to use a single implementation, as a struct-wrapped
-  bitmap.
- 
-Altered the cpumask iterators to add a volatile to the bitmap type. 
-This might be correct for x86 and itanium, but it isn't for parisc where
-our bitmap operators don't take volatile pointers.  This makes our
-compile incredibly noisy in just about every file:
+--=-QEaBi8jc6Cdg2xfxSe12
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-  CC      mm/rmap.o
-In file included from include/linux/sched.h:15,
-                 from include/linux/mm.h:4,
-                 from mm/rmap.c:29:
-include/linux/cpumask.h: In function `__cpu_set':
-include/linux/cpumask.h:86: warning: passing arg 2 of `set_bit' discards
-qualifiers from pointer target type
-include/linux/cpumask.h: In function `__cpu_clear':
-include/linux/cpumask.h:92: warning: passing arg 2 of `clear_bit'
-discards qualifiers from pointer target type
+On Sat, 2004-06-26 at 18:00, Linus Torvalds wrote:
+> On Sat, 26 Jun 2004, Arjan van de Ven wrote:
+> >=20
+> > well.... this value is *passed to userspace* via the AT_ attributes ...=
+.
+> > glibc probably nicely exports this info via sysconf(). I guess/hope you=
+r
+> > tools are now using that ?
+>=20
+> Even then, it's a bug in my opinion.
 
-Since whether the bitmap operators are volatile or not is within the
-province of the architecture to decide, I think the correct fix is just
-to drop the spurious volatiles from cpumask.h
+Agreed 100%. It gets kind of fun though if you have say 32 bit emulation
+in a 64 bit kernel and the 64 bit environment has a different user HZ
+than the 32 bit env....
 
-James
 
-===== include/linux/cpumask.h 1.15 vs edited =====
---- 1.15/include/linux/cpumask.h	2004-06-24 13:57:31 -05:00
-+++ edited/include/linux/cpumask.h	2004-06-26 11:00:14 -05:00
-@@ -81,13 +81,13 @@
- extern cpumask_t _unused_cpumask_arg_;
- 
- #define cpu_set(cpu, dst) __cpu_set((cpu), &(dst))
--static inline void __cpu_set(int cpu, volatile cpumask_t *dstp)
-+static inline void __cpu_set(int cpu, cpumask_t *dstp)
- {
- 	set_bit(cpu, dstp->bits);
- }
- 
- #define cpu_clear(cpu, dst) __cpu_clear((cpu), &(dst))
--static inline void __cpu_clear(int cpu, volatile cpumask_t *dstp)
-+static inline void __cpu_clear(int cpu, cpumask_t *dstp)
- {
- 	clear_bit(cpu, dstp->bits);
- }
+
+--=-QEaBi8jc6Cdg2xfxSe12
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBA3aD1xULwo51rQBIRAiZ7AJkB98YJm/05l8mDFBBwHaDYYXBBAACgh1JO
+CwvreQ0iV49AwaUUeNCguDI=
+=K7xQ
+-----END PGP SIGNATURE-----
+
+--=-QEaBi8jc6Cdg2xfxSe12--
 

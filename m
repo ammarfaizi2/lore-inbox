@@ -1,51 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262336AbSI3RXo>; Mon, 30 Sep 2002 13:23:44 -0400
+	id <S262452AbSI3RiM>; Mon, 30 Sep 2002 13:38:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262339AbSI3RXo>; Mon, 30 Sep 2002 13:23:44 -0400
-Received: from mailrelay1.lanl.gov ([128.165.4.101]:15017 "EHLO
-	mailrelay1.lanl.gov") by vger.kernel.org with ESMTP
-	id <S262336AbSI3RXn>; Mon, 30 Sep 2002 13:23:43 -0400
-Subject: Re: 2.5.39-bk2 compile failure with CONFIG_XFS_FS=y
-From: Steven Cole <elenstev@mesatop.com>
-To: Christoph Hellwig <hch@sgi.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020930194628.B15138@sgi.com>
-References: <1033401002.32409.62.camel@spc9.esa.lanl.gov> 
-	<20020930194628.B15138@sgi.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 30 Sep 2002 11:01:16 -0600
-Message-Id: <1033405276.32404.70.camel@spc9.esa.lanl.gov>
-Mime-Version: 1.0
+	id <S262492AbSI3RiM>; Mon, 30 Sep 2002 13:38:12 -0400
+Received: from landfill.ihatent.com ([217.13.24.22]:42216 "EHLO
+	mail.ihatent.com") by vger.kernel.org with ESMTP id <S262452AbSI3RiL>;
+	Mon, 30 Sep 2002 13:38:11 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CPU/cache detection wrong
+References: <m3hegaxpp0.fsf@lapper.ihatent.com>
+	<1033403655.16933.20.camel@irongate.swansea.linux.org.uk>
+From: Alexander Hoogerhuis <alexh@ihatent.com>
+Date: 30 Sep 2002 19:43:16 +0200
+In-Reply-To: <1033403655.16933.20.camel@irongate.swansea.linux.org.uk>
+Message-ID: <m3wup3bcgb.fsf@lapper.ihatent.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-09-30 at 17:46, Christoph Hellwig wrote:
-> On Mon, Sep 30, 2002 at 09:50:02AM -0600, Steven Cole wrote:
-> > I got the following compile error building 2.5.39-bk2 with CONFIG_XFS_FS=y:
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+
+> On Sat, 2002-09-28 at 13:29, Alexander Hoogerhuis wrote:
+> > CPU: Intel(R) Pentium(R) 4 Mobile CPU 1.70GHz stepping 04
+> > Enabling fast FPU save and restore... done.
+> > Enabling unmasked SIMD FPU exception support... done.
+> > Checking 'hlt' instruction... OK.
+> > 
+> > The machine is a Comapq Evo n800c with a 1.7GHz P4-M in it, and
+> > according to the BIOS I've got 16kb/512Kb L1/L2-cache. Accroding to
+> > the 2.4.20-pre7-ac3-kernel. It's been like this at least since
+> > 2.4.19-pre4 or so.
 > 
-> That's ingo smptimers work.  Quick hack below, but doesn't peform nicely
-> on smp..
+> Can you stick a printk in arch/i386/kernel/setup.c in the function
+> init_intel    
 > 
-[patch snipped]
+> Just before:                         
+>         /* look up this descriptor in the table */
+> 
+> stick
+> 
+>         printk("Cache info byte: %02X\n", des);
+> 
+> that will dump the cache info out of the CPU as the kernel scans it and
+> should let us find the error in the table.
+> 
 
-Thanks.  That works for me for now.  Unfortunately, I only have an UP
-box to do XFS testing presently, but I'll try to change that soon.  I'm
-presently running dbench with increasing client counts on my xfs
-partition with 3.5.39bk2.
+And the jury says:
 
-Filesystem    Type    Size  Used Avail Use% Mounted on
-/dev/hda1     ext3    236M   68M  156M  31% /
-/dev/hda9     ext3     20G  3.5G   17G  18% /home
-/dev/hda11     jfs    3.9G  5.3M  3.9G   1% /share_j
-/dev/hda10
-          reiserfs    4.0G   37M  3.9G   1% /share_r
-/dev/hda12     xfs    4.8G  250M  4.6G   6% /share_x
-/dev/hda8     ext3    236M  5.2M  219M   3% /tmp
-/dev/hda6     ext3    2.9G  1.5G  1.3G  55% /usr
-/dev/hda7     ext3    479M   83M  372M  19% /var
+PU: Before vendor init, caps: 3febf9ff 00000000 00000000, vendor = 0
+Cache info byte: 50
+Cache info byte: 5B
+Cache info byte: 66
+Cache info byte: 00
+Cache info byte: 00
+Cache info byte: 00
+Cache info byte: 00
+Cache info byte: 00
+Cache info byte: 00
+Cache info byte: 00
+Cache info byte: 00
+Cache info byte: 40
+Cache info byte: 70
+Cache info byte: 7B
+Cache info byte: 00
+CPU: L1 I cache: 0K, L1 D cache: 8K
+CPU: L2 cache: 512K
+CPU: After vendor init, caps: 3febf9ff 00000000 00000000 00000000
 
-Steven
+Let me know if you need more info :)
 
+mvh,
+A
+-- 
+Alexander Hoogerhuis                               | alexh@ihatent.com
+CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
+"You have zero privacy anyway. Get over it."  --Scott McNealy

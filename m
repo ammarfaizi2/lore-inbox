@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264093AbTKZJSN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 04:18:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264095AbTKZJSN
+	id S264095AbTKZJUw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 04:20:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264104AbTKZJUw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 04:18:13 -0500
-Received: from natsmtp01.rzone.de ([81.169.145.166]:38112 "EHLO
-	natsmtp01.rzone.de") by vger.kernel.org with ESMTP id S264093AbTKZJSM
+	Wed, 26 Nov 2003 04:20:52 -0500
+Received: from mail-01.iinet.net.au ([203.59.3.33]:10904 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S264095AbTKZJUv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 04:18:12 -0500
-Message-ID: <3FC46FD0.8020504@softhome.net>
-Date: Wed, 26 Nov 2003 10:18:08 +0100
-From: "Ihar 'Philips' Filipau" <filia@softhome.net>
-Organization: Home Sweet Home
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
-X-Accept-Language: en-us, en
+	Wed, 26 Nov 2003 04:20:51 -0500
+Message-ID: <3FC46FB1.2080604@cyberone.com.au>
+Date: Wed, 26 Nov 2003 20:17:37 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Pascal Schmidt <der.eremit@email.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.23-rc5
-References: <VOyg.w9.13@gated-at.bofh.it> <VOyg.w9.11@gated-at.bofh.it> <E1AOgfB-0000OY-00@neptune.local>
-In-Reply-To: <E1AOgfB-0000OY-00@neptune.local>
+To: linux-kernel <linux-kernel@vger.kernel.org>,
+       LSE <lse-tech@lists.sourceforge.net>
+Subject: General scheduling domains take 2
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pascal Schmidt wrote:
-> On Tue, 25 Nov 2003 17:50:20 +0100, you wrote in linux.kernel:
-> 
->>   "overcommit_memory < 0" supposed to not allow apps to overallocate 
->>memory - but still it works not like it is said in 
->>Documentation/filesystems/proc.txt.
-> 
-> 
-> That file mentiones setting overcommit_memory to 0 to disable overcommit.
-> Have you tried that?
-> 
+Hi,
 
-   Yes. This is kernel default on all my systems.
+http://www.kerneltrap.org/~npiggin/w24/
 
--- 
-Ihar 'Philips' Filipau  / with best regards from Saarbruecken.
---                                                           _ _ _
-  Because the kernel depends on it existing. "init"          |_|*|_|
-  literally _is_ special from a kernel standpoint,           |_|_|*|
-  because its' the "reaper of zombies" (and, may I add,      |*|*|*|
-  that would be a great name for a rock band).
-                                 -- Linus Torvalds
+I have progressed a bit further, and the data structure is slightly
+changed.
+
+I have done code to build the scheduling description for SMT P4s. It
+can be enabled with a new config option although don't try this with
+NUMA yet (easy to fix). Note this is quite unlikely to actually do
+any good on a pentium 4 because I haven't been able to test it!
+
+The generic scheduling description works nicely on the 16 way NUMAQ
+at OSDL and gives results very close to those I was getting before,
+so I think I have done a good job at recreating that scheduling policy,
+and the scheduling domains doesn't appear to have too much overhead.
+
+The data structure is a bit difficult to understand. I have the start
+of a paper here http://www.kerneltrap.org/~npiggin/paper.ps.gz but its
+only really worth looking at for the pictures at the end for now.
+
+Questions, comments welcome.
+
+Nick
+
 

@@ -1,80 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261342AbSI3VmX>; Mon, 30 Sep 2002 17:42:23 -0400
+	id <S261365AbSI3Vp7>; Mon, 30 Sep 2002 17:45:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261344AbSI3VmX>; Mon, 30 Sep 2002 17:42:23 -0400
-Received: from dsl092-148-080.wdc1.dsl.speakeasy.net ([66.92.148.80]:25289
-	"EHLO tyan.doghouse.com") by vger.kernel.org with ESMTP
-	id <S261342AbSI3VmV>; Mon, 30 Sep 2002 17:42:21 -0400
-Date: Mon, 30 Sep 2002 17:47:45 -0400 (EDT)
-From: Maxwell Spangler <maxwax@speakeasy.net>
-X-X-Sender: <maxwell@tyan.doghouse.com>
-To: Jan Kasprzak <kas@informatics.muni.cz>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: AMD 768 erratum 10 (solved: AMD 760MPX DMA lockup)
-In-Reply-To: <20020927084601.C25704@fi.muni.cz>
-Message-ID: <Pine.LNX.4.33.0209301746350.10704-100000@tyan.doghouse.com>
+	id <S261364AbSI3Vp7>; Mon, 30 Sep 2002 17:45:59 -0400
+Received: from mg01.austin.ibm.com ([192.35.232.18]:12270 "EHLO
+	mg01.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S261360AbSI3VpY>; Mon, 30 Sep 2002 17:45:24 -0400
+Date: Mon, 30 Sep 2002 16:48:34 -0500 (CDT)
+From: Kent Yoder <key@austin.ibm.com>
+To: linux-kernel@vger.kernel.org
+cc: Jeff Garzik <jgarzik@pobox.com>
+Subject: Oops on 2.5.39 was Re: [PATCH] pcnet32 cable status check
+In-Reply-To: <3D98B25E.2010408@pobox.com>
+Message-ID: <Pine.LNX.4.44.0209301639010.14068-100000@ennui.austin.ibm.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Does this mouse have to be actively used...
+>I just added mii_check_media() to drivers/net/mii.c.  It's in the latest 
+>2.5.x snapshot, 
+>ftp://ftp.kernel.org/pub/linux/kernel/v2.5/snapshots/patch-2.5.39-bk2.bz2
 
-Could one plug a cheap ps/2 mouse into that port and yet continue to use a USB 
-mouse if X is configured to use it?
+  That looks like just what the doctor ordered, but unfortunately it looks 
+like 2.5.39-bk2 is oopsing on boot on this machine.  The boot freezes 
+and at the top of the screen I can see what looks like the tail end of an 
+oops (this is hand typed):
 
-What is actually happening that causes the ps/2 mouse to cure this or any 
-other problem of this nature?
+--------
+wait_for_completion+0x12a/0x1e0
+default_wake_function+0x0/0x40
+try_to_wake_up+0x332/0x340
+default_wake_function+0x0/0x40
+set_cpus_allowed+0x22f/0x250
+ksoftirqd+0x5b/0x110
+ksoftirqd+0x0/0x110
+kernel_thread_helper+0x5/0xc
 
-Curious.
+[.. Linux NET starting.. other ACPI info ..]
 
-On Fri, 27 Sep 2002, Jan Kasprzak wrote:
+ACPI Namespace successfully loaded at root c053f4bc
 
-> Manfred Spraul wrote:
-> : The errata is not PS/2 mouse specific:
-> : it says that the io apic doesn't implement masking interrupts correctly.
-> 
-> 	Yes, but it says that problem has not been observed when running
-> with PS/2 mouse. Which is exactly what I observe on my system.
-> : 
-> : Linux uses masking aggressively - disable_irq() is implemented by 
-> : masking the interrupt in the io apic. I'm surprised that this doesn't 
-> : cause frequent problems.
-> 
-> 	The errata does not say that the interrupt masking in the IO-APIC
-> does not work in all situations. I read it as the lock-up (caused by
-> nonfunctional IRQ masking) sometimes occurs, nobody knows when,
-> and it has been observed on some Netware boxes w/o the PS/2 mouse.
-> Maybe even AMD does not know exactly what is going on there.
-> 
-> : Regarding Jan's problem: I'm not sure if his problems are related to 
-> : this errata. It says that using a PS/2 mouse instead of a serial mouse 
-> : with Novell Netward avoids the hang during shutdown, probably because 
-> : then netware doesn't mask the irq.
-> 
-> 	Yes, it may be a faulty board as well, but I think it is
-> too close to this AMD errata.
-> 
-> -Yenya
-> 
-> -- 
-> | Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
-> | GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
-> | http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
-> |----------- If you want the holes in your knowledge showing up -----------|
-> |----------- try teaching someone.                  -- Alan Cox -----------|
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+<freeze>
 
--- ----------------------------------------------------------------------------
-Maxwell Spangler                                                
-Program Writer                                              
-Greenbelt, Maryland, U.S.A.                         
-Washington D.C. Metropolitan Area 
+Kent
 

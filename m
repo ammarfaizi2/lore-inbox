@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130149AbRA3NSk>; Tue, 30 Jan 2001 08:18:40 -0500
+	id <S130202AbRA3Nfr>; Tue, 30 Jan 2001 08:35:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130202AbRA3NSb>; Tue, 30 Jan 2001 08:18:31 -0500
-Received: from as3-3-4.ml.g.bonet.se ([194.236.33.69]:37387 "EHLO
-	tellus.mine.nu") by vger.kernel.org with ESMTP id <S130149AbRA3NSN>;
-	Tue, 30 Jan 2001 08:18:13 -0500
-Date: Tue, 30 Jan 2001 14:18:04 +0100 (CET)
-From: Tobias Ringstrom <tori@tellus.mine.nu>
-To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
-cc: David Riley <oscar@the-rileys.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: *massive* slowdowns on 2.4.1-pre1[1|2]
-In-Reply-To: <Pine.LNX.4.10.10101292102030.28124-100000@coffee.psychology.mcmaster.ca>
-Message-ID: <Pine.LNX.4.30.0101301410070.11641-100000@svea.tellus>
+	id <S130908AbRA3Nf2>; Tue, 30 Jan 2001 08:35:28 -0500
+Received: from chiara.elte.hu ([157.181.150.200]:11269 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S130202AbRA3NfW>;
+	Tue, 30 Jan 2001 08:35:22 -0500
+Date: Tue, 30 Jan 2001 14:34:44 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Quim K Holland <qkholland@my-deja.com>
+Cc: Neil Brown <neilb@cse.unsw.edu.au>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Desk check of raid5.c patch from mtew@cds.duke.edu?
+In-Reply-To: <200101300234.SAA20191@mail4.bigmailbox.com>
+Message-ID: <Pine.LNX.4.30.0101301433550.3726-100000@elte.hu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Jan 2001, Mark Hahn wrote:
-> > Kernel 2.4.1-pre11 and pre12 are both massively slower than 2.4.0 on the
-> > same machine, compiled with the same options.  The machine is a Athlon
-> > 900 on a KT133 chipset.  The slowdown is noticealbe in all areas...
->
-> this is known: Linus decreed that, since two people reported
-> disk corruption on VIA, any machine with a VIA southbridge
-> must boot in stupid 1992 mode (PIO).  (yes, it might be possible
-> to boot with ide=autodma or something, but who would guess?)
 
-The only patch concerning VIA IDE in 2.4.1 is a patch that honors the
-user's choise in "make menuconfig" regarding using DMA by default.  Just
-say yes to that option, and you should have DMA enabled at boot, as you
-had in 2.4.0.
+On Mon, 29 Jan 2001, Quim K Holland wrote:
 
-The old behaviour was a bug.
+> I've been following the recent 2.4.1-pre series and am wondering why
+> the following one-liner (obviously correct) patch has not been
+> applied. [...]
 
-/Tobias
+> -               return_ok = bh->b_reqnext;
+> +               return_fail = bh->b_reqnext;
+
+oops - i do have it in my tree, somehow it escaped.
+
+	Ingo
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

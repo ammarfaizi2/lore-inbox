@@ -1,48 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265413AbSKYTWQ>; Mon, 25 Nov 2002 14:22:16 -0500
+	id <S265516AbSKYTXP>; Mon, 25 Nov 2002 14:23:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265508AbSKYTWQ>; Mon, 25 Nov 2002 14:22:16 -0500
-Received: from packet.digeo.com ([12.110.80.53]:57780 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S265413AbSKYTWP>;
-	Mon, 25 Nov 2002 14:22:15 -0500
-Message-ID: <3DE27A14.598EB80D@digeo.com>
-Date: Mon, 25 Nov 2002 11:29:24 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
+	id <S265564AbSKYTXP>; Mon, 25 Nov 2002 14:23:15 -0500
+Received: from modemcable017.51-203-24.mtl.mc.videotron.ca ([24.203.51.17]:38840
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S265516AbSKYTXK> convert rfc822-to-8bit; Mon, 25 Nov 2002 14:23:10 -0500
+Date: Mon, 25 Nov 2002 14:33:57 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Emiliano Gabrielli <Emiliano.Gabrielli@roma2.infn.it>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: e7500 and IRQ assignment
+In-Reply-To: <200211251934.47959.gabrielli@roma2.infn.it>
+Message-ID: <Pine.LNX.4.50.0211251429070.1462-100000@montezuma.mastecende.com>
+References: <233C89823A37714D95B1A891DE3BCE5202AB1994@xch-a.win.zambeel.com>
+ <200211251618.28510.gabrielli@roma2.infn.it>
+ <Pine.LNX.4.50.0211251038280.1462-100000@montezuma.mastecende.com>
+ <200211251934.47959.gabrielli@roma2.infn.it>
 MIME-Version: 1.0
-To: Piet/Pete Delaney <piet@www.piet.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: aic7xxx driver potentially sleeping with spin lock held in 
- linux-2.5.48 (mm1 patch)
-References: <20021125123219.GA3103@www.piet.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 25 Nov 2002 19:29:24.0714 (UTC) FILETIME=[F65034A0:01C294B8]
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Piet/Pete Delaney wrote:
-> 
-> I'm getting a scsi problem in the  aic7xxx driver sleeping while the preempt_count() != 0.
-> Looks like we are holding a spinlock where the slab allocator could go to sleep.
-> 
-> ...
-> #5  0xc029104d in aic7xxx_alloc_aic_dev (p=0xc3f7d56c, SDptr=0xc3ed3c00) at drivers/scsi/aic7xxx_old.c:6636
+On Mon, 25 Nov 2002, Emiliano Gabrielli wrote:
 
-This does an GFP_KERNEL allocation
+> On 16:41, lunedì 25 novembre 2002, Zwane Mwaikambo wrote:
+> > On Mon, 25 Nov 2002, Emiliano Gabrielli wrote:
+> > > number of MP IRQ sources: 20.
+> > > number of IO-APIC #2 registers: 24.
+> > > number of IO-APIC #3 registers: 24.
+> > > number of IO-APIC #4 registers: 24.
+> > > number of IO-APIC #5 registers: 24.
+> > > number of IO-APIC #6 registers: 24.
+> > > testing the IO APIC.......................
+> >
+> > Out of curiosity, does this box really have 5 IOAPICs?
+> >
+> > 	Zwane
+>
+> no of course, but something seems to be buggy...
+>
+> ..  nothing changed ;((
 
-> #6  0xc029717d in aic7xxx_queue (cmd=0xc3efca00, fn=0xc0280f04 <scsi_done>) at drivers/scsi/aic7xxx_old.c:10341
-> #7  0xc0280a26 in scsi_dispatch_cmd (SCpnt=0xc3efca00) at drivers/scsi/scsi.c:852                                <--- spin lock grabed at Line 851 just prior to call to queuecommand()
+Can't be certain without more debug output from MP boot process,
+perhaps MP table parsing? Do you have ACPI enabled?
 
-OK.
+Please humour me here (you only have 20 IRQ sources and everything looks
+properly wired on IOAPIC#2 ;)
 
-> #8  0xc0285ed2 in scsi_request_fn (q=0xc3ed3c28) at drivers/scsi/scsi_lib.c:1061
-> #9  0xc0253715 in blk_insert_request (q=0xc3ed3c28, rq=0xc3efc88c, at_head=0, data=0xc3efc800) at drivers/block/ll_rw_blk.c:1456
+Index: linux-2.4.20-rc1-ac4/include/asm-i386/apicdef.h
+===================================================================
+RCS file: /build/cvsroot/linux-2.4.20-rc1-ac4/include/asm-i386/apicdef.h,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 apicdef.h
+--- linux-2.4.20-rc1-ac4/include/asm-i386/apicdef.h	18 Nov 2002 01:38:42 -0000	1.1.1.1
++++ linux-2.4.20-rc1-ac4/include/asm-i386/apicdef.h	25 Nov 2002 19:30:45 -0000
+@@ -115,7 +115,7 @@
+ #ifdef CONFIG_MULTIQUAD
+ #define MAX_IO_APICS	32
+ #else
+-#define MAX_IO_APICS	8
++#define MAX_IO_APICS	1
+ #endif
 
-And this took the queue lock.
+ #define		APIC_BROADCAST_ID_XAPIC		0xFF
 
-It's aic7xxx_old.c.   Presumably it is headed for the scrap
-heap.  The allocation is a once-off startup thing.  Probably
-not worth worrying about.
+--
+function.linuxpower.ca

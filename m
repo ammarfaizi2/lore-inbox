@@ -1,48 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264324AbTFKJ7g (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 05:59:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264328AbTFKJ7g
+	id S264308AbTFKKGI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 06:06:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264312AbTFKKGI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 05:59:36 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:17167 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S264324AbTFKJ7b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 05:59:31 -0400
-Date: Wed, 11 Jun 2003 14:12:44 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Marc Zyngier <mzyngier@freesurf.fr>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-       Richard Henderson <rth@twiddle.net>
-Subject: Re: [PATCH][ALPHA] PCI domains warning
-Message-ID: <20030611141244.A24560@jurassic.park.msu.ru>
-References: <wrpd6hlauw9.fsf@hina.wild-wind.fr.eu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <wrpd6hlauw9.fsf@hina.wild-wind.fr.eu.org>; from mzyngier@freesurf.fr on Wed, Jun 11, 2003 at 10:19:34AM +0200
+	Wed, 11 Jun 2003 06:06:08 -0400
+Received: from quechua.inka.de ([193.197.184.2]:59280 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S264308AbTFKKGG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 06:06:06 -0400
+From: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/1] dm: Repair persistent minors
+In-Reply-To: <20030611100542.GD2499@fib011235813.fsnet.co.uk>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.17-20030301 ("Bubbles") (UNIX) (Linux/2.4.20-xfs (i686))
+Message-Id: <E19Q2ho-0001NC-00@calista.inka.de>
+Date: Wed, 11 Jun 2003 12:19:48 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 11, 2003 at 10:19:34AM +0200, Marc Zyngier wrote:
-> +#ifdef CONFIG_PCI_DOMAINS
->  #define pci_domain_nr(bus) ((struct pci_controller *)(bus)->sysdata)->index
-> +#endif
+In article <20030611100542.GD2499@fib011235813.fsnet.co.uk> you wrote:
+> Split the dm_create() function into two variants, depending on whether
+> you want the device to have a specific minor number.  This avoids
+> the broken overloading of the minor argument to the old dm_create().
 
-Alternatively, we can set CONFIG_PCI_DOMAINS=y unconditionally to
-avoid ifdefs - jensen has dummy PCI infrastructure anyway.
+why dont you just call dm_create_with_minor() from dm_create and skip the
+create_aux function? the create_aux function is pretty badly named, me
+thinks. you sould at least call it dm_create_aux.
 
-Ivan.
-
---- 2.5/arch/alpha/Kconfig	Wed Jun 11 13:13:56 2003
-+++ linux/arch/alpha/Kconfig	Wed Jun 11 13:54:37 2003
-@@ -297,7 +297,7 @@ config PCI
- 
- config PCI_DOMAINS
- 	bool
--	default PCI
-+	default y
- 
- config ALPHA_CORE_AGP
- 	bool
+Greetings
+Bernd
+-- 
+eckes privat - http://www.eckes.org/
+Project Freefire - http://www.freefire.org/

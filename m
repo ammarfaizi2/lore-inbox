@@ -1,69 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264176AbUDBUzZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 15:55:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264177AbUDBUzZ
+	id S264181AbUDBVDJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 16:03:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264184AbUDBVDJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 15:55:25 -0500
-Received: from A88be.a.pppool.de ([213.6.136.190]:24706 "EHLO susi.maya.org")
-	by vger.kernel.org with ESMTP id S264176AbUDBUzT (ORCPT
+	Fri, 2 Apr 2004 16:03:09 -0500
+Received: from fw.osdl.org ([65.172.181.6]:15835 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264181AbUDBVDF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 15:55:19 -0500
-Message-ID: <406DD2E2.7030602@A88be.a.pppool.de>
-Date: Fri, 02 Apr 2004 22:53:54 +0200
-From: Andreas Hartmann <andihartmann@freenet.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040212
-X-Accept-Language: de, en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: mason@suse.com, linux-kernel@vger.kernel.org
-Subject: Re: Very poor performance with 2.6.4
-References: <40672F39.5040702@p3EE062D5.dip0.t-ipconnect.de>	<20040328200710.66a4ae1a.akpm@osdl.org>	<4067BF2C.8050801@p3EE060D4.dip0.t-ipconnect.de>	<1080570227.20685.93.camel@watt.suse.com>	<406D21F6.8080005@A88c0.a.pppool.de> <20040402022348.00d55268.akpm@osdl.org>
-In-Reply-To: <20040402022348.00d55268.akpm@osdl.org>
-X-Enigmail-Version: 0.82.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 2 Apr 2004 16:03:05 -0500
+Date: Fri, 2 Apr 2004 13:03:04 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Andy Lutomirski <luto@stanford.edu>
+Cc: Chris Wright <chrisw@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
+       Andrew Morton <akpm@osdl.org>, luto@myrealbox.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: capabilitiescompute_cred
+Message-ID: <20040402130304.F21045@build.pdx.osdl.net>
+References: <20040402033231.05c0c337.akpm@osdl.org> <1080912069.27706.42.camel@moss-spartans.epoch.ncsc.mil> <20040402111554.E21045@build.pdx.osdl.net> <406DCB32.8070403@stanford.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <406DCB32.8070403@stanford.edu>; from luto@stanford.edu on Fri, Apr 02, 2004 at 10:21:06PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Andreas Hartmann <andihartmann@freenet.de> wrote:
->>
->> Now, I tested 2.6.5-rc3-mm4. Same procedure.
->>  The good news first:
->>  2.6.5-rc3-mm4 is nearly as fast as 2.4.25 - it is about 2% slower than 
->>  2.4.25 (with preemption turned on).
->> 
->>  Now the bad news:
->>  The system-processor-time is unchanged abnormal high: it is 34% (!) higher 
->>  than in 2.4.25 (and about 1% more than in 2.4.6).
->> 
->> 
->>  Btw: Did the other profile outputs help to find the problem?
->> 
->>  These are the profile-values for an example run (make of kernel 2.6.5rc2) 
->>  with 2.6.5rc3mm4:
+* Andy Lutomirski (luto@stanford.edu) wrote:
+> Chris Wright wrote:
+> > I have the same dislike for capabilities.  It's more like a wart than
+> > a feature.  I get requests to have RBAC be the core priv system rather
+> > than capabilities.
 > 
-> Spending a lot of time on do_softirq() while compiling stuff is peculiar.
+> I agree in principle, but it would still be nice to have a simple way to 
+> have useful capabilities without setting up a MAC system.  I don't see a 
+> capabilities fix adding any significant amount of code; it just takes 
+> some effort to get it right.
+
+Main problem is the granularity and poorly defined semantics.  You have
+no context when making a capability decision.  In some cases it
+overrides normal DAC checks, and in other cases it's a stand alone
+privilege.  Then there's CAP_SYS_ADMIN...
+
+> > In the meantime, I've often idly wondered why we don't simply inherit as
+> > advertised.  The patch below does this, but I haven't even started
+> > looking for security sensitive failure modes.
 > 
-> What device drivers are running at the time?  disk/network/usb/etc?
+> I'm not sure that introduces security problems, but I'm also not sure it 
+> fixes much.  You can find my attempts to get it right in the 
+> linux-kernel archives, and I'll probably try to get something into 2.7 
+> when it forks.  With or without MAC, having a functioning capability 
+> system wouldn't hurt security.
 
-Module                  Size  Used by    Not tainted
-eepro100               19828   1  (autoclean)
-mii                     2480   0  (autoclean) [eepro100]
-sis900                 13036   1  (autoclean)
-crc32                   2880   0  (autoclean) [sis900]
-usb-storage            26416   0  (unused)
-scsi_mod               87488   0  [usb-storage]
-uhci                   25436   0  (unused)
-usbcore                62316   0  [usb-storage uhci]
-lvm-mod                44416  12  (autoclean)
-unix                   15308  13  (autoclean)
+It simply allows one to properly inherit.  As it stands inherit is
+totally broken.  Once you execve() the capabilities get reset to all or
+nothing.  So if you want to drop privs and execve() bash (as a login
+utility might do), you'll need something like this.  Only hesitance I
+have is being sure it doesn't introduce some subtle bug.
 
-These are all modules (drivers), which are running - in both cases (2.4.25 
-and 2.6.x).
-
-
-Regards,
-Andreas Hartmann
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

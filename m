@@ -1,64 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265200AbTLKSuF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 13:50:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265201AbTLKSuF
+	id S265495AbTLKS4Z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 13:56:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265496AbTLKS4Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 13:50:05 -0500
-Received: from ahriman.Bucharest.roedu.net ([141.85.128.71]:42389 "EHLO
-	ahriman.bucharest.roedu.net") by vger.kernel.org with ESMTP
-	id S265200AbTLKSuA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 13:50:00 -0500
-Date: Thu, 11 Dec 2003 20:50:28 +0200 (EET)
-From: Mihai RUSU <dizzy@roedu.net>
-X-X-Sender: dizzy@ahriman.bucharest.roedu.net
-To: Valdis.Kletnieks@vt.edu
-cc: Robin Rosenberg <roro.l@dewire.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux GPL and binary module exception clause? 
-In-Reply-To: <200312111756.hBBHulKh013471@turing-police.cc.vt.edu>
-Message-ID: <Pine.LNX.4.58L0.0312112042590.2301@ahriman.bucharest.roedu.net>
-References: <00af01c3bf41$2db12770$d43147ab@amer.cisco.com>
- <3FD7081D.31093.61FCFA36@localhost> <20031210221800.GM6896@work.bitmover.com>
-            <200312111844.03839.roro.l@dewire.com>
- <200312111756.hBBHulKh013471@turing-police.cc.vt.edu>
+	Thu, 11 Dec 2003 13:56:25 -0500
+Received: from rzfoobar.is-asp.com ([217.11.194.155]:37080 "EHLO mail.isg.de")
+	by vger.kernel.org with ESMTP id S265495AbTLKS4X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 13:56:23 -0500
+Message-ID: <3FD8BE9D.9000701@isg.de>
+Date: Thu, 11 Dec 2003 19:59:41 +0100
+From: Lutz Vieweg <lkv@isg.de>
+Organization: IS Innovative Software AG
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030613
+X-Accept-Language: de-de, de, en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: mlock() "bogus check" (locked > num_physpages/2) _does_ hurt!
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi everyone,
 
-On Thu, 11 Dec 2003 Valdis.Kletnieks@vt.edu wrote:
+in kernel 2.4.23, file mm/mlock.c, line 215, there's the following
+piece of code:
 
-> 17 USC 1201 (a)(1)(A) says:
-> 
-> "No person shall circumvent a technological measure that effectively controls
-> access to a work protected under this title. The prohibition contained in the
-> preceding sentence shall take effect at the end of the 2-year period beginning
-> on the date of the enactment of this chapter."
+         /* we may lock at most half of physical memory... */
+         /* (this check is pretty bogus, but doesn't hurt) */
+         if (locked > num_physpages/2)
+                 goto out;
 
-What about section 1201(f)(2) :
+Obviously, the author already realized this check is bogus,
+but the assumption that it doesn't hurt is very wrong... at least
+for me: I'm writing a server application that uses much more virtual memory
+than there's physical memory (and on 64bit systems, there can be a lot more
+virtual memory!). The application needs to access only a small fraction of
+the memory used during normal operation, the rest of the virtual memory used
+is used for (slowly) rebuilding indicies in the background. So it is completely
+ok for me that most of the applications memory is swapped out, and to make sure
+that response times are low even after much of the memory is on disk, I use
+mlock() to lock the interesting pages in memory.
 
-    Notwithstanding the provisions of subsections (a)(2) and (b), a person 
-may develop and employ technological means to circumvent a technological 
-measure, or to circumvent protection afforded by a technological measure 
-... for the purpose of enabling interoperability of an independently 
-created computer program with other programs, if such means are necessary 
-to achieve such interoperability, to the extent that doing so does not 
-constitute infringement under this title.
+And yes, I would very much like to use more than half of the physical memory
+for that purpose!
 
-Read more on this case analysis 
-http://research.yale.edu/lawmeme/modules.php?name=News&file=article&sid=149
+Is there any good reason to keep this check in the 2.4 kernel sources?
+Is there any good reason to not use a different default value
+for the RLIMIT_MEMLOCK value (which is currently 0xffffffffffffffff), instead?
 
-- -- 
-Mihai RUSU                                    Email: dizzy@roedu.net
-GPG : http://dizzy.roedu.net/dizzy-gpg.txt    WWW: http://dizzy.roedu.net
-                       "Linux is obsolete" -- AST
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+It's good to know the check is not present in the 2.6 sources, but I would
+like to get rid of it in 2.4, too...
 
-iD8DBQE/2Lx2PZzOzrZY/1QRAiMVAKDRL1T2XM0dmIRWat3L9pFFw92JrQCgvyAw
-Dop7R7K/waecGWn9PDhAJ1M=
-=6zfE
------END PGP SIGNATURE-----
+Regards,
+
+Lutz Vieweg
+
+
+
+

@@ -1,60 +1,109 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287862AbSCLXJn>; Tue, 12 Mar 2002 18:09:43 -0500
+	id <S289813AbSCLXNN>; Tue, 12 Mar 2002 18:13:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289191AbSCLXIv>; Tue, 12 Mar 2002 18:08:51 -0500
-Received: from smtp4.vol.cz ([195.250.128.43]:13064 "EHLO majordomo.vol.cz")
-	by vger.kernel.org with ESMTP id <S287862AbSCLXIp>;
-	Tue, 12 Mar 2002 18:08:45 -0500
-Date: Tue, 12 Mar 2002 17:31:56 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Pavel Machek <pavel@ucw.cz>, Neil Brown <neilb@cse.unsw.edu.au>,
-        Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: Kernel SCM: When does CVS fall down where it REALLY matters?
-Message-ID: <20020312163156.GB1747@elf.ucw.cz>
-In-Reply-To: <20020310202745.GB173@elf.ucw.cz> <Pine.LNX.4.44L.0203111808550.2181-100000@imladris.surriel.com>
+	id <S289243AbSCLXMT>; Tue, 12 Mar 2002 18:12:19 -0500
+Received: from [217.79.102.244] ([217.79.102.244]:8189 "EHLO
+	monkey.beezly.org.uk") by vger.kernel.org with ESMTP
+	id <S289191AbSCLXLI>; Tue, 12 Mar 2002 18:11:08 -0500
+Subject: Dropped packets on SUN GEM
+From: Beezly <beezly@beezly.org.uk>
+To: davem@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-96E9w+s5VLkz7R0Ml+qW"
+X-Mailer: Evolution/1.0.2 
+Date: 12 Mar 2002 23:11:04 +0000
+Message-Id: <1015974664.2652.10.camel@monkey>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L.0203111808550.2181-100000@imladris.surriel.com>
-User-Agent: Mutt/1.3.27i
-X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > > > The problem I find is that I often want to take (file1+patch) -> file2,
-> > > > when I don't have file1.  But merge tools want to take (file1|file2) -> file3.
-> > > > I haven't seen a graphical tool which helps you to wiggle a patch into
-> > > > a file.
-> 
-> > > I often run "patch" and it drops some chunk because it doesn't match,
-> > > and it turns out that the miss-match is just one or two lines in a
-> > > chunk that could be very big.
-> 
-> > Yes, this would be [: very very :] nice.
-> 
-> Have you people heard about this thing called "branches" ?
-> 
-> - You keep your own code in your own branch.
-> 
-> - You keep Linus's code in a linus branch.
-> 
-> - The patches from Linus always apply to the linus branch.
-> 
-> - You pull Linus's latest updates into your own branch for
->   development work, at this point you may need to do some
->   merging.  Some SCM systems are horrible at merging (CVS)
->   while others are really nice (BK).
+--=-96E9w+s5VLkz7R0Ml+qW
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Description above was basically how to do the merging. Oh, and for
-people that have just one brach ("my own tree") patch should be quite
-sufficient. Having patch more inteligent at rejects would be win for
-everyone.
+Hi David,
 
-									Pavel
--- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
+I've been running some more tests on the GEM card. It seems to be
+recovering from the RX hangs ok, but when I ping another host on the
+network (with a .1s interval).. I get the following
+
+
+monkey:/home/andy# ping -s 1472 -i .1 10.0.0.15
+PING 10.0.0.15 (10.0.0.15) from 10.0.0.12 : 1472(1500) bytes of data.
+1480 bytes from 10.0.0.15: icmp_seq=3D1 ttl=3D255 time=3D0.586 ms
+1480 bytes from 10.0.0.15: icmp_seq=3D2 ttl=3D255 time=3D0.554 ms
+1480 bytes from 10.0.0.15: icmp_seq=3D3 ttl=3D255 time=3D0.561 ms
+1480 bytes from 10.0.0.15: icmp_seq=3D4 ttl=3D255 time=3D0.565 ms
+<snip>
+1480 bytes from 10.0.0.15: icmp_seq=3D570 ttl=3D255 time=3D0.557 ms
+1480 bytes from 10.0.0.15: icmp_seq=3D571 ttl=3D255 time=3D0.550 ms
+1480 bytes from 10.0.0.15: icmp_seq=3D572 ttl=3D255 time=3D0.558 ms
+1480 bytes from 10.0.0.15: icmp_seq=3D573 ttl=3D255 time=3D0.552 ms
+1480 bytes from 10.0.0.15: icmp_seq=3D574 ttl=3D255 time=3D0.558 ms
+1480 bytes from 10.0.0.15: icmp_seq=3D575 ttl=3D255 time=3D0.570 ms
+1480 bytes from 10.0.0.15: icmp_seq=3D590 ttl=3D255 time=3D0.565 ms
+1480 bytes from 10.0.0.15: icmp_seq=3D591 ttl=3D255 time=3D0.562 ms
+1480 bytes from 10.0.0.15: icmp_seq=3D592 ttl=3D255 time=3D0.567 ms
+1480 bytes from 10.0.0.15: icmp_seq=3D593 ttl=3D255 time=3D0.526 ms
+1480 bytes from 10.0.0.15: icmp_seq=3D594 ttl=3D255 time=3D0.560 ms
+1480 bytes from 10.0.0.15: icmp_seq=3D595 ttl=3D255 time=3D0.562 ms
+
+notice the missing 14 packets.
+
+Now, if I reproduce the test with a .2s interval between pings, I get
+the following results.
+
+monkey:/home/andy# ping -s 1472 -i .2 10.0.0.15
+PING 10.0.0.15 (10.0.0.15) from 10.0.0.12 : 1472(1500) bytes of data.
+1480 bytes from 10.0.0.15: icmp_seq=3D1 ttl=3D255 time=3D0.645 ms
+1480 bytes from 10.0.0.15: icmp_seq=3D2 ttl=3D255 time=3D0.578 ms
+1480 bytes from 10.0.0.15: icmp_seq=3D3 ttl=3D255 time=3D0.592 ms
+1480 bytes from 10.0.0.15: icmp_seq=3D4 ttl=3D255 time=3D0.585 ms
+1480 bytes from 10.0.0.15: icmp_seq=3D5 ttl=3D255 time=3D0.575 ms
+1480 bytes from 10.0.0.15: icmp_seq=3D6 ttl=3D255 time=3D0.577 ms
+<snip>
+1480 bytes from 10.0.0.15: icmp_seq=3D292 ttl=3D255 time=3D0.564 ms
+1480 bytes from 10.0.0.15: icmp_seq=3D293 ttl=3D255 time=3D0.559 ms
+1480 bytes from 10.0.0.15: icmp_seq=3D294 ttl=3D255 time=3D0.568 ms
+1480 bytes from 10.0.0.15: icmp_seq=3D295 ttl=3D255 time=3D0.561 ms
+1480 bytes from 10.0.0.15: icmp_seq=3D310 ttl=3D255 time=3D0.588 ms
+1480 bytes from 10.0.0.15: icmp_seq=3D311 ttl=3D255 time=3D0.568 ms
+1480 bytes from 10.0.0.15: icmp_seq=3D312 ttl=3D255 time=3D0.572 ms
+1480 bytes from 10.0.0.15: icmp_seq=3D313 ttl=3D255 time=3D0.576 ms
+1480 bytes from 10.0.0.15: icmp_seq=3D314 ttl=3D255 time=3D0.569 ms
+
+notice, 14 missing packets again.=20
+
+I'm pretty confident (as confident I can be whilst doing a "watch -n1
+ifconfig"!) that it's doing this *during* the RX hang recovery, so it
+appears that the RX hang recovery is taking 15 packets-worth of time,
+rather than a set period of time (as I would expect - incorrectly?).=20
+
+Is this normal? - Because it seems the amount of time to recover from a
+hang is inversely proportional to the amount of work it is doing, I am
+able to artificially improve the "uptime" of the card by permanantly
+running a ping -f <host> on the box!!
+
+Cheers,
+
+Beezly
+
+
+
+--=-96E9w+s5VLkz7R0Ml+qW
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQA8josIXu4ZFsMQjPgRAjmrAJ9eC9kp8ti15WYJNYvXfpt6hfT15QCdHnJi
+GguywQp2HNacs84jU/roqJs=
+=xpx+
+-----END PGP SIGNATURE-----
+
+--=-96E9w+s5VLkz7R0Ml+qW--

@@ -1,58 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282481AbRLSSsH>; Wed, 19 Dec 2001 13:48:07 -0500
+	id <S282213AbRLSSqp>; Wed, 19 Dec 2001 13:46:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282489AbRLSSr4>; Wed, 19 Dec 2001 13:47:56 -0500
-Received: from adsl-64-109-202-217.dsl.milwwi.ameritech.net ([64.109.202.217]:43513
-	"EHLO alphaflight.d6.dnsalias.org") by vger.kernel.org with ESMTP
-	id <S282481AbRLSSrq>; Wed, 19 Dec 2001 13:47:46 -0500
-Date: Wed, 19 Dec 2001 12:47:45 -0600
-From: "M. R. Brown" <mrbrown@0xd6.org>
-To: nbecker@fred.net
-Cc: Benoit Poulot-Cazajous <poulot@ifrance.com>, linux-kernel@vger.kernel.org
-Subject: Re: On K7, -march=k6 is good (Was Re: Why no -march=athlon?)
-Message-ID: <20011219184745.GF19236@0xd6.org>
-In-Reply-To: <x88r8ptki37.fsf@rpppc1.hns.com> <20011217174020.GA24772@0xd6.org> <lnitb3drx6.fsf_-_@walhalla.agaha> <20011219175616.GD19236@0xd6.org> <x88itb3njfr.fsf@rpppc1.hns.com>
+	id <S282495AbRLSSqf>; Wed, 19 Dec 2001 13:46:35 -0500
+Received: from 12-224-36-149.client.attbi.com ([12.224.36.149]:26382 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S282213AbRLSSqQ>;
+	Wed, 19 Dec 2001 13:46:16 -0500
+Date: Wed, 19 Dec 2001 10:42:53 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [PATCH] current state of the 2.5.1 USB tree
+Message-ID: <20011219104253.A11032@kroah.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="NklN7DEeGtkPCoo3"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <x88itb3njfr.fsf@rpppc1.hns.com>
-User-Agent: Mutt/1.3.24i
+User-Agent: Mutt/1.3.23i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Wed, 21 Nov 2001 16:33:22 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---NklN7DEeGtkPCoo3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Since there has been a bit of development lately in the USB tree, and
+I'm holding off in submitting USB changes for a bit to Linus while the
+bio stuff stabilizes, I thought I would make a snapshot of my current
+tree for the other USB developers to sync up with.
 
-* nbecker@fred.net <nbecker@fred.net> on Wed, Dec 19, 2001:
+A patch against a clean 2.5.1 tree is at:
+	http://www.kroah.com/linux/usb/linux-2.5.1-gregkh-1.patch.gz
 
-> >>>>> "M" =3D=3D M R Brown <mrbrown@0xd6.org> writes:
->=20
->=20
->     M> Curious, what happens when you compile using gcc 3.0.1 against
->     M> -march=3Dathlon?
->=20
-> Is it safe to use gcc-3.0.2 to compile the kernel?
+This patch contains 5 new USB drivers (stv680, vidcam, ipaq, kl5kusb105,
+and the usb 2.0 ehci-hcd driver), documentation for all of these new
+drivers, a rewrite of usbdevfs/usbfs, and lots of other smaller fixes
+and changes.
 
-Absolutely not.  There was at least one reported ICE (internal compiler
-error) with drivers/net/8139too.c.  Stick to the 2.95.x series.
+If anyone has any questions, problems, or I'm missing any patches that
+you have sent to me, please let me know.  (I still have your module
+usage patch, Oliver.  I'm waiting for some more discussion before adding
+it though.)
 
-M. R.
+And if anyone wants me to post my 2.4 tree (which has most of these same
+driver additions), just ask.
 
---NklN7DEeGtkPCoo3
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+thanks,
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-
-iD8DBQE8IODRaK6pP/GNw0URAuS0AJ9ytcR9oy3MqXqFSscYQhg58uhtYwCgrEiO
-U2kR7VWoIbqJvVRBGC3/iDc=
-=SIJz
------END PGP SIGNATURE-----
-
---NklN7DEeGtkPCoo3--
+greg k-h

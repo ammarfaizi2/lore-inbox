@@ -1,98 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264321AbTEGTqQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 15:46:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264322AbTEGTqQ
+	id S264267AbTEGTbb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 15:31:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264266AbTEGTba
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 15:46:16 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:53957 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264321AbTEGTqO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 15:46:14 -0400
-Date: Wed, 7 May 2003 21:58:12 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Jens Axboe <axboe@suse.de>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5 ide 48-bit usage
-In-Reply-To: <20030507175033.GR823@suse.de>
-Message-ID: <Pine.SOL.4.30.0305072119530.27561-100000@mion.elka.pw.edu.pl>
+	Wed, 7 May 2003 15:31:30 -0400
+Received: from [66.212.224.118] ([66.212.224.118]:46094 "HELO
+	hemi.commfireservices.com") by vger.kernel.org with SMTP
+	id S264264AbTEGTbC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 15:31:02 -0400
+Date: Wed, 7 May 2003 15:34:50 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: James Cleverdon <jamesclv@us.ibm.com>
+Cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Andrew Grover <andrew.grover@intel.com>
+Subject: Re: [RFC][PATCH] linux-2.5.69_clear-smi-fix_A0
+In-Reply-To: <200305070754.08881.jamesclv@us.ibm.com>
+Message-ID: <Pine.LNX.4.50.0305071533230.2157-100000@montezuma.mastecende.com>
+References: <1052258319.4503.7.camel@w-jstultz2.beaverton.ibm.com>
+ <200305070754.08881.jamesclv@us.ibm.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 7 May 2003, James Cleverdon wrote:
 
-On Wed, 7 May 2003, Jens Axboe wrote:
+> John,
+> 
+> That looks reasonable to me.  The one possible catch would be for systems so 
+> old they don't do SMI -- 386s and 486s, I imagine.  If this code doesn't barf 
+> on them when CONFIG_IO_APIC is turned on, then it should be fine (minus the 
+> printk).
+> 
+> (I believe there was at least one such system, the Intel Xpress box.  It 
+> contained a 486 and seperate APIC chips.)
 
-> On Wed, May 07 2003, Linus Torvalds wrote:
-> >
-> > On Wed, 7 May 2003, Jens Axboe wrote:
-> > > >
-> > > > And testing. In particular, you might want to test whether a device
-> > > > properly supports 48-bit addressing, either from the kernel or from user
-> > > > programs.
-> > >
-> > > For that, a forced 48-bit hwif->addressing inherited by drives will
-> > > suffice. And I agree, we should have that.
-> >
-> > No no no.
-> >
-> > You definitely do NOT want to set "hwif->addressing" to 1 before you've
-> > tested whether it even _works_.
->
-> Well duh, of course not. Whether a given request is executed in 48-bit
-> or not is a check that _includes_ drive capabilities too of course.
+Referring to this?
 
-Yeah, we test drive capabilities properly in idedisk_setup(),
-but Linus is right speaking about _hwif_ capabilities.
-Jens you your patch sets hwif->rqsize to 65535 in setup-pci.c for all
-PCI hwifs which is simply wrong as not all of them supports LBA48.
-You should check for hwif->addressing and if true set rqsize to 65536
-(not 65535) and not in IDE PCI code but in ide_init_queue() in ide-probe.c.
-I also think that max request size should be printed for all drives,
-not only 48-bit capable.
+Intel MultiProcessor Specification v1.4
+    Virtual Wire compatibility mode.
+OEM ID: INTEL    Product ID: XXPRESS      APIC at: 0xFEE00000
+Processor #0 5:2 APIC version 16
+Processor #3 5:2 APIC version 16
+Processor #4 5:2 APIC version 16
+Unknown bustype XPRESS - ignoring
+I/O APIC #14 Version 17 at 0xFEC00000.
+I/O APIC #13 Version 17 at 0xFFE7F800.
+Enabling APIC mode:  Flat.  Using 2 I/O APICs
+Processors: 3
 
-> > Imagine something like "hdparm" - other things are already in progress,
-> > the system is up, and IDE commands are potentially executing concurrently.
-> > What something like that wants to do is to send one request out to check
-> > whether 48-bit addressing works, but it absolutely does NOT want to set
-> > some interface-global flag that affects other commands.
->
-> Then it just puts a taskfile request on the request queue and lets it
-> reach the drive, nicely syncronized with the other requests. There's no
-> need to toggle any special bits for that.
+John's check should be safe as it doesn't touch hardware anyway.
 
-Yes, but patch subtly breakes taskfile :-).
-
-Taskfile ioctl uses do_rw_taskfile() or flagged_taskfile().
-Patch replaces drive->adrressing checks by task->addressing,
-but ide_taskfile_ioctl() doesn't know about it so task->addressing
-will be always equal 0.
-
-You should add checking for 48-bit commands and setting task->addressing
-to 1 if neccessary to ide_taskfile_ioctl().
-
-Also changes for pdc202xx_old.c are wrong, we should check for
-task->addressing not rq_lba48(rq) as taskfile requests also use this
-codepath.
-
-Patch also misses updates for many uses of drive->addressing
-(in ide.c, ide-io.c, icside.c, ide-tcq.c and even in ide-taskfile.c).
-
-> > Only after it has verified that 48-bit addressing does work should it set
-> > the global flag.
->
-> Sounds fine.
-
-Jens, I like the general idea of the patch, but it needs some more work.
-Linus, please don't apply for now.
-
---
-Bartlomiej
-
-> --
-> Jens Axboe
-
-
-
+	Zwane
+-- 
+function.linuxpower.ca

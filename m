@@ -1,74 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262448AbUBYELw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 23:11:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262463AbUBYELw
+	id S262469AbUBYEWe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 23:22:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262475AbUBYEWe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 23:11:52 -0500
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:17377 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S262448AbUBYELr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 23:11:47 -0500
-Subject: Re: /proc or ps tools bug?  2.6.3, time is off
-From: Albert Cahalan <albert@users.sf.net>
-To: David Ford <david+challenge-response@blue-labs.org>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       albert@users.sourceforge.net
-In-Reply-To: <403C014F.2040504@blue-labs.org>
-References: <403C014F.2040504@blue-labs.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1077674048.10393.369.camel@cube>
+	Tue, 24 Feb 2004 23:22:34 -0500
+Received: from mail.kroah.org ([65.200.24.183]:4321 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262469AbUBYEWd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 23:22:33 -0500
+Date: Tue, 24 Feb 2004 20:22:24 -0800
+From: Greg KH <greg@kroah.com>
+To: Dave Boutcher <sleddog@us.ibm.com>
+Cc: Ryan Arnold <rsa@us.ibm.com>, linux-kernel@vger.kernel.org,
+       boutcher@us.ibm.com, Hollis Blanchard <hollisb@us.ibm.com>
+Subject: Re: new driver (hvcs) review request and sysfs questions
+Message-ID: <20040225042224.GA5135@kroah.com>
+References: <1077667227.21201.73.camel@SigurRos.rchland.ibm.com> <20040225012845.GA3909@kroah.com> <opr3woijnwl6e53g@us.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 24 Feb 2004 20:54:09 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <opr3woijnwl6e53g@us.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-02-24 at 20:58, David Ford wrote:
-> Kernel 2.6.3, procps 3.2.0
+On Tue, Feb 24, 2004 at 09:12:09PM -0600, Dave Boutcher wrote:
 > 
-> # while [ 1 ]; do (ps aux|grep "grep ps aux" && date) ; sleep 1; done
-> root     20043  0.0  0.0  1504  456 pts/0    R    20:45   0:00 grep grep ps aux
-> Tue Feb 24 20:45:25 EST 2004
-> root     20062  0.0  0.0  1504  460 pts/0    S    20:45   0:00 grep grep ps aux
-> Tue Feb 24 20:45:26 EST 2004
-> root     20081  0.0  0.0  1504  460 pts/0    S    20:46   0:00 grep grep ps aux
-> Tue Feb 24 20:45:27 EST 2004
-> 
-> Note the change in the timestamp as reported by 'ps' v.s. the time 
-> reported by 'date'.
-> 
-> Repeatable every time at 26 seconds after the minute +/- a portion of a 
-> second.
+> It is also true that it is unlike the representation of most other things 
+> in sysfs, so perhaps this is the time to change before it gets too baked 
+> into things.
 
-I'm not seeing it, with:
+I agree.  Is there any reason we _have_ to stick with the OF names?  It
+seems to me to make more sense here not to, to make it more like the
+rest of the kernel.
 
-procps    both 3.1.8 and procps 3.2.0+
-kernel    2.6.0-test11
-library   glibc 2.3
-hardware  uniprocessor G4 Mac
-ntp       none (and you can tell by my email!)
+That is, if the address after the @ is unique.  Is that always the case?
 
-Run "ps --info" to gather much of this data.
+thanks,
 
-Note that time is a very awkward thing. You boot up,
-with some incorrect clock. Then you adjust the time.
-Later, you may discover that your clock has been
-running too slow. So you adjust the frequency, but
-what about the time that has already passed? Should
-you change the boot time to represent what is now
-known about your clock? What if, by doing so, you
-cause some processes to have started before boot?
-Then again, perhaps due to temperature change, you
-discover that your clock frequency is wrong... This
-is without even getting into the concept of leap
-seconds, which are determined a few months in advance.
-
-Two guesses:
-
-1. leap seconds
-2. SMP, with cycle counters out of sync
-
-
+greg k-h

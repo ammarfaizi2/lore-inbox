@@ -1,36 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270640AbRH1K0u>; Tue, 28 Aug 2001 06:26:50 -0400
+	id <S270634AbRH1KSS>; Tue, 28 Aug 2001 06:18:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270644AbRH1K0k>; Tue, 28 Aug 2001 06:26:40 -0400
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:47028 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S270640AbRH1K02>; Tue, 28 Aug 2001 06:26:28 -0400
-From: Christoph Rohland <cr@sap.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-        "David S. Miller" <davem@redhat.com>
-Subject: Re: [patch] zero-bounce block highmem I/O, #13
-In-Reply-To: <20010827123700.B1092@suse.de>
-Organisation: SAP LinuxLab
-Date: 28 Aug 2001 12:26:08 +0200
-In-Reply-To: <20010827123700.B1092@suse.de>
-Message-ID: <m3itf85vlr.fsf@linux.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+	id <S270640AbRH1KSI>; Tue, 28 Aug 2001 06:18:08 -0400
+Received: from mons.uio.no ([129.240.130.14]:61321 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S270634AbRH1KRx>;
+	Tue, 28 Aug 2001 06:17:53 -0400
+To: volodya@mindspring.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: NFS in 2.4.9
+In-Reply-To: <Pine.LNX.4.20.0108271739400.15526-100000@node2.localnet.net>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 28 Aug 2001 12:18:06 +0200
+In-Reply-To: volodya@mindspring.com's message of "Mon, 27 Aug 2001 17:50:21 -0400 (EDT)"
+Message-ID: <shsbsl0ij35.fsf@charged.uio.no>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-SAP: out
-X-SAP: out
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jens,
+>>>>> " " == volodya  <volodya@mindspring.com> writes:
 
-I tested both #11 and #13 on my 8GB machine with sym53c8xx. The
-initialization of a SAP DB database takes 20 minutes with 2.4.9 and
-with 2.4.9+b13 it took nearly 2.5 hours :-(
+     > I have upgraded to 2.4.9 and NFS no longer works for me. I get
+     > ---------------------------------------------------------------
+     > NFS: NFSv3 not supported.  nfs warning: mount version older
+     > than kernel
 
-Greetings
-		Christoph
+You forgot to enable NFSv3 support in your 2.4.9 kernel.
 
+     > ---------------------------------------------------------------
+     > even though I upgraded to the most recent version of util-linux
+     > (2.11h) and when reading certain files programs lock up and the
+     > kernel prints out the following messages:
 
+     > nfs: server node4 not responding, still trying nfs: server
+     > node4 not responding, still trying
+
+     > However, node4 is fine (I can telnet in it) and seems to work
+     > ok. (node4 is running 2.4.7, with knfsd).
+
+In 99.999% of cases this is due to a network configuration
+error. Usually it's things like running full-duplex against a
+half-duplex capable switch etc.
+TCP is less sensitive to this sort of thing than UDP is, so you won't
+see it using telnet.
+
+If you can't resolve where the problem lies, try setting rsize and
+wsize manually to some smaller value.
+
+Cheers,
+  Trond

@@ -1,75 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264362AbTFEBe5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 21:34:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264364AbTFEBe5
+	id S263638AbTFEBi6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 21:38:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264015AbTFEBi6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 21:34:57 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:45289 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264362AbTFEBe4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 21:34:56 -0400
-Date: Wed, 4 Jun 2003 18:43:41 -0700
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Stephen Hemminger <shemminger@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-       "David S. Miller" <davem@redhat.com>, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5.70-bk+ broken networking
-Message-ID: <20030604184341.A10256@beaverton.ibm.com>
-References: <20030604161437.2b4d3a79.shemminger@osdl.org> <3EDE7FEB.2C7FAEC7@digeo.com>
+	Wed, 4 Jun 2003 21:38:58 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:46473 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S263638AbTFEBi5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 21:38:57 -0400
+Date: Wed, 4 Jun 2003 18:52:28 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Vladimir Saveliev <vs@namesys.com>
+Cc: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
+Subject: Re: file write performance drop between 2.5.60 and 2.5.70
+Message-Id: <20030604185228.5cfc6b02.akpm@digeo.com>
+In-Reply-To: <200306042017.53435.vs@namesys.com>
+References: <200306042017.53435.vs@namesys.com>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3EDE7FEB.2C7FAEC7@digeo.com>; from akpm@digeo.com on Wed, Jun 04, 2003 at 04:25:31PM -0700
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 05 Jun 2003 01:52:28.0052 (UTC) FILETIME=[1E598540:01C32B05]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 04, 2003 at 04:25:31PM -0700, Andrew Morton wrote:
-> Stephen Hemminger wrote:
-> > 
-> > Test machine running 2.5.70-bk latest can't boot because eth2 won't
-> > come up.  The same machine and configuration successfully brings up
-> > all the devices and runs on 2.5.70.
+Vladimir Saveliev <vs@namesys.com> wrote:
+>
+> Hi
 > 
-> kjournald is stuck waiting for IO to complete against some buffer
-> during transaction commit.
+> It looks like file write performance dropped somewhere between 2.5.60 and 
+> 2.5.70.
+> Doing
+> time dd if=/dev/zero of=file bs=4096 count=60000
 > 
-> I'd be suspecting block layer or device drivers.  What device driver
-> is handling your /var/log?
+> on a box with Xeon(TM) CPU 2.40GHz and 1gb of RAM
+> I get for ext2
+> 2.5.60: 	real	1.42 sys 0.77
+> 2.5.70: 	real 1.73 sys 1.23
+> for reiserfs
+> 2.5.60: 	real 1.62 sys 1.56
+> 2.5.70: 	real 1.90 sys 1.86
+> 
+> Any ideas of what could cause this drop?
+> 
 
-I also can't get networking up on current bk, I don't know if this is
-the same problem, the system did not hang (I'm not running NIS?).
+hm, 2.5.60 was a long time ago.  The best way to tell would be comparative
+oprofiling.
 
-I also got that "sender address length == 0" message, I have not seen it
-before, it seems to be output by the "ip -o link".
-
-During boot:
-
-[ ... ]
-Enabling local filesystem quotas:  [  OK  ]
-Enabling swap space:  [  OK  ]
-/bin/cat: /proc/ksyms: No such file or directory
-INIT: Entering runlevel: 3
-Entering non-interactive startup
-Setting network parameters:  [  OK  ]
-Bringing up interface lo:  [  OK  ] 
-sender address length == 0 
-sender address length == 0
-Starting system logger: [  OK  ]
-Starting kernel logger: [  OK  ]
-Starting portmapper: [  OK  ]  
-Starting NFS file locking services:
-[ ... ]
-
-After logging in:
-
-[root@elm3b79 root]# ifup eth0
-sender address length == 0
-[root@elm3b79 root]# ip -o link
-sender address length == 0
-[root@elm3b79 root]# dmesg | grep eth0
-eth0: Digital DS21140 Tulip rev 33 at 0xf8800000, 00:00:BC:0F:03:EB, IRQ 36.
-
--- Patrick Mansfield

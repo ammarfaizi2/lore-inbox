@@ -1,112 +1,232 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264535AbTCYVFu>; Tue, 25 Mar 2003 16:05:50 -0500
+	id <S264534AbTCYVFT>; Tue, 25 Mar 2003 16:05:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264537AbTCYVFu>; Tue, 25 Mar 2003 16:05:50 -0500
-Received: from fionet.com ([217.172.181.68]:44160 "EHLO service")
-	by vger.kernel.org with ESMTP id <S264535AbTCYVFp>;
-	Tue, 25 Mar 2003 16:05:45 -0500
-Subject: Re: System time warping around real time problem - please help
-From: Fionn Behrens <fionn@unix-ag.org>
-To: linux-kernel@vger.kernel.org
-Cc: root@chaos.analogic.com, tim@physik3.uni-rostock.de
-In-Reply-To: <Pine.LNX.4.53.0303251152080.29361@chaos>
-References: <1048609931.1601.49.camel@rtfm>
-	 <Pine.LNX.4.53.0303251152080.29361@chaos>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: United Fools of Bugaloo
-Message-Id: <1048627013.2348.39.camel@rtfm>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 25 Mar 2003 22:16:54 +0100
+	id <S264535AbTCYVFT>; Tue, 25 Mar 2003 16:05:19 -0500
+Received: from carisma.slowglass.com ([195.224.96.167]:22543 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S264534AbTCYVFN>; Tue, 25 Mar 2003 16:05:13 -0500
+Date: Tue, 25 Mar 2003 21:16:21 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Bug 500] New: fbcon sleeping function call from illegal context
+In-Reply-To: <1348880000.1048622112@flay>
+Message-ID: <Pine.LNX.4.44.0303252114470.6228-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
 
-> On Tue, 25 Mar 2003, Fionn Behrens wrote: 
-> > On Die, 2003-03-25 at 18:07, Richard B. Johnson wrote:
-> > > On Tue, 25 Mar 2003, Fionn Behrens wrote:
-> >
-> > > > I have got an increasingly annoying problem with our fairly new
-> > > > (fall '02) Dual Athlon2k+ Gigabyte 7dpxdw linux system running 
-> > > > 2.4.20.
-> >
-> > > I am using the exact same kernel (a lot of folks are). There
-> > > is no such jumping on my system.
-> > > Try this program:
-> >
-> > [... prg1.c ...]
-> >
-> > > If this shows time jumping around you have one of either:
-> > >
-> > > (1) Bad timer channel 0 chip (PIT).
-> > > (2) Some daemon trying to sync time with another system.
-> > > (3) You are traveling too close to the speed of light.
-> >
-> > It just exits immediately with exit code 1. (*shrug*)
+Please try my patch I sent to Ben. I attached it to this email for people 
+to try it.
 
-> Hmmm. Note that the for(;;) { } provides no exit path.
+diff -urN -X /home/jsimmons/dontdiff linus-2.5/drivers/video/console/fbcon.c fbdev-2.5/drivers/video/console/fbcon.c
+--- linus-2.5/drivers/video/console/fbcon.c	Sat Mar 22 21:45:23 2003
++++ fbdev-2.5/drivers/video/console/fbcon.c	Tue Mar 25 12:03:56 2003
+@@ -172,8 +172,9 @@
+  *  Internal routines
+  */
+ static void fbcon_set_display(struct vc_data *vc, int init, int logo);
++static void accel_cursor(struct vc_data *vc, struct fb_info *info,
++			 struct fb_cursor *cursor, int yy);
+ static __inline__ int real_y(struct display *p, int ypos);
+-static void fb_vbl_handler(int irq, void *dummy, struct pt_regs *fp);
+ static __inline__ void updatescrollmode(struct display *p, struct vc_data *vc);
+ static __inline__ void ywrap_up(struct vc_data *vc, int count);
+ static __inline__ void ywrap_down(struct vc_data *vc, int count);
+@@ -194,6 +195,34 @@
+ }
+ #endif
 
-I noticed that well and investigated the issue using ddd. Funnily enough
-the program runs well in ddd until X crashes. But in the shell it still
-behaves like it would be nothing but exit(1);
- 
-> So, you probably have some bad RAM or your CPU is too 
-> hot (broken fan??), or something like that. 
++static void fb_callback(void *private)
++{
++	struct fb_info *info = (struct fb_info *) private;
++	struct display *p = &fb_display[fg_console];
++	struct vc_data *vc = vc_cons[fg_console].d;
++	struct fb_cursor cursor;
++
++	if (!info || !cursor_on)
++		return;
++
++	if (vbl_cursor_cnt && --vbl_cursor_cnt == 0) {
++		cursor.set = 0;
++
++		if (!cursor_drawn)
++			cursor.set = FB_CUR_SETCUR;
++		accel_cursor(vc, info, &cursor, real_y(p, vc->vc_y));
++		cursor_drawn ^= 1;
++		vbl_cursor_cnt = cursor_blink_rate;
++	}
++}
++
++static void fb_vbl_handler(int irq, void *dev_id, struct pt_regs *fp)
++{
++	struct fb_info *info = dev_id;
++
++	schedule_work(&info->queue);
++}
++
+ static void cursor_timer_handler(unsigned long dev_addr);
 
-None of the above. The system is liquid cooled and subject to contiuous
-thermal monitoring. The RAM is 1GB Infineon ECC. Before the weekend I
-had the machine running overnight with memtest86 - 14 hours, all tests
-activated. Not a single error.
-I also tried an endless kernel compile loop the other day and the
-machine compiled about 100 kernels in approx two hours without a hitch.
+ static struct timer_list cursor_timer =
+@@ -203,7 +232,7 @@
+ {
+ 	struct fb_info *info = (struct fb_info *) dev_addr;
 
-> > [... prg2.c ...]
-> >
-> > When I run this code it begins to put out Prev N New M lines.
+-	fb_vbl_handler(0, info, NULL);
++	schedule_work(&info->queue);
+ 	cursor_timer.expires = jiffies + HZ / 50;
+ 	add_timer(&cursor_timer);
+ }
+@@ -290,14 +319,14 @@
+ 			    const unsigned short *s)
+ {
+ 	unsigned short charmask = vc->vc_hi_font_mask ? 0x1ff : 0xff;
+-	unsigned int width = (vc->vc_font.width + 7)/8;
++	unsigned int width = (vc->vc_font.width + 7) >> 3;
+ 	unsigned int cellsize = vc->vc_font.height * width;
+ 	unsigned int maxcnt = info->pixmap.size/cellsize;
+ 	unsigned int shift_low = 0, mod = vc->vc_font.width % 8;
+ 	unsigned int shift_high = 8, size, pitch, cnt, k;
+ 	unsigned int buf_align = info->pixmap.buf_align - 1;
+ 	unsigned int scan_align = info->pixmap.scan_align - 1;
+-	unsigned int idx = vc->vc_font.width/8;
++	unsigned int idx = vc->vc_font.width >> 3;
+ 	u8 mask, *src, *dst, *dst0;
 
-> > Prev 1048615862810879.000000 New 1048615862759879.000000
+ 	while (count) {
+@@ -307,7 +336,7 @@
+ 			cnt = k = count;
 
-> > After a few seconds of run time random processes on my machine begin
-> > to crash, or I get kernel oopses and kernel freezes. Looks very 
-> > much like heavy use of gettimeofday() causes random writes in system
-> > memory.
+ 		image->width = vc->vc_font.width * cnt;
+-		pitch = (image->width + 7)/8 + scan_align;
++		pitch = ((image->width + 7) >> 3) + scan_align;
+ 		pitch &= ~scan_align;
+ 		size = pitch * vc->vc_font.height + buf_align;
+ 		size &= ~buf_align;
+@@ -338,7 +367,7 @@
+ 			  const unsigned short *s)
+ {
+ 	unsigned short charmask = vc->vc_hi_font_mask ? 0x1ff : 0xff;
+-	unsigned int width = vc->vc_font.width/8;
++	unsigned int width = vc->vc_font.width >> 3;
+ 	unsigned int cellsize = vc->vc_font.height * width;
+ 	unsigned int maxcnt = info->pixmap.size/cellsize;
+ 	unsigned int scan_align = info->pixmap.scan_align - 1;
+@@ -411,7 +440,7 @@
+                       int c, int ypos, int xpos)
+ {
+ 	unsigned short charmask = vc->vc_hi_font_mask ? 0x1ff : 0xff;
+-	unsigned int width = (vc->vc_font.width + 7)/8;
++	unsigned int width = (vc->vc_font.width + 7) >> 3;
+ 	unsigned int scan_align = info->pixmap.scan_align - 1;
+ 	unsigned int buf_align = info->pixmap.buf_align - 1;
+ 	int bgshift = (vc->vc_hi_font_mask) ? 13 : 12;
+@@ -559,6 +588,15 @@
 
-> Looks very much like you have a real bad hardware problem. 
+ 	vc = (struct vc_data *) kmalloc(sizeof(struct vc_data), GFP_ATOMIC);
 
-Just what, that is the question. After having activated the notsc
-feature the system has not yet exposed the warp symptons but as I noted
-in the beginning it may well take a day or two for that to happen.
++	if (!vc) {
++		if (softback_buf)
++			kfree((void *) softback_buf);
++		return NULL;
++	}
++
++	/* Initialize the work queue */
++	INIT_WORK(&info->queue, fb_callback, info);
++
+ 	/* Setup default font */
+ 	vc->vc_font.data = font->data;
+ 	vc->vc_font.width = font->width;
+@@ -956,8 +994,8 @@
+ 	accel_putcs(vc, info, s, count, real_y(p, ypos), xpos);
+ }
 
-Yet still, running the first (in ddd) or second test programs - despite
-the current absence of any error message - causes random processes to
-crash until the program is being stopped (by a crashed terminal, X or
-kernel, that is).
+-void accel_cursor(struct vc_data *vc, struct fb_info *info, struct fb_cursor *cursor,
+-		  int yy)
++static void accel_cursor(struct vc_data *vc, struct fb_info *info,
++			 struct fb_cursor *cursor, int yy)
+ {
+ 	unsigned short charmask = vc->vc_hi_font_mask ? 0x1ff : 0xff;
+ 	int bgshift = (vc->vc_hi_font_mask) ? 13 : 12;
+@@ -986,7 +1024,15 @@
+ 	size = ((width + 7) >> 3) * height;
 
-Oddly enough, the system runs pretty stable for at least days of normal
-use as long as the clock symptoms dont show up (and you dont run those
-test programs). Which means it has not crashed a lot recently, just
-being rebooted by me because of the jumping clock annoyance which -
-among others - results in sluggishly behaving UI components and frequent
-short connection freezes in ssh connections.
+ 	data = kmalloc(size, GFP_KERNEL);
++
++	if (!data) return;
++
+ 	mask = kmalloc(size, GFP_KERNEL);
++
++	if (!mask) {
++		kfree(data);
++		return;
++	}
 
-> > E.g. which type of hardware problem?
-> Since the machine used to work last fall, It's probably just a
-> FAN or RAM  problems.
+ 	if (cursor->set & FB_CUR_SETSIZE) {
+ 		memset(data, 0xff, size);
+@@ -1101,27 +1147,6 @@
+ 	}
+ }
 
-I'll swap the RAM sticks around for now but I suspect its something
-else. I just still fail to grasp  how calls to gettimeofday() are able
-to cause random writes to memory...
+-static void fb_vbl_handler(int irq, void *dev_id, struct pt_regs *fp)
+-{
+-	struct fb_info *info = dev_id;
+-	struct display *p = &fb_display[fg_console];
+-	struct vc_data *vc = vc_cons[fg_console].d;
+-	struct fb_cursor cursor;
+-
+-	if (!cursor_on)
+-		return;
+-
+-	if (vbl_cursor_cnt && --vbl_cursor_cnt == 0) {
+-		cursor.set = 0;
+-
+-		if (!cursor_drawn)
+-			cursor.set = FB_CUR_SETCUR;
+-		accel_cursor(vc, info, &cursor, real_y(p, vc->vc_y));
+-		cursor_drawn ^= 1;
+-		vbl_cursor_cnt = cursor_blink_rate;
+-	}
+-}
+-
+ static int scrollback_phys_max = 0;
+ static int scrollback_max = 0;
+ static int scrollback_current = 0;
+diff -urN -X /home/jsimmons/dontdiff linus-2.5/drivers/video/softcursor.c fbdev-2.5/drivers/video/softcursor.c
+--- linus-2.5/drivers/video/softcursor.c	Sat Mar 22 21:45:22 2003
++++ fbdev-2.5/drivers/video/softcursor.c	Tue Mar 25 11:41:28 2003
+@@ -44,6 +44,7 @@
+ 		if (info->cursor.mask)
+ 			kfree(info->cursor.mask);
+ 		info->cursor.mask = kmalloc(dsize, GFP_KERNEL);
++		if (!info->cursor.mask) return -ENOMEM;
+ 		if (cursor->mask)
+ 			memcpy(info->cursor.mask, cursor->mask, dsize);
+ 		else
+diff -urN -X /home/jsimmons/dontdiff linus-2.5/include/linux/fb.h fbdev-2.5/include/linux/fb.h
+--- linus-2.5/include/linux/fb.h	Sat Mar 22 21:45:25 2003
++++ fbdev-2.5/include/linux/fb.h	Tue Mar 25 12:00:20 2003
+@@ -2,6 +2,7 @@
+ #define _LINUX_FB_H
 
-Summary:
-       - No apparent hardware issue.
-       - System runs stable as long as you dont for (;;) gettimeofday();
-       - notsc being evaluated. I will get back to you later.
-         Does not resolve the odd test software crash, though. 
+ #include <linux/tty.h>
++#include <linux/workqueue.h>
+ #include <asm/types.h>
+ #include <asm/io.h>
 
-Kind regards,
-		Fionn
+@@ -406,8 +407,9 @@
+    struct fb_fix_screeninfo fix;        /* Current fix */
+    struct fb_monspecs monspecs;         /* Current Monitor specs */
+    struct fb_cursor cursor;		/* Current cursor */
+-   struct fb_cmap cmap;                 /* Current cmap */
++   struct work_struct queue;		/* Framebuffer event queue */
+    struct fb_pixmap pixmap;	        /* Current pixmap */
++   struct fb_cmap cmap;                 /* Current cmap */
+    struct fb_ops *fbops;
+    char *screen_base;                   /* Virtual address */
+    struct vc_data *display_fg;		/* Console visible on this display */
 
-P.S.: Please keep sending me a Cc:, I grabbed this one from the archive
+

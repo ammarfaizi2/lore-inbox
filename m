@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136024AbRD0NlK>; Fri, 27 Apr 2001 09:41:10 -0400
+	id <S136031AbRD0NqJ>; Fri, 27 Apr 2001 09:46:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136031AbRD0NlA>; Fri, 27 Apr 2001 09:41:00 -0400
-Received: from [208.204.44.103] ([208.204.44.103]:40208 "EHLO
-	warpcore.provalue.net") by vger.kernel.org with ESMTP
-	id <S136024AbRD0Nko>; Fri, 27 Apr 2001 09:40:44 -0400
-Date: Fri, 27 Apr 2001 07:42:25 -0500 (CDT)
-From: Collectively Unconscious <swarm@warpcore.provalue.net>
-To: Robert Varga <nite@hq.alert.sk>
-cc: linux-kernel@vger.kernel.org
-Subject: [OT] linux on pda was Re: [PATCH] Single user linux
-In-Reply-To: <20010427151239.A13368@hq.alert.sk>
-Message-ID: <Pine.LNX.4.10.10104270722280.735-100000@warpcore.provalue.net>
+	id <S136034AbRD0Np7>; Fri, 27 Apr 2001 09:45:59 -0400
+Received: from viper.haque.net ([66.88.179.82]:62100 "EHLO mail.haque.net")
+	by vger.kernel.org with ESMTP id <S136031AbRD0Npv>;
+	Fri, 27 Apr 2001 09:45:51 -0400
+Message-ID: <3AE9780F.90D9437B@haque.net>
+Date: Fri, 27 Apr 2001 09:45:50 -0400
+From: "Mohammad A. Haque" <mhaque@haque.net>
+X-Mailer: Mozilla 4.77 (Macintosh; U; PPC)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Helge Hafting <helgehaf@idb.hist.no>
+CC: imel96@trustix.co.id, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Single user linux
+In-Reply-To: <Pine.LNX.4.33.0104261730510.1677-100000@tessy.trustix.co.id> <3AE93C6E.F271DAFA@idb.hist.no>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Apr 2001, Robert Varga wrote:
+Helge Hafting wrote:
+> You were talking about how a notebook is a personal thing,
+> with only one user.  Well, the notebook user do of course want to
+> do a bunch of nifty things like read email on the thing.  Guess what,
+> you need an email daemon for that!  And many users don't want to know
+> the details of setting up an email daemon, so the distribution
+> install one by default.  This kind of users would be outraged if
+> the distribution didn't - "what - I have to install more stuff just to
+> get my mail! windows do that out of the box why is this so difficult..."
 
-> On Wed, Apr 25, 2001 at 10:34:56AM +1000, Daniel Stone wrote:
-> > On Wed, Apr 25, 2001 at 01:16:03AM +0100, Alan Cox wrote:
-> > > > > Quit being a naysayer. UNIX on a PDA is a wet dream.
-> > > > What real value does it have, apart from the geek "look at me, I'm using
-> > > > bash" value?
+You don't need to be running an e-mail daemon just to read e-mail.
 
-Hmm...How about free and open source, uniform app base, easy access by
-third party vendors.
 
-Also it seems to me last I checked PDA's were at least equvalent to the
-386 which is ostensibly the bottom linux rung.
+-- 
 
-As for the objection about slow compile times, get real. No PDA is going
-to compile anything. All compilations happen on your desktop with a
-crosscompiler. PDA's are for running handy little apps, not development
-work.
+=====================================================================
+Mohammad A. Haque                              http://www.haque.net/ 
+                                               mhaque@haque.net
 
-Or are we saying M$ CE is as good as it gets. :P
-
-Jay
-
+  "Alcohol and calculus don't mix.             Project Lead
+   Don't drink and derive." --Unknown          http://wm.themes.org/
+                                               batmanppc@themes.org
+=====================================================================

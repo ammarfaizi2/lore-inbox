@@ -1,94 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268981AbUJTS0A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268980AbUJTScA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268981AbUJTS0A (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 14:26:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268980AbUJTSWc
+	id S268980AbUJTScA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 14:32:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269001AbUJTSb6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 14:22:32 -0400
-Received: from gprs214-236.eurotel.cz ([160.218.214.236]:23171 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S268981AbUJTSQn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 14:16:43 -0400
-Date: Wed, 20 Oct 2004 20:16:17 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>,
-       Patrick Mochel <mochel@digitalimplant.org>
-Subject: power/disk.c: small fixups
-Message-ID: <20041020181617.GA29435@elf.ucw.cz>
+	Wed, 20 Oct 2004 14:31:58 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:62114 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S268980AbUJTS24 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 14:28:56 -0400
+Subject: Re: [PATCH 1/3] Separate IRQ-stacks from 4K-stacks option
+From: Lee Revell <rlrevell@joe-job.com>
+To: Timothy Miller <miller@techsource.com>
+Cc: Arjan van de Ven <arjanv@redhat.com>, Andrea Arcangeli <andrea@novell.com>,
+       Hugh Dickins <hugh@veritas.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       Andrea Arcangeli <andrea@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Chris Wedgwood <cw@f00f.org>, LKML <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>
+In-Reply-To: <4176ADA1.1090802@techsource.com>
+References: <593560000.1094826651@[10.10.2.4]>
+	 <Pine.LNX.4.44.0409101555510.16784-100000@localhost.localdomain>
+	 <20040910151538.GA24434@devserv.devel.redhat.com>
+	 <20040910152852.GC15643@x30.random>
+	 <20040910153421.GD24434@devserv.devel.redhat.com>
+	 <41768858.8070709@techsource.com>
+	 <20041020153521.GB21556@devserv.devel.redhat.com>
+	 <1098290345.1429.65.camel@krustophenia.net>
+	 <4176A749.8050306@techsource.com>
+	 <1098294932.1429.153.camel@krustophenia.net>
+	 <4176ADA1.1090802@techsource.com>
+Content-Type: text/plain
+Message-Id: <1098296935.1429.174.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 20 Oct 2004 14:28:55 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, 2004-10-20 at 14:25, Timothy Miller wrote:
+> I believe using the word 'draconian' was a poor choice on my part. 
+> Maybe "strictly bounded with no exceptions" would be a better way of 
+> expressing it.
+> 
 
-power_down may never ever fail, so it does not really need to return
-anything. Kill obsolete code and fixup old comments. Please apply,
+What I was asking is what rules you are referring to.  Do you mean
+obvious ones like "no sleeping in ISRs", or guidelines like "ISRs must
+execute quickly" where "quickly" is defined by some consensus?
 
-								Pavel
+Anyway my point is that if you mean the latter then the rules are not
+quite draconian.  Fortunately this seems to be the only exception, and
+the problem and the fix seem to be well understood.
 
---- foo/kernel/power/disk.c	19 Oct 2004 05:52:31 -0000	1.8
-+++ foo/kernel/power/disk.c	20 Oct 2004 17:53:42 -0000
-@@ -3,6 +3,7 @@
-  *
-  * Copyright (c) 2003 Patrick Mochel
-  * Copyright (c) 2003 Open Source Development Lab
-+ * Copyright (c) 2004 Pavel Machek <pavel@suse.cz>
-  *
-  * This file is released under the GPLv2.
-  *
-@@ -41,7 +43,7 @@
-  *	there ain't no turning back.
-  */
- 
--static int power_down(u32 mode)
-+static void power_down(u32 mode)
- {
- 	unsigned long flags;
- 	int error = 0;
-@@ -67,7 +69,6 @@
- 	   after resume. */
- 	printk(KERN_CRIT "Please power me down manually\n");
- 	while(1);
--	return 0;
- }
- 
- 
-@@ -162,7 +163,7 @@
-  *
-  *	If we're going through the firmware, then get it over with quickly.
-  *
-- *	If not, then call pmdis to do it's thing, then figure out how
-+ *	If not, then call swsusp to do it's thing, then figure out how
-  *	to power down the system.
-  */
- 
-@@ -184,18 +185,9 @@
- 
- 	if (in_suspend) {
- 		pr_debug("PM: writing image.\n");
--
--		/*
--		 * FIXME: Leftover from swsusp. Are they necessary?
--		 */
--		mb();
--		barrier();
--
- 		error = swsusp_write();
--		if (!error) {
--			error = power_down(pm_disk_mode);
--			pr_debug("PM: Power down failed.\n");
--		}
-+		if (!error)
-+			power_down(pm_disk_mode);
- 	} else
- 		pr_debug("PM: Image restored successfully.\n");
- 	swsusp_free();
+I should add that unless LBA48 is in use the max request size is 128KB
+which effectively hides the issue.
 
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Lee
+

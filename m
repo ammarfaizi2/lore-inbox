@@ -1,43 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283323AbRK2Qkk>; Thu, 29 Nov 2001 11:40:40 -0500
+	id <S283325AbRK2QoU>; Thu, 29 Nov 2001 11:44:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283322AbRK2Qka>; Thu, 29 Nov 2001 11:40:30 -0500
-Received: from [216.151.155.121] ([216.151.155.121]:55056 "EHLO
-	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
-	id <S283320AbRK2QkV>; Thu, 29 Nov 2001 11:40:21 -0500
-To: "Rajasekhar Inguva" <irajasek@in.ibm.com>
+	id <S283329AbRK2QoK>; Thu, 29 Nov 2001 11:44:10 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:32248 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S283325AbRK2Qn5>;
+	Thu, 29 Nov 2001 11:43:57 -0500
+Date: Thu, 29 Nov 2001 09:43:48 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Christopher Friesen <cfriesen@nortelnetworks.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Routing table problems
-In-Reply-To: <OFAC45A406.7118A3A7-ON65256B31.00430A0D@in.ibm.com>
-From: Doug McNaught <doug@wireboard.com>
-Date: 29 Nov 2001 11:40:12 -0500
-In-Reply-To: "Rajasekhar Inguva"'s message of "Sat, 29 Dec 2001 17:44:08 +0530"
-Message-ID: <m3snaxledv.fsf@belphigor.mcnaught.org>
-User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
-MIME-Version: 1.0
+Subject: Re: logging to NFS-mounted files seems to cause hangs when NFS dies
+Message-ID: <20011129094348.E29249@lynx.no>
+Mail-Followup-To: Christopher Friesen <cfriesen@nortelnetworks.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3C065D2F.B45332C6@nortelnetworks.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <3C065D2F.B45332C6@nortelnetworks.com>; from cfriesen@nortelnetworks.com on Thu, Nov 29, 2001 at 11:07:11AM -0500
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Rajasekhar Inguva" <irajasek@in.ibm.com> writes:
-
-> Hi All, In continuation to my earlier report ...
+On Nov 29, 2001  11:07 -0500, Christopher Friesen wrote:
+> I'm working on an embedded platform and we seem to be having a problem with
+> syslog and logging to NFS-mounted files.
 > 
-> The problem is only seen with the default gateway entry.
-> 
-> The gateway entry for my subnet is also deleted during a 'down', but is
-> restored properly after an 'up' .
+> We have syslog logging to NFS and also logging to a server on another machine.
 
-The default gateway route is installed at boot time by a separate
-'route' command.  'ifconfig' can derive your subnet route from the
-address and mask of the interface, but it can't magically determine
-your default gateway.  Add it yourself using "route" or "ip" or rerun
-your network start scripts.
+Why not just log to the syslog daemon on another machine.  Logging to NFS
+does not help you in this case.
 
-In short, "Working as Designed".
+> The desired behaviour is that if the NFS server or the net connection conks
+> out, the logs are silently dropped.  (Critical logs are also logged in memory
+> that isn't wiped out on reboot.)
 
--Doug
--- 
-Let us cross over the river, and rest under the shade of the trees.
-   --T. J. Jackson, 1863
+> The problem we are seeing is that if we lose the network connection or the
+> NFS mount (which immediately causes an attempt to log the problem), it seems
+> that syslog gets stuck in NFS code in the kernel and other stuff can be
+> delayed for a substantial amount of time (many tens of seconds).  Just for
+> kicks we tried logging to ramdisk, and everything works beautifully.
+
+Well, it seems obvious, doesn't it?  If the network connection is lost, then
+you can't very well write to the Network File System, can you?  One of the
+features of NFS is that if the network dies, or the server is lost, then
+the client does not lose any data that was being written to the NFS mount.
+
+> Now I'm a bit unclear as to why other processes are being delayed--does anyone
+> have any ideas?  My current theories are that either the nfs client code has a
+> bug, or syslog() calls are somehow blocking if syslogd can't write the file
+> out.  I've just started looking at the syslog code, but its pretty rough going
+> as there are very few comments.
+
+This is entirely a syslog problem, if you want to do it that way.  The NFS
+code is working as expected, and will not be changed.  You might have to
+multi-thread syslog to get it to do what you want, but in the end you are
+better off just using the network logging feature and write the logs at
+the server directly.
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+

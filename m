@@ -1,92 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262703AbUCWQik (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 11:38:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262697AbUCWQih
+	id S262673AbUCWQhA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 11:37:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262687AbUCWQhA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 11:38:37 -0500
-Received: from matrix.roma2.infn.it ([141.108.255.2]:17590 "EHLO
-	matrix.roma2.infn.it") by vger.kernel.org with ESMTP
-	id S262678AbUCWQi3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 11:38:29 -0500
-From: "Emiliano 'AlberT' Gabrielli" <AlberT@agilemovement.it>
-Reply-To: AlberT@agilemovement.it
-Organization: SuperAlberT.it
-To: linux-kernel@vger.kernel.org
-Subject: Re: Hidden PIDs in /proc
-Date: Tue, 23 Mar 2004 17:40:14 +0100
-User-Agent: KMail/1.6.1
-References: <200403231708.15812.AlberT@agilemovement.it> <c3pnr5$29f$1@news.cistron.nl>
-In-Reply-To: <c3pnr5$29f$1@news.cistron.nl>
+	Tue, 23 Mar 2004 11:37:00 -0500
+Received: from mail.cyclades.com ([64.186.161.6]:62879 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S262673AbUCWQg5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Mar 2004 11:36:57 -0500
+Date: Tue, 23 Mar 2004 14:18:52 -0300 (BRT)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+       Ralf Baechle <ralf@linux-mips.org>
+Subject: Re: [PATCH 070] NCR53C9x unused SCp.have_data_in
+In-Reply-To: <Pine.GSO.4.58.0403231634241.8977@waterleaf.sonytel.be>
+Message-ID: <Pine.LNX.4.58L.0403231415310.2896@logos.cnet>
+References: <200403221000.i2MA0DJ1004102@callisto.of.borg>
+ <Pine.LNX.4.58L.0403231212300.2368@logos.cnet>
+ <Pine.GSO.4.58.0403231634241.8977@waterleaf.sonytel.be>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200403231740.14351.AlberT@agilemovement.it>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cyclades-MailScanner-Information: Please contact the ISP for more information
+X-Cyclades-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 23 March 2004 17:15, Miquel van Smoorenburg wrote:
-> In article <200403231708.15812.AlberT@agilemovement.it>,
->
-> Emiliano 'AlberT' Gabrielli <AlberT@agilemovement.it> wrote:
-> >Hi all,
+
+
+On Tue, 23 Mar 2004, Geert Uytterhoeven wrote:
+
+> On Tue, 23 Mar 2004, Marcelo Tosatti wrote:
+> > On Mon, 22 Mar 2004, Geert Uytterhoeven wrote:
+> > > NCR53C9x: Remove unused initialization of SCp.have_data_in (from Maciej W.
+> > > Rozycki). This affects the following drivers:
+> > >   - Amiga Oktagon SCSI
+> > >   - DECstation SCSI
+> > >
+> > > The change for DECstation SCSI sneaked in through a MIPS update.
+> > >
+> > > --- linux-2.4.26-pre5/drivers/scsi/NCR53C9x.c	Sat Aug 17 14:10:41 2002
+> > > +++ linux-m68k-2.4.26-pre5/drivers/scsi/NCR53C9x.c	Wed Jan 22 12:07:13 2003
+> > > @@ -917,7 +917,7 @@
+> > >  		if (esp->dma_mmu_get_scsi_one)
+> > >  			esp->dma_mmu_get_scsi_one(esp, sp);
+> > >  		else
+> > > -			sp->SCp.have_data_in = (int) sp->SCp.ptr =
+> > > +			sp->SCp.ptr =
+> > >  				(char *) virt_to_phys(sp->request_buffer);
+> > >  	} else {
+> > >  		sp->SCp.buffer = (struct scatterlist *) sp->buffer;
+> > > --- linux-2.4.26-pre5/drivers/scsi/oktagon_esp.c	Mon Apr  1 13:02:02 2002
+> > > +++ linux-m68k-2.4.26-pre5/drivers/scsi/oktagon_esp.c	Wed Jan 22 12:07:17 2003
+> > > @@ -548,7 +548,7 @@
+> > >
+> > >  void dma_mmu_get_scsi_one(struct NCR_ESP *esp, Scsi_Cmnd *sp)
+> > >  {
+> > > -        sp->SCp.have_data_in = (int) sp->SCp.ptr =
+> > > +        sp->SCp.ptr =
+> > >                  sp->request_buffer;
+> > >  }
 > >
-> >   I discovered some "hidden" pid dirs in /proc :
-> >
-> >root@emc2:# ls -lha /proc/ | grep 4673
-> >root@emc2:# ls -lha /proc/4673/
-> >totale 0
-> >dr-xr-xr-x    3 albert   albert          0 2004-03-23 17:02 .
-> >dr-xr-xr-x  108 root     root            0 2004-03-23 16:10 ..
+> > Can't we live with this?
 >
-> It's just a thread. For a threaded process, only the thread group
-> leader is listed in /proc directly. The other threads are visible
-> under /proc/<tgid>/task  (try it).
+> Yes.
 >
-
-I allready did it ... infact the second test I posted correctly shows the 
-thread ... but, why ps ax -m does *not* show it ??  
-
-uhmm ok under task I can see all the threads correcly... the question now 
-is .. why to show also the secondary threads directly in /proc, even if not 
-visible by readdir ? It is a confusing issue for chkrootkit and similar... 
-creating only the /proc/<tgid> in /proc shoud suffice and be cleaner ... 
-IMHO.
-
-> >After 2 days of headhake searching for possible rootkits, reinstalling all
-> > the basic system, libs and so on (from a clean live-CD boot) ...
-> >I noticed that these process seem all to use pthreads ... so, the question
-> > is:
-> >
-> >is my problem related/solved by the
-> > initramfs-search-for-init-zombie-fix.patch in the -mm1 tree ??
+> > Is removing it fixing any problem?
 >
-> No, by upgrading to a more recent procps.
+> No, it's just a cleanup.
 >
-> # ps ax | grep mozilla
-> 16252 ?        S     10:21 /usr/lib/mozilla-firefox/firefox-bin
-> $ ps ax -T | grep moz
-> 16252 16252 ?        S     10:21 /usr/lib/mozilla-firefox/firefox-bin
-> 16252 16264 ?        S      0:01 /usr/lib/mozilla-firefox/firefox-bin
-> 16252 16266 ?        S      0:03 /usr/lib/mozilla-firefox/firefox-bin
-> 16252 21530 ?        S      0:00 /usr/lib/mozilla-firefox/firefox-bin
+> > Yes, I'm being picky.
 >
-> Also note:
+> In that case, you can drop it.
 >
-> # ls /proc/16252/task
-> 16252/  16264/  16266/  21530/
->
-> Mike.
+> (BTW, picky for 2.4.26-rc*, or for 2.4 in general?)
 
+Picky in general for 2.4. In this case specifically I feel the cleanup
+can possibly, "remotely" cause some issues. Better to be off.
 
-uh oh .. my bad ...  but .. my ignorance now ask what is the real diff between 
--m and -T option for ps ...
-
-thanks
--- 
-                       Emiliano `AlberT` Gabrielli  
-
-E-Mail: AlberT@SuperAlberT.it  -  Web:    http://SuperAlberT.it
-Membro dell'Italian Agile Movement - AlberT@agilemovement.it

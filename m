@@ -1,37 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261369AbRFJRyj>; Sun, 10 Jun 2001 13:54:39 -0400
+	id <S261459AbRFJShB>; Sun, 10 Jun 2001 14:37:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261459AbRFJRy3>; Sun, 10 Jun 2001 13:54:29 -0400
-Received: from imladris.infradead.org ([194.205.184.45]:57106 "EHLO
-	infradead.org") by vger.kernel.org with ESMTP id <S261369AbRFJRyK>;
-	Sun, 10 Jun 2001 13:54:10 -0400
-Date: Sun, 10 Jun 2001 18:53:43 +0100 (BST)
-From: Riley Williams <rhw@MemAlpha.CX>
-X-X-Sender: <rhw@infradead.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: <pfaffben@msu.edu>, <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] ess maestro, support for hardware volume control
-In-Reply-To: <E1594xc-0006ZB-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0106101851570.18035-100000@infradead.org>
+	id <S261493AbRFJSgw>; Sun, 10 Jun 2001 14:36:52 -0400
+Received: from hood.tvd.be ([195.162.196.21]:11429 "EHLO hood.tvd.be")
+	by vger.kernel.org with ESMTP id <S261459AbRFJSgg>;
+	Sun, 10 Jun 2001 14:36:36 -0400
+Date: Sun, 10 Jun 2001 20:34:01 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Nico Schottelius <nicos@pcsystems.de>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: scsi disk defect or kernel driver defect ?
+In-Reply-To: <3B1FD67D.8DFDAE58@pcsystems.de>
+Message-ID: <Pine.LNX.4.05.10106102029390.24376-100000@callisto.of.borg>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan.
+On Thu, 7 Jun 2001, Nico Schottelius wrote:
+> Or does anybody have a hp c1536 streamer and can help me ?
 
- >> What can happen as I see it is that userspace #2, which wants to
- >> talk to a particular misc driver, actually ends up talking to a
- >> different one because the minor gets reassigned between reading
- >> /proc/misc to find out the number and mknoding and opening the
- >> device:
+The manual for my C1536A says:
 
- > Looks true to me. So get a real misc device assigned for
- > anything you use 8)
+| The C1536A does not support termination on the device itself. Normally, the
+| unit will not be placed at the end of a bus. However, if this is
+| unavoidable, we recommend the use of an additional length of cable with a
+| terminator attached. (Lack of space does not allow for a feed-through
+| connector to be used to the drive.)
 
-Wasn't the basis for devfs that it would effectively do the mknod'ing
-for you? Or have I completely misunderstood the situation?
+| Terminator: Methode Active SCSI Terminator DM1050-02-R
+|             Methode Passive SCSI Terminator DM1050-02-0
 
-Best wishes from Riley.
+So you should get a terminator (or an addtional SCSI device that does have a
+termination dipswitch/jumper, like my CD-ROM drive :-)
+
+This also explains why it works without the C1536: in that case your SCSI host
+adapter will auto-terminate the empty narrow chain.
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+
+
 

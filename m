@@ -1,46 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130113AbRATWiV>; Sat, 20 Jan 2001 17:38:21 -0500
+	id <S129780AbRATWkb>; Sat, 20 Jan 2001 17:40:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130214AbRATWiL>; Sat, 20 Jan 2001 17:38:11 -0500
-Received: from baldur.fh-brandenburg.de ([195.37.0.5]:14303 "HELO
-	baldur.fh-brandenburg.de") by vger.kernel.org with SMTP
-	id <S130113AbRATWiC>; Sat, 20 Jan 2001 17:38:02 -0500
-Date: Sat, 20 Jan 2001 23:24:02 +0100 (MET)
-From: Roman Zippel <zippel@fh-brandenburg.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Kai Henningsen <kaih@khms.westfalen.de>, linux-kernel@vger.kernel.org
-Subject: Re: Is sendfile all that sexy?
-In-Reply-To: <Pine.LNX.4.10.10101201247330.10602-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.10.10101202252380.13864-100000@zeus.fh-brandenburg.de>
+	id <S130214AbRATWkL>; Sat, 20 Jan 2001 17:40:11 -0500
+Received: from embolism.psychosis.com ([216.242.103.100]:53262 "EHLO
+	embolism.psychosis.com") by vger.kernel.org with ESMTP
+	id <S129780AbRATWkJ>; Sat, 20 Jan 2001 17:40:09 -0500
+Message-ID: <3A6A13B2.1F4737E2@psychosis.com>
+Date: Sat, 20 Jan 2001 17:39:46 -0500
+From: Dave Cinege <dcinege@psychosis.com>
+Reply-To: dcinege@psychosis.com
+Organization: www.psychosis.com
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.1p8-1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Sandy Harris <sandy@storm.ca>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: md= broken. Found problem. Can't fix it.  : (
+In-Reply-To: <3A6A044F.7974AF67@psychosis.com> <3A6A0A20.18362B90@storm.ca>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Sandy Harris wrote:
+> Looks to me like this parsing code unnecessarily and rather clumsily 
+> re-invents strtok
 
-On Sat, 20 Jan 2001, Linus Torvalds wrote:
+The original parsing code is this:
+		if ((str = strchr(str, ',')) != NULL)
+			str++;
+Which effectivly steps through
+		/dev/sda1,/dev/sdab1,/dev/sdc1
+like this
+		str == /dev/sda1,/dev/sdab1,/dev/sdc1
+		str == /dev/sdab1,/dev/sdc1
+		str == /dev/sdc1
 
-> But point-to-point also means that you don't get any real advantage from
-> doing things like device-to-device DMA. Because the links are
-> asynchronous, you need buffers in between them anyway, and there is no
-> bandwidth advantage of not going through the hub if the topology is a
-> pretty normal "star" kind of thing. And you _do_ want the star topology,
-> because in the end most of the bandwidth you want concentrated at the
-> point that uses it.
+My code:	char *ndevstr;
+		ndevstr = strchr(str, ',');
+		if (ndevstr != NULL)	*ndevstr++ = 0;	
+		...
+		str = ndevstr
 
-I agree, but who says, that the buffer always has to be the main memory?
-That might be true especially for embedded devices. The cpu is then just
-the local controller, that manages several devices with its own buffer.
-Let's take a file server with multiple disks and multiple network cards
-with it's own buffer. For stuff like this you don't want to go through the
-main memory, on the other hand you still need to synchronize all the data.
-Although I don't know such hardware, but I don't see a reason not to do it
-under Linux. :-)
+Works perfectly. I don't find it 'clumsy' or more complex at all. (I don't care
+for strtok, nor did I even know the kernel had it)
 
-bye, Roman
 
+However I don't see this critique of coding style helping the problem I'm
+seeing:
+
+	name_to_kdev_t(str);
+Returns a bad value. Yet
+	name_to_kdev_t("/dev/sdd5");
+does not. The strange thing is
+	printk("Checking: '%s'\n", str);
+shows str does infact contain a proper string.
+
+It appears str does not get passed to name_to_kdev_t() properly,
+and I have no idea why. Both my testing code and the original code
+exhibit the same problem.
+
+
+-- 
+"Nobody will ever be safe until the last cop is dead."
+		NH Rep. Tom Alciere - (My new Hero)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,71 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290295AbSAPAFc>; Tue, 15 Jan 2002 19:05:32 -0500
+	id <S290267AbSAPAFH>; Tue, 15 Jan 2002 19:05:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290292AbSAPAFS>; Tue, 15 Jan 2002 19:05:18 -0500
-Received: from nycsmtp2out.rdc-nyc.rr.com ([24.29.99.227]:47497 "EHLO
-	nycsmtp2out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id <S290268AbSAPAFM>; Tue, 15 Jan 2002 19:05:12 -0500
-Message-ID: <3C44C3B6.8060900@nyc.rr.com>
-Date: Tue, 15 Jan 2002 19:05:10 -0500
-From: John Weber <weber@nyc.rr.com>
-Organization: WorldWideWeber
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.3-pre1 compile error
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S290268AbSAPAE5>; Tue, 15 Jan 2002 19:04:57 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:52495 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S290267AbSAPAEq>;
+	Tue, 15 Jan 2002 19:04:46 -0500
+Date: Tue, 15 Jan 2002 16:01:17 -0800
+From: Greg KH <greg@kroah.com>
+To: David Garfield <garfield@irving.iisd.sra.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Query about initramfs and modules
+Message-ID: <20020116000117.GD29020@kroah.com>
+In-Reply-To: <15428.47094.435181.278715@irving.iisd.sra.com> <20020115233437.GC29020@kroah.com> <15428.49056.652466.414438@irving.iisd.sra.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <15428.49056.652466.414438@irving.iisd.sra.com>
+User-Agent: Mutt/1.3.25i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Tue, 18 Dec 2001 20:22:18 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gcc -D__KERNEL__ -I/usr/src/linux-2.5.2/include -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
--march=i686    -c -o read_write.o read_write.c
-In file included from read_write.c:10:
-/usr/src/linux-2.5.2/include/linux/file.h:25: parse error before `atomic_t'
-/usr/src/linux-2.5.2/include/linux/file.h:25: warning: no semicolon at 
-end of struct or union
-/usr/src/linux-2.5.2/include/linux/file.h:36: parse error before `}'
-/usr/src/linux-2.5.2/include/linux/file.h: In function `fcheck_files':
-/usr/src/linux-2.5.2/include/linux/file.h:50: dereferencing pointer to 
-incomplete type
-/usr/src/linux-2.5.2/include/linux/file.h:51: dereferencing pointer to 
-incomplete type
-In file included from read_write.c:13:
-/usr/src/linux-2.5.2/include/linux/dnotify.h: At top level:
-/usr/src/linux-2.5.2/include/linux/dnotify.h:18: warning: `struct inode' 
-declared inside parameter list
-/usr/src/linux-2.5.2/include/linux/dnotify.h:18: warning: its scope is 
-only this definition or declaration, which is probably not what you want.
-/usr/src/linux-2.5.2/include/linux/dnotify.h:21: warning: `struct inode' 
-declared inside parameter list
-/usr/src/linux-2.5.2/include/linux/dnotify.h: In function 
-`inode_dir_notify':
-/usr/src/linux-2.5.2/include/linux/dnotify.h:23: dereferencing pointer 
-to incomplete type
-/usr/src/linux-2.5.2/include/linux/dnotify.h:24: warning: passing arg 1 
-of `__inode_dir_notify' from incompatible pointer type
-read_write.c: In function `sys_read':
-read_write.c:167: warning: passing arg 1 of `inode_dir_notify' from 
-incompatible pointer type
-read_write.c: In function `sys_write':
-read_write.c:194: warning: passing arg 1 of `inode_dir_notify' from 
-incompatible pointer type
-read_write.c: In function `do_readv_writev':
-read_write.c:299: warning: passing arg 1 of `inode_dir_notify' from 
-incompatible pointer type
-read_write.c: In function `sys_pread':
-read_write.c:371: warning: passing arg 1 of `inode_dir_notify' from 
-incompatible pointer type
-read_write.c: In function `sys_pwrite':
-read_write.c:403: warning: passing arg 1 of `inode_dir_notify' from 
-incompatible pointer type
-make[2]: *** [read_write.o] Error 1
-make[2]: Leaving directory `/usr/src/linux-2.5.2/fs'
-make[1]: *** [first_rule] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.5.2/fs'
-make: *** [_dir_fs] Error 2
+On Tue, Jan 15, 2002 at 06:47:44PM -0500, David Garfield wrote:
+> Greg KH writes:
+>  > On Tue, Jan 15, 2002 at 06:15:02PM -0500, David Garfield wrote:
+>  > > 
+>  > > Can/will the initramfs mechanism be made to implicitly load into the
+>  > > kernel the modules (or some of the modules) in the image?
+>  > 
+>  > Most of the mechanism for loading modules for physical devices will be
+>  > the /sbin/hotplug interface:
+>  > 	- when the pci core code scans the pci bus, and finds a new
+>  > 	  device, it calls out to /sbin/hotplug the pci device
+>  > 	  information.
+>  > 	- /sbin/hotplug looks up the pci device info and tries to match
+>  > 	  it up with a driver that will work for this device (see the
+>  > 	  linux-hotplug.sf.net site for more info on how this works.)
+>  > 	- if it finds a module for the device, it calls modprobe on the
+>  > 	  module, and now that pci device has a module loaded.
+>  > 
+>  > Repeat this process for the USB, IEEE1394, and other busses that support
+>  > MODULE_DEVICE_TABLE in the kernel tree.
+> 
+> Seems like a great idea *after* the system is fully running (or the
+> root partition is at least mounted).
 
+The initramfs is the initial root partition.
+
+> Seems like overkill to boot most systems.
+> 
+> As I understand it, all that should need to go into the initramfs is
+> enough to mount the root partition.  Normally, this would probably be
+> a handful of drivers that are unconditionally known to be needed.  So
+> why go through several user-mode programs to make a decision that can
+> be made once and built in?
+
+But how do you always know what is "needed"?  Wouldn't it be nice to
+just select "compile all SCSI PCI and IEEE1394 and USB drivers as
+modules" and then have your "real" root partition's controller be
+automatically found before you try to mount your "real" root partition?
+
+Say your SCSI PCI controller dies, and you buy a new one.  Plop it in,
+reboot, and everything works.  No having to build a new initrd, or build
+in _all possible_ SCSI PCI drivers.
+
+Right now you can't have your "real" root partition on a USB drive,
+without a horrible "let's wait forever" patch to your kernel.
+
+This also solves the "coldplug" problem, where you need to load
+pci/usb/foobus drivers _after_ init has started.  To do this you need to
+rely on scanning the busses from userspace and loading the needed
+drivers.  Why reimplement this scanning logic, as the kernel already did
+all of this (and usually did a much better job at it) during the boot
+process before init started.
+
+And this allows lots of horrible "boot over NFS" and other network
+code/hacks in the kernel to be moved out of kernel space, and into
+userspace, where it really belongs.
+
+thanks,
+
+greg k-h

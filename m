@@ -1,37 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130022AbRAPK25>; Tue, 16 Jan 2001 05:28:57 -0500
+	id <S130337AbRAPKlI>; Tue, 16 Jan 2001 05:41:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130337AbRAPK2r>; Tue, 16 Jan 2001 05:28:47 -0500
-Received: from [194.213.32.137] ([194.213.32.137]:1028 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S130022AbRAPK2e>;
-	Tue, 16 Jan 2001 05:28:34 -0500
-Message-ID: <20010116001633.A3343@bug.ucw.cz>
-Date: Tue, 16 Jan 2001 00:16:33 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: jamal <hadi@cyberus.ca>, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+	id <S130406AbRAPKk6>; Tue, 16 Jan 2001 05:40:58 -0500
+Received: from felix.convergence.de ([212.84.236.131]:5386 "EHLO
+	convergence.de") by vger.kernel.org with ESMTP id <S130337AbRAPKkt>;
+	Tue, 16 Jan 2001 05:40:49 -0500
+Date: Tue, 16 Jan 2001 11:40:18 +0100
+From: Felix von Leitner <leitner@convergence.de>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
 Subject: Re: Is sendfile all that sexy?
-In-Reply-To: <Pine.GSO.4.30.0101141237020.12354-100000@shell.cyberus.ca>
+Message-ID: <20010116114018.A28720@convergence.de>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.30.0101152035090.5713-100000@elte.hu> <200101152033.f0FKXpv250839@saturn.cs.uml.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <Pine.GSO.4.30.0101141237020.12354-100000@shell.cyberus.ca>; from jamal on Sun, Jan 14, 2001 at 01:29:22PM -0500
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <200101152033.f0FKXpv250839@saturn.cs.uml.edu>; from acahalan@cs.uml.edu on Mon, Jan 15, 2001 at 03:33:51PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Thus spake Albert D. Cahalan (acahalan@cs.uml.edu):
+> Rather than combining open() with sendfile(), it could be combined
+> with stat(). Since the syscall would be new anyway, it could skip
+> the normal requirement about returning the next free file descriptor
+> in favor of returning whatever can be most quickly found.
 
-> TWO observations:
-> - Given Linux's non-pre-emptability of the kernel i get the feeling that
-> sendfile could starve other user space programs. Imagine trying to send a
-> 1Gig file on 10Mbps pipe in one shot.
+I don't know how Linux does it, but returning the first free file
+descriptor can be implemented as O(1) operation.
 
-Hehe, try sigkilling process doing that transfer. Last time I tried it
-it did not work.
-								Pavel
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+Felix
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

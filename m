@@ -1,60 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261663AbSJQDGl>; Wed, 16 Oct 2002 23:06:41 -0400
+	id <S261750AbSJQD0y>; Wed, 16 Oct 2002 23:26:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261664AbSJQDGl>; Wed, 16 Oct 2002 23:06:41 -0400
-Received: from adsl-67-64-81-217.dsl.austtx.swbell.net ([67.64.81.217]:12934
-	"HELO digitalroadkill.net") by vger.kernel.org with SMTP
-	id <S261663AbSJQDGk>; Wed, 16 Oct 2002 23:06:40 -0400
-Subject: Re: [Kernel 2.5] Qlogic 2x00 driver
-From: GrandMasterLee <masterlee@digitalroadkill.net>
-To: Michael Clark <michael@metaparadigm.com>
-Cc: Simon Roscic <simon.roscic@chello.at>, linux-kernel@vger.kernel.org
-In-Reply-To: <3DAD988B.40704@metaparadigm.com>
-References: <200210152120.13666.simon.roscic@chello.at>
-	 <200210152153.08603.simon.roscic@chello.at>
-	 <3DACD41F.2050405@metaparadigm.com>
-	 <200210161828.18985.simon.roscic@chello.at>
-	 <3DAD988B.40704@metaparadigm.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Digitalroadkill.net
-Message-Id: <1034824350.26.33.camel@localhost>
+	id <S261751AbSJQD0y>; Wed, 16 Oct 2002 23:26:54 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:37375 "EHLO
+	flossy.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S261746AbSJQD0u>; Wed, 16 Oct 2002 23:26:50 -0400
+Date: Wed, 16 Oct 2002 23:33:02 -0400
+From: Doug Ledford <dledford@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: Ingo Molnar <mingo@redhat.com>, linux-scsi@vger.kernel.org
+Subject: 2.5.43 IO-APIC bug and spinlock deadlock
+Message-ID: <20021017033302.GP8159@redhat.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Ingo Molnar <mingo@redhat.com>, linux-scsi@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.1.2.99 (Preview Release)
-Date: 16 Oct 2002 22:12:38 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-10-16 at 11:49, Michael Clark wrote:
-> On 10/17/02 00:28, Simon Roscic wrote:
-> 
-> >>This was happening in pretty much all kernels I tried (a variety of
-> >>redhat kernels and aa kernels). Removing LVM has solved the problem.
-> >>Although i was blaming LVM - maybe it was a buffer overflow in qla driver.
-> > 
-> > looks like i had a lot of luck, because my 3 servers wich are using the
-> > qla2x00 5.36.3 driver were running without problems, but i'll update to 6.01
-> > in the next few day's.
-> > 
-> > i don't use lvm, the filesystem i use is xfs, so it smells like i had a lot of luck for 
-> > not running into this problem, ...
+IO-APIC bug: regular kernel, UP, no IO-APIC or APIC on UP enabled, compile
+fails (does *everyone* run SMP or at least UP + APIC now?)
 
-So then, it seems that LVM is adding stress to the system in a way that
-is bad for the kernel. Perhaps the read-ahead in conjunction with the
-large buffers from XFS, plus the amount of volumes we run(22 on the
-latest machine to crash).
+spinlock deadlock: run an smp kernel on a up machine.  On mine here all I 
+have to do is try to boot to multiuser mode, it won't make it through the 
+startup scripts before it locks up by trying to reenter common_interrupt 
+on the only CPU.  Seems like an SMP kernel on UP hardware doesn't disable 
+interrupts properly maybe?  I get task lists via alt-sysreq when the 
+machine should be hardlocked I think.  Anyway, this is what has been 
+tricking me into thinking I had an IDE problem.  IDE is innocent, it's the 
+core interrupt handling code.
 
-> Seems to be the correlation so far. qlogic driver without lvm works okay.
-> qlogic driver with lvm, oopsorama.
+Back to work on scsi stuff now that I have a decently running 2.5.43
+system, I'll let someone else deal with these.
 
-Michael, what exactly do your servers do? Are they DB servers with ~1Tb
-connected, or file-servers with hundreds of gigs, etc?
-
-> ~mc
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
+         Red Hat, Inc. 
+         1801 Varsity Dr.
+         Raleigh, NC 27606
+  

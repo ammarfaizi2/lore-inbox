@@ -1,74 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266127AbUI0Fra@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266133AbUI0FzF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266127AbUI0Fra (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 01:47:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266133AbUI0Fra
+	id S266133AbUI0FzF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 01:55:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266136AbUI0FzF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 01:47:30 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:55786 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S266127AbUI0FrZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 01:47:25 -0400
-Date: Mon, 27 Sep 2004 14:49:11 +0900
-From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-Subject: Re: [ACPI] [PATCH] Updated patches for PCI IRQ resource deallocation
- support [2/3]
-In-reply-to: <Pine.LNX.4.53.0409251416570.2908@musoma.fsmlabs.com>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       long <tlnguyen@snoqualmie.dp.intel.com>, Andrew Morton <akpm@osdl.org>,
-       Greg Kroah-Hartmann <greg@kroah.com>, Len Brown <len.brown@intel.com>,
-       tony.luck@intel.com, acpi-devel@lists.sourceforge.net,
-       linux-ia64@vger.kernel.org
-Message-id: <4157A9D7.4090605@jp.fujitsu.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7bit
-X-Accept-Language: ja
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; ja-JP; rv:1.4)
- Gecko/20030624 Netscape/7.1 (ax)
-References: <Pine.LNX.4.53.0409251356110.2914@musoma.fsmlabs.com>
- <Pine.LNX.4.53.0409251401560.2914@musoma.fsmlabs.com>
- <Pine.LNX.4.53.0409251416570.2908@musoma.fsmlabs.com>
+	Mon, 27 Sep 2004 01:55:05 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:6326 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S266133AbUI0FzA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 01:55:00 -0400
+Date: Mon, 27 Sep 2004 07:52:38 +0200
+From: Jens Axboe <axboe@suse.de>
+To: gundolfk@web.de
+Cc: Christoph Bartelmus <lirc@bartelmus.de>, linux-kernel@vger.kernel.org
+Subject: Re: IRQ blocking when reading audio CDs
+Message-ID: <20040927055234.GA2288@suse.de>
+References: <20040926120849.GG3134@lilienthal>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040926120849.GG3134@lilienthal>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo wrote:
-> On Sat, 25 Sep 2004, Zwane Mwaikambo wrote:
+On Sun, Sep 26 2004, Gundolf Kiefer wrote:
+> Dear Jens (& Christoph),
 > 
->> Kenji Kaneshige wrote:
->> 
->> >     - Changed acpi_pci_irq_disable() to leave 'dev->irq' as it
->> >       is. Clearing 'dev->irq' by some magic constant
->> >       (e.g. PCI_UNDEFINED_IRQ) is TBD.
->> 
->> This may not be safe with CONFIG_PCI_MSI, you may want to verify against 
->> that if you already haven't.
->> 
-
-Thank you for commemts.
-You are right. If the linux IRQ number is allocated by MSI code,
-clearing 'dev->irq' would cause a problem. So we need to consider
-clearing 'dev->irq' carefully.
-
-The latest patch doesn't clear 'dev->irq' so far.
-
->> > +acpi_unregister_gsi (unsigned int irq)
->> > +{
->> > +}
->> > +EXPORT_SYMBOL(acpi_unregister_gsi);
->> 
->> Why not just make these static inlines in header files? Since you're on 
->> this, how about making irq_desc and friends dynamic too?
+> on my media PC (a Pentium II 350 MHz running Debian Woody with Kernel 
+> 2.4.25), I have problems using LIRC 0.6.6 with a serial IR reveiver when at 
+> the same time some application (cdparanoia, xmms/Audio CD reader) is 
+> reading audio data from a CD.
 > 
-> Sorry, i broke Cc.
+> After some testing and exploration of the LIRC source code, I figured out 
+> that during audio CD reading interrupts seem to be blocked for a longer 
+> time (in the order of milliseconds), while lirc_serial measures the exact 
+> time between two serial interrupts and thus relies on an accurate timing. 
+> In consequence, LIRC does not recognize the IR sequences, there are no 
+> errors reported. Assigning a high priority to the serial interrupt using 
+> "irq_tune" did not help.
 > 
+> Is there a way to make the audio CD read operations less blocking? Or does 
+> any of you know a different source of the problem I observed?
 
-I'm not quite sure what you are saying, but my idea is defining
-acpi_unregister_gsi() as a opposite part of acpi_register_gsi().
-Acpi_register_gsi() is defined for each arch (i386, ia64), so
-acpi_unregister_gsi() is defined for each i386 and ia64 too. 
+Upgrade to 2.6, it can use DMA for cdda extraction. If you cannot for
+some reason, Andrew had an ide-cd hack to enable dma in 2.4 for this.
 
-Thanks,
-Kenji Kaneshige
+-- 
+Jens Axboe
 

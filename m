@@ -1,54 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266157AbUGJGVU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266158AbUGJGYL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266157AbUGJGVU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 02:21:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266158AbUGJGVU
+	id S266158AbUGJGYL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 02:24:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266160AbUGJGYL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 02:21:20 -0400
-Received: from wl-193.226.227-253-szolnok.dunaweb.hu ([193.226.227.253]:19095
-	"EHLO szolnok.dunaweb.hu") by vger.kernel.org with ESMTP
-	id S266157AbUGJGVS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 02:21:18 -0400
-Message-ID: <40EF8ADC.4070507@dunaweb.hu>
-Date: Sat, 10 Jul 2004 08:21:16 +0200
-From: Zoltan Boszormenyi <zboszor@dunaweb.hu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; hu-HU; rv:1.4.1) Gecko/20031114
-X-Accept-Language: hu, en-US
+	Sat, 10 Jul 2004 02:24:11 -0400
+Received: from fw.osdl.org ([65.172.181.6]:64679 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266158AbUGJGYI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 02:24:08 -0400
+Date: Fri, 9 Jul 2004 23:23:52 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: Herbert Xu <herbert@gondor.apana.org.au>, Chris Wright <chrisw@osdl.org>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, sds@epoch.ncsc.mil,
+       jmorris@redhat.com, mika@osdl.org
+Subject: Re: [PATCH] Use NULL instead of integer 0 in security/selinux/
+In-Reply-To: <Pine.LNX.4.58.0407092313410.1764@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.58.0407092319180.1764@ppc970.osdl.org>
+References: <E1BiPKz-0008Q7-00@gondolin.me.apana.org.au>
+ <Pine.LNX.4.58.0407072214590.1764@ppc970.osdl.org> <m1fz80c406.fsf@ebiederm.dsl.xmission.com>
+ <Pine.LNX.4.58.0407092313410.1764@ppc970.osdl.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7-mm7
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I found in my logs something that indicates problems with ACPI:
 
-ACPI: Subsystem revision 20040615
-ACPI: System description tables not found
-     ACPI-0084: *** Error: acpi_load_tables: Could not get RSDP, 
-AE_NOT_FOUND
-     ACPI-0134: *** Error: acpi_load_tables: Could not load tables: 
-AE_NOT_FOUND
-ACPI: Unable to load the System Description Tables
-Linux Plug and Play Support v0.97 (c) Adam Belay
-PnPBIOS: Scanning system for PnP BIOS support...
-PnPBIOS: Found PnP BIOS installation structure at 0xc00f7510
-PnPBIOS: PnP BIOS version 1.0, entry 0xf0000:0x645b, dseg 0xf0000
-PnPBIOS: 12 nodes reported by PnP BIOS; 12 recorded by driver
-PCI: Probing PCI hardware
-PCI: Probing PCI hardware (bus 00)
-PCI: Using IRQ router default [1106/3227] at 0000:00:11.0
-PCI BIOS passed nonexistent PCI bus 0!
-PCI BIOS passed nonexistent PCI bus 0!
-PCI BIOS passed nonexistent PCI bus 1!
-PCI BIOS passed nonexistent PCI bus 0!
+On Fri, 9 Jul 2004, Linus Torvalds wrote:
+> 
+> Problems arise when there is room for confusion, and that's when the 
+> compiler should (and does) warn. If something is unambiguous, it's not 
+> bad.
 
-Machine is MSI K8T Neo FIS2R with fairly recent 1.6 BIOS.
-I dont have this with Linux-2.6.7.
+Btw, has anybody who is complaining about the 0/NULL fixing actually 
+_looked_ at the code?
 
-Best regards,
-Zoltán Böszörményi
+Every single time a 0 was replaced by a NULL it was an obvious
+_improvement_ to the code. Not just "once". EVERY SINGLE TIME. It might be
+irritating to see the patches, and there might be too many of them since
+nothing has ever automatically noticed the bugs until now, but the fact
+is, there is not even any gray areas here - if you look at any of the
+patches being applied, they are ALL clearly making things more readable in
+their local context.
 
+I really don't see the point of complaining about the fixes. There's just
+_no_ way to say that "0" is more readable than "NULL" in any of the cases.  
+I dare you - show _one_ case where a 0/NULL patch was wrong or even
+remotely debatable. I dare you.
+
+		Linus

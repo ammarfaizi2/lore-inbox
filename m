@@ -1,37 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266712AbSLJWQG>; Tue, 10 Dec 2002 17:16:06 -0500
+	id <S266849AbSLJWNn>; Tue, 10 Dec 2002 17:13:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266772AbSLJWQG>; Tue, 10 Dec 2002 17:16:06 -0500
-Received: from irongate.swansea.linux.org.uk ([194.168.151.19]:14017 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266712AbSLJWQF>; Tue, 10 Dec 2002 17:16:05 -0500
-Subject: Re: new driver to replace LMC
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: david linux <davidslinuxpob@yahoo.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021210183330.37724.qmail@web14602.mail.yahoo.com>
-References: <20021210183330.37724.qmail@web14602.mail.yahoo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 10 Dec 2002 20:55:41 +0000
-Message-Id: <1039553862.14251.62.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S266199AbSLJWNn>; Tue, 10 Dec 2002 17:13:43 -0500
+Received: from intpop.corp.wcom.ca ([205.150.160.74]:47768 "EHLO corp.wcom.ca")
+	by vger.kernel.org with ESMTP id <S266849AbSLJWNm> convert rfc822-to-8bit;
+	Tue, 10 Dec 2002 17:13:42 -0500
+Message-ID: <058f01c2a09a$7b9dc4a0$9c094d8e@wcom.ca>
+From: "Serge Kuznetsov" <serge@wcom.ca>
+To: "Herman Oosthuysen" <Herman@WirelessNetworksInc.com>
+Cc: <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.50.0212102157440.1634-100000@ddx.a2000.nu> <050c01c2a091$77564600$9c094d8e@wcom.ca> <3DF66754.3020901@WirelessNetworksInc.com>
+Subject: Re: Is this going to be true ?
+Date: Tue, 10 Dec 2002 17:21:27 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4920.2300
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-12-10 at 18:33, david linux wrote:
-> I'd be happy to submit the new driver (at least the
-> replacement for the stale stuff being passed around)
-> to be wrapped in new kernel versions ... but I don't
-> know who would be best to write re this subject.
 
-The core maintainers are
-	Linus Torvalds for 2.5
-	Marcelo Tosatti for 2.4
-	Alan Cox (me) for 2.2
 
-For 2.2 I prefer to take only minimal bug fixes since its designed to be
-as stable as humanly possible.
+> Probably not true, since MS doesn't like the GPL.  However, MS may 
+> release *nix applications any time they want to.  Way back in 
+> prehistory, they did supply unix applications and currently 
 
+Are you saying about Xenix? I remember M$ supports it in late '80s.
+
+All the Best!
+Serge.

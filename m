@@ -1,72 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262456AbTFJLyr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 07:54:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262473AbTFJLyr
+	id S262493AbTFJL5r (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 07:57:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262497AbTFJL5q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 07:54:47 -0400
-Received: from ausadmmsrr502.aus.amer.dell.com ([143.166.83.89]:59409 "HELO
-	AUSADMMSRR502.aus.amer.dell.com") by vger.kernel.org with SMTP
-	id S262456AbTFJLyo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 07:54:44 -0400
-X-Server-Uuid: 586817ae-3c88-41be-85af-53e6e1fe1fc5
-Message-ID: <0D2092D75155D511881100B0D0D00F3902D32E66@uppxmbl101.se.dell.com>
-From: Martin_List-Petersen@Dell.com
-To: Robert.L.Harris@rdlg.net
-cc: m.watts@mrw.demon.co.uk, linux-kernel@vger.kernel.org
-Subject: RE: PERC4-DI?
-Date: Tue, 10 Jun 2003 07:06:52 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-X-WSS-ID: 12FB15B32336584-01-01
-Content-Type: text/plain; 
- charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Tue, 10 Jun 2003 07:57:46 -0400
+Received: from holomorphy.com ([66.224.33.161]:58070 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S262493AbTFJL5p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 07:57:45 -0400
+Date: Tue, 10 Jun 2003 05:11:24 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org
+Subject: pgcl-2.5.70-bk15-1
+Message-ID: <20030610121124.GO20413@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The terrifying series of patches against pgcl-2.5.70-bk13-1 rediffed vs.
+2.5.70-bk15. Attempts to utilize more than one piece of pages anonymized
+via COW faults were merged.
 
-Here is a list:
-Perc 2, Perc 3/Si, Perc 3/Di - Adaptec
-Perc 2/SC, Perc 3/SC, Perc 3/DC, Perc 3/QC, Perc 4/Di - AMI / LSI
+Outstanding bugs will hopefully be fixed ASAP. But I figured, "Why be
+grossly inefficiently buggy when one can merely be slightly less than
+grossly inefficiently buggy?" The intra-vma PTE vectoring is far less
+effective than one would suspect. Logs seem to indicate that with
+PAGE_MMUCOUNT == 8 things average (rough estimate from watching logs)
+around 3/8 ptes in a vector filled from within a single vma. This of
+course means there's more complexity in the future, and we need to
+actually run off and do the things we all knew would be needed from the
+start (i.e. searching across vma's and pagetable pages), but that my
+vague punting on the fault handlers' performance for a long stretch of
+time may have inspired some false hope for avoiding.
 
-The only server out there with a Perc 4/Di currently is the Dell PowerEdge
-2600. The PE2650 has a PERC 3/Di instead (Adaptec).
+It's also less of a step forward than one would suspect, since it's really
+only an abstracting out of pieces of the fault handlers to prepare for
+unifying the handling of faults that instantiate anonymous pages, and it
+doesn't actually do much code sharing between the two apart from filling
+in the pte vectors, which as one may have noticed was sorely lacking from
+do_wp_page() and probably wasted at least 3 times as much RAM as this
+ineffective method I've got going as an intermediate phase.
 
-Have fun.
+I chased down and fixed a memory stomper in reconstitute_ptes() in
+pgcl-2.5.70-bk14-2. It added lots of debugging noise, which was later
+removed in pgcl-2.5.70-bk14-3. The cleanup of debugging cruft was
+separated out due to its size; shifting around that much code could
+potentially destabilize things. And it did: the patches after
+pgcl-2.5.70-bk14-2 were all badly generated, so things were painful
+to merge and forward port and so on and so forth.
 
-/Martin
+pgcl-2.5.70-bk14-4 removed buttloads of miscellaneous debugging crap
+that's noisier than it should be. I also gave up and merged the sysenter
+workaround since whatever I did to sysenter isn't going to get fixed in
+a timely fashion.
 
-> -----Original Message-----
-> From: Mark Watts [mailto:m.watts@mrw.demon.co.uk]
-> Sent: den 7 juni 2003 13:05
-> To: Linux-Kernel
-> Subject: Re: PERC4-DI?
-> 
-> 
-> On Friday 06 Jun 2003 5:37 pm, Robert L. Harris wrote:
-> > My company is looking at buying some machines with 
-> "PERC4-DI" SCSI RAID
-> > controllers.  Poking around the .config file I'm not 
-> finding anything
-> > related to this.  Anyone know off the top of their heads what driver
-> > would be used for this controller, any known catastrophic bugs, etc?
-> 
-> If its anything like the PERC 3 cards, it could be anything 
-> from an LSI 
-> through to an Adaptec card. (PERC = PowerEdge Raid Controler).
-> 
-> I haven't found any major issues with any of them yet, but we 
-> don't tend to 
-> push them as hard as others here - we mainly use them in webservers.
-> 
-> Mark.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+As usual, available from:
+ftp://ftp.kernel.org/pub/linux/kernel/people/wli/vm/pgcl/
 
+-- wli

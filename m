@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271233AbTGWTZc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 15:25:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271235AbTGWTYH
+	id S270385AbTGWTRU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 15:17:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271199AbTGWTPe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 15:24:07 -0400
-Received: from postman1.arcor-online.net ([151.189.0.187]:59009 "EHLO
-	postman.arcor.de") by vger.kernel.org with ESMTP id S271233AbTGWTV6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 15:21:58 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: softpro@gmx.net
-Reply-To: ahljoh@uni.de
-To: linux-kernel@vger.kernel.org
-Subject: directory inclusion in ext2/ext3
-Date: Wed, 23 Jul 2003 21:36:44 +0200
-X-Mailer: KMail [version 1.3.2]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20030723193645.99E3C371@mendocino>
+	Wed, 23 Jul 2003 15:15:34 -0400
+Received: from H-135-207-24-32.research.att.com ([135.207.24.32]:37004 "EHLO
+	mailman.research.att.com") by vger.kernel.org with ESMTP
+	id S270385AbTGWTN6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 15:13:58 -0400
+Date: Wed, 23 Jul 2003 15:28:52 -0400 (EDT)
+From: David Korn <dgk@research.att.com>
+Message-Id: <200307231928.PAA75996@raptor.research.att.com>
+X-Mailer: mailx (AT&T/BSD) 9.9 2003-01-17
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+To: davem@redhat.com, dgk@research.att.com, gsf@research.att.com,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: Re: kernel bug in socketpair()
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+cc:  gsf@research.att.com  dgk@research.att.com  linux-kernel@vger.kernel.org     netdev@oss.sgi.com
+Subject: Re: Re: kernel bug in socketpair()
+--------
 
-i have been looking for the possibility to display the contents of several 
-directories in another one, but have so far not found anything suitable.
+> I missed the reason why you can't use pipes and bash
+> is able to, what is it?
+> 
+> If it's the fchown() thing, why doesn't bash have this issue?
+> 
+> 
 
-the two possibilites i considered so far were:
+The reason is that we want to be able to peek ahead at data in
+the pipe before advancing.  You can do this with recv() but
+this doesn't work wtih pipes.   On some systems you can use
+an ioctl() for this with pipes by Linux doesn't support this
+so ksh configures to use socketpair() instead of pipe()
+on Linux.  Without the ability to peek ahead on pipes, a command
+like
+	cat file | { head -6 > /dev/null; cat ;}
+to remove the first 6 lines of a file would be hard to implement
+unless head reads one byte at a time from the pipe.
+(OK, you could read 6 bytes at first if you want to optimize head.)
 
-- soft-linking all files one by one, but then changes in a linked file 
-(renaming, moving, deleting, ...) won't be noticed by the soft-links.
-- LVM: exactly what i want as functionality but too low-level. i don't need 
-any device merging, striping, mirroring, but just want to be able to link 
-directory-contents.
-
-i think it shouldn't be so hard to implement something similar to 
-softlinks in ext2 that allows directories to have something like an 
-include-directive to display contents of other directories as well.
-
-hope this ain't too naive :-))
-
-Johannes
+David Korn
+dgk@research.att.com

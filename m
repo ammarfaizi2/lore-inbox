@@ -1,43 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261568AbUKOK1N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261362AbUKOKhT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261568AbUKOK1N (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 05:27:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbUKOK1M
+	id S261362AbUKOKhT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 05:37:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261465AbUKOKhS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 05:27:12 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:19219 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261568AbUKOK0Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 05:26:24 -0500
-Date: Mon, 15 Nov 2004 10:26:20 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.10-rc2
-Message-ID: <20041115102620.A25762@flint.arm.linux.org.uk>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0411141835150.2222@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.58.0411141835150.2222@ppc970.osdl.org>; from torvalds@osdl.org on Sun, Nov 14, 2004 at 06:49:04PM -0800
+	Mon, 15 Nov 2004 05:37:18 -0500
+Received: from isma.kharkov.ua ([217.144.73.247]:35781 "EHLO
+	www.isma.kharkov.ua") by vger.kernel.org with ESMTP id S261362AbUKOKhK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 05:37:10 -0500
+Message-ID: <419886CE.2030304@isma.kharkov.ua>
+Date: Mon, 15 Nov 2004 12:37:02 +0200
+From: zergio <zergio@isma.kharkov.ua>
+Organization: =?UTF-8?B?0JjQodCc0JA=?=
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; ru-RU; rv:1.7.4) Gecko/20040926
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.27 suddenly hangs
+X-Enigmail-Version: 0.84.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 14, 2004 at 06:49:04PM -0800, Linus Torvalds wrote:
-> Ok, the -rc2 changes are almost as big as the -rc1 changes, and we should 
-> now calm down, so I do not want to see anything but bug-fixes until 2.6.10 
-> is released. Otherwise we'll never get there.
+Hello, all!
+I‘m not sure that the below problem is kernel related, however, I think, 
+this mailing list is the best place to start. I've got 2x1.8 Xeon on 
+Intel SE7500CW2 motherboard with Intel SCSI RAID (GDT driver). The 
+system powered by Red Hat Linux 7.3 with custom kernel version 2.4.27.
+Occasionally, the system just hangs, without giving any error messages 
+to syslog or any panic-like messages to the screen. No response to ping. 
+Usually it happens on weekends in early hours, but not at particular 
+time and day, when users’ activity is minimal. Couple of times the last 
+few messages before, the hang had strange timestamps. It seems like the 
+system time entered a TIME LOOP within a period of 1 second.
+Nov 6 05:37:31 service dhcpd: Message...
+Nov 6 05:37:32 service named: Message...
+Nov 6 05:37:31 service named: Message...
+Almost all the time last messages came from different services, except 
+three times, when mgetty was the last. I'd updated mgetty, pppd, kernel 
+(from 2.4.20), BIOS, dhcpd etc., however, the problem remains.
+Can anyone tell me, how I can detect, what application or hardware cause 
+such a problem.
+Any ideas would be appreciated.
+Thank you in advance
 
-There's a few more non-bugfix changes which need merging first though.
-Namely an update to the S3C2410 serial driver from Ben to allow the
-s3c2410 changes which are now in 2.6.10-rc2 to work.  Otherwise I
-suspect s3c2410 is going to be dead in the water for 2.6.10.
+These are services being run on the server:
+gpm
+named
+iptables
+crond
+ldap
+smb
+xinetd (swat amanda)
+autofs
+nfs
+qmail
+sqwebmail
+dhcpd
+ups
+sshd
+firebird
+ntpd
+httpd
+arpwatch
+drwebd
+mgetty
+pppd
+postgresql
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+
+

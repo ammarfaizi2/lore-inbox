@@ -1,120 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265881AbUBJOBC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 09:01:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265895AbUBJOBB
+	id S265904AbUBJOLf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 09:11:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265906AbUBJOLf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 09:01:01 -0500
-Received: from mx13.sac.fedex.com ([199.81.197.53]:6921 "EHLO
-	mx13.sac.fedex.com") by vger.kernel.org with ESMTP id S265881AbUBJOAs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 09:00:48 -0500
-Date: Tue, 10 Feb 2004 21:59:15 +0800 (SGT)
-From: Jeff Chua <jchua@fedex.com>
-X-X-Sender: jchua@silk.corp.fedex.com
-To: Andrew Morton <akpm@osdl.org>
-cc: Jeff Chua <jeffchua@silk.corp.fedex.com>, torvalds@osdl.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] warning: `__attribute_used__' redefined
-In-Reply-To: <20040209225336.1f9bc8a8.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0402102150150.17289@silk.corp.fedex.com>
-References: <Pine.LNX.4.58.0402101434260.27213@boston.corp.fedex.com>
- <20040209225336.1f9bc8a8.akpm@osdl.org>
-MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 02/10/2004
- 10:00:39 PM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 02/10/2004
- 10:00:42 PM,
-	Serialize complete at 02/10/2004 10:00:42 PM
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 10 Feb 2004 09:11:35 -0500
+Received: from vana.vc.cvut.cz ([147.32.240.58]:3458 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id S265904AbUBJOLd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 09:11:33 -0500
+Date: Tue, 10 Feb 2004 15:11:19 +0100
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: "Feldman, Scott" <scott.feldman@intel.com>
+Cc: "David S. Miller" <davem@redhat.com>, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.2 crash after network link failure
+Message-ID: <20040210141118.GA14719@vana.vc.cvut.cz>
+References: <C6F5CF431189FA4CBAEC9E7DD5441E0102CBDE6C@orsmsx402.jf.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <C6F5CF431189FA4CBAEC9E7DD5441E0102CBDE6C@orsmsx402.jf.intel.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 Feb 2004, Andrew Morton wrote:
+On Mon, Feb 09, 2004 at 03:37:48PM -0800, Feldman, Scott wrote:
+> > I think what might be happening is that somehow the TX queue 
+> > is corrupted if
+> > e100_config() runs (due to link UP state change) while there 
+> > are active normal SKB packets on the TX queue.  Or perhaps 
+> > some TX queue handling locking issue.
+> > 
+> > Scott, any ideas?
+> 
+> e100 hardware will continue to process the hardware's Tx queue even
+> after link is lost, and then cleanup (return skbs) on interrupt.  I
+> would expect e100 to be holding no Tx skbs when link returned.
+> 
+> Petr, -mm kernel has an updated (and much simpler) e100 driver.  Is this
+> something you can try?  The switch failure can be simulated by manually
+> plugging the cable in/out.
 
-> It is more likely that we need to extend the __KERNEL__ coverage somewhere.
->
-> Can you please do a `gcc -H' of that application and show us the inclusion
-> route by which it is hitting compiler.h?
-
-Andrew,
-
-Here's the sample "sig.c". Just compile with "cc sig.c"
-
-
-
-#include <signal.h>	/* signal */
-#include <stdio.h>	/* printf */
-
-void action(int signum);
-
-int main(int argc, char *argv[])
-{
-	int i;
-	for(i = 1; i < 31; i++) {
-		if(i == 9 || i == 19)
-			continue;
-
-		signal(i, action);
-	}
-}
-
-void action(int signum)
-{
-	printf("%d\n", signum);
-}
-
-
-
-
-Here's output of "gcc -H sig.c" gcc 2.95.3  glibc 2.2.5  linux 2.6.3-rc2
-
-
-/usr/include/signal.h
- /usr/include/features.h
-  /usr/include/sys/cdefs.h
-  /usr/include/gnu/stubs.h
- /usr/include/bits/sigset.h
- /usr/include/bits/types.h
-  /usr/lib/gcc-lib/i586-pc-linux-gnu/2.95.3/include/stddef.h
-  /usr/include/bits/pthreadtypes.h
-   /usr/include/bits/sched.h
- /usr/include/bits/signum.h
- /usr/include/time.h
- /usr/include/bits/siginfo.h
-  /usr/include/bits/wordsize.h
- /usr/include/bits/sigaction.h
- /usr/include/bits/sigcontext.h
-  /usr/include/asm/sigcontext.h
-   /usr/include/linux/compiler.h
-    /usr/include/linux/compiler-gcc2.h
-     /usr/include/linux/compiler-gcc.h
-In file included from /usr/include/linux/compiler.h:18,
-                 from /usr/include/asm/sigcontext.h:4,
-                 from /usr/include/bits/sigcontext.h:28,
-                 from /usr/include/signal.h:307,
-                 from sig.c:1:
-/usr/include/linux/compiler-gcc2.h:21: warning: `__attribute_used__' redefined
-/usr/include/sys/cdefs.h:170: warning: this is the location of the previous definition
- /usr/include/bits/sigstack.h
- /usr/include/bits/sigthread.h
-/usr/include/stdio.h
- /usr/lib/gcc-lib/i586-pc-linux-gnu/2.95.3/include/stddef.h
- /usr/include/libio.h
-  /usr/include/_G_config.h
-   /usr/lib/gcc-lib/i586-pc-linux-gnu/2.95.3/include/stddef.h
-   /usr/include/wchar.h
-    /usr/lib/gcc-lib/i586-pc-linux-gnu/2.95.3/include/stddef.h
-    /usr/include/bits/wchar.h
-   /usr/include/gconv.h
-    /usr/include/wchar.h
-     /usr/lib/gcc-lib/i586-pc-linux-gnu/2.95.3/include/stddef.h
-    /usr/lib/gcc-lib/i586-pc-linux-gnu/2.95.3/include/stddef.h
-  /usr/lib/gcc-lib/i586-pc-linux-gnu/2.95.3/include/stdarg.h
- /usr/include/bits/stdio_lim.h
-
-
-Thanks,
-Jeff
-
+Unfortunately it does not seem easily triggerable. I spent about one
+hour plugging/unplugging cable while transmitting UDP packets as fast
+as possible, sometime interleaved with 'mii-tool -r', and it refused
+to crash...
+						Petr Vandrovec
 

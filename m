@@ -1,50 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265078AbSJRMmA>; Fri, 18 Oct 2002 08:42:00 -0400
+	id <S265088AbSJRMqr>; Fri, 18 Oct 2002 08:46:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265081AbSJRMmA>; Fri, 18 Oct 2002 08:42:00 -0400
-Received: from unthought.net ([212.97.129.24]:25528 "EHLO mail.unthought.net")
-	by vger.kernel.org with ESMTP id <S265078AbSJRMl7>;
-	Fri, 18 Oct 2002 08:41:59 -0400
-Date: Fri, 18 Oct 2002 14:47:59 +0200
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Bosko Radivojevic <bole@etf.bg.ac.yu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux Security Protection System
-Message-ID: <20021018124759.GF7875@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Bosko Radivojevic <bole@etf.bg.ac.yu>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0210161018370.19750-100000@alumno.inacap.cl> <Pine.LNX.4.44.0210161607590.28724-100000@falcon.etf.bg.ac.yu>
+	id <S265097AbSJRMqr>; Fri, 18 Oct 2002 08:46:47 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:62475 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S265088AbSJRMqq>; Fri, 18 Oct 2002 08:46:46 -0400
+Date: Fri, 18 Oct 2002 13:52:43 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Crispin Cowan <crispin@wirex.com>
+Cc: "David S. Miller" <davem@redhat.com>, hch@infradead.org, greg@kroah.com,
+       torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       linux-security-module@wirex.com
+Subject: Re: [PATCH] remove sys_security
+Message-ID: <20021018135243.B1670@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Crispin Cowan <crispin@wirex.com>,
+	"David S. Miller" <davem@redhat.com>, greg@kroah.com,
+	torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+	linux-security-module@wirex.com
+References: <20021017201030.GA384@kroah.com> <20021017211223.A8095@infradead.org> <3DAFB260.5000206@wirex.com> <20021018.000738.05626464.davem@redhat.com> <3DAFC6E7.9000302@wirex.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.44.0210161607590.28724-100000@falcon.etf.bg.ac.yu>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3DAFC6E7.9000302@wirex.com>; from crispin@wirex.com on Fri, Oct 18, 2002 at 01:31:35AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 16, 2002 at 04:08:54PM +0200, Bosko Radivojevic wrote:
-> LinSec team is proud to announce first stable release of LinSec.
+On Fri, Oct 18, 2002 at 01:31:35AM -0700, Crispin Cowan wrote:
+> That's interesting. Passing a completely opaque value (actually an 
+> integer) through the system call was exactly what we designed it to do, 
+> because we saw a design need for pecisely that: so that applications 
+> with awareness of a specific module can talk to the module.
 > 
-> LinSec, as the name says, is Linux Security Protection System. The main aim
-> of LinSec is to introduce Mandatory Access Control (MAC) mechanism into
-> Linux (as opposed to existing Discretionary Access Control mechanism).
-> LinSec model is based on:
-> 
->     * Capabilities
->     * Filesystem Access Domains
->     * IP Labeling Lists
->     * Socket Access Control
+> Could you elaborate on why this is a sign of trouble, design wise?
 
-Can you describe, shortly, how LinSec is different from SELinux ?
+Because we already have such a syscall (ioctl) and we see the trouble it
+causes all over the place.  Design yur interfaces properly instead.
 
-I didn't see a FAQ on your web site.
+> >If we do things such as the fs stacking or fs filter ideas,
+> >that eliminates a whole swath of the facilities the security_ops
+> >"provide".  No ugly syscalls passing opaque types through the kernel
+> >to some magic module, but rather a real facility that is useful
+> >to many things other than LSM.
+> >
+> Yes, that will be wonderful. And the LSM team will be pleased to re-work 
+> the desing when stackable file systems appear and we can take advantage 
+> of them.
 
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+So do it know.  It's possible and it just shows you've sent the LSM crap
+without actually thinking about a better design.  Come back when you
+have a proper design.
+
+and btw, as LSM is part of the kernel anyone can and will change it.
+Your LSM team attitude is a bit like that hated CVS mentality..

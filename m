@@ -1,76 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261907AbSLZFlJ>; Thu, 26 Dec 2002 00:41:09 -0500
+	id <S262414AbSLZFzJ>; Thu, 26 Dec 2002 00:55:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262414AbSLZFlI>; Thu, 26 Dec 2002 00:41:08 -0500
-Received: from rwcrmhc53.attbi.com ([204.127.198.39]:28038 "EHLO
-	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
-	id <S261907AbSLZFlH>; Thu, 26 Dec 2002 00:41:07 -0500
-Message-ID: <3E0A9AEE.90009@kegel.com>
-Date: Wed, 25 Dec 2002 22:00:14 -0800
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows 98)
-X-Accept-Language: de-de, en
+	id <S262415AbSLZFzJ>; Thu, 26 Dec 2002 00:55:09 -0500
+Received: from smtp808.mail.sc5.yahoo.com ([66.163.168.187]:14458 "HELO
+	smtp808.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id <S262414AbSLZFzI> convert rfc822-to-8bit; Thu, 26 Dec 2002 00:55:08 -0500
+From: "Joseph D. Wagner" <wagnerjd@prodigy.net>
+To: "'Josh Brooks'" <user@mail.econolodgetulsa.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: CPU failures ... or something else ?
+Date: Thu, 26 Dec 2002 00:03:17 -0600
+Message-ID: <001b01c2aca4$7f69a840$b9293a41@joe>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: re: problem with rt-sigio: lost events
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+In-Reply-To: <20021225175232.O6873-100000@mail.econolodgetulsa.com>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Felix von Leitner wrote:
-> I am having trouble with sigio.  I tried to integrate it in a event
-> notification framework of mine that already speaks poll and epoll.
-> I want sigio for backwards compatibility with 2.4 kernels.
-> 
-> So I used the description from Dan's C10k web site and got it working.
-> My test application is a trivial web server for static web pages only.
-> 
-> My first problem is that sigio will not signal POLLOUT on freshly
-> connected connections. 
+> Message from syslogd@localhost at Tue Dec 24 11:30:32 2002 ...
+> localhost kernel: Kernel panic: CPU context corrupt
 
-That's as designed (and epoll behaves that way, too, doesn't it?);
-when applications start using sigio or epoll on a socket, they
-have to assume it's readable/writable initially.  There was a huge
-argu^H^H^H^H thread about that recently with subject
-"epoll (was Re: [PATCH] async poll for 2.5)"
+What that basically means is that given some values A, B, and C, in the
+context of those values the kernel expects X, Y, and Z to be of some other
+value, but X, Y, and Z aren't turning out to be expected.
 
- > It doesn't change when I read the HTTP header.
-> So I added a kludge that calls poll() when the application wants to
-> switch from reading to writing or vice versa.  That is quite ugly but it
-> works.
+> Word on the street is that this indicates
+> hardware failure of some kind
+> [trimmed]
+> is that very surely the culprit, or is it
+> also possible that all of the hardware is
+> perfect and that a bug in the kernel code
+> or some outside influence (remote exploit)
+> is causing this crash ?
 
-Sounds fishy... but I'd need to see your code to know more.
+Hardware failures of any kind are relatively rare, rarest of all is a CPU
+failure (unless you buy from TC Computers which sold me TWO defective
+CPU's).
 
-> The second problem is that once I start hammering the server with
-> request (as opposed to running wget manually from the command line), the
-> server just stops serving requests.  strace shows this pattern:
-> 
->   sigtimedwait signals an event on fd #3 (the listening socket)
->   accept is called, returns #4
->   fd 4 is set non-blocking
->   F_SETOWN, F_SETSIG, SETFL O_ASYNC
->   sigtimedwait times out.
->   sigtimedwait is called again, times out again.
-> 
-> Why is that?  Googling seemed to indicate that there could be a race
-> condition here after the accept.  Should I be running poll on the socket
-> right away?  Or just blindly call the read handler?
+In your quest to place blame, I'd start with:
+1) outdated kernel - you never did say your kernel version
+2) other third party processes, especially modules.
 
-Yes. Blindly call the handler, and do I/O until you get an
-EWOULDBLOCK.  That's precisely what you're supposed to do when
-you start using sigio on an fd.
+> whatever that thing is where you press
+> ctrl-alt-printscreen and get to enter
+> those post-crash commands - do you think
+> that would work in this situation, or does
+> the above error hard lock the system so
+> you can't do those emergency measures ?
 
-> Is anyone actually successfully using sigio for anything?  So far it
-> does not look very reliable to me.
+You're thinking of when X (the graphical user interface) crashes.  X is
+sufficiently abstracted from the kernel so that if it crashes, the rest of
+the computer doesn't come down with it.  When the KERNEL crashes (a.k.a.
+"kernel panic"), it crashes HARD.  This is the equivalent of the Blue Screen
+of the Death(tm) from which the only "recovery" is the reboot button.
 
-It works ok, once you get used to its oddities.
-sys_epoll works better, but sigio isn't terrible as a fallback.
-- Dan
-
--- 
-Dan Kegel
-Linux User #78045
-http://www.kegel.com
+Joseph Wagner
 

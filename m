@@ -1,55 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261989AbVBPKVU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261999AbVBPKlh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261989AbVBPKVU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 05:21:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261999AbVBPKVU
+	id S261999AbVBPKlh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 05:41:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262001AbVBPKlg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 05:21:20 -0500
-Received: from cam-admin0.cambridge.arm.com ([193.131.176.58]:56803 "EHLO
-	cam-admin0.cambridge.arm.com") by vger.kernel.org with ESMTP
-	id S261989AbVBPKVQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 05:21:16 -0500
-To: Clemens Schwaighofer <cs@tequila.co.jp>
-Cc: kernel@crazytrain.com, linux-kernel@vger.kernel.org
-Subject: Re: [BK] upgrade will be needed
-References: <20050214020802.GA3047@bitmover.com>
-	<58cb370e05021404081e53f458@mail.gmail.com>
-	<20050214150820.GA21961@optonline.net>
-	<20050214154015.GA8075@bitmover.com>
-	<7579f7fb0502141017f5738d1@mail.gmail.com>
-	<20050214185624.GA16029@bitmover.com>
-	<1108469967.3862.21.camel@crazytrain> <42131637.2070801@tequila.co.jp>
-From: Catalin Marinas <catalin.marinas@arm.com>
-Date: Wed, 16 Feb 2005 10:21:36 +0000
-In-Reply-To: <42131637.2070801@tequila.co.jp> (Clemens Schwaighofer's
- message of "Wed, 16 Feb 2005 18:45:27 +0900")
-Message-ID: <tnx7jl824b3.fsf@arm.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 16 Feb 2005 05:41:36 -0500
+Received: from rproxy.gmail.com ([64.233.170.199]:19800 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261999AbVBPKld (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Feb 2005 05:41:33 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=ZMh+THtA3mLMPrq1Zy+cXpHMBBnhGe1uhQHsqdklDgCKctjOtQkI8ASPYwO9E256lKgWwWN2/XA9wG0gKqgslG/gEF9LUyIyVlDBsUKieGP/naToSSWrx4FOYc9HT6TtV/Ww/ZlnO6HXMN2xS01CorZefNkRwObEAT5AaGwZmqQ=
+Message-ID: <3f250c710502160241222dce47@mail.gmail.com>
+Date: Wed, 16 Feb 2005 06:41:32 -0400
+From: Mauricio Lin <mauriciolin@gmail.com>
+Reply-To: Mauricio Lin <mauriciolin@gmail.com>
+To: Hugh Dickins <hugh@veritas.com>
+Subject: Re: /proc/*/statm, exactly what does "shared" mean?
+Cc: "Richard F. Rebel" <rrebel@whenu.com>, linux-kernel@vger.kernel.org,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+In-Reply-To: <Pine.LNX.4.61.0502121509170.19562@goblin.wat.veritas.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <1108161173.32711.41.camel@rebel.corp.whenu.com>
+	 <Pine.LNX.4.61.0502121158190.18829@goblin.wat.veritas.com>
+	 <1108219160.12693.184.camel@blue.obulous.org>
+	 <Pine.LNX.4.61.0502121509170.19562@goblin.wat.veritas.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Clemens Schwaighofer <cs@tequila.co.jp> wrote:
-> On 02/15/2005 09:19 PM, kernel wrote:
->> With all of the complaining about BK you'd think there'd be an equal
->> alternative.
->
-> there is no need for that. There is already one. Subversion is a more
-> than mature VCS. Apache group is switching to it, gcc people are
-> strongly thinking about it, and those two are _huge_ projects with tons
-> of developers, patches, trunks, etc.
+Hi all,
 
-Subversion and BK are quite different. The first one is snapshot
-oriented and the latter is changeset oriented (I find this a more
-powerful concept). Subversion is not distributed (you have some helper
-scripts but I don't know how stable they are), which is somehow
-mandatory for the way Linux is developed. Subversion also lacks any
-smart merging capabilities (it doesn't even remember what was
-merged).
+Sorry for responding this email so late. I was busy with my trip.
 
-GNU Arch is probably as close as you can get regarding features and
-performance (I can't compare the two since I've never used BK).
+On Sat, 12 Feb 2005 15:42:15 +0000 (GMT), Hugh Dickins <hugh@veritas.com> wrote:
+> On Sat, 12 Feb 2005, Richard F. Rebel wrote:
+> >
+> > That said, many mod_perl users are *VERY* interested in being able to
+> > detect and observe how "shared" our forked children are.  Shared meaning
+> > private pages shared with children (copy on write).  Is it even possible
+> > to do this in 2.6 kernels?  If so, any pointers would be very helpful.
+> 
+> Not in any of the vanilla kernels.
+> 
+> Mauricio has a /proc/<pid>/smaps patch, in which he returns to looking
+> at every pte slot of every vma of the process as /proc/<pid>/statm did
+> in 2.4.  I suggest you ask him offline for his latest version (the last
+> I saw did not include support for 2.6.11's pud level; 
+I put the pud level on the last patch I sent to the linux-kernel list
+as suggested by Marcelo Tosatti.
 
-Catalin
+> and looped in an
+> inefficient way, repeatedly locating, mapping and unmapping the page
+> table for each pte slot - needs refactoring into pgd_range, pud_range,
+> pmd_range, pte_range levels like 2.4's statm).
+Well, for each vma it is checked how many pages are mapped to rss. So
+I have to check per page if it is allocated in physical memory. I know
+that this is a heavy function, but do you have any suggestion to
+improve this?  What do you mean "needs refactoring into pgd_range,
+pud_range, pmd_range, pte_range levels like 2.4's statm"? Could you
+give more details, please?
 
+BR,
+
+Mauricio Lin.

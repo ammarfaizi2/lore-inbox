@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279416AbRJWM5G>; Tue, 23 Oct 2001 08:57:06 -0400
+	id <S279420AbRJWNUy>; Tue, 23 Oct 2001 09:20:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279415AbRJWM44>; Tue, 23 Oct 2001 08:56:56 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:48132 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S279416AbRJWM4r>; Tue, 23 Oct 2001 08:56:47 -0400
-Subject: Re: [RFC] New Driver Model for 2.5
-To: mochel@osdl.org (Patrick Mochel)
-Date: Tue, 23 Oct 2001 08:53:17 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), pavel@Elf.ucw.cz (Pavel Machek),
-        benh@kernel.crashing.org (Benjamin Herrenschmidt),
-        jgarzik@mandrakesoft.com (Jeff Garzik), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0110221726140.25103-100000@osdlab.pdx.osdl.net> from "Patrick Mochel" at Oct 22, 2001 05:29:04 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S279421AbRJWNUp>; Tue, 23 Oct 2001 09:20:45 -0400
+Received: from schroeder.cs.wisc.edu ([128.105.6.11]:37892 "EHLO
+	schroeder.cs.wisc.edu") by vger.kernel.org with ESMTP
+	id <S279420AbRJWNUb>; Tue, 23 Oct 2001 09:20:31 -0400
+Message-Id: <200110231320.f9NDKxB01986@schroeder.cs.wisc.edu>
+Content-Type: text/plain; charset=US-ASCII
+From: Nick LeRoy <nleroy@cs.wisc.edu>
+Organization: UW Condor
+To: "Tony Hoyle" <tmh@nothing-on.tv>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.20pre10
+Date: Tue, 23 Oct 2001 08:21:04 -0500
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <Pine.LNX.4.30.0110221508450.19190-100000@anime.net> <9r25rk$a3l$1@sisko.my.home>
+In-Reply-To: <9r25rk$a3l$1@sisko.my.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15vwNB-00050h-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The idea is to allocate all memory in the first pass, disable interrupts,
-> then save state. Would that work? Or, should some of the state saving take
-> place with interrupts enabled?
+On Monday 22 October 2001 17:16, Tony Hoyle wrote:
+> In the ancient scrolls of Usenet, page
+> <Pine.LNX.4.30.0110221508450.19190-100000@anime.net>, "Dan Hollis"
+>
+> <goemon@anime.net> spake thus:
+> > On Mon, 22 Oct 2001, Bill Davidsen wrote:
+> >> Last I heard Linus was in the USA, his not being able to participate in
+> >> security discussions worries me very much. Ditto Redhat and IBM.
+> >
+> > I wonder if Linus has an exit-usa plan in case the SSSCA passes. If the
+> > SSSCA does pass, Linus would be in extreme danger.
+>
+> It wouldn't surprise me if half of silicon valley had an exit plan...
+> The fallout will be fun to watch from 3000 miles away :-)
+>
+> Tony
 
-Imagine the state saving done on a USB device. There you need interrupts
-on while retrieving the state from say a USB scanner, and in some cases
-off while killing the USB controller.
+I'm not sure if anybody else has heard this yet, but apparently a number of 
+big software corps, including M$ & IBM have come out AGAINST the SSSCA.  This 
+is good news.
 
-> > Ditto on return from suspend where some devices also like to float the irq
-> > high as you take them over (eg USB on my Palmax). From comments Ben made
-> > ages back I believe ppc has similar issues if not worse
-> 
-> Yes, the resume sequence is broken into two stages:
-> 
-> 	device_resume(RESUME_POWER_ON);
-> 
-> 	/* enable interrupts */
-> 
-> 	device_resume(RESUME_RESTORE_STATE);
-> 
-> Do you see a need to break it up further?
+http://linuxtoday.com/news_story.php3?ltsn=2001-10-23-008-20-NW-BZ-LL
 
-Nope.
+-Nick

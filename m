@@ -1,54 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261436AbVB0RAM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261438AbVB0RCe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261436AbVB0RAM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 12:00:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261438AbVB0RAM
+	id S261438AbVB0RCe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 12:02:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261456AbVB0RCd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 12:00:12 -0500
-Received: from gprs215-59.eurotel.cz ([160.218.215.59]:23500 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261436AbVB0RAD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 12:00:03 -0500
-Date: Sun, 27 Feb 2005 17:59:48 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: James Courtier-Dutton <James@superbug.demon.co.uk>
-Cc: Andrew Morton <akpm@osdl.org>, mhf@berlios.de,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] 2.6.11-rc[234] setfont fails on i810 after resume from ACPI-S3
-Message-ID: <20050227165948.GF1441@elf.ucw.cz>
-References: <20050215122233.22605728.akpm@osdl.org> <20050215202212.GK7338@elf.ucw.cz> <421A6B42.2070108@superbug.demon.co.uk>
+	Sun, 27 Feb 2005 12:02:33 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:55728 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261438AbVB0RCS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Feb 2005 12:02:18 -0500
+Subject: Re: sched_yield behavior
+From: Lee Revell <rlrevell@joe-job.com>
+To: Giovanni Tusa <gtusa@inwind.it>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <00e901c51cbb$45b3cac0$65071897@gtusa>
+References: <00e901c51cbb$45b3cac0$65071897@gtusa>
+Content-Type: text/plain
+Date: Sun, 27 Feb 2005 12:02:13 -0500
+Message-Id: <1109523733.30866.2.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <421A6B42.2070108@superbug.demon.co.uk>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sun, 2005-02-27 at 11:58 +0100, Giovanni Tusa wrote:
+> Hi all,
+> I have a question about the sched_yield behavior of Linux O(1) scheduler,
+> for RT tasks.
+> By reading some documentation, I found that " ....real-time tasks are a
+> special case, because
+> when they want to explicitly yield the processor to other waiting processes,
+> they are merely
+> moved to the end of their priority list (and not inserted into the expired
+> array, like conventional
+> processes)."
+> I have to implement an RT task with the highest priority in the system (it
+> is also the only task within the
+> priority list for such priority level). Moreover, it has to be a SCHED_FIFO
+> task,  so that it can preempt
+> SCHED_RR ones, because of its strong real-time requirements. However,
+> sometimes it should relinquish the
+> CPU, to give to other tasks a chance to run.
+> Now, what happen if it gives up the CPU by means of the sched_yield() system
+> call?
+> If  I am not wrong, the scheduler will choose it again (it will be still the
+> higher priority task, and the only of its priority list).
+> I have to add an explicit sleep to effectively relinquish the CPU for some
+> time, or the scheduler can deal with such a
+> situation in another way?
 
-> >Well, dumping random stuff to console can produce funny results. I'd
-> >call that normal. Try cat /dev/urandom, that should be "enough
-> >random".
-> 
-> I am also getting strange effects. I boot into  2.6.11-rc4 and the
-> console fonts looks fine. Come back a day later and the console font has
->  corrupt characters. E.g. Displays a "D" instead of an "L" and stuff
-> like that. It is mostly readable, except for a few characters.
-> It is only the local console that is corrupted. ssh into the box
-> displays correct characters, so all I can assume is that the VGA console
-> is being programmed with different characters. The bad characters also
-> survive a soft reboot( During BIOS boot up), until the linux kernel
-> starts booting, and then it switches to a good font.
+What exactly are you trying to do?  I don't understand how the task
+could have "strong real-time requirements" if it's CPU bound.  What is
+the exact nature of the real time constraint?
 
-I have seen something similar on S3 cards with bad video ram (we had
->3 of them). If it survives soft reboot... well, that looks like
-hardware problem to me. [We may do something bad in linux, too, but
-strange effects should not survive reboot, that's hw bug. I'd suggest
-memtest on video ram, but someone would need to write that tool, first].
+Lee
 
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265130AbTLWNJZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 08:09:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265132AbTLWNJZ
+	id S265128AbTLWNBc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 08:01:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265129AbTLWNBc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 08:09:25 -0500
-Received: from mx11.sac.fedex.com ([199.81.193.118]:19461 "EHLO
-	mx11.sac.fedex.com") by vger.kernel.org with ESMTP id S265130AbTLWNJY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 08:09:24 -0500
-Date: Tue, 23 Dec 2003 21:07:45 +0800 (SGT)
-From: Jeff Chua <jeffchua@silk.corp.fedex.com>
-X-X-Sender: jchua@silk.corp.fedex.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [bug] 2.6.0 COMMAND_LINE_SIZE <160???
-Message-ID: <Pine.LNX.4.58.0312232102340.5732@silk.corp.fedex.com>
-MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 12/23/2003
- 09:09:19 PM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 12/23/2003
- 09:09:22 PM,
-	Serialize complete at 12/23/2003 09:09:22 PM
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 23 Dec 2003 08:01:32 -0500
+Received: from main.gmane.org ([80.91.224.249]:26571 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S265128AbTLWNBa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 08:01:30 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Per Jessen <per@computer.org>
+Subject: Re: make menuconfig loops ??
+Date: Tue, 23 Dec 2003 14:01:27 +0100
+Message-ID: <bs9eb7$hsm$1@sea.gmane.org>
+References: <20031221144427.57D00DAA81@mail.local.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: KNode/0.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Per Jessen wrote:
 
-I can't seems to pass more than 160 bytes on command line when booting
-linux-2.6.0. 2.4.24 is ok.
+> I have a problem when trying to build a kernel. It appears that make
+> menuconfig starts to loop -
+> after writing "Preparing scripts: functions, parsing ...done."
+> This is 2.4.23, jfs114, gcc3.3.2.
 
-Booting via loadlin, but I've tried linld, still the same problem.
+All, this problem has now miraculously disappeared!  Obviously I must've
+changed something, I just can't think of what it might have been.  
 
-It hangs after "Ok, booting the kernel".
 
-Thanks,
-Jeff
-[ jchua@fedex.com ]
+/Per
+
+
+-- 
+Per Jessen, Zurich
+http://www.dansklisten.org - for alle danskere i udlandet!
 

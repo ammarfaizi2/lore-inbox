@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265326AbRF0MxD>; Wed, 27 Jun 2001 08:53:03 -0400
+	id <S265331AbRF0M4y>; Wed, 27 Jun 2001 08:56:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265328AbRF0Mwx>; Wed, 27 Jun 2001 08:52:53 -0400
-Received: from office-01.ops.asmr-01.energis-idc.net ([213.218.69.13]:18614
-	"HELO cuddle.dds.nl") by vger.kernel.org with SMTP
-	id <S265326AbRF0Mwe>; Wed, 27 Jun 2001 08:52:34 -0400
-Date: Wed, 27 Jun 2001 14:52:26 +0200
-From: Ookhoi <ookhoi@dds.nl>
-To: Maciej Zenczykowski <maze@druid.if.uj.edu.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Thrashing WITHOUT swap.
-Message-ID: <20010627145226.P18733@cuddle.dds.nl>
-Reply-To: ookhoi@dds.nl
-In-Reply-To: <Pine.LNX.4.33.0106242133550.19801-100000@druid.if.uj.edu.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0106242133550.19801-100000@druid.if.uj.edu.pl>
-User-Agent: Mutt/1.3.18i
-X-Uptime: 17:19:10 up 42 min,  8 users,  load average: 0.00, 0.00, 0.00
+	id <S265329AbRF0M4n>; Wed, 27 Jun 2001 08:56:43 -0400
+Received: from Morgoth.esiway.net ([193.194.16.157]:46610 "EHLO
+	Morgoth.esiway.net") by vger.kernel.org with ESMTP
+	id <S265334AbRF0M4Z>; Wed, 27 Jun 2001 08:56:25 -0400
+Date: Wed, 27 Jun 2001 14:56:23 +0200 (CEST)
+From: Marco Colombo <marco@esi.it>
+To: David Wagner <daw@mozart.cs.berkeley.edu>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] User chroot
+In-Reply-To: <9hbage$djn$1@abraham.cs.berkeley.edu>
+Message-ID: <Pine.LNX.4.33.0106271451500.6630-100000@Megathlon.ESI>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Maciej Zenczykowski,
+On 27 Jun 2001, David Wagner wrote:
 
-> This is happening on a freshly installed RH7.1 notebook.
-> Celeron 400 + 64 mb ram, kernel as shipped (2.4.2-2, have not even
-> recompiled it yet).  I have a 140 mb swap partition set up but at the time
-> this happened it was OFF.  I was (still am) running X + twm + two xterms
-> with ssh + netscape (this is probably the cause of the entire problem).
-> I had a single netscape window open with a mid-graphic intensive screen.
-> The system started thrashing...  Now my question is how can it be
-> thrashing with swap explicitly turned off? [oh just to make stuff even
-> funnier netscape is at nice -19 (i.e. lower priority)]
+> H. Peter Anvin wrote:
+> >By author:    Jorgen Cederlof <jc@lysator.liu.se>
+> >> If we only allow user chroots for processes that have never been
+> >> chrooted before, and if the suid/sgid bits won't have any effect under
+> >> the new root, it should be perfectly safe to allow any user to chroot.
+> >
+> >Safe, perhaps, but also completely useless: there is no way the user
+> >can set up a functional environment inside the chroot.
+>
+> Why is it useless?  It sounds useful to me, on first glance.  If I want
+> to run a user-level network daemon I don't trust (for instance, fingerd),
+> isolating it in a chroot area sounds pretty nice: If there is a buffer
+> overrun in the daemon, you can get some protection [*] against the rest
+> of your system being trashed.  Am I missing something obvious?
 
-nice -19 means high priority doesn't it? It is not nice towards other
-processes.
+Just write a small program that chroots, drop privileges, and
+execs the untrusted daemon.
 
-	Ookhoi
+.TM.
+-- 
+      ____/  ____/   /
+     /      /       /			Marco Colombo
+    ___/  ___  /   /		      Technical Manager
+   /          /   /			 ESI s.r.l.
+ _____/ _____/  _/		       Colombo@ESI.it
+

@@ -1,54 +1,152 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261452AbTHYEF1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 00:05:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261465AbTHYEF1
+	id S261451AbTHYEFS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 00:05:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbTHYEFS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 00:05:27 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:40836 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261452AbTHYEFU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 00:05:20 -0400
-Date: Mon, 25 Aug 2003 05:05:14 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Jim Houston <jim.houston@comcast.net>
-Cc: linux-kernel@vger.kernel.org, jim.houston@ccur.com
-Subject: Re: [PATCH] Pentium Pro - sysenter - doublefault
-Message-ID: <20030825040514.GA20529@mail.jlokier.co.uk>
-References: <1061498486.3072.308.camel@new.localdomain>
+	Mon, 25 Aug 2003 00:05:18 -0400
+Received: from [208.49.116.17] ([208.49.116.17]:52386 "EHLO diesel.grid4.com")
+	by vger.kernel.org with ESMTP id S261451AbTHYEFA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 00:05:00 -0400
+Date: Sun, 24 Aug 2003 23:30:04 -0400
+From: Paul <set@pobox.com>
+To: linux-kernel@vger.kernel.org
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, Andrew Morton <akpm@digeo.com>
+Subject: [patch 2.6] 3c509.c Fix printed dev id. with patch;(
+Message-ID: <20030825033004.GB2062@squish.home.loc>
+Mail-Followup-To: Paul <set@pobox.com>, linux-kernel@vger.kernel.org,
+	Jeff Garzik <jgarzik@mandrakesoft.com>,
+	Andrew Morton <akpm@digeo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="HlL+5n6rz5pIUxbD"
 Content-Disposition: inline
-In-Reply-To: <1061498486.3072.308.camel@new.localdomain>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jim Houston wrote:
-> On my cpu model=1 and mask=9, it doesn't clear 86_FEATURE_SEP.
-> This results in a double-fault when init starts.  The double-fault
-> happens on the sysexit.  The new double-fault handler caught this
-> nicely, and I was able to debug this with kgdb.
 
-Does anyone know what the syenter & sysexit instructions do on these
-early PPro CPUs?
+--HlL+5n6rz5pIUxbD
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-The Intel documentation is vague, saying only to avoid using them.
-I'd like to know what happens if userspace does "sysenter" on one of
-these systems.  Does it issue Invalid Opcode, General Protection
-fault, or something else?
+	This time with the patch attached...
 
-Jim you can answer this as you have such a Ppro.  Could you please run
-this very simple userspace program for me, and report the result?
+Paul
+set@pobox.com
 
-	int main() { __asm__ ("sysenter"); return 0; }
+--HlL+5n6rz5pIUxbD
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="3c509.c.patch"
 
-I expect it to die with SIGILL on Pentium and earlier chips, and
-SIGSEGV on "good" PPro and later chips running kernels which don't
-enable the sysenter instruction.
+--- drivers/net/3c509.c.orig	2003-08-24 18:16:28.000000000 -0400
++++ drivers/net/3c509.c	2003-08-24 22:33:32.000000000 -0400
+@@ -300,10 +300,11 @@
+  *
+  * Both call el3_common_init/el3_common_remove. */
+ 
+-static void __init el3_common_init(struct net_device *dev)
++static int __init el3_common_init(struct net_device *dev)
+ {
+ 	struct el3_private *lp = dev->priv;
+ 	short i;
++	int err;
+ 
+ 	spin_lock_init(&lp->lock);
+ 
+@@ -314,10 +315,29 @@
+ 		dev->if_port |= (dev->mem_start & 0x08);
+ 	}
+ 
++	/* The EL3-specific entries in the device structure. */
++	dev->open = &el3_open;
++	dev->hard_start_xmit = &el3_start_xmit;
++	dev->stop = &el3_close;
++	dev->get_stats = &el3_get_stats;
++	dev->set_multicast_list = &set_multicast_list;
++	dev->tx_timeout = el3_tx_timeout;
++	dev->watchdog_timeo = TX_TIMEOUT;
++	dev->do_ioctl = netdev_ioctl;
++
++	err = register_netdev(dev);
++	if (err) {
++		printk(KERN_ERR "Failed to register 3c5x9 at %#3.3lx, IRQ %d.\n",
++			dev->base_addr, dev->irq);
++		release_region(dev->base_addr, EL3_IO_EXTENT);
++		return err;
++	}
++
+ 	{
+ 		const char *if_names[] = {"10baseT", "AUI", "undefined", "BNC"};
+-		printk("%s: 3c5x9 at %#3.3lx, %s port, address ",
+-			dev->name, dev->base_addr, if_names[(dev->if_port & 0x03)]);
++		printk("%s: 3c5x9 found at %#3.3lx, %s port, address ",
++			dev->name, dev->base_addr, 
++			if_names[(dev->if_port & 0x03)]);
+ 	}
+ 
+ 	/* Read in the station address. */
+@@ -327,16 +347,8 @@
+ 
+ 	if (el3_debug > 0)
+ 		printk(KERN_INFO "%s" KERN_INFO "%s", versionA, versionB);
++	return 0;
+ 
+-	/* The EL3-specific entries in the device structure. */
+-	dev->open = &el3_open;
+-	dev->hard_start_xmit = &el3_start_xmit;
+-	dev->stop = &el3_close;
+-	dev->get_stats = &el3_get_stats;
+-	dev->set_multicast_list = &set_multicast_list;
+-	dev->tx_timeout = el3_tx_timeout;
+-	dev->watchdog_timeo = TX_TIMEOUT;
+-	dev->do_ioctl = netdev_ioctl;
+ }
+ 
+ static void el3_common_remove (struct net_device *dev)
+@@ -564,9 +576,8 @@
+ #if defined(__ISAPNP__) && !defined(CONFIG_X86_PC9800)
+ 	lp->dev = &idev->dev;
+ #endif
+-	el3_common_init(dev);
++	err = el3_common_init(dev);
+ 
+-	err = register_netdev(dev);
+ 	if (err)
+ 		goto out1;
+ 
+@@ -588,7 +599,6 @@
+ 	return 0;
+ 
+ out1:
+-	release_region(ioaddr, EL3_IO_EXTENT);
+ #if defined(__ISAPNP__) && !defined(CONFIG_X86_PC9800)
+ 	if (idev)
+ 		pnp_device_detach(idev);
+@@ -662,11 +672,9 @@
+ 		lp->dev = device;
+ 		lp->type = EL3_MCA;
+ 		device->driver_data = dev;
+-		el3_common_init(dev);
++		err = el3_common_init(dev);
+ 
+-		err = register_netdev(dev);
+ 		if (err) {
+-			release_region(ioaddr, EL3_IO_EXTENT);
+ 			return -ENOMEM;
+ 		}
+ 
+@@ -723,11 +731,9 @@
+ 	lp->dev = device;
+ 	lp->type = EL3_EISA;
+ 	eisa_set_drvdata (edev, dev);
+-	el3_common_init(dev);
++	err = el3_common_init(dev);
+ 
+-	err = register_netdev(dev);
+ 	if (err) {
+-		release_region(ioaddr, EL3_IO_EXTENT);
+ 		return err;
+ 	}
+ 
 
-But what does it do on your early Intel PPro, the one which is the
-subject of this thread?
-
-Thanks,
--- Jamie
+--HlL+5n6rz5pIUxbD--

@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261898AbTIPPAW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 11:00:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261901AbTIPPAW
+	id S261909AbTIPPH4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 11:07:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261938AbTIPPHz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 11:00:22 -0400
-Received: from zcamail05.zca.compaq.com ([161.114.32.105]:28433 "EHLO
-	zcamail05.zca.compaq.com") by vger.kernel.org with ESMTP
-	id S261898AbTIPPAU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 11:00:20 -0400
-Date: Tue, 16 Sep 2003 10:09:54 -0500
-From: mike.miller@hp.com
-To: axboe@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: cciss version change
-Message-ID: <20030916150954.GA31009@beardog.cca.cpqcorp.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	Tue, 16 Sep 2003 11:07:55 -0400
+Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:12693 "EHLO
+	jaymale.blue-labs.org") by vger.kernel.org with ESMTP
+	id S261909AbTIPPHQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 11:07:16 -0400
+Message-ID: <3F6726EF.7090906@blue-labs.org>
+Date: Tue, 16 Sep 2003 11:06:23 -0400
+From: David Ford <david+powerix@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030912
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: ip/ifconfig down/up hangs network, 2.6.0-test5
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch bumps the version of the cciss driver from 2.4.47 to 2.4.49 to more accurately reflect the capabilities of the driver. It was built/tested against 2.4.23-pre4.
+eth2: Station identity 001f:0001:0008:000a
+eth2: Looks like a Lucent/Agere firmware version 8.10
+eth2: Ad-hoc demo mode supported
+eth2: IEEE standard IBSS ad-hoc mode supported
+eth2: WEP supported, 104-bit key
+eth2: MAC address 00:02:2D:5C:18:9F
+eth2: Station name "HERMES I"
+eth2: ready
+eth2: index 0x01: Vcc 3.3, irq 9, io 0x0100-0x013f
+eth2: New link status: Connected (0001)
+spurious 8259A interrupt: IRQ7.
+eth2: New link status: Connected (0001)
 
-Please consider this patch for inclusion.
+If I set this network card down and try to bring it back up, all net 
+device access stalls in D state.  No dmesg, no panics, nadda.
 
-Thanks,
-mikem
---------------------------------------------------------------------------------
-diff -burN lx2423-pre4/drivers/block/cciss.c lx2423-pre4.test/drivers/block/cciss.c
---- lx2423-pre4/drivers/block/cciss.c	2003-09-16 09:30:24.000000000 -0500
-+++ lx2423-pre4.test/drivers/block/cciss.c	2003-09-16 10:02:34.000000000 -0500
-@@ -45,12 +45,12 @@
- #include <linux/genhd.h>
- 
- #define CCISS_DRIVER_VERSION(maj,min,submin) ((maj<<16)|(min<<8)|(submin))
--#define DRIVER_NAME "HP CISS Driver (v 2.4.47)"
--#define DRIVER_VERSION CCISS_DRIVER_VERSION(2,4,47)
-+#define DRIVER_NAME "HP CISS Driver (v 2.4.49)"
-+#define DRIVER_VERSION CCISS_DRIVER_VERSION(2,4,49)
- 
- /* Embedded module documentation macros - see modules.h */
- MODULE_AUTHOR("Hewlett-Packard Company");
--MODULE_DESCRIPTION("Driver for HP SA5xxx SA6xxx Controllers version 2.4.47");
-+MODULE_DESCRIPTION("Driver for HP SA5xxx SA6xxx Controllers version 2.4.49");
- MODULE_SUPPORTED_DEVICE("HP SA5i SA5i+ SA532 SA5300 SA5312 SA641 SA642 SA6400"); 
- MODULE_LICENSE("GPL");
- 
+David
+
+

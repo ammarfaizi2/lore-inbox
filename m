@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317149AbSEXPzU>; Fri, 24 May 2002 11:55:20 -0400
+	id <S317177AbSEXP55>; Fri, 24 May 2002 11:57:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314457AbSEXPzQ>; Fri, 24 May 2002 11:55:16 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:4621 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S317149AbSEXPyW>; Fri, 24 May 2002 11:54:22 -0400
-Subject: Re: Quota patches
-To: dalecki@evision-ventures.com (Martin Dalecki)
-Date: Fri, 24 May 2002 17:14:02 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), jack@suse.cz (Jan Kara),
-        nathans@sgi.com (Nathan Scott),
-        torvalds@transmeta.com (Linus Torvalds),
-        hirofumi@mail.parknet.co.jp (OGAWA Hirofumi),
+	id <S314457AbSEXP5j>; Fri, 24 May 2002 11:57:39 -0400
+Received: from imladris.infradead.org ([194.205.184.45]:28681 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S317183AbSEXP4r>; Fri, 24 May 2002 11:56:47 -0400
+Date: Fri, 24 May 2002 16:55:14 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Martin Dalecki <dalecki@evision-ventures.com>, Jan Kara <jack@suse.cz>,
+        Nathan Scott <nathans@sgi.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
         linux-kernel@vger.kernel.org
-In-Reply-To: <3CEE4ECB.5070603@evision-ventures.com> from "Martin Dalecki" at May 24, 2002 04:31:39 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+Subject: Re: Quota patches
+Message-ID: <20020524165514.A20631@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Martin Dalecki <dalecki@evision-ventures.com>,
+	Jan Kara <jack@suse.cz>, Nathan Scott <nathans@sgi.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3CEE51A4.9010308@evision-ventures.com> <E17BHfh-0006lp-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17BHha-0006m7-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It is an illusion to think that you can actually run *that old*
-> a.out binaries on a modern kernel I think.
+On Fri, May 24, 2002 at 05:12:05PM +0100, Alan Cox wrote:
+> > > Of course you can.  Even the latest OpenLinux release (shipping 2.4.13-ac)
+> > > uses a libc4/a.out based installer fo space reasons.  Not to forget the
+> > > old quake1 binary from some redhat 4.x CD I run from time to time :)
+> > 
+> > OK thanks for the *substantial* answer. That was the reason I was asking about.
+> > Somehow this is of course surprising me of course.
 > 
-> BTW. (almost no space) * (many times) == huge number.
+> So why didn't you -test- the theory before suggesting it. It btw goes beyond
+> Libc4. Currently we have almost 100% compatibility back to libc 2.2.2. The
+> dated libc before that doesn't work because we dropped some very very
+> early obscure versions of a few syscalls.
+> 
+> Is it too much to ask that you go and look through the syscall tables of
+> old and new kernels ? 
 
-Uninline copy*user and a few other things then. Fix the size of struct
-page. Add a CONFIG_SMALL where users can pick to have very small hash tables
-on older systems with little RAM.  Add the two extra common slab sizes 
-people identified
+For 2.5 I have some plans to make obsolete syscalls depend on CONFIG_COMPAT_*,
+this allows to compile big and bloated kernel for compatiblity and smaller
+kernels without that (e.g. for embedded devices).  And in fact we have quite
+a loft of cruft that can go away for setups only having very modern userspace..
 
-This kind of stuff tends to save you hundreds of K yet nobody is doing that
-before even worrying about some trivial 150 bytes.

@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267720AbTAITrd>; Thu, 9 Jan 2003 14:47:33 -0500
+	id <S266979AbTAITpp>; Thu, 9 Jan 2003 14:45:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267728AbTAITrd>; Thu, 9 Jan 2003 14:47:33 -0500
-Received: from h24-80-147-251.no.shawcable.net ([24.80.147.251]:18439 "EHLO
-	antichrist") by vger.kernel.org with ESMTP id <S267720AbTAITrc>;
-	Thu, 9 Jan 2003 14:47:32 -0500
-Date: Thu, 9 Jan 2003 11:51:05 -0800
-From: carbonated beverage <ramune@net-ronin.org>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] tiny ens1370.c warning fix, bk 2.5.52]
-Message-ID: <20030109195105.GA18833@net-ronin.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S266982AbTAITpp>; Thu, 9 Jan 2003 14:45:45 -0500
+Received: from carisma.slowglass.com ([195.224.96.167]:29459 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S266979AbTAITpm>; Thu, 9 Jan 2003 14:45:42 -0500
+Date: Thu, 9 Jan 2003 19:54:22 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Antonino Daplas <adaplas@pol.net>
+cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [Linux-fbdev-devel] rotation.
+In-Reply-To: <1042044916.1003.144.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0301091949560.5660-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
 
-	Resend of a patch
+> However, as Geert mentioned, if you want to support rotation
+> generically, then you have to do it in the fbcon level.  The driver need
+> not know if the display is rotated or not.  All it needs to do is fill a
+> region with color, color expand a bitmap and move blocks of data, and
+> optionally 'pan' the window.  Fbcon will pass the correct (ie, oriented)
+> information for the driver.
 
-	__devinitdata is in the wrong location in ens1370.c, so it's
-apparently ignored by gcc and the struct isn't freed.  Here's a small
-patch to fix that.
+Yes. Hardware rotation shouldn't also not effect the way accel 
+operatations are done. 
 
-	Linus, please apply.
+> This will not be too processor intensive as long as some data is
+> prepared beforehand, like a rotated fontdata.
 
--- DN
-Daniel
+Yeap!! The only thing is we could end up with 4 times the amount of data.
+ 
+> The main difficulty with this approach is how do you tell the console to
+> rotate the display?  We cannot use fbset because the changes will not be
+> visible to fbcon. 
 
---- ens1370.c.orig	Fri Dec 20 02:03:24 2002
-+++ ens1370.c	Fri Dec 20 14:54:24 2002
-@@ -1431,7 +1431,7 @@
- 	unsigned short vid;		/* vendor ID */
- 	unsigned short did;		/* device ID */
- 	unsigned char rev;		/* revision */
--} __devinitdata es1371_spdif_present[] = {
-+} es1371_spdif_present[] __dev_initdata = {
- 	{ .vid = PCI_VENDOR_ID_ENSONIQ, .did = PCI_DEVICE_ID_ENSONIQ_CT5880, .rev = CT5880REV_CT5880_C },
- 	{ .vid = PCI_VENDOR_ID_ENSONIQ, .did = PCI_DEVICE_ID_ENSONIQ_CT5880, .rev = CT5880REV_CT5880_D },
- 	{ .vid = PCI_VENDOR_ID_ENSONIQ, .did = PCI_DEVICE_ID_ENSONIQ_CT5880, .rev = CT5880REV_CT5880_E },
+I think it should video fbcon=rotate:90 command line for example.
+
+> I submitted a patch before (see fbdev archives for "Console Rotation"
+> thread) that rotates the console this way.  I had vga16fb, vesafb, and
+
+I seen it and even have it still. 
+

@@ -1,14 +1,14 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283026AbRK1NAT>; Wed, 28 Nov 2001 08:00:19 -0500
+	id <S283027AbRK1ND3>; Wed, 28 Nov 2001 08:03:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283030AbRK1NAJ>; Wed, 28 Nov 2001 08:00:09 -0500
-Received: from maila.telia.com ([194.22.194.231]:18644 "EHLO maila.telia.com")
-	by vger.kernel.org with ESMTP id <S283026AbRK1M7y>;
-	Wed, 28 Nov 2001 07:59:54 -0500
-Message-ID: <3C04DE6E.5020209@peope.net>
-Date: Wed, 28 Nov 2001 13:54:06 +0100
-From: Per-Olof Pettersson <peope@peope.net>
+	id <S283031AbRK1NDT>; Wed, 28 Nov 2001 08:03:19 -0500
+Received: from maila.telia.com ([194.22.194.231]:17625 "EHLO maila.telia.com")
+	by vger.kernel.org with ESMTP id <S283027AbRK1NDL>;
+	Wed, 28 Nov 2001 08:03:11 -0500
+Message-ID: <3C04DF32.50902@peope.net>
+Date: Wed, 28 Nov 2001 13:57:22 +0100
+From: Per-Olof Pettersson <lkml.lists@peope.net>
 User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.5) Gecko/20011011
 X-Accept-Language: en-us
 MIME-Version: 1.0

@@ -1,131 +1,230 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264919AbTIDLuv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 07:50:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264929AbTIDLuu
+	id S264929AbTIDL6c (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 07:58:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264932AbTIDL6c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 07:50:50 -0400
-Received: from mail0.epfl.ch ([128.178.50.57]:18447 "HELO mail0.epfl.ch")
-	by vger.kernel.org with SMTP id S264919AbTIDLur (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 07:50:47 -0400
-Date: Thu, 4 Sep 2003 13:50:44 +0200
-From: Frederic Gobry <frederic.gobry@smartdata.ch>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test4 does not detect my touchpad
-Message-ID: <20030904115044.GA7114@rhin>
+	Thu, 4 Sep 2003 07:58:32 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:7312 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S264929AbTIDL60 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 07:58:26 -0400
+Date: Thu, 4 Sep 2003 13:58:25 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp: revert to 2.6.0-test3 state
+Message-ID: <20030904115824.GD24015@atrey.karlin.mff.cuni.cz>
+References: <20030903190442.GA2787@elf.ucw.cz> <Pine.LNX.4.33.0309031621380.944-100000@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="YZ5djTAD1cGYuMQK"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <Pine.LNX.4.33.0309031621380.944-100000@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---YZ5djTAD1cGYuMQK
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> > This patch reverts swsusp to known good state (before Patrick made his
+> > untested changes to it). I had to do some changes to both swsusp.c and
+> > power.c to keep it compilable. Please apply,
+> 
+> Pavel, why do you have to be so difficult? I realize you're sore that I 
+> modified the code you maintain and unintentionally broke. However, it does 
+> not benefit either of us for you to intentionally break my code in return, 
+> especially considering I've since fixed the outstanding problems in my 
+> changes. 
 
-(please CC to my address)
+I did not *intentionally* break your code, and I'm sorry that you
+think I did. I was trying to make minimal patch.
 
-Hi,
+> > --- clean/kernel/power/main.c	2003-08-27 12:00:53.000000000 +0200
+> > +++ linux/kernel/power/main.c	2003-09-03 20:57:00.000000000 +0200
+> > @@ -178,25 +178,7 @@
+> >  	if (pm_disk_mode == PM_DISK_FIRMWARE)
+> >  		return pm_ops->enter(PM_SUSPEND_DISK);
+> >  
+> > -	if (!have_swsusp)
+> > -		return -EPERM;
+> > -
+> > -	pr_debug("PM: snapshotting memory.\n");
+> > -	in_suspend = 1;
+> > -	if ((error = swsusp_save()))
+> > -		goto Done;
+> > -
+> > -	if (in_suspend) {
+> > -		pr_debug("PM: writing image.\n");
+> > -		error = swsusp_write();
+> > -		if (!error)
+> > -			error = power_down(pm_disk_mode);
+> > -		pr_debug("PM: Power down failed.\n");
+> > -	} else
+> > -		pr_debug("PM: Image restored successfully.\n");
+> > -	swsusp_free();
+> > - Done:
+> > -	return error;
+> > +	BUG();
+> >  }
+> 
+> This is bullshit. It will not only introduce a compile warning, but it's
+> not user-friendly (I can forward flames from Linus about adding gratuitous
+> BUG()s to the kernel if you like). You also intentionally break my code,
+> instead of doing something reasonable like
+> 
+> +	return 0; 
 
-I've a touchpad issue with the 2.6.0-test4 kernel on a Compaq Presario
-1694. This seems _not_ to be related to a missing XFree driver, rather
-on the detection of the device itself.
+It is bug if we reach this point, because software_suspend() should be
+called first, and it should have returned. But if you want return 0
+there and warning fixed, no problem, you can have return 0. It should
+be unreachable anyway.
 
-During the boot, I only have the following messages regarding the
-keyboard/mouse detection:
+> > @@ -228,6 +210,11 @@
+> >  {
+> >  	int error = 0;
+> >  
+> > +	if ((state == PM_SUSPEND_DISK) && (pm_disk_mode != PM_DISK_FIRMWARE)) {
+> > +		software_suspend();
+> > +		return -EAGAIN;
+> > +	}
+> 
+> Why return -EAGAIN? 
+> 
+> Why even call software_suspend() at all. That's not the right thing to do, 
+> nor is it what I want to do (which I implied in saying that I would not 
+> use it). And, you've broken the possiblity of using the actualy ACPI S4 
+> low-power state. 
 
-kernel: mice: PS/2 mouse device common for all mice
-kernel: input: AT Set 2 keyboard on isa0060/serio0
-kernel: serio: i8042 KBD port at 0x60,0x64 irq 1
+I'm doing return -EAGAIN so I can call driver model myself, and so
+that your code does not proceed with stopping tasks/etc after I've
+done full suspend/resume cycle.
 
-After boot, /proc/bus/input/devices contains only:
+I see your point about S4. I want to use as little as power/main.c
+infrastructure as possible for now, and this seems like the way to do
+it.
 
-I: Bus=3D0011 Vendor=3D0001 Product=3D0002 Version=3Dab02
-N: Name=3D"AT Set 2 keyboard"
-P: Phys=3Disa0060/serio0/input0
-H: Handlers=3Dkbd event0
-B: EV=3D120003
-B: KEY=3D4 2000000 c061f9 fbc9d621 efdfffdf ffefffff ffffffff fffffffe
-B: LED=3D7
+Okay, it seems that I can move this to pm_suspend, and it will look better.
 
+> >  static int pm_resume(void)
+> 
+> > +	software_resume();
+> >  	return 0;
+> >  }
+> 
+> This is just silly, from a design point of view. You now have two 
+> functions that do the same thing, one just calls the other. Why? 
 
-This is with and without the psmouse_noext option.
+I wanted to leave my way back to using your code as simple as possible
+(minimal changes). Anyway its okay to kill pm_resume and then readd it
+I guess.
 
-Below is my current kernel config (the part I related to input
-devices).
+> Please resubmit the patch without this crap, and I will not argue. 
 
-Is there a way to perform some probing on the PS/2 port, so that I can
-provide more detailed info ?
+Does this diff look better to you? [Not tested yet so not good enough
+for submission].
 
-Thanks in advance,
-Fr=E9d=E9ric
+						Pavel
 
+--- clean/kernel/power/main.c	2003-08-27 12:00:53.000000000 +0200
++++ linux/kernel/power/main.c	2003-09-04 13:48:08.000000000 +0200
+@@ -172,31 +172,10 @@
+ 
+ static int pm_suspend_disk(void)
+ {
+-	int error;
+-
+ 	pr_debug("PM: Attempting to suspend to disk.\n");
+ 	if (pm_disk_mode == PM_DISK_FIRMWARE)
+ 		return pm_ops->enter(PM_SUSPEND_DISK);
+-
+-	if (!have_swsusp)
+-		return -EPERM;
+-
+-	pr_debug("PM: snapshotting memory.\n");
+-	in_suspend = 1;
+-	if ((error = swsusp_save()))
+-		goto Done;
+-
+-	if (in_suspend) {
+-		pr_debug("PM: writing image.\n");
+-		error = swsusp_write();
+-		if (!error)
+-			error = power_down(pm_disk_mode);
+-		pr_debug("PM: Power down failed.\n");
+-	} else
+-		pr_debug("PM: Image restored successfully.\n");
+-	swsusp_free();
+- Done:
+-	return error;
++	return 0;
+ }
+ 
+ 
+@@ -329,59 +308,17 @@
+ 
+ int pm_suspend(u32 state)
+ {
++	if ((state == PM_SUSPEND_DISK) && (pm_disk_mode != PM_DISK_FIRMWARE)) {
++		software_suspend();
++		return 0;
++	}
+ 	if (state > PM_SUSPEND_ON && state < PM_SUSPEND_MAX)
+ 		return enter_state(state);
+ 	return -EINVAL;
+ }
+ 
+-
+-/**
+- *	pm_resume - Resume from a saved image.
+- *
+- *	Called as a late_initcall (so all devices are discovered and 
+- *	initialized), we call swsusp to see if we have a saved image or not.
+- *	If so, we quiesce devices, the restore the saved image. We will 
+- *	return above (in pm_suspend_disk() ) if everything goes well. 
+- *	Otherwise, we fail gracefully and return to the normally 
+- *	scheduled program.
+- *
+- */
+-
+-static int pm_resume(void)
+-{
+-	int error;
+-
+-	if (!have_swsusp)
+-		return 0;
+-
+-	pr_debug("PM: Reading swsusp image.\n");
+-
+-	if ((error = swsusp_read()))
+-		goto Done;
+-
+-	pr_debug("PM: Preparing system for restore.\n");
+-
+-	if ((error = suspend_prepare(PM_SUSPEND_DISK)))
+-		goto Free;
+-
+-	pr_debug("PM: Restoring saved image.\n");
+-	swsusp_restore();
+-
+-	pr_debug("PM: Restore failed, recovering.n");
+-	suspend_finish(PM_SUSPEND_DISK);
+- Free:
+-	swsusp_free();
+- Done:
+-	pr_debug("PM: Resume from disk failed.\n");
+-	return 0;
+-}
+-
+-late_initcall(pm_resume);
+-
+-
+ decl_subsys(power,NULL,NULL);
+ 
+-
+ #define power_attr(_name) \
+ static struct subsys_attribute _name##_attr = {	\
+ 	.attr	= {				\
 
---------------------------------------------------
-Current configuration:
---------------------------------------------------
-
-CONFIG_INPUT_MOUSEDEV=3Dy
-CONFIG_INPUT_MOUSEDEV_PSAUX=3Dy
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=3D1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=3D768
-# CONFIG_INPUT_JOYDEV is not set
-# CONFIG_INPUT_TSDEV is not set
-CONFIG_INPUT_EVDEV=3Dy
-# CONFIG_INPUT_EVBUG is not set
-=20
-#
-# Input I/O drivers
-#
-CONFIG_GAMEPORT=3Dy
-CONFIG_SOUND_GAMEPORT=3Dy
-CONFIG_GAMEPORT_NS558=3Dy
-# CONFIG_GAMEPORT_L4 is not set
-# CONFIG_GAMEPORT_EMU10K1 is not set
-# CONFIG_GAMEPORT_VORTEX is not set
-# CONFIG_GAMEPORT_FM801 is not set
-# CONFIG_GAMEPORT_CS461x is not set
-CONFIG_SERIO=3Dy
-CONFIG_SERIO_I8042=3Dy
-CONFIG_SERIO_SERPORT=3Dy
-# CONFIG_SERIO_CT82C710 is not set
-# CONFIG_SERIO_PARKBD is not set
-CONFIG_SERIO_PCIPS2=3Dm
-=20
-#
-# Input Device Drivers
-#
-CONFIG_INPUT_KEYBOARD=3Dy
-CONFIG_KEYBOARD_ATKBD=3Dy
-# CONFIG_KEYBOARD_SUNKBD is not set
-# CONFIG_KEYBOARD_XTKBD is not set
-# CONFIG_KEYBOARD_NEWTON is not set
-CONFIG_INPUT_MOUSE=3Dy
-CONFIG_MOUSE_PS2=3Dy
-CONFIG_MOUSE_PS2_SYNAPTICS=3Dy   <---- when testing with test4-mm5
-
-
---=20
- Fr=E9d=E9ric Gobry       SMARTDATA    	 =20
-                      http://www.smartdata.ch/
- PGP: 5B44F4A5        Lausanne - Switzerland
-                      +41 21 693 84 98
-
---YZ5djTAD1cGYuMQK
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/VycUFjQHpltE9KURAuroAJsEb1PPS74R1EChc0eGIuJHPJm9BACcCT60
-MdvuiWFpJAbtYVLoY9Q8Y4M=
-=QgDB
------END PGP SIGNATURE-----
-
---YZ5djTAD1cGYuMQK--
+-- 
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

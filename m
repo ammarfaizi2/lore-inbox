@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143752AbRAHOfq>; Mon, 8 Jan 2001 09:35:46 -0500
+	id <S143994AbRAHOgr>; Mon, 8 Jan 2001 09:36:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143994AbRAHOfg>; Mon, 8 Jan 2001 09:35:36 -0500
-Received: from [172.16.18.67] ([172.16.18.67]:11906 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S143752AbRAHOfA>; Mon, 8 Jan 2001 09:35:00 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <01010812305810.02165@www.easysolutions.net> 
-In-Reply-To: <01010812305810.02165@www.easysolutions.net>  <Pine.LNX.4.10.10101071938540.28661-100000@penguin.transmeta.com> <23514.978959516@redhat.com> 
-To: shane@agendacomputing.com
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        "Adam J. Richter" <adam@yggdrasil.com>, parsley@roanoke.edu,
-        linux-kernel@vger.kernel.org
-Subject: Re: Patch (repost): cramfs memory corruption fix 
-Mime-Version: 1.0
+	id <S144048AbRAHOg2>; Mon, 8 Jan 2001 09:36:28 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:64772 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S143994AbRAHOgG>; Mon, 8 Jan 2001 09:36:06 -0500
+Subject: Re: PATCH for 2.4.0: assign ad1848 mixer operations to correct module
+To: rankinc@zipworld.com.au
+Date: Mon, 8 Jan 2001 14:37:29 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, linux-sound@vger.kernel.org
+In-Reply-To: <200101081308.f08D8iv01511@wittsend.ukgateway.net> from "Chris Rankin" at Jan 08, 2001 01:08:44 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 08 Jan 2001 14:34:49 +0000
-Message-ID: <7849.978964489@redhat.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14FdQR-0004fZ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> +
+> + if (owner)
+> +   ad1848_mixer_operations.owner = owner;
+> +
+>   if ((e = sound_install_mixer(MIXER_DRIVER_VERSION,
+>              dev_name,
+>              &ad1848_mixer_operations,
+> 
+> BTW Isn't it ever-so-slightly dodgy modifying the static
 
-shane@agendacomputing.com said:
->  While the topic is raised..., I've hacked up cramfs for linear
-> addressing to  kill the "double buffering" effiect.  However as David
-> mentions the block  device support thing is an issue here.  What is a
-> reasonable way to allow a  cramfs partition to access the device
-> directly, like the patch that I wrote,  and be picked up in a
-> reasonable way by the init system?
+Very.
 
-So far, I just cheat. JFFS doesn't need a block device, but uses the minor# 
-to determine which MTD device to use. You could use the same trick.
+> operations in exactly the same way as the ad1848_audio_driver
+> structure, but doesn't this mean that the ad1848_init() function now
+> "remembers" the owner from the previous call?
 
---
-dwmw2
+Yeah
 
+> Or maybe the sound_install_XXXX() functions should accept "owner"
+> parameters, so that the static structs could become "const"?
+
+I think you either need owner as a parameter or to make a copy of the
+ad1848_mixer_operations in your sscape driver and pass that ?
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

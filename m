@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316616AbSEUUp1>; Tue, 21 May 2002 16:45:27 -0400
+	id <S316610AbSEUUqY>; Tue, 21 May 2002 16:46:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316619AbSEUUpY>; Tue, 21 May 2002 16:45:24 -0400
-Received: from ithilien.qualcomm.com ([129.46.51.59]:24213 "EHLO
-	ithilien.qualcomm.com") by vger.kernel.org with ESMTP
-	id <S316616AbSEUUou>; Tue, 21 May 2002 16:44:50 -0400
-Message-Id: <5.1.0.14.2.20020521133408.068d2ef8@mail1.qualcomm.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 21 May 2002 13:43:41 -0700
-To: Greg KH <greg@kroah.com>
-From: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
-Subject: Re: What to do with all of the USB UHCI drivers in the kernel ?
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-In-Reply-To: <20020521195925.GA2623@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S316619AbSEUUp2>; Tue, 21 May 2002 16:45:28 -0400
+Received: from bgp401130bgs.jersyc01.nj.comcast.net ([68.36.96.125]:8200 "EHLO
+	buggy.badula.org") by vger.kernel.org with ESMTP id <S316615AbSEUUoR>;
+	Tue, 21 May 2002 16:44:17 -0400
+Date: Tue, 21 May 2002 16:44:01 -0400
+Message-Id: <200205212044.g4LKi1i21931@buggy.badula.org>
+From: Ion Badulescu <ionut@cs.columbia.edu>
+To: "Nicholas L. D'Imperio" <dimperio@physics.dyndns.org>
+Cc: <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Asus a7m266d stability issues
+In-Reply-To: <Pine.LNX.4.33.0205211559001.737-100000@physics.dyndns.org>
+User-Agent: tin/1.5.11-20020130 ("Toxicity") (UNIX) (Linux/2.4.18 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 21 May 2002 16:07:24 -0400 (EDT), Nicholas L. D'Imperio <dimperio@physics.dyndns.org> wrote:
 
-> > So basically I vote for usb-uhci. However some things will have to be
-> > fixed. We (Bluetooth folks) have couple
-> > of devices that refuse to work with usb-uhci (I didn't test the latest
-> > usb-uhci though).
->
->Sorry for the confusion, but both usb-uhci.c and uhci.c will be deleted 
->anyway :)
-I thought that usb-uhci-hcd and uhci-hcd are direct derivatives of usb-uhci 
-and uhci
-(ie just minor API changes). And therefor perform exactly the same.
+>> > I'm getting kernel panics using the A7m266d smp motherboard and kernel 
+>> > 2.4.18 as soon as the system is put under load.
+> 
+> I have 1800+MP processors and my PSU is 400W.  Of course I also have the 
+> little four prong connector plugged in as well.
 
->I am more interested in usb-uhci-hcd.c and uhci-hcd.c drivers, which both
->showed up in 2.5.16.  Yes they are based on the previous usb-uhci.c and
->uhci.c drivers respectivly, but they are a bit different (they use the
->hcd core code which reduces the size of the driver.)
-I see. Ok. I'll try 2.5.17 on one of my machines with UHCI controller.
+This points very strongly towards an overheating problem. The 1800+ and 
+higher CPU's run very hot. Any imperfection in the cooling setup, be 
+it lack of thermal paste, undersized heatsink/fan combination, 
+improperly seated heatsink, and even insufficient airflow around the
+CPU's and inside the chassis, can and will cause crashes under load.
 
->You also might want to check out uhci.c again in 2.4.19-pre.  It has had
->a lot of previous bugs fixed and works _much_ better for me than before.
-Ok.
+I had this exact problem a few weeks ago with a dual Athlon 1U setup. It
+turned out that the aluminum heatsinks I had previously used for the
+1.2GHz Athlons weren't good enough for the 1900+, and also that the
+chassis fans were circulating enough air. Switching to copper heatsinks
+got rid of 95% of the crashes, and adding a chassis fan got rid of the
+remaining 5%.
 
-Thanks
-Max
+Ion
 
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.

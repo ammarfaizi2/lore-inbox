@@ -1,43 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288794AbSAEMaR>; Sat, 5 Jan 2002 07:30:17 -0500
+	id <S288795AbSAEMa5>; Sat, 5 Jan 2002 07:30:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288798AbSAEMaH>; Sat, 5 Jan 2002 07:30:07 -0500
-Received: from hal.astr.lu.lv ([195.13.134.67]:10627 "EHLO hal.astr.lu.lv")
-	by vger.kernel.org with ESMTP id <S288795AbSAEM3z> convert rfc822-to-8bit;
-	Sat, 5 Jan 2002 07:29:55 -0500
-Message-Id: <200201051229.g05CTej21415@hal.astr.lu.lv>
-Content-Type: text/plain; charset=US-ASCII
-From: Andris Pavenis <pavenis@latnet.lv>
-To: Nathan Bryant <nbryant@optonline.net>
-Subject: Re: i810_audio driver version 0.13 still broken
-Date: Sat, 5 Jan 2002 14:29:39 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Doug Ledford <dledford@redhat.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.A41.4.05.10112081022560.23064-100000@ieva06> <200112271110.fBRBA5S00309@hal.astr.lu.lv> <3C2B9649.7090503@optonline.net>
-In-Reply-To: <3C2B9649.7090503@optonline.net>
+	id <S286207AbSAEMas>; Sat, 5 Jan 2002 07:30:48 -0500
+Received: from Expansa.sns.it ([192.167.206.189]:20750 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S288795AbSAEMan>;
+	Sat, 5 Jan 2002 07:30:43 -0500
+Date: Sat, 5 Jan 2002 13:30:30 +0100 (CET)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: Nicholas Knight <nknight@pocketinet.com>
+cc: Stephan von Krawczynski <skraw@ithnet.com>,
+        Phil Oester <kernel@theoesters.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: 1gb RAM + 1gb SWAP + make -j bzImage = OOM
+In-Reply-To: <WHITExcPbVzv2N2Ku2000000c76@white.pocketinet.com>
+Message-ID: <Pine.LNX.4.33.0201051324430.6147-100000@Expansa.sns.it>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 27 December 2001 23:44, Nathan Bryant wrote:
-> Andris Pavenis wrote:
-> >It still hanged machine after playing KDE startup sound. Didn't tried much
-> >more and moved to my modified version of 0.12 which worked
->
-> please send me your modified version again. full file would be best, not
-> patch.
->
-> i can't reproduce any problems here, so far, so i'm stabbing in the
-> dark. if you can give more detailed information to reproduce, that would
-> be nice: hardware versions, version of KDE, kde settings, (mine doesn't
-> play a startup sound and artsd works fine for everything else i try),
-> artsd settings. if i can reproduce, i can analyze on my own machine, if
-> not, outlook is hazy ;-)
+No troubles to reproduce this here, on sparc64 !GM ran/1GB swap,
+and on dualathlon 768MB RAM 1.5GB swap, and on athlon 1GBRAM/1GBSWAP
 
-Seems that latest driver version from
-	http://www.infosys.tuwien.ac.at/Staff/tom/SiS7012/
-works for me (at least after some hours) with kernel 2.4.17
+But this is not a kernel issue, it is simply that
+too many gcc processes are runned at the same time because the source
+files are too many.
 
-Andris
+On Fri, 4 Jan 2002, Nicholas Knight wrote:
+
+> On Friday 04 January 2002 01:02 pm, Stephan von Krawczynski wrote:
+> > On Fri, 4 Jan 2002 12:32:27 -0800
+> >
+> > "Phil Oester" <kernel@theoesters.com> wrote:
+> > > On 2.4.17, I can't make -j bzImage without OOM kicking in.
+> > > Relatively light .config here - bzImage compiles to less than 1mb.
+> > >
+> > > Seems with 1 gb of RAM and swap, the box should be able to handle
+> > > this (box is dual P3 600 btw).
+> > >
+> > > Is this unreasonable?  How much RAM should it take to accomplish
+> > > this???
+> >
+> > You should give a bit more info on that, especially vmstat and the
+> > like. I cannot reproduce this. Neither on 1GB/256MB nor on 2GB/256MB
+> > RAM/SWAP. (P3-1GHz, dual SMP, 2.4.17)
+> >
+>
+>
+> I have absilutely no trouble reproducing on an 800MHz Athlon with 256MB
+> RAM/256MB swap on 2.4.17
+>
+> The one catch is that -j is specified without a number.
+>
+> from man make:
+>        -j jobs
+>             Specifies  the  number  of  jobs  (commands) to run
+> simultaneously.  If there is more than one -j
+>             option, the last one is effective.
+> **If the -j option is given without an argument, make will not limit
+> the number of jobs that can run simultaneously.**
+>
+> (emphasis mine)
+>
+> Hence, unlimited number of jobs, theoreticaly unlimited amount of
+> memory usage.
+> The last number of processes I saw in top before the system was
+> basically dead and I just hit A-SYSRQ-S and A-SYSRQ-B was 416, and all
+> the top processes were make or cc
+>
+> Somehow I doubt this is a kernel issue and is instead a make and user
+> issue. A make issue because it's probably poor design to have an option
+> that's specified with a number be normaly harmless and useful, be
+> potentialy lethal when the number is left off, so if you forget the
+> number, your system is dead. A user issue because it seems the user is
+> using the option without fully comprehending the consequences.
+>
+> > Regards,
+> > Stephan
+> >
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

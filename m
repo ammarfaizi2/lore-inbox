@@ -1,59 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263140AbTIGAGy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Sep 2003 20:06:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263154AbTIGAGy
+	id S261464AbTIGAD1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Sep 2003 20:03:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262148AbTIGAD1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Sep 2003 20:06:54 -0400
-Received: from mail.skjellin.no ([80.239.42.67]:7351 "HELO mail.skjellin.no")
-	by vger.kernel.org with SMTP id S263140AbTIGAGv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Sep 2003 20:06:51 -0400
-Message-ID: <3F5A7699.9080208@tomt.net>
-Date: Sun, 07 Sep 2003 02:06:49 +0200
-From: Andre Tomt <andre@tomt.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5b) Gecko/20030820 Mozilla Thunderbird/0.2a
-X-Accept-Language: en-us, en
+	Sat, 6 Sep 2003 20:03:27 -0400
+Received: from smtp1.libero.it ([193.70.192.51]:213 "EHLO smtp1.libero.it")
+	by vger.kernel.org with ESMTP id S261464AbTIGAD0 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Sep 2003 20:03:26 -0400
+From: chimicus <chimicus75@libero.it>
+To: linux-kernel@vger.kernel.org
+Subject: compilation error in 2.4.23-pre3
+Date: Sun, 7 Sep 2003 02:05:57 +0200
+User-Agent: KMail/1.5
 MIME-Version: 1.0
-To: Neil Brown <neilb@cse.unsw.edu.au>
-CC: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org, mingo@redhat.com
-Subject: Re: md: bug in file md.c, line 1440 (2.4.22)
-References: <3F5017CA.4080700@tomt.net> <16213.14893.955734.797630@gargle.gargle.HOWL>
-In-Reply-To: <16213.14893.955734.797630@gargle.gargle.HOWL>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200309070206.10477.chimicus75@libero.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown wrote:
-> Your problem is that these extra slots (N:0) are flagged as failed
-> (S:9) and this confuses md.c.
-> 
-> If you get mdadm 1.3.0 and apply the three patches that can be found
-> in
->    http://cgi.cse.unsw.edu.au/~neilb/source/mdadm/patch/applied/
-> 
-> and then stop the array and use:
->    mdadm --assemble --update=summaries /dev/md5 /dev/sda9 /dev/sdc9
-> 
-> then it should fix things up for you.
-> You will need to do a similar thing for all of the arrays.
-> This will be difficult for md2 as it is 'root'.  You will need to boot
-> a rescue disc to fix this one.
-> 
-> I have not idea how it got the failed flag.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I didn't read this in time to get this tested - I did a full backup and 
-restore earlier, zeroing all sectors on both drives. All is fine now, 
-however I have no idea how this has happened. I'll set one partition 
-faulty, re-add it and reboot later just to make sure it really works.
+Hi, 
+i failed compiling 2.4.23-pre3 because of this error:
+...
+In file included from via82cxxx.c:39:
+../ide-timing.h: In function `ide_find_best_mode':
+../ide-timing.h:124: `XFER_UDMA_133' undeclared (first use in this function)
+../ide-timing.h:124: (Each undeclared identifier is reported only once
+../ide-timing.h:124: for each function it appears in.)
+via82cxxx.c: In function `via_get_info':
+via82cxxx.c:250: duplicate case value
+via82cxxx.c:246: previously used here
+via82cxxx.c: In function `via82cxxx_ide_dma_check':
+via82cxxx.c:407: `XFER_UDMA_133' undeclared (first use in this function)
+make[4]: *** [via82cxxx.o] Error 1
+make[4]: Leaving directory `/usr/src/linux-2.4.22/drivers/ide/pci'
+make[3]: *** [first_rule] Error 2
+make[3]: Leaving directory `/usr/src/linux-2.4.22/drivers/ide/pci'
+make[2]: *** [_subdir_pci] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.4.22/drivers/ide'
+make[1]: *** [_subdir_ide] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.22/drivers'
+make: *** [_dir_drivers] Error 2
+...
+I think it's not difficult to correct but i'm not a C programmer :-(
+- -- 
+trattiamo gli italiani come persone e non come italiani
 
-2.6 has never been booted on that machine, or disks.
+Emiliano Testa
+ICQ #:64933789
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-Thanks, I'll keep mdadm in mind next time something like this happens ;-)
-
--- 
-Cheers,
-André Tomt
-andre@tomt.net
+iD8DBQE/WnZwQ324q/o2n0ERAu8wAJ4t99aCzpRC/IgWx3DJjb1IPHPmfACfR8tm
+pjVSxR1kd2qeK10i5hOLTH8=
+=6X0b
+-----END PGP SIGNATURE-----
 

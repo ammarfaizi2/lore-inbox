@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286794AbRL2WvR>; Sat, 29 Dec 2001 17:51:17 -0500
+	id <S287212AbRL2WyR>; Sat, 29 Dec 2001 17:54:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287200AbRL2WvG>; Sat, 29 Dec 2001 17:51:06 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:32260 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S286794AbRL2Wu7>; Sat, 29 Dec 2001 17:50:59 -0500
-Subject: Re: The direction linux is taking
-To: oxymoron@waste.org (Oliver Xymoron)
-Date: Sat, 29 Dec 2001 23:01:27 +0000 (GMT)
-Cc: lm@bitmover.com (Larry McVoy), linux-kernel@vger.kernel.org (linux-kernel)
-In-Reply-To: <Pine.LNX.4.43.0112291611040.18183-100000@waste.org> from "Oliver Xymoron" at Dec 29, 2001 04:24:56 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S287223AbRL2WyA>; Sat, 29 Dec 2001 17:54:00 -0500
+Received: from pop.gmx.de ([213.165.64.20]:9573 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S287218AbRL2Wxo>;
+	Sat, 29 Dec 2001 17:53:44 -0500
+Message-ID: <3C2E4934.D582AB91@gmx.de>
+Date: Sat, 29 Dec 2001 23:52:36 +0100
+From: Edgar Toernig <froese@gmx.de>
 MIME-Version: 1.0
+To: Daniel Phillips <phillips@bonn-fries.net>
+CC: Larry McVoy <lm@bitmover.com>, Timothy Covell <timothy.covell@ashavan.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: RFC: Linux Bug Tracking & Feature Tracking DB
+In-Reply-To: <200112290657.fBT6vMSr008000@svr3.applink.net> <20011229105525.C19306@work.bitmover.com> <3C2E14AB.69CEA694@gmx.de> <E16KRjh-0000GP-00@starship.berlin>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16KSTn-00060i-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It never shows up in the maintainer's inbox, leaving them more time to
-> address the remainder. And fewer of the increasingly bitter complaints of
-> dropped patches.
+Daniel Phillips wrote:
+> 
+> On December 29, 2001 08:08 pm, Edgar Toernig wrote:
+> > Larry McVoy wrote:
+> > >
+> > > The data in it is the current BitKeeper bug list (feel free to fix
+> > > some :-)
+> >
+> > Bah!  Debugging and patching binaries isn't fun!
+> 
+> Check the site, he provides the source.
 
-Most mangled diffs I get are caused by pine. Fixing pine would do more
-wonders than any magical patchbot. I also get patches and changes from
-people who quite genuinely either can't mail me unmangled diffs (eg the
-lotus corporate mail policy afflicted) or are from people who may really
-know their stuff and even be the vendor but are not familiar with the 
-patch/diff tools. A robot isn't going to teach them.
+Just checked it again: no sources.  Only binaries.  None of them
+will run on my system.  Last time I asked for the sources my
+request was rejected.
 
-
-Alan
+ET.

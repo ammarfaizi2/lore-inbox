@@ -1,37 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265939AbUBPXIl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 18:08:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265924AbUBPXI1
+	id S266011AbUBPXCJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 18:02:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265984AbUBPWyk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 18:08:27 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:64525 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S265975AbUBPXHQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 18:07:16 -0500
-Date: Mon, 16 Feb 2004 23:07:12 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] back out fbdev sysfs support
-In-Reply-To: <1076972292.3648.83.camel@gaston>
-Message-ID: <Pine.LNX.4.44.0402162306250.21833-100000@phoenix.infradead.org>
+	Mon, 16 Feb 2004 17:54:40 -0500
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:60868 "EHLO
+	hemi.commfireservices.com") by vger.kernel.org with ESMTP
+	id S265992AbUBPWx5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 17:53:57 -0500
+Date: Mon, 16 Feb 2004 17:53:38 -0500 (EST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       lhcs-devel@lists.sourceforge.net, Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH][2.6-mm] split drain_local_pages
+In-Reply-To: <20040216224425.GB6628@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.58.0402161752590.11793@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.58.0402161720390.11793@montezuma.fsmlabs.com>
+ <20040216224425.GB6628@elf.ucw.cz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 16 Feb 2004, Pavel Machek wrote:
 
-> > > James: The fbcon & cursor changes must get in asap. There are races that
-> > > I fixed, without the changes, those races will be in 2.6.3.
-> > 
-> > I just sent out a patch for people to try and look over before I submit 
-> > it.
-> 
-> Double check with what I already commited.
+> ...but code was passing cpu? The old version could not have compiled
+> according to the patch..
 
-It against Linus latest tree which included your submitted changes.
-
-
-
+No, it didn't compile, but the code wasn't enabled anyway, so that's ok.

@@ -1,52 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261728AbUKDCO0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261626AbUKDCOY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261728AbUKDCO0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 21:14:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262080AbUKDCIZ
+	id S261626AbUKDCOY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 21:14:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262101AbUKDCJQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 21:08:25 -0500
-Received: from sp-260-1.net4.netcentrix.net ([4.21.254.118]:12703 "EHLO
-	asmodeus.mcnaught.org") by vger.kernel.org with ESMTP
-	id S262064AbUKDB4l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 20:56:41 -0500
-To: Russell Miller <rmiller@duskglow.com>
-Cc: Kurt Wall <kwall@kurtwerks.com>, linux-kernel@vger.kernel.org
-Subject: Re: is killing zombies possible w/o a reboot?
-References: <200411030751.39578.gene.heskett@verizon.net>
-	<200411031901.28977.rmiller@duskglow.com>
-	<87654m4clz.fsf@asmodeus.mcnaught.org>
-	<200411031945.20894.rmiller@duskglow.com>
-From: Doug McNaught <doug@mcnaught.org>
-Date: Wed, 03 Nov 2004 20:56:28 -0500
-In-Reply-To: <200411031945.20894.rmiller@duskglow.com> (Russell Miller's
- message of "Wed, 3 Nov 2004 20:45:20 -0500")
-Message-ID: <87zn1y2x83.fsf@asmodeus.mcnaught.org>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/20.7 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 3 Nov 2004 21:09:16 -0500
+Received: from host157-148.pool8289.interbusiness.it ([82.89.148.157]:61587
+	"EHLO zion.localdomain") by vger.kernel.org with ESMTP
+	id S262046AbUKDBzY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 20:55:24 -0500
+Subject: [patch 06/20] uml: remove useless inclusion
+To: akpm@osdl.org
+Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net, cw@f00f.org,
+       blaisorblade_spam@yahoo.it
+From: blaisorblade_spam@yahoo.it
+Date: Thu, 04 Nov 2004 00:17:28 +0100
+Message-Id: <20041103231728.550C64F6D2@zion.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell Miller <rmiller@duskglow.com> writes:
 
-> Wouldn't it help with device driver problems?  Couldn't ring 1 be
-> used to make sure an errant driver doesn't drop the kernel, at least
-> on x86 machines?
+Avoid including some unused headers.
 
-As I understand it:
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
+---
 
-1) Ring transitions aren't free.
-2) The API between drivers and kernel is always in flux; drivers
-   expect to be able to access internal kernel data structures.
-   Making drivers run in ring 1 on even one of the N architectures
-   would be a major refactoring and would constrain API changes.
-   Freezing the internal API is something the developers don't want to
-   do.
-3) There are probably plenty of ways for a buggy driver to crash the
-   kernel even if it's running in ring 1 (turn off interrupts and
-   leave them off, etc).
+ vanilla-linux-2.6.9-paolo/arch/um/kernel/main.c                  |    2 ++
+ vanilla-linux-2.6.9-paolo/arch/um/kernel/skas/include/mmu-skas.h |    3 ---
+ 2 files changed, 2 insertions(+), 3 deletions(-)
 
-So the upshot is that it's probably not worth the work and portability
-hassles.
-
--Doug
+diff -puN arch/um/kernel/skas/include/mmu-skas.h~uml-remove-useless-inclusion arch/um/kernel/skas/include/mmu-skas.h
+--- vanilla-linux-2.6.9/arch/um/kernel/skas/include/mmu-skas.h~uml-remove-useless-inclusion	2004-11-03 23:44:58.287699040 +0100
++++ vanilla-linux-2.6.9-paolo/arch/um/kernel/skas/include/mmu-skas.h	2004-11-03 23:44:58.291698432 +0100
+@@ -6,9 +6,6 @@
+ #ifndef __SKAS_MMU_H
+ #define __SKAS_MMU_H
+ 
+-#include "linux/list.h"
+-#include "linux/spinlock.h"
+-
+ struct mmu_context_skas {
+ 	int mm_fd;
+ };
+diff -puN arch/um/kernel/main.c~uml-remove-useless-inclusion arch/um/kernel/main.c
+--- vanilla-linux-2.6.9/arch/um/kernel/main.c~uml-remove-useless-inclusion	2004-11-03 23:44:58.288698888 +0100
++++ vanilla-linux-2.6.9-paolo/arch/um/kernel/main.c	2004-11-03 23:44:58.291698432 +0100
+@@ -17,6 +17,8 @@
+ #include "kern_util.h"
+ #include "mem_user.h"
+ #include "signal_user.h"
++#include "time_user.h"
++#include "irq_user.h"
+ #include "user.h"
+ #include "init.h"
+ #include "mode.h"
+_

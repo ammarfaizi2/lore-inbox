@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262950AbUB1F0W (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Feb 2004 00:26:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262941AbUB1F0V
+	id S262973AbUB1F2M (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Feb 2004 00:28:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262982AbUB1F2M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Feb 2004 00:26:21 -0500
-Received: from smtp4.wanadoo.fr ([193.252.22.27]:5085 "EHLO
-	mwinf0402.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S262950AbUB1F0U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Feb 2004 00:26:20 -0500
-Date: Sat, 28 Feb 2004 06:26:18 +0000
-From: Philippe Elie <phil.el@wanadoo.fr>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: x86/64 and oprofile [was Re: Linux 2.6.4-rc1]
-Message-ID: <20040228062618.GH25439@zaniah>
-References: <Pine.LNX.4.58.0402271458480.1078@ppc970.osdl.org>
+	Sat, 28 Feb 2004 00:28:12 -0500
+Received: from ns1.a-s-i.com ([208.42.143.194]:39366 "EHLO mail.a-s-i.com")
+	by vger.kernel.org with ESMTP id S262973AbUB1F1X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Feb 2004 00:27:23 -0500
+Date: Fri, 27 Feb 2004 22:27:23 -0600
+From: Bob Glamm <glamm@a-s-i.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Adaptec 1210SA SATA Controller Performance
+Message-ID: <20040228042723.GA22033@romulus.a-s-i.com>
+References: <403B5B47.2030907@petermair.at> <403DAB74.1000504@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0402271458480.1078@ppc970.osdl.org>
-User-Agent: Mutt/1.4i
+In-Reply-To: <403DAB74.1000504@pobox.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Feb 2004 at 15:03 +0000, Linus Torvalds wrote:
+> >Yesterday I've setup a server with Adaptec's 1210SA SATA Controller and 
+> >2 SATA disks. According to the kernel changelog the controller is 
+> >supported since 2.6.2
+> >
+> >I've installed Debian on an IDE disk, built a 2.6.3 kernel with 
+> >CONFIG_SCSI_SATA_SIL, rebooted and the kernel detected the controller 
+> >plus both SATA disks (sda, sdb). As the next step I wanted to create a 
+> >software raid 1 with the 2 SATA disks. Because it took mdadm forever to 
+> >finish, I checked /proc/mdstat and saw a progress bar with a rate of 
+> >12MB/s!
 
->   o Allow P4 oprofile code for x86-64
+More to the point, why didn't you just install a 2.4.18 kernel
+and use the Adaptec-supplied driver and the RAID-1 capabilities
+built into the card's firmware?  (Note, I'm not trying to disparage
+Jeff's work on libata here.)
 
-P4 oprofile needs cpu_sibling_map and smp_num_siblings, the later
-was not exported
+I have this setup and it works flawlessly with a pair of 160GB
+SATA drives.
 
-regards,
-Phil
-
-===== arch/x86_64/kernel/x8664_ksyms.c 1.25 vs edited =====
---- 1.25/arch/x86_64/kernel/x8664_ksyms.c	Wed Feb 25 16:06:01 2004
-+++ edited/arch/x86_64/kernel/x8664_ksyms.c	Sat Feb 28 06:10:55 2004
-@@ -196,6 +196,7 @@
- 
- #ifdef CONFIG_SMP
- EXPORT_SYMBOL(cpu_sibling_map);
-+EXPORT_SYMBOL(smp_num_siblings);
- #endif
- 
- extern void do_softirq_thunk(void);
+-Bob

@@ -1,73 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129245AbRBHIrk>; Thu, 8 Feb 2001 03:47:40 -0500
+	id <S129031AbRBHJYK>; Thu, 8 Feb 2001 04:24:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129031AbRBHIrb>; Thu, 8 Feb 2001 03:47:31 -0500
-Received: from f111.law4.hotmail.com ([216.33.149.111]:4359 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S129030AbRBHIrP>;
-	Thu, 8 Feb 2001 03:47:15 -0500
-X-Originating-IP: [207.74.111.149]
-From: "Manish kochhal" <kochhal_manish@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Fwd: Partitioning H/disk & triple booting for RedHat Linux 7.0 , win98 and Win2000
-Date: Thu, 08 Feb 2001 08:47:08 -0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F111k1Ixzl4anSs21Ud00004ae9@hotmail.com>
-X-OriginalArrivalTime: 08 Feb 2001 08:47:08.0911 (UTC) FILETIME=[B89D0FF0:01C091AB]
+	id <S129032AbRBHJYA>; Thu, 8 Feb 2001 04:24:00 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:51079 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S129031AbRBHJXx>;
+	Thu, 8 Feb 2001 04:23:53 -0500
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14978.25940.810790.934587@pizda.ninka.net>
+Date: Thu, 8 Feb 2001 01:22:28 -0800 (PST)
+To: Mitchell Blank Jr <mitch@sfgoth.com>
+Cc: dean gaudet <dean-list-linux-kernel@arctic.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: dentry cache order 7 is broken
+In-Reply-To: <20010208002212.Q12227@sfgoth.com>
+In-Reply-To: <Pine.LNX.4.33.0102072302030.5947-100000@twinlark.arctic.org>
+	<14978.21605.98365.252519@pizda.ninka.net>
+	<20010208002212.Q12227@sfgoth.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Mitchell Blank Jr writes:
+ >   1. The inode-cache has the exact same problem, but it'll require a lot
+ >      of RAM to run into it.  The buffer and page caches don't have the
+ >      same problem.
 
+Yep, fix attached.  You just need 1GB ram to hit that case.
 
+ >   2. Given that D_HASHBITS is not a constant I wonder if there isn't
+ >      a more efficient hash to be found.  But I guess I'll leave that
+ >      to the hashing experts.
 
->
->hi
->
->Linux Enthusiasts !
->
->I am a newbie to RedHat Linux and the partitioning stuff...
->
->I have an AMD Athlon 1.2 Ghz processor with an IBM deskstar 45 GB h/disk
->
->the system already came with Windows 98 and then I installed Windows 2000 
->and Red hat Linux 7.0
->
->However I am not able to boot linux with triple boot...I think I havent 
->partitioned the h/disk properly...For Booting into Linux using the NT 
->bootloader I modified the boot.ini file and added an entry for linux to 
->point to a file which I got from the linux console by typing
->
->dd if=/dev/hda3 bs=512 count=1 of=/root/linux.bin
->mcopy /root/linux.bin a:.
->
->However, it didnt work...I think that there are some strict requirements 
->with the /boot partition and 1024 cylinder boundary of the Windows
->
->I am not aware of it fully...Can u help me with that ?
->
->Moreover, please can u suggest how I should partition my entire Hard-disk
->I actually intend to partition the h/disk like this:
->
->20 GB to Win98
->
->13 GB to Win2000
->
->10 GB to Linux...
->
->Your Suggestions are very much needed...
->
->Thanks,
->Manish
->
->
->
->
+For the moment anything is better than when you hit this
+bug :-)
 
-_________________________________________________________________________
-Get Your Private, Free E-mail from MSN Hotmail at http://www.hotmail.com.
-
+--- fs/inode.c.~1~	Sun Feb  4 20:45:36 2001
++++ fs/inode.c	Thu Feb  8 01:21:07 2001
+@@ -729,7 +729,8 @@
+ static inline unsigned long hash(struct super_block *sb, unsigned long i_ino)
+ {
+ 	unsigned long tmp = i_ino + ((unsigned long) sb / L1_CACHE_BYTES);
+-	tmp = tmp + (tmp >> I_HASHBITS) + (tmp >> I_HASHBITS*2);
++	tmp = tmp + (tmp >> I_HASHBITS) +
++		(tmp >> (I_HASHBITS+(I_HASHBITS/2)));
+ 	return tmp & I_HASHMASK;
+ }
+ 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

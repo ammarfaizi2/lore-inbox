@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130139AbRAWK5F>; Tue, 23 Jan 2001 05:57:05 -0500
+	id <S129807AbRAWLBI>; Tue, 23 Jan 2001 06:01:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130572AbRAWK4v>; Tue, 23 Jan 2001 05:56:51 -0500
-Received: from mail.zmailer.org ([194.252.70.162]:65030 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S130139AbRAWK4l>;
-	Tue, 23 Jan 2001 05:56:41 -0500
-Date: Tue, 23 Jan 2001 12:56:36 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: David Ford <david@linux.com>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: NETDEV timeout on tulips [was: Re: 2.4.1-test10]
-Message-ID: <20010123125636.I25659@mea-ext.zmailer.org>
-In-Reply-To: <Pine.LNX.4.10.10101221711560.1309-100000@penguin.transmeta.com> <3A6CF5B7.57DEDA11@linux.com> <3A6D2D54.619AFA7E@mandrakesoft.com> <3A6D616F.63EB34A6@linux.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3A6D616F.63EB34A6@linux.com>; from david@linux.com on Tue, Jan 23, 2001 at 10:48:16AM +0000
+	id <S129878AbRAWLA6>; Tue, 23 Jan 2001 06:00:58 -0500
+Received: from horus.its.uow.edu.au ([130.130.68.25]:45761 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S129807AbRAWLAs>; Tue, 23 Jan 2001 06:00:48 -0500
+Message-ID: <3A6D6602.BCA969E2@uow.edu.au>
+Date: Tue, 23 Jan 2001 22:07:46 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Tigran Aivazian <tigran@veritas.com>
+CC: Chmouel Boudjnah <chmouel@mandrakesoft.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.1-pre8/10 klogd taking 100% of CPU time -- bug?
+In-Reply-To: <m3g0iaxzr6.fsf@giants.mandrakesoft.com> <Pine.LNX.4.21.0101231044220.1386-100000@penguin.homenet>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 23, 2001 at 10:48:16AM +0000, David Ford wrote:
-> The three cardbus cards are slightly different in numerous ways.  For
-> them they normally fault with an APM event, an eject/insert cycle via
-> software will reset hem and a link down/up won't fix it.  For the PCI
-> cards most times a link down/up cycle will fix them.  It's a 2.4 v.s. 2.2
-> issue, the 2.2 kernels aren't exhibiting this error.
+Tigran Aivazian wrote:
+> 
+> Asset Tag: Ñ^L.
+> Asset Tag: Ò^L.
+> 
+> Btw, that Asset Tag printk's are surely buggy, aren't they? Aren't they
+> supposed to dump in hex instead of some unprintable stuff?
 
-	I see that with my AT2800TX cardbus card as well.
-	(Using Tulip driver, no less.)
+I bugged Alan about that a few weeks back and he mumbled
+something cryptic.  It seems he's going to take it out sometime.
 
-> The PCI cards are hard to get into this state, sometimes they'll run
-> millions of packets for months on end before they'll burp.  Sometimes
-> it'll happen three times a night.  The amount of traffic doesn't seem
-> to matter, nor does the type of traffic.
+As far as the klogd problem is concerned, see
 
-	Sounds like timing issue.
+	http://www.uwsg.iu.edu/hypermail/linux/kernel/0101.1/1053.html
 
-> -d
+for a probable solution.
 
-/Matti Aarnio
+-
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

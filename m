@@ -1,63 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262050AbTD3AO2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 20:14:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262054AbTD3AO1
+	id S262041AbTD3ALg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 20:11:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262049AbTD3ALg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 20:14:27 -0400
-Received: from main.gmane.org ([80.91.224.249]:63111 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262050AbTD3AOZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 20:14:25 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Nicholas Wourms <nwourms@myrealbox.com>
-Subject: Re: 2.4.21-rc1-ac2 Promise IDE DMA won't work
-Date: Tue, 29 Apr 2003 20:21:39 -0400
-Message-ID: <3EAF1713.7000009@myrealbox.com>
-References: <Pine.LNX.4.10.10304291301150.20264-100000@master.linux-ide.org> <200304291841.38501.tabris@sbcglobal.net>
+	Tue, 29 Apr 2003 20:11:36 -0400
+Received: from deviant.impure.org.uk ([195.82.120.238]:58055 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S262041AbTD3ALf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Apr 2003 20:11:35 -0400
+Date: Wed, 30 Apr 2003 01:22:55 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Gabriel Devenyi <devenyga@mcmaster.ca>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] KernelJanitor: Convert remaining error returns to return -E Linux 2.5.68
+Message-ID: <20030430002240.GA29365@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Gabriel Devenyi <devenyga@mcmaster.ca>,
+	"Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
+References: <200304292215.20590.devenyga@mcmaster.ca> <20030429153244.19c32b3c.rddunlap@osdl.org> <200304292308.30947.devenyga@mcmaster.ca>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@main.gmane.org
-Cc: alan@lxorguk.ukuu.org.uk
-User-Agent: Mozilla/5.0 (Windows; U; Win 9x 4.90; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
-X-Enigmail-Version: 0.74.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200304292308.30947.devenyga@mcmaster.ca>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tabris wrote:
-> On Tuesday 29 April 2003 04:15 pm, Andre Hedrick wrote:
-> 
->>The Promise chipset use a second DMA engine at offset 0x24 respective
->>of the channel.  Mixing an ATA and ATAPI on that channel is almost
->>impossible to make the corner cases work.  Next, if there us a 48-bit
->>ATA plus ATAPI on the channel popping between the two enignes does
->>not look sane at all because one has to swithc the location of the
->>hwif->sgtable.
-> 
-> 
-> Ok... moved the HDDs from the VIA secondary to the PDC primary (tried 
-> moving both, but it seems that ide=reverse doesn't work), and the 
-> CD-R/W to the VIA secondary.
-> 
-> good news, regular reads seem to use the DMA engine. bad news, CDDA 
-> ripping (using cdparanoia) does not.
-> 
-> is this a known issue? (i thought that CDDA ripping had been fixed)
-> 
+On Tue, Apr 29, 2003 at 11:08:30PM +0000, Gabriel Devenyi wrote:
 
-Have you tried Andrew Morton's ide-cd dma patch?  It seems to have 
-worked well for me, at least.  A summary of what it does is included at 
-the top of the patch.
+ > P.S. Anyone who works on KernelJanitor, kj.pl is suggesting some of the things 
+ > I'm changing which aparently I shouldn't.
 
-http://www.zipworld.com.au/~akpm/linux/patches/2.4/2.4.20/ide-akpm.patch
+I'd take most things it says with a pinch of salt.
+I wasn't kidding when I said I knew no perl at all before I wrote this.
+I stopped hacking on it when Dan Carpenters smatch appeared, as it
+was a more 'real' solution with a future.
 
-Perhaps Alan might considier it for the -rc2 ac patch?
+kj.pl was a fun weekend hack.
 
-Cheers,
-Nicholas
-
+		Dave
 

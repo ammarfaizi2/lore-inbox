@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264021AbTEFSYK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 14:24:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264022AbTEFSYJ
+	id S264023AbTEFS3y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 14:29:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264050AbTEFS3x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 14:24:09 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53387 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264021AbTEFSYG
+	Tue, 6 May 2003 14:29:53 -0400
+Received: from modemcable166.48-200-24.mtl.mc.videotron.ca ([24.200.48.166]:21676
+	"EHLO xanadu.home") by vger.kernel.org with ESMTP id S264023AbTEFS3x
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 14:24:06 -0400
-Message-ID: <3EB800B4.40204@pobox.com>
-Date: Tue, 06 May 2003 14:36:36 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	Tue, 6 May 2003 14:29:53 -0400
+Date: Tue, 6 May 2003 14:42:18 -0400 (EDT)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: nico@xanadu.home
+To: Jens Axboe <axboe@suse.de>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Russell King <rmk@arm.linux.org.uk>,
+       =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       Marcus Meissner <meissner@suse.de>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Only use MSDOS-Partitions by default on X86
+In-Reply-To: <20030506183010.GK905@suse.de>
+Message-ID: <Pine.LNX.4.44.0305061436510.11648-100000@xanadu.home>
 MIME-Version: 1.0
-To: "Grover, Andrew" <andrew.grover@intel.com>
-CC: Andrew Morton <akpm@digeo.com>, Nicolas <linux@1g6.biz>,
-       linux-kernel@vger.kernel.org
-Subject: Re: oops 2.5.68 ohci1394/ IRQ/acpi
-References: <F760B14C9561B941B89469F59BA3A84725A28E@orsmsx401.jf.intel.com>
-In-Reply-To: <F760B14C9561B941B89469F59BA3A84725A28E@orsmsx401.jf.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grover, Andrew wrote:
-> Ohhh so we need to not just return nonzero, but return 1 (aka
-> IRQ_HANDLED?) Well, then this makes sense. Sorry about that.
+On Tue, 6 May 2003, Jens Axboe wrote:
+
+> On Tue, May 06 2003, Alan Cox wrote:
+> > On Maw, 2003-05-06 at 18:23, Nicolas Pitre wrote:
+> > > According to Alan it's nearly possible to configure the block layer out 
+> > > entirely, which would be a good thing to associate with a CONFIG_DISK option 
+> > > too.
+> > 
+> > David Woodhouse I believe..
 > 
-> btw I think the line in handle_IRQ_event that reads
-> 
-> if (retval != 1) {
-> 
-> should be
-> 
-> if (retval != IRQ_HANDLED) {
+> Are we talking about everything below submit_bh/bio? Shouldn't be too
+> hard to write a small no-block.c for that...
+
+The idea is to configure out everything not needed when only NFS and/or JFFS 
+(which doesn't rely on the block layer to work) are used.  Pretty useful for 
+networked or embedded machines.
 
 
-Then I must further nit-pick:  if IRQ_HANDLED is considered "non-zero" 
-the above test should be against IRQ_NONE, to avoid directly considering 
-any single value _the_ non-zero value...
-
-	Jeff
-
-
+Nicolas
 

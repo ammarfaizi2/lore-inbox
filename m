@@ -1,59 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132072AbQKVBtO>; Tue, 21 Nov 2000 20:49:14 -0500
+	id <S132071AbQKVBuz>; Tue, 21 Nov 2000 20:50:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132071AbQKVBtG>; Tue, 21 Nov 2000 20:49:06 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:25356
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S132111AbQKVBsq>; Tue, 21 Nov 2000 20:48:46 -0500
-Date: Tue, 21 Nov 2000 17:14:04 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Bartlomiej Zolnierkiewicz <dake@staszic.waw.pl>
-cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [uPATCH] fix IDE/ServerWorks OSB4 config option (test11)
-In-Reply-To: <Pine.LNX.4.21.0011211522570.4622-100000@tricky>
-Message-ID: <Pine.LNX.4.10.10011211713120.29032-100000@master.linux-ide.org>
+	id <S132125AbQKVBuf>; Tue, 21 Nov 2000 20:50:35 -0500
+Received: from uberbox.mesatop.com ([208.164.122.11]:38930 "EHLO
+	uberbox.mesatop.com") by vger.kernel.org with ESMTP
+	id <S132071AbQKVBud>; Tue, 21 Nov 2000 20:50:33 -0500
+From: Steven Cole <elenstev@mesatop.com>
+Reply-To: elenstev@mesatop.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.0test11-ac1
+Date: Tue, 21 Nov 2000 18:20:29 -0700
+X-Mailer: KMail [version 1.1.95.2]
+Content-Type: text/plain; charset=US-ASCII
+Cc: alan@lxorguk.ukuu.org.uk
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-Id: <00112118202900.25333@localhost.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox wrote:
+>
+>> I tried to compile 2.4.0-test11-ac1, and here is where the compile bombed 
+out:
+>> 
+>> /usr/bin/kgcc -D__KERNEL__ -I/usr/src/linux/include -Wall 
+-Wstrict-prototypes 
+>> -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe  -march=i686    -c -o 
+>> sched.o sched.c
+>> irq.c:182: conflicting types for `global_irq_lock'
+>> /usr/src/linux/include/asm/hardirq.h:45: previous declaration of 
+>> `global_irq_lock'
+>
+>I'll check this. I take it you tried an SMP build ?
 
-Oh well mistakes in Config are okay and not fatal.
+Yes, this above build attempt was for an SMP kernel.  When I got home,
+I tried to build an UP kernel with test11-ac1, and as I'm sure you know 
+already, it worked perfectly.  I then tried to build another SMP kernel, with 
+the same results as above.  
 
-Thanks for the find Bart.
+I submitted a tiny patchlet earlier for this.  It seems to fix the symptoms.
+I compiled and ran a kernel with this patch on the SMP box at work.
 
-Cheers,
+I replicated the associated comment for people searching on this pattern.
 
-On Tue, 21 Nov 2000, Bartlomiej Zolnierkiewicz wrote:
+I'm at home now, please cc any questions or comments to elenstev@mesatop.com.
 
-> 
-> Hi
-> 
-> In drivers/Config.in CONFIG_BLK_DEV_OSB4 depends on itself...
-> 
-> --
-> Bartlomiej Zolnierkiewicz
-> <bkz@linux-ide.org>
-> 
-> --- linux-240t11/drivers/ide/Config.in	Wed Nov 15 22:02:11 2000
-> +++ linux/drivers/ide/Config.in	Tue Nov 21 14:52:07 2000
-> @@ -68,7 +68,7 @@
->  	    dep_bool '    OPTi 82C621 chipset enhanced support (EXPERIMENTAL)' CONFIG_BLK_DEV_OPTI621 $CONFIG_EXPERIMENTAL
->  	    dep_bool '    PROMISE PDC20246/PDC20262/PDC20267 support' CONFIG_BLK_DEV_PDC202XX $CONFIG_BLK_DEV_IDEDMA_PCI
->  	    dep_bool '      Special UDMA Feature' CONFIG_PDC202XX_BURST $CONFIG_BLK_DEV_PDC202XX
-> -	    dep_bool '    ServerWorks OSB4 chipset support' CONFIG_BLK_DEV_OSB4 $CONFIG_BLK_DEV_OSB4
-> +	    dep_bool '    ServerWorks OSB4 chipset support' CONFIG_BLK_DEV_OSB4 $CONFIG_BLK_DEV_IDEDMA_PCI $CONFIG_X86
->  	    dep_bool '    SiS5513 chipset support' CONFIG_BLK_DEV_SIS5513 $CONFIG_BLK_DEV_IDEDMA_PCI $CONFIG_X86
->  	    dep_bool '    SLC90E66 chipset support' CONFIG_BLK_DEV_SLC90E66 $CONFIG_BLK_DEV_IDEDMA_PCI $CONFIG_X86
->  	    dep_bool '    Tekram TRM290 chipset support (EXPERIMENTAL)' CONFIG_BLK_DEV_TRM290 $CONFIG_BLK_DEV_IDEDMA_PCI
-> 
-> 
+Steven 
 
-Andre Hedrick
-CTO Timpanogas Research Group
-EVP Linux Development, TRG
-Linux ATA Development
+Here is the patchlet again:
+
+diff -u linux/include/asm/hardirq.h.orig linux/include/asm/hardirq.h
+--- linux/include/asm/hardirq.h.orig    Tue Nov 21 13:38:07 2000
++++ linux/include/asm/hardirq.h Tue Nov 21 13:40:13 2000
+@@ -42,7 +42,7 @@
+ #include <asm/smp.h>
+
+ extern unsigned char global_irq_holder;
+-extern unsigned volatile int global_irq_lock;
++extern unsigned volatile long global_irq_lock; /* long for set_bit --RR */
+
+ static inline int irqs_running (void)
+ {
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

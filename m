@@ -1,62 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265027AbTFCO3U (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 10:29:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265030AbTFCO3T
+	id S265029AbTFCOcE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 10:32:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265031AbTFCOcE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 10:29:19 -0400
-Received: from ns.suse.de ([213.95.15.193]:16134 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265027AbTFCO3S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 10:29:18 -0400
-Date: Tue, 3 Jun 2003 16:42:54 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@digeo.com>
-Cc: adam@yggdrasil.com, linux-kernel@vger.kernel.org
-Subject: Re: Counter-kludge for 2.5.x hanging when writing to block device
-Message-ID: <20030603144254.GE4853@suse.de>
-References: <200306030848.h538mwE22282@freya.yggdrasil.com> <20030603091018.GI482@suse.de> <20030603030023.69d39d6e.akpm@digeo.com> <20030603100255.GJ482@suse.de> <20030603032034.20202091.akpm@digeo.com>
+	Tue, 3 Jun 2003 10:32:04 -0400
+Received: from [212.18.235.100] ([212.18.235.100]:12295 "EHLO
+	tench.street-vision.com") by vger.kernel.org with ESMTP
+	id S265029AbTFCOcD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 10:32:03 -0400
+Subject: Re: siimage driver status
+From: Justin Cormack <justin@street-vision.com>
+To: "Wm. Josiah Erikson" <josiah@insanetechnology.com>
+Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0306031009390.20263-100000@bork.hampshire.edu>
+References: <Pine.LNX.4.44.0306031009390.20263-100000@bork.hampshire.edu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11) 
+Date: 03 Jun 2003 15:45:41 +0100
+Message-Id: <1054651541.17709.169.camel@lotte>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030603032034.20202091.akpm@digeo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 03 2003, Andrew Morton wrote:
-> Jens Axboe <axboe@suse.de> wrote:
-> >
-> >  > b) it should check that there are still requests in flight after parking
-> >  >    itself on the waitqueue rather than relying on the timeout.
-> > 
-> >  This is important, would be much nicer to pass in the backing dev. This
-> >  is a big problem, imho. It's broken right now.
+On Tue, 2003-06-03 at 15:11, Wm. Josiah Erikson wrote:
+> I have two drives (WD Raptors) on my A7N8X. I don't see any errors, even 
+> after writing 9GB of data to the drive (after I've done an hdparm -X66 
+> -d1 /dev/hd[x]), but it still boots up in pio mode. 
+> Is there some silly hack I can do to the driver code to force all devices 
+> to DMA on bootup? Everything works fine except for that. I'm using 
+> 2.4.21-rc6-ac1
+> Thanks!
+> 	-Josiah
 > 
-> The throttling is not really a per-device concept.  It is a "global"
-> concept.
 > 
-> If a process has written to a really slow device and has encountered
-> throttling due to exceeded dirty memory limits, we _do_ want to wake that
-> process up (to reevaluate the system state) if a bunch of writes terminate
-> against a fast device.
+> This issue was reported by at least 3 People here on the list (including 
+> me) with different 21-rcX kernels. Seems noone really cared :-(
 > 
-> There is a fixed amount of system memory which the administrator has
-> dedicated to buffering of dirty-and-writeback data and I believe that not
-> discriminating between different bandwidth devices will give the overall
-> lowest latency.  This may be wrong, and maybe we do want to throttle tasks
-> which write to slow devices more heavily.
-> 
-> Or place the device's nominal bandwidth in the backing_dev_info, account
-> for dirty memory on a per-queue basis and limit the permissible amount of
-> dirty memory against slower devices.  That's probably not too hard to do
-> but I'm not sure that the combination of slow and fast devices both under
-> heavy writeout at the same time is common enough to justify it.
+> I hope, this issue now get's addressed.
+> btw. I could speed up my Transfer-Rate from 1.7MB/s to 55MB/s by setting
+> hdparm -d1 -X66 on my two native SATA-Drives.
 
-Per process slow vs fast device is probably not common enough to justify
-any changes, as long as we deal correctly with fast vs slow globally.
+I think people care. Andre said he was working on a fix for the Seagate
+drives some time back. It does seem that all BIOSs leave SATA drives in
+PIO mode. That may be a bios bug really rather than a linux bug. But if
+you put the hdparm somewhere early in boot you should be ok, as a
+temporary workaround.
 
-But your mail explains it nicely, thanks.
-
--- 
-Jens Axboe
 

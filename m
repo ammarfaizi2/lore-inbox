@@ -1,50 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274610AbRIYKkT>; Tue, 25 Sep 2001 06:40:19 -0400
+	id <S274617AbRIYKm3>; Tue, 25 Sep 2001 06:42:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274611AbRIYKkK>; Tue, 25 Sep 2001 06:40:10 -0400
-Received: from femail35.sdc1.sfba.home.com ([24.254.60.25]:32684 "EHLO
-	femail35.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S274610AbRIYKj4>; Tue, 25 Sep 2001 06:39:56 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Nicholas Knight <tegeran@home.com>
-Reply-To: tegeran@home.com
-To: "Dr. Michael Weller" <eowmob@exp-math.uni-essen.de>,
-        "[A]ndy80" <andy80@ptlug.org>
-Subject: Re: Burning a CD image slow down my connection
-Date: Tue, 25 Sep 2001 03:40:18 -0700
-X-Mailer: KMail [version 1.3.1]
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.A32.3.95.1010925121523.20872B-100000@werner.exp-math.uni-essen.de>
-In-Reply-To: <Pine.A32.3.95.1010925121523.20872B-100000@werner.exp-math.uni-essen.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010925104017.RLQT29954.femail35.sdc1.sfba.home.com@there>
+	id <S274611AbRIYKmT>; Tue, 25 Sep 2001 06:42:19 -0400
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:24588 "HELO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
+	id <S274612AbRIYKmI>; Tue, 25 Sep 2001 06:42:08 -0400
+Date: Tue, 25 Sep 2001 12:42:31 +0200
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: [PATCH] 2.4.10 improved reiserfs a lot, but could still be better
+Message-ID: <20010925124231.A1390@emma1.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	reiserfs-list@namesys.com
+In-Reply-To: <B0005839269@gollum.logi.net.au> <20010924200537.SRVB23487.femail38.sdc1.sfba.home.com@there> <20010925021113.B22073@emma1.emma.line.org> <20010925044949.JNOU8313.femail42.sdc1.sfba.home.com@there>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <20010925044949.JNOU8313.femail42.sdc1.sfba.home.com@there>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 25 September 2001 03:21 am, Dr. Michael Weller wrote:
-> On 25 Sep 2001, [A]ndy80 wrote:
-> > I've my Plextor Writer as secondary master seen as a scsi device
-> > and if I try do use hdparm it says:
-> >
-> > [root@piccoli shady]# hdparm -t /dev/cdrom
-> > /dev/cdrom not supported by hdparm
->
-> Hmm, /dev/cdrom would typically be a link. You might try to apply
-> hdparm to where the link points to, but I cannot really believe
-> hdparm doesn't follow links.
->
-> Normally /dev/cdrom should point to /dev/hdc in your case. I somewhat
-> suspect that it points to /dev/scd0. If so, can you actually
-> mount the cdrom? The ide2scsi device emulation basically just passes
-> scsi commands as atapi commands over the ide bus (since atapi just
-> use the scsi commands but tunnel them over ide). I'm surprised this
-> also works for cdroms. I wasn't aware of the fact they are ATAPI and
-> thus support the scsi command set. Maybe the cdwriters are special in
-> that context.
+On Mon, 24 Sep 2001, Nicholas Knight wrote:
 
-My DVD-ROM drive and Plextor PlexWriter CD-RW drive both function under 
-the idescsi emulation driver. *All* current IDE CD writers are ATAPI 
-and REQUIRE idescsi (or in windows, an ASPI layer) in order to be used 
-as a cd writer.
+> It's a very remote possability of failure, like most instances where 
+> write-cache would cause problems. Catastrophic failure of the IDE cable 
+> in mid-write will cause problems. If write cache is enabled, the write 
+> stands a higher chance of having made it to the drive before the cable 
+> died, with it off, it stands a higher chance of NOT having made it 
+> entirely to the drive.
+
+Cables don't suddenly die without the help of e. g. your CPU fan.
+
+> For most drives, I don't know for sure if they'd finish the write 
+> that's now sitting in their cache, but I expect higher quality drives 
+> (such as our IBM drives) definitely would. Infact I may even be willing 
+> to test this later (my swap partition looks like it wants to help :)
+
+Drives would not write incomplete blocks.
+
+> > It may be an implementation problem in our IBM drives which ship with
+> > their write caches enabled, someone please do this test on current
+> > Fujitsu, Maxtor or Seagate IDE drives or with different controllers.
+> 
+> Either Maxtor or Western Digital share very close designs to IBM 
+> drives, I belive they had some sort of development partnership. I'm not 
+> sure if it was Maxtor or WD. 
+
+The Western Digital 420400D (20 GB, 5400/min) and its 7200/min brother
+with 18 GBs were IBM disk drives, supposedly, but the WD ...AA/BB drives
+and whatever else there was looked some different from IBM drives.
+
+> > Why are disk drives slower with their caches disabled on LINEAR
+> > writes?
+> 
+> Maybe the cache isn't doing what we think it is?
+
+Maybe. A monitor software or debug mode would be good to see when writes
+are scheduled and which blocks are written (I need to ask a friend of
+mine who hacked ll_rw_blk.c on a different purpose for his diploma
+thesis, maybe his code is valuable to figure things out.)
+
+> Does anyone have contacts at IBM and/or Western Digital? Something's 
+> up... The 256MB write with write-cache off was going at 5.8MB/sec, and 
+> with it on it was going at 14.22MB/sec (averages). One interesting 
+> thing, the timings are showing a pretty consistant but tiny increase in 
+> sys time with write caching on.
+
+I also saw that here, but again, it's basically the same hardware.
+
+-- 
+Matthias Andree
+
+"Those who give up essential liberties for temporary safety deserve
+neither liberty nor safety." - Benjamin Franklin

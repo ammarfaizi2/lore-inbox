@@ -1,62 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261755AbULUN36@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261756AbULUNbY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261755AbULUN36 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 08:29:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261756AbULUN36
+	id S261756AbULUNbY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 08:31:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbULUNbY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 08:29:58 -0500
-Received: from piglet.wetlettuce.com ([82.68.149.69]:10369 "EHLO
-	piglet.wetlettuce.com") by vger.kernel.org with ESMTP
-	id S261755AbULUN35 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 08:29:57 -0500
-Message-ID: <49295.192.102.214.6.1103635762.squirrel@webmail.wetlettuce.com>
-Date: Tue, 21 Dec 2004 13:29:22 -0000 (GMT)
-Subject: Re: Lockup with 2.6.9-ac15 related to netconsole
-From: "Mark Broadbent" <markb@wetlettuce.com>
-To: <romieu@fr.zoreil.com>
-In-Reply-To: <20041221123727.GA13606@electric-eye.fr.zoreil.com>
-References: <59719.192.102.214.6.1103214002.squirrel@webmail.wetlettuce.com>
-        <20041216211024.GK2767@waste.org>
-        <34721.192.102.214.6.1103274614.squirrel@webmail.wetlettuce.com>
-        <20041217215752.GP2767@waste.org>
-        <20041217233524.GA11202@electric-eye.fr.zoreil.com>
-        <36901.192.102.214.6.1103535728.squirrel@webmail.wetlettuce.com>
-        <20041220211419.GC5974@waste.org>
-        <20041221002218.GA1487@electric-eye.fr.zoreil.com>
-        <20041221005521.GD5974@waste.org>
-        <52121.192.102.214.6.1103624620.squirrel@webmail.wetlettuce.com>
-        <20041221123727.GA13606@electric-eye.fr.zoreil.com>
-X-Priority: 3
-Importance: Normal
-X-MSMail-Priority: Normal
-Cc: <mpm@selenic.com>, <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>
-Reply-To: markb@wetlettuce.com
-X-Mailer: SquirrelMail (version 1.2.6)
+	Tue, 21 Dec 2004 08:31:24 -0500
+Received: from relay1.tiscali.de ([62.26.116.129]:60653 "EHLO
+	webmail.tiscali.de") by vger.kernel.org with ESMTP id S261756AbULUNbQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Dec 2004 08:31:16 -0500
+Message-ID: <41C82587.6030705@tiscali.de>
+Date: Tue, 21 Dec 2004 14:30:47 +0100
+From: Matthias-Christian Ott <matthias.christian@tiscali.de>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040916)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MailScanner: Mail is clear of Viree
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Cyrix 6x86 Comma Bug 2.6
+References: <41C41A04.8030009@tiscali.de>	 <200412210026.17426.vda@port.imtp.ilyichevsk.odessa.ua> <1103588598.32550.1.camel@localhost.localdomain>
+In-Reply-To: <1103588598.32550.1.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox wrote:
 
-Francois Romieu said:
-> Mark Broadbent <markb@wetlettuce.com> :
-> [...]
->> OK, patch applied and spinlock debugging enabled.  Testing with eth1
->> (r1869) doesn'tyield any additional messages, just the standard
->> 'NMI Watchdog detected lockup'.
+>On Llu, 2004-12-20 at 22:26, Denis Vlasenko wrote:
+>  
 >
-> Does the modified version below trigger _exactly_ the same hang ?
+>>It is very unlikely that you see "Coma" bug. It can be triggered only
+>>by deliberately coded tight endless loop. "Ugly tokens on the screen"
+>>suggest that you see something else.
+>>    
+>>
+>
+>Presumably those tokens included "Oops" somewhere near the top and
+>function names. The Cyrix stuff is notoriously hard to keep cool so that
+>may be a good thing to check, as well as running memtest86+ to check the
+>RAM.
+>
+>Also some very early stepping 6x86 Cyrixes simply don't run Linux
+>reliably and it seemed to be cache problems in the CPU.
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
+Hi!
+The problem wasn't the comma bug, one of the pci slots is broken. But 
+thanks for your interest.
 
-Using the patch supplied I get no hang, just the message 'netconsole
-raced' output to the console and the packet capture proceeds as normal.
-Thanks
-Mark
-
--- 
-Mark Broadbent <markb@wetlettuce.com>
-Web: http://www.wetlettuce.com
-
-
-
+Sincerely
+Matthias-Christian Ott

@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263456AbTJQNFL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 09:05:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263460AbTJQNFL
+	id S263423AbTJQNET (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 09:04:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263453AbTJQNET
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 09:05:11 -0400
-Received: from sampa7.prodam.sp.gov.br ([200.230.190.107]:24075 "EHLO
-	sampa7.prodam.sp.gov.br") by vger.kernel.org with ESMTP
-	id S263456AbTJQNEq convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 09:04:46 -0400
-Subject: Re: 2.6.0-test7-mm1
-From: Luiz Capitulino <lcapitulino@prefeitura.sp.gov.br>
-To: dev@sw.ru
-Cc: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200310171258.11519.dev@sw.ru>
-References: <20031015013649.4aebc910.akpm@osdl.org>
-	 <1066232576.25102.1.camel@telecentrolivre>
-	 <20031015165508.GA723@holomorphy.com>  <200310171258.11519.dev@sw.ru>
-Content-Type: text/plain; charset=iso-8859-1
-Organization: Governo Eletronico - SP
-Message-Id: <1066392124.13159.6.camel@telecentrolivre>
+	Fri, 17 Oct 2003 09:04:19 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:8723 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263423AbTJQNEH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Oct 2003 09:04:07 -0400
+Date: Fri, 17 Oct 2003 14:03:54 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: John Bradford <john@grabjohn.com>
+Cc: Norman Diamond <ndiamond@wta.att.ne.jp>, Hans Reiser <reiser@namesys.com>,
+       Wes Janzen <superchkn@sbcglobal.net>,
+       Rogier Wolff <R.E.Wolff@BitWizard.nl>, linux-kernel@vger.kernel.org
+Subject: Re: Blockbusting news, this is important (Re: Why are bad disk sectors numbered strangely, and what happens to them?)
+Message-ID: <20031017140354.A2415@flint.arm.linux.org.uk>
+Mail-Followup-To: John Bradford <john@grabjohn.com>,
+	Norman Diamond <ndiamond@wta.att.ne.jp>,
+	Hans Reiser <reiser@namesys.com>,
+	Wes Janzen <superchkn@sbcglobal.net>,
+	Rogier Wolff <R.E.Wolff@BitWizard.nl>, linux-kernel@vger.kernel.org
+References: <32a101c3916c$e282e330$5cee4ca5@DIAMONDLX60> <200310131014.h9DAEwY3000241@81-2-122-30.bradfords.org.uk> <33a201c39174$2b936660$5cee4ca5@DIAMONDLX60> <20031014064925.GA12342@bitwizard.nl> <3F8BA037.9000705@sbcglobal.net> <3F8BBC08.6030901@namesys.com> <11bf01c39492$bc5307c0$3eee4ca5@DIAMONDLX60> <3F8FBADE.7020107@namesys.com> <126d01c3949f$91bdecc0$3eee4ca5@DIAMONDLX60> <200310171253.h9HCr1tw000933@81-2-122-30.bradfords.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Fri, 17 Oct 2003 10:02:05 -0200
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200310171253.h9HCr1tw000933@81-2-122-30.bradfords.org.uk>; from john@grabjohn.com on Fri, Oct 17, 2003 at 01:53:01PM +0100
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Sex, 2003-10-17 às 06:58, Kirill Korotaev escreveu:
-> > Yup.  The "invalidate_inodes-speedup-fixes" and "invalidate_inodes-speedup"
-> > patches were not so great and need to be reverted.
-> I found another bug in invalidate_inodes-speedup.patch
-> introduced by WLI when doing forward porting:
-> 
-> -			list_del(&inode->i_list);
-> +			list_del(&inode->i_sb_list);
-> 
-> first list_del should be kept!!!
+On Fri, Oct 17, 2003 at 01:53:01PM +0100, John Bradford wrote:
+> I disagree - we haven't confirmed what happens in the error-on-write
+> situation.  If it does indeed always remap the block, then I'd agree
+> that that aspect was perfectly sane.
 
-the fix for fs/inode.c solved the DEBUG_PAGEALLOC oops.
+My comments were based upon the information contained within the mail
+which appeared to originate from the manufacturer.
 
-So, I think the invalidate_inodes-speedup.patch don't need to
-be removed (but is good to keep it in next -mm, with the
-new fix, of course :)).
+Plus, they were in *PRIVATE*.  Sheesh.
 
 -- 
-Luiz Fernando N. Capitulino
-<lcapitulino@prefeitura.sp.gov.br>
-<http://www.telecentros.sp.gov.br>
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

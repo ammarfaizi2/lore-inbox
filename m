@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287429AbSACQo7>; Thu, 3 Jan 2002 11:44:59 -0500
+	id <S288249AbSACQqT>; Thu, 3 Jan 2002 11:46:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288241AbSACQou>; Thu, 3 Jan 2002 11:44:50 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:6927 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S287429AbSACQol>;
-	Thu, 3 Jan 2002 11:44:41 -0500
-Date: Thu, 3 Jan 2002 14:44:30 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Todor Todorov <ttodorov@web.de>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Want to learn
-In-Reply-To: <3C3423CE.3090405@web.de>
-Message-ID: <Pine.LNX.4.33L.0201031444050.24031-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S288246AbSACQqE>; Thu, 3 Jan 2002 11:46:04 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:60075 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S288241AbSACQpQ>;
+	Thu, 3 Jan 2002 11:45:16 -0500
+Date: Thu, 3 Jan 2002 11:45:14 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Christoph Hellwig <hch@ns.caldera.de>
+cc: Daniel Phillips <phillips@bonn-fries.net>, acme@conectiva.com.br,
+        linux-kernel@vger.kernel.org
+Subject: Re: [CFT] [JANITORIAL] Unbork fs.h
+In-Reply-To: <200201031545.g03Fjtj11546@ns.caldera.de>
+Message-ID: <Pine.GSO.4.21.0201031139410.23312-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Jan 2002, Todor Todorov wrote:
 
-> I want to learn how the kernel works and how things build on top of
-> one another. And here I am looking at the source tree and not knowing
-> where to start. The 'Documentation' folder would probably be a good
-> bet but after that?
 
-Indeed, you really should look into Documentation/
+On Thu, 3 Jan 2002, Christoph Hellwig wrote:
 
-Another useful place would be http://kernelnewbies.org/
+> In article <E16M7Gz-00015E-00@starship.berlin> you wrote:
+> > -	inode = get_empty_inode();
+> > +	inode = get_empty_inode(sb);
+> 
+> How about killing get_empty_inode completly and using new_inode() instead?
+> There should be no regularly allocated inode without a superblock.
 
-kind regards,
-
-Rik
--- 
-Shortwave goes a long way:  irc.starchat.net  #swl
-
-http://www.surriel.com/		http://distro.conectiva.com/
+Seconded.  However, you'll need to zero out ->i_dev for objects that
+traditionally have zero ->st_dev (pipes and sockets).
 

@@ -1,53 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265823AbSKFRCM>; Wed, 6 Nov 2002 12:02:12 -0500
+	id <S265843AbSKFRGQ>; Wed, 6 Nov 2002 12:06:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265837AbSKFRCM>; Wed, 6 Nov 2002 12:02:12 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:9915 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S265823AbSKFRCL>;
-	Wed, 6 Nov 2002 12:02:11 -0500
-Date: Wed, 6 Nov 2002 18:08:44 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Ewan Mac Mahon <ecm103@york.ac.uk>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, Christopher Li <chrisl@vmware.com>,
-       "'Linux Kernel '" <linux-kernel@vger.kernel.org>,
-       "'ext2-devel@lists.sourceforge.net '" 
-	<ext2-devel@lists.sourceforge.net>
-Subject: Re: [Ext2-devel] Re: 2.5.46 ext3 errors
-Message-ID: <20021106170844.GA897@suse.de>
-References: <3C77B405ABE6D611A93A00065B3FFBBA36A493@PA-EXCH2> <20021106101806.B2663@redhat.com> <20021106130521.GB839@suse.de> <20021106161234.GB17138@york.ac.uk>
+	id <S265838AbSKFRGQ>; Wed, 6 Nov 2002 12:06:16 -0500
+Received: from stingr.net ([212.193.32.15]:63497 "EHLO hq.stingr.net")
+	by vger.kernel.org with ESMTP id <S265843AbSKFRGP>;
+	Wed, 6 Nov 2002 12:06:15 -0500
+Date: Wed, 6 Nov 2002 20:12:50 +0300
+From: Paul P Komkoff Jr <i@stingr.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@zip.com.au>
+Subject: Re: 2.5.46-mm1
+Message-ID: <20021106171249.GB29935@stingr.net>
+Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@zip.com.au>
+References: <3DC8D423.DAD2BF1A@digeo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-In-Reply-To: <20021106161234.GB17138@york.ac.uk>
+In-Reply-To: <3DC8D423.DAD2BF1A@digeo.com>
+User-Agent: Agent Darien Fawkes
+X-Mailer: Intel Ultra ATA Storage Driver
+X-RealName: Stingray Greatest Jr
+Organization: Department of Fish & Wildlife
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 06 2002, Ewan Mac Mahon wrote:
-> On Wed, Nov 06, 2002 at 02:05:21PM +0100, Jens Axboe wrote:
-> > On Wed, Nov 06 2002, Stephen C. Tweedie wrote:
-> > > 
-> > > error is just ext3's normal reaction to a fatal error detected in the
-> > > filesystem, so that in itself isn't a worry.  The cause of the problem
-> > > it spotted is the worry; is this reproducible?
-> > 
-> > I can try. The kernel run had my rbtree deadline patches, however
-> > they've been well tested and are likely not the cause of the problem. It
-> > cannot be 100% ruled out though, I'm testing for this very thing right
-> > now. I will let you know what happens.
-> 
-> I think I can rule that out, I've got much the same[1] from a vanilla 
-> 2.5.46, and the filesystem's recent history has been plain 2.5.XXs as 
-> well.
+Replying to Andrew Morton:
+> stabilisation and for people to sync up against.  And also to keep things
+> like shared pagetables and dcache-rcu under test.
 
-Interesting, so it smells like a generic problem. I cannot reproduce it
-on my test box (been running kernel compiles and dbenches all afternoon)
-with the same kernel. I've got 2.5.46-BK on the desktop again now, we'll
-see what happens....
+Why sharepte is dependent on highmem now ?
 
-For the record, test box is P3-800MHz SMP, 512MiB RAM. Desktop is a
-MP1800+ SMP, 1GiB of RAM.
+I thought I will benefit from it on forkloads on lowmem too ...
 
 -- 
-Jens Axboe
-
+Paul P 'Stingray' Komkoff 'Greatest' Jr /// (icq)23200764 /// (http)stingr.net
+  When you're invisible, the only one really watching you is you (my keychain)

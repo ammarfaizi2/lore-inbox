@@ -1,71 +1,154 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261558AbULNQ7m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261559AbULNRCU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261558AbULNQ7m (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 11:59:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbULNQ5s
+	id S261559AbULNRCU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 12:02:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261561AbULNRCT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 11:57:48 -0500
-Received: from rproxy.gmail.com ([64.233.170.206]:33558 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261560AbULNQ4M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 11:56:12 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=W/zqM0AtN8FRBgZoMaLWM7dhT0722Oe6G9k0BSXH33baR18MrEDNTdovXPq8A3BevOZG320/1Mk9kdixLF+FtxRjjB41BCEeyieAMioSEEkCHKivVSnPXmkoTvx7aJ6J8zfv2FIL3aofmY0z05Xz/ASPYLOPi1Yj+kwlVxhY44g=
-Message-ID: <29495f1d04121408567a144fc6@mail.gmail.com>
-Date: Tue, 14 Dec 2004 08:56:12 -0800
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-To: Domen Puncer <domen@coderock.org>
-Subject: Re: dynamic-hz
-Cc: Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
-       kernel@kolivas.org, pavel@suse.cz, linux-kernel@vger.kernel.org
-In-Reply-To: <20041214100123.GD6569@nd47.coderock.org>
+	Tue, 14 Dec 2004 12:02:19 -0500
+Received: from psych.st-and.ac.uk ([138.251.11.1]:42429 "EHLO
+	psych.st-andrews.ac.uk") by vger.kernel.org with ESMTP
+	id S261559AbULNRAZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 12:00:25 -0500
+Subject: Re: file as a directory
+From: Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk>
+To: Hans Reiser <reiser@namesys.com>
+Cc: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
+In-Reply-To: <41ACA7C9.1070001@namesys.com>
+References: <200411301631.iAUGVT8h007823@laptop11.inf.utfsm.cl>
+	 <41ACA7C9.1070001@namesys.com>
+Content-Type: text/plain
+Message-Id: <1103043518.21728.159.camel@pear.st-and.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 14 Dec 2004 16:58:38 +0000
 Content-Transfer-Encoding: 7bit
-References: <20041211142317.GF16322@dualathlon.random>
-	 <20041212163547.GB6286@elf.ucw.cz>
-	 <20041212222312.GN16322@dualathlon.random>
-	 <41BCD5F3.80401@kolivas.org> <20041213030237.5b6f6178.akpm@osdl.org>
-	 <20041213111741.GR16322@dualathlon.random>
-	 <20041213032521.702efe2f.akpm@osdl.org>
-	 <29495f1d041213195451677dab@mail.gmail.com>
-	 <20041214100123.GD6569@nd47.coderock.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Dec 2004 11:01:23 +0100, Domen Puncer <domen@coderock.org> wrote:
-> On 13/12/04 19:54 -0800, Nish Aravamudan wrote:
-> > On Mon, 13 Dec 2004 03:25:21 -0800, Andrew Morton <akpm@osdl.org> wrote:
-> > > Andrea Arcangeli <andrea@suse.de> wrote:
-> > > >
-> > > > The patch only does HZ at dynamic time. But of course it's absolutely
-> > > >  trivial to define it at compile time, it's probably a 3 liner on top of
-> > > >  my current patch ;). However personally I don't think the three liner
-> > > >  will worth the few seconds more spent configuring the kernel ;).
-> > >
-> > > We still have 1000-odd places which do things like
-> > >
-> > >         schedule_timeout(HZ/10);
-> > 
+Hans,
+Following the recent discussions on the lists on "file as directory", I
+re-read part of your http://www.namesys.com/v4/v4.html paper (in
+sections near "Aggregating Files Can Improve The User Interface To
+Them") and realised that you have discussed this issue in quite a lot of
+detail already there (see copied below). (Strange though that nobody
+referred to it in the discussion! People don't seem to be very good at
+reading (and that seems to include me)).
+
+It looks to me that the "file as directory" and "directory as file"
+issues are almost identical. What you are saying is that you could
+automatically aggregate files in a directory to look like a single file
+(you give the example of the /etc/passwd file). I was saying that you
+could make a file look like a directory.
+Perhaps a better way to think about this is that instead of talking
+about directories and files, we just talk about objects. Each object
+would have file-type access methods and directory-type access methods.
+This has some implications for the syntax. You (in v4.html) suggest
+using the /.glued syntax:
+
+/new_syntax_access_path/big_directory_of_small_files/.glued
+
+I think the "object" philosophy would rather imply that the object (or
+directory) should have a default glueing method, so when you access the
+directory as a file (using read(), for instance)
+
+/new_syntax_access_path/big_directory_of_small_files
+
+would automatically give you the glued file (without having to add the
+.glued !) and when you access it as a directory (using readdir(), for
+instance), you would get the components listed as a directory.
+(I am not sure whether the access method, e.g. read() vs. readdir() is
+sufficient to distinguish the meaning. Another way may be putting a "/"
+after the objectname to indicate that you want it as a directory.)
+
+If we do this, the applications don't need to know whether they are
+dealing with an object consisting of small files, aggregated, or whether
+they are looking at a big file with some way of accessing their parts.
+If an old application (or user) looks for the /etc/passwd file, it will
+still get what it expects without having to know that the file is an
+aggregate.
+
+In fact, from the point of view of the file system, it doesn't make much
+of a difference, in both cases they map names to keys. The only
+difference (as far as I can see) is whether metadata is stored
+separately for each component or only once for the objcts. 
+
+If you store metadata only once, then a component could inherit metadata
+(such as modification date) from the parent. There should be some way of
+telling the file system which bits need their own metadata. But the way
+of telling the file system this probably should not be mixed up with the
+file naming.
+
+There may be some complications with some parts of files being linked to
+a different number of times, so if you remove a hard link from the whole
+file, should a component linked from elsewhere be kept or deleted.
+
+Do you think we could leave off the ./glued bit? Would it break too many
+things?
+
+ Peter
+
+In http://www.namesys.com/v4/v4.html Hans Reiser wrote:
 > ...
-> > Many drivers use
-> >
-> > set_current_state(TASK_{UN,}INTERRUPTIBLE);
-> > schedule_timeout(1); // or some other small value < 10
-> > 
-> ...
-> > If they really meant to use schedule_timeout(1) in the sense of
-> > highest resolution delay possible (the latter above), then they
-> > probably should just call schedule() directly.
+> Aggregating Files Can Improve The User Interface To Them
+> Consider the use of emacs on a collection of a thousand small 8-32
+byte
+> files like you might have if you deconstructed /etc/passwd into small
+> files with separable acls for every field. It is more convenient in
+> screen real estate, buffer management, and other user interface
+> considerations, to operate on them as an aggregation all placed into a
+> single buffer rather than as a thousand 8-32 byte buffers.
 > 
-> Um... no (and you should remember this from our discussions), schedule()
-> gives up cpu until waitqueue wakeup or signal is received, and that can
-> be a really long delay :-)
+> 
+> How Do We Write Modifications To An Aggregation
+> Suppose we create a plugin that aggregates all of the files in a
+> directory into a single stream. How does one handle writes to that
+> aggregation that change the length of the components of that
+> aggregation?
+> 
+> Richard Stallman pointed out to me that if we separate the aggregated
+> files with delimiters, then emacs need not be changed at all to
+acquire
+> an effective interface for large numbers of small files accessed via
+an
+> aggregation plugin. If
+> /new_syntax_access_path/big_directory_of_small_files/.glued is a
+plugin
+> that aggregates every file in big_directory_of_small_files with a
+> delimiter separating every file within the aggregation, then one can
+> simply type emacs
+> /new_syntax_access_path/big_directory_of_small_files/.glued, and the
+> filesystem has done all the work emacs needs to be effective at this.
+> Not a line of emacs needs to be changed.
+> 
+> One needs to be able to choose different delimiting syntax for
+different
+> aggregation plugins so that one can, for say the passwd file,
+aggregate
+> subdirectories into lines, and files within those subdirectories into
+> colon separate fields within the line. XML would benefit from yet
+other
+> delimiter construction rules. (We have been told by Philipp Guehring 
+of
+> LivingXML.NET  that ReiserFS is higher performance than any database
+for
+> storing XML, so this issue is not purely theoretical.)
+> 
+> 
+> Aggregation Is Best Implemented As Inheritance
+> In summary, to be able to achieve precision in security we need to
+have
+> inheritance with specifiable delimiters and we need whole file
+> inheritance to support ACLs.
+> 
+> 
+> One Plugin Using Delimiters That Resemble sys_reiser4() Syntax
+> We provide the infrastructure for your constructing plugins that
+> implement arbitrary processing of writes to inheriting files, but we
+> also supply one generic inheriting file plugin that intentionally uses
+> delimiters very close to the sys_reiser4() syntax. We will document
+the
+> syntax more fully when that code is working, for now syntax details
+are
+> in the comments in the file invert.c in the source code. ...
 
-True; sorry about that, Domen, completely forgot about that. Will
-think on it further.
-
--Nish

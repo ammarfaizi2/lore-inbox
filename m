@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262338AbVC2Kha@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262334AbVC2Kip@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262338AbVC2Kha (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 05:37:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262335AbVC2Ker
+	id S262334AbVC2Kip (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 05:38:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262340AbVC2Khf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 05:34:47 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:3994 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S262307AbVC2Kdh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 05:33:37 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Li Shaohua <shaohua.li@intel.com>
-Subject: Re: 2.6.12-rc1-mm3: box hangs solid on resume from disk while resuming device drivers
-Date: Tue, 29 Mar 2005 12:33:39 +0200
-User-Agent: KMail/1.7.1
-Cc: Andrew Morton <akpm@osdl.org>, Len Brown <len.brown@intel.com>,
-       lkml <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@suse.cz>
-References: <16A54BF5D6E14E4D916CE26C9AD30575017EDC38@pdsmsx402.ccr.corp.intel.com> <200503261923.52020.rjw@sisk.pl> <1111972933.28620.7.camel@sli10-desk.sh.intel.com>
-In-Reply-To: <1111972933.28620.7.camel@sli10-desk.sh.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Tue, 29 Mar 2005 05:37:35 -0500
+Received: from arnor.apana.org.au ([203.14.152.115]:63501 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S262333AbVC2KgO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 05:36:14 -0500
+Date: Tue, 29 Mar 2005 20:35:04 +1000
+To: "Artem B. Bityuckiy" <dedekind@infradead.org>
+Cc: dwmw2@infradead.org, linux-kernel@vger.kernel.org,
+       linux-crypto@vger.kernel.org, jmorris@redhat.com
+Subject: Re: [RFC] CryptoAPI & Compression
+Message-ID: <20050329103504.GA19468@gondor.apana.org.au>
+References: <1111766900.4566.20.camel@sauron.oktetlabs.ru> <20050326044421.GA24358@gondor.apana.org.au> <1112030556.17983.35.camel@sauron.oktetlabs.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200503291233.40193.rjw@sisk.pl>
+In-Reply-To: <1112030556.17983.35.camel@sauron.oktetlabs.ru>
+User-Agent: Mutt/1.5.6+20040907i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Artem:
 
-On Monday, 28 of March 2005 03:22, Li Shaohua wrote:
-> On Sun, 2005-03-27 at 02:23, Rafael J. Wysocki wrote:
-]--snip--[ 
-> Could you please file a bug in bugzilla? I don't want to lose the
-> context of thread. And please attach your acpidmp output in the bug.
+On Mon, Mar 28, 2005 at 05:22:36PM +0000, Artem B. Bityuckiy wrote:
+> 
+> The first patch is the implementation of the deflate_pcompress()
 
-The bug report is at:
+Thanks for the patch.  I'll comment on the second patch later.
 
-http://bugzilla.kernel.org/show_bug.cgi?id=4416
+Are you sure that 12 bytes is enough for all cases? It would seem
+to be safer to use the formula in deflateBound/compressBound from
+later versions (> 1.2) of zlib to calculate the reserve.
 
-I've put there all the information related to it that I've already collected.
+> +	while (stream->total_in < *slen
+> +	       && stream->total_out < *dlen - DEFLATE_PCOMPR_RESERVE) {
 
-Greets,
-Rafael
+We normally put the operator on the preceding line, i.e.,
 
+while (foo &&
+       bar) {
 
+Cheers,
 -- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288662AbSAQNDL>; Thu, 17 Jan 2002 08:03:11 -0500
+	id <S288655AbSAQNCm>; Thu, 17 Jan 2002 08:02:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288660AbSAQNDB>; Thu, 17 Jan 2002 08:03:01 -0500
-Received: from vsmtp3.tin.it ([212.216.176.223]:38083 "EHLO smtp3a.cp.tin.it")
-	by vger.kernel.org with ESMTP id <S288657AbSAQNCo> convert rfc822-to-8bit;
-	Thu, 17 Jan 2002 08:02:44 -0500
-Message-ID: <3C42180D00005FB3@ims1b.cp.tin.it>
-Date: Thu, 17 Jan 2002 14:02:03 +0100
-In-Reply-To: <20020117124857.GD28788@arthur.ubicom.tudelft.nl>
-From: ciak@virgilio.it
-Subject: =?iso-8859-1?Q?Re=3A=20Web=20interface=20in=20order=20to=20submit=20patch=2E?=
-To: =?iso-8859-1?Q?Erik=20Mouw?= <J.A.K.Mouw@its.tudelft.nl>
+	id <S288657AbSAQNCb>; Thu, 17 Jan 2002 08:02:31 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:55308 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S288655AbSAQNCO>; Thu, 17 Jan 2002 08:02:14 -0500
+Date: Thu, 17 Jan 2002 08:01:50 -0500
+Message-Id: <200201171301.IAA01133@gatekeeper.tmr.com>
+To: rml@tech9.net
+Subject: Re: [PATCH] I3 sched tweaks...
+Newsgroups: mail.linux-kernel
+In-Reply-To: <1011216429.1083.95.camel@phantasy>
+In-Reply-To: <1011215946.314.14.camel@gs256.sp.cs.cmu.edu>
+Organization: TMR Associates, Schenectady NY
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+From: davidsen@tmr.com (bill davidsen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[...]
->We already have such interfaces. They are called "web based email",
->like hotmail.com or netscape.net [...]
+In article <1011216429.1083.95.camel@phantasy> you write:
+| On Wed, 2002-01-16 at 16:19, Justin Carlson wrote:
+| 
+| > Don't forget that, in non-x86 land, current tends to be just kept in a 
+| > register.  No computations required.  Certainly passing it around on,
+| > e.g. mips is a clear loss.
+| 
+| current is stored in a register (esp) in x86, too.  This is why I
+| cautioned that looking up current was cheap -- I think every sane arch
+| stores current in some fast access way.  That's why it is a macro -- it
+| is assembly code to quickly snag the address.
+| 
+| So is passing current still worth it?
 
-I'm using a "web based email"...
-What I suggested was, why don't use a web interface in order to submit a
-patch, something with forms to fill, with the description of the patch,
-the body of the patch, the results of the test done...
+  It sounds as if it may be one of those "it depends" things, but if
+current is not calculated the exact same way in all places... people
+talk about coloring (or colouring in Canada) and several other things I
+forget, it's sort of nice to be sure it's calculated just once, and that
+if the calculation becomes more expensive in the future that the
+tradeoff between passing and calculating won't change.
 
-Using something like this I think you could have a nice repository of all
-posted patch.
+  I guess passing is safer for the future and of a known cost.
 
-Howevere, this is _only_ my idea, pleas don't reply to this mail with others
-satiral comments. 
-
-Ciao,
-Ciak
-
-
-
-
-
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

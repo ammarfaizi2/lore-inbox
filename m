@@ -1,59 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbVCCQP2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261937AbVCCQSF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261875AbVCCQP2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 11:15:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261156AbVCCQP2
+	id S261937AbVCCQSF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 11:18:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261909AbVCCQRj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 11:15:28 -0500
-Received: from lakshmi.addtoit.com ([198.99.130.6]:5383 "EHLO
-	lakshmi.solana.com") by vger.kernel.org with ESMTP id S261875AbVCCQPV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 11:15:21 -0500
-Message-Id: <200503030804.j2384WBY016301@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
-To: Chris Wright <chrisw@osdl.org>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc5-mm1 
-In-Reply-To: Your message of "Tue, 01 Mar 2005 13:49:16 PST."
-             <20050301214916.GJ28536@shell0.pdx.osdl.net> 
-References: <20050301012741.1d791cd2.akpm@osdl.org>  <20050301214916.GJ28536@shell0.pdx.osdl.net> 
-Mime-Version: 1.0
+	Thu, 3 Mar 2005 11:17:39 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:21975 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S261937AbVCCQR1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 11:17:27 -0500
+From: Mikael Pettersson <mikpe@user.it.uu.se>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 03 Mar 2005 03:04:32 -0500
-From: Jeff Dike <jdike@addtoit.com>
+Content-Transfer-Encoding: 7bit
+Message-ID: <16935.14471.919379.826792@alkaid.it.uu.se>
+Date: Thu, 3 Mar 2005 17:17:11 +0100
+To: paulus@samba.org, geert@linux-m68k.org
+Cc: linuxppc-dev@ozlabs.org, linux-m68k@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH][2.6.11] gcc4 fix for <asm-m68k/setup.h>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-chrisw@osdl.org said:
-> I just did a more complete grep of the symbols that can get config'd
-> away (including CONFIG_AUDIT as well), and I think there's a few more
-> missing pieces.  Sorry about that.  Jeff, Ralf, Martin, these look ok?
+gcc4 generates compile errors when it sees declarations
+of arrays of incomplete element types. <asm-m68k/setup.h>
+has one such declaration, which unfortunately breaks ppc32
+since <asm-ppc/setup.h> #includes <asm-m68k/setup.h>.
 
-For UML, this is fine as far as it goes, but you're adding register references
-to arch-independent code, so this is needed as well:
+The fix in this case is to simply move the array declaration
+to after the corresponding element type declaration.
 
-Index: linux-2.6.10/arch/um/kernel/ptrace.c
-===================================================================
---- linux-2.6.10.orig/arch/um/kernel/ptrace.c	2005-03-03 00:14:46.000000000 -0500
-+++ linux-2.6.10/arch/um/kernel/ptrace.c	2005-03-03 00:22:58.000000000 -0500
-@@ -340,11 +341,15 @@
+Signed-off-by: Mikael Pettersson <mikpe@csd.uu.se>
+
+diff -rupN linux-2.6.11/include/asm-m68k/setup.h linux-2.6.11.gcc4-fixes-v2/include/asm-m68k/setup.h
+--- linux-2.6.11/include/asm-m68k/setup.h	2004-12-25 12:16:22.000000000 +0100
++++ linux-2.6.11.gcc4-fixes-v2/include/asm-m68k/setup.h	2005-03-02 19:36:26.000000000 +0100
+@@ -362,12 +362,13 @@ extern int m68k_is040or060;
+ #ifndef __ASSEMBLY__
+ extern int m68k_num_memory;		/* # of memory blocks found (and used) */
+ extern int m68k_realnum_memory;		/* real # of memory blocks found */
+-extern struct mem_info m68k_memory[NUM_MEMINFO];/* memory description */
  
- 	if (unlikely(current->audit_context)) {
- 		if (!entryexit)
--			audit_syscall_entry(current, regs->orig_eax,
--					    regs->ebx, regs->ecx,
--					    regs->edx, regs->esi);
-+			audit_syscall_entry(current, 
-+					    UPT_SYSCALL_NR(&regs->regs),
-+					    UPT_SYSCALL_ARG1(&regs->regs),
-+					    UPT_SYSCALL_ARG2(&regs->regs),
-+					    UPT_SYSCALL_ARG3(&regs->regs),
-+					    UPT_SYSCALL_ARG4(&regs->regs));
- 		else
--			audit_syscall_exit(current, regs->eax);
-+			audit_syscall_exit(current, 
-+					   UPT_SYSCALL_RET(&regs->regs));
- 	}
+ struct mem_info {
+ 	unsigned long addr;		/* physical address of memory chunk */
+ 	unsigned long size;		/* length of memory chunk (in bytes) */
+ };
++
++extern struct mem_info m68k_memory[NUM_MEMINFO];/* memory description */
+ #endif
  
- 	/* Fake a debug trap */
-
+ #endif /* __KERNEL__ */

@@ -1,60 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262870AbUCPCw3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 21:52:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262944AbUCPCwT
+	id S262906AbUCPCwb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 21:52:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262936AbUCPCwP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 21:52:19 -0500
-Received: from [12.46.110.22] ([12.46.110.22]:50569 "EHLO saratoga.bjrosen.com")
-	by vger.kernel.org with ESMTP id S262868AbUCPCo0 (ORCPT
+	Mon, 15 Mar 2004 21:52:15 -0500
+Received: from dp.samba.org ([66.70.73.150]:47064 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S262890AbUCPCoj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 21:44:26 -0500
-Subject: 2.6.4 install bug
-From: "B. Joshua Rosen" <bjrosen@polybus.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1079405134.4117.12.camel@saratoga.bjrosen.com>
+	Mon, 15 Mar 2004 21:44:39 -0500
+Date: Tue, 16 Mar 2004 13:39:46 +1100
+From: Anton Blanchard <anton@samba.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Kenneth Chen <kenneth.w.chen@intel.com>, linux-kernel@vger.kernel.org
+Subject: Re: Patch - make config_max_raw_devices work
+Message-ID: <20040316023946.GO19737@krispykreme>
+References: <200403160053.i2G0rNm31241@unix-os.sc.intel.com> <20040315181406.2f2d8f38.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4-8mdk 
-Date: Mon, 15 Mar 2004 21:45:37 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040315181406.2f2d8f38.akpm@osdl.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ 
+> Badari wrote basically the same patch a couple of months back.  I dropped
+> it then, too ;)
+> 
+> raw is a deprecated interface and if we keep on adding new features to it,
+> we will never be rid of the thing.  If your application requires more than
+> 256 raw devices, please convert it to open the block device directly,
+> passing in the O_DIRECT flag.
 
- make modules_install
-  INSTALL fs/adfs/adfs.ko
-  INSTALL fs/affs/affs.ko
-  INSTALL fs/autofs4/autofs4.ko
-  INSTALL fs/befs/befs.ko
-  INSTALL fs/bfs/bfs.ko
-  INSTALL arch/i386/kernel/cpuid.ko
-  INSTALL fs/afs/kafs.ko
-  INSTALL arch/i386/kernel/microcode.ko
-  INSTALL arch/i386/kernel/msr.ko
-  INSTALL arch/i386/kernel/scx200.ko
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.6.4; fi
-WARNING: /lib/modules/2.6.4/kernel/fs/afs/kafs.ko needs unknown symbol
-rxrpc_call_read_data
-WARNING: /lib/modules/2.6.4/kernel/fs/afs/kafs.ko needs unknown symbol
-rxrpc_create_transport
-WARNING: /lib/modules/2.6.4/kernel/fs/afs/kafs.ko needs unknown symbol
-rxrpc_put_call
-WARNING: /lib/modules/2.6.4/kernel/fs/afs/kafs.ko needs unknown symbol
-rxrpc_add_service
-WARNING: /lib/modules/2.6.4/kernel/fs/afs/kafs.ko needs unknown symbol
-rxrpc_put_connection
-WARNING: /lib/modules/2.6.4/kernel/fs/afs/kafs.ko needs unknown symbol
-rxrpc_call_write_data
-WARNING: /lib/modules/2.6.4/kernel/fs/afs/kafs.ko needs unknown symbol
-rxrpc_put_transport
-WARNING: /lib/modules/2.6.4/kernel/fs/afs/kafs.ko needs unknown symbol
-rxrpc_call_abort
-WARNING: /lib/modules/2.6.4/kernel/fs/afs/kafs.ko needs unknown symbol
-rxrpc_del_service
-WARNING: /lib/modules/2.6.4/kernel/fs/afs/kafs.ko needs unknown symbol
-rxrpc_create_connection
-WARNING: /lib/modules/2.6.4/kernel/fs/afs/kafs.ko needs unknown symbol
-rxrpc_create_call
--- 
-B. Joshua Rosen <bjrosen@polybus.com>
+We only deprecated this thing on the 4th Feb 2004. I want to see the raw
+driver die but we cant expect apps to change their interfaces in the space
+of a month.
+
+Can we reach a compromise? :)
+
+Anton

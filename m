@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271832AbRICWD4>; Mon, 3 Sep 2001 18:03:56 -0400
+	id <S271840AbRICWIh>; Mon, 3 Sep 2001 18:08:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271839AbRICWDq>; Mon, 3 Sep 2001 18:03:46 -0400
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:2827 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S271832AbRICWDg>; Mon, 3 Sep 2001 18:03:36 -0400
-Message-ID: <3B93FE48.B53B5DF4@delusion.de>
-Date: Tue, 04 Sep 2001 00:03:52 +0200
-From: "Udo A. Steinberg" <reality@delusion.de>
-Organization: Disorganized
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-ac7 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Tim Waugh <twaugh@redhat.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Parallel Port doesn't detect EPP
-In-Reply-To: <3B93DE17.92CF408E@delusion.de> <20010903220955.I20060@redhat.com>
+	id <S271836AbRICWI1>; Mon, 3 Sep 2001 18:08:27 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:6976 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S271843AbRICWIS>; Mon, 3 Sep 2001 18:08:18 -0400
+Date: Tue, 4 Sep 2001 00:09:02 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Bob McElrath <mcelrath+linux@draal.physics.wisc.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: using O_DIRECT
+Message-ID: <20010904000902.Z699@athlon.random>
+In-Reply-To: <20010903104544.X23180@draal.physics.wisc.edu> <20010903175333.P699@athlon.random> <20010903105714.Y23180@draal.physics.wisc.edu> <20010903180524.Q699@athlon.random> <20010903151342.A2247@draal.physics.wisc.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20010903151342.A2247@draal.physics.wisc.edu>; from mcelrath+linux@draal.physics.wisc.edu on Mon, Sep 03, 2001 at 03:13:42PM -0500
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Waugh wrote:
-
-> > #1) EPP is no longer listed as supported transfer mode, but it used
-> >     to be.
+On Mon, Sep 03, 2001 at 03:13:42PM -0500, Bob McElrath wrote:
+> I have written a small program to use O_DIRECT (attached), after
+> applying your patch o_direct-14 to kernel 2.4.9.  Opening the file with
+> O_DIRECT is successful, but attempts to write to the fd return EINVAL.
 > 
-> <rule_out_the_obvious>
-> Have you changed your BIOS setting since you last tried it?  What does
-> your BIOS say about your parallel port?
-> </rule_out_the_obvious>
+> Am I doing something wrong?  Should I have to recompile glibc too?
 
-My BIOS setting has always been "ECP+EPP". After Steffen's mail regarding
-"ECP+EPP" I've changed my parport BIOS setting to "EPP" and using 2.4 I
-now get:
+eh, the alignment and size of the buffer have basically the same
+restrictions of running read/write on a raw device, with the only
+difference that for rawio the granularity is the hardblocksize, while
+for O_DIRECT the granularity is the softblocksize of the filesystem.
 
-parport0: PC-style at 0x378, irq 7 [PCSPP,TRISTATE,EPP]
+We'll have to relax the granularity of the I/O down to the hardblocksize
+for O_DIRECT too eventually.
 
-I also tried 2.2. with "ECP+EPP" and it detects both ECP and EPP:
-[SPP,ECP,ECPEPP,ECPPS2]
-
-Apparently 2.4. doesn't detect the parport settings the same way 2.2. does.
-
-Regards,
-Udo.
+Andrea

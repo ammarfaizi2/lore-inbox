@@ -1,93 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261188AbUJXVTN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261196AbUJXVWw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261188AbUJXVTN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 17:19:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbUJXVTN
+	id S261196AbUJXVWw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 17:22:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261553AbUJXVWw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 17:19:13 -0400
-Received: from fw.osdl.org ([65.172.181.6]:42970 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261188AbUJXVTH (ORCPT
+	Sun, 24 Oct 2004 17:22:52 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:53455 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261196AbUJXVWu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 17:19:07 -0400
-Date: Sun, 24 Oct 2004 14:18:53 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Pavel Machek <pavel@suse.cz>
-cc: Paul Mackerras <paulus@samba.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, David Brownell <david-b@pacbell.net>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Subject: Re: Totally broken PCI PM calls
-In-Reply-To: <20041024205841.GH28314@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.58.0410241415360.13209@ppc970.osdl.org>
-References: <1097455528.25489.9.camel@gaston> <Pine.LNX.4.58.0410101937100.3897@ppc970.osdl.org>
- <16746.299.189583.506818@cargo.ozlabs.ibm.com> <Pine.LNX.4.58.0410102115410.3897@ppc970.osdl.org>
- <20041011101824.GC26677@atrey.karlin.mff.cuni.cz>
- <Pine.LNX.4.58.0410110857180.3897@ppc970.osdl.org> <20041015135955.GD2015@elf.ucw.cz>
- <Pine.LNX.4.58.0410150839010.3897@ppc970.osdl.org> <20041024205841.GH28314@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 24 Oct 2004 17:22:50 -0400
+Date: Sun, 24 Oct 2004 23:23:59 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Jon Masters <jonathan@jonmasters.org>
+Cc: paulmck@us.ibm.com, Thomas Gleixner <tglx@linutronix.de>,
+       LKML <linux-kernel@vger.kernel.org>, karim@opersys.com
+Subject: Re: [RFC][PATCH] Restricted hard realtime
+Message-ID: <20041024212359.GA7328@elte.hu>
+References: <20041023194721.GB1268@us.ibm.com> <1098562921.3306.182.camel@thomas> <20041023212421.GF1267@us.ibm.com> <35fb2e5904102315066c6892aa@mail.gmail.com> <20041024153204.GA1262@us.ibm.com> <417C19D5.7050802@jonmasters.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <417C19D5.7050802@jonmasters.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+* Jon Masters <jonathan@jonmasters.org> wrote:
 
-On Sun, 24 Oct 2004, Pavel Machek wrote:
-> 
-> Ok, after -Wbitwise for sparse, strict typechecking seems to
-> work. Unfortunately, it produces a *lot* of noise, for code such as
-> 
-> static ssize_t disk_show(struct subsystem * subsys, char * buf)
-> {
->         return sprintf(buf, "%s\n", pm_disk_modes[pm_disk_mode]);
-> }
-> 
-> ...where pm_disk_mode is __bitwise. That is not really what we
-> want. Would it be possible to get something similar to __bitwise where
-> arithmetic is still okay to do?
+> I guess it would. But then we've just had a slew of RT implementations
+> crawl out of the woodwork and wave at us over the past few weeks and
+> there are three other major RT implementations which combine Linux
+> with a Microkernel or other external support (RTLinux, RTAI, KURT,
+> etc.). Perhaps it's worth working on one of the Linux patch projects
+> (Monta/Ingo/etc.) rather than going all out to implement it all again.
 
-I'll try to get to it - I've spent the last two days on sparse making sure 
-that I can do flow-control checking (things like "a function that gets a 
-spinlock needs to release it"), and it will take a while before I get out 
-of it.
+also note that (as i mentioned it in an earlier reply to Paul) the
+'CPU[s] isolated for hard-RT use' scheduler feature has already been
+implemented by Dimitri Sivanich and was accepted and integrated into the
+2.6.9 kernel a couple of weeks ago.
 
-But yes, I think it makes sense to have a "unique type" thing that allows 
-arithmetic. And I think it makes sense to have another unique type that 
-disallows _all_ operations (ie truly opaque cookies, where the only valid 
-op is to compare it with another cookie).
+Isolated CPUs can be set up via the "isolcpus=" boot parameter, and can
+be entered via the affinity syscall. The feature came with related fixes
+to the scheduler and other kernel code to eliminate cross-effects
+between domains. (such as the scheduler balancing code, or the swap
+tick)
 
-Maybe Al is interested..
+So this all is banging on open doors, this particular mode of hard-RT
+scheduling is there and available in vanilla Linux. If anyone wants to
+try it, just download 2.6.9 and use it.
 
-		Linus
-
----
-> With __bitwise, I'd need to do:
-> 
-> @@ -292,15 +297,15 @@
->         int i;
->         int len;
->         char *p;
-> -       u32 mode = 0;
-> +       suspend_disk_method_t mode = 0;
-> 
->         p = memchr(buf, '\n', n);
->         len = p ? p - buf : n;
-> 
->         down(&pm_sem);
-> -       for (i = PM_DISK_FIRMWARE; i < PM_DISK_MAX; i++) {
-> +       for (i = (int __force) PM_DISK_FIRMWARE; i < (int __force) PM_DISK_MAX; i++) {
->                 if (!strncmp(buf, pm_disk_modes[i], len)) {
-> -                       mode = i;
-> +                       mode = (suspend_disk_method_t __force) i;
->                         break;
->                 }
->         }
-> 
-> 
-> ...thats ugly.
-> 
-> 								Pavel
-> -- 
-> People were complaining that M$ turns users into beta-testers...
-> ...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
-> 
+	Ingo

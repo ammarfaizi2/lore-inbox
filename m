@@ -1,66 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262263AbTFBM0Z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 08:26:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262268AbTFBM0Z
+	id S262271AbTFBMfm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 08:35:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbTFBMfm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 08:26:25 -0400
-Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:19448 "EHLO
-	tabby.cats.internal") by vger.kernel.org with ESMTP id S262263AbTFBM0V
+	Mon, 2 Jun 2003 08:35:42 -0400
+Received: from rwcrmhc52.attbi.com ([216.148.227.88]:57523 "EHLO
+	rwcrmhc52.attbi.com") by vger.kernel.org with ESMTP id S262271AbTFBMfl convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 08:26:21 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Jesse Pollard <jesse@cats-chateau.net>
-To: Larry McVoy <lm@bitmover.com>, Willy Tarreau <willy@w.ods.org>
-Subject: Re: Question about style when converting from K&R to ANSI C.
-Date: Mon, 2 Jun 2003 07:39:12 -0500
-X-Mailer: KMail [version 1.2]
-Cc: Larry McVoy <lm@bitmover.com>, Steven Cole <elenstev@mesatop.com>,
-       linux-kernel@vger.kernel.org
-References: <1054446976.19557.23.camel@spc> <20030601134942.GA10750@alpha.home.local> <20030601140602.GA3641@work.bitmover.com>
-In-Reply-To: <20030601140602.GA3641@work.bitmover.com>
+	Mon, 2 Jun 2003 08:35:41 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: joe briggs <jbriggs@briggsmedia.com>
+Organization: BMS
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: impact of Athlon's slower front-side-bus (FSB)
+Date: Mon, 2 Jun 2003 09:47:44 -0400
+User-Agent: KMail/1.4.3
 MIME-Version: 1.0
-Message-Id: <03060207391200.24067@tabby>
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200306020947.44520.jbriggs@briggsmedia.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 01 June 2003 09:06, Larry McVoy wrote:
-> > > Sometimes it is nice to be able to see function names with a
-> > >
-> > > 	grep '^[a-zA-Z].*(' *.c
-> >
-> > This will return 'int foo(void)', what's the problem ?
->
-> You get a lot of other false hits, like globals.  I don't feel strongly
-> about this, I'm more wondering why this style was choosen.  The way
-> I showed is pretty common,  it's sort of the "Unix" way (it's how the
-> original Unix guys did it, how BSD did it, and how the GNU guys do it), so
-> it's a somewhat surprising difference.  I've never understood the logic.
-> The more I think about it the less I understand it, doing it that way
-> means you are more likely to have to wrap a function definition which
-> is ugly:
->
-> static inline int cdrom_write_check_ireason(ide_drive_t *drive, int len,
-> int ireason) {
-> }
+Gentlemen - 
 
-Actually, that would most likely be:
-static inline int cdrom_write_check_ireason(
-			ide_drive_t *drive,
-			int len,
-			int ireason
-)
-{
-...
-}
+Can anyone provide arguments, evidence, or guidance regarding the followng:
 
-At least If I were doing it. Over my 20 years, I've found that many of MY
-type errors are due to returning or expecting the wrong structure/variable
-because I forgot the type of the function.
+The fastest AMD single processor Athlon XP is 3200 with 400 Mhz FSB.
+The fastest AMD dual processor Athlon MP is 2800 but with only 266 Mhz FSB.
 
-I rarely have to look at the parameters (though when I do, I locate them
-via the function name, then scan the parameters...) sometimes just to count
-the number of parameters, or the order, which is easier when the parameters
-are one to a line. Either as in K&R, or the new style.
+So, for a multimedia application, which platform would be faster?  How does 
+the much slower FSB of the dual processor impact its ability to grab and 
+crunch.  Does its onboard cache make the slower speed FSB less important?  
 
+Also, does a dual processor platform distribute the interrupt loading as well 
+as process loading?  I my systems I have between 1 and 8 frame identical 
+frame grabbers.  Would the interrupt processing of these devices be 
+distributed evenly on the dual processor platforms?
+-- 
+Joe Briggs
+Briggs Media Systems
+105 Burnsen Ave.
+Manchester NH 01304 USA
+TEL/FAX 603-232-3115 MOBILE 603-493-2386
+www.briggsmedia.com

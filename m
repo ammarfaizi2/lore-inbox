@@ -1,80 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbULIOLx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261361AbULIOPg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261347AbULIOLx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 09:11:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261359AbULIOLx
+	id S261361AbULIOPg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 09:15:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbULIOPf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 09:11:53 -0500
-Received: from alog0402.analogic.com ([208.224.222.178]:14464 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261347AbULIOKJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 09:10:09 -0500
-Date: Thu, 9 Dec 2004 09:09:30 -0500 (EST)
-From: linux-os <linux-os@chaos.analogic.com>
-Reply-To: linux-os@analogic.com
-To: Phani Kandula <phani.lkml@gmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: doubt about "switch" - default case in af_inet.c
-In-Reply-To: <7d34f21904120905573ddb6d25@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0412090901260.21235@chaos.analogic.com>
-References: <7d34f21904120905573ddb6d25@mail.gmail.com>
+	Thu, 9 Dec 2004 09:15:35 -0500
+Received: from dfw-gate2.raytheon.com ([199.46.199.231]:59618 "EHLO
+	dfw-gate2.raytheon.com") by vger.kernel.org with ESMTP
+	id S261361AbULIOP1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Dec 2004 09:15:27 -0500
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-6
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Amit Shah <amit.shah@codito.com>,
+       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, emann@mrv.com,
+       Gunther Persoons <gunther_persoons@spymac.com>,
+       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Shane Shrybman <shrybman@aei.ca>, Esben Nielsen <simlo@phys.au.dk>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OFBFDFFF38.8E8C4EA3-ON86256F65.004D59FB@raytheon.com>
+From: Mark_H_Johnson@raytheon.com
+Date: Thu, 9 Dec 2004 08:14:34 -0600
+X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
+ 12/09/2004 08:14:36 AM
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-type: text/plain; charset=US-ASCII
+X-SPAM: 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 Dec 2004, Phani Kandula wrote:
+Another odd crash, this time with PREEMPT_RT and 32-5.
 
-> Hi all,
->
-> I'm a newbie to the Linux. I'm using 2.6.8 kernel.
-> In /usr/src/linux/net/ipv4/af_inet.c I came across this...
-> <code>
->     switch (sock->state) {
->     default:
->     //do something..
->         goto out;
->     case SS_CONNECTED:
->     //do something..
->         goto out;
->     case SS_CONNECTING:
->     //do something..
->         break;
->     case SS_UNCONNECTED:
->     //do something..
->         break;
->     }
-> </code>
->
-> Is there any advantage in having 'default' as the first case?
-> My understanding is that it will be useful only when 'default' is the
-> most likely case (in general).
->
-> Even then, my doubt: How will compiler (say gcc) implement 'default'
-> as the first value? Program is supposed to see all the cases and then
-> decide 'default'. Is this correct?
->
-> So, is this the best way to do it? please clarify..
->
-> Thanks,
-> Phani
+Was trying to download 32-12 using mozilla and saw the following:
+ - the download window came up with ?? of ?? downloaded
+ - at this point, mozilla was not responsive, could move windows
+with the window manager but no updates to the window contents.
+ - top showed no CPU usage for mozilla-bin
+Tried alt-sysrq-L (was then going to do -D) and got the following
+messages on the serial console...
 
-Generally speaking when you see "strange" code mixed with gotos,
-somebody has adjusted the code, often by looking at the assembly
-output, to maximize the performance.
+SysRq : (          IRQ 1-278  |#0): new 2304 us maximum-latency critical
+section.
+[stack dump shown]
+(          IRQ 1-278  |#0): new 374313 us maximum-latency critical section.
+[stack dump shown]
+(          IRQ 1-278  |#0): new 374868 us maximum-latency critical section.
+[stack dump shown]
+(          IRQ 1-278  |#0): new 374923 us maximum-latency critical section.
+[stack dump shown]
 
-Of course, when the compiler changes, the code may no longer be
-optimum.
+At this point, the system is non responsive. Network operations had
+stopped, no mouse / display updates, no response to keyboard commands
+like Alt-SysRq keys. Never saw the output of Alt-SysRq-L on the serial
+console. The system log did not have anything either, its last message
+was the one noting that I had logged in for the day.
 
-In principle, if the labels in a switch represent incrementing
-numbers, the compiler can generate fast code by using that fact.
-However, often little care is taken in the placement of these
-labels or the numerical differences between them so the code output
-degenerates to a bunch of "compares". In this case, the most common
-value should be the one checked first.
+Let me know if you need the serial console output.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by John Ashcroft.
-                  98.36% of all statistics are fiction.
+--Mark H Johnson
+  <mailto:Mark_H_Johnson@raytheon.com>
+

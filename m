@@ -1,31 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313563AbSGILAC>; Tue, 9 Jul 2002 07:00:02 -0400
+	id <S313571AbSGILEQ>; Tue, 9 Jul 2002 07:04:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313571AbSGILAB>; Tue, 9 Jul 2002 07:00:01 -0400
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:56679 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id <S313563AbSGILAB>; Tue, 9 Jul 2002 07:00:01 -0400
-From: "Pedro M. Rodrigues" <pmanuel@myrealbox.com>
-To: linux-kernel@vger.kernel.org
-Date: Tue, 9 Jul 2002 13:01:11 +0200
+	id <S313743AbSGILEP>; Tue, 9 Jul 2002 07:04:15 -0400
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:32787 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S313571AbSGILEO>; Tue, 9 Jul 2002 07:04:14 -0400
+Date: Tue, 9 Jul 2002 13:06:16 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+cc: Keith Owens <kaos@ocs.com.au>, <linux-kernel@vger.kernel.org>
+Subject: Re: [OKS] Module removal 
+In-Reply-To: <Pine.LNX.4.44.0207090352090.25461-100000@chaos.physics.uiowa.edu>
+Message-ID: <Pine.LNX.4.44.0207091252360.28515-100000@serv>
 MIME-Version: 1.0
-Subject: Removing CAP_SYS_RAWIO
-Message-ID: <3D2ADE97.3211.9586B6@localhost>
-X-mailer: Pegasus Mail for Windows (v4.01)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hello! Has anyone experience with removing CAP_SYS_RAWIO capability 
-in the recent 2.4 kernels? I searched around to look for real life 
-examples, but the only definitive answer seems to be that X breaks. 
->From my head, other candidates to breaking are things like hwclock 
-and setserial, maybe i am wrong? 
+Hi,
 
+On Tue, 9 Jul 2002, Kai Germaschewski wrote:
 
+> I tend to see this differently: cleanup_module() cannot fail, but it can
+> sleep. So it's perfectly fine to deregister, wait until all references are
+> gone, clean up and return. So a kind of two-stage unregister is already
+> happening.
 
-Thanks,
-Pedro
+That's a possibility, if you can live with a noninterruptable rmmod
+process sleeping for a very long time...
+
+> It's different in that it does use explicit refcounting, but
+> when the right interfaces are provided, the driver author doesn't need to
+> care - the author should just call pci_unregister/netdev_unregister/..,
+> that'll sleep until all references are gone (which also means no one will
+> use callbacks into the module anymore) and be done.
+
+The unregister function can't prevent someone from start using the device
+again (at least not with reasonable effort), but it can detect this. The
+author should just check the return value, like he already (hopefully)
+does during initialization.
+
+bye, Roman
+

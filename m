@@ -1,44 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265457AbSKSOAH>; Tue, 19 Nov 2002 09:00:07 -0500
+	id <S265306AbSKSNyf>; Tue, 19 Nov 2002 08:54:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265469AbSKSOAH>; Tue, 19 Nov 2002 09:00:07 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:30439 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S265457AbSKSOAF>;
-	Tue, 19 Nov 2002 09:00:05 -0500
-Date: Tue, 19 Nov 2002 14:02:05 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Paul Larson <plars@linuxtestproject.org>
-Cc: jim.houston@attbi.com, lkml <linux-kernel@vger.kernel.org>,
-       high-res-timers-discourse@lists.sourceforge.net,
-       ltp-list@lists.sourceforge.net, jim.houston@ccur.com
-Subject: Re: [LTP] Re: LTP - gettimeofday02 FAIL
-Message-ID: <20021119140205.GA30120@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Paul Larson <plars@linuxtestproject.org>, jim.houston@attbi.com,
-	lkml <linux-kernel@vger.kernel.org>,
-	high-res-timers-discourse@lists.sourceforge.net,
-	ltp-list@lists.sourceforge.net, jim.houston@ccur.com
-References: <200211190127.gAJ1RWg11023@linux.local> <1037713044.24031.15.camel@plars>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1037713044.24031.15.camel@plars>
-User-Agent: Mutt/1.4i
+	id <S265333AbSKSNye>; Tue, 19 Nov 2002 08:54:34 -0500
+Received: from h-64-105-34-70.SNVACAID.covad.net ([64.105.34.70]:31958 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S265306AbSKSNyb>; Tue, 19 Nov 2002 08:54:31 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Tue, 19 Nov 2002 06:01:26 -0800
+Message-Id: <200211191401.GAA11326@adam.yggdrasil.com>
+To: rusty@rustcorp.com.au
+Subject: Re: Patch: module-init-tools-0.6/modprobe.c - support subdirectories
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 19, 2002 at 07:37:23AM -0600, Paul Larson wrote:
- > > I just tried gettimeofday02 on an old pentium-pro dual processor, and yes
- > > the time goes backwards with a 2.5.48 kernel.
- > This has been noticed, I've posted to lkml about it.  The only person
- > who replied to me seems to be suggesting it is a hardware issue, but I
- > can't believe it is impossible to work around.
+Minor self-correction.  Regarding using modules.dep, I wrote:
+>[...] you might like to consider that this change could reduce or
+>completely eliminate all references to ELF in modprobe and insmod.
+                                            ^^^^^^^^^^^^^^^^^^^^^^
 
-Especially if earlier kernels got it right..
+That should just read "in modprobe."
 
-		Dave
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

@@ -1,55 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265067AbTFLX0o (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 19:26:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265068AbTFLX0o
+	id S265046AbTFLX24 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 19:28:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265061AbTFLX24
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 19:26:44 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:58610 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S265067AbTFLX0n
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 19:26:43 -0400
-Subject: Re: [PATCH] udev enhancements to use kernel event queue
-From: Robert Love <rml@tech9.net>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@digeo.com>, sdake@mvista.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0306121629590.11379-100000@cherise>
-References: <Pine.LNX.4.44.0306121629590.11379-100000@cherise>
-Content-Type: text/plain
-Message-Id: <1055461324.662.346.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2) 
-Date: 12 Jun 2003 16:42:04 -0700
-Content-Transfer-Encoding: 7bit
+	Thu, 12 Jun 2003 19:28:56 -0400
+Received: from imf.math.ku.dk ([130.225.103.32]:4009 "EHLO imf.math.ku.dk")
+	by vger.kernel.org with ESMTP id S265046AbTFLX2z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 19:28:55 -0400
+Date: Fri, 13 Jun 2003 01:42:40 +0200 (CEST)
+From: Peter Berg Larsen <pebl@math.ku.dk>
+To: Vojtech Pavlik <vojtech@ucw.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Synaptics TouchPad driver for 2.5.70
+In-Reply-To: <20030613012746.A28341@ucw.cz>
+Message-ID: <Pine.LNX.4.40.0306130134470.10788-100000@shannon.math.ku.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-06-12 at 16:34, Patrick Mochel wrote:
 
-> > Nice thinking. It is a shame we need a lock for this, but we don't
-> > have an atomic_inc_and_return().
-> 
-> Those were my sentiments exactly:
+On Fri, 13 Jun 2003, Vojtech Pavlik wrote:
 
-Heh.
+> > > The synaptics driver, if it wished to demultiplex a true mouse protocol
+> > > behind the pad without an active multiplexing controller, could easily
+> > > create a new serio port, to which the psmouse driver would attach,
+> > > detect, and drive the mouse. It's a bit crazy, but it should work.
 
-> +static inline int atomic_inc_and_read(atomic_t *v)
-> +{
-> +	__asm__ __volatile__(
-> +		LOCK "incl %0"
-> +		:"=m" (v->counter)
-> +		:"m" (v->counter));
-> +	return v->counter;
-> +}
+> > hmm, that is clever. But I am afraid it will not work: the master (the
 
-What prevents a race between the increment and the return (i.e. you
-return v->counter after another person also increments it)? Only the
-increment is guaranteed atomic.
+> That's sad. Anyway, we'll have to find a solution for this. Either the
+> synaptics driver parsing the communication on the new serio port (which
+> isn't as complex as it looks) and detecting the packet length from that,
+> or some way the psmouse driver can tell it what packet size it uses.
 
-I think you need to copy the result of the increment into a local
-variable _inside_ of the LOCK and return that. Whether or not that will
-work sanely on all architectures I dunno.
+If the synaptic driver can deduce the protocol by listning to the probing
+communication, it might as well just sent it itself.
 
-	Robert Love
+Peter
+--
+E-Mail:       pebl@math.ku.dk
+Real name:    Peter Berg Larsen
+Where:        Department of Computer Science, Copenhagen Uni., Denmark
+
 

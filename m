@@ -1,40 +1,110 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277242AbRJIOO4>; Tue, 9 Oct 2001 10:14:56 -0400
+	id <S277243AbRJIORG>; Tue, 9 Oct 2001 10:17:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277240AbRJIOOq>; Tue, 9 Oct 2001 10:14:46 -0400
-Received: from ns.suse.de ([213.95.15.193]:11022 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S277236AbRJIOOe>;
-	Tue, 9 Oct 2001 10:14:34 -0400
-Date: Tue, 9 Oct 2001 16:15:04 +0200 (CEST)
-From: Dave Jones <davej@suse.de>
-To: Thomas Hood <jdthood@mail.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: sysctl interface to bootflags?
-In-Reply-To: <1002636089.953.115.camel@thanatos>
-Message-ID: <Pine.LNX.4.30.0110091613490.32557-100000@Appserv.suse.de>
+	id <S277241AbRJIOQ5>; Tue, 9 Oct 2001 10:16:57 -0400
+Received: from wiprom2mx1.wipro.com ([203.197.164.41]:4601 "EHLO
+	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
+	id <S277243AbRJIOQr>; Tue, 9 Oct 2001 10:16:47 -0400
+Message-ID: <3BC30701.2060908@wipro.com>
+Date: Tue, 09 Oct 2001 19:47:37 +0530
+From: "BALBIR SINGH" <balbir.singh@wipro.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+CC: Linus Torvalds <torvalds@transmeta.com>, Andrea Arcangeli <andrea@suse.de>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: pre6 VM issues
+In-Reply-To: <Pine.LNX.4.21.0110091031470.5604-100000@freak.distro.conectiva>
+Content-Type: multipart/mixed;
+	boundary="------------InterScan_NT_MIME_Boundary"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9 Oct 2001, Thomas Hood wrote:
 
-> Would it be a good idea to do this using the sysctl infrastructure?
-> If so, can someone please suggest an appropriate pathname for
-> the flag files?  How about "/proc/sys/BIOS/bootflags/diagnostics"
-> and "/proc/sys/BIOS/bootflags/PnP-OS" ?
-> If this is a bad idea, someone please stop me before I waste my
-> time implementing it.
+This is a multi-part message in MIME format.
 
-Last week, I pointed you at http://www.codemonkey.org.uk/sbf.c
-Can you give a reason why this needs to be done in kernel space ?
+--------------InterScan_NT_MIME_Boundary
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-regards,
+Most of the traditional unices maintained a pool for each subsystem
+(this is really useful when u have the memory to spare), so not matter
+what they use memory only from their pool (and if needed peek outside),
+but nobody else used the memory from the pool.
 
-Dave.
+I have seen cases where, I have run out of physical memory on my system,
+so I try to log in using the serial console, but since the serial driver
+does get_free_page (this most likely fails) and the driver complains back.
+So, I had suggested a while back that important subsystems should maintain
+their own pool (it will take a new thread to discuss the right size of
+each pool).
 
--- 
-| Dave Jones.        http://www.suse.de/~davej
-| SuSE Labs
+Why can't Linux follow the same approach? especially on systems with a lot
+of memory.
 
+
+Balbir
+
+Marcelo Tosatti wrote:
+
+>Hi, 
+>
+>I've been testing pre6 (actually its pre5 a patch which Linus sent me
+>named "prewith 16GB of RAM (thanks to OSDLabs for that), and I've found
+>out some problems. First of all, we need to throttle normal allocators
+>more often and/or update the low memory limits for normal allocators to a
+>saner value. I already said I think allowing everybody to eat up to
+>"freepages.min" is too low for a default.
+>
+>I've got atomic memory failures with _22GB_ of swap free (32GB total):
+>
+> eth0: can't fill rx buffer (force 0)!
+>
+>Another issue is the damn fork() special case. Its failing in practice:
+>
+>bash: fork: Cannot allocate memory
+>
+>Also with _LOTS_ of swap free. (gigs of them)
+>
+>Linus, we can introduce a "__GFP_FAIL" flag to be used by _everyone_ which
+>wants to do higher order allocations as an optimization (eg allocate big
+>scatter-gather tables or whatever). Or do you prefer to make the fork()
+>allocation a separate case ?
+>
+>I'll take a closer look at the code now and make the throttling/limits to
+>what I think is saner for a default.
+>
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+
+
+
+--------------InterScan_NT_MIME_Boundary
+Content-Type: text/plain;
+	name="Wipro_Disclaimer.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="Wipro_Disclaimer.txt"
+
+----------------------------------------------------------------------------------------------------------------------
+Information transmitted by this E-MAIL is proprietary to Wipro and/or its Customers and
+is intended for use only by the individual or entity to which it is
+addressed, and may contain information that is privileged, confidential or
+exempt from disclosure under applicable law. If you are not the intended
+recipient or it appears that this mail has been forwarded to you without
+proper authority, you are notified that any use or dissemination of this
+information in any manner is strictly prohibited. In such cases, please
+notify us immediately at mailto:mailadmin@wipro.com and delete this mail
+from your records.
+----------------------------------------------------------------------------------------------------------------------
+
+
+--------------InterScan_NT_MIME_Boundary--

@@ -1,60 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261418AbVBRQuv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261416AbVBRQ4H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261418AbVBRQuv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 11:50:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261415AbVBRQuu
+	id S261416AbVBRQ4H (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 11:56:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261415AbVBRQ4H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 11:50:50 -0500
-Received: from rproxy.gmail.com ([64.233.170.199]:27373 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261404AbVBRQud (ORCPT
+	Fri, 18 Feb 2005 11:56:07 -0500
+Received: from fire.osdl.org ([65.172.181.4]:1489 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261407AbVBRQzx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 11:50:33 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=soC67Rww+XnSreChVYEMKXoHLiiZOgPRkwQM6xJSkVnVLmHGE0iaFeGVkbaemqNJRmi9jMvDBEevNsVJUTlm5PjxI+QafIdJddasDLv1jf0z6pxcQnCIHMrvP5ln8FSnrw1XSQWXEaCX7U88edgMQj8YDYMtmUNlxAZ+MUDczbU=
-Message-ID: <9e47339105021808507f778021@mail.gmail.com>
-Date: Fri, 18 Feb 2005 11:50:29 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Gabriel Paubert <paubert@iram.es>
-Subject: Re: [PATCH] quiet non-x86 option ROM warnings
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Jesse Barnes <jbarnes@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050218120914.GB31891@iram.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <200502151557.06049.jbarnes@sgi.com>
-	 <1108515817.13375.63.camel@gaston>
-	 <200502161554.02110.jbarnes@sgi.com> <1108601294.5426.1.camel@gaston>
-	 <9e473391050217083312685e44@mail.gmail.com>
-	 <1108680350.5665.7.camel@gaston>
-	 <9e473391050217145620fecfdc@mail.gmail.com>
-	 <20050218120914.GB31891@iram.es>
+	Fri, 18 Feb 2005 11:55:53 -0500
+To: Andries Brouwer <aebr@win.tue.nl>
+cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: 2.6.10-ac12 + kernbench == oom-killer: (OSDL) 
+In-reply-to: <20050209013617.GC2686@pclin040.win.tue.nl> 
+References: <20050208145707.1ebbd468@es175> <20050209013617.GC2686@pclin040.win.tue.nl>
+Comments: In-reply-to Andries Brouwer <aebr@win.tue.nl>
+   message dated "Wed, 09 Feb 2005 02:36:17 +0100."
+Date: Fri, 18 Feb 2005 08:55:47 -0800
+From: Cliff White <cliffw@osdl.org>
+Message-Id: <E1D2BPv-0006T3-Q6@es175>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Feb 2005 13:09:14 +0100, Gabriel Paubert <paubert@iram.es> wrote:
-> For example if it declares 128k, compare the two halves, reduce
-> to 64k if equal. Lather, rinse, repeat.
+> On Tue, Feb 08, 2005 at 02:57:07PM -0800, cliff white wrote:
 > 
-> It's equivalent to reading the BAR declared size twice in
-> the worst case, so it's not that bad performance-wise.
+> > Running 2.6.10-ac10 on the STP 1-CPU machines, we don't seem to be able to 
+> complete
+> > a kernbench run without hitting the OOM-killer. ( kernbench is multiple ker
+> nel compiles,
+> > of course ) Machine is 800 mhz PIII with 1GB memory. We reduce memory for s
+> ome of the runs.
+> > 
+> > Typical results:
+> > 
+> > Out of Memory: Killed process 14970 (cc1).
+> > -------------------------
+> > It looks like some oom-related stuff went into -ac10, will try retest with 
+> > -ac9 and -ac10, see what happens. Lemme know if we can do more
 > 
-> That would only be in the case of an unknown signature
-> in the first bytes, otherwise the third byte gives you
-> the size IIUC.
+> I am always curious to hear how things are when you set
+> /proc/sys/vm/overcommit_memory to 2
+> (and possibly /proc/sys/vm/overcommit_ratio to something
+> appropriate).
 
-The third byte size is wrong in too many cards to be useful. I have
-always found the size in the PCIR header to be accurate.
+Okay, with just vm.overcommit=2, things are still bad:
+http://khack.osdl.org/stp/300854/logs/TestRunFailed.console.log.txt
+
+Suggestion for vm.overcommit_ratio ?
+Or should i repeat with later -ac ?
+cliffw
+
+-----------Some output---------------
+Free pages:        8872kB (0kB HighMem)
+
+Active:14865 inactive:4118 dirty:0 writeback:629 unstable:0 free:2218 slab:11489 mapped:32027 pagetables:13800
+
+DMA free:1224kB min:128kB low:160kB high:192kB active:552kB inactive:196kB present:16384kB pages_scanned:401 all_unreclaimable? no
+
+protections[]: 0 0 0
+
+Normal free:7648kB min:1920kB low:2400kB high:2880kB active:58908kB inactive:16276kB present:245760kB pages_scanned:1395 all_unreclaimable? no
+
+protections[]: 0 0 0
+
+HighMem free:0kB min:128kB low:160kB high:192kB active:0kB inactive:0kB present:0kB pages_scanned:0 all_unreclaimable? no
+
+protections[]: 0 0 0
+
+DMA: 240*4kB 17*8kB 2*16kB 1*32kB 1*64kB 0*128kB 0*256kB 0*512kB 0*1024kB 0*2048kB 0*4096kB = 1224kB
+
+Normal: 1348*4kB 46*8kB 54*16kB 6*32kB 1*64kB 0*128kB 1*256kB 1*512kB 0*1024kB 0*2048kB 0*4096kB = 7648kB
+
+HighMem: empty
+
+Swap cache: add 23226854, delete 23224756, find 324015/2933249, race 2549+2365
+
+Out of Memory: Killed process 14667 (rpm).
+
+oom-killer: gfp_mask=0xd2
+
+DMA per-cpu:
+
+cpu 0 hot: low 2, high 6, batch 1
+
+cpu 0 cold: low 0, high 2, batch 1
+
+Normal per-cpu:
+
+cpu 0 hot: low 30, high 90, batch 15
+
+cpu 0 cold: low 0, high 30, batch 15
+
+HighMem per-cpu: empty
+
+------------------
+cliffw
+
+
 
 > 
->         Gabriel
+> Andries
 > 
-
-
--- 
-Jon Smirl
-jonsmirl@gmail.com

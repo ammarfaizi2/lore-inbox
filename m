@@ -1,94 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262230AbSJARCP>; Tue, 1 Oct 2002 13:02:15 -0400
+	id <S262506AbSJARZA>; Tue, 1 Oct 2002 13:25:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262216AbSJARB1>; Tue, 1 Oct 2002 13:01:27 -0400
-Received: from dsl-213-023-043-077.arcor-ip.net ([213.23.43.77]:16028 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S262152AbSJAQ6E>;
-	Tue, 1 Oct 2002 12:58:04 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Rik van Riel <riel@conectiva.com.br>
-Subject: Re: qsbench, interesting results
-Date: Tue, 1 Oct 2002 19:03:40 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Andrew Morton <akpm@digeo.com>,
-       Lorenzo Allegrucci <l.allegrucci@tiscalinet.it>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44L.0210011348060.653-100000@duckman.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.44L.0210011348060.653-100000@duckman.distro.conectiva>
+	id <S262498AbSJARYq>; Tue, 1 Oct 2002 13:24:46 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:34029 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S262502AbSJARYV>; Tue, 1 Oct 2002 13:24:21 -0400
+Date: Tue, 1 Oct 2002 19:29:43 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Linus Torvalds <torvalds@transmeta.com>,
+       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.5.40 - and a feature freeze reminder
+In-Reply-To: <Pine.LNX.4.33.0210010021400.25527-100000@penguin.transmeta.com>
+Message-ID: <Pine.NEB.4.44.0210011924070.10143-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17wQQv-0005vB-00@starship>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 01 October 2002 18:52, Rik van Riel wrote:
-> On Tue, 1 Oct 2002, Daniel Phillips wrote:
-> > On Monday 30 September 2002 07:57, Andrew Morton wrote:
-> > > I'll take a look at some preferential throttling later on.  But
-> > > I must say that I'm not hugely worried about performance regression
-> > > under wild swapstorms.  The correct fix is to go buy some more
-> > > RAM, and the kernel should not be trying to cater for underprovisioned
-> > > machines if that affects the usual case.
-> >
-> > The operative phrase here is "if that affects the usual case".
-> > Actually, the quicksort bench is not that bad a model of a usual case,
-> > i.e., a working set 50% bigger than RAM.
-> 
-> Having the working set of one process larger than RAM is
-> a highly unusual case ...
+On Tue, 1 Oct 2002, Linus Torvalds wrote:
 
-No it's not, it's very similar to having several processes active whose
-working sets add up to more than RAM.
+>...
+> Summary of changes from v2.5.39 to v2.5.40
+> ============================================
+>...
+> Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>:
+>...
+>   o kbuild: Make KBUILD_VERBOSE=0 work better under emacs
+>...
 
-> > The page replacement algorithm ought to do something sane with it,
-> 
-> ... page replacement ought to give this process less RAM
-> because it isn't going to get enough to run anyway. No need
-> to have a process like qsbench make other processes run
-> slow, too.
+This change is broken, it has the effect that compilation no longer stops
+when the compilation of a .c file fails, kbuild doesn't stop the
+compilation until it misses the .o when linking, e.g. (the directory is
+still called "2.5.39" because I forgot to change the name after applying
+patch-2.5.40 but this is 2.5.40):
 
-It should run the process as efficiently as possible, given that there
-isn't any competition.
+<--  snip  -->
 
-> > and swap performance ought to be decent in general, since desktop users
-> > typically have less than 1/2 GB.  With media apps, bloated desktops and
-> > all, it doesn't go as far as it used to.
-> 
-> The difference there is that desktops don't have a working
-> set larger than RAM. They've got a few (dozen?) of processes,
-> each of which has a working set that easily fits in ram and
-> a bunch of pages, or whole processes, which aren't currently
-> in use.
+...
+  gcc -Wp,-MD,./.idt77252.o.d -D__KERNEL__
+-I/home/bunk/linux/kernel-2.5/linux-2
+.5.39-full/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2
+-fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+-march=k6 -I/home/bunk/linux/kernel-2.5/linux-2.5.39-full/arch/i386/mach-generic
+-nostdinc -iwithprefix include  -g  -DKBUILD_BASENAME=idt77252   -c -o
+idt77252.o idt77252.c
+drivers/atm/idt77252.c: In function `alloc_scq':
+drivers/atm/idt77252.c:669: warning: unsigned int format, different type arg (arg 5)
+drivers/atm/idt77252.c: In function `idt77252_interrupt':
+drivers/atm/idt77252.c:2899: warning: implicit declaration of function `queue_task'
+drivers/atm/idt77252.c:2899: `tq_immediate' undeclared (first use in this function)
+drivers/atm/idt77252.c:2899: (Each undeclared identifier is reported only once
+drivers/atm/idt77252.c:2899: for each function it appears in.)
+drivers/atm/idt77252.c:2900: warning: implicit declaration of function `mark_bh'
+drivers/atm/idt77252.c:2900: `IMMEDIATE_BH' undeclared (first use in this function)
+  gcc -Wp,-MD,./.idt77105.o.d -D__KERNEL__ -I/home/bunk/linux/kernel-2.5/linux-2
+.5.39-full/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2
+-fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe
+-mpreferred-stack-boundary=2 -march=k6
+-I/home/bunk/linux/kernel-2.5/linux-2.5.39-full/arch/i386/mach-generic
+-nostdinc -iwithprefix include  -g  -DKBUILD_BASENAME=idt77105   -c -o
+idt77105.o idt77105.c
+...
+  gcc -Wp,-MD,./.fore200e_pca_fw.o.d -D__KERNEL__
+-I/home/bunk/linux/kernel-2.5/
+linux-2.5.39-full/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2
+-fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe
+-mpreferred-stack-boundary=2 -march=k6
+-I/home/bunk/linux/kernel-2.5/linux-2.5.39-full/arch/i386/mach-generic
+ -nostdinc -iwithprefix include  -g  -DKBUILD_BASENAME=fore200e_pca_fw
+-c -o fore200e_pca_fw.o fore200e_pca_fw.c
+  ld -m elf_i386  -r -o fore_200e.o fore200e.o fore200e_pca_fw.o
+   ld -m elf_i386  -r -o built-in.o atmdev_init.o eni.o suni.o zatm.o
+uPD98402.o
+ nicstar.o idt77252.o idt77105.o horizon.o ambassador.o atmtcp.o iphase.o
+firestream.o lanai.o fore_200e.o
+ld: cannot open idt77252.o: No such file or directory
+make[2]: *** [built-in.o] Error 1
+make[2]: Leaving directory `/home/bunk/linux/kernel-2.5/linux-2.5.39-full/drivers/atm'
 
-Try loading a high res photo in gimp and running any kind of interesting
-script-fu on it.  If it doesn't thrash, boot with half the memory and
-repeat.
+<--  snip  -->
 
-> In this situation the VM _can_ keep the whole working set in
-> RAM, simply by evicting the stuff that's not in the working
-> set.
-
-We're not talking about that case.  Oh, by the way, since when did
-it become ok to ignore corner cases?  I thought corner cases were what
-users have been flaming us about for the last 2 or 3 years.
-
-> > My impression is that page replacement just hasn't gotten a lot of
-> > attention recently, and there is nothing wrong with that.  It's tuning,
-> > not a feature.
-> 
-> As you write above, it's a pretty damn important feature,
-> though.  One thing I'm experimenting with now for 2.4 rmap
-> is to ignore the referenced bit and page age if a page is
-> only in use by processes which haven't run recently, this
-> should help the desktop (and university) workloads by
-> swapping out memory from tasks which don't need it anyway
-> at the moment.
-> 
-> There may be other modifications needed, too...
-
-No doubt, and for the first time, we've got a solid base to build on.
+cu
+Adrian
 
 -- 
-Daniel
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+

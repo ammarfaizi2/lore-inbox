@@ -1,36 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263270AbTJKJjR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Oct 2003 05:39:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263272AbTJKJjR
+	id S262048AbTJKJhN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Oct 2003 05:37:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263270AbTJKJhM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Oct 2003 05:39:17 -0400
-Received: from quechua.inka.de ([193.197.184.2]:19161 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S263270AbTJKJjB (ORCPT
+	Sat, 11 Oct 2003 05:37:12 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:20148 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S262048AbTJKJhL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Oct 2003 05:39:01 -0400
-From: Andreas Jellinghaus <aj@dungeon.inka.de>
-Subject: Re: Why are bad disk sectors numbered strangely, and what happens to them?
-Date: Sat, 11 Oct 2003 11:39:55 +0200
-User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity. (Debian GNU/Linux))
-Message-Id: <pan.2003.10.11.09.39.54.505616@dungeon.inka.de>
-References: <227d01c38fd6$2e4764f0$5cee4ca5@DIAMONDLX60>
-To: linux-kernel@vger.kernel.org
+	Sat, 11 Oct 2003 05:37:11 -0400
+Message-ID: <3F87CF3D.8080402@colorfullife.com>
+Date: Sat, 11 Oct 2003 11:37:01 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+To: Mike Galbraith <efault@gmx.de>
+CC: Zwane Mwaikambo <zwane@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test7 DEBUG_PAGEALLOC oops
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-try the smartmontools package, it has "smartctl" that will
-show you the discs S.M.A.R.T. details (i.e. how many bad
-blocks the firmware knows, the errors the firmware knows
-about, etc.). It can also run a self test etc.
+Mike wrote:
 
-doing a backup couldn't hurt.
-btw: are you sure cables are ok?
+>Unable to handle kernel paging request at virtual address c034a000
+> printing eip:
+>c0134d5a
+>*pde = 00102027
+>*pte = 0034a000
+>
+Fault trying to read from address 0xc034a000: the page is not mapped.
 
-Good Luck!
+>Oops: 0000 [#1]
+>CPU:    0
+>EIP:    0060:[<c0134d5a>]    Not tainted
+>EFLAGS: 00010002
+>EIP is at store_stackinfo+0x4e/0x80
+>
+In store_stackinfo: the function stores a backtrace of the last 
+kmem_cache_free caller in the object - might be useful, and the memory 
+is not used.
 
-Andreas
+>eax: 00000000   ebx: c7802f98   ecx: c0301390   edx: c030138c
+>esi: c0349ffe   edi: 017e0008   ebp: c0349da6   esp: c0349d96
+>ds: 007b   es: 007b   ss: 0068
+>Process swapper (pid: 0, threadinfo=c0348000 task=c02fcbe0)
+>
+The esp value is sane, the stack is at 0xc0348000, and the fault is at 
+'a000: just behind the end of the stack.
+I assume the fauling line is
+                        svalue = *sptr++;
+
+It looks like store stackinfo accesses memory behind the end of the stack.
+Which gcc version do you use? Could you send me mm/slab.o?
+
+--
+    Manfred
 

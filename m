@@ -1,69 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262359AbUJ0KVu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262371AbUJ0KVx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262359AbUJ0KVu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 06:21:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262367AbUJ0KUY
+	id S262371AbUJ0KVx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 06:21:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262377AbUJ0KUq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 06:20:24 -0400
-Received: from fep01.ttnet.net.tr ([212.156.4.129]:43721 "EHLO
-	fep01.ttnet.net.tr") by vger.kernel.org with ESMTP id S262371AbUJ0KAm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 06:00:42 -0400
-X-Mailer: Openwave WebEngine, version 2.8.11 (webedge20-101-194-20030622)
-From: <sezeroz@ttnet.net.tr>
-To: <linux-kernel@vger.kernel.org>
-CC: <marcelo.tosatti@cyclades.com>
-Subject: 2.4.28-rc1, more lost patches [5/10]
-Date: Wed, 27 Oct 2004 12:59:03 +0300
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=____1098871143642_8u(6e2Wars"
-Message-Id: <20041027095903.KFYC6935.fep01.ttnet.net.tr@localhost>
-X-ESAFE-STATUS: Mail clean
-X-ESAFE-DETAILS: Clean
+	Wed, 27 Oct 2004 06:20:46 -0400
+Received: from canuck.infradead.org ([205.233.218.70]:62220 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S262353AbUJ0KKA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 06:10:00 -0400
+Subject: Re: 2.4.28-rc1, more lost patches [6/10]
+From: Arjan van de Ven <arjan@infradead.org>
+To: sezeroz@ttnet.net.tr
+Cc: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com
+In-Reply-To: <20041027094036.KAGS6935.fep01.ttnet.net.tr@localhost>
+References: <20041027094036.KAGS6935.fep01.ttnet.net.tr@localhost>
+Content-Type: text/plain
+Message-Id: <1098871777.4680.15.camel@laptop.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Wed, 27 Oct 2004 12:09:37 +0200
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.6 (++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (2.6 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[62.195.31.207 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[62.195.31.207 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Wed, 2004-10-27 at 12:40 +0300, sezeroz@ttnet.net.tr wrote:
+> [6/10] cdrom: If the device is opened O_EXCL but there are
+> other openers, return busy. From ac/redhat. (by Arjan??)
 
-------=____1098871143642_8u(6e2Wars
-Content-Type: text/plain;
-	charset=ISO-8859-9
-Content-Transfer-Encoding: 7bit
+this is a "feature" patch not a strict bugfix, so I'm not convinced it's
+suitable for 2.4 inclusion anymore.
 
+-- 
 
-(Re-send to fix base64 attachment.)
-
-[5/10] Alan Cox: appletalk dev copy/user stanford checker patch.
-
-Not in 2.6, only in -ac/redhat. To be reviewed.
-
-
-------=____1098871143642_8u(6e2Wars
-Content-Transfer-Encoding: base64
-Content-Type: application/octet-stream;
-	name="appletalk_checker.patch"
-Content-Disposition: inline;
-	filename="appletalk_checker.patch"
-
-CkFsYW4gQ294Cm9ubHkgaW4gLWFjL3JlZGhhdCwgX05PVF8gaW4gMi42LgoKZGlmZiAtdXJOIDI4
-cmMxL25ldC9hcHBsZXRhbGsvZGRwLmMgMjhyYzFfYWFjL25ldC9hcHBsZXRhbGsvZGRwLmMKLS0t
-IDI4cmMxL25ldC9hcHBsZXRhbGsvZGRwLmMJMjAwNC0xMC0yNCAwMDo0NTo1MS4wMDAwMDAwMDAg
-KzAzMDAKKysrIDI4cmMxX2FhYy9uZXQvYXBwbGV0YWxrL2RkcC5jCTIwMDQtMTAtMjQgMDA6NTg6
-MTIuMDAwMDAwMDAwICswMzAwCkBAIC05NzgsNiArOTc4LDIzIEBACiAKIAlpZiAoY29weV9mcm9t
-X3VzZXIoJnJ0LCBhcmcsIHNpemVvZihydCkpKQogCQlyZXR1cm4gLUVGQVVMVDsKKwkJCisJaWYo
-cnQucnRfZGV2KQorCXsKKwkJY2hhciAqY29sb247CisJCXN0cnVjdCBuZXRfZGV2aWNlICpkZXY7
-CisJCWNoYXIgICBkZXZuYW1lW0lGTkFNU0laXTsKKworCQlpZiAoY29weV9mcm9tX3VzZXIoZGV2
-bmFtZSwgcnQucnRfZGV2LCBJRk5BTVNJWi0xKSkKKwkJCXJldHVybiAtRUZBVUxUOworCQlkZXZu
-YW1lW0lGTkFNU0laLTFdID0gMDsKKwkJY29sb24gPSBzdHJjaHIoZGV2bmFtZSwgJzonKTsKKwkJ
-aWYgKGNvbG9uKQorCQkJKmNvbG9uID0gMDsKKwkJZGV2ID0gX19kZXZfZ2V0X2J5X25hbWUoZGV2
-bmFtZSk7CisJCWlmKGRldiA9PSBOVUxMKQorCQkJcmV0dXJuIC1FTk9ERVY7CisJfQogCiAJc3dp
-dGNoIChjbWQpIHsKIAkJY2FzZSBTSU9DREVMUlQ6CkBAIC05ODcsMTMgKzEwMDQsNiBAQAogCQkJ
-CQkJJnJ0LnJ0X2RzdCktPnNhdF9hZGRyKTsKIAogCQljYXNlIFNJT0NBRERSVDoKLQkJCS8qIEZJ
-WE1FOiB0aGUgbmFtZSBvZiB0aGUgZGV2aWNlIGlzIHN0aWxsIGluIHVzZXIKLQkJCSAqIHNwYWNl
-LCBpc24ndCBpdD8gKi8KLQkJCWlmIChydC5ydF9kZXYpIHsKLQkJCQlkZXYgPSBfX2Rldl9nZXRf
-YnlfbmFtZShydC5ydF9kZXYpOwotCQkJCWlmICghZGV2KQotCQkJCQlyZXR1cm4gLUVOT0RFVjsK
-LQkJCX0JCQkKIAkJCXJldHVybiBhdHJ0cl9jcmVhdGUoJnJ0LCBkZXYpOwogCX0KIAlyZXR1cm4g
-LUVJTlZBTDsK
-
-------=____1098871143642_8u(6e2Wars--

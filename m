@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261537AbTDCSgH 
-	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 13:36:07 -0500
+	id S262577AbTDCSiv 
+	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 13:38:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id S262577AbTDCSgH 
-	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 13:36:07 -0500
-Received: from locutus.cmf.nrl.navy.mil ([134.207.10.66]:35026 "EHLO
-	locutus.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
-	id S261537AbTDCSgA 
-	(for <rfc822;linux-kernel@vger.kernel.org>); Thu, 3 Apr 2003 13:36:00 -0500
-Message-Id: <200304031846.h33IkNGi019484@locutus.cmf.nrl.navy.mil>
-To: linux-atm-general@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [ATM] a few more changes for people to test
-In-reply-to: Your message of "Thu, 27 Mar 2003 17:28:28 EST."
-             <200303272228.h2RMSSGi009141@locutus.cmf.nrl.navy.mil> 
-X-url: http://www.nrl.navy.mil/CCS/people/chas/index.html
-X-mailer: nmh 1.0
-Date: Thu, 03 Apr 2003 13:46:22 -0500
-From: chas williams <chas@locutus.cmf.nrl.navy.mil>
+	id S263269AbTDCSiT 
+	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 13:38:19 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:25251 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id S262577AbTDCSgc 
+	(for <rfc822;linux-kernel@vger.kernel.org>); Thu, 3 Apr 2003 13:36:32 -0500
+Date: Thu, 03 Apr 2003 10:37:56 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Greg KH <greg@kroah.com>, Stacy Woods <stacyw@us.ibm.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Bugs sitting in the NEW state for more than 2 weeks
+Message-ID: <1950000.1049395076@flay>
+In-Reply-To: <20030403174343.GA4895@kroah.com>
+References: <3E8C5851.6080200@us.ibm.com> <20030403174343.GA4895@kroah.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-besides the previous changes, this release:
+>> 387  Other      Other      bugme-janitors@lists.osdl.org
+>> poll on usb device does not return immediatly when device is unplugged
+>> 
+>> 388  Other      Other      bugme-janitors@lists.osdl.org
+>> 2.5.60/ioctl on usb device returns wrong length
+> 
+> Any reason why these were not assigned to the USB maintainer, like the
+> other USB bugs have been?
 
-. should no longer race when opening vcc's -- atm_find_ci is obselete
-  the upper layer always allocates the vpi/vci with the proper locking
-  held
-. fixes a race for device numbering in atm_dev_register()
-. make the list of vcc's global.  this simplifies the code quite a bit,
-  and for a vast majority (single atm card) its essentially the same.
-. converts vcc->itf to vcc->sk->bound_dev_if
-. lets proc/fore200e/eni walk the vcc list safely now
+Looks like someone just filed them under the wrong category ....
+I can move them and reassign if you like?
 
-i think locking in the bottom halves of the nicstar/idt77252 is now correct.
-since i dont have any idt77252 cards, i only tested the nicstar but the 
-code is essentially the same.  the lanai and iphase drivers need similar
-work done.  anyone willing to test some changes?  (again, i dont have these
-cards).
+M.
 
-ftp://ftp.cmf.nrl.navy.mil/pub/chas/linux-atm/2_5_66_diffs
-ftp://ftp.cmf.nrl.navy.mil/pub/chas/linux-atm/2_4_20_diffs

@@ -1,52 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264610AbUFRAWI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264215AbUFRAW0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264610AbUFRAWI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 20:22:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264843AbUFRAWI
+	id S264215AbUFRAW0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 20:22:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264880AbUFRAW0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 20:22:08 -0400
-Received: from stout.engsoc.carleton.ca ([134.117.69.22]:18820 "EHLO
-	stout.engsoc.org") by vger.kernel.org with ESMTP id S264610AbUFRAWE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 20:22:04 -0400
-Date: Thu, 17 Jun 2004 20:20:17 -0400
-From: Kyle McMartin <kyle@debian.org>
-To: linux-kernel@vger.kernel.org
+	Thu, 17 Jun 2004 20:22:26 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:17899 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264843AbUFRAWR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 20:22:17 -0400
+Date: Thu, 17 Jun 2004 17:21:32 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: 4Front Technologies <dev@opensound.com>, linux-kernel@vger.kernel.org
+cc: Andrew Morton <akpm@osdl.org>
 Subject: Re: Stop the Linux kernel madness
-Message-ID: <20040618002017.GA29005@engsoc.org>
-References: <40D232AD.4020708@opensound.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Message-ID: <3217460000.1087518092@flay>
 In-Reply-To: <40D232AD.4020708@opensound.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+References: <40D232AD.4020708@opensound.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 17, 2004 at 05:09:17PM -0700, 4Front Technologies wrote:
-> Files linux-2.6.5/arch/i386/boot98/setup.S and 
-> linux-2.6.5-7.75/arch/i386/boot98/setup.S differ
->
-Ok. They edit setup.S. This doesn't change APIs.
-
-> Files linux-2.6.5/arch/i386/defconfig and 
-> linux-2.6.5-7.75/arch/i386/defconfig differ
->
-SuSE doesn't ship the default kernel .config. *SHOCK!* Neither does
-anyone else.
-
-> Only in linux-2.6.5-7.75/arch/i386: defconfig.bigsmp
-> Only in linux-2.6.5-7.75/arch/i386: defconfig.debug
-> Only in linux-2.6.5-7.75/arch/i386: defconfig.default
-> Only in linux-2.6.5-7.75/arch/i386: defconfig.smp
-> Only in linux-2.6.5-7.75/arch/i386: defconfig.um
+> I am writing this message to bring a huge problem to light. SuSE has been systematically
+> forking the linux kernel and shipping all kinds of modifications and still call their
+> kernels 2.6.5 (for example).
 > 
-And added their own configs for the kernels rpms they roll. What a travesty!
+> Either they ship the stock Linux kernel sources or they stop calling their distributions
+> as Linux-2.6.x based.
 
+Umm. They said they're linux-2.6.x based ... ie they're BASED on 2.6,
+not identical. No major vendor ships completely virgin source.
+ 
+> Kernel headers are being changed willy-nilly and SuSE are completely running rough-shod
+> over the linux kernel with the result ONLY software from SuSE works.
 
-I don't know what you were trying to prove, but thanks for failing
-miserably.
+I think you're getting somewhat carried away. Yes, there are lots of mods.
+Most of them are merged back into mainline already (as of 2.6.7).
+ 
+> This is absolutely not our problem and we don't know who to contact at SuSE to fix
+> this problem. Our software works perfectly with Fedora/Debian/Gentoo/Mandrake/Redhat/etc.
 
-Regards,
--- 
-Kyle McMartin
+So what's broken then? Specifically which kernel interface are you 
+calling that has a broken behaviour?
+
+> I think SuSE's lying when they call their Linux kernel a 2.6.5 kernel 
+> when there are massive differences. 
+
+They didn't say it was 2.6.5, they said it was based on it.
+
+> They aren't even compatible with Linux 2.6.6.
+
+In what way?
+ 
+> I urge all those who have the power to sway distributions to 
+> immediately fix their kernels so that small developers like us don't 
+> have to keep updating our software.
+
+I'd be more inclined to suspect you're relying on some behaviour that isn't
+really defined ...
+
+And no, I don't work for SuSE.
+
+M.
+

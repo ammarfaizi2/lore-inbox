@@ -1,56 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261489AbTIZRFJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 13:05:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261491AbTIZRFI
+	id S261508AbTIZRMj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 13:12:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbTIZRMj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 13:05:08 -0400
-Received: from zero.aec.at ([193.170.194.10]:26887 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S261489AbTIZRFD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 13:05:03 -0400
-To: davidm@hpl.hp.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NS83820 2.6.0-test5 driver seems unstable on IA64
-From: Andi Kleen <ak@muc.de>
-Date: Fri, 26 Sep 2003 19:04:30 +0200
-In-Reply-To: <A317.6GH.7@gated-at.bofh.it> (David Mosberger's message of
- "Fri, 26 Sep 2003 17:50:09 +0200")
-Message-ID: <m37k3viiqp.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.090013 (Oort Gnus v0.13) Emacs/21.2 (i586-suse-linux)
-References: <A2yd.64p.31@gated-at.bofh.it> <A2yd.64p.29@gated-at.bofh.it>
-	<A317.6GH.7@gated-at.bofh.it>
+	Fri, 26 Sep 2003 13:12:39 -0400
+Received: from xs.heimsnet.is ([193.4.194.50]:41354 "EHLO cg.c.is")
+	by vger.kernel.org with ESMTP id S261508AbTIZRMg convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Sep 2003 13:12:36 -0400
+From: =?iso-8859-1?q?B=F6rkur=20Ingi=20J=F3nsson?= <bugsy@isl.is>
+Reply-To: bugsy@isl.is
+To: linux-kernel@vger.kernel.org
+Subject: khubd is a Succubus!
+Date: Fri, 26 Sep 2003 17:24:56 +0000
+User-Agent: KMail/1.5.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200309261724.56616.bugsy@isl.is>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Mosberger <davidm@napali.hpl.hp.com> writes:
+Explanation of succubus: 
+Succubus is a demon sent out of hell to suck the life out of a Linux host 
+running  2.6.0-test5 #3 on Fri Sep 26 01:39:31 GMT 2003 i686 AMD Athlon(tm) 
+Processor AuthenticAMD GNU/Linux
+ with the following software..
+Gnu C                  3.2.3
+Gnu make               3.80
+util-linux             2.11z
+mount                  2.11z
+e2fsprogs              1.33
+reiserfsprogs          3.6.8
+Linux C Library        2.3.2
+Dynamic linker (ldd)   2.3.2
+Procps                 3.1.9
+Net-tools              1.60
+Kbd                    1.06
+Sh-utils               2.0.15
+Modules Loaded         nvidia
 
-> Why would that be?  Slower, yes, but very slow?
+Regards, Börkur Ingi Jónsson
 
-It depends on your architecture I guess. On K8/x86-64 it isn't that big
-a deal (one cycle penalty for unaligned accesses), but if you take an
-exception for each unaligned read it will be incredible slow. 
+Ps. in english this means that. On my computer khubd is using 100% of my 
+cpu... any fix on this?
 
-Of course the copy in the driver has the same problem, so it's not
-much better. 
-
-My point was basically that the header access are peanuts compared to
-the unaligned copy. It would be much better to optimize the copy than
-the header access. The proposal of just copying the header does not
-address this. And copying the packet in the driver has the same problem,
-so IMHO it's useless.
-
-The solution proposed by Ivan sounds much better. The basic problem
-is that the Ethernet header is not a multiple of 4 and that misaligns
-everything after it. Use one receive descriptor for the MAC header and 
-another for the rest (IP/TCP/payload) In the rest everything is aligned and 
-there are no problems with misaligned data types (ignoring exceptional cases 
-like broken timestamp options which can be handled slowly). Fixing the 
-stack to handle separate MAC headers should not be that much work, the 
-code is fairly limited. Drawback is that it requires bigger changes to the 
-network drivers and maybe some special case code for non standard MAC
-headers.
-
--Andi

@@ -1,58 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262756AbUDEOp7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 10:45:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262750AbUDEOp7
+	id S262772AbUDEOyJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 10:54:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262794AbUDEOyI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 10:45:59 -0400
-Received: from mail.cyclades.com ([64.186.161.6]:18096 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S262756AbUDEOpc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 10:45:32 -0400
-Date: Mon, 5 Apr 2004 11:22:02 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Matt Brown <matt@mattb.net.nz>
-Cc: kernel@linuxace.com, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org, dlstevens@ibm.com, davem@redhat.com
-Subject: Re: Kernel panic in 2.4.25
-Message-ID: <20040405142202.GB12470@logos.cnet>
-References: <1081129354.1611.44.camel@argon.shr.crc.net.nz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1081129354.1611.44.camel@argon.shr.crc.net.nz>
-User-Agent: Mutt/1.5.5.1i
-X-Cyclades-MailScanner-Information: Please contact the ISP for more information
-X-Cyclades-MailScanner: Found to be clean
+	Mon, 5 Apr 2004 10:54:08 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:57872 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S262772AbUDEOyF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 10:54:05 -0400
+Message-ID: <407177DF.2040202@techsource.com>
+Date: Mon, 05 Apr 2004 11:14:39 -0400
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: Consistently slower 3ware RAID performance under 2.6.4
+References: <406D89B8.4090308@techsource.com> <20040402154718.43f16ea9.akpm@osdl.org>
+In-Reply-To: <20040402154718.43f16ea9.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 05, 2004 at 01:42:34PM +1200, Matt Brown wrote:
-> > IIRC a similar problem was in v2.6.
-> >
-> > I'll dig it up.
-> 
-> Was any progress made on this problem?
-> 
-> I am seeing the same panic as was originally reported using both kernel
-> 2.4.25 and 2.4.26-rc1, I can easily reproduce it under the same
-> conditions as Hasso described in the original email. 
-> 
-> With quagga/ospfd running I simply execute
-> ifconfig eth0 down
-> ifconfig eth0 up 
-> in quick succession and a panic follows within 20 seconds. 
-> 
-> The panic does not occur if ospfd is not running, or if i pause for at
-> least 10 seconds between the two commands. 
-> 
-> Let me know if I can provide any more information that would be helpful
-> in solving this problem. 
 
-Matt,
 
-This oops should be fixed by
+Andrew Morton wrote:
 
-http://linux.bkbits.net:8080/linux-2.4/patch@1.1342?nav=index.html|ChangeSet@-7d|cset@1.1342
+> 
+> You cannot compare 2.4 and 2.6 kernel write performance with `dd', because
+> the kernels are tuned differently.  2.6 kernels are tuned to leave less
+> dirty pages in memory than a 2.4 kernel.  Hence when your dd has finished,
+> 40% of memory will be dirty (needing writeout) under 2.6, but this figure
+> is 60% on 2.4.
+> 
+> So the 2.6 kernel does more writeout during the dd run and less writeout
+> after dd has finished.  The 2.4 kernel does less writeout during the dd run
+> and more writeout after dd has finished.
+> 
+> To compare IO performance you'll need to set 2.6's /proc/sys/vm/dirty_ratio
+> to 60 and /proc/sys/vm/dirty_async_ratio to 30.  Or use write-and-fsync
+> from http://www.zip.com.au/~akpm/linux/patches/stuff/ext3-tools.tar.gz with
+> the `-f' option.
+> 
+> I don't know why the read bandwidth appears to be lower.  Try increasing
+> the readahead with `blockdev --setra'?
 
-Which will be part of 2.4.26-rc2. Please try it.
+
+That's odd.  I've tried different mem= kernel parameters with no change 
+in throughput under 2.4.  That is, 1G vs. 128M vs. 32M all perform the 
+same under 2.4 when doing dd to a block device.  On the other hand, 
+available RAM makes a HUGE difference when doing dd to a _file_system_.
+
+I haven't tried that under 2.6 yet.
+
+Anyhow, I chose a 1GB test run so as diminish cache effects and file 
+system overhead.  Is my logic flawed here?
+
+Thanks.
+

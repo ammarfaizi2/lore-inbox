@@ -1,99 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318917AbSHFNkK>; Tue, 6 Aug 2002 09:40:10 -0400
+	id <S319089AbSHFNnJ>; Tue, 6 Aug 2002 09:43:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319084AbSHFNkK>; Tue, 6 Aug 2002 09:40:10 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:18960 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id <S318917AbSHFNkJ>;
-	Tue, 6 Aug 2002 09:40:09 -0400
-Date: Tue, 6 Aug 2002 15:43:28 +0200
-From: Willy TARREAU <willy@w.ods.org>
-To: marcelo@conectiva.com.br
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] APM fix for 2.4.20pre1
-Message-ID: <20020806134328.GA587@pcw.home.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S319088AbSHFNnJ>; Tue, 6 Aug 2002 09:43:09 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:53221 "EHLO
+	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
+	id <S319089AbSHFNnI>; Tue, 6 Aug 2002 09:43:08 -0400
+Date: Tue, 6 Aug 2002 14:47:14 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Duc Vianney <dvianney@us.ibm.com>
+cc: linux-kernel@vger.kernel.org, <lse-tech@lists.sourceforge.net>,
+       <mcao@us.ibm.com>, <bhartner@us.ibm.com>
+Subject: Re: IPC lock patch performance improvement
+In-Reply-To: <3D4F0403.B136A031@us.ibm.com>
+Message-ID: <Pine.LNX.4.44.0208061436280.1441-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+On Mon, 5 Aug 2002, Duc Vianney wrote:
+> I ran the LMbench Pipe and IPC latency test bucket against the IPC lock
+> patch from Mingming Cao and found the patch improves the performance of
+> those functions from 1% to 9%. See the attached data. The kernel under
+> test is 2.5.29, SMP kernel running on a 4-way 500 MHz. The data for
+> 2.5.29s4-ipc represents the average of three runs.
+> 
+>                                                            Percent
+>                                   2.5.29s4 2.5.29s4-ipc Improvement
+> Pipe latency                         12.51     11.43         9%
+> AF_Unix sock stream latency          21.61     19.82         8%
+> UDP latency using localhost          36.28     35.12         3%
+> TCP latency using localhost          56.90     54.89         4%
+> RPC/tcp latency using local host    123.30    121.91         1%
+> RPC/udp latency using localhost      89.78     88.70         1%
+> TCP/IP connection cost to localhost 192.74    187.76         3%
+> Note: Latency is in microseconds
+> Note: 2.5.29s4 is the base 2.5.29 SMP kernel running on a 4-way,
+> 2.5.29s4-ipc is the base 2.5.29 SMP kernel built with IPC lock patch.
 
-I resend you this patch against 2.4.19-rc5 which prevents my SMP box from
-randomly crashing at boot during APM initialization. It still applies to
-2.4.20-pre1. Alan included it in 19-ac4 too. Basically, it forces bios
-calls to be made only from CPU0.
+Please show me I'm wrong, but so far as I can see (from source and
+breakpoints) LMbench never touches the SysV IPC code, which is the only
+code affected by Mingming's proposed IPC locking changes.  I believe
+LMbench tests InterProcessCommunication via pipes and sockets,
+not via the SysV IPC msg sem and shm.
 
-Please include it in 2.4.20-pre2.
+If that's right, then your improvement is magical; but we can
+hope for even better when the appropriate codepaths are tested.
 
-Thanks,
-Willy
-
-PS: people using O(1) scheduler should not use this patch, but Alan's.
-
---- linux-2.4.19-rc5/arch/i386/kernel/apm.c	Thu Aug  1 22:07:39 2002
-+++ linux-2.4.19-rc5-fix/arch/i386/kernel/apm.c	Fri Aug  2 01:52:55 2002
-@@ -862,14 +862,6 @@
- 		apm_do_busy();
- }
- 
--#ifdef CONFIG_SMP
--static int apm_magic(void * unused)
--{
--	while (1)
--		schedule();
--}
--#endif
--
- /**
-  *	apm_power_off	-	ask the BIOS to power off
-  *
-@@ -897,10 +889,11 @@
- 	 */
- #ifdef CONFIG_SMP
- 	/* Some bioses don't like being called from CPU != 0 */
--	while (cpu_number_map(smp_processor_id()) != 0) {
--		kernel_thread(apm_magic, NULL,
--			CLONE_FS | CLONE_FILES | CLONE_SIGHAND | SIGCHLD);
-+	if (cpu_number_map(smp_processor_id()) != 0) {
-+		current->cpus_allowed = 1;
- 		schedule();
-+		if (unlikely(cpu_number_map(smp_processor_id()) != 0))
-+			BUG();
- 	}
- #endif
- 	if (apm_info.realmode_power_off)
-@@ -1661,6 +1654,21 @@
- 	strcpy(current->comm, "kapmd");
- 	sigfillset(&current->blocked);
- 
-+#ifdef CONFIG_SMP
-+	/* 2002/08/01 - WT
-+	 * This is to avoid random crashes at boot time during initialization
-+	 * on SMP systems in case of "apm=power-off" mode. Seen on ASUS A7M266D.
-+	 * Some bioses don't like being called from CPU != 0.
-+	 * Method suggested by Ingo Molnar.
-+	 */
-+	if (cpu_number_map(smp_processor_id()) != 0) {
-+		current->cpus_allowed = 1;
-+		schedule();
-+		if (unlikely(cpu_number_map(smp_processor_id()) != 0))
-+			BUG();
-+	}
-+#endif
-+	
- 	if (apm_info.connection_version == 0) {
- 		apm_info.connection_version = apm_info.bios.version;
- 		if (apm_info.connection_version > 0x100) {
-@@ -1707,7 +1715,7 @@
- 		}
- 	}
- 
--	if (debug && (smp_num_cpus == 1)) {
-+	if (debug) {
- 		error = apm_get_power_status(&bx, &cx, &dx);
- 		if (error)
- 			printk(KERN_INFO "apm: power status not available\n");
+Hugh
 

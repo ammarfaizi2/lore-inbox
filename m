@@ -1,43 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316615AbSHBSo5>; Fri, 2 Aug 2002 14:44:57 -0400
+	id <S316591AbSHBSom>; Fri, 2 Aug 2002 14:44:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316623AbSHBSo5>; Fri, 2 Aug 2002 14:44:57 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:14092 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S316615AbSHBSo4>;
-	Fri, 2 Aug 2002 14:44:56 -0400
-Date: Fri, 2 Aug 2002 11:46:33 -0700
-From: Greg KH <greg@kroah.com>
-To: Enugala Venkata Ramana <caps_linux@rediffmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Re: Re: installation of latest kernel on compaq notebook
-Message-ID: <20020802184632.GR497@kroah.com>
-References: <20020802183803.12729.qmail@webmail30.rediffmail.com>
-Mime-Version: 1.0
+	id <S316615AbSHBSom>; Fri, 2 Aug 2002 14:44:42 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:27660 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S316591AbSHBSol>; Fri, 2 Aug 2002 14:44:41 -0400
+From: Nikita Danilov <Nikita@Namesys.COM>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020802183803.12729.qmail@webmail30.rediffmail.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Fri, 05 Jul 2002 17:23:47 -0700
+Content-Transfer-Encoding: 7bit
+Message-ID: <15690.54248.33518.887768@laputa.namesys.com>
+Date: Fri, 2 Aug 2002 22:48:08 +0400
+X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
+X-PGP-Key-ID: CCAAAC92
+X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
+To: Hans Reiser <reiser@namesys.com>
+Cc: trond.myklebust@fys.uio.no, Steve Lord <lord@sgi.com>,
+       Jan Harkes <jaharkes@cs.cmu.edu>, Alexander Viro <viro@math.psu.edu>,
+       "Peter J. Braam" <braam@clusterfs.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: BIG files & file systems
+In-Reply-To: <3D4AD00C.8060701@namesys.com>
+References: <20020731210739.GA15492@ravel.coda.cs.cmu.edu>
+	<Pine.GSO.4.21.0207311711540.8505-100000@weyl.math.psu.edu>
+	<20020801035119.GA21769@ravel.coda.cs.cmu.edu>
+	<1028246981.11223.56.camel@snafu>
+	<20020802135620.GA29534@ravel.coda.cs.cmu.edu>
+	<1028297194.30192.25.camel@jen.americas.sgi.com>
+	<3D4AA0E6.9000904@namesys.com>
+	<shslm7pclrx.fsf@charged.uio.no>
+	<3D4ABAE7.6000709@namesys.com>
+	<15690.49267.930478.333263@laputa.namesys.com>
+	<15690.50598.11204.868852@charged.uio.no>
+	<15690.51993.704549.209766@laputa.namesys.com>
+	<3D4AD00C.8060701@namesys.com>
+X-Mailer: VM 7.07 under 21.5  (beta6) "bok choi" XEmacs Lucid
+X-Drdoom-Fodder: crypt CERT passwd security root crash satan
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 02, 2002 at 06:38:03PM -0000, Enugala Venkata Ramana wrote:
-> Hi Greg,
-> Can you please help me to find information on the installation of 
-> the driver and where can i find the driver. I tried some of the 
-> drivers on the net but when i trid to make the progra, i get a lot 
-> of errors.
+Hans Reiser writes:
+ > Nikita Danilov wrote:
+ > 
+ > >Trond Myklebust writes:
+ > > > >>>>> " " == Nikita Danilov <Nikita@Namesys.COM> writes:
+ > > > 
+ > > >      > But there still is a problem with applications (if any) calling
+ > > >      > seekdir/telldir directly...
+ > > > 
+ > > > Agreed. Note however that the semantics for seekdir/telldir as
+ > > > specified by SUSv2 are much weaker than those in our current
+ > > > getdents()+lseek().
+ > > > 
+ > > > >From the Opengroup documentation for seekdir, it states that:
+ > > > 
+ > > >   On systems that conform to the Single UNIX Specification, Version 2,
+ > > >   a subsequent call to readdir() may not be at the desired position if
+ > > >   the value of loc was not obtained from an earlier call to telldir(),
+ > > >   or if a call to rewinddir() occurred between the call to telldir()
+ > > >   and the call to seekdir().
+ > > > 
+ > > > IOW assigning a unique offset to each and every entry in the directory
+ > > > is overkill (unless the user is calling telldir() for all those
+ > > > entries).
+ > >
+ > Forgive the really dumb question, but does this mean we can just store 
+ > the last entry returned to readdir in the directory metadata, and 
+ > completely ignore the value of loc?
 
-It's part of the main kernel tree.  Please read the Linux USB Guide at
-http://www.linux-usb.org/ for how to set up USB drivers and your system
-on Linux.
+If application is using readdir, then yes: glibc internally maps readdir
+into getdents plus at most one lseek on directory for "adjustment"
+purposes (if I remember correctly, problem is that kernel struct dirent
+has extra field and glibc cannot tell in advance how many of them will
+fit into supplied user buffer).
 
-I also suggest if you have any followup questions after reading the
-guide, to read the FAQ and provide all of the information needed there
-to the linux-usb-users mailing list.
+But if application uses seekdir(3)/telldir(3) directly---then no.
 
-Good luck,
+ > 
+ > >
+ > >Are you implying some kind of ->telldir() file operation that notifies
+ > >file-system that user has intention to later restart readdir from the
+ > >"current" position and changing glibc to call sys_telldir/sys_seekdir in
+ > >stead of lseek? This will allow file-systems like reiser4 that cannot
+ > >restart readdir from 32bitsful of data to, at least, allocate something
+ > >in kernel on call to ->telldir() and free in ->release().
+ > >
+ > > > 
+ > > > Cheers,
+ > > >   Trond
+ > >
 
-greg k-h
+Nikita.
+
+ > >
+ > >
+ > >  
+ > >
+ > 
+ > 
+ > -- 
+ > Hans
+ > 
+ > 
+ > 

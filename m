@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261518AbTBOLhw>; Sat, 15 Feb 2003 06:37:52 -0500
+	id <S261900AbTBOLwV>; Sat, 15 Feb 2003 06:52:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261523AbTBOLhw>; Sat, 15 Feb 2003 06:37:52 -0500
-Received: from mail.hometree.net ([212.34.181.120]:62152 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S261518AbTBOLhv>; Sat, 15 Feb 2003 06:37:51 -0500
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: openbkweb-0.0
-Date: Sat, 15 Feb 2003 11:47:45 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <b2l9d1$v55$3@tangens.hometree.net>
-References: <20030206021029.GW19678@dualathlon.random> <20030213024751.GA14016@bjl1.jlokier.co.uk> <Pine.LNX.4.50L.0302130946541.21354-100000@imladris.surriel.com> <20030213161337.GA9654@work.bitmover.com> <20030213211127.GG20159@fs.tum.de> <20030213220522.GA11214@work.bitmover.com> <20030213225621.GA17508@bjl1.jlokier.co.uk> <20030214203151.GL20159@fs.tum.de> <20030214234517.GA4333@bjl1.jlokier.co.uk> <20030214235724.GA24139@work.bitmover.com>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1045309665 31909 212.34.181.4 (15 Feb 2003 11:47:45 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Sat, 15 Feb 2003 11:47:45 +0000 (UTC)
-X-Copyright: (C) 1996-2003 Henning Schmiedehausen
-X-No-Archive: yes
-User-Agent: nn/6.6.5
+	id <S261907AbTBOLwV>; Sat, 15 Feb 2003 06:52:21 -0500
+Received: from holomorphy.com ([66.224.33.161]:42629 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S261900AbTBOLwU>;
+	Sat, 15 Feb 2003 06:52:20 -0500
+Date: Sat, 15 Feb 2003 04:01:06 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Rik van Riel <riel@imladris.surriel.com>
+Cc: Mike Galbraith <efault@gmx.de>, Jens Axboe <axboe@suse.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] CFQ scheduler, #2
+Message-ID: <20030215120106.GF29983@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Rik van Riel <riel@imladris.surriel.com>,
+	Mike Galbraith <efault@gmx.de>, Jens Axboe <axboe@suse.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <5.1.1.6.2.20030215105330.00c84da8@pop.gmx.net> <5.1.1.6.2.20030215105330.00c84da8@pop.gmx.net> <5.1.1.6.2.20030215123533.00cd3e70@pop.gmx.net> <Pine.LNX.4.50L.0302150947570.20371-100000@imladris.surriel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.50L.0302150947570.20371-100000@imladris.surriel.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy <lm@bitmover.com> writes:
+On Sat, Feb 15, 2003 at 09:49:15AM -0200, Rik van Riel wrote:
+> pgscan             2751953        5328260  <== ? hmm
+> kswapd_steal        380282         522126
+> pageoutrun            1107           1956
+> allocstall            3472           1238
 
->But nobody seems willing to stand up and say "well, maybe if we hadn't been
->stealing all this music these laws might not have come into existence".
+$ echo $(( 5328260/1956.0 ))       
+2724.0593047034763
+$ echo $(( (5328260/1956.0)*4 ))
+10896.237218813905
 
->I'll leave you to make the BitKeeper connection, I'm sure you are smart
->enough to do so.
+That's 2724 pages or 11MB scanned per pageout run. Order-of-magnitude
+better ratio for pages stolen per pageout run. Wouldn't mind seeing a
+patch that improves this.
 
-"If you don't play nice, I'll take the toy (Bitkeeper) away from
-you". You start to sound like a quite popular american president now.
 
-Maybe you should send inspectors to all BK users to be sure that they
-don't use it to develop weapons of mass^W^W^Wnon free software.
-
-Linus, please consider this a request to drop BK _right now_ and
-change to another SCM for kernel development. I hate working under a
-threat.
-
-Larry: Sorry, I know that this posting is really rude but I try to
-point out the danger of the path you're heading down to.
-
-	Regards
-		Henning
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH
-hps@intermeta.de        +49 9131 50 654 0   http://www.intermeta.de/
-
-Java, perl, Solaris, Linux, xSP Consulting, Web Services 
-freelance consultant -- Jakarta Turbine Development  -- hero for hire
+-- wli

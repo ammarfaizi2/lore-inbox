@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314229AbSDRDrY>; Wed, 17 Apr 2002 23:47:24 -0400
+	id <S314231AbSDRD6O>; Wed, 17 Apr 2002 23:58:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314230AbSDRDrX>; Wed, 17 Apr 2002 23:47:23 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:48390 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S314229AbSDRDrX>;
-	Wed, 17 Apr 2002 23:47:23 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Warning of trojans with forged headers
-Date: Thu, 18 Apr 2002 13:47:12 +1000
-Message-ID: <30844.1019101632@ocs3.intra.ocs.com.au>
+	id <S314232AbSDRD6N>; Wed, 17 Apr 2002 23:58:13 -0400
+Received: from zero.tech9.net ([209.61.188.187]:3589 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S314231AbSDRD6N>;
+	Wed, 17 Apr 2002 23:58:13 -0400
+Subject: Re: 2.4.19-pre7+preempt: rpciod[178] exited with preempt_count 1
+From: Robert Love <rml@tech9.net>
+To: Alex Riesen <riesen@synopsys.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020417224222.A184@steel>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 17 Apr 2002 23:58:19 -0400
+Message-Id: <1019102300.5395.33.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, 2002-04-17 at 16:42, Alex Riesen wrote:
 
-Content-Type: text/plain; charset=us-ascii
+> just tried your preempt-kernel-rml-2.4.19-pre7-1.patch.
+> I'm using automount (v4) here and am getting this in syslog:
+> 
+> Apr 17 22:32:26 steel kernel: lockd[190] exited with preempt_count 1 
+> Apr 17 22:32:26 steel kernel: rpciod[189] exited with preempt_count 1 
+> 
+> Every time automounter decides to drop an nfs mount.
+> Some time ago i've read on lkml that such kind of messages aren't very
+> good to see, so decided to drop you a note.
 
-Somebody is sending out trojan mail with forged headers claiming to be
-from members of the Linux community.  Some mails have gone out under my
-address.  I just one from singnet.com.sg claiming to be from Rusty
-Russell, it contained a Windows trojan.
+It is most likely caused by nfs neglecting to drop a lock when it exits
+- it is not a problem.  The error message is there to catch cases where
+a task's preempt_count (consider it a task's eligibility to be
+preempted) is nonzero when it exists.  It should always be zero.
 
-Unfortunately some people on Linus lists use Windows and might be taken
-in by the forged headers on these trojans.  Be careful, even if you
-think that you recognise the sender.
+In this case it is probably harmless since the count isn't off until the
+task exits.  This test may not be worth it with these false positives...
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
+> P.S.
+> didn't see them with 2.4.19-pre2-ac2
+> interactive feel quiet acceptable, although 2.4.19-pre2-ac2
+> 'feels' still better, maybe because of O(1) scheduler, dunno.
+> No skips/clicks in xmms while compiling kernel and opening
+> a pile of images with gimp. Besides the messages in syslog
+> nothing happened
 
-iD8DBQE8vkHAi4UHNye0ZOoRAuOGAJ9AlePUkJPxNXE7h1o+LMFy7hfPqgCggYuY
-mexq5yR3Uwb+2teVbcE07ig=
-=cVsb
------END PGP SIGNATURE-----
+Good to hear.
+
+	Robert Love
 

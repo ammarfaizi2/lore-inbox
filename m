@@ -1,50 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131154AbQLNMqA>; Thu, 14 Dec 2000 07:46:00 -0500
+	id <S132109AbQLNMvl>; Thu, 14 Dec 2000 07:51:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132366AbQLNMpv>; Thu, 14 Dec 2000 07:45:51 -0500
-Received: from smtp01.mrf.mail.rcn.net ([207.172.4.60]:59602 "EHLO
-	smtp01.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S131154AbQLNMpe>; Thu, 14 Dec 2000 07:45:34 -0500
-Message-ID: <3A38B9C8.B11C4ABC@haque.net>
-Date: Thu, 14 Dec 2000 07:15:04 -0500
-From: "Mohammad A. Haque" <mhaque@haque.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
+	id <S132366AbQLNMvb>; Thu, 14 Dec 2000 07:51:31 -0500
+Received: from smtprelay.abs.adelphia.net ([64.8.20.11]:20887 "EHLO
+	smtprelay1.abs.adelphia.net") by vger.kernel.org with ESMTP
+	id <S132109AbQLNMvV>; Thu, 14 Dec 2000 07:51:21 -0500
+Date: Thu, 14 Dec 2000 07:26:35 -0500 (EST)
+From: "Steven N. Hirsch" <shirsch@adelphia.net>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Adaptec AIC7XXX v 6.0.6 BETA Released 
+In-Reply-To: <200012140356.eBE3u8s42047@aslan.scsiguy.com>
+Message-ID: <Pine.LNX.4.21.0012140723100.26553-100000@pii.fast.net>
 MIME-Version: 1.0
-To: dep <dennispowell@earthlink.net>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: test12 lockups -- need feedback
-In-Reply-To: <Pine.LNX.4.30.0012132157020.1272-100000@viper.haque.net> <Pine.LNX.4.30.0012132244290.1875-100000@viper.haque.net> <20001214132118.A829@nightmaster.csn.tu-chemnitz.de> <00121407101000.00542@depoffice.localdomain>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Were you connected to a network or receiving/sending anything?
+On Wed, 13 Dec 2000, Justin T. Gibbs wrote:
 
-dep wrote:
+> >Thanks for posting this.  Unfortunately, the kernel won't build unless you
+> >restore this macro to the namespace after aic7xxx_linux.h blows it away:
+> >
+> >--- linux-2.2.18/drivers/scsi/hosts.c.orig	Wed Dec 13 20:27:34 2000
+> >+++ linux-2.2.18/drivers/scsi/hosts.c	Wed Dec 13 20:26:22 2000
+> >@@ -137,6 +137,7 @@
+> > 
+> > #ifdef CONFIG_SCSI_AIC7XXX
+> > #include "aic7xxx/aic7xxx_linux.h"
+> >+#define current get_current()
+> > #endif
+> > 
+> > #ifdef CONFIG_SCSI_IPS
+> >
+> >
+> >Steve
 > 
-> okay. got it here this morning, too. solid lock -- no dumping out of
-> x, no changing terminals, no mouse, no keyboard.
+> I take it you had other controllers enabled?  I tested this against
+> 2.2.18-pre24 and didn't see any problems.  I didn't enable anything
+> other than the aic7xxx driver.
+
+Yes, I have an IBM ServeRaid controller in addition to the on-board
+7890.  Any includes which lexically follow your new aic7xxx driver in
+hosts.c will be similarly affected.
+
+> Luckily, in newer kernels, the per-controller includes are no longer
+> required in hosts.c.  None-the-less, it seems to me that spamming
+> the kernel namespace with "current" in at least the way that the
+> 2.2 kernels do (does this occur in later kernels?) should be corrected.
+> As you can see from my comment in aic7xxx_linux.h, I was very surprised
+> to see this occur.
 > 
-> k6-2-550 @ 500; 256mb memory, fic 503a mb with via chipset. kernel
-> built with gcc-2.95-2 against glibc-2.2. nothing remarkable underway
-> -- was composing a message in kmail, which i've done successfully
-> multiple times since upgrading to test12.
-> --
-> dep
+> I'll update my patch tomorrow to restore the definition of current.
+> I do fear, however, that this will perpetuate the polution of the
+> namespace should "current" ever get cleaned up.
 
--- 
+I won't wade into this controversy (sick of dimpled chads, I guess).
 
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/ 
-                                               mhaque@haque.net
+Steve
 
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

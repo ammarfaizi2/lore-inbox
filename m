@@ -1,67 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264930AbTLWDSY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 22:18:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264933AbTLWDSR
+	id S264916AbTLWDRE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 22:17:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264934AbTLWDRE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 22:18:17 -0500
-Received: from bay8-dav33.bay8.hotmail.com ([64.4.26.90]:47116 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S264930AbTLWDSF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 22:18:05 -0500
-X-Originating-IP: [194.236.130.199]
-X-Originating-Email: [nikomail@hotmail.com]
-From: "Nicklas Bondesson" <nikomail@hotmail.com>
-To: "'Walt H'" <waltabbyh@comcast.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Error mounting root fs on 72:01 using Promise FastTrak TX2000 (PDC20271)
-Date: Tue, 23 Dec 2003 04:18:05 +0100
+	Mon, 22 Dec 2003 22:17:04 -0500
+Received: from c211-28-147-198.thoms1.vic.optusnet.com.au ([211.28.147.198]:52687
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S264930AbTLWDRB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Dec 2003 22:17:01 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Nick Piggin <piggin@cyberone.com.au>
+Subject: Re: [PATCH] 2.6.0 batch scheduling, HT aware
+Date: Tue, 23 Dec 2003 14:16:58 +1100
+User-Agent: KMail/1.5.3
+Cc: "Nakajima, Jun" <jun.nakajima@intel.com>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <200312231138.21734.kernel@kolivas.org> <3FE7AF24.40600@cyberone.com.au> <200312231415.38611.kernel@kolivas.org>
+In-Reply-To: <200312231415.38611.kernel@kolivas.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="US-ASCII"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-In-Reply-To: <3FE7A35E.9090507@comcast.net>
-Thread-Index: AcPI+gi1zCk2AukiSkaGh2jAGUI14wACRdvg
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Message-ID: <BAY8-DAV33OyDc41W2u00002b2b@hotmail.com>
-X-OriginalArrivalTime: 23 Dec 2003 03:18:04.0539 (UTC) FILETIME=[60F6FCB0:01C3C903]
+Content-Disposition: inline
+Message-Id: <200312231416.58998.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch did not work for me, in fact there was no change at all (anything
-affected to me). The Promise ataraid driver never gets loaded.
+On Tue, 23 Dec 2003 14:15, Con Kolivas wrote:
+> On Tue, 23 Dec 2003 13:57, Nick Piggin wrote:
+> > Con Kolivas wrote:
+> > >On Tue, 23 Dec 2003 12:36, Nick Piggin wrote:
+> > >>Con Kolivas wrote:
+> > >>>I discussed this with Ingo and that's the sort of thing we thought of.
+> > >>>Perhaps a relative crossover of 10 dynamic priorities and an absolute
+> > >>>crossover of 5 static priorities before things got queued together.
+> > >>> This is really only required for the UP HT case.
+> > >>
+> > >>Well I guess it would still be nice for "SMP HT" as well. Hopefully the
+> > >>code can be generic enough that it would just carry over nicely.
+> > >
+> > >I disagree. I can't think of a real world scenario where 2+ physical
+> > > cpus would benefit from this.
+> >
+> > Well its the same problem. A nice -20 process can still lose 40-55% of
+> > its performance to a nice 19 process, a figure of 10% is probably too
+> > high and we'd really want it <= 5% like what happens with a single
+> > logical processor.
+>
+> I changed my mind just after I sent that mail. 4 physical cores running
+> three nice 20 and one nice -20 task gives the nice -20 task only 25% of the
+> total cpu and 25% to each of the nice 20 tasks.
 
-/Nicke 
+Err that should read 4 logical cores.
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Walt H
-Sent: den 23 december 2003 03:07
-To: Nicklas Bondesson
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Error mounting root fs on 72:01 using Promise FastTrak TX2000
-(PDC20271)
+Con
 
-Nicklas Bondesson wrote:
-> Actually the 2.4.18 seems to be the only one working. I'm sure someone 
-> out there have the proper fix for this. Who should I talk to in order 
-> to get this fixed? I'm willing to help out in any way I can.
-> 
-> /Nicke
-
-Well, not really sure. I thought Alan Cox did the original pdcraid.c for
-linux some time back, but it really hasn't seen many changes. There were two
-general Linux changes that took place back around 2.4.22 that might affect
-you. The first, was the addition of the new Promise IDE driver, which you've
-got configured. The second,  has to do with how Linux reports the geometry
-of a drive. This change affected my setup which is why I wrote the patch for
-the pdcraid driver. If your system makes it all the way through kernel
-booting (which it seems to do), but can't mount the filesystem on the raid,
-it seems to indicate the latter change affecting you also. The only other
-thing I can think of, is to use my patch (attached) with patch -p1 <
-pdcraid.patch from your /usr/src/linux and make sure that you've got both
-Promise drivers compiled in your kernel. Recompile and see what happens.
-Outside of that, I'm stuck. Good luck,
-
--Walt

@@ -1,59 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266027AbVBFEZs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267843AbVBFEgg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266027AbVBFEZs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 23:25:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272721AbVBFEZs
+	id S267843AbVBFEgg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 23:36:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272676AbVBFEgg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 23:25:48 -0500
-Received: from bl5-232-195.dsl.telepac.pt ([82.154.232.195]:42639 "EHLO
-	puma-vgertech.no-ip.com") by vger.kernel.org with ESMTP
-	id S266027AbVBFEZg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 23:25:36 -0500
-Message-ID: <42059C46.1080406@vgertech.com>
-Date: Sun, 06 Feb 2005 04:25:42 +0000
-From: Nuno Silva <nuno.silva@vgertech.com>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: Lincoln Dale <ltd@cisco.com>, Ian.Godin@lowrydigital.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Drive performance bottleneck
-References: <c4fc982390674caa2eae4f252bf4fc78@lowrydigital.com>	<c4fc982390674caa2eae4f252bf4fc78@lowrydigital.com>	<5.1.0.14.2.20050205094038.05323240@171.71.163.14> <20050204150728.6a697e0e.akpm@osdl.org>
-In-Reply-To: <20050204150728.6a697e0e.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 5 Feb 2005 23:36:36 -0500
+Received: from yue.linux-ipv6.org ([203.178.140.15]:14350 "EHLO
+	yue.st-paulia.net") by vger.kernel.org with ESMTP id S268337AbVBFEg1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Feb 2005 23:36:27 -0500
+Date: Sun, 06 Feb 2005 13:37:23 +0900 (JST)
+Message-Id: <20050206.133723.124822665.yoshfuji@linux-ipv6.org>
+To: davem@davemloft.net
+Cc: herbert@gondor.apana.org.au, mirko.parthey@informatik.tu-chemnitz.de,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com, shemminger@osdl.org,
+       yoshfuji@linux-ipv6.org
+Subject: Re: PROBLEM: 2.6.11-rc2 hangs on bridge shutdown (br0)
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <20050205201044.1b95f4e8.davem@davemloft.net>
+References: <20050204221344.247548cb.davem@davemloft.net>
+	<20050205064643.GA29758@gondor.apana.org.au>
+	<20050205201044.1b95f4e8.davem@davemloft.net>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Lincoln Dale <ltd@cisco.com> wrote:
+In article <20050205201044.1b95f4e8.davem@davemloft.net> (at Sat, 5 Feb 2005 20:10:44 -0800), "David S. Miller" <davem@davemloft.net> says:
+
+> > Alternatively we can
+> > remove the dst->dev == dev check in dst_dev_event and dst_ifdown
+> > and move that test down to the individual ifdown functions.
 > 
->>sg_dd uses a window into a kernel DMA window.  as such, two of the four 
->>memory acccesses are cut out (1. DMA from HBA to RAM, 2. userspace 
->>accessing data).
->>1.6Gbps / 2 = 800MB/s -- or roughly what Ian was seeing with sg_dd.
+> I think there is a hole in this idea.... maybe.
 > 
-> 
-> Right.  That's a fancy way of saying "cheating" ;)
-> 
-> But from the oprofile output it appears to me that there is plenty of CPU
-> capacity left over.  Maybe I'm misreading it due to oprofile adding in the
-> SMP factor (25% CPU on a 4-way means we've exhausted CPU capacity).
+> If the idea is to scan dst_garbage_list down in ipv6 specific code,
+> you can't do that since 'dst' objects from every pool in the kernel
+> get put onto the dst_garbage_list.   It is generic.
 
-sg_dd is lying or /dev/sg* is broken. Try to do that sg_dd test in any 
-single drive and you'll get 20 times the performance you're supposed to 
-achieve:
+How about making dst->ops->dev_check() like this:
 
-puma:/tmp/dd# time sg_dd if=/dev/sg1 of=/dev/null bs=64k count=1000000 
-time=1
-Reducing read to 64 blocks per loop
-time to transfer data was 69.784784 secs, 939.12 MB/sec
-1000000+0 records in
-1000000+0 records out
+static int inline dst_dev_check(struct dst_entry *dst, struct net_device *dev)
+{
+	if (dst->ops->dev_check)
+		return dst->ops->dev_check(dst, dev)
+	else
+		return dst->dev == dev;
+}
 
-This is a single sata drive. I'm lucky, am I not?  ;-)
-
-Regards,
-Nuno Silva
-
+--yoshfuji

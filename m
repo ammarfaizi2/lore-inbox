@@ -1,33 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293135AbSCSWrE>; Tue, 19 Mar 2002 17:47:04 -0500
+	id <S293251AbSCSXJU>; Tue, 19 Mar 2002 18:09:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293151AbSCSWqo>; Tue, 19 Mar 2002 17:46:44 -0500
-Received: from pool-151-204-76-61.delv.east.verizon.net ([151.204.76.61]:24069
-	"EHLO trianna.2y.net") by vger.kernel.org with ESMTP
-	id <S293135AbSCSWqi>; Tue, 19 Mar 2002 17:46:38 -0500
-Date: Tue, 19 Mar 2002 17:46:40 -0500
-From: Malcolm Mallardi <magamo@ranka.2y.net>
-To: linux-kernel@vger.kernel.org
-Subject: EFS bug? (2.4.19-pre2)
-Message-ID: <20020319174640.A9888@trianna.upcommand.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S293400AbSCSXJL>; Tue, 19 Mar 2002 18:09:11 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:38408 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S293251AbSCSXJF>;
+	Tue, 19 Mar 2002 18:09:05 -0500
+Date: Tue, 19 Mar 2002 20:08:24 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Roman Zippel <zippel@linux-m68k.org>, "David S. Miller" <davem@redhat.com>,
+        <lm@bitmover.com>, <pavel@ucw.cz>, <linux-kernel@vger.kernel.org>
+Subject: Re: Bitkeeper licence issues
+In-Reply-To: <E16nOzQ-0008U7-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.44L.0203192005350.2181-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hey folks, in 2.4.19-pre2, and any kernel I've tried
-previously, when I attempt to mount an EFS filesystem off of my
-IDE-SCSI controlled CD-ROM drive mount will segfault.  I have also had
-reports of the same happening with actual SCSI hardware CD-ROMS. I'm
-assuming that this is either an efs bug, or a SCSI/CDROM bug, because
-mounting the same CD on the computer's straight IDE CD Drive works just
-fine.	
+On Tue, 19 Mar 2002, Alan Cox wrote:
 
---
-Malcolm D. Mallardi - Dark Freak At Large
-"Captain, we are receiving two-hundred eighty-five THOUSAND hails."
-AOL: Nuark  UIN: 11084092 Y!: Magamo Jabber: Nuark@jabber.com
-http://ranka.2y.net:3000/~magamo/index.htm
+> Hans Reiser's team of Russian wizards is simply a couple of years ahead
+> of everyone else moving all real software development to the czech
+> republic and india,
+
+Hey, don't forget about Brazil ;)
+
+I know folks in Silicon Valley who pay more rent than what
+I earn in a month ... and I'm earning enough money to have
+a comfortable life here, at a fairly safe distance from the
+DMCA and its friends ;)
+
+<insert blatant plug here>
+
+cheers,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

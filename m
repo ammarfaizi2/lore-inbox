@@ -1,77 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267893AbUHESlb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267895AbUHETHB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267893AbUHESlb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 14:41:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267919AbUHESf5
+	id S267895AbUHETHB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 15:07:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267918AbUHETEz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 14:35:57 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:44233 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S267877AbUHESZU convert rfc822-to-8bit
+	Thu, 5 Aug 2004 15:04:55 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:407 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S267895AbUHETCr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 14:25:20 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [RFC/PATCH] FUSYN Realtime & robust mutexes for Linux, v2.3.1
-Date: Thu, 5 Aug 2004 11:22:26 -0700
-Message-ID: <F989B1573A3A644BAB3920FBECA4D25A011F93C4@orsmsx407>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [RFC/PATCH] FUSYN Realtime & robust mutexes for Linux, v2.3.1
-Thread-Index: AcR67KSkq2pUMRq9QeihuSVc82SjGgALABLA
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "Ingo Molnar" <mingo@elte.hu>
-Cc: <linux-kernel@vger.kernel.org>, <robustmutexes@lists.osdl.org>,
-       "Andrew Morton" <akpm@osdl.org>, "Ulrich Drepper" <drepper@redhat.com>
-X-OriginalArrivalTime: 05 Aug 2004 18:23:11.0172 (UTC) FILETIME=[43991040:01C47B19]
+	Thu, 5 Aug 2004 15:02:47 -0400
+Date: Thu, 5 Aug 2004 21:04:14 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Olaf Hering <olh@suse.de>, Giuliano Pochini <pochini@shiny.it>,
+       kumar.gala@freescale.com, tnt@246tNt.com,
+       linuxppc-dev@lists.linuxppc.org, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [PATCH][PPC32] Makefile cleanups and gcc-3.4+binutils-2.14 c
+Message-ID: <20040805190414.GA7485@mars.ravnborg.org>
+Mail-Followup-To: Tom Rini <trini@kernel.crashing.org>,
+	Olaf Hering <olh@suse.de>, Giuliano Pochini <pochini@shiny.it>,
+	kumar.gala@freescale.com, tnt@246tNt.com,
+	linuxppc-dev@lists.linuxppc.org, linux-kernel@vger.kernel.org,
+	akpm@osdl.org
+References: <XFMail.20040729100549.pochini@shiny.it> <20040729144347.GE16468@smtp.west.cox.net> <20040730205901.4d4181f4.pochini@shiny.it> <20040730190731.GQ16468@smtp.west.cox.net> <20040730224828.0f06e37a.pochini@shiny.it> <20040730210318.GS16468@smtp.west.cox.net> <20040805141257.GA14826@suse.de> <20040805165410.GA555@smtp.west.cox.net> <20040805180025.GA20390@suse.de> <20040805181425.GD555@smtp.west.cox.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040805181425.GD555@smtp.west.cox.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own (and my fault)
-
-
-> -----Original Message-----
-> From: Ingo Molnar [mailto:mingo@elte.hu]
-> Sent: Thursday, August 05, 2004 3:59 AM
-> To: Perez-Gonzalez, Inaky
-> Cc: linux-kernel@vger.kernel.org; robustmutexes@lists.osdl.org; Andrew Morton; Ulrich Drepper
-> Subject: Re: [RFC/PATCH] FUSYN Realtime & robust mutexes for Linux, v2.3.1
+On Thu, Aug 05, 2004 at 11:14:25AM -0700, Tom Rini wrote:
 > 
-> 
-> * Ingo Molnar <mingo@elte.hu> wrote:
-> 
-> > but, couldnt there be more sharing between futex.c and fusyn.c? In
-> > particular on the API side, why arent all these ops done as an
-> > extension to sys_futex()? That would keep the glibc part much simpler
-> > (and more compatible) as well. [...]
-> 
-> i believe the key to integration of this feature is to try to make it
-> used by normal (non-RT) apps as much as possible. I.e. try to make
-> current futexes a subset of fusyn.c and to merge the two APIs if
-> possible (essentially renaming your fusyn.c to futex.c and implementing
-> the futex API). Is this possible without noticeable performance overhead
-> (and without too many special-cases)?
+> I mistook AFLAGS for being always invoked with gas, which is not the
+> case.
 
-I mentioned it in some other answer...I think. Nevermind. One of the fusyn
-layers (ufuqueue) can emulate futexes completely [except for a few extra 
-errno codes and the scheduling policy based wakeup and the missing requeue
-[easy to do] and FUTEX_FD -- only NGPT uses it, afaik]. 
+Correct, AFLAGS is kbuild internal. AFLAGS is used only for .S -> .o
+and for .S -> .s
 
-The interface is now through a three system calls (sys_ufuqueue_{wait,wake,ctl}), 
-but it should be easy to redirect sys_futex().
 
-> such an approach would ensure that key portions of the code would be
-> triggered by everyday apps. Developers wouldnt break the feature every
-> other day, etc. Deadlock detection and priority boosting might not be
-> tested this way, but the basic locking/waking/VM-keying mechanism sure
-> could be.
+>Lets do the following:
 
-That makes sense. Performance overhead wise would be related only to the
-extra spinlocks we take...I'll work on that redirection layer--I am going
-on vacation tonight, but it should be ready in a couple of days as soon
-as I come back.
+Yup - looks better with cpu-as-
+
+	Sam

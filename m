@@ -1,62 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312445AbSCUSru>; Thu, 21 Mar 2002 13:47:50 -0500
+	id <S312447AbSCUSva>; Thu, 21 Mar 2002 13:51:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312447AbSCUSrl>; Thu, 21 Mar 2002 13:47:41 -0500
-Received: from web13308.mail.yahoo.com ([216.136.175.44]:10769 "HELO
-	web13308.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S312445AbSCUSr0>; Thu, 21 Mar 2002 13:47:26 -0500
-Message-ID: <20020321184724.70917.qmail@web13308.mail.yahoo.com>
-Date: Thu, 21 Mar 2002 10:47:24 -0800 (PST)
-From: Joerg Pommnitz <pommnitz@yahoo.com>
-Subject: Re: Bad interaction of SO_BINDTODEVICE and ARP in Linux 2.4.10
-To: linux-kernel@vger.kernel.org
-Cc: netdev@oss.sgi.com
+	id <S312448AbSCUSvV>; Thu, 21 Mar 2002 13:51:21 -0500
+Received: from naxos.pdb.sbs.de ([192.109.3.5]:55218 "EHLO naxos.pdb.sbs.de")
+	by vger.kernel.org with ESMTP id <S312447AbSCUSvH>;
+	Thu, 21 Mar 2002 13:51:07 -0500
+Date: Thu, 21 Mar 2002 19:53:58 +0100 (CET)
+From: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+cc: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>,
+        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Severe IRQ problems on Foster (P4 Xeon) system
+In-Reply-To: <Pine.GSO.3.96.1020320121631.13532A-100000@delta.ds2.pg.gda.pl>
+Message-ID: <Pine.LNX.4.33.0203211951350.9609-100000@biker.pdb.fsc.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Lists,
-I worked around my previous problem by deleting the routing
-entry that sent packets for my subnet directly to their
-destination. Using our default router works (somewhat).
+Dear Maciej,
 
-I can now see the ICMP packets on eth1:
+> In short some code like:
+>
+> timer_ack = !(cpu_has_tsc &&
+> 	      APIC_INTEGRATED(GET_APIC_VERSION(apic_read(APIC_LVR))));
+>
+> should suffice as the condition to disable the code in
+> do_timer_interrupt() for systems using the through-8259A mode.  There is
+> no need to keep it enabled unconditionally and I/O cycles are quite
+> expensive.  The following patch implements it.  Please test it.  It should
+> cure your problems as a side effect, but that does not mean the BIOS isn't
+> to be fixed.
 
-jpo> /sbin/ifconfig -a
-eth0      Link encap:Ethernet  HWaddr 00:E0:4C:71:05:92
-          inet addr:10.1.12.87  Bcast:10.1.12.255  Mask:255.255.255.0
-eth1      Link encap:Ethernet  HWaddr 00:E0:4C:71:05:91
-          inet addr:10.1.12.151  Bcast:10.1.12.255  Mask:255.255.255.0
-jpo> netstat -rn
-Kernel IP routing table
-Destination     Gateway         Genmask         Flags   MSS Window  irtt
-Iface
-0.0.0.0         10.1.12.1       0.0.0.0         UG       40 0          0
-eth0
+please consider submitting this patch to Linus and Marcelo.
+Perhaps it needs testing by some more people,
+but I think it's the right thing to do.
 
-jpo> ping -I eth0 10.1.12.151
-jpo> sudo /usr/sbin/tcpdump -i eth1 host 10.1.12.151 -n
-tcpdump: listening on eth1
-20:40:46.289402 10.1.12.87 > 10.1.12.151: icmp: echo request (DF)
-20:40:47.289402 10.1.12.87 > 10.1.12.151: icmp: echo request (DF)
-20:40:48.289402 10.1.12.87 > 10.1.12.151: icmp: echo request (DF)
-20:40:49.289402 10.1.12.87 > 10.1.12.151: icmp: echo request (DF)
-20:40:50.289402 10.1.12.87 > 10.1.12.151: icmp: echo request (DF)
+Martin
 
-It seems that no answer is sent at all. Any ideas?
-
-Regards
-  Jörg
-
-=====
 -- 
-Regards
-       Joerg
+Martin Wilck                Phone: +49 5251 8 15113
+Fujitsu Siemens Computers   Fax:   +49 5251 8 20409
+Heinz-Nixdorf-Ring 1	    mailto:Martin.Wilck@Fujitsu-Siemens.com
+D-33106 Paderborn           http://www.fujitsu-siemens.com/primergy
 
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Movies - coverage of the 74th Academy Awards®
-http://movies.yahoo.com/
+
+
+

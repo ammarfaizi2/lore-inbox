@@ -1,56 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315946AbSGVEI6>; Mon, 22 Jul 2002 00:08:58 -0400
+	id <S316210AbSGVFNL>; Mon, 22 Jul 2002 01:13:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315971AbSGVEI6>; Mon, 22 Jul 2002 00:08:58 -0400
-Received: from moutvdomng0.kundenserver.de ([195.20.224.130]:41960 "EHLO
-	moutvdomng0.schlund.de") by vger.kernel.org with ESMTP
-	id <S315946AbSGVEI5>; Mon, 22 Jul 2002 00:08:57 -0400
-Date: Sun, 21 Jul 2002 22:11:38 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: trivial@rustcorp.com.au, <linux-kernel@vger.kernel.org>,
-       <mingo@redhat.com>
-Subject: Re: [TRIVIAL] Remove stupid attribution.
-In-Reply-To: <20020722034447.7D9604352@lists.samba.org>
-Message-ID: <Pine.LNX.4.44.0207212209480.3309-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316223AbSGVFNL>; Mon, 22 Jul 2002 01:13:11 -0400
+Received: from holomorphy.com ([66.224.33.161]:36481 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S316210AbSGVFNK>;
+	Mon, 22 Jul 2002 01:13:10 -0400
+Date: Sun, 21 Jul 2002 22:16:08 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, Ed Tomlinson <tomlins@cam.org>
+Subject: Re: [PATCH][1/2] return values shrink_dcache_memory etc
+Message-ID: <20020722051608.GB919@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@zip.com.au>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org, Ed Tomlinson <tomlins@cam.org>
+References: <Pine.LNX.4.44L.0207201740580.12241-100000@imladris.surriel.com> <Pine.LNX.4.44.0207201351160.1552-100000@home.transmeta.com> <3D3B925D.624986EE@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <3D3B925D.624986EE@zip.com.au>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, Jul 21, 2002 at 10:04:29PM -0700, Andrew Morton wrote:
+> I'd suggest that we avoid putting any additional changes into
+> the VM until we have solutions available for:
+> 2: Make it work with pte-highmem  (Bill Irwin is signed up for this)
+> 4: Move the pte_chains into highmem too (Bill, I guess)
+> 6: maybe GC the pte_chain backing pages. (Seems unavoidable.  Rik?)
+> Especially pte_chains in highmem.  Failure to fix this well
+> is a showstopper for rmap on large ia32 machines, which makes
+> it a showstopper full stop.
 
-On Mon, 22 Jul 2002, Rusty Russell wrote:
-> A couple of tiny patches and several mails to Ingo does not justify a
-> mention in the comments.  If everyone did that, the kernel size would
-> double.
+I'll send you an update of my solution for (6), the initial version of
+which was posted earlier today, in a separate post.
 
-I prefer this version:
+highpte_chain will do (2) and (4) simultaneously when it's debugged.
 
-diff -Nur linux-2.5.27/kernel/sched.c thunder-2.5/kernel/sched.c
---- linux-2.5.27/kernel/sched.c	Sun Jul 21 17:43:10 2002
-+++ thunder-2.5/kernel/sched.c	Mon Jul 22 12:22:15 2002
-@@ -13,7 +13,7 @@
-  *		hybrid priority-list and round-robin design with
-  *		an array-switch method of distributing timeslices
-  *		and per-CPU runqueues.  Additional code by Davide
-- *		Libenzi, Robert Love, and Rusty Russell.
-+ *		Libenzi and Robert Love.
-  */
- 
- #include <linux/mm.h>
 
-							Regards,
-							Thunder
--- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
+On Sun, Jul 21, 2002 at 10:04:29PM -0700, Andrew Morton wrote:
+> If we can get something in place which works acceptably on Martin
+> Bligh's machines, and we can see that the gains of rmap (whatever
+> they are ;)) are worth the as-yet uncoded pains then let's move on.
+> But until then, adding new stuff to the VM just makes a `patch -R'
+> harder to do.
 
+I have the same kinds of machines and have already been testing with
+precisely the many tasks workloads he's concerned about for the sake of
+correctness, and efficiency is also a concern here. highpte_chain is
+already so high up on my priority queue that all other work is halted.
+
+
+Cheers,
+Bill

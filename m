@@ -1,38 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264889AbUEQE0r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264890AbUEQEas@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264889AbUEQE0r (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 00:26:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264888AbUEQE0r
+	id S264890AbUEQEas (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 00:30:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264888AbUEQEas
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 00:26:47 -0400
-Received: from [202.141.25.89] ([202.141.25.89]:65504 "EHLO
-	cello.cs.iitm.ernet.in") by vger.kernel.org with ESMTP
-	id S264889AbUEQE0q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 00:26:46 -0400
-To: linux-kernel@vger.kernel.org
-Subject: swsusp also stores system clock
-From: Rajsekar <raj.delete.se.here.too.kar@peacock.iitm.ernet.in>
-Date: Mon, 17 May 2004 09:54:51 +0530
-Message-ID: <y49oeonr88c.fsf@sahana.cs.iitm.ernet.in>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
+	Mon, 17 May 2004 00:30:48 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:7436 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S264890AbUEQEaL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 May 2004 00:30:11 -0400
+Date: Mon, 17 May 2004 06:29:04 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Tomasz Chmielewski <mangoo@interia.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: root fs on usb - is patching kernel still needed?
+Message-ID: <20040517042903.GB578@alpha.home.local>
+References: <40A7BDBC.9010209@interia.pl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40A7BDBC.9010209@interia.pl>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-I started liking swsusp so much that I dont shutdown my system anymore, I
-just suspend.  Is this wrong? 
+On Sun, May 16, 2004 at 09:15:08PM +0200, Tomasz Chmielewski wrote:
+> Are there any solutions for this problem in stable or pre- kernel tree 
+> yet (2.4 or 2.6)? If not, will such a solution be ever included in a 
+> stable kernel?
 
-But I noticed that the clock also gets saved and when I resume my system,
-the clock is annoyingly wrong.  I suppose that this is done on purpose for
-some reasons by the developers.
+AFAICT, none has been merged (yet).
 
-Currently, I use hwclock to set my system clock on resume.
+> Or maybe are there any easier solutions for this (some lilo or grub 
+> option?)
 
-Is there a better way or a patch ?
+An initrd might do the trick, although it's sometimes unconvenient to use :
+- lilo (or grub) loads the initrd into memory
+- lilo (or grub) loads the kernel and executes it
+- the kernel sees the initrd and mounts it and executes /linuxrc
+- linuxrc can load USB modules and wait the required amount of time
+- linuxrc then mounts the root fs and does the pivot_root() and exits
+- the kernel finally boots /sbin/init from your USB FS.
 
--- 
-   M Rajsekar
-   IIT Madras
+Regards,
+Willy
 

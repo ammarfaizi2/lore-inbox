@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261223AbTCTAPn>; Wed, 19 Mar 2003 19:15:43 -0500
+	id <S261271AbTCTARk>; Wed, 19 Mar 2003 19:17:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261246AbTCTAPn>; Wed, 19 Mar 2003 19:15:43 -0500
-Received: from 66-27-117-223.san.rr.com ([66.27.117.223]:11507 "EHLO
-	arnold.its.to") by vger.kernel.org with ESMTP id <S261223AbTCTAPm>;
-	Wed, 19 Mar 2003 19:15:42 -0500
-Date: Wed, 19 Mar 2003 17:26:40 -0700 (MST)
-From: Terrence Martin <twm139@its.to>
-To: linux-kernel@vger.kernel.org
-Subject: How to Enable Hyper Threading?
-Message-ID: <Pine.LNX.4.44.0303191706350.23957-100000@arnold.its.to>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261281AbTCTARk>; Wed, 19 Mar 2003 19:17:40 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:6539
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261271AbTCTARi>; Wed, 19 Mar 2003 19:17:38 -0500
+Subject: Re: Ptrace patch for 2.4.x BREAKS kill() 2 interesting effects for
+	.pid and dot locking? (was Re: Ptrace hole / Linux 2.2.25)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Matthew Grant <grantma@anathoth.gen.nz>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       debian-security@lists.debian.org, Herbert Xu <herbert@debian.org>
+In-Reply-To: <1048113787.23160.21.camel@luther>
+References: <1048104545.20129.24.camel@zion>
+	 <1048109690.23160.5.camel@luther>  <1048113787.23160.21.camel@luther>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1048124344.708.15.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 20 Mar 2003 01:39:05 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have the following system running a downloaded and custom compiled
-kernel 2.4.20 from kernel.org with SMP enabled.
+On Wed, 2003-03-19 at 22:43, Matthew Grant wrote:
+> I have been just digging harder, and the vulnerability is only
+> exploitable if you are using the kernel auto module loader, so compile
 
-Intel E7205 Chipset Asus P4G8X Motherboard (533Mhz FSB)
-400Mhz DDR RAM
-Intel P4 3.06Ghz HT Processor
+Not the case in some situations
 
-At the bios screen I get a message that tells me I have two processors in 
-the system. Also the BIOS does have HT enabled, and the APIC interupts are 
-enabled.
+> Could I please say this to the kernel developers, please fix it
+> properly!
 
-However when I boot linux I get a message telling me the motherboard does 
-not support SMP and top never reports more than 1 cpu.
+I take patches.
 
-"SMP Motherboard not detected"
-
-/proc/cpuinfo only reports a single CPU as does top. The HT in the Xeon 
-systems I have reports 2 "virtual" cpu's per physical CPU.
-
-Is this motherboard not support for HT in the kernel? Is there something 
-else I need to enable to get HT to work with the P4 3.06Ghz chip on this 
-MB?
-
-Thanks in advance,
-
-Terrence
-
+Alan
 

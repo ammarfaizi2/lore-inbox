@@ -1,56 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132790AbRDKSaA>; Wed, 11 Apr 2001 14:30:00 -0400
+	id <S132742AbRDKS3k>; Wed, 11 Apr 2001 14:29:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132803AbRDKS3s>; Wed, 11 Apr 2001 14:29:48 -0400
-Received: from m307-mp1-cvx1c.col.ntl.com ([213.104.77.51]:23425 "EHLO
-	[213.104.77.51]") by vger.kernel.org with ESMTP id <S132761AbRDKS3U>;
-	Wed, 11 Apr 2001 14:29:20 -0400
-To: "Grover, Andrew" <andrew.grover@intel.com>
-Cc: "'John Fremlin'" <chief@bandits.org>, "'Pavel Machek'" <pavel@suse.cz>,
-        kernel list <linux-kernel@vger.kernel.org>,
-        "Acpi-linux (E-mail)" <acpi@phobos.fachschaften.tu-muenchen.de>
-Subject: Re: Let init know user wants to shutdown
-In-Reply-To: <4148FEAAD879D311AC5700A0C969E8905DE822@orsmsx35.jf.intel.com>
-From: John Fremlin <chief@bandits.org>
-Date: 11 Apr 2001 19:29:05 +0100
-In-Reply-To: "Grover, Andrew"'s message of "Wed, 11 Apr 2001 10:06:52 -0700"
-Message-ID: <m2d7aj9tou.fsf@boreas.yi.org.>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (GTK)
-MIME-Version: 1.0
+	id <S132879AbRDKS3V>; Wed, 11 Apr 2001 14:29:21 -0400
+Received: from ns.suse.de ([213.95.15.193]:18188 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S132912AbRDKS3G>;
+	Wed, 11 Apr 2001 14:29:06 -0400
+Date: Wed, 11 Apr 2001 20:28:31 +0200
+From: Andi Kleen <ak@suse.de>
+To: Imran.Patel@nokia.com
+Cc: ak@suse.de, netfilter-devel@us5.samba.org, netdev@oss.sgi.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: skb allocation problems (More Brain damage!)
+Message-ID: <20010411202831.A15029@gruyere.muc.suse.de>
+In-Reply-To: <2D6CADE9B0C6D411A27500508BB3CBD063CF2D@eseis15nok>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <2D6CADE9B0C6D411A27500508BB3CBD063CF2D@eseis15nok>; from Imran.Patel@nokia.com on Wed, Apr 11, 2001 at 08:15:49PM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Grover, Andrew" <andrew.grover@intel.com> writes:
+On Wed, Apr 11, 2001 at 08:15:49PM +0300, Imran.Patel@nokia.com wrote:
+> And as a I said earlier, only ping packets with size within certain range
+> create this problem......Something is terribly wrong here!! But as I am not
+> a Linux mm guru, i can't tell what is wrong here!
 
-[...]
+What you can try is to turn on slab debugging. Set the  FORCED_DEBUG
+define in mm/slab.c to one and recompile. Does it change any pattern
+when you dump the data in the skbs or pings? 
+If yes someone is playing with already freed packets.
 
-> > > > +		printk ("acpi: Power button pressed!\n");
-> > 
-> > [...]
-> > 
-> > > > +		printk("acpi: Sleep button pressed!\n");
-> > 
-> > Do you think you could keep the above part of the patch? It would be
-> > nice to know how much of ACPI was actually working ;-)
+Furthermore you can instrument other parts with good old printk.
 
-> I'm hesitant to do this, since 1) You can put those printk's in
-> yourself to find out if your particular system is working and 2) You
-> can just cat /proc/sys/event, hit a button, and you should see
-> output if it works.
+And what NIC are you using btw?
 
-Hmm. Pavel Machek could hardly be described as a newbie at hacking
-stuff, and yet he says, "I hunted bug for few hours, thinking that
-kernel does not get the event at all."
 
-The printks are certainly clearer than cat'ing some binary garbage to
-the console and will help out the casual user who doesn't want to
-recompile kernel and reboot just to discover that the damn thing
-doesn't work.
-
-[...]
-
--- 
-
-	http://www.penguinpowered.com/~vii
+-Andi

@@ -1,57 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265032AbRFUQ4T>; Thu, 21 Jun 2001 12:56:19 -0400
+	id <S265033AbRFUQ77>; Thu, 21 Jun 2001 12:59:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265033AbRFUQz7>; Thu, 21 Jun 2001 12:55:59 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:34308 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265032AbRFUQzw>; Thu, 21 Jun 2001 12:55:52 -0400
-Date: Thu, 21 Jun 2001 09:54:47 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: <Stefan.Bader@de.ibm.com>, <linux-kernel@vger.kernel.org>,
-        Alexander Viro <viro@math.psu.edu>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: correction: fs/buffer.c underlocking async pages
-In-Reply-To: <20010621170813.F29084@athlon.random>
-Message-ID: <Pine.LNX.4.33.0106210951530.1260-100000@penguin.transmeta.com>
+	id <S265034AbRFUQ7t>; Thu, 21 Jun 2001 12:59:49 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:45060 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S265033AbRFUQ7c>;
+	Thu, 21 Jun 2001 12:59:32 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200106211658.UAA14133@ms2.inr.ac.ru>
+Subject: Re: softirq in pre3 and all linux ports
+To: davem@redhat.com (David S. Miller)
+Date: Thu, 21 Jun 2001 20:58:07 +0400 (MSK DST)
+Cc: andrea@suse.de, paulus@samba.org, torvalds@transmeta.com,
+        alan@lxorguk.ukuu.org.uk, mingo@elte.hu, linux-kernel@vger.kernel.org
+In-Reply-To: <15153.8005.551628.544731@pizda.ninka.net> from "David S. Miller" at Jun 20, 1 03:10:13 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
-On Thu, 21 Jun 2001, Andrea Arcangeli wrote:
->
-> It seems we can more simply drop the tmp->b_end_io == end_buffer_io_async
-> check enterely and safely.
+> TUX also has per-cpu timers patch of Ingo as well.
+> Did you forget this? :-)
 
-I doubt it.
+If I remember correctly, it has threaded timer pool, but timers still acquire
+global bh lock, so that the things become only worse. Apparently,
+it is invisible at first sight because bulk work typical for tux and triggered
+by timers, is moved to cpu local tasklets (garbage collection: time wait etc.).
 
-Think about somebody who writes a partial page (but a full buffer).
-Somebody _else_ then reads the rest of the page. You'll have one buffer
-up-to-date (but possibly under write-back IO), and the others being read
-in asynchronously.
 
-> +++ 2.4.6pre5aa1/fs/buffer.c	Thu Jun 21 17:05:18 2001
-> @@ -850,7 +850,7 @@
->  	atomic_dec(&bh->b_count);
->  	tmp = bh->b_this_page;
->  	while (tmp != bh) {
-> -		if (tmp->b_end_io == end_buffer_io_async && buffer_locked(tmp))
-> +		if (buffer_locked(tmp))
->  			goto still_busy;
->  		tmp = tmp->b_this_page;
->  	}
->
-> can anybody see a problem in the above patch? Al, Ingo, Linus?
+> It is equivalent to some old dumb code doing cli() right?
 
-The above _will_ break. "tmp" may be locked due to the write - and the
-write will never call "end_buffer_io_async" because writes do not unlock
-the page. So if the write finishes last, you'll _never_ unlock the page.
+Sort of.
 
-I don't see why Stefan wants to change the current logic. The current
-logic is correct, and if there are double-unlock problems then those are
-due to some other bug.
 
-		Linus
+> The only interesting global BHs left right now are:
+> 
+> 1) Timers
+> 2) SCSI BH
 
+In generic server case, yes.
+
+But also add BH_IMMEDIATE and BHs, used by hordes of devices.
+
+
+> Timers have no hard technical reason for not being a softirq
+> either.  However, this would be work requiring real thought,
+> not just mindless edits.
+
+Yes.
+
+But, in any case, global BHs are not a pathalogy: they were handy tool,
+allowing to hide lots of spinlocks. And not plain spinlocks, but
+asynchronous ones. It was pretty light, but had latency up to 1/HZ
+in the worst case. Now they have unreasonably strict latency
+(useless, as rule) but eat cpu instead.
+
+Alexey

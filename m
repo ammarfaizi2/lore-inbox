@@ -1,40 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317864AbSHHSlS>; Thu, 8 Aug 2002 14:41:18 -0400
+	id <S317887AbSHHSmO>; Thu, 8 Aug 2002 14:42:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317874AbSHHSlR>; Thu, 8 Aug 2002 14:41:17 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:36847 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317864AbSHHSkV>; Thu, 8 Aug 2002 14:40:21 -0400
-Subject: Re: 2.4.19 BUG in page_alloc.c:91
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Anthony Russo., a.k.a. " Stupendous Man 
-	<anthony.russo@verizon.net>
-Cc: Willy Tarreau <willy@w.ods.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <3D52B7D3.2000209@verizon.net>
-References: <Pine.LNX.4.44L.0208072350060.23404-100000@imladris.surriel.com>	<3D51DD80.6
-	 070501@verizon.net> <20020808075536.GB943@alpha.home.local>
-	<3D529154.8090304@verizon.net>
-	<1028835824.28882.57.camel@irongate.swansea.linux.org.uk> 
-	<3D52B7D3.2000209@verizon.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 08 Aug 2002 21:04:03 +0100
-Message-Id: <1028837043.28883.75.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S317874AbSHHSlY>; Thu, 8 Aug 2002 14:41:24 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:53258 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S317872AbSHHSkd>; Thu, 8 Aug 2002 14:40:33 -0400
+Date: Thu, 8 Aug 2002 15:44:06 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@duckman.distro.conectiva
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+       Andrew Morton <akpm@zip.com.au>, Anton Blanchard <anton@samba.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       <linux-kernel@vger.kernel.org>, <riel@imladris.surriel.com>
+Subject: Re: fix CONFIG_HIGHPTE
+In-Reply-To: <1028836757.28883.73.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44L.0208081541560.2589-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-08-08 at 19:26, Anthony Russo., a.k.a. Stupendous Man
-wrote:
-> It's a national semi chip ... the module name is natsemi.o,
-> and indeed I am using it without incident now in place of fa312.o.
-> 
-> All of my modules are now GPL according to modinfo, so if the problem
-> reoccurs now that I've rebooted we'll know if it's real.
+On 8 Aug 2002, Alan Cox wrote:
+> On Thu, 2002-08-08 at 15:51, Rik van Riel wrote:
+> > Linux isn't yet up to having 500 simultaneous interactive
+> > users, in fact I don't think it has ever been up to this
+> > situation.
+>
+> It works suprisingly well. I know people who are doing it. It does not
+> work when those users are all running arbitarly large jobs. In most
+> conventional (non student compile) type setups 500 is fine. The O(1)
+> scheduler and highio are pretty essential as is a real I/O subsystem.
 
-Not only is it real, but I have every line of code on your box in front
-of me if it does happen with that module. That helps no end in bug
-hunting
+Agreed, it'll work when things are well behaved and the
+system isn't overloaded.
+
+However, having been a curious student myself I'm pretty
+sure student workloads aren't always well behaved and do
+have a tendency to overload the system once in a while.
+
+I'm not sure Linux will be able to deal with the "I wonder
+what happens if I ..." type students ;)
+
+regards,
+
+Rik
+-- 
+	http://www.linuxsymposium.org/2002/
+"You're one of those condescending OLS attendants"
+"Here's a nickle kid.  Go buy yourself a real t-shirt"
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

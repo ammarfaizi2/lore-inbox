@@ -1,80 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267796AbUH2Mpa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267795AbUH2NBe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267796AbUH2Mpa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 08:45:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267795AbUH2Mpa
+	id S267795AbUH2NBe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 09:01:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267798AbUH2NBe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 08:45:30 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:17030 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S267796AbUH2MpP (ORCPT
+	Sun, 29 Aug 2004 09:01:34 -0400
+Received: from fw.osdl.org ([65.172.181.6]:1483 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267795AbUH2NBd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 08:45:15 -0400
-Date: Sun, 29 Aug 2004 13:45:14 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: davem@redhat.com, linux-kernel@vger.kernel.org
-Subject: ffb drm dead code removal..
-Message-ID: <Pine.LNX.4.58.0408291342170.3682@skynet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 29 Aug 2004 09:01:33 -0400
+Date: Sun, 29 Aug 2004 06:01:31 -0700
+From: John Cherry <cherry@osdl.org>
+Message-Id: <200408291301.i7TD1V1A001393@cherrypit.pdx.osdl.net>
+To: linux-kernel@vger.kernel.org
+Subject: IA32 (2.6.9-rc1 - 2004-08-28.21.30) - 8 New warnings (gcc 3.2.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Dave,
-	I want to apply the following to the ffb DRM it is dead code as
-the DRM doesn't use the macro anymore... if you have no issues I'll send
-it on to Linus..
-
-I've no way to build the ffb driver at all at the moment, if anyone builds
-sparc kernels with ffb regularly I don't suppose you could checkout DRM
-cvs and build it against the kernel to see if it still builds...
-
-Dave.
-
-diff -Nru a/drivers/char/drm/ffb_drv.c b/drivers/char/drm/ffb_drv.c
---- a/drivers/char/drm/ffb_drv.c	Sun Aug 29 22:39:49 2004
-+++ b/drivers/char/drm/ffb_drv.c	Sun Aug 29 22:39:49 2004
-@@ -40,7 +40,6 @@
- 	.get_unmapped_area	= ffb_get_unmapped_area,		\
- }
-
--#define DRIVER_COUNT_CARDS()	ffb_count_card_instances()
- /* Allocate private structure and fill it */
- #define DRIVER_PRESETUP()	do {		\
- 	int _ret;				\
-@@ -220,34 +219,6 @@
- }
-
- static int ffb_presetup(drm_device_t *);
--
--static int __init ffb_count_card_instances(void)
--{
--	int root, total, instance;
--
--	total = ffb_count_siblings(prom_root_node);
--	root = prom_getchild(prom_root_node);
--	for (root = prom_searchsiblings(root, "upa"); root;
--	     root = prom_searchsiblings(prom_getsibling(root), "upa"))
--		total += ffb_count_siblings(root);
--
--	ffb_position = kmalloc(sizeof(ffb_position_t) * total, GFP_KERNEL);
--
--	/* Actual failure will be caught during ffb_presetup b/c we can't catch
--	 * it easily here.
--	 */
--	if (!ffb_position)
--		return -ENOMEM;
--
--	instance = ffb_scan_siblings(prom_root_node, 0);
--
--	root = prom_getchild(prom_root_node);
--	for (root = prom_searchsiblings(root, "upa"); root;
--	     root = prom_searchsiblings(prom_getsibling(root), "upa"))
--		instance = ffb_scan_siblings(root, instance);
--
--	return total;
--}
-
- static drm_map_t *ffb_find_map(struct file *filp, unsigned long off)
- {
+drivers/scsi/aic7xxx/aic79xx_osm.c:419: warning: `aic79xx' defined but not used
+drivers/scsi/aic7xxx/aic79xx_osm.c:425: warning: `dummy_buffer' defined but not used
+drivers/scsi/aic7xxx/aic7xxx_osm.c:440: warning: `aic7xxx' defined but not used
+drivers/scsi/aic7xxx/aic7xxx_osm.c:446: warning: `dummy_buffer' defined but not used
+drivers/scsi/megaraid/megaraid_mm.c:49:1: warning: "register_ioctl32_conversion" redefined
+drivers/scsi/megaraid/megaraid_mm.c:50:1: warning: "unregister_ioctl32_conversion" redefined
+include/linux/ioctl32.h:32:1: warning: this is the location of the previous definition
+include/linux/ioctl32.h:33:1: warning: this is the location of the previous definition

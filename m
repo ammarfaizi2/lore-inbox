@@ -1,205 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265901AbRFYSlP>; Mon, 25 Jun 2001 14:41:15 -0400
+	id <S264303AbRFYTKH>; Mon, 25 Jun 2001 15:10:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265902AbRFYSlF>; Mon, 25 Jun 2001 14:41:05 -0400
-Received: from mail.bartnet.net ([12.149.177.6]:13737 "EHLO mail.bartnet.net")
-	by vger.kernel.org with ESMTP id <S265901AbRFYSk4>;
-	Mon, 25 Jun 2001 14:40:56 -0400
-Content-Type: Multipart/Mixed;
-  charset="iso-8859-1";
-  boundary="------------Boundary-00=_NY0IW53DXWICG2XDTF78"
-From: JorgP <jorgp@bartnet.net>
-To: linux-kernel@vger.kernel.org
-Subject: problems with my plexwriter 8/4/32A drive..
-Date: Mon, 25 Jun 2001 13:35:11 -0500
-X-Mailer: KMail [version 1.2]
+	id <S265815AbRFYTJ5>; Mon, 25 Jun 2001 15:09:57 -0400
+Received: from rhenium.btinternet.com ([194.73.73.93]:46763 "EHLO rhenium")
+	by vger.kernel.org with ESMTP id <S264303AbRFYTJn>;
+	Mon, 25 Jun 2001 15:09:43 -0400
+Date: Mon, 25 Jun 2001 20:10:19 +0000 (GMT)
+From: James Stevenson <mistral@stev.org>
+To: Jeff Dike <jdike@karaya.com>
+cc: Bulent Abali <abali@us.ibm.com>, Linux MM <linux-mm@kvack.org>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: all processes waiting in TASK_UNINTERRUPTIBLE state 
+In-Reply-To: <200106251705.MAA02325@ccure.karaya.com>
+Message-ID: <Pine.LNX.4.30.0106252003150.25937-100000@cyrix.stev.org>
 MIME-Version: 1.0
-Message-Id: <01062513351102.01166@localhost.localdomain>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---------------Boundary-00=_NY0IW53DXWICG2XDTF78
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Hi
 
-I am using AMD 1.2Gig w/ 512Meg Ram, MSI 6330-K7ProA motherboard.
+i have been looking at it a lot over the past few days i seem to be the
+person who can trigger it easyest.
 
-hda: QUANTUM FIREBALLP LM10.2, ATA DISK drive
-hdb: IBM-DPTA-372050, ATA DISK drive
-hdc: ATAPI 52X CDROM, ATAPI CD/DVD-ROM drive
-hdd: PLEXTOR CD-R PX-W8432T, ATAPI CD/DVD-ROM drive
+over the past couple of days i have been running with the
+#define WAITQUEUE_DEBUG 1
+no problems seem to have appeared there though and the bug still triggers.
 
-base install is Mandrake 8.0 from CD
-it did not work and then tried latest cooker kernel 2.4.5-8 same thing.
-I have also tried redhat 7.1 with all recommended updates 2.4.3-12 kernel 
-same thing.
+On Mon, 25 Jun 2001, Jeff Dike wrote:
 
-using ide-scsi module.
-SCSI subsystem driver Revision: 1.00
-scsi0 : SCSI host adapter emulation for IDE ATAPI devices
-  Vendor: PLEXTOR   Model: CD-R   PX-W8432T  Rev: 1.09
-  Type:   CD-ROM                             ANSI SCSI revision: 02
+> abali@us.ibm.com said:
+> > I am running in to a problem, seemingly a deadlock situation, where
+> > almost all the processes end up in the TASK_UNINTERRUPTIBLE state.
+> > All the process eventually stop responding, including login shell, no
+> > screen updates, keyboard etc.  Can ping and sysrq key works.   I
+> > traced the tasks through sysrq-t key.  The processors are in the idle
+> > state.  Tasks all seem to get stuck in the __wait_on_page or
+> > __lock_page.
 
-when trying to mount a CD in the plextor the system accesses the drive for a 
-few seconds then hangs the process hangs and can not be killed.
-If I use X-CD-Roast it tries to access the drive and after a few seconds the 
-CPU goes to 100% usage and hangs the machine, have to hard reset it can not 
-sys-req it either.
+i also seem to get ut ub __wait_on_buffer and ___wait_on_page
 
-The other CD-Rom drive works great.
+	James
+-- 
+---------------------------------------------
+Web: http://www.stev.org
+Mobile: +44 07779080838
+E-Mail: mistral@stev.org
+  8:00pm  up 2 days, 12 min,  4 users,  load average: 1.41, 0.38, 0.40
 
-This setup works great under a dual boot of Windows 2000, and I can access 
-the drive and burn CD's all day long.
-
-cdrecord --scanbus see's the drive the until the first time I try to access 
-it the drive, then cdrecord --scanbus hangs.
-
-Cdrecord 1.9 (i686-pc-linux-gnu) Copyright (C) 1995-2000 Jörg Schilling
-Linux sg driver version: 3.1.17
-Using libscg version 'schily-0.1'
-scsibus0:
-        0,0,0     0) 'PLEXTOR ' 'CD-R   PX-W8432T' '1.09' Removable CD-ROM
-        0,1,0     1) *
-        0,2,0     2) *
-        0,3,0     3) *
-        0,4,0     4) *
-        0,5,0     5) *
-        0,6,0     6) *
-        0,7,0     7) *
-
-I will attach my dmesg...
-
-Please help.
-Thanks
-Jorg
---------------Boundary-00=_NY0IW53DXWICG2XDTF78
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="dmesg.txt"
-Content-Transfer-Encoding: base64
-Content-Description: My dmesg output
-Content-Disposition: attachment; filename="dmesg.txt"
-
-TGludXggdmVyc2lvbiAyLjQuMy0xMiAocm9vdEBwb3JreS5kZXZlbC5yZWRoYXQuY29tKSAoZ2Nj
-IHZlcnNpb24gMi45NiAyMDAwMDczMSAoUmVkIEhhdCBMaW51eCA3LjEgMi45Ni04NSkpICMxIEZy
-aSBKdW4gOCAxMzozNTozMCBFRFQgMjAwMQpCSU9TLXByb3ZpZGVkIHBoeXNpY2FsIFJBTSBtYXA6
-CiBCSU9TLWU4MjA6IDAwMDAwMDAwMDAwMDAwMDAgLSAwMDAwMDAwMDAwMDlmYzAwICh1c2FibGUp
-CiBCSU9TLWU4MjA6IDAwMDAwMDAwMDAwOWZjMDAgLSAwMDAwMDAwMDAwMGEwMDAwIChyZXNlcnZl
-ZCkKIEJJT1MtZTgyMDogMDAwMDAwMDAwMDBmMDAwMCAtIDAwMDAwMDAwMDAxMDAwMDAgKHJlc2Vy
-dmVkKQogQklPUy1lODIwOiAwMDAwMDAwMDAwMTAwMDAwIC0gMDAwMDAwMDAxZmZmMDAwMCAodXNh
-YmxlKQogQklPUy1lODIwOiAwMDAwMDAwMDFmZmYwMDAwIC0gMDAwMDAwMDAxZmZmMzAwMCAoQUNQ
-SSBOVlMpCiBCSU9TLWU4MjA6IDAwMDAwMDAwMWZmZjMwMDAgLSAwMDAwMDAwMDIwMDAwMDAwIChB
-Q1BJIGRhdGEpCiBCSU9TLWU4MjA6IDAwMDAwMDAwZmZmZjAwMDAgLSAwMDAwMDAwMTAwMDAwMDAw
-IChyZXNlcnZlZCkKT24gbm9kZSAwIHRvdGFscGFnZXM6IDEzMTA1Ngp6b25lKDApOiA0MDk2IHBh
-Z2VzLgp6b25lKDEpOiAxMjY5NjAgcGFnZXMuCnpvbmUoMik6IDAgcGFnZXMuCktlcm5lbCBjb21t
-YW5kIGxpbmU6IGF1dG8gQk9PVF9JTUFHRT1saW51eCBybyByb290PTM0NyBCT09UX0ZJTEU9L2Jv
-b3Qvdm1saW51ei0yLjQuMy0xMiBoZGQ9aWRlLXNjc2kKaWRlX3NldHVwOiBoZGQ9aWRlLXNjc2kK
-SW5pdGlhbGl6aW5nIENQVSMwCkRldGVjdGVkIDEzMzEuNjEwIE1IeiBwcm9jZXNzb3IuCkNvbnNv
-bGU6IGNvbG91ciBWR0ErIDgweDI1CkNhbGlicmF0aW5nIGRlbGF5IGxvb3AuLi4gMjY1NC4yMCBC
-b2dvTUlQUwpNZW1vcnk6IDUwOTA4OGsvNTI0MjI0ayBhdmFpbGFibGUgKDEyNDZrIGtlcm5lbCBj
-b2RlLCAxMDY1NmsgcmVzZXJ2ZWQsIDkzayBkYXRhLCAyMjhrIGluaXQsIDBrIGhpZ2htZW0pCkRl
-bnRyeS1jYWNoZSBoYXNoIHRhYmxlIGVudHJpZXM6IDY1NTM2IChvcmRlcjogNywgNTI0Mjg4IGJ5
-dGVzKQpCdWZmZXItY2FjaGUgaGFzaCB0YWJsZSBlbnRyaWVzOiAzMjc2OCAob3JkZXI6IDUsIDEz
-MTA3MiBieXRlcykKUGFnZS1jYWNoZSBoYXNoIHRhYmxlIGVudHJpZXM6IDEzMTA3MiAob3JkZXI6
-IDgsIDEwNDg1NzYgYnl0ZXMpCklub2RlLWNhY2hlIGhhc2ggdGFibGUgZW50cmllczogMzI3Njgg
-KG9yZGVyOiA2LCAyNjIxNDQgYnl0ZXMpClZGUzogRGlza3F1b3RhcyB2ZXJzaW9uIGRxdW90XzYu
-NS4wIGluaXRpYWxpemVkCkNQVTogQmVmb3JlIHZlbmRvciBpbml0LCBjYXBzOiAwMTgzZjlmZiBj
-MWM3ZjlmZiAwMDAwMDAwMCwgdmVuZG9yID0gMgpJbnRlbCBtYWNoaW5lIGNoZWNrIGFyY2hpdGVj
-dHVyZSBzdXBwb3J0ZWQuCkludGVsIG1hY2hpbmUgY2hlY2sgcmVwb3J0aW5nIGVuYWJsZWQgb24g
-Q1BVIzAuCkNQVTogTDEgSSBDYWNoZTogNjRLICg2NCBieXRlcy9saW5lKSwgRCBjYWNoZSA2NEsg
-KDY0IGJ5dGVzL2xpbmUpCkNQVTogTDIgQ2FjaGU6IDI1NksgKDY0IGJ5dGVzL2xpbmUpCkNQVTog
-QWZ0ZXIgdmVuZG9yIGluaXQsIGNhcHM6IDAxODNmOWZmIGMxYzdmOWZmIDAwMDAwMDAwIDAwMDAw
-MDAwCkNQVTogICAgIEFmdGVyIGdlbmVyaWMsIGNhcHM6IDAxODNmOWZmIGMxYzdmOWZmIDAwMDAw
-MDAwIDAwMDAwMDAwCkNQVTogICAgICAgICAgICAgQ29tbW9uIGNhcHM6IDAxODNmOWZmIGMxYzdm
-OWZmIDAwMDAwMDAwIDAwMDAwMDAwCkNQVTogQU1EIEF0aGxvbih0bSkgUHJvY2Vzc29yIHN0ZXBw
-aW5nIDAyCkVuYWJsaW5nIGZhc3QgRlBVIHNhdmUgYW5kIHJlc3RvcmUuLi4gZG9uZS4KQ2hlY2tp
-bmcgJ2hsdCcgaW5zdHJ1Y3Rpb24uLi4gT0suCkNoZWNraW5nIGZvciBwb3BhZCBidWcuLi4gT0su
-ClBPU0lYIGNvbmZvcm1hbmNlIHRlc3RpbmcgYnkgVU5JRklYCm10cnI6IHYxLjQwICgyMDAxMDMy
-NykgUmljaGFyZCBHb29jaCAocmdvb2NoQGF0bmYuY3Npcm8uYXUpCm10cnI6IGRldGVjdGVkIG10
-cnIgdHlwZTogSW50ZWwKUENJOiBQQ0kgQklPUyByZXZpc2lvbiAyLjEwIGVudHJ5IGF0IDB4ZmIy
-NTAsIGxhc3QgYnVzPTEKUENJOiBVc2luZyBjb25maWd1cmF0aW9uIHR5cGUgMQpQQ0k6IFByb2Jp
-bmcgUENJIGhhcmR3YXJlClVua25vd24gYnJpZGdlIHJlc291cmNlIDA6IGFzc3VtaW5nIHRyYW5z
-cGFyZW50ClBDSTogVXNpbmcgSVJRIHJvdXRlciBWSUEgWzExMDYvMDY4Nl0gYXQgMDA6MDcuMApQ
-Q0k6IEZvdW5kIElSUSAxMCBmb3IgZGV2aWNlIDAwOjA3LjIKUENJOiBUaGUgc2FtZSBJUlEgdXNl
-ZCBmb3IgZGV2aWNlIDAwOjA3LjMKQXBwbHlpbmcgVklBIFBDSSBsYXRlbmN5IHBhdGNoIChmb3Vu
-ZCBWVDgyQzY4NkIpLgppc2FwbnA6IFNjYW5uaW5nIGZvciBQblAgY2FyZHMuLi4KaXNhcG5wOiBO
-byBQbHVnICYgUGxheSBkZXZpY2UgZm91bmQKTGludXggTkVUNC4wIGZvciBMaW51eCAyLjQKQmFz
-ZWQgdXBvbiBTd2Fuc2VhIFVuaXZlcnNpdHkgQ29tcHV0ZXIgU29jaWV0eSBORVQzLjAzOQpJbml0
-aWFsaXppbmcgUlQgbmV0bGluayBzb2NrZXQKYXBtOiBCSU9TIHZlcnNpb24gMS4yIEZsYWdzIDB4
-MDcgKERyaXZlciB2ZXJzaW9uIDEuMTQpClN0YXJ0aW5nIGtzd2FwZCB2MS44CnB0eTogNTEyIFVu
-aXg5OCBwdHlzIGNvbmZpZ3VyZWQKYmxvY2s6IHF1ZXVlZCBzZWN0b3JzIG1heC9sb3cgMzM4MDc0
-a0IvMjA3MDAya0IsIDEwMjQgc2xvdHMgcGVyIHF1ZXVlClJBTURJU0sgZHJpdmVyIGluaXRpYWxp
-emVkOiAxNiBSQU0gZGlza3Mgb2YgNDA5Nksgc2l6ZSAxMDI0IGJsb2Nrc2l6ZQpVbmlmb3JtIE11
-bHRpLVBsYXRmb3JtIEUtSURFIGRyaXZlciBSZXZpc2lvbjogNi4zMQppZGU6IEFzc3VtaW5nIDMz
-TUh6IHN5c3RlbSBidXMgc3BlZWQgZm9yIFBJTyBtb2Rlczsgb3ZlcnJpZGUgd2l0aCBpZGVidXM9
-eHgKVlBfSURFOiBJREUgY29udHJvbGxlciBvbiBQQ0kgYnVzIDAwIGRldiAzOQpWUF9JREU6IGNo
-aXBzZXQgcmV2aXNpb24gNgpWUF9JREU6IG5vdCAxMDAlIG5hdGl2ZSBtb2RlOiB3aWxsIHByb2Jl
-IGlycXMgbGF0ZXIKVlBfSURFOiBWSUEgdnQ4MmM2ODZiIChyZXYgNDApIElERSBVRE1BMTAwIGNv
-bnRyb2xsZXIgb24gcGNpMDA6MDcuMQogICAgaWRlMDogQk0tRE1BIGF0IDB4ZDAwMC0weGQwMDcs
-IEJJT1Mgc2V0dGluZ3M6IGhkYTpETUEsIGhkYjpETUEKICAgIGlkZTE6IEJNLURNQSBhdCAweGQw
-MDgtMHhkMDBmLCBCSU9TIHNldHRpbmdzOiBoZGM6RE1BLCBoZGQ6RE1BCmhkYTogUVVBTlRVTSBG
-SVJFQkFMTFAgTE0xMC4yLCBBVEEgRElTSyBkcml2ZQpoZGI6IElCTS1EUFRBLTM3MjA1MCwgQVRB
-IERJU0sgZHJpdmUKaGRjOiBBVEFQSSA1MlggQ0RST00sIEFUQVBJIENEL0RWRC1ST00gZHJpdmUK
-aGRkOiBQTEVYVE9SIENELVIgUFgtVzg0MzJULCBBVEFQSSBDRC9EVkQtUk9NIGRyaXZlCmlkZTAg
-YXQgMHgxZjAtMHgxZjcsMHgzZjYgb24gaXJxIDE0CmlkZTEgYXQgMHgxNzAtMHgxNzcsMHgzNzYg
-b24gaXJxIDE1CmhkYTogMjAwNjYyNTEgc2VjdG9ycyAoMTAyNzQgTUIpIHcvMTkwMEtpQiBDYWNo
-ZSwgQ0hTPTEyNDkvMjU1LzYzLCBVRE1BKDMzKQpoZGI6IDQwMDg4MTYwIHNlY3RvcnMgKDIwNTI1
-IE1CKSB3LzE5NjFLaUIgQ2FjaGUsIENIUz0yNDk1LzI1NS82MywgVURNQSgzMykKUGFydGl0aW9u
-IGNoZWNrOgogaGRhOiBoZGExCiBoZGI6IGhkYjEgPCBoZGI1IGhkYjYgaGRiNyBoZGI4ID4KRmxv
-cHB5IGRyaXZlKHMpOiBmZDAgaXMgMS40NE0KRkRDIDAgaXMgYSBwb3N0LTE5OTEgODIwNzcKU2Vy
-aWFsIGRyaXZlciB2ZXJzaW9uIDUuMDVhICgyMDAxLTAzLTIwKSB3aXRoIE1BTllfUE9SVFMgTVVM
-VElQT1JUIFNIQVJFX0lSUSBTRVJJQUxfUENJIElTQVBOUCBlbmFibGVkCnR0eVMwMCBhdCAweDAz
-ZjggKGlycSA9IDQpIGlzIGEgMTY1NTBBCnR0eVMwMSBhdCAweDAyZjggKGlycSA9IDMpIGlzIGEg
-MTY1NTBBClJlYWwgVGltZSBDbG9jayBEcml2ZXIgdjEuMTBkCm1kIGRyaXZlciAwLjkwLjAgTUFY
-X01EX0RFVlM9MjU2LCBNRF9TQl9ESVNLUz0yNwptZC5jOiBzaXplb2YobWRwX3N1cGVyX3QpID0g
-NDA5NgphdXRvZGV0ZWN0aW5nIFJBSUQgYXJyYXlzCmF1dG9ydW4gLi4uCi4uLiBhdXRvcnVuIERP
-TkUuCk5FVDQ6IExpbnV4IFRDUC9JUCAxLjAgZm9yIE5FVDQuMApJUCBQcm90b2NvbHM6IElDTVAs
-IFVEUCwgVENQLCBJR01QCklQOiByb3V0aW5nIGNhY2hlIGhhc2ggdGFibGUgb2YgNDA5NiBidWNr
-ZXRzLCAzMktieXRlcwpUQ1A6IEhhc2ggdGFibGVzIGNvbmZpZ3VyZWQgKGVzdGFibGlzaGVkIDMy
-NzY4IGJpbmQgMzI3NjgpCkxpbnV4IElQIG11bHRpY2FzdCByb3V0ZXIgMC4wNiBwbHVzIFBJTS1T
-TQpORVQ0OiBVbml4IGRvbWFpbiBzb2NrZXRzIDEuMC9TTVAgZm9yIExpbnV4IE5FVDQuMC4KVkZT
-OiBNb3VudGVkIHJvb3QgKGV4dDIgZmlsZXN5c3RlbSkgcmVhZG9ubHkuCkZyZWVpbmcgdW51c2Vk
-IGtlcm5lbCBtZW1vcnk6IDIyOGsgZnJlZWQKQWRkaW5nIFN3YXA6IDUxNDA0MGsgc3dhcC1zcGFj
-ZSAocHJpb3JpdHkgLTEpCnVzYi5jOiByZWdpc3RlcmVkIG5ldyBkcml2ZXIgdXNiZGV2ZnMKdXNi
-LmM6IHJlZ2lzdGVyZWQgbmV3IGRyaXZlciBodWIKdXNiLXVoY2kuYzogJFJldmlzaW9uOiAxLjI1
-MSAkIHRpbWUgMTM6NTE6NDQgSnVuICA4IDIwMDEKdXNiLXVoY2kuYzogSGlnaCBiYW5kd2lkdGgg
-bW9kZSBlbmFibGVkClBDSTogRm91bmQgSVJRIDEwIGZvciBkZXZpY2UgMDA6MDcuMgpQQ0k6IFRo
-ZSBzYW1lIElSUSB1c2VkIGZvciBkZXZpY2UgMDA6MDcuMwp1c2ItdWhjaS5jOiBVU0IgVUhDSSBh
-dCBJL08gMHhkNDAwLCBJUlEgMTAKdXNiLXVoY2kuYzogRGV0ZWN0ZWQgMiBwb3J0cwp1c2IuYzog
-bmV3IFVTQiBidXMgcmVnaXN0ZXJlZCwgYXNzaWduZWQgYnVzIG51bWJlciAxCmh1Yi5jOiBVU0Ig
-aHViIGZvdW5kCmh1Yi5jOiAyIHBvcnRzIGRldGVjdGVkClBDSTogRm91bmQgSVJRIDEwIGZvciBk
-ZXZpY2UgMDA6MDcuMwpQQ0k6IFRoZSBzYW1lIElSUSB1c2VkIGZvciBkZXZpY2UgMDA6MDcuMgp1
-c2ItdWhjaS5jOiBVU0IgVUhDSSBhdCBJL08gMHhkODAwLCBJUlEgMTAKdXNiLXVoY2kuYzogRGV0
-ZWN0ZWQgMiBwb3J0cwp1c2IuYzogbmV3IFVTQiBidXMgcmVnaXN0ZXJlZCwgYXNzaWduZWQgYnVz
-IG51bWJlciAyCmh1Yi5jOiBVU0IgaHViIGZvdW5kCmh1Yi5jOiAyIHBvcnRzIGRldGVjdGVkCmhk
-YzogQVRBUEkgNDhYIENELVJPTSBkcml2ZSwgMTI4a0IgQ2FjaGUsIFVETUEoMzMpClVuaWZvcm0g
-Q0QtUk9NIGRyaXZlciBSZXZpc2lvbjogMy4xMgpTQ1NJIHN1YnN5c3RlbSBkcml2ZXIgUmV2aXNp
-b246IDEuMDAKc2NzaTAgOiBTQ1NJIGhvc3QgYWRhcHRlciBlbXVsYXRpb24gZm9yIElERSBBVEFQ
-SSBkZXZpY2VzCiAgVmVuZG9yOiBQTEVYVE9SICAgTW9kZWw6IENELVIgICBQWC1XODQzMlQgIFJl
-djogMS4wOQogIFR5cGU6ICAgQ0QtUk9NICAgICAgICAgICAgICAgICAgICAgICAgICAgICBBTlNJ
-IFNDU0kgcmV2aXNpb246IDAyCldpbmJvbmQgU3VwZXItSU8gZGV0ZWN0aW9uLCBub3cgdGVzdGlu
-ZyBwb3J0cyAzRjAsMzcwLDI1MCw0RSwyRSAuLi4KU01TQyBTdXBlci1JTyBkZXRlY3Rpb24sIG5v
-dyB0ZXN0aW5nIFBvcnRzIDJGMCwgMzcwIC4uLgpwYXJwb3J0MDogUEMtc3R5bGUgYXQgMHgzNzgg
-W1BDU1BQLEVQUF0KcGFycG9ydDA6IGNwcF9kYWlzeTogYWE1NTAwZmYoMzgpCnBhcnBvcnQwOiBh
-c3NpZ25fYWRkcnM6IGFhNTUwMGZmKDM4KQpwYXJwb3J0MDogY3BwX2RhaXN5OiBhYTU1MDBmZigz
-OCkKcGFycG9ydDA6IGFzc2lnbl9hZGRyczogYWE1NTAwZmYoMzgpCnBhcnBvcnRfcGM6IFZpYSA2
-ODZBIHBhcmFsbGVsIHBvcnQ6IGlvPTB4Mzc4CmlwX2Nvbm50cmFjayAoNDA5NSBidWNrZXRzLCAz
-Mjc2MCBtYXgpClBQUCBnZW5lcmljIGRyaXZlciB2ZXJzaW9uIDIuNC4xClBQUCBCU0QgQ29tcHJl
-c3Npb24gbW9kdWxlIHJlZ2lzdGVyZWQKUFBQIERlZmxhdGUgQ29tcHJlc3Npb24gbW9kdWxlIHJl
-Z2lzdGVyZWQKVmlhIDY4NmEgYXVkaW8gZHJpdmVyIDEuMS4xNGIKUENJOiBBc3NpZ25lZCBJUlEg
-MTAgZm9yIGRldmljZSAwMDowNy41CmFjOTdfY29kZWM6IEFDOTcgQXVkaW8gY29kZWMsIGlkOiAw
-eDQ5NDM6MHg0NTExIChJQ0UxMjMyKQp2aWE4MmN4eHg6IGJvYXJkICMxIGF0IDB4REMwMCwgSVJR
-IDEwCnZpYV9hdWRpbzogaWdub3JpbmcgZHJhaW4gcGxheWJhY2sgZXJyb3IgLTExCmhkYzogdGlt
-ZW91dCB3YWl0aW5nIGZvciBETUEKaWRlX2RtYXByb2M6IGNoaXBzZXQgc3VwcG9ydGVkIGlkZV9k
-bWFfdGltZW91dCBmdW5jIG9ubHk6IDE0CmhkYzogc3RhdHVzIHRpbWVvdXQ6IHN0YXR1cz0weGQw
-IHsgQnVzeSB9CmhkYzogZHJpdmUgbm90IHJlYWR5IGZvciBjb21tYW5kCmhkYzogQVRBUEkgcmVz
-ZXQgY29tcGxldGUKUFBQOiBWSiBkZWNvbXByZXNzaW9uIGVycm9yClBQUDogVkogZGVjb21wcmVz
-c2lvbiBlcnJvcgpoZGM6IHRpbWVvdXQgd2FpdGluZyBmb3IgRE1BCmlkZV9kbWFwcm9jOiBjaGlw
-c2V0IHN1cHBvcnRlZCBpZGVfZG1hX3RpbWVvdXQgZnVuYyBvbmx5OiAxNApoZGM6IHN0YXR1cyB0
-aW1lb3V0OiBzdGF0dXM9MHhkMCB7IEJ1c3kgfQpoZGM6IGRyaXZlIG5vdCByZWFkeSBmb3IgY29t
-bWFuZApoZGM6IEFUQVBJIHJlc2V0IGNvbXBsZXRlCg==
-
---------------Boundary-00=_NY0IW53DXWICG2XDTF78--

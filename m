@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316621AbSFDNAT>; Tue, 4 Jun 2002 09:00:19 -0400
+	id <S316619AbSFDNAL>; Tue, 4 Jun 2002 09:00:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317494AbSFDNAS>; Tue, 4 Jun 2002 09:00:18 -0400
-Received: from [62.70.58.70] ([62.70.58.70]:9962 "EHLO mail.pronto.tv")
-	by vger.kernel.org with ESMTP id <S316621AbSFDNAN> convert rfc822-to-8bit;
-	Tue, 4 Jun 2002 09:00:13 -0400
-Message-Id: <200206041259.g54CxuP07700@mail.pronto.tv>
-Content-Type: text/plain; charset=US-ASCII
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: Pronto TV AS
-To: Dale Stephenson <dale.stephenson@quantum.com>,
-        "'Kasper Dupont'" <kasperd@daimi.au.dk>
-Subject: Re: SV: RAID-6 support in kernel?
-Date: Tue, 4 Jun 2002 14:59:55 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: Christian Vik <cvik@vanadis.no>, linux-kernel@vger.kernel.org,
-        linux-raid@vger.kernel.org
-In-Reply-To: <2D0AFEFEE711D611923E009027D39F2B02F17E@nasexs1.meridian-data.com>
+	id <S316621AbSFDNAK>; Tue, 4 Jun 2002 09:00:10 -0400
+Received: from swazi.realnet.co.sz ([196.28.7.2]:4538 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S316619AbSFDNAH>; Tue, 4 Jun 2002 09:00:07 -0400
+Date: Tue, 4 Jun 2002 14:31:26 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Scott Murray <scottm@somanetworks.com>
+Cc: Lightweight patch manager <patch@luckynet.dynu.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.5] Port opl3sa2 changes from 2.4
+In-Reply-To: <Pine.LNX.4.33.0206031846520.5598-100000@rancor.yyz.somanetworks.com>
+Message-ID: <Pine.LNX.4.44.0206041423530.19645-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Of course, for a 4 drive setup there's no reason to use RAID 6 at all (RAID
-> 10 will withstand any two drive failure if you only use 4 drives), but
-> that's the reasoning.  I think the best way to deal with the read-modify
-> write problem for RAID 6 is to use a small chunk size and deal with NxN
-> chunks as a unit.  But YMMV.
+Hi Scott,
 
-RAID10 will _not_ withstand any two-drive fail in a 4-drive scenario. If D1 
-and D3 fail, you're fscked
+On Mon, 3 Jun 2002, Scott Murray wrote:
 
-D1 D2
-D3 D4
+> I think always blindly remapping the the DMA channels to 0 and 1 is a bad
+> idea and will likely break things for some people.  It would be better if
+> the core isapnp code could be made smarter, but a simple alternative would
+> be to rework the opl3sa2 module parameter parsing to allow using the DMA
+> parameters as an override when using PnP.
+
+I'm working with Gerald in order to get a decent workaround in without 
+messing with isapnp using your recommendation.
+
+> PS: Zwane, any chance you want to update MAINTAINERS to "officially" take
+>     over opl3sa2?
+
+I sent a patch for that with a patch a while back, i'll double check.
+
+Thanks,
+	Zwane Mwaikambo
 
 -- 
-Roy Sigurd Karlsbakk, Datavaktmester
+http://function.linuxpower.ca
+		
 
-Computers are like air conditioners.
-They stop working when you open Windows.
+

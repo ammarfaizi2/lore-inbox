@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272919AbTHKSsK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 14:48:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272963AbTHKSsC
+	id S272951AbTHKS7J (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 14:59:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273298AbTHKS5z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 14:48:02 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:9426 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id S272960AbTHKSr0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 14:47:26 -0400
-Date: Mon, 11 Aug 2003 19:46:50 +0100
-From: Dave Jones <davej@redhat.com>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Cc: Valdis.Kletnieks@vt.edu, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       jgarzik@pobox.com
-Subject: Re: [PATCH] Remove useless assertions from reiserfs
-Message-ID: <20030811184650.GC3884@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Petr Vandrovec <VANDROVE@vc.cvut.cz>, Valdis.Kletnieks@vt.edu,
-	torvalds@osdl.org, linux-kernel@vger.kernel.org, jgarzik@pobox.com
-References: <9D9C5DC650E@vcnet.vc.cvut.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9D9C5DC650E@vcnet.vc.cvut.cz>
-User-Agent: Mutt/1.5.4i
+	Mon, 11 Aug 2003 14:57:55 -0400
+Received: from mta2.srv.hcvlny.cv.net ([167.206.5.5]:32684 "EHLO
+	mta2.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S272988AbTHKS4j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 14:56:39 -0400
+Date: Mon, 11 Aug 2003 14:56:16 -0400
+From: Jeff Sipek <jeffpc@optonline.net>
+Subject: Re: CAST5 Cipher Algorithm for Kernel Cryptographic API.
+In-reply-to: <Law11-F37FURDGPqq7q0004423c@hotmail.com>
+To: kartikey bhatt <kartik_me@hotmail.com>, jmorris@intercode.com.au
+Cc: davem@redhat.com, linux-kernel@vger.kernel.org
+Message-id: <200308111456.23587.jeffpc@optonline.net>
+MIME-version: 1.0
+Content-type: Text/Plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+Content-description: clearsigned data
+User-Agent: KMail/1.5.2
+References: <Law11-F37FURDGPqq7q0004423c@hotmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 11, 2003 at 08:33:13PM +0200, Petr Vandrovec wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
- > I always thought that assertions are just for that - if you can hit them
- > without some unexpected event/bug, you have a SERIOUS problem.
+Just a small note: I believe that making that a patch increases the chances of 
+it getting in.
 
-Not for when you explicitly code things above so it really cannot
-happen. An assertion is more for the case "I really hope someone
-doesn't pass me x in state y" type assertions than "I really hope
-the compiler did the right thing with the previous loop"
+Jeff.
 
-		Dave
+- -- 
+Failure is not an option,
+It comes bundled with your Microsoft product.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
--- 
- Dave Jones     http://www.codemonkey.org.uk
+iD8DBQE/N+bTwFP0+seVj/4RAmU/AKCgWuuPi/bA8BoTALiC8Of7XyF4vgCgoSvz
+ipDFODHolZoAdhBuMWix0as=
+=mh/o
+-----END PGP SIGNATURE-----
+

@@ -1,46 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267018AbSLKFBj>; Wed, 11 Dec 2002 00:01:39 -0500
+	id <S267011AbSLKFAK>; Wed, 11 Dec 2002 00:00:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267016AbSLKFBj>; Wed, 11 Dec 2002 00:01:39 -0500
-Received: from packet.digeo.com ([12.110.80.53]:62665 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267018AbSLKFBh>;
-	Wed, 11 Dec 2002 00:01:37 -0500
-Message-ID: <3DF6C866.71597CD3@digeo.com>
-Date: Tue, 10 Dec 2002 21:08:54 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
+	id <S267013AbSLKFAK>; Wed, 11 Dec 2002 00:00:10 -0500
+Received: from scaup.mail.pas.earthlink.net ([207.217.120.49]:13760 "EHLO
+	scaup.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S267011AbSLKFAJ>; Wed, 11 Dec 2002 00:00:09 -0500
+Date: Tue, 10 Dec 2002 21:59:51 -0800 (PST)
+From: James Simmons <jsimmons@infradead.org>
+X-X-Sender: <jsimmons@maxwell.earthlink.net>
+To: Antonino Daplas <adaplas@pol.net>
+cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [TRIVIAL PATCH] FBDEV: Small impact patch for fbdev
+In-Reply-To: <1039558622.1054.32.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33.0212102155280.2617-100000@maxwell.earthlink.net>
 MIME-Version: 1.0
-To: Aniruddha M Marathe <aniruddha.marathe@wipro.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Problem with mm1 patch for 2.5.51
-References: <94F20261551DC141B6B559DC4910867201DE24@blr-m3-msg.wipro.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 11 Dec 2002 05:08:54.0824 (UTC) FILETIME=[671C3280:01C2A0D3]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Aniruddha M Marathe wrote:
-> 
-> Hi,
-> I applied mm1 patch to kernel 2.5.51 and I ran LM bench to test its performance.
-> Here are the errors that I obtained.
-> 
-> EXT3-fs error (device ide0(3,6)) in start_transaction: Journal has aborted
 
-An off-by-one was gratuitously added to ext3_free_blocks
+> Here's a diff to correct several small things that escaped through the
+> cracks.
+
+Ug. Now that a wider test base is being done and more drivers actually
+compile we are going to see more cracks.
+
+> 1.  The YNOMOVE scrollmode for non-accelerated drivers is just very slow
+> because of a lot of block moves (leads to slow and jerky scrolling in
+> vesafb with ypanning enabled).  Depending on var->accel_flags, set the
+> scrollmode to either YREDRAW or YNOMOVE. For drivers with hardware
+> acceleration, set var->accel_flags to nonzero for max speed.
+
+Thanks. I have had several emails complementing the speed improvements.
+Another speed boost will be a plus.
+
+> 2.  fb_pan_display() always returns an error.  User apps will complain.
+
+Fixed. Actually I used the following code.
+
+int fb_pan_display(struct fb_var_screeninfo *var, struct fb_info *info)
+{
+        int xoffset = var->xoffset;
+        int yoffset = var->yoffset;
+        int err;
+
+        if (xoffset < 0 || yoffset < 0 || info->fbops->fb_pan_display ||
+            xoffset + info->var.xres > info->var.xres_virtual ||
+            yoffset + info->var.yres > info->var.yres_virtual)
+                return -EINVAL;
+        if ((err = info->fbops->fb_pan_display(var, info)))
+                return err;
+        info->var.xoffset = var->xoffset;
+        info->var.yoffset = var->yoffset;
+        if (var->vmode & FB_VMODE_YWRAP)
+
+instead. The reason is I didn't like the idea of xoffset and yoffset being
+changed even if the hardware panning function failed. Comments?
+
+> 3.  case FBIO_GETCMAP in fb_ioctl does not return immediately.  User
+> apps will complain.
+
+Fixed.
+
+> 4.  vgastate.c is not saving the correct blocks.
+
+Fixed.
+
+> 5.  logo drawing for monochrome displays is just incorrect.(alterations
+> were done by eyeballing only, no hardware for testing).
+
+Will test on hgafb driver.
 
 
---- 25/fs/ext3/balloc.c~dud-patch	Tue Dec 10 21:07:20 2002
-+++ 25-akpm/fs/ext3/balloc.c	Tue Dec 10 21:07:27 2002
-@@ -122,7 +122,7 @@ void ext3_free_blocks (handle_t *handle,
- 	es = EXT3_SB(sb)->s_es;
- 	if (block < le32_to_cpu(es->s_first_data_block) ||
- 	    block + count < block ||
--	    block + count >= le32_to_cpu(es->s_blocks_count)) {
-+	    block + count > le32_to_cpu(es->s_blocks_count)) {
- 		ext3_error (sb, "ext3_free_blocks",
- 			    "Freeing blocks not in datazone - "
- 			    "block = %lu, count = %lu", block, count);

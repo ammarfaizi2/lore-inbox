@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292522AbSCOOPL>; Fri, 15 Mar 2002 09:15:11 -0500
+	id <S292533AbSCOOSl>; Fri, 15 Mar 2002 09:18:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292533AbSCOOPC>; Fri, 15 Mar 2002 09:15:02 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:33035 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S292522AbSCOOOq>; Fri, 15 Mar 2002 09:14:46 -0500
-Subject: Re: 2.4.18 Preempt Freezeups
-To: ian@ianduggan.net (Ian Duggan)
-Date: Fri, 15 Mar 2002 14:30:29 +0000 (GMT)
-Cc: rml@tech9.net (Robert Love), linux-kernel@vger.kernel.org (linux kernel)
-In-Reply-To: <3C91B2A1.48C74B82@ianduggan.net> from "Ian Duggan" at Mar 15, 2002 12:36:49 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16lsiz-0003ly-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S292539AbSCOOSb>; Fri, 15 Mar 2002 09:18:31 -0500
+Received: from mailout09.sul.t-online.com ([194.25.134.84]:9352 "EHLO
+	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S292533AbSCOOSX> convert rfc822-to-8bit; Fri, 15 Mar 2002 09:18:23 -0500
+Date: Fri, 15 Mar 2002 15:00:35 +0100
+From: Ulrich Wiederhold <U.Wiederhold@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: HPT370 RAID-1 or Software RAID-1, what's "best"?
+Message-ID: <20020315140035.GA3830@sky.net>
+In-Reply-To: <Pine.LNX.4.44.0203151027560.24394-100000@Expansa.sns.it> <018901c1cc21$4a05b680$0201a8c0@homer>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <018901c1cc21$4a05b680$0201a8c0@homer>
+User-Agent: Mutt/1.3.27i
+Organization: Using Linux Only
+X-Operating-System: Debian GNU/Linux 3.0 (Kernel 2.4.17-rc2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> "This kernel module attempts to isolate all of the functions and
-> structures that NeTraverse utilizes in it's binary kernel modules."
-> 
-> The win4lin patch (also GPL) provides hooks for the mki-adapter module
-> to call.
+* Martin Eriksson <nitrax@giron.wox.org> [020315 13:59]:
+> Now this has gone off-topic, so please send replies only to me.
 
-Not really. Because if the win4lin patch provides hooks for binary modules
-that the binary modules depend upon then its hard to see how the two are
-resolvable. Either its GPL , in which case why is nonGPL code dependant
-on it and not shipped GPL, or it isnt
+CC me please. :)
 
-> I'm not asking for help fixing it, because of the binary module issue.
-> I'm just looking for ways to narrow down where the problem might be,
-> given that the machine completely locks up.
+Gruﬂ
+Uli
 
-I've also seen the win4lin patch. I really don't envy anyone trying to
-debug it
+-- 
+'The box said, 'Requires Windows 95 or better', so i installed Linux - TKK 5

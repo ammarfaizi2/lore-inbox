@@ -1,58 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261966AbVANMWn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261967AbVANM3L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261966AbVANMWn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 07:22:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbVANMWn
+	id S261967AbVANM3L (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 07:29:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261968AbVANM3L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 07:22:43 -0500
-Received: from lakermmtao04.cox.net ([68.230.240.35]:17833 "EHLO
-	lakermmtao04.cox.net") by vger.kernel.org with ESMTP
-	id S261966AbVANMWl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 07:22:41 -0500
-In-Reply-To: <20050114120101.GA29859@pazke>
-References: <71216E5F-5F6C-11D9-B39F-000393ACC76E@mac.com> <20050114120101.GA29859@pazke>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <FBD27F98-6626-11D9-A56D-000393ACC76E@mac.com>
+	Fri, 14 Jan 2005 07:29:11 -0500
+Received: from pop.gmx.de ([213.165.64.20]:43991 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261967AbVANM3J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 07:29:09 -0500
+Date: Fri, 14 Jan 2005 13:29:08 +0100 (MET)
+From: "Daniel Kirsten" <Daniel.Kirsten@gmx.net>
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Subject: 2.6.11-rc1-mm1  waiting-10s-before-mounting-root-....
+X-Priority: 3 (Normal)
+X-Authenticated: #14521599
+Message-ID: <572.1105705748@www33.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Cc: Russell King <rmk+serial@arm.linux.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [PATCH] [2.6] Clean up useless 8250 siig functions and header
-Date: Fri, 14 Jan 2005 07:22:40 -0500
-To: Andrey Panin <pazke@donpac.ru>
-X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 14, 2005, at 07:01, Andrey Panin wrote:
-> On 005, 01 05, 2005 at 05:52:14PM -0500, Kyle Moffett wrote:
->> This removes two simple siig functions that should just be integrated
->> into the calling code.
->
-> Good idea, wrong patch. You deleted wrapper code, but actual init
-> functions left not exported for use by parport_serial module.
-> Even worse, they are left static, so monilithic kernel build will
-> not work too :/
+Hallo,
 
-Oops, sorry!
+I have to unpatch waiting-10s-before-mounting-root-filesystem.patch, 
+otherwise I cannot mount the root file system when booting. 
 
-> Did you compiled the kernel with your patch applied ?
+Best regards, Daniel
 
-Yes, but I think I managed to lose some changes somewhere in the
-process of managing my patchset.
-
-> Please use attached patch instead.
-
-Thanks,
-Kyle Moffett
-
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
-!y?(-)
-------END GEEK CODE BLOCK------
-
-
+-- 
++++ GMX - die erste Adresse für Mail, Message, More +++
+1 GB Mailbox bereits in GMX FreeMail http://www.gmx.net/de/go/mail

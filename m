@@ -1,78 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129226AbQL0JlK>; Wed, 27 Dec 2000 04:41:10 -0500
+	id <S129183AbQL0KiN>; Wed, 27 Dec 2000 05:38:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129465AbQL0JlA>; Wed, 27 Dec 2000 04:41:00 -0500
-Received: from mail2.rdc2.bc.home.com ([24.2.10.85]:32393 "EHLO
-	mail2.rdc2.bc.home.com") by vger.kernel.org with ESMTP
-	id <S129226AbQL0Jks>; Wed, 27 Dec 2000 04:40:48 -0500
-Message-ID: <004801c06fe4$d3464bc0$60d77318@surrey1.bc.wave.home.com>
-From: "Keith Gagne" <keithgagne@home.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: nic problems
-Date: Wed, 27 Dec 2000 01:10:15 -0800
+	id <S129664AbQL0KiD>; Wed, 27 Dec 2000 05:38:03 -0500
+Received: from rhlx01.fht-esslingen.de ([134.108.34.10]:56808 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id <S129610AbQL0Khx>; Wed, 27 Dec 2000 05:37:53 -0500
+Date: Wed, 27 Dec 2000 11:07:22 +0100 (CET)
+From: Nils Philippsen <nils@fht-esslingen.de>
+Reply-To: <nils@fht-esslingen.de>
+To: Dieter Nützel <Dieter.Nuetzel@hamburg.de>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Rik Faith <faith@valinux.com>,
+        Dri-devel <Dri-devel@lists.sourceforge.net>
+Subject: Re: test13-preX: DRM (tdfx.o) unresolved symbols fixed?
+In-Reply-To: <00122702540800.15395@SunWave1>
+Message-ID: <Pine.LNX.4.30.0012270951360.21331-100000@rhlx01.fht-esslingen.de>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0045_01C06FA1.C4F85240"
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Hi all,
 
-------=_NextPart_000_0045_01C06FA1.C4F85240
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+On Wed, 27 Dec 2000, Dieter [iso-8859-1] Nützel wrote:
 
-hi, i'm new to this list, but i searched around and i've been having =
-troubles getting my nic to work in the 2.2.18 kernel. when i try to ping =
-something, i get no responce, as i sniff eth0 i can see the inital arp =
-and arp reply for whatever ip on my local subnet. i also see an arp =
-cache entry, i also see the icmp echo and echo reply.  i'm looking for =
-any ideas. i've tried this with a 3com 3c509b isa card and a intel 100mb =
-eepro pci nic.=20
+> I got this since test13-pre1 (pre4, now):
+>
+> SunWave1>depmod -e
+> depmod: *** Unresolved symbols in
+> /lib/modules/2.4.0-test13-pre4/kernel/drivers/char/drm/tdfx.o
 
+[snipped]
 
-thanx alot, apreciate any help
-keith
+> Something missing in the 'new' drm/Makefile?
 
-------=_NextPart_000_0045_01C06FA1.C4F85240
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+>From the test13-pre4 patch, the only difference I can see is that shared code
+is now in drmlib.a instead of the object files being linked individually for
+each drm module.
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META content=3D"text/html; charset=3Diso-8859-1" =
-http-equiv=3DContent-Type>
-<META content=3D"MSHTML 5.00.3211.1700" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<DIV><FONT face=3DArial size=3D2>hi, i'm new to this list, but i =
-searched around and=20
-i've been having troubles getting my nic to work in the 2.2.18 kernel. =
-when i=20
-try to ping something, i get no responce,&nbsp;as i sniff eth0 i can see =
-the=20
-inital arp and arp reply for whatever ip on my local subnet. i also see =
-an arp=20
-cache entry, i also see the icmp echo and echo reply.&nbsp; i'm looking =
-for any=20
-ideas. i've tried this with a 3com 3c509b isa card and a intel 100mb =
-eepro pci=20
-nic. </FONT></DIV>
-<DIV>&nbsp;</DIV>
-<DIV>&nbsp;</DIV>
-<DIV><FONT face=3DArial size=3D2>thanx alot, apreciate any =
-help</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2>keith</FONT></DIV></BODY></HTML>
+If I do `nm tdfx.o|grep printk`, with test12 I get only this:
 
-------=_NextPart_000_0045_01C06FA1.C4F85240--
+         U printk_R1b7d4074
+
+with test13-pre4 on my home machine, I get the mangled symbol name plus a
+non-mangled one, both unresolved, maybe that causes problems.
+
+Nils
+-- 
+ Nils Philippsen / Berliner Straße 39 / D-71229 Leonberg // +49.7152.209647
+nils@wombat.dialup.fht-esslingen.de / nils@fht-esslingen.de / nils@redhat.de
+   The use of COBOL cripples the mind; its teaching should, therefore, be
+   regarded as a criminal offence.                  -- Edsger W. Dijkstra
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129788AbQKOQh2>; Wed, 15 Nov 2000 11:37:28 -0500
+	id <S129091AbQKOQii>; Wed, 15 Nov 2000 11:38:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129439AbQKOQhT>; Wed, 15 Nov 2000 11:37:19 -0500
-Received: from prosun.first.gmd.de ([194.95.168.2]:28939 "EHLO
-	prosun.first.gmd.de") by vger.kernel.org with ESMTP
-	id <S129148AbQKOQhG>; Wed, 15 Nov 2000 11:37:06 -0500
-From: Andreas Osterburg <alanos@first.gmd.de>
-To: linux-kernel@vger.kernel.org
-Subject: Swapping over NFS in Linux 2.4?
-Date: Wed, 15 Nov 2000 16:38:49 +0100
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
+	id <S129045AbQKOQi2>; Wed, 15 Nov 2000 11:38:28 -0500
+Received: from 213-1-124-214.btconnect.com ([213.1.124.214]:50562 "EHLO
+	saturn.homenet") by vger.kernel.org with ESMTP id <S129148AbQKOQiN>;
+	Wed, 15 Nov 2000 11:38:13 -0500
+Date: Wed, 15 Nov 2000 16:09:33 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: Aamir Dogar <u970001@giki.edu.pk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Newbie
+In-Reply-To: <00ba01c04def$821f8480$0f32a8c0@hostel5.giki.edu.pk>
+Message-ID: <Pine.LNX.4.21.0011151607350.2376-100000@saturn.homenet>
 MIME-Version: 1.0
-Message-Id: <00111517064807.29351@bar>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 14 Nov 2000, Aamir Dogar wrote:
 
-Because I set up a diskless Linux-workstation, I want to swap over NFS.
-For this purpose I found only patches for "older" Linux-versions (2.0, 2.1,
-2.2?).
-Does anyone know wheter there are patches for 2.4 or does anyone know
-another solution for this problem?
-Because of special hardware I can only use the latest Linux 2.3 (2.3.99*) and
-Linux 2.4
+> Hi There,
+> 
+> i am new to kernal development.
+                  ~
 
-Thank you,
+> i just need a good Kernal Programming-HowTo.
+                         ~
 
-Andreas Osterburg
+> could someone please let me know about this and about other useful info
+> about kernal programming that can help me to start kernal programming.
+            ~                                            ~
+
+Hi Aamir,
+
+There are two things you need to do, in this order:
+
+a) learn how to spell the word "kernel" (absolutely essential :)
+
+b) read the resources mentioned in the
+/usr/src/linux/Documentation/kernel-docs.txt
+
+Regards,
+Tigran
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

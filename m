@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266638AbUAWSjH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 13:39:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266635AbUAWSjH
+	id S262566AbUAWSyb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 13:54:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262746AbUAWSyb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 13:39:07 -0500
-Received: from fw.osdl.org ([65.172.181.6]:38878 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266638AbUAWSjE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 13:39:04 -0500
-Date: Fri, 23 Jan 2004 10:39:59 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jan Ischebeck <mail@jan-ischebeck.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.2-rc1-mm2
-Message-Id: <20040123103959.4dcf5b58.akpm@osdl.org>
-In-Reply-To: <1074870538.5122.9.camel@JHome.uni-bonn.de>
-References: <1074870538.5122.9.camel@JHome.uni-bonn.de>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 23 Jan 2004 13:54:31 -0500
+Received: from 62-43-5-49.user.ono.com ([62.43.5.49]:57028 "EHLO
+	mortadelo.pirispons.net") by vger.kernel.org with ESMTP
+	id S262566AbUAWSya (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jan 2004 13:54:30 -0500
+Date: Fri, 23 Jan 2004 19:54:29 +0100
+From: Kiko Piris <kernel@pirispons.net>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6.2-rc1] unknown i2c symbols in bttv and friends
+Message-ID: <20040123185429.GA4797@pirispons.net>
+Mail-Followup-To: linux-kernel <linux-kernel@vger.kernel.org>
+References: <20040123183827.GA928@pirispons.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040123183827.GA928@pirispons.net>
+User-Agent: Mutt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Ischebeck <mail@jan-ischebeck.de> wrote:
->
-> Hi Andrew,
-> 
-> With the latest pmtmr fixes, synaptics mouse driver is in sync again and
-> my bogomips are correct too. (synaptics had been loosing packages in -mm
-> releases the last weeks)
+On 23/01/2004 at 19:38, Kiko Piris wrote:
 
-OK, thanks.
+> I compiled 2.6.2-rc1 and I can't use my Pinnacle PCTV card because bbtv
+> module and friends refuse to load due to unknown i2c_* symbols. dmesg
+> relevant part is attached (kernel config is also - grep ^CONFIG -).
 
-> Only the radeon dri driver cannot be inserted because of an missing
-> symbol: 
-> radeon: Unknown symbol cmpxchg
+My fault. I had a forgotten line 
 
-You'll need to disable 386 support in the processor selection menu.
+options i2c-core       i2c_debug=1
+
+in modprobe.conf. Of course they wheren't loading! :-[
+
+Sorry for the noise.
+
+-- 
+Kiko

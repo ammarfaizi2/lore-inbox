@@ -1,64 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265659AbUBFSlo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 13:41:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265636AbUBFSlo
+	id S265695AbUBFSd4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 13:33:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265698AbUBFSdz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 13:41:44 -0500
-Received: from agminet04.oracle.com ([141.146.126.231]:64181 "EHLO
-	agminet04.oracle.com") by vger.kernel.org with ESMTP
-	id S265659AbUBFSlZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 13:41:25 -0500
-Date: Fri, 6 Feb 2004 10:37:46 -0800
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Werner Almesberger <wa@almesberger.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VFS locking: f_pos thread-safe ?
-Message-ID: <20040206183746.GR4902@ca-server1.us.oracle.com>
-Mail-Followup-To: Werner Almesberger <wa@almesberger.net>,
-	linux-kernel@vger.kernel.org
-References: <20040206041223.A18820@almesberger.net>
-Mime-Version: 1.0
+	Fri, 6 Feb 2004 13:33:55 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:22673 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265695AbUBFSdx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 13:33:53 -0500
+Date: Fri, 06 Feb 2004 10:33:30 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Anton Blanchard <anton@samba.org>, Rick Lindsley <ricklind@us.ibm.com>
+cc: piggin@cyberone.com.au, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       dvhltc@us.ibm.com
+Subject: Re: [PATCH] Load balancing problem in 2.6.2-mm1
+Message-ID: <205640000.1076092410@flay>
+In-Reply-To: <20040206103010.GI19011@krispykreme>
+References: <200402060924.i169OWx30517@owlet.beaverton.ibm.com> <20040206103010.GI19011@krispykreme>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040206041223.A18820@almesberger.net>
-X-Burt-Line: Trees are cool.
-X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-White-List-Member: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 06, 2004 at 04:12:24AM -0300, Werner Almesberger wrote:
-> Section 2.9.7 of the "Austin" draft of IEEE Std. 1003.1-200x,
-> 28-JUL-2000, says:
+>> This patch allows for this_load to set max_load, which if I understand
+>> the logic properly is correct.  It then adds a check to imbalance to make
+>> sure a negative number hasn't been coerced into a large positive number.
+>> With this patch applied, the algorithm is *much* more conservative ...
+>> maybe *too* conservative but that's for another round of testing ...
 > 
-> "[...] read( ) [...] shall be atomic with respect to each other
->  in the effects specified in IEEE Std. 1003.1-200x when they
->  operate on regular files. If two threads each call one of these
->  functions, each call shall either see all of the specified
->  effects of the other call, or none of them."
+> Good stuff, I just gave the patch a spin and things seem a little
+> calmer. However Im still seeing a lot of balancing going on within a
+> node.
+> 
+> Setup:
+> 
+> 2 threads per cpu.
+> 2 nodes of 16 threads each.
+> 
+> I ran a single "yes > /dev/null"
+> 
+> And it looks like that process is bouncing around the entire node.
+> Below is a 2 second average.
 
-	This reads:  "all of the specified effects of the other call,
-or none of them."  If I read that correctly, if f_pos is at N, and
-threads A and B concurrently read M bytes, then each thread's read()
-must either start at f_pos = N or f_pos = N+M, but never at N < f_pos <
-N+M.  So as long as our code doesn't partially update f_pos, it is
-valid.  
-	Of course, that doesn't change the possible race updating
-f_pos at the end of each thread's call.
+OK, what happens if you apply this ... does it fix it?
+(not saying this is the correct solution, just debug)
 
-Joel
+M.
 
--- 
+diff -purN -X /home/mbligh/.diff.exclude mm1/kernel/sched.c mm1-schedfix/kernel/sched.c
+--- mm1/kernel/sched.c	2004-02-06 10:28:55.000000000 -0800
++++ mm1-schedfix/kernel/sched.c	2004-02-06 10:32:04.000000000 -0800
+@@ -1440,15 +1440,11 @@ nextgroup:
+ 	 */
+ 	*imbalance = min(max_load - avg_load, avg_load - this_load);
+ 
+-	/* Get rid of the scaling factor now, rounding *up* as we divide */
+-	*imbalance = (*imbalance + SCHED_LOAD_SCALE - 1) >> SCHED_LOAD_SHIFT;
++	/* Get rid of the scaling factor now */
++	*imbalance = *imbalance >> SCHED_LOAD_SHIFT;
+ 
+ 	if (*imbalance == 0) {
+-		if (package_idle != NOT_IDLE && domain->flags & SD_FLAG_IDLE
+-			&& max_load * busiest_nr_cpus > (3*SCHED_LOAD_SCALE/2))
+-			*imbalance = 1;
+-		else
+-			busiest = NULL;
++		busiest = NULL;
+ 	}
+ 
+ 	return busiest;
 
-"In a crisis, don't hide behind anything or anybody. They're going
- to find you anyway."
-	- Paul "Bear" Bryant
-
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127

@@ -1,80 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130820AbQK3TYv>; Thu, 30 Nov 2000 14:24:51 -0500
+        id <S131156AbQK3UGJ>; Thu, 30 Nov 2000 15:06:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130861AbQK3TYD>; Thu, 30 Nov 2000 14:24:03 -0500
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:1292 "EHLO
-        Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-        id <S131034AbQK3TLt>; Thu, 30 Nov 2000 14:11:49 -0500
-Message-ID: <3A269F47.17336A69@Hell.WH8.TU-Dresden.De>
-Date: Thu, 30 Nov 2000 19:41:11 +0100
-From: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
-Organization: Dept. Of Computer Science, Dresden University Of Technology
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
-X-Accept-Language: en, de-DE
+        id <S131157AbQK3UF7>; Thu, 30 Nov 2000 15:05:59 -0500
+Received: from [62.254.209.2] ([62.254.209.2]:13049 "EHLO cam-gw.zeus.co.uk")
+        by vger.kernel.org with ESMTP id <S130882AbQK3TZd>;
+        Thu, 30 Nov 2000 14:25:33 -0500
+Date: Thu, 30 Nov 2000 18:54:56 +0000 (GMT)
+From: Ben Mansell <ben@zeus.com>
+To: Andi Kleen <ak@suse.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: TCP push missing with writev()
+In-Reply-To: <20001130191414.A13814@gruyere.muc.suse.de>
+Message-ID: <Pine.LNX.4.30.0011301816300.8071-100000@artemis.cam.zeus.com>
 MIME-Version: 1.0
-To: Andrey Savochkin <saw@saw.sw.com.sg>
-CC: linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>
-Subject: Re: eepro100 driver update for 2.4
-In-Reply-To: <20001117172336.B27444@saw.sw.com.sg>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrey Savochkin wrote:
+On Thu, 30 Nov 2000, Andi Kleen wrote:
 
-> I've updated eepro100 driver for 2.4 kernel branch.
-> So far, the most annoying initialization problem (expressing itself in "card
-> reports no resources" messages) hasn't been fixed.
+> > The problem is that if data happens to be written via method (2), then
+> > the PUSH flag is never set on any packets generated. This is a bug,
+> > surely?
+>
+> I just tried it on 2.2.17 and 2.4.0test11 and it sets PUSH for writev()
+> for both cases just fine. Maybe you could supply a test program and tcpdump
+> logs for what you think is wrong ?
 
-Hi Andrey,
+BTW, Nagle turned off for all connections.
+I can't supply source, but here are some TCP dumps of whats happening.
+They're of HTTP, with a Windows IE refreshing a web page. I'll include
+just one of the connections.
+electra: win98, artemis: 2.4.0-test10
 
-I've been using an older EEPro100/B card until now and it's been working without any
-problems ever since the transmitter bugs were fixed. The boot output looked like this:
+First of all, using write():
 
-eepro100.c:v1.09j-t 9/29/99 Donald Becker http://cesdis.gsfc.nasa.gov/linux/drivers/eepro100.html
-eepro100.c: $Revision: 1.35 $ 2000/11/17 Modified by Andrey V. Savochkin <saw@saw.sw.com.sg> and others
-eth0: Intel Corporation 82557 [Ethernet Pro 100], 00:A0:C9:41:F4:DE, IRQ 9.
-  Board assembly 667280-003, Physical connectors present: RJ45
-  Primary interface chip i82555 PHY #1.
-  General self-test: passed.
-  Serial sub-system self-test: passed.
-  Internal registers self-test: passed.
-  ROM checksum self-test: passed (0x49caa8d6).
-  Receiver lock-up workaround activated.       
+18:41:08.714801 electra.1057 > artemis.www: S 984816:984816(0) win 8192 <mss 1460,nop,nop,sackOK> (DF)
+18:41:08.714864 artemis.www > electra.1057: S 319022729:319022729(0) ack 984817 win 5840 <mss 1460,nop,nop,sackOK> (DF)
+18:41:08.715228 electra.1057 > artemis.www: . ack 1 win 8760 (DF)
+18:41:08.734268 electra.1057 > artemis.www: P 1:288(287) ack 1 win 8760 (DF)
+18:41:08.734354 artemis.www > electra.1057: . ack 288 win 6432 (DF)
+18:41:08.745542 artemis.www > electra.1057: P 1:85(84) ack 288 win 6432 (DF)
+18:41:08.754096 electra.1057 > artemis.www: P 288:568(280) ack 85 win 8676 (DF)
+18:41:08.754150 artemis.www > electra.1057: . ack 568 win 7504 (DF)
+18:41:08.770517 artemis.www > electra.1057: P 85:169(84) ack 568 win 7504 (DF)
+18:41:08.825662 electra.1057 > artemis.www: P 568:798(230) ack 169 win 8592 (DF)
+18:41:08.825742 artemis.www > electra.1057: . ack 798 win 8576 (DF)
+18:41:08.856386 artemis.www > electra.1057: P 169:1230(1061) ack 798 win 8576 (DF)
+18:41:08.885806 electra.1057 > artemis.www: R 985614:985614(0) win 0 (DF)
 
-Intel webpage says: 667280-xxx is a model EEPro100/B but I dunno which chipset.
+Now using writev() (all of which use two buffers, the second one empty):
+
+18:40:15.434759 electra.1054 > artemis.www: S 931532:931532(0) win 8192 <mss 1460,nop,nop,sackOK> (DF)
+18:40:15.434820 artemis.www > electra.1054: S 272275362:272275362(0) ack 931533 win 5840 <mss 1460,nop,nop,sackOK> (DF)
+18:40:15.435149 electra.1054 > artemis.www: . ack 1 win 8760 (DF)
+18:40:15.468973 electra.1054 > artemis.www: P 1:288(287) ack 1 win 8760 (DF)
+18:40:15.469037 artemis.www > electra.1054: . ack 288 win 6432 (DF)
+18:40:15.485787 artemis.www > electra.1054: . 1:85(84) ack 288 win 6432 (DF)
+18:40:15.592677 electra.1054 > artemis.www: . ack 85 win 8676 (DF)
+18:40:15.897950 electra.1054 > artemis.www: P 288:568(280) ack 85 win 8676 (DF)
+18:40:15.897977 artemis.www > electra.1054: . ack 568 win 7504 (DF)
+18:40:15.900336 artemis.www > electra.1054: . 85:169(84) ack 568 win 7504 (DF)
+18:40:16.092696 electra.1054 > artemis.www: . ack 169 win 8592 (DF)
+18:40:16.396061 electra.1054 > artemis.www: P 568:798(230) ack 169 win 8592 (DF)
+18:40:16.411279 artemis.www > electra.1054: . ack 798 win 8576 (DF)
+18:40:16.428007 artemis.www > electra.1054: . 169:1230(1061) ack 798 win 8576 (DF)
+18:40:16.592603 electra.1054 > artemis.www: . ack 1230 win 7531 (DF)
+18:40:16.895021 electra.1054 > artemis.www: R 932330:932330(0) win 0 (DF)
 
 
-Today I've installed a new model with Wake-on-LAN support and got caught by
-above mentioned
+Ben
 
-eth0: card reports no RX buffers.
-eth0: card reports no resources.
-
-messages as well. Strangely those messages only ever happen during bootup and
-*every* time. Shutting eth0 down and bringing it back up fixes the problem.
-
-What puzzles me a bit is that the newer card (721383-xxx) is an 82559 chip,
-according to the Intel site, but the boot output doesn't say so:
-
-eepro100.c:v1.09j-t 9/29/99 Donald Becker http://cesdis.gsfc.nasa.gov/linux/drivers/eepro100.html
-eepro100.c: $Revision: 1.35 $ 2000/11/17 Modified by Andrey V. Savochkin <saw@saw.sw.com.sg> and others
-eth0: Intel Corporation 82557 [Ethernet Pro 100], 00:02:B3:1F:BA:5D, IRQ 9.
-  Receiver lock-up bug exists -- enabling work-around.
-  Board assembly 721383-016, Physical connectors present: RJ45
-  Primary interface chip i82555 PHY #1.
-  General self-test: passed.
-  Serial sub-system self-test: passed.
-  Internal registers self-test: passed.
-  ROM checksum self-test: passed (0x04f4518b).  
-
-If you have any patches or tests that would help to find and fix this init
-bug, I'd offer to test them out, since I can reliably reproduce the problem.
-
-Regards,
-Udo.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

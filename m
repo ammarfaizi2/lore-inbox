@@ -1,37 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284973AbRLQCvw>; Sun, 16 Dec 2001 21:51:52 -0500
+	id <S284983AbRLQDad>; Sun, 16 Dec 2001 22:30:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284979AbRLQCvm>; Sun, 16 Dec 2001 21:51:42 -0500
-Received: from ns.suse.de ([213.95.15.193]:21253 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S284973AbRLQCvb>;
-	Sun, 16 Dec 2001 21:51:31 -0500
-Date: Mon, 17 Dec 2001 03:51:30 +0100 (CET)
+	id <S284985AbRLQDaY>; Sun, 16 Dec 2001 22:30:24 -0500
+Received: from ns.suse.de ([213.95.15.193]:57097 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S284983AbRLQDaK>;
+	Sun, 16 Dec 2001 22:30:10 -0500
+Date: Mon, 17 Dec 2001 04:30:09 +0100 (CET)
 From: Dave Jones <davej@suse.de>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: More fun with fsx.
-In-Reply-To: <15389.19300.179304.433697@charged.uio.no>
-Message-ID: <Pine.LNX.4.33.0112170350070.29678-100000@Appserv.suse.de>
+To: Momchil Velikov <velco@fadata.bg>
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Copying to loop device hangs up everything
+In-Reply-To: <87snab85tk.fsf@fadata.bg>
+Message-ID: <Pine.LNX.4.33.0112170428460.11563-100000@Appserv.suse.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Dec 2001, Trond Myklebust wrote:
+On 16 Dec 2001, Momchil Velikov wrote:
 
-> No. I think I've got it. You are running NFSv2 (I assumed v3) and I'll
-> bet that if you look in your syslog, you'll see the error message
-> This is a bug that was fixed ages ago in the NFSv3 code. I've updated
-> the 'fattr' patch yet again...
+> >> Can you repeat it with this applied ?
+> >> ftp://ftp.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.17rc1aa1/00_loop-deadlock-1
+> I've had exactly the same hangups with or without the patch.
 
-And it fixes the problem, good work!
-But.. (Here comes the sting..)
-
-The test progresses just a little further and hits another bug..
-http://www.codemonkey.org.uk/cruft/nfs-fsx2.txt
-
-want tcpdump again?
+You could be hitting a different bug.. highmem box ?
 
 Dave.
 

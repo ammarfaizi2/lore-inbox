@@ -1,55 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132480AbRAaRZi>; Wed, 31 Jan 2001 12:25:38 -0500
+	id <S131717AbRAaRg3>; Wed, 31 Jan 2001 12:36:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131717AbRAaRZ3>; Wed, 31 Jan 2001 12:25:29 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:62472 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132366AbRAaRZR>; Wed, 31 Jan 2001 12:25:17 -0500
-Subject: Re: Looking for comparison data on network stack prowess
-To: acahalan@cs.uml.edu (Albert D. Cahalan)
-Date: Wed, 31 Jan 2001 17:26:04 +0000 (GMT)
-Cc: david@linux.com (David Ford), linux-kernel@vger.kernel.org (LKML)
-In-Reply-To: <200101272242.f0RMgme376419@saturn.cs.uml.edu> from "Albert D. Cahalan" at Jan 27, 2001 05:42:48 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130941AbRAaRgU>; Wed, 31 Jan 2001 12:36:20 -0500
+Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:8880 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S130312AbRAaRgE>; Wed, 31 Jan 2001 12:36:04 -0500
+Date: Wed, 31 Jan 2001 18:19:53 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: David Ford <david@linux.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH/REQ] Increase kmsg buffer from 16K to 32K, kernel/printk.c
+In-Reply-To: <E14O0hv-0002hY-00@the-village.bc.nu>
+Message-ID: <Pine.GSO.3.96.1010131181206.16241A-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14O11D-0002jM-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Linux did not steal the BSD stack. I recall that Alan Cox
-> politely asked UCB to have it under the GPL, and was refused.
+On Wed, 31 Jan 2001, Alan Cox wrote:
 
-Start with the right history then
+> > Does Linus or anyone object to raising the ksmg buffer from 16K to 32K?
+> > 4/5 systems I have now overflow the buffer during boot before init is
+> > even launched.
+> 
+> Thats just an indication that 2.4.x is currently printking too much crap on
+> boot
 
-Ross Biro did the original Linux networking code. At the time the 386BSD code
-was potentially useful but two things occurred
+ We could probably get rid of much of the crap for i386 by #undef
+APIC_DEBUG in include/asm-i386/apic.h.  Too bad broken SMP systems get
+reported every now and then and the crap proves useful in getting what
+actually is wrong. 
 
-1.	I asked a real lawyer about mixing BSD and GPL code and got told the
-	advertising clause was an additional restriction
-
-2.	BSDI got sued, making the entire BSD codebase potentially contaminated
-
-Someone in .de (Alas I forget their name now) actually did port BSD net/2 to
-Linux.
-
-FvK took over and then I took over and we had net2debugged (no relation to
-BSD net/2) and then net/3 and net/4 over time.
-
-The 1.0 networking code worked but certainly wasnt BSD grade, the 1.2 code
-worked better but wasnt BSD grade. 2.0 was certainly on a par and 2.2/2.4
-have added a lot of other stuff. *BSD has also not stood still.
-
-You can certainly find cases where either is better.
-
-> Oh, BTW, BSD was _not_ the first OS with IP. The first was some
-> horrid mainframe thing. Sometimes, he who codes last codes best.
-
-Humph. TOPS-10 is a beautiful OS.
-
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

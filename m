@@ -1,29 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261308AbTCGAtg>; Thu, 6 Mar 2003 19:49:36 -0500
+	id <S261314AbTCGAvt>; Thu, 6 Mar 2003 19:51:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261311AbTCGAtg>; Thu, 6 Mar 2003 19:49:36 -0500
-Received: from pollux.ds.pg.gda.pl ([213.192.76.3]:24583 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S261308AbTCGAtg>; Thu, 6 Mar 2003 19:49:36 -0500
-Date: Fri, 7 Mar 2003 02:00:01 +0100 (CET)
-From: =?ISO-8859-2?Q?Pawe=B3_Go=B3aszewski?= <blues@ds.pg.gda.pl>
-To: linux-kernel@vger.kernel.org
-Subject: [2.5.64] depmod problem
-Message-ID: <Pine.LNX.4.51L.0303070158580.14030@piorun.ds.pg.gda.pl>
+	id <S261319AbTCGAvt>; Thu, 6 Mar 2003 19:51:49 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:2823 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S261314AbTCGAvs>; Thu, 6 Mar 2003 19:51:48 -0500
+Date: Fri, 7 Mar 2003 02:02:07 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Greg KH <greg@kroah.com>
+cc: Linus Torvalds <torvalds@transmeta.com>, <hpa@zytor.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCH] klibc for 2.5.64 - try 2
+In-Reply-To: <20030307001655.GB13766@kroah.com>
+Message-ID: <Pine.LNX.4.44.0303070156430.32518-100000@serv>
+References: <20030307001655.GB13766@kroah.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When making depmod on fresh 2.5.64 I get:
+Hi,
 
-# /sbin/depmod -ae -F System.map  2.5.64
-WARNING: /lib/modules/2.5.64/kernel/drivers/hotplug/acpiphp.ko needs unknown symbol acpi_resource_to_address64
+On Thu, 6 Mar 2003, Greg KH wrote:
 
--- 
----------------------------------
-pozdr.  Pawe³ Go³aszewski        
----------------------------------
-CPU not found - software emulation...
+> Here's a series of changesets that add klibc support to the 2.5.64
+> kernel.  The only change since the last time I sent this is an addition
+> of a LICENSE file to the klibc directory, and a merge with your latest
+> bk tree.
+
+Ok, nobody wants to mention it, so I'll have to do it.
+Above license is the BSD license. What were the exact reasons to choose 
+this one? 
+
+bye, Roman
+

@@ -1,58 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268069AbUIFOcR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268063AbUIFOeW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268069AbUIFOcR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 10:32:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268063AbUIFOcR
+	id S268063AbUIFOeW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 10:34:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267393AbUIFOeV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 10:32:17 -0400
-Received: from mx02.qsc.de ([213.148.130.14]:5508 "EHLO mx02.qsc.de")
-	by vger.kernel.org with ESMTP id S268069AbUIFOcH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 10:32:07 -0400
-Date: Mon, 06 Sep 2004 16:32:06 +0200
-From: Gunnar Ritter <Gunnar.Ritter@pluto.uni-freiburg.de>
-Organization: Privat.
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 1/3] copyfile: generic_sendpage
-Message-ID: <413C74E6.nail3YF11Y0TT@pluto.uni-freiburg.de>
-References: <20040904165733.GC8579@wohnheim.fh-wedel.de>
- <20040904153902.6ac075ea.akpm@osdl.org>
- <413C5BF2.nail2RA1138AG@pluto.uni-freiburg.de>
- <20040906133523.GC25429@wohnheim.fh-wedel.de>
-In-Reply-To: <20040906133523.GC25429@wohnheim.fh-wedel.de>
-User-Agent: nail 11.6pre 9/6/04
+	Mon, 6 Sep 2004 10:34:21 -0400
+Received: from pxy1allmi.all.mi.charter.com ([24.247.15.38]:55509 "EHLO
+	proxy1.gha.chartermi.net") by vger.kernel.org with ESMTP
+	id S268063AbUIFOeM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Sep 2004 10:34:12 -0400
+Message-ID: <413C754C.9040908@quark.didntduck.org>
+Date: Mon, 06 Sep 2004 10:33:48 -0400
+From: Brian Gerst <bgerst@quark.didntduck.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040809
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] explicity align tss->stack
+References: <4139C6E2.1050000@quark.didntduck.org> <20040905144103.487afba6.akpm@osdl.org>
+In-Reply-To: <20040905144103.487afba6.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Charter-Information: 
+X-Charter-Scan: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jörn Engel <joern@wohnheim.fh-wedel.de> wrote:
+Andrew Morton wrote:
+> Brian Gerst <bgerst@quark.didntduck.org> wrote:
+> 
+>>Use an alignment attribute on the stack member of struct tss_struct 
+>> instead of padding.  Also mark the limit of the TSS segment.
+> 
+> 
+> The TSS code got a significant working-over recently.  Please take a look
+> at next -mm, see if this patch is still appropriate?
+> 
 
-> On Mon, 6 September 2004 14:45:38 +0200, Gunnar Ritter wrote:
-> > It is an even more serious problem in my experience. I have been
-> > using sendfile() in my cp command at <http://heirloom.sourceforge.net>
-> > for quite some time, and I quickly decided to send files separated in
-> > some decently sized blocks. Otherwise if a whole file is sent at once
-> > and the source file is e.g. on an uncached floppy disk, cp will become
-> > uninterruptible for about a minute, which is a serious usability flaw.
-> > The user might discover that he is copying the wrong file, or he might
-> > simply change his mind and like to abort the copy or whatever. A
-> > performance gain of only 10 % is neglegible in comparison to this
-> > problem. Thus I think if copyfile() would not be interruptible by SIGINT
-> > and friends, its practical value would be quite limited.
->
-> Using a loop of 4k sendfile commands should be easy enough to do.
+There are no conflicts in -mm3.
 
-Heck, guess what I did (although 4k seems a bit small).
-
-> Problem is that copyfile(2) should do some decent cleanup after
-> receiving a signal.  Hans Reiser got it right that all filesystem
-> operations should be atomic.
-
-Then I don't see the point in having a copyfile system call. In
-fact, I would consider to deactivate it in every kernel derivative
-I'm responsible for to prevent hanging applications.
-
-	Gunnar
+--
+				Brian Gerst

@@ -1,96 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130484AbQKCTrL>; Fri, 3 Nov 2000 14:47:11 -0500
+	id <S130719AbQKCTtV>; Fri, 3 Nov 2000 14:49:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130719AbQKCTrB>; Fri, 3 Nov 2000 14:47:01 -0500
-Received: from web5204.mail.yahoo.com ([216.115.106.85]:28941 "HELO
-	web5204.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S130484AbQKCTqq>; Fri, 3 Nov 2000 14:46:46 -0500
-Message-ID: <20001103194639.24058.qmail@web5204.mail.yahoo.com>
-Date: Fri, 3 Nov 2000 11:46:39 -0800 (PST)
-From: Rob Landley <telomerase@yahoo.com>
-Subject: Re: 255.255.255.255 won't broadcast to multiple NICs
-To: Paul Flinders <P.Flinders@ftel.co.uk>
-Cc: Philippe Troin <phil@fifi.org>, Jeff Garzik <jgarzik@mandrakesoft.com>,
-        linux-kernel@vger.kernel.org
+	id <S131433AbQKCTtL>; Fri, 3 Nov 2000 14:49:11 -0500
+Received: from neuron.moberg.com ([209.152.208.195]:63246 "EHLO
+	neuron.moberg.com") by vger.kernel.org with ESMTP
+	id <S130719AbQKCTs6>; Fri, 3 Nov 2000 14:48:58 -0500
+Message-ID: <3A0316D1.C96AADFC@moberg.com>
+Date: Fri, 03 Nov 2000 14:49:37 -0500
+From: george@moberg.com
+Organization: Moberg Research, Inc.
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Ulrich Drepper <drepper@cygnus.com>, linux-kernel@vger.kernel.org
+Subject: Re: Can EINTR be handled the way BSD handles it? -- a plea from a 
+ user-land  programmer...
+In-Reply-To: <3A03120A.DFC62AD5@moberg.com> <m3y9z0g7wp.fsf@otr.mynet.cygnus.com>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Paul Flinders <P.Flinders@ftel.co.uk> wrote:
+Ulrich Drepper wrote:
 > 
-> Rob Landley <telomerase@yahoo.com> writes:
-> > 3) Java sucks in many ways.  Today's way is that
-...
-> > There is no way to query the current machine's
-> > interfaces without resorting to
-> > native code.
+> george@moberg.com writes:
 > 
-> I faced this problem a while ago - in the end I
-> cheated and put this bit of code in a shell script
-> used to start the application
-
-I've considered it.  Counts as "native code", but
-thanks for the script anyway. :)
-
-For my current app, I've pretty much decided that for
-the boxes where broadcasting 255.255.255.255, they
-have to supply it on the command line.  Maybe I'll
-have the script supply it on the command line for them
-since I'll probably offer an RPM or linux-specific tar
-as an install option.  I need to potentially install
-the JRE for them (assuming licensing issues work out
-ok there, which I'm 99% certain is fine but want to
-double check), and should have a shell script to
-encapsulate the "jre -cp myjar.jar runthisclass" part
-anyway into "runclient" or "runserver".  (Possibly
-starting from the init scripts, or with a nice Gnome
-icon.  Depends how industrious I feel when I'm done,
-and/or what my boss wants. :)
-
-The larger question of "should the Linux kernel's IP
-stack behavior be fixed, documented, or left alone" is
-what I'm interested in now.  If people agree that
-255.255.255.255 should go out to multiple interfaces,
-I'd be willing to try my hand at a patch to route.c
-(be afraid, be very afraid), but I'm still waiting to
-hear from on high (higher than me anyway) about
-whether or not the current behavior is something
-they're happy with.  (My app will NOT require a custom
-kernel to function properly, that's not an option. :)
-
-> including ${NET_ADDRESSES} in the java command line
-> sets
-> up a set of defines, one per interface. For example
+> > Can we _PLEASE_PLEASE_PLEASE_ not do this anymore and have the kernel do
+> > what BSD does:  re-start the interrupted call?
 > 
-> -Dethaddr.172.16.1.1=00:00:0A:BC:CD:78
-> -Dnetmask.172.16.1.1=255.255.0.0
+> This is crap.  Returning EINTR is necessary for many applications.
 > 
-> which you can use via System.getProperty() and
-> System.getProperties()
+> --
+> ---------------.                          ,-.   1325 Chesapeake Terrace
+> Ulrich Drepper  \    ,-------------------'   \  Sunnyvale, CA 94089 USA
+> Red Hat          `--' drepper at redhat.com   `------------------------
 
-If I go with a script I'll just have it spit the IP
-broadcast addresses one after the other to stdout, and
-then call it from the command line with back quotes as
-some variant of:
+After reading about SA_RESTART, ok.  However, couldn't those
+applications that require it enable this behaviour explicitly?
 
-./myprog broadcast `./findbroadcasts`
+The problem I'm having right now is with pthread_create() failing
+because deep somewhere in either the kernel or glibc, nanosleep()
+returns EINTR during said pthread_create() and pthread_create() fails.
 
-Encased in the platform-specific launch shell script,
-of course. :)
+I've got a multithreaded program written using gcc (2.95.2) and glibc
+(2.1.3), and it's talking to a natively threaded Java program (tried
+both Sun & Blackdown ports, both 1.2.2 and 1.3) on a 2.2.17 kernel.  The
+C program is listening for incoming socket connections, and the Java
+program is hammering on it with many parallel connect() calls.  After a
+short, a bit random interval, pthread_create() will fail in either my
+program, or deep in the Java VM.  I assume that the Java VM is using
+pthread_create().
 
-Why on earth would my app need the ethernet address? 
-If the stack didn't abstract that away, there would be
-a much bigger problem than global broadcasts not
-really being global...
-
-Rob
-
-__________________________________________________
-Do You Yahoo!?
->From homework help to love advice, Yahoo! Experts has your answer.
-http://experts.yahoo.com/
+I don't mean to sound like a psycho on this, but I can't see why
+SA_RESTART isn't the default behavior.  Maybe I'm missing something
+somewhere.
+--
+George T. Talbot
+<george at moberg dot com>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

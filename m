@@ -1,32 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262602AbVCPOmN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262610AbVCPOqg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262602AbVCPOmN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 09:42:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262601AbVCPOkd
+	id S262610AbVCPOqg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 09:46:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262608AbVCPOpw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 09:40:33 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:5434 "EHLO
-	pd2mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S262606AbVCPOjF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 09:39:05 -0500
-Date: Wed, 16 Mar 2005 08:37:48 -0600
-From: Robert Hancock <hancockr@shaw.ca>
+	Wed, 16 Mar 2005 09:45:52 -0500
+Received: from gw1.cosmosbay.com ([62.23.185.226]:36510 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S262610AbVCPOmw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 09:42:52 -0500
+Message-ID: <423845DF.7080701@cosmosbay.com>
+Date: Wed, 16 Mar 2005 15:42:39 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
+X-Accept-Language: fr, en-us, en
+MIME-Version: 1.0
+To: linux-os@analogic.com
+CC: Ian Campbell <ijc@hellion.org.uk>, Tom Felker <tfelker2@uiuc.edu>,
+       Linux kernel <linux-kernel@vger.kernel.org>
 Subject: Re: Bogus buffer length check in linux-2.6.11  read()
-In-reply-to: <3IHxD-4Gb-5@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <423844BC.3010707@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; format=flowed; charset=ISO-8859-1
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-References: <3IoOm-5M2-49@gated-at.bofh.it> <3IwVv-4kD-17@gated-at.bofh.it>
- <3IFYO-3eg-37@gated-at.bofh.it> <3IGUS-46t-27@gated-at.bofh.it>
- <3IHxD-4Gb-5@gated-at.bofh.it>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+References: <Pine.LNX.4.61.0503151257450.12264@chaos.analogic.com>  <200503152056.16287.tfelker2@uiuc.edu>  <Pine.LNX.4.61.0503160724120.16304@chaos.analogic.com> <1110979800.3057.69.camel@icampbell-debian> <Pine.LNX.4.61.0503160848420.16718@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0503160848420.16718@chaos.analogic.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Wed, 16 Mar 2005 15:42:34 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 linux-os wrote:
+
+> 
+> 
 > I don't know how much more precise I could have been. I show the
 > code that will cause the observed condition. I explain that this
 > condition is new, that it doesn't correspond to the previous
@@ -48,6 +52,38 @@ linux-os wrote:
 > The call returned immediately with an EFAULT because
 > the 'C' runtime library put some value that the kernel
 > didn't 'like' (4096 bytes) in the subsequent read.
+
+
+If you use a buggy program, that had a hidden bug now exposed because 
+of different kernel checks, dont complain, and use your brain.
+
+If you do
+
+$ export VAR1=" A very very very very long chain just to be sure my 
+environnement (which is placed at the top of the stack at exec() time) 
+will use at least 4 Kb  : then my litle buggy program will run if I 
+type few chars but destroy my stack if I type a long string or if I 
+use : cat longfile | ./xxx : So I wont complain again on lkml that I 
+am sooooo lazy. Oh what could I type now, I'm tired, maybe I can copy 
+this string to others variables. Yes... sure...."
+$ export VAR2=$VAR1
+$ export VAR3=$VAR1
+$ export VAR4=$VAR1
+$ export VAR5=$VAR1
+Then check your env size is large enough
+$ env|wc -c
+    4508
+$ ./xxx
+./xxx 2>/dev/null
+
+Apparently the kernel thinks 4096 is a good length!
+
+So what ? Your program works well now, on a linux-2.6.11 typical 
+machine. Ready to buffer overflow again.
+
+Maybe you can pay me $1000 :)
+
+Eric Dumazet
 > 
 > This is code for which there are no sources available
 > and it is required to be used, cannot be replaced,
@@ -56,28 +92,7 @@ linux-os wrote:
 > 
 > Somebody's arbitrary and capricious addition of spook
 > code destroyed an application's functionality.
-
-It appears this was added by the patch shown here:
-
-http://lwn.net/Articles/122581/
-
-The reason given was that if the read or write doesn't use all of the 
-available space due to end-of-file, etc. the remaining part of the 
-buffer given by the user is not checked for accessibility, thereby 
-hiding bugs. It makes little sense for an app to do a read or write with 
-a buffer larger than the space that they've actually allocated.
-
-I can see how this might be a problem when using gets, since there is no 
-way to know how big the buffer that has been allocated by the 
-application is.
-
-Note that access_ok only does a rudimentary check to determine if the 
-address might be a valid user-space address, it does not check every 
-page to determine if it is accessible or not like verify_area did (and 
-copy_to/from_user does).
-
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+> 
+> Cheers,
+> Dick Johnson
 

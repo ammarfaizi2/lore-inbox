@@ -1,47 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266896AbUG1Mlw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266898AbUG1MqH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266896AbUG1Mlw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 08:41:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266898AbUG1Mlw
+	id S266898AbUG1MqH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 08:46:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266903AbUG1MqE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 08:41:52 -0400
-Received: from enif.enif.ee ([193.40.56.210]:15377 "EHLO serv.enif.ee")
-	by vger.kernel.org with ESMTP id S266896AbUG1Mld (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 08:41:33 -0400
-Date: Wed, 28 Jul 2004 15:41:28 +0300 (EEST)
-From: Olav Kongas <olav@enif.ee>
-To: linux-kernel@vger.kernel.org, vojtech@suse.cz
-Subject: input system: EVIOCSABS(abs) ioctl disabled, why?
-Message-ID: <Pine.LNX.4.58.0407281453560.16069@serv.enif.ee>
+	Wed, 28 Jul 2004 08:46:04 -0400
+Received: from pxy7allmi.all.mi.charter.com ([24.247.15.58]:57282 "EHLO
+	proxy7-grandhaven.chartermi.net") by vger.kernel.org with ESMTP
+	id S266898AbUG1MpG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 08:45:06 -0400
+Message-ID: <41079FC3.9010703@quark.didntduck.org>
+Date: Wed, 28 Jul 2004 08:44:51 -0400
+From: Brian Gerst <bgerst@quark.didntduck.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040625
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Sam Ravnborg <sam@ravnborg.org>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Only build modpost when modules enabled
+Content-Type: multipart/mixed;
+ boundary="------------030303050105060101040101"
+X-Charter-Information: 
+X-Charter-Scan: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is a multi-part message in MIME format.
+--------------030303050105060101040101
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-When trying to feed calibration information to a touchscreen driver with
-the EVIOCSABS(abs) ioctl command, I noticed that this command is disabled
-in 2.6.7. Only after the modification given in the patch below it was
-possible to use this ioctl command.
+Only build modpost when CONFIG_MODULES=y.
 
-Why is the EVIOCSABS command disabled? I cannot imagine that nobody uses
-or needs it. The touchscreen drivers have no good way of determining the
-absolute limits themselves, do they?
+--
+				Brian Gerst
 
-Thanks in advance,
-Olav
+--------------030303050105060101040101
+Content-Type: text/plain;
+ name="modpost-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="modpost-2"
 
+diff -urN linux-2.6.8-rc2-mm1/scripts/Makefile linux/scripts/Makefile
+--- linux-2.6.8-rc2-mm1/scripts/Makefile	2004-07-28 08:33:03.884445247 -0400
++++ linux/scripts/Makefile	2004-07-28 08:33:41.408269137 -0400
+@@ -9,7 +9,7 @@
+ always		:= $(host-progs)
+ 
+ subdir-$(CONFIG_MODVERSIONS)	+= genksyms
+-subdir-y	+= mod
++subdir-$(CONFIG_MODULES)	+= mod
+ 
+ # Let clean descend into subdirs
+ subdir-	+= basic lxdialog kconfig package
 
---- linux-2.6.7/drivers/input/evdev.c.or	2004-07-21 13:27:03.000000000 +0300
-+++ linux-2.6.7/drivers/input/evdev.c	2004-07-21 15:53:46.000000000 +0300
-@@ -284,7 +284,7 @@
-
- 		default:
-
--			if (_IOC_TYPE(cmd) != 'E' || _IOC_DIR(cmd) != _IOC_READ)
-+			if (_IOC_TYPE(cmd) != 'E' || (_IOC_DIR(cmd) != _IOC_READ && (cmd & ~ABS_MAX) !=  EVIOCSABS(0)))
- 				return -EINVAL;
-
- 			if ((_IOC_NR(cmd) & ~EV_MAX) == _IOC_NR(EVIOCGBIT(0,0))) {
+--------------030303050105060101040101--

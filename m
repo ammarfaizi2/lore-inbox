@@ -1,89 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261914AbUBWLgW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 06:36:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261915AbUBWLgW
+	id S261888AbUBWLej (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 06:34:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261914AbUBWLej
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 06:36:22 -0500
-Received: from smtp3.att.ne.jp ([165.76.15.139]:32176 "EHLO smtp3.att.ne.jp")
-	by vger.kernel.org with ESMTP id S261914AbUBWLgQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 06:36:16 -0500
-Message-ID: <015e01c3fa01$346bb0d0$34ee4ca5@DIAMONDLX60>
-From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
-To: "Eric W. Biederman" <ebiederm@xmission.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: UTF-8 practically vs. theoretically in the VFS API
-Date: Mon, 23 Feb 2004 20:35:06 +0900
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Mon, 23 Feb 2004 06:34:39 -0500
+Received: from mta9.srv.hcvlny.cv.net ([167.206.5.42]:55213 "EHLO
+	mta9.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S261888AbUBWLeh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 06:34:37 -0500
+Date: Mon, 23 Feb 2004 06:34:23 -0500
+From: Jeff Sipek <jeffpc@optonline.net>
+Subject: Re: [NET] 64 bit byte counter for 2.6.3
+In-reply-to: <20040222173622.GB1371@elf.ucw.cz>
+To: Pavel Machek <pavel@ucw.cz>,
+       Markus =?iso-8859-1?q?H=E4stbacka?= <midian@ihme.org>
+Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Message-id: <200402230634.33531.jeffpc@optonline.net>
+MIME-version: 1.0
+Content-type: Text/Plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+Content-description: clearsigned data
+User-Agent: KMail/1.5.4
+References: <1077123078.9223.7.camel@midux> <20040222173622.GB1371@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> First it is worth noting that the existing practice is that ttys
-> always use the character set encoding of the user.
-
-Each tty uses the character set encoding of that tty's user.  There were
-times when I needed to have some tty windows open using EUC (ordinary work
-on that Linux machine) and some tty windows open using SJIS (editing files
-which would be sent to cellular telephones), in the same X session.  They
-worked.
-
-> Even X cut and paste frequently abuses the iso8859-1 range,
-
-I'll take your word for it.  I've copied and pasted EUC strings, I've copied
-and pasted SJIS strings, I don't know if X copy and paste abused EUC or SJIS
-ranges, but it worked.
-
-One thing I never thought of trying to test is to copy and paste between one
-tty using EUC and one tty using SJIS.
-
-> Now the work is how to get multiple locales to play nicely with each
-> other.  utf-8 and unicode are convenient for that as they preserve the
-> existing assumptions that terminals, filenames, and text files are
-> all using the same character set encoding, even when multiple locales
-> are involved.
+On Sunday 22 February 2004 12:36, Pavel Machek wrote:
+> Hi!
 >
-> So within one machine utf-8 solves the multiple locale problem.
+> > --- linux-2.6.3-rc1/net/core/dev.c	2004-02-08 01:07:55.000000000 +0200
+> > +++ linux-2.6.3-rc1-b/net/core/dev.c	2004-02-07 15:29:32.000000000 +0200
+> > @@ -2042,8 +2042,8 @@
+> >  	if (dev->get_stats) {
+> >  		struct net_device_stats *stats = dev->get_stats(dev);
+> >
+> > -		seq_printf(seq, "%6s:%8lu %7lu %4lu %4lu %4lu %5lu %10lu %9lu "
+> > -				"%8lu %7lu %4lu %4lu %4lu %5lu %7lu %10lu\n",
+> > +		seq_printf(seq, "%6s:%14llu %7lu %4lu %4lu %4lu %5lu %10lu %9lu "
+> > +				"%14llu %7lu %4lu %4lu %4lu %5lu %7lu %10lu\n",
+> >  			   dev->name, stats->rx_bytes, stats->rx_packets,
+> >  			   stats->rx_errors,
+> >  			   stats->rx_dropped + stats->rx_missed_errors,
+> > --- linux-2.6.3-rc1/include/linux/netdevice.h	2004-02-08
+> > 01:05:47.000000000 +0200 +++
+> > linux-2.6.3-rc1-b/include/linux/netdevice.h	2004-02-07 15:21:26.000000000
+> > +0200 @@ -103,8 +103,8 @@
+> >  {
+> >  	unsigned long	rx_packets;		/* total packets received	*/
+> >  	unsigned long	tx_packets;		/* total packets transmitted	*/
+> > -	unsigned long	rx_bytes;		/* total bytes received 	*/
+> > -	unsigned long	tx_bytes;		/* total bytes transmitted	*/
+> > +	unsigned long long rx_bytes;		/* total bytes received 	*/
+> > +	unsigned long long tx_bytes;		/* total bytes transmitted	*/
+>
+> Perhaps this should be u64? I'm not sure if long long is not 128-bits
+> on x86-64.
 
-That preserves a nice fiction.  If you depend on assuming that fiction,
-you'll get useless results.
+Hmm...I've been told that u_int64_t is the C99 (IIRC) standard, and that it 
+should be used in favor of u64. Is that so?
 
-> The rule ``All data that passing through a pseudo-tty is in the
-> character set encoding specified by the locale of the owner of the
-> tty'' seems both reasonable and no significant change from the current
-> status quo.
+I'll announce my version of 64-bit net stats fairly soon.
 
-Yes, that is a return to usability.
+Jeff.
 
-> On the wire between two machines I recommend passing unicode
-> characters.
+- -- 
+We have joy, we have fun, we have Linux on a Sun...
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-Why should the wire get a different encoding than the user set in the
-pseudo-tty?  Consider TeraTerm.  The user tells TeraTerm what character set
-is in use on the wire, which is the same as the character set in use on the
-remote side (where sshd or whatever server provides the pseudo-tty).
-TeraTerm converts between that and the local character set (where the
-TeraTerm program and window and user get the character set decided for them
-by someone in Sasazuka or Redmond).
-
-> By convention glibc stores unicode values in wchar_t.
-
-That is hard to believe.  glibc existed before Unicode did and wchar_t
-existed before Unicode did.  I sure thought that glibc existed in Japan at
-the time, but I could be wrong, I didn't say this is impossible but merely
-hard to believe.  In commercial Unix systems, wchar_t held either EUC or
-SJIS depending on the vendor.
-
-As usual I do not even have time to keep up with this thread, so if you have
-questions then please CC me personally, though I don't know if I'll have
-time to investigate anything that needs it.
+iD8DBQFAOeVHwFP0+seVj/4RAv1gAKCFZZEHOi78wcrX2dWquQ4Qcth4AQCgicO0
+L+vkeXdghp0YPWzgLInBpU8=
+=F5rS
+-----END PGP SIGNATURE-----
 

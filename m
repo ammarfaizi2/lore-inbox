@@ -1,53 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282502AbRKZUnB>; Mon, 26 Nov 2001 15:43:01 -0500
+	id <S282514AbRKZU6B>; Mon, 26 Nov 2001 15:58:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282501AbRKZUl4>; Mon, 26 Nov 2001 15:41:56 -0500
-Received: from [208.129.208.52] ([208.129.208.52]:25096 "EHLO
-	mail.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S282499AbRKZUj6>; Mon, 26 Nov 2001 15:39:58 -0500
-Date: Mon, 26 Nov 2001 12:49:47 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Mike Kravetz <kravetz@us.ibm.com>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Scheduler Cleanup
-In-Reply-To: <20011126114610.B1141@w-mikek2.des.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.40.0111261240230.1674-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S282500AbRKZU55>; Mon, 26 Nov 2001 15:57:57 -0500
+Received: from khan.acc.umu.se ([130.239.18.139]:20425 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S282514AbRKZU4V>;
+	Mon, 26 Nov 2001 15:56:21 -0500
+Date: Mon, 26 Nov 2001 21:55:47 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: junio@siamese.dhis.twinsun.com
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, "H. Peter Anvin" <hpa@zytor.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Release Policy [was: Linux 2.4.16  ]
+Message-ID: <20011126215547.O5770@khan.acc.umu.se>
+In-Reply-To: <Pine.LNX.4.21.0111261524560.13976-100000@freak.distro.conectiva> <7v1yil1d2x.fsf@siamese.dhis.twinsun.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <7v1yil1d2x.fsf@siamese.dhis.twinsun.com>; from junio@siamese.dhis.twinsun.com on Mon, Nov 26, 2001 at 12:39:34PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Nov 2001, Mike Kravetz wrote:
+On Mon, Nov 26, 2001 at 12:39:34PM -0800, junio@siamese.dhis.twinsun.com wrote:
+> >>>>> "MT" == Marcelo Tosatti <marcelo@conectiva.com.br> writes:
+> 
+> MT> On Mon, 26 Nov 2001, H. Peter Anvin wrote:
+> >> Consistency is a Very Good Thing[TM] (says the one who tries to teach
+> >> scripts to understand the naming.)  The advantage with the -rc naming is
+> >> that it avoids the -pre5, -pre6, -pre-final, -pre-final-really,
+> >> -pre-final-really-i-mean-it-this-time phenomenon when the release
+> >> candidate wasn't quite worthy, you just go -rc1, -rc2, -rc3.  There is no
+> >> shame in needing more than one release candidate.
+> 
+> MT> Agreed. I stick with the -rc naming convention for 2.4+... 
+> 
+> (This is a request to maintainers of three stable trees).
+> 
+> While we are on the topic, could you also coordinate to keep the
+> EXTRAVERSION strings consistent?  2.4.X-preN uses "-preN" but
+> 2.2.X-preN uses "preN" without leading "-".
 
-> I'm happy to see the cleanup of scheduler code that went into
-> 2.4.15/16.  One small difference in behavior (I think) is that
-> the currently running task is not given preference over other
-> tasks on the runqueue with the same 'goodness' value.  I would
-> think giving the current task preference is a good thing
-> (especially in light of recent discussions about too frequent
-> moving/rescheduling of tasks).  Can someone provide the rational
-> for this change?  Was it just the result of making the code
-> cleaner?  Is it believed that this won't really make a difference?
-
-Mike, I was actually surprised about the presence of that check inside the
-previous code.
-If you think about it, when a running task is scheduled ?
-
-1) an IRQ wakeup some I/O bound task
-2) the quota is expired
-
-With 1) you've an incoming I/O bound task ( ie: ksoftirqd_* ) that is very
-likely going to have a better dynamic priority ( if not reschedule_idle()
-does not set need_resched ), while with 2) you've the task counter == 0.
-In both cases not only the test is useless but is going to introduce 1)
-the branch in the fast path 2) the cost of an extra goodness().
+I'm using "-preN" with a leading "-", and will probably continue
+doing so.
 
 
-
-
-- Davide
-
-
-
+Regards: David
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

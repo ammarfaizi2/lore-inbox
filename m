@@ -1,76 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280628AbRKKTna>; Sun, 11 Nov 2001 14:43:30 -0500
+	id <S280537AbRKKTnA>; Sun, 11 Nov 2001 14:43:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280631AbRKKTnV>; Sun, 11 Nov 2001 14:43:21 -0500
-Received: from unthought.net ([212.97.129.24]:49064 "HELO mail.unthought.net")
-	by vger.kernel.org with SMTP id <S280628AbRKKTnG>;
-	Sun, 11 Nov 2001 14:43:06 -0500
-Date: Sun, 11 Nov 2001 20:43:05 +0100
-From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-To: Kai Henningsen <kaih@khms.westfalen.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
-Message-ID: <20011111204305.A16792@unthought.net>
-Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
-	Kai Henningsen <kaih@khms.westfalen.de>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0111041502390.21449-100000@weyl.math.psu.edu> <viro@math.psu.edu> <20011104205248.Q14001@unthought.net> <Pine.GSO.4.21.0111041502390.21449-100000@weyl.math.psu.edu> <20011104211118.U14001@unthought.net> <8Ce2D-PXw-B@khms.westfalen.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2i
-In-Reply-To: <8Ce2D-PXw-B@khms.westfalen.de>; from kaih@khms.westfalen.de on Sun, Nov 11, 2001 at 12:06:00PM +0200
+	id <S280628AbRKKTmu>; Sun, 11 Nov 2001 14:42:50 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11022 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S280537AbRKKTmo>; Sun, 11 Nov 2001 14:42:44 -0500
+Date: Sun, 11 Nov 2001 11:38:47 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [CFT][PATCH] long-living cache for block devices
+In-Reply-To: <Pine.GSO.4.21.0111111423110.17411-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.33.0111111126500.901-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 11, 2001 at 12:06:00PM +0200, Kai Henningsen wrote:
-> jakob@unthought.net (Jakob ¥stergaard)  wrote on 04.11.01 in <20011104211118.U14001@unthought.net>:
-...
+
+On Sun, 11 Nov 2001, Alexander Viro wrote:
 > >
-> > A regex won't tell me if  345987 is a signed or unsigned 32-bit or 64-bit
-> > integer,  or if it's a double.
-> 
-> You do not *need* that information at runtime. If you think you do, you're  
-> doing something badly wrong.
+> > There may be old requests that haven't finished, of course. And there may
+> > be requests on the request queue that the driver hasn't even looked at yet
+> > (Hmm.. I'm not sure that latter one is right - we must have done the
+> > device sync anyway, and that will unplug the requests queue etc).
+>
+> Why would it?  Sync deals with write requests, read requests are left as-is.
+> Notice that in your tree the thing shuts readahead requests down is
+> invalidate_bdev() and we don't want to get it called - for very obvious
+> reasons.
 
-I would prefer to have the information at compile-time, so that I would get
-a compiler error if I did something wrong.
+read and write requests are on the same queue. Starting write requests
+starts the read requests.
 
-But that's unrealistic - some counter could change it's type from kernel
-release to kernel release.
+And we will _not_ be adding any more read requests if the device count has
+gone down to zero.
 
-Now, my program needs to deal with the data, perform operations on it,
-so naturally I need to know what kind of data I'm dealing with.  Most likely,
-my software will *expect* some certain type, but if I have no way of verifying
-that my assumption is correct, I will lose sooner or later...
+> Sure.  But there may very well be requests coming into driver from the
+> queue.
 
-> 
-> I cannot even imagine what program would want that information.
+So? We should wait for the QUEUE, not for something else.
 
-Uh. Any program using /proc data ?
+> Umm... So you want sync to wait for read requests, not just the write ones?
+> That would certainly be enough, but that's not what everyone expects from
+> sync...
 
-> 
-> > Sure, implement arbitrary precision arithmetic in every single app out there
-> > using /proc....
-> 
-> Bullshit. Implement whatever arithmetic is right *for your problem*. And  
-> notice when the value you get doesn't fit so you can tell the user he  
-> needs a newer version. That's all.
-> 
-> There's no reason whatsoever to care what data type the kernel used.
+No, I want the _shutdown_ to wait for all requests. It could even be as
+simple as
 
-So my program runs for two months and then aborts with an error because
-some counter just happened to no longer fit into whatever type I assumed
-it was ?
+	generic_unplug_queue(q);
+	while (!queue_empty(q)) {
+		set_task_state(TASK_UNINTERRUPTIBLE);
+		schedule_timeout(1);
+	}
 
-Come on - you just can't code like that...
+but if we want to be fancy we allow shared queues to ignore other drivers
+that share the queue (queue sharing is really not supposed to happen any
+more, though, and neither IDE nor SCSI do it, so I doubt it matters).
 
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+So the above would be called from "invalidate_bdev()" or something..
+
+Hmm.. Looking at "invalidate_bdev()", I doubt it matters, actually - it
+will already wait for all buffers, whether dirty or not. So it looks like
+it would already be impossible to have buffers on the queue.
+
+		Linus
+

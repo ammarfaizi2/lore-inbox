@@ -1,80 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262956AbUEBKC1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262951AbUEBKHZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262956AbUEBKC1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 May 2004 06:02:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262954AbUEBKC1
+	id S262951AbUEBKHZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 May 2004 06:07:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262954AbUEBKHZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 May 2004 06:02:27 -0400
-Received: from null.rsn.bth.se ([194.47.142.3]:4801 "EHLO null.rsn.bth.se")
-	by vger.kernel.org with ESMTP id S262956AbUEBKCI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 May 2004 06:02:08 -0400
-Subject: Re: [PATCH][2.4] remove amd7(saucy)_tco
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Zwane Mwaikambo <zwane@linuxpower.ca>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-In-Reply-To: <20040502084841.GA10228@alpha.home.local>
-References: <Pine.LNX.4.58.0405011534230.2332@montezuma.fsmlabs.com>
-	 <20040502084841.GA10228@alpha.home.local>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Z4SP7UUNlJaFXQGW9yM1"
-Message-Id: <1083492123.1100.48.camel@tux.rsn.bth.se>
+	Sun, 2 May 2004 06:07:25 -0400
+Received: from bay18-f4.bay18.hotmail.com ([65.54.187.54]:54027 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S262951AbUEBKHX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 May 2004 06:07:23 -0400
+X-Originating-IP: [67.22.169.122]
+X-Originating-Email: [jpiszcz@hotmail.com]
+From: "Justin Piszcz" <jpiszcz@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Journaling File Sstem Question
+Date: Sun, 02 May 2004 10:07:20 +0000
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 02 May 2004 12:02:04 +0200
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY18-F4FXfyY0QUUBP00002758@hotmail.com>
+X-OriginalArrivalTime: 02 May 2004 10:07:20.0752 (UTC) FILETIME=[41B8FB00:01C4302D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Concerning JFS vs REISERFS vs XFS...
 
---=-Z4SP7UUNlJaFXQGW9yM1
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Which would one use for stability?
 
-On Sun, 2004-05-02 at 10:48, Willy Tarreau wrote:
-> On Sat, May 01, 2004 at 03:37:36PM -0400, Zwane Mwaikambo wrote:
-> > Hello Marcelo,
-> > 	This driver has already been removed in 2.6, essentially we've had
-> > problems getting it working (it's been a while now) with a lot of board=
-s,
-> > all seems to be alright until the actual point where the hardware is
-> > supposed to reset the system. So lets just back it out.
->=20
-> Indeed, I've just checked here, because I believed I had seen it working,
-> but now I think it was the softdog. It does nothing at all. I've download=
-ed
-> and read AMD's datasheet and the driver seems to do the right thing. BTW,
-> I wonder if the chip is buggy or not, because I tried to play with the
-> SYSRST and FULLRST bits in the 0xCF9 register. Changing SYSRST to 1 does =
-not
-> change anything, and changing FULLRST to 1 immediately reboots the machin=
-e
-> even if no reset was pending !
+I realize XFS has been in use probably longer than the other two on SGI's, 
+but in Linux it was only recently merged into the 2.4.xx kernel.
 
-Exactly the same thing we (zwane and I) saw when trying to fix it. We
-gave up after some time. We tested it on the 760mpx chipset on an Asus
-A7M-266D motherboard (don't remember which north/south bridge
-combination that is)
+However, ReiserFS has been in the 2.4 kernel since the early 2.4.x series, 
+JFS on the other hand is somewhere in the middle.
 
-We've also seen even weirder things on the same chipset but from another
-motherboard-manufacturer. There absolutely nothing happened after the
-timer reached 0. No bits set anywhere. On my board we at least got that.
+Between ReiserFS and XFS, which would you choose for stability?
+Total benchmark time on all three filesystems are practically the same, so 
+this is why I am having such a difficult time deciding which to use, 
+ReiserFS or XFS.
 
-I use pci-based watchdog cards instead...
+Also, ext3 is out of the question as it is the worst performing filesystem 
+(according to my benchmarks) in almost all aspects when compared with the 
+other journaling file systems (XFS,JFS,ReiserFS).
 
---=20
-/Martin
+Any comments?
 
---=-Z4SP7UUNlJaFXQGW9yM1
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+_________________________________________________________________
+Check out the coupons and bargains on MSN Offers! http://youroffers.msn.com
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAlMcbWm2vlfa207ERAuRxAJ9VnVWUR8dPJ/mcPJikdE7H6pu14wCcD0N9
-KpyvgqQe7z7IFa8Cz+Y6P10=
-=9mKe
------END PGP SIGNATURE-----
-
---=-Z4SP7UUNlJaFXQGW9yM1--

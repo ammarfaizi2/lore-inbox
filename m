@@ -1,64 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264264AbTLUX2G (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 18:28:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264265AbTLUX2G
+	id S264245AbTLUXqr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 18:46:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264255AbTLUXqr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 18:28:06 -0500
-Received: from zxa8020.lanisdn-gte.net ([206.46.31.146]:32392 "EHLO
-	links.magenta.com") by vger.kernel.org with ESMTP id S264264AbTLUX2D
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 18:28:03 -0500
-Date: Sun, 21 Dec 2003 18:27:57 -0500
-From: Raul Miller <moth@magenta.com>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: user problem with usb duo mouse and keyboard
-Message-ID: <20031221182757.F28449@links.magenta.com>
-References: <20031221154331.Z28449@links.magenta.com> <20031221213950.GA14664@ucw.cz> <20031221170323.D28449@links.magenta.com> <20031221223443.GA15744@ucw.cz> <20031221175121.E28449@links.magenta.com> <20031221230042.GA15960@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20031221230042.GA15960@ucw.cz>; from vojtech@suse.cz on Mon, Dec 22, 2003 at 12:00:42AM +0100
+	Sun, 21 Dec 2003 18:46:47 -0500
+Received: from notes.hallinto.turkuamk.fi ([195.148.215.149]:37898 "EHLO
+	notes.hallinto.turkuamk.fi") by vger.kernel.org with ESMTP
+	id S264245AbTLUXqp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 18:46:45 -0500
+Message-ID: <3FE631EF.7080909@kolumbus.fi>
+Date: Mon, 22 Dec 2003 01:51:11 +0200
+From: =?ISO-8859-1?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ben Slusky <sluskyb@paranoiacs.org>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       jariruusu@users.sourceforge.net
+Subject: Re: [PATCH] loop.c patches, take two
+References: <3FA15506.B9B76A5D@users.sourceforge.net> <20031030133000.6a04febf.akpm@osdl.org> <20031031005246.GE12147@fukurou.paranoiacs.org> <20031031015500.44a94f88.akpm@osdl.org> <20031101002650.GA7397@fukurou.paranoiacs.org> <20031102204624.GA5740@fukurou.paranoiacs.org> <20031221195534.GA4721@fukurou.paranoiacs.org> <3FE6076B.3090908@kolumbus.fi> <20031221211201.GC4721@fukurou.paranoiacs.org> <3FE62617.10604@kolumbus.fi> <20031221230522.GD4721@fukurou.paranoiacs.org>
+In-Reply-To: <20031221230522.GD4721@fukurou.paranoiacs.org>
+X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release 5.0.8 |June
+ 18, 2001) at 22.12.2003 01:48:47,
+	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 5.0.10 |March
+ 22, 2002) at 22.12.2003 01:47:56,
+	Serialize complete at 22.12.2003 01:47:56
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 22, 2003 at 12:00:42AM +0100, Vojtech Pavlik wrote:
-> hid-core.c includes hid.h, which in turn, if DEBUG is defined, includes
-> hid-debug.h. That last file defines some functions (hid_dump_input,
-> hid_dump_device), which are called by hid-core.c.
-...
-> This is the problem! Don't ever use usbkbd and usbmouse. Use hid
-> instead.
 
-Oh!
 
-And, looking at the docs on those modules, I see nice big warnings that
-say something similar...
+Ben Slusky wrote:
 
-Looking further, these modules where build and installed by default
-when I installed my system (debian, with the 2.4.18-bf2.4 kernel), and
-I've been carrying forward that configuration on my hand-built kernels,
-and never realized I needed to get rid of those modules.
+>On Mon, 22 Dec 2003 01:00:39 +0200, Mika Penttil? wrote:
+>  
+>
+>>AFAICS, this code path is never taken. You don't queue block device writes 
+>>for the loop thread.
+>>    
+>>
+>
+>Yes I do, in loop_end_io_transfer. If we allocated fewer pages for the copy
+>bio than contained in the original bio, then those pages are recycled for
+>the next write.
+>
+>@@ -413,7 +411,7 @@ static int loop_end_io_transfer(struct b
+> 	if (bio->bi_size)
+> 		return 1;
+> 
+>-	if (err || bio_rw(bio) == WRITE) {
+>+	if (err || (bio_rw(bio) == WRITE && bio->bi_vcnt == rbh->bi_vcnt)) {
+> 		bio_endio(rbh, rbh->bi_size, err);
+> 		if (atomic_dec_and_test(&lo->lo_pending))
+> 			up(&lo->lo_bh_mutex);
+>  
+>
+I see, subtle...
 
-I see the hid-debug messages in syslog now, but the keyboard and mouse
-are working properly as well.  Do you want to pursue this any further?
-[If so, I can send you the messages.]
+--Mika
 
-[It's perhaps of note that the extra keys on the keyboard are reported
-as scancode 0 by showkey (with other release scan codes) when plugged
-in via usb and which have different keypress scan codss when plugged as
-a ps/2 keyboard.]
 
-[[There's a slight chance that [to avoid confused messages from other
-people in my situation] a warning message from hid about usbkbd and
-usbmouse would be a good idea.]]
-
-Thank you very much.
-
-Sorry about the confusion,
-
--- 
-Raul Miller
-moth@magenta.com

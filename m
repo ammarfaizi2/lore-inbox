@@ -1,72 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263230AbVCKHpk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262592AbVCKH5z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263230AbVCKHpk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 02:45:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263233AbVCKHpk
+	id S262592AbVCKH5z (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 02:57:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263233AbVCKH5z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 02:45:40 -0500
-Received: from edu.joroinen.fi ([194.89.68.130]:10720 "EHLO edu.joroinen.fi")
-	by vger.kernel.org with ESMTP id S263230AbVCKHpb (ORCPT
+	Fri, 11 Mar 2005 02:57:55 -0500
+Received: from mail.kroah.org ([69.55.234.183]:63974 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262592AbVCKH5x (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 02:45:31 -0500
-Date: Fri, 11 Mar 2005 09:45:30 +0200
-From: Pasi =?iso-8859-1?Q?K=E4rkk=E4inen?= <pasik@iki.fi>
-To: Christian Kujau <evil@g-house.de>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: oom with 2.6.11
-Message-ID: <20050311074530.GV25818@edu.joroinen.fi>
-References: <422DC2F1.7020802@g-house.de> <3f250c710503090518526d8b90@mail.gmail.com> <3f250c7105030905415cab5192@mail.gmail.com> <422F016A.2090107@g-house.de> <423063DB.40905@g-house.de> <20050310163956.0a5ff1d7.akpm@osdl.org> <4230F0E6.5080708@g-house.de>
+	Fri, 11 Mar 2005 02:57:53 -0500
+Date: Thu, 10 Mar 2005 23:57:23 -0800
+From: Greg KH <greg@kroah.com>
+To: Josh Boyer <jdub@us.ibm.com>
+Cc: khali@linux-fr.org, kraxel@bytesex.org, linux-kernel@vger.kernel.org,
+       stable@kernel.org
+Subject: Re: [01/11] fix amd64 2.6.11 oops on modprobe (saa7110)
+Message-ID: <20050311075723.GB29099@kroah.com>
+References: <20050310230519.GA22112@kroah.com> <20050310230753.GB22112@kroah.com> <1110505061.8075.3.camel@windu.rchland.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4230F0E6.5080708@g-house.de>
-User-Agent: Mutt/1.5.6+20040523i
+In-Reply-To: <1110505061.8075.3.camel@windu.rchland.ibm.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 11, 2005 at 02:14:14AM +0100, Christian Kujau wrote:
-> Andrew Morton wrote:
-> > Christian Kujau <evil@g-house.de> wrote:
+On Thu, Mar 10, 2005 at 07:37:40PM -0600, Josh Boyer wrote:
+> On Thu, 2005-03-10 at 15:07 -0800, Greg KH wrote:
+> > -stable review patch.  If anyone has any objections, please let us know.
 > > 
-> >>i was going to compile 2.6.11-rc5-bk4, to sort out the "bad" kernel.
-> >>compiling went fine. ok, finished some email, ok, suddenly my swap was
-> >>used up again, and no memory left - uh oh! OOM again, with 2.6.11-rc5-bk2!
+> > ------------------
 > > 
+> > This is a rewrite of the saa7110_write_block function, which was plain
+> > broken in the case where the underlying adapter supports I2C_FUNC_I2C.
+> > It also includes related fixes which ensure that different parts of the
+> > driver agree on the number of registers the chip has.
 > > 
-> > Well if you ran out of swap then yes, the oom-killer will visit you.
+> > Signed-off-by: Jean Delvare <khali@linux-fr.org>
+> > Signed-off-by: Chris Wright <chrisw@osdl.org>
+> > Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 > > 
-> > Why did you run out of swapspace?
+> > --- linux-2.6.11-bk3/drivers/media/video/saa7110.c.orig	Tue Mar  8 10:27:15 2005
+> > +++ linux-2.6.11-bk3/drivers/media/video/saa7110.c	Tue Mar  8 12:02:45 2005
+> > @@ -58,10 +58,12 @@
+> >  #define SAA7110_MAX_INPUT	9	/* 6 CVBS, 3 SVHS */
+> >  #define SAA7110_MAX_OUTPUT	0	/* its a decoder only */
+> >  
+> > -#define	I2C_SAA7110		0x9C	/* or 0x9E */
+> > +#define I2C_SAA7110		0x9C	/* or 0x9E */
 > 
-> hm, if i only knew. i don't know how long it took the other night to go
-> from "normal" to "OOM". but today, with 2.6.11-rc5-bk2 (well, yesterday
-> actually) i was working normally, and all of a sudden swap goes from 170MB
-> used swap (normal) to OOM. i think it took a minute or so, but i just
-> can't tell which application went nuts. today the first process that got
-> killed was "ssh-agent", the other day it was mysqld. but even after this,
-> it should've released some memory, right? but the oom-killer goes on and
-> on and kills the next task.
-> 
-> i'll monitor memory usage tonight and see what it gives. these "pppd"
-> messages are suspicious though.
-> 
+> Not that I really care, but isn't there a rule that a patch "... can not
+> contain any "trivial" fixes in it (spelling changes, whitespace
+> cleanups, etc.)"?
 
-I've also seen this 3 times now.. I'm running Xen 2.0 and the 2.6.10-xen0
-kernel (with -as5 patch) goes OOM after a couple of days operation.. and
-then the box reboots.
+Good point.  Jean, care to respin the patch?
 
-The "virtual machines" are OK, it's only the dom0 kernel that goes OOM.. 
-And I'm not running anything special on dom0, only xen control stuff
-(which is written in python..), ntp, nfs server, ssh, lvm2 and software raid.
+thanks,
 
-Now I'm running a script which logs the cpu/memory/swap usage every 1
-minutes.. trying to see if I can find the cause for the OOM.
-
--- Pasi Kärkkäinen
-       
-                                   ^
-                                .     .
-                                 Linux
-                              /    -    \
-                             Choice.of.the
-                           .Next.Generation.
+greg k-h

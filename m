@@ -1,44 +1,123 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132871AbRDEMOF>; Thu, 5 Apr 2001 08:14:05 -0400
+	id <S132872AbRDEMP5>; Thu, 5 Apr 2001 08:15:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132872AbRDEMNz>; Thu, 5 Apr 2001 08:13:55 -0400
-Received: from aeon.tvd.be ([195.162.196.20]:11857 "EHLO aeon.tvd.be")
-	by vger.kernel.org with ESMTP id <S132871AbRDEMNf>;
-	Thu, 5 Apr 2001 08:13:35 -0400
-Date: Thu, 5 Apr 2001 14:12:09 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: James Simmons <jsimmons@linux-fbdev.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] Re: fbcon slowness [was NTP on 2.4.2?]
-In-Reply-To: <m1bsqbwo3u.fsf@frodo.biederman.org>
-Message-ID: <Pine.LNX.4.05.10104051410440.25540-100000@callisto.of.borg>
+	id <S132873AbRDEMPh>; Thu, 5 Apr 2001 08:15:37 -0400
+Received: from rdu163-40-153.nc.rr.com ([24.163.40.153]:16651 "EHLO
+	kaitan.hacknslash.net") by vger.kernel.org with ESMTP
+	id <S132872AbRDEMPQ>; Thu, 5 Apr 2001 08:15:16 -0400
+Date: Thu, 5 Apr 2001 08:14:33 -0400 (EDT)
+From: Jeff Layton <jtlayton@bigfoot.com>
+To: linux-kernel@vger.kernel.org
+Subject: unresolved symbols on SPARC with depmod -ae
+Message-ID: <Pine.LNX.4.21.0104050804120.26901-100000@kaitan.hacknslash.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5 Apr 2001, Eric W. Biederman wrote:
-> 32bit writes on a bus with a word size of 64 or more bits.  By the way
-> does anyone know who didn't implement MTRR's or the equivalent on
-> alpha so we can shoot them?
+In the last few kernels, I seem to always get the following message when
+doing make modules_install or depmod -a on both my SPARC boxes. Does this
+have something to do with FPU emulation perhaps? The kernels seem to run
+fine afterward, but things like SSH seem to be a bit slower
+(qualtitatively, I havent checked any hard numbers for it).
 
-People never get shot in Open Source projects. Not when they write buggy code,
-not when they don't implement some features.
+Anyway here's what I get, should I be concerned about this?
 
-Gr{oetje,eeting}s,
 
-						Geert
+caladan:~# /sbin/depmod -ae -F /boot/System.map-2.4.2
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.2/kernel/drivers/block/loop.o
+depmod:         .div
+depmod:         .urem
+depmod:         .umul
+depmod:         .udiv
+depmod:         .rem
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.2/kernel/drivers/cdrom/cdrom.o
+depmod:         .div
+depmod:         .umul
+depmod:         .rem
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.2/kernel/drivers/char/lp.o
+depmod:         .div
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.2/kernel/drivers/parport/parport.o
+depmod:         .div
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.2/kernel/drivers/scsi/qlogicpti.o
+depmod:         .udiv
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.2/kernel/drivers/scsi/sg.o
+depmod:         .div
+depmod:         .udiv
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.2/kernel/drivers/scsi/sr_mod.o
+depmod:         .div
+depmod:         .urem
+depmod:         .udiv
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.2/kernel/drivers/scsi/st.o
+depmod:         .div
+depmod:         .urem
+depmod:         .umul
+depmod: *** Unresolved symbols in /lib/modules/2.4.2/kernel/fs/fat/fat.o
+depmod:         .div
+depmod:         .umul
+depmod:         .udiv
+depmod:         .rem
+depmod: *** Unresolved symbols in /lib/modules/2.4.2/kernel/fs/nfsd/nfsd.o
+depmod:         .urem
+depmod:         .udiv
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.2/kernel/fs/smbfs/smbfs.o
+depmod:         .div
+depmod:         .umul
+depmod:         .udiv
+depmod:         .rem
+depmod: *** Unresolved symbols in /lib/modules/2.4.2/kernel/fs/vfat/vfat.o
+depmod:         .div
+depmod:         .rem
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.2/kernel/net/ipsec/ipsec.o
+depmod:         .urem
+depmod:         .umul
+depmod:         .udiv
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.2/kernel/net/ipv4/netfilter/ip_conntrack.o
+depmod:         .urem
+depmod:         .udiv
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.2/kernel/net/ipv4/netfilter/ip_tables.o
+depmod:         .umul
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.2/kernel/net/ipv4/netfilter/ipt_limit.o
+depmod:         .umul
+depmod:         .udiv
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.2/kernel/net/ipv4/netfilter/ipt_state.o
+depmod:         .urem
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.2/kernel/net/ipv4/netfilter/iptable_nat.o
+depmod:         .urem
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.2/kernel/net/ipv6/netfilter/ip6_tables.o
+depmod:         .umul
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.2/kernel/net/ipv6/netfilter/ip6t_limit.o
+depmod:         .umul
+depmod:         .udiv
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.2/kernel/net/sunrpc/sunrpc.o
+depmod:         .umul
+depmod:         .udiv
 
-P.S. Perhaps ESR tends to disagree? ;-)
+
+
 --
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Jeff Layton (jtlayton@bigfoot.com)
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+    "In order for you to profit from your mistakes, you have to get out and
+     make some."
+        -- Anonymous
 

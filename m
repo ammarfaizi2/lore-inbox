@@ -1,72 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132260AbQLVWQx>; Fri, 22 Dec 2000 17:16:53 -0500
+	id <S132322AbQLVWnl>; Fri, 22 Dec 2000 17:43:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132305AbQLVWQo>; Fri, 22 Dec 2000 17:16:44 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:65037 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S132260AbQLVWQg>; Fri, 22 Dec 2000 17:16:36 -0500
-Date: Fri, 22 Dec 2000 17:52:28 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Chris Mason <mason@suse.com>
-cc: Andreas Dilger <adilger@turbolinux.com>,
-        "Stephen C. Tweedie" <sct@redhat.com>,
-        Alexander Viro <viro@math.psu.edu>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Russell Cattelan <cattelan@thebarn.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] changes to buffer.c (was Test12 ll_rw_block error)
-In-Reply-To: <26240000.977497666@coffee>
-Message-ID: <Pine.LNX.4.21.0012221730270.3382-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132411AbQLVWnc>; Fri, 22 Dec 2000 17:43:32 -0500
+Received: from h201.s254.netsol.com ([216.168.254.201]:14465 "EHLO
+	tesla.admin.cto.netsol.com") by vger.kernel.org with ESMTP
+	id <S132322AbQLVWnV>; Fri, 22 Dec 2000 17:43:21 -0500
+Date: Fri, 22 Dec 2000 17:12:50 -0500
+From: Pete Toscano <pete@research.netsol.com>
+To: linux-kernel@vger.kernel.org
+Subject: please help: usb and irq problem with 2.2.18 and 2.4.0-test?
+Message-ID: <20001222171250.A28612@tesla.admin.cto.netsol.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="YiEDa0DAkWCtVeE4"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Uptime: 2:26pm  up 2 days, 20:03,  4 users,  load average: 0.21, 0.17, 0.16
+X-Married: 404 days, 18 hours, 41 minutes, and 29 seconds
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Fri, 22 Dec 2000, Chris Mason wrote:
+--YiEDa0DAkWCtVeE4
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> 
-> 
-> On Thursday, December 21, 2000 22:38:04 -0200 Marcelo Tosatti
-> <marcelo@conectiva.com.br> wrote:
-> 
-> >> Marcelo Tosatti writes:
-> >> > It seems your code has a problem with bh flush time.
-> >> > 
-> >> > In flush_dirty_buffers(), a buffer may (if being called from kupdate)
-> >> > only be written in case its old enough. (bh->b_flushtime)
-> >> > 
-> >> > If the flush happens for an anonymous buffer, you'll end up writing all
-> >> > buffers which are sitting on the same page (with
-> >> > block_write_anon_page), but these other buffers are not necessarily
-> >> > old enough to be flushed.
-> >> 
-> 
-> A quick benchmark shows there's room for improvement here.  I'll play
-> around with a version of block_write_anon_page that tries to be more
-> selective when flushing things out.
+i've asked a few times, both off-list and on and nobody seems to be able
+to help.
 
-There is one more nasty issue to deal with. 
+quite a few people are seeing usb fail (with the "device not accepting
+new address" error messages) on the 2.2.18 and 2.4.0-testX kernels with
+smp enabled when using a mobo with the apollo pro 133a chipset.  when
+apic is disabled, everything works, but with it enabled, it seems that
+the usb driver (usb-uhci) is not getting any interrupts.  johannes
+erdfelt thinks that it's a pci irq routing problem (/proc/interrupts is
+showing no interrupts for usb-uhci when apic is enabled) and suggested
+talking with the pci irq people.
 
-You only want to take into account the buffer flushtime if
-"check_flushtime" parameter is passed as true to flush_dirty_buffers
-(which is done by kupdate).
+i eager to help debug this problem and apply any and all test patches to
+find fixes.  i am pretty sure that greg k-h (greg AT kroah DOT com) is
+also willing to do the same.  the problem is, we can't get any pci irq
+people to look into this.  is this a problem with the pci irq routing?
+is this a known problem that someone's working on?  is it just not worth
+the effort?  there are already quite a few people on the linux-usb list
+who are seeing this problem.  i'm sure that when 2.4.0 comes out, a lot
+more people will be seeing this problem too.  please, let's try to stomp
+this out before 2.4.0 and make linux look just that little bit more
+shiny.  =3D8] =20
 
-Thinking a bit more about the issue, I dont see any reason why we want to
-write all buffers of an anonymous page at
-sync_buffers/flush_dirty_buffers.
+(sorry for that bit of a rant, but i'm getting just a little bit
+frustrated with this long-standing problem.)
 
-I think we could simply write the buffer with ll_rw_block() if the page
-which this buffer is sitting on does not have mapping->a_ops->writepage
-operation defined.
+thanks,
+pete
 
-Chris? 
+--=20
+Pete Toscano    p:sigsegv@psinet.com     w:pete@research.netsol.com
+GPG fingerprint: D8F5 A087 9A4C 56BB 8F78  B29C 1FF0 1BA7 9008 2736
 
+--YiEDa0DAkWCtVeE4
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
+iD8DBQE6Q9HiH/Abp5AIJzYRAopDAJ9LcrPY0f8dUToVnXv5ypam1NOOZgCgtd+1
+tbex476NxGbxBYIHITbtR4Q=
+=whY0
+-----END PGP SIGNATURE-----
 
-
-
+--YiEDa0DAkWCtVeE4--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

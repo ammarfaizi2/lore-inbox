@@ -1,88 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262632AbTCNVvR>; Fri, 14 Mar 2003 16:51:17 -0500
+	id <S262628AbTCNV4U>; Fri, 14 Mar 2003 16:56:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262633AbTCNVvR>; Fri, 14 Mar 2003 16:51:17 -0500
-Received: from zeke.inet.com ([199.171.211.198]:153 "EHLO zeke.inet.com")
-	by vger.kernel.org with ESMTP id <S262632AbTCNVvP>;
-	Fri, 14 Mar 2003 16:51:15 -0500
-Message-ID: <3E725156.5000102@inet.com>
-Date: Fri, 14 Mar 2003 16:01:58 -0600
-From: Eli Carter <eli.carter@inet.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
+	id <S262630AbTCNV4U>; Fri, 14 Mar 2003 16:56:20 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:50833 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S262628AbTCNV4T>; Fri, 14 Mar 2003 16:56:19 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Fri, 14 Mar 2003 14:16:34 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Jonathan Lemon <jlemon@flugsvamp.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch, rfc] lt-epoll ( level triggered epoll ) ...
+In-Reply-To: <200303142143.h2ELheqx076668@mail.flugsvamp.com>
+Message-ID: <Pine.LNX.4.50.0303141412260.1903-100000@blue1.dev.mcafeelabs.com>
+References: <local.mail.linux-kernel/Pine.LNX.4.50.0303101139520.1922-100000@blue1.dev.mcafeelabs.com>
+ <local.mail.linux-kernel/20030311142447.GA14931@bjl1.jlokier.co.uk.lucky.linux.kernel>
+ <local.mail.linux-kernel/20030314155947.GD13106@netch.kiev.ua>
+ <200303142143.h2ELheqx076668@mail.flugsvamp.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.64-mm6
-References: <20030313032615.7ca491d6.akpm@digeo.com>	<3E723DBF.6040304@inet.com> <20030314125354.409ca02a.akpm@digeo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Eli Carter <eli.carter@inet.com> wrote:
-> 
->>Andrew Morton wrote:
->>
->>>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.64/2.5.64-mm6/
->>
->>[snip]
->>
->>>kgdb.patch
->>
->>I'm interested in this patch in your tree.
-> 
-> 
-> You're brave.
+On Fri, 14 Mar 2003, Jonathan Lemon wrote:
 
-Heh.  Insane might be more like it. ;)
+> In article <local.mail.linux-kernel/Pine.LNX.4.50.0303140845480.1903-100000@blue1.dev.mcafeelabs.com> you write:
+> >On Fri, 14 Mar 2003, Valentin Nechayev wrote:
+> >
+> >>  Tue, Mar 11, 2003 at 14:27:50, jamie wrote about "Re: [patch, rfc]
+> >lt-epoll ( level triggered epoll ) ...":
+> >>
+> >> > Actually I think _this_ is cleanest: A three-way flag per registered
+> >> > fd interest saying whether to:
+> >> >
+> >> > 	1. Report 0->1 edges for this interest.  (Initial 1 counts as an event).
+> >> > 	2. Continually report 1 levels for this interest.
+> >> > 	3. One-shot, report the first time 1 is noted and unregister.
+> >> >
+> >> > ET poll is equivalent to 1.  LT poll is equivalent to 2.  dnotify's
+> >> > one-shot mode is equivalent to 3.
+> >>
+> >> kqueue can do all three variants (1st with EV_CLEAR, 3rd with EV_ONESHOT).
+> >>
+> >> So, result of this whole epoll work is trivially predictable - Linux will have
+> >> analog of "overbloated" and "poorly designed" kqueue, but more poor
+> >> and with incompatible interface, adding its own stone to hell of
+> >> different APIs. Congratulations.
+> >
+> >See, this is a free world, and I very much respect your opinion. On the
+> >other side you might want to actually *read* the kqueue man page and find
+> >out of its 24590 flags, where 99% of its users will use only 1% of its
+> >functionality. Talking about overbloating. You might also want to know
+> >that quite a few kqueue users currently running on your favourite OS, are
+> >moving to Linux+epoll. The reason is still unclear to me, but I can leave
+> >you to discover it as exercise.
+>
+> FUD. You should know that in the normal case, kq users don't use any
+> flags, but they are available for those people who are doing specific
+> things.  But I bet you knew that already and just want to slam something
+> that isn't epoll.
 
-> The kgdb patch is pretty nasty-looking code.  I've managed to keep it working
-> for every kernel since 2.4.0-test10 while avoiding actually looking at it. 
-> (I turn the monitor off when the patch needs fixing).  Fed it through Lindent
-> once.
-> 
-> George Anzinger is maintaining another strain of the stub, and that mostly
-> works OK and has improved features.  But the diff is larger and I once had a
-> couple of problems with it and need to spend more time testing it.  It's up
-> to date though.
-
-If I can feed you changes to kgdb, would you be interested in taking 
-them?  What was the last patch you shipped with George's version?  Which 
-do you think would be the right place to start?
+Please, consider reading the message that generated the response before
+generating superfluous noise. Expecially those "overbloated" and "poorly
+designed" thingies. In my books overbloat is the presence of features that
+99% of users simply ignore.
 
 
->>Would breaking the arch-independent parts out to linux/kernel/gdbstub.c 
->>be a reasonable change or is that a dumb question? ;)
-> 
-> 
-> That would be a fantastic thing to do.  Note that there are already about ten
-> kgdb stubs in the shipped kernel at present.  If you can identify exactly
-> which functions need to be provided by the architecture, pull that out into
-> struct kgdb_operations, etc then it would make maintenance and addition of
-> new support much easier.
 
-I guess I'll go hunting. :)
-
-> We might even end up with something we could submit for inclusion without
-> first having to set up an itwasntmenobodysawmedoit@yahoo.com account.
-
-"We"... I like that word.  ;)  If you can act as 'upstream' for my 
-changes and answer quick questions, I'll feed you patches.  Some testing 
-of x86 would be wonderful too.  (And while I'm at it, can I send you my 
-Christmas wishlist? ;) )  I have to warn you, I don't know how far I'll 
-get.  But I'll give it a shot.  My current concern is getting it working 
-under ARM, and there is a kgdb patch for 2.4 ARM I can draw from.
-
-I'm thinking I'll try to wind up with 2 or 3 patches, kgdb.patch, 
-kgdb-arm.patch, and kgdb-ia32.patch.  Maybe.
-
-Are you feeling "brave"? 8)
-
-Eli
---------------------. "If it ain't broke now,
-Eli Carter           \                  it will be soon." -- crypto-gram
-eli.carter(a)inet.com `-------------------------------------------------
+- Davide
 

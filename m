@@ -1,92 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273261AbRKSHjO>; Mon, 19 Nov 2001 02:39:14 -0500
+	id <S273269AbRKSHvS>; Mon, 19 Nov 2001 02:51:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273065AbRKSHiz>; Mon, 19 Nov 2001 02:38:55 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:38157 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S273261AbRKSHin>; Mon, 19 Nov 2001 02:38:43 -0500
-Date: Mon, 19 Nov 2001 01:37:28 -0600
-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: [upatch] kernel build with 'make -r'
-Message-ID: <20011119013728.G1188@cadcamlab.org>
-Mime-Version: 1.0
+	id <S273305AbRKSHvI>; Mon, 19 Nov 2001 02:51:08 -0500
+Received: from smtp01.web.de ([194.45.170.210]:27400 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id <S273269AbRKSHux>;
+	Mon, 19 Nov 2001 02:50:53 -0500
+Message-ID: <3BF8B2CC.C172F67C@web.de>
+Date: Mon, 19 Nov 2001 08:20:44 +0100
+From: Eckehardt Luhm <bselu@web.de>
+X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.0 i686)
+X-Accept-Language: de-DE, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Network packet drop?
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
-From: Peter Samuelson <peter@cadcamlab.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The kernel makefiles are completely self-contained, so for a minor
-speed boost we can use 'make -r -R' aka 'make --no-builtin-rules
---no-builtin-variables'.
+Hello.
 
-However, due to an apparent bug in gmake 3.79.1 (possibly others),
-'make -r' doesn't work if you use the '$*' variable in non-implicit
-rules.  (The info page specifically warns against doing this.)  The
-symptom is that init/main.o doesn't build.
+I'm studying at the University of Karlsruhe and I'm doing some network
+measurements. In conjunction with network drivers for Linux, I'm
+experiencing very strange effects.
 
-The following is correct, safe and IMHO more readable anyway:
+In my setup I have two PCs each with a EEPro-100 network card in it
+connected via an X-link cable. mii-tools says they auto-negotiated a
+speed of 100baseTx-FD. Furthermore I have a program which generates UDP
+packets at the highest possible speed, simply by looping a
+sendto(socket, ...), which should block until a packet is out. What I
+want to measure is the maximum output the network card can do. So I'm
+sending n packets and divide the time needed for that by n.
+
+This works perfectly for larger packets (>500 bytes). All of them are
+being sent out. I'm able to verify this by invoking "ifconfig eth0|grep
+TX" and watch the transmitted packets grow by the number of packets I
+intended to send (in fact it grows a bit more, because of some
+ARP-packets, but that doesn't matter).
+
+But when I set the packet size to say 50 bytes (only data size without
+any headers, so on ethernet this would be 102 bytes), something strange
+is going on. Now not all of the packets I send to the other network card
+are being received. There are leaks of tens of packets at the receiver,
+I'm verifying this with tcpdump. Ok, the receiver was just overtaxed, in
+the syslog I got "eth0: Abnormal interrupt, status 00000002.". So it
+couldn't handle the flood of packets, ok.
+BUT: The sender didn't even send all of the packets! "ifconfig eth0|grep
+TX" grew only about 40-50% of the value it should! e.g. I sent 10.000
+packets, and the TX-counter grew only by 4586, not more. Sometimes I got
+even worse results, especially when decreasing the packet size.
+
+I tried several setups on different PCs, sometimes with X-linked network
+cards, sometimes with a switch between them. None of them worked. Except
+one thing: I tested the same setup described above with other network
+card, two noname products with a realtek 8139 chipset (driver module
+8139too). And you would have guessed it: That worked! The TX-counter
+grew by the correct value, so all packets have been sent out.
+
+And to make the confusion perfect: With forcing the cards to work with
+10 MBit/s-FD (with mii-tool), the same strange "packet drops" as with
+the EEPro-cards appeared.
+
+Is there anybody out there, who can explain what is going on in network
+drivers? What causes these strange effects?
 
 
---- 2.4.15pre6/Makefile~	Sun Nov 18 16:40:49 2001
-+++ 2.4.15pre6/Makefile	Sun Nov 18 20:02:19 2001
-@@ -333,7 +333,7 @@
- 	$(CC) $(CFLAGS) $(CFLAGS_KERNEL) -DUTS_MACHINE='"$(ARCH)"' -c -o init/version.o init/version.c
- 
- init/main.o: init/main.c include/config/MARKER
--	$(CC) $(CFLAGS) $(CFLAGS_KERNEL) $(PROFILING) -c -o $*.o $<
-+	$(CC) $(CFLAGS) $(CFLAGS_KERNEL) $(PROFILING) -c -o $@ $<
- 
- fs lib mm ipc kernel drivers net: dummy
- 	$(MAKE) CFLAGS="$(CFLAGS) $(CFLAGS_KERNEL)" $(subst $@, _dir_$@, $@)
+Regards, Elu
+--- Eckehardt Luhm, eMail: bselu@web.de
 
-
-These other patch hunks should be just as safe and correct, but I don't
-have the architectures to test them..
-
-Peter
-
-
---- 2.4.15pre6/arch/cris/boot/rescue/Makefile~	Wed Oct 17 21:34:01 2001
-+++ 2.4.15pre6/arch/cris/boot/rescue/Makefile	Sun Nov 18 20:36:43 2001
-@@ -36,13 +36,13 @@
- 	rm ktr.bin tmp2423 kimagerescue_tmp.bin
- 
- head.o: head.S
--	$(CC) -D__ASSEMBLY__ -traditional -c $< -o $*.o
-+	$(CC) -D__ASSEMBLY__ -traditional -c $< -o $@
- 
- testrescue.o: testrescue.S
--	$(CC) -D__ASSEMBLY__ -traditional -c $< -o $*.o
-+	$(CC) -D__ASSEMBLY__ -traditional -c $< -o $@
- 
- kimagerescue.o: kimagerescue.S
--	$(CC) -D__ASSEMBLY__ -traditional -c $< -o $*.o
-+	$(CC) -D__ASSEMBLY__ -traditional -c $< -o $@
- 
- clean:
- 	rm -f *.o *.bin
---- 2.4.15pre6/arch/sparc/kernel/Makefile~	Mon Jan 29 20:49:26 2001
-+++ 2.4.15pre6/arch/sparc/kernel/Makefile	Sun Nov 18 20:36:43 2001
-@@ -38,7 +38,7 @@
- endif
- 
- head.o: head.S
--	$(CC) $(AFLAGS) -ansi -c $*.S -o $*.o
-+	$(CC) $(AFLAGS) -ansi -c $< -o $@
- 
- check_asm: dummy
- 	@if [ ! -r $(HPATH)/asm/asm_offsets.h ] ; then \
---- 2.4.15pre6/arch/sparc64/kernel/Makefile~	Mon Jun 11 02:47:26 2001
-+++ 2.4.15pre6/arch/sparc64/kernel/Makefile	Sun Nov 18 20:36:43 2001
-@@ -43,7 +43,7 @@
- 
- head.o: head.S ttable.S itlb_base.S dtlb_base.S dtlb_backend.S dtlb_prot.S \
- 	etrap.S rtrap.S winfixup.S entry.S
--	$(CC) $(AFLAGS) -ansi -c $*.S -o $*.o
-+	$(CC) $(AFLAGS) -ansi -c $< -o $@
- 
- #
- # This is just to get the dependencies...

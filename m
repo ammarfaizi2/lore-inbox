@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261274AbRERRfs>; Fri, 18 May 2001 13:35:48 -0400
+	id <S261293AbRERRhS>; Fri, 18 May 2001 13:37:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261280AbRERRfi>; Fri, 18 May 2001 13:35:38 -0400
-Received: from www.wen-online.de ([212.223.88.39]:26638 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S261274AbRERRfe>;
-	Fri, 18 May 2001 13:35:34 -0400
-Date: Fri, 18 May 2001 19:35:07 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Jonathan Morton <chromi@cyberspace.org>
-cc: <esr@thyrsus.com>, Arjan van de Ven <arjanv@redhat.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: CML2 design philosophy heads-up
-In-Reply-To: <l03130303b72af49d4f0a@[192.168.239.105]>
-Message-ID: <Pine.LNX.4.33.0105181919190.480-100000@mikeg.weiden.de>
+	id <S261281AbRERRhI>; Fri, 18 May 2001 13:37:08 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:28942 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S261280AbRERRgx>; Fri, 18 May 2001 13:36:53 -0400
+Subject: Re: [kbuild-devel] Re: CML2 design philosophy heads-up
+To: esr@thyrsus.com
+Date: Fri, 18 May 2001 18:33:15 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), kaos@ocs.com.au (Keith Owens),
+        linux-kernel@vger.kernel.org (CML2),
+        kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20010518123413.I14309@thyrsus.com> from "Eric S. Raymond" at May 18, 2001 12:34:13 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E150o7n-0007PV-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 May 2001, Jonathan Morton wrote:
+> Do you really believe that anyone is going to maintain the CML1 tools
+> for as long as a nanosecond after they get dropped out of the kernel tree?
 
-> As for the language CML2 is written in, surely C would work just as well as
-> Python if the config-ruleset file is in a known format.  GCC is required
-> for the kernel to build, I don't see why anything else should be required
-> simply to configure it.
+Do you really believe anyone would be dumb enough to delete them out of spite
+or to further your political machinations if they could both handle the same
+configuration language.
 
-Menuconfig is fairly popular, and requires curses.. etc. etc.  There isn't
-a configurator which doesn't require something more than gcc is there?
-
-OTOH, python here says: Python 1.3 (Dec 19 1995)  [GCC 2.7.2]. I didn't
-have it built at all during the years prior to 1995, so I'm sure you can
-imagine how enthusiastic I am about upgrading that old turd ;-)
-
-	-Mike
+CML1 has had no official maintainer for about 4 years. People contribute bits
+and it works. So as it stands there would be no reason to remove it.
 

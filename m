@@ -1,63 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263433AbREXI6o>; Thu, 24 May 2001 04:58:44 -0400
+	id <S263675AbREYKAW>; Fri, 25 May 2001 06:00:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263426AbREXI6g>; Thu, 24 May 2001 04:58:36 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:45209 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S263429AbREXI6Z>;
-	Thu, 24 May 2001 04:58:25 -0400
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200105221841.f4MIf1NC011363@webber.adilger.int>
-Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD  w/info-PATCH]device
- arguments from lookup)
-In-Reply-To: <Pine.LNX.4.21.0105191728140.15174-100000@penguin.transmeta.com>
- "from Linus Torvalds at May 19, 2001 05:32:50 pm"
-To: Linus Torvalds <torvalds@transmeta.com>
-Date: Tue, 22 May 2001 12:41:01 -0600 (MDT)
-CC: Alexander Viro <viro@math.psu.edu>, Edgar Toernig <froese@gmx.de>,
-        Ben LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL87 (25)]
+	id <S263674AbREYKAM>; Fri, 25 May 2001 06:00:12 -0400
+Received: from pc7.prs.nunet.net ([199.249.167.77]:62734 "HELO
+	pc7.prs.nunet.net") by vger.kernel.org with SMTP id <S263673AbREYJ7x>;
+	Fri, 25 May 2001 05:59:53 -0400
+Message-ID: <20010525095952.15078.qmail@pc7.prs.nunet.net>
+From: "Rico Tudor" <rico-linux-kernel@patrec.com>
+Subject: Re: Big-ish SCSI disks
+To: gjohnson@research.canon.com.au (Greg Johnson)
+Date: Fri, 25 May 101 04:59:52 -0500 (CDT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010525062236.8CC1837530@zapff.research.canon.com.au> from "Greg Johnson" at May 25, 1 04:22:36 pm
+X-Mailer: ELM [version 2.4 PL25]
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus writes:
-> There are some strong arguments that we should have filesystem
-> "backdoors" for maintenance purposes, including backup. 
-> 
-> You can, of course, so parts of this on a LVM level, and doing backups
-> with "disk snapshots" may be a valid approach. However, even that is
-> debatable: there is very little that says that the disk image has to be
-> up-to-date at any particular point in time, so even with a disk snapshot
-> capability (which is not necessarily reasonable under all circumstances)
-> there are arguments for maintenance interfaces.
+I'm running stock 2.4.4 on five PCs with these features: ServerWorks
+III HE, 2x 933MHz, 4GB RAM, dual-channel sym53c896 (FAST-40 WIDE) SCSI
+controller.  One PC has the new 181GB Seagate SCSI drive; another uses a
+3ware RAID controller with 4x 40GB IDE (looks like a 160GB SCSI drive).
+All is fine with slackware-current.
 
-Actually, the LVM snapshot interface has (optional) hooks into the filesystem
-to ensure that it is consistent at the time the snapshot is created.  For
-most filesystems, it will call fsync_dev(dev) so that all buffers are written
-to disk.  However, for journalled filesystems, LVM needs to write out the
-journal and mark the filesystem clean because the snapshot is a read-only
-block device.  In this case it calls fsync_dev_lockfs(dev) which will call
-the write_super_lockfs() method for the filesystem (if it exists) which
-tells the filesystem to flush the journal, block transactions, and mark the
-filesystem clean until the unlockfs() method is called.
-
-Reiserfs and XFS both use this to make consistent snapshots of the live
-filesystem.  Unfortunately, XFS checks filesystem UUIDs at mount time,
-which means you can't mount two copies of the same filesystem (even read-only).
-
-> Things like "lazy fsck" (ie fsck while already running the filesystem) and
-> defragmentation simply is not feasible on a LVM level.
-
-Yes, with consistent LVM snapshots you can do fsck on the read-only copy.
-In 99.9*% cases you will not detect any errors and you can continue.  If
-you _do_ detect an error you probably want to stop everything and fix it
-(fsck repairing an in-use filesystem is too twisted and dangerous, IMHO,
-and a huge amount of effort for an extremely rare situation).
-
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+You might play with "nosmp" and "noapic" kernel params.  When building a
+kernel, disable everything including SCSI: work your way up from IDE or
+floppy root.  SMP failed on our systems until I dumped the slocket-based
+CPUs for Slot 1.  (Still a mystery, that.)

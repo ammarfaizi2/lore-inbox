@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267225AbSKPFyw>; Sat, 16 Nov 2002 00:54:52 -0500
+	id <S267224AbSKPFy2>; Sat, 16 Nov 2002 00:54:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267226AbSKPFyv>; Sat, 16 Nov 2002 00:54:51 -0500
-Received: from excalibur.cc.purdue.edu ([128.210.189.22]:44045 "EHLO
-	ibm-ps850.purdueriots.com") by vger.kernel.org with ESMTP
-	id <S267225AbSKPFyu>; Sat, 16 Nov 2002 00:54:50 -0500
-Date: Sat, 16 Nov 2002 01:04:35 -0500 (EST)
-From: Patrick Finnegan <pat@purdueriots.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Dan Kegel <dank@kegel.com>, john slee <indigoid@higherplane.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Why can't Johnny compile?
-In-Reply-To: <3DD5DC77.2010406@pobox.com>
-Message-ID: <Pine.LNX.4.44.0211160059540.16668-100000@ibm-ps850.purdueriots.com>
+	id <S267225AbSKPFy2>; Sat, 16 Nov 2002 00:54:28 -0500
+Received: from blackbird.intercode.com.au ([203.32.101.10]:64009 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id <S267224AbSKPFy1>; Sat, 16 Nov 2002 00:54:27 -0500
+Date: Sat, 16 Nov 2002 17:01:07 +1100 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: Andrew Morton <akpm@digeo.com>
+cc: Con Kolivas <conman@kolivas.net>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.47-mm3
+In-Reply-To: <3DD58A9E.2580F85D@digeo.com>
+Message-ID: <Mutt.LNX.4.44.0211161659150.10154-100000@blackbird.intercode.com.au>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 16 Nov 2002, Jeff Garzik wrote:
+On Fri, 15 Nov 2002, Andrew Morton wrote:
 
-> Most of the stuff that doesn't compile (or link) is typically stuff that
-> is lesser used, or never used.  A lot of the don't-compile complaints
-> seem to be vocal-minority type complaints or "why can't I build _every_
-> module in the kernel?" complaints.  Ref allmodconfig, above.
->
-> If people want to get rivafb or an ancient ISA net driver building
-> again... patches welcome.  But I don't think calls for the kernel to
-> compile 100 percent of the drivers is realistic or even reasonable.
-> Some of the APIs, particularly SCSI, are undergoing API stabilization.
-> And SCSI is an excellent example of drivers where
-> I-dont-have-test-hardware patches to fix compilation may miss subtle
-> problems -- and then six months later when the compileable-but-broken
-> SCSI driver is used by a real user, we have to spend more time in the
-> long run tracking down the problem.
+> Con Kolivas wrote:
 
-Wouldn't it then seem reasonable to remove things from the kernel that
-have been broken for a long time, and no one seems to care enough to fix?
-I know of at least one driver (IOmega Buz v4l) that seems to have fallen
-into disrepair possibly since before 2.4.0, and as far as I know has not
-been repaired since then.
+> > In file included from include/net/xfrm.h:6,
+> >                  from net/core/skbuff.c:61:
+> > include/linux/crypto.h: In function `crypto_tfm_alg_modname':
+> > include/linux/crypto.h:202: dereferencing pointer to incomplete type
+> 
+> Looks like you have CONFIG_MODULES=n, but crypto_tfm_alg_modname()
+> is unconditionally accessing module->name.
+> 
 
-Pat
---
-Purdue Universtiy ITAP/RCS
-Information Technology at Purdue
-Research Computing and Storage
-http://www-rcd.cc.purdue.edu
+This will be fixed with Rusty's module_name() patch.
+
+
+- James
+-- 
+James Morris
+<jmorris@intercode.com.au>
 
 

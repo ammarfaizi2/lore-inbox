@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270326AbTHBVKY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Aug 2003 17:10:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270346AbTHBVKY
+	id S270346AbTHBVMr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Aug 2003 17:12:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270375AbTHBVMr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Aug 2003 17:10:24 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:403 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S270326AbTHBVKV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Aug 2003 17:10:21 -0400
-Subject: Re: ide-disk.c rev 1.13 killed CONFIG_IDEDISK_STROKE
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>, axboe@suse.de,
-       Erik Andersen <andersen@codepoet.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030802174229.GA3741@win.tue.nl>
-References: <20030802124536.GB3689@win.tue.nl>
-	 <Pine.SOL.4.30.0308021506550.7779-100000@mion.elka.pw.edu.pl>
-	 <20030802174229.GA3741@win.tue.nl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1059858379.20305.23.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 02 Aug 2003 22:06:19 +0100
+	Sat, 2 Aug 2003 17:12:47 -0400
+Received: from fw.osdl.org ([65.172.181.6]:16872 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270346AbTHBVMq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Aug 2003 17:12:46 -0400
+Message-ID: <32991.4.4.25.4.1059858764.squirrel@www.osdl.org>
+Date: Sat, 2 Aug 2003 14:12:44 -0700 (PDT)
+Subject: Re: .config in bzImage ?
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: <seanlkml@rogers.com>
+In-Reply-To: <093901c35924$f3040ed0$7f0a0a0a@lappy7>
+References: <093901c35924$f3040ed0$7f0a0a0a@lappy7>
+X-Priority: 3
+Importance: Normal
+Cc: <linux-kernel@vger.kernel.org>
+X-Mailer: SquirrelMail (version 1.2.11)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2003-08-02 at 18:42, Andries Brouwer wrote:
-> OK, so we have to investigate. This strange test was inserted
-> in 2.4 and 2.5 via Alan, and google gives me Alan's changelog:
-> 
-> Linux 2.5.66-ac1
-> o Don't issue WIN_SET_MAX on older drivers (Jens Axboe)
->   (Breaks some Samsung)
+> There was some talk of the .config file being included
+> within bzImage.  Did this ever happen?  If so, how
+> does one extract the .config from the resulting image?
 
-Some older Samsung drives don't abort WIN_SET_MAX but the firmware
-hangs hence the check.
+Alan sent my ikconfig patch to Linus a couple of days ago and it's
+in 2.6.0-test-current ... except for the Kconfig part of it,
+which Alan or I will send soon (if Alan hasn't already done so).
 
-> If possible we would like to remove the test and test the
-> right bits instead. But if that Samsung disk claims it
-> supports HPA and doesnt..
+The full was (which is partially merged) is at
+  http://developer.osdl.org/rddunlap/patches/ikconfig/ikconfig_260c.patch
+It includes a script (extract-ikconfig) and a small C program
+(binoffsets.c) that are used to extract the saved .config image.
 
-That would be better if it is the case
+The .config file is also available in /proc as a CONFIG option.
+
+~Randy
+
+
 

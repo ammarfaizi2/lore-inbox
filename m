@@ -1,64 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265479AbTIDSj2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 14:39:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265478AbTIDSh6
+	id S265489AbTIDSkp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 14:40:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265478AbTIDSjt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 14:37:58 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:63940 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S265444AbTIDShL
+	Thu, 4 Sep 2003 14:39:49 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:52876 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S265491AbTIDSik
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 14:37:11 -0400
-Message-ID: <3F578656.60005@namesys.com>
-Date: Thu, 04 Sep 2003 22:37:10 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mike Fedyk <mfedyk@matchmail.com>
-CC: Andrew Morton <akpm@osdl.org>, reiserfs-list@namesys.com,
+	Thu, 4 Sep 2003 14:38:40 -0400
+Date: Thu, 4 Sep 2003 19:38:19 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Hugh Dickins <hugh@veritas.com>, Rusty Russell <rusty@rustcorp.com.au>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: precise characterization of ext3 atomicity
-References: <3F574A49.7040900@namesys.com> <20030904085537.78c251b3.akpm@osdl.org> <3F576176.3010202@namesys.com> <20030904091256.1dca14a5.akpm@osdl.org> <3F57676E.7010804@namesys.com> <20030904181540.GC13676@matchmail.com>
-In-Reply-To: <20030904181540.GC13676@matchmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH] Alternate futex non-page-pinning and COW fix
+Message-ID: <20030904183819.GF30394@mail.jlokier.co.uk>
+References: <Pine.LNX.4.44.0309031924430.2462-100000@localhost.localdomain> <Pine.LNX.4.44.0309031201170.31853-100000@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0309031201170.31853-100000@home.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Fedyk wrote:
+Linus Torvalds wrote:
+> > Of course (not).  That's the point, they do work on private mappings, but
+> > the semantics are different on private mappings from on shared mappings:
+> > on private mappings they're private to the mm, on shared mappings they're
+> > shared with other mms (via the shared file).
+> 
+> Repeat after me: private read-only mappings are 100% equivalent to shared
+> read-only mappings. No ifs, buts, or maybes. This is a FACT. It's a fact 
+> codified in many years of Linux implementation, but it's a fact outside of 
+> that too.
 
->On Thu, Sep 04, 2003 at 08:25:18PM +0400, Hans Reiser wrote:
->  
->
->>In data=journal and data=ordered modes ext3 also guarantees that the 
->>metadata will be committed atomically with the data they point to.  However 
->>ext3 does not provide user data atomicity guarantees beyond the scope of a 
->>single filesystem disk block (usually 4 kilobytes).  If a single write() 
->>spans two disk blocks it is possible that a crash partway through the write 
->>will result in only one of those blocks appearing in the file after 
->>recovery.
->>    
->>
->
->And how does reiser4 do this without changing the userspace apps?
->
-We don't.  We just make the hovercraft, we don't force you to go over 
-the water.....
+Thanks Linus.  I already knew this, I was in the audience of the old
+thread about MAP_COPY, remember? :)
 
->
->Most files are written with several write() calls, so even if each call is
->atomic, your entire file will not be there.
->
->Also, ext3 could claim the same atomicity if it only updated meta-data on
->write() call boundaries, instead of block boundaries.
->
->
->  
->
+Please read below and think about it, because I'm convinced from your
+3 emails later in this thread that you haven't thought about how COW
+should interact with futexes.
+
+If you don't have time, skip to the last paragraph.
 
 
--- 
-Hans
+The new futexes key off (mm,address) for a private mapping, and
+(file,offset) for a shared mapping.  That is actually a user-visible
+distinction, so I have to explain and justify it.
 
+Private writable mapping: futex must be mm-local, obviously.  This is
+a bug in the old futex code, which could be fixed as you say by
+forcibly COWing the page.  But that's unnecessary: (mm,address) is fine.
 
+Shared writable mapping: futex must be shared, obviously.
+
+Read-only mapping: as yous say, private and shared are the same for a
+read-only mapping, until you call mprotect() if you're permitted.
+Anything which breaks that is wrong.
+
+So what shall a futex do on a read-only mapping.  First, does it even
+make sense?  A: Yes it does.  If I hand you a scoreboard file and tell
+you to wait for changes to words in it, it's a legitimate use of
+futexes on a read-only mapping.
+
+Ok, now we understand that _this_ read-only mapping should not be mm-local.
+
+But Linux does something weird at this point, if the new futex code's
+hash keys on VM_SHARED.
+
+If I hand you a scoreboard file opened O_RDWR, your futexes are keyed
+on file pages.  But if I open it O_RDONLY, your futexes are mm-local.
+
+  * I contend that the user-visible behaviour of a mapping should
+  * _not_ depend on whether the file was opened with O_RDWR or O_RDONLY.
+
+Thanks,
+-- Jamie

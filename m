@@ -1,26 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281805AbRKWIxt>; Fri, 23 Nov 2001 03:53:49 -0500
+	id <S281812AbRKWIyj>; Fri, 23 Nov 2001 03:54:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281814AbRKWIxj>; Fri, 23 Nov 2001 03:53:39 -0500
-Received: from tisch.mail.mindspring.net ([207.69.200.157]:23857 "EHLO
-	tisch.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S281805AbRKWIxY>; Fri, 23 Nov 2001 03:53:24 -0500
-Date: Fri, 23 Nov 2001 03:58:34 -0500 (EST)
-From: rpjday <rpjday@mindspring.com>
-X-X-Sender: <rpjday@localhost.localdomain>
-To: <linux-kernel@vger.kernel.org>
-Subject: is 2.4.15 really available at www.kernel.org?
-Message-ID: <Pine.LNX.4.33.0111230357090.6800-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281815AbRKWIya>; Fri, 23 Nov 2001 03:54:30 -0500
+Received: from etna.trivadis.com ([193.73.126.2]:12792 "EHLO lttit")
+	by vger.kernel.org with ESMTP id <S281814AbRKWIyY>;
+	Fri, 23 Nov 2001 03:54:24 -0500
+Date: Fri, 23 Nov 2001 09:51:22 +0100
+From: Tim Tassonis <timtas@cubic.ch>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: 2.4.15-greased-turkey ???
+X-Mailer: Sylpheed version 0.6.5cvs13 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <E167C3O-00028a-00@lttit>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi
 
-  i just tried to download linux-2.4.15.tar.bz2 and, far from being a 22M
-new kernel, it's a 155312 byte file that i suspect is really just a patch
-file, so i suspect someone mislabelled the link there.  any hints?
+linux/include/linux/version.h in 2.4.15:
 
-rday
+#define UTS_RELEASE "2.4.15-greased-turkey"
+#define LINUX_VERSION_CODE 132111
+#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
 
+
+What's this all about??
+
+(Looks a bit strange to have /lib/modules/2.4.15-greased-turkey ...)
+
+Bye
+Tim

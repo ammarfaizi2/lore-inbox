@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285829AbSBOCKp>; Thu, 14 Feb 2002 21:10:45 -0500
+	id <S286303AbSBOCNP>; Thu, 14 Feb 2002 21:13:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286188AbSBOCK0>; Thu, 14 Feb 2002 21:10:26 -0500
-Received: from ip68-3-107-226.ph.ph.cox.net ([68.3.107.226]:55181 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S285829AbSBOCKV>;
-	Thu, 14 Feb 2002 21:10:21 -0500
-Message-ID: <3C6C6E0C.6000309@candelatech.com>
-Date: Thu, 14 Feb 2002 19:10:20 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: copy_from_user returns a positive value?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S286322AbSBOCNG>; Thu, 14 Feb 2002 21:13:06 -0500
+Received: from mail.headlight.de ([195.254.117.141]:54539 "EHLO
+	mail.headlight.de") by vger.kernel.org with ESMTP
+	id <S286303AbSBOCMu>; Thu, 14 Feb 2002 21:12:50 -0500
+Date: Fri, 15 Feb 2002 03:13:42 +0100
+From: Daniel Mack <daniel@yoobay.net>
+To: Ken Brownfield <brownfld@irridia.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] + [PATCH]: handling bad inodes in 2.4.x kernels
+Message-ID: <20020215031342.B19035@chaos.intra>
+In-Reply-To: <20020213182927.I15910@chaos.intra> <20020214193319.C1518@asooo.flowerfire.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020214193319.C1518@asooo.flowerfire.com>; from brownfld@irridia.com on Thu, Feb 14, 2002 at 07:33:19PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have an IOCTL defined something like this:
+On Thu, Feb 14, 2002 at 07:33:19PM -0600, Ken Brownfield wrote:
+> One could argue that a corrupt filesystem is a corrupt filesystem, but
 
-	_IOWR (0xfe, (30<<3 + 0), __u8 [696])
+but a corrupted filesystem should not change the behaviour of the entire
+kernel. write-opening a bad inode should not end up with the effect that 
+the rename() syscall does not work anymore, i wasn't even able to securely
+shut down by box everytime that happend.
 
-I'm really passing in a structure of size 696 (does that matter)?
+> I've seen this behavior first hand (without using debugfs,
+> unfortunately). 
 
-When I make the copy from user call:
+thats how i found that bug - it exists in real life.
 
-       if ((ret = copy_from_user(&reqconf, arg, sizeof(reqconf)))) {
-          printk("ERROR: copy_from_user returned: %i, sizeof(reqconf): %i\n",
-                 ret, sizeof(reqconf));
-          return ret;
-       }
+> I think it's worth someone with filesystem fu taking a
+> look at this patch.  Or "seconded", whatever. :)
 
-I see this printed out:
-
-ERROR: copy_from_user returned: 696, sizeof(reqconf): 696
-
-
-According to some docs I saw on the web, it should return 0, or the
-number it has left to copy.  So, why does it have 696 bytes left
-to copy??
-
-Thanks,
-Ben
+there's another possibilty for fixing this in my latest posting.
 
 
--- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
-
-
+daniel

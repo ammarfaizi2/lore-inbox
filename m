@@ -1,57 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313428AbSC2Kbo>; Fri, 29 Mar 2002 05:31:44 -0500
+	id <S313430AbSC2Kee>; Fri, 29 Mar 2002 05:34:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313429AbSC2Kbe>; Fri, 29 Mar 2002 05:31:34 -0500
-Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:42001 "EHLO
-	einstein.homenet") by vger.kernel.org with ESMTP id <S313428AbSC2Kb2>;
-	Fri, 29 Mar 2002 05:31:28 -0500
-Date: Fri, 29 Mar 2002 10:36:07 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-X-X-Sender: <tigran@einstein.homenet>
-To: Matthew Walburn <matt@math.mit.edu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: mkinitrd w/ 2.4.18
-In-Reply-To: <20020328202555.A2226@math.mit.edu>
-Message-ID: <Pine.LNX.4.33.0203291034460.1089-100000@einstein.homenet>
+	id <S313431AbSC2KeY>; Fri, 29 Mar 2002 05:34:24 -0500
+Received: from smtp03.vsnl.net ([203.197.12.9]:40675 "EHLO smtp03.vsnl.net")
+	by vger.kernel.org with ESMTP id <S313430AbSC2KeI>;
+	Fri, 29 Mar 2002 05:34:08 -0500
+Message-ID: <3CA44288.EF27E043@vsnl.net>
+Date: Fri, 29 Mar 2002 16:01:36 +0530
+From: "Amit S. Kale" <kgdb@vsnl.net>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: announce: kgdb 1.5 with reworked buggy smp handling
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Mar 2002, Matthew Walburn wrote:
+Hi,
 
-> hi there,
->
-> i'm having problems getting mkinitrd to work with 2.4.18 in a redhat 7.2 system. are there any kernel options that i should be aware of to get this to work properly that i'm somehow missing?
->
-> thanks
-> -matt
+kgdb 1.5 at http://kgdb.sourceforge.net/
 
-Try this patch:
-
-diff -ur mkinitrd-3.2.6-orig/mkinitrd mkinitrd-3.2.6/mkinitrd
---- mkinitrd-3.2.6-orig/mkinitrd        Wed Sep  5 21:38:18 2001
-+++ mkinitrd-3.2.6/mkinitrd     Fri Mar  1 09:34:22 2002
-@@ -309,9 +309,9 @@
-     echo "Using modules: $MODULES"
- fi
-
--MNTIMAGE=`mktemp -d /tmp/initrd.XXXXXX`
--IMAGE=`mktemp /tmp/initrd.img.XXXXXX`
--MNTPOINT=`mktemp -d /tmp/initrd.mnt.XXXXXX`
-+MNTIMAGE=$(mktemp -d $TMPDIR/initrd.XXXXXX) || exit 1
-+IMAGE=$(mktemp $TMPDIR/initrd.img.XXXXXX) || exit 1
-+MNTPOINT=$(mktemp -d $TMPDIR/initrd.mnt.XXXXXX) || exit 1
- RCFILE=$MNTIMAGE/linuxrc
-
- if [ -z "$MNTIMAGE" -o -z "$IMAGE" -o -z "$MNTPOINT" ]; then
-
-As far as I know Red Hat's latest mkinitrd (in rawhide?) has fixed this
-problem. Also, don't forget to set TMPDIR to somewhere other than a tmpfs
-filesystem. You see, you cannot bind regular files on a tmpfs to loopback
-devices.
-
-Regards,
-Tigran
+smp handling is completely reworked. Previous kgdb had a bug
+which caused it to hang when a processor spun with
+interrupts disabled and another processor enters kgdb. kgdb
+now uses nmi watchdog for holding other processors while
+a machine is in kgdb. 
+-- 
+Amit S. Kale
+Linux kernel source level debugger    http://kgdb.sourceforge.net/
+	[29th March - kgdb-1.5 with reworked smp handling.]
+Translation filesystem                http://trfs.sourceforge.net/
 

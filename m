@@ -1,51 +1,30 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316091AbSEJTav>; Fri, 10 May 2002 15:30:51 -0400
+	id <S316087AbSEJT2I>; Fri, 10 May 2002 15:28:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316093AbSEJTau>; Fri, 10 May 2002 15:30:50 -0400
-Received: from smtp-out-2.wanadoo.fr ([193.252.19.254]:59870 "EHLO
-	mel-rto2.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S316091AbSEJTas>; Fri, 10 May 2002 15:30:48 -0400
-Message-ID: <3CDC21B9.1030501@wanadoo.fr>
-Date: Fri, 10 May 2002 21:38:33 +0200
-From: =?ISO-8859-15?Q?Fran=E7ois_Cami?= <stilgar2k@wanadoo.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc1) Gecko/20020417
-X-Accept-Language: en-us, fr
+	id <S316091AbSEJT2H>; Fri, 10 May 2002 15:28:07 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:22538 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S316087AbSEJT2H>; Fri, 10 May 2002 15:28:07 -0400
+Subject: Re: x86 question: Can a process have > 3GB memory?
+To: davidsen@tmr.com (Bill Davidsen)
+Date: Fri, 10 May 2002 20:42:46 +0100 (BST)
+Cc: rml@tech9.net (Robert Love),
+        linux-kernel@vger.kernel.org (Linux-Kernel Mailing List)
+In-Reply-To: <Pine.LNX.3.96.1020510145244.14035A-100000@gatekeeper.tmr.com> from "Bill Davidsen" at May 10, 2002 03:07:14 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Andre Hedrick <andre@linux-ide.org>
-CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: patchset updates 2.4 ide
-In-Reply-To: <Pine.LNX.4.10.10205101157290.3133-100000@master.linux-ide.org>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E176GHv-0006ee-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick wrote:
-> http://www.linuxdiskcert.org/ide-2.4.19-p7.all.convert.10.patch.bz2
-> http://www.linuxdiskcert.org/ide-2.4.19-p8-ac1.all.convert.10.patch.bz2
-> 
-> Closer to making it modular and selectable/split io/mmio channel access.
-> 
-> There are a few patches left out as time was a crunch.
-> 
-> Cheers
-> 
-> 
-> Andre Hedrick
-> LAD Storage Consulting Group
-> 
-> -
+> kernel. It would be possible to allow program access to this RAM, although
+> both Kernel and gcc support would be needed. M$ had "huge" memory models
+> to go over 64k in the old 8086 days, doing loads of segment registers.
 
-I'm currently running 2.4.19pre7+convert.6, I'm going to compile
-2.4.19pre7+convert10 right now.
-
--- 
-
-F. CAMI
-----------------------------------------------------------
-  "To disable the Internet to save EMI and Disney is the
-moral equivalent of burning down the library of Alexandria
-to ensure the livelihood of monastic scribes."
-               - John Ippolito (Guggenheim)
-
+Alas that is not quite the case. You still have a 4Gb virtual address
+space. If you want > 32bits, get a > 32bit processor. This one isnt as
+simple as add segmentation and 'large model'

@@ -1,47 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262041AbTIMR2s (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 13:28:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262056AbTIMR2s
+	id S262056AbTIMR3Z (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 13:29:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262057AbTIMR3Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 13:28:48 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:8459 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S262041AbTIMR2q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 13:28:46 -0400
-Date: Sat, 13 Sep 2003 10:11:08 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Pascal Schmidt <der.eremit@email.de>
-cc: David Schwartz <davids@webmaster.com>, linux-kernel@vger.kernel.org
-Subject: RE: People, not GPL  [was: Re: Driver Model]
-In-Reply-To: <Pine.LNX.4.44.0309110032240.3486-100000@neptune.local>
-Message-ID: <Pine.LNX.4.10.10309131008210.16744-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 13 Sep 2003 13:29:25 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:9739 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S262056AbTIMR3X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 13:29:23 -0400
+Subject: Re: 2.6.0-test5 boot hang with no PS/2 mouse
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: "Kevin P. Fleming" <kpfleming@cox.net>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <3F6347D4.9070802@cox.net>
+References: <3F6347D4.9070802@cox.net>
+Content-Type: text/plain
+Message-Id: <1063474160.1297.0.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Sat, 13 Sep 2003 19:29:21 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Thu, 11 Sep 2003, Pascal Schmidt wrote:
-
-> On Wed, 10 Sep 2003, David Schwartz wrote:
+On Sat, 2003-09-13 at 18:37, Kevin P. Fleming wrote:
+> Booting a kernel the config below, with only a USB keyboard and USB 
+> mouse attached, hangs at:
 > 
-> > Please show me one restriction on *use* in the GPL.
-> 
-> Well, you may not *use* GPL'd code to produce a derived work and
-> distribute it in binary form only. Use of the code, not use of
-> the product, sure.
+> mice: PS/2 mouse device common for all mice
 
-Prove an original work which uses the proper "unprotectable API" to
-operate in the Linux kernel is a "derived work".
-
-You can't and never will.  It is an "original work".
-
-"Original works" are exempt, what is not clear?
-
-Oh I get it, because it happens to work in "Linux" it is not an original
-work?  What a lame cast of mental giants.
-
-
-Andre
+http://bugzilla.kernel.org/show_bug.cgi?id=1123
+Thanks!
 

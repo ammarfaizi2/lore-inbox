@@ -1,43 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262015AbUKPQGY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262016AbUKPQLG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262015AbUKPQGY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 11:06:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262014AbUKPQGY
+	id S262016AbUKPQLG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 11:11:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262019AbUKPQLF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 11:06:24 -0500
-Received: from atarelbas02.hp.com ([156.153.255.213]:43202 "EHLO
-	atlrel7.hp.com") by vger.kernel.org with ESMTP id S262015AbUKPQF1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 11:05:27 -0500
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: gene.heskett@verizon.net
-Subject: Re: Old thread: Nobody cared, chapter 10^3rd
-Date: Tue, 16 Nov 2004 09:05:24 -0700
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org, Len Brown <len.brown@intel.com>
-References: <200411150052.22271.gene.heskett@verizon.net> <1100556963.5875.970.camel@d845pe> <200411152250.25036.gene.heskett@verizon.net>
-In-Reply-To: <200411152250.25036.gene.heskett@verizon.net>
+	Tue, 16 Nov 2004 11:11:05 -0500
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:17332 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S262016AbUKPQK6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 11:10:58 -0500
+Message-ID: <419A2698.4080900@namesys.com>
+Date: Tue, 16 Nov 2004 08:11:04 -0800
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Sami Farin <7atbggg02@sneakemail.com>
+CC: linux-kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: vm-pageout-throttling.patch: hanging in throttle_vm_writeout/blk_congestion_wait
+References: <20041115012620.GA5750@m.safari.iki.fi> <Pine.LNX.4.44.0411152140030.4171-100000@localhost.localdomain> <20041115223709.GD6654@m.safari.iki.fi>
+In-Reply-To: <20041115223709.GD6654@m.safari.iki.fi>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200411160905.24277.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 15 November 2004 8:50 pm, Gene Heskett wrote:
-> On Monday 15 November 2004 17:16, Len Brown wrote:
-> >Any difference when you tested with "pci=routeirq"?
-> >
-> Dunno Len, but I'll add that to grub.conf and reboot for effects. BRB.
-> 
-> Well, it shut that particular message off, but it sure made ACPI noisy!
+Sami Farin wrote:
 
-I think we're just rediscovering the floppy and i8042 issues that we found
-and fixed in -mm a while back.  The i8042 patch is contained in here:
+>On Mon, Nov 15, 2004 at 09:56:29PM +0000, Hugh Dickins wrote:
+>  
+>
+>>On Mon, 15 Nov 2004, Sami Farin wrote:
+>>    
+>>
+>>>this time I had some swapspace on /dev/loop1 (file-backed, reiserfs,
+>>>loop-AES-2.2d)...  I think (!) it caused this deadlock.
+>>>      
+>>>
+>>That's not at all surprising.  See the swap_extent work Andrew did
+>>for 2.5 (in mm/swapfile.c), by which swap to a swapfile now avoids
+>>the filesystem altogether (except while swapon prepares the map of
+>>disk blocks).  By swapping to a loop device over a file, you're
+>>sneaking past his work, and putting the filesystem back under swap.
+>>    
+>>
 
- ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc2/2.6.10-rc2-mm1/broken-out/bk-input.patch
-
-I have no idea whether this will apply directly to Linus' kernel, or
-whether it depends on other patches, but it should fix the problem.
+Does Andrew's approach prevent putting swap on a compressed file (useful 
+for reiser4 once the compression plugin is stable, not reiserfs)? (And 
+no, I don't have any idea what the performance effect of that would be 
+before it is tried and benchmarked....)

@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129076AbQKQIik>; Fri, 17 Nov 2000 03:38:40 -0500
+	id <S130800AbQKQIqv>; Fri, 17 Nov 2000 03:46:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129094AbQKQIi3>; Fri, 17 Nov 2000 03:38:29 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:26340 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S129076AbQKQIiP>; Fri, 17 Nov 2000 03:38:15 -0500
-From: Christoph Rohland <cr@sap.com>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: shm swapping in 2.4 again
-In-Reply-To: <Pine.LNX.4.21.0011161929080.13085-100000@duckman.distro.conectiva>
-Organisation: SAP LinuxLab
-Date: 17 Nov 2000 09:08:02 +0100
-In-Reply-To: Rik van Riel's message of "Thu, 16 Nov 2000 19:30:46 -0200 (BRDT)"
-Message-ID: <qwwsnorxbq5.fsf@sap.com>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Bryce Canyon)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S131014AbQKQIql>; Fri, 17 Nov 2000 03:46:41 -0500
+Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:59922 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
+	id <S130800AbQKQIqc>; Fri, 17 Nov 2000 03:46:32 -0500
+From: aprasad@in.ibm.com
+X-Lotus-FromDomain: IBMIN@IBMAU
+To: Richard Jerrell <jerrell@missioncriticallinux.com>
+cc: linux-kernel@vger.kernel.org
+Message-ID: <CA25699A.002D5E5D.00@d73mta05.au.ibm.com>
+Date: Fri, 17 Nov 2000 13:39:27 +0530
+Subject: Re: Bug in 2.4.0-test9 and test10 with sys_shmat()
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Rik,
 
-On Thu, 16 Nov 2000, Rik van Riel wrote:
-> On 16 Nov 2000, Christoph Rohland wrote:
->> Also we have to make sure to derefence the swap entry if the
->> last reference is in the shm segmant table .
-> 
-> Why is this?
+>Sending -1 as the shmid to shmat will cause an oops.  2.2.16 caught this
+>with simple boundry checking, so replace the lines
 
-Because you never get a page fault on the shm segmants. So you never
-will exchange a swap entry with a real page in these segments
-automatically.
+>if (!shm_sb || (shmid % SEQ_MULTIPLIER) == zero_id)
+                return -EINVAL;
 
-Actually I think the best approach would be to replace the entry on
-the first swapin. 
+>with
 
-Greetings
-		Christoph
+>if (!shm_sb || shmid < 0 || (shmid % SEQ_MULTIPLIER) == zero_id)
+                return -EINVAL;
+
+-1 shmid is causing oops only when used with superuser privileges,
+otherwise it returns -EINVAL.
+regards
+Anil
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

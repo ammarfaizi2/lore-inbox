@@ -1,35 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265396AbTABAao>; Wed, 1 Jan 2003 19:30:44 -0500
+	id <S265373AbTABA3y>; Wed, 1 Jan 2003 19:29:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265400AbTABAao>; Wed, 1 Jan 2003 19:30:44 -0500
-Received: from gate.mvhi.com ([195.224.96.166]:13586 "EHLO gate.mvhi.com")
-	by vger.kernel.org with ESMTP id <S265396AbTABAal>;
-	Wed, 1 Jan 2003 19:30:41 -0500
-Message-ID: <15891.35418.412034.594225@server.axiom.internal>
-Date: Thu, 2 Jan 2003 00:39:54 +0000
-From: Peter.Benie@mvhi.com (Peter Benie)
-To: linux-kernel@vger.kernel.org
-Subject: Does cli() need to be called before reading avenrun?
-X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
+	id <S265378AbTABA3y>; Wed, 1 Jan 2003 19:29:54 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:42506 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265373AbTABA3x>; Wed, 1 Jan 2003 19:29:53 -0500
+Date: Wed, 1 Jan 2003 16:32:49 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Christoph Hellwig <hch@infradead.org>
+cc: Christoph Hellwig <hch@lst.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] more procfs bits for !CONFIG_MMU
+In-Reply-To: <20030101235842.A3044@infradead.org>
+Message-ID: <Pine.LNX.4.44.0301011631090.12809-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In kernel 2.4, in sys_sysinfo(), the code reads:
 
-   cli();
-   val.uptime = jiffies / HZ;
+On Wed, 1 Jan 2003, Christoph Hellwig wrote:
+> 
+> I can add an empty stub function, but that doesn't help to reduce the
+> ifdef mess as there is no /proc/<pid>/maps on nommu at all so we don't
+> have the struct file_operations and more important can't register it.
 
-   val.loads[0] = avenrun[0] << (SI_LOAD_SHIFT - FSHIFT);
-   val.loads[1] = avenrun[1] << (SI_LOAD_SHIFT - FSHIFT);
-   val.loads[2] = avenrun[2] << (SI_LOAD_SHIFT - FSHIFT);
+So change it. I'd rather have an empty /proc/pid/maps than have the 
+general code have #ifdef's.
 
-   val.procs = nr_threads-1;
-   sti();
+Or make /proc more dynamic, although I don't think it's necessarily worth
+it unless it would be part of a generic dentry'ification (the devfs work 
+is all well and good, but /proc has been around even longer).
 
-In loadavg_read_proc, the code is in essence the same, except that it
-isn't wrapped in cli/sti.  
+		Linus
 
-Is there a reason for the cli?
-
-Peter

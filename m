@@ -1,73 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262053AbUK3Mms@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262055AbUK3Mtf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262053AbUK3Mms (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 07:42:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262055AbUK3Mms
+	id S262055AbUK3Mtf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 07:49:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262056AbUK3Mtf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 07:42:48 -0500
-Received: from [61.135.145.20] ([61.135.145.20]:27958 "EHLO
-	webstmp232.sohu.com") by vger.kernel.org with ESMTP id S262053AbUK3Mmm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 07:42:42 -0500
-Message-ID: <13462255.1101818423343.JavaMail.postfix@mx20.mail.sohu.com>
-Date: Tue, 30 Nov 2004 20:40:23 +0800 (CST)
-From: <stone_wang@sohu.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: PATCH] Perhaps invalid goal for file block #1 in ext3(2)_find_goal 
-Cc: <akpm@osdl.org>
+	Tue, 30 Nov 2004 07:49:35 -0500
+Received: from blackhole.sk ([212.89.236.103]:53669 "EHLO
+	blackhole.websupport.sk") by vger.kernel.org with ESMTP
+	id S262055AbUK3Mtc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 07:49:32 -0500
+Date: Tue, 30 Nov 2004 13:48:01 +0100
+From: stanojr@blackhole.websupport.sk
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: quota deadlock
+Message-ID: <20041130124801.GB14551@blackhole.websupport.sk>
+References: <20041112173118.GC17928@blackhole.websupport.sk> <20041129161801.23883a03.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="GB2312"
-Content-Transfer-Encoding: 8bit
-X-Mailer: Sohu Web Mail 2.0.13
-X-SHIP: 219.136.50.184
-X-Priority: 3
-X-SHMOBILE: 0
-X-Sohu-Antivirus: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041129161801.23883a03.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Hi:
-
-I am learning how Ext2/3 works and how we could better use it for our servers.
-
-In the process,i found something strange in ext3_find_goal:
-when we create a file,write initial 4k bytes to it,then we reboot the system,and after that,we again append another 4k bytes to the file,thus the file becomes 8k bytes now;but under this condition,the file will be in 2 chunks,not continous.
-
-I did simple tests(i reboot the system to make sure that the inode cache get outdated between the 2 write/append operations,and i am sure that under some VM pressure result will be the same--ext3_read_inode clear ei->i_next_alloc_block to zero):
-
-#dd if=/dev/zero of=/root/4kfile bs=1024 count=4
-#cp /root/4kfile tmpfile
-# ll tmpfile 
--rw-r--r--  1 root root 4096 Dec 17 13:05 tmpfile
-# filefrag tmpfile 
-tmpfile: 1 extent found
-------THEN I REBOOT THE LINUX SYSTEM----
-#cat /root/4kfile >>tmpfile
-# ll tmpfile 
--rw-r--r--  1 root root 8192 Dec 17 13:14 tmpfile
-# filefrag tmpfile 
-tmpfile: 2 extents found, perfection would be 1 extent
-
-debugfs shows that there are free blocks just next to the block#0 of tmpfile.
-
-Generally,continous creating/appending(without rebooting the system or VM pressure)a file get 1 extent.
-
-Here are my simple patch for kernel 2.6.9,it works for me.
-
----2.6.9/fs/ext3/inode.c    2004-12-17 
-+++2.6.9-ext3-find-goal-fixed/fs/ext3/inode.c     2004-12-17 
-@@ -525,7 +525,7 @@
- {
-        struct ext3_inode_info *ei = EXT3_I(inode);
-        /* Writer: ->i_next_alloc* */
--       if (block == ei->i_next_alloc_block + 1) {
-+       if ((block == ei->i_next_alloc_block + 1)&&(ei->i_next_alloc_goal!=0)) {
-                ei->i_next_alloc_block++;
-                ei->i_next_alloc_goal++;
-        }
-
-Regards.
-
-Peter Wang
-2004.11.29
+On Mon, Nov 29, 2004 at 04:18:01PM -0800, Andrew Morton wrote:
+> stanojr@blackhole.websupport.sk wrote:
+> >
+> > heavy write access to partition with quota enabled causes deadlock. if
+> >  processes try to access the deadlocked partition they                    
+> >  simply have no response and cannot be killed with SIGKILL. i've been
+> >  testing with reiserfs and ext2 on 2.6.9 kernel.
+> 
+> There are a bunch of patches in 2.6.10-rc2-mm3 which are designed to fix
+> quota deadlocks.  Could you please test that (or a later -mm kernel) and
+> let us know the result?
+> 
+> Thanks.
+> 
+hello
+i tried mm3 patch and it was working fine. i havent encountered any problems.
+thanks

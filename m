@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262922AbRFMKaw>; Wed, 13 Jun 2001 06:30:52 -0400
+	id <S262835AbRFMKge>; Wed, 13 Jun 2001 06:36:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263139AbRFMKam>; Wed, 13 Jun 2001 06:30:42 -0400
-Received: from yellow.csi.cam.ac.uk ([131.111.8.67]:50885 "EHLO
-	yellow.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S262922AbRFMKad>; Wed, 13 Jun 2001 06:30:33 -0400
-Date: Wed, 13 Jun 2001 11:30:24 +0100 (BST)
-From: James Sutherland <jas88@cam.ac.uk>
-X-X-Sender: <jas88@yellow.csi.cam.ac.uk>
-To: Pavel Machek <pavel@suse.cz>
-cc: "Brent D. Norris" <brent@biglinux.tccw.wku.edu>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: 3com Driver and the 3XP Processor
-In-Reply-To: <20010612161237.C33@toy.ucw.cz>
-Message-ID: <Pine.SOL.4.33.0106131128360.13864-100000@yellow.csi.cam.ac.uk>
+	id <S263080AbRFMKgW>; Wed, 13 Jun 2001 06:36:22 -0400
+Received: from ns.suse.de ([213.95.15.193]:15635 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S262835AbRFMKgJ>;
+	Wed, 13 Jun 2001 06:36:09 -0400
+To: Mark Hayden <mark@northforknet.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux networking and disk IO issues
+In-Reply-To: <3B1BB85B.360CE0F6@northforknet.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+In-Reply-To: Mark Hayden's message of "4 Jun 2001 20:17:03 +0200"
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
+Date: 13 Jun 2001 12:36:06 +0200
+Message-ID: <oupelsoll9l.fsf@pigdrop.muc.suse.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Jun 2001, Pavel Machek wrote:
 
-> Hi!
->
-> > I just had one of the "3com Etherlink 10/100 PCI NIC with 3XP processor"
-> > float accross my desk, I was wondering how much the linux kernel uses the
-> > 3xp processor for its encryption offloading and such.  According to the
-> > hype it does DES without using the CPU, does linux take advantage of that?
->
-> Doing DES is uninteresting these days...
->
-> That feature is useless --- everything but IPsec does encryption at
-> application layer where NIC can not help.
+[this time with l-k cc]
 
-Now, if the NIC were to integrate with OpenSSL and offload some of THAT
-donkey work... Just offloading DES isn't terribly useful, as Pavel says:
-apart from anything else, DES is a bit elderly now - SSH using 3DES or
-Blowfish etc... How dedicated is this card? Could it be used to offload
-other work?
+Mark Hayden <mark@northforknet.com> writes:
+
+> * The Linux networking stack requires all skbuff buffers to be
+>   contiguous.  As far as I can tell, this makes it impossible to
+>   write high-bandwidth UDP applications on Linux.  For instance, the
+>   kernel will drop a fragmented 8KB message if it cannot allocate 8KB
+>   of contiguous memory to reassemble it into.  I have found that it
+>   is relatively easy to enter regimes where this can cause massive
+>   packet loss.
+
+2.4.4+ supports fragmented packets and packet lists.
+
+You're probably seeing the 8K allocation problem for incoming packets which need to be
+allocated by the driver on interrupt time with GFP_ATOMIC. GFP_ATOMIC memory is limited.
+The 2.4 VM unfortunately has no way to keep more GFP_ATOMIC free ATM and tune for heavy
+interrupt load (2.2 allowed this by increasing the freepages sysctl). Hopefully this VM bug 
+will be fixed in the not too far future.
+
+A workaround in the driver would be to use the 2.4.4 fragmented buffers 
+(of course you'll still run into GFP_ATOMIC limits without manual tuning)
+or allocate RX memory from a thread with GFP_KERNEL.
 
 
-James.
 
+-Andi

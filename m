@@ -1,33 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129397AbRAaDtB>; Tue, 30 Jan 2001 22:49:01 -0500
+	id <S129604AbRAaD7B>; Tue, 30 Jan 2001 22:59:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129604AbRAaDsu>; Tue, 30 Jan 2001 22:48:50 -0500
-Received: from [200.216.82.35] ([200.216.82.35]:24960 "EHLO
-	pervalidus.dyndns.org") by vger.kernel.org with ESMTP
-	id <S129397AbRAaDsg>; Tue, 30 Jan 2001 22:48:36 -0500
-Date: Wed, 31 Jan 2001 01:48:24 -0200
-From: Frédéric L. W. Meunier <0@pervalidus.net>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.4.1 with pppd 2.4.0: log problem
-Message-ID: <20010131014824.E160@pervalidus>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.14i
-X-Mailer: Mutt/1.3.14i - Linux 2.4.1
+	id <S130107AbRAaD6w>; Tue, 30 Jan 2001 22:58:52 -0500
+Received: from narnia3.rutgers.edu ([165.230.180.159]:61165 "EHLO
+	narnia3.rutgers.edu") by vger.kernel.org with ESMTP
+	id <S129604AbRAaD6n>; Tue, 30 Jan 2001 22:58:43 -0500
+Message-ID: <3A778D72.DE274738@bleh.org>
+Date: Tue, 30 Jan 2001 22:58:42 -0500
+From: Nadeem Riaz <nads@bleh.org>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.1 doesn't boot on athlon
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi. It worked without any problems with 2.4.0. Now with 2.4.1 I
-don't get anymore the usual messages in /var/log/messages (like
-pppd start and local and remote IP). The only change was the
-addition of devfs, but I don't think it's causing this problem.
-Any hints? I didn't change anything on my machine.
+Hi,
 
--- 
-0@pervalidus.{net, {dyndns.}org} Tel: 55-21-717-2399 (Niterói-RJ BR)
+   Compiled 2.4.1 with the same options as 2.4.0, it hangs right after
+"Freed kernel memory: 228k".
+
+If needed:
+
+Kernel config avaible
+@ http://nriaz.resnet.rutgers.edu/~bleh/kernel-config-2.4.1.gz
+Computer config @ http://nut.dhs.org/mycomputer.php3
+
+Thanks in advance.
+
+-- Nadeem
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,48 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266198AbUHGACI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268148AbUHGADa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266198AbUHGACI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 20:02:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268148AbUHGACI
+	id S268148AbUHGADa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 20:03:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268253AbUHGADa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 20:02:08 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:43467 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S266198AbUHGACE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 20:02:04 -0400
-Date: Sat, 7 Aug 2004 02:01:25 +0200 (CEST)
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Message-Id: <200408070001.i7701PSa006663@burner.fokus.fraunhofer.de>
-To: mj@ucw.cz, schilling@fokus.fraunhofer.de
-Cc: James.Bottomley@steeleye.com, axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+	Fri, 6 Aug 2004 20:03:30 -0400
+Received: from web81706.mail.yahoo.com ([206.190.37.137]:50551 "HELO
+	web81706.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S268148AbUHGADV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 20:03:21 -0400
+Message-ID: <20040807000316.85612.qmail@web81706.mail.yahoo.com>
+Date: Fri, 6 Aug 2004 17:03:16 -0700 (PDT)
+From: Josh Radel <jraidman-linux@yahoo.com>
+Reply-To: jraidman-linux@yahoo.com
+Subject: elevator abstraction, anticipatory I/O backported to 2.4?
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: Martin Mares <mj@ucw.cz>
+Are there any existing patches for a backport of the
+2.6 elevator abstraction (or a specific patch for
+anticipatory I/O) to 2.4 kernels?
 
->> Let me lead you to the right place to look for:
->> 
->> 	The CAM interface (which is from the SCSI standards group)
->> 	usually is implemeted in a way that applications open /dev/cam and
->> 	later supply bus, target and lun in order to get connected
->> 	to any device on the system that talks SCSI.
->> 
->> Let me repeat: If you believe that this is a bad idea, give very good reasons.
+I've heard rumors that Digeo backported a 2.6 I/O
+scheduler. However, when I tried to download their
+open source modifications from
+http://www.digeo.com/prodserv/opensource.jsp, I wasn't
+able to extract their work. (The zip file unzips to a
+tar.bz2, which seems to be corrupt.) Who knows, maybe
+an I/O scheduler backport isn't in that archive
+anyway.
 
->There is one: hotplug. The physical topology of buses where all the SCSI-like
->devices (being it ATAPI devices, iSCSI, USB disks or other such beasts)
->are connected is too complex, so every attempt to map them to the
->(bus, target, lun) triplets in any sane way is destined to fail.
+Please CC me on any response.
 
-I see always the same answers from Linux people who don't know anyrthing than
-their belly button :-(
-
-Chek Solaris to see that your statements are wrong.
-
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
- URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily
+Thanks,
+Josh

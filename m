@@ -1,63 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265221AbVBDS34@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264863AbVBDSYe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265221AbVBDS34 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 13:29:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264917AbVBDS3y
+	id S264863AbVBDSYe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 13:24:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264026AbVBDSVN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 13:29:54 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:42642 "EHLO suse.cz")
-	by vger.kernel.org with ESMTP id S265221AbVBDS2U (ORCPT
+	Fri, 4 Feb 2005 13:21:13 -0500
+Received: from mummy.ncsc.mil ([144.51.88.129]:3509 "EHLO jazzhorn.ncsc.mil")
+	by vger.kernel.org with ESMTP id S264778AbVBDSUW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 13:28:20 -0500
-Date: Fri, 4 Feb 2005 19:28:16 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: matthieu castet <castet.matthieu@free.fr>
-Cc: linux-kernel@vger.kernel.org, Adam Belay <ambx1@neo.rr.com>,
-       bjorn.helgaas@hp.com, Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: [PATCH] PNP support for i8042 driver
-Message-ID: <20050204182816.GA3573@ucw.cz>
-References: <41960AE9.8090409@free.fr> <20041117100745.GA1387@ucw.cz> <4203B2D9.7080904@free.fr>
+	Fri, 4 Feb 2005 13:20:22 -0500
+Subject: Re: [PATCH][SELINUX] Fix selinux_inode_setattr hook
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
+       lkml <linux-kernel@vger.kernel.org>, selinux@tycho.nsa.gov
+In-Reply-To: <20050204101440.N24171@build.pdx.osdl.net>
+References: <1107539956.8078.109.camel@moss-spartans.epoch.ncsc.mil>
+	 <20050204101440.N24171@build.pdx.osdl.net>
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1107540806.8078.114.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4203B2D9.7080904@free.fr>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 04 Feb 2005 13:13:26 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 04, 2005 at 06:37:29PM +0100, matthieu castet wrote:
-> Hi,
+On Fri, 2005-02-04 at 13:14, Chris Wright wrote:
+> * Stephen Smalley (sds@tycho.nsa.gov) wrote:
+> > This patch against 2.6.11-rc3 fixes the selinux_inode_setattr hook
+> > function to honor the ATTR_FORCE flag, skipping any permission checking
+> > in that case.  Otherwise, it is possible though unlikely for a denial
+> > from the hook to prevent proper updating, e.g. for remove_suid upon
+> > writing to a file.  This would only occur if the process had write
+> > permission to a suid file but lacked setattr permission to it.  Please
+> > apply.
 > 
-> Vojtech Pavlik wrote:
-> >On Sat, Nov 13, 2004 at 02:23:53PM +0100, matthieu castet wrote:
-> >
-> >>Hi,
-> >>this patch add PNP support for the i8042 driver in 2.6.10-rc1-mm5. Acpi 
-> >>is try before the pnp driver so if you don't disable ACPI or apply 
-> >>others pnpacpi patches, it won't change anything.
-> >>
-> >>Please review it and apply if possible
-> >
-> >
-> >Ok, my thoughts on this:
-> >
-> >	It's OK to keep the device allocated to this driver via the PnP
-> >        subsystem, and not bother with releasing the code via
-> >	__initcall.
-> >
-> >	I agree that if there is a way to enumerate the device, (like
-> >	PnP, ACPI or OpenFirmware), we should use that instead of
-> >	probing and using a platform device for the controller.
-> >
-> >	I think that we should drop the ACPI support from i8042, in
-> >	favor of pnpacpi, because PnP is more generic and if the
-> > 	keyboard device was listed in PnPBIOS instead of ACPI, it'll
-> >	still work.
-> >
-> Any news about this ?
- 
-Sort of fell off my radar, can you resend?
+> Is there any reason not to promote this to the framework?
+
+I wasn't sure if a security module might still want to be notified of
+forced changes (e.g. to adjust some state in its own security
+structure), even if it skips permission checking on such changes.
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Stephen Smalley <sds@tycho.nsa.gov>
+National Security Agency
+

@@ -1,83 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263383AbVBCXxe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261761AbVBDABD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263383AbVBCXxe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 18:53:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263384AbVBCXw4
+	id S261761AbVBDABD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 19:01:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263250AbVBDABD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 18:52:56 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:54534 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261766AbVBCXwA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 18:52:00 -0500
-Date: Fri, 4 Feb 2005 10:50:44 +1100
-To: "David S. Miller" <davem@davemloft.net>
-Cc: anton@samba.org, okir@suse.de, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] arp_queue: serializing unlink + kfree_skb
-Message-ID: <20050203235044.GA8422@gondor.apana.org.au>
-References: <20050131102920.GC4170@suse.de> <E1CvZo6-0001Bz-00@gondolin.me.apana.org.au> <20050203142705.GA11318@krispykreme.ozlabs.ibm.com> <20050203203010.GA7081@gondor.apana.org.au> <20050203141901.5ce04c92.davem@davemloft.net>
+	Thu, 3 Feb 2005 19:01:03 -0500
+Received: from mo00.iij4u.or.jp ([210.130.0.19]:29647 "EHLO mo00.iij4u.or.jp")
+	by vger.kernel.org with ESMTP id S261827AbVBDAA5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 19:00:57 -0500
+Date: Fri, 4 Feb 2005 09:00:40 +0900
+From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+To: Ralf Baechle <ralf@linux-mips.org>
+Cc: yuasa@hh.iij4u.or.jp, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       linux-mips@linux-mips.org
+Subject: Re: [PATCH 2.6.11-rc2-mm2] mips: iomap
+Message-Id: <20050204090040.61ce25d2.yuasa@hh.iij4u.or.jp>
+In-Reply-To: <20050203123715.GB8509@linux-mips.org>
+References: <20050131074618.09e65a6b.yuasa@hh.iij4u.or.jp>
+	<20050203123715.GB8509@linux-mips.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="fUYQa+Pmc3FrFX/N"
-Content-Disposition: inline
-In-Reply-To: <20050203141901.5ce04c92.davem@davemloft.net>
-User-Agent: Mutt/1.5.6+20040722i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Ralf,
 
---fUYQa+Pmc3FrFX/N
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Thu, 3 Feb 2005 13:37:15 +0100
+Ralf Baechle <ralf@linux-mips.org> wrote:
 
-On Thu, Feb 03, 2005 at 02:19:01PM -0800, David S. Miller wrote:
+> On Mon, Jan 31, 2005 at 07:46:18AM +0900, Yoichi Yuasa wrote:
 > 
-> They are for cases where you want strict ordering even for the
-> non-return-value-giving atomic_t ops.
+> > This patch adds iomap functions to MIPS system.
+> 
+> And it still only works for a single PCI bus.
 
-I see.  I got atomic_dec and atomic_dec_and_test mixed up.
+Which boards are there a problem?
+ocelot-c and ocelot-g?
 
-So the problem isn't as big as I thought which is good.  sk_buff
-is only in trouble because of the atomic_read optimisation which
-really needs a memory barrier.
-
-However, instead of adding a memory barrier which makes the optimisation
-less useful, let's just get rid of the atomic_read.
-
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-
-Thanks for the document, it's really helpful.
-
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
-
---fUYQa+Pmc3FrFX/N
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=p
-
-===== include/linux/skbuff.h 1.59 vs edited =====
---- 1.59/include/linux/skbuff.h	2005-01-11 07:23:55 +11:00
-+++ edited/include/linux/skbuff.h	2005-02-04 10:44:17 +11:00
-@@ -353,14 +353,14 @@
-  */
- static inline void kfree_skb(struct sk_buff *skb)
- {
--	if (atomic_read(&skb->users) == 1 || atomic_dec_and_test(&skb->users))
-+	if (atomic_dec_and_test(&skb->users))
- 		__kfree_skb(skb);
- }
- 
- /* Use this if you didn't touch the skb state [for fast switching] */
- static inline void kfree_skb_fast(struct sk_buff *skb)
- {
--	if (atomic_read(&skb->users) == 1 || atomic_dec_and_test(&skb->users))
-+	if (atomic_dec_and_test(&skb->users))
- 		kfree_skbmem(skb);
- }
- 
-
---fUYQa+Pmc3FrFX/N--
+Yoichi

@@ -1,35 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261560AbSJURMv>; Mon, 21 Oct 2002 13:12:51 -0400
+	id <S261536AbSJURSP>; Mon, 21 Oct 2002 13:18:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261563AbSJURMv>; Mon, 21 Oct 2002 13:12:51 -0400
-Received: from fencepost.gnu.org ([199.232.76.164]:42966 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S261560AbSJURMv>; Mon, 21 Oct 2002 13:12:51 -0400
-From: Richard Stallman <rms@gnu.org>
-To: mark@mark.mielke.cc
-CC: hch@infradead.org, linux-kernel@vger.kernel.org
-In-reply-to: <20021020083323.GA5064@mark.mielke.cc> (message from Mark Mielke
-	on Sun, 20 Oct 2002 04:33:23 -0400)
-Subject: Re: Bitkeeper outrage, old and new
-Reply-to: rms@gnu.org
-References: <E180rX3-0005dL-00@fencepost.gnu.org> <20021014170248.A19897@infradead.org> <E181WHl-00010N-00@fencepost.gnu.org> <20021015193138.A4010@infradead.org> <200210161856.g9GIu57t013710@santafe.santafe.edu> <20021016201328.A24882@infradead.org> <E1832Lh-0004xH-00@fencepost.gnu.org> <20021020083323.GA5064@mark.mielke.cc>
-Message-Id: <E183gCg-0004x5-00@fencepost.gnu.org>
-Date: Mon, 21 Oct 2002 13:18:58 -0400
+	id <S261541AbSJURSP>; Mon, 21 Oct 2002 13:18:15 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:13764 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S261536AbSJURSO>;
+	Mon, 21 Oct 2002 13:18:14 -0400
+Date: Mon, 21 Oct 2002 10:22:38 -0700
+To: Alessandro Suardi <alessandro.suardi@oracle.com>
+Cc: linux-kernel@vger.kernel.org, irda-users@lists.sourceforge.net
+Subject: Re: 2.5.42: IrDA issues
+Message-ID: <20021021172238.GF20404@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <7034136.1034515639605.JavaMail.nobody@web11.us.oracle.com> <20021014173421.GC10672@bougret.hpl.hp.com> <3DB3C6A7.5040007@oracle.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DB3C6A7.5040007@oracle.com>
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    > You are asking for the power to silence criticism.  That is not
-    > freedom, that is a power.
+On Mon, Oct 21, 2002 at 11:19:35AM +0200, Alessandro Suardi wrote:
+> Jean Tourrilhes wrote:
+> >On Sun, Oct 13, 2002 at 05:27:19AM -0800, ALESSANDRO.SUARDI wrote:
+> >
+> >>I have a PPP over IrDA connection to my Nokia phone; under 2.4.20-preX I 
+> >>have no
+> >>problem keeping the link up, while in 2.5.4x it fails in a very short 
+> >>time like this:
+> >>
+> >>Oct 13 01:13:13 dolphin kernel: IrLAP, no activity on link!
+> >>Oct 13 01:13:11 dolphin kernel: NETDEV WATCHDOG: irda0: transmit timed out
+> >>Oct 13 01:13:11 dolphin kernel: irda0: transmit timed out
+> >>Oct 13 01:13:13 dolphin kernel: IrLAP, no activity on link!
+> >>Oct 13 01:13:13 dolphin kernel: NETDEV WATCHDOG: irda0: transmit timed out
+> >>Oct 13 01:13:13 dolphin kernel: irda0: transmit timed out
+> >>Oct 13 01:13:13 dolphin pppd[5378]: Modem hangup
+> >>Oct 13 01:13:13 dolphin pppd[5378]: Connection terminated.
+> >>Oct 13 01:13:13 dolphin pppd[5378]: Connect time 1.8 minutes.
+> >>Oct 13 01:13:13 dolphin pppd[5378]: Sent 19541 bytes, received 35933 
+> >>bytes.
+> >>Oct 13 01:13:13 dolphin pppd[5378]: Exit.
+> >>
+> >>I also get the transmit timed out spam (why one with WATCHDOG and one 
+> >>without ?)
+> >>in 2.4.20-pre but the IrLAP line isn't there. And the GPRS link stays 
+> >>up...
+> >>
+> >>
+> >>Thanks in advance for any insight,
+> >>
+> >>--alessandro
+> >
+> >
+> >	Please do yourself a favor and give me a proper bug report,
+> >including hardware, driver and irdadump.
+> >
+> 
+> Will provide irdadump stuff soon[-ish], I'm wading through a backlog
+>  of, uhm, too much email. The short-form report really meant "is this
+>  a known issue ?"...
 
-    He is asking for the freedom to not be JUDGED based on the toolset
-    that he prefers to use.
+	irtty is busted, that's why I asked for the driver you are
+using (its clearly a driver issue). I believe smc-ircc and irport are
+sick as well.
 
-He is not entitled to control how others judge him.  Nobody is
-entitled to that.  The "freedom not to be judged" would mean the power
-to shut off debate about your actions.
+> Anyway - the box is a Dell Latitude CPx750J with this:
+> 
+> [root@dolphin root]# findchip -v
+> Found SMC FDC37N958FR Controller at 0x3f0, DevID=0x01, Rev. 1
+>     SIR Base 0x3e8, FIR Base 0x290
+>     IRQ = 4, DMA = 3
+>     Enabled: yes, Suspended: no
+>     UART compatible: yes
+>     Half duplex delay = 3 us
+> 
+> So clearly I'm using smc-ircc.o.
+> 
+> (Of course I'll try and reproduce in 2.5.44 tonight or tomorrow).
 
+	Stop ! Daniele Peri has just released a new version of the SMC
+driver (smc-ircc2, link on my web page). I would like you to try this
+new driver and report to me. I plan to push this new driver in the
+kernel soon. So, don't waste too much time on the old driver.
 
+> Thanks,
+> 
+> --alessandro
 
+	Have fun...
 
-
+	Jean

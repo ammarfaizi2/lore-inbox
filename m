@@ -1,31 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312938AbSGUTW0>; Sun, 21 Jul 2002 15:22:26 -0400
+	id <S313113AbSGUT1p>; Sun, 21 Jul 2002 15:27:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313113AbSGUTW0>; Sun, 21 Jul 2002 15:22:26 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:48526 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S312938AbSGUTWZ>;
-	Sun, 21 Jul 2002 15:22:25 -0400
-Date: Sun, 21 Jul 2002 21:24:25 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, Robert Love <rml@tech9.net>
-Subject: Re: [patch] "big IRQ lock" removal, 2.5.27-A1
-In-Reply-To: <Pine.LNX.4.44.0207212111300.24336-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0207212121050.24336-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313125AbSGUT1p>; Sun, 21 Jul 2002 15:27:45 -0400
+Received: from ns.suse.de ([213.95.15.193]:15890 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S313113AbSGUT1o>;
+	Sun, 21 Jul 2002 15:27:44 -0400
+To: Nivedita Singhvi <niv@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, rwhron@earthlink.net
+Subject: Re: [lmbench] tcp bandwidth on athlon
+References: <1027279106.3d3b0902a9209@imap.linux.ibm.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 21 Jul 2002 21:30:51 +0200
+In-Reply-To: Nivedita Singhvi's message of "21 Jul 2002 21:21:07 +0200"
+Message-ID: <p73lm84ubdg.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nivedita Singhvi <niv@us.ibm.com> writes:
 
-> (there's one more open bug, i can now see the 'exited with preempt_count
-> 1' messages.)
+> Hmm, so if K6 and Xeon can scrounge up 80% of pipe
+> performance, why is the Athlon an order of magnitude off
+> at 8%? How did your Athlon perform in other tests relative
+> to these other procs?
 
-fixed this bug as well, new patch is at:
+The pipe test basically tests copy_from_user()/copy_to_user().
+The standard implementation of these macros (essentially rep ; movsl)
+doesn't exploit the Athlon very well - it is not good at this
+instruction. AFAIK Intel CPUs have an faster microcode
+implementation for this. 
 
-   http://redhat.com/~mingo/remove-irqlock-patches/remove-irqlock-2.5.27-A4
+You could likely do better on Athlon with a copy*user that uses 
+an unrolled loop with explicit movls or even SSE.
+[similar to the implementation the x86-64 port uses, but without
+the NT instructions]
 
-	Ingo
-
+-Andi

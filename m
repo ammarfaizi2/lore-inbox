@@ -1,78 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278017AbRJIWVP>; Tue, 9 Oct 2001 18:21:15 -0400
+	id <S278019AbRJIWWp>; Tue, 9 Oct 2001 18:22:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278016AbRJIWVB>; Tue, 9 Oct 2001 18:21:01 -0400
-Received: from [213.97.184.209] ([213.97.184.209]:128 "HELO piraos.com")
-	by vger.kernel.org with SMTP id <S278015AbRJIWUN> convert rfc822-to-8bit;
-	Tue, 9 Oct 2001 18:20:13 -0400
-Date: Wed, 10 Oct 2001 00:20:32 +0200 (CEST)
-From: German Gomez Garcia <german@piraos.com>
-To: Dan Hollis <goemon@anime.net>
-cc: Mailing List Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: More on the 760MP
-In-Reply-To: <Pine.LNX.4.30.0110091435540.17874-100000@anime.net>
-Message-ID: <Pine.LNX.4.33.0110100011350.446-100000@hal9000.piraos.com>
+	id <S278018AbRJIWWi>; Tue, 9 Oct 2001 18:22:38 -0400
+Received: from Expansa.sns.it ([192.167.206.189]:10770 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S278020AbRJIWWS>;
+	Tue, 9 Oct 2001 18:22:18 -0400
+Date: Wed, 10 Oct 2001 00:22:35 +0200 (CEST)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: Gergely Tamas <dice@mfa.kfki.hu>
+cc: Marco Berizzi <pupilla@hotmail.com>,
+        VDA <VDA@port.imtp.ilyichevsk.odessa.ua>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] again: Re: Athlon kernel crash (i686 works)
+In-Reply-To: <Pine.LNX.4.33.0110091347001.12835-100000@falka.mfa.kfki.hu>
+Message-ID: <Pine.LNX.4.33.0110100021360.24292-100000@Expansa.sns.it>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Oct 2001, Dan Hollis wrote:
+on 2.4.10
 
-> On Tue, 9 Oct 2001, German Gomez Garcia wrote:
-> > On Tue, 9 Oct 2001, Dan Hollis wrote:
-> > > On Tue, 9 Oct 2001, German Gomez Garcia wrote:
-> > > > it appears in the /proc/cmdline that message stills apears.
-> > > > Also I'm unable to get correct readings with lm_sensors (CVS), I've been
-> > > > enable to detect the w83781d chip using the i2c-amd756 SMbus but half of
-> > > > the times the kernel hangs up when loading this module.
-> > > 1) You need to enable ACPI in bios for sensors to work.
-> > 	What about the kernel? must I enable it there too?
+*** linux/arch/i386/kernel/pci-pc.c     Mon Sep 24 00:21:37 2001
+--- 2.4.10/arch/i386/kernel/pci-pc.c    Sat Sep 29 12:03:13 2001
+***************
+*** 907,912 ****
+--- 907,928 ----
+        return rt;
+  }
+
++ /* Fixes some oopses on fast_copy_page when it uses 'movntq's
++  * instead of 'movq's on Athlon/Duron optimized kernels.
++  * Bit 7 at offset 0x55 seems to be responsible.
++  * > Device 0 Offset 55 - Debug (RW)
++  * > 7-0 Reserved (do not program). default = 0
++  * > *** ABIT KT7A 3R BIOS: non-zero!? (oopses)
++  * > *** ABIT KT7A YH BIOS: zero. (works)
++  */
++ static void __init pci_fixup_athlon_bug(struct pci_dev *d)
++ {
++        u8 v;
++        printk("Trying to stomp on Athlon bug...\n");
++        pci_read_config_byte(d, 0x55, &v);
++        v &= 0x7f; /* clear bit 55.7 */
++        pci_write_config_byte(d, 0x55, v);
++ }
+
+  int pcibios_set_irq_routing(struct pci_dev *dev, int pin, int irq)
+  {
+***************
+*** 1172,1177 ****
+--- 1188,1194 ----
+        { PCI_FIXUP_HEADER,     PCI_ANY_ID,             PCI_ANY_ID,
+pci_fixup_ide_bases },
+        { PCI_FIXUP_HEADER,     PCI_VENDOR_ID_SI,
+PCI_DEVICE_ID_SI_5597, pci_fixup_latency },
+        { PCI_FIXUP_HEADER,     PCI_VENDOR_ID_SI,
+PCI_DEVICE_ID_SI_5598, pci_fixup_latency },
++       { PCI_FIXUP_HEADER,     PCI_VENDOR_ID_VIA,
++PCI_DEVICE_ID_VIA_8363_0, pci_fixup_athlon_bug },
+        { PCI_FIXUP_HEADER,     PCI_VENDOR_ID_INTEL,
+PCI_DEVICE_ID_INTEL_82371AB_3,  pci_fixup_piix4_acpi },
+        { 0 }
+  };
+
+
+
+On Tue, 9 Oct 2001, Gergely Tamas wrote:
+
+> Hi!
 >
-> No. You don't need it in kernel.
-
-	Well, I must include it in the kernel to make it work, if I don't
-it detects a w83627hf instead of the w83782d, and it is unable to set it
-up on the bus:
-
-i2c-proc.o version 2.6.1 (20010825)
-w83781d.o version 2.6.1 (20010830)
-i2c-core.o: driver W83781D sensor driver registered.
-i2c-core.o: client [W83627HF chip] registered to adapter [SMBus AMD7X6 adapter at 80e0](pos. 0).
-i2c-core.o: client [W83627HF subclient] registered to adapter [SMBus AMD7X6 adapter at 80e0](pos. 1).
-i2c-core.o: client [W83627HF subclient] registered to adapter [SMBus AMD7X6 adapter at 80e0](pos. 2).
-i2c-core.o: client [W83782D chip] registered to adapter [SMBus AMD7X6 adapter at 80e0](pos. 3).
-w83781d.o: Subclient 0 registration at address 0x49 failed.
-
-	then I get incorrect readings for the every sensors 1 goes up to
-77º, 2 goes down to 12º, and 3 goes really down to 0º
-
-	If I include it in the kernel I get the following:
-
-i2c-proc.o version 2.6.1 (20010825)
-w83781d.o version 2.6.1 (20010830)
-i2c-core.o: driver W83781D sensor driver registered.
-i2c-core.o: client [W83782D chip] registered to adapter [SMBus AMD7X6 adapter at 80e0](pos. 0).
-i2c-core.o: client [W83782D subclient] registered to adapter [SMBus AMD7X6 adapter at 80e0](pos. 1).
-i2c-core.o: client [W83782D subclient] registered to adapter [SMBus AMD7X6 adapter at 80e0](pos. 2).
-
-	And after changing the type of the sensor to 2 (3904 transistor)
-it works perfectly, no temp offset, at least it reports the same than the
-BIOS (well I cannot be sure of that, but it doesn't differ more than one
-or two degrees).
-
-	Yeaahh!! that's outstanding online support, anybody still think
-that paid support is better than friendly penguins? :-D
-	I'll start burn-testing this box now that I have some way to
-check temperature.
-
-	Regards and great thanks!
-
-	- german
-
--------------------------------------------------------------------------
-German Gomez Garcia          | Send email with "SEND GPG KEY" as subject
-<german@piraos.com>          | to receive my GnuPG public key.
+>  > Could I try to patch also 2.4.10 kernel?
+>
+> You can do this 'by hand'. 2.4.10 changed the structure a bit. But I sent
+> VDA a modified patch some time ago. Maybe just ask him.
+>
+>  > This patch will be included in kernel 2.4.11?
+>
+> I don't think so. :(
+>
+> Honestly I'm not happy about this, but there had beed a large discussion
+> about it. There were some people which mobo worked right 'out of the box',
+> and they found that others should patch their kernels by hand to be able
+> to use their linux boxes. :(((
+>
+> Gergely
+>
+> ps: I use this patch too on an ABIT KT7A mobo with Duron 750
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

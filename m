@@ -1,61 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263673AbTDGVOx (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 17:14:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263675AbTDGVOx (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 17:14:53 -0400
-Received: from mail-7.tiscali.it ([195.130.225.153]:38520 "EHLO
-	mail.tiscali.it") by vger.kernel.org with ESMTP id S263673AbTDGVOw (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Apr 2003 17:14:52 -0400
-Date: Mon, 7 Apr 2003 23:25:43 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Rik van Riel <riel@surriel.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andrew Morton <akpm@digeo.com>, mingo@elte.hu, hugh@veritas.com,
-       dmccr@us.ibm.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org, Bill Irwin <wli@holomorphy.com>
-Subject: Re: subobj-rmap
-Message-ID: <20030407212543.GM5750@dualathlon.random>
-References: <Pine.LNX.4.44.0304061737510.2296-100000@chimarrao.boston.redhat.com> <1600000.1049666582@[10.10.2.4]> <20030406221547.GP1326@dualathlon.random> <2640000.1049667906@[10.10.2.4]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2640000.1049667906@[10.10.2.4]>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+	id S263665AbTDGV01 (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 17:26:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263672AbTDGV01 (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 17:26:27 -0400
+Received: from 60.54.252.64.snet.net ([64.252.54.60]:54660 "EHLO
+	hotmale.blue-labs.org") by vger.kernel.org with ESMTP
+	id S263665AbTDGV0Z (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 17:26:25 -0400
+Message-ID: <3E92F953.8080401@blue-labs.org>
+Date: Tue, 08 Apr 2003 12:31:15 -0400
+From: David Ford <david+powerix@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4a) Gecko/20030403
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Neil Brown <neilb@cse.unsw.edu.au>, Oleg Drokin <green@namesys.com>,
+       Hans Reiser <reiser@namesys.com>
+Subject: [OOPS] 100% repeatable OOPS, 2.5.61-66, NFS and reiserfs
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Bmilter: Processing completed, Bmilter version 0.1.1 build 917; timestamp 2003-04-07 21:25:41, message serial number 894615
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 06, 2003 at 03:25:08PM -0700, Martin J. Bligh wrote:
-> >> We can always leave the sys_remap_file_pages stuff using pte_chains,
-> > 
-> > not sure why you want still to have the vm to know about the
-> > mmap(VM_NONLINEAR) hack at all.
-> > 
-> > that's a vm bypass. I can bet the people who wants to use it for running
-> > faster on the the 32bit archs will definitely prefer zero overhead and
-> > full hardware speed with only the pagetable and tlb flushing trash, and
-> > zero additional kernel internal overhead. that's just a vm bypass that
-> > could otherwise sit in kernel module, not a real kernel API.
-> 
-> Well, you don't get zero overhead whatever you do. You either pay the
-> cost at remap time of manipulating sub-objects, or the cost at page-touch
-> time of the pte_chains stuff. I suspect sub-objects are cheaper if we
-> read /write the 32K chunks, not if people mostly just touch one page
-> per remap though.
-> 
-> What do you think about using this for the linear stuff though?
+1. Power loss this morning
+2. Fixed filesystems (reiserfstools is fscking useless on root filesystems)
+3. Now server OOPSes when nfs client tries to stat/read files/dirs
 
-I think at this only for the linear stuff. it would solve Andrew's
-exploit against objrmap, for each page we would walk only the vmas
-matching the pagetables mapping to the page. However those sub-objects
-have a cost, the cost will be 8bytes per fragment. the slowest part
-should be the split of the subobject when a new mapping happens and the
-possible flood of list_add/list_del. I'm unsure it worth.
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+ printing eip:
+00000000
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0060:[<00000000>]    Not tainted
+EFLAGS: 00010202
+EIP is at 0x0
+eax: 00000000   ebx: 00000006   ecx: c03efb28   edx: c827be94
+esi: c83ad014   edi: dfd16e00   ebp: c827beac   esp: c827be70
+ds: 007b   es: 007b   ss: 0068
+Process nfsd (pid: 1188, threadinfo=c827a000 task=df3c2740)
+Stack: c01ce6b8 dfd16e00 c827bea0 c827be94 c01ad070 dfff04f4 00000006 
+c83ad004
+       11270000 00000e07 000008dd 0000004d 0002f4f2 00000e07 01214b98 
+c827bef4
+       c01ad4c7 dfd16e00 c83ad014 00000006 00000006 c01ad070 dfff04f4 
+c83ad004
+Call Trace:
+ [<c01ce6b8>] reiserfs_decode_fh+0xb4/0xc0
+ [<c01ad070>] nfsd_acceptable+0x0/0x114
+ [<c01ad4c7>] fh_verify+0x343/0x4f8
+ [<c01ad070>] nfsd_acceptable+0x0/0x114
+ [<c01ae694>] nfsd_access+0x28/0xf4
+ [<c01b4ec9>] nfsd3_proc_access+0xc1/0xd0
+ [<c01ab4a3>] nfsd_dispatch+0xc3/0x18f
+ [<c033b5cd>] svc_process+0x3ed/0x67a
+ [<c01ab200>] nfsd+0x23c/0x41c
+ [<c01aafc4>] nfsd+0x0/0x41c
+ [<c0107145>] kernel_thread_helper+0x5/0xc
 
-However it would be nice to se how the current 2.4 pte walking clock
-algorithm does compared to objrmap and rmap when ext2 is used because
-ext3 generated an I/O bound behaviour at least for my tree, that made
-any vm-side comparison invalid.
 
-Andrea
+Code:  Bad EIP value.
+ <1>Unable to handle kernel NULL pointer dereference at virtual address 
+00000000
+ printing eip:
+00000000
+*pde = 00000000
+Oops: 0000
+CPU:    1
+EIP:    0060:[<00000000>]    Not tainted
+EFLAGS: 00010202
+EIP is at 0x0
+eax: 00000000   ebx: 00000006   ecx: c03efb28   edx: c8269e94
+esi: c83a0014   edi: dfd16e00   ebp: c8269eac   esp: c8269e70
+ds: 007b   es: 007b   ss: 0068
+Process nfsd (pid: 1189, threadinfo=c8268000 task=df5ba720)
+Stack: c01ce6b8 dfd16e00 c8269ea0 c8269e94 c01ad070 dfff04f4 00000006 
+c83a0004
+       11270000 00000e07 000008dd 0000004d 0002f4f2 00000e07 01214b98 
+c8269ef4
+       c01ad4c7 dfd16e00 c83a0014 00000006 00000006 c01ad070 dfff04f4 
+c83a0004
+Call Trace:
+ [<c01ce6b8>] reiserfs_decode_fh+0xb4/0xc0
+ [<c01ad070>] nfsd_acceptable+0x0/0x114
+ [<c01ad4c7>] fh_verify+0x343/0x4f8
+ [<c01ad070>] nfsd_acceptable+0x0/0x114
+ [<c01ae694>] nfsd_access+0x28/0xf4
+ [<c01b4ec9>] nfsd3_proc_access+0xc1/0xd0
+ [<c01ab4a3>] nfsd_dispatch+0xc3/0x18f
+ [<c033b5cd>] svc_process+0x3ed/0x67a
+ [<c01ab200>] nfsd+0x23c/0x41c
+ [<c01aafc4>] nfsd+0x0/0x41c
+ [<c0107145>] kernel_thread_helper+0x5/0xc
+
+(repeats several times)
+
+Server is now useless and needs to be rebooted.  I've shutdown my NFS 
+clients in order to run the server minimally, it's a mail/web server.
+
+Assistance would be appreciated.
+
+

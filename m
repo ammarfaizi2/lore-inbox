@@ -1,52 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266048AbUIOOt7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266273AbUIOOyh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266048AbUIOOt7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 10:49:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266263AbUIOOt7
+	id S266273AbUIOOyh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 10:54:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266274AbUIOOyh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 10:49:59 -0400
-Received: from smtp3.adl2.internode.on.net ([203.16.214.203]:45317 "EHLO
-	smtp3.adl2.internode.on.net") by vger.kernel.org with ESMTP
-	id S266048AbUIOOt5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 10:49:57 -0400
-Date: Thu, 16 Sep 2004 00:40:42 +1000
-From: callipygous@internode.on.net
-To: linux-kernel@vger.kernel.org
-Subject: bug: terminal freezes
-Message-ID: <20040915144042.GA17054@burrito>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Wed, 15 Sep 2004 10:54:37 -0400
+Received: from chello062179026180.chello.pl ([62.179.26.180]:39859 "EHLO
+	pioneer.space.nemesis.pl") by vger.kernel.org with ESMTP
+	id S266273AbUIOOye (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 10:54:34 -0400
+Date: Wed, 15 Sep 2004 16:55:53 +0200 (CEST)
+From: Tomasz Rola <rtomek@cis.com.pl>
+To: Andre Bonin <kernel@bonin.ca>
+cc: linux-kernel@vger.kernel.org, Tomasz Rola <rtomek@cis.com.pl>
+Subject: Re: PCI coprocessors
+In-Reply-To: <41483BD3.4030405@bonin.ca>
+Message-ID: <Pine.LNX.3.96.1040915164509.26011A-100000@pioneer.space.nemesis.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I probably used the 2.6.8 kernel for about a week before going back to 2.6.7  due to a bug which
-makes the keyboard loose input.  I'm not exactly sure what causes this, but have found it to happen
-when I ^z a process and then attempt to fg it again.  What happens is I cannot do anything, the 
-process doesn't come back into the foreground properly, and i loose the keyboard.  
-I thought it must have been a crash, but no, I could still ssh into the machine, which I did, and
-killed the process that didn't foreground properly, which I noticed changed the screen on the 
-offending box back to another psuedo terminal session which was running irssi, and the screen
-was still scrolling text as people chatted.  So I tried then, since im using a USB keyboard, 
-restarting hotplug, after doing that, I was able to use the keyboard again.
+On Wed, 15 Sep 2004, Andre Bonin wrote:
 
-Hope this helps anyway, any other questions don't hesitate to ask.
-Thanks
+> Hey all,
+[...]
+> Which leads me to my questions:
+> 
+> 1) Is their support for having two different 'machine types' within one 
+> kernel? that is for example, certain executables for intel would get run 
+> on an intel processor, and others would get run on processor with type XXXX.
 
-Mark
--- 
-          POWERED BY                                      #####
-                                                         #######
-                 @                                       ##O#O##
-######        @@#                                        #VVVVV#
-  ##           #                                       ##  VVV  ##
-  ##       @@@   ### ####   ###    ###  ##### ######  #          ##
-  ##      @  @#   ###    ##  ##     ##    ###  ##    #            ##
-  ##     @   @#   ##     ##  ##     ##      ###      #            ###
-  ##        @@#   ##     ##  ##     ##      ###     QQ#           ##Q
-  ##     # @@#    ##     ##  ##     ##     ## ##  QQQQQQ#       #QQQQQQ
-  ##    ## @@# #  ##     ##  ###   ###    ##   ## QQQQQQQ#     #QQQQQQQ
-##########  ###  ####   ####   #### ### ##### ##### QQQQQ#######QQQQQ
+There are probably no impossible things - some may be unthinkable but once
+they are thought of, they can be done too. But this one thing may be
+rather difficult (just my opinion).
+
+How about porting kernel and gcc to your fp-cpu and use pci as a
+kind of fast network-like interconnect? After loading a kernel into it
+somehow, boot it with nfs root and run the rest from nfs server that would
+be provided by a host Intel machine.
+
+That would require less changes to a kernel, probably. A module for a
+host, for example - some "pci-net". And port of a kernel to your fp-cpu
+which should be easier than putting support for heterogenous
+multiprocessors...
+
+bye
+T.
+
+- --
+** A C programmer asked whether computer had Buddha's nature.      **
+** As the answer, master did "rm -rif" on the programmer's home    **
+** directory. And then the C programmer became enlightened...      **
+**                                                                 **
+** Tomasz Rola          mailto:tomasz_rola@bigfoot.com             **
+
+-----BEGIN PGP SIGNATURE-----
+Version: PGPfreeware 5.0i for non-commercial use
+Charset: noconv
+
+iQA/AwUBQUhX/xETUsyL9vbiEQKAlACg9Rv6rD8INCQFItk1/s5OfZbXjukAn2Mp
+PGjv6ihFXwTInSn8nu3ZOKpu
+=E5XU
+-----END PGP SIGNATURE-----
+
+

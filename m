@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262358AbSKCT1s>; Sun, 3 Nov 2002 14:27:48 -0500
+	id <S262402AbSKCTeJ>; Sun, 3 Nov 2002 14:34:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262370AbSKCT1s>; Sun, 3 Nov 2002 14:27:48 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:10256 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S262358AbSKCT1E>; Sun, 3 Nov 2002 14:27:04 -0500
-Message-Id: <200211031928.gA3JSSp29136@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jakub Jelinek <jakub@redhat.com>
-Subject: Re: Some functions are not inlined by gcc 3.2, resulting code is ugly
-Date: Sun, 3 Nov 2002 22:20:25 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Dave Jones <davej@suse.de>
-References: <200211031125.gA3BP4p27812@Port.imtp.ilyichevsk.odessa.ua> <20021103103710.D10988@devserv.devel.redhat.com> <1036340502.29642.36.camel@irongate.swansea.linux.org.uk>
-In-Reply-To: <1036340502.29642.36.camel@irongate.swansea.linux.org.uk>
+	id <S262430AbSKCTeI>; Sun, 3 Nov 2002 14:34:08 -0500
+Received: from amsfep14-int.chello.nl ([213.46.243.22]:22346 "EHLO
+	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
+	id <S262402AbSKCTca>; Sun, 3 Nov 2002 14:32:30 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Jos Hulzink <josh@stack.nl>
+To: Vojtech Pavlik <vojtech@suse.cz>, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: Petition against kernel configuration options madness...
+Date: Sun, 3 Nov 2002 22:39:10 +0100
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org
+References: <200211031809.45079.josh@stack.nl> <3DC56270.8040305@pobox.com> <20021103200704.A8377@ucw.cz>
+In-Reply-To: <20021103200704.A8377@ucw.cz>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200211032239.10843.josh@stack.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3 November 2002 14:21, Alan Cox wrote:
-> On Sun, 2002-11-03 at 15:37, Jakub Jelinek wrote:
-> > On Sun, Nov 03, 2002 at 04:14:26PM -0200, Denis Vlasenko wrote:
-> > > Here is the cure: force_inline will guarantee inlining.
-> > >
-> > > To use _only_ with functions which meant to be almost
-> > > optimized away to nothing but are large and gcc might decide
-> > > they are _too_ large for inlining.
-> >
-> > Well, you can as well bump -finline-limit, like
-> > -finline-limit=2000. The default is too low for kernel code (and
-> > glibc too).
+On Sunday 03 November 2002 20:07, Vojtech Pavlik wrote:
+> On Sun, Nov 03, 2002 at 12:52:48PM -0500, Jeff Garzik wrote:
+
+> > Unfortunately I don't have any concrete suggestions for Vojtech (input
+> > subsystem maintainer), just a request that it becomes easier and more
+> > obvious how to configure the keyboard and mouse that is found on > 90%
+> > of all Linux users computers [IMO]...
 >
-> I would venture the reverse interpretation for modern processors, the
-> kernel inlines far far too much
+> Too bad you don't have any suggestions. I completely agree this should
+> be simplified, while I wouldn't be happy to lose the possibility of not
+> compiling AT keyboard support in.
 
-I agree that there are far too many large inlines. But.
+Something I have been thinking about for a while is a quick-config option 
+(that sets some defaults that hold for 90% of the systems), or an expert mode 
+that shows extra options. Though I understand that this is hard to do, and 
+much hardware differs, I think it can be done for some basics like keyboard, 
+mouse, USB and stuff.
 
-__constant_c_and_count_memset *has to* be inlined.
-There is large switch statement which meant to be optimized out.
-It does optimize out *only if* count is compile-time constant.
---
-vda
+Yes, this will cause your kernel to be bigger than optimal, for some drivers 
+will be compiled in that are not used on your system. But if you want you can 
+optimize things away after clicking <set defaults for standard IBM PC>.
+
+If this idea is not blown away immediately, I'm willing to work this idea out 
+a little, though I can understand that people call me an idiot...
+
+Jos
+
+

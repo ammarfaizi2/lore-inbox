@@ -1,56 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276511AbRJKPYN>; Thu, 11 Oct 2001 11:24:13 -0400
+	id <S276451AbRJKPYN>; Thu, 11 Oct 2001 11:24:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276534AbRJKPYE>; Thu, 11 Oct 2001 11:24:04 -0400
-Received: from adsl-212-59-30-243.takas.lt ([212.59.30.243]:18933 "EHLO
-	gintaras.vetrunge.lt.eu.org") by vger.kernel.org with ESMTP
-	id <S276451AbRJKPXv>; Thu, 11 Oct 2001 11:23:51 -0400
-Date: Thu, 11 Oct 2001 17:24:17 +0200
-From: Marius Gedminas <mgedmin@centras.lt>
-To: linux-kernel@vger.kernel.org
-Subject: Re: keyboard + PS/2 mouse locks after opening psaux
-Message-ID: <20011011172417.A3604@gintaras>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <m3elodw1tv.fsf@defiant.pm.waw.pl>
-Mime-Version: 1.0
+	id <S276527AbRJKPYD>; Thu, 11 Oct 2001 11:24:03 -0400
+Received: from mail.spylog.com ([194.67.35.220]:13532 "HELO mail.spylog.com")
+	by vger.kernel.org with SMTP id <S276534AbRJKPXp>;
+	Thu, 11 Oct 2001 11:23:45 -0400
+Date: Thu, 11 Oct 2001 19:20:09 +0400
+From: "Oleg A. Yurlov" <kris@spylog.com>
+X-Mailer: The Bat! (v1.53d)
+Reply-To: "Oleg A. Yurlov" <kris@spylog.com>
+Organization: SpyLOG Ltd.
+X-Priority: 3 (Normal)
+Message-ID: <58528703605.20011011192009@spylog.com>
+To: Cliff Albert <cliff@oisec.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re[2]: 2.4.11aa1 and AIC7XXX
+In-Reply-To: <20011011163105.A18508@oisec.net>
+In-Reply-To: <13522687985.20011011173954@spylog.com>
+ <20011011163105.A18508@oisec.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m3elodw1tv.fsf@defiant.pm.waw.pl>
-User-Agent: Mutt/1.3.22i
-X-URL: http://ice.dammit.lt/~mgedmin/
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 09, 2001 at 12:21:48PM +0200, Krzysztof Halasa wrote:
-> I'm having the following problem: after I start X11 (or gpm with no X)
-> my keyboard and PS/2 mouse sometimes locks up. What could that be?
 
-I have the same problem.  However the lockup most often occurs after
-switching with Ctrl+Alt+Fx from plain text console to X.  PS/2 mouse +
-keyboard, gpm running.
+        Hi, Cliff and all,
 
-> 440BX UP celeron mobo here (Abit - BH6?), '94 AT keyboard, '2000 A4tech
-> 2-wheel mouse, various Linux 2.4 versions (usually -ac, currently 2.4.10ac3).
-> I'm using NVidia Xserver module, but it doesn't seem related (the lookup
-> occured with no X while starting gpm once or twice).
+Thursday, October 11, 2001, 6:31:05 PM, you wrote:
 
-I had this problem for quite some time with 2.2.x and 2.4.x kernels,
-XFree86 3.3.x -- 4.1.0 and S3 Trio3D / NVidia TNT2 M64 / NVidia
-GeForce2.  Lockups with S3 convice me that NVidia module is probably
-irrelevant here.
+CA> On Thu, Oct 11, 2001 at 05:39:54PM +0400, Oleg A. Yurlov wrote:
 
-> If I kill Xserver (haven't tried with gpm), the keyboard (and mouse) start
-> working again (the next Xserver spawn works fine).
+>> Oct 10 20:35:31 samson kernel: (scsi0:A:2:0): Locking max tag count at 128
+>> Oct 10 21:06:31 samson kernel: (scsi1:A:0:0): Locking max tag count at 64                                                           
+>> Oct 11 05:33:09 samson kernel: (scsi0:A:3:0): Locking max tag count at 128       
+>> 
+>>         Hardware   -  SMP 2 CPU, 1GB RAM, M/B Intel L440GX, 5 SCSI HDD, Software
+>> RAID5 (3 disks) and RAID1.
+>> 
+>>         I found in dmesg:
+>> 
+>>  *** Possibly defective BIOS detected (irqtable)
+>>  *** Many BIOSes matching this signature have incorrect IRQ routing tables.
+>>  *** If you see IRQ problems, in paticular SCSI resets and hangs at boot
+>>  *** contact your vendor and ask about updates.
+>>  *** Building an SMP kernel may evade the bug some of the time.
+>> Starting kswapd
+>> 
+>>         It's  normal or not ? What I can do to fix problem with locking max tag
+>> count ?
 
-I've found out that ssh'ing to the host and running chvt 1 (as root)
-helps.  Switching back to X usually works fine.
+CA> Looks normal, it's that the new aic7xxx driver utilizes a maximum tag queue depth of 255 tags. Your devices are supporting only a maximum tag count of 128, 64 and 128 so it's perfectly normal.
+CA> Also these 'error' messages should only appear once and no more (until a reboot)
 
-I haven't tried monitoring /proc/interrupts, but even the magic SysRq
-doesn't work during the lock-up.
+        Thanks a lot !
 
-P.S. I'm not subscribed to linux-kernel.
+--
+Oleg A. Yurlov aka Kris Werewolf, SysAdmin      OAY100-RIPN
+mailto:kris@spylog.com                          +7 095 332-03-88
 
-Marius Gedminas
--- 
-"I'll be Bach."  -- Johann Sebastian Schwarzenegger

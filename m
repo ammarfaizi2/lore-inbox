@@ -1,53 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268486AbUHXD07@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268346AbUHXD5H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268486AbUHXD07 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 23:26:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268479AbUHXD06
+	id S268346AbUHXD5H (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 23:57:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269001AbUHXD5H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 23:26:58 -0400
-Received: from jade.spiritone.com ([216.99.193.136]:26583 "EHLO
-	jade.spiritone.com") by vger.kernel.org with ESMTP id S268539AbUHXD0V
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 23:26:21 -0400
-Date: Mon, 23 Aug 2004 20:26:13 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Nick Piggin <piggin@cyberone.com.au>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Performance of -mm2 and -mm4
-Message-ID: <16660000.1093317972@[10.10.2.4]>
-In-Reply-To: <412AB4AC.8040702@cyberone.com.au>
-References: <336080000.1093280286@[10.10.2.4]> <412AB4AC.8040702@cyberone.com.au>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Mon, 23 Aug 2004 23:57:07 -0400
+Received: from relay.pair.com ([209.68.1.20]:36625 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id S268346AbUHXD5A (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 23:57:00 -0400
+X-pair-Authenticated: 66.190.51.173
+Message-ID: <412ABC8B.5080608@cybsft.com>
+Date: Mon, 23 Aug 2004 22:56:59 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P8
+References: <20040816040515.GA13665@elte.hu>	 <1092654819.5057.18.camel@localhost> <20040816113131.GA30527@elte.hu>	 <20040816120933.GA4211@elte.hu> <1092716644.876.1.camel@krustophenia.net>	 <20040817080512.GA1649@elte.hu> <20040819073247.GA1798@elte.hu>	 <20040820133031.GA13105@elte.hu> <20040820195540.GA31798@elte.hu>	 <20040821140501.GA4189@elte.hu>  <20040823210151.GA10949@elte.hu> <1093312154.862.17.camel@krustophenia.net>
+In-Reply-To: <1093312154.862.17.camel@krustophenia.net>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Martin J. Bligh wrote:
+Lee Revell wrote:
+> On Mon, 2004-08-23 at 17:01, Ingo Molnar wrote:
 > 
->> Kernbench: (make -j vmlinux, maximal tasks)
->>                              Elapsed      System        User         CPU
->>                  2.6.8.1       43.90       87.76      572.94     1505.67
->>              2.6.8.1-mm1       44.26       87.71      574.73     1496.33
->>              2.6.8.1-mm2       44.27       90.27      574.84     1502.33
->>              2.6.8.1-mm4       45.87       97.60      595.23     1510.00
->> 
->> mm2 seems to take slightly (but consistently) more systime than mm1, and
->> mm4 is significantly worse still ;-(
->> 
->> 
 > 
-> Increasing base_timeslice here takes about 10s off the user time,
-> and maybe 1-2 off elapsed. You may see a better improvement because
-> the machine I'm testing on has very small caches; I assume you are
-> using a 32-way NUMAQ with 1-2MB caches?
+>> - reduce netdev_max_backlog to 8 (Mark H Johnson)
+>>
+> 
+> 
+> On my system this setting has absolutely no effect on the skb related
+> latencies.  I tested setting netdev_max_backlog to every power of two 
+> between 1 and 128, and regardless of this setting, I can produce a
+> 450-600 usec latency with:
+> 
+> ping -s 65507 -f $DEFAULT_GATEWAY
+> 
+> Looks like skb_checksum is the problem.  Here is one of the traces:
+> 
+> http://krustophenia.net/testresults.php?dataset=2.6.8.1-P8#/var/www/2.6.8.1-P8/trace14.txt
+> 
+> Lee
+> 
+> -
 
-16-way with 2MB caches. Doing 256 as opposed to 64 gives a little less
-user time, more systime at the low end, and a wash with more tasks.
-Not much affects elapsed though. I'll try 16, then backing out the 
-sched patch, and what Jesse suggested as well.
+Setting netdev_max_backlog doesn't seem to have any effect for me either.
 
-M.
+I get a similar latency when I try to reproduce your result above, ~612 
+usec. However, my trace is very different than yours:
+
+http://www.cybsft.com/testresults/2.6.8.1-P8/latency_trace3.txt
+
+In fact most any network activity, with the POSSIBLE exception of 
+already open connections, seem to be able to trigger higher latencies. 
+As you can see here:
+
+http://www.cybsft.com/testresults/2.6.8.1-P8/
+
+
+kr
+
 

@@ -1,62 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264471AbUEYB5n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264492AbUEYCVW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264471AbUEYB5n (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 21:57:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264461AbUEYB5n
+	id S264492AbUEYCVW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 22:21:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264496AbUEYCVW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 21:57:43 -0400
-Received: from alt.aurema.com ([203.217.18.57]:52902 "EHLO smtp.sw.oz.au")
-	by vger.kernel.org with ESMTP id S264471AbUEYB5M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 21:57:12 -0400
-Message-ID: <40B2A78E.3060302@aurema.com>
-Date: Tue, 25 May 2004 11:55:26 +1000
-From: Peter Williams <peterw@aurema.com>
-Organization: Aurema Pty Ltd
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Hubertus Franke <frankeh@watson.ibm.com>
-CC: Rik van Riel <riel@redhat.com>, Shailabh Nagar <nagar@watson.ibm.com>,
-       kanderso@redhat.com, Chandra Seetharaman <sekharan@us.ibm.com>,
-       limin@sgi.com, jlan@sgi.com, linux-kernel@vger.kernel.org, jh@sgi.com,
-       Paul Jackson <pj@sgi.com>, gh@us.ibm.com,
-       Erik Jacobson <erikj@subway.americas.sgi.com>, ralf@suse.de,
-       lse-tech@lists.sourceforge.net, Vivek Kashyap <kashyapv@us.ibm.com>,
-       mason@suse.com
-Subject: Re: Minutes from 5/19 CKRM/PAGG discussion
-References: <Pine.LNX.4.44.0405241404080.22438-100000@chimarrao.boston.redhat.com> <40B2534E.3040302@watson.ibm.com>
-In-Reply-To: <40B2534E.3040302@watson.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 24 May 2004 22:21:22 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:39399 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S264492AbUEYCVU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 May 2004 22:21:20 -0400
+From: lm240504@comcast.net
+To: linux-kernel@vger.kernel.org
+Subject: Invisible threads in 2.6
+Date: Tue, 25 May 2004 02:21:19 +0000
+Message-Id: <052520040221.14460.40B2AD9F00067A620000387C2200735834CBCFCACFCBCD0304@comcast.net>
+X-Mailer: AT&T Message Center Version 1 (May  6 2004)
+X-Authenticated-Sender: bG0yNDA1MDRAY29tY2FzdC5uZXQ=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hubertus Franke wrote:
-> 
-> One important input the PAGG team could give is some real
-> examples where actually multiple associations to different groups
-> is required and help us appreciate that position and let us
-> see how this would/could be done in CKRM.
+I've been experimenting with process/thread accounting in 2.6.x,
+and found this strange situation: if the leader thread of a multi-threaded
+process terminates, the other threads become undetectable.  After the
+main thread becomes a zombie, /proc/<tgid>/task returns ENOENT on
+open.  If you happen to know the TID, you can access /proc/<tid>/* directly,
+but otherwise, there is no way to observe the remaining threads, as far as
+I can see.  Consider this program, for example:
 
-One example would be the implementation of CPU sets (or pools) a la 
-Solaris where there are named CPU pools to which processors and 
-processes are assigned.   Processors can be moved between CPU pools and 
-when this happens it is necessary to visit all the processes that are 
-assigned to the pools involved (one losing and one gaining the 
-processor) and change their CPU affinity masks to reflect the new 
-assignment of processors.  PAGG would be ideal for implementing this.
+#include <pthread.h>
 
-At the same time, a resource management client could be controlling 
-resources allocated to processes based on some other criteria such as 
-the real user or the application being run without regard to which CPU 
-pool they are running in.
+void *run(void *arg)
+{
+        for(;;);
+}
 
-Peter
--- 
-Dr Peter Williams, Chief Scientist                peterw@aurema.com
-Aurema Pty Limited                                Tel:+61 2 9698 2322
-PO Box 305, Strawberry Hills NSW 2012, Australia  Fax:+61 2 9699 9174
-79 Myrtle Street, Chippendale NSW 2008, Australia http://www.aurema.com
+int main()
+{
+        pthread_t t;
+        int i;
+        for (i = 0; i < 10; ++i)
+                pthread_create(&t, NULL, run, NULL);
+        pthread_exit(NULL);
+}
 
+When I run it, the system (predictably) goes to ~100% CPU utilization,
+but there seems to be no way to find out who is hogging the CPU with
+top(1), ps(1), or anything else.  All they can show is the main thread in
+zombie state, consuming 0% CPU.
 
+I'm not sure how to fix this (the pid_alive() test seems to be there for a
+reason), but it doesn't seem right.  Any thoughts?

@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263935AbRFHP3k>; Fri, 8 Jun 2001 11:29:40 -0400
+	id <S262168AbRFHPvO>; Fri, 8 Jun 2001 11:51:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264017AbRFHP3b>; Fri, 8 Jun 2001 11:29:31 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:23936 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S263986AbRFHP3X>;
-	Fri, 8 Jun 2001 11:29:23 -0400
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
+	id <S264023AbRFHPvE>; Fri, 8 Jun 2001 11:51:04 -0400
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:1540 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S264021AbRFHPuz>;
+	Fri, 8 Jun 2001 11:50:55 -0400
+Date: Wed, 6 Jun 2001 21:42:22 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Nick Urbanik <nicku@vtc.edu.hk>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Cannot mount old ext2 cdrom, but e2fsck shows no problems
+Message-ID: <20010606214222.C38@toy.ucw.cz>
+In-Reply-To: <3B1C8C1B.E3946FE1@vtc.edu.hk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15136.61263.7046.76298@pizda.ninka.net>
-Date: Fri, 8 Jun 2001 08:29:19 -0700 (PDT)
-To: "Eric Barton" <eric@bartonsoftware.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: tcp_recvmsg() in 2.4.4
-In-Reply-To: <000e01c0ef7b$8b3a8d20$0281a8c0@ebpc>
-In-Reply-To: <000e01c0ef7b$8b3a8d20$0281a8c0@ebpc>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <3B1C8C1B.E3946FE1@vtc.edu.hk>; from nicku@vtc.edu.hk on Tue, Jun 05, 2001 at 03:36:59PM +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+HIi!
 
-Eric Barton writes:
- > When it get to if(sk->state == TCP_CLOSE), surely sk->done has already been
- > tested (and the socket is locked), so -ENOTCONN could be returned
- > immediately.
+> I made 18 ext2 cdroms in October 1998 using an old (new at the time) Red
+> Hat system.  Now I can't mount them.  e2fsck shows no problems.  I also
+> can dd them to a file, then mount the file.  But I want to be able to
+> simply access them directly.  Current system: RH 7.1 with all updates.
+> 
+> Sorry, I can't remember the exact command I used to create the images.
+> 
+> I also want to better understand the output of dumpe2fs, and how to
+> relate this to mount.
+> 
+> I will be very grateful for any help that increases my understanding of
+> what is going on.
+> 
+> $ sudo mount -t ext2 /dev/scd0 /cdrom -o ro
+> mount: wrong fs type, bad option, bad superblock on /dev/scd0,
+>        or too many mounted file systems
 
-We sleep and drop the lock during these loops, so we need to retest
-this each time we wake back up.
+Try -o loop.
+								Pavel
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 
- > Actually I'd really appreciate it if someone could explain the order of
- > tests for sk->done, sk->err, sk->shutdown and sk->state...
-
-Most of the error test ordering is specified by POSIX somewhere.
-
-Alan would know better.
-
-Later,
-David S. Miller
-davem@redhat.com

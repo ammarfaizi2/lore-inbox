@@ -1,91 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267660AbUHSAQm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267989AbUHSATE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267660AbUHSAQm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 20:16:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267958AbUHSAQm
+	id S267989AbUHSATE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 20:19:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267967AbUHSATE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 20:16:42 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:48604 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S267660AbUHSAQi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 20:16:38 -0400
-Date: Wed, 18 Aug 2004 17:36:27 -0500
-To: Paul Mackerras <paulus@samba.org>
-Cc: Anton Blanchard <anton@samba.org>, linuxppc64-dev@lists.linuxppc.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: [PATCH] 2.6 PPC64 Re: rtas_call uses kmalloc before the memory subsystem is up
-Message-ID: <20040818223627.GI14002@austin.ibm.com>
-References: <20040815221951.GK5637@krispykreme> <16672.17307.578763.854775@cargo.ozlabs.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16672.17307.578763.854775@cargo.ozlabs.ibm.com>
-User-Agent: Mutt/1.5.6+20040523i
-From: Linas Vepstas <linas@austin.ibm.com>
+	Wed, 18 Aug 2004 20:19:04 -0400
+Received: from viriato2.servicios.retecal.es ([212.89.0.45]:59825 "EHLO
+	viriato2.servicios.retecal.es") by vger.kernel.org with ESMTP
+	id S267989AbUHSASy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Aug 2004 20:18:54 -0400
+Message-ID: <4123F1E6.2080308@hispalinux.es>
+Date: Thu, 19 Aug 2004 02:18:46 +0200
+From: =?ISO-8859-1?Q?Ram=F3n_Rey_Vicente?= <ramon.rey@hispalinux.es>
+User-Agent: Mozilla Thunderbird 0.7.2 (X11/20040714)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: akpm@osdl.org
+Subject: [PATCH] Firmware Loader is orphan
+X-Enigmail-Version: 0.84.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig5AC2C0AB6C352CD94764EB23"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Paul,
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig5AC2C0AB6C352CD94764EB23
+Content-Type: multipart/mixed;
+ boundary="------------030001090603060008040701"
 
-Can you approve & forward one of the two the patches to AKPM for inclusion
-in the next kernel as soon as possible?   This is now the fifth or sixth
-report of someone getting bitten by this, and this *really* should be in
-the mainline tree.  (We really need a way of expediting patches when 
-they're critical & everyone hits them.)
+This is a multi-part message in MIME format.
+--------------030001090603060008040701
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Mon, Aug 16, 2004 at 03:18:19PM +1000, Paul Mackerras was heard to remark:
-> Anton Blanchard writes:
-> 
-> > rtas_call is doing a kmalloc before the memory subsystem is up, but only
-> > when we hit an error.
-> 
-> This is a quick-n-dirty hack to fix the problem.  It's not completely
-> obvious what the proper solution looks like, unfortunately.
+Hello.
 
-Actually, I think the patch below *is* the proper solution.  Its nearly
-identical to the old patches, with one important improvement: it also
-works when mem subsytem is not yet up.  Here's why:  
+The author and maintainer of the firmware loader died on May. I think 
+this little piece is very important for the kernel. Anybody is taking 
+care of firmware loader?
+-- 
+Ramón Rey Vicente       <ramon dot rey at hispalinux dot es>
+jabber ID               <rreylinux at jabber dot org>
+Huella GPG - 0BC2 8014 2445 51E8 DE87  C888 C385 A9D3 9F28 E377
+---------------------------------------------------------------
+	http://augcyl.org/planet/
+---------------------------------------------------------------
 
--- the kmalloc is needed in the full multi-tasking environment, because 
-   the rtas code can be triggered at any time (on any cpu).
--- if mem subsystem is not yet up (no kmalloc yet) then the kernel won't
-   be running multi-tasked yet, anyway, so races that clobber the buffer
-   won't occur.
+--------------030001090603060008040701
+Content-Type: text/plain;
+ name="firmware_loader_orphan.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="firmware_loader_orphan.patch"
 
-So I think we're free & clear here; this is not only a solution, its 
-the best solution.
+--- linux-2.6-rrey/MAINTAINERS.orig	2004-08-19 01:57:52.405537120 +0200
++++ linux-2.6-rrey/MAINTAINERS	2004-08-19 02:05:25.001988245 +0200
+@@ -822,10 +822,8 @@
+ S:	Maintained
+ 
+ FIRMWARE LOADER (request_firmware)
+-P:	Manuel Estrada Sainz
+-M:	ranty@debian.org
+ L:	linux-kernel@vger.kernel.org
+-S:	Maintained
++S:	Orphan
+ 
+ FPU EMULATOR
+ P:	Bill Metzenthen
 
-Signed-off-by: Linas Vepstas <linas@linas.org>
+--------------030001090603060008040701--
 
---linas
+--------------enig5AC2C0AB6C352CD94764EB23
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-> diff -urN linux-2.5/arch/ppc64/kernel/rtas.c test25/arch/ppc64/kernel/rtas.c
-> --- linux-2.5/arch/ppc64/kernel/rtas.c	2004-08-03 08:07:43.000000000 +1000
-> +++ test25/arch/ppc64/kernel/rtas.c	2004-08-16 14:47:22.147162600 +1000
-> @@ -165,9 +165,12 @@
->  
->  	/* Log the error in the unlikely case that there was one. */
->  	if (unlikely(logit)) {
-> -		buff_copy = kmalloc(RTAS_ERROR_LOG_MAX, GFP_ATOMIC);
-> -		if (buff_copy) {
-> -			memcpy(buff_copy, rtas_err_buf, RTAS_ERROR_LOG_MAX);
-> +		buff_copy = rtas_err_buf;
-> +		if (mem_init_done) {
-> +			buff_copy = kmalloc(RTAS_ERROR_LOG_MAX, GFP_ATOMIC);
-> +			if (buff_copy)
-> +				memcpy(buff_copy, rtas_err_buf,
-> +				       RTAS_ERROR_LOG_MAX);
->  		}
->  	}
->  
-> @@ -176,7 +179,8 @@
->  
->  	if (buff_copy) {
->  		log_error(buff_copy, ERR_TYPE_RTAS_LOG, 0);
-> -		kfree(buff_copy);
-> +		if (mem_init_done)
-> +			kfree(buff_copy);
->  	}
->  	return ret;
->  }
-> 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBI/Hqw4Wp058o43cRAtKsAKDVaq5iH4gsYqp8flq+el1s4eSe5QCgvdNE
+XGtYcpAsXL97F3I02uuvTBQ=
+=8fjp
+-----END PGP SIGNATURE-----
+
+--------------enig5AC2C0AB6C352CD94764EB23--

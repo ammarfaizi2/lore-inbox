@@ -1,45 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130388AbRCLOQw>; Mon, 12 Mar 2001 09:16:52 -0500
+	id <S130406AbRCLO0x>; Mon, 12 Mar 2001 09:26:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130381AbRCLOQm>; Mon, 12 Mar 2001 09:16:42 -0500
-Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:26544 "EHLO
-	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S130380AbRCLOQa>; Mon, 12 Mar 2001 09:16:30 -0500
-Date: Mon, 12 Mar 2001 15:15:48 +0100
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Feedback for fastselect and one-copy-pipe
-Message-ID: <20010312151548.B878@nightmaster.csn.tu-chemnitz.de>
-Mime-Version: 1.0
+	id <S130432AbRCLO0e>; Mon, 12 Mar 2001 09:26:34 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:17938 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130406AbRCLO03>; Mon, 12 Mar 2001 09:26:29 -0500
+Subject: Re: [kbuild-devel] Re: Rename all derived CONFIG variables
+To: kaos@ocs.com.au (Keith Owens)
+Date: Mon, 12 Mar 2001 14:28:01 +0000 (GMT)
+Cc: esr@thyrsus.com, peter@cadcamlab.org (Peter Samuelson),
+        linux-kernel@vger.kernel.org, elenstev@mesatop.com,
+        kbuild-devel@lists.sourceforge.net
+In-Reply-To: <24972.984388704@ocs3.ocs-net> from "Keith Owens" at Mar 12, 2001 08:18:24 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14cTIq-0001yq-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Manfred,
+> The derived config variables should be in a separate name space,
+> whether config is CML1 or CML2.  This patch does it for CML1.
 
-I'm running your patches [1] with sucess for a while now.
+Why ?
 
-Did you get any feedback about problems regarding these patches?
+The only tool that needs to seperate them is the config check script and that
+has enough information to deduce them
 
-They seem to work for me, but there seems to be a memleak in
-2.4.x (x: 0-2), which I'm chasing down.
-
-The problem is, it only shows up after about 3-4 days of uptime.
-So there is no quick test and I'm even not sure about the
-kernel version where this exactly occurs, because I run sometimes
-2.4.0 for working and sometimes the latest one, to see whether
-the problem still persists.
-
-Regards
-
-Ingo Oeser
-
-[1] put on http://www.tu-chemnitz.de/~ioe/fastpipe.patch 
-    and http://www.tu-chemnitz.de/~ioe/poll-2.4.0.patch
--- 
-10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
-         <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>

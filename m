@@ -1,62 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S132592AbRC1WEe>; Wed, 28 Mar 2001 17:04:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S132582AbRC1WE1>; Wed, 28 Mar 2001 17:04:27 -0500
-Received: from kerberos.suse.cz ([195.47.106.10]:52495 "EHLO kerberos.suse.cz") by vger.kernel.org with ESMTP id <S132596AbRC1V76>; Wed, 28 Mar 2001 16:59:58 -0500
-Date: Wed, 28 Mar 2001 23:59:13 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Gunther Mayer <Gunther.Mayer@t-online.de>
-Cc: linas@linas.org, linux-kernel@vger.kernel.org
-Subject: Re: mouse problems in 2.4.2 -> lost byte
-Message-ID: <20010328235913.A6994@suse.cz>
-References: <20010327204551.623181B7A5@backlot.linas.org> <3AC22E18.1DD50338@t-online.de>
-Mime-Version: 1.0
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S132590AbRC1Vrp>; Wed, 28 Mar 2001 16:47:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S132592AbRC1VrJ>; Wed, 28 Mar 2001 16:47:09 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:18962 "EHLO master.linux-ide.org") by vger.kernel.org with ESMTP id <S132600AbRC1Vqc>; Wed, 28 Mar 2001 16:46:32 -0500
+Date: Wed, 28 Mar 2001 13:44:50 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+cc: Linus Torvalds <torvalds@transmeta.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>, "H. Peter Anvin" <hpa@transmeta.com>, Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org, tytso@MIT.EDU
+Subject: Re: Larger dev_t
+In-Reply-To: <3AC25657.6CC01DFB@evision-ventures.com>
+Message-ID: <Pine.LNX.4.10.10103281343270.17821-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3AC22E18.1DD50338@t-online.de>; from Gunther.Mayer@t-online.de on Wed, Mar 28, 2001 at 08:31:52PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 28, 2001 at 08:31:52PM +0200, Gunther Mayer wrote:
-> linas@linas.org wrote:
-> > 
-> > It's been rumoured that Gunther Mayer said:
-> > >
-> > > > I am experiencing debilitating intermittent mouse problems & was about
-> > > ...
-> > > > Symptoms:
-> > > > After a long time of flawless operation (ranging from nearly a week to
-> > > > as little as five minutes), the X11 pointer flies up to top-right corner,
-> > >                                                           ^^^^^^^^^^^^^^^^
-> > > > and mostly wants to stay there.  Moving the mouse causes a cascade of
-> > > > spurious button-press events get generated.
-> > >
-> > > This is easily explained: some byte of the mouse protocol was lost.
-> > 
-> > Bing!
-> > 
-> > That's it! This would also explain why gpm seems to work i.e. correctly
-> > process the events, even when X11 can't.  I will take this up on the
-> > Xf86 lists ...
-> > 
-> > > (Some mouse protocols are even designed to allow
-> > >  easy resync/recovery by fixed bit patterns!)
-> > 
-> > This mouse seems to set every fourth byte to zero, which should allow
-> > syncing ...
-> 
-> The fourth byte is propably the wheel or 5 button support, see
-> http://www.microsoft.com/hwdev/input/5b_wheel.htm
-> to get a hint about mouse protocol variations.
-> 
-> Getting resync right is not as easy as detecting zero bytes. You
-> should account for wild protocol variations in the world wide mouse
-> population, too.
+On Wed, 28 Mar 2001, Martin Dalecki wrote:
 
-The new input psmouse driver can resync when bytes are lost and also
-shouldn't lose any bytes if there are not transmission problems on the
-wire. But this is 2.5 stuff.
+> Then please please please demangle other cases as well!
+> IDE is the one which is badging my head most. SCSI as well...
+> 
+> Granted I wouldn't mind a rebot with new /dev/* once!
 
--- 
-Vojtech Pavlik
-SuSE Labs
+diff -urN linux-2.4.3-p8-pristine/include/linux/major.h linux-2.4.3-p8/include/linux/major.h
+--- linux-2.4.3-p8-pristine/include/linux/major.h       Sat Dec 30
+11:23:14 2000+++ linux-2.4.3-p8/include/linux/major.h        Sun Mar 25
+22:16:42 2001
+@@ -171,4 +171,18 @@
+        return SCSI_BLK_MAJOR(m);
+ }
+
++/*
++ * Tests for IDE devices
++ */
++#define IDE_DISK_MAJOR(M)      ((M) == IDE0_MAJOR || (M) == IDE1_MAJOR || \
++                               (M) == IDE2_MAJOR || (M) == IDE3_MAJOR || \
++                               (M) == IDE4_MAJOR || (M) == IDE5_MAJOR || \
++                               (M) == IDE6_MAJOR || (M) == IDE7_MAJOR || \
++                               (M) == IDE8_MAJOR || (M) == IDE9_MAJOR)
++
++static __inline__ int ide_blk_major(int m)
++{
++       return IDE_DISK_MAJOR(m);
++}
++
+ #endif
+
+Well I banged my head and learned a scsi-trick....
+ 
+Andre Hedrick
+Linux ATA Development
+ASL Kernel Development
+-----------------------------------------------------------------------------
+ASL, Inc.                                     Toll free: 1-877-ASL-3535
+1757 Houret Court                             Fax: 1-408-941-2071
+Milpitas, CA 95035                            Web: www.aslab.com
+

@@ -1,107 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262856AbTE0DGI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 23:06:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262861AbTE0DGI
+	id S262955AbTE0DKj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 23:10:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262963AbTE0DKj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 23:06:08 -0400
-Received: from h80ad26c3.async.vt.edu ([128.173.38.195]:54400 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S262856AbTE0DGE (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 23:06:04 -0400
-Message-Id: <200305270319.h4R3J7J2002940@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: mikpe@csd.uu.se
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Fix NMI watchdog documentation 
-In-Reply-To: Your message of "Mon, 26 May 2003 11:21:38 +0200."
-             <200305260921.h4Q9LcNr022536@harpo.it.uu.se> 
-From: Valdis.Kletnieks@vt.edu
-References: <200305260921.h4Q9LcNr022536@harpo.it.uu.se>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-945326166P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 26 May 2003 23:19:06 -0400
+	Mon, 26 May 2003 23:10:39 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:23569 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S262955AbTE0DKg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 23:10:36 -0400
+Date: Mon, 26 May 2003 20:23:37 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Aaron Lehmann <aaronl@vitelus.com>
+cc: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.5] [Cool stuff] "checking" mode for kernel builds
+In-Reply-To: <20030527030219.GI9947@vitelus.com>
+Message-ID: <Pine.LNX.4.44.0305262009400.1680-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-945326166P
-Content-Type: text/plain; charset=us-ascii
 
-On Mon, 26 May 2003 11:21:38 +0200, mikpe@csd.uu.se said:
+On Mon, 26 May 2003, Aaron Lehmann wrote:
+> 
+> Well, the checker its share of those problems:
+> 
+> const char *gcc_includepath[] = {
+>     "/usr/lib/gcc-lib/i386-redhat-linux/3.2.1/include",
+>     "/usr/lib/gcc-lib/i386-redhat-linux/3.2.2/include",
+>     NULL
+> };
 
-> --- linux-2.5.69/arch/i386/kernel/apic.c.~1~	2003-04-20 13:08:15.000000000 +
-0200
-> +++ linux-2.5.69/arch/i386/kernel/apic.c	2003-05-26 11:11:19.000000000 +
-0200
-> @@ -617,7 +617,7 @@
->  		goto no_apic;
->  	case X86_VENDOR_INTEL:
->  		if (boot_cpu_data.x86 == 6 ||
-> -		    (boot_cpu_data.x86 == 15 && cpu_has_apic) ||
-> +		    (boot_cpu_data.x86 == 15) ||
+Any takers? Some Makefile magic plus some hacky thing like
 
-OK, there's good news and bad news.  After doing that and lopping out the
-dmi_scan.c blacklist entry, we get these msgs on boot (diffing against
-a dmesg from before the above:
+	gcc -print-file-name=include
 
-1c1
-< Linux version 2.5.69 (valdis@turing-police.cc.vt.edu) (gcc version 3.2.3 20030422 (Red Hat Linux 3.2.3-4)) #4 Sun May 25 16:22:44 EDT 2003
----
-> Linux version 2.5.69 (valdis@turing-police.cc.vt.edu) (gcc version 3.2.3 20030422 (Red Hat Linux 3.2.3-4)) #5 Mon May 26 20:03:44 EDT 2003
-24c24,25
-< No local APIC present or hardware disabled
----
-> Local APIC disabled by BIOS -- reenabling.
-> Found and enabled local APIC!
-27c28
-< Detected 1595.314 MHz processor.
----
-> Detected 1595.413 MHz processor.
-30c31
-< Memory: 254416k/262024k available (2520k kernel code, 6888k reserved, 969k data, 144k init, 0k highmem)
----
-> Memory: 254416k/262024k available (2520k kernel code, 6880k reserved, 969k data, 144k init, 0k highmem)
-40c41
-< CPU:     After generic, caps: 3febf9ff 00000000 00000000 00000080
----
-> CPU:     After generic, caps: 3febfbff 00000000 00000000 00000080
-48a50,56
-> enabled ExtINT on CPU#0
-> ESR value before enabling vector: 00000000
-> ESR value after enabling vector: 00000000
-> Using local APIC timer interrupts.
-> calibrating APIC timer ...
-> ..... CPU clock speed is 1595.0017 MHz.
-> ..... host bus clock speed is 99.0688 MHz.
+(Yeah, that's not righ either, it just happens to work. I don't know what
+the proper way of making gcc expose its local paths is).
 
-So yes Virginia, there is a local APIC on the C840.
+So I'm doing what works for me, and open source (in this case the OSL) 
+means that you can fix it and send me patches if you want to ;)
 
-Now the bad news - out of 7 or 8 tries, the above was the only boot that lived
-long enough for me to get a single-user prompt and do a dmesg into a file.
-That try hung about 10 seconds later.  It never hung at the same place twice,
-and always hung hard enough to require the "power button for 5 seconds to
-poweroff" sledgehammer.  The common factor seemed to be hangs while talking
-to the IDE drive - while mounting /, while checking the partition table,
-etc.
+Btw, taling about it embarrassed me so much that I just fixed the enum
+confusion, so now a few less of the checker warnings are bogus. It still
+misparses some assembly (notably anything that is at the top level, not
+inside a function, and the kinds of asms used to rename variables).
 
-One question - in apic.c, I see where clear_local_APIC() is called in
-init_bsp_APIC(), connect_bsp_APIC(), and disable_local_APIC().  I however
-don't see where/how it's called in the init_local_APIC() codepath, nor can
-I convince myself that it obviously *shouldn't* be called...
+And it doesn't handle pragmas, in particular "pragma pack" is hard to do
+right (well, from a _kernel_ checking standpoint it doesn't matter, but I
+do want it to actually generate a good parse tree too, which means that I
+try to get things like structure member offsets etc _right_. And as I
+currently just ignore - and warn about - "pragma pack", my type evaluation
+doesn't get the offsets/alignments right).
 
+But _most_ of the warnings are because of type differences. Even those are
+sometimes bogus, though, so don't assume it's right. 
 
---==_Exmh_-945326166P
-Content-Type: application/pgp-signature
+Oh, before I forget: it also refuses to parse some gcc constructs that I
+personally don't like, like the gcc extension to make certain things
+lvalues even though they really aren't (ie casts and the ?: operator).
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+Even though I myself have been known to use those gcc extensions, I think
+they are _wrong_, since they don't actually buy you anything except for a
+dubious syntactic shorthand. It's the wrong kind of language extension.
 
-iD8DBQE+0tkqcC3lWbTT17ARAnmlAJ4gREh/LXouPF0bz4N3BIEhjJYNZACg2eVs
-onlUGkxE63jAg6tbkxDfFHo=
-=xB8L
------END PGP SIGNATURE-----
+Other - more worthwhile - extensions I do actually support.
 
---==_Exmh_-945326166P--
+		Linus
+

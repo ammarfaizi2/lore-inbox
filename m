@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280052AbRKITej>; Fri, 9 Nov 2001 14:34:39 -0500
+	id <S280074AbRKITfJ>; Fri, 9 Nov 2001 14:35:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280064AbRKITe3>; Fri, 9 Nov 2001 14:34:29 -0500
-Received: from boden.synopsys.com ([204.176.20.19]:14785 "HELO
-	boden.synopsys.com") by vger.kernel.org with SMTP
-	id <S280052AbRKITeV>; Fri, 9 Nov 2001 14:34:21 -0500
-Date: Fri, 9 Nov 2001 20:31:33 +0100
-From: root <root@bilbo.gr05.synopsys.com>
-Message-Id: <200111091931.fA9JVXif001648@bilbo.gr05.synopsys.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.x: AT Keyboard not present?
+	id <S280064AbRKITfA>; Fri, 9 Nov 2001 14:35:00 -0500
+Received: from Campbell.cwx.net ([216.17.176.12]:772 "EHLO campbell.cwx.net")
+	by vger.kernel.org with ESMTP id <S280070AbRKITeq>;
+	Fri, 9 Nov 2001 14:34:46 -0500
+Date: Fri, 9 Nov 2001 12:34:43 -0700
+From: Allen Campbell <lkml@campbell.cwx.net>
+To: paulh@ucentric.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: The page cache keeps growing
+Message-ID: <20011109123443.A94850@const.>
+In-Reply-To: <3BEC39E6.7F0FA75F@ucentric.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <3BEC39E6.7F0FA75F@ucentric.com>; from paulh@ucentric.com on Fri, Nov 09, 2001 at 03:17:42PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
+On Fri, Nov 09, 2001 at 03:17:42PM -0500, paulh@ucentric.com wrote:
+> I'd like to throw this out to the group for opinions-
+> 
+> I'm working on a box using the 2.4.9 kernel that is saving a couple of
+> mpeg2
+> video streams, while playing back one of them.  The box also allows one
+> to
+> web browse, play mp3's and configure one's home network.
+> 
+> What I'm seeing is the page cache grow to huge sizes- to as much as
+> 102MB
+> of 128MB of memory.  This is causing pages to be stolen from other
+> processes
+> in memory, so that when a user attempts to go to one of these, a long
+> wait ensues
+> while it's paged back in.
 
->From time to time I experience that my mouse pointer blocks for a few 
-seconds, the stuff that I type is ignored, etc. 'grep keyboard' in my 
-syslog files returns:
+Move on to 2.4.14.  VM changes since 2.4.9 have been 'significant.'
 
-Nov  2 20:27:36 bilbo kernel: keyboard: Timeout - AT keyboard not present?(ed)
-Nov  2 20:55:12 bilbo kernel: keyboard: Timeout - AT keyboard not present?(00)
-Nov  3 08:10:28 bilbo kernel: keyboard: Timeout - AT keyboard not present?(ed)
-Nov  4 15:20:51 bilbo kernel: keyboard: Timeout - AT keyboard not present?(ed)
-Nov  4 15:33:07 bilbo kernel: keyboard: Timeout - AT keyboard not present?(01)
-Nov  5 18:01:29 bilbo kernel: keyboard: Timeout - AT keyboard not present?(01)
-Nov  5 21:39:36 bilbo kernel: keyboard: Timeout - AT keyboard not present?(ed)
-Nov  5 22:19:59 bilbo kernel: keyboard: Timeout - AT keyboard not present?(00)
-Nov  6 18:58:33 bilbo kernel: keyboard: Timeout - AT keyboard not present?(00)
-Nov  6 20:41:48 bilbo kernel: keyboard: Timeout - AT keyboard not present?(01)
-Nov  6 20:46:53 bilbo kernel: keyboard: Timeout - AT keyboard not present?(00)
-Nov  7 19:56:34 bilbo kernel: keyboard: Timeout - AT keyboard not present?(ed)
-Nov  9 20:18:31 bilbo kernel: keyboard: Timeout - AT keyboard not present?(01)
-
-Pretty strange, isn't it? What is the story here?
-
-
-Regards
-
-Harri
+-- 
+  Allen Campbell       |  Lurking at the bottom of the
+  allenc@verinet.com   |   gravity well, getting old.

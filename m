@@ -1,64 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264475AbTCXWRd>; Mon, 24 Mar 2003 17:17:33 -0500
+	id <S264457AbTCXWRA>; Mon, 24 Mar 2003 17:17:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264477AbTCXWRd>; Mon, 24 Mar 2003 17:17:33 -0500
-Received: from port-212-202-173-211.reverse.qdsl-home.de ([212.202.173.211]:27015
-	"EHLO jackson.localnet") by vger.kernel.org with ESMTP
-	id <S264475AbTCXWRb> convert rfc822-to-8bit; Mon, 24 Mar 2003 17:17:31 -0500
-Date: Mon, 24 Mar 2003 23:31:05 +0100 (CET)
-Message-Id: <20030324.233105.719910094.rene.rebe@gmx.net>
-To: pavel@suse.cz
-Cc: ncunningham@clear.net.nz, linux-kernel@vger.kernel.org,
-       swsusp@lister.fornax.hu, rock-linux@rocklinux.org
-Subject: Re: Testers wanted: Software Suspend for 2.4
-From: Rene Rebe <rene.rebe@gmx.net>
-In-Reply-To: <20030325091406.GC1083@zaurus.ucw.cz>
-References: <1048023854.2163.16.camel@laptop-linux.cunninghams>
-	<20030320.233918.730551503.rene.rebe@gmx.net>
-	<20030325091406.GC1083@zaurus.ucw.cz>
-X-Mailer: Mew version 3.1 on XEmacs 21.4.12 (Portable Code)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S264475AbTCXWRA>; Mon, 24 Mar 2003 17:17:00 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:23566 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S264457AbTCXWQ6>; Mon, 24 Mar 2003 17:16:58 -0500
+Date: Mon, 24 Mar 2003 23:28:01 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Andries.Brouwer@cwi.nl
+cc: Andrew Morton <akpm@digeo.com>, Christoph Hellwig <hch@infradead.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/3] revert register_chrdev_region change
+In-Reply-To: <UTC200303242206.h2OM65A29479.aeb@smtp.cwi.nl>
+Message-ID: <Pine.LNX.4.44.0303242312250.12110-100000@serv>
+References: <UTC200303242206.h2OM65A29479.aeb@smtp.cwi.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Hi,
 
-root= "seems" to be devfs aware. It always simply worked.
+On Mon, 24 Mar 2003 Andries.Brouwer@cwi.nl wrote:
 
-I read the source when I have time (which might be in some days).
-
-On: Tue, 25 Mar 2003 10:14:06 +0100,
-    Pavel Machek <pavel@suse.cz> wrote:
-> Hi!
+> > I still don't know what we need ranges or even subranges for.
+> > What problem are you trying to solve?
 > 
-> > Thanks for your work!
-> > 
-> > I just manged to suspend and resume a freshly booted 2.4.20 + "your
-> > latest patch" system ;-)
-> > 
-> > I had to read the kernel source a hour to do so, because I use devfs
-> > and naively used resume=/dev/ide/host0/.... which obiously does not
-> > work.
-> > 
-> > For now you might add to the docs that devfs users simply have to use
-> > the corresponding old /dev/hdX name. If I have too much time I'll take
-> > a look to make swsuspend devfs aware. But this might not be that soon
-> > :-(
-> 
-> Is root= devfs aware? If yes fix swsusp
-> else fix docs.
-> 				Pavel
+> I mentioned the structure of Al's block device code to you.
+> Haven't you read blk_register_region()?
 
-- René
+I did, have you seen add_disk()? Did you notice that more drivers use 
+add_disk() than blk_register_region() and that most of the 
+blk_register_region() users are legacy drivers?
+Which character device has partitions? Even for block devices it will be 
+easier to just define MAX_PART_NR and simply use a constant shift to get 
+from a partition to the disk.
+Please try to keep the problem simple, all examples I've seen so far only 
+can be dealt with quite easily. So which problem requires a complex 
+(sub)ranges solution?
 
---  
-René Rebe - Europe/Germany/Berlin
-e-mail:   rene@rocklinux.org, rene.rebe@gmx.net
-web:      http://www.rocklinux.org/people/rene http://gsmp.tfh-berlin.de/rene/
+bye, Roman
 
-Anyone sending unwanted advertising e-mail to this address will be
-charged $25 for network traffic and computing time. By extracting my
-address from this message or its header, you agree to these terms.

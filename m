@@ -1,38 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284444AbRLMRaq>; Thu, 13 Dec 2001 12:30:46 -0500
+	id <S284283AbRLMRhs>; Thu, 13 Dec 2001 12:37:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284283AbRLMRag>; Thu, 13 Dec 2001 12:30:36 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:27655 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S284477AbRLMRaa>; Thu, 13 Dec 2001 12:30:30 -0500
-Date: Thu, 13 Dec 2001 14:14:18 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: "David S. Miller" <davem@redhat.com>
-Cc: ledzep37@attbi.com, linux-kernel@vger.kernel.org
-Subject: Re: __devexit_p() in linux-2.5.1-preX?
-In-Reply-To: <20011212.192636.133010681.davem@redhat.com>
-Message-ID: <Pine.LNX.4.21.0112131413480.28370-100000@freak.distro.conectiva>
+	id <S284464AbRLMRhj>; Thu, 13 Dec 2001 12:37:39 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:33032 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S284283AbRLMRhV>;
+	Thu, 13 Dec 2001 12:37:21 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Wayne Whitney <whitney@math.berkeley.edu>
+Date: Thu, 13 Dec 2001 18:36:43 MET-1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: Repost: could ia32 mmap() allocations grow downward?
+CC: LKML <linux-kernel@vger.kernel.org>
+X-mailer: Pegasus Mail v3.40
+Message-ID: <BE42B9D5208@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-I've already asked Linus about that and he told me that he is giving
-higher priority to core changes now and wants to do the merges later... 
-
-On Wed, 12 Dec 2001, David S. Miller wrote:
-
+On 13 Dec 01 at 8:22, Wayne Whitney wrote:
+> > So maybe MAGMA uses some API which it should not use under any
+> > circumstances... Such as that you linked it with libc6 stdio.
 > 
-> This brings up a more generic issue.  It would really be nice to have
-> someone who syncs up 2.5.X with the bug fixes going into the 2.4.x
-> series.  It really is needed, and it really is a boring and thankless
-> job :-)
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> Indeed.  How can I avoid the map at 0x40000000?  Must I avoid using
+> certain glibc2 functions, and then link the executable carefully to leave
+> out their initialization routines?  Or can I set some magic environment
 
+It is caused by (I think that stupid...) code in 
+glibc-2.2.4/libio/libioP.h:ALLOC_BUF(), which unconditionally does
+'mmap(0, ROUND_TO_PAGE(size), PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS,
+-1, 0)' instead of 'malloc(size)' when it finds that underlying system
+supports malloc.
+
+If you linked Magma yourself, try adding:
+---
+#include <malloc.h>
+
+void* malloc(size_t len) { return sbrk(len); }
+void* __mmap(void* start, size_t len, int prot, int flags, int fd, 
+        unsigned long offset) {
+    if (start == 0 && fd == -1) { return malloc(len); }
+    return NULL;
+}
+---
+into your project. It forces my 'void main() { printf("X\n"); pause(); }'
+to use brk() instead of mmap() for stdio buffers. Maybe we should move
+to bug-glibc instead, as there is no way to force stdio to not ignore
+mallopt() parameters, it still insist on using mmap, and I think that it
+is a glibc2.2 bug.
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
+
+P.S.: I did some testing, and about 95% of mremap() allocations is
+targeted to last VMA, so no VMA move is needed for them. But no Java
+was part of picture, only c/c++ programs I use - gcc, mc, perl.

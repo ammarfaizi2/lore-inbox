@@ -1,60 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129237AbQJ2QxB>; Sun, 29 Oct 2000 11:53:01 -0500
+	id <S129486AbQJ2RVs>; Sun, 29 Oct 2000 12:21:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129625AbQJ2Qwl>; Sun, 29 Oct 2000 11:52:41 -0500
-Received: from thalia.fm.intel.com ([132.233.247.11]:9487 "EHLO
-	thalia.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S129230AbQJ2Qwa>; Sun, 29 Oct 2000 11:52:30 -0500
-Message-ID: <07E6E3B8C072D211AC4100A0C9C5758302B27070@hasmsx52.iil.intel.com>
-From: "Hen, Shmulik" <shmulik.hen@intel.com>
-To: "'LKML'" <linux-kernel@vger.kernel.org>
-Subject: Multiple warnings when compiling network driver in 2.4.0-test9
-Date: Sun, 29 Oct 2000 08:52:16 -0800
+	id <S129605AbQJ2RVh>; Sun, 29 Oct 2000 12:21:37 -0500
+Received: from neodymium.btinternet.com ([194.73.73.83]:46832 "EHLO
+	neodymium.btinternet.com") by vger.kernel.org with ESMTP
+	id <S129486AbQJ2RVb>; Sun, 29 Oct 2000 12:21:31 -0500
+From: davej@suse.de
+Date: Sun, 29 Oct 2000 17:21:22 +0000 (GMT)
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Oops in block_read_full_page() in test10-pre6
+Message-ID: <Pine.LNX.4.21.0010291718570.1707-100000@neo.local>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-While trying to compile a network driver for 2.4.0-test9 (+kdb-v1.5,
-configured for UP) I'm getting multiple warnings:
-	/usr/src/linux/include/linux/sched.h:700: warning: can't inline call
-to `__mmdrop'
-	/usr/src/linux/include/linux/sched.h:704: warning: called from here
+Wierd thing about this oops is that it happened just
+as I ticked over between the daylight savings adjustment,
+and the system clock changed itself.
 
-This happens for every kernel header I try to use such  as netdevice.h,
-skbuff.h, malloc.h and pci.h
-Each of those header files includes slab.h (line 14) that includes mm.h
-(line 4) that includes sched.h which contains the following on line 700:
+Coincidence ? :)
 
-700:	extern inline void FASTCALL(__mmdrop(struct mm_struct *));
-701:	static inline void mmdrop(struct mm_struct * mm)
-702:	{
-703:		if (atomic_dec_and_test(&mm->mm_count))
-704:			__mmdrop(mm);
-705:	}
+Unable to handle kernel NULL pointer dereference at virtual address
+00000010
+c012efaa
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c012efaa>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010282
+eax: 00000000   ebx: 00000000   ecx: c11c3474   edx: c11c3448
+esi: c11c3448   edi: c5bf75fc   ebp: 00000000   esp: c201bee4
+ds: 0018   es: 0018   ss: 0018
+Process bash (pid: 13794, stackpage=c201b000)
+Stack: 00000000 c11c3448 c5bf75fc 00000000 0000001a 00000000 c02d3540
+00000246
+       c0121c6e 00000000 c11c3448 c5bf75fc 00000000 c201bf1c 01234567
+c201a000
+       c11c3474 c11c3474 c014ae7e c11c3448 c014a7f8 c0122535 c468c860
+c11c3448
+Call Trace: [<c0121c6e>] [<c014ae7e>] [<c014a7f8>] [<c0122535>]
+[<c0122821>]
+[<c0122760>] [<c012cad5>]
+       [<c010a613>]
+Code: 8b 40 10 89 44 24 24 c7 44 24 18 00 00 00 00 8b 42 18 a8 01
 
-My make file uses the following flags:
-gcc -fomit-frame-pointer -Wall  -Wstrict-prototypes -Winline -O3
--D__KERNEL__ -DMODULE  -DDEBUG  -DMODVERSIONS -I/usr/src/linux/include
+>>EIP; c012efaa <block_read_full_page+e/1f4>   <=====
+Trace; c0121c6e <___wait_on_page+ca/d4>
+Trace; c014ae7e <ext2_readpage+e/14>
+Trace; c014a7f8 <ext2_get_block+0/480>
+Trace; c0122535 <do_generic_file_read+2ad/4d8>
+Trace; c0122821 <generic_file_read+59/74>
+Trace; c0122760 <file_read_actor+0/68>
+Trace; c012cad5 <sys_read+95/cc>
+Trace; c010a613 <system_call+33/40>
+Code;  c012efaa <block_read_full_page+e/1f4>
+00000000 <_EIP>:
+Code;  c012efaa <block_read_full_page+e/1f4>   <=====
+   0:   8b 40 10                  mov    0x10(%eax),%eax   <=====
+Code;  c012efad <block_read_full_page+11/1f4>
+   3:   89 44 24 24               mov    %eax,0x24(%esp,1)
+Code;  c012efb1 <block_read_full_page+15/1f4>
+   7:   c7 44 24 18 00 00 00      movl   $0x0,0x18(%esp,1)
+Code;  c012efb8 <block_read_full_page+1c/1f4>
+   e:   00 
+Code;  c012efb9 <block_read_full_page+1d/1f4>
+   f:   8b 42 18                  mov    0x18(%edx),%eax
+Code;  c012efbc <block_read_full_page+20/1f4>
+  12:   a8 01                     test   $0x1,%al
 
-Can anyone tell me what this warning means and if I can safely ignore it (or
-expect disaster) ?
 
 
-	Thanks,
-
-	Shmulik Hen,
-      	Software Engineer
-	Linux Advanced Networking Services
-	Network Communications Group, Israel (NCGj)
-	Intel Corporation Ltd.
-
-
+-- 
+| Dave Jones <davej@suse.de>  http://www.suse.de/~davej
+| SuSE Labs
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,57 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132188AbRCVUe1>; Thu, 22 Mar 2001 15:34:27 -0500
+	id <S132179AbRCVUd1>; Thu, 22 Mar 2001 15:33:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132185AbRCVUeI>; Thu, 22 Mar 2001 15:34:08 -0500
-Received: from netel-gw.online.no ([193.215.46.129]:7181 "EHLO
-	InterJet.networkgroup.no") by vger.kernel.org with ESMTP
-	id <S132181AbRCVUd5>; Thu, 22 Mar 2001 15:33:57 -0500
-Message-ID: <3ABA6167.309E6DB2@powertech.no>
-Date: Thu, 22 Mar 2001 21:32:39 +0100
-From: Geir Thomassen <geirt@powertech.no>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-14 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Theodore Tso <tytso@mit.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Serial port latency
-In-Reply-To: <3ABA42A8.A806D0E7@powertech.no> <20010322140852.A4110@think>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S132186AbRCVUdR>; Thu, 22 Mar 2001 15:33:17 -0500
+Received: from owns.warpcore.org ([216.81.249.18]:7552 "EHLO owns.warpcore.org")
+	by vger.kernel.org with ESMTP id <S132185AbRCVUdH>;
+	Thu, 22 Mar 2001 15:33:07 -0500
+Date: Thu, 22 Mar 2001 14:28:31 -0600
+From: Stephen Clouse <stephenc@theiqgroup.com>
+To: Guest section DW <dwguest@win.tue.nl>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+        "Patrick O'Rourke" <orourke@missioncriticallinux.com>,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Prevent OOM from killing init
+Message-ID: <20010322142831.A929@owns.warpcore.org>
+In-Reply-To: <3AB9313C.1020909@missioncriticallinux.com> <Pine.LNX.4.21.0103212047590.19934-100000@imladris.rielhome.conectiva> <20010322124727.A5115@win.tue.nl>
+Mime-Version: 1.0
+Content-Type: text/plain
+Content-Disposition: inline; filename="msg.pgp"
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010322124727.A5115@win.tue.nl>; from dwguest@win.tue.nl on Thu, Mar 22, 2001 at 12:47:27PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Tso wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+On Thu, Mar 22, 2001 at 12:47:27PM +0100, Guest section DW wrote:
+> Last week I installed SuSE 7.1 somewhere.
+> During the install: "VM: killing process rpm",
+> leaving the installer rather confused.
+> (An empty machine, 256MB, 144MB swap, I think 2.2.18.)
 > 
-> On Thu, Mar 22, 2001 at 07:21:28PM +0100, Geir Thomassen wrote:
-> > My program controls a device (a programmer for microcontrollers) via the
-> > serial port. The program sits in a tight loop, writing a few (typical 6)
-> > bytes to the port, and waits for a few (typ. two) bytes to be returned from
-> > the programmer.
+> Last month I had a computer algebra process running for a week.
+> Killed. But this computation was the only task this machine had.
+> Its sole reason of existence.
+> Too bad - zero information out of a week's computation.
+> (I think 2.4.0.)
 > 
-> Check out the man page for the "low_latency" configuration parameter
-> in the setserial man page.  This will cause the serial driver to burn
-> a small amount of additional CPU overhead when processing characters,
-> but it will lower the time between when characters arrive at the
-> RS-232 port and when they are made available to the user program.  The
-> preferable solution is to use a intelligent windowing protocol that
-> isn't heavily latency dependent (all modern protocols, such as kermit,
-> zmodem, tcp/ip, etc. do this).  But if you can't, using setserial to
-> set the "low_latency" flag will allow you to work around a dumb
-> communications protocol.
-> 
+> Clearly, Linux cannot be reliable if any process can be killed
+> at any moment. I am not happy at all with my recent experiences.
 
-I have tried this on both a stock Redhat 7.0 kernel and on 2.2.19pre5 with
-your serial-5.05 driver, and I could not measure any difference with and
-without the "low_latency" parameter to setserial ....
+Really the whole oom_kill process seems bass-ackwards to me.  I can't in my mind
+logically justify annihilating large-VM processes that have been running for 
+days or weeks instead of just returning ENOMEM to a process that just started 
+up.
 
-#setserial -a /dev/ttyS1
-/dev/ttyS1, Line 1, UART: 16550A, Port: 0x02f8, IRQ: 3
-	Baud_base: 115200, close_delay: 50, divisor: 0
-	closing_wait: 3000
-	Flags: spd_normal skip_test low_latency
+We run Oracle on a development box here, and it's always the first to get the
+axe (non-root process using 70-80 MB VM).  Whenever someone's testing decides to 
+run away with memory, I usually spend the rest of the day getting intimate with
+the backup files, since SIGKILLing random Oracle processes, as you might have
+guessed, has a tendency to rape the entire database.
 
+It would be nice to give immunity to certain uids, or better yet, just turn the
+damn thing off entirely.  I've already hacked that in...errr, out.
 
-The serial port chip is 16550A, which has a built in fifo. Can this be
-the source of my problems ?
+- -- 
+Stephen Clouse <stephenc@theiqgroup.com>
+Senior Programmer, IQ Coordinator Project Lead
+The IQ Group, Inc. <http://www.theiqgroup.com/>
 
-Geir
+-----BEGIN PGP SIGNATURE-----
+Version: PGP 6.5.8
+
+iQA/AwUBOrpgbgOGqGs0PadnEQLp5QCfZMwtDZRNwYQ6RJX0MJ8lRVHTj3YAoNlt
+pFWT2i+2y+Yze/6EYy9V0oaE
+=QIrK
+-----END PGP SIGNATURE-----

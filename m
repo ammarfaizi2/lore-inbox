@@ -1,62 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264225AbUDSOkW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 10:40:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264420AbUDSOkW
+	id S264426AbUDSOwn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 10:52:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264453AbUDSOwn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 10:40:22 -0400
-Received: from kluizenaar.xs4all.nl ([213.84.184.247]:3051 "EHLO samwel.tk")
-	by vger.kernel.org with ESMTP id S264225AbUDSOkR (ORCPT
+	Mon, 19 Apr 2004 10:52:43 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:37090 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264426AbUDSOwl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 10:40:17 -0400
-Message-ID: <4083E4C8.4090202@samwel.tk>
-Date: Mon, 19 Apr 2004 16:40:08 +0200
-From: Bart Samwel <bart@samwel.tk>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: nl, en-us, en
+	Mon, 19 Apr 2004 10:52:41 -0400
+Date: Mon, 19 Apr 2004 10:52:37 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Andrew Morton <akpm@osdl.org>
+cc: Phy Prabab <phyprabab@yahoo.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Question on forcing cache data to write out
+In-Reply-To: <20040419011329.0b07b0ad.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.44.0404191051450.14039-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
-To: John Que <qwejohn@hotmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: NIC inerrupt
-References: <BAY14-F34eqdGSyMp690005e9f6@hotmail.com>
-In-Reply-To: <BAY14-F34eqdGSyMp690005e9f6@hotmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Connect-IP: 127.0.0.1
-X-SA-Exim-Mail-From: bart@samwel.tk
-X-SA-Exim-Scanned: No (on samwel.tk); SAEximRunCond expanded to false
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 19 Apr 2004, Andrew Morton wrote:
+> Phy Prabab <phyprabab@yahoo.com> wrote:
 
+> > quickly, but once the system memory becomes filled,
+> > mostly held in "cache", then my NFS performance drops.
 
-John Que wrote:
-> Hello,
-> 
-> I want to count the number of times I reach an NIC receive
-> interrupt.
-> 
-> I added a global static variable of type int , and initialized
-> it to 0 ; each time I am in the rx_interrupt of the card I incerement
-> it by one;
-> I got large , non sensible numbers after one or two seconds;
-> 
-> So  for debug I added printk each time I increment it in rx_interrupt.
-> 
-> What I see is that there are  unreasonable jumps in the number
-> 
-> for instance , it inceremnts sequntially from 1 to 80,then jums to 4500, 
-> increments a little sequentially to 4580, and the jums again to
-> 11000 ;
-> 
-> Is it got to do with it that this is in interrupt?
-> Any idea what it can be ?
+> Setting dirty_background_ratio lower might smooth things out.
 
-You're probably reading the kernel output from syslog. Syslog 
-periodically reads out the printks from the kernel. With the amount of 
-printks you're doing you are probably printing info for about 4500 
-interrupts between every time syslog checks for new kernel output, while 
-the kernel buffer that is used to store this information can only handle 
-   enough data for 80 interrupts.
+Hmmm, I wonder if the "system gets slower" thing could be
+measured somehow (IO request queue filling up?) and used
+as a way to self-tune pdflush a bit ?
 
---Bart
+I'll take a look ...
+
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
+

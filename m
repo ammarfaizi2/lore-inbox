@@ -1,61 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281166AbRKOXTl>; Thu, 15 Nov 2001 18:19:41 -0500
+	id <S281171AbRKOXYB>; Thu, 15 Nov 2001 18:24:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281168AbRKOXTd>; Thu, 15 Nov 2001 18:19:33 -0500
-Received: from rj.sgi.com ([204.94.215.100]:7102 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S281162AbRKOXTZ>;
-	Thu, 15 Nov 2001 18:19:25 -0500
-Date: Fri, 16 Nov 2001 10:18:00 +1100
-From: Nathan Scott <nathans@sgi.com>
-To: Alexander Viro <viro@math.psu.edu>, Andi Kleen <ak@suse.de>,
-        Andreas Gruenbacher <ag@bestbits.at>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: [RFC][PATCH] VFS interface for extended attributes
-Message-ID: <20011116101800.A632931@wobbly.melbourne.sgi.com>
-In-Reply-To: <Pine.LNX.4.21.0111121152410.14344-100000@moses.parsec.at> <Pine.GSO.4.21.0111121207530.21825-100000@weyl.math.psu.edu> <20011113062711.A1912@wotan.suse.de> <20011115160853.N588010@wobbly.melbourne.sgi.com> <20011114230134.A5739@lynx.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011114230134.A5739@lynx.no>; from adilger@turbolabs.com on Wed, Nov 14, 2001 at 11:01:34PM -0700
+	id <S281172AbRKOXXm>; Thu, 15 Nov 2001 18:23:42 -0500
+Received: from [208.129.208.52] ([208.129.208.52]:30980 "EHLO xmailserver.org")
+	by vger.kernel.org with ESMTP id <S281171AbRKOXXg>;
+	Thu, 15 Nov 2001 18:23:36 -0500
+Date: Thu, 15 Nov 2001 15:32:36 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Anders Peter Fugmann <afu@fugmann.dhs.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Scheduler
+In-Reply-To: <3BF415F2.2010204@fugmann.dhs.org>
+Message-ID: <Pine.LNX.4.40.0111151525380.1486-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi Andreas,
+On Thu, 15 Nov 2001, Anders Peter Fugmann wrote:
 
-On Wed, Nov 14, 2001 at 11:01:34PM -0700, Andreas Dilger wrote:
-> On Nov 15, 2001  16:08 +1100, Nathan Scott wrote:
-> 
-> > +	int (*create) (struct inode *, char *, void *, size_t);
-> > +	int (*replace) (struct inode *, char *, void *, size_t);
-> > +	int (*set) (struct inode *, char *, void *, size_t);
-> 
-> What is the distinction between "set" and "replace" or "set" and "create"?
-> 
+> Hi all.
+>
+> I'm about to start my master thesis, and for this I'm thinking of
+> implementing a new scheduler for Linux.
+>
+> The project will be mostly theoretical, and I'm therefore looking for
+> pointers to papers describing schduling methods for SMP systems.
+>
+> As a part of the project will be to implement a new scheduler, I also
+> would like to know if any of you have some good pointers to eksisting
+> scheduling projects.
+>
+> Any general thoughts on the subject are very welcome.
 
-+#define EA_CREATE   0x0001  /* Set the value: fail if attr already exists */
-+#define EA_REPLACE  0x0002  /* Set the value: fail if attr does not exist */
+You can try here :
 
-Whereas "set" is simply set the named attribute value, creating the
-attribute if need be, replacing the value if the attribute exists,
-and then return success.
+http://citeseer.nj.nec.com/directory.html
 
-The man pages on AndreasG's site go into more detail, but decribe
-the original interface which Al didn't like.  I haven't created an
-updated man page yet, because I'm still not sure if this interface
-is quite what Al was looking for either... (Al?)
+or ACM ( you need subscription for most of the articles ) :
 
-> ... why are there not just
-> flags to distinguish the two, but also separate VFS operations?
+http://www.acm.org/
 
-A VFS flags parameter could allow an individual filesystem to extend
-the semantics of the set operation in new ways by adding new flags -
-I think Al wanted to avoid the possibility of that ever happening,
-which seems fair enough.
+or ( you need subscription ) :
 
-cheers.
+http://www.usenix.org/
 
--- 
-Nathan
+
+
+
+- Davide
+
+

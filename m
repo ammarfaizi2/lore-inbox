@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265776AbUBJItE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 03:49:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265783AbUBJItE
+	id S265784AbUBJItg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 03:49:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265783AbUBJItH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 03:49:04 -0500
-Received: from ecbull20.frec.bull.fr ([129.183.4.3]:26003 "EHLO
-	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S265776AbUBJItB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 03:49:01 -0500
-From: johann lombardi <johann.lombardi@bull.net>
-Reply-To: johann.lombardi@bull.net
-Organization: BULL S.A.
-To: Vojtech Pavlik <vojtech@suse.cz>,
-       Murilo Pontes <murilo_pontes@yahoo.com.br>
-Subject: Re: [patch] Re: psmouse.c, throwing 3 bytes away
-Date: Tue, 10 Feb 2004 08:33:34 +0100
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org, wnelsonjr@comcast.net, ctpm@rnl.ist.utl.pt,
-       clay@exavio.com.cn, mbuesch@freenet.de, mikeserv@bmts.com,
-       gillb4@telusplanet.net, aeriksson@fastmail.fm
-References: <200402041820.39742.wnelsonjr@comcast.net> <200402070911.42569.murilo_pontes@yahoo.com.br> <20040209004812.GA18512@ucw.cz>
-In-Reply-To: <20040209004812.GA18512@ucw.cz>
-MIME-Version: 1.0
-Message-Id: <200402100833.34419.johann.lombardi@bull.net>
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 10/02/2004 08:36:43,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 10/02/2004 08:38:19,
-	Serialize complete at 10/02/2004 08:38:19
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 10 Feb 2004 03:49:07 -0500
+Received: from delerium.kernelslacker.org ([81.187.208.145]:38867 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S265780AbUBJItC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 03:49:02 -0500
+Date: Tue, 10 Feb 2004 08:46:05 +0000
+From: Dave Jones <davej@redhat.com>
+To: "Amit S. Kale" <amitkale@emsyssoft.com>
+Cc: Matt Mackall <mpm@selenic.com>, Tom Rini <trini@kernel.crashing.org>,
+       Pavel Machek <pavel@suse.cz>, akpm@osdl.org, george@mvista.com,
+       Andi Kleen <ak@suse.de>, jim.houston@comcast.net,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: BitKeeper repo for KGDB
+Message-ID: <20040210084605.GA27889@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	"Amit S. Kale" <amitkale@emsyssoft.com>,
+	Matt Mackall <mpm@selenic.com>,
+	Tom Rini <trini@kernel.crashing.org>, Pavel Machek <pavel@suse.cz>,
+	akpm@osdl.org, george@mvista.com, Andi Kleen <ak@suse.de>,
+	jim.houston@comcast.net,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20040127184029.GI32525@stop.crashing.org> <20040209155013.GF5219@smtp.west.cox.net> <20040209173828.GG2315@waste.org> <200402101327.40378.amitkale@emsyssoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <200402101327.40378.amitkale@emsyssoft.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> And here is a fix. Damn stupid mistake I made.
-It solves the problem for me.
-Thanks.
+On Tue, Feb 10, 2004 at 01:27:40PM +0530, Amit S. Kale wrote:
+ > http://www.codemonkey.org.uk/projects/bitkeeper/kgdb/kgdb-2004-02-10.diff
+ > has grown over 10MB. Something wrong in generating a diff?
 
-Johann
+More likely mainline got ahead of the kgdb patch.
+
+http://www.codemonkey.org.uk/projects/bitkeeper/kgdb/ is a diff
+generated using bk export -tpatch -hdu -r`bk repogca bk://linux.bkbits.net/linux-2.5`,+
+
+It's a tenth of the size. Look better ?
+
+		Dave
 

@@ -1,48 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310672AbSCHD0v>; Thu, 7 Mar 2002 22:26:51 -0500
+	id <S310675AbSCHDcl>; Thu, 7 Mar 2002 22:32:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310673AbSCHD0m>; Thu, 7 Mar 2002 22:26:42 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:8202 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S310672AbSCHD0b>; Thu, 7 Mar 2002 22:26:31 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: furwocks: Fast Userspace Read/Write Locks
-Date: 7 Mar 2002 19:26:08 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a69b0g$juo$1@cesium.transmeta.com>
-In-Reply-To: <20020307153228.3A6773FE06@smtp.linux.ibm.com> <E16j95K-00047G-00@wagner.rustcorp.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+	id <S310673AbSCHDcb>; Thu, 7 Mar 2002 22:32:31 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:58376 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S310675AbSCHDcN>;
+	Thu, 7 Mar 2002 22:32:13 -0500
+Date: Thu, 7 Mar 2002 20:32:27 -0700
+From: yodaiken@fsmlabs.com
+To: Stephen Samuel <samuel@bcgreen.com>
+Cc: "Matthew D. Pitts" <mpitts@suite224.net>, linux-kernel@vger.kernel.org,
+        "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+Subject: Re: Petition Against Official Endorsement of BitKeeper by Linux Maintainers
+Message-ID: <20020307203227.A10957@hq.fsmlabs.com>
+In-Reply-To: <20020305165233.A28212@fireball.zosima.org> <20020305154147.A6211@vger.timpanogas.org> <3C8554F4.9000403@bcgreen.com> <004301c1c4a6$ab218340$b0d3fea9@pcs686> <3C881649.2030000@bcgreen.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <3C881649.2030000@bcgreen.com>; from samuel@bcgreen.com on Thu, Mar 07, 2002 at 05:39:21PM -0800
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <E16j95K-00047G-00@wagner.rustcorp.com.au>
-By author:    Rusty Russell <rusty@rustcorp.com.au>
-In newsgroup: linux.dev.kernel
-> 
-> > I m not in favor of that. The dominant lock will be mutexes.
-> 
-> To clarify: I'd love this, but rwlocks in the kernel aren't even
-> vaguely fair.  With a steady stream of overlapping readers, a writer
-> will never get the lock.
-> 
+On Thu, Mar 07, 2002 at 05:39:21PM -0800, Stephen Samuel wrote:
+> note: this solution DOES NOT PRECLUDE YOU (or anybody else) FROM
+> USING BITKEEPER (or any other proprietary solution) in the privacy of
+> your office and/or home -- even if you want to do Linux development
+> with it.  It's simply about what occurs in the OFFICIAL Linux kernel
+> code tree, which probably has a reasonably high proportion of people
+> who are both politically and financially sensitive to the idea of
+> being almost required to use an closed source product to work on
+> their open source 'baby'.
 
-Note that there really are two kinds of rwlocks: rwlocks with read
-priority, and rwlocks with write priority.  They're actually fairly
-different operations.  I guess one can envision other schemes, too,
-but that's the main distinction.
+Sometimes it gets too hard to believe.
 
-Neither is particularly hard to implement, however, it's probably
-better if they are considered different types (perhaps we can call the
-ones with write priority "wrlocks" instead of "rwlocks").
 
-	-hpa
+
+> 
+> -- 
+> Stephen Samuel +1(604)876-0426                samuel@bcgreen.com
+> 		   http://www.bcgreen.com/~samuel/
+> Powerful committed communication, reaching through fear, uncertainty and
+> doubt to touch the jewel within each person and bring it to life.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+---------------------------------------------------------
+Victor Yodaiken 
+Finite State Machine Labs: The RTLinux Company.
+ www.fsmlabs.com  www.rtlinux.com
+

@@ -1,108 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264939AbTFWQQ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 12:16:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265015AbTFWQQ4
+	id S265264AbTFWQWB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 12:22:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266029AbTFWQWA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 12:16:56 -0400
-Received: from quechua.inka.de ([193.197.184.2]:30425 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S264939AbTFWQPd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 12:15:33 -0400
-From: Andreas Jellinghaus <aj@dungeon.inka.de>
-Organization: nobody home
-Subject: Re: [PATCH] Synaptics TouchPad driver for 2.5.70
-Date: Mon, 23 Jun 2003 18:30:43 +0200
-User-Agent: Pan/0.14.0 (I'm Being Nibbled to Death by Cats!)
-Message-Id: <pan.2003.06.23.16.30.42.431561@dungeon.inka.de>
-References: <m2smqhqk4k.fsf@p4.localdomain> <20030615001905.A27084@ucw.cz> <m2he6rv8i6.fsf@telia.com> <20030615142838.A3291@ucw.cz> <m2of0zqr4i.fsf@telia.com> <20030615192731.A6972@ucw.cz> <m2d6hbgdhw.fsf@telia.com>
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Mon, 23 Jun 2003 12:22:00 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:29634 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S265264AbTFWQV7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 12:21:59 -0400
+Date: Mon, 23 Jun 2003 09:35:55 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: hps@intermeta.de, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
+Message-ID: <20030623163555.GA26760@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, hps@intermeta.de,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030620143012.GC14404@work.bitmover.com> <20030620163349.GG17563@work.bitmover.com> <20030621142048.2ae63afa.skraw@ithnet.com> <20030621133831.GA10089@work.bitmover.com> <1056358467.29264.41.camel@passion.cambridge.redhat.com> <20030623132231.GC6715@work.bitmover.com> <3EF70EF8.3050107@coyotegulch.com> <20030623150616.GA20103@work.bitmover.com> <bd78qm$7is$1@tangens.hometree.net> <1056384967.13529.74.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1056384967.13529.74.camel@dhcp22.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Jun 2003 23:44:45 +0000, Peter Osterlund wrote:
-> I have modified the X driver now, so that it doesn't depend on packets
-> arriving one second after the last event, and so that it uses wall
-> clock time instead of counting packets. This version therefore works
-> with an unpatched 2.5.72 kernel. It is available here:
+On Mon, Jun 23, 2003 at 05:16:12PM +0100, Alan Cox wrote:
+> On Llu, 2003-06-23 at 17:11, Henning P. Schmiedehausen wrote:
+> > SAP is doing exactly what Scott is doing on a little larger base. They
+> > have a product with a bazillion of levers and controls and they sell
+> > you services to adapt their product on your needs. Things you could do
+> > yourself if you have five years' time to read all the manuals.
+> > 
+> > So your argument simply doesn't hold. SAP is not exactly a "small
+> > custom shop".
 > 
->         http://w1.894.telia.com/~u89404340/touchpad/index.html
+> And lots of stuff that is *far* easier to operate and reliable has
+> active support companies for a variety of reasons. Its cost effective to
+> aggregate knowledge for example. Not every house has its own plumber,
+> electrician and painter for the same reasons.
+> 
+> I know people who support TeX profitably. So the support business works
+> for software that basically has no bugs. 
 
-Hi,
-
-I tried that driver with 2.5.73. The synaptics option is gone, so it is
-always on by default? No way to turn it off?
-
-My XF86Config-4 is:
-
-Section "InputDevice"
-        Identifier  "Mouse1"
-        Driver      "synaptics"
-        Option      "Protocol" "event"
-        Option      "Device" "/dev/input/event1"
-        Option      "Emulate3Buttons" "on"
-EndSection
-
-it's debian unstable and hardware is a dell latitude c600 laptop.
-
-the trackpoint (or how it is called?) does not work: nothing happends.
-The touchpad is working ok, but the mouse is moving either slow or too
-fast. I guess there is a way I can configure that?
-
-a bigger problem is: X froze once, but I could login via network and
-kill -9 it. No idea why, there is nothing special in the log file.
-
-
-kernel messages:
-mice: PS/2 mouse device common for all mice
-input: PC Speaker
-synaptics reset failed
-synaptics reset failed
-synaptics reset failed
-Synaptics Touchpad, model: 1
- Firware: 5.5
- 180 degree mounted touchpad
- Sensor: 27
- new absolute packet format
- Touchpad has extended capability bits
- -> multifinger detection
- -> palm detection
-input: Synaptics Synaptics TouchPad on isa0060/serio1
-serio: i8042 AUX port at 0x60,0x64 irq 12
-
-xfree log:
-
-(II) LoadModule: "synaptics"
-(II) Loading /usr/X11R6/lib/modules/input/synaptics_drv.o
-(II) Module synaptics: vendor="The XFree86 Project"
-        compiled for 4.2.0, module version = 1.0.0
-        Module class: XFree86 XInput Driver
-        ABI class: XFree86 XInput driver, version 0.3
-...
-(**) Option "Device" "/dev/input/event1"
-(II) xfree driver for the synaptics touchpad 0.11.3p3
-(**) Option "CorePointer"
-(**) Mouse1: Core Pointer
-(II) Keyboard "Keyboard0" handled by legacy driver
-(II) XINPUT: Adding extended input device "Mouse1" (type: MOUSE)
-Synaptics DeviceInit called
-SynapticsCtrl called.
-Synaptics DeviceOn called
-(II) xfree driver for the synaptics touchpad 0.11.3p3
-Could not init font path element /usr/X11R6/lib/X11/fonts/Speedo/, removing from
- list!
-Could not init font path element /usr/X11R6/lib/X11/fonts/Type1/, removing from 
-list!
-SynapticsCtrl called.
-
-so far it's working fine.
-
-btw: I'm used to tip twice on the touchpad to get a left click. 
-That doesn't work anymore (I might have stopped a few kernel or 
-xfree versions before). Is there a way to enable that again?
-
-Thanks. Regards, Andreas
-
+I give, I'm not going to convince you and you're not going to convince me.
+I think that I'm making a mistake by arguing with people who aren't trying
+to build a company.  Of course you're right, you have the advantage that
+you don't have to put your theories to the test nor do you have employees
+who have to find new jobs if your theories are wrong.  Forgive me if I
+don't mix your theories into my practice.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

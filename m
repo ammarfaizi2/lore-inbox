@@ -1,83 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272695AbRILIVl>; Wed, 12 Sep 2001 04:21:41 -0400
+	id <S272703AbRILIWv>; Wed, 12 Sep 2001 04:22:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272703AbRILIVb>; Wed, 12 Sep 2001 04:21:31 -0400
-Received: from camus.xss.co.at ([194.152.162.19]:47886 "EHLO camus.xss.co.at")
-	by vger.kernel.org with ESMTP id <S272695AbRILIV2>;
-	Wed, 12 Sep 2001 04:21:28 -0400
-Message-ID: <3B9F1B1A.2044CF1A@xss.co.at>
-Date: Wed, 12 Sep 2001 10:21:46 +0200
-From: Andreas Haumer <andreas@xss.co.at>
-Organization: xS+S
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.20pre10
-In-Reply-To: <E15gwc5-0003VR-00@the-village.bc.nu>
+	id <S272706AbRILIWm>; Wed, 12 Sep 2001 04:22:42 -0400
+Received: from [212.169.100.200] ([212.169.100.200]:33789 "EHLO
+	bigboss.nextframe.net") by vger.kernel.org with ESMTP
+	id <S272703AbRILIW1>; Wed, 12 Sep 2001 04:22:27 -0400
+Date: Wed, 12 Sep 2001 10:21:44 +0200
+From: Morten Helgesen <admin@nextframe.net>
+To: Liakakis Kostas <kostas@skiathos.physics.auth.gr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re:  Duron kernel crash (i686 works)
+Message-ID: <20010912102144.J2858@bigboss>
+Reply-To: admin@nextframe.net
+In-Reply-To: <Pine.GSO.4.21.0109111623500.13708-100000@jacui> <Pine.GSO.4.21.0109120954380.20914-100000@skiathos.physics.auth.gr>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.4.21.0109120954380.20914-100000@skiathos.physics.auth.gr>; from "kostas@skiathos.physics.auth.gr" on Wed, Sep 12, 2001 at 09:56:00AM
+X-Editor: VIM - Vi IMproved 5.7
+X-Keyboard: PFU Happy Hacking Keyboard
+X-Operating-System: Slackware Linux (of course)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+The 3R BIOS includes the following changes :
 
-Alan Cox wrote:
+1. Update BIOS code.
+2. Enhance ISA PnP compatibility.
+3. Enhance SCSI adapters compatibility.
+4. Add 1400(133) Athlon support for KT7A/KT7A-RAID.
+5. Add new option "1200 above" for high speed Athlons
+   with 100FSB. KT7 / KT7-RAID / KT7A / KT7A-RAID / KT7E only support
+   1.4G(100) Athlon with L1 bridges disconnected. Check L1 before
+   you buy a CPU please!
+6. For Creative SBLive 5.1 sound card users, you may try these
+   options while experience sound quality issue.
+   * PCI master read caching, default setting=Disabled
+   * PCI master time-out, Default setting=1
+   Setting above options to Disabled/3 will lead to the same result
+   with VIA Latency patch V0.14 and may help SB Live 5.1 sound
+   issue. If the system experiences low performance after these
+   settings, enable the "PCI master read caching" please.
+7. Enhance the high speed 133FSB Athlon stability for KT7A/KT7A-RAID.
+8. HPT 370 RAID BIOS version 1.11.0402 for KT7-RAID/KT7A-RAID.
+   This BIOS version is also for non RAID boards and HPT BIOS will
+   be automatically disabled while RAID controller chip not detected.
+
+I must admit that these specifications weren`t exactly the most technical I have
+ever seen, but anyway ... taken from : http://fae.abit.com.tw/eng/download/bios/kt7.htm
+
+On Wed, Sep 12, 2001 at 09:56:00AM +0300, Liakakis Kostas wrote:
+> On Tue, 11 Sep 2001, Roberto Jung Drebes wrote:
 > 
-> If you know any reason this should not be 2.2.20 final now is a very very
-> good time to say. I intend to call this patch 2.2.20 in a week or so barring
-> any last minute problems. Please save anything but actual bugfixes for
-> 2.2.21.
+> > As said earlier, this happens after upgrading from BIOS YH to 3R in the
+> > KT7A-RAID. The processor is a Duron 800 not overclocked.
 > 
-I did a short check through the pre10 patch but couldn't find my small
-patch to linux/net/sunrpc/sched.c I sent you back in August.
+> What exactly did the new bios version change? 
+> Enabled STPGNT by any chance?
+> 
+> -K.
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-This patch fixes (at least for us) the problem where rpciod still
-keeps references into the root fs even after it was daemonized.
 
-I didn't get any reaction after posting this patch, neither
-positive nor negative. 
 
-In case you don't remember here's the patch again:
-
-andreas@ws1:~/cvsdir {625} % cvs diff -C5 -rR_2-2-19~11 -rR_2-2-19~12
-linux/net/sunrpc/sched.c
-Index: linux/net/sunrpc/sched.c
-===================================================================
-RCS file:
-/raid5/cvs/repository/distribution/Base/linux/net/sunrpc/sched.c,v
-retrieving revision 1.1.1.6
-retrieving revision 1.12
-diff -C5 -r1.1.1.6 -r1.12
-*** linux/net/sunrpc/sched.c    2001/03/25 16:37:42     1.1.1.6
---- linux/net/sunrpc/sched.c    2001/08/17 11:53:48     1.12
-***************
-*** 1066,1075 ****
---- 1066,1076 ----
-        rpciod_pid = current->pid;
-        up(&rpciod_running);
- 
-        exit_files(current);
-        exit_mm(current);
-+       exit_fs(current);
- 
-        spin_lock_irq(&current->sigmask_lock);
-        siginitsetinv(&current->blocked, sigmask(SIGKILL));
-        recalc_sigpending(current);
-        spin_unlock_irq(&current->sigmask_lock); 
-
-Is there any reason for not including this in 2.2.20?
-It helps us getting rid of the initial ramdisk rootfs 
-on our diskless clients...
-
-Regards,
-
-- andreas
+== Morten
 
 -- 
-Andreas Haumer                     | mailto:andreas@xss.co.at
-*x Software + Systeme              | http://www.xss.co.at/
-Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
-A-1100 Vienna, Austria             | Fax: +43-1-6060114-71
+mvh
+Morten Helgesen 
+UNIX System Administrator & C Developer 
+Nextframe AS
+admin@nextframe.net / 93445641
+http://www.nextframe.net

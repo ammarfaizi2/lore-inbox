@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261347AbSIWT1u>; Mon, 23 Sep 2002 15:27:50 -0400
+	id <S261358AbSIWUSr>; Mon, 23 Sep 2002 16:18:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261373AbSIWT05>; Mon, 23 Sep 2002 15:26:57 -0400
-Received: from mnh-1-28.mv.com ([207.22.10.60]:35589 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S261347AbSIWTZP>;
-	Mon, 23 Sep 2002 15:25:15 -0400
-Message-Id: <200209232034.PAA03655@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: uml-patch-2.5.38-1
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 23 Sep 2002 15:34:57 -0500
-From: Jeff Dike <jdike@karaya.com>
+	id <S261373AbSIWUSr>; Mon, 23 Sep 2002 16:18:47 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:26289 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S261358AbSIWUSq>;
+	Mon, 23 Sep 2002 16:18:46 -0400
+Date: Mon, 23 Sep 2002 22:32:00 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Larry McVoy <lm@bitmover.com>, Peter Waechtler <pwaechtler@mac.com>,
+       <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@redhat.com>
+Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
+In-Reply-To: <Pine.LNX.3.96.1020923152135.13351C-100000@gatekeeper.tmr.com>
+Message-ID: <Pine.LNX.4.44.0209232218320.2118-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-UML has been updated to 2.5.38.
 
-Thanks to comments from Al Viro and fixes from James McMechan, the block
-driver is up to date with the block layer changes.
+On Mon, 23 Sep 2002, Bill Davidsen wrote:
 
-There were some fixes to keep up with the latest kbuild, including some
-changes in the top-level Makefile, which I'll be feeding to Kai.
+> The programs which benefit from N:M are exactly those which don't behave
+> the way you describe. [...]
 
-There were also a number of smaller fixes to update to 2.5.38, a number
-of which came from Nikita Danilov.
+90% of the programs that matter behave exactly like Larry has described.
+IO is the main source of blocking. Go and profile a busy webserver or
+mailserver or database server yourself if you dont believe it.
 
-I'll be feeding these changes to Linus.
+> [...] Think of programs using locking to access shared memory, or other
+> fast resources which don't require a visit to the kernel. [...]
 
-The patch is available at
-	http://uml-pub.ists.dartmouth.edu/uml/uml-patch-2.5.38-1.bz2
+oh - actually, such things are quite rare it turns out. And even if it
+happens, the 1:1 model is handling this perfectly fine via futexes, as
+long as the contention of the shared resource is light. Which it better be
+...
 
-For the other UML mirrors and other downloads, see 
-	http://user-mode-linux.sourceforge.net/dl-sf.html
+any application with heavy contention over some global shared resource is
+serializing itself already and has much bigger problems than that of the
+threading model ... Its performance will be bad both under M:N and 1:1
+models - think about it.
 
-Other links of interest:
+so a threading abstraction must concentrate on what really matters:  
+performing actual useful tasks - most of those tasks involve the use of
+some resource, block IO, network IO, user IO - each of them involve entry
+into the kernel - at which point the 1:1 design fits much better.
 
-	The UML project home page : http://user-mode-linux.sourceforge.net
-	The UML Community site : http://usermodelinux.org
+(and all your followup arguments are void due to this basic
+misunderstanding.)
 
-				Jeff
+	Ingo
 

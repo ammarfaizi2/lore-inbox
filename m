@@ -1,48 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262604AbTBXXgT>; Mon, 24 Feb 2003 18:36:19 -0500
+	id <S262500AbTBXXmy>; Mon, 24 Feb 2003 18:42:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262812AbTBXXgT>; Mon, 24 Feb 2003 18:36:19 -0500
-Received: from landfill.ihatent.com ([217.13.24.22]:19584 "EHLO
-	mail.ihatent.com") by vger.kernel.org with ESMTP id <S262604AbTBXXgS>;
-	Mon, 24 Feb 2003 18:36:18 -0500
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: finger @zeuz.kernel.org modification?
-References: <87n0kl5krq.fsf@lapper.ihatent.com>
-	<20030224152156.3c3c00e1.rddunlap@osdl.org>
-From: Alexander Hoogerhuis <alexh@ihatent.com>
-Date: 25 Feb 2003 00:46:26 +0100
-In-Reply-To: <20030224152156.3c3c00e1.rddunlap@osdl.org>
-Message-ID: <87el5x5jjh.fsf@lapper.ihatent.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	id <S262806AbTBXXmy>; Mon, 24 Feb 2003 18:42:54 -0500
+Received: from otter.mbay.net ([206.55.237.2]:14097 "EHLO otter.mbay.net")
+	by vger.kernel.org with ESMTP id <S262500AbTBXXmx> convert rfc822-to-8bit;
+	Mon, 24 Feb 2003 18:42:53 -0500
+From: John Alvord <jalvo@mbay.net>
+To: Jakub Jelinek <jakub@redhat.com>
+Cc: Andreas Schwab <schwab@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
+       "Richard B. Johnson" <root@chaos.analogic.com>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] s390 (7/13): gcc 3.3 adaptions.
+Date: Mon, 24 Feb 2003 15:52:20 -0800
+Message-ID: <rrbl5v47rm3o9ltc4iegc1i6nc9fuqgapk@4ax.com>
+References: <Pine.LNX.4.44.0302241259320.13406-100000@penguin.transmeta.com> <jeznol5plv.fsf@sykes.suse.de> <20030224173934.T3910@devserv.devel.redhat.com>
+In-Reply-To: <20030224173934.T3910@devserv.devel.redhat.com>
+X-Mailer: Forte Agent 1.92/32.570
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Randy.Dunlap" <rddunlap@osdl.org> writes:
+On Mon, 24 Feb 2003 17:39:34 -0500, Jakub Jelinek <jakub@redhat.com>
+wrote:
 
-> On 25 Feb 2003 00:19:53 +0100
-> Alexander Hoogerhuis <alexh@ihatent.com> wrote:
-> 
-> | I've been using the above command as a quick reference to get a view
-> | of whats state of the art kernel-wise, and wondered who is the right
-> | person to pest^H^H^H^Hask about getting the 2.5-mm releases into the
-> | same list? :)
-> 
-> 
-> and how to have kernel announcements show up on linux-kernel-announce
-> again too...
-> 
+>On Mon, Feb 24, 2003 at 10:35:24PM +0100, Andreas Schwab wrote:
+>> Linus Torvalds <torvalds@transmeta.com> writes:
+>> 
+>> |> Does gcc still warn about things like
+>> |> 
+>> |> 	#define COUNT (sizeof(array)/sizeof(element))
+>> |> 
+>> |> 	int i;
+>> |> 	for (i = 0; i < COUNT; i++)
+>> |> 		...
+>> |> 
+>> |> where COUNT is obviously unsigned (because sizeof is size_t and thus 
+>> |> unsigned)?
+>> |> 
+>> |> Gcc used to complain about things like that, which is a FUCKING DISASTER. 
+>> 
+>> How can you distinguish that from other occurrences of (int)<(size_t)?
+>
+>Value range propagation pass, then warn?
 
-Lets not get carried away featurewise now, shall we? :)
+I know it is stupid/unnecessary etc, but you could do
 
-> ~Randy
+#if COUNT > INT_MAX
+#error you idiot... 
+#endif
 
-mvh,
-A
--- 
-Alexander Hoogerhuis                               | alexh@ihatent.com
-CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
-"You have zero privacy anyway. Get over it."  --Scott McNealy
+	int i;
+	for(i =0; i < (int)COUNT; i++)
+	...
+
+where the #if was placed in whatever header COUNT was defined.
+
+and have safe code with no runtime overhead and looking only mildly
+idiotic.
+
+john alvord

@@ -1,54 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262188AbVBQBUX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262189AbVBQBZZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262188AbVBQBUX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 20:20:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262187AbVBQBUX
+	id S262189AbVBQBZZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 20:25:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbVBQBZY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 20:20:23 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:59090 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S262188AbVBQBTo convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 20:19:44 -0500
-From: Parag Warudkar <kernel-stuff@comcast.net>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: -rc3 leaking NOT BIO [Was: Memory leak in 2.6.11-rc1?]
-Date: Wed, 16 Feb 2005 20:19:09 -0500
-User-Agent: KMail/1.7.92
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-References: <20050121161959.GO3922@fi.muni.cz> <200502161831.24357.kernel-stuff@comcast.net> <20050216155142.6840497f.akpm@osdl.org>
-In-Reply-To: <20050216155142.6840497f.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Wed, 16 Feb 2005 20:25:24 -0500
+Received: from hell.sks3.muni.cz ([147.251.210.30]:33441 "EHLO
+	hell.sks3.muni.cz") by vger.kernel.org with ESMTP id S262189AbVBQBZS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Feb 2005 20:25:18 -0500
+Date: Thu, 17 Feb 2005 02:25:11 +0100
+From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+To: Pavel Machek <pavel@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Call for help: list of machines with working S3
+Message-ID: <20050217012511.GA11702@mail.muni.cz>
+References: <20050216124336.GA27874@mail.muni.cz> <20050216232257.GC3865@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-Message-Id: <200502162019.10102.kernel-stuff@comcast.net>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050216232257.GC3865@elf.ucw.cz>
+X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 16 February 2005 06:51 pm, Andrew Morton wrote:
-> ffff81002fe80000 is the address of the slab object.  00000000000008a8 is
-> supposed to be the caller's text address.  It appears that
-> __builtin_return_address(0) is returning junk.  Perhaps due to
-> -fomit-frame-pointer.
-I tried manually removing -fomit-frame-pointer from Makefile and adding 
--fno-omit-frame-pointer but with same results - junk return addresses. 
-Probably a X86_64 issue.
+On Thu, Feb 17, 2005 at 12:22:57AM +0100, Pavel Machek wrote:
+> > does anyone have some experiences with intel i855 video card and S3?
+> > 
+> > For me the binary driver from Intel works with S3 but only X server is restored
+> > not the text console. 
+> > 
+> > With open source driver nothing is restored. I try to use s3_bios or s3_mode,
+> > nothing helps. Using  vbetool and post causes backlight turn on but display is
+> > full of garbage (vertical lines of different colors).
+> 
+> Can you do vga=normal and attempt to reload fonts?
 
->So it's probably an ndiswrapper bug? 
-I looked at ndiswrapper mailing lists and found this explanation for the same 
-issue of growing size-64 with ndiswrapper  -
-----------------------------------
-"It looks like the problem is kernel-version related, not ndiswrapper. 
- ndiswrapper just uses some API that starts the memory leak but the 
- problem is indeed in the kernel itself. versions from 2.6.10 up to 
- .11-rc3 have this problem afaik. haven"t tested rc4 but maybe this one 
- doesn"t have the problem anymore, we will see"
-----------------------------------
+Did not help. Instead, this seems to be working with X.org and opensource driver:
 
-I tested -rc4 and it has the problem too.  More over, with plain old 8139too 
-driver, the slab still continues to grow albeit slowly. So there is a reason 
-to suspect kernel leak as well. I will try binary searching...
+chvt 1
+vbetool vbestate save > /tmp/state
+echo 3 > /proc/acpi/sleep
+vbetool post
+vbetool vbestate restore < /tmp/state
+chvt 7
 
-Parag
+(if X server is running then chvt to text console is necessary, but it works
+including DRI and XV overlay running) 
+
+Can I get the current console so that chvt 7 can switch to the original console?
+
+
+Just re-POST seems to initialize first head connected to external CRT. The
+second head (connected to LFP) is not initialized. Do not know why :(
+
+This is the videocard: Intel Corp. 82852/855GM Integrated Graphics Device.
+Notebook: Acer TM 242FX
+
+-- 
+Luká¹ Hejtmánek

@@ -1,65 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262900AbVA2LjS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262901AbVA2Lyq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262900AbVA2LjS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jan 2005 06:39:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262902AbVA2Lhc
+	id S262901AbVA2Lyq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jan 2005 06:54:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262902AbVA2Lyq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jan 2005 06:37:32 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:44299 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262900AbVA2LhW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jan 2005 06:37:22 -0500
-Date: Sat, 29 Jan 2005 11:37:08 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>,
-       Philippe Robin <Philippe.Robin@arm.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Fwd: Re: flush_cache_page()
-Message-ID: <20050129113707.B2233@flint.arm.linux.org.uk>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Philippe Robin <Philippe.Robin@arm.com>,
-	Andrew Morton <akpm@osdl.org>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-References: <20050111223652.D30946@flint.arm.linux.org.uk> <Pine.LNX.4.58.0501111605570.2373@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 29 Jan 2005 06:54:46 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:31360
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S262901AbVA2Lym (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jan 2005 06:54:42 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+Subject: [patch] Make User Mode Linux compile in 2.6.11-rc2-bk6.
+Date: Sat, 29 Jan 2005 05:51:18 -0500
+User-Agent: KMail/1.6.2
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.58.0501111605570.2373@ppc970.osdl.org>; from torvalds@osdl.org on Tue, Jan 11, 2005 at 04:07:09PM -0800
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200501290551.18666.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 11, 2005 at 04:07:09PM -0800, Linus Torvalds wrote:
-> On Tue, 11 Jan 2005, Russell King wrote:
-> > Any responses on this?  Didn't get any last time I mailed this out.
-> 
-> I don't have any real objections. I'd like it verified that gcc can
-> compile away all the overhead on the architectures that don't use the pfn, 
-> since "page_to_pfn()" can be a bit expensive otherwise.. But I don't see 
-> anything wrong with the approach.
+User Mode Linux doesn't compile in 2.6.11-rc2-bk6.  Here's the change I
+made to sys_call_table.c to make it compile.  (I ran the result and brought
+up a shell.)
 
-Thanks for the response.  However, apart from Ralph, Paul and yourself,
-it seems none of the other architecture maintainers care about this
-patch - the original mail was BCC'd to the architecture list.  Maybe
-that's an implicit acceptance of this patch, I don't know.
+We're really close to finally having a usable UML kernel in mainline.
+2.6.9's ARCH=um built but was very unstable, 2.6.10 didn't even build
+for me, but 2.6.11-rc1-mm2 builds fine unmodified, and ran my tests
+correctly to completion.
 
-I do know that page_to_pfn() will generate code on some platforms which
-don't require it due to them declaring flush_cache_page() as a function.
-However, I assert that if they don't need this overhead, that's for them
-to fix up.  I don't know all their quirks so it isn't something I can
-tackle.
+Here's the patch.  Nothing fancy, it simply removes or stubs out all the
+syscalls the compiler complains about.
 
-In other words, unless I actually receive some real help from the other
-architecture maintainers on this to address your concerns, ARM version 6
-CPUs with aliasing L1 caches (== >16K) will remain a dead dodo with
-mainline Linux kernels.
+Rob
 
-(This mail BCC'd to the architecture list again in the vain hope that
-someone will offer assistance.)
+Signed-off-by: Rob Landley <rob@landley.net>
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+--- linux-2.6.10/arch/um/kernel/sys_call_table.c	2005-01-28 21:20:38.000000000 -0600
++++ linux-2.6.10-um/arch/um/kernel/sys_call_table.c	2005-01-28 21:40:30.735892144 -0600
+@@ -20,7 +20,7 @@
+ #define NFSSERVCTL sys_ni_syscall
+ #endif
+ 
+-#define LAST_GENERIC_SYSCALL __NR_vperfctr_read
++#define LAST_GENERIC_SYSCALL (NR_syscalls-1)
+ 
+ #if LAST_GENERIC_SYSCALL > LAST_ARCH_SYSCALL
+ #define LAST_SYSCALL LAST_GENERIC_SYSCALL
+@@ -52,13 +52,7 @@
+ extern syscall_handler_t sys_mbind;
+ extern syscall_handler_t sys_get_mempolicy;
+ extern syscall_handler_t sys_set_mempolicy;
+-extern syscall_handler_t sys_sys_kexec_load;
+ extern syscall_handler_t sys_sys_setaltroot;
+-extern syscall_handler_t sys_vperfctr_open;
+-extern syscall_handler_t sys_vperfctr_control;
+-extern syscall_handler_t sys_vperfctr_unlink;
+-extern syscall_handler_t sys_vperfctr_iresume;
+-extern syscall_handler_t sys_vperfctr_read;
+ 
+ syscall_handler_t *sys_call_table[] = {
+ 	[ __NR_restart_syscall ] = (syscall_handler_t *) sys_restart_syscall,
+@@ -273,7 +267,7 @@
+ 	[ __NR_mq_timedreceive ] = (syscall_handler_t *) sys_mq_timedreceive,
+ 	[ __NR_mq_notify ] = (syscall_handler_t *) sys_mq_notify,
+ 	[ __NR_mq_getsetattr ] = (syscall_handler_t *) sys_mq_getsetattr,
+-	[ __NR_sys_kexec_load ] = (syscall_handler_t *) sys_kexec_load,
++	[ __NR_sys_kexec_load ] = (syscall_handler_t *) sys_ni_syscall,
+ 	[ __NR_waitid ] = (syscall_handler_t *) sys_waitid,
+ #if 0
+ 	[ __NR_sys_setaltroot ] = (syscall_handler_t *) sys_sys_setaltroot,
+@@ -281,11 +275,6 @@
+ 	[ __NR_add_key ] = (syscall_handler_t *) sys_add_key,
+ 	[ __NR_request_key ] = (syscall_handler_t *) sys_request_key,
+ 	[ __NR_keyctl ] = (syscall_handler_t *) sys_keyctl,
+-	[ __NR_vperfctr_open ] = (syscall_handler_t *) sys_vperfctr_open,
+-	[ __NR_vperfctr_control ] = (syscall_handler_t *) sys_vperfctr_control,
+-	[ __NR_vperfctr_unlink ] = (syscall_handler_t *) sys_vperfctr_unlink,
+-	[ __NR_vperfctr_iresume ] = (syscall_handler_t *) sys_vperfctr_iresume,
+-	[ __NR_vperfctr_read ] = (syscall_handler_t *) sys_vperfctr_read,
+ 
+ 	ARCH_SYSCALLS
+ 	[ LAST_SYSCALL + 1 ... NR_syscalls ] = 

@@ -1,64 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279963AbRKFSyS>; Tue, 6 Nov 2001 13:54:18 -0500
+	id <S280014AbRKFSys>; Tue, 6 Nov 2001 13:54:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280014AbRKFSyI>; Tue, 6 Nov 2001 13:54:08 -0500
-Received: from cc76797-a.ensch1.ov.nl.home.com ([213.51.205.95]:31748 "EHLO
-	jumbo.ceram119") by vger.kernel.org with ESMTP id <S279963AbRKFSx4>;
-	Tue, 6 Nov 2001 13:53:56 -0500
-Date: Tue, 6 Nov 2001 19:54:20 +0100
-From: "Dennis J.A. Bijwaard" <bijwaard@bijwaard.dhs.org>
-To: linux-kernel@vger.kernel.org
-Subject: kernel panic smp & usb scanner
-Message-ID: <20011106195420.A18732@jumbo.ceram119>
-Reply-To: bijwaard@home.nl
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="3V7upXqbjpZ4EhLz"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S280031AbRKFSyj>; Tue, 6 Nov 2001 13:54:39 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:16654 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S280014AbRKFSyc>; Tue, 6 Nov 2001 13:54:32 -0500
+Message-ID: <3BE830B2.8957E8B@zip.com.au>
+Date: Tue, 06 Nov 2001 10:49:22 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Steven N. Hirsch" <shirsch@adelphia.net>
+CC: lkml <linux-kernel@vger.kernel.org>,
+        "ext3-users@redhat.com" <ext3-users@redhat.com>
+Subject: Re: ext3-0.9.15 against linux-2.4.14
+In-Reply-To: <3BE7AB6C.97749631@zip.com.au> <Pine.LNX.4.33.0111061305540.8366-100000@atx.fast.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Steven N. Hirsch" wrote:
+> 
+> On Tue, 6 Nov 2001, Andrew Morton wrote:
+> 
+> > Download details and documentation are at
+> >
+> >       http://www.uow.edu.au/~andrewm/linux/ext3/
+> >
+> > Changes since ext3-0.9.13 (which was against linux-2.4.13):
+> >
+> > - For a long time, the ext3 patch has used a semaphore in the core
+> >   kernel to prevent concurrent pagein and truncate of the same
+> >   file.  This was to prevent a race wherein the paging-in task
+> >   would wake up after the truncate and would instantiate a page
+> >   in the process's page tables which had attached buffers.  This
+> >   leads to a BUG() if the swapout code tries to swap the page out.
+> >
+> >   This semaphore has been removed.  The swapout code has been altered
+> >   to simply detect and ignore these pages.
+> >
+> >   This is an incredibly obscure and hard-to-hit situation.  The testcase
+> >   which used to trigger it can no longer do so.  So if anyone sees the
+> >   message "try_to_swap_out: page has buffers!", please shout out.
+> 
+> Andrew,
+> 
+> I have been getting thousands of these when the system was under heavy
+> load, but didn't realize it was from the ext3 code!  I'm using Linus's
+> 2.4.14-pre7 + ext3 patch from Neil Brown's site (the latter is identified
+> as "ZeroNineFourteen".)  Would you like me to upgrade kernel and patch?
+> 
 
---3V7upXqbjpZ4EhLz
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Now that's interesting.  The printk is in there so I can ensure
+that the codepath gets tested and is known to work.
 
-Hi,
+Could you please send me details of the hardware setup, URL
+for Neil's patch and a description of the workload?  Whatever
+I need to make it happen locally.
 
-I repeatedly get kernel panics when I try to use my usb scanner. As my
-scanner is not specified in /usr/src/linux/drivers/usb/scanner.h, I
-added it myself at the end of scanner_device_ids as:
-    /* Compeye simplex / Trust combiscan / Powervision Technologies Inc.  */
-        { USB_DEVICE(0x05cb, 0x1483) }, /* compeye simplex */
-
-I've attached the kernel panic info from kernel 2.4.14, with and without
-processing by ksymoops
--- 
-Kind regards,
-                   Dennis Bijwaard
-
---3V7upXqbjpZ4EhLz
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="README.scanner-2.4.14"
-
-[hp] scsi_flush writing 2 bits
-[hp] 0x0000 1B 45                       .E
-invalid operand 0000
-CPU: 1
-EIP: 0010: [<c0114b1a>] not tainted
-FLAGS: 00010282
-eax: 000000018   ebx: c6c15a20   ecx: 00000097   edx: 01000000
-esi: c5aca5edc   edi: c5ca4000   ebp: c5ca5ec8   esp: c5ca5e8c
-ds: 0018 es: 0018 ss: 0018
-Process dnetc(pid: 825,stackpage=c5ca5000)
-Stack: c0221f96 c718b260 c5ca5edc c5ca4000 00000000 00000000 00010000 c73efded
-       c0276b40 eb7278d4 017078d4 00000002 00000002 00000001 c5ca5edc c62cd380
-       c015ab4 c19fda68 c718b1e8 00000001 00000001 c5ca4000 c718b26c c718b262
-Call Trace: [<c0105ab4>] [<c0105dc50>] [<c9oe9dd5>] [<c90dd37a>] [<c90dd6d9>] [<c011efd5>] [<c90dd95a>] [<c0108411>] [<c01086c6>] [<c010a648>]
-
-Code: 0f 0b 8d 65 c8 5b 5e 5f 89 ec 5d c3 89 f6 55 89 e5 83 ec 10
-<o>kernel panic: Aiee, killing interrupt handler!
-In interupt handler - not syncing
-
---3V7upXqbjpZ4EhLz--
+If the message bothers you, please just remove the printk from 
+vmscan.c.

@@ -1,108 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267480AbUIUHPV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267497AbUIUHR1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267480AbUIUHPV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 03:15:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267494AbUIUHPV
+	id S267497AbUIUHR1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 03:17:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267495AbUIUHR1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 03:15:21 -0400
-Received: from hermine.aitel.hist.no ([158.38.50.15]:37899 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S267480AbUIUHPJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 03:15:09 -0400
-Message-ID: <414FD624.7050603@hist.no>
-Date: Tue, 21 Sep 2004 09:20:04 +0200
-From: Helge Hafting <helge.hafting@hist.no>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040830)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Herbert Poetzl <herbert@13thfloor.at>
-CC: Olaf Hering <olh@suse.de>, DervishD <lkml@dervishd.net>,
-       Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
-Subject: Re: OOM & [OT] util-linux-2.12e
-References: <UTC200409192205.i8JM52C25370.aeb@smtp.cwi.nl> <20040920094602.GA24466@suse.de> <20040920105950.GI5482@DervishD> <414EDA10.7050304@hist.no> <20040920132151.GA30175@suse.de> <414EDC0B.3030108@hist.no> <20040920141256.GB601@MAIL.13thfloor.at>
-In-Reply-To: <20040920141256.GB601@MAIL.13thfloor.at>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Sep 2004 03:17:27 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:27546 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S267497AbUIUHRM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Sep 2004 03:17:12 -0400
+Date: Tue, 21 Sep 2004 09:18:54 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "K.R. Foley" <kr@cybsft.com>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Mark_H_Johnson@Raytheon.com
+Subject: Re: BKL backtraces - was: Re: [patch] voluntary-preempt-2.6.9-rc2-mm1-S1
+Message-ID: <20040921071854.GA7604@elte.hu>
+References: <1094473527.13114.4.camel@boxen> <20040906122954.GA7720@elte.hu> <20040907092659.GA17677@elte.hu> <20040907115722.GA10373@elte.hu> <1094597988.16954.212.camel@krustophenia.net> <20040908082050.GA680@elte.hu> <1094683020.1362.219.camel@krustophenia.net> <20040909061729.GH1362@elte.hu> <20040919122618.GA24982@elte.hu> <414F8CFB.3030901@cybsft.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="YZ5djTAD1cGYuMQK"
+Content-Disposition: inline
+In-Reply-To: <414F8CFB.3030901@cybsft.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Poetzl wrote:
 
->On Mon, Sep 20, 2004 at 03:32:59PM +0200, Helge Hafting wrote:
->  
->
->>Olaf Hering wrote:
->>
->>    
->>
->>>On Mon, Sep 20, Helge Hafting wrote:
->>>
->>>      
->>>
->>>>Using a mtab that is a link to /proc/mounts fails with quota too.
->>>>Quta tools read /etc/mtab looking for "usrquota" and or "grpquota"
->>>>mount options.  These appear in a normal /etc/mtab but not in 
->>>>/proc/mounts,
->>>>        
->>>>
->>>I have never played with quota. But: does the kernel or a userland tool
->>>if quota is active for a mount point? smells like a kernel bug.
->>>      
->>>
->
->- to make the quota active (enable it), the mount option
->  is required
->
->- to display an enabled quota as mount option, the quota
->  on that 'mount point' has to be enabled 
->
->chicken egg thing, eh?
->  
->
-Chicken egg by design perhaps, but I can't see
-why it have to be that way.
-
->besides that, not every mountpoint can support quota
->and quota should (must) not be enabled at mount time
->because before the quota is enabled, the quota hash
->has to be initialized to the current usage ...
->  
->
-A better way:
-Enable the quota at mount time.  If the system isn't ready
-for that, i.e. the quota files aren't created/updated - then
-refuse the mount.  (Alternatively, mount without quota and
-log a complaint.) The administrator can then mount
-without quota, run checkquota, and  mount /fs -o remount,usrquota
-to turn quota on.
-
-In other words:
-quotaon becomes mount -o remount,usrquota
-quotaoff becomes mount -o remount,nousrquota
-(And/or grpquota of course)
-
-Does it have to be any more complicated than that?
+--YZ5djTAD1cGYuMQK
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
 
->>Doing it at mount time instead, byt actually using those options,
->>seems saner to me.  But I guess they had their reasons. . .
->>    
->>
->
->yes, quota calculation, see above ...
->  
->
-What I don't get is why we have to mount with quota options
-that aren't acutally used, and then turn quota on.
-Why not mount without quota, and then remount with
-quota options when enabling quota for the first time?
+* K.R. Foley <kr@cybsft.com> wrote:
 
-The common case should be a fs that was shut down
-cleanly and was mounted with quota the last time it
-was used.  So it should be able to mount directly
-with quota on, because all the on-disk quota information
-is valid and up to date.
+> All of these were generated while booting:
+> 
+> Sep 20 19:45:10 porky kernel: using smp_processor_id() in preemptible 
+> code: modprobe/1019
+> Sep 20 19:45:10 porky kernel:  [<c011c58e>] smp_processor_id+0x8e/0xa0
+> Sep 20 19:45:10 porky kernel:  [<c013ace6>] module_unload_init+0x46/0x70
+> Sep 20 19:45:10 porky kernel:  [<c013ce58>] load_module+0x598/0xb10
+> Sep 20 19:45:10 porky kernel:  [<c013d438>] sys_init_module+0x68/0x280
+> Sep 20 19:45:10 porky kernel:  [<c01066b9>] sysenter_past_esp+0x52/0x71
+> 
+> The above one of course repeats on each module load.
 
-Helge Hafting
+ok, this is a harmless false positive - the attached patch fixes it.
 
+> Sep 20 19:45:10 porky kernel: using smp_processor_id() in preemptible 
+> code: X/1017
+> Sep 20 19:45:10 porky kernel:  [<c011c58e>] smp_processor_id+0x8e/0xa0
+> Sep 20 19:45:10 porky kernel:  [<c01d6c15>] add_timer_randomness+0x125/0x150
+> Sep 20 19:45:10 porky kernel:  [<c01d6c9e>] add_mouse_randomness+0x1e/0x30
+> Sep 20 19:45:10 porky kernel:  [<c022b835>] input_event+0x55/0x3f0
 
+> Sep 20 19:45:10 porky kernel:  [<c01e1390>] vt_ioctl+0x0/0x1ad0
+> Sep 20 19:45:10 porky kernel:  [<c01dc08b>] tty_ioctl+0x37b/0x4d0
+> Sep 20 19:45:10 porky kernel:  [<c0175034>] sys_ioctl+0xe4/0x240
+> Sep 20 19:45:10 porky kernel:  [<c01066b9>] sysenter_past_esp+0x52/0x71
+> 
+> The X one above repeats once also.
+
+aha! This is a real one, fixed by the second patch. This piece of code
+relied on add_timer_randomness() always being called with preemption
+disabled.
+
+these fixes will show up in -S2.
+
+	Ingo
+
+--YZ5djTAD1cGYuMQK
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=1
+
+--- linux/kernel/module.c.orig	
++++ linux/kernel/module.c	
+@@ -394,7 +394,7 @@ static void module_unload_init(struct mo
+ 	for (i = 0; i < NR_CPUS; i++)
+ 		local_set(&mod->ref[i].count, 0);
+ 	/* Hold reference count during initialization. */
+-	local_set(&mod->ref[smp_processor_id()].count, 1);
++	local_set(&mod->ref[_smp_processor_id()].count, 1);
+ 	/* Backwards compatibility macros put refcount during init. */
+ 	mod->waiter = current;
+ }
+
+--YZ5djTAD1cGYuMQK
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=2
+
+--- linux/drivers/char/random.c.orig	
++++ linux/drivers/char/random.c	
+@@ -807,10 +807,11 @@ static void add_timer_randomness(struct 
+ 	long		delta, delta2, delta3;
+ 	int		entropy = 0;
+ 
++	preempt_disable();
+ 	/* if over the trickle threshold, use only 1 in 4096 samples */
+ 	if ( random_state->entropy_count > trickle_thresh &&
+ 	     (__get_cpu_var(trickle_count)++ & 0xfff))
+-		return;
++		goto out;
+ 
+ 	/*
+ 	 * Use get_cycles() if implemented, otherwise fall back to
+@@ -861,6 +862,8 @@ static void add_timer_randomness(struct 
+ 		entropy = int_ln_12bits(delta);
+ 	}
+ 	batch_entropy_store(num, time, entropy);
++out:
++	preempt_enable();
+ }
+ 
+ void add_keyboard_randomness(unsigned char scancode)
+
+--YZ5djTAD1cGYuMQK--

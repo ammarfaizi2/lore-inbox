@@ -1,50 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265002AbUG1Wyt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266902AbUG1W6u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265002AbUG1Wyt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 18:54:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266780AbUG1WxS
+	id S266902AbUG1W6u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 18:58:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265792AbUG1Wzp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 18:53:18 -0400
-Received: from omx2-ext.SGI.COM ([192.48.171.19]:59319 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S266749AbUG1WtS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 18:49:18 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [Fastboot] Re: Announce: dumpfs v0.01 - common RAS output API
-Date: Wed, 28 Jul 2004 15:44:24 -0700
-User-Agent: KMail/1.6.2
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, ebiederm@xmission.com,
-       suparna@in.ibm.com, fastboot@osdl.org, mbligh@aracnet.com,
-       linux-kernel@vger.kernel.org
-References: <16734.1090513167@ocs3.ocs.com.au> <1091044742.31698.3.camel@localhost.localdomain> <20040728154230.11d658af.akpm@osdl.org>
-In-Reply-To: <20040728154230.11d658af.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 28 Jul 2004 18:55:45 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:26372 "EHLO
+	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S266194AbUG1Wza (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 18:55:30 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-L2, preemptable hardirqs
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Carsten Rietzschel <cr7@os.inf.tu-dresden.de>
+Cc: "Saksena, Manas" <Manas.Saksena@timesys.com>,
+       Lee Revell <rlrevell@joe-job.com>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Lenar L?hmus <lenar@vision.ee>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>,
+       "Wood, Scott" <Scott.Wood@timesys.com>
+In-Reply-To: <200407282259.20577.cr7@os.inf.tu-dresden.de>
+References: <3D848382FB72E249812901444C6BDB1D036EDFD3@exchange.timesys.com>
+	 <200407282259.20577.cr7@os.inf.tu-dresden.de>
+Content-Type: text/plain
+Date: Thu, 29 Jul 2004 00:55:11 +0200
+Message-Id: <1091055311.1844.11.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 1.5.90 (1.5.90-5) 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200407281544.24901.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, July 28, 2004 3:42 pm, Andrew Morton wrote:
-> But they're welcome to do that: the memory for the DMA transfer has
-> already been allocated and our new universe will not be touching it.
+On Wed, 2004-07-28 at 22:59 +0200, Carsten Rietzschel wrote:
 
-Yeah, for the most part that should be ok.  We can be paranoid about 
-misdirected DMA later...  (Some platforms will let you protect memory regions 
-at the chipset level, so it seems like the new kernel should be so protected 
-until it's actually jumped to by kexec, but prior to unprotecting it you'd 
-want to make sure that a bad DMA from the broken kernel doesn't hose it.)
+> It might be interesting for you to test it with suspend(1) / pm_disk (sorry, 
+> these don't work for me). I wonder if they'll also fail.
 
-> What we need to do is to ensure that the new kexec-ed kernel appropriately
-> whacks the devices to stop any in-progress operations.  So it's the probe()
-> and open() routines which need to get the device into a sane state, not the
-> shutdown routines.
+For me, swsusp1/pmdisk works nicely with 0 <= voluntary_preempt <= 3,
+even with CONFIG_PREEMPT.
 
-That makes sense, and means that drivers may want to call a shutdown-like 
-routine in their probe functions to make sure their device is in a known 
-state before starting.  But all of this is very driver specific it seems.
-
-Jesse

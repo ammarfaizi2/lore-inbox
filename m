@@ -1,62 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132057AbRDAJKl>; Sun, 1 Apr 2001 05:10:41 -0400
+	id <S132044AbRDAIFO>; Sun, 1 Apr 2001 04:05:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132109AbRDAJKb>; Sun, 1 Apr 2001 05:10:31 -0400
-Received: from mail.gator.com ([63.197.87.182]:58898 "EHLO mail.gator.com")
-	by vger.kernel.org with ESMTP id <S132057AbRDAJKR>;
-	Sun, 1 Apr 2001 05:10:17 -0400
-From: "George Bonser" <george@gator.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: New directions for kernel development
-Date: Sun, 1 Apr 2001 01:11:04 -0800
-Message-ID: <CHEKKPICCNOGICGMDODJCEKPCJAA.george@gator.com>
+	id <S132045AbRDAIEy>; Sun, 1 Apr 2001 04:04:54 -0400
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:64527 "EHLO
+	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S132044AbRDAIEo>; Sun, 1 Apr 2001 04:04:44 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Nikolas Zimmermann <wildfox@kde.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: w9966cf v4l driver homepage
+Date: Sun, 1 Apr 2001 10:03:31 +0200
+X-Mailer: KMail [version 1.2.1]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <BFECLKCMHDOFPPMBMMDKAEALCAAA.torvalds@transmeta.com>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Transfer-Encoding: 7BIT
+Message-ID: <14jcqA-0jNLN2C@fmrl07.sul.t-online.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So according to the below, Linux development should be considered an
-environmental hazard?  Maybe it is in the best interest of Planet Earth that
-we should provide some safe place, possibly some South Pacific island, where
-we could set up a quarrantine camp for hardcore linux developers. All of
-their needs would be provided for, of course, since it is not their fault
-they are afflicted with this problem. Someplace near an undersea fiber link
-would most likely be best since their activities will need to be closely
-monitored at all times and instant global communication of their "progress"
-is vital.
+On Sunday 01 April 2001 02:16, Jakob Kemi wrote:
+> The w9966cf webcam v4l driver now has a homepage:
+ > http://hem.fyristorg.com/mogul/w9966.html
+ >
 
-Judging from the pasty faces of many Linux developers, sunshine might be the
-perfect remedy.
-
-I say the UN should get right on this problem straight away!
-
-
-> 	Secondly, I'd like to address the issue of cleanliness.
-> Quite frankly, the
-> standards of personal hygiene practiced by many members of this community
-> are simply unacceptable.
-
-> I am sorry to sound so harsh, but a little hygiene every once in a
-> while is a Good Thing(TM).
-
-> Alan views toothpaste the same way a vampire views garlic.
-
-> I have nearly fainted from the torrent of rotten odor that pours
-> from every inch of his toxic person.
-
-> If you have to meet with
-> ESR for any reason, arrange for the meeting to be outdoors and try to stay
-> upwind.
-
-
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+ Hi Jakob,
+ 
+i've looked at your sources and i wonder
+ why you use "return _RGB_ or _YUV_ data in
+ read() mode"....
+ better find use VIDIOCSPICT to find out what
+ the program wants
+ YUV...or .. RGB
+ then have an internal video_picture
+ and change the palette in there
+ 
+then in your read() function
+ simply query the cam->vpic.palette
+ and decide wheter to read YUV or RGB
+ 
+Bye
+  Bye
+   Niko
+ 
+-- 
+Nikolas Zimmermann
+wildfox@kde.org

@@ -1,39 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261609AbTCGOaj>; Fri, 7 Mar 2003 09:30:39 -0500
+	id <S261608AbTCGOeq>; Fri, 7 Mar 2003 09:34:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261610AbTCGOaj>; Fri, 7 Mar 2003 09:30:39 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:14086 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id <S261605AbTCGOah>; Fri, 7 Mar 2003 09:30:37 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200303071442.h27EglLq001737@81-2-122-30.bradfords.org.uk>
-Subject: Re: LKML
-To: szepe@pinerecords.com (Tomas Szepe)
-Date: Fri, 7 Mar 2003 14:42:46 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030307142606.GG14525@louise.pinerecords.com> from "Tomas Szepe" at Mar 07, 2003 03:26:06 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S261614AbTCGOeq>; Fri, 7 Mar 2003 09:34:46 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:63169 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S261608AbTCGOep>;
+	Fri, 7 Mar 2003 09:34:45 -0500
+Date: Fri, 7 Mar 2003 15:45:01 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Mike Galbraith <efault@gmx.de>
+Cc: Andrew Morton <akpm@digeo.com>, Linus Torvalds <torvalds@transmeta.com>,
+       Robert Love <rml@tech9.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] "interactivity changes", sched-2.5.64-B2
+In-Reply-To: <Pine.LNX.4.44.0303071049500.7326-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0303071543480.12493-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Mar  7 11:32:10 galileo kernel: Call Trace:    [<e28a45a7>] [<e28a457b>]
-> > [<e28a483a>] [<e28abf1e>] [<c011a489>]
-> > Mar  7 11:32:10 galileo kernel:   [<e28ad040>] [<e28ad07c>] [<e28ad07c>]
-> > [<c0121b71>] [<c0121a50>] [<c0105000>]
-> > Mar  7 11:32:10 galileo kernel:   [<c0105606>] [<c0121a50>]
-> 
-> Oh yeah, I had one of those, but the wheels fell off.
 
-Didn't you compile it with
+btw., could you please revert the kernel/softirq.c change, and re-test
+-j25 interactivity with that patch? That way we'll know exactly which
+component of -B2 caused the improvement on your box.
 
-./configure --disable-wobbly-wheels
-make
-make install
+	Ingo
 
-???
-
-John.

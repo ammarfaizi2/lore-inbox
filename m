@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293249AbSC3XX7>; Sat, 30 Mar 2002 18:23:59 -0500
+	id <S293276AbSC3XY3>; Sat, 30 Mar 2002 18:24:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293276AbSC3XXj>; Sat, 30 Mar 2002 18:23:39 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:25092 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S293249AbSC3XXh>;
-	Sat, 30 Mar 2002 18:23:37 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] block/IDE/interrupt lockup 
-In-Reply-To: Your message of "Sat, 30 Mar 2002 11:06:25 PST."
-             <3CA60CB1.E33080D5@zip.com.au> 
+	id <S293347AbSC3XYU>; Sat, 30 Mar 2002 18:24:20 -0500
+Received: from salmon.maths.tcd.ie ([134.226.81.11]:47369 "HELO
+	salmon.maths.tcd.ie") by vger.kernel.org with SMTP
+	id <S293276AbSC3XYH>; Sat, 30 Mar 2002 18:24:07 -0500
+Date: Sat, 30 Mar 2002 23:23:07 +0000
+From: Timothy Murphy <tim@birdsnest.maths.tcd.ie>
+To: linux-kernel@vger.kernel.org
+Subject: linux-2.5.7
+Message-ID: <20020330232307.A2673@birdsnest.maths.tcd.ie>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 31 Mar 2002 09:23:23 +1000
-Message-ID: <11003.1017530603@ocs3.intra.ocs.com.au>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 30 Mar 2002 11:06:25 -0800, 
-Andrew Morton <akpm@zip.com.au> wrote:
->What I'd like is a debugging function `can_sleep()'.  This
->is good for documentary purposes, and will catch bugs.
->
->So kmalloc() would gain:
->
->	if (gfp_flags & __GFP_WAIT)
->		can_sleep();
+I'm sure this has been recognised,
+but I would point out that sys_nfsservctl is not "undefined"
+if NFSD is not chosen.
 
-can_sleep_if(gfp_flags & __GFP_WAIT) would be better.  can_sleep_if()
-is 
-  do { } while(0)
-for no debugging, for debugging it is
-  if (unlikely(condition)) {
-  	whine(__stringify(condition))
-  }
+The following patch to .../arch/i386/kernel/entry.S corrects this,
+though this is obviously not the right place to put it:
 
-One line instead of two, no references to variables when debugging is
-off, automatically adds unlikely.
+===============================================================
+--- entry.S.bak	Mon Mar 18 20:37:09 2002
++++ entry.S	Thu Mar 28 15:59:20 2002
+@@ -40,6 +40,11 @@
+  * "current" is in register %ebx during any slow entries.
+  */
+ 
++#if defined(CONFIG_NFSD) || defined(CONFIG_NFSD_MODULE)
++#else
++#define sys_nfsservctl		sys_ni_syscall
++#endif
++
+ #include <linux/config.h>
+ #include <linux/sys.h>
+ #include <linux/linkage.h>
+===============================================================
 
+-- 
+Timothy Murphy  
+e-mail: tim@birdsnest.maths.tcd.ie
+tel: 086-233 6090
+s-mail: School of Mathematics, Trinity College, Dublin 2, Ireland

@@ -1,49 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262323AbTLWTWe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 14:22:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262352AbTLWTWe
+	id S262425AbTLWTYq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 14:24:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262566AbTLWTYq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 14:22:34 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:53777 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262323AbTLWTW3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 14:22:29 -0500
-Date: Tue, 23 Dec 2003 19:22:26 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Rob Love <rml@ximian.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Greg KH <greg@kroah.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-hotplug-devel@lists.sourceforge.net
-Subject: Re: [PATCH] add sysfs mem device support  [2/4]
-Message-ID: <20031223192226.A10239@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Rob Love <rml@ximian.com>, Greg KH <greg@kroah.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	linux-hotplug-devel@lists.sourceforge.net
-References: <20031223002126.GA4805@kroah.com> <20031223002439.GB4805@kroah.com> <20031223002609.GC4805@kroah.com> <20031223131523.B6864@infradead.org> <20031223180127.GA14282@kroah.com> <20031223191634.A8914@infradead.org> <1072207183.6015.19.camel@fur>
+	Tue, 23 Dec 2003 14:24:46 -0500
+Received: from dhcp160178171.columbus.rr.com ([24.160.178.171]:39310 "EHLO
+	caphernaum.rivenstone.net") by vger.kernel.org with ESMTP
+	id S262425AbTLWTYg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 14:24:36 -0500
+Date: Tue, 23 Dec 2003 14:24:28 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.6.0 and Compaq Proliant 6500 Pentium Pro
+Message-ID: <20031223192428.GA2616@rivenstone.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <E1AYejy-0003ut-1z@beorn.cosoftwareshop.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="sm4nu43k4a2Rpi4c"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1072207183.6015.19.camel@fur>; from rml@ximian.com on Tue, Dec 23, 2003 at 02:19:43PM -0500
+In-Reply-To: <E1AYejy-0003ut-1z@beorn.cosoftwareshop.com>
+User-Agent: Mutt/1.5.4i
+From: jhf@rivenstone.net (Joseph Fannin)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 23, 2003 at 02:19:43PM -0500, Rob Love wrote:
-> On Tue, 2003-12-23 at 14:16, Christoph Hellwig wrote:
-> 
-> > What user-modifiable attributes?
-> 
-> See /proc/sys/kernel/random
-> 
-> Junk like that should be ripped from procfs and put in sysfs
-> corresponding to its device file.
 
-Well, it's not just for /dev/random but also for all in-kernel cosumers
-of random numbers, so doing this as a sysctl makes quite a lot of sense.
+--sm4nu43k4a2Rpi4c
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Whether sysctl should be mached into procfs or sysfs or rather be it's
-own fs is an entirely different question.  Interface-wise the latter
-would make most sense.
+On Mon, Dec 22, 2003 at 10:05:54PM -0700, Don t Spam Me!!! wrote:
+>=20
+> Hi,
+>=20
+>      I was successfully running the latest RedHat 9 kernel (2.4.20-smp)=
+=20
+> and upgraded to Fedora Core stable(2.4.22-nptlsmp) and testing
+> (2.6.0smp).  The 6500 has an Orion (82450KX) chipset.  During bootup, I=
+=20
+> receive a number of error messages.  Among other things:
 
+    Hmm, my Quad PPro Proliant 5000 has been working fine with 2.6
+kernels, but it's an older model of course.  I'm still learning about
+these Compaqs.  Same chipset though.
+
+> 1)   The system is a quad processor PPro, but it says "no smp detected"
+> 2)   I get two ACPI errors (ACPI-0084 and ACPI-0134)
+
+    I think I can safely say the two ACPI errors mean your 6500 doesn't
+support ACPI, which doesn't surprise me.
+
+    I wonder if booting with acpi=3Doff might fix both (1) and (2)?
+I know there are two methods of detecting and setting up SMP, one via
+ACPI.  I think it's supposed to fall back to the older MPS SMP stuff
+but Compaqs are weird.  I've built my own kernels since day one with
+ACPI off and never had this problem.
+
+    I haven't looked, but I'd guess that the difference between the
+RH9 kernel and the Fedora 2.4 kernel is the new ACPI stuff too.
+
+> 3)   The kernel cannot determine the bus topology, and kudzu asks me to=
+=20
+> reconfigure my two ethernet cards everytime I boot
+
+    What do you mean by 'cannot determine the bus topology'?  Are you
+getting an error message?  Does this occur with both 2.6
+and 2.4.22-blah?
+
+    If turning ACPI off too doesn't fix all this, a copy of your dmesg
+output would probably be helpful.  I beat my 5000 into submission, so
+maybe I can help.
+
+--=20
+Joseph Fannin
+jhf@rivenstone.net
+
+
+--sm4nu43k4a2Rpi4c
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/6JZsWv4KsgKfSVgRAlYzAJ9H+nq9r6pCWMhw68LQAIOTfiyergCcDvZ9
+VShZZTuA4iGoFWYZLLSGACQ=
+=t0ns
+-----END PGP SIGNATURE-----
+
+--sm4nu43k4a2Rpi4c--

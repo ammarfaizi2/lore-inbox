@@ -1,41 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317037AbSFQVqH>; Mon, 17 Jun 2002 17:46:07 -0400
+	id <S317047AbSFQVrx>; Mon, 17 Jun 2002 17:47:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317040AbSFQVqG>; Mon, 17 Jun 2002 17:46:06 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:25051 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S317037AbSFQVqF>; Mon, 17 Jun 2002 17:46:05 -0400
-Date: Mon, 17 Jun 2002 17:46:05 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200206172146.g5HLk5a29878@devserv.devel.redhat.com>
-To: Martin Schwidefsky <martin.schwidefsky@debitel.net>
-Cc: linux-kernel@vger.kernel.org, zaitcev@redhat.com
-Subject: Re: [PATCH] 2.5.22: ibm partition support.
-In-Reply-To: <mailman.1024345981.31841.linux-kernel2news@redhat.com>
-References: <mailman.1024345981.31841.linux-kernel2news@redhat.com>
+	id <S317045AbSFQVrw>; Mon, 17 Jun 2002 17:47:52 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:51889 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S317040AbSFQVru>;
+	Mon, 17 Jun 2002 17:47:50 -0400
+Date: Mon, 17 Jun 2002 14:47:38 -0700
+From: Patrick Mansfield <patmans@us.ibm.com>
+To: Kurt Garloff <garloff@suse.de>,
+       Linux kernel list <linux-kernel@vger.kernel.org>,
+       Linux SCSI list <linux-scsi@vger.kernel.org>
+Subject: Re: /proc/scsi/map
+Message-ID: <20020617144738.A14245@eng2.beaverton.ibm.com>
+References: <20020615133606.GC11016@gum01m.etpnet.phys.tue.nl> <20020617133534.A10174@eng2.beaverton.ibm.com> <20020617205750.GC1313@gum01m.etpnet.phys.tue.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20020617205750.GC1313@gum01m.etpnet.phys.tue.nl>; from garloff@suse.de on Mon, Jun 17, 2002 at 10:57:50PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> another resend of the partition patch for ibm.c. Nobody sent a veto so far
-> so please add it.
+Kurt -
 
-I suspect Linus wants it fixed "right", as we promised.
-I made the kludge with genhd_dasd_ioctl because Red Hat
-need to ship _something_ working while passing Viro approval.
-I never intended it to be applied to 2.5.
+On Mon, Jun 17, 2002 at 10:57:50PM +0200, Kurt Garloff wrote:
+> Hi Patrick,
+> 
+> > I prefer we refer to the tuple as host, channel, id, lun (H, C, I, L), so
+> > as to more closely match /proc/scsi/scsi, /proc/scsi/sg, and attached
+> > messages:
+> 
+> You are refering to the naming of this 4-tuple, right: HCIL vs. CBTU?
 
-Remember that what Al did first _almost_ worked. The recursion
-happened because the SCSI code was so insanely convoluted,
-and only for SCSI removables. Perhaps it may be doable to
-fix that instead. Also I am thinking about special-casing
-the minor 0 and make it open without partition probing;
-then the probing happens on top of pre-opened minor 0
-and spawns other minors. That should be good and proper.
+Yes.
 
-The bad part is that the real fix for old broken ibm.c partitioning
-is now a hostage of resolution of ioctl-during-partitioning
-problem. I see no easy way to resolve it, it has to wait.
-Good thing my Hercules uses FBAs :)
+> I chose for CBTU, because that on's used in devfs. Actually, as you can see
+> from scsidev, I like HCIL more. But that's a detail the kernel should not
+> care about. The header line should be removed anyway as Albert remarked.
+> And helping those people who think that 200 bytes is unacceptable bloat.
+> 
+> [...]
+> > > 3,0,12,00       0x00    1       sg12    c:15:0c sdf     b:08:50
+> > 
+> > Why not treat each upper layer driver the same? Type is already
+> > in /proc/scsi/scsi, or implied by the upper level drivers attached.
+> > Online should really be part of /proc/scsi/scsi.
+> 
+> I'm not sure I know what you mean. The fact that I decided to put
+> the sg device name first independently of the (potentially) random
+> order in which high-level drivers are assigned?
 
--- Pete
+Yes, I don't know why I took that to mean that sg was displayed differently.
+
+> Just I decided to report shg first. This has a very pratical reason:
+> I you want to use userspace tools to collect more advanced (and maybe type
+> dependant information), you will always want to use the sg device, which 
+> you can use to send SCSI commands and which you can open, even if there is
+> no medium or if the device is in use.
+
+No matter the column position sg can be found if each column includes
+the upper level name (sg, sd etc.). Then you do not need to know or
+check the scsi_type of the template, or explicitly locate the sg
+template in scsi_proc_map().
+
+And then without the header scsi_proc_map() gets really simple.
+
+> Regards,
+> -- 
+> Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
+> GPG key: See mail header, key servers         Linux kernel development
+> SuSE Linux AG, Nuernberg, DE                            SCSI, Security
+
+-- Patrick Mansfield

@@ -1,47 +1,251 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313163AbSEMNHB>; Mon, 13 May 2002 09:07:01 -0400
+	id <S313242AbSEMNIk>; Mon, 13 May 2002 09:08:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313242AbSEMNHA>; Mon, 13 May 2002 09:07:00 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:17168 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S313163AbSEMNHA>; Mon, 13 May 2002 09:07:00 -0400
-Message-ID: <3CDFABAC.3020802@evision-ventures.com>
-Date: Mon, 13 May 2002 14:03:56 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
-X-Accept-Language: en-us, pl
+	id <S313260AbSEMNIj>; Mon, 13 May 2002 09:08:39 -0400
+Received: from ra.abo.fi ([130.232.213.1]:37349 "EHLO ra.abo.fi")
+	by vger.kernel.org with ESMTP id <S313242AbSEMNIf>;
+	Mon, 13 May 2002 09:08:35 -0400
+Date: Mon, 13 May 2002 16:08:27 +0300 (EEST)
+From: Marcus Alanen <maalanen@ra.abo.fi>
+To: matthias.andree@gmx.de, Tomas Szepe <szepe@pinerecords.com>
+cc: riel@conectiva.com.br, Johnny Mnemonic <johnny@themnemonic.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Changelogs on kernel.org
+In-Reply-To: <20020513120953.GD4258@louise.pinerecords.com>
+Message-ID: <Pine.LNX.4.44.0205131556550.23542-100000@tuxedo.abo.fi>
 MIME-Version: 1.0
-To: Franz Sirl <Franz.Sirl-kernel@lauterbach.com>
-CC: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: pdc202xx.c fails to compile in 2.5.15
-In-Reply-To: <5.1.1.2.2.20020513144903.02885310@mail.lauterbach.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Franz Sirl napisa?:
-> Alan Cox wrote:
-> 
->> > Because of there are apparently devices on which you must check 
->> device class
->> > (2.5.14 talks about CY82C693 and IT8172G), I'll leave proper fix on 
->> Martin,
->> > but simple fix below work fine on my Asus A7V.
->>
->> You need to do specific checks for the device in question. Removing the
->> class check btw is something anyone reading this message should not do
->> even in the same situation unless they know precisely what other
->> mass storage class devices they have present. You can easily trash a
->> raid array otherwise
-> 
-> 
-> I think you are probably talking about the class check for unknown 
-> devices a few lines above in 2.5.15. Removing the class check when a 
-> driver already claimed responsibility just reinstates what we had in 
-> 2.4. The removal is in IDE 61.
+On Mon, 13 May 2002, Tomas Szepe wrote:
 
-Witht the exception that there are not proper vendor id cheks in
-2.4 there. Oh well...
+> > The original mode you requested prints the e-mail address, I guess
+> > it should be the author's real name to look more nice.
+> Okay.. how about the name db? That seems to be the last feature missing.
+
+Yes, ok with Matthias I hope?
+
+> s/^\s*(.*)\s*$/$1/;
+> s/^\[?PATCH\]?\s*//;
+> 
+> will be sufficient I believe. Also, the "/g" is not a good idea.
+
+Agreed. Added /i for case-insensitivity. Also, e-mail addresses must 
+be at beginning of line, otherwise it is too easily confused.
+
+Somebody make the mode changeable via command-line option...
+
+So is any of this usable?
+
+
+
+
+
+Short mode:
+
+<adam@nmt.edu>
+        o 3ware driver update for 2.5.8-pre1
+ 
+<adilger@clusterfs.com>
+        o Add three scripts for BK users, to Documentation/BK-usage:
+ 
+<agrover@dexter.groveronline.com>
+        o ACPI interpreter update.
+        o MADT parsing improvements (Paul D & Richard Schaal)
+        o ACPI driver updates
+
+
+Original mode:
+
+o loop deadlock fix                                            Andrew Morton
+o ->setattr() locking changes                                  Andrew Morton
+o Various minor bug fixes for 3c59x net driver.                Andrew Morton
+o This fixes the "i_blocks went wrong when the disk filled up"
+                                                               Andrew Morton
+o ext3 filesystem sync mount speedup:                          Andrew Morton
+o ext2_fill_super breakage                                     Andrew Morton
+o Fix jiffies-comparison timeout bug in arlan net driver.           Alan Cox
+o ppc64: update for pte in highmem changes                   anton@samba.org
+
+
+
+#!/usr/bin/perl -w
+
+# This Perl script is meant to simplify BK ChangeLogs for the linux
+# kernel.
+#
+# (C) Copyright 2002 by Matthias Andree <matthias.andree@gmx.de>,
+#                       Marcus Alanen   <maalanen@abo.fi>
+#
+# ----------------------------------------------------------------------
+# Distribution of this script is permitted under the terms of the
+# GNU General Public License (GNU GPL) v2.
+# ----------------------------------------------------------------------
+
+# This program expects its input in the following format:
+# (E-Mail Addresses MUST NOT bear leading white space!)
+#
+# <email@ddr.ess>
+#   changelog text
+#   more changelog text
+# <email@ddr.ess>
+#   yet another changelog
+# <another@add.ress>
+#   changelog #3
+#   more lines
+#
+# Groups and sorts the entries by email address:
+#
+# another@add.ress:
+#   changelog #3
+# email@ddr.ess
+#   changelog text
+#   yet another changelog
+#
+# There are three different modes:
+# - Short mode (one changelog == one line)
+# - Full mode  (changelogs separated by dashed line)
+# - Original mode (one line consisting of changelog and author)
+#
+# Where possible, also adds the real name of the author using
+# a static hash %addresses
+#
+
+use strict;
+
+
+# 0 for short, 1 for full, 2 for "original changelog"
+my $mode = 2;
+
+
+
+# minimum space between entry and author for the original mode
+my $space = 5;
+
+
+# the key is the email address in ALL LOWER CAPS!
+# the value is the real name of the person
+my %addresses = (
+'aia21@cantab.net' => 'Anton Altaparmakov',
+'ak@muc.de' => 'Andi Kleen',
+'akpm@zip.com.au' => 'Andrew Morton',
+'alan@lxorguk.ukuu.org.uk' => 'Alan Cox',
+'andrea@suse.de' => 'Andrea Arcangeli',
+'ankry@green.mif.pg.gda.pl' => 'Andrzej Krzysztofowicz',
+'axboe@suse.de' => 'Jens Axboe',
+'bgerst@didntduck.org' => 'Brian Gerst',
+'dalecki@evision-ventures.com' => 'Martin Dalecki',
+'davem@redhat.com' => 'David S. Miller',
+'davidel@xmailserver.org' => 'Davide Libenzi',
+'green@namesys.com' => 'Oleg Drokin',
+'hch@infradead.org' => 'Christoph Hellwig',
+'jgarzik@mandrakesoft.com' => 'Jeff Garzik',
+'jsimmons@heisenberg.transvirtual.com' => 'James Simmons',
+'jsimmons@transvirtual.com' => 'James Simmons',
+'kaos@ocs.com.au' => 'Keith Owens',
+'lm@bitmover.com' => 'Larry McVoy',
+'manfred@colorfullife.com' => 'Manfred Spraul',
+'neilb@cse.unsw.edu.au' => 'Neil Brown',
+'paulus@samba.org' => 'Paul Mackerras',
+'perex@suse.cz' => 'Jaroslav Kysela',
+'rgooch@ras.ucalgary.ca' => 'Richard Gooch',
+'rmk@arm.linux.org.uk' => 'Russell King',
+'szepe@pinerecords.com' => 'Tomas Szepe',
+'torvalds@transmeta.com' => 'Linus Torvalds',
+'viro@math.psu.edu' => 'Alexander Viro',
+'~~~~~~thisentrylastforconvenience~~~~~' => 'Cesar Brutus Anonymous'
+);
+
+
+
+
+my %people = ();
+my $addr = "";
+my @cur = ();
+
+
+sub append_item() {
+        if (!$addr) {
+                return;
+        }
+        if (!$people{$addr}) {
+                @{$people{$addr}} = ();
+        }
+        push @{$people{$addr}}, [@cur];
+
+        @cur = ();
+}
+
+while (<>) {
+        # Match address
+        if (/^<([^>]+)>/) {
+                # Add old item (if any) before beginning new
+                append_item();
+                $addr = $1;
+        } elsif ($addr) {
+                # Add line to patch
+                s/^\s*(.*)\s*$/$1/;
+                $_ =~ s/\[?PATCH\]?\s*//i;
+		push @cur, "$_\n";
+        } else {
+                # Header information
+                print;
+        }
+}
+append_item();
+
+
+# get name associated to an email address
+sub rmap_address {
+  #my @i = map { lc; } @_;
+  my @o = map {defined $addresses{lc $_} ? $addresses{lc $_} : $_ } @_;
+  return wantarray ? @o : $o[0];
+}
+
+sub print_items($) {
+        my $person = $_[0];
+	my $realname = rmap_address($person);
+        my @items = @{$people{$person}};
+        # Vain attempt to sort patches from one address
+        @items = sort @items;
+	if ($mode == 0 or $mode == 1) {
+	        if ($realname ne $person) {
+		        print "$realname ";
+		}
+                print "<$person>\n";
+	}
+        while ($_ = shift @items) {
+	        if ($mode == 0) {
+		        print "\to " . @$_[0];
+	        } elsif ($mode == 1) {
+		        print "\t------------------------------------------------------------\n";
+                        foreach $_ (@$_) {
+			        print "\t$_";
+			}
+		} elsif ($mode == 2) {
+		        $_ = @$_[0];
+			chop;
+			$_ = "o $_";
+			# Split it onto two lines if necessary
+		        if (length("$_ . $realname") > 76 - $space) {
+			        print ("$_\n" . " " x (76-length($realname)) . "$realname\n");
+			} else {
+			        print ("$_" . " " x (76-length($realname)-length($_)) . "$realname\n");
+			}
+		}
+        }
+}
+
+# Print the information
+foreach $addr (sort keys %people) {
+        print_items($addr);
+        if ($mode != 2) { print "\n"; }
+}
+
+
+-- 
+Marcus Alanen * Department of Computer Science * http://www.cs.abo.fi/
+maalanen@abo.fi
 

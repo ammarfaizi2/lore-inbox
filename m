@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270782AbUJVIsm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270850AbUJVIvF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270782AbUJVIsm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 04:48:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270804AbUJVIsl
+	id S270850AbUJVIvF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 04:51:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270871AbUJVIvE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 04:48:41 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:7659 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S270782AbUJVIrM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 04:47:12 -0400
-Date: Fri, 22 Oct 2004 10:48:23 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "Jeff V. Merkey" <jmerkey@drdos.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.9 and GPL Buyout
-Message-ID: <20041022084823.GA14847@elte.hu>
-References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org> <417550FB.8020404@drdos.com>
+	Fri, 22 Oct 2004 04:51:04 -0400
+Received: from mail.humboldt.co.uk ([81.2.65.18]:30115 "EHLO
+	mail.humboldt.co.uk") by vger.kernel.org with ESMTP id S270850AbUJVItJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 04:49:09 -0400
+Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
+From: Adrian Cox <adrian@humboldt.co.uk>
+To: Kendall Bennett <KendallB@scitechsoft.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <4177ABC9.8291.20E9CB7A@localhost>
+References: <4176E08B.2050706@techsource.com>
+	 <4177ABC9.8291.20E9CB7A@localhost>
+Content-Type: text/plain
+Message-Id: <1098434942.5755.34.camel@newt>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <417550FB.8020404@drdos.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 22 Oct 2004 09:49:02 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2004-10-21 at 20:30, Kendall Bennett wrote:
 
-first i was slighly puzzled and suspected that your mail server somehow
-delayed your outgoing email for ~1.5 years then i found what i believe
-is the secret message hidden in your email:
+> Most embedded customers care less about overall performance of the 
+> graphics hardware but more about low cost, low power and longevity. That 
+> is the reason that ATI committed to continue production of the Radeon 
+> Mobility M1 for many years to come. That is also the reason the Chips & 
+> Tech (now Asiliant) 6900 chipset is so popular for embedded customers, 
+> because they have been using the same hardware for years (but now that 
+> the 69000 is winding down, many are moving to the Mobility M1).
 
-* Jeff V. Merkey <jmerkey@drdos.com> wrote:
+Also consider the Fujitsu Coral parts for embedded use:
+http://www.fme.gsdc.de/gsdc.htm?macrofam/mb86295.htm
 
-> [...] The memory sickness [...]
-> [...] I was experiencing  [...]
-> [...] is constant [...]
+They have a large manual, though I can't vouch for completeness. They
+have 3D and alpha blending. They don't have legacy VGA registers, and
+they don't have a VGA BIOS. In an embedded system, that's a bonus.
 
-please confirm decoding was correct! Meanwhile our secret message back
-to agent 000 is:
+This is the competition facing a new open source graphics chip in the
+embedded segment. 
 
-  IN THAT CONDITION MUST NOT POST TO LKML UNDER ANY CIRCUMSTANCE!
+- Adrian Cox
+Humboldt Solutions Ltd.
 
-[this message has been caps-encrypted. COMPARTMENTED 12B3. EYES ONLY.]
 
-	Ingo

@@ -1,25 +1,26 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261347AbTJMDAX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Oct 2003 23:00:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261354AbTJMDAX
+	id S261368AbTJMDvD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Oct 2003 23:51:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261376AbTJMDvD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Oct 2003 23:00:23 -0400
-Received: from fw.osdl.org ([65.172.181.6]:3051 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261347AbTJMDAW (ORCPT
+	Sun, 12 Oct 2003 23:51:03 -0400
+Received: from fw.osdl.org ([65.172.181.6]:33173 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261368AbTJMDvB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Oct 2003 23:00:22 -0400
-Date: Sun, 12 Oct 2003 20:03:30 -0700
+	Sun, 12 Oct 2003 23:51:01 -0400
+Date: Sun, 12 Oct 2003 20:54:12 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Domen Puncer <domen@coderock.org>
-Cc: zwane@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: 3c59x on 2.6.0-test3->test6 slow
-Message-Id: <20031012200330.1d5f1d8b.akpm@osdl.org>
-In-Reply-To: <200310130428.21170.domen@coderock.org>
-References: <200310061529.56959.domen@coderock.org>
-	<200310130222.03175.domen@coderock.org>
-	<20031012173702.57eea934.akpm@osdl.org>
-	<200310130428.21170.domen@coderock.org>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: thunder7@xs4all.nl, vojtech@suse.cz, linux-kernel@vger.kernel.org
+Subject: Re: keyboard repeat speed went nuts since 2.6.0-test5, even in
+ 2.6.0-test6-mm4
+Message-Id: <20031012205412.09410cc5.akpm@osdl.org>
+In-Reply-To: <20031008082806.GA23340@ucw.cz>
+References: <20031007203316.GA1719@middle.of.nowhere>
+	<20031007204056.GB20844@ucw.cz>
+	<20031008082346.GA1628@middle.of.nowhere>
+	<20031008082806.GA23340@ucw.cz>
 X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -27,23 +28,21 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Domen Puncer <domen@coderock.org> wrote:
+Vojtech Pavlik <vojtech@suse.cz> wrote:
 >
-> On Monday 13 of October 2003 02:37, Andrew Morton wrote:
-> > Domen Puncer <domen@coderock.org> wrote:
-> > > Tried a bunch of 2.5.x kernels... no better.
-> > >  Then i tried 2.4.22... and my nic still doesn't work fast.
-> >
-> > There's some stuff in Documentation/networking/vortex.txt telling you how
-> > to locate and run vortex-diag and mii-diag.
-> 
-> Should have read this before, sorry.
-> 
-> options=8 (autonegotiate) solves my problem. (driver could default to that?)
-> Sorry for wasting your time.
+> +static int __init atkbd_setup_softrepeat(char *str)
+>  +{
+>  +        int ints[4];
+>  +        str = get_options(str, ARRAY_SIZE(ints), ints);
+>  +        if (ints[0] > 0) atkbd_softrepeat = ints[1];
+>  +        return 1;
+>  +}
+>   
+>   __setup("atkbd_set=", atkbd_setup_set);
+>   __setup("atkbd_reset", atkbd_setup_reset);
+>  +__setup("atkbd_softrepeat=", atkbd_setup_softrepeat);
 
-The eeprom has a field which defines the default, and the driver honours
-that.  I have a suspicion that the 3com windows just ignores the field.
+Could we please try to keep Documentation/kernel-parameters.txt in
+sync with the code?
 
-You can reset the eeprom default with 3com's DOS-based setup tool.
-
+Thanks.

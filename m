@@ -1,34 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316430AbSFDSrO>; Tue, 4 Jun 2002 14:47:14 -0400
+	id <S316538AbSFDSsO>; Tue, 4 Jun 2002 14:48:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316538AbSFDSrN>; Tue, 4 Jun 2002 14:47:13 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:41171 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S316430AbSFDSqz>;
-	Tue, 4 Jun 2002 14:46:55 -0400
-Date: Tue, 4 Jun 2002 11:46:35 -0700
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: Miles Lane <miles@megapathdsl.net>
-Cc: linux-kernel@vger.kernel.org, davej@suse.de
-Subject: Re: 2.5.20-dj2 -- fdomain_stub.c:98: unknown field `abort' specified in initializer
-Message-ID: <20020604114635.A26099@eng2.beaverton.ibm.com>
-In-Reply-To: <1023216140.20264.29.camel@agate>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+	id <S316456AbSFDSsN>; Tue, 4 Jun 2002 14:48:13 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:60939 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S316235AbSFDSrv>; Tue, 4 Jun 2002 14:47:51 -0400
+Date: Tue, 4 Jun 2002 11:47:45 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrew Morton <akpm@zip.com.au>
+cc: Chris Mason <mason@suse.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 12/16] fix race between writeback and unlink
+In-Reply-To: <3CFBEDEE.EE74C5B1@zip.com.au>
+Message-ID: <Pine.LNX.4.44.0206041142390.954-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 04, 2002 at 11:42:18AM -0700, Miles Lane wrote:
-> gcc -D__KERNEL__ -I/usr/src/linux-2.5/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE   -DKBUILD_BASENAME=fdomain_stub  -c -o fdomain_stub.o fdomain_stub.c
-> fdomain_stub.c:98: unknown field `abort' specified in initializer
-> fdomain_stub.c:98: warning: initialization from incompatible pointer type
-> fdomain_stub.c:98: unknown field `reset' specified in initializer
-> fdomain_stub.c:98: warning: initialization from incompatible pointer type
-> make[3]: *** [fdomain_stub.o] Error 1
-> make[3]: Leaving directory `/usr/src/linux-2.5/drivers/scsi/pcmcia'
 
-You should be able to compile it by setting the 
-CONFIG_BROKEN_SCSI_ERROR_HANDLING config option.
 
--- Patrick Mansfield
+On Mon, 3 Jun 2002, Andrew Morton wrote:
+>
+> But why does ext2_put_inode() even exist?  We're already throwing
+> away the prealloc window in ext2_release_file?  I guess for
+> shared mappings over spares files: if all file handles have
+> closed off, we still need to make allocations against that
+> inode, yes?
+
+Shared mappings still hold the "struct file" open (you have
+"vma->vm_file->f_dentry->d_inode"), so you still have the file handle
+while the mapping is open.
+
+I assume that the reason is that _any_ block allocation will trigegr
+pre-alloc, which means that we have preallocation for things like
+directories etc too - which really do not have a "struct file" associated
+with them.
+
+Whether that is really worth it is unclear, but it also means that ext2
+doesn't have to pass down the "struct file" to the lower levels at all, as
+it keeps all pre-alloc stuff in the inode.
+
+On the whole it's probably a mistake, but my point is that it's likely a
+mistake that is hard to fix. Which is why I didn't even try to fix ext2 to
+not use "put_inode" and the prealloc dropping there..
+
+		Linus
+

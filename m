@@ -1,47 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbQLKNRs>; Mon, 11 Dec 2000 08:17:48 -0500
+	id <S129511AbQLKNVS>; Mon, 11 Dec 2000 08:21:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129511AbQLKNRj>; Mon, 11 Dec 2000 08:17:39 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:60166 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S129183AbQLKNR1>; Mon, 11 Dec 2000 08:17:27 -0500
-Message-ID: <3A34D8EC.49C22DA1@evision-ventures.com>
-Date: Mon, 11 Dec 2000 14:38:52 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.2.16-1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Dietmar Kling <dietmar.kling@sam-net.de>
-CC: Alexander Viro <viro@math.psu.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	id <S130425AbQLKNVI>; Mon, 11 Dec 2000 08:21:08 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:64780 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129511AbQLKNUv>; Mon, 11 Dec 2000 08:20:51 -0500
+Subject: Re: INIT_LIST_HEAD marco audit
+To: mhaque@haque.net (Mohammad A. Haque)
+Date: Mon, 11 Dec 2000 12:52:28 +0000 (GMT)
+Cc: miles@megapathdsl.net (Miles Lane), fdavis112@juno.com (Frank Davis),
         linux-kernel@vger.kernel.org
-Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
-In-Reply-To: <Pine.GSO.4.21.0012092014550.896-100000@weyl.math.psu.edu> <3A32F169.3E99C976@sam-net.de>
+In-Reply-To: <3A3454BE.352FDB96@haque.net> from "Mohammad A. Haque" at Dec 10, 2000 11:14:54 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E145SRT-0007sM-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dietmar Kling wrote:
-> 
-> Ok guys i take your arguments...
-> (i really loved to hear them)
-> 
-> and i'd like to continue them in a
-> private discussion( but i am
-> tired now ... :) )
-> 
-> but a last one i cannot resist...
-> 
-> <sarcasm>
-> but why are your ideas not widespread and
-> so successful like kde,gnome,windows?
+> -static struct tq_struct tcic_task = {
+> -	routine:	tcic_bh
+> +DECLARE_TASK_QUEUE(tcic_task);
+> +struct tq_struct run_tcic_task = {
+> +	routine:	(void (*)(void *)) tcic_bh
+>  };
 
-Please don't put KDE into the same bunch as gnome or
-windows. KDE is in fact *well designed*! In esp. 2.0
-
-> maybe because they suck at some point?
-> </sarcasm>
+Why remove the 'static' ?
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

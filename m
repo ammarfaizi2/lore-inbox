@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314625AbSEDQ1K>; Sat, 4 May 2002 12:27:10 -0400
+	id <S314643AbSEDQ3T>; Sat, 4 May 2002 12:29:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314643AbSEDQ1J>; Sat, 4 May 2002 12:27:09 -0400
-Received: from imladris.infradead.org ([194.205.184.45]:29448 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S314625AbSEDQ1I>; Sat, 4 May 2002 12:27:08 -0400
-Date: Sat, 4 May 2002 17:26:56 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.13-dj2
-Message-ID: <20020504172656.A22693@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Adrian Bunk <bunk@fs.tum.de>, Dave Jones <davej@suse.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020504114119.GA17853@suse.de> <Pine.NEB.4.44.0205041809410.283-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S314681AbSEDQ3S>; Sat, 4 May 2002 12:29:18 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:41994 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S314643AbSEDQ3R>; Sat, 4 May 2002 12:29:17 -0400
+Date: Sat, 4 May 2002 18:29:02 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: rddunlap@osdl.org
+Cc: Keith Owens <kaos@ocs.com.au>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: kbuild 2.5 release 2.4
+Message-ID: <20020504162902.GB21542@louise.pinerecords.com>
+In-Reply-To: <20020504121529.GA20335@louise.pinerecords.com> <Pine.LNX.4.33.0205040918450.22716-100000@osdlab.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+User-Agent: Mutt/1.3.28i
+X-OS: Linux/sparc 2.2.21-rc3-ext3-0.0.7a SMP (up 12 days, 10:22)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 04, 2002 at 06:16:29PM +0200, Adrian Bunk wrote:
-> The first part of the error message is strange. 2.5.13-dj2 does exactly
-> the following change to this file:
+> | Hmm, I don't think this analogy will do -- working with aliases involving
+> | fileutils as root is a way straight to hell, and hardly anyone ever walks
+> | it. With kbuild-2.5, however, I have to set $KBUILD_OBJTREE every time
+> | I want to build a kernel with objects out of the source dir -- and hey,
+> | is there a single person on this list who's never made a typo on the
+> | command line?
+> |
+> | I don't know how to properly emphasize that this *is* asking for problems,
+> | but still I'd be surprised if I were the only one scared by files not
+> | connected to the build getting erased on make mrproper. Hello, anyone? :)
 > 
+> Too much policy here?
 > 
-> --- linux-2.5.13/drivers/scsi/cpqfcTSinit.c	Fri May  3 01:22:40 2002
-> +++ linux-2.5/drivers/scsi/cpqfcTSinit.c	Fri May  3 12:28:12 2002
-> @@ -532,7 +532,7 @@
+> | Would it be complicated to only kill the files the build knows it had
+> | created?
 > 
->  	// must be super user to send stuff directly to the
->  	// controller and/or physical drives...
-> -	if( !capable(CAP_SYS_ADMIN) )
-> +	if( !capable(CAP_RAW_IO) )
->  	  return -EPERM;
+> That's what I would expect.
 
-This should be CAP_SYS_RAWIO
+
+Word. The purpose of all the 'clean' targets in Makefiles (distclean,
+mrproper, etc.) everywhere has always been to get rid of the object/
+build files, and the object/build files only.
+
+Don't get me wrong, Keith, I believe kbuild 2.5's a terrific piece of
+code, I'm just discussing what I've found myself to be in trouble with.
+
+
+T.

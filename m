@@ -1,56 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282914AbRL3Rxc>; Sun, 30 Dec 2001 12:53:32 -0500
+	id <S283876AbRL3SgS>; Sun, 30 Dec 2001 13:36:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282684AbRL3RxW>; Sun, 30 Dec 2001 12:53:22 -0500
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:51610 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S283286AbRL3RxM>; Sun, 30 Dec 2001 12:53:12 -0500
-Date: 30 Dec 2001 13:42:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: viro@math.psu.edu
+	id <S284200AbRL3SgI>; Sun, 30 Dec 2001 13:36:08 -0500
+Received: from mnh-1-04.mv.com ([207.22.10.36]:57863 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S283876AbRL3Sfz>;
+	Sun, 30 Dec 2001 13:35:55 -0500
+Message-Id: <200112301956.OAA02630@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Lennert Buytenhek <buytenh@gnu.org>
 cc: linux-kernel@vger.kernel.org
-Message-ID: <8FqGN-B1w-B@khms.westfalen.de>
-In-Reply-To: <E16K6ID-0002Bk-00@the-village.bc.nu>
-Subject: Re: [kbuild-devel] Re: State of the new config & build system
-X-Mailer: CrossPoint v3.12d.kh8 R/C435
-MIME-Version: 1.0
+Subject: Re: [PATCH][RFC] global errno considered harmful 
+In-Reply-To: Your message of "Sun, 30 Dec 2001 11:06:23 EST."
+             <20011230110623.A17083@gnu.org> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <E16K6ID-0002Bk-00@the-village.bc.nu>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+Date: Sun, 30 Dec 2001 14:56:21 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-alan@lxorguk.ukuu.org.uk (Alan Cox)  wrote on 28.12.01 in <E16K6ID-0002Bk-00@the-village.bc.nu>:
+buytenh@gnu.org said:
+> Is there any particular reason we need a global errno in the kernel at
+> all? (which, by the way, doesn't seem to be subject to any kind of
+> locking)  
 
-> > Frankly, I find it very amusing that advocates of i18n efforts tend to
-> > be either British or USAnians.  Folks, get real - your languages are
-> > too close to show where the problems are.  I can see how doing that
-> > gives you a warm fuzzy feeling, but could you please listen to those
-> > of us who have to deal with the resulting mess for real?
->
-> The biggest advocates I see are from the Middle-East and Japan. We already
-> have people providing translations for Configure.help in several languages.
+As far as I've been able to tell, no.
 
-Once upon a time, I installed the German version of the man pages. Shortly  
-after that, I switched to doing "LANG= man ..." because of exactly the  
-problem Al mentions.
+> It makes life for User Mode Linux somewhat more complicated
+> than it could be, and it generally just seems a bad idea.
 
-But just recently I have been considering going back to the German man  
-pages, because the quality has become *MUCH* better. In fact, it's now  
-obvious they are fairly close translations of the English ones.
+Yeah.  In order for -fno-common to not blow up the UML build (because of the
+clash between libc errno and kernel errno), I had to add -Derrno=kernel_errno
+to all the kernel file compiles.  It would be nice to get rid of that wart.
 
-In short, i18n for Linux has been improving drastically at least in some  
-areas. Of course that won't be the same for all target languages; German  
-is probably one of the best-supported ones because Linux usage in Germany  
-is so heavy.
+> Referenced patch deletes all mention of a global errno from the
+> kernel
 
-As for Configure.help specifically: it should be fairly easy to do a  
-script which notices when the original of a translation has changed, and  
-possibly either replaces it with the English version, or else does some  
-other more or less intelligent thing about it.
+Awesome.  This definitely needs to happen.  If no one spots any breakage,
+send it in...
 
-MfG Kai
+> and fixes up callers where necessary.
+
+I did some grepping and the only problem I noticed was UML's execve (heh)
+converting a -errno return to a -1.
+
+				Jeff
+

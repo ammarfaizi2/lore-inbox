@@ -1,22 +1,23 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129477AbQKHAOg>; Tue, 7 Nov 2000 19:14:36 -0500
+	id <S129057AbQKHAQ5>; Tue, 7 Nov 2000 19:16:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129623AbQKHAO0>; Tue, 7 Nov 2000 19:14:26 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:31239 "EHLO
+	id <S129116AbQKHAQq>; Tue, 7 Nov 2000 19:16:46 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:33543 "EHLO
 	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129477AbQKHAOO>; Tue, 7 Nov 2000 19:14:14 -0500
-Message-ID: <3A0899EC.BCF17E69@timpanogas.org>
-Date: Tue, 07 Nov 2000 17:10:20 -0700
+	id <S129057AbQKHAQl>; Tue, 7 Nov 2000 19:16:41 -0500
+Message-ID: <3A089A75.96C5F74@timpanogas.org>
+Date: Tue, 07 Nov 2000 17:12:37 -0700
 From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
 Organization: TRG, Inc.
 X-Mailer: Mozilla 4.7 [en] (WinNT; I)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: David Lang <david.lang@digitalinsight.com>
-CC: davej@suse.de, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+CC: kernel@kvack.org, Tigran Aivazian <tigran@veritas.com>,
+        linux-kernel@vger.kernel.org, hpa@transmeta.com
 Subject: Re: Installing kernel 2.4
-In-Reply-To: <Pine.LNX.4.21.0011071648100.8417-100000@dlang.diginsite.com>
+In-Reply-To: <Pine.LNX.3.96.1001107175009.1482C-100000@kanga.kvack.org> <3A088C02.4528F66B@timpanogas.org> <3A0896F3.AB36C3EE@mandrakesoft.com> <3A0897F5.563552AD@timpanogas.org> <3A089A01.ECAEABBD@mandrakesoft.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -24,92 +25,39 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-David Lang wrote:
+Jeff Garzik wrote:
 > 
-> Jeff, the kernel image is already pretty large. if you try and take what
-> are basicly independant kernel images and put them in one file you will
-> very quickly endup with something that is to large to use.
+> "Jeff V. Merkey" wrote:
+> > We need a format that allow multiple executable segments to be combined
+> > in a single executable and the loader have enough smarts to grab the
+> > right one based on architecture.  two options:
+> >
+> > 1.  extend gcc to support this or rearragne linux into segments based on
+> > code type
+> > 2.  Use PE.
 > 
-> As an example a kenel for a boot floppy needs to be <1.4MB compressed,
-> it's not uncommon for it to be >800K compressed as it is, how do you fit
-> even two of these on a disk.
-> 
-> remember it's not just the start of the file that varies based on cachline
-> size, it's the positioning of code and data thoughout the kernel image.
+> The kernel isn't going non-ELF.  Too painful, for dubious advantages,
+> namely:
 > 
 
-Understood.  I will go off and give some thought and study and respond
-later after I have a proposal on the best way to do this.   In NetWare,
-we had indirections in the code all over the place.  NT just make huge
-and fat programs (NTKRNLOS.DLL is absolutely huge).
+perhaps we should extend ELF.  After all, where linux goes, gcc
+follows....
 
 Jeff
 
-> David Lang
+> The current gcc toolchain already supports what you suggest.
 > 
->  On Tue, 7 Nov
-> 2000, Jeff V. Merkey wrote:
+> I understand that some people have even put some thought into a
+> bootloader that dynamically links your kernel on bootup, so this idea
+> isn't new.  It's a good idea though.
 > 
-> > Date: Tue, 07 Nov 2000 16:47:08 -0700
-> > From: Jeff V. Merkey <jmerkey@timpanogas.org>
-> > To: davej@suse.de, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-> > Subject: Re: Installing kernel 2.4
-> >
-> >
-> >
-> > "Jeff V. Merkey" wrote:
-> > >
-> > > davej@suse.de wrote:
-> > > >
-> > > > > There are tests for all this in the feature flags for intel and
-> > > > > non-intel CPUs like AMD -- including MTRR settings.  All of this could
-> > > > > be dynamic.  Here's some code that does this, and it's similiar to
-> > > > > NetWare.  It detexts CPU type, feature flags, special instructions,
-> > > > > etc.  All of this on x86 could be dynamically detected.
-> > > >
-> > > > Detecting the CPU isn't the issue (we already do all this), it's what to
-> > > > do when you've figured out what the CPU is. Show me code that can
-> > > > dynamically adjust the alignment of the routines/variables/structs
-> > > > dependant upon cacheline size.
-> >
-> > ftp.timpanogas.org/manos/manos0817.tar.gz
-> >
-> > Look in the PE loader -- Microsoft's PE loader can do this since
-> > everything is RVA based.  If you want to take the loader and put it in
-> > Linux, be my guest.  You can even combine mutiple i86 segments all
-> > compiled under different options (or architectures) and bundle them into
-> > a single executable file -- not somthing gcc can do today -- even with
-> > DLL.  This code is almost identical to the PE loader used in NT -- with
-> > one exception, I omit the fs:_THREAD_DLS startup code...
-> >
-> > 8)
-> >
-> > Jeff
-> >
-> >
-> > >
-> > > If the compiler always aligned all functions and data on 16 byte
-> > > boundries (NetWare)
-> > > for all i386 code, it would run a lot faster.  Cache line alignment
-> > > could be an option in the loader .... after all, it's hte loader that
-> > > locates data in memory.  If Linux were PE based, relocation logic would
-> > > be a snap with this model (like NT).
-> > >
-> > > Jeff
-> > >
-> > > >
-> > > > regards,
-> > > >
-> > > > Davej.
-> > > >
-> > > > --
-> > > > | Dave Jones <davej@suse.de>  http://www.suse.de/~davej
-> > > > | SuSE Labs
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > Please read the FAQ at http://www.tux.org/lkml/
-> >
+>         Jeff
+> 
+> --
+> Jeff Garzik             | "When I do this, my computer freezes."
+> Building 1024           |          -user
+> MandrakeSoft            | "Don't do that."
+>                         |          -level 1
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

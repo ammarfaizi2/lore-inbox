@@ -1,95 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268303AbUIKUYO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268300AbUIKU0H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268303AbUIKUYO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 16:24:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268305AbUIKUYN
+	id S268300AbUIKU0H (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 16:26:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268306AbUIKU0H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 16:24:13 -0400
-Received: from hcc022004.bai.ne.jp ([210.171.22.4]:25993 "HELO
-	tigger.internet.email.ne.jp") by vger.kernel.org with SMTP
-	id S268303AbUIKUYH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 16:24:07 -0400
-Date: Sun, 12 Sep 2004 05:24:03 +0900 (JST)
-Message-Id: <20040912.052403.730551818.takata@linux-m32r.org>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 2.6.9-rc1-mm4 0/6] [m32r] Update to fix compile errors
-From: Hirokazu Takata <takata@linux-m32r.org>
-Cc: linux-kernel@vger.kernel.org, takata@linux-m32r.org
-X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
+	Sat, 11 Sep 2004 16:26:07 -0400
+Received: from MAIL.13thfloor.at ([212.16.62.51]:32935 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S268300AbUIKUZw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Sep 2004 16:25:52 -0400
+Date: Sat, 11 Sep 2004 22:25:48 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: displaying kbuild dependancies ...
+Message-ID: <20040911202548.GA31680@MAIL.13thfloor.at>
+Mail-Followup-To: Sam Ravnborg <sam@ravnborg.org>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, 
 
-I made patches to fix compile errors for m32r architecture port.
-These patches are against 2.6.9-rc1-mm4.
-Please apply them.
+Hi Sam!
 
-Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
----
+first, thanks for the kbuild stuff and all the 
+time spent on that ... I really love it
 
-[PATCH 2.6.9-rc1-mm4 1/6] [m32r] Update for profiling
-  This patch is for profiling support. 
-  profile_tick() is used instead of m32r_do_profile().
 
- arch/m32r/kernel/smp.c    |   10 ++++------
- arch/m32r/kernel/time.c   |    5 ++---
- include/asm-m32r/hw_irq.h |   33 +--------------------------------
- include/asm-m32r/ptrace.h |   14 ++++++++------
- 4 files changed, 15 insertions(+), 47 deletions(-)
+from time to time I encounter some issue which
+usually keeps me busy for a while, and I think
+there probably is a simpler solution to that ...
 
---
-[PATCH 2.6.9-rc1-mm4 2/6] [m32r] Update zone_sizes_init()
-  This patch upgrades zone_sizes_init() function.
-  This patch is required because free_area_init_node()'s interface 
-  has been changed.
+the procedure:
 
- arch/m32r/mm/discontig.c |    2 +-
- arch/m32r/mm/init.c      |    3 +--
- 2 files changed, 2 insertions(+), 3 deletions(-)
+I'm configuring a 2.6.X-rcY-bkZ kernel for testing
+with QEMU, which in my setup basically requires
+some QEMU specific settings, I usually turn on/off
+by just editing the .config file by hand, and then
+invoking 'make oldconfig' ...
 
---
-[PATCH 2.6.9-rc1-mm4 3/6] [m32r] Update to fix compile errors
-  This patch updates code to fix compile errors, and so on.
+to keep the possibility for error low, I usually
+just remove the entries in question, and oldconfig
+will ask me the relevant question, leading to a
+nice config adapted to my purposes ...
 
- arch/m32r/kernel/Makefile  |    2 -
- arch/m32r/kernel/process.c |    5 +--
- arch/m32r/kernel/signal.c  |   68 +++++++++++++++++++++++++--------------------
- include/asm-m32r/hardirq.h |   18 -----------
- include/asm-m32r/page.h    |    4 +-
- 5 files changed, 43 insertions(+), 54 deletions(-)
+the issue:
 
---
-[PATCH 2.6.9-rc1-mm4 4/6] [m32r] Update uaccess.h
-  This patch updates asm-m32r/uaccess.h.
+sometimes a dependancy doesn't allow me to remove
+a config option, I absolutely have to remove for
+my setup, like the VGA_CONSOLE, and then the hunt
+for the option 'requiring' that one unconditinally
+beginns ...
 
- include/asm-m32r/uaccess.h |  349 +++++++++++++++++++++++++++++++++++++--------
- 1 files changed, 290 insertions(+), 59 deletions(-)
+usually I start with grep and end with trial and
+error, until I find the malicious dependancy ...
 
---
-[PATCH 2.6.9-rc1-mm4 5/6] [m32r] Update checksum functions
-  This patch update checksum routines.
-  And EXPORT_SYMBOL() is moved from m32r_ksyms.c to csum_partial_copy.c.
+so, now the question:
 
- arch/m32r/kernel/m32r_ksyms.c     |    2 
- arch/m32r/lib/csum_partial_copy.c |   39 ++--------
- include/asm-m32r/checksum.h       |  136 +++++++++++---------------------------
- 3 files changed, 52 insertions(+), 125 deletions(-)
+is there a magic option, simple procedure, or just
+quick and dirty hack to get a list or some kind 
+of dependancy graph from the kbuild system?
 
---
-[PATCH 2.6.9-rc1-mm4 6/6] [m32r] Update CF/PCMCIA drivers
-  This patch updates m32r-specific CF/PCMCIA drivers and 
-  fixes compile errors.
+TIA,
+Herbert
 
- arch/m32r/drivers/m32r_cfc.c |   14 +++++++-------
- arch/m32r/drivers/m32r_pcc.c |   25 ++++++++++++++-----------
- 2 files changed, 21 insertions(+), 18 deletions(-)
------
 
-Thank you.
---
-Hirokazu Takata <takata@linux-m32r.org>
-Linux/M32R Project:  http://www.linux-m32r.org/

@@ -1,47 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318064AbSHQSXU>; Sat, 17 Aug 2002 14:23:20 -0400
+	id <S318143AbSHQSaH>; Sat, 17 Aug 2002 14:30:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318097AbSHQSXU>; Sat, 17 Aug 2002 14:23:20 -0400
-Received: from gra-vd1.iram.es ([150.214.224.250]:30652 "EHLO gra-vd1.iram.es")
-	by vger.kernel.org with ESMTP id <S318064AbSHQSXT>;
-	Sat, 17 Aug 2002 14:23:19 -0400
-Message-ID: <3D5E9570.2090908@iram.es>
-Date: Sat, 17 Aug 2002 20:26:56 +0200
-From: Gabriel Paubert <paubert@iram.es>
-User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-US; rv:1.0.0) Gecko/20020531
-X-Accept-Language: en-us, en
+	id <S318145AbSHQSaH>; Sat, 17 Aug 2002 14:30:07 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:40977
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S318143AbSHQSaE>; Sat, 17 Aug 2002 14:30:04 -0400
+Date: Sat, 17 Aug 2002 11:24:16 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.20-pre2-ac3
+In-Reply-To: <Pine.NEB.4.44.0208161332150.6334-100000@mimas.fachschaften.tu-muenchen.de>
+Message-ID: <Pine.LNX.4.10.10208171124070.23171-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@HansenPartnership.com>
-CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: Boot failure in 2.5.31 BK with new TLS patch
-References: <200208171720.g7HHKim03809@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
 
+EEK,
+
+I will fix it!
+
+On Fri, 16 Aug 2002, Adrian Bunk wrote:
+
+> On Thu, 15 Aug 2002, Alan Cox wrote:
+> 
+> >...
+> > Linux 2.4.20-pre2-ac3
+> > o	IDE updates					(Andre Hedrick)
+> >...
+> 
+> drivers/ide/ide.c no longer exports do_ide_request and
+> ide_add_generic_settings but they are still needed by
+> drivers/ide/ide-probe-mod.c:
+> 
+> <--  snip  -->
+> 
+> ...
+> depmod: *** Unresolved symbols in
+> /lib/modules/2.4.20-pre2-ac3/kernel/drivers/ide/ide-probe-mod.o
+> depmod:         do_ide_request
+> depmod:         ide_add_generic_settings
+> ...
+> 
+> <--  snip   -->
+> 
+> cu
+> Adrian
+> 
+> -- 
+> 
+> You only think this is a free country. Like the US the UK spends a lot of
+> time explaining its a free country because its a police state.
+> 								Alan Cox
 > 
 > 
-> Actually, the intel manual recommends (but doesn't require) a wierd alignment 
-> for the descriptors.  It recommends aligning them at an address which is 2 MOD 
-> 4 to avoid possible alignment check faults in user mode.  Not that I think we 
-> can ever run into the problem, but we should probably obey the recommendation. 
->  I'll fix this up as well.
+> 
+> 
 
-This is already done for the IDT descriptor, but not (yet) for the gdt 
-descriptor(s).
-
-Alignment checks are only done when CPL==3. And lidt/lgdt are (obviously) 
-privileged, although sidt/sgdt (and sldt/str for that matter) are not,
-but I can't see how application could take benefit or make malicious use
-of this capability.
-
-	Gabriel.
-
-
-
+Andre Hedrick
+LAD Storage Consulting Group
 

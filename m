@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279522AbRJXKmV>; Wed, 24 Oct 2001 06:42:21 -0400
+	id <S279524AbRJXKsM>; Wed, 24 Oct 2001 06:48:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279521AbRJXKmL>; Wed, 24 Oct 2001 06:42:11 -0400
-Received: from inje.iskon.hr ([213.191.128.16]:36566 "EHLO inje.iskon.hr")
-	by vger.kernel.org with ESMTP id <S279522AbRJXKl5>;
-	Wed, 24 Oct 2001 06:41:57 -0400
-To: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: xmm2 - monitor Linux MM active/inactive lists graphically
-Reply-To: zlatko.calusic@iskon.hr
-X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
- i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
- pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
-From: Zlatko Calusic <zlatko.calusic@iskon.hr>
-Date: 24 Oct 2001 12:42:26 +0200
-Message-ID: <8766959v59.fsf@atlas.iskon.hr>
-User-Agent: Gnus/5.090003 (Oort Gnus v0.03) XEmacs/21.4 (Artificial Intelligence)
+	id <S279521AbRJXKsD>; Wed, 24 Oct 2001 06:48:03 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:32005 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S279534AbRJXKrv>; Wed, 24 Oct 2001 06:47:51 -0400
+Subject: Re: [RFC] New Driver Model for 2.5
+To: benh@kernel.crashing.org (Benjamin Herrenschmidt)
+Date: Wed, 24 Oct 2001 11:54:07 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org,
+        mochel@osdl.org (Patrick Mochel),
+        jlundell@pobox.com (Jonathan Lundell)
+In-Reply-To: <20011024103451.8099@smtp.adsl.oleane.com> from "Benjamin Herrenschmidt" at Oct 24, 2001 12:34:51 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15wLfj-0001C8-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-New version is out and can be found at the same URL:
+> case, there's not much left to the controller, it isn't supposed to
+> have any command in queue nor receive any new one once all it's child
+> drivers have suspended.
 
-<URL:http://linux.inet.hr/>
+scsi devices are children of the scsi subststem (sd, sg, sr, st, osst) not
+of the controller. That is how the state flows anyway. Only sr/sd etc know
+what the state is for a given device on power off as they may issue 
+multiple requests per action true transaction. sg would have to simply
+refuse any suspend if open (think about cd-burning or even worse firmware
+download)
 
-As Linus' MM lost inactive dirty/clean lists in favour of just one
-inactive list, the application needed to be modified to support that.
+So the scsi devices hang off sd, sr etc which in turn hang off scsi and 
+the controllers hang off scsi (and or the bus layers)
 
-You can still continue to use the older one for kernels <= 2.4.9
-and/or Alan's (-ac) kernels, which continued to use older Rik's VM
-system.
-
-Enjoy and, as usual, all comments welcome!
--- 
-Zlatko
-
-P.S. BTW, 2.4.13 still has very unoptimal writeout performance and
-     andrea@suse.de is redirected to /dev/null. <g>
+This one at least I think I do understand

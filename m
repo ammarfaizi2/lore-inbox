@@ -1,73 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265487AbUIAKRX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265977AbUIAKUt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265487AbUIAKRX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 06:17:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265808AbUIAKRW
+	id S265977AbUIAKUt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 06:20:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265808AbUIAKUt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 06:17:22 -0400
-Received: from jive.SoftHome.net ([66.54.152.27]:48071 "HELO jive.SoftHome.net")
-	by vger.kernel.org with SMTP id S265795AbUIAKRD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 06:17:03 -0400
-References: <courier.41359B53.00007549@softhome.net>
-            <20040901095229.GA11908@devserv.devel.redhat.com>
-In-Reply-To: <20040901095229.GA11908@devserv.devel.redhat.com> 
-From: filia@softhome.net
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org
-Subject: Re: f_ops flag to speed up compatible ioctls in linux kernel
-Date: Wed, 01 Sep 2004 04:16:59 -0600
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="iso-8859-1"
+	Wed, 1 Sep 2004 06:20:49 -0400
+Received: from smtp-out.hotpop.com ([38.113.3.61]:25535 "EHLO
+	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S265977AbUIAKUq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 06:20:46 -0400
+From: "Antonino A. Daplas" <adaplas@hotpop.com>
+Reply-To: adaplas@pol.net
+To: Paolo Ornati <ornati@fastwebnet.it>, adaplas@pol.net
+Subject: Re: 2.6.9-rc1: scrolling with tdfxfb 5 times slower
+Date: Wed, 1 Sep 2004 18:21:06 +0800
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
+References: <200408312133.40039.ornati@fastwebnet.it> <200409010729.07156.adaplas@hotpop.com> <200409010920.13307.ornati@fastwebnet.it>
+In-Reply-To: <200409010920.13307.ornati@fastwebnet.it>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Originating-IP: [212.18.200.6]
-Message-ID: <courier.4135A19B.00007EA5@softhome.net>
+Content-Disposition: inline
+Message-Id: <200409011821.06520.adaplas@hotpop.com>
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven writes: 
+On Wednesday 01 September 2004 15:20, Paolo Ornati wrote:
 
-> On Wed, Sep 01, 2004 at 03:50:11AM -0600, filia@softhome.net wrote:
->> Hi!  
->> 
->> Stop being arrogant.
->> Can you please elaborate on how to make Linux kernel support e.g. motion 
->> controllers? They do not fit *any* known to me driver interface. They have 
->> several axes, they have about twenty parameters (float or integer), and 
-> 
-> parameters nicely fit in sysfs. 
-> 
+> Ok, with this patch and CONFIG_FB_3DFX_ACCEL=y the scrolling speed comes
+> back (only a bit slower than with 2.6.8.1 without CONFIG_FB_3DFX_ACCEL):
+>
+> $ time cat MAINTAINERS: ~2.67s
 
- What about errors?
- "set di 200000" might fail for lots of reasons. 
+Ok.  However, I'm still wondering at the scrolling speed, it's a bit slower
+than what I would expect (I get < 1 second with vesafb which is completely
+unaccelerated).  
 
->> they have several commands, a-la start, graceful stop, abrupt stop. Plus 
->> obviously diagnostics - about ten another commands with absolutely 
->> different parameters. And about ten motion monitoring commands. And this is 
->> one example I were need to program. 
-> 
-> a write() interface doesn't work???
-> Hard to believe, you even call them commands.
-> fd = open("/dev/funkydevice");
-> write(fd, "start"); 
-> 
-> doesn't sound insane to me 
-> 
+Did you set info->flags = FBINFO_DEFAULT | FBINFO_HWACCEL_YPAN?
+Do you use the 'nopan' boot option?   
 
- it doesn't, since you didn't tryed to make error handling. every thing can 
-fail - this is control of mechanics - and it fails often and for a lot of 
-reasons. Put here error handling (write(struct whatever) has to return 
-another struct whatever2 filled with error description) and thread-safeness. 
-Pluss some controllers do support multi-dimensional movements "start 
-x,y,z,etc" - and you might have _several_ error structs. Atomicity is 
-important for multi-dimensional moves too - move on given axes starts with 
-single command. 
+Because if you answer yes to the first question and no to the second, that
+means that tdfxfb_pan_display() is probably broken.
 
- hu? 
+BTW, what does fbset -i say, and what's your hardware setup?
 
- I do not see much point in renaming ioctl() to write() all over the place - 
-at least when people see ioctl() they understand that it is not standard 
-functionality. write() will for sure confuse a lot of people. 
+>
+> Another interesting thing is that if I enable CONFIG_FB_3DFX_ACCEL without
+> your patch the screen becomes black and the kernel stop working at boot
+> time (when the mode switch happens).
 
- --- with respect. best regards.
-***    Philips @ Saarbruecken. 
+tdfxfb_cursor() is broken, so I disabled that.  It's the reason your machine
+hangs at boot time if CONFIG_FB_3DFX_ACCEL is set to y.
+
+Tony
+
+
+

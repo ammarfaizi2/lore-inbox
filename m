@@ -1,75 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264110AbTLJUyg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 15:54:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264113AbTLJUyf
+	id S264123AbTLJVKA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 16:10:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264126AbTLJVKA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 15:54:35 -0500
-Received: from mail.kroah.org ([65.200.24.183]:51428 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264110AbTLJUyZ (ORCPT
+	Wed, 10 Dec 2003 16:10:00 -0500
+Received: from mail.kroah.org ([65.200.24.183]:12009 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264123AbTLJVJ5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 15:54:25 -0500
-Date: Wed, 10 Dec 2003 12:53:20 -0800
+	Wed, 10 Dec 2003 16:09:57 -0500
+Date: Wed, 10 Dec 2003 13:08:54 -0800
 From: Greg KH <greg@kroah.com>
-To: Duncan Sands <baldrick@free.fr>
-Cc: Alan Stern <stern@rowland.harvard.edu>,
-       David Brownell <david-b@pacbell.net>, Vince <fuzzy77@free.fr>,
-       "Randy.Dunlap" <rddunlap@osdl.org>, mfedyk@matchmail.com,
-       zwane@holomorphy.com, linux-kernel@vger.kernel.org,
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: David Brownell <david-b@pacbell.net>, Duncan Sands <baldrick@free.fr>,
+       Vince <fuzzy77@free.fr>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       mfedyk@matchmail.com, zwane@holomorphy.com,
+       linux-kernel@vger.kernel.org,
        USB development list <linux-usb-devel@lists.sourceforge.net>
 Subject: Re: [linux-usb-devel] Re: [OOPS,  usbcore, releaseintf] 2.6.0-test10-mm1
-Message-ID: <20031210205320.GA8621@kroah.com>
-References: <3FD64BD9.1010803@pacbell.net> <Pine.LNX.4.44L0.0312092233340.6615-100000@netrider.rowland.org> <20031210153056.GA7087@kroah.com> <200312101702.16455.baldrick@free.fr>
+Message-ID: <20031210210854.GA8724@kroah.com>
+References: <20031210153056.GA7087@kroah.com> <Pine.LNX.4.44L0.0312101212480.850-100000@ida.rowland.org> <20031210204621.GA8566@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200312101702.16455.baldrick@free.fr>
+In-Reply-To: <20031210204621.GA8566@kroah.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 10, 2003 at 05:02:16PM +0100, Duncan Sands wrote:
-> > That's what my proposal 1 paragraph up would do.  If I get the chance
-> > this afternoon, I'll try to implement it if no one beats me to it...
+On Wed, Dec 10, 2003 at 12:46:21PM -0800, Greg KH wrote:
+> > Of course, if all you want to do is unload the module then it doesn't 
+> > matter which host is which.  You just have to wait until they are all 
+> > gone.
 > 
-> Hi Greg, so this means that rmmod will sleep in an unkillable state until
-> all references are dropped?
+> Exactly, and that will happen, if we wait on that
+> class_device_unregister() call.  An example of how to do that can be
+> seen in the i2c_del_adapter() function in drivers/i2c/i2c-core.c.
 
-Yes, that is what would happen.
-
-Now you could get into a deadlock by trying something pathilogical like:
-	rmmod usb-hcd < /sys/devices/pci0000:00/0000:00:1d.7/usb1/idVendor
-
-but hey, if you do that, you deserve the deadlock :)
-
-(and yes, I know you can do this for network devices, but they have
-their own thread/timer/something to prevent this deadlock from
-happening...)
-
-> I don't know if you've been following this thread or not, but the oops
-> occurred when I modified usbfs to hold a reference to the usb_device
-> until no-one was using a given usbfs file.
-
-That's a good thing to do.  It should work.
-
-> I guess this means that I should change my patch so that the reference
-> to the usb_device is dropped as soon as possible, right?
-
-No, the bug should be fixed.  I've seen this bug happen if someone has a
-usb-serial device open and then unload the host controller driver.  In
-fact, I think there's a bugzilla entry just for that...
-
-Yeah, here it is:
-	http://bugme.osdl.org/show_bug.cgi?id=1191
-
-The very same oops you are seeing.
-
-So no, it's not your fault.  We need to fix the real problem.
-
-> Thanks for looking into this,
-
-No problem, thanks for reminding me about this.
+Ok, below is the patch.  I've only compile tested it, not run it yet.
+Please let me know if it works for you or not.
 
 thanks,
 
 greg k-h
+
+
+===== hcd.c 1.123 vs edited =====
+--- 1.123/drivers/usb/core/hcd.c	Sun Dec  7 04:29:05 2003
++++ edited/hcd.c	Wed Dec 10 13:06:19 2003
+@@ -588,6 +588,9 @@
+ 
+ 	if (bus->release)
+ 		bus->release(bus);
++	/* FIXME change this when the driver core gets the
++	 * class_device_unregister_wait() call */
++	complete(&bus->released);
+ }
+ 
+ static struct class usb_host_class = {
+@@ -724,7 +727,11 @@
+ 
+ 	clear_bit (bus->busnum, busmap.busmap);
+ 
++	/* FIXME change this when the driver core gets the
++	 * class_device_unregister_wait() call */
++	init_completion(&bus->released);
+ 	class_device_unregister(&bus->class_dev);
++	wait_for_completion(&bus->released);
+ }
+ EXPORT_SYMBOL (usb_deregister_bus);
+ 
+===== usb.h 1.164 vs edited =====
+--- 1.164/include/linux/usb.h	Mon Oct  6 10:46:13 2003
++++ edited/usb.h	Wed Dec 10 13:07:27 2003
+@@ -210,6 +210,8 @@
+ 
+ 	struct class_device class_dev;	/* class device for this bus */
+ 	void (*release)(struct usb_bus *bus);	/* function to destroy this bus's memory */
++	/* FIXME, remove this when the driver core gets class_device_unregister_wait */
++	struct completion released;
+ };
+ #define	to_usb_bus(d) container_of(d, struct usb_bus, class_dev)
+ 

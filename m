@@ -1,40 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271200AbRHZBF6>; Sat, 25 Aug 2001 21:05:58 -0400
+	id <S271235AbRHZBhJ>; Sat, 25 Aug 2001 21:37:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271207AbRHZBFs>; Sat, 25 Aug 2001 21:05:48 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:57612 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S271200AbRHZBFh>; Sat, 25 Aug 2001 21:05:37 -0400
-Subject: Re: [resent PATCH] Re: very slow parallel read performance
-To: stoffel@casc.com (John Stoffel)
-Date: Sun, 26 Aug 2001 02:07:23 +0100 (BST)
-Cc: riel@conectiva.com.br (Rik van Riel), pcg@goof.com (Marc A. Lehmann),
-        alan@lxorguk.ukuu.org.uk (Alan Cox),
-        phillips@bonn-fries.net (Daniel Phillips),
-        roger.larsson@skelleftea.mail.telia.com (Roger Larsson),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <15240.18121.972361.669914@gargle.gargle.HOWL> from "John Stoffel" at Aug 25, 2001 08:46:01 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S271252AbRHZBg7>; Sat, 25 Aug 2001 21:36:59 -0400
+Received: from mnh-1-11.mv.com ([207.22.10.43]:52486 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S271213AbRHZBgr>;
+	Sat, 25 Aug 2001 21:36:47 -0400
+Message-Id: <200108260253.VAA05267@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: "Marti, Felix" <fmarti@desanasystems.com>
+cc: "'davem@redhat.com'" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: userspace implementation of tcp/ip 
+In-Reply-To: Your message of "Sat, 25 Aug 2001 11:47:20 MST."
+             <1DF71FB881F4D311A6B700C04FA06A1AC437D0@orca.desanasystems.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15aoOZ-0008Ul-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Sat, 25 Aug 2001 21:53:39 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ummm... is this really more of an agreement that Daniel's used-once
-> patch is a good idea on a system.  Keep a page around if it's used
-> once, but drop it quickly if only used once?  But you seem to be
+fmarti@desanasystems.com said:
+> I remember that somebody ported the linux tcp/ip stack to userspace a
+> long time ago. Does anybody have a link to that project? 
 
-Is there a reason aging alone cannot do most of the work instead. When you
-readahead a page you look to age a page that is a a bit over the readahead
-window further back in the file if it is in memory, and has no mapped users
-- ie its just cache.
+I don't know anything about that project, but my project 
+(http://user-mode-linux.sourceforge.net) has a userspace tcp/ip stack
+as a side-effect of porting the entire kernel to userspace.
 
-That seems to cost us extra lookups in the page cache hashes but push things
-in the right direction. 
-
-Alan
+				Jeff
 

@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268067AbUHQB3a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268071AbUHQBaJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268067AbUHQB3a (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 21:29:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268066AbUHQB3a
+	id S268071AbUHQBaJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 21:30:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268072AbUHQBaJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 21:29:30 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:62975 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S268067AbUHQB2s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 21:28:48 -0400
-Date: Tue, 17 Aug 2004 03:28:45 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com, linux-ide@vger.kernel.org
-Subject: [patch] 2.4.28-pre1: add two SATA Configure.help entries
-Message-ID: <20040817012845.GM1387@fs.tum.de>
-References: <20040815213229.GA11500@logos.cnet>
+	Mon, 16 Aug 2004 21:30:09 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:13798 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S268071AbUHQBaD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 21:30:03 -0400
+Subject: Re: Fw: [Lhms-devel] Making hotremovable attribute with memory
+	section[0/4]
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Yasunori Goto <ygoto@us.fujitsu.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>, "Martin J. Bligh" <mbligh@aracnet.com>
+In-Reply-To: <1092699350.1822.43.camel@nighthawk>
+References: <20040816153613.E6F7.YGOTO@us.fujitsu.com>
+	 <1092699350.1822.43.camel@nighthawk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1092702436.21359.3.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040815213229.GA11500@logos.cnet>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 17 Aug 2004 01:27:23 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Maw, 2004-08-17 at 00:35, Dave Hansen wrote:
+> In any case, the question of the day is, does anyone have any
+> suggestions on how to create 2 separate pools for pages: one
+> representing hot-removable pages, and the other pages that may not be
+> removed?
 
-The trivial patch below adds the missing Configure.help entries for two 
-new options.
+How do you define the split. There are lots of circumstances where user
+pages can be pinned for a long (near indefinite) period of time and used
+for DMA.
 
+Consider
+- Video capture
+- AGP Gart
+- AGP based framebuffer (intel i8/9xx)
+- O_DIRECT I/O
 
-Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
+There are also things like cluster interconnects, sendfile and the like
+involved here.
 
---- linux-2.4.28-pre1-full/Documentation/Configure.help.old	2004-08-17 03:14:48.000000000 +0200
-+++ linux-2.4.28-pre1-full/Documentation/Configure.help	2004-08-17 03:21:35.000000000 +0200
-@@ -9299,6 +9299,16 @@
- 
-   If unsure, say N.
- 
-+CONFIG_SCSI_ATA_PIIX
-+  This option enables support for ICH5 Serial ATA.
-+
-+  If unsure, say N.
-+
-+CONFIG_SCSI_SATA_NV
-+  This option enables support for NVIDIA Serial ATA.
-+
-+  If unsure, say N.
-+
- CONFIG_SCSI_SATA_PROMISE
-   This option enables support for Promise Serial ATA TX2/TX4.
- 
+Alan
 
